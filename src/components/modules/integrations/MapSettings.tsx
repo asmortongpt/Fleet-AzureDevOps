@@ -676,7 +676,7 @@ export function MapSettings() {
               onClick={handleSave}
               disabled={!canSave || isSaving}
               size="lg"
-            >
+             aria-label="Action button">
               {isSaving ? (
                 <>
                   <span className="animate-spin mr-2">⏳</span>

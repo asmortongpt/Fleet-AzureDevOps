@@ -96,7 +96,7 @@ export function MainLayout() {
                             }
                             className="w-full justify-start gap-2"
                             asChild
-                          >
+                           aria-label="Action button">
                             <Link to={item.path}>
                               <Icon className="w-4 h-4" />
                               <span className="text-sm">{item.label}</span>
@@ -117,6 +117,7 @@ export function MainLayout() {
               size="sm"
               className="w-full justify-start gap-2"
               onClick={() => setSidebarOpen(false)}
+              aria-label="Collapse sidebar"
             >
               <X className="w-4 h-4" />
               <span className="text-sm">Collapse</span>
@@ -136,6 +137,7 @@ export function MainLayout() {
                   variant="ghost"
                   size="icon"
                   onClick={() => setSidebarOpen(!sidebarOpen)}
+                  aria-label={sidebarOpen ? "Collapse sidebar" : "Expand sidebar"}
                   title={sidebarOpen ? "Collapse sidebar" : "Expand sidebar"}
                 >
                   <List className="w-5 h-5" />
@@ -149,14 +151,14 @@ export function MainLayout() {
               </div>
               <div className="flex items-center gap-3">
                 <ThemeToggle />
-                <Button variant="ghost" size="icon">
+                <Button variant="ghost" size="icon" aria-label="Action button">
                   <Bell className="w-5 h-5" />
                 </Button>
                 <Button
                   variant="ghost"
                   size="icon"
                   asChild
-                >
+                 aria-label="Action button">
                   <Link to="/settings">
                     <Gear className="w-5 h-5" />
                   </Link>
@@ -166,7 +168,7 @@ export function MainLayout() {
                     <Button
                       variant="ghost"
                       className="relative h-10 w-10 rounded-full"
-                    >
+                     aria-label="Action button">
                       <Avatar>
                         <AvatarFallback className="bg-primary text-primary-foreground">
                           FM

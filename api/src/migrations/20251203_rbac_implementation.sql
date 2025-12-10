@@ -349,8 +349,8 @@ COMMIT;
 -- ============================================================================
 -- Run these to verify the migration was successful:
 --
--- SELECT * FROM roles;
--- SELECT * FROM permissions ORDER BY resource, action;
+-- SELECT id, name, display_name, description, is_system_role, mfa_required, just_in_time_elevation_allowed, max_dataset_size, created_at, updated_at FROM roles;
+-- SELECT id, name, resource, verb, scope, description, created_at FROM permissions ORDER BY resource, action;
 -- SELECT r.name, COUNT(p.id) as permission_count
 -- FROM roles r
 -- JOIN role_permissions rp ON r.id = rp.role_id

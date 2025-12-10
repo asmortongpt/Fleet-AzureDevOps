@@ -595,7 +595,7 @@ export class AIControlsService {
     limit?: number
   }
 ): Promise<any[]> {
-  let query = `SELECT * FROM ai_control_checks WHERE tenant_id = $1`
+  let query = `SELECT id, tenant_id, user_id, transaction_type, transaction_id, transaction_data, passed, violations, required_approvals, automated_actions, severity, action_taken, created_at FROM ai_control_checks WHERE tenant_id = $1`
   const params: any[] = [tenantId]
   let paramIndex = 2
 

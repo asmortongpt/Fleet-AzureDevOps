@@ -324,7 +324,7 @@ const CarbonFootprintTracker: React.FC = () => {
             <option value="90d">Last 90 Days</option>
             <option value="year">Last Year</option>
           </select>
-          <Button onClick={downloadReport} variant="outline">
+          <Button onClick={downloadReport} variant="outline" aria-label="Action button">
             <DocumentArrowDownIcon className="w-4 h-4 mr-2" />
             Download Report
           </Button>

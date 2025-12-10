@@ -178,12 +178,12 @@ export function TripMarker({
         )}
 
         <div className="flex gap-2">
-          <Button onClick={handleSave} disabled={markTripMutation.isPending} size="sm" className="flex-1">
+          <Button onClick={handleSave} disabled={markTripMutation.isPending} size="sm" className="flex-1" aria-label="Action button">
             <Check className="w-4 h-4 mr-1" />
             Save
           </Button>
           {onCancel && (
-            <Button onClick={onCancel} variant="outline" size="sm" disabled={markTripMutation.isPending}>
+            <Button onClick={onCancel} variant="outline" size="sm" disabled={markTripMutation.isPending} aria-label="Action button">
               <X className="w-4 h-4" />
             </Button>
           )}
@@ -378,7 +378,7 @@ export function TripMarker({
 
         {/* Action Buttons */}
         <div className="flex gap-3">
-          <Button onClick={handleSave} disabled={markTripMutation.isPending} className="flex-1">
+          <Button onClick={handleSave} disabled={markTripMutation.isPending} className="flex-1" aria-label="Action button">
             {markTripMutation.isPending ? (
               <>Saving...</>
             ) : (
@@ -389,7 +389,7 @@ export function TripMarker({
             )}
           </Button>
           {onCancel && (
-            <Button onClick={onCancel} variant="outline" disabled={markTripMutation.isPending}>
+            <Button onClick={onCancel} variant="outline" disabled={markTripMutation.isPending} aria-label="Action button">
               Cancel
             </Button>
           )}

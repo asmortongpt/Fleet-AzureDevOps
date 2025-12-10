@@ -688,13 +688,13 @@ You can chat with me naturally, or run structured workflows for complex tasks. H
           ))}
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => setWorkflowDialogOpen(false)}>Cancel</Button>
+          <Button onClick={() => setWorkflowDialogOpen(false)} aria-label="Action button">Cancel</Button>
           <Button
             variant="contained"
             onClick={executeWorkflow}
             disabled={
               !selectedWorkflow ||
-              selectedWorkflow.requiredParameters.some(param => !workflowParams[param])
+              selectedWorkflow.requiredParameters.some(param = aria-label="Action button"> !workflowParams[param])
             }
           >
             Execute

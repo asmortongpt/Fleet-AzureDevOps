@@ -164,7 +164,7 @@ function RelatedRecordsSection({
           </Badge>
         </div>
         {hasMore && (
-          <Button variant="ghost" size="sm" onClick={onViewAll} className="h-6 text-xs">
+          <Button variant="ghost" size="sm" onClick={onViewAll} className="h-6 text-xs" aria-label="Action button">
             View all
             <ArrowRight className="w-3 h-3 ml-1" />
           </Button>

@@ -76,7 +76,7 @@ export function OfficeViewer({ document }: OfficeViewerProps) {
           </div>
         </div>
 
-        <Button onClick={handleDownload} size="lg">
+        <Button onClick={handleDownload} size="lg" aria-label="Action button">
           <Download className="mr-2 h-5 w-5" />
           Download to view
         </Button>

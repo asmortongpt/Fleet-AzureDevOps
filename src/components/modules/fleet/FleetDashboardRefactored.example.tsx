@@ -172,7 +172,7 @@ export function FleetDashboardRefactored() {
             Monitor your fleet in real-time
           </p>
         </div>
-        <Button onClick={handleExportVehicles}>
+        <Button onClick={handleExportVehicles} aria-label="Action button">
           <Plus className="w-4 h-4 mr-2" />
           Add Vehicle
         </Button>
