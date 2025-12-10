@@ -45,4 +45,22 @@ export const TYPES = {
   PermissionRepository: Symbol.for("PermissionRepository"),
   VehicleAssignmentRepository: Symbol.for("VehicleAssignmentRepository"),
   ReservationRepository: Symbol.for("ReservationRepository"),
+  TelematicsRepository: Symbol.for("TelematicsRepository"),
+  DamageReportRepository: Symbol.for("DamageReportRepository"),
+
+  // Additional Core Repositories
+  AlertRepository: Symbol.for("AlertRepository"),
+  AttachmentRepository: Symbol.for("AttachmentRepository"),
+  ChargingSessionRepository: Symbol.for("ChargingSessionRepository"),
+  ChargingStationRepository: Symbol.for("ChargingStationRepository"),
+  CostRepository: Symbol.for("CostRepository"),
+  DeploymentRepository: Symbol.for("DeploymentRepository"),
+  FuelRepository: Symbol.for("FuelRepository"),
+  InvoiceRepository: Symbol.for("InvoiceRepository"),
+  PartRepository: Symbol.for("PartRepository"),
+  PolicyRepository: Symbol.for("PolicyRepository"),
+  PurchaseOrderRepository: Symbol.for("PurchaseOrderRepository"),
+  ReimbursementRepository: Symbol.for("ReimbursementRepository"),
+  TaskRepository: Symbol.for("TaskRepository"),
+  VendorRepository: Symbol.for("VendorRepository"),
 };
