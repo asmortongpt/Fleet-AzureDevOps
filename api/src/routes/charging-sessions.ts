@@ -8,6 +8,9 @@ import { auditLog } from '../middleware/audit'
 import { z } from 'zod'
 import { buildInsertClause, buildUpdateClause } from '../utils/sql-safety'
 import { csrfProtection } from '../middleware/csrf'
+import { validateBody, validateParams, validateQuery } from '../middleware/validate'
+import { chargingSessionSchema } from '../schemas/comprehensive.schema'
+import { uuidParamSchema, paginationSchema } from '../schemas/common.schema'
 
 
 const router = express.Router()
@@ -17,6 +20,7 @@ router.use(authenticateJWT)
 router.get(
   '/',
   requirePermission('charging_session:view:fleet'),
+  validateQuery(paginationSchema),
   auditLog({ action: 'READ', resourceType: 'charging_sessions' }),
   async (req: AuthRequest, res: Response) => {
     try {
@@ -85,6 +89,7 @@ router.get(
 router.get(
   '/:id',
   requirePermission('charging_session:view:fleet'),
+  validateParams(uuidParamSchema),
   auditLog({ action: 'READ', resourceType: 'charging_sessions' }),
   async (req: AuthRequest, res: Response) => {
     try {
@@ -108,7 +113,9 @@ router.get(
 // POST /charging-sessions
 router.post(
   '/',
- csrfProtection, requirePermission('charging_session:create:own'),
+  csrfProtection,
+  requirePermission('charging_session:create:own'),
+  validateBody(chargingSessionSchema),
   auditLog({ action: 'CREATE', resourceType: 'charging_sessions' }),
   async (req: AuthRequest, res: Response) => {
     try {
@@ -136,7 +143,10 @@ router.post(
 // PUT /charging-sessions/:id
 router.put(
   `/:id`,
-  csrfProtection, requirePermission('charging_session:update:own'),
+  csrfProtection,
+  requirePermission('charging_session:update:own'),
+  validateParams(uuidParamSchema),
+  validateBody(chargingSessionSchema.partial()),
   auditLog({ action: 'UPDATE', resourceType: 'charging_sessions' }),
   async (req: AuthRequest, res: Response) => {
     try {
