@@ -6,13 +6,15 @@ import { asyncHandler } from '../middleware/errorHandler'
 import { checkRole } from '../middleware/role.middleware'
 import { ROICalculatorService } from '../services/roi-calculator.service'
 import { UtilizationCalcService } from '../services/utilization-calc.service'
+import { container } from '../container'
+import { TYPES } from '../types'
 
 
 
 
 const router = express.Router()
-const utilizationCalcService = new UtilizationCalcService()
-const roiCalculatorService = new ROICalculatorService()
+const utilizationCalcService = container.get<UtilizationCalcService>(TYPES.UtilizationCalcService)
+const roiCalculatorService = container.get<ROICalculatorService>(TYPES.ROICalculatorService)
 
 const dateRangeSchema = z.object({
   startDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
