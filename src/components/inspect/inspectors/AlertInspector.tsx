@@ -255,7 +255,7 @@ export const AlertInspector: React.FC<AlertInspectorProps> = ({ id, initialTab =
                     <p className="font-medium">{alert.vehicle.name}</p>
                     <p className="text-sm text-gray-600">Vehicle ID: {alert.vehicle.id}</p>
                   </div>
-                  <Button variant="outline" size="sm">View Vehicle</Button>
+                  <Button variant="outline" size="sm" aria-label="Action button">View Vehicle</Button>
                 </div>
               </Card>
             )}
@@ -268,7 +268,7 @@ export const AlertInspector: React.FC<AlertInspectorProps> = ({ id, initialTab =
                     <p className="font-medium">{alert.driver.name}</p>
                     <p className="text-sm text-gray-600">Driver ID: {alert.driver.id}</p>
                   </div>
-                  <Button variant="outline" size="sm">View Driver</Button>
+                  <Button variant="outline" size="sm" aria-label="Action button">View Driver</Button>
                 </div>
               </Card>
             )}
@@ -307,7 +307,7 @@ export const AlertInspector: React.FC<AlertInspectorProps> = ({ id, initialTab =
                     disabled={processing}
                     className="w-full"
                     variant="outline"
-                  >
+                   aria-label="Action button">
                     {processing ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
                     Acknowledge Alert
                   </Button>
@@ -317,7 +317,7 @@ export const AlertInspector: React.FC<AlertInspectorProps> = ({ id, initialTab =
                     onClick={handleResolve}
                     disabled={processing}
                     className="w-full"
-                  >
+                   aria-label="Action button">
                     {processing ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
                     Resolve Alert
                   </Button>
@@ -328,7 +328,7 @@ export const AlertInspector: React.FC<AlertInspectorProps> = ({ id, initialTab =
                     disabled={processing}
                     className="w-full"
                     variant="destructive"
-                  >
+                   aria-label="Action button">
                     {processing ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
                     Dismiss Alert
                   </Button>

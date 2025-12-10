@@ -12,7 +12,7 @@ export function ThemeToggle() {
       size="icon"
       onClick={toggleTheme}
       title={theme === 'light' ? 'Switch to dark mode' : 'Switch to light mode'}
-    >
+     aria-label="Action button">
       {theme === 'light' ? (
         <Moon className="w-5 h-5" />
       ) : (

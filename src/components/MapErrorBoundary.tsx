@@ -578,7 +578,7 @@ export class MapErrorBoundary extends Component<MapErrorBoundaryProps, MapErrorB
                 {errorDetails.actions.map((action, index) => (
                   <Button
                     key={index}
-                    onClick={() => this.handleAction(action.action)}
+                    onClick={() => this.handleAction(action.action)} aria-label="Action button"
                     variant={index === 0 ? 'default' : 'outline'}
                     disabled={isRetrying}
                   >

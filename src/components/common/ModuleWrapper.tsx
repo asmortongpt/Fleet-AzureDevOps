@@ -125,7 +125,7 @@ export class ModuleErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoun
 
             <div className="flex items-center gap-4">
               {canRetry && (
-                <Button onClick={this.handleRetry} variant="outline" size="sm">
+                <Button onClick={this.handleRetry} variant="outline" size="sm" aria-label="Action button">
                   <ArrowClockwise className="w-4 h-4 mr-2" />
                   Retry ({(maxRetries ?? 3) - retryCount} attempts left)
                 </Button>
@@ -133,7 +133,7 @@ export class ModuleErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoun
               <Button
                 variant="ghost"
                 size="sm"
-                onClick={() => window.location.reload()}
+                onClick={() => window.location.reload()} aria-label="Action button"
               >
                 Reload Page
               </Button>
@@ -443,7 +443,7 @@ export function ModuleEmptyState({
         <p className="text-sm text-muted-foreground max-w-md mb-4">{description}</p>
       )}
       {action && (
-        <Button onClick={action.onClick} variant="outline">
+        <Button onClick={action.onClick} variant="outline" aria-label="Action button">
           {action.label}
         </Button>
       )}
