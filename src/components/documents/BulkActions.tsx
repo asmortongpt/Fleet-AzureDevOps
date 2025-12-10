@@ -137,7 +137,7 @@ export function BulkActions({
               Download
             </Button>
 
-            <Button variant="outline" size="sm" onClick={() => {} aria-label="Action button"} disabled={isExecuting}>
+            <Button variant="outline" size="sm" onClick={() => {}} disabled={isExecuting} aria-label="Action button">
               <Share2 className="mr-2 h-4 w-4" />
               Share
             </Button>
@@ -157,7 +157,7 @@ export function BulkActions({
             )}
 
             {canEdit && (
-              <Button variant="outline" size="sm" onClick={() => {} aria-label="Action button"} disabled={isExecuting}>
+              <Button variant="outline" size="sm" onClick={() => {}} disabled={isExecuting} aria-label="Action button">
                 <Archive className="mr-2 h-4 w-4" />
                 Archive
               </Button>
@@ -169,7 +169,8 @@ export function BulkActions({
                 size="sm"
                 onClick={handleDelete}
                 disabled={isExecuting}
-               aria-label="Action button">
+                aria-label="Action button"
+              >
                 <Trash2 className="mr-2 h-4 w-4" />
                 Delete
               </Button>
@@ -262,8 +263,9 @@ export function BulkActions({
           <DialogFooter>
             <Button
               variant="outline"
-              onClick={() => setShowConfirm(false)} aria-label="Action button"
+              onClick={() => setShowConfirm(false)}
               disabled={isExecuting}
+              aria-label="Action button"
             >
               Cancel
             </Button>
@@ -275,7 +277,8 @@ export function BulkActions({
                 (currentOperation === 'tag' && selectedTags.length === 0)
               }
               variant={currentOperation === 'delete' ? 'destructive' : 'default'}
-             aria-label="Action button">
+              aria-label="Action button"
+            >
               {isExecuting ? 'Processing...' : 'Confirm'}
             </Button>
           </DialogFooter>
