@@ -22,10 +22,12 @@
  */
 
 import { Pool, PoolClient } from 'pg'
-import { IRepository } from './IRepository'
-import { PaginationOptions, PaginatedResult, isValidSortOrder } from './types'
+
 import { NotFoundError, DatabaseError } from '../../middleware/errorHandler'
 import { isValidIdentifier } from '../../utils/sql-safety'
+
+import { IRepository } from './IRepository'
+import { PaginationOptions, PaginatedResult, isValidSortOrder } from './types'
 
 export abstract class GenericRepository<T extends { id?: string | number }> implements IRepository<T> {
   protected abstract tableName: string

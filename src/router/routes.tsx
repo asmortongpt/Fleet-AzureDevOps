@@ -1,5 +1,6 @@
 import { lazy, Suspense } from "react";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
+
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 
 // Layout component
