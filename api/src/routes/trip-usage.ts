@@ -60,24 +60,19 @@ router.post(
   '/',
  csrfProtection, requirePermission('route:create:own'),
   auditLog({ action: 'CREATE', resourceType: 'trip_usage_classification' }),
-  async (req: AuthRequest, res: Response) => {
-    try {
-      const validated = createTripUsageSchema.parse(req.body)
+  asyncHandler(async (req: AuthRequest, res: Response) => {
+    const validated = createTripUsageSchema.parse(req.body)
 
-      // Validation: business purpose required for business/mixed trips
-      if ((validated.usage_type === UsageType.BUSINESS || validated.usage_type === UsageType.MIXED) &&
-          !validated.business_purpose) {
-        return res.status(400).json({
-          error: 'Business purpose is required for business and mixed trips (federal requirement)'
-        })
-      }
+    // Validation: business purpose required for business/mixed trips
+    if ((validated.usage_type === UsageType.BUSINESS || validated.usage_type === UsageType.MIXED) &&
+        !validated.business_purpose) {
+      throw new ValidationError('Business purpose is required for business and mixed trips (federal requirement)')
+    }
 
-      // Validation: business percentage required for mixed trips
-      if (validated.usage_type === UsageType.MIXED && validated.business_percentage === undefined) {
-        return res.status(400).json({
-          error: 'Business percentage is required for mixed trips'
-        })
-      }
+    // Validation: business percentage required for mixed trips
+    if (validated.usage_type === UsageType.MIXED && validated.business_percentage === undefined) {
+      throw new ValidationError('Business percentage is required for mixed trips')
+    }
 
       // Check if driver belongs to tenant
       const driverCheck = await pool.query(
