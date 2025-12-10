@@ -8,8 +8,8 @@ import React from "react";
 import ReactDOM from "react-dom/client";
 import { RouterProvider } from "react-router-dom";
 
-import { router } from "./router/routes";
 import { AuthProvider } from "./components/providers/AuthProvider";
+import { router } from "./router/routes";
 import { InspectProvider } from "./services/inspect/InspectContext";
 import "./index.css";
 import "./styles/design-tokens-responsive.css";
