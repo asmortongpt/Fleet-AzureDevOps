@@ -1,9 +1,11 @@
+import { BaseRepository } from '../repositories/BaseRepository';
+
 Here is a basic example of a FuelEfficiencyRepository in TypeScript. This repository is designed to interact with a database to perform CRUD operations on data related to fuel efficiency. It uses parameterized queries to prevent SQL injection attacks. 
 
 
 import { Pool } from 'pg';
 
-export class FuelEfficiencyRepository {
+export class FuelEfficiencyRepository extends BaseRepository<any> {
   private pool: Pool;
 
   constructor(pool: Pool) {

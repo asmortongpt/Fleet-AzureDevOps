@@ -1,10 +1,12 @@
+import { BaseRepository } from '../repositories/BaseRepository';
+
 Here is a sample TypeScript repository KeyManagementRepository for api/src/routes/key-management.routes.ts. This repository includes parameterized queries, tenant_id, and CRUD operations.
 
 
 import { KeyManagement } from '../models/key-management.model';
 import { Pool } from 'pg';
 
-export class KeyManagementRepository {
+export class KeyManagementRepository extends BaseRepository<any> {
     private pool: Pool;
 
     constructor(pool: Pool) {

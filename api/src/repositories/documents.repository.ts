@@ -1,3 +1,5 @@
+import { BaseRepository } from '../repositories/BaseRepository';
+
 /**
  * Documents Repository - Comprehensive document management data access layer
  * 
@@ -131,7 +133,7 @@ export interface DashboardData {
   recent: DocumentWithMetadata[];
 }
 
-export class DocumentsRepository {
+export class DocumentsRepository extends BaseRepository<any> {
   constructor(private pool: Pool) {}
 
   /**

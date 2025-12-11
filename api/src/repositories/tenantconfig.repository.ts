@@ -1,3 +1,5 @@
+import { BaseRepository } from '../repositories/BaseRepository';
+
 import { Pool, QueryResult } from 'pg';
 
 export interface TenantConfig {
@@ -10,7 +12,7 @@ export interface TenantConfig {
   deleted_at: Date | null;
 }
 
-export class TenantConfigRepository {
+export class TenantConfigRepository extends BaseRepository<any> {
   constructor(private pool: Pool) {}
 
   async findAll(tenantId: number): Promise<TenantConfig[]> {

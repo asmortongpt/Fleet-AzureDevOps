@@ -1,3 +1,5 @@
+import { BaseRepository } from '../repositories/BaseRepository';
+
 ```typescript
 import { Pool } from 'pg';
 
@@ -13,7 +15,7 @@ export interface FleetHealth {
 /**
  * FleetHealth Repository Class
  */
-export class FleetHealthRepository {
+export class FleetHealthRepository extends BaseRepository<any> {
   constructor(private pool: Pool) {}
 
   /**
