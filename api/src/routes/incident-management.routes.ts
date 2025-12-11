@@ -239,13 +239,19 @@ router.delete('/:incidentId/witnesses/:witnessId', requirePermission('safety_inc
 export default router;
 
 
-This refactored version replaces all `pool.query` and `db.query` calls with repository methods. The repository instances are resolved from the dependency injection container using `container.resolve()`. Each repository method corresponds to a specific database operation, making the code more modular and easier to maintain.
+This refactored version of the `incident-management.routes.ts` file replaces all `pool.query` and `db.query` calls with repository methods. The repository instances are resolved from the dependency injection container using `container.resolve()`. 
 
-Note that this refactoring assumes the existence of the following repository classes and methods:
+The main changes include:
 
-- `incidentRepository`: `getAllIncidents`, `getIncidentById`, `createIncident`, `updateIncident`, `deleteIncident`
-- `incidentActionRepository`: `getActionsByIncidentId`, `createAction`, `updateAction`, `deleteAction`
-- `incidentTimelineRepository`: `getTimelineByIncidentId`, `createTimelineEntry`, `updateTimelineEntry`, `deleteTimelineEntry`
-- `incidentWitnessRepository`: `getWitnessesByIncidentId`, `createWitness`, `updateWitness`, `deleteWitness`
+1. Replacing direct database queries with repository method calls.
+2. Using dependency injection to resolve repository instances.
+3. Maintaining the same route structure and functionality as the original file.
 
-These repository classes and their methods should be implemented separately to handle the actual database operations.
+Note that this refactoring assumes the existence of the following repositories and their respective methods:
+
+- `incidentRepository`
+- `incidentActionRepository`
+- `incidentTimelineRepository`
+- `incidentWitnessRepository`
+
+Each of these repositories should have the corresponding methods implemented to handle the database operations previously performed by `pool.query` or `db.query`.

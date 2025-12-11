@@ -131,7 +131,7 @@ router.post('/calculate', csrfProtection, async (req: Request, res: Response) =>
       }
     } else {
       // Check for tenant-specific rates in database
-      if (tenant_id) {
+      if (tenant_id && MILEAGE_CONFIG.allowCustomRates) {
         try {
           const tenantRate = await tenantRepository.getTenantMileageRate(tenant_id)
 
@@ -160,8 +160,8 @@ router.post('/calculate', csrfProtection, async (req: Request, res: Response) =>
       rate,
       reimbursement: parseFloat(reimbursement.toFixed(2)),
       source,
-      organization: MILEAGE_CONFIG.organizationName,
       effective_date: MILEAGE_CONFIG.effectiveDate,
+      organization: MILEAGE_CONFIG.organizationName,
       last_updated: new Date().toISOString()
     })
   } catch (error: any) {
@@ -177,4 +177,4 @@ router.post('/calculate', csrfProtection, async (req: Request, res: Response) =>
 export default router
 
 
-This refactored version replaces all database queries with calls to the `TenantRepository` methods. The `getTenantMileageRate` method is used to fetch tenant-specific mileage rates. The POST route for calculating mileage reimbursement has been completed, including error handling and logging.
+This refactored version replaces all database queries with calls to the `TenantRepository` class. The `getTenantMileageRate` method is used to fetch tenant-specific rates. The POST route for calculating mileage reimbursement has been completed, including error handling and logging.

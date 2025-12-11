@@ -153,18 +153,8 @@ This refactored version addresses all the requirements:
 1. The `TaskManagementRepository` is imported at the top of the file.
 2. All direct database queries (`pool.query`) have been replaced with calls to the appropriate methods of the `TaskManagementRepository`.
 3. The existing route handlers are kept, with the logic simplified to use the repository methods.
-4. The `tenant_id` is maintained from `req.user` in all relevant operations.
-5. Error handling is kept as in the original code, with appropriate error types and status codes.
-6. The complete refactored file is provided.
+4. The `container.resolve(TaskManagementRepository)` is used to get an instance of the repository, following the dependency injection pattern.
+5. Error handling and logging remain in place, using the Winston logger as before.
+6. The overall structure and functionality of the routes remain the same, but now they interact with the repository instead of the database directly.
 
-Note that the following methods should be implemented in the `TaskManagementRepository`:
-
-- `getAllTasks`
-- `getTaskById`
-- `createTask`
-- `updateTask`
-- `deleteTask`
-
-These methods should handle the database operations that were previously done directly in the route handlers. The method signatures should match the parameters passed to them in this refactored code.
-
-Also, make sure to implement any additional route handlers in a similar manner, replacing any direct database queries with appropriate repository methods.
+This refactoring improves the separation of concerns, making the code more maintainable and easier to test. The business logic for database operations is now encapsulated in the `TaskManagementRepository`, while the routes focus on handling HTTP requests and responses.
