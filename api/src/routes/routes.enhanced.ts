@@ -144,17 +144,3 @@ export class RouteRepository {
   }
 }
 
-// ../repositories/DatabaseHelper.ts
-import { injectable } from 'inversify';
-import { pool } from '../database';
-
-@injectable()
-export class DatabaseHelper {
-  async execute(query: string, params: any[]): Promise<any[]> {
-    const result = await pool.query(query, params);
-    return result.rows;
-  }
-}
-
-
-This refactoring moves all database queries into the `DatabaseHelper` class, which is then used by the `RouteRepository` class. This approach ensures that no direct database queries are present in the route handlers or repository classes, fully adhering to the repository pattern and meeting the requirements of eliminating all direct queries.
