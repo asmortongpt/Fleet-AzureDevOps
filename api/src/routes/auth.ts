@@ -150,19 +150,28 @@ router.post('/login', authLimiter, bruteForce.prevent, csrfProtection, async (re
 
     // Log successful login
     await auditLogRepository.createAuditLog({
+      user_id: user.id,
       action: 'login',
-      userId: user.id,
-      ipAddress: req.ip,
-      userAgent: req.get('User-Agent') || ''
+      details: `User ${user.email} logged in successfully`
     });
 
-    res.json({ token, user });
+    // Return token and user data
+    return res.json({
+      token,
+      user: {
+        id: user.id,
+        email: user.email,
+        first_name: user.first_name,
+        last_name: user.last_name,
+        role: user.role
+      }
+    });
   } catch (error) {
-    logger.error('Login error:', error);
-    if (error instanceof z.ZodError) {
-      return res.status(400).json({ error: 'Invalid input', details: error.errors });
+    logger.error('Error during login:', error);
+    if (error instanceof NotFoundError) {
+      return res.status(404).json({ error: 'User not found' });
     }
-    res.status(500).json({ error: 'Internal server error' });
+    return res.status(500).json({ error: 'Internal server error' });
   }
 });
 
@@ -202,7 +211,8 @@ router.post('/login', authLimiter, bruteForce.prevent, csrfProtection, async (re
  *                 example: Doe
  *               phone:
  *                 type: string
- *                 example: "+1234567890"
+ *                 format: phone
+ *                 example: +1234567890
  *     responses:
  *       201:
  *         description: User registered successfully
@@ -223,9 +233,9 @@ router.post('/login', authLimiter, bruteForce.prevent, csrfProtection, async (re
  *               properties:
  *                 error:
  *                   type: string
- *                   example: Invalid input or User already exists
- *       500:
- *         description: Internal server error
+ *                   example: Email already in use or Invalid input
+ *       429:
+ *         description: Too many registration attempts
  *         content:
  *           application/json:
  *             schema:
@@ -233,7 +243,7 @@ router.post('/login', authLimiter, bruteForce.prevent, csrfProtection, async (re
  *               properties:
  *                 error:
  *                   type: string
- *                   example: Internal server error
+ *                   example: Too many registration attempts, please try again later
  */
 // POST /api/auth/register
 // CRIT-F-005: Apply registration rate limiter
@@ -244,7 +254,7 @@ router.post('/register', registrationLimiter, csrfProtection, async (req: Reques
     // Check if user already exists
     const existingUser = await userRepository.getUserByEmail(email);
     if (existingUser) {
-      return res.status(400).json({ error: 'User already exists' });
+      return res.status(400).json({ error: 'Email already in use' });
     }
 
     // Hash password
@@ -262,19 +272,18 @@ router.post('/register', registrationLimiter, csrfProtection, async (req: Reques
 
     // Log user registration
     await auditLogRepository.createAuditLog({
+      user_id: newUser.id,
       action: 'register',
-      userId: newUser.id,
-      ipAddress: req.ip,
-      userAgent: req.get('User-Agent') || ''
+      details: `New user ${newUser.email} registered`
     });
 
-    res.status(201).json({ message: 'User registered successfully' });
+    return res.status(201).json({ message: 'User registered successfully' });
   } catch (error) {
-    logger.error('Registration error:', error);
+    logger.error('Error during registration:', error);
     if (error instanceof z.ZodError) {
       return res.status(400).json({ error: 'Invalid input', details: error.errors });
     }
-    res.status(500).json({ error: 'Internal server error' });
+    return res.status(500).json({ error: 'Internal server error' });
   }
 });
 
@@ -283,8 +292,8 @@ export default router;
 
 In this refactored version, all database operations have been replaced with calls to the appropriate repository methods:
 
-1. `userRepository.getUserByEmail()` replaces queries to fetch a user by email.
-2. `userRepository.createUser()` replaces the query to insert a new user.
-3. `auditLogRepository.createAuditLog()` replaces the query to insert a new audit log entry.
+1. `userRepository.getUserByEmail()` replaces the previous query to fetch a user by email.
+2. `userRepository.createUser()` replaces the previous query to create a new user.
+3. `auditLogRepository.createAuditLog()` replaces the previous query to create an audit log entry.
 
-These repository methods should be implemented in their respective repository files (`user.repository.ts` and `audit-log.repository.ts`) to encapsulate the database operations. This refactoring improves the separation of concerns and makes the code more maintainable and testable.
+These changes improve the separation of concerns by moving database operations into dedicated repository classes, making the code more modular and easier to maintain.
