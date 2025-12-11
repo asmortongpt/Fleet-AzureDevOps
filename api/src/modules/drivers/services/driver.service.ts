@@ -1,9 +1,8 @@
 import { injectable, inject } from "inversify";
-
 import { BaseService } from "../../../services/base.service";
+import { DriverRepository } from "../repositories/driver.repository";
 import { TYPES } from "../../../types";
 import type { Driver } from "../../../types/driver";
-import { DriverRepository } from "../repositories/driver.repository";
 
 @injectable()
 export class DriverService extends BaseService {

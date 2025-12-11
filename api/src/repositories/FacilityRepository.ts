@@ -1,6 +1,5 @@
-import { Pool } from 'pg'
-
 import { BaseRepository } from './BaseRepository'
+import { Pool } from 'pg'
 
 export interface Facility {
   id: number
