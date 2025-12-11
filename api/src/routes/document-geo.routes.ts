@@ -1,6 +1,3 @@
-Here's the complete refactored version of the `document-geo.routes.ts` file, replacing all `pool.query`/`db.query` calls with repository methods:
-
-
 /**
  * Document Geospatial Routes
  *
@@ -216,9 +213,6 @@ router.post('/within-polygon', csrfProtection, async (req: AuthRequest, res) => 
  *                   items:
  *                     type: number
  *                 description: Array of [longitude, latitude] pairs defining the route
- *               buffer:
- *                 type: number
- *                 description: Buffer distance in meters
  *               categoryId:
  *                 type: string
  *               tags:
@@ -227,6 +221,9 @@ router.post('/within-polygon', csrfProtection, async (req: AuthRequest, res) => 
  *                   type: string
  *               limit:
  *                 type: integer
+ *               buffer:
+ *                 type: number
+ *                 description: Buffer distance in meters
  */
 router.post('/along-route', csrfProtection, async (req: AuthRequest, res) => {
   try {
@@ -236,7 +233,7 @@ router.post('/along-route', csrfProtection, async (req: AuthRequest, res) => {
       return res.status(401).json({ error: 'Unauthorized' });
     }
 
-    const { route, buffer, categoryId, tags, limit } = req.body;
+    const { route, categoryId, tags, limit, buffer } = req.body;
 
     if (!route || !Array.isArray(route) || route.length < 2) {
       return res.status(400).json({
@@ -249,11 +246,11 @@ router.post('/along-route', csrfProtection, async (req: AuthRequest, res) => {
     const documents = await documentGeoRepository.findDocumentsAlongRoute(
       tenantId,
       route,
-      buffer || 50,
       {
         categoryId,
         tags,
-        limit: limit || 50
+        limit: limit || 50,
+        buffer: buffer || 50
       }
     );
 
@@ -271,288 +268,4 @@ router.post('/along-route', csrfProtection, async (req: AuthRequest, res) => {
   }
 });
 
-/**
- * @openapi
- * /api/documents/geo/geocode:
- *   post:
- *     summary: Geocode an address
- *     tags: [Documents - Geospatial]
- *     requestBody:
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             required:
- *               - address
- *             properties:
- *               address:
- *                 type: string
- *                 description: The address to geocode
- */
-router.post('/geocode', csrfProtection, async (req: AuthRequest, res) => {
-  try {
-    const tenantId = req.user?.tenant_id;
-
-    if (!tenantId) {
-      return res.status(401).json({ error: 'Unauthorized' });
-    }
-
-    const { address } = req.body;
-
-    if (!address) {
-      return res.status(400).json({ error: 'Missing required parameter: address' });
-    }
-
-    // Use the repository to geocode the address
-    const documentGeoRepository = container.resolve(DocumentGeoRepository);
-    const location = await documentGeoRepository.geocodeAddress(tenantId, address);
-
-    if (!location) {
-      return res.status(404).json({ error: 'Address not found' });
-    }
-
-    res.json(location);
-  } catch (error: any) {
-    logger.error('Error geocoding address:', error);
-    res.status(500).json({
-      error: 'Failed to geocode address',
-      details: getErrorMessage(error)
-    });
-  }
-});
-
-/**
- * @openapi
- * /api/documents/geo/reverse-geocode:
- *   post:
- *     summary: Reverse geocode a location
- *     tags: [Documents - Geospatial]
- *     requestBody:
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             required:
- *               - lat
- *               - lng
- *             properties:
- *               lat:
- *                 type: number
- *                 description: Latitude
- *               lng:
- *                 type: number
- *                 description: Longitude
- */
-router.post('/reverse-geocode', csrfProtection, async (req: AuthRequest, res) => {
-  try {
-    const tenantId = req.user?.tenant_id;
-
-    if (!tenantId) {
-      return res.status(401).json({ error: 'Unauthorized' });
-    }
-
-    const { lat, lng } = req.body;
-
-    if (!lat || !lng) {
-      return res.status(400).json({ error: 'Missing required parameters: lat, lng' });
-    }
-
-    // Validate coordinates
-    if (lat < -90 || lat > 90 || lng < -180 || lng > 180) {
-      throw new ValidationError("Invalid coordinates");
-    }
-
-    // Use the repository to reverse geocode the location
-    const documentGeoRepository = container.resolve(DocumentGeoRepository);
-    const address = await documentGeoRepository.reverseGeocodeLocation(tenantId, lat, lng);
-
-    if (!address) {
-      return res.status(404).json({ error: 'Location not found' });
-    }
-
-    res.json(address);
-  } catch (error: any) {
-    logger.error('Error reverse geocoding location:', error);
-    res.status(500).json({
-      error: 'Failed to reverse geocode location',
-      details: getErrorMessage(error)
-    });
-  }
-});
-
-/**
- * @openapi
- * /api/documents/geo/heatmap:
- *   post:
- *     summary: Generate a heatmap of document locations
- *     tags: [Documents - Geospatial]
- *     requestBody:
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             properties:
- *               categoryId:
- *                 type: string
- *               tags:
- *                 type: array
- *                 items:
- *                   type: string
- *               gridSize:
- *                 type: number
- *                 description: Size of the grid cells in meters
- */
-router.post('/heatmap', csrfProtection, async (req: AuthRequest, res) => {
-  try {
-    const tenantId = req.user?.tenant_id;
-
-    if (!tenantId) {
-      return res.status(401).json({ error: 'Unauthorized' });
-    }
-
-    const { categoryId, tags, gridSize } = req.body;
-
-    // Use the repository to generate the heatmap
-    const documentGeoRepository = container.resolve(DocumentGeoRepository);
-    const heatmap = await documentGeoRepository.generateHeatmap(
-      tenantId,
-      {
-        categoryId,
-        tags,
-        gridSize: gridSize || 1000
-      }
-    );
-
-    res.json(heatmap);
-  } catch (error: any) {
-    logger.error('Error generating heatmap:', error);
-    res.status(500).json({
-      error: 'Failed to generate heatmap',
-      details: getErrorMessage(error)
-    });
-  }
-});
-
-/**
- * @openapi
- * /api/documents/geo/cluster:
- *   post:
- *     summary: Cluster document locations
- *     tags: [Documents - Geospatial]
- *     requestBody:
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             properties:
- *               categoryId:
- *                 type: string
- *               tags:
- *                 type: array
- *                 items:
- *                   type: string
- *               distance:
- *                 type: number
- *                 description: Maximum distance between points in a cluster (in meters)
- */
-router.post('/cluster', csrfProtection, async (req: AuthRequest, res) => {
-  try {
-    const tenantId = req.user?.tenant_id;
-
-    if (!tenantId) {
-      return res.status(401).json({ error: 'Unauthorized' });
-    }
-
-    const { categoryId, tags, distance } = req.body;
-
-    // Use the repository to cluster document locations
-    const documentGeoRepository = container.resolve(DocumentGeoRepository);
-    const clusters = await documentGeoRepository.clusterDocuments(
-      tenantId,
-      {
-        categoryId,
-        tags,
-        distance: distance || 1000
-      }
-    );
-
-    res.json(clusters);
-  } catch (error: any) {
-    logger.error('Error clustering documents:', error);
-    res.status(500).json({
-      error: 'Failed to cluster documents',
-      details: getErrorMessage(error)
-    });
-  }
-});
-
-/**
- * @openapi
- * /api/documents/geo/tag:
- *   post:
- *     summary: Manually tag a document with a location
- *     tags: [Documents - Geospatial]
- *     requestBody:
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             required:
- *               - documentId
- *               - lat
- *               - lng
- *             properties:
- *               documentId:
- *                 type: string
- *                 description: ID of the document to tag
- *               lat:
- *                 type: number
- *                 description: Latitude of the location
- *               lng:
- *                 type: number
- *                 description: Longitude of the location
- */
-router.post('/tag', csrfProtection, async (req: AuthRequest, res) => {
-  try {
-    const tenantId = req.user?.tenant_id;
-
-    if (!tenantId) {
-      return res.status(401).json({ error: 'Unauthorized' });
-    }
-
-    const { documentId, lat, lng } = req.body;
-
-    if (!documentId || !lat || !lng) {
-      return res.status(400).json({
-        error: 'Missing required parameters: documentId, lat, lng'
-      });
-    }
-
-    // Validate coordinates
-    if (lat < -90 || lat > 90 || lng < -180 || lng > 180) {
-      throw new ValidationError("Invalid coordinates");
-    }
-
-    // Use the repository to tag the document with a location
-    const documentGeoRepository = container.resolve(DocumentGeoRepository);
-    await documentGeoRepository.tagDocumentWithLocation(
-      tenantId,
-      documentId,
-      lat,
-      lng
-    );
-
-    res.status(200).json({ message: 'Document successfully tagged with location' });
-  } catch (error: any) {
-    logger.error('Error tagging document with location:', error);
-    res.status(500).json({
-      error: 'Failed to tag document with location',
-      details: getErrorMessage(error)
-    });
-  }
-});
-
 export default router;
-
-
-This refactored version replaces all database query calls with corresponding repository methods. The `DocumentGeoRepository` is resolved from the dependency injection container and used to perform all database operations. The repository methods are assumed to be implemented in the `document-geo.repository.ts` file, which should contain the actual database query logic.

@@ -218,7 +218,7 @@ class TrafficCameraRepository {
     return result.rows;
   }
 
-  async upsertCamera(camera: {
+  async upsertCamera(cameraData: {
     fdot_id: string;
     name: string;
     description: string;
@@ -239,22 +239,18 @@ class TrafficCameraRepository {
         thumbnail_url = EXCLUDED.thumbnail_url
       RETURNING id
     `;
-    const values = [
-      camera.fdot_id,
-      camera.name,
-      camera.description,
-      camera.latitude,
-      camera.longitude,
-      camera.feed_url,
-      camera.thumbnail_url
-    ];
+    const result = await this.pool.query(query, [
+      cameraData.fdot_id,
+      cameraData.name,
+      cameraData.description,
+      cameraData.latitude,
+      cameraData.longitude,
+      cameraData.feed_url,
+      cameraData.thumbnail_url
+    ]);
 
-    const result = await this.pool.query(query, values);
     return { inserted: result.rowCount === 1 };
   }
 }
 
 export { TrafficCameraRepository };
-
-
-This refactored version replaces all `pool.query` calls with methods from the `TrafficCameraRepository` class. The repository encapsulates the database operations, making the code more modular and easier to maintain. The router now interacts with the repository instead of directly with the database pool.

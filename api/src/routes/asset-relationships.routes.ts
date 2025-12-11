@@ -1,6 +1,3 @@
-Here's the complete refactored `asset-relationships.routes.ts` file, replacing all `pool.query` calls with repository methods:
-
-
 /**
  * Asset Relationships Routes
  * API for managing multi-asset combinations (tractor-trailer, machine-attachments)
@@ -292,6 +289,3 @@ router.delete(
 );
 
 export default router;
-
-
-This refactored version replaces all `pool.query` calls with corresponding methods from the `AssetRelationshipRepository`. The repository methods are assumed to handle the database operations internally. Make sure that the `AssetRelationshipRepository` class in the `../repositories/asset-relationship.repository` file implements all the necessary methods used in this routes file.
