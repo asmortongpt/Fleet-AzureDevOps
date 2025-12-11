@@ -21,7 +21,7 @@ export class DashboardsRepository {
   async findAll(tenantId: number, filters?: any): Promise<DashboardEntity[]> {
     try {
       const query = `
-        SELECT * FROM dashboards
+        SELECT id, created_at, updated_at FROM dashboards
         WHERE tenant_id = $1
         AND deleted_at IS NULL
         ORDER BY created_at DESC
@@ -42,7 +42,7 @@ export class DashboardsRepository {
    */
   async findById(id: number, tenantId: number): Promise<DashboardEntity | null> {
     const query = `
-      SELECT * FROM dashboards
+      SELECT id, created_at, updated_at FROM dashboards
       WHERE id = $1 AND tenant_id = $2 AND deleted_at IS NULL
     `;
     const result = await this.pool.query(query, [id, tenantId]);

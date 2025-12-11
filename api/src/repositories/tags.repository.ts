@@ -25,7 +25,7 @@ export class TagsRepository {
    * @returns Promise<Tag[]>
    */
   async findAll(tenantId: number): Promise<Tag[]> {
-    const query = `SELECT * FROM tags WHERE tenant_id = $1 AND deleted_at IS NULL`;
+    const query = `SELECT id, tenant_id, created_at, updated_at FROM tags WHERE tenant_id = $1 AND deleted_at IS NULL`;
     const result = await this.pool.query(query, [tenantId]);
     return result.rows;
   }
@@ -37,7 +37,7 @@ export class TagsRepository {
    * @returns Promise<Tag | null>
    */
   async findById(id: number, tenantId: number): Promise<Tag | null> {
-    const query = `SELECT * FROM tags WHERE id = $1 AND tenant_id = $2 AND deleted_at IS NULL`;
+    const query = `SELECT id, tenant_id, created_at, updated_at FROM tags WHERE id = $1 AND tenant_id = $2 AND deleted_at IS NULL`;
     const result = await this.pool.query(query, [id, tenantId]);
     return result.rows[0] || null;
   }

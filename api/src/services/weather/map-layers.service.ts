@@ -30,7 +30,7 @@ const pool = new Pool({
 
 async function getWeatherAlerts(severity: string): Promise<FeatureCollection<Polygon>> {
   try {
-    const res = await pool.query('SELECT * FROM weather_alerts WHERE severity = $1', [severity]);
+    const res = await pool.query('SELECT id, name, created_at, updated_at, tenant_id FROM weather_alerts WHERE severity = $1', [severity]);
     const features = res.rows.map((row: WeatherAlert) => ({
       type: 'Feature',
       id: row.id,
@@ -51,7 +51,7 @@ async function getWeatherAlerts(severity: string): Promise<FeatureCollection<Pol
 
 async function getCurrentConditions(): Promise<FeatureCollection<Point>> {
   try {
-    const res = await pool.query('SELECT * FROM current_conditions');
+    const res = await pool.query('SELECT id, name, created_at, updated_at, tenant_id FROM current_conditions');
     const features = res.rows.map((row: CurrentCondition) => ({
       type: 'Feature',
       id: row.id,

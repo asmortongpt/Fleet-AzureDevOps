@@ -24,7 +24,8 @@
     "setup:webhooks": "tsx src/scripts/setup-webhooks.ts",
     "verify:integration": "tsx src/scripts/verify-integration.ts",
     "webhooks:cleanup": "tsx src/scripts/cleanup-webhooks.ts",
-    "migrate": "tsx src/scripts/run-migrations.ts"
+    "migrate": "tsx src/scripts/run-migrations.ts",
+    "monitor:memory": "node -e \"setInterval(() => { const m = process.memoryUsage(); console.log(`Heap: ${(m.heapUsed/1024/1024).toFixed(2)} MB`); }, 5000)\""
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.20.0",
@@ -94,7 +95,7 @@
     "firebase-admin": "^13.6.0",
     "google-auth-library": "^9.14.0",
     "googleapis": "^140.0.1",
-    "helmet": "^7.1.0",
+    "helmet": "^7.2.0",
     "ics": "^3.8.1",
     "inversify": "^7.10.5",
     "ioredis": "^5.8.2",
@@ -123,7 +124,7 @@
     "three": "^0.181.1",
     "twilio": "^5.3.5",
     "uuid": "^9.0.1",
-    "winston": "^3.11.0",
+    "winston": "^3.19.0",
     "winston-daily-rotate-file": "^5.0.0",
     "ws": "^8.16.0"
   },
@@ -163,6 +164,8 @@
     "tsx": "^4.7.0",
     "typescript": "^5.3.3",
     "vitest": "^1.6.1",
-    "zod": "^4.1.13"
-  }
+    "zod": "^4.1.13",
+    "// heapdump": "Uses native monitoring - see api/src/monitoring/memory.ts"
+  },
+  "_memoryLeakDetection": "Native process.memoryUsage() + Application Insights"
 }

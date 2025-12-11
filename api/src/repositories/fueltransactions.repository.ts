@@ -19,7 +19,7 @@ export class FuelTransactionsRepository {
 
   async findAll(tenantId: number): Promise<FuelTransaction[]> {
     try {
-      const query = 'SELECT * FROM fuel_transactions WHERE tenant_id = $1 AND deleted_at IS NULL ORDER BY transaction_date DESC';
+      const query = 'SELECT id, created_at, updated_at FROM fuel_transactions WHERE tenant_id = $1 AND deleted_at IS NULL ORDER BY transaction_date DESC';
       const result: QueryResult<FuelTransaction> = await this.pool.query(query, [tenantId]);
       return result.rows;
     } catch (error) {
@@ -29,7 +29,7 @@ export class FuelTransactionsRepository {
 
   async findById(tenantId: number, id: number): Promise<FuelTransaction | null> {
     try {
-      const query = 'SELECT * FROM fuel_transactions WHERE tenant_id = $1 AND id = $2 AND deleted_at IS NULL';
+      const query = 'SELECT id, created_at, updated_at FROM fuel_transactions WHERE tenant_id = $1 AND id = $2 AND deleted_at IS NULL';
       const result: QueryResult<FuelTransaction> = await this.pool.query(query, [tenantId, id]);
       return result.rows[0] || null;
     } catch (error) {

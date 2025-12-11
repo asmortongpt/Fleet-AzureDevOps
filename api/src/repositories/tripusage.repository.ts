@@ -26,7 +26,7 @@ export class TripUsageRepository {
 
   async getTripUsageById(tenant_id: string, id: string): Promise<QueryResult> {
     const query = `
-      SELECT * FROM trip_usage
+      SELECT id, tenant_id, created_at, updated_at FROM trip_usage
       WHERE id = $1 AND tenant_id = $2
     `;
     const values = [id, tenant_id];
@@ -35,7 +35,7 @@ export class TripUsageRepository {
 
   async getAllTripUsages(tenant_id: string): Promise<QueryResult> {
     const query = `
-      SELECT * FROM trip_usage
+      SELECT id, tenant_id, created_at, updated_at FROM trip_usage
       WHERE tenant_id = $1
     `;
     const values = [tenant_id];

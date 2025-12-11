@@ -8,12 +8,12 @@ class MobileTripsRepository {
   }
 
   async getAllTrips(tenantId: string): Promise<QueryResult> {
-    const query = 'SELECT * FROM mobile_trips WHERE tenant_id = $1';
+    const query = 'SELECT id, tenant_id, created_at, updated_at FROM mobile_trips WHERE tenant_id = $1';
     return this.pool.query(query, [tenantId]);
   }
 
   async getTripById(tripId: string, tenantId: string): Promise<QueryResult> {
-    const query = 'SELECT * FROM mobile_trips WHERE id = $1 AND tenant_id = $2';
+    const query = 'SELECT id, tenant_id, created_at, updated_at FROM mobile_trips WHERE id = $1 AND tenant_id = $2';
     return this.pool.query(query, [tripId, tenantId]);
   }
 

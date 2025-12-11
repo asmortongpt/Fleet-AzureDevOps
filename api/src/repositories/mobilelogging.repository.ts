@@ -15,7 +15,7 @@ export class MobileLoggingRepository {
 
   async findAll(tenantId: number): Promise<MobileLog[]> {
     try {
-      const query = 'SELECT * FROM mobile_logs WHERE tenant_id = $1 AND deleted_at IS NULL ORDER BY created_at DESC';
+      const query = 'SELECT id, created_at, updated_at FROM mobile_logs WHERE tenant_id = $1 AND deleted_at IS NULL ORDER BY created_at DESC';
       const result: QueryResult<MobileLog> = await this.pool.query(query, [tenantId]);
       return result.rows;
     } catch (error) {
@@ -25,7 +25,7 @@ export class MobileLoggingRepository {
 
   async findById(tenantId: number, id: number): Promise<MobileLog | null> {
     try {
-      const query = 'SELECT * FROM mobile_logs WHERE tenant_id = $1 AND id = $2 AND deleted_at IS NULL';
+      const query = 'SELECT id, created_at, updated_at FROM mobile_logs WHERE tenant_id = $1 AND id = $2 AND deleted_at IS NULL';
       const result: QueryResult<MobileLog> = await this.pool.query(query, [tenantId, id]);
       return result.rows[0] || null;
     } catch (error) {
