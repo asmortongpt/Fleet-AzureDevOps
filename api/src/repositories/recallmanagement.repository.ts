@@ -1,3 +1,5 @@
+import { BaseRepository } from '../repositories/BaseRepository';
+
 ```typescript
 import { Pool } from 'pg';
 
@@ -13,7 +15,7 @@ export interface RecallManagementEntity {
 /**
  * RecallManagementRepository class
  */
-export class RecallManagementRepository {
+export class RecallManagementRepository extends BaseRepository<any> {
   constructor(private pool: Pool) {}
 
   /**

@@ -1,3 +1,5 @@
+import { BaseRepository } from '../repositories/BaseRepository';
+
 To create a TypeScript repository called `BoundaryAlertsRepository` for the `api/src/routes/boundary-alerts.routes.ts` file, we'll implement parameterized queries, include a `tenant_id` field, and provide CRUD operations. Let's break this down step-by-step:
 
 1. We'll create a new file called `boundary-alerts.repository.ts` in the `api/src/repositories` directory.
@@ -13,7 +15,7 @@ Here's the implementation:
 import { Pool, QueryResult } from 'pg';
 import { BoundaryAlert } from '../models/boundary-alert.model';
 
-export class BoundaryAlertsRepository {
+export class BoundaryAlertsRepository extends BaseRepository<any> {
   private pool: Pool;
 
   constructor(pool: Pool) {

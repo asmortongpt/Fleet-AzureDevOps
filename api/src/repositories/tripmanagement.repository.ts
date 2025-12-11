@@ -1,3 +1,5 @@
+import { BaseRepository } from '../repositories/BaseRepository';
+
 import { Pool, QueryResult } from 'pg';
 
 export interface Trip {
@@ -11,7 +13,7 @@ export interface Trip {
   deleted_at: Date | null;
 }
 
-export class TripManagementRepository {
+export class TripManagementRepository extends BaseRepository<any> {
   constructor(private pool: Pool) {}
 
   async findAll(tenantId: number): Promise<Trip[]> {

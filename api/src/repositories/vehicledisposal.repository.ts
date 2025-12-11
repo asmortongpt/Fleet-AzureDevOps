@@ -1,3 +1,5 @@
+import { BaseRepository } from '../repositories/BaseRepository';
+
 Let's create a TypeScript repository for vehicle disposal management, focusing on CRUD operations with parameterized queries and tenant_id support. We'll structure this repository to be used in the `api/src/routes/vehicle-disposal.routes.ts` file.
 
 Here's the implementation of the `VehicleDisposalRepository`:
@@ -17,7 +19,7 @@ interface VehicleDisposal {
   tenant_id: number;
 }
 
-export class VehicleDisposalRepository {
+export class VehicleDisposalRepository extends BaseRepository<any> {
   private pool: Pool;
 
   constructor(pool: Pool) {

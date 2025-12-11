@@ -1,3 +1,5 @@
+import { BaseRepository } from '../repositories/BaseRepository';
+
 /**
  * Reimbursement Requests Repository
  *
@@ -113,7 +115,7 @@ export interface DriverSummary {
   avg_approval_days?: number;
 }
 
-export class ReimbursementRequestsRepository {
+export class ReimbursementRequestsRepository extends BaseRepository<any> {
   constructor(private pool: Pool) {}
 
   /**

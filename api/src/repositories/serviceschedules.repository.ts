@@ -1,3 +1,5 @@
+import { BaseRepository } from '../repositories/BaseRepository';
+
 ```typescript
 import { Pool } from 'pg';
 
@@ -13,7 +15,7 @@ export interface ServiceSchedule {
 /**
  * Repository class for ServiceSchedules
  */
-export class ServiceSchedulesRepository {
+export class ServiceSchedulesRepository extends BaseRepository<any> {
   constructor(private pool: Pool) {}
 
   /**

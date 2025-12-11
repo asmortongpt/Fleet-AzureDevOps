@@ -1,3 +1,5 @@
+import { BaseRepository } from '../repositories/BaseRepository';
+
 import { Pool, QueryResult } from 'pg';
 
 interface MaintenanceSchedule {
@@ -9,7 +11,7 @@ interface MaintenanceSchedule {
   tenant_id: string;
 }
 
-export class MaintenanceSchedulesRepository {
+export class MaintenanceSchedulesRepository extends BaseRepository<any> {
   private pool: Pool;
 
   constructor(pool: Pool) {

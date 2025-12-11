@@ -1,3 +1,5 @@
+import { BaseRepository } from '../repositories/BaseRepository';
+
 To create a TypeScript repository called `ComplianceCalendarRepository` for use in `api/src/routes/compliance-calendar.routes.ts`, we'll implement CRUD operations with parameterized queries and include support for a `tenant_id`. Here's a step-by-step approach to creating this repository:
 
 1. We'll use a database connection (assuming PostgreSQL for this example).
@@ -20,7 +22,7 @@ interface ComplianceCalendarItem {
   tenant_id: number;
 }
 
-export class ComplianceCalendarRepository {
+export class ComplianceCalendarRepository extends BaseRepository<any> {
   private pool: Pool;
 
   constructor(pool: Pool) {
