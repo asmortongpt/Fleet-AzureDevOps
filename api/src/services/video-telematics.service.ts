@@ -738,6 +738,191 @@ class VideoTelematicsService {
 
     return deleted;
   }
+
+  /**
+   * Get all cameras for a tenant with vehicle details
+   */
+  async getAllCamerasForTenant(tenantId: string) {
+    const result = await this.db.query(
+      `SELECT vc.*, v.name as vehicle_name, v.vin
+       FROM vehicle_cameras vc
+       JOIN vehicles v ON vc.vehicle_id = v.id
+       WHERE v.tenant_id = $1
+       ORDER BY v.name, vc.camera_type`,
+      [tenantId]
+    );
+
+    return result.rows;
+  }
+
+  /**
+   * Get single video event with full details
+   */
+  async getVideoEventWithDetails(eventId: number, tenantId: string) {
+    const result = await this.db.query(
+      `SELECT vse.*,
+              v.name as vehicle_name,
+              v.vin,
+              d.first_name || ' ' || d.last_name as driver_name,
+              vc.camera_type,
+              vc.camera_name
+       FROM video_safety_events vse
+       JOIN vehicles v ON vse.vehicle_id = v.id
+       LEFT JOIN drivers d ON vse.driver_id = d.id
+       LEFT JOIN vehicle_cameras vc ON vse.camera_id = vc.id
+       WHERE vse.id = $1 AND v.tenant_id = $2`,
+      [eventId, tenantId]
+    );
+
+    if (result.rows.length === 0) {
+      return null;
+    }
+
+    return result.rows[0];
+  }
+
+  /**
+   * Log video access for audit trail
+   */
+  async logVideoAccess(eventId: number, userId: number, accessType: string, ipAddress: string) {
+    await this.db.query(
+      `INSERT INTO video_privacy_audit
+       (video_event_id, accessed_by, access_type, ip_address)
+       VALUES ($1, $2, $3, $4)`,
+      [eventId, userId, accessType, ipAddress]
+    );
+  }
+
+  /**
+   * Review video event
+   */
+  async reviewVideoEvent(
+    eventId: number,
+    reviewed: boolean,
+    reviewedBy: number,
+    reviewNotes?: string,
+    falsePositive?: boolean,
+    coachingRequired?: boolean
+  ) {
+    await this.db.query(
+      `UPDATE video_safety_events
+       SET reviewed = $1,
+           reviewed_by = $2,
+           reviewed_at = NOW(),
+           review_notes = $3,
+           false_positive = $4,
+           coaching_required = $5,
+           updated_at = NOW()
+       WHERE id = $6`,
+      [reviewed, reviewedBy, reviewNotes, falsePositive, coachingRequired, eventId]
+    );
+  }
+
+  /**
+   * Get events requiring coaching
+   */
+  async getEventsRequiringCoaching(tenantId: string) {
+    const result = await this.db.query(
+      `SELECT vse.id, vse.tenant_id, vse.vehicle_id, vse.driver_id, vse.event_type,
+              vse.severity, vse.event_timestamp as date_time
+       FROM video_safety_events vse
+       WHERE vse.coaching_required = true
+         AND vse.coaching_completed = false
+         AND vse.vehicle_id IN (SELECT id FROM vehicles WHERE tenant_id = $1)
+       ORDER BY vse.event_timestamp DESC
+       LIMIT 100`,
+      [tenantId]
+    );
+
+    return result.rows;
+  }
+
+  /**
+   * Queue privacy processing
+   */
+  async queuePrivacyProcessing(eventId: number, taskType: string, priority: number = 2) {
+    await this.db.query(
+      `INSERT INTO video_processing_queue (video_event_id, task_type, priority)
+       VALUES ($1, $2, $3)`,
+      [eventId, taskType, priority]
+    );
+  }
+
+  /**
+   * Update privacy settings for event
+   */
+  async updatePrivacySettings(
+    eventId: number,
+    blurFaces: boolean,
+    blurPlates: boolean
+  ) {
+    await this.db.query(
+      `UPDATE video_safety_events
+       SET privacy_faces_blurred = $1,
+           privacy_plates_blurred = $2,
+           privacy_processing_status = 'pending'
+       WHERE id = $3`,
+      [blurFaces, blurPlates, eventId]
+    );
+  }
+
+  /**
+   * Log privacy action in audit trail
+   */
+  async logPrivacyAction(
+    eventId: number,
+    userId: number,
+    privacyAction: string
+  ) {
+    await this.db.query(
+      `INSERT INTO video_privacy_audit
+       (video_event_id, accessed_by, access_type, privacy_action)
+       VALUES ($1, $2, 'privacy_filter', $3)`,
+      [eventId, userId, privacyAction]
+    );
+  }
+
+  /**
+   * Get driver video scorecard
+   */
+  async getDriverVideoScorecard(tenantId: string) {
+    const result = await this.db.query(
+      `SELECT dvs.id, dvs.tenant_id, dvs.driver_id, dvs.score_30d as score,
+              dvs.total_events_30d as total_events, dvs.safe_events_30d as safe_events,
+              dvs.violation_events_30d as violation_events
+       FROM driver_video_scorecard dvs
+       WHERE dvs.driver_id IN (
+         SELECT id FROM drivers WHERE tenant_id = $1
+       )
+       ORDER BY dvs.total_events_30d DESC
+       LIMIT 50`,
+      [tenantId]
+    );
+
+    return result.rows;
+  }
+
+  /**
+   * Get camera health status
+   */
+  async getCameraHealthStatus(tenantId: string) {
+    const result = await this.db.query(
+      `SELECT vc.id, vc.vehicle_id, vc.status as camera_status, vc.last_ping_at as last_sync,
+              vc.battery_level, v.name as vehicle_name,
+              CASE
+                WHEN vc.last_ping_at > NOW() - INTERVAL '15 minutes' THEN 'healthy'
+                WHEN vc.last_ping_at > NOW() - INTERVAL '1 hour' THEN 'degraded'
+                ELSE 'offline'
+              END as health_status
+       FROM vehicle_cameras vc
+       JOIN vehicles v ON vc.vehicle_id = v.id
+       WHERE v.tenant_id = $1
+       ORDER BY health_status, v.name`,
+      [tenantId]
+    );
+
+    return result.rows;
+  }
 }
 
 export default VideoTelematicsService;
