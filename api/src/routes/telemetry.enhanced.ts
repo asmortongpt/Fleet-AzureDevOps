@@ -1,6 +1,3 @@
-Here's the complete refactored file with the `TelemetryRepository` class implemented and used in place of `pool.query`:
-
-
 import express, { Response } from 'express';
 import { container } from '../container';
 import { asyncHandler } from '../middleware/errorHandler';
@@ -113,65 +110,3 @@ router.put(
 );
 
 export default router;
-
-
-And here's the implementation of the `TelemetryRepository` class:
-
-
-// File: src/repositories/telemetry-repository.ts
-
-import { PoolClient } from 'pg';
-import { container } from '../container';
-import { buildInsertClause, buildUpdateClause } from '../utils/sql-safety';
-
-export class TelemetryRepository {
-  private pool: PoolClient;
-
-  constructor() {
-    this.pool = container.resolve('dbPool');
-  }
-
-  async getTelemetryData(tenantId: string, limit: number, offset: number): Promise<any[]> {
-    const result = await this.pool.query(
-      'SELECT * FROM telemetry_data WHERE tenant_id = $1 ORDER BY created_at DESC LIMIT $2 OFFSET $3',
-      [tenantId, limit, offset]
-    );
-    return result.rows;
-  }
-
-  async countTelemetryData(tenantId: string): Promise<number> {
-    const result = await this.pool.query(
-      'SELECT COUNT(*) FROM telemetry_data WHERE tenant_id = $1',
-      [tenantId]
-    );
-    return parseInt(result.rows[0].count, 10);
-  }
-
-  async createTelemetryData(tenantId: string, data: any): Promise<any> {
-    const { columnNames, placeholders, values } = buildInsertClause(data);
-    const query = `
-      INSERT INTO telemetry_data (tenant_id, ${columnNames})
-      VALUES ($1, ${placeholders})
-      RETURNING *
-    `;
-    const result = await this.pool.query(query, [tenantId, ...values]);
-    return result.rows[0];
-  }
-
-  async updateTelemetryData(id: string, tenantId: string, data: any): Promise<any | null> {
-    const { setClause, values } = buildUpdateClause(data);
-    const query = `
-      UPDATE telemetry_data
-      SET ${setClause}
-      WHERE id = $1 AND tenant_id = $2
-      RETURNING *
-    `;
-    const result = await this.pool.query(query, [id, tenantId, ...values]);
-    return result.rows[0] || null;
-  }
-}
-
-
-This refactored version replaces all `pool.query` calls with methods from the `TelemetryRepository` class. The repository encapsulates the database operations and provides a cleaner interface for the router to use. The `TelemetryRepository` class is responsible for executing the actual database queries using the `pool` object obtained from the dependency injection container.
-
-Note that the `TelemetryRepository` class is stored in a separate file (`telemetry-repository.ts`) in the `repositories` directory, as per the import statement in the main file.

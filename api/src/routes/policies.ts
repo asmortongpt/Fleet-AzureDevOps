@@ -1,94 +1,338 @@
-To complete the refactoring process, we need to create the `PolicyRepository` class. Here's the complete implementation of the `PolicyRepository` class that replaces the `pool.query` calls:
+import { PolicyRepository } from '../repositories/policy.repository';
+import { UserRepository } from '../repositories/user.repository';
+import { GroupRepository } from '../repositories/group.repository';
+import { RoleRepository } from '../repositories/role.repository';
+import { PermissionRepository } from '../repositories/permission.repository';
+import { PolicyUserRepository } from '../repositories/policyUser.repository';
+import { PolicyGroupRepository } from '../repositories/policyGroup.repository';
+import { PolicyRoleRepository } from '../repositories/policyRole.repository';
+import { PolicyPermissionRepository } from '../repositories/policyPermission.repository';
 
+const policyRepository = new PolicyRepository();
+const userRepository = new UserRepository();
+const groupRepository = new GroupRepository();
+const roleRepository = new RoleRepository();
+const permissionRepository = new PermissionRepository();
+const policyUserRepository = new PolicyUserRepository();
+const policyGroupRepository = new PolicyGroupRepository();
+const policyRoleRepository = new PolicyRoleRepository();
+const policyPermissionRepository = new PolicyPermissionRepository();
 
-import { PoolClient } from 'pg';
-import { container } from '../container';
+export const getPolicies = async (req: any, res: any) => {
+  const { tenantId } = req.user;
+  const { limit = 10, offset = 0 } = req.query;
 
-export class PolicyRepository {
-  private client: PoolClient;
-
-  constructor() {
-    this.client = container.resolve('dbClient');
+  try {
+    const [policies, totalCount] = await policyRepository.getPolicies(tenantId, limit, offset);
+    res.json({ policies, totalCount });
+  } catch (error) {
+    console.error('Error fetching policies:', error);
+    res.status(500).json({ error: 'Internal Server Error' });
   }
+};
 
-  async getPolicies(tenantId: string, limit: number, offset: number): Promise<[any[], number]> {
-    const query = `
-      SELECT * FROM policies
-      WHERE tenant_id = $1
-      LIMIT $2 OFFSET $3
-    `;
-    const countQuery = `
-      SELECT COUNT(*) FROM policies
-      WHERE tenant_id = $1
-    `;
+export const getPolicy = async (req: any, res: any) => {
+  const { tenantId } = req.user;
+  const { policyId } = req.params;
 
-    const policies = await this.client.query(query, [tenantId, limit, offset]);
-    const countResult = await this.client.query(countQuery, [tenantId]);
-
-    return [policies.rows, parseInt(countResult.rows[0].count, 10)];
+  try {
+    const policy = await policyRepository.getPolicyById(policyId, tenantId);
+    if (!policy) {
+      return res.status(404).json({ error: 'Policy not found' });
+    }
+    res.json(policy);
+  } catch (error) {
+    console.error('Error fetching policy:', error);
+    res.status(500).json({ error: 'Internal Server Error' });
   }
+};
 
-  async getPolicyById(policyId: string, tenantId: string): Promise<any | null> {
-    const query = `
-      SELECT * FROM policies
-      WHERE id = $1 AND tenant_id = $2
-    `;
-    const result = await this.client.query(query, [policyId, tenantId]);
-    return result.rows[0] || null;
+export const createPolicy = async (req: any, res: any) => {
+  const { tenantId } = req.user;
+  const { name, description, enabled } = req.body;
+
+  try {
+    const policy = await policyRepository.createPolicy(tenantId, name, description, enabled);
+    res.status(201).json(policy);
+  } catch (error) {
+    console.error('Error creating policy:', error);
+    res.status(500).json({ error: 'Internal Server Error' });
   }
+};
 
-  async createPolicy(columnNames: string, placeholders: string, values: any[]): Promise<any> {
-    const query = `
-      INSERT INTO policies (${columnNames})
-      VALUES (${placeholders})
-      RETURNING *
-    `;
-    const result = await this.client.query(query, values);
-    return result.rows[0];
+export const updatePolicy = async (req: any, res: any) => {
+  const { tenantId } = req.user;
+  const { policyId } = req.params;
+  const { name, description, enabled } = req.body;
+
+  try {
+    const policy = await policyRepository.updatePolicy(policyId, tenantId, name, description, enabled);
+    if (!policy) {
+      return res.status(404).json({ error: 'Policy not found' });
+    }
+    res.json(policy);
+  } catch (error) {
+    console.error('Error updating policy:', error);
+    res.status(500).json({ error: 'Internal Server Error' });
   }
+};
 
-  async updatePolicy(policyId: string, tenantId: string, fields: string, values: any[]): Promise<any | null> {
-    const query = `
-      UPDATE policies
-      SET ${fields}
-      WHERE id = $${values.length + 1} AND tenant_id = $${values.length + 2}
-      RETURNING *
-    `;
-    const result = await this.client.query(query, [...values, policyId, tenantId]);
-    return result.rows[0] || null;
+export const deletePolicy = async (req: any, res: any) => {
+  const { tenantId } = req.user;
+  const { policyId } = req.params;
+
+  try {
+    const deletedPolicyId = await policyRepository.deletePolicy(policyId, tenantId);
+    if (!deletedPolicyId) {
+      return res.status(404).json({ error: 'Policy not found' });
+    }
+    res.status(204).send();
+  } catch (error) {
+    console.error('Error deleting policy:', error);
+    res.status(500).json({ error: 'Internal Server Error' });
   }
+};
 
-  async deletePolicy(policyId: string, tenantId: string): Promise<string | null> {
-    const query = `
-      DELETE FROM policies
-      WHERE id = $1 AND tenant_id = $2
-      RETURNING id
-    `;
-    const result = await this.client.query(query, [policyId, tenantId]);
-    return result.rows[0]?.id || null;
+export const getPolicyUsers = async (req: any, res: any) => {
+  const { tenantId } = req.user;
+  const { policyId } = req.params;
+
+  try {
+    const policyUsers = await policyUserRepository.getPolicyUsers(policyId, tenantId);
+    const userIds = policyUsers.map(pu => pu.user_id);
+    const users = await userRepository.getUsersByIds(userIds, tenantId);
+    res.json(users);
+  } catch (error) {
+    console.error('Error fetching policy users:', error);
+    res.status(500).json({ error: 'Internal Server Error' });
   }
-}
+};
 
+export const addUserToPolicy = async (req: any, res: any) => {
+  const { tenantId } = req.user;
+  const { policyId, userId } = req.params;
 
-This `PolicyRepository` class encapsulates all the database operations that were previously done using `pool.query`. Here's a breakdown of the changes:
+  try {
+    const policy = await policyRepository.getPolicyById(policyId, tenantId);
+    if (!policy) {
+      return res.status(404).json({ error: 'Policy not found' });
+    }
 
-1. We import the `PoolClient` from 'pg' and the `container` from '../container'.
-2. The constructor initializes the `client` using the `container.resolve('dbClient')`.
-3. Each method in the repository corresponds to a specific database operation:
-   - `getPolicies`: Retrieves a paginated list of policies for a given tenant.
-   - `getPolicyById`: Retrieves a single policy by ID and tenant.
-   - `createPolicy`: Inserts a new policy into the database.
-   - `updatePolicy`: Updates an existing policy.
-   - `deletePolicy`: Deletes a policy and returns its ID if successful.
+    const user = await userRepository.getUserById(userId, tenantId);
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
 
-4. All database queries are now encapsulated within these methods, making the code more modular and easier to maintain.
+    await policyUserRepository.addUserToPolicy(policyId, userId, tenantId);
+    res.status(204).send();
+  } catch (error) {
+    console.error('Error adding user to policy:', error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+};
 
-5. The repository methods return the same data structures as the original `pool.query` calls, ensuring compatibility with the existing router code.
+export const removeUserFromPolicy = async (req: any, res: any) => {
+  const { tenantId } = req.user;
+  const { policyId, userId } = req.params;
 
-To use this refactored version, you'll need to:
+  try {
+    const policy = await policyRepository.getPolicyById(policyId, tenantId);
+    if (!policy) {
+      return res.status(404).json({ error: 'Policy not found' });
+    }
 
-1. Save this `PolicyRepository` class in a file named `policy.repository.ts` in the `../repositories` directory.
-2. Make sure the `container` is properly set up to resolve 'dbClient' to a `PoolClient` instance.
-3. The router code you provided earlier should work seamlessly with this new repository implementation.
+    const user = await userRepository.getUserById(userId, tenantId);
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
 
-This refactoring improves the separation of concerns, making it easier to manage database operations and potentially switch to a different database system in the future if needed.
+    await policyUserRepository.removeUserFromPolicy(policyId, userId, tenantId);
+    res.status(204).send();
+  } catch (error) {
+    console.error('Error removing user from policy:', error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+};
+
+export const getPolicyGroups = async (req: any, res: any) => {
+  const { tenantId } = req.user;
+  const { policyId } = req.params;
+
+  try {
+    const policyGroups = await policyGroupRepository.getPolicyGroups(policyId, tenantId);
+    const groupIds = policyGroups.map(pg => pg.group_id);
+    const groups = await groupRepository.getGroupsByIds(groupIds, tenantId);
+    res.json(groups);
+  } catch (error) {
+    console.error('Error fetching policy groups:', error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+};
+
+export const addGroupToPolicy = async (req: any, res: any) => {
+  const { tenantId } = req.user;
+  const { policyId, groupId } = req.params;
+
+  try {
+    const policy = await policyRepository.getPolicyById(policyId, tenantId);
+    if (!policy) {
+      return res.status(404).json({ error: 'Policy not found' });
+    }
+
+    const group = await groupRepository.getGroupById(groupId, tenantId);
+    if (!group) {
+      return res.status(404).json({ error: 'Group not found' });
+    }
+
+    await policyGroupRepository.addGroupToPolicy(policyId, groupId, tenantId);
+    res.status(204).send();
+  } catch (error) {
+    console.error('Error adding group to policy:', error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+};
+
+export const removeGroupFromPolicy = async (req: any, res: any) => {
+  const { tenantId } = req.user;
+  const { policyId, groupId } = req.params;
+
+  try {
+    const policy = await policyRepository.getPolicyById(policyId, tenantId);
+    if (!policy) {
+      return res.status(404).json({ error: 'Policy not found' });
+    }
+
+    const group = await groupRepository.getGroupById(groupId, tenantId);
+    if (!group) {
+      return res.status(404).json({ error: 'Group not found' });
+    }
+
+    await policyGroupRepository.removeGroupFromPolicy(policyId, groupId, tenantId);
+    res.status(204).send();
+  } catch (error) {
+    console.error('Error removing group from policy:', error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+};
+
+export const getPolicyRoles = async (req: any, res: any) => {
+  const { tenantId } = req.user;
+  const { policyId } = req.params;
+
+  try {
+    const policyRoles = await policyRoleRepository.getPolicyRoles(policyId, tenantId);
+    const roleIds = policyRoles.map(pr => pr.role_id);
+    const roles = await roleRepository.getRolesByIds(roleIds, tenantId);
+    res.json(roles);
+  } catch (error) {
+    console.error('Error fetching policy roles:', error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+};
+
+export const addRoleToPolicy = async (req: any, res: any) => {
+  const { tenantId } = req.user;
+  const { policyId, roleId } = req.params;
+
+  try {
+    const policy = await policyRepository.getPolicyById(policyId, tenantId);
+    if (!policy) {
+      return res.status(404).json({ error: 'Policy not found' });
+    }
+
+    const role = await roleRepository.getRoleById(roleId, tenantId);
+    if (!role) {
+      return res.status(404).json({ error: 'Role not found' });
+    }
+
+    await policyRoleRepository.addRoleToPolicy(policyId, roleId, tenantId);
+    res.status(204).send();
+  } catch (error) {
+    console.error('Error adding role to policy:', error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+};
+
+export const removeRoleFromPolicy = async (req: any, res: any) => {
+  const { tenantId } = req.user;
+  const { policyId, roleId } = req.params;
+
+  try {
+    const policy = await policyRepository.getPolicyById(policyId, tenantId);
+    if (!policy) {
+      return res.status(404).json({ error: 'Policy not found' });
+    }
+
+    const role = await roleRepository.getRoleById(roleId, tenantId);
+    if (!role) {
+      return res.status(404).json({ error: 'Role not found' });
+    }
+
+    await policyRoleRepository.removeRoleFromPolicy(policyId, roleId, tenantId);
+    res.status(204).send();
+  } catch (error) {
+    console.error('Error removing role from policy:', error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+};
+
+export const getPolicyPermissions = async (req: any, res: any) => {
+  const { tenantId } = req.user;
+  const { policyId } = req.params;
+
+  try {
+    const policyPermissions = await policyPermissionRepository.getPolicyPermissions(policyId, tenantId);
+    const permissionIds = policyPermissions.map(pp => pp.permission_id);
+    const permissions = await permissionRepository.getPermissionsByIds(permissionIds, tenantId);
+    res.json(permissions);
+  } catch (error) {
+    console.error('Error fetching policy permissions:', error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+};
+
+export const addPermissionToPolicy = async (req: any, res: any) => {
+  const { tenantId } = req.user;
+  const { policyId, permissionId } = req.params;
+
+  try {
+    const policy = await policyRepository.getPolicyById(policyId, tenantId);
+    if (!policy) {
+      return res.status(404).json({ error: 'Policy not found' });
+    }
+
+    const permission = await permissionRepository.getPermissionById(permissionId, tenantId);
+    if (!permission) {
+      return res.status(404).json({ error: 'Permission not found' });
+    }
+
+    await policyPermissionRepository.addPermissionToPolicy(policyId, permissionId, tenantId);
+    res.status(204).send();
+  } catch (error) {
+    console.error('Error adding permission to policy:', error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+};
+
+export const removePermissionFromPolicy = async (req: any, res: any) => {
+  const { tenantId } = req.user;
+  const { policyId, permissionId } = req.params;
+
+  try {
+    const policy = await policyRepository.getPolicyById(policyId, tenantId);
+    if (!policy) {
+      return res.status(404).json({ error: 'Policy not found' });
+    }
+
+    const permission = await permissionRepository.getPermissionById(permissionId, tenantId);
+    if (!permission) {
+      return res.status(404).json({ error: 'Permission not found' });
+    }
+
+    await policyPermissionRepository.removePermissionFromPolicy(policyId, permissionId, tenantId);
+    res.status(204).send();
+  } catch (error) {
+    console.error('Error removing permission from policy:', error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+};

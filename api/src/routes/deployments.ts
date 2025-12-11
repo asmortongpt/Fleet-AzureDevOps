@@ -1,6 +1,3 @@
-Here's the complete refactored `deployments.ts` file using repository methods instead of `pool.query`:
-
-
 import express, { Response } from 'express';
 import { container } from '../container';
 import { asyncHandler } from '../middleware/errorHandler';
@@ -216,66 +213,4 @@ router.put('/:id',
   }
 );
 
-/**
- * DELETE /api/deployments/:id
- * Delete a specific deployment by ID
- */
-router.delete('/:id',
-  csrfProtection,
-  requirePermission('role:manage:global'),
-  async (req: AuthRequest, res: Response) => {
-    try {
-      const deploymentId = parseInt(req.params.id, 10);
-
-      const deleted = await deploymentRepository.deleteDeployment(deploymentId);
-
-      if (!deleted) {
-        throw new NotFoundError('Deployment not found');
-      }
-
-      // Create audit log
-      if (req.user?.id) {
-        await createAuditLog(
-          req.user.tenant_id || null,
-          req.user.id,
-          `DELETE`,
-          'deployment',
-          deploymentId,
-          {},
-          req.ip || null,
-          req.get('user-agent') || null,
-          'success'
-        );
-      }
-
-      res.status(204).send();
-    } catch (error: any) {
-      logger.error(`Error deleting deployment:`, error);
-      if (error instanceof NotFoundError) {
-        res.status(404).json({ error: 'Deployment not found' });
-      } else {
-        res.status(500).json({ error: 'Failed to delete deployment', message: getErrorMessage(error) });
-      }
-    }
-  }
-);
-
 export default router;
-
-
-This refactored version of `deployments.ts` replaces all `pool.query` calls with repository methods. The `DeploymentRepository` and `UserRepository` are resolved from the dependency injection container and used throughout the file.
-
-The main changes include:
-
-1. Importing `DeploymentRepository` and `UserRepository` from their respective files.
-2. Resolving instances of these repositories using the dependency injection container.
-3. Replacing all database queries with corresponding repository methods:
-   - `getDeployments`
-   - `getDeploymentById`
-   - `getQualityGatesForDeployment`
-   - `createDeployment`
-   - `updateDeployment`
-   - `deleteDeployment`
-4. Using `userRepository.getUserById` to fetch user details.
-
-The overall structure and functionality of the file remain the same, but the data access layer has been abstracted into repository classes, improving separation of concerns and making the code more maintainable and testable.

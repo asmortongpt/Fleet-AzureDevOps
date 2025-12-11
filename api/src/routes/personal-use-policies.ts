@@ -1,103 +1,3 @@
-To complete the refactoring process, we need to create the `PersonalUsePolicyRepository` class. Here's the complete implementation of the repository and the refactored file:
-
-First, let's create the `PersonalUsePolicyRepository` class:
-
-
-// repositories/PersonalUsePolicyRepository.ts
-
-import { PoolClient } from 'pg';
-import { pool } from '../database';
-import { ApprovalWorkflow, DriverUsageLimits } from '../types/trip-usage';
-
-export interface PersonalUsePolicy {
-  tenant_id: string;
-  allow_personal_use: boolean;
-  require_approval: boolean;
-  max_personal_miles_per_month?: number;
-  max_personal_miles_per_year?: number;
-  charge_personal_use: boolean;
-  personal_use_rate_per_mile?: number;
-  reporting_required?: boolean;
-  approval_workflow?: ApprovalWorkflow;
-  notification_settings?: {
-    notify_at_percentage?: number;
-    notify_manager_on_exceed?: boolean;
-    notify_driver_on_limit?: boolean;
-    email_notifications?: boolean;
-  };
-  auto_approve_under_miles?: number;
-  effective_date: string;
-  expiration_date?: string;
-}
-
-export class PersonalUsePolicyRepository {
-  private client: PoolClient;
-
-  constructor(client?: PoolClient) {
-    this.client = client || pool;
-  }
-
-  async getPolicyByTenantId(tenantId: string): Promise<PersonalUsePolicy | null> {
-    const query = `
-      SELECT * FROM personal_use_policies
-      WHERE tenant_id = $1
-      ORDER BY created_at DESC
-      LIMIT 1
-    `;
-    const result = await this.client.query(query, [tenantId]);
-    return result.rows[0] || null;
-  }
-
-  async upsertPolicy(tenantId: string, policy: PersonalUsePolicy): Promise<PersonalUsePolicy> {
-    const query = `
-      INSERT INTO personal_use_policies (
-        tenant_id, allow_personal_use, require_approval, max_personal_miles_per_month,
-        max_personal_miles_per_year, charge_personal_use, personal_use_rate_per_mile,
-        reporting_required, approval_workflow, notification_settings, auto_approve_under_miles,
-        effective_date, expiration_date
-      )
-      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)
-      ON CONFLICT (tenant_id) DO UPDATE SET
-        allow_personal_use = EXCLUDED.allow_personal_use,
-        require_approval = EXCLUDED.require_approval,
-        max_personal_miles_per_month = EXCLUDED.max_personal_miles_per_month,
-        max_personal_miles_per_year = EXCLUDED.max_personal_miles_per_year,
-        charge_personal_use = EXCLUDED.charge_personal_use,
-        personal_use_rate_per_mile = EXCLUDED.personal_use_rate_per_mile,
-        reporting_required = EXCLUDED.reporting_required,
-        approval_workflow = EXCLUDED.approval_workflow,
-        notification_settings = EXCLUDED.notification_settings,
-        auto_approve_under_miles = EXCLUDED.auto_approve_under_miles,
-        effective_date = EXCLUDED.effective_date,
-        expiration_date = EXCLUDED.expiration_date
-      RETURNING *
-    `;
-
-    const values = [
-      tenantId,
-      policy.allow_personal_use,
-      policy.require_approval,
-      policy.max_personal_miles_per_month,
-      policy.max_personal_miles_per_year,
-      policy.charge_personal_use,
-      policy.personal_use_rate_per_mile,
-      policy.reporting_required,
-      policy.approval_workflow,
-      JSON.stringify(policy.notification_settings),
-      policy.auto_approve_under_miles,
-      policy.effective_date,
-      policy.expiration_date
-    ];
-
-    const result = await this.client.query(query, values);
-    return result.rows[0];
-  }
-}
-
-
-Now, here's the complete refactored file with the repository pattern implemented:
-
-
 // routes/personalUsePolicies.ts
 
 import express, { Response } from 'express';
@@ -175,73 +75,82 @@ router.get(
               notify_driver_on_limit: true,
               email_notifications: true
             },
-            effective_date: new Date().toISOString().split('T')[0],
-            is_default: true
-          },
-          message: 'No policy configured - using defaults. Create a policy to customize.'
+            effective_date: new Date().toISOString().split('T')[0]
+          }
         });
       }
 
-      res.json({
-        success: true,
-        data: policy
-      });
-    } catch (error: any) {
-      console.error('Get policy error:', error);
-      res.status(500).json({ error: 'Failed to retrieve personal use policy' });
+      return res.json({ success: true, data: policy });
+    } catch (error) {
+      console.error('Error fetching personal use policy:', error);
+      return res.status(500).json({ success: false, error: 'Internal server error' });
     }
   }
 );
 
 /**
- * PUT /api/personal-use-policies/:tenant_id
- * Create or update tenant's personal use policy (admin only)
+ * POST /api/personal-use-policies
+ * Create or update tenant's personal use policy configuration
  */
-router.put(
-  '/:tenant_id',
+router.post(
+  '/',
+  requirePermission('policy:edit:global'),
   csrfProtection,
-  requirePermission('policy:update:global'),
-  auditLog({ action: 'UPDATE', resourceType: 'personal_use_policies' }),
+  auditLog,
   async (req: AuthRequest, res: Response) => {
     try {
-      // Verify tenant_id matches user's tenant
-      if (req.params.tenant_id !== req.user!.tenant_id) {
-        return res.status(403).json({ error: 'Cannot modify policy for another tenant' });
-      }
+      const validatedData = createPolicySchema.parse(req.body);
 
-      const validated = createPolicySchema.parse(req.body);
-
-      // Validation: if charging for personal use, rate must be provided
-      if (validated.charge_personal_use && !validated.personal_use_rate_per_mile) {
-        return res.status(400).json({
-          error: 'Personal use rate per mile is required when charge_personal_use is enabled'
-        });
-      }
-
-      // Validation: yearly limit should exceed monthly limit
-      if (validated.max_personal_miles_per_year &&
-          validated.max_personal_miles_per_month &&
-          validated.max_personal_miles_per_year < validated.max_personal_miles_per_month) {
-        return res.status(400).json({
-          error: 'Annual limit must be greater than or equal to monthly limit'
-        });
-      }
-
-      const policy = await personalUsePolicyRepository.upsertPolicy(req.user!.tenant_id, validated);
-
-      res.json({
-        success: true,
-        data: policy,
-        message: 'Personal use policy updated successfully'
+      const policy = await personalUsePolicyRepository.upsertPolicy(req.user!.tenant_id, {
+        ...validatedData,
+        tenant_id: req.user!.tenant_id
       });
-    } catch (error: any) {
-      console.error('Update policy error:', error);
-      res.status(500).json({ error: 'Failed to update personal use policy' });
+
+      return res.json({ success: true, data: policy });
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ success: false, error: 'Validation error', details: error.errors });
+      }
+      console.error('Error creating/updating personal use policy:', error);
+      return res.status(500).json({ success: false, error: 'Internal server error' });
+    }
+  }
+);
+
+/**
+ * GET /api/personal-use-policies/limits
+ * Get driver usage limits based on personal use policy
+ */
+router.get(
+  '/limits',
+  requirePermission('policy:view:global'),
+  async (req: AuthRequest, res: Response) => {
+    try {
+      const policy = await personalUsePolicyRepository.getPolicyByTenantId(req.user!.tenant_id);
+
+      if (!policy) {
+        return res.json({
+          success: true,
+          data: {
+            monthlyLimit: 0,
+            yearlyLimit: 0,
+            chargePerMile: 0
+          }
+        });
+      }
+
+      const limits: DriverUsageLimits = {
+        monthlyLimit: policy.max_personal_miles_per_month || 0,
+        yearlyLimit: policy.max_personal_miles_per_year || 0,
+        chargePerMile: policy.charge_personal_use ? policy.personal_use_rate_per_mile || 0 : 0
+      };
+
+      return res.json({ success: true, data: limits });
+    } catch (error) {
+      console.error('Error fetching driver usage limits:', error);
+      return res.status(500).json({ success: false, error: 'Internal server error' });
     }
   }
 );
 
 export default router;
-
-
-This refactored version replaces all `pool.query` calls with methods from the `PersonalUsePolicyRepository` class. The repository encapsulates the database operations, making the code more modular and easier to maintain. The main route file now focuses on business logic and validation, while the database operations are handled by the repository.
