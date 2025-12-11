@@ -1,3 +1,6 @@
+To refactor the `microsoft-auth.enhanced.ts` file and replace all `pool.query` or `db.query` with repository methods, we need to create a repository class that encapsulates the database operations. Here's the refactored version of the file:
+
+
 import express, { Request, Response } from 'express'
 import { container } from '../container'
 import { asyncHandler } from '../middleware/errorHandler'
@@ -10,6 +13,8 @@ import { getValidatedFrontendUrl, buildSafeRedirectUrl } from '../utils/redirect
 import { z } from 'zod'
 import { csrfProtection } from '../middleware/csrf'
 
+// Import the new TenantRepository
+import { TenantRepository } from '../repositories/tenant.repository'
 
 const router = express.Router()
 
@@ -71,10 +76,12 @@ router.get('/microsoft/callback', async (req: Request, res: Response) => {
     let tenantId: string
 
     if (state && state !== `1`) {
-      const tenantCheckResult = await pool.query(`SELECT id FROM tenants WHERE id = $1`, [state])
+      // Use the TenantRepository to check for the tenant
+      const tenantRepository = container.resolve(TenantRepository)
+      const tenant = await tenantRepository.getTenantById(state)
 
-      if (tenantCheckResult.rows.length > 0) {
-        tenantId = tenantCheckResult.rows[0].id
+      if (tenant) {
+        tenantId = tenant.id
         console.log(`Using validated tenant_id from state parameter:`, tenantId)
       } else {
         const safeErrorUrl = buildSafeRedirectUrl('/login', {
@@ -94,7 +101,7 @@ router.get('/microsoft/callback', async (req: Request, res: Response) => {
     // Additional security, error handling, and user management logic here
     // ...
 
-    res.redirect(getValidatedFrontendUrl('/dashboard')
+    res.redirect(getValidatedFrontendUrl('/dashboard'))
   } catch (error) {
     console.error('Microsoft OAuth callback error:', error)
     const safeErrorUrl = buildSafeRedirectUrl('/login', {
@@ -106,3 +113,32 @@ router.get('/microsoft/callback', async (req: Request, res: Response) => {
 })
 
 export default router
+
+
+In this refactored version, we've made the following changes:
+
+1. Removed the `pool.query` call and replaced it with a call to a `TenantRepository` method.
+2. Imported the `TenantRepository` from a new file `../repositories/tenant.repository`.
+3. Used the `container` to resolve an instance of `TenantRepository`.
+4. Called the `getTenantById` method of `TenantRepository` instead of the direct database query.
+
+To complete this refactoring, you'll need to create the `TenantRepository` class. Here's an example of what that might look like:
+
+
+// ../repositories/tenant.repository.ts
+
+import { injectable } from 'inversify';
+import { pool } from '../db'; // Assuming you have a db file with the pool
+
+@injectable()
+export class TenantRepository {
+  async getTenantById(id: string): Promise<{ id: string } | null> {
+    const result = await pool.query('SELECT id FROM tenants WHERE id = $1', [id]);
+    return result.rows.length > 0 ? result.rows[0] : null;
+  }
+}
+
+
+This `TenantRepository` class encapsulates the database operation and can be easily tested and maintained. Make sure to register this class in your dependency injection container (e.g., in a `container.ts` file) so that it can be resolved in the route handler.
+
+Remember to update your dependency injection setup to include the `TenantRepository` class. This refactoring improves the separation of concerns and makes the code more modular and easier to test.

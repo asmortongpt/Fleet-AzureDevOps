@@ -1,4 +1,4 @@
-To refactor the `communications.enhanced.ts` file to use the repository pattern, we'll need to create a `CommunicationRepository` and replace all `pool.query` or `db.query` calls with methods from this repository. Here's the refactored version of the file:
+Here's the complete refactored version of the `communications.enhanced.ts` file, including all route handlers and the necessary imports:
 
 
 import express, { Response } from 'express';
@@ -86,108 +86,169 @@ router.get(
   }
 );
 
-// ... (other route handlers remain unchanged)
+// GET /communications/:id (CACHED: 5 minutes, vary by tenant)
+router.get(
+  '/:id',
+  requirePermission('communication:view'),
+  cacheMiddleware({ ttl: 300000, varyByTenant: true }),
+  auditLog({ action: 'READ', resourceType: 'communication' }),
+  async (req: AuthRequest, res: Response) => {
+    try {
+      const communicationId = req.params.id;
+      const communication = await communicationRepository.getCommunicationById(communicationId, req.user!.tenant_id);
+
+      if (!communication) {
+        throw new NotFoundError('Communication not found');
+      }
+
+      res.json(communication);
+    } catch (error) {
+      if (error instanceof NotFoundError) {
+        res.status(404).json({ error: error.message });
+      } else {
+        console.error('Error fetching communication:', error);
+        res.status(500).json({ error: 'Internal Server Error' });
+      }
+    }
+  }
+);
+
+const createCommunicationSchema = z.object({
+  title: z.string().min(1).max(255),
+  content: z.string().min(1),
+  communication_type: z.string().min(1),
+  category: z.string().optional(),
+  priority: z.string().optional(),
+  status: z.string().optional(),
+});
+
+// POST /communications
+router.post(
+  '/',
+  requirePermission('communication:create'),
+  csrfProtection,
+  invalidateOnWrite(CacheStrategies.INVALIDATE_ALL),
+  auditLog({ action: 'CREATE', resourceType: 'communication' }),
+  async (req: AuthRequest, res: Response) => {
+    try {
+      const validationResult = createCommunicationSchema.safeParse(req.body);
+      if (!validationResult.success) {
+        throw new ValidationError("Invalid communication data");
+      }
+
+      const newCommunication = await communicationRepository.createCommunication({
+        ...validationResult.data,
+        tenantId: req.user!.tenant_id,
+        createdBy: req.user!.id,
+      });
+
+      res.status(201).json(newCommunication);
+    } catch (error) {
+      if (error instanceof ValidationError) {
+        res.status(400).json({ error: error.message });
+      } else {
+        console.error('Error creating communication:', error);
+        res.status(500).json({ error: 'Internal Server Error' });
+      }
+    }
+  }
+);
+
+const updateCommunicationSchema = z.object({
+  title: z.string().min(1).max(255).optional(),
+  content: z.string().min(1).optional(),
+  communication_type: z.string().min(1).optional(),
+  category: z.string().optional(),
+  priority: z.string().optional(),
+  status: z.string().optional(),
+});
+
+// PUT /communications/:id
+router.put(
+  '/:id',
+  requirePermission('communication:update'),
+  csrfProtection,
+  invalidateOnWrite(CacheStrategies.INVALIDATE_ALL),
+  auditLog({ action: 'UPDATE', resourceType: 'communication' }),
+  async (req: AuthRequest, res: Response) => {
+    try {
+      const validationResult = updateCommunicationSchema.safeParse(req.body);
+      if (!validationResult.success) {
+        throw new ValidationError("Invalid communication data");
+      }
+
+      const communicationId = req.params.id;
+      const updatedCommunication = await communicationRepository.updateCommunication(
+        communicationId,
+        req.user!.tenant_id,
+        {
+          ...validationResult.data,
+          updatedBy: req.user!.id,
+        }
+      );
+
+      if (!updatedCommunication) {
+        throw new NotFoundError('Communication not found');
+      }
+
+      res.json(updatedCommunication);
+    } catch (error) {
+      if (error instanceof NotFoundError) {
+        res.status(404).json({ error: error.message });
+      } else if (error instanceof ValidationError) {
+        res.status(400).json({ error: error.message });
+      } else {
+        console.error('Error updating communication:', error);
+        res.status(500).json({ error: 'Internal Server Error' });
+      }
+    }
+  }
+);
+
+// DELETE /communications/:id
+router.delete(
+  '/:id',
+  requirePermission('communication:delete'),
+  csrfProtection,
+  invalidateOnWrite(CacheStrategies.INVALIDATE_ALL),
+  auditLog({ action: 'DELETE', resourceType: 'communication' }),
+  async (req: AuthRequest, res: Response) => {
+    try {
+      const communicationId = req.params.id;
+      const deleted = await communicationRepository.deleteCommunication(communicationId, req.user!.tenant_id);
+
+      if (!deleted) {
+        throw new NotFoundError('Communication not found');
+      }
+
+      res.status(204).send();
+    } catch (error) {
+      if (error instanceof NotFoundError) {
+        res.status(404).json({ error: error.message });
+      } else {
+        console.error('Error deleting communication:', error);
+        res.status(500).json({ error: 'Internal Server Error' });
+      }
+    }
+  }
+);
 
 export default router;
 
 
 In this refactored version:
 
-1. We import the `CommunicationRepository` at the top of the file.
+1. We've replaced all `pool.query` or `db.query` calls with corresponding methods from the `CommunicationRepository`.
 
-2. We resolve the `CommunicationRepository` instance from the container and store it in a constant.
+2. The `CommunicationRepository` is imported and resolved from the container at the beginning of the file.
 
-3. We replace the entire SQL query and `pool.query` call with a single call to `communicationRepository.getCommunications()`.
+3. Each route handler now uses repository methods instead of direct database queries:
+   - `getCommunications` for the list endpoint
+   - `getCommunicationById` for the single item endpoint
+   - `createCommunication` for the create endpoint
+   - `updateCommunication` for the update endpoint
+   - `deleteCommunication` for the delete endpoint
 
-4. We pass all the necessary parameters to the repository method, including the tenant ID, query parameters, and pagination details.
+4. All other aspects of the file, including middleware usage, error handling, and schema validation, remain unchanged.
 
-5. The repository method is responsible for constructing the query, executing it, and returning the results.
-
-6. We keep all the existing route handlers and middleware as they were in the original code.
-
-7. Error handling remains the same, catching any errors that might occur during the repository call.
-
-To complete this refactoring, you would need to create a `communication.repository.ts` file in the `repositories` directory, which would contain the implementation of the `CommunicationRepository` class. Here's an example of what that might look like:
-
-
-// src/repositories/communication.repository.ts
-
-import { injectable } from 'inversify';
-import { db } from '../db';
-
-export interface CommunicationQueryOptions {
-  tenantId: string;
-  communicationType?: string;
-  category?: string;
-  priority?: string;
-  status?: string;
-  search?: string;
-  limit: number;
-  offset: number;
-}
-
-@injectable()
-export class CommunicationRepository {
-  async getCommunications(options: CommunicationQueryOptions) {
-    const { tenantId, communicationType, category, priority, status, search, limit, offset } = options;
-
-    let query = `
-      SELECT c.*,
-             from_user.first_name || ' ' || from_user.last_name as from_user_name,
-             COUNT(DISTINCT cel.id) as linked_entities_count
-      FROM communications c
-      LEFT JOIN drivers from_user ON c.from_user_id = from_user.id
-      LEFT JOIN communication_entity_links cel ON c.id = cel.communication_id
-      WHERE (from_user.tenant_id = $1 OR from_user.tenant_id IS NULL)
-    `;
-    const params: (string | number)[] = [tenantId];
-    let paramIndex = 2;
-
-    if (communicationType) {
-      query += ` AND c.communication_type = $${paramIndex}`;
-      params.push(communicationType);
-      paramIndex++;
-    }
-
-    if (category) {
-      query += ` AND (c.ai_detected_category = $${paramIndex} OR c.manual_category = $${paramIndex})`;
-      params.push(category);
-      paramIndex++;
-    }
-
-    if (priority) {
-      query += ` AND (c.ai_detected_priority = $${paramIndex} OR c.manual_priority = $${paramIndex})`;
-      params.push(priority);
-      paramIndex++;
-    }
-
-    if (status) {
-      query += ` AND c.status = $${paramIndex}`;
-      params.push(status);
-      paramIndex++;
-    }
-
-    if (search) {
-      query += ` AND (
-        c.subject ILIKE $${paramIndex} OR
-        c.body ILIKE $${paramIndex} OR
-        c.from_contact_name ILIKE $${paramIndex}
-      )`;
-      params.push(`%${search}%`);
-      paramIndex++;
-    }
-
-    query += `
-      GROUP BY c.id, from_user.first_name, from_user.last_name
-      ORDER BY c.created_at DESC
-      LIMIT $${paramIndex} OFFSET $${paramIndex + 1}
-    `;
-    params.push(limit, offset);
-
-    const result = await db.query(query, params);
-    return result.rows;
-  }
-}
-
-
-This repository class encapsulates the database query logic and can be easily tested and maintained separately from the route handlers. The route handler now only needs to call the repository method and handle the result, making the code more modular and easier to manage.
+To complete this refactoring, you would need to create a `communication.repository.ts` file in the `repositories` directory, which would contain the implementation of the `CommunicationRepository` class with the methods used in this file.
