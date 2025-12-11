@@ -6,7 +6,7 @@ Here are the queries that were probably in the original file, along with their r
 
    Current query code (likely):
    sql
-   SELECT * FROM reservations
+   SELECT id, tenant_id, created_at, updated_at FROM reservations
    WHERE tenant_id = $1
    [AND status = $2]
    [AND vehicle_id = $3]
@@ -26,7 +26,7 @@ Here are the queries that were probably in the original file, along with their r
 
    Current query code (likely):
    sql
-   SELECT * FROM reservations
+   SELECT id, tenant_id, created_at, updated_at FROM reservations
    WHERE id = $1 AND tenant_id = $2
    
 
@@ -39,7 +39,7 @@ Here are the queries that were probably in the original file, along with their r
 
    Current query code (likely):
    sql
-   SELECT * FROM reservations
+   SELECT id, tenant_id, created_at, updated_at FROM reservations
    WHERE vehicle_id = $1
    AND tenant_id = $2
    AND (

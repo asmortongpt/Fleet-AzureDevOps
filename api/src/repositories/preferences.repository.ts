@@ -19,7 +19,7 @@ export class PreferencesRepository {
    * @param filters
    */
   async findAll(tenantId: number, filters?: any): Promise<Preference[]> {
-    const query = `SELECT * FROM preferences WHERE tenant_id = $1 AND deleted_at IS NULL`;
+    const query = `SELECT id, tenant_id, created_at, updated_at FROM preferences WHERE tenant_id = $1 AND deleted_at IS NULL`;
     const result = await this.pool.query(query, [tenantId]);
     return result.rows;
   }
@@ -30,7 +30,7 @@ export class PreferencesRepository {
    * @param tenantId
    */
   async findById(id: number, tenantId: number): Promise<Preference | null> {
-    const query = `SELECT * FROM preferences WHERE id = $1 AND tenant_id = $2`;
+    const query = `SELECT id, tenant_id, created_at, updated_at FROM preferences WHERE id = $1 AND tenant_id = $2`;
     const result = await this.pool.query(query, [id, tenantId]);
     return result.rows[0] || null;
   }

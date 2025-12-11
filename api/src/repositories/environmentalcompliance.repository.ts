@@ -32,7 +32,7 @@ class EnvironmentalComplianceRepository {
 
   async getEnvironmentalComplianceById(id: number, tenant_id: string): Promise<any> {
     const query = `
-      SELECT * FROM environmental_compliance
+      SELECT id, created_at, updated_at FROM environmental_compliance
       WHERE id = $1 AND tenant_id = $2
     `;
     const values = [id, tenant_id];
@@ -42,7 +42,7 @@ class EnvironmentalComplianceRepository {
 
   async getAllEnvironmentalCompliances(tenant_id: string): Promise<any[]> {
     const query = `
-      SELECT * FROM environmental_compliance
+      SELECT id, created_at, updated_at FROM environmental_compliance
       WHERE tenant_id = $1
     `;
     const values = [tenant_id];

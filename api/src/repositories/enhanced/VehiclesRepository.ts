@@ -98,7 +98,7 @@ export class VehiclesRepository extends GenericRepository<Vehicle> {
    */
   async findByVin(vin: string, tenantId: string): Promise<Vehicle | null> {
     const results = await this.executeQuery<Vehicle>(
-      `SELECT * FROM ${this.tableName} WHERE vin = $1 AND tenant_id = $2`,
+      `SELECT id, name, created_at, updated_at, tenant_id FROM ${this.tableName} WHERE vin = $1 AND tenant_id = $2`,
       [vin.toUpperCase(), tenantId]
     )
     return results[0] || null
@@ -120,7 +120,7 @@ export class VehiclesRepository extends GenericRepository<Vehicle> {
    */
   async findByStatus(status: string, tenantId: string): Promise<Vehicle[]> {
     return this.executeQuery<Vehicle>(
-      `SELECT * FROM ${this.tableName} WHERE status = $1 AND tenant_id = $2 ORDER BY created_at DESC`,
+      `SELECT id, name, created_at, updated_at, tenant_id FROM ${this.tableName} WHERE status = $1 AND tenant_id = $2 ORDER BY created_at DESC`,
       [status, tenantId]
     )
   }
@@ -130,7 +130,7 @@ export class VehiclesRepository extends GenericRepository<Vehicle> {
    */
   async findByOperationalStatus(operationalStatus: string, tenantId: string): Promise<Vehicle[]> {
     return this.executeQuery<Vehicle>(
-      `SELECT * FROM ${this.tableName} WHERE operational_status = $1 AND tenant_id = $2 ORDER BY created_at DESC`,
+      `SELECT id, name, created_at, updated_at, tenant_id FROM ${this.tableName} WHERE operational_status = $1 AND tenant_id = $2 ORDER BY created_at DESC`,
       [operationalStatus, tenantId]
     )
   }
@@ -140,7 +140,7 @@ export class VehiclesRepository extends GenericRepository<Vehicle> {
    */
   async findByFleet(fleetId: string | number, tenantId: string): Promise<Vehicle[]> {
     return this.executeQuery<Vehicle>(
-      `SELECT * FROM ${this.tableName} WHERE fleet_id = $1 AND tenant_id = $2 ORDER BY created_at DESC`,
+      `SELECT id, name, created_at, updated_at, tenant_id FROM ${this.tableName} WHERE fleet_id = $1 AND tenant_id = $2 ORDER BY created_at DESC`,
       [fleetId, tenantId]
     )
   }
@@ -150,7 +150,7 @@ export class VehiclesRepository extends GenericRepository<Vehicle> {
    */
   async findByLocation(locationId: string | number, tenantId: string): Promise<Vehicle[]> {
     return this.executeQuery<Vehicle>(
-      `SELECT * FROM ${this.tableName} WHERE location_id = $1 AND tenant_id = $2 ORDER BY created_at DESC`,
+      `SELECT id, name, created_at, updated_at, tenant_id FROM ${this.tableName} WHERE location_id = $1 AND tenant_id = $2 ORDER BY created_at DESC`,
       [locationId, tenantId]
     )
   }
@@ -160,7 +160,7 @@ export class VehiclesRepository extends GenericRepository<Vehicle> {
    */
   async findByAssetType(assetType: string, tenantId: string): Promise<Vehicle[]> {
     return this.executeQuery<Vehicle>(
-      `SELECT * FROM ${this.tableName} WHERE asset_type = $1 AND tenant_id = $2 ORDER BY created_at DESC`,
+      `SELECT id, name, created_at, updated_at, tenant_id FROM ${this.tableName} WHERE asset_type = $1 AND tenant_id = $2 ORDER BY created_at DESC`,
       [assetType, tenantId]
     )
   }
@@ -170,7 +170,7 @@ export class VehiclesRepository extends GenericRepository<Vehicle> {
    */
   async findByPowerType(powerType: string, tenantId: string): Promise<Vehicle[]> {
     return this.executeQuery<Vehicle>(
-      `SELECT * FROM ${this.tableName} WHERE power_type = $1 AND tenant_id = $2 ORDER BY created_at DESC`,
+      `SELECT id, name, created_at, updated_at, tenant_id FROM ${this.tableName} WHERE power_type = $1 AND tenant_id = $2 ORDER BY created_at DESC`,
       [powerType, tenantId]
     )
   }
@@ -257,7 +257,7 @@ export class VehiclesRepository extends GenericRepository<Vehicle> {
 
     // Get paginated data (sortBy is validated above)
     const dataResult = await this.executeQuery<Vehicle>(
-      `SELECT * FROM ${this.tableName}
+      `SELECT id, name, created_at, updated_at, tenant_id FROM ${this.tableName}
        WHERE ${whereClause}
        ORDER BY ${sortBy} ${sortOrder}
        LIMIT $${paramIndex} OFFSET $${paramIndex + 1}`,
@@ -350,7 +350,7 @@ export class VehiclesRepository extends GenericRepository<Vehicle> {
    */
   async findWithUpcomingService(tenantId: string, daysAhead: number = 30): Promise<Vehicle[]> {
     return this.executeQuery<Vehicle>(
-      `SELECT * FROM ${this.tableName}
+      `SELECT id, name, created_at, updated_at, tenant_id FROM ${this.tableName}
        WHERE tenant_id = $1
          AND next_service_date IS NOT NULL
          AND next_service_date BETWEEN CURRENT_DATE AND CURRENT_DATE + INTERVAL '$2 days'
@@ -364,7 +364,7 @@ export class VehiclesRepository extends GenericRepository<Vehicle> {
    */
   async findWithExpiredRegistration(tenantId: string): Promise<Vehicle[]> {
     return this.executeQuery<Vehicle>(
-      `SELECT * FROM ${this.tableName}
+      `SELECT id, name, created_at, updated_at, tenant_id FROM ${this.tableName}
        WHERE tenant_id = $1
          AND registration_expiry IS NOT NULL
          AND registration_expiry < CURRENT_DATE
@@ -378,7 +378,7 @@ export class VehiclesRepository extends GenericRepository<Vehicle> {
    */
   async findWithExpiredInsurance(tenantId: string): Promise<Vehicle[]> {
     return this.executeQuery<Vehicle>(
-      `SELECT * FROM ${this.tableName}
+      `SELECT id, name, created_at, updated_at, tenant_id FROM ${this.tableName}
        WHERE tenant_id = $1
          AND insurance_expiry IS NOT NULL
          AND insurance_expiry < CURRENT_DATE

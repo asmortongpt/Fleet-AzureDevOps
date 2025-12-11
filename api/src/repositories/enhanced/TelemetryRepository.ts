@@ -98,7 +98,7 @@ export class TelemetryRepository extends GenericRepository<TelemetryData> {
     const { limit = 100, offset = 0 } = options
 
     return this.executeQuery<TelemetryData>(
-      `SELECT * FROM ${this.tableName}
+      `SELECT id, name, created_at, updated_at, tenant_id FROM ${this.tableName}
        WHERE vehicle_id = $1 AND tenant_id = $2
        ORDER BY timestamp DESC
        LIMIT $3 OFFSET $4`,
@@ -114,7 +114,7 @@ export class TelemetryRepository extends GenericRepository<TelemetryData> {
     tenantId: string
   ): Promise<TelemetryData | null> {
     const results = await this.executeQuery<TelemetryData>(
-      `SELECT * FROM ${this.tableName}
+      `SELECT id, name, created_at, updated_at, tenant_id FROM ${this.tableName}
        WHERE vehicle_id = $1 AND tenant_id = $2
        ORDER BY timestamp DESC
        LIMIT 1`,
@@ -146,7 +146,7 @@ export class TelemetryRepository extends GenericRepository<TelemetryData> {
     const whereClause = conditions.join(' AND ')
 
     return this.executeQuery<TelemetryData>(
-      `SELECT * FROM ${this.tableName}
+      `SELECT id, name, created_at, updated_at, tenant_id FROM ${this.tableName}
        WHERE ${whereClause}
        ORDER BY timestamp DESC
        LIMIT $${paramIndex} OFFSET $${paramIndex + 1}`,
@@ -193,7 +193,7 @@ export class TelemetryRepository extends GenericRepository<TelemetryData> {
     const whereClause = conditions.join(' AND ')
 
     return this.executeQuery<TelemetryData>(
-      `SELECT * FROM ${this.tableName}
+      `SELECT id, name, created_at, updated_at, tenant_id FROM ${this.tableName}
        WHERE ${whereClause}
        ORDER BY timestamp DESC
        LIMIT $${paramIndex}`,
@@ -235,7 +235,7 @@ export class TelemetryRepository extends GenericRepository<TelemetryData> {
     const whereClause = conditions.join(' AND ')
 
     return this.executeQuery<TelemetryData>(
-      `SELECT * FROM ${this.tableName}
+      `SELECT id, name, created_at, updated_at, tenant_id FROM ${this.tableName}
        WHERE ${whereClause}
        ORDER BY timestamp DESC
        LIMIT $${paramIndex}`,

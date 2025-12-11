@@ -16,7 +16,7 @@ export class CommunicationRepository extends BaseRepository<Communication> {
 
   async findByTenantId(tenantId: number): Promise<Communication[]> {
     const query = `
-      SELECT * FROM ${this.tableName}
+      SELECT id, created_at, updated_at FROM ${this.tableName}
       WHERE tenant_id = $1
       ORDER BY created_at DESC
     `
@@ -25,7 +25,7 @@ export class CommunicationRepository extends BaseRepository<Communication> {
 
   async findByIdAndTenant(id: number, tenantId: number): Promise<Communication | null> {
     const query = `
-      SELECT * FROM ${this.tableName}
+      SELECT id, created_at, updated_at FROM ${this.tableName}
       WHERE id = $1 AND tenant_id = $2
     `
     const results = await this.query(query, [id, tenantId])
@@ -71,4 +71,21 @@ export class CommunicationRepository extends BaseRepository<Communication> {
     const result = await this.query(query, [id, tenantId])
     return result.rowCount > 0
   }
+
+  // Prevent N+1 queries with JOINs
+  async findAllWithRelated() {
+    const query = `
+      SELECT
+        t1.*,
+        t2.id as related_id,
+        t2.name as related_name
+      FROM ${this.tableName} t1
+      LEFT JOIN related_table t2 ON t1.related_id = t2.id
+      WHERE t1.tenant_id = $1
+      ORDER BY t1.created_at DESC
+    `;
+    const result = await this.pool.query(query, [this.tenantId]);
+    return result.rows;
+  }
+
 }

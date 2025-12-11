@@ -307,7 +307,7 @@ export class ReimbursementRequestRepository extends BaseRepository<Reimbursement
    */
   async getById(id: string, tenantId: string): Promise<ReimbursementRequestRow | null> {
     const query = `
-      SELECT * FROM reimbursement_requests
+      SELECT id, created_at, updated_at FROM reimbursement_requests
       WHERE id = $1 AND tenant_id = $2
     `;
     const result = await this.query<ReimbursementRequestRow>(query, [id, tenantId]);

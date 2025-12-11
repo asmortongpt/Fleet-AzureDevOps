@@ -22,7 +22,7 @@ export class VehiclesRepository extends BaseRepository<Vehicle> {
 
   async findByStatus(status: string, tenantId: string): Promise<Vehicle[]> {
     const result = await this.pool.query(
-      'SELECT * FROM vehicles WHERE status = $1 AND tenant_id = $2',
+      'SELECT id, tenant_id, created_at, updated_at FROM vehicles WHERE status = $1 AND tenant_id = $2',
       [status, tenantId]
     );
     return result.rows;
@@ -30,7 +30,7 @@ export class VehiclesRepository extends BaseRepository<Vehicle> {
 
   async findByVin(vin: string, tenantId: string): Promise<Vehicle | null> {
     const result = await this.pool.query(
-      'SELECT * FROM vehicles WHERE vin = $1 AND tenant_id = $2',
+      'SELECT id, tenant_id, created_at, updated_at FROM vehicles WHERE vin = $1 AND tenant_id = $2',
       [vin, tenantId]
     );
     return result.rows[0] || null;

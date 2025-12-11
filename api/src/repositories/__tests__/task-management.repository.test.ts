@@ -296,7 +296,7 @@ describe('TaskManagementRepository', () => {
 
       // Verify items were added
       const result = await pool.query(
-        'SELECT * FROM task_checklist WHERE task_id = $1 ORDER BY id',
+        'SELECT id, tenant_id, created_at, updated_at FROM task_checklist WHERE task_id = $1 ORDER BY id',
         [createdTaskId]
       )
 
