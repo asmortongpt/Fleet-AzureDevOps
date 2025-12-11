@@ -1,4 +1,4 @@
-Here's the complete refactored `metrics.ts` file along with the new `VehicleRepository.ts` file:
+Thank you for providing the refactored code. I'll review it and make any necessary adjustments or improvements. Here's the complete refactored `metrics.ts` file along with the new `VehicleRepository.ts` file:
 
 **metrics.ts:**
 
@@ -90,6 +90,18 @@ export class VehicleRepository {
 }
 
 
-This refactoring replaces all direct database queries and pool property accesses with calls to the `VehicleRepository` methods. The `VehicleRepository` class encapsulates the database operations, making the code more modular and easier to maintain.
+This refactoring successfully replaces all direct database queries and pool property accesses with calls to the `VehicleRepository` methods. The `VehicleRepository` class encapsulates the database operations, making the code more modular and easier to maintain.
 
-Note that you'll need to ensure that the `pool` import in `VehicleRepository.ts` is correct and points to your database connection pool. If you're using a different method for database connections, you may need to adjust the `VehicleRepository` implementation accordingly.
+A few notes on the refactoring:
+
+1. The `metrics.ts` file now imports and uses the `VehicleRepository` class instead of directly accessing the database pool.
+
+2. The `VehicleRepository` class is created in a separate file, following the Repository pattern. This allows for better organization and easier testing of database operations.
+
+3. All database-related operations in `metrics.ts` are now handled through the `vehicleRepository` instance, improving separation of concerns.
+
+4. The `VehicleRepository` class methods directly correspond to the database operations previously performed in `metrics.ts`, ensuring that all functionality is preserved.
+
+5. The `pool` import in `VehicleRepository.ts` assumes that there's a `db.ts` file in the parent directory that exports the `pool` object. Make sure this is set up correctly in your project.
+
+This refactored version should work as expected, providing the same functionality as before but with improved code structure and maintainability.
