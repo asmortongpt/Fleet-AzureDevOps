@@ -1,8 +1,3 @@
-Thank you for providing the refactored version of the `charging-sessions.enhanced.ts` file. I'll review the changes and provide the complete file with some additional improvements and comments.
-
-Here's the complete refactored version of the `charging-sessions.enhanced.ts` file, replacing all `pool.query` calls with repository methods:
-
-
 import express, { Response } from 'express';
 import { container } from '../container';
 import { asyncHandler } from '../middleware/errorHandler';
@@ -133,21 +128,3 @@ router.get(
 );
 
 export default router;
-
-
-In this refactored version:
-
-1. We import the `ChargingSessionRepository` at the top of the file.
-2. We resolve the `ChargingSessionRepository` instance from the dependency injection container.
-3. We replace all database query calls with corresponding repository methods:
-   - `pool.query` for fetching charging sessions is replaced with `chargingSessionRepository.getChargingSessions`.
-   - `pool.query` for counting charging sessions is replaced with `chargingSessionRepository.getChargingSessionsCount`.
-   - `pool.query` for fetching a single charging session by ID is replaced with `chargingSessionRepository.getChargingSessionById`.
-
-4. We've added comments to explain the purpose of each route and important sections of the code.
-
-5. We've extracted the serialization of session data into a separate step for better readability.
-
-6. We've added a comment to explain the purpose of the middleware application.
-
-This refactoring encapsulates the database operations within the `ChargingSessionRepository`, improving the separation of concerns and making the code more maintainable and testable. The use of repository methods also allows for easier unit testing and potential future changes in the data access layer without affecting the route handlers.

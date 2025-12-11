@@ -1,6 +1,3 @@
-Here's the complete refactored file with the `pool.query` calls replaced by a `JobRepository` class:
-
-
 /**
  * Queue Management Routes
  * API endpoints for queue monitoring, management, and administration
@@ -14,8 +11,9 @@ import { csrfProtection } from '../middleware/csrf';
 import { container } from '../container';
 import { asyncHandler } from '../middleware/errorHandler';
 import { NotFoundError, ValidationError } from '../errors/app-error';
-import logger from '../config/logger'; // Wave 23: Add Winston logger
-import { JobRepository } from '../repositories/job.repository'; // Assuming this exists
+import logger from '../config/logger';
+import { JobRepository } from '../repositories/job.repository';
+import { TenantRepository } from '../repositories/tenant.repository';
 
 const router: Router = express.Router();
 
@@ -63,7 +61,7 @@ router.get(`/stats`, requireAdmin, async (req: Request, res: Response) => {
         try {
           return await queueService.getQueueStats(queueName);
         } catch (error) {
-          logger.error(`Failed to get stats for ${queueName}:`, error); // Wave 23: Winston logger
+          logger.error(`Failed to get stats for ${queueName}:`, error);
           return null;
         }
       })
@@ -86,7 +84,7 @@ router.get(`/stats`, requireAdmin, async (req: Request, res: Response) => {
       }
     });
   } catch (error: any) {
-    logger.error(`Error getting queue stats:`, error); // Wave 23: Winston logger
+    logger.error(`Error getting queue stats:`, error);
     res.status(500).json({ error: 'Failed to get queue statistics', message: getErrorMessage(error) });
   }
 });
@@ -104,7 +102,7 @@ router.get('/health', async (req: Request, res: Response) => {
       data: health
     });
   } catch (error: any) {
-    logger.error('Error getting queue health:', error); // Wave 23: Winston logger
+    logger.error('Error getting queue health:', error);
     res.status(500).json({ error: 'Failed to get queue health', message: getErrorMessage(error) });
   }
 });
@@ -117,11 +115,18 @@ router.get(`/:queueName/jobs`, requireAdmin, async (req: Request, res: Response)
   try {
     const { queueName } = req.params;
     const { status, limit = 50, offset = 0 } = req.query;
+    const tenantId = req.headers['x-tenant-id'] as string;
 
     const jobRepository = container.resolve(JobRepository);
+    const tenantRepository = container.resolve(TenantRepository);
 
-    const jobs = await jobRepository.getJobsByQueue(queueName, status as JobStatus | undefined, parseInt(limit as string), parseInt(offset as string));
-    const total = await jobRepository.getJobCountByQueue(queueName, status as JobStatus | undefined);
+    const tenant = await tenantRepository.getTenantById(tenantId);
+    if (!tenant) {
+      throw new NotFoundError('Tenant not found');
+    }
+
+    const jobs = await jobRepository.getJobsByQueueAndTenant(queueName, tenantId, status as JobStatus | undefined, parseInt(limit as string), parseInt(offset as string));
+    const total = await jobRepository.getJobCountByQueueAndTenant(queueName, tenantId, status as JobStatus | undefined);
 
     res.json({
       success: true,
@@ -135,28 +140,9 @@ router.get(`/:queueName/jobs`, requireAdmin, async (req: Request, res: Response)
       }
     });
   } catch (error: any) {
-    logger.error('Error getting jobs:', error); // Wave 23: Winston logger
+    logger.error('Error getting jobs:', error);
     res.status(500).json({ error: 'Failed to get jobs', message: getErrorMessage(error) });
   }
 });
 
 export default router;
-
-
-In this refactored version:
-
-1. I've replaced the `pool.query` calls with a `JobRepository` class, which is assumed to exist in the `../repositories/job.repository` file.
-
-2. The `JobRepository` class is resolved from the dependency injection container using `container.resolve(JobRepository)`.
-
-3. Two methods from the `JobRepository` are used:
-   - `getJobsByQueue`: This method replaces the previous query that fetched jobs from a specific queue.
-   - `getJobCountByQueue`: This method replaces the previous query that counted the number of jobs in a queue.
-
-4. The `status`, `limit`, and `offset` parameters are passed to these repository methods, maintaining the existing functionality.
-
-5. Error handling and logging remain unchanged, using the Winston logger as before.
-
-6. The rest of the file, including other routes and middleware, remains the same.
-
-This refactoring encapsulates the database operations within the `JobRepository` class, improving the separation of concerns and making the code more maintainable and testable. The `JobRepository` class would need to be implemented separately to handle the actual database queries.

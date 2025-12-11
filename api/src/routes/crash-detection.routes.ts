@@ -1,6 +1,3 @@
-Here's the complete refactored version of the `crash-detection.routes.ts` file, replacing all `pool.query` calls with repository methods:
-
-
 /**
  * Crash Detection API Routes
  *
@@ -170,16 +167,3 @@ router.get('/crash/:incidentId',
 );
 
 export default router;
-
-
-In this refactored version:
-
-1. We've replaced the `pool.query` calls with repository methods:
-   - `createCrashIncident` method of `CrashIncidentRepository` is used to insert a new crash incident.
-   - `getCrashIncidentById` method of `CrashIncidentRepository` is used to retrieve a specific crash incident.
-
-2. We've added the import for `CrashIncidentRepository` and created an instance of it at the top of the file.
-
-3. The rest of the file remains the same, maintaining the existing functionality and structure.
-
-This refactoring improves the separation of concerns by moving database operations into a dedicated repository class, making the code more modular and easier to maintain.
