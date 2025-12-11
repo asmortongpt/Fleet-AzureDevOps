@@ -1,3 +1,6 @@
+To refactor the code and replace `pool.query` with a repository pattern, we'll need to create a `RouteRepository` class that encapsulates the database operations. Here's the refactored version of the complete file:
+
+
 import express, { Response } from 'express'
 import { container } from '../container'
 import { asyncHandler } from '../middleware/errorHandler'
@@ -6,15 +9,15 @@ import { AuthRequest, authenticateJWT } from '../middleware/auth'
 import { requirePermission } from '../middleware/permissions'
 import { auditLog } from '../middleware/audit'
 import { z } from 'zod'
-import { buildInsertClause, buildUpdateClause } from '../utils/sql-safety'
 import { rateLimit } from '../middleware/rateLimit'
 import { validateInput } from '../middleware/validateInput'
 import { csrfProtection } from '../middleware/csrf'
-
+import { RouteRepository } from '../repositories/RouteRepository'
+import { DriverRepository } from '../repositories/DriverRepository'
 
 const router = express.Router()
 router.use(authenticateJWT)
-router.use(rateLimit({ windowMs: 60 * 1000, max: 100 }) // 100 requests per minute
+router.use(rateLimit({ windowMs: 60 * 1000, max: 100 })) // 100 requests per minute
 
 const routeQuerySchema = z.object({
   page: z.string().optional(),
@@ -36,10 +39,10 @@ router.get(
       const { page = 1, limit = 50 } = req.query
       const offset = (Number(page) - 1) * Number(limit)
 
-      const userResult = await pool.query(
-        'SELECT id FROM drivers WHERE user_id = $1 AND tenant_id = $2',
-        [req.user!.id, req.user!.tenant_id]
-      )
+      const routeRepository = container.resolve(RouteRepository)
+      const driverRepository = container.resolve(DriverRepository)
+
+      const driver = await driverRepository.findByUserIdAndTenantId(req.user!.id, req.user!.tenant_id)
 
       let query = `SELECT
       id,
@@ -66,22 +69,19 @@ router.get(
       let countQuery = `SELECT COUNT(*) FROM routes WHERE tenant_id = $1`
       const params: any[] = [req.user!.tenant_id]
 
-      if (userResult.rows.length > 0) {
-        const driverId = userResult.rows[0].id
+      if (driver) {
         query += ` AND driver_id = $2 ORDER BY created_at DESC LIMIT $3 OFFSET $4`
         countQuery += ' AND driver_id = $2'
-        params.push(driverId, Number(limit), offset)
+        params.push(driver.id, Number(limit), offset)
       } else {
         query += ' ORDER BY created_at DESC LIMIT $2 OFFSET $3'
         params.push(Number(limit), offset)
       }
 
-      const result = await pool.query(query, params)
-
-      const countParams = userResult.rows.length > 0
-        ? [req.user!.tenant_id, userResult.rows[0].id]
-        : [req.user!.tenant_id]
-      const countResult = await pool.query(countQuery, countParams)
+      const [result, countResult] = await Promise.all([
+        routeRepository.query(query, params),
+        routeRepository.query(countQuery, driver ? [req.user!.tenant_id, driver.id] : [req.user!.tenant_id])
+      ])
 
       res.json({
         data: result.rows,
@@ -89,7 +89,7 @@ router.get(
           page: Number(page),
           limit: Number(limit),
           total: parseInt(countResult.rows[0].count, 10),
-          pages: Math.ceil(parseInt(countResult.rows[0].count, 10) / Number(limit)
+          pages: Math.ceil(parseInt(countResult.rows[0].count, 10) / Number(limit))
         }
       })
     } catch (error) {
@@ -105,16 +105,12 @@ router.get(
   requirePermission('route:view:own', {
     customCheck: async (req: AuthRequest) => {
       const validatedParams = validateInput(idParamSchema, 'params', req)
-      const driverResult = await pool.query(
-        'SELECT id FROM drivers WHERE user_id = $1 AND tenant_id = $2',
-        [req.user!.id, req.user!.tenant_id]
-      )
-      if (driverResult.rows.length > 0) {
-        const routeResult = await pool.query(
-          'SELECT id FROM routes WHERE id = $1 AND driver_id = $2',
-          [validatedParams.id, driverResult.rows[0].id]
-        )
-        return routeResult.rows.length > 0
+      const driverRepository = container.resolve(DriverRepository)
+      const driver = await driverRepository.findByUserIdAndTenantId(req.user!.id, req.user!.tenant_id)
+      if (driver) {
+        const routeRepository = container.resolve(RouteRepository)
+        const route = await routeRepository.findByIdAndDriverId(validatedParams.id, driver.id)
+        return route !== null
       }
       return false
     }
@@ -123,14 +119,12 @@ router.get(
   async (req: AuthRequest, res: Response) => {
     try {
       const { id } = req.params
-      const result = await pool.query(
-        'SELECT * FROM routes WHERE id = $1 AND tenant_id = $2',
-        [id, req.user!.tenant_id]
-      )
-      if (result.rows.length === 0) {
+      const routeRepository = container.resolve(RouteRepository)
+      const route = await routeRepository.findByIdAndTenantId(id, req.user!.tenant_id)
+      if (!route) {
         throw new NotFoundError("Route not found")
       }
-      res.json(result.rows[0])
+      res.json(route)
     } catch (error) {
       console.error('Get route by ID error:', error)
       res.status(500).json({ error: 'Internal server error' })
@@ -139,3 +133,65 @@ router.get(
 )
 
 export default router
+
+
+To complete this refactoring, you'll need to create the following repository classes:
+
+1. `RouteRepository`:
+
+
+import { injectable } from 'inversify';
+
+@injectable()
+export class RouteRepository {
+  async query(query: string, params: any[]): Promise<{ rows: any[] }> {
+    // Implement the database query logic here
+    // This is a placeholder and should be replaced with actual database interaction
+    return { rows: [] };
+  }
+
+  async findByIdAndTenantId(id: string, tenantId: string): Promise<any | null> {
+    // Implement the database query to find a route by id and tenantId
+    // This is a placeholder and should be replaced with actual database interaction
+    return null;
+  }
+
+  async findByIdAndDriverId(id: string, driverId: string): Promise<any | null> {
+    // Implement the database query to find a route by id and driverId
+    // This is a placeholder and should be replaced with actual database interaction
+    return null;
+  }
+}
+
+
+2. `DriverRepository`:
+
+
+import { injectable } from 'inversify';
+
+@injectable()
+export class DriverRepository {
+  async findByUserIdAndTenantId(userId: string, tenantId: string): Promise<{ id: string } | null> {
+    // Implement the database query to find a driver by userId and tenantId
+    // This is a placeholder and should be replaced with actual database interaction
+    return null;
+  }
+}
+
+
+Make sure to register these repositories in your dependency injection container (`container.ts`):
+
+
+import { Container } from 'inversify';
+import { RouteRepository } from './repositories/RouteRepository';
+import { DriverRepository } from './repositories/DriverRepository';
+
+const container = new Container();
+
+container.bind(RouteRepository).toSelf().inSingletonScope();
+container.bind(DriverRepository).toSelf().inSingletonScope();
+
+export { container };
+
+
+This refactoring moves the database queries into separate repository classes, improving the separation of concerns and making the code more maintainable and testable. The actual database interaction logic should be implemented in the repository methods, replacing the placeholder implementations provided above.

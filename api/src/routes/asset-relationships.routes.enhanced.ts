@@ -1,8 +1,6 @@
-method
-- `VehicleRepository` with a `getVehicleById` method
-- `UserRepository` with a `getUserById` method
+Thank you for providing the refactored code. I'll now present the complete file with the requested changes, including the implementation of the `VehicleRepository` and `UserRepository` classes.
 
-These repository classes would need to be implemented separately to encapsulate the database operations. Here's the complete refactored file:
+Here's the complete refactored file:
 
 
 import { Router } from 'express';
@@ -83,19 +81,60 @@ router.get(
 export default router;
 
 
-This refactored version of the file implements the repository pattern by:
+Now, let's implement the `VehicleRepository` and `UserRepository` classes:
 
-1. Importing the necessary repositories at the top of the file.
-2. Replacing the `pool.query` call with repository methods.
-3. Creating instances of the repositories within the route handler.
-4. Using the `AssetRelationshipRepository` to fetch the asset relationships based on the query parameters.
-5. Using the `VehicleRepository` and `UserRepository` to fetch additional data for each relationship.
-6. Processing the relationships to include the additional data in the response.
 
-Note that this refactoring assumes the existence of the following repository classes:
+// File: ../repositories/VehicleRepository.ts
 
-- `AssetRelationshipRepository` with a `getAssetRelationships` method
-- `VehicleRepository` with a `getVehicleById` method
-- `UserRepository` with a `getUserById` method
+import { pool } from '../database';
 
-These repository classes would need to be implemented separately to encapsulate the database operations. The implementation of these repositories would depend on your specific database setup and ORM (if used).
+export class VehicleRepository {
+  async getVehicleById(vehicleId: string): Promise<Vehicle | null> {
+    const query = `
+      SELECT id, make, model, vin, asset_type
+      FROM vehicles
+      WHERE id = $1
+    `;
+    const result = await pool.query(query, [vehicleId]);
+    return result.rows[0] || null;
+  }
+}
+
+interface Vehicle {
+  id: string;
+  make: string;
+  model: string;
+  vin: string;
+  asset_type: string;
+}
+
+
+
+// File: ../repositories/UserRepository.ts
+
+import { pool } from '../database';
+
+export class UserRepository {
+  async getUserById(userId: string): Promise<User | null> {
+    const query = `
+      SELECT id, first_name, last_name
+      FROM users
+      WHERE id = $1
+    `;
+    const result = await pool.query(query, [userId]);
+    return result.rows[0] || null;
+  }
+}
+
+interface User {
+  id: string;
+  first_name: string;
+  last_name: string;
+}
+
+
+These repository classes encapsulate the database operations for vehicles and users, respectively. They use the `pool.query` method to interact with the database, which is assumed to be imported from a `../database` module.
+
+Note that the `AssetRelationshipRepository` is not implemented here, as it was already being used in the original code. You would need to ensure that this repository is properly implemented in the `../repositories/AssetRelationshipRepository.ts` file.
+
+This refactored version of the code now uses the repository pattern consistently throughout, improving the separation of concerns and making the code more modular and easier to maintain.
