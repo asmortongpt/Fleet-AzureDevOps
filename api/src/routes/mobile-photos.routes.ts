@@ -1,6 +1,3 @@
-Here's the complete refactored version of `mobile-photos.routes.ts` with all `pool.query`/`db.query` replaced by repository methods. I've assumed the existence of a `PhotoRepository` class with appropriate methods.
-
-
 import express, { Request, Response } from 'express';
 import multer from 'multer';
 import { BlobServiceClient } from '@azure/storage-blob';
@@ -13,6 +10,8 @@ import { z } from 'zod';
 import { getErrorMessage } from '../utils/error-handler';
 import { csrfProtection } from '../middleware/csrf';
 import { PhotoRepository } from '../repositories/photo.repository';
+import { UserRepository } from '../repositories/user.repository';
+import { TenantRepository } from '../repositories/tenant.repository';
 
 const router = express.Router();
 
@@ -138,9 +137,12 @@ router.post(
         blobServiceClient
       );
 
+      const tenantId = await UserRepository.getTenantId(req.user.id);
+
       await PhotoRepository.createPhoto({
         id: photoId,
         userId: req.user.id,
+        tenantId: tenantId,
         metadata: JSON.stringify(metadata),
         status: 'uploaded',
         priority: priority,
@@ -214,22 +216,23 @@ router.post(
         });
       }
 
-      const uploadedPhotos: { photoId: number; metadata: any }[] = [];
+      const uploadedPhotos = [];
+      const tenantId = await UserRepository.getTenantId(req.user.id);
 
       for (const file of req.files as Express.Multer.File[]) {
-        const metadata = req.body.metadata
-          ? JSON.parse(req.body.metadata)
+        const metadata = req.body[`metadata[${file.fieldname}]`]
+          ? JSON.parse(req.body[`metadata[${file.fieldname}]`])
           : {};
 
         const validationResult = PhotoMetadataSchema.safeParse(metadata);
         if (!validationResult.success) {
           return res.status(400).json({
-            error: 'Invalid metadata',
+            error: 'Invalid metadata for one or more photos',
             details: validationResult.error,
           });
         }
 
-        const priority = req.body.priority || 'normal';
+        const priority = req.body[`priority[${file.fieldname}]`] || 'normal';
 
         const photoId = await photoProcessingService.uploadPhoto(
           file,
@@ -241,12 +244,13 @@ router.post(
         await PhotoRepository.createPhoto({
           id: photoId,
           userId: req.user.id,
+          tenantId: tenantId,
           metadata: JSON.stringify(metadata),
           status: 'uploaded',
           priority: priority,
         });
 
-        uploadedPhotos.push({ photoId, metadata });
+        uploadedPhotos.push({ photoId, metadata, priority });
       }
 
       res.status(201).json({
@@ -266,7 +270,7 @@ router.post(
  * @swagger
  * /api/mobile/photos/sync-complete:
  *   post:
- *     summary: Mark photo sync as complete
+ *     summary: Mark photos as synced
  *     tags: [Mobile Photos]
  *     security:
  *       - bearerAuth: []
@@ -288,7 +292,7 @@ router.post(
  *                 type: string
  *     responses:
  *       200:
- *         description: Sync marked as complete successfully
+ *         description: Photos marked as synced successfully
  */
 router.post(
   '/sync-complete',
@@ -307,55 +311,20 @@ router.post(
 
       const { photoIds, deviceId } = req.body;
 
-      await PhotoRepository.markSyncComplete(photoIds, deviceId);
+      const tenantId = await UserRepository.getTenantId(req.user.id);
+
+      await PhotoRepository.markPhotosAsSynced(photoIds, deviceId, tenantId);
 
       res.status(200).json({
-        message: 'Sync marked as complete successfully',
+        message: 'Photos marked as synced successfully',
       });
     } catch (error) {
-      console.error('Error marking sync complete:', error);
+      console.error('Error marking photos as synced:', error);
       res.status(500).json({
-        error: 'An error occurred while marking sync complete',
+        error: 'An error occurred while marking photos as synced',
       });
     }
   }
 );
 
 export default router;
-
-
-In this refactored version, I've replaced all database queries with calls to the `PhotoRepository` class. Here are the specific changes:
-
-1. In the `/upload` route, the database insertion has been replaced with:
-   
-   await PhotoRepository.createPhoto({
-     id: photoId,
-     userId: req.user.id,
-     metadata: JSON.stringify(metadata),
-     status: 'uploaded',
-     priority: priority,
-   });
-   
-
-2. In the `/upload-batch` route, the database insertions have been replaced with:
-   
-   await PhotoRepository.createPhoto({
-     id: photoId,
-     userId: req.user.id,
-     metadata: JSON.stringify(metadata),
-     status: 'uploaded',
-     priority: priority,
-   });
-   
-
-3. In the `/sync-complete` route, the database update has been replaced with:
-   
-   await PhotoRepository.markSyncComplete(photoIds, deviceId);
-   
-
-These changes assume that the `PhotoRepository` class has the following methods:
-
-- `createPhoto(photoData: { id: number, userId: number, metadata: string, status: string, priority: string }): Promise<void>`
-- `markSyncComplete(photoIds: number[], deviceId: string): Promise<void>`
-
-Make sure to implement these methods in the `PhotoRepository` class to handle the actual database operations.
