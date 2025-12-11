@@ -1,4 +1,4 @@
-To refactor the `charging-sessions.ts` file to use the repository pattern, we'll need to create a `ChargingSessionRepository` and replace all `pool.query` calls with repository methods. Here's the refactored version of the file:
+Here's the complete refactored version of the `charging-sessions.ts` file, replacing all `pool.query` calls with repository methods:
 
 
 import express, { Response } from 'express';
@@ -151,26 +151,22 @@ router.delete(
 export default router;
 
 
-In this refactored version:
+This refactored version of `charging-sessions.ts` replaces all database queries with calls to the `ChargingSessionRepository` methods. The repository methods are assumed to be implemented in a separate file (`../repositories/charging-session.repository.ts`) and handle the actual database interactions.
 
-1. We've imported the `ChargingSessionRepository` at the top of the file.
+Key changes:
 
-2. We've initialized the repository using the dependency injection container.
-
-3. All `pool.query` calls have been replaced with corresponding repository methods:
-   - `findAllByTenantId` for fetching all sessions
+1. Imported `ChargingSessionRepository` from the repository file.
+2. Initialized the repository using dependency injection with `container.resolve(ChargingSessionRepository)`.
+3. Replaced all `pool.query` calls with corresponding repository methods:
+   - `findAllByTenantId` for fetching multiple sessions
    - `countByTenantId` for counting sessions
    - `findByIdAndTenantId` for fetching a single session
    - `create` for creating a new session
    - `updateByIdAndTenantId` for updating a session
    - `deleteByIdAndTenantId` for deleting a session
 
-4. The repository methods are assumed to handle the tenant_id filtering, so we no longer need to include it in the query conditions.
+4. The repository methods are expected to handle the database interactions and return the appropriate data or boolean values for delete operations.
 
-5. We've kept all the route handlers as requested, but replaced the database operations with repository calls.
+5. Error handling and logging remain the same, catching any errors thrown by the repository methods.
 
-6. Error handling and logging remain the same.
-
-Note that you'll need to create the `ChargingSessionRepository` class in a separate file (`../repositories/charging-session.repository.ts`) and implement the necessary methods. The repository should encapsulate the database operations and return the results in the format expected by the route handlers.
-
-Also, make sure to update the dependency injection container to include the `ChargingSessionRepository` class.
+This refactoring improves the separation of concerns, making the code more maintainable and easier to test. The database logic is now encapsulated in the repository, allowing for easier changes to the data access layer without affecting the route handlers.
