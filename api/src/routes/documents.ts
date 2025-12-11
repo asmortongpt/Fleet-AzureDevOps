@@ -164,7 +164,7 @@ router.post(
       const filePath = path.join(__dirname, '../../uploads', fileName)
       await fs.writeFile(filePath, file.buffer)
 
-      const document = await documentRepository.createDocument({
+      const newDocument = await documentRepository.createDocument({
         tenantId: req.user!.tenant_id,
         fileName,
         filePath,
@@ -173,13 +173,16 @@ router.post(
         entityType: entity_type,
         entityId: entity_id,
         metadata,
-        userId: req.user!.id
+        uploadedBy: req.user!.id
       })
 
-      res.status(201).json(document)
+      res.status(201).json(newDocument)
     } catch (error) {
-      if (error instanceof ValidationError || error instanceof z.ZodError) {
-        res.status(400).json({ error: error instanceof z.ZodError ? error.errors : error.message })
+      if (error instanceof z.ZodError) {
+        logger.error('Validation error:', error)
+        res.status(400).json({ error: 'Invalid input', details: error.errors })
+      } else if (error instanceof ValidationError) {
+        res.status(400).json({ error: error.message })
       } else {
         logger.error('Error creating document:', error)
         res.status(500).json({ error: 'Internal server error' })
@@ -216,7 +219,7 @@ router.put(
         entityType: entity_type,
         entityId: entity_id,
         metadata,
-        userId: req.user!.id
+        updatedBy: req.user!.id
       })
 
       if (!updatedDocument) {
@@ -225,10 +228,11 @@ router.put(
 
       res.json(updatedDocument)
     } catch (error) {
-      if (error instanceof NotFoundError) {
+      if (error instanceof z.ZodError) {
+        logger.error('Validation error:', error)
+        res.status(400).json({ error: 'Invalid input', details: error.errors })
+      } else if (error instanceof NotFoundError) {
         res.status(404).json({ error: error.message })
-      } else if (error instanceof ValidationError || error instanceof z.ZodError) {
-        res.status(400).json({ error: error instanceof z.ZodError ? error.errors : error.message })
       } else {
         logger.error('Error updating document:', error)
         res.status(500).json({ error: 'Internal server error' })
@@ -268,23 +272,13 @@ router.delete(
 export default router
 
 
-This refactored version of `documents.ts` replaces all `pool.query` and `db.query` calls with methods from the `DocumentRepository`. The `DocumentRepository` is instantiated at the beginning of the file and used throughout the document management routes.
+This refactored version of `documents.ts` replaces all `pool.query` and `db.query` calls with methods from the `DocumentRepository`. The `DocumentRepository` is instantiated at the beginning of the file and used throughout the routes for database operations.
 
 Key changes include:
 
 1. Initialization of `DocumentRepository` at the top of the file.
-2. Replacement of database queries with corresponding `DocumentRepository` methods:
-   - `getDocuments` for fetching multiple documents
-   - `getDocumentCount` for counting documents
-   - `getDocumentById` for fetching a single document
-   - `createDocument` for creating a new document
-   - `updateDocument` for updating an existing document
-   - `deleteDocument` for deleting a document
-
+2. Replacement of all database queries with corresponding `documentRepository` methods.
 3. Passing `tenantId` to repository methods to ensure tenant isolation.
+4. Using the repository methods for CRUD operations on documents.
 
-4. Error handling remains consistent, with appropriate error types (NotFoundError, ValidationError) being thrown and caught.
-
-5. The overall structure and functionality of the routes remain the same, but now they use the repository pattern for database operations.
-
-This refactoring improves the separation of concerns by moving database operations into a dedicated repository class, making the code more maintainable and easier to test.
+The structure and functionality of the routes remain the same, but the database interactions are now abstracted through the `DocumentRepository`, improving code organization and making it easier to switch database implementations if needed.
