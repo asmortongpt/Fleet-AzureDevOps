@@ -1,5 +1,4 @@
 import { Request, Response, NextFunction } from 'express';
-
 import { container } from '../../../container';
 import { TYPES } from '../../../types';
 import { VehicleService } from '../services/vehicle.service';
