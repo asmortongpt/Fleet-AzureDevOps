@@ -1,4 +1,4 @@
-Here's the complete refactored `ai-chat.ts` file, replacing all `pool.query` calls with repository methods:
+Here's the complete refactored `ai-chat.ts` file with all direct database queries replaced by repository methods:
 
 
 /**
