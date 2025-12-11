@@ -1,47 +1,89 @@
+/**
+ * Input Validation Middleware
+ * Security: Centralized validation for common patterns
+ */
+
 import { Request, Response, NextFunction } from 'express';
-import { ZodSchema, ZodError } from 'zod';
-import { Logger } from '../utils/logger'; // Assuming a logger utility is available
 
-// FedRAMP Compliance Note: Ensure that all data validation is logged for auditing purposes.
-// SOC 2 Compliance Note: Validation errors should not expose sensitive data in logs.
+/**
+ * Validate numeric ID parameter
+ */
+export function validateIdParam(paramName: string = 'id') {
+  return (req: Request, res: Response, next: NextFunction) => {
+    const id = req.params[paramName];
+    if (!id || !/^[0-9]+$/.test(id)) {
+      return res.status(400).json({ error: `Invalid ${paramName} format` });
+    }
+    next();
+  };
+}
 
-export function validate(schema: ZodSchema<any>) {
-  return (req: Request, res: Response, next: NextFunction): void => {
-    try {
-      // Validate request body against the provided schema
-      schema.parse(req.body);
-      next();
-    } catch (error) {
-      if (error instanceof ZodError) {
-        // Log validation errors without exposing sensitive data
-        Logger.error('Validation error', {
-          errors: error.errors.map(err => ({
-            path: err.path,
-            message: err.message
-          })),
-          requestId: req.headers['x-request-id'] || 'N/A'
-        });
+/**
+ * Validate pagination parameters
+ */
+export function validatePagination(req: Request, res: Response, next: NextFunction) {
+  const { limit, offset } = req.query;
 
-        // Respond with a generic error message to the client
-        res.status(400).json({
-          error: 'Invalid request data',
-          details: error.errors.map(err => ({
-            path: err.path,
-            message: err.message
-          }))
-        });
-      } else {
-        // Log unexpected errors
-        Logger.error('Unexpected error during validation', {
-          error: error instanceof Error ? error.message : 'Unknown error',
-          requestId: req.headers['x-request-id'] || 'N/A'
-        });
+  if (limit) {
+    const parsed = parseInt(limit as string, 10);
+    if (isNaN(parsed) || parsed < 1 || parsed > 100) {
+      return res.status(400).json({ 
+        error: 'Invalid limit: must be between 1 and 100' 
+      });
+    }
+  }
 
-        // Respond with a generic error message to the client
-        res.status(500).json({
-          error: 'Internal server error'
-        });
+  if (offset) {
+    const parsed = parseInt(offset as string, 10);
+    if (isNaN(parsed) || parsed < 0) {
+      return res.status(400).json({ 
+        error: 'Invalid offset: must be non-negative' 
+      });
+    }
+  }
+
+  next();
+}
+
+/**
+ * Sanitize string inputs to prevent XSS
+ */
+export function sanitizeBody(fields: string[]) {
+  return (req: Request, res: Response, next: NextFunction) => {
+    for (const field of fields) {
+      if (req.body[field] && typeof req.body[field] === 'string') {
+        req.body[field] = req.body[field]
+          .replace(/[<>]/g, '')
+          .replace(/javascript:/gi, '')
+          .replace(/on\w+=/gi, '')
+          .trim();
       }
     }
+    next();
+  };
+}
+
+/**
+ * Rate limiting helper (basic)
+ */
+const requestCounts = new Map<string, { count: number; resetTime: number }>();
+
+export function rateLimit(maxRequests: number = 100, windowMs: number = 60000) {
+  return (req: Request, res: Response, next: NextFunction) => {
+    const key = req.ip || 'unknown';
+    const now = Date.now();
+    const record = requestCounts.get(key);
+
+    if (!record || now > record.resetTime) {
+      requestCounts.set(key, { count: 1, resetTime: now + windowMs });
+      return next();
+    }
+
+    if (record.count >= maxRequests) {
+      return res.status(429).json({ error: 'Too many requests' });
+    }
+
+    record.count++;
+    next();
   };
 }
