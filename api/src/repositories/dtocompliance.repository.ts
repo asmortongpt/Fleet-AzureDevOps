@@ -42,7 +42,7 @@ class DtoComplianceRepository {
   // Read a DTO compliance record by ID
   async read(id: number, tenant_id: number): Promise<DtoCompliance | null> {
     const query = `
-      SELECT * FROM dto_compliance
+      SELECT id, created_at, updated_at FROM dto_compliance
       WHERE id = $1 AND tenant_id = $2
     `;
     const values = [id, tenant_id];
@@ -94,7 +94,7 @@ class DtoComplianceRepository {
   // List DTO compliance records for a tenant
   async list(tenant_id: number): Promise<DtoCompliance[]> {
     const query = `
-      SELECT * FROM dto_compliance
+      SELECT id, created_at, updated_at FROM dto_compliance
       WHERE tenant_id = $1
     `;
     const values = [tenant_id];

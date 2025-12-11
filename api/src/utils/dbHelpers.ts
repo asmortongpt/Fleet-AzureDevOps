@@ -71,7 +71,7 @@ function validateTenantIsolation(query: string): void {
  * @example
  * // CORRECT: Tenant-isolated query
  * const result = await tenantSafeQuery(
- *   'SELECT * FROM vehicles WHERE id = $1 AND tenant_id = $2',
+ *   'SELECT id, created_at, updated_at FROM vehicles WHERE id = $1 AND tenant_id = $2',
  *   [vehicleId, req.user!.tenant_id],
  *   req.user!.tenant_id
  * )
@@ -79,7 +79,7 @@ function validateTenantIsolation(query: string): void {
  * @example
  * // WRONG: This will throw an error
  * const result = await tenantSafeQuery(
- *   'SELECT * FROM vehicles WHERE id = $1', // Missing tenant_id!
+ *   'SELECT id, created_at, updated_at FROM vehicles WHERE id = $1', // Missing tenant_id!
  *   [vehicleId],
  *   req.user!.tenant_id
  * )

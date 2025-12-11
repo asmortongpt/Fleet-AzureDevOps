@@ -49,7 +49,7 @@ export abstract class GenericRepository<T extends { id?: string | number }> impl
     try {
       const pool = this.getPool(client)
       const result = await pool.query(
-        `SELECT * FROM ${this.tableName} WHERE ${this.idColumn} = $1 AND tenant_id = $2`,
+        `SELECT id, name, created_at, updated_at, tenant_id FROM ${this.tableName} WHERE ${this.idColumn} = $1 AND tenant_id = $2`,
         [id, tenantId]
       )
 
@@ -112,7 +112,7 @@ export abstract class GenericRepository<T extends { id?: string | number }> impl
 
       // Get paginated data (sortBy and sortOrder are validated above)
       const dataResult = await pool.query(
-        `SELECT * FROM ${this.tableName}
+        `SELECT id, name, created_at, updated_at, tenant_id FROM ${this.tableName}
          WHERE tenant_id = $1
          ORDER BY ${sortBy} ${sortOrder}
          LIMIT $2 OFFSET $3`,
@@ -194,7 +194,7 @@ export abstract class GenericRepository<T extends { id?: string | number }> impl
 
       // Get paginated data (sortBy and sortOrder are validated above)
       const dataResult = await pool.query(
-        `SELECT * FROM ${this.tableName}
+        `SELECT id, name, created_at, updated_at, tenant_id FROM ${this.tableName}
          WHERE ${whereClause}
          ORDER BY ${sortBy} ${sortOrder}
          LIMIT $${paramIndex} OFFSET $${paramIndex + 1}`,

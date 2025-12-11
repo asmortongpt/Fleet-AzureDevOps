@@ -35,7 +35,7 @@ export class BillingIntegrationRepository {
    */
   static async read(id: string, tenant_id: string): Promise<any | null> {
     const query = `
-      SELECT * FROM billing_integrations
+      SELECT id, tenant_id, created_at, updated_at FROM billing_integrations
       WHERE id = $1 AND tenant_id = $2;
     `;
     const values = [id, tenant_id];
@@ -88,7 +88,7 @@ export class BillingIntegrationRepository {
    */
   static async list(tenant_id: string): Promise<any[]> {
     const query = `
-      SELECT * FROM billing_integrations
+      SELECT id, tenant_id, created_at, updated_at FROM billing_integrations
       WHERE tenant_id = $1;
     `;
     const values = [tenant_id];
