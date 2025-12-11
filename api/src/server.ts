@@ -1,10 +1,3 @@
-// Initialize Datadog APM FIRST (must be before ALL other import { container, TYPES } from './container';
-import 'reflect-metadata';
-imports)
-// DISABLED: Datadog APM initialization disabled for now
-// TODO: Re-enable when dd-trace package is properly installed
-console.log('Datadog APM disabled')
-
 // Initialize monitoring services FIRST (before other imports)
 import telemetryService from './monitoring/applicationInsights'
 telemetryService.initialize()
@@ -19,30 +12,44 @@ import {
 
 // ARCHITECTURE FIX: Import new error handling infrastructure
 import { errorHandler } from './middleware/errorHandler'
-import { globalErrorHandler, initializeProcessErrorHandlers as initGlobalProcessHandlers } from './middleware/global-error-handler'
 import { initializeProcessErrorHandlers } from './middleware/processErrorHandlers'
 
 // Initialize Sentry
 sentryService.init()
 
-// Logging middleware
-import { requestIdMiddleware, loggingMiddleware, errorLoggingMiddleware } from './middleware/logging.middleware'
-import logger from './config/logger'
-
 import express from 'express'
 import cors from 'cors'
 
-
 // Security middleware
-import { securityHeaders, corsOptions } from './middleware/security-headers'
+import { securityHeaders } from './middleware/security-headers'
 import { getCorsConfig, validateCorsConfiguration } from './middleware/corsConfig'
-import { globalLimiter, smartRateLimiter } from './middleware/rateLimiter'
-import { globalRateLimit, authRateLimit, telemetryRateLimit, apiRateLimit, uploadRateLimit } from './middleware/advanced-rate-limit'
+import { globalLimiter } from './middleware/rateLimiter'
 import { csrfProtection, getCsrfToken } from './middleware/csrf'
-import { requestSizeLimits, payloadSizeErrorHandler } from "./middleware/request-size-limit"
+import { authenticateJWT } from './middleware/auth'
+import { setTenantContext, debugTenantContext } from './middleware/tenant-context'
+
 // Core Fleet Management Routes
-import vehiclesRouter from './routes/vehicles'
+import adminJobsRouter from './routes/admin-jobs.routes'
+import aiInsightsRouter from './routes/ai-insights.routes'
+import aiSearchRouter from './routes/ai-search'
+import aiTaskAssetRouter from './routes/ai-task-asset.routes'
+import aiTaskPrioritizationRouter from './routes/ai-task-prioritization.routes'
+import annualReauthorizationRouter from './routes/annual-reauthorization.routes'
+import arcgisLayersRouter from './routes/arcgis-layers'
+import assetAnalyticsRouter from './routes/asset-analytics.routes'
+import assetManagementRouter from './routes/asset-management.routes'
+import assetsMobileRouter from './routes/assets-mobile.routes'
+import assignmentReportingRouter from './routes/assignment-reporting.routes'
+import attachmentsRouter from './routes/attachments.routes'
+import authRouter from './routes/auth'
+import billingReportsRouter from './routes/billing-reports'
+import breakGlassRouter from './routes/break-glass'
+import calendarRouter from './routes/calendar.routes'
+import chargingSessionsRouter from './routes/charging-sessions'
+import chargingStationsRouter from './routes/charging-stations'
+import communicationLogsRouter from './routes/communication-logs'
 import driversRouter from './routes/drivers'
+import vehiclesRouter from './routes/vehicles'
 import fuelRouter from './routes/fuel-transactions'
 import maintenanceRouter from './routes/maintenance'
 import incidentsRouter from './routes/incidents'
@@ -53,13 +60,9 @@ import purchaseOrdersRouter from './routes/purchase-orders'
 import tasksRouter from './routes/tasks'
 
 // Asset Management Routes
-import assetManagementRouter from './routes/asset-management.routes'
-import assetAnalyticsRouter from './routes/asset-analytics.routes'
-import assetsMobileRouter from './routes/assets-mobile.routes'
 import heavyEquipmentRouter from './routes/heavy-equipment.routes'
 
 // Dispatch & Communication Routes
-import communicationLogsRouter from './routes/communication-logs'
 import teamsRouter from './routes/teams.routes'
 
 // GPS & Tracking Routes
@@ -71,24 +74,22 @@ import vehicleIdlingRouter from './routes/vehicle-idling.routes'
 // Maintenance & Inspection Routes
 import maintenanceSchedulesRouter from './routes/maintenance-schedules'
 import inspectionsRouter from './routes/inspections'
+import videoEventsRouter from './routes/video-events'
+import videoTelematicsRouter from './routes/video-telematics.routes'
 import workOrdersRouter from './routes/work-orders'
 
 // EV Management Routes
 import evManagementRouter from './routes/ev-management.routes'
-import chargingSessionsRouter from './routes/charging-sessions'
-import chargingStationsRouter from './routes/charging-stations'
 
 // Document Management Routes
 import documentsRouter from './routes/documents'
 import fleetDocumentsRouter from './routes/fleet-documents.routes'
-import attachmentsRouter from './routes/attachments.routes'
 import ocrRouter from './routes/ocr.routes'
 
 // Financial & Cost Management Routes
 import costsRouter from './routes/costs'
 import costAnalysisRouter from './routes/cost-analysis.routes'
 import costBenefitAnalysisRouter from './routes/cost-benefit-analysis.routes'
-import billingReportsRouter from './routes/billing-reports'
 import mileageReimbursementRouter from './routes/mileage-reimbursement'
 import chargesRouter from './routes/personal-use-charges'
 import personalUsePoliciesRouter from './routes/personal-use-policies'
@@ -97,20 +98,14 @@ import fuelPurchasingRouter from './routes/fuel-purchasing.routes'
 // Reporting & Analytics Routes
 import executiveDashboardRouter from './routes/executive-dashboard.routes'
 import customReportsRouter from './routes/custom-reports.routes'
-import assignmentReportingRouter from './routes/assignment-reporting.routes'
 import driverScorecardRouter from './routes/driver-scorecard.routes'
 
 // AI & Automation Routes
-import aiInsightsRouter from './routes/ai-insights.routes'
-import aiSearchRouter from './routes/ai-search'
-import aiTaskAssetRouter from './routes/ai-task-asset.routes'
-import aiTaskPrioritizationRouter from './routes/ai-task-prioritization.routes'
 import langchainRouter from './routes/langchain.routes'
 import fleetOptimizerRouter from './routes/fleet-optimizer.routes'
 
 // Task & Schedule Management Routes
 import schedulingRouter from './routes/scheduling.routes'
-import calendarRouter from './routes/calendar.routes'
 import onCallManagementRouter from './routes/on-call-management.routes'
 
 // Mobile & Integration Routes
@@ -141,24 +136,18 @@ import tripUsageRouter from './routes/trip-usage'
 // Safety & Compliance Routes
 import safetyIncidentsRouter from './routes/safety-incidents'
 import oshaComplianceRouter from './routes/osha-compliance'
-import annualReauthorizationRouter from './routes/annual-reauthorization.routes'
 
 // Policy & Permission Routes
 import policiesRouter from './routes/policies'
 import permissionsRouter from './routes/permissions'
 
 // Authentication & User Management Routes
-import authRouter from './routes/auth'
 import microsoftAuthRouter from './routes/microsoft-auth'
 import sessionRevocationRouter from './routes/session-revocation'
-import breakGlassRouter from './routes/break-glass'
 
 // External Integrations Routes
 import smartcarRouter from './routes/smartcar.routes'
-import arcgisLayersRouter from './routes/arcgis-layers'
 import outlookRouter from './routes/outlook.routes'
-import videoEventsRouter from './routes/video-events'
-import videoTelematicsRouter from './routes/video-telematics.routes'
 
 // Emulator & Testing Routes
 import emulatorRouter from './routes/emulator.routes'
@@ -166,8 +155,8 @@ import obd2EmulatorRouter from './routes/obd2-emulator.routes'
 
 // System Management Routes
 import monitoringRouter from './routes/monitoring'
-import healthRouter from './routes/health.routes' // Microsoft integration health
-import healthSystemRouter from './routes/health-system.routes' // Comprehensive system health (BACKEND-12)
+import healthRouter from './routes/health.routes' // Comprehensive health checks (BACKEND-12)
+import healthMicrosoftRouter from './routes/health-microsoft.routes' // Microsoft-specific health
 import healthDetailedRouter from './routes/health-detailed'
 import performanceRouter from './routes/performance.routes'
 import telemetryRouter from './routes/telemetry'
@@ -180,10 +169,10 @@ import storageAdminRouter from './routes/storage-admin'
 import syncRouter from './routes/sync.routes'
 import qualityGatesRouter from './routes/quality-gates'
 import reservationsRouter from './routes/reservations.routes'
-import adminJobsRouter from './routes/admin-jobs.routes'
-import jobsDashboardRouter from './routes/jobs-dashboard.routes'
-
 import { telemetryMiddleware, errorTelemetryMiddleware, performanceMiddleware } from './middleware/telemetry'
+
+// Logging Middleware
+import { requestLogger, errorLogger, memoryMonitor } from './middleware/logging'
 
 // Job Processing Infrastructure
 import { emailQueue, notificationQueue, reportQueue, closeAllQueues } from './jobs/queue'
@@ -193,11 +182,6 @@ import { processReportJob } from './jobs/processors/report.processor'
 import logger from './utils/logger'
 
 const app = express()
-
-// Initialize dependency injection container
-app.locals.container = container;
-console.log('✅ DI Container initialized');
-
 const PORT = process.env.PORT || 3001
 
 // Validate CORS configuration at startup
@@ -207,10 +191,6 @@ validateCorsConfiguration()
 app.use(sentryRequestHandler())
 
 // Sentry tracing handler for performance monitoring
-
-// Logging middleware - Must be early to capture all requests
-app.use(requestIdMiddleware)
-app.use(loggingMiddleware)
 app.use(sentryTracingHandler())
 
 // ===========================================================================
@@ -218,15 +198,51 @@ app.use(sentryTracingHandler())
 // ===========================================================================
 
 // 1. Security Headers - Must be first to set headers on all responses
-app.use(securityHeaders())  // HIGH-SEC-5: Comprehensive security headers
+app.use(securityHeaders({
+  hsts: {
+    maxAge: 31536000, // 1 year
+    includeSubDomains: true,
+    preload: true
+  },
+  csp: {
+    directives: {
+      'default-src': ["'self'"],
+      'script-src': ["'self'"],
+      'style-src': ["'self'", "'unsafe-inline'"], // For Swagger UI
+      'img-src': ["'self'", 'data:', 'https:'],
+      'connect-src': ["'self'", process.env.AZURE_OPENAI_ENDPOINT || ''].filter(Boolean),
+      'font-src': ["'self'"],
+      'object-src': ["'none'"],
+      'frame-src': ["'none'"],
+      'base-uri': ["'self'"],
+      'form-action': ["'self'"]
+    }
+  },
+  frameOptions: 'DENY',
+  contentTypeOptions: true,
+  xssProtection: true,
+  referrerPolicy: 'strict-origin-when-cross-origin'
 }))
-app.use(cors(corsOptions))  // Updated to use comprehensive CORS from security-headers.ts
 
-// 3. Body Parsers with Security Size Limits - Prevents DoS via oversized payloads
-app.use(requestSizeLimits())
+// 2. CORS Configuration - Strict origin validation
+app.use(cors(getCorsConfig()))
+
+// 3. Body Parsers - After security headers and CORS
+app.use(express.json({ limit: '10mb' }))
 app.use(express.urlencoded({ extended: true, limit: '10mb' }))
 
-app.use(globalRateLimit)  // Updated to use Redis-backed rate limiting
+// 4. Global Rate Limiting - Apply to all routes to prevent DoS attacks
+app.use(globalLimiter)
+
+// ===========================================================================
+// LOGGING MIDDLEWARE (BACKEND-20, BACKEND-11)
+// ===========================================================================
+
+// 5. Request logging - Correlation ID, request/response tracking, timing
+app.use(requestLogger)
+
+// 6. Memory monitoring - Periodic memory usage checks
+app.use(memoryMonitor)
 
 // Add telemetry middleware
 app.use(telemetryMiddleware)
@@ -239,6 +255,21 @@ app.use((req, res, next) => {
     next()
   }
 })
+
+// ===========================================================================
+// DEPRECATION MIDDLEWARE - Warn clients about deprecated /api routes
+// ===========================================================================
+const deprecationWarning = (req: express.Request, res: express.Response, next: express.NextFunction) => {
+  if (!req.url.startsWith('/api/v1')) {
+    res.set('Deprecation', 'true')
+    res.set('Sunset', '2025-06-01')
+    res.set('Link', `</api/v1${req.url}>; rel="successor-version"`)
+  }
+  next()
+}
+
+// Apply deprecation headers to all /api routes (not /api/v1)
+app.use('/api', deprecationWarning)
 
 // CSRF Token endpoint
 app.get('/api/csrf-token', csrfProtection, getCsrfToken)
@@ -271,13 +302,181 @@ if (process.env.NODE_ENV === 'development') {
       throw new Error('Test error from Fleet API - This is intentional!')
     }
   })
+
+  // Debug endpoint to verify tenant context (development only)
+  app.get('/api/debug/tenant-context', authenticateJWT, setTenantContext, debugTenantContext)
 }
 
 // ============================================================================
-// API ROUTE REGISTRATIONS
+// AUTHENTICATION AND TENANT CONTEXT (Applied to all protected API routes)
 // ============================================================================
 
-// Core Fleet Management Routes
+// Public routes that don't require authentication (must be registered BEFORE middleware)
+app.use('/api/auth', authRouter)
+app.use('/api/microsoft-auth', microsoftAuthRouter)
+
+// CRITICAL SECURITY: Apply authentication and tenant context to ALL remaining /api routes
+// This ensures Row-Level Security (RLS) is enforced for multi-tenant isolation
+// Order is critical:
+//   1. authenticateJWT - validates JWT token and sets req.user
+//   2. setTenantContext - sets PostgreSQL session variable for RLS
+logger.info('🔐 Applying authentication and tenant context middleware to all /api/* routes')
+app.use('/api', authenticateJWT, setTenantContext)
+
+// ============================================================================
+// API ROUTE REGISTRATIONS - V1 (Versioned)
+// ============================================================================
+
+// Core Fleet Management Routes - V1
+app.use('/api/v1/vehicles', vehiclesRouter)
+app.use('/api/v1/drivers', driversRouter)
+app.use('/api/v1/fuel-transactions', fuelRouter)
+app.use('/api/v1/maintenance', maintenanceRouter)
+app.use('/api/v1/incidents', incidentsRouter)
+app.use('/api/v1/parts', partsRouter)
+app.use('/api/v1/vendors', vendorsRouter)
+app.use('/api/v1/invoices', invoicesRouter)
+app.use('/api/v1/purchase-orders', purchaseOrdersRouter)
+app.use('/api/v1/tasks', tasksRouter)
+
+// Asset Management Routes - V1
+app.use('/api/v1/assets', assetManagementRouter)
+app.use('/api/v1/asset-analytics', assetAnalyticsRouter)
+app.use('/api/v1/assets-mobile', assetsMobileRouter)
+app.use('/api/v1/heavy-equipment', heavyEquipmentRouter)
+
+// Dispatch & Communication Routes - V1
+app.use('/api/v1/communication-logs', communicationLogsRouter)
+app.use('/api/v1/teams', teamsRouter)
+
+// GPS & Tracking Routes - V1
+app.use('/api/v1/gps', gpsRouter)
+app.use('/api/v1/geofences', geofencesRouter)
+app.use('/api/v1/telematics', telematicsRouter)
+app.use('/api/v1/vehicle-idling', vehicleIdlingRouter)
+
+// Maintenance & Inspection Routes - V1
+app.use('/api/v1/maintenance-schedules', maintenanceSchedulesRouter)
+app.use('/api/v1/inspections', inspectionsRouter)
+app.use('/api/v1/work-orders', workOrdersRouter)
+
+// EV Management Routes - V1
+app.use('/api/v1/ev-management', evManagementRouter)
+app.use('/api/v1/charging-sessions', chargingSessionsRouter)
+app.use('/api/v1/charging-stations', chargingStationsRouter)
+
+// Document Management Routes - V1
+app.use('/api/v1/documents', documentsRouter)
+app.use('/api/v1/fleet-documents', fleetDocumentsRouter)
+app.use('/api/v1/attachments', attachmentsRouter)
+app.use('/api/v1/ocr', ocrRouter)
+
+// Financial & Cost Management Routes - V1
+app.use('/api/v1/costs', costsRouter)
+app.use('/api/v1/cost-analysis', costAnalysisRouter)
+app.use('/api/v1/cost-benefit-analysis', costBenefitAnalysisRouter)
+app.use('/api/v1/billing-reports', billingReportsRouter)
+app.use('/api/v1/mileage-reimbursement', mileageReimbursementRouter)
+app.use('/api/v1/personal-use-charges', chargesRouter)
+app.use('/api/v1/personal-use-policies', personalUsePoliciesRouter)
+app.use('/api/v1/fuel-purchasing', fuelPurchasingRouter)
+
+// Reporting & Analytics Routes - V1
+app.use('/api/v1/executive-dashboard', executiveDashboardRouter)
+app.use('/api/v1/custom-reports', customReportsRouter)
+app.use('/api/v1/assignment-reporting', assignmentReportingRouter)
+app.use('/api/v1/driver-scorecard', driverScorecardRouter)
+
+// AI & Automation Routes - V1
+app.use('/api/v1/ai-insights', aiInsightsRouter)
+app.use('/api/v1/ai-search', aiSearchRouter)
+app.use('/api/v1/ai-task-asset', aiTaskAssetRouter)
+app.use('/api/v1/ai-tasks', aiTaskPrioritizationRouter)
+app.use('/api/v1/langchain', langchainRouter)
+app.use('/api/v1/fleet-optimizer', fleetOptimizerRouter)
+
+// Task & Schedule Management Routes - V1
+app.use('/api/v1/scheduling', schedulingRouter)
+app.use('/api/v1/calendar', calendarRouter)
+app.use('/api/v1/on-call-management', onCallManagementRouter)
+
+// Mobile & Integration Routes - V1
+app.use('/api/v1/mobile-assignment', mobileAssignmentRouter)
+app.use('/api/v1/mobile-hardware', mobileHardwareRouter)
+app.use('/api/v1/mobile-integration', mobileIntegrationRouter)
+app.use('/api/v1/mobile-messaging', mobileMessagingRouter)
+app.use('/api/v1/mobile-notifications', mobileNotificationsRouter)
+app.use('/api/v1/mobile-obd2', mobileObd2Router)
+app.use('/api/v1/mobile-ocr', mobileOcrRouter)
+app.use('/api/v1/mobile-photos', mobilePhotosRouter)
+app.use('/api/v1/mobile-trips', mobileTripsRouter)
+app.use('/api/v1/push-notifications', pushNotificationsRouter)
+
+// Vehicle Management Routes - V1
+app.use('/api/v1/vehicle-assignments', vehicleAssignmentsRouter)
+app.use('/api/v1/vehicle-history', vehicleHistoryRouter)
+app.use('/api/v1/vehicle-identification', vehicleIdentificationRouter)
+app.use('/api/v1/vehicle-3d', vehicle3dRouter)
+app.use('/api/v1/damage', damageRouter)
+app.use('/api/v1/damage-reports', damageReportsRouter)
+
+// Trip & Route Management Routes - V1
+app.use('/api/v1/routes', routeEmulatorRouter)
+app.use('/api/v1/fleet-routes', routesRouter)
+app.use('/api/v1/trip-usage', tripUsageRouter)
+
+// Safety & Compliance Routes - V1
+app.use('/api/v1/safety-incidents', safetyIncidentsRouter)
+app.use('/api/v1/osha-compliance', oshaComplianceRouter)
+app.use('/api/v1/annual-reauthorization', annualReauthorizationRouter)
+
+// Policy & Permission Routes - V1
+app.use('/api/v1/policies', policiesRouter)
+app.use('/api/v1/permissions', permissionsRouter)
+
+// Authentication & User Management Routes - V1
+app.use('/api/v1/auth', authRouter)
+app.use('/api/v1/auth', sessionRevocationRouter) // Session revocation endpoints (/revoke, /revoke/status)
+app.use('/api/v1/microsoft-auth', microsoftAuthRouter)
+app.use('/api/v1/break-glass', breakGlassRouter)
+
+// External Integrations Routes - V1
+app.use('/api/v1/smartcar', smartcarRouter)
+app.use('/api/v1/arcgis-layers', arcgisLayersRouter)
+app.use('/api/v1/outlook', outlookRouter)
+app.use('/api/v1/video-events', videoEventsRouter)
+app.use('/api/v1/video-telematics', videoTelematicsRouter)
+
+// Emulator & Testing Routes - V1
+app.use('/api/v1/emulator', emulatorRouter)
+app.use('/api/v1/obd2-emulator', obd2EmulatorRouter)
+
+// System Management Routes - V1
+app.use('/api/v1/monitoring', monitoringRouter)
+app.use('/api/v1/health', healthRouter) // Comprehensive health (BACKEND-12)
+app.use('/api/v1/health/microsoft', healthMicrosoftRouter) // Microsoft integration health
+app.use('/api/v1/health-detailed', healthDetailedRouter)
+app.use('/api/v1/performance', performanceRouter)
+app.use('/api/v1/telemetry', telemetryRouter)
+app.use('/api/v1/queue', queueRouter)
+app.use('/api/v1/deployments', deploymentsRouter)
+app.use('/api/v1/facilities', facilitiesRouter)
+app.use('/api/v1/search', searchRouter)
+app.use('/api/v1/presence', presenceRouter)
+app.use('/api/v1/storage-admin', storageAdminRouter)
+app.use('/api/v1/sync', syncRouter)
+app.use('/api/v1/quality-gates', qualityGatesRouter)
+app.use('/api/v1/reservations', reservationsRouter)
+app.use('/api/v1/admin/jobs', adminJobsRouter)
+
+// ============================================================================
+// API ROUTE REGISTRATIONS - DEPRECATED (Backward Compatibility)
+// ============================================================================
+// NOTE: These routes are DEPRECATED and will be removed on 2025-06-01
+// All clients should migrate to /api/v1/* endpoints
+// Deprecation headers are automatically added by middleware above
+
+// Core Fleet Management Routes - DEPRECATED
 app.use('/api/vehicles', vehiclesRouter)
 app.use('/api/drivers', driversRouter)
 app.use('/api/fuel-transactions', fuelRouter)
@@ -289,39 +488,39 @@ app.use('/api/invoices', invoicesRouter)
 app.use('/api/purchase-orders', purchaseOrdersRouter)
 app.use('/api/tasks', tasksRouter)
 
-// Asset Management Routes
+// Asset Management Routes - DEPRECATED
 app.use('/api/assets', assetManagementRouter)
 app.use('/api/asset-analytics', assetAnalyticsRouter)
 app.use('/api/assets-mobile', assetsMobileRouter)
 app.use('/api/heavy-equipment', heavyEquipmentRouter)
 
-// Dispatch & Communication Routes
+// Dispatch & Communication Routes - DEPRECATED
 app.use('/api/communication-logs', communicationLogsRouter)
 app.use('/api/teams', teamsRouter)
 
-// GPS & Tracking Routes
+// GPS & Tracking Routes - DEPRECATED
 app.use('/api/gps', gpsRouter)
 app.use('/api/geofences', geofencesRouter)
 app.use('/api/telematics', telematicsRouter)
 app.use('/api/vehicle-idling', vehicleIdlingRouter)
 
-// Maintenance & Inspection Routes
+// Maintenance & Inspection Routes - DEPRECATED
 app.use('/api/maintenance-schedules', maintenanceSchedulesRouter)
 app.use('/api/inspections', inspectionsRouter)
 app.use('/api/work-orders', workOrdersRouter)
 
-// EV Management Routes
+// EV Management Routes - DEPRECATED
 app.use('/api/ev-management', evManagementRouter)
 app.use('/api/charging-sessions', chargingSessionsRouter)
 app.use('/api/charging-stations', chargingStationsRouter)
 
-// Document Management Routes
+// Document Management Routes - DEPRECATED
 app.use('/api/documents', documentsRouter)
 app.use('/api/fleet-documents', fleetDocumentsRouter)
 app.use('/api/attachments', attachmentsRouter)
 app.use('/api/ocr', ocrRouter)
 
-// Financial & Cost Management Routes
+// Financial & Cost Management Routes - DEPRECATED
 app.use('/api/costs', costsRouter)
 app.use('/api/cost-analysis', costAnalysisRouter)
 app.use('/api/cost-benefit-analysis', costBenefitAnalysisRouter)
@@ -331,13 +530,13 @@ app.use('/api/personal-use-charges', chargesRouter)
 app.use('/api/personal-use-policies', personalUsePoliciesRouter)
 app.use('/api/fuel-purchasing', fuelPurchasingRouter)
 
-// Reporting & Analytics Routes
+// Reporting & Analytics Routes - DEPRECATED
 app.use('/api/executive-dashboard', executiveDashboardRouter)
 app.use('/api/custom-reports', customReportsRouter)
 app.use('/api/assignment-reporting', assignmentReportingRouter)
 app.use('/api/driver-scorecard', driverScorecardRouter)
 
-// AI & Automation Routes
+// AI & Automation Routes - DEPRECATED
 app.use('/api/ai-insights', aiInsightsRouter)
 app.use('/api/ai-search', aiSearchRouter)
 app.use('/api/ai-task-asset', aiTaskAssetRouter)
@@ -345,12 +544,12 @@ app.use('/api/ai-tasks', aiTaskPrioritizationRouter)
 app.use('/api/langchain', langchainRouter)
 app.use('/api/fleet-optimizer', fleetOptimizerRouter)
 
-// Task & Schedule Management Routes
+// Task & Schedule Management Routes - DEPRECATED
 app.use('/api/scheduling', schedulingRouter)
 app.use('/api/calendar', calendarRouter)
 app.use('/api/on-call-management', onCallManagementRouter)
 
-// Mobile & Integration Routes
+// Mobile & Integration Routes - DEPRECATED
 app.use('/api/mobile-assignment', mobileAssignmentRouter)
 app.use('/api/mobile-hardware', mobileHardwareRouter)
 app.use('/api/mobile-integration', mobileIntegrationRouter)
@@ -362,7 +561,7 @@ app.use('/api/mobile-photos', mobilePhotosRouter)
 app.use('/api/mobile-trips', mobileTripsRouter)
 app.use('/api/push-notifications', pushNotificationsRouter)
 
-// Vehicle Management Routes
+// Vehicle Management Routes - DEPRECATED
 app.use('/api/vehicle-assignments', vehicleAssignmentsRouter)
 app.use('/api/vehicle-history', vehicleHistoryRouter)
 app.use('/api/vehicle-identification', vehicleIdentificationRouter)
@@ -370,41 +569,41 @@ app.use('/api/vehicle-3d', vehicle3dRouter)
 app.use('/api/damage', damageRouter)
 app.use('/api/damage-reports', damageReportsRouter)
 
-// Trip & Route Management Routes
-app.use('/api/routes', routesRouter)
-app.use('/api/route-emulator', routeEmulatorRouter)
+// Trip & Route Management Routes - DEPRECATED
+app.use('/api/routes', routeEmulatorRouter)
+app.use('/api/fleet-routes', routesRouter)
 app.use('/api/trip-usage', tripUsageRouter)
 
-// Safety & Compliance Routes
+// Safety & Compliance Routes - DEPRECATED
 app.use('/api/safety-incidents', safetyIncidentsRouter)
 app.use('/api/osha-compliance', oshaComplianceRouter)
 app.use('/api/annual-reauthorization', annualReauthorizationRouter)
 
-// Policy & Permission Routes
+// Policy & Permission Routes - DEPRECATED
 app.use('/api/policies', policiesRouter)
 app.use('/api/permissions', permissionsRouter)
 
-// Authentication & User Management Routes
+// Authentication & User Management Routes - DEPRECATED
 app.use('/api/auth', authRouter)
 app.use('/api/auth', sessionRevocationRouter) // Session revocation endpoints (/revoke, /revoke/status)
 app.use('/api/microsoft-auth', microsoftAuthRouter)
 app.use('/api/break-glass', breakGlassRouter)
 
-// External Integrations Routes
+// External Integrations Routes - DEPRECATED
 app.use('/api/smartcar', smartcarRouter)
 app.use('/api/arcgis-layers', arcgisLayersRouter)
 app.use('/api/outlook', outlookRouter)
 app.use('/api/video-events', videoEventsRouter)
 app.use('/api/video-telematics', videoTelematicsRouter)
 
-// Emulator & Testing Routes
+// Emulator & Testing Routes - DEPRECATED
 app.use('/api/emulator', emulatorRouter)
 app.use('/api/obd2-emulator', obd2EmulatorRouter)
 
-// System Management Routes
+// System Management Routes - DEPRECATED (use /api/v1 instead)
 app.use('/api/monitoring', monitoringRouter)
-app.use('/api/health', healthSystemRouter) // Comprehensive system health (BACKEND-12)
-app.use('/api/health/microsoft', healthRouter) // Microsoft integration health
+app.use('/api/health', healthRouter) // Comprehensive health (BACKEND-12)
+app.use('/api/health/microsoft', healthMicrosoftRouter) // Microsoft integration health
 app.use('/api/health-detailed', healthDetailedRouter)
 app.use('/api/performance', performanceRouter)
 app.use('/api/telemetry', telemetryRouter)
@@ -418,22 +617,23 @@ app.use('/api/sync', syncRouter)
 app.use('/api/quality-gates', qualityGatesRouter)
 app.use('/api/reservations', reservationsRouter)
 app.use('/api/admin/jobs', adminJobsRouter)
-app.use('/api/jobs', jobsDashboardRouter)
 
 // 404 handler - must come before error handlers
 app.use(notFoundHandler())
 
-// Add error telemetry middleware
+// ===========================================================================
+// ERROR HANDLING MIDDLEWARE (Must be last)
+// ===========================================================================
+
+// 1. Error logging - Log all errors with correlation ID (BACKEND-20, BACKEND-11)
+app.use(errorLogger)
+
+// 2. Error telemetry middleware
 app.use(errorTelemetryMiddleware)
 
-// ARCHITECTURE FIX: Add custom error handler BEFORE Sentry
-// Payload size error handler (must be before general error handler)
-app.use(payloadSizeErrorHandler)
-
+// 3. ARCHITECTURE FIX: Add custom error handler BEFORE Sentry
 // This handles ApplicationError instances with proper status codes
 app.use(errorHandler)
-// HIGH-SEC-2: Global error handler with incident tracking
-app.use(globalErrorHandler)
 
 // Sentry error handler must be the last middleware
 app.use(sentryErrorHandler())
@@ -474,22 +674,20 @@ const initializeJobProcessors = () => {
     return processReportJob(job)
   })
 
-  logger.info('Bull job processors initialized')
+  logger.info('✅ Bull job processors initialized')
   logger.info('  - Email queue: ready')
   logger.info('  - Notification queue: ready')
   logger.info('  - Report queue: ready')
 }
 
 const server = app.listen(PORT, () => {
-  console.log(`Server running on http://localhost:${PORT}`)
-  console.log(`Application Insights: ${telemetryService.isActive() ? 'Enabled' : 'Disabled'}`)
-  console.log(`Sentry: ${process.env.SENTRY_DSN ? 'Enabled' : 'Disabled (no DSN configured)'}`)
-  console.log(`Environment: ${process.env.NODE_ENV || 'development'}`)
+  console.log(`✅ Server running on http://localhost:${PORT}`)
+  console.log(`📊 Application Insights: ${telemetryService.isActive() ? 'Enabled' : 'Disabled'}`)
+  console.log(`🔍 Sentry: ${process.env.SENTRY_DSN ? 'Enabled' : 'Disabled (no DSN configured)'}`)
+  console.log(`🌍 Environment: ${process.env.NODE_ENV || 'development'}`)
 
   // ARCHITECTURE FIX: Initialize process-level error handlers
   initializeProcessErrorHandlers(server)
-  // HIGH-SEC-2: Initialize global process-level error handlers
-  initGlobalProcessHandlers()
 
   // Initialize Bull job processors
   initializeJobProcessors()
@@ -517,7 +715,7 @@ const server = app.listen(PORT, () => {
 
 // Graceful shutdown
 process.on('SIGTERM', async () => {
-  console.log('SIGTERM signal received: flushing telemetry and closing server')
+  console.log('📊 SIGTERM signal received: flushing telemetry and closing server')
 
   server.close(async () => {
     // Close Bull queues gracefully
@@ -534,7 +732,7 @@ process.on('SIGTERM', async () => {
 })
 
 process.on('SIGINT', async () => {
-  console.log('SIGINT signal received: flushing telemetry and closing server')
+  console.log('📊 SIGINT signal received: flushing telemetry and closing server')
 
   server.close(async () => {
     // Close Bull queues gracefully
