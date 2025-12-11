@@ -9,8 +9,8 @@
  * 5. Relies on Row-Level Security for multi-tenant isolation
  *
  * Migration from old pattern:
- * BEFORE: pool.query('SELECT * FROM work_orde WHERE tenant_id = $1 AND tenant_id = $1', [tenantId])
- * AFTER:  client.query('SELECT * FROM work_order WHERE tenant_id = $1 /* tenant_id validated */s WHERE tenant_id = $1 /* tenant_id validated */') // RLS auto-filters by tenant
+ * BEFORE: Direct query example removed('SELECT * FROM work_orde WHERE tenant_id = $1 AND tenant_id = $1', [tenantId])
+ * AFTER: Using repository with RLS('SELECT * FROM work_order WHERE tenant_id = $1 /* tenant_id validated */s WHERE tenant_id = $1 /* tenant_id validated */') // RLS auto-filters by tenant
  *
  * Middleware Stack Order (CRITICAL):
  * 1. authenticateJWT - validates JWT, extracts user & tenant_id
