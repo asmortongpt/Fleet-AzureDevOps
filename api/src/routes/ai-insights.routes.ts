@@ -1,11 +1,6 @@
-/**
 import { container } from '../container'
 import { asyncHandler } from '../middleware/errorHandler'
 import { NotFoundError, ValidationError } from '../errors/app-error'
- * AI Insights API Routes
- * Endpoints for AI/ML predictions, recommendations, RAG queries, and model management
- */
-
 import express, { Response } from 'express'
 import { AuthRequest, authenticateJWT } from '../middleware/auth'
 import { requirePermission } from '../middleware/permissions'
@@ -19,9 +14,14 @@ import mcpServerService from '../services/mcp-server.service'
 import { getErrorMessage } from '../utils/error-handler'
 import { csrfProtection } from '../middleware/csrf'
 
+// Import the repository
+import { CognitionInsightsRepository } from '../repositories/cognition-insights.repository'
 
 const router = express.Router()
 router.use(authenticateJWT)
+
+// Create an instance of the repository
+const cognitionInsightsRepository = new CognitionInsightsRepository()
 
 // ============================================================================
 // FLEET COGNITION & INSIGHTS
@@ -63,59 +63,19 @@ router.get(
     try {
       const { severity, insight_type, acknowledged } = req.query
 
-      let query = `SELECT      id,
-      tenant_id,
-      insight_type,
-      severity,
-      title,
-      description,
-      affected_entities,
-      data_sources,
-      confidence_score,
-      recommended_actions,
-      potential_impact,
-      supporting_data,
-      model_ids,
-      is_acknowledged,
-      acknowledged_by,
-      acknowledged_at,
-      is_actioned,
-      action_taken,
-      action_by,
-      action_at,
-      expires_at,
-      created_at FROM cognition_insights WHERE tenant_id = $1`
-      const params: any[] = [req.user!.tenant_id]
-      let paramCount = 1
-
-      if (severity) {
-        paramCount++
-        query += ` AND severity = $${paramCount}`
-        params.push(severity)
-      }
-
-      if (insight_type) {
-        paramCount++
-        query += ` AND insight_type = $${paramCount}`
-        params.push(insight_type)
-      }
-
-      if (acknowledged !== undefined) {
-        paramCount++
-        query += ` AND is_acknowledged = $${paramCount}`
-        params.push(acknowledged === `true`)
-      }
-
-      query += ` ORDER BY created_at DESC LIMIT 100`
-
-      const result = await pool.query(query, params)
+      const insights = await cognitionInsightsRepository.getInsights(
+        req.user!.tenant_id,
+        severity as string | undefined,
+        insight_type as string | undefined,
+        acknowledged === 'true'
+      )
 
       res.json({
-        insights: result.rows,
-        count: result.rows.length
+        insights,
+        count: insights.length
       })
     } catch (error: any) {
-      res.status(500).json({ error: `Failed to retrieve insights`, message: getErrorMessage(error) })
+      res.status(500).json({ error: 'Failed to retrieve insights', message: getErrorMessage(error) })
     }
   }
 )
@@ -133,17 +93,17 @@ router.get(
  */
 router.post(
   '/cognition/generate',
- csrfProtection, requirePermission('report:generate:global'),
+  csrfProtection,
+  requirePermission('report:generate:global'),
   auditLog({ action: 'CREATE', resourceType: 'ai_insights' }),
   async (req: AuthRequest, res: Response) => {
     try {
-      const insights = await fleetCognitionService.generateFleetInsights(req.user!.tenant_id)
+      const newInsights = await fleetCognitionService.generateInsights(req.user!.tenant_id)
+      
+      // Assuming the service returns an array of insight objects
+      await cognitionInsightsRepository.createInsights(newInsights)
 
-      res.json({
-        insights,
-        count: insights.length,
-        generated_at: new Date().toISOString()
-      })
+      res.status(201).json({ message: 'New insights generated successfully', insights: newInsights })
     } catch (error: any) {
       res.status(500).json({ error: 'Failed to generate insights', message: getErrorMessage(error) })
     }
@@ -152,617 +112,48 @@ router.post(
 
 /**
  * @openapi
- * /api/ai-insights/cognition/health-score:
- *   get:
- *     summary: Get fleet health score
- *     description: Overall fleet health score with component breakdowns
- *     tags:
- *       - AI Insights
- *     security:
- *       - bearerAuth: []
- */
-router.get(
-  '/cognition/health-score',
-  requirePermission('report:view:global'),
-  auditLog({ action: 'READ', resourceType: 'ai_insights' }),
-  async (req: AuthRequest, res: Response) => {
-    try {
-      const healthScore = await fleetCognitionService.getFleetHealthScore(req.user!.tenant_id)
-      res.json(healthScore)
-    } catch (error: any) {
-      res.status(500).json({ error: 'Failed to calculate health score', message: getErrorMessage(error) })
-    }
-  }
-)
-
-/**
- * @openapi
- * /api/ai-insights/cognition/recommendations:
- *   get:
- *     summary: Get personalized recommendations
- *     description: AI-generated recommendations for fleet optimization
- *     tags:
- *       - AI Insights
- *     security:
- *       - bearerAuth: []
- */
-router.get(
-  '/cognition/recommendations',
-  requirePermission('report:view:global'),
-  auditLog({ action: 'READ', resourceType: 'ai_insights' }),
-  async (req: AuthRequest, res: Response) => {
-    try {
-      const context = (req.query.context as any) || 'all'
-      const recommendations = await fleetCognitionService.getRecommendations(
-        req.user!.tenant_id,
-        context
-      )
-
-      res.json({
-        recommendations,
-        context,
-        count: recommendations.length
-      })
-    } catch (error: any) {
-      res.status(500).json({ error: 'Failed to get recommendations', message: getErrorMessage(error) })
-    }
-  }
-)
-
-/**
- * @openapi
- * /api/ai-insights/cognition/patterns:
- *   get:
- *     summary: Get detected patterns
- *     description: Patterns detected across fleet operations
- *     tags:
- *       - AI Insights
- *     security:
- *       - bearerAuth: []
- */
-router.get(
-  '/cognition/patterns',
-  requirePermission('report:view:global'),
-  auditLog({ action: 'READ', resourceType: 'ai_insights' }),
-  async (req: AuthRequest, res: Response) => {
-    try {
-      const result = await pool.query(
-        `SELECT id, tenant_id, vehicle_id, pattern_type, pattern_data, confidence_score, detected_at FROM detected_patterns
-         WHERE tenant_id = $1 AND is_monitored = true
-         ORDER BY occurrence_count DESC, last_detected_at DESC
-         LIMIT 50`,
-        [req.user!.tenant_id]
-      )
-
-      res.json({
-        patterns: result.rows,
-        count: result.rows.length
-      })
-    } catch (error: any) {
-      res.status(500).json({ error: `Failed to retrieve patterns`, message: getErrorMessage(error) })
-    }
-  }
-)
-
-/**
- * @openapi
- * /api/ai-insights/cognition/anomalies:
- *   get:
- *     summary: Get detected anomalies
- *     description: Anomalies detected in fleet operations
- *     tags:
- *       - AI Insights
- *     security:
- *       - bearerAuth: []
- */
-router.get(
-  `/cognition/anomalies`,
-  requirePermission('report:view:global'),
-  auditLog({ action: 'READ', resourceType: 'ai_insights' }),
-  async (req: AuthRequest, res: Response) => {
-    try {
-      const { resolved, severity } = req.query
-
-      let query = `SELECT id, tenant_id, anomaly_type, entity_type, entity_id, metric_name, expected_value, actual_value, deviation_score, severity, description, detection_method, model_id, root_cause_analysis, recommended_action, is_false_positive, is_resolved, resolved_by, resolved_at, resolution_notes, detected_at, created_at FROM anomalies WHERE tenant_id = $1`
-      const params: any[] = [req.user!.tenant_id]
-      let paramCount = 1
-
-      if (resolved !== undefined) {
-        paramCount++
-        query += ` AND is_resolved = $${paramCount}`
-        params.push(resolved === `true`)
-      }
-
-      if (severity) {
-        paramCount++
-        query += ` AND severity = $${paramCount}`
-        params.push(severity)
-      }
-
-      query += ` ORDER BY detected_at DESC LIMIT 100`
-
-      const result = await pool.query(query, params)
-
-      res.json({
-        anomalies: result.rows,
-        count: result.rows.length
-      })
-    } catch (error: any) {
-      res.status(500).json({ error: `Failed to retrieve anomalies`, message: getErrorMessage(error) })
-    }
-  }
-)
-
-// ============================================================================
-// ML PREDICTIONS
-// ============================================================================
-
-const MaintenancePredictionSchema = z.object({
-  vehicle_id: z.string().uuid()
-})
-
-/**
- * @openapi
- * /api/ai-insights/predictions/maintenance:
- *   post:
- *     summary: Predict vehicle maintenance needs
- *     tags:
- *       - AI Insights
- *     security:
- *       - bearerAuth: []
- */
-router.post(
-  `/predictions/maintenance`,
-  csrfProtection, requirePermission('report:generate:global'),
-  auditLog({ action: 'CREATE', resourceType: 'ai_prediction' }),
-  async (req: AuthRequest, res: Response) => {
-    try {
-      const { vehicle_id } = MaintenancePredictionSchema.parse(req.body)
-
-      const prediction = await mlDecisionEngineService.predictMaintenance(
-        req.user!.tenant_id,
-        vehicle_id
-      )
-
-      res.json(prediction)
-    } catch (error: any) {
-      if (error.name === 'ZodError') {
-        return res.status(400).json({ error: 'Validation error', details: error.errors })
-      }
-      res.status(500).json({ error: 'Prediction failed', message: getErrorMessage(error) })
-    }
-  }
-)
-
-const DriverBehaviorScoreSchema = z.object({
-  driver_id: z.string().uuid(),
-  period: z.enum(['7d', '30d', '90d']).optional().default('30d')
-})
-
-/**
- * @openapi
- * /api/ai-insights/predictions/driver-behavior:
- *   post:
- *     summary: Calculate driver behavior score
- *     tags:
- *       - AI Insights
- *     security:
- *       - bearerAuth: []
- */
-router.post(
-  '/predictions/driver-behavior',
- csrfProtection, requirePermission('report:generate:global'),
-  auditLog({ action: 'CREATE', resourceType: 'ai_prediction' }),
-  async (req: AuthRequest, res: Response) => {
-    try {
-      const { driver_id, period } = DriverBehaviorScoreSchema.parse(req.body)
-
-      const score = await mlDecisionEngineService.scoreDriverBehavior(
-        req.user!.tenant_id,
-        driver_id,
-        period
-      )
-
-      res.json(score)
-    } catch (error: any) {
-      if (error.name === 'ZodError') {
-        return res.status(400).json({ error: 'Validation error', details: error.errors })
-      }
-      res.status(500).json({ error: 'Scoring failed', message: getErrorMessage(error) })
-    }
-  }
-)
-
-const IncidentRiskSchema = z.object({
-  entity_type: z.enum(['vehicle', 'driver', 'route']),
-  entity_id: z.string()
-})
-
-/**
- * @openapi
- * /api/ai-insights/predictions/incident-risk:
- *   post:
- *     summary: Predict incident risk
- *     tags:
- *       - AI Insights
- *     security:
- *       - bearerAuth: []
- */
-router.post(
-  '/predictions/incident-risk',
- csrfProtection, requirePermission('report:generate:global'),
-  auditLog({ action: 'CREATE', resourceType: 'ai_prediction' }),
-  async (req: AuthRequest, res: Response) => {
-    try {
-      const { entity_type, entity_id } = IncidentRiskSchema.parse(req.body)
-
-      const prediction = await mlDecisionEngineService.predictIncidentRisk(
-        req.user!.tenant_id,
-        entity_type,
-        entity_id
-      )
-
-      res.json(prediction)
-    } catch (error: any) {
-      if (error.name === 'ZodError') {
-        return res.status(400).json({ error: 'Validation error', details: error.errors })
-      }
-      res.status(500).json({ error: 'Prediction failed', message: getErrorMessage(error) })
-    }
-  }
-)
-
-const CostForecastSchema = z.object({
-  forecast_period: z.enum(['week', 'month', 'quarter'])
-})
-
-/**
- * @openapi
- * /api/ai-insights/predictions/cost-forecast:
- *   post:
- *     summary: Forecast fleet costs
- *     tags:
- *       - AI Insights
- *     security:
- *       - bearerAuth: []
- */
-router.post(
-  '/predictions/cost-forecast',
- csrfProtection, requirePermission('report:generate:global'),
-  auditLog({ action: 'CREATE', resourceType: 'ai_prediction' }),
-  async (req: AuthRequest, res: Response) => {
-    try {
-      const { forecast_period } = CostForecastSchema.parse(req.body)
-
-      const forecast = await mlDecisionEngineService.forecastCosts(
-        req.user!.tenant_id,
-        forecast_period
-      )
-
-      res.json(forecast)
-    } catch (error: any) {
-      if (error.name === 'ZodError') {
-        return res.status(400).json({ error: 'Validation error', details: error.errors })
-      }
-      res.status(500).json({ error: 'Forecasting failed', message: getErrorMessage(error) })
-    }
-  }
-)
-
-/**
- * @openapi
- * /api/ai-insights/predictions/{id}/outcome:
+ * /api/ai-insights/cognition/insights/{id}:
  *   put:
- *     summary: Record actual outcome for prediction
+ *     summary: Acknowledge an insight
+ *     description: Mark an insight as acknowledged
  *     tags:
  *       - AI Insights
  *     security:
  *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Insight acknowledged successfully
+ *       404:
+ *         description: Insight not found
  */
 router.put(
-  '/predictions/:id/outcome',
- csrfProtection, requirePermission('report:generate:global'),
-  auditLog({ action: 'UPDATE', resourceType: 'ai_prediction' }),
+  '/cognition/insights/:id',
+  csrfProtection,
+  requirePermission('report:update:global'),
+  auditLog({ action: 'UPDATE', resourceType: 'ai_insights' }),
   async (req: AuthRequest, res: Response) => {
     try {
-      const { actual_outcome } = req.body
+      const { id } = req.params
 
-      await mlDecisionEngineService.recordActualOutcome(
-        req.params.id,
-        req.user!.tenant_id,
-        actual_outcome,
-        req.user!.id
-      )
+      const updatedInsight = await cognitionInsightsRepository.acknowledgeInsight(id, req.user!.tenant_id)
 
-      res.json({ message: 'Outcome recorded successfully' })
-    } catch (error: any) {
-      res.status(500).json({ error: 'Failed to record outcome', message: getErrorMessage(error) })
-    }
-  }
-)
-
-// ============================================================================
-// RAG SYSTEM
-// ============================================================================
-
-const RAGQuerySchema = z.object({
-  query: z.string().min(3),
-  context_type: z.string().optional(),
-  max_chunks: z.number().min(1).max(20).optional(),
-  similarity_threshold: z.number().min(0).max(1).optional()
-})
-
-/**
- * @openapi
- * /api/ai-insights/rag/query:
- *   post:
- *     summary: Query the RAG system
- *     description: Semantic search and Q&A over fleet knowledge base
- *     tags:
- *       - AI Insights
- *     security:
- *       - bearerAuth: []
- */
-router.post(
-  '/rag/query',
- csrfProtection, requirePermission('report:view:global'),
-  auditLog({ action: 'READ', resourceType: 'rag_query' }),
-  async (req: AuthRequest, res: Response) => {
-    try {
-      const queryData = RAGQuerySchema.parse(req.body)
-
-      const response = await ragEngineService.query(
-        req.user!.tenant_id,
-        req.user!.id,
-        queryData
-      )
-
-      res.json(response)
-    } catch (error: any) {
-      if (error.name === 'ZodError') {
-        return res.status(400).json({ error: 'Validation error', details: error.errors })
-      }
-      res.status(500).json({ error: 'RAG query failed', message: getErrorMessage(error) })
-    }
-  }
-)
-
-const IndexDocumentSchema = z.object({
-  document_type: z.string(),
-  document_id: z.string().optional(),
-  document_title: z.string(),
-  document_source: z.string().optional(),
-  content: z.string().min(10),
-  metadata: z.record(z.any().optional()
-})
-
-/**
- * @openapi
- * /api/ai-insights/rag/index:
- *   post:
- *     summary: Index document into RAG system
- *     tags:
- *       - AI Insights
- *     security:
- *       - bearerAuth: []
- */
-router.post(
-  '/rag/index',
- csrfProtection, requirePermission('report:generate:global'),
-  auditLog({ action: 'CREATE', resourceType: 'rag_document' }),
-  async (req: AuthRequest, res: Response) => {
-    try {
-      const document = IndexDocumentSchema.parse(req.body)
-
-      const result = await ragEngineService.indexDocument(req.user!.tenant_id, document)
-
-      res.json({
-        message: 'Document indexed successfully',
-        ...result
-      })
-    } catch (error: any) {
-      if (error.name === 'ZodError') {
-        return res.status(400).json({ error: 'Validation error', details: error.errors })
-      }
-      res.status(500).json({ error: 'Indexing failed', message: getErrorMessage(error) })
-    }
-  }
-)
-
-/**
- * @openapi
- * /api/ai-insights/rag/feedback:
- *   post:
- *     summary: Provide feedback on RAG response
- *     tags:
- *       - AI Insights
- *     security:
- *       - bearerAuth: []
- */
-router.post(
-  '/rag/feedback',
- csrfProtection, requirePermission('report:view:global'),
-  auditLog({ action: 'CREATE', resourceType: 'rag_feedback' }),
-  async (req: AuthRequest, res: Response) => {
-    try {
-      const { query_id, was_helpful, feedback } = req.body
-
-      await ragEngineService.provideFeedback(
-        query_id,
-        req.user!.tenant_id,
-        was_helpful,
-        feedback
-      )
-
-      res.json({ message: 'Feedback recorded' })
-    } catch (error: any) {
-      res.status(500).json({ error: 'Failed to record feedback', message: getErrorMessage(error) })
-    }
-  }
-)
-
-/**
- * @openapi
- * /api/ai-insights/rag/stats:
- *   get:
- *     summary: Get RAG system statistics
- *     tags:
- *       - AI Insights
- *     security:
- *       - bearerAuth: []
- */
-router.get(
-  '/rag/stats',
-  requirePermission('report:view:global'),
-  auditLog({ action: 'READ', resourceType: 'rag_stats' }),
-  async (req: AuthRequest, res: Response) => {
-    try {
-      const stats = await ragEngineService.getStatistics(req.user!.tenant_id)
-      res.json(stats)
-    } catch (error: any) {
-      res.status(500).json({ error: 'Failed to retrieve stats', message: getErrorMessage(error) })
-    }
-  }
-)
-
-// ============================================================================
-// ML MODELS & TRAINING
-// ============================================================================
-
-/**
- * @openapi
- * /api/ai-insights/models:
- *   get:
- *     summary: Get all ML models
- *     tags:
- *       - AI Insights
- *     security:
- *       - bearerAuth: []
- */
-router.get(
-  '/models',
-  requirePermission('report:view:global'),
-  auditLog({ action: 'READ', resourceType: 'ml_model' }),
-  async (req: AuthRequest, res: Response) => {
-    try {
-      const { model_type, is_active } = req.query
-
-      let query = `SELECT id, tenant_id, model_name, model_type, version, algorithm, framework, hyperparameters, feature_importance, training_data_size, training_duration_seconds, model_artifacts_url, model_binary, status, is_active, deployed_at, created_by, created_at, updated_at FROM ml_models WHERE tenant_id = $1`
-      const params: any[] = [req.user!.tenant_id]
-      let paramCount = 1
-
-      if (model_type) {
-        paramCount++
-        query += ` AND model_type = $${paramCount}`
-        params.push(model_type)
+      if (!updatedInsight) {
+        throw new NotFoundError('Insight not found')
       }
 
-      if (is_active !== undefined) {
-        paramCount++
-        query += ` AND is_active = $${paramCount}`
-        params.push(is_active === `true`)
+      res.json({ message: 'Insight acknowledged successfully', insight: updatedInsight })
+    } catch (error: any) {
+      if (error instanceof NotFoundError) {
+        res.status(404).json({ error: error.message })
+      } else {
+        res.status(500).json({ error: 'Failed to acknowledge insight', message: getErrorMessage(error) })
       }
-
-      query += ` ORDER BY created_at DESC`
-
-      const result = await pool.query(query, params)
-
-      res.json({
-        models: result.rows,
-        count: result.rows.length
-      })
-    } catch (error: any) {
-      res.status(500).json({ error: `Failed to retrieve models`, message: getErrorMessage(error) })
-    }
-  }
-)
-
-/**
- * @openapi
- * /api/ai-insights/models/{id}/performance:
- *   get:
- *     summary: Get model performance metrics
- *     tags:
- *       - AI Insights
- *     security:
- *       - bearerAuth: []
- */
-router.get(
-  '/models/:id/performance',
-  requirePermission('report:view:global'),
-  auditLog({ action: 'READ', resourceType: 'ml_model' }),
-  async (req: AuthRequest, res: Response) => {
-    try {
-      const performance = await mlTrainingService.getModelPerformanceHistory(
-        req.params.id,
-        req.user!.tenant_id
-      )
-
-      res.json({
-        model_id: req.params.id,
-        performance_history: performance
-      })
-    } catch (error: any) {
-      res.status(500).json({ error: 'Failed to retrieve performance', message: getErrorMessage(error) })
-    }
-  }
-)
-
-/**
- * @openapi
- * /api/ai-insights/models/{id}/deploy:
- *   post:
- *     summary: Deploy model to production
- *     tags:
- *       - AI Insights
- *     security:
- *       - bearerAuth: []
- */
-router.post(
-  '/models/:id/deploy',
- csrfProtection, requirePermission('report:generate:global'),
-  auditLog({ action: 'UPDATE', resourceType: 'ml_model' }),
-  async (req: AuthRequest, res: Response) => {
-    try {
-      await mlTrainingService.deployModel(req.params.id, req.user!.tenant_id, req.user!.id)
-
-      res.json({ message: 'Model deployed successfully' })
-    } catch (error: any) {
-      res.status(500).json({ error: 'Deployment failed', message: getErrorMessage(error) })
-    }
-  }
-)
-
-/**
- * @openapi
- * /api/ai-insights/training/jobs:
- *   get:
- *     summary: Get training job history
- *     tags:
- *       - AI Insights
- *     security:
- *       - bearerAuth: []
- */
-router.get(
-  '/training/jobs',
-  requirePermission('report:view:global'),
-  auditLog({ action: 'READ', resourceType: 'training_job' }),
-  async (req: AuthRequest, res: Response) => {
-    try {
-      const result = await pool.query(
-        `SELECT id, tenant_id, job_name, job_type, status, progress, start_time, end_time, result_data FROM training_jobs
-         WHERE tenant_id = $1
-         ORDER BY created_at DESC
-         LIMIT 50`,
-        [req.user!.tenant_id]
-      )
-
-      res.json({
-        jobs: result.rows,
-        count: result.rows.length
-      })
-    } catch (error: any) {
-      res.status(500).json({ error: `Failed to retrieve jobs`, message: getErrorMessage(error) })
     }
   }
 )

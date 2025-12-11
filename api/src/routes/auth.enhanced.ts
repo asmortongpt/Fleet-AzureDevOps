@@ -4,7 +4,8 @@ import express, { Request, Response } from 'express'
 import { z } from 'zod'
 
 import { loginLimiter, registrationLimiter } from '../config/rate-limiters'
-import { pool } from '../db'
+import { UserRepository } from '../repositories/user.repository'
+import { TenantRepository } from '../repositories/tenant.repository'
 import { createAuditLog } from '../middleware/audit'
 import { FIPSJWTService } from '../services/fips-jwt.service'
 
@@ -13,6 +14,10 @@ const csrfProtection = csurf({ cookie: true })
 
 // FIPS Compliant Crypto Service for JWT
 const jwtService = new FIPSJWTService()
+
+// Initialize repositories
+const userRepository = new UserRepository()
+const tenantRepository = new TenantRepository()
 
 // Validation schemas
 const loginSchema = z.object({
@@ -36,7 +41,7 @@ const registerSchema = z.object({
 })
 
 // POST /api/auth/login
-router.post('/login',csrfProtection, loginLimiter, async (req: Request, res: Response) => {
+router.post('/login', csrfProtection, loginLimiter, async (req: Request, res: Response) => {
   try {
     const { email, password } = loginSchema.parse(req.body)
     const tenant_id = req.body.tenant_id || req.headers['x-tenant-id']
@@ -47,27 +52,20 @@ router.post('/login',csrfProtection, loginLimiter, async (req: Request, res: Res
     }
 
     // SECURITY: Validate tenant exists before proceeding
-    const tenantCheck = await pool.query(
-      'SELECT id FROM tenants WHERE id = $1',
-      [tenant_id]
-    )
-    if (tenantCheck.rows.length === 0) {
+    const tenantExists = await tenantRepository.getTenantById(tenant_id)
+    if (!tenantExists) {
       return res.status(400).json({ error: 'Invalid tenant ID' })
     }
 
     // SECURITY FIX: Add tenant_id to WHERE clause to enforce tenant isolation (CWE-862)
     // This prevents users from Tenant A logging in as users from Tenant B with the same email
-    const { rows } = await pool.query(
-      'SELECT id, tenant_id, email, password_hash, role FROM users WHERE email = $1 AND tenant_id = $2',
-      [email, tenant_id]
-    )
-    if (rows.length === 0) {
+    const user = await userRepository.getUserByEmailAndTenant(email, tenant_id)
+    if (!user) {
       return res
         .status(401)
         .json({ error: 'Invalid credentials', attempts_remaining: loginLimiter.remaining(req) })
     }
 
-    const user = rows[0]
     const passwordMatch = await bcrypt.compare(password, user.password_hash)
     if (!passwordMatch) {
       return res
@@ -98,59 +96,61 @@ router.post('/login',csrfProtection, loginLimiter, async (req: Request, res: Res
 // POST /api/auth/register
 router.post(
   '/register',
-csrfProtection,
+  csrfProtection,
   registrationLimiter,
   async (req: Request, res: Response) => {
     try {
       const { email, password, first_name, last_name, phone, tenant_id } = registerSchema.parse(req.body)
 
       // SECURITY: Validate tenant exists before creating user
-      const tenantCheck = await pool.query(
-        'SELECT id FROM tenants WHERE id = $1',
-        [tenant_id]
-      )
-      if (tenantCheck.rows.length === 0) {
+      const tenantExists = await tenantRepository.getTenantById(tenant_id)
+      if (!tenantExists) {
         return res.status(400).json({ error: 'Invalid tenant ID' })
       }
 
       // SECURITY: Check if user already exists in this tenant
-      const existingUser = await pool.query(
-        'SELECT id FROM users WHERE email = $1 AND tenant_id = $2',
-        [email, tenant_id]
-      )
-      if (existingUser.rows.length > 0) {
-        return res.status(409).json({ error: 'User already exists in this tenant' })
+      const existingUser = await userRepository.getUserByEmailAndTenant(email, tenant_id)
+      if (existingUser) {
+        return res.status(400).json({ error: 'User already exists' })
       }
 
-      const hashedPassword = await bcrypt.hash(password, 12)
+      // Hash the password
+      const saltRounds = 10
+      const password_hash = await bcrypt.hash(password, saltRounds)
 
-      // SECURITY FIX: Add tenant_id to INSERT to enforce tenant isolation (CWE-862)
-      // This ensures new users are properly assigned to their tenant
-      const { rows } = await pool.query(
-        'INSERT INTO users (tenant_id, email, password_hash, first_name, last_name, phone, role, is_active) VALUES ($1, $2, $3, $4, $5, $6, $7, true) RETURNING id, tenant_id',
-        [tenant_id, email, hashedPassword, first_name, last_name, phone, 'viewer']
-      )
+      // Create the user
+      const newUser = await userRepository.createUser({
+        email,
+        password_hash,
+        first_name,
+        last_name,
+        phone,
+        tenant_id
+      })
 
-      const userId = rows[0].id
+      // Generate JWT token
+      const token = jwtService.generateToken({
+        userId: newUser.id,
+        tenant_id: newUser.tenant_id,
+        role: newUser.role
+      })
 
-      // SECURITY: Include tenant_id in audit log
-      await createAuditLog(
-        tenant_id,
-        userId,
-        'CREATE',
-        'users',
-        userId,
-        { email, role: 'viewer' },
-        req.ip || null,
-        req.get('User-Agent') || null,
-        'success',
-        'User registered successfully'
-      )
+      // Log the registration event
+      await createAuditLog({
+        action: 'user_registration',
+        userId: newUser.id,
+        tenantId: newUser.tenant_id,
+        details: { email: newUser.email }
+      })
 
       res.status(201).json({
-        message: 'User registered successfully',
-        userId,
-        tenant_id: rows[0].tenant_id
+        token,
+        user: {
+          id: newUser.id,
+          tenant_id: newUser.tenant_id,
+          email: newUser.email,
+          role: newUser.role
+        }
       })
     } catch (error) {
       console.error(error)

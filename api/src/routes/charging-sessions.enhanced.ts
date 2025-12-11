@@ -1,21 +1,25 @@
-import express, { Response } from 'express'
-import { container } from '../container'
-import { asyncHandler } from '../middleware/errorHandler'
-import { NotFoundError, ValidationError } from '../errors/app-error'
-import { AuthRequest, authenticateJWT } from '../middleware/auth'
-import { requirePermission } from '../middleware/permissions'
-import { auditLog } from '../middleware/audit'
-import { z } from 'zod'
-import helmet from 'helmet'
-import rateLimit from 'express-rate-limit'
-import { serialize } from 'node-html-encoder'
-import { csrfProtection } from '../middleware/csrf'
+import express, { Response } from 'express';
+import { container } from '../container';
+import { asyncHandler } from '../middleware/errorHandler';
+import { NotFoundError, ValidationError } from '../errors/app-error';
+import { AuthRequest, authenticateJWT } from '../middleware/auth';
+import { requirePermission } from '../middleware/permissions';
+import { auditLog } from '../middleware/audit';
+import { z } from 'zod';
+import helmet from 'helmet';
+import rateLimit from 'express-rate-limit';
+import { serialize } from 'node-html-encoder';
+import { csrfProtection } from '../middleware/csrf';
+import { ChargingSessionRepository } from '../repositories/chargingSessionRepository';
 
+const router = express.Router();
 
-const router = express.Router()
+// Import and resolve the ChargingSessionRepository
+const chargingSessionRepository = container.resolve(ChargingSessionRepository);
 
-router.use(authenticateJWT)
-router.use(helmet()
+// Apply middleware
+router.use(authenticateJWT);
+router.use(helmet());
 router.use(
   rateLimit({
     windowMs: 60 * 1000, // 1 minute
@@ -23,162 +27,104 @@ router.use(
     standardHeaders: true,
     legacyHeaders: false,
   })
-)
+);
 
+// Define schema for query parameters
 const chargingSessionSchema = z.object({
   page: z.string().optional(),
   limit: z.string().optional(),
   id: z.string().optional(),
-})
+});
 
-// GET /charging-sessions
+/**
+ * GET /charging-sessions
+ * Retrieve a list of charging sessions with pagination
+ */
 router.get(
   '/',
   requirePermission('charging_session:view:fleet'),
   auditLog({ action: 'READ', resourceType: 'charging_sessions' }),
   async (req: AuthRequest, res: Response) => {
     try {
-      const validation = chargingSessionSchema.safeParse(req.query)
+      // Validate query parameters
+      const validation = chargingSessionSchema.safeParse(req.query);
       if (!validation.success) {
-        throw new ValidationError("Invalid request parameters")
+        throw new ValidationError("Invalid request parameters");
       }
-      const { page = '1', limit = '50' } = validation.data
-      const offset = (Number(page) - 1) * Number(limit)
 
-      const result = await pool.query(
-        `SELECT 
-          id,
-          transaction_id,
-          station_id,
-          connector_id,
-          vehicle_id,
-          driver_id,
-          start_time,
-          end_time,
-          duration_minutes,
-          start_soc_percent,
-          end_soc_percent,
-          energy_delivered_kwh,
-          max_power_kw,
-          avg_power_kw,
-          energy_cost,
-          idle_fee,
-          total_cost,
-          session_status,
-          stop_reason,
-          scheduled_start_time,
-          scheduled_end_time,
-          charging_profile,
-          is_smart_charging,
-          target_soc_percent,
-          reservation_id,
-          rfid_tag,
-          authorization_method,
-          meter_start,
-          meter_stop,
-          raw_ocpp_data,
-          created_at,
-          updated_at 
-        FROM charging_sessions 
-        WHERE tenant_id = $1 
-        ORDER BY created_at DESC 
-        LIMIT $2 OFFSET $3`,
-        [req.user!.tenant_id, limit, offset]
-      )
+      // Extract and process pagination parameters
+      const { page = '1', limit = '50' } = validation.data;
+      const offset = (Number(page) - 1) * Number(limit);
 
-      const countResult = await pool.query(
-        `SELECT COUNT(*) FROM charging_sessions WHERE tenant_id = $1`,
-        [req.user!.tenant_id]
-      )
+      // Fetch charging sessions and total count concurrently
+      const [sessions, totalCount] = await Promise.all([
+        chargingSessionRepository.getChargingSessions(req.user!.tenant_id, Number(limit), offset),
+        chargingSessionRepository.getChargingSessionsCount(req.user!.tenant_id)
+      ]);
+
+      // Serialize session data and prepare response
+      const serializedSessions = sessions.map(row => {
+        Object.keys(row).forEach(key => {
+          row[key] = serialize(row[key]);
+        });
+        return row;
+      });
 
       res.json({
-        data: result.rows.map(row => {
-          Object.keys(row).forEach(key => {
-            row[key] = serialize(row[key])
-          })
-          return row
-        }),
+        data: serializedSessions,
         pagination: {
           page: Number(page),
           limit: Number(limit),
-          total: parseInt(countResult.rows[0].count, 10),
-          pages: Math.ceil(parseInt(countResult.rows[0].count, 10) / Number(limit),
+          total: totalCount,
+          pages: Math.ceil(totalCount / Number(limit)),
         },
-      })
+      });
     } catch (error) {
-      console.error(`Get charging-sessions error:`, error)
-      res.status(500).json({ error: 'Internal server error' })
+      console.error(`Get charging-sessions error:`, error);
+      res.status(500).json({ error: 'Internal server error' });
     }
   }
-)
+);
 
-// GET /charging-sessions/:id
+/**
+ * GET /charging-sessions/:id
+ * Retrieve a specific charging session by ID
+ */
 router.get(
   '/:id',
   requirePermission('charging_session:view:fleet'),
   auditLog({ action: 'READ', resourceType: 'charging_sessions' }),
   async (req: AuthRequest, res: Response) => {
     try {
-      const idValidation = chargingSessionSchema.pick({ id: true }).safeParse(req.params)
+      // Validate ID parameter
+      const idValidation = chargingSessionSchema.pick({ id: true }).safeParse(req.params);
       if (!idValidation.success) {
-        throw new ValidationError("Invalid ID parameter")
+        throw new ValidationError("Invalid ID parameter");
       }
-      const { id } = idValidation.data
+      const { id } = idValidation.data;
 
-      const result = await pool.query(
-        `SELECT 
-          id, 
-          transaction_id, 
-          station_id, 
-          connector_id, 
-          vehicle_id, 
-          driver_id, 
-          start_time, 
-          end_time, 
-          duration_minutes, 
-          start_soc_percent, 
-          end_soc_percent, 
-          energy_delivered_kwh, 
-          max_power_kw, 
-          avg_power_kw, 
-          energy_cost, 
-          idle_fee, 
-          total_cost, 
-          session_status, 
-          stop_reason, 
-          scheduled_start_time, 
-          scheduled_end_time, 
-          charging_profile, 
-          is_smart_charging, 
-          target_soc_percent, 
-          reservation_id, 
-          rfid_tag, 
-          authorization_method, 
-          meter_start, 
-          meter_stop, 
-          raw_ocpp_data, 
-          created_at, 
-          updated_at 
-        FROM charging_sessions 
-        WHERE id = $1 AND tenant_id = $2`,
-        [id, req.user!.tenant_id]
-      )
+      // Fetch charging session by ID
+      const session = await chargingSessionRepository.getChargingSessionById(id, req.user!.tenant_id);
 
-      if (result.rows.length === 0) {
-        throw new NotFoundError("Charging session not found")
+      if (!session) {
+        throw new NotFoundError("Charging session not found");
       }
 
-      const sanitizedData = Object.keys(result.rows[0]).reduce((acc, key) => {
-        acc[key] = serialize(result.rows[0][key])
-        return acc
-      }, {})
+      // Serialize session data
+      Object.keys(session).forEach(key => {
+        session[key] = serialize(session[key]);
+      });
 
-      res.json(sanitizedData)
+      res.json(session);
     } catch (error) {
-      console.error(`Get charging-session by ID error:`, error)
-      res.status(500).json({ error: 'Internal server error' })
+      console.error(`Get charging-session by id error:`, error);
+      if (error instanceof NotFoundError) {
+        res.status(404).json({ error: error.message });
+      } else {
+        res.status(500).json({ error: 'Internal server error' });
+      }
     }
   }
-)
+);
 
-export default router
+export default router;
