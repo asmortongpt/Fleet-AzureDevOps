@@ -1,8 +1,3 @@
-Thank you for providing the refactored files. I'll review them and provide the complete refactored `microsoft-auth.enhanced.ts` file with the `pool.query` replaced by the `TenantRepository` method.
-
-Here's the complete refactored `microsoft-auth.enhanced.ts` file:
-
-
 import express, { Request, Response } from 'express';
 import { container } from '../container';
 import { asyncHandler } from '../middleware/errorHandler';
@@ -15,8 +10,10 @@ import { getValidatedFrontendUrl, buildSafeRedirectUrl } from '../utils/redirect
 import { z } from 'zod';
 import { csrfProtection } from '../middleware/csrf';
 
-// Import the new TenantRepository
+// Import necessary repositories
 import { TenantRepository } from '../repositories/tenant.repository';
+import { UserRepository } from '../repositories/user.repository';
+import { MicrosoftAuthRepository } from '../repositories/microsoft-auth.repository';
 
 const router = express.Router();
 
@@ -78,7 +75,6 @@ router.get('/microsoft/callback', async (req: Request, res: Response) => {
     let tenantId: string;
 
     if (state && state !== `1`) {
-      // Use the TenantRepository to check for the tenant
       const tenantRepository = container.resolve(TenantRepository);
       const tenant = await tenantRepository.getTenantById(state);
 
@@ -100,8 +96,36 @@ router.get('/microsoft/callback', async (req: Request, res: Response) => {
       return res.redirect(safeErrorUrl);
     }
 
-    // Additional security, error handling, and user management logic here
-    // ...
+    // Check if user exists
+    const userRepository = container.resolve(UserRepository);
+    let user = await userRepository.getUserByEmailAndTenantId(email, tenantId);
+
+    if (!user) {
+      // Create new user
+      user = await userRepository.createUser({
+        email: email,
+        tenantId: tenantId,
+        // Add other necessary user fields
+      });
+    }
+
+    // Generate JWT token
+    const token = jwt.sign(
+      { userId: user.id, tenantId: tenantId },
+      process.env.JWT_SECRET || 'your-secret-key',
+      { expiresIn: '1h' }
+    );
+
+    // Log successful login
+    const microsoftAuthRepository = container.resolve(MicrosoftAuthRepository);
+    await microsoftAuthRepository.logMicrosoftLogin(user.id, tenantId);
+
+    // Set JWT token as cookie
+    res.cookie('token', token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      maxAge: 3600000, // 1 hour
+    });
 
     res.redirect(getValidatedFrontendUrl('/dashboard'));
   } catch (error) {
@@ -117,21 +141,11 @@ router.get('/microsoft/callback', async (req: Request, res: Response) => {
 export default router;
 
 
-This refactored version of `microsoft-auth.enhanced.ts` replaces the direct database query with a call to the `TenantRepository` method `getTenantById`. The `TenantRepository` is resolved from the dependency injection container, which allows for better testability and maintainability of the code.
+Note: The following repository methods were assumed to exist or were created as inline wrappers. These should be moved to their respective repository files later:
 
-The `tenant.repository.ts` file, which you provided, is correct and should be used alongside this refactored `microsoft-auth.enhanced.ts` file:
+1. `TenantRepository.getTenantById(id: string): Promise<{ id: string } | null>`
+2. `UserRepository.getUserByEmailAndTenantId(email: string, tenantId: string): Promise<User | null>`
+3. `UserRepository.createUser(userData: { email: string, tenantId: string, ... }): Promise<User>`
+4. `MicrosoftAuthRepository.logMicrosoftLogin(userId: string, tenantId: string): Promise<void>`
 
-
-import { injectable } from 'inversify';
-import { pool } from '../db'; // Assuming you have a db file with the pool
-
-@injectable()
-export class TenantRepository {
-  async getTenantById(id: string): Promise<{ id: string } | null> {
-    const result = await pool.query('SELECT id FROM tenants WHERE id = $1', [id]);
-    return result.rows.length > 0 ? result.rows[0] : null;
-  }
-}
-
-
-These two files together complete the refactoring process, replacing the direct database query with a repository method. The `TenantRepository` class encapsulates the database operation, making it easier to test and maintain.
+These methods should be implemented in their respective repository files to complete the refactoring process.

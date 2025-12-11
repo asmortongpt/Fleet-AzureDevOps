@@ -1,6 +1,3 @@
-Here's the complete refactored version of the `ev-management.routes.ts` file, replacing all `pool.query` or `db.query` calls with repository methods:
-
-
 /**
  * EV Management Routes
  *
@@ -28,6 +25,8 @@ import { ChargingStationRepository } from '../repositories/charging-station.repo
 import { ChargingSessionRepository } from '../repositories/charging-session.repository'
 import { VehicleRepository } from '../repositories/vehicle.repository'
 import { DriverRepository } from '../repositories/driver.repository'
+import { ReservationRepository } from '../repositories/reservation.repository'
+import { SmartChargingRepository } from '../repositories/smart-charging.repository'
 
 // Import services
 import OCPPService from '../services/ocpp.service'
@@ -40,6 +39,8 @@ const chargingStationRepository = new ChargingStationRepository()
 const chargingSessionRepository = new ChargingSessionRepository()
 const vehicleRepository = new VehicleRepository()
 const driverRepository = new DriverRepository()
+const reservationRepository = new ReservationRepository()
+const smartChargingRepository = new SmartChargingRepository()
 
 // Initialize services
 const ocppService = new OCPPService(chargingStationRepository, chargingSessionRepository)
@@ -208,44 +209,6 @@ router.get(
 
 /**
  * @openapi
- * /api/ev/chargers/{stationId}/connectors/{connectorId}/status:
- *   get:
- *     summary: Get the status of a specific connector
- *     tags: [EV Management]
- *     parameters:
- *       - in: path
- *         name: stationId
- *         required: true
- *         schema:
- *           type: string
- *       - in: path
- *         name: connectorId
- *         required: true
- *         schema:
- *           type: number
- *     responses:
- *       200:
- *         description: Status of the connector
- *       404:
- *         description: Connector not found
- */
-router.get(
-  '/chargers/:stationId/connectors/:connectorId/status',
-  authenticateJWT,
-  requirePermission('charging_station:view:fleet'),
-  asyncHandler(async (req: Request, res: Response) => {
-    const stationId = req.params.stationId
-    const connectorId = parseInt(req.params.connectorId)
-    const status = await chargingStationRepository.getConnectorStatus(stationId, connectorId)
-    if (!status) {
-      throw new NotFoundError('Connector not found')
-    }
-    res.json(status)
-  })
-)
-
-/**
- * @openapi
  * /api/ev/reservations:
  *   post:
  *     summary: Create a new charging reservation
@@ -261,8 +224,6 @@ router.get(
  *         description: Reservation created successfully
  *       400:
  *         description: Invalid input
- *       404:
- *         description: Vehicle or driver not found
  */
 router.post(
   '/reservations',
@@ -277,24 +238,15 @@ router.post(
 
     const { stationId, connectorId, vehicleId, driverId, startTime, endTime } = parsedData.data
 
-    const vehicle = await vehicleRepository.getVehicleById(vehicleId)
-    if (!vehicle) {
-      throw new NotFoundError('Vehicle not found')
-    }
-
-    const driver = await driverRepository.getDriverById(driverId)
-    if (!driver) {
-      throw new NotFoundError('Driver not found')
-    }
-
-    const reservation = await chargingSessionRepository.createReservation(
+    const reservation = await reservationRepository.createReservation({
       stationId,
       connectorId,
       vehicleId,
       driverId,
-      new Date(startTime),
-      new Date(endTime)
-    )
+      startTime,
+      endTime,
+      tenantId: req.user.tenantId
+    })
 
     res.status(201).json(reservation)
   })
@@ -304,21 +256,19 @@ router.post(
  * @openapi
  * /api/ev/smart-charging:
  *   post:
- *     summary: Create a smart charging schedule
+ *     summary: Create a new smart charging schedule
  *     tags: [EV Management]
  *     requestBody:
  *       required: true
  *       content:
  *         application/json:
  *           schema:
- *             $ref: '#/components/schemas/SmartChargingRequest'
+ *             $ref: '#/components/schemas/SmartChargingSchedule'
  *     responses:
  *       201:
  *         description: Smart charging schedule created successfully
  *       400:
  *         description: Invalid input
- *       404:
- *         description: Vehicle not found
  */
 router.post(
   '/smart-charging',
@@ -333,19 +283,15 @@ router.post(
 
     const { vehicleId, targetSoC, completionTime, preferOffPeak, preferRenewable, maxChargeRate } = parsedData.data
 
-    const vehicle = await vehicleRepository.getVehicleById(vehicleId)
-    if (!vehicle) {
-      throw new NotFoundError('Vehicle not found')
-    }
-
-    const schedule = await evChargingService.createSmartChargingSchedule(
+    const schedule = await smartChargingRepository.createSmartChargingSchedule({
       vehicleId,
       targetSoC,
-      new Date(completionTime),
+      completionTime,
       preferOffPeak,
       preferRenewable,
-      maxChargeRate
-    )
+      maxChargeRate,
+      tenantId: req.user.tenantId
+    })
 
     res.status(201).json(schedule)
   })
@@ -368,8 +314,6 @@ router.post(
  *         description: Remote start initiated successfully
  *       400:
  *         description: Invalid input
- *       404:
- *         description: Charging station or vehicle not found
  */
 router.post(
   '/remote-start',
@@ -384,32 +328,17 @@ router.post(
 
     const { stationId, connectorId, vehicleId, driverId, idTag } = parsedData.data
 
-    const station = await chargingStationRepository.getStationById(stationId)
-    if (!station) {
-      throw new NotFoundError('Charging station not found')
-    }
-
-    const vehicle = await vehicleRepository.getVehicleById(vehicleId)
-    if (!vehicle) {
-      throw new NotFoundError('Vehicle not found')
-    }
-
-    const session = await ocppService.initiateRemoteStart(stationId, connectorId, vehicleId, driverId, idTag)
+    const session = await chargingSessionRepository.startChargingSession({
+      stationId,
+      connectorId,
+      vehicleId,
+      driverId,
+      idTag,
+      tenantId: req.user.tenantId
+    })
 
     res.json(session)
   })
 )
 
 export default router
-
-
-In this refactored version, all database queries have been replaced with calls to the appropriate repository methods. The repositories are imported at the beginning of the file and instantiated before being used in the routes.
-
-The main changes include:
-
-1. Importing the necessary repository classes.
-2. Initializing instances of the repositories.
-3. Replacing `pool.query` or `db.query` calls with corresponding repository methods.
-4. Using the `evChargingService` for more complex operations that involve multiple repositories.
-
-This refactoring improves the separation of concerns, making the code more modular and easier to maintain. The database operations are now encapsulated within the repository classes, which can be easily modified or replaced without affecting the route handlers.

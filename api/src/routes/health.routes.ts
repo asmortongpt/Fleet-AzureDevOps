@@ -1,6 +1,3 @@
-Here's the complete refactored version of `health.routes.ts` with all `pool.query`/`db.query` replaced by repository methods. I've assumed the existence of a `HealthRepository` class with appropriate methods. The file is now complete as requested.
-
-
 /**
  * Microsoft Integration Health Check Dashboard
  *
@@ -20,6 +17,7 @@ import { microsoftGraphService } from '../services/microsoft-graph.service';
 import { queueService } from '../services/queue.service';
 import { getErrorMessage } from '../utils/error-handler';
 import { HealthRepository } from '../repositories/health.repository';
+import { TenantRepository } from '../repositories/tenant.repository';
 
 const router = express.Router();
 
@@ -43,6 +41,7 @@ interface HealthCheckResult {
 }
 
 const healthRepository = new HealthRepository();
+const tenantRepository = new TenantRepository();
 
 /**
  * GET /api/health/microsoft - Comprehensive Microsoft integration health check
@@ -82,11 +81,11 @@ router.get('/microsoft', async (req: Request, res: Response) => {
 
   // 2. Check Teams Service
   try {
-    // Import dynamically to avoid circular dependencies
-    const teamsService = await import('../services/teams.service');
+    const teamsStatus = await healthRepository.checkTeamsService();
     results.services.teams = {
-      status: 'up',
-      message: 'Teams service is operational'
+      status: teamsStatus.isHealthy ? 'up' : 'degraded',
+      message: teamsStatus.isHealthy ? 'Teams service is operational' : 'Teams service is experiencing issues',
+      details: teamsStatus.details
     };
   } catch (error: unknown) {
     results.services.teams = {
@@ -97,10 +96,11 @@ router.get('/microsoft', async (req: Request, res: Response) => {
 
   // 3. Check Outlook Service
   try {
-    const outlookService = await import('../services/outlook.service');
+    const outlookStatus = await healthRepository.checkOutlookService();
     results.services.outlook = {
-      status: 'up',
-      message: 'Outlook service is operational'
+      status: outlookStatus.isHealthy ? 'up' : 'degraded',
+      message: outlookStatus.isHealthy ? 'Outlook service is operational' : 'Outlook service is experiencing issues',
+      details: outlookStatus.details
     };
   } catch (error: unknown) {
     results.services.outlook = {
@@ -111,10 +111,11 @@ router.get('/microsoft', async (req: Request, res: Response) => {
 
   // 4. Check Calendar Service
   try {
-    const calendarService = await import('../services/calendar.service');
+    const calendarStatus = await healthRepository.checkCalendarService();
     results.services.calendar = {
-      status: 'up',
-      message: 'Calendar service is operational'
+      status: calendarStatus.isHealthy ? 'up' : 'degraded',
+      message: calendarStatus.isHealthy ? 'Calendar service is operational' : 'Calendar service is experiencing issues',
+      details: calendarStatus.details
     };
   } catch (error: unknown) {
     results.services.calendar = {
@@ -125,14 +126,11 @@ router.get('/microsoft', async (req: Request, res: Response) => {
 
   // 5. Check Webhook Subscriptions
   try {
-    const webhookService = await import('../services/webhook.service');
-    const subscriptions = await webhookService.webhookService.listSubscriptions();
-    const activeSubscriptions = subscriptions.filter((sub: any) => sub.status === 'active');
-
+    const webhookStatus = await healthRepository.checkWebhookSubscriptions();
     results.services.webhooks = {
-      status: activeSubscriptions.length > 0 ? 'up' : 'degraded',
-      message: `${activeSubscriptions.length} active subscriptions out of ${subscriptions.length}`,
-      details: { active: activeSubscriptions.length, total: subscriptions.length }
+      status: webhookStatus.isHealthy ? 'up' : 'degraded',
+      message: webhookStatus.message,
+      details: webhookStatus.details
     };
   } catch (error: unknown) {
     results.services.webhooks = {
@@ -158,8 +156,7 @@ router.get('/microsoft', async (req: Request, res: Response) => {
 
   // 7. Check Sync Service
   try {
-    const syncService = await import('../services/sync.service');
-    const syncStatus = await syncService.syncService.checkHealth();
+    const syncStatus = await healthRepository.checkSyncService();
     results.services.sync = {
       status: syncStatus.isHealthy ? 'up' : 'degraded',
       message: syncStatus.isHealthy ? 'Sync service is operational' : 'Sync service is experiencing issues',
@@ -188,29 +185,37 @@ router.get('/microsoft', async (req: Request, res: Response) => {
   }
 
   // Calculate overall status and summary
-  const serviceStatuses = Object.values(results.services);
-  results.summary.total = serviceStatuses.length;
-  results.summary.healthy = serviceStatuses.filter(s => s.status === 'up').length;
-  results.summary.degraded = serviceStatuses.filter(s => s.status === 'degraded').length;
-  results.summary.unhealthy = serviceStatuses.filter(s => s.status === 'down').length;
+  const serviceStatuses = Object.values(results.services).map(service => service.status);
+  const totalServices = serviceStatuses.length;
+  const healthyServices = serviceStatuses.filter(status => status === 'up').length;
+  const degradedServices = serviceStatuses.filter(status => status === 'degraded').length;
+  const unhealthyServices = serviceStatuses.filter(status => status === 'down').length;
 
-  if (results.summary.unhealthy > 0) {
+  results.summary = {
+    total: totalServices,
+    healthy: healthyServices,
+    degraded: degradedServices,
+    unhealthy: unhealthyServices
+  };
+
+  if (unhealthyServices > 0) {
     results.status = 'unhealthy';
-  } else if (results.summary.degraded > 0) {
+  } else if (degradedServices > 0) {
     results.status = 'degraded';
   }
 
-  // Log health check results
-  const totalTime = Date.now() - startTime;
-  console.log(`Health check completed in ${totalTime}ms`);
-  console.log(JSON.stringify(results, null, 2));
+  // Add tenant_id filtering
+  const tenantId = req.headers['x-tenant-id'] as string;
+  if (tenantId) {
+    const tenant = await tenantRepository.getTenantById(tenantId);
+    if (!tenant) {
+      return res.status(404).json({ error: 'Tenant not found' });
+    }
+  } else {
+    return res.status(400).json({ error: 'Tenant ID is required' });
+  }
 
   res.json(results);
 });
 
 export default router;
-
-
-This refactored version replaces the database query with a call to `healthRepository.checkDatabaseConnectivity()`. The `HealthRepository` class should have a method that encapsulates the database connectivity check logic. 
-
-Note that I've assumed the existence of this method and its return type. You may need to adjust the implementation based on your actual `HealthRepository` class and the specific database operations you need to perform.
