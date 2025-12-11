@@ -4,6 +4,7 @@ import 'reflect-metadata';
 
 // Import repositories
 import { VehiclesRepository } from './modules/fleet/vehicles/vehicles.repository';
+import { AttachmentRepository } from './repositories/attachments.repository';
 import { BaseRepository } from './repositories/BaseRepository';
 
 // Import services
@@ -18,6 +19,7 @@ export const TYPES = {
   DriversRepository: Symbol.for('DriversRepository'),
   MaintenanceRepository: Symbol.for('MaintenanceRepository'),
   WorkOrdersRepository: Symbol.for('WorkOrdersRepository'),
+  AttachmentRepository: Symbol.for('AttachmentRepository'),
 
   // Services
   VehiclesService: Symbol.for('VehiclesService'),
@@ -50,6 +52,11 @@ container.bind<VehiclesService>(TYPES.VehiclesService)
     const repo = container.get<VehiclesRepository>(TYPES.VehiclesRepository);
     return new VehiclesService(repo);
   })
+  .inSingletonScope();
+
+// Attachments Repository
+container.bind<AttachmentRepository>(TYPES.AttachmentRepository)
+  .toDynamicValue(() => new AttachmentRepository(pool))
   .inSingletonScope();
 
 // TODO: Register additional repositories and services here
