@@ -1,5 +1,5 @@
-import { connectionManager } from '../config/connection-manager'
 import { BaseRepository } from '../services/dal/BaseRepository'
+import { connectionManager } from '../config/connection-manager'
 
 /**
  * Vendor entity interface
