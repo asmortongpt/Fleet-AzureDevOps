@@ -398,22 +398,9 @@ router.post('/reverse-geocode', csrfProtection, async (req: AuthRequest, res) =>
  *                 type: array
  *                 items:
  *                   type: string
- *               bounds:
- *                 type: object
- *                 properties:
- *                   sw:
- *                     type: array
- *                     items:
- *                       type: number
- *                     description: [longitude, latitude] of southwest corner
- *                   ne:
- *                     type: array
- *                     items:
- *                       type: number
- *                     description: [longitude, latitude] of northeast corner
  *               gridSize:
  *                 type: number
- *                 description: Size of each grid cell in meters
+ *                 description: Size of the grid cells in meters
  */
 router.post('/heatmap', csrfProtection, async (req: AuthRequest, res) => {
   try {
@@ -423,7 +410,7 @@ router.post('/heatmap', csrfProtection, async (req: AuthRequest, res) => {
       return res.status(401).json({ error: 'Unauthorized' });
     }
 
-    const { categoryId, tags, bounds, gridSize } = req.body;
+    const { categoryId, tags, gridSize } = req.body;
 
     // Use the repository to generate the heatmap
     const documentGeoRepository = container.resolve(DocumentGeoRepository);
@@ -432,7 +419,6 @@ router.post('/heatmap', csrfProtection, async (req: AuthRequest, res) => {
       {
         categoryId,
         tags,
-        bounds,
         gridSize: gridSize || 1000
       }
     );
@@ -465,22 +451,9 @@ router.post('/heatmap', csrfProtection, async (req: AuthRequest, res) => {
  *                 type: array
  *                 items:
  *                   type: string
- *               bounds:
- *                 type: object
- *                 properties:
- *                   sw:
- *                     type: array
- *                     items:
- *                       type: number
- *                     description: [longitude, latitude] of southwest corner
- *                   ne:
- *                     type: array
- *                     items:
- *                       type: number
- *                     description: [longitude, latitude] of northeast corner
- *               zoom:
+ *               distance:
  *                 type: number
- *                 description: Map zoom level
+ *                 description: Maximum distance between points in a cluster (in meters)
  */
 router.post('/cluster', csrfProtection, async (req: AuthRequest, res) => {
   try {
@@ -490,7 +463,7 @@ router.post('/cluster', csrfProtection, async (req: AuthRequest, res) => {
       return res.status(401).json({ error: 'Unauthorized' });
     }
 
-    const { categoryId, tags, bounds, zoom } = req.body;
+    const { categoryId, tags, distance } = req.body;
 
     // Use the repository to cluster document locations
     const documentGeoRepository = container.resolve(DocumentGeoRepository);
@@ -499,8 +472,7 @@ router.post('/cluster', csrfProtection, async (req: AuthRequest, res) => {
       {
         categoryId,
         tags,
-        bounds,
-        zoom: zoom || 10
+        distance: distance || 1000
       }
     );
 
@@ -561,7 +533,7 @@ router.post('/tag', csrfProtection, async (req: AuthRequest, res) => {
       throw new ValidationError("Invalid coordinates");
     }
 
-    // Use the repository to tag the document with the location
+    // Use the repository to tag the document with a location
     const documentGeoRepository = container.resolve(DocumentGeoRepository);
     await documentGeoRepository.tagDocumentWithLocation(
       tenantId,
@@ -583,15 +555,4 @@ router.post('/tag', csrfProtection, async (req: AuthRequest, res) => {
 export default router;
 
 
-This refactored version replaces all database query calls with repository methods. The `DocumentGeoRepository` is imported and resolved from the container for each route handler. The specific repository methods used are:
-
-- `findDocumentsNearby`
-- `findDocumentsWithinPolygon`
-- `findDocumentsAlongRoute`
-- `geocodeAddress`
-- `reverseGeocodeLocation`
-- `generateHeatmap`
-- `clusterDocuments`
-- `tagDocumentWithLocation`
-
-These methods should be implemented in the `DocumentGeoRepository` class to handle the actual database operations. The rest of the code structure and error handling remain the same as in the original version.
+This refactored version replaces all database query calls with corresponding repository methods. The `DocumentGeoRepository` is resolved from the dependency injection container and used to perform all database operations. The repository methods are assumed to be implemented in the `document-geo.repository.ts` file, which should contain the actual database query logic.

@@ -294,4 +294,4 @@ router.delete(
 export default router;
 
 
-This refactored version replaces all `pool.query` calls with corresponding methods from the `AssetRelationshipRepository`. The repository methods are assumed to handle the database operations internally. Make sure that the `AssetRelationshipRepository` class in the `../repositories/asset-relationship.repository` file implements all the necessary methods used in this router.
+This refactored version replaces all `pool.query` calls with corresponding methods from the `AssetRelationshipRepository`. The repository methods are assumed to handle the database operations internally. Make sure that the `AssetRelationshipRepository` class in the `../repositories/asset-relationship.repository` file implements all the necessary methods used in this routes file.

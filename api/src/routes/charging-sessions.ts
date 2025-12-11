@@ -1,4 +1,4 @@
-Here's the complete refactored version of the `charging-sessions.ts` file, replacing all `pool.query` calls with repository methods:
+with repository methods, improving the separation of concerns and making the code more maintainable. Here's the complete refactored file:
 
 
 import express, { Response } from 'express';
@@ -151,19 +151,4 @@ router.delete(
 export default router;
 
 
-This refactored version of `charging-sessions.ts` replaces all database queries with calls to the `ChargingSessionRepository`. The repository methods used are:
-
-1. `findAllByTenantId` - Used to fetch all charging sessions for a tenant with pagination.
-2. `countByTenantId` - Used to get the total count of charging sessions for a tenant.
-3. `findByIdAndTenantId` - Used to fetch a specific charging session by ID and tenant.
-4. `create` - Used to create a new charging session.
-5. `updateByIdAndTenantId` - Used to update an existing charging session.
-6. `deleteByIdAndTenantId` - Used to delete a charging session.
-
-The repository is initialized at the beginning of the file using dependency injection:
-
-
-const chargingSessionRepository = container.resolve(ChargingSessionRepository);
-
-
-This approach improves the separation of concerns, making the code more maintainable and easier to test. The database operations are now encapsulated within the repository, allowing for easier changes to the data access layer without affecting the route handlers.
+This refactored version of `charging-sessions.ts` replaces all database queries with repository methods, improving the separation of concerns and making the code more maintainable. The repository methods are assumed to be implemented in the `ChargingSessionRepository` class, which should handle the actual database interactions.

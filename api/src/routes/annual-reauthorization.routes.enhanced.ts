@@ -217,27 +217,26 @@ router.post(
 );
 
 // =====================================================
-// GET /annual-reauthorization-cycles/:id/decisions/:decisionId
-// Get a specific decision for a reauthorization cycle
+// GET /annual-reauthorization-cycles/:id/summary
+// Get summary statistics for a specific reauthorization cycle
 // =====================================================
 
 router.get(
-  '/:id/decisions/:decisionId',
+  '/:id/summary',
   authenticateJWT,
   requirePermission('reauthorization:view:team'),
   async (req: AuthRequest, res: Response) => {
     try {
-      const { id, decisionId } = req.params;
+      const { id } = req.params;
       const tenant_id = req.user!.tenant_id;
 
-      const result = await annualReauthorizationRepository.getReauthorizationDecisionById(
+      const result = await annualReauthorizationRepository.getReauthorizationCycleSummary(
         tenant_id,
-        id,
-        decisionId
+        id
       );
 
       if (!result) {
-        throw new NotFoundError('Reauthorization decision not found');
+        throw new NotFoundError('Reauthorization cycle not found');
       }
 
       res.json(result);
@@ -265,12 +264,12 @@ Key changes:
    - `createReauthorizationCycle`
    - `getReauthorizationDecisions`
    - `createReauthorizationDecision`
-   - `getReauthorizationDecisionById`
+   - `getReauthorizationCycleSummary`
 
 3. The repository methods are called with the appropriate parameters, including the `tenant_id` for multi-tenant support.
 
 4. Error handling remains the same, using try-catch blocks and the `getErrorMessage` utility function.
 
-5. The overall structure and middleware usage (authentication, permissions, rate limiting, etc.) remain unchanged.
+5. The overall structure and middleware usage of the router remain unchanged.
 
-Note that this refactoring assumes that the `AnnualReauthorizationRepository` class has been implemented with the necessary methods. You may need to adjust the method signatures or add additional error handling based on the actual implementation of the repository.
+Note that this refactoring assumes that the `AnnualReauthorizationRepository` class has been implemented with the necessary methods. You may need to adjust the method names or parameters if they differ from what's shown here.

@@ -177,20 +177,13 @@ router.delete(
 export default router;
 
 
-In this refactored version:
+This refactored version replaces all `pool.query` calls with corresponding methods from the `ChargingStationRepository`. The repository methods used are:
 
-1. We've imported the `ChargingStationRepository` from the appropriate location.
-2. We've resolved the repository instance using the dependency injection container.
-3. All `pool.query` calls have been replaced with corresponding methods from the `ChargingStationRepository`:
-   - `getChargingStations` for fetching multiple stations
-   - `getChargingStationCount` for getting the total count
-   - `getChargingStationById` for fetching a single station
-   - `createChargingStation` for creating a new station
-   - `updateChargingStation` for updating an existing station
-   - `deleteChargingStation` for deleting a station
+- `getChargingStations`
+- `getChargingStationCount`
+- `getChargingStationById`
+- `createChargingStation`
+- `updateChargingStation`
+- `deleteChargingStation`
 
-4. The repository methods are called with the appropriate parameters, including the `tenant_id` from the authenticated user.
-
-5. Error handling and response formatting remain the same as in the original code.
-
-This refactoring improves the separation of concerns by moving the database operations into a dedicated repository class, making the code more maintainable and easier to test.
+These methods are assumed to be implemented in the `ChargingStationRepository` class, which should handle the database operations previously performed by `pool.query`.

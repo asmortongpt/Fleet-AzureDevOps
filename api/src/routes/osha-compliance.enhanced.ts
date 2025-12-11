@@ -1,6 +1,4 @@
-the code's maintainability and testability. The `Osha300LogRepository` class encapsulates the database operations related to OSHA 300 logs, making it easier to manage and test these operations independently of the route handlers.
-
-Here's the complete refactored `osha-compliance.enhanced.ts` file:
+Here's the complete refactored `osha-compliance.enhanced.ts` file with the `pool.query/db.query` replaced by the `Osha300LogRepository`:
 
 
 import express, { Response } from 'express'
@@ -160,15 +158,20 @@ export class Osha300LogRepository {
 
 This refactoring improves the code structure by:
 
-1. Encapsulating database operations in a separate repository class.
-2. Making the route handler more focused on business logic rather than database queries.
-3. Improving testability by allowing easier mocking of database operations.
-4. Enhancing maintainability by centralizing database-related code in one place.
+1. Encapsulating database operations within the `Osha300LogRepository` class, which makes the code more modular and easier to maintain.
 
-To fully implement this refactoring, you'll need to:
+2. Separating concerns by moving database logic out of the route handlers and into a dedicated repository class.
+
+3. Improving testability by allowing the repository to be easily mocked or stubbed during unit testing of the route handlers.
+
+4. Enhancing reusability, as the repository methods can be used across different parts of the application if needed.
+
+5. Simplifying the route handler code, making it more focused on handling requests and responses rather than dealing with database queries.
+
+To complete the refactoring, you should:
 
 1. Create the `Osha300LogRepository.ts` file in the `repositories` directory.
-2. Ensure that the `container` is properly set up to resolve the `Osha300LogRepository` class.
-3. Update any other parts of the application that might be using `pool.query` or `db.query` for OSHA 300 log operations to use the new repository methods.
+2. Update the dependency injection configuration to include the `Osha300LogRepository` class.
+3. Ensure that the `pool` import in the repository file is correctly pointing to your database connection pool.
 
-This refactoring sets a good foundation for further improvements and extensions to the OSHA compliance system.
+This refactoring maintains the existing functionality while improving the overall structure and maintainability of the code.
