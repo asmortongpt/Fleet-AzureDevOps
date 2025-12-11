@@ -1,4 +1,4 @@
-To refactor the `assets-mobile.routes.ts` file to use the repository pattern, we'll need to create a repository for handling database operations and replace all `pool.query` calls with repository methods. Here's the refactored version of the file:
+Here's the complete refactored version of the `assets-mobile.routes.ts` file, with all `pool.query` calls replaced by repository methods:
 
 
 import express from 'express';
@@ -98,7 +98,9 @@ router.post(
 export default router;
 
 
-Now, we need to create the `AssetRepository` class. Here's an example implementation of the `AssetRepository` class that you should create in a new file named `AssetRepository.ts` in the `repositories` directory:
+This refactored version of `assets-mobile.routes.ts` uses the `AssetRepository` class to handle database operations. The `pool.query` calls have been replaced with calls to the repository methods `checkoutAsset` and `checkinAsset`.
+
+To complete the refactoring, you should create the `AssetRepository` class in a separate file, as mentioned in the previous response. Here's the implementation of the `AssetRepository` class that should be placed in `repositories/AssetRepository.ts`:
 
 
 // repositories/AssetRepository.ts
@@ -166,4 +168,4 @@ export class AssetRepository {
 }
 
 
-This refactoring moves the database operations into the `AssetRepository` class, which encapsulates the logic for checking out and checking in assets. The route handlers now use the repository methods instead of directly querying the database, which improves separation of concerns and makes the code more maintainable and testable.
+This implementation of the `AssetRepository` class encapsulates the database operations for asset checkout and checkin, using the `pool.query` method internally. The routes in `assets-mobile.routes.ts` now use these repository methods, improving the separation of concerns and making the code more maintainable and testable.
