@@ -9,13 +9,13 @@ export class PerformanceMetricsRepository {
   }
 
   async getAll(tenantId: string): Promise<PerformanceMetric[]> {
-    const query = 'SELECT * FROM performance_metrics WHERE tenant_id = $1';
+    const query = 'SELECT id, created_at, updated_at FROM performance_metrics WHERE tenant_id = $1';
     const result = await this.pool.query(query, [tenantId]);
     return result.rows.map(row => new PerformanceMetric(row));
   }
 
   async getById(id: string, tenantId: string): Promise<PerformanceMetric | null> {
-    const query = 'SELECT * FROM performance_metrics WHERE id = $1 AND tenant_id = $2';
+    const query = 'SELECT id, created_at, updated_at FROM performance_metrics WHERE id = $1 AND tenant_id = $2';
     const result = await this.pool.query(query, [id, tenantId]);
     return result.rows.length > 0 ? new PerformanceMetric(result.rows[0]) : null;
   }

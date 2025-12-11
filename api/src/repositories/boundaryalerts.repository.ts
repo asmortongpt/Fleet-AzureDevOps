@@ -53,7 +53,7 @@ export class BoundaryAlertsRepository {
    */
   async getById(id: number, tenant_id: string): Promise<BoundaryAlert | null> {
     const query = `
-      SELECT * FROM boundary_alerts
+      SELECT id, tenant_id, created_at, updated_at FROM boundary_alerts
       WHERE id = $1 AND tenant_id = $2
     `;
     const values = [id, tenant_id];
@@ -69,7 +69,7 @@ export class BoundaryAlertsRepository {
    */
   async getAll(tenant_id: string): Promise<BoundaryAlert[]> {
     const query = `
-      SELECT * FROM boundary_alerts
+      SELECT id, tenant_id, created_at, updated_at FROM boundary_alerts
       WHERE tenant_id = $1
     `;
     const values = [tenant_id];

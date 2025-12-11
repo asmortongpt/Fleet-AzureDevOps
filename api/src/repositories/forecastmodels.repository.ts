@@ -17,7 +17,7 @@ export class ForecastModelsRepository {
   }
 
   async read(tenant_id: string, modelName: string): Promise<ForecastModel | null> {
-    const query = 'SELECT * FROM forecast_models WHERE tenant_id = $1 AND model_name = $2';
+    const query = 'SELECT id, created_at, updated_at FROM forecast_models WHERE tenant_id = $1 AND model_name = $2';
     const result = await this.pool.query(query, [tenant_id, modelName]);
 
     if (result.rowCount > 0) {
@@ -38,7 +38,7 @@ export class ForecastModelsRepository {
   }
 
   async getAll(tenant_id: string): Promise<ForecastModel[]> {
-    const query = 'SELECT * FROM forecast_models WHERE tenant_id = $1';
+    const query = 'SELECT id, created_at, updated_at FROM forecast_models WHERE tenant_id = $1';
     const result = await this.pool.query(query, [tenant_id]);
 
     return result.rows as ForecastModel[];

@@ -25,7 +25,7 @@ export class CommunicationsRepository {
 
   async getCommunicationById(tenant_id: string, id: string): Promise<QueryResult> {
     const query = `
-      SELECT * FROM communications
+      SELECT id, tenant_id, created_at, updated_at FROM communications
       WHERE id = $1 AND tenant_id = $2
     `;
     const values = [id, tenant_id];
@@ -34,7 +34,7 @@ export class CommunicationsRepository {
 
   async getAllCommunications(tenant_id: string): Promise<QueryResult> {
     const query = `
-      SELECT * FROM communications
+      SELECT id, tenant_id, created_at, updated_at FROM communications
       WHERE tenant_id = $1
     `;
     const values = [tenant_id];

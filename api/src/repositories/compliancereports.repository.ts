@@ -15,7 +15,7 @@ export class ComplianceReportsRepository {
 
   async findAll(tenantId: number): Promise<ComplianceReport[]> {
     try {
-      const query = 'SELECT * FROM compliance_reports WHERE tenant_id = $1 AND deleted_at IS NULL';
+      const query = 'SELECT id, tenant_id, created_at, updated_at FROM compliance_reports WHERE tenant_id = $1 AND deleted_at IS NULL';
       const result = await this.pool.query<ComplianceReport>(query, [tenantId]);
       return result.rows;
     } catch (error) {
@@ -25,7 +25,7 @@ export class ComplianceReportsRepository {
 
   async findById(tenantId: number, id: number): Promise<ComplianceReport | null> {
     try {
-      const query = 'SELECT * FROM compliance_reports WHERE tenant_id = $1 AND id = $2 AND deleted_at IS NULL';
+      const query = 'SELECT id, tenant_id, created_at, updated_at FROM compliance_reports WHERE tenant_id = $1 AND id = $2 AND deleted_at IS NULL';
       const result = await this.pool.query<ComplianceReport>(query, [tenantId, id]);
       return result.rows[0] || null;
     } catch (error) {

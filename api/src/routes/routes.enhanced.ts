@@ -124,20 +124,20 @@ export class RouteRepository {
   }
 
   async findAllByTenantId(tenantId: string): Promise<any[]> {
-    const query = 'SELECT * FROM routes WHERE tenant_id = $1';
+    const query = 'SELECT id, tenant_id, created_at, updated_at FROM routes WHERE tenant_id = $1';
     const params = [tenantId];
     return await this.databaseHelper.execute(query, params);
   }
 
   async findByIdAndTenantId(id: string, tenantId: string): Promise<any | null> {
-    const query = 'SELECT * FROM routes WHERE id = $1 AND tenant_id = $2';
+    const query = 'SELECT id, tenant_id, created_at, updated_at FROM routes WHERE id = $1 AND tenant_id = $2';
     const params = [id, tenantId];
     const result = await this.databaseHelper.execute(query, params);
     return result[0] || null;
   }
 
   async findByIdAndDriverId(id: string, driverId: string): Promise<any | null> {
-    const query = 'SELECT * FROM routes WHERE id = $1 AND driver_id = $2';
+    const query = 'SELECT id, tenant_id, created_at, updated_at FROM routes WHERE id = $1 AND driver_id = $2';
     const params = [id, driverId];
     const result = await this.databaseHelper.execute(query, params);
     return result[0] || null;

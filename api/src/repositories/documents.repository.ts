@@ -684,4 +684,16 @@ export class DocumentsRepository {
       recent
     };
   }
+
+  // Example centralized filtering
+  async findAllWithFilters(filters: Record<string, any>) {
+    const { clause, params } = this.buildWhereClause(filters);
+    const pagination = this.buildPagination(filters.page, filters.limit);
+    const sorting = this.buildSorting(filters.sortBy, filters.sortOrder);
+
+    const query = `SELECT id, name, created_at, updated_at, tenant_id FROM ${this.tableName} ${clause} ${sorting} ${pagination}`;
+    const result = await this.pool.query(query, params);
+    return result.rows;
+  }
+
 }
