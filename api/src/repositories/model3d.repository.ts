@@ -18,13 +18,13 @@ export class Model3DRepository {
   }
 
   async getAllModels(tenantId: number): Promise<Model3D[]> {
-    const query = 'SELECT * FROM model3ds WHERE tenant_id = $1';
+    const query = 'SELECT id, tenant_id, created_at, updated_at FROM model3ds WHERE tenant_id = $1';
     const result: QueryResult<Model3D> = await this.pool.query(query, [tenantId]);
     return result.rows;
   }
 
   async getModelById(id: number, tenantId: number): Promise<Model3D | null> {
-    const query = 'SELECT * FROM model3ds WHERE id = $1 AND tenant_id = $2';
+    const query = 'SELECT id, tenant_id, created_at, updated_at FROM model3ds WHERE id = $1 AND tenant_id = $2';
     const result: QueryResult<Model3D> = await this.pool.query(query, [id, tenantId]);
     return result.rows[0] || null;
   }

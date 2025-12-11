@@ -21,7 +21,7 @@ export class WorkOrdersRepository {
   async findAll(tenantId: number, filters?: any): Promise<WorkOrder[]> {
     try {
       const query = `
-        SELECT * FROM work_orders
+        SELECT id, tenant_id, created_at, updated_at FROM work_orders
         WHERE tenant_id = $1
         AND deleted_at IS NULL
         ORDER BY created_at DESC
@@ -42,7 +42,7 @@ export class WorkOrdersRepository {
    */
   async findById(id: number, tenantId: number): Promise<WorkOrder | null> {
     const query = `
-      SELECT * FROM work_orders
+      SELECT id, tenant_id, created_at, updated_at FROM work_orders
       WHERE id = $1 AND tenant_id = $2 AND deleted_at IS NULL
     `;
     const result = await this.pool.query(query, [id, tenantId]);

@@ -8,12 +8,12 @@ class CertificationsRepository {
   }
 
   async getAllCertifications(tenantId: string): Promise<QueryResult> {
-    const query = 'SELECT * FROM certifications WHERE tenant_id = $1';
+    const query = 'SELECT id, tenant_id, created_at, updated_at FROM certifications WHERE tenant_id = $1';
     return this.pool.query(query, [tenantId]);
   }
 
   async getCertificationById(certificationId: string, tenantId: string): Promise<QueryResult> {
-    const query = 'SELECT * FROM certifications WHERE id = $1 AND tenant_id = $2';
+    const query = 'SELECT id, tenant_id, created_at, updated_at FROM certifications WHERE id = $1 AND tenant_id = $2';
     return this.pool.query(query, [certificationId, tenantId]);
   }
 

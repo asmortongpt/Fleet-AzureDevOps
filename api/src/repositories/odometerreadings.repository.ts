@@ -22,7 +22,7 @@ export class OdometerReadingsRepository {
    * Find all OdometerReadings for a tenant
    */
   async findAll(tenantId: number): Promise<OdometerReading[]> {
-    const query = `SELECT * FROM odometer_readings WHERE tenant_id = $1 AND deleted_at IS NULL`;
+    const query = `SELECT id, tenant_id, created_at, updated_at FROM odometer_readings WHERE tenant_id = $1 AND deleted_at IS NULL`;
     const result = await this.pool.query(query, [tenantId]);
     return result.rows;
   }
@@ -31,7 +31,7 @@ export class OdometerReadingsRepository {
    * Find OdometerReading by id for a tenant
    */
   async findById(id: number, tenantId: number): Promise<OdometerReading | null> {
-    const query = `SELECT * FROM odometer_readings WHERE id = $1 AND tenant_id = $2`;
+    const query = `SELECT id, tenant_id, created_at, updated_at FROM odometer_readings WHERE id = $1 AND tenant_id = $2`;
     const result = await this.pool.query(query, [id, tenantId]);
     return result.rows[0] || null;
   }

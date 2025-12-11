@@ -26,7 +26,7 @@ export class AttachmentsRepository {
 
   async getAttachmentById(tenant_id: string, id: number): Promise<any> {
     const query = `
-      SELECT * FROM attachments
+      SELECT id, created_at, updated_at FROM attachments
       WHERE id = $1 AND tenant_id = $2
     `;
     const values = [id, tenant_id];
@@ -36,7 +36,7 @@ export class AttachmentsRepository {
 
   async getAllAttachments(tenant_id: string): Promise<any[]> {
     const query = `
-      SELECT * FROM attachments
+      SELECT id, created_at, updated_at FROM attachments
       WHERE tenant_id = $1
     `;
     const values = [tenant_id];

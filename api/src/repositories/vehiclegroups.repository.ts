@@ -21,7 +21,7 @@ export class VehicleGroupsRepository {
   async findAll(tenantId: number, filters?: any): Promise<IVehicleGroup[]> {
     try {
       const query = `
-        SELECT * FROM vehicle_groups
+        SELECT id, created_at, updated_at FROM vehicle_groups
         WHERE tenant_id = $1
         AND deleted_at IS NULL
         ORDER BY created_at DESC
@@ -42,7 +42,7 @@ export class VehicleGroupsRepository {
    */
   async findById(id: number, tenantId: number): Promise<IVehicleGroup | null> {
     const query = `
-      SELECT * FROM vehicle_groups
+      SELECT id, created_at, updated_at FROM vehicle_groups
       WHERE id = $1 AND tenant_id = $2 AND deleted_at IS NULL
     `;
     const result = await this.pool.query(query, [id, tenantId]);

@@ -34,7 +34,7 @@ export class CostCenterRepository {
   // Read a cost center by ID
   async getCostCenterById(tenantId: string, id: number): Promise<any> {
     const query = `
-      SELECT * FROM cost_centers
+      SELECT id, tenant_id, created_at, updated_at FROM cost_centers
       WHERE id = $1 AND tenant_id = $2;
     `;
     const result: QueryResult = await this.pool.query(query, [id, tenantId]);
@@ -44,7 +44,7 @@ export class CostCenterRepository {
   // Read all cost centers for a tenant
   async getAllCostCenters(tenantId: string): Promise<any[]> {
     const query = `
-      SELECT * FROM cost_centers
+      SELECT id, tenant_id, created_at, updated_at FROM cost_centers
       WHERE tenant_id = $1;
     `;
     const result: QueryResult = await this.pool.query(query, [tenantId]);

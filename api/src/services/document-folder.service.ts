@@ -521,7 +521,7 @@ export class DocumentFolderService {
   ): Promise<Array<{ id: string; folder_name: string; depth: number }>> {
     try {
       const result = await this.db.query(
-        `SELECT * FROM get_folder_breadcrumb($1)`,
+        `SELECT id, name, created_at, updated_at, tenant_id FROM get_folder_breadcrumb($1)`,
         [folderId]
       )
 

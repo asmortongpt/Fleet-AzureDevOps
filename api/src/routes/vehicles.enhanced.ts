@@ -96,7 +96,7 @@ router.get(
       })
 
       const result = await tenantSafeQuery(
-        `SELECT * FROM vehicles WHERE tenant_id = $1 ${scopeFilter} ${assetFilters} LIMIT $${paramIndex} OFFSET $${paramIndex + 1}`,
+        `SELECT id, name, created_at, updated_at, tenant_id FROM vehicles WHERE tenant_id = $1 ${scopeFilter} ${assetFilters} LIMIT $${paramIndex} OFFSET $${paramIndex + 1}`,
         [...scopeParams, Number(limit), offset],
         req.user!.tenant_id
       )

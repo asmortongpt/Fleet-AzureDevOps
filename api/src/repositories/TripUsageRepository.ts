@@ -35,7 +35,7 @@ export class TripUsageRepository extends BaseRepository<TripUsageClassification>
    */
   async findByTripId(tripId: string): Promise<TripUsageClassification | null> {
     const query = `
-      SELECT * FROM ${this.tableName}
+      SELECT id, name, created_at, updated_at, tenant_id FROM ${this.tableName}
       WHERE trip_id = $1
     `
     const result = await this.query<TripUsageClassification>(query, [tripId])
@@ -47,7 +47,7 @@ export class TripUsageRepository extends BaseRepository<TripUsageClassification>
    */
   async findByTripIdAndTenant(tripId: string, tenantId: string): Promise<TripUsageClassification | null> {
     const query = `
-      SELECT * FROM ${this.tableName}
+      SELECT id, name, created_at, updated_at, tenant_id FROM ${this.tableName}
       WHERE trip_id = $1 AND tenant_id = $2
     `
     const result = await this.query<TripUsageClassification>(query, [tripId, tenantId])
