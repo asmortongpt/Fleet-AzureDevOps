@@ -1,19 +1,19 @@
-Here's the complete refactored file with the `pool.query` replaced by a repository pattern:
-
-
 /**
  * Scheduling Notifications Routes
  * API endpoints for managing scheduling notification preferences
  */
 
 import express, { Request, Response } from 'express';
-import schedulingNotificationService from '../services/scheduling-notification.service';
 import { logger } from '../utils/logger';
 import { csrfProtection } from '../middleware/csrf';
 import { SchedulingNotificationRepository } from '../repositories/scheduling-notification.repository';
+import { TenantRepository } from '../repositories/tenant.repository';
+import { UserRepository } from '../repositories/user.repository';
 
 const router = express.Router();
 const schedulingNotificationRepository = new SchedulingNotificationRepository();
+const tenantRepository = new TenantRepository();
+const userRepository = new UserRepository();
 
 /**
  * GET /api/scheduling-notifications/preferences
@@ -22,8 +22,9 @@ const schedulingNotificationRepository = new SchedulingNotificationRepository();
 router.get('/preferences', async (req: Request, res: Response) => {
   try {
     const { userId } = req.user as any;
+    const tenantId = await userRepository.getTenantIdByUserId(userId);
 
-    const prefs = await schedulingNotificationRepository.getPreferencesByUserId(userId);
+    const prefs = await schedulingNotificationRepository.getPreferencesByUserIdAndTenantId(userId, tenantId);
 
     if (!prefs) {
       // Return default preferences
@@ -73,6 +74,7 @@ router.get('/preferences', async (req: Request, res: Response) => {
 router.put('/preferences', csrfProtection, async (req: Request, res: Response) => {
   try {
     const { userId } = req.user as any;
+    const tenantId = await userRepository.getTenantIdByUserId(userId);
     const {
       emailEnabled,
       smsEnabled,
@@ -117,8 +119,7 @@ router.put('/preferences', csrfProtection, async (req: Request, res: Response) =
       });
     }
 
-    await schedulingNotificationService.updateNotificationPreferences(userId, {
-      userId,
+    await schedulingNotificationRepository.updateNotificationPreferences(userId, tenantId, {
       emailEnabled,
       smsEnabled,
       teamsEnabled,
@@ -128,7 +129,7 @@ router.put('/preferences', csrfProtection, async (req: Request, res: Response) =
     });
 
     // Fetch updated preferences
-    const prefs = await schedulingNotificationRepository.getPreferencesByUserId(userId);
+    const prefs = await schedulingNotificationRepository.getPreferencesByUserIdAndTenantId(userId, tenantId);
 
     logger.info(`Notification preferences updated`, { userId });
 
@@ -162,9 +163,10 @@ router.put('/preferences', csrfProtection, async (req: Request, res: Response) =
 router.post('/test', csrfProtection, async (req: Request, res: Response) => {
   try {
     const { userId } = req.user as any;
+    const tenantId = await userRepository.getTenantIdByUserId(userId);
     const { notificationType } = req.body;
 
-    await schedulingNotificationService.sendTestNotification(userId, notificationType);
+    await schedulingNotificationRepository.sendTestNotification(userId, tenantId, notificationType);
 
     res.json({
       success: true,
@@ -180,43 +182,3 @@ router.post('/test', csrfProtection, async (req: Request, res: Response) => {
 });
 
 export default router;
-
-
-In this refactored version, we've made the following changes:
-
-1. We've imported the `SchedulingNotificationRepository` from a new file (`../repositories/scheduling-notification.repository`).
-
-2. We've created an instance of the `SchedulingNotificationRepository` called `schedulingNotificationRepository`.
-
-3. We've replaced the direct database queries with calls to the repository methods. Specifically, we've replaced:
-
-   - `pool.query` with `schedulingNotificationRepository.getPreferencesByUserId(userId)` in both the GET and PUT routes.
-
-4. The repository pattern encapsulates the database operations, making the code more modular and easier to maintain. The actual implementation of the repository methods would be in the `scheduling-notification.repository.ts` file.
-
-5. The rest of the code remains the same, as it was already using the `schedulingNotificationService` for business logic operations.
-
-To complete this refactoring, you would need to create the `scheduling-notification.repository.ts` file with the implementation of the `SchedulingNotificationRepository` class. Here's an example of what that file might look like:
-
-
-import { Pool } from 'pg';
-
-const pool = new Pool({
-  // Your database connection details here
-});
-
-export class SchedulingNotificationRepository {
-  async getPreferencesByUserId(userId: number) {
-    const query = `
-      SELECT * FROM scheduling_notification_preferences
-      WHERE user_id = $1
-    `;
-    const result = await pool.query(query, [userId]);
-    return result.rows[0];
-  }
-
-  // Add other repository methods as needed
-}
-
-
-This refactoring improves the separation of concerns by moving the database operations into a dedicated repository class, making the code more maintainable and testable.

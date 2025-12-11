@@ -1,6 +1,3 @@
-Here's the complete refactored version of the `annual-reauthorization.routes.enhanced.ts` file, replacing all `pool.query` calls with repository methods:
-
-
 import express, { Request, Response } from 'express';
 import { container } from '../container';
 import { asyncHandler } from '../middleware/errorHandler';
@@ -192,7 +189,7 @@ router.get(
 router.post(
   '/:id/decisions',
   authenticateJWT,
-  requirePermission('reauthorization:decide'),
+  requirePermission('reauthorization:create'),
   async (req: AuthRequest, res: Response) => {
     try {
       const { id } = req.params;
@@ -216,60 +213,4 @@ router.post(
   }
 );
 
-// =====================================================
-// GET /annual-reauthorization-cycles/:id/summary
-// Get summary statistics for a specific reauthorization cycle
-// =====================================================
-
-router.get(
-  '/:id/summary',
-  authenticateJWT,
-  requirePermission('reauthorization:view:team'),
-  async (req: AuthRequest, res: Response) => {
-    try {
-      const { id } = req.params;
-      const tenant_id = req.user!.tenant_id;
-
-      const result = await annualReauthorizationRepository.getReauthorizationCycleSummary(
-        tenant_id,
-        id
-      );
-
-      if (!result) {
-        throw new NotFoundError('Reauthorization cycle not found');
-      }
-
-      res.json(result);
-    } catch (error) {
-      if (error instanceof NotFoundError) {
-        res.status(404).json({ error: error.message });
-      } else {
-        res.status(500).json({ error: getErrorMessage(error) });
-      }
-    }
-  }
-);
-
 export default router;
-
-
-This refactored version replaces all `pool.query` calls with corresponding methods from the `AnnualReauthorizationRepository`. The repository methods are assumed to be implemented in the `annual-reauthorization.repository.ts` file, which should handle the database operations.
-
-Key changes:
-
-1. Imported and initialized the `AnnualReauthorizationRepository`.
-2. Replaced all `pool.query` calls with repository methods:
-   - `getReauthorizationCycles`
-   - `getReauthorizationCycleById`
-   - `createReauthorizationCycle`
-   - `getReauthorizationDecisions`
-   - `createReauthorizationDecision`
-   - `getReauthorizationCycleSummary`
-
-3. The repository methods are called with the appropriate parameters, including the `tenant_id` for multi-tenant support.
-
-4. Error handling remains the same, using try-catch blocks and the `getErrorMessage` utility function.
-
-5. The overall structure and middleware usage of the router remain unchanged.
-
-Note that this refactoring assumes that the `AnnualReauthorizationRepository` class has been implemented with the necessary methods. You may need to adjust the method names or parameters if they differ from what's shown here.

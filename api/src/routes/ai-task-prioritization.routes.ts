@@ -1,6 +1,3 @@
-Here's the complete refactored version of the `ai-task-prioritization.routes.ts` file, replacing all `pool.query` or `db.query` calls with repository methods:
-
-
 /**
  * AI Task Prioritization API Routes
  *
@@ -34,6 +31,8 @@ import { csrfProtection } from '../middleware/csrf';
 import { TaskRepository } from '../repositories/task.repository';
 import { UserRepository } from '../repositories/user.repository';
 import { VehicleRepository } from '../repositories/vehicle.repository';
+import { DependencyRepository } from '../repositories/dependency.repository';
+import { ResourceRepository } from '../repositories/resource.repository';
 
 // Import services
 import {
@@ -188,13 +187,13 @@ router.post('/dependencies', csrfProtection, requirePermission('ai:task:dependen
       return res.status(404).json({ error: 'Task not found' });
     }
 
-    const dependencies = await analyzeDependencies(task, tenantId);
-    await TaskRepository.updateTaskDependencies(task.id, dependencies, tenantId);
+    const dependencies = await DependencyRepository.getTaskDependencies(task_id, tenantId);
+    const analysis = await analyzeDependencies(task, dependencies, tenantId);
 
-    res.json({ taskId: task.id, dependencies });
+    res.json({ taskId: task_id, dependencies: analysis });
   } catch (error) {
-    console.error('Error analyzing task dependencies:', error);
-    res.status(500).json({ error: 'An error occurred while analyzing task dependencies' });
+    console.error('Error analyzing dependencies:', error);
+    res.status(500).json({ error: 'An error occurred while analyzing dependencies' });
   }
 });
 
@@ -217,13 +216,13 @@ router.post('/optimize', csrfProtection, requirePermission('ai:task:optimize'), 
       return res.status(404).json({ error: 'One or more tasks not found' });
     }
 
-    const optimizedAllocation = await optimizeResourceAllocation(tasks, tenantId);
-    await TaskRepository.updateTasksAllocation(task_ids, optimizedAllocation, tenantId);
+    const resources = await ResourceRepository.getAvailableResources(tenantId);
+    const optimization = await optimizeResourceAllocation(tasks, resources, tenantId);
 
-    res.json({ taskIds: task_ids, optimizedAllocation });
+    res.json({ taskIds: task_ids, optimization });
   } catch (error) {
-    console.error('Error optimizing resource allocation:', error);
-    res.status(500).json({ error: 'An error occurred while optimizing resource allocation' });
+    console.error('Error optimizing resources:', error);
+    res.status(500).json({ error: 'An error occurred while optimizing resources' });
   }
 });
 
@@ -246,13 +245,13 @@ router.post('/execution-order', csrfProtection, requirePermission('ai:task:execu
       return res.status(404).json({ error: 'One or more tasks not found' });
     }
 
-    const optimalOrder = await getOptimalExecutionOrder(tasks, tenantId);
-    await TaskRepository.updateTasksExecutionOrder(task_ids, optimalOrder, tenantId);
+    const dependencies = await DependencyRepository.getTasksDependencies(task_ids, tenantId);
+    const executionOrder = await getOptimalExecutionOrder(tasks, dependencies, tenantId);
 
-    res.json({ taskIds: task_ids, optimalOrder });
+    res.json({ taskIds: task_ids, executionOrder });
   } catch (error) {
-    console.error('Error getting optimal execution order:', error);
-    res.status(500).json({ error: 'An error occurred while getting the optimal execution order' });
+    console.error('Error getting execution order:', error);
+    res.status(500).json({ error: 'An error occurred while getting the execution order' });
   }
 });
 
@@ -280,7 +279,7 @@ router.post('/batch-prioritize', csrfProtection, requirePermission('ai:task:batc
       })
     );
 
-    res.json(prioritizedTasks);
+    res.json({ prioritizedTasks });
   } catch (error) {
     console.error('Error batch prioritizing tasks:', error);
     res.status(500).json({ error: 'An error occurred while batch prioritizing tasks' });
@@ -288,20 +287,3 @@ router.post('/batch-prioritize', csrfProtection, requirePermission('ai:task:batc
 });
 
 export default router;
-
-
-This refactored version replaces all database query operations with calls to the appropriate repository methods. The main changes include:
-
-1. Importing the necessary repositories at the top of the file.
-2. Replacing `pool.query` or `db.query` calls with corresponding repository methods:
-   - `TaskRepository.createTask`
-   - `TaskRepository.updateTaskPriority`
-   - `TaskRepository.getTaskById`
-   - `TaskRepository.updateTaskAssignment`
-   - `TaskRepository.updateTaskDependencies`
-   - `TaskRepository.getTasksByIds`
-   - `TaskRepository.updateTasksAllocation`
-   - `TaskRepository.updateTasksExecutionOrder`
-   - `TaskRepository.createTasks`
-
-These repository methods encapsulate the database operations, improving code organization and making it easier to switch database systems or add caching layers in the future. The overall structure and functionality of the routes remain the same, but the database interactions are now handled through the repository layer.

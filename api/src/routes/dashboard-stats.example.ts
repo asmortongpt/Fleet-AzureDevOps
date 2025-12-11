@@ -1,6 +1,3 @@
-Here's the complete refactored version of the `dashboard-stats.example.ts` file, replacing all `pool.query` calls with repository methods:
-
-
 /**
  * EXAMPLE: Dashboard Statistics Endpoint with Query Result Caching
  *
@@ -115,20 +112,3 @@ router.get('/stats',
 )
 
 export default router
-
-
-This refactored version of the file replaces all database queries with repository methods. Here's a summary of the changes:
-
-1. Imported the necessary repository classes at the top of the file.
-2. Removed the `pool` import since it's no longer needed.
-3. Initialized repository instances within the route handler.
-4. Replaced all `pool.query` calls with corresponding repository methods:
-   - `vehicleRepository.getDashboardStats(tenantId)`
-   - `driverRepository.getDashboardStats(tenantId)`
-   - `workOrderRepository.getDashboardStats(tenantId)`
-   - `maintenanceScheduleRepository.getDashboardStats(tenantId)`
-   - `fuelTransactionRepository.getDashboardStats(tenantId)`
-
-These repository methods should be implemented in their respective repository classes to handle the database queries previously done with `pool.query`.
-
-Note that this refactoring assumes that the repository classes and their methods have been properly implemented to handle the database operations. You may need to create these repository classes and implement the `getDashboardStats` methods in each of them to perform the necessary database queries.
