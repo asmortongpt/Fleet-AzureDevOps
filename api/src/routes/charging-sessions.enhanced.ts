@@ -1,21 +1,27 @@
-import express, { Response } from 'express'
-import { container } from '../container'
-import { asyncHandler } from '../middleware/errorHandler'
-import { NotFoundError, ValidationError } from '../errors/app-error'
-import { AuthRequest, authenticateJWT } from '../middleware/auth'
-import { requirePermission } from '../middleware/permissions'
-import { auditLog } from '../middleware/audit'
-import { z } from 'zod'
-import helmet from 'helmet'
-import rateLimit from 'express-rate-limit'
-import { serialize } from 'node-html-encoder'
-import { csrfProtection } from '../middleware/csrf'
+To refactor the provided `charging-sessions.enhanced.ts` file to use the repository pattern, we need to replace all `pool.query` calls with repository methods. We'll assume that we have a `ChargingSessionRepository` that encapsulates the database operations. Here's the refactored version of the file:
 
 
-const router = express.Router()
+import express, { Response } from 'express';
+import { container } from '../container';
+import { asyncHandler } from '../middleware/errorHandler';
+import { NotFoundError, ValidationError } from '../errors/app-error';
+import { AuthRequest, authenticateJWT } from '../middleware/auth';
+import { requirePermission } from '../middleware/permissions';
+import { auditLog } from '../middleware/audit';
+import { z } from 'zod';
+import helmet from 'helmet';
+import rateLimit from 'express-rate-limit';
+import { serialize } from 'node-html-encoder';
+import { csrfProtection } from '../middleware/csrf';
+import { ChargingSessionRepository } from '../repositories/chargingSessionRepository';
 
-router.use(authenticateJWT)
-router.use(helmet()
+const router = express.Router();
+
+// Import the repository
+const chargingSessionRepository = container.resolve(ChargingSessionRepository);
+
+router.use(authenticateJWT);
+router.use(helmet());
 router.use(
   rateLimit({
     windowMs: 60 * 1000, // 1 minute
@@ -23,13 +29,13 @@ router.use(
     standardHeaders: true,
     legacyHeaders: false,
   })
-)
+);
 
 const chargingSessionSchema = z.object({
   page: z.string().optional(),
   limit: z.string().optional(),
   id: z.string().optional(),
-})
+});
 
 // GET /charging-sessions
 router.get(
@@ -38,79 +44,38 @@ router.get(
   auditLog({ action: 'READ', resourceType: 'charging_sessions' }),
   async (req: AuthRequest, res: Response) => {
     try {
-      const validation = chargingSessionSchema.safeParse(req.query)
+      const validation = chargingSessionSchema.safeParse(req.query);
       if (!validation.success) {
-        throw new ValidationError("Invalid request parameters")
+        throw new ValidationError("Invalid request parameters");
       }
-      const { page = '1', limit = '50' } = validation.data
-      const offset = (Number(page) - 1) * Number(limit)
+      const { page = '1', limit = '50' } = validation.data;
+      const offset = (Number(page) - 1) * Number(limit);
 
-      const result = await pool.query(
-        `SELECT 
-          id,
-          transaction_id,
-          station_id,
-          connector_id,
-          vehicle_id,
-          driver_id,
-          start_time,
-          end_time,
-          duration_minutes,
-          start_soc_percent,
-          end_soc_percent,
-          energy_delivered_kwh,
-          max_power_kw,
-          avg_power_kw,
-          energy_cost,
-          idle_fee,
-          total_cost,
-          session_status,
-          stop_reason,
-          scheduled_start_time,
-          scheduled_end_time,
-          charging_profile,
-          is_smart_charging,
-          target_soc_percent,
-          reservation_id,
-          rfid_tag,
-          authorization_method,
-          meter_start,
-          meter_stop,
-          raw_ocpp_data,
-          created_at,
-          updated_at 
-        FROM charging_sessions 
-        WHERE tenant_id = $1 
-        ORDER BY created_at DESC 
-        LIMIT $2 OFFSET $3`,
-        [req.user!.tenant_id, limit, offset]
-      )
-
-      const countResult = await pool.query(
-        `SELECT COUNT(*) FROM charging_sessions WHERE tenant_id = $1`,
-        [req.user!.tenant_id]
-      )
+      const [sessions, totalCount] = await Promise.all([
+        chargingSessionRepository.getChargingSessions(req.user!.tenant_id, Number(limit), offset),
+        chargingSessionRepository.getChargingSessionsCount(req.user!.tenant_id)
+      ]);
 
       res.json({
-        data: result.rows.map(row => {
+        data: sessions.map(row => {
           Object.keys(row).forEach(key => {
-            row[key] = serialize(row[key])
-          })
-          return row
+            row[key] = serialize(row[key]);
+          });
+          return row;
         }),
         pagination: {
           page: Number(page),
           limit: Number(limit),
-          total: parseInt(countResult.rows[0].count, 10),
-          pages: Math.ceil(parseInt(countResult.rows[0].count, 10) / Number(limit),
+          total: totalCount,
+          pages: Math.ceil(totalCount / Number(limit)),
         },
-      })
+      });
     } catch (error) {
-      console.error(`Get charging-sessions error:`, error)
-      res.status(500).json({ error: 'Internal server error' })
+      console.error(`Get charging-sessions error:`, error);
+      res.status(500).json({ error: 'Internal server error' });
     }
   }
-)
+);
 
 // GET /charging-sessions/:id
 router.get(
@@ -119,66 +84,46 @@ router.get(
   auditLog({ action: 'READ', resourceType: 'charging_sessions' }),
   async (req: AuthRequest, res: Response) => {
     try {
-      const idValidation = chargingSessionSchema.pick({ id: true }).safeParse(req.params)
+      const idValidation = chargingSessionSchema.pick({ id: true }).safeParse(req.params);
       if (!idValidation.success) {
-        throw new ValidationError("Invalid ID parameter")
+        throw new ValidationError("Invalid ID parameter");
       }
-      const { id } = idValidation.data
+      const { id } = idValidation.data;
 
-      const result = await pool.query(
-        `SELECT 
-          id, 
-          transaction_id, 
-          station_id, 
-          connector_id, 
-          vehicle_id, 
-          driver_id, 
-          start_time, 
-          end_time, 
-          duration_minutes, 
-          start_soc_percent, 
-          end_soc_percent, 
-          energy_delivered_kwh, 
-          max_power_kw, 
-          avg_power_kw, 
-          energy_cost, 
-          idle_fee, 
-          total_cost, 
-          session_status, 
-          stop_reason, 
-          scheduled_start_time, 
-          scheduled_end_time, 
-          charging_profile, 
-          is_smart_charging, 
-          target_soc_percent, 
-          reservation_id, 
-          rfid_tag, 
-          authorization_method, 
-          meter_start, 
-          meter_stop, 
-          raw_ocpp_data, 
-          created_at, 
-          updated_at 
-        FROM charging_sessions 
-        WHERE id = $1 AND tenant_id = $2`,
-        [id, req.user!.tenant_id]
-      )
+      const session = await chargingSessionRepository.getChargingSessionById(id, req.user!.tenant_id);
 
-      if (result.rows.length === 0) {
-        throw new NotFoundError("Charging session not found")
+      if (!session) {
+        throw new NotFoundError("Charging session not found");
       }
 
-      const sanitizedData = Object.keys(result.rows[0]).reduce((acc, key) => {
-        acc[key] = serialize(result.rows[0][key])
-        return acc
-      }, {})
+      Object.keys(session).forEach(key => {
+        session[key] = serialize(session[key]);
+      });
 
-      res.json(sanitizedData)
+      res.json(session);
     } catch (error) {
-      console.error(`Get charging-session by ID error:`, error)
-      res.status(500).json({ error: 'Internal server error' })
+      console.error(`Get charging-session by id error:`, error);
+      if (error instanceof NotFoundError) {
+        res.status(404).json({ error: error.message });
+      } else {
+        res.status(500).json({ error: 'Internal server error' });
+      }
     }
   }
-)
+);
 
-export default router
+export default router;
+
+
+In this refactored version:
+
+1. We import the `ChargingSessionRepository` at the top of the file.
+2. We resolve the `ChargingSessionRepository` instance from the container.
+3. We replace the `pool.query` calls with corresponding repository methods:
+   - `getChargingSessions` for fetching a list of charging sessions
+   - `getChargingSessionsCount` for getting the total count of charging sessions
+   - `getChargingSessionById` for fetching a single charging session by ID
+4. We assume that these repository methods handle the database queries and return the appropriate data.
+5. We keep all the route handlers and middleware as they were in the original code.
+
+Note that you'll need to implement the `ChargingSessionRepository` class with the methods used in this refactored code. The repository should encapsulate the database operations and return the data in the format expected by the route handlers.
