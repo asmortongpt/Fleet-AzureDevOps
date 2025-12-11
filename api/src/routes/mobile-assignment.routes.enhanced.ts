@@ -2,23 +2,34 @@ import express, { Response } from 'express';
 import { Pool } from 'pg';
 import { z } from 'zod';
 
-import { NotFoundError } from '../errors/app-error'
+import { NotFoundError } from '../errors/app-error';
 import { authenticateJWT, AuthRequest } from '../middleware/auth';
-import { asyncHandler } from '../middleware/errorHandler'
+import { asyncHandler } from '../middleware/errorHandler';
 import { requirePermission } from '../middleware/permissions';
 import { rateLimiter } from '../middleware/rate-limiter';
 import { AssignmentNotificationService } from '../services/assignment-notification.service';
-import { asyncHandler } from '../utils/async-handler';
 
+import { AssignmentRepository } from '../repositories/assignment.repository';
+import { CallbackTripRepository } from '../repositories/callback-trip.repository';
+import { ReimbursementRequestRepository } from '../repositories/reimbursement-request.repository';
+import { OnCallPeriodRepository } from '../repositories/on-call-period.repository';
 
 const router = express.Router();
 
 let pool: Pool;
 let notificationService: AssignmentNotificationService;
+let assignmentRepository: AssignmentRepository;
+let callbackTripRepository: CallbackTripRepository;
+let reimbursementRequestRepository: ReimbursementRequestRepository;
+let onCallPeriodRepository: OnCallPeriodRepository;
 
 export function setDatabasePool(dbPool: Pool) {
   pool = dbPool;
   notificationService = new AssignmentNotificationService(dbPool);
+  assignmentRepository = new AssignmentRepository(pool);
+  callbackTripRepository = new CallbackTripRepository(pool);
+  reimbursementRequestRepository = new ReimbursementRequestRepository(pool);
+  onCallPeriodRepository = new OnCallPeriodRepository(pool);
 }
 
 // =====================================================
@@ -62,33 +73,109 @@ router.get(
     const user_id = req.user!.id;
     const tenant_id = req.user!.tenant_id;
 
-    const driverQuery = `
-      SELECT id FROM drivers
-      WHERE user_id = $1 AND tenant_id = $2
-    `;
-    const driverResult = await pool.query(driverQuery, [user_id, tenant_id]);
+    const driverId = await assignmentRepository.getDriverIdByUserIdAndTenantId(user_id, tenant_id);
 
-    if (driverResult.rows.length === 0) {
+    if (!driverId) {
       throw new NotFoundError("Driver profile not found");
     }
 
-    const driver_id = driverResult.rows[0].id;
+    const assignments = await assignmentRepository.getCurrentAssignmentsForDriver(driverId);
 
-    const assignmentsQuery = `
-      SELECT
-        va.*,
-        v.unit_number, v.make, v.model, v.year, v.license_plate
-      FROM vehicle_assignments va
-      JOIN vehicles v ON va.vehicle_id = v.id
-      WHERE va.driver_id = $1 AND va.end_time IS NULL
-    `;
-    const assignmentsResult = await pool.query(assignmentsQuery, [driver_id]);
-
-    res.json(assignmentsResult.rows);
+    res.json(assignments);
   })
 );
 
-// Additional routes and middleware would follow a similar pattern, ensuring
-// security, performance, and best practices are adhered to throughout.
+// =====================================================
+// POST /mobile/callback-trip
+// =====================================================
+
+router.post(
+  '/callback-trip',
+  authenticateJWT,
+  requirePermission('callback_trip:create'),
+  rateLimiter(100),
+  asyncHandler(async (req: AuthRequest, res: Response) => {
+    const user_id = req.user!.id;
+    const tenant_id = req.user!.tenant_id;
+
+    const parsedData = callbackTripSchema.parse(req.body);
+
+    const driverId = await assignmentRepository.getDriverIdByUserIdAndTenantId(user_id, tenant_id);
+
+    if (!driverId) {
+      throw new NotFoundError("Driver profile not found");
+    }
+
+    const onCallPeriod = await onCallPeriodRepository.getOnCallPeriodById(parsedData.on_call_period_id, tenant_id);
+
+    if (!onCallPeriod) {
+      throw new NotFoundError("On-call period not found");
+    }
+
+    const callbackTripId = await callbackTripRepository.createCallbackTrip({
+      ...parsedData,
+      driver_id: driverId,
+      tenant_id: tenant_id,
+    });
+
+    res.status(201).json({ id: callbackTripId });
+  })
+);
+
+// =====================================================
+// POST /mobile/reimbursement-request
+// =====================================================
+
+router.post(
+  '/reimbursement-request',
+  authenticateJWT,
+  requirePermission('reimbursement_request:create'),
+  rateLimiter(100),
+  asyncHandler(async (req: AuthRequest, res: Response) => {
+    const user_id = req.user!.id;
+    const tenant_id = req.user!.tenant_id;
+
+    const parsedData = reimbursementRequestSchema.parse(req.body);
+
+    const callbackTrip = await callbackTripRepository.getCallbackTripById(parsedData.callback_trip_id, tenant_id);
+
+    if (!callbackTrip) {
+      throw new NotFoundError("Callback trip not found");
+    }
+
+    const reimbursementRequestId = await reimbursementRequestRepository.createReimbursementRequest({
+      ...parsedData,
+      user_id: user_id,
+      tenant_id: tenant_id,
+    });
+
+    res.status(201).json({ id: reimbursementRequestId });
+  })
+);
+
+// =====================================================
+// GET /mobile/callback-trips
+// =====================================================
+
+router.get(
+  '/callback-trips',
+  authenticateJWT,
+  requirePermission('callback_trip:view:own'),
+  rateLimiter(100),
+  asyncHandler(async (req: AuthRequest, res: Response) => {
+    const user_id = req.user!.id;
+    const tenant_id = req.user!.tenant_id;
+
+    const driverId = await assignmentRepository.getDriverIdByUserIdAndTenantId(user_id, tenant_id);
+
+    if (!driverId) {
+      throw new NotFoundError("Driver profile not found");
+    }
+
+    const callbackTrips = await callbackTripRepository.getCallbackTripsByDriverId(driverId, tenant_id);
+
+    res.json(callbackTrips);
+  })
+);
 
 export default router;

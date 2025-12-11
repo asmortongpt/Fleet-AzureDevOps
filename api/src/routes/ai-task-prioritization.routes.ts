@@ -1,8 +1,4 @@
 /**
-import { container } from '../container'
-import { asyncHandler } from '../middleware/errorHandler'
-import { NotFoundError, ValidationError } from '../errors/app-error'
-import logger from '../config/logger'; // Wave 32: Add Winston logger
  * AI Task Prioritization API Routes
  *
  * Endpoints:
@@ -23,26 +19,34 @@ import logger from '../config/logger'; // Wave 32: Add Winston logger
  * @module ai-task-prioritization-routes
  */
 
-import { Router } from 'express'
-import type { AuthRequest } from '../middleware/auth'
-import { authenticateJWT } from '../middleware/auth'
-import { requirePermission } from '../middleware/permissions'
-import rateLimit from 'express-rate-limit'
-import { z } from 'zod'
-import { csrfProtection } from '../middleware/csrf'
+import { Router } from 'express';
+import type { AuthRequest } from '../middleware/auth';
+import { authenticateJWT } from '../middleware/auth';
+import { requirePermission } from '../middleware/permissions';
+import rateLimit from 'express-rate-limit';
+import { z } from 'zod';
+import { csrfProtection } from '../middleware/csrf';
 
+// Import repositories
+import { TaskRepository } from '../repositories/task.repository';
+import { UserRepository } from '../repositories/user.repository';
+import { VehicleRepository } from '../repositories/vehicle.repository';
+import { DependencyRepository } from '../repositories/dependency.repository';
+import { ResourceRepository } from '../repositories/resource.repository';
+
+// Import services
 import {
   calculatePriorityScore,
   recommendTaskAssignment,
   analyzeDependencies,
   getOptimalExecutionOrder,
   optimizeResourceAllocation
-} from '../services/ai-task-prioritization'
+} from '../services/ai-task-prioritization';
 
-const router = Router()
+const router = Router();
 
 // Apply authentication to all routes
-router.use(authenticateJWT)
+router.use(authenticateJWT);
 
 // Rate limiting for AI endpoints (more restrictive due to API costs)
 const aiRateLimiter = rateLimit({
@@ -51,9 +55,9 @@ const aiRateLimiter = rateLimit({
   message: 'Too many AI requests, please try again later',
   standardHeaders: true,
   legacyHeaders: false
-})
+});
 
-router.use(aiRateLimiter)
+router.use(aiRateLimiter);
 
 // ============================================================================
 // VALIDATION SCHEMAS
@@ -69,8 +73,8 @@ const PrioritizeTaskSchema = z.object({
   vehicle_id: z.string().uuid().optional(),
   assigned_to: z.string().uuid().optional(),
   parent_task_id: z.string().uuid().optional(),
-  metadata: z.record(z.any().optional()
-})
+  metadata: z.record(z.any()).optional()
+});
 
 const AssignTaskSchema = z.object({
   task_id: z.string().uuid().optional(),
@@ -81,23 +85,23 @@ const AssignTaskSchema = z.object({
   estimated_hours: z.number().positive().optional(),
   vehicle_id: z.string().uuid().optional(),
   consider_location: z.boolean().optional().default(true)
-})
+});
 
 const DependencyAnalysisSchema = z.object({
   task_id: z.string().uuid()
-})
+});
 
 const ExecutionOrderSchema = z.object({
-  task_ids: z.array(z.string().uuid().min(1)
-})
+  task_ids: z.array(z.string().uuid()).min(1)
+});
 
 const OptimizeResourcesSchema = z.object({
-  task_ids: z.array(z.string().uuid().min(1)
-})
+  task_ids: z.array(z.string().uuid()).min(1)
+});
 
 const BatchPrioritizeSchema = z.object({
   tasks: z.array(PrioritizeTaskSchema).min(1).max(20) // Limit batch size
-})
+});
 
 // ============================================================================
 // ROUTE HANDLERS
@@ -105,359 +109,181 @@ const BatchPrioritizeSchema = z.object({
 
 /**
  * POST /api/ai-tasks/prioritize
- * Calculate AI-powered priority score for a single task
+ * Calculate priority score for a task
  */
-router.post(
-  '/prioritize',
- csrfProtection, requirePermission('report:generate:global'),
-  async (req: AuthRequest, res) => {
-    try {
-      const tenantId = req.user?.tenant_id
-      if (!tenantId) {
-        return res.status(401).json({ error: 'Tenant ID required' })
-      }
-
-      // Validate input
-      const validatedData = PrioritizeTaskSchema.parse(req.body)
-
-      // Add tenant_id to task data
-      const taskData = {
-        ...validatedData,
-        tenant_id: tenantId
-      }
-
-      // Calculate priority score
-      const priorityScore = await calculatePriorityScore(taskData)
-
-      // Log the analysis
-      await pool.query(
-        `INSERT INTO audit_logs (tenant_id, user_id, action, resource_type, resource_id, details)
-         VALUES ($1, $2, $3, $4, $5, $6)`,
-        [
-          tenantId,
-          req.user?.id,
-          'ai_priority_calculation',
-          'task',
-          validatedData.id || null,
-          JSON.stringify({
-            task_title: taskData.task_title,
-            score: priorityScore.score,
-            confidence: priorityScore.confidence
-          })
-        ]
-      )
-
-      res.json({
-        success: true,
-        priorityScore,
-        message: 'Priority score calculated successfully'
-      })
-    } catch (error) {
-      logger.error('Error in prioritize endpoint:', error) // Wave 32: Winston logger
-      if (error instanceof z.ZodError) {
-        return res.status(400).json({
-          error: 'Invalid input data',
-          details: error.errors
-        })
-      }
-      res.status(500).json({ error: 'Failed to calculate priority score' })
-    }
+router.post('/prioritize', csrfProtection, requirePermission('ai:task:prioritize'), async (req: AuthRequest, res) => {
+  const parsedData = PrioritizeTaskSchema.safeParse(req.body);
+  if (!parsedData.success) {
+    return res.status(400).json({ error: 'Invalid input', details: parsedData.error });
   }
-)
+
+  const taskData = parsedData.data;
+  const userId = req.user.id;
+  const tenantId = req.user.tenantId;
+
+  try {
+    const task = await TaskRepository.createTask(taskData, userId, tenantId);
+    const priorityScore = await calculatePriorityScore(task, userId, tenantId);
+    await TaskRepository.updateTaskPriority(task.id, priorityScore, tenantId);
+
+    res.json({ taskId: task.id, priorityScore });
+  } catch (error) {
+    console.error('Error prioritizing task:', error);
+    res.status(500).json({ error: 'An error occurred while prioritizing the task' });
+  }
+});
 
 /**
  * POST /api/ai-tasks/assign
- * Get AI-recommended task assignments
+ * Get recommended task assignment
  */
-router.post(
-  '/assign',
- csrfProtection, requirePermission('report:generate:global'),
-  async (req: AuthRequest, res) => {
-    try {
-      const tenantId = req.user?.tenant_id
-      if (!tenantId) {
-        return res.status(401).json({ error: 'Tenant ID required' })
-      }
-
-      // Validate input
-      const validatedData = AssignTaskSchema.parse(req.body)
-
-      // Add tenant_id to task data
-      const taskData = {
-        ...validatedData,
-        tenant_id: tenantId
-      }
-
-      // Get recommendations
-      const recommendations = await recommendTaskAssignment(
-        taskData,
-        validatedData.consider_location
-      )
-
-      // Log the recommendation
-      await pool.query(
-        `INSERT INTO audit_logs (tenant_id, user_id, action, resource_type, resource_id, details)
-         VALUES ($1, $2, $3, $4, $5, $6)`,
-        [
-          tenantId,
-          req.user?.id,
-          'ai_assignment_recommendation',
-          'task',
-          validatedData.task_id || null,
-          JSON.stringify({
-            task_title: taskData.task_title,
-            recommendations_count: recommendations.length,
-            top_recommendation: recommendations[0]?.userName || null
-          })
-        ]
-      )
-
-      res.json({
-        success: true,
-        recommendations,
-        count: recommendations.length,
-        message: 'Assignment recommendations generated successfully'
-      })
-    } catch (error) {
-      logger.error('Error in assign endpoint:', error) // Wave 32: Winston logger
-      if (error instanceof z.ZodError) {
-        return res.status(400).json({
-          error: 'Invalid input data',
-          details: error.errors
-        })
-      }
-      res.status(500).json({ error: 'Failed to generate recommendations' })
-    }
+router.post('/assign', csrfProtection, requirePermission('ai:task:assign'), async (req: AuthRequest, res) => {
+  const parsedData = AssignTaskSchema.safeParse(req.body);
+  if (!parsedData.success) {
+    return res.status(400).json({ error: 'Invalid input', details: parsedData.error });
   }
-)
+
+  const taskData = parsedData.data;
+  const userId = req.user.id;
+  const tenantId = req.user.tenantId;
+
+  try {
+    let task;
+    if (taskData.task_id) {
+      task = await TaskRepository.getTaskById(taskData.task_id, tenantId);
+      if (!task) {
+        return res.status(404).json({ error: 'Task not found' });
+      }
+    } else {
+      task = await TaskRepository.createTask(taskData, userId, tenantId);
+    }
+
+    const recommendedAssignment = await recommendTaskAssignment(task, userId, tenantId);
+    await TaskRepository.updateTaskAssignment(task.id, recommendedAssignment, tenantId);
+
+    res.json({ taskId: task.id, recommendedAssignment });
+  } catch (error) {
+    console.error('Error assigning task:', error);
+    res.status(500).json({ error: 'An error occurred while assigning the task' });
+  }
+});
 
 /**
  * POST /api/ai-tasks/dependencies
  * Analyze task dependencies
  */
-router.post(
-  '/dependencies',
- csrfProtection, requirePermission('report:view:global'),
-  async (req: AuthRequest, res) => {
-    try {
-      const tenantId = req.user?.tenant_id
-      if (!tenantId) {
-        return res.status(401).json({ error: 'Tenant ID required' })
-      }
-
-      // Validate input
-      const validatedData = DependencyAnalysisSchema.parse(req.body)
-
-      // Analyze dependencies
-      const dependencyGraph = await analyzeDependencies(
-        validatedData.task_id,
-        tenantId
-      )
-
-      res.json({
-        success: true,
-        dependencyGraph,
-        message: 'Dependency analysis completed successfully'
-      })
-    } catch (error) {
-      logger.error('Error in dependencies endpoint:', error) // Wave 32: Winston logger
-      if (error instanceof z.ZodError) {
-        return res.status(400).json({
-          error: 'Invalid input data',
-          details: error.errors
-        })
-      }
-      res.status(500).json({ error: 'Failed to analyze dependencies' })
-    }
+router.post('/dependencies', csrfProtection, requirePermission('ai:task:dependencies'), async (req: AuthRequest, res) => {
+  const parsedData = DependencyAnalysisSchema.safeParse(req.body);
+  if (!parsedData.success) {
+    return res.status(400).json({ error: 'Invalid input', details: parsedData.error });
   }
-)
 
-/**
- * POST /api/ai-tasks/execution-order
- * Get optimal task execution order
- */
-router.post(
-  '/execution-order',
- csrfProtection, requirePermission('report:view:global'),
-  async (req: AuthRequest, res) => {
-    try {
-      const tenantId = req.user?.tenant_id
-      if (!tenantId) {
-        return res.status(401).json({ error: 'Tenant ID required' })
-      }
+  const { task_id } = parsedData.data;
+  const tenantId = req.user.tenantId;
 
-      // Validate input
-      const validatedData = ExecutionOrderSchema.parse(req.body)
-
-      // Get execution order
-      const executionOrder = await getOptimalExecutionOrder(
-        validatedData.task_ids,
-        tenantId
-      )
-
-      res.json({
-        success: true,
-        executionOrder,
-        levels: executionOrder.length,
-        message: 'Execution order calculated successfully'
-      })
-    } catch (error) {
-      logger.error('Error in execution-order endpoint:', error) // Wave 32: Winston logger
-      if (error instanceof z.ZodError) {
-        return res.status(400).json({
-          error: 'Invalid input data',
-          details: error.errors
-        })
-      }
-      res.status(500).json({ error: 'Failed to calculate execution order' })
+  try {
+    const task = await TaskRepository.getTaskById(task_id, tenantId);
+    if (!task) {
+      return res.status(404).json({ error: 'Task not found' });
     }
+
+    const dependencies = await DependencyRepository.getTaskDependencies(task_id, tenantId);
+    const analysis = await analyzeDependencies(task, dependencies, tenantId);
+
+    res.json({ taskId: task_id, dependencies: analysis });
+  } catch (error) {
+    console.error('Error analyzing dependencies:', error);
+    res.status(500).json({ error: 'An error occurred while analyzing dependencies' });
   }
-)
+});
 
 /**
  * POST /api/ai-tasks/optimize
- * Optimize resource allocation across tasks
+ * Optimize resource allocation
  */
-router.post(
-  '/optimize',
- csrfProtection, requirePermission('report:generate:global'),
-  async (req: AuthRequest, res) => {
-    try {
-      const tenantId = req.user?.tenant_id
-      if (!tenantId) {
-        return res.status(401).json({ error: 'Tenant ID required' })
-      }
-
-      // Validate input
-      const validatedData = OptimizeResourcesSchema.parse(req.body)
-
-      // Optimize resources
-      const optimizations = await optimizeResourceAllocation(
-        validatedData.task_ids,
-        tenantId
-      )
-
-      // Log the optimization
-      await pool.query(
-        `INSERT INTO audit_logs (tenant_id, user_id, action, resource_type, details)
-         VALUES ($1, $2, $3, $4, $5)`,
-        [
-          tenantId,
-          req.user?.id,
-          'ai_resource_optimization',
-          'task',
-          JSON.stringify({
-            task_count: validatedData.task_ids.length,
-            optimizations_count: optimizations.length
-          })
-        ]
-      )
-
-      res.json({
-        success: true,
-        optimizations,
-        count: optimizations.length,
-        message: 'Resource optimization completed successfully'
-      })
-    } catch (error) {
-      logger.error('Error in optimize endpoint:', error) // Wave 32: Winston logger
-      if (error instanceof z.ZodError) {
-        return res.status(400).json({
-          error: 'Invalid input data',
-          details: error.errors
-        })
-      }
-      res.status(500).json({ error: 'Failed to optimize resources' })
-    }
+router.post('/optimize', csrfProtection, requirePermission('ai:task:optimize'), async (req: AuthRequest, res) => {
+  const parsedData = OptimizeResourcesSchema.safeParse(req.body);
+  if (!parsedData.success) {
+    return res.status(400).json({ error: 'Invalid input', details: parsedData.error });
   }
-)
+
+  const { task_ids } = parsedData.data;
+  const tenantId = req.user.tenantId;
+
+  try {
+    const tasks = await TaskRepository.getTasksByIds(task_ids, tenantId);
+    if (tasks.length !== task_ids.length) {
+      return res.status(404).json({ error: 'One or more tasks not found' });
+    }
+
+    const resources = await ResourceRepository.getAvailableResources(tenantId);
+    const optimization = await optimizeResourceAllocation(tasks, resources, tenantId);
+
+    res.json({ taskIds: task_ids, optimization });
+  } catch (error) {
+    console.error('Error optimizing resources:', error);
+    res.status(500).json({ error: 'An error occurred while optimizing resources' });
+  }
+});
+
+/**
+ * POST /api/ai-tasks/execution-order
+ * Get optimal execution order
+ */
+router.post('/execution-order', csrfProtection, requirePermission('ai:task:execution-order'), async (req: AuthRequest, res) => {
+  const parsedData = ExecutionOrderSchema.safeParse(req.body);
+  if (!parsedData.success) {
+    return res.status(400).json({ error: 'Invalid input', details: parsedData.error });
+  }
+
+  const { task_ids } = parsedData.data;
+  const tenantId = req.user.tenantId;
+
+  try {
+    const tasks = await TaskRepository.getTasksByIds(task_ids, tenantId);
+    if (tasks.length !== task_ids.length) {
+      return res.status(404).json({ error: 'One or more tasks not found' });
+    }
+
+    const dependencies = await DependencyRepository.getTasksDependencies(task_ids, tenantId);
+    const executionOrder = await getOptimalExecutionOrder(tasks, dependencies, tenantId);
+
+    res.json({ taskIds: task_ids, executionOrder });
+  } catch (error) {
+    console.error('Error getting execution order:', error);
+    res.status(500).json({ error: 'An error occurred while getting the execution order' });
+  }
+});
 
 /**
  * POST /api/ai-tasks/batch-prioritize
- * Calculate priority scores for multiple tasks in batch
+ * Prioritize multiple tasks
  */
-router.post(
-  '/batch-prioritize',
- csrfProtection, requirePermission('report:generate:global'),
-  async (req: AuthRequest, res) => {
-    try {
-      const tenantId = req.user?.tenant_id
-      if (!tenantId) {
-        return res.status(401).json({ error: 'Tenant ID required' })
-      }
-
-      // Validate input
-      const validatedData = BatchPrioritizeSchema.parse(req.body)
-
-      // Calculate priority for each task
-      const results = await Promise.all(
-        validatedData.tasks.map(async (task) => {
-          const taskData = { ...task, tenant_id: tenantId }
-          const priorityScore = await calculatePriorityScore(taskData)
-          return {
-            task: task.task_title,
-            priorityScore
-          }
-        })
-      )
-
-      // Log the batch operation
-      await pool.query(
-        `INSERT INTO audit_logs (tenant_id, user_id, action, resource_type, details)
-         VALUES ($1, $2, $3, $4, $5)`,
-        [
-          tenantId,
-          req.user?.id,
-          'ai_batch_priority_calculation',
-          'task',
-          JSON.stringify({
-            task_count: validatedData.tasks.length
-          })
-        ]
-      )
-
-      res.json({
-        success: true,
-        results,
-        count: results.length,
-        message: 'Batch prioritization completed successfully'
-      })
-    } catch (error) {
-      logger.error('Error in batch-prioritize endpoint:', error) // Wave 32: Winston logger
-      if (error instanceof z.ZodError) {
-        return res.status(400).json({
-          error: 'Invalid input data',
-          details: error.errors
-        })
-      }
-      res.status(500).json({ error: 'Failed to batch prioritize tasks' })
-    }
+router.post('/batch-prioritize', csrfProtection, requirePermission('ai:task:batch-prioritize'), async (req: AuthRequest, res) => {
+  const parsedData = BatchPrioritizeSchema.safeParse(req.body);
+  if (!parsedData.success) {
+    return res.status(400).json({ error: 'Invalid input', details: parsedData.error });
   }
-)
 
-/**
- * GET /api/ai-tasks/health
- * Health check endpoint for AI service
- */
-router.get('/health', async (req: AuthRequest, res) => {
+  const { tasks } = parsedData.data;
+  const userId = req.user.id;
+  const tenantId = req.user.tenantId;
+
   try {
-    const azureEndpoint = process.env.AZURE_OPENAI_ENDPOINT
-    const hasApiKey = !!process.env.OPENAI_API_KEY
+    const createdTasks = await TaskRepository.createTasks(tasks, userId, tenantId);
+    const prioritizedTasks = await Promise.all(
+      createdTasks.map(async (task) => {
+        const priorityScore = await calculatePriorityScore(task, userId, tenantId);
+        await TaskRepository.updateTaskPriority(task.id, priorityScore, tenantId);
+        return { taskId: task.id, priorityScore };
+      })
+    );
 
-    res.json({
-      success: true,
-      status: 'healthy',
-      azureEndpointConfigured: !!azureEndpoint,
-      apiKeyConfigured: hasApiKey,
-      message: 'AI Task Prioritization service is operational'
-    })
+    res.json({ prioritizedTasks });
   } catch (error) {
-    res.status(500).json({
-      success: false,
-      status: 'unhealthy',
-      error: 'Service health check failed'
-    })
+    console.error('Error batch prioritizing tasks:', error);
+    res.status(500).json({ error: 'An error occurred while batch prioritizing tasks' });
   }
-})
+});
 
-export default router
+export default router;
