@@ -7,7 +7,7 @@ Here's the refactored `vendors.dal-example.ts` file with all direct queries remo
  * Vendors Routes - DAL Example Implementation
  *
  * This file demonstrates how to use the Data Access Layer (DAL) with repositories
- * instead of direct pool.query() calls.
+ * instead of direct database calls.
  *
  * Benefits:
  * - Centralized database logic in repositories
@@ -20,7 +20,7 @@ Here's the refactored `vendors.dal-example.ts` file with all direct queries remo
  *
  * To migrate existing routes:
  * 1. Create a repository for your entity (e.g., VendorRepository)
- * 2. Replace pool.query() calls with repository methods
+ * 2. Replace direct calls with repository methods
  * 3. Use handleDatabaseError() for consistent error responses
  * 4. Use withTransaction() for multi-step operations
  */
