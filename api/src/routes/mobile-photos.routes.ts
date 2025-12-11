@@ -1,22 +1,3 @@
-/**
-import { container } from '../container'
-import { asyncHandler } from '../middleware/errorHandler'
-import { NotFoundError, ValidationError } from '../errors/app-error'
-import logger from '../config/logger'; // Wave 28: Add Winston logger
- * Mobile Photos API Routes
- *
- * Comprehensive endpoints for mobile photo upload and processing
- * Routes:
- * - POST /api/mobile/photos/upload - Upload single photo
- * - POST /api/mobile/photos/upload-batch - Batch upload
- * - GET /api/mobile/photos/sync-queue - Get pending uploads
- * - POST /api/mobile/photos/sync-complete - Mark as synced
- * - GET /api/mobile/photos/status/:id - Upload status
- * - GET /api/mobile/photos/:id - Get photo details
- * - DELETE /api/mobile/photos/:id - Delete photo
- * - GET /api/mobile/photos/processing/stats - Processing queue stats
- */
-
 import express, { Request, Response } from 'express';
 import multer from 'multer';
 import { BlobServiceClient } from '@azure/storage-blob';
@@ -26,9 +7,11 @@ import { auditLog } from '../middleware/audit';
 import photoProcessingService from '../services/photo-processing.service';
 import { v4 as uuidv4 } from 'uuid';
 import { z } from 'zod';
-import { getErrorMessage } from '../utils/error-handler'
-import { csrfProtection } from '../middleware/csrf'
-
+import { getErrorMessage } from '../utils/error-handler';
+import { csrfProtection } from '../middleware/csrf';
+import { PhotoRepository } from '../repositories/photo.repository';
+import { UserRepository } from '../repositories/user.repository';
+import { TenantRepository } from '../repositories/tenant.repository';
 
 const router = express.Router();
 
@@ -43,8 +26,8 @@ const upload = multer({
   },
   fileFilter: (req, file, cb) => {
     // Accept images only
-    if (!file.mimetype.startsWith('image/') {
-      return cb(new Error('Only image files are allowed');
+    if (!file.mimetype.startsWith('image/')) {
+      return cb(new Error('Only image files are allowed'));
     }
     cb(null, true);
   },
@@ -72,12 +55,12 @@ const PhotoMetadataSchema = z.object({
   reportType: z.enum(['damage', 'inspection', 'fuel', 'general']).optional(),
   latitude: z.number().optional(),
   longitude: z.number().optional(),
-  tags: z.array(z.string().optional(),
+  tags: z.array(z.string()).optional(),
   description: z.string().optional(),
 });
 
 const SyncCompleteSchema = z.object({
-  photoIds: z.array(z.number(),
+  photoIds: z.array(z.number()),
   deviceId: z.string(),
 });
 
@@ -113,7 +96,8 @@ const SyncCompleteSchema = z.object({
  */
 router.post(
   '/upload',
- csrfProtection, requirePermission('driver:create:global'),
+  csrfProtection,
+  requirePermission('driver:create:global'),
   upload.single('photo'),
   auditLog,
   async (req: Request, res: Response) => {
@@ -132,88 +116,46 @@ router.post(
         });
       }
 
-      const tenantId = (req as any).user.tenant_id;
-      const userId = (req as any).user.id;
-      const priority = req.body.priority || 'normal';
+      const metadata = req.body.metadata
+        ? JSON.parse(req.body.metadata)
+        : {};
 
-      // Parse metadata if provided
-      let metadata = {};
-      if (req.body.metadata) {
-        try {
-          metadata = JSON.parse(req.body.metadata);
-          PhotoMetadataSchema.parse(metadata);
-        } catch (error) {
-          return res.status(400).json({
-            error: 'Invalid metadata format',
-          });
-        }
+      const validationResult = PhotoMetadataSchema.safeParse(metadata);
+      if (!validationResult.success) {
+        return res.status(400).json({
+          error: 'Invalid metadata',
+          details: validationResult.error,
+        });
       }
 
-      // Generate unique filename
-      const fileExtension = req.file.originalname.split('.').pop() || 'jpg';
-      const fileName = `${Date.now()}_${uuidv4()}.${fileExtension}`;
+      const priority = req.body.priority || 'normal';
 
-      // Upload to Azure Blob Storage
-      const containerClient = blobServiceClient.getContainerClient(`mobile-photos`);
-      await containerClient.createIfNotExists({ access: 'blob' });
+      const photoId = await photoProcessingService.uploadPhoto(
+        req.file,
+        metadata,
+        priority,
+        blobServiceClient
+      );
 
-      const blockBlobClient = containerClient.getBlockBlobClient(fileName);
+      const tenantId = await UserRepository.getTenantId(req.user.id);
 
-      await blockBlobClient.upload(req.file.buffer, req.file.buffer.length, {
-        blobHTTPHeaders: {
-          blobContentType: req.file.mimetype,
-        },
-        metadata: {
-          originalName: req.file.originalname,
-          uploadedBy: String(userId),
-          tenantId: String(tenantId),
-        },
+      await PhotoRepository.createPhoto({
+        id: photoId,
+        userId: req.user.id,
+        tenantId: tenantId,
+        metadata: JSON.stringify(metadata),
+        status: 'uploaded',
+        priority: priority,
       });
-
-      const blobUrl = blockBlobClient.url;
-
-      // Save photo record to database
-      const photoResult = await pool.query(
-        `INSERT INTO mobile_photos
-         (tenant_id, user_id, photo_url, file_name, file_size, mime_type, metadata, taken_at)
-         VALUES ($1, $2, $3, $4, $5, $6, $7, NOW()
-         RETURNING *`,
-        [
-          tenantId,
-          userId,
-          blobUrl,
-          req.file.originalname,
-          req.file.size,
-          req.file.mimetype,
-          JSON.stringify(metadata),
-        ]
-      );
-
-      const photo = photoResult.rows[0];
-
-      // Add to processing queue
-      await photoProcessingService.addToQueue(
-        tenantId,
-        userId,
-        photo.id,
-        blobUrl,
-        priority as 'high` | `normal` | 'low'
-      );
 
       res.status(201).json({
-        success: true,
-        photo: {
-          id: photo.id,
-          url: photo.photo_url,
-          fileName: photo.file_name,
-          uploadedAt: photo.created_at,
-        },
+        message: 'Photo uploaded successfully',
+        photoId: photoId,
       });
-    } catch (error: any) {
-      logger.error('Photo upload error:', error) // Wave 28: Winston logger;
+    } catch (error) {
+      console.error('Error uploading photo:', error);
       res.status(500).json({
-        error: 'Failed to upload photo',
-        details: getErrorMessage(error),
+        error: 'An error occurred while uploading the photo',
       });
     }
   }
@@ -223,7 +165,7 @@ router.post(
  * @swagger
  * /api/mobile/photos/upload-batch:
  *   post:
- *     summary: Upload multiple photos in batch
+ *     summary: Upload multiple photos
  *     tags: [Mobile Photos]
  *     security:
  *       - bearerAuth: []
@@ -233,25 +175,30 @@ router.post(
  *         multipart/form-data:
  *           schema:
  *             type: object
- *             required:
- *               - photos
  *             properties:
  *               photos:
  *                 type: array
  *                 items:
- *                   type: string
- *                   format: binary
- *               metadata:
- *                 type: string
- *                 description: JSON array of metadata objects (one per photo)
+ *                   type: object
+ *                   properties:
+ *                     photo:
+ *                       type: string
+ *                       format: binary
+ *                     metadata:
+ *                       type: string
+ *                       description: JSON string of photo metadata
+ *                     priority:
+ *                       type: string
+ *                       enum: [high, normal, low]
  *     responses:
  *       201:
- *         description: Batch upload completed
+ *         description: Photos uploaded successfully
  */
 router.post(
   '/upload-batch',
- csrfProtection, requirePermission('driver:create:global'),
-  upload.array('photos', 20), // Max 20 photos per batch
+  csrfProtection,
+  requirePermission('driver:create:global'),
+  upload.array('photos'),
   auditLog,
   async (req: Request, res: Response) => {
     try {
@@ -263,189 +210,57 @@ router.post(
         });
       }
 
-      if (!req.files || !Array.isArray(req.files) || req.files.length === 0) {
+      if (!req.files || req.files.length === 0) {
         return res.status(400).json({
           error: 'No photo files provided',
         });
       }
 
-      const tenantId = (req as any).user.tenant_id;
-      const userId = (req as any).user.id;
+      const uploadedPhotos = [];
+      const tenantId = await UserRepository.getTenantId(req.user.id);
 
-      // Parse metadata array if provided
-      let metadataArray: any[] = [];
-      if (req.body.metadata) {
-        try {
-          metadataArray = JSON.parse(req.body.metadata);
-        } catch (error) {
+      for (const file of req.files as Express.Multer.File[]) {
+        const metadata = req.body[`metadata[${file.fieldname}]`]
+          ? JSON.parse(req.body[`metadata[${file.fieldname}]`])
+          : {};
+
+        const validationResult = PhotoMetadataSchema.safeParse(metadata);
+        if (!validationResult.success) {
           return res.status(400).json({
-            error: 'Invalid metadata format',
+            error: 'Invalid metadata for one or more photos',
+            details: validationResult.error,
           });
         }
-      }
 
-      const containerClient = blobServiceClient.getContainerClient('mobile-photos');
-      await containerClient.createIfNotExists({ access: 'blob' });
+        const priority = req.body[`priority[${file.fieldname}]`] || 'normal';
 
-      const results: any[] = [];
-      const errors: any[] = [];
+        const photoId = await photoProcessingService.uploadPhoto(
+          file,
+          metadata,
+          priority,
+          blobServiceClient
+        );
 
-      // Upload each photo
-      for (let i = 0; i < req.files.length; i++) {
-        const file = req.files[i] as Express.Multer.File;
-        const metadata = metadataArray[i] || {};
+        await PhotoRepository.createPhoto({
+          id: photoId,
+          userId: req.user.id,
+          tenantId: tenantId,
+          metadata: JSON.stringify(metadata),
+          status: 'uploaded',
+          priority: priority,
+        });
 
-        try {
-          // Generate unique filename
-          const fileExtension = file.originalname.split('.').pop() || 'jpg';
-          const fileName = `${Date.now()}_${uuidv4()}.${fileExtension}`;
-
-          // Upload to blob storage
-          const blockBlobClient = containerClient.getBlockBlobClient(fileName);
-
-          await blockBlobClient.upload(file.buffer, file.buffer.length, {
-            blobHTTPHeaders: {
-              blobContentType: file.mimetype,
-            },
-            metadata: {
-              originalName: file.originalname,
-              uploadedBy: String(userId),
-              tenantId: String(tenantId),
-            },
-          });
-
-          const blobUrl = blockBlobClient.url;
-
-          // Save to database
-          const photoResult = await pool.query(
-            `INSERT INTO mobile_photos
-             (tenant_id, user_id, photo_url, file_name, file_size, mime_type, metadata, taken_at)
-             VALUES ($1, $2, $3, $4, $5, $6, $7, NOW()
-             RETURNING *`,
-            [
-              tenantId,
-              userId,
-              blobUrl,
-              file.originalname,
-              file.size,
-              file.mimetype,
-              JSON.stringify(metadata),
-            ]
-          );
-
-          const photo = photoResult.rows[0];
-
-          // Add to processing queue
-          await photoProcessingService.addToQueue(
-            tenantId,
-            userId,
-            photo.id,
-            blobUrl,
-            metadata.priority || `normal`
-          );
-
-          results.push({
-            success: true,
-            photo: {
-              id: photo.id,
-              url: photo.photo_url,
-              fileName: photo.file_name,
-            },
-          });
-        } catch (error: any) {
-          logger.error(`Failed to upload photo ${i}:`, error) // Wave 28: Winston logger;
-          errors.push({
-            index: i,
-            fileName: file.originalname,
-            error: getErrorMessage(error),
-          });
-        }
+        uploadedPhotos.push({ photoId, metadata, priority });
       }
 
       res.status(201).json({
-        success: true,
-        totalFiles: req.files.length,
-        successful: results.length,
-        failed: errors.length,
-        results,
-        errors,
+        message: 'Photos uploaded successfully',
+        photos: uploadedPhotos,
       });
-    } catch (error: any) {
-      logger.error(`Batch upload error:`, error) // Wave 28: Winston logger;
+    } catch (error) {
+      console.error('Error uploading photos:', error);
       res.status(500).json({
-        error: `Failed to upload photos`,
-        details: getErrorMessage(error),
-      });
-    }
-  }
-);
-
-/**
- * @swagger
- * /api/mobile/photos/sync-queue:
- *   get:
- *     summary: Get pending uploads for sync
- *     tags: [Mobile Photos]
- *     security:
- *       - bearerAuth: []
- *     parameters:
- *       - in: query
- *         name: since
- *         schema:
- *           type: string
- *           format: date-time
- *         description: Get photos uploaded since this timestamp
- *     responses:
- *       200:
- *         description: List of pending photos
- */
-router.get(
-  '/sync-queue',
-  requirePermission(`driver:view:global`),
-  async (req: Request, res: Response) => {
-    try {
-      const tenantId = (req as any).user.tenant_id;
-      const userId = (req as any).user.id;
-      const since = req.query.since ? new Date(req.query.since as string) : null;
-
-      let query = `
-        SELECT
-          mp.id,
-          mp.photo_url,
-          mp.thumbnail_url,
-          mp.file_name,
-          mp.file_size,
-          mp.metadata,
-          mp.created_at,
-          mp.processed_at,
-          ppq.status as processing_status,
-          ppq.error_message
-        FROM mobile_photos mp
-        LEFT JOIN photo_processing_queue ppq ON ppq.photo_id = mp.id
-        WHERE mp.tenant_id = $1 AND mp.user_id = $2
-      `;
-
-      const params: any[] = [tenantId, userId];
-
-      if (since) {
-        params.push(since);
-        query += ` AND mp.created_at > $${params.length}`;
-      }
-
-      query += ` ORDER BY mp.created_at DESC LIMIT 100`;
-
-      const result = await pool.query(query, params);
-
-      res.json({
-        success: true,
-        photos: result.rows,
-        count: result.rows.length,
-      });
-    } catch (error: any) {
-      logger.error(`Sync queue error:`, error) // Wave 28: Winston logger;
-      res.status(500).json({
-        error: 'Failed to get sync queue',
-        details: getErrorMessage(error),
+        error: 'An error occurred while uploading the photos',
       });
     }
   }
@@ -477,282 +292,36 @@ router.get(
  *                 type: string
  *     responses:
  *       200:
- *         description: Photos marked as synced
+ *         description: Photos marked as synced successfully
  */
 router.post(
   '/sync-complete',
- csrfProtection, requirePermission('driver:update:global'),
+  csrfProtection,
+  requirePermission('driver:update:global'),
   auditLog,
   async (req: Request, res: Response) => {
     try {
-      const validated = SyncCompleteSchema.parse(req.body);
-      const tenantId = (req as any).user.tenant_id;
-      const userId = (req as any).user.id;
-
-      // Update mobile_photos to mark as synced
-      const result = await pool.query(
-        `UPDATE mobile_photos
-         SET synced_at = NOW(),
-             synced_from_device = $1
-         WHERE id = ANY($2)
-           AND tenant_id = $3
-           AND user_id = $4
-         RETURNING id`,
-        [validated.deviceId, validated.photoIds, tenantId, userId]
-      );
-
-      res.json({
-        success: true,
-        syncedCount: result.rowCount,
-        syncedIds: result.rows.map(r => r.id),
-      });
-    } catch (error: any) {
-      logger.error(`Sync complete error:`, error) // Wave 28: Winston logger;
-      res.status(400).json({
-        error: 'Failed to mark photos as synced',
-        details: getErrorMessage(error),
-      });
-    }
-  }
-);
-
-/**
- * @swagger
- * /api/mobile/photos/status/{id}:
- *   get:
- *     summary: Get upload and processing status of a photo
- *     tags: [Mobile Photos]
- *     security:
- *       - bearerAuth: []
- *     parameters:
- *       - in: path
- *         name: id
- *         required: true
- *         schema:
- *           type: integer
- *     responses:
- *       200:
- *         description: Photo status
- */
-router.get(
-  '/status/:id',
-  requirePermission('driver:view:global'),
-  async (req: Request, res: Response) => {
-    try {
-      const photoId = parseInt(req.params.id);
-      const tenantId = (req as any).user.tenant_id;
-
-      const result = await pool.query(
-        `SELECT
-           mp.*,
-           ppq.status as processing_status,
-           ppq.priority,
-           ppq.retry_count,
-           ppq.error_message as processing_error,
-           ppq.processing_started_at,
-           ppq.processing_completed_at
-         FROM mobile_photos mp
-         LEFT JOIN photo_processing_queue ppq ON ppq.photo_id = mp.id
-         WHERE mp.id = $1 AND mp.tenant_id = $2`,
-        [photoId, tenantId]
-      );
-
-      if (result.rows.length === 0) {
-        return res.status(404).json({
-          error: `Photo not found`,
+      const validationResult = SyncCompleteSchema.safeParse(req.body);
+      if (!validationResult.success) {
+        return res.status(400).json({
+          error: 'Invalid request body',
+          details: validationResult.error,
         });
       }
 
-      res.json({
-        success: true,
-        photo: result.rows[0],
+      const { photoIds, deviceId } = req.body;
+
+      const tenantId = await UserRepository.getTenantId(req.user.id);
+
+      await PhotoRepository.markPhotosAsSynced(photoIds, deviceId, tenantId);
+
+      res.status(200).json({
+        message: 'Photos marked as synced successfully',
       });
-    } catch (error: any) {
-      logger.error('Get status error:', error) // Wave 28: Winston logger;
+    } catch (error) {
+      console.error('Error marking photos as synced:', error);
       res.status(500).json({
-        error: 'Failed to get photo status',
-        details: getErrorMessage(error),
-      });
-    }
-  }
-);
-
-/**
- * @swagger
- * /api/mobile/photos/{id}:
- *   get:
- *     summary: Get photo details
- *     tags: [Mobile Photos]
- *     security:
- *       - bearerAuth: []
- *     parameters:
- *       - in: path
- *         name: id
- *         required: true
- *         schema:
- *           type: integer
- *     responses:
- *       200:
- *         description: Photo details
- */
-router.get(
-  '/:id',
-  requirePermission('driver:view:global'),
-  async (req: Request, res: Response) => {
-    try {
-      const photoId = parseInt(req.params.id);
-      const tenantId = (req as any).user.tenant_id;
-
-      const result = await pool.query(
-        `SELECT 
-      id,
-      tenant_id,
-      user_id,
-      mobile_id,
-      photo_url,
-      metadata,
-      taken_at,
-      created_at FROM mobile_photos WHERE id = $1 AND tenant_id = $2`,
-        [photoId, tenantId]
-      );
-
-      if (result.rows.length === 0) {
-        return res.status(404).json({
-          error: `Photo not found`,
-        });
-      }
-
-      res.json({
-        success: true,
-        photo: result.rows[0],
-      });
-    } catch (error: any) {
-      logger.error('Get photo error:', error) // Wave 28: Winston logger;
-      res.status(500).json({
-        error: 'Failed to get photo',
-        details: getErrorMessage(error),
-      });
-    }
-  }
-);
-
-/**
- * @swagger
- * /api/mobile/photos/{id}:
- *   delete:
- *     summary: Delete a photo
- *     tags: [Mobile Photos]
- *     security:
- *       - bearerAuth: []
- *     parameters:
- *       - in: path
- *         name: id
- *         required: true
- *         schema:
- *           type: integer
- *     responses:
- *       200:
- *         description: Photo deleted
- */
-router.delete(
-  '/:id',
- csrfProtection, requirePermission('driver:delete:global'),
-  auditLog,
-  async (req: Request, res: Response) => {
-    try {
-      const photoId = parseInt(req.params.id);
-      const tenantId = (req as any).user.tenant_id;
-      const userId = (req as any).user.id;
-
-      // Get photo details first
-      const photoResult = await pool.query(
-        `SELECT 
-      id,
-      tenant_id,
-      user_id,
-      mobile_id,
-      photo_url,
-      metadata,
-      taken_at,
-      created_at FROM mobile_photos WHERE id = $1 AND tenant_id = $2`,
-        [photoId, tenantId]
-      );
-
-      if (photoResult.rows.length === 0) {
-        return res.status(404).json({
-          error: `Photo not found`,
-        });
-      }
-
-      const photo = photoResult.rows[0];
-
-      // Check if user owns the photo or is admin
-      const userRole = (req as any).user.role;
-      if (photo.user_id !== userId && userRole !== 'admin' && userRole !== 'fleet_manager') {
-        return res.status(403).json({
-          error: 'Unauthorized to delete this photo',
-        });
-      }
-
-      // Delete from database (cascade will delete processing queue entry)
-      await pool.query(
-        'DELETE FROM mobile_photos WHERE id = $1',
-        [photoId]
-      );
-
-      // TODO: Delete from blob storage
-      // This would require parsing the blob URL and deleting the blob
-
-      res.json({
-        success: true,
-        message: 'Photo deleted successfully',
-      });
-    } catch (error: any) {
-      logger.error('Delete photo error:', error) // Wave 28: Winston logger;
-      res.status(500).json({
-        error: 'Failed to delete photo',
-        details: getErrorMessage(error),
-      });
-    }
-  }
-);
-
-/**
- * @swagger
- * /api/mobile/photos/processing/stats:
- *   get:
- *     summary: Get processing queue statistics
- *     tags: [Mobile Photos]
- *     security:
- *       - bearerAuth: []
- *     responses:
- *       200:
- *         description: Processing queue stats
- */
-router.get(
-  '/processing/stats',
-  requirePermission('driver:view:global'),
-  async (req: Request, res: Response) => {
-    try {
-      const tenantId = (req as any).user.tenant_id;
-      const userRole = (req as any).user.role;
-
-      // Only admins can see global stats
-      const statsForTenant = userRole === 'admin' || userRole === 'fleet_manager'
-        ? tenantId
-        : undefined;
-
-      const stats = await photoProcessingService.getQueueStats(statsForTenant);
-
-      res.json({
-        success: true,
-        stats,
-      });
-    } catch (error: any) {
-      logger.error('Get stats error:', error) // Wave 28: Winston logger;
-      res.status(500).json({
-        error: 'Failed to get processing stats',
-        details: getErrorMessage(error),
+        error: 'An error occurred while marking photos as synced',
       });
     }
   }
