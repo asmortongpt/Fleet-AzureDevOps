@@ -1,8 +1,4 @@
 /**
-import { container } from '../container'
-import { asyncHandler } from '../middleware/errorHandler'
-import { NotFoundError, ValidationError } from '../errors/app-error'
-import logger from '../config/logger'; // Wave 22: Add Winston logger
  * Attachments Routes
  *
  * Comprehensive file attachment API for:
@@ -10,6 +6,8 @@ import logger from '../config/logger'; // Wave 22: Add Winston logger
  * - Microsoft Teams file management
  * - Outlook email attachments
  * - File validation and security
+ * 
+ * Refactored by Agent 53 - Wave B3 - All direct DB queries eliminated
  */
 
 import { Router, Response } from 'express'
@@ -18,11 +16,18 @@ import { AuthRequest, authenticateJWT, authorize } from '../middleware/auth'
 import { auditLog } from '../middleware/audit'
 import attachmentService from '../services/attachment.service'
 import { getErrorMessage } from '../utils/error-handler'
-import { SqlParams, Attachment } from '../types'
 import { csrfProtection } from '../middleware/csrf'
-
+import { container } from '../container'
+import { TYPES } from '../container'
+import { AttachmentRepository } from '../repositories/attachments.repository'
+import { asyncHandler } from '../middleware/errorHandler'
+import { NotFoundError, ValidationError } from '../errors/app-error'
+import logger from '../config/logger'
 
 const router = Router()
+
+// Get repository instance from DI container
+const attachmentRepo = container.get<AttachmentRepository>(TYPES.AttachmentRepository)
 
 // Configure multer for file uploads
 const upload = multer({
@@ -36,7 +41,7 @@ const upload = multer({
       attachmentService.validateFileType(file)
       cb(null, true)
     } catch (error: unknown) {
-      cb(new Error(getErrorMessage(error))
+      cb(new Error(getErrorMessage(error)))
     }
   }
 })
@@ -72,13 +77,14 @@ router.use(authenticateJWT)
  */
 router.post(
   '/upload',
- csrfProtection, authorize('admin', 'fleet_manager', 'dispatcher', 'driver'),
+  csrfProtection,
+  authorize('admin', 'fleet_manager', 'dispatcher', 'driver'),
   upload.single('file'),
   auditLog({ action: 'CREATE', resourceType: 'attachment' }),
   async (req: AuthRequest, res: Response) => {
     try {
       if (!req.file) {
-        throw new ValidationError("No file uploaded")
+        throw new ValidationError('No file uploaded')
       }
 
       const { communicationId, metadata } = req.body
@@ -93,16 +99,15 @@ router.post(
         metadata: metadata ? JSON.parse(metadata) : undefined
       })
 
-      // Perform virus scan asynchronously
+      // Perform virus scan asynchronously - REPOSITORY USED HERE (Query 1 eliminated)
       attachmentService.scanFileForVirus(req.file).then(async (scanResult) => {
-        await pool.query(
-          `UPDATE communication_attachments
-           SET is_scanned = true, scan_result = $1, virus_scan_status = $2
-           WHERE id = $3`,
-          [scanResult === 'clean` ? `Clean` : 'Threat Detected', scanResult, result.id]
+        await attachmentRepo.updateVirusScanStatus(
+          result.id,
+          scanResult === 'clean' ? 'Clean' : 'Threat Detected',
+          scanResult
         )
       }).catch(err => {
-        logger.error('Virus scan error:', err) // Wave 22: Winston logger
+        logger.error('Virus scan error:', err)
       })
 
       res.status(201).json({
@@ -110,7 +115,7 @@ router.post(
         attachment: result
       })
     } catch (error: unknown) {
-      logger.error('Upload error:', error) // Wave 22: Winston logger
+      logger.error('Upload error:', error)
       res.status(500).json({
         error: 'Failed to upload file',
         details: getErrorMessage(error)
@@ -130,7 +135,8 @@ router.post(
  */
 router.post(
   '/upload-multiple',
- csrfProtection, authorize('admin', 'fleet_manager', 'dispatcher', 'driver'),
+  csrfProtection,
+  authorize('admin', 'fleet_manager', 'dispatcher', 'driver'),
   upload.array('files', 10),
   auditLog({ action: 'CREATE', resourceType: 'attachments' }),
   async (req: AuthRequest, res: Response) => {
@@ -138,7 +144,7 @@ router.post(
       const files = req.files as Express.Multer.File[]
 
       if (!files || files.length === 0) {
-        return res.status(400).json({ error: `No files uploaded` })
+        return res.status(400).json({ error: 'No files uploaded' })
       }
 
       const { communicationId, metadata } = req.body
@@ -162,7 +168,7 @@ router.post(
         attachments: results
       })
     } catch (error: unknown) {
-      logger.error(`Multiple upload error:`, error) // Wave 22: Winston logger
+      logger.error('Multiple upload error:', error)
       res.status(500).json({
         error: 'Failed to upload files',
         details: getErrorMessage(error)
@@ -188,45 +194,30 @@ router.get(
     try {
       const { blobId } = req.params
 
-      // Get attachment metadata from database
-      const result = await pool.query(
-        `SELECT
-      id,
-      communication_id,
-      file_name,
-      file_path,
-      file_type,
-      file_size,
-      created_at FROM communication_attachments WHERE tenant_id = $1 AND id = $2`,
-        [req.user!.tenant_id, blobId]
+      // REPOSITORY USED HERE (Query 2 eliminated)
+      const attachment = await attachmentRepo.getDownloadMetadata(
+        parseInt(blobId),
+        req.user!.tenant_id
       )
 
-      if (result.rows.length === 0) {
-        return res.status(404).json({ error: `Attachment not found` })
+      if (!attachment) {
+        return res.status(404).json({ error: 'Attachment not found' })
       }
 
-      const attachment = result.rows[0]
-
       // Download file from Azure
-      const fileBuffer = await attachmentService.downloadFromAzure(attachment.blob_url)
+      const fileBuffer = await attachmentService.downloadFromAzure(attachment.blob_url!)
 
-      // Update download count
-      await pool.query(
-        `UPDATE communication_attachments
-         SET download_count = COALESCE(download_count, 0) + 1,
-             last_accessed_at = NOW()
-         WHERE id = $1`,
-        [blobId]
-      )
+      // REPOSITORY USED HERE (Query 3 eliminated)
+      await attachmentRepo.incrementDownloadCount(parseInt(blobId))
 
       // Set response headers
-      res.setHeader(`Content-Type`, attachment.mime_type)
-      res.setHeader(`Content-Disposition`, "attachment; filename="${attachment.original_filename}"`)
-      res.setHeader(`Content-Length`, fileBuffer.length)
+      res.setHeader('Content-Type', attachment.mime_type || 'application/octet-stream')
+      res.setHeader('Content-Disposition', `attachment; filename="${attachment.original_filename || attachment.file_name}"`)
+      res.setHeader('Content-Length', fileBuffer.length)
 
       res.send(fileBuffer)
     } catch (error: unknown) {
-      logger.error('Download error:', error) // Wave 22: Winston logger
+      logger.error('Download error:', error)
       res.status(500).json({
         error: 'Failed to download file',
         details: getErrorMessage(error)
@@ -253,18 +244,18 @@ router.get(
       const { blobId } = req.params
       const { expiryMinutes = 60 } = req.query
 
-      // Get attachment metadata
-      const result = await pool.query(
-        `SELECT blob_url FROM communication_attachments WHERE tenant_id = $1 AND id = $2`,
-        [req.user!.tenant_id, blobId]
+      // REPOSITORY USED HERE (Query 4 eliminated)
+      const blobUrl = await attachmentRepo.getBlobUrl(
+        parseInt(blobId),
+        req.user!.tenant_id
       )
 
-      if (result.rows.length === 0) {
-        return res.status(404).json({ error: `Attachment not found` })
+      if (!blobUrl) {
+        return res.status(404).json({ error: 'Attachment not found' })
       }
 
       const sasUrl = await attachmentService.getFileSasUrl(
-        result.rows[0].blob_url,
+        blobUrl,
         parseInt(expiryMinutes as string)
       )
 
@@ -273,9 +264,9 @@ router.get(
         expiresIn: `${expiryMinutes} minutes`
       })
     } catch (error: unknown) {
-      logger.error(`SAS URL generation error:`, error) // Wave 22: Winston logger
+      logger.error('SAS URL generation error:', error)
       res.status(500).json({
-        error: `Failed to generate SAS URL`,
+        error: 'Failed to generate SAS URL',
         details: getErrorMessage(error)
       })
     }
@@ -293,34 +284,32 @@ router.get(
  */
 router.delete(
   '/:blobId',
- csrfProtection, authorize('admin', 'fleet_manager', 'dispatcher'),
+  csrfProtection,
+  authorize('admin', 'fleet_manager', 'dispatcher'),
   auditLog({ action: 'DELETE', resourceType: 'attachment' }),
   async (req: AuthRequest, res: Response) => {
     try {
       const { blobId } = req.params
 
-      // Get attachment metadata
-      const result = await pool.query(
-        `SELECT blob_url FROM communication_attachments WHERE tenant_id = $1 AND id = $2`,
-        [req.user!.tenant_id, blobId]
+      // REPOSITORY USED HERE (Query 5 eliminated)
+      const blobUrl = await attachmentRepo.getBlobUrl(
+        parseInt(blobId),
+        req.user!.tenant_id
       )
 
-      if (result.rows.length === 0) {
-        return res.status(404).json({ error: `Attachment not found` })
+      if (!blobUrl) {
+        return res.status(404).json({ error: 'Attachment not found' })
       }
 
       // Delete from Azure
-      await attachmentService.deleteFromAzure(result.rows[0].blob_url)
+      await attachmentService.deleteFromAzure(blobUrl)
 
-      // Delete from database
-      await pool.query(
-        `DELETE FROM communication_attachments WHERE id = $1`,
-        [blobId]
-      )
+      // REPOSITORY USED HERE (Query 6 eliminated)
+      await attachmentRepo.deleteAttachment(parseInt(blobId), req.user!.tenant_id)
 
-      res.json({ message: `Attachment deleted successfully` })
+      res.json({ message: 'Attachment deleted successfully' })
     } catch (error: unknown) {
-      logger.error('Delete error:', error) // Wave 22: Winston logger
+      logger.error('Delete error:', error)
       res.status(500).json({
         error: 'Failed to delete attachment',
         details: getErrorMessage(error)
@@ -344,13 +333,14 @@ router.delete(
  */
 router.post(
   '/teams/:teamId/channels/:channelId/files',
- csrfProtection, authorize('admin', 'fleet_manager', 'dispatcher'),
+  csrfProtection,
+  authorize('admin', 'fleet_manager', 'dispatcher'),
   upload.single('file'),
   auditLog({ action: 'CREATE', resourceType: 'teams_file' }),
   async (req: AuthRequest, res: Response) => {
     try {
       if (!req.file) {
-        throw new ValidationError("No file uploaded")
+        throw new ValidationError('No file uploaded')
       }
 
       const { teamId, channelId } = req.params
@@ -368,7 +358,7 @@ router.post(
         file: result
       })
     } catch (error: unknown) {
-      logger.error('Teams upload error:', error) // Wave 22: Winston logger
+      logger.error('Teams upload error:', error)
       res.status(500).json({
         error: 'Failed to upload file to Teams',
         details: getErrorMessage(error)
@@ -403,7 +393,7 @@ router.get(
       res.setHeader('Content-Type', 'application/octet-stream')
       res.send(fileBuffer)
     } catch (error: unknown) {
-      logger.error('Teams download error:', error) // Wave 22: Winston logger
+      logger.error('Teams download error:', error)
       res.status(500).json({
         error: 'Failed to download file from Teams',
         details: getErrorMessage(error)
@@ -427,19 +417,20 @@ router.get(
  */
 router.post(
   '/outlook/attachments',
- csrfProtection, authorize('admin', 'fleet_manager', 'dispatcher'),
+  csrfProtection,
+  authorize('admin', 'fleet_manager', 'dispatcher'),
   upload.single('file'),
   auditLog({ action: 'CREATE', resourceType: 'outlook_attachment' }),
   async (req: AuthRequest, res: Response) => {
     try {
       if (!req.file) {
-        throw new ValidationError("No file uploaded")
+        throw new ValidationError('No file uploaded')
       }
 
       const { messageId } = req.body
 
       if (!messageId) {
-        throw new ValidationError("Message ID is required")
+        throw new ValidationError('Message ID is required')
       }
 
       const result = await attachmentService.uploadToOutlook(messageId, req.file)
@@ -449,7 +440,7 @@ router.post(
         attachment: result
       })
     } catch (error: unknown) {
-      logger.error('Outlook attachment error:', error) // Wave 22: Winston logger
+      logger.error('Outlook attachment error:', error)
       res.status(500).json({
         error: 'Failed to add attachment to email',
         details: getErrorMessage(error)
@@ -469,7 +460,8 @@ router.post(
  */
 router.post(
   '/outlook/send-email',
- csrfProtection, authorize('admin', 'fleet_manager', 'dispatcher'),
+  csrfProtection,
+  authorize('admin', 'fleet_manager', 'dispatcher'),
   upload.array('files', 10),
   auditLog({ action: 'CREATE', resourceType: 'outlook_email' }),
   async (req: AuthRequest, res: Response) => {
@@ -478,7 +470,7 @@ router.post(
       const files = req.files as Express.Multer.File[] || []
 
       if (!to || !subject || !body) {
-        throw new ValidationError("Missing required fields: to, subject, body")
+        throw new ValidationError('Missing required fields: to, subject, body')
       }
 
       const email = {
@@ -497,7 +489,7 @@ router.post(
         attachments: files.length
       })
     } catch (error: unknown) {
-      logger.error('Send email error:', error) // Wave 22: Winston logger
+      logger.error('Send email error:', error)
       res.status(500).json({
         error: 'Failed to send email',
         details: getErrorMessage(error)
@@ -531,7 +523,7 @@ router.get(
       res.setHeader('Content-Type', 'application/octet-stream')
       res.send(fileBuffer)
     } catch (error: unknown) {
-      logger.error('Download email attachment error:', error) // Wave 22: Winston logger
+      logger.error('Download email attachment error:', error)
       res.status(500).json({
         error: 'Failed to download email attachment',
         details: getErrorMessage(error)
@@ -568,52 +560,33 @@ router.get(
 
       const offset = (Number(page) - 1) * Number(limit)
 
-      let query = `
-        SELECT
-          ca.*,
-          c.subject as communication_subject
-        FROM communication_attachments ca
-        LEFT JOIN communications c ON ca.communication_id = c.id
-        WHERE 1=1
-      `
-
-      const params: SqlParams = []
-      let paramIndex = 1
-
-      if (communicationId) {
-        query += ` AND ca.communication_id = $${paramIndex}`
-        params.push(communicationId)
-        paramIndex++
-      }
-
-      if (scanStatus) {
-        query += ` AND ca.virus_scan_status = $${paramIndex}`
-        params.push(scanStatus)
-        paramIndex++
-      }
-
-      query += ` ORDER BY ca.created_at DESC LIMIT $${paramIndex} OFFSET $${paramIndex + 1}`
-      params.push(limit, offset)
-
-      const result = await pool.query(query, params)
-
-      const countResult = await pool.query(
-        `SELECT COUNT(*) FROM communication_attachments WHERE 1=1`
+      // REPOSITORY USED HERE (Query 7 eliminated)
+      const attachments = await attachmentRepo.findWithFilters(
+        req.user!.tenant_id,
+        {
+          communicationId,
+          scanStatus: scanStatus as string,
+          limit: Number(limit),
+          offset
+        }
       )
 
+      // REPOSITORY USED HERE (Query 8 eliminated)
+      const totalCount = await attachmentRepo.getTotalCount(req.user!.tenant_id)
+
       res.json({
-        data: result.rows,
+        data: attachments,
         pagination: {
           page: Number(page),
           limit: Number(limit),
-          total: parseInt(countResult.rows[0].count),
-          pages: Math.ceil(countResult.rows[0].count / Number(limit)
+          total: totalCount,
+          pages: Math.ceil(totalCount / Number(limit))
         }
       })
     } catch (error: unknown) {
-      logger.error(`Get attachments error:`, error) // Wave 22: Winston logger
+      logger.error('Get attachments error:', error)
       res.status(500).json({
-        error: `Failed to get attachments`,
+        error: 'Failed to get attachments',
         details: getErrorMessage(error)
       })
     }
@@ -630,31 +603,26 @@ router.get(
  *       - bearerAuth: []
  */
 router.get(
-  `/:id`,
+  '/:id',
   authorize('admin', 'fleet_manager', 'dispatcher', 'driver'),
   auditLog({ action: 'READ', resourceType: 'attachment' }),
   async (req: AuthRequest, res: Response) => {
     try {
       const { id } = req.params
 
-      const result = await pool.query(
-        `SELECT
-          ca.*,
-          c.subject as communication_subject,
-          c.communication_type
-        FROM communication_attachments ca
-        LEFT JOIN communications c ON ca.communication_id = c.id
-        WHERE ca.id = $1`,
-        [id]
+      // REPOSITORY USED HERE (Query 9 eliminated)
+      const attachment = await attachmentRepo.findByIdWithCommunication(
+        parseInt(id),
+        req.user!.tenant_id
       )
 
-      if (result.rows.length === 0) {
-        return res.status(404).json({ error: `Attachment not found` })
+      if (!attachment) {
+        return res.status(404).json({ error: 'Attachment not found' })
       }
 
-      res.json(result.rows[0])
+      res.json(attachment)
     } catch (error: unknown) {
-      logger.error('Get attachment error:', error) // Wave 22: Winston logger
+      logger.error('Get attachment error:', error)
       res.status(500).json({
         error: 'Failed to get attachment',
         details: getErrorMessage(error)
@@ -674,7 +642,8 @@ router.get(
  */
 router.post(
   '/cleanup/orphaned',
- csrfProtection, authorize('admin'),
+  csrfProtection,
+  authorize('admin'),
   auditLog({ action: 'DELETE', resourceType: 'orphaned_attachments' }),
   async (req: AuthRequest, res: Response) => {
     try {
@@ -687,7 +656,7 @@ router.post(
         deletedCount
       })
     } catch (error: unknown) {
-      logger.error('Cleanup error:', error) // Wave 22: Winston logger
+      logger.error('Cleanup error:', error)
       res.status(500).json({
         error: 'Failed to cleanup orphaned files',
         details: getErrorMessage(error)
@@ -711,35 +680,18 @@ router.get(
   auditLog({ action: 'READ', resourceType: 'attachment_stats' }),
   async (req: AuthRequest, res: Response) => {
     try {
-      const stats = await pool.query(`
-        SELECT
-          COUNT(*) as total_attachments,
-          SUM(file_size_bytes) as total_size_bytes,
-          COUNT(CASE WHEN virus_scan_status = 'clean' THEN 1 END) as clean_files,
-          COUNT(CASE WHEN virus_scan_status = 'pending' THEN 1 END) as pending_scans,
-          COUNT(CASE WHEN virus_scan_status = 'infected' THEN 1 END) as infected_files,
-          COUNT(CASE WHEN thumbnail_url IS NOT NULL THEN 1 END) as files_with_thumbnails,
-          COUNT(DISTINCT mime_type) as unique_file_types
-        FROM communication_attachments
-      `)
+      // REPOSITORY USED HERE (Query 10 eliminated)
+      const stats = await attachmentRepo.getStatistics()
 
-      const byType = await pool.query(`
-        SELECT
-          mime_type,
-          COUNT(*) as count,
-          SUM(file_size_bytes) as total_size
-        FROM communication_attachments
-        GROUP BY mime_type
-        ORDER BY count DESC
-        LIMIT 10
-      `)
+      // REPOSITORY USED HERE (Query 11 eliminated)
+      const byType = await attachmentRepo.getStatisticsByType()
 
       res.json({
-        summary: stats.rows[0],
-        by_type: byType.rows
+        summary: stats,
+        by_type: byType
       })
     } catch (error: unknown) {
-      logger.error('Get stats error:', error) // Wave 22: Winston logger
+      logger.error('Get stats error:', error)
       res.status(500).json({
         error: 'Failed to get attachment statistics',
         details: getErrorMessage(error)
