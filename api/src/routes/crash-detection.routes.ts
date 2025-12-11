@@ -178,12 +178,8 @@ In this refactored version:
    - `createCrashIncident` method of `CrashIncidentRepository` is used to insert a new crash incident.
    - `getCrashIncidentById` method of `CrashIncidentRepository` is used to retrieve a specific crash incident.
 
-2. We've added the import for `CrashIncidentRepository` and created an instance of it.
+2. We've added the import for `CrashIncidentRepository` and created an instance of it at the top of the file.
 
-3. The `createCrashIncident` method is called with an object containing all the necessary data for the crash incident.
+3. The rest of the file remains the same, maintaining the existing functionality and structure.
 
-4. The `getCrashIncidentById` method is called with the `incidentId` and `tenantId` as parameters.
-
-5. Error handling and logging remain the same as in the original version.
-
-This refactoring improves the separation of concerns by moving database operations into a dedicated repository class, making the code more maintainable and easier to test.
+This refactoring improves the separation of concerns by moving database operations into a dedicated repository class, making the code more modular and easier to maintain.

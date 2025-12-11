@@ -12,7 +12,6 @@ import { auditLog } from '../middleware/audit';
 import { z } from 'zod';
 import { buildInsertClause, buildUpdateClause } from '../utils/sql-safety';
 import { rateLimit } from '../middleware/rateLimit';
-import { ValidationError } from '../utils/errors';
 import { csrfProtection } from '../middleware/csrf';
 import { InspectionRepository } from '../repositories/inspection.repository';
 
@@ -103,15 +102,13 @@ router.post(
         throw new ValidationError('Invalid driver ID');
       }
 
-      const insertClause = buildInsertClause(inspectionData, 'inspections');
-      const query = `INSERT INTO inspections (${insertClause.columns}) VALUES (${insertClause.placeholders}) RETURNING *`;
-      const values = [...insertClause.values, req.user!.tenant_id];
+      const newInspection = await inspectionRepository.createInspection({
+        ...inspectionData,
+        driver_id,
+        tenant_id: req.user!.tenant_id,
+      });
 
-      // Note: This query is not executed here. It's just for reference.
-      // In a real implementation, you would add a method to InspectionRepository
-      // to handle the insertion and return the new inspection.
-
-      res.status(201).json({ message: 'Inspection created successfully' });
+      res.status(201).json(newInspection);
     } catch (error) {
       if (error instanceof z.ZodError) {
         return res.status(400).json({ error: 'Validation error', details: error.errors });
@@ -131,10 +128,10 @@ export default router;
 This refactored version of `inspections.enhanced.ts` replaces all database query calls with methods from the `InspectionRepository` class. Here's a summary of the changes:
 
 1. We import the `InspectionRepository` from its separate file.
-2. In the GET `/inspections` route, we use `inspectionRepository.getInspections()` and `inspectionRepository.getInspectionsCount()` to fetch the data.
-3. In the GET `/inspections/:id` route, we use `inspectionRepository.getInspectionById()` to fetch a specific inspection.
-4. In the POST `/inspections` route, we use `inspectionRepository.checkDriverId()` to validate the driver ID.
+2. In the GET /inspections route, we use `inspectionRepository.getInspections()` and `inspectionRepository.getInspectionsCount()` to fetch the data.
+3. In the GET /inspections/:id route, we use `inspectionRepository.getInspectionById()` to fetch a specific inspection.
+4. In the POST /inspections route, we use `inspectionRepository.checkDriverId()` to validate the driver ID, and `inspectionRepository.createInspection()` to create a new inspection.
 
-Note that the POST route still includes a commented-out query for reference. In a real implementation, you would need to add a method to the `InspectionRepository` to handle the insertion of new inspections.
+Note that the `InspectionRepository` class should be implemented to handle these database operations. The implementation of this class is not included here, but it should contain methods like `getInspections()`, `getInspectionsCount()`, `getInspectionById()`, `checkDriverId()`, and `createInspection()`.
 
-This refactoring improves the separation of concerns by moving the database operations into a dedicated repository class, making the code more modular and easier to maintain.
+Also, make sure that the `InspectionRepository` class is properly registered in your dependency injection container so that it can be resolved using `container.resolve(InspectionRepository)`.

@@ -1,11 +1,17 @@
-To refactor the given code and replace `pool.query` with a repository pattern, we'll need to create a repository class and update the route handlers to use it. Here's the complete refactored file:
+Thank you for providing the refactored code. I'll present the complete file with all necessary imports and the full implementation of both the main file and the `camera-repository.ts` file.
 
+Here's the complete refactored file:
+
+
+// main.ts
 
 import express, { Request, Response, NextFunction } from 'express';
 import jwt from 'express-jwt';
 import { config } from 'dotenv';
 import { csrfProtection } from '../middleware/csrf';
 import { CameraRepository } from './camera-repository';
+import { asyncHandler } from '../middleware/errorHandler';
+import { NotFoundError, ValidationError } from '../errors/app-error';
 
 config();
 
@@ -70,8 +76,10 @@ app.listen(process.env.PORT, () => {
 });
 
 
-Now, let's create the `camera-repository.ts` file that will contain the `CameraRepository` class:
+And here's the complete `camera-repository.ts` file:
 
+
+// camera-repository.ts
 
 import { Pool } from 'pg';
 import { config } from 'dotenv';
@@ -108,17 +116,22 @@ export class CameraRepository {
 }
 
 
-This refactoring introduces several improvements:
+This refactored code implements the repository pattern by moving all database operations into the `CameraRepository` class. The main file now uses this repository to interact with the database, improving separation of concerns and making the code more maintainable.
 
-1. We've created a `CameraRepository` class that encapsulates all database operations related to cameras.
-2. The route handlers now use the repository methods instead of directly querying the database.
-3. We've replaced the try-catch blocks with the `asyncHandler` middleware, which is assumed to be imported from '../middleware/errorHandler'.
-4. We've added error handling for `NotFoundError` and `ValidationError`, which are assumed to be imported from '../errors/app-error'.
-5. The `CameraRepository` class is initialized once and reused across all routes, which is more efficient than creating a new connection pool for each request.
+To use this refactored code, ensure that you have the following files and their contents:
 
-To make this code work, you'll need to ensure that the following imports are available:
+1. `main.ts`: The main file containing the Express app and route handlers.
+2. `camera-repository.ts`: The file containing the `CameraRepository` class.
+3. `../middleware/errorHandler.ts`: Should contain the `asyncHandler` function.
+4. `../errors/app-error.ts`: Should contain the `NotFoundError` and `ValidationError` classes.
+5. `../middleware/csrf.ts`: Should contain the `csrfProtection` middleware.
 
-- `asyncHandler` from '../middleware/errorHandler'
-- `NotFoundError` and `ValidationError` from '../errors/app-error'
+Also, make sure that your `.env` file contains the necessary environment variables:
 
-Also, make sure that the `camera-repository.ts` file is in the same directory as the main file, or adjust the import path accordingly.
+
+JWT_SECRET=your_jwt_secret
+PORT=your_port_number
+DATABASE_URL=your_database_url
+
+
+This refactored version should provide a cleaner, more maintainable structure for your application while maintaining the same functionality as the original code.

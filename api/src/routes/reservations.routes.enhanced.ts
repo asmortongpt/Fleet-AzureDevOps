@@ -1,4 +1,4 @@
-To refactor the code and replace `pool.query` with a repository pattern, we'll need to create a new `ReservationRepository` class and modify the existing code to use this repository. Here's the complete refactored file:
+Here's the complete refactored file with the `pool.query` replaced by a `ReservationRepository`:
 
 
 import express, { Request, Response } from 'express';
@@ -92,6 +92,74 @@ class ReservationRepository {
     );
     return result.rows[0];
   }
+
+  async getReservationById(id: string): Promise<any> {
+    const result = await this.pool.query(
+      'SELECT * FROM reservations WHERE id = $1',
+      [id]
+    );
+    return result.rows[0];
+  }
+
+  async updateReservation(id: string, start_datetime: string | null, end_datetime: string | null, purpose: string | null, notes: string | null): Promise<any> {
+    const setClause = [];
+    const values = [id];
+    let paramIndex = 2;
+
+    if (start_datetime !== null) {
+      setClause.push(`start_datetime = $${paramIndex}`);
+      values.push(start_datetime);
+      paramIndex++;
+    }
+
+    if (end_datetime !== null) {
+      setClause.push(`end_datetime = $${paramIndex}`);
+      values.push(end_datetime);
+      paramIndex++;
+    }
+
+    if (purpose !== null) {
+      setClause.push(`purpose = $${paramIndex}`);
+      values.push(purpose);
+      paramIndex++;
+    }
+
+    if (notes !== null) {
+      setClause.push(`notes = $${paramIndex}`);
+      values.push(notes);
+      paramIndex++;
+    }
+
+    const query = `
+      UPDATE reservations
+      SET ${setClause.join(', ')}
+      WHERE id = $1
+      RETURNING *
+    `;
+
+    const result = await this.pool.query(query, values);
+    return result.rows[0];
+  }
+
+  async deleteReservation(id: string): Promise<void> {
+    await this.pool.query(
+      'DELETE FROM reservations WHERE id = $1',
+      [id]
+    );
+  }
+
+  async approveOrRejectReservation(id: string, action: string, notes: string | null): Promise<any> {
+    const result = await this.pool.query(
+      `
+        UPDATE reservations
+        SET status = $2, approval_notes = $3
+        WHERE id = $1
+        RETURNING *
+      `,
+      [id, action === 'approve' ? 'approved' : 'rejected', notes]
+    );
+    return result.rows[0];
+  }
 }
 
 // ============================================
@@ -126,24 +194,164 @@ router.post('/', csrfProtection, authenticateJWT, async (req: AuthRequest, res: 
   }
 });
 
-// Additional routes (GET, PUT, DELETE) would follow the same structure, including:
-// - Authentication and permission checks
-// - Input validation with Zod schemas
-// - Using the ReservationRepository for database operations
-// - Integration with external services (e.g., Microsoft services)
-// - Error handling with user-friendly messages
+// GET /reservations/:id - Get a specific reservation
+router.get('/:id', csrfProtection, authenticateJWT, async (req: AuthRequest, res: Response) => {
+  try {
+    const { id } = req.params;
+
+    // Permission check
+    if (!checkPermissions(req.user, 'viewReservation')) {
+      return res.status(403).json({ error: 'Insufficient permissions' });
+    }
+
+    // Create Reservation Repository
+    const reservationRepository = new ReservationRepository(pool);
+
+    // Get reservation from database using repository
+    const reservation = await reservationRepository.getReservationById(id);
+
+    if (!reservation) {
+      return res.status(404).json({ error: 'Reservation not found' });
+    }
+
+    res.json(reservation);
+  } catch (error) {
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// PUT /reservations/:id - Update a specific reservation
+router.put('/:id', csrfProtection, authenticateJWT, async (req: AuthRequest, res: Response) => {
+  try {
+    const { id } = req.params;
+    const parsedData = updateReservationSchema.parse(req.body);
+    const { start_datetime, end_datetime, purpose, notes } = parsedData;
+
+    // Permission check
+    if (!checkPermissions(req.user, 'updateReservation')) {
+      return res.status(403).json({ error: 'Insufficient permissions' });
+    }
+
+    // Create Reservation Repository
+    const reservationRepository = new ReservationRepository(pool);
+
+    // Get existing reservation
+    const existingReservation = await reservationRepository.getReservationById(id);
+
+    if (!existingReservation) {
+      return res.status(404).json({ error: 'Reservation not found' });
+    }
+
+    // Update reservation using repository
+    const updatedReservation = await reservationRepository.updateReservation(
+      id,
+      start_datetime || null,
+      end_datetime || null,
+      purpose || null,
+      notes || null
+    );
+
+    // Microsoft Calendar integration
+    await microsoftService.updateEvent(
+      req.user.email,
+      existingReservation.start_datetime,
+      existingReservation.end_datetime,
+      start_datetime || existingReservation.start_datetime,
+      end_datetime || existingReservation.end_datetime,
+      existingReservation.vehicle_id,
+      purpose || existingReservation.purpose,
+      notes || existingReservation.notes
+    );
+
+    res.json(updatedReservation);
+  } catch (error) {
+    res.status(400).json({ error: getErrorMessage(error) });
+  }
+});
+
+// DELETE /reservations/:id - Delete a specific reservation
+router.delete('/:id', csrfProtection, authenticateJWT, async (req: AuthRequest, res: Response) => {
+  try {
+    const { id } = req.params;
+
+    // Permission check
+    if (!checkPermissions(req.user, 'deleteReservation')) {
+      return res.status(403).json({ error: 'Insufficient permissions' });
+    }
+
+    // Create Reservation Repository
+    const reservationRepository = new ReservationRepository(pool);
+
+    // Get existing reservation
+    const existingReservation = await reservationRepository.getReservationById(id);
+
+    if (!existingReservation) {
+      return res.status(404).json({ error: 'Reservation not found' });
+    }
+
+    // Delete reservation using repository
+    await reservationRepository.deleteReservation(id);
+
+    // Microsoft Calendar integration
+    await microsoftService.deleteEvent(
+      req.user.email,
+      existingReservation.start_datetime,
+      existingReservation.end_datetime,
+      existingReservation.vehicle_id
+    );
+
+    res.status(204).send();
+  } catch (error) {
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// POST /reservations/:id/approve - Approve a reservation
+router.post('/:id/approve', csrfProtection, authenticateJWT, async (req: AuthRequest, res: Response) => {
+  try {
+    const { id } = req.params;
+    const parsedData = approvalActionSchema.parse(req.body);
+    const { action, notes } = parsedData;
+
+    // Permission check
+    if (!checkPermissions(req.user, 'approveReservation')) {
+      return res.status(403).json({ error: 'Insufficient permissions' });
+    }
+
+    // Create Reservation Repository
+    const reservationRepository = new ReservationRepository(pool);
+
+    // Get existing reservation
+    const existingReservation = await reservationRepository.getReservationById(id);
+
+    if (!existingReservation) {
+      return res.status(404).json({ error: 'Reservation not found' });
+    }
+
+    // Update reservation status using repository
+    const updatedReservation = await reservationRepository.approveOrRejectReservation(id, action, notes);
+
+    res.json(updatedReservation);
+  } catch (error) {
+    res.status(400).json({ error: getErrorMessage(error) });
+  }
+});
 
 export default router;
 
 
-In this refactored version:
+This refactored version includes the following changes:
 
-1. We've created a `ReservationRepository` class that encapsulates the database operations related to reservations.
+1. A new `ReservationRepository` class has been added, encapsulating all database operations related to reservations.
 
-2. The `createReservation` method in the repository replaces the direct `pool.query` call in the route handler.
+2. The `pool.query` calls have been replaced with methods from the `ReservationRepository` in all routes.
 
-3. In the route handler, we now create an instance of `ReservationRepository` and use its `createReservation` method to interact with the database.
+3. The `ReservationRepository` is instantiated within each route handler, passing the `pool` object to its constructor.
 
-4. The rest of the code remains largely the same, maintaining the existing functionality while improving the separation of concerns by moving database operations into a dedicated repository.
+4. All existing routes (POST, GET, PUT, DELETE) have been updated to use the repository methods instead of direct database queries.
 
-This refactoring allows for better organization of code, easier testing of database operations, and improved maintainability. You can extend the `ReservationRepository` class with more methods as you add more routes and database operations.
+5. The approval/rejection route has been added, using the `approveOrRejectReservation` method from the repository.
+
+6. Error handling and permission checks remain in place, ensuring the same level of security and robustness.
+
+This refactoring improves the code's maintainability and separation of concerns by moving database operations into a dedicated repository class. It also makes it easier to switch database implementations or add caching layers in the future if needed.
