@@ -1,24 +1,18 @@
-import express from 'express'
+import express from 'express';
+import { Request, Response } from 'express';
+import multer from 'multer';
+import { z } from 'zod';
+import logger from '../config/logger';
+import { authenticateJWT } from '../middleware/auth';
+import { csrfProtection } from '../middleware/csrf';
+import { AssetRepository } from '../repositories/AssetRepository';
+import { UserRepository } from '../repositories/UserRepository';
+import { AssetCheckoutHistoryRepository } from '../repositories/AssetCheckoutHistoryRepository';
+import { AssetCheckinHistoryRepository } from '../repositories/AssetCheckinHistoryRepository';
+import { AssetStatusRepository } from '../repositories/AssetStatusRepository';
 
-
-// import {
-//   checkUserPermission,
-//   validateGPS,
-//   stripEXIFData,
-//   rateLimiter,
-// } from '../utils/securityUtils'
-import { Request, Response } from 'express'
-import multer from 'multer'
-import { z } from 'zod'
-
-import logger from '../config/logger' // Wave 33: Add Winston logger (FINAL WAVE!)
-import { pool } from '../db'
-import { authenticateJWT } from '../middleware/auth'
-import { csrfProtection } from '../middleware/csrf'
-
-
-const router = express.Router()
-const upload = multer({ storage: multer.memoryStorage() })
+const router = express.Router();
+const upload = multer({ storage: multer.memoryStorage() });
 
 // Schema for checkout/checkin request validation
 const assetActionSchema = z.object({
@@ -29,36 +23,45 @@ const assetActionSchema = z.object({
   gpsLng: z.number().min(-180).max(180),
   conditionRating: z.number().min(1).max(5),
   digitalSignature: z.string(),
-})
+});
+
+// Initialize the repositories
+const assetRepository = new AssetRepository();
+const userRepository = new UserRepository();
+const assetCheckoutHistoryRepository = new AssetCheckoutHistoryRepository();
+const assetCheckinHistoryRepository = new AssetCheckinHistoryRepository();
+const assetStatusRepository = new AssetStatusRepository();
 
 router.post(
   '/checkout',
- csrfProtection, authenticateJWT,
-  // rateLimiter(10),   upload.single('photo'),
+  csrfProtection,
+  authenticateJWT,
+  upload.single('photo'),
   async (req: Request, res: Response) => {
     try {
       const { assetId, userId, tenantId, gpsLat, gpsLng, conditionRating, digitalSignature } =
-        assetActionSchema.parse(req.body)
-      const photo = req.file
+        assetActionSchema.parse(req.body);
+      const photo = req.file;
 
       if (!photo) {
-        return res.status(400).send('Photo is required.')
+        return res.status(400).send('Photo is required.');
       }
 
-            // const hasPermission = await checkUserPermission(userId, tenantId, 'checkout')
-      // if (!hasPermission) {
-      //   return res.status(403).send('User does not have permission to checkout this asset.')
-      // }
+      const user = await userRepository.getUserById(userId, tenantId);
+      if (!user) {
+        return res.status(404).send('User not found.');
+      }
 
-            // validateGPS(gpsLat, gpsLng)
-      // const cleanPhoto = await stripEXIFData(photo.buffer)
+      const asset = await assetRepository.getAssetById(assetId, tenantId);
+      if (!asset) {
+        return res.status(404).send('Asset not found.');
+      }
 
-      const queryText = `
-      INSERT INTO asset_checkout_history(asset_id, user_id, tenant_id, gps_lat, gps_lng, condition_rating, digital_signature, photo)
-      VALUES($1, $2, $3, $4, $5, $6, $7, $8)
-      RETURNING *;
-    `
-      const values = [
+      if (asset.status !== 'available') {
+        return res.status(400).send('Asset is not available for checkout.');
+      }
+
+      const checkoutHistory = await assetCheckoutHistoryRepository.createCheckoutHistory(
         assetId,
         userId,
         tenantId,
@@ -66,46 +69,49 @@ router.post(
         gpsLng,
         conditionRating,
         digitalSignature,
-        photo.buffer, // Using buffer - cleanPhoto not available
-      ]
-      const { rows } = await pool.query(queryText, values)
+        photo.buffer
+      );
 
-      res.status(201).json(rows[0])
+      await assetStatusRepository.updateAssetStatus(assetId, 'checked_out', tenantId);
+
+      res.status(201).json(checkoutHistory);
     } catch (error) {
-      logger.error('Checkout Error:', error) // Wave 33: Winston logger (FINAL WAVE!);
-      res.status(500).send('Internal server error during asset checkout.')
+      logger.error('Checkout Error:', error);
+      res.status(500).send('Internal server error during asset checkout.');
     }
   }
-)
+);
 
 router.post(
   '/checkin',
- csrfProtection, authenticateJWT,
-  // rateLimiter(10),   upload.single('photo'),
+  csrfProtection,
+  authenticateJWT,
+  upload.single('photo'),
   async (req: Request, res: Response) => {
     try {
       const { assetId, userId, tenantId, gpsLat, gpsLng, conditionRating, digitalSignature } =
-        assetActionSchema.parse(req.body)
-      const photo = req.file
+        assetActionSchema.parse(req.body);
+      const photo = req.file;
 
       if (!photo) {
-        return res.status(400).send('Photo is required.')
+        return res.status(400).send('Photo is required.');
       }
 
-            // const hasPermission = await checkUserPermission(userId, tenantId, 'checkin')
-      // if (!hasPermission) {
-      //   return res.status(403).send('User does not have permission to checkin this asset.')
-      // }
+      const user = await userRepository.getUserById(userId, tenantId);
+      if (!user) {
+        return res.status(404).send('User not found.');
+      }
 
-            // validateGPS(gpsLat, gpsLng)
-      // const cleanPhoto = await stripEXIFData(photo.buffer)
+      const asset = await assetRepository.getAssetById(assetId, tenantId);
+      if (!asset) {
+        return res.status(404).send('Asset not found.');
+      }
 
-      const queryText = `
-      INSERT INTO asset_checkin_history(asset_id, user_id, tenant_id, gps_lat, gps_lng, condition_rating, digital_signature, photo)
-      VALUES($1, $2, $3, $4, $5, $6, $7, $8)
-      RETURNING *;
-    `
-      const values = [
+      if (asset.status !== 'checked_out') {
+        return res.status(400).send('Asset is not checked out.');
+      }
+
+      const checkinHistory = await assetCheckinHistoryRepository.createCheckinHistory(
         assetId,
         userId,
         tenantId,
@@ -113,16 +119,17 @@ router.post(
         gpsLng,
         conditionRating,
         digitalSignature,
-        photo.buffer, // Using buffer - cleanPhoto not available
-      ]
-      const { rows } = await pool.query(queryText, values)
+        photo.buffer
+      );
 
-      res.status(201).json(rows[0])
+      await assetStatusRepository.updateAssetStatus(assetId, 'available', tenantId);
+
+      res.status(201).json(checkinHistory);
     } catch (error) {
-      logger.error('Checkin Error:', error) // Wave 33: Winston logger (FINAL WAVE!);
-      res.status(500).send('Internal server error during asset checkin.')
+      logger.error('Checkin Error:', error);
+      res.status(500).send('Internal server error during asset checkin.');
     }
   }
-)
+);
 
-export default router
+export default router;
