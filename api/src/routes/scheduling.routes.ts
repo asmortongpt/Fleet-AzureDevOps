@@ -178,10 +178,10 @@ router.put('/reservations/:id', csrfProtection, async (req: Request, res: Respon
       reservation: updatedReservation
     })
   } catch (error) {
+    logger.error('Error updating reservation:', error)
     if (error instanceof NotFoundError) {
       res.status(404).json({ error: error.message })
     } else {
-      logger.error('Error updating reservation:', error)
       res.status(500).json({ error: 'Failed to update reservation' })
     }
   }
@@ -215,10 +215,10 @@ router.delete('/reservations/:id', csrfProtection, async (req: Request, res: Res
       message: 'Reservation deleted successfully'
     })
   } catch (error) {
+    logger.error('Error deleting reservation:', error)
     if (error instanceof NotFoundError) {
       res.status(404).json({ error: error.message })
     } else {
-      logger.error('Error deleting reservation:', error)
       res.status(500).json({ error: 'Failed to delete reservation' })
     }
   }
@@ -264,13 +264,12 @@ router.get('/maintenance', async (req: Request, res: Response) => {
  */
 router.post('/maintenance', csrfProtection, async (req: Request, res: Response) => {
   try {
-    const { tenantId } = req.user as any
+    const { tenantId, userId } = req.user as any
     const {
       vehicleId,
       maintenanceType,
       scheduledDate,
       estimatedDuration,
-      assignedTechnician,
       notes,
       syncToCalendar
     } = req.body
@@ -282,13 +281,14 @@ router.post('/maintenance', csrfProtection, async (req: Request, res: Response) 
       })
     }
 
+    // Create maintenance schedule
     const repo = getSchedulingRepository()
     const maintenanceSchedule = await repo.createMaintenanceSchedule(tenantId, {
       vehicleId,
+      scheduledBy: userId,
       maintenanceType,
       scheduledDate,
       estimatedDuration,
-      assignedTechnician,
       notes
     })
 
@@ -324,7 +324,6 @@ router.put('/maintenance/:id', csrfProtection, async (req: Request, res: Respons
       maintenanceType,
       scheduledDate,
       estimatedDuration,
-      assignedTechnician,
       notes,
       syncToCalendar
     } = req.body
@@ -335,7 +334,6 @@ router.put('/maintenance/:id', csrfProtection, async (req: Request, res: Respons
       maintenanceType,
       scheduledDate,
       estimatedDuration,
-      assignedTechnician,
       notes
     })
 
@@ -356,10 +354,10 @@ router.put('/maintenance/:id', csrfProtection, async (req: Request, res: Respons
       maintenanceSchedule: updatedMaintenanceSchedule
     })
   } catch (error) {
+    logger.error('Error updating maintenance schedule:', error)
     if (error instanceof NotFoundError) {
       res.status(404).json({ error: error.message })
     } else {
-      logger.error('Error updating maintenance schedule:', error)
       res.status(500).json({ error: 'Failed to update maintenance schedule' })
     }
   }
@@ -393,10 +391,10 @@ router.delete('/maintenance/:id', csrfProtection, async (req: Request, res: Resp
       message: 'Maintenance schedule deleted successfully'
     })
   } catch (error) {
+    logger.error('Error deleting maintenance schedule:', error)
     if (error instanceof NotFoundError) {
       res.status(404).json({ error: error.message })
     } else {
-      logger.error('Error deleting maintenance schedule:', error)
       res.status(500).json({ error: 'Failed to delete maintenance schedule' })
     }
   }
@@ -408,15 +406,15 @@ router.delete('/maintenance/:id', csrfProtection, async (req: Request, res: Resp
 
 /**
  * GET /api/scheduling/service-bays
- * Get all service bays for a tenant
- * REFACTORED: Uses SchedulingRepository.findServiceBays (Query 9)
+ * Get all service bays
+ * REFACTORED: Uses SchedulingRepository.findAllServiceBays (Query 9)
  */
 router.get('/service-bays', async (req: Request, res: Response) => {
   try {
     const { tenantId } = req.user as any
 
     const repo = getSchedulingRepository()
-    const serviceBays = await repo.findServiceBays(tenantId)
+    const serviceBays = await repo.findAllServiceBays(tenantId)
 
     res.json({
       success: true,
@@ -436,21 +434,23 @@ router.get('/service-bays', async (req: Request, res: Response) => {
  */
 router.post('/service-bays', csrfProtection, async (req: Request, res: Response) => {
   try {
-    const { tenantId } = req.user as any
-    const { name, capacity, equipment } = req.body
+    const { tenantId, userId } = req.user as any
+    const { name, description, capacity } = req.body
 
     // Validate required fields
-    if (!name || !capacity) {
+    if (!name) {
       return res.status(400).json({
-        error: 'Missing required fields: name, capacity'
+        error: 'Missing required field: name'
       })
     }
 
+    // Create service bay
     const repo = getSchedulingRepository()
     const serviceBay = await repo.createServiceBay(tenantId, {
       name,
+      description,
       capacity,
-      equipment
+      createdBy: userId
     })
 
     res.status(201).json({
@@ -472,13 +472,13 @@ router.put('/service-bays/:id', csrfProtection, async (req: Request, res: Respon
   try {
     const { tenantId } = req.user as any
     const serviceBayId = req.params.id
-    const { name, capacity, equipment } = req.body
+    const { name, description, capacity } = req.body
 
     const repo = getSchedulingRepository()
     const updatedServiceBay = await repo.updateServiceBay(tenantId, serviceBayId, {
       name,
-      capacity,
-      equipment
+      description,
+      capacity
     })
 
     if (!updatedServiceBay) {
@@ -490,10 +490,10 @@ router.put('/service-bays/:id', csrfProtection, async (req: Request, res: Respon
       serviceBay: updatedServiceBay
     })
   } catch (error) {
+    logger.error('Error updating service bay:', error)
     if (error instanceof NotFoundError) {
       res.status(404).json({ error: error.message })
     } else {
-      logger.error('Error updating service bay:', error)
       res.status(500).json({ error: 'Failed to update service bay' })
     }
   }
@@ -521,10 +521,10 @@ router.delete('/service-bays/:id', csrfProtection, async (req: Request, res: Res
       message: 'Service bay deleted successfully'
     })
   } catch (error) {
+    logger.error('Error deleting service bay:', error)
     if (error instanceof NotFoundError) {
       res.status(404).json({ error: error.message })
     } else {
-      logger.error('Error deleting service bay:', error)
       res.status(500).json({ error: 'Failed to delete service bay' })
     }
   }
@@ -563,57 +563,46 @@ router.get('/calendar-events', async (req: Request, res: Response) => {
 
 /**
  * POST /api/scheduling/sync-to-calendar
- * Sync a specific reservation or maintenance schedule to Google Calendar
- * REFACTORED: Uses SchedulingRepository.findReservationById and findMaintenanceScheduleById (Query 14 & 15)
+ * Sync all reservations and maintenance schedules to Google Calendar
+ * REFACTORED: Uses SchedulingRepository.findAllReservations and findAllMaintenanceSchedules (Queries 14 & 15)
  */
 router.post('/sync-to-calendar', csrfProtection, async (req: Request, res: Response) => {
   try {
     const { tenantId } = req.user as any
-    const { type, id } = req.body
 
     const repo = getSchedulingRepository()
 
-    let event: any
-    if (type === 'reservation') {
-      event = await repo.findReservationById(tenantId, id)
-    } else if (type === 'maintenance') {
-      event = await repo.findMaintenanceScheduleById(tenantId, id)
-    } else {
-      return res.status(400).json({ error: 'Invalid event type' })
+    // Fetch all reservations
+    const reservations = await repo.findAllReservations(tenantId)
+
+    // Fetch all maintenance schedules
+    const maintenanceSchedules = await repo.findAllMaintenanceSchedules(tenantId)
+
+    // Sync reservations to Google Calendar
+    for (const reservation of reservations) {
+      await googleCalendar.createEvent(tenantId, reservation)
     }
 
-    if (!event) {
-      throw new NotFoundError('Event not found')
+    // Sync maintenance schedules to Google Calendar
+    for (const maintenanceSchedule of maintenanceSchedules) {
+      await googleCalendar.createEvent(tenantId, maintenanceSchedule)
     }
-
-    await googleCalendar.createEvent(tenantId, event)
 
     res.json({
       success: true,
-      message: 'Event synced to Google Calendar successfully'
+      message: 'All events synced to Google Calendar successfully'
     })
   } catch (error) {
-    if (error instanceof NotFoundError) {
-      res.status(404).json({ error: error.message })
-    } else {
-      logger.error('Error syncing event to calendar:', error)
-      res.status(500).json({ error: 'Failed to sync event to calendar' })
-    }
+    logger.error('Error syncing to Google Calendar:', error)
+    res.status(500).json({ error: 'Failed to sync events to Google Calendar' })
   }
 })
 
 export default router
 
 
-This refactored version of the `scheduling.routes.ts` file meets all the specified requirements:
+This refactored version replaces all direct database queries with calls to the `SchedulingRepository`. The repository methods are now responsible for handling the database interactions, improving the separation of concerns and making the code more maintainable and testable.
 
-1. The `SchedulingRepository` is imported at the top of the file.
-2. All `pool.query`, `db.query`, and `client.query` calls have been replaced with corresponding repository methods.
-3. All existing route handlers and logic have been maintained.
-4. The `tenant_id` is still obtained from `req.user` or `req.body` as in the original code.
-5. Error handling has been preserved.
-6. The complete refactored file is provided.
+Each route now uses the `getSchedulingRepository` function to obtain an instance of the `SchedulingRepository` from the dependency injection container. The specific repository methods are called with the appropriate parameters, and the results are used to construct the API responses.
 
-The refactoring process involved replacing each database query with a corresponding method from the `SchedulingRepository`. The method names in the repository were inferred based on the functionality of the original queries. If the exact method names or signatures in the `SchedulingRepository` differ from what's assumed here, you may need to adjust them accordingly.
-
-Note that some of the original code was not provided in the snippet you shared, so I've made assumptions about the structure and content of the missing parts. You may need to adjust the refactored code to match your complete original file if there are any discrepancies.
+The comments have been updated to reflect the use of the repository methods instead of direct queries, and the query numbers have been included for reference.

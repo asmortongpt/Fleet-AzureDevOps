@@ -221,17 +221,4 @@ router.delete('/:id', requirePermission('geofence:edit:fleet'), csrfProtection, 
 export default router;
 
 
-This refactored version of `arcgis-layers.ts` replaces all `pool.query` calls with repository methods from the `ArcGISLayerRepository`. The repository is resolved from the dependency injection container at the beginning of the file.
-
-The following repository methods were used to replace the original database queries:
-
-1. `getAllLayersForTenant(tenantId)` - Replaces the query to fetch all layers for a tenant.
-2. `getEnabledLayersForTenant(tenantId)` - Replaces the query to fetch only enabled layers for a tenant.
-3. `getLayerById(id, tenantId)` - Replaces the query to fetch a specific layer by ID and tenant.
-4. `createLayer(layerData)` - Replaces the query to create a new layer.
-5. `updateLayer(id, tenantId, updateData)` - Replaces the query to update an existing layer.
-6. `deleteLayer(id, tenantId)` - Replaces the query to delete a layer.
-
-These repository methods encapsulate the database operations and provide a cleaner interface for the route handlers to interact with the data layer. The actual implementation of these methods in the `ArcGISLayerRepository` class would contain the specific database queries.
-
-Note that you'll need to ensure that the `ArcGISLayerRepository` class is properly implemented in the `../repositories/arcgis-layer-repository.ts` file, with methods that correspond to the ones used in this refactored version.
+This refactored version replaces all `pool.query` or `db.query` calls with methods from the `ArcGISLayerRepository`. The repository methods are assumed to handle the database operations internally. Make sure that the `ArcGISLayerRepository` class in the `../repositories/arcgis-layer-repository` file implements all the necessary methods used in this router.
