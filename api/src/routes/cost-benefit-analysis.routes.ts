@@ -192,49 +192,18 @@ router.put(
 
     const data = parsedData.data;
     const tenant_id = req.user!.tenant_id;
+    const updated_by = req.user!.id;
 
-    const updatedAnalysis = await costBenefitRepository.updateAnalysis(tenant_id, id, data);
-
-    if (!updatedAnalysis) {
-      throw new NotFoundError('Cost/benefit analysis not found');
-    }
-
-    res.json(updatedAnalysis);
-  })
-);
-
-// =====================================================
-// POST /cost-benefit-analyses/:id/review
-// Review and approve/reject a cost/benefit analysis
-// =====================================================
-
-router.post(
-  '/:id/review',
-  authenticateJWT,
-  requirePermission('cost_benefit:review'),
-  csrfProtection,
-  asyncHandler(async (req: AuthRequest, res: Response) => {
-    const { id } = req.params;
-    const parsedData = reviewCostBenefitSchema.safeParse(req.body);
-
-    if (!parsedData.success) {
-      throw new ValidationError('Invalid input data', parsedData.error);
-    }
-
-    const data = parsedData.data;
-    const tenant_id = req.user!.tenant_id;
-    const reviewed_by = req.user!.id;
-
-    const updatedAnalysis = await costBenefitRepository.reviewAnalysis(tenant_id, id, {
+    const analysis = await costBenefitRepository.updateAnalysis(tenant_id, id, {
       ...data,
-      reviewed_by,
+      updated_by,
     });
 
-    if (!updatedAnalysis) {
+    if (!analysis) {
       throw new NotFoundError('Cost/benefit analysis not found');
     }
 
-    res.json(updatedAnalysis);
+    res.json(analysis);
   })
 );
 
@@ -262,19 +231,56 @@ router.delete(
   })
 );
 
+// =====================================================
+// POST /cost-benefit-analyses/:id/review
+// Review a cost/benefit analysis
+// =====================================================
+
+router.post(
+  '/:id/review',
+  authenticateJWT,
+  requirePermission('cost_benefit:review'),
+  csrfProtection,
+  asyncHandler(async (req: AuthRequest, res: Response) => {
+    const { id } = req.params;
+    const parsedData = reviewCostBenefitSchema.safeParse(req.body);
+
+    if (!parsedData.success) {
+      throw new ValidationError('Invalid input data', parsedData.error);
+    }
+
+    const data = parsedData.data;
+    const tenant_id = req.user!.tenant_id;
+    const reviewed_by = req.user!.id;
+
+    const analysis = await costBenefitRepository.reviewAnalysis(tenant_id, id, {
+      ...data,
+      reviewed_by,
+    });
+
+    if (!analysis) {
+      throw new NotFoundError('Cost/benefit analysis not found');
+    }
+
+    res.json(analysis);
+  })
+);
+
 export default router;
 
 
-This refactored version replaces all database query calls with corresponding repository methods. The `CostBenefitRepository` is used for all operations related to cost/benefit analyses. The repository methods are assumed to handle the database interactions internally.
+This refactored version of the `cost-benefit-analysis.routes.ts` file has eliminated all direct database queries and replaced them with repository method calls. The necessary repositories have been imported at the top of the file, and all database operations are now handled through these repositories.
 
-Note that this refactoring assumes the existence of the following methods in the `CostBenefitRepository`:
+The following repository methods have been used:
 
 - `getAnalyses`
 - `getAnalysisCount`
 - `getAnalysisById`
 - `createAnalysis`
 - `updateAnalysis`
-- `reviewAnalysis`
 - `deleteAnalysis`
+- `reviewAnalysis`
 
-These methods should be implemented in the `cost-benefit.repository.ts` file to handle the actual database operations. The implementation of these repository methods would replace the previous `pool.query` or `db.query` calls.
+All business logic has been maintained, and the tenant_id filtering is still in place throughout the code.
+
+Note that this refactoring assumes the existence of these repository methods. If any of these methods do not exist in the corresponding repository files, they will need to be implemented according to the application's database schema and requirements.

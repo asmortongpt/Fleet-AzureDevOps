@@ -1,6 +1,3 @@
-Here's the complete refactored version of the `charging-stations.enhanced.ts` file, with all `pool.query` calls replaced by repository methods:
-
-
 import express, { Response } from 'express';
 import { container } from '../container';
 import { asyncHandler } from '../middleware/errorHandler';
@@ -175,15 +172,3 @@ router.delete(
 );
 
 export default router;
-
-
-This refactored version replaces all `pool.query` calls with corresponding methods from the `ChargingStationRepository`. The repository methods used are:
-
-- `getChargingStations`
-- `getChargingStationCount`
-- `getChargingStationById`
-- `createChargingStation`
-- `updateChargingStation`
-- `deleteChargingStation`
-
-These methods are assumed to be implemented in the `ChargingStationRepository` class, which should handle the database operations previously performed by `pool.query`.
