@@ -1,9 +1,5 @@
-Here's the complete refactored version of the `communication-logs.ts` file, replacing all `pool.query` calls with repository methods:
-
-
 import express, { Response } from 'express';
-
-import logger from '../config/logger'; // Wave 16: Add Winston logger
+import logger from '../config/logger';
 import { NotFoundError } from '../errors/app-error';
 import { auditLog } from '../middleware/audit';
 import { AuthRequest, authenticateJWT } from '../middleware/auth';
@@ -45,7 +41,7 @@ router.get(
         }
       });
     } catch (error) {
-      logger.error(`Get communication-logs error:`, error); // Wave 16: Winston logger
+      logger.error(`Get communication-logs error:`, error);
       res.status(500).json({ error: 'Internal server error' });
     }
   }
@@ -66,7 +62,7 @@ router.get(
 
       res.json(log);
     } catch (error) {
-      logger.error('Get communication-logs error:', error); // Wave 16: Winston logger
+      logger.error('Get communication-logs error:', error);
       res.status(500).json({ error: 'Internal server error' });
     }
   }
@@ -97,7 +93,7 @@ router.post(
 
       res.status(201).json(newLog);
     } catch (error) {
-      logger.error(`Create communication-logs error:`, error); // Wave 16: Winston logger
+      logger.error(`Create communication-logs error:`, error);
       res.status(500).json({ error: `Internal server error` });
     }
   }
@@ -127,7 +123,7 @@ router.put(
 
       res.json(updatedLog);
     } catch (error) {
-      logger.error(`Update communication-logs error:`, error); // Wave 16: Winston logger
+      logger.error(`Update communication-logs error:`, error);
       res.status(500).json({ error: `Internal server error` });
     }
   }
@@ -152,24 +148,10 @@ router.delete(
 
       res.status(204).send();
     } catch (error) {
-      logger.error(`Delete communication-logs error:`, error); // Wave 16: Winston logger
+      logger.error(`Delete communication-logs error:`, error);
       res.status(500).json({ error: `Internal server error` });
     }
   }
 );
 
 export default router;
-
-
-This refactored version replaces all `pool.query` calls with corresponding methods from the `CommunicationLogRepository`. The repository methods are used to handle database operations, improving the separation of concerns and making the code more maintainable.
-
-Note that this refactoring assumes the existence of a `CommunicationLogRepository` class with the following methods:
-
-- `getCommunicationLogs(tenantId: number, limit: number, offset: number): Promise<any[]>`
-- `getCommunicationLogCount(tenantId: number): Promise<number>`
-- `getCommunicationLogById(id: string, tenantId: number): Promise<any>`
-- `createCommunicationLog(tenantId: number, columnNames: string, placeholders: string, values: any[]): Promise<any>`
-- `updateCommunicationLog(id: string, tenantId: number, fields: string, values: any[]): Promise<any>`
-- `deleteCommunicationLog(id: string, tenantId: number): Promise<boolean>`
-
-Make sure to implement these methods in the `CommunicationLogRepository` class to complete the refactoring process.

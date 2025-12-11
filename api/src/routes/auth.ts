@@ -1,6 +1,3 @@
-Here's the complete refactored `auth.ts` file with all `pool.query` calls replaced by repository methods:
-
-
 import axios from 'axios';
 import express, { Request, Response } from 'express';
 import { z } from 'zod';
@@ -212,8 +209,7 @@ router.post('/login', authLimiter, bruteForce.prevent, csrfProtection, async (re
  *                 example: Doe
  *               phone:
  *                 type: string
- *                 format: phone
- *                 example: +1234567890
+ *                 example: "+1234567890"
  *     responses:
  *       201:
  *         description: User registered successfully
@@ -226,7 +222,7 @@ router.post('/login', authLimiter, bruteForce.prevent, csrfProtection, async (re
  *                   type: string
  *                   example: User registered successfully
  *       400:
- *         description: Invalid input or user already exists
+ *         description: Bad request
  *         content:
  *           application/json:
  *             schema:
@@ -234,7 +230,17 @@ router.post('/login', authLimiter, bruteForce.prevent, csrfProtection, async (re
  *               properties:
  *                 error:
  *                   type: string
- *                   example: Email already in use or Invalid input
+ *                   example: Invalid input
+ *       409:
+ *         description: Email already in use
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: string
+ *                   example: Email already in use
  */
 // POST /api/auth/register
 // CRIT-F-005: Apply registration rate limiter
@@ -242,10 +248,10 @@ router.post('/register', registrationLimiter, csrfProtection, async (req: Reques
   try {
     const { email, password, first_name, last_name, phone } = registerSchema.parse(req.body);
 
-    // Check if user already exists
+    // Check if email already exists
     const existingUser = await userRepository.getUserByEmail(email);
     if (existingUser) {
-      return res.status(400).json({ error: 'Email already in use' });
+      return res.status(409).json({ error: 'Email already in use' });
     }
 
     // Hash password
@@ -258,7 +264,8 @@ router.post('/register', registrationLimiter, csrfProtection, async (req: Reques
       first_name,
       last_name,
       phone,
-      role: 'viewer' // SECURITY: Always set to 'viewer' to prevent privilege escalation
+      role: 'viewer',
+      tenant_id: req.tenant_id // Maintain tenant_id filtering
     });
 
     // Log user registration
@@ -273,19 +280,10 @@ router.post('/register', registrationLimiter, csrfProtection, async (req: Reques
   } catch (error) {
     logger.error('Registration error:', error);
     if (error instanceof z.ZodError) {
-      return res.status(400).json({ error: 'Invalid input', details: error.errors });
+      return res.status(400).json({ error: 'Invalid input' });
     }
     return res.status(500).json({ error: 'Internal server error' });
   }
 });
 
 export default router;
-
-
-In this refactored version, all database operations that were previously using `pool.query` have been replaced with calls to the appropriate repository methods:
-
-1. `userRepository.getUserByEmail()` replaces queries to fetch a user by email.
-2. `userRepository.createUser()` replaces the query to create a new user.
-3. `auditLogRepository.createAuditLog()` replaces the query to create an audit log entry.
-
-These changes improve the separation of concerns, making the code more modular and easier to maintain. The repository pattern encapsulates the data access logic, allowing for easier testing and potential changes in the underlying database system without affecting the rest of the application.

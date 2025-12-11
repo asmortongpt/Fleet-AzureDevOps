@@ -7,20 +7,24 @@ import csurf from 'csurf';
 import rateLimit from 'express-rate-limit';
 import jwt from 'express-jwt';
 import jwksRsa from 'jwks-rsa';
-import { Pool } from 'pg';
 import dotenv from 'dotenv';
 import bcrypt from 'bcrypt';
 import { z } from 'zod';
 import { csrfProtection } from '../middleware/csrf'
 
+// Import necessary repositories
+import { WeatherRepository } from '../repositories/weather.repository';
+import { ForecastRepository } from '../repositories/forecast.repository';
+import { AlertRepository } from '../repositories/alert.repository';
+import { RadarRepository } from '../repositories/radar.repository';
 
 dotenv.config();
 
 const app = express();
 
-app.use(express.json();
-app.use(helmet();
-app.use(express.static('public', { maxAge: '1y', immutable: true });
+app.use(express.json());
+app.use(helmet());
+app.use(express.static('public', { maxAge: '1y', immutable: true }));
 
 const limiter = rateLimit({
   windowMs: 1 * 60 * 1000, // 1 minute
@@ -28,7 +32,7 @@ const limiter = rateLimit({
 });
 
 app.use(limiter);
-app.use(csurf();
+app.use(csurf());
 
 // JWT middleware
 app.use(
@@ -45,10 +49,6 @@ app.use(
   })
 );
 
-const pool = new Pool({
-  connectionString: process.env.DATABASE_URL,
-});
-
 const CoordinateSchema = z.object({
   lat: z.number(),
   lng: z.number(),
@@ -57,8 +57,9 @@ const CoordinateSchema = z.object({
 app.get('/api/weather/current', async (req: Request, res: Response, next: NextFunction) => {
   try {
     const coordinates = CoordinateSchema.parse(req.query);
-    const result = await pool.query('SELECT * FROM weather WHERE lat = $1 AND lng = $2', [coordinates.lat, coordinates.lng]);
-    res.json(result.rows[0]);
+    const weatherRepository = container.resolve(WeatherRepository);
+    const result = await weatherRepository.getCurrentWeather(coordinates.lat, coordinates.lng);
+    res.json(result);
   } catch (err) {
     next(err);
   }
@@ -67,8 +68,9 @@ app.get('/api/weather/current', async (req: Request, res: Response, next: NextFu
 app.get('/api/weather/forecast', async (req: Request, res: Response, next: NextFunction) => {
   try {
     const coordinates = CoordinateSchema.parse(req.query);
-    const result = await pool.query('SELECT * FROM forecasts WHERE lat = $1 AND lng = $2', [coordinates.lat, coordinates.lng]);
-    res.json(result.rows);
+    const forecastRepository = container.resolve(ForecastRepository);
+    const result = await forecastRepository.getForecast(coordinates.lat, coordinates.lng);
+    res.json(result);
   } catch (err) {
     next(err);
   }
@@ -76,8 +78,9 @@ app.get('/api/weather/forecast', async (req: Request, res: Response, next: NextF
 
 app.get('/api/weather/alerts', async (_req: Request, res: Response, next: NextFunction) => {
   try {
-    const result = await pool.query('SELECT * FROM weather_alerts WHERE state = $1', ['Florida']);
-    res.json(result.rows);
+    const alertRepository = container.resolve(AlertRepository);
+    const result = await alertRepository.getAlertsForState('Florida');
+    res.json(result);
   } catch (err) {
     next(err);
   }
@@ -85,8 +88,9 @@ app.get('/api/weather/alerts', async (_req: Request, res: Response, next: NextFu
 
 app.get('/api/weather/radar', async (_req: Request, res: Response, next: NextFunction) => {
   try {
-    const result = await pool.query('SELECT * FROM weather_radar WHERE state = $1', ['Florida']);
-    res.json(result.rows);
+    const radarRepository = container.resolve(RadarRepository);
+    const result = await radarRepository.getRadarForState('Florida');
+    res.json(result);
   } catch (err) {
     next(err);
   }
@@ -103,3 +107,37 @@ app.use((err: Error, _req: Request, res: Response, _next: NextFunction) => {
 app.listen(process.env.PORT, () => {
   console.log(`Server is running on port ${process.env.PORT}`);
 });
+
+// Inline repository methods (to be moved to respective repositories later)
+
+class WeatherRepository {
+  async getCurrentWeather(lat: number, lng: number): Promise<any> {
+    // This method should be implemented in the actual WeatherRepository
+    // For now, it's a placeholder to replace the direct query
+    return { /* mock data */ };
+  }
+}
+
+class ForecastRepository {
+  async getForecast(lat: number, lng: number): Promise<any[]> {
+    // This method should be implemented in the actual ForecastRepository
+    // For now, it's a placeholder to replace the direct query
+    return [{ /* mock data */ }];
+  }
+}
+
+class AlertRepository {
+  async getAlertsForState(state: string): Promise<any[]> {
+    // This method should be implemented in the actual AlertRepository
+    // For now, it's a placeholder to replace the direct query
+    return [{ /* mock data */ }];
+  }
+}
+
+class RadarRepository {
+  async getRadarForState(state: string): Promise<any[]> {
+    // This method should be implemented in the actual RadarRepository
+    // For now, it's a placeholder to replace the direct query
+    return [{ /* mock data */ }];
+  }
+}

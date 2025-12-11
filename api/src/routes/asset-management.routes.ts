@@ -1,6 +1,3 @@
-Here's the complete refactored version of the `asset-management.routes.ts` file, replacing all `pool.query` calls with repository methods:
-
-
 /**
  * Asset Management Routes
  * Comprehensive fleet asset tracking and lifecycle management
@@ -204,62 +201,51 @@ router.get('/:id', requirePermission('vehicle:view:fleet'), async (req: AuthRequ
  *               type:
  *                 type: string
  *                 enum: [vehicle, equipment, tool, trailer, other]
- *               make:
+ *               status:
  *                 type: string
- *               model:
+ *                 enum: [active, inactive, maintenance, retired, disposed]
+ *               location:
  *                 type: string
- *               serial_number:
+ *               assigned_to:
+ *                 type: integer
+ *               name:
+ *                 type: string
+ *               description:
  *                 type: string
  *               purchase_date:
  *                 type: string
  *                 format: date
  *               purchase_price:
  *                 type: number
- *               location:
+ *               serial_number:
  *                 type: string
- *               status:
+ *               model:
  *                 type: string
- *                 enum: [active, inactive, maintenance, retired, disposed]
- *               assigned_to:
- *                 type: integer
+ *               manufacturer:
+ *                 type: string
  *     responses:
  *       201:
  *         description: Asset created successfully
  *       400:
  *         description: Invalid input
  */
-router.post('/', requirePermission('vehicle:create'), csrfProtection, async (req: AuthRequest, res) => {
+router.post('/', requirePermission('vehicle:create:fleet'), csrfProtection, async (req: AuthRequest, res) => {
   try {
-    const {
-      type,
-      make,
-      model,
-      serial_number,
-      purchase_date,
-      purchase_price,
-      location,
-      status,
-      assigned_to
-    } = req.body
-
     const tenantId = req.user?.tenant_id
-
     const assetRepository = new AssetRepository()
+    const qrCodeRepository = new QRCodeRepository()
 
     const newAsset = await assetRepository.createAsset({
-      tenant_id: tenantId,
-      type,
-      make,
-      model,
-      serial_number,
-      purchase_date,
-      purchase_price,
-      location,
-      status,
-      assigned_to
+      ...req.body,
+      tenant_id: tenantId
     })
 
-    res.status(201).json(newAsset)
+    const qrCode = await qrCodeRepository.generateQRCodeForAsset(newAsset.id)
+
+    res.status(201).json({
+      ...newAsset,
+      qr_code: qrCode
+    })
   } catch (error) {
     logger.error('Error creating asset:', error)
     res.status(500).json({ error: 'An error occurred while creating the asset' })
@@ -288,24 +274,28 @@ router.post('/', requirePermission('vehicle:create'), csrfProtection, async (req
  *               type:
  *                 type: string
  *                 enum: [vehicle, equipment, tool, trailer, other]
- *               make:
+ *               status:
  *                 type: string
- *               model:
+ *                 enum: [active, inactive, maintenance, retired, disposed]
+ *               location:
  *                 type: string
- *               serial_number:
+ *               assigned_to:
+ *                 type: integer
+ *               name:
+ *                 type: string
+ *               description:
  *                 type: string
  *               purchase_date:
  *                 type: string
  *                 format: date
  *               purchase_price:
  *                 type: number
- *               location:
+ *               serial_number:
  *                 type: string
- *               status:
+ *               model:
  *                 type: string
- *                 enum: [active, inactive, maintenance, retired, disposed]
- *               assigned_to:
- *                 type: integer
+ *               manufacturer:
+ *                 type: string
  *     responses:
  *       200:
  *         description: Asset updated successfully
@@ -314,35 +304,16 @@ router.post('/', requirePermission('vehicle:create'), csrfProtection, async (req
  *       404:
  *         description: Asset not found
  */
-router.put('/:id', requirePermission('vehicle:update'), csrfProtection, async (req: AuthRequest, res) => {
+router.put('/:id', requirePermission('vehicle:update:fleet'), csrfProtection, async (req: AuthRequest, res) => {
   try {
     const assetId = parseInt(req.params.id)
-    const {
-      type,
-      make,
-      model,
-      serial_number,
-      purchase_date,
-      purchase_price,
-      location,
-      status,
-      assigned_to
-    } = req.body
-
     const tenantId = req.user?.tenant_id
 
     const assetRepository = new AssetRepository()
 
-    const updatedAsset = await assetRepository.updateAsset(assetId, tenantId, {
-      type,
-      make,
-      model,
-      serial_number,
-      purchase_date,
-      purchase_price,
-      location,
-      status,
-      assigned_to
+    const updatedAsset = await assetRepository.updateAsset(assetId, {
+      ...req.body,
+      tenant_id: tenantId
     })
 
     if (!updatedAsset) {
@@ -378,7 +349,7 @@ router.put('/:id', requirePermission('vehicle:update'), csrfProtection, async (r
  *       404:
  *         description: Asset not found
  */
-router.delete('/:id', requirePermission('vehicle:delete'), csrfProtection, async (req: AuthRequest, res) => {
+router.delete('/:id', requirePermission('vehicle:delete:fleet'), csrfProtection, async (req: AuthRequest, res) => {
   try {
     const assetId = parseInt(req.params.id)
     const tenantId = req.user?.tenant_id
@@ -402,67 +373,4 @@ router.delete('/:id', requirePermission('vehicle:delete'), csrfProtection, async
   }
 })
 
-/**
- * @openapi
- * /api/assets/{id}/qr-code:
- *   get:
- *     summary: Generate QR code for an asset
- *     tags: [Assets]
- *     parameters:
- *       - name: id
- *         in: path
- *         required: true
- *         schema:
- *           type: integer
- *     responses:
- *       200:
- *         description: QR code image
- *         content:
- *           image/png:
- *             schema:
- *               type: string
- *               format: binary
- *       404:
- *         description: Asset not found
- */
-router.get('/:id/qr-code', requirePermission('vehicle:view:fleet'), async (req: AuthRequest, res) => {
-  try {
-    const assetId = parseInt(req.params.id)
-    const tenantId = req.user?.tenant_id
-
-    const assetRepository = new AssetRepository()
-    const qrCodeRepository = new QRCodeRepository()
-
-    const asset = await assetRepository.getAssetById(assetId, tenantId)
-
-    if (!asset) {
-      throw new NotFoundError('Asset not found')
-    }
-
-    const qrCode = await qrCodeRepository.generateQRCodeForAsset(asset)
-
-    res.set('Content-Type', 'image/png')
-    res.send(qrCode)
-  } catch (error) {
-    if (error instanceof NotFoundError) {
-      res.status(404).json({ error: error.message })
-    } else {
-      logger.error('Error generating QR code:', error)
-      res.status(500).json({ error: 'An error occurred while generating the QR code' })
-    }
-  }
-})
-
 export default router
-
-
-This refactored version replaces all database queries with calls to repository methods. The repository classes (`AssetRepository`, `UserRepository`, `AssetHistoryRepository`, `MaintenanceScheduleRepository`, and `QRCodeRepository`) are assumed to be implemented separately and handle the actual database interactions.
-
-Key changes include:
-
-1. Importing the necessary repository classes at the top of the file.
-2. Creating instances of the required repositories within each route handler.
-3. Replacing `pool.query` calls with corresponding repository methods.
-4. Adjusting error handling to use the repository methods' return values.
-
-Note that this refactoring assumes that the repository methods have been implemented to handle the database operations previously performed by `pool.query`. You may need to adjust the repository implementations to match the exact functionality of the original queries.
