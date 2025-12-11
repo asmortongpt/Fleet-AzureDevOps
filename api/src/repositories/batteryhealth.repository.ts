@@ -1,3 +1,5 @@
+import { BaseRepository } from '../repositories/BaseRepository';
+
 To create a TypeScript repository called `BatteryHealthRepository` for the `api/src/routes/battery-health.routes.ts` file, we'll implement parameterized queries, include `tenant_id` in our operations, and provide CRUD functionality. Let's break this down step-by-step:
 
 1. First, we'll create the repository file.
@@ -14,7 +16,11 @@ Here's the implementation:
 import { PoolClient } from 'pg';
 import { BatteryHealth } from '../models/BatteryHealth';
 
-export class BatteryHealthRepository {
+export class BatteryHealthRepository extends BaseRepository<any> {
+  constructor(pool: Pool) {
+    super(pool, 'LBattery_LHealth_LRepository extends _LBases');
+  }
+
   private client: PoolClient;
 
   constructor(client: PoolClient) {

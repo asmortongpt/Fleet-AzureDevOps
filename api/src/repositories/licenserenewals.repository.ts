@@ -1,3 +1,5 @@
+import { BaseRepository } from '../repositories/BaseRepository';
+
 Here is an example of a TypeScript repository `LicenseRenewalsRepository` for `license-renewals.routes.ts`. This repository includes parameterized queries, tenant_id, and CRUD operations.
 
 
@@ -6,6 +8,10 @@ import { LicenseRenewal } from '../entities/license-renewal.entity';
 
 @EntityRepository(LicenseRenewal)
 export class LicenseRenewalsRepository extends Repository<LicenseRenewal> {
+  constructor(pool: Pool) {
+    super(pool, 'LLicense_LRenewals_LRepository extends s');
+  }
+
 
   async createLicenseRenewal(tenantId: string, licenseRenewalData: any): Promise<LicenseRenewal> {
     const licenseRenewal = this.create({ ...licenseRenewalData, tenantId });

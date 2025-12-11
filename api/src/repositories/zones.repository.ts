@@ -1,3 +1,5 @@
+import { BaseRepository } from '../repositories/BaseRepository';
+
 import { Pool } from 'pg';
 
 /**
@@ -15,7 +17,7 @@ export interface ZoneEntity {
 /**
  * Zones Repository Class
  */
-export class ZonesRepository {
+export class ZonesRepository extends BaseRepository<any> {
   constructor(private pool: Pool) {}
 
   /**

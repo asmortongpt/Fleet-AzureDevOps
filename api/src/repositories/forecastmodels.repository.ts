@@ -1,10 +1,12 @@
+import { BaseRepository } from '../repositories/BaseRepository';
+
 Here is a basic example of a TypeScript repository for forecast models. This repository includes methods for creating, reading, updating, and deleting forecast models. It also includes a method for getting all forecast models for a specific tenant.
 
 
 import { Pool } from 'pg';
 import { ForecastModel } from '../models/forecast-model';
 
-export class ForecastModelsRepository {
+export class ForecastModelsRepository extends BaseRepository<any> {
   private pool: Pool;
 
   constructor(pool: Pool) {

@@ -1,3 +1,5 @@
+import { BaseRepository } from '../repositories/BaseRepository';
+
 ```typescript
 import { Pool } from 'pg';
 
@@ -10,7 +12,7 @@ export interface Preference {
 /**
  * Repository class for Preferences
  */
-export class PreferencesRepository {
+export class PreferencesRepository extends BaseRepository<any> {
   constructor(private pool: Pool) {}
 
   /**

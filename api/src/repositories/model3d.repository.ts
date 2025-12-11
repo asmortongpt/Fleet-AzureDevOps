@@ -1,3 +1,5 @@
+import { BaseRepository } from '../repositories/BaseRepository';
+
 import { Pool, QueryResult } from 'pg';
 
 interface Model3D {
@@ -10,7 +12,7 @@ interface Model3D {
   tenant_id: number;
 }
 
-export class Model3DRepository {
+export class Model3DRepository extends BaseRepository<any> {
   private pool: Pool;
 
   constructor(pool: Pool) {

@@ -1,3 +1,5 @@
+import { BaseRepository } from '../repositories/BaseRepository';
+
 import pool from '../config/database'
 import {
   UsageType,
@@ -54,7 +56,11 @@ export interface PaginationResult<T> {
  * All methods include tenant_id filtering for multi-tenancy
  * Uses parameterized queries only ($1, $2, $3) - no string concatenation
  */
-export class TripUsageRepository {
+export class TripUsageRepository extends BaseRepository<any> {
+  constructor(pool: Pool) {
+    super(pool, 'LTrip_LUsage_LRepository extends _LBases');
+  }
+
   /**
    * Check if driver belongs to tenant
    * SECURITY: tenant_id filter prevents cross-tenant access

@@ -1,3 +1,5 @@
+import { BaseRepository } from '../repositories/BaseRepository';
+
 To create a TypeScript repository named `EldIntegrationRepository` for the file `api/src/routes/eld-integration.routes.ts`, we'll implement parameterized queries, include a `tenant_id` in the operations, and provide CRUD functionality. Let's break this down step-by-step:
 
 1. First, we'll define the interface for our ELD integration data.
@@ -22,7 +24,7 @@ interface EldIntegration {
   tenant_id: number;
 }
 
-export class EldIntegrationRepository {
+export class EldIntegrationRepository extends BaseRepository<any> {
   private pool: Pool;
 
   constructor(pool: Pool) {
