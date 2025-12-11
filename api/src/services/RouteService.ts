@@ -9,7 +9,7 @@ export class RouteService {
 
   async getAll(tenantId: number, filters?: any) {
     const query = `
-      SELECT *
+      SELECT id, name, created_at, updated_at, tenant_id
       FROM routes
       WHERE tenant_id = $1 AND deleted_at IS NULL
       ORDER BY created_at DESC
@@ -20,7 +20,7 @@ export class RouteService {
 
   async getById(id: number, tenantId: number) {
     const query = `
-      SELECT *
+      SELECT id, name, created_at, updated_at, tenant_id
       FROM routes
       WHERE id = $1 AND tenant_id = $2 AND deleted_at IS NULL
     `;

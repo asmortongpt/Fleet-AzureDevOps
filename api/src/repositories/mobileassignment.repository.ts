@@ -27,7 +27,7 @@ export class MobileAssignmentRepository {
     id: string
   ): Promise<QueryResult> {
     const query = `
-      SELECT * FROM mobile_assignments
+      SELECT id, created_at, updated_at FROM mobile_assignments
       WHERE tenant_id = $1 AND id = $2;
     `;
     const values = [tenant_id, id];
@@ -38,7 +38,7 @@ export class MobileAssignmentRepository {
     tenant_id: string
   ): Promise<QueryResult> {
     const query = `
-      SELECT * FROM mobile_assignments
+      SELECT id, created_at, updated_at FROM mobile_assignments
       WHERE tenant_id = $1;
     `;
     const values = [tenant_id];

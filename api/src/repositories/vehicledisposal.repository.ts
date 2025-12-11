@@ -57,7 +57,7 @@ export class VehicleDisposalRepository {
    */
   async read(id: number, tenantId: number): Promise<VehicleDisposal | null> {
     const query = `
-      SELECT * FROM vehicle_disposals
+      SELECT id, tenant_id, created_at, updated_at FROM vehicle_disposals
       WHERE id = $1 AND tenant_id = $2;
     `;
     const values = [id, tenantId];
@@ -122,7 +122,7 @@ export class VehicleDisposalRepository {
    */
   async list(tenantId: number, limit: number = 10, offset: number = 0): Promise<VehicleDisposal[]> {
     const query = `
-      SELECT * FROM vehicle_disposals
+      SELECT id, tenant_id, created_at, updated_at FROM vehicle_disposals
       WHERE tenant_id = $1
       ORDER BY id
       LIMIT $2 OFFSET $3;

@@ -46,7 +46,7 @@ export class EmergencyContactsRepository {
   // Read all emergency contacts for a tenant
   async getAll(tenantId: number): Promise<EmergencyContact[]> {
     const query = `
-      SELECT * FROM emergency_contacts
+      SELECT id, tenant_id, created_at, updated_at FROM emergency_contacts
       WHERE tenant_id = $1
       ORDER BY name;
     `;
@@ -59,7 +59,7 @@ export class EmergencyContactsRepository {
   // Read a specific emergency contact for a tenant
   async getById(tenantId: number, contactId: number): Promise<EmergencyContact | null> {
     const query = `
-      SELECT * FROM emergency_contacts
+      SELECT id, tenant_id, created_at, updated_at FROM emergency_contacts
       WHERE tenant_id = $1 AND id = $2;
     `;
     const values = [tenantId, contactId];

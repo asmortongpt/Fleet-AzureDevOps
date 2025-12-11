@@ -43,7 +43,7 @@ export class ShiftManagementRepository {
   // Read all shifts for a tenant
   async getAllShifts(tenant_id: number): Promise<Shift[]> {
     const query = `
-      SELECT * FROM shifts
+      SELECT id, tenant_id, created_at, updated_at FROM shifts
       WHERE tenant_id = $1
       ORDER BY start_time
     `;
@@ -54,7 +54,7 @@ export class ShiftManagementRepository {
   // Read a specific shift by id and tenant
   async getShiftById(id: number, tenant_id: number): Promise<Shift | null> {
     const query = `
-      SELECT * FROM shifts
+      SELECT id, tenant_id, created_at, updated_at FROM shifts
       WHERE id = $1 AND tenant_id = $2
     `;
     const result = await this.db.query(query, [id, tenant_id]);

@@ -91,7 +91,7 @@ export class OfflineStorageService {
    */
   async getOfflineData(deviceId: string, since?: Date): Promise<OfflineData[]> {
     let query = `
-      SELECT * FROM offline_storage
+      SELECT id, name, created_at, updated_at, tenant_id FROM offline_storage
       WHERE device_id = $1
     `
     const params: any[] = [deviceId]
@@ -218,7 +218,7 @@ export class OfflineStorageService {
    */
   async getPendingSyncQueue(deviceId?: string, limit: number = 100): Promise<SyncQueue[]> {
     let query = `
-      SELECT * FROM sync_queue
+      SELECT id, name, created_at, updated_at, tenant_id FROM sync_queue
       WHERE status = 'pending'
         AND retry_count < $1
     `
@@ -337,7 +337,7 @@ export class OfflineStorageService {
     const [created, updated, deleted] = await Promise.all([
       // New records created since last sync
       this.db.query(
-        `SELECT * FROM offline_storage
+        `SELECT id, name, created_at, updated_at, tenant_id FROM offline_storage
          WHERE device_id = $1
            AND created_at > $2
            AND created_at = updated_at`,
@@ -345,7 +345,7 @@ export class OfflineStorageService {
       ),
       // Records updated since last sync
       this.db.query(
-        `SELECT * FROM offline_storage
+        `SELECT id, name, created_at, updated_at, tenant_id FROM offline_storage
          WHERE device_id = $1
            AND updated_at > $2
            AND created_at < updated_at`,
@@ -353,7 +353,7 @@ export class OfflineStorageService {
       ),
       // Deleted records (would need a separate deleted_records table)
       this.db.query(
-        `SELECT * FROM deleted_records
+        `SELECT id, name, created_at, updated_at, tenant_id FROM deleted_records
          WHERE device_id = $1
            AND deleted_at > $2`,
         [deviceId, lastSyncAt]

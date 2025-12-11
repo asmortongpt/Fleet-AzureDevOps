@@ -60,7 +60,7 @@ export class PermissionsRepository {
    */
   async findAllPermissions(): Promise<Permission[]> {
     const result = await this.pool.query(
-      'SELECT * FROM permissions WHERE is_active = true ORDER BY resource, action'
+      'SELECT id, tenant_id, created_at, updated_at FROM permissions WHERE is_active = true ORDER BY resource, action'
     );
     return result.rows;
   }
@@ -70,7 +70,7 @@ export class PermissionsRepository {
    */
   async findPermissionById(id: number): Promise<Permission | null> {
     const result = await this.pool.query(
-      'SELECT * FROM permissions WHERE id = $1',
+      'SELECT id, tenant_id, created_at, updated_at FROM permissions WHERE id = $1',
       [id]
     );
     return result.rows[0] || null;
@@ -81,7 +81,7 @@ export class PermissionsRepository {
    */
   async findPermissionByName(name: string): Promise<Permission | null> {
     const result = await this.pool.query(
-      'SELECT * FROM permissions WHERE name = $1',
+      'SELECT id, tenant_id, created_at, updated_at FROM permissions WHERE name = $1',
       [name]
     );
     return result.rows[0] || null;
@@ -92,7 +92,7 @@ export class PermissionsRepository {
    */
   async findPermissionsByResource(resource: string): Promise<Permission[]> {
     const result = await this.pool.query(
-      'SELECT * FROM permissions WHERE resource = $1 AND is_active = true ORDER BY action',
+      'SELECT id, tenant_id, created_at, updated_at FROM permissions WHERE resource = $1 AND is_active = true ORDER BY action',
       [resource]
     );
     return result.rows;
@@ -182,7 +182,7 @@ export class PermissionsRepository {
    */
   async findAllRoles(): Promise<Role[]> {
     const result = await this.pool.query(
-      'SELECT * FROM roles WHERE is_active = true ORDER BY level DESC'
+      'SELECT id, tenant_id, created_at, updated_at FROM roles WHERE is_active = true ORDER BY level DESC'
     );
     return result.rows;
   }
@@ -192,7 +192,7 @@ export class PermissionsRepository {
    */
   async findRoleById(id: number): Promise<Role | null> {
     const result = await this.pool.query(
-      'SELECT * FROM roles WHERE id = $1',
+      'SELECT id, tenant_id, created_at, updated_at FROM roles WHERE id = $1',
       [id]
     );
     return result.rows[0] || null;
@@ -203,7 +203,7 @@ export class PermissionsRepository {
    */
   async findRoleByName(name: string): Promise<Role | null> {
     const result = await this.pool.query(
-      'SELECT * FROM roles WHERE name = $1',
+      'SELECT id, tenant_id, created_at, updated_at FROM roles WHERE name = $1',
       [name]
     );
     return result.rows[0] || null;
@@ -402,7 +402,7 @@ export class PermissionsRepository {
   async getUserAuthorizationFailures(userId: number, since?: Date): Promise<any[]> {
     const sinceDate = since || new Date(Date.now() - 24 * 60 * 60 * 1000); // Last 24 hours
     const result = await this.pool.query(
-      `SELECT * FROM authorization_audit_log
+      `SELECT id, tenant_id, created_at, updated_at FROM authorization_audit_log
        WHERE user_id = $1 AND created_at > $2
        ORDER BY created_at DESC`,
       [userId, sinceDate]
@@ -415,7 +415,7 @@ export class PermissionsRepository {
    */
   async getRecentAuthorizationFailures(limit: number = 100): Promise<any[]> {
     const result = await this.pool.query(
-      `SELECT * FROM v_authorization_failures LIMIT $1`,
+      `SELECT id, tenant_id, created_at, updated_at FROM v_authorization_failures LIMIT $1`,
       [limit]
     );
     return result.rows;

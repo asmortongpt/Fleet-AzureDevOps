@@ -25,7 +25,7 @@ export class CustomFieldsRepository {
   // Read a custom field by ID
   async getCustomFieldById(tenantId: string, id: string): Promise<any> {
     const query = `
-      SELECT * FROM custom_fields
+      SELECT id, tenant_id, created_at, updated_at FROM custom_fields
       WHERE id = $1 AND tenant_id = $2
     `;
     const values = [id, tenantId];
@@ -36,7 +36,7 @@ export class CustomFieldsRepository {
   // Read all custom fields for a tenant
   async getAllCustomFields(tenantId: string): Promise<any[]> {
     const query = `
-      SELECT * FROM custom_fields
+      SELECT id, tenant_id, created_at, updated_at FROM custom_fields
       WHERE tenant_id = $1
       ORDER BY created_at DESC
     `;
@@ -72,7 +72,7 @@ export class CustomFieldsRepository {
   // Get custom fields by type
   async getCustomFieldsByType(tenantId: string, type: string): Promise<any[]> {
     const query = `
-      SELECT * FROM custom_fields
+      SELECT id, tenant_id, created_at, updated_at FROM custom_fields
       WHERE tenant_id = $1 AND type = $2
       ORDER BY created_at DESC
     `;
@@ -84,7 +84,7 @@ export class CustomFieldsRepository {
   // Get custom fields by name (partial match)
   async getCustomFieldsByName(tenantId: string, name: string): Promise<any[]> {
     const query = `
-      SELECT * FROM custom_fields
+      SELECT id, tenant_id, created_at, updated_at FROM custom_fields
       WHERE tenant_id = $1 AND name ILIKE $2
       ORDER BY created_at DESC
     `;
@@ -96,7 +96,7 @@ export class CustomFieldsRepository {
   // Get custom fields by is_required status
   async getCustomFieldsByRequiredStatus(tenantId: string, isRequired: boolean): Promise<any[]> {
     const query = `
-      SELECT * FROM custom_fields
+      SELECT id, tenant_id, created_at, updated_at FROM custom_fields
       WHERE tenant_id = $1 AND is_required = $2
       ORDER BY created_at DESC
     `;

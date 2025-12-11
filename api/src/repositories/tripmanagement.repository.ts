@@ -16,7 +16,7 @@ export class TripManagementRepository {
 
   async findAll(tenantId: number): Promise<Trip[]> {
     try {
-      const query = 'SELECT * FROM trips WHERE tenant_id = $1 AND deleted_at IS NULL';
+      const query = 'SELECT id, tenant_id, created_at, updated_at FROM trips WHERE tenant_id = $1 AND deleted_at IS NULL';
       const result: QueryResult<Trip> = await this.pool.query(query, [tenantId]);
       return result.rows;
     } catch (error) {
@@ -26,7 +26,7 @@ export class TripManagementRepository {
 
   async findById(tenantId: number, id: number): Promise<Trip | null> {
     try {
-      const query = 'SELECT * FROM trips WHERE tenant_id = $1 AND id = $2 AND deleted_at IS NULL';
+      const query = 'SELECT id, tenant_id, created_at, updated_at FROM trips WHERE tenant_id = $1 AND id = $2 AND deleted_at IS NULL';
       const result: QueryResult<Trip> = await this.pool.query(query, [tenantId, id]);
       return result.rows[0] || null;
     } catch (error) {

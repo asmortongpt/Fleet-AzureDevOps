@@ -9,13 +9,13 @@ export class PartsInventoryRepository {
   }
 
   async getAll(tenantId: string): Promise<PartsInventory[]> {
-    const query = 'SELECT * FROM parts_inventory WHERE tenant_id = $1';
+    const query = 'SELECT id, tenant_id, created_at, updated_at FROM parts_inventory WHERE tenant_id = $1';
     const result = await this.pool.query(query, [tenantId]);
     return result.rows;
   }
 
   async getById(id: string, tenantId: string): Promise<PartsInventory | null> {
-    const query = 'SELECT * FROM parts_inventory WHERE id = $1 AND tenant_id = $2';
+    const query = 'SELECT id, tenant_id, created_at, updated_at FROM parts_inventory WHERE id = $1 AND tenant_id = $2';
     const result = await this.pool.query(query, [id, tenantId]);
     return result.rows[0] || null;
   }

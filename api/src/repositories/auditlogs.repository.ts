@@ -43,7 +43,7 @@ export class AuditLogsRepository {
   // Read audit log entries for a specific tenant
   async read(tenantId: string, limit: number = 10, offset: number = 0): Promise<AuditLog[]> {
     const query = `
-      SELECT * FROM audit_logs
+      SELECT id, tenant_id, created_at, updated_at FROM audit_logs
       WHERE tenant_id = $1
       ORDER BY timestamp DESC
       LIMIT $2 OFFSET $3

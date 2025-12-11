@@ -16,7 +16,7 @@ export class AlertRepository extends BaseRepository<Alert> {
 
   async findByTenantId(tenantId: number): Promise<Alert[]> {
     const query = `
-      SELECT * FROM ${this.tableName}
+      SELECT id, created_at, updated_at FROM ${this.tableName}
       WHERE tenant_id = $1
       ORDER BY created_at DESC
     `
@@ -25,7 +25,7 @@ export class AlertRepository extends BaseRepository<Alert> {
 
   async findByIdAndTenant(id: number, tenantId: number): Promise<Alert | null> {
     const query = `
-      SELECT * FROM ${this.tableName}
+      SELECT id, created_at, updated_at FROM ${this.tableName}
       WHERE id = $1 AND tenant_id = $2
     `
     const results = await this.query(query, [id, tenantId])
