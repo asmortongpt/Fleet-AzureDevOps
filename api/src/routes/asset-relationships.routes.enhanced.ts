@@ -1,18 +1,20 @@
-import { Router } from 'express'
-import { z } from 'zod'
+import { Router } from 'express';
+import { z } from 'zod';
 
-import { auditLog } from '../middleware/audit'
-import type { AuthRequest } from '../middleware/auth'
-import { authenticateJWT } from '../middleware/auth'
-import { requirePermission } from '../middleware/permissions'
+import { auditLog } from '../middleware/audit';
+import type { AuthRequest } from '../middleware/auth';
+import { authenticateJWT } from '../middleware/auth';
+import { requirePermission } from '../middleware/permissions';
 
+// Import repositories
+import { AssetRelationshipRepository } from '../repositories/AssetRelationshipRepository';
+import { VehicleRepository } from '../repositories/VehicleRepository';
+import { UserRepository } from '../repositories/UserRepository';
 
-
-
-const router = Router()
+const router = Router();
 
 // Apply authentication to all routes
-router.use(authenticateJWT)
+router.use(authenticateJWT);
 
 // Zod schema for query validation
 const querySchema = z.object({
@@ -20,7 +22,7 @@ const querySchema = z.object({
   child_asset_id: z.string().optional(),
   relationship_type: z.enum(['TOWS', 'ATTACHED', 'CARRIES', 'POWERS', 'CONTAINS']).optional(),
   active_only: z.boolean().default(true),
-})
+});
 
 router.get(
   '/',
@@ -29,54 +31,46 @@ router.get(
   async (req: AuthRequest, res) => {
     try {
       // Validate query parameters
-      const validatedQuery = querySchema.parse(req.query)
+      const validatedQuery = querySchema.parse(req.query);
 
-      let query = `
-        SELECT
-          ar.*,
-          vp.make || ' ' || vp.model || ' (' || vp.vin || ')' as parent_asset_name,
-          vp.asset_type as parent_asset_type,
-          vc.make || ' ' || vc.model || ' (' || vc.vin || ')' as child_asset_name,
-          vc.asset_type as child_asset_type,
-          u.first_name || ' ' || u.last_name as created_by_name
-        FROM asset_relationships ar
-        LEFT JOIN vehicles vp ON ar.parent_asset_id = vp.id
-        LEFT JOIN vehicles vc ON ar.child_asset_id = vc.id
-        LEFT JOIN users u ON ar.created_by = u.id
-        WHERE vp.tenant_id = $1
-      `
+      // Initialize repositories
+      const assetRelationshipRepository = new AssetRelationshipRepository();
+      const vehicleRepository = new VehicleRepository();
+      const userRepository = new UserRepository();
 
-      const params: any[] = [req.user!.tenant_id]
-      let paramIndex = 2
+      // Fetch asset relationships
+      const relationships = await assetRelationshipRepository.getAssetRelationships({
+        tenantId: req.user!.tenant_id,
+        parentAssetId: validatedQuery.parent_asset_id,
+        childAssetId: validatedQuery.child_asset_id,
+        relationshipType: validatedQuery.relationship_type,
+        activeOnly: validatedQuery.active_only,
+      });
 
-      if (validatedQuery.parent_asset_id) {
-        query += ` AND ar.parent_asset_id = $${paramIndex++}`
-        params.push(validatedQuery.parent_asset_id)
-      }
+      // Process relationships to include additional data
+      const processedRelationships = await Promise.all(relationships.map(async (relationship) => {
+        const [parentVehicle, childVehicle, createdByUser] = await Promise.all([
+          vehicleRepository.getVehicleById(relationship.parent_asset_id),
+          vehicleRepository.getVehicleById(relationship.child_asset_id),
+          userRepository.getUserById(relationship.created_by),
+        ]);
 
-      if (validatedQuery.child_asset_id) {
-        query += ` AND ar.child_asset_id = $${paramIndex++}`
-        params.push(validatedQuery.child_asset_id)
-      }
+        return {
+          ...relationship,
+          parent_asset_name: parentVehicle ? `${parentVehicle.make} ${parentVehicle.model} (${parentVehicle.vin})` : null,
+          parent_asset_type: parentVehicle ? parentVehicle.asset_type : null,
+          child_asset_name: childVehicle ? `${childVehicle.make} ${childVehicle.model} (${childVehicle.vin})` : null,
+          child_asset_type: childVehicle ? childVehicle.asset_type : null,
+          created_by_name: createdByUser ? `${createdByUser.first_name} ${createdByUser.last_name}` : null,
+        };
+      }));
 
-      if (validatedQuery.relationship_type) {
-        query += ` AND ar.relationship_type = $${paramIndex++}`
-        params.push(validatedQuery.relationship_type)
-      }
-
-      if (validatedQuery.active_only) {
-        query += ` AND (ar.effective_to IS NULL OR ar.effective_to > NOW()`
-      }
-
-      query += ` ORDER BY ar.effective_from DESC`
-
-      const { rows } = await pool.query(query, params)
-      res.json(rows)
+      res.json(processedRelationships);
     } catch (error) {
-      console.error('Failed to get asset relationships:', error)
-      res.status(500).json({ message: 'Internal server error' })
+      console.error('Failed to get asset relationships:', error);
+      res.status(500).json({ message: 'Internal server error' });
     }
   }
-)
+);
 
-export default router
+export default router;
