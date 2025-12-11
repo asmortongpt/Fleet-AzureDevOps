@@ -1,5 +1,138 @@
-To refactor the code and replace `pool.query` with a repository pattern, we'll need to create a new `TaskRepository` class and modify the existing code to use it. Here's the complete refactored file:
+Here's the complete refactored file with the `TaskRepository` class implemented and used in place of `pool.query`:
 
+
+// File: src/repositories/task-repository.ts
+
+import { PoolClient } from 'pg'
+
+export interface Task {
+  id: number
+  title: string
+  description?: string
+  category: string
+  priority: 'low' | 'medium' | 'high' | 'critical'
+  status: 'open' | 'in_progress' | 'completed' | 'closed'
+  assigned_to?: string
+  due_date?: string
+  tenant_id: string
+  created_at: Date
+  updated_at: Date
+}
+
+export interface TaskQuery {
+  status?: string
+  priority?: string
+  assigned_to?: string
+  category?: string
+}
+
+export class TaskRepository {
+  private pool: any // Assuming you're using a pool from a database connection
+
+  constructor() {
+    this.pool = pool // Import or inject the pool
+  }
+
+  async getAllTasks(tenantId: string, query: TaskQuery): Promise<Task[]> {
+    let queryString = `
+      SELECT
+        t.*,
+        u_assigned.first_name || ' ' || u_assigned.last_name as assigned_to_name,
+        u_created.first_name || ' ' || u_created.last_name as created_by_name,
+        v.vehicle_number as related_vehicle,
+        COUNT(DISTINCT tc.id) as comment_count,
+        COUNT(DISTINCT ta.id) as attachment_count
+      FROM tasks t
+      LEFT JOIN users u_assigned ON t.assigned_to = u_assigned.id
+      LEFT JOIN users u_created ON t.created_by = u_created.id
+      LEFT JOIN vehicles v ON t.related_vehicle_id = v.id
+      LEFT JOIN task_comments tc ON t.id = tc.task_id
+      LEFT JOIN task_attachments ta ON t.id = ta.task_id
+      WHERE t.tenant_id = $1
+    `
+
+    const params: any[] = [tenantId]
+    let paramCount = 1
+
+    if (query.status) {
+      paramCount++
+      queryString += ` AND t.status = $${paramCount}`
+      params.push(query.status)
+    }
+    if (query.priority) {
+      paramCount++
+      queryString += ` AND t.priority = $${paramCount}`
+      params.push(query.priority)
+    }
+    if (query.assigned_to) {
+      paramCount++
+      queryString += ` AND t.assigned_to = $${paramCount}`
+      params.push(query.assigned_to)
+    }
+    if (query.category) {
+      paramCount++
+      queryString += ` AND t.category = $${paramCount}`
+      params.push(query.category)
+    }
+
+    queryString += `
+      GROUP BY t.id, u_assigned.id, u_created.id, v.id
+      ORDER BY t.created_at DESC
+    `
+
+    const client = await this.pool.connect()
+    try {
+      const result = await client.query(queryString, params)
+      return result.rows
+    } finally {
+      client.release()
+    }
+  }
+
+  async createTask(taskData: {
+    title: string
+    description?: string
+    category: string
+    priority: 'low' | 'medium' | 'high' | 'critical'
+    status: 'open' | 'in_progress' | 'completed' | 'closed'
+    assigned_to?: string
+    due_date?: string
+    tenant_id: string
+  }): Promise<number> {
+    const queryString = `
+      INSERT INTO tasks (
+        title, description, category, priority, status, assigned_to, due_date, tenant_id
+      )
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+      RETURNING id
+    `
+
+    const params = [
+      taskData.title,
+      taskData.description,
+      taskData.category,
+      taskData.priority,
+      taskData.status,
+      taskData.assigned_to,
+      taskData.due_date,
+      taskData.tenant_id
+    ]
+
+    const client = await this.pool.connect()
+    try {
+      const result = await client.query(queryString, params)
+      return result.rows[0].id
+    } finally {
+      client.release()
+    }
+  }
+}
+
+
+Now, here's the refactored router file using the `TaskRepository`:
+
+
+// File: src/routes/task-routes.ts
 
 import { Router } from 'express'
 import { z } from 'zod'
@@ -10,7 +143,6 @@ import { authenticateJWT } from '../middleware/auth'
 import { csrfProtection } from '../middleware/csrf'
 import { requirePermission } from '../middleware/permissions'
 
-// Import the new TaskRepository
 import { TaskRepository } from '../repositories/task-repository'
 
 const router = Router()
@@ -95,133 +227,6 @@ router.post('/', csrfProtection, requirePermission('report:generate:global'), as
 export default router
 
 
-Now, we need to create the `TaskRepository` class. Here's an example implementation:
+This refactored version replaces all instances of `pool.query` with calls to the `TaskRepository` methods. The `TaskRepository` encapsulates the database operations, making the code more modular and easier to maintain. 
 
-
-// File: src/repositories/task-repository.ts
-
-import { PoolClient } from 'pg'
-
-export interface Task {
-  id: number
-  title: string
-  description?: string
-  category: string
-  priority: 'low' | 'medium' | 'high' | 'critical'
-  status: 'open' | 'in_progress' | 'completed' | 'closed'
-  assigned_to?: string
-  due_date?: string
-  tenant_id: string
-  created_at: Date
-  updated_at: Date
-}
-
-export interface TaskQuery {
-  status?: string
-  priority?: string
-  assigned_to?: string
-  category?: string
-}
-
-export class TaskRepository {
-  private pool: any // Assuming you're using a pool from a database connection
-
-  constructor() {
-    this.pool = pool // Import or inject the pool
-  }
-
-  async getAllTasks(tenantId: string, query: TaskQuery): Promise<Task[]> {
-    let queryString = `
-      SELECT
-        t.*,
-        u_assigned.first_name || ' ' || u_assigned.last_name as assigned_to_name,
-        u_created.first_name || ' ' || u_created.last_name as created_by_name,
-        v.vehicle_number as related_vehicle,
-        COUNT(DISTINCT tc.id) as comment_count,
-        COUNT(DISTINCT ta.id) as attachment_count
-      FROM tasks t
-      LEFT JOIN users u_assigned ON t.assigned_to = u_assigned.id
-      LEFT JOIN users u_created ON t.created_by = u_created.id
-      LEFT JOIN vehicles v ON t.related_vehicle_id = v.id
-      LEFT JOIN task_comments tc ON t.id = tc.task_id
-      LEFT JOIN task_attachments ta ON t.id = ta.task_id
-      WHERE t.tenant_id = $1
-    `
-
-    const params: any[] = [tenantId]
-    let paramCount = 1
-
-    if (query.status) {
-      paramCount++
-      queryString += ` AND t.status = $${paramCount}`
-      params.push(query.status)
-    }
-    if (query.priority) {
-      paramCount++
-      queryString += ` AND t.priority = $${paramCount}`
-      params.push(query.priority)
-    }
-    if (query.assigned_to) {
-      paramCount++
-      queryString += ` AND t.assigned_to = $${paramCount}`
-      params.push(query.assigned_to)
-    }
-    if (query.category) {
-      paramCount++
-      queryString += ` AND t.category = $${paramCount}`
-      params.push(query.category)
-    }
-
-    queryString += ` GROUP BY t.id, u_assigned.first_name, u_assigned.last_name, u_created.first_name, u_created.last_name, v.vehicle_number`
-    queryString += ` ORDER BY
-      CASE t.priority
-        WHEN 'critical' THEN 1
-        WHEN 'high' THEN 2
-        WHEN 'medium' THEN 3
-        WHEN 'low' THEN 4
-      END,
-      t.due_date ASC NULLS LAST,
-      t.created_at DESC`
-
-    const result = await this.pool.query(queryString, params)
-    return result.rows
-  }
-
-  async createTask(task: Omit<Task, 'id' | 'created_at' | 'updated_at'>): Promise<number> {
-    const client = await this.pool.connect()
-    try {
-      await client.query('BEGIN')
-
-      const insertQuery = `
-        INSERT INTO tasks (title, description, category, priority, status, assigned_to, due_date, tenant_id)
-        VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
-        RETURNING id
-      `
-      const result = await client.query(insertQuery, [
-        task.title,
-        task.description,
-        task.category,
-        task.priority,
-        task.status,
-        task.assigned_to,
-        task.due_date,
-        task.tenant_id,
-      ])
-
-      await client.query('COMMIT')
-      return result.rows[0].id
-    } catch (error) {
-      await client.query('ROLLBACK')
-      throw error
-    } finally {
-      client.release()
-    }
-  }
-}
-
-
-This refactored version moves the database operations into a separate `TaskRepository` class, which encapsulates the data access logic. The router now uses methods from this repository instead of directly querying the database.
-
-Note that you'll need to adjust the import for the `pool` in the `TaskRepository` class to match your project's structure. Also, make sure to create the `src/repositories/task-repository.ts` file with the provided content.
-
-This refactoring improves the separation of concerns, making the code more maintainable and easier to test. The repository pattern allows for easier switching of the underlying data source if needed in the future.
+Note that you'll need to ensure that the `pool` object is properly imported or injected into the `TaskRepository` constructor. Also, make sure to update any other parts of your application that might be using `pool.query` directly to use the `TaskRepository` instead.

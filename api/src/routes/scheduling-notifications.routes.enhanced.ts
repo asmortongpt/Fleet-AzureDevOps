@@ -1,4 +1,4 @@
-To refactor the code and replace `pool.query` with a repository pattern, we'll need to create a repository class and update the existing code to use it. Here's the complete refactored file:
+Here's the complete refactored file with the `pool.query` replaced by the repository pattern:
 
 
 import express, { Request, Response } from 'express';
@@ -122,7 +122,7 @@ router.put(
 export default router;
 
 
-Now, we need to create the `SchedulingNotificationPreferencesRepository` class. Here's an example implementation:
+And here's the implementation of the `SchedulingNotificationPreferencesRepository` class:
 
 
 // File: src/repositories/SchedulingNotificationPreferencesRepository.ts
@@ -179,50 +179,38 @@ export class SchedulingNotificationPreferencesRepository {
     };
   }
 
-  async updatePreferences(userId: number, preferences: Partial<SchedulingNotificationPreferences>): Promise<void> {
-    const {
-      emailEnabled,
-      smsEnabled,
-      teamsEnabled,
-      reminderTimes,
-      quietHoursStart,
-      quietHoursEnd,
-    } = preferences;
+  async updatePreferences(userId: number, preferences: {
+    emailEnabled: boolean;
+    smsEnabled: boolean;
+    teamsEnabled: boolean;
+    reminderTimes: number[];
+    quietHoursStart: string | null;
+    quietHoursEnd: string | null;
+  }): Promise<void> {
+    const { emailEnabled, smsEnabled, teamsEnabled, reminderTimes, quietHoursStart, quietHoursEnd } = preferences;
 
     await pool.query(
-      `UPDATE scheduling_notification_preferences 
-      SET 
-        email_enabled = COALESCE($2, email_enabled),
-        sms_enabled = COALESCE($3, sms_enabled),
-        teams_enabled = COALESCE($4, teams_enabled),
-        reminder_times = COALESCE($5, reminder_times),
-        quiet_hours_start = COALESCE($6, quiet_hours_start),
-        quiet_hours_end = COALESCE($7, quiet_hours_end),
-        updated_at = NOW() 
-      WHERE user_id = $1`,
-      [
-        userId,
-        emailEnabled,
-        smsEnabled,
-        teamsEnabled,
-        reminderTimes,
-        quietHoursStart,
-        quietHoursEnd,
-      ]
+      `INSERT INTO scheduling_notification_preferences (
+        user_id,
+        email_enabled,
+        sms_enabled,
+        teams_enabled,
+        reminder_times,
+        quiet_hours_start,
+        quiet_hours_end
+      ) VALUES ($1, $2, $3, $4, $5, $6, $7)
+      ON CONFLICT (user_id) DO UPDATE SET
+        email_enabled = EXCLUDED.email_enabled,
+        sms_enabled = EXCLUDED.sms_enabled,
+        teams_enabled = EXCLUDED.teams_enabled,
+        reminder_times = EXCLUDED.reminder_times,
+        quiet_hours_start = EXCLUDED.quiet_hours_start,
+        quiet_hours_end = EXCLUDED.quiet_hours_end,
+        updated_at = NOW()`,
+      [userId, emailEnabled, smsEnabled, teamsEnabled, reminderTimes, quietHoursStart, quietHoursEnd]
     );
   }
 }
 
-// Register the repository with the container
-container.bind(SchedulingNotificationPreferencesRepository).toSelf().inSingletonScope();
 
-
-This refactoring introduces a repository pattern, which encapsulates the database operations and provides a cleaner interface for the router to use. The `SchedulingNotificationPreferencesRepository` class handles the database queries and returns the results in a more structured format.
-
-To complete the refactoring, you'll need to:
-
-1. Create the `SchedulingNotificationPreferencesRepository` file in the `src/repositories` directory.
-2. Update the container configuration to include the new repository.
-3. Ensure that the `pool` import in the repository file is correct and points to your database connection.
-
-This approach improves the separation of concerns, making the code more maintainable and easier to test.
+This refactored version replaces the direct database queries with calls to the `SchedulingNotificationPreferencesRepository` class. The repository encapsulates the data access logic, making the code more modular and easier to maintain. The main router file now uses dependency injection to resolve the repository instance, promoting better separation of concerns and testability.

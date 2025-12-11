@@ -1,4 +1,4 @@
-To refactor the code and replace `pool.query` with a repository pattern, we'll need to create a `TelemetryRepository` class and update the existing code to use it. Here's the complete refactored file:
+Here's the complete refactored file with the `TelemetryRepository` class implemented and used in place of `pool.query`:
 
 
 import express, { Response } from 'express';
@@ -115,7 +115,7 @@ router.put(
 export default router;
 
 
-Now, we need to create the `TelemetryRepository` class. Here's an example implementation:
+And here's the implementation of the `TelemetryRepository` class:
 
 
 // File: src/repositories/telemetry-repository.ts
@@ -148,29 +148,30 @@ export class TelemetryRepository {
   }
 
   async createTelemetryData(tenantId: string, data: any): Promise<any> {
-    const { columnNames, placeholders, values } = buildInsertClause(data, ['tenant_id'], 1);
-
-    const result = await this.pool.query(
-      `INSERT INTO telemetry_data (${columnNames}) VALUES (${placeholders}) RETURNING *`,
-      [tenantId, ...values]
-    );
-
+    const { columnNames, placeholders, values } = buildInsertClause(data);
+    const query = `
+      INSERT INTO telemetry_data (tenant_id, ${columnNames})
+      VALUES ($1, ${placeholders})
+      RETURNING *
+    `;
+    const result = await this.pool.query(query, [tenantId, ...values]);
     return result.rows[0];
   }
 
   async updateTelemetryData(id: string, tenantId: string, data: any): Promise<any | null> {
-    const { fields, values } = buildUpdateClause(data, 3);
-
-    const result = await this.pool.query(
-      `UPDATE telemetry_data SET ${fields} WHERE id = $1 AND tenant_id = $2 RETURNING *`,
-      [id, tenantId, ...values]
-    );
-
-    return result.rows.length > 0 ? result.rows[0] : null;
+    const { setClause, values } = buildUpdateClause(data);
+    const query = `
+      UPDATE telemetry_data
+      SET ${setClause}
+      WHERE id = $1 AND tenant_id = $2
+      RETURNING *
+    `;
+    const result = await this.pool.query(query, [id, tenantId, ...values]);
+    return result.rows[0] || null;
   }
 }
 
 
-This refactoring introduces a `TelemetryRepository` class that encapsulates the database operations. The router now uses this repository instead of directly querying the database. This approach improves code organization, makes it easier to test, and allows for better separation of concerns.
+This refactored version replaces all `pool.query` calls with methods from the `TelemetryRepository` class. The repository encapsulates the database operations and provides a cleaner interface for the router to use. The `TelemetryRepository` class is responsible for executing the actual database queries using the `pool` object obtained from the dependency injection container.
 
-Note that you'll need to ensure that the `dbPool` is properly set up in your container and that the `buildInsertClause` and `buildUpdateClause` functions are correctly implemented in the `sql-safety` utility file.
+Note that the `TelemetryRepository` class is stored in a separate file (`telemetry-repository.ts`) in the `repositories` directory, as per the import statement in the main file.

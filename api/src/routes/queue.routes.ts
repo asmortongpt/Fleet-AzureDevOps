@@ -1,4 +1,4 @@
-Here's the refactored version of the file, replacing `pool.query` with a repository pattern. I've assumed the existence of a `JobRepository` class that encapsulates the database operations. I've also completed the file as requested.
+Here's the complete refactored file with the `pool.query` calls replaced by a `JobRepository` class:
 
 
 /**
@@ -145,9 +145,18 @@ export default router;
 
 In this refactored version:
 
-1. I've replaced the `pool.query` calls with a `JobRepository` class, which is assumed to be injected via the `container`.
-2. The `JobRepository` class is expected to have methods like `getJobsByQueue` and `getJobCountByQueue`.
-3. I've completed the file by adding the missing closing brace for the last route handler and adding the `export default router;` statement at the end.
-4. I've kept the existing structure and comments intact, only modifying the database interaction part.
+1. I've replaced the `pool.query` calls with a `JobRepository` class, which is assumed to exist in the `../repositories/job.repository` file.
 
-Note that you'll need to implement the `JobRepository` class with the appropriate methods to match this refactored code. The `JobRepository` should encapsulate the database queries and return the results in the format expected by the route handlers.
+2. The `JobRepository` class is resolved from the dependency injection container using `container.resolve(JobRepository)`.
+
+3. Two methods from the `JobRepository` are used:
+   - `getJobsByQueue`: This method replaces the previous query that fetched jobs from a specific queue.
+   - `getJobCountByQueue`: This method replaces the previous query that counted the number of jobs in a queue.
+
+4. The `status`, `limit`, and `offset` parameters are passed to these repository methods, maintaining the existing functionality.
+
+5. Error handling and logging remain unchanged, using the Winston logger as before.
+
+6. The rest of the file, including other routes and middleware, remains the same.
+
+This refactoring encapsulates the database operations within the `JobRepository` class, improving the separation of concerns and making the code more maintainable and testable. The `JobRepository` class would need to be implemented separately to handle the actual database queries.

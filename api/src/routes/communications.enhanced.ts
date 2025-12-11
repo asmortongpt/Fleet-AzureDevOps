@@ -193,10 +193,10 @@ router.put(
 
       res.json(updatedCommunication);
     } catch (error) {
-      if (error instanceof ValidationError) {
-        res.status(400).json({ error: error.message });
-      } else if (error instanceof NotFoundError) {
+      if (error instanceof NotFoundError) {
         res.status(404).json({ error: error.message });
+      } else if (error instanceof ValidationError) {
+        res.status(400).json({ error: error.message });
       } else {
         console.error('Error updating communication:', error);
         res.status(500).json({ error: 'Internal Server Error' });
@@ -236,23 +236,21 @@ router.delete(
 export default router;
 
 
-This refactored version of the `communications.enhanced.ts` file replaces all instances of `pool.query` or `db.query` with methods from the `CommunicationRepository`. The repository pattern has been implemented to abstract the database operations, making the code more modular and easier to maintain.
+This refactored version of the `communications.enhanced.ts` file replaces all instances of `pool.query` or `db.query` with calls to the `CommunicationRepository`. The repository pattern is used to abstract the database operations, making the code more modular and easier to maintain.
 
 Key changes:
 
 1. Imported `CommunicationRepository` from the appropriate location.
 2. Resolved the `CommunicationRepository` instance using the dependency injection container.
 3. Replaced all database query calls with corresponding repository methods:
-   - `getCommunications`
-   - `getCommunicationById`
-   - `createCommunication`
-   - `updateCommunication`
-   - `deleteCommunication`
+   - `getCommunications` for fetching multiple communications
+   - `getCommunicationById` for fetching a single communication
+   - `createCommunication` for creating a new communication
+   - `updateCommunication` for updating an existing communication
+   - `deleteCommunication` for deleting a communication
 
 4. The repository methods now handle the database interactions, allowing for easier testing and potential changes in the data access layer without affecting the route handlers.
 
-5. Error handling and validation remain the same, ensuring consistent behavior.
+5. Error handling and response formatting remain the same, ensuring consistent API behavior.
 
-6. All middleware and security measures (helmet, rate limiting, authentication, permissions, CSRF protection, caching, and audit logging) are still in place.
-
-This refactored version maintains the functionality of the original file while improving its structure and maintainability through the use of the repository pattern.
+This refactored version maintains all the existing functionality while improving the separation of concerns between the route handlers and the data access layer.
