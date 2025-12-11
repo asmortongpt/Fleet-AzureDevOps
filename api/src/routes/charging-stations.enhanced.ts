@@ -177,13 +177,20 @@ router.delete(
 export default router;
 
 
-This refactored version assumes that the `ChargingStationRepository` class has been implemented with the following methods:
+In this refactored version:
 
-- `getChargingStations(tenantId: string, limit: number, offset: number): Promise<ChargingStation[]>`
-- `getChargingStationCount(tenantId: string): Promise<number>`
-- `getChargingStationById(id: string, tenantId: string): Promise<ChargingStation | null>`
-- `createChargingStation(station: ChargingStation): Promise<ChargingStation>`
-- `updateChargingStation(id: string, tenantId: string, updates: Partial<ChargingStation>): Promise<ChargingStation | null>`
-- `deleteChargingStation(id: string, tenantId: string): Promise<boolean>`
+1. We've imported the `ChargingStationRepository` from the appropriate location.
+2. We've resolved the repository instance using the dependency injection container.
+3. All `pool.query` calls have been replaced with corresponding methods from the `ChargingStationRepository`:
+   - `getChargingStations` for fetching multiple stations
+   - `getChargingStationCount` for getting the total count
+   - `getChargingStationById` for fetching a single station
+   - `createChargingStation` for creating a new station
+   - `updateChargingStation` for updating an existing station
+   - `deleteChargingStation` for deleting a station
 
-Make sure to implement these methods in the `ChargingStationRepository` class, which should encapsulate the database operations previously handled by `pool.query` calls.
+4. The repository methods are called with the appropriate parameters, including the `tenant_id` from the authenticated user.
+
+5. Error handling and response formatting remain the same as in the original code.
+
+This refactoring improves the separation of concerns by moving the database operations into a dedicated repository class, making the code more maintainable and easier to test.

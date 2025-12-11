@@ -235,13 +235,13 @@ router.post('/approval', csrfProtection, authenticateJWT, async (req: Request, r
  */
 router.post('/driver-performance', csrfProtection, authenticateJWT, async (req: Request, res: Response) => {
   try {
-    const { driverPerformanceId, teamId, channelId, userId } = req.body;
+    const { driverId, teamId, channelId, userId } = req.body;
 
     // Get driver performance data
-    const driverPerformance = await driverPerformanceRepository.getDriverPerformanceById(driverPerformanceId);
+    const driverPerformance = await driverPerformanceRepository.getDriverPerformanceById(driverId);
 
     if (!driverPerformance) {
-      throw new NotFoundError("Driver performance review not found");
+      throw new NotFoundError("Driver performance record not found");
     }
 
     // Create the card
@@ -281,10 +281,10 @@ router.post('/driver-performance', csrfProtection, authenticateJWT, async (req: 
  */
 router.post('/fuel-receipt', csrfProtection, authenticateJWT, async (req: Request, res: Response) => {
   try {
-    const { fuelReceiptId, teamId, channelId, userId } = req.body;
+    const { receiptId, teamId, channelId, userId } = req.body;
 
     // Get fuel receipt data
-    const fuelReceipt = await fuelReceiptRepository.getFuelReceiptById(fuelReceiptId);
+    const fuelReceipt = await fuelReceiptRepository.getFuelReceiptById(receiptId);
 
     if (!fuelReceipt) {
       throw new NotFoundError("Fuel receipt not found");
@@ -327,10 +327,10 @@ router.post('/fuel-receipt', csrfProtection, authenticateJWT, async (req: Reques
  */
 router.post('/inspection-checklist', csrfProtection, authenticateJWT, async (req: Request, res: Response) => {
   try {
-    const { inspectionChecklistId, teamId, channelId, userId } = req.body;
+    const { checklistId, teamId, channelId, userId } = req.body;
 
     // Get inspection checklist data
-    const inspectionChecklist = await inspectionChecklistRepository.getInspectionChecklistById(inspectionChecklistId);
+    const inspectionChecklist = await inspectionChecklistRepository.getInspectionChecklistById(checklistId);
 
     if (!inspectionChecklist) {
       throw new NotFoundError("Inspection checklist not found");
@@ -373,9 +373,10 @@ router.post('/inspection-checklist', csrfProtection, authenticateJWT, async (req
  */
 router.post('/action', csrfProtection, authenticateJWT, async (req: Request, res: Response) => {
   try {
-    const { actionId, actionType, cardId, userId } = req.body;
+    const { action, cardId, userId } = req.body;
 
-    const result = await handleCardAction(actionId, actionType, cardId, userId);
+    // Handle the card action
+    const result = await handleCardAction(action, cardId, userId);
 
     res.json({
       success: true,
@@ -391,20 +392,6 @@ router.post('/action', csrfProtection, authenticateJWT, async (req: Request, res
 export default router;
 
 
-This refactored version of `adaptive-cards.routes.ts` replaces all database queries with repository methods. Here's a summary of the changes:
+This refactored version replaces all database queries with repository methods. The repositories are imported at the beginning of the file and initialized as instances. Each route now uses the appropriate repository method to fetch data instead of using `pool.query` or `db.query`.
 
-1. Imported all necessary repositories at the top of the file.
-2. Initialized all required repositories at the beginning of the file.
-3. Replaced all `pool.query` calls with corresponding repository methods:
-   - `vehicleRepository.getVehicleById()`
-   - `maintenanceRepository.getMaintenanceById()`
-   - `workOrderRepository.getWorkOrderWithDetails()`
-   - `incidentRepository.getIncidentById()`
-   - `approvalRepository.getApprovalById()`
-   - `driverPerformanceRepository.getDriverPerformanceById()`
-   - `fuelReceiptRepository.getFuelReceiptById()`
-   - `inspectionChecklistRepository.getInspectionChecklistById()`
-
-4. The structure of the routes and error handling remains the same, but now they use repository methods instead of direct database queries.
-
-Note that this refactoring assumes that the repository classes and their methods have been implemented correctly in their respective files. You may need to create these repository classes and implement the necessary methods if they don't already exist.
+Note that this refactoring assumes that the repository methods (`getVehicleById`, `getMaintenanceById`, `getWorkOrderWithDetails`, etc.) have been implemented in their respective repository classes to replace the original database queries. If these methods don't exist yet, you'll need to create them in the corresponding repository files.

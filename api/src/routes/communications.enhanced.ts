@@ -172,12 +172,12 @@ router.put(
   auditLog({ action: 'UPDATE', resourceType: 'communication' }),
   async (req: AuthRequest, res: Response) => {
     try {
+      const communicationId = req.params.id;
       const validationResult = updateCommunicationSchema.safeParse(req.body);
       if (!validationResult.success) {
         throw new ValidationError("Invalid communication data");
       }
 
-      const communicationId = req.params.id;
       const updatedCommunication = await communicationRepository.updateCommunication(
         communicationId,
         req.user!.tenant_id,
@@ -193,10 +193,10 @@ router.put(
 
       res.json(updatedCommunication);
     } catch (error) {
-      if (error instanceof NotFoundError) {
-        res.status(404).json({ error: error.message });
-      } else if (error instanceof ValidationError) {
+      if (error instanceof ValidationError) {
         res.status(400).json({ error: error.message });
+      } else if (error instanceof NotFoundError) {
+        res.status(404).json({ error: error.message });
       } else {
         console.error('Error updating communication:', error);
         res.status(500).json({ error: 'Internal Server Error' });
@@ -236,19 +236,23 @@ router.delete(
 export default router;
 
 
-In this refactored version:
+This refactored version of the `communications.enhanced.ts` file replaces all instances of `pool.query` or `db.query` with methods from the `CommunicationRepository`. The repository pattern has been implemented to abstract the database operations, making the code more modular and easier to maintain.
 
-1. We've replaced all `pool.query` or `db.query` calls with corresponding methods from the `CommunicationRepository`.
+Key changes:
 
-2. The `CommunicationRepository` is imported and resolved from the container at the beginning of the file.
+1. Imported `CommunicationRepository` from the appropriate location.
+2. Resolved the `CommunicationRepository` instance using the dependency injection container.
+3. Replaced all database query calls with corresponding repository methods:
+   - `getCommunications`
+   - `getCommunicationById`
+   - `createCommunication`
+   - `updateCommunication`
+   - `deleteCommunication`
 
-3. Each route handler now uses repository methods instead of direct database queries:
-   - `getCommunications` for the list endpoint
-   - `getCommunicationById` for the single item endpoint
-   - `createCommunication` for the create endpoint
-   - `updateCommunication` for the update endpoint
-   - `deleteCommunication` for the delete endpoint
+4. The repository methods now handle the database interactions, allowing for easier testing and potential changes in the data access layer without affecting the route handlers.
 
-4. All other aspects of the file, including middleware usage, error handling, and schema validation, remain unchanged.
+5. Error handling and validation remain the same, ensuring consistent behavior.
 
-To complete this refactoring, you would need to create a `communication.repository.ts` file in the `repositories` directory, which would contain the implementation of the `CommunicationRepository` class with the methods used in this file.
+6. All middleware and security measures (helmet, rate limiting, authentication, permissions, CSRF protection, caching, and audit logging) are still in place.
+
+This refactored version maintains the functionality of the original file while improving its structure and maintainability through the use of the repository pattern.
