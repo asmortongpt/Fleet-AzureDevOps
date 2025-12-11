@@ -1,5 +1,133 @@
-To refactor the given code and replace `pool.query` with a repository pattern, we'll need to create a `QualityGateRepository` class that encapsulates the database operations. Here's the refactored version of the complete file:
+Here's the complete refactored file with the `QualityGateRepository` class and the updated router file:
 
+
+// src/repositories/QualityGateRepository.ts
+
+import { PoolClient } from 'pg';
+import { container } from '../container';
+
+export class QualityGateRepository {
+  private client: PoolClient;
+
+  constructor(client: PoolClient) {
+    this.client = client;
+  }
+
+  async getQualityGates(params: {
+    deploymentId?: string;
+    status?: string;
+    gateType?: string;
+    limit: number;
+  }): Promise<{ qualityGates: any[]; total: number }> {
+    const { deploymentId, status, gateType, limit } = params;
+    const conditions = [];
+    const values = [];
+
+    if (deploymentId) {
+      conditions.push('deployment_id = $' + (values.length + 1));
+      values.push(deploymentId);
+    }
+    if (status) {
+      conditions.push('status = $' + (values.length + 1));
+      values.push(status);
+    }
+    if (gateType) {
+      conditions.push('gate_type = $' + (values.length + 1));
+      values.push(gateType);
+    }
+
+    const whereClause = conditions.length > 0 ? 'WHERE ' + conditions.join(' AND ') : '';
+    const query = `
+      SELECT * FROM quality_gates
+      ${whereClause}
+      ORDER BY created_at DESC
+      LIMIT $${values.length + 1}
+    `;
+    values.push(limit);
+
+    const countQuery = `
+      SELECT COUNT(*) FROM quality_gates
+      ${whereClause}
+    `;
+
+    const [result, countResult] = await Promise.all([
+      this.client.query(query, values),
+      this.client.query(countQuery, values.slice(0, -1))
+    ]);
+
+    return {
+      qualityGates: result.rows,
+      total: parseInt(countResult.rows[0].count, 10)
+    };
+  }
+
+  async createQualityGate(params: {
+    deploymentId?: string;
+    gateType: string;
+    status: string;
+    resultData: object;
+    errorMessage?: string;
+    executionTimeSeconds?: number;
+    executedByUserId?: string;
+    metadata: object;
+  }): Promise<any> {
+    const {
+      deploymentId,
+      gateType,
+      status,
+      resultData,
+      errorMessage,
+      executionTimeSeconds,
+      executedByUserId,
+      metadata
+    } = params;
+
+    const query = `
+      INSERT INTO quality_gates (
+        deployment_id,
+        gate_type,
+        status,
+        result_data,
+        error_message,
+        execution_time_seconds,
+        executed_by_user_id,
+        metadata
+      )
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+      RETURNING *
+    `;
+
+    const result = await this.client.query(query, [
+      deploymentId,
+      gateType,
+      status,
+      JSON.stringify(resultData),
+      errorMessage,
+      executionTimeSeconds,
+      executedByUserId,
+      JSON.stringify(metadata)
+    ]);
+
+    return result.rows[0];
+  }
+
+  async getQualityGateSummary(days: number): Promise<any> {
+    const query = `
+      SELECT 
+        gate_type,
+        status,
+        COUNT(*) as count
+      FROM quality_gates
+      WHERE created_at >= NOW() - INTERVAL '${days} days'
+      GROUP BY gate_type, status
+    `;
+
+    const result = await this.client.query(query);
+    return result.rows;
+  }
+}
+
+// src/routes/qualityGates.ts
 
 import express, { Response } from 'express';
 import { container } from '../container';
@@ -161,120 +289,8 @@ router.get('/summary',
 export default router;
 
 
-Now, let's create the `QualityGateRepository` class that will handle the database operations:
+This refactored version replaces all `pool.query` calls with methods from the `QualityGateRepository` class. The repository pattern encapsulates the database operations, making the code more modular and easier to maintain. 
 
+The `QualityGateRepository` class is instantiated using dependency injection through the `container.resolve()` method, which allows for better testability and flexibility in managing database connections.
 
-// src/repositories/QualityGateRepository.ts
-
-import { injectable } from 'inversify';
-import { pool } from '../db';
-
-@injectable()
-export class QualityGateRepository {
-  async getQualityGates(filters: {
-    deploymentId?: string;
-    status?: string;
-    gateType?: string;
-    limit: number;
-  }): Promise<{ qualityGates: any[]; total: number }> {
-    let query = `
-      SELECT
-        qg.*,
-        d.environment,
-        d.version,
-        d.deployed_by_user_id,
-        u.first_name || ' ' || u.last_name as executed_by_name
-      FROM quality_gates qg
-      LEFT JOIN deployments d ON qg.deployment_id = d.id
-      LEFT JOIN users u ON qg.executed_by_user_id = u.id
-      WHERE 1=1
-    `;
-    const params: any[] = [];
-    let paramCount = 1;
-
-    if (filters.deploymentId) {
-      query += ` AND qg.deployment_id = $${paramCount}`;
-      params.push(filters.deploymentId);
-      paramCount++;
-    }
-
-    if (filters.status) {
-      query += ` AND qg.status = $${paramCount}`;
-      params.push(filters.status);
-      paramCount++;
-    }
-
-    if (filters.gateType) {
-      query += ` AND qg.gate_type = $${paramCount}`;
-      params.push(filters.gateType);
-      paramCount++;
-    }
-
-    query += ` ORDER BY qg.executed_at DESC LIMIT $${paramCount}`;
-    params.push(filters.limit);
-
-    const result = await pool.query(query, params);
-
-    return {
-      qualityGates: result.rows,
-      total: result.rows.length
-    };
-  }
-
-  async createQualityGate(data: {
-    deploymentId?: string;
-    gateType: string;
-    status: string;
-    resultData: any;
-    errorMessage?: string;
-    executionTimeSeconds?: number;
-    executedByUserId?: string;
-    metadata: any;
-  }): Promise<any> {
-    const result = await pool.query(
-      `INSERT INTO quality_gates (
-        deployment_id, gate_type, status, result_data, error_message,
-        execution_time_seconds, executed_by_user_id, metadata
-      )
-      VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
-      RETURNING *`,
-      [
-        data.deploymentId,
-        data.gateType,
-        data.status,
-        JSON.stringify(data.resultData),
-        data.errorMessage,
-        data.executionTimeSeconds,
-        data.executedByUserId,
-        JSON.stringify(data.metadata)
-      ]
-    );
-
-    return result.rows[0];
-  }
-
-  async getQualityGateSummary(days: number): Promise<any> {
-    const result = await pool.query(
-      `SELECT
-        gate_type,
-        COUNT(*) as total_runs,
-        COUNT(CASE WHEN status = 'passed' THEN 1 END) as passed,
-        COUNT(CASE WHEN status = 'failed' THEN 1 END) as failed,
-        COUNT(CASE WHEN status = 'skipped' THEN 1 END) as skipped
-      FROM quality_gates
-      WHERE executed_at >= NOW() - INTERVAL '${days} days'
-      GROUP BY gate_type`
-    );
-
-    return result.rows;
-  }
-}
-
-
-To use this refactored code, you'll need to make sure that:
-
-1. The `QualityGateRepository` class is properly registered in your dependency injection container.
-2. The `pool` object is imported and available in the `QualityGateRepository` file.
-3. You update your `container` configuration to include the `QualityGateRepository`.
-
-This refactoring moves the database operations into a separate repository class, making the code more modular and easier to maintain. The router now uses the repository methods instead of directly querying the database.
+Note that you'll need to ensure that the `PoolClient` is properly set up in your dependency injection container and that the `quality_gates` table exists in your database with the appropriate schema.

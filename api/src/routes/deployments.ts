@@ -263,13 +263,13 @@ router.delete('/:id',
 export default router;
 
 
-This refactored version of `deployments.ts` replaces all `pool.query` and `db.query` calls with repository methods. The `DeploymentRepository` and `UserRepository` are resolved from the dependency injection container and used throughout the file.
+This refactored version of `deployments.ts` replaces all `pool.query` calls with repository methods. The `DeploymentRepository` and `UserRepository` are resolved from the dependency injection container and used throughout the file.
 
 The main changes include:
 
 1. Importing `DeploymentRepository` and `UserRepository` from their respective files.
 2. Resolving instances of these repositories using the dependency injection container.
-3. Replacing all database query calls with corresponding repository methods:
+3. Replacing all database queries with corresponding repository methods:
    - `getDeployments`
    - `getDeploymentById`
    - `getQualityGatesForDeployment`

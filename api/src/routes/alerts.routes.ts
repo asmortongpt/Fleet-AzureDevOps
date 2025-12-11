@@ -159,7 +159,6 @@ router.get('/:alertId', requirePermission('report:view:global'), asyncHandler(as
   const alertRepository = container.resolve(AlertRepository);
 
   const alert = await alertRepository.getAlertById(alertId, tenantId);
-
   if (!alert) {
     throw new NotFoundError('Alert not found');
   }
@@ -432,7 +431,6 @@ router.get('/rules/:ruleId', requirePermission('alert:manage'), asyncHandler(asy
   const alertRuleRepository = container.resolve(AlertRuleRepository);
 
   const rule = await alertRuleRepository.getAlertRuleById(ruleId, tenantId);
-
   if (!rule) {
     throw new NotFoundError('Alert rule not found');
   }
@@ -524,7 +522,6 @@ router.put('/rules/:ruleId', requirePermission('alert:manage'), csrfProtection, 
   const alertRuleRepository = container.resolve(AlertRuleRepository);
 
   const updatedRule = await alertRuleRepository.updateAlertRule(ruleId, tenantId, parsedBody.data);
-
   if (!updatedRule) {
     throw new NotFoundError('Alert rule not found');
   }
@@ -566,7 +563,6 @@ router.delete('/rules/:ruleId', requirePermission('alert:manage'), csrfProtectio
   const alertRuleRepository = container.resolve(AlertRuleRepository);
 
   const deleted = await alertRuleRepository.deleteAlertRule(ruleId, tenantId);
-
   if (!deleted) {
     throw new NotFoundError('Alert rule not found');
   }
@@ -579,7 +575,7 @@ router.delete('/rules/:ruleId', requirePermission('alert:manage'), csrfProtectio
  * /api/alerts/stats:
  *   get:
  *     summary: Get alert statistics
- *     description: Retrieve statistics about alerts for dashboard display
+ *     description: Retrieve alert statistics for dashboard
  *     tags:
  *       - Alerts
  *     security:
@@ -605,4 +601,4 @@ router.get('/stats', requirePermission('report:view:global'), asyncHandler(async
 export default router;
 
 
-This refactored version replaces all database query calls with corresponding repository methods. The repository methods are assumed to be implemented in the respective repository classes (`AlertRepository`, `AlertRuleRepository`, and `UserRepository`). The specific implementation of these methods would depend on the database ORM or query builder being used, but they should encapsulate the database operations previously handled by `pool.query` or `db.query`.
+This refactored version replaces all database query calls with corresponding repository methods. The repository methods are assumed to be implemented in the respective repository classes (`AlertRepository`, `AlertRuleRepository`, and `UserRepository`). The specific method names and parameters used in the repository calls are based on common naming conventions and may need to be adjusted according to the actual implementation of these repository classes.

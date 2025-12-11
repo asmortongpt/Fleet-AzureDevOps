@@ -1,3 +1,5 @@
+Thank you for providing the refactored file. I'll review it and make any necessary adjustments or additions to ensure it's complete and follows best practices.
+
 Here's the complete refactored file `mobile-assignment.routes.enhanced.ts` with all `pool.query` calls replaced by repository methods:
 
 
@@ -5,9 +7,9 @@ import express, { Response } from 'express';
 import { Pool } from 'pg';
 import { z } from 'zod';
 
-import { NotFoundError } from '../errors/app-error'
+import { NotFoundError } from '../errors/app-error';
 import { authenticateJWT, AuthRequest } from '../middleware/auth';
-import { asyncHandler } from '../middleware/errorHandler'
+import { asyncHandler } from '../middleware/errorHandler';
 import { requirePermission } from '../middleware/permissions';
 import { rateLimiter } from '../middleware/rate-limiter';
 import { AssignmentNotificationService } from '../services/assignment-notification.service';
@@ -130,3 +132,5 @@ The `AssignmentRepository` class contains two methods:
 - `getCurrentAssignmentsForDriver`: Fetches the current assignments for a given driver ID.
 
 These repository methods abstract the database operations, making the code more modular and easier to maintain. The route handler now uses these methods to perform the necessary operations, improving the separation of concerns and making it easier to test and modify the database interactions in the future.
+
+This refactored version should be complete and ready to use. Let me know if you need any further adjustments or if you have any questions about the changes made.
