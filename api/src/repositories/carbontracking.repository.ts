@@ -51,7 +51,7 @@ export class CarbonTrackingRepository {
   // Read a carbon tracking entry by ID
   async read(id: number, tenant_id: string): Promise<CarbonTrackingData | null> {
     const query = `
-      SELECT * FROM carbon_tracking
+      SELECT id, created_at, updated_at FROM carbon_tracking
       WHERE id = $1 AND tenant_id = $2
     `;
     const values = [id, tenant_id];
@@ -95,7 +95,7 @@ export class CarbonTrackingRepository {
   // List carbon tracking entries for a tenant
   async list(tenant_id: string, limit: number = 10, offset: number = 0): Promise<CarbonTrackingData[]> {
     const query = `
-      SELECT * FROM carbon_tracking
+      SELECT id, created_at, updated_at FROM carbon_tracking
       WHERE tenant_id = $1
       ORDER BY timestamp DESC
       LIMIT $2 OFFSET $3

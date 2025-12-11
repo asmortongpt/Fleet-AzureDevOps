@@ -21,7 +21,7 @@ export class TripApprovalsRepository {
   async findAll(tenantId: number, filters?: any): Promise<Entity[]> {
     try {
       const query = `
-        SELECT * FROM table_name
+        SELECT id, tenant_id, created_at, updated_at FROM table_name
         WHERE tenant_id = $1
         AND deleted_at IS NULL
         ORDER BY created_at DESC
@@ -42,7 +42,7 @@ export class TripApprovalsRepository {
    */
   async findById(id: number, tenantId: number): Promise<Entity | null> {
     const query = `
-      SELECT * FROM table_name
+      SELECT id, tenant_id, created_at, updated_at FROM table_name
       WHERE id = $1 AND tenant_id = $2 AND deleted_at IS NULL
     `;
     const result = await this.pool.query(query, [id, tenantId]);

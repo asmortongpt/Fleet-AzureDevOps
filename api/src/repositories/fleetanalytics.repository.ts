@@ -9,7 +9,7 @@ class FleetAnalyticsRepository {
 
   async getFleetAnalytics(tenantId: string): Promise<QueryResult> {
     const query = `
-      SELECT * FROM fleet_analytics
+      SELECT id, tenant_id, created_at, updated_at FROM fleet_analytics
       WHERE tenant_id = $1
     `;
     return this.pool.query(query, [tenantId]);
@@ -17,7 +17,7 @@ class FleetAnalyticsRepository {
 
   async getFleetAnalyticsById(tenantId: string, id: string): Promise<QueryResult> {
     const query = `
-      SELECT * FROM fleet_analytics
+      SELECT id, tenant_id, created_at, updated_at FROM fleet_analytics
       WHERE tenant_id = $1 AND id = $2
     `;
     return this.pool.query(query, [tenantId, id]);

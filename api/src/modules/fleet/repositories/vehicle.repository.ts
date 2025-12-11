@@ -10,7 +10,7 @@ export class VehicleRepository extends BaseRepository<Vehicle> {
 
   async findByNumber(number: string, tenantId: number): Promise<Vehicle | null> {
     const result = await this.pool.query(
-      `SELECT * FROM ${this.tableName} WHERE number = $1 AND tenant_id = $2`,
+      `SELECT id, name, created_at, updated_at, tenant_id FROM ${this.tableName} WHERE number = $1 AND tenant_id = $2`,
       [number, tenantId]
     );
     return result.rows[0] || null;
@@ -18,7 +18,7 @@ export class VehicleRepository extends BaseRepository<Vehicle> {
 
   async findActive(tenantId: number): Promise<Vehicle[]> {
     const result = await this.pool.query(
-      `SELECT * FROM ${this.tableName} WHERE status = 'active' AND tenant_id = $1`,
+      `SELECT id, name, created_at, updated_at, tenant_id FROM ${this.tableName} WHERE status = 'active' AND tenant_id = $1`,
       [tenantId]
     );
     return result.rows;

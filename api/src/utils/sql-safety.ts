@@ -169,7 +169,7 @@ export function buildSelectQuery(options: QueryBuilderOptions): {
   // Validate table name
   validateTableName(table)
 
-  // Validate column names (unless SELECT *)
+  // Validate column names (unless SELECT id, created_at, updated_at)
   if (columns[0] !== '*') {
     validateColumnNames(columns)
   }

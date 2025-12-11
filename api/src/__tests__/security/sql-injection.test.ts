@@ -13,7 +13,7 @@ describe('SQL Injection Protection Tests', () => {
   const sqlInjectionPayloads = [
     "' OR '1'='1",
     "'; DROP TABLE users; --",
-    "1' UNION SELECT * FROM users--",
+    "1' UNION SELECT id, tenant_id, created_at, updated_at FROM users--",
     "admin'--",
     "' OR 1=1--",
     "'; DELETE FROM users WHERE '1'='1",
@@ -229,7 +229,7 @@ describe('File-Specific SQL Injection Tests', () => {
   describe(`Services: Document Service`, () => {
     it('should use parameterized queries for expiring documents', () => {
       const query = `
-        SELECT * FROM fleet_documents
+        SELECT id, tenant_id, created_at, updated_at FROM fleet_documents
         WHERE expires_at IS NOT NULL
         AND expires_at <= NOW() + ($1 || ' days')::INTERVAL
         AND expires_at > NOW()

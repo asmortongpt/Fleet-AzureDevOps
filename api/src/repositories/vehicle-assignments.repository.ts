@@ -65,7 +65,7 @@ export class VehicleAssignmentsRepository {
 
     const whereClause = conditions.join(' AND ');
     const query = `
-      SELECT * FROM vehicle_assignments 
+      SELECT id, created_at, updated_at FROM vehicle_assignments 
       WHERE ${whereClause}
       ORDER BY created_at DESC
       LIMIT $${paramIndex} OFFSET $${paramIndex + 1}
@@ -109,7 +109,7 @@ export class VehicleAssignmentsRepository {
 
   async findById(id: number, tenantId: number) {
     const result = await this.pool.query(
-      'SELECT * FROM vehicle_assignments WHERE id = $1 AND tenant_id = $2',
+      'SELECT id, created_at, updated_at FROM vehicle_assignments WHERE id = $1 AND tenant_id = $2',
       [id, tenantId]
     );
     return result.rows[0];
@@ -193,7 +193,7 @@ export class VehicleAssignmentsRepository {
 
   async findActiveByVehicle(vehicleId: number, tenantId: number) {
     const result = await this.pool.query(
-      `SELECT * FROM vehicle_assignments 
+      `SELECT id, created_at, updated_at FROM vehicle_assignments 
        WHERE vehicle_id = $1 
        AND tenant_id = $2 
        AND lifecycle_state = 'active'
@@ -206,7 +206,7 @@ export class VehicleAssignmentsRepository {
 
   async findActiveByDriver(driverId: number, tenantId: number) {
     const result = await this.pool.query(
-      `SELECT * FROM vehicle_assignments 
+      `SELECT id, created_at, updated_at FROM vehicle_assignments 
        WHERE driver_id = $1 
        AND tenant_id = $2 
        AND lifecycle_state = 'active'
@@ -219,7 +219,7 @@ export class VehicleAssignmentsRepository {
 
   async findHistory(vehicleId: number, tenantId: number, limit = 10) {
     const result = await this.pool.query(
-      `SELECT * FROM vehicle_assignments 
+      `SELECT id, created_at, updated_at FROM vehicle_assignments 
        WHERE vehicle_id = $1 
        AND tenant_id = $2 
        ORDER BY start_date DESC

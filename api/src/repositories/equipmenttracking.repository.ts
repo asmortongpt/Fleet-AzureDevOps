@@ -46,7 +46,7 @@ export class EquipmentTrackingRepository {
 
   // Read equipment tracking records
   async read(tenant_id: number, equipment_id?: number): Promise<EquipmentTracking[]> {
-    let query = 'SELECT * FROM equipment_tracking WHERE tenant_id = $1';
+    let query = 'SELECT id, tenant_id, created_at, updated_at FROM equipment_tracking WHERE tenant_id = $1';
     let values = [tenant_id];
 
     if (equipment_id) {

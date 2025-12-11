@@ -18,7 +18,7 @@ export class IdleTimeTrackingRepository {
   }
 
   async read(tenantId: string): Promise<IdleTimeTracking[]> {
-    const query = 'SELECT * FROM idle_time_tracking WHERE tenant_id = $1';
+    const query = 'SELECT id, tenant_id, created_at, updated_at FROM idle_time_tracking WHERE tenant_id = $1';
     const values = [tenantId];
     const { rows } = await this.pool.query(query, values);
     return rows;

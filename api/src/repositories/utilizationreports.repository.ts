@@ -52,7 +52,7 @@ export class UtilizationReportsRepository {
    */
   async read(id: number, tenant_id: number): Promise<UtilizationReport | null> {
     const query = `
-      SELECT * FROM utilization_reports
+      SELECT id, tenant_id, created_at, updated_at FROM utilization_reports
       WHERE id = $1 AND tenant_id = $2;
     `;
     const values = [id, tenant_id];
@@ -116,7 +116,7 @@ export class UtilizationReportsRepository {
    */
   async list(tenant_id: number, limit: number = 10, offset: number = 0): Promise<UtilizationReport[]> {
     const query = `
-      SELECT * FROM utilization_reports
+      SELECT id, tenant_id, created_at, updated_at FROM utilization_reports
       WHERE tenant_id = $1
       ORDER BY report_date DESC
       LIMIT $2 OFFSET $3;

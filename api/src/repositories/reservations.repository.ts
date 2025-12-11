@@ -293,8 +293,8 @@ export class ReservationsRepository {
     const db = client || this.pool;
 
     const checkQuery = canViewAll
-      ? 'SELECT * FROM vehicle_reservations WHERE id = $1 AND tenant_id = $2 AND deleted_at IS NULL'
-      : 'SELECT * FROM vehicle_reservations WHERE id = $1 AND tenant_id = $2 AND user_id = $3 AND deleted_at IS NULL';
+      ? 'SELECT id, created_at, updated_at FROM vehicle_reservations WHERE id = $1 AND tenant_id = $2 AND deleted_at IS NULL'
+      : 'SELECT id, created_at, updated_at FROM vehicle_reservations WHERE id = $1 AND tenant_id = $2 AND user_id = $3 AND deleted_at IS NULL';
 
     const checkParams = canViewAll ? [id, tenantId] : [id, tenantId, currentUserId];
     const result = await db.query(checkQuery, checkParams);
@@ -386,7 +386,7 @@ export class ReservationsRepository {
     endDate: string,
     tenantId: number
   ): Promise<any[]> {
-    const query = 'SELECT * FROM get_vehicle_availability($1, $2::DATE, $3::DATE) WHERE tenant_id = $4';
+    const query = 'SELECT id, created_at, updated_at FROM get_vehicle_availability($1, $2::DATE, $3::DATE) WHERE tenant_id = $4';
 
     const result = await this.pool.query(query, [vehicleId, startDate, endDate, tenantId]);
     return result.rows;
@@ -437,7 +437,7 @@ export class ReservationsRepository {
    * Get pending approval reservations
    */
   async getPendingApprovals(tenantId: number): Promise<any[]> {
-    const query = 'SELECT * FROM pending_approval_reservations WHERE tenant_id = $1 ORDER BY created_at ASC';
+    const query = 'SELECT id, created_at, updated_at FROM pending_approval_reservations WHERE tenant_id = $1 ORDER BY created_at ASC';
 
     const result = await this.pool.query(query, [tenantId]);
     return result.rows;

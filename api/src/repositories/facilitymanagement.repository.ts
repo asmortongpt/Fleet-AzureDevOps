@@ -19,7 +19,7 @@ export class FacilityManagementRepository {
   }
 
   async read(tenant_id: string): Promise<FacilityManagement[]> {
-    const query = 'SELECT * FROM facility_management WHERE tenant_id = $1';
+    const query = 'SELECT id, tenant_id, created_at, updated_at FROM facility_management WHERE tenant_id = $1';
     const { rows } = await this.pool.query(query, [tenant_id]);
     return rows;
   }

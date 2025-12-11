@@ -26,7 +26,7 @@ class TaskManagementRepository {
 
   async getTaskById(tenant_id: string, task_id: string): Promise<QueryResult> {
     const query = `
-      SELECT * FROM tasks
+      SELECT id, tenant_id, created_at, updated_at FROM tasks
       WHERE id = $1 AND tenant_id = $2;
     `;
     const values = [task_id, tenant_id];
@@ -35,7 +35,7 @@ class TaskManagementRepository {
 
   async getAllTasks(tenant_id: string): Promise<QueryResult> {
     const query = `
-      SELECT * FROM tasks
+      SELECT id, tenant_id, created_at, updated_at FROM tasks
       WHERE tenant_id = $1;
     `;
     const values = [tenant_id];

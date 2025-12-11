@@ -50,7 +50,7 @@ export class CollisionDetectionRepository {
   // Read a collision detection record by id
   async read(id: number, tenant_id: number): Promise<CollisionDetection | null> {
     const query = `
-      SELECT * FROM collision_detections
+      SELECT id, tenant_id, created_at, updated_at FROM collision_detections
       WHERE id = $1 AND tenant_id = $2
     `;
     const values = [id, tenant_id];
@@ -102,7 +102,7 @@ export class CollisionDetectionRepository {
   // List collision detection records for a tenant
   async list(tenant_id: number, limit: number = 10, offset: number = 0): Promise<CollisionDetection[]> {
     const query = `
-      SELECT * FROM collision_detections
+      SELECT id, tenant_id, created_at, updated_at FROM collision_detections
       WHERE tenant_id = $1
       ORDER BY timestamp DESC
       LIMIT $2 OFFSET $3

@@ -15,7 +15,7 @@ export class RoutesTripsRepository {
 
   async findAll(tenantId: number): Promise<RouteTrip[]> {
     try {
-      const query = 'SELECT * FROM route_trips WHERE tenant_id = $1 AND deleted_at IS NULL ORDER BY id';
+      const query = 'SELECT id, tenant_id, created_at, updated_at FROM route_trips WHERE tenant_id = $1 AND deleted_at IS NULL ORDER BY id';
       const result: QueryResult<RouteTrip> = await this.pool.query(query, [tenantId]);
       return result.rows;
     } catch (error) {
@@ -25,7 +25,7 @@ export class RoutesTripsRepository {
 
   async findById(tenantId: number, id: number): Promise<RouteTrip | null> {
     try {
-      const query = 'SELECT * FROM route_trips WHERE tenant_id = $1 AND id = $2 AND deleted_at IS NULL';
+      const query = 'SELECT id, tenant_id, created_at, updated_at FROM route_trips WHERE tenant_id = $1 AND id = $2 AND deleted_at IS NULL';
       const result: QueryResult<RouteTrip> = await this.pool.query(query, [tenantId, id]);
       return result.rows[0] || null;
     } catch (error) {

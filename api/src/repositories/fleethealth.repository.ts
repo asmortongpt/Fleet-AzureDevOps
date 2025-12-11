@@ -22,7 +22,7 @@ export class FleetHealthRepository {
    * @param filters
    */
   async findAll(tenantId: number, filters?: any): Promise<FleetHealth[]> {
-    const query = `SELECT * FROM fleet_health WHERE tenant_id = $1 AND deleted_at IS NULL`;
+    const query = `SELECT id, tenant_id, created_at, updated_at FROM fleet_health WHERE tenant_id = $1 AND deleted_at IS NULL`;
     const result = await this.pool.query(query, [tenantId]);
     return result.rows;
   }
@@ -33,7 +33,7 @@ export class FleetHealthRepository {
    * @param tenantId
    */
   async findById(id: number, tenantId: number): Promise<FleetHealth | null> {
-    const query = `SELECT * FROM fleet_health WHERE id = $1 AND tenant_id = $2`;
+    const query = `SELECT id, tenant_id, created_at, updated_at FROM fleet_health WHERE id = $1 AND tenant_id = $2`;
     const result = await this.pool.query(query, [id, tenantId]);
     return result.rows[0] || null;
   }

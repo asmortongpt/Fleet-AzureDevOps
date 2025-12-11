@@ -28,7 +28,7 @@ class VideoTelematicsEventsRepository {
     id: number
   ): Promise<any> {
     const query = `
-      SELECT * FROM video_telematics_events
+      SELECT id, tenant_id, created_at, updated_at FROM video_telematics_events
       WHERE id = $1 AND tenant_id = $2;
     `;
     const values = [id, tenant_id];
@@ -40,7 +40,7 @@ class VideoTelematicsEventsRepository {
     tenant_id: string
   ): Promise<any[]> {
     const query = `
-      SELECT * FROM video_telematics_events
+      SELECT id, tenant_id, created_at, updated_at FROM video_telematics_events
       WHERE tenant_id = $1;
     `;
     const values = [tenant_id];

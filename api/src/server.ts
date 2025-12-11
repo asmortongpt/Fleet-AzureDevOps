@@ -19,6 +19,8 @@ sentryService.init()
 
 import express from 'express'
 import cors from 'cors'
+import { logger } from './middleware/logger'
+import helmet from 'helmet'
 
 // Security middleware
 import { securityHeaders } from './middleware/security-headers'
@@ -182,6 +184,9 @@ import { processReportJob } from './jobs/processors/report.processor'
 import logger from './utils/logger'
 
 const app = express()
+
+// Structured logging with Winston
+logger.info('Fleet API Server initializing', { node: process.version, env: process.env.NODE_ENV })
 const PORT = process.env.PORT || 3001
 
 // Validate CORS configuration at startup
@@ -198,6 +203,12 @@ app.use(sentryTracingHandler())
 // ===========================================================================
 
 // 1. Security Headers - Must be first to set headers on all responses
+// Helmet security headers
+app.use(helmet({
+  contentSecurityPolicy: false, // Using custom CSP
+  hsts: { maxAge: 31536000, includeSubDomains: true, preload: true }
+}));
+
 app.use(securityHeaders({
   hsts: {
     maxAge: 31536000, // 1 year

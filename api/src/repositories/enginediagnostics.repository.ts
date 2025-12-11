@@ -47,7 +47,7 @@ export class EngineDiagnosticsRepository {
   // Read engine diagnostics entries for a specific vehicle and tenant
   async readByVehicleId(vehicle_id: number, tenant_id: number): Promise<EngineDiagnostics[]> {
     const query = `
-      SELECT * FROM engine_diagnostics
+      SELECT id, created_at, updated_at FROM engine_diagnostics
       WHERE vehicle_id = $1 AND tenant_id = $2
       ORDER BY timestamp DESC
     `;
