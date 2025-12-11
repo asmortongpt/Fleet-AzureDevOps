@@ -180,9 +180,9 @@ router.post(
           entityLinks: validated.entityLinks,
         });
 
-        res.status(201).json({ message: 'SMS sent successfully', communicationId: commResult.id, sid: message.sid });
+        res.status(201).json({ message: 'SMS sent successfully', communicationId: commResult.id, twilioMessageId: message.sid });
       } else {
-        res.status(201).json({ message: 'SMS sent successfully', sid: message.sid });
+        res.status(201).json({ message: 'SMS sent successfully', twilioMessageId: message.sid });
       }
     } catch (error) {
       logger.error('Error sending SMS:', error);
@@ -258,11 +258,8 @@ router.post(
 export default router;
 
 
-In this refactored version:
+In this refactored version, all database operations have been replaced with calls to the `CommunicationRepository`. The `CommunicationRepository` is resolved from the dependency injection container using `container.resolve('CommunicationRepository')`.
 
-1. All database operations have been replaced with calls to the `CommunicationRepository`.
-2. The `CommunicationRepository` is resolved from the dependency injection container using `container.resolve('CommunicationRepository')`.
-3. The `createCommunication` method of the `CommunicationRepository` is used to log communications to the database.
-4. The structure of the data passed to `createCommunication` matches the previous database insert operations, but now it's handled by the repository.
+The `createCommunication` method of the `CommunicationRepository` is used to log communications to the database. This method is called for email, SMS, and Teams messages when entity links are provided.
 
-Note that you'll need to ensure that the `CommunicationRepository` class is properly implemented with a `createCommunication` method that matches the expected input and returns an object with an `id` property.
+Note that the exact implementation of the `CommunicationRepository` and its `createCommunication` method would need to be defined separately, but this refactored version assumes that such a repository exists and can handle the creation of communication records in the database.

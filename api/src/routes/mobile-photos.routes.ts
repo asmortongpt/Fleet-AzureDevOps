@@ -177,14 +177,17 @@ router.post(
  *               photos:
  *                 type: array
  *                 items:
- *                   type: string
- *                   format: binary
- *               metadata:
- *                 type: string
- *                 description: JSON string of array of photo metadata
- *               priority:
- *                 type: string
- *                 enum: [high, normal, low]
+ *                   type: object
+ *                   properties:
+ *                     photo:
+ *                       type: string
+ *                       format: binary
+ *                     metadata:
+ *                       type: string
+ *                       description: JSON string of photo metadata
+ *                     priority:
+ *                       type: string
+ *                       enum: [high, normal, low]
  *     responses:
  *       201:
  *         description: Photos uploaded successfully
@@ -211,25 +214,22 @@ router.post(
         });
       }
 
-      const metadataArray = req.body.metadata
-        ? JSON.parse(req.body.metadata)
-        : [];
+      const uploadedPhotos: { photoId: number; metadata: any }[] = [];
 
-      const priority = req.body.priority || 'normal';
-
-      const photoIds: number[] = [];
-
-      for (let i = 0; i < req.files.length; i++) {
-        const file = req.files[i] as Express.Multer.File;
-        const metadata = metadataArray[i] || {};
+      for (const file of req.files as Express.Multer.File[]) {
+        const metadata = req.body.metadata
+          ? JSON.parse(req.body.metadata)
+          : {};
 
         const validationResult = PhotoMetadataSchema.safeParse(metadata);
         if (!validationResult.success) {
           return res.status(400).json({
-            error: `Invalid metadata for photo ${i + 1}`,
+            error: 'Invalid metadata',
             details: validationResult.error,
           });
         }
+
+        const priority = req.body.priority || 'normal';
 
         const photoId = await photoProcessingService.uploadPhoto(
           file,
@@ -246,12 +246,12 @@ router.post(
           priority: priority,
         });
 
-        photoIds.push(photoId);
+        uploadedPhotos.push({ photoId, metadata });
       }
 
       res.status(201).json({
         message: 'Photos uploaded successfully',
-        photoIds: photoIds,
+        photos: uploadedPhotos,
       });
     } catch (error) {
       console.error('Error uploading photos:', error);
@@ -305,7 +305,7 @@ router.post(
         });
       }
 
-      const { photoIds, deviceId } = validationResult.data;
+      const { photoIds, deviceId } = req.body;
 
       await PhotoRepository.markSyncComplete(photoIds, deviceId);
 

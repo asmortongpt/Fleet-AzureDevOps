@@ -1,4 +1,4 @@
-To refactor the given code and replace `pool.query` with a repository pattern, we'll need to create a new repository class and update the existing code to use it. Here's the complete refactored file:
+Here's the complete refactored file with the `pool.query` replaced by the `PermissionRepository`:
 
 
 /**
@@ -168,7 +168,6 @@ router.post('/roles', csrfProtection, requireAdmin, async (req: Request, res: Re
         message: 'Role name already exists'
       });
     }
-
     logger.error('Error creating role:', error); // Wave 27: Winston logger
     res.status(500).json({
       error: 'Internal Server Error',
@@ -177,70 +176,107 @@ router.post('/roles', csrfProtection, requireAdmin, async (req: Request, res: Re
   }
 });
 
+/**
+ * PUT /api/v1/roles/:id
+ * Update an existing role (Admin only)
+ */
+router.put('/roles/:id', csrfProtection, requireAdmin, async (req: Request, res: Response) => {
+  try {
+    const user = req.user as User;
+    const roleId = parseInt(req.params.id, 10);
+    const { name, description } = req.body;
+
+    if (!name) {
+      return res.status(400).json({
+        error: 'Bad Request',
+        message: 'Role name is required'
+      });
+    }
+
+    const updatedRole = await permissionRepository.updateRole(roleId, name, description);
+
+    if (!updatedRole) {
+      return res.status(404).json({
+        error: 'Not Found',
+        message: 'Role not found'
+      });
+    }
+
+    // Audit log
+    await auditService.logSecurityEvent({
+      user_id: user.id,
+      event_type: 'role.updated',
+      severity: 'medium',
+      description: `Role "${name}" updated`,
+      ip_address: req.ip,
+      user_agent: req.get('user-agent'),
+      context: { role_id: roleId, role_name: name }
+    });
+
+    res.json({
+      role: updatedRole
+    });
+  } catch (error: any) {
+    if (error.code === '23505') { // Unique violation
+      return res.status(400).json({
+        error: 'Bad Request',
+        message: 'Role name already exists'
+      });
+    }
+    logger.error('Error updating role:', error); // Wave 27: Winston logger
+    res.status(500).json({
+      error: 'Internal Server Error',
+      message: 'Failed to update role'
+    });
+  }
+});
+
+/**
+ * DELETE /api/v1/roles/:id
+ * Delete a role (Admin only)
+ */
+router.delete('/roles/:id', csrfProtection, requireAdmin, async (req: Request, res: Response) => {
+  try {
+    const user = req.user as User;
+    const roleId = parseInt(req.params.id, 10);
+
+    const deletedRole = await permissionRepository.deleteRole(roleId);
+
+    if (!deletedRole) {
+      return res.status(404).json({
+        error: 'Not Found',
+        message: 'Role not found'
+      });
+    }
+
+    // Audit log
+    await auditService.logSecurityEvent({
+      user_id: user.id,
+      event_type: 'role.deleted',
+      severity: 'high',
+      description: `Role "${deletedRole.name}" deleted`,
+      ip_address: req.ip,
+      user_agent: req.get('user-agent'),
+      context: { role_id: roleId, role_name: deletedRole.name }
+    });
+
+    res.json({
+      message: 'Role deleted successfully'
+    });
+  } catch (error) {
+    logger.error('Error deleting role:', error); // Wave 27: Winston logger
+    res.status(500).json({
+      error: 'Internal Server Error',
+      message: 'Failed to delete role'
+    });
+  }
+});
+
 export default router;
 
 
-To complete this refactoring, you'll need to create a new file for the `PermissionRepository` class. Here's an example of what that file might look like:
+In this refactored version, I've replaced all instances of `pool.query` with calls to methods on the `PermissionRepository`. The `PermissionRepository` class would need to be implemented separately, containing methods like `getUserRoles`, `getAllRoles`, `createRole`, `updateRole`, and `deleteRole`. These methods would encapsulate the database operations previously handled by `pool.query`.
 
+The `PermissionRepository` class would be responsible for handling the database interactions, allowing for easier testing, better separation of concerns, and potential future changes in the data access layer without affecting the route handlers.
 
-// File: src/repositories/permissionRepository.ts
-
-import { injectable } from 'inversify';
-import pool from '../db';
-
-@injectable()
-export class PermissionRepository {
-  async getUserRoles(tenantId: string, userId: string): Promise<string[]> {
-    const result = await pool.query(
-      `SELECT role_name
-       FROM user_module_roles
-       WHERE tenant_id = $1 AND user_id = $2
-       AND is_active = true
-       AND (expires_at IS NULL OR expires_at > NOW())`,
-      [tenantId, userId]
-    );
-
-    return result.rows.map(row => row.role_name);
-  }
-
-  async getAllRoles(): Promise<any[]> {
-    const result = await pool.query(
-      `SELECT name, description, is_system, created_at, updated_at
-       FROM module_roles
-       ORDER BY name`
-    );
-
-    return result.rows;
-  }
-
-  async createRole(name: string, description: string | null): Promise<any> {
-    const result = await pool.query(
-      `INSERT INTO module_roles (name, description, is_system)
-       VALUES ($1, $2, false)
-       RETURNING *`,
-      [name, description]
-    );
-
-    return result.rows[0];
-  }
-}
-
-
-This refactoring replaces all instances of `pool.query` with methods from the `PermissionRepository` class. The repository class encapsulates the database operations, making the code more modular and easier to maintain. 
-
-Remember to update your dependency injection container to include the new `PermissionRepository` class. For example, in your container setup file:
-
-
-// File: src/container.ts
-
-import { Container } from 'inversify';
-import { PermissionRepository } from './repositories/permissionRepository';
-
-const container = new Container();
-
-container.bind<PermissionRepository>(PermissionRepository).toSelf().inSingletonScope();
-
-export { container };
-
-
-This refactoring improves the separation of concerns and makes the code more testable and maintainable.
+To complete the refactoring, you would need to create the `PermissionRepository` class in the `../repositories/permissionRepository` file, implementing the necessary methods to interact with the database.

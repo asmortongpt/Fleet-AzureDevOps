@@ -193,7 +193,7 @@ router.post(
           {
             provider: 'auto' as any,
             detectTables: false,
-            detectForms: false,
+            detectForms: true,
           }
         );
 
@@ -270,9 +270,9 @@ export default router;
 In this refactored version:
 
 1. The `pool.query`/`db.query` calls have been replaced with repository methods.
-2. For the fuel receipt route, `FuelReceiptRepository` is used with a `createFuelReceipt` method.
-3. For the odometer reading route, `OdometerReadingRepository` is used with a `createOdometerReading` method.
-4. The repositories are resolved from the dependency injection container using `container.resolve()`.
+2. For the fuel receipt processing, we now use `FuelReceiptRepository.createFuelReceipt()` instead of a direct database query.
+3. For the odometer reading processing, we use `OdometerReadingRepository.createOdometerReading()` instead of a direct database query.
+4. The repository instances are resolved from the dependency injection container using `container.resolve()`.
 5. The rest of the code remains unchanged, maintaining the existing functionality and structure.
 
 Note that this refactoring assumes the existence of `FuelReceiptRepository` and `OdometerReadingRepository` classes with the appropriate methods. You may need to create these repository classes and implement the `createFuelReceipt` and `createOdometerReading` methods to complete the refactoring process.

@@ -164,13 +164,17 @@ router.put(
 export default router
 
 
-This refactored version replaces all database query operations with calls to the `CognitionInsightsRepository` methods. Here's a summary of the changes:
+In this refactored version:
 
-1. Imported the `CognitionInsightsRepository` from the repositories folder.
-2. Created an instance of the `CognitionInsightsRepository` named `cognitionInsightsRepository`.
-3. Replaced the `pool.query` calls with the following repository methods:
-   - `getInsights` in the GET `/cognition/insights` route
-   - `createInsights` in the POST `/cognition/generate` route
-   - `acknowledgeInsight` in the PUT `/cognition/insights/:id` route
+1. We've imported the `CognitionInsightsRepository` from the appropriate location.
+2. We've created an instance of the repository at the top of the file.
+3. All `pool.query` calls have been replaced with corresponding repository methods:
+   - `getInsights` for retrieving insights
+   - `createInsights` for creating new insights
+   - `acknowledgeInsight` for acknowledging an insight
 
-These changes encapsulate the database operations within the repository, improving the separation of concerns and making the code more maintainable and testable.
+4. The repository methods are called with the appropriate parameters, including the `tenant_id` from the authenticated user.
+
+5. Error handling remains the same, using the `getErrorMessage` utility function to format error messages.
+
+This refactoring encapsulates the database operations within the repository, improving separation of concerns and making the code more maintainable and testable. The repository methods should be implemented in the `CognitionInsightsRepository` class to handle the actual database queries.
