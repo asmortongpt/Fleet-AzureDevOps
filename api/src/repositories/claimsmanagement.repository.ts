@@ -1,3 +1,5 @@
+import { BaseRepository } from '../repositories/BaseRepository';
+
 To create a TypeScript repository for claims management with parameterized queries, tenant_id, and CRUD operations, we'll need to design a class that encapsulates the database operations. Let's break this down step-by-step:
 
 1. We'll create a `ClaimsManagementRepository` class.
@@ -21,7 +23,7 @@ interface Claim {
   tenant_id: number;
 }
 
-export class ClaimsManagementRepository {
+export class ClaimsManagementRepository extends BaseRepository<any> {
   private pool: Pool;
 
   constructor(pool: Pool) {

@@ -1,3 +1,5 @@
+import { BaseRepository } from '../repositories/BaseRepository';
+
 import { Pool } from 'pg';
 
 export interface IWarrantyTrackingEntity {
@@ -9,7 +11,7 @@ export interface IWarrantyTrackingEntity {
   deleted_at: Date | null;
 }
 
-export class WarrantyTrackingRepository {
+export class WarrantyTrackingRepository extends BaseRepository<any> {
   constructor(private pool: Pool) {}
 
   /**

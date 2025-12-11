@@ -1,3 +1,5 @@
+import { BaseRepository } from '../repositories/BaseRepository';
+
 ```typescript
 import { Pool } from 'pg';
 
@@ -13,7 +15,7 @@ export interface Metadata {
 /**
  * Metadata Repository class
  */
-export class MetadataRepository {
+export class MetadataRepository extends BaseRepository<any> {
   constructor(private pool: Pool) {}
 
   /**

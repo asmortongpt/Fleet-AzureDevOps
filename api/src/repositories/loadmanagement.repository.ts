@@ -1,10 +1,12 @@
+import { BaseRepository } from '../repositories/BaseRepository';
+
 Here's a basic example of a LoadManagementRepository in TypeScript:
 
 
 import { LoadManagement } from '../models/load-management.model';
 import { Pool } from 'pg';
 
-export class LoadManagementRepository {
+export class LoadManagementRepository extends BaseRepository<any> {
   private pool: Pool;
 
   constructor(pool: Pool) {

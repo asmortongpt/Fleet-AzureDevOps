@@ -1,3 +1,5 @@
+import { BaseRepository } from '../../repositories/BaseRepository';
+
 import { injectable } from 'inversify';
 import { pool } from '../../../db';
 
@@ -18,7 +20,11 @@ export interface WitnessCreateData {
 }
 
 @injectable()
-export class IncidentWitnessRepository {
+export class IncidentWitnessRepository extends BaseRepository<any> {
+  constructor(pool: Pool) {
+    super(pool, 'LIncident_LWitness_LRepository extends _LBases');
+  }
+
   /**
    * Find all witnesses for an incident
    * Replaces: GET /:id route witness query

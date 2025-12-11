@@ -1,3 +1,5 @@
+import { BaseRepository } from '../repositories/BaseRepository';
+
 Let's create a TypeScript repository for equipment tracking that supports CRUD operations with parameterized queries and includes tenant_id for multi-tenant support. We'll assume we're using a PostgreSQL database and the `pg` library for database interactions.
 
 First, let's plan out the structure of our repository:
@@ -24,7 +26,7 @@ interface EquipmentTracking {
   last_updated: Date;
 }
 
-export class EquipmentTrackingRepository {
+export class EquipmentTrackingRepository extends BaseRepository<any> {
   private pool: Pool;
 
   constructor(pool: Pool) {
