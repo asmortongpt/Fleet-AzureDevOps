@@ -1,6 +1,3 @@
-Here's the complete refactored version of the `geofences.enhanced.ts` file, replacing all `pool.query` calls with repository methods:
-
-
 import express, { Response } from 'express';
 import { container } from '../container';
 import { asyncHandler } from '../middleware/errorHandler';
@@ -175,20 +172,3 @@ router.delete(
 );
 
 export default router;
-
-
-This refactored version replaces all `pool.query` calls with corresponding methods from the `GeofenceRepository`. The repository methods are assumed to be implemented in the `GeofenceRepository` class, which should handle the database operations.
-
-Key changes:
-
-1. Imported `GeofenceRepository` from `../repositories/GeofenceRepository`.
-2. Resolved the `GeofenceRepository` instance using the dependency injection container.
-3. Replaced all `pool.query` calls with appropriate `geofenceRepository` method calls:
-   - `getGeofences` for fetching multiple geofences
-   - `getGeofenceCount` for getting the total count of geofences
-   - `getGeofenceById` for fetching a single geofence
-   - `createGeofence` for creating a new geofence
-   - `updateGeofence` for updating an existing geofence
-   - `deleteGeofence` for deleting a geofence
-
-The rest of the code structure and middleware usage remains the same. This refactoring improves the separation of concerns by moving database operations to a dedicated repository class, making the code more maintainable and easier to test.
