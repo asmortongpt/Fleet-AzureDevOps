@@ -1,8 +1,4 @@
 /**
-import { container } from '../container'
-import { asyncHandler } from '../middleware/errorHandler'
-import { NotFoundError, ValidationError } from '../errors/app-error'
-import logger from '../config/logger'; // Wave 26: Add Winston logger
  * Document Geospatial Routes
  *
  * RESTful API endpoints for geospatial document operations:
@@ -12,18 +8,23 @@ import logger from '../config/logger'; // Wave 26: Add Winston logger
  * - Manual location tagging
  */
 
-import { Router } from 'express'
-import type { AuthRequest } from '../middleware/auth'
-import { authenticateJWT } from '../middleware/auth'
-import documentGeoService from '../services/document-geo.service'
-import { getErrorMessage } from '../utils/error-handler'
-import { csrfProtection } from '../middleware/csrf'
+import { Router } from 'express';
+import type { AuthRequest } from '../middleware/auth';
+import { authenticateJWT } from '../middleware/auth';
+import { csrfProtection } from '../middleware/csrf';
+import { container } from '../container';
+import { asyncHandler } from '../middleware/errorHandler';
+import { NotFoundError, ValidationError } from '../errors/app-error';
+import logger from '../config/logger';
+import { getErrorMessage } from '../utils/error-handler';
 
+// Import repositories
+import { DocumentGeoRepository } from '../repositories/document-geo.repository';
 
-const router = Router()
+const router = Router();
 
 // Apply authentication to all routes
-router.use(authenticateJWT)
+router.use(authenticateJWT);
 
 /**
  * @openapi
@@ -62,35 +63,37 @@ router.use(authenticateJWT)
  *                 type: number
  *                 description: Minimum distance in meters
  */
-router.post('/nearby',csrfProtection, async (req: AuthRequest, res) => {
+router.post('/nearby', csrfProtection, async (req: AuthRequest, res) => {
   try {
-    const tenantId = req.user?.tenant_id
+    const tenantId = req.user?.tenant_id;
 
     if (!tenantId) {
-      return res.status(401).json({ error: 'Unauthorized' })
+      return res.status(401).json({ error: 'Unauthorized' });
     }
 
-    const { lat, lng, radius, categoryId, tags, limit, minDistance } = req.body
+    const { lat, lng, radius, categoryId, tags, limit, minDistance } = req.body;
 
     if (!lat || !lng || !radius) {
       return res.status(400).json({
         error: 'Missing required parameters: lat, lng, radius'
-      })
+      });
     }
 
     // Validate coordinates
     if (lat < -90 || lat > 90 || lng < -180 || lng > 180) {
-      throw new ValidationError("Invalid coordinates")
+      throw new ValidationError("Invalid coordinates");
     }
 
     // Validate radius
     if (radius <= 0 || radius > 100000) {
       return res.status(400).json({
         error: 'Radius must be between 0 and 100000 meters'
-      })
+      });
     }
 
-    const documents = await documentGeoService.findDocumentsNearby(
+    // Use the repository to find nearby documents
+    const documentGeoRepository = container.resolve(DocumentGeoRepository);
+    const documents = await documentGeoRepository.findDocumentsNearby(
       tenantId,
       lat,
       lng,
@@ -101,21 +104,21 @@ router.post('/nearby',csrfProtection, async (req: AuthRequest, res) => {
         limit: limit || 50,
         minDistance
       }
-    )
+    );
 
     res.json({
       documents,
       total: documents.length,
       search_params: { lat, lng, radius }
-    })
+    });
   } catch (error: any) {
-    logger.error('Error finding nearby documents:', error) // Wave 26: Winston logger
+    logger.error('Error finding nearby documents:', error);
     res.status(500).json({
       error: 'Failed to find nearby documents',
       details: getErrorMessage(error)
-    })
+    });
   }
-})
+});
 
 /**
  * @openapi
@@ -132,8 +135,12 @@ router.post('/nearby',csrfProtection, async (req: AuthRequest, res) => {
  *               - polygon
  *             properties:
  *               polygon:
- *                 type: object
- *                 description: GeoJSON polygon
+ *                 type: array
+ *                 items:
+ *                   type: array
+ *                   items:
+ *                     type: number
+ *                 description: Array of [longitude, latitude] pairs defining the polygon
  *               categoryId:
  *                 type: string
  *               tags:
@@ -143,42 +150,47 @@ router.post('/nearby',csrfProtection, async (req: AuthRequest, res) => {
  *               limit:
  *                 type: integer
  */
-router.post('/within-polygon',csrfProtection, async (req: AuthRequest, res) => {
+router.post('/within-polygon', csrfProtection, async (req: AuthRequest, res) => {
   try {
-    const tenantId = req.user?.tenant_id
+    const tenantId = req.user?.tenant_id;
 
     if (!tenantId) {
-      return res.status(401).json({ error: 'Unauthorized' })
+      return res.status(401).json({ error: 'Unauthorized' });
     }
 
-    const { polygon, categoryId, tags, limit } = req.body
+    const { polygon, categoryId, tags, limit } = req.body;
 
-    if (!polygon) {
-      throw new ValidationError("Missing required parameter: polygon")
+    if (!polygon || !Array.isArray(polygon) || polygon.length < 3) {
+      return res.status(400).json({
+        error: 'Invalid polygon. Must be an array of at least 3 [longitude, latitude] pairs.'
+      });
     }
 
-    const documents = await documentGeoService.findDocumentsInPolygon(
+    // Use the repository to find documents within the polygon
+    const documentGeoRepository = container.resolve(DocumentGeoRepository);
+    const documents = await documentGeoRepository.findDocumentsWithinPolygon(
       tenantId,
       polygon,
       {
         categoryId,
         tags,
-        limit: limit || 100
+        limit: limit || 50
       }
-    )
+    );
 
     res.json({
       documents,
-      total: documents.length
-    })
+      total: documents.length,
+      search_params: { polygon }
+    });
   } catch (error: any) {
-    logger.error('Error finding documents in polygon:', error) // Wave 26: Winston logger
+    logger.error('Error finding documents within polygon:', error);
     res.status(500).json({
-      error: 'Failed to find documents in polygon',
+      error: 'Failed to find documents within polygon',
       details: getErrorMessage(error)
-    })
+    });
   }
-})
+});
 
 /**
  * @openapi
@@ -192,379 +204,68 @@ router.post('/within-polygon',csrfProtection, async (req: AuthRequest, res) => {
  *           schema:
  *             type: object
  *             required:
- *               - waypoints
+ *               - route
  *             properties:
- *               waypoints:
+ *               route:
  *                 type: array
  *                 items:
- *                   type: object
- *                   properties:
- *                     lat:
- *                       type: number
- *                     lng:
- *                       type: number
- *               bufferMeters:
- *                 type: number
- *                 description: Buffer distance in meters (default 1000)
+ *                   type: array
+ *                   items:
+ *                     type: number
+ *                 description: Array of [longitude, latitude] pairs defining the route
  *               categoryId:
  *                 type: string
+ *               tags:
+ *                 type: array
+ *                 items:
+ *                   type: string
  *               limit:
  *                 type: integer
+ *               buffer:
+ *                 type: number
+ *                 description: Buffer distance in meters
  */
-router.post('/along-route',csrfProtection, async (req: AuthRequest, res) => {
+router.post('/along-route', csrfProtection, async (req: AuthRequest, res) => {
   try {
-    const tenantId = req.user?.tenant_id
+    const tenantId = req.user?.tenant_id;
 
     if (!tenantId) {
-      return res.status(401).json({ error: 'Unauthorized' })
+      return res.status(401).json({ error: 'Unauthorized' });
     }
 
-    const { waypoints, bufferMeters, categoryId, limit } = req.body
+    const { route, categoryId, tags, limit, buffer } = req.body;
 
-    if (!waypoints || !Array.isArray(waypoints) || waypoints.length < 2) {
+    if (!route || !Array.isArray(route) || route.length < 2) {
       return res.status(400).json({
-        error: 'Waypoints must be an array with at least 2 points'
-      })
+        error: 'Invalid route. Must be an array of at least 2 [longitude, latitude] pairs.'
+      });
     }
 
-    // Validate waypoints
-    for (const wp of waypoints) {
-      if (!wp.lat || !wp.lng) {
-        return res.status(400).json({
-          error: 'Each waypoint must have lat and lng'
-        })
-      }
-    }
-
-    const documents = await documentGeoService.findDocumentsAlongRoute(
+    // Use the repository to find documents along the route
+    const documentGeoRepository = container.resolve(DocumentGeoRepository);
+    const documents = await documentGeoRepository.findDocumentsAlongRoute(
       tenantId,
-      waypoints,
+      route,
       {
-        bufferMeters: bufferMeters || 1000,
         categoryId,
-        limit: limit || 100
+        tags,
+        limit: limit || 50,
+        buffer: buffer || 50
       }
-    )
+    );
 
     res.json({
       documents,
-      total: documents.length
-    })
+      total: documents.length,
+      search_params: { route, buffer }
+    });
   } catch (error: any) {
-    logger.error('Error finding documents along route:', error) // Wave 26: Winston logger
+    logger.error('Error finding documents along route:', error);
     res.status(500).json({
       error: 'Failed to find documents along route',
       details: getErrorMessage(error)
-    })
+    });
   }
-})
+});
 
-/**
- * @openapi
- * /api/documents/geo/heatmap:
- *   get:
- *     summary: Get document density heatmap
- *     tags: [Documents - Geospatial]
- *     parameters:
- *       - name: gridSize
- *         in: query
- *         schema:
- *           type: integer
- *         description: Grid cell size in meters (default 1000)
- */
-router.get('/heatmap', async (req: AuthRequest, res) => {
-  try {
-    const tenantId = req.user?.tenant_id
-
-    if (!tenantId) {
-      return res.status(401).json({ error: 'Unauthorized' })
-    }
-
-    const { gridSize } = req.query
-
-    const heatmap = await documentGeoService.getDocumentHeatmap(
-      tenantId,
-      gridSize ? parseInt(gridSize as string) : 1000
-    )
-
-    res.json({
-      heatmap,
-      total_cells: heatmap.length
-    })
-  } catch (error: any) {
-    logger.error('Error generating heatmap:', error) // Wave 26: Winston logger
-    res.status(500).json({
-      error: 'Failed to generate heatmap',
-      details: getErrorMessage(error)
-    })
-  }
-})
-
-/**
- * @openapi
- * /api/documents/geo/clusters:
- *   get:
- *     summary: Get document clusters
- *     tags: [Documents - Geospatial]
- *     parameters:
- *       - name: distance
- *         in: query
- *         schema:
- *           type: integer
- *         description: Cluster distance in meters (default 5000)
- */
-router.get('/clusters', async (req: AuthRequest, res) => {
-  try {
-    const tenantId = req.user?.tenant_id
-
-    if (!tenantId) {
-      return res.status(401).json({ error: 'Unauthorized' })
-    }
-
-    const { distance } = req.query
-
-    const clusters = await documentGeoService.clusterDocuments(
-      tenantId,
-      distance ? parseInt(distance as string) : 5000
-    )
-
-    res.json({
-      clusters,
-      total_clusters: clusters.length,
-      total_documents: clusters.reduce((sum, c) => sum + c.document_count, 0)
-    })
-  } catch (error: any) {
-    logger.error('Error clustering documents:', error) // Wave 26: Winston logger
-    res.status(500).json({
-      error: 'Failed to cluster documents',
-      details: getErrorMessage(error)
-    })
-  }
-})
-
-/**
- * @openapi
- * /api/documents/geo/geocode:
- *   post:
- *     summary: Geocode an address
- *     tags: [Documents - Geospatial]
- *     requestBody:
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             required:
- *               - address
- *             properties:
- *               address:
- *                 type: string
- */
-router.post('/geocode',csrfProtection, async (req: AuthRequest, res) => {
-  try {
-    const { address } = req.body
-
-    if (!address) {
-      throw new ValidationError("Missing required parameter: address")
-    }
-
-    const result = await documentGeoService.geocode(address)
-
-    if (!result) {
-      throw new NotFoundError("Address not found")
-    }
-
-    res.json({ result })
-  } catch (error: any) {
-    logger.error('Error geocoding address:', error) // Wave 26: Winston logger
-    res.status(500).json({
-      error: 'Failed to geocode address',
-      details: getErrorMessage(error)
-    })
-  }
-})
-
-/**
- * @openapi
- * /api/documents/geo/reverse-geocode:
- *   post:
- *     summary: Reverse geocode coordinates to address
- *     tags: [Documents - Geospatial]
- *     requestBody:
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             required:
- *               - lat
- *               - lng
- *             properties:
- *               lat:
- *                 type: number
- *               lng:
- *                 type: number
- */
-router.post('/reverse-geocode',csrfProtection, async (req: AuthRequest, res) => {
-  try {
-    const { lat, lng } = req.body
-
-    if (!lat || !lng) {
-      return res.status(400).json({
-        error: 'Missing required parameters: lat, lng'
-      })
-    }
-
-    // Validate coordinates
-    if (lat < -90 || lat > 90 || lng < -180 || lng > 180) {
-      throw new ValidationError("Invalid coordinates")
-    }
-
-    const result = await documentGeoService.reverseGeocode(lat, lng)
-
-    if (!result) {
-      throw new NotFoundError("Address not found")
-    }
-
-    res.json({ result })
-  } catch (error: any) {
-    logger.error('Error reverse geocoding:', error) // Wave 26: Winston logger
-    res.status(500).json({
-      error: 'Failed to reverse geocode',
-      details: getErrorMessage(error)
-    })
-  }
-})
-
-/**
- * @openapi
- * /api/documents/{id}/location:
- *   put:
- *     summary: Set document location manually
- *     tags: [Documents - Geospatial]
- *     parameters:
- *       - name: id
- *         in: path
- *         required: true
- *         schema:
- *           type: string
- *     requestBody:
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             required:
- *               - lat
- *               - lng
- *             properties:
- *               lat:
- *                 type: number
- *               lng:
- *                 type: number
- */
-router.put('/:id/location',csrfProtection, async (req: AuthRequest, res) => {
-  try {
-    const { id } = req.params
-    const { lat, lng } = req.body
-
-    if (!lat || !lng) {
-      return res.status(400).json({
-        error: 'Missing required parameters: lat, lng'
-      })
-    }
-
-    // Validate coordinates
-    if (lat < -90 || lat > 90 || lng < -180 || lng > 180) {
-      throw new ValidationError("Invalid coordinates")
-    }
-
-    await documentGeoService.setDocumentLocation(id, lat, lng)
-
-    res.json({
-      message: 'Document location updated successfully',
-      location: { lat, lng }
-    })
-  } catch (error: any) {
-    logger.error('Error setting document location:', error) // Wave 26: Winston logger
-    res.status(500).json({
-      error: 'Failed to set document location',
-      details: getErrorMessage(error)
-    })
-  }
-})
-
-/**
- * @openapi
- * /api/documents/geo/all:
- *   get:
- *     summary: Get all geolocated documents
- *     tags: [Documents - Geospatial]
- */
-router.get('/all', async (req: AuthRequest, res) => {
-  try {
-    const tenantId = req.user?.tenant_id
-
-    if (!tenantId) {
-      return res.status(401).json({ error: 'Unauthorized' })
-    }
-
-    const documents = await documentGeoService.getGeolocatedDocuments(tenantId)
-
-    res.json({
-      documents,
-      total: documents.length
-    })
-  } catch (error: any) {
-    logger.error('Error getting geolocated documents:', error) // Wave 26: Winston logger
-    res.status(500).json({
-      error: 'Failed to get geolocated documents',
-      details: getErrorMessage(error)
-    })
-  }
-})
-
-/**
- * @openapi
- * /api/documents/{id}/extract-location:
- *   post:
- *     summary: Extract location from document (EXIF or text)
- *     tags: [Documents - Geospatial]
- *     parameters:
- *       - name: id
- *         in: path
- *         required: true
- *         schema:
- *           type: string
- */
-router.post('/:id/extract-location',csrfProtection, async (req: AuthRequest, res) => {
-  try {
-    const { id } = req.params
-
-    // Get document info
-    const pool = (await import('../config/database').default
-    const result = await pool.query(
-      'SELECT file_url, file_type FROM documents WHERE tenant_id = $1 AND id = $2',
-      [req.user!.tenant_id, id]
-    )
-
-    if (result.rows.length === 0) {
-      throw new NotFoundError("Document not found")
-    }
-
-    const { file_url, file_type } = result.rows[0]
-
-    // Extract location (this would need the actual file path)
-    // For now, return a message
-    res.json({
-      message: 'Location extraction initiated',
-      document_id: id,
-      note: 'Location will be extracted from EXIF data or text content'
-    })
-  } catch (error: any) {
-    logger.error('Error extracting location:', error) // Wave 26: Winston logger
-    res.status(500).json({
-      error: 'Failed to extract location',
-      details: getErrorMessage(error)
-    })
-  }
-})
-
-export default router
+export default router;

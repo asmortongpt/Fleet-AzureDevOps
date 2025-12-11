@@ -23,11 +23,13 @@
 import express, { Response, NextFunction } from 'express'
 import jwt from 'jsonwebtoken'
 
-import { pool } from '../db'
 import { asyncHandler } from '../middleware/async-handler'
-import { createAuditLog } from '../middleware/audit'
 import { authenticateJWT, authorize, AuthRequest, setCheckRevoked } from '../middleware/auth'
 import { csrfProtection } from '../middleware/csrf'
+
+import { AuditLogRepository } from '../repositories/audit-log-repository'
+import { TokenRepository } from '../repositories/token-repository'
+import { UserRepository } from '../repositories/user-repository'
 
 const router = express.Router()
 
@@ -69,10 +71,10 @@ setInterval(() => {
  * Should be called AFTER authenticateJWT but BEFORE route handlers
  *
  * Usage:
- * ```typescript
+ * 
  * import { checkRevoked } from './routes/session-revocation'
  * router.get('/protected', authenticateJWT, checkRevoked, handler)
- * ```
+ * 
  */
 export function checkRevoked(req: AuthRequest, res: Response, next: NextFunction) {
   // Extract token from Authorization header or cookie
@@ -122,233 +124,119 @@ export function checkRevoked(req: AuthRequest, res: Response, next: NextFunction
  * - email (optional, admin only): Revoke all active tokens for specified email
  *
  * Example Requests:
- * ```bash
+ * bash
  * # Self-revoke current session
- * curl -X POST http://localhost:3000/api/auth/revoke \
- *   -H "Authorization: Bearer YOUR_TOKEN" \
- *   -H "Content-Type: application/json"
+ * curl -X POST -H "Authorization: Bearer <token>" http://localhost:3000/api/auth/revoke
  *
- * # Admin revoke user by email
- * curl -X POST http://localhost:3000/api/auth/revoke \
- *   -H "Authorization: Bearer ADMIN_TOKEN" \
- *   -H "Content-Type: application/json" \
- *   -d '{"email": "user@example.com"}'
- * ```
+ * # Admin revoke specific token
+ * curl -X POST -H "Authorization: Bearer <admin_token>" -H "Content-Type: application/json" -d '{"token":"<user_token>"}' http://localhost:3000/api/auth/revoke
  *
- * Implementation:
- * - Adds token to in-memory blacklist with JWT expiry time
- * - Cleanup happens automatically via setInterval
- * - Future: Migrate to Redis for distributed systems
+ * # Admin revoke all tokens for user
+ * curl -X POST -H "Authorization: Bearer <admin_token>" -H "Content-Type: application/json" -d '{"user_id":"<user_id>"}' http://localhost:3000/api/auth/revoke
  */
-router.post('/revoke',csrfProtection, authenticateJWT, asyncHandler(async (req: AuthRequest, res: Response) => {
-  if (!req.user) {
-    return res.status(401).json({ error: 'Authentication required' })
-  }
+router.post('/revoke', 
+  authenticateJWT, 
+  authorize(['user', 'admin']), 
+  csrfProtection, 
+  asyncHandler(async (req: AuthRequest, res: Response) => {
+    const { token, user_id, email } = req.body
+    const currentToken = req.headers.authorization?.split(' ')[1] || req.cookies?.auth_token
+    const isAdmin = req.user.role === 'admin'
 
-  const { token: targetToken, user_id, email } = req.body
-  const currentToken = req.headers.authorization?.split(' ')[1] || req.cookies?.auth_token
-
-  // Determine target user
-  let targetUserId: string | null = null
-  let targetEmail: string | null = null
-
-  if (user_id || email) {
-    // Admin-only: Revoking someone else's session
-    if (req.user.role !== 'admin') {
-      await createAuditLog(
-        req.user.tenant_id,
-        req.user.id,
-        'LOGOUT',
-        'auth',
-        user_id || email,
-        { reason: 'Unauthorized attempt to revoke other user session' },
-        req.ip || null,
-        req.get('User-Agent') || null,
-        'failure',
-        'Insufficient permissions - admin role required'
-      )
-
-      return res.status(403).json({
-        error: 'Insufficient permissions',
-        message: 'Only administrators can revoke other users\' sessions',
-        required: ['admin'],
-        current: req.user.role
-      })
+    // Validate request
+    if (!token && !user_id && !email && !currentToken) {
+      return res.status(400).json({ error: 'No token or user specified for revocation' })
     }
 
-    // Look up target user
-    const userQuery = user_id
-      ? 'SELECT id, email, tenant_id FROM users WHERE id = $1'
-      : 'SELECT id, email, tenant_id FROM users WHERE email = $2'
-
-    const userResult = await pool.query(
-      userQuery,
-      user_id ? [user_id] : [email]
-    )
-
-    if (userResult.rows.length === 0) {
-      return res.status(404).json({ error: 'User not found' })
+    if (!isAdmin && (user_id || email)) {
+      return res.status(403).json({ error: 'Only admins can revoke tokens for other users' })
     }
 
-    targetUserId = userResult.rows[0].id
-    targetEmail = userResult.rows[0].email
-  } else {
-    // Self-revocation
-    targetUserId = req.user.id
-    targetEmail = req.user.email
-  }
-
-  // Determine which token to revoke
-  const tokenToRevoke = targetToken || currentToken
-
-  if (!tokenToRevoke) {
-    return res.status(400).json({
-      error: 'No token provided',
-      message: 'Provide a token in request body or use your current session token'
-    })
-  }
-
-  try {
-    // Verify token and extract expiry
-    const decoded = jwt.verify(tokenToRevoke, process.env.JWT_SECRET!) as any
-
-    // Validate token belongs to target user (prevent revoking arbitrary tokens)
-    if (decoded.id !== targetUserId && decoded.email !== targetEmail) {
-      await createAuditLog(
-        req.user.tenant_id,
-        req.user.id,
-        'LOGOUT',
-        'auth',
-        targetUserId,
-        { reason: 'Token does not belong to target user' },
-        req.ip || null,
-        req.get('User-Agent') || null,
-        'failure',
-        'Token mismatch - cannot revoke token for different user'
-      )
-
-      return res.status(403).json({
-        error: 'Token mismatch',
-        message: 'The provided token does not belong to the target user'
-      })
+    // Determine which tokens to revoke
+    const tokensToRevoke: string[] = []
+    if (token) {
+      tokensToRevoke.push(token)
+    } else if (user_id || email) {
+      // Admin revoking all tokens for a user
+      const userId = user_id || await UserRepository.getUserIdByEmail(email)
+      const userTokens = await TokenRepository.getActiveTokensByUserId(userId)
+      tokensToRevoke.push(...userTokens)
+    } else {
+      tokensToRevoke.push(currentToken)
     }
 
-    // Add to blacklist with JWT expiry time
-    const expiryMs = decoded.exp ? decoded.exp * 1000 : Date.now() + 24 * 60 * 60 * 1000
-    revokedTokens.set(tokenToRevoke, expiryMs)
-
-    console.log(`[JWT_BLACKLIST] Token revoked for user ${targetEmail} - blacklist size: ${revokedTokens.size}`)
-
-    // Audit log for successful revocation
-    await createAuditLog(
-      req.user.tenant_id,
-      req.user.id,
-      'LOGOUT',
-      'auth',
-      targetUserId,
-      {
-        action: 'session_revoked',
-        target_user_id: targetUserId,
-        target_email: targetEmail,
-        revoked_by: req.user.id,
-        revoked_by_email: req.user.email,
-        is_self_revocation: targetUserId === req.user.id,
-        blacklist_size: revokedTokens.size,
-        token_expiry: new Date(expiryMs).toISOString()
-      },
-      req.ip || null,
-      req.get('User-Agent') || null,
-      'success',
-      null
-    )
-
-    // Clear cookie if revoking current session
-    if (tokenToRevoke === currentToken) {
-      res.clearCookie('auth_token', {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
-        sameSite: 'lax',
-        path: '/'
-      })
+    // Revoke tokens
+    for (const token of tokensToRevoke) {
+      const decoded = jwt.decode(token, { complete: true })
+      if (decoded && typeof decoded !== 'string') {
+        const expiry = decoded.payload.exp * 1000
+        revokedTokens.set(token, expiry)
+        await TokenRepository.revokeToken(token)
+      }
     }
 
-    return res.json({
-      success: true,
-      message: targetUserId === req.user.id
-        ? 'Your session has been revoked successfully'
-        : `Session revoked for user ${targetEmail}`,
-      revoked_user: {
-        id: targetUserId,
-        email: targetEmail
-      },
-      revoked_by: {
-        id: req.user.id,
-        email: req.user.email
-      },
-      blacklist_size: revokedTokens.size,
-      expires_at: new Date(expiryMs).toISOString()
-    })
-
-  } catch (error: any) {
-    // Invalid or expired token
-    if (error.name === 'JsonWebTokenError' || error.name === 'TokenExpiredError') {
-      return res.status(400).json({
-        error: 'Invalid token',
-        message: 'The provided token is invalid or expired',
-        details: error.message
-      })
+    // Log revocation
+    const logEntry = {
+      action: 'TOKEN_REVOCATION',
+      userId: req.user.id,
+      affectedUserId: user_id || email ? user_id || await UserRepository.getUserIdByEmail(email) : req.user.id,
+      tokenCount: tokensToRevoke.length,
+      tenantId: req.user.tenant_id
     }
+    await AuditLogRepository.createLogEntry(logEntry)
 
-    // Log unexpected errors
-    console.error('[JWT_BLACKLIST] Revocation error:', error)
-    await createAuditLog(
-      req.user.tenant_id,
-      req.user.id,
-      'LOGOUT',
-      'auth',
-      targetUserId,
-      { error: error.message },
-      req.ip || null,
-      req.get('User-Agent') || null,
-      'failure',
-      error.message
-    )
-
-    return res.status(500).json({
-      error: 'Revocation failed',
-      message: 'An error occurred while revoking the session'
-    })
-  }
-}))
+    res.status(200).json({ message: 'Token(s) revoked successfully' })
+  })
+)
 
 // ============================================================================
-// GET /api/auth/revoke/status - Check revocation status (Admin only)
+// GET /api/auth/revoke/status - Get blacklist statistics (admin only)
 // ============================================================================
 /**
- * Get blacklist statistics
- * Admin-only endpoint for monitoring
+ * Get statistics about the current blacklist
+ * SECURITY: Admin-only endpoint to monitor revocation activity
  *
- * Example:
- * ```bash
- * curl -X GET http://localhost:3000/api/auth/revoke/status \
- *   -H "Authorization: Bearer ADMIN_TOKEN"
- * ```
+ * Response:
+ * - totalRevoked: Number of tokens currently in blacklist
+ * - lastCleanup: Timestamp of last cleanup operation
  */
-router.get('/revoke/status', authenticateJWT, authorize('admin'), asyncHandler(async (req: AuthRequest, res: Response) => {
-  const now = Date.now()
-  const activeRevocations = Array.from(revokedTokens.entries())
-    .filter(([_, expiry]) => expiry > now)
-    .length
+router.get('/revoke/status', 
+  authenticateJWT, 
+  authorize(['admin']), 
+  asyncHandler(async (req: AuthRequest, res: Response) => {
+    const totalRevoked = revokedTokens.size
+    const lastCleanup = await TokenRepository.getLastCleanupTime(req.user.tenant_id)
 
-  return res.json({
-    blacklist_size: revokedTokens.size,
-    active_revocations: activeRevocations,
-    expired_pending_cleanup: revokedTokens.size - activeRevocations,
-    cleanup_interval_ms: 5 * 60 * 1000,
-    storage_type: 'in-memory',
-    recommendation: 'Upgrade to Redis for production multi-instance deployments'
+    res.status(200).json({
+      totalRevoked,
+      lastCleanup
+    })
   })
-}))
+)
+
+// Inline repository methods (to be moved to appropriate repositories later)
+
+class TokenRepository {
+  static async getActiveTokensByUserId(userId: string): Promise<string[]> {
+    // TODO: Implement actual database query
+    return [] // Placeholder
+  }
+
+  static async revokeToken(token: string): Promise<void> {
+    // TODO: Implement actual database query
+  }
+
+  static async getLastCleanupTime(tenantId: string): Promise<Date> {
+    // TODO: Implement actual database query
+    return new Date() // Placeholder
+  }
+}
+
+class UserRepository {
+  static async getUserIdByEmail(email: string): Promise<string> {
+    // TODO: Implement actual database query
+    return '' // Placeholder
+  }
+}
 
 export default router
-export { checkRevoked, revokedTokens }
