@@ -1,10 +1,12 @@
+import { BaseRepository } from '../repositories/BaseRepository';
+
 Here is a basic example of a FleetComparisonRepository in TypeScript. This repository is designed to interact with a database to perform CRUD operations on a fleet comparison data. It uses parameterized queries to ensure that the application is secure from SQL injection attacks.
 
 
 import { Pool } from 'pg';
 import { FleetComparison } from '../models/fleet-comparison.model';
 
-export class FleetComparisonRepository {
+export class FleetComparisonRepository extends BaseRepository<any> {
     private pool: Pool;
 
     constructor(pool: Pool) {

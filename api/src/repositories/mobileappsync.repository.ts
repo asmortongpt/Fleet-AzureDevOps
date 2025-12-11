@@ -1,3 +1,5 @@
+import { BaseRepository } from '../repositories/BaseRepository';
+
 Here is a simple example of how you might create a TypeScript repository for a mobile app sync using parameterized queries, tenant_id, and CRUD operations:
 
 

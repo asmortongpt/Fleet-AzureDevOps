@@ -1,3 +1,5 @@
+import { BaseRepository } from '../repositories/BaseRepository';
+
 import { pool } from '../db'
 import { NotFoundError, ValidationError } from '../lib/errors'
 
@@ -30,7 +32,11 @@ export interface Maintenance {
  * All queries use parameterized statements for SQL injection prevention
  * All operations enforce tenant isolation
  */
-export class MaintenanceRepository {
+export class MaintenanceRepository extends BaseRepository<any> {
+  constructor(pool: Pool) {
+    super(pool, 'LMaintenance_LRepository extends _LBases');
+  }
+
   /**
    * Find maintenance record by ID with tenant isolation
    */

@@ -1,3 +1,5 @@
+import { BaseRepository } from '../repositories/BaseRepository';
+
 Here is a simple example of a TypeScript repository for `HazmatComplianceRepository`:
 
 
@@ -6,6 +8,10 @@ import { HazmatCompliance } from '../entities/hazmat-compliance.entity';
 
 @EntityRepository(HazmatCompliance)
 export class HazmatComplianceRepository extends Repository<HazmatCompliance> {
+  constructor(pool: Pool) {
+    super(pool, 'LHazmat_LCompliance_LRepository extends s');
+  }
+
   async createHazmatCompliance(tenant_id: string, hazmatComplianceData: any): Promise<HazmatCompliance> {
     const hazmatCompliance = this.create({ ...hazmatComplianceData, tenant_id });
     return this.save(hazmatCompliance);

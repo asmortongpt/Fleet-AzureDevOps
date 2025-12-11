@@ -1,3 +1,5 @@
+import { BaseRepository } from '../repositories/BaseRepository';
+
 To create a TypeScript repository called `CarbonTrackingRepository` for the `api/src/routes/carbon-tracking.routes.ts` file, we'll implement parameterized queries, include a `tenant_id` field, and provide CRUD operations. Let's break this down step-by-step:
 
 1. First, we'll create the repository file.
@@ -22,7 +24,7 @@ interface CarbonTrackingData {
   location: string;
 }
 
-export class CarbonTrackingRepository {
+export class CarbonTrackingRepository extends BaseRepository<any> {
   private pool: Pool;
 
   constructor(pool: Pool) {

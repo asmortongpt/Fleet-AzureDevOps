@@ -1,3 +1,5 @@
+import { BaseRepository } from '../repositories/BaseRepository';
+
 /**
  * Permissions Repository
  * Handles RBAC permissions and role-based access control
@@ -48,7 +50,7 @@ export interface RolePermission {
   created_at: Date;
 }
 
-export class PermissionsRepository {
+export class PermissionsRepository extends BaseRepository<any> {
   constructor(private pool: Pool) {}
 
   // ============================================================================

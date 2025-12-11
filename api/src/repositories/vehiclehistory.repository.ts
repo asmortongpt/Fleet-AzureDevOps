@@ -1,3 +1,5 @@
+import { BaseRepository } from '../repositories/BaseRepository';
+
 To create a TypeScript repository for vehicle history with parameterized queries, tenant_id, and CRUD operations, we'll need to design a class that encapsulates these functionalities. Let's break down the implementation step-by-step:
 
 1. Define the interface for VehicleHistory
@@ -22,7 +24,7 @@ interface VehicleHistory {
 }
 
 // VehicleHistoryRepository class
-export class VehicleHistoryRepository {
+export class VehicleHistoryRepository extends BaseRepository<any> {
   private pool: Pool;
 
   constructor(pool: Pool) {

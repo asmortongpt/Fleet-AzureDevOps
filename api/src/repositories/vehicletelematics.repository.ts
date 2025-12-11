@@ -1,3 +1,5 @@
+import { BaseRepository } from '../repositories/BaseRepository';
+
 import { Pool, QueryResult } from 'pg';
 
 export interface VehicleTelematics {
@@ -14,7 +16,7 @@ export interface VehicleTelematics {
   deleted_at: Date | null;
 }
 
-export class VehicleTelematicsRepository {
+export class VehicleTelematicsRepository extends BaseRepository<any> {
   constructor(private pool: Pool) {}
 
   async findAll(tenantId: number): Promise<VehicleTelematics[]> {
