@@ -47,7 +47,7 @@ export class EventSubscriptionsRepository {
   // Read an event subscription by id
   async read(tenantId: string, id: number): Promise<EventSubscription | null> {
     const query = `
-      SELECT * FROM event_subscriptions
+      SELECT id, created_at, updated_at FROM event_subscriptions
       WHERE id = $1 AND tenant_id = $2;
     `;
     const values = [id, tenantId];
@@ -90,7 +90,7 @@ export class EventSubscriptionsRepository {
   // List event subscriptions for a tenant
   async list(tenantId: string): Promise<EventSubscription[]> {
     const query = `
-      SELECT * FROM event_subscriptions
+      SELECT id, created_at, updated_at FROM event_subscriptions
       WHERE tenant_id = $1
       ORDER BY created_at DESC;
     `;
@@ -130,6 +130,23 @@ router.post('/', async (req, res) => {
   } catch (error) {
     res.status(500).json({ error: 'Failed to create event subscription' });
   }
+
+  // Prevent N+1 queries with JOINs
+  async findAllWithRelated() {
+    const query = `
+      SELECT
+        t1.*,
+        t2.id as related_id,
+        t2.name as related_name
+      FROM ${this.tableName} t1
+      LEFT JOIN related_table t2 ON t1.related_id = t2.id
+      WHERE t1.tenant_id = $1
+      ORDER BY t1.created_at DESC
+    `;
+    const result = await this.pool.query(query, [this.tenantId]);
+    return result.rows;
+  }
+
 });
 
 // Implement other routes (GET, PUT, DELETE) similarly

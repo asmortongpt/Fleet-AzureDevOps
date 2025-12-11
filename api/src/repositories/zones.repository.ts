@@ -24,7 +24,7 @@ export class ZonesRepository {
   async findAll(tenantId: number): Promise<ZoneEntity[]> {
     try {
       const query = `
-        SELECT * FROM zones
+        SELECT id, tenant_id, created_at, updated_at FROM zones
         WHERE tenant_id = $1
         AND deleted_at IS NULL
         ORDER BY created_at DESC
@@ -43,7 +43,7 @@ export class ZonesRepository {
   async findById(id: number, tenantId: number): Promise<ZoneEntity | null> {
     try {
       const query = `
-        SELECT * FROM zones
+        SELECT id, tenant_id, created_at, updated_at FROM zones
         WHERE id = $1 AND tenant_id = $2 AND deleted_at IS NULL
       `;
       const result = await this.pool.query(query, [id, tenantId]);

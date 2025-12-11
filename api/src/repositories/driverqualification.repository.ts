@@ -40,7 +40,7 @@ export class DriverQualificationRepository {
   // Read a driver qualification by id
   async readById(tenant_id: string, id: string): Promise<QueryResult> {
     const query = `
-      SELECT *
+      SELECT id, created_at, updated_at
       FROM driver_qualifications
       WHERE tenant_id = $1 AND id = $2
     `;
@@ -51,7 +51,7 @@ export class DriverQualificationRepository {
   // Read all driver qualifications for a tenant
   async readAll(tenant_id: string): Promise<QueryResult> {
     const query = `
-      SELECT *
+      SELECT id, created_at, updated_at
       FROM driver_qualifications
       WHERE tenant_id = $1
     `;

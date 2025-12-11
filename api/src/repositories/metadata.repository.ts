@@ -23,7 +23,7 @@ export class MetadataRepository {
    * @returns 
    */
   async findAll(tenantId: number, filters?: any): Promise<Metadata[]> {
-    const query = `SELECT * FROM metadata WHERE tenant_id = $1 AND deleted_at IS NULL`;
+    const query = `SELECT id, tenant_id, created_at, updated_at FROM metadata WHERE tenant_id = $1 AND deleted_at IS NULL`;
     const result = await this.pool.query(query, [tenantId]);
     return result.rows;
   }
@@ -35,7 +35,7 @@ export class MetadataRepository {
    * @returns 
    */
   async findById(id: number, tenantId: number): Promise<Metadata | null> {
-    const query = `SELECT * FROM metadata WHERE id = $1 AND tenant_id = $2`;
+    const query = `SELECT id, tenant_id, created_at, updated_at FROM metadata WHERE id = $1 AND tenant_id = $2`;
     const result = await this.pool.query(query, [id, tenantId]);
     return result.rows[0] || null;
   }

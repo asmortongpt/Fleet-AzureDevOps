@@ -22,7 +22,7 @@ export class HealthMonitoringRepository {
 
     public async read(tenant_id: string): Promise<HealthMonitoring[]> {
         const result = await this.pool.query(
-            'SELECT * FROM health_monitoring WHERE tenant_id = $1',
+            'SELECT id, tenant_id, created_at, updated_at FROM health_monitoring WHERE tenant_id = $1',
             [tenant_id]
         );
 

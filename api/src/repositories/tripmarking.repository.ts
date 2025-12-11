@@ -25,7 +25,7 @@ class TripMarkingRepository {
 
   async getTripMarkingById(tenantId: string, id: string): Promise<QueryResult> {
     const query = `
-      SELECT * FROM trip_markings
+      SELECT id, tenant_id, created_at, updated_at FROM trip_markings
       WHERE id = $1 AND tenant_id = $2
     `;
     const values = [id, tenantId];
@@ -34,7 +34,7 @@ class TripMarkingRepository {
 
   async getTripMarkingsByTripId(tenantId: string, tripId: string): Promise<QueryResult> {
     const query = `
-      SELECT * FROM trip_markings
+      SELECT id, tenant_id, created_at, updated_at FROM trip_markings
       WHERE trip_id = $1 AND tenant_id = $2
     `;
     const values = [tripId, tenantId];
@@ -43,7 +43,7 @@ class TripMarkingRepository {
 
   async getTripMarkingsByUserId(tenantId: string, userId: string): Promise<QueryResult> {
     const query = `
-      SELECT * FROM trip_markings
+      SELECT id, tenant_id, created_at, updated_at FROM trip_markings
       WHERE user_id = $1 AND tenant_id = $2
     `;
     const values = [userId, tenantId];

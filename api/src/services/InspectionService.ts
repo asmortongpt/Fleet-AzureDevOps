@@ -9,7 +9,7 @@ export class InspectionService {
 
   async getAll(tenantId: number, filters?: any) {
     const query = `
-      SELECT *
+      SELECT id, inspection_type, status, vehicle_id, driver_id, inspector_id, passed, tenant_id, created_at, updated_at, deleted_at
       FROM inspections
       WHERE tenant_id = $1 AND deleted_at IS NULL
       ORDER BY created_at DESC
@@ -20,7 +20,7 @@ export class InspectionService {
 
   async getById(id: number, tenantId: number) {
     const query = `
-      SELECT *
+      SELECT id, inspection_type, status, vehicle_id, driver_id, inspector_id, passed, tenant_id, created_at, updated_at, deleted_at
       FROM inspections
       WHERE id = $1 AND tenant_id = $2 AND deleted_at IS NULL
     `;

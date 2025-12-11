@@ -17,7 +17,7 @@ export class FuelEfficiencyRepository {
   }
 
   async read(tenant_id: string) {
-    const query = 'SELECT * FROM fuel_efficiency WHERE tenant_id = $1';
+    const query = 'SELECT id, tenant_id, created_at, updated_at FROM fuel_efficiency WHERE tenant_id = $1';
     const values = [tenant_id];
     const result = await this.pool.query(query, values);
     return result.rows;

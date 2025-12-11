@@ -9,7 +9,7 @@ export class QueryOptimizer {
     const hasMissingWhere = /DELETE|UPDATE/i.test(sql) && !/WHERE/i.test(sql);
 
     if (hasSelectStar) {
-      recommendations.push('Replace SELECT * with explicit column names');
+      recommendations.push('Replace SELECT id, created_at, updated_at with explicit column names');
     }
 
     if (hasMissingWhere) {

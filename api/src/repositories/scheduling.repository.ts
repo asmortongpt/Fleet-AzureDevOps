@@ -16,7 +16,7 @@ export class SchedulingRepository {
 
   async findAll(tenantId: number): Promise<SchedulingEntity[]> {
     try {
-      const query = 'SELECT * FROM scheduling WHERE tenant_id = $1 AND deleted_at IS NULL ORDER BY start_time';
+      const query = 'SELECT id, tenant_id, created_at, updated_at FROM scheduling WHERE tenant_id = $1 AND deleted_at IS NULL ORDER BY start_time';
       const result: QueryResult<SchedulingEntity> = await this.pool.query(query, [tenantId]);
       return result.rows;
     } catch (error) {
@@ -26,7 +26,7 @@ export class SchedulingRepository {
 
   async findById(tenantId: number, id: number): Promise<SchedulingEntity | null> {
     try {
-      const query = 'SELECT * FROM scheduling WHERE tenant_id = $1 AND id = $2 AND deleted_at IS NULL';
+      const query = 'SELECT id, tenant_id, created_at, updated_at FROM scheduling WHERE tenant_id = $1 AND id = $2 AND deleted_at IS NULL';
       const result: QueryResult<SchedulingEntity> = await this.pool.query(query, [tenantId, id]);
       return result.rows[0] || null;
     } catch (error) {

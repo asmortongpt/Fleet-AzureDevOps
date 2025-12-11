@@ -9,7 +9,7 @@ export class PolicyTemplatesRepository {
 
   async getAllPolicyTemplates(tenantId: string): Promise<QueryResult> {
     const query = `
-      SELECT * FROM policy_templates
+      SELECT id, created_at, updated_at FROM policy_templates
       WHERE tenant_id = $1
       ORDER BY created_at DESC;
     `;
@@ -18,7 +18,7 @@ export class PolicyTemplatesRepository {
 
   async getPolicyTemplateById(tenantId: string, id: string): Promise<QueryResult> {
     const query = `
-      SELECT * FROM policy_templates
+      SELECT id, created_at, updated_at FROM policy_templates
       WHERE tenant_id = $1 AND id = $2;
     `;
     return this.pool.query(query, [tenantId, id]);

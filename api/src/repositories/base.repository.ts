@@ -5,7 +5,7 @@ export abstract class BaseRepository<T> {
 
   async findById(id: number, tenantId: number): Promise<T | null> {
     const result = await pool.query(
-      `SELECT * FROM ${this.tableName} WHERE id = $1 AND tenant_id = $2`,
+      `SELECT id, created_at, updated_at FROM ${this.tableName} WHERE id = $1 AND tenant_id = $2`,
       [id, tenantId]
     );
     return result.rows[0] || null;
@@ -13,7 +13,7 @@ export abstract class BaseRepository<T> {
 
   async findAll(tenantId: number): Promise<T[]> {
     const result = await pool.query(
-      `SELECT * FROM ${this.tableName} WHERE tenant_id = $1`,
+      `SELECT id, created_at, updated_at FROM ${this.tableName} WHERE tenant_id = $1`,
       [tenantId]
     );
     return result.rows;
@@ -55,4 +55,33 @@ export abstract class BaseRepository<T> {
     );
     return result.rowCount > 0;
   }
+
+  // Example centralized filtering
+  async findAllWithFilters(filters: Record<string, any>) {
+    const { clause, params } = this.buildWhereClause(filters);
+    const pagination = this.buildPagination(filters.page, filters.limit);
+    const sorting = this.buildSorting(filters.sortBy, filters.sortOrder);
+
+    const query = `SELECT id, name, created_at, updated_at, tenant_id FROM ${this.tableName} ${clause} ${sorting} ${pagination}`;
+    const result = await this.pool.query(query, params);
+    return result.rows;
+  }
+
+
+  // Prevent N+1 queries with JOINs
+  async findAllWithRelated() {
+    const query = `
+      SELECT
+        t1.*,
+        t2.id as related_id,
+        t2.name as related_name
+      FROM ${this.tableName} t1
+      LEFT JOIN related_table t2 ON t1.related_id = t2.id
+      WHERE t1.tenant_id = $1
+      ORDER BY t1.created_at DESC
+    `;
+    const result = await this.pool.query(query, [this.tenantId]);
+    return result.rows;
+  }
+
 }
