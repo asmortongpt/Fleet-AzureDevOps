@@ -1,5 +1,4 @@
 import { injectable } from "inversify";
-
 import { BaseRepository } from "../../../repositories/base.repository";
 
 @injectable()
