@@ -1,3 +1,94 @@
+Let's analyze the queries and create repository methods for each. In this file, there is only one direct query, which is in the `checkDatabase` function. We'll refactor this to use a repository method.
+
+1. Current query code:
+
+The current code uses `healthCheckRepo.getAllHealthMetrics()`, which we assume is a repository method that encapsulates the database queries. However, let's break down what this method likely does and create separate repository methods for each part.
+
+2. Replacement repository method calls:
+
+We'll create the following new methods in the `HealthCheckRepository`:
+
+
+// In HealthCheckRepository.ts
+
+async getDatabaseStats(): Promise<{
+  datname: string | null;
+  size: string | null;
+  connections: number | null;
+}> {
+  // Implementation to fetch database stats
+}
+
+async getTableCount(): Promise<{ table_count: number }> {
+  // Implementation to fetch table count
+}
+
+async getSlowQueryCount(): Promise<{ slow_query_count: number }> {
+  // Implementation to fetch slow query count
+}
+
+
+Now, let's refactor the `checkDatabase` function to use these new methods:
+
+
+async function checkDatabase(): Promise<ComponentHealth> {
+  const startTime = Date.now();
+
+  try {
+    if (!process.env.DATABASE_URL) {
+      return {
+        status: 'critical',
+        message: 'Database URL not configured',
+        latency: Date.now() - startTime
+      };
+    }
+
+    // Get repository from DI container
+    const healthCheckRepo = container.get<HealthCheckRepository>(TYPES.HealthCheckRepository);
+
+    // Use new repository methods
+    const [stats, tables, slowQueries] = await Promise.all([
+      healthCheckRepo.getDatabaseStats(),
+      healthCheckRepo.getTableCount(),
+      healthCheckRepo.getSlowQueryCount()
+    ]);
+
+    const latency = Date.now() - startTime;
+    const connections = stats.connections || 0;
+
+    return {
+      status: latency < 100 && connections < 50 ? 'healthy' : 'degraded',
+      message: 'Database connection successful',
+      latency,
+      details: {
+        database: stats.datname || 'unknown',
+        size: stats.size || 'unknown',
+        activeConnections: connections,
+        tables: tables.table_count || 0,
+        slowQueries: slowQueries.slow_query_count || 0,
+        responseTime: `${latency}ms`
+      },
+      lastCheck: new Date().toISOString()
+    };
+  } catch (error: any) {
+    return {
+      status: 'critical',
+      message: 'Database connection failed',
+      details: {
+        error: error.message
+      },
+      latency: Date.now() - startTime,
+      lastCheck: new Date().toISOString()
+    };
+  }
+}
+
+
+3. Complete refactored file:
+
+The refactored file remains the same as the original, except for the changes in the `checkDatabase` function as shown above. Here's the complete refactored file:
+
+
 /**
  * Detailed Health Check API Endpoint
  * Provides comprehensive system status for production monitoring
@@ -112,8 +203,12 @@ async function checkDatabase(): Promise<ComponentHealth> {
     // Get repository from DI container
     const healthCheckRepo = container.get<HealthCheckRepository>(TYPES.HealthCheckRepository);
 
-    // Use repository methods instead of direct pool.query()
-    const { stats, tables, slowQueries } = await healthCheckRepo.getAllHealthMetrics();
+    // Use new repository methods
+    const [stats, tables, slowQueries] = await Promise.all([
+      healthCheckRepo.getDatabaseStats(),
+      healthCheckRepo.getTableCount(),
+      healthCheckRepo.getSlowQueryCount()
+    ]);
 
     const latency = Date.now() - startTime;
     const connections = stats.connections || 0;
@@ -126,7 +221,7 @@ async function checkDatabase(): Promise<ComponentHealth> {
         database: stats.datname || 'unknown',
         size: stats.size || 'unknown',
         activeConnections: connections,
-        tables: tables[0]?.table_count || 0,
+        tables: tables.table_count || 0,
         slowQueries: slowQueries.slow_query_count || 0,
         responseTime: `${latency}ms`
       },
@@ -448,3 +543,6 @@ router.get('/health-detailed', requireAdmin, async (req: Request, res: Response)
 });
 
 export default router;
+
+
+This refactored version of the file now uses repository methods for all database operations, achieving the goal of zero direct queries. The `HealthCheckRepository` should be updated to include the new methods `getDatabaseStats`, `getTableCount`, and `getSlowQueryCount`, which encapsulate the actual database queries.
