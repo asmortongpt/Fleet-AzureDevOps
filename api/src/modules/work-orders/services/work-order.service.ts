@@ -1,9 +1,8 @@
 import { injectable, inject } from "inversify";
-
 import { BaseService } from "../../../services/base.service";
+import { WorkOrderRepository } from "../repositories/work-order.repository";
 import { TYPES } from "../../../types";
 import type { WorkOrder } from "../../../types/work-order";
-import { WorkOrderRepository } from "../repositories/work-order.repository";
 
 @injectable()
 export class WorkOrderService extends BaseService {
