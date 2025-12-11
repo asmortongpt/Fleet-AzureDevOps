@@ -1,6 +1,6 @@
 import { Pool } from 'pg';
 
-export interface WorkOrder {
+export interface IVehicleGroup {
   id: number;
   tenant_id: number;
   name: string;
@@ -9,19 +9,19 @@ export interface WorkOrder {
   deleted_at: Date | null;
 }
 
-export class WorkOrdersRepository {
+export class VehicleGroupsRepository {
   constructor(private pool: Pool) {}
 
   /**
-   * Find all work orders
+   * Fetch all vehicle groups
    * @param tenantId 
    * @param filters 
    * @returns 
    */
-  async findAll(tenantId: number, filters?: any): Promise<WorkOrder[]> {
+  async findAll(tenantId: number, filters?: any): Promise<IVehicleGroup[]> {
     try {
       const query = `
-        SELECT * FROM work_orders
+        SELECT * FROM vehicle_groups
         WHERE tenant_id = $1
         AND deleted_at IS NULL
         ORDER BY created_at DESC
@@ -35,14 +35,14 @@ export class WorkOrdersRepository {
   }
 
   /**
-   * Find work order by id
+   * Fetch a vehicle group by id
    * @param id 
    * @param tenantId 
    * @returns 
    */
-  async findById(id: number, tenantId: number): Promise<WorkOrder | null> {
+  async findById(id: number, tenantId: number): Promise<IVehicleGroup | null> {
     const query = `
-      SELECT * FROM work_orders
+      SELECT * FROM vehicle_groups
       WHERE id = $1 AND tenant_id = $2 AND deleted_at IS NULL
     `;
     const result = await this.pool.query(query, [id, tenantId]);
@@ -50,14 +50,14 @@ export class WorkOrdersRepository {
   }
 
   /**
-   * Create a new work order
+   * Create a vehicle group
    * @param data 
    * @param tenantId 
    * @returns 
    */
-  async create(data: Partial<WorkOrder>, tenantId: number): Promise<WorkOrder> {
+  async create(data: Partial<IVehicleGroup>, tenantId: number): Promise<IVehicleGroup> {
     const query = `
-      INSERT INTO work_orders (tenant_id, name, created_at, updated_at)
+      INSERT INTO vehicle_groups (tenant_id, name, created_at, updated_at)
       VALUES ($1, $2, NOW(), NOW())
       RETURNING *
     `;
@@ -66,15 +66,15 @@ export class WorkOrdersRepository {
   }
 
   /**
-   * Update a work order
+   * Update a vehicle group
    * @param id 
    * @param data 
    * @param tenantId 
    * @returns 
    */
-  async update(id: number, data: Partial<WorkOrder>, tenantId: number): Promise<WorkOrder> {
+  async update(id: number, data: Partial<IVehicleGroup>, tenantId: number): Promise<IVehicleGroup> {
     const query = `
-      UPDATE work_orders
+      UPDATE vehicle_groups
       SET name = $1, updated_at = NOW()
       WHERE id = $2 AND tenant_id = $3 AND deleted_at IS NULL
       RETURNING *
@@ -84,14 +84,14 @@ export class WorkOrdersRepository {
   }
 
   /**
-   * Soft delete a work order
+   * Soft delete a vehicle group
    * @param id 
    * @param tenantId 
    * @returns 
    */
   async softDelete(id: number, tenantId: number): Promise<boolean> {
     const query = `
-      UPDATE work_orders
+      UPDATE vehicle_groups
       SET deleted_at = NOW()
       WHERE id = $1 AND tenant_id = $2 AND deleted_at IS NULL
     `;
