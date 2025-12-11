@@ -1,7 +1,7 @@
 /**
  * Column Resolver Utility
  *
- * Provides efficient column list resolution for tables to replace SELECT * patterns.
+ * Provides efficient column list resolution for tables to replace SELECT id, created_at, updated_at patterns.
  * Uses caching to avoid repeated schema introspection queries.
  *
  * @module utils/column-resolver
@@ -63,7 +63,7 @@ export async function getTableColumns(pool: Pool, tableName: string): Promise<st
 }
 
 /**
- * Build a SELECT query with explicit column list instead of SELECT *
+ * Build a SELECT query with explicit column list instead of SELECT id, created_at, updated_at
  *
  * @param tableName - Name of the table
  * @param columns - Array of column names

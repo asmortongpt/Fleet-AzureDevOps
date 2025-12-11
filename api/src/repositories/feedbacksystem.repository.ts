@@ -15,14 +15,14 @@ export class FeedbackSystemRepository {
   }
 
   async getFeedbackSystem(tenant_id: string, id: string): Promise<FeedbackSystem | null> {
-    const query = 'SELECT * FROM feedback_systems WHERE tenant_id = $1 AND id = $2';
+    const query = 'SELECT id, tenant_id, created_at, updated_at FROM feedback_systems WHERE tenant_id = $1 AND id = $2';
     const values = [tenant_id, id];
     const { rows } = await this.pool.query(query, values);
     return rows[0] || null;
   }
 
   async getAllFeedbackSystems(tenant_id: string): Promise<FeedbackSystem[]> {
-    const query = 'SELECT * FROM feedback_systems WHERE tenant_id = $1';
+    const query = 'SELECT id, tenant_id, created_at, updated_at FROM feedback_systems WHERE tenant_id = $1';
     const values = [tenant_id];
     const { rows } = await this.pool.query(query, values);
     return rows;

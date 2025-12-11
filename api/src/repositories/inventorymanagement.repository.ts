@@ -9,13 +9,13 @@ export class InventoryManagementRepository {
   }
 
   async getAllItems(tenantId: string): Promise<InventoryItem[]> {
-    const query = 'SELECT * FROM inventory_items WHERE tenant_id = $1';
+    const query = 'SELECT id, tenant_id, created_at, updated_at FROM inventory_items WHERE tenant_id = $1';
     const result = await this.pool.query(query, [tenantId]);
     return result.rows.map(row => new InventoryItem(row));
   }
 
   async getItemById(itemId: string, tenantId: string): Promise<InventoryItem | null> {
-    const query = 'SELECT * FROM inventory_items WHERE id = $1 AND tenant_id = $2';
+    const query = 'SELECT id, tenant_id, created_at, updated_at FROM inventory_items WHERE id = $1 AND tenant_id = $2';
     const result = await this.pool.query(query, [itemId, tenantId]);
     return result.rows.length > 0 ? new InventoryItem(result.rows[0]) : null;
   }

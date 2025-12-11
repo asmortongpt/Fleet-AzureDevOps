@@ -307,7 +307,7 @@ export class IncidentRepository extends BaseRepository<Incident> {
 
   async findByType(incidentType: string, tenantId: number): Promise<Incident[]> {
     const result = await pool.query(
-      `SELECT * FROM ${this.tableName} WHERE incident_type = $1 AND tenant_id = $2 ORDER BY incident_date DESC`,
+      `SELECT id, name, created_at, updated_at, tenant_id FROM ${this.tableName} WHERE incident_type = $1 AND tenant_id = $2 ORDER BY incident_date DESC`,
       [incidentType, tenantId]
     );
     return result.rows;
@@ -315,7 +315,7 @@ export class IncidentRepository extends BaseRepository<Incident> {
 
   async findBySeverity(severity: string, tenantId: number): Promise<Incident[]> {
     const result = await pool.query(
-      `SELECT * FROM ${this.tableName} WHERE severity = $1 AND tenant_id = $2 ORDER BY incident_date DESC`,
+      `SELECT id, name, created_at, updated_at, tenant_id FROM ${this.tableName} WHERE severity = $1 AND tenant_id = $2 ORDER BY incident_date DESC`,
       [severity, tenantId]
     );
     return result.rows;
@@ -323,7 +323,7 @@ export class IncidentRepository extends BaseRepository<Incident> {
 
   async findByStatus(status: string, tenantId: number): Promise<Incident[]> {
     const result = await pool.query(
-      `SELECT * FROM ${this.tableName} WHERE status = $1 AND tenant_id = $2 ORDER BY incident_date DESC`,
+      `SELECT id, name, created_at, updated_at, tenant_id FROM ${this.tableName} WHERE status = $1 AND tenant_id = $2 ORDER BY incident_date DESC`,
       [status, tenantId]
     );
     return result.rows;
@@ -331,7 +331,7 @@ export class IncidentRepository extends BaseRepository<Incident> {
 
   async findByVehicle(vehicleId: string, tenantId: number): Promise<Incident[]> {
     const result = await pool.query(
-      `SELECT * FROM ${this.tableName} WHERE vehicle_id = $1 AND tenant_id = $2 ORDER BY incident_date DESC`,
+      `SELECT id, name, created_at, updated_at, tenant_id FROM ${this.tableName} WHERE vehicle_id = $1 AND tenant_id = $2 ORDER BY incident_date DESC`,
       [vehicleId, tenantId]
     );
     return result.rows;
@@ -339,7 +339,7 @@ export class IncidentRepository extends BaseRepository<Incident> {
 
   async findByDriver(driverId: string, tenantId: number): Promise<Incident[]> {
     const result = await pool.query(
-      `SELECT * FROM ${this.tableName} WHERE driver_id = $1 AND tenant_id = $2 ORDER BY incident_date DESC`,
+      `SELECT id, name, created_at, updated_at, tenant_id FROM ${this.tableName} WHERE driver_id = $1 AND tenant_id = $2 ORDER BY incident_date DESC`,
       [driverId, tenantId]
     );
     return result.rows;
@@ -347,7 +347,7 @@ export class IncidentRepository extends BaseRepository<Incident> {
 
   async findByDateRange(startDate: string, endDate: string, tenantId: number): Promise<Incident[]> {
     const result = await pool.query(
-      `SELECT * FROM ${this.tableName}
+      `SELECT id, name, created_at, updated_at, tenant_id FROM ${this.tableName}
        WHERE incident_date BETWEEN $1 AND $2
        AND tenant_id = $3
        ORDER BY incident_date DESC`,

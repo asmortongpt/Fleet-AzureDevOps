@@ -252,7 +252,7 @@ class AIIntakeService {
   ): Promise<AIRequestRecord | null> {
     try {
       const result = await this.db.query<AIRequestRecord>(
-        `SELECT * FROM ai_requests
+        `SELECT id, name, created_at, updated_at, tenant_id FROM ai_requests
          WHERE id = $1 AND tenant_id = $2 AND user_id = $3',
         [requestId, tenantId, userId]
       )

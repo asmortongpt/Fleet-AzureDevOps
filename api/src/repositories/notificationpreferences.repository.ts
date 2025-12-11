@@ -9,13 +9,13 @@ export class NotificationPreferencesRepository {
   }
 
   async getAll(tenantId: string): Promise<NotificationPreferences[]> {
-    const query = 'SELECT * FROM notification_preferences WHERE tenant_id = $1';
+    const query = 'SELECT id, tenant_id, created_at, updated_at FROM notification_preferences WHERE tenant_id = $1';
     const result = await this.pool.query(query, [tenantId]);
     return result.rows.map(row => new NotificationPreferences(row));
   }
 
   async getById(id: string, tenantId: string): Promise<NotificationPreferences | null> {
-    const query = 'SELECT * FROM notification_preferences WHERE id = $1 AND tenant_id = $2';
+    const query = 'SELECT id, tenant_id, created_at, updated_at FROM notification_preferences WHERE id = $1 AND tenant_id = $2';
     const result = await this.pool.query(query, [id, tenantId]);
     return result.rows.length > 0 ? new NotificationPreferences(result.rows[0]) : null;
   }

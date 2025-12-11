@@ -18,13 +18,13 @@ export class ReimbursementRequestsRepository {
   }
 
   async getAll(tenantId: number): Promise<ReimbursementRequest[]> {
-    const query = 'SELECT * FROM reimbursement_requests WHERE tenant_id = $1';
+    const query = 'SELECT id, tenant_id, created_at, updated_at FROM reimbursement_requests WHERE tenant_id = $1';
     const result: QueryResult<ReimbursementRequest> = await this.pool.query(query, [tenantId]);
     return result.rows;
   }
 
   async getById(id: number, tenantId: number): Promise<ReimbursementRequest | null> {
-    const query = 'SELECT * FROM reimbursement_requests WHERE id = $1 AND tenant_id = $2';
+    const query = 'SELECT id, tenant_id, created_at, updated_at FROM reimbursement_requests WHERE id = $1 AND tenant_id = $2';
     const result: QueryResult<ReimbursementRequest> = await this.pool.query(query, [id, tenantId]);
     return result.rows[0] || null;
   }

@@ -18,7 +18,7 @@ export class ExportJobsRepository {
   async findAll(tenantId: number, filters?: any): Promise<ExportJobEntity[]> {
     try {
       const query = `
-        SELECT * FROM export_jobs
+        SELECT id, created_at, updated_at FROM export_jobs
         WHERE tenant_id = $1
         AND deleted_at IS NULL
         ORDER BY created_at DESC
@@ -37,7 +37,7 @@ export class ExportJobsRepository {
   async findById(id: number, tenantId: number): Promise<ExportJobEntity | null> {
     try {
       const query = `
-        SELECT * FROM export_jobs
+        SELECT id, created_at, updated_at FROM export_jobs
         WHERE id = $1 AND tenant_id = $2 AND deleted_at IS NULL
       `;
       const result = await this.pool.query(query, [id, tenantId]);
@@ -102,4 +102,16 @@ export class ExportJobsRepository {
       throw new Error('Failed to delete record');
     }
   }
+
+  // Example centralized filtering
+  async findAllWithFilters(filters: Record<string, any>) {
+    const { clause, params } = this.buildWhereClause(filters);
+    const pagination = this.buildPagination(filters.page, filters.limit);
+    const sorting = this.buildSorting(filters.sortBy, filters.sortOrder);
+
+    const query = `SELECT id, name, created_at, updated_at, tenant_id FROM ${this.tableName} ${clause} ${sorting} ${pagination}`;
+    const result = await this.pool.query(query, params);
+    return result.rows;
+  }
+
 }

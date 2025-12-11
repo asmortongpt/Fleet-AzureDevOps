@@ -59,7 +59,7 @@ export class VehicleRepository extends BaseRepository<Vehicle> {
     try {
       const pool = this.getPool(context);
       const result = await pool.query<Vehicle>(
-        `SELECT * FROM ${this.tableName}
+        `SELECT id, name, created_at, updated_at, tenant_id FROM ${this.tableName}
          WHERE vin = $1 AND tenant_id = $2 AND deleted_at IS NULL`,
         [vin, context.tenantId]
       );
@@ -135,7 +135,7 @@ export class VehicleRepository extends BaseRepository<Vehicle> {
 
       // Get paginated data
       const dataResult = await pool.query<Vehicle>(
-        `SELECT * FROM ${this.tableName}
+        `SELECT id, name, created_at, updated_at, tenant_id FROM ${this.tableName}
          WHERE ${whereClause}
          ORDER BY ${sortBy} ${sortOrder}
          LIMIT $${paramIndex} OFFSET $${paramIndex + 1}`,

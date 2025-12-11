@@ -20,7 +20,7 @@ const pool = new Pool({
 
 app.get('/route', async (req, res) => {
   try {
-    const { rows } = await pool.query('SELECT * FROM table WHERE id = $1', [req.query.id]);
+    const { rows } = await pool.query('SELECT id, created_at, updated_at FROM table WHERE id = $1', [req.query.id]);
     res.json(rows);
   } catch (err) {
     console.error(err);
