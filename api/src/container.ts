@@ -6,6 +6,7 @@ import 'reflect-metadata';
 import { VehiclesRepository } from './modules/fleet/vehicles/vehicles.repository';
 import { AttachmentRepository } from './repositories/attachments.repository';
 import { BaseRepository } from './repositories/BaseRepository';
+import { SchedulingRepository } from './repositories/scheduling.repository';
 
 // Import services
 import { VehiclesService } from './modules/fleet/vehicles/vehicles.service';
@@ -20,6 +21,7 @@ export const TYPES = {
   MaintenanceRepository: Symbol.for('MaintenanceRepository'),
   WorkOrdersRepository: Symbol.for('WorkOrdersRepository'),
   AttachmentRepository: Symbol.for('AttachmentRepository'),
+  SchedulingRepository: Symbol.for('SchedulingRepository'),
 
   // Services
   VehiclesService: Symbol.for('VehiclesService'),
@@ -59,8 +61,10 @@ container.bind<AttachmentRepository>(TYPES.AttachmentRepository)
   .toDynamicValue(() => new AttachmentRepository(pool))
   .inSingletonScope();
 
-// TODO: Register additional repositories and services here
-// Follow the same pattern as above
+// Scheduling Repository (B3: Agent 31)
+container.bind<SchedulingRepository>(TYPES.SchedulingRepository)
+  .toDynamicValue(() => new SchedulingRepository(pool))
+  .inSingletonScope();
 
 console.log('✅ DI Container configured with repositories and services');
 
