@@ -3,10 +3,12 @@
  *
  * Provides administrative interface for Bull queue management
  * Endpoints for monitoring, retrying, and managing async jobs
+ *
+ * SECURITY: BACKEND-23 Phase 2 - Added Zod validation to all routes
  */
 
 import { Router, Request, Response, NextFunction } from 'express'
-
+import { z } from 'zod'
 import {
   getAllQueueStats,
   getQueueStats,
@@ -22,8 +24,36 @@ import {
   reportQueue,
 } from '../jobs/queue'
 import { csrfProtection } from '../middleware/csrf'
+import { validate } from '../middleware/validation'
 import logger from '../utils/logger'
 
+// ============================================================================
+// Validation Schemas
+// ============================================================================
+
+const queueNameSchema = z.object({
+  queueName: z.enum(['email', 'notification', 'report'])
+})
+
+const jobIdParamsSchema = z.object({
+  queueName: z.enum(['email', 'notification', 'report']),
+  jobId: z.string().min(1).max(100)
+})
+
+const jobsQuerySchema = z.object({
+  status: z.enum(['waiting', 'active', 'completed', 'failed', 'delayed']).default('failed'),
+  start: z.coerce.number().int().min(0).default(0),
+  end: z.coerce.number().int().min(0).max(1000).default(10)
+})
+
+const paginationQuerySchema = z.object({
+  start: z.coerce.number().int().min(0).default(0),
+  end: z.coerce.number().int().min(0).max(1000).default(10)
+})
+
+const cleanQueueBodySchema = z.object({
+  grace: z.number().int().min(0).max(86400000).default(3600000) // Max 24 hours
+})
 
 const router = Router()
 
@@ -59,14 +89,9 @@ router.get('/health', async (req: Request, res: Response, next: NextFunction) =>
  * GET /api/admin/jobs/:queueName
  * Get statistics for specific queue
  */
-router.get('/:queueName', async (req: Request, res: Response, next: NextFunction) => {
+router.get('/:queueName', validate(queueNameSchema, 'params'), async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { queueName } = req.params
-
-    if (!['email', 'notification', 'report'].includes(queueName)) {
-      return res.status(400).json({ error: 'Invalid queue name' })
-    }
-
     const stats = await getQueueStats(queueName as 'email' | 'notification' | 'report')
     res.json(stats)
   } catch (error) {
