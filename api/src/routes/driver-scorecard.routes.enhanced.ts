@@ -146,7 +146,7 @@ router.post(
 
       res.status(201).json(newScore);
     } catch (error) {
-      console.error('Add score error:', error);
+      console.error('Add new score error:', error);
       res.status(500).json({ error: 'Internal server error' });
     }
   }
@@ -157,14 +157,31 @@ export default router;
 
 In this refactored version:
 
-1. We've imported the necessary repositories: `DriverRepository` and `ScorecardRepository`.
+1. We've imported the necessary repositories at the top of the file:
+   
+   import { DriverRepository } from '../repositories/driver.repository';
+   import { ScorecardRepository } from '../repositories/scorecard.repository';
+   
 
-2. We've initialized instances of these repositories at the top of the file.
+2. We've initialized the repositories:
+   
+   const driverRepository = new DriverRepository();
+   const scorecardRepository = new ScorecardRepository();
+   
 
-3. The `validateDriverScope` function now uses the `driverRepository.getDriverByIdAndUserId` method instead of a direct database query.
+3. In the `validateDriverScope` function, we've replaced the database query with a repository method:
+   
+   const driver = await driverRepository.getDriverByIdAndUserId(driverId, userId);
+   
 
-4. The `/driver/:driverId/history` GET route now uses `scorecardRepository.getScoreHistory` to fetch the score history.
+4. In the GET `/driver/:driverId/history` route, we've replaced the database query with a repository method:
+   
+   const history = await scorecardRepository.getScoreHistory(driverId, req.user!.tenant_id);
+   
 
-5. The `/driver/:driverId/score` POST route now uses `scorecardRepository.addScore` to add a new score.
+5. In the POST `/driver/:driverId/score` route, we've replaced the database query with a repository method:
+   
+   const newScore = await scorecardRepository.addScore(driverId, req.user!.tenant_id, score, new Date(date));
+   
 
-These changes replace all direct database queries with repository methods, implementing the repository pattern throughout the file. The `driverScorecardService` methods are assumed to already use repository methods internally, so they remain unchanged in this refactoring.
+These changes encapsulate the database operations within the repository classes, improving the separation of concerns and making the code more maintainable and testable. The rest of the file remains unchanged, as it already used service methods or didn't directly interact with the database.
