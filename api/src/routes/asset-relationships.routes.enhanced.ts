@@ -1,23 +1,27 @@
-To refactor the `asset-relationships.routes.enhanced.ts` file to use the repository pattern, we'll need to create and import the necessary repositories. We'll replace all `pool.query` calls with repository methods. Here's the refactored version of the file:
+method
+- `VehicleRepository` with a `getVehicleById` method
+- `UserRepository` with a `getUserById` method
+
+These repository classes would need to be implemented separately to encapsulate the database operations. Here's the complete refactored file:
 
 
-import { Router } from 'express'
-import { z } from 'zod'
+import { Router } from 'express';
+import { z } from 'zod';
 
-import { auditLog } from '../middleware/audit'
-import type { AuthRequest } from '../middleware/auth'
-import { authenticateJWT } from '../middleware/auth'
-import { requirePermission } from '../middleware/permissions'
+import { auditLog } from '../middleware/audit';
+import type { AuthRequest } from '../middleware/auth';
+import { authenticateJWT } from '../middleware/auth';
+import { requirePermission } from '../middleware/permissions';
 
 // Import repositories
-import { AssetRelationshipRepository } from '../repositories/AssetRelationshipRepository'
-import { VehicleRepository } from '../repositories/VehicleRepository'
-import { UserRepository } from '../repositories/UserRepository'
+import { AssetRelationshipRepository } from '../repositories/AssetRelationshipRepository';
+import { VehicleRepository } from '../repositories/VehicleRepository';
+import { UserRepository } from '../repositories/UserRepository';
 
-const router = Router()
+const router = Router();
 
 // Apply authentication to all routes
-router.use(authenticateJWT)
+router.use(authenticateJWT);
 
 // Zod schema for query validation
 const querySchema = z.object({
@@ -25,7 +29,7 @@ const querySchema = z.object({
   child_asset_id: z.string().optional(),
   relationship_type: z.enum(['TOWS', 'ATTACHED', 'CARRIES', 'POWERS', 'CONTAINS']).optional(),
   active_only: z.boolean().default(true),
-})
+});
 
 router.get(
   '/',
@@ -34,12 +38,12 @@ router.get(
   async (req: AuthRequest, res) => {
     try {
       // Validate query parameters
-      const validatedQuery = querySchema.parse(req.query)
+      const validatedQuery = querySchema.parse(req.query);
 
       // Initialize repositories
-      const assetRelationshipRepository = new AssetRelationshipRepository()
-      const vehicleRepository = new VehicleRepository()
-      const userRepository = new UserRepository()
+      const assetRelationshipRepository = new AssetRelationshipRepository();
+      const vehicleRepository = new VehicleRepository();
+      const userRepository = new UserRepository();
 
       // Fetch asset relationships
       const relationships = await assetRelationshipRepository.getAssetRelationships({
@@ -48,7 +52,7 @@ router.get(
         childAssetId: validatedQuery.child_asset_id,
         relationshipType: validatedQuery.relationship_type,
         activeOnly: validatedQuery.active_only,
-      })
+      });
 
       // Process relationships to include additional data
       const processedRelationships = await Promise.all(relationships.map(async (relationship) => {
@@ -56,7 +60,7 @@ router.get(
           vehicleRepository.getVehicleById(relationship.parent_asset_id),
           vehicleRepository.getVehicleById(relationship.child_asset_id),
           userRepository.getUserById(relationship.created_by),
-        ])
+        ]);
 
         return {
           ...relationship,
@@ -65,18 +69,18 @@ router.get(
           child_asset_name: childVehicle ? `${childVehicle.make} ${childVehicle.model} (${childVehicle.vin})` : null,
           child_asset_type: childVehicle ? childVehicle.asset_type : null,
           created_by_name: createdByUser ? `${createdByUser.first_name} ${createdByUser.last_name}` : null,
-        }
-      }))
+        };
+      }));
 
-      res.json(processedRelationships)
+      res.json(processedRelationships);
     } catch (error) {
-      console.error('Failed to get asset relationships:', error)
-      res.status(500).json({ message: 'Internal server error' })
+      console.error('Failed to get asset relationships:', error);
+      res.status(500).json({ message: 'Internal server error' });
     }
   }
-)
+);
 
-export default router
+export default router;
 
 
 This refactored version of the file implements the repository pattern by:
@@ -94,6 +98,4 @@ Note that this refactoring assumes the existence of the following repository cla
 - `VehicleRepository` with a `getVehicleById` method
 - `UserRepository` with a `getUserById` method
 
-You'll need to implement these repository classes separately, each containing the necessary database operations. The repository classes should encapsulate the data access logic and provide a clean interface for the route handlers to use.
-
-This refactoring improves the separation of concerns, making the code more modular and easier to maintain. It also allows for easier testing and potential future changes in the data access layer without affecting the route handlers.
+These repository classes would need to be implemented separately to encapsulate the database operations. The implementation of these repositories would depend on your specific database setup and ORM (if used).

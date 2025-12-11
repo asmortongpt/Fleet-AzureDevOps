@@ -1,3 +1,6 @@
+To refactor the `mobile-assignment.routes.enhanced.ts` file and replace all `pool.query` calls with repository methods, we need to create a repository class that encapsulates the database operations. Here's the refactored version of the file:
+
+
 import express, { Response } from 'express';
 import { Pool } from 'pg';
 import { z } from 'zod';
@@ -8,17 +11,17 @@ import { asyncHandler } from '../middleware/errorHandler'
 import { requirePermission } from '../middleware/permissions';
 import { rateLimiter } from '../middleware/rate-limiter';
 import { AssignmentNotificationService } from '../services/assignment-notification.service';
-import { asyncHandler } from '../utils/async-handler';
-
 
 const router = express.Router();
 
 let pool: Pool;
 let notificationService: AssignmentNotificationService;
+let assignmentRepository: AssignmentRepository;
 
 export function setDatabasePool(dbPool: Pool) {
   pool = dbPool;
   notificationService = new AssignmentNotificationService(dbPool);
+  assignmentRepository = new AssignmentRepository(pool);
 }
 
 // =====================================================
@@ -50,6 +53,40 @@ const reimbursementRequestSchema = z.object({
 });
 
 // =====================================================
+// Repository Class
+// =====================================================
+
+class AssignmentRepository {
+  private pool: Pool;
+
+  constructor(pool: Pool) {
+    this.pool = pool;
+  }
+
+  async getDriverIdByUserIdAndTenantId(userId: string, tenantId: string): Promise<string | null> {
+    const query = `
+      SELECT id FROM drivers
+      WHERE user_id = $1 AND tenant_id = $2
+    `;
+    const result = await this.pool.query(query, [userId, tenantId]);
+    return result.rows.length > 0 ? result.rows[0].id : null;
+  }
+
+  async getCurrentAssignmentsForDriver(driverId: string): Promise<any[]> {
+    const query = `
+      SELECT
+        va.*,
+        v.unit_number, v.make, v.model, v.year, v.license_plate
+      FROM vehicle_assignments va
+      JOIN vehicles v ON va.vehicle_id = v.id
+      WHERE va.driver_id = $1 AND va.end_time IS NULL
+    `;
+    const result = await this.pool.query(query, [driverId]);
+    return result.rows;
+  }
+}
+
+// =====================================================
 // GET /mobile/dashboard/employee
 // =====================================================
 
@@ -62,29 +99,15 @@ router.get(
     const user_id = req.user!.id;
     const tenant_id = req.user!.tenant_id;
 
-    const driverQuery = `
-      SELECT id FROM drivers
-      WHERE user_id = $1 AND tenant_id = $2
-    `;
-    const driverResult = await pool.query(driverQuery, [user_id, tenant_id]);
+    const driverId = await assignmentRepository.getDriverIdByUserIdAndTenantId(user_id, tenant_id);
 
-    if (driverResult.rows.length === 0) {
+    if (!driverId) {
       throw new NotFoundError("Driver profile not found");
     }
 
-    const driver_id = driverResult.rows[0].id;
+    const assignments = await assignmentRepository.getCurrentAssignmentsForDriver(driverId);
 
-    const assignmentsQuery = `
-      SELECT
-        va.*,
-        v.unit_number, v.make, v.model, v.year, v.license_plate
-      FROM vehicle_assignments va
-      JOIN vehicles v ON va.vehicle_id = v.id
-      WHERE va.driver_id = $1 AND va.end_time IS NULL
-    `;
-    const assignmentsResult = await pool.query(assignmentsQuery, [driver_id]);
-
-    res.json(assignmentsResult.rows);
+    res.json(assignments);
   })
 );
 
@@ -92,3 +115,18 @@ router.get(
 // security, performance, and best practices are adhered to throughout.
 
 export default router;
+
+
+In this refactored version, we've made the following changes:
+
+1. Created an `AssignmentRepository` class that encapsulates the database operations.
+2. Replaced all `pool.query` calls with corresponding repository methods.
+3. Updated the `setDatabasePool` function to initialize the `assignmentRepository`.
+4. Modified the route handler to use the repository methods instead of direct database queries.
+
+The `AssignmentRepository` class now contains two methods:
+
+- `getDriverIdByUserIdAndTenantId`: Retrieves the driver ID based on user ID and tenant ID.
+- `getCurrentAssignmentsForDriver`: Fetches the current assignments for a given driver ID.
+
+These repository methods abstract the database operations, making the code more modular and easier to maintain. The route handler now uses these methods to perform the necessary operations, improving the separation of concerns and making it easier to test and modify the database interactions in the future.
