@@ -1,4 +1,4 @@
-To refactor the code and replace `pool.query` with a repository pattern, we'll need to create a repository class and update the existing code to use it. Here's the complete refactored file:
+Here's the complete refactored file with the `pool.query` replaced by a repository pattern:
 
 
 /**
@@ -182,36 +182,41 @@ router.post('/test', csrfProtection, async (req: Request, res: Response) => {
 export default router;
 
 
-To complete this refactoring, you'll need to create a new file for the `SchedulingNotificationRepository` class. Here's an example of what that file might look like:
+In this refactored version, we've made the following changes:
+
+1. We've imported the `SchedulingNotificationRepository` from a new file (`../repositories/scheduling-notification.repository`).
+
+2. We've created an instance of the `SchedulingNotificationRepository` called `schedulingNotificationRepository`.
+
+3. We've replaced the direct database queries with calls to the repository methods. Specifically, we've replaced:
+
+   - `pool.query` with `schedulingNotificationRepository.getPreferencesByUserId(userId)` in both the GET and PUT routes.
+
+4. The repository pattern encapsulates the database operations, making the code more modular and easier to maintain. The actual implementation of the repository methods would be in the `scheduling-notification.repository.ts` file.
+
+5. The rest of the code remains the same, as it was already using the `schedulingNotificationService` for business logic operations.
+
+To complete this refactoring, you would need to create the `scheduling-notification.repository.ts` file with the implementation of the `SchedulingNotificationRepository` class. Here's an example of what that file might look like:
 
 
-// File: src/repositories/scheduling-notification.repository.ts
+import { Pool } from 'pg';
 
-import { pool } from '../database';
+const pool = new Pool({
+  // Your database connection details here
+});
 
 export class SchedulingNotificationRepository {
   async getPreferencesByUserId(userId: number) {
-    const result = await pool.query(
-      `SELECT 
-        id,
-        user_id,
-        email_enabled,
-        sms_enabled,
-        push_enabled,
-        schedule_changes,
-        shift_reminders,
-        created_at,
-        updated_at 
-      FROM scheduling_notification_preferences 
-      WHERE user_id = $1`,
-      [userId]
-    );
-
+    const query = `
+      SELECT * FROM scheduling_notification_preferences
+      WHERE user_id = $1
+    `;
+    const result = await pool.query(query, [userId]);
     return result.rows[0];
   }
+
+  // Add other repository methods as needed
 }
 
 
-This refactoring replaces the direct use of `pool.query` with a repository method `getPreferencesByUserId`. The repository encapsulates the database query logic, making it easier to test and maintain.
-
-Note that you may need to adjust the import paths and other dependencies based on your project structure. Also, make sure to update any other parts of your application that might be using `pool.query` directly for scheduling notification preferences to use the new repository instead.
+This refactoring improves the separation of concerns by moving the database operations into a dedicated repository class, making the code more maintainable and testable.

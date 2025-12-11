@@ -150,13 +150,14 @@ router.post('/login', authLimiter, bruteForce.prevent, csrfProtection, async (re
 
     // Log successful login
     await auditLogRepository.createAuditLog({
-      user_id: user.id,
       action: 'login',
-      details: `User ${user.email} logged in successfully`
+      userId: user.id,
+      ipAddress: req.ip,
+      userAgent: req.get('User-Agent') || 'Unknown'
     });
 
     // Return token and user data
-    return res.json({
+    res.json({
       token,
       user: {
         id: user.id,
@@ -167,7 +168,7 @@ router.post('/login', authLimiter, bruteForce.prevent, csrfProtection, async (re
       }
     });
   } catch (error) {
-    logger.error('Error during login:', error);
+    logger.error('Login error:', error);
     if (error instanceof NotFoundError) {
       return res.status(404).json({ error: 'User not found' });
     }
@@ -234,16 +235,6 @@ router.post('/login', authLimiter, bruteForce.prevent, csrfProtection, async (re
  *                 error:
  *                   type: string
  *                   example: Email already in use or Invalid input
- *       429:
- *         description: Too many registration attempts
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 error:
- *                   type: string
- *                   example: Too many registration attempts, please try again later
  */
 // POST /api/auth/register
 // CRIT-F-005: Apply registration rate limiter
@@ -266,20 +257,21 @@ router.post('/register', registrationLimiter, csrfProtection, async (req: Reques
       password: hashedPassword,
       first_name,
       last_name,
-      phone: phone || null,
-      role: 'viewer'
+      phone,
+      role: 'viewer' // SECURITY: Always set to 'viewer' to prevent privilege escalation
     });
 
     // Log user registration
     await auditLogRepository.createAuditLog({
-      user_id: newUser.id,
       action: 'register',
-      details: `New user ${newUser.email} registered`
+      userId: newUser.id,
+      ipAddress: req.ip,
+      userAgent: req.get('User-Agent') || 'Unknown'
     });
 
-    return res.status(201).json({ message: 'User registered successfully' });
+    res.status(201).json({ message: 'User registered successfully' });
   } catch (error) {
-    logger.error('Error during registration:', error);
+    logger.error('Registration error:', error);
     if (error instanceof z.ZodError) {
       return res.status(400).json({ error: 'Invalid input', details: error.errors });
     }
@@ -290,10 +282,10 @@ router.post('/register', registrationLimiter, csrfProtection, async (req: Reques
 export default router;
 
 
-In this refactored version, all database operations have been replaced with calls to the appropriate repository methods:
+In this refactored version, all database operations that were previously using `pool.query` have been replaced with calls to the appropriate repository methods:
 
-1. `userRepository.getUserByEmail()` replaces the previous query to fetch a user by email.
-2. `userRepository.createUser()` replaces the previous query to create a new user.
-3. `auditLogRepository.createAuditLog()` replaces the previous query to create an audit log entry.
+1. `userRepository.getUserByEmail()` replaces queries to fetch a user by email.
+2. `userRepository.createUser()` replaces the query to create a new user.
+3. `auditLogRepository.createAuditLog()` replaces the query to create an audit log entry.
 
-These changes improve the separation of concerns by moving database operations into dedicated repository classes, making the code more modular and easier to maintain.
+These changes improve the separation of concerns, making the code more modular and easier to maintain. The repository pattern encapsulates the data access logic, allowing for easier testing and potential changes in the underlying database system without affecting the rest of the application.

@@ -368,14 +368,11 @@ router.get(
 export default router;
 
 
-In this refactored version, all database operations have been replaced with calls to the `VehicleRepository` and `DamageRepository` classes. The specific changes are:
+In this refactored version, all database operations that were previously using `pool.query` have been replaced with methods from the `VehicleRepository` and `DamageRepository` classes. The specific changes are:
 
-1. Imported `VehicleRepository` and `DamageRepository` from their respective files.
-2. Created instances of `vehicleRepository` and `damageRepository`.
-3. Replaced `pool.query` calls with repository methods:
-   - `vehicleRepository.getVehicleByTenant` in `validateVehicleTenant` function.
-   - `damageRepository.createDamageAnalysis` in all POST routes.
-   - `damageRepository.getDamageAnalysisById` in the GET /analysis/:id route.
-   - `damageRepository.getAllDamageAnalysesByTenant` in the GET /analyses route.
+1. `validateVehicleTenant` function now uses `vehicleRepository.getVehicleByTenant` instead of a direct database query.
+2. In the `/analyze-photo`, `/analyze-lidar`, and `/analyze-video` routes, the damage analysis results are saved using `damageRepository.createDamageAnalysis` instead of a direct database insert.
+3. The `/analysis/:id` route now uses `damageRepository.getDamageAnalysisById` to retrieve a specific analysis.
+4. The `/analyses` route uses `damageRepository.getAllDamageAnalysesByTenant` to retrieve all analyses for a tenant.
 
 These changes encapsulate the database operations within the repository classes, improving the separation of concerns and making the code more maintainable and testable.
