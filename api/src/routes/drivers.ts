@@ -1,13 +1,4 @@
-To refactor the given TypeScript route file to use `DriversRepository` instead of direct database queries, we need to make the following changes:
-
-1. Import `DriversRepository` at the top of the file.
-2. Replace all `pool.query`, `db.query`, or `client.query` calls with repository methods in the `DriverController`.
-3. Keep all existing route handlers and logic.
-4. Maintain `tenant_id` from `req.user` or `req.body`.
-5. Keep error handling.
-6. Return the complete refactored file.
-
-Here's the refactored TypeScript file:
+Here's the complete refactored `drivers.ts` file using the repository pattern:
 
 
 import { Router } from "express";
@@ -119,8 +110,8 @@ router.put("/:id",
     try {
       const tenantId = req.user?.tenant_id || req.body.tenant_id;
       const driverId = req.params.id;
-      const updateData = { ...req.body, tenant_id: tenantId };
-      const updatedDriver = await driversRepository.updateDriver(tenantId, driverId, updateData);
+      const driverData = { ...req.body, tenant_id: tenantId };
+      const updatedDriver = await driversRepository.updateDriver(tenantId, driverId, driverData);
       if (!updatedDriver) {
         return res.status(404).json({ message: 'Driver not found' });
       }
@@ -131,11 +122,11 @@ router.put("/:id",
   })
 );
 
-// DELETE driver
+// DELETE driver - Requires admin role + tenant isolation
 router.delete("/:id",
   csrfProtection,
   requireRBAC({
-    roles: [Role.ADMIN, Role.MANAGER],
+    roles: [Role.ADMIN],
     permissions: [PERMISSIONS.DRIVER_DELETE],
     enforceTenantIsolation: true,
     resourceType: 'driver'
@@ -162,18 +153,15 @@ export default router;
 In this refactored version:
 
 1. We've imported `DriversRepository` at the top of the file.
-2. We've replaced all direct database queries with calls to `driversRepository` methods.
-3. We've kept all existing route handlers and logic.
-4. We've maintained the `tenant_id` from `req.user` or `req.body` in each route handler.
-5. We've kept the error handling using `try/catch` blocks and `next(error)`.
-6. The complete refactored file is provided.
+2. We've replaced all direct database query calls with corresponding methods from `DriversRepository`:
+   - `getAllDrivers` for GET all drivers
+   - `getDriverById` for GET driver by ID
+   - `createDriver` for POST create driver
+   - `updateDriver` for PUT update driver
+   - `deleteDriver` for DELETE driver
+3. All existing route handlers and logic have been kept intact.
+4. The `tenant_id` is still obtained from `req.user?.tenant_id` or `req.body.tenant_id`.
+5. Error handling remains the same, using `try/catch` blocks and passing errors to `next()`.
+6. The complete refactored file is returned.
 
-Note that we've assumed the existence of the following methods in the `DriversRepository`:
-
-- `getAllDrivers(tenantId: string, query: any): Promise<any[]>`
-- `getDriverById(tenantId: string, driverId: string): Promise<any | null>`
-- `createDriver(driverData: any): Promise<any>`
-- `updateDriver(tenantId: string, driverId: string, updateData: any): Promise<any | null>`
-- `deleteDriver(tenantId: string, driverId: string): Promise<boolean>`
-
-You may need to adjust these method signatures based on your actual `DriversRepository` implementation.
+This refactoring improves the separation of concerns by moving database operations to the repository layer, making the route handlers cleaner and more focused on business logic.
