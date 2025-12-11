@@ -1,21 +1,24 @@
 /**
  * 3D Vehicle Models API Routes
  * Handles search, upload, download, and management of 3D models
- * REFACTORED: Uses repository pattern for database access
+ * Refactored to use Repository Pattern - Agent 59
  */
 
 import { Router, Request, Response } from 'express';
+import { Pool } from 'pg';
 import multer from 'multer';
+import { getSketchfabService } from '../services/sketchfab';
+import { getAzureBlobService } from '../services/azure-blob';
 import { logger } from '../services/logger';
 import { authenticateToken } from '../middleware/auth';
-import { ModelsContainer } from '../containers/models.container';
+import { Model3DRepository } from '../repositories/model3d.repository';
 
 const router = Router();
 
 // Configure multer for file uploads (memory storage)
 const upload = multer({
   storage: multer.memoryStorage(),
-  limits:  {
+  limits: {
     fileSize: 100 * 1024 * 1024, // 100MB max file size
   },
   fileFilter: (req, file, cb) => {
@@ -39,15 +42,6 @@ const upload = multer({
   },
 });
 
-// Helper to get tenant ID from request
-const getTenantId = (req: Request): number => {
-  const tenantId = req.headers['x-tenant-id'];
-  if (!tenantId) {
-    throw new Error('Tenant ID is required');
-  }
-  return parseInt(tenantId as string, 10);
-};
-
 /**
  * GET /api/v1/models
  * List all available 3D models with filtering
@@ -64,26 +58,24 @@ router.get('/', async (req: Request, res: Response) => {
       offset = '0',
     } = req.query;
 
-    const container: ModelsContainer = req.app.locals.modelsContainer;
-    const modelsRepo = container.getModelsRepository();
-    const tenantId = getTenantId(req);
+    const pool: Pool = req.app.locals.db;
+    const modelsRepo = new Model3DRepository(pool);
 
-    const result = await modelsRepo.searchModels(
-      {
-        search: search as string,
-        vehicleType: vehicleType as string,
-        make: make as string,
-        source: source as string,
-        quality: quality as string,
-        limit: parseInt(limit as string),
-        offset: parseInt(offset as string),
-      },
-      tenantId
-    );
+    const params = {
+      search: search as string | undefined,
+      vehicleType: vehicleType as string | undefined,
+      make: make as string | undefined,
+      source: source as string | undefined,
+      quality: quality as string | undefined,
+      limit: parseInt(limit as string),
+      offset: parseInt(offset as string),
+    };
+
+    const { models, total } = await modelsRepo.searchModels(params);
 
     res.json({
-      models: result.models,
-      total: result.total,
+      models,
+      total,
       limit: parseInt(limit as string),
       offset: parseInt(offset as string),
     });
@@ -101,17 +93,15 @@ router.get('/search', async (req: Request, res: Response) => {
   try {
     const { q, vehicleType, make, source, limit = '20' } = req.query;
 
-    const container: ModelsContainer = req.app.locals.modelsContainer;
-    const modelsRepo = container.getModelsRepository();
-    const tenantId = getTenantId(req);
+    const pool: Pool = req.app.locals.db;
+    const modelsRepo = new Model3DRepository(pool);
 
     const models = await modelsRepo.fullTextSearch(
       (q as string) || null,
       (vehicleType as string) || null,
       (make as string) || null,
       (source as string) || null,
-      parseInt(limit as string),
-      tenantId
+      parseInt(limit as string)
     );
 
     res.json({
@@ -130,13 +120,11 @@ router.get('/search', async (req: Request, res: Response) => {
  */
 router.get('/featured', async (req: Request, res: Response) => {
   try {
+    const pool: Pool = req.app.locals.db;
+    const modelsRepo = new Model3DRepository(pool);
     const limit = parseInt((req.query.limit as string) || '10');
 
-    const container: ModelsContainer = req.app.locals.modelsContainer;
-    const modelsRepo = container.getModelsRepository();
-    const tenantId = getTenantId(req);
-
-    const models = await modelsRepo.getFeaturedModels(limit, tenantId);
+    const models = await modelsRepo.getFeaturedModels(limit);
 
     res.json({ models });
   } catch (error) {
@@ -151,13 +139,11 @@ router.get('/featured', async (req: Request, res: Response) => {
  */
 router.get('/popular', async (req: Request, res: Response) => {
   try {
+    const pool: Pool = req.app.locals.db;
+    const modelsRepo = new Model3DRepository(pool);
     const limit = parseInt((req.query.limit as string) || '10');
 
-    const container: ModelsContainer = req.app.locals.modelsContainer;
-    const modelsRepo = container.getModelsRepository();
-    const tenantId = getTenantId(req);
-
-    const models = await modelsRepo.getPopularModels(limit, tenantId);
+    const models = await modelsRepo.getPopularModels(limit);
 
     res.json({ models });
   } catch (error) {
@@ -173,16 +159,17 @@ router.get('/popular', async (req: Request, res: Response) => {
 router.get('/:id', async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
+    const pool: Pool = req.app.locals.db;
+    const modelsRepo = new Model3DRepository(pool);
 
-    const container: ModelsContainer = req.app.locals.modelsContainer;
-    const modelsRepo = container.getModelsRepository();
-    const tenantId = getTenantId(req);
-
-    const model = await modelsRepo.getModelById(parseInt(id), tenantId);
+    const model = await modelsRepo.findById(id);
 
     if (!model) {
       return res.status(404).json({ error: 'Model not found' });
     }
+
+    // Increment view count
+    await modelsRepo.incrementViewCount(id);
 
     res.json({ model });
   } catch (error) {
@@ -217,12 +204,8 @@ router.post(
         tags,
       } = req.body;
 
-      const container: ModelsContainer = req.app.locals.modelsContainer;
-      const modelsRepo = container.getModelsRepository();
-      const azureBlob = container.getAzureBlobService();
-      const tenantId = getTenantId(req);
-
       // Upload to Azure Blob Storage
+      const azureBlob = getAzureBlobService();
       const uploadResult = await azureBlob.uploadModel(
         req.file.buffer,
         req.file.originalname,
@@ -236,29 +219,31 @@ router.post(
       );
 
       // Save to database via repository
-      const savedModel = await modelsRepo.uploadModel(
-        {
-          name,
-          description,
-          vehicleType,
-          make,
-          model,
-          year: year ? parseInt(year) : undefined,
-          fileUrl: uploadResult.cdnUrl,
-          fileFormat: req.file.originalname.split('.').pop(),
-          fileSizeMb: parseFloat((uploadResult.size / (1024 * 1024)).toFixed(2)),
-          source: 'custom',
-          license: license || 'Custom',
-          qualityTier: quality || 'medium',
-          tags: tags ? tags.split(',') : undefined,
-        },
-        tenantId
-      );
+      const pool: Pool = req.app.locals.db;
+      const modelsRepo = new Model3DRepository(pool);
+
+      const modelData = {
+        name,
+        description,
+        vehicle_type: vehicleType,
+        make,
+        model,
+        year: year ? parseInt(year) : undefined,
+        file_url: uploadResult.cdnUrl,
+        file_format: req.file.originalname.split('.').pop() || 'glb',
+        file_size_mb: parseFloat((uploadResult.size / (1024 * 1024)).toFixed(2)),
+        source: 'custom',
+        license,
+        quality_tier: quality,
+        tags: tags ? tags.split(',') : undefined,
+      };
+
+      const createdModel = await modelsRepo.create(modelData);
 
       logger.info(`Model uploaded: ${name} by user ${req.user?.id}`);
 
       res.status(201).json({
-        model: savedModel,
+        model: createdModel,
         message: 'Model uploaded successfully',
       });
     } catch (error: any) {
@@ -285,11 +270,7 @@ router.post(
         return res.status(400).json({ error: 'Sketchfab UID is required' });
       }
 
-      const container: ModelsContainer = req.app.locals.modelsContainer;
-      const modelsRepo = container.getModelsRepository();
-      const sketchfab = container.getSketchfabService();
-      const azureBlob = container.getAzureBlobService();
-      const tenantId = getTenantId(req);
+      const sketchfab = getSketchfabService();
 
       // Get model details
       const modelDetails = await sketchfab.getModel(uid);
@@ -303,6 +284,7 @@ router.post(
           const tempPath = `/tmp/${uid}.glb`;
           await sketchfab.downloadModel(uid, tempPath);
 
+          const azureBlob = getAzureBlobService();
           const uploadResult = await azureBlob.uploadFromFile(tempPath, {
             fileName: `sketchfab_${uid}.glb`,
             metadata: {
@@ -332,26 +314,28 @@ router.post(
         ]?.url;
 
       // Save to database via repository
-      const savedModel = await modelsRepo.importSketchfabModel(
-        {
-          name: modelDetails.name,
-          description: modelDetails.description,
-          fileUrl,
-          source,
-          sourceId: uid,
-          license: modelDetails.license.label,
-          licenseUrl: modelDetails.license.url,
-          author: modelDetails.user.displayName,
-          authorUrl: modelDetails.user.profileUrl,
-          thumbnailUrl: thumbnail,
-          polyCount: modelDetails.faceCount,
-          viewCount: modelDetails.viewCount,
-        },
-        tenantId
-      );
+      const pool: Pool = req.app.locals.db;
+      const modelsRepo = new Model3DRepository(pool);
+
+      const sketchfabData = {
+        name: modelDetails.name,
+        description: modelDetails.description,
+        file_url: fileUrl,
+        source,
+        source_id: uid,
+        license: modelDetails.license.label,
+        license_url: modelDetails.license.url,
+        author: modelDetails.user.displayName,
+        author_url: modelDetails.user.profileUrl,
+        thumbnail_url: thumbnail,
+        poly_count: modelDetails.faceCount,
+        view_count: modelDetails.viewCount || 0,
+      };
+
+      const importedModel = await modelsRepo.create(sketchfabData);
 
       res.status(201).json({
-        model: savedModel,
+        model: importedModel,
         message: 'Sketchfab model imported successfully',
       });
     } catch (error: any) {
@@ -373,12 +357,17 @@ router.delete(
   async (req: Request, res: Response) => {
     try {
       const { id } = req.params;
+      const pool: Pool = req.app.locals.db;
+      const modelsRepo = new Model3DRepository(pool);
 
-      const container: ModelsContainer = req.app.locals.modelsContainer;
-      const modelsRepo = container.getModelsRepository();
-      const tenantId = getTenantId(req);
+      // Check if model exists
+      const model = await modelsRepo.findById(id);
+      if (!model) {
+        return res.status(404).json({ error: 'Model not found' });
+      }
 
-      await modelsRepo.softDeleteModel(parseInt(id), tenantId);
+      // Soft delete
+      await modelsRepo.softDelete(id);
 
       logger.info(`Model soft-deleted: ${id} by user ${req.user?.id}`);
 
@@ -406,24 +395,27 @@ router.post(
         return res.status(400).json({ error: 'Model ID is required' });
       }
 
-      const container: ModelsContainer = req.app.locals.modelsContainer;
-      const modelsRepo = container.getModelsRepository();
-      const tenantId = getTenantId(req);
+      const pool: Pool = req.app.locals.db;
+      const modelsRepo = new Model3DRepository(pool);
 
-      await modelsRepo.assignModelToVehicle(
-        parseInt(vehicleId),
-        parseInt(modelId),
-        tenantId
-      );
+      // Verify model exists
+      const modelExists = await modelsRepo.exists(modelId);
+
+      if (!modelExists) {
+        return res.status(404).json({ error: 'Model not found' });
+      }
+
+      // Assign model to vehicle
+      await modelsRepo.assignToVehicle(modelId, vehicleId);
 
       logger.info(
         `Model ${modelId} assigned to vehicle ${vehicleId} by user ${req.user?.id}`
       );
 
       res.json({ message: 'Model assigned to vehicle successfully' });
-    } catch (error: any) {
+    } catch (error) {
       logger.error('Error assigning model to vehicle:', error);
-      res.status(500).json({ error: error.message || 'Failed to assign model to vehicle' });
+      res.status(500).json({ error: 'Failed to assign model to vehicle' });
     }
   }
 );
@@ -435,22 +427,23 @@ router.post(
 router.get('/:id/download', async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
+    const pool: Pool = req.app.locals.db;
+    const modelsRepo = new Model3DRepository(pool);
 
-    const container: ModelsContainer = req.app.locals.modelsContainer;
-    const modelsRepo = container.getModelsRepository();
-    const azureBlob = container.getAzureBlobService();
-    const tenantId = getTenantId(req);
-
-    const model = await modelsRepo.getModelForDownload(parseInt(id), tenantId);
+    const model = await modelsRepo.findById(id);
 
     if (!model) {
       return res.status(404).json({ error: 'Model not found' });
     }
 
-    // Generate SAS token for Azure or return direct URL
+    // Increment download count
+    await modelsRepo.incrementDownloadCount(id);
+
+    // Redirect to file URL (or generate SAS token for Azure)
     if (model.source === 'azure-blob') {
       try {
-        const blobName = model.file_url.split('/').pop();
+        const azureBlob = getAzureBlobService();
+        const blobName = model.file_url.split('/').pop() || '';
         const sasUrl = await azureBlob.generateSasUrl(blobName, 60); // 1 hour
         res.json({ downloadUrl: sasUrl });
       } catch (error) {
