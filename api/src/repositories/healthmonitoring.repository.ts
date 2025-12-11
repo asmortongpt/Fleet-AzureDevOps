@@ -1,10 +1,12 @@
+import { BaseRepository } from '../repositories/BaseRepository';
+
 Here is an example of a TypeScript repository for health monitoring with parameterized queries, tenant_id, and CRUD operations:
 
 
 import { HealthMonitoring } from '../models/health-monitoring.model';
 import { Pool } from 'pg';
 
-export class HealthMonitoringRepository {
+export class HealthMonitoringRepository extends BaseRepository<any> {
     private pool: Pool;
 
     constructor(pool: Pool) {

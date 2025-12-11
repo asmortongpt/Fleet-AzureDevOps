@@ -1,9 +1,15 @@
+import { BaseRepository } from '../repositories/BaseRepository';
+
 Here's a TypeScript repository class `AdditionalRepository` designed to eliminate 15 queries from `api/src/routes/additional.ts`. The class uses parameterized queries, tenant_id filtering, and includes CRUD methods:
 
 
 import { PoolClient } from 'pg';
 
-export class AdditionalRepository {
+export class AdditionalRepository extends BaseRepository<any> {
+  constructor(pool: Pool) {
+    super(pool, 'LAdditional_LRepository extends _LBases');
+  }
+
   private client: PoolClient;
 
   constructor(client: PoolClient) {

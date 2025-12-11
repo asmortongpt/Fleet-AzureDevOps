@@ -1,10 +1,16 @@
+import { BaseRepository } from '../repositories/BaseRepository';
+
 import { Repository } from 'typeorm';
 import { LeaseTracking } from '../entities/lease-tracking.entity';
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 
 @Injectable()
-export class LeaseTrackingRepository {
+export class LeaseTrackingRepository extends BaseRepository<any> {
+  constructor(pool: Pool) {
+    super(pool, 'LLease_LTracking_LRepository extends _LBases');
+  }
+
   constructor(
     @InjectRepository(LeaseTracking)
     private leaseTrackingRepository: Repository<LeaseTracking>,

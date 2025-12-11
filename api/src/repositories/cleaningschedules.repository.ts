@@ -1,3 +1,5 @@
+import { BaseRepository } from '../repositories/BaseRepository';
+
 Let's create a TypeScript repository for managing cleaning schedules with parameterized queries, tenant_id, and CRUD operations. We'll assume this repository will be used in conjunction with a database like PostgreSQL or MySQL.
 
 Here's the implementation for the `CleaningSchedulesRepository` class:
@@ -6,7 +8,7 @@ Here's the implementation for the `CleaningSchedulesRepository` class:
 import { Pool, QueryResult } from 'pg';
 import { CleaningSchedule } from '../models/cleaning-schedule.model';
 
-export class CleaningSchedulesRepository {
+export class CleaningSchedulesRepository extends BaseRepository<any> {
   private pool: Pool;
 
   constructor(pool: Pool) {

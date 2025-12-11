@@ -1,3 +1,5 @@
+import { BaseRepository } from '../repositories/BaseRepository';
+
 ```typescript
 import { Pool } from 'pg';
 
@@ -15,7 +17,7 @@ export interface OdometerReading {
 /**
  * Repository class for OdometerReadings
  */
-export class OdometerReadingsRepository {
+export class OdometerReadingsRepository extends BaseRepository<any> {
   constructor(private pool: Pool) {}
 
   /**

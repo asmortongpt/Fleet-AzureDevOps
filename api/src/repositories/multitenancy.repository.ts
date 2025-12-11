@@ -1,3 +1,5 @@
+import { BaseRepository } from '../repositories/BaseRepository';
+
 Here is a basic example of a TypeScript repository for a multi-tenancy system. This example is using TypeORM but you can replace it with your preferred ORM.
 
 
@@ -6,6 +8,10 @@ import { MultiTenancy } from '../entities/MultiTenancy';
 
 @EntityRepository(MultiTenancy)
 export class MultiTenancyRepository extends Repository<MultiTenancy> {
+  constructor(pool: Pool) {
+    super(pool, 'LMulti_LTenancy_LRepository extends s');
+  }
+
 
   async findByTenantId(tenant_id: string): Promise<MultiTenancy> {
     return await this.findOne({ where: { tenant_id } });
