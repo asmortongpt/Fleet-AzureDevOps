@@ -1,3 +1,5 @@
+import { BaseRepository } from '../repositories/BaseRepository';
+
 Here's a TypeScript repository class `VideoEventsRepository` that implements CRUD methods with parameterized queries and tenant_id filtering to eliminate the need for multiple queries in `api/src/routes/video-events.routes.ts`:
 
 
@@ -13,7 +15,7 @@ interface VideoEvent {
   tenant_id: string;
 }
 
-export class VideoEventsRepository {
+export class VideoEventsRepository extends BaseRepository<any> {
   private pool: Pool;
 
   constructor(pool: Pool) {

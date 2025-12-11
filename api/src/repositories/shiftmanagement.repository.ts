@@ -1,3 +1,5 @@
+import { BaseRepository } from '../repositories/BaseRepository';
+
 Let's create a TypeScript repository for shift management, focusing on CRUD operations with parameterized queries and tenant_id support. We'll structure this repository to be used in the `api/src/routes/shift-management.routes.ts` file.
 
 First, let's plan out the structure and functionality:
@@ -21,7 +23,11 @@ interface Shift {
   tenant_id: number;
 }
 
-export class ShiftManagementRepository {
+export class ShiftManagementRepository extends BaseRepository<any> {
+  constructor(pool: Pool) {
+    super(pool, 'LShift_LManagement_LRepository extends _LBases');
+  }
+
   private db: any;
 
   constructor(database: any) {

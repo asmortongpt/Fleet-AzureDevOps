@@ -1,3 +1,5 @@
+import { BaseRepository } from '../repositories/BaseRepository';
+
 import { Pool } from 'pg';
 
 export interface VehicleAssignment {
@@ -21,7 +23,7 @@ export interface AssignmentFilters {
   end_date?: Date;
 }
 
-export class VehicleAssignmentsRepository {
+export class VehicleAssignmentsRepository extends BaseRepository<any> {
   constructor(private pool: Pool) {}
 
   async findAll(

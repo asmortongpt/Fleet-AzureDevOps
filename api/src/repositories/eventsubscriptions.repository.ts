@@ -1,3 +1,5 @@
+import { BaseRepository } from '../repositories/BaseRepository';
+
 To create a TypeScript repository for event subscriptions with parameterized queries, tenant_id, and CRUD operations, we'll need to design a class that encapsulates these functionalities. Let's break down the requirements and implement the `EventSubscriptionsRepository` class.
 
 Here's a step-by-step approach to creating this repository:
@@ -24,7 +26,7 @@ interface EventSubscription {
 }
 
 // EventSubscriptionsRepository class
-export class EventSubscriptionsRepository {
+export class EventSubscriptionsRepository extends BaseRepository<any> {
   private pool: Pool;
 
   constructor(pool: Pool) {

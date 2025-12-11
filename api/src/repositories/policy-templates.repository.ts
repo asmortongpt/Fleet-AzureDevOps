@@ -1,3 +1,5 @@
+import { BaseRepository } from '../repositories/BaseRepository';
+
 /**
  * Policy Templates Repository
  *
@@ -106,7 +108,7 @@ export interface PaginationResult<T> {
   };
 }
 
-export class PolicyTemplatesRepository {
+export class PolicyTemplatesRepository extends BaseRepository<any> {
   constructor(private pool: Pool) {}
 
   // ============================================================================

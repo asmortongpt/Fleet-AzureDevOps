@@ -1,3 +1,5 @@
+import { BaseRepository } from '../repositories/BaseRepository';
+
 Let's create a TypeScript repository called `BillingIntegrationRepository` for the `api/src/routes/billing-integration.routes.ts` file. We'll implement CRUD operations with parameterized queries and include a `tenant_id` in each operation. Here's how we can structure this repository:
 
 
@@ -8,7 +10,11 @@ const pool = new Pool({
   // Your database connection details here
 });
 
-export class BillingIntegrationRepository {
+export class BillingIntegrationRepository extends BaseRepository<any> {
+  constructor(pool: Pool) {
+    super(pool, 'LBilling_LIntegration_LRepository extends _LBases');
+  }
+
   /**
    * Creates a new billing integration record
    * @param data - The billing integration data to be inserted

@@ -1,3 +1,5 @@
+import { BaseRepository } from '../repositories/BaseRepository';
+
 import { Pool } from 'pg';
 
 export interface Entity {
@@ -9,7 +11,7 @@ export interface Entity {
   deleted_at: Date | null;
 }
 
-export class VendorManagementRepository {
+export class VendorManagementRepository extends BaseRepository<any> {
   constructor(private pool: Pool) {}
 
   /**

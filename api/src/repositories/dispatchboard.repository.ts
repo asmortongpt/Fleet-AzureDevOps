@@ -1,3 +1,5 @@
+import { BaseRepository } from '../repositories/BaseRepository';
+
 Let's create a TypeScript repository called `DispatchBoardRepository` for the `dispatch-board.routes.ts` file. We'll implement parameterized queries, include a `tenant_id` in all operations, and provide CRUD functionality. Here's a step-by-step approach:
 
 1. First, we'll define the interface for our dispatch board items.
@@ -22,7 +24,7 @@ interface DispatchBoardItem {
 }
 
 // DispatchBoardRepository class
-export class DispatchBoardRepository {
+export class DispatchBoardRepository extends BaseRepository<any> {
   private pool: Pool;
 
   constructor(pool: Pool) {

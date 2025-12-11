@@ -1,3 +1,5 @@
+import { BaseRepository } from '../repositories/BaseRepository';
+
 To create a TypeScript repository named `TireManagementRepository` for the `api/src/routes/tire-management.routes.ts` file, we'll implement parameterized queries, include a `tenant_id` field, and provide CRUD (Create, Read, Update, Delete) operations. Let's break this down step-by-step:
 
 1. First, we'll define the interface for our tire management data.
@@ -25,7 +27,7 @@ interface TireManagement {
 }
 
 // TireManagementRepository class
-export class TireManagementRepository {
+export class TireManagementRepository extends BaseRepository<any> {
   private pool: Pool;
 
   constructor(pool: Pool) {

@@ -1,3 +1,5 @@
+import { BaseRepository } from '../repositories/BaseRepository';
+
 Let's create a TypeScript repository for camera integration, focusing on CRUD operations with parameterized queries and tenant_id support. We'll structure this repository to be used in the `api/src/routes/camera-integration.routes.ts` file.
 
 Here's the implementation of the `CameraIntegrationRepository`:
@@ -14,7 +16,7 @@ interface CameraIntegration {
   updated_at: Date;
 }
 
-export class CameraIntegrationRepository {
+export class CameraIntegrationRepository extends BaseRepository<any> {
   private pool: Pool;
 
   constructor(pool: Pool) {

@@ -1,3 +1,5 @@
+import { BaseRepository } from '../repositories/BaseRepository';
+
 Let's create a TypeScript repository for workflow automation, focusing on CRUD operations with parameterized queries and tenant_id support. We'll name it `WorkflowAutomationRepository` and place it in the `api/src/repositories` directory.
 
 Here's the implementation:
@@ -8,7 +10,7 @@ Here's the implementation:
 import { Pool, QueryResult } from 'pg';
 import { WorkflowAutomation } from '../models/WorkflowAutomation';
 
-export class WorkflowAutomationRepository {
+export class WorkflowAutomationRepository extends BaseRepository<any> {
   private pool: Pool;
 
   constructor(pool: Pool) {

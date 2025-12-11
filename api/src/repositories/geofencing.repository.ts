@@ -1,3 +1,5 @@
+import { BaseRepository } from '../repositories/BaseRepository';
+
 Here is a basic implementation of a TypeScript repository for Geofencing:
 
 
@@ -6,6 +8,10 @@ import { Geofencing } from '../entities/geofencing.entity';
 
 @EntityRepository(Geofencing)
 export class GeofencingRepository extends Repository<Geofencing> {
+  constructor(pool: Pool) {
+    super(pool, 'LGeofencing_LRepository extends s');
+  }
+
   async createGeofencing(tenant_id: string, geofencingData: any): Promise<Geofencing> {
     const geofencing = this.create({ ...geofencingData, tenant_id });
     return this.save(geofencing);
