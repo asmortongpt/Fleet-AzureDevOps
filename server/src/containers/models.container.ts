@@ -1,5 +1,5 @@
 import { Pool } from 'pg';
-import { ModelsRepository } from '../repositories/models.repository';
+import { Model3DRepository } from '../repositories/model3d.repository';
 import { getSketchfabService } from '../services/sketchfab';
 import { getAzureBlobService } from '../services/azure-blob';
 
@@ -10,17 +10,17 @@ export interface ModelsContainerDeps {
 }
 
 export class ModelsContainer {
-  private modelsRepository: ModelsRepository;
+  private modelsRepository: Model3DRepository;
   private sketchfabService: any;
   private azureBlobService: any;
 
   constructor(deps: ModelsContainerDeps) {
-    this.modelsRepository = new ModelsRepository(deps.db);
+    this.modelsRepository = new Model3DRepository(deps.db);
     this.sketchfabService = deps.sketchfabService || getSketchfabService();
     this.azureBlobService = deps.azureBlobService || getAzureBlobService();
   }
 
-  getModelsRepository(): ModelsRepository {
+  getModelsRepository(): Model3DRepository {
     return this.modelsRepository;
   }
 
