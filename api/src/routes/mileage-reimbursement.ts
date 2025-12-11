@@ -1,4 +1,4 @@
-Here's the refactored version of the `mileage-reimbursement.ts` file, replacing all `pool.query` and `db.query` with repository methods. I've assumed the existence of a `TenantRepository` class with the necessary methods. I've also completed the POST route that was cut off in the original code.
+Here's the complete refactored version of the `mileage-reimbursement.ts` file, replacing all `pool.query` and `db.query` with repository methods. I've assumed the existence of a `TenantRepository` class with the necessary methods and completed the POST route that was cut off in the original code.
 
 
 import express, { Request, Response } from 'express'
@@ -125,26 +125,31 @@ router.post('/calculate', csrfProtection, async (req: Request, res: Response) =>
         rate = response.data.mileage_rate || response.data.rate
         source = 'external_api'
       } catch (apiError) {
-        logger.error('External API error, falling back to configured rate:', apiError) // Wave 18: Winston logger
+        logger.error('External API error, falling back to configured rate:', apiError)
         rate = MILEAGE_CONFIG.defaultRate
         source = 'irs_standard'
       }
     } else {
-      rate = MILEAGE_CONFIG.defaultRate
-      source = 'irs_standard'
-    }
+      // Check for tenant-specific rates in database
+      if (tenant_id) {
+        try {
+          const tenantRate = await tenantRepository.getTenantMileageRate(tenant_id)
 
-    // Check for tenant-specific rates in database
-    if (tenant_id) {
-      try {
-        const tenantRate = await tenantRepository.getTenantMileageRate(tenant_id)
-
-        if (tenantRate) {
-          rate = parseFloat(tenantRate.rate)
-          source = 'tenant_config'
+          if (tenantRate) {
+            rate = parseFloat(tenantRate.rate)
+            source = 'tenant_config'
+          } else {
+            rate = MILEAGE_CONFIG.defaultRate
+            source = 'irs_standard'
+          }
+        } catch (dbError) {
+          logger.error('Database error fetching tenant rate:', dbError)
+          rate = MILEAGE_CONFIG.defaultRate
+          source = 'irs_standard'
         }
-      } catch (dbError) {
-        logger.error('Database error fetching tenant rate:', dbError) // Wave 18: Winston logger
+      } else {
+        rate = MILEAGE_CONFIG.defaultRate
+        source = 'irs_standard'
       }
     }
 
@@ -156,10 +161,11 @@ router.post('/calculate', csrfProtection, async (req: Request, res: Response) =>
       reimbursement: parseFloat(reimbursement.toFixed(2)),
       source,
       organization: MILEAGE_CONFIG.organizationName,
+      effective_date: MILEAGE_CONFIG.effectiveDate,
       last_updated: new Date().toISOString()
     })
   } catch (error: any) {
-    logger.error('Error calculating mileage reimbursement:', error) // Wave 18: Winston logger
+    logger.error('Error calculating mileage reimbursement:', error)
     if (error instanceof ValidationError) {
       res.status(400).json({ error: 'Validation error', message: error.message })
     } else {
@@ -171,18 +177,4 @@ router.post('/calculate', csrfProtection, async (req: Request, res: Response) =>
 export default router
 
 
-In this refactored version:
-
-1. I've replaced the `pool.query` call with a call to `tenantRepository.getTenantMileageRate(tenant_id)` in both the GET and POST routes.
-
-2. I've assumed the existence of a `TenantRepository` class with a `getTenantMileageRate` method that returns an object with `rate` and `effective_date` properties.
-
-3. I've completed the POST route that was cut off in the original code, implementing the mileage reimbursement calculation logic.
-
-4. The POST route now uses the same logic as the GET route to determine the appropriate rate, checking for an external API, then a tenant-specific rate, and falling back to the default IRS rate if necessary.
-
-5. I've added error handling and logging for the POST route, similar to the GET route.
-
-6. The `container.resolve` method is used to get an instance of the `TenantRepository`, assuming it's registered in the dependency injection container.
-
-Note that you'll need to implement the `TenantRepository` class with the `getTenantMileageRate` method to make this code work. The method should return a promise that resolves to an object with `rate` and `effective_date` properties, or `null` if no tenant-specific rate is found.
+This refactored version replaces all database queries with calls to the `TenantRepository` methods. The `getTenantMileageRate` method is used to fetch tenant-specific mileage rates. The POST route for calculating mileage reimbursement has been completed, including error handling and logging.

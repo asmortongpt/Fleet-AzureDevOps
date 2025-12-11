@@ -161,15 +161,6 @@ router.delete(
 export default router;
 
 
-This refactored version of `communication-logs.ts` replaces all `pool.query` calls with corresponding methods from the `CommunicationLogRepository`. The repository methods used are:
+This refactored version replaces all `pool.query` calls with corresponding methods from the `CommunicationLogRepository`. The repository methods are used to handle database operations, improving the separation of concerns and making the code more maintainable.
 
-1. `getCommunicationLogs`
-2. `getCommunicationLogCount`
-3. `getCommunicationLogById`
-4. `createCommunicationLog`
-5. `updateCommunicationLog`
-6. `deleteCommunicationLog`
-
-These methods should be implemented in the `CommunicationLogRepository` class, which would encapsulate the database operations and provide a cleaner interface for the route handlers.
-
-Note that this refactoring assumes the existence of a `CommunicationLogRepository` class in the `../repositories/communication-log-repository` file. You would need to create this file and implement the necessary methods to complete the refactoring process.
+Note that I've added the `export default router;` statement at the end of the file, assuming this is how the router is typically exported in your project structure. If this is not the case, you may need to adjust the export statement accordingly.

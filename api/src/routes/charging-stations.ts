@@ -148,4 +148,6 @@ This refactored version of `charging-stations.ts` replaces all `pool.query` call
 5. `updateChargingStation`
 6. `deleteChargingStation`
 
-These methods should be implemented in the `ChargingStationRepository` class, which is assumed to be located in `../repositories/chargingStationRepository.ts`. The repository pattern encapsulates the data access logic, making the code more maintainable and easier to test.
+These methods should be implemented in the `ChargingStationRepository` class, which is assumed to be located in `../repositories/chargingStationRepository.ts`. The repository class should handle the database operations that were previously done using `pool.query`.
+
+Note that this refactoring assumes that the `ChargingStationRepository` class has been properly implemented with the necessary methods. You may need to create or update this class to match the new structure and ensure all database operations are correctly handled.

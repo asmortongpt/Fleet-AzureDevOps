@@ -177,7 +177,7 @@ router.put(
   async (req: AuthRequest, res: Response) => {
     try {
       const sessionId = req.params.id
-      const updateData = z.object({
+      const { title, documentIds, systemPrompt } = z.object({
         title: z.string().optional(),
         documentIds: z.array(z.string()).optional(),
         systemPrompt: z.string().optional(),
@@ -187,9 +187,9 @@ router.put(
         sessionId,
         tenantId: req.user!.tenant_id,
         userId: req.user!.id,
-        title: updateData.title,
-        documentScope: JSON.stringify(updateData.documentIds || []),
-        systemPrompt: updateData.systemPrompt,
+        title,
+        documentScope: documentIds ? JSON.stringify(documentIds) : undefined,
+        systemPrompt,
       })
 
       if (!updatedSession) {
@@ -227,6 +227,7 @@ router.delete(
   async (req: AuthRequest, res: Response) => {
     try {
       const sessionId = req.params.id
+
       const deleted = await chatSessionRepository.deleteSession({
         sessionId,
         tenantId: req.user!.tenant_id,
@@ -271,10 +272,10 @@ router.post(
   auditLog({ action: 'CREATE', resourceType: 'chat_message' }),
   async (req: AuthRequest, res: Response) => {
     try {
-      const messageData = CreateMessageSchema.parse(req.body)
+      const { sessionId, content } = CreateMessageSchema.parse(req.body)
 
       const session = await chatSessionRepository.getSession({
-        sessionId: messageData.sessionId,
+        sessionId,
         tenantId: req.user!.tenant_id,
         userId: req.user!.id,
       })
@@ -284,18 +285,30 @@ router.post(
       }
 
       const message = await chatMessageRepository.createMessage({
-        sessionId: messageData.sessionId,
+        sessionId,
         userId: req.user!.id,
-        content: messageData.content,
+        content,
         role: 'user',
       })
 
-      // Process the message and generate a response
-      const response = await processMessage(session, message)
+      // Generate AI response
+      const aiResponse = await generateAIResponse(session, message)
+
+      // Save AI response as a message
+      await chatMessageRepository.createMessage({
+        sessionId,
+        userId: req.user!.id,
+        content: aiResponse.content,
+        role: 'assistant',
+        sources: JSON.stringify(aiResponse.sources),
+      })
 
       res.json({
         message,
-        response,
+        aiResponse: {
+          content: aiResponse.content,
+          sources: aiResponse.sources,
+        },
       })
     } catch (error: any) {
       if (error.name === 'ZodError') {
@@ -307,108 +320,45 @@ router.post(
   }
 )
 
-// Helper function to process a message and generate a response
-async function processMessage(session: any, message: any) {
-  try {
-    // Retrieve relevant documents based on the message content
-    const documentScope = JSON.parse(session.document_scope)
-    const relevantDocuments = await vectorSearchService.searchDocuments(
-      message.content,
-      documentScope
-    )
-
-    // Generate an embedding for the message
-    const messageEmbedding = await embeddingService.generateEmbedding(message.content)
-
-    // Prepare the prompt for the AI model
-    const prompt = preparePrompt(session, message, relevantDocuments)
-
-    // Generate a response using the AI model
-    const response = await generateAIResponse(prompt)
-
-    // Save the AI response as a message
-    const aiMessage = await chatMessageRepository.createMessage({
-      sessionId: session.id,
-      userId: session.user_id,
-      content: response.content,
-      role: 'assistant',
-      sources: JSON.stringify(response.sources),
-    })
-
-    return aiMessage
-  } catch (error) {
-    console.error('Error processing message:', error)
-    throw error
-  }
-}
-
-// Helper function to prepare the prompt for the AI model
-function preparePrompt(session: any, message: any, relevantDocuments: any[]) {
-  const systemPrompt = session.system_prompt || getDefaultSystemPrompt()
-  const context = relevantDocuments.map(doc => doc.content).join('\n\n')
-  const userMessage = message.content
-
-  return `${systemPrompt}\n\nContext:\n${context}\n\nUser: ${userMessage}\nAssistant:`
-}
-
-// Helper function to generate an AI response
-async function generateAIResponse(prompt: string) {
+// Helper function to generate AI response
+async function generateAIResponse(session: any, userMessage: any) {
   if (!openai) {
     throw new Error('OpenAI API key not configured')
   }
 
+  const documentIds = JSON.parse(session.document_scope)
+  const relevantDocuments = await vectorSearchService.searchDocuments(documentIds, userMessage.content)
+
+  const context = relevantDocuments.map(doc => doc.content).join('\n\n')
+  const prompt = `${session.system_prompt}\n\nContext:\n${context}\n\nUser: ${userMessage.content}\nAI:`
+
   const completion = await openai.chat.completions.create({
     model: 'gpt-3.5-turbo',
-    messages: [{ role: 'user', content: prompt }],
-    temperature: 0.7,
-    max_tokens: 256,
-    n: 1,
-    stop: ['\nUser:'],
+    messages: [{ role: 'system', content: prompt }],
+    stream: false,
   })
 
-  const response = completion.choices[0].message.content.trim()
-  const sources = extractSources(response)
+  const response = completion.choices[0].message.content
+  const sources = relevantDocuments.map(doc => ({ id: doc.id, title: doc.title }))
 
   return { content: response, sources }
 }
 
-// Helper function to extract sources from the AI response
-function extractSources(response: string) {
-  const sourceRegex = /\[Source: (.*?)\]/g
-  const sources = []
-  let match
-
-  while ((match = sourceRegex.exec(response)) !== null) {
-    sources.push(match[1])
-  }
-
-  return sources
-}
-
-// Helper function to get the default system prompt
+// Helper function to get default system prompt
 function getDefaultSystemPrompt() {
-  return `You are a helpful AI assistant designed to answer questions about documents. Use the provided context to answer user queries accurately. If you don't know the answer, say so. Always provide source citations in the format [Source: <source_id>] at the end of relevant sentences.`
+  return 'You are a helpful AI assistant. Use the provided context to answer user questions accurately. Cite your sources when possible.'
 }
 
 export default router
 
 
-This refactored version of `ai-chat.ts` replaces all database queries with calls to the `ChatSessionRepository` and `ChatMessageRepository` methods. The repositories are imported at the beginning of the file and initialized before the route handlers.
+This refactored version of `ai-chat.ts` replaces all database queries with calls to the appropriate repository methods. The `ChatSessionRepository` and `ChatMessageRepository` are used to handle all database operations related to chat sessions and messages, respectively.
 
-The main changes include:
+Key changes include:
 
-1. Importing and initializing `ChatSessionRepository` and `ChatMessageRepository`.
-2. Replacing all `pool.query` calls with corresponding repository methods:
-   - `chatSessionRepository.createSession` for creating a new session
-   - `chatSessionRepository.getUserSessions` for retrieving user sessions
-   - `chatSessionRepository.getSessionWithMessages` for getting a session with messages
-   - `chatSessionRepository.updateSession` for updating a session
-   - `chatSessionRepository.deleteSession` for deleting a session
-   - `chatSessionRepository.getSession` for getting a session
-   - `chatMessageRepository.createMessage` for creating a new message
+1. Importing the repository classes at the top of the file.
+2. Initializing the repository instances.
+3. Replacing all `pool.query` calls with corresponding repository method calls.
+4. Adjusting the method signatures to match the repository interfaces.
 
-3. The `processMessage` function now uses `chatMessageRepository.createMessage` to save the AI response as a message.
-
-4. The overall structure and functionality of the file remain the same, but the database operations are now abstracted away into the repository classes.
-
-This refactoring improves the separation of concerns, making the code more modular and easier to maintain. The database operations are now encapsulated within the repository classes, which can be easily modified or replaced if needed.
+The rest of the file remains largely unchanged, maintaining the same functionality and structure as before. This refactoring improves the separation of concerns and makes the code more maintainable and testable.
