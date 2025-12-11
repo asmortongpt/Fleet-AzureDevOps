@@ -18,13 +18,21 @@ import { NotFoundError, ValidationError } from '../errors/app-error'
  */
 
 import { Router, Request, Response } from 'express'
+import { z } from 'zod'
 import aiDispatchService from '../services/ai-dispatch'
 import logger from '../utils/logger'
 import { authenticateJWT } from '../middleware/auth'
 import { requirePermission } from '../middleware/permissions'
-import { body, query, validationResult } from 'express-validator'
 import { csrfProtection } from '../middleware/csrf'
-
+import { validate } from '../middleware/validation'
+import { pool } from '../container'
+import {
+  dispatchAssignmentSchema,
+  aiInsightQuerySchema,
+  uuidSchema,
+  timestampSchema
+} from '../schemas/comprehensive.schema'
+import { paginationSchema, dateRangeSchema } from '../schemas/common.schema'
 
 const router = Router()
 
@@ -32,53 +40,56 @@ const router = Router()
 router.use(authenticateJWT)
 
 // ============================================================================
-// Validation Middleware
+// Validation Schemas
 // ============================================================================
 
-const validateIncidentParse = [
-  body('description')
-    .isString()
-    .trim()
-    .isLength({ min: 10, max: 1000 })
-    .withMessage('Description must be between 10 and 1000 characters'),
-  body('requestId')
-    .optional()
-    .isString()
-    .withMessage('Request ID must be a string')
-]
+const incidentParseSchema = z.object({
+  description: z.string().min(10).max(1000).trim(),
+  requestId: z.string().optional()
+})
 
-const validateRecommendation = [
-  body('incident')
-    .isObject()
-    .withMessage('Incident object is required'),
-  body('incident.incidentType')
-    .isString()
-    .withMessage('Incident type is required'),
-  body('incident.priority')
-    .isIn(['low', 'medium', 'high', 'critical'])
-    .withMessage('Priority must be low, medium, high, or critical'),
-  body('location')
-    .isObject()
-    .withMessage('Location is required'),
-  body('location.lat')
-    .isFloat({ min: -90, max: 90 })
-    .withMessage('Valid latitude is required'),
-  body('location.lng')
-    .isFloat({ min: -180, max: 180 })
-    .withMessage('Valid longitude is required')
-]
+const vehicleRecommendationSchema = z.object({
+  incident: z.object({
+    incidentType: z.string().min(1).max(100),
+    priority: z.enum(['low', 'medium', 'high', 'critical']),
+    description: z.string().optional(),
+    requiredCapabilities: z.array(z.string()).optional(),
+    estimatedDuration: z.number().optional(),
+    specialInstructions: z.array(z.string()).optional()
+  }),
+  location: z.object({
+    lat: z.number().min(-90).max(90),
+    lng: z.number().min(-180).max(180),
+    address: z.string().max(500).optional()
+  })
+})
 
-const validateDispatch = [
-  ...validateRecommendation,
-  body('vehicleId')
-    .optional()
-    .isInt()
-    .withMessage('Vehicle ID must be an integer'),
-  body('autoAssign')
-    .optional()
-    .isBoolean()
-    .withMessage('Auto-assign must be a boolean')
-]
+const dispatchExecutionSchema = z.object({
+  description: z.string().min(10).max(1000).trim(),
+  location: z.object({
+    lat: z.number().min(-90).max(90),
+    lng: z.number().min(-180).max(180),
+    address: z.string().max(500).optional()
+  }),
+  vehicleId: z.number().int().positive().optional(),
+  autoAssign: z.boolean().optional().default(false)
+})
+
+const predictionQuerySchema = z.object({
+  timeOfDay: z.coerce.number().int().min(0).max(23).optional(),
+  dayOfWeek: z.coerce.number().int().min(0).max(6).optional(),
+  lat: z.coerce.number().min(-90).max(90).optional(),
+  lng: z.coerce.number().min(-180).max(180).optional()
+})
+
+const analyticsQuerySchema = z.object({
+  startDate: z.coerce.date().optional(),
+  endDate: z.coerce.date().optional()
+})
+
+const recommendationExplainSchema = z.object({
+  recommendation: z.record(z.any())
+})
 
 // ============================================================================
 // Route Handlers
@@ -144,19 +155,11 @@ const validateDispatch = [
  */
 router.post(
   '/parse',
- csrfProtection, requirePermission('route:create:fleet'),
-  validateIncidentParse,
+  csrfProtection,
+  requirePermission('route:create:fleet'),
+  validate(incidentParseSchema, 'body'),
   async (req: Request, res: Response) => {
     try {
-      // Validate request
-      const errors = validationResult(req)
-      if (!errors.isEmpty() {
-        return res.status(400).json({
-          success: false,
-          errors: errors.array()
-        })
-      }
-
       const { description, requestId } = req.body
       const userId = (req as any).user?.id
 
@@ -247,18 +250,11 @@ router.post(
  */
 router.post(
   '/recommend',
- csrfProtection, requirePermission('route:view:fleet'),
-  validateRecommendation,
+  csrfProtection,
+  requirePermission('route:view:fleet'),
+  validate(vehicleRecommendationSchema, 'body'),
   async (req: Request, res: Response) => {
     try {
-      const errors = validationResult(req)
-      if (!errors.isEmpty() {
-        return res.status(400).json({
-          success: false,
-          errors: errors.array()
-        })
-      }
-
       const { incident, location } = req.body
       const userId = (req as any).user?.id
 
@@ -349,18 +345,11 @@ router.post(
  */
 router.post(
   '/dispatch',
- csrfProtection, requirePermission('route:create:fleet'),
-  validateDispatch,
+  csrfProtection,
+  requirePermission('route:create:fleet'),
+  validate(dispatchExecutionSchema, 'body'),
   async (req: Request, res: Response) => {
     try {
-      const errors = validationResult(req)
-      if (!errors.isEmpty() {
-        return res.status(400).json({
-          success: false,
-          errors: errors.array()
-        })
-      }
-
       const { description, location, vehicleId, autoAssign = false } = req.body
       const userId = (req as any).user?.id
 
@@ -536,22 +525,9 @@ router.post(
 router.get(
   '/predict',
   requirePermission('route:view:fleet'),
-  [
-    query('timeOfDay').optional().isInt({ min: 0, max: 23 }),
-    query('dayOfWeek').optional().isInt({ min: 0, max: 6 }),
-    query('lat').optional().isFloat({ min: -90, max: 90 }),
-    query('lng').optional().isFloat({ min: -180, max: 180 })
-  ],
+  validate(predictionQuerySchema, 'query'),
   async (req: Request, res: Response) => {
     try {
-      const errors = validationResult(req)
-      if (!errors.isEmpty() {
-        return res.status(400).json({
-          success: false,
-          errors: errors.array()
-        })
-      }
-
       const now = new Date()
       const timeOfDay = req.query.timeOfDay ? parseInt(req.query.timeOfDay as string) : now.getHours()
       const dayOfWeek = req.query.dayOfWeek ? parseInt(req.query.dayOfWeek as string) : now.getDay()
@@ -617,20 +593,9 @@ router.get(
 router.get(
   '/analytics',
   requirePermission('route:view:fleet'),
-  [
-    query('startDate').optional().isISO8601(),
-    query('endDate').optional().isISO8601()
-  ],
+  validate(analyticsQuerySchema, 'query'),
   async (req: Request, res: Response) => {
     try {
-      const errors = validationResult(req)
-      if (!errors.isEmpty() {
-        return res.status(400).json({
-          success: false,
-          errors: errors.array()
-        })
-      }
-
       const startDate = req.query.startDate
         ? new Date(req.query.startDate as string)
         : new Date(Date.now() - 30 * 24 * 60 * 60 * 1000) // Default: 30 days ago
@@ -692,18 +657,11 @@ router.get(
  */
 router.post(
   '/explain',
- csrfProtection, requirePermission('route:view:fleet'),
-  [body('recommendation').isObject()],
+  csrfProtection,
+  requirePermission('route:view:fleet'),
+  validate(recommendationExplainSchema, 'body'),
   async (req: Request, res: Response) => {
     try {
-      const errors = validationResult(req)
-      if (!errors.isEmpty() {
-        return res.status(400).json({
-          success: false,
-          errors: errors.array()
-        })
-      }
-
       const { recommendation } = req.body
 
       const explanation = await aiDispatchService.explainRecommendation(recommendation)
