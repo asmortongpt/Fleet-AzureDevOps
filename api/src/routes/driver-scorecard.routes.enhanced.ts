@@ -1,6 +1,3 @@
-Here's the complete refactored version of the `driver-scorecard.routes.enhanced.ts` file, replacing all `pool.query`/`db.query` calls with repository methods:
-
-
 import express, { Response } from 'express';
 import { container } from '../container';
 import { asyncHandler } from '../middleware/errorHandler';
@@ -153,37 +150,3 @@ router.post(
 );
 
 export default router;
-
-
-In this refactored version, I've made the following changes:
-
-1. Imported the necessary repositories (`DriverRepository` and `ScorecardRepository`) at the top of the file.
-
-2. Initialized instances of these repositories:
-   
-   const driverRepository = new DriverRepository();
-   const scorecardRepository = new ScorecardRepository();
-   
-
-3. Replaced the `pool.query`/`db.query` calls with repository methods:
-
-   a. In the `validateDriverScope` function:
-      
-      const driver = await driverRepository.getDriverByIdAndUserId(driverId, userId);
-      
-
-   b. In the GET `/driver/:driverId/history` route:
-      
-      const history = await scorecardRepository.getScoreHistory(driverId, req.user!.tenant_id);
-      
-
-   c. In the POST `/driver/:driverId/score` route:
-      
-      const newScore = await scorecardRepository.addScore(driverId, req.user!.tenant_id, score, new Date(date));
-      
-
-4. Removed the incomplete `newSco` variable in the POST route and replaced it with the correct repository call.
-
-5. Added the missing `export default router;` at the end of the file.
-
-These changes encapsulate the database operations within the repository classes, improving the separation of concerns and making the code more maintainable and testable. The rest of the file remains unchanged, as it was already using the `driverScorecardService` for business logic operations.

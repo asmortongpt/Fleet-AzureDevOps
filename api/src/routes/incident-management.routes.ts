@@ -1,6 +1,3 @@
-Here's the complete refactored `incident-management.routes.ts` file with all `pool.query` and `db.query` replaced with repository methods:
-
-
 /**
  * Incident Management Routes
  * Comprehensive incident tracking, investigation, and resolution
@@ -26,12 +23,18 @@ import { NotFoundError, ValidationError } from '../errors/app-error';
 import logger from '../config/logger';
 import { container } from '../container';
 
+// Import all necessary repositories
+import { IncidentRepository } from '../repositories/incident.repository';
+import { IncidentActionRepository } from '../repositories/incident-action.repository';
+import { IncidentTimelineRepository } from '../repositories/incident-timeline.repository';
+import { IncidentWitnessRepository } from '../repositories/incident-witness.repository';
+
 const router = Router();
 router.use(authenticateJWT);
 
 // Get all incidents
 router.get('/', requirePermission('safety_incident:view:global'), asyncHandler(async (req: AuthRequest, res) => {
-  const incidentRepository = container.resolve('incidentRepository');
+  const incidentRepository = container.resolve(IncidentRepository);
   const { status, severity, incident_type, date_from, date_to } = req.query;
   const tenantId = req.user?.tenant_id;
 
@@ -52,10 +55,10 @@ router.get('/', requirePermission('safety_incident:view:global'), asyncHandler(a
 
 // Get incident by ID with full details
 router.get('/:id', requirePermission('safety_incident:view:global'), asyncHandler(async (req: AuthRequest, res) => {
-  const incidentRepository = container.resolve('incidentRepository');
-  const actionRepository = container.resolve('incidentActionRepository');
-  const timelineRepository = container.resolve('incidentTimelineRepository');
-  const witnessRepository = container.resolve('incidentWitnessRepository');
+  const incidentRepository = container.resolve(IncidentRepository);
+  const actionRepository = container.resolve(IncidentActionRepository);
+  const timelineRepository = container.resolve(IncidentTimelineRepository);
+  const witnessRepository = container.resolve(IncidentWitnessRepository);
   const { id } = req.params;
   const tenantId = req.user?.tenant_id;
 
@@ -80,7 +83,7 @@ router.get('/:id', requirePermission('safety_incident:view:global'), asyncHandle
 
 // Create a new incident
 router.post('/', requirePermission('safety_incident:create'), csrfProtection, asyncHandler(async (req: AuthRequest, res) => {
-  const incidentRepository = container.resolve('incidentRepository');
+  const incidentRepository = container.resolve(IncidentRepository);
   const tenantId = req.user?.tenant_id;
 
   const newIncident = await incidentRepository.createIncident({
@@ -94,7 +97,7 @@ router.post('/', requirePermission('safety_incident:create'), csrfProtection, as
 
 // Update an incident
 router.put('/:id', requirePermission('safety_incident:update'), csrfProtection, asyncHandler(async (req: AuthRequest, res) => {
-  const incidentRepository = container.resolve('incidentRepository');
+  const incidentRepository = container.resolve(IncidentRepository);
   const { id } = req.params;
   const tenantId = req.user?.tenant_id;
 
@@ -109,7 +112,7 @@ router.put('/:id', requirePermission('safety_incident:update'), csrfProtection, 
 
 // Delete an incident
 router.delete('/:id', requirePermission('safety_incident:delete'), csrfProtection, asyncHandler(async (req: AuthRequest, res) => {
-  const incidentRepository = container.resolve('incidentRepository');
+  const incidentRepository = container.resolve(IncidentRepository);
   const { id } = req.params;
   const tenantId = req.user?.tenant_id;
 
@@ -124,7 +127,7 @@ router.delete('/:id', requirePermission('safety_incident:delete'), csrfProtectio
 
 // Add an action to an incident
 router.post('/:id/actions', requirePermission('safety_incident:update'), csrfProtection, asyncHandler(async (req: AuthRequest, res) => {
-  const actionRepository = container.resolve('incidentActionRepository');
+  const actionRepository = container.resolve(IncidentActionRepository);
   const { id } = req.params;
 
   const newAction = await actionRepository.createAction(id, req.body);
@@ -134,7 +137,7 @@ router.post('/:id/actions', requirePermission('safety_incident:update'), csrfPro
 
 // Update an action
 router.put('/:incidentId/actions/:actionId', requirePermission('safety_incident:update'), csrfProtection, asyncHandler(async (req: AuthRequest, res) => {
-  const actionRepository = container.resolve('incidentActionRepository');
+  const actionRepository = container.resolve(IncidentActionRepository);
   const { incidentId, actionId } = req.params;
 
   const updatedAction = await actionRepository.updateAction(incidentId, actionId, req.body);
@@ -148,7 +151,7 @@ router.put('/:incidentId/actions/:actionId', requirePermission('safety_incident:
 
 // Delete an action
 router.delete('/:incidentId/actions/:actionId', requirePermission('safety_incident:update'), csrfProtection, asyncHandler(async (req: AuthRequest, res) => {
-  const actionRepository = container.resolve('incidentActionRepository');
+  const actionRepository = container.resolve(IncidentActionRepository);
   const { incidentId, actionId } = req.params;
 
   const deleted = await actionRepository.deleteAction(incidentId, actionId);
@@ -162,7 +165,7 @@ router.delete('/:incidentId/actions/:actionId', requirePermission('safety_incide
 
 // Add a timeline entry to an incident
 router.post('/:id/timeline', requirePermission('safety_incident:update'), csrfProtection, asyncHandler(async (req: AuthRequest, res) => {
-  const timelineRepository = container.resolve('incidentTimelineRepository');
+  const timelineRepository = container.resolve(IncidentTimelineRepository);
   const { id } = req.params;
 
   const newTimelineEntry = await timelineRepository.createTimelineEntry(id, req.body);
@@ -172,7 +175,7 @@ router.post('/:id/timeline', requirePermission('safety_incident:update'), csrfPr
 
 // Update a timeline entry
 router.put('/:incidentId/timeline/:timelineId', requirePermission('safety_incident:update'), csrfProtection, asyncHandler(async (req: AuthRequest, res) => {
-  const timelineRepository = container.resolve('incidentTimelineRepository');
+  const timelineRepository = container.resolve(IncidentTimelineRepository);
   const { incidentId, timelineId } = req.params;
 
   const updatedTimelineEntry = await timelineRepository.updateTimelineEntry(incidentId, timelineId, req.body);
@@ -186,7 +189,7 @@ router.put('/:incidentId/timeline/:timelineId', requirePermission('safety_incide
 
 // Delete a timeline entry
 router.delete('/:incidentId/timeline/:timelineId', requirePermission('safety_incident:update'), csrfProtection, asyncHandler(async (req: AuthRequest, res) => {
-  const timelineRepository = container.resolve('incidentTimelineRepository');
+  const timelineRepository = container.resolve(IncidentTimelineRepository);
   const { incidentId, timelineId } = req.params;
 
   const deleted = await timelineRepository.deleteTimelineEntry(incidentId, timelineId);
@@ -200,7 +203,7 @@ router.delete('/:incidentId/timeline/:timelineId', requirePermission('safety_inc
 
 // Add a witness to an incident
 router.post('/:id/witnesses', requirePermission('safety_incident:update'), csrfProtection, asyncHandler(async (req: AuthRequest, res) => {
-  const witnessRepository = container.resolve('incidentWitnessRepository');
+  const witnessRepository = container.resolve(IncidentWitnessRepository);
   const { id } = req.params;
 
   const newWitness = await witnessRepository.createWitness(id, req.body);
@@ -210,7 +213,7 @@ router.post('/:id/witnesses', requirePermission('safety_incident:update'), csrfP
 
 // Update a witness
 router.put('/:incidentId/witnesses/:witnessId', requirePermission('safety_incident:update'), csrfProtection, asyncHandler(async (req: AuthRequest, res) => {
-  const witnessRepository = container.resolve('incidentWitnessRepository');
+  const witnessRepository = container.resolve(IncidentWitnessRepository);
   const { incidentId, witnessId } = req.params;
 
   const updatedWitness = await witnessRepository.updateWitness(incidentId, witnessId, req.body);
@@ -224,7 +227,7 @@ router.put('/:incidentId/witnesses/:witnessId', requirePermission('safety_incide
 
 // Delete a witness
 router.delete('/:incidentId/witnesses/:witnessId', requirePermission('safety_incident:update'), csrfProtection, asyncHandler(async (req: AuthRequest, res) => {
-  const witnessRepository = container.resolve('incidentWitnessRepository');
+  const witnessRepository = container.resolve(IncidentWitnessRepository);
   const { incidentId, witnessId } = req.params;
 
   const deleted = await witnessRepository.deleteWitness(incidentId, witnessId);
@@ -237,21 +240,3 @@ router.delete('/:incidentId/witnesses/:witnessId', requirePermission('safety_inc
 }));
 
 export default router;
-
-
-This refactored version of the `incident-management.routes.ts` file replaces all `pool.query` and `db.query` calls with repository methods. The repository instances are resolved from the dependency injection container using `container.resolve()`. 
-
-The main changes include:
-
-1. Replacing direct database queries with repository method calls.
-2. Using dependency injection to resolve repository instances.
-3. Maintaining the same route structure and functionality as the original file.
-
-Note that this refactoring assumes the existence of the following repositories and their respective methods:
-
-- `incidentRepository`
-- `incidentActionRepository`
-- `incidentTimelineRepository`
-- `incidentWitnessRepository`
-
-Each of these repositories should have the corresponding methods implemented to handle the database operations previously performed by `pool.query` or `db.query`.

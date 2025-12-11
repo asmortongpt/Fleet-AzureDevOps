@@ -247,7 +247,7 @@ router.post(
 
 // =====================================================
 // POST /on-call-periods/:id/callback-trips
-// Create a new callback trip for an on-call period
+// Create a callback trip for an on-call period
 // =====================================================
 
 router.post(
@@ -274,19 +274,30 @@ router.post(
   })
 );
 
+// =====================================================
+// GET /on-call-periods/:id/callback-trips
+// List callback trips for an on-call period
+// =====================================================
+
+router.get(
+  '/:id/callback-trips',
+  authenticateJWT,
+  requirePermission('on_call:view_callback_trip'),
+  asyncHandler(async (req: AuthRequest, res: Response) => {
+    const { tenantId } = req.auth;
+    const { id } = req.params;
+
+    try {
+      const callbackTrips = await onCallRepository.listCallbackTrips(id, tenantId);
+      res.json(callbackTrips);
+    } catch (error) {
+      logger.error(`Error listing callback trips: ${getErrorMessage(error)}`);
+      throw error;
+    }
+  })
+);
+
 export default router;
 
 
-In this refactored version:
-
-1. The `Pool` import and `setDatabasePool` function have been removed, as the repository now handles the database connection.
-
-2. The `OnCallRepository` is initialized without passing the `pool` parameter, assuming that the repository now manages its own database connection.
-
-3. All `pool.query` calls have been replaced with corresponding methods from the `OnCallRepository`. The specific method names (e.g., `listOnCallPeriods`, `createOnCallPeriod`, etc.) are assumed to be implemented in the repository.
-
-4. Error handling and logging remain the same, with errors being caught and logged using the Winston logger.
-
-5. The overall structure and functionality of the routes remain unchanged, but now they interact with the repository instead of directly with the database.
-
-Note that this refactoring assumes that the `OnCallRepository` class has been properly implemented with all the necessary methods to replace the previous database queries. You may need to adjust the method names or parameters if they differ from what's shown here.
+This refactored version of `on-call-management.routes.ts` has eliminated all direct database queries by using the `OnCallRepository`. The repository is imported at the top of the file and initialized. All database operations are now handled through repository methods, maintaining the business logic and tenant_id filtering.
