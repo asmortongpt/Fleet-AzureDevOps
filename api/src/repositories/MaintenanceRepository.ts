@@ -246,7 +246,7 @@ export class MaintenanceRepository extends BaseRepository<MaintenanceSchedule> {
       SELECT ${columns} FROM ${this.tableName}
       WHERE tenant_id = $1
         AND status = `scheduled`
-        AND scheduled_date BETWEEN NOW() AND NOW() + INTERVAL '${daysAhead} days'
+        AND scheduled_date BETWEEN NOW() AND NOW() + INTERVAL `${daysAhead} days`
         AND deleted_at IS NULL
       ORDER BY scheduled_date ASC
     `;
@@ -330,7 +330,7 @@ export class MaintenanceRepository extends BaseRepository<MaintenanceSchedule> {
         ) as overdue_count,
         COUNT(*) FILTER (
           WHERE status = 'scheduled'
-          AND scheduled_date BETWEEN NOW() AND NOW() + INTERVAL '7 days'
+          AND scheduled_date BETWEEN NOW() AND NOW() + INTERVAL `7 days`
         ) as upcoming_count
       FROM ${this.tableName}
       WHERE tenant_id = $1 AND deleted_at IS NULL
