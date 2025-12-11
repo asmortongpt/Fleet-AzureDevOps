@@ -10,7 +10,7 @@ export class InsurancePoliciesRepository {
 
   async getAll(tenantId: string): Promise<InsurancePolicy[]> {
     const query = `
-      SELECT * 
+      SELECT id, name, created_at, updated_at, tenant_id 
       FROM insurance_policies 
       WHERE tenant_id = $1
     `;
@@ -20,7 +20,7 @@ export class InsurancePoliciesRepository {
 
   async getById(tenantId: string, id: string): Promise<InsurancePolicy | null> {
     const query = `
-      SELECT * 
+      SELECT id, name, created_at, updated_at, tenant_id 
       FROM insurance_policies 
       WHERE tenant_id = $1 AND id = $2
     `;

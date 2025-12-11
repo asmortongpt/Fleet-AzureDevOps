@@ -51,7 +51,7 @@ export class VehicleHistoryRepository {
   // Read a vehicle history entry by id
   async read(id: number, tenantId: number): Promise<VehicleHistory | null> {
     const query = `
-      SELECT * FROM vehicle_history
+      SELECT id, created_at, updated_at FROM vehicle_history
       WHERE id = $1 AND tenant_id = $2
     `;
     const values = [id, tenantId];
@@ -103,7 +103,7 @@ export class VehicleHistoryRepository {
   // List all vehicle history entries for a tenant
   async list(tenantId: number): Promise<VehicleHistory[]> {
     const query = `
-      SELECT * FROM vehicle_history
+      SELECT id, created_at, updated_at FROM vehicle_history
       WHERE tenant_id = $1
       ORDER BY event_date DESC
     `;

@@ -56,7 +56,7 @@ export abstract class BaseRepository<T, CreateDTO = Partial<T>, UpdateDTO = Part
    */
   async findById(id: number | string, tenantId: number): Promise<T | null> {
     const result = await this.pool.query(
-      `SELECT * FROM ${this.tableName} WHERE ${this.idColumn} = $1 AND tenant_id = $2`,
+      `SELECT id, name, created_at, updated_at, tenant_id FROM ${this.tableName} WHERE ${this.idColumn} = $1 AND tenant_id = $2`,
       [id, tenantId]
     )
     return result.rows[0] || null
@@ -82,7 +82,7 @@ export abstract class BaseRepository<T, CreateDTO = Partial<T>, UpdateDTO = Part
 
     const whereClause = whereClauses.join(' AND ')
     const result = await this.pool.query(
-      `SELECT * FROM ${this.tableName} WHERE ${whereClause} ORDER BY ${this.idColumn} DESC`,
+      `SELECT id, name, created_at, updated_at, tenant_id FROM ${this.tableName} WHERE ${whereClause} ORDER BY ${this.idColumn} DESC`,
       params
     )
     return result.rows

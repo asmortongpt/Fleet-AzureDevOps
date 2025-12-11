@@ -102,7 +102,7 @@ export class DriversRepository extends GenericRepository<Driver> {
    */
   async findByEmail(email: string, tenantId: string): Promise<Driver | null> {
     const results = await this.executeQuery<Driver>(
-      `SELECT * FROM ${this.tableName} WHERE email = $1 AND tenant_id = $2`,
+      `SELECT id, name, created_at, updated_at, tenant_id FROM ${this.tableName} WHERE email = $1 AND tenant_id = $2`,
       [email.toLowerCase(), tenantId]
     )
     return results[0] || null
@@ -113,7 +113,7 @@ export class DriversRepository extends GenericRepository<Driver> {
    */
   async findByEmployeeId(employeeId: string, tenantId: string): Promise<Driver | null> {
     const results = await this.executeQuery<Driver>(
-      `SELECT * FROM ${this.tableName} WHERE employee_id = $1 AND tenant_id = $2`,
+      `SELECT id, name, created_at, updated_at, tenant_id FROM ${this.tableName} WHERE employee_id = $1 AND tenant_id = $2`,
       [employeeId, tenantId]
     )
     return results[0] || null
@@ -124,7 +124,7 @@ export class DriversRepository extends GenericRepository<Driver> {
    */
   async findByLicenseNumber(licenseNumber: string, tenantId: string): Promise<Driver | null> {
     const results = await this.executeQuery<Driver>(
-      `SELECT * FROM ${this.tableName} WHERE license_number = $1 AND tenant_id = $2`,
+      `SELECT id, name, created_at, updated_at, tenant_id FROM ${this.tableName} WHERE license_number = $1 AND tenant_id = $2`,
       [licenseNumber, tenantId]
     )
     return results[0] || null
@@ -135,7 +135,7 @@ export class DriversRepository extends GenericRepository<Driver> {
    */
   async findByStatus(status: string, tenantId: string): Promise<Driver[]> {
     return this.executeQuery<Driver>(
-      `SELECT * FROM ${this.tableName}
+      `SELECT id, name, created_at, updated_at, tenant_id FROM ${this.tableName}
        WHERE status = $1 AND tenant_id = $2
        ORDER BY last_name, first_name`,
       [status, tenantId]
@@ -147,7 +147,7 @@ export class DriversRepository extends GenericRepository<Driver> {
    */
   async findByDepartment(department: string, tenantId: string): Promise<Driver[]> {
     return this.executeQuery<Driver>(
-      `SELECT * FROM ${this.tableName}
+      `SELECT id, name, created_at, updated_at, tenant_id FROM ${this.tableName}
        WHERE department = $1 AND tenant_id = $2
        ORDER BY last_name, first_name`,
       [department, tenantId]
@@ -159,7 +159,7 @@ export class DriversRepository extends GenericRepository<Driver> {
    */
   async findByManager(managerId: string | number, tenantId: string): Promise<Driver[]> {
     return this.executeQuery<Driver>(
-      `SELECT * FROM ${this.tableName}
+      `SELECT id, name, created_at, updated_at, tenant_id FROM ${this.tableName}
        WHERE manager_id = $1 AND tenant_id = $2
        ORDER BY last_name, first_name`,
       [managerId, tenantId]
@@ -171,7 +171,7 @@ export class DriversRepository extends GenericRepository<Driver> {
    */
   async findWithExpiredLicense(tenantId: string): Promise<Driver[]> {
     return this.executeQuery<Driver>(
-      `SELECT * FROM ${this.tableName}
+      `SELECT id, name, created_at, updated_at, tenant_id FROM ${this.tableName}
        WHERE tenant_id = $1
          AND license_expiry IS NOT NULL
          AND license_expiry < CURRENT_DATE
@@ -185,7 +185,7 @@ export class DriversRepository extends GenericRepository<Driver> {
    */
   async findWithExpiringLicense(tenantId: string, daysAhead: number = 30): Promise<Driver[]> {
     return this.executeQuery<Driver>(
-      `SELECT * FROM ${this.tableName}
+      `SELECT id, name, created_at, updated_at, tenant_id FROM ${this.tableName}
        WHERE tenant_id = $1
          AND license_expiry IS NOT NULL
          AND license_expiry BETWEEN CURRENT_DATE AND CURRENT_DATE + INTERVAL '$2 days'
@@ -199,7 +199,7 @@ export class DriversRepository extends GenericRepository<Driver> {
    */
   async findWithExpiredMedical(tenantId: string): Promise<Driver[]> {
     return this.executeQuery<Driver>(
-      `SELECT * FROM ${this.tableName}
+      `SELECT id, name, created_at, updated_at, tenant_id FROM ${this.tableName}
        WHERE tenant_id = $1
          AND medical_cert_expiry IS NOT NULL
          AND medical_cert_expiry < CURRENT_DATE
@@ -213,7 +213,7 @@ export class DriversRepository extends GenericRepository<Driver> {
    */
   async findWithViolations(tenantId: string, minViolations: number = 1): Promise<Driver[]> {
     return this.executeQuery<Driver>(
-      `SELECT * FROM ${this.tableName}
+      `SELECT id, name, created_at, updated_at, tenant_id FROM ${this.tableName}
        WHERE tenant_id = $1
          AND violation_count >= $2
        ORDER BY violation_count DESC`,
@@ -230,7 +230,7 @@ export class DriversRepository extends GenericRepository<Driver> {
     tenantId: string
   ): Promise<Driver[]> {
     return this.executeQuery<Driver>(
-      `SELECT * FROM ${this.tableName}
+      `SELECT id, name, created_at, updated_at, tenant_id FROM ${this.tableName}
        WHERE tenant_id = $1
          AND driver_score >= $2
          AND driver_score <= $3
@@ -244,7 +244,7 @@ export class DriversRepository extends GenericRepository<Driver> {
    */
   async getTopDrivers(tenantId: string, limit: number = 10): Promise<Driver[]> {
     return this.executeQuery<Driver>(
-      `SELECT * FROM ${this.tableName}
+      `SELECT id, name, created_at, updated_at, tenant_id FROM ${this.tableName}
        WHERE tenant_id = $1
          AND driver_score IS NOT NULL
        ORDER BY driver_score DESC
@@ -258,7 +258,7 @@ export class DriversRepository extends GenericRepository<Driver> {
    */
   async getDriversNeedingAttention(tenantId: string): Promise<Driver[]> {
     return this.executeQuery<Driver>(
-      `SELECT * FROM ${this.tableName}
+      `SELECT id, name, created_at, updated_at, tenant_id FROM ${this.tableName}
        WHERE tenant_id = $1
          AND (
            driver_score < 70
@@ -388,7 +388,7 @@ export class DriversRepository extends GenericRepository<Driver> {
     const search = `%${searchTerm.toLowerCase()}%`
 
     return this.executeQuery<Driver>(
-      `SELECT * FROM ${this.tableName}
+      `SELECT id, name, created_at, updated_at, tenant_id FROM ${this.tableName}
        WHERE tenant_id = $1
          AND (
            LOWER(first_name) LIKE $2

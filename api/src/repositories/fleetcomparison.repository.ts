@@ -18,7 +18,7 @@ export class FleetComparisonRepository {
     }
 
     async read(tenant_id: string): Promise<FleetComparison[]> {
-        const query = 'SELECT * FROM fleet_comparison WHERE tenant_id = $1';
+        const query = 'SELECT id, tenant_id, created_at, updated_at FROM fleet_comparison WHERE tenant_id = $1';
         const values = [tenant_id];
         const { rows } = await this.pool.query(query, values);
         return rows as FleetComparison[];

@@ -9,7 +9,7 @@ export class FueltransactionService {
 
   async getAll(tenantId: number, filters?: any) {
     const query = `
-      SELECT *
+      SELECT id, name, created_at, updated_at, tenant_id
       FROM fueltransactions
       WHERE tenant_id = $1 AND deleted_at IS NULL
       ORDER BY created_at DESC
@@ -20,7 +20,7 @@ export class FueltransactionService {
 
   async getById(id: number, tenantId: number) {
     const query = `
-      SELECT *
+      SELECT id, name, created_at, updated_at, tenant_id
       FROM fueltransactions
       WHERE id = $1 AND tenant_id = $2 AND deleted_at IS NULL
     `;

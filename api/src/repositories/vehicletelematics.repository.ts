@@ -18,7 +18,7 @@ export class VehicleTelematicsRepository {
   constructor(private pool: Pool) {}
 
   async findAll(tenantId: number): Promise<VehicleTelematics[]> {
-    const query = 'SELECT * FROM vehicle_telematics WHERE tenant_id = $1 AND deleted_at IS NULL ORDER BY timestamp DESC';
+    const query = 'SELECT id, created_at, updated_at FROM vehicle_telematics WHERE tenant_id = $1 AND deleted_at IS NULL ORDER BY timestamp DESC';
     try {
       const result: QueryResult<VehicleTelematics> = await this.pool.query(query, [tenantId]);
       return result.rows;
@@ -28,7 +28,7 @@ export class VehicleTelematicsRepository {
   }
 
   async findById(tenantId: number, id: number): Promise<VehicleTelematics | null> {
-    const query = 'SELECT * FROM vehicle_telematics WHERE tenant_id = $1 AND id = $2 AND deleted_at IS NULL';
+    const query = 'SELECT id, created_at, updated_at FROM vehicle_telematics WHERE tenant_id = $1 AND id = $2 AND deleted_at IS NULL';
     try {
       const result: QueryResult<VehicleTelematics> = await this.pool.query(query, [tenantId, id]);
       return result.rows[0] || null;

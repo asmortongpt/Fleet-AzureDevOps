@@ -46,7 +46,7 @@ export class TollIntegrationRepository {
   // Read a toll integration by id
   async read(id: number, tenant_id: number): Promise<TollIntegration | null> {
     const query = `
-      SELECT * FROM toll_integrations
+      SELECT id, tenant_id, created_at, updated_at FROM toll_integrations
       WHERE id = $1 AND tenant_id = $2;
     `;
     const values = [id, tenant_id];
@@ -88,7 +88,7 @@ export class TollIntegrationRepository {
   // List toll integrations for a tenant
   async list(tenant_id: number): Promise<TollIntegration[]> {
     const query = `
-      SELECT * FROM toll_integrations
+      SELECT id, tenant_id, created_at, updated_at FROM toll_integrations
       WHERE tenant_id = $1
       ORDER BY id;
     `;

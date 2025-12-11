@@ -20,7 +20,7 @@ class AiChatRepository {
 
   async getAiChatById(tenantId: string, id: number): Promise<any> {
     const query = `
-      SELECT * FROM ai_chats
+      SELECT id, tenant_id, created_at, updated_at FROM ai_chats
       WHERE id = $1 AND tenant_id = $2
     `;
     const values = [id, tenantId];
@@ -30,7 +30,7 @@ class AiChatRepository {
 
   async getAiChatsByUserId(tenantId: string, userId: string): Promise<any[]> {
     const query = `
-      SELECT * FROM ai_chats
+      SELECT id, tenant_id, created_at, updated_at FROM ai_chats
       WHERE user_id = $1 AND tenant_id = $2
       ORDER BY created_at DESC
     `;

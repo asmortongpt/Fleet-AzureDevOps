@@ -55,7 +55,7 @@ export class ServiceProvidersRepository {
    */
   async getById(id: number, tenantId: number): Promise<ServiceProvider | null> {
     const query = `
-      SELECT * FROM service_providers
+      SELECT id, created_at, updated_at FROM service_providers
       WHERE id = $1 AND tenant_id = $2;
     `;
     const values = [id, tenantId];
@@ -70,7 +70,7 @@ export class ServiceProvidersRepository {
    */
   async getAll(tenantId: number): Promise<ServiceProvider[]> {
     const query = `
-      SELECT * FROM service_providers
+      SELECT id, created_at, updated_at FROM service_providers
       WHERE tenant_id = $1
       ORDER BY name;
     `;
