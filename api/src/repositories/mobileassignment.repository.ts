@@ -1,6 +1,8 @@
+import { BaseRepository } from '../repositories/BaseRepository';
+
 import { Pool, QueryResult } from 'pg';
 
-export class MobileAssignmentRepository {
+export class MobileAssignmentRepository extends BaseRepository<any> {
   private pool: Pool;
 
   constructor(pool: Pool) {

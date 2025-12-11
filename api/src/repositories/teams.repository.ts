@@ -1,3 +1,5 @@
+import { BaseRepository } from '../repositories/BaseRepository';
+
 /**
  * Teams Repository
  * Handles tenant team configuration and management
@@ -23,7 +25,7 @@ export interface Team {
   updated_by?: string;
 }
 
-export class TeamsRepository {
+export class TeamsRepository extends BaseRepository<any> {
   constructor(private pool: Pool) {}
 
   /**

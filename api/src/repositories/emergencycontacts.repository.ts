@@ -1,3 +1,5 @@
+import { BaseRepository } from '../repositories/BaseRepository';
+
 To create a TypeScript repository for emergency contacts with parameterized queries, tenant_id, and CRUD operations, we'll need to design a class that encapsulates these functionalities. Let's break this down step-by-step:
 
 1. Define the interface for an emergency contact
@@ -23,7 +25,7 @@ interface EmergencyContact {
   updated_at: Date;
 }
 
-export class EmergencyContactsRepository {
+export class EmergencyContactsRepository extends BaseRepository<any> {
   private pool: Pool;
 
   constructor(pool: Pool) {

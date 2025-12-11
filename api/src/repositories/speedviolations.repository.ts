@@ -1,3 +1,5 @@
+import { BaseRepository } from '../repositories/BaseRepository';
+
 Let's create a TypeScript repository for managing speed violations, focusing on CRUD operations with parameterized queries and tenant_id support. We'll structure this repository to be used in the `api/src/routes/speed-violations.routes.ts` file.
 
 Here's the implementation of the `SpeedViolationsRepository`:
@@ -6,7 +8,7 @@ Here's the implementation of the `SpeedViolationsRepository`:
 import { Pool, QueryResult } from 'pg';
 import { SpeedViolation } from '../models/speed-violation.model';
 
-export class SpeedViolationsRepository {
+export class SpeedViolationsRepository extends BaseRepository<any> {
   private pool: Pool;
 
   constructor(pool: Pool) {

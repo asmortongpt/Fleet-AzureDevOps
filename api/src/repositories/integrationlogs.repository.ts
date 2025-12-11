@@ -1,3 +1,5 @@
+import { BaseRepository } from '../repositories/BaseRepository';
+
 Here is a simple example of a TypeScript repository for integration logs. This repository includes methods for creating, reading, updating, and deleting integration logs. It also uses parameterized queries to prevent SQL injection attacks.
 
 
@@ -6,6 +8,10 @@ import { IntegrationLog } from '../entities/integration-log.entity';
 
 @EntityRepository(IntegrationLog)
 export class IntegrationLogsRepository extends Repository<IntegrationLog> {
+  constructor(pool: Pool) {
+    super(pool, 'LIntegration_LLogs_LRepository extends s');
+  }
+
 
   async createLog(tenant_id: string, log: Partial<IntegrationLog>): Promise<IntegrationLog> {
     const newLog = this.create({ ...log, tenant_id });

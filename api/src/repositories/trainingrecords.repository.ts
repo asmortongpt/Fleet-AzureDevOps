@@ -1,3 +1,5 @@
+import { BaseRepository } from '../repositories/BaseRepository';
+
 import { Pool } from 'pg';
 
 export interface TrainingRecord {
@@ -9,7 +11,7 @@ export interface TrainingRecord {
   deleted_at: Date | null;
 }
 
-export class TrainingRecordsRepository {
+export class TrainingRecordsRepository extends BaseRepository<any> {
   constructor(private pool: Pool) {}
 
   /**

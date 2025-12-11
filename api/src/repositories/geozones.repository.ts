@@ -1,3 +1,5 @@
+import { BaseRepository } from '../repositories/BaseRepository';
+
 ```typescript
 import { Pool } from 'pg';
 
@@ -11,7 +13,7 @@ export interface GeoZone {
   deleted_at: Date | null;
 }
 
-export class GeoZonesRepository {
+export class GeoZonesRepository extends BaseRepository<any> {
   constructor(private pool: Pool) {}
 
   /**

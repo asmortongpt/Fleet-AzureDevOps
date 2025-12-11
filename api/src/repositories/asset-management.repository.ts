@@ -1,3 +1,5 @@
+import { BaseRepository } from '../repositories/BaseRepository';
+
 /**
  * Asset Management Repository
  * 
@@ -92,7 +94,11 @@ export interface AssetAnalytics {
   total_depreciation: number
 }
 
-export class AssetManagementRepository {
+export class AssetManagementRepository extends BaseRepository<any> {
+  constructor(pool: Pool) {
+    super(pool, 'LAsset_LManagement_LRepository extends _LBases');
+  }
+
   private pool: Pool
 
   constructor() {

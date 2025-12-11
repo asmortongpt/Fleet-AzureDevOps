@@ -1,3 +1,5 @@
+import { BaseRepository } from '../repositories/BaseRepository';
+
 import { pool } from '../db'
 import { NotFoundError, ValidationError } from '../lib/errors'
 
@@ -33,7 +35,11 @@ export interface Inspection {
  * Compliance tracking and expiry management
  * Enforces tenant isolation
  */
-export class InspectionsRepository {
+export class InspectionsRepository extends BaseRepository<any> {
+  constructor(pool: Pool) {
+    super(pool, 'LInspections_LRepository extends _LBases');
+  }
+
   /**
    * Find inspection by ID
    */

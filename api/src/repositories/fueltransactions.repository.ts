@@ -1,3 +1,5 @@
+import { BaseRepository } from '../repositories/BaseRepository';
+
 import { Pool, QueryResult } from 'pg';
 
 export interface FuelTransaction {
@@ -14,7 +16,7 @@ export interface FuelTransaction {
   deleted_at: Date | null;
 }
 
-export class FuelTransactionsRepository {
+export class FuelTransactionsRepository extends BaseRepository<any> {
   constructor(private pool: Pool) {}
 
   async findAll(tenantId: number): Promise<FuelTransaction[]> {

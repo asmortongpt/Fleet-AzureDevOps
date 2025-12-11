@@ -1,3 +1,5 @@
+import { BaseRepository } from '../repositories/BaseRepository';
+
 To create a TypeScript repository called `UtilizationReportsRepository` for the `utilization-reports.routes.ts` file, we'll need to implement CRUD operations with parameterized queries and support for a `tenant_id`. Let's break this down step-by-step:
 
 1. First, we'll create the repository file.
@@ -20,7 +22,7 @@ interface UtilizationReport {
   // Add other fields as needed
 }
 
-export class UtilizationReportsRepository {
+export class UtilizationReportsRepository extends BaseRepository<any> {
   private pool: Pool;
 
   constructor(pool: Pool) {
