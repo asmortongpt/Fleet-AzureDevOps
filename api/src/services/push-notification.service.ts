@@ -1,49 +1,31 @@
 /**
  * Push Notification Service
  * Handles Firebase Cloud Messaging (FCM) and Apple Push Notification Service (APNS)
+ * 
+ * B3-AGENT-57 REFACTORING: Eliminated all 24 direct database queries.
+ * All database operations now use PushNotificationRepository.
+ * 
+ * Security: Repository enforces parameterized queries and tenant isolation.
  */
 
-import { pool as db } from 'pg';
 import admin from 'firebase-admin';
 import apn from 'apn';
-import { SqlParams } from '../types';
+import { PushNotificationRepository } from '../repositories/push-notification.repository';
+import type {
+  MobileDevice,
+  PushNotification,
+  NotificationRecipient,
+  NotificationHistoryFilters,
+  DeliveryStats,
+} from '../repositories/push-notification.repository';
 
-// Types
-export interface MobileDevice {
-  id: string;
-  userId: string;
-  tenantId: string;
-  deviceToken: string;
-  platform: 'ios' | 'android';
-  deviceName?: string;
-  deviceModel?: string;
-  osVersion?: string;
-  appVersion?: string;
-  lastActive: Date;
-  isActive: boolean;
-}
-
-export interface PushNotification {
-  id?: string;
-  tenantId: string;
-  notificationType: string;
-  category: NotificationCategory;
-  priority: NotificationPriority;
-  title: string;
-  message: string;
-  dataPayload?: Record<string, any>;
-  actionButtons?: NotificationAction[];
-  imageUrl?: string;
-  sound?: string;
-  badgeCount?: number;
-  scheduledFor?: Date;
-  createdBy?: string;
-}
-
-export interface NotificationRecipient {
-  userId: string;
-  deviceId?: string;
-}
+// Re-export types
+export type {
+  MobileDevice,
+  PushNotification,
+  NotificationRecipient,
+  DeliveryStats,
+};
 
 export interface NotificationAction {
   id: string;
@@ -74,23 +56,14 @@ export interface NotificationTemplate {
   sound: string;
 }
 
-export interface DeliveryStats {
-  totalSent: number;
-  delivered: number;
-  opened: number;
-  clicked: number;
-  failed: number;
-  deliveryRate: number;
-  openRate: number;
-  clickRate: number;
-}
-
 class PushNotificationService {
   private fcmInitialized = false;
   private apnProvider: apn.Provider | null = null;
   private isDevelopment = process.env.NODE_ENV !== 'production';
+  private repository: PushNotificationRepository;
 
-  constructor(private db: Pool) {
+  constructor(repository?: PushNotificationRepository) {
+    this.repository = repository || new PushNotificationRepository();
     this.initializeFCM();
     this.initializeAPNS();
   }
@@ -148,68 +121,22 @@ class PushNotificationService {
 
   /**
    * Register a mobile device for push notifications
+   * B3-AGENT-57: Query 1 (findDeviceByToken), Query 2 (updateDevice), Query 3 (createDevice) -> Repository
    */
   async registerDevice(deviceData: Omit<MobileDevice, 'id' | 'lastActive' | 'isActive'>): Promise<MobileDevice> {
     try {
-      // Check if device already exists
-      const existing = await this.db.query(
-        'SELECT 
-      id,
-      user_id,
-      tenant_id,
-      device_token,
-      platform,
-      device_name,
-      device_model,
-      os_version,
-      app_version,
-      last_active,
-      is_active,
-      created_at,
-      updated_at FROM mobile_devices WHERE device_token = $1 AND user_id = $2',
-        [deviceData.deviceToken, deviceData.userId]
-      );
+      // Check if device already exists using repository
+      const existing = await this.repository.findDeviceByToken(deviceData.deviceToken, deviceData.userId);
 
-      if (existing.rows.length > 0) {
-        // Update existing device
-        const result = await db.query(
-          `UPDATE mobile_devices
-           SET platform = $1, device_name = $2, device_model = $3,
-               os_version = $4, app_version = $5, last_active = CURRENT_TIMESTAMP,
-               is_active = true, updated_at = CURRENT_TIMESTAMP
-           WHERE id = $6
-           RETURNING *`,
-          [
-            deviceData.platform,
-            deviceData.deviceName,
-            deviceData.deviceModel,
-            deviceData.osVersion,
-            deviceData.appVersion,
-            existing.rows[0].id,
-          ]
-        );
-        return this.mapDevice(result.rows[0]);
+      if (existing) {
+        // Update existing device using repository
+        const updated = await this.repository.updateDevice(existing.id, deviceData);
+        return updated;
       }
 
-      // Insert new device
-      const result = await db.query(
-        `INSERT INTO mobile_devices
-         (user_id, tenant_id, device_token, platform, device_name, device_model, os_version, app_version)
-         VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
-         RETURNING *`,
-        [
-          deviceData.userId,
-          deviceData.tenantId,
-          deviceData.deviceToken,
-          deviceData.platform,
-          deviceData.deviceName,
-          deviceData.deviceModel,
-          deviceData.osVersion,
-          deviceData.appVersion,
-        ]
-      );
-
-      return this.mapDevice(result.rows[0]);
+      // Insert new device using repository
+      const newDevice = await this.repository.createDevice(deviceData);
+      return newDevice;
     } catch (error) {
       console.error('Error registering device:', error);
       throw new Error('Failed to register device');
@@ -218,14 +145,11 @@ class PushNotificationService {
 
   /**
    * Unregister a mobile device
+   * B3-AGENT-57: Query 4 (deactivateDevice) -> Repository
    */
   async unregisterDevice(deviceId: string): Promise<boolean> {
     try {
-      await db.query(
-        'UPDATE mobile_devices SET is_active = false WHERE id = $1',
-        [deviceId]
-      );
-      return true;
+      return await this.repository.deactivateDevice(deviceId);
     } catch (error) {
       console.error('Error unregistering device:', error);
       return false;
@@ -234,56 +158,28 @@ class PushNotificationService {
 
   /**
    * Send a push notification to specific recipients
+   * B3-AGENT-57: Query 5 (createNotification), Query 6 (getRecipientDevices),
+   * Query 7 (createRecipientRecord), Query 8 (updateNotificationStatus) -> Repository
    */
   async sendNotification(
     notification: PushNotification,
     recipients: NotificationRecipient[]
   ): Promise<string> {
     try {
-      // Create notification record
-      const notificationResult = await db.query(
-        `INSERT INTO push_notifications
-         (tenant_id, notification_type, category, priority, title, message,
-          data_payload, action_buttons, image_url, sound, badge_count,
-          total_recipients, delivery_status, created_by)
-         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14)
-         RETURNING id',
-        [
-          notification.tenantId,
-          notification.notificationType,
-          notification.category,
-          notification.priority,
-          notification.title,
-          notification.message,
-          JSON.stringify(notification.dataPayload || {}),
-          JSON.stringify(notification.actionButtons || []),
-          notification.imageUrl,
-          notification.sound || 'default',
-          notification.badgeCount || 1,
-          recipients.length,
-          'sending',
-          notification.createdBy,
-        ]
-      );
+      // Create notification record using repository
+      const notificationId = await this.repository.createNotification(notification, recipients.length);
 
-      const notificationId = notificationResult.rows[0].id;
-
-      // Get device tokens for recipients
+      // Get device tokens for recipients using repository
       const devices = await this.getRecipientDevices(recipients);
 
-      // Create recipient records
+      // Create recipient records using repository
       await this.createRecipientRecords(notificationId, devices);
 
       // Send to devices
       await this.deliverToDevices(notification, devices, notificationId);
 
-      // Update notification status
-      await db.query(
-        `UPDATE push_notifications
-         SET delivery_status = 'sent', sent_at = CURRENT_TIMESTAMP
-         WHERE id = $1',
-        [notificationId]
-      );
+      // Update notification status using repository
+      await this.repository.updateNotificationStatus(notificationId, 'sent');
 
       return notificationId;
     } catch (error) {
@@ -305,6 +201,8 @@ class PushNotificationService {
 
   /**
    * Schedule a notification for future delivery
+   * B3-AGENT-57: Query 9 (createScheduledNotification), Query 10 (getRecipientDevices),
+   * Query 11 (createRecipientRecord) -> Repository
    */
   async scheduleNotification(
     notification: PushNotification,
@@ -312,35 +210,14 @@ class PushNotificationService {
     scheduledFor: Date
   ): Promise<string> {
     try {
-      const result = await db.query(
-        `INSERT INTO push_notifications
-         (tenant_id, notification_type, category, priority, title, message,
-          data_payload, action_buttons, image_url, sound, badge_count,
-          scheduled_for, total_recipients, delivery_status, created_by)
-         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15)
-         RETURNING id',
-        [
-          notification.tenantId,
-          notification.notificationType,
-          notification.category,
-          notification.priority,
-          notification.title,
-          notification.message,
-          JSON.stringify(notification.dataPayload || {}),
-          JSON.stringify(notification.actionButtons || []),
-          notification.imageUrl,
-          notification.sound || 'default',
-          notification.badgeCount || 1,
-          scheduledFor,
-          recipients.length,
-          'scheduled',
-          notification.createdBy,
-        ]
+      // Create scheduled notification using repository
+      const notificationId = await this.repository.createScheduledNotification(
+        notification,
+        recipients.length,
+        scheduledFor
       );
 
-      const notificationId = result.rows[0].id;
-
-      // Get device tokens and create recipient records
+      // Get device tokens and create recipient records using repository
       const devices = await this.getRecipientDevices(recipients);
       await this.createRecipientRecords(notificationId, devices);
 
@@ -353,18 +230,13 @@ class PushNotificationService {
 
   /**
    * Process scheduled notifications (called by cron job)
+   * B3-AGENT-57: Query 12 (getScheduledNotifications) -> Repository
    */
   async processScheduledNotifications(): Promise<void> {
     try {
-      const result = await this.db.query(
-        `SELECT id, tenant_id, user_id, title, message, is_read, created_at FROM push_notifications
-         WHERE delivery_status = 'scheduled'
-         AND scheduled_for <= CURRENT_TIMESTAMP
-         ORDER BY scheduled_for ASC
-         LIMIT 100`
-      );
+      const notifications = await this.repository.getScheduledNotifications(100);
 
-      for (const notification of result.rows) {
+      for (const notification of notifications) {
         await this.processScheduledNotification(notification);
       }
     } catch (error) {
@@ -374,23 +246,11 @@ class PushNotificationService {
 
   /**
    * Track notification opened
+   * B3-AGENT-57: Query 13-14 (trackNotificationOpened) -> Repository
    */
   async trackNotificationOpened(recipientId: string): Promise<void> {
     try {
-      await db.query(
-        `UPDATE push_notification_recipients
-         SET opened_at = CURRENT_TIMESTAMP, delivery_status = 'delivered'
-         WHERE id = $1',
-        [recipientId]
-      );
-
-      // Update notification stats
-      await db.query(
-        `UPDATE push_notifications
-         SET opened_count = opened_count + 1
-         WHERE id = (SELECT push_notification_id FROM push_notification_recipients WHERE id = $1)`,
-        [recipientId]
-      );
+      await this.repository.trackNotificationOpened(recipientId);
     } catch (error) {
       console.error('Error tracking notification open:', error);
     }
@@ -398,23 +258,11 @@ class PushNotificationService {
 
   /**
    * Track notification clicked with action
+   * B3-AGENT-57: Query 15-16 (trackNotificationClicked) -> Repository
    */
   async trackNotificationClicked(recipientId: string, action: string): Promise<void> {
     try {
-      await db.query(
-        `UPDATE push_notification_recipients
-         SET clicked_at = CURRENT_TIMESTAMP, action_taken = $2
-         WHERE id = $1',
-        [recipientId, action]
-      );
-
-      // Update notification stats
-      await db.query(
-        `UPDATE push_notifications
-         SET clicked_count = clicked_count + 1
-         WHERE id = (SELECT push_notification_id FROM push_notification_recipients WHERE id = $1)`,
-        [recipientId]
-      );
+      await this.repository.trackNotificationClicked(recipientId, action);
     } catch (error) {
       console.error('Error tracking notification click:', error);
     }
@@ -422,122 +270,27 @@ class PushNotificationService {
 
   /**
    * Get notification history
+   * B3-AGENT-57: Query 17 (getNotificationHistory) -> Repository
    */
   async getNotificationHistory(
     tenantId: string,
-    filters?: {
-      category?: string;
-      status?: string;
-      startDate?: Date;
-      endDate?: Date;
-      limit?: number;
-      offset?: number;
-    }
+    filters?: NotificationHistoryFilters
   ) {
     try {
-      let query = `
-        SELECT n.*,
-               u.name as created_by_name,
-               COUNT(r.id) as total_recipients,
-               SUM(CASE WHEN r.delivery_status = `delivered` THEN 1 ELSE 0 END) as delivered,
-               SUM(CASE WHEN r.opened_at IS NOT NULL THEN 1 ELSE 0 END) as opened,
-               SUM(CASE WHEN r.clicked_at IS NOT NULL THEN 1 ELSE 0 END) as clicked
-        FROM push_notifications n
-        LEFT JOIN users u ON n.created_by = u.id
-        LEFT JOIN push_notification_recipients r ON n.id = r.push_notification_id
-        WHERE n.tenant_id = $1
-      `;
-
-      const params: SqlParams = [tenantId];
-      let paramIndex = 2;
-
-      if (filters?.category) {
-        query += ` AND n.category = $${paramIndex}`;
-        params.push(filters.category);
-        paramIndex++;
-      }
-
-      if (filters?.status) {
-        query += ` AND n.delivery_status = $${paramIndex}`;
-        params.push(filters.status);
-        paramIndex++;
-      }
-
-      if (filters?.startDate) {
-        query += ` AND n.created_at >= $${paramIndex}`;
-        params.push(filters.startDate);
-        paramIndex++;
-      }
-
-      if (filters?.endDate) {
-        query += ` AND n.created_at <= $${paramIndex}`;
-        params.push(filters.endDate);
-        paramIndex++;
-      }
-
-      query += ` GROUP BY n.id, u.name ORDER BY n.created_at DESC`;
-
-      if (filters?.limit) {
-        query += ` LIMIT $${paramIndex}`;
-        params.push(filters.limit);
-        paramIndex++;
-      }
-
-      if (filters?.offset) {
-        query += ` OFFSET $${paramIndex}`;
-        params.push(filters.offset);
-      }
-
-      const result = await db.query(query, params);
-      return result.rows;
+      return await this.repository.getNotificationHistory(tenantId, filters);
     } catch (error) {
-      console.error(`Error getting notification history:`, error);
+      console.error('Error getting notification history:', error);
       throw new Error('Failed to get notification history');
     }
   }
 
   /**
    * Get delivery statistics
+   * B3-AGENT-57: Query 18 (getDeliveryStats) -> Repository
    */
   async getDeliveryStats(tenantId: string, dateRange?: { start: Date; end: Date }): Promise<DeliveryStats> {
     try {
-      let query = `
-        SELECT
-          COUNT(DISTINCT n.id) as total_sent,
-          SUM(n.delivered_count) as delivered,
-          SUM(n.opened_count) as opened,
-          SUM(n.clicked_count) as clicked,
-          SUM(n.failed_count) as failed
-        FROM push_notifications n
-        WHERE n.tenant_id = $1 AND n.delivery_status IN ('sent', 'sending')
-      `;
-
-      const params: SqlParams = [tenantId];
-
-      if (dateRange) {
-        query += ` AND n.created_at BETWEEN $2 AND $3`;
-        params.push(dateRange.start, dateRange.end);
-      }
-
-      const result = await db.query(query, params);
-      const row = result.rows[0];
-
-      const totalSent = parseInt(row.total_sent) || 0;
-      const delivered = parseInt(row.delivered) || 0;
-      const opened = parseInt(row.opened) || 0;
-      const clicked = parseInt(row.clicked) || 0;
-      const failed = parseInt(row.failed) || 0;
-
-      return {
-        totalSent,
-        delivered,
-        opened,
-        clicked,
-        failed,
-        deliveryRate: totalSent > 0 ? (delivered / totalSent) * 100 : 0,
-        openRate: delivered > 0 ? (opened / delivered) * 100 : 0,
-        clickRate: opened > 0 ? (clicked / opened) * 100 : 0,
-      };
+      return await this.repository.getDeliveryStats(tenantId, dateRange);
     } catch (error) {
       console.error('Error getting delivery stats:', error);
       throw new Error('Failed to get delivery stats');
@@ -546,35 +299,11 @@ class PushNotificationService {
 
   /**
    * Get notification templates
+   * B3-AGENT-57: Query 19 (getTemplates) -> Repository
    */
   async getTemplates(tenantId: string, category?: string) {
     try {
-      let query = 'SELECT 
-      id,
-      tenant_id,
-      template_name,
-      category,
-      title_template,
-      message_template,
-      data_payload_template,
-      action_buttons,
-      priority,
-      sound,
-      is_active,
-      created_by,
-      created_at,
-      updated_at FROM push_notification_templates WHERE tenant_id = $1 AND is_active = true';
-      const params: SqlParams = [tenantId];
-
-      if (category) {
-        query += ' AND category = $2';
-        params.push(category);
-      }
-
-      query += ' ORDER BY template_name ASC';
-
-      const result = await db.query(query, params);
-      return result.rows;
+      return await this.repository.getTemplates(tenantId, category);
     } catch (error) {
       console.error('Error getting templates:', error);
       throw new Error('Failed to get templates');
@@ -583,6 +312,7 @@ class PushNotificationService {
 
   /**
    * Create notification from template
+   * B3-AGENT-57: Query 20 (findTemplateByName) -> Repository
    */
   async createFromTemplate(
     templateName: string,
@@ -590,30 +320,11 @@ class PushNotificationService {
     variables: Record<string, any>
   ): Promise<PushNotification> {
     try {
-      const result = await this.db.query(
-        'SELECT 
-      id,
-      tenant_id,
-      template_name,
-      category,
-      title_template,
-      message_template,
-      data_payload_template,
-      action_buttons,
-      priority,
-      sound,
-      is_active,
-      created_by,
-      created_at,
-      updated_at FROM push_notification_templates WHERE tenant_id = $1 AND template_name = $2',
-        [tenantId, templateName]
-      );
+      const template = await this.repository.findTemplateByName(tenantId, templateName);
 
-      if (result.rows.length === 0) {
+      if (!template) {
         throw new Error('Template not found');
       }
-
-      const template = result.rows[0];
 
       // Replace variables in templates
       const title = this.replaceVariables(template.title_template, variables);
@@ -639,35 +350,21 @@ class PushNotificationService {
 
   // Private helper methods
 
+  /**
+   * Process a single scheduled notification
+   * B3-AGENT-57: Query 21 (updateNotificationStatus), Query 22 (getNotificationRecipients),
+   * Query 23 (updateNotificationStatus) -> Repository
+   */
   private async processScheduledNotification(notification: any): Promise<void> {
     try {
-      // Update status to sending
-      await db.query(
-        'UPDATE push_notifications SET delivery_status = $1 WHERE id = $2',
-        ['sending', notification.id]
-      );
+      // Update status to sending using repository
+      await this.repository.updateNotificationStatus(notification.id, 'sending');
 
-      // Get recipients
-      const recipientsResult = await this.db.query(
-        'SELECT 
-      id,
-      push_notification_id,
-      user_id,
-      device_id,
-      device_token,
-      delivery_status,
-      error_message,
-      delivered_at,
-      opened_at,
-      clicked_at,
-      action_taken,
-      created_at,
-      updated_at FROM push_notification_recipients WHERE push_notification_id = $1',
-        [notification.id]
-      );
+      // Get recipients using repository
+      const recipientsResult = await this.repository.getNotificationRecipients(notification.id);
 
       // Deliver to devices
-      const devices = recipientsResult.rows.map(r => ({
+      const devices = recipientsResult.map(r => ({
         userId: r.user_id,
         deviceId: r.device_id,
         deviceToken: r.device_token,
@@ -676,50 +373,41 @@ class PushNotificationService {
 
       await this.deliverToDevices(notification, devices, notification.id);
 
-      // Update status to sent
-      await db.query(
-        `UPDATE push_notifications
-         SET delivery_status = 'sent', sent_at = CURRENT_TIMESTAMP
-         WHERE id = $1',
-        [notification.id]
-      );
+      // Update status to sent using repository
+      await this.repository.updateNotificationStatus(notification.id, 'sent');
     } catch (error) {
       console.error('Error processing scheduled notification:', error);
-      await db.query(
-        'UPDATE push_notifications SET delivery_status = $1 WHERE id = $2',
-        ['failed', notification.id]
-      );
+      await this.repository.updateNotificationStatus(notification.id, 'failed');
     }
   }
 
+  /**
+   * Get devices for recipients
+   * B3-AGENT-57: Uses repository.getRecipientDevices
+   */
   private async getRecipientDevices(recipients: NotificationRecipient[]) {
     const userIds = recipients.map(r => r.userId);
-
-    const result = await db.query(
-      `SELECT md.*, u.id as user_id
-       FROM mobile_devices md
-       JOIN users u ON md.user_id = u.id
-       WHERE u.id = ANY($1) AND md.is_active = true`,
-      [userIds]
-    );
-
-    return result.rows;
+    return await this.repository.getRecipientDevices(userIds);
   }
 
+  /**
+   * Create recipient records
+   * B3-AGENT-57: Query 24 (createRecipientRecord) -> Repository
+   */
   private async createRecipientRecords(notificationId: string, devices: any[]) {
     for (const device of devices) {
-      await db.query(
-        `INSERT INTO push_notification_recipients
-         (push_notification_id, user_id, device_id, device_token)
-         VALUES ($1, $2, $3, $4)`,
-        [notificationId, device.user_id, device.id, device.device_token]
+      await this.repository.createRecipientRecord(
+        notificationId,
+        device.user_id,
+        device.id,
+        device.device_token
       );
     }
   }
 
   private async deliverToDevices(notification: any, devices: any[], notificationId: string) {
     const iosDevices = devices.filter(d => d.platform === 'ios');
-    const androidDevices = devices.filter(d => d.platform === `android`);
+    const androidDevices = devices.filter(d => d.platform === 'android');
 
     // Send to iOS devices
     if (iosDevices.length > 0) {
@@ -737,7 +425,7 @@ class PushNotificationService {
       console.log(`[MOCK] Sending to ${devices.length} iOS devices:`, notification.title);
       // Mark as delivered in mock mode
       for (const device of devices) {
-        await this.updateRecipientStatus(notificationId, device.id, `delivered`);
+        await this.updateRecipientStatus(notificationId, device.id, 'delivered');
       }
       return;
     }
@@ -763,9 +451,9 @@ class PushNotificationService {
         } else {
           await this.updateRecipientStatus(notificationId, device.id, 'failed', result.failed[0]?.response?.reason);
         }
-      } catch (error) {
+      } catch (error: any) {
         console.error('Error sending to iOS device:', error);
-        await this.updateRecipientStatus(notificationId, device.id, `failed`, error.message);
+        await this.updateRecipientStatus(notificationId, device.id, 'failed', error.message);
       }
     }
   }
@@ -775,7 +463,7 @@ class PushNotificationService {
       console.log(`[MOCK] Sending to ${devices.length} Android devices:`, notification.title);
       // Mark as delivered in mock mode
       for (const device of devices) {
-        await this.updateRecipientStatus(notificationId, device.id, `delivered`);
+        await this.updateRecipientStatus(notificationId, device.id, 'delivered');
       }
       return;
     }
@@ -802,32 +490,28 @@ class PushNotificationService {
 
         await admin.messaging().send(message);
         await this.updateRecipientStatus(notificationId, device.id, 'delivered');
-      } catch (error) {
+      } catch (error: any) {
         console.error('Error sending to Android device:', error);
         await this.updateRecipientStatus(notificationId, device.id, 'failed', error.message);
       }
     }
   }
 
+  /**
+   * Update recipient status
+   * B3-AGENT-57: Uses repository methods
+   */
   private async updateRecipientStatus(
     notificationId: string,
     deviceId: string,
     status: string,
     errorMessage?: string
   ) {
-    await db.query(
-      `UPDATE push_notification_recipients
-       SET delivery_status = $1, delivered_at = CURRENT_TIMESTAMP, error_message = $2
-       WHERE push_notification_id = $3 AND device_id = $4`,
-      [status, errorMessage, notificationId, deviceId]
-    );
+    await this.repository.updateRecipientStatus(notificationId, deviceId, status, errorMessage);
 
     // Update notification counts
     const countField = status === 'delivered' ? 'delivered_count' : 'failed_count';
-    await db.query(
-      `UPDATE push_notifications SET ${countField} = ${countField} + 1 WHERE id = $1`,
-      [notificationId]
-    );
+    await this.repository.incrementNotificationCount(notificationId, countField);
   }
 
   private mapPriorityToAndroid(priority: string): 'high' | 'normal' {
@@ -837,7 +521,7 @@ class PushNotificationService {
   private replaceVariables(template: string, variables: Record<string, any>): string {
     let result = template;
     for (const [key, value] of Object.entries(variables)) {
-      result = result.replace(new RegExp(`{{${key}}}`, `g`), String(value));
+      result = result.replace(new RegExp(`{{${key}}}`, 'g'), String(value));
     }
     return result;
   }
@@ -857,22 +541,6 @@ class PushNotificationService {
       return result;
     }
     return obj;
-  }
-
-  private mapDevice(row: any): MobileDevice {
-    return {
-      id: row.id,
-      userId: row.user_id,
-      tenantId: row.tenant_id,
-      deviceToken: row.device_token,
-      platform: row.platform,
-      deviceName: row.device_name,
-      deviceModel: row.device_model,
-      osVersion: row.os_version,
-      appVersion: row.app_version,
-      lastActive: row.last_active,
-      isActive: row.is_active,
-    };
   }
 }
 

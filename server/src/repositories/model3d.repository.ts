@@ -2,6 +2,7 @@
  * Model3D Repository
  * Handles all database operations for 3D vehicle models
  * Security: Parameterized queries only, input validation, no SQL injection
+ * Refactored and fixed by Agent 59
  */
 
 import { Pool, QueryResult } from 'pg';
@@ -203,7 +204,7 @@ export class Model3DRepository {
     limit: number
   ): Promise<Model3D[]> {
     const result = await this.query<Model3D>(
-      `SELECT * FROM search_vehicle_3d_models(, , , , )`,
+      `SELECT * FROM search_vehicle_3d_models($1, $2, $3, $4, $5)`,
       [query, vehicleType, make, source, limit]
     );
     return result.rows;
@@ -215,7 +216,7 @@ export class Model3DRepository {
    */
   async getFeaturedModels(limit: number): Promise<Model3D[]> {
     const result = await this.query<Model3D>(
-      `SELECT * FROM v_featured_vehicle_3d_models LIMIT `,
+      `SELECT * FROM v_featured_vehicle_3d_models LIMIT $1`,
       [limit]
     );
     return result.rows;
@@ -227,7 +228,7 @@ export class Model3DRepository {
    */
   async getPopularModels(limit: number): Promise<Model3D[]> {
     const result = await this.query<Model3D>(
-      `SELECT * FROM v_popular_vehicle_3d_models LIMIT `,
+      `SELECT * FROM v_popular_vehicle_3d_models LIMIT $1`,
       [limit]
     );
     return result.rows;
@@ -239,7 +240,7 @@ export class Model3DRepository {
    */
   async findById(id: string): Promise<Model3D | null> {
     const result = await this.query<Model3D>(
-      `SELECT * FROM vehicle_3d_models WHERE id =  AND is_active = true`,
+      `SELECT * FROM vehicle_3d_models WHERE id = $1 AND is_active = true`,
       [id]
     );
     return result.rows[0] || null;
@@ -250,7 +251,7 @@ export class Model3DRepository {
    * Security: Uses stored procedure
    */
   async incrementViewCount(id: string): Promise<void> {
-    await this.query(`SELECT increment_model_view_count()`, [id]);
+    await this.query(`SELECT increment_model_view_count($1)`, [id]);
   }
 
   /**
@@ -258,7 +259,7 @@ export class Model3DRepository {
    * Security: Uses stored procedure
    */
   async incrementDownloadCount(id: string): Promise<void> {
-    await this.query(`SELECT increment_model_download_count()`, [id]);
+    await this.query(`SELECT increment_model_download_count($1)`, [id]);
   }
 
   /**
@@ -273,7 +274,7 @@ export class Model3DRepository {
         source, source_id, license, license_url,
         author, author_url, thumbnail_url,
         quality_tier, view_count, tags
-      ) VALUES (, , , , , , , , , , , , , , , , , , , )
+      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20)
       RETURNING *`,
       [
         data.name,
@@ -307,9 +308,21 @@ export class Model3DRepository {
    */
   async softDelete(id: string): Promise<void> {
     await this.query(
-      `UPDATE vehicle_3d_models SET is_active = false WHERE id = `,
+      `UPDATE vehicle_3d_models SET is_active = false WHERE id = $1`,
       [id]
     );
+  }
+
+  /**
+   * Verify model exists
+   * Security: Parameterized query
+   */
+  async exists(id: string): Promise<boolean> {
+    const result = await this.query<{ exists: boolean }>(
+      `SELECT EXISTS(SELECT 1 FROM vehicle_3d_models WHERE id = $1 AND is_active = true) as exists`,
+      [id]
+    );
+    return result.rows[0]?.exists || false;
   }
 
   /**
@@ -318,7 +331,7 @@ export class Model3DRepository {
    */
   async assignToVehicle(modelId: string, vehicleId: string): Promise<void> {
     await this.query(
-      `UPDATE vehicles SET model_3d_id =  WHERE id = `,
+      `UPDATE vehicles SET model_3d_id = $1 WHERE id = $2`,
       [modelId, vehicleId]
     );
   }

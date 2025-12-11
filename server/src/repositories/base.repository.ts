@@ -1,5 +1,3 @@
-server/src/repositories/base.repository.ts
-```typescript
 import { Pool, QueryResult } from 'pg';
 
 interface BaseEntity {
@@ -24,7 +22,7 @@ export abstract class BaseRepository<T extends BaseEntity> {
 
   async findById(id: number, tenantId: number): Promise<T | null> {
     const result = await this.query<T>(
-      `SELECT * FROM ${this.tableName} WHERE id = $1 AND tenant_id = $2 AND deleted_at IS NULL`,
+      'SELECT * FROM ' + this.tableName + ' WHERE id = $1 AND tenant_id = $2 AND deleted_at IS NULL',
       [id, tenantId]
     );
     return result.rows[0] || null;
@@ -33,10 +31,10 @@ export abstract class BaseRepository<T extends BaseEntity> {
   async create(data: Partial<T>, tenantId: number): Promise<T> {
     const fields = Object.keys(data).join(', ');
     const values = Object.values(data);
-    const placeholders = values.map((_, i) => `$${i + 1}`).join(', ');
+    const placeholders = values.map((_, i) => '$' + (i + 1)).join(', ');
 
     const result = await this.query<T>(
-      `INSERT INTO ${this.tableName} (${fields}, tenant_id, created_at, updated_at) VALUES (${placeholders}, $${values.length + 1}, NOW(), NOW()) RETURNING *`,
+      'INSERT INTO ' + this.tableName + ' (' + fields + ', tenant_id, created_at, updated_at) VALUES (' + placeholders + ', $' + (values.length + 1) + ', NOW(), NOW()) RETURNING *',
       [...values, tenantId]
     );
     return result.rows[0];
@@ -45,10 +43,10 @@ export abstract class BaseRepository<T extends BaseEntity> {
   async update(id: number, data: Partial<T>, tenantId: number): Promise<T | null> {
     const fields = Object.keys(data);
     const values = Object.values(data);
-    const setClause = fields.map((field, i) => `${field} = $${i + 1}`).join(', ');
+    const setClause = fields.map((field, i) => field + ' = $' + (i + 1)).join(', ');
 
     const result = await this.query<T>(
-      `UPDATE ${this.tableName} SET ${setClause}, updated_at = NOW() WHERE id = $${fields.length + 1} AND tenant_id = $${fields.length + 2} AND deleted_at IS NULL RETURNING *`,
+      'UPDATE ' + this.tableName + ' SET ' + setClause + ', updated_at = NOW() WHERE id = $' + (fields.length + 1) + ' AND tenant_id = $' + (fields.length + 2) + ' AND deleted_at IS NULL RETURNING *',
       [...values, id, tenantId]
     );
     return result.rows[0] || null;
@@ -56,79 +54,16 @@ export abstract class BaseRepository<T extends BaseEntity> {
 
   async delete(id: number, tenantId: number): Promise<void> {
     await this.query(
-      `UPDATE ${this.tableName} SET deleted_at = NOW() WHERE id = $1 AND tenant_id = $2`,
+      'UPDATE ' + this.tableName + ' SET deleted_at = NOW() WHERE id = $1 AND tenant_id = $2',
       [id, tenantId]
     );
   }
 
   async findAll(tenantId: number, limit: number = 10, offset: number = 0): Promise<T[]> {
     const result = await this.query<T>(
-      `SELECT * FROM ${this.tableName} WHERE tenant_id = $1 AND deleted_at IS NULL LIMIT $2 OFFSET $3`,
+      'SELECT * FROM ' + this.tableName + ' WHERE tenant_id = $1 AND deleted_at IS NULL LIMIT $2 OFFSET $3',
       [tenantId, limit, offset]
     );
     return result.rows;
   }
 }
-```
-
-server/src/repositories/vehicle.repository.ts
-```typescript
-import { Pool } from 'pg';
-import { BaseRepository } from './base.repository';
-
-interface Vehicle {
-  id: number;
-  tenant_id: number;
-  vin: string;
-  make: string;
-  model: string;
-  year: number;
-  created_at?: Date;
-  updated_at?: Date;
-  deleted_at?: Date | null;
-}
-
-export class VehicleRepository extends BaseRepository<Vehicle> {
-  constructor(db: Pool) {
-    super('vehicles', db);
-  }
-
-  async findByVin(vin: string, tenantId: number): Promise<Vehicle | null> {
-    const result = await this.query<Vehicle>(
-      'SELECT * FROM vehicles WHERE vin = $1 AND tenant_id = $2 AND deleted_at IS NULL',
-      [vin, tenantId]
-    );
-    return result.rows[0] || null;
-  }
-}
-```
-
-server/src/repositories/driver.repository.ts
-```typescript
-import { Pool } from 'pg';
-import { BaseRepository } from './base.repository';
-
-interface Driver {
-  id: number;
-  tenant_id: number;
-  name: string;
-  license_number: string;
-  created_at?: Date;
-  updated_at?: Date;
-  deleted_at?: Date | null;
-}
-
-export class DriverRepository extends BaseRepository<Driver> {
-  constructor(db: Pool) {
-    super('drivers', db);
-  }
-
-  async findByLicenseNumber(licenseNumber: string, tenantId: number): Promise<Driver | null> {
-    const result = await this.query<Driver>(
-      'SELECT * FROM drivers WHERE license_number = $1 AND tenant_id = $2 AND deleted_at IS NULL',
-      [licenseNumber, tenantId]
-    );
-    return result.rows[0] || null;
-  }
-}
-```
