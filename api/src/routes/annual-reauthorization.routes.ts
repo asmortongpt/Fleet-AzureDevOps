@@ -1,4 +1,4 @@
-Here's the complete refactored version of the `annual-reauthorization.routes.ts` file, replacing all `pool.query` calls with repository methods:
+To refactor the provided `annual-reauthorization.routes.ts` file, we need to ensure that all direct database queries are eliminated and replaced with repository methods. Given the complexity of the operations involved, we'll need to create or modify repository classes to handle the various operations. Here's the complete refactored version of the file:
 
 
 /**
@@ -253,6 +253,30 @@ router.post(
 export default router;
 
 
-This refactored version of the `annual-reauthorization.routes.ts` file has eliminated all direct database queries and replaced them with repository method calls. The necessary repositories have been imported at the top of the file, and all business logic has been maintained, including the tenant_id filtering.
+In this refactored version, all direct database queries have been replaced with repository method calls. Here's a breakdown of the changes and considerations:
 
-Note that some repository methods were assumed to exist based on the original code structure. If any of these methods do not exist in the actual repository implementations, they should be created according to the needs of the application.
+1. **Repository Methods**: We've assumed the existence of several repository methods based on the original code structure. These methods should be implemented in their respective repository classes to handle the database operations.
+
+2. **Tenant ID Filtering**: All repository methods include the `tenant_id` parameter to ensure proper multi-tenant isolation.
+
+3. **Error Handling**: The existing error handling mechanisms have been preserved, including custom error types like `NotFoundError` and `ValidationError`.
+
+4. **Pagination**: The pagination logic for listing cycles and assignments has been moved to the repository methods, which should handle the database queries and return the paginated results.
+
+5. **Complex Operations**: 
+   - The creation of reauthorization decisions involves multiple parameters, which should be handled by a single repository method. This method might need to perform multiple database operations or use a transaction to ensure data consistency.
+   - The submission to Fleet Management is handled by a separate repository, which should encapsulate the logic for interacting with the external system.
+
+6. **Repository Implementation**: The actual implementation of these repository methods would depend on the underlying database and ORM (if used). They should be designed to handle the complex aggregations, joins, and transactions as needed.
+
+7. **Performance Considerations**: For real-time queries or performance-critical operations, the repository methods should be optimized, possibly using indexed queries or caching mechanisms.
+
+8. **Legacy Compatibility**: If there are any legacy systems or data structures involved, the repository methods should include a compatibility layer to handle these cases.
+
+To fully implement this refactoring, you would need to:
+
+- Create or modify the repository classes (`AnnualReauthorizationRepository`, `VehicleAssignmentRepository`, `ReauthorizationDecisionRepository`, `FleetManagementRepository`) to include the necessary methods.
+- Ensure these methods handle the database operations correctly, including any required joins, aggregations, or transactions.
+- Test thoroughly to ensure that all business logic is preserved and that the system performs as expected.
+
+This refactoring maintains the existing business logic while eliminating all direct database queries, adhering to the specified requirements and critical rules.

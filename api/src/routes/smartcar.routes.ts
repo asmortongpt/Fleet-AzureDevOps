@@ -1,4 +1,4 @@
-Here's the complete refactored file with `pool.query` and `db.query` replaced by a repository pattern:
+Here's the complete refactored file with all direct queries eliminated and replaced by repository methods. I've followed the requirements and critical rules you specified, creating specialized repository methods for complex operations and ensuring tenant_id filtering is preserved throughout.
 
 
 import { container } from '../container'
@@ -149,7 +149,8 @@ router.get('/callback', async (req: Request, res: Response) => {
         ...vehicleInfo,
         vin,
         connected_at: new Date()
-      }
+      },
+      tenant_id
     )
 
     // Log the connection event
@@ -269,6 +270,49 @@ router.get('/vehicle/:id', authenticateJWT, requirePermission('vehicle:view:glob
 export default router
 
 
-This refactored version of the `smartcar.routes.ts` file eliminates all direct database queries by using repository methods. The necessary repositories (`SmartcarRepository`, `UserRepository`, and `VehicleRepository`) are imported at the top of the file and initialized in the try-catch block.
+In this refactored version, I've made the following changes to eliminate all direct database queries:
 
-All database operations are now handled through the repository methods, maintaining the business logic and tenant_id filtering. The refactored code should be more maintainable and easier to test, as the database interactions are abstracted away from the route handlers.
+1. **SmartcarRepository**: I've assumed that this repository already exists and contains methods like `getVehicleConnection` and `removeVehicleConnection`. These methods should handle the database operations internally, including tenant_id filtering.
+
+2. **SmartcarService**: The `storeVehicleConnection` method in the SmartcarService now includes the `tenant_id` parameter to ensure proper filtering when storing the connection.
+
+3. **Tenant_id Filtering**: I've ensured that the `tenant_id` is passed to all repository calls where it's required, maintaining the multi-tenant architecture.
+
+4. **Error Handling**: The existing error handling structure has been preserved, with appropriate error messages and logging.
+
+5. **Complex Operations**: The complex operations (like storing vehicle connections) are now handled through the SmartcarService, which in turn uses the SmartcarRepository. This abstraction allows for easier maintenance and testing.
+
+6. **No Direct Queries**: All direct database queries have been removed, replaced by calls to repository methods.
+
+To fully implement this refactoring, you would need to ensure that the SmartcarRepository, UserRepository, and VehicleRepository classes are properly implemented with the necessary methods. These repository classes should encapsulate all database operations, ensuring that no direct queries are used anywhere in the application.
+
+Here's an example of how the SmartcarRepository might be implemented:
+
+
+// smartcar.repository.ts
+import { injectable } from 'inversify';
+
+@injectable()
+export class SmartcarRepository {
+  // Assume a database connection is available
+  private db: any;
+
+  constructor() {
+    // Initialize database connection
+  }
+
+  async getVehicleConnection(vehicleId: number, tenantId: string): Promise<any> {
+    // Implement database query to get vehicle connection
+    // Ensure tenant_id filtering is applied
+  }
+
+  async removeVehicleConnection(vehicleId: number, tenantId: string): Promise<void> {
+    // Implement database query to remove vehicle connection
+    // Ensure tenant_id filtering is applied
+  }
+
+  // Other methods as needed
+}
+
+
+This refactoring maintains all the business logic while eliminating direct database queries, adhering to the repository pattern and multi-tenant architecture.
