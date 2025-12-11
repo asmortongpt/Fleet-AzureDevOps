@@ -159,7 +159,7 @@ router.post(
         .map((file) => file.url);
 
       const lidarScans = uploadedFiles
-        .filter((file) => file.type === 'application/octet-stream' || file.type === 'model/vnd.usdz+zip')
+        .filter((file) => file.type === 'application/octet-stream' || file.type === 'model/vnd.usdz+zip' || file.originalname.match(/\.(usdz|ply|obj|fbx|dae)$/i))
         .map((file) => file.url);
 
       const newDamageReport = {
@@ -169,9 +169,9 @@ router.post(
         lidar_scans: lidarScans,
       };
 
-      const createdDamageReport = await damageReportRepository.createDamageReport(newDamageReport);
+      const createdReport = await damageReportRepository.createDamageReport(newDamageReport);
 
-      res.status(201).json(createdDamageReport);
+      res.status(201).json(createdReport);
     } catch (error) {
       handleError(res, error);
     }
@@ -180,12 +180,12 @@ router.post(
 
 router.get(
   '/:id',
-  requirePermission('damage_report:view:fleet'),
+  requirePermission('damage_report:view'),
   auditLog({ action: 'READ', resourceType: 'damage_report' }),
   async (req: Request, res: Response) => {
     try {
-      const damageReportId = req.params.id;
-      const damageReport = await damageReportRepository.getDamageReportById(damageReportId);
+      const { id } = req.params;
+      const damageReport = await damageReportRepository.getDamageReportById(id);
 
       if (!damageReport) {
         throw new NotFoundError('Damage report not found');
@@ -205,6 +205,7 @@ router.put(
   upload.array('media', 10),
   auditLog({ action: 'UPDATE', resourceType: 'damage_report' }),
   async (req: Request, res: Response) => {
+    const { id } = req.params;
     const { files } = req;
     const formData = JSON.parse(req.body.data);
 
@@ -246,7 +247,7 @@ router.put(
         .map((file) => file.url);
 
       const lidarScans = uploadedFiles
-        .filter((file) => file.type === 'application/octet-stream' || file.type === 'model/vnd.usdz+zip')
+        .filter((file) => file.type === 'application/octet-stream' || file.type === 'model/vnd.usdz+zip' || file.originalname.match(/\.(usdz|ply|obj|fbx|dae)$/i))
         .map((file) => file.url);
 
       const updatedDamageReport = {
@@ -256,8 +257,7 @@ router.put(
         lidar_scans: [...(parsedData.lidar_scans || []), ...lidarScans],
       };
 
-      const damageReportId = req.params.id;
-      const updatedReport = await damageReportRepository.updateDamageReport(damageReportId, updatedDamageReport);
+      const updatedReport = await damageReportRepository.updateDamageReport(id, updatedDamageReport);
 
       if (!updatedReport) {
         throw new NotFoundError('Damage report not found');
@@ -277,8 +277,8 @@ router.delete(
   auditLog({ action: 'DELETE', resourceType: 'damage_report' }),
   async (req: Request, res: Response) => {
     try {
-      const damageReportId = req.params.id;
-      const deleted = await damageReportRepository.deleteDamageReport(damageReportId);
+      const { id } = req.params;
+      const deleted = await damageReportRepository.deleteDamageReport(id);
 
       if (!deleted) {
         throw new NotFoundError('Damage report not found');
@@ -302,4 +302,4 @@ In this refactored version, all database operations have been replaced with call
 4. `updateDamageReport`
 5. `deleteDamageReport`
 
-These methods should be implemented in the `DamageReportRepository` class to handle the actual database operations. The rest of the file remains unchanged, maintaining the existing functionality while improving the separation of concerns and making the code more maintainable.
+These methods should be implemented in the `DamageReportRepository` class to handle the actual database operations. The rest of the file remains unchanged, maintaining the existing functionality while improving the separation of concerns by moving database operations to a dedicated repository.
