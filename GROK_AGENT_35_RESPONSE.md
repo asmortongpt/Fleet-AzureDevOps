@@ -1,0 +1,1 @@
+Error: 429 - {"code":"Some resource has been exhausted","error":"Your team 76d698e2-6235-4611-a62a-53e3622bf551 has either used all available credits or reached its monthly spending limit. To continue making API requests, please purchase more credits or raise your spending limit."}

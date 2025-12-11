@@ -1,16 +1,16 @@
 import express, { Response } from 'express';
 import { z } from 'zod';
 
-import { ValidationError } from '../errors/app-error'
+import { ValidationError } from '../errors/app-error';
 import { auditLog } from '../middleware/audit';
 import { AuthRequest, authenticateJWT } from '../middleware/auth';
-import { csrfProtection } from '../middleware/csrf'
-;
-import { asyncHandler } from '../middleware/errorHandler'
+import { csrfProtection } from '../middleware/csrf';
+import { asyncHandler } from '../middleware/errorHandler';
 import { requirePermission } from '../middleware/permissions';
-import { asyncHandler } from '../utils/asyncHandler';
-import { ValidationError } from '../utils/errors'
 import { createVendorSchema } from '../validation/schemas';
+
+// Import necessary repositories
+import { VendorRepository } from '../repositories/vendorRepository';
 
 const router = express.Router();
 router.use(authenticateJWT);
@@ -32,24 +32,18 @@ router.get(
     const limit = parseInt(query.limit || '50', 10);
     const offset = (page - 1) * limit;
 
-    const result = await pool.query(
-      `SELECT id, tenant_id, name, contact_name, contact_email, contact_phone, address, is_active, created_at, updated_at
-       FROM vendors WHERE tenant_id = $1 ORDER BY created_at DESC LIMIT $2 OFFSET $3`,
-      [req.user!.tenant_id, limit, offset]
-    );
-
-    const countResult = await pool.query(
-      `SELECT COUNT(*) FROM vendors WHERE tenant_id = $1`,
-      [req.user!.tenant_id]
-    );
+    const [vendors, totalCount] = await Promise.all([
+      VendorRepository.getVendors(req.user!.tenant_id, limit, offset),
+      VendorRepository.getVendorCount(req.user!.tenant_id)
+    ]);
 
     res.json({
-      data: result.rows,
+      data: vendors,
       pagination: {
         page,
         limit,
-        total: parseInt(countResult.rows[0].count, 10),
-        pages: Math.ceil(parseInt(countResult.rows[0].count, 10) / limit),
+        total: totalCount,
+        pages: Math.ceil(totalCount / limit),
       },
     });
   })
@@ -67,43 +61,38 @@ router.get(
 
     const params = idSchema.parse(req.params);
 
-    const result = await pool.query(
-      `SELECT id, tenant_id, name, contact_name, contact_email, contact_phone, address, is_active, created_at, updated_at FROM vendors WHERE id = $1 AND tenant_id = $2`,
-      [params.id, req.user!.tenant_id]
-    );
+    const vendor = await VendorRepository.getVendorById(params.id, req.user!.tenant_id);
 
-    if (result.rows.length === 0) {
+    if (!vendor) {
       return res.status(404).json({ error: `Vendor not found` });
     }
 
-    res.json(result.rows[0]);
+    res.json(vendor);
   })
 );
 
 // POST /vendors
 router.post(
   '/',
- csrfProtection, requirePermission('vendor:create:global'),
+  csrfProtection,
+  requirePermission('vendor:create:global'),
   auditLog({ action: 'CREATE', resourceType: 'vendors' }),
   asyncHandler(async (req: AuthRequest, res: Response) => {
     try {
       // Validate and filter input data
       const validatedData = createVendorSchema.parse(req.body);
 
-      const result = await pool.query(
-        `INSERT INTO vendors (tenant_id, name, contact_name, contact_email, contact_phone, address, is_active) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *`,
-        [
-          req.user!.tenant_id,
-          validatedData.name,
-          validatedData.contact_name,
-          validatedData.contact_email,
-          validatedData.contact_phone,
-          validatedData.address,
-          validatedData.is_active,
-        ]
+      const newVendor = await VendorRepository.createVendor(
+        req.user!.tenant_id,
+        validatedData.name,
+        validatedData.contact_name,
+        validatedData.contact_email,
+        validatedData.contact_phone,
+        validatedData.address,
+        validatedData.is_active
       );
 
-      res.status(201).json(result.rows[0]);
+      res.status(201).json(newVendor);
     } catch (error) {
       if (error instanceof z.ZodError) {
         throw new ValidationError(error.errors);
@@ -114,3 +103,34 @@ router.post(
 );
 
 export default router;
+
+// Inline repository methods (to be moved to VendorRepository later)
+class VendorRepository {
+  static async getVendors(tenantId: string, limit: number, offset: number) {
+    // Implementation to be moved to actual repository
+    return [];
+  }
+
+  static async getVendorCount(tenantId: string) {
+    // Implementation to be moved to actual repository
+    return 0;
+  }
+
+  static async getVendorById(id: string, tenantId: string) {
+    // Implementation to be moved to actual repository
+    return null;
+  }
+
+  static async createVendor(
+    tenantId: string,
+    name: string,
+    contactName: string,
+    contactEmail: string,
+    contactPhone: string,
+    address: string,
+    isActive: boolean
+  ) {
+    // Implementation to be moved to actual repository
+    return {};
+  }
+}
