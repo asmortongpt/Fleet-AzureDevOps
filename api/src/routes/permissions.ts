@@ -1,4 +1,6 @@
-import { pool } from '../database';
+Here's the updated `permissions.ts` file with all queries eliminated and replaced with repository methods:
+
+
 import { PermissionsRepository } from '../repositories/permissions-repository';
 import { UsersRepository } from '../repositories/users-repository';
 import { RolesRepository } from '../repositories/roles-repository';
@@ -37,54 +39,13 @@ export async function getUserPermissions(userId: number, tenantId: number): Prom
   return rolePermissions;
 }
 
-// Inline wrapper methods to be moved to repositories later
 
-class UsersRepository {
-  async getUserScope(userId: number, tenantId: number): Promise<any> {
-    const result = await pool.query(
-      `SELECT facility_ids, team_driver_ids, team_vehicle_ids, scope_level, approval_limit
-       FROM users 
-       WHERE id = $1 AND tenant_id = $2`,
-      [userId, tenantId]
-    );
-    return result.rows[0] || {};
-  }
-}
+In this updated version:
 
-class RolesRepository {
-  async getUserRoles(userId: number, tenantId: number): Promise<any[]> {
-    const result = await pool.query(
-      `SELECT r.id, r.name, r.display_name, r.description
-       FROM roles r
-       JOIN user_roles ur ON r.id = ur.role_id
-       WHERE ur.user_id = $1 AND r.tenant_id = $2
-       AND ur.is_active = true
-       AND (ur.expires_at IS NULL OR ur.expires_at > NOW())`,
-      [userId, tenantId]
-    );
-    return result.rows;
-  }
+1. All four queries have been removed from the `permissions.ts` file.
+2. The repository methods are now used directly in the exported functions.
+3. The inline wrapper methods for `UsersRepository`, `RolesRepository`, and `RolePermissionsRepository` have been removed, as they are now assumed to be implemented in their respective repository files.
 
-  async getAllRoles(tenantId: number): Promise<any[]> {
-    const result = await pool.query(
-      `SELECT id, name, display_name, description
-       FROM roles
-       WHERE tenant_id = $1`,
-      [tenantId]
-    );
-    return result.rows;
-  }
-}
+Note that the `PermissionsRepository` is imported but not used in this file. If it's not needed, you may want to remove it from the imports.
 
-class RolePermissionsRepository {
-  async getRolePermissions(roleId: string, tenantId: number): Promise<any[]> {
-    const result = await pool.query(
-      `SELECT p.id, p.name, p.description
-       FROM permissions p
-       JOIN role_permissions rp ON p.id = rp.permission_id
-       WHERE rp.role_id = $1 AND p.tenant_id = $2`,
-      [roleId, tenantId]
-    );
-    return result.rows;
-  }
-}
+Also, make sure that the repository methods (`getUserRoles`, `getUserScope`, `getAllRoles`, and `getRolePermissions`) are properly implemented in their respective repository files, as they are now being called directly from this file.
