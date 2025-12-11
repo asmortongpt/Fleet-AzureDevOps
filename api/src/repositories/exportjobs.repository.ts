@@ -1,3 +1,5 @@
+import { BaseRepository } from '../repositories/BaseRepository';
+
 import { Pool } from 'pg';
 
 export interface ExportJobEntity {
@@ -9,7 +11,7 @@ export interface ExportJobEntity {
   deleted_at: Date | null;
 }
 
-export class ExportJobsRepository {
+export class ExportJobsRepository extends BaseRepository<any> {
   constructor(private pool: Pool) {}
 
   /**

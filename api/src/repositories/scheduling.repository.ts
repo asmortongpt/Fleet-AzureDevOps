@@ -1,3 +1,5 @@
+import { BaseRepository } from '../repositories/BaseRepository';
+
 import { Pool, QueryResult } from 'pg';
 
 export interface SchedulingEntity {
@@ -11,7 +13,7 @@ export interface SchedulingEntity {
   deleted_at: Date | null;
 }
 
-export class SchedulingRepository {
+export class SchedulingRepository extends BaseRepository<any> {
   constructor(private pool: Pool) {}
 
   async findAll(tenantId: number): Promise<SchedulingEntity[]> {

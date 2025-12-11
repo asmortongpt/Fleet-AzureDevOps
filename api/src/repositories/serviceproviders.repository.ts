@@ -1,3 +1,5 @@
+import { BaseRepository } from '../repositories/BaseRepository';
+
 Let's create a TypeScript repository for managing service providers with parameterized queries, tenant_id, and CRUD operations. We'll assume this repository will be used in the `api/src/routes/service-providers.routes.ts` file.
 
 First, let's plan out the structure and functionality:
@@ -22,7 +24,7 @@ interface ServiceProvider {
   updated_at: Date;
 }
 
-export class ServiceProvidersRepository {
+export class ServiceProvidersRepository extends BaseRepository<any> {
   private pool: Pool;
 
   constructor(pool: Pool) {

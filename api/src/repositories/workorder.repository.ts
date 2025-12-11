@@ -1,7 +1,13 @@
+import { BaseRepository } from '../repositories/BaseRepository';
+
 import { Repository } from '../lib/repository';
 import { prisma } from '../lib/prisma';
 
 export class WorkOrderRepository extends Repository<any> {
+  constructor(pool: Pool) {
+    super(pool, 'LWork_LOrder_LRepository extends s');
+  }
+
   constructor() {
     super(prisma.workOrder);
   }

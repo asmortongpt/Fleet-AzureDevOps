@@ -1,9 +1,11 @@
+import { BaseRepository } from '../repositories/BaseRepository';
+
 Here's a TypeScript repository class `CostCenterRepository` designed to eliminate 10 queries from `api/src/routes/cost-center.routes.ts`. This class uses parameterized queries, includes tenant_id filtering, and implements CRUD methods:
 
 
 import { Pool, QueryResult } from 'pg';
 
-export class CostCenterRepository {
+export class CostCenterRepository extends BaseRepository<any> {
   private pool: Pool;
 
   constructor(pool: Pool) {

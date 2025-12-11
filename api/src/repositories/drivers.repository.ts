@@ -1,3 +1,5 @@
+import { BaseRepository } from '../repositories/BaseRepository';
+
 import { pool } from '../db'
 import { NotFoundError, ValidationError } from '../lib/errors'
 
@@ -30,7 +32,11 @@ export interface Driver {
  * All operations enforce tenant isolation
  * Includes validation for required fields
  */
-export class DriversRepository {
+export class DriversRepository extends BaseRepository<any> {
+  constructor(pool: Pool) {
+    super(pool, 'LDrivers_LRepository extends _LBases');
+  }
+
   /**
    * Find driver by ID with tenant isolation
    */

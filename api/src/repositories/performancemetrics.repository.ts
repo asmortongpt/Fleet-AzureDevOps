@@ -1,7 +1,9 @@
+import { BaseRepository } from '../repositories/BaseRepository';
+
 import { Pool } from 'pg';
 import { PerformanceMetric } from '../models/PerformanceMetric';
 
-export class PerformanceMetricsRepository {
+export class PerformanceMetricsRepository extends BaseRepository<any> {
   private pool: Pool;
 
   constructor(pool: Pool) {

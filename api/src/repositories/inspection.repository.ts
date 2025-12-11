@@ -1,7 +1,13 @@
+import { BaseRepository } from '../repositories/BaseRepository';
+
 import { Repository } from '../lib/repository';
 import { prisma } from '../lib/prisma';
 
 export class InspectionRepository extends Repository<any> {
+  constructor(pool: Pool) {
+    super(pool, 'LInspection_LRepository extends s');
+  }
+
   constructor() {
     super(prisma.inspection);
   }

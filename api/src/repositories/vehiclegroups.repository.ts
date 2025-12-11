@@ -1,3 +1,5 @@
+import { BaseRepository } from '../repositories/BaseRepository';
+
 import { Pool } from 'pg';
 
 export interface IVehicleGroup {
@@ -9,7 +11,7 @@ export interface IVehicleGroup {
   deleted_at: Date | null;
 }
 
-export class VehicleGroupsRepository {
+export class VehicleGroupsRepository extends BaseRepository<any> {
   constructor(private pool: Pool) {}
 
   /**

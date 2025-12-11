@@ -1,3 +1,5 @@
+import { BaseRepository } from '../repositories/BaseRepository';
+
 Here is a basic example of how you might create a FleetCardsRepository in TypeScript. This example assumes you are using TypeORM and Express.js.
 
 
@@ -8,6 +10,10 @@ import {FleetCard} from "../entity/FleetCard";
 
 @EntityRepository(FleetCard)
 export class FleetCardsRepository extends Repository<FleetCard> {
+  constructor(pool: Pool) {
+    super(pool, 'LFleet_LCards_LRepository extends s');
+  }
+
 
     async findByTenantId(tenant_id: number): Promise<FleetCard[]> {
         return this.find({ where: { tenant_id } });

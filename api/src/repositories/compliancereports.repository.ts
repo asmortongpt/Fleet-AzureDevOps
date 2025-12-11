@@ -1,3 +1,5 @@
+import { BaseRepository } from '../repositories/BaseRepository';
+
 import { Pool } from 'pg';
 
 export interface ComplianceReport {
@@ -10,7 +12,7 @@ export interface ComplianceReport {
   deleted_at: Date | null;
 }
 
-export class ComplianceReportsRepository {
+export class ComplianceReportsRepository extends BaseRepository<any> {
   constructor(private pool: Pool) {}
 
   async findAll(tenantId: number): Promise<ComplianceReport[]> {

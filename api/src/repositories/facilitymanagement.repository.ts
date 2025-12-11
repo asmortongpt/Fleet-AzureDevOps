@@ -1,10 +1,12 @@
+import { BaseRepository } from '../repositories/BaseRepository';
+
 Here is an example of a TypeScript repository for `FacilityManagementRepository` with parameterized queries, tenant_id, and CRUD operations.
 
 
 import { FacilityManagement } from '../models/facility-management.model';
 import { Pool } from 'pg';
 
-export class FacilityManagementRepository {
+export class FacilityManagementRepository extends BaseRepository<any> {
   private readonly pool: Pool;
 
   constructor(pool: Pool) {

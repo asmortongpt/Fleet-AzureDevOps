@@ -1,7 +1,9 @@
+import { BaseRepository } from '../repositories/BaseRepository';
+
 import { Pool } from 'pg';
 import { ReplacementPlanning } from '../models/replacement-planning.model';
 
-export class ReplacementPlanningRepository {
+export class ReplacementPlanningRepository extends BaseRepository<any> {
   private pool: Pool;
 
   constructor(pool: Pool) {

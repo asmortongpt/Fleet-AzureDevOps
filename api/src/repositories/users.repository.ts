@@ -1,3 +1,5 @@
+import { BaseRepository } from '../repositories/BaseRepository';
+
 import { Pool } from 'pg'
 import { NotFoundError, ValidationError } from '../lib/errors'
 import { FIPSCryptoService } from '../services/fips-crypto.service'
@@ -59,7 +61,7 @@ export interface UpdateUserData {
  * All operations enforce tenant isolation
  * Provides auth-specific methods for login, registration, token management
  */
-export class UsersRepository {
+export class UsersRepository extends BaseRepository<any> {
   constructor(private pool: Pool) {}
 
   /**
