@@ -1,3 +1,5 @@
+import { BaseRepository } from '../repositories/BaseRepository';
+
 import { Pool, QueryResult } from 'pg';
 
 interface ReimbursementRequest {
@@ -10,7 +12,7 @@ interface ReimbursementRequest {
   updated_at: Date;
 }
 
-export class ReimbursementRequestsRepository {
+export class ReimbursementRequestsRepository extends BaseRepository<any> {
   private pool: Pool;
 
   constructor(pool: Pool) {

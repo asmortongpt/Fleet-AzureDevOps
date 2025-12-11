@@ -1,3 +1,5 @@
+import { BaseRepository } from '../repositories/BaseRepository';
+
 Let's create a TypeScript repository called `DataExportRepository` for the `api/src/routes/data-export.routes.ts` file. We'll implement parameterized queries, include `tenant_id` in our operations, and provide CRUD functionality. Here's a step-by-step approach:
 
 1. We'll create a new file called `data-export.repository.ts` in the `api/src/repositories` directory.
@@ -21,7 +23,7 @@ interface DataExport {
   updated_at: Date;
 }
 
-export class DataExportRepository {
+export class DataExportRepository extends BaseRepository<any> {
   private pool: Pool;
 
   constructor(pool: Pool) {

@@ -1,9 +1,15 @@
+import { BaseRepository } from '../repositories/BaseRepository';
+
 Here's a TypeScript repository class `CustomFieldsRepository` designed to eliminate 13 queries from `api/src/routes/custom-fields.ts`. This class uses parameterized queries, includes tenant_id filtering, and provides CRUD methods:
 
 
 import { PoolClient } from 'pg';
 
-export class CustomFieldsRepository {
+export class CustomFieldsRepository extends BaseRepository<any> {
+  constructor(pool: Pool) {
+    super(pool, 'LCustom_LFields_LRepository extends _LBases');
+  }
+
   private client: PoolClient;
 
   constructor(client: PoolClient) {

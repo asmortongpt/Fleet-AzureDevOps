@@ -1,3 +1,5 @@
+import { BaseRepository } from '../repositories/BaseRepository';
+
 import { pool } from '../db'
 import { NotFoundError, ValidationError } from '../lib/errors'
 
@@ -125,7 +127,11 @@ export interface DashboardStats {
  * All operations enforce tenant isolation via tenant_id
  * Eliminates 18 direct database queries from routes
  */
-export class OSHAComplianceRepository {
+export class OSHAComplianceRepository extends BaseRepository<any> {
+  constructor(pool: Pool) {
+    super(pool, 'LO_LS_LH_LA_LCompliance_LRepository extends _LBases');
+  }
+
   /**
    * OSHA 300 Log Methods
    */

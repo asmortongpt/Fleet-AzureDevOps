@@ -1,3 +1,5 @@
+import { BaseRepository } from '../repositories/BaseRepository';
+
 Let's create a TypeScript repository called `CollisionDetectionRepository` for the `api/src/routes/collision-detection.routes.ts` file. We'll implement CRUD operations with parameterized queries and include a `tenant_id` in all operations. Here's a step-by-step approach:
 
 1. Define the interface for a collision detection record
@@ -21,7 +23,7 @@ interface CollisionDetection {
 }
 
 // CollisionDetectionRepository class
-export class CollisionDetectionRepository {
+export class CollisionDetectionRepository extends BaseRepository<any> {
   private pool: Pool;
 
   constructor(pool: Pool) {

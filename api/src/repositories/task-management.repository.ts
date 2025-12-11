@@ -1,3 +1,5 @@
+import { BaseRepository } from '../repositories/BaseRepository';
+
 import { pool } from '../db'
 import { NotFoundError, ValidationError } from '../lib/errors'
 
@@ -74,7 +76,11 @@ export interface TaskAnalytics {
  * All queries use parameterized statements
  * Enforces tenant isolation on all operations
  */
-export class TaskManagementRepository {
+export class TaskManagementRepository extends BaseRepository<any> {
+  constructor(pool: Pool) {
+    super(pool, 'LTask_LManagement_LRepository extends _LBases');
+  }
+
   /**
    * Find all tasks with filters and enriched data
    * Replaces complex query in GET /tasks

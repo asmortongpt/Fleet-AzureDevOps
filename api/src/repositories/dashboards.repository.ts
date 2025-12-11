@@ -1,3 +1,5 @@
+import { BaseRepository } from '../repositories/BaseRepository';
+
 import { Pool } from 'pg';
 
 export interface DashboardEntity {
@@ -9,7 +11,7 @@ export interface DashboardEntity {
   deleted_at: Date | null;
 }
 
-export class DashboardsRepository {
+export class DashboardsRepository extends BaseRepository<any> {
   constructor(private pool: Pool) {}
 
   /**

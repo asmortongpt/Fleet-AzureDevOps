@@ -1,3 +1,5 @@
+import { BaseRepository } from '../repositories/BaseRepository';
+
 import { pool } from '../db'
 import { NotFoundError, ValidationError } from '../lib/errors'
 import { container } from '../di-container'
@@ -32,7 +34,11 @@ export interface Vehicle {
  * All operations enforce tenant isolation
  * Includes Redis caching layer with cache invalidation on mutations
  */
-export class VehiclesRepository {
+export class VehiclesRepository extends BaseRepository<any> {
+  constructor(pool: Pool) {
+    super(pool, 'LVehicles_LRepository extends _LBases');
+  }
+
   private cache: CacheService
 
   constructor() {

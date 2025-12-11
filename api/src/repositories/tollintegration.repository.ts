@@ -1,3 +1,5 @@
+import { BaseRepository } from '../repositories/BaseRepository';
+
 To create a TypeScript repository named `TollIntegrationRepository` for the `api/src/routes/toll-integration.routes.ts` file, we'll implement parameterized queries, include a `tenant_id` field, and provide CRUD operations. Let's break this down step-by-step:
 
 1. First, we'll define the interface for our TollIntegration model.
@@ -23,7 +25,7 @@ interface TollIntegration {
 }
 
 // TollIntegrationRepository class
-export class TollIntegrationRepository {
+export class TollIntegrationRepository extends BaseRepository<any> {
   private pool: Pool;
 
   constructor(pool: Pool) {

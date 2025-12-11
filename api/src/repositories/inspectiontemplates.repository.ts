@@ -1,3 +1,5 @@
+import { BaseRepository } from '../repositories/BaseRepository';
+
 ```typescript
 import { Pool } from 'pg';
 
@@ -17,7 +19,7 @@ export interface InspectionTemplate {
 /**
  * Repository for InspectionTemplate
  */
-export class InspectionTemplatesRepository {
+export class InspectionTemplatesRepository extends BaseRepository<any> {
   constructor(private pool: Pool) {}
 
   /**
