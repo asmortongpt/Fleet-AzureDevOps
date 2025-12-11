@@ -1,3 +1,5 @@
+import { BaseRepository } from '../repositories/BaseRepository';
+
 import { pool } from '../db'
 import { NotFoundError, ValidationError } from '../lib/errors'
 
@@ -46,7 +48,11 @@ export interface Incident {
  * All operations enforce tenant isolation
  * Includes validation and safety tracking
  */
-export class IncidentsRepository {
+export class IncidentsRepository extends BaseRepository<any> {
+  constructor(pool: Pool) {
+    super(pool, 'LIncidents_LRepository extends _LBases');
+  }
+
   /**
    * Find incident by ID with tenant isolation
    */

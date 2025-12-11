@@ -1,3 +1,5 @@
+import { BaseRepository } from '../repositories/BaseRepository';
+
 import { Pool, QueryResult } from 'pg';
 
 export interface MobileTelemetry {
@@ -14,7 +16,7 @@ export interface MobileTelemetry {
   deleted_at: Date | null;
 }
 
-export class MobileTelemetryRepository {
+export class MobileTelemetryRepository extends BaseRepository<any> {
   constructor(private pool: Pool) {}
 
   async findAll(tenantId: number): Promise<MobileTelemetry[]> {

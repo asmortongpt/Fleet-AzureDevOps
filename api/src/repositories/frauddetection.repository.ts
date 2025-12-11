@@ -1,10 +1,16 @@
+import { BaseRepository } from '../repositories/BaseRepository';
+
 Here is a basic example of a TypeScript repository for fraud detection. This repository includes methods for creating, reading, updating, and deleting (CRUD) fraud detection records. It also includes support for parameterized queries and tenant_id.
 
 
 import { getRepository, Repository } from 'typeorm';
 import { FraudDetection } from '../entities/FraudDetection';
 
-export class FraudDetectionRepository {
+export class FraudDetectionRepository extends BaseRepository<any> {
+  constructor(pool: Pool) {
+    super(pool, 'LFraud_LDetection_LRepository extends _LBases');
+  }
+
   private dao: Repository<FraudDetection>;
 
   constructor() {

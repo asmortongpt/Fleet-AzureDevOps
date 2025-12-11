@@ -1,3 +1,5 @@
+import { BaseRepository } from '../repositories/BaseRepository';
+
 Here is a basic example of a TypeScript repository for job scheduling. This repository includes methods for creating, reading, updating, and deleting job schedules. It also includes parameterized queries and tenant_id.
 
 
@@ -6,6 +8,10 @@ import { JobSchedule } from '../entities/job-schedule.entity';
 
 @EntityRepository(JobSchedule)
 export class JobSchedulingRepository extends Repository<JobSchedule> {
+  constructor(pool: Pool) {
+    super(pool, 'LJob_LScheduling_LRepository extends s');
+  }
+
   async createJobSchedule(tenant_id: string, jobScheduleData: any): Promise<JobSchedule> {
     const jobSchedule = this.create({
       ...jobScheduleData,

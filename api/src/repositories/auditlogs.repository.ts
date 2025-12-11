@@ -1,3 +1,5 @@
+import { BaseRepository } from '../repositories/BaseRepository';
+
 Let's create a TypeScript repository called `AuditLogsRepository` for the `api/src/routes/audit-logs.routes.ts` file. We'll implement parameterized queries, include `tenant_id` in our operations, and support basic CRUD functionality. Here's a step-by-step approach:
 
 1. Define the interface for an audit log entry
@@ -20,7 +22,7 @@ interface AuditLog {
 }
 
 // AuditLogsRepository class
-export class AuditLogsRepository {
+export class AuditLogsRepository extends BaseRepository<any> {
   private pool: Pool;
 
   constructor(pool: Pool) {

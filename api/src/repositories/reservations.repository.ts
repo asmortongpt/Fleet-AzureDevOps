@@ -1,3 +1,5 @@
+import { BaseRepository } from '../repositories/BaseRepository';
+
 /**
  * Reservations Repository
  * 
@@ -83,7 +85,7 @@ export interface ReservationUpdateData {
   notes?: string;
 }
 
-export class ReservationsRepository {
+export class ReservationsRepository extends BaseRepository<any> {
   constructor(private pool: Pool) {}
 
   /**

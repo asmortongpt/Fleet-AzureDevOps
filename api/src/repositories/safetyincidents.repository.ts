@@ -1,7 +1,9 @@
+import { BaseRepository } from '../repositories/BaseRepository';
+
 import { Pool } from 'pg';
 import { SafetyIncident } from '../models/safety-incident.model';
 
-export class SafetyIncidentsRepository {
+export class SafetyIncidentsRepository extends BaseRepository<any> {
   private pool: Pool;
 
   constructor(pool: Pool) {

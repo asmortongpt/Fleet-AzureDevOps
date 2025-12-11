@@ -1,10 +1,12 @@
+import { BaseRepository } from '../repositories/BaseRepository';
+
 Here's a basic example of how you might create an IdleTimeTrackingRepository in TypeScript. This repository will allow you to perform CRUD operations on the idle time tracking data for a specific tenant.
 
 
 import { Pool } from 'pg';
 import { IdleTimeTracking } from '../models/IdleTimeTracking';
 
-export class IdleTimeTrackingRepository {
+export class IdleTimeTrackingRepository extends BaseRepository<any> {
   private pool: Pool;
 
   constructor(pool: Pool) {

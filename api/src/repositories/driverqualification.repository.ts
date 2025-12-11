@@ -1,9 +1,11 @@
+import { BaseRepository } from '../repositories/BaseRepository';
+
 Here's a TypeScript repository class `DriverQualificationRepository` that implements CRUD methods with parameterized queries and tenant_id filtering to eliminate the need for multiple queries in the `driver-qualification.routes.ts` file:
 
 
 import { Pool, QueryResult } from 'pg';
 
-export class DriverQualificationRepository {
+export class DriverQualificationRepository extends BaseRepository<any> {
   private pool: Pool;
 
   constructor(pool: Pool) {

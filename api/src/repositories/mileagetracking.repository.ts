@@ -1,3 +1,5 @@
+import { BaseRepository } from '../repositories/BaseRepository';
+
 Here is a basic example of a TypeScript repository for mileage tracking. This example includes parameterized queries, tenant_id, and CRUD operations.
 
 
@@ -6,6 +8,10 @@ import { MileageTracking } from '../entities/mileage-tracking.entity';
 
 @EntityRepository(MileageTracking)
 export class MileageTrackingRepository extends Repository<MileageTracking> {
+  constructor(pool: Pool) {
+    super(pool, 'LMileage_LTracking_LRepository extends s');
+  }
+
 
   async createMileageTracking(tenant_id: string, mileageTrackingData: MileageTracking): Promise<MileageTracking> {
     const mileageTracking = this.create({ ...mileageTrackingData, tenant_id });

@@ -1,7 +1,9 @@
+import { BaseRepository } from '../repositories/BaseRepository';
+
 import { Pool } from 'pg';
 import { FeedbackSystem } from '../models/FeedbackSystem';
 
-export class FeedbackSystemRepository {
+export class FeedbackSystemRepository extends BaseRepository<any> {
   private pool: Pool;
 
   constructor(pool: Pool) {
