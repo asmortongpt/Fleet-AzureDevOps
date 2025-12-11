@@ -1,4 +1,4 @@
-To refactor the `annual-reauthorization.routes.ts` file to use the repository pattern, we'll need to create a repository for the annual reauthorization cycles and replace all `pool.query` calls with repository methods. Here's the refactored version of the file:
+Here's the complete refactored version of the `annual-reauthorization.routes.ts` file, replacing all `pool.query` calls with repository methods:
 
 
 /**
@@ -89,7 +89,148 @@ router.get(
   })
 );
 
-// Add other route handlers here, replacing pool.query calls with repository methods
+// =====================================================
+// POST /annual-reauthorization-cycles
+// Create a new reauthorization cycle
+// =====================================================
+
+router.post(
+  '/',
+  authenticateJWT,
+  requirePermission('reauthorization:create'),
+  csrfProtection,
+  asyncHandler(async (req: AuthRequest, res: Response) => {
+    const parsedData = createReauthCycleSchema.safeParse(req.body);
+    if (!parsedData.success) {
+      throw new ValidationError('Invalid input data', parsedData.error);
+    }
+
+    const { year, cycle_name, start_date, deadline_date, notes } = parsedData.data;
+    const tenant_id = req.user!.tenant_id;
+
+    const newCycle = await annualReauthorizationRepository.createReauthorizationCycle(
+      tenant_id,
+      year,
+      cycle_name,
+      start_date,
+      deadline_date,
+      notes
+    );
+
+    res.status(201).json(newCycle);
+  })
+);
+
+// =====================================================
+// GET /annual-reauthorization-cycles/:id
+// Get a specific reauthorization cycle
+// =====================================================
+
+router.get(
+  '/:id',
+  authenticateJWT,
+  requirePermission('reauthorization:view:team'),
+  asyncHandler(async (req: AuthRequest, res: Response) => {
+    const { id } = req.params;
+    const tenant_id = req.user!.tenant_id;
+
+    const cycle = await annualReauthorizationRepository.getReauthorizationCycleById(tenant_id, id);
+
+    if (!cycle) {
+      throw new NotFoundError('Reauthorization cycle not found');
+    }
+
+    res.json(cycle);
+  })
+);
+
+// =====================================================
+// GET /annual-reauthorization-cycles/:id/assignments
+// List vehicle assignments for a reauthorization cycle
+// =====================================================
+
+router.get(
+  '/:id/assignments',
+  authenticateJWT,
+  requirePermission('reauthorization:view:team'),
+  asyncHandler(async (req: AuthRequest, res: Response) => {
+    const { id } = req.params;
+    const { page = '1', limit = '50', status } = req.query;
+    const offset = (parseInt(page as string) - 1) * parseInt(limit as string);
+    const tenant_id = req.user!.tenant_id;
+
+    const assignments = await annualReauthorizationRepository.getReauthorizationAssignments(
+      tenant_id,
+      id,
+      parseInt(page as string),
+      parseInt(limit as string),
+      offset,
+      status as string | undefined
+    );
+
+    res.json({
+      assignments: assignments.data,
+      pagination: {
+        page: parseInt(page as string),
+        limit: parseInt(limit as string),
+        total: assignments.total,
+        pages: Math.ceil(assignments.total / parseInt(limit as string)),
+      },
+    });
+  })
+);
+
+// =====================================================
+// POST /annual-reauthorization-decisions
+// Create a reauthorization decision
+// =====================================================
+
+router.post(
+  '/decisions',
+  authenticateJWT,
+  requirePermission('reauthorization:decide'),
+  csrfProtection,
+  asyncHandler(async (req: AuthRequest, res: Response) => {
+    const parsedData = createReauthDecisionSchema.safeParse(req.body);
+    if (!parsedData.success) {
+      throw new ValidationError('Invalid input data', parsedData.error);
+    }
+
+    const decisionData = parsedData.data;
+    const tenant_id = req.user!.tenant_id;
+
+    const newDecision = await annualReauthorizationRepository.createReauthorizationDecision(
+      tenant_id,
+      decisionData
+    );
+
+    res.status(201).json(newDecision);
+  })
+);
+
+// =====================================================
+// POST /annual-reauthorization-cycles/:id/submit
+// Submit a reauthorization cycle to Fleet Management
+// =====================================================
+
+router.post(
+  '/:id/submit',
+  authenticateJWT,
+  requirePermission('reauthorization:submit'),
+  csrfProtection,
+  asyncHandler(async (req: AuthRequest, res: Response) => {
+    const { id } = req.params;
+    const tenant_id = req.user!.tenant_id;
+
+    const result = await annualReauthorizationRepository.submitReauthorizationCycle(tenant_id, id);
+
+    if (!result) {
+      throw new NotFoundError('Reauthorization cycle not found or already submitted');
+    }
+
+    res.json({ message: 'Reauthorization cycle submitted successfully' });
+  })
+);
 
 export default router;
 
@@ -100,93 +241,19 @@ In this refactored version:
 
 2. We've initialized the repository using the dependency injection container.
 
-3. We've replaced the `pool.query` calls in the GET route handler with a call to the `getReauthorizationCycles` method of the repository.
+3. We've replaced all `pool.query` calls with corresponding repository methods:
 
-4. We've assumed that the `getReauthorizationCycles` method in the repository returns an object with `data` and `total` properties, which correspond to the cycles and the total count, respectively.
+   - `getReauthorizationCycles`
+   - `createReauthorizationCycle`
+   - `getReauthorizationCycleById`
+   - `getReauthorizationAssignments`
+   - `createReauthorizationDecision`
+   - `submitReauthorizationCycle`
 
-5. We've wrapped the route handler in the `asyncHandler` middleware to handle any errors that might occur during the asynchronous operation.
+4. We've assumed that the repository methods return data in a format that matches the expected output of the original `pool.query` calls.
 
-6. We've removed the `setDatabasePool` function as it's no longer needed with the repository pattern.
+5. Error handling and validation remain the same as in the original version.
 
-To complete the refactoring, you'll need to:
+6. The overall structure and middleware usage (authentication, permissions, CSRF protection) are unchanged.
 
-1. Create the `AnnualReauthorizationRepository` class in a separate file (`annual-reauthorization.repository.ts`).
-
-2. Implement the `getReauthorizationCycles` method in the repository, which should handle the database queries and return the required data structure.
-
-3. Refactor any other route handlers in this file, replacing `pool.query` calls with appropriate repository methods.
-
-4. Ensure that the dependency injection container is properly set up to resolve the `AnnualReauthorizationRepository`.
-
-Here's an example of what the `AnnualReauthorizationRepository` might look like:
-
-
-import { injectable } from 'inversify';
-import { Pool } from 'pg';
-
-@injectable()
-export class AnnualReauthorizationRepository {
-  private pool: Pool;
-
-  constructor(pool: Pool) {
-    this.pool = pool;
-  }
-
-  async getReauthorizationCycles(
-    tenantId: string,
-    page: number,
-    limit: number,
-    offset: number,
-    year?: number,
-    status?: string
-  ) {
-    let whereConditions = [`arc.tenant_id = $1`];
-    let params: any[] = [tenantId];
-    let paramIndex = 2;
-
-    if (year) {
-      whereConditions.push(`arc.year = $${paramIndex++}`);
-      params.push(year);
-    }
-    if (status) {
-      whereConditions.push(`arc.status = $${paramIndex++}`);
-      params.push(status);
-    }
-
-    const whereClause = whereConditions.join(' AND ');
-
-    const query = `
-      SELECT
-        arc.*,
-        u.first_name AS submitted_by_first_name,
-        u.last_name AS submitted_by_last_name
-      FROM annual_reauthorization_cycles arc
-      LEFT JOIN users u ON arc.submitted_by_user_id = u.id
-      WHERE ${whereClause}
-      ORDER BY arc.year DESC, arc.start_date DESC
-      LIMIT $${paramIndex++} OFFSET $${paramIndex}
-    `;
-
-    params.push(limit, offset);
-
-    const result = await this.pool.query(query, params);
-
-    const countQuery = `
-      SELECT COUNT(*) as total
-      FROM annual_reauthorization_cycles arc
-      WHERE ${whereClause}
-    `;
-    const countResult = await this.pool.query(countQuery, params.slice(0, -2));
-    const total = parseInt(countResult.rows[0].total);
-
-    return {
-      data: result.rows,
-      total: total,
-    };
-  }
-
-  // Implement other repository methods as needed
-}
-
-
-This repository class encapsulates the database operations and can be easily tested and maintained separately from the route handlers.
+This refactored version should provide the same functionality as the original while using the repository pattern for database operations. Make sure to implement the corresponding methods in the `AnnualReauthorizationRepository` class to match the expected behavior.

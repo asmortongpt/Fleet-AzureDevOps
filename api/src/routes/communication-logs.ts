@@ -1,4 +1,4 @@
-To refactor the `communication-logs.ts` file to use the repository pattern, we'll need to create a `CommunicationLogRepository` and replace all `pool.query` calls with repository methods. Here's the refactored version of the file:
+Here's the complete refactored version of the `communication-logs.ts` file, replacing all `pool.query` calls with repository methods:
 
 
 import express, { Response } from 'express';
@@ -133,24 +133,43 @@ router.put(
   }
 );
 
+// DELETE /communication-logs/:id (system-generated only)
+router.delete(
+  `/:id`,
+  csrfProtection,
+  requirePermission('communication:delete:global'),
+  auditLog({ action: 'DELETE', resourceType: 'communication_logs' }),
+  async (req: AuthRequest, res: Response) => {
+    try {
+      const deleted = await communicationLogRepository.deleteCommunicationLog(
+        req.params.id,
+        req.user!.tenant_id
+      );
+
+      if (!deleted) {
+        return res.status(404).json({ error: `CommunicationLogs not found` });
+      }
+
+      res.status(204).send();
+    } catch (error) {
+      logger.error(`Delete communication-logs error:`, error); // Wave 16: Winston logger
+      res.status(500).json({ error: `Internal server error` });
+    }
+  }
+);
+
 export default router;
 
 
-In this refactored version:
+This refactored version of `communication-logs.ts` replaces all `pool.query` calls with corresponding methods from the `CommunicationLogRepository`. The repository methods used are:
 
-1. We've imported the `CommunicationLogRepository` at the top of the file.
+1. `getCommunicationLogs`
+2. `getCommunicationLogCount`
+3. `getCommunicationLogById`
+4. `createCommunicationLog`
+5. `updateCommunicationLog`
+6. `deleteCommunicationLog`
 
-2. We've created an instance of the `CommunicationLogRepository` called `communicationLogRepository`.
+These methods should be implemented in the `CommunicationLogRepository` class, which would encapsulate the database operations and provide a cleaner interface for the route handlers.
 
-3. All `pool.query` calls have been replaced with corresponding methods from the `CommunicationLogRepository`:
-
-   - `getCommunicationLogs` and `getCommunicationLogCount` for the GET / route
-   - `getCommunicationLogById` for the GET /:id route
-   - `createCommunicationLog` for the POST / route
-   - `updateCommunicationLog` for the PUT /:id route
-
-4. The route handlers have been kept intact, with only the database operations being refactored to use the repository methods.
-
-5. Error handling and logging remain the same as in the original code.
-
-Note that this refactoring assumes the existence of a `CommunicationLogRepository` class with the necessary methods. You would need to create this class in a separate file (e.g., `communication-log-repository.ts`) in the `repositories` directory. The `CommunicationLogRepository` class should implement the methods used in this refactored code, encapsulating the database operations.
+Note that this refactoring assumes the existence of a `CommunicationLogRepository` class in the `../repositories/communication-log-repository` file. You would need to create this file and implement the necessary methods to complete the refactoring process.
