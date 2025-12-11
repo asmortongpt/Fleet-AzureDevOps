@@ -22,8 +22,18 @@ import { IncidentController } from "./modules/incidents/controllers/incident.con
 import { InspectionService } from "./modules/inspections/services/inspection.service";
 import { InspectionRepository } from "./modules/inspections/repositories/inspection.repository";
 import { InspectionController } from "./modules/inspections/controllers/inspection.controller";
+import { BreakGlassRepository } from "./repositories/BreakGlassRepository";
+import { PersonalUsePoliciesRepository } from "./repositories/PersonalUsePoliciesRepository";
+import { connectionManager } from "./config/connection-manager";
+import { PermissionsRepository } from "./repositories/PermissionsRepository";
+import { AttachmentRepository } from "./repositories/attachments.repository";
+import { VehicleAssignmentsRepository } from "./repositories/vehicle-assignments.repository";
+import { AssignmentNotificationService } from "./services/assignment-notification.service";
 
 const container = new Container();
+
+// Infrastructure - Database Pool
+container.bind(TYPES.DatabasePool).toConstantValue(connectionManager.getPool());
 
 // Fleet module
 container.bind(TYPES.VehicleService).to(VehicleService);
@@ -60,4 +70,26 @@ container.bind(TYPES.InspectionService).to(InspectionService);
 container.bind(TYPES.InspectionRepository).to(InspectionRepository);
 container.bind(TYPES.InspectionController).to(InspectionController);
 
+// Break-Glass Repository
+container.bind(TYPES.BreakGlassRepository).to(BreakGlassRepository);
+
+// Personal Use Policies Repository
+container.bind(TYPES.PersonalUsePoliciesRepository).toConstantValue(personalUsePoliciesRepo);
+
+// Permissions Repository
+container.bind(TYPES.PermissionsRepository).to(PermissionsRepository);
+
+// Attachments Repository
+container.bind(TYPES.AttachmentRepository).to(AttachmentRepository);
+
+// Vehicle Assignments Repository (Agent 51 - B3 Refactoring)
+container.bind(TYPES.VehicleAssignmentsRepository).to(VehicleAssignmentsRepository);
+
+// Assignment Notification Service
+container.bind(TYPES.AssignmentNotificationService).to(AssignmentNotificationService);
+
 export { container };
+
+// Push Notification Repository (Agent 57 - B3 Refactoring)
+import { PushNotificationRepository } from './repositories/push-notification.repository';
+container.bind(TYPES.PushNotificationRepository).to(PushNotificationRepository);
