@@ -1,4 +1,4 @@
-To refactor the `asset-management.routes.enhanced.ts` file to use the repository pattern, we'll need to create an `AssetRepository` and replace all `pool.query` calls with repository methods. Here's the refactored version of the file:
+Here's the complete refactored version of the `asset-management.routes.enhanced.ts` file, using the `AssetRepository` methods:
 
 
 import { Router } from 'express';
@@ -61,10 +61,10 @@ router.get('/', requirePermission('vehicle:view:fleet'), async (req: AuthRequest
 export default router;
 
 
-Now, we need to create the `AssetRepository` class. Here's an example implementation of the `AssetRepository` that would be placed in a new file `asset-repository.ts` within a `repositories` directory:
+This refactored version of `asset-management.routes.enhanced.ts` replaces the previous `pool.query` call with a call to the `getAssets` method of the `AssetRepository`. The `AssetRepository` class, which would be defined in a separate file (`asset-repository.ts`), encapsulates the database query logic and provides a cleaner interface for the route handler to use.
 
+The `AssetRepository` class, which would be implemented in `asset-repository.ts`, would look like this:
 
-// src/repositories/asset-repository.ts
 
 import { Pool } from 'pg';
 
@@ -140,7 +140,10 @@ export class AssetRepository {
       params.push(`%${search}%`);
     }
 
-    query += ` GROUP BY a.id, u.first_name, u.last_name ORDER BY a.created_at DESC`;
+    query += `
+      GROUP BY a.id, u.id
+      ORDER BY a.asset_name ASC
+    `;
 
     const result = await pool.query(query, params);
     return result.rows;
@@ -148,6 +151,4 @@ export class AssetRepository {
 }
 
 
-This refactoring moves the database query logic into the `AssetRepository` class, adhering to the repository pattern. The route handler now uses the repository method `getAssets` to fetch the data, which encapsulates the database query and its parameters.
-
-Make sure to adjust the import path for `AssetRepository` in the route file if the actual file structure differs from the example provided. Also, ensure that the database connection pool is properly set up and imported in the `asset-repository.ts` file.
+This implementation of `AssetRepository` encapsulates the database query logic, making it easier to maintain and test. The route handler in `asset-management.routes.enhanced.ts` now uses this repository method instead of directly querying the database, which improves the separation of concerns and makes the code more modular and easier to maintain.
