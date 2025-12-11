@@ -1,22 +1,28 @@
 /**
-import { container } from '../container'
-import { asyncHandler } from '../middleware/errorHandler'
-import { NotFoundError, ValidationError } from '../errors/app-error'
-import logger from '../config/logger'; // Wave 20: Add Winston logger
- * Scheduling Routes
+ * Scheduling Routes (REFACTORED - B3: Agent 31)
  * API endpoints for vehicle reservations, maintenance scheduling,
  * service bay management, and calendar integration
+ * 
+ * All 15 direct database queries have been eliminated and moved to SchedulingRepository
  */
 
 import express, { Request, Response } from 'express'
-
+import { container, TYPES } from '../container'
+import { asyncHandler } from '../middleware/errorHandler'
+import { NotFoundError, ValidationError } from '../errors/app-error'
+import logger from '../config/logger'
 import { csrfProtection } from '../middleware/csrf'
 import * as googleCalendar from '../services/google-calendar.service'
 import schedulingNotificationService from '../services/scheduling-notification.service'
 import * as schedulingService from '../services/scheduling.service'
-
+import { SchedulingRepository } from '../repositories/scheduling.repository'
 
 const router = express.Router()
+
+// Get repository from DI container
+const getSchedulingRepository = (): SchedulingRepository => {
+  return container.get<SchedulingRepository>(TYPES.SchedulingRepository)
+}
 
 // ============================================
 // Vehicle Reservations
@@ -25,62 +31,29 @@ const router = express.Router()
 /**
  * GET /api/scheduling/reservations
  * Get vehicle reservations with optional filters
+ * REFACTORED: Uses SchedulingRepository.findReservations (Query 1)
  */
 router.get('/reservations', async (req: Request, res: Response) => {
   try {
     const { tenantId, userId } = req.user as any
     const { vehicleId, status, startDate, endDate, driverId } = req.query
 
-    let query = `
-      SELECT vr.*, v.make, v.model, v.license_plate, v.vin,
-             u.first_name || ' ' || u.last_name as reserved_by_name,
-             du.first_name || ' ' || du.last_name as driver_name
-      FROM vehicle_reservations vr
-      JOIN vehicles v ON vr.vehicle_id = v.id
-      JOIN users u ON vr.reserved_by = u.id
-      LEFT JOIN drivers d ON vr.driver_id = d.id
-      LEFT JOIN users du ON d.user_id = du.id
-      WHERE vr.tenant_id = $1
-    `
-    const params: any[] = [tenantId]
-    let paramCount = 1
-
-    if (vehicleId) {
-      params.push(vehicleId)
-      query += ` AND vr.vehicle_id = $${++paramCount}`
-    }
-
-    if (status) {
-      params.push(status)
-      query += ` AND vr.status = $${++paramCount}`
-    }
-
-    if (driverId) {
-      params.push(driverId)
-      query += ` AND vr.driver_id = $${++paramCount}`
-    }
-
-    if (startDate) {
-      params.push(startDate)
-      query += ` AND vr.end_time >= $${++paramCount}`
-    }
-
-    if (endDate) {
-      params.push(endDate)
-      query += ` AND vr.start_time <= $${++paramCount}`
-    }
-
-    query += ` ORDER BY vr.start_time DESC`
-
-    const result = await pool.query(query, params)
+    const repo = getSchedulingRepository()
+    const reservations = await repo.findReservations(tenantId, {
+      vehicleId: vehicleId as string,
+      status: status as string,
+      startDate: startDate as string,
+      endDate: endDate as string,
+      driverId: driverId as string
+    })
 
     res.json({
       success: true,
-      count: result.rows.length,
-      reservations: result.rows
+      count: reservations.length,
+      reservations
     })
   } catch (error) {
-    logger.error('Error fetching reservations:', error) // Wave 20: Winston logger
+    logger.error('Error fetching reservations:', error)
     res.status(500).json({ error: 'Failed to fetch reservations' })
   }
 })
@@ -89,7 +62,7 @@ router.get('/reservations', async (req: Request, res: Response) => {
  * POST /api/scheduling/reservations
  * Create a new vehicle reservation
  */
-router.post('/reservations',csrfProtection, async (req: Request, res: Response) => {
+router.post('/reservations', csrfProtection, async (req: Request, res: Response) => {
   try {
     const { tenantId, userId } = req.user as any
     const {
@@ -138,7 +111,7 @@ router.post('/reservations',csrfProtection, async (req: Request, res: Response) 
       reservation
     })
   } catch (error) {
-    logger.error('Error creating reservation:', error) // Wave 20: Winston logger
+    logger.error('Error creating reservation:', error)
     res.status(500).json({
       error: (error as Error).message || 'Failed to create reservation'
     })
@@ -148,55 +121,28 @@ router.post('/reservations',csrfProtection, async (req: Request, res: Response) 
 /**
  * PATCH /api/scheduling/reservations/:id
  * Update a vehicle reservation
+ * REFACTORED: Uses SchedulingRepository.updateReservation (Query 2)
  */
-router.patch('/reservations/:id',csrfProtection, async (req: Request, res: Response) => {
+router.patch('/reservations/:id', csrfProtection, async (req: Request, res: Response) => {
   try {
     const { tenantId } = req.user as any
     const { id } = req.params
     const updates = req.body
 
-    // Build dynamic update query
-    const allowedFields = [
-      'driver_id', 'reservation_type', 'start_time', 'end_time',
-      'pickup_location', 'dropoff_location', 'estimated_miles',
-      'purpose', 'notes', 'status', 'approval_status'
-    ]
+    const repo = getSchedulingRepository()
+    const reservation = await repo.updateReservation(tenantId, id, updates)
 
-    const updateFields: string[] = []
-    const values: any[] = [tenantId, id]
-    let paramCount = 2
-
-    for (const field of allowedFields) {
-      if (updates[field] !== undefined) {
-        updateFields.push(`${field} = $${++paramCount}`)
-        values.push(updates[field])
-      }
-    }
-
-    if (updateFields.length === 0) {
-      return res.status(400).json({ error: `No valid fields to update` })
-    }
-
-    const query = `
-      UPDATE vehicle_reservations
-      SET ${updateFields.join(', ')}, updated_at = NOW()
-      WHERE tenant_id = $1 AND id = $2
-      RETURNING *
-    `
-
-    const result = await pool.query(query, values)
-
-    if (result.rows.length === 0) {
-      return res.status(404).json({ error: `Reservation not found` })
+    if (!reservation) {
+      return res.status(404).json({ error: 'Reservation not found or no valid fields to update' })
     }
 
     res.json({
       success: true,
       message: 'Reservation updated successfully',
-      reservation: result.rows[0]
+      reservation
     })
   } catch (error) {
-    logger.error('Error updating reservation:', error) // Wave 20: Winston logger
+    logger.error('Error updating reservation:', error)
     res.status(500).json({ error: 'Failed to update reservation' })
   }
 })
@@ -204,22 +150,18 @@ router.patch('/reservations/:id',csrfProtection, async (req: Request, res: Respo
 /**
  * DELETE /api/scheduling/reservations/:id
  * Cancel a vehicle reservation
+ * REFACTORED: Uses SchedulingRepository.cancelReservation (Query 3)
  */
-router.delete('/reservations/:id',csrfProtection, async (req: Request, res: Response) => {
+router.delete('/reservations/:id', csrfProtection, async (req: Request, res: Response) => {
   try {
     const { tenantId } = req.user as any
     const { id } = req.params
 
-    const result = await pool.query(
-      `UPDATE vehicle_reservations
-       SET status = 'cancelled', updated_at = NOW()
-       WHERE tenant_id = $1 AND id = $2
-       RETURNING *`,
-      [tenantId, id]
-    )
+    const repo = getSchedulingRepository()
+    const reservation = await repo.cancelReservation(tenantId, id)
 
-    if (result.rows.length === 0) {
-      return res.status(404).json({ error: `Reservation not found` })
+    if (!reservation) {
+      return res.status(404).json({ error: 'Reservation not found' })
     }
 
     res.json({
@@ -227,7 +169,7 @@ router.delete('/reservations/:id',csrfProtection, async (req: Request, res: Resp
       message: 'Reservation cancelled successfully'
     })
   } catch (error) {
-    logger.error('Error cancelling reservation:', error) // Wave 20: Winston logger
+    logger.error('Error cancelling reservation:', error)
     res.status(500).json({ error: 'Failed to cancel reservation' })
   }
 })
@@ -235,58 +177,43 @@ router.delete('/reservations/:id',csrfProtection, async (req: Request, res: Resp
 /**
  * POST /api/scheduling/reservations/:id/approve
  * Approve a vehicle reservation
+ * REFACTORED: Uses SchedulingRepository.getReservationWithDetails (Query 4) 
+ *             and SchedulingRepository.approveReservation (Query 5)
  */
-router.post('/reservations/:id/approve',csrfProtection, async (req: Request, res: Response) => {
+router.post('/reservations/:id/approve', csrfProtection, async (req: Request, res: Response) => {
   try {
     const { tenantId, userId } = req.user as any
     const { id } = req.params
 
-    // Get full reservation details with vehicle and user info
-    const reservationResult = await pool.query(
-      `SELECT vr.*, v.make, v.model, v.license_plate, v.vin,
-              u.first_name || ' ' || u.last_name as reserved_by_name,
-              u.email as reserved_by_email
-       FROM vehicle_reservations vr
-       JOIN vehicles v ON vr.vehicle_id = v.id
-       JOIN users u ON vr.reserved_by = u.id
-       WHERE vr.tenant_id = $1 AND vr.id = $2`,
-      [tenantId, id]
-    )
-
-    if (reservationResult.rows.length === 0) {
-      throw new NotFoundError("Reservation not found")
+    const repo = getSchedulingRepository()
+    
+    // Get full reservation details
+    const reservation = await repo.getReservationWithDetails(tenantId, id)
+    if (!reservation) {
+      throw new NotFoundError('Reservation not found')
     }
 
-    const reservation = reservationResult.rows[0]
-
     // Update approval status
-    const result = await pool.query(
-      `UPDATE vehicle_reservations
-       SET approval_status = 'approved', approved_by = $1, approved_at = NOW(),
-           status = 'confirmed', updated_at = NOW()
-       WHERE tenant_id = $2 AND id = $3
-       RETURNING *`,
-      [userId, tenantId, id]
-    )
+    const updatedReservation = await repo.approveReservation(tenantId, id, userId)
 
     // Send approval notification
     try {
       await schedulingNotificationService.sendReservationApproved(tenantId, {
-        ...result.rows[0],
+        ...updatedReservation,
         ...reservation
       })
     } catch (error) {
-      logger.error('Error sending approval notification:', error) // Wave 20: Winston logger
+      logger.error('Error sending approval notification:', error)
       // Don't fail the approval if notification fails
     }
 
     res.json({
       success: true,
       message: 'Reservation approved successfully',
-      reservation: result.rows[0]
+      reservation: updatedReservation
     })
   } catch (error) {
-    logger.error('Error approving reservation:', error) // Wave 20: Winston logger
+    logger.error('Error approving reservation:', error)
     res.status(500).json({ error: 'Failed to approve reservation' })
   }
 })
@@ -294,59 +221,44 @@ router.post('/reservations/:id/approve',csrfProtection, async (req: Request, res
 /**
  * POST /api/scheduling/reservations/:id/reject
  * Reject a vehicle reservation
+ * REFACTORED: Uses SchedulingRepository.getReservationWithDetails (Query 4)
+ *             and SchedulingRepository.rejectReservation (Query 6)
  */
-router.post('/reservations/:id/reject',csrfProtection, async (req: Request, res: Response) => {
+router.post('/reservations/:id/reject', csrfProtection, async (req: Request, res: Response) => {
   try {
     const { tenantId, userId } = req.user as any
     const { id } = req.params
     const { reason } = req.body
 
-    // Get full reservation details with vehicle and user info
-    const reservationResult = await pool.query(
-      `SELECT vr.*, v.make, v.model, v.license_plate, v.vin,
-              u.first_name || ' ' || u.last_name as reserved_by_name,
-              u.email as reserved_by_email
-       FROM vehicle_reservations vr
-       JOIN vehicles v ON vr.vehicle_id = v.id
-       JOIN users u ON vr.reserved_by = u.id
-       WHERE vr.tenant_id = $1 AND vr.id = $2`,
-      [tenantId, id]
-    )
+    const repo = getSchedulingRepository()
 
-    if (reservationResult.rows.length === 0) {
-      throw new NotFoundError("Reservation not found")
+    // Get full reservation details
+    const reservation = await repo.getReservationWithDetails(tenantId, id)
+    if (!reservation) {
+      throw new NotFoundError('Reservation not found')
     }
 
-    const reservation = reservationResult.rows[0]
-
     // Update rejection status
-    const result = await pool.query(
-      `UPDATE vehicle_reservations
-       SET approval_status = 'rejected', approved_by = $1, approved_at = NOW(),
-           rejection_reason = $2, status = 'cancelled', updated_at = NOW()
-       WHERE tenant_id = $3 AND id = $4
-       RETURNING *`,
-      [userId, reason, tenantId, id]
-    )
+    const updatedReservation = await repo.rejectReservation(tenantId, id, userId, reason)
 
     // Send rejection notification
     try {
       await schedulingNotificationService.sendReservationRejected(tenantId, {
-        ...result.rows[0],
+        ...updatedReservation,
         ...reservation
       }, reason || 'No reason provided')
     } catch (error) {
-      logger.error('Error sending rejection notification:', error) // Wave 20: Winston logger
+      logger.error('Error sending rejection notification:', error)
       // Don't fail the rejection if notification fails
     }
 
     res.json({
       success: true,
       message: 'Reservation rejected',
-      reservation: result.rows[0]
+      reservation: updatedReservation
     })
   } catch (error) {
-    logger.error('Error rejecting reservation:', error) // Wave 20: Winston logger
+    logger.error('Error rejecting reservation:', error)
     res.status(500).json({ error: 'Failed to reject reservation' })
   }
 })
@@ -358,70 +270,30 @@ router.post('/reservations/:id/reject',csrfProtection, async (req: Request, res:
 /**
  * GET /api/scheduling/maintenance
  * Get maintenance appointments
+ * REFACTORED: Uses SchedulingRepository.findMaintenanceAppointments (Query 7)
  */
 router.get('/maintenance', async (req: Request, res: Response) => {
   try {
     const { tenantId } = req.user as any
     const { vehicleId, technicianId, serviceBayId, status, startDate, endDate } = req.query
 
-    let query = `
-      SELECT sbs.*, v.make, v.model, v.license_plate, v.vin,
-             at.name as appointment_type, at.color,
-             sb.bay_name, sb.bay_number,
-             u.first_name || ' ' || u.last_name as technician_name,
-             wo.work_order_number
-      FROM service_bay_schedules sbs
-      LEFT JOIN vehicles v ON sbs.vehicle_id = v.id
-      LEFT JOIN appointment_types at ON sbs.appointment_type_id = at.id
-      LEFT JOIN service_bays sb ON sbs.service_bay_id = sb.id
-      LEFT JOIN users u ON sbs.assigned_technician_id = u.id
-      LEFT JOIN work_orders wo ON sbs.work_order_id = wo.id
-      WHERE sbs.tenant_id = $1
-    `
-    const params: any[] = [tenantId]
-    let paramCount = 1
-
-    if (vehicleId) {
-      params.push(vehicleId)
-      query += ` AND sbs.vehicle_id = $${++paramCount}`
-    }
-
-    if (technicianId) {
-      params.push(technicianId)
-      query += ` AND sbs.assigned_technician_id = $${++paramCount}`
-    }
-
-    if (serviceBayId) {
-      params.push(serviceBayId)
-      query += ` AND sbs.service_bay_id = $${++paramCount}`
-    }
-
-    if (status) {
-      params.push(status)
-      query += ` AND sbs.status = $${++paramCount}`
-    }
-
-    if (startDate) {
-      params.push(startDate)
-      query += ` AND sbs.scheduled_end >= $${++paramCount}`
-    }
-
-    if (endDate) {
-      params.push(endDate)
-      query += ` AND sbs.scheduled_start <= $${++paramCount}`
-    }
-
-    query += ` ORDER BY sbs.scheduled_start DESC`
-
-    const result = await pool.query(query, params)
+    const repo = getSchedulingRepository()
+    const appointments = await repo.findMaintenanceAppointments(tenantId, {
+      vehicleId: vehicleId as string,
+      technicianId: technicianId as string,
+      serviceBayId: serviceBayId as string,
+      status: status as string,
+      startDate: startDate as string,
+      endDate: endDate as string
+    })
 
     res.json({
       success: true,
-      count: result.rows.length,
-      appointments: result.rows
+      count: appointments.length,
+      appointments
     })
   } catch (error) {
-    logger.error('Error fetching maintenance appointments:', error) // Wave 20: Winston logger
+    logger.error('Error fetching maintenance appointments:', error)
     res.status(500).json({ error: 'Failed to fetch appointments' })
   }
 })
@@ -430,7 +302,7 @@ router.get('/maintenance', async (req: Request, res: Response) => {
  * POST /api/scheduling/maintenance
  * Create a maintenance appointment
  */
-router.post('/maintenance',csrfProtection, async (req: Request, res: Response) => {
+router.post('/maintenance', csrfProtection, async (req: Request, res: Response) => {
   try {
     const { tenantId, userId } = req.user as any
     const {
@@ -475,7 +347,7 @@ router.post('/maintenance',csrfProtection, async (req: Request, res: Response) =
       appointment
     })
   } catch (error) {
-    logger.error('Error creating maintenance appointment:', error) // Wave 20: Winston logger
+    logger.error('Error creating maintenance appointment:', error)
     res.status(500).json({
       error: (error as Error).message || 'Failed to create appointment'
     })
@@ -485,54 +357,28 @@ router.post('/maintenance',csrfProtection, async (req: Request, res: Response) =
 /**
  * PATCH /api/scheduling/maintenance/:id
  * Update a maintenance appointment
+ * REFACTORED: Uses SchedulingRepository.updateMaintenanceAppointment (Query 8)
  */
-router.patch('/maintenance/:id',csrfProtection, async (req: Request, res: Response) => {
+router.patch('/maintenance/:id', csrfProtection, async (req: Request, res: Response) => {
   try {
     const { tenantId } = req.user as any
     const { id } = req.params
     const updates = req.body
 
-    const allowedFields = [
-      'appointment_type_id', 'scheduled_start', 'scheduled_end',
-      'assigned_technician_id', 'service_bay_id', 'priority',
-      'notes', 'status', 'actual_start', 'actual_end'
-    ]
+    const repo = getSchedulingRepository()
+    const appointment = await repo.updateMaintenanceAppointment(tenantId, id, updates)
 
-    const updateFields: string[] = []
-    const values: any[] = [tenantId, id]
-    let paramCount = 2
-
-    for (const field of allowedFields) {
-      if (updates[field] !== undefined) {
-        updateFields.push(`${field} = $${++paramCount}`)
-        values.push(updates[field])
-      }
-    }
-
-    if (updateFields.length === 0) {
-      return res.status(400).json({ error: `No valid fields to update` })
-    }
-
-    const query = `
-      UPDATE service_bay_schedules
-      SET ${updateFields.join(', ')}, updated_at = NOW()
-      WHERE tenant_id = $1 AND id = $2
-      RETURNING *
-    `
-
-    const result = await pool.query(query, values)
-
-    if (result.rows.length === 0) {
-      return res.status(404).json({ error: `Appointment not found` })
+    if (!appointment) {
+      return res.status(404).json({ error: 'Appointment not found or no valid fields to update' })
     }
 
     res.json({
       success: true,
       message: 'Appointment updated successfully',
-      appointment: result.rows[0]
+      appointment
     })
   } catch (error) {
-    logger.error('Error updating appointment:', error) // Wave 20: Winston logger
+    logger.error('Error updating appointment:', error)
     res.status(500).json({ error: 'Failed to update appointment' })
   }
 })
@@ -545,7 +391,7 @@ router.patch('/maintenance/:id',csrfProtection, async (req: Request, res: Respon
  * POST /api/scheduling/check-conflicts
  * Check for scheduling conflicts
  */
-router.post('/check-conflicts',csrfProtection, async (req: Request, res: Response) => {
+router.post('/check-conflicts', csrfProtection, async (req: Request, res: Response) => {
   try {
     const { tenantId } = req.user as any
     const { vehicleId, serviceBayId, technicianId, startTime, endTime, excludeId } = req.body
@@ -596,7 +442,7 @@ router.post('/check-conflicts',csrfProtection, async (req: Request, res: Respons
       conflicts
     })
   } catch (error) {
-    logger.error('Error checking conflicts:', error) // Wave 20: Winston logger
+    logger.error('Error checking conflicts:', error)
     res.status(500).json({ error: 'Failed to check conflicts' })
   }
 })
@@ -611,7 +457,7 @@ router.get('/available-vehicles', async (req: Request, res: Response) => {
     const { startTime, endTime, vehicleType } = req.query
 
     if (!startTime || !endTime) {
-      throw new ValidationError("startTime and endTime are required")
+      throw new ValidationError('startTime and endTime are required')
     }
 
     const vehicles = await schedulingService.findAvailableVehicles(
@@ -627,7 +473,7 @@ router.get('/available-vehicles', async (req: Request, res: Response) => {
       vehicles
     })
   } catch (error) {
-    logger.error('Error finding available vehicles:', error) // Wave 20: Winston logger
+    logger.error('Error finding available vehicles:', error)
     res.status(500).json({ error: 'Failed to find available vehicles' })
   }
 })
@@ -661,7 +507,7 @@ router.get('/available-service-bays', async (req: Request, res: Response) => {
       serviceBays: bays
     })
   } catch (error) {
-    logger.error('Error finding available service bays:', error) // Wave 20: Winston logger
+    logger.error('Error finding available service bays:', error)
     res.status(500).json({ error: 'Failed to find available service bays' })
   }
 })
@@ -691,7 +537,7 @@ router.get('/vehicle/:vehicleId/schedule', async (req: Request, res: Response) =
       schedule
     })
   } catch (error) {
-    logger.error('Error getting vehicle schedule:', error) // Wave 20: Winston logger
+    logger.error('Error getting vehicle schedule:', error)
     res.status(500).json({ error: 'Failed to get vehicle schedule' })
   }
 })
@@ -703,28 +549,22 @@ router.get('/vehicle/:vehicleId/schedule', async (req: Request, res: Response) =
 /**
  * GET /api/scheduling/calendar/integrations
  * Get user's calendar integrations
+ * REFACTORED: Uses SchedulingRepository.findCalendarIntegrations (Query 9)
  */
 router.get('/calendar/integrations', async (req: Request, res: Response) => {
   try {
     const { userId } = req.user as any
 
-    const result = await pool.query(
-      `SELECT id, provider, calendar_id, calendar_name, is_primary, is_enabled,
-              sync_direction, sync_vehicle_reservations, sync_maintenance_appointments,
-              last_sync_at, sync_status, created_at
-       FROM calendar_integrations
-       WHERE user_id = $1
-       ORDER BY is_primary DESC, provider`,
-      [userId]
-    )
+    const repo = getSchedulingRepository()
+    const integrations = await repo.findCalendarIntegrations(userId)
 
     res.json({
       success: true,
-      integrations: result.rows
+      integrations
     })
   } catch (error) {
-    logger.error(`Error fetching calendar integrations:`, error) // Wave 20: Winston logger
-    res.status(500).json({ error: `Failed to fetch integrations` })
+    logger.error('Error fetching calendar integrations:', error)
+    res.status(500).json({ error: 'Failed to fetch integrations' })
   }
 })
 
@@ -743,7 +583,7 @@ router.get('/calendar/google/authorize', async (req: Request, res: Response) => 
       authUrl
     })
   } catch (error) {
-    logger.error('Error generating auth URL:', error) // Wave 20: Winston logger
+    logger.error('Error generating auth URL:', error)
     res.status(500).json({ error: 'Failed to generate authorization URL' })
   }
 })
@@ -752,13 +592,13 @@ router.get('/calendar/google/authorize', async (req: Request, res: Response) => 
  * POST /api/scheduling/calendar/google/callback
  * Handle Google Calendar OAuth callback
  */
-router.post('/calendar/google/callback',csrfProtection, async (req: Request, res: Response) => {
+router.post('/calendar/google/callback', csrfProtection, async (req: Request, res: Response) => {
   try {
     const { tenantId, userId } = req.user as any
     const { code, isPrimary } = req.body
 
     if (!code) {
-      throw new ValidationError("Authorization code is required")
+      throw new ValidationError('Authorization code is required')
     }
 
     // Exchange code for tokens
@@ -779,7 +619,7 @@ router.post('/calendar/google/callback',csrfProtection, async (req: Request, res
       integration
     })
   } catch (error) {
-    logger.error('Error connecting Google Calendar:', error) // Wave 20: Winston logger
+    logger.error('Error connecting Google Calendar:', error)
     res.status(500).json({ error: 'Failed to connect Google Calendar' })
   }
 })
@@ -787,37 +627,35 @@ router.post('/calendar/google/callback',csrfProtection, async (req: Request, res
 /**
  * DELETE /api/scheduling/calendar/integrations/:id
  * Revoke calendar integration
+ * REFACTORED: Uses SchedulingRepository.getIntegrationProvider (Query 11)
+ *             and SchedulingRepository.deleteCalendarIntegration (Query 12)
  */
-router.delete('/calendar/integrations/:id',csrfProtection, async (req: Request, res: Response) => {
+router.delete('/calendar/integrations/:id', csrfProtection, async (req: Request, res: Response) => {
   try {
     const { userId } = req.user as any
     const { id } = req.params
 
-    // Get integration to determine provider
-    const result = await pool.query(
-      `SELECT provider FROM calendar_integrations WHERE id = $1 AND user_id = $2`,
-      [id, userId]
-    )
+    const repo = getSchedulingRepository()
 
-    if (result.rows.length === 0) {
-      return res.status(404).json({ error: `Integration not found` })
+    // Get integration provider
+    const provider = await repo.getIntegrationProvider(userId, id)
+    if (!provider) {
+      return res.status(404).json({ error: 'Integration not found' })
     }
 
-    const provider = result.rows[0].provider
-
-    if (provider === `google`) {
+    if (provider === 'google') {
       await googleCalendar.revokeIntegration(userId, id)
     } else {
       // For Microsoft, just delete from database
-      await pool.query(`DELETE FROM calendar_integrations WHERE id = $1`, [id])
+      await repo.deleteCalendarIntegration(id)
     }
 
     res.json({
       success: true,
-      message: `Calendar integration removed successfully`
+      message: 'Calendar integration removed successfully'
     })
   } catch (error) {
-    logger.error('Error revoking integration:', error) // Wave 20: Winston logger
+    logger.error('Error revoking integration:', error)
     res.status(500).json({ error: 'Failed to remove integration' })
   }
 })
@@ -825,44 +663,21 @@ router.delete('/calendar/integrations/:id',csrfProtection, async (req: Request, 
 /**
  * POST /api/scheduling/calendar/sync
  * Manually trigger calendar sync
+ * REFACTORED: Uses SchedulingRepository.getCalendarIntegrationById (Query 10)
+ *             and SchedulingRepository.updateLastSyncTime (Query 13)
  */
-router.post('/calendar/sync',csrfProtection, async (req: Request, res: Response) => {
+router.post('/calendar/sync', csrfProtection, async (req: Request, res: Response) => {
   try {
     const { userId } = req.user as any
     const { integrationId, startDate, endDate } = req.body
 
+    const repo = getSchedulingRepository()
+
     // Get integration
-    const result = await pool.query(
-      `SELECT 
-      id,
-      tenant_id,
-      user_id,
-      provider,
-      is_primary,
-      is_enabled,
-      access_token,
-      refresh_token,
-      token_expiry,
-      calendar_id,
-      calendar_name,
-      sync_direction,
-      sync_vehicle_reservations,
-      sync_maintenance_appointments,
-      sync_work_orders,
-      last_sync_at,
-      sync_status,
-      sync_errors,
-      settings,
-      created_at,
-      updated_at FROM calendar_integrations WHERE id = $1 AND user_id = $2`,
-      [integrationId, userId]
-    )
-
-    if (result.rows.length === 0) {
-      throw new NotFoundError("Integration not found")
+    const integration = await repo.getCalendarIntegrationById(userId, integrationId)
+    if (!integration) {
+      throw new NotFoundError('Integration not found')
     }
-
-    const integration = result.rows[0]
 
     if (integration.provider === 'google') {
       const syncResult = await googleCalendar.syncEventsToDatabase(
@@ -872,10 +687,7 @@ router.post('/calendar/sync',csrfProtection, async (req: Request, res: Response)
       )
 
       // Update last sync time
-      await pool.query(
-        `UPDATE calendar_integrations SET last_sync_at = NOW() WHERE id = $1`,
-        [integrationId]
-      )
+      await repo.updateLastSyncTime(integrationId)
 
       res.json({
         success: true,
@@ -883,10 +695,10 @@ router.post('/calendar/sync',csrfProtection, async (req: Request, res: Response)
         ...syncResult
       })
     } else {
-      throw new ValidationError("Sync not supported for this provider")
+      throw new ValidationError('Sync not supported for this provider')
     }
   } catch (error) {
-    logger.error('Error syncing calendar:', error) // Wave 20: Winston logger
+    logger.error('Error syncing calendar:', error)
     res.status(500).json({ error: 'Failed to sync calendar' })
   }
 })
@@ -898,24 +710,22 @@ router.post('/calendar/sync',csrfProtection, async (req: Request, res: Response)
 /**
  * GET /api/scheduling/appointment-types
  * Get all appointment types
+ * REFACTORED: Uses SchedulingRepository.findAppointmentTypes (Query 15)
  */
 router.get('/appointment-types', async (req: Request, res: Response) => {
   try {
     const { tenantId } = req.user as any
-    const result = await pool.query(
-      `SELECT id, tenant_id, name, description, duration_minutes, default_resource_id, created_at, updated_at FROM appointment_types
-       WHERE tenant_id = $1 AND is_active = true
-       ORDER BY name`,
-      [tenantId]
-    )
+    
+    const repo = getSchedulingRepository()
+    const appointmentTypes = await repo.findAppointmentTypes(tenantId)
 
     res.json({
       success: true,
-      appointmentTypes: result.rows
+      appointmentTypes
     })
   } catch (error) {
-    logger.error(`Error fetching appointment types:`, error) // Wave 20: Winston logger
-    res.status(500).json({ error: `Failed to fetch appointment types` })
+    logger.error('Error fetching appointment types:', error)
+    res.status(500).json({ error: 'Failed to fetch appointment types' })
   }
 })
 
