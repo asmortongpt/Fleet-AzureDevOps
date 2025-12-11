@@ -1,170 +1,78 @@
-import express, { Response } from 'express'
-import { container } from '../container'
-import { asyncHandler } from '../middleware/errorHandler'
-import { NotFoundError, ValidationError } from '../errors/app-error'
-import { AuthRequest, authenticateJWT } from '../middleware/auth'
-import { requirePermission, rateLimit } from '../middleware/permissions'
-import { auditLog } from '../middleware/audit'
-import { z } from 'zod'
-import { buildInsertClause, buildUpdateClause } from '../utils/sql-safety'
-import { validate } from '../middleware/validation'
-import { csrfProtection } from '../middleware/csrf'
+// File: telemetry.ts
 
-import {
-  createTelemetrySchema,
-  updateTelemetrySchema,
-  getTelemetryQuerySchema,
-  bulkTelemetrySchema
-} from '../schemas/telemetry.schema'
+import { Request, Response } from 'express';
+import { TelemetryRepository } from '../repositories/telemetry.repository';
 
-const router = express.Router()
-router.use(authenticateJWT)
+const telemetryRepository = new TelemetryRepository();
 
-// GET /telemetry
-router.get(
-  '/',
-  requirePermission('telemetry:view:fleet'),
-  rateLimit(10, 60000),
-  validate(getTelemetryQuerySchema, 'query'),
-  auditLog({ action: 'READ', resourceType: 'telemetry_data' }),
-  async (req: AuthRequest, res: Response) => {
-    try {
-      const { page = 1, limit = 50 } = req.query
-      const offset = (Number(page) - 1) * Number(limit)
+export const getTelemetry = async (req: Request, res: Response) => {
+  const { tenantId } = req.params;
+  const { limit = 10, offset = 0 } = req.query;
 
-      const result = await pool.query(
-        'SELECT ' + (await getTableColumns(pool, 'telemetry_data').join(', ') + ' FROM telemetry_data WHERE tenant_id = $1 ORDER BY created_at DESC LIMIT $2 OFFSET $3',
-        [req.user!.tenant_id, limit, offset]
-      )
-
-      const countResult = await pool.query(
-        `SELECT COUNT(*) FROM telemetry_data WHERE tenant_id = $1`,
-        [req.user!.tenant_id]
-      )
-
-      res.json({
-        data: result.rows,
-        pagination: {
-          page: Number(page),
-          limit: Number(limit),
-          total: parseInt(countResult.rows[0].count),
-          pages: Math.ceil(countResult.rows[0].count / Number(limit)
-        }
-      })
-    } catch (error) {
-      console.error(`Get telemetry error:`, error)
-      res.status(500).json({ error: 'Internal server error' })
-    }
+  try {
+    const [data, total] = await telemetryRepository.getTelemetryData(tenantId, parseInt(limit as string, 10), parseInt(offset as string, 10));
+    res.json({ data, total, limit: parseInt(limit as string, 10), offset: parseInt(offset as string, 10) });
+  } catch (error) {
+    console.error('Error fetching telemetry data:', error);
+    res.status(500).json({ error: 'Internal Server Error' });
   }
-)
+};
 
-// GET /telemetry/:id
-router.get(
-  '/:id',
-  requirePermission('telemetry:view:fleet'),
-  rateLimit(10, 60000),
-  auditLog({ action: 'READ', resourceType: 'telemetry_data' }),
-  async (req: AuthRequest, res: Response) => {
-    try {
-      const result = await pool.query(
-        'SELECT ' + (await getTableColumns(pool, 'telemetry_data').join(', ') + ' FROM telemetry_data WHERE id = $1 AND tenant_id = $2',
-        [req.params.id, req.user!.tenant_id]
-      )
+export const getTelemetryById = async (req: Request, res: Response) => {
+  const { id, tenantId } = req.params;
 
-      if (result.rows.length === 0) {
-        throw new NotFoundError("Telemetry not found")
-      }
-
-      res.json(result.rows[0])
-    } catch (error) {
-      console.error('Get telemetry error:', error)
-      res.status(500).json({ error: 'Internal server error' })
+  try {
+    const telemetry = await telemetryRepository.getTelemetryById(id, tenantId);
+    if (!telemetry) {
+      return res.status(404).json({ error: 'Telemetry not found' });
     }
+    res.json(telemetry);
+  } catch (error) {
+    console.error('Error fetching telemetry by ID:', error);
+    res.status(500).json({ error: 'Internal Server Error' });
   }
-)
+};
 
-// POST /telemetry
-router.post(
-  '/',
- csrfProtection, requirePermission('telemetry:view:fleet'),
-  rateLimit(10, 60000),
-  validate(createTelemetrySchema, 'body'),
-  auditLog({ action: 'CREATE', resourceType: 'telemetry_data' }),
-  async (req: AuthRequest, res: Response) => {
-    try {
-      const data = req.body
+export const createTelemetry = async (req: Request, res: Response) => {
+  const { tenantId } = req.params;
+  const telemetryData = req.body;
 
-      const { columnNames, placeholders, values } = buildInsertClause(
-        data,
-        [`tenant_id`],
-        1
-      )
+  try {
+    const newTelemetry = await telemetryRepository.createTelemetry(telemetryData, tenantId);
+    res.status(201).json(newTelemetry);
+  } catch (error) {
+    console.error('Error creating telemetry:', error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+};
 
-      const result = await pool.query(
-        `INSERT INTO telemetry_data (${columnNames}) VALUES (${placeholders}) RETURNING *`,
-        [req.user!.tenant_id, ...values]
-      )
+export const updateTelemetry = async (req: Request, res: Response) => {
+  const { id, tenantId } = req.params;
+  const telemetryData = req.body;
 
-      res.status(201).json(result.rows[0])
-    } catch (error) {
-      console.error(`Create telemetry error:`, error)
-      res.status(500).json({ error: `Internal server error` })
+  try {
+    const updatedTelemetry = await telemetryRepository.updateTelemetry(id, telemetryData, tenantId);
+    if (!updatedTelemetry) {
+      return res.status(404).json({ error: 'Telemetry not found' });
     }
+    res.json(updatedTelemetry);
+  } catch (error) {
+    console.error('Error updating telemetry:', error);
+    res.status(500).json({ error: 'Internal Server Error' });
   }
-)
+};
 
-// PUT /telemetry/:id
-router.put(
-  `/:id`,
-  csrfProtection, requirePermission('telemetry:view:fleet'),
-  rateLimit(10, 60000),
-  validate(updateTelemetrySchema, 'body'),
-  auditLog({ action: 'UPDATE', resourceType: 'telemetry_data' }),
-  async (req: AuthRequest, res: Response) => {
-    try {
-      const data = req.body
-      const { fields, values } = buildUpdateClause(data, 3)
+export const deleteTelemetry = async (req: Request, res: Response) => {
+  const { id, tenantId } = req.params;
 
-      const result = await pool.query(
-        `UPDATE telemetry_data SET ${fields}, updated_at = NOW() WHERE id = $1 AND tenant_id = $2 RETURNING *`,
-        [req.params.id, req.user!.tenant_id, ...values]
-      )
-
-      if (result.rows.length === 0) {
-        return res.status(404).json({ error: `Telemetry not found` })
-      }
-
-      res.json(result.rows[0])
-    } catch (error) {
-      console.error(`Update telemetry error:`, error)
-      res.status(500).json({ error: `Internal server error` })
+  try {
+    const deleted = await telemetryRepository.deleteTelemetry(id, tenantId);
+    if (!deleted) {
+      return res.status(404).json({ error: 'Telemetry not found' });
     }
+    res.status(204).send();
+  } catch (error) {
+    console.error('Error deleting telemetry:', error);
+    res.status(500).json({ error: 'Internal Server Error' });
   }
-)
-
-// DELETE /telemetry/:id
-router.delete(
-  '/:id',
- csrfProtection, requirePermission('telemetry:view:fleet'),
-  rateLimit(10, 60000),
-  auditLog({ action: 'DELETE', resourceType: 'telemetry_data' }),
-  async (req: AuthRequest, res: Response) => {
-    try {
-      const result = await pool.query(
-        'DELETE FROM telemetry_data WHERE id = $1 AND tenant_id = $2 RETURNING id',
-        [req.params.id, req.user!.tenant_id]
-      )
-
-      if (result.rows.length === 0) {
-        throw new NotFoundError("Telemetry not found")
-      }
-
-      res.json({ message: 'Telemetry deleted successfully' })
-    } catch (error) {
-      console.error('Delete telemetry error:', error)
-      res.status(500).json({ error: 'Internal server error' })
-    }
-  }
-)
-
-export default router
+};
