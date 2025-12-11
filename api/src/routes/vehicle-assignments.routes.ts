@@ -1,10 +1,7 @@
 /**
-import { container } from '../container'
-import { csrfProtection } from '../middleware/csrf'
-import { asyncHandler } from '../middleware/errorHandler'
-import { NotFoundError, ValidationError } from '../errors/app-error'
-import logger from '../config/logger'; // Wave 26: Add Winston logger
  * Vehicle Assignments API Routes
+ * Agent 51 - Refactored B3 - All direct database queries eliminated
+ *
  * Supports BR-3 (Employee & Assignment Management) and BR-8 (Temporary Assignment Management)
  *
  * Handles:
@@ -16,23 +13,23 @@ import logger from '../config/logger'; // Wave 26: Add Winston logger
  */
 
 import express, { Request, Response } from 'express';
-import { Pool } from 'pg';
 import { z } from 'zod';
 import { authenticateJWT, AuthRequest } from '../middleware/auth';
 import { requirePermission } from '../middleware/permissions';
 import { AssignmentNotificationService } from '../services/assignment-notification.service';
-import { getErrorMessage } from '../utils/error-handler'
+import { getErrorMessage } from '../utils/error-handler';
+import { container } from '../container';
+import { TYPES } from '../types';
+import { csrfProtection } from '../middleware/csrf';
+import { NotFoundError, ValidationError } from '../errors/app-error';
+import logger from '../config/logger';
+import { VehicleAssignmentsRepository } from '../repositories/vehicle-assignments.repository';
 
 const router = express.Router();
 
-// Get database pool from app context
-let pool: Pool;
-let notificationService: AssignmentNotificationService;
-
-export function setDatabasePool(dbPool: Pool) {
-  pool = dbPool;
-  notificationService = new AssignmentNotificationService(dbPool);
-}
+// Get repository from DI container
+const vehicleAssignmentsRepo = container.get<VehicleAssignmentsRepository>(TYPES.VehicleAssignmentsRepository);
+const notificationService = container.get<AssignmentNotificationService>(TYPES.AssignmentNotificationService);
 
 // =====================================================
 // Validation Schemas
@@ -49,7 +46,7 @@ const createAssignmentSchema = z.object({
   authorized_use: z.string().optional(),
   commuting_authorized: z.boolean().default(false),
   on_call_only: z.boolean().default(false),
-  geographic_constraints: z.record(z.any().optional(),
+  geographic_constraints: z.record(z.any()).optional(),
   requires_secured_parking: z.boolean().default(false),
   secured_parking_location_id: z.string().uuid().optional(),
   recommendation_notes: z.string().optional(),
@@ -94,101 +91,40 @@ router.get(
         department_id,
       } = req.query;
 
-      const offset = (parseInt(page as string) - 1) * parseInt(limit as string);
       const tenant_id = req.user!.tenant_id;
       const user_scope = req.user!.scope_level;
 
-      // Build WHERE clause based on scope and filters
-      let whereConditions = ['va.tenant_id = $1'];
-      let params: any[] = [tenant_id];
-      let paramIndex = 2;
+      const filters = {
+        assignment_type: assignment_type as string,
+        lifecycle_state: lifecycle_state as string,
+        driver_id: driver_id as string,
+        vehicle_id: vehicle_id as string,
+        department_id: department_id as string,
+        user_scope: user_scope as 'own' | 'team' | 'fleet',
+        user_id: user_scope === 'own' ? req.user!.id : undefined,
+        team_driver_ids: user_scope === 'team' ? req.user!.team_driver_ids : undefined,
+      };
 
-      // Apply scope filtering
-      if (user_scope === `own`) {
-        whereConditions.push(`dr.user_id = $${paramIndex++}`);
-        params.push(req.user!.id);
-      } else if (user_scope === `team` && req.user!.team_driver_ids) {
-        whereConditions.push(`va.driver_id = ANY($${paramIndex++}::uuid[])`);
-        params.push(req.user!.team_driver_ids);
-      }
+      const pagination = {
+        page: parseInt(page as string),
+        limit: parseInt(limit as string),
+      };
 
-      // Add filters
-      if (assignment_type) {
-        whereConditions.push(`va.assignment_type = $${paramIndex++}`);
-        params.push(assignment_type);
-      }
-      if (lifecycle_state) {
-        whereConditions.push(`va.lifecycle_state = $${paramIndex++}`);
-        params.push(lifecycle_state);
-      }
-      if (driver_id) {
-        whereConditions.push(`va.driver_id = $${paramIndex++}`);
-        params.push(driver_id);
-      }
-      if (vehicle_id) {
-        whereConditions.push(`va.vehicle_id = $${paramIndex++}`);
-        params.push(vehicle_id);
-      }
-      if (department_id) {
-        whereConditions.push(`va.department_id = $${paramIndex++}`);
-        params.push(department_id);
-      }
-
-      const whereClause = whereConditions.join(` AND `);
-
-      // Get assignments
-      const query = `
-        SELECT
-          va.*,
-          v.unit_number, v.make, v.model, v.year, v.vin,
-          v.classification AS vehicle_classification,
-          dr.employee_number, dr.position_title, dr.home_county, dr.on_call_eligible,
-          u.first_name AS driver_first_name, u.last_name AS driver_last_name, u.email AS driver_email,
-          dept.name AS department_name, dept.code AS department_code,
-          sp.name AS secured_parking_name, sp.address AS secured_parking_address,
-          rec_user.first_name AS recommended_by_first_name, rec_user.last_name AS recommended_by_last_name,
-          app_user.first_name AS approved_by_first_name, app_user.last_name AS approved_by_last_name,
-          cba.id AS cost_benefit_id, cba.net_benefit
-        FROM vehicle_assignments va
-        JOIN vehicles v ON va.vehicle_id = v.id
-        JOIN drivers dr ON va.driver_id = dr.id
-        LEFT JOIN users u ON dr.user_id = u.id
-        LEFT JOIN departments dept ON va.department_id = dept.id
-        LEFT JOIN secured_parking_locations sp ON va.secured_parking_location_id = sp.id
-        LEFT JOIN users rec_user ON va.recommended_by_user_id = rec_user.id
-        LEFT JOIN users app_user ON va.approved_by_user_id = app_user.id
-        LEFT JOIN cost_benefit_analyses cba ON va.cost_benefit_analysis_id = cba.id
-        WHERE ${whereClause}
-        ORDER BY va.created_at DESC
-        LIMIT $${paramIndex++} OFFSET $${paramIndex}
-      `;
-
-      params.push(parseInt(limit as string), offset);
-
-      const result = await pool.query(query, params);
-
-      // Get total count
-      const countQuery = `
-        SELECT COUNT(*) as total
-        FROM vehicle_assignments va
-        JOIN drivers dr ON va.driver_id = dr.id
-        WHERE ${whereClause}
-      `;
-
-      const countResult = await pool.query(countQuery, params.slice(0, -2); // Remove limit and offset
-      const total = parseInt(countResult.rows[0].total);
+      // Use repository methods instead of direct queries
+      const assignments = await vehicleAssignmentsRepo.findAll(tenant_id, filters, pagination);
+      const total = await vehicleAssignmentsRepo.count(tenant_id, filters);
 
       res.json({
-        assignments: result.rows,
+        assignments,
         pagination: {
-          page: parseInt(page as string),
-          limit: parseInt(limit as string),
+          page: pagination.page,
+          limit: pagination.limit,
           total,
-          pages: Math.ceil(total / parseInt(limit as string),
+          pages: Math.ceil(total / pagination.limit),
         },
       });
     } catch (error: any) {
-      logger.error(`Error fetching vehicle assignments:`, error) // Wave 26: Winston logger;
+      logger.error('Error fetching vehicle assignments:', error);
       res.status(500).json({
         error: 'Failed to fetch vehicle assignments',
         details: getErrorMessage(error),
@@ -211,45 +147,16 @@ router.get(
       const { id } = req.params;
       const tenant_id = req.user!.tenant_id;
 
-      const query = `
-        SELECT
-          va.*,
-          v.unit_number, v.make, v.model, v.year, v.vin, v.license_plate,
-          v.classification AS vehicle_classification, v.ownership_type,
-          dr.employee_number, dr.position_title, dr.home_county, dr.home_city,
-          dr.home_state, dr.residence_region, dr.on_call_eligible,
-          u.first_name AS driver_first_name, u.last_name AS driver_last_name,
-          u.email AS driver_email, u.phone AS driver_phone,
-          dept.name AS department_name, dept.code AS department_code,
-          sp.name AS secured_parking_name, sp.address AS secured_parking_address,
-          sp.city AS secured_parking_city, sp.state AS secured_parking_state,
-          rec_user.first_name AS recommended_by_first_name, rec_user.last_name AS recommended_by_last_name,
-          app_user.first_name AS approved_by_first_name, app_user.last_name AS approved_by_last_name,
-          den_user.first_name AS denied_by_first_name, den_user.last_name AS denied_by_last_name,
-          cba.id AS cost_benefit_id, cba.net_benefit, cba.total_annual_costs,
-          cba.total_annual_benefits
-        FROM vehicle_assignments va
-        JOIN vehicles v ON va.vehicle_id = v.id
-        JOIN drivers dr ON va.driver_id = dr.id
-        LEFT JOIN users u ON dr.user_id = u.id
-        LEFT JOIN departments dept ON va.department_id = dept.id
-        LEFT JOIN secured_parking_locations sp ON va.secured_parking_location_id = sp.id
-        LEFT JOIN users rec_user ON va.recommended_by_user_id = rec_user.id
-        LEFT JOIN users app_user ON va.approved_by_user_id = app_user.id
-        LEFT JOIN users den_user ON va.denied_by_user_id = den_user.id
-        LEFT JOIN cost_benefit_analyses cba ON va.cost_benefit_analysis_id = cba.id
-        WHERE va.id = $1 AND va.tenant_id = $2
-      `;
+      // Use repository method instead of direct query
+      const assignment = await vehicleAssignmentsRepo.findById(id, tenant_id);
 
-      const result = await pool.query(query, [id, tenant_id]);
-
-      if (result.rows.length === 0) {
-        throw new NotFoundError("Vehicle assignment not found");
+      if (!assignment) {
+        throw new NotFoundError('Vehicle assignment not found');
       }
 
-      res.json(result.rows[0]);
+      res.json(assignment);
     } catch (error: any) {
-      logger.error('Error fetching vehicle assignment:', error) // Wave 26: Winston logger;
+      logger.error('Error fetching vehicle assignment:', error);
       res.status(500).json({
         error: 'Failed to fetch vehicle assignment',
         details: getErrorMessage(error),
@@ -265,7 +172,8 @@ router.get(
 
 router.post(
   '/',
- csrfProtection,  csrfProtection, authenticateJWT,
+  csrfProtection,
+  authenticateJWT,
   requirePermission('vehicle_assignment:create:team'),
   async (req: AuthRequest, res: Response) => {
     try {
@@ -283,7 +191,7 @@ router.post(
 
         const startDate = new Date(data.start_date);
         const endDate = new Date(data.end_date);
-        const daysDiff = Math.ceil((endDate.getTime() - startDate.getTime() / (1000 * 60 * 60 * 24);
+        const daysDiff = Math.ceil((endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24));
 
         if (daysDiff > 7) {
           return res.status(400).json({
@@ -294,58 +202,25 @@ router.post(
 
       // Check if driver is in allowed region if commuting is authorized
       if (data.commuting_authorized) {
-        const regionCheckQuery = `
-          SELECT is_driver_in_allowed_region($1, $2) as is_allowed
-        `;
-        const regionCheck = await pool.query(regionCheckQuery, [data.driver_id, tenant_id]);
+        // Use repository method instead of direct query
+        const isAllowed = await vehicleAssignmentsRepo.isDriverInAllowedRegion(data.driver_id, tenant_id);
 
-        if (!regionCheck.rows[0].is_allowed && !data.secured_parking_location_id && !data.on_call_only) {
+        if (!isAllowed && !data.secured_parking_location_id && !data.on_call_only) {
           return res.status(400).json({
             error: 'Driver residence is outside allowed region. Secured parking location required or assignment must be on-call only.',
           });
         }
       }
 
-      const query = `
-        INSERT INTO vehicle_assignments (
-          tenant_id, vehicle_id, driver_id, department_id,
-          assignment_type, start_date, end_date, is_ongoing,
-          authorized_use, commuting_authorized, on_call_only,
-          geographic_constraints, requires_secured_parking, secured_parking_location_id,
-          recommendation_notes, created_by_user_id, lifecycle_state
-        ) VALUES (
-          $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, 'draft'
-        )
-        RETURNING *
-      `;
-
-      const params = [
-        tenant_id,
-        data.vehicle_id,
-        data.driver_id,
-        data.department_id || null,
-        data.assignment_type,
-        data.start_date,
-        data.end_date || null,
-        data.is_ongoing,
-        data.authorized_use || null,
-        data.commuting_authorized,
-        data.on_call_only,
-        JSON.stringify(data.geographic_constraints || {}),
-        data.requires_secured_parking,
-        data.secured_parking_location_id || null,
-        data.recommendation_notes || null,
-        user_id,
-      ];
-
-      const result = await pool.query(query, params);
+      // Use repository method instead of direct query
+      const assignment = await vehicleAssignmentsRepo.create(tenant_id, user_id, data);
 
       res.status(201).json({
         message: 'Vehicle assignment created successfully',
-        assignment: result.rows[0],
+        assignment,
       });
     } catch (error: any) {
-      logger.error('Error creating vehicle assignment:', error) // Wave 26: Winston logger;
+      logger.error('Error creating vehicle assignment:', error);
       if (error instanceof z.ZodError) {
         return res.status(400).json({
           error: 'Validation error',
@@ -367,52 +242,32 @@ router.post(
 
 router.put(
   '/:id',
- csrfProtection,  csrfProtection, authenticateJWT,
-  requirePermission(`vehicle_assignment:create:team`),
+  csrfProtection,
+  authenticateJWT,
+  requirePermission('vehicle_assignment:create:team'),
   async (req: AuthRequest, res: Response) => {
     try {
       const { id } = req.params;
       const data = updateAssignmentSchema.parse(req.body);
       const tenant_id = req.user!.tenant_id;
 
-      // Build update fields
-      const updates: string[] = [];
-      const params: any[] = [];
-      let paramIndex = 1;
-
-      Object.entries(data).forEach(([key, value]) => {
-        if (value !== undefined) {
-          updates.push(`${key} = $${paramIndex++}`);
-          params.push(key === `geographic_constraints` ? JSON.stringify(value) : value);
-        }
-      });
-
-      if (updates.length === 0) {
-        return res.status(400).json({ error: `No fields to update` });
+      if (Object.keys(data).length === 0) {
+        return res.status(400).json({ error: 'No fields to update' });
       }
 
-      updates.push(`updated_at = NOW()`);
-      params.push(id, tenant_id);
+      // Use repository method instead of direct query
+      const assignment = await vehicleAssignmentsRepo.update(id, tenant_id, data);
 
-      const query = `
-        UPDATE vehicle_assignments
-        SET ${updates.join(', ')}
-        WHERE id = $${paramIndex++} AND tenant_id = $${paramIndex}
-        RETURNING *
-      `;
-
-      const result = await pool.query(query, params);
-
-      if (result.rows.length === 0) {
-        return res.status(404).json({ error: `Vehicle assignment not found` });
+      if (!assignment) {
+        return res.status(404).json({ error: 'Vehicle assignment not found' });
       }
 
       res.json({
         message: 'Vehicle assignment updated successfully',
-        assignment: result.rows[0],
+        assignment,
       });
     } catch (error: any) {
-      logger.error('Error updating vehicle assignment:', error) // Wave 26: Winston logger;
+      logger.error('Error updating vehicle assignment:', error);
       if (error instanceof z.ZodError) {
         return res.status(400).json({
           error: 'Validation error',
@@ -434,34 +289,28 @@ router.put(
 
 router.post(
   '/:id/lifecycle',
- csrfProtection,  csrfProtection, authenticateJWT,
+  csrfProtection,
+  authenticateJWT,
   requirePermission('vehicle_assignment:create:team'),
   async (req: AuthRequest, res: Response) => {
     try {
       const { id } = req.params;
       const data = assignmentLifecycleSchema.parse(req.body);
       const tenant_id = req.user!.tenant_id;
-      const user_id = req.user!.id;
 
-      const query = `
-        UPDATE vehicle_assignments
-        SET lifecycle_state = $1, updated_at = NOW()
-        WHERE id = $2 AND tenant_id = $3
-        RETURNING *
-      `;
+      // Use repository method instead of direct query
+      const assignment = await vehicleAssignmentsRepo.updateLifecycleState(id, tenant_id, data.lifecycle_state);
 
-      const result = await pool.query(query, [data.lifecycle_state, id, tenant_id]);
-
-      if (result.rows.length === 0) {
-        return res.status(404).json({ error: `Vehicle assignment not found` });
+      if (!assignment) {
+        return res.status(404).json({ error: 'Vehicle assignment not found' });
       }
 
       res.json({
         message: `Assignment lifecycle updated to ${data.lifecycle_state}`,
-        assignment: result.rows[0],
+        assignment,
       });
     } catch (error: any) {
-      logger.error(`Error updating lifecycle state:`, error) // Wave 26: Winston logger;
+      logger.error('Error updating lifecycle state:', error);
       if (error instanceof z.ZodError) {
         return res.status(400).json({
           error: 'Validation error',
@@ -483,7 +332,8 @@ router.post(
 
 router.post(
   '/:id/recommend',
- csrfProtection,  csrfProtection, authenticateJWT,
+  csrfProtection,
+  authenticateJWT,
   requirePermission('vehicle_assignment:recommend:team'),
   async (req: AuthRequest, res: Response) => {
     try {
@@ -492,22 +342,11 @@ router.post(
       const tenant_id = req.user!.tenant_id;
       const user_id = req.user!.id;
 
-      const query = `
-        UPDATE vehicle_assignments
-        SET
-          lifecycle_state = 'submitted',
-          recommended_by_user_id = $1,
-          recommended_at = NOW(),
-          recommendation_notes = $2,
-          updated_at = NOW()
-        WHERE id = $3 AND tenant_id = $4
-        RETURNING *
-      `;
+      // Use repository method instead of direct query
+      const assignment = await vehicleAssignmentsRepo.recommend(id, tenant_id, user_id, notes);
 
-      const result = await pool.query(query, [user_id, notes || null, id, tenant_id]);
-
-      if (result.rows.length === 0) {
-        throw new NotFoundError("Vehicle assignment not found");
+      if (!assignment) {
+        throw new NotFoundError('Vehicle assignment not found');
       }
 
       // BR-6.4: Send notification to Executive Team
@@ -515,10 +354,10 @@ router.post(
 
       res.json({
         message: 'Assignment recommended for approval',
-        assignment: result.rows[0],
+        assignment,
       });
     } catch (error: any) {
-      logger.error('Error recommending assignment:', error) // Wave 26: Winston logger;
+      logger.error('Error recommending assignment:', error);
       res.status(500).json({
         error: 'Failed to recommend assignment',
         details: getErrorMessage(error),
@@ -534,7 +373,8 @@ router.post(
 
 router.post(
   '/:id/approve',
- csrfProtection,  csrfProtection, authenticateJWT,
+  csrfProtection,
+  authenticateJWT,
   requirePermission('vehicle_assignment:approve:fleet'),
   async (req: AuthRequest, res: Response) => {
     try {
@@ -543,42 +383,17 @@ router.post(
       const tenant_id = req.user!.tenant_id;
       const user_id = req.user!.id;
 
-      let query: string;
-      let params: any[];
+      let assignment;
 
       if (data.action === 'approve') {
-        query = `
-          UPDATE vehicle_assignments
-          SET
-            lifecycle_state = 'approved',
-            approval_status = 'approved',
-            approved_by_user_id = $1,
-            approved_at = NOW(),
-            approval_notes = $2,
-            updated_at = NOW()
-          WHERE id = $3 AND tenant_id = $4 AND lifecycle_state = 'submitted'
-          RETURNING *
-        `;
-        params = [user_id, data.notes || null, id, tenant_id];
+        // Use repository method instead of direct query
+        assignment = await vehicleAssignmentsRepo.approve(id, tenant_id, user_id, data.notes);
       } else {
-        query = `
-          UPDATE vehicle_assignments
-          SET
-            lifecycle_state = 'denied',
-            approval_status = 'denied',
-            denied_by_user_id = $1,
-            denied_at = NOW(),
-            denial_reason = $2,
-            updated_at = NOW()
-          WHERE id = $3 AND tenant_id = $4 AND lifecycle_state = 'submitted'
-          RETURNING *
-        `;
-        params = [user_id, data.notes || 'Denied by executive team', id, tenant_id];
+        // Use repository method instead of direct query
+        assignment = await vehicleAssignmentsRepo.deny(id, tenant_id, user_id, data.notes || 'Denied by executive team');
       }
 
-      const result = await pool.query(query, params);
-
-      if (result.rows.length === 0) {
+      if (!assignment) {
         return res.status(404).json({
           error: 'Vehicle assignment not found or not in submitted state',
         });
@@ -592,11 +407,11 @@ router.post(
       }
 
       res.json({
-        message: 'Assignment ${data.action === 'approve' ? 'approved' : 'denied'} successfully',
-        assignment: result.rows[0],
+        message: `Assignment ${data.action === 'approve' ? 'approved' : 'denied'} successfully`,
+        assignment,
       });
     } catch (error: any) {
-      logger.error('Error processing approval:', error) // Wave 26: Winston logger;
+      logger.error('Error processing approval:', error);
       if (error instanceof z.ZodError) {
         return res.status(400).json({
           error: 'Validation error',
@@ -618,23 +433,18 @@ router.post(
 
 router.post(
   '/:id/activate',
- csrfProtection,  csrfProtection, authenticateJWT,
+  csrfProtection,
+  authenticateJWT,
   requirePermission('vehicle_assignment:approve:fleet'),
   async (req: AuthRequest, res: Response) => {
     try {
       const { id } = req.params;
       const tenant_id = req.user!.tenant_id;
 
-      const query = `
-        UPDATE vehicle_assignments
-        SET lifecycle_state = 'active', updated_at = NOW()
-        WHERE id = $1 AND tenant_id = $2 AND approval_status = 'approved'
-        RETURNING *
-      `;
+      // Use repository method instead of direct query
+      const assignment = await vehicleAssignmentsRepo.activate(id, tenant_id);
 
-      const result = await pool.query(query, [id, tenant_id]);
-
-      if (result.rows.length === 0) {
+      if (!assignment) {
         return res.status(404).json({
           error: 'Vehicle assignment not found or not approved',
         });
@@ -645,10 +455,10 @@ router.post(
 
       res.json({
         message: 'Assignment activated successfully',
-        assignment: result.rows[0],
+        assignment,
       });
     } catch (error: any) {
-      logger.error('Error activating assignment:', error) // Wave 26: Winston logger;
+      logger.error('Error activating assignment:', error);
       res.status(500).json({
         error: 'Failed to activate assignment',
         details: getErrorMessage(error),
@@ -664,7 +474,8 @@ router.post(
 
 router.post(
   '/:id/terminate',
- csrfProtection,  csrfProtection, authenticateJWT,
+  csrfProtection,
+  authenticateJWT,
   requirePermission('vehicle_assignment:terminate:fleet'),
   async (req: AuthRequest, res: Response) => {
     try {
@@ -672,26 +483,14 @@ router.post(
       const { reason, effective_date } = req.body;
       const tenant_id = req.user!.tenant_id;
 
-      const query = `
-        UPDATE vehicle_assignments
-        SET
-          lifecycle_state = 'terminated',
-          end_date = $1,
-          approval_notes = COALESCE(approval_notes, '') || E'\n\nTermination reason: ' || $2,
-          updated_at = NOW()
-        WHERE id = $3 AND tenant_id = $4
-        RETURNING *
-      `;
+      const effectiveDate = effective_date || new Date().toISOString().split('T')[0];
+      const terminationReason = reason || 'Terminated by fleet manager';
 
-      const result = await pool.query(query, [
-        effective_date || new Date().toISOString().split('T')[0],
-        reason || 'Terminated by fleet manager',
-        id,
-        tenant_id,
-      ]);
+      // Use repository method instead of direct query
+      const assignment = await vehicleAssignmentsRepo.terminate(id, tenant_id, terminationReason, effectiveDate);
 
-      if (result.rows.length === 0) {
-        throw new NotFoundError("Vehicle assignment not found");
+      if (!assignment) {
+        throw new NotFoundError('Vehicle assignment not found');
       }
 
       // BR-6.4: Send termination notification to all stakeholders
@@ -699,10 +498,10 @@ router.post(
 
       res.json({
         message: 'Assignment terminated successfully',
-        assignment: result.rows[0],
+        assignment,
       });
     } catch (error: any) {
-      logger.error('Error terminating assignment:', error) // Wave 26: Winston logger;
+      logger.error('Error terminating assignment:', error);
       res.status(500).json({
         error: 'Failed to terminate assignment',
         details: getErrorMessage(error),
@@ -725,21 +524,12 @@ router.get(
       const { id } = req.params;
       const tenant_id = req.user!.tenant_id;
 
-      const query = `
-        SELECT
-          vah.*,
-          u.first_name, u.last_name, u.email
-        FROM vehicle_assignment_history vah
-        LEFT JOIN users u ON vah.changed_by_user_id = u.id
-        WHERE vah.vehicle_assignment_id = $1 AND vah.tenant_id = $2
-        ORDER BY vah.change_timestamp DESC
-      `;
+      // Use repository method instead of direct query
+      const history = await vehicleAssignmentsRepo.getHistory(id, tenant_id);
 
-      const result = await pool.query(query, [id, tenant_id]);
-
-      res.json(result.rows);
+      res.json(history);
     } catch (error: any) {
-      logger.error('Error fetching assignment history:', error) // Wave 26: Winston logger;
+      logger.error('Error fetching assignment history:', error);
       res.status(500).json({
         error: 'Failed to fetch assignment history',
         details: getErrorMessage(error),
@@ -755,23 +545,18 @@ router.get(
 
 router.delete(
   '/:id',
- csrfProtection,  csrfProtection, authenticateJWT,
+  csrfProtection,
+  authenticateJWT,
   requirePermission('vehicle_assignment:create:team'),
   async (req: AuthRequest, res: Response) => {
     try {
       const { id } = req.params;
       const tenant_id = req.user!.tenant_id;
 
-      // Only allow deletion of draft assignments
-      const query = `
-        DELETE FROM vehicle_assignments
-        WHERE id = $1 AND tenant_id = $2 AND lifecycle_state = 'draft'
-        RETURNING *
-      `;
+      // Use repository method instead of direct query
+      const deleted = await vehicleAssignmentsRepo.deleteDraft(id, tenant_id);
 
-      const result = await pool.query(query, [id, tenant_id]);
-
-      if (result.rows.length === 0) {
+      if (!deleted) {
         return res.status(404).json({
           error: 'Vehicle assignment not found or cannot be deleted (only draft assignments can be deleted)',
         });
@@ -781,7 +566,7 @@ router.delete(
         message: 'Vehicle assignment deleted successfully',
       });
     } catch (error: any) {
-      logger.error('Error deleting vehicle assignment:', error) // Wave 26: Winston logger;
+      logger.error('Error deleting vehicle assignment:', error);
       res.status(500).json({
         error: 'Failed to delete vehicle assignment',
         details: getErrorMessage(error),
