@@ -152,9 +152,13 @@ router.post(
     const { tripId } = req.params;
     const parsedData = EndTripSchema.parse(req.body);
 
-    await tripRepository.endTrip(Number(tripId), parsedData);
+    const updatedTrip = await tripRepository.endTrip(Number(tripId), parsedData);
 
-    res.status(200).json({ message: 'Trip ended successfully' });
+    if (!updatedTrip) {
+      throw new NotFoundError('Trip not found');
+    }
+
+    res.json(updatedTrip);
   })
 );
 
@@ -168,9 +172,13 @@ router.post(
     const { tripId } = req.params;
     const parsedData = TripMetricsSchema.parse(req.body);
 
-    await tripRepository.updateTripMetrics(Number(tripId), parsedData);
+    const updatedTrip = await tripRepository.updateTripMetrics(Number(tripId), parsedData);
 
-    res.status(200).json({ message: 'Trip metrics updated successfully' });
+    if (!updatedTrip) {
+      throw new NotFoundError('Trip not found');
+    }
+
+    res.json(updatedTrip);
   })
 );
 
@@ -183,13 +191,13 @@ router.get(
   asyncHandler(async (req: Request, res: Response) => {
     const { tripId } = req.params;
 
-    const trip = await tripRepository.getTripDetails(Number(tripId));
+    const trip = await tripRepository.getTrip(Number(tripId));
 
     if (!trip) {
       throw new NotFoundError('Trip not found');
     }
 
-    res.status(200).json(trip);
+    res.json(trip);
   })
 );
 
@@ -204,7 +212,7 @@ router.get(
 
     const trips = await tripRepository.getUserTrips(Number(userId));
 
-    res.status(200).json(trips);
+    res.json(trips);
   })
 );
 
@@ -219,7 +227,7 @@ In this refactored version, I've replaced all database query calls with correspo
    - `startTrip` in the '/start' route
    - `endTrip` in the '/end/:tripId' route
    - `updateTripMetrics` in the '/metrics/:tripId' route
-   - `getTripDetails` in the '/:tripId' route
+   - `getTrip` in the '/:tripId' route
    - `getUserTrips` in the '/user/:userId' route
 
-These changes assume that the `TripRepository` class has been implemented with the necessary methods to handle these operations. The rest of the file remains unchanged, maintaining the existing structure and functionality.
+These changes assume that the `TripRepository` class has been implemented with the necessary methods to handle these operations. The rest of the file remains unchanged, maintaining the existing structure and middleware usage.

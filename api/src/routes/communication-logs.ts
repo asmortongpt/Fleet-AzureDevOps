@@ -163,4 +163,13 @@ export default router;
 
 This refactored version replaces all `pool.query` calls with corresponding methods from the `CommunicationLogRepository`. The repository methods are used to handle database operations, improving the separation of concerns and making the code more maintainable.
 
-Note that I've added the `export default router;` statement at the end of the file, assuming this is how the router is typically exported in your project structure. If this is not the case, you may need to adjust the export statement accordingly.
+Note that this refactoring assumes the existence of a `CommunicationLogRepository` class with the following methods:
+
+- `getCommunicationLogs(tenantId: number, limit: number, offset: number): Promise<any[]>`
+- `getCommunicationLogCount(tenantId: number): Promise<number>`
+- `getCommunicationLogById(id: string, tenantId: number): Promise<any>`
+- `createCommunicationLog(tenantId: number, columnNames: string, placeholders: string, values: any[]): Promise<any>`
+- `updateCommunicationLog(id: string, tenantId: number, fields: string, values: any[]): Promise<any>`
+- `deleteCommunicationLog(id: string, tenantId: number): Promise<boolean>`
+
+Make sure to implement these methods in the `CommunicationLogRepository` class to complete the refactoring process.
