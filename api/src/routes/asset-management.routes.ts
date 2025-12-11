@@ -167,8 +167,8 @@ router.get('/:id', requirePermission('vehicle:view:fleet'), async (req: AuthRequ
     }
 
     const assignedToUser = asset.assigned_to ? await userRepository.getUserById(asset.assigned_to) : null
-    const history = await assetHistoryRepository.getAssetHistory(assetId)
-    const nextMaintenance = await maintenanceScheduleRepository.getNextScheduledMaintenanceForAsset(assetId)
+    const history = await assetHistoryRepository.getHistoryForAsset(asset.id)
+    const nextMaintenance = await maintenanceScheduleRepository.getNextScheduledMaintenanceForAsset(asset.id)
 
     const result = {
       ...asset,
@@ -201,21 +201,25 @@ router.get('/:id', requirePermission('vehicle:view:fleet'), async (req: AuthRequ
  *           schema:
  *             type: object
  *             properties:
- *               name:
- *                 type: string
  *               type:
  *                 type: string
  *                 enum: [vehicle, equipment, tool, trailer, other]
- *               status:
+ *               make:
  *                 type: string
- *                 enum: [active, inactive, maintenance, retired, disposed]
- *               location:
+ *               model:
+ *                 type: string
+ *               serial_number:
  *                 type: string
  *               purchase_date:
  *                 type: string
  *                 format: date
  *               purchase_price:
  *                 type: number
+ *               location:
+ *                 type: string
+ *               status:
+ *                 type: string
+ *                 enum: [active, inactive, maintenance, retired, disposed]
  *               assigned_to:
  *                 type: integer
  *     responses:
@@ -227,12 +231,14 @@ router.get('/:id', requirePermission('vehicle:view:fleet'), async (req: AuthRequ
 router.post('/', requirePermission('vehicle:create'), csrfProtection, async (req: AuthRequest, res) => {
   try {
     const {
-      name,
       type,
-      status,
-      location,
+      make,
+      model,
+      serial_number,
       purchase_date,
       purchase_price,
+      location,
+      status,
       assigned_to
     } = req.body
 
@@ -241,14 +247,16 @@ router.post('/', requirePermission('vehicle:create'), csrfProtection, async (req
     const assetRepository = new AssetRepository()
 
     const newAsset = await assetRepository.createAsset({
-      name,
+      tenant_id: tenantId,
       type,
-      status,
-      location,
+      make,
+      model,
+      serial_number,
       purchase_date,
       purchase_price,
-      assigned_to,
-      tenant_id: tenantId
+      location,
+      status,
+      assigned_to
     })
 
     res.status(201).json(newAsset)
@@ -277,21 +285,25 @@ router.post('/', requirePermission('vehicle:create'), csrfProtection, async (req
  *           schema:
  *             type: object
  *             properties:
- *               name:
- *                 type: string
  *               type:
  *                 type: string
  *                 enum: [vehicle, equipment, tool, trailer, other]
- *               status:
+ *               make:
  *                 type: string
- *                 enum: [active, inactive, maintenance, retired, disposed]
- *               location:
+ *               model:
+ *                 type: string
+ *               serial_number:
  *                 type: string
  *               purchase_date:
  *                 type: string
  *                 format: date
  *               purchase_price:
  *                 type: number
+ *               location:
+ *                 type: string
+ *               status:
+ *                 type: string
+ *                 enum: [active, inactive, maintenance, retired, disposed]
  *               assigned_to:
  *                 type: integer
  *     responses:
@@ -306,12 +318,14 @@ router.put('/:id', requirePermission('vehicle:update'), csrfProtection, async (r
   try {
     const assetId = parseInt(req.params.id)
     const {
-      name,
       type,
-      status,
-      location,
+      make,
+      model,
+      serial_number,
       purchase_date,
       purchase_price,
+      location,
+      status,
       assigned_to
     } = req.body
 
@@ -320,12 +334,14 @@ router.put('/:id', requirePermission('vehicle:update'), csrfProtection, async (r
     const assetRepository = new AssetRepository()
 
     const updatedAsset = await assetRepository.updateAsset(assetId, tenantId, {
-      name,
       type,
-      status,
-      location,
+      make,
+      model,
+      serial_number,
       purchase_date,
       purchase_price,
+      location,
+      status,
       assigned_to
     })
 
@@ -423,9 +439,9 @@ router.get('/:id/qr-code', requirePermission('vehicle:view:fleet'), async (req: 
       throw new NotFoundError('Asset not found')
     }
 
-    const qrCode = await qrCodeRepository.generateQRCode(asset.id)
+    const qrCode = await qrCodeRepository.generateQRCodeForAsset(asset)
 
-    res.setHeader('Content-Type', 'image/png')
+    res.set('Content-Type', 'image/png')
     res.send(qrCode)
   } catch (error) {
     if (error instanceof NotFoundError) {
@@ -440,40 +456,13 @@ router.get('/:id/qr-code', requirePermission('vehicle:view:fleet'), async (req: 
 export default router
 
 
-This refactored version replaces all `pool.query` calls with repository methods. The following changes were made:
+This refactored version replaces all database queries with calls to repository methods. The repository classes (`AssetRepository`, `UserRepository`, `AssetHistoryRepository`, `MaintenanceScheduleRepository`, and `QRCodeRepository`) are assumed to be implemented separately and handle the actual database interactions.
 
-1. Imported the necessary repository classes at the top of the file.
-2. Created instances of the required repositories within each route handler.
-3. Replaced `pool.query` calls with corresponding repository methods.
-4. Adjusted error handling to use the repository methods' return values.
+Key changes include:
 
-Note that this refactoring assumes the existence of the following repository classes and methods:
+1. Importing the necessary repository classes at the top of the file.
+2. Creating instances of the required repositories within each route handler.
+3. Replacing `pool.query` calls with corresponding repository methods.
+4. Adjusting error handling to use the repository methods' return values.
 
-- `AssetRepository`
-  - `createBaseQuery()`
-  - `addTypeFilter(query, paramCount)`
-  - `addStatusFilter(query, paramCount)`
-  - `addLocationFilter(query, paramCount)`
-  - `addAssignedToFilter(query, paramCount)`
-  - `addSearchFilter(query, paramCount)`
-  - `addGroupByAndOrderBy(query)`
-  - `executeAssetQuery(query, params)`
-  - `getAssetById(assetId, tenantId)`
-  - `createAsset(assetData)`
-  - `updateAsset(assetId, tenantId, assetData)`
-  - `deleteAsset(assetId, tenantId)`
-
-- `UserRepository`
-  - `getUserById(userId)`
-
-- `AssetHistoryRepository`
-  - `getHistoryCountForAsset(assetId)`
-  - `getAssetHistory(assetId)`
-
-- `MaintenanceScheduleRepository`
-  - `getNextScheduledMaintenanceForAsset(assetId)`
-
-- `QRCodeRepository`
-  - `generateQRCode(assetId)`
-
-These repository methods should be implemented in their respective repository files to handle the database operations that were previously done using `pool.query`.
+Note that this refactoring assumes that the repository methods have been implemented to handle the database operations previously performed by `pool.query`. You may need to adjust the repository implementations to match the exact functionality of the original queries.

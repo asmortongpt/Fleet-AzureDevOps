@@ -207,7 +207,7 @@ router.delete('/:id', requirePermission('geofence:edit:fleet'), csrfProtection, 
 
     res.json({
       success: true,
-      message: 'Layer deleted successfully'
+      message: `Layer deleted successfully`
     });
   } catch (error: any) {
     logger.error('Failed to delete ArcGIS layer', {

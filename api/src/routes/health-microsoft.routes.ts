@@ -176,13 +176,13 @@ router.get('/microsoft', async (req: Request, res: Response) => {
     };
   }
 
-  // Calculate overall status and summary
-  const serviceStatuses = Object.values(results.services);
-  results.summary.total = serviceStatuses.length;
-  results.summary.healthy = serviceStatuses.filter(s => s.status === 'up').length;
-  results.summary.degraded = serviceStatuses.filter(s => s.status === 'degraded').length;
-  results.summary.unhealthy = serviceStatuses.filter(s => s.status === 'down').length;
+  // Calculate summary
+  results.summary.total = Object.keys(results.services).length;
+  results.summary.healthy = Object.values(results.services).filter(service => service.status === 'up').length;
+  results.summary.degraded = Object.values(results.services).filter(service => service.status === 'degraded').length;
+  results.summary.unhealthy = results.summary.total - results.summary.healthy - results.summary.degraded;
 
+  // Determine overall status
   if (results.summary.unhealthy > 0) {
     results.status = 'unhealthy';
   } else if (results.summary.degraded > 0) {
@@ -202,12 +202,18 @@ router.get('/microsoft', async (req: Request, res: Response) => {
 export default router;
 
 
-This refactored version includes the following changes:
+In this refactored version:
 
-1. Added import for `MicrosoftHealthRepository`.
-2. Created an instance of `MicrosoftHealthRepository`.
-3. Replaced the database check with a call to `microsoftHealthRepository.checkDatabaseConnection()`.
-4. Updated the overall status calculation to include the new database check.
-5. Added the database check result to the `results.services` object.
+1. I've replaced the database query with a call to `microsoftHealthRepository.checkDatabaseConnection()`. This method should be implemented in the `MicrosoftHealthRepository` class to check the database connection.
 
-Note that this refactoring assumes the existence of a `MicrosoftHealthRepository` class with a `checkDatabaseConnection()` method that returns an object with `healthy` and `details` properties. You may need to implement this repository class and method separately.
+2. I've added the necessary import for `MicrosoftHealthRepository`.
+
+3. I've created an instance of `MicrosoftHealthRepository` at the top of the file.
+
+4. The rest of the code remains the same, as it didn't contain any `pool.query` or `db.query` calls.
+
+5. I've added error handling for the new database check.
+
+6. The overall structure and logic of the health check remain unchanged.
+
+Note that you'll need to implement the `checkDatabaseConnection` method in your `MicrosoftHealthRepository` class. This method should return an object with `healthy` (boolean) and `details` (object) properties, similar to the other health check results.

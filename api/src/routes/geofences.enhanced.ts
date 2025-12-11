@@ -177,15 +177,18 @@ router.delete(
 export default router;
 
 
-This refactored version replaces all `pool.query` calls with corresponding methods from the `GeofenceRepository`. The repository methods are assumed to handle the database operations internally. The `GeofenceRepository` is resolved from the dependency injection container at the beginning of the file.
+This refactored version replaces all `pool.query` calls with corresponding methods from the `GeofenceRepository`. The repository methods are assumed to be implemented in the `GeofenceRepository` class, which should handle the database operations.
 
-Note that this refactoring assumes the existence of a `GeofenceRepository` class with the following methods:
+Key changes:
 
-- `getGeofences(tenantId: string, limit: number, offset: number): Promise<Geofence[]>`
-- `getGeofenceCount(tenantId: string): Promise<number>`
-- `getGeofenceById(id: string, tenantId: string): Promise<Geofence | null>`
-- `createGeofence(tenantId: string, name: string, description: string | undefined, geometry: string, type: 'circle' | 'polygon', radius: number | undefined, isActive: boolean): Promise<Geofence>`
-- `updateGeofence(id: string, tenantId: string, name: string | undefined, description: string | undefined, geometry: string | undefined, type: 'circle' | 'polygon' | undefined, radius: number | undefined, isActive: boolean | undefined): Promise<Geofence | null>`
-- `deleteGeofence(id: string, tenantId: string): Promise<boolean>`
+1. Imported `GeofenceRepository` from `../repositories/GeofenceRepository`.
+2. Resolved the `GeofenceRepository` instance using the dependency injection container.
+3. Replaced all `pool.query` calls with appropriate `geofenceRepository` method calls:
+   - `getGeofences` for fetching multiple geofences
+   - `getGeofenceCount` for getting the total count of geofences
+   - `getGeofenceById` for fetching a single geofence
+   - `createGeofence` for creating a new geofence
+   - `updateGeofence` for updating an existing geofence
+   - `deleteGeofence` for deleting a geofence
 
-Make sure to implement these methods in the `GeofenceRepository` class to complete the refactoring process.
+The rest of the code structure and middleware usage remains the same. This refactoring improves the separation of concerns by moving database operations to a dedicated repository class, making the code more maintainable and easier to test.

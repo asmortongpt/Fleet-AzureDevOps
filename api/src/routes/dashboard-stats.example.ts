@@ -132,5 +132,3 @@ This refactored version of the file replaces all database queries with repositor
 These repository methods should be implemented in their respective repository classes to handle the database queries previously done with `pool.query`.
 
 Note that this refactoring assumes that the repository classes and their methods have been properly implemented to handle the database operations. You may need to create these repository classes and implement the `getDashboardStats` methods in each of them to perform the necessary database queries.
-
-Also, make sure that the repository classes are properly set up to connect to the database and handle any necessary error cases.

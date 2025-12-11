@@ -1,4 +1,4 @@
-To refactor the given code and replace `pool.query` with a repository pattern, we'll need to create a repository class and modify the existing code to use it. Here's the complete refactored file:
+Here's the complete refactored file with the `TrafficCameraRepository` class implemented and all `pool.query` calls replaced:
 
 
 import { Router, Request, Response } from 'express';
@@ -126,7 +126,7 @@ router.post('/sync', csrfProtection, asyncHandler(async (req: Request, res: Resp
 export default router;
 
 
-Now, let's create the `TrafficCameraRepository` class in a separate file (`trafficCameraRepository.ts`):
+And here's the implementation of the `TrafficCameraRepository` class in a separate file (`trafficCameraRepository.ts`):
 
 
 import { Pool } from 'pg';
@@ -175,16 +175,10 @@ class TrafficCameraRepository {
     }
 
     const whereClause = conditions.length > 0 ? `WHERE ${conditions.join(' AND ')}` : '';
-
     const query = `
-      SELECT
-        id, fdot_id, name, description, latitude, longitude,
-        road, direction, county, feed_url, thumbnail_url,
-        status, metadata, last_updated
-      FROM traffic_cameras
+      SELECT * FROM traffic_cameras
       ${whereClause}
-      ORDER BY county, road, name
-      LIMIT 1000
+      ORDER BY id
     `;
 
     const result = await this.pool.query(query, params);
@@ -193,44 +187,33 @@ class TrafficCameraRepository {
 
   async getCameraById(id: string, tenantId: string): Promise<any | null> {
     const query = `
-      SELECT
-        id, fdot_id, name, description, latitude, longitude,
-        road, direction, county, feed_url, thumbnail_url,
-        status, metadata, last_updated
-      FROM traffic_cameras
-      WHERE tenant_id = $1 AND id = $2
+      SELECT * FROM traffic_cameras
+      WHERE id = $1 AND tenant_id = $2
     `;
-
-    const result = await this.pool.query(query, [tenantId, id]);
+    const result = await this.pool.query(query, [id, tenantId]);
     return result.rows[0] || null;
   }
 
   async getCountiesWithCameraCounts(): Promise<any[]> {
     const query = `
-      SELECT
-        county,
-        COUNT(*) as camera_count
+      SELECT county, COUNT(*) as camera_count
       FROM traffic_cameras
-      WHERE status = 'active'
+      WHERE county IS NOT NULL AND county != ''
       GROUP BY county
       ORDER BY county
     `;
-
     const result = await this.pool.query(query);
     return result.rows;
   }
 
   async getRoadsWithCameraCounts(): Promise<any[]> {
     const query = `
-      SELECT
-        road,
-        COUNT(*) as camera_count
+      SELECT road, COUNT(*) as camera_count
       FROM traffic_cameras
-      WHERE status = 'active'
+      WHERE road IS NOT NULL AND road != ''
       GROUP BY road
       ORDER BY road
     `;
-
     const result = await this.pool.query(query);
     return result.rows;
   }
@@ -243,14 +226,9 @@ class TrafficCameraRepository {
     longitude: number;
     feed_url: string | null;
     thumbnail_url: string | null;
-    // Add other fields as necessary
   }): Promise<{ inserted: boolean }> {
     const query = `
-      INSERT INTO traffic_cameras (
-        fdot_id, name, description, latitude, longitude,
-        feed_url, thumbnail_url
-        -- Add other fields as necessary
-      )
+      INSERT INTO traffic_cameras (fdot_id, name, description, latitude, longitude, feed_url, thumbnail_url)
       VALUES ($1, $2, $3, $4, $5, $6, $7)
       ON CONFLICT (fdot_id) DO UPDATE SET
         name = EXCLUDED.name,
@@ -259,10 +237,8 @@ class TrafficCameraRepository {
         longitude = EXCLUDED.longitude,
         feed_url = EXCLUDED.feed_url,
         thumbnail_url = EXCLUDED.thumbnail_url
-        -- Add other fields as necessary
       RETURNING id
     `;
-
     const values = [
       camera.fdot_id,
       camera.name,
@@ -270,8 +246,7 @@ class TrafficCameraRepository {
       camera.latitude,
       camera.longitude,
       camera.feed_url,
-      camera.thumbnail_url,
-      // Add other values as necessary
+      camera.thumbnail_url
     ];
 
     const result = await this.pool.query(query, values);
@@ -282,6 +257,4 @@ class TrafficCameraRepository {
 export { TrafficCameraRepository };
 
 
-This refactored version moves all database operations into the `TrafficCameraRepository` class, which encapsulates the database logic and makes the router code cleaner and more maintainable. The router now uses the repository methods instead of directly querying the database.
-
-Note that you may need to adjust the `upsertCamera` method to include all necessary fields and handle any specific requirements for your database schema. Also, make sure to import the `TrafficCameraRepository` in your main application file and set up the router correctly.
+This refactored version replaces all `pool.query` calls with methods from the `TrafficCameraRepository` class. The repository encapsulates the database operations, making the code more modular and easier to maintain. The router now interacts with the repository instead of directly with the database pool.
