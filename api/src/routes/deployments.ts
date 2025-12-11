@@ -1,4 +1,4 @@
-To refactor the `deployments.ts` file to use the repository pattern, we'll need to create a `DeploymentRepository` and replace all `pool.query` calls with repository methods. Here's the refactored version of the file:
+Here's the complete refactored `deployments.ts` file using repository methods instead of `pool.query`:
 
 
 import express, { Response } from 'express';
@@ -121,8 +121,97 @@ router.post('/',
 
       res.status(201).json(newDeployment);
     } catch (error: any) {
-      logger.error('Error creating deployment:', error);
+      logger.error(`Error creating deployment:`, error);
       res.status(500).json({ error: 'Failed to create deployment', message: getErrorMessage(error) });
+    }
+  }
+);
+
+/**
+ * GET /api/deployments/:id
+ * Get a specific deployment by ID
+ */
+router.get('/:id',
+  requirePermission('role:manage:global'),
+  async (req: AuthRequest, res: Response) => {
+    try {
+      const deploymentId = parseInt(req.params.id, 10);
+      const deployment = await deploymentRepository.getDeploymentById(deploymentId);
+
+      if (!deployment) {
+        throw new NotFoundError('Deployment not found');
+      }
+
+      const deployedByUser = await userRepository.getUserById(deployment.deployed_by_user_id);
+      const qualityGates = await deploymentRepository.getQualityGatesForDeployment(deployment.id);
+
+      const deploymentWithDetails = {
+        ...deployment,
+        deployed_by_name: deployedByUser ? `${deployedByUser.first_name} ${deployedByUser.last_name}` : null,
+        quality_gates: qualityGates
+      };
+
+      res.json(deploymentWithDetails);
+    } catch (error: any) {
+      logger.error(`Error fetching deployment:`, error);
+      if (error instanceof NotFoundError) {
+        res.status(404).json({ error: 'Deployment not found', message: getErrorMessage(error) });
+      } else {
+        res.status(500).json({ error: 'Failed to fetch deployment', message: getErrorMessage(error) });
+      }
+    }
+  }
+);
+
+/**
+ * PUT /api/deployments/:id
+ * Update a specific deployment by ID
+ */
+router.put('/:id',
+  csrfProtection,
+  requirePermission('role:manage:global'),
+  async (req: AuthRequest, res: Response) => {
+    try {
+      const deploymentId = parseInt(req.params.id, 10);
+      const {
+        status,
+        deployment_notes,
+        metadata = {}
+      } = req.body;
+
+      const updatedDeployment = await deploymentRepository.updateDeployment(deploymentId, {
+        status,
+        deployment_notes,
+        metadata
+      });
+
+      if (!updatedDeployment) {
+        throw new NotFoundError('Deployment not found');
+      }
+
+      // Create audit log
+      if (req.user?.id) {
+        await createAuditLog(
+          req.user.tenant_id || null,
+          req.user.id,
+          `UPDATE`,
+          'deployment',
+          deploymentId,
+          { status, deployment_notes },
+          req.ip || null,
+          req.get('user-agent') || null,
+          'success'
+        );
+      }
+
+      res.json(updatedDeployment);
+    } catch (error: any) {
+      logger.error(`Error updating deployment:`, error);
+      if (error instanceof NotFoundError) {
+        res.status(404).json({ error: 'Deployment not found', message: getErrorMessage(error) });
+      } else {
+        res.status(500).json({ error: 'Failed to update deployment', message: getErrorMessage(error) });
+      }
     }
   }
 );
@@ -130,15 +219,14 @@ router.post('/',
 export default router;
 
 
-This refactored version assumes the existence of a `DeploymentRepository` and a `UserRepository`. Here's a brief explanation of the changes:
+This refactored version of `deployments.ts` replaces all database queries with calls to the `DeploymentRepository` and `UserRepository` methods. The `DeploymentRepository` should be implemented to handle the following operations:
 
-1. We import the necessary repositories at the top of the file.
-2. We resolve the repositories from the container.
-3. In the GET route, we replace the complex SQL query with calls to repository methods:
-   - `deploymentRepository.getDeployments()` to fetch the initial list of deployments.
-   - `userRepository.getUserById()` to get the user details for the `deployed_by_name` field.
-   - `deploymentRepository.getQualityGatesForDeployment()` to fetch the quality gates for each deployment.
-4. In the POST route, we replace the `INSERT` query with a call to `deploymentRepository.createDeployment()`.
-5. We've removed the direct SQL queries and parameter handling, as these are now handled within the repository methods.
+1. `getDeployments`: Fetch deployments with optional filtering
+2. `getDeploymentById`: Retrieve a specific deployment by ID
+3. `createDeployment`: Create a new deployment record
+4. `updateDeployment`: Update an existing deployment
+5. `getQualityGatesForDeployment`: Fetch quality gates for a specific deployment
 
-Note that you'll need to implement the `DeploymentRepository` and `UserRepository` classes with the appropriate methods to support this refactored code. The repository methods should encapsulate the database operations and return the necessary data in the expected format.
+The `UserRepository` should implement the `getUserById` method to retrieve user details.
+
+Make sure to implement these repository methods in the `deploymentRepository.ts` and `userRepository.ts` files, respectively, to complete the refactoring process.

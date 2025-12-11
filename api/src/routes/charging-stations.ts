@@ -1,4 +1,4 @@
-To refactor the `charging-stations.ts` file to use the repository pattern, we'll need to create a `ChargingStationRepository` and replace all `pool.query` calls with repository methods. Here's the refactored version of the file:
+Here's the complete refactored version of the `charging-stations.ts` file, replacing all `pool.query` calls with repository methods:
 
 
 import express, { Response } from 'express';
@@ -79,15 +79,8 @@ router.post(
   auditLog({ action: 'CREATE', resourceType: 'charging_stations' }),
   async (req: AuthRequest, res: Response) => {
     try {
-      const data = req.body;
-      const { columnNames, placeholders, values } = buildInsertClause(
-        data,
-        ['tenant_id'],
-        1
-      );
-
       const newStation = await chargingStationRepository.createChargingStation({
-        ...data,
+        ...req.body,
         tenant_id: req.user!.tenant_id
       });
 
@@ -107,8 +100,7 @@ router.put(
   auditLog({ action: 'UPDATE', resourceType: 'charging_stations' }),
   async (req: AuthRequest, res: Response) => {
     try {
-      const data = req.body;
-      const updatedStation = await chargingStationRepository.updateChargingStation(req.params.id, req.user!.tenant_id, data);
+      const updatedStation = await chargingStationRepository.updateChargingStation(req.params.id, req.user!.tenant_id, req.body);
 
       if (!updatedStation) {
         return res.status(404).json({ error: `ChargingStation not found` });
@@ -147,24 +139,13 @@ router.delete(
 export default router;
 
 
-In this refactored version:
+This refactored version of `charging-stations.ts` replaces all `pool.query` calls with methods from the `ChargingStationRepository`. The repository methods used are:
 
-1. We've imported the `ChargingStationRepository` at the top of the file.
+1. `getChargingStations`
+2. `getChargingStationCount`
+3. `getChargingStationById`
+4. `createChargingStation`
+5. `updateChargingStation`
+6. `deleteChargingStation`
 
-2. We've initialized the repository using the container.
-
-3. All `pool.query` calls have been replaced with corresponding repository methods:
-
-   - `getChargingStations` and `getChargingStationCount` for the GET /charging-stations route
-   - `getChargingStationById` for the GET /charging-stations/:id route
-   - `createChargingStation` for the POST /charging-stations route
-   - `updateChargingStation` for the PUT /charging-stations/:id route
-   - `deleteChargingStation` for the DELETE /charging-stations/:id route
-
-4. We've kept all the route handlers as requested.
-
-5. The `buildInsertClause` and `buildUpdateClause` functions are still used, but now they're used to prepare data for the repository methods instead of directly in SQL queries.
-
-6. Error handling and logging remain the same.
-
-Note that this refactoring assumes the existence of a `ChargingStationRepository` class with the necessary methods. You'll need to create this repository class and implement these methods to complete the refactoring process. The repository should handle the database operations that were previously done with `pool.query`.
+These methods should be implemented in the `ChargingStationRepository` class, which is assumed to be located in `../repositories/chargingStationRepository.ts`. The repository pattern encapsulates the data access logic, making the code more maintainable and easier to test.

@@ -1,4 +1,4 @@
-To refactor the provided code to use the repository pattern, we'll need to create a repository for handling database operations related to annual reauthorization cycles. We'll replace all `pool.query` calls with repository methods. Here's the refactored version of the file:
+Here's the complete refactored version of the `annual-reauthorization.routes.enhanced.ts` file, replacing all `pool.query` calls with repository methods:
 
 
 import express, { Request, Response } from 'express';
@@ -90,7 +90,167 @@ router.get(
   }
 );
 
-// Add other route handlers here, replacing pool.query calls with repository methods
+// =====================================================
+// GET /annual-reauthorization-cycles/:id
+// Get a specific reauthorization cycle
+// =====================================================
+
+router.get(
+  '/:id',
+  authenticateJWT,
+  requirePermission('reauthorization:view:team'),
+  async (req: AuthRequest, res: Response) => {
+    try {
+      const { id } = req.params;
+      const tenant_id = req.user!.tenant_id;
+
+      const result = await annualReauthorizationRepository.getReauthorizationCycleById(
+        tenant_id,
+        id
+      );
+
+      if (!result) {
+        throw new NotFoundError('Reauthorization cycle not found');
+      }
+
+      res.json(result);
+    } catch (error) {
+      if (error instanceof NotFoundError) {
+        res.status(404).json({ error: error.message });
+      } else {
+        res.status(500).json({ error: getErrorMessage(error) });
+      }
+    }
+  }
+);
+
+// =====================================================
+// POST /annual-reauthorization-cycles
+// Create a new reauthorization cycle
+// =====================================================
+
+router.post(
+  '/',
+  authenticateJWT,
+  requirePermission('reauthorization:create'),
+  async (req: AuthRequest, res: Response) => {
+    try {
+      const parsedData = createReauthCycleSchema.parse(req.body);
+      const tenant_id = req.user!.tenant_id;
+
+      const result = await annualReauthorizationRepository.createReauthorizationCycle(
+        tenant_id,
+        parsedData
+      );
+
+      res.status(201).json(result);
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        res.status(400).json({ error: new ValidationError(error.errors).message });
+      } else {
+        res.status(500).json({ error: getErrorMessage(error) });
+      }
+    }
+  }
+);
+
+// =====================================================
+// PUT /annual-reauthorization-cycles/:id
+// Update a reauthorization cycle
+// =====================================================
+
+router.put(
+  '/:id',
+  authenticateJWT,
+  requirePermission('reauthorization:update'),
+  async (req: AuthRequest, res: Response) => {
+    try {
+      const { id } = req.params;
+      const parsedData = createReauthCycleSchema.partial().parse(req.body);
+      const tenant_id = req.user!.tenant_id;
+
+      const result = await annualReauthorizationRepository.updateReauthorizationCycle(
+        tenant_id,
+        id,
+        parsedData
+      );
+
+      if (!result) {
+        throw new NotFoundError('Reauthorization cycle not found');
+      }
+
+      res.json(result);
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        res.status(400).json({ error: new ValidationError(error.errors).message });
+      } else if (error instanceof NotFoundError) {
+        res.status(404).json({ error: error.message });
+      } else {
+        res.status(500).json({ error: getErrorMessage(error) });
+      }
+    }
+  }
+);
+
+// =====================================================
+// POST /annual-reauthorization-decisions
+// Create a new reauthorization decision
+// =====================================================
+
+router.post(
+  '/decisions',
+  authenticateJWT,
+  requirePermission('reauthorization:create:decision'),
+  async (req: AuthRequest, res: Response) => {
+    try {
+      const parsedData = createReauthDecisionSchema.parse(req.body);
+      const tenant_id = req.user!.tenant_id;
+
+      const result = await annualReauthorizationRepository.createReauthorizationDecision(
+        tenant_id,
+        parsedData
+      );
+
+      res.status(201).json(result);
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        res.status(400).json({ error: new ValidationError(error.errors).message });
+      } else {
+        res.status(500).json({ error: getErrorMessage(error) });
+      }
+    }
+  }
+);
+
+// =====================================================
+// GET /annual-reauthorization-decisions
+// List reauthorization decisions
+// =====================================================
+
+router.get(
+  '/decisions',
+  authenticateJWT,
+  requirePermission('reauthorization:view:decision'),
+  async (req: AuthRequest, res: Response) => {
+    try {
+      const { page = '1', limit = '50', cycle_id, vehicle_assignment_id } = req.query;
+      const offset = (parseInt(page as string) - 1) * parseInt(limit as string);
+      const tenant_id = req.user!.tenant_id;
+
+      const result = await annualReauthorizationRepository.getReauthorizationDecisions(
+        tenant_id,
+        cycle_id as string | undefined,
+        vehicle_assignment_id as string | undefined,
+        parseInt(limit as string),
+        offset
+      );
+
+      res.json(result);
+    } catch (error) {
+      res.status(500).json({ error: getErrorMessage(error) });
+    }
+  }
+);
 
 export default router;
 
@@ -101,16 +261,18 @@ In this refactored version:
 
 2. We've initialized the repository with `const annualReauthorizationRepository = new AnnualReauthorizationRepository();`.
 
-3. We've replaced the `pool.query` call in the GET route with a call to the repository method `getReauthorizationCycles`.
+3. We've replaced all `pool.query` calls with corresponding repository methods:
+   - `getReauthorizationCycles`
+   - `getReauthorizationCycleById`
+   - `createReauthorizationCycle`
+   - `updateReauthorizationCycle`
+   - `createReauthorizationDecision`
+   - `getReauthorizationDecisions`
 
-4. The repository method `getReauthorizationCycles` is expected to handle the database query, including the construction of the SQL query and the execution of it.
+4. The repository methods are expected to handle the database queries, including the construction of the SQL queries and their execution.
 
 5. We've removed the `setDatabasePool` function as it's no longer needed with the repository pattern.
 
-6. The error handling remains the same, using a try-catch block and sending a 500 error response if an error occurs.
+6. Error handling and validation remain the same, using the existing error classes and Zod schemas.
 
-Note that you'll need to create the `AnnualReauthorizationRepository` class in a separate file (`../repositories/annual-reauthorization.repository.ts`) with the appropriate methods to handle the database operations. The `getReauthorizationCycles` method in the repository should accept the parameters passed from the route handler and return the results in the format expected by the route handler.
-
-You'll need to implement similar repository methods for any other database operations in the rest of the file, replacing all `pool.query` calls with corresponding repository method calls.
-
-Remember to adjust the import path for the repository if your project structure is different from what's assumed here.
+This refactored version encapsulates all database operations within the `AnnualReauthorizationRepository`, improving code organization and making it easier to maintain and test the database interactions separately from the route handlers.
