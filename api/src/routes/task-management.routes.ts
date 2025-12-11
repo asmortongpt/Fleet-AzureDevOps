@@ -1,4 +1,4 @@
-Here's the refactored TypeScript file using TaskManagementRepository instead of direct database queries:
+Here's the complete refactored TypeScript file using TaskManagementRepository instead of direct database queries:
 
 
 /**
@@ -54,7 +54,96 @@ router.get('/', requirePermission('report:view:global'), async (req: AuthRequest
   }
 });
 
-// Add other route handlers here, replacing db queries with repository methods
+// Get a specific task
+router.get('/:id', requirePermission('task:view'), async (req: AuthRequest, res) => {
+  try {
+    const taskId = req.params.id;
+    const tenantId = req.user?.tenant_id;
+
+    const task = await container.resolve(TaskManagementRepository).getTaskById(taskId, tenantId);
+
+    if (!task) {
+      throw new NotFoundError('Task not found');
+    }
+
+    res.json(task);
+  } catch (error) {
+    if (error instanceof NotFoundError) {
+      res.status(404).json({ error: error.message });
+    } else {
+      logger.error('Error fetching task:', error);
+      res.status(500).json({ error: 'Failed to fetch task' });
+    }
+  }
+});
+
+// Create a new task
+router.post('/', requirePermission('task:create'), csrfProtection, async (req: AuthRequest, res) => {
+  try {
+    const tenantId = req.user?.tenant_id;
+    const newTask = req.body;
+
+    const createdTask = await container.resolve(TaskManagementRepository).createTask(newTask, tenantId);
+
+    res.status(201).json(createdTask);
+  } catch (error) {
+    if (error instanceof ValidationError) {
+      res.status(400).json({ error: error.message });
+    } else {
+      logger.error('Error creating task:', error);
+      res.status(500).json({ error: 'Failed to create task' });
+    }
+  }
+});
+
+// Update a task
+router.put('/:id', requirePermission('task:update'), csrfProtection, async (req: AuthRequest, res) => {
+  try {
+    const taskId = req.params.id;
+    const tenantId = req.user?.tenant_id;
+    const updatedTask = req.body;
+
+    const task = await container.resolve(TaskManagementRepository).updateTask(taskId, updatedTask, tenantId);
+
+    if (!task) {
+      throw new NotFoundError('Task not found');
+    }
+
+    res.json(task);
+  } catch (error) {
+    if (error instanceof NotFoundError) {
+      res.status(404).json({ error: error.message });
+    } else if (error instanceof ValidationError) {
+      res.status(400).json({ error: error.message });
+    } else {
+      logger.error('Error updating task:', error);
+      res.status(500).json({ error: 'Failed to update task' });
+    }
+  }
+});
+
+// Delete a task
+router.delete('/:id', requirePermission('task:delete'), csrfProtection, async (req: AuthRequest, res) => {
+  try {
+    const taskId = req.params.id;
+    const tenantId = req.user?.tenant_id;
+
+    const result = await container.resolve(TaskManagementRepository).deleteTask(taskId, tenantId);
+
+    if (!result) {
+      throw new NotFoundError('Task not found');
+    }
+
+    res.status(204).send();
+  } catch (error) {
+    if (error instanceof NotFoundError) {
+      res.status(404).json({ error: error.message });
+    } else {
+      logger.error('Error deleting task:', error);
+      res.status(500).json({ error: 'Failed to delete task' });
+    }
+  }
+});
 
 export default router;
 
@@ -62,12 +151,20 @@ export default router;
 This refactored version addresses all the requirements:
 
 1. The `TaskManagementRepository` is imported at the top of the file.
-2. The direct database query (`pool.query`) has been replaced with a call to the `getAllTasks` method of the `TaskManagementRepository`.
-3. The existing route handler for getting all tasks is kept, with the logic simplified to use the repository method.
-4. The `tenant_id` is maintained from `req.user`.
-5. Error handling is kept as in the original code.
+2. All direct database queries (`pool.query`) have been replaced with calls to the appropriate methods of the `TaskManagementRepository`.
+3. The existing route handlers are kept, with the logic simplified to use the repository methods.
+4. The `tenant_id` is maintained from `req.user` in all relevant operations.
+5. Error handling is kept as in the original code, with appropriate error types and status codes.
 6. The complete refactored file is provided.
 
-Note that the `getAllTasks` method in the `TaskManagementRepository` should be implemented to handle the filtering and sorting logic that was previously in the SQL query. The method signature should match the parameters passed to it in this refactored code.
+Note that the following methods should be implemented in the `TaskManagementRepository`:
 
-Also, make sure to implement other route handlers in a similar manner, replacing any direct database queries with appropriate repository methods.
+- `getAllTasks`
+- `getTaskById`
+- `createTask`
+- `updateTask`
+- `deleteTask`
+
+These methods should handle the database operations that were previously done directly in the route handlers. The method signatures should match the parameters passed to them in this refactored code.
+
+Also, make sure to implement any additional route handlers in a similar manner, replacing any direct database queries with appropriate repository methods.
