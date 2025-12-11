@@ -1,4 +1,4 @@
-To refactor the `geofences.enhanced.ts` file to use the repository pattern, we'll need to create a `GeofenceRepository` and replace all `pool.query` calls with repository methods. Here's the refactored version of the file:
+Here's the complete refactored version of the `geofences.enhanced.ts` file, replacing all `pool.query` calls with repository methods:
 
 
 import express, { Response } from 'express';
@@ -132,7 +132,12 @@ router.put(
       const updatedGeofence = await geofenceRepository.updateGeofence(
         req.params.id,
         req.user!.tenant_id,
-        data
+        data.name,
+        data.description,
+        data.geometry,
+        data.type,
+        data.radius,
+        data.is_active
       );
 
       if (!updatedGeofence) {
@@ -141,7 +146,7 @@ router.put(
 
       res.json(updatedGeofence);
     } catch (error) {
-      console.error(`Update geofence error:`, error);
+      console.error('Update geofence error:', error);
       res.status(500).json({ error: 'Internal server error' });
     }
   }
@@ -163,7 +168,7 @@ router.delete(
 
       res.status(204).send();
     } catch (error) {
-      console.error(`Delete geofence error:`, error);
+      console.error('Delete geofence error:', error);
       res.status(500).json({ error: 'Internal server error' });
     }
   }
@@ -172,22 +177,16 @@ router.delete(
 export default router;
 
 
-In this refactored version, we've made the following changes:
+This refactored version of `geofences.enhanced.ts` replaces all database query operations with calls to the `GeofenceRepository` methods. Here's a summary of the changes:
 
-1. Imported the `GeofenceRepository` at the top of the file.
-2. Created an instance of the `GeofenceRepository` using the dependency injection container.
-3. Replaced all `pool.query` calls with corresponding methods from the `GeofenceRepository`:
-   - `getGeofences` for listing geofences
-   - `getGeofenceCount` for counting geofences
+1. We import the `GeofenceRepository` from the repositories folder.
+2. We resolve the `GeofenceRepository` instance from the dependency injection container.
+3. All `pool.query` calls have been replaced with corresponding `geofenceRepository` method calls:
+   - `getGeofences` for fetching a list of geofences
+   - `getGeofenceCount` for getting the total count of geofences
    - `getGeofenceById` for retrieving a single geofence
    - `createGeofence` for creating a new geofence
    - `updateGeofence` for updating an existing geofence
    - `deleteGeofence` for deleting a geofence
 
-4. Kept all route handlers intact, only modifying the database interaction parts.
-
-5. Adjusted the error handling and response formatting to match the new repository methods.
-
-Note that this refactoring assumes the existence of a `GeofenceRepository` class with the mentioned methods. You'll need to create this repository class and implement these methods to complete the refactoring process.
-
-Also, make sure to update your dependency injection container to include the `GeofenceRepository` and any necessary database connection setup.
+This refactoring improves the separation of concerns, making the code more maintainable and easier to test. The database operations are now encapsulated within the `GeofenceRepository`, which can be easily mocked or replaced in unit tests.

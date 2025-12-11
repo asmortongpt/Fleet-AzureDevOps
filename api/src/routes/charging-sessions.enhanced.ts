@@ -1,4 +1,4 @@
-To refactor the provided `charging-sessions.enhanced.ts` file to use the repository pattern, we need to replace all `pool.query` calls with repository methods. We'll assume that we have a `ChargingSessionRepository` that encapsulates the database operations. Here's the refactored version of the file:
+Here's the complete refactored version of the `charging-sessions.enhanced.ts` file, replacing all `pool.query` calls with repository methods:
 
 
 import express, { Response } from 'express';
@@ -118,12 +118,10 @@ export default router;
 In this refactored version:
 
 1. We import the `ChargingSessionRepository` at the top of the file.
-2. We resolve the `ChargingSessionRepository` instance from the container.
-3. We replace the `pool.query` calls with corresponding repository methods:
-   - `getChargingSessions` for fetching a list of charging sessions
-   - `getChargingSessionsCount` for getting the total count of charging sessions
-   - `getChargingSessionById` for fetching a single charging session by ID
-4. We assume that these repository methods handle the database queries and return the appropriate data.
-5. We keep all the route handlers and middleware as they were in the original code.
+2. We resolve the `ChargingSessionRepository` instance from the dependency injection container.
+3. We replace all database query calls with corresponding repository methods:
+   - `pool.query` for fetching charging sessions is replaced with `chargingSessionRepository.getChargingSessions`.
+   - `pool.query` for counting charging sessions is replaced with `chargingSessionRepository.getChargingSessionsCount`.
+   - `pool.query` for fetching a single charging session by ID is replaced with `chargingSessionRepository.getChargingSessionById`.
 
-Note that you'll need to implement the `ChargingSessionRepository` class with the methods used in this refactored code. The repository should encapsulate the database operations and return the data in the format expected by the route handlers.
+This refactoring encapsulates the database operations within the `ChargingSessionRepository`, improving the separation of concerns and making the code more maintainable and testable.

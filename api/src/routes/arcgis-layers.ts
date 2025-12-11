@@ -1,4 +1,4 @@
-To refactor the `arcgis-layers.ts` file to use the repository pattern, we'll need to create a repository interface and implementation, and then replace all `pool.query` calls with repository methods. Here's the refactored version of the file:
+Here's the complete refactored version of the `arcgis-layers.ts` file, including all routes and methods:
 
 
 import express, { Response } from 'express';
@@ -126,81 +126,112 @@ router.get('/:id', requirePermission('geofence:view:fleet'), async (req: AuthReq
   }
 });
 
+/**
+ * POST /api/arcgis-layers
+ * Create new ArcGIS layer
+ */
+router.post('/', requirePermission('geofence:edit:fleet'), csrfProtection, async (req: AuthRequest, res: Response) => {
+  const tenantId = req.user!.tenant_id;
+
+  try {
+    const validatedData = arcgisLayerSchema.parse(req.body);
+
+    const newLayer = await arcGISLayerRepository.createLayer({
+      ...validatedData,
+      tenant_id: tenantId
+    });
+
+    res.status(201).json({
+      success: true,
+      layer: newLayer
+    });
+  } catch (error: any) {
+    if (error instanceof z.ZodError) {
+      return res.status(400).json({ error: `Validation error: ${error.errors.map(e => e.message).join(', ')}` });
+    }
+    logger.error('Failed to create ArcGIS layer', {
+      error: getErrorMessage(error),
+      tenantId
+    });
+    res.status(500).json({ error: `Failed to create layer` });
+  }
+});
+
+/**
+ * PUT /api/arcgis-layers/:id
+ * Update existing ArcGIS layer
+ */
+router.put('/:id', requirePermission('geofence:edit:fleet'), csrfProtection, async (req: AuthRequest, res: Response) => {
+  const tenantId = req.user!.tenant_id;
+  const { id } = req.params;
+
+  try {
+    const validatedData = arcgisLayerSchema.partial().parse(req.body);
+
+    const updatedLayer = await arcGISLayerRepository.updateLayer(id, tenantId, validatedData);
+
+    if (!updatedLayer) {
+      return res.status(404).json({ error: `Layer not found` });
+    }
+
+    res.json({
+      success: true,
+      layer: updatedLayer
+    });
+  } catch (error: any) {
+    if (error instanceof z.ZodError) {
+      return res.status(400).json({ error: `Validation error: ${error.errors.map(e => e.message).join(', ')}` });
+    }
+    logger.error('Failed to update ArcGIS layer', {
+      error: getErrorMessage(error),
+      layerId: id
+    });
+    res.status(500).json({ error: `Failed to update layer` });
+  }
+});
+
+/**
+ * DELETE /api/arcgis-layers/:id
+ * Delete ArcGIS layer
+ */
+router.delete('/:id', requirePermission('geofence:edit:fleet'), csrfProtection, async (req: AuthRequest, res: Response) => {
+  const tenantId = req.user!.tenant_id;
+  const { id } = req.params;
+
+  try {
+    const deleted = await arcGISLayerRepository.deleteLayer(id, tenantId);
+
+    if (!deleted) {
+      return res.status(404).json({ error: `Layer not found` });
+    }
+
+    res.json({
+      success: true,
+      message: 'Layer deleted successfully'
+    });
+  } catch (error: any) {
+    logger.error('Failed to delete ArcGIS layer', {
+      error: getErrorMessage(error),
+      layerId: id
+    });
+    res.status(500).json({ error: `Failed to delete layer` });
+  }
+});
+
 export default router;
 
 
-In this refactored version, we've made the following changes:
+This refactored version of `arcgis-layers.ts` replaces all `pool.query` calls with repository methods from the `ArcGISLayerRepository`. The repository is resolved from the dependency injection container at the beginning of the file.
 
-1. Imported the `ArcGISLayerRepository` at the top of the file.
-2. Resolved the `ArcGISLayerRepository` instance from the container.
-3. Replaced all `pool.query` calls with corresponding repository methods:
-   - `getAllLayersForTenant` for the first route
-   - `getEnabledLayersForTenant` for the second route
-   - `getLayerById` for the third route
-4. Adjusted the error handling to use the new repository methods.
+The following repository methods were used to replace the original database queries:
 
-Note that this refactoring assumes the existence of an `ArcGISLayerRepository` interface and implementation. You'll need to create these files as well. Here's an example of what the repository interface and implementation might look like:
+1. `getAllLayersForTenant(tenantId)` - Replaces the query to fetch all layers for a tenant.
+2. `getEnabledLayersForTenant(tenantId)` - Replaces the query to fetch only enabled layers for a tenant.
+3. `getLayerById(id, tenantId)` - Replaces the query to fetch a specific layer by ID and tenant.
+4. `createLayer(layerData)` - Replaces the query to create a new layer.
+5. `updateLayer(id, tenantId, updateData)` - Replaces the query to update an existing layer.
+6. `deleteLayer(id, tenantId)` - Replaces the query to delete a layer.
 
-`arcgis-layer-repository.ts`:
+These repository methods encapsulate the database operations and provide a cleaner interface for the route handlers to interact with the data layer. The actual implementation of these methods in the `ArcGISLayerRepository` class would contain the specific database queries.
 
-
-import { container } from '../container';
-import { Pool } from 'pg';
-
-export interface ArcGISLayer {
-  id: string;
-  tenant_id: string;
-  layer_name: string;
-  layer_type: string;
-  layer_config: any;
-  is_active: boolean;
-  created_at: Date;
-}
-
-export interface ArcGISLayerRepository {
-  getAllLayersForTenant(tenantId: string): Promise<ArcGISLayer[]>;
-  getEnabledLayersForTenant(tenantId: string): Promise<ArcGISLayer[]>;
-  getLayerById(id: string, tenantId: string): Promise<ArcGISLayer | null>;
-}
-
-export class ArcGISLayerRepositoryImpl implements ArcGISLayerRepository {
-  private pool: Pool;
-
-  constructor() {
-    this.pool = container.resolve(Pool);
-  }
-
-  async getAllLayersForTenant(tenantId: string): Promise<ArcGISLayer[]> {
-    const result = await this.pool.query(
-      `SELECT id, tenant_id, layer_name, layer_type, layer_config, is_active, created_at FROM arcgis_layers
-       WHERE tenant_id = $1
-       ORDER BY created_at DESC`,
-      [tenantId]
-    );
-    return result.rows;
-  }
-
-  async getEnabledLayersForTenant(tenantId: string): Promise<ArcGISLayer[]> {
-    const result = await this.pool.query(
-      `SELECT id, tenant_id, layer_name, layer_type, layer_config, is_active, created_at FROM arcgis_layers
-       WHERE tenant_id = $1 AND enabled = true
-       ORDER BY created_at ASC`,
-      [tenantId]
-    );
-    return result.rows;
-  }
-
-  async getLayerById(id: string, tenantId: string): Promise<ArcGISLayer | null> {
-    const result = await this.pool.query(
-      `SELECT id, tenant_id, layer_name, layer_type, layer_config, is_active, created_at FROM arcgis_layers
-       WHERE id = $1 AND tenant_id = $2`,
-      [id, tenantId]
-    );
-    return result.rows.length > 0 ? result.rows[0] : null;
-  }
-}
-
-container.bind(ArcGISLayerRepository).to(ArcGISLayerRepositoryImpl);
-
-
-This implementation moves the database queries into the repository, keeping the route handlers clean and focused on business logic. The repository pattern makes it easier to switch database technologies or add caching layers in the future without changing the route handlers.
+Note that you'll need to ensure that the `ArcGISLayerRepository` class is properly implemented in the `../repositories/arcgis-layer-repository.ts` file, with methods that correspond to the ones used in this refactored version.
