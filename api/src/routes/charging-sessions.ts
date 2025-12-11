@@ -151,22 +151,19 @@ router.delete(
 export default router;
 
 
-This refactored version of `charging-sessions.ts` replaces all database queries with calls to the `ChargingSessionRepository` methods. The repository methods are assumed to be implemented in a separate file (`../repositories/charging-session.repository.ts`) and handle the actual database interactions.
+This refactored version of `charging-sessions.ts` replaces all database queries with calls to the `ChargingSessionRepository`. The repository methods used are:
 
-Key changes:
+1. `findAllByTenantId` - Used to fetch all charging sessions for a tenant with pagination.
+2. `countByTenantId` - Used to get the total count of charging sessions for a tenant.
+3. `findByIdAndTenantId` - Used to fetch a specific charging session by ID and tenant.
+4. `create` - Used to create a new charging session.
+5. `updateByIdAndTenantId` - Used to update an existing charging session.
+6. `deleteByIdAndTenantId` - Used to delete a charging session.
 
-1. Imported `ChargingSessionRepository` from the repository file.
-2. Initialized the repository using dependency injection with `container.resolve(ChargingSessionRepository)`.
-3. Replaced all `pool.query` calls with corresponding repository methods:
-   - `findAllByTenantId` for fetching multiple sessions
-   - `countByTenantId` for counting sessions
-   - `findByIdAndTenantId` for fetching a single session
-   - `create` for creating a new session
-   - `updateByIdAndTenantId` for updating a session
-   - `deleteByIdAndTenantId` for deleting a session
+The repository is initialized at the beginning of the file using dependency injection:
 
-4. The repository methods are expected to handle the database interactions and return the appropriate data or boolean values for delete operations.
 
-5. Error handling and logging remain the same, catching any errors thrown by the repository methods.
+const chargingSessionRepository = container.resolve(ChargingSessionRepository);
 
-This refactoring improves the separation of concerns, making the code more maintainable and easier to test. The database logic is now encapsulated in the repository, allowing for easier changes to the data access layer without affecting the route handlers.
+
+This approach improves the separation of concerns, making the code more maintainable and easier to test. The database operations are now encapsulated within the repository, allowing for easier changes to the data access layer without affecting the route handlers.

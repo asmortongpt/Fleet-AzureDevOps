@@ -1,3 +1,6 @@
+To refactor the code and replace `pool.query` with a repository pattern, we'll need to create a new `TaskRepository` class and modify the existing code to use it. Here's the complete refactored file:
+
+
 import { Router } from 'express'
 import { z } from 'zod'
 
@@ -7,8 +10,8 @@ import { authenticateJWT } from '../middleware/auth'
 import { csrfProtection } from '../middleware/csrf'
 import { requirePermission } from '../middleware/permissions'
 
-
-
+// Import the new TaskRepository
+import { TaskRepository } from '../repositories/task-repository'
 
 const router = Router()
 router.use(authenticateJWT)
@@ -21,6 +24,9 @@ const taskQuerySchema = z.object({
   category: z.string().optional(),
 })
 
+// Initialize the TaskRepository
+const taskRepository = new TaskRepository()
+
 // Get all tasks
 router.get('/', requirePermission('report:view:global'), async (req: AuthRequest, res) => {
   try {
@@ -31,7 +37,101 @@ router.get('/', requirePermission('report:view:global'), async (req: AuthRequest
     const { status, priority, assigned_to, category } = queryValidation.data
     const tenantId = req.user?.tenant_id
 
-    let query = `
+    const tasks = await taskRepository.getAllTasks(tenantId, {
+      status,
+      priority,
+      assigned_to,
+      category
+    })
+
+    res.json({
+      tasks,
+      total: tasks.length,
+    })
+  } catch (error) {
+    console.error('Error fetching tasks:', error)
+    res.status(500).json({ error: 'Failed to fetch tasks' })
+  }
+})
+
+// Enhanced Create Task Endpoint with Input Validation
+const createTaskSchema = z.object({
+  title: z.string().min(1),
+  description: z.string().optional(),
+  category: z.string(),
+  priority: z.enum(['low', 'medium', 'high', 'critical']),
+  status: z.enum(['open', 'in_progress', 'completed', 'closed']),
+  assigned_to: z.string().optional(),
+  due_date: z.string().optional(),
+})
+
+router.post('/', csrfProtection, requirePermission('report:generate:global'), async (req: AuthRequest, res) => {
+  const parseResult = createTaskSchema.safeParse(req.body)
+  if (!parseResult.success) {
+    return res.status(400).json({ error: 'Invalid task data', details: parseResult.error.format() })
+  }
+  const { title, description, category, priority, status, assigned_to, due_date } = parseResult.data
+
+  try {
+    const tenantId = req.user?.tenant_id
+    const taskId = await taskRepository.createTask({
+      title,
+      description,
+      category,
+      priority,
+      status,
+      assigned_to,
+      due_date,
+      tenant_id: tenantId
+    })
+
+    res.status(201).json({ message: 'Task created successfully', taskId })
+  } catch (error) {
+    console.error('Error creating task:', error)
+    res.status(500).json({ error: 'Failed to create task' })
+  }
+})
+
+export default router
+
+
+Now, we need to create the `TaskRepository` class. Here's an example implementation:
+
+
+// File: src/repositories/task-repository.ts
+
+import { PoolClient } from 'pg'
+
+export interface Task {
+  id: number
+  title: string
+  description?: string
+  category: string
+  priority: 'low' | 'medium' | 'high' | 'critical'
+  status: 'open' | 'in_progress' | 'completed' | 'closed'
+  assigned_to?: string
+  due_date?: string
+  tenant_id: string
+  created_at: Date
+  updated_at: Date
+}
+
+export interface TaskQuery {
+  status?: string
+  priority?: string
+  assigned_to?: string
+  category?: string
+}
+
+export class TaskRepository {
+  private pool: any // Assuming you're using a pool from a database connection
+
+  constructor() {
+    this.pool = pool // Import or inject the pool
+  }
+
+  async getAllTasks(tenantId: string, query: TaskQuery): Promise<Task[]> {
+    let queryString = `
       SELECT
         t.*,
         u_assigned.first_name || ' ' || u_assigned.last_name as assigned_to_name,
@@ -51,29 +151,29 @@ router.get('/', requirePermission('report:view:global'), async (req: AuthRequest
     const params: any[] = [tenantId]
     let paramCount = 1
 
-    if (status) {
+    if (query.status) {
       paramCount++
-      query += ` AND t.status = $${paramCount}`
-      params.push(status)
+      queryString += ` AND t.status = $${paramCount}`
+      params.push(query.status)
     }
-    if (priority) {
+    if (query.priority) {
       paramCount++
-      query += ` AND t.priority = $${paramCount}`
-      params.push(priority)
+      queryString += ` AND t.priority = $${paramCount}`
+      params.push(query.priority)
     }
-    if (assigned_to) {
+    if (query.assigned_to) {
       paramCount++
-      query += ` AND t.assigned_to = $${paramCount}`
-      params.push(assigned_to)
+      queryString += ` AND t.assigned_to = $${paramCount}`
+      params.push(query.assigned_to)
     }
-    if (category) {
+    if (query.category) {
       paramCount++
-      query += ` AND t.category = $${paramCount}`
-      params.push(category)
+      queryString += ` AND t.category = $${paramCount}`
+      params.push(query.category)
     }
 
-    query += ` GROUP BY t.id, u_assigned.first_name, u_assigned.last_name, u_created.first_name, u_created.last_name, v.vehicle_number`
-    query += ` ORDER BY
+    queryString += ` GROUP BY t.id, u_assigned.first_name, u_assigned.last_name, u_created.first_name, u_created.last_name, v.vehicle_number`
+    queryString += ` ORDER BY
       CASE t.priority
         WHEN 'critical' THEN 1
         WHEN 'high' THEN 2
@@ -83,66 +183,45 @@ router.get('/', requirePermission('report:view:global'), async (req: AuthRequest
       t.due_date ASC NULLS LAST,
       t.created_at DESC`
 
-    const result = await pool.query(query, params)
-
-    res.json({
-      tasks: result.rows,
-      total: result.rows.length,
-    })
-  } catch (error) {
-    console.error('Error fetching tasks:', error)
-    res.status(500).json({ error: 'Failed to fetch tasks' })
+    const result = await this.pool.query(queryString, params)
+    return result.rows
   }
-})
 
-// Enhanced Create Task Endpoint with Input Validation
-const createTaskSchema = z.object({
-  title: z.string().min(1),
-  description: z.string().optional(),
-  category: z.string(),
-  priority: z.enum(['low', 'medium', 'high', 'critical']),
-  status: z.enum(['open', 'in_progress', 'completed', 'closed']),
-  assigned_to: z.string().optional(),
-  due_date: z.string().optional(),
-})
+  async createTask(task: Omit<Task, 'id' | 'created_at' | 'updated_at'>): Promise<number> {
+    const client = await this.pool.connect()
+    try {
+      await client.query('BEGIN')
 
-router.post('/',csrfProtection, requirePermission('report:generate:global'), async (req: AuthRequest, res) => {
-  const parseResult = createTaskSchema.safeParse(req.body)
-  if (!parseResult.success) {
-    return res.status(400).json({ error: 'Invalid task data', details: parseResult.error.format() })
+      const insertQuery = `
+        INSERT INTO tasks (title, description, category, priority, status, assigned_to, due_date, tenant_id)
+        VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+        RETURNING id
+      `
+      const result = await client.query(insertQuery, [
+        task.title,
+        task.description,
+        task.category,
+        task.priority,
+        task.status,
+        task.assigned_to,
+        task.due_date,
+        task.tenant_id,
+      ])
+
+      await client.query('COMMIT')
+      return result.rows[0].id
+    } catch (error) {
+      await client.query('ROLLBACK')
+      throw error
+    } finally {
+      client.release()
+    }
   }
-  const { title, description, category, priority, status, assigned_to, due_date } = parseResult.data
+}
 
-  const client = await pool.connect()
-  try {
-    await client.query('BEGIN')
 
-    const insertQuery = `
-      INSERT INTO tasks (title, description, category, priority, status, assigned_to, due_date, tenant_id)
-      VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
-      RETURNING id
-    `
-    const tenantId = req.user?.tenant_id
-    const result = await client.query(insertQuery, [
-      title,
-      description,
-      category,
-      priority,
-      status,
-      assigned_to,
-      due_date,
-      tenantId,
-    ])
+This refactored version moves the database operations into a separate `TaskRepository` class, which encapsulates the data access logic. The router now uses methods from this repository instead of directly querying the database.
 
-    await client.query('COMMIT')
-    res.status(201).json({ message: 'Task created successfully', taskId: result.rows[0].id })
-  } catch (error) {
-    await client.query('ROLLBACK')
-    console.error('Error creating task:', error)
-    res.status(500).json({ error: 'Failed to create task' })
-  } finally {
-    client.release()
-  }
-})
+Note that you'll need to adjust the import for the `pool` in the `TaskRepository` class to match your project's structure. Also, make sure to create the `src/repositories/task-repository.ts` file with the provided content.
 
-export default router
+This refactoring improves the separation of concerns, making the code more maintainable and easier to test. The repository pattern allows for easier switching of the underlying data source if needed in the future.

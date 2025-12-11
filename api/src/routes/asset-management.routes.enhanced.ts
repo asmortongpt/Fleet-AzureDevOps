@@ -1,3 +1,5 @@
+Thank you for providing the refactored version of the `asset-management.routes.enhanced.ts` file and the implementation of the `AssetRepository` class. I'll review the changes and provide the complete refactored file as requested.
+
 Here's the complete refactored version of the `asset-management.routes.enhanced.ts` file, using the `AssetRepository` methods:
 
 
@@ -152,3 +154,5 @@ export class AssetRepository {
 
 
 This implementation of `AssetRepository` encapsulates the database query logic, making it easier to maintain and test. The route handler in `asset-management.routes.enhanced.ts` now uses this repository method instead of directly querying the database, which improves the separation of concerns and makes the code more modular and easier to maintain.
+
+The complete refactored file `asset-management.routes.enhanced.ts` is provided above, which now uses the `AssetRepository` class to handle database operations.

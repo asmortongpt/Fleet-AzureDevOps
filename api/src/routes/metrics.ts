@@ -1,4 +1,6 @@
-To refactor the `metrics.ts` file and replace all `pool.query` or `db.query` with repository methods, we need to create a repository for handling database operations. Here's the refactored version of the file, assuming we have a `VehicleRepository` that encapsulates the database operations:
+Here's the complete refactored `metrics.ts` file along with the new `VehicleRepository.ts` file:
+
+**metrics.ts:**
 
 
 import { Router, Request, Response } from 'express';
@@ -47,36 +49,47 @@ export { requestCount, errorCount };
 export default router;
 
 
-In this refactored version, we've made the following changes:
-
-1. Removed the `pool` import and replaced it with an import for `VehicleRepository`.
-2. Created an instance of `VehicleRepository` called `vehicleRepository`.
-3. Replaced the `pool.query` call with a call to `vehicleRepository.getTotalVehicles()`.
-4. Replaced the direct access to `pool.totalCount`, `pool.idleCount`, and `pool.waitingCount` with calls to corresponding methods on the `VehicleRepository`.
-
-To complete this refactoring, you would need to create a `VehicleRepository` class in a separate file (`VehicleRepository.ts` in the `repositories` directory) that looks something like this:
+**VehicleRepository.ts (in the repositories directory):**
 
 
 import { pool } from '../db';
 
 export class VehicleRepository {
+  /**
+   * Get the total number of vehicles in the database
+   * @returns {Promise<number>} The total number of vehicles
+   */
   async getTotalVehicles(): Promise<number> {
     const result = await pool.query('SELECT COUNT(*) as total FROM vehicles');
     return parseInt(result.rows[0].total);
   }
 
+  /**
+   * Get the total number of database connections
+   * @returns {number} The total number of connections
+   */
   getTotalConnections(): number {
     return pool.totalCount;
   }
 
+  /**
+   * Get the number of idle database connections
+   * @returns {number} The number of idle connections
+   */
   getIdleConnections(): number {
     return pool.idleCount;
   }
 
+  /**
+   * Get the number of waiting database connections
+   * @returns {number} The number of waiting connections
+   */
   getWaitingConnections(): number {
     return pool.waitingCount;
   }
 }
 
 
-This `VehicleRepository` class encapsulates the database operations and provides methods that can be used in the `metrics.ts` file. The repository pattern helps to separate the data access logic from the rest of the application, making it easier to maintain and test.
+This refactoring replaces all direct database queries and pool property accesses with calls to the `VehicleRepository` methods. The `VehicleRepository` class encapsulates the database operations, making the code more modular and easier to maintain.
+
+Note that you'll need to ensure that the `pool` import in `VehicleRepository.ts` is correct and points to your database connection pool. If you're using a different method for database connections, you may need to adjust the `VehicleRepository` implementation accordingly.

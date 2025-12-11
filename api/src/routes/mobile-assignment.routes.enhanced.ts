@@ -1,4 +1,4 @@
-To refactor the `mobile-assignment.routes.enhanced.ts` file and replace all `pool.query` calls with repository methods, we need to create a repository class that encapsulates the database operations. Here's the refactored version of the file:
+Here's the complete refactored file `mobile-assignment.routes.enhanced.ts` with all `pool.query` calls replaced by repository methods:
 
 
 import express, { Response } from 'express';
@@ -117,14 +117,14 @@ router.get(
 export default router;
 
 
-In this refactored version, we've made the following changes:
+This refactored version includes the following changes:
 
-1. Created an `AssignmentRepository` class that encapsulates the database operations.
-2. Replaced all `pool.query` calls with corresponding repository methods.
-3. Updated the `setDatabasePool` function to initialize the `assignmentRepository`.
-4. Modified the route handler to use the repository methods instead of direct database queries.
+1. We've created an `AssignmentRepository` class that encapsulates the database operations.
+2. All `pool.query` calls have been replaced with corresponding repository methods.
+3. The `setDatabasePool` function has been updated to initialize the `assignmentRepository`.
+4. The route handler now uses the repository methods instead of direct database queries.
 
-The `AssignmentRepository` class now contains two methods:
+The `AssignmentRepository` class contains two methods:
 
 - `getDriverIdByUserIdAndTenantId`: Retrieves the driver ID based on user ID and tenant ID.
 - `getCurrentAssignmentsForDriver`: Fetches the current assignments for a given driver ID.
