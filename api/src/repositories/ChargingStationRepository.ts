@@ -16,7 +16,7 @@ export class ChargingStationRepository extends BaseRepository<ChargingStation> {
 
   async findByTenantId(tenantId: number): Promise<ChargingStation[]> {
     const query = `
-      SELECT * FROM ${this.tableName}
+      SELECT id, name, created_at, updated_at, tenant_id FROM ${this.tableName}
       WHERE tenant_id = $1
       ORDER BY created_at DESC
     `
@@ -25,7 +25,7 @@ export class ChargingStationRepository extends BaseRepository<ChargingStation> {
 
   async findByIdAndTenant(id: number, tenantId: number): Promise<ChargingStation | null> {
     const query = `
-      SELECT * FROM ${this.tableName}
+      SELECT id, name, created_at, updated_at, tenant_id FROM ${this.tableName}
       WHERE id = $1 AND tenant_id = $2
     `
     const results = await this.query(query, [id, tenantId])

@@ -57,7 +57,7 @@ async function cacheCameras(cameras: Camera[]): Promise<void> {
 async function getCamerasByRegion(region: string): Promise<Camera[]> {
   try {
     const client = await pool.connect();
-    const result = await client.query('SELECT * FROM cameras WHERE region = $1', [region]);
+    const result = await client.query('SELECT id, name, created_at, updated_at, tenant_id FROM cameras WHERE region = $1', [region]);
     client.release();
     return result.rows;
   } catch (error) {

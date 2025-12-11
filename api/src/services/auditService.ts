@@ -113,7 +113,7 @@ export class AuditService {
     params.push(limit, offset);
 
     const result = await this.db.query(
-      `SELECT * FROM permission_audit_log
+      `SELECT id, name, created_at, updated_at, tenant_id FROM permission_audit_log
        WHERE ${conditions.join(' AND ')}
        ORDER BY timestamp DESC
        LIMIT $${paramIndex++} OFFSET $${paramIndex}`,
@@ -160,7 +160,7 @@ export class AuditService {
     params.push(limit);
 
     const result = await this.db.query(
-      `SELECT * FROM permission_audit_log
+      `SELECT id, name, created_at, updated_at, tenant_id FROM permission_audit_log
        WHERE ${conditions.join(' AND ')}
        ORDER BY timestamp DESC
        LIMIT $${paramIndex}`,

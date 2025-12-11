@@ -399,7 +399,7 @@ export class TaskManagementRepository {
    */
   async findById(id: number, tenantId: string): Promise<Task | null> {
     const result = await pool.query(
-      `SELECT * FROM tasks WHERE id = $1 AND tenant_id = $2`,
+      `SELECT id, tenant_id, created_at, updated_at FROM tasks WHERE id = $1 AND tenant_id = $2`,
       [id, tenantId]
     )
     return result.rows[0] || null

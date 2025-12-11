@@ -24,7 +24,7 @@ export class AdditionalRepository {
   // Read a single additional item by id
   async getAdditionalById(tenantId: string, id: number): Promise<any> {
     const query = `
-      SELECT * FROM additional
+      SELECT id, tenant_id, created_at, updated_at FROM additional
       WHERE id = $1 AND tenant_id = $2;
     `;
     const result = await this.client.query(query, [id, tenantId]);
@@ -34,7 +34,7 @@ export class AdditionalRepository {
   // Read all additional items for a tenant
   async getAllAdditionals(tenantId: string): Promise<any[]> {
     const query = `
-      SELECT * FROM additional
+      SELECT id, tenant_id, created_at, updated_at FROM additional
       WHERE tenant_id = $1;
     `;
     const result = await this.client.query(query, [tenantId]);

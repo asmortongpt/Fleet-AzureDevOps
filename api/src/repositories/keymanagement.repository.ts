@@ -19,7 +19,7 @@ export class KeyManagementRepository {
     }
 
     async getKeyManagement(tenant_id: string): Promise<KeyManagement> {
-        const query = 'SELECT * FROM key_management WHERE tenant_id = $1';
+        const query = 'SELECT id, tenant_id, created_at, updated_at FROM key_management WHERE tenant_id = $1';
         const values = [tenant_id];
         const { rows } = await this.pool.query(query, values);
         return rows[0];

@@ -61,7 +61,7 @@ export class TireManagementRepository {
   // Read a tire management record by ID
   async read(id: number, tenant_id: number): Promise<TireManagement | null> {
     const query = `
-      SELECT * FROM tire_management
+      SELECT id, created_at, updated_at FROM tire_management
       WHERE id = $1 AND tenant_id = $2
     `;
     const values = [id, tenant_id];
@@ -111,7 +111,7 @@ export class TireManagementRepository {
   // List all tire management records for a tenant
   async list(tenant_id: number): Promise<TireManagement[]> {
     const query = `
-      SELECT * FROM tire_management
+      SELECT id, created_at, updated_at FROM tire_management
       WHERE tenant_id = $1
     `;
     const values = [tenant_id];

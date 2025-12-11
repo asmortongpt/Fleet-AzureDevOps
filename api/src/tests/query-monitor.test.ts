@@ -36,7 +36,7 @@ describe('QueryMonitor', () => {
 
       const result = await monitor.monitorQuery(
         mockPool,
-        'SELECT * FROM test WHERE id = $1',
+        'SELECT id, created_at, updated_at FROM test WHERE id = $1',
         [1]
       );
 

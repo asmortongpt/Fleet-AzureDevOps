@@ -20,7 +20,7 @@ export class LoadManagementRepository {
   }
 
   async read(tenant_id: string): Promise<LoadManagement[]> {
-    const query = 'SELECT * FROM load_management WHERE tenant_id = $1';
+    const query = 'SELECT id, created_at, updated_at FROM load_management WHERE tenant_id = $1';
     const values = [tenant_id];
 
     const { rows } = await this.pool.query(query, values);

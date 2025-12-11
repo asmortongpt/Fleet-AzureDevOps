@@ -15,7 +15,7 @@ export class TenantConfigRepository {
 
   async findAll(tenantId: number): Promise<TenantConfig[]> {
     try {
-      const query = 'SELECT * FROM tenant_configs WHERE tenant_id = $1 AND deleted_at IS NULL';
+      const query = 'SELECT id, created_at, updated_at FROM tenant_configs WHERE tenant_id = $1 AND deleted_at IS NULL';
       const result: QueryResult<TenantConfig> = await this.pool.query(query, [tenantId]);
       return result.rows;
     } catch (error) {
@@ -25,7 +25,7 @@ export class TenantConfigRepository {
 
   async findById(tenantId: number, id: number): Promise<TenantConfig | null> {
     try {
-      const query = 'SELECT * FROM tenant_configs WHERE tenant_id = $1 AND id = $2 AND deleted_at IS NULL';
+      const query = 'SELECT id, created_at, updated_at FROM tenant_configs WHERE tenant_id = $1 AND id = $2 AND deleted_at IS NULL';
       const result: QueryResult<TenantConfig> = await this.pool.query(query, [tenantId, id]);
       return result.rows[0] || null;
     } catch (error) {

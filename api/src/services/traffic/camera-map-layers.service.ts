@@ -27,7 +27,7 @@ const pool = new Pool({
 
 async function getCameras(): Promise<Camera[]> {
   try {
-    const res = await pool.query('SELECT * FROM cameras');
+    const res = await pool.query('SELECT id, name, created_at, updated_at, tenant_id FROM cameras');
     return res.rows;
   } catch (err) {
     console.error(err);
