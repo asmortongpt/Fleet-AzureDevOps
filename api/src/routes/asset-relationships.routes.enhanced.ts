@@ -1,3 +1,6 @@
+To refactor the `asset-relationships.routes.enhanced.ts` file to use the repository pattern, we'll need to create and import the necessary repositories. We'll replace all `pool.query` calls with repository methods. Here's the refactored version of the file:
+
+
 import { Router } from 'express'
 import { z } from 'zod'
 
@@ -6,8 +9,10 @@ import type { AuthRequest } from '../middleware/auth'
 import { authenticateJWT } from '../middleware/auth'
 import { requirePermission } from '../middleware/permissions'
 
-
-
+// Import repositories
+import { AssetRelationshipRepository } from '../repositories/AssetRelationshipRepository'
+import { VehicleRepository } from '../repositories/VehicleRepository'
+import { UserRepository } from '../repositories/UserRepository'
 
 const router = Router()
 
@@ -31,47 +36,39 @@ router.get(
       // Validate query parameters
       const validatedQuery = querySchema.parse(req.query)
 
-      let query = `
-        SELECT
-          ar.*,
-          vp.make || ' ' || vp.model || ' (' || vp.vin || ')' as parent_asset_name,
-          vp.asset_type as parent_asset_type,
-          vc.make || ' ' || vc.model || ' (' || vc.vin || ')' as child_asset_name,
-          vc.asset_type as child_asset_type,
-          u.first_name || ' ' || u.last_name as created_by_name
-        FROM asset_relationships ar
-        LEFT JOIN vehicles vp ON ar.parent_asset_id = vp.id
-        LEFT JOIN vehicles vc ON ar.child_asset_id = vc.id
-        LEFT JOIN users u ON ar.created_by = u.id
-        WHERE vp.tenant_id = $1
-      `
+      // Initialize repositories
+      const assetRelationshipRepository = new AssetRelationshipRepository()
+      const vehicleRepository = new VehicleRepository()
+      const userRepository = new UserRepository()
 
-      const params: any[] = [req.user!.tenant_id]
-      let paramIndex = 2
+      // Fetch asset relationships
+      const relationships = await assetRelationshipRepository.getAssetRelationships({
+        tenantId: req.user!.tenant_id,
+        parentAssetId: validatedQuery.parent_asset_id,
+        childAssetId: validatedQuery.child_asset_id,
+        relationshipType: validatedQuery.relationship_type,
+        activeOnly: validatedQuery.active_only,
+      })
 
-      if (validatedQuery.parent_asset_id) {
-        query += ` AND ar.parent_asset_id = $${paramIndex++}`
-        params.push(validatedQuery.parent_asset_id)
-      }
+      // Process relationships to include additional data
+      const processedRelationships = await Promise.all(relationships.map(async (relationship) => {
+        const [parentVehicle, childVehicle, createdByUser] = await Promise.all([
+          vehicleRepository.getVehicleById(relationship.parent_asset_id),
+          vehicleRepository.getVehicleById(relationship.child_asset_id),
+          userRepository.getUserById(relationship.created_by),
+        ])
 
-      if (validatedQuery.child_asset_id) {
-        query += ` AND ar.child_asset_id = $${paramIndex++}`
-        params.push(validatedQuery.child_asset_id)
-      }
+        return {
+          ...relationship,
+          parent_asset_name: parentVehicle ? `${parentVehicle.make} ${parentVehicle.model} (${parentVehicle.vin})` : null,
+          parent_asset_type: parentVehicle ? parentVehicle.asset_type : null,
+          child_asset_name: childVehicle ? `${childVehicle.make} ${childVehicle.model} (${childVehicle.vin})` : null,
+          child_asset_type: childVehicle ? childVehicle.asset_type : null,
+          created_by_name: createdByUser ? `${createdByUser.first_name} ${createdByUser.last_name}` : null,
+        }
+      }))
 
-      if (validatedQuery.relationship_type) {
-        query += ` AND ar.relationship_type = $${paramIndex++}`
-        params.push(validatedQuery.relationship_type)
-      }
-
-      if (validatedQuery.active_only) {
-        query += ` AND (ar.effective_to IS NULL OR ar.effective_to > NOW()`
-      }
-
-      query += ` ORDER BY ar.effective_from DESC`
-
-      const { rows } = await pool.query(query, params)
-      res.json(rows)
+      res.json(processedRelationships)
     } catch (error) {
       console.error('Failed to get asset relationships:', error)
       res.status(500).json({ message: 'Internal server error' })
@@ -80,3 +77,23 @@ router.get(
 )
 
 export default router
+
+
+This refactored version of the file implements the repository pattern by:
+
+1. Importing the necessary repositories at the top of the file.
+2. Replacing the `pool.query` call with repository methods.
+3. Creating instances of the repositories within the route handler.
+4. Using the `AssetRelationshipRepository` to fetch the asset relationships based on the query parameters.
+5. Using the `VehicleRepository` and `UserRepository` to fetch additional data for each relationship.
+6. Processing the relationships to include the additional data in the response.
+
+Note that this refactoring assumes the existence of the following repository classes:
+
+- `AssetRelationshipRepository` with a `getAssetRelationships` method
+- `VehicleRepository` with a `getVehicleById` method
+- `UserRepository` with a `getUserById` method
+
+You'll need to implement these repository classes separately, each containing the necessary database operations. The repository classes should encapsulate the data access logic and provide a clean interface for the route handlers to use.
+
+This refactoring improves the separation of concerns, making the code more modular and easier to maintain. It also allows for easier testing and potential future changes in the data access layer without affecting the route handlers.
