@@ -1,6 +1,3 @@
-Here's the complete refactored `auth.enhanced.ts` file with all `pool.query` calls replaced by repository methods:
-
-
 import bcrypt from 'bcrypt'
 import csurf from 'csurf'
 import express, { Request, Response } from 'express'
@@ -163,6 +160,3 @@ router.post(
 )
 
 export default router
-
-
-This refactored version of `auth.enhanced.ts` replaces all `pool.query` calls with repository methods. The `UserRepository` and `TenantRepository` are used to interact with the database, improving the separation of concerns and making the code more maintainable and testable.

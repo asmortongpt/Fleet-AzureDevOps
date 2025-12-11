@@ -1,6 +1,3 @@
-Here's the complete refactored version of the `assets-mobile.routes.ts` file, with all `pool.query` calls replaced by repository methods:
-
-
 import express from 'express';
 import { Request, Response } from 'express';
 import multer from 'multer';
@@ -9,6 +6,10 @@ import logger from '../config/logger';
 import { authenticateJWT } from '../middleware/auth';
 import { csrfProtection } from '../middleware/csrf';
 import { AssetRepository } from '../repositories/AssetRepository';
+import { UserRepository } from '../repositories/UserRepository';
+import { AssetCheckoutHistoryRepository } from '../repositories/AssetCheckoutHistoryRepository';
+import { AssetCheckinHistoryRepository } from '../repositories/AssetCheckinHistoryRepository';
+import { AssetStatusRepository } from '../repositories/AssetStatusRepository';
 
 const router = express.Router();
 const upload = multer({ storage: multer.memoryStorage() });
@@ -24,8 +25,12 @@ const assetActionSchema = z.object({
   digitalSignature: z.string(),
 });
 
-// Initialize the repository
+// Initialize the repositories
 const assetRepository = new AssetRepository();
+const userRepository = new UserRepository();
+const assetCheckoutHistoryRepository = new AssetCheckoutHistoryRepository();
+const assetCheckinHistoryRepository = new AssetCheckinHistoryRepository();
+const assetStatusRepository = new AssetStatusRepository();
 
 router.post(
   '/checkout',
@@ -42,7 +47,21 @@ router.post(
         return res.status(400).send('Photo is required.');
       }
 
-      const result = await assetRepository.checkoutAsset(
+      const user = await userRepository.getUserById(userId, tenantId);
+      if (!user) {
+        return res.status(404).send('User not found.');
+      }
+
+      const asset = await assetRepository.getAssetById(assetId, tenantId);
+      if (!asset) {
+        return res.status(404).send('Asset not found.');
+      }
+
+      if (asset.status !== 'available') {
+        return res.status(400).send('Asset is not available for checkout.');
+      }
+
+      const checkoutHistory = await assetCheckoutHistoryRepository.createCheckoutHistory(
         assetId,
         userId,
         tenantId,
@@ -53,7 +72,9 @@ router.post(
         photo.buffer
       );
 
-      res.status(201).json(result);
+      await assetStatusRepository.updateAssetStatus(assetId, 'checked_out', tenantId);
+
+      res.status(201).json(checkoutHistory);
     } catch (error) {
       logger.error('Checkout Error:', error);
       res.status(500).send('Internal server error during asset checkout.');
@@ -76,7 +97,21 @@ router.post(
         return res.status(400).send('Photo is required.');
       }
 
-      const result = await assetRepository.checkinAsset(
+      const user = await userRepository.getUserById(userId, tenantId);
+      if (!user) {
+        return res.status(404).send('User not found.');
+      }
+
+      const asset = await assetRepository.getAssetById(assetId, tenantId);
+      if (!asset) {
+        return res.status(404).send('Asset not found.');
+      }
+
+      if (asset.status !== 'checked_out') {
+        return res.status(400).send('Asset is not checked out.');
+      }
+
+      const checkinHistory = await assetCheckinHistoryRepository.createCheckinHistory(
         assetId,
         userId,
         tenantId,
@@ -87,7 +122,9 @@ router.post(
         photo.buffer
       );
 
-      res.status(201).json(result);
+      await assetStatusRepository.updateAssetStatus(assetId, 'available', tenantId);
+
+      res.status(201).json(checkinHistory);
     } catch (error) {
       logger.error('Checkin Error:', error);
       res.status(500).send('Internal server error during asset checkin.');
@@ -96,76 +133,3 @@ router.post(
 );
 
 export default router;
-
-
-This refactored version of `assets-mobile.routes.ts` uses the `AssetRepository` class to handle database operations. The `pool.query` calls have been replaced with calls to the repository methods `checkoutAsset` and `checkinAsset`.
-
-To complete the refactoring, you should create the `AssetRepository` class in a separate file, as mentioned in the previous response. Here's the implementation of the `AssetRepository` class that should be placed in `repositories/AssetRepository.ts`:
-
-
-// repositories/AssetRepository.ts
-
-import { pool } from '../db';
-
-export class AssetRepository {
-  async checkoutAsset(
-    assetId: number,
-    userId: number,
-    tenantId: number,
-    gpsLat: number,
-    gpsLng: number,
-    conditionRating: number,
-    digitalSignature: string,
-    photo: Buffer
-  ) {
-    const queryText = `
-      INSERT INTO asset_checkout_history(asset_id, user_id, tenant_id, gps_lat, gps_lng, condition_rating, digital_signature, photo)
-      VALUES($1, $2, $3, $4, $5, $6, $7, $8)
-      RETURNING *;
-    `;
-    const values = [
-      assetId,
-      userId,
-      tenantId,
-      gpsLat,
-      gpsLng,
-      conditionRating,
-      digitalSignature,
-      photo,
-    ];
-    const { rows } = await pool.query(queryText, values);
-    return rows[0];
-  }
-
-  async checkinAsset(
-    assetId: number,
-    userId: number,
-    tenantId: number,
-    gpsLat: number,
-    gpsLng: number,
-    conditionRating: number,
-    digitalSignature: string,
-    photo: Buffer
-  ) {
-    const queryText = `
-      INSERT INTO asset_checkin_history(asset_id, user_id, tenant_id, gps_lat, gps_lng, condition_rating, digital_signature, photo)
-      VALUES($1, $2, $3, $4, $5, $6, $7, $8)
-      RETURNING *;
-    `;
-    const values = [
-      assetId,
-      userId,
-      tenantId,
-      gpsLat,
-      gpsLng,
-      conditionRating,
-      digitalSignature,
-      photo,
-    ];
-    const { rows } = await pool.query(queryText, values);
-    return rows[0];
-  }
-}
-
-
-This implementation of the `AssetRepository` class encapsulates the database operations for asset checkout and checkin, using the `pool.query` method internally. The routes in `assets-mobile.routes.ts` now use these repository methods, improving the separation of concerns and making the code more maintainable and testable.

@@ -1,26 +1,27 @@
-Here's the complete refactored `osha-compliance.enhanced.ts` file with the `pool.query/db.query` replaced by the `Osha300LogRepository`:
+import express, { Response } from 'express';
+import { container } from '../container';
+import { asyncHandler } from '../middleware/errorHandler';
+import { NotFoundError, ValidationError } from '../errors/app-error';
+import { AuthRequest, authenticateJWT } from '../middleware/auth';
+import { requirePermission } from '../middleware/permissions';
+import { auditLog } from '../middleware/audit';
+import { z } from 'zod';
+import helmet from 'helmet';
+import rateLimit from 'express-rate-limit';
+import { serialize } from 'node-html-encoder';
+import { csrfProtection } from '../middleware/csrf';
 
+// Import all necessary repositories
+import { Osha300LogRepository } from '../repositories/Osha300LogRepository';
+import { SafetyInspectionRepository } from '../repositories/SafetyInspectionRepository';
+import { TrainingRecordRepository } from '../repositories/TrainingRecordRepository';
+import { AccidentInvestigationRepository } from '../repositories/AccidentInvestigationRepository';
+import { DashboardRepository } from '../repositories/DashboardRepository';
 
-import express, { Response } from 'express'
-import { container } from '../container'
-import { asyncHandler } from '../middleware/errorHandler'
-import { NotFoundError, ValidationError } from '../errors/app-error'
-import { AuthRequest, authenticateJWT } from '../middleware/auth'
-import { requirePermission } from '../middleware/permissions'
-import { auditLog } from '../middleware/audit'
-import { z } from 'zod'
-import helmet from 'helmet'
-import rateLimit from 'express-rate-limit'
-import { serialize } from 'node-html-encoder'
-import { csrfProtection } from '../middleware/csrf'
+const router = express.Router();
 
-// Import the new repository
-import { Osha300LogRepository } from '../repositories/Osha300LogRepository'
-
-const router = express.Router()
-
-router.use(authenticateJWT)
-router.use(helmet())
+router.use(authenticateJWT);
+router.use(helmet());
 router.use(
   rateLimit({
     windowMs: 60 * 1000, // 1 minute
@@ -28,14 +29,14 @@ router.use(
     standardHeaders: true,
     legacyHeaders: false,
   })
-)
+);
 
 const logSchema = z.object({
   page: z.string().optional(),
   limit: z.string().optional(),
   year: z.string().optional(),
   status: z.string().optional(),
-})
+});
 
 // Root endpoint - returns available resources
 router.get('/', async (req: AuthRequest, res: Response) => {
@@ -48,8 +49,8 @@ router.get('/', async (req: AuthRequest, res: Response) => {
       accident_investigations: '/api/osha-compliance/accident-investigations',
       dashboard: '/api/osha-compliance/dashboard',
     },
-  })
-})
+  });
+});
 
 // GET /osha-compliance/300-log
 router.get(
@@ -58,16 +59,16 @@ router.get(
   auditLog({ action: 'READ', resourceType: 'osha_300_log' }),
   async (req: AuthRequest, res: Response) => {
     try {
-      const validationResult = logSchema.safeParse(req.query)
+      const validationResult = logSchema.safeParse(req.query);
       if (!validationResult.success) {
-        throw new ValidationError("Invalid request parameters")
+        throw new ValidationError("Invalid request parameters");
       }
 
-      const { page = 1, limit = 50, year, status } = validationResult.data
-      const offset = (Number(page) - 1) * Number(limit)
+      const { page = 1, limit = 50, year, status } = validationResult.data;
+      const offset = (Number(page) - 1) * Number(limit);
 
       // Create an instance of the repository
-      const osha300LogRepository = container.resolve(Osha300LogRepository)
+      const osha300LogRepository = container.resolve(Osha300LogRepository);
 
       // Use repository methods instead of pool.query
       const result = await osha300LogRepository.getOsha300Logs(
@@ -76,9 +77,9 @@ router.get(
         status,
         Number(limit),
         offset
-      )
+      );
 
-      const totalCount = await osha300LogRepository.getOsha300LogCount(req.user!.tenant_id)
+      const totalCount = await osha300LogRepository.getOsha300LogCount(req.user!.tenant_id);
 
       res.json({
         data: result.map(row => ({
@@ -92,86 +93,80 @@ router.get(
           total: totalCount,
           pages: Math.ceil(totalCount / Number(limit)),
         },
-      })
+      });
     } catch (error) {
-      console.error(`Get OSHA 300 log error:`, error)
-      res.status(500).json({ error: 'Internal server error' })
+      console.error(`Get OSHA 300 log error:`, error);
+      res.status(500).json({ error: 'Internal server error' });
     }
   }
-)
+);
 
-export default router
-
-
-And here's the complete `Osha300LogRepository.ts` file that should be created in the `repositories` directory:
-
-
-import { injectable } from 'inversify'
-import { pool } from '../db'
-
-@injectable()
-export class Osha300LogRepository {
-  async getOsha300Logs(tenantId: number, year?: string, status?: string, limit: number, offset: number) {
-    let query = `
-      SELECT o.*,
-             d.first_name || ' ' || d.last_name as employee_full_name,
-             v.unit_number as vehicle_unit
-      FROM osha_300_log o
-      LEFT JOIN drivers d ON o.employee_id = d.id
-      LEFT JOIN vehicles v ON o.vehicle_id = v.id
-      WHERE d.tenant_id = $1
-    `
-    const params: any[] = [tenantId]
-    let paramIndex = 2
-
-    if (year) {
-      query += ` AND EXTRACT(YEAR FROM o.date_of_injury) = $${paramIndex}`
-      params.push(year)
-      paramIndex++
+// GET /osha-compliance/safety-inspections
+router.get(
+  '/safety-inspections',
+  requirePermission('osha:view:global'),
+  auditLog({ action: 'READ', resourceType: 'safety_inspection' }),
+  async (req: AuthRequest, res: Response) => {
+    try {
+      const safetyInspectionRepository = container.resolve(SafetyInspectionRepository);
+      const inspections = await safetyInspectionRepository.getSafetyInspections(req.user!.tenant_id);
+      res.json(inspections);
+    } catch (error) {
+      console.error(`Get safety inspections error:`, error);
+      res.status(500).json({ error: 'Internal server error' });
     }
+  }
+);
 
-    if (status) {
-      query += ` AND o.case_status = $${paramIndex}`
-      params.push(status)
-      paramIndex++
+// GET /osha-compliance/training-records
+router.get(
+  '/training-records',
+  requirePermission('osha:view:global'),
+  auditLog({ action: 'READ', resourceType: 'training_record' }),
+  async (req: AuthRequest, res: Response) => {
+    try {
+      const trainingRecordRepository = container.resolve(TrainingRecordRepository);
+      const records = await trainingRecordRepository.getTrainingRecords(req.user!.tenant_id);
+      res.json(records);
+    } catch (error) {
+      console.error(`Get training records error:`, error);
+      res.status(500).json({ error: 'Internal server error' });
     }
-
-    query += ` ORDER BY o.date_of_injury DESC LIMIT $${paramIndex} OFFSET $${paramIndex + 1}`
-    params.push(limit, offset)
-
-    const result = await pool.query(query, params)
-    return result.rows
   }
+);
 
-  async getOsha300LogCount(tenantId: number) {
-    const query = `
-      SELECT COUNT(*)
-      FROM osha_300_log o
-      LEFT JOIN drivers d ON o.employee_id = d.id
-      WHERE d.tenant_id = $1
-    `
-    const result = await pool.query(query, [tenantId])
-    return parseInt(result.rows[0].count, 10)
+// GET /osha-compliance/accident-investigations
+router.get(
+  '/accident-investigations',
+  requirePermission('osha:view:global'),
+  auditLog({ action: 'READ', resourceType: 'accident_investigation' }),
+  async (req: AuthRequest, res: Response) => {
+    try {
+      const accidentInvestigationRepository = container.resolve(AccidentInvestigationRepository);
+      const investigations = await accidentInvestigationRepository.getAccidentInvestigations(req.user!.tenant_id);
+      res.json(investigations);
+    } catch (error) {
+      console.error(`Get accident investigations error:`, error);
+      res.status(500).json({ error: 'Internal server error' });
+    }
   }
-}
+);
 
+// GET /osha-compliance/dashboard
+router.get(
+  '/dashboard',
+  requirePermission('osha:view:global'),
+  auditLog({ action: 'READ', resourceType: 'dashboard' }),
+  async (req: AuthRequest, res: Response) => {
+    try {
+      const dashboardRepository = container.resolve(DashboardRepository);
+      const dashboardData = await dashboardRepository.getDashboardData(req.user!.tenant_id);
+      res.json(dashboardData);
+    } catch (error) {
+      console.error(`Get dashboard data error:`, error);
+      res.status(500).json({ error: 'Internal server error' });
+    }
+  }
+);
 
-This refactoring improves the code structure by:
-
-1. Encapsulating database operations within the `Osha300LogRepository` class, which makes the code more modular and easier to maintain.
-
-2. Separating concerns by moving database logic out of the route handlers and into a dedicated repository class.
-
-3. Improving testability by allowing the repository to be easily mocked or stubbed during unit testing of the route handlers.
-
-4. Enhancing reusability, as the repository methods can be used across different parts of the application if needed.
-
-5. Simplifying the route handler code, making it more focused on handling requests and responses rather than dealing with database queries.
-
-To complete the refactoring, you should:
-
-1. Create the `Osha300LogRepository.ts` file in the `repositories` directory.
-2. Update the dependency injection configuration to include the `Osha300LogRepository` class.
-3. Ensure that the `pool` import in the repository file is correctly pointing to your database connection pool.
-
-This refactoring maintains the existing functionality while improving the overall structure and maintainability of the code.
+export default router;

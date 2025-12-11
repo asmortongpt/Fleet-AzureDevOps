@@ -1,6 +1,3 @@
-Here's the complete refactored `inspections.enhanced.ts` file, using the `InspectionRepository` class to replace all `pool.query` or `db.query` calls:
-
-
 // inspections.enhanced.ts
 import express, { Response } from 'express';
 import { container } from '../container';
@@ -123,15 +120,3 @@ router.post(
 );
 
 export default router;
-
-
-This refactored version of `inspections.enhanced.ts` replaces all database query calls with methods from the `InspectionRepository` class. Here's a summary of the changes:
-
-1. We import the `InspectionRepository` from its separate file.
-2. In the GET /inspections route, we use `inspectionRepository.getInspections()` and `inspectionRepository.getInspectionsCount()` to fetch the data.
-3. In the GET /inspections/:id route, we use `inspectionRepository.getInspectionById()` to fetch a specific inspection.
-4. In the POST /inspections route, we use `inspectionRepository.checkDriverId()` to validate the driver ID, and `inspectionRepository.createInspection()` to create a new inspection.
-
-Note that the `InspectionRepository` class should be implemented to handle these database operations. The implementation of this class is not included here, but it should contain methods like `getInspections()`, `getInspectionsCount()`, `getInspectionById()`, `checkDriverId()`, and `createInspection()`.
-
-Also, make sure that the `InspectionRepository` class is properly registered in your dependency injection container so that it can be resolved using `container.resolve(InspectionRepository)`.

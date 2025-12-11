@@ -1,6 +1,3 @@
-Here's the complete refactored `microsoft-auth.ts` file with all `pool.query` and `db.query` replaced with repository methods:
-
-
 import axios from 'axios';
 import express, { Request, Response } from 'express';
 import jwt from 'jsonwebtoken';
@@ -153,13 +150,3 @@ router.get('/microsoft/callback', async (req: Request, res: Response) => {
 });
 
 export default router;
-
-
-In this refactored version, all database operations have been replaced with calls to the appropriate repository methods:
-
-1. `tenantRepository.getTenantById()` replaces the query to fetch a tenant by ID.
-2. `tenantRepository.getDefaultTenant()` replaces the query to fetch the default tenant.
-3. `userRepository.getUserByEmail()` replaces the query to fetch a user by email.
-4. `userRepository.createUser()` replaces the query to create a new user.
-
-These repository methods encapsulate the database operations, improving code organization and making it easier to switch database implementations if needed. The rest of the file remains unchanged, maintaining the existing functionality.
