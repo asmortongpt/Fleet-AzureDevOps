@@ -70,7 +70,7 @@ router.get(
       // Create an instance of the repository
       const osha300LogRepository = container.resolve(Osha300LogRepository);
 
-      // Use repository methods instead of pool.query
+      // Use repository methods for all data access
       const result = await osha300LogRepository.getOsha300Logs(
         req.user!.tenant_id,
         year,
