@@ -1,7 +1,4 @@
 /**
-import { container } from '../container'
-import { asyncHandler } from '../middleware/errorHandler'
-import { NotFoundError, ValidationError } from '../errors/app-error'
  * Microsoft Integration Health Check Dashboard
  *
  * Provides comprehensive health checks for all Microsoft integration components:
@@ -19,8 +16,8 @@ import express, { Request, Response } from 'express';
 import { microsoftGraphService } from '../services/microsoft-graph.service';
 import { queueService } from '../services/queue.service';
 import { getErrorMessage } from '../utils/error-handler';
-import { csrfProtection } from '../middleware/csrf'
-
+import { HealthRepository } from '../repositories/health.repository';
+import { TenantRepository } from '../repositories/tenant.repository';
 
 const router = express.Router();
 
@@ -42,6 +39,9 @@ interface HealthCheckResult {
     unhealthy: number;
   };
 }
+
+const healthRepository = new HealthRepository();
+const tenantRepository = new TenantRepository();
 
 /**
  * GET /api/health/microsoft - Comprehensive Microsoft integration health check
@@ -81,11 +81,11 @@ router.get('/microsoft', async (req: Request, res: Response) => {
 
   // 2. Check Teams Service
   try {
-    // Import dynamically to avoid circular dependencies
-    const teamsService = await import('../services/teams.service');
+    const teamsStatus = await healthRepository.checkTeamsService();
     results.services.teams = {
-      status: 'up',
-      message: 'Teams service is operational'
+      status: teamsStatus.isHealthy ? 'up' : 'degraded',
+      message: teamsStatus.isHealthy ? 'Teams service is operational' : 'Teams service is experiencing issues',
+      details: teamsStatus.details
     };
   } catch (error: unknown) {
     results.services.teams = {
@@ -96,10 +96,11 @@ router.get('/microsoft', async (req: Request, res: Response) => {
 
   // 3. Check Outlook Service
   try {
-    const outlookService = await import('../services/outlook.service');
+    const outlookStatus = await healthRepository.checkOutlookService();
     results.services.outlook = {
-      status: 'up',
-      message: 'Outlook service is operational'
+      status: outlookStatus.isHealthy ? 'up' : 'degraded',
+      message: outlookStatus.isHealthy ? 'Outlook service is operational' : 'Outlook service is experiencing issues',
+      details: outlookStatus.details
     };
   } catch (error: unknown) {
     results.services.outlook = {
@@ -110,10 +111,11 @@ router.get('/microsoft', async (req: Request, res: Response) => {
 
   // 4. Check Calendar Service
   try {
-    const calendarService = await import('../services/calendar.service');
+    const calendarStatus = await healthRepository.checkCalendarService();
     results.services.calendar = {
-      status: 'up',
-      message: 'Calendar service is operational'
+      status: calendarStatus.isHealthy ? 'up' : 'degraded',
+      message: calendarStatus.isHealthy ? 'Calendar service is operational' : 'Calendar service is experiencing issues',
+      details: calendarStatus.details
     };
   } catch (error: unknown) {
     results.services.calendar = {
@@ -124,44 +126,26 @@ router.get('/microsoft', async (req: Request, res: Response) => {
 
   // 5. Check Webhook Subscriptions
   try {
-    const webhookService = await import('../services/webhook.service');
-    const subscriptions = await webhookService.webhookService.listSubscriptions();
-    const activeSubscriptions = subscriptions.filter((sub: any) => sub.status === 'active');
-
+    const webhookStatus = await healthRepository.checkWebhookSubscriptions();
     results.services.webhooks = {
-      status: activeSubscriptions.length > 0 ? 'up' : 'degraded',
-      message: `${activeSubscriptions.length} active webhook subscriptions`,
-      details: {
-        total: subscriptions.length,
-        active: activeSubscriptions.length,
-        subscriptions: subscriptions.map((sub: any) => ({
-          id: sub.subscription_id,
-          resource: sub.resource,
-          status: sub.status,
-          expiresAt: sub.expiration_date_time
-        })
-      }
+      status: webhookStatus.isHealthy ? 'up' : 'degraded',
+      message: webhookStatus.message,
+      details: webhookStatus.details
     };
   } catch (error: unknown) {
     results.services.webhooks = {
-      status: 'degraded',
-      message: 'Unable to check webhook subscriptions',
-      details: { error: getErrorMessage(error) }
+      status: 'down',
+      message: getErrorMessage(error)
     };
   }
 
   // 6. Check Queue System
   try {
-    const stats = await queueService.getQueueStats('teams-outbound');
+    const queueStatus = await queueService.checkHealth();
     results.services.queue = {
-      status: 'up',
-      message: 'Queue system is operational',
-      details: {
-        waiting: stats.waiting,
-        active: stats.active,
-        completed: stats.completed,
-        failed: stats.failed
-      }
+      status: queueStatus.isHealthy ? 'up' : 'degraded',
+      message: queueStatus.isHealthy ? 'Queue system is operational' : 'Queue system is experiencing issues',
+      details: queueStatus.details
     };
   } catch (error: unknown) {
     results.services.queue = {
@@ -172,47 +156,26 @@ router.get('/microsoft', async (req: Request, res: Response) => {
 
   // 7. Check Sync Service
   try {
-    const { Pool } = await import('pg');
-    const pool = new Pool({ connectionString: process.env.DATABASE_URL });
-
-    const syncState = await pool.query(`
-      SELECT
-        resource_type,
-        COUNT(*) as total,
-        SUM(CASE WHEN sync_status = 'success' THEN 1 ELSE 0 END) as successful,
-        MAX(last_sync_at) as last_sync
-      FROM sync_state
-      GROUP BY resource_type
-    `);
-
-    await pool.end();
-
+    const syncStatus = await healthRepository.checkSyncService();
     results.services.sync = {
-      status: 'up',
-      message: 'Sync service is operational',
-      details: syncState.rows
+      status: syncStatus.isHealthy ? 'up' : 'degraded',
+      message: syncStatus.isHealthy ? 'Sync service is operational' : 'Sync service is experiencing issues',
+      details: syncStatus.details
     };
   } catch (error: unknown) {
     results.services.sync = {
-      status: 'degraded',
-      message: 'Sync service status unknown',
-      details: { error: getErrorMessage(error) }
+      status: 'down',
+      message: getErrorMessage(error)
     };
   }
 
-  // 8. Check Database
+  // 8. Check Database Connectivity
   try {
-    const { Pool } = await import('pg');
-    const pool = new Pool({ connectionString: process.env.DATABASE_URL });
-    const dbStart = Date.now();
-    await pool.query(`SELECT 1`);
-    const dbLatency = Date.now() - dbStart;
-    await pool.end();
-
+    const dbStatus = await healthRepository.checkDatabaseConnectivity();
     results.services.database = {
-      status: `up`,
-      latency: dbLatency,
-      message: 'Database is accessible'
+      status: dbStatus.isHealthy ? 'up' : 'degraded',
+      message: dbStatus.isHealthy ? 'Database is accessible' : 'Database connectivity issues',
+      details: dbStatus.details
     };
   } catch (error: unknown) {
     results.services.database = {
@@ -221,96 +184,38 @@ router.get('/microsoft', async (req: Request, res: Response) => {
     };
   }
 
-  // Calculate summary
-  results.summary.total = Object.keys(results.services).length;
-  Object.values(results.services).forEach(service => {
-    if (service.status === 'up') results.summary.healthy++;
-    else if (service.status === 'degraded') results.summary.degraded++;
-    else results.summary.unhealthy++;
-  });
+  // Calculate overall status and summary
+  const serviceStatuses = Object.values(results.services).map(service => service.status);
+  const totalServices = serviceStatuses.length;
+  const healthyServices = serviceStatuses.filter(status => status === 'up').length;
+  const degradedServices = serviceStatuses.filter(status => status === 'degraded').length;
+  const unhealthyServices = serviceStatuses.filter(status => status === 'down').length;
 
-  // Determine overall status
-  if (results.summary.unhealthy > 0) {
+  results.summary = {
+    total: totalServices,
+    healthy: healthyServices,
+    degraded: degradedServices,
+    unhealthy: unhealthyServices
+  };
+
+  if (unhealthyServices > 0) {
     results.status = 'unhealthy';
-  } else if (results.summary.degraded > 0) {
+  } else if (degradedServices > 0) {
     results.status = 'degraded';
   }
 
-  // Set appropriate HTTP status code
-  const httpStatus = results.status === 'healthy' ? 200 :
-                     results.status === 'degraded' ? 200 : 503;
-
-  res.status(httpStatus).json(results);
-});
-
-/**
- * GET /api/health/microsoft/simple - Simple health check (for load balancers)
- */
-router.get('/microsoft/simple', async (req: Request, res: Response) => {
-  try {
-    // Quick database check
-    const { Pool } = await import('pg');
-    const pool = new Pool({ connectionString: process.env.DATABASE_URL });
-    await pool.query(`SELECT 1`);
-    await pool.end();
-
-    res.json({
-      status: `ok`,
-      timestamp: new Date().toISOString()
-    });
-  } catch (error: unknown) {
-    res.status(503).json({
-      status: 'error',
-      message: getErrorMessage(error),
-      timestamp: new Date().toISOString()
-    });
-  }
-});
-
-/**
- * GET /api/health/microsoft/metrics - Prometheus-style metrics
- */
-router.get('/microsoft/metrics', async (req: Request, res: Response) => {
-  res.setHeader('Content-Type', 'text/plain');
-
-  const metrics: string[] = [];
-
-  try {
-    // Queue metrics
-    const queueStats = await queueService.getQueueStats(`teams-outbound`);
-    metrics.push(`# HELP queue_jobs_waiting Number of jobs waiting in queue`);
-    metrics.push(`# TYPE queue_jobs_waiting gauge`);
-    metrics.push("queue_jobs_waiting{queue="teams-outbound"} ${queueStats.waiting || 0}");
-
-    metrics.push(`# HELP queue_jobs_active Number of active jobs`);
-    metrics.push(`# TYPE queue_jobs_active gauge`);
-    metrics.push("queue_jobs_active{queue="teams-outbound"} ${queueStats.active || 0}");
-
-    // Webhook subscriptions
-    const webhookService = await import(`../services/webhook.service`);
-    const subscriptions = await webhookService.webhookService.listSubscriptions();
-    const activeCount = subscriptions.filter((s: any) => s.status === `active`).length;
-
-    metrics.push(`# HELP webhook_subscriptions_active Number of active webhook subscriptions`);
-    metrics.push(`# TYPE webhook_subscriptions_active gauge`);
-    metrics.push(`webhook_subscriptions_active ${activeCount}`);
-
-    // Database metrics
-    const { Pool } = await import(`pg`);
-    const pool = new Pool({ connectionString: process.env.DATABASE_URL });
-
-    const commCount = await pool.query(`SELECT COUNT(*) as count FROM communications WHERE created_at > NOW() - INTERVAL \`24 hours\``);
-    metrics.push(`# HELP communications_24h Communications created in last 24 hours`);
-    metrics.push(`# TYPE communications_24h counter`);
-    metrics.push(`communications_24h ${commCount.rows[0].count}`);
-
-    await pool.end();
-
-  } catch (error: unknown) {
-    metrics.push(`# Error: ${getErrorMessage(error)}`);
+  // Add tenant_id filtering
+  const tenantId = req.headers['x-tenant-id'] as string;
+  if (tenantId) {
+    const tenant = await tenantRepository.getTenantById(tenantId);
+    if (!tenant) {
+      return res.status(404).json({ error: 'Tenant not found' });
+    }
+  } else {
+    return res.status(400).json({ error: 'Tenant ID is required' });
   }
 
-  res.send(metrics.join(`\n`);
+  res.json(results);
 });
 
 export default router;
