@@ -1,22 +1,21 @@
 /**
  * 3D Vehicle Models API Routes
  * Handles search, upload, download, and management of 3D models
+ * REFACTORED: Uses repository pattern for database access
  */
 
 import { Router, Request, Response } from 'express';
-import { Pool } from 'pg';
 import multer from 'multer';
-import { getSketchfabService } from '../services/sketchfab';
-import { getAzureBlobService } from '../services/azure-blob';
 import { logger } from '../services/logger';
 import { authenticateToken } from '../middleware/auth';
+import { ModelsContainer } from '../containers/models.container';
 
 const router = Router();
 
 // Configure multer for file uploads (memory storage)
 const upload = multer({
   storage: multer.memoryStorage(),
-  limits: {
+  limits:  {
     fileSize: 100 * 1024 * 1024, // 100MB max file size
   },
   fileFilter: (req, file, cb) => {
@@ -40,6 +39,15 @@ const upload = multer({
   },
 });
 
+// Helper to get tenant ID from request
+const getTenantId = (req: Request): number => {
+  const tenantId = req.headers['x-tenant-id'];
+  if (!tenantId) {
+    throw new Error('Tenant ID is required');
+  }
+  return parseInt(tenantId as string, 10);
+};
+
 /**
  * GET /api/v1/models
  * List all available 3D models with filtering
@@ -56,68 +64,26 @@ router.get('/', async (req: Request, res: Response) => {
       offset = '0',
     } = req.query;
 
-    const pool: Pool = req.app.locals.db;
+    const container: ModelsContainer = req.app.locals.modelsContainer;
+    const modelsRepo = container.getModelsRepository();
+    const tenantId = getTenantId(req);
 
-    let query = `
-      SELECT
-        id, name, description, vehicle_type, make, model, year,
-        file_url, file_format, file_size_mb, poly_count,
-        source, license, thumbnail_url, preview_images,
-        quality_tier, has_interior, has_pbr_materials,
-        view_count, download_count, is_featured,
-        tags, created_at
-      FROM vehicle_3d_models
-      WHERE is_active = true
-    `;
-
-    const params: any[] = [];
-    let paramIndex = 1;
-
-    if (search) {
-      query += ` AND to_tsvector('english', coalesce(name, '') || ' ' || coalesce(description, '') || ' ' || coalesce(make, '') || ' ' || coalesce(model, ''))
-                 @@ plainto_tsquery('english', $${paramIndex})`;
-      params.push(search);
-      paramIndex++;
-    }
-
-    if (vehicleType) {
-      query += ` AND vehicle_type = $${paramIndex}`;
-      params.push(vehicleType);
-      paramIndex++;
-    }
-
-    if (make) {
-      query += ` AND make ILIKE $${paramIndex}`;
-      params.push(`%${make}%`);
-      paramIndex++;
-    }
-
-    if (source) {
-      query += ` AND source = $${paramIndex}`;
-      params.push(source);
-      paramIndex++;
-    }
-
-    if (quality) {
-      query += ` AND quality_tier = $${paramIndex}`;
-      params.push(quality);
-      paramIndex++;
-    }
-
-    query += ` ORDER BY is_featured DESC, view_count DESC, created_at DESC`;
-    query += ` LIMIT $${paramIndex} OFFSET $${paramIndex + 1}`;
-    params.push(parseInt(limit as string), parseInt(offset as string));
-
-    const result = await pool.query(query, params);
-
-    // Get total count
-    const countQuery = `SELECT COUNT(*) FROM vehicle_3d_models WHERE is_active = true`;
-    const countResult = await pool.query(countQuery);
-    const total = parseInt(countResult.rows[0].count);
+    const result = await modelsRepo.searchModels(
+      {
+        search: search as string,
+        vehicleType: vehicleType as string,
+        make: make as string,
+        source: source as string,
+        quality: quality as string,
+        limit: parseInt(limit as string),
+        offset: parseInt(offset as string),
+      },
+      tenantId
+    );
 
     res.json({
-      models: result.rows,
-      total,
+      models: result.models,
+      total: result.total,
       limit: parseInt(limit as string),
       offset: parseInt(offset as string),
     });
@@ -135,22 +101,22 @@ router.get('/search', async (req: Request, res: Response) => {
   try {
     const { q, vehicleType, make, source, limit = '20' } = req.query;
 
-    const pool: Pool = req.app.locals.db;
+    const container: ModelsContainer = req.app.locals.modelsContainer;
+    const modelsRepo = container.getModelsRepository();
+    const tenantId = getTenantId(req);
 
-    const result = await pool.query(
-      `SELECT * FROM search_vehicle_3d_models($1, $2, $3, $4, $5)`,
-      [
-        q || null,
-        vehicleType || null,
-        make || null,
-        source || null,
-        parseInt(limit as string),
-      ]
+    const models = await modelsRepo.fullTextSearch(
+      (q as string) || null,
+      (vehicleType as string) || null,
+      (make as string) || null,
+      (source as string) || null,
+      parseInt(limit as string),
+      tenantId
     );
 
     res.json({
-      models: result.rows,
-      total: result.rows.length,
+      models,
+      total: models.length,
     });
   } catch (error) {
     logger.error('Error searching models:', error);
@@ -164,15 +130,15 @@ router.get('/search', async (req: Request, res: Response) => {
  */
 router.get('/featured', async (req: Request, res: Response) => {
   try {
-    const pool: Pool = req.app.locals.db;
     const limit = parseInt((req.query.limit as string) || '10');
 
-    const result = await pool.query(
-      `SELECT * FROM v_featured_vehicle_3d_models LIMIT $1`,
-      [limit]
-    );
+    const container: ModelsContainer = req.app.locals.modelsContainer;
+    const modelsRepo = container.getModelsRepository();
+    const tenantId = getTenantId(req);
 
-    res.json({ models: result.rows });
+    const models = await modelsRepo.getFeaturedModels(limit, tenantId);
+
+    res.json({ models });
   } catch (error) {
     logger.error('Error fetching featured models:', error);
     res.status(500).json({ error: 'Failed to fetch featured models' });
@@ -185,15 +151,15 @@ router.get('/featured', async (req: Request, res: Response) => {
  */
 router.get('/popular', async (req: Request, res: Response) => {
   try {
-    const pool: Pool = req.app.locals.db;
     const limit = parseInt((req.query.limit as string) || '10');
 
-    const result = await pool.query(
-      `SELECT * FROM v_popular_vehicle_3d_models LIMIT $1`,
-      [limit]
-    );
+    const container: ModelsContainer = req.app.locals.modelsContainer;
+    const modelsRepo = container.getModelsRepository();
+    const tenantId = getTenantId(req);
 
-    res.json({ models: result.rows });
+    const models = await modelsRepo.getPopularModels(limit, tenantId);
+
+    res.json({ models });
   } catch (error) {
     logger.error('Error fetching popular models:', error);
     res.status(500).json({ error: 'Failed to fetch popular models' });
@@ -207,21 +173,18 @@ router.get('/popular', async (req: Request, res: Response) => {
 router.get('/:id', async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
-    const pool: Pool = req.app.locals.db;
 
-    const result = await pool.query(
-      `SELECT * FROM vehicle_3d_models WHERE id = $1 AND is_active = true`,
-      [id]
-    );
+    const container: ModelsContainer = req.app.locals.modelsContainer;
+    const modelsRepo = container.getModelsRepository();
+    const tenantId = getTenantId(req);
 
-    if (result.rows.length === 0) {
+    const model = await modelsRepo.getModelById(parseInt(id), tenantId);
+
+    if (!model) {
       return res.status(404).json({ error: 'Model not found' });
     }
 
-    // Increment view count
-    await pool.query(`SELECT increment_model_view_count($1)`, [id]);
-
-    res.json({ model: result.rows[0] });
+    res.json({ model });
   } catch (error) {
     logger.error('Error fetching model:', error);
     res.status(500).json({ error: 'Failed to fetch model' });
@@ -254,8 +217,12 @@ router.post(
         tags,
       } = req.body;
 
+      const container: ModelsContainer = req.app.locals.modelsContainer;
+      const modelsRepo = container.getModelsRepository();
+      const azureBlob = container.getAzureBlobService();
+      const tenantId = getTenantId(req);
+
       // Upload to Azure Blob Storage
-      const azureBlob = getAzureBlobService();
       const uploadResult = await azureBlob.uploadModel(
         req.file.buffer,
         req.file.originalname,
@@ -268,37 +235,30 @@ router.post(
         }
       );
 
-      // Save to database
-      const pool: Pool = req.app.locals.db;
-      const result = await pool.query(
-        `INSERT INTO vehicle_3d_models (
-          name, description, vehicle_type, make, model, year,
-          file_url, file_format, file_size_mb,
-          source, license, thumbnail_url, quality_tier, tags
-        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14)
-        RETURNING *`,
-        [
+      // Save to database via repository
+      const savedModel = await modelsRepo.uploadModel(
+        {
           name,
-          description || null,
-          vehicleType || null,
-          make || null,
-          model || null,
-          year ? parseInt(year) : null,
-          uploadResult.cdnUrl,
-          req.file.originalname.split('.').pop(),
-          (uploadResult.size / (1024 * 1024)).toFixed(2),
-          'custom',
-          license || 'Custom',
-          null, // thumbnail_url
-          quality || 'medium',
-          tags ? tags.split(',') : null,
-        ]
+          description,
+          vehicleType,
+          make,
+          model,
+          year: year ? parseInt(year) : undefined,
+          fileUrl: uploadResult.cdnUrl,
+          fileFormat: req.file.originalname.split('.').pop(),
+          fileSizeMb: parseFloat((uploadResult.size / (1024 * 1024)).toFixed(2)),
+          source: 'custom',
+          license: license || 'Custom',
+          qualityTier: quality || 'medium',
+          tags: tags ? tags.split(',') : undefined,
+        },
+        tenantId
       );
 
       logger.info(`Model uploaded: ${name} by user ${req.user?.id}`);
 
       res.status(201).json({
-        model: result.rows[0],
+        model: savedModel,
         message: 'Model uploaded successfully',
       });
     } catch (error: any) {
@@ -325,7 +285,11 @@ router.post(
         return res.status(400).json({ error: 'Sketchfab UID is required' });
       }
 
-      const sketchfab = getSketchfabService();
+      const container: ModelsContainer = req.app.locals.modelsContainer;
+      const modelsRepo = container.getModelsRepository();
+      const sketchfab = container.getSketchfabService();
+      const azureBlob = container.getAzureBlobService();
+      const tenantId = getTenantId(req);
 
       // Get model details
       const modelDetails = await sketchfab.getModel(uid);
@@ -339,7 +303,6 @@ router.post(
           const tempPath = `/tmp/${uid}.glb`;
           await sketchfab.downloadModel(uid, tempPath);
 
-          const azureBlob = getAzureBlobService();
           const uploadResult = await azureBlob.uploadFromFile(tempPath, {
             fileName: `sketchfab_${uid}.glb`,
             metadata: {
@@ -368,33 +331,27 @@ router.post(
           modelDetails.thumbnails.images.length - 1
         ]?.url;
 
-      // Save to database
-      const pool: Pool = req.app.locals.db;
-      const result = await pool.query(
-        `INSERT INTO vehicle_3d_models (
-          name, description, file_url, source, source_id,
-          license, license_url, author, author_url,
-          thumbnail_url, poly_count, view_count
-        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
-        RETURNING *`,
-        [
-          modelDetails.name,
-          modelDetails.description,
+      // Save to database via repository
+      const savedModel = await modelsRepo.importSketchfabModel(
+        {
+          name: modelDetails.name,
+          description: modelDetails.description,
           fileUrl,
           source,
-          uid,
-          modelDetails.license.label,
-          modelDetails.license.url,
-          modelDetails.user.displayName,
-          modelDetails.user.profileUrl,
-          thumbnail,
-          modelDetails.faceCount || null,
-          modelDetails.viewCount || 0,
-        ]
+          sourceId: uid,
+          license: modelDetails.license.label,
+          licenseUrl: modelDetails.license.url,
+          author: modelDetails.user.displayName,
+          authorUrl: modelDetails.user.profileUrl,
+          thumbnailUrl: thumbnail,
+          polyCount: modelDetails.faceCount,
+          viewCount: modelDetails.viewCount,
+        },
+        tenantId
       );
 
       res.status(201).json({
-        model: result.rows[0],
+        model: savedModel,
         message: 'Sketchfab model imported successfully',
       });
     } catch (error: any) {
@@ -416,25 +373,12 @@ router.delete(
   async (req: Request, res: Response) => {
     try {
       const { id } = req.params;
-      const pool: Pool = req.app.locals.db;
 
-      // Check if model exists and get file info
-      const modelResult = await pool.query(
-        `SELECT * FROM vehicle_3d_models WHERE id = $1`,
-        [id]
-      );
+      const container: ModelsContainer = req.app.locals.modelsContainer;
+      const modelsRepo = container.getModelsRepository();
+      const tenantId = getTenantId(req);
 
-      if (modelResult.rows.length === 0) {
-        return res.status(404).json({ error: 'Model not found' });
-      }
-
-      const model = modelResult.rows[0];
-
-      // Soft delete (set is_active = false)
-      await pool.query(
-        `UPDATE vehicle_3d_models SET is_active = false WHERE id = $1`,
-        [id]
-      );
+      await modelsRepo.softDeleteModel(parseInt(id), tenantId);
 
       logger.info(`Model soft-deleted: ${id} by user ${req.user?.id}`);
 
@@ -462,32 +406,24 @@ router.post(
         return res.status(400).json({ error: 'Model ID is required' });
       }
 
-      const pool: Pool = req.app.locals.db;
+      const container: ModelsContainer = req.app.locals.modelsContainer;
+      const modelsRepo = container.getModelsRepository();
+      const tenantId = getTenantId(req);
 
-      // Verify model exists
-      const modelResult = await pool.query(
-        `SELECT id FROM vehicle_3d_models WHERE id = $1 AND is_active = true`,
-        [modelId]
+      await modelsRepo.assignModelToVehicle(
+        parseInt(vehicleId),
+        parseInt(modelId),
+        tenantId
       );
-
-      if (modelResult.rows.length === 0) {
-        return res.status(404).json({ error: 'Model not found' });
-      }
-
-      // Update vehicle
-      await pool.query(`UPDATE vehicles SET model_3d_id = $1 WHERE id = $2`, [
-        modelId,
-        vehicleId,
-      ]);
 
       logger.info(
         `Model ${modelId} assigned to vehicle ${vehicleId} by user ${req.user?.id}`
       );
 
       res.json({ message: 'Model assigned to vehicle successfully' });
-    } catch (error) {
+    } catch (error: any) {
       logger.error('Error assigning model to vehicle:', error);
-      res.status(500).json({ error: 'Failed to assign model to vehicle' });
+      res.status(500).json({ error: error.message || 'Failed to assign model to vehicle' });
     }
   }
 );
@@ -499,26 +435,21 @@ router.post(
 router.get('/:id/download', async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
-    const pool: Pool = req.app.locals.db;
 
-    const result = await pool.query(
-      `SELECT * FROM vehicle_3d_models WHERE id = $1 AND is_active = true`,
-      [id]
-    );
+    const container: ModelsContainer = req.app.locals.modelsContainer;
+    const modelsRepo = container.getModelsRepository();
+    const azureBlob = container.getAzureBlobService();
+    const tenantId = getTenantId(req);
 
-    if (result.rows.length === 0) {
+    const model = await modelsRepo.getModelForDownload(parseInt(id), tenantId);
+
+    if (!model) {
       return res.status(404).json({ error: 'Model not found' });
     }
 
-    const model = result.rows[0];
-
-    // Increment download count
-    await pool.query(`SELECT increment_model_download_count($1)`, [id]);
-
-    // Redirect to file URL (or generate SAS token for Azure)
+    // Generate SAS token for Azure or return direct URL
     if (model.source === 'azure-blob') {
       try {
-        const azureBlob = getAzureBlobService();
         const blobName = model.file_url.split('/').pop();
         const sasUrl = await azureBlob.generateSasUrl(blobName, 60); // 1 hour
         res.json({ downloadUrl: sasUrl });
