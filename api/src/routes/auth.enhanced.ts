@@ -165,10 +165,4 @@ router.post(
 export default router
 
 
-This refactored version of `auth.enhanced.ts` replaces all `pool.query` calls with repository methods from `UserRepository` and `TenantRepository`. The file now uses the following repository methods:
-
-- `userRepository.getUserByEmailAndTenant(email, tenant_id)`
-- `userRepository.createUser(userData)`
-- `tenantRepository.getTenantById(tenant_id)`
-
-These repository methods encapsulate the database operations, improving the separation of concerns and making the code more maintainable and testable. The rest of the file remains unchanged, maintaining the existing functionality and security measures.
+This refactored version of `auth.enhanced.ts` replaces all `pool.query` calls with repository methods. The `UserRepository` and `TenantRepository` are used to interact with the database, improving the separation of concerns and making the code more maintainable and testable.

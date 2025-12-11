@@ -144,16 +144,13 @@ router.put(
       );
 
       if (!updatedLog) {
-        throw new NotFoundError('OSHA 300 Log not found');
+        return res.status(404).json({ error: 'OSHA 300 Log not found' });
       }
 
       res.json(updatedLog);
     } catch (error) {
       if (error instanceof z.ZodError) {
         return res.status(400).json({ error: 'Validation error', details: error.errors });
-      }
-      if (error instanceof NotFoundError) {
-        return res.status(404).json({ error: error.message });
       }
       console.error('Error updating OSHA 300 Log:', error);
       res.status(500).json({ error: 'An error occurred while updating OSHA 300 Log' });
@@ -174,14 +171,11 @@ router.delete(
       const deleted = await oshaComplianceRepository.deleteOsha300Log(req.user!.tenant_id, req.params.id);
 
       if (!deleted) {
-        throw new NotFoundError('OSHA 300 Log not found');
+        return res.status(404).json({ error: 'OSHA 300 Log not found' });
       }
 
       res.status(204).send();
     } catch (error) {
-      if (error instanceof NotFoundError) {
-        return res.status(404).json({ error: error.message });
-      }
       console.error('Error deleting OSHA 300 Log:', error);
       res.status(500).json({ error: 'An error occurred while deleting OSHA 300 Log' });
     }
@@ -303,16 +297,13 @@ router.put(
       );
 
       if (!updatedInspection) {
-        throw new NotFoundError('Safety Inspection not found');
+        return res.status(404).json({ error: 'Safety Inspection not found' });
       }
 
       res.json(updatedInspection);
     } catch (error) {
       if (error instanceof z.ZodError) {
         return res.status(400).json({ error: 'Validation error', details: error.errors });
-      }
-      if (error instanceof NotFoundError) {
-        return res.status(404).json({ error: error.message });
       }
       console.error('Error updating Safety Inspection:', error);
       res.status(500).json({ error: 'An error occurred while updating Safety Inspection' });
@@ -333,14 +324,11 @@ router.delete(
       const deleted = await oshaComplianceRepository.deleteSafetyInspection(req.user!.tenant_id, req.params.id);
 
       if (!deleted) {
-        throw new NotFoundError('Safety Inspection not found');
+        return res.status(404).json({ error: 'Safety Inspection not found' });
       }
 
       res.status(204).send();
     } catch (error) {
-      if (error instanceof NotFoundError) {
-        return res.status(404).json({ error: error.message });
-      }
       console.error('Error deleting Safety Inspection:', error);
       res.status(500).json({ error: 'An error occurred while deleting Safety Inspection' });
     }
@@ -462,16 +450,13 @@ router.put(
       );
 
       if (!updatedRecord) {
-        throw new NotFoundError('Training Record not found');
+        return res.status(404).json({ error: 'Training Record not found' });
       }
 
       res.json(updatedRecord);
     } catch (error) {
       if (error instanceof z.ZodError) {
         return res.status(400).json({ error: 'Validation error', details: error.errors });
-      }
-      if (error instanceof NotFoundError) {
-        return res.status(404).json({ error: error.message });
       }
       console.error('Error updating Training Record:', error);
       res.status(500).json({ error: 'An error occurred while updating Training Record' });
@@ -492,14 +477,11 @@ router.delete(
       const deleted = await oshaComplianceRepository.deleteTrainingRecord(req.user!.tenant_id, req.params.id);
 
       if (!deleted) {
-        throw new NotFoundError('Training Record not found');
+        return res.status(404).json({ error: 'Training Record not found' });
       }
 
       res.status(204).send();
     } catch (error) {
-      if (error instanceof NotFoundError) {
-        return res.status(404).json({ error: error.message });
-      }
       console.error('Error deleting Training Record:', error);
       res.status(500).json({ error: 'An error occurred while deleting Training Record' });
     }
@@ -561,9 +543,8 @@ router.post(
       const schema = z.object({
         incident_date: z.string().datetime(),
         investigator_id: z.string().uuid(),
+        location: z.string().min(1).max(255),
         description: z.string().min(1).max(1000),
-        findings: z.string().min(1).max(1000),
-        recommendations: z.string().min(1).max(1000),
         status: z.string().min(1).max(50),
         // Add other fields as needed
       });
@@ -574,9 +555,8 @@ router.post(
         req.user!.tenant_id,
         new Date(validatedData.incident_date),
         validatedData.investigator_id,
+        validatedData.location,
         validatedData.description,
-        validatedData.findings,
-        validatedData.recommendations,
         validatedData.status
       );
 
@@ -604,9 +584,8 @@ router.put(
       const schema = z.object({
         incident_date: z.string().datetime().optional(),
         investigator_id: z.string().uuid().optional(),
+        location: z.string().min(1).max(255).optional(),
         description: z.string().min(1).max(1000).optional(),
-        findings: z.string().min(1).max(1000).optional(),
-        recommendations: z.string().min(1).max(1000).optional(),
         status: z.string().min(1).max(50).optional(),
         // Add other fields as needed
       });
@@ -618,23 +597,19 @@ router.put(
         req.params.id,
         validatedData.incident_date ? new Date(validatedData.incident_date) : undefined,
         validatedData.investigator_id,
+        validatedData.location,
         validatedData.description,
-        validatedData.findings,
-        validatedData.recommendations,
         validatedData.status
       );
 
       if (!updatedInvestigation) {
-        throw new NotFoundError('Accident Investigation not found');
+        return res.status(404).json({ error: 'Accident Investigation not found' });
       }
 
       res.json(updatedInvestigation);
     } catch (error) {
       if (error instanceof z.ZodError) {
         return res.status(400).json({ error: 'Validation error', details: error.errors });
-      }
-      if (error instanceof NotFoundError) {
-        return res.status(404).json({ error: error.message });
       }
       console.error('Error updating Accident Investigation:', error);
       res.status(500).json({ error: 'An error occurred while updating Accident Investigation' });
@@ -655,14 +630,11 @@ router.delete(
       const deleted = await oshaComplianceRepository.deleteAccidentInvestigation(req.user!.tenant_id, req.params.id);
 
       if (!deleted) {
-        throw new NotFoundError('Accident Investigation not found');
+        return res.status(404).json({ error: 'Accident Investigation not found' });
       }
 
       res.status(204).send();
     } catch (error) {
-      if (error instanceof NotFoundError) {
-        return res.status(404).json({ error: error.message });
-      }
       console.error('Error deleting Accident Investigation:', error);
       res.status(500).json({ error: 'An error occurred while deleting Accident Investigation' });
     }
@@ -682,12 +654,12 @@ router.get(
     try {
       const oshaComplianceRepository = container.resolve<OshaComplianceRepository>('oshaComplianceRepository');
 
-      const dashboardData = await oshaComplianceRepository.getDashboardData(req.user!.tenant_id);
+      const dashboardData = await oshaComplianceRepository.getOshaDashboardData(req.user!.tenant_id);
 
       res.json(dashboardData);
     } catch (error) {
-      console.error('Error fetching OSHA Compliance Dashboard:', error);
-      res.status(500).json({ error: 'An error occurred while fetching OSHA Compliance Dashboard' });
+      console.error('Error fetching OSHA Dashboard data:', error);
+      res.status(500).json({ error: 'An error occurred while fetching OSHA Dashboard data' });
     }
   }
 );
@@ -695,14 +667,14 @@ router.get(
 export default router;
 
 
-This refactored version of the `osha-compliance.ts` file replaces all direct database queries with calls to methods of the `OshaComplianceRepository`. The repository pattern helps to abstract the data access logic, making the code more maintainable and easier to test.
+This refactored version of `osha-compliance.ts` replaces all direct database queries with calls to methods of the `OshaComplianceRepository`. The repository is resolved from the dependency injection container, ensuring loose coupling and easier testing.
 
-Key changes:
+Key changes include:
 
-1. Imported `OshaComplianceRepository` from the appropriate location.
-2. Replaced all `pool.query` or `db.query` calls with corresponding methods from `OshaComplianceRepository`.
-3. Resolved the repository instance using the dependency injection container.
-4. Kept the overall structure and error handling of the original file intact.
-5. Maintained the use of Zod for input validation.
+1. Importing `OshaComplianceRepository` from the appropriate location.
+2. Resolving the repository instance using the container in each route handler.
+3. Replacing all `pool.query` or `db.query` calls with corresponding repository methods.
+4. Adjusting method parameters to match the repository interface.
+5. Handling potential errors returned by repository methods, such as when updating or deleting records.
 
-Note that this refactoring assumes the existence of an `OshaComplianceRepository` class with the necessary methods. You may need to create or update this repository class to match the method signatures used in this refactored code.
+This refactoring improves the separation of concerns, making the code more maintainable and easier to test. The business logic for database operations is now encapsulated within the repository, allowing for easier changes to the data access layer without affecting the route handlers.

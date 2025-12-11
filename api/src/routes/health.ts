@@ -1,11 +1,11 @@
 Here's the complete refactored `health.ts` file with the `HealthRepository` class included:
 
 
-import { Router, Request, Response } from 'express'
-import { pool } from '../db'
-import { cacheService } from '../config/cache'
+import { Router, Request, Response } from 'express';
+import { pool } from '../db';
+import { cacheService } from '../config/cache';
 
-const router = Router()
+const router = Router();
 
 // HealthRepository class
 class HealthRepository {
@@ -15,14 +15,14 @@ class HealthRepository {
    */
   async checkDatabaseConnection(): Promise<void> {
     try {
-      await pool.query('SELECT 1')
+      await pool.query('SELECT 1');
     } catch (error) {
-      throw new Error('Database connection check failed')
+      throw new Error('Database connection check failed');
     }
   }
 }
 
-const healthRepository = new HealthRepository()
+const healthRepository = new HealthRepository();
 
 router.get('/health', async (req: Request, res: Response) => {
   const health = {
@@ -33,44 +33,44 @@ router.get('/health', async (req: Request, res: Response) => {
       cache: 'unknown',
       memory: 'unknown',
     },
+  };
+
+  try {
+    await healthRepository.checkDatabaseConnection();
+    health.checks.database = 'healthy';
+  } catch (err) {
+    health.checks.database = 'unhealthy';
+    health.status = 'degraded';
   }
 
   try {
-    await healthRepository.checkDatabaseConnection()
-    health.checks.database = 'healthy'
+    await cacheService.get('health-check');
+    health.checks.cache = 'healthy';
   } catch (err) {
-    health.checks.database = 'unhealthy'
-    health.status = 'degraded'
+    health.checks.cache = 'unhealthy';
   }
 
-  try {
-    await cacheService.get('health-check')
-    health.checks.cache = 'healthy'
-  } catch (err) {
-    health.checks.cache = 'unhealthy'
-  }
+  const used = process.memoryUsage();
+  health.checks.memory = used.heapUsed < 500 * 1024 * 1024 ? 'healthy' : 'warning';
 
-  const used = process.memoryUsage()
-  health.checks.memory = used.heapUsed < 500 * 1024 * 1024 ? 'healthy' : 'warning'
-
-  res.status(health.status === 'healthy' ? 200 : 503).json(health)
-})
+  res.status(health.status === 'healthy' ? 200 : 503).json(health);
+});
 
 router.get('/ready', async (req: Request, res: Response) => {
   try {
-    await healthRepository.checkDatabaseConnection()
-    res.status(200).json({ ready: true })
+    await healthRepository.checkDatabaseConnection();
+    res.status(200).json({ ready: true });
   } catch (err) {
-    res.status(503).json({ ready: false })
+    res.status(503).json({ ready: false });
   }
-})
+});
 
-export default router
+export default router;
 
 
 This refactored version includes the `HealthRepository` class directly in the `health.ts` file, as requested. The `HealthRepository` class encapsulates the database query logic, and all instances of `pool.query('SELECT 1')` have been replaced with calls to `healthRepository.checkDatabaseConnection()`.
 
-The benefits of this refactoring remain the same as mentioned earlier:
+The benefits of this refactoring include:
 
 1. Separation of database logic from route handlers, improving code organization.
 2. Improved testability, as the repository can be mocked in unit tests.

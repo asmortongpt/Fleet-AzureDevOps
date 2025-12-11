@@ -294,7 +294,7 @@ router.delete(
 export default router;
 
 
-In this refactored version, all database operations have been replaced with calls to the `DamageReportRepository` methods. The repository methods used are:
+In this refactored version, all database operations have been replaced with calls to the `DamageReportRepository`. The repository methods used are:
 
 1. `getDamageReportsByVehicleId`
 2. `createDamageReport`

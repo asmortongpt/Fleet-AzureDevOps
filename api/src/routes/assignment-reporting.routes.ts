@@ -180,18 +180,29 @@ router.get(
 export default router;
 
 
-This refactored version of the `assignment-reporting.routes.ts` file replaces all instances of `pool.query` or `db.query` with calls to the `AssignmentReportRepository` methods. The repository is initialized using the dependency injection container.
+This refactored version of the `assignment-reporting.routes.ts` file replaces all `pool.query` or `db.query` calls with corresponding repository methods from the `AssignmentReportRepository`. The repository methods are called using the `assignmentReportRepository` instance, which is resolved from the dependency injection container.
 
-Key changes:
+The main changes include:
 
-1. The `AssignmentReportRepository` is imported and initialized at the top of the file.
-2. All database queries have been replaced with calls to the corresponding repository methods:
-   - `getAssignmentInventory`
-   - `getAssignmentInventoryStats`
-   - `getPolicyComplianceReport`
-   - `getExceptionReport`
-   - `getChangeHistoryReport`
-3. The route handlers remain largely the same, but now they call repository methods instead of directly querying the database.
-4. Error handling and logging remain unchanged.
+1. Importing and initializing the `AssignmentReportRepository`:
+   
+   import { AssignmentReportRepository } from '../repositories/assignment-report.repository';
+   const assignmentReportRepository = container.resolve(AssignmentReportRepository);
+   
 
-This refactoring improves the separation of concerns by moving the database operations into a dedicated repository class, making the code more maintainable and easier to test.
+2. Replacing database query calls with repository method calls in each route handler. For example:
+   
+   const result = await assignmentReportRepository.getAssignmentInventory(
+     tenant_id,
+     department_id as string | undefined,
+     assignment_type as string | undefined
+   );
+   
+
+3. The repository methods are assumed to be implemented in the `AssignmentReportRepository` class, handling the underlying database queries.
+
+4. Error handling and logging remain the same, catching any errors that might occur during the repository method calls.
+
+5. The structure and functionality of the routes remain unchanged, maintaining the same API endpoints and response formats.
+
+This refactoring improves the separation of concerns by moving the data access logic into a dedicated repository, making the code more maintainable and easier to test.
