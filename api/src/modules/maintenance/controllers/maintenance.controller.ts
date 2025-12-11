@@ -1,11 +1,10 @@
 import { Request, Response, NextFunction } from 'express';
 import { injectable, inject } from 'inversify';
-
-import { cacheService } from '../../../config/cache';
-import logger from '../../../config/logger';
-import { ValidationError, NotFoundError } from '../../../errors/app-error';
 import { TYPES } from '../../../types';
 import { MaintenanceService } from '../services/maintenance.service';
+import { ValidationError, NotFoundError } from '../../../errors/app-error';
+import { cacheService } from '../../../config/cache';
+import logger from '../../../config/logger';
 
 @injectable()
 export class MaintenanceController {
