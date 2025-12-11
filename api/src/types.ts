@@ -20,6 +20,7 @@ export const TYPES = {
   IncidentService: Symbol.for("IncidentService"),
   InspectionService: Symbol.for("InspectionService"),
   DocumentService: Symbol.for("DocumentService"),
+  AssignmentNotificationService: Symbol.for("AssignmentNotificationService"),
 
   // Repositories
   VehicleRepository: Symbol.for("VehicleRepository"),
@@ -31,4 +32,13 @@ export const TYPES = {
   IncidentRepository: Symbol.for("IncidentRepository"),
   InspectionRepository: Symbol.for("InspectionRepository"),
   DocumentRepository: Symbol.for("DocumentRepository"),
+  AttachmentRepository: Symbol.for("AttachmentRepository"),
+  BreakGlassRepository: Symbol.for("BreakGlassRepository"),
+  PermissionsRepository: Symbol.for("PermissionsRepository"),
+  PersonalUsePoliciesRepository: Symbol.for("PersonalUsePoliciesRepository"),
+  VehicleAssignmentsRepository: Symbol.for("VehicleAssignmentsRepository"),
+  PushNotificationRepository: Symbol.for("PushNotificationRepository"),
+
+  // Infrastructure
+  DatabasePool: Symbol.for("DatabasePool"),
 };
