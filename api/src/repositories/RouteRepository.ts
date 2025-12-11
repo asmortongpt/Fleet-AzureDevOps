@@ -1,131 +1,74 @@
-import { connectionManager } from '../config/connection-manager'
-import { BaseRepository } from '../services/dal/BaseRepository'
+import { BaseRepository } from './BaseRepository'
+import { Pool } from 'pg'
 
-/**
- * Route entity interface
- */
 export interface Route {
-  id: string | number
-  tenant_id: string
-  route_name?: string
-  vehicle_id?: string | number
-  driver_id?: string | number
-  status?: string
-  start_location?: string
-  end_location?: string
-  planned_start_time?: Date
-  planned_end_time?: Date
-  actual_start_time?: Date
-  actual_end_time?: Date
-  total_distance?: number
-  estimated_duration?: number
-  actual_duration?: number
-  waypoints?: any // JSONB
-  optimized_waypoints?: any // JSONB
-  route_geometry?: any // JSONB or geometry type
-  notes?: string
-  created_at?: Date
-  updated_at?: Date
+  id: number
+  tenant_id: number
+  created_at: Date
+  updated_at: Date
+  // Add entity-specific fields
 }
 
-/**
- * Route Repository
- * Provides data access operations for routes (route planning) using the DAL
- */
 export class RouteRepository extends BaseRepository<Route> {
-  constructor() {
-    super('routes', connectionManager.getWritePool())
+  constructor(pool: Pool) {
+    super(pool, 'routes')
   }
 
-  /**
-   * Find all routes for a tenant with pagination
-   */
-  async findByTenant(
-    tenantId: string,
-    options: { page?: number; limit?: number } = {}
-  ) {
-    return this.paginate({
-      where: { tenant_id: tenantId },
-      page: options.page || 1,
-      limit: options.limit || 50,
-      orderBy: 'created_at DESC'
-    })
+  async findByTenantId(tenantId: number): Promise<Route[]> {
+    const query = `
+      SELECT * FROM ${this.tableName}
+      WHERE tenant_id = $1
+      ORDER BY created_at DESC
+    `
+    return this.query(query, [tenantId])
   }
 
-  /**
-   * Find routes by driver ID
-   */
-  async findByDriver(
-    driverId: string | number,
-    tenantId: string,
-    options: { page?: number; limit?: number } = {}
-  ) {
-    return this.paginate({
-      where: { driver_id: driverId, tenant_id: tenantId },
-      page: options.page || 1,
-      limit: options.limit || 50,
-      orderBy: 'created_at DESC'
-    })
+  async findByIdAndTenant(id: number, tenantId: number): Promise<Route | null> {
+    const query = `
+      SELECT * FROM ${this.tableName}
+      WHERE id = $1 AND tenant_id = $2
+    `
+    const results = await this.query(query, [id, tenantId])
+    return results[0] || null
   }
 
-  /**
-   * Find route by ID and tenant (IDOR protection)
-   */
-  async findByIdAndTenant(id: string | number, tenantId: string): Promise<Route | null> {
-    return this.findById(id, tenantId)
+  async create(data: Partial<Route>): Promise<Route> {
+    const fields = Object.keys(data).join(', ')
+    const placeholders = Object.keys(data).map((_, i) => `${i + 1}`).join(', ')
+
+    const query = `
+      INSERT INTO ${this.tableName} (${fields})
+      VALUES (${placeholders})
+      RETURNING *
+    `
+
+    const results = await this.query(query, Object.values(data))
+    return results[0]
   }
 
-  /**
-   * Check if route belongs to specific driver (for IDOR checks)
-   */
-  async routeBelongsToDriver(
-    routeId: string | number,
-    driverId: string | number,
-    tenantId: string
-  ): Promise<boolean> {
-    return this.exists({ id: routeId, driver_id: driverId, tenant_id: tenantId })
+  async update(id: number, tenantId: number, data: Partial<Route>): Promise<Route | null> {
+    const setClause = Object.keys(data)
+      .map((key, i) => `${key} = $${i + 2}`)
+      .join(', ')
+
+    const query = `
+      UPDATE ${this.tableName}
+      SET ${setClause}, updated_at = NOW()
+      WHERE id = $1 AND tenant_id = $${Object.keys(data).length + 2}
+      RETURNING *
+    `
+
+    const results = await this.query(query, [id, ...Object.values(data), tenantId])
+    return results[0] || null
   }
 
-  /**
-   * Get route status
-   */
-  async getRouteStatus(id: string | number, tenantId: string): Promise<string | null> {
-    const route = await this.findOne({ id, tenant_id: tenantId })
-    return route?.status || null
-  }
+  async delete(id: number, tenantId: number): Promise<boolean> {
+    const query = `
+      DELETE FROM ${this.tableName}
+      WHERE id = $1 AND tenant_id = $2
+    `
 
-  /**
-   * Create a new route
-   */
-  async createRoute(tenantId: string, data: Partial<Route>): Promise<Route> {
-    return this.create({
-      ...data,
-      tenant_id: tenantId
-    })
-  }
-
-  /**
-   * Update a route
-   */
-  async updateRoute(
-    id: string | number,
-    tenantId: string,
-    data: Partial<Route>
-  ): Promise<Route> {
-    return this.update(id, data, tenantId)
-  }
-
-  /**
-   * Delete a route (soft delete if column exists, hard delete otherwise)
-   */
-  async deleteRoute(id: string | number, tenantId: string): Promise<boolean> {
-    return this.delete(id, tenantId)
-  }
-
-  /**
-   * Count routes by status
-   */
-  async countByStatus(tenantId: string, status: string): Promise<number> {
-    return this.count({ tenant_id: tenantId, status })
+    const result = await this.query(query, [id, tenantId])
+    return result.rowCount > 0
   }
 }
