@@ -24,7 +24,7 @@ setInterval(async () => {
   try {
     const newPollTime = Date.now();
     const vehicleLocations: VehicleLocation[] = await drizzle.sql(
-      `SELECT * FROM vehicle_locations WHERE timestamp > $1 AND timestamp <= $2`,
+      `SELECT id, name, created_at, updated_at, tenant_id FROM vehicle_locations WHERE timestamp > $1 AND timestamp <= $2`,
       [lastPollTime, newPollTime]
     );
 

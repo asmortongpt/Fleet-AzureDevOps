@@ -37,7 +37,7 @@ export class AlertsRepository {
   // Read all alerts for a tenant
   async getAllAlerts(tenant_id: string): Promise<any[]> {
     const query = `
-      SELECT * FROM alerts
+      SELECT id, tenant_id, created_at, updated_at FROM alerts
       WHERE tenant_id = $1
       ORDER BY created_at DESC
     `;
@@ -48,7 +48,7 @@ export class AlertsRepository {
   // Read a specific alert for a tenant
   async getAlertById(tenant_id: string, alert_id: number): Promise<any | null> {
     const query = `
-      SELECT * FROM alerts
+      SELECT id, tenant_id, created_at, updated_at FROM alerts
       WHERE tenant_id = $1 AND id = $2
     `;
     const result = await this.client.query(query, [tenant_id, alert_id]);

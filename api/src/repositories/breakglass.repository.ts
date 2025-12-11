@@ -25,7 +25,7 @@ class BreakGlassRepository {
 
   async getBreakGlassById(tenant_id: string, id: string): Promise<QueryResult> {
     const query = `
-      SELECT * FROM break_glass
+      SELECT id, tenant_id, created_at, updated_at FROM break_glass
       WHERE tenant_id = $1 AND id = $2
     `;
     const values = [tenant_id, id];
@@ -34,7 +34,7 @@ class BreakGlassRepository {
 
   async getAllBreakGlass(tenant_id: string): Promise<QueryResult> {
     const query = `
-      SELECT * FROM break_glass
+      SELECT id, tenant_id, created_at, updated_at FROM break_glass
       WHERE tenant_id = $1
     `;
     const values = [tenant_id];

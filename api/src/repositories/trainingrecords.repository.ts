@@ -21,7 +21,7 @@ export class TrainingRecordsRepository {
   async findAll(tenantId: number, filters?: any): Promise<TrainingRecord[]> {
     try {
       const query = `
-        SELECT * FROM training_records
+        SELECT id, created_at, updated_at FROM training_records
         WHERE tenant_id = $1
         AND deleted_at IS NULL
         ORDER BY created_at DESC
@@ -43,7 +43,7 @@ export class TrainingRecordsRepository {
   async findById(id: number, tenantId: number): Promise<TrainingRecord | null> {
     try {
       const query = `
-        SELECT * FROM training_records
+        SELECT id, created_at, updated_at FROM training_records
         WHERE id = $1 AND tenant_id = $2 AND deleted_at IS NULL
       `;
       const result = await this.pool.query(query, [id, tenantId]);

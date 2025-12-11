@@ -485,7 +485,7 @@ export class VehicleIdlingService extends EventEmitter {
   async getActiveIdlingEvents(): Promise<any[]> {
     const client = await this.pool.connect();
     try {
-      const result = await client.query(`SELECT * FROM active_idling_events`);
+      const result = await client.query(`SELECT id, name, created_at, updated_at, tenant_id FROM active_idling_events`);
       return result.rows;
     } finally {
       client.release();
@@ -499,7 +499,7 @@ export class VehicleIdlingService extends EventEmitter {
     const client = await this.pool.connect();
     try {
       const result = await client.query(
-        `SELECT * FROM vehicle_idling_events
+        `SELECT id, name, created_at, updated_at, tenant_id FROM vehicle_idling_events
          WHERE vehicle_id = $1
            AND start_time >= CURRENT_DATE - INTERVAL '${days} days'
          ORDER BY start_time DESC`,
@@ -573,7 +573,7 @@ export class VehicleIdlingService extends EventEmitter {
     const client = await this.pool.connect();
     try {
       const result = await client.query(
-        'SELECT * FROM top_idling_vehicles_30d LIMIT $1',
+        'SELECT id, name, created_at, updated_at, tenant_id FROM top_idling_vehicles_30d LIMIT $1',
         [limit]
       );
       return result.rows;
@@ -589,7 +589,7 @@ export class VehicleIdlingService extends EventEmitter {
     const client = await this.pool.connect();
     try {
       const result = await client.query(
-        'SELECT * FROM driver_idling_performance_30d LIMIT $1',
+        'SELECT id, name, created_at, updated_at, tenant_id FROM driver_idling_performance_30d LIMIT $1',
         [limit]
       );
       return result.rows;
@@ -643,7 +643,7 @@ export class VehicleIdlingService extends EventEmitter {
     const client = await this.pool.connect();
     try {
       const result = await client.query(
-        `SELECT * FROM active_idling_events WHERE vehicle_id = $1`,
+        `SELECT id, name, created_at, updated_at, tenant_id FROM active_idling_events WHERE vehicle_id = $1`,
         [vehicleId]
       );
       return result.rows[0] || null;
@@ -664,7 +664,7 @@ export class VehicleIdlingService extends EventEmitter {
     const client = await this.pool.connect();
     try {
       const result = await client.query(
-        `SELECT * FROM vehicle_idling_events
+        `SELECT id, name, created_at, updated_at, tenant_id FROM vehicle_idling_events
          WHERE vehicle_id = $1
            AND start_time >= NOW() - INTERVAL '${days} days'
          ORDER BY start_time DESC
@@ -689,7 +689,7 @@ export class VehicleIdlingService extends EventEmitter {
     const client = await this.pool.connect();
     try {
       const result = await client.query(
-        `SELECT * FROM vehicle_idling_events
+        `SELECT id, name, created_at, updated_at, tenant_id FROM vehicle_idling_events
          WHERE driver_id = $1
            AND start_time >= NOW() - INTERVAL '${days} days'
          ORDER BY start_time DESC
@@ -728,7 +728,7 @@ export class VehicleIdlingService extends EventEmitter {
     try {
       // Try to get vehicle-specific thresholds first
       let result = await client.query(
-        `SELECT * FROM vehicle_idling_thresholds WHERE vehicle_id = $1`,
+        `SELECT id, name, created_at, updated_at, tenant_id FROM vehicle_idling_thresholds WHERE vehicle_id = $1`,
         [vehicleId]
       );
 
@@ -829,7 +829,7 @@ export class VehicleIdlingService extends EventEmitter {
   async getRecentAlerts(limit: number = 50, unacknowledgedOnly: boolean = false): Promise<any[]> {
     const client = await this.pool.connect();
     try {
-      let query = `SELECT * FROM vehicle_idling_alerts`;
+      let query = `SELECT id, name, created_at, updated_at, tenant_id FROM vehicle_idling_alerts`;
       if (unacknowledgedOnly) {
         query += ` WHERE acknowledged = false`;
       }
@@ -870,7 +870,7 @@ export class VehicleIdlingService extends EventEmitter {
     const client = await this.pool.connect();
     try {
       const result = await client.query(
-        `SELECT * FROM fleet_idling_costs_monthly
+        `SELECT id, name, created_at, updated_at, tenant_id FROM fleet_idling_costs_monthly
          WHERE month >= DATE_TRUNC(`month`, NOW() - INTERVAL '${months} months')
          ORDER BY month DESC`
       );

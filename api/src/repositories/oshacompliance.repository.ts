@@ -8,12 +8,12 @@ class OshaComplianceRepository {
   }
 
   async getAllOshaCompliances(tenantId: string): Promise<QueryResult> {
-    const query = 'SELECT * FROM osha_compliance WHERE tenant_id = $1';
+    const query = 'SELECT id, created_at, updated_at FROM osha_compliance WHERE tenant_id = $1';
     return this.pool.query(query, [tenantId]);
   }
 
   async getOshaComplianceById(id: string, tenantId: string): Promise<QueryResult> {
-    const query = 'SELECT * FROM osha_compliance WHERE id = $1 AND tenant_id = $2';
+    const query = 'SELECT id, created_at, updated_at FROM osha_compliance WHERE id = $1 AND tenant_id = $2';
     return this.pool.query(query, [id, tenantId]);
   }
 
@@ -68,6 +68,23 @@ class OshaComplianceRepository {
     const query = 'DELETE FROM osha_compliance WHERE id = $1 AND tenant_id = $2 RETURNING *';
     return this.pool.query(query, [id, tenantId]);
   }
+
+  // Prevent N+1 queries with JOINs
+  async findAllWithRelated() {
+    const query = `
+      SELECT
+        t1.*,
+        t2.id as related_id,
+        t2.name as related_name
+      FROM ${this.tableName} t1
+      LEFT JOIN related_table t2 ON t1.related_id = t2.id
+      WHERE t1.tenant_id = $1
+      ORDER BY t1.created_at DESC
+    `;
+    const result = await this.pool.query(query, [this.tenantId]);
+    return result.rows;
+  }
+
 }
 
 export default OshaComplianceRepository;

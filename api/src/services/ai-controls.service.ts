@@ -405,7 +405,7 @@ class AIControlsService {
     }
   ): Promise<AuditLogEntry[]> {
     try {
-      let query = `SELECT * FROM ai_audit_logs WHERE tenant_id = $1`
+      let query = `SELECT id, name, created_at, updated_at, tenant_id FROM ai_audit_logs WHERE tenant_id = $1`
       const params: any[] = [tenantId]
       let paramCount = 1
 

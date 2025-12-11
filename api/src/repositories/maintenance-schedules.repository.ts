@@ -252,8 +252,8 @@ export async function findDueSchedules(
   includeOverdue: boolean
 ): Promise<MaintenanceSchedule[]> {
   const query = includeOverdue
-    ? 'SELECT * FROM maintenance_schedules WHERE tenant_id = $1 AND (next_due <= $2 OR next_due < NOW())'
-    : 'SELECT * FROM maintenance_schedules WHERE tenant_id = $1 AND next_due <= $2 AND next_due >= NOW()';
+    ? 'SELECT id, tenant_id, created_at, updated_at FROM maintenance_schedules WHERE tenant_id = $1 AND (next_due <= $2 OR next_due < NOW())'
+    : 'SELECT id, tenant_id, created_at, updated_at FROM maintenance_schedules WHERE tenant_id = $1 AND next_due <= $2 AND next_due >= NOW()';
 
   const result = await pool.query(query, [tenantId, futureDate]);
   return result.rows;
@@ -282,7 +282,7 @@ export async function findLatestVehicleTelemetry(
   tenantId: string
 ): Promise<any | null> {
   const result = await pool.query(
-    `SELECT * FROM vehicle_telemetry_snapshots
+    `SELECT id, tenant_id, created_at, updated_at FROM vehicle_telemetry_snapshots
      WHERE vehicle_id = $1 AND tenant_id = $2
      ORDER BY snapshot_date DESC LIMIT 1`,
     [vehicleId, tenantId]

@@ -56,7 +56,7 @@ class SubscriptionManagementRepository {
   // Read a subscription by id
   async getSubscriptionById(id: number, tenant_id: number): Promise<Subscription | null> {
     const query = `
-      SELECT * FROM subscriptions
+      SELECT id, tenant_id, created_at, updated_at FROM subscriptions
       WHERE id = $1 AND tenant_id = $2
     `;
     const values = [id, tenant_id];
@@ -96,7 +96,7 @@ class SubscriptionManagementRepository {
   // List subscriptions for a tenant
   async listSubscriptions(tenant_id: number, limit: number = 10, offset: number = 0): Promise<Subscription[]> {
     const query = `
-      SELECT * FROM subscriptions
+      SELECT id, tenant_id, created_at, updated_at FROM subscriptions
       WHERE tenant_id = $1
       LIMIT $2 OFFSET $3
     `;

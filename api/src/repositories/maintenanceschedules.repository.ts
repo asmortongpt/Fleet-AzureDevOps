@@ -17,13 +17,13 @@ export class MaintenanceSchedulesRepository {
   }
 
   async getAll(tenantId: string): Promise<MaintenanceSchedule[]> {
-    const query = 'SELECT * FROM maintenance_schedules WHERE tenant_id = $1';
+    const query = 'SELECT id, tenant_id, created_at, updated_at FROM maintenance_schedules WHERE tenant_id = $1';
     const result: QueryResult<MaintenanceSchedule> = await this.pool.query(query, [tenantId]);
     return result.rows;
   }
 
   async getById(id: number, tenantId: string): Promise<MaintenanceSchedule | null> {
-    const query = 'SELECT * FROM maintenance_schedules WHERE id = $1 AND tenant_id = $2';
+    const query = 'SELECT id, tenant_id, created_at, updated_at FROM maintenance_schedules WHERE id = $1 AND tenant_id = $2';
     const result: QueryResult<MaintenanceSchedule> = await this.pool.query(query, [id, tenantId]);
     return result.rows[0] || null;
   }
