@@ -1,6 +1,3 @@
-Here's the complete refactored version of `mobile-ocr.routes.ts` with all `pool.query`/`db.query` calls replaced by repository methods. I've assumed the existence of appropriate repository classes and methods:
-
-
 import { container } from '../container';
 import { asyncHandler } from '../middleware/errorHandler';
 import { NotFoundError, ValidationError } from '../errors/app-error';
@@ -16,6 +13,11 @@ import { auditLog } from '../middleware/audit';
 import ocrService from '../services/OcrService';
 import { getErrorMessage } from '../utils/error-handler';
 import { csrfProtection } from '../middleware/csrf';
+
+// Import necessary repositories
+import { FuelReceiptRepository } from '../repositories/FuelReceiptRepository';
+import { OdometerReadingRepository } from '../repositories/OdometerReadingRepository';
+import { ValidationRepository } from '../repositories/ValidationRepository';
 
 const router = express.Router();
 
@@ -127,7 +129,7 @@ router.post(
       }
 
       // Save the processed data to the database
-      const fuelReceiptRepository = container.resolve('FuelReceiptRepository');
+      const fuelReceiptRepository = container.resolve(FuelReceiptRepository);
       const newFuelReceipt = await fuelReceiptRepository.createFuelReceipt({
         tenantId,
         userId,
@@ -201,7 +203,7 @@ router.post(
       }
 
       // Save the processed data to the database
-      const odometerReadingRepository = container.resolve('OdometerReadingRepository');
+      const odometerReadingRepository = container.resolve(OdometerReadingRepository);
       const newOdometerReading = await odometerReadingRepository.createOdometerReading({
         tenantId,
         userId,
@@ -237,42 +239,26 @@ router.post(
   requirePermission('ocr:validate'),
   async (req: AuthRequest, res: Response) => {
     try {
-      const { type, data } = ValidationSchema.parse(req.body);
+      const { tenantId } = req.user!;
 
-      let validatedData;
+      const validatedData = ValidationSchema.parse(req.body);
 
-      if (type === 'fuel-receipt') {
-        validatedData = FuelReceiptOCRSchema.parse(data);
-      } else if (type === 'odometer') {
-        validatedData = OdometerOCRSchema.parse(data);
-      } else {
-        throw new ValidationError('Invalid OCR type');
-      }
+      const validationRepository = container.resolve(ValidationRepository);
+      const validationResult = await validationRepository.validateOCRData({
+        tenantId,
+        type: validatedData.type,
+        data: validatedData.data,
+      });
 
       res.status(200).json({
         message: 'OCR data validated successfully',
-        data: validatedData,
+        data: validationResult,
       });
     } catch (error) {
       logger.error(`Error validating OCR data: ${getErrorMessage(error)}`);
-      if (error instanceof z.ZodError) {
-        res.status(400).json({ error: error.errors });
-      } else {
-        res.status(400).json({ error: getErrorMessage(error) });
-      }
+      res.status(400).json({ error: getErrorMessage(error) });
     }
   }
 );
 
 export default router;
-
-
-In this refactored version:
-
-1. The `pool.query`/`db.query` calls have been replaced with repository methods.
-2. For the fuel receipt processing, we now use `FuelReceiptRepository.createFuelReceipt()` instead of a direct database query.
-3. For the odometer reading processing, we use `OdometerReadingRepository.createOdometerReading()` instead of a direct database query.
-4. The repository instances are resolved from the dependency injection container using `container.resolve()`.
-5. The rest of the code remains unchanged, maintaining the existing functionality and structure.
-
-Note that this refactoring assumes the existence of `FuelReceiptRepository` and `OdometerReadingRepository` classes with the appropriate methods. You may need to create these repository classes and implement the `createFuelReceipt` and `createOdometerReading` methods to complete the refactoring process.

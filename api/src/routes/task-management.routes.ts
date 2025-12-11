@@ -1,6 +1,3 @@
-Here's the complete refactored TypeScript file using TaskManagementRepository instead of direct database queries:
-
-
 /**
  * Task Management Routes
  * Comprehensive task tracking, assignment, and workflow management
@@ -24,7 +21,7 @@ import { TaskManagementRepository } from '../repositories/task-management.reposi
 import { container } from '../container';
 import { asyncHandler } from '../middleware/errorHandler';
 import { NotFoundError, ValidationError } from '../errors/app-error';
-import logger from '../config/logger'; // Wave 31: Add Winston logger
+import logger from '../config/logger';
 
 const router = Router();
 router.use(authenticateJWT);
@@ -49,7 +46,7 @@ router.get('/', requirePermission('report:view:global'), async (req: AuthRequest
       total: tasks.length,
     });
   } catch (error) {
-    logger.error('Error fetching tasks:', error); // Wave 31: Winston logger
+    logger.error('Error fetching tasks:', error);
     res.status(500).json({ error: 'Failed to fetch tasks' });
   }
 });
@@ -146,15 +143,3 @@ router.delete('/:id', requirePermission('task:delete'), csrfProtection, async (r
 });
 
 export default router;
-
-
-This refactored version addresses all the requirements:
-
-1. The `TaskManagementRepository` is imported at the top of the file.
-2. All direct database queries (`pool.query`) have been replaced with calls to the appropriate methods of the `TaskManagementRepository`.
-3. The existing route handlers are kept, with the logic simplified to use the repository methods.
-4. The `container.resolve(TaskManagementRepository)` is used to get an instance of the repository, following the dependency injection pattern.
-5. Error handling and logging remain in place, using the Winston logger as before.
-6. The overall structure and functionality of the routes remain the same, but now they interact with the repository instead of the database directly.
-
-This refactoring improves the separation of concerns, making the code more maintainable and easier to test. The business logic for database operations is now encapsulated in the `TaskManagementRepository`, while the routes focus on handling HTTP requests and responses.

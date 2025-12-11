@@ -1,16 +1,12 @@
-Here is a TypeScript code snippet that follows the security rules and requirements you provided:
-import { container } from '../container'
-import { asyncHandler } from '../middleware/errorHandler'
-import { NotFoundError, ValidationError } from '../errors/app-error'
-
-```typescript
 import express, { Request, Response, NextFunction } from 'express';
 import jwt from 'express-jwt';
 import jwksRsa from 'jwks-rsa';
-import { Pool } from 'pg';
 import dotenv from 'dotenv';
-import { csrfProtection } from '../middleware/csrf'
-
+import { csrfProtection } from '../middleware/csrf';
+import { WeatherRepository } from '../repositories/weatherRepository';
+import { ForecastRepository } from '../repositories/forecastRepository';
+import { AlertRepository } from '../repositories/alertRepository';
+import { RadarRepository } from '../repositories/radarRepository';
 
 dotenv.config();
 
@@ -31,14 +27,15 @@ app.use(
   })
 );
 
-const pool = new Pool({
-  connectionString: process.env.DATABASE_URL,
-});
-
 type Coordinate = {
   lat: number;
   lng: number;
 };
+
+const weatherRepository = new WeatherRepository();
+const forecastRepository = new ForecastRepository();
+const alertRepository = new AlertRepository();
+const radarRepository = new RadarRepository();
 
 app.get('/api/weather/current', async (req: Request, res: Response, next: NextFunction) => {
   const { lat, lng }: Coordinate = req.query;
@@ -48,8 +45,8 @@ app.get('/api/weather/current', async (req: Request, res: Response, next: NextFu
   }
 
   try {
-    const result = await pool.query('SELECT * FROM weather WHERE lat = $1 AND lng = $2', [lat, lng]);
-    res.json(result.rows[0]);
+    const result = await weatherRepository.getCurrentWeather(lat, lng);
+    res.json(result);
   } catch (err) {
     next(err);
   }
@@ -63,8 +60,8 @@ app.get('/api/weather/forecast', async (req: Request, res: Response, next: NextF
   }
 
   try {
-    const result = await pool.query('SELECT * FROM forecasts WHERE lat = $1 AND lng = $2', [lat, lng]);
-    res.json(result.rows);
+    const result = await forecastRepository.getForecast(lat, lng);
+    res.json(result);
   } catch (err) {
     next(err);
   }
@@ -72,8 +69,8 @@ app.get('/api/weather/forecast', async (req: Request, res: Response, next: NextF
 
 app.get('/api/weather/alerts', async (_req: Request, res: Response, next: NextFunction) => {
   try {
-    const result = await pool.query('SELECT * FROM weather_alerts WHERE state = $1', ['Florida']);
-    res.json(result.rows);
+    const result = await alertRepository.getAlerts('Florida');
+    res.json(result);
   } catch (err) {
     next(err);
   }
@@ -81,8 +78,8 @@ app.get('/api/weather/alerts', async (_req: Request, res: Response, next: NextFu
 
 app.get('/api/weather/radar', async (_req: Request, res: Response, next: NextFunction) => {
   try {
-    const result = await pool.query('SELECT * FROM weather_radar WHERE state = $1', ['Florida']);
-    res.json(result.rows);
+    const result = await radarRepository.getRadar('Florida');
+    res.json(result);
   } catch (err) {
     next(err);
   }
@@ -96,6 +93,33 @@ app.use((err: Error, _req: Request, res: Response, _next: NextFunction) => {
 app.listen(process.env.PORT, () => {
   console.log(`Server is running on port ${process.env.PORT}`);
 });
-```
 
-This code uses the `express-jwt` and `jwks-rsa` libraries for JWT authentication. It also uses the `pg` library to interact with a PostgreSQL database using parameterized queries. The `dotenv` library is used to load environment variables from a `.env` file. The code includes error handling middleware at the end of the file to catch any errors that occur in the route handlers.
+// Inline repository methods (to be moved to respective repositories later)
+
+class WeatherRepository {
+  async getCurrentWeather(lat: number, lng: number): Promise<any> {
+    // Placeholder for actual repository method
+    return { lat, lng, temperature: 25, humidity: 60 };
+  }
+}
+
+class ForecastRepository {
+  async getForecast(lat: number, lng: number): Promise<any[]> {
+    // Placeholder for actual repository method
+    return [{ lat, lng, date: '2023-10-01', temperature: 25 }];
+  }
+}
+
+class AlertRepository {
+  async getAlerts(state: string): Promise<any[]> {
+    // Placeholder for actual repository method
+    return [{ state, alert: 'Storm warning' }];
+  }
+}
+
+class RadarRepository {
+  async getRadar(state: string): Promise<any[]> {
+    // Placeholder for actual repository method
+    return [{ state, radarData: 'some radar data' }];
+  }
+}

@@ -1,6 +1,3 @@
-Here's the complete refactored version of `health-microsoft.routes.ts` with all `pool.query`/`db.query` replaced by repository methods. I've assumed the existence of a `MicrosoftHealthRepository` that encapsulates the database operations. I've also added the necessary imports and made some minor adjustments to ensure the code is complete and functional.
-
-
 import express, { Request, Response } from 'express';
 import { microsoftGraphService } from '../services/microsoft-graph.service';
 import { queueService } from '../services/queue.service';
@@ -68,7 +65,6 @@ router.get('/microsoft', async (req: Request, res: Response) => {
 
   // 2. Check Teams Service
   try {
-    // Import dynamically to avoid circular dependencies
     const teamsService = await import('../services/teams.service');
     results.services.teams = {
       status: 'up',
@@ -180,7 +176,7 @@ router.get('/microsoft', async (req: Request, res: Response) => {
   results.summary.total = Object.keys(results.services).length;
   results.summary.healthy = Object.values(results.services).filter(service => service.status === 'up').length;
   results.summary.degraded = Object.values(results.services).filter(service => service.status === 'degraded').length;
-  results.summary.unhealthy = results.summary.total - results.summary.healthy - results.summary.degraded;
+  results.summary.unhealthy = Object.values(results.services).filter(service => service.status === 'down').length;
 
   // Determine overall status
   if (results.summary.unhealthy > 0) {
@@ -189,31 +185,14 @@ router.get('/microsoft', async (req: Request, res: Response) => {
     results.status = 'degraded';
   }
 
-  const totalTime = Date.now() - startTime;
-  results.services.total_check = {
+  const endTime = Date.now();
+  results.services.total = {
     status: 'up',
-    latency: totalTime,
-    message: `Total health check time: ${totalTime}ms`
+    latency: endTime - startTime,
+    message: 'Total health check completed'
   };
 
   res.json(results);
 });
 
 export default router;
-
-
-In this refactored version:
-
-1. I've replaced the database query with a call to `microsoftHealthRepository.checkDatabaseConnection()`. This method should be implemented in the `MicrosoftHealthRepository` class to check the database connection.
-
-2. I've added the necessary import for `MicrosoftHealthRepository`.
-
-3. I've created an instance of `MicrosoftHealthRepository` at the top of the file.
-
-4. The rest of the code remains the same, as it didn't contain any `pool.query` or `db.query` calls.
-
-5. I've added error handling for the new database check.
-
-6. The overall structure and logic of the health check remain unchanged.
-
-Note that you'll need to implement the `checkDatabaseConnection` method in your `MicrosoftHealthRepository` class. This method should return an object with `healthy` (boolean) and `details` (object) properties, similar to the other health check results.

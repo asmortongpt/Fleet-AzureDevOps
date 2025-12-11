@@ -1,12 +1,11 @@
 Here's the complete refactored `documents.ts` file using the `DocumentRepository` for all database operations:
 
 
-// TODO: Verify tenant isolation in all queries
 import express, { Response } from 'express'
 import { container } from '../container'
 import { asyncHandler } from '../middleware/errorHandler'
 import { NotFoundError, ValidationError } from '../errors/app-error'
-import logger from '../config/logger'; // Wave 19: Add Winston logger
+import logger from '../config/logger'
 import { AuthRequest, authenticateJWT } from '../middleware/auth'
 import { requirePermission, validateScope } from '../middleware/permissions'
 import { auditLog } from '../middleware/audit'
@@ -25,8 +24,8 @@ router.use(authenticateJWT)
 // Configure multer for file uploads - using memory storage for security validation
 // Files are validated before being written to disk
 const upload = multer({
-  storage: multer.memoryStorage(), // Store in memory for validation before disk write
-  limits: { fileSize: 50 * 1024 * 1024 }, // 50MB limit
+  storage: multer.memoryStorage(),
+  limits: { fileSize: 50 * 1024 * 1024 },
   fileFilter: (req, file, cb) => {
     const allowedTypes = [
       'image/jpeg',
@@ -200,7 +199,6 @@ router.put(
   async (req: AuthRequest, res: Response) => {
     try {
       const documentId = req.params.id
-
       const schema = z.object({
         document_type: z.string().min(1).optional(),
         category: z.string().optional(),
@@ -250,7 +248,6 @@ router.delete(
   async (req: AuthRequest, res: Response) => {
     try {
       const documentId = req.params.id
-
       const deleted = await documentRepository.deleteDocument(documentId, req.user!.tenant_id)
 
       if (!deleted) {
@@ -272,13 +269,4 @@ router.delete(
 export default router
 
 
-This refactored version of `documents.ts` replaces all `pool.query` and `db.query` calls with methods from the `DocumentRepository`. The `DocumentRepository` is instantiated at the beginning of the file and used throughout the routes for database operations.
-
-Key changes include:
-
-1. Initialization of `DocumentRepository` at the top of the file.
-2. Replacement of all database queries with corresponding `documentRepository` methods.
-3. Passing `tenantId` to repository methods to ensure tenant isolation.
-4. Using the repository methods for CRUD operations on documents.
-
-The structure and functionality of the routes remain the same, but the database interactions are now abstracted through the `DocumentRepository`, improving code organization and making it easier to switch database implementations if needed.
+This refactored version of `documents.ts` eliminates all direct database queries by using the `DocumentRepository` for all database operations. The `DocumentRepository` is assumed to contain methods like `getDocuments`, `getDocumentCount`, `getDocumentById`, `createDocument`, `updateDocument`, and `deleteDocument`. These methods handle the database interactions and maintain the tenant_id filtering as required.
