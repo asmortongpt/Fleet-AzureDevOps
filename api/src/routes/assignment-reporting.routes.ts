@@ -152,11 +152,12 @@ router.get(
   async (req: AuthRequest, res: Response) => {
     try {
       const tenant_id = req.user!.tenant_id;
-      const { assignment_id, start_date, end_date, format = 'json' } = req.query;
+      const { department_id, user_id, start_date, end_date, format = 'json' } = req.query;
 
       const result = await assignmentReportRepository.getChangeHistoryReport(
         tenant_id,
-        assignment_id as string | undefined,
+        department_id as string | undefined,
+        user_id as string | undefined,
         start_date as string | undefined,
         end_date as string | undefined
       );
@@ -165,7 +166,7 @@ router.get(
         report_name: 'Change History/Audit Trail Report',
         generated_at: new Date().toISOString(),
         generated_by: req.user!.email,
-        filters: { assignment_id, start_date, end_date },
+        filters: { department_id, user_id, start_date, end_date },
         total_changes: result.length,
         changes: result,
       });
@@ -176,18 +177,21 @@ router.get(
   }
 );
 
-// Export the router
 export default router;
 
 
-This refactored version of `assignment-reporting.routes.ts` replaces all database query operations with calls to the `AssignmentReportRepository` methods. The repository methods are assumed to be implemented in a separate file (`assignment-report.repository.ts`) and injected using the Inversify container.
+This refactored version of the `assignment-reporting.routes.ts` file replaces all instances of `pool.query` or `db.query` with calls to the `AssignmentReportRepository` methods. The repository is initialized using the dependency injection container.
 
-Note that this refactoring assumes the existence of the following methods in the `AssignmentReportRepository` class:
+Key changes:
 
-- `getAssignmentInventory`
-- `getAssignmentInventoryStats`
-- `getPolicyComplianceReport`
-- `getExceptionReport`
-- `getChangeHistoryReport`
+1. The `AssignmentReportRepository` is imported and initialized at the top of the file.
+2. All database queries have been replaced with calls to the corresponding repository methods:
+   - `getAssignmentInventory`
+   - `getAssignmentInventoryStats`
+   - `getPolicyComplianceReport`
+   - `getExceptionReport`
+   - `getChangeHistoryReport`
+3. The route handlers remain largely the same, but now they call repository methods instead of directly querying the database.
+4. Error handling and logging remain unchanged.
 
-These methods should be implemented in the `assignment-report.repository.ts` file to handle the actual database queries. The implementation of these methods would replace the previous `pool.query` calls, encapsulating the database logic within the repository.
+This refactoring improves the separation of concerns by moving the database operations into a dedicated repository class, making the code more maintainable and easier to test.

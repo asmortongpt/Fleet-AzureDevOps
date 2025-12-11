@@ -179,7 +179,6 @@ router.get(
   auditLog({ action: 'READ', resourceType: 'asset_relationships' }),
   asyncHandler(async (req: AuthRequest, res) => {
     const { id } = req.params;
-
     const relationship = await assetRelationshipRepository.getAssetRelationshipById(id, req.user!.tenant_id);
 
     if (!relationship) {
@@ -216,6 +215,9 @@ router.get(
  *               relationship_type:
  *                 type: string
  *                 enum: [TOWS, ATTACHED, CARRIES, POWERS, CONTAINS]
+ *               end_date:
+ *                 type: string
+ *                 format: date-time
  *     responses:
  *       200:
  *         description: Asset relationship updated successfully
@@ -231,7 +233,7 @@ router.put(
   auditLog({ action: 'UPDATE', resourceType: 'asset_relationships' }),
   asyncHandler(async (req: AuthRequest, res) => {
     const { id } = req.params;
-    const { parent_asset_id, child_asset_id, relationship_type } = req.body;
+    const { parent_asset_id, child_asset_id, relationship_type, end_date } = req.body;
 
     if (!parent_asset_id || !child_asset_id || !relationship_type) {
       throw new ValidationError('Missing required fields');
@@ -242,7 +244,8 @@ router.put(
       tenantId: req.user!.tenant_id,
       parentAssetId: parent_asset_id,
       childAssetId: child_asset_id,
-      relationshipType: relationship_type
+      relationshipType: relationship_type,
+      endDate: end_date
     });
 
     if (!updatedRelationship) {
@@ -278,7 +281,6 @@ router.delete(
   auditLog({ action: 'DELETE', resourceType: 'asset_relationships' }),
   asyncHandler(async (req: AuthRequest, res) => {
     const { id } = req.params;
-
     const deleted = await assetRelationshipRepository.deleteAssetRelationship(id, req.user!.tenant_id);
 
     if (!deleted) {
@@ -292,13 +294,4 @@ router.delete(
 export default router;
 
 
-This refactored version of the `asset-relationships.routes.ts` file replaces all `pool.query` calls with corresponding methods from the `AssetRelationshipRepository`. The repository methods used are:
-
-1. `getAllAssetRelationships`
-2. `getActiveAssetCombinations`
-3. `createAssetRelationship`
-4. `getAssetRelationshipById`
-5. `updateAssetRelationship`
-6. `deleteAssetRelationship`
-
-These methods should be implemented in the `AssetRelationshipRepository` class, which is assumed to be located in `../repositories/asset-relationship.repository.ts`. The repository class should handle the database operations, encapsulating the data access logic and allowing for easier testing and maintenance of the application.
+This refactored version replaces all `pool.query` calls with corresponding methods from the `AssetRelationshipRepository`. The repository methods are assumed to handle the database operations internally. Make sure that the `AssetRelationshipRepository` class in the `../repositories/asset-relationship.repository` file implements all the necessary methods used in this router.

@@ -177,16 +177,15 @@ router.delete(
 export default router;
 
 
-This refactored version of `geofences.enhanced.ts` replaces all database query operations with calls to the `GeofenceRepository` methods. Here's a summary of the changes:
+This refactored version replaces all `pool.query` calls with corresponding methods from the `GeofenceRepository`. The repository methods are assumed to handle the database operations internally. The `GeofenceRepository` is resolved from the dependency injection container at the beginning of the file.
 
-1. We import the `GeofenceRepository` from the repositories folder.
-2. We resolve the `GeofenceRepository` instance from the dependency injection container.
-3. All `pool.query` calls have been replaced with corresponding `geofenceRepository` method calls:
-   - `getGeofences` for fetching a list of geofences
-   - `getGeofenceCount` for getting the total count of geofences
-   - `getGeofenceById` for retrieving a single geofence
-   - `createGeofence` for creating a new geofence
-   - `updateGeofence` for updating an existing geofence
-   - `deleteGeofence` for deleting a geofence
+Note that this refactoring assumes the existence of a `GeofenceRepository` class with the following methods:
 
-This refactoring improves the separation of concerns, making the code more maintainable and easier to test. The database operations are now encapsulated within the `GeofenceRepository`, which can be easily mocked or replaced in unit tests.
+- `getGeofences(tenantId: string, limit: number, offset: number): Promise<Geofence[]>`
+- `getGeofenceCount(tenantId: string): Promise<number>`
+- `getGeofenceById(id: string, tenantId: string): Promise<Geofence | null>`
+- `createGeofence(tenantId: string, name: string, description: string | undefined, geometry: string, type: 'circle' | 'polygon', radius: number | undefined, isActive: boolean): Promise<Geofence>`
+- `updateGeofence(id: string, tenantId: string, name: string | undefined, description: string | undefined, geometry: string | undefined, type: 'circle' | 'polygon' | undefined, radius: number | undefined, isActive: boolean | undefined): Promise<Geofence | null>`
+- `deleteGeofence(id: string, tenantId: string): Promise<boolean>`
+
+Make sure to implement these methods in the `GeofenceRepository` class to complete the refactoring process.
