@@ -409,3 +409,21 @@ export class MaintenanceRepository extends BaseRepository<MaintenanceSchedule> {
     return this.bulkCreate(schedulesWithDefaults);
   }
 }
+
+/**
+ * N+1 PREVENTION: Fetch maintenance record with vehicle details
+ */
+async findWithVehicle(maintenanceId: string, tenantId: string) {
+  const query = `
+    SELECT
+      m.id, m.type, m.date, m.cost, m.mileage, m.description,
+      v.id as vehicle_id, v.make as vehicle_make, v.model as vehicle_model,
+      v.vin as vehicle_vin, v.license_plate as vehicle_license_plate
+    FROM maintenance m
+    LEFT JOIN vehicles v ON m.vehicle_id = v.id
+    WHERE m.id = $1 AND m.tenant_id = $2 AND m.deleted_at IS NULL
+  `;
+
+  const result = await this.pool.query(query, [maintenanceId, tenantId]);
+  return result.rows[0] || null;
+}
