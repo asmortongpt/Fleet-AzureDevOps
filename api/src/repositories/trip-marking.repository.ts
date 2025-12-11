@@ -1,3 +1,5 @@
+import { BaseRepository } from '../repositories/BaseRepository';
+
 import { pool } from '../db'
 import { NotFoundError, ValidationError } from '../lib/errors'
 
@@ -82,7 +84,11 @@ export interface Vehicle {
  * All operations enforce tenant isolation
  * Eliminates 16 direct database queries from trip-marking.ts
  */
-export class TripMarkingRepository {
+export class TripMarkingRepository extends BaseRepository<any> {
+  constructor(pool: Pool) {
+    super(pool, 'LTrip_LMarking_LRepository extends _LBases');
+  }
+
   /**
    * Find trip by ID with tenant isolation
    */

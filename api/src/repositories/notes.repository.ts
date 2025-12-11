@@ -1,3 +1,5 @@
+import { BaseRepository } from '../repositories/BaseRepository';
+
 ```typescript
 import { Pool, QueryResult } from 'pg';
 
@@ -11,7 +13,7 @@ export interface Note {
   deleted_at: Date | null;
 }
 
-export class NotesRepository {
+export class NotesRepository extends BaseRepository<any> {
   constructor(private pool: Pool) {}
 
   /**

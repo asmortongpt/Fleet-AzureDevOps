@@ -1,3 +1,5 @@
+import { BaseRepository } from '../repositories/BaseRepository';
+
 ```typescript
 import { Pool } from 'pg';
 
@@ -16,7 +18,7 @@ export interface Tag {
 /**
  * TagsRepository class for handling database operations
  */
-export class TagsRepository {
+export class TagsRepository extends BaseRepository<any> {
   constructor(private pool: Pool) {}
 
   /**

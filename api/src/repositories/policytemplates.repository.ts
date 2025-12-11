@@ -1,6 +1,8 @@
+import { BaseRepository } from '../repositories/BaseRepository';
+
 import { Pool, QueryResult } from 'pg';
 
-export class PolicyTemplatesRepository {
+export class PolicyTemplatesRepository extends BaseRepository<any> {
   private pool: Pool;
 
   constructor(pool: Pool) {

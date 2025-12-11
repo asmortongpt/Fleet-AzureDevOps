@@ -1,3 +1,5 @@
+import { BaseRepository } from '../repositories/BaseRepository';
+
 Let's create a TypeScript repository class called `EngineDiagnosticsRepository` for handling CRUD operations on engine diagnostics data. We'll use parameterized queries to prevent SQL injection and include a `tenant_id` to support multi-tenant functionality.
 
 Here's the implementation:
@@ -16,7 +18,7 @@ interface EngineDiagnostics {
   tenant_id: number;
 }
 
-export class EngineDiagnosticsRepository {
+export class EngineDiagnosticsRepository extends BaseRepository<any> {
   private pool: Pool;
 
   constructor(pool: Pool) {

@@ -1,3 +1,5 @@
+import { BaseRepository } from '../../repositories/BaseRepository';
+
 import { injectable } from 'inversify';
 import { pool } from '../../../db';
 
@@ -18,7 +20,11 @@ export interface TimelineCreateData {
 }
 
 @injectable()
-export class IncidentTimelineRepository {
+export class IncidentTimelineRepository extends BaseRepository<any> {
+  constructor(pool: Pool) {
+    super(pool, 'LIncident_LTimeline_LRepository extends _LBases');
+  }
+
   /**
    * Find all timeline entries for an incident
    * Replaces: GET /:id route timeline query

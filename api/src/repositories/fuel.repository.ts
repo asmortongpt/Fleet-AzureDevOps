@@ -1,3 +1,5 @@
+import { BaseRepository } from '../repositories/BaseRepository';
+
 import { pool } from '../db'
 import { NotFoundError, ValidationError } from '../lib/errors'
 import { PoolClient } from 'pg'
@@ -33,7 +35,11 @@ export interface FuelTransaction {
  * Includes transaction support for batch operations
  * Enforces tenant isolation
  */
-export class FuelRepository {
+export class FuelRepository extends BaseRepository<any> {
+  constructor(pool: Pool) {
+    super(pool, 'LFuel_LRepository extends _LBases');
+  }
+
   /**
    * Find fuel transaction by ID
    */
