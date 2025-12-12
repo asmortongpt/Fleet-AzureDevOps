@@ -1,0 +1,36 @@
+{
+  "test_statistics": {
+    "total_test_files": 23,
+    "total_tests": 590,
+    "total_assertions": 753,
+    "test_types": {
+      "integration": 23,
+      "unit": 23
+    },
+    "average_tests_per_file": 25.652173913043477
+  },
+  "coverage_gaps": {
+    "total_gaps": 5118,
+    "by_priority": {
+      "medium": 2917,
+      "critical": 1239,
+      "high": 962
+    },
+    "by_type": {
+      "ui_element": 4475,
+      "route": 16,
+      "utility": 195,
+      "component": 412,
+      "page_component": 20
+    },
+    "critical_count": 1239,
+    "high_count": 962,
+    "medium_count": 2917,
+    "low_count": 0
+  },
+  "recommendations": {
+    "immediate_action": 1239,
+    "next_sprint": 962,
+    "backlog": 2917
+  }
+}
