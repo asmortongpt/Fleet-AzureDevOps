@@ -10,6 +10,8 @@
  */
 
 import { Pool } from 'pg';
+import { injectable, inject } from 'inversify';
+import { TYPES } from '../types';
 
 interface NotificationRecipient {
   user_id: string;
@@ -30,8 +32,9 @@ interface AssignmentNotificationData {
   notes?: string;
 }
 
+@injectable()
 export class AssignmentNotificationService {
-  constructor(private pool: Pool) {}
+  constructor(@inject(TYPES.DatabasePool) private pool: Pool) {}
 
   /**
    * Send notification when assignment is created (draft)
