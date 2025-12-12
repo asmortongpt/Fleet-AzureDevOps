@@ -74,7 +74,7 @@ container.bind(TYPES.InspectionController).to(InspectionController);
 container.bind(TYPES.BreakGlassRepository).to(BreakGlassRepository);
 
 // Personal Use Policies Repository
-container.bind(TYPES.PersonalUsePoliciesRepository).toConstantValue(personalUsePoliciesRepo);
+container.bind(TYPES.PersonalUsePoliciesRepository).to(PersonalUsePoliciesRepository);
 
 // Permissions Repository
 container.bind(TYPES.PermissionsRepository).to(PermissionsRepository);
