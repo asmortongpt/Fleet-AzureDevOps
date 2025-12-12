@@ -283,3 +283,38 @@ export class DriversRepository extends BaseRepository<any> {
 }
 
 export const driversRepository = new DriversRepository()
+
+/**
+ * N+1 PREVENTION: Fetch driver with all assigned vehicles
+ */
+async findWithVehicles(id: string, tenantId: string) {
+  const query = `
+    SELECT
+      d.id, d.name, d.email, d.phone, d.license_number, d.license_expiry, d.status,
+      v.id as vehicle_id, v.make as vehicle_make, v.model as vehicle_model,
+      v.year as vehicle_year, v.vin as vehicle_vin, v.license_plate as vehicle_license_plate
+    FROM drivers d
+    LEFT JOIN vehicles v ON v.driver_id = d.id AND v.deleted_at IS NULL
+    WHERE d.id = $1 AND d.tenant_id = $2 AND d.deleted_at IS NULL
+  `;
+  const result = await this.pool.query(query, [id, tenantId]);
+  return result.rows;
+}
+
+/**
+ * N+1 PREVENTION: Fetch all drivers with vehicle counts
+ */
+async findAllWithVehicleCount(tenantId: string) {
+  const query = `
+    SELECT
+      d.id, d.name, d.email, d.phone, d.status,
+      COUNT(v.id) as vehicle_count
+    FROM drivers d
+    LEFT JOIN vehicles v ON v.driver_id = d.id AND v.deleted_at IS NULL
+    WHERE d.tenant_id = $1 AND d.deleted_at IS NULL
+    GROUP BY d.id, d.name, d.email, d.phone, d.status
+    ORDER BY d.name ASC
+  `;
+  const result = await this.pool.query(query, [tenantId]);
+  return result.rows;
+}

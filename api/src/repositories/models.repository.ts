@@ -1,3 +1,5 @@
+import { BaseRepository } from './BaseRepository';
+
 Here's a TypeScript repository class `ModelsRepository` that implements CRUD methods with parameterized queries and tenant_id filtering to eliminate the 16 queries from `api/src/routes/models.ts`:
 
 
@@ -18,7 +20,7 @@ class ModelsRepository {
       RETURNING id, tenant_id, name, description, created_at, updated_at
     `;
     const values = [tenantId, name, description];
-    return this.pool.query(query, values);
+    return this.query(query, values);
   }
 
   // Read a single model by ID
@@ -29,7 +31,7 @@ class ModelsRepository {
       WHERE id = $1 AND tenant_id = $2
     `;
     const values = [modelId, tenantId];
-    return this.pool.query(query, values);
+    return this.query(query, values);
   }
 
   // Read all models for a tenant
@@ -40,7 +42,7 @@ class ModelsRepository {
       WHERE tenant_id = $1
     `;
     const values = [tenantId];
-    return this.pool.query(query, values);
+    return this.query(query, values);
   }
 
   // Update an existing model
@@ -52,7 +54,7 @@ class ModelsRepository {
       RETURNING id, tenant_id, name, description, created_at, updated_at
     `;
     const values = [modelId, tenantId, name, description];
-    return this.pool.query(query, values);
+    return this.query(query, values);
   }
 
   // Delete a model
@@ -63,7 +65,7 @@ class ModelsRepository {
       RETURNING id, tenant_id, name, description, created_at, updated_at
     `;
     const values = [modelId, tenantId];
-    return this.pool.query(query, values);
+    return this.query(query, values);
   }
 }
 

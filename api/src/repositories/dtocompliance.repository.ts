@@ -1,3 +1,5 @@
+import { BaseRepository } from './BaseRepository';
+
 Let's create a TypeScript repository called `DtoComplianceRepository` for handling CRUD operations related to DTO compliance. We'll use parameterized queries to ensure security and include tenant_id for multi-tenant support. Here's the implementation:
 
 
@@ -35,7 +37,7 @@ class DtoComplianceRepository {
       dtoCompliance.tenant_id
     ];
 
-    const result: QueryResult<DtoCompliance> = await this.pool.query(query, values);
+    const result: QueryResult<DtoCompliance> = await this.query(query, values);
     return result.rows[0];
   }
 
@@ -47,7 +49,7 @@ class DtoComplianceRepository {
     `;
     const values = [id, tenant_id];
 
-    const result: QueryResult<DtoCompliance> = await this.pool.query(query, values);
+    const result: QueryResult<DtoCompliance> = await this.query(query, values);
     return result.rows[0] || null;
   }
 
@@ -74,7 +76,7 @@ class DtoComplianceRepository {
       tenant_id
     ];
 
-    const result: QueryResult<DtoCompliance> = await this.pool.query(query, values);
+    const result: QueryResult<DtoCompliance> = await this.query(query, values);
     return result.rows[0] || null;
   }
 
@@ -87,7 +89,7 @@ class DtoComplianceRepository {
     `;
     const values = [id, tenant_id];
 
-    const result: QueryResult<{ id: number }> = await this.pool.query(query, values);
+    const result: QueryResult<{ id: number }> = await this.query(query, values);
     return result.rowCount > 0;
   }
 
@@ -99,7 +101,7 @@ class DtoComplianceRepository {
     `;
     const values = [tenant_id];
 
-    const result: QueryResult<DtoCompliance> = await this.pool.query(query, values);
+    const result: QueryResult<DtoCompliance> = await this.query(query, values);
     return result.rows;
   }
 }
