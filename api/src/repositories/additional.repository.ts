@@ -84,3 +84,27 @@ This `AdditionalRepository` class provides the following benefits:
    - `deleteAdditional`: Deletes an additional item
 
 By using this repository class, you can replace the 15 queries in `api/src/routes/additional.ts` with these 5 methods, significantly reducing the number of database operations and improving code organization and maintainability.
+/**
+ * N+1 PREVENTION: Fetch with related entities
+ * Add specific methods based on your relationships
+ */
+async findWithRelatedData(id: string, tenantId: string) {
+  const query = \`
+    SELECT t.*
+    FROM additional t
+    WHERE t.id = \api/src/repositories/additional.repository.ts AND t.tenant_id = \ AND t.deleted_at IS NULL
+  \`;
+  const result = await this.pool.query(query, [id, tenantId]);
+  return result.rows[0] || null;
+}
+
+async findAllWithRelatedData(tenantId: string) {
+  const query = \`
+    SELECT t.*
+    FROM additional t
+    WHERE t.tenant_id = \api/src/repositories/additional.repository.ts AND t.deleted_at IS NULL
+    ORDER BY t.created_at DESC
+  \`;
+  const result = await this.pool.query(query, [tenantId]);
+  return result.rows;
+}

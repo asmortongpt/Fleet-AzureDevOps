@@ -43,3 +43,27 @@ In the above code, `IntegrationLog` is the entity that represents the integratio
 The `createLog` method creates a new log for a specific tenant. The `getLogs` method retrieves all logs for a specific tenant. The `getLog` method retrieves a specific log for a specific tenant. The `updateLog` method updates a specific log for a specific tenant. The `deleteLog` method deletes a specific log for a specific tenant.
 
 Please note that you need to adjust this code to fit your actual database schema and your actual requirements.
+/**
+ * N+1 PREVENTION: Fetch with related entities
+ * Add specific methods based on your relationships
+ */
+async findWithRelatedData(id: string, tenantId: string) {
+  const query = \`
+    SELECT t.*
+    FROM integrationlogs t
+    WHERE t.id = \api/src/repositories/integrationlogs.repository.ts AND t.tenant_id = \ AND t.deleted_at IS NULL
+  \`;
+  const result = await this.pool.query(query, [id, tenantId]);
+  return result.rows[0] || null;
+}
+
+async findAllWithRelatedData(tenantId: string) {
+  const query = \`
+    SELECT t.*
+    FROM integrationlogs t
+    WHERE t.tenant_id = \api/src/repositories/integrationlogs.repository.ts AND t.deleted_at IS NULL
+    ORDER BY t.created_at DESC
+  \`;
+  const result = await this.pool.query(query, [tenantId]);
+  return result.rows;
+}

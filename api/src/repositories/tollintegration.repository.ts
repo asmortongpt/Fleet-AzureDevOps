@@ -152,3 +152,27 @@ export default router;
 
 
 This implementation provides a solid foundation for your Toll Integration API, with proper handling of CRUD operations, multi-tenant support, and security through parameterized queries.
+/**
+ * N+1 PREVENTION: Fetch with related entities
+ * Add specific methods based on your relationships
+ */
+async findWithRelatedData(id: string, tenantId: string) {
+  const query = \`
+    SELECT t.*
+    FROM tollintegration t
+    WHERE t.id = \api/src/repositories/tollintegration.repository.ts AND t.tenant_id = \ AND t.deleted_at IS NULL
+  \`;
+  const result = await this.pool.query(query, [id, tenantId]);
+  return result.rows[0] || null;
+}
+
+async findAllWithRelatedData(tenantId: string) {
+  const query = \`
+    SELECT t.*
+    FROM tollintegration t
+    WHERE t.tenant_id = \api/src/repositories/tollintegration.repository.ts AND t.deleted_at IS NULL
+    ORDER BY t.created_at DESC
+  \`;
+  const result = await this.pool.query(query, [tenantId]);
+  return result.rows;
+}
