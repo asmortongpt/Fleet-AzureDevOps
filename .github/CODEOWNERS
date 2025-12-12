@@ -1,0 +1,163 @@
+# Fleet Repository Code Owners
+# These owners will be requested for review when files are modified
+#
+# Documentation: https://docs.github.com/articles/about-code-owners
+#
+# Order is important: the last matching pattern takes precedence
+# Use @username or @organization/team-name
+
+# Global owners - fallback for everything not covered below
+* @asmortongpt
+
+# ============================================================================
+# CORE APPLICATION
+# ============================================================================
+
+# Root configuration files
+/*.json @asmortongpt
+/*.js @asmortongpt
+/*.ts @asmortongpt
+/*.config.* @asmortongpt
+/tsconfig.json @asmortongpt
+/vite.config.ts @asmortongpt
+/package.json @asmortongpt
+/package-lock.json @asmortongpt
+
+# Source code
+/src/ @asmortongpt
+
+# Core application components
+/src/App.tsx @asmortongpt
+/src/main.tsx @asmortongpt
+/src/index.css @asmortongpt
+
+# ============================================================================
+# MODULES - Require review for module changes
+# ============================================================================
+
+/src/components/modules/ @asmortongpt
+
+# Critical modules
+/src/components/modules/fleet-dashboard.tsx @asmortongpt
+/src/components/modules/vehicle-management.tsx @asmortongpt
+/src/components/modules/driver-management.tsx @asmortongpt
+
+# ============================================================================
+# INFRASTRUCTURE & DEVOPS
+# ============================================================================
+
+# Docker
+/Dockerfile @asmortongpt
+/docker-compose*.yml @asmortongpt
+/.dockerignore @asmortongpt
+
+# Kubernetes
+/k8s/ @asmortongpt
+*.yaml @asmortongpt
+
+# GitHub Actions & Workflows
+/.github/ @asmortongpt
+/.github/workflows/ @asmortongpt
+/.github/CODEOWNERS @asmortongpt
+
+# Git configuration
+/.gitignore @asmortongpt
+/.gitattributes @asmortongpt
+/.git-hooks/ @asmortongpt
+
+# ============================================================================
+# SECURITY & COMPLIANCE
+# ============================================================================
+
+# Security policies
+/SECURITY.md @asmortongpt
+/.github/dependabot.yml @asmortongpt
+
+# Environment files (examples only - real .env should never be committed)
+/.env.example @asmortongpt
+/.env*.example @asmortongpt
+
+# ============================================================================
+# TESTING
+# ============================================================================
+
+/tests/ @asmortongpt
+/playwright.config.ts @asmortongpt
+*.spec.ts @asmortongpt
+*.test.ts @asmortongpt
+*.spec.tsx @asmortongpt
+*.test.tsx @asmortongpt
+
+# ============================================================================
+# DOCUMENTATION
+# ============================================================================
+
+/*.md @asmortongpt
+/docs/ @asmortongpt
+/CLAUDE.md @asmortongpt
+/README.md @asmortongpt
+/CONTRIBUTING.md @asmortongpt
+
+# ============================================================================
+# DATA & ASSETS
+# ============================================================================
+
+# 3D Models (require LFS tracking)
+*.glb @asmortongpt
+*.gltf @asmortongpt
+*.obj @asmortongpt
+*.fbx @asmortongpt
+
+# Media files
+*.mp4 @asmortongpt
+*.webm @asmortongpt
+
+# Archives
+*.zip @asmortongpt
+*.tar.gz @asmortongpt
+
+# Public assets
+/public/ @asmortongpt
+/public/models/ @asmortongpt
+
+# ============================================================================
+# BACKEND & API (if applicable)
+# ============================================================================
+
+/api/ @asmortongpt
+/server/ @asmortongpt
+/backend/ @asmortongpt
+
+# Database migrations
+/migrations/ @asmortongpt
+/prisma/ @asmortongpt
+
+# ============================================================================
+# DEPENDENCIES
+# ============================================================================
+
+# Require review for dependency changes
+/package.json @asmortongpt
+/package-lock.json @asmortongpt
+/yarn.lock @asmortongpt
+/pnpm-lock.yaml @asmortongpt
+
+# ============================================================================
+# CRITICAL PATHS - Multiple reviewers or extra scrutiny
+# ============================================================================
+
+# Authentication & Authorization
+/src/lib/auth* @asmortongpt
+/src/contexts/*Auth* @asmortongpt
+
+# Data management
+/src/lib/demo-data.ts @asmortongpt
+/src/hooks/use-api.ts @asmortongpt
+/src/hooks/use-fleet-data.ts @asmortongpt
+
+# Navigation system
+/src/lib/navigation.tsx @asmortongpt
+/src/contexts/DrilldownContext.tsx @asmortongpt
+
+# Build configuration
+/vite.config.ts @asmortongpt
