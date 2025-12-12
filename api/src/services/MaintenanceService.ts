@@ -26,7 +26,7 @@ export class MaintenanceService implements IMaintenanceService {
 
   private async fetchMaintenanceRecordsFromDatabase(vehicleId: number): Promise<MaintenanceRecord[]> {
     // Implement actual database query here
-    // Example: return await db.query('SELECT * FROM maintenance_records WHERE vehicle_id = $1', [vehicleId]);
+    // Example: return await db.query('SELECT id, vehicle_id, type, date, cost, mileage, description, next_service_date, tenant_id, created_at, updated_at, deleted_at FROM maintenance_records WHERE vehicle_id = $1', [vehicleId]);
     throw new Error('Not implemented');
   }
 }

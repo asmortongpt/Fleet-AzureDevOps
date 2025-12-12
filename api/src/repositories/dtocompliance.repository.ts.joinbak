@@ -1,0 +1,125 @@
+import { Pool } from 'pg';
+import { BaseRepository } from './BaseRepository';
+
+export class DtoComplianceRepository extends BaseRepository<any> {
+  constructor(pool: Pool) {
+    super(pool, 'LDto_LCompliance_s');
+  }
+
+
+    this.pool = pool;
+  }
+
+  // Create a new DTO compliance record
+  async create(dtoCompliance: Omit<DtoCompliance, 'id'>): Promise<DtoCompliance> {
+    const query = `
+      INSERT INTO dto_compliance (dto_id, compliance_status, compliance_date, notes, tenant_id)
+      VALUES ($1, $2, $3, $4, $5)
+      RETURNING *
+    `;
+    const values = [
+      dtoCompliance.dto_id,
+      dtoCompliance.compliance_status,
+      dtoCompliance.compliance_date,
+      dtoCompliance.notes,
+      dtoCompliance.tenant_id
+    ];
+
+    const result: QueryResult<DtoCompliance> = await this.query(query, values);
+    return result.rows[0];
+  }
+
+  // Read a DTO compliance record by ID
+  async read(id: number, tenant_id: number): Promise<DtoCompliance | null> {
+    const query = `
+      SELECT id, created_at, updated_at FROM dto_compliance
+      WHERE id = $1 AND tenant_id = $2
+    `;
+    const values = [id, tenant_id];
+
+    const result: QueryResult<DtoCompliance> = await this.query(query, values);
+    return result.rows[0] || null;
+  }
+
+  // Update a DTO compliance record
+  async update(id: number, dtoCompliance: Partial<DtoCompliance>, tenant_id: number): Promise<DtoCompliance | null> {
+    const setClause = Object.keys(dtoCompliance)
+      .filter(key => key !== 'id' && key !== 'tenant_id')
+      .map((key, index) => `${key} = $${index + 2}`)
+      .join(', ');
+
+    if (!setClause) {
+      throw new Error('No fields to update');
+    }
+
+    const query = `
+      UPDATE dto_compliance
+      SET ${setClause}
+      WHERE id = $1 AND tenant_id = $${Object.keys(dtoCompliance).length + 2}
+      RETURNING *
+    `;
+    const values = [
+      id,
+      ...Object.values(dtoCompliance).filter(key => key !== 'id' && key !== 'tenant_id'),
+      tenant_id
+    ];
+
+    const result: QueryResult<DtoCompliance> = await this.query(query, values);
+    return result.rows[0] || null;
+  }
+
+  // Delete a DTO compliance record
+  async delete(id: number, tenant_id: number): Promise<boolean> {
+    const query = `
+      DELETE FROM dto_compliance
+      WHERE id = $1 AND tenant_id = $2
+      RETURNING id
+    `;
+    const values = [id, tenant_id];
+
+    const result: QueryResult<{ id: number }> = await this.query(query, values);
+    return result.rowCount > 0;
+  }
+
+  // List DTO compliance records for a tenant
+  async list(tenant_id: number): Promise<DtoCompliance[]> {
+    const query = `
+      SELECT id, created_at, updated_at FROM dto_compliance
+      WHERE tenant_id = $1
+    `;
+    const values = [tenant_id];
+
+    const result: QueryResult<DtoCompliance> = await this.query(query, values);
+    return result.rows;
+  }
+}
+
+  /**
+   * N+1 PREVENTION: Find with related data
+   * Override this method in subclasses for specific relationships
+   */
+  async findWithRelatedData(id: string, tenantId: string) {
+    const query = `
+      SELECT t.*
+      FROM ${this.tableName} t
+      WHERE t.id = $1 AND t.tenant_id = $2 AND t.deleted_at IS NULL
+    `;
+    const result = await this.query(query, [id, tenantId]);
+    return result.rows[0] || null;
+  }
+
+  /**
+   * N+1 PREVENTION: Find all with related data
+   * Override this method in subclasses for specific relationships
+   */
+  async findAllWithRelatedData(tenantId: string) {
+    const query = `
+      SELECT t.*
+      FROM ${this.tableName} t
+      WHERE t.tenant_id = $1 AND t.deleted_at IS NULL
+      ORDER BY t.created_at DESC
+    `;
+    const result = await this.query(query, [tenantId]);
+    return result.rows;
+  }
+}
