@@ -18,7 +18,10 @@ const pool = new Pool({
   database: process.env.DB_NAME || 'fleetdb',
   user: process.env.DB_USER || process.env.DB_USERNAME || 'fleetadmin',
   password: process.env.DB_PASSWORD,
-  ssl: process.env.DB_SSL_MODE === 'require' ? { rejectUnauthorized: false } : false
+  // SECURITY FIX: Enable SSL certificate validation in production (CRIT-003)
+  ssl: process.env.DB_SSL_MODE === 'require'
+    ? { rejectUnauthorized: process.env.NODE_ENV === 'production' }
+    : false
 })
 
 interface Migration {

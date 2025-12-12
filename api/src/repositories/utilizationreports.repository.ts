@@ -71,10 +71,9 @@ export class UtilizationReportsRepository extends BaseRepository<any> {
    * @returns The updated utilization report, or null if not found
    */
   async update(id: number, report: Partial<UtilizationReport>, tenant_id: number): Promise<UtilizationReport | null> {
-    const setClause = Object.keys(report)
-      .filter(key => key !== 'id' && key !== 'tenant_id')
-      .map((key, index) => `${key} = $${index + 3}`)
-      .join(', ');
+    // Filter out id and tenant_id, then use safe SQL builder
+    const filtered = Object.keys(report).filter(key => key !== 'id' && key !== 'tenant_id').reduce((obj: any, key) => { obj[key] = report[key]; return obj; }, {});
+    const { fields: setClause, values: updateValues } = buildUpdateClause(filtered, 3, 'utilization_reports');
 
     if (!setClause) {
       throw new Error('No fields to update');
@@ -151,6 +150,7 @@ To use this repository in your `utilization-reports.routes.ts` file, you would t
 import express from 'express';
 import { UtilizationReportsRepository } from '../repositories/UtilizationReportsRepository';
 import { Pool } from 'pg';
+import { buildUpdateClause } from '../utils/sql-safety'
 
 const router = express.Router();
 const pool = new Pool(/* your database configuration */);

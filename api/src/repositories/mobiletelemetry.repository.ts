@@ -1,6 +1,7 @@
 import { BaseRepository } from '../repositories/BaseRepository';
 
 import { Pool, QueryResult } from 'pg';
+import { buildUpdateClause } from '../utils/sql-safety'
 
 export interface MobileTelemetry {
   id: number;
@@ -51,9 +52,9 @@ export class MobileTelemetryRepository extends BaseRepository<any> {
   }
 
   async update(tenantId: number, id: number, data: Partial<Omit<MobileTelemetry, 'id' | 'tenant_id' | 'created_at' | 'deleted_at'>>): Promise<MobileTelemetry> {
-    const fields = Object.keys(data).map((key, index) => `${key} = $${index + 3}`);
-    const query = `UPDATE mobile_telemetry SET ${fields.join(', ')}, updated_at = NOW() WHERE tenant_id = $1 AND id = $2 AND deleted_at IS NULL RETURNING *`;
-    const values = [tenantId, id, ...Object.values(data)];
+    const { fields: setClause, values: updateValues } = buildUpdateClause(data, 3, 'mobile_telemetry');
+    const query = `UPDATE mobile_telemetry SET ${setClause}, updated_at = NOW() WHERE tenant_id = $1 AND id = $2 AND deleted_at IS NULL RETURNING *`;
+    const values = [tenantId, id, ...updateValues];
     try {
       const result: QueryResult<MobileTelemetry> = await this.pool.query(query, values);
       if (result.rowCount === 0) {

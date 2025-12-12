@@ -16,7 +16,10 @@ const pool = new Pool({
   database: process.env.DB_NAME || 'fleetdb',
   user: process.env.DB_USER || 'fleetadmin',
   password: process.env.DB_PASSWORD,
-  ssl: process.env.DB_SSL === `true` ? { rejectUnauthorized: false } : false
+  // SECURITY FIX: Enable SSL certificate validation in production (CRIT-003)
+  ssl: process.env.DB_SSL === `true`
+    ? { rejectUnauthorized: process.env.NODE_ENV === 'production' }
+    : false
 });
 
 // Utility functions

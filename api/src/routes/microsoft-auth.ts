@@ -78,22 +78,22 @@ router.get('/microsoft/callback', async (req: Request, res: Response) => {
         tenantId = tenant.id;
         console.log(`Using validated tenant_id from state parameter:`, tenantId);
       } else {
-        // Invalid tenant_id provided, fall back to default
-        console.log(`Invalid tenant_id in state parameter:`, state, `- using default`);
-        const defaultTenant = await tenantRepository.getDefaultTenant();
-        if (!defaultTenant?.id) {
-          throw new Error(`No tenants found in database`);
-        }
-        tenantId = defaultTenant.id;
+        // SECURITY FIX: Reject invalid tenant instead of falling back (CRIT-006)
+        console.error('SECURITY: Invalid tenant_id in OAuth state:', state);
+        const safeErrorUrl = buildSafeRedirectUrl('/login', {
+          error: 'invalid_tenant',
+          message: 'Organization not found or access denied'
+        });
+        return res.redirect(safeErrorUrl);
       }
     } else {
-      // Get default tenant if no valid state provided
-      const defaultTenant = await tenantRepository.getDefaultTenant();
-      if (!defaultTenant?.id) {
-        throw new Error(`No tenants found in database`);
-      }
-      tenantId = defaultTenant.id;
-      console.log(`Using default tenant_id:`, tenantId);
+      // SECURITY FIX: Require explicit tenant selection (CRIT-006)
+      console.error('SECURITY: No tenant_id provided in OAuth state');
+      const safeErrorUrl = buildSafeRedirectUrl('/login', {
+        error: 'tenant_required',
+        message: 'Please select your organization before logging in'
+      });
+      return res.redirect(safeErrorUrl);
     }
 
     // Check if user exists in database
@@ -107,14 +107,19 @@ router.get('/microsoft/callback', async (req: Request, res: Response) => {
       console.log(`Found existing user:`, user);
     }
 
+    // SECURITY FIX: Remove weak fallback (CRIT-002)
     // Generate JWT token
+    if (!process.env.JWT_SECRET || process.env.JWT_SECRET.length < 32) {
+      console.error('FATAL: JWT_SECRET must be set with at least 32 characters');
+      throw new Error('Server configuration error: JWT_SECRET not properly configured');
+    }
     const token = jwt.sign(
       {
         userId: user.id,
         email: user.email,
         tenantId: tenantId
       },
-      process.env.JWT_SECRET || 'your-secret-key',
+      process.env.JWT_SECRET,
       {
         expiresIn: '1h'
       }

@@ -12,7 +12,8 @@ import type {
   PolicyStatistics
 } from '@/types/radio';
 
-const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+// SECURITY FIX (HIGH-009): Use environment variable or derive from current location
+const API_BASE = import.meta.env.VITE_API_URL || window.location.origin;
 
 // ============================================================================
 // Channel Management

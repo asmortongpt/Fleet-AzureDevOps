@@ -31,11 +31,15 @@ export const authenticateJWT = async (
   res: Response,
   next: NextFunction
 ) => {
-  // If req.user already exists (set by development-only global middleware with strict
-  // environment validation), skip JWT validation
-  if (req.user) {
-    logger.info('✅ AUTH MIDDLEWARE - User already authenticated via development mode')
+  // SECURITY FIX: Only allow dev mode bypass with explicit environment check (CRIT-005)
+  if (req.user && process.env.NODE_ENV === 'development' && process.env.ALLOW_DEV_AUTH_BYPASS === 'true') {
+    logger.warn('⚠️ AUTH MIDDLEWARE - Skipping JWT in development mode (ALLOW_DEV_AUTH_BYPASS=true)')
     return next()
+  }
+
+  // Clear any potentially spoofed user object in production
+  if (process.env.NODE_ENV === 'production') {
+    req.user = undefined;
   }
 
   logger.info('🔒 AUTH MIDDLEWARE - CHECKING JWT TOKEN')
