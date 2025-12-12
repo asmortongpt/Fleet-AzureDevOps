@@ -44,27 +44,3 @@ export class FeedbackSystemRepository extends BaseRepository<any> {
 }
 
 In this repository, we use the `pg` package to interact with a PostgreSQL database. We use parameterized queries to prevent SQL injection attacks. The `tenant_id` is used to scope the queries to the correct tenant, providing multi-tenancy support. The repository provides CRUD (Create, Read, Update, Delete) operations for the `FeedbackSystem` model.
-/**
- * N+1 PREVENTION: Fetch with related entities
- * Add specific methods based on your relationships
- */
-async findWithRelatedData(id: string, tenantId: string) {
-  const query = \`
-    SELECT t.*
-    FROM feedbacksystem t
-    WHERE t.id = \api/src/repositories/feedbacksystem.repository.ts AND t.tenant_id = \ AND t.deleted_at IS NULL
-  \`;
-  const result = await this.pool.query(query, [id, tenantId]);
-  return result.rows[0] || null;
-}
-
-async findAllWithRelatedData(tenantId: string) {
-  const query = \`
-    SELECT t.*
-    FROM feedbacksystem t
-    WHERE t.tenant_id = \api/src/repositories/feedbacksystem.repository.ts AND t.deleted_at IS NULL
-    ORDER BY t.created_at DESC
-  \`;
-  const result = await this.pool.query(query, [tenantId]);
-  return result.rows;
-}

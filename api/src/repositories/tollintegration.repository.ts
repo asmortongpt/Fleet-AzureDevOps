@@ -59,14 +59,16 @@ export class TollIntegrationRepository extends BaseRepository<any> {
 
   // Update a toll integration
   async update(id: number, tollIntegration: Partial<Omit<TollIntegration, 'id' | 'created_at' | 'tenant_id'>>, tenant_id: number): Promise<TollIntegration | null> {
-    const { fields: setClause, values: updateValues } = buildUpdateClause(tollIntegration, 2, 'generic_table');
+    const setClause = Object.keys(tollIntegration)
+      .map((key, index) => `${key} = $${index + 2}`)
+      .join(', ');
     const query = `
       UPDATE toll_integrations
       SET ${setClause}, updated_at = NOW()
-      WHERE id = $1 AND tenant_id = $${updateValues.length + 2}
+      WHERE id = $1 AND tenant_id = $${Object.keys(tollIntegration).length + 2}
       RETURNING *;
     `;
-    const values = [id, ...updateValues, tenant_id];
+    const values = [id, ...Object.values(tollIntegration), tenant_id];
 
     const result: QueryResult<TollIntegration> = await this.pool.query(query, values);
     return result.rows[0] || null;
@@ -125,7 +127,6 @@ To use this repository in your `toll-integration.routes.ts` file, you would typi
 import express from 'express';
 import { Pool } from 'pg';
 import { TollIntegrationRepository } from '../repositories/toll-integration.repository';
-import { buildUpdateClause } from '../utils/sql-safety'
 
 const router = express.Router();
 const pool = new Pool(/* your database configuration */);
@@ -151,27 +152,3 @@ export default router;
 
 
 This implementation provides a solid foundation for your Toll Integration API, with proper handling of CRUD operations, multi-tenant support, and security through parameterized queries.
-/**
- * N+1 PREVENTION: Fetch with related entities
- * Add specific methods based on your relationships
- */
-async findWithRelatedData(id: string, tenantId: string) {
-  const query = \`
-    SELECT t.*
-    FROM tollintegration t
-    WHERE t.id = \api/src/repositories/tollintegration.repository.ts AND t.tenant_id = \ AND t.deleted_at IS NULL
-  \`;
-  const result = await this.pool.query(query, [id, tenantId]);
-  return result.rows[0] || null;
-}
-
-async findAllWithRelatedData(tenantId: string) {
-  const query = \`
-    SELECT t.*
-    FROM tollintegration t
-    WHERE t.tenant_id = \api/src/repositories/tollintegration.repository.ts AND t.deleted_at IS NULL
-    ORDER BY t.created_at DESC
-  \`;
-  const result = await this.pool.query(query, [tenantId]);
-  return result.rows;
-}

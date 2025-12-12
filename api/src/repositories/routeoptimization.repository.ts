@@ -1,7 +1,6 @@
 import { BaseRepository } from '../repositories/BaseRepository';
 
 import { Pool, QueryResult } from 'pg';
-import { buildUpdateClause } from '../utils/sql-safety'
 
 export interface RouteOptimization {
   id: number;
@@ -48,9 +47,10 @@ export class RouteOptimizationRepository extends BaseRepository<any> {
 
   async update(id: number, data: Partial<Omit<RouteOptimization, 'id' | 'tenant_id' | 'created_at' | 'deleted_at'>>, tenantId: number): Promise<RouteOptimization> {
     try {
-      const { fields: setClause, values: updateValues } = buildUpdateClause(data, 3, 'route_optimizations');
-      const query = `UPDATE route_optimizations SET ${setClause}, updated_at = NOW() WHERE id = $1 AND tenant_id = $2 RETURNING *`;
-      const result: QueryResult<RouteOptimization> = await this.pool.query(query, [id, tenantId, ...updateValues]);
+      const fields = Object.keys(data).map((key, index) => `${key} = $${index + 3}`);
+      const values = Object.values(data);
+      const query = `UPDATE route_optimizations SET ${fields.join(', ')}, updated_at = NOW() WHERE id = $1 AND tenant_id = $2 RETURNING *`;
+      const result: QueryResult<RouteOptimization> = await this.pool.query(query, [id, tenantId, ...values]);
       if (result.rowCount === 0) {
         throw new Error('Route optimization not found');
       }
@@ -71,29 +71,4 @@ export class RouteOptimizationRepository extends BaseRepository<any> {
       throw new Error(`Failed to soft delete route optimization: ${error.message}`);
     }
   }
-}
-
-/**
- * N+1 PREVENTION: Fetch with related entities
- * Add specific methods based on your relationships
- */
-async findWithRelatedData(id: string, tenantId: string) {
-  const query = \`
-    SELECT t.*
-    FROM routeoptimization t
-    WHERE t.id = \api/src/repositories/routeoptimization.repository.ts AND t.tenant_id = \ AND t.deleted_at IS NULL
-  \`;
-  const result = await this.pool.query(query, [id, tenantId]);
-  return result.rows[0] || null;
-}
-
-async findAllWithRelatedData(tenantId: string) {
-  const query = \`
-    SELECT t.*
-    FROM routeoptimization t
-    WHERE t.tenant_id = \api/src/repositories/routeoptimization.repository.ts AND t.deleted_at IS NULL
-    ORDER BY t.created_at DESC
-  \`;
-  const result = await this.pool.query(query, [tenantId]);
-  return result.rows;
 }

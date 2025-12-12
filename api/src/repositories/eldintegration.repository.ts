@@ -72,8 +72,10 @@ export class EldIntegrationRepository extends BaseRepository<any> {
 
   // Update an existing ELD integration
   async update(id: number, eldIntegration: Partial<Omit<EldIntegration, 'id' | 'created_at' | 'updated_at' | 'tenant_id'>>, tenantId: number): Promise<EldIntegration | null> {
-    const { fields: setClause, values: updateValues } = buildUpdateClause(eldIntegration, 2, 'generic_table');
-    const values = [id, ...updateValues, tenantId];
+    const setClause = Object.keys(eldIntegration)
+      .map((key, index) => `${key} = $${index + 2}`)
+      .join(', ');
+    const values = [id, ...Object.values(eldIntegration), tenantId];
 
     const query = `
       UPDATE eld_integrations
@@ -126,7 +128,6 @@ To use this repository in your `eld-integration.routes.ts` file, you would typic
 import { Router } from 'express';
 import { Pool } from 'pg';
 import { EldIntegrationRepository } from '../repositories/eld-integration.repository';
-import { buildUpdateClause } from '../utils/sql-safety'
 
 const router = Router();
 const pool = new Pool(/* your database configuration */);
@@ -154,27 +155,3 @@ export default router;
 
 
 This implementation provides a solid foundation for your ELD integration repository. You can further customize it based on your specific requirements, such as adding more complex queries or implementing additional business logic.
-/**
- * N+1 PREVENTION: Fetch with related entities
- * Add specific methods based on your relationships
- */
-async findWithRelatedData(id: string, tenantId: string) {
-  const query = \`
-    SELECT t.*
-    FROM eldintegration t
-    WHERE t.id = \api/src/repositories/eldintegration.repository.ts AND t.tenant_id = \ AND t.deleted_at IS NULL
-  \`;
-  const result = await this.pool.query(query, [id, tenantId]);
-  return result.rows[0] || null;
-}
-
-async findAllWithRelatedData(tenantId: string) {
-  const query = \`
-    SELECT t.*
-    FROM eldintegration t
-    WHERE t.tenant_id = \api/src/repositories/eldintegration.repository.ts AND t.deleted_at IS NULL
-    ORDER BY t.created_at DESC
-  \`;
-  const result = await this.pool.query(query, [tenantId]);
-  return result.rows;
-}
