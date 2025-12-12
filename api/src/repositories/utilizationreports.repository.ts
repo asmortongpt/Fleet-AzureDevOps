@@ -71,9 +71,10 @@ export class UtilizationReportsRepository extends BaseRepository<any> {
    * @returns The updated utilization report, or null if not found
    */
   async update(id: number, report: Partial<UtilizationReport>, tenant_id: number): Promise<UtilizationReport | null> {
-    // Filter out id and tenant_id, then use safe SQL builder
-    const filtered = Object.keys(report).filter(key => key !== 'id' && key !== 'tenant_id').reduce((obj: any, key) => { obj[key] = report[key]; return obj; }, {});
-    const { fields: setClause, values: updateValues } = buildUpdateClause(filtered, 3, 'utilization_reports');
+    const setClause = Object.keys(report)
+      .filter(key => key !== 'id' && key !== 'tenant_id')
+      .map((key, index) => `${key} = $${index + 3}`)
+      .join(', ');
 
     if (!setClause) {
       throw new Error('No fields to update');
@@ -150,7 +151,6 @@ To use this repository in your `utilization-reports.routes.ts` file, you would t
 import express from 'express';
 import { UtilizationReportsRepository } from '../repositories/UtilizationReportsRepository';
 import { Pool } from 'pg';
-import { buildUpdateClause } from '../utils/sql-safety'
 
 const router = express.Router();
 const pool = new Pool(/* your database configuration */);
@@ -184,27 +184,3 @@ export default router;
 
 
 Remember to adjust the database connection and error handling according to your application's specific needs. Also, ensure that you're properly validating and sanitizing input data before passing it to the repository methods.
-/**
- * N+1 PREVENTION: Fetch with related entities
- * Add specific methods based on your relationships
- */
-async findWithRelatedData(id: string, tenantId: string) {
-  const query = \`
-    SELECT t.*
-    FROM utilizationreports t
-    WHERE t.id = \api/src/repositories/utilizationreports.repository.ts AND t.tenant_id = \ AND t.deleted_at IS NULL
-  \`;
-  const result = await this.pool.query(query, [id, tenantId]);
-  return result.rows[0] || null;
-}
-
-async findAllWithRelatedData(tenantId: string) {
-  const query = \`
-    SELECT t.*
-    FROM utilizationreports t
-    WHERE t.tenant_id = \api/src/repositories/utilizationreports.repository.ts AND t.deleted_at IS NULL
-    ORDER BY t.created_at DESC
-  \`;
-  const result = await this.pool.query(query, [tenantId]);
-  return result.rows;
-}

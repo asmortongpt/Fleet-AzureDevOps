@@ -61,9 +61,10 @@ export class EngineDiagnosticsRepository extends BaseRepository<any> {
 
   // Update an existing engine diagnostics entry
   async update(id: number, engineDiagnostics: Partial<EngineDiagnostics>, tenant_id: number): Promise<EngineDiagnostics | null> {
-    // Filter out id and tenant_id, then use safe SQL builder
-    const filtered = Object.keys(engineDiagnostics).filter(key => key !== 'id' && key !== 'tenant_id').reduce((obj: any, key) => { obj[key] = engineDiagnostics[key]; return obj; }, {});
-    const { fields: setClause, values: updateValues } = buildUpdateClause(filtered, 2, 'engine_diagnostics');
+    const setClause = Object.keys(engineDiagnostics)
+      .filter(key => key !== 'id' && key !== 'tenant_id')
+      .map((key, index) => `${key} = $${index + 2}`)
+      .join(', ');
 
     if (!setClause) {
       throw new Error('No fields to update');
@@ -116,7 +117,6 @@ To use this repository in your `engine-diagnostics.routes.ts` file, you would ty
 import { Router } from 'express';
 import { Pool } from 'pg';
 import { EngineDiagnosticsRepository } from './EngineDiagnosticsRepository';
-import { buildUpdateClause } from '../utils/sql-safety'
 
 const router = Router();
 const pool = new Pool(/* your database connection details */);
@@ -138,27 +138,3 @@ export default router;
 
 
 Remember to adjust the import paths and error handling according to your project's structure and requirements.
-/**
- * N+1 PREVENTION: Fetch with related entities
- * Add specific methods based on your relationships
- */
-async findWithRelatedData(id: string, tenantId: string) {
-  const query = \`
-    SELECT t.*
-    FROM enginediagnostics t
-    WHERE t.id = \api/src/repositories/enginediagnostics.repository.ts AND t.tenant_id = \ AND t.deleted_at IS NULL
-  \`;
-  const result = await this.pool.query(query, [id, tenantId]);
-  return result.rows[0] || null;
-}
-
-async findAllWithRelatedData(tenantId: string) {
-  const query = \`
-    SELECT t.*
-    FROM enginediagnostics t
-    WHERE t.tenant_id = \api/src/repositories/enginediagnostics.repository.ts AND t.deleted_at IS NULL
-    ORDER BY t.created_at DESC
-  \`;
-  const result = await this.pool.query(query, [tenantId]);
-  return result.rows;
-}

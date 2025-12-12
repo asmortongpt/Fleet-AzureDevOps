@@ -1,13 +1,29 @@
-import { Pool } from 'pg';
-import { BaseRepository } from './BaseRepository';
+Let's create a TypeScript repository called `DepreciationRepository` for handling depreciation-related operations. We'll implement CRUD operations with parameterized queries and include tenant_id for multi-tenant support. Here's a step-by-step approach:
 
-export class DepreciationRepository extends BaseRepository<any> {
-  constructor(pool: Pool) {
-    super(pool, 'LDepreciation_s');
-  }
+1. Define the interface for depreciation data
+2. Create the DepreciationRepository class
+3. Implement CRUD operations with parameterized queries
+4. Include tenant_id in all queries
 
+Here's the implementation:
+
+
+import { PoolClient } from 'pg';
+
+// Define the interface for depreciation data
+interface Depreciation {
+  id: number;
+  asset_id: number;
+  depreciation_date: Date;
+  depreciation_amount: number;
+  tenant_id: number;
+}
+
+// DepreciationRepository class
+class DepreciationRepository {
   private client: PoolClient;
 
+  constructor(client: PoolClient) {
     this.client = client;
   }
 
@@ -104,31 +120,51 @@ export class DepreciationRepository extends BaseRepository<any> {
   }
 }
 
-  /**
-   * N+1 PREVENTION: Find with related data
-   * Override this method in subclasses for specific relationships
-   */
-  async findWithRelatedData(id: string, tenantId: string) {
-    const query = `
-      SELECT t.*
-      FROM ${this.tableName} t
-      WHERE t.id = $1 AND t.tenant_id = $2 AND t.deleted_at IS NULL
-    `;
-    const result = await this.query(query, [id, tenantId]);
-    return result.rows[0] || null;
-  }
+export default DepreciationRepository;
 
-  /**
-   * N+1 PREVENTION: Find all with related data
-   * Override this method in subclasses for specific relationships
-   */
-  async findAllWithRelatedData(tenantId: string) {
-    const query = `
-      SELECT t.*
-      FROM ${this.tableName} t
-      WHERE t.tenant_id = $1 AND t.deleted_at IS NULL
-      ORDER BY t.created_at DESC
-    `;
-    const result = await this.query(query, [tenantId]);
-    return result.rows;
+
+This implementation includes the following features:
+
+1. A `Depreciation` interface to define the structure of depreciation data.
+2. A `DepreciationRepository` class that encapsulates all CRUD operations.
+3. Parameterized queries to prevent SQL injection and improve performance.
+4. Inclusion of `tenant_id` in all queries to support multi-tenant functionality.
+5. CRUD operations:
+   - `create`: Inserts a new depreciation record.
+   - `read`: Retrieves a depreciation record by id and tenant_id.
+   - `update`: Updates a depreciation record, allowing partial updates.
+   - `delete`: Deletes a depreciation record by id and tenant_id.
+   - `list`: Retrieves a list of depreciation records for a specific tenant, with pagination support.
+
+To use this repository in your `api/src/routes/depreciation.routes.ts`, you would typically create an instance of the repository and use its methods to handle database operations. Here's a basic example of how you might use it in your routes:
+
+
+import express from 'express';
+import { PoolClient } from 'pg';
+import DepreciationRepository from '../repositories/DepreciationRepository';
+
+const router = express.Router();
+
+router.post('/', async (req, res) => {
+  const client: PoolClient = req.app.get('dbClient');
+  const depreciationRepository = new DepreciationRepository(client);
+
+  try {
+    const newDepreciation = await depreciationRepository.create({
+      asset_id: req.body.asset_id,
+      depreciation_date: new Date(req.body.depreciation_date),
+      depreciation_amount: req.body.depreciation_amount,
+      tenant_id: req.tenant_id // Assuming you have a middleware to set this
+    });
+    res.status(201).json(newDepreciation);
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to create depreciation' });
   }
+});
+
+// Implement other routes (GET, PUT, DELETE) similarly
+
+export default router;
+
+
+This implementation provides a solid foundation for handling depreciation data in your application, with proper database abstraction, multi-tenant support, and parameterized queries for security and performance.

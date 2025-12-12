@@ -380,7 +380,7 @@ async findWithDriverAndMaintenance(id: string, tenantId: string) {
     FROM vehicles v
     LEFT JOIN drivers d ON v.driver_id = d.id
     LEFT JOIN LATERAL (
-      SELECT id, vehicle_id, type, date, cost, mileage, description, next_service_date, tenant_id, created_at, updated_at, deleted_at FROM maintenance
+      SELECT * FROM maintenance
       WHERE vehicle_id = v.id AND deleted_at IS NULL
       ORDER BY date DESC
       LIMIT 5
