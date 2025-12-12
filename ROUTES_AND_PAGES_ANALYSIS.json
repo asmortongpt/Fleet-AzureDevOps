@@ -1,0 +1,1193 @@
+{
+  "total_lazy_imports": 0,
+  "total_navigation_items": 69,
+  "total_pages": 20,
+  "lazy_imports": [],
+  "navigation_items": [
+    {
+      "id": "dashboard",
+      "label": "Fleet Dashboard",
+      "section": "main",
+      "type": "navigation_item",
+      "file": "src/lib/navigation.tsx"
+    },
+    {
+      "id": "executive-dashboard",
+      "label": "Executive Dashboard",
+      "section": "main",
+      "type": "navigation_item",
+      "file": "src/lib/navigation.tsx"
+    },
+    {
+      "id": "admin-dashboard",
+      "label": "Admin Dashboard",
+      "section": "main",
+      "type": "navigation_item",
+      "file": "src/lib/navigation.tsx"
+    },
+    {
+      "id": "dispatch-console",
+      "label": "Dispatch Console",
+      "section": "main",
+      "type": "navigation_item",
+      "file": "src/lib/navigation.tsx"
+    },
+    {
+      "id": "gps-tracking",
+      "label": "Live GPS Tracking",
+      "section": "main",
+      "type": "navigation_item",
+      "file": "src/lib/navigation.tsx"
+    },
+    {
+      "id": "gis-map",
+      "label": "GIS Command Center",
+      "section": "main",
+      "type": "navigation_item",
+      "file": "src/lib/navigation.tsx"
+    },
+    {
+      "id": "traffic-cameras",
+      "label": "Traffic Cameras",
+      "section": "main",
+      "type": "navigation_item",
+      "file": "src/lib/navigation.tsx"
+    },
+    {
+      "id": "geofences",
+      "label": "Geofence Management",
+      "section": "main",
+      "type": "navigation_item",
+      "file": "src/lib/navigation.tsx"
+    },
+    {
+      "id": "vehicle-telemetry",
+      "label": "Vehicle Telemetry",
+      "section": "main",
+      "type": "navigation_item",
+      "file": "src/lib/navigation.tsx"
+    },
+    {
+      "id": "map-layers",
+      "label": "Enhanced Map Layers",
+      "section": "main",
+      "type": "navigation_item",
+      "file": "src/lib/navigation.tsx"
+    },
+    {
+      "id": "arcgis-integration",
+      "label": "ArcGIS Integration",
+      "section": "tools",
+      "type": "navigation_item",
+      "file": "src/lib/navigation.tsx"
+    },
+    {
+      "id": "map-settings",
+      "label": "Map Provider Settings",
+      "section": "tools",
+      "type": "navigation_item",
+      "file": "src/lib/navigation.tsx"
+    },
+    {
+      "id": "route-optimization",
+      "label": "Route Optimization",
+      "section": "main",
+      "type": "navigation_item",
+      "file": "src/lib/navigation.tsx"
+    },
+    {
+      "id": "people",
+      "label": "People Management",
+      "section": "management",
+      "type": "navigation_item",
+      "file": "src/lib/navigation.tsx"
+    },
+    {
+      "id": "garage",
+      "label": "Garage & Service",
+      "section": "management",
+      "type": "navigation_item",
+      "file": "src/lib/navigation.tsx"
+    },
+    {
+      "id": "virtual-garage",
+      "label": "Virtual Garage 3D",
+      "section": "management",
+      "type": "navigation_item",
+      "file": "src/lib/navigation.tsx"
+    },
+    {
+      "id": "predictive",
+      "label": "Predictive Maintenance",
+      "section": "management",
+      "type": "navigation_item",
+      "file": "src/lib/navigation.tsx"
+    },
+    {
+      "id": "driver-mgmt",
+      "label": "Driver Performance",
+      "section": "management",
+      "type": "navigation_item",
+      "file": "src/lib/navigation.tsx"
+    },
+    {
+      "id": "asset-management",
+      "label": "Asset Management",
+      "section": "management",
+      "type": "navigation_item",
+      "file": "src/lib/navigation.tsx"
+    },
+    {
+      "id": "equipment-dashboard",
+      "label": "Equipment Dashboard",
+      "section": "management",
+      "type": "navigation_item",
+      "file": "src/lib/navigation.tsx"
+    },
+    {
+      "id": "task-management",
+      "label": "Task Management",
+      "section": "management",
+      "type": "navigation_item",
+      "file": "src/lib/navigation.tsx"
+    },
+    {
+      "id": "incident-management",
+      "label": "Incident Management",
+      "section": "management",
+      "type": "navigation_item",
+      "file": "src/lib/navigation.tsx"
+    },
+    {
+      "id": "notifications",
+      "label": "Alerts & Notifications",
+      "section": "management",
+      "type": "navigation_item",
+      "file": "src/lib/navigation.tsx"
+    },
+    {
+      "id": "push-notification-admin",
+      "label": "Push Notifications",
+      "section": "communication",
+      "type": "navigation_item",
+      "file": "src/lib/navigation.tsx"
+    },
+    {
+      "id": "documents",
+      "label": "Document Management",
+      "section": "management",
+      "type": "navigation_item",
+      "file": "src/lib/navigation.tsx"
+    },
+    {
+      "id": "document-qa",
+      "label": "Document Q&A",
+      "section": "management",
+      "type": "navigation_item",
+      "file": "src/lib/navigation.tsx"
+    },
+    {
+      "id": "vendor-management",
+      "label": "Vendor Management",
+      "section": "procurement",
+      "type": "navigation_item",
+      "file": "src/lib/navigation.tsx"
+    },
+    {
+      "id": "parts-inventory",
+      "label": "Parts Inventory",
+      "section": "procurement",
+      "type": "navigation_item",
+      "file": "src/lib/navigation.tsx"
+    },
+    {
+      "id": "purchase-orders",
+      "label": "Purchase Orders",
+      "section": "procurement",
+      "type": "navigation_item",
+      "file": "src/lib/navigation.tsx"
+    },
+    {
+      "id": "invoices",
+      "label": "Invoices & Billing",
+      "section": "procurement",
+      "type": "navigation_item",
+      "file": "src/lib/navigation.tsx"
+    },
+    {
+      "id": "ai-assistant",
+      "label": "AI Assistant",
+      "section": "communication",
+      "type": "navigation_item",
+      "file": "src/lib/navigation.tsx"
+    },
+    {
+      "id": "teams-integration",
+      "label": "Teams Messages",
+      "section": "communication",
+      "type": "navigation_item",
+      "file": "src/lib/navigation.tsx"
+    },
+    {
+      "id": "email-center",
+      "label": "Email Center",
+      "section": "communication",
+      "type": "navigation_item",
+      "file": "src/lib/navigation.tsx"
+    },
+    {
+      "id": "maintenance-scheduling",
+      "label": "Maintenance Calendar",
+      "section": "communication",
+      "type": "navigation_item",
+      "file": "src/lib/navigation.tsx"
+    },
+    {
+      "id": "receipt-processing",
+      "label": "Receipt Processing",
+      "section": "communication",
+      "type": "navigation_item",
+      "file": "src/lib/navigation.tsx"
+    },
+    {
+      "id": "communication-log",
+      "label": "Communication Log",
+      "section": "communication",
+      "type": "navigation_item",
+      "file": "src/lib/navigation.tsx"
+    },
+    {
+      "id": "osha-forms",
+      "label": "OSHA Safety Forms",
+      "section": "communication",
+      "type": "navigation_item",
+      "file": "src/lib/navigation.tsx"
+    },
+    {
+      "id": "policy-engine",
+      "label": "Policy Engine",
+      "section": "communication",
+      "type": "navigation_item",
+      "file": "src/lib/navigation.tsx"
+    },
+    {
+      "id": "video-telematics",
+      "label": "Video Telematics",
+      "section": "communication",
+      "type": "navigation_item",
+      "file": "src/lib/navigation.tsx"
+    },
+    {
+      "id": "ev-charging",
+      "label": "EV Charging",
+      "section": "communication",
+      "type": "navigation_item",
+      "file": "src/lib/navigation.tsx"
+    },
+    {
+      "id": "form-builder",
+      "label": "Custom Form Builder",
+      "section": "communication",
+      "type": "navigation_item",
+      "file": "src/lib/navigation.tsx"
+    },
+    {
+      "id": "mileage",
+      "label": "Mileage Reimbursement",
+      "section": "tools",
+      "type": "navigation_item",
+      "file": "src/lib/navigation.tsx"
+    },
+    {
+      "id": "personal-use",
+      "label": "Personal Use",
+      "section": "tools",
+      "type": "navigation_item",
+      "file": "src/lib/navigation.tsx"
+    },
+    {
+      "id": "personal-use-policy",
+      "label": "Personal Use Policy",
+      "section": "tools",
+      "type": "navigation_item",
+      "file": "src/lib/navigation.tsx"
+    },
+    {
+      "id": "reimbursement-queue",
+      "label": "Reimbursement Queue",
+      "section": "tools",
+      "type": "navigation_item",
+      "file": "src/lib/navigation.tsx"
+    },
+    {
+      "id": "charges-billing",
+      "label": "Charges & Billing",
+      "section": "tools",
+      "type": "navigation_item",
+      "file": "src/lib/navigation.tsx"
+    },
+    {
+      "id": "maintenance-request",
+      "label": "Maintenance Request",
+      "section": "tools",
+      "type": "navigation_item",
+      "file": "src/lib/navigation.tsx"
+    },
+    {
+      "id": "fuel",
+      "label": "Fuel Management",
+      "section": "tools",
+      "type": "navigation_item",
+      "file": "src/lib/navigation.tsx"
+    },
+    {
+      "id": "routes",
+      "label": "Route Management",
+      "section": "tools",
+      "type": "navigation_item",
+      "file": "src/lib/navigation.tsx"
+    },
+    {
+      "id": "workbench",
+      "label": "Data Workbench",
+      "section": "tools",
+      "type": "navigation_item",
+      "file": "src/lib/navigation.tsx"
+    },
+    {
+      "id": "comprehensive",
+      "label": "Fleet Analytics",
+      "section": "tools",
+      "type": "navigation_item",
+      "file": "src/lib/navigation.tsx"
+    },
+    {
+      "id": "endpoint-monitor",
+      "label": "Endpoint Monitor",
+      "section": "tools",
+      "type": "navigation_item",
+      "file": "src/lib/navigation.tsx"
+    },
+    {
+      "id": "driver-scorecard",
+      "label": "Driver Scorecard",
+      "section": "tools",
+      "type": "navigation_item",
+      "file": "src/lib/navigation.tsx"
+    },
+    {
+      "id": "fleet-optimizer",
+      "label": "Fleet Optimizer",
+      "section": "tools",
+      "type": "navigation_item",
+      "file": "src/lib/navigation.tsx"
+    },
+    {
+      "id": "cost-analysis",
+      "label": "Cost Analysis",
+      "section": "tools",
+      "type": "navigation_item",
+      "file": "src/lib/navigation.tsx"
+    },
+    {
+      "id": "fuel-purchasing",
+      "label": "Fuel Purchasing",
+      "section": "tools",
+      "type": "navigation_item",
+      "file": "src/lib/navigation.tsx"
+    },
+    {
+      "id": "custom-reports",
+      "label": "Custom Report Builder",
+      "section": "tools",
+      "type": "navigation_item",
+      "file": "src/lib/navigation.tsx"
+    },
+    {
+      "id": "settings",
+      "label": "Settings",
+      "section": "tools",
+      "type": "navigation_item",
+      "file": "src/lib/navigation.tsx"
+    },
+    {
+      "id": "dashboard",
+      "label": "Dashboard",
+      "section": "main",
+      "type": "navigation_item",
+      "file": "src/lib/navigation.ts"
+    },
+    {
+      "id": "executive-dashboard",
+      "label": "Executive Dashboard",
+      "section": "main",
+      "type": "navigation_item",
+      "file": "src/lib/navigation.ts"
+    },
+    {
+      "id": "admin-dashboard",
+      "label": "Admin Dashboard",
+      "section": "main",
+      "type": "navigation_item",
+      "file": "src/lib/navigation.ts"
+    },
+    {
+      "id": "people",
+      "label": "People",
+      "section": "management",
+      "type": "navigation_item",
+      "file": "src/lib/navigation.ts"
+    },
+    {
+      "id": "garage",
+      "label": "Garage",
+      "section": "management",
+      "type": "navigation_item",
+      "file": "src/lib/navigation.ts"
+    },
+    {
+      "id": "fuel",
+      "label": "Fuel",
+      "section": "management",
+      "type": "navigation_item",
+      "file": "src/lib/navigation.ts"
+    },
+    {
+      "id": "gps-tracking",
+      "label": "GPS Tracking",
+      "section": "management",
+      "type": "navigation_item",
+      "file": "src/lib/navigation.ts"
+    },
+    {
+      "id": "traffic-cameras",
+      "label": "Traffic Cameras",
+      "section": "tools",
+      "type": "navigation_item",
+      "file": "src/lib/navigation.ts"
+    },
+    {
+      "id": "reports",
+      "label": "Reports",
+      "section": "tools",
+      "type": "navigation_item",
+      "file": "src/lib/navigation.ts"
+    },
+    {
+      "id": "settings",
+      "label": "Settings",
+      "section": "tools",
+      "type": "navigation_item",
+      "file": "src/lib/navigation.ts"
+    },
+    {
+      "id": "profile",
+      "label": "Profile",
+      "section": "tools",
+      "type": "navigation_item",
+      "file": "src/lib/navigation.ts"
+    }
+  ],
+  "pages": [
+    {
+      "file": "src/pages/403.tsx",
+      "component": "Forbidden403Page",
+      "routes": [],
+      "requires_auth": true,
+      "permissions": []
+    },
+    {
+      "file": "src/pages/Login.tsx",
+      "component": "Login",
+      "routes": [],
+      "requires_auth": false,
+      "permissions": []
+    },
+    {
+      "file": "src/pages/SettingsPage.tsx",
+      "component": "SettingsPage",
+      "routes": [],
+      "requires_auth": false,
+      "permissions": []
+    },
+    {
+      "file": "src/pages/ProfilePage.tsx",
+      "component": "ProfilePage",
+      "routes": [],
+      "requires_auth": false,
+      "permissions": []
+    },
+    {
+      "file": "src/pages/AuthCallback.tsx",
+      "component": "AuthCallback",
+      "routes": [],
+      "requires_auth": false,
+      "permissions": []
+    },
+    {
+      "file": "src/pages/AdminDashboard.tsx",
+      "component": "AdminDashboard",
+      "routes": [],
+      "requires_auth": true,
+      "permissions": []
+    },
+    {
+      "file": "src/pages/PersonalUse/PersonalUseDashboard.tsx",
+      "component": "PersonalUseDashboard",
+      "routes": [],
+      "requires_auth": false,
+      "permissions": []
+    },
+    {
+      "file": "src/pages/PersonalUse/ReimbursementQueue.tsx",
+      "component": "ReimbursementQueue",
+      "routes": [],
+      "requires_auth": false,
+      "permissions": []
+    },
+    {
+      "file": "src/pages/PersonalUse/ChargesAndBilling.tsx",
+      "component": "ChargesAndBilling",
+      "routes": [],
+      "requires_auth": false,
+      "permissions": []
+    },
+    {
+      "file": "src/pages/radio/index.tsx",
+      "component": "RadioDispatchPage",
+      "routes": [],
+      "requires_auth": false,
+      "permissions": []
+    },
+    {
+      "file": "src/pages/hubs/OperationsHub.tsx",
+      "component": "OperationsHub",
+      "routes": [],
+      "requires_auth": false,
+      "permissions": []
+    },
+    {
+      "file": "src/pages/hubs/PeopleHub.tsx",
+      "component": "PeopleHub",
+      "routes": [],
+      "requires_auth": false,
+      "permissions": []
+    },
+    {
+      "file": "src/pages/hubs/WorkHub.tsx",
+      "component": "WorkHub",
+      "routes": [],
+      "requires_auth": false,
+      "permissions": []
+    },
+    {
+      "file": "src/pages/hubs/InsightsHub.tsx",
+      "component": "InsightsHub",
+      "routes": [],
+      "requires_auth": false,
+      "permissions": []
+    },
+    {
+      "file": "src/pages/hubs/FleetHub.tsx",
+      "component": "FleetHub",
+      "routes": [],
+      "requires_auth": false,
+      "permissions": []
+    },
+    {
+      "file": "src/pages/hubs/FleetHub.tsx",
+      "component": "FleetHub",
+      "type": "hub",
+      "tabs": [
+        "vehicles",
+        "telemetry",
+        "maintenance",
+        "inspections",
+        "vehicles",
+        "telemetry",
+        "obd2",
+        "dashcam",
+        "inspector",
+        "obd2",
+        "dashcam",
+        "inspector",
+        "maintenance",
+        "schedule",
+        "history",
+        "schedule",
+        "history",
+        "inspections",
+        "dvir",
+        "pre-trip",
+        "dvir",
+        "pre-trip"
+      ],
+      "sections": [
+        "Fleet Management"
+      ]
+    },
+    {
+      "file": "src/pages/hubs/OperationsHub.tsx",
+      "component": "OperationsHub",
+      "type": "hub",
+      "tabs": [
+        "tracking",
+        "dispatch",
+        "fuel",
+        "assets",
+        "tracking",
+        "dispatch",
+        "fuel",
+        "assets"
+      ],
+      "sections": [
+        "Operations Center"
+      ]
+    },
+    {
+      "file": "src/pages/hubs/PeopleHub.tsx",
+      "component": "PeopleHub",
+      "type": "hub",
+      "tabs": [],
+      "sections": [
+        "People"
+      ]
+    },
+    {
+      "file": "src/pages/hubs/WorkHub.tsx",
+      "component": "WorkHub",
+      "type": "hub",
+      "tabs": [
+        "tasks",
+        "maintenance",
+        "routes",
+        "tasks",
+        "active",
+        "completed",
+        "analytics",
+        "active",
+        "completed",
+        "analytics",
+        "maintenance",
+        "schedule",
+        "requests",
+        "history",
+        "schedule",
+        "requests",
+        "history",
+        "routes"
+      ],
+      "sections": [
+        "Work Management"
+      ]
+    },
+    {
+      "file": "src/pages/hubs/InsightsHub.tsx",
+      "component": "InsightsHub",
+      "type": "hub",
+      "tabs": [],
+      "sections": [
+        "Insights"
+      ]
+    }
+  ],
+  "sections": {
+    "main": [
+      {
+        "id": "dashboard",
+        "label": "Fleet Dashboard",
+        "section": "main",
+        "type": "navigation_item",
+        "file": "src/lib/navigation.tsx"
+      },
+      {
+        "id": "executive-dashboard",
+        "label": "Executive Dashboard",
+        "section": "main",
+        "type": "navigation_item",
+        "file": "src/lib/navigation.tsx"
+      },
+      {
+        "id": "admin-dashboard",
+        "label": "Admin Dashboard",
+        "section": "main",
+        "type": "navigation_item",
+        "file": "src/lib/navigation.tsx"
+      },
+      {
+        "id": "dispatch-console",
+        "label": "Dispatch Console",
+        "section": "main",
+        "type": "navigation_item",
+        "file": "src/lib/navigation.tsx"
+      },
+      {
+        "id": "gps-tracking",
+        "label": "Live GPS Tracking",
+        "section": "main",
+        "type": "navigation_item",
+        "file": "src/lib/navigation.tsx"
+      },
+      {
+        "id": "gis-map",
+        "label": "GIS Command Center",
+        "section": "main",
+        "type": "navigation_item",
+        "file": "src/lib/navigation.tsx"
+      },
+      {
+        "id": "traffic-cameras",
+        "label": "Traffic Cameras",
+        "section": "main",
+        "type": "navigation_item",
+        "file": "src/lib/navigation.tsx"
+      },
+      {
+        "id": "geofences",
+        "label": "Geofence Management",
+        "section": "main",
+        "type": "navigation_item",
+        "file": "src/lib/navigation.tsx"
+      },
+      {
+        "id": "vehicle-telemetry",
+        "label": "Vehicle Telemetry",
+        "section": "main",
+        "type": "navigation_item",
+        "file": "src/lib/navigation.tsx"
+      },
+      {
+        "id": "map-layers",
+        "label": "Enhanced Map Layers",
+        "section": "main",
+        "type": "navigation_item",
+        "file": "src/lib/navigation.tsx"
+      },
+      {
+        "id": "route-optimization",
+        "label": "Route Optimization",
+        "section": "main",
+        "type": "navigation_item",
+        "file": "src/lib/navigation.tsx"
+      },
+      {
+        "id": "dashboard",
+        "label": "Dashboard",
+        "section": "main",
+        "type": "navigation_item",
+        "file": "src/lib/navigation.ts"
+      },
+      {
+        "id": "executive-dashboard",
+        "label": "Executive Dashboard",
+        "section": "main",
+        "type": "navigation_item",
+        "file": "src/lib/navigation.ts"
+      },
+      {
+        "id": "admin-dashboard",
+        "label": "Admin Dashboard",
+        "section": "main",
+        "type": "navigation_item",
+        "file": "src/lib/navigation.ts"
+      }
+    ],
+    "tools": [
+      {
+        "id": "arcgis-integration",
+        "label": "ArcGIS Integration",
+        "section": "tools",
+        "type": "navigation_item",
+        "file": "src/lib/navigation.tsx"
+      },
+      {
+        "id": "map-settings",
+        "label": "Map Provider Settings",
+        "section": "tools",
+        "type": "navigation_item",
+        "file": "src/lib/navigation.tsx"
+      },
+      {
+        "id": "mileage",
+        "label": "Mileage Reimbursement",
+        "section": "tools",
+        "type": "navigation_item",
+        "file": "src/lib/navigation.tsx"
+      },
+      {
+        "id": "personal-use",
+        "label": "Personal Use",
+        "section": "tools",
+        "type": "navigation_item",
+        "file": "src/lib/navigation.tsx"
+      },
+      {
+        "id": "personal-use-policy",
+        "label": "Personal Use Policy",
+        "section": "tools",
+        "type": "navigation_item",
+        "file": "src/lib/navigation.tsx"
+      },
+      {
+        "id": "reimbursement-queue",
+        "label": "Reimbursement Queue",
+        "section": "tools",
+        "type": "navigation_item",
+        "file": "src/lib/navigation.tsx"
+      },
+      {
+        "id": "charges-billing",
+        "label": "Charges & Billing",
+        "section": "tools",
+        "type": "navigation_item",
+        "file": "src/lib/navigation.tsx"
+      },
+      {
+        "id": "maintenance-request",
+        "label": "Maintenance Request",
+        "section": "tools",
+        "type": "navigation_item",
+        "file": "src/lib/navigation.tsx"
+      },
+      {
+        "id": "fuel",
+        "label": "Fuel Management",
+        "section": "tools",
+        "type": "navigation_item",
+        "file": "src/lib/navigation.tsx"
+      },
+      {
+        "id": "routes",
+        "label": "Route Management",
+        "section": "tools",
+        "type": "navigation_item",
+        "file": "src/lib/navigation.tsx"
+      },
+      {
+        "id": "workbench",
+        "label": "Data Workbench",
+        "section": "tools",
+        "type": "navigation_item",
+        "file": "src/lib/navigation.tsx"
+      },
+      {
+        "id": "comprehensive",
+        "label": "Fleet Analytics",
+        "section": "tools",
+        "type": "navigation_item",
+        "file": "src/lib/navigation.tsx"
+      },
+      {
+        "id": "endpoint-monitor",
+        "label": "Endpoint Monitor",
+        "section": "tools",
+        "type": "navigation_item",
+        "file": "src/lib/navigation.tsx"
+      },
+      {
+        "id": "driver-scorecard",
+        "label": "Driver Scorecard",
+        "section": "tools",
+        "type": "navigation_item",
+        "file": "src/lib/navigation.tsx"
+      },
+      {
+        "id": "fleet-optimizer",
+        "label": "Fleet Optimizer",
+        "section": "tools",
+        "type": "navigation_item",
+        "file": "src/lib/navigation.tsx"
+      },
+      {
+        "id": "cost-analysis",
+        "label": "Cost Analysis",
+        "section": "tools",
+        "type": "navigation_item",
+        "file": "src/lib/navigation.tsx"
+      },
+      {
+        "id": "fuel-purchasing",
+        "label": "Fuel Purchasing",
+        "section": "tools",
+        "type": "navigation_item",
+        "file": "src/lib/navigation.tsx"
+      },
+      {
+        "id": "custom-reports",
+        "label": "Custom Report Builder",
+        "section": "tools",
+        "type": "navigation_item",
+        "file": "src/lib/navigation.tsx"
+      },
+      {
+        "id": "settings",
+        "label": "Settings",
+        "section": "tools",
+        "type": "navigation_item",
+        "file": "src/lib/navigation.tsx"
+      },
+      {
+        "id": "traffic-cameras",
+        "label": "Traffic Cameras",
+        "section": "tools",
+        "type": "navigation_item",
+        "file": "src/lib/navigation.ts"
+      },
+      {
+        "id": "reports",
+        "label": "Reports",
+        "section": "tools",
+        "type": "navigation_item",
+        "file": "src/lib/navigation.ts"
+      },
+      {
+        "id": "settings",
+        "label": "Settings",
+        "section": "tools",
+        "type": "navigation_item",
+        "file": "src/lib/navigation.ts"
+      },
+      {
+        "id": "profile",
+        "label": "Profile",
+        "section": "tools",
+        "type": "navigation_item",
+        "file": "src/lib/navigation.ts"
+      }
+    ],
+    "management": [
+      {
+        "id": "people",
+        "label": "People Management",
+        "section": "management",
+        "type": "navigation_item",
+        "file": "src/lib/navigation.tsx"
+      },
+      {
+        "id": "garage",
+        "label": "Garage & Service",
+        "section": "management",
+        "type": "navigation_item",
+        "file": "src/lib/navigation.tsx"
+      },
+      {
+        "id": "virtual-garage",
+        "label": "Virtual Garage 3D",
+        "section": "management",
+        "type": "navigation_item",
+        "file": "src/lib/navigation.tsx"
+      },
+      {
+        "id": "predictive",
+        "label": "Predictive Maintenance",
+        "section": "management",
+        "type": "navigation_item",
+        "file": "src/lib/navigation.tsx"
+      },
+      {
+        "id": "driver-mgmt",
+        "label": "Driver Performance",
+        "section": "management",
+        "type": "navigation_item",
+        "file": "src/lib/navigation.tsx"
+      },
+      {
+        "id": "asset-management",
+        "label": "Asset Management",
+        "section": "management",
+        "type": "navigation_item",
+        "file": "src/lib/navigation.tsx"
+      },
+      {
+        "id": "equipment-dashboard",
+        "label": "Equipment Dashboard",
+        "section": "management",
+        "type": "navigation_item",
+        "file": "src/lib/navigation.tsx"
+      },
+      {
+        "id": "task-management",
+        "label": "Task Management",
+        "section": "management",
+        "type": "navigation_item",
+        "file": "src/lib/navigation.tsx"
+      },
+      {
+        "id": "incident-management",
+        "label": "Incident Management",
+        "section": "management",
+        "type": "navigation_item",
+        "file": "src/lib/navigation.tsx"
+      },
+      {
+        "id": "notifications",
+        "label": "Alerts & Notifications",
+        "section": "management",
+        "type": "navigation_item",
+        "file": "src/lib/navigation.tsx"
+      },
+      {
+        "id": "documents",
+        "label": "Document Management",
+        "section": "management",
+        "type": "navigation_item",
+        "file": "src/lib/navigation.tsx"
+      },
+      {
+        "id": "document-qa",
+        "label": "Document Q&A",
+        "section": "management",
+        "type": "navigation_item",
+        "file": "src/lib/navigation.tsx"
+      },
+      {
+        "id": "people",
+        "label": "People",
+        "section": "management",
+        "type": "navigation_item",
+        "file": "src/lib/navigation.ts"
+      },
+      {
+        "id": "garage",
+        "label": "Garage",
+        "section": "management",
+        "type": "navigation_item",
+        "file": "src/lib/navigation.ts"
+      },
+      {
+        "id": "fuel",
+        "label": "Fuel",
+        "section": "management",
+        "type": "navigation_item",
+        "file": "src/lib/navigation.ts"
+      },
+      {
+        "id": "gps-tracking",
+        "label": "GPS Tracking",
+        "section": "management",
+        "type": "navigation_item",
+        "file": "src/lib/navigation.ts"
+      }
+    ],
+    "communication": [
+      {
+        "id": "push-notification-admin",
+        "label": "Push Notifications",
+        "section": "communication",
+        "type": "navigation_item",
+        "file": "src/lib/navigation.tsx"
+      },
+      {
+        "id": "ai-assistant",
+        "label": "AI Assistant",
+        "section": "communication",
+        "type": "navigation_item",
+        "file": "src/lib/navigation.tsx"
+      },
+      {
+        "id": "teams-integration",
+        "label": "Teams Messages",
+        "section": "communication",
+        "type": "navigation_item",
+        "file": "src/lib/navigation.tsx"
+      },
+      {
+        "id": "email-center",
+        "label": "Email Center",
+        "section": "communication",
+        "type": "navigation_item",
+        "file": "src/lib/navigation.tsx"
+      },
+      {
+        "id": "maintenance-scheduling",
+        "label": "Maintenance Calendar",
+        "section": "communication",
+        "type": "navigation_item",
+        "file": "src/lib/navigation.tsx"
+      },
+      {
+        "id": "receipt-processing",
+        "label": "Receipt Processing",
+        "section": "communication",
+        "type": "navigation_item",
+        "file": "src/lib/navigation.tsx"
+      },
+      {
+        "id": "communication-log",
+        "label": "Communication Log",
+        "section": "communication",
+        "type": "navigation_item",
+        "file": "src/lib/navigation.tsx"
+      },
+      {
+        "id": "osha-forms",
+        "label": "OSHA Safety Forms",
+        "section": "communication",
+        "type": "navigation_item",
+        "file": "src/lib/navigation.tsx"
+      },
+      {
+        "id": "policy-engine",
+        "label": "Policy Engine",
+        "section": "communication",
+        "type": "navigation_item",
+        "file": "src/lib/navigation.tsx"
+      },
+      {
+        "id": "video-telematics",
+        "label": "Video Telematics",
+        "section": "communication",
+        "type": "navigation_item",
+        "file": "src/lib/navigation.tsx"
+      },
+      {
+        "id": "ev-charging",
+        "label": "EV Charging",
+        "section": "communication",
+        "type": "navigation_item",
+        "file": "src/lib/navigation.tsx"
+      },
+      {
+        "id": "form-builder",
+        "label": "Custom Form Builder",
+        "section": "communication",
+        "type": "navigation_item",
+        "file": "src/lib/navigation.tsx"
+      }
+    ],
+    "procurement": [
+      {
+        "id": "vendor-management",
+        "label": "Vendor Management",
+        "section": "procurement",
+        "type": "navigation_item",
+        "file": "src/lib/navigation.tsx"
+      },
+      {
+        "id": "parts-inventory",
+        "label": "Parts Inventory",
+        "section": "procurement",
+        "type": "navigation_item",
+        "file": "src/lib/navigation.tsx"
+      },
+      {
+        "id": "purchase-orders",
+        "label": "Purchase Orders",
+        "section": "procurement",
+        "type": "navigation_item",
+        "file": "src/lib/navigation.tsx"
+      },
+      {
+        "id": "invoices",
+        "label": "Invoices & Billing",
+        "section": "procurement",
+        "type": "navigation_item",
+        "file": "src/lib/navigation.tsx"
+      }
+    ]
+  },
+  "coverage": {
+    "pages_with_auth": 2,
+    "pages_without_auth": 18
+  }
+}
