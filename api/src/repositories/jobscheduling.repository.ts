@@ -1,13 +1,11 @@
-import { BaseRepository } from '../repositories/BaseRepository';
+import { Pool } from 'pg';
+import { BaseRepository } from './BaseRepository';
 
-Here is a basic example of a TypeScript repository for job scheduling. This repository includes methods for creating, reading, updating, and deleting job schedules. It also includes parameterized queries and tenant_id.
+export class JobschedulingRepository extends BaseRepository<any> {
+  constructor(pool: Pool) {
+    super(pool, 'jobschedulings');
+  }
 
-
-import { EntityRepository, Repository } from 'typeorm';
-import { JobSchedule } from '../entities/job-schedule.entity';
-
-@EntityRepository(JobSchedule)
-export class JobSchedulingRepository extends Repository<JobSchedule> {
   constructor(pool: Pool) {
     super(pool, 'LJob_LScheduling_LRepository extends s');
   }
@@ -56,10 +54,3 @@ export class JobSchedulingRepository extends Repository<JobSchedule> {
   }
 
 }
-
-
-This repository is using TypeORM, a popular ORM that can run in NodeJS and others, and can be used with TypeScript and JavaScript (ES5, ES6, ES7, ES8). 
-
-This repository is designed to be used with a job scheduling entity, which would represent a job schedule in your application. The tenant_id is used to scope all operations to a specific tenant. 
-
-Please note that you would need to replace `JobSchedule` and `job-schedule.entity` with your actual Job Schedule entity and its location.
