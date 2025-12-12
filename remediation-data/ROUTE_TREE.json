@@ -1,0 +1,299 @@
+{
+  "root": [
+    {
+      "route_id": "ROUTE_0002",
+      "path": "/login",
+      "component": "Login",
+      "file_path": "Login.tsx",
+      "requires_auth": false,
+      "permissions": [],
+      "states": [
+        "loading",
+        "error",
+        "success",
+        "empty"
+      ],
+      "lazy_loaded": false,
+      "parent_route": "/",
+      "route_type": "page",
+      "props": {}
+    },
+    {
+      "route_id": "ROUTE_0003",
+      "path": "/settingspage",
+      "component": "SettingsPage",
+      "file_path": "SettingsPage.tsx",
+      "requires_auth": false,
+      "permissions": [],
+      "states": [
+        "loading",
+        "error",
+        "success",
+        "empty"
+      ],
+      "lazy_loaded": false,
+      "parent_route": "/",
+      "route_type": "page",
+      "props": {}
+    },
+    {
+      "route_id": "ROUTE_0004",
+      "path": "/profilepage",
+      "component": "ProfilePage",
+      "file_path": "ProfilePage.tsx",
+      "requires_auth": false,
+      "permissions": [],
+      "states": [
+        "loading",
+        "error",
+        "success",
+        "empty"
+      ],
+      "lazy_loaded": false,
+      "parent_route": "/",
+      "route_type": "page",
+      "props": {}
+    },
+    {
+      "route_id": "ROUTE_0005",
+      "path": "/authcallback",
+      "component": "AuthCallback",
+      "file_path": "AuthCallback.tsx",
+      "requires_auth": false,
+      "permissions": [],
+      "states": [
+        "loading",
+        "error",
+        "success",
+        "empty"
+      ],
+      "lazy_loaded": false,
+      "parent_route": "/",
+      "route_type": "page",
+      "props": {}
+    },
+    {
+      "route_id": "ROUTE_0007",
+      "path": "/personaluse/personalusedashboard",
+      "component": "PersonalUseDashboard",
+      "file_path": "PersonalUse/PersonalUseDashboard.tsx",
+      "requires_auth": false,
+      "permissions": [],
+      "states": [
+        "loading",
+        "error",
+        "success",
+        "empty"
+      ],
+      "lazy_loaded": false,
+      "parent_route": "/",
+      "route_type": "page",
+      "props": {}
+    },
+    {
+      "route_id": "ROUTE_0008",
+      "path": "/personaluse/reimbursementqueue",
+      "component": "ReimbursementQueue",
+      "file_path": "PersonalUse/ReimbursementQueue.tsx",
+      "requires_auth": false,
+      "permissions": [],
+      "states": [
+        "loading",
+        "error",
+        "success",
+        "empty"
+      ],
+      "lazy_loaded": false,
+      "parent_route": "/",
+      "route_type": "page",
+      "props": {}
+    },
+    {
+      "route_id": "ROUTE_0009",
+      "path": "/personaluse/chargesandbilling",
+      "component": "ChargesAndBilling",
+      "file_path": "PersonalUse/ChargesAndBilling.tsx",
+      "requires_auth": false,
+      "permissions": [],
+      "states": [
+        "loading",
+        "error",
+        "success",
+        "empty"
+      ],
+      "lazy_loaded": false,
+      "parent_route": "/",
+      "route_type": "page",
+      "props": {}
+    },
+    {
+      "route_id": "ROUTE_0010",
+      "path": "/radio",
+      "component": "RadioDispatchPage",
+      "file_path": "radio/index.tsx",
+      "requires_auth": false,
+      "permissions": [],
+      "states": [
+        "loading",
+        "error",
+        "success",
+        "empty"
+      ],
+      "lazy_loaded": false,
+      "parent_route": "/",
+      "route_type": "page",
+      "props": {}
+    },
+    {
+      "route_id": "ROUTE_0016",
+      "path": "/hubs",
+      "component": "index",
+      "file_path": "hubs/index.ts",
+      "requires_auth": false,
+      "permissions": [],
+      "states": [
+        "loading",
+        "error",
+        "success",
+        "empty"
+      ],
+      "lazy_loaded": false,
+      "parent_route": "/",
+      "route_type": "page",
+      "props": {}
+    }
+  ],
+  "nested": {
+    "ROUTE_0016": [
+      {
+        "route_id": "ROUTE_0011",
+        "path": "/hubs/operationshub",
+        "component": "OperationsHub",
+        "file_path": "hubs/OperationsHub.tsx",
+        "requires_auth": false,
+        "permissions": [],
+        "states": [
+          "loading",
+          "error",
+          "success",
+          "empty"
+        ],
+        "lazy_loaded": false,
+        "parent_route": "ROUTE_0016",
+        "route_type": "nested",
+        "props": {}
+      },
+      {
+        "route_id": "ROUTE_0012",
+        "path": "/hubs/peoplehub",
+        "component": "handleDriverClick",
+        "file_path": "hubs/PeopleHub.tsx",
+        "requires_auth": false,
+        "permissions": [],
+        "states": [
+          "loading",
+          "error",
+          "success",
+          "empty"
+        ],
+        "lazy_loaded": false,
+        "parent_route": "ROUTE_0016",
+        "route_type": "nested",
+        "props": {}
+      },
+      {
+        "route_id": "ROUTE_0013",
+        "path": "/hubs/workhub",
+        "component": "WorkHub",
+        "file_path": "hubs/WorkHub.tsx",
+        "requires_auth": false,
+        "permissions": [],
+        "states": [
+          "loading",
+          "error",
+          "success",
+          "empty"
+        ],
+        "lazy_loaded": false,
+        "parent_route": "ROUTE_0016",
+        "route_type": "nested",
+        "props": {}
+      },
+      {
+        "route_id": "ROUTE_0014",
+        "path": "/hubs/insightshub",
+        "component": "renderModule",
+        "file_path": "hubs/InsightsHub.tsx",
+        "requires_auth": false,
+        "permissions": [],
+        "states": [
+          "loading",
+          "error",
+          "success",
+          "empty"
+        ],
+        "lazy_loaded": false,
+        "parent_route": "ROUTE_0016",
+        "route_type": "nested",
+        "props": {}
+      },
+      {
+        "route_id": "ROUTE_0015",
+        "path": "/hubs/fleethub",
+        "component": "FleetHub",
+        "file_path": "hubs/FleetHub.tsx",
+        "requires_auth": false,
+        "permissions": [],
+        "states": [
+          "loading",
+          "error",
+          "success",
+          "empty"
+        ],
+        "lazy_loaded": false,
+        "parent_route": "ROUTE_0016",
+        "route_type": "nested",
+        "props": {}
+      }
+    ]
+  },
+  "dynamic": [],
+  "protected": [
+    {
+      "route_id": "ROUTE_0001",
+      "path": "/403",
+      "component": "Forbidden403Page",
+      "file_path": "403.tsx",
+      "requires_auth": true,
+      "permissions": [],
+      "states": [
+        "loading",
+        "error",
+        "success",
+        "empty"
+      ],
+      "lazy_loaded": false,
+      "parent_route": "/",
+      "route_type": "protected",
+      "props": {}
+    },
+    {
+      "route_id": "ROUTE_0006",
+      "path": "/admindashboard",
+      "component": "handleTabChange",
+      "file_path": "AdminDashboard.tsx",
+      "requires_auth": true,
+      "permissions": [],
+      "states": [
+        "loading",
+        "error",
+        "success",
+        "empty"
+      ],
+      "lazy_loaded": false,
+      "parent_route": "/",
+      "route_type": "protected",
+      "props": {}
+    }
+  ]
+}

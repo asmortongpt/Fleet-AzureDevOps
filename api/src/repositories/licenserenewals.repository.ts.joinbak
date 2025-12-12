@@ -1,0 +1,65 @@
+import { Pool } from 'pg';
+import { BaseRepository } from './BaseRepository';
+
+export class LicenseRenewalsRepository extends BaseRepository<any> {
+  constructor(pool: Pool) {
+    super(pool, 'LLicense_LRenewals_s');
+  }
+
+    super(pool, 'LLicense_LRenewals_LRepository extends s');
+  }
+
+
+  async createLicenseRenewal(tenantId: string, licenseRenewalData: any): Promise<LicenseRenewal> {
+    const licenseRenewal = this.create({ ...licenseRenewalData, tenantId });
+    await this.save(licenseRenewal);
+    return licenseRenewal;
+  }
+
+  async getLicenseRenewals(tenantId: string): Promise<LicenseRenewal[]> {
+    return this.find({ where: { tenantId } });
+  }
+
+  async getLicenseRenewalById(tenantId: string, id: string): Promise<LicenseRenewal> {
+    return this.findOne({ where: { id, tenantId } });
+  }
+
+  async updateLicenseRenewal(tenantId: string, id: string, licenseRenewalData: any): Promise<LicenseRenewal> {
+    await this.update({ id, tenantId }, licenseRenewalData);
+    return this.getLicenseRenewalById(tenantId, id);
+  }
+
+  async deleteLicenseRenewal(tenantId: string, id: string): Promise<void> {
+    await this.delete({ id, tenantId });
+  }
+}
+
+  /**
+   * N+1 PREVENTION: Find with related data
+   * Override this method in subclasses for specific relationships
+   */
+  async findWithRelatedData(id: string, tenantId: string) {
+    const query = `
+      SELECT t.*
+      FROM ${this.tableName} t
+      WHERE t.id = $1 AND t.tenant_id = $2 AND t.deleted_at IS NULL
+    `;
+    const result = await this.query(query, [id, tenantId]);
+    return result.rows[0] || null;
+  }
+
+  /**
+   * N+1 PREVENTION: Find all with related data
+   * Override this method in subclasses for specific relationships
+   */
+  async findAllWithRelatedData(tenantId: string) {
+    const query = `
+      SELECT t.*
+      FROM ${this.tableName} t
+      WHERE t.tenant_id = $1 AND t.deleted_at IS NULL
+      ORDER BY t.created_at DESC
+    `;
+    const result = await this.query(query, [tenantId]);
+    return result.rows;
+  }
+}
