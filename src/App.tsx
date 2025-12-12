@@ -41,11 +41,14 @@ const FleetAnalytics = lazy(() => import("@/components/modules/fleet/FleetAnalyt
 const GPSTracking = lazy(() => import("@/components/modules/fleet/GPSTracking").then(m => ({ default: m.GPSTracking })))
 const VehicleTelemetry = lazy(() => import("@/components/modules/fleet/VehicleTelemetry").then(m => ({ default: m.VehicleTelemetry })))
 const VirtualGarage = lazy(() => import("@/components/modules/fleet/VirtualGarage").then(m => ({ default: m.VirtualGarage })))
+const FleetOptimizer = lazy(() => import("@/components/modules/fleet/FleetOptimizer").then(m => ({ default: m.FleetOptimizer })))
 
 // ANALYTICS MODULES
 const ExecutiveDashboard = lazy(() => import("@/components/modules/analytics/ExecutiveDashboard").then(m => ({ default: m.ExecutiveDashboard })))
 const DataWorkbench = lazy(() => import("@/components/modules/analytics/DataWorkbench").then(m => ({ default: m.DataWorkbench })))
 const EndpointMonitor = lazy(() => import("@/components/modules/analytics/EndpointMonitor").then(m => ({ default: m.EndpointMonitor })))
+const CostAnalysisCenter = lazy(() => import("@/components/modules/analytics/CostAnalysisCenter").then(m => ({ default: m.CostAnalysisCenter })))
+const CustomReportBuilder = lazy(() => import("@/components/modules/analytics/CustomReportBuilder").then(m => ({ default: m.CustomReportBuilder })))
 
 // ADMIN MODULES
 const AdminDashboard = lazy(() => import("@/pages/AdminDashboard"))
@@ -58,6 +61,7 @@ const PushNotificationAdmin = lazy(() => import("@/components/modules/admin/Push
 const GarageService = lazy(() => import("@/components/modules/maintenance/GarageService").then(m => ({ default: m.GarageService })))
 const PredictiveMaintenance = lazy(() => import("@/components/modules/maintenance/PredictiveMaintenance").then(m => ({ default: m.PredictiveMaintenance })))
 const MaintenanceScheduling = lazy(() => import("@/components/modules/maintenance/MaintenanceScheduling").then(m => ({ default: m.MaintenanceScheduling })))
+const MaintenanceRequest = lazy(() => import("@/components/modules/maintenance/MaintenanceRequest").then(m => ({ default: m.MaintenanceRequest })))
 
 // FUEL MODULES
 const FuelManagement = lazy(() => import("@/components/modules/fuel/FuelManagement").then(m => ({ default: m.FuelManagement })))
@@ -112,6 +116,10 @@ const ChargesAndBilling = lazy(() => import("@/pages/PersonalUse/ChargesAndBilli
 // ASSETS MODULES
 const AssetManagement = lazy(() => import("@/components/modules/assets/AssetManagement").then(m => ({ default: m.AssetManagement })))
 const EquipmentDashboard = lazy(() => import("@/components/modules/assets/EquipmentDashboard").then(m => ({ default: m.EquipmentDashboard })))
+
+// DRIVER MODULES
+const DriverPerformance = lazy(() => import("@/components/modules/drivers/DriverPerformance").then(m => ({ default: m.DriverPerformance })))
+const DriverScorecard = lazy(() => import("@/components/modules/drivers/DriverScorecard").then(m => ({ default: m.DriverScorecard })))
 
 // PAGES
 const SettingsPage = lazy(() => import("@/pages/SettingsPage"))
@@ -279,6 +287,18 @@ function App() {
         return <FuelPurchasing />
       case "endpoint-monitor":
         return <EndpointMonitor />
+      case "driver-mgmt":
+        return <DriverPerformance data={fleetData} />
+      case "driver-scorecard":
+        return <DriverScorecard />
+      case "fleet-optimizer":
+        return <FleetOptimizer />
+      case "cost-analysis":
+        return <CostAnalysisCenter />
+      case "custom-reports":
+        return <CustomReportBuilder />
+      case "maintenance-request":
+        return <MaintenanceRequest data={fleetData} />
       case "settings":
         return <SettingsPage />
       case "profile":
