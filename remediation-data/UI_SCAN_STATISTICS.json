@@ -1,0 +1,27 @@
+{
+  "total_elements": 4962,
+  "elements_by_type": {
+    "a_tag": 633,
+    "Button": 940,
+    "Card": 719,
+    "Input": 346,
+    "Select": 219,
+    "Link": 14,
+    "Textarea": 57,
+    "Dialog": 76,
+    "Tab": 1632,
+    "Radio": 58,
+    "Form": 22,
+    "Dropdown": 190,
+    "Checkbox": 30,
+    "Accordion": 5,
+    "Menu": 20,
+    "Modal": 1
+  },
+  "elements_with_handlers": 1047,
+  "elements_without_handlers": 3915,
+  "tested_elements": 487,
+  "untested_elements": 4475,
+  "files_scanned": 351,
+  "components_found": 333
+}
