@@ -14,7 +14,8 @@ import {
   MagnifyingGlass,
   Circle,
   Broadcast,
-  Bell
+  Bell,
+  Activity
 } from "@phosphor-icons/react"
 import { useMemo, useState, useCallback } from "react"
 
@@ -36,11 +37,9 @@ import { cn } from "@/lib/utils"
 import { useInspect } from "@/services/inspect/InspectContext"
 import "@/styles/dashboard-layout.css"
 
-interface FleetDashboardModernProps {
-  data: ReturnType<typeof useFleetData>
-}
-
-export function FleetDashboardModern({ data }: FleetDashboardModernProps) {
+export function FleetDashboardModern() {
+  // Fetch fleet data internally
+  const data = useFleetData()
   const initialVehicles = data.vehicles || []
 
   // Drilldown and inspect contexts
