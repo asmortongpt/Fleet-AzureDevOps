@@ -1,3 +1,5 @@
+import { BaseRepository } from './BaseRepository';
+
 To create a TypeScript repository named `SubscriptionManagementRepository` for the `api/src/routes/subscription-management.routes.ts` file, we'll implement parameterized queries, include a `tenant_id` field, and provide CRUD operations. Let's break this down step-by-step:
 
 1. **Define the interface for Subscription**
@@ -49,7 +51,7 @@ class SubscriptionManagementRepository {
       subscription.status
     ];
 
-    const result: QueryResult<Subscription> = await this.pool.query(query, values);
+    const result: QueryResult<Subscription> = await this.query(query, values);
     return result.rows[0];
   }
 
@@ -61,7 +63,7 @@ class SubscriptionManagementRepository {
     `;
     const values = [id, tenant_id];
 
-    const result: QueryResult<Subscription> = await this.pool.query(query, values);
+    const result: QueryResult<Subscription> = await this.query(query, values);
     return result.rows[0] || null;
   }
 
@@ -76,7 +78,7 @@ class SubscriptionManagementRepository {
     `;
     const values = [id, tenant_id, ...Object.values(updates)];
 
-    const result: QueryResult<Subscription> = await this.pool.query(query, values);
+    const result: QueryResult<Subscription> = await this.query(query, values);
     return result.rows[0] || null;
   }
 
@@ -89,7 +91,7 @@ class SubscriptionManagementRepository {
     `;
     const values = [id, tenant_id];
 
-    const result: QueryResult<{ id: number }> = await this.pool.query(query, values);
+    const result: QueryResult<{ id: number }> = await this.query(query, values);
     return result.rowCount > 0;
   }
 
@@ -102,7 +104,7 @@ class SubscriptionManagementRepository {
     `;
     const values = [tenant_id, limit, offset];
 
-    const result: QueryResult<Subscription> = await this.pool.query(query, values);
+    const result: QueryResult<Subscription> = await this.query(query, values);
     return result.rows;
   }
 }
