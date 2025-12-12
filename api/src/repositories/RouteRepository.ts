@@ -1,5 +1,6 @@
 import { BaseRepository } from './BaseRepository'
 import { Pool } from 'pg'
+import { buildInsertClause, buildUpdateClause } from '../utils/sql-safety'
 
 export interface Route {
   id: number
@@ -33,32 +34,29 @@ export class RouteRepository extends BaseRepository<Route> {
   }
 
   async create(data: Partial<Route>): Promise<Route> {
-    const fields = Object.keys(data).join(', ')
-    const placeholders = Object.keys(data).map((_, i) => `${i + 1}`).join(', ')
+    const { columnNames, placeholders, values } = buildInsertClause(data, [], 1, 'routes')
 
     const query = `
-      INSERT INTO ${this.tableName} (${fields})
+      INSERT INTO ${this.tableName} (${columnNames})
       VALUES (${placeholders})
       RETURNING *
     `
 
-    const results = await this.query(query, Object.values(data))
+    const results = await this.query(query, values)
     return results[0]
   }
 
   async update(id: number, tenantId: number, data: Partial<Route>): Promise<Route | null> {
-    const setClause = Object.keys(data)
-      .map((key, i) => `${key} = $${i + 2}`)
-      .join(', ')
+    const { fields: setClause, values } = buildUpdateClause(data, 3, 'routes')
 
     const query = `
       UPDATE ${this.tableName}
       SET ${setClause}, updated_at = NOW()
-      WHERE id = $1 AND tenant_id = $${Object.keys(data).length + 2}
+      WHERE id = $1 AND tenant_id = $2
       RETURNING *
     `
 
-    const results = await this.query(query, [id, ...Object.values(data), tenantId])
+    const results = await this.query(query, [id, tenantId, ...values])
     return results[0] || null
   }
 

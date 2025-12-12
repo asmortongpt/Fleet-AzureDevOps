@@ -64,10 +64,9 @@ export class VehicleHistoryRepository extends BaseRepository<any> {
 
   // Update a vehicle history entry
   async update(id: number, vehicleHistory: Partial<VehicleHistory>, tenantId: number): Promise<VehicleHistory | null> {
-    const setClause = Object.keys(vehicleHistory)
-      .filter(key => key !== 'id' && key !== 'tenant_id')
-      .map((key, index) => `${key} = $${index + 2}`)
-      .join(', ');
+    // Filter out id and tenant_id, then use safe SQL builder
+    const filtered = Object.keys(vehicleHistory).filter(key => key !== 'id' && key !== 'tenant_id').reduce((obj: any, key) => { obj[key] = vehicleHistory[key]; return obj; }, {});
+    const { fields: setClause, values: updateValues } = buildUpdateClause(filtered, 2, 'vehicle_history');
 
     if (!setClause) {
       throw new Error('No fields to update');
@@ -142,6 +141,7 @@ To use this repository in your `vehicle-history.routes.ts` file, you would typic
 import express from 'express';
 import { Pool } from 'pg';
 import { VehicleHistoryRepository } from '../repositories/vehicle-history.repository';
+import { buildUpdateClause } from '../utils/sql-safety'
 
 const router = express.Router();
 const pool = new Pool(/* your database configuration */);

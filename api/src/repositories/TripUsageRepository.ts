@@ -1,5 +1,6 @@
 import { BaseRepository } from '../services/dal/BaseRepository'
 import { connectionManager } from '../config/connection-manager'
+import { buildInsertClause, buildUpdateClause, validateColumnNames } from '../../utils/sql-safety'
 
 export interface TripUsageClassification {
   id: string
@@ -68,9 +69,7 @@ export class TripUsageRepository extends BaseRepository<TripUsageClassification>
     id: string,
     data: Partial<TripUsageClassification>
   ): Promise<TripUsageClassification> {
-    const setClause = Object.keys(data)
-      .map((key, i) => `${key} = $${i + 2}`)
-      .join(', ')
+    const { fields: setClause, values } = buildUpdateClause(data, 2, 'trip_usage')
 
     const query = `
       UPDATE ${this.tableName}
@@ -81,7 +80,7 @@ export class TripUsageRepository extends BaseRepository<TripUsageClassification>
 
     const result = await this.query<TripUsageClassification>(
       query,
-      [id, ...Object.values(data)]
+      [id, ...values]
     )
     return result.rows[0]
   }
@@ -93,6 +92,8 @@ export class TripUsageRepository extends BaseRepository<TripUsageClassification>
     data: Partial<TripUsageClassification>
   ): Promise<TripUsageClassification> {
     const keys = Object.keys(data)
+    validateColumnNames(keys) // Validate column names for SQL safety
+
     const values = Object.values(data)
     const columns = keys.join(', ')
     const placeholders = keys.map((_, i) => `$${i + 1}`).join(', ')
