@@ -52,27 +52,3 @@ export class HealthMonitoringRepository extends BaseRepository<any> {
 This repository uses the `pg` package to interact with a PostgreSQL database. It assumes that you have a `health_monitoring` table in your database with `tenant_id`, `status`, and `timestamp` columns. The `tenant_id` is used to perform operations on data that belongs to a specific tenant.
 
 Please adjust the code according to your database schema and the package you are using to interact with your database.
-/**
- * N+1 PREVENTION: Fetch with related entities
- * Add specific methods based on your relationships
- */
-async findWithRelatedData(id: string, tenantId: string) {
-  const query = \`
-    SELECT t.*
-    FROM healthmonitoring t
-    WHERE t.id = \api/src/repositories/healthmonitoring.repository.ts AND t.tenant_id = \ AND t.deleted_at IS NULL
-  \`;
-  const result = await this.pool.query(query, [id, tenantId]);
-  return result.rows[0] || null;
-}
-
-async findAllWithRelatedData(tenantId: string) {
-  const query = \`
-    SELECT t.*
-    FROM healthmonitoring t
-    WHERE t.tenant_id = \api/src/repositories/healthmonitoring.repository.ts AND t.deleted_at IS NULL
-    ORDER BY t.created_at DESC
-  \`;
-  const result = await this.pool.query(query, [tenantId]);
-  return result.rows;
-}

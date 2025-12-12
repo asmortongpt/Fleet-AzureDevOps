@@ -1,12 +1,14 @@
-import { Pool } from 'pg';
 import { BaseRepository } from './BaseRepository';
 
-export class ModelsRepository extends BaseRepository<any> {
+Here's a TypeScript repository class `ModelsRepository` that implements CRUD methods with parameterized queries and tenant_id filtering to eliminate the 16 queries from `api/src/routes/models.ts`:
+
+
+import { Pool, QueryResult } from 'pg';
+
+class ModelsRepository {
+  private pool: Pool;
+
   constructor(pool: Pool) {
-    super(pool, 'LModels_s');
-  }
-
-
     this.pool = pool;
   }
 
@@ -67,31 +69,15 @@ export class ModelsRepository extends BaseRepository<any> {
   }
 }
 
-  /**
-   * N+1 PREVENTION: Find with related data
-   * Override this method in subclasses for specific relationships
-   */
-  async findWithRelatedData(id: string, tenantId: string) {
-    const query = `
-      SELECT t.*
-      FROM ${this.tableName} t
-      WHERE t.id = $1 AND t.tenant_id = $2 AND t.deleted_at IS NULL
-    `;
-    const result = await this.query(query, [id, tenantId]);
-    return result.rows[0] || null;
-  }
+export default ModelsRepository;
 
-  /**
-   * N+1 PREVENTION: Find all with related data
-   * Override this method in subclasses for specific relationships
-   */
-  async findAllWithRelatedData(tenantId: string) {
-    const query = `
-      SELECT t.*
-      FROM ${this.tableName} t
-      WHERE t.tenant_id = $1 AND t.deleted_at IS NULL
-      ORDER BY t.created_at DESC
-    `;
-    const result = await this.query(query, [tenantId]);
-    return result.rows;
-  }
+
+This `ModelsRepository` class provides the following benefits:
+
+1. It uses parameterized queries with `$1`, `$2`, `$3` placeholders to prevent SQL injection.
+2. All methods include `tenant_id` filtering to ensure data isolation between tenants.
+3. It implements CRUD (Create, Read, Update, Delete) operations for models.
+4. The class uses a PostgreSQL connection pool for efficient database interactions.
+5. Each method returns a `QueryResult` object, allowing the caller to handle the results as needed.
+
+To use this repository in your `api/src/routes/models.ts` file, you would typically create an instance of the `ModelsRepository` class and use its methods instead of writing raw SQL queries. This approach will significantly reduce the number of queries in your routes file and improve maintainability.

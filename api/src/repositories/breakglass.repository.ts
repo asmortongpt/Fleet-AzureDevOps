@@ -1,12 +1,9 @@
-import { Pool } from 'pg';
-import { BaseRepository } from './BaseRepository';
+import { Pool, QueryResult } from 'pg';
 
-export class BreakGlassRepository extends BaseRepository<any> {
+class BreakGlassRepository {
+  private pool: Pool;
+
   constructor(pool: Pool) {
-    super(pool, 'LBreak_LGlass_s');
-  }
-
-
     this.pool = pool;
   }
 
@@ -23,7 +20,7 @@ export class BreakGlassRepository extends BaseRepository<any> {
       RETURNING *
     `;
     const values = [tenant_id, user_id, reason, start_time, end_time];
-    return this.query(query, values);
+    return this.pool.query(query, values);
   }
 
   async getBreakGlassById(tenant_id: string, id: string): Promise<QueryResult> {
@@ -32,7 +29,7 @@ export class BreakGlassRepository extends BaseRepository<any> {
       WHERE tenant_id = $1 AND id = $2
     `;
     const values = [tenant_id, id];
-    return this.query(query, values);
+    return this.pool.query(query, values);
   }
 
   async getAllBreakGlass(tenant_id: string): Promise<QueryResult> {
@@ -41,7 +38,7 @@ export class BreakGlassRepository extends BaseRepository<any> {
       WHERE tenant_id = $1
     `;
     const values = [tenant_id];
-    return this.query(query, values);
+    return this.pool.query(query, values);
   }
 
   async updateBreakGlass(
@@ -59,7 +56,7 @@ export class BreakGlassRepository extends BaseRepository<any> {
       RETURNING *
     `;
     const values = [tenant_id, id, user_id, reason, start_time, end_time];
-    return this.query(query, values);
+    return this.pool.query(query, values);
   }
 
   async deleteBreakGlass(tenant_id: string, id: string): Promise<QueryResult> {
@@ -69,35 +66,8 @@ export class BreakGlassRepository extends BaseRepository<any> {
       RETURNING *
     `;
     const values = [tenant_id, id];
-    return this.query(query, values);
+    return this.pool.query(query, values);
   }
 }
 
-  /**
-   * N+1 PREVENTION: Find with related data
-   * Override this method in subclasses for specific relationships
-   */
-  async findWithRelatedData(id: string, tenantId: string) {
-    const query = `
-      SELECT t.*
-      FROM ${this.tableName} t
-      WHERE t.id = $1 AND t.tenant_id = $2 AND t.deleted_at IS NULL
-    `;
-    const result = await this.query(query, [id, tenantId]);
-    return result.rows[0] || null;
-  }
-
-  /**
-   * N+1 PREVENTION: Find all with related data
-   * Override this method in subclasses for specific relationships
-   */
-  async findAllWithRelatedData(tenantId: string) {
-    const query = `
-      SELECT t.*
-      FROM ${this.tableName} t
-      WHERE t.tenant_id = $1 AND t.deleted_at IS NULL
-      ORDER BY t.created_at DESC
-    `;
-    const result = await this.query(query, [tenantId]);
-    return result.rows;
-  }
+export default BreakGlassRepository;

@@ -1,7 +1,6 @@
 import { BaseRepository } from '../repositories/BaseRepository';
 
 import { Pool, QueryResult } from 'pg';
-import { buildUpdateClause } from '../utils/sql-safety'
 
 export interface VehicleTelematics {
   id: number;
@@ -52,9 +51,9 @@ export class VehicleTelematicsRepository extends BaseRepository<any> {
   }
 
   async update(tenantId: number, id: number, vehicleTelematics: Partial<Omit<VehicleTelematics, 'id' | 'tenant_id' | 'created_at' | 'deleted_at'>>): Promise<VehicleTelematics | null> {
-    const { fields: setClause, values: updateValues } = buildUpdateClause(vehicleTelematics, 3, 'vehicle_telematics');
+    const setClause = Object.keys(vehicleTelematics).map((key, index) => `${key} = $${index + 3}`).join(', ');
     const query = `UPDATE vehicle_telematics SET ${setClause}, updated_at = NOW() WHERE tenant_id = $1 AND id = $2 AND deleted_at IS NULL RETURNING *`;
-    const values = [tenantId, id, ...updateValues];
+    const values = [tenantId, id, ...Object.values(vehicleTelematics)];
     try {
       const result: QueryResult<VehicleTelematics> = await this.pool.query(query, values);
       return result.rows[0] || null;
@@ -72,29 +71,4 @@ export class VehicleTelematicsRepository extends BaseRepository<any> {
       throw new Error(`Failed to soft delete vehicle telematics data: ${error.message}`);
     }
   }
-}
-
-/**
- * N+1 PREVENTION: Fetch with related entities
- * Add specific methods based on your relationships
- */
-async findWithRelatedData(id: string, tenantId: string) {
-  const query = \`
-    SELECT t.*
-    FROM vehicletelematics t
-    WHERE t.id = \api/src/repositories/vehicletelematics.repository.ts AND t.tenant_id = \ AND t.deleted_at IS NULL
-  \`;
-  const result = await this.pool.query(query, [id, tenantId]);
-  return result.rows[0] || null;
-}
-
-async findAllWithRelatedData(tenantId: string) {
-  const query = \`
-    SELECT t.*
-    FROM vehicletelematics t
-    WHERE t.tenant_id = \api/src/repositories/vehicletelematics.repository.ts AND t.deleted_at IS NULL
-    ORDER BY t.created_at DESC
-  \`;
-  const result = await this.pool.query(query, [tenantId]);
-  return result.rows;
 }
