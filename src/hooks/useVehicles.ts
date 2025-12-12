@@ -1,84 +1,25 @@
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+import { useState, useEffect } from 'react';
+import { Vehicle } from '../types/Vehicle';
 
-import { api } from '@/lib/api'
+export function useVehicles(): Vehicle[] {
+  const [vehicles, setVehicles] = useState<Vehicle[]>([]);
 
-export interface Vehicle {
-  id: number
-  vehicleNumber: string
-  make: string
-  model: string
-  year: number
-  vin: string
-  licensePlate: string
-  status: 'active' | 'maintenance' | 'retired'
-  mileage: number
-  fuelType: string
-  location: string
-}
+  useEffect(() => {
+    const fetchVehicles = async () => {
+      try {
+        const response = await fetch('/api/vehicles');
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
+        }
+        const data = await response.json();
+        setVehicles(data);
+      } catch (error) {
+        console.error('Error fetching vehicles:', error);
+      }
+    };
 
-export function useVehicles(params?: {
-  page?: number
-  pageSize?: number
-  search?: string
-  status?: string
-}) {
-  return useQuery({
-    queryKey: ['vehicles', params],
-    queryFn: async () => {
-      const response = await api.get('/vehicles', { params })
-      return response.data
-    },
-  })
-}
+    fetchVehicles();
+  }, []);
 
-export function useVehicle(id: number) {
-  return useQuery({
-    queryKey: ['vehicle', id],
-    queryFn: async () => {
-      const response = await api.get(`/vehicles/${id}`)
-      return response.data.data
-    },
-    enabled: !!id,
-  })
-}
-
-export function useCreateVehicle() {
-  const queryClient = useQueryClient()
-
-  return useMutation({
-    mutationFn: async (data: Partial<Vehicle>) => {
-      const response = await api.post('/vehicles', data)
-      return response.data
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['vehicles'] })
-    },
-  })
-}
-
-export function useUpdateVehicle() {
-  const queryClient = useQueryClient()
-
-  return useMutation({
-    mutationFn: async ({ id, data }: { id: number; data: Partial<Vehicle> }) => {
-      const response = await api.put(`/vehicles/${id}`, data)
-      return response.data
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['vehicles'] })
-    },
-  })
-}
-
-export function useDeleteVehicle() {
-  const queryClient = useQueryClient()
-
-  return useMutation({
-    mutationFn: async (id: number) => {
-      await api.delete(`/vehicles/${id}`)
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['vehicles'] })
-    },
-  })
+  return vehicles;
 }
