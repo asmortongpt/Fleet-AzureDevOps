@@ -45,7 +45,8 @@ interface RouteManagementProps {
   data: ReturnType<typeof useFleetData>
 }
 
-export function RouteManagement({ data }: RouteManagementProps) {
+export function RouteManagement() {
+  const data = useFleetData()
   const fleetData = useFleetData()
   const allVehicles = fleetData.vehicles || []
   const facilities = fleetData.facilities || []

@@ -18,7 +18,8 @@ interface FleetAnalyticsProps {
   data: ReturnType<typeof useFleetData>
 }
 
-export function FleetAnalytics({ data }: FleetAnalyticsProps) {
+export function FleetAnalytics() {
+  const data = useFleetData()
   const vehicles = data?.vehicles || []
   const fuelTransactions = data?.fuelTransactions || []
   const workOrders = data?.workOrders || []
