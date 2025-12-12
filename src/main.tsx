@@ -9,6 +9,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
 import * as Sentry from "@sentry/react"
 import { AuthProvider } from "./components/providers/AuthProvider"
 import { InspectProvider } from "./services/inspect/InspectContext"
+import { DrilldownProvider } from "./contexts/DrilldownContext"
 import { useAuth } from "./hooks/useAuth"
 import { SentryErrorBoundary } from "./components/errors/SentryErrorBoundary"
 import App from "./App"
@@ -52,20 +53,22 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
     <QueryClientProvider client={queryClient}>
       <SentryErrorBoundary level="page">
         <AuthProvider>
-          <InspectProvider>
-            <BrowserRouter>
-              <SentryRoutes>
-                <Route
-                  path="/*"
-                  element={
-                    <SentryErrorBoundary level="section">
-                      <App />
-                    </SentryErrorBoundary>
-                  }
-                />
-              </SentryRoutes>
-            </BrowserRouter>
-          </InspectProvider>
+          <DrilldownProvider>
+            <InspectProvider>
+              <BrowserRouter>
+                <SentryRoutes>
+                  <Route
+                    path="/*"
+                    element={
+                      <SentryErrorBoundary level="section">
+                        <App />
+                      </SentryErrorBoundary>
+                    }
+                  />
+                </SentryRoutes>
+              </BrowserRouter>
+            </InspectProvider>
+          </DrilldownProvider>
         </AuthProvider>
       </SentryErrorBoundary>
     </QueryClientProvider>
