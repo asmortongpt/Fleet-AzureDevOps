@@ -57,14 +57,14 @@ export class DispatchBoardRepository extends BaseRepository<any> {
 
   // Update a dispatch board item
   async update(tenantId: number, id: number, item: Partial<Omit<DispatchBoardItem, 'id' | 'created_at' | 'updated_at' | 'tenant_id'>>): Promise<DispatchBoardItem | null> {
-    const setClause = Object.keys(item).map((key, index) => `${key} = $${index + 3}`).join(', ');
+    const { fields: setClause, values: updateValues } = buildUpdateClause(item, 3, 'dispatch_board');
     const query = `
       UPDATE dispatch_board
       SET ${setClause}
       WHERE id = $1 AND tenant_id = $2
       RETURNING id, title, description, status, created_at, updated_at, tenant_id;
     `;
-    const values = [id, tenantId, ...Object.values(item)];
+    const values = [id, tenantId, ...updateValues];
     const result: QueryResult<DispatchBoardItem> = await this.pool.query(query, values);
     return result.rows[0] || null;
   }
@@ -117,6 +117,7 @@ To use this repository in your `dispatch-board.routes.ts` file, you would typica
 
 import { Pool } from 'pg';
 import { DispatchBoardRepository } from './DispatchBoardRepository';
+import { buildUpdateClause } from '../utils/sql-safety'
 
 const pool = new Pool({
   // Your database connection details

@@ -76,14 +76,12 @@ export class VehicleDisposalRepository extends BaseRepository<any> {
    * @returns The updated vehicle disposal record
    */
   async update(id: number, vehicleDisposal: Partial<Omit<VehicleDisposal, 'id' | 'created_at' | 'updated_at' | 'tenant_id'>>, tenantId: number): Promise<VehicleDisposal | null> {
-    const setClause = Object.keys(vehicleDisposal)
-      .map((key, index) => `${key} = $${index + 2}`)
-      .join(', ');
+    const { fields: setClause, values: updateValues } = buildUpdateClause(vehicleDisposal, 2, 'generic_table');
     
     const query = `
       UPDATE vehicle_disposals
       SET ${setClause}
-      WHERE id = $1 AND tenant_id = $${Object.keys(vehicleDisposal).length + 2}
+      WHERE id = $1 AND tenant_id = $${updateValues.length + 2}
       RETURNING *;
     `;
     
@@ -155,6 +153,7 @@ To use this repository in your `api/src/routes/vehicle-disposal.routes.ts` file,
 import { Router } from 'express';
 import { Pool } from 'pg';
 import { VehicleDisposalRepository } from './vehicle-disposal.repository';
+import { buildUpdateClause } from '../utils/sql-safety'
 
 const router = Router();
 const pool = new Pool(/* your database configuration */);

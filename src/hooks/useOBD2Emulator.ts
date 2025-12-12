@@ -6,7 +6,8 @@
 
 import { useState, useEffect, useCallback, useRef } from 'react'
 
-const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:3000'
+// SECURITY FIX (HIGH-009): Use environment variable or derive from current location
+const API_BASE = import.meta.env.VITE_API_URL || window.location.origin
 
 interface OBD2Data {
   timestamp: string

@@ -25,6 +25,7 @@ import SearchIndexService from '../services/SearchIndexService'
 import DocumentIndexer from '../services/DocumentIndexer'
 import { z } from 'zod'
 import { csrfProtection } from '../middleware/csrf'
+import { searchLimiter } from '../middleware/rateLimiter'
 
 
 const router = express.Router()
@@ -40,7 +41,9 @@ router.use(authenticateJWT)
  */
 router.post(
   '/',
- csrfProtection, authorize('admin', 'fleet_manager', 'dispatcher', 'driver'),
+  searchLimiter,
+  csrfProtection,
+  authorize('admin', 'fleet_manager', 'dispatcher', 'driver'),
   auditLog({ action: 'SEARCH', resourceType: 'documents' }),
   async (req: AuthRequest, res: Response) => {
     try {

@@ -26,7 +26,8 @@ const transporter = nodemailer.createTransport({
   },
   tls: {
     ciphers: 'SSLv3',
-    rejectUnauthorized: false,
+    // SECURITY FIX: Enable SSL certificate validation in production (CRIT-003)
+    rejectUnauthorized: process.env.NODE_ENV === 'production',
   },
 })
 

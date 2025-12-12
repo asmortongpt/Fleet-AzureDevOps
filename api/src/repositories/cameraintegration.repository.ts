@@ -83,10 +83,8 @@ export class CameraIntegrationRepository extends BaseRepository<any> {
    * @returns The updated camera integration
    */
   async update(id: number, cameraIntegration: Partial<Omit<CameraIntegration, 'id' | 'created_at' | 'updated_at' | 'tenant_id'>>, tenant_id: string): Promise<CameraIntegration | null> {
-    const setClause = Object.keys(cameraIntegration)
-      .map((key, index) => `${key} = $${index + 2}`)
-      .join(', ');
-    const values = [id, ...Object.values(cameraIntegration), tenant_id];
+    const { fields: setClause, values: updateValues } = buildUpdateClause(cameraIntegration, 2, 'generic_table');
+    const values = [id, ...updateValues, tenant_id];
 
     const query = `
       UPDATE camera_integrations
@@ -137,6 +135,7 @@ To use this repository in your `api/src/routes/camera-integration.routes.ts` fil
 import { Router } from 'express';
 import { Pool } from 'pg';
 import { CameraIntegrationRepository } from './camera-integration.repository';
+import { buildUpdateClause } from '../utils/sql-safety'
 
 const router = Router();
 const pool = new Pool(/* your database configuration */);
