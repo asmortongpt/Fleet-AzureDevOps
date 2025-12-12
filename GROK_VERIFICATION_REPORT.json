@@ -1,0 +1,308 @@
+{
+  "timestamp": "2025-12-11T22:58:26.530Z",
+  "summary": {
+    "total": 37,
+    "passed": 1,
+    "failed": 1,
+    "errors": 35,
+    "compliance": 3
+  },
+  "results": [
+    {
+      "id": 3,
+      "name": "Error Hierarchy",
+      "status": "ERROR",
+      "evidence": "Unexpected token '`', \"```json\n{\n\"... is not valid JSON",
+      "confidence": "LOW",
+      "notes": "Verification error"
+    },
+    {
+      "id": 1,
+      "name": "TypeScript Strict Mode",
+      "status": "ERROR",
+      "evidence": "Unexpected token '`', \"```json\n{\n\"... is not valid JSON",
+      "confidence": "LOW",
+      "notes": "Verification error"
+    },
+    {
+      "id": 5,
+      "name": "Services Grouped by Domain",
+      "status": "ERROR",
+      "evidence": "Unexpected token '`', \"```json\n{\n\"... is not valid JSON",
+      "confidence": "LOW",
+      "notes": "Verification error"
+    },
+    {
+      "id": 4,
+      "name": "Domain-Based Routes",
+      "status": "ERROR",
+      "evidence": "Unexpected token '`', \"```json\n{\n\"... is not valid JSON",
+      "confidence": "LOW",
+      "notes": "Verification error"
+    },
+    {
+      "id": 2,
+      "name": "Dependency Injection",
+      "status": "ERROR",
+      "evidence": "Unexpected token '`', \"```json\n{\n\"... is not valid JSON",
+      "confidence": "LOW",
+      "notes": "Verification error"
+    },
+    {
+      "id": 7,
+      "name": "ESLint Security Config",
+      "status": "ERROR",
+      "evidence": "Unexpected token '`', \"```json\n{\n\"... is not valid JSON",
+      "confidence": "LOW",
+      "notes": "Verification error"
+    },
+    {
+      "id": 8,
+      "name": "Global Error Middleware",
+      "status": "ERROR",
+      "evidence": "Unexpected token '`', \"```json\n{\n\"... is not valid JSON",
+      "confidence": "LOW",
+      "notes": "Verification error"
+    },
+    {
+      "id": 10,
+      "name": "Async Job Queues",
+      "status": "ERROR",
+      "evidence": "Unexpected token '`', \"```json\n{\n\"... is not valid JSON",
+      "confidence": "LOW",
+      "notes": "Verification error"
+    },
+    {
+      "id": 6,
+      "name": "No DB Queries in Routes",
+      "status": "ERROR",
+      "evidence": "Unexpected token '`', \"```json\n{\n\"... is not valid JSON",
+      "confidence": "LOW",
+      "notes": "Verification error"
+    },
+    {
+      "id": 9,
+      "name": "Service Layer",
+      "status": "ERROR",
+      "evidence": "Unexpected token '`', \"```json\n{\n\"... is not valid JSON",
+      "confidence": "LOW",
+      "notes": "Verification error"
+    },
+    {
+      "id": 11,
+      "name": "Repository Pattern",
+      "status": "ERROR",
+      "evidence": "Unexpected token '`', \"```json\n{\n\"... is not valid JSON",
+      "confidence": "LOW",
+      "notes": "Verification error"
+    },
+    {
+      "id": 13,
+      "name": "Query/Pool Monitoring",
+      "status": "ERROR",
+      "evidence": "Unexpected token '`', \"```json\n{\n\"... is not valid JSON",
+      "confidence": "LOW",
+      "notes": "Verification error"
+    },
+    {
+      "id": 14,
+      "name": "Consistent Response Format",
+      "status": "ERROR",
+      "evidence": "Unexpected token '`', \"```json\n{\n\"... is not valid JSON",
+      "confidence": "LOW",
+      "notes": "Verification error"
+    },
+    {
+      "id": 15,
+      "name": "Centralized Filtering",
+      "status": "ERROR",
+      "evidence": "Unexpected token '`', \"```json\n{\n\"... is not valid JSON",
+      "confidence": "LOW",
+      "notes": "Verification error"
+    },
+    {
+      "id": 12,
+      "name": "ORM/Query Builder",
+      "status": "ERROR",
+      "evidence": "Unexpected token '`', \"```json\n{\n\"... is not valid JSON",
+      "confidence": "LOW",
+      "notes": "Verification error"
+    },
+    {
+      "id": 18,
+      "name": "PATCH vs PUT",
+      "status": "ERROR",
+      "evidence": "Unexpected token '`', \"```json\n{\n\"... is not valid JSON",
+      "confidence": "LOW",
+      "notes": "Verification error"
+    },
+    {
+      "id": 16,
+      "name": "API Versioning",
+      "status": "ERROR",
+      "evidence": "Unexpected token '`', \"```json\n{\n\"... is not valid JSON",
+      "confidence": "LOW",
+      "notes": "Verification error"
+    },
+    {
+      "id": 19,
+      "name": "Rate Limiting",
+      "status": "ERROR",
+      "evidence": "Unexpected token '`', \"```json\n{\n\"... is not valid JSON",
+      "confidence": "LOW",
+      "notes": "Verification error"
+    },
+    {
+      "id": 20,
+      "name": "Winston Logging",
+      "status": "ERROR",
+      "evidence": "Unexpected token '`', \"```json\n{\n\"... is not valid JSON",
+      "confidence": "LOW",
+      "notes": "Verification error"
+    },
+    {
+      "id": 17,
+      "name": "SELECT * Optimization",
+      "status": "ERROR",
+      "evidence": "Unexpected token '`', \"```json\n{\n\"... is not valid JSON",
+      "confidence": "LOW",
+      "notes": "Verification error"
+    },
+    {
+      "id": 21,
+      "name": "JWT Secret",
+      "status": "ERROR",
+      "evidence": "Unexpected token '`', \"```json\n{\n\"... is not valid JSON",
+      "confidence": "LOW",
+      "notes": "Verification error"
+    },
+    {
+      "id": 23,
+      "name": "Input Validation (Zod)",
+      "status": "ERROR",
+      "evidence": "Unexpected token '`', \"```json\n{\n\"... is not valid JSON",
+      "confidence": "LOW",
+      "notes": "Verification error"
+    },
+    {
+      "id": 24,
+      "name": "CSRF Protection",
+      "status": "ERROR",
+      "evidence": "Unexpected token '`', \"```json\n{\n\"... is not valid JSON",
+      "confidence": "LOW",
+      "notes": "Verification error"
+    },
+    {
+      "id": 25,
+      "name": "Helmet Headers",
+      "status": "ERROR",
+      "evidence": "Unexpected token '`', \"```json\n{\n\"... is not valid JSON",
+      "confidence": "LOW",
+      "notes": "Verification error"
+    },
+    {
+      "id": 22,
+      "name": "Log Sanitization",
+      "status": "ERROR",
+      "evidence": "Unexpected token '`', \"```json\n{\n\"... is not valid JSON",
+      "confidence": "LOW",
+      "notes": "Verification error"
+    },
+    {
+      "id": 27,
+      "name": "Redis Caching",
+      "status": "ERROR",
+      "evidence": "Unexpected token '`', \"```json\n{\n\"... is not valid JSON",
+      "confidence": "LOW",
+      "notes": "Verification error"
+    },
+    {
+      "id": 30,
+      "name": "Memory Leak Detection",
+      "status": "FAIL",
+      "evidence": "No specific memory monitoring or leak detection tools found in tsconfig.json, server.ts, package.json, or other relevant files. Searched for keywords like 'memory', 'leak', 'monitoring', 'heap', but found no relevant implementations.",
+      "confidence": "HIGH",
+      "notes": "While there are general logging and error handling mechanisms in place, there is no explicit memory leak detection or monitoring system implemented in the codebase."
+    },
+    {
+      "id": 29,
+      "name": "Response Time Monitoring",
+      "status": "ERROR",
+      "evidence": "Unexpected token '`', \"```json\n{\n\"... is not valid JSON",
+      "confidence": "LOW",
+      "notes": "Verification error"
+    },
+    {
+      "id": 26,
+      "name": "Refresh Tokens",
+      "status": "PASS",
+      "evidence": "The refresh token implementation is found in several key files:\n- server.ts: Contains logic for issuing and validating refresh tokens.\n- auth.service.ts: Implements the refresh token mechanism.\n- package.json: Lists dependencies like 'jsonwebtoken' used for token management.",
+      "confidence": "HIGH",
+      "notes": "The implementation appears robust with proper token validation and refresh logic. No obvious gaps or issues were found in the reviewed files."
+    },
+    {
+      "id": 28,
+      "name": "N+1 Prevention",
+      "status": "ERROR",
+      "evidence": "Unexpected token '`', \"```json\n{\n\"... is not valid JSON",
+      "confidence": "LOW",
+      "notes": "Verification error"
+    },
+    {
+      "id": 33,
+      "name": "Bull Background Jobs",
+      "status": "ERROR",
+      "evidence": "Unexpected token '`', \"```json\n{\n\"... is not valid JSON",
+      "confidence": "LOW",
+      "notes": "Verification error"
+    },
+    {
+      "id": 31,
+      "name": "Worker Threads",
+      "status": "ERROR",
+      "evidence": "Unexpected token '`', \"```json\n{\n\"... is not valid JSON",
+      "confidence": "LOW",
+      "notes": "Verification error"
+    },
+    {
+      "id": 34,
+      "name": "Read Replicas",
+      "status": "ERROR",
+      "evidence": "Unexpected token '`', \"```json\n{\n\"... is not valid JSON",
+      "confidence": "LOW",
+      "notes": "Verification error"
+    },
+    {
+      "id": 32,
+      "name": "Stream Processing",
+      "status": "ERROR",
+      "evidence": "Unexpected token '`', \"```json\n{\n\"... is not valid JSON",
+      "confidence": "LOW",
+      "notes": "Verification error"
+    },
+    {
+      "id": 35,
+      "name": "Row-Level Security",
+      "status": "ERROR",
+      "evidence": "Unexpected token '`', \"```json\n{\n\"... is not valid JSON",
+      "confidence": "LOW",
+      "notes": "Verification error"
+    },
+    {
+      "id": 37,
+      "name": "Nullable tenant_id",
+      "status": "ERROR",
+      "evidence": "Unexpected token '`', \"```json\n{\n\"... is not valid JSON",
+      "confidence": "LOW",
+      "notes": "Verification error"
+    },
+    {
+      "id": 36,
+      "name": "Missing tenant_id",
+      "status": "ERROR",
+      "evidence": "Unexpected token '`', \"```json\n{\n\"... is not valid JSON",
+      "confidence": "LOW",
+      "notes": "Verification error"
+    }
+  ]
+}
