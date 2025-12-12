@@ -366,3 +366,44 @@ export class VehiclesRepository extends BaseRepository<any> {
   }
 
 export const vehiclesRepository = new VehiclesRepository()
+
+/**
+ * N+1 PREVENTION: Fetch vehicle with driver and last 5 maintenance records
+ */
+async findWithDriverAndMaintenance(id: string, tenantId: string) {
+  const query = `
+    SELECT
+      v.id, v.make, v.model, v.year, v.vin, v.license_plate, v.mileage, v.status,
+      d.id as driver_id, d.name as driver_name, d.email as driver_email, d.phone as driver_phone,
+      m.id as maintenance_id, m.type as maintenance_type, m.date as maintenance_date,
+      m.cost as maintenance_cost, m.description as maintenance_description
+    FROM vehicles v
+    LEFT JOIN drivers d ON v.driver_id = d.id
+    LEFT JOIN LATERAL (
+      SELECT * FROM maintenance
+      WHERE vehicle_id = v.id AND deleted_at IS NULL
+      ORDER BY date DESC
+      LIMIT 5
+    ) m ON true
+    WHERE v.id = $1 AND v.tenant_id = $2 AND v.deleted_at IS NULL
+  `;
+  const result = await this.pool.query(query, [id, tenantId]);
+  return result.rows;
+}
+
+/**
+ * N+1 PREVENTION: Fetch all vehicles with drivers and status
+ */
+async findAllWithDriversAndStatus(tenantId: string) {
+  const query = `
+    SELECT
+      v.id, v.make, v.model, v.year, v.vin, v.license_plate, v.mileage, v.status,
+      d.id as driver_id, d.name as driver_name, d.email as driver_email
+    FROM vehicles v
+    LEFT JOIN drivers d ON v.driver_id = d.id
+    WHERE v.tenant_id = $1 AND v.deleted_at IS NULL
+    ORDER BY v.created_at DESC
+  `;
+  const result = await this.pool.query(query, [tenantId]);
+  return result.rows;
+}
