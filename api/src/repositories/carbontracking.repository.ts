@@ -162,3 +162,27 @@ export default router;
 
 
 This implementation provides a solid foundation for your carbon tracking system, with proper database interactions, tenant isolation, and CRUD operations. You can further expand on this by adding more complex queries, additional error handling, or integrating it with your authentication system.
+/**
+ * N+1 PREVENTION: Fetch with related entities
+ * Add specific methods based on your relationships
+ */
+async findWithRelatedData(id: string, tenantId: string) {
+  const query = \`
+    SELECT t.*
+    FROM carbontracking t
+    WHERE t.id = \api/src/repositories/carbontracking.repository.ts AND t.tenant_id = \ AND t.deleted_at IS NULL
+  \`;
+  const result = await this.pool.query(query, [id, tenantId]);
+  return result.rows[0] || null;
+}
+
+async findAllWithRelatedData(tenantId: string) {
+  const query = \`
+    SELECT t.*
+    FROM carbontracking t
+    WHERE t.tenant_id = \api/src/repositories/carbontracking.repository.ts AND t.deleted_at IS NULL
+    ORDER BY t.created_at DESC
+  \`;
+  const result = await this.pool.query(query, [tenantId]);
+  return result.rows;
+}
