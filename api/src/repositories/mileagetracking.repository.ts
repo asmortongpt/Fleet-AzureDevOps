@@ -1,13 +1,11 @@
-import { BaseRepository } from '../repositories/BaseRepository';
+import { Pool } from 'pg';
+import { BaseRepository } from './BaseRepository';
 
-Here is a basic example of a TypeScript repository for mileage tracking. This example includes parameterized queries, tenant_id, and CRUD operations.
+export class MileagetrackingRepository extends BaseRepository<any> {
+  constructor(pool: Pool) {
+    super(pool, 'mileagetrackings');
+  }
 
-
-import { EntityRepository, Repository } from 'typeorm';
-import { MileageTracking } from '../entities/mileage-tracking.entity';
-
-@EntityRepository(MileageTracking)
-export class MileageTrackingRepository extends Repository<MileageTracking> {
   constructor(pool: Pool) {
     super(pool, 'LMileage_LTracking_LRepository extends s');
   }
@@ -35,35 +33,4 @@ export class MileageTrackingRepository extends Repository<MileageTracking> {
   async deleteMileageTracking(tenant_id: string, id: string): Promise<void> {
     await this.delete({ id, tenant_id });
   }
-}
-
-
-This repository is using TypeORM, a popular ORM that can run in NodeJS and others. It provides a repository design pattern which works with the concept of Entities. The `MileageTracking` is an Entity that maps to a database table.
-
-The `createMileageTracking` method creates a new mileage tracking record for a specific tenant. The `getMileageTrackings` method retrieves all mileage tracking records for a specific tenant. The `getMileageTrackingById` method retrieves a specific mileage tracking record by its id for a specific tenant. The `updateMileageTracking` method updates a specific mileage tracking record by its id for a specific tenant. The `deleteMileageTracking` method deletes a specific mileage tracking record by its id for a specific tenant.
-
-Each method uses the tenant_id to ensure data isolation between different tenants.
-/**
- * N+1 PREVENTION: Fetch with related entities
- * Add specific methods based on your relationships
- */
-async findWithRelatedData(id: string, tenantId: string) {
-  const query = \`
-    SELECT t.*
-    FROM mileagetracking t
-    WHERE t.id = \api/src/repositories/mileagetracking.repository.ts AND t.tenant_id = \ AND t.deleted_at IS NULL
-  \`;
-  const result = await this.pool.query(query, [id, tenantId]);
-  return result.rows[0] || null;
-}
-
-async findAllWithRelatedData(tenantId: string) {
-  const query = \`
-    SELECT t.*
-    FROM mileagetracking t
-    WHERE t.tenant_id = \api/src/repositories/mileagetracking.repository.ts AND t.deleted_at IS NULL
-    ORDER BY t.created_at DESC
-  \`;
-  const result = await this.pool.query(query, [tenantId]);
-  return result.rows;
 }
