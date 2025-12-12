@@ -54,28 +54,3 @@ export class WorkOrderRepository extends BaseRepository<WorkOrder> {
     return result.rows;
   }
 }
-
-/**
- * N+1 PREVENTION: Fetch with related entities
- * Add specific methods based on your relationships
- */
-async findWithRelatedData(id: string, tenantId: string) {
-  const query = \`
-    SELECT t.*
-    FROM work_order t
-    WHERE t.id = \api/src/modules/work-orders/repositories/work-order.repository.ts AND t.tenant_id = \ AND t.deleted_at IS NULL
-  \`;
-  const result = await this.pool.query(query, [id, tenantId]);
-  return result.rows[0] || null;
-}
-
-async findAllWithRelatedData(tenantId: string) {
-  const query = \`
-    SELECT t.*
-    FROM work_order t
-    WHERE t.tenant_id = \api/src/modules/work-orders/repositories/work-order.repository.ts AND t.deleted_at IS NULL
-    ORDER BY t.created_at DESC
-  \`;
-  const result = await this.pool.query(query, [tenantId]);
-  return result.rows;
-}

@@ -1,11 +1,14 @@
-import { Pool } from 'pg';
-import { BaseRepository } from './BaseRepository';
+import { BaseRepository } from '../repositories/BaseRepository';
 
-export class GeofencingRepository extends BaseRepository<any> {
+Here is a basic implementation of a TypeScript repository for Geofencing:
+
+
+import { EntityRepository, Repository } from 'typeorm';
+import { Geofencing } from '../entities/geofencing.entity';
+
+@EntityRepository(Geofencing)
+export class GeofencingRepository extends Repository<Geofencing> {
   constructor(pool: Pool) {
-    super(pool, 'LGeofencing_s');
-  }
-
     super(pool, 'LGeofencing_LRepository extends s');
   }
 
@@ -32,31 +35,7 @@ export class GeofencingRepository extends BaseRepository<any> {
   }
 }
 
-  /**
-   * N+1 PREVENTION: Find with related data
-   * Override this method in subclasses for specific relationships
-   */
-  async findWithRelatedData(id: string, tenantId: string) {
-    const query = `
-      SELECT t.*
-      FROM ${this.tableName} t
-      WHERE t.id = $1 AND t.tenant_id = $2 AND t.deleted_at IS NULL
-    `;
-    const result = await this.query(query, [id, tenantId]);
-    return result.rows[0] || null;
-  }
 
-  /**
-   * N+1 PREVENTION: Find all with related data
-   * Override this method in subclasses for specific relationships
-   */
-  async findAllWithRelatedData(tenantId: string) {
-    const query = `
-      SELECT t.*
-      FROM ${this.tableName} t
-      WHERE t.tenant_id = $1 AND t.deleted_at IS NULL
-      ORDER BY t.created_at DESC
-    `;
-    const result = await this.query(query, [tenantId]);
-    return result.rows;
-  }
+This repository provides CRUD operations for a Geofencing entity. Each operation is scoped to a specific tenant_id, ensuring that data is isolated for each tenant.
+
+Please note that this is a basic implementation and might need to be adjusted based on your actual needs and the structure of your Geofencing entity and your database. Also, error handling is not included in this example and should be added.
