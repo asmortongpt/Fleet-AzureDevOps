@@ -81,3 +81,27 @@ This `ModelsRepository` class provides the following benefits:
 5. Each method returns a `QueryResult` object, allowing the caller to handle the results as needed.
 
 To use this repository in your `api/src/routes/models.ts` file, you would typically create an instance of the `ModelsRepository` class and use its methods instead of writing raw SQL queries. This approach will significantly reduce the number of queries in your routes file and improve maintainability.
+/**
+ * N+1 PREVENTION: Fetch with related entities
+ * Add specific methods based on your relationships
+ */
+async findWithRelatedData(id: string, tenantId: string) {
+  const query = \`
+    SELECT t.*
+    FROM models t
+    WHERE t.id = \api/src/repositories/models.repository.ts AND t.tenant_id = \ AND t.deleted_at IS NULL
+  \`;
+  const result = await this.pool.query(query, [id, tenantId]);
+  return result.rows[0] || null;
+}
+
+async findAllWithRelatedData(tenantId: string) {
+  const query = \`
+    SELECT t.*
+    FROM models t
+    WHERE t.tenant_id = \api/src/repositories/models.repository.ts AND t.deleted_at IS NULL
+    ORDER BY t.created_at DESC
+  \`;
+  const result = await this.pool.query(query, [tenantId]);
+  return result.rows;
+}
