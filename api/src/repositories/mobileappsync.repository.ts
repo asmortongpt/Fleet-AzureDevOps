@@ -1,9 +1,9 @@
 import { Pool } from 'pg';
 import { BaseRepository } from './BaseRepository';
 
-export class MobileappsyncRepository extends BaseRepository<any> {
+export class MobileAppSyncRepository extends BaseRepository<any> {
   constructor(pool: Pool) {
-    super(pool, 'mobileappsyncs');
+    super(pool, 'LMobile_LApp_LSync_s');
   }
 
   MobileAppSync,

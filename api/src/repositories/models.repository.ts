@@ -1,3 +1,97 @@
 import { Pool } from 'pg';
 import { BaseRepository } from './BaseRepository';
 
+export class ModelsRepository extends BaseRepository<any> {
+  constructor(pool: Pool) {
+    super(pool, 'LModels_s');
+  }
+
+
+    this.pool = pool;
+  }
+
+  // Create a new model
+  async createModel(tenantId: string, name: string, description: string): Promise<QueryResult> {
+    const query = `
+      INSERT INTO models (tenant_id, name, description)
+      VALUES ($1, $2, $3)
+      RETURNING id, tenant_id, name, description, created_at, updated_at
+    `;
+    const values = [tenantId, name, description];
+    return this.query(query, values);
+  }
+
+  // Read a single model by ID
+  async getModelById(tenantId: string, modelId: string): Promise<QueryResult> {
+    const query = `
+      SELECT id, tenant_id, name, description, created_at, updated_at
+      FROM models
+      WHERE id = $1 AND tenant_id = $2
+    `;
+    const values = [modelId, tenantId];
+    return this.query(query, values);
+  }
+
+  // Read all models for a tenant
+  async getAllModels(tenantId: string): Promise<QueryResult> {
+    const query = `
+      SELECT id, tenant_id, name, description, created_at, updated_at
+      FROM models
+      WHERE tenant_id = $1
+    `;
+    const values = [tenantId];
+    return this.query(query, values);
+  }
+
+  // Update an existing model
+  async updateModel(tenantId: string, modelId: string, name: string, description: string): Promise<QueryResult> {
+    const query = `
+      UPDATE models
+      SET name = $3, description = $4, updated_at = NOW()
+      WHERE id = $1 AND tenant_id = $2
+      RETURNING id, tenant_id, name, description, created_at, updated_at
+    `;
+    const values = [modelId, tenantId, name, description];
+    return this.query(query, values);
+  }
+
+  // Delete a model
+  async deleteModel(tenantId: string, modelId: string): Promise<QueryResult> {
+    const query = `
+      DELETE FROM models
+      WHERE id = $1 AND tenant_id = $2
+      RETURNING id, tenant_id, name, description, created_at, updated_at
+    `;
+    const values = [modelId, tenantId];
+    return this.query(query, values);
+  }
+}
+
+  /**
+   * N+1 PREVENTION: Find with related data
+   * Override this method in subclasses for specific relationships
+   */
+  async findWithRelatedData(id: string, tenantId: string) {
+    const query = `
+      SELECT t.*
+      FROM ${this.tableName} t
+      WHERE t.id = $1 AND t.tenant_id = $2 AND t.deleted_at IS NULL
+    `;
+    const result = await this.query(query, [id, tenantId]);
+    return result.rows[0] || null;
+  }
+
+  /**
+   * N+1 PREVENTION: Find all with related data
+   * Override this method in subclasses for specific relationships
+   */
+  async findAllWithRelatedData(tenantId: string) {
+    const query = `
+      SELECT t.*
+      FROM ${this.tableName} t
+      WHERE t.tenant_id = $1 AND t.deleted_at IS NULL
+      ORDER BY t.created_at DESC
+    `;
+    const result = await this.query(query, [tenantId]);
+    return result.rows;
+  }
