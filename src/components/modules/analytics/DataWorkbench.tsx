@@ -29,7 +29,8 @@ interface DataWorkbenchProps {
   data: ReturnType<typeof useFleetData>
 }
 
-export function DataWorkbench({ data }: DataWorkbenchProps) {
+export function DataWorkbench() {
+  const data = useFleetData()
   const vehicles = data.vehicles || []
   const [activeTab, setActiveTab] = useState<string>("overview")
   const [isAddVehicleDialogOpen, setIsAddVehicleDialogOpen] = useState(false)
