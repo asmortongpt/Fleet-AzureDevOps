@@ -58,9 +58,10 @@ export class AuditLogsRepository extends BaseRepository<any> {
 
   // Update an existing audit log entry
   async update(tenantId: string, id: number, updates: Partial<AuditLog>): Promise<AuditLog | null> {
-    // Filter out id and tenant_id, then use safe SQL builder
-    const filtered = Object.keys(updates).filter(key => key !== 'id' && key !== 'tenant_id').reduce((obj: any, key) => { obj[key] = updates[key]; return obj; }, {});
-    const { fields: setClause, values: updateValues } = buildUpdateClause(filtered, 3, 'audit_logs');
+    const setClause = Object.keys(updates)
+      .filter(key => key !== 'id' && key !== 'tenant_id')
+      .map((key, index) => `${key} = $${index + 3}`)
+      .join(', ');
     
     if (!setClause) {
       throw new Error('No valid fields to update');
@@ -115,7 +116,6 @@ To use this repository in your `audit-logs.routes.ts` file, you would typically 
 import { Router } from 'express';
 import { Pool } from 'pg';
 import { AuditLogsRepository } from './AuditLogsRepository';
-import { buildUpdateClause } from '../utils/sql-safety'
 
 const router = Router();
 const pool = new Pool(/* your database connection details */);
@@ -138,27 +138,3 @@ export default router;
 
 
 This implementation provides a solid foundation for managing audit logs in a multi-tenant environment. You may need to adjust the code based on your specific database schema and requirements.
-/**
- * N+1 PREVENTION: Fetch with related entities
- * Add specific methods based on your relationships
- */
-async findWithRelatedData(id: string, tenantId: string) {
-  const query = \`
-    SELECT t.*
-    FROM auditlogs t
-    WHERE t.id = \api/src/repositories/auditlogs.repository.ts AND t.tenant_id = \ AND t.deleted_at IS NULL
-  \`;
-  const result = await this.pool.query(query, [id, tenantId]);
-  return result.rows[0] || null;
-}
-
-async findAllWithRelatedData(tenantId: string) {
-  const query = \`
-    SELECT t.*
-    FROM auditlogs t
-    WHERE t.tenant_id = \api/src/repositories/auditlogs.repository.ts AND t.deleted_at IS NULL
-    ORDER BY t.created_at DESC
-  \`;
-  const result = await this.pool.query(query, [tenantId]);
-  return result.rows;
-}

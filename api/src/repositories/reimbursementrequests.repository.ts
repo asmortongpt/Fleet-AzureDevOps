@@ -1,7 +1,6 @@
 import { BaseRepository } from '../repositories/BaseRepository';
 
 import { Pool, QueryResult } from 'pg';
-import { buildUpdateClause } from '../utils/sql-safety'
 
 interface ReimbursementRequest {
   id: number;
@@ -44,7 +43,7 @@ export class ReimbursementRequestsRepository extends BaseRepository<any> {
   }
 
   async update(id: number, request: Partial<Omit<ReimbursementRequest, 'id' | 'created_at' | 'updated_at'>>, tenantId: number): Promise<ReimbursementRequest | null> {
-    const { fields: setClause, values: updateValues } = buildUpdateClause(request, 2, 'reimbursements');
+    const setClause = Object.keys(request).map((key, index) => `${key} = $${index + 2}`).join(', ');
     const query = `
       UPDATE reimbursement_requests
       SET ${setClause}
@@ -61,28 +60,4 @@ export class ReimbursementRequestsRepository extends BaseRepository<any> {
     const result: QueryResult = await this.pool.query(query, [id, tenantId]);
     return result.rowCount > 0;
   }
-}
-/**
- * N+1 PREVENTION: Fetch with related entities
- * Add specific methods based on your relationships
- */
-async findWithRelatedData(id: string, tenantId: string) {
-  const query = \`
-    SELECT t.*
-    FROM reimbursementrequests t
-    WHERE t.id = \api/src/repositories/reimbursementrequests.repository.ts AND t.tenant_id = \ AND t.deleted_at IS NULL
-  \`;
-  const result = await this.pool.query(query, [id, tenantId]);
-  return result.rows[0] || null;
-}
-
-async findAllWithRelatedData(tenantId: string) {
-  const query = \`
-    SELECT t.*
-    FROM reimbursementrequests t
-    WHERE t.tenant_id = \api/src/repositories/reimbursementrequests.repository.ts AND t.deleted_at IS NULL
-    ORDER BY t.created_at DESC
-  \`;
-  const result = await this.pool.query(query, [tenantId]);
-  return result.rows;
 }

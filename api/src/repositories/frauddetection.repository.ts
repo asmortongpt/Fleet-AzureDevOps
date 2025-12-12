@@ -46,27 +46,3 @@ export class FraudDetectionRepository extends BaseRepository<any> {
 This repository uses the TypeORM library to interact with the database. The `FraudDetection` entity would represent a table in your database that contains fraud detection records.
 
 Please note that you need to replace `FraudDetection` with your actual entity class and you might need to adjust the code according to your database design and business logic.
-/**
- * N+1 PREVENTION: Fetch with related entities
- * Add specific methods based on your relationships
- */
-async findWithRelatedData(id: string, tenantId: string) {
-  const query = \`
-    SELECT t.*
-    FROM frauddetection t
-    WHERE t.id = \api/src/repositories/frauddetection.repository.ts AND t.tenant_id = \ AND t.deleted_at IS NULL
-  \`;
-  const result = await this.pool.query(query, [id, tenantId]);
-  return result.rows[0] || null;
-}
-
-async findAllWithRelatedData(tenantId: string) {
-  const query = \`
-    SELECT t.*
-    FROM frauddetection t
-    WHERE t.tenant_id = \api/src/repositories/frauddetection.repository.ts AND t.deleted_at IS NULL
-    ORDER BY t.created_at DESC
-  \`;
-  const result = await this.pool.query(query, [tenantId]);
-  return result.rows;
-}

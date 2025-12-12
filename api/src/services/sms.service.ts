@@ -404,7 +404,7 @@ class SMSService {
       const result = await this.db.query(
         `INSERT INTO sms_templates (tenant_id, name, body, category, variables)
          VALUES ($1, $2, $3, $4, $5)
-         RETURNING id',
+         RETURNING id`,
         [
           template.tenantId,
           template.name,
