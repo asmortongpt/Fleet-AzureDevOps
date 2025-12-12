@@ -1,0 +1,28 @@
+{
+  "name": "fleet-agent-worker",
+  "version": "1.0.0",
+  "description": "Fleet Autonomous Worker Agent",
+  "main": "dist/agent-worker.js",
+  "type": "module",
+  "scripts": {
+    "dev": "tsx src/agent-worker.ts",
+    "build": "tsc",
+    "start": "node dist/agent-worker.js",
+    "start:tsx": "tsx src/agent-worker.ts"
+  },
+  "dependencies": {
+    "axios": "^1.6.2",
+    "ws": "^8.14.2",
+    "simple-git": "^3.20.0",
+    "dotenv": "^16.3.1"
+  },
+  "devDependencies": {
+    "@types/node": "^20.10.0",
+    "@types/ws": "^8.5.9",
+    "tsx": "^4.7.0",
+    "typescript": "^5.3.3"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  }
+}

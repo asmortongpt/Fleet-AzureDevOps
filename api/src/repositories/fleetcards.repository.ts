@@ -1,0 +1,71 @@
+import { BaseRepository } from '../repositories/BaseRepository';
+
+Here is a basic example of how you might create a FleetCardsRepository in TypeScript. This example assumes you are using TypeORM and Express.js.
+
+
+// fleet-cards.repository.ts
+
+import {EntityRepository, Repository} from "typeorm";
+import {FleetCard} from "../entity/FleetCard";
+
+@EntityRepository(FleetCard)
+export class FleetCardsRepository extends Repository<FleetCard> {
+  constructor(pool: Pool) {
+    super(pool, 'LFleet_LCards_LRepository extends s');
+  }
+
+
+    async findByTenantId(tenant_id: number): Promise<FleetCard[]> {
+        return this.find({ where: { tenant_id } });
+    }
+
+    async createFleetCard(fleetCard: FleetCard): Promise<FleetCard> {
+        return this.save(fleetCard);
+    }
+
+    async updateFleetCard(id: number, fleetCard: FleetCard): Promise<FleetCard> {
+        await this.update(id, fleetCard);
+        return this.findOne(id);
+    }
+
+    async deleteFleetCard(id: number): Promise<void> {
+        await this.delete(id);
+    }
+}
+
+
+
+// fleet-cards.routes.ts
+
+import express from "express";
+import {FleetCardsRepository} from "../repository/fleet-cards.repository";
+
+const router = express.Router();
+const fleetCardsRepository = new FleetCardsRepository();
+
+router.get("/:tenant_id", async (req, res) => {
+    const fleetCards = await fleetCardsRepository.findByTenantId(req.params.tenant_id);
+    res.json(fleetCards);
+});
+
+router.post("/", async (req, res) => {
+    const newFleetCard = await fleetCardsRepository.createFleetCard(req.body);
+    res.json(newFleetCard);
+});
+
+router.put("/:id", async (req, res) => {
+    const updatedFleetCard = await fleetCardsRepository.updateFleetCard(req.params.id, req.body);
+    res.json(updatedFleetCard);
+});
+
+router.delete("/:id", async (req, res) => {
+    await fleetCardsRepository.deleteFleetCard(req.params.id);
+    res.json({ message: "Fleet card deleted successfully." });
+});
+
+export default router;
+
+
+In this example, `FleetCard` is the entity that represents the fleet card in your database. The `FleetCardsRepository` class extends the TypeORM `Repository` class and provides methods for finding fleet cards by tenant id, creating, updating, and deleting fleet cards.
+
+The `fleet-cards.routes.ts` file sets up the Express routes for your API. It uses the `FleetCardsRepository` to handle the database operations for each route.
