@@ -16,6 +16,7 @@ import { logger } from '../utils/logger'
 import { v4 as uuidv4 } from 'uuid'
 import { getErrorMessage } from '../utils/error-handler'
 import { csrfProtection } from '../middleware/csrf'
+import { aiProcessingLimiter } from '../middleware/rateLimiter'
 
 
 const router = Router()
@@ -27,7 +28,7 @@ router.use(authenticateJWT)
  * POST /api/langchain/execute
  * Execute a LangChain workflow
  */
-router.post('/execute',csrfProtection, requirePermission('report:generate:global'), async (req: Request, res: Response) => {
+router.post('/execute', aiProcessingLimiter, csrfProtection, requirePermission('report:generate:global'), async (req: Request, res: Response) => {
   try {
     const { workflowType, parameters } = req.body
     const tenantId = (req as any).user.tenant_id
@@ -95,7 +96,7 @@ router.post('/execute',csrfProtection, requirePermission('report:generate:global
  * POST /api/langchain/chat
  * Chat with AI supervisor
  */
-router.post('/chat',csrfProtection, requirePermission('report:view:global'), async (req: Request, res: Response) => {
+router.post('/chat', aiProcessingLimiter, csrfProtection, requirePermission('report:view:global'), async (req: Request, res: Response) => {
   try {
     const { message, sessionId, config } = req.body
     const tenantId = (req as any).user.tenant_id
@@ -178,7 +179,7 @@ router.post('/chat',csrfProtection, requirePermission('report:view:global'), asy
  * POST /api/langchain/supervisor/query
  * Query the AI supervisor directly
  */
-router.post('/supervisor/query',csrfProtection, requirePermission('report:view:global'), async (req: Request, res: Response) => {
+router.post('/supervisor/query', aiProcessingLimiter, csrfProtection, requirePermission('report:view:global'), async (req: Request, res: Response) => {
   try {
     const { query, sessionId } = req.body
     const tenantId = (req as any).user.tenant_id

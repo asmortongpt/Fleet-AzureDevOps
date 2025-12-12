@@ -85,13 +85,9 @@ export class VehicleModelsService {
       headers: {
         'Content-Type': 'application/json',
       },
+      // SECURITY FIX (HIGH-008): Use httpOnly cookies for auth instead of localStorage
+      withCredentials: true,
     });
-
-    // Add auth token if available
-    const token = localStorage.getItem('auth_token');
-    if (token) {
-      this.api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-    }
   }
 
   /**

@@ -16,6 +16,7 @@ import ocrService, { OcrOptions, OcrProvider } from '../services/OcrService'
 import ocrQueueService from '../services/OcrQueueService'
 import { getErrorMessage } from '../utils/error-handler'
 import { csrfProtection } from '../middleware/csrf'
+import { aiProcessingLimiter } from '../middleware/rateLimiter'
 
 
 const router = express.Router()
@@ -52,7 +53,7 @@ const upload = multer({
  * @desc Process a single document with OCR
  * @access Private
  */
-router.post('/process',csrfProtection, upload.single('file'), async (req: Request, res: Response) => {
+router.post('/process', aiProcessingLimiter, csrfProtection, upload.single('file'), async (req: Request, res: Response) => {
   try {
     if (!req.file) {
       return res.status(400).json({ error: `No file uploaded` })
@@ -122,7 +123,7 @@ router.post('/process',csrfProtection, upload.single('file'), async (req: Reques
  * @desc Process multiple documents with OCR
  * @access Private
  */
-router.post('/batch',csrfProtection, upload.array('files', 100), async (req: Request, res: Response) => {
+router.post('/batch', aiProcessingLimiter, csrfProtection, upload.array('files', 100), async (req: Request, res: Response) => {
   try {
     const files = req.files as Express.Multer.File[]
 

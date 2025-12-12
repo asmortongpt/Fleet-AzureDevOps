@@ -7,6 +7,7 @@ import { AuthRequest, authenticateJWT } from '../middleware/auth'
 import { csrfProtection } from '../middleware/csrf'
 import { requirePermission } from '../middleware/permissions'
 import fleetOptimizerService from '../services/fleet-optimizer.service'
+import { aiProcessingLimiter } from '../middleware/rateLimiter'
 
 
 const router = express.Router()
@@ -15,6 +16,7 @@ router.use(authenticateJWT)
 // GET /api/fleet-optimizer/utilization-heatmap - Get utilization heatmap
 router.get(
   '/utilization-heatmap',
+  aiProcessingLimiter,
   requirePermission('report:view:global'),
   auditLog({ action: 'READ', resourceType: 'fleet_optimizer' }),
   async (req: AuthRequest, res: Response) => {
@@ -38,6 +40,7 @@ router.get(
 // GET /api/fleet-optimizer/vehicle/:vehicleId - Get vehicle utilization
 router.get(
   '/vehicle/:vehicleId',
+  aiProcessingLimiter,
   requirePermission('report:view:global'),
   auditLog({ action: 'READ', resourceType: 'fleet_optimizer' }),
   async (req: AuthRequest, res: Response) => {
@@ -67,6 +70,7 @@ router.get(
 // GET /api/fleet-optimizer/vehicle/:vehicleId/forecast - Predict utilization
 router.get(
   '/vehicle/:vehicleId/forecast',
+  aiProcessingLimiter,
   requirePermission('report:view:global'),
   auditLog({ action: 'READ', resourceType: 'fleet_optimizer' }),
   async (req: AuthRequest, res: Response) => {
@@ -91,6 +95,7 @@ router.get(
 // GET /api/fleet-optimizer/recommendations - Get recommendations
 router.get(
   '/recommendations',
+  aiProcessingLimiter,
   requirePermission('report:view:global'),
   auditLog({ action: 'READ', resourceType: 'fleet_optimizer' }),
   async (req: AuthRequest, res: Response) => {
@@ -113,7 +118,9 @@ router.get(
 // POST /api/fleet-optimizer/recommendations/generate - Generate new recommendations
 router.post(
   '/recommendations/generate',
- csrfProtection, requirePermission('route:create:fleet'),
+  aiProcessingLimiter,
+  csrfProtection,
+  requirePermission('route:create:fleet'),
   auditLog({ action: 'CREATE', resourceType: 'fleet_optimizer' }),
   async (req: AuthRequest, res: Response) => {
     try {
@@ -140,6 +147,7 @@ router.post(
 // GET /api/fleet-optimizer/optimal-fleet-size - Calculate optimal fleet size
 router.get(
   '/optimal-fleet-size',
+  aiProcessingLimiter,
   requirePermission('report:view:global'),
   auditLog({ action: 'READ', resourceType: 'fleet_optimizer' }),
   async (req: AuthRequest, res: Response) => {
@@ -162,7 +170,9 @@ router.get(
 // POST /api/fleet-optimizer/analyze-all - Analyze all vehicles
 router.post(
   '/analyze-all',
- csrfProtection, requirePermission('route:create:fleet'),
+  aiProcessingLimiter,
+  csrfProtection,
+  requirePermission('route:create:fleet'),
   auditLog({ action: 'UPDATE', resourceType: 'fleet_optimizer' }),
   async (req: AuthRequest, res: Response) => {
     try {

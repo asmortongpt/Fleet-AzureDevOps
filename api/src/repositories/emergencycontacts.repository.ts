@@ -72,9 +72,7 @@ export class EmergencyContactsRepository extends BaseRepository<any> {
 
   // Update an emergency contact
   async update(tenantId: number, contactId: number, contact: Partial<Omit<EmergencyContact, 'id' | 'tenant_id' | 'created_at' | 'updated_at'>>): Promise<EmergencyContact | null> {
-    const setClause = Object.keys(contact)
-      .map((key, index) => `${key} = $${index + 3}`)
-      .join(', ');
+    const { fields: setClause, values: updateValues } = buildUpdateClause(contact, 3, 'generic_table');
     
     const query = `
       UPDATE emergency_contacts
@@ -82,7 +80,7 @@ export class EmergencyContactsRepository extends BaseRepository<any> {
       WHERE tenant_id = $1 AND id = $2
       RETURNING *;
     `;
-    const values = [tenantId, contactId, ...Object.values(contact)];
+    const values = [tenantId, contactId, ...updateValues];
     
     const result: QueryResult<EmergencyContact> = await this.pool.query(query, values);
     return result.rows[0] || null;
@@ -123,6 +121,7 @@ To use this repository in your `emergency-contacts.routes.ts` file, you would ty
 import express from 'express';
 import { Pool } from 'pg';
 import { EmergencyContactsRepository } from '../repositories/EmergencyContactsRepository';
+import { buildUpdateClause } from '../utils/sql-safety'
 
 const router = express.Router();
 const pool = new Pool(/* your pool configuration */);

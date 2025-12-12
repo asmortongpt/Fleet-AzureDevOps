@@ -1,6 +1,7 @@
 import { BaseRepository } from '../repositories/BaseRepository';
 
 import { Pool } from 'pg';
+import { buildUpdateClause } from '../utils/sql-safety'
 
 export interface ComplianceReport {
   id: number;
@@ -47,9 +48,9 @@ export class ComplianceReportsRepository extends BaseRepository<any> {
 
   async update(tenantId: number, id: number, report: Partial<Omit<ComplianceReport, 'id' | 'tenant_id' | 'created_at' | 'deleted_at'>>): Promise<ComplianceReport> {
     try {
-      const setClause = Object.keys(report).map((key, index) => `${key} = $${index + 3}`).join(', ');
+      const { fields: setClause, values: updateValues } = buildUpdateClause(report, 3, 'compliance_reports');
       const query = `UPDATE compliance_reports SET ${setClause}, updated_at = NOW() WHERE tenant_id = $1 AND id = $2 AND deleted_at IS NULL RETURNING *`;
-      const values = [tenantId, id, ...Object.values(report)];
+      const values = [tenantId, id, ...updateValues];
       const result = await this.pool.query<ComplianceReport>(query, values);
       if (result.rowCount === 0) {
         throw new Error('Compliance report not found or already deleted');

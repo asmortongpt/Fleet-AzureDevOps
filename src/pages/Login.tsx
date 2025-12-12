@@ -20,33 +20,12 @@ import { signInWithMicrosoft, setAuthToken } from '@/lib/microsoft-auth'
  */
 export function Login() {
   const navigate = useNavigate()
-  // Pre-fill credentials in DEV mode for quick access
-  const [email, setEmail] = useState(import.meta.env.DEV ? 'admin@fleet.local' : '')
-  const [password, setPassword] = useState(import.meta.env.DEV ? 'demo123' : '')
+  // SECURITY FIX (HIGH-007): Remove hardcoded credentials
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
 
-  // AUTO-LOGIN in DEV mode (enabled for testing)
-  useEffect(() => {
-    if (import.meta.env.DEV && true) { // Enabled for testing
-      console.log('[LOGIN] DEV mode detected - auto-logging in with demo user')
-
-      // Create a demo JWT token (not validated in DEV mode)
-      const demoToken = btoa(JSON.stringify({
-        header: { alg: 'HS256', typ: 'JWT' },
-        payload: {
-          id: 1,
-          email: 'admin@fleet.local',
-          role: 'admin',
-          tenant_id: 1,
-          auth_provider: 'demo',
-          exp: Date.now() + 86400000 // 24 hours
-        }
-      }))
-
-      setAuthToken(demoToken)
-      console.log('[LOGIN] Demo token set, redirecting to dashboard')
-      navigate('/', { replace: true })
-    }
-  }, [navigate])
+  // SECURITY FIX (HIGH-007): Auto-login disabled for security reasons
+  // Auto-login has been removed to prevent automatic authentication with hardcoded credentials
 
   // Handle Microsoft OAuth callback
   useEffect(() => {
@@ -191,7 +170,7 @@ export function Login() {
               <Input
                 id="email"
                 type="email"
-                placeholder="admin@fleet.local"
+                placeholder="Enter your email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
@@ -204,7 +183,7 @@ export function Login() {
               <Input
                 id="password"
                 type="password"
-                placeholder="demo123"
+                placeholder="Enter your password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required

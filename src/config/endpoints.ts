@@ -3,7 +3,7 @@
  * This file defines all available API endpoints and WebSocket connections
  */
 
-import { EndpointCategory, SocketConnectionInfo } from '@/types/endpoint-monitor'
+import { EndpointCategory, SocketConnectionInfo, EndpointInfo } from '@/types/endpoint-monitor'
 
 export const API_ENDPOINT_CATEGORIES: EndpointCategory[] = [
   {
@@ -257,11 +257,18 @@ export const API_ENDPOINT_CATEGORIES: EndpointCategory[] = [
   }
 ]
 
+// SECURITY FIX (HIGH-009): Helper to construct WebSocket URL from current location
+const getWebSocketUrl = (path: string = '') => {
+  const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:'
+  const host = window.location.host
+  return `${protocol}//${host}${path}`
+}
+
 export const WEBSOCKET_CONNECTIONS: SocketConnectionInfo[] = [
   {
     id: 'obd2-emulator',
     category: 'OBD2 Emulator',
-    url: 'ws://localhost:8000/ws/obd2/',
+    url: import.meta.env.VITE_OBD2_WS_URL || getWebSocketUrl('/ws/obd2/'),
     description: 'Real-time OBD2 telemetry data',
     status: 'disconnected',
     lastMessageTime: null,
@@ -271,7 +278,7 @@ export const WEBSOCKET_CONNECTIONS: SocketConnectionInfo[] = [
   {
     id: 'radio-socket',
     category: 'Radio Dispatch',
-    url: import.meta.env.VITE_RADIO_SOCKET_URL || 'http://localhost:8000',
+    url: import.meta.env.VITE_RADIO_SOCKET_URL || window.location.origin,
     description: 'Radio transmissions and policy triggers',
     status: 'disconnected',
     lastMessageTime: null,
@@ -281,7 +288,7 @@ export const WEBSOCKET_CONNECTIONS: SocketConnectionInfo[] = [
   {
     id: 'dispatch-socket',
     category: 'Dispatch System',
-    url: import.meta.env.VITE_DISPATCH_SOCKET_URL || 'http://localhost:8000',
+    url: import.meta.env.VITE_DISPATCH_SOCKET_URL || window.location.origin,
     description: 'Dispatch events and unit status',
     status: 'disconnected',
     lastMessageTime: null,

@@ -58,10 +58,9 @@ export class AuditLogsRepository extends BaseRepository<any> {
 
   // Update an existing audit log entry
   async update(tenantId: string, id: number, updates: Partial<AuditLog>): Promise<AuditLog | null> {
-    const setClause = Object.keys(updates)
-      .filter(key => key !== 'id' && key !== 'tenant_id')
-      .map((key, index) => `${key} = $${index + 3}`)
-      .join(', ');
+    // Filter out id and tenant_id, then use safe SQL builder
+    const filtered = Object.keys(updates).filter(key => key !== 'id' && key !== 'tenant_id').reduce((obj: any, key) => { obj[key] = updates[key]; return obj; }, {});
+    const { fields: setClause, values: updateValues } = buildUpdateClause(filtered, 3, 'audit_logs');
     
     if (!setClause) {
       throw new Error('No valid fields to update');
@@ -116,6 +115,7 @@ To use this repository in your `audit-logs.routes.ts` file, you would typically 
 import { Router } from 'express';
 import { Pool } from 'pg';
 import { AuditLogsRepository } from './AuditLogsRepository';
+import { buildUpdateClause } from '../utils/sql-safety'
 
 const router = Router();
 const pool = new Pool(/* your database connection details */);

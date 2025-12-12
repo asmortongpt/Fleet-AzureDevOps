@@ -21,8 +21,40 @@ import { validateWebhook, WebhookRequest } from '../../middleware/webhook-valida
 import { requirePermission } from '../../middleware/permissions'
 import webhookService from '../../services/webhook.service'
 import pool from '../../config/database'
+import { getTableColumns } from '../../utils/column-resolver'
 
 const router = express.Router()
+
+/**
+ * SECURITY FIX (CRIT-004): Extract tenant ID from Teams webhook payload
+ * Maps channel ID to tenant ID via registered channel mapping
+ */
+async function extractTenantFromTeamsWebhook(req: Request): Promise<string | null> {
+  try {
+    // Extract channel ID from Teams webhook payload
+    const channelId = req.body?.channelIdentity?.channelId
+    if (!channelId) {
+      console.warn('SECURITY: Teams webhook missing channel ID in payload')
+      return null
+    }
+
+    // Look up tenant from registered channel
+    const result = await pool.query(
+      'SELECT tenant_id FROM teams_channel_registrations WHERE channel_id = $1',
+      [channelId]
+    )
+
+    if (result.rows.length === 0) {
+      console.warn('SECURITY: Teams channel not registered:', channelId)
+      return null
+    }
+
+    return result.rows[0].tenant_id
+  } catch (error) {
+    console.error('SECURITY: Failed to extract tenant from Teams webhook:', error)
+    return null
+  }
+}
 
 /**
  * POST /api/webhooks/teams
@@ -37,21 +69,28 @@ router.post(
 
       if (!notifications || !Array.isArray(notifications)) {
         console.error('❌ Invalid webhook payload structure')
-        return res.status(400).json({ error: `Invalid payload structure` })
+        return res.status(400).json({ error: 'Invalid payload structure' })
       }
 
       console.log(`📨 Received ${notifications.length} Teams notification(s)`)
 
+      // SECURITY FIX (CRIT-004): Extract and validate tenant from webhook payload
+      const tenantId = await extractTenantFromTeamsWebhook(req)
+      if (!tenantId) {
+        console.error('SECURITY: Teams webhook without valid tenant mapping')
+        return res.status(403).json({ error: 'Tenant not found for this channel' })
+      }
+
       // Process notifications asynchronously
       // Return 202 Accepted immediately to avoid timeout
       res.status(202).json({
-        message: `Notifications received and queued for processing`,
+        message: 'Notifications received and queued for processing',
         count: notifications.length
       })
 
-      // Process each notification in the background
+      // Process each notification in the background with tenant context
       for (const notification of notifications) {
-        processNotificationAsync(notification).catch(error => {
+        processNotificationAsync(notification, tenantId).catch(error => {
           console.error('Failed to process notification:', error)
         })
       }
@@ -66,7 +105,7 @@ router.post(
 /**
  * Process notification asynchronously
  */
-async function processNotificationAsync(notification: any): Promise<void> {
+async function processNotificationAsync(notification: any, tenantId?: string): Promise<void> {
   try {
     const { changeType, resource, resourceData, subscriptionId, clientState } = notification
 
@@ -76,6 +115,12 @@ async function processNotificationAsync(notification: any): Promise<void> {
       subscriptionId: subscriptionId?.substring(0, 10) + '...'
     })
 
+    // SECURITY FIX (CRIT-004): Validate tenant ID for state-changing operations
+    if (!tenantId && (changeType === 'updated' || changeType === 'deleted')) {
+      console.error('SECURITY: Tenant ID required for update/delete operations')
+      throw new Error('Tenant ID required for this operation')
+    }
+
     // Determine event type
     switch (changeType) {
       case 'created':
@@ -83,11 +128,11 @@ async function processNotificationAsync(notification: any): Promise<void> {
         break
 
       case 'updated':
-        await handleMessageUpdate(notification)
+        await handleMessageUpdate(notification, tenantId!)
         break
 
       case 'deleted':
-        await handleMessageDelete(notification)
+        await handleMessageDelete(notification, tenantId!)
         break
 
       default:
@@ -124,7 +169,7 @@ async function processNotificationAsync(notification: any): Promise<void> {
 /**
  * Handle message update event
  */
-async function handleMessageUpdate(notification: any): Promise<void> {
+async function handleMessageUpdate(notification: any, tenantId: string): Promise<void> {
   try {
     const { resource } = notification
 
@@ -136,12 +181,13 @@ async function handleMessageUpdate(notification: any): Promise<void> {
 
     const [, teamId, channelId, messageId] = resourceMatch
 
-    // Check if message exists in our database
+    // SECURITY FIX (CRIT-004): Check if message exists with tenant isolation
     const result = await pool.query(
       `SELECT id FROM communications
-       WHERE source_platform = `Microsoft Teams`
-       AND source_platform_id = $1`,
-      [messageId]
+       WHERE source_platform = 'Microsoft Teams'
+       AND source_platform_id = $1
+       AND tenant_id = $2`,
+      [messageId, tenantId]
     )
 
     if (result.rows.length === 0) {
@@ -180,18 +226,19 @@ import { csrfProtection } from '../middleware/csrf'
       .api(`/teams/${teamId}/channels/${channelId}/messages/${messageId}`)
       .get()
 
-    // Update communication record
+    // SECURITY FIX (CRIT-004): Update communication record with tenant isolation
     await pool.query(
       `UPDATE communications
        SET body = $1,
            updated_at = NOW(),
            metadata = jsonb_set(
-             COALESCE(metadata, `{}`::jsonb),
-             `{lastModifiedDateTime}`,
+             COALESCE(metadata, '{}'::jsonb),
+             '{lastModifiedDateTime}',
              $2::jsonb
            )
-       WHERE id = $3`,
-      [message.body.content, JSON.stringify(message.lastModifiedDateTime), communicationId]
+       WHERE id = $3
+       AND tenant_id = $4`,
+      [message.body.content, JSON.stringify(message.lastModifiedDateTime), communicationId, tenantId]
     )
 
     console.log('✅ Teams message updated:', messageId)
@@ -205,7 +252,7 @@ import { csrfProtection } from '../middleware/csrf'
 /**
  * Handle message delete event
  */
-async function handleMessageDelete(notification: any): Promise<void> {
+async function handleMessageDelete(notification: any, tenantId: string): Promise<void> {
   try {
     const { resource } = notification
 
@@ -217,20 +264,21 @@ async function handleMessageDelete(notification: any): Promise<void> {
 
     const messageId = resourceMatch[1]
 
-    // Mark message as deleted in our database
+    // SECURITY FIX (CRIT-004): Mark message as deleted with tenant isolation
     const result = await pool.query(
       `UPDATE communications
        SET status = 'Deleted',
            updated_at = NOW(),
            metadata = jsonb_set(
-             COALESCE(metadata, `{}`::jsonb),
+             COALESCE(metadata, '{}'::jsonb),
              '{deletedAt}',
              $1::jsonb
            )
        WHERE source_platform = 'Microsoft Teams'
        AND source_platform_id = $2
-       RETURNING id',
-      [JSON.stringify(new Date().toISOString()), messageId]
+       AND tenant_id = $3
+       RETURNING id`,
+      [JSON.stringify(new Date().toISOString()), messageId, tenantId]
     )
 
     if (result.rows.length > 0) {
@@ -257,8 +305,9 @@ router.get(
   async (req: AuthRequest, res: Response) => {
     try {
       // Only return subscriptions for user's tenant
+      const columns = (await getTableColumns(pool, 'webhook_subscriptions')).join(', ')
       const result = await pool.query(
-        'SELECT ' + (await getTableColumns(pool, 'webhook_subscriptions')).join(', ') + ' FROM webhook_subscriptions
+        `SELECT ${columns} FROM webhook_subscriptions
          WHERE subscription_type = 'teams_messages'
          AND status = 'active'
          AND tenant_id = $1
