@@ -1,5 +1,6 @@
 import { Pool } from 'pg';
 import { BaseRepository } from './BaseRepository';
+import { buildUpdateClause } from '../utils/sql-safety'
 
 export class SubscriptionManagementRepository extends BaseRepository<any> {
   constructor(pool: Pool) {
@@ -44,14 +45,14 @@ export class SubscriptionManagementRepository extends BaseRepository<any> {
 
   // Update a subscription
   async updateSubscription(id: number, tenant_id: number, updates: Partial<Omit<Subscription, 'id' | 'tenant_id' | 'created_at' | 'updated_at'>>): Promise<Subscription | null> {
-    const setClause = Object.keys(updates).map((key, index) => `${key} = $${index + 3}`).join(', ');
+    const { fields: setClause, values: updateValues } = buildUpdateClause(updates, 3, 'subscriptions');
     const query = `
       UPDATE subscriptions
       SET ${setClause}
       WHERE id = $1 AND tenant_id = $2
       RETURNING *
     `;
-    const values = [id, tenant_id, ...Object.values(updates)];
+    const values = [id, tenant_id, ...updateValues];
 
     const result: QueryResult<Subscription> = await this.query(query, values);
     return result.rows[0] || null;

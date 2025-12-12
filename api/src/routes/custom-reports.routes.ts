@@ -13,6 +13,7 @@ import path from 'path'
 import { safeReadFile, PathTraversalError } from '../utils/safe-file-operations'
 import { getErrorMessage } from '../utils/error-handler'
 import { csrfProtection } from '../middleware/csrf'
+import { reportLimiter, readLimiter } from '../middleware/rateLimiter'
 
 
 const router = express.Router()
@@ -51,7 +52,9 @@ router.get(
 // POST /api/custom-reports/from-template/:templateId - Create report from template
 router.post(
   '/from-template/:templateId',
- csrfProtection, requirePermission('report:generate:global'),
+  reportLimiter,
+  csrfProtection,
+  requirePermission('report:generate:global'),
   auditLog({ action: 'CREATE', resourceType: 'custom_report' }),
   async (req: AuthRequest, res: Response) => {
     try {
@@ -80,6 +83,7 @@ router.post(
 // GET /api/custom-reports - List user's reports
 router.get(
   '/',
+  readLimiter,
   requirePermission('report:view:global'),
   async (req: AuthRequest, res: Response) => {
     try {

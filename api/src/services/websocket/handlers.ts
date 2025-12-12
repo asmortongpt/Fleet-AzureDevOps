@@ -18,10 +18,54 @@ const client = new Client({
 
 client.connect();
 
-const wss = new WebSocket.Server({ port: Number(process.env.WS_PORT) });
+// SECURITY FIX: Message rate limiting
+const MAX_MESSAGES_PER_SECOND = 10;
+const messageRateLimits = new Map<string, { count: number; resetTime: number }>();
 
-wss.on('connection', (ws) => {
+function checkMessageRateLimit(socketId: string): boolean {
+  const now = Date.now();
+  const limit = messageRateLimits.get(socketId);
+
+  if (!limit || now > limit.resetTime) {
+    messageRateLimits.set(socketId, { count: 1, resetTime: now + 1000 });
+    return true;
+  }
+
+  if (limit.count >= MAX_MESSAGES_PER_SECOND) {
+    console.warn(`[WebSocket] Message rate limit exceeded for socket: ${socketId}`);
+    return false;
+  }
+
+  limit.count++;
+  return true;
+}
+
+// SECURITY FIX: Add message size limit
+const MAX_MESSAGE_SIZE = 1048576; // 1MB
+const wss = new WebSocket.Server({
+  port: Number(process.env.WS_PORT),
+  maxPayload: MAX_MESSAGE_SIZE
+});
+
+interface ExtendedWebSocket extends WebSocket {
+  socketId?: string;
+}
+
+wss.on('connection', (ws: ExtendedWebSocket) => {
+  // SECURITY FIX: Generate unique socket ID for rate limiting
+  ws.socketId = `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+
   ws.on('message', async (message: string) => {
+    // SECURITY FIX: Check message rate limit
+    if (!checkMessageRateLimit(ws.socketId!)) {
+      ws.send(JSON.stringify({
+        type: 'ERROR',
+        code: 'RATE_LIMIT',
+        message: 'Too many messages. Please slow down.'
+      }));
+      return;
+    }
+
     try {
       const parsedMessage = JSON.parse(message);
 
@@ -55,6 +99,13 @@ wss.on('connection', (ws) => {
       }
     } catch (error) {
       console.error(`Error handling message: ${error}`);
+    }
+  });
+
+  // SECURITY FIX: Clean up rate limit tracking on disconnect
+  ws.on('close', () => {
+    if (ws.socketId) {
+      messageRateLimits.delete(ws.socketId);
     }
   });
 });
