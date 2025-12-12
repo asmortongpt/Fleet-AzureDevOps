@@ -251,7 +251,7 @@ export abstract class BaseRepository<T extends { id: string | number }> {
 
       // Column names are validated above
       const result = await pool.query(
-        `INSERT INTO ${this.tableName} (${columns.join(`, ')})
+        `INSERT INTO ${this.tableName} (${columns.join(', ')})
          VALUES (${placeholders})
          RETURNING *`,
         values
