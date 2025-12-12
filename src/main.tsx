@@ -9,6 +9,7 @@ import ReactDOM from "react-dom/client";
 import { RouterProvider } from "react-router-dom";
 
 import { AuthProvider } from "./components/providers/AuthProvider";
+import { DrilldownProvider } from "./contexts/DrilldownContext";
 import { router } from "./router/routes";
 import { InspectProvider } from "./services/inspect/InspectContext";
 import "./index.css";
@@ -33,9 +34,11 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
-        <InspectProvider>
-          <SentryRouterProvider router={router} />
-        </InspectProvider>
+        <DrilldownProvider>
+          <InspectProvider>
+            <SentryRouterProvider router={router} />
+          </InspectProvider>
+        </DrilldownProvider>
       </AuthProvider>
     </QueryClientProvider>
   </React.StrictMode>
