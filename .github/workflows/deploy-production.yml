@@ -1,0 +1,51 @@
+name: Deploy to Production
+
+on:
+  push:
+    branches: [main]
+  release:
+    types: [published]
+
+env:
+  ENVIRONMENT: production
+  AZURE_RESOURCE_GROUP: fleet-production-rg
+  AZURE_CONTAINER_APP: fleet-production-app
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: production
+      url: https://fleet.capitaltechalliance.com
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Login to Azure
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS_PRODUCTION }}
+
+      - name: Build and Deploy
+        run: |
+          az acr build --registry fleetProductionACR \
+            --image fleet-api:${{ github.sha }} \
+            --file api/Dockerfile ./api
+
+          # Blue-Green Deployment
+          az containerapp revision copy \
+            --name fleet-production-app \
+            --resource-group fleet-production-rg \
+            --image fleetProductionACR.azurecr.io/fleet-api:${{ github.sha }}
+
+      - name: Run Smoke Tests
+        run: npm run test:smoke
+        env:
+          API_URL: https://fleet.capitaltechalliance.com
+
+      - name: Activate New Revision
+        run: |
+          az containerapp ingress traffic set \
+            --name fleet-production-app \
+            --resource-group fleet-production-rg \
+            --revision-weight latest=100
