@@ -1,11 +1,14 @@
-import { Pool } from 'pg';
-import { BaseRepository } from './BaseRepository';
+import { BaseRepository } from '../repositories/BaseRepository';
 
-export class LicenseRenewalsRepository extends BaseRepository<any> {
+Here is an example of a TypeScript repository `LicenseRenewalsRepository` for `license-renewals.routes.ts`. This repository includes parameterized queries, tenant_id, and CRUD operations.
+
+
+import { EntityRepository, Repository } from 'typeorm';
+import { LicenseRenewal } from '../entities/license-renewal.entity';
+
+@EntityRepository(LicenseRenewal)
+export class LicenseRenewalsRepository extends Repository<LicenseRenewal> {
   constructor(pool: Pool) {
-    super(pool, 'LLicense_LRenewals_s');
-  }
-
     super(pool, 'LLicense_LRenewals_LRepository extends s');
   }
 
@@ -34,31 +37,7 @@ export class LicenseRenewalsRepository extends BaseRepository<any> {
   }
 }
 
-  /**
-   * N+1 PREVENTION: Find with related data
-   * Override this method in subclasses for specific relationships
-   */
-  async findWithRelatedData(id: string, tenantId: string) {
-    const query = `
-      SELECT t.*
-      FROM ${this.tableName} t
-      WHERE t.id = $1 AND t.tenant_id = $2 AND t.deleted_at IS NULL
-    `;
-    const result = await this.query(query, [id, tenantId]);
-    return result.rows[0] || null;
-  }
 
-  /**
-   * N+1 PREVENTION: Find all with related data
-   * Override this method in subclasses for specific relationships
-   */
-  async findAllWithRelatedData(tenantId: string) {
-    const query = `
-      SELECT t.*
-      FROM ${this.tableName} t
-      WHERE t.tenant_id = $1 AND t.deleted_at IS NULL
-      ORDER BY t.created_at DESC
-    `;
-    const result = await this.query(query, [tenantId]);
-    return result.rows;
-  }
+In this repository, we have methods for creating, reading, updating, and deleting license renewals. Each method includes a `tenantId` parameter to ensure that operations are performed within the context of a specific tenant. 
+
+Please note that you need to replace `any` with the actual type of the license renewal data. Also, you need to have a `LicenseRenewal` entity defined in your application, which is used here in the repository.

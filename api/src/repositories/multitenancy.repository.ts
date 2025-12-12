@@ -1,11 +1,14 @@
-import { Pool } from 'pg';
-import { BaseRepository } from './BaseRepository';
+import { BaseRepository } from '../repositories/BaseRepository';
 
-export class MultiTenancyRepository extends BaseRepository<any> {
+Here is a basic example of a TypeScript repository for a multi-tenancy system. This example is using TypeORM but you can replace it with your preferred ORM.
+
+
+import { EntityRepository, Repository } from 'typeorm';
+import { MultiTenancy } from '../entities/MultiTenancy';
+
+@EntityRepository(MultiTenancy)
+export class MultiTenancyRepository extends Repository<MultiTenancy> {
   constructor(pool: Pool) {
-    super(pool, 'LMulti_LTenancy_s');
-  }
-
     super(pool, 'LMulti_LTenancy_LRepository extends s');
   }
 
@@ -29,31 +32,41 @@ export class MultiTenancyRepository extends BaseRepository<any> {
   }
 }
 
-  /**
-   * N+1 PREVENTION: Find with related data
-   * Override this method in subclasses for specific relationships
-   */
-  async findWithRelatedData(id: string, tenantId: string) {
-    const query = `
-      SELECT t.*
-      FROM ${this.tableName} t
-      WHERE t.id = $1 AND t.tenant_id = $2 AND t.deleted_at IS NULL
-    `;
-    const result = await this.query(query, [id, tenantId]);
-    return result.rows[0] || null;
-  }
 
-  /**
-   * N+1 PREVENTION: Find all with related data
-   * Override this method in subclasses for specific relationships
-   */
-  async findAllWithRelatedData(tenantId: string) {
-    const query = `
-      SELECT t.*
-      FROM ${this.tableName} t
-      WHERE t.tenant_id = $1 AND t.deleted_at IS NULL
-      ORDER BY t.created_at DESC
-    `;
-    const result = await this.query(query, [tenantId]);
-    return result.rows;
-  }
+And here is how you can use this repository in your routes:
+
+
+import express from 'express';
+import { getCustomRepository } from 'typeorm';
+import { MultiTenancyRepository } from '../repositories/MultiTenancyRepository';
+
+const router = express.Router();
+
+router.get('/:tenant_id', async (req, res) => {
+  const repository = getCustomRepository(MultiTenancyRepository);
+  const multiTenancy = await repository.findByTenantId(req.params.tenant_id);
+  res.json(multiTenancy);
+});
+
+router.post('/', async (req, res) => {
+  const repository = getCustomRepository(MultiTenancyRepository);
+  const multiTenancy = await repository.createAndSave(req.body.tenant_id, req.body);
+  res.json(multiTenancy);
+});
+
+router.put('/:tenant_id', async (req, res) => {
+  const repository = getCustomRepository(MultiTenancyRepository);
+  const multiTenancy = await repository.updateByTenantId(req.params.tenant_id, req.body);
+  res.json(multiTenancy);
+});
+
+router.delete('/:tenant_id', async (req, res) => {
+  const repository = getCustomRepository(MultiTenancyRepository);
+  await repository.deleteByTenantId(req.params.tenant_id);
+  res.json({ message: 'Deleted' });
+});
+
+export default router;
+
+
+Please note that this is a very basic example and you might need to adjust it according to your needs. For example, you might want to add error handling, validation, etc.

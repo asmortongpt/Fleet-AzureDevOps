@@ -57,14 +57,14 @@ export class DispatchBoardRepository extends BaseRepository<any> {
 
   // Update a dispatch board item
   async update(tenantId: number, id: number, item: Partial<Omit<DispatchBoardItem, 'id' | 'created_at' | 'updated_at' | 'tenant_id'>>): Promise<DispatchBoardItem | null> {
-    const { fields: setClause, values: updateValues } = buildUpdateClause(item, 3, 'dispatch_board');
+    const setClause = Object.keys(item).map((key, index) => `${key} = $${index + 3}`).join(', ');
     const query = `
       UPDATE dispatch_board
       SET ${setClause}
       WHERE id = $1 AND tenant_id = $2
       RETURNING id, title, description, status, created_at, updated_at, tenant_id;
     `;
-    const values = [id, tenantId, ...updateValues];
+    const values = [id, tenantId, ...Object.values(item)];
     const result: QueryResult<DispatchBoardItem> = await this.pool.query(query, values);
     return result.rows[0] || null;
   }
@@ -117,7 +117,6 @@ To use this repository in your `dispatch-board.routes.ts` file, you would typica
 
 import { Pool } from 'pg';
 import { DispatchBoardRepository } from './DispatchBoardRepository';
-import { buildUpdateClause } from '../utils/sql-safety'
 
 const pool = new Pool({
   // Your database connection details
@@ -139,27 +138,3 @@ router.post('/', async (req, res) => {
 
 
 This implementation should provide a solid foundation for your dispatch board functionality, with proper multi-tenant support and secure database operations.
-/**
- * N+1 PREVENTION: Fetch with related entities
- * Add specific methods based on your relationships
- */
-async findWithRelatedData(id: string, tenantId: string) {
-  const query = \`
-    SELECT t.*
-    FROM dispatchboard t
-    WHERE t.id = \api/src/repositories/dispatchboard.repository.ts AND t.tenant_id = \ AND t.deleted_at IS NULL
-  \`;
-  const result = await this.pool.query(query, [id, tenantId]);
-  return result.rows[0] || null;
-}
-
-async findAllWithRelatedData(tenantId: string) {
-  const query = \`
-    SELECT t.*
-    FROM dispatchboard t
-    WHERE t.tenant_id = \api/src/repositories/dispatchboard.repository.ts AND t.deleted_at IS NULL
-    ORDER BY t.created_at DESC
-  \`;
-  const result = await this.pool.query(query, [tenantId]);
-  return result.rows;
-}
