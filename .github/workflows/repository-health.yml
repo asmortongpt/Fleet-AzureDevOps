@@ -1,0 +1,283 @@
+name: Repository Health Checks
+
+on:
+  push:
+    branches: [main, develop, 'devops/**', 'feature/**']
+  pull_request:
+    branches: [main, develop]
+  schedule:
+    - cron: '0 2 * * 1' # Weekly on Monday at 2 AM UTC
+
+permissions:
+  contents: read
+  security-events: write
+  pull-requests: read
+
+jobs:
+  size-check:
+    name: Repository Size Check
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Check repository size
+        run: |
+          echo "📊 Repository Size Analysis"
+          echo "============================"
+
+          # Get pack file size
+          PACK_SIZE_MB=$(git count-objects -v | grep 'size-pack' | awk '{print $2}')
+          PACK_SIZE_HUMAN=$(git count-objects -vH | grep 'size-pack' | awk '{print $2}')
+
+          echo "Pack size: $PACK_SIZE_HUMAN ($PACK_SIZE_MB KB)"
+
+          # Calculate threshold (100MB = 102400 KB)
+          THRESHOLD_KB=102400
+
+          # Alert if repo exceeds threshold
+          if [ $PACK_SIZE_MB -gt $THRESHOLD_KB ]; then
+            echo "::warning::Repository size ($PACK_SIZE_HUMAN) exceeds 100MB threshold"
+            echo "::warning::Consider using Git LFS for large files or cleaning history"
+          else
+            echo "✅ Repository size is within acceptable limits"
+          fi
+
+          # Show largest files
+          echo ""
+          echo "📁 Top 10 Largest Files:"
+          echo "======================="
+          git rev-list --objects --all | \
+            git cat-file --batch-check='%(objecttype) %(objectname) %(objectsize) %(rest)' | \
+            sed -n 's/^blob //p' | \
+            sort --numeric-sort --key=2 --reverse | \
+            head -10 | \
+            awk '{
+              size=$1
+              name=$2
+              for(i=3; i<=NF; i++) name=name" "$i
+              if(size > 1048576) printf "%.2f MB - %s\n", size/1048576, name
+              else if(size > 1024) printf "%.2f KB - %s\n", size/1024, name
+              else printf "%d B - %s\n", size, name
+            }'
+
+      - name: Check for large files
+        run: |
+          echo "🔍 Checking for large files (>5MB)..."
+          LARGE_FILES=$(find . -type f -size +5M \
+            -not -path './.git/*' \
+            -not -path './node_modules/*' \
+            -not -path './dist/*' \
+            -not -path './build/*' \
+            -not -path './.next/*' | head -20)
+
+          if [ -n "$LARGE_FILES" ]; then
+            echo "::error::Large files detected (>5MB). These should be tracked with Git LFS:"
+            echo "$LARGE_FILES" | while read file; do
+              SIZE=$(du -h "$file" | cut -f1)
+              echo "::error::  $SIZE - $file"
+            done
+            exit 1
+          else
+            echo "✅ No large files detected"
+          fi
+
+      - name: Check Git LFS usage
+        run: |
+          echo "📦 Git LFS Status:"
+          echo "================"
+          if [ -f .gitattributes ]; then
+            echo "✅ .gitattributes found"
+            echo ""
+            echo "LFS tracked patterns:"
+            grep "filter=lfs" .gitattributes || echo "  (none configured)"
+          else
+            echo "::warning::.gitattributes not found - Git LFS may not be configured"
+          fi
+
+  large-file-prevention:
+    name: Prevent Large File Commits
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Check changed files
+        run: |
+          echo "Checking PR for large files..."
+          git fetch origin ${{ github.base_ref }}
+
+          LARGE_FILES=$(git diff --name-only origin/${{ github.base_ref }}...HEAD | while read file; do
+            if [ -f "$file" ]; then
+              SIZE=$(stat -f%z "$file" 2>/dev/null || stat -c%s "$file" 2>/dev/null)
+              if [ $SIZE -gt 5242880 ]; then  # 5MB
+                SIZE_MB=$((SIZE/1024/1024))
+                echo "$file (${SIZE_MB}MB)"
+              fi
+            fi
+          done)
+
+          if [ -n "$LARGE_FILES" ]; then
+            echo "::error::Large files detected in PR:"
+            echo "$LARGE_FILES"
+            echo "::error::Please use Git LFS for files >5MB"
+            exit 1
+          else
+            echo "✅ No large files in PR"
+          fi
+
+  security-scan:
+    name: Security Vulnerability Scan
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Run Trivy security scanner
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: 'fs'
+          scan-ref: '.'
+          format: 'sarif'
+          output: 'trivy-results.sarif'
+          severity: 'CRITICAL,HIGH,MEDIUM'
+          exit-code: '0' # Don't fail on vulnerabilities, just report
+
+      - name: Upload Trivy results to GitHub Security
+        uses: github/codeql-action/upload-sarif@v3
+        if: always()
+        with:
+          sarif_file: 'trivy-results.sarif'
+
+      - name: Run Trivy for human-readable output
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: 'fs'
+          scan-ref: '.'
+          format: 'table'
+          severity: 'CRITICAL,HIGH'
+
+  dependency-review:
+    name: Dependency Review
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Dependency Review
+        uses: actions/dependency-review-action@v4
+        with:
+          fail-on-severity: high
+          warn-on-openssf-scorecard-level: 3
+
+  secret-scan:
+    name: Secret Detection
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: TruffleHog OSS Secret Scanner
+        uses: trufflesecurity/trufflehog@main
+        with:
+          path: ./
+          base: ${{ github.event.repository.default_branch }}
+          head: HEAD
+          extra_args: --debug --only-verified
+
+  code-quality:
+    name: Code Quality Metrics
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci || npm install
+
+      - name: Run ESLint
+        run: npm run lint || echo "::warning::ESLint found issues"
+        continue-on-error: true
+
+      - name: Check TypeScript compilation
+        run: npx tsc --noEmit || echo "::warning::TypeScript compilation has errors"
+        continue-on-error: true
+
+  bloat-detection:
+    name: Repository Bloat Detection
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Check for common bloat patterns
+        run: |
+          echo "🔍 Checking for repository bloat..."
+
+          # Check for node_modules
+          if find . -type d -name "node_modules" | grep -q .; then
+            echo "::error::node_modules directories found in repository"
+            find . -type d -name "node_modules" | head -5
+            exit 1
+          fi
+
+          # Check for dist/build directories
+          BLOAT_DIRS=$(find . -type d \( -name "dist" -o -name "build" -o -name ".next" \) \
+            -not -path "./.git/*" | head -10)
+
+          if [ -n "$BLOAT_DIRS" ]; then
+            echo "::warning::Build artifact directories found:"
+            echo "$BLOAT_DIRS"
+          fi
+
+          # Check for log files
+          LOG_FILES=$(find . -type f -name "*.log" \
+            -not -path "./.git/*" \
+            -not -path "./node_modules/*" | head -10)
+
+          if [ -n "$LOG_FILES" ]; then
+            echo "::warning::Log files found in repository:"
+            echo "$LOG_FILES"
+          fi
+
+          # Check .gitignore exists
+          if [ ! -f .gitignore ]; then
+            echo "::error::.gitignore file not found!"
+            exit 1
+          else
+            echo "✅ .gitignore present"
+          fi
+
+  health-report:
+    name: Generate Health Report
+    runs-on: ubuntu-latest
+    needs: [size-check, security-scan, bloat-detection]
+    if: always()
+    steps:
+      - name: Generate summary
+        run: |
+          echo "# Repository Health Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Date:** $(date -u +'%Y-%m-%d %H:%M:%S UTC')" >> $GITHUB_STEP_SUMMARY
+          echo "**Branch:** ${{ github.ref_name }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "## Job Status" >> $GITHUB_STEP_SUMMARY
+          echo "- Size Check: ${{ needs.size-check.result }}" >> $GITHUB_STEP_SUMMARY
+          echo "- Security Scan: ${{ needs.security-scan.result }}" >> $GITHUB_STEP_SUMMARY
+          echo "- Bloat Detection: ${{ needs.bloat-detection.result }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "View detailed results in the Actions tab." >> $GITHUB_STEP_SUMMARY
