@@ -69,3 +69,27 @@ export default router;
 In this example, `FleetCard` is the entity that represents the fleet card in your database. The `FleetCardsRepository` class extends the TypeORM `Repository` class and provides methods for finding fleet cards by tenant id, creating, updating, and deleting fleet cards.
 
 The `fleet-cards.routes.ts` file sets up the Express routes for your API. It uses the `FleetCardsRepository` to handle the database operations for each route.
+/**
+ * N+1 PREVENTION: Fetch with related entities
+ * Add specific methods based on your relationships
+ */
+async findWithRelatedData(id: string, tenantId: string) {
+  const query = \`
+    SELECT t.*
+    FROM fleetcards t
+    WHERE t.id = \api/src/repositories/fleetcards.repository.ts AND t.tenant_id = \ AND t.deleted_at IS NULL
+  \`;
+  const result = await this.pool.query(query, [id, tenantId]);
+  return result.rows[0] || null;
+}
+
+async findAllWithRelatedData(tenantId: string) {
+  const query = \`
+    SELECT t.*
+    FROM fleetcards t
+    WHERE t.tenant_id = \api/src/repositories/fleetcards.repository.ts AND t.deleted_at IS NULL
+    ORDER BY t.created_at DESC
+  \`;
+  const result = await this.pool.query(query, [tenantId]);
+  return result.rows;
+}

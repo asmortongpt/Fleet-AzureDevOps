@@ -159,3 +159,27 @@ export default router;
 
 
 This repository provides a solid foundation for managing claims in a multi-tenant environment with TypeScript and PostgreSQL. You can extend it further by adding more complex queries or additional methods as needed for your specific use case.
+/**
+ * N+1 PREVENTION: Fetch with related entities
+ * Add specific methods based on your relationships
+ */
+async findWithRelatedData(id: string, tenantId: string) {
+  const query = \`
+    SELECT t.*
+    FROM claimsmanagement t
+    WHERE t.id = \api/src/repositories/claimsmanagement.repository.ts AND t.tenant_id = \ AND t.deleted_at IS NULL
+  \`;
+  const result = await this.pool.query(query, [id, tenantId]);
+  return result.rows[0] || null;
+}
+
+async findAllWithRelatedData(tenantId: string) {
+  const query = \`
+    SELECT t.*
+    FROM claimsmanagement t
+    WHERE t.tenant_id = \api/src/repositories/claimsmanagement.repository.ts AND t.deleted_at IS NULL
+    ORDER BY t.created_at DESC
+  \`;
+  const result = await this.pool.query(query, [tenantId]);
+  return result.rows;
+}
