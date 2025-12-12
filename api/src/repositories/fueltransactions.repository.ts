@@ -1,6 +1,7 @@
 import { BaseRepository } from '../repositories/BaseRepository';
 
 import { Pool, QueryResult } from 'pg';
+import { buildUpdateClause } from '../utils/sql-safety'
 
 export interface FuelTransaction {
   id: number;
@@ -56,14 +57,14 @@ export class FuelTransactionsRepository extends BaseRepository<any> {
 
   async update(tenantId: number, id: number, transaction: Partial<Omit<FuelTransaction, 'id' | 'tenant_id' | 'created_at' | 'deleted_at'>>): Promise<FuelTransaction> {
     try {
-      const setClause = Object.keys(transaction).map((key, index) => `${key} = $${index + 3}`).join(', ');
+      const { fields: setClause, values: updateValues } = buildUpdateClause(transaction, 3, 'fuel_transactions');
       const query = `
         UPDATE fuel_transactions
         SET ${setClause}, updated_at = NOW()
         WHERE tenant_id = $1 AND id = $2 AND deleted_at IS NULL
         RETURNING *
       `;
-      const values = [tenantId, id, ...Object.values(transaction)];
+      const values = [tenantId, id, ...updateValues];
       const result: QueryResult<FuelTransaction> = await this.pool.query(query, values);
       if (result.rowCount === 0) {
         throw new Error('Fuel transaction not found or already deleted');

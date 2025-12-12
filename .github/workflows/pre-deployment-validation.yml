@@ -104,3 +104,52 @@ jobs:
         echo "- Container starts without crashes"
         echo ""
         echo "Ready for production deployment."
+
+  security-scan:
+    runs-on: ubuntu-latest
+    name: Security Scanning
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+
+    - name: Run Semgrep SAST
+      uses: returntocorp/semgrep-action@v1
+      with:
+        config: >-
+          p/security-audit
+          p/secrets
+          p/sql-injection
+          p/xss
+
+    - name: Install dependencies for npm audit
+      run: |
+        npm ci --legacy-peer-deps
+        cd api && npm ci --legacy-peer-deps
+
+    - name: Run npm audit
+      run: |
+        echo "Auditing root dependencies..."
+        npm audit --audit-level=high || true
+        echo ""
+        echo "Auditing API dependencies..."
+        cd api && npm audit --audit-level=high || true
+
+    - name: Run Trivy filesystem scan
+      uses: aquasecurity/trivy-action@master
+      with:
+        scan-type: 'fs'
+        scan-ref: '.'
+        severity: 'CRITICAL,HIGH'
+        format: 'sarif'
+        output: 'trivy-fs-results.sarif'
+
+    - name: Upload Trivy filesystem scan results
+      uses: github/codeql-action/upload-sarif@v3
+      if: always()
+      with:
+        sarif_file: 'trivy-fs-results.sarif'

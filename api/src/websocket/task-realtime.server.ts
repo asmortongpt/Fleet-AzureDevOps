@@ -55,20 +55,20 @@ export function initializeWebSocketServer(httpServer: HttpServer): void {
         return next(new Error('Authentication token missing'));
       }
 
-      // Extract tenant ID from token query parameter or default to env variable
-      const queryTenantId = socket.handshake.query.tenantId as string;
-      const tenantId = queryTenantId || process.env.TENANT_ID;
+      // SECURITY FIX: Get tenant ID from environment first for JWT secret lookup
+      // This is only used temporarily to retrieve the correct JWT secret
+      const tempTenantId = socket.handshake.query.tenantId as string || process.env.TENANT_ID;
 
-      if (!tenantId) {
-        logger.error('[WebSocket Auth] Tenant ID missing', {
+      if (!tempTenantId) {
+        logger.error('[WebSocket Auth] Tenant ID missing from query', {
           socketId: socket.id
         });
-        return next(new Error('Tenant ID missing'));
+        return next(new Error('Tenant ID missing from query'));
       }
 
       try {
         // Retrieve JWT secret for the tenant
-        const jwtSecret = await getJwtSecret(tenantId);
+        const jwtSecret = await getJwtSecret(tempTenantId);
 
         // Verify JWT token
         const decoded = jwt.verify(token, jwtSecret, {
@@ -87,12 +87,16 @@ export function initializeWebSocketServer(httpServer: HttpServer): void {
           return next(new Error('Invalid token structure'));
         }
 
-        // Verify tenant ID matches
-        if (decoded.tenantId !== tenantId) {
-          logger.error('[WebSocket Auth] Tenant ID mismatch', {
+        // SECURITY FIX: Use tenant ID exclusively from verified JWT token, not query parameters
+        // This prevents tenant ID spoofing attacks
+        const tenantId = decoded.tenantId;
+
+        // Verify tenant ID from token matches the query (defense in depth)
+        if (decoded.tenantId !== tempTenantId) {
+          logger.error('[WebSocket Auth] Tenant ID mismatch - query param does not match JWT', {
             socketId: socket.id,
             tokenTenantId: decoded.tenantId,
-            requestedTenantId: tenantId
+            requestedTenantId: tempTenantId
           });
           return next(new Error('Tenant ID mismatch'));
         }

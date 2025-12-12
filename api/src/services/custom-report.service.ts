@@ -8,6 +8,7 @@
 import { Pool } from 'pg'
 import excelExportService, { ExportColumn, ExportOptions } from './excel-export.service'
 import nodemailer from 'nodemailer'
+import path from 'path'
 
 // Data source schema definitions
 interface DataSourceSchema {
@@ -378,24 +379,26 @@ export class CustomReportService {
    */
   async getReportById(reportId: string, tenantId: string): Promise<CustomReport | null> {
     const result = await this.db.query(
-      'SELECT 
-      id,
-      tenant_id,
-      report_name,
-      description,
-      data_sources,
-      filters,
-      columns,
-      grouping,
-      sorting,
-      aggregations,
-      joins,
-      created_by,
-      updated_by,
-      is_public,
-      is_template,
-      created_at,
-      updated_at FROM custom_reports WHERE id = $1 AND tenant_id = $2',
+      `SELECT
+        id,
+        tenant_id,
+        report_name,
+        description,
+        data_sources,
+        filters,
+        columns,
+        grouping,
+        sorting,
+        aggregations,
+        joins,
+        created_by,
+        updated_by,
+        is_public,
+        is_template,
+        created_at,
+        updated_at
+      FROM custom_reports
+      WHERE id = $1 AND tenant_id = $2`,
       [reportId, tenantId]
     )
 
@@ -490,7 +493,7 @@ export class CustomReportService {
       // Update execution record
       await this.db.query(
         `UPDATE report_executions SET
-          status = `completed`,
+          status = 'completed',
           execution_duration_ms = $1,
           row_count = $2,
           file_url = $3,
@@ -508,7 +511,7 @@ export class CustomReportService {
       // Update execution record with error
       await this.db.query(
         `UPDATE report_executions SET
-          status = `failed`,
+          status = 'failed',
           error_message = $1
         WHERE id = $2`,
         [error.message, executionId]
@@ -699,7 +702,7 @@ export class CustomReportService {
    * Get report templates
    */
   async getTemplates(tenantId?: string): Promise<any[]> {
-    let query = `SELECT 
+    let query = `SELECT
       id,
       tenant_id,
       template_name,
@@ -711,7 +714,7 @@ export class CustomReportService {
       usage_count,
       created_by,
       created_at,
-      updated_at FROM report_templates WHERE is_system_template = true'
+      updated_at FROM report_templates WHERE is_system_template = true`
     const params: any[] = []
 
     if (tenantId) {
@@ -738,25 +741,29 @@ export class CustomReportService {
     userId: string,
     reportName: string
   ): Promise<CustomReport> {
+    // SECURITY FIX: Only allow access to system templates or templates owned by the tenant
     const template = await this.db.query(
-      'SELECT 
-      id,
-      tenant_id,
-      template_name,
-      description,
-      category,
-      preview_image,
-      config,
-      is_system_template,
-      usage_count,
-      created_by,
-      created_at,
-      updated_at FROM report_templates WHERE id = $1',
-      [templateId]
+      `SELECT
+        id,
+        tenant_id,
+        template_name,
+        description,
+        category,
+        preview_image,
+        config,
+        is_system_template,
+        usage_count,
+        created_by,
+        created_at,
+        updated_at
+      FROM report_templates
+      WHERE id = $1
+      AND (tenant_id = $2 OR is_system_template = true)`,
+      [templateId, tenantId]
     )
 
     if (template.rows.length === 0) {
-      throw new Error('Template not found')
+      throw new Error('Template not found or access denied')
     }
 
     const config = template.rows[0].config
@@ -785,20 +792,21 @@ export class CustomReportService {
     reportName: string
   ): Promise<void> {
     const execution = await this.db.query(
-      'SELECT 
-      id,
-      report_id,
-      schedule_id,
-      executed_by,
-      execution_time,
-      execution_duration_ms,
-      row_count,
-      file_url,
-      file_size_bytes,
-      format,
-      status,
-      error_message,
-      metadata FROM report_executions WHERE id = $1',
+      `SELECT
+        id,
+        report_id,
+        schedule_id,
+        executed_by,
+        execution_time,
+        execution_duration_ms,
+        row_count,
+        file_url,
+        file_size_bytes,
+        format,
+        status,
+        error_message,
+        metadata
+      FROM report_executions WHERE id = $1`,
       [executionId]
     )
 

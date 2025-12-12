@@ -1,6 +1,7 @@
 import { BaseRepository } from '../repositories/BaseRepository';
 
 import { Pool, QueryResult } from 'pg';
+import { buildUpdateClause } from '../utils/sql-safety'
 
 export interface TenantConfig {
   id: number;
@@ -47,9 +48,9 @@ export class TenantConfigRepository extends BaseRepository<any> {
 
   async update(tenantId: number, id: number, config: Partial<Omit<TenantConfig, 'id' | 'tenant_id' | 'created_at' | 'deleted_at'>>): Promise<TenantConfig | null> {
     try {
-      const setClause = Object.keys(config).map((key, index) => `${key} = $${index + 3}`).join(', ');
+      const { fields: setClause, values: updateValues } = buildUpdateClause(config, 3, 'tenant_configs');
       const query = `UPDATE tenant_configs SET ${setClause}, updated_at = NOW() WHERE tenant_id = $1 AND id = $2 AND deleted_at IS NULL RETURNING *`;
-      const values = [tenantId, id, ...Object.values(config)];
+      const values = [tenantId, id, ...updateValues];
       const result: QueryResult<TenantConfig> = await this.pool.query(query, values);
       return result.rows[0] || null;
     } catch (error) {

@@ -72,10 +72,8 @@ export class EldIntegrationRepository extends BaseRepository<any> {
 
   // Update an existing ELD integration
   async update(id: number, eldIntegration: Partial<Omit<EldIntegration, 'id' | 'created_at' | 'updated_at' | 'tenant_id'>>, tenantId: number): Promise<EldIntegration | null> {
-    const setClause = Object.keys(eldIntegration)
-      .map((key, index) => `${key} = $${index + 2}`)
-      .join(', ');
-    const values = [id, ...Object.values(eldIntegration), tenantId];
+    const { fields: setClause, values: updateValues } = buildUpdateClause(eldIntegration, 2, 'generic_table');
+    const values = [id, ...updateValues, tenantId];
 
     const query = `
       UPDATE eld_integrations
@@ -128,6 +126,7 @@ To use this repository in your `eld-integration.routes.ts` file, you would typic
 import { Router } from 'express';
 import { Pool } from 'pg';
 import { EldIntegrationRepository } from '../repositories/eld-integration.repository';
+import { buildUpdateClause } from '../utils/sql-safety'
 
 const router = Router();
 const pool = new Pool(/* your database configuration */);
