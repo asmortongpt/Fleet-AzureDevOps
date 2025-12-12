@@ -20,7 +20,8 @@ interface GarageServiceProps {
   data: ReturnType<typeof useFleetData>
 }
 
-export function GarageService({ data }: GarageServiceProps) {
+export function GarageService() {
+  const data = useFleetData()
   const serviceBays = data.serviceBays || []
   const workOrders = data.workOrders || []
   const technicians = data.technicians || []
