@@ -1,12 +1,11 @@
 import { Pool } from 'pg';
 import { BaseRepository } from './BaseRepository';
 
-export class JobschedulingRepository extends BaseRepository<any> {
+export class JobSchedulingRepository extends BaseRepository<any> {
   constructor(pool: Pool) {
-    super(pool, 'jobschedulings');
+    super(pool, 'LJob_LScheduling_s');
   }
 
-  constructor(pool: Pool) {
     super(pool, 'LJob_LScheduling_LRepository extends s');
   }
 
