@@ -49,27 +49,3 @@ export class ForecastModelsRepository extends BaseRepository<any> {
 
 
 Please note that this is a very basic example and does not include any error handling or input validation. You should add these in a real-world application. Also, the structure and types of the `ForecastModel` object and the database schema are assumed for this example. You should replace them with your actual model and schema.
-/**
- * N+1 PREVENTION: Fetch with related entities
- * Add specific methods based on your relationships
- */
-async findWithRelatedData(id: string, tenantId: string) {
-  const query = \`
-    SELECT t.*
-    FROM forecastmodels t
-    WHERE t.id = \api/src/repositories/forecastmodels.repository.ts AND t.tenant_id = \ AND t.deleted_at IS NULL
-  \`;
-  const result = await this.pool.query(query, [id, tenantId]);
-  return result.rows[0] || null;
-}
-
-async findAllWithRelatedData(tenantId: string) {
-  const query = \`
-    SELECT t.*
-    FROM forecastmodels t
-    WHERE t.tenant_id = \api/src/repositories/forecastmodels.repository.ts AND t.deleted_at IS NULL
-    ORDER BY t.created_at DESC
-  \`;
-  const result = await this.pool.query(query, [tenantId]);
-  return result.rows;
-}

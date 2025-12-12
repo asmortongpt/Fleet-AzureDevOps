@@ -231,7 +231,7 @@ router.get('/agents', requirePermission('report:view:global'), async (req: Reque
         name: agent.name,
         role: agent.role,
         capabilities: agent.capabilities
-      })
+      }))
     })
   } catch (error: any) {
     logger.error('Failed to list agents', { error: getErrorMessage(error) })

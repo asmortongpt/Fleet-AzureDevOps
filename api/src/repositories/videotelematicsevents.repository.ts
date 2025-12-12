@@ -1,12 +1,9 @@
-import { Pool } from 'pg';
-import { BaseRepository } from './BaseRepository';
+import { Pool, QueryResult } from 'pg';
 
-export class VideoTelematicsEventsRepository extends BaseRepository<any> {
+class VideoTelematicsEventsRepository {
+  private pool: Pool;
+
   constructor(pool: Pool) {
-    super(pool, 'LVideo_LTelematics_LEvents_s');
-  }
-
-
     this.pool = pool;
   }
 
@@ -22,7 +19,7 @@ export class VideoTelematicsEventsRepository extends BaseRepository<any> {
       RETURNING id;
     `;
     const values = [tenant_id, event_type, event_data, timestamp];
-    const result: QueryResult = await this.query(query, values);
+    const result: QueryResult = await this.pool.query(query, values);
     return result.rows[0].id;
   }
 
@@ -35,7 +32,7 @@ export class VideoTelematicsEventsRepository extends BaseRepository<any> {
       WHERE id = $1 AND tenant_id = $2;
     `;
     const values = [id, tenant_id];
-    const result: QueryResult = await this.query(query, values);
+    const result: QueryResult = await this.pool.query(query, values);
     return result.rows[0];
   }
 
@@ -47,7 +44,7 @@ export class VideoTelematicsEventsRepository extends BaseRepository<any> {
       WHERE tenant_id = $1;
     `;
     const values = [tenant_id];
-    const result: QueryResult = await this.query(query, values);
+    const result: QueryResult = await this.pool.query(query, values);
     return result.rows;
   }
 
@@ -64,7 +61,7 @@ export class VideoTelematicsEventsRepository extends BaseRepository<any> {
       WHERE id = $4 AND tenant_id = $5;
     `;
     const values = [event_type, event_data, timestamp, id, tenant_id];
-    const result: QueryResult = await this.query(query, values);
+    const result: QueryResult = await this.pool.query(query, values);
     return result.rowCount > 0;
   }
 
@@ -77,36 +74,9 @@ export class VideoTelematicsEventsRepository extends BaseRepository<any> {
       WHERE id = $1 AND tenant_id = $2;
     `;
     const values = [id, tenant_id];
-    const result: QueryResult = await this.query(query, values);
+    const result: QueryResult = await this.pool.query(query, values);
     return result.rowCount > 0;
   }
 }
 
-  /**
-   * N+1 PREVENTION: Find with related data
-   * Override this method in subclasses for specific relationships
-   */
-  async findWithRelatedData(id: string, tenantId: string) {
-    const query = `
-      SELECT t.*
-      FROM ${this.tableName} t
-      WHERE t.id = $1 AND t.tenant_id = $2 AND t.deleted_at IS NULL
-    `;
-    const result = await this.query(query, [id, tenantId]);
-    return result.rows[0] || null;
-  }
-
-  /**
-   * N+1 PREVENTION: Find all with related data
-   * Override this method in subclasses for specific relationships
-   */
-  async findAllWithRelatedData(tenantId: string) {
-    const query = `
-      SELECT t.*
-      FROM ${this.tableName} t
-      WHERE t.tenant_id = $1 AND t.deleted_at IS NULL
-      ORDER BY t.created_at DESC
-    `;
-    const result = await this.query(query, [tenantId]);
-    return result.rows;
-  }
+export default VideoTelematicsEventsRepository;

@@ -1,7 +1,6 @@
 import { BaseRepository } from '../repositories/BaseRepository';
 
 import { Pool, QueryResult } from 'pg';
-import { buildUpdateClause } from '../utils/sql-safety'
 
 export interface FuelTransaction {
   id: number;
@@ -57,14 +56,14 @@ export class FuelTransactionsRepository extends BaseRepository<any> {
 
   async update(tenantId: number, id: number, transaction: Partial<Omit<FuelTransaction, 'id' | 'tenant_id' | 'created_at' | 'deleted_at'>>): Promise<FuelTransaction> {
     try {
-      const { fields: setClause, values: updateValues } = buildUpdateClause(transaction, 3, 'fuel_transactions');
+      const setClause = Object.keys(transaction).map((key, index) => `${key} = $${index + 3}`).join(', ');
       const query = `
         UPDATE fuel_transactions
         SET ${setClause}, updated_at = NOW()
         WHERE tenant_id = $1 AND id = $2 AND deleted_at IS NULL
         RETURNING *
       `;
-      const values = [tenantId, id, ...updateValues];
+      const values = [tenantId, id, ...Object.values(transaction)];
       const result: QueryResult<FuelTransaction> = await this.pool.query(query, values);
       if (result.rowCount === 0) {
         throw new Error('Fuel transaction not found or already deleted');
@@ -86,29 +85,4 @@ export class FuelTransactionsRepository extends BaseRepository<any> {
       throw new Error(`Error soft deleting fuel transaction: ${error.message}`);
     }
   }
-}
-
-/**
- * N+1 PREVENTION: Fetch with related entities
- * Add specific methods based on your relationships
- */
-async findWithRelatedData(id: string, tenantId: string) {
-  const query = \`
-    SELECT t.*
-    FROM fueltransactions t
-    WHERE t.id = \api/src/repositories/fueltransactions.repository.ts AND t.tenant_id = \ AND t.deleted_at IS NULL
-  \`;
-  const result = await this.pool.query(query, [id, tenantId]);
-  return result.rows[0] || null;
-}
-
-async findAllWithRelatedData(tenantId: string) {
-  const query = \`
-    SELECT t.*
-    FROM fueltransactions t
-    WHERE t.tenant_id = \api/src/repositories/fueltransactions.repository.ts AND t.deleted_at IS NULL
-    ORDER BY t.created_at DESC
-  \`;
-  const result = await this.pool.query(query, [tenantId]);
-  return result.rows;
 }

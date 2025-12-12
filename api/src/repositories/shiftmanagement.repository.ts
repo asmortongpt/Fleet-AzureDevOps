@@ -69,9 +69,10 @@ export class ShiftManagementRepository extends BaseRepository<any> {
 
   // Update a shift
   async updateShift(id: number, shift: Partial<Shift>, tenant_id: number): Promise<Shift | null> {
-    // Filter out id and tenant_id, then use safe SQL builder
-    const filtered = Object.keys(shift).filter(key => key !== 'id' && key !== 'tenant_id').reduce((obj: any, key) => { obj[key] = shift[key]; return obj; }, {});
-    const { fields: setClause, values: updateValues } = buildUpdateClause(filtered, 2, 'shifts');
+    const setClause = Object.keys(shift)
+      .filter(key => key !== 'id' && key !== 'tenant_id')
+      .map((key, index) => `${key} = $${index + 2}`)
+      .join(', ');
     
     if (!setClause) {
       throw new Error('No fields to update');
@@ -118,7 +119,6 @@ To use this repository in your `api/src/routes/shift-management.routes.ts` file,
 import { Router } from 'express';
 import { db } from '../database';
 import { ShiftManagementRepository } from '../repositories/ShiftManagementRepository';
-import { buildUpdateClause } from '../utils/sql-safety'
 
 const router = Router();
 const shiftManagementRepository = new ShiftManagementRepository(db);
@@ -138,27 +138,3 @@ export default router;
 
 
 This structure allows for clean separation of concerns between your routes and your data access logic, making your code more maintainable and testable.
-/**
- * N+1 PREVENTION: Fetch with related entities
- * Add specific methods based on your relationships
- */
-async findWithRelatedData(id: string, tenantId: string) {
-  const query = \`
-    SELECT t.*
-    FROM shiftmanagement t
-    WHERE t.id = \api/src/repositories/shiftmanagement.repository.ts AND t.tenant_id = \ AND t.deleted_at IS NULL
-  \`;
-  const result = await this.pool.query(query, [id, tenantId]);
-  return result.rows[0] || null;
-}
-
-async findAllWithRelatedData(tenantId: string) {
-  const query = \`
-    SELECT t.*
-    FROM shiftmanagement t
-    WHERE t.tenant_id = \api/src/repositories/shiftmanagement.repository.ts AND t.deleted_at IS NULL
-    ORDER BY t.created_at DESC
-  \`;
-  const result = await this.pool.query(query, [tenantId]);
-  return result.rows;
-}
