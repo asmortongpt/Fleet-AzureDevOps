@@ -1,13 +1,11 @@
-import { BaseRepository } from '../repositories/BaseRepository';
+import { Pool } from 'pg';
+import { BaseRepository } from './BaseRepository';
 
-Here is a simple example of how you might create a TypeScript repository for a mobile app sync using parameterized queries, tenant_id, and CRUD operations:
+export class MobileappsyncRepository extends BaseRepository<any> {
+  constructor(pool: Pool) {
+    super(pool, 'mobileappsyncs');
+  }
 
-
-import { DefaultCrudRepository, juggler } from '@loopback/repository';
-import { MobileAppSync } from '../models';
-import { inject } from '@loopback/core';
-
-export class MobileAppSyncRepository extends DefaultCrudRepository<
   MobileAppSync,
   typeof MobileAppSync.prototype.id
 > {
@@ -50,12 +48,3 @@ export class MobileAppSyncRepository extends DefaultCrudRepository<
   }
 
 }
-
-
-In this example, the `MobileAppSyncRepository` extends the `DefaultCrudRepository` provided by LoopBack, which provides default CRUD operations. We then inject the `db` data source, which is used to interact with the database.
-
-The `findByTenantId` method is a parameterized query that finds all `MobileAppSync` records with a specific `tenant_id`.
-
-The `createMobileAppSync`, `updateMobileAppSync`, and `deleteMobileAppSync` methods are basic CRUD operations for creating, updating, and deleting `MobileAppSync` records, respectively.
-
-Please note that this is a basic example and might need to be adjusted based on your specific use case and environment.

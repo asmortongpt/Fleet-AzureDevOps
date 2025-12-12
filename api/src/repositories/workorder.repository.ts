@@ -1,9 +1,11 @@
-import { BaseRepository } from '../repositories/BaseRepository';
+import { Pool } from 'pg';
+import { BaseRepository } from './BaseRepository';
 
-import { Repository } from '../lib/repository';
-import { prisma } from '../lib/prisma';
+export class WorkorderRepository extends BaseRepository<any> {
+  constructor(pool: Pool) {
+    super(pool, 'workorders');
+  }
 
-export class WorkOrderRepository extends Repository<any> {
   constructor(pool: Pool) {
     super(pool, 'LWork_LOrder_LRepository extends s');
   }
@@ -25,31 +27,4 @@ export class WorkOrderRepository extends Repository<any> {
       orderBy: { scheduledDate: 'asc' }
     });
   }
-}
-
-export const workOrderRepository = new WorkOrderRepository();
-
-/**
- * N+1 PREVENTION: Fetch with related entities
- * Add specific methods based on your relationships
- */
-async findWithRelatedData(id: string, tenantId: string) {
-  const query = \`
-    SELECT t.*
-    FROM workorder t
-    WHERE t.id = \api/src/repositories/workorder.repository.ts AND t.tenant_id = \ AND t.deleted_at IS NULL
-  \`;
-  const result = await this.pool.query(query, [id, tenantId]);
-  return result.rows[0] || null;
-}
-
-async findAllWithRelatedData(tenantId: string) {
-  const query = \`
-    SELECT t.*
-    FROM workorder t
-    WHERE t.tenant_id = \api/src/repositories/workorder.repository.ts AND t.deleted_at IS NULL
-    ORDER BY t.created_at DESC
-  \`;
-  const result = await this.pool.query(query, [tenantId]);
-  return result.rows;
 }
