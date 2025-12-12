@@ -45,7 +45,7 @@ export class MobileAppSyncRepository extends DefaultCrudRepository<
       WHERE t1.tenant_id = $1
       ORDER BY t1.created_at DESC
     `;
-    const result = await this.pool.query(query, [this.tenantId]);
+    const result = await this.query(query, [this.tenantId]);
     return result.rows;
   }
 
