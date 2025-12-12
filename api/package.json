@@ -164,8 +164,10 @@
     "tsx": "^4.7.0",
     "typescript": "^5.3.3",
     "vitest": "^1.6.1",
-    "zod": "^4.1.13",
-    "// heapdump": "Uses native monitoring - see api/src/monitoring/memory.ts"
+    "zod": "^4.1.13"
   },
-  "_memoryLeakDetection": "Native process.memoryUsage() + Application Insights"
+  "comments": {
+    "heapdump": "Uses native monitoring - see api/src/monitoring/memory.ts",
+    "memoryLeakDetection": "Native process.memoryUsage() + Application Insights"
+  }
 }
