@@ -26,12 +26,29 @@ jobs:
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS_PRODUCTION }}
 
-      - name: Build and Deploy
+      - name: Build Docker Image
         run: |
           az acr build --registry fleetProductionACR \
             --image fleet-api:${{ github.sha }} \
             --file api/Dockerfile ./api
 
+      - name: Scan Docker image for vulnerabilities
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: fleetProductionACR.azurecr.io/fleet-api:${{ github.sha }}
+          format: 'sarif'
+          output: 'trivy-results.sarif'
+          severity: 'CRITICAL,HIGH'
+          exit-code: '1'
+
+      - name: Upload Trivy scan results
+        uses: github/codeql-action/upload-sarif@v3
+        if: always()
+        with:
+          sarif_file: 'trivy-results.sarif'
+
+      - name: Deploy to Production
+        run: |
           # Blue-Green Deployment
           az containerapp revision copy \
             --name fleet-production-app \

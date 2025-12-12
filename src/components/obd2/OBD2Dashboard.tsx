@@ -51,8 +51,8 @@ interface EmulatorSession {
   currentData?: OBD2Data
 }
 
-// API base URL
-const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:3000'
+// SECURITY FIX (HIGH-009): Use environment variable or derive from current location
+const API_BASE = import.meta.env.VITE_API_URL || window.location.origin
 
 export const OBD2Dashboard: React.FC = () => {
   // State

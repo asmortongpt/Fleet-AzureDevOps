@@ -69,10 +69,9 @@ export class ShiftManagementRepository extends BaseRepository<any> {
 
   // Update a shift
   async updateShift(id: number, shift: Partial<Shift>, tenant_id: number): Promise<Shift | null> {
-    const setClause = Object.keys(shift)
-      .filter(key => key !== 'id' && key !== 'tenant_id')
-      .map((key, index) => `${key} = $${index + 2}`)
-      .join(', ');
+    // Filter out id and tenant_id, then use safe SQL builder
+    const filtered = Object.keys(shift).filter(key => key !== 'id' && key !== 'tenant_id').reduce((obj: any, key) => { obj[key] = shift[key]; return obj; }, {});
+    const { fields: setClause, values: updateValues } = buildUpdateClause(filtered, 2, 'shifts');
     
     if (!setClause) {
       throw new Error('No fields to update');
@@ -119,6 +118,7 @@ To use this repository in your `api/src/routes/shift-management.routes.ts` file,
 import { Router } from 'express';
 import { db } from '../database';
 import { ShiftManagementRepository } from '../repositories/ShiftManagementRepository';
+import { buildUpdateClause } from '../utils/sql-safety'
 
 const router = Router();
 const shiftManagementRepository = new ShiftManagementRepository(db);

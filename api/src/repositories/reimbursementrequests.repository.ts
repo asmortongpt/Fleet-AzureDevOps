@@ -1,6 +1,7 @@
 import { BaseRepository } from '../repositories/BaseRepository';
 
 import { Pool, QueryResult } from 'pg';
+import { buildUpdateClause } from '../utils/sql-safety'
 
 interface ReimbursementRequest {
   id: number;
@@ -43,7 +44,7 @@ export class ReimbursementRequestsRepository extends BaseRepository<any> {
   }
 
   async update(id: number, request: Partial<Omit<ReimbursementRequest, 'id' | 'created_at' | 'updated_at'>>, tenantId: number): Promise<ReimbursementRequest | null> {
-    const setClause = Object.keys(request).map((key, index) => `${key} = $${index + 2}`).join(', ');
+    const { fields: setClause, values: updateValues } = buildUpdateClause(request, 2, 'reimbursements');
     const query = `
       UPDATE reimbursement_requests
       SET ${setClause}

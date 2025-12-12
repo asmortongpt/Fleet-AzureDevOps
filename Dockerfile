@@ -1,7 +1,7 @@
 # Multi-stage build for production-ready container
 
 # Stage 1: Build stage
-FROM node:20-alpine AS builder
+FROM node:20-alpine@sha256:6178e78b972f79c335df281f4b7674a2d85071aae2af020ffa39f0a770265435 AS builder
 
 # Set working directory
 WORKDIR /app
@@ -48,7 +48,7 @@ RUN BUILD_VERSION=$(cat /tmp/build_version.txt || date +%s) && \
     echo "Build version: $BUILD_VERSION"
 
 # Stage 2: Production stage with nginx
-FROM nginx:alpine AS production
+FROM nginx:alpine@sha256:2140dad235c130ac861018a4e13a6bc8aea3a35f3a40e20c1b060d51a7efd250 AS production
 
 # Copy complete nginx config (replaces default)
 COPY nginx.conf /etc/nginx/nginx.conf

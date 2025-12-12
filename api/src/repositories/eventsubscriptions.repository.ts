@@ -60,10 +60,8 @@ export class EventSubscriptionsRepository extends BaseRepository<any> {
 
   // Update an event subscription
   async update(tenantId: string, id: number, eventSubscription: Partial<Omit<EventSubscription, 'id' | 'tenant_id' | 'created_at'>>): Promise<EventSubscription | null> {
-    const setClause = Object.keys(eventSubscription)
-      .map((key, index) => `${key} = $${index + 3}`)
-      .join(', ');
-    const values = [id, tenantId, ...Object.values(eventSubscription)];
+    const { fields: setClause, values: updateValues } = buildUpdateClause(eventSubscription, 3, 'generic_table');
+    const values = [id, tenantId, ...updateValues];
 
     const query = `
       UPDATE event_subscriptions
@@ -117,6 +115,7 @@ To use this repository in your `event-subscriptions.routes.ts` file, you would t
 import { Router } from 'express';
 import { Pool } from 'pg';
 import { EventSubscriptionsRepository } from './EventSubscriptionsRepository';
+import { buildUpdateClause } from '../utils/sql-safety'
 
 const router = Router();
 const pool = new Pool(/* your pool configuration */);

@@ -13,6 +13,7 @@ import mlTrainingService from '../services/ml-training.service'
 import mcpServerService from '../services/mcp-server.service'
 import { getErrorMessage } from '../utils/error-handler'
 import { csrfProtection } from '../middleware/csrf'
+import { aiProcessingLimiter } from '../middleware/rateLimiter'
 
 // Import the repository
 import { CognitionInsightsRepository } from '../repositories/cognition-insights.repository'
@@ -93,6 +94,7 @@ router.get(
  */
 router.post(
   '/cognition/generate',
+  aiProcessingLimiter,
   csrfProtection,
   requirePermission('report:generate:global'),
   auditLog({ action: 'CREATE', resourceType: 'ai_insights' }),
