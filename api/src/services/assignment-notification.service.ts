@@ -550,10 +550,10 @@ export class AssignmentNotificationService {
       await this.pool.query(
         `UPDATE approval_tracking
          SET notification_sent = true, notification_sent_at = NOW()
-         WHERE entity_type = `vehicle_assignment`
+         WHERE entity_type = 'vehicle_assignment'
            AND entity_id = $1
            AND tenant_id = $2
-           AND action = $3',
+           AND action = $3`,
         [assignmentId, tenantId, action]
       );
     } catch (error) {
