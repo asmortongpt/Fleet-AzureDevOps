@@ -1,3 +1,5 @@
+import { BaseRepository } from './BaseRepository';
+
 import { Pool } from 'pg';
 
 class EnvironmentalComplianceRepository {
@@ -26,7 +28,7 @@ class EnvironmentalComplianceRepository {
       data.compliance_date,
       data.notes,
     ];
-    const result = await this.pool.query(query, values);
+    const result = await this.query(query, values);
     return result.rows[0].id;
   }
 
@@ -36,7 +38,7 @@ class EnvironmentalComplianceRepository {
       WHERE id = $1 AND tenant_id = $2
     `;
     const values = [id, tenant_id];
-    const result = await this.pool.query(query, values);
+    const result = await this.query(query, values);
     return result.rows[0];
   }
 
@@ -46,7 +48,7 @@ class EnvironmentalComplianceRepository {
       WHERE tenant_id = $1
     `;
     const values = [tenant_id];
-    const result = await this.pool.query(query, values);
+    const result = await this.query(query, values);
     return result.rows;
   }
 
@@ -70,7 +72,7 @@ class EnvironmentalComplianceRepository {
       data.notes,
       data.tenant_id,
     ];
-    await this.pool.query(query, values);
+    await this.query(query, values);
   }
 
   async deleteEnvironmentalCompliance(id: number, tenant_id: string): Promise<void> {
@@ -79,7 +81,7 @@ class EnvironmentalComplianceRepository {
       WHERE id = $1 AND tenant_id = $2
     `;
     const values = [id, tenant_id];
-    await this.pool.query(query, values);
+    await this.query(query, values);
   }
 }
 
