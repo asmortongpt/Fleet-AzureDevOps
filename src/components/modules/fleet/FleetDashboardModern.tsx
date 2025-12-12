@@ -29,7 +29,8 @@ import {
   Broadcast,
   ChartLine,
   Bell,
-  List
+  List,
+  Activity
 } from "@phosphor-icons/react"
 import { Vehicle } from "@/lib/types"
 import { useFleetData } from "@/hooks/use-fleet-data"
@@ -39,11 +40,9 @@ import { useInspect } from "@/services/inspect/InspectContext"
 import { cn } from "@/lib/utils"
 import "@/styles/dashboard-layout.css"
 
-interface FleetDashboardModernProps {
-  data: ReturnType<typeof useFleetData>
-}
-
-export function FleetDashboardModern({ data }: FleetDashboardModernProps) {
+export function FleetDashboardModern() {
+  // Call useFleetData internally instead of receiving as prop
+  const data = useFleetData()
   const initialVehicles = data.vehicles || []
 
   // Drilldown and inspect contexts
