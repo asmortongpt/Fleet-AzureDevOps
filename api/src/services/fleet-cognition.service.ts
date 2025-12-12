@@ -314,7 +314,7 @@ class FleetCognitionService {
        LEFT JOIN work_orders wo ON v.id = wo.vehicle_id
        WHERE v.tenant_id = $1 AND v.status = 'active'
        GROUP BY v.id
-       HAVING COUNT(wo.id) FILTER (WHERE wo.created_at >= INTERVAL '90 days') >= 3',
+       HAVING COUNT(wo.id) FILTER (WHERE wo.created_at >= NOW() - INTERVAL '90 days') >= 3`,
       [tenantId]
     )
 
