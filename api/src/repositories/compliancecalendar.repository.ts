@@ -66,10 +66,8 @@ export class ComplianceCalendarRepository extends BaseRepository<any> {
 
   // Update a compliance calendar item
   async update(id: number, item: Partial<Omit<ComplianceCalendarItem, 'id' | 'tenant_id'>>, tenantId: number): Promise<ComplianceCalendarItem | null> {
-    const setClause = Object.keys(item)
-      .map((key, index) => `${key} = $${index + 2}`)
-      .join(', ');
-    const values = [id, ...Object.values(item), tenantId];
+    const { fields: setClause, values: updateValues } = buildUpdateClause(item, 2, 'generic_table');
+    const values = [id, ...updateValues, tenantId];
 
     const query = `
       UPDATE compliance_calendar
@@ -114,6 +112,7 @@ To use this repository in your `compliance-calendar.routes.ts` file, you would t
 import express from 'express';
 import { Pool } from 'pg';
 import { ComplianceCalendarRepository } from '../repositories/ComplianceCalendarRepository';
+import { buildUpdateClause } from '../utils/sql-safety'
 
 const router = express.Router();
 const pool = new Pool(/* your database configuration */);

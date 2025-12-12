@@ -64,10 +64,9 @@ export class ClaimsManagementRepository extends BaseRepository<any> {
 
   // Update a claim
   async updateClaim(id: number, claim: Partial<Claim>, tenant_id: number): Promise<Claim | null> {
-    const setClause = Object.keys(claim)
-      .filter(key => key !== 'id' && key !== 'created_at' && key !== 'updated_at' && key !== 'tenant_id')
-      .map((key, index) => `${key} = $${index + 2}`)
-      .join(', ');
+    // Filter out id and tenant_id, then use safe SQL builder
+    const filtered = Object.keys(claim).filter(key => key !== 'id' && key !== 'tenant_id').reduce((obj: any, key) => { obj[key] = claim[key]; return obj; }, {});
+    const { fields: setClause, values: updateValues } = buildUpdateClause(filtered, 2, 'claims');
 
     if (!setClause) {
       throw new Error('No valid fields to update');
@@ -137,6 +136,7 @@ To use this repository in your `claims-management.routes.ts` file, you would typ
 import { Router } from 'express';
 import { Pool } from 'pg';
 import { ClaimsManagementRepository } from './ClaimsManagementRepository';
+import { buildUpdateClause } from '../utils/sql-safety'
 
 const router = Router();
 const pool = new Pool({

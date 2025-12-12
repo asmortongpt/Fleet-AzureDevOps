@@ -6,7 +6,7 @@
 # ==============================================================================
 # Stage 1: Builder - Install dependencies and build TypeScript
 # ==============================================================================
-FROM node:20-alpine AS builder
+FROM node:20-alpine@sha256:6178e78b972f79c335df281f4b7674a2d85071aae2af020ffa39f0a770265435 AS builder
 
 # Install build dependencies for native modules (bcrypt, sharp, etc.)
 RUN apk add --no-cache python3 make g++ cairo-dev jpeg-dev pango-dev giflib-dev
@@ -28,7 +28,7 @@ RUN npm run build || echo "TypeScript build had errors, will run from source"
 # ==============================================================================
 # Stage 2: Production - Minimal runtime image
 # ==============================================================================
-FROM node:20-alpine AS production
+FROM node:20-alpine@sha256:6178e78b972f79c335df281f4b7674a2d85071aae2af020ffa39f0a770265435 AS production
 
 # Install runtime dependencies for native modules
 RUN apk add --no-cache \
