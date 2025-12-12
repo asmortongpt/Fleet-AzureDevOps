@@ -44,3 +44,27 @@ In this example, `Pool` is a class from the `pg` library, which is a PostgreSQL 
 Please note that the `fuelEfficiencyData` parameter is of type `any`. You should replace it with the appropriate type based on your application's needs. 
 
 Also, you need to replace the SQL queries with the ones that match your database schema. The ones provided here are just examples and may not work with your database without modification.
+/**
+ * N+1 PREVENTION: Fetch with related entities
+ * Add specific methods based on your relationships
+ */
+async findWithRelatedData(id: string, tenantId: string) {
+  const query = \`
+    SELECT t.*
+    FROM fuelefficiency t
+    WHERE t.id = \api/src/repositories/fuelefficiency.repository.ts AND t.tenant_id = \ AND t.deleted_at IS NULL
+  \`;
+  const result = await this.pool.query(query, [id, tenantId]);
+  return result.rows[0] || null;
+}
+
+async findAllWithRelatedData(tenantId: string) {
+  const query = \`
+    SELECT t.*
+    FROM fuelefficiency t
+    WHERE t.tenant_id = \api/src/repositories/fuelefficiency.repository.ts AND t.deleted_at IS NULL
+    ORDER BY t.created_at DESC
+  \`;
+  const result = await this.pool.query(query, [tenantId]);
+  return result.rows;
+}
