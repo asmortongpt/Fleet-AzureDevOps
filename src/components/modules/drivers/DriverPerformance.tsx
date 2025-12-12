@@ -32,7 +32,8 @@ interface DriverPerformanceProps {
   data: ReturnType<typeof useFleetData>
 }
 
-export function DriverPerformance({ data }: DriverPerformanceProps) {
+export function DriverPerformance() {
+  const data = useFleetData()
   const drivers = data.drivers || []
   const { openInspect } = useInspect()
   const [activeTab, setActiveTab] = useState<string>("overview")
