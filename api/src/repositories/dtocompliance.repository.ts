@@ -159,3 +159,27 @@ export default router;
 
 
 This repository should be placed in a `repositories` directory within your project structure, typically at `api/src/repositories/DtoComplianceRepository.ts`. Make sure to adjust the import paths according to your project's structure.
+/**
+ * N+1 PREVENTION: Fetch with related entities
+ * Add specific methods based on your relationships
+ */
+async findWithRelatedData(id: string, tenantId: string) {
+  const query = \`
+    SELECT t.*
+    FROM dtocompliance t
+    WHERE t.id = \api/src/repositories/dtocompliance.repository.ts AND t.tenant_id = \ AND t.deleted_at IS NULL
+  \`;
+  const result = await this.pool.query(query, [id, tenantId]);
+  return result.rows[0] || null;
+}
+
+async findAllWithRelatedData(tenantId: string) {
+  const query = \`
+    SELECT t.*
+    FROM dtocompliance t
+    WHERE t.tenant_id = \api/src/repositories/dtocompliance.repository.ts AND t.deleted_at IS NULL
+    ORDER BY t.created_at DESC
+  \`;
+  const result = await this.pool.query(query, [tenantId]);
+  return result.rows;
+}
