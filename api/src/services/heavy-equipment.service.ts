@@ -223,7 +223,7 @@ export class HeavyEquipmentService {
     let paramCount = 1
 
     Object.keys(updates).forEach(key => {
-      if (updates[key as keyof HeavyEquipment] !== undefined && key !== `id` && key !== `tenant_id`) {
+      if (updates[key as keyof HeavyEquipment] !== undefined && key !== 'id' && key !== 'tenant_id') {
         setClauses.push(`${key} = $${paramCount}`)
         values.push(updates[key as keyof HeavyEquipment])
         paramCount++
