@@ -610,7 +610,7 @@ export class VehicleIdlingService extends EventEmitter {
           latitude, longitude, location_name, idle_type,
           is_authorized, driver_notes, data_source
         ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
-        RETURNING id',
+        RETURNING id`,
         [
           event.vehicle_id,
           event.driver_id,

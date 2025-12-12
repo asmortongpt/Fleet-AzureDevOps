@@ -813,7 +813,7 @@ export class SchedulingNotificationService {
           communication_type, direction, subject, body,
           to_contact_emails, communication_datetime, status
         ) VALUES ($1, $2, $3, $4, $5, NOW(), `Sent`)
-        RETURNING id',
+        RETURNING id`,
         [
           data.communicationType,
           data.direction,
