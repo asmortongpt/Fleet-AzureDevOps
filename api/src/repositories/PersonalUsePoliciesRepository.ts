@@ -10,6 +10,7 @@
  * - Input validation via BaseRepository
  */
 
+import { injectable } from 'inversify';
 import { Pool } from 'pg';
 import { BaseRepository, QueryContext } from './BaseRepository';
 import { ApprovalWorkflow } from '../types/trip-usage';
@@ -68,14 +69,15 @@ export interface DriverAtLimit {
 
 /**
  * PersonalUsePoliciesRepository
- * 
+ *
  * Handles all database operations for personal use policies
  */
+@injectable()
 export class PersonalUsePoliciesRepository extends BaseRepository<PersonalUsePolicy> {
   protected tableName = 'personal_use_policies';
   protected idColumn = 'id';
 
-  constructor(private pool: Pool) {
+  constructor() {
     super();
   }
 
