@@ -10,7 +10,7 @@ export class N1Detector {
     const warnings: string[] = [];
 
     this.queryLog.forEach((count, query) => {
-      if (count > 10 && /WHERE.*=\s*\$1/.test(query)) {
+      if (count > 10 && new RegExp('WHERE.*=\\s*\\$1').test(query)) {
         warnings.push(`Potential N+1 detected: "${query}" executed ${count} times`);
       }
     });
