@@ -64,18 +64,16 @@ export class CarbonTrackingRepository extends BaseRepository<any> {
 
   // Update a carbon tracking entry
   async update(id: number, data: Partial<Omit<CarbonTrackingData, 'id'>>, tenant_id: string): Promise<CarbonTrackingData | null> {
-    const setClause = Object.keys(data)
-      .map((key, index) => `${key} = $${index + 2}`)
-      .join(', ');
-    
+    const { fields: setClause, values: updateValues } = buildUpdateClause(data, 2, 'carbon_tracking');
+
     const query = `
       UPDATE carbon_tracking
       SET ${setClause}
-      WHERE id = $1 AND tenant_id = $${Object.keys(data).length + 2}
+      WHERE id = $1 AND tenant_id = $${updateValues.length + 2}
       RETURNING *
     `;
-    
-    const values = [id, ...Object.values(data), tenant_id];
+
+    const values = [id, ...updateValues, tenant_id];
 
     const result: QueryResult<CarbonTrackingData> = await this.pool.query(query, values);
     return result.rows[0] || null;
@@ -135,6 +133,7 @@ To use this repository in your `carbon-tracking.routes.ts` file, you would typic
 import express from 'express';
 import { Pool } from 'pg';
 import { CarbonTrackingRepository } from '../repositories/carbon-tracking.repository';
+import { buildUpdateClause } from '../utils/sql-safety'
 
 const router = express.Router();
 const pool = new Pool(/* your database configuration */);

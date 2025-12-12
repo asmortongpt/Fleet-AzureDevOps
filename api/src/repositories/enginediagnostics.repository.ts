@@ -61,10 +61,9 @@ export class EngineDiagnosticsRepository extends BaseRepository<any> {
 
   // Update an existing engine diagnostics entry
   async update(id: number, engineDiagnostics: Partial<EngineDiagnostics>, tenant_id: number): Promise<EngineDiagnostics | null> {
-    const setClause = Object.keys(engineDiagnostics)
-      .filter(key => key !== 'id' && key !== 'tenant_id')
-      .map((key, index) => `${key} = $${index + 2}`)
-      .join(', ');
+    // Filter out id and tenant_id, then use safe SQL builder
+    const filtered = Object.keys(engineDiagnostics).filter(key => key !== 'id' && key !== 'tenant_id').reduce((obj: any, key) => { obj[key] = engineDiagnostics[key]; return obj; }, {});
+    const { fields: setClause, values: updateValues } = buildUpdateClause(filtered, 2, 'engine_diagnostics');
 
     if (!setClause) {
       throw new Error('No fields to update');
@@ -117,6 +116,7 @@ To use this repository in your `engine-diagnostics.routes.ts` file, you would ty
 import { Router } from 'express';
 import { Pool } from 'pg';
 import { EngineDiagnosticsRepository } from './EngineDiagnosticsRepository';
+import { buildUpdateClause } from '../utils/sql-safety'
 
 const router = Router();
 const pool = new Pool(/* your database connection details */);

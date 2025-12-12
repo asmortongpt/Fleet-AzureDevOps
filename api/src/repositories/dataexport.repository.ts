@@ -73,10 +73,8 @@ export class DataExportRepository extends BaseRepository<any> {
    * @returns The updated data export object if found, null otherwise
    */
   async update(id: number, dataExport: Partial<Omit<DataExport, 'id' | 'created_at' | 'updated_at' | 'tenant_id'>>, tenant_id: string): Promise<DataExport | null> {
-    const setClause = Object.keys(dataExport)
-      .map((key, index) => `${key} = $${index + 2}`)
-      .join(', ');
-    const values = [id, tenant_id, ...Object.values(dataExport)];
+    const { fields: setClause, values: updateValues } = buildUpdateClause(dataExport, 2, 'generic_table');
+    const values = [id, tenant_id, ...updateValues];
 
     const query = `
       UPDATE data_exports
@@ -150,6 +148,7 @@ To use this repository in your `data-export.routes.ts` file, you would typically
 import { Router } from 'express';
 import { DataExportRepository } from '../repositories/data-export.repository';
 import { Pool } from 'pg';
+import { buildUpdateClause } from '../utils/sql-safety'
 
 const router = Router();
 const pool = new Pool(); // Initialize your database connection

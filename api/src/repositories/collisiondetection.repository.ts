@@ -63,10 +63,9 @@ export class CollisionDetectionRepository extends BaseRepository<any> {
 
   // Update a collision detection record
   async update(id: number, collisionDetection: Partial<CollisionDetection>, tenant_id: number): Promise<CollisionDetection | null> {
-    const setClause = Object.keys(collisionDetection)
-      .filter(key => key !== 'id' && key !== 'tenant_id')
-      .map((key, index) => `${key} = $${index + 2}`)
-      .join(', ');
+    // Filter out id and tenant_id, then use safe SQL builder
+    const filtered = Object.keys(collisionDetection).filter(key => key !== 'id' && key !== 'tenant_id').reduce((obj: any, key) => { obj[key] = collisionDetection[key]; return obj; }, {});
+    const { fields: setClause, values: updateValues } = buildUpdateClause(filtered, 2, 'collision_detections');
 
     if (!setClause) {
       throw new Error('No fields to update');
@@ -136,6 +135,7 @@ To use this repository in your `collision-detection.routes.ts` file, you would t
 import { Router } from 'express';
 import { Pool } from 'pg';
 import { CollisionDetectionRepository } from './CollisionDetectionRepository';
+import { buildUpdateClause } from '../utils/sql-safety'
 
 const router = Router();
 const pool = new Pool(/* your database configuration */);
