@@ -8,7 +8,9 @@
  * - No string concatenation in SQL
  */
 
+import { injectable, inject } from 'inversify';
 import { Pool, PoolClient } from 'pg';
+import { TYPES } from '../types';
 import { connectionManager } from '../config/connection-manager';
 import { NotFoundError, DatabaseError } from '../errors/ApplicationError';
 
@@ -39,11 +41,12 @@ export interface UserRoleWithDetails extends UserModuleRole {
 /**
  * Repository for managing permissions and roles
  */
+@injectable()
 export class PermissionsRepository {
   private pool: Pool;
 
-  constructor(pool?: Pool) {
-    this.pool = pool || connectionManager.getWritePool();
+  constructor(@inject(TYPES.DatabasePool) pool: Pool) {
+    this.pool = pool;
   }
 
   /**
