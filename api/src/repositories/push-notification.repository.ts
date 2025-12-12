@@ -14,6 +14,8 @@
  */
 
 import { Pool, PoolClient } from 'pg';
+import { injectable, inject } from 'inversify';
+import { TYPES } from '../types';
 import { connectionManager } from '../config/connection-manager';
 import { NotFoundError, DatabaseError, ValidationError } from '../middleware/errorHandler';
 
@@ -74,10 +76,11 @@ export interface DeliveryStats {
   clickRate: number;
 }
 
+@injectable()
 export class PushNotificationRepository {
   private pool: Pool;
 
-  constructor(pool?: Pool) {
+  constructor(@inject(TYPES.DatabasePool) pool?: Pool) {
     this.pool = pool || connectionManager.getPool();
   }
 
