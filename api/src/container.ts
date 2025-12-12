@@ -32,8 +32,8 @@ import { AssignmentNotificationService } from "./services/assignment-notificatio
 
 const container = new Container();
 
-// Infrastructure - Database Pool
-container.bind(TYPES.DatabasePool).toConstantValue(connectionManager.getPool());
+// Infrastructure - Database Pool (lazy initialization)
+container.bind(TYPES.DatabasePool).toDynamicValue(() => connectionManager.getPool());
 
 // Fleet module
 container.bind(TYPES.VehicleService).to(VehicleService);
