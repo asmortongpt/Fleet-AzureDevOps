@@ -150,3 +150,27 @@ try {
 
 
 This repository should help eliminate the 13 queries from `api/src/routes/custom-fields.ts` by centralizing database operations and providing a consistent interface for interacting with custom fields data.
+/**
+ * N+1 PREVENTION: Fetch with related entities
+ * Add specific methods based on your relationships
+ */
+async findWithRelatedData(id: string, tenantId: string) {
+  const query = \`
+    SELECT t.*
+    FROM customfields t
+    WHERE t.id = \api/src/repositories/customfields.repository.ts AND t.tenant_id = \ AND t.deleted_at IS NULL
+  \`;
+  const result = await this.pool.query(query, [id, tenantId]);
+  return result.rows[0] || null;
+}
+
+async findAllWithRelatedData(tenantId: string) {
+  const query = \`
+    SELECT t.*
+    FROM customfields t
+    WHERE t.tenant_id = \api/src/repositories/customfields.repository.ts AND t.deleted_at IS NULL
+    ORDER BY t.created_at DESC
+  \`;
+  const result = await this.pool.query(query, [tenantId]);
+  return result.rows;
+}

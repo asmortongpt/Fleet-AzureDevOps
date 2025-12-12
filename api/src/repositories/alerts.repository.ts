@@ -126,3 +126,27 @@ This `AlertsRepository` class provides the following features:
 4. The class uses a `PoolClient` from the `pg` package, which should be injected when instantiating the repository.
 
 To use this repository, you would typically create an instance of it in your route handlers, passing in a database client. This approach should help eliminate the 14 queries in your `alerts.routes.ts` file by centralizing database operations in this repository class.
+/**
+ * N+1 PREVENTION: Fetch with related entities
+ * Add specific methods based on your relationships
+ */
+async findWithRelatedData(id: string, tenantId: string) {
+  const query = \`
+    SELECT t.*
+    FROM alerts t
+    WHERE t.id = \api/src/repositories/alerts.repository.ts AND t.tenant_id = \ AND t.deleted_at IS NULL
+  \`;
+  const result = await this.pool.query(query, [id, tenantId]);
+  return result.rows[0] || null;
+}
+
+async findAllWithRelatedData(tenantId: string) {
+  const query = \`
+    SELECT t.*
+    FROM alerts t
+    WHERE t.tenant_id = \api/src/repositories/alerts.repository.ts AND t.deleted_at IS NULL
+    ORDER BY t.created_at DESC
+  \`;
+  const result = await this.pool.query(query, [tenantId]);
+  return result.rows;
+}
