@@ -76,12 +76,14 @@ export class VehicleDisposalRepository extends BaseRepository<any> {
    * @returns The updated vehicle disposal record
    */
   async update(id: number, vehicleDisposal: Partial<Omit<VehicleDisposal, 'id' | 'created_at' | 'updated_at' | 'tenant_id'>>, tenantId: number): Promise<VehicleDisposal | null> {
-    const { fields: setClause, values: updateValues } = buildUpdateClause(vehicleDisposal, 2, 'generic_table');
+    const setClause = Object.keys(vehicleDisposal)
+      .map((key, index) => `${key} = $${index + 2}`)
+      .join(', ');
     
     const query = `
       UPDATE vehicle_disposals
       SET ${setClause}
-      WHERE id = $1 AND tenant_id = $${updateValues.length + 2}
+      WHERE id = $1 AND tenant_id = $${Object.keys(vehicleDisposal).length + 2}
       RETURNING *;
     `;
     
@@ -153,7 +155,6 @@ To use this repository in your `api/src/routes/vehicle-disposal.routes.ts` file,
 import { Router } from 'express';
 import { Pool } from 'pg';
 import { VehicleDisposalRepository } from './vehicle-disposal.repository';
-import { buildUpdateClause } from '../utils/sql-safety'
 
 const router = Router();
 const pool = new Pool(/* your database configuration */);
@@ -180,27 +181,3 @@ export default router;
 
 
 This repository provides a solid foundation for managing vehicle disposal records in a multi-tenant environment with proper security measures in place. You can extend it further by adding more complex queries or additional methods as needed for your specific use case.
-/**
- * N+1 PREVENTION: Fetch with related entities
- * Add specific methods based on your relationships
- */
-async findWithRelatedData(id: string, tenantId: string) {
-  const query = \`
-    SELECT t.*
-    FROM vehicledisposal t
-    WHERE t.id = \api/src/repositories/vehicledisposal.repository.ts AND t.tenant_id = \ AND t.deleted_at IS NULL
-  \`;
-  const result = await this.pool.query(query, [id, tenantId]);
-  return result.rows[0] || null;
-}
-
-async findAllWithRelatedData(tenantId: string) {
-  const query = \`
-    SELECT t.*
-    FROM vehicledisposal t
-    WHERE t.tenant_id = \api/src/repositories/vehicledisposal.repository.ts AND t.deleted_at IS NULL
-    ORDER BY t.created_at DESC
-  \`;
-  const result = await this.pool.query(query, [tenantId]);
-  return result.rows;
-}

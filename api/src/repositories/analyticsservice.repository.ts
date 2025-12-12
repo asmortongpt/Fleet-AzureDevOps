@@ -1,12 +1,9 @@
-import { Pool } from 'pg';
-import { BaseRepository } from './BaseRepository';
+import { Pool, QueryResult } from 'pg';
 
-export class AnalyticsServiceRepository extends BaseRepository<any> {
+class AnalyticsServiceRepository {
+  private pool: Pool;
+
   constructor(pool: Pool) {
-    super(pool, 'LAnalytics_LService_s');
-  }
-
-
     this.pool = pool;
   }
 
@@ -17,7 +14,7 @@ export class AnalyticsServiceRepository extends BaseRepository<any> {
       RETURNING id, tenant_id, name, description, created_at, updated_at;
     `;
     const values = [tenantId, name, description];
-    return await this.query(query, values);
+    return await this.pool.query(query, values);
   }
 
   async getAnalyticsServiceById(tenantId: string, id: string): Promise<QueryResult> {
@@ -27,7 +24,7 @@ export class AnalyticsServiceRepository extends BaseRepository<any> {
       WHERE tenant_id = $1 AND id = $2;
     `;
     const values = [tenantId, id];
-    return await this.query(query, values);
+    return await this.pool.query(query, values);
   }
 
   async getAllAnalyticsServices(tenantId: string): Promise<QueryResult> {
@@ -37,7 +34,7 @@ export class AnalyticsServiceRepository extends BaseRepository<any> {
       WHERE tenant_id = $1;
     `;
     const values = [tenantId];
-    return await this.query(query, values);
+    return await this.pool.query(query, values);
   }
 
   async updateAnalyticsService(tenantId: string, id: string, name: string, description: string): Promise<QueryResult> {
@@ -48,7 +45,7 @@ export class AnalyticsServiceRepository extends BaseRepository<any> {
       RETURNING id, tenant_id, name, description, created_at, updated_at;
     `;
     const values = [tenantId, id, name, description];
-    return await this.query(query, values);
+    return await this.pool.query(query, values);
   }
 
   async deleteAnalyticsService(tenantId: string, id: string): Promise<QueryResult> {
@@ -58,35 +55,8 @@ export class AnalyticsServiceRepository extends BaseRepository<any> {
       RETURNING id, tenant_id, name, description, created_at, updated_at;
     `;
     const values = [tenantId, id];
-    return await this.query(query, values);
+    return await this.pool.query(query, values);
   }
 }
 
-  /**
-   * N+1 PREVENTION: Find with related data
-   * Override this method in subclasses for specific relationships
-   */
-  async findWithRelatedData(id: string, tenantId: string) {
-    const query = `
-      SELECT t.*
-      FROM ${this.tableName} t
-      WHERE t.id = $1 AND t.tenant_id = $2 AND t.deleted_at IS NULL
-    `;
-    const result = await this.query(query, [id, tenantId]);
-    return result.rows[0] || null;
-  }
-
-  /**
-   * N+1 PREVENTION: Find all with related data
-   * Override this method in subclasses for specific relationships
-   */
-  async findAllWithRelatedData(tenantId: string) {
-    const query = `
-      SELECT t.*
-      FROM ${this.tableName} t
-      WHERE t.tenant_id = $1 AND t.deleted_at IS NULL
-      ORDER BY t.created_at DESC
-    `;
-    const result = await this.query(query, [tenantId]);
-    return result.rows;
-  }
+export default AnalyticsServiceRepository;

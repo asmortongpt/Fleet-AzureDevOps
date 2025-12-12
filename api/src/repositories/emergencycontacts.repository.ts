@@ -72,7 +72,9 @@ export class EmergencyContactsRepository extends BaseRepository<any> {
 
   // Update an emergency contact
   async update(tenantId: number, contactId: number, contact: Partial<Omit<EmergencyContact, 'id' | 'tenant_id' | 'created_at' | 'updated_at'>>): Promise<EmergencyContact | null> {
-    const { fields: setClause, values: updateValues } = buildUpdateClause(contact, 3, 'generic_table');
+    const setClause = Object.keys(contact)
+      .map((key, index) => `${key} = $${index + 3}`)
+      .join(', ');
     
     const query = `
       UPDATE emergency_contacts
@@ -80,7 +82,7 @@ export class EmergencyContactsRepository extends BaseRepository<any> {
       WHERE tenant_id = $1 AND id = $2
       RETURNING *;
     `;
-    const values = [tenantId, contactId, ...updateValues];
+    const values = [tenantId, contactId, ...Object.values(contact)];
     
     const result: QueryResult<EmergencyContact> = await this.pool.query(query, values);
     return result.rows[0] || null;
@@ -121,7 +123,6 @@ To use this repository in your `emergency-contacts.routes.ts` file, you would ty
 import express from 'express';
 import { Pool } from 'pg';
 import { EmergencyContactsRepository } from '../repositories/EmergencyContactsRepository';
-import { buildUpdateClause } from '../utils/sql-safety'
 
 const router = express.Router();
 const pool = new Pool(/* your pool configuration */);
@@ -150,27 +151,3 @@ export default router;
 
 
 This implementation provides a solid foundation for managing emergency contacts in a multi-tenant environment using TypeScript and PostgreSQL. You can extend the repository with additional methods or error handling as needed for your specific use case.
-/**
- * N+1 PREVENTION: Fetch with related entities
- * Add specific methods based on your relationships
- */
-async findWithRelatedData(id: string, tenantId: string) {
-  const query = \`
-    SELECT t.*
-    FROM emergencycontacts t
-    WHERE t.id = \api/src/repositories/emergencycontacts.repository.ts AND t.tenant_id = \ AND t.deleted_at IS NULL
-  \`;
-  const result = await this.pool.query(query, [id, tenantId]);
-  return result.rows[0] || null;
-}
-
-async findAllWithRelatedData(tenantId: string) {
-  const query = \`
-    SELECT t.*
-    FROM emergencycontacts t
-    WHERE t.tenant_id = \api/src/repositories/emergencycontacts.repository.ts AND t.deleted_at IS NULL
-    ORDER BY t.created_at DESC
-  \`;
-  const result = await this.pool.query(query, [tenantId]);
-  return result.rows;
-}

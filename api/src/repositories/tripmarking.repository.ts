@@ -1,12 +1,9 @@
-import { Pool } from 'pg';
-import { BaseRepository } from './BaseRepository';
+import { Pool, QueryResult } from 'pg';
 
-export class TripMarkingRepository extends BaseRepository<any> {
+class TripMarkingRepository {
+  private pool: Pool;
+
   constructor(pool: Pool) {
-    super(pool, 'LTrip_LMarking_s');
-  }
-
-
     this.pool = pool;
   }
 
@@ -23,7 +20,7 @@ export class TripMarkingRepository extends BaseRepository<any> {
       RETURNING id
     `;
     const values = [tenantId, tripId, userId, markingType, markingValue];
-    return this.query(query, values);
+    return this.pool.query(query, values);
   }
 
   async getTripMarkingById(tenantId: string, id: string): Promise<QueryResult> {
@@ -32,7 +29,7 @@ export class TripMarkingRepository extends BaseRepository<any> {
       WHERE id = $1 AND tenant_id = $2
     `;
     const values = [id, tenantId];
-    return this.query(query, values);
+    return this.pool.query(query, values);
   }
 
   async getTripMarkingsByTripId(tenantId: string, tripId: string): Promise<QueryResult> {
@@ -41,7 +38,7 @@ export class TripMarkingRepository extends BaseRepository<any> {
       WHERE trip_id = $1 AND tenant_id = $2
     `;
     const values = [tripId, tenantId];
-    return this.query(query, values);
+    return this.pool.query(query, values);
   }
 
   async getTripMarkingsByUserId(tenantId: string, userId: string): Promise<QueryResult> {
@@ -50,7 +47,7 @@ export class TripMarkingRepository extends BaseRepository<any> {
       WHERE user_id = $1 AND tenant_id = $2
     `;
     const values = [userId, tenantId];
-    return this.query(query, values);
+    return this.pool.query(query, values);
   }
 
   async updateTripMarking(
@@ -66,7 +63,7 @@ export class TripMarkingRepository extends BaseRepository<any> {
       RETURNING id
     `;
     const values = [markingType, markingValue, id, tenantId];
-    return this.query(query, values);
+    return this.pool.query(query, values);
   }
 
   async deleteTripMarking(tenantId: string, id: string): Promise<QueryResult> {
@@ -76,35 +73,8 @@ export class TripMarkingRepository extends BaseRepository<any> {
       RETURNING id
     `;
     const values = [id, tenantId];
-    return this.query(query, values);
+    return this.pool.query(query, values);
   }
 }
 
-  /**
-   * N+1 PREVENTION: Find with related data
-   * Override this method in subclasses for specific relationships
-   */
-  async findWithRelatedData(id: string, tenantId: string) {
-    const query = `
-      SELECT t.*
-      FROM ${this.tableName} t
-      WHERE t.id = $1 AND t.tenant_id = $2 AND t.deleted_at IS NULL
-    `;
-    const result = await this.query(query, [id, tenantId]);
-    return result.rows[0] || null;
-  }
-
-  /**
-   * N+1 PREVENTION: Find all with related data
-   * Override this method in subclasses for specific relationships
-   */
-  async findAllWithRelatedData(tenantId: string) {
-    const query = `
-      SELECT t.*
-      FROM ${this.tableName} t
-      WHERE t.tenant_id = $1 AND t.deleted_at IS NULL
-      ORDER BY t.created_at DESC
-    `;
-    const result = await this.query(query, [tenantId]);
-    return result.rows;
-  }
+export default TripMarkingRepository;

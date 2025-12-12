@@ -43,27 +43,3 @@ export class FacilityManagementRepository extends BaseRepository<any> {
 This repository uses the `pg` library for PostgreSQL and assumes that the `FacilityManagement` model has `id`, `name`, and `address` properties. The `tenant_id` is used to scope the operations to the correct tenant. Each method corresponds to a CRUD operation: `create`, `read`, `update`, and `delete`. The queries are parameterized to prevent SQL injection attacks.
 
 Please replace the table name and column names with the actual ones used in your database.
-/**
- * N+1 PREVENTION: Fetch with related entities
- * Add specific methods based on your relationships
- */
-async findWithRelatedData(id: string, tenantId: string) {
-  const query = \`
-    SELECT t.*
-    FROM facilitymanagement t
-    WHERE t.id = \api/src/repositories/facilitymanagement.repository.ts AND t.tenant_id = \ AND t.deleted_at IS NULL
-  \`;
-  const result = await this.pool.query(query, [id, tenantId]);
-  return result.rows[0] || null;
-}
-
-async findAllWithRelatedData(tenantId: string) {
-  const query = \`
-    SELECT t.*
-    FROM facilitymanagement t
-    WHERE t.tenant_id = \api/src/repositories/facilitymanagement.repository.ts AND t.deleted_at IS NULL
-    ORDER BY t.created_at DESC
-  \`;
-  const result = await this.pool.query(query, [tenantId]);
-  return result.rows;
-}

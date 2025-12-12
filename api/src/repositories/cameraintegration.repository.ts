@@ -83,8 +83,10 @@ export class CameraIntegrationRepository extends BaseRepository<any> {
    * @returns The updated camera integration
    */
   async update(id: number, cameraIntegration: Partial<Omit<CameraIntegration, 'id' | 'created_at' | 'updated_at' | 'tenant_id'>>, tenant_id: string): Promise<CameraIntegration | null> {
-    const { fields: setClause, values: updateValues } = buildUpdateClause(cameraIntegration, 2, 'generic_table');
-    const values = [id, ...updateValues, tenant_id];
+    const setClause = Object.keys(cameraIntegration)
+      .map((key, index) => `${key} = $${index + 2}`)
+      .join(', ');
+    const values = [id, ...Object.values(cameraIntegration), tenant_id];
 
     const query = `
       UPDATE camera_integrations
@@ -135,7 +137,6 @@ To use this repository in your `api/src/routes/camera-integration.routes.ts` fil
 import { Router } from 'express';
 import { Pool } from 'pg';
 import { CameraIntegrationRepository } from './camera-integration.repository';
-import { buildUpdateClause } from '../utils/sql-safety'
 
 const router = Router();
 const pool = new Pool(/* your database configuration */);
@@ -156,27 +157,3 @@ export default router;
 
 
 This repository provides a solid foundation for managing camera integrations in a multi-tenant environment with proper security measures in place.
-/**
- * N+1 PREVENTION: Fetch with related entities
- * Add specific methods based on your relationships
- */
-async findWithRelatedData(id: string, tenantId: string) {
-  const query = \`
-    SELECT t.*
-    FROM cameraintegration t
-    WHERE t.id = \api/src/repositories/cameraintegration.repository.ts AND t.tenant_id = \ AND t.deleted_at IS NULL
-  \`;
-  const result = await this.pool.query(query, [id, tenantId]);
-  return result.rows[0] || null;
-}
-
-async findAllWithRelatedData(tenantId: string) {
-  const query = \`
-    SELECT t.*
-    FROM cameraintegration t
-    WHERE t.tenant_id = \api/src/repositories/cameraintegration.repository.ts AND t.deleted_at IS NULL
-    ORDER BY t.created_at DESC
-  \`;
-  const result = await this.pool.query(query, [tenantId]);
-  return result.rows;
-}
