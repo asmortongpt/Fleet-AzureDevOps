@@ -43,3 +43,27 @@ export class FleetComparisonRepository extends BaseRepository<any> {
 This repository assumes that you have a `Pool` object from the `pg` package (a PostgreSQL client for Node.js) and a `FleetComparison` model. The `FleetComparison` model is not defined in this example, but it should be an interface or a class that represents the data structure of a fleet comparison.
 
 Please adjust the SQL queries and the model according to your actual database schema.
+/**
+ * N+1 PREVENTION: Fetch with related entities
+ * Add specific methods based on your relationships
+ */
+async findWithRelatedData(id: string, tenantId: string) {
+  const query = \`
+    SELECT t.*
+    FROM fleetcomparison t
+    WHERE t.id = \api/src/repositories/fleetcomparison.repository.ts AND t.tenant_id = \ AND t.deleted_at IS NULL
+  \`;
+  const result = await this.pool.query(query, [id, tenantId]);
+  return result.rows[0] || null;
+}
+
+async findAllWithRelatedData(tenantId: string) {
+  const query = \`
+    SELECT t.*
+    FROM fleetcomparison t
+    WHERE t.tenant_id = \api/src/repositories/fleetcomparison.repository.ts AND t.deleted_at IS NULL
+    ORDER BY t.created_at DESC
+  \`;
+  const result = await this.pool.query(query, [tenantId]);
+  return result.rows;
+}
