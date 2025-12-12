@@ -32,12 +32,13 @@ echo ""
 echo "Test 2: Checking for tsx-incompatible syntax patterns..."
 
 # Check for escaped dollar signs in template strings (the issue we just fixed)
-ESCAPED_DOLLARS=$(grep -r '\\$[0-9]' api/src --include="*.ts" 2>/dev/null | wc -l | tr -d ' ')
+# Exclude RegExp constructor strings which need escaping
+ESCAPED_DOLLARS=$(grep -r '\\$[0-9]' api/src --include="*.ts" 2>/dev/null | grep -v "RegExp(" | wc -l | tr -d ' ')
 if [ "$ESCAPED_DOLLARS" -eq "0" ]; then
     echo -e "${GREEN}✅ No escaped dollar signs in template strings${NC}"
 else
     echo -e "${RED}❌ Found $ESCAPED_DOLLARS escaped dollar signs that will break tsx${NC}"
-    grep -rn '\\$[0-9]' api/src --include="*.ts" 2>/dev/null || true
+    grep -rn '\\$[0-9]' api/src --include="*.ts" 2>/dev/null | grep -v "RegExp(" || true
     exit 1
 fi
 
