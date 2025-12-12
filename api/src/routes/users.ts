@@ -1,5 +1,5 @@
 import express from 'express';
-import { vehicleService } from '../services/VehicleService';
+import { userService } from '../services/UserService';
 import { NotFoundError } from '../errors/NotFoundError';
 
 const router = express.Router();
@@ -9,7 +9,7 @@ router.get('/:id', async (req, res, next) => {
     const { id } = req.params;
     const { tenant_id } = req.user;
 
-    const data = await vehicleService.getVehicleWithDetails(
+    const data = await userService.getUserDetails(
       parseInt(id),
       tenant_id
     );
