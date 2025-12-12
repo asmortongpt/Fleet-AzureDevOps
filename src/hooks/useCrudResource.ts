@@ -1,0 +1,134 @@
+/**
+ * Generic CRUD hook factory - eliminates duplication across useDrivers, useVehicles, etc.
+ * Provides standard create, read, update, delete operations with React Query
+ */
+import { useQuery, useMutation, useQueryClient, UseQueryOptions, UseMutationOptions } from '@tanstack/react-query'
+
+import { api } from '@/lib/api'
+
+export interface CrudResourceOptions<T> {
+  resourceName: string // e.g., 'drivers', 'vehicles'
+  queryKey: string // e.g., 'drivers', 'vehicles'
+}
+
+export interface PaginationParams {
+  page?: number
+  pageSize?: number
+  search?: string
+  [key: string]: any
+}
+
+/**
+ * Generate all CRUD hooks for a resource
+ */
+export function createCrudHooks<T extends { id?: number | string }>(
+  options: CrudResourceOptions<T>
+) {
+  const { resourceName, queryKey } = options
+
+  /**
+   * Get all resources with optional pagination/filtering
+   */
+  function useList(params?: PaginationParams, queryOptions?: Omit<UseQueryOptions, 'queryKey' | 'queryFn'>) {
+    return useQuery({
+      queryKey: [queryKey, params],
+      queryFn: async () => {
+        const response = await api.get(`/${resourceName}`, { params })
+        return response.data
+      },
+      ...queryOptions
+    })
+  }
+
+  /**
+   * Get a single resource by ID
+   */
+  function useOne(id: number | string, queryOptions?: Omit<UseQueryOptions, 'queryKey' | 'queryFn' | 'enabled'>) {
+    return useQuery({
+      queryKey: [queryKey, id],
+      queryFn: async () => {
+        const response = await api.get(`/${resourceName}/${id}`)
+        return response.data.data || response.data
+      },
+      enabled: !!id,
+      ...queryOptions
+    })
+  }
+
+  /**
+   * Create a new resource
+   */
+  function useCreate(mutationOptions?: Omit<UseMutationOptions<any, any, Partial<T>>, 'mutationFn'>) {
+    const queryClient = useQueryClient()
+
+    return useMutation({
+      mutationFn: async (data: Partial<T>) => {
+        const response = await api.post(`/${resourceName}`, data)
+        return response.data
+      },
+      onSuccess: () => {
+        queryClient.invalidateQueries({ queryKey: [queryKey] })
+      },
+      ...mutationOptions
+    })
+  }
+
+  /**
+   * Update an existing resource
+   */
+  function useUpdate(mutationOptions?: Omit<UseMutationOptions<any, any, { id: number | string; data: Partial<T> }>, 'mutationFn'>) {
+    const queryClient = useQueryClient()
+
+    return useMutation({
+      mutationFn: async ({ id, data }: { id: number | string; data: Partial<T> }) => {
+        const response = await api.put(`/${resourceName}/${id}`, data)
+        return response.data
+      },
+      onSuccess: (_, variables) => {
+        queryClient.invalidateQueries({ queryKey: [queryKey] })
+        queryClient.invalidateQueries({ queryKey: [queryKey, variables.id] })
+      },
+      ...mutationOptions
+    })
+  }
+
+  /**
+   * Delete a resource
+   */
+  function useDelete(mutationOptions?: Omit<UseMutationOptions<any, any, number | string>, 'mutationFn'>) {
+    const queryClient = useQueryClient()
+
+    return useMutation({
+      mutationFn: async (id: number | string) => {
+        await api.delete(`/${resourceName}/${id}`)
+      },
+      onSuccess: () => {
+        queryClient.invalidateQueries({ queryKey: [queryKey] })
+      },
+      ...mutationOptions
+    })
+  }
+
+  return {
+    useList,
+    useOne,
+    useCreate,
+    useUpdate,
+    useDelete
+  }
+}
+
+/**
+ * Example usage:
+ *
+ * const driverHooks = createCrudHooks<Driver>({
+ *   resourceName: 'drivers',
+ *   queryKey: 'drivers'
+ * })
+ *
+ * export const useDrivers = driverHooks.useList
+ * export const useDriver = driverHooks.useOne
+ * export const useCreateDriver = driverHooks.useCreate
+ * export const useUpdateDriver = driverHooks.useUpdate
+ * export const useDeleteDriver = driverHooks.useDelete
+ */

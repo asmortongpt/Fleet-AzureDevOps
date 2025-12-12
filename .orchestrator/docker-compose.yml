@@ -1,0 +1,98 @@
+version: '3.8'
+
+services:
+  # PostgreSQL task database
+  postgres:
+    image: postgres:14-alpine
+    container_name: fleet-orchestrator-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: fleet_orchestrator
+      POSTGRES_USER: orchestrator
+      POSTGRES_PASSWORD: ${ORCHESTRATOR_DB_PASSWORD:-changeme123}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./db/schema.sql:/docker-entrypoint-initdb.d/01-schema.sql:ro
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U orchestrator -d fleet_orchestrator"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Redis task queue
+  redis:
+    image: redis:7-alpine
+    container_name: fleet-orchestrator-redis
+    restart: unless-stopped
+    command: redis-server --appendonly yes
+    volumes:
+      - redis_data:/data
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Orchestrator API (Node.js/Express)
+  orchestrator:
+    build:
+      context: ./api
+      dockerfile: Dockerfile
+    container_name: fleet-orchestrator-api
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    environment:
+      NODE_ENV: production
+      DATABASE_URL: postgres://orchestrator:${ORCHESTRATOR_DB_PASSWORD:-changeme123}@postgres:5432/fleet_orchestrator
+      REDIS_URL: redis://redis:6379
+      GITHUB_TOKEN: ${GITHUB_PAT}
+      GITHUB_REPO: asmortongpt/Fleet
+      GITHUB_DEFAULT_BRANCH: main
+      PORT: 3000
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./logs:/app/logs
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:3000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Dashboard (React/Vite)
+  dashboard:
+    build:
+      context: ./dashboard
+      dockerfile: Dockerfile
+    container_name: fleet-orchestrator-dashboard
+    restart: unless-stopped
+    depends_on:
+      - orchestrator
+    environment:
+      VITE_API_URL: http://orchestrator:3000
+    ports:
+      - "5173:80"
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:80"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+volumes:
+  postgres_data:
+    driver: local
+  redis_data:
+    driver: local
+
+networks:
+  default:
+    name: fleet-orchestrator-network
+    driver: bridge
