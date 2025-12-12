@@ -34,7 +34,8 @@ export function useRadioSocket(channelId: string | null) {
 
   // Initialize Socket.IO connection
   useEffect(() => {
-    const SOCKET_URL = import.meta.env.VITE_RADIO_SOCKET_URL || 'http://localhost:8000';
+    // SECURITY FIX (HIGH-009): Use environment variable or derive from current location
+    const SOCKET_URL = import.meta.env.VITE_RADIO_SOCKET_URL || window.location.origin;
 
     const newSocket = io(SOCKET_URL, {
       transports: ['websocket', 'polling'],
