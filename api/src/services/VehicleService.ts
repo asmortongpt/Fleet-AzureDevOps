@@ -18,7 +18,7 @@ export class VehicleService implements IVehicleService {
 
   private async fetchVehicleFromDatabase(id: number): Promise<Vehicle> {
     // Implement actual database query here
-    // Example: return await db.query('SELECT * FROM vehicles WHERE id = $1', [id]);
+    // Example: return await db.query('SELECT id, make, model, year, vin, license_plate, mileage, status, driver_id, fuel_type, tenant_id, created_at, updated_at, deleted_at FROM vehicles WHERE id = $1', [id]);
     throw new Error('Not implemented');
   }
 }
