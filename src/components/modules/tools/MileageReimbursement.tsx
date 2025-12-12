@@ -29,7 +29,8 @@ interface MileageReimbursementProps {
   data: ReturnType<typeof useFleetData>
 }
 
-export function MileageReimbursement({ data }: MileageReimbursementProps) {
+export function MileageReimbursement() {
+  const data = useFleetData()
   const requests = data.mileageReimbursements || []
 
   const [showForm, setShowForm] = useState(false)
