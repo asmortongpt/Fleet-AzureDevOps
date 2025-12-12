@@ -1,3 +1,5 @@
+import { BaseRepository } from './BaseRepository';
+
 import pool from '../config/database';
 import { PoolClient } from 'pg';
 

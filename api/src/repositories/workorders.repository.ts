@@ -101,3 +101,23 @@ export class WorkOrdersRepository extends BaseRepository<any> {
     return result.rowCount > 0;
   }
 }
+
+/**
+ * N+1 PREVENTION: Fetch work order with full context (vehicle, driver, facility)
+ */
+async findWithFullContext(id: string, tenantId: string) {
+  const query = `
+    SELECT
+      wo.id, wo.description, wo.status, wo.priority, wo.due_date,
+      v.id as vehicle_id, v.make as vehicle_make, v.model as vehicle_model, v.vin as vehicle_vin,
+      d.id as driver_id, d.name as driver_name, d.email as driver_email,
+      f.id as facility_id, f.name as facility_name, f.address as facility_address
+    FROM work_orders wo
+    LEFT JOIN vehicles v ON wo.vehicle_id = v.id
+    LEFT JOIN drivers d ON v.driver_id = d.id
+    LEFT JOIN facilities f ON wo.facility_id = f.id
+    WHERE wo.id = $1 AND wo.tenant_id = $2 AND wo.deleted_at IS NULL
+  `;
+  const result = await this.pool.query(query, [id, tenantId]);
+  return result.rows[0] || null;
+}
