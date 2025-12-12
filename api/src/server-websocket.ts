@@ -7,6 +7,7 @@ import { Server as WSServer } from 'ws';
 import { Pool } from 'pg';
 import { config as dotenvConfig } from 'dotenv';
 import { AddressInfo } from 'net';
+import { IncomingMessage } from 'http';
 
 dotenvConfig();
 
@@ -17,6 +18,12 @@ const wss: WSServer = new WSServer({ noServer: true });
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
 });
+
+// SECURITY FIX: Connection limiting
+const MAX_CONNECTIONS_PER_IP = 10;
+const MAX_CONNECTIONS_PER_USER = 5;
+const connectionsByIP = new Map<string, number>();
+const connectionsByUser = new Map<string, number>();
 
 app.get('/route', async (req, res) => {
   try {
@@ -29,12 +36,40 @@ app.get('/route', async (req, res) => {
 });
 
 server.on('upgrade', (request, socket, head) => {
+  // SECURITY FIX: Check IP-based connection limits
+  const clientIP = request.socket.remoteAddress || 'unknown';
+  const currentIPCount = connectionsByIP.get(clientIP) || 0;
+
+  if (currentIPCount >= MAX_CONNECTIONS_PER_IP) {
+    console.warn(`[WebSocket] Connection limit exceeded for IP: ${clientIP}`);
+    socket.write('HTTP/1.1 429 Too Many Connections\r\n\r\n');
+    socket.destroy();
+    return;
+  }
+
   wss.handleUpgrade(request, socket, head, (ws) => {
     wss.emit('connection', ws, request);
   });
 });
 
-wss.on('connection', (ws) => {
+wss.on('connection', (ws, request: IncomingMessage) => {
+  const clientIP = request.socket.remoteAddress || 'unknown';
+
+  // SECURITY FIX: Track IP connections
+  const currentIPCount = connectionsByIP.get(clientIP) || 0;
+  connectionsByIP.set(clientIP, currentIPCount + 1);
+
+  // SECURITY FIX: Cleanup on disconnect
+  ws.on('close', () => {
+    const count = connectionsByIP.get(clientIP) || 1;
+    if (count <= 1) {
+      connectionsByIP.delete(clientIP);
+    } else {
+      connectionsByIP.set(clientIP, count - 1);
+    }
+    console.log(`[WebSocket] Client disconnected from IP: ${clientIP}`);
+  });
+
   ws.on('message', (message) => {
     console.log(`Received message => ${message}`);
   });

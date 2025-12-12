@@ -10,6 +10,9 @@
     <meta http-equiv="Pragma" content="no-cache" />
     <meta http-equiv="Expires" content="0" />
 
+    <!-- SECURITY FIX (HIGH-010): Content Security Policy -->
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https: blob:; connect-src 'self' https: wss:; frame-ancestors 'none';">
+
     <!-- PWA Meta Tags -->
     <meta name="description" content="Comprehensive multi-tenant fleet management system with real-time tracking, predictive maintenance, and advanced analytics" />
     <meta name="theme-color" content="#1e40af" />

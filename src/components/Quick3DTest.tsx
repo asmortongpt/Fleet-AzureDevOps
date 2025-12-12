@@ -27,7 +27,9 @@ export function QuickAITest() {
 
   const testAI = async () => {
     setLoading(true)
-    const res = await fetch('http://localhost:3000/api/ai/query', {
+    // SECURITY FIX (HIGH-009): Use environment variable instead of hardcoded localhost URL
+    const apiUrl = import.meta.env.VITE_API_URL || window.location.origin
+    const res = await fetch(`${apiUrl}/api/ai/query`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ query: 'Analyze vehicle health status' })

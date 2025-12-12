@@ -1,6 +1,8 @@
 import type { RedisClientType } from "redis";
 import { Server, Socket } from "socket.io";
 import { z } from "zod";
+import { Pool } from "pg";
+import { pool } from "../db";
 
 interface Presence {
   userId: string;
@@ -16,10 +18,12 @@ export class PresenceService {
   private io: Server;
   private redis: RedisClientType;
   private presenceMap: Map<string, Presence[]> = new Map();
+  private db: Pool;
 
-  constructor(io: Server, redis: RedisClientType) {
+  constructor(io: Server, redis: RedisClientType, dbPool?: Pool) {
     this.io = io;
     this.redis = redis;
+    this.db = dbPool || pool;
     this.initializeListeners();
   }
 
@@ -56,14 +60,49 @@ export class PresenceService {
   }
 
   private async joinTask(socket: Socket, userId: string, taskId: string): Promise<void> {
-    const presence: Presence = { userId, taskId };
-    if (!this.presenceMap.has(taskId)) {
-      this.presenceMap.set(taskId, []);
+    // SECURITY FIX: Validate task belongs to user's tenant
+    const tenantId = (socket as any).tenantId;
+
+    if (!tenantId) {
+      console.warn(`[Presence] User ${userId} attempted to join task ${taskId} without tenant context`);
+      socket.emit("ERROR", {
+        code: "ACCESS_DENIED",
+        message: "No tenant context available"
+      });
+      return;
     }
-    this.presenceMap.get(taskId)!.push(presence);
-    socket.join(taskId);
-    this.io.to(taskId).emit("USER_JOINED", { userId, taskId });
-    await this.redis.sadd(`task:${taskId}:viewers`, userId);
+
+    try {
+      const taskExists = await this.db.query(
+        'SELECT id FROM tasks WHERE id = $1 AND tenant_id = $2',
+        [taskId, tenantId]
+      );
+
+      if (taskExists.rows.length === 0) {
+        console.warn(`[Presence] User ${userId} attempted to join task ${taskId} without access`);
+        socket.emit("ERROR", {
+          code: "ACCESS_DENIED",
+          message: "Task not found or access denied"
+        });
+        return;
+      }
+
+      // Task validation passed, proceed with join
+      const presence: Presence = { userId, taskId };
+      if (!this.presenceMap.has(taskId)) {
+        this.presenceMap.set(taskId, []);
+      }
+      this.presenceMap.get(taskId)!.push(presence);
+      socket.join(taskId);
+      this.io.to(taskId).emit("USER_JOINED", { userId, taskId });
+      await this.redis.sadd(`task:${taskId}:viewers`, userId);
+    } catch (error) {
+      console.error(`[Presence] Error validating task access: ${error}`);
+      socket.emit("ERROR", {
+        code: "INTERNAL_ERROR",
+        message: "Failed to validate task access"
+      });
+    }
   }
 
   private async leaveTask(socket: Socket, userId: string, taskId: string): Promise<void> {

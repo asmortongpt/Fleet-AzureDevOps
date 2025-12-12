@@ -57,7 +57,7 @@ jobs:
           az storage container create \
             --name repository-backups \
             --account-name ${{ secrets.AZURE_STORAGE_ACCOUNT }} \
-            --account-key ${{ secrets.AZURE_STORAGE_KEY }} \
+            --auth-mode login \
             --public-access off \
             --fail-on-exist false
 
@@ -67,7 +67,7 @@ jobs:
             --file "${{ env.BUNDLE_NAME }}" \
             --name "fleet/${{ env.BUNDLE_NAME }}" \
             --account-name ${{ secrets.AZURE_STORAGE_ACCOUNT }} \
-            --account-key ${{ secrets.AZURE_STORAGE_KEY }} \
+            --auth-mode login \
             --overwrite
 
           echo "✅ Backup uploaded to Azure Storage"
@@ -79,7 +79,7 @@ jobs:
             --container-name repository-backups \
             --prefix "fleet/fleet-backup-" \
             --account-name ${{ secrets.AZURE_STORAGE_ACCOUNT }} \
-            --account-key ${{ secrets.AZURE_STORAGE_KEY }} \
+            --auth-mode login \
             --query "[].name" -o tsv)
 
           # Keep only last 8 backups (2 months of weekly backups)
@@ -93,7 +93,7 @@ jobs:
                 --container-name repository-backups \
                 --name "$backup" \
                 --account-name ${{ secrets.AZURE_STORAGE_ACCOUNT }} \
-                --account-key ${{ secrets.AZURE_STORAGE_KEY }}
+                --auth-mode login
             done
           else
             echo "Only $BACKUP_COUNT backups found, no cleanup needed"
@@ -123,7 +123,7 @@ jobs:
             --file backup-metadata.json \
             --name "fleet/backup-metadata-${{ env.BACKUP_DATE }}.json" \
             --account-name ${{ secrets.AZURE_STORAGE_ACCOUNT }} \
-            --account-key ${{ secrets.AZURE_STORAGE_KEY }} \
+            --auth-mode login \
             --overwrite
 
       - name: Cleanup local files
@@ -169,7 +169,7 @@ jobs:
             --container-name repository-backups \
             --prefix "fleet/fleet-backup-" \
             --account-name ${{ secrets.AZURE_STORAGE_ACCOUNT }} \
-            --account-key ${{ secrets.AZURE_STORAGE_KEY }} \
+            --auth-mode login \
             --query "[-1].name" -o tsv)
 
           echo "Latest backup: $LATEST_BACKUP"
@@ -180,7 +180,7 @@ jobs:
             --name "$LATEST_BACKUP" \
             --file "verify-bundle.bundle" \
             --account-name ${{ secrets.AZURE_STORAGE_ACCOUNT }} \
-            --account-key ${{ secrets.AZURE_STORAGE_KEY }}
+            --auth-mode login
 
           # Verify bundle
           git bundle verify verify-bundle.bundle

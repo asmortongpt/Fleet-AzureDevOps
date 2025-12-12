@@ -1,5 +1,6 @@
 import { Pool } from 'pg';
 import { BaseRepository } from './BaseRepository';
+import { buildUpdateClause } from '../utils/sql-safety'
 
 export class OshaComplianceRepository extends BaseRepository<any> {
   constructor(pool: Pool) {
@@ -54,13 +55,11 @@ export class OshaComplianceRepository extends BaseRepository<any> {
     },
     tenantId: string
   ): Promise<QueryResult> {
-    const setClause = Object.keys(data)
-      .map((key, index) => `${key} = $${index + 2}`)
-      .join(', ');
+    const { fields: setClause, values: updateValues } = buildUpdateClause(data, 2, 'generic_table');
     const query = `
       UPDATE osha_compliance
       SET ${setClause}
-      WHERE id = $1 AND tenant_id = $${Object.keys(data).length + 2}
+      WHERE id = $1 AND tenant_id = $${updateValues.length + 2}
       RETURNING *
     `;
     const values = [...Object.values(data), id, tenantId];
