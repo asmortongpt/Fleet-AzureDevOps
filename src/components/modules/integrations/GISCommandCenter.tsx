@@ -23,7 +23,8 @@ interface GISCommandCenterProps {
   data: ReturnType<typeof useFleetData>
 }
 
-export function GISCommandCenter({ data }: GISCommandCenterProps) {
+export function GISCommandCenter() {
+  const data = useFleetData()
   const vehicles = data.vehicles || []
   const { data: facilities = [] } = useFacilities()
   const [selectedRegion, setSelectedRegion] = useState<string>("all")
