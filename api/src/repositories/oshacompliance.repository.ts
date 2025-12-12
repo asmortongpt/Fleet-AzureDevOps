@@ -1,3 +1,5 @@
+import { BaseRepository } from './BaseRepository';
+
 import { Pool, QueryResult } from 'pg';
 
 class OshaComplianceRepository {
@@ -9,12 +11,12 @@ class OshaComplianceRepository {
 
   async getAllOshaCompliances(tenantId: string): Promise<QueryResult> {
     const query = 'SELECT id, created_at, updated_at FROM osha_compliance WHERE tenant_id = $1';
-    return this.pool.query(query, [tenantId]);
+    return this.query(query, [tenantId]);
   }
 
   async getOshaComplianceById(id: string, tenantId: string): Promise<QueryResult> {
     const query = 'SELECT id, created_at, updated_at FROM osha_compliance WHERE id = $1 AND tenant_id = $2';
-    return this.pool.query(query, [id, tenantId]);
+    return this.query(query, [id, tenantId]);
   }
 
   async createOshaCompliance(
@@ -38,7 +40,7 @@ class OshaComplianceRepository {
       data.due_date,
       tenantId,
     ];
-    return this.pool.query(query, values);
+    return this.query(query, values);
   }
 
   async updateOshaCompliance(
@@ -61,12 +63,12 @@ class OshaComplianceRepository {
       RETURNING *
     `;
     const values = [...Object.values(data), id, tenantId];
-    return this.pool.query(query, values);
+    return this.query(query, values);
   }
 
   async deleteOshaCompliance(id: string, tenantId: string): Promise<QueryResult> {
     const query = 'DELETE FROM osha_compliance WHERE id = $1 AND tenant_id = $2 RETURNING *';
-    return this.pool.query(query, [id, tenantId]);
+    return this.query(query, [id, tenantId]);
   }
 
   // Prevent N+1 queries with JOINs
@@ -81,7 +83,7 @@ class OshaComplianceRepository {
       WHERE t1.tenant_id = $1
       ORDER BY t1.created_at DESC
     `;
-    const result = await this.pool.query(query, [this.tenantId]);
+    const result = await this.query(query, [this.tenantId]);
     return result.rows;
   }
 

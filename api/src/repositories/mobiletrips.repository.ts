@@ -1,3 +1,5 @@
+import { BaseRepository } from './BaseRepository';
+
 import { Pool, QueryResult } from 'pg';
 
 class MobileTripsRepository {
@@ -9,12 +11,12 @@ class MobileTripsRepository {
 
   async getAllTrips(tenantId: string): Promise<QueryResult> {
     const query = 'SELECT id, tenant_id, created_at, updated_at FROM mobile_trips WHERE tenant_id = $1';
-    return this.pool.query(query, [tenantId]);
+    return this.query(query, [tenantId]);
   }
 
   async getTripById(tripId: string, tenantId: string): Promise<QueryResult> {
     const query = 'SELECT id, tenant_id, created_at, updated_at FROM mobile_trips WHERE id = $1 AND tenant_id = $2';
-    return this.pool.query(query, [tripId, tenantId]);
+    return this.query(query, [tripId, tenantId]);
   }
 
   async createTrip(
@@ -48,7 +50,7 @@ class MobileTripsRepository {
       tripData.status,
       tenantId
     ];
-    return this.pool.query(query, values);
+    return this.query(query, values);
   }
 
   async updateTrip(
@@ -78,12 +80,12 @@ class MobileTripsRepository {
       WHERE id = $${values.length - 1} AND tenant_id = $${values.length}
       RETURNING *
     `;
-    return this.pool.query(query, values);
+    return this.query(query, values);
   }
 
   async deleteTrip(tripId: string, tenantId: string): Promise<QueryResult> {
     const query = 'DELETE FROM mobile_trips WHERE id = $1 AND tenant_id = $2 RETURNING *';
-    return this.pool.query(query, [tripId, tenantId]);
+    return this.query(query, [tripId, tenantId]);
   }
 }
 
