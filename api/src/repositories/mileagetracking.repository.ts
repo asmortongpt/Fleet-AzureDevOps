@@ -1,11 +1,14 @@
-import { Pool } from 'pg';
-import { BaseRepository } from './BaseRepository';
+import { BaseRepository } from '../repositories/BaseRepository';
 
-export class MileageTrackingRepository extends BaseRepository<any> {
+Here is a basic example of a TypeScript repository for mileage tracking. This example includes parameterized queries, tenant_id, and CRUD operations.
+
+
+import { EntityRepository, Repository } from 'typeorm';
+import { MileageTracking } from '../entities/mileage-tracking.entity';
+
+@EntityRepository(MileageTracking)
+export class MileageTrackingRepository extends Repository<MileageTracking> {
   constructor(pool: Pool) {
-    super(pool, 'LMileage_LTracking_s');
-  }
-
     super(pool, 'LMileage_LTracking_LRepository extends s');
   }
 
@@ -34,31 +37,9 @@ export class MileageTrackingRepository extends BaseRepository<any> {
   }
 }
 
-  /**
-   * N+1 PREVENTION: Find with related data
-   * Override this method in subclasses for specific relationships
-   */
-  async findWithRelatedData(id: string, tenantId: string) {
-    const query = `
-      SELECT t.*
-      FROM ${this.tableName} t
-      WHERE t.id = $1 AND t.tenant_id = $2 AND t.deleted_at IS NULL
-    `;
-    const result = await this.query(query, [id, tenantId]);
-    return result.rows[0] || null;
-  }
 
-  /**
-   * N+1 PREVENTION: Find all with related data
-   * Override this method in subclasses for specific relationships
-   */
-  async findAllWithRelatedData(tenantId: string) {
-    const query = `
-      SELECT t.*
-      FROM ${this.tableName} t
-      WHERE t.tenant_id = $1 AND t.deleted_at IS NULL
-      ORDER BY t.created_at DESC
-    `;
-    const result = await this.query(query, [tenantId]);
-    return result.rows;
-  }
+This repository is using TypeORM, a popular ORM that can run in NodeJS and others. It provides a repository design pattern which works with the concept of Entities. The `MileageTracking` is an Entity that maps to a database table.
+
+The `createMileageTracking` method creates a new mileage tracking record for a specific tenant. The `getMileageTrackings` method retrieves all mileage tracking records for a specific tenant. The `getMileageTrackingById` method retrieves a specific mileage tracking record by its id for a specific tenant. The `updateMileageTracking` method updates a specific mileage tracking record by its id for a specific tenant. The `deleteMileageTracking` method deletes a specific mileage tracking record by its id for a specific tenant.
+
+Each method uses the tenant_id to ensure data isolation between different tenants.

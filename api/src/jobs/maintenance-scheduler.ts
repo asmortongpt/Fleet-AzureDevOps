@@ -139,7 +139,7 @@ async function sendSummaryNotification(
     // Get fleet manager users
     const managersResult = await pool.query(
       `SELECT id, email FROM users
-       WHERE tenant_id = $1 AND role IN (`admin`, `fleet_manager`)
+       WHERE tenant_id = $1 AND role IN ('admin', 'fleet_manager')
        AND active = true`,
       [tenantId]
     )
