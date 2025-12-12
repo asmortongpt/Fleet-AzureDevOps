@@ -4,6 +4,7 @@ Here's a TypeScript repository class `VideoEventsRepository` that implements CRU
 
 
 import { Pool, QueryResult } from 'pg';
+import { buildUpdateClause } from '../utils/sql-safety'
 
 interface VideoEvent {
   id: number;
@@ -48,16 +49,14 @@ export class VideoEventsRepository extends BaseRepository<any> {
 
   // Update a video event
   async update(id: number, videoEvent: Partial<Omit<VideoEvent, 'id' | 'created_at' | 'updated_at' | 'tenant_id'>>, tenantId: string): Promise<VideoEvent | null> {
-    const setClause = Object.keys(videoEvent)
-      .map((key, index) => `${key} = $${index + 2}`)
-      .join(', ');
+    const { fields: setClause, values: updateValues } = buildUpdateClause(videoEvent, 2, 'generic_table');
     const query = `
       UPDATE video_events
       SET ${setClause}
-      WHERE id = $1 AND tenant_id = $${Object.keys(videoEvent).length + 2}
+      WHERE id = $1 AND tenant_id = $${updateValues.length + 2}
       RETURNING id, video_id, event_type, event_data, created_at, updated_at, tenant_id
     `;
-    const values = [id, ...Object.values(videoEvent), tenantId];
+    const values = [id, ...updateValues, tenantId];
     const result: QueryResult<VideoEvent> = await this.pool.query(query, values);
     return result.rows[0] || null;
   }

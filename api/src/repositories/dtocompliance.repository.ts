@@ -1,5 +1,6 @@
 import { Pool } from 'pg';
 import { BaseRepository } from './BaseRepository';
+import { buildUpdateClause } from '../utils/sql-safety'
 
 export class DtoComplianceRepository extends BaseRepository<any> {
   constructor(pool: Pool) {
@@ -43,10 +44,9 @@ export class DtoComplianceRepository extends BaseRepository<any> {
 
   // Update a DTO compliance record
   async update(id: number, dtoCompliance: Partial<DtoCompliance>, tenant_id: number): Promise<DtoCompliance | null> {
-    const setClause = Object.keys(dtoCompliance)
-      .filter(key => key !== 'id' && key !== 'tenant_id')
-      .map((key, index) => `${key} = $${index + 2}`)
-      .join(', ');
+    // Filter out id and tenant_id, then use safe SQL builder
+    const filtered = Object.keys(dtoCompliance).filter(key => key !== 'id' && key !== 'tenant_id').reduce((obj: any, key) => { obj[key] = dtoCompliance[key]; return obj; }, {});
+    const { fields: setClause, values: updateValues } = buildUpdateClause(filtered, 2, 'dto_compliance');
 
     if (!setClause) {
       throw new Error('No fields to update');

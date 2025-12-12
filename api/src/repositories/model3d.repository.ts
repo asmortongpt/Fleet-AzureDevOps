@@ -1,6 +1,7 @@
 import { BaseRepository } from '../repositories/BaseRepository';
 
 import { Pool, QueryResult } from 'pg';
+import { buildUpdateClause } from '../utils/sql-safety'
 
 interface Model3D {
   id: number;
@@ -43,9 +44,9 @@ export class Model3DRepository extends BaseRepository<any> {
   }
 
   async updateModel(id: number, model: Partial<Omit<Model3D, 'id' | 'created_at' | 'updated_at' | 'tenant_id'>>, tenantId: number): Promise<Model3D | null> {
-    const setClause = Object.keys(model).map((key, index) => `${key} = $${index + 2}`).join(', ');
-    const values = Object.values(model);
-    values.unshift(id, tenantId);
+    const { fields: setClause, values: updateValues } = buildUpdateClause(model, 2, 'models_3d');
+    const { fields: setClause, values: updateValues } = buildUpdateClause(model, 2, 'models_3d');
+    const values = [id, tenantId, ...updateValues];
 
     const query = `
       UPDATE model3ds
