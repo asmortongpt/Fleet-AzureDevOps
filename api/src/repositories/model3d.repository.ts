@@ -1,7 +1,6 @@
 import { BaseRepository } from '../repositories/BaseRepository';
 
 import { Pool, QueryResult } from 'pg';
-import { buildUpdateClause } from '../utils/sql-safety'
 
 interface Model3D {
   id: number;
@@ -44,9 +43,9 @@ export class Model3DRepository extends BaseRepository<any> {
   }
 
   async updateModel(id: number, model: Partial<Omit<Model3D, 'id' | 'created_at' | 'updated_at' | 'tenant_id'>>, tenantId: number): Promise<Model3D | null> {
-    const { fields: setClause, values: updateValues } = buildUpdateClause(model, 2, 'models_3d');
-    const { fields: setClause, values: updateValues } = buildUpdateClause(model, 2, 'models_3d');
-    const values = [id, tenantId, ...updateValues];
+    const setClause = Object.keys(model).map((key, index) => `${key} = $${index + 2}`).join(', ');
+    const values = Object.values(model);
+    values.unshift(id, tenantId);
 
     const query = `
       UPDATE model3ds
@@ -63,28 +62,4 @@ export class Model3DRepository extends BaseRepository<any> {
     const result: QueryResult = await this.pool.query(query, [id, tenantId]);
     return result.rowCount > 0;
   }
-}
-/**
- * N+1 PREVENTION: Fetch with related entities
- * Add specific methods based on your relationships
- */
-async findWithRelatedData(id: string, tenantId: string) {
-  const query = \`
-    SELECT t.*
-    FROM model3d t
-    WHERE t.id = \api/src/repositories/model3d.repository.ts AND t.tenant_id = \ AND t.deleted_at IS NULL
-  \`;
-  const result = await this.pool.query(query, [id, tenantId]);
-  return result.rows[0] || null;
-}
-
-async findAllWithRelatedData(tenantId: string) {
-  const query = \`
-    SELECT t.*
-    FROM model3d t
-    WHERE t.tenant_id = \api/src/repositories/model3d.repository.ts AND t.deleted_at IS NULL
-    ORDER BY t.created_at DESC
-  \`;
-  const result = await this.pool.query(query, [tenantId]);
-  return result.rows;
 }

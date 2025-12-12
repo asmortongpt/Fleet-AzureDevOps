@@ -73,8 +73,10 @@ export class DataExportRepository extends BaseRepository<any> {
    * @returns The updated data export object if found, null otherwise
    */
   async update(id: number, dataExport: Partial<Omit<DataExport, 'id' | 'created_at' | 'updated_at' | 'tenant_id'>>, tenant_id: string): Promise<DataExport | null> {
-    const { fields: setClause, values: updateValues } = buildUpdateClause(dataExport, 2, 'generic_table');
-    const values = [id, tenant_id, ...updateValues];
+    const setClause = Object.keys(dataExport)
+      .map((key, index) => `${key} = $${index + 2}`)
+      .join(', ');
+    const values = [id, tenant_id, ...Object.values(dataExport)];
 
     const query = `
       UPDATE data_exports
@@ -148,7 +150,6 @@ To use this repository in your `data-export.routes.ts` file, you would typically
 import { Router } from 'express';
 import { DataExportRepository } from '../repositories/data-export.repository';
 import { Pool } from 'pg';
-import { buildUpdateClause } from '../utils/sql-safety'
 
 const router = Router();
 const pool = new Pool(); // Initialize your database connection
@@ -166,27 +167,3 @@ export default router;
 
 
 Remember to set up your database connection properly and adjust the implementation according to your specific needs and database schema.
-/**
- * N+1 PREVENTION: Fetch with related entities
- * Add specific methods based on your relationships
- */
-async findWithRelatedData(id: string, tenantId: string) {
-  const query = \`
-    SELECT t.*
-    FROM dataexport t
-    WHERE t.id = \api/src/repositories/dataexport.repository.ts AND t.tenant_id = \ AND t.deleted_at IS NULL
-  \`;
-  const result = await this.pool.query(query, [id, tenantId]);
-  return result.rows[0] || null;
-}
-
-async findAllWithRelatedData(tenantId: string) {
-  const query = \`
-    SELECT t.*
-    FROM dataexport t
-    WHERE t.tenant_id = \api/src/repositories/dataexport.repository.ts AND t.deleted_at IS NULL
-    ORDER BY t.created_at DESC
-  \`;
-  const result = await this.pool.query(query, [tenantId]);
-  return result.rows;
-}
