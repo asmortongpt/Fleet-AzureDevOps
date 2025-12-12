@@ -284,7 +284,7 @@ function App() {
       case "profile":
         return <ProfilePage />
       default:
-        return <FleetDashboardModern data={fleetData} />
+        return <FleetDashboardModern />
     }
   }
 
