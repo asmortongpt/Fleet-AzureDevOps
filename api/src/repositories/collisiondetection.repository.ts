@@ -63,9 +63,10 @@ export class CollisionDetectionRepository extends BaseRepository<any> {
 
   // Update a collision detection record
   async update(id: number, collisionDetection: Partial<CollisionDetection>, tenant_id: number): Promise<CollisionDetection | null> {
-    // Filter out id and tenant_id, then use safe SQL builder
-    const filtered = Object.keys(collisionDetection).filter(key => key !== 'id' && key !== 'tenant_id').reduce((obj: any, key) => { obj[key] = collisionDetection[key]; return obj; }, {});
-    const { fields: setClause, values: updateValues } = buildUpdateClause(filtered, 2, 'collision_detections');
+    const setClause = Object.keys(collisionDetection)
+      .filter(key => key !== 'id' && key !== 'tenant_id')
+      .map((key, index) => `${key} = $${index + 2}`)
+      .join(', ');
 
     if (!setClause) {
       throw new Error('No fields to update');
@@ -135,7 +136,6 @@ To use this repository in your `collision-detection.routes.ts` file, you would t
 import { Router } from 'express';
 import { Pool } from 'pg';
 import { CollisionDetectionRepository } from './CollisionDetectionRepository';
-import { buildUpdateClause } from '../utils/sql-safety'
 
 const router = Router();
 const pool = new Pool(/* your database configuration */);
@@ -163,27 +163,3 @@ export default router;
 
 
 This implementation provides a solid foundation for managing collision detection records in a multi-tenant environment with proper database interaction and security measures.
-/**
- * N+1 PREVENTION: Fetch with related entities
- * Add specific methods based on your relationships
- */
-async findWithRelatedData(id: string, tenantId: string) {
-  const query = \`
-    SELECT t.*
-    FROM collisiondetection t
-    WHERE t.id = \api/src/repositories/collisiondetection.repository.ts AND t.tenant_id = \ AND t.deleted_at IS NULL
-  \`;
-  const result = await this.pool.query(query, [id, tenantId]);
-  return result.rows[0] || null;
-}
-
-async findAllWithRelatedData(tenantId: string) {
-  const query = \`
-    SELECT t.*
-    FROM collisiondetection t
-    WHERE t.tenant_id = \api/src/repositories/collisiondetection.repository.ts AND t.deleted_at IS NULL
-    ORDER BY t.created_at DESC
-  \`;
-  const result = await this.pool.query(query, [tenantId]);
-  return result.rows;
-}

@@ -1,7 +1,6 @@
 import { BaseRepository } from '../repositories/BaseRepository';
 
 import { Pool, QueryResult } from 'pg';
-import { buildUpdateClause } from '../utils/sql-safety'
 
 export interface TenantConfig {
   id: number;
@@ -48,9 +47,9 @@ export class TenantConfigRepository extends BaseRepository<any> {
 
   async update(tenantId: number, id: number, config: Partial<Omit<TenantConfig, 'id' | 'tenant_id' | 'created_at' | 'deleted_at'>>): Promise<TenantConfig | null> {
     try {
-      const { fields: setClause, values: updateValues } = buildUpdateClause(config, 3, 'tenant_configs');
+      const setClause = Object.keys(config).map((key, index) => `${key} = $${index + 3}`).join(', ');
       const query = `UPDATE tenant_configs SET ${setClause}, updated_at = NOW() WHERE tenant_id = $1 AND id = $2 AND deleted_at IS NULL RETURNING *`;
-      const values = [tenantId, id, ...updateValues];
+      const values = [tenantId, id, ...Object.values(config)];
       const result: QueryResult<TenantConfig> = await this.pool.query(query, values);
       return result.rows[0] || null;
     } catch (error) {
@@ -67,29 +66,4 @@ export class TenantConfigRepository extends BaseRepository<any> {
       throw new Error(`Failed to soft delete tenant config: ${error.message}`);
     }
   }
-}
-
-/**
- * N+1 PREVENTION: Fetch with related entities
- * Add specific methods based on your relationships
- */
-async findWithRelatedData(id: string, tenantId: string) {
-  const query = \`
-    SELECT t.*
-    FROM tenantconfig t
-    WHERE t.id = \api/src/repositories/tenantconfig.repository.ts AND t.tenant_id = \ AND t.deleted_at IS NULL
-  \`;
-  const result = await this.pool.query(query, [id, tenantId]);
-  return result.rows[0] || null;
-}
-
-async findAllWithRelatedData(tenantId: string) {
-  const query = \`
-    SELECT t.*
-    FROM tenantconfig t
-    WHERE t.tenant_id = \api/src/repositories/tenantconfig.repository.ts AND t.deleted_at IS NULL
-    ORDER BY t.created_at DESC
-  \`;
-  const result = await this.pool.query(query, [tenantId]);
-  return result.rows;
 }

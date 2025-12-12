@@ -4,7 +4,6 @@ Here's a TypeScript repository class `VideoEventsRepository` that implements CRU
 
 
 import { Pool, QueryResult } from 'pg';
-import { buildUpdateClause } from '../utils/sql-safety'
 
 interface VideoEvent {
   id: number;
@@ -49,14 +48,16 @@ export class VideoEventsRepository extends BaseRepository<any> {
 
   // Update a video event
   async update(id: number, videoEvent: Partial<Omit<VideoEvent, 'id' | 'created_at' | 'updated_at' | 'tenant_id'>>, tenantId: string): Promise<VideoEvent | null> {
-    const { fields: setClause, values: updateValues } = buildUpdateClause(videoEvent, 2, 'generic_table');
+    const setClause = Object.keys(videoEvent)
+      .map((key, index) => `${key} = $${index + 2}`)
+      .join(', ');
     const query = `
       UPDATE video_events
       SET ${setClause}
-      WHERE id = $1 AND tenant_id = $${updateValues.length + 2}
+      WHERE id = $1 AND tenant_id = $${Object.keys(videoEvent).length + 2}
       RETURNING id, video_id, event_type, event_data, created_at, updated_at, tenant_id
     `;
-    const values = [id, ...updateValues, tenantId];
+    const values = [id, ...Object.values(videoEvent), tenantId];
     const result: QueryResult<VideoEvent> = await this.pool.query(query, values);
     return result.rows[0] || null;
   }
@@ -99,27 +100,3 @@ This `VideoEventsRepository` class provides the following methods:
 All methods use parameterized queries ($1, $2, $3, etc.) to prevent SQL injection and improve performance. The `tenant_id` is included in all queries to ensure proper multi-tenant isolation.
 
 To use this repository in your `api/src/routes/video-events.routes.ts` file, you would typically instantiate it with a database connection pool and call its methods instead of writing individual queries. This approach should eliminate the need for the 5 separate queries you mentioned, consolidating them into these 5 repository methods.
-/**
- * N+1 PREVENTION: Fetch with related entities
- * Add specific methods based on your relationships
- */
-async findWithRelatedData(id: string, tenantId: string) {
-  const query = \`
-    SELECT t.*
-    FROM videoevents t
-    WHERE t.id = \api/src/repositories/videoevents.repository.ts AND t.tenant_id = \ AND t.deleted_at IS NULL
-  \`;
-  const result = await this.pool.query(query, [id, tenantId]);
-  return result.rows[0] || null;
-}
-
-async findAllWithRelatedData(tenantId: string) {
-  const query = \`
-    SELECT t.*
-    FROM videoevents t
-    WHERE t.tenant_id = \api/src/repositories/videoevents.repository.ts AND t.deleted_at IS NULL
-    ORDER BY t.created_at DESC
-  \`;
-  const result = await this.pool.query(query, [tenantId]);
-  return result.rows;
-}

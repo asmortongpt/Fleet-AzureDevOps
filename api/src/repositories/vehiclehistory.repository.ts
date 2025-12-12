@@ -64,9 +64,10 @@ export class VehicleHistoryRepository extends BaseRepository<any> {
 
   // Update a vehicle history entry
   async update(id: number, vehicleHistory: Partial<VehicleHistory>, tenantId: number): Promise<VehicleHistory | null> {
-    // Filter out id and tenant_id, then use safe SQL builder
-    const filtered = Object.keys(vehicleHistory).filter(key => key !== 'id' && key !== 'tenant_id').reduce((obj: any, key) => { obj[key] = vehicleHistory[key]; return obj; }, {});
-    const { fields: setClause, values: updateValues } = buildUpdateClause(filtered, 2, 'vehicle_history');
+    const setClause = Object.keys(vehicleHistory)
+      .filter(key => key !== 'id' && key !== 'tenant_id')
+      .map((key, index) => `${key} = $${index + 2}`)
+      .join(', ');
 
     if (!setClause) {
       throw new Error('No fields to update');
@@ -141,7 +142,6 @@ To use this repository in your `vehicle-history.routes.ts` file, you would typic
 import express from 'express';
 import { Pool } from 'pg';
 import { VehicleHistoryRepository } from '../repositories/vehicle-history.repository';
-import { buildUpdateClause } from '../utils/sql-safety'
 
 const router = express.Router();
 const pool = new Pool(/* your database configuration */);
@@ -170,27 +170,3 @@ export default router;
 
 
 This implementation provides a solid foundation for managing vehicle history data in a multi-tenant environment with proper security measures in place.
-/**
- * N+1 PREVENTION: Fetch with related entities
- * Add specific methods based on your relationships
- */
-async findWithRelatedData(id: string, tenantId: string) {
-  const query = \`
-    SELECT t.*
-    FROM vehiclehistory t
-    WHERE t.id = \api/src/repositories/vehiclehistory.repository.ts AND t.tenant_id = \ AND t.deleted_at IS NULL
-  \`;
-  const result = await this.pool.query(query, [id, tenantId]);
-  return result.rows[0] || null;
-}
-
-async findAllWithRelatedData(tenantId: string) {
-  const query = \`
-    SELECT t.*
-    FROM vehiclehistory t
-    WHERE t.tenant_id = \api/src/repositories/vehiclehistory.repository.ts AND t.deleted_at IS NULL
-    ORDER BY t.created_at DESC
-  \`;
-  const result = await this.pool.query(query, [tenantId]);
-  return result.rows;
-}

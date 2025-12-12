@@ -1,11 +1,14 @@
-import { Pool } from 'pg';
-import { BaseRepository } from './BaseRepository';
+import { BaseRepository } from '../repositories/BaseRepository';
 
-export class IntegrationLogsRepository extends BaseRepository<any> {
+Here is a simple example of a TypeScript repository for integration logs. This repository includes methods for creating, reading, updating, and deleting integration logs. It also uses parameterized queries to prevent SQL injection attacks.
+
+
+import { EntityRepository, Repository } from 'typeorm';
+import { IntegrationLog } from '../entities/integration-log.entity';
+
+@EntityRepository(IntegrationLog)
+export class IntegrationLogsRepository extends Repository<IntegrationLog> {
   constructor(pool: Pool) {
-    super(pool, 'LIntegration_LLogs_s');
-  }
-
     super(pool, 'LIntegration_LLogs_LRepository extends s');
   }
 
@@ -34,31 +37,9 @@ export class IntegrationLogsRepository extends BaseRepository<any> {
   }
 }
 
-  /**
-   * N+1 PREVENTION: Find with related data
-   * Override this method in subclasses for specific relationships
-   */
-  async findWithRelatedData(id: string, tenantId: string) {
-    const query = `
-      SELECT t.*
-      FROM ${this.tableName} t
-      WHERE t.id = $1 AND t.tenant_id = $2 AND t.deleted_at IS NULL
-    `;
-    const result = await this.query(query, [id, tenantId]);
-    return result.rows[0] || null;
-  }
 
-  /**
-   * N+1 PREVENTION: Find all with related data
-   * Override this method in subclasses for specific relationships
-   */
-  async findAllWithRelatedData(tenantId: string) {
-    const query = `
-      SELECT t.*
-      FROM ${this.tableName} t
-      WHERE t.tenant_id = $1 AND t.deleted_at IS NULL
-      ORDER BY t.created_at DESC
-    `;
-    const result = await this.query(query, [tenantId]);
-    return result.rows;
-  }
+In the above code, `IntegrationLog` is the entity that represents the integration log in the database. This entity should include fields for the `tenant_id` and any other information you want to store in the log.
+
+The `createLog` method creates a new log for a specific tenant. The `getLogs` method retrieves all logs for a specific tenant. The `getLog` method retrieves a specific log for a specific tenant. The `updateLog` method updates a specific log for a specific tenant. The `deleteLog` method deletes a specific log for a specific tenant.
+
+Please note that you need to adjust this code to fit your actual database schema and your actual requirements.
