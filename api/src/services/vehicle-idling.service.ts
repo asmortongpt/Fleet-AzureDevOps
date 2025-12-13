@@ -529,9 +529,9 @@ export class VehicleIdlingService extends EventEmitter {
           ROUND(SUM(estimated_co2_kg)::NUMERIC, 2) AS total_co2_kg
         FROM vehicle_idling_events
         WHERE vehicle_id = $1
-          AND start_time >= CURRENT_DATE - INTERVAL `${days} days`
+          AND start_time >= CURRENT_DATE - INTERVAL '1 day' * $2
           AND duration_seconds IS NOT NULL`,
-        [vehicleId]
+        [vehicleId, days]
       );
       return result.rows[0] || null;
     } finally {
@@ -557,8 +557,9 @@ export class VehicleIdlingService extends EventEmitter {
           ROUND(SUM(estimated_fuel_cost_usd)::NUMERIC, 2) AS total_fuel_cost_usd,
           ROUND(SUM(estimated_co2_kg)::NUMERIC, 2) AS total_co2_kg
         FROM vehicle_idling_events
-        WHERE start_time >= CURRENT_DATE - INTERVAL `${days} days`
-          AND duration_seconds IS NOT NULL`
+        WHERE start_time >= CURRENT_DATE - INTERVAL '1 day' * $1
+          AND duration_seconds IS NOT NULL`,
+        [days]
       );
       return result.rows[0] || null;
     } finally {
@@ -666,10 +667,10 @@ export class VehicleIdlingService extends EventEmitter {
       const result = await client.query(
         `SELECT * FROM vehicle_idling_events
          WHERE vehicle_id = $1
-           AND start_time >= NOW() - INTERVAL `${days} days`
+           AND start_time >= NOW() - INTERVAL '1 day' * $2
          ORDER BY start_time DESC
-         LIMIT $2 OFFSET $3`,
-        [vehicleId, limit, offset]
+         LIMIT $3 OFFSET $4`,
+        [vehicleId, days, limit, offset]
       );
       return result.rows;
     } finally {
@@ -691,10 +692,10 @@ export class VehicleIdlingService extends EventEmitter {
       const result = await client.query(
         `SELECT * FROM vehicle_idling_events
          WHERE driver_id = $1
-           AND start_time >= NOW() - INTERVAL `${days} days`
+           AND start_time >= NOW() - INTERVAL '1 day' * $2
          ORDER BY start_time DESC
-         LIMIT $2 OFFSET $3`,
-        [driverId, limit, offset]
+         LIMIT $3 OFFSET $4`,
+        [driverId, days, limit, offset]
       );
       return result.rows;
     } finally {
@@ -871,8 +872,9 @@ export class VehicleIdlingService extends EventEmitter {
     try {
       const result = await client.query(
         `SELECT * FROM fleet_idling_costs_monthly
-         WHERE month >= DATE_TRUNC(`month`, NOW() - INTERVAL `${months} months`)
-         ORDER BY month DESC`
+         WHERE month >= DATE_TRUNC('month', NOW() - INTERVAL '1 month' * $1)
+         ORDER BY month DESC`,
+        [months]
       );
       return result.rows;
     } finally {
