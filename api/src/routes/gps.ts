@@ -9,9 +9,20 @@ import logger from '../config/logger'; // Wave 17: Add Winston logger
 
 import { Router, Request, Response } from 'express'
 import { csrfProtection } from '../middleware/csrf'
-import { gpsEmulator } from '../services/gps-emulator'
 
 const router = Router()
+
+// TODO: GPS Emulator service needs to be implemented
+// Placeholder implementation until gps-emulator service is created
+const gpsEmulator = {
+  getAllPositions: () => ({ positions: [], total: 0 }),
+  getFacilities: () => [],
+  getGeofenceAlerts: () => [],
+  getVehiclePosition: () => null,
+  getVehicleHistory: () => [],
+  start: () => {},
+  stop: () => {}
+}
 
 /**
  * GET /api/gps
