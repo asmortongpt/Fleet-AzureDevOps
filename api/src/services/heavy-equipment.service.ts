@@ -594,7 +594,7 @@ export class HeavyEquipmentService {
       `SELECT id, tenant_id, equipment_id, total_cost, depreciation, maintenance_cost, analysis_date FROM equipment_cost_analysis
        WHERE equipment_id = $1
          AND analysis_period_start = $2
-         AND analysis_period_end = $3',
+         AND analysis_period_end = $3`,
       [equipmentId, startDate, endDate]
     )
 
@@ -611,7 +611,7 @@ export class HeavyEquipmentService {
        FROM asset_maintenance am
        JOIN heavy_equipment he ON am.asset_id = he.asset_id
        WHERE he.id = $1
-         AND am.maintenance_date BETWEEN $2 AND $3',
+         AND am.maintenance_date BETWEEN $2 AND $3`,
       [equipmentId, startDate, endDate]
     )
 
