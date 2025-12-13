@@ -334,7 +334,7 @@ export class VehicleIdlingService extends EventEmitter {
       }
 
       const durationMinutes = Math.round(durationSeconds / 60);
-      const message = "${severity.toUpperCase()}: Vehicle "${eventData.vehicle_name}" has been idling for ${durationMinutes} minutes. Driver: ${eventData.driver_name || "Unknown`}`;
+      const message = `${severity.toUpperCase()}: Vehicle "${eventData.vehicle_name}" has been idling for ${durationMinutes} minutes. Driver: ${eventData.driver_name || "Unknown"}`;
 
       // Insert alert log
       await client.query(
