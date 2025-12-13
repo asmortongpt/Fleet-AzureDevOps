@@ -27,7 +27,7 @@ router.get('/monthly/:period',
     try {
       const { period } = req.params // Format: YYYY-MM
 
-      if (!/^\d{4}-\d{2}$/.test(period) {
+      if (!/^\d{4}-\d{2}$/.test(period)) {
         return res.status(400).json({
           error: 'Invalid period format. Use YYYY-MM format (e.g., 2025-11)'
         })
@@ -61,7 +61,7 @@ router.get('/payroll-export/:period',
     try {
       const { period } = req.params
 
-      if (!/^\d{4}-\d{2}$/.test(period) {
+      if (!/^\d{4}-\d{2}$/.test(period)) {
         return res.status(400).json({
           error: 'Invalid period format. Use YYYY-MM format (e.g., 2025-11)'
         })
@@ -95,7 +95,7 @@ router.get('/payroll-csv/:period',
     try {
       const { period } = req.params
 
-      if (!/^\d{4}-\d{2}$/.test(period) {
+      if (!/^\d{4}-\d{2}$/.test(period)) {
         return res.status(400).json({
           error: 'Invalid period format. Use YYYY-MM format (e.g., 2025-11)'
         })
@@ -129,7 +129,7 @@ router.post('/mark-billed/:period',
       const { period } = req.params
       const { charge_ids } = req.body // Optional: specific charges to mark
 
-      if (!/^\d{4}-\d{2}$/.test(period) {
+      if (!/^\d{4}-\d{2}$/.test(period)) {
         return res.status(400).json({
           error: `Invalid period format. Use YYYY-MM format (e.g., 2025-11)`
         })
