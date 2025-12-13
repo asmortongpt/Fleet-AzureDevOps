@@ -501,9 +501,9 @@ export class VehicleIdlingService extends EventEmitter {
       const result = await client.query(
         `SELECT * FROM vehicle_idling_events
          WHERE vehicle_id = $1
-           AND start_time >= CURRENT_DATE - INTERVAL `${days} days`
+           AND start_time >= CURRENT_DATE - INTERVAL '1 day' * $2
          ORDER BY start_time DESC`,
-        [vehicleId]
+        [vehicleId, days]
       );
       return result.rows;
     } finally {
