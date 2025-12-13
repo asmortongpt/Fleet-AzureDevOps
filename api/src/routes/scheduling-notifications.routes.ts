@@ -368,7 +368,7 @@ router.post('/resend/:id',csrfProtection,  csrfProtection, async (req: Request, 
 
       // Calculate hours until event
       const hoursUntil = Math.ceil(
-        (new Date(reservation.start_time).getTime() - Date.now() / (1000 * 60 * 60)
+        (new Date(reservation.start_time).getTime() - Date.now()) / (1000 * 60 * 60)
       )
 
       await schedulingNotificationService.sendReservationReminder(
@@ -407,7 +407,7 @@ router.post('/resend/:id',csrfProtection,  csrfProtection, async (req: Request, 
 
       // Calculate hours until event
       const hoursUntil = Math.ceil(
-        (new Date(appointment.scheduled_start).getTime() - Date.now() / (1000 * 60 * 60)
+        (new Date(appointment.scheduled_start).getTime() - Date.now()) / (1000 * 60 * 60)
       )
 
       await schedulingNotificationService.sendMaintenanceReminder(
