@@ -432,7 +432,7 @@ router.get(
     try {
       const { vehicleId } = req.params
 
-      const thresholds = await idlingService.getVehicleThresholds(parseInt(vehicleId)
+      const thresholds = await idlingService.getVehicleThresholds(parseInt(vehicleId))
 
       res.json({
         success: true,
