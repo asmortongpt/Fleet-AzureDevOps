@@ -18,7 +18,7 @@ import logger from '../config/logger'; // Wave 22: Add Winston logger
 
 import { Router, Request, Response } from 'express'
 import { VehicleIdlingService } from '../services/vehicle-idling.service'
-import { authenticate } from '../middleware/auth'
+import { authenticateJWT } from '../middleware/auth'
 import { validateRequest } from '../middleware/validation'
 import { body, param, query } from 'express-validator'
 import { csrfProtection } from '../middleware/csrf'
@@ -37,7 +37,7 @@ const idlingService = new VehicleIdlingService()
  *
  * Response: Array of active idling events with real-time duration
  */
-router.get('/active', authenticate, async (req: Request, res: Response) => {
+router.get('/active', authenticateJWT, async (req: Request, res: Response) => {
   try {
     const activeEvents = await idlingService.getActiveIdlingEvents()
 
@@ -356,7 +356,7 @@ router.get(
  */
 router.post(
   '/manual',
- csrfProtection,  csrfProtection, authenticate,
+ csrfProtection, authenticateJWT,
   body('vehicleId').isInt().toInt(),
   body('driverId').optional().isInt().toInt(),
   body('startTime').isISO8601(),
@@ -464,7 +464,7 @@ router.get(
  */
 router.put(
   '/thresholds/:vehicleId',
- csrfProtection,  csrfProtection, authenticate,
+ csrfProtection, authenticateJWT,
   param('vehicleId').isInt().toInt(),
   body('warningThresholdSeconds').optional().isInt({ min: 60 }),
   body('alertThresholdSeconds').optional().isInt({ min: 60 }),
@@ -542,7 +542,7 @@ router.get(
  */
 router.post(
   '/alerts/:alertId/acknowledge',
- csrfProtection,  csrfProtection, authenticate,
+ csrfProtection, authenticateJWT,
   param('alertId').isInt().toInt(),
   validateRequest,
   async (req: Request, res: Response) => {
