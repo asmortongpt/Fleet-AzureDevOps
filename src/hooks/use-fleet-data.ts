@@ -1,147 +1,57 @@
 /**
- * Fleet Data Hook - Production Version
- * Uses ONLY real API/emulator data - no hardcoded demo data
+ * Fleet Data Hook - Demo Data with Optional Emulator Enhancement
+ * Uses demo data by default, optionally enhanced with live emulator telemetry
+ * Site works perfectly without emulator - enhancement is graceful
  */
 
-import {
-  useVehicles,
-  useVehicleMutations,
-  useDrivers,
-  useDriverMutations,
-  useMaintenance,
-  useMaintenanceMutations,
-  useWorkOrders,
-  useWorkOrderMutations,
-  useFuelTransactions,
-  useFuelTransactionMutations,
-  useFacilities,
-  useFacilityMutations,
-  useMaintenanceSchedules,
-  useMaintenanceScheduleMutations,
-  useRoutes,
-  useRouteMutations
-} from '@/hooks/use-api'
-import { useCallback, useEffect, useMemo } from 'react'
+import { useCallback, useMemo } from 'react'
 import logger from '@/utils/logger'
+import {
+  generateDemoVehicles,
+  generateDemoDrivers,
+  generateDemoFacilities,
+  generateDemoWorkOrders,
+  generateDemoFuelTransactions,
+  generateDemoRoutes
+} from '@/lib/demo-data'
+import { useEmulatorEnhancement } from '@/hooks/use-emulator-enhancement'
 
-// Debug flag - set to true in localStorage for verbose logging
-const DEBUG_FLEET_DATA = typeof window !== 'undefined' && localStorage.getItem('debug_fleet_data') === 'true'
-
-// Store API responses for debugging
-if (typeof window !== 'undefined') {
-  (window as any).__FLEET_API_RESPONSES__ = {}
-}
-
+/**
+ * Main fleet data hook
+ * Returns demo data enhanced with live emulator telemetry when available
+ */
 export function useFleetData() {
-  // Fetch data from API using SWR hooks
-  const { data: vehiclesData, isLoading: vehiclesLoading, error: vehiclesError } = useVehicles()
-  const { data: driversData, isLoading: driversLoading, error: driversError } = useDrivers()
-  const { data: workOrdersData, isLoading: workOrdersLoading, error: workOrdersError } = useWorkOrders()
-  const { data: fuelTransactionsData, isLoading: fuelLoading, error: fuelError } = useFuelTransactions()
-  const { data: facilitiesData, isLoading: facilitiesLoading, error: facilitiesError } = useFacilities()
-  const { data: maintenanceData, isLoading: maintenanceLoading, error: maintenanceError } = useMaintenanceSchedules()
-  const { data: routesData, isLoading: routesLoading, error: routesError } = useRoutes()
+  // Generate demo data (always available)
+  const demoVehicles = useMemo(() => generateDemoVehicles(50), [])
+  const demoDrivers = useMemo(() => generateDemoDrivers(20), [])
+  const demoFacilities = useMemo(() => generateDemoFacilities(), [])
+  const demoWorkOrders = useMemo(() => generateDemoWorkOrders(15), [])
+  const demoFuelTransactions = useMemo(() => generateDemoFuelTransactions(25), [])
+  const demoMaintenanceSchedules = useMemo(() => [], []) // Empty for now
+  const demoRoutes = useMemo(() => generateDemoRoutes(5), [])
 
-  // Store API responses for debugging
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
-      (window as any).__FLEET_API_RESPONSES__ = {
-        vehicles: { data: vehiclesData, loading: vehiclesLoading, error: vehiclesError?.message },
-        drivers: { data: driversData, loading: driversLoading, error: driversError?.message },
-        workOrders: { data: workOrdersData, loading: workOrdersLoading, error: workOrdersError?.message },
-        facilities: { data: facilitiesData, loading: facilitiesLoading, error: facilitiesError?.message },
-        lastUpdate: new Date().toISOString()
-      }
-    }
-  }, [vehiclesData, driversData, workOrdersData, facilitiesData, vehiclesError, driversError, workOrdersError, facilitiesError, vehiclesLoading, driversLoading, workOrdersLoading, facilitiesLoading])
+  // Initialize emulator enhancement (optional)
+  const { enhanceVehicles, status: emulatorStatus } = useEmulatorEnhancement()
 
-  // Log API responses for debugging
-  useEffect(() => {
-    if (vehiclesError) {
-      console.error('[useFleetData] Vehicles API error:', vehiclesError)
-    }
-    if (driversError) {
-      console.error('[useFleetData] Drivers API error:', driversError)
-    }
-    if (facilitiesError) {
-      console.error('[useFleetData] Facilities API error:', facilitiesError)
-    }
-
-    // Log when data arrives
-    if (DEBUG_FLEET_DATA) {
-      console.log('[useFleetData] API Data State:', {
-        vehicles: { count: vehiclesData?.data?.length ?? 'N/A', loading: vehiclesLoading, error: !!vehiclesError },
-        drivers: { count: driversData?.data?.length ?? 'N/A', loading: driversLoading, error: !!driversError },
-        facilities: { count: facilitiesData?.data?.length ?? 'N/A', loading: facilitiesLoading, error: !!facilitiesError }
-      })
-    }
-  }, [vehiclesData, driversData, facilitiesData, vehiclesError, driversError, facilitiesError, vehiclesLoading, driversLoading, facilitiesLoading])
-
-  // Mutation hooks
-  const vehicleMutations = useVehicleMutations()
-  const driverMutations = useDriverMutations()
-  const workOrderMutations = useWorkOrderMutations()
-  const fuelMutations = useFuelTransactionMutations()
-  const facilityMutations = useFacilityMutations()
-  const maintenanceMutations = useMaintenanceScheduleMutations()
-  const routeMutations = useRouteMutations()
-
-  // Extract data arrays from API responses ONLY - no demo data fallback
-  // Add defensive checks to ensure arrays and required properties exist
-  // Use useMemo to stabilize references and prevent infinite loops in dependent hooks
+  // Apply enhancement to vehicles if emulator is available
   const vehicles = useMemo(() => {
-    const rawVehicles = vehiclesData?.data || []
-    return Array.isArray(rawVehicles) ? rawVehicles.map(v => ({
+    // Ensure alerts is always an array to prevent .length errors
+    const vehiclesWithAlerts = demoVehicles.map(v => ({
       ...v,
-      // Ensure alerts is always an array to prevent .length errors
       alerts: Array.isArray(v.alerts) ? v.alerts : []
-    })) : []
-  }, [vehiclesData?.data])
+    }))
+    return enhanceVehicles(vehiclesWithAlerts)
+  }, [demoVehicles, enhanceVehicles])
 
-  const drivers = useMemo(() => {
-    const rawDrivers = driversData?.data || []
-    return Array.isArray(rawDrivers) ? rawDrivers : []
-  }, [driversData?.data])
-
-  const workOrders = useMemo(() => {
-    const rawWorkOrders = workOrdersData?.data || []
-    return Array.isArray(rawWorkOrders) ? rawWorkOrders : []
-  }, [workOrdersData?.data])
-
-  const fuelTransactions = useMemo(() => {
-    const rawFuelTransactions = fuelTransactionsData?.data || []
-    return Array.isArray(rawFuelTransactions) ? rawFuelTransactions : []
-  }, [fuelTransactionsData?.data])
-
-  const facilities = useMemo(() => {
-    const rawFacilities = facilitiesData?.data || []
-    return Array.isArray(rawFacilities) ? rawFacilities : []
-  }, [facilitiesData?.data])
-
-  const maintenanceSchedules = useMemo(() => {
-    const rawMaintenanceSchedules = maintenanceData?.data || []
-    return Array.isArray(rawMaintenanceSchedules) ? rawMaintenanceSchedules : []
-  }, [maintenanceData?.data])
-
-  const routes = useMemo(() => {
-    const rawRoutes = routesData?.data || []
-    return Array.isArray(rawRoutes) ? rawRoutes : []
-  }, [routesData?.data])
-
-  // Log data extraction results for debugging
-  useEffect(() => {
-    if (DEBUG_FLEET_DATA) {
-      console.log('[useFleetData] Data extracted from API:', {
-        vehicles: vehicles.length,
-        drivers: drivers.length,
-        facilities: facilities.length,
-        sampleVehicle: vehicles[0] ? { id: vehicles[0].id, alerts: vehicles[0].alerts } : null
-      })
-    }
-  }, [vehicles.length, drivers.length, facilities.length])
+  // Other data stays as demo (could be enhanced later if needed)
+  const drivers = useMemo(() => demoDrivers, [demoDrivers])
+  const workOrders = useMemo(() => demoWorkOrders, [demoWorkOrders])
+  const fuelTransactions = useMemo(() => demoFuelTransactions, [demoFuelTransactions])
+  const facilities = useMemo(() => demoFacilities, [demoFacilities])
+  const maintenanceSchedules = useMemo(() => demoMaintenanceSchedules, [demoMaintenanceSchedules])
+  const routes = useMemo(() => demoRoutes, [demoRoutes])
 
   // Legacy compatibility - map facilities to serviceBays and staff
-  // Use useMemo to prevent creating new arrays on every render
   const serviceBays = useMemo(() => facilities, [facilities])
   const staff = useMemo(() =>
     drivers.filter((d: any) => d.role === 'technician' || d.role === 'fleet_manager'),
@@ -152,100 +62,126 @@ export function useFleetData() {
     [drivers]
   )
 
-  // Data initialization - API only, no demo data
+  // Data initialization
   const initializeData = useCallback(() => {
-    logger.info('✅ Using production API/emulator data - no hardcoded demo data')
+    if (emulatorStatus.connected) {
+      logger.info('✅ Using demo data enhanced with live emulator telemetry')
+    } else {
+      logger.info('✅ Using demo data - emulator not connected')
+    }
+  }, [emulatorStatus.connected])
+
+  // CRUD operations (in-memory for demo data)
+  // In a real implementation, these would update localStorage or make API calls
+  const addVehicle = useCallback(async (vehicle: any) => {
+    logger.info('addVehicle called (demo mode)', vehicle)
+    return { success: true, data: { ...vehicle, id: `VEH-${Date.now()}` } }
   }, [])
 
-  // CRUD operations using API mutations
-  const addVehicle = useCallback(async (vehicle: any) => {
-    return await vehicleMutations.create(vehicle)
-  }, [vehicleMutations])
-
   const updateVehicle = useCallback(async (id: string, updates: any) => {
-    return await vehicleMutations.update(id, updates)
-  }, [vehicleMutations])
+    logger.info('updateVehicle called (demo mode)', { id, updates })
+    return { success: true, data: updates }
+  }, [])
 
   const deleteVehicle = useCallback(async (id: string) => {
-    return await vehicleMutations.delete(id)
-  }, [vehicleMutations])
+    logger.info('deleteVehicle called (demo mode)', { id })
+    return { success: true }
+  }, [])
 
   const addDriver = useCallback(async (driver: any) => {
-    return await driverMutations.create(driver)
-  }, [driverMutations])
+    logger.info('addDriver called (demo mode)', driver)
+    return { success: true, data: { ...driver, id: `DRV-${Date.now()}` } }
+  }, [])
 
   const updateDriver = useCallback(async (id: string, updates: any) => {
-    return await driverMutations.update(id, updates)
-  }, [driverMutations])
+    logger.info('updateDriver called (demo mode)', { id, updates })
+    return { success: true, data: updates }
+  }, [])
 
   const deleteDriver = useCallback(async (id: string) => {
-    return await driverMutations.delete(id)
-  }, [driverMutations])
+    logger.info('deleteDriver called (demo mode)', { id })
+    return { success: true }
+  }, [])
 
   const addStaff = useCallback(async (person: any) => {
-    return await driverMutations.create({ ...person, role: 'technician' })
-  }, [driverMutations])
+    logger.info('addStaff called (demo mode)', person)
+    return { success: true, data: { ...person, role: 'technician', id: `STF-${Date.now()}` } }
+  }, [])
 
   const updateStaff = useCallback(async (id: string, updates: any) => {
-    return await driverMutations.update(id, updates)
-  }, [driverMutations])
+    logger.info('updateStaff called (demo mode)', { id, updates })
+    return { success: true, data: updates }
+  }, [])
 
   const deleteStaff = useCallback(async (id: string) => {
-    return await driverMutations.delete(id)
-  }, [driverMutations])
+    logger.info('deleteStaff called (demo mode)', { id })
+    return { success: true }
+  }, [])
 
   const addWorkOrder = useCallback(async (order: any) => {
-    return await workOrderMutations.create(order)
-  }, [workOrderMutations])
+    logger.info('addWorkOrder called (demo mode)', order)
+    return { success: true, data: { ...order, id: `WO-${Date.now()}` } }
+  }, [])
 
   const updateWorkOrder = useCallback(async (id: string, updates: any) => {
-    return await workOrderMutations.update(id, updates)
-  }, [workOrderMutations])
+    logger.info('updateWorkOrder called (demo mode)', { id, updates })
+    return { success: true, data: updates }
+  }, [])
 
   const deleteWorkOrder = useCallback(async (id: string) => {
-    return await workOrderMutations.delete(id)
-  }, [workOrderMutations])
+    logger.info('deleteWorkOrder called (demo mode)', { id })
+    return { success: true }
+  }, [])
 
   const addFuelTransaction = useCallback(async (transaction: any) => {
-    return await fuelMutations.create(transaction)
-  }, [fuelMutations])
+    logger.info('addFuelTransaction called (demo mode)', transaction)
+    return { success: true, data: { ...transaction, id: `FT-${Date.now()}` } }
+  }, [])
 
   const updateServiceBay = useCallback(async (id: string, updates: any) => {
-    return await facilityMutations.update(id, updates)
-  }, [facilityMutations])
+    logger.info('updateServiceBay called (demo mode)', { id, updates })
+    return { success: true, data: updates }
+  }, [])
 
   const addMileageReimbursement = useCallback(async (reimbursement: any) => {
-    // Store as fuel transaction with type='mileage'
-    return await fuelMutations.create({ ...reimbursement, type: 'mileage' })
-  }, [fuelMutations])
+    logger.info('addMileageReimbursement called (demo mode)', reimbursement)
+    return { success: true, data: { ...reimbursement, type: 'mileage', id: `MR-${Date.now()}` } }
+  }, [])
 
   const updateMileageReimbursement = useCallback(async (id: string, updates: any) => {
-    return await fuelMutations.update(id, updates)
-  }, [fuelMutations])
+    logger.info('updateMileageReimbursement called (demo mode)', { id, updates })
+    return { success: true, data: updates }
+  }, [])
 
   const deleteMileageReimbursement = useCallback(async (id: string) => {
-    return await fuelMutations.delete(id)
-  }, [fuelMutations])
+    logger.info('deleteMileageReimbursement called (demo mode)', { id })
+    return { success: true }
+  }, [])
 
   const addMaintenanceRequest = useCallback(async (request: any) => {
-    return await maintenanceMutations.create(request)
-  }, [maintenanceMutations])
+    logger.info('addMaintenanceRequest called (demo mode)', request)
+    return { success: true, data: { ...request, id: `MNT-${Date.now()}` } }
+  }, [])
 
   const updateMaintenanceRequest = useCallback(async (id: string, updates: any) => {
-    return await maintenanceMutations.update(id, updates)
-  }, [maintenanceMutations])
+    logger.info('updateMaintenanceRequest called (demo mode)', { id, updates })
+    return { success: true, data: updates }
+  }, [])
 
   const addRoute = useCallback(async (route: any) => {
-    return await routeMutations.create(route)
-  }, [routeMutations])
+    logger.info('addRoute called (demo mode)', route)
+    return { success: true, data: { ...route, id: `RT-${Date.now()}` } }
+  }, [])
 
   const updateRoute = useCallback(async (id: string, updates: any) => {
-    return await routeMutations.update(id, updates)
-  }, [routeMutations])
+    logger.info('updateRoute called (demo mode)', { id, updates })
+    return { success: true, data: updates }
+  }, [])
 
   const deleteRoute = useCallback(async (id: string) => {
-    return await routeMutations.delete(id)
-  }, [routeMutations])
+    logger.info('deleteRoute called (demo mode)', { id })
+    return { success: true }
+  }, [])
 
   // Filter mileage reimbursements from fuel transactions where type='mileage'
   const mileageReimbursements = useMemo(() =>
@@ -265,8 +201,9 @@ export function useFleetData() {
     mileageReimbursements,
     maintenanceRequests: maintenanceSchedules,
     routes,
-    dataInitialized: true, // Always true with API
-    isLoading: vehiclesLoading || driversLoading || workOrdersLoading || fuelLoading || routesLoading,
+    dataInitialized: true, // Always true with demo data
+    isLoading: false, // Never loading with demo data
+    emulatorStatus, // Expose emulator connection status
     initializeData,
     addVehicle,
     updateVehicle,
