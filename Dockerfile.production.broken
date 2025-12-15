@@ -1,0 +1,23 @@
+FROM nginx:alpine
+
+# Copy pre-built dist folder
+COPY dist/ /usr/share/nginx/html/
+
+# Copy Container App nginx configuration
+COPY nginx.containerapp.conf /etc/nginx/nginx.conf
+
+# Copy runtime config injection script
+COPY inject-runtime-config.sh /docker-entrypoint.d/40-inject-runtime-config.sh
+RUN chmod +x /docker-entrypoint.d/40-inject-runtime-config.sh
+
+# Create necessary temp directories for nginx
+RUN mkdir -p /tmp/client_body_temp /tmp/proxy_temp /tmp/fastcgi_temp /tmp/uwsgi_temp /tmp/scgi_temp && \
+    chown -R nginx:nginx /tmp/client_body_temp /tmp/proxy_temp /tmp/fastcgi_temp /tmp/uwsgi_temp /tmp/scgi_temp && \
+    chown -R nginx:nginx /usr/share/nginx/html
+
+# Don't set USER here - let Kubernetes security context handle it
+# USER nginx
+
+EXPOSE 8080
+
+CMD ["nginx", "-g", "daemon off;"]
