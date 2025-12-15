@@ -1,14 +1,15 @@
 /**
-import { container } from '../container'
-import { asyncHandler } from '../middleware/errorHandler'
-import { NotFoundError, ValidationError } from '../errors/app-error'
  * Emulator API Routes
  * Comprehensive REST API for controlling the fleet emulation system
  */
 
 import express, { Request, Response } from 'express'
 import { EmulatorOrchestrator } from '../emulators/EmulatorOrchestrator'
-import { getErrorMessage } from '../utils/error-handler'
+// CSRF protection removed for emulator API (development/testing tool)
+// import { csrfProtection } from '../middleware/csrf'
+import { container } from '../container'
+import { asyncHandler } from '../middleware/errorHandler'
+import { NotFoundError, ValidationError } from '../errors/app-error'
 
 const router = express.Router()
 
@@ -48,7 +49,7 @@ router.get('/status', async (req: Request, res: Response) => {
   } catch (error: any) {
     res.status(500).json({
       success: false,
-      error: getErrorMessage(error)
+      error: error.message || 'Unknown error'
     })
   }
 })
@@ -75,7 +76,7 @@ router.get('/status', async (req: Request, res: Response) => {
  *       200:
  *         description: Emulators started successfully
  */
-router.post('/start',csrfProtection,  csrfProtection, async (req: Request, res: Response) => {
+router.post('/start',  async (req: Request, res: Response) => {
   try {
     const { vehicleIds } = req.body
     const orch = getOrchestrator()
@@ -90,7 +91,7 @@ router.post('/start',csrfProtection,  csrfProtection, async (req: Request, res: 
   } catch (error: any) {
     res.status(500).json({
       success: false,
-      error: getErrorMessage(error)
+      error: error.message || 'Unknown error'
     })
   }
 })
@@ -106,7 +107,7 @@ router.post('/start',csrfProtection,  csrfProtection, async (req: Request, res: 
  *       200:
  *         description: Emulators stopped successfully
  */
-router.post('/stop',csrfProtection,  csrfProtection, async (req: Request, res: Response) => {
+router.post('/stop',  async (req: Request, res: Response) => {
   try {
     const orch = getOrchestrator()
     await orch.stop()
@@ -118,7 +119,7 @@ router.post('/stop',csrfProtection,  csrfProtection, async (req: Request, res: R
   } catch (error: any) {
     res.status(500).json({
       success: false,
-      error: getErrorMessage(error)
+      error: error.message || 'Unknown error'
     })
   }
 })
@@ -134,7 +135,7 @@ router.post('/stop',csrfProtection,  csrfProtection, async (req: Request, res: R
  *       200:
  *         description: Emulators paused successfully
  */
-router.post('/pause',csrfProtection,  csrfProtection, async (req: Request, res: Response) => {
+router.post('/pause',  async (req: Request, res: Response) => {
   try {
     const orch = getOrchestrator()
     await orch.pause()
@@ -146,7 +147,7 @@ router.post('/pause',csrfProtection,  csrfProtection, async (req: Request, res: 
   } catch (error: any) {
     res.status(500).json({
       success: false,
-      error: getErrorMessage(error)
+      error: error.message || 'Unknown error'
     })
   }
 })
@@ -162,7 +163,7 @@ router.post('/pause',csrfProtection,  csrfProtection, async (req: Request, res: 
  *       200:
  *         description: Emulators resumed successfully
  */
-router.post('/resume',csrfProtection,  csrfProtection, async (req: Request, res: Response) => {
+router.post('/resume',  async (req: Request, res: Response) => {
   try {
     const orch = getOrchestrator()
     await orch.resume()
@@ -174,7 +175,7 @@ router.post('/resume',csrfProtection,  csrfProtection, async (req: Request, res:
   } catch (error: any) {
     res.status(500).json({
       success: false,
-      error: getErrorMessage(error)
+      error: error.message || 'Unknown error'
     })
   }
 })
@@ -197,7 +198,7 @@ router.post('/resume',csrfProtection,  csrfProtection, async (req: Request, res:
  *       200:
  *         description: Scenario started successfully
  */
-router.post('/scenario/:scenarioId',csrfProtection,  csrfProtection, async (req: Request, res: Response) => {
+router.post('/scenario/:scenarioId',  async (req: Request, res: Response) => {
   try {
     const { scenarioId } = req.params
     const orch = getOrchestrator()
@@ -206,13 +207,13 @@ router.post('/scenario/:scenarioId',csrfProtection,  csrfProtection, async (req:
 
     res.json({
       success: true,
-      message: `Scenario `${scenarioId}` started successfully`,
+      message: `Scenario "${scenarioId}" started successfully`,
       data: orch.getStatus()
     })
   } catch (error: any) {
     res.status(500).json({
       success: false,
-      error: getErrorMessage(error)
+      error: error.message || 'Unknown error'
     })
   }
 })
@@ -256,7 +257,7 @@ router.get('/vehicles/:vehicleId/telemetry', async (req: Request, res: Response)
   } catch (error: any) {
     res.status(500).json({
       success: false,
-      error: getErrorMessage(error)
+      error: error.message || 'Unknown error'
     })
   }
 })
@@ -278,7 +279,7 @@ router.get('/scenarios', async (req: Request, res: Response) => {
     const path = require('path')
 
     const scenariosPath = path.join(__dirname, '..', 'emulators', 'config', 'scenarios.json')
-    const data = JSON.parse(fs.readFileSync(scenariosPath, 'utf-8')
+    const data = JSON.parse(fs.readFileSync(scenariosPath, 'utf-8'))
 
     res.json({
       success: true,
@@ -287,7 +288,7 @@ router.get('/scenarios', async (req: Request, res: Response) => {
   } catch (error: any) {
     res.status(500).json({
       success: false,
-      error: getErrorMessage(error)
+      error: error.message || 'Unknown error'
     })
   }
 })
@@ -309,7 +310,7 @@ router.get('/vehicles', async (req: Request, res: Response) => {
     const path = require('path')
 
     const vehiclesPath = path.join(__dirname, '..', 'emulators', 'config', 'vehicles.json')
-    const data = JSON.parse(fs.readFileSync(vehiclesPath, 'utf-8')
+    const data = JSON.parse(fs.readFileSync(vehiclesPath, 'utf-8'))
 
     res.json({
       success: true,
@@ -318,7 +319,7 @@ router.get('/vehicles', async (req: Request, res: Response) => {
   } catch (error: any) {
     res.status(500).json({
       success: false,
-      error: getErrorMessage(error)
+      error: error.message || 'Unknown error'
     })
   }
 })
@@ -338,11 +339,9 @@ router.get('/routes', async (req: Request, res: Response) => {
   try {
     const fs = require('fs')
     const path = require('path')
-import { csrfProtection } from '../middleware/csrf'
-
 
     const routesPath = path.join(__dirname, '..', 'emulators', 'config', 'routes.json')
-    const data = JSON.parse(fs.readFileSync(routesPath, 'utf-8')
+    const data = JSON.parse(fs.readFileSync(routesPath, 'utf-8'))
 
     res.json({
       success: true,
@@ -354,7 +353,7 @@ import { csrfProtection } from '../middleware/csrf'
   } catch (error: any) {
     res.status(500).json({
       success: false,
-      error: getErrorMessage(error)
+      error: error.message || 'Unknown error'
     })
   }
 })
