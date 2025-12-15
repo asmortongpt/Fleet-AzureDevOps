@@ -3,6 +3,15 @@ import { visualizer } from 'rollup-plugin-visualizer';
 import path from 'path';
 
 export default defineConfig({
+  server: {
+    proxy: {
+      '/api/emulator': {
+        target: 'http://localhost:3002',
+        changeOrigin: true,
+        ws: false // WebSocket goes directly to port 3003
+      }
+    }
+  },
   resolve: {
     alias: {
       '@': path.resolve(__dirname, './src'),
