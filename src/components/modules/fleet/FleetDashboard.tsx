@@ -18,7 +18,8 @@ interface FleetDashboardProps {
   data: ReturnType<typeof useFleetData>
 }
 
-export function FleetDashboard({ data }: FleetDashboardProps) {
+export function FleetDashboard() {
+  const data = useFleetData()
   const initialVehicles = data.vehicles || []
   const [layoutMode, setLayoutMode] = useState<LayoutMode>("split-50-50")
 
