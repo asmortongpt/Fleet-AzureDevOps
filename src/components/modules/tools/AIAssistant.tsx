@@ -222,7 +222,7 @@ You can chat with me naturally, or run structured workflows for complex tasks. H
         timestamp: new Date()
       }
       setMessages(prev => [...prev, errorMessage])
-      console.error('Failed to send message:', error)
+      // Error already shown to user via chat message
     } finally {
       setLoading(false)
     }
@@ -257,7 +257,7 @@ You can chat with me naturally, or run structured workflows for complex tasks. H
         timestamp: new Date()
       }])
     } catch (error) {
-      console.error('Failed to clear session:', error)
+      // Silent failure for session clear - error shown to user via chat
       const errorMessage: Message = {
         id: `msg-${Date.now()}-error`,
         role: 'assistant',
@@ -333,7 +333,7 @@ You can chat with me naturally, or run structured workflows for complex tasks. H
         timestamp: new Date()
       }
       setMessages(prev => [...prev, errorMessage])
-      console.error('Workflow execution error:', error)
+      // Error already shown to user via chat message
     }
   }
 
@@ -393,7 +393,8 @@ You can chat with me naturally, or run structured workflows for complex tasks. H
         {/* Main Chat Area */}
         <Grid item xs={12} md={8} sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
           <Paper sx={{ flexGrow: 1, display: 'flex', flexDirection: 'column', height: '100%' }}>
-            <Tabs value={ activeTab } onChange={(e, v) => setActiveTab(v)} sx={{ borderBottom: 1, borderColor: 'divider' }}>              <Tab label="Chat" />
+            <Tabs value={activeTab} onChange={(e, v) => setActiveTab(v)} sx={{ borderBottom: 1, borderColor: 'divider' }}>
+              <Tab label="Chat" />
               <Tab label="Workflows" />
             </Tabs>
 
