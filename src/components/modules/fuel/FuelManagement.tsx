@@ -21,7 +21,8 @@ interface FuelManagementProps {
   data: ReturnType<typeof useFleetData>
 }
 
-export function FuelManagement({ data }: FuelManagementProps) {
+export function FuelManagement() {
+  const data = useFleetData()
   const transactions = data?.fuelTransactions || []
   const [activeTab, setActiveTab] = useState<string>("records")
 
