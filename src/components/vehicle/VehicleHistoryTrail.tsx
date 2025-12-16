@@ -22,6 +22,7 @@ import { AlertCircle, MapPin, Eye, EyeOff, Calendar } from 'lucide-react';
 import useSWR from 'swr';
 import { format } from 'date-fns';
 
+import logger from '@/utils/logger';
 // ============================================================================
 // Types & Interfaces
 // ============================================================================
@@ -196,7 +197,7 @@ export function VehicleHistoryTrail({
           }).addTo(map);
         }
       } catch (err) {
-        console.error('Failed to initialize map:', err);
+        logger.error('Failed to initialize map:', err);
       }
     };
 
@@ -298,7 +299,7 @@ export function VehicleHistoryTrail({
 
         polylineRef.current = segments;
       } catch (err) {
-        console.error('Failed to render trail:', err);
+        logger.error('Failed to render trail:', err);
       }
     };
 

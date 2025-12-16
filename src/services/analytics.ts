@@ -215,7 +215,7 @@ class CustomBackend extends AnalyticsBackend {
     const interval = this.config.custom?.flushInterval || 30000;
 
     this.flushTimer = window.setInterval(() => {
-      this.flush().catch(console.error);
+      this.flush().catch((err) => logger.error('Analytics flush failed', err));
     }, interval);
   }
 

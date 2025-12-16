@@ -6,6 +6,7 @@
 
 import { useEffect } from 'react';
 
+import logger from '@/utils/logger';
 /**
  * CSP Configuration
  * Defines allowed sources for different resource types
@@ -101,7 +102,7 @@ export function CspMetaTags() {
       'geolocation=(), microphone=(), camera=(), payment=()'
     );
 
-    console.info('Security headers applied:', {
+    logger.info('Security headers applied:', {
       csp: cspContent,
       xContentTypeOptions: 'nosniff',
       xFrameOptions: 'DENY',

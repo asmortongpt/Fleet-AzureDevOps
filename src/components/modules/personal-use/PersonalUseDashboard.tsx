@@ -25,6 +25,7 @@ import {
 } from '@phosphor-icons/react'
 import { toast } from 'sonner'
 import { TripUsageDialog } from '@/components/dialogs/TripUsageDialog'
+import logger from '@/utils/logger';
 import {
   DriverUsageLimits,
   TripUsageClassification,
@@ -150,7 +151,7 @@ export const PersonalUseDashboard: React.FC<PersonalUseDashboardProps> = ({
     enabled: userRole !== 'driver',
     staleTime: 30000,
     onError: (err: any) => {
-      console.error('Failed to fetch dashboard data:', err)
+      logger.error('Failed to fetch dashboard data:', err)
       toast.error(err.message || 'Failed to load dashboard data')
     }
   })

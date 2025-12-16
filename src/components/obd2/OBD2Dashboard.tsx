@@ -7,6 +7,7 @@
 
 import React, { useState, useEffect, useCallback, useRef } from 'react'
 
+import logger from '@/utils/logger';
 // Types
 interface OBD2Data {
   timestamp: string
@@ -81,7 +82,7 @@ export const OBD2Dashboard: React.FC = () => {
         setSessions(data)
       }
     } catch (err) {
-      console.error('Failed to fetch sessions:', err)
+      logger.error('Failed to fetch sessions:', err)
     }
   }, [])
 
@@ -148,12 +149,12 @@ export const OBD2Dashboard: React.FC = () => {
     const wsHost = API_BASE.replace(/^https?:\/\//, '')
     const wsUrl = `${wsProtocol}//${wsHost}/ws/obd2/${sessionId}`
 
-    console.log('Connecting to WebSocket:', wsUrl)
+    logger.debug('Connecting to WebSocket:', wsUrl)
 
     const ws = new WebSocket(wsUrl)
 
     ws.onopen = () => {
-      console.log('WebSocket connected')
+      logger.debug('WebSocket connected')
       setIsConnected(true)
       setError(null)
     }
@@ -168,12 +169,12 @@ export const OBD2Dashboard: React.FC = () => {
           setError(message.message)
         }
       } catch (err) {
-        console.error('Failed to parse WebSocket message:', err)
+        logger.error('Failed to parse WebSocket message:', err)
       }
     }
 
     ws.onclose = () => {
-      console.log('WebSocket disconnected')
+      logger.debug('WebSocket disconnected')
       setIsConnected(false)
 
       // Attempt reconnection
@@ -185,7 +186,7 @@ export const OBD2Dashboard: React.FC = () => {
     }
 
     ws.onerror = (err) => {
-      console.error('WebSocket error:', err)
+      logger.error('WebSocket error:', err)
       setError('WebSocket connection error')
     }
 

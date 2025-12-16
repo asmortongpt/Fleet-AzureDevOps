@@ -23,6 +23,7 @@ import {
 } from 'lucide-react';
 import { useAuth } from '../../hooks/useAuth';
 
+import logger from '@/utils/logger';
 interface PendingAssignment {
   id: string;
   unit_number: string;
@@ -62,7 +63,7 @@ const MobileManagerView: React.FC = () => {
         setDashboardData(data);
       }
     } catch (error) {
-      console.error('Error fetching manager dashboard:', error);
+      logger.error('Error fetching manager dashboard:', error);
     } finally {
       setLoading(false);
     }
@@ -90,7 +91,7 @@ const MobileManagerView: React.FC = () => {
         fetchDashboardData();
       }
     } catch (error) {
-      console.error('Error processing approval:', error);
+      logger.error('Error processing approval:', error);
       alert('Failed to process approval');
     }
   };
