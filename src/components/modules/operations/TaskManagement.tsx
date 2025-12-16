@@ -45,6 +45,7 @@ import {
 import { toast } from "sonner"
 import { apiClient } from "@/lib/api-client"
 
+import logger from '@/utils/logger';
 interface Task {
   id: string
   task_title: string
@@ -112,7 +113,7 @@ export function TaskManagement() {
       const response = await apiClient.get(`/api/task-management?${params.toString()}`)
       setTasks(response.tasks || [])
     } catch (error) {
-      console.error("Error fetching tasks:", error)
+      logger.error("Error fetching tasks:", error)
       toast.error("Failed to load tasks")
     } finally {
       setLoading(false)
@@ -124,7 +125,7 @@ export function TaskManagement() {
       const response = await apiClient.get(`/api/task-management/${taskId}/comments`)
       setComments(response.comments || [])
     } catch (error) {
-      console.error("Error fetching comments:", error)
+      logger.error("Error fetching comments:", error)
     }
   }
 
@@ -142,7 +143,7 @@ export function TaskManagement() {
       setIsAddDialogOpen(false)
       resetNewTask()
     } catch (error) {
-      console.error("Error creating task:", error)
+      logger.error("Error creating task:", error)
       toast.error("Failed to create task")
     }
   }
@@ -156,7 +157,7 @@ export function TaskManagement() {
       )
       toast.success("Task updated successfully")
     } catch (error) {
-      console.error("Error updating task:", error)
+      logger.error("Error updating task:", error)
       toast.error("Failed to update task")
     }
   }
@@ -175,7 +176,7 @@ export function TaskManagement() {
       setNewComment("")
       toast.success("Comment added")
     } catch (error) {
-      console.error("Error adding comment:", error)
+      logger.error("Error adding comment:", error)
       toast.error("Failed to add comment")
     }
   }
@@ -187,7 +188,7 @@ export function TaskManagement() {
       toast.success("Timer started")
       fetchTasks()
     } catch (error) {
-      console.error("Error starting timer:", error)
+      logger.error("Error starting timer:", error)
       toast.error("Failed to start timer")
     }
   }
@@ -199,7 +200,7 @@ export function TaskManagement() {
       toast.success("Timer stopped")
       fetchTasks()
     } catch (error) {
-      console.error("Error stopping timer:", error)
+      logger.error("Error stopping timer:", error)
       toast.error("Failed to stop timer")
     }
   }

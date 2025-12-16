@@ -12,6 +12,7 @@
 import { z } from 'zod'
 import { useValidatedQuery, useValidatedMutation, invalidateQueries } from './use-validated-query'
 import { useQueryClient } from '@tanstack/react-query'
+import logger from '@/utils/logger';
 import {
   vehicleSchema,
   vehiclesArraySchema,
@@ -87,7 +88,7 @@ export const queryKeyFactory = {
  * @example
  * const { data, error } = useVehicles({ tenant_id: '123' })
  * if (isValidationError(error)) {
- *   console.log(getValidationMessages(error))
+ *   logger.debug(getValidationMessages(error))
  * }
  */
 export function useVehicles(filters: VehicleFilters = { tenant_id: '' }) {

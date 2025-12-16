@@ -126,7 +126,7 @@ const logger = {
    */
   debug: (...args: any[]) => {
     if (isDevelopment || DEBUG_ENABLED) {
-      console.log(...formatMessage('DEBUG', ...args))
+      logger.debug(...formatMessage('DEBUG', ...args))
     }
   },
 
@@ -135,14 +135,14 @@ const logger = {
    * Use for important non-sensitive information
    */
   info: (...args: any[]) => {
-    console.log(...formatMessage('INFO', ...args))
+    logger.debug(...formatMessage('INFO', ...args))
   },
 
   /**
    * Warning logging - always logs
    */
   warn: (...args: any[]) => {
-    console.warn(...formatMessage('WARN', ...args))
+    logger.warn(...formatMessage('WARN', ...args))
   },
 
   /**
@@ -161,7 +161,7 @@ const logger = {
       }
       return redactValue(arg)
     })
-    console.error(...formatMessage('ERROR', ...redactedArgs))
+    logger.error(...formatMessage('ERROR', ...redactedArgs))
   },
 
   /**

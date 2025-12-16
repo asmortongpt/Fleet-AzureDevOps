@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { AlertTriangle, RefreshCw, Home, Bug } from 'lucide-react';
 
+import logger from '@/utils/logger';
 interface Props {
   children: ReactNode;
   fallback?: ReactNode;
@@ -35,7 +36,7 @@ export class EnhancedErrorBoundary extends Component<Props, State> {
   }
 
   componentDidCatch(error: Error, errorInfo: ErrorInfo) {
-    console.error('EnhancedErrorBoundary caught error:', error, errorInfo);
+    logger.error('EnhancedErrorBoundary caught error:', error, errorInfo);
 
     // Update error count
     this.setState((prev) => ({
@@ -73,7 +74,7 @@ export class EnhancedErrorBoundary extends Component<Props, State> {
 
       localStorage.setItem('ctafleet-error-logs', JSON.stringify(updatedLogs));
     } catch (e) {
-      console.error('Failed to store error log:', e);
+      logger.error('Failed to store error log:', e);
     }
   }
 
@@ -121,7 +122,7 @@ export class EnhancedErrorBoundary extends Component<Props, State> {
         url: window.location.href,
       }),
     }).catch((err) => {
-      console.error('Failed to report error:', err);
+      logger.error('Failed to report error:', err);
     });
   }
 
