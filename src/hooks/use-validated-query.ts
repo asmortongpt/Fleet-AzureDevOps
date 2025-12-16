@@ -8,6 +8,7 @@
 import { useQuery, useMutation, useQueryClient, type UseQueryOptions, type UseMutationOptions } from '@tanstack/react-query'
 import { z, type ZodError } from 'zod'
 
+import logger from '@/utils/logger';
 /**
  * Extended error type with validation details
  */
@@ -56,7 +57,7 @@ export function useValidatedQuery<T>(
         return validatedData
       } catch (error) {
         if (error instanceof z.ZodError) {
-          console.error('[Validation Error] Schema validation failed:', {
+          logger.error('[Validation Error] Schema validation failed:', {
             queryKey,
             issues: error.issues,
             rawData: error.message
@@ -104,14 +105,14 @@ export function useSafeValidatedQuery<T>(
           return result.data
         }
 
-        console.warn('[Safe Validation] Schema validation failed (returning null):', {
+        logger.warn('[Safe Validation] Schema validation failed (returning null):', {
           queryKey,
           issues: result.error.issues
         })
 
         return null
       } catch (error) {
-        console.error('[Safe Validation] Fetch error:', error)
+        logger.error('[Safe Validation] Fetch error:', error)
         return null
       }
     },
@@ -156,7 +157,7 @@ export function useValidatedMutation<TInput, TResponse>(
         return validatedResponse
       } catch (error) {
         if (error instanceof z.ZodError) {
-          console.error('[Mutation Validation Error]:', {
+          logger.error('[Mutation Validation Error]:', {
             issues: error.issues,
             input,
             rawResponse: error.message
@@ -268,7 +269,7 @@ export function isValidationError(error: unknown): error is ValidationError {
  * @example
  * if (isValidationError(error)) {
  *   const messages = getValidationMessages(error)
- *   console.log(messages) // ["warranty_expiration: Required", "year: Expected number, received string"]
+ *   logger.debug(messages) // ["warranty_expiration: Required", "year: Expected number, received string"]
  * }
  */
 export function getValidationMessages(error: ValidationError): string[] {

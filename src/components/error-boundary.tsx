@@ -9,6 +9,7 @@ import { AlertTriangle, RefreshCw, Home } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 
+import logger from '@/utils/logger';
 interface Props {
   children: ReactNode
   fallback?: ReactNode
@@ -44,7 +45,7 @@ class ErrorBoundary extends Component<Props, State> {
 
   componentDidCatch(error: Error, errorInfo: ErrorInfo) {
     // Log error to console
-    console.error('Error Boundary caught error:', error, errorInfo)
+    logger.error('Error Boundary caught error:', error, errorInfo)
 
     // Update state with error info
     this.setState({
@@ -202,7 +203,7 @@ export class RouteErrorBoundary extends Component<Props & { routeName: string },
   }
 
   componentDidCatch(error: Error, errorInfo: ErrorInfo) {
-    console.error(`Route Error Boundary (${this.props.routeName}) caught error:`, error)
+    logger.error(`Route Error Boundary (${this.props.routeName}) caught error:`, error)
 
     this.setState({
       error,
@@ -285,7 +286,7 @@ export class ComponentErrorBoundary extends Component<Props & { componentName: s
   }
 
   componentDidCatch(error: Error, errorInfo: ErrorInfo) {
-    console.error(`Component Error Boundary (${this.props.componentName}) caught error:`, error)
+    logger.error(`Component Error Boundary (${this.props.componentName}) caught error:`, error)
 
     this.setState({
       error,

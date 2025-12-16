@@ -36,6 +36,7 @@ import { MetricCard } from '@/components/MetricCard'
 // 🎯 NEW: Import export utilities
 import { exportToCSV, exportToExcel } from '@/lib/export-utils'
 
+import logger from '@/utils/logger';
 export function FleetDashboardRefactored() {
   const [activeTab, setActiveTab] = useState('overview')
 
@@ -75,7 +76,7 @@ export function FleetDashboardRefactored() {
 
   // Handle vehicle actions
   const handleViewVehicle = (vehicle: any) => {
-    console.log('View vehicle:', vehicle)
+    logger.debug('View vehicle:', vehicle)
   }
 
   const handleExportVehicles = () => {
@@ -93,7 +94,7 @@ export function FleetDashboardRefactored() {
     })
 
     if (confirmed) {
-      console.log('Delete vehicle:', vehicle.id)
+      logger.debug('Delete vehicle:', vehicle.id)
     }
   }
 

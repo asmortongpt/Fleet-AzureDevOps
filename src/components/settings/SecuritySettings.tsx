@@ -21,6 +21,7 @@ import {
 } from '@/components/ui/table'
 import { Progress } from '@/components/ui/progress'
 import { securitySettingsAtom, hasUnsavedChangesAtom } from '@/lib/reactive-state'
+import logger from '@/utils/logger';
 import {
   ShieldCheck,
   Key,
@@ -109,7 +110,7 @@ export function SecuritySettings() {
 
   const handleChangePassword = () => {
     // In a real app, this would call an API
-    console.log('Changing password...')
+    logger.debug('Changing password...')
     setCurrentPassword('')
     setNewPassword('')
     setConfirmPassword('')
@@ -117,7 +118,7 @@ export function SecuritySettings() {
   }
 
   const handleTerminateSession = (sessionId: string) => {
-    console.log('Terminating session:', sessionId)
+    logger.debug('Terminating session:', sessionId)
   }
 
   return (

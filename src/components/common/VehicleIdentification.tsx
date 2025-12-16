@@ -23,6 +23,7 @@ import {
 import { toast } from "sonner"
 import apiClient from "@/lib/api-client"
 
+import logger from '@/utils/logger';
 export interface VehicleInfo {
   vehicleId: string
   vehicleNumber: string
@@ -71,7 +72,7 @@ export function VehicleIdentification({
         toast.success("Vehicle identified successfully")
       }
     } catch (error: any) {
-      console.error("Error identifying vehicle:", error)
+      logger.error("Error identifying vehicle:", error)
       toast.error(error.message || "Vehicle not found")
     } finally {
       setLoading(false)
@@ -97,7 +98,7 @@ export function VehicleIdentification({
         toast.success("Vehicle identified successfully")
       }
     } catch (error: any) {
-      console.error("Error identifying vehicle:", error)
+      logger.error("Error identifying vehicle:", error)
       toast.error(error.message || "Vehicle not found")
     } finally {
       setLoading(false)
@@ -115,7 +116,7 @@ export function VehicleIdentification({
 
       setSearchResults(response.vehicles || [])
     } catch (error) {
-      console.error("Error searching vehicles:", error)
+      logger.error("Error searching vehicles:", error)
       toast.error("Failed to search vehicles")
     } finally {
       setLoading(false)

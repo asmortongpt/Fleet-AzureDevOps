@@ -92,7 +92,7 @@ export interface IEventTelemetry {
 // =============================================================================
 
 export function initializeAppInsights(_config?: Partial<TelemetryConfig>): null {
-  console.info('[Telemetry] DISABLED - ApplicationInsights incompatible with React 19');
+  logger.info('[Telemetry] DISABLED - ApplicationInsights incompatible with React 19');
   return null;
 }
 
@@ -110,61 +110,61 @@ export function clearAuthenticatedUser(): void {
 
 export function trackPageView(_pageView?: IPageViewTelemetry): void {
   if (!_telemetryInitialized) {
-    console.debug('[Telemetry] Skipping pageView - not initialized');
+    logger.debug('[Telemetry] Skipping pageView - not initialized');
     return;
   }
   try {
     // No-op stub
   } catch (error) {
-    console.warn('[Telemetry] Failed to track pageView:', error);
+    logger.warn('[Telemetry] Failed to track pageView:', error);
   }
 }
 
 export function trackEvent(_event: IEventTelemetry): void {
   if (!_telemetryInitialized) {
-    console.debug('[Telemetry] Skipping event - not initialized:', _event?.name);
+    logger.debug('[Telemetry] Skipping event - not initialized:', _event?.name);
     return;
   }
   try {
     // No-op stub
   } catch (error) {
-    console.warn('[Telemetry] Failed to track event:', error);
+    logger.warn('[Telemetry] Failed to track event:', error);
   }
 }
 
 export function trackException(_exception: IExceptionTelemetry): void {
   if (!_telemetryInitialized) {
-    console.debug('[Telemetry] Skipping exception - not initialized');
+    logger.debug('[Telemetry] Skipping exception - not initialized');
     return;
   }
   try {
     // No-op stub
   } catch (error) {
-    console.warn('[Telemetry] Failed to track exception:', error);
+    logger.warn('[Telemetry] Failed to track exception:', error);
   }
 }
 
 export function trackTrace(_trace: ITraceTelemetry): void {
   if (!_telemetryInitialized) {
-    console.debug('[Telemetry] Skipping trace - not initialized');
+    logger.debug('[Telemetry] Skipping trace - not initialized');
     return;
   }
   try {
     // No-op stub
   } catch (error) {
-    console.warn('[Telemetry] Failed to track trace:', error);
+    logger.warn('[Telemetry] Failed to track trace:', error);
   }
 }
 
 export function trackMetric(_metric: IMetricTelemetry): void {
   if (!_telemetryInitialized) {
-    console.debug('[Telemetry] Skipping metric - not initialized');
+    logger.debug('[Telemetry] Skipping metric - not initialized');
     return;
   }
   try {
     // No-op stub
   } catch (error) {
-    console.warn('[Telemetry] Failed to track metric:', error);
+    logger.warn('[Telemetry] Failed to track metric:', error);
   }
 }
 
@@ -175,7 +175,7 @@ export function startOperation(_operationName: string): () => void {
   try {
     return () => {}; // No-op stub
   } catch (error) {
-    console.warn('[Telemetry] Failed to start operation:', error);
+    logger.warn('[Telemetry] Failed to start operation:', error);
     return () => {};
   }
 }
@@ -187,7 +187,7 @@ export function flushTelemetry(): void {
   try {
     // No-op stub
   } catch (error) {
-    console.warn('[Telemetry] Failed to flush telemetry:', error);
+    logger.warn('[Telemetry] Failed to flush telemetry:', error);
   }
 }
 
@@ -245,13 +245,13 @@ export interface ApiErrorDetails {
 
 export function setupGlobalErrorHandlers(): void {
   if (!_telemetryInitialized) {
-    console.debug('[Telemetry] Skipping global error handlers - not initialized');
+    logger.debug('[Telemetry] Skipping global error handlers - not initialized');
     return;
   }
   try {
-    console.info('[Telemetry] Global error handlers: DISABLED (AppInsights incompatible with React 19)');
+    logger.info('[Telemetry] Global error handlers: DISABLED (AppInsights incompatible with React 19)');
   } catch (error) {
-    console.warn('[Telemetry] Failed to setup global error handlers:', error);
+    logger.warn('[Telemetry] Failed to setup global error handlers:', error);
   }
 }
 
@@ -259,17 +259,17 @@ export function captureException(error: Error | unknown, _context?: Partial<Erro
   if (!_telemetryInitialized) {
     // Still log in dev mode even if not initialized
     if (import.meta.env.DEV) {
-      console.error('[Telemetry Stub] Exception (not initialized):', error);
+      logger.error('[Telemetry Stub] Exception (not initialized):', error);
     }
     return;
   }
   try {
     // Log to console instead of AppInsights
     if (import.meta.env.DEV) {
-      console.error('[Telemetry Stub] Exception:', error);
+      logger.error('[Telemetry Stub] Exception:', error);
     }
   } catch (captureError) {
-    console.warn('[Telemetry] Failed to capture exception:', captureError);
+    logger.warn('[Telemetry] Failed to capture exception:', captureError);
   }
 }
 
@@ -279,13 +279,13 @@ export function trackReactErrorBoundary(
   _componentName?: string
 ): void {
   if (!_telemetryInitialized) {
-    console.error('[Telemetry Stub] React Error Boundary caught (not initialized):', error, errorInfo);
+    logger.error('[Telemetry Stub] React Error Boundary caught (not initialized):', error, errorInfo);
     return;
   }
   try {
-    console.error('[Telemetry Stub] React Error Boundary caught:', error, errorInfo);
+    logger.error('[Telemetry Stub] React Error Boundary caught:', error, errorInfo);
   } catch (trackError) {
-    console.warn('[Telemetry] Failed to track React error boundary:', trackError);
+    logger.warn('[Telemetry] Failed to track React error boundary:', trackError);
   }
 }
 
@@ -296,7 +296,7 @@ export function trackApiError(_error: Error | unknown, _details: ApiErrorDetails
   try {
     // No-op stub
   } catch (error) {
-    console.warn('[Telemetry] Failed to track API error:', error);
+    logger.warn('[Telemetry] Failed to track API error:', error);
   }
 }
 
@@ -307,7 +307,7 @@ export function trackNetworkError(_error: Error | unknown, _url: string, _method
   try {
     // No-op stub
   } catch (error) {
-    console.warn('[Telemetry] Failed to track network error:', error);
+    logger.warn('[Telemetry] Failed to track network error:', error);
   }
 }
 
@@ -318,7 +318,7 @@ export function trackValidationError(_field: string, _message: string, _formName
   try {
     // No-op stub
   } catch (error) {
-    console.warn('[Telemetry] Failed to track validation error:', error);
+    logger.warn('[Telemetry] Failed to track validation error:', error);
   }
 }
 
@@ -329,7 +329,7 @@ export function trackResourceLoadError(_resourceUrl: string, _resourceType: stri
   try {
     // No-op stub
   } catch (error) {
-    console.warn('[Telemetry] Failed to track resource load error:', error);
+    logger.warn('[Telemetry] Failed to track resource load error:', error);
   }
 }
 
@@ -467,128 +467,128 @@ export interface ReportEventData {
 // All event tracking functions with safety wrappers
 export function trackVehicleCreated(_data: VehicleEventData): void {
   if (!_telemetryInitialized) return;
-  try { /* No-op stub */ } catch (e) { console.warn('[Telemetry] Failed to track vehicle created:', e); }
+  try { /* No-op stub */ } catch (e) { logger.warn('[Telemetry] Failed to track vehicle created:', e); }
 }
 export function trackVehicleUpdated(_data: VehicleEventData, _fieldsChanged: string[]): void {
   if (!_telemetryInitialized) return;
-  try { /* No-op stub */ } catch (e) { console.warn('[Telemetry] Failed to track vehicle updated:', e); }
+  try { /* No-op stub */ } catch (e) { logger.warn('[Telemetry] Failed to track vehicle updated:', e); }
 }
 export function trackVehicleDeleted(_data: VehicleEventData): void {
   if (!_telemetryInitialized) return;
-  try { /* No-op stub */ } catch (e) { console.warn('[Telemetry] Failed to track vehicle deleted:', e); }
+  try { /* No-op stub */ } catch (e) { logger.warn('[Telemetry] Failed to track vehicle deleted:', e); }
 }
 export function trackVehicleStatusChanged(_data: VehicleEventData, _newStatus: string): void {
   if (!_telemetryInitialized) return;
-  try { /* No-op stub */ } catch (e) { console.warn('[Telemetry] Failed to track vehicle status changed:', e); }
+  try { /* No-op stub */ } catch (e) { logger.warn('[Telemetry] Failed to track vehicle status changed:', e); }
 }
 export function trackVehicleAssignment(_vehicleId: string, _driverId: string | null, _isAssigning: boolean): void {
   if (!_telemetryInitialized) return;
-  try { /* No-op stub */ } catch (e) { console.warn('[Telemetry] Failed to track vehicle assignment:', e); }
+  try { /* No-op stub */ } catch (e) { logger.warn('[Telemetry] Failed to track vehicle assignment:', e); }
 }
 export function trackMaintenanceScheduled(_data: MaintenanceEventData): void {
   if (!_telemetryInitialized) return;
-  try { /* No-op stub */ } catch (e) { console.warn('[Telemetry] Failed to track maintenance scheduled:', e); }
+  try { /* No-op stub */ } catch (e) { logger.warn('[Telemetry] Failed to track maintenance scheduled:', e); }
 }
 export function trackMaintenanceCompleted(_data: MaintenanceEventData): void {
   if (!_telemetryInitialized) return;
-  try { /* No-op stub */ } catch (e) { console.warn('[Telemetry] Failed to track maintenance completed:', e); }
+  try { /* No-op stub */ } catch (e) { logger.warn('[Telemetry] Failed to track maintenance completed:', e); }
 }
 export function trackMaintenanceCancelled(_maintenanceId: string, _reason?: string): void {
   if (!_telemetryInitialized) return;
-  try { /* No-op stub */ } catch (e) { console.warn('[Telemetry] Failed to track maintenance cancelled:', e); }
+  try { /* No-op stub */ } catch (e) { logger.warn('[Telemetry] Failed to track maintenance cancelled:', e); }
 }
 export function trackInspectionCompleted(_vehicleId: string, _inspectionType: string, _passed: boolean): void {
   if (!_telemetryInitialized) return;
-  try { /* No-op stub */ } catch (e) { console.warn('[Telemetry] Failed to track inspection completed:', e); }
+  try { /* No-op stub */ } catch (e) { logger.warn('[Telemetry] Failed to track inspection completed:', e); }
 }
 export function trackUserLogin(_data: UserEventData): void {
   if (!_telemetryInitialized) return;
-  try { /* No-op stub */ } catch (e) { console.warn('[Telemetry] Failed to track user login:', e); }
+  try { /* No-op stub */ } catch (e) { logger.warn('[Telemetry] Failed to track user login:', e); }
 }
 export function trackUserLogout(_data: UserEventData): void {
   if (!_telemetryInitialized) return;
-  try { /* No-op stub */ } catch (e) { console.warn('[Telemetry] Failed to track user logout:', e); }
+  try { /* No-op stub */ } catch (e) { logger.warn('[Telemetry] Failed to track user logout:', e); }
 }
 export function trackUserLoginFailed(_data: UserEventData, _errorCode?: string): void {
   if (!_telemetryInitialized) return;
-  try { /* No-op stub */ } catch (e) { console.warn('[Telemetry] Failed to track user login failed:', e); }
+  try { /* No-op stub */ } catch (e) { logger.warn('[Telemetry] Failed to track user login failed:', e); }
 }
 export function trackSessionExpired(): void {
   if (!_telemetryInitialized) return;
-  try { /* No-op stub */ } catch (e) { console.warn('[Telemetry] Failed to track session expired:', e); }
+  try { /* No-op stub */ } catch (e) { logger.warn('[Telemetry] Failed to track session expired:', e); }
 }
 export function trackSearchPerformed(_data: SearchEventData): void {
   if (!_telemetryInitialized) return;
-  try { /* No-op stub */ } catch (e) { console.warn('[Telemetry] Failed to track search performed:', e); }
+  try { /* No-op stub */ } catch (e) { logger.warn('[Telemetry] Failed to track search performed:', e); }
 }
 export function trackSearchFilterApplied(_filterType: string, _filterValue: string): void {
   if (!_telemetryInitialized) return;
-  try { /* No-op stub */ } catch (e) { console.warn('[Telemetry] Failed to track search filter applied:', e); }
+  try { /* No-op stub */ } catch (e) { logger.warn('[Telemetry] Failed to track search filter applied:', e); }
 }
 export function trackSearchExported(_searchType: string, _exportFormat: string, _recordCount: number): void {
   if (!_telemetryInitialized) return;
-  try { /* No-op stub */ } catch (e) { console.warn('[Telemetry] Failed to track search exported:', e); }
+  try { /* No-op stub */ } catch (e) { logger.warn('[Telemetry] Failed to track search exported:', e); }
 }
 export function trackDriverCreated(_data: DriverEventData): void {
   if (!_telemetryInitialized) return;
-  try { /* No-op stub */ } catch (e) { console.warn('[Telemetry] Failed to track driver created:', e); }
+  try { /* No-op stub */ } catch (e) { logger.warn('[Telemetry] Failed to track driver created:', e); }
 }
 export function trackDriverUpdated(_data: DriverEventData, _fieldsChanged: string[]): void {
   if (!_telemetryInitialized) return;
-  try { /* No-op stub */ } catch (e) { console.warn('[Telemetry] Failed to track driver updated:', e); }
+  try { /* No-op stub */ } catch (e) { logger.warn('[Telemetry] Failed to track driver updated:', e); }
 }
 export function trackTripStarted(_data: TripEventData): void {
   if (!_telemetryInitialized) return;
-  try { /* No-op stub */ } catch (e) { console.warn('[Telemetry] Failed to track trip started:', e); }
+  try { /* No-op stub */ } catch (e) { logger.warn('[Telemetry] Failed to track trip started:', e); }
 }
 export function trackTripCompleted(_data: TripEventData): void {
   if (!_telemetryInitialized) return;
-  try { /* No-op stub */ } catch (e) { console.warn('[Telemetry] Failed to track trip completed:', e); }
+  try { /* No-op stub */ } catch (e) { logger.warn('[Telemetry] Failed to track trip completed:', e); }
 }
 export function trackDocumentUploaded(_data: DocumentEventData): void {
   if (!_telemetryInitialized) return;
-  try { /* No-op stub */ } catch (e) { console.warn('[Telemetry] Failed to track document uploaded:', e); }
+  try { /* No-op stub */ } catch (e) { logger.warn('[Telemetry] Failed to track document uploaded:', e); }
 }
 export function trackDocumentDownloaded(_data: DocumentEventData): void {
   if (!_telemetryInitialized) return;
-  try { /* No-op stub */ } catch (e) { console.warn('[Telemetry] Failed to track document downloaded:', e); }
+  try { /* No-op stub */ } catch (e) { logger.warn('[Telemetry] Failed to track document downloaded:', e); }
 }
 export function trackReportGenerated(_data: ReportEventData): void {
   if (!_telemetryInitialized) return;
-  try { /* No-op stub */ } catch (e) { console.warn('[Telemetry] Failed to track report generated:', e); }
+  try { /* No-op stub */ } catch (e) { logger.warn('[Telemetry] Failed to track report generated:', e); }
 }
 export function trackReportExported(_data: ReportEventData): void {
   if (!_telemetryInitialized) return;
-  try { /* No-op stub */ } catch (e) { console.warn('[Telemetry] Failed to track report exported:', e); }
+  try { /* No-op stub */ } catch (e) { logger.warn('[Telemetry] Failed to track report exported:', e); }
 }
 export function trackMapViewed(_provider: string, _vehicleCount: number): void {
   if (!_telemetryInitialized) return;
-  try { /* No-op stub */ } catch (e) { console.warn('[Telemetry] Failed to track map viewed:', e); }
+  try { /* No-op stub */ } catch (e) { logger.warn('[Telemetry] Failed to track map viewed:', e); }
 }
 export function trackRouteCalculated(_origin: string, _destination: string, _distance: number, _duration: number): void {
   if (!_telemetryInitialized) return;
-  try { /* No-op stub */ } catch (e) { console.warn('[Telemetry] Failed to track route calculated:', e); }
+  try { /* No-op stub */ } catch (e) { logger.warn('[Telemetry] Failed to track route calculated:', e); }
 }
 export function trackFeatureUsed(_featureName: string, _action?: string, _metadata?: Record<string, string | number | boolean>): void {
   if (!_telemetryInitialized) return;
-  try { /* No-op stub */ } catch (e) { console.warn('[Telemetry] Failed to track feature used:', e); }
+  try { /* No-op stub */ } catch (e) { logger.warn('[Telemetry] Failed to track feature used:', e); }
 }
 export function trackAIAssistantUsed(_queryType: string, _responseTime?: number, _wasHelpful?: boolean): void {
   if (!_telemetryInitialized) return;
-  try { /* No-op stub */ } catch (e) { console.warn('[Telemetry] Failed to track AI assistant used:', e); }
+  try { /* No-op stub */ } catch (e) { logger.warn('[Telemetry] Failed to track AI assistant used:', e); }
 }
 export function createOperationTimer(_operationName: string): () => void {
   if (!_telemetryInitialized) return () => {};
   try {
     return () => {};
   } catch (e) {
-    console.warn('[Telemetry] Failed to create operation timer:', e);
+    logger.warn('[Telemetry] Failed to create operation timer:', e);
     return () => {};
   }
 }
 export function trackPageLoad(_pageName: string, _loadTime: number): void {
   if (!_telemetryInitialized) return;
-  try { /* No-op stub */ } catch (e) { console.warn('[Telemetry] Failed to track page load:', e); }
+  try { /* No-op stub */ } catch (e) { logger.warn('[Telemetry] Failed to track page load:', e); }
 }
 
 // =============================================================================
@@ -618,54 +618,54 @@ export interface WebVitalsSummary {
 
 export function initializeWebVitals(): void {
   if (!_telemetryInitialized) {
-    console.debug('[Telemetry] Skipping web vitals init - not initialized');
+    logger.debug('[Telemetry] Skipping web vitals init - not initialized');
     return;
   }
   try {
-    console.info('[Telemetry] Web Vitals: DISABLED (AppInsights incompatible with React 19)');
+    logger.info('[Telemetry] Web Vitals: DISABLED (AppInsights incompatible with React 19)');
   } catch (error) {
-    console.warn('[Telemetry] Failed to initialize web vitals:', error);
+    logger.warn('[Telemetry] Failed to initialize web vitals:', error);
   }
 }
 
 export function trackPerformanceTiming(_name: string, _duration: number, _properties?: Record<string, string>): void {
   if (!_telemetryInitialized) return;
-  try { /* No-op stub */ } catch (e) { console.warn('[Telemetry] Failed to track performance timing:', e); }
+  try { /* No-op stub */ } catch (e) { logger.warn('[Telemetry] Failed to track performance timing:', e); }
 }
 export function observeLongTasks(): PerformanceObserver | null {
   if (!_telemetryInitialized) return null;
-  try { return null; } catch (e) { console.warn('[Telemetry] Failed to observe long tasks:', e); return null; }
+  try { return null; } catch (e) { logger.warn('[Telemetry] Failed to observe long tasks:', e); return null; }
 }
 export function observeResourceTiming(): PerformanceObserver | null {
   if (!_telemetryInitialized) return null;
-  try { return null; } catch (e) { console.warn('[Telemetry] Failed to observe resource timing:', e); return null; }
+  try { return null; } catch (e) { logger.warn('[Telemetry] Failed to observe resource timing:', e); return null; }
 }
 export function getNavigationTiming(): Record<string, number> | null {
   if (!_telemetryInitialized) return null;
-  try { return null; } catch (e) { console.warn('[Telemetry] Failed to get navigation timing:', e); return null; }
+  try { return null; } catch (e) { logger.warn('[Telemetry] Failed to get navigation timing:', e); return null; }
 }
 export function trackNavigationTiming(): void {
   if (!_telemetryInitialized) return;
-  try { /* No-op stub */ } catch (e) { console.warn('[Telemetry] Failed to track navigation timing:', e); }
+  try { /* No-op stub */ } catch (e) { logger.warn('[Telemetry] Failed to track navigation timing:', e); }
 }
 export function trackMemoryUsage(): void {
   if (!_telemetryInitialized) return;
-  try { /* No-op stub */ } catch (e) { console.warn('[Telemetry] Failed to track memory usage:', e); }
+  try { /* No-op stub */ } catch (e) { logger.warn('[Telemetry] Failed to track memory usage:', e); }
 }
 export function startPerformanceMonitoring(_intervalMs?: number): void {
   if (!_telemetryInitialized) return;
-  try { /* No-op stub */ } catch (e) { console.warn('[Telemetry] Failed to start performance monitoring:', e); }
+  try { /* No-op stub */ } catch (e) { logger.warn('[Telemetry] Failed to start performance monitoring:', e); }
 }
 export function stopPerformanceMonitoring(): void {
   if (!_telemetryInitialized) return;
-  try { /* No-op stub */ } catch (e) { console.warn('[Telemetry] Failed to stop performance monitoring:', e); }
+  try { /* No-op stub */ } catch (e) { logger.warn('[Telemetry] Failed to stop performance monitoring:', e); }
 }
 export function getWebVitalsSummary(): WebVitalsSummary {
   // Always return a safe default, even if not initialized
   try {
     return { overallRating: 'good' };
   } catch (e) {
-    console.warn('[Telemetry] Failed to get web vitals summary:', e);
+    logger.warn('[Telemetry] Failed to get web vitals summary:', e);
     return { overallRating: 'good' };
   }
 }
@@ -692,28 +692,28 @@ export interface TelemetryInitOptions {
 export function initializeTelemetry(_options: TelemetryInitOptions = {}): boolean {
   // Check if already initialized
   if (_telemetryInitialized) {
-    console.debug('[Telemetry] Already initialized, skipping');
+    logger.debug('[Telemetry] Already initialized, skipping');
     return true;
   }
 
   // Check if currently initializing
   if (_telemetryInitializing) {
-    console.debug('[Telemetry] Initialization in progress, skipping');
+    logger.debug('[Telemetry] Initialization in progress, skipping');
     return false;
   }
 
   _telemetryInitializing = true;
 
   try {
-    console.info('[Telemetry] DISABLED - ApplicationInsights SDK incompatible with React 19');
-    console.info('[Telemetry] Error: "Cannot set properties of undefined (setting \'Activity\')"');
-    console.info('[Telemetry] TODO: Re-enable when Microsoft updates the SDK');
+    logger.info('[Telemetry] DISABLED - ApplicationInsights SDK incompatible with React 19');
+    logger.info('[Telemetry] Error: "Cannot set properties of undefined (setting \'Activity\')"');
+    logger.info('[Telemetry] TODO: Re-enable when Microsoft updates the SDK');
 
     // Mark as initialized (even though disabled) to prevent repeated init attempts
     _telemetryInitialized = true;
     return true;
   } catch (error) {
-    console.warn('[Telemetry] Initialization failed:', error);
+    logger.warn('[Telemetry] Initialization failed:', error);
     return false;
   } finally {
     _telemetryInitializing = false;
