@@ -21,7 +21,8 @@ interface PeopleManagementProps {
   data: ReturnType<typeof useFleetData>
 }
 
-export function PeopleManagement({ data }: PeopleManagementProps) {
+export function PeopleManagement() {
+  const data = useFleetData()
   const drivers = data.drivers || []
   const staff = data.staff || []
   const [searchQuery, setSearchQuery] = useState<string>("")

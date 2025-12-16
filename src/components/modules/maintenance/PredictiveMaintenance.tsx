@@ -13,7 +13,8 @@ interface PredictiveMaintenanceProps {
   data: ReturnType<typeof useFleetData>
 }
 
-export function PredictiveMaintenance({ data }: PredictiveMaintenanceProps) {
+export function PredictiveMaintenance() {
+  const data = useFleetData()
   const vehicles = data.vehicles || []
   const predictiveVehicles = vehicles
     .filter(v => ((v.alerts || [])).length > 0 || Math.random() > 0.7)
