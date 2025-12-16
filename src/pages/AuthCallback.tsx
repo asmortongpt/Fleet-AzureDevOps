@@ -5,6 +5,7 @@ import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
 import { getAuthErrorFromUrl } from '@/lib/microsoft-auth'
 import { Loader2, CheckCircle2, XCircle } from 'lucide-react'
+import logger from '@/utils/logger'
 
 /**
  * AuthCallback Component
@@ -58,7 +59,8 @@ export function AuthCallback() {
         if (response.ok) {
           const data = await response.json()
           if (data.user) {
-            console.log('[AUTH] Session verified via httpOnly cookie')
+            // SECURITY FIX P3 LOW-SEC-001: Use logger instead of console.log
+            logger.debug('[AUTH] Session verified via httpOnly cookie')
             setStatus('success')
             setTimeout(() => {
               navigate('/')
@@ -71,14 +73,16 @@ export function AuthCallback() {
         // (This shouldn't happen in normal flow, but handles edge cases)
         const authCode = params.get('code')
         if (authCode) {
-          console.log('[AUTH] Auth code found, backend should have already processed it')
+          // SECURITY FIX P3 LOW-SEC-001: Use logger instead of console.log
+          logger.debug('[AUTH] Auth code found, backend should have already processed it')
           setStatus('error')
           setErrorMessage('Authentication processing error. Please try signing in again.')
           return
         }
 
       } catch (apiError) {
-        console.error('[AUTH] Backend API not available:', apiError)
+        // SECURITY FIX P3 LOW-SEC-001: Use logger instead of console.error
+        logger.error('[AUTH] Backend API not available:', apiError)
         setStatus('error')
         setErrorMessage('Unable to connect to authentication service. Please try again later.')
         return
@@ -89,7 +93,8 @@ export function AuthCallback() {
       setErrorMessage('No valid session found. Please try signing in again.')
 
     } catch (error: any) {
-      console.error('Authentication callback error:', error)
+      // SECURITY FIX P3 LOW-SEC-001: Use logger instead of console.error
+      logger.error('Authentication callback error:', error)
       setStatus('error')
       setErrorMessage(error.message || 'An unexpected error occurred during authentication')
     }
