@@ -86,9 +86,7 @@ export function MainLayout() {
                       {section}
                     </p>
                     <div className="space-y-1">
-                      {items.map((item) => {
-                        const Icon = item.icon;
-                        return (
+                      {items.map((item) => (
                           <Button
                             key={item.id}
                             variant={
@@ -96,14 +94,13 @@ export function MainLayout() {
                             }
                             className="w-full justify-start gap-2"
                             asChild
-                           aria-label="Action button">
+                            aria-label={`Navigate to ${item.label}`}>
                             <Link to={item.path}>
-                              <Icon className="w-4 h-4" />
+                              {item.icon}
                               <span className="text-sm">{item.label}</span>
                             </Link>
                           </Button>
-                        );
-                      })}
+                      ))}
                     </div>
                   </div>
                 );
