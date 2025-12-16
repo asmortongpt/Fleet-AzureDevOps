@@ -703,7 +703,8 @@ async function submitTripoSRRequest(
 // MAIN COMPONENT
 // ============================================================================
 
-export function VirtualGarage({ data }: { data?: any }) {
+export function VirtualGarage() {
+  const data = useFleetData()
   const queryClient = useQueryClient()
 
   // State
