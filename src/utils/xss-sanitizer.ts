@@ -6,6 +6,7 @@
 
 import DOMPurify from 'dompurify';
 
+import logger from '@/utils/logger';
 /**
  * Sanitize HTML content to prevent XSS attacks
  * @param dirty - Untrusted HTML string
@@ -59,13 +60,13 @@ export function sanitizeUrl(url: string): string {
 
   // Block javascript: and data: URIs
   if (trimmed.startsWith('javascript:') || trimmed.startsWith('data:')) {
-    console.warn('Blocked potentially malicious URL:', url);
+    logger.warn('Blocked potentially malicious URL:', url);
     return '';
   }
 
   // Only allow http, https, and relative URLs
   if (!trimmed.match(/^(https?:\/\/|\/)/)) {
-    console.warn('Blocked non-HTTP URL:', url);
+    logger.warn('Blocked non-HTTP URL:', url);
     return '';
   }
 
@@ -104,7 +105,7 @@ export function sanitizeJson(jsonString: string): string | null {
     const parsed = JSON.parse(jsonString);
     return JSON.stringify(parsed);
   } catch (error) {
-    console.error('Invalid JSON:', error);
+    logger.error('Invalid JSON:', error);
     return null;
   }
 }

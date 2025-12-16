@@ -18,6 +18,7 @@ import { getTelemetryConfig } from '../config/telemetry';
 import { DataSanitizer } from '../utils/privacy';
 import { analytics } from './analytics';
 
+import logger from '@/utils/logger';
 /**
  * Error severity levels
  */
@@ -134,7 +135,7 @@ class ErrorReportingService {
     } catch (error) {
       // Note: Can't use logger here as it may not be initialized yet
       if (error instanceof Error) {
-        console.error('Failed to initialize error reporting:', error.message);
+        logger.error('Failed to initialize error reporting:', error.message);
       }
     }
   }
@@ -249,7 +250,7 @@ class ErrorReportingService {
   captureException(error: Error, context?: ErrorContext): string {
     if (!this.isInitialized) {
       // Error reporting not initialized - log to console as fallback
-      console.error('Error reporting not initialized:', error.message);
+      logger.error('Error reporting not initialized:', error.message);
       return '';
     }
 

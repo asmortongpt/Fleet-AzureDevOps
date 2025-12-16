@@ -3,6 +3,7 @@ import io from 'socket.io-client';
 import { Task } from '../types/Task';
 import { EventTypes } from '../types/EventTypes';
 
+import logger from '@/utils/logger';
 /**
  * Custom React hook for subscribing to real-time task updates.
  * Connects to a WebSocket server using Socket.IO to receive task-related events.
@@ -24,7 +25,7 @@ export const useRealtimeTasks = () => {
     setSocket(newSocket);
 
     newSocket.on('connect_error', (err) => {
-      console.error('Connection Error:', err.message);
+      logger.error('Connection Error:', err.message);
     });
 
     // Handle task-related events

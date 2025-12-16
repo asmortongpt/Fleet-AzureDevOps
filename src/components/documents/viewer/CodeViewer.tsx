@@ -15,6 +15,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { Badge } from '@/components/ui/badge';
 import { DocumentMetadata } from '@/lib/documents/types';
 
+import logger from '@/utils/logger';
 interface CodeViewerProps {
   document: DocumentMetadata;
 }
@@ -34,7 +35,7 @@ export function CodeViewer({ document }: CodeViewerProps) {
         setLoading(false);
       })
       .catch(err => {
-        console.error('Error loading code:', err);
+        logger.error('Error loading code:', err);
         setCode('// Error loading file');
         setLoading(false);
       });
@@ -46,7 +47,7 @@ export function CodeViewer({ document }: CodeViewerProps) {
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     } catch (err) {
-      console.error('Failed to copy:', err);
+      logger.error('Failed to copy:', err);
     }
   };
 

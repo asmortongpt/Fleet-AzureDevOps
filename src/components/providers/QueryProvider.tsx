@@ -3,6 +3,7 @@ import React, { ReactNode } from 'react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 
+import logger from '@/utils/logger';
 // Create a client with optimized default options
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -40,7 +41,7 @@ const queryClient = new QueryClient({
 
       // Global mutation error handler
       onError: (error) => {
-        console.error('Mutation error:', error);
+        logger.error('Mutation error:', error);
         // You can integrate with toast notifications here
       },
     },
