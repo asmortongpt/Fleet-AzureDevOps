@@ -77,7 +77,7 @@ export function DriverScorecard() {
       const response = await apiClient.get("/api/driver-scorecard/leaderboard")
       setLeaderboard(response)
     } catch (error) {
-      console.error("Error fetching leaderboard:", error)
+      // Error already shown to user via toast.error
       toast.error("Failed to load leaderboard")
     } finally {
       setLoading(false)
@@ -101,7 +101,7 @@ export function DriverScorecard() {
       )
       setScoreHistory(historyResponse)
     } catch (error) {
-      console.error("Error fetching driver details:", error)
+      // Error already shown to user via toast.error
       toast.error("Failed to load driver details")
     }
   }
