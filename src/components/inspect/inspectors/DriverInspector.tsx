@@ -15,6 +15,7 @@ import { Badge } from '@/components/ui/badge';
 import { apiClient } from '@/lib/api';
 import { Loader2, AlertCircle, TrendingUp, TrendingDown } from 'lucide-react';
 
+import logger from '@/utils/logger';
 interface DriverInspectorProps {
   id: string;
   initialTab?: string;
@@ -54,7 +55,7 @@ export const DriverInspector: React.FC<DriverInspectorProps> = ({ id, initialTab
         setDriver(data);
       } catch (err: any) {
         setError(err.message || 'Failed to load driver data');
-        console.error('Error fetching driver:', err);
+        logger.error('Error fetching driver:', err);
       } finally {
         setLoading(false);
       }

@@ -1,5 +1,6 @@
 import { useState, useCallback, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
+import logger from '@/utils/logger';
 import type {
   DrillThroughConfig,
   DrillThroughResult,
@@ -166,7 +167,7 @@ export function useDrillThrough(options: UseDrillThroughOptions): UseDrillThroug
           }),
         });
       } catch (err) {
-        console.error('Export failed:', err);
+        logger.error('Export failed:', err);
         throw err;
       } finally {
         setIsExporting(false);

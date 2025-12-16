@@ -3,6 +3,7 @@ import { LoadingSpinner } from '../LoadingSpinner';
 import { ErrorMessage, FieldError } from '../ErrorMessage';
 import { useFormValidation } from '../../hooks/useFormValidation';
 
+import logger from '@/utils/logger';
 export const VehicleFormExample: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
@@ -44,7 +45,7 @@ export const VehicleFormExample: React.FC = () => {
     try {
       // Submit form...
       await new Promise(resolve => setTimeout(resolve, 1000)); // Simulated API call
-      console.log('Form submitted:', values);
+      logger.debug('Form submitted:', values);
     } catch (error) {
       setSubmitError('Failed to create vehicle. Please try again.');
     } finally {

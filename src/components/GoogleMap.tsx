@@ -2,6 +2,7 @@ import { useEffect, useRef, useState, useCallback } from "react"
 import { Vehicle, GISFacility, TrafficCamera } from "@/lib/types"
 import { usePerformanceMonitor } from "@/hooks/usePerformanceMonitor"
 
+import logger from '@/utils/logger';
 /**
  * Props for the GoogleMap component
  */
@@ -494,7 +495,7 @@ export function GoogleMap({
         )
       }
     } catch (err) {
-      console.error("Error updating markers:", err)
+      logger.error("Error updating markers:", err)
       setError(`Failed to update markers: ${err instanceof Error ? err.message : "Unknown error"}`)
     }
 
