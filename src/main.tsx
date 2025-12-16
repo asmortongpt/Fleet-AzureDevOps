@@ -45,8 +45,9 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
   return <>{children}</>
 }
 
-// Use Sentry's BrowserRouter integration
-const SentryRoutes = Sentry.withSentryRouting(Routes)
+// Use Sentry's BrowserRouter integration (disabled - using regular Routes)
+// const SentryRoutes = Sentry.withSentryRouting(Routes)
+const SentryRoutes = Routes
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
