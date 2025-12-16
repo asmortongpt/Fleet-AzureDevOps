@@ -298,6 +298,27 @@ export function GoogleMap({
           markerCount: vehicles.length + facilities.length + cameras.length,
         })
 
+        // Add test IDs to map controls after a short delay to ensure they're rendered
+        setTimeout(() => {
+          try {
+            const mapDiv = mapRef.current
+            if (mapDiv) {
+              // Find and add test IDs to zoom controls
+              const zoomInButton = mapDiv.querySelector('button[title="Zoom in"]')
+              if (zoomInButton) zoomInButton.setAttribute('data-testid', 'map-zoom-in')
+
+              const zoomOutButton = mapDiv.querySelector('button[title="Zoom out"]')
+              if (zoomOutButton) zoomOutButton.setAttribute('data-testid', 'map-zoom-out')
+
+              // Find and add test ID to fullscreen control
+              const fullscreenButton = mapDiv.querySelector('button[title="Toggle fullscreen view"]')
+              if (fullscreenButton) fullscreenButton.setAttribute('data-testid', 'map-fullscreen')
+            }
+          } catch (err) {
+            logger.debug('[GoogleMap] Could not add test IDs to controls:', err)
+          }
+        }, 1000)
+
         // Notify parent component
         if (onReady) {
           onReady()
@@ -370,6 +391,15 @@ export function GoogleMap({
               strokeWeight: 2,
               scale: 8,
             },
+          })
+
+          // Add data-testid to marker element when DOM is ready
+          google.maps.event.addListenerOnce(marker, 'visible', () => {
+            const markerDiv = marker.getDiv?.()
+            if (markerDiv) {
+              markerDiv.setAttribute('data-testid', 'vehicle-marker')
+              markerDiv.setAttribute('data-vehicle-id', vehicle.id)
+            }
           })
 
           const infoWindow = new google.maps.InfoWindow({
@@ -627,7 +657,7 @@ export function GoogleMap({
     >
       <div ref={mapRef} className="absolute inset-0 w-full h-full rounded-lg overflow-hidden" />
       {isLoading && (
-        <div className="absolute inset-0 w-full h-full flex items-center justify-center bg-background/95 backdrop-blur-sm">
+        <div data-testid="loading-indicator" className="absolute inset-0 w-full h-full flex items-center justify-center bg-background/95 backdrop-blur-sm">
           <div className="text-center">
             <div className="relative w-16 h-16 mx-auto mb-4">
               <div className="absolute inset-0 rounded-full border-4 border-muted"></div>
@@ -675,8 +705,8 @@ function createVehicleInfoHTML(vehicle: Vehicle): string {
       : "Unknown")
 
   return `
-    <div style="padding: 14px; min-width: 220px; max-width: 320px; font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;">
-      <div style="font-weight: 600; font-size: 15px; margin-bottom: 10px; color: #1f2937; border-bottom: 2px solid #e5e7eb; padding-bottom: 6px;">
+    <div data-testid="marker-popup" style="padding: 14px; min-width: 220px; max-width: 320px; font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;">
+      <div data-testid="popup-vehicle-id" style="font-weight: 600; font-size: 15px; margin-bottom: 10px; color: #1f2937; border-bottom: 2px solid #e5e7eb; padding-bottom: 6px;">
         ${escapeHTML(vehicle.name)}
       </div>
       <div style="font-size: 13px; color: #4b5563; margin-bottom: 6px; display: flex; justify-content: space-between;">
@@ -685,7 +715,7 @@ function createVehicleInfoHTML(vehicle: Vehicle): string {
       </div>
       <div style="font-size: 13px; color: #4b5563; margin-bottom: 6px; display: flex; justify-content: space-between;">
         <strong style="color: #6b7280;">Status:</strong>
-        <span style="color: ${getVehicleColor(vehicle.status)}; font-weight: 600; text-transform: uppercase; font-size: 12px;">
+        <span data-testid="popup-vehicle-status" style="color: ${getVehicleColor(vehicle.status)}; font-weight: 600; text-transform: uppercase; font-size: 12px;">
           ${escapeHTML(vehicle.status)}
         </span>
       </div>
