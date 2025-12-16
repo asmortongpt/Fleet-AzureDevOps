@@ -30,7 +30,7 @@ import {
   ChartLine,
   Bell,
   List,
-  ChartBar as Activity  // Activity icon not available, using ChartBar as substitute
+  ChartLineUp
 } from "@phosphor-icons/react"
 import { Vehicle } from "@/lib/types"
 import { useFleetData } from "@/hooks/use-fleet-data"
@@ -415,7 +415,7 @@ export function FleetDashboardModern() {
           <Tabs defaultValue="alerts" className="h-full flex flex-col">
             <div className="compact-card-header flex-shrink-0">
               <div className="compact-card-title">
-                <Activity className="w-4 h-4" />
+                <ChartLineUp className="w-4 h-4" />
                 Activity
               </div>
               <TabsList className="h-7">
