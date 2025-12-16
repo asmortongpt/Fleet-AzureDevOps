@@ -64,6 +64,7 @@ import { usePermissions } from "@/hooks/usePermissions"
 import { useVehicleInventory } from "@/hooks/useVehicleInventory"
 import { Part, InventoryTransaction, WorkOrder } from "@/lib/types"
 
+import logger from '@/utils/logger';
 interface VehicleInventoryProps {
   vehicleId: string
   vehicleNumber: string
@@ -156,7 +157,7 @@ export function VehicleInventory({
       setIsAssignDialogOpen(false)
     } catch (error) {
       toast.error("Failed to assign part")
-      console.error(error)
+      logger.error(error)
     }
   }, [assignPart])
 
@@ -168,7 +169,7 @@ export function VehicleInventory({
       toast.success("Part removed from vehicle")
     } catch (error) {
       toast.error("Failed to remove part")
-      console.error(error)
+      logger.error(error)
     }
   }, [removePart])
 
@@ -197,7 +198,7 @@ export function VehicleInventory({
       setSelectedPart(null)
     } catch (error) {
       toast.error("Failed to record usage")
-      console.error(error)
+      logger.error(error)
     }
   }, [selectedPart, usageData, recordUsage])
 

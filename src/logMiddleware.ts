@@ -6,6 +6,7 @@
 import { Request, Response, NextFunction } from 'express';
 import { sanitizeForLogging } from './logSanitizer';
 
+import logger from '@/utils/logger';
 /**
  * Middleware to sanitize request logs.
  * @param req - The HTTP request.
@@ -17,7 +18,7 @@ export function logSanitizationMiddleware(req: Request, res: Response, next: Nex
   const sanitizedQuery = sanitizeForLogging(req.query);
   const sanitizedParams = sanitizeForLogging(req.params);
 
-  console.log('Sanitized Request:', {
+  logger.debug('Sanitized Request:', {
     body: sanitizedBody,
     query: sanitizedQuery,
     params: sanitizedParams,

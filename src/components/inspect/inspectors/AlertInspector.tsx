@@ -15,6 +15,7 @@ import { Button } from '@/components/ui/button';
 import { apiClient } from '@/lib/api';
 import { Loader2, AlertCircle, AlertTriangle, CheckCircle, XCircle } from 'lucide-react';
 
+import logger from '@/utils/logger';
 interface AlertInspectorProps {
   id: string;
   initialTab?: string;
@@ -67,7 +68,7 @@ export const AlertInspector: React.FC<AlertInspectorProps> = ({ id, initialTab =
         setAlert(data);
       } catch (err: any) {
         setError(err.message || 'Failed to load alert data');
-        console.error('Error fetching alert:', err);
+        logger.error('Error fetching alert:', err);
       } finally {
         setLoading(false);
       }
@@ -85,7 +86,7 @@ export const AlertInspector: React.FC<AlertInspectorProps> = ({ id, initialTab =
       await apiClient.post(`/api/alerts/${id}/acknowledge`, {});
       setAlert({ ...alert, status: 'acknowledged' });
     } catch (err) {
-      console.error('Failed to acknowledge alert:', err);
+      logger.error('Failed to acknowledge alert:', err);
     } finally {
       setProcessing(false);
     }
@@ -98,7 +99,7 @@ export const AlertInspector: React.FC<AlertInspectorProps> = ({ id, initialTab =
       await apiClient.post(`/api/alerts/${id}/resolve`, {});
       setAlert({ ...alert, status: 'resolved' });
     } catch (err) {
-      console.error('Failed to resolve alert:', err);
+      logger.error('Failed to resolve alert:', err);
     } finally {
       setProcessing(false);
     }
@@ -111,7 +112,7 @@ export const AlertInspector: React.FC<AlertInspectorProps> = ({ id, initialTab =
       await apiClient.post(`/api/alerts/${id}/dismiss`, {});
       setAlert({ ...alert, status: 'dismissed' });
     } catch (err) {
-      console.error('Failed to dismiss alert:', err);
+      logger.error('Failed to dismiss alert:', err);
     } finally {
       setProcessing(false);
     }

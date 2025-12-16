@@ -5,6 +5,7 @@
 
 import React, { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import logger from '@/utils/logger';
 import {
   Bell,
   Send,
@@ -315,7 +316,7 @@ const PushNotificationAdmin: React.FC = () => {
         });
       }
     } catch (error) {
-      console.error('Error sending notification:', error);
+      logger.error('Error sending notification:', error);
       alert('Failed to send notification');
     }
   };
@@ -331,7 +332,7 @@ const PushNotificationAdmin: React.FC = () => {
         variables
       });
     } catch (error) {
-      console.error('Error sending from template:', error);
+      logger.error('Error sending from template:', error);
       alert('Failed to send notification');
     }
   };
