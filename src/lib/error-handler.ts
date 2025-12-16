@@ -11,6 +11,7 @@
 
 import { telemetryService } from './telemetry'
 
+import logger from '@/utils/logger';
 /**
  * Error severity levels
  */
@@ -160,11 +161,11 @@ function logError(errorDetails: ErrorDetails): void {
   // Log to console in development
   if (import.meta.env.DEV) {
     console.group(`🚨 [Global Error Handler] ${errorDetails.category}`)
-    console.error('Message:', errorDetails.message)
-    console.error('Severity:', ErrorSeverity[errorDetails.severity])
-    console.error('Stack:', errorDetails.stack)
-    console.error('Context:', errorDetails.context)
-    console.error('Timestamp:', errorDetails.timestamp)
+    logger.error('Message:', errorDetails.message)
+    logger.error('Severity:', ErrorSeverity[errorDetails.severity])
+    logger.error('Stack:', errorDetails.stack)
+    logger.error('Context:', errorDetails.context)
+    logger.error('Timestamp:', errorDetails.timestamp)
     console.groupEnd()
   }
 
@@ -188,7 +189,7 @@ function logError(errorDetails: ErrorDetails): void {
       url: errorDetails.url,
     })
   } catch (trackingError) {
-    console.error('Failed to track error in Application Insights:', trackingError)
+    logger.error('Failed to track error in Application Insights:', trackingError)
   }
 
   // Store in localStorage
@@ -199,7 +200,7 @@ function logError(errorDetails: ErrorDetails): void {
     const updatedLogs = [errorDetails, ...existingLogs].slice(0, 50)
     localStorage.setItem('fleet-global-errors', JSON.stringify(updatedLogs))
   } catch (storageError) {
-    console.error('Failed to store error in localStorage:', storageError)
+    logger.error('Failed to store error in localStorage:', storageError)
   }
 }
 
@@ -288,7 +289,7 @@ function showUserFriendlyMessage(category: ErrorCategory): void {
     (window as any).toast.error(message)
   } else {
     // Fallback to alert
-    console.error(message)
+    logger.error(message)
   }
 }
 
@@ -359,7 +360,7 @@ export function initializeGlobalErrorHandlers(): void {
     }
   }
 
-  console.log('✅ Global error handlers initialized')
+  logger.debug('✅ Global error handlers initialized')
 
   // Track initialization
   telemetryService.trackEvent('Global_Error_Handlers_Initialized', {

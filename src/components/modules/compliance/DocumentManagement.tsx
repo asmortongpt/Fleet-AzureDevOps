@@ -53,6 +53,7 @@ import { toast } from "sonner"
 import { apiClient } from "@/lib/api-client"
 import { formatDistanceToNow } from "date-fns"
 
+import logger from '@/utils/logger';
 interface Document {
   id: string
   file_name: string
@@ -175,7 +176,7 @@ export function DocumentManagement() {
       queryClient.invalidateQueries({ queryKey: ["documents", "stats"] })
     },
     onError: (error) => {
-      console.error('Error uploading document:', error)
+      logger.error('Error uploading document:', error)
       toast.error('Failed to upload document')
     }
   })
@@ -195,7 +196,7 @@ export function DocumentManagement() {
       queryClient.invalidateQueries({ queryKey: ["documents", "stats"] })
     },
     onError: (error) => {
-      console.error('Error deleting document:', error)
+      logger.error('Error deleting document:', error)
       toast.error('Failed to delete document')
     }
   })

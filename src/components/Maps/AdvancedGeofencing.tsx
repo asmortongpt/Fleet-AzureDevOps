@@ -4,6 +4,7 @@ import { Input } from '../ui/input'
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/card'
 import { Badge } from '../ui/badge'
 import { ScrollArea } from '../ui/scroll-area'
+import logger from '@/utils/logger';
 import {
   Circle as CircleIcon,
   Square,
@@ -434,7 +435,7 @@ export const AdvancedGeofencing: React.FC<AdvancedGeofencingProps> = ({
           })
         }
       } catch (error) {
-        console.error('Failed to import geofences:', error)
+        logger.error('Failed to import geofences:', error)
       }
     }
     reader.readAsText(file)

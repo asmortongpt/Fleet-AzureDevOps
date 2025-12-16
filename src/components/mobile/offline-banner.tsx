@@ -7,6 +7,7 @@ import React, { useEffect, useState } from 'react'
 import { offlineManager, type OfflineState } from '@/lib/offline-manager'
 import { WifiOff, Wifi, RefreshCw } from 'lucide-react'
 
+import logger from '@/utils/logger';
 export function OfflineBanner() {
   const [offlineState, setOfflineState] = useState<OfflineState | null>(null)
   const [isSyncing, setIsSyncing] = useState(false)
@@ -42,7 +43,7 @@ export function OfflineBanner() {
         const registration = await navigator.serviceWorker.ready
         await (registration as ServiceWorkerRegistration & { sync: { register: (tag: string) => Promise<void> } }).sync.register('sync-queued-requests')
       } catch (error) {
-        console.error('[OfflineBanner] Sync failed:', error)
+        logger.error('[OfflineBanner] Sync failed:', error)
       }
     }
     setIsSyncing(false)

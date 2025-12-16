@@ -15,6 +15,7 @@ import { isValidCoordinates } from "./UniversalMap/utils/validation"
 import { usePerformanceMonitor } from "@/hooks/usePerformanceMonitor"
 import { getMarkerOptimizationSuggestions } from "@/utils/performance"
 
+import logger from '@/utils/logger';
 const DEFAULT_CLUSTER_THRESHOLD = 100
 
 /**
@@ -69,7 +70,7 @@ export function UniversalMap(props: UniversalMapProps) {
     }
     const dynamicCenter = calculateDynamicCenter(vehicles, facilities, cameras)
     if (process.env.NODE_ENV === 'development' && (vehicles.length > 0 || facilities.length > 0 || cameras.length > 0)) {
-      console.log("Map center calculated from markers:", dynamicCenter)
+      logger.debug("Map center calculated from markers:", dynamicCenter)
     }
     return dynamicCenter
   }, [center, vehicles, facilities, cameras])
@@ -93,14 +94,14 @@ export function UniversalMap(props: UniversalMapProps) {
 
   const handleMapError = useCallback(
     (error: Error) => {
-      console.error(`Map provider "${provider}" encountered error:`, error)
+      logger.error(`Map provider "${provider}" encountered error:`, error)
       if (!mountedRef.current) return
 
       setLoadingState("error")
       onMapError?.(error, provider)
 
       if (provider === "google" && !fallbackAttempted) {
-        console.warn("Google Maps failed, falling back to Leaflet...")
+        logger.warn("Google Maps failed, falling back to Leaflet...")
         setFallbackAttempted(true)
         setProvider("leaflet")
         setLoadingState("loading")
@@ -125,10 +126,10 @@ export function UniversalMap(props: UniversalMapProps) {
     if (import.meta.env.DEV && totalMarkerCount > 0) {
       const suggestions = getMarkerOptimizationSuggestions(totalMarkerCount)
       if (suggestions.length > 0) {
-        console.log("\n🚀 Performance Optimization Suggestions:")
+        logger.debug("\n🚀 Performance Optimization Suggestions:")
         suggestions.forEach((s) => {
-          console.log(`  ${s.priority === "high" ? "🔴" : s.priority === "medium" ? "🟡" : "🟢"} ${s.message}`)
-          console.log(`     Impact: ${s.impact} | Effort: ${s.effort}`)
+          logger.debug(`  ${s.priority === "high" ? "🔴" : s.priority === "medium" ? "🟡" : "🟢"} ${s.message}`)
+          logger.debug(`     Impact: ${s.impact} | Effort: ${s.effort}`)
         })
       }
     }
