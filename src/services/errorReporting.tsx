@@ -132,7 +132,10 @@ class ErrorReportingService {
 
       this.isInitialized = true;
     } catch (error) {
-      console.error('Failed to initialize error reporting:', error);
+      // Note: Can't use logger here as it may not be initialized yet
+      if (error instanceof Error) {
+        console.error('Failed to initialize error reporting:', error.message);
+      }
     }
   }
 
@@ -245,7 +248,8 @@ class ErrorReportingService {
    */
   captureException(error: Error, context?: ErrorContext): string {
     if (!this.isInitialized) {
-      console.error('Error reporting not initialized:', error);
+      // Error reporting not initialized - log to console as fallback
+      console.error('Error reporting not initialized:', error.message);
       return '';
     }
 
@@ -424,7 +428,9 @@ class ErrorReportingService {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(feedback),
-        }).catch(console.error);
+        }).catch(() => {
+          // Silent failure for user feedback submission
+        });
       }
     }
   }
@@ -446,7 +452,7 @@ class ErrorReportingService {
         body: JSON.stringify(event),
       });
     } catch (error) {
-      console.error('Failed to send error to backend:', error);
+      // Silent failure - don't log failed error reports to avoid infinite loops
     }
   }
 
