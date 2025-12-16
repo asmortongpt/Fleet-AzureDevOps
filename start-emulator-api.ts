@@ -9,7 +9,6 @@
 import express from 'express'
 import { createServer } from 'http'
 import { WebSocketServer } from 'ws'
-import emulatorRoutes from './api/src/routes/emulator.routes.js'
 
 const PORT = process.env.EMULATOR_PORT || 3002
 const WS_PORT = process.env.EMULATOR_WS_PORT || 3003
@@ -34,7 +33,9 @@ async function main() {
     next()
   })
 
-  // Mount emulator routes
+  // Import and mount emulator routes dynamically
+  const emulatorRoutesModule = await import('./api/src/routes/emulator.routes')
+  const emulatorRoutes = emulatorRoutesModule.default
   app.use('/api/emulator', emulatorRoutes)
 
   // Health check
