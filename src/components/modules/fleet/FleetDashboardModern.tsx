@@ -61,7 +61,7 @@ export function FleetDashboardModern() {
     enabled: true,
     initialVehicles,
     onVehicleUpdate: (vehicleId, update) => {
-      console.debug(`[FleetDashboard] Real-time update for ${vehicleId}`, update)
+      logger.debug(`[FleetDashboard] Real-time update for ${vehicleId}`, update)
     }
   })
 
@@ -434,7 +434,7 @@ export function FleetDashboardModern() {
               <div className="h-full">
                 <AlertsFeed
                   alerts={mockAlerts}
-                  onAlertClick={(alert) => console.log('Alert clicked:', alert)}
+                  onAlertClick={(alert) => logger.debug('Alert clicked:', alert)}
                 />
               </div>
             </TabsContent>
