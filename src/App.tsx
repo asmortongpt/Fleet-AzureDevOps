@@ -468,7 +468,7 @@ function App() {
           <EnhancedErrorBoundary
             showDetails={import.meta.env.DEV}
             onError={(error, errorInfo) => {
-              console.error('App Error Boundary:', error, errorInfo);
+              logger.error('App Error Boundary:', error, errorInfo);
             }}
           >
             <QueryErrorBoundary>
