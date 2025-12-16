@@ -16,6 +16,7 @@ import { CompactVehicleList } from "@/components/dashboard/CompactVehicleList"
 import { AlertsFeed, ActivityFeed } from "@/components/dashboard/AlertsFeed"
 import { AddVehicleDialog } from "@/components/dialogs/AddVehicleDialog"
 import { ProfessionalFleetMap } from "@/components/Maps/ProfessionalFleetMap"
+import logger from '@/utils/logger'
 import {
   Car,
   Pulse,
