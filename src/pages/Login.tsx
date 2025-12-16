@@ -9,6 +9,7 @@ import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Separator } from '@/components/ui/separator'
 import { signInWithMicrosoft, setAuthToken } from '@/lib/microsoft-auth'
 import { CarProfile } from '@phosphor-icons/react'
+import logger from '@/utils/logger'
 
 /**
  * Login Page Component
@@ -23,9 +24,10 @@ export function Login() {
   const [password, setPassword] = useState(import.meta.env.DEV ? 'demo123' : '')
 
   // AUTO-LOGIN in DEV mode (enabled for testing)
+  // SECURITY FIX P3 LOW-SEC-001: Use logger instead of console.log
   useEffect(() => {
     if (import.meta.env.DEV && true) { // Enabled for testing
-      console.log('[LOGIN] DEV mode detected - auto-logging in with demo user')
+      logger.debug('[LOGIN] DEV mode detected - auto-logging in with demo user')
 
       // Create a demo JWT token (not validated in DEV mode)
       const demoToken = btoa(JSON.stringify({
@@ -41,18 +43,19 @@ export function Login() {
       }))
 
       setAuthToken(demoToken)
-      console.log('[LOGIN] Demo token set, redirecting to dashboard')
+      logger.debug('[LOGIN] Demo token set, redirecting to dashboard')
       navigate('/', { replace: true })
     }
   }, [navigate])
 
   // Handle Microsoft OAuth callback
+  // SECURITY FIX P3 LOW-SEC-001: Use logger instead of console.log
   useEffect(() => {
     const params = new URLSearchParams(window.location.search)
     const code = params.get('code')
 
     if (code) {
-      console.log('[OAUTH] Authorization code received, exchanging for token...')
+      logger.debug('[OAUTH] Authorization code received, exchanging for token...')
 
       const apiUrl = import.meta.env.VITE_API_URL || '/api'
       fetch(`${apiUrl}/auth/microsoft/callback?code=${encodeURIComponent(code)}`)
@@ -64,7 +67,7 @@ export function Login() {
         })
         .then(data => {
           if (data.token) {
-            console.log('[OAUTH] Token received, storing and redirecting...')
+            logger.debug('[OAUTH] Token received, storing and redirecting...')
             setAuthToken(data.token)
             navigate('/', { replace: true })
           } else {
@@ -72,7 +75,7 @@ export function Login() {
           }
         })
         .catch(error => {
-          console.error('[OAUTH] Callback error:', error)
+          logger.error('[OAUTH] Callback error:', error)
           navigate('/login?error=oauth_failed&message=' + encodeURIComponent(error.message), { replace: true })
         })
     }
