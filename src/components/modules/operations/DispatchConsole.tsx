@@ -63,6 +63,7 @@ import { useAudioVisualization, useFrequencyBars } from '@/hooks/useAudioVisuali
 import { useAuth } from '@/hooks/useAuth';
 import type { RadioChannel, Transmission, EmergencyAlert, DispatchUnit } from '@/types/radio';
 
+import logger from '@/utils/logger';
 interface TabPanelProps {
   children?: React.ReactNode;
   index: number;
@@ -91,10 +92,10 @@ export default function DispatchConsole() {
     channelId: selectedChannelId || undefined,
     autoConnect: true,
     onEmergencyAlert: (alert) => {
-      console.log('Emergency alert received:', alert);
+      logger.debug('Emergency alert received:', alert);
     },
     onTransmission: (transmission) => {
-      console.log('Transmission update:', transmission);
+      logger.debug('Transmission update:', transmission);
     }
   });
 
@@ -106,10 +107,10 @@ export default function DispatchConsole() {
       }
     },
     onTransmissionStart: (transmissionId) => {
-      console.log('PTT started:', transmissionId);
+      logger.debug('PTT started:', transmissionId);
     },
     onTransmissionEnd: (audioBlob) => {
-      console.log('PTT ended, blob size:', audioBlob.size);
+      logger.debug('PTT ended, blob size:', audioBlob.size);
       if (ptt.currentTransmissionId) {
         // Convert blob to base64 and send
         const reader = new FileReader();
@@ -144,7 +145,7 @@ export default function DispatchConsole() {
           }
         }
       } catch (error) {
-        console.error('Failed to load channels:', error);
+        logger.error('Failed to load channels:', error);
       }
     };
 

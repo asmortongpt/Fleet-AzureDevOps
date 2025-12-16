@@ -1,5 +1,6 @@
 import { MapProvider } from "../types"
 
+import logger from '@/utils/logger';
 /**
  * Check if Google Maps API key is available
  * @returns True if key exists and is non-empty
@@ -9,7 +10,7 @@ export function hasGoogleMapsApiKey(): boolean {
     const key = import.meta.env.VITE_GOOGLE_MAPS_API_KEY
     return typeof key === "string" && key.length > 0
   } catch (error) {
-    console.warn("Failed to check Google Maps API key:", error)
+    logger.warn("Failed to check Google Maps API key:", error)
     return false
   }
 }

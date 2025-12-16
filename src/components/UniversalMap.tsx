@@ -15,6 +15,7 @@ import { usePerformanceMonitor } from "@/hooks/usePerformanceMonitor"
 import { PerformanceMonitor } from "./PerformanceMonitor"
 import { getMarkerOptimizationSuggestions } from "@/utils/performance"
 
+import logger from '@/utils/logger';
 // ============================================================================
 // Types & Interfaces
 // ============================================================================
@@ -151,7 +152,7 @@ class MapErrorBoundary extends Component<
   }
 
   componentDidCatch(error: Error, errorInfo: ErrorInfo): void {
-    console.error("Map Error Boundary caught an error:", error, errorInfo)
+    logger.error("Map Error Boundary caught an error:", error, errorInfo)
     this.setState({ errorInfo })
     this.props.onError?.(error, errorInfo)
   }
@@ -215,7 +216,7 @@ function safeGetLocalStorage(key: string, defaultValue: string | null = null): s
     }
     return localStorage.getItem(key) ?? defaultValue
   } catch (error) {
-    console.warn("Failed to access localStorage:", error)
+    logger.warn("Failed to access localStorage:", error)
     return defaultValue
   }
 }
@@ -234,7 +235,7 @@ function safeSetLocalStorage(key: string, value: string): boolean {
     localStorage.setItem(key, value)
     return true
   } catch (error) {
-    console.warn("Failed to set localStorage:", error)
+    logger.warn("Failed to set localStorage:", error)
     return false
   }
 }
@@ -248,7 +249,7 @@ function hasGoogleMapsApiKey(): boolean {
     const key = import.meta.env.VITE_GOOGLE_MAPS_API_KEY
     return typeof key === "string" && key.length > 0
   } catch (error) {
-    console.warn("Failed to check Google Maps API key:", error)
+    logger.warn("Failed to check Google Maps API key:", error)
     return false
   }
 }
@@ -413,7 +414,7 @@ function getActiveProvider(forceProvider?: MapProvider): MapProvider {
  *   showFacilities={true}
  *   center={[30.4383, -84.2807]}
  *   zoom={13}
- *   onMapReady={(provider) => console.log(`Map ready: ${provider}`)}
+ *   onMapReady={(provider) => logger.debug(`Map ready: ${provider}`)}
  * />
  * ```
  *
@@ -497,7 +498,7 @@ export function UniversalMap(props: UniversalMapProps) {
 
     // Log if using dynamic center (only in dev)
     if (process.env.NODE_ENV === 'development' && (vehicles.length > 0 || facilities.length > 0 || cameras.length > 0)) {
-      console.log("Map center calculated from markers:", dynamicCenter)
+      logger.debug("Map center calculated from markers:", dynamicCenter)
     }
 
     return dynamicCenter
@@ -539,7 +540,7 @@ export function UniversalMap(props: UniversalMapProps) {
    */
   const handleMapError = useCallback(
     (error: Error) => {
-      console.error(`Map provider "${provider}" encountered error:`, error)
+      logger.error(`Map provider "${provider}" encountered error:`, error)
 
       if (!mountedRef.current) return
 
@@ -548,7 +549,7 @@ export function UniversalMap(props: UniversalMapProps) {
 
       // If Google Maps fails and we haven't tried fallback, switch to Leaflet
       if (provider === "google" && !fallbackAttempted) {
-        console.warn("Google Maps failed, falling back to Leaflet...")
+        logger.warn("Google Maps failed, falling back to Leaflet...")
         setFallbackAttempted(true)
         setProvider("leaflet")
         setLoadingState("loading")
@@ -578,10 +579,10 @@ export function UniversalMap(props: UniversalMapProps) {
     if (import.meta.env.DEV && totalMarkerCount > 0) {
       const suggestions = getMarkerOptimizationSuggestions(totalMarkerCount)
       if (suggestions.length > 0) {
-        console.log("\n🚀 Performance Optimization Suggestions:")
+        logger.debug("\n🚀 Performance Optimization Suggestions:")
         suggestions.forEach((s) => {
-          console.log(`  ${s.priority === "high" ? "🔴" : s.priority === "medium" ? "🟡" : "🟢"} ${s.message}`)
-          console.log(`     Impact: ${s.impact} | Effort: ${s.effort}`)
+          logger.debug(`  ${s.priority === "high" ? "🔴" : s.priority === "medium" ? "🟡" : "🟢"} ${s.message}`)
+          logger.debug(`     Impact: ${s.impact} | Effort: ${s.effort}`)
         })
       }
     }
@@ -601,7 +602,7 @@ export function UniversalMap(props: UniversalMapProps) {
     providerChangeTimeoutRef.current = setTimeout(() => {
       const newProvider = getActiveProvider(forceProvider)
       if (newProvider !== provider) {
-        console.log(`Provider changed to: ${newProvider}`)
+        logger.debug(`Provider changed to: ${newProvider}`)
         setProvider(newProvider)
         setLoadingState("loading")
         setFallbackAttempted(false)
@@ -769,13 +770,13 @@ export function getMapProvider(): MapProvider {
  */
 export function setMapProvider(provider: MapProvider, reloadPage = true): boolean {
   if (!isValidProvider(provider)) {
-    console.error(`Invalid map provider: ${provider}`)
+    logger.error(`Invalid map provider: ${provider}`)
     return false
   }
 
   // Validate Google Maps availability
   if (provider === "google" && !hasGoogleMapsApiKey()) {
-    console.error("Cannot set Google Maps provider: API key not available")
+    logger.error("Cannot set Google Maps provider: API key not available")
     return false
   }
 

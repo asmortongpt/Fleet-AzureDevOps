@@ -29,6 +29,7 @@ import {
 import { getVehicleModelsService, type Vehicle3DModel } from '@/services/vehicle-models';
 import { LoadingSpinner } from '@/components/LoadingSpinner';
 
+import logger from '@/utils/logger';
 interface VehicleModelLibraryProps {
   onSelectModel?: (model: Vehicle3DModel) => void;
   selectedModelId?: string;
@@ -94,7 +95,7 @@ export function VehicleModelLibrary({
       setModels(result.models);
       setTotal(result.total);
     } catch (error) {
-      console.error('Error loading models:', error);
+      logger.error('Error loading models:', error);
     } finally {
       setLoading(false);
     }
@@ -117,7 +118,7 @@ export function VehicleModelLibrary({
     try {
       await service.downloadModel(model.id, `${model.name}.${model.fileFormat}`);
     } catch (error) {
-      console.error('Download error:', error);
+      logger.error('Download error:', error);
       alert('Failed to download model');
     }
   };

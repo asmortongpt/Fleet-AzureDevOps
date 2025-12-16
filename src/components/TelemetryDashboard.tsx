@@ -12,6 +12,7 @@ import { analytics } from '../services/analytics';
 import { getTelemetryConfig } from '../config/telemetry';
 import analyticsService from '../utils/analytics';
 
+import logger from '@/utils/logger';
 interface TelemetryEvent {
   name: string;
   properties?: Record<string, any>;
@@ -59,7 +60,7 @@ export const TelemetryDashboard: React.FC = () => {
       setEvents(stored || []);
       calculateMetrics(stored || []);
     } catch (error) {
-      console.error('Failed to load events:', error);
+      logger.error('Failed to load events:', error);
     }
   }, []);
 

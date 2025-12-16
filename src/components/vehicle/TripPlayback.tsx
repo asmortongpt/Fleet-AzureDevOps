@@ -23,6 +23,7 @@ import { AlertCircle, Play, Pause, StopCircle, FastForward, Rewind, MapPin } fro
 import useSWR from 'swr';
 import { format } from 'date-fns';
 
+import logger from '@/utils/logger';
 // ============================================================================
 // Types & Interfaces
 // ============================================================================
@@ -196,7 +197,7 @@ export function TripPlayback({ tripId, autoPlay = false }: TripPlaybackProps) {
           }).addTo(map);
         }
       } catch (err) {
-        console.error('Failed to initialize map:', err);
+        logger.error('Failed to initialize map:', err);
       }
     };
 
@@ -310,7 +311,7 @@ export function TripPlayback({ tripId, autoPlay = false }: TripPlaybackProps) {
         // Fit map to show entire route
         mapRef.current.fitBounds(polyline.getBounds(), { padding: [50, 50] });
       } catch (err) {
-        console.error('Failed to render trail:', err);
+        logger.error('Failed to render trail:', err);
       }
     };
 

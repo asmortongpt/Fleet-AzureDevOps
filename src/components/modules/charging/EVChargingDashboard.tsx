@@ -28,6 +28,7 @@ import { Button } from '../ui/button';
 import { Badge } from '../ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../ui/tabs';
 
+import logger from '@/utils/logger';
 interface ChargingStation {
   id: number;
   station_id: string;
@@ -180,7 +181,7 @@ const EVChargingDashboard: React.FC = () => {
       queryClient.invalidateQueries({ queryKey: ['evChargingStations'] });
     },
     onError: (error) => {
-      console.error('Error starting charge:', error);
+      logger.error('Error starting charge:', error);
     }
   });
 
@@ -202,7 +203,7 @@ const EVChargingDashboard: React.FC = () => {
       queryClient.invalidateQueries({ queryKey: ['evChargingStations'] });
     },
     onError: (error) => {
-      console.error('Error stopping charge:', error);
+      logger.error('Error stopping charge:', error);
     }
   });
 
@@ -291,7 +292,7 @@ const EVChargingDashboard: React.FC = () => {
         throw new Error(data.message || 'Failed to create reservation');
       }
     } catch (error: any) {
-      console.error('Error creating reservation:', error);
+      logger.error('Error creating reservation:', error);
       alert(`Failed to create reservation: ${error.message}`);
     }
   };

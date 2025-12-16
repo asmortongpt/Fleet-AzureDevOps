@@ -36,7 +36,7 @@ export function getMicrosoftLoginUrl(tenantId?: string): string {
 
   // Check if Azure AD is configured
   if (!clientId || !azureTenantId) {
-    console.error('[AUTH] Azure AD not configured. Missing VITE_AZURE_AD_CLIENT_ID or VITE_AZURE_AD_TENANT_ID')
+    logger.error('[AUTH] Azure AD not configured. Missing VITE_AZURE_AD_CLIENT_ID or VITE_AZURE_AD_TENANT_ID')
     return '#'
   }
 
@@ -51,7 +51,7 @@ export function getMicrosoftLoginUrl(tenantId?: string): string {
   })
 
   const authUrl = `https://login.microsoftonline.com/${azureTenantId}/oauth2/v2.0/authorize?${params}`
-  console.log('[AUTH] Microsoft OAuth URL:', authUrl)
+  logger.debug('[AUTH] Microsoft OAuth URL:', authUrl)
   return authUrl
 }
 
@@ -156,7 +156,7 @@ export async function signOut(): Promise<void> {
       }
     })
   } catch (error) {
-    console.error('[AUTH] Logout error:', error)
+    logger.error('[AUTH] Logout error:', error)
   }
 
   window.location.href = '/login'

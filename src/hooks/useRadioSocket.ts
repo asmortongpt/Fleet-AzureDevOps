@@ -5,6 +5,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { io, Socket } from 'socket.io-client';
 
+import logger from '@/utils/logger';
 interface Transmission {
   id: string;
   channel_id: string;
@@ -55,17 +56,17 @@ export function useRadioSocket(channelId: string | null) {
     if (!socket) return;
 
     const handleConnect = () => {
-      console.log('Radio socket connected');
+      logger.debug('Radio socket connected');
       setIsConnected(true);
     };
 
     const handleDisconnect = () => {
-      console.log('Radio socket disconnected');
+      logger.debug('Radio socket disconnected');
       setIsConnected(false);
     };
 
     const handleConnectionEstablished = (data: { sid: string }) => {
-      console.log('Connection established', data);
+      logger.debug('Connection established', data);
     };
 
     socket.on('connect', handleConnect);
@@ -83,11 +84,11 @@ export function useRadioSocket(channelId: string | null) {
   useEffect(() => {
     if (!socket || !isConnected || !channelId) return;
 
-    console.log('Subscribing to channel', channelId);
+    logger.debug('Subscribing to channel', channelId);
     socket.emit('subscribe_channel', { channel_id: channelId });
 
     const handleSubscribed = (data: { channel_id: string }) => {
-      console.log('Subscribed to channel', data);
+      logger.debug('Subscribed to channel', data);
     };
 
     socket.on('subscribed', handleSubscribed);
@@ -103,12 +104,12 @@ export function useRadioSocket(channelId: string | null) {
     if (!socket) return;
 
     const handleNewTransmission = (data: Transmission) => {
-      console.log('New transmission', data);
+      logger.debug('New transmission', data);
       setTransmissions((prev) => [data, ...prev].slice(0, 100)); // Keep last 100
     };
 
     const handleTranscriptUpdate = (data: { transmission_id: string; transcript: string; confidence: number }) => {
-      console.log('Transcript updated', data);
+      logger.debug('Transcript updated', data);
       setTransmissions((prev) =>
         prev.map((t) =>
           t.id === data.transmission_id
@@ -119,7 +120,7 @@ export function useRadioSocket(channelId: string | null) {
     };
 
     const handlePolicyTriggered = (data: PendingApproval) => {
-      console.log('Policy triggered', data);
+      logger.debug('Policy triggered', data);
       if (data.execution_status === 'pending_approval') {
         setPendingApprovals((prev) => [data, ...prev]);
       }
@@ -150,7 +151,7 @@ export function useRadioSocket(channelId: string | null) {
           setPendingApprovals((prev) => prev.filter((p) => p.id !== executionId));
         }
       } catch (error) {
-        console.error('Failed to approve execution', error);
+        logger.error('Failed to approve execution', error);
       }
     },
     []
@@ -170,7 +171,7 @@ export function useRadioSocket(channelId: string | null) {
           setPendingApprovals((prev) => prev.filter((p) => p.id !== executionId));
         }
       } catch (error) {
-        console.error('Failed to reject execution', error);
+        logger.error('Failed to reject execution', error);
       }
     },
     []
