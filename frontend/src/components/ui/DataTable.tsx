@@ -1,4 +1,5 @@
 import React from 'react';
+import DOMPurify from 'dompurify';
 
 interface Column<T> {
   key: keyof T;
@@ -31,7 +32,7 @@ export function DataTable<T extends Record<string, any>>({
       <tbody>
         {data.map((row, idx) => (
           <tr
-            key={idx}
+            key={row.id || `row-${idx}`}
             onClick={() => onRowClick?.(row)}
             className="hover:bg-gray-100 cursor-pointer"
           >
@@ -39,7 +40,7 @@ export function DataTable<T extends Record<string, any>>({
               <td key={String(col.key)} className="border p-2">
                 {col.render
                   ? col.render(row[col.key], row)
-                  : String(row[col.key])}
+                  : <span dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(String(row[col.key])) }} />}
               </td>
             ))}
           </tr>
