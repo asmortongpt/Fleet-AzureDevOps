@@ -122,8 +122,7 @@ function sanitizeColor(color: string | undefined): string | null {
     return trimmed.toLowerCase()
   }
 
-  // If none of the above, reject the color
-  console.warn(`Invalid color value rejected: ${color}`)
+  // If none of the above, reject the color (silent rejection to avoid console noise)
   return null
 }
 
