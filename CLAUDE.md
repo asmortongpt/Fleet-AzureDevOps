@@ -225,7 +225,7 @@ push({
 
 ## Deployment
 
-**Production URL:** `http://68.220.148.2`
+**Production URL:** `<production-url>`
 
 **CI/CD Pipeline:**
 - GitHub Actions workflows in `.github/workflows/`
