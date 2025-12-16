@@ -1,6 +1,7 @@
 import { BrandingConfig } from '../types/branding.d';
 import axios from 'axios';
 
+import logger from '@/utils/logger';
 /**
  * BrandingService is responsible for fetching and caching tenant-specific branding configurations.
  */
@@ -23,7 +24,7 @@ class BrandingService {
       this.cache.set(tenantId, brandingConfig);
       return brandingConfig;
     } catch (error) {
-      console.error(`Failed to fetch branding config for tenant ${tenantId}`, error);
+      logger.error(`Failed to fetch branding config for tenant ${tenantId}`, error);
       throw new Error('Unable to load branding configuration.');
     }
   }

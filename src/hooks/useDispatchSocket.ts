@@ -12,6 +12,7 @@
 
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { io, Socket } from 'socket.io-client';
+import logger from '@/utils/logger';
 import type {
   Transmission,
   RadioChannel,
@@ -76,7 +77,7 @@ export function useDispatchSocket(options: UseDispatchSocketOptions = {}) {
     });
 
     socket.on('connect', () => {
-      console.log('[DispatchSocket] Connected');
+      logger.debug('[DispatchSocket] Connected');
       reconnectAttemptsRef.current = 0;
       setState(prev => ({ ...prev, isConnected: true }));
 
@@ -87,7 +88,7 @@ export function useDispatchSocket(options: UseDispatchSocketOptions = {}) {
     });
 
     socket.on('disconnect', (reason) => {
-      console.log('[DispatchSocket] Disconnected:', reason);
+      logger.debug('[DispatchSocket] Disconnected:', reason);
       setState(prev => ({
         ...prev,
         isConnected: false,
@@ -104,17 +105,17 @@ export function useDispatchSocket(options: UseDispatchSocketOptions = {}) {
     });
 
     socket.on('connect_error', (error) => {
-      console.error('[DispatchSocket] Connection error:', error);
+      logger.error('[DispatchSocket] Connection error:', error);
       reconnectAttemptsRef.current++;
     });
 
     socket.on('channel_joined', (data: { channel: RadioChannel }) => {
-      console.log('[DispatchSocket] Joined channel:', data.channel.name);
+      logger.debug('[DispatchSocket] Joined channel:', data.channel.name);
       setState(prev => ({ ...prev, currentChannel: data.channel }));
     });
 
     socket.on('transmission_started', (data: { transmission: Transmission }) => {
-      console.log('[DispatchSocket] Transmission started:', data.transmission.id);
+      logger.debug('[DispatchSocket] Transmission started:', data.transmission.id);
       setState(prev => ({
         ...prev,
         activeTransmission: data.transmission
@@ -130,7 +131,7 @@ export function useDispatchSocket(options: UseDispatchSocketOptions = {}) {
     });
 
     socket.on('transmission_ended', (data: { transmission: Transmission }) => {
-      console.log('[DispatchSocket] Transmission ended:', data.transmission.id);
+      logger.debug('[DispatchSocket] Transmission ended:', data.transmission.id);
       setState(prev => ({
         ...prev,
         activeTransmission: null,
@@ -140,7 +141,7 @@ export function useDispatchSocket(options: UseDispatchSocketOptions = {}) {
     });
 
     socket.on('emergency_alert', (data: { alert: EmergencyAlert }) => {
-      console.log('[DispatchSocket] Emergency alert:', data.alert.type);
+      logger.debug('[DispatchSocket] Emergency alert:', data.alert.type);
       setState(prev => ({
         ...prev,
         emergencyAlerts: [data.alert, ...prev.emergencyAlerts]
@@ -169,7 +170,7 @@ export function useDispatchSocket(options: UseDispatchSocketOptions = {}) {
     });
 
     socket.on('error', (data: { message: string; code?: string }) => {
-      console.error('[DispatchSocket] Error:', data.message, data.code);
+      logger.error('[DispatchSocket] Error:', data.message, data.code);
     });
 
     socketRef.current = socket;
@@ -187,7 +188,7 @@ export function useDispatchSocket(options: UseDispatchSocketOptions = {}) {
   // Subscribe to channel
   const subscribeToChannel = useCallback((newChannelId: string) => {
     if (!socketRef.current?.connected) {
-      console.warn('[DispatchSocket] Cannot subscribe - not connected');
+      logger.warn('[DispatchSocket] Cannot subscribe - not connected');
       return;
     }
 
@@ -207,7 +208,7 @@ export function useDispatchSocket(options: UseDispatchSocketOptions = {}) {
   // Send audio chunk
   const sendAudioChunk = useCallback((audioData: string, transmissionId: string) => {
     if (!socketRef.current?.connected) {
-      console.warn('[DispatchSocket] Cannot send audio - not connected');
+      logger.warn('[DispatchSocket] Cannot send audio - not connected');
       return;
     }
 
@@ -221,7 +222,7 @@ export function useDispatchSocket(options: UseDispatchSocketOptions = {}) {
   // Start transmission
   const startTransmission = useCallback((isEmergency = false) => {
     if (!socketRef.current?.connected || !state.currentChannel) {
-      console.warn('[DispatchSocket] Cannot start transmission - not connected or no channel');
+      logger.warn('[DispatchSocket] Cannot start transmission - not connected or no channel');
       return null;
     }
 

@@ -7,6 +7,7 @@ import { useQuery } from '@tanstack/react-query';
 import { useMemo } from 'react';
 import axios from 'axios';
 
+import logger from '@/utils/logger';
 export type UserRole =
   | 'Admin'
   | 'FleetManager'
@@ -229,7 +230,7 @@ export function usePermissions() {
       const result = await checkPermission(request);
       return result.allowed;
     } catch (error) {
-      console.error('Permission check failed:', error);
+      logger.error('Permission check failed:', error);
       return false;
     }
   };

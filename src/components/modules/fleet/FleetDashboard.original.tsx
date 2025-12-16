@@ -36,6 +36,7 @@ import { useDrilldown } from "@/contexts/DrilldownContext"
 import { useInspect } from "@/services/inspect/InspectContext"
 import apiClient from "@/lib/api-client"
 
+import logger from '@/utils/logger';
 type LayoutMode = "split-50-50" | "split-70-30" | "tabs" | "top-bottom" | "map-drawer" | "quad-grid" | "fortune-glass" | "fortune-dark" | "fortune-nordic" | "fortune-ultimate"
 
 interface FleetDashboardProps {
@@ -88,7 +89,7 @@ export function FleetDashboard({ data }: FleetDashboardProps) {
     enabled: true,
     initialVehicles,
     onVehicleUpdate: (vehicleId, update) => {
-      console.debug(`[FleetDashboard] Real-time update for ${vehicleId}`, update)
+      logger.debug(`[FleetDashboard] Real-time update for ${vehicleId}`, update)
     }
   })
 

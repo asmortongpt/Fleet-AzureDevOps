@@ -26,6 +26,7 @@ import {
 import { toast } from "sonner"
 import { apiClient } from "@/lib/api-client"
 
+import logger from '@/utils/logger';
 interface Equipment {
   id: string
   asset_tag: string
@@ -107,7 +108,7 @@ export function EquipmentDashboard() {
       setCertifications(certificationsRes.alerts || [])
       setCertificationMatrix(matrixRes.matrix || [])
     } catch (error) {
-      console.error("Error fetching dashboard data:", error)
+      logger.error("Error fetching dashboard data:", error)
       toast.error("Failed to load dashboard data")
     } finally {
       setLoading(false)

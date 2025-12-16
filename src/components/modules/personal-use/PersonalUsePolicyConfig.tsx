@@ -22,6 +22,7 @@ import {
   Warning
 } from '@phosphor-icons/react'
 import { toast } from 'sonner'
+import logger from '@/utils/logger';
 import {
   PersonalUsePolicy,
   ApprovalWorkflow,
@@ -128,7 +129,7 @@ export const PersonalUsePolicyConfig: React.FC<PersonalUsePolicyConfigProps> = (
     queryFn: () => apiClient('/api/personal-use-policies'),
     staleTime: Infinity,
     onError: (err: any) => {
-      console.error('Failed to fetch policy:', err)
+      logger.error('Failed to fetch policy:', err)
     }
   })
 
@@ -228,7 +229,7 @@ export const PersonalUsePolicyConfig: React.FC<PersonalUsePolicyConfigProps> = (
       queryClient.invalidateQueries({ queryKey: ['personal-use-policies'] })
     },
     onError: (err: any) => {
-      console.error('Failed to save policy:', err)
+      logger.error('Failed to save policy:', err)
       toast.error(err.message || 'Failed to save policy')
     }
   })

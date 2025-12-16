@@ -21,6 +21,7 @@
  * Usage:
  * ```tsx
  * import { exportToCSV, exportToExcel, importFromCSV } from '@/lib/export-utils'
+import logger from '@/utils/logger';
  *
  * // Export
  * const handleExport = () => {
@@ -192,7 +193,7 @@ export async function exportToExcel(
     const filename = options.filename || `${baseFilename}-${getTimestamp()}.xlsx`
     XLSX.writeFile(workbook, filename)
   } catch (error) {
-    console.error('Failed to export to Excel:', error)
+    logger.error('Failed to export to Excel:', error)
     // Fallback to CSV if Excel export fails
     exportToCSV(data, baseFilename, options)
   }
@@ -253,7 +254,7 @@ export async function exportToPDF(
     const filename = options.filename || `${baseFilename}-${getTimestamp()}.pdf`
     doc.save(filename)
   } catch (error) {
-    console.error('Failed to export to PDF:', error)
+    logger.error('Failed to export to PDF:', error)
     throw new Error('PDF export failed. Please ensure jsPDF library is installed.')
   }
 }
@@ -415,7 +416,7 @@ export async function importFromExcel(
 
     return data
   } catch (error) {
-    console.error('Failed to import from Excel:', error)
+    logger.error('Failed to import from Excel:', error)
     throw new Error('Excel import failed. Please ensure the file is a valid Excel file.')
   }
 }

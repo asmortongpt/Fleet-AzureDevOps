@@ -30,6 +30,7 @@ import { lazy, Suspense, useState, useEffect, useRef, ComponentType } from 'reac
 import { ErrorBoundary } from 'react-error-boundary';
 import type { UniversalMapProps } from './UniversalMap';
 
+import logger from '@/utils/logger';
 // ============================================================================
 // LAZY-LOADED MAP COMPONENTS
 // ============================================================================
@@ -457,11 +458,11 @@ export function LazyMap({
 
       prefetchPromise
         .then(() => {
-          console.log(`✅ Prefetched ${provider} map component`);
+          logger.debug(`✅ Prefetched ${provider} map component`);
           onLoadComplete?.();
         })
         .catch((error) => {
-          console.error(`❌ Failed to prefetch ${provider} map:`, error);
+          logger.error(`❌ Failed to prefetch ${provider} map:`, error);
         });
     }, 300); // 300ms debounce
   };
@@ -530,7 +531,7 @@ export function LazyMap({
           setIsLoading(false);
         }}
         onError={(error, errorInfo) => {
-          console.error('Map error boundary caught:', error, errorInfo);
+          logger.error('Map error boundary caught:', error, errorInfo);
         }}
       >
         <Suspense fallback={getLoadingSkeleton(skeletonVariant, minHeight)}>

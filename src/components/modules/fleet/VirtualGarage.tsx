@@ -76,6 +76,7 @@ import {
 const Asset3DViewer = lazy(() => import("@/components/garage/Asset3DViewer").then(m => ({ default: m.Asset3DViewer })))
 import { toast } from "sonner"
 import { apiClient } from "@/lib/api-client"
+import logger from '@/utils/logger';
 import {
   Asset,
   AssetCategory,
@@ -509,7 +510,7 @@ async function fetchAllAssets(): Promise<GarageAsset[]> {
     if (emulatorRes.ok) {
       const emulatorData = await emulatorRes.json()
       if (emulatorData.success && Array.isArray(emulatorData.data) && emulatorData.data.length > 0) {
-        console.log("[VirtualGarage] Using OBD2 Emulator data:", emulatorData.data.length, "vehicles")
+        logger.debug("[VirtualGarage] Using OBD2 Emulator data:", emulatorData.data.length, "vehicles")
         return normalizeEmulatorVehicles(emulatorData.data)
       }
     }
@@ -566,14 +567,14 @@ async function fetchAllAssets(): Promise<GarageAsset[]> {
     }, [])
 
     if (uniqueAssets.length > 0) {
-      console.log("[VirtualGarage] Using database vehicles:", uniqueAssets.length)
+      logger.debug("[VirtualGarage] Using database vehicles:", uniqueAssets.length)
       return uniqueAssets
     }
 
-    console.log("[VirtualGarage] No vehicles found, returning empty")
+    logger.debug("[VirtualGarage] No vehicles found, returning empty")
     return []
   } catch (error) {
-    console.error("Error fetching assets:", error)
+    logger.error("Error fetching assets:", error)
     return []
   }
 }
@@ -619,7 +620,7 @@ async function fetchVehicleTelemetry(vehicleId: string): Promise<OBD2Telemetry |
     }
     return null
   } catch (error) {
-    console.error("Error fetching telemetry:", error)
+    logger.error("Error fetching telemetry:", error)
     return null
   }
 }
@@ -854,7 +855,7 @@ export function VirtualGarage({ data }: { data?: any }) {
       queryClient.invalidateQueries({ queryKey: ["damage-reports"] })
     },
     onError: (error) => {
-      console.error("Error submitting damage report:", error)
+      logger.error("Error submitting damage report:", error)
       toast.error("Failed to submit damage report")
     }
   })

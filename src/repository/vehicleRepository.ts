@@ -1,5 +1,6 @@
 import { Pool } from 'pg';
 
+import logger from '@/utils/logger';
 /**
  * VehicleRepository handles database operations related to vehicles.
  */
@@ -29,7 +30,7 @@ export class VehicleRepository {
       const result = await this.pool.query(query, [tenantId]);
       return result.rows;
     } catch (error) {
-      console.error('Error fetching vehicles with drivers:', error);
+      logger.error('Error fetching vehicles with drivers:', error);
       throw new Error('Database query failed');
     }
   }
