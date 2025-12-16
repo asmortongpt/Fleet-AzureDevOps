@@ -174,11 +174,11 @@ src/utils/Logger.ts
 ```typescript
 export class Logger {
   static info(message: string, ...optionalParams: any[]) {
-    console.info(message, ...optionalParams);
+    logger.info(message, ...optionalParams);
   }
 
   static error(message: string, ...optionalParams: any[]) {
-    console.error(message, ...optionalParams);
+    logger.error(message, ...optionalParams);
   }
 }
 ```
@@ -206,7 +206,7 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
   }
 
   componentDidCatch(error: Error, errorInfo: ErrorInfo) {
-    console.error('ErrorBoundary caught an error', error, errorInfo);
+    logger.error('ErrorBoundary caught an error', error, errorInfo);
   }
 
   render() {
@@ -223,6 +223,7 @@ src/components/common/LoadingSpinner.tsx
 ```typescript
 import React from 'react';
 
+import logger from '@/utils/logger';
 export const LoadingSpinner: React.FC = () => (
   <div className="loading-spinner">
     <div className="spinner"></div>

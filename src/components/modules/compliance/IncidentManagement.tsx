@@ -45,6 +45,7 @@ import {
 import { toast } from "sonner"
 import { apiClient } from "@/lib/api-client"
 
+import logger from '@/utils/logger';
 interface Incident {
   id: string
   incident_title: string
@@ -152,7 +153,7 @@ export function IncidentManagement() {
       const response = await apiClient.get(`/api/incident-management?${params.toString()}`)
       setIncidents(response.incidents || [])
     } catch (error) {
-      console.error("Error fetching incidents:", error)
+      logger.error("Error fetching incidents:", error)
       toast.error("Failed to load incidents")
     } finally {
       setLoading(false)
@@ -165,7 +166,7 @@ export function IncidentManagement() {
       setCorrectiveActions(response.corrective_actions || [])
       setTimeline(response.timeline || [])
     } catch (error) {
-      console.error("Error fetching incident details:", error)
+      logger.error("Error fetching incident details:", error)
     }
   }
 
@@ -186,7 +187,7 @@ export function IncidentManagement() {
       setIsAddDialogOpen(false)
       resetNewIncident()
     } catch (error) {
-      console.error("Error creating incident:", error)
+      logger.error("Error creating incident:", error)
       toast.error("Failed to report incident")
     }
   }
@@ -203,7 +204,7 @@ export function IncidentManagement() {
       )
       toast.success("Incident updated successfully")
     } catch (error) {
-      console.error("Error updating incident:", error)
+      logger.error("Error updating incident:", error)
       toast.error("Failed to update incident")
     }
   }
@@ -229,7 +230,7 @@ export function IncidentManagement() {
       })
       toast.success("Corrective action added")
     } catch (error) {
-      console.error("Error adding action:", error)
+      logger.error("Error adding action:", error)
       toast.error("Failed to add action")
     }
   }
@@ -258,7 +259,7 @@ export function IncidentManagement() {
         preventive_measures: ""
       })
     } catch (error) {
-      console.error("Error closing incident:", error)
+      logger.error("Error closing incident:", error)
       toast.error("Failed to close incident")
     }
   }

@@ -30,6 +30,7 @@ import { useEffect, useRef, useState, useCallback } from "react"
 import { Vehicle, GISFacility, TrafficCamera } from "@/lib/types"
 import { usePerformanceMonitor } from "@/hooks/usePerformanceMonitor"
 
+import logger from '@/utils/logger';
 // ============================================================================
 // Dynamic Import for Mapbox GL
 // Reduces initial bundle size by ~500kb - loads on demand
@@ -58,18 +59,18 @@ async function loadMapboxGL(): Promise<typeof import("mapbox-gl")> {
       try {
         await import("mapbox-gl/dist/mapbox-gl.css")
         mapboxCssLoaded = true
-        console.log("✅ Mapbox GL CSS loaded")
+        logger.debug("✅ Mapbox GL CSS loaded")
       } catch (cssError) {
-        console.warn("⚠️  Mapbox GL CSS could not be loaded:", cssError)
+        logger.warn("⚠️  Mapbox GL CSS could not be loaded:", cssError)
         // Non-fatal: map will work but may not be styled correctly
       }
     }
 
-    console.log("✅ Mapbox GL loaded successfully")
+    logger.debug("✅ Mapbox GL loaded successfully")
     return mapboxgl
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : "Unknown error"
-    console.error("❌ Failed to load Mapbox GL:", errorMessage)
+    logger.error("❌ Failed to load Mapbox GL:", errorMessage)
     throw new Error(`Mapbox GL initialization failed: ${errorMessage}`)
   }
 }
@@ -475,7 +476,7 @@ export function MapboxMap({
       try {
         marker.remove()
       } catch (error) {
-        console.error("Error removing marker:", error)
+        logger.error("Error removing marker:", error)
       }
     })
     markerMap.clear()
@@ -495,7 +496,7 @@ export function MapboxMap({
       const errorMessage = "Mapbox access token not configured. Set VITE_MAPBOX_ACCESS_TOKEN in .env file."
       setMapError(errorMessage)
       setIsLoading(false)
-      console.error("VITE_MAPBOX_ACCESS_TOKEN is not set or invalid. Get your free token at https://www.mapbox.com/")
+      logger.error("VITE_MAPBOX_ACCESS_TOKEN is not set or invalid. Get your free token at https://www.mapbox.com/")
 
       if (onError) {
         onError(new Error(errorMessage))
@@ -519,7 +520,7 @@ export function MapboxMap({
 
         // Check if component was unmounted during async load
         if (!mapContainerRef.current || isCleaningUpRef.current) {
-          console.log("Component unmounted during Mapbox GL load, aborting initialization")
+          logger.debug("Component unmounted during Mapbox GL load, aborting initialization")
           return
         }
 
@@ -563,7 +564,7 @@ export function MapboxMap({
           mapRef.current = map
           setMapReady(true)
           setIsLoading(false)
-          console.log("Mapbox loaded successfully")
+          logger.debug("Mapbox loaded successfully")
 
           if (onMapReady) {
             onMapReady(map)
@@ -574,7 +575,7 @@ export function MapboxMap({
         map.on("error", (e: any) => {
           if (isCleaningUpRef.current) return
 
-          console.error("Mapbox error:", e)
+          logger.error("Mapbox error:", e)
           const errorMessage = `Failed to load map: ${e.error?.message || "Unknown error"}`
           setMapError(errorMessage)
           setIsLoading(false)
@@ -585,7 +586,7 @@ export function MapboxMap({
         })
       } catch (error) {
         const errorMessage = `Failed to initialize map: ${(error as Error).message}`
-        console.error("Error initializing Mapbox:", error)
+        logger.error("Error initializing Mapbox:", error)
         setMapError(errorMessage)
         setIsLoading(false)
 
@@ -616,7 +617,7 @@ export function MapboxMap({
         mapRef.current = null
         setMapReady(false)
       } catch (error) {
-        console.error("Error during map cleanup:", error)
+        logger.error("Error during map cleanup:", error)
       } finally {
         isCleaningUpRef.current = false
       }
@@ -632,7 +633,7 @@ export function MapboxMap({
     try {
       mapRef.current.setStyle(MAPBOX_STYLE_URLS[mapStyle])
     } catch (error) {
-      console.error("Error changing map style:", error)
+      logger.error("Error changing map style:", error)
     }
   }, [mapStyle, mapReady])
 
@@ -673,7 +674,7 @@ export function MapboxMap({
         }
       })
     } catch (error) {
-      console.error("Error updating vehicle markers:", error)
+      logger.error("Error updating vehicle markers:", error)
     }
   }, [vehicles, showVehicles, mapReady, createVehicleMarkerElement, clearMarkers])
 
@@ -714,7 +715,7 @@ export function MapboxMap({
         }
       })
     } catch (error) {
-      console.error("Error updating facility markers:", error)
+      logger.error("Error updating facility markers:", error)
     }
   }, [facilities, showFacilities, mapReady, createFacilityMarkerElement, clearMarkers])
 
@@ -755,7 +756,7 @@ export function MapboxMap({
         }
       })
     } catch (error) {
-      console.error("Error updating camera markers:", error)
+      logger.error("Error updating camera markers:", error)
     }
   }, [cameras, showCameras, mapReady, createCameraMarkerElement, clearMarkers])
 
@@ -806,7 +807,7 @@ export function MapboxMap({
           duration: 1000 // Smooth animation
         })
       } catch (error) {
-        console.error("Error fitting bounds:", error)
+        logger.error("Error fitting bounds:", error)
       }
     }
   }, [vehicles, facilities, cameras, showVehicles, showFacilities, showCameras, mapReady])

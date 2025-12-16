@@ -43,6 +43,7 @@ import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Label } from "@/components/ui/label"
 
+import logger from '@/utils/logger';
 // ============================================================================
 // TYPES
 // ============================================================================
@@ -147,7 +148,7 @@ export function ConfirmDialog({
       onOpenChange(false)
       setIsConfirmed(false) // Reset confirmation state
     } catch (error) {
-      console.error("Confirm action failed:", error)
+      logger.error("Confirm action failed:", error)
       // Keep dialog open on error
     } finally {
       setIsLoading(false)

@@ -20,6 +20,7 @@ import { currentUserAtom } from '@/lib/reactive-state'
 import { User, Check, X, Upload, LinkedinLogo, GithubLogo, TwitterLogo } from '@phosphor-icons/react'
 import { toast } from 'react-hot-toast'
 
+import logger from '@/utils/logger';
 // Form validation schema
 const profileSchema = z.object({
   displayName: z.string().min(2, 'Name must be at least 2 characters').max(50),
@@ -98,7 +99,7 @@ export default function ProfilePage() {
       setAvatarPreview(null)
     } catch (error) {
       toast.error('Failed to update profile')
-      console.error('Profile update error:', error)
+      logger.error('Profile update error:', error)
     }
   }
 

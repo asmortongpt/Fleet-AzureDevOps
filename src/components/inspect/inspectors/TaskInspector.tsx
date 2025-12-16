@@ -15,6 +15,7 @@ import { Button } from '@/components/ui/button';
 import { apiClient } from '@/lib/api';
 import { Loader2, AlertCircle, CheckCircle2, Circle, Clock } from 'lucide-react';
 
+import logger from '@/utils/logger';
 interface TaskInspectorProps {
   id: string;
   initialTab?: string;
@@ -79,7 +80,7 @@ export const TaskInspector: React.FC<TaskInspectorProps> = ({ id, initialTab = '
         setTask(data);
       } catch (err: any) {
         setError(err.message || 'Failed to load task data');
-        console.error('Error fetching task:', err);
+        logger.error('Error fetching task:', err);
       } finally {
         setLoading(false);
       }
@@ -97,7 +98,7 @@ export const TaskInspector: React.FC<TaskInspectorProps> = ({ id, initialTab = '
       await apiClient.post(`/api/tasks/${id}/start`, {});
       setTask({ ...task, status: 'in-progress' });
     } catch (err) {
-      console.error('Failed to start task:', err);
+      logger.error('Failed to start task:', err);
     } finally {
       setProcessing(false);
     }
@@ -110,7 +111,7 @@ export const TaskInspector: React.FC<TaskInspectorProps> = ({ id, initialTab = '
       await apiClient.post(`/api/tasks/${id}/complete`, {});
       setTask({ ...task, status: 'completed', progress: 100, completedAt: new Date().toISOString() });
     } catch (err) {
-      console.error('Failed to complete task:', err);
+      logger.error('Failed to complete task:', err);
     } finally {
       setProcessing(false);
     }
@@ -128,7 +129,7 @@ export const TaskInspector: React.FC<TaskInspectorProps> = ({ id, initialTab = '
       await apiClient.post(`/api/tasks/${id}/checklist/${itemId}/toggle`, {});
       setTask({ ...task, checklist: updatedChecklist, progress: newProgress });
     } catch (err) {
-      console.error('Failed to toggle checklist item:', err);
+      logger.error('Failed to toggle checklist item:', err);
     }
   };
 

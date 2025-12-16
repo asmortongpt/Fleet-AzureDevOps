@@ -25,6 +25,7 @@ import {
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { apiClient } from '@/lib/api-client'
 
+import logger from '@/utils/logger';
 interface Notification {
   id: string
   title: string
@@ -49,7 +50,7 @@ export function NotificationBell({ onNavigate }: { onNavigate: (module: string) 
       setNotifications(data.notifications || [])
       setUnreadCount(data.notifications?.filter((n: Notification) => !n.is_read).length || 0)
     } catch (error) {
-      console.error('Error fetching notifications:', error)
+      logger.error('Error fetching notifications:', error)
     } finally {
       setIsLoading(false)
     }
@@ -78,7 +79,7 @@ export function NotificationBell({ onNavigate }: { onNavigate: (module: string) 
       )
       setUnreadCount(prev => Math.max(0, prev - 1))
     } catch (error) {
-      console.error('Error marking notification as read:', error)
+      logger.error('Error marking notification as read:', error)
     }
   }
 
@@ -92,7 +93,7 @@ export function NotificationBell({ onNavigate }: { onNavigate: (module: string) 
       )
       setUnreadCount(0)
     } catch (error) {
-      console.error('Error marking all notifications as read:', error)
+      logger.error('Error marking all notifications as read:', error)
     }
   }
 

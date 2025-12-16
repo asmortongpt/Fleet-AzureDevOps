@@ -3,6 +3,7 @@ import { X, Download, Filter, RefreshCw, ChevronLeft, ChevronRight } from 'lucid
 import { useDrillThrough } from '../../hooks/drill-through/useDrillThrough';
 import type { DrillThroughConfig, ExportFormat } from '../../types/drill-through';
 
+import logger from '@/utils/logger';
 interface DrillThroughModalProps {
   /** Drill-through configuration */
   config: DrillThroughConfig;
@@ -71,7 +72,7 @@ export function DrillThroughModal({ config, isOpen, onClose }: DrillThroughModal
     try {
       await exportData(format);
     } catch (err) {
-      console.error('Export failed:', err);
+      logger.error('Export failed:', err);
       alert('Export failed. Please try again.');
     }
   };

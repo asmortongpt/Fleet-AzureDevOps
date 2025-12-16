@@ -20,6 +20,7 @@ import { apiClient } from "@/lib/api-client"
 import { Part, InventoryTransaction, WorkOrder } from "@/lib/types"
 import { toast } from "sonner"
 
+import logger from '@/utils/logger';
 export interface VehicleInventoryStats {
   totalAssignedParts: number
   totalValue: number
@@ -36,7 +37,7 @@ async function fetchAssignedParts(vehicleId: string): Promise<Part[]> {
     const response = await apiClient.get<Part[]>(`/api/v1/vehicles/${vehicleId}/inventory/assigned`)
     return response
   } catch (error) {
-    console.warn("Assigned parts API unavailable, using emulator data")
+    logger.warn("Assigned parts API unavailable, using emulator data")
     return generateEmulatorAssignedParts(vehicleId)
   }
 }
@@ -49,7 +50,7 @@ async function fetchCompatibleParts(vehicleId: string): Promise<Part[]> {
     const response = await apiClient.get<Part[]>(`/api/v1/vehicles/${vehicleId}/inventory/compatible`)
     return response
   } catch (error) {
-    console.warn("Compatible parts API unavailable, using emulator data")
+    logger.warn("Compatible parts API unavailable, using emulator data")
     return generateEmulatorCompatibleParts(vehicleId)
   }
 }
@@ -64,7 +65,7 @@ async function fetchUsageHistory(vehicleId: string): Promise<InventoryTransactio
     )
     return response
   } catch (error) {
-    console.warn("Usage history API unavailable")
+    logger.warn("Usage history API unavailable")
     return generateEmulatorUsageHistory(vehicleId)
   }
 }
@@ -77,7 +78,7 @@ async function fetchMaintenanceHistory(vehicleId: string): Promise<WorkOrder[]> 
     const response = await apiClient.get<WorkOrder[]>(`/api/v1/vehicles/${vehicleId}/maintenance`)
     return response
   } catch (error) {
-    console.warn("Maintenance history API unavailable")
+    logger.warn("Maintenance history API unavailable")
     return []
   }
 }
@@ -342,7 +343,7 @@ export function useVehicleInventory(vehicleId: string) {
       queryClient.invalidateQueries({ queryKey: ["inventory", "parts"] })
     },
     onError: (error) => {
-      console.error("Failed to assign part:", error)
+      logger.error("Failed to assign part:", error)
       toast.error("Failed to assign part")
     }
   })
@@ -355,7 +356,7 @@ export function useVehicleInventory(vehicleId: string) {
       queryClient.invalidateQueries({ queryKey: ["inventory", "parts"] })
     },
     onError: (error) => {
-      console.error("Failed to remove part:", error)
+      logger.error("Failed to remove part:", error)
       toast.error("Failed to remove part")
     }
   })
@@ -370,7 +371,7 @@ export function useVehicleInventory(vehicleId: string) {
       queryClient.invalidateQueries({ queryKey: ["inventory", "transactions"] })
     },
     onError: (error) => {
-      console.error("Failed to record usage:", error)
+      logger.error("Failed to record usage:", error)
       toast.error("Failed to record usage")
     }
   })

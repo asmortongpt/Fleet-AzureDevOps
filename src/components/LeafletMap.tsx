@@ -27,7 +27,7 @@
  *   cameras={trafficCameras}
  *   mapStyle="dark"
  *   enableClustering={true}
- *   onMarkerClick={(id, type) => console.log(`Clicked ${type}: ${id}`)}
+ *   onMarkerClick={(id, type) => logger.debug(`Clicked ${type}: ${id}`)}
  * />
  * ```
  */
@@ -39,6 +39,7 @@ import { useAccessibility } from "@/hooks/useAccessibility"
 import { screenReaderOnly } from "@/utils/accessibility"
 import type { Vehicle, GISFacility, TrafficCamera } from "@/lib/types"
 
+import logger from '@/utils/logger';
 // ============================================================================
 // Dependency Validation & Dynamic Imports
 // ============================================================================
@@ -72,7 +73,7 @@ async function ensureLeafletLoaded(): Promise<typeof import("leaflet")> {
         await import("leaflet/dist/leaflet.css")
         leafletCssLoaded = true
       } catch (cssError) {
-        console.warn("⚠️  Leaflet CSS could not be loaded:", cssError)
+        logger.warn("⚠️  Leaflet CSS could not be loaded:", cssError)
         // Non-fatal: map will still work but may not be styled correctly
       }
     }
@@ -89,15 +90,15 @@ async function ensureLeafletLoaded(): Promise<typeof import("leaflet")> {
         shadowUrl: shadowUrl.default,
       })
     } catch (iconError) {
-      console.warn("⚠️  Leaflet icons could not be loaded:", iconError)
+      logger.warn("⚠️  Leaflet icons could not be loaded:", iconError)
       // Non-fatal: markers will use fallback icons
     }
 
-    console.log("✅ Leaflet loaded successfully (version:", L.version || "unknown", ")")
+    logger.debug("✅ Leaflet loaded successfully (version:", L.version || "unknown", ")")
     return L
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : "Unknown error"
-    console.error("❌ Failed to load Leaflet:", errorMessage)
+    logger.error("❌ Failed to load Leaflet:", errorMessage)
     throw new Error(`Leaflet initialization failed: ${errorMessage}`)
   }
 }
@@ -458,7 +459,7 @@ export function LeafletMap({
   const setError = useCallback(
     (error: string) => {
       if (!isMountedRef.current) return
-      console.error("❌ LeafletMap Error:", error)
+      logger.error("❌ LeafletMap Error:", error)
       setMapError(error)
       setIsLoading(false)
       // Notify parent component
@@ -485,12 +486,12 @@ export function LeafletMap({
     async function initializeMap() {
       // Guard: Already initialized
       if (mapInstanceRef.current || !mapContainerRef.current) {
-        console.log("🛑 Map already initialized or container not ready")
+        logger.debug("🛑 Map already initialized or container not ready")
         return
       }
 
       try {
-        console.log("🗺️  Initializing Leaflet map...")
+        logger.debug("🗺️  Initializing Leaflet map...")
 
         // Track map initialization performance
         const mapInitStart = perf.startMetric("mapInit")
@@ -507,7 +508,7 @@ export function LeafletMap({
 
         // Guard: Component unmounted during async load
         if (!isMountedRef.current || !mapContainerRef.current) {
-          console.log("🛑 Component unmounted during initialization")
+          logger.debug("🛑 Component unmounted during initialization")
           return
         }
 
@@ -556,7 +557,7 @@ export function LeafletMap({
         // Step 6: Set loading timeout
         loadingTimeoutRef.current = setTimeout(() => {
           if (!isReady && isMountedRef.current) {
-            console.warn("⚠️  Map loading timeout exceeded")
+            logger.warn("⚠️  Map loading timeout exceeded")
             setError("Map took too long to load. Please check your internet connection and refresh.")
           }
         }, MAP_CONFIG.loadingTimeout)
@@ -565,7 +566,7 @@ export function LeafletMap({
         map.whenReady(() => {
           if (!isMountedRef.current) return
 
-          console.log("✅ Leaflet map ready")
+          logger.debug("✅ Leaflet map ready")
 
           // Track map initialization complete
           perf.endMetric("mapInit", mapInitStart)
@@ -599,26 +600,26 @@ export function LeafletMap({
 
         // Step 8: Set up error handlers
         map.on("error", (e: any) => {
-          console.error("❌ Leaflet map error:", e)
+          logger.error("❌ Leaflet map error:", e)
           setError("Failed to load map tiles. Please check your internet connection.")
         })
 
         // Tile loading events for better UX
         tileLayer.on("loading", () => {
-          console.log("⏳ Loading map tiles...")
+          logger.debug("⏳ Loading map tiles...")
         })
 
         tileLayer.on("load", () => {
-          console.log("✅ Map tiles loaded")
+          logger.debug("✅ Map tiles loaded")
         })
 
         tileLayer.on("tileerror", (e: any) => {
-          console.warn("⚠️  Tile loading error:", e.tile?.src || "unknown")
+          logger.warn("⚠️  Tile loading error:", e.tile?.src || "unknown")
           // Non-fatal: some tiles may fail, map still usable
         })
       } catch (err) {
         const errorMessage = err instanceof Error ? err.message : "Unknown error occurred"
-        console.error("❌ Error initializing Leaflet map:", err)
+        logger.error("❌ Error initializing Leaflet map:", err)
         setError(`Failed to initialize map: ${errorMessage}`)
       }
     }
@@ -627,7 +628,7 @@ export function LeafletMap({
 
     // Cleanup function - critical for preventing memory leaks
     return () => {
-      console.log("🧹 Cleaning up Leaflet map...")
+      logger.debug("🧹 Cleaning up Leaflet map...")
       isMountedRef.current = false
 
       if (loadingTimeoutRef.current) {
@@ -641,14 +642,14 @@ export function LeafletMap({
         if (facilityLayer) facilityLayer.clearLayers()
         if (cameraLayer) cameraLayer.clearLayers()
       } catch (err) {
-        console.warn("⚠️  Error clearing layers:", err)
+        logger.warn("⚠️  Error clearing layers:", err)
       }
 
       // Remove tile layer
       try {
         if (tileLayer) tileLayer.remove()
       } catch (err) {
-        console.warn("⚠️  Error removing tile layer:", err)
+        logger.warn("⚠️  Error removing tile layer:", err)
       }
 
       // Remove and destroy map instance
@@ -658,7 +659,7 @@ export function LeafletMap({
           map.remove() // Destroy map and free resources
         }
       } catch (err) {
-        console.warn("⚠️  Error removing map:", err)
+        logger.warn("⚠️  Error removing map:", err)
       }
 
       // Clear refs
@@ -679,7 +680,7 @@ export function LeafletMap({
   useSafeEffect(() => {
     if (!mapInstanceRef.current || !isReady || !L) return
 
-    console.log(`🎨 Updating map style to: ${mapStyle}`)
+    logger.debug(`🎨 Updating map style to: ${mapStyle}`)
 
     try {
       // Remove old tile layer
@@ -701,10 +702,10 @@ export function LeafletMap({
 
       // Set up tile error handling
       newTileLayer.on("tileerror", (e: any) => {
-        console.warn("⚠️  Tile loading error:", e.tile?.src || "unknown")
+        logger.warn("⚠️  Tile loading error:", e.tile?.src || "unknown")
       })
     } catch (err) {
-      console.error("❌ Error updating tile layer:", err)
+      logger.error("❌ Error updating tile layer:", err)
       // Non-fatal: keep existing layer if update fails
     }
   }, [mapStyle, isReady, tileConfig])
@@ -723,12 +724,12 @@ export function LeafletMap({
 
       if (!showVehicles || vehicles.length === 0) return
 
-      console.log(`🚗 Rendering ${vehicles.length} vehicle markers...`)
+      logger.debug(`🚗 Rendering ${vehicles.length} vehicle markers...`)
 
       vehicles.forEach((vehicle) => {
         // Validate location data
         if (!vehicle.location?.lat || !vehicle.location?.lng) {
-          console.warn(`⚠️  Vehicle ${vehicle.id} has invalid location:`, vehicle.location)
+          logger.warn(`⚠️  Vehicle ${vehicle.id} has invalid location:`, vehicle.location)
           return
         }
 
@@ -739,7 +740,7 @@ export function LeafletMap({
           vehicle.location?.lng < -180 ||
           vehicle.location?.lng > 180
         ) {
-          console.warn(`⚠️  Vehicle ${vehicle.id} has out-of-range coordinates:`, vehicle.location)
+          logger.warn(`⚠️  Vehicle ${vehicle.id} has out-of-range coordinates:`, vehicle.location)
           return
         }
 
@@ -770,7 +771,7 @@ export function LeafletMap({
               try {
                 onMarkerClick(vehicle.id, "vehicle")
               } catch (err) {
-                console.error(`❌ Error in onMarkerClick callback for vehicle ${vehicle.id}:`, err)
+                logger.error(`❌ Error in onMarkerClick callback for vehicle ${vehicle.id}:`, err)
               }
             })
           }
@@ -785,11 +786,11 @@ export function LeafletMap({
 
           vehicleLayerRef.current.addLayer(marker)
         } catch (err) {
-          console.error(`❌ Error creating vehicle marker for ${vehicle.id}:`, err)
+          logger.error(`❌ Error creating vehicle marker for ${vehicle.id}:`, err)
         }
       })
 
-      console.log(`✅ Rendered ${vehicles.length} vehicle markers`)
+      logger.debug(`✅ Rendered ${vehicles.length} vehicle markers`)
 
       // Announce to screen readers
       if (vehicles.length > 0) {
@@ -800,7 +801,7 @@ export function LeafletMap({
         })
       }
     } catch (err) {
-      console.error("❌ Error updating vehicle markers:", err)
+      logger.error("❌ Error updating vehicle markers:", err)
     }
   }, MAP_CONFIG.markerUpdateDebounce)
 
@@ -822,12 +823,12 @@ export function LeafletMap({
 
       if (!showFacilities || facilities.length === 0) return
 
-      console.log(`🏢 Rendering ${facilities.length} facility markers...`)
+      logger.debug(`🏢 Rendering ${facilities.length} facility markers...`)
 
       facilities.forEach((facility) => {
         // Validate location data
         if (!facility.location?.lat || !facility.location?.lng) {
-          console.warn(`⚠️  Facility ${facility.id} has invalid location:`, facility.location)
+          logger.warn(`⚠️  Facility ${facility.id} has invalid location:`, facility.location)
           return
         }
 
@@ -838,7 +839,7 @@ export function LeafletMap({
           facility.location?.lng < -180 ||
           facility.location?.lng > 180
         ) {
-          console.warn(`⚠️  Facility ${facility.id} has out-of-range coordinates:`, facility.location)
+          logger.warn(`⚠️  Facility ${facility.id} has out-of-range coordinates:`, facility.location)
           return
         }
 
@@ -869,7 +870,7 @@ export function LeafletMap({
               try {
                 onMarkerClick(facility.id, "facility")
               } catch (err) {
-                console.error(`❌ Error in onMarkerClick callback for facility ${facility.id}:`, err)
+                logger.error(`❌ Error in onMarkerClick callback for facility ${facility.id}:`, err)
               }
             })
           }
@@ -884,13 +885,13 @@ export function LeafletMap({
 
           facilityLayerRef.current.addLayer(marker)
         } catch (err) {
-          console.error(`❌ Error creating facility marker for ${facility.id}:`, err)
+          logger.error(`❌ Error creating facility marker for ${facility.id}:`, err)
         }
       })
 
-      console.log(`✅ Rendered ${facilities.length} facility markers`)
+      logger.debug(`✅ Rendered ${facilities.length} facility markers`)
     } catch (err) {
-      console.error("❌ Error updating facility markers:", err)
+      logger.error("❌ Error updating facility markers:", err)
     }
   }, MAP_CONFIG.markerUpdateDebounce)
 
@@ -912,7 +913,7 @@ export function LeafletMap({
 
       if (!showCameras || cameras.length === 0) return
 
-      console.log(`📹 Rendering ${cameras.length} camera markers...`)
+      logger.debug(`📹 Rendering ${cameras.length} camera markers...`)
 
       cameras.forEach((camera) => {
         // Validate location data
@@ -922,7 +923,7 @@ export function LeafletMap({
           !isFinite(camera.latitude) ||
           !isFinite(camera.longitude)
         ) {
-          console.warn(`⚠️  Camera ${camera.id} has invalid location:`, {
+          logger.warn(`⚠️  Camera ${camera.id} has invalid location:`, {
             lat: camera.latitude,
             lng: camera.longitude,
           })
@@ -936,7 +937,7 @@ export function LeafletMap({
           camera.longitude < -180 ||
           camera.longitude > 180
         ) {
-          console.warn(`⚠️  Camera ${camera.id} has out-of-range coordinates:`, {
+          logger.warn(`⚠️  Camera ${camera.id} has out-of-range coordinates:`, {
             lat: camera.latitude,
             lng: camera.longitude,
           })
@@ -970,7 +971,7 @@ export function LeafletMap({
               try {
                 onMarkerClick(camera.id, "camera")
               } catch (err) {
-                console.error(`❌ Error in onMarkerClick callback for camera ${camera.id}:`, err)
+                logger.error(`❌ Error in onMarkerClick callback for camera ${camera.id}:`, err)
               }
             })
           }
@@ -985,13 +986,13 @@ export function LeafletMap({
 
           cameraLayerRef.current.addLayer(marker)
         } catch (err) {
-          console.error(`❌ Error creating camera marker for ${camera.id}:`, err)
+          logger.error(`❌ Error creating camera marker for ${camera.id}:`, err)
         }
       })
 
-      console.log(`✅ Rendered ${cameras.length} camera markers`)
+      logger.debug(`✅ Rendered ${cameras.length} camera markers`)
     } catch (err) {
-      console.error("❌ Error updating camera markers:", err)
+      logger.error("❌ Error updating camera markers:", err)
     }
   }, MAP_CONFIG.markerUpdateDebounce)
 
@@ -1040,7 +1041,7 @@ export function LeafletMap({
 
       // Fit bounds if we have markers
       if (bounds.length > 0) {
-        console.log(`🗺️  Fitting map to ${bounds.length} markers...`)
+        logger.debug(`🗺️  Fitting map to ${bounds.length} markers...`)
 
         mapInstanceRef.current.fitBounds(bounds, {
           padding: MAP_CONFIG.fitBoundsPadding,
@@ -1050,14 +1051,14 @@ export function LeafletMap({
         })
       } else {
         // No markers: reset to default view
-        console.log("🗺️  No markers to fit, using default view")
+        logger.debug("🗺️  No markers to fit, using default view")
         mapInstanceRef.current.setView(center, zoom, {
           animate: true,
           duration: MAP_CONFIG.animationDuration / 1000,
         })
       }
     } catch (err) {
-      console.error("❌ Error fitting bounds:", err)
+      logger.error("❌ Error fitting bounds:", err)
       // Non-fatal: map remains at current view
     }
   }, MAP_CONFIG.markerUpdateDebounce)

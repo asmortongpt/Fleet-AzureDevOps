@@ -7,6 +7,7 @@
 import { useEffect, useState, useCallback } from 'react'
 import type { Vehicle } from '@/lib/types'
 
+import logger from '@/utils/logger';
 interface EmulatorStatus {
   connected: boolean
   vehicleCount: number
@@ -51,7 +52,7 @@ export function useEmulatorEnhancement() {
         const data = await response.json()
         if (data.success && data.data.running) {
           if (typeof window !== 'undefined' && localStorage.getItem('debug_fleet_data') === 'true') {
-            console.log('✅ Emulator detected - enhancing with live data')
+            logger.debug('✅ Emulator detected - enhancing with live data')
           }
           return true
         }
@@ -69,7 +70,7 @@ export function useEmulatorEnhancement() {
 
       websocket.onopen = () => {
         if (typeof window !== 'undefined' && localStorage.getItem('debug_fleet_data') === 'true') {
-          console.log('🔗 Connected to emulator WebSocket')
+          logger.debug('🔗 Connected to emulator WebSocket')
         }
         setStatus(prev => ({ ...prev, connected: true }))
       }
@@ -103,7 +104,7 @@ export function useEmulatorEnhancement() {
 
       websocket.onclose = () => {
         if (typeof window !== 'undefined' && localStorage.getItem('debug_fleet_data') === 'true') {
-          console.log('🔌 WebSocket disconnected')
+          logger.debug('🔌 WebSocket disconnected')
         }
         setStatus(prev => ({ ...prev, connected: false }))
         setWs(null)

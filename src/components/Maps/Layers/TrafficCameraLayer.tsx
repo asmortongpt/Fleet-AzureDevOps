@@ -5,6 +5,7 @@ import { Camera, ExternalLink } from 'lucide-react';
 import { useTrafficCameras } from '../../../hooks/useTrafficCameras';
 import type { TrafficCamera } from '../../../types/traffic-cameras';
 
+import logger from '@/utils/logger';
 interface TrafficCameraLayerProps {
   /** Filter by county */
   county?: string;
@@ -62,7 +63,7 @@ export function TrafficCameraLayer({
   }
 
   if (error) {
-    console.error('Error loading traffic cameras:', error);
+    logger.error('Error loading traffic cameras:', error);
     return null;
   }
 

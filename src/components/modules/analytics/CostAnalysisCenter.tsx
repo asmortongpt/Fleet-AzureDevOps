@@ -27,6 +27,7 @@ import { toast } from "sonner"
 import apiClient from "@/lib/api-client"
 import { usePermissions } from "@/hooks/usePermissions"
 
+import logger from '@/utils/logger';
 interface CostSummary {
   totalCost: number
   categoryBreakdown: Array<{
@@ -118,7 +119,7 @@ export function CostAnalysisCenter() {
       const forecastResponse = await apiClient.get("/cost-analysis/forecast?months=3")
       setForecasts(forecastResponse)
     } catch (error) {
-      console.error("Error fetching cost data:", error)
+      logger.error("Error fetching cost data:", error)
       toast.error("Failed to load cost analysis data")
     } finally {
       setLoading(false)
@@ -150,7 +151,7 @@ export function CostAnalysisCenter() {
 
       toast.success("Cost data exported successfully")
     } catch (error) {
-      console.error("Error exporting data:", error)
+      logger.error("Error exporting data:", error)
       toast.error("Failed to export data")
     }
   }

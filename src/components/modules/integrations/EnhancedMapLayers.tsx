@@ -29,6 +29,7 @@ import { Skeleton } from "@/components/ui/skeleton"
 import { UniversalMap } from "@/components/UniversalMap"
 import { useFleetData } from "@/hooks/use-fleet-data"
 import { useSafetyIncidents, useChargingStations } from "@/hooks/use-api"
+import logger from '@/utils/logger';
 import {
   MapTrifold,
   CloudRain,
@@ -261,7 +262,7 @@ export function EnhancedMapLayers() {
         reportedAt: incident.incident_date || incident.created_at || new Date().toISOString()
       }))
     } catch (error) {
-      console.error('Error transforming incident data:', error)
+      logger.error('Error transforming incident data:', error)
       return []
     }
   }, [incidentsData])
@@ -414,7 +415,7 @@ export function EnhancedMapLayers() {
 
       return weatherConditions
     } catch (error) {
-      console.error('Error fetching weather data:', error)
+      logger.error('Error fetching weather data:', error)
       throw error
     }
   }

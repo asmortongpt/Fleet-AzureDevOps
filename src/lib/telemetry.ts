@@ -2,6 +2,7 @@ import { ApplicationInsights } from '@microsoft/applicationinsights-web'
 import { ReactPlugin } from '@microsoft/applicationinsights-react-js'
 import { createBrowserRouter } from 'react-router-dom'
 
+import logger from '@/utils/logger';
 /**
  * Telemetry service for frontend Application Insights
  */
@@ -18,8 +19,8 @@ class TelemetryService {
                             import.meta.env.VITE_APPLICATIONINSIGHTS_CONNECTION_STRING
 
     if (!connectionString) {
-      console.warn('⚠️ Application Insights connection string not found. Frontend telemetry disabled.')
-      console.warn('Set VITE_APPLICATION_INSIGHTS_CONNECTION_STRING in your .env file')
+      logger.warn('⚠️ Application Insights connection string not found. Frontend telemetry disabled.')
+      logger.warn('Set VITE_APPLICATION_INSIGHTS_CONNECTION_STRING in your .env file')
       return null
     }
 
@@ -69,7 +70,7 @@ class TelemetryService {
       this.trackPageView(window.location.pathname)
 
       this.isInitialized = true
-      console.log('✅ Frontend Application Insights initialized')
+      logger.debug('✅ Frontend Application Insights initialized')
 
       // Track app startup
       this.trackEvent('FrontendStartup', {
@@ -83,7 +84,7 @@ class TelemetryService {
 
       return this.reactPlugin
     } catch (error) {
-      console.error('❌ Failed to initialize frontend Application Insights:', error)
+      logger.error('❌ Failed to initialize frontend Application Insights:', error)
       return null
     }
   }

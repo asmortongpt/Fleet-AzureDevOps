@@ -34,13 +34,13 @@ class APIClient {
   setToken(_token: string) {
     // DEPRECATED: Token is now set by backend via Set-Cookie header
     // This method does nothing - kept for API compatibility only
-    console.warn('[DEPRECATED] setToken() does nothing - tokens are httpOnly cookies managed by backend')
+    logger.warn('[DEPRECATED] setToken() does nothing - tokens are httpOnly cookies managed by backend')
   }
 
   clearToken() {
     // DEPRECATED: Token cleared by backend on logout
     // This method does nothing - kept for API compatibility only
-    console.warn('[DEPRECATED] clearToken() does nothing - tokens are httpOnly cookies managed by backend')
+    logger.warn('[DEPRECATED] clearToken() does nothing - tokens are httpOnly cookies managed by backend')
   }
 
   /**
@@ -79,7 +79,7 @@ class APIClient {
 
         // Fallback to alternate endpoint if primary fails
         if (!response.ok) {
-          console.warn('[CSRF] Primary endpoint failed, trying fallback /api/csrf')
+          logger.warn('[CSRF] Primary endpoint failed, trying fallback /api/csrf')
           response = await fetch(`${this.baseURL}/api/csrf`, {
             method: 'GET',
             credentials: 'include',
@@ -89,12 +89,12 @@ class APIClient {
         if (response.ok) {
           const data = await response.json()
           this.csrfToken = data.csrfToken || data.token || ''
-          console.log('[CSRF] Token initialized successfully')
+          logger.debug('[CSRF] Token initialized successfully')
         } else {
-          console.warn('[CSRF] Failed to fetch token:', response.status)
+          logger.warn('[CSRF] Failed to fetch token:', response.status)
         }
       } catch (error) {
-        console.error('[CSRF] Error fetching token:', error)
+        logger.error('[CSRF] Error fetching token:', error)
       } finally {
         this.csrfTokenPromise = null
       }
@@ -161,7 +161,7 @@ class APIClient {
 
         // If CSRF token is invalid, refresh and retry once
         if (response.status === 403 && error.error?.includes('CSRF')) {
-          console.warn('CSRF token invalid, refreshing...')
+          logger.warn('CSRF token invalid, refreshing...')
           await this.refreshCsrfToken()
 
           // Retry the request with new CSRF token

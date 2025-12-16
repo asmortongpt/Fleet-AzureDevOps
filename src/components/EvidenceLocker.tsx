@@ -13,6 +13,7 @@ import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '.
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from './ui/dialog';
 import { Shield, Lock, AlertTriangle, FileText, Video, Plus, Search, Eye, Folder } from 'lucide-react';import { cn } from '@/lib/utils';
 
+import logger from '@/utils/logger';
 interface EvidenceLocker {
   id: number;
   locker_name: string;
@@ -108,7 +109,7 @@ export default function EvidenceLocker() {
         setLockers(data.lockers || []);
       }
     } catch (error) {
-      console.error('Failed to load evidence lockers:', error);
+      logger.error('Failed to load evidence lockers:', error);
     } finally {
       setLoading(false);
     }
@@ -128,7 +129,7 @@ export default function EvidenceLocker() {
         setShowDetailsDialog(true);
       }
     } catch (error) {
-      console.error('Failed to load locker details:', error);
+      logger.error('Failed to load locker details:', error);
     }
   };
 
@@ -157,7 +158,7 @@ export default function EvidenceLocker() {
         loadEvidenceLockers();
       }
     } catch (error) {
-      console.error('Failed to create evidence locker:', error);
+      logger.error('Failed to create evidence locker:', error);
     }
   };
 
@@ -174,7 +175,7 @@ export default function EvidenceLocker() {
         return data.url;
       }
     } catch (error) {
-      console.error('Failed to get video URL:', error);
+      logger.error('Failed to get video URL:', error);
     }
     return null;
   };
