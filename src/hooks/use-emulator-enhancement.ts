@@ -50,13 +50,14 @@ export function useEmulatorEnhancement() {
       if (response.ok) {
         const data = await response.json()
         if (data.success && data.data.running) {
-          console.log('✅ Emulator detected - enhancing with live data')
+          if (typeof window !== 'undefined' && localStorage.getItem('debug_fleet_data') === 'true') {
+            console.log('✅ Emulator detected - enhancing with live data')
+          }
           return true
         }
       }
     } catch (error) {
       // Silently fail - emulator not available, site works fine without it
-      console.log('ℹ️ Emulator not available - using demo data only')
     }
     return false
   }, [])
@@ -67,7 +68,9 @@ export function useEmulatorEnhancement() {
       const websocket = new WebSocket(EMULATOR_WS)
 
       websocket.onopen = () => {
-        console.log('🔗 Connected to emulator WebSocket')
+        if (typeof window !== 'undefined' && localStorage.getItem('debug_fleet_data') === 'true') {
+          console.log('🔗 Connected to emulator WebSocket')
+        }
         setStatus(prev => ({ ...prev, connected: true }))
       }
 
@@ -89,24 +92,26 @@ export function useEmulatorEnhancement() {
             }))
           }
         } catch (error) {
-          console.warn('Failed to parse WebSocket message:', error)
+          // Ignore malformed WebSocket messages
         }
       }
 
       websocket.onerror = () => {
-        console.log('ℹ️ WebSocket connection failed - using demo data only')
+        // WebSocket connection failed - silently fall back to demo data
         setStatus(prev => ({ ...prev, connected: false }))
       }
 
       websocket.onclose = () => {
-        console.log('🔌 WebSocket disconnected')
+        if (typeof window !== 'undefined' && localStorage.getItem('debug_fleet_data') === 'true') {
+          console.log('🔌 WebSocket disconnected')
+        }
         setStatus(prev => ({ ...prev, connected: false }))
         setWs(null)
       }
 
       setWs(websocket)
     } catch (error) {
-      console.log('ℹ️ Could not connect to emulator WebSocket')
+      // Could not connect to emulator WebSocket - silent fallback
     }
   }, [])
 
