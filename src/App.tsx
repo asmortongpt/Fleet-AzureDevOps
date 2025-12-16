@@ -185,7 +185,7 @@ function App() {
   const renderModule = () => {
     switch (activeModule) {
       case "dashboard":
-        return <FleetDashboard data={fleetData} />
+        return <FleetDashboardModern />
       case "executive-dashboard":
         return <ExecutiveDashboard />
       case "admin-dashboard":
