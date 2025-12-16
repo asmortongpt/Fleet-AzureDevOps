@@ -31,6 +31,8 @@ RUN rm -f package-lock.json
 
 # Set build-time environment variables for Vite
 # SECURITY: Secrets are injected at runtime, not build-time
+# SECURITY FIX P1 HIGH-SEC-012: Disable debug mode in production
+ENV NODE_ENV=production
 ENV VITE_ENVIRONMENT=production
 ENV VITE_API_URL=""
 
@@ -50,6 +52,10 @@ RUN BUILD_VERSION=$(cat /tmp/build_version.txt || date +%s) && \
 # Stage 2: Production stage with nginx
 FROM nginx:alpine AS production
 
+# Security: Create non-root user for nginx
+RUN addgroup -g 1001 -S nginx-app && \
+    adduser -S nginx-app -u 1001 -G nginx-app
+
 # Copy complete nginx config (replaces default)
 COPY nginx.conf /etc/nginx/nginx.conf
 
@@ -59,6 +65,16 @@ RUN rm -f /etc/nginx/conf.d/default.conf
 
 # Copy built application from builder
 COPY --from=builder /app/dist /usr/share/nginx/html
+
+# Security: Create necessary directories for nginx non-root operation
+RUN mkdir -p /var/cache/nginx /var/log/nginx /var/run && \
+    chown -R nginx-app:nginx-app /var/cache/nginx /var/log/nginx /var/run /usr/share/nginx/html && \
+    chmod -R 755 /var/cache/nginx /var/log/nginx /var/run && \
+    touch /var/run/nginx.pid && \
+    chown nginx-app:nginx-app /var/run/nginx.pid
+
+# Security: Switch to non-root user
+USER nginx-app
 
 # REMOVED: Runtime configuration script (not needed - using build-time env vars)
 # COPY scripts/runtime-config.sh /docker-entrypoint.d/01-runtime-config.sh
