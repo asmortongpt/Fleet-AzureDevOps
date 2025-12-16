@@ -20,7 +20,7 @@
   "realtime": {
     "websocket": {
       "enabled": true,
-      "port": 3001,
+      "port": 3004,
       "path": "/emulator/stream"
     },
     "broadcasting": {
