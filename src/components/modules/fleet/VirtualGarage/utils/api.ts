@@ -58,7 +58,7 @@ export async function fetchVehicleTelemetry(vehicleId: string): Promise<OBD2Tele
     }
     return null
   } catch (error) {
-    console.error("Error fetching telemetry:", error)
+    logger.error("Error fetching telemetry:", error)
     return null
   }
 }

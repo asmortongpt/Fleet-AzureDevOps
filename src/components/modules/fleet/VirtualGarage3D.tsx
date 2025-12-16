@@ -41,6 +41,7 @@ import { VehicleHUD, type VehicleStats } from '@/components/garage/VehicleHUD'
 import { TimelineDrawer, generateDemoEvents, type TimelineEvent } from '@/components/garage/TimelineDrawer'
 import { DamageStrip, generateDemoDamages, type DamagePin } from '@/components/garage/DamageStrip'
 
+import logger from '@/utils/logger';
 // ============================================================================
 // TYPES
 // ============================================================================
@@ -184,7 +185,7 @@ async function fetchVehicles(): Promise<GarageVehicle[]> {
       }
     }
   } catch (e) {
-    console.log('[VirtualGarage3D] API unavailable, using demo data')
+    logger.debug('[VirtualGarage3D] API unavailable, using demo data')
   }
   return DEMO_VEHICLES
 }
@@ -425,7 +426,7 @@ export function VirtualGarage3D({ data }: { data?: any }) {
         events={timelineEvents}
         isOpen={isTimelineOpen}
         onClose={() => setIsTimelineOpen(false)}
-        onEventClick={(event) => console.log('Event clicked:', event)}
+        onEventClick={(event) => logger.debug('Event clicked:', event)}
       />
 
       {/* Damage Strip (Bottom Panel) */}
@@ -433,7 +434,7 @@ export function VirtualGarage3D({ data }: { data?: any }) {
         damages={damageData}
         isExpanded={isDamageStripExpanded}
         onToggleExpand={() => setIsDamageStripExpanded(!isDamageStripExpanded)}
-        onDamageClick={(damage) => console.log('Damage clicked:', damage)}
+        onDamageClick={(damage) => logger.debug('Damage clicked:', damage)}
       />
 
       {/* Loading State */}

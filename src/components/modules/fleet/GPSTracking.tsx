@@ -15,6 +15,7 @@ import { Vehicle, GISFacility } from "@/lib/types"
 import { UniversalMap } from "@/components/UniversalMap"
 import { useInspect } from "@/services/inspect/InspectContext"
 
+import logger from '@/utils/logger';
 /**
  * Props for the GPSTracking component
  */
@@ -55,7 +56,7 @@ type VehicleStatus = Vehicle["status"] | "all"
  * <GPSTracking
  *   vehicles={fleetVehicles}
  *   facilities={facilities}
- *   onVehicleSelect={(id) => console.log('Selected:', id)}
+ *   onVehicleSelect={(id) => logger.debug('Selected:', id)}
  *   isLoading={false}
  * />
  * ```
@@ -93,7 +94,7 @@ export function GPSTracking({
    */
   useEffect(() => {
     if (vehicles.length !== previousVehiclesRef.current.length) {
-      console.debug(`[GPSTracking] Vehicle count changed: ${previousVehiclesRef.current.length} -> ${vehicles.length}`)
+      logger.debug(`[GPSTracking] Vehicle count changed: ${previousVehiclesRef.current.length} -> ${vehicles.length}`)
       previousVehiclesRef.current = vehicles
     }
   }, [vehicles])
@@ -104,7 +105,7 @@ export function GPSTracking({
    */
   const filteredVehicles = useMemo(() => {
     if (!Array.isArray(vehicles)) {
-      console.error('[GPSTracking] vehicles prop is not an array:', vehicles)
+      logger.error('[GPSTracking] vehicles prop is not an array:', vehicles)
       return []
     }
 
@@ -114,7 +115,7 @@ export function GPSTracking({
 
     return vehicles.filter(v => {
       if (!v || typeof v !== 'object') {
-        console.warn('[GPSTracking] Invalid vehicle object:', v)
+        logger.warn('[GPSTracking] Invalid vehicle object:', v)
         return false
       }
       return v.status === statusFilter
@@ -199,7 +200,7 @@ export function GPSTracking({
    * Handle map errors
    */
   const handleMapError = useCallback((error: Error) => {
-    console.error('[GPSTracking] Map error:', error)
+    logger.error('[GPSTracking] Map error:', error)
     setMapError(error.message)
   }, [])
 
@@ -209,24 +210,24 @@ export function GPSTracking({
   const validVehiclesForMap = useMemo(() => {
     return filteredVehicles.filter(v => {
       if (!v?.location) {
-        console.warn('[GPSTracking] Vehicle missing location:', v?.id)
+        logger.warn('[GPSTracking] Vehicle missing location:', v?.id)
         return false
       }
 
       const { lat, lng } = v.location
 
       if (typeof lat !== 'number' || typeof lng !== 'number') {
-        console.warn('[GPSTracking] Invalid coordinates for vehicle:', v?.id, { lat, lng })
+        logger.warn('[GPSTracking] Invalid coordinates for vehicle:', v?.id, { lat, lng })
         return false
       }
 
       if (isNaN(lat) || isNaN(lng)) {
-        console.warn('[GPSTracking] NaN coordinates for vehicle:', v?.id)
+        logger.warn('[GPSTracking] NaN coordinates for vehicle:', v?.id)
         return false
       }
 
       if (lat < -90 || lat > 90 || lng < -180 || lng > 180) {
-        console.warn('[GPSTracking] Out of range coordinates for vehicle:', v?.id, { lat, lng })
+        logger.warn('[GPSTracking] Out of range coordinates for vehicle:', v?.id, { lat, lng })
         return false
       }
 

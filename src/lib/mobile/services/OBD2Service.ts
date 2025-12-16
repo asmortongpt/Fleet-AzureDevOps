@@ -656,7 +656,7 @@ export class OBD2Service {
             break
         }
       } catch (error) {
-        console.warn(`Failed to read PID ${pidKey}:`, error)
+        logger.warn(`Failed to read PID ${pidKey}:`, error)
       }
     }
 

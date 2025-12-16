@@ -27,6 +27,7 @@ import { toast } from 'sonner'
 import { format } from 'date-fns'
 import { usePermissions } from '@/hooks/usePermissions'
 
+import logger from '@/utils/logger';
 interface ReimbursementRequest {
   id: string
   driver_id: string
@@ -123,7 +124,7 @@ export function ReimbursementQueue() {
     queryFn: () => apiClient(`/api/reimbursements?${getQueueParams()}`),
     staleTime: 30000,
     onError: (error: any) => {
-      console.error('Failed to fetch queue:', error)
+      logger.error('Failed to fetch queue:', error)
       toast.error('Failed to load reimbursement queue')
     }
   })
@@ -192,7 +193,7 @@ export function ReimbursementQueue() {
       queryClient.invalidateQueries({ queryKey: ['reimbursement-summary'] })
     },
     onError: (error: any) => {
-      console.error('Failed to review request:', error)
+      logger.error('Failed to review request:', error)
       toast.error(error.message || 'Failed to review request')
     }
   })
@@ -213,7 +214,7 @@ export function ReimbursementQueue() {
       queryClient.invalidateQueries({ queryKey: ['reimbursement-summary'] })
     },
     onError: (error: any) => {
-      console.error('Bulk approve failed:', error)
+      logger.error('Bulk approve failed:', error)
       toast.error('Some approvals failed')
     }
   })
