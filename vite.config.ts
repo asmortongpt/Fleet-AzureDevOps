@@ -1,17 +1,10 @@
 import { defineConfig } from 'vite';
 import { visualizer } from 'rollup-plugin-visualizer';
+import tailwindcss from '@tailwindcss/vite';
 import path from 'path';
 
 export default defineConfig({
-  server: {
-    proxy: {
-      '/api/emulator': {
-        target: 'http://localhost:3002',
-        changeOrigin: true,
-        ws: false // WebSocket goes directly to port 3003
-      }
-    }
-  },
+  plugins: [tailwindcss()],
   resolve: {
     alias: {
       '@': path.resolve(__dirname, './src'),
