@@ -124,7 +124,7 @@ export const ProfessionalFleetMap: React.FC<ProfessionalFleetMapProps> = ({
   const activeLegendItems = legendItems.filter(item => item.count > 0)
 
   return (
-    <Card className="w-full">
+    <Card className="w-full" data-testid="fleet-map">
       <CardHeader className="pb-3">
         <div className="flex items-center justify-between">
           <CardTitle className="flex items-center gap-2 text-lg">
