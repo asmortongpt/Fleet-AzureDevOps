@@ -30,7 +30,7 @@ export function TenantProvider({ children }: { children: ReactNode }) {
           setCurrentTenant(tenant);
         }
       } catch (error) {
-        console.error('Failed to load tenant', error);
+        // Silent failure for tenant loading - will retry on next mount
       } finally {
         setIsLoading(false);
       }
@@ -118,7 +118,7 @@ export function FeatureFlagsProvider({ children }: { children: ReactNode }) {
         const flags = await res.json();
         setFeatureFlags(flags);
       } catch (error) {
-        console.error('Failed to load feature flags', error);
+        // Silent failure for feature flags loading - will use defaults
       }
     };
 
