@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import { ICacheService } from '../utils/cache';
 
+import logger from '@/utils/logger';
 /**
  * Middleware to cache GET requests
  * @param cacheService - Instance of CacheService
@@ -14,10 +15,10 @@ export const cacheMiddleware = (cacheService: ICacheService, ttl: number = 300) 
     const cachedResponse = await cacheService.get<string>(cacheKey);
 
     if (cachedResponse) {
-      console.log(`✅ Cache HIT: ${cacheKey}`);
+      logger.debug(`✅ Cache HIT: ${cacheKey}`);
       return res.send(JSON.parse(cachedResponse));
     } else {
-      console.log(`❌ Cache MISS: ${cacheKey}`);
+      logger.debug(`❌ Cache MISS: ${cacheKey}`);
       res.sendResponse = res.send;
       res.send = (body: any) => {
         cacheService.set(cacheKey, body, ttl);

@@ -1,4 +1,5 @@
 import React, { useState, useMemo } from 'react';
+import logger from '@/utils/logger';
 import {
   Box,
   Grid,
@@ -133,12 +134,12 @@ const EmulatorMonitor: React.FC<Props> = ({ emulators, loading }) => {
 
   const handleToggleEmulator = (emulatorId: string) => {
     // This would call an API to start/stop the emulator
-    console.log('Toggle emulator:', emulatorId);
+    logger.debug('Toggle emulator:', emulatorId);
   };
 
   const handleRefreshEmulator = (emulatorId: string) => {
     // This would call an API to refresh the emulator
-    console.log('Refresh emulator:', emulatorId);
+    logger.debug('Refresh emulator:', emulatorId);
   };
 
   if (loading && !emulators) {

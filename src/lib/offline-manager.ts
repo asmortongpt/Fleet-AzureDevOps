@@ -209,9 +209,9 @@ export class OfflineManager {
     if ('serviceWorker' in navigator) {
       try {
         this.serviceWorkerRegistration = await navigator.serviceWorker.register('/service-worker.js')
-        console.log('[OfflineManager] Service Worker registered successfully')
+        logger.debug('[OfflineManager] Service Worker registered successfully')
       } catch (error) {
-        console.error('[OfflineManager] Service Worker registration failed:', error)
+        logger.error('[OfflineManager] Service Worker registration failed:', error)
       }
     }
   }
@@ -276,7 +276,7 @@ export class OfflineManager {
         return response
       } catch (error) {
         // Network failed, fall through to cache
-        console.warn('[OfflineManager] Network request failed, trying cache:', error)
+        logger.warn('[OfflineManager] Network request failed, trying cache:', error)
       }
     }
 
@@ -332,7 +332,7 @@ export class OfflineManager {
           }
         }
       } catch (error) {
-        console.error('[OfflineManager] Failed to process queued request:', error)
+        logger.error('[OfflineManager] Failed to process queued request:', error)
         request.retries++
         if (request.retries >= request.maxRetries) {
           await this.db.removeFromQueue(request.id)

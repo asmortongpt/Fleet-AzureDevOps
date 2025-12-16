@@ -19,6 +19,7 @@ import { useMapTelemetry, MapInteractionType } from '../hooks/useTelemetry';
 import { captureException, addBreadcrumb, ErrorSeverity } from '../services/errorReporting';
 import { withErrorBoundary } from '../services/errorReporting';
 
+import logger from '@/utils/logger';
 interface Marker {
   id: string;
   position: [number, number];
@@ -480,6 +481,6 @@ export default withErrorBoundary(MapWithTelemetry, {
     </div>
   ),
   onError: (error, errorInfo) => {
-    console.error('Map error:', error, errorInfo);
+    logger.error('Map error:', error, errorInfo);
   },
 });
