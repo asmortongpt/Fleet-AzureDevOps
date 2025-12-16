@@ -222,7 +222,7 @@ export function FleetDashboardModern() {
   )
 
   return (
-    <div className="dashboard-container">
+    <div className="dashboard-container" data-testid="dashboard-container" aria-label="Fleet Dashboard">
       <a
         href="#main-content"
         className="sr-only focus:not-sr-only focus:absolute focus:top-0 focus:left-0 focus:z-50 focus:bg-blue-600 focus:text-white focus:px-4 focus:py-2"
@@ -237,7 +237,7 @@ export function FleetDashboardModern() {
           <span>Fleet Dashboard</span>
           {/* Live Indicator */}
           {isRealtimeConnected && (
-            <div className="live-indicator">
+            <div className="live-indicator" data-testid="realtime-indicator">
               <div className="live-indicator-dot" />
               <span>LIVE</span>
             </div>
@@ -255,6 +255,7 @@ export function FleetDashboardModern() {
           <div className="relative w-64">
             <MagnifyingGlass className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground" />
             <Input
+              data-testid="search-input"
               placeholder="Search vehicles..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
@@ -264,12 +265,12 @@ export function FleetDashboardModern() {
 
           {/* Filters */}
           <Select value={statusFilter} onValueChange={setStatusFilter}>
-            <SelectTrigger className="w-32 h-8 text-xs">
+            <SelectTrigger className="w-32 h-8 text-xs" data-testid="status-filter">
               <SelectValue placeholder="Status" />
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">All Status</SelectItem>
-              <SelectItem value="active">Active</SelectItem>
+              <SelectItem value="active" data-testid="filter-active">Active</SelectItem>
               <SelectItem value="idle">Idle</SelectItem>
               <SelectItem value="charging">Charging</SelectItem>
               <SelectItem value="service">Service</SelectItem>
@@ -288,12 +289,24 @@ export function FleetDashboardModern() {
             </SelectContent>
           </Select>
 
+          <button
+            data-testid="clear-filters"
+            onClick={() => {
+              setStatusFilter("all")
+              setRegionFilter("all")
+              setSearchQuery("")
+            }}
+            className="text-xs text-muted-foreground hover:text-foreground px-2 h-8"
+          >
+            Clear Filters
+          </button>
+
           <AddVehicleDialog onAdd={data.addVehicle} />
         </div>
       </div>
 
       {/* Stats Bar - Compact Metrics */}
-      <div className="dashboard-stats-bar">
+      <div className="dashboard-stats-bar" data-testid="fleet-metrics">
         <CompactMetricCard
           title="Total Vehicles"
           value={metrics.total}
@@ -301,6 +314,8 @@ export function FleetDashboardModern() {
           icon={<Car className="w-5 h-5" />}
           status="info"
           onClick={() => handleMetricDrilldown('total', metrics.total, 'Total Vehicles')}
+          testId="total-vehicles"
+          valueTestId="total-vehicles-value"
         />
         <CompactMetricCard
           title="Active Vehicles"
@@ -310,6 +325,8 @@ export function FleetDashboardModern() {
           subtitle="on the road"
           icon={<Pulse className="w-5 h-5" />}
           status="success"
+          testId="active-vehicles"
+          valueTestId="active-vehicles-value"
         />
         <CompactMetricCard
           title="Avg Fuel Level"
@@ -319,6 +336,7 @@ export function FleetDashboardModern() {
           subtitle={`${metrics.lowFuel} low fuel`}
           icon={<BatteryMedium className="w-5 h-5" />}
           status={metrics.lowFuel > 5 ? "warning" : "success"}
+          testId="fuel-efficiency"
         />
         <CompactMetricCard
           title="Service Required"
@@ -328,6 +346,7 @@ export function FleetDashboardModern() {
           subtitle={`${metrics.alerts} alerts`}
           icon={<Wrench className="w-5 h-5" />}
           status={metrics.service > 5 ? "warning" : "info"}
+          testId="maintenance-due"
         />
         <CompactMetricCard
           title="Critical Alerts"
@@ -380,11 +399,13 @@ export function FleetDashboardModern() {
 
         {/* Charts Section - Top Right (2x2 Grid) */}
         <div className="dashboard-charts-section">
-          <MiniDonutChart
-            title="Fleet Status"
-            data={statusChartData}
-            total={metrics.total}
-          />
+          <div data-testid="vehicle-status-chart">
+            <MiniDonutChart
+              title="Fleet Status"
+              data={statusChartData}
+              total={metrics.total}
+            />
+          </div>
 
           <MiniChart
             title="Regional Distribution"
@@ -394,13 +415,15 @@ export function FleetDashboardModern() {
             currentValue={`${regions.length} regions`}
           />
 
-          <MiniChart
-            title="Fuel Trend (24h)"
-            data={fuelTrendData.slice(-12)}
-            type="line"
-            color="green"
-            currentValue={`${metrics.avgFuelLevel}%`}
-          />
+          <div data-testid="fuel-consumption-chart">
+            <MiniChart
+              title="Fuel Trend (24h)"
+              data={fuelTrendData.slice(-12)}
+              type="line"
+              color="green"
+              currentValue={`${metrics.avgFuelLevel}%`}
+            />
+          </div>
 
           <MiniChart
             title="Utilization (7d)"
@@ -457,7 +480,7 @@ export function FleetDashboardModern() {
             <span>{isRealtimeConnected ? "Connected" : "Offline"}</span>
           </div>
           {lastTelemetryUpdate && (
-            <span>Last update: {lastTelemetryUpdate.toLocaleTimeString()}</span>
+            <span data-testid="last-updated">Last update: {new Date(lastTelemetryUpdate).toLocaleTimeString()}</span>
           )}
           {emulatorStats && (
             <span>Emulator: {emulatorStats.eventsPerSecond.toFixed(1)} events/sec</span>
