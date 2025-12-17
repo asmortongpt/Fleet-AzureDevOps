@@ -125,6 +125,9 @@ const DriverScorecard = lazy(() => import("@/components/modules/drivers/DriverSc
 const OperationsWorkspace = lazy(() => import("@/components/workspaces/OperationsWorkspace").then(m => ({ default: m.OperationsWorkspace })))
 const FleetWorkspace = lazy(() => import("@/components/workspaces/FleetWorkspace").then(m => ({ default: m.FleetWorkspace })))
 const MaintenanceWorkspace = lazy(() => import("@/components/workspaces/MaintenanceWorkspace").then(m => ({ default: m.MaintenanceWorkspace })))
+const AnalyticsWorkspace = lazy(() => import("@/components/workspaces/AnalyticsWorkspace").then(m => ({ default: m.AnalyticsWorkspace })))
+const ComplianceWorkspace = lazy(() => import("@/components/workspaces/ComplianceWorkspace").then(m => ({ default: m.ComplianceWorkspace })))
+const DriversWorkspace = lazy(() => import("@/components/workspaces/DriversWorkspace").then(m => ({ default: m.DriversWorkspace })))
 
 // PAGES
 const SettingsPage = lazy(() => import("@/pages/SettingsPage"))
@@ -201,6 +204,12 @@ function App() {
         return <FleetWorkspace data={fleetData} />
       case "maintenance-workspace":
         return <MaintenanceWorkspace data={fleetData} />
+      case "analytics-workspace":
+        return <AnalyticsWorkspace data={fleetData} />
+      case "compliance-workspace":
+        return <ComplianceWorkspace data={fleetData} />
+      case "drivers-workspace":
+        return <DriversWorkspace data={fleetData} />
       case "dispatch-console":
         return <DispatchConsole />
       case "people":
