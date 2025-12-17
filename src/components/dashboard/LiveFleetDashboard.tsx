@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { MapFirstLayout } from '../layout/MapFirstLayout';
 import { ProfessionalFleetMap } from '../map/ProfessionalFleetMap';
 import { useVehicles } from '@/hooks/use-api';
@@ -9,16 +9,65 @@ import { AlertCircle, Truck, Wrench, MapPin, Gauge, Fuel } from 'lucide-react';
 import { MobileMapControls } from '../mobile/MobileMapControls';
 import { MobileQuickActions } from '../mobile/MobileQuickActions';
 import { MobileVehicleCard } from '../mobile/MobileVehicleCard';
+import { generateDemoVehicles } from '@/lib/demo-data';
+import logger from '@/utils/logger';
+
+const LOADING_TIMEOUT = 5000; // 5 seconds timeout
 
 export function LiveFleetDashboard() {
-  const { data: vehicles = [], isLoading } = useVehicles();
+  const { data: vehiclesData, isLoading: apiLoading, error: apiError } = useVehicles();
+  const [vehicles, setVehicles] = useState<any[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
   const [selectedVehicleId, setSelectedVehicleId] = useState<string | null>(null);
+
+  // Timeout fallback to demo data
+  useEffect(() => {
+    const timeoutId = setTimeout(() => {
+      if (isLoading && vehicles.length === 0) {
+        logger.warn('[LiveFleetDashboard] API timeout after 5s, falling back to demo data');
+        const demoVehicles = generateDemoVehicles(50);
+        setVehicles(demoVehicles);
+        setIsLoading(false);
+      }
+    }, LOADING_TIMEOUT);
+
+    return () => clearTimeout(timeoutId);
+  }, [isLoading, vehicles.length]);
+
+  // Handle API data updates
+  useEffect(() => {
+    if (!apiLoading) {
+      if (apiError) {
+        logger.warn('[LiveFleetDashboard] API error, using demo data:', apiError);
+        const demoVehicles = generateDemoVehicles(50);
+        setVehicles(demoVehicles);
+        setIsLoading(false);
+      } else if (vehiclesData) {
+        // Handle both direct array and nested data structure
+        let vehicleArray: any[] = [];
+
+        if (Array.isArray(vehiclesData)) {
+          vehicleArray = vehiclesData;
+        } else if (typeof vehiclesData === 'object' && 'data' in vehiclesData && Array.isArray((vehiclesData as any).data)) {
+          vehicleArray = (vehiclesData as any).data;
+        }
+
+        if (vehicleArray.length > 0) {
+          logger.info('[LiveFleetDashboard] API data loaded successfully:', vehicleArray.length, 'vehicles');
+          setVehicles(vehicleArray);
+          setIsLoading(false);
+        }
+      }
+    }
+  }, [apiLoading, apiError, vehiclesData]);
 
   const selectedVehicle = vehicles.find((v: any) => v.id === selectedVehicleId) || vehicles[0];
 
-  // Quick stats
+  // Quick stats - handle both 'active' and 'service' status
   const activeCount = vehicles.filter((v: any) => v.status === 'active').length;
-  const maintenanceCount = vehicles.filter((v: any) => v.status === 'maintenance').length;
+  const maintenanceCount = vehicles.filter((v: any) =>
+    v.status === 'maintenance' || v.status === 'service'
+  ).length;
   const totalVehicles = vehicles.length;
 
   // Quick actions for mobile
@@ -85,7 +134,7 @@ export function LiveFleetDashboard() {
         <Card>
           <CardHeader className="pb-3">
             <CardTitle className="text-lg flex items-center justify-between">
-              <span>{selectedVehicle.vehicleNumber}</span>
+              <span>{selectedVehicle.vehicleNumber || selectedVehicle.number || 'N/A'}</span>
               <Badge variant={selectedVehicle.status === 'active' ? 'default' : 'secondary'}>
                 {selectedVehicle.status}
               </Badge>
@@ -94,11 +143,19 @@ export function LiveFleetDashboard() {
           <CardContent className="space-y-3">
             <div className="flex items-center text-sm">
               <Truck className="h-4 w-4 mr-2 text-slate-500" />
-              <span className="font-medium">{selectedVehicle.make} {selectedVehicle.model}</span>
+              <span className="font-medium">
+                {selectedVehicle.name ||
+                  `${selectedVehicle.make || ''} ${selectedVehicle.model || ''}`.trim() ||
+                  'Unknown Vehicle'}
+              </span>
             </div>
             <div className="flex items-center text-sm">
               <MapPin className="h-4 w-4 mr-2 text-slate-500" />
-              <span>{selectedVehicle.latitude?.toFixed(4)}, {selectedVehicle.longitude?.toFixed(4)}</span>
+              <span>
+                {selectedVehicle.location?.lat?.toFixed(4) || selectedVehicle.latitude?.toFixed(4) || '0.0000'},
+                {' '}
+                {selectedVehicle.location?.lng?.toFixed(4) || selectedVehicle.longitude?.toFixed(4) || '0.0000'}
+              </span>
             </div>
           </CardContent>
         </Card>
@@ -182,7 +239,9 @@ export function LiveFleetDashboard() {
               data-testid={`vehicle-list-item-${vehicle.id}`}
             >
               <div className="flex items-center justify-between">
-                <span className="font-medium text-sm">{vehicle.vehicleNumber}</span>
+                <span className="font-medium text-sm">
+                  {vehicle.vehicleNumber || vehicle.number || 'N/A'}
+                </span>
                 <Badge
                   variant={vehicle.status === 'active' ? 'default' : 'secondary'}
                   className="text-xs"
@@ -191,7 +250,9 @@ export function LiveFleetDashboard() {
                 </Badge>
               </div>
               <div className="text-xs text-slate-500 mt-1">
-                {vehicle.make} {vehicle.model}
+                {vehicle.name ||
+                  `${vehicle.make || ''} ${vehicle.model || ''}`.trim() ||
+                  'Unknown Vehicle'}
               </div>
             </div>
           ))}
@@ -203,13 +264,19 @@ export function LiveFleetDashboard() {
   // Drawer Content (for mobile detailed view)
   const drawerContent = selectedVehicle && (
     <div className="space-y-4">
-      <h3 className="text-lg font-bold">Vehicle Details: {selectedVehicle.vehicleNumber}</h3>
+      <h3 className="text-lg font-bold">
+        Vehicle Details: {selectedVehicle.vehicleNumber || selectedVehicle.number || 'N/A'}
+      </h3>
       <div className="space-y-2">
         <div className="grid grid-cols-2 gap-2 text-sm">
-          <div className="font-semibold">Make:</div>
-          <div>{selectedVehicle.make}</div>
-          <div className="font-semibold">Model:</div>
-          <div>{selectedVehicle.model}</div>
+          <div className="font-semibold">Vehicle:</div>
+          <div>
+            {selectedVehicle.name ||
+              `${selectedVehicle.make || ''} ${selectedVehicle.model || ''}`.trim() ||
+              'Unknown'}
+          </div>
+          <div className="font-semibold">Year:</div>
+          <div>{selectedVehicle.year || 'N/A'}</div>
           <div className="font-semibold">Status:</div>
           <div>
             <Badge variant={selectedVehicle.status === 'active' ? 'default' : 'secondary'}>
