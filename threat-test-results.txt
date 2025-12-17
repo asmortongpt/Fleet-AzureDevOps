@@ -1,0 +1,5 @@
+
+> fleet-management-system@1.0.1 test
+> playwright test services/threats/__tests__/threats.test.ts --run
+
+error: unknown option '--run'
