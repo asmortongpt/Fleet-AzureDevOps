@@ -29,8 +29,6 @@ import {
   TableLoadingSkeleton,
   DetailPanelLoadingSkeleton,
   ChartLoadingSkeleton,
-  FormLoadingSkeleton,
-  GridLoadingSkeleton,
 } from "@/components/ui/LoadingSkeleton";
 
 import {
@@ -42,7 +40,6 @@ import {
 import {
   HeatmapGradient,
   ZoneOverlay,
-  MetricGradient,
   PerformanceGradient,
   AnimatedBackground,
 } from "@/components/ui/GradientOverlay";
@@ -79,7 +76,7 @@ export function AnimationShowcase() {
   };
 
   // Demo steps for step progress
-  const [steps, setSteps] = useState([
+  const [steps] = useState([
     { id: "1", label: "Upload", status: "completed" as const },
     { id: "2", label: "Process", status: "active" as const },
     { id: "3", label: "Verify", status: "pending" as const },
