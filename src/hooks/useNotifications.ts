@@ -6,6 +6,7 @@
 import { useEffect, useState } from 'react'
 import { NotificationSettings, PushNotification } from '@/types/microsoft'
 
+import logger from '@/utils/logger';
 /**
  * SECURITY: Allowed redirect hosts for notification URLs
  * Prevents open redirect vulnerabilities (CWE-601)
@@ -42,13 +43,13 @@ function validateRedirectUrl(url: string): boolean {
     // Block dangerous schemes
     const dangerousSchemes = ['javascript:', 'data:', 'file:', 'vbscript:', 'about:']
     if (dangerousSchemes.includes(parsed.protocol)) {
-      console.warn(`[Security] Blocked redirect to dangerous scheme: ${parsed.protocol}`)
+      logger.warn(`[Security] Blocked redirect to dangerous scheme: ${parsed.protocol}`)
       return false
     }
 
     // Only allow http: and https: protocols
     if (parsed.protocol !== 'http:' && parsed.protocol !== 'https:') {
-      console.warn(`[Security] Blocked redirect to non-HTTP(S) protocol: ${parsed.protocol}`)
+      logger.warn(`[Security] Blocked redirect to non-HTTP(S) protocol: ${parsed.protocol}`)
       return false
     }
 
@@ -60,13 +61,13 @@ function validateRedirectUrl(url: string): boolean {
     })
 
     if (!isWhitelisted) {
-      console.warn(`[Security] Blocked redirect to non-whitelisted domain: ${hostname}`)
+      logger.warn(`[Security] Blocked redirect to non-whitelisted domain: ${hostname}`)
       return false
     }
 
     return true
   } catch {
-    console.warn(`[Security] Invalid redirect URL format: ${url}`)
+    logger.warn(`[Security] Invalid redirect URL format: ${url}`)
     return false
   }
 }
@@ -145,7 +146,7 @@ export function useNotifications() {
         if (validateRedirectUrl(targetUrl)) {
           window.location.href = targetUrl
         } else {
-          console.warn('[Security] Blocked potentially malicious redirect from notification')
+          logger.warn('[Security] Blocked potentially malicious redirect from notification')
         }
       }
     }

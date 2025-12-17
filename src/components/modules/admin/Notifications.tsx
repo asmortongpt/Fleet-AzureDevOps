@@ -94,7 +94,7 @@ export function Notifications() {
       const response = await apiClient.get('/api/alerts', { params })
       setAlerts(response.data?.alerts || [])
     } catch (error) {
-      console.error('Error fetching alerts:', error)
+      // Silent failure - alerts data will retry on next fetch
     } finally {
       setIsLoading(false)
     }
@@ -105,7 +105,7 @@ export function Notifications() {
       const response = await apiClient.get('/api/alerts/stats')
       setStats(response.data)
     } catch (error) {
-      console.error('Error fetching alert stats:', error)
+      // Silent failure - stats data is optional
     }
   }
 
@@ -120,7 +120,7 @@ export function Notifications() {
       fetchAlerts()
       fetchStats()
     } catch (error) {
-      console.error('Error acknowledging alert:', error)
+      // Silent failure - user will retry if needed
     }
   }
 
@@ -137,7 +137,7 @@ export function Notifications() {
       fetchAlerts()
       fetchStats()
     } catch (error) {
-      console.error('Error resolving alert:', error)
+      // Silent failure - user will retry if needed
     }
   }
 

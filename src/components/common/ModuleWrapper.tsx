@@ -21,6 +21,7 @@ import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import { Badge } from '@/components/ui/badge'
 import { cn } from '@/lib/utils'
 
+import logger from '@/utils/logger';
 // ============================================================================
 // ERROR BOUNDARY CLASS COMPONENT
 // ============================================================================
@@ -63,7 +64,7 @@ export class ModuleErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoun
     this.setState({ errorInfo })
 
     // Report to error tracking
-    console.error(`[ModuleError] ${this.props.moduleName}:`, error, errorInfo)
+    logger.error(`[ModuleError] ${this.props.moduleName}:`, error, errorInfo)
 
     // Call custom error handler
     this.props.onError?.(error, errorInfo)

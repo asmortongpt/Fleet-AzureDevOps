@@ -28,6 +28,7 @@ import {
 import { useAuth } from '../../hooks/useAuth';
 import { usePermissions } from '../../hooks/usePermissions';
 
+import logger from '@/utils/logger';
 // Types
 interface VehicleAssignment {
   id: string;
@@ -161,7 +162,7 @@ const VehicleAssignmentManagement: React.FC = () => {
       const data = await response.json();
       setOnCallPeriods(data || []);
     } catch (err: any) {
-      console.error('Error fetching on-call periods:', err);
+      logger.error('Error fetching on-call periods:', err);
     }
   };
 
@@ -175,7 +176,7 @@ const VehicleAssignmentManagement: React.FC = () => {
       const data = await response.json();
       setComplianceExceptions(data.exceptions || []);
     } catch (err: any) {
-      console.error('Error fetching compliance exceptions:', err);
+      logger.error('Error fetching compliance exceptions:', err);
     }
   };
 
@@ -194,7 +195,7 @@ const VehicleAssignmentManagement: React.FC = () => {
         fetchAssignments();
       }
     } catch (err: any) {
-      console.error('Error approving assignment:', err);
+      logger.error('Error approving assignment:', err);
     }
   };
 
@@ -213,7 +214,7 @@ const VehicleAssignmentManagement: React.FC = () => {
         fetchAssignments();
       }
     } catch (err: any) {
-      console.error('Error denying assignment:', err);
+      logger.error('Error denying assignment:', err);
     }
   };
 

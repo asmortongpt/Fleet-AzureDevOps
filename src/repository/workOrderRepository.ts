@@ -1,5 +1,6 @@
 import { Pool } from 'pg';
 
+import logger from '@/utils/logger';
 /**
  * WorkOrderRepository handles database operations related to work orders.
  */
@@ -35,7 +36,7 @@ export class WorkOrderRepository {
       const result = await this.pool.query(query, [tenantId]);
       return result.rows;
     } catch (error) {
-      console.error('Error fetching work orders with details:', error);
+      logger.error('Error fetching work orders with details:', error);
       throw new Error('Database query failed');
     }
   }

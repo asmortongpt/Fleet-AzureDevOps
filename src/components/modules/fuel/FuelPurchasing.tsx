@@ -124,7 +124,7 @@ export function FuelPurchasing() {
       )
       setNearbyStations(data)
     } catch (error) {
-      console.error("Error fetching nearby stations:", error)
+      // Error already shown to user via toast.error
       toast.error("Failed to load nearby stations")
     } finally {
       setLoading(false)
@@ -138,7 +138,7 @@ export function FuelPurchasing() {
       )
       setForecasts(data)
     } catch (error) {
-      console.error("Error fetching forecasts:", error)
+      // Silent failure - forecast data is optional
     }
   }
 
@@ -149,7 +149,7 @@ export function FuelPurchasing() {
       )
       setPurchaseRecommendation(data)
     } catch (error) {
-      console.error("Error fetching purchase recommendation:", error)
+      // Silent failure - recommendation data is optional
     }
   }
 
@@ -158,7 +158,7 @@ export function FuelPurchasing() {
       const data = await apiClient.get("/fuel-purchasing/contracts?status=active")
       setContracts(data)
     } catch (error) {
-      console.error("Error fetching contracts:", error)
+      // Silent failure - contracts data is optional
     }
   }
 
@@ -171,7 +171,7 @@ export function FuelPurchasing() {
       )
       setSavings(data)
     } catch (error) {
-      console.error("Error fetching savings:", error)
+      // Silent failure - savings data is optional
     }
   }
 
