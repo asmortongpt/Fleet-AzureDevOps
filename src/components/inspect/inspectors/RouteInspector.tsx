@@ -14,6 +14,7 @@ import { Badge } from '@/components/ui/badge';
 import { apiClient } from '@/lib/api';
 import { Loader2, AlertCircle, MapPin, Navigation, TrendingUp } from 'lucide-react';
 
+import logger from '@/utils/logger';
 interface RouteInspectorProps {
   id: string;
   initialTab?: string;
@@ -67,7 +68,7 @@ export const RouteInspector: React.FC<RouteInspectorProps> = ({ id, initialTab =
         setRoute(data);
       } catch (err: any) {
         setError(err.message || 'Failed to load route data');
-        console.error('Error fetching route:', err);
+        logger.error('Error fetching route:', err);
       } finally {
         setLoading(false);
       }

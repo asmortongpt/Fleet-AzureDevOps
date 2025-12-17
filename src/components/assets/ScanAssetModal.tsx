@@ -6,6 +6,7 @@ import { useFleetLocalContext } from '../../context/FleetLocalContext';
 import { Helmet } from 'react-helmet';
 import { toast } from 'react-toastify';
 
+import logger from '@/utils/logger';
 interface ScanAssetModalProps {
   tenantId: string;
   onClose: () => void;
@@ -25,9 +26,9 @@ const ScanAssetModal: React.FC<ScanAssetModalProps> = ({ tenantId, onClose }) =>
       });
       setAssetDetails(response.data);
       // Audit logging
-      console.log(`Asset scanned: ${code} by tenant: ${tenantId}`);
+      logger.debug(`Asset scanned: ${code} by tenant: ${tenantId}`);
     } catch (error) {
-      console.error('Error fetching asset details:', error);
+      logger.error('Error fetching asset details:', error);
       toast.error('Failed to fetch asset details.');
       // Add to offline queue
       addToOfflineQueue({ type: 'SCAN', code, tenantId });
@@ -38,16 +39,16 @@ const ScanAssetModal: React.FC<ScanAssetModalProps> = ({ tenantId, onClose }) =>
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
         (position) => setLocation(position),
-        (error) => console.error('Error capturing location:', error),
+        (error) => logger.error('Error capturing location:', error),
         { enableHighAccuracy: true }
       );
     } else {
-      console.error('Geolocation is not supported by this browser.');
+      logger.error('Geolocation is not supported by this browser.');
     }
   }, []);
 
   const handleError = (error: Error) => {
-    console.error('Camera error:', error);
+    logger.error('Camera error:', error);
     toast.error('Camera error occurred.');
   };
 
@@ -69,7 +70,7 @@ const ScanAssetModal: React.FC<ScanAssetModalProps> = ({ tenantId, onClose }) =>
               handleScan(result.getText());
             }
             if (err) {
-              console.error('Error decoding barcode:', err);
+              logger.error('Error decoding barcode:', err);
             }
           });
         }}

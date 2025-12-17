@@ -25,6 +25,7 @@ import {
 } from 'lucide-react';
 import { useAuth } from '../../hooks/useAuth';
 
+import logger from '@/utils/logger';
 interface Assignment {
   id: string;
   vehicle_id: string;
@@ -110,7 +111,7 @@ const MobileEmployeeDashboard: React.FC = () => {
         }));
       }
     } catch (error) {
-      console.error('Error fetching dashboard:', error);
+      logger.error('Error fetching dashboard:', error);
       // Load from cache if offline
       const cached = localStorage.getItem('mobile_dashboard_cache');
       if (cached) {
@@ -137,7 +138,7 @@ const MobileEmployeeDashboard: React.FC = () => {
         alert('On-call period acknowledged successfully');
       }
     } catch (error) {
-      console.error('Error acknowledging on-call:', error);
+      logger.error('Error acknowledging on-call:', error);
       alert('Failed to acknowledge on-call period');
     }
   };
@@ -184,7 +185,7 @@ const MobileEmployeeDashboard: React.FC = () => {
         });
       }
     } catch (error) {
-      console.error('Error submitting callback trip:', error);
+      logger.error('Error submitting callback trip:', error);
       alert('Failed to log callback trip');
     }
   };

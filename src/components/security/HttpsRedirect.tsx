@@ -6,6 +6,7 @@
 
 import { useEffect } from 'react';
 
+import logger from '@/utils/logger';
 /**
  * Component that enforces HTTPS in production
  */
@@ -31,7 +32,7 @@ function enforceHttps(): void {
   ) {
     const httpsUrl = window.location.href.replace('http://', 'https://');
 
-    console.info('Redirecting to HTTPS:', httpsUrl);
+    logger.info('Redirecting to HTTPS:', httpsUrl);
     window.location.replace(httpsUrl);
   }
 }
