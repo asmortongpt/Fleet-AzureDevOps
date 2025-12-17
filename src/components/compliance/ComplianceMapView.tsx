@@ -1,16 +1,3 @@
-import React, { useState, useMemo, useCallback } from 'react'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
-import { Button } from '@/components/ui/button'
-import { ScrollArea } from '@/components/ui/scroll-area'
-import { Separator } from '@/components/ui/separator'
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select'
 import {
   Shield,
   AlertTriangle,
@@ -23,10 +10,24 @@ import {
   Filter,
   Layers
 } from 'lucide-react'
+import React, { useState, useMemo, useCallback } from 'react'
+
 import { UnifiedFleetMap } from '@/components/Maps/UnifiedFleetMap'
+import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { ScrollArea } from '@/components/ui/scroll-area'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
+import { Separator } from '@/components/ui/separator'
 import { useVehicles, useFacilities } from '@/hooks/use-api'
-import { cn } from '@/lib/utils'
 import type { Vehicle, GISFacility } from '@/lib/types'
+import { cn } from '@/lib/utils'
 
 /**
  * Compliance Map View - Map-First Architecture

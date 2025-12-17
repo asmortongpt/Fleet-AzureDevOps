@@ -1,16 +1,3 @@
-import React, { useState, useMemo } from 'react'
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
-import { Button } from '@/components/ui/button'
-import { ScrollArea } from '@/components/ui/scroll-area'
-import { Progress } from '@/components/ui/progress'
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select'
 import {
   Shield,
   AlertTriangle,
@@ -26,6 +13,20 @@ import {
   AlertCircle,
   XCircle
 } from 'lucide-react'
+import React, { useState, useMemo } from 'react'
+
+import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
+import { Progress } from '@/components/ui/progress'
+import { ScrollArea } from '@/components/ui/scroll-area'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
 import { cn } from '@/lib/utils'
 
 /**
@@ -235,16 +236,6 @@ const ComplianceScorecard: React.FC = () => {
     if (score >= 85) return 'text-blue-600'
     if (score >= 75) return 'text-yellow-600'
     return 'text-red-600'
-  }
-
-  const getStatusColor = (status: string) => {
-    switch(status) {
-      case 'excellent': return 'bg-green-500'
-      case 'good': return 'bg-blue-500'
-      case 'warning': return 'bg-yellow-500'
-      case 'critical': return 'bg-red-500'
-      default: return 'bg-gray-500'
-    }
   }
 
   return (
