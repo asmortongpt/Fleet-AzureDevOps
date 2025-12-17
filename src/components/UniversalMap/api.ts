@@ -3,6 +3,7 @@ import { getActiveProvider, STORAGE_KEY } from "./utils/provider"
 import { safeSetLocalStorage } from "./utils/storage"
 import { hasGoogleMapsApiKey, isValidProvider } from "./utils/validation"
 
+import logger from '@/utils/logger';
 /**
  * Get the current active map provider
  * @returns Current map provider
@@ -19,13 +20,13 @@ export function getMapProvider(): MapProvider {
  */
 export function setMapProvider(provider: MapProvider, reloadPage = true): boolean {
   if (!isValidProvider(provider)) {
-    console.error(`Invalid map provider: ${provider}`)
+    logger.error(`Invalid map provider: ${provider}`)
     return false
   }
 
   // Validate Google Maps availability
   if (provider === "google" && !hasGoogleMapsApiKey()) {
-    console.error("Cannot set Google Maps provider: API key not available")
+    logger.error("Cannot set Google Maps provider: API key not available")
     return false
   }
 

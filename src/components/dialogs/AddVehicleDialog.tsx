@@ -8,6 +8,7 @@ import { Checkbox } from "@/components/ui/checkbox"
 import { Plus } from "@phosphor-icons/react"
 import { Vehicle } from "@/lib/types"
 import { toast } from "sonner"
+import logger from '@/utils/logger';
 import {
   AssetCategory,
   AssetType,
@@ -165,7 +166,7 @@ export function AddVehicleDialog({ onAdd }: AddVehicleDialogProps) {
       }
     }
 
-    console.log('Submitting new vehicle with asset data:', newVehicle)
+    logger.debug('Submitting new vehicle with asset data:', newVehicle)
 
     onAdd(newVehicle)
     toast.success(`Vehicle ${formData.number} added successfully`)

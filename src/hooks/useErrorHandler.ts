@@ -10,6 +10,7 @@
 
 import { useCallback, useState, useRef } from 'react'
 import { telemetryService } from '@/lib/telemetry'
+import logger from '@/utils/logger';
 import {
   categorizeError,
   determineErrorSeverity,
@@ -130,7 +131,7 @@ export function useErrorHandler(config: RetryConfig = {}) {
 
       // Log to console in development
       if (import.meta.env.DEV) {
-        console.error('Error handled:', {
+        logger.error('Error handled:', {
           error,
           category,
           severity,

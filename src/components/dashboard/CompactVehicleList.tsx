@@ -108,6 +108,8 @@ export function CompactVehicleList({
                 transition={{ duration: 0.2, delay: Math.min(index * 0.03, 0.3) }}
                 whileHover={{ scale: 1.01 }}
                 whileTap={{ scale: 0.99 }}
+                data-testid="vehicle-card"
+                data-vehicle-id={vehicle.id}
               >
                 <div className={cn("compact-list-item-icon", getStatusColor(vehicle.status))}>
                   <Car className="w-3.5 h-3.5" weight="fill" />
@@ -121,14 +123,16 @@ export function CompactVehicleList({
 
                 <div className="compact-list-item-content">
                   <div className="flex items-center gap-1.5">
-                    <div className="compact-list-item-title">{vehicle.number}</div>
+                    <div className="compact-list-item-title" data-testid="vehicle-make-model">
+                      {vehicle.number}
+                    </div>
                     {wasRecentlyUpdated && (
                       <span className="inline-flex px-1.5 py-0.5 text-[8px] font-semibold text-blue-700 bg-blue-100 dark:bg-blue-950 dark:text-blue-400 rounded border border-blue-200 dark:border-blue-900">
                         LIVE
                       </span>
                     )}
                   </div>
-                  <div className="compact-list-item-subtitle">
+                  <div className="compact-list-item-subtitle" data-testid="vehicle-plate">
                     {vehicle.year} {vehicle.make} {vehicle.model}
                   </div>
                 </div>
@@ -139,18 +143,27 @@ export function CompactVehicleList({
                       <div className="text-[10px] font-medium text-foreground">
                         {vehicle.region}
                       </div>
-                      <div className="text-[9px] text-muted-foreground">
+                      <div className="text-[9px] text-muted-foreground" data-testid="vehicle-driver">
                         {vehicle.department}
                       </div>
                     </div>
-                    <div className={cn("flex items-center gap-0.5", getBatteryColor(vehicle.fuelLevel))}>
+                    <div className={cn("flex items-center gap-0.5", getBatteryColor(vehicle.fuelLevel))} data-testid="vehicle-mileage">
                       <BatteryMedium className="w-3 h-3" />
                       <span className="text-[10px] font-semibold">{vehicle.fuelLevel}%</span>
                     </div>
-                    <div className={cn("status-badge", getStatusColor(vehicle.status))}>
+                    <div className={cn("status-badge", getStatusColor(vehicle.status))} data-testid="vehicle-status">
                       {vehicle.status}
                     </div>
-                    <ArrowRight className="w-3 h-3 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
+                    <button
+                      data-testid="view-details-btn"
+                      className="p-0 border-0 bg-transparent cursor-pointer"
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        onVehicleClick?.(vehicle)
+                      }}
+                    >
+                      <ArrowRight className="w-3 h-3 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
+                    </button>
                   </div>
                 </div>
               </motion.div>

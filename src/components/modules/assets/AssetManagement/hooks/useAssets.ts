@@ -2,6 +2,7 @@ import { useState, useEffect } from "react"
 import { toast } from "sonner"
 import { apiClient } from "@/lib/api-client"
 
+import logger from '@/utils/logger';
 export interface Asset {
   id: string
   asset_tag: string
@@ -42,7 +43,7 @@ export function useAssets() {
         setAssets(response.data)
       }
     } catch (error) {
-      console.error("Failed to fetch assets:", error)
+      logger.error("Failed to fetch assets:", error)
       toast.error("Failed to load assets")
     } finally {
       setLoading(false)
@@ -58,7 +59,7 @@ export function useAssets() {
         return response.data
       }
     } catch (error) {
-      console.error("Failed to add asset:", error)
+      logger.error("Failed to add asset:", error)
       toast.error("Failed to add asset")
       throw error
     }
@@ -73,7 +74,7 @@ export function useAssets() {
         return response.data
       }
     } catch (error) {
-      console.error("Failed to update asset:", error)
+      logger.error("Failed to update asset:", error)
       toast.error("Failed to update asset")
       throw error
     }
@@ -85,7 +86,7 @@ export function useAssets() {
       setAssets((prev) => prev.filter((a) => a.id !== id))
       toast.success("Asset deleted successfully")
     } catch (error) {
-      console.error("Failed to delete asset:", error)
+      logger.error("Failed to delete asset:", error)
       toast.error("Failed to delete asset")
       throw error
     }

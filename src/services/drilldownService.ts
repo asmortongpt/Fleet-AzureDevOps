@@ -8,10 +8,10 @@ interface DrilldownConfig {
 }
 
 const drilldownConfig: DrilldownConfig = {
-  vehicle: (id, name) => console.log(`Navigating to vehicle detail: ${id}, ${name}`),
-  driver: (id, name) => console.log(`Navigating to driver detail: ${id}, ${name}`),
-  maintenance: (id, name) => console.log(`Navigating to maintenance detail: ${id}, ${name}`),
-  facility: (id, name) => console.log(`Navigating to facility detail: ${id}, ${name}`)
+  vehicle: (id, name) => logger.debug(`Navigating to vehicle detail: ${id}, ${name}`),
+  driver: (id, name) => logger.debug(`Navigating to driver detail: ${id}, ${name}`),
+  maintenance: (id, name) => logger.debug(`Navigating to maintenance detail: ${id}, ${name}`),
+  facility: (id, name) => logger.debug(`Navigating to facility detail: ${id}, ${name}`)
 };
 
 /**
@@ -25,6 +25,6 @@ export function openEntityDetail(entityType: string, id: string, name: string): 
   if (action) {
     action(id, name);
   } else {
-    console.error(`No drilldown configuration found for entity type: ${entityType}`);
+    logger.error(`No drilldown configuration found for entity type: ${entityType}`);
   }
 }

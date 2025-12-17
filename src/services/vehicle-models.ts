@@ -5,6 +5,7 @@
 
 import axios, { AxiosInstance } from 'axios';
 
+import logger from '@/utils/logger';
 export interface Vehicle3DModel {
   id: string;
   name: string;
@@ -165,7 +166,7 @@ export class VehicleModelsService {
       onUploadProgress: (progressEvent) => {
         if (progressEvent.total) {
           const percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total);
-          console.log(`Upload progress: ${percentCompleted}%`);
+          logger.debug(`Upload progress: ${percentCompleted}%`);
         }
       },
     });

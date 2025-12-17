@@ -11,6 +11,7 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
 import { AlertTriangle, RefreshCw, Home, Bug, ChevronDown, ChevronUp } from 'lucide-react'
 
+import logger from '@/utils/logger';
 interface Props {
   children: ReactNode
   fallback?: ReactNode
@@ -61,7 +62,7 @@ export class SentryErrorBoundary extends Component<Props, State> {
 
     // Log to console in development
     if (import.meta.env.DEV) {
-      console.error('Error caught by boundary:', error, errorInfo)
+      logger.error('Error caught by boundary:', error, errorInfo)
     }
 
     // Capture exception with Sentry
@@ -90,7 +91,7 @@ export class SentryErrorBoundary extends Component<Props, State> {
 
     // Auto-reset after multiple errors (potential infinite loop)
     if (this.state.errorCount >= 3) {
-      console.error('Multiple errors detected, auto-resetting in 5 seconds...')
+      logger.error('Multiple errors detected, auto-resetting in 5 seconds...')
       this.resetTimeoutId = setTimeout(() => {
         this.handleReset()
       }, 5000)
