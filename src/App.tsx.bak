@@ -49,6 +49,7 @@ const DataWorkbench = lazy(() => import("@/components/modules/analytics/DataWork
 const EndpointMonitor = lazy(() => import("@/components/modules/analytics/EndpointMonitor").then(m => ({ default: m.EndpointMonitor })))
 const CostAnalysisCenter = lazy(() => import("@/components/modules/analytics/CostAnalysisCenter").then(m => ({ default: m.CostAnalysisCenter })))
 const CustomReportBuilder = lazy(() => import("@/components/modules/analytics/CustomReportBuilder").then(m => ({ default: m.CustomReportBuilder })))
+const AnalyticsDashboard = lazy(() => import("@/components/analytics/AnalyticsDashboard").then(m => ({ default: m.AnalyticsDashboard })))
 
 // ADMIN MODULES
 const AdminDashboard = lazy(() => import("@/pages/AdminDashboard"))
@@ -107,6 +108,10 @@ const IncidentManagement = lazy(() => import("@/components/modules/compliance/In
 const DocumentManagement = lazy(() => import("@/components/modules/compliance/DocumentManagement").then(m => ({ default: m.DocumentManagement })))
 const DocumentQA = lazy(() => import("@/components/modules/compliance/DocumentQA").then(m => ({ default: m.DocumentQA })))
 
+// COMPLIANCE - PHASE 2 MAP-FIRST MODULES
+const ComplianceMapView = lazy(() => import("@/components/compliance/ComplianceMapView").then(m => ({ default: m.ComplianceMapView })))
+const ComplianceDashboard = lazy(() => import("@/components/compliance/ComplianceDashboard").then(m => ({ default: m.ComplianceDashboard })))
+
 // CHARGING MODULES
 const EVChargingManagement = lazy(() => import("@/components/modules/charging/EVChargingManagement").then(m => ({ default: m.EVChargingManagement })))
 
@@ -123,6 +128,7 @@ const EquipmentDashboard = lazy(() => import("@/components/modules/assets/Equipm
 // DRIVER MODULES
 const DriverPerformance = lazy(() => import("@/components/modules/drivers/DriverPerformance").then(m => ({ default: m.DriverPerformance })))
 const DriverScorecard = lazy(() => import("@/components/modules/drivers/DriverScorecard").then(m => ({ default: m.DriverScorecard })))
+const DriversDashboard = lazy(() => import("@/components/drivers/DriversDashboard").then(m => ({ default: m.DriversDashboard })))
 
 // WORKSPACE MODULES (Phase 1 UX Consolidation)
 const OperationsWorkspace = lazy(() => import("@/components/workspaces/OperationsWorkspace").then(m => ({ default: m.OperationsWorkspace })))
@@ -131,6 +137,13 @@ const MaintenanceWorkspace = lazy(() => import("@/components/workspaces/Maintena
 const AnalyticsWorkspace = lazy(() => import("@/components/workspaces/AnalyticsWorkspace").then(m => ({ default: m.AnalyticsWorkspace })))
 const ComplianceWorkspace = lazy(() => import("@/components/workspaces/ComplianceWorkspace").then(m => ({ default: m.ComplianceWorkspace })))
 const DriversWorkspace = lazy(() => import("@/components/workspaces/DriversWorkspace").then(m => ({ default: m.DriversWorkspace })))
+
+// HUB MODULES (Phase 2-3 Map-First UX Transformation)
+const ReportsHub = lazy(() => import("@/components/hubs/reports/ReportsHub").then(m => ({ default: m.ReportsHub })))
+const OperationsHub = lazy(() => import("@/components/hubs/operations/OperationsHub").then(m => ({ default: m.OperationsHub })))
+const MaintenanceHub = lazy(() => import("@/components/hubs/maintenance/MaintenanceHub").then(m => ({ default: m.MaintenanceHub })))
+const ProcurementHub = lazy(() => import("@/components/hubs/procurement/ProcurementHub").then(m => ({ default: m.ProcurementHub })))
+const CommunicationHub = lazy(() => import("@/components/hubs/communication/CommunicationHub").then(m => ({ default: m.CommunicationHub })))
 
 // PAGES
 const SettingsPage = lazy(() => import("@/pages/SettingsPage"))
@@ -215,6 +228,14 @@ function App() {
         return <ComplianceWorkspace data={fleetData} />
       case "drivers-workspace":
         return <DriversWorkspace data={fleetData} />
+      case "reports-hub":
+        return <ReportsHub data={fleetData} />
+      case "operations-hub":
+      case "procurement-hub":
+        return <ProcurementHub />
+      case "communication-hub":
+        return <CommunicationHub />
+        return <OperationsHub />
       case "dispatch-console":
         return <DispatchConsole />
       case "people":
@@ -316,12 +337,18 @@ function App() {
         return <DriverPerformance data={fleetData} />
       case "driver-scorecard":
         return <DriverScorecard />
+      case "drivers":
+        return <DriversDashboard data={fleetData} />
       case "fleet-optimizer":
         return <FleetOptimizer />
       case "cost-analysis":
         return <CostAnalysisCenter />
+      case "maintenance-hub":
+        return <MaintenanceHub />
       case "custom-reports":
         return <CustomReportBuilder />
+      case "analytics":
+        return <AnalyticsDashboard />
       case "maintenance-request":
         return <MaintenanceRequest data={fleetData} />
       case "settings":
@@ -339,8 +366,7 @@ function App() {
       management: [],
       procurement: [],
       communication: [],
-      tools: [],
-      hubs: []
+      tools: []
     }
     
     navigationItems.forEach(item => {
