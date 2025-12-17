@@ -88,13 +88,13 @@ const ExecutiveDashboard = ({ vehicles, workOrders, drivers }) => {
 
   return (
     <ScrollArea className="h-full">
-      <div className="p-6 space-y-6">
+      <div className="p-3 sm:p-4 md:p-6 space-y-4 sm:space-y-6">
         <div>
-          <h2 className="text-2xl font-bold">Executive Dashboard</h2>
-          <p className="text-muted-foreground">Key performance indicators at a glance</p>
+          <h2 className="text-xl sm:text-2xl font-bold">Executive Dashboard</h2>
+          <p className="text-xs sm:text-sm text-muted-foreground">Key performance indicators at a glance</p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4" data-testid="analytics-kpi-grid">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4" data-testid="analytics-kpi-grid">
           {kpis.map((kpi, index) => (
             <Card key={index} data-testid={`analytics-kpi-${index}`}>
               <CardContent className="p-6">
@@ -378,36 +378,51 @@ export function AnalyticsWorkspace({ data }: { data?: any }) {
 
   return (
     <div className="h-screen flex flex-col" data-testid="analytics-workspace">
-      {/* Header */}
-      <div className="border-b px-6 py-4">
+      {/* Header - Responsive */}
+      <div className="border-b px-3 py-3 sm:px-4 sm:py-4 md:px-6">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-2xl font-bold">Analytics Workspace</h1>
-            <p className="text-sm text-muted-foreground">
+            <h1 className="text-lg sm:text-xl md:text-2xl font-bold">Analytics Workspace</h1>
+            <p className="text-xs sm:text-sm text-muted-foreground hidden sm:block">
               Comprehensive fleet analytics and reporting
             </p>
           </div>
-          <Button variant="outline" size="icon">
+          <Button variant="outline" size="icon" className="h-8 w-8 sm:h-10 sm:w-10">
             <Settings className="h-4 w-4" />
           </Button>
         </div>
       </div>
 
-      {/* View Tabs */}
-      <div className="border-b px-4 py-2">
+      {/* View Tabs - Responsive */}
+      <div className="border-b px-2 py-2 sm:px-4 overflow-x-auto">
         <Tabs value={activeView} onValueChange={setActiveView}>
-          <TabsList data-testid="analytics-view-tabs">
-            <TabsTrigger value="executive" data-testid="analytics-tab-executive">
-              <BarChart3 className="h-4 w-4 mr-2" />
-              Executive Dashboard
+          <TabsList data-testid="analytics-view-tabs" className="w-full sm:w-auto">
+            <TabsTrigger
+              value="executive"
+              data-testid="analytics-tab-executive"
+              className="text-xs sm:text-sm px-2 sm:px-3"
+            >
+              <BarChart3 className="h-3 w-3 sm:h-4 sm:w-4 sm:mr-2" />
+              <span className="hidden sm:inline">Executive Dashboard</span>
+              <span className="sm:hidden ml-1">Executive</span>
             </TabsTrigger>
-            <TabsTrigger value="analysis" data-testid="analytics-tab-analysis">
-              <LineChart className="h-4 w-4 mr-2" />
-              Data Analysis
+            <TabsTrigger
+              value="analysis"
+              data-testid="analytics-tab-analysis"
+              className="text-xs sm:text-sm px-2 sm:px-3"
+            >
+              <LineChart className="h-3 w-3 sm:h-4 sm:w-4 sm:mr-2" />
+              <span className="hidden sm:inline">Data Analysis</span>
+              <span className="sm:hidden ml-1">Analysis</span>
             </TabsTrigger>
-            <TabsTrigger value="reports" data-testid="analytics-tab-reports">
-              <FileText className="h-4 w-4 mr-2" />
-              Report Builder
+            <TabsTrigger
+              value="reports"
+              data-testid="analytics-tab-reports"
+              className="text-xs sm:text-sm px-2 sm:px-3"
+            >
+              <FileText className="h-3 w-3 sm:h-4 sm:w-4 sm:mr-2" />
+              <span className="hidden sm:inline">Report Builder</span>
+              <span className="sm:hidden ml-1">Reports</span>
             </TabsTrigger>
           </TabsList>
         </Tabs>
