@@ -27,7 +27,7 @@ interface EmulatorTelemetry {
 }
 
 const EMULATOR_API_BASE = 'http://localhost:3002/api/emulator'
-const EMULATOR_WS = 'ws://localhost:3003'
+const EMULATOR_WS = 'ws://localhost:3001'
 
 export function useEmulatorEnhancement() {
   const [status, setStatus] = useState<EmulatorStatus>({
