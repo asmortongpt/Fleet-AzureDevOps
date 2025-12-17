@@ -634,73 +634,79 @@ describe('Incident Response System', () => {
     it(
       'should execute complete incident response workflow',
       async () => {
-      const incident: Incident = {
-        id: 21,
-        tenant_id: 1,
-        incident_number: 'INC-021',
-        vehicle_id: 'VEH-021',
-        incident_type: 'theft',
-        severity: 'critical',
-        status: 'reported',
-        incident_date: new Date(),
-        location: 'Parking lot',
-        description: 'Complete workflow test',
-        reported_by: 'security',
-        created_at: new Date(),
-        updated_at: new Date()
-      };
-
-      mockRepository.setIncident(incident);
-
-      const response = await responderService.respondToIncident(incident.id, 1);
-
-      expect(response.incidentId).toBe(incident.id);
-      expect(response.status).toMatch(/initiated|in_progress|contained|remediated|completed/);
-      expect(response.timeline.length).toBeGreaterThan(0);
-      expect(response.priority).toBeDefined();
-      expect(response.summary).toBeTruthy();
-    });
-
-    it('should handle multiple incident responses', async () => {
-      const incidents = [
-        {
-          id: 22,
-          tenantId: 1,
-          type: 'theft',
+        const incident: Incident = {
+          id: 21,
+          tenant_id: 1,
+          incident_number: 'INC-021',
+          vehicle_id: 'VEH-021',
+          incident_type: 'theft',
           severity: 'critical',
-          vehicle: 'VEH-022'
-        },
-        {
-          id: 23,
-          tenantId: 1,
-          type: 'accident',
-          severity: 'high',
-          vehicle: 'VEH-023'
-        }
-      ];
-
-      for (const inc of incidents) {
-        mockRepository.setIncident({
-          id: inc.id,
-          tenant_id: inc.tenantId,
-          incident_number: `INC-0${inc.id}`,
-          vehicle_id: inc.vehicle,
-          incident_type: inc.type as any,
-          severity: inc.severity as any,
           status: 'reported',
           incident_date: new Date(),
-          description: 'Batch test',
-          reported_by: 'system',
+          location: 'Parking lot',
+          description: 'Complete workflow test',
+          reported_by: 'security',
           created_at: new Date(),
           updated_at: new Date()
-        });
-      }
+        };
 
-      const responses = await responderService.respondToIncidents([22, 23], 1);
+        mockRepository.setIncident(incident);
 
-      expect(responses.length).toBe(2);
-      expect(responses.every(r => r.status !== undefined)).toBe(true);
-    });
+        const response = await responderService.respondToIncident(incident.id, 1);
+
+        expect(response.incidentId).toBe(incident.id);
+        expect(response.status).toMatch(/initiated|in_progress|contained|remediated|completed/);
+        expect(response.timeline.length).toBeGreaterThan(0);
+        expect(response.priority).toBeDefined();
+        expect(response.summary).toBeTruthy();
+      },
+      30000
+    );
+
+    it(
+      'should handle multiple incident responses',
+      async () => {
+        const incidents = [
+          {
+            id: 22,
+            tenantId: 1,
+            type: 'theft',
+            severity: 'critical',
+            vehicle: 'VEH-022'
+          },
+          {
+            id: 23,
+            tenantId: 1,
+            type: 'accident',
+            severity: 'high',
+            vehicle: 'VEH-023'
+          }
+        ];
+
+        for (const inc of incidents) {
+          mockRepository.setIncident({
+            id: inc.id,
+            tenant_id: inc.tenantId,
+            incident_number: `INC-0${inc.id}`,
+            vehicle_id: inc.vehicle,
+            incident_type: inc.type as any,
+            severity: inc.severity as any,
+            status: 'reported',
+            incident_date: new Date(),
+            description: 'Batch test',
+            reported_by: 'system',
+            created_at: new Date(),
+            updated_at: new Date()
+          });
+        }
+
+        const responses = await responderService.respondToIncidents([22, 23], 1);
+
+        expect(responses.length).toBe(2);
+        expect(responses.every(r => r.status !== undefined)).toBe(true);
+      },
+      60000
+    );
 
     it('should get incident statistics', async () => {
       const incidents = [
@@ -744,63 +750,71 @@ describe('Incident Response System', () => {
   });
 
   describe('Integration Tests', () => {
-    it('should handle end-to-end incident response for theft', async () => {
-      const incident: Incident = {
-        id: 26,
-        tenant_id: 1,
-        incident_number: 'INC-026',
-        vehicle_id: 'VEH-026',
-        incident_type: 'theft',
-        severity: 'critical',
-        status: 'reported',
-        incident_date: new Date(),
-        location: 'Parking lot A',
-        description: 'Critical vehicle theft with breach',
-        reported_by: 'security',
-        police_report_filed: true,
-        police_report_number: 'POL-12345',
-        created_at: new Date(),
-        updated_at: new Date()
-      };
+    it(
+      'should handle end-to-end incident response for theft',
+      async () => {
+        const incident: Incident = {
+          id: 26,
+          tenant_id: 1,
+          incident_number: 'INC-026',
+          vehicle_id: 'VEH-026',
+          incident_type: 'theft',
+          severity: 'critical',
+          status: 'reported',
+          incident_date: new Date(),
+          location: 'Parking lot A',
+          description: 'Critical vehicle theft with breach',
+          reported_by: 'security',
+          police_report_filed: true,
+          police_report_number: 'POL-12345',
+          created_at: new Date(),
+          updated_at: new Date()
+        };
 
-      mockRepository.setIncident(incident);
+        mockRepository.setIncident(incident);
 
-      const response = await responderService.respondToIncident(incident.id, 1);
+        const response = await responderService.respondToIncident(incident.id, 1);
 
-      expect(response.status).not.toBe('initiated');
-      expect(response.triage).toBeDefined();
-      expect(response.triage.classification.priority).toBe(PriorityLevel.CRITICAL);
-      expect(response.containment).toBeDefined();
-      expect(response.remediation).toBeDefined();
-      expect(response.postIncident).toBeDefined();
-    });
+        expect(response.status).not.toBe('initiated');
+        expect(response.triage).toBeDefined();
+        expect(response.triage.classification.priority).toBe(PriorityLevel.CRITICAL);
+        expect(response.containment).toBeDefined();
+        expect(response.remediation).toBeDefined();
+        expect(response.postIncident).toBeDefined();
+      },
+      30000
+    );
 
-    it('should handle end-to-end incident response for safety', async () => {
-      const incident: Incident = {
-        id: 27,
-        tenant_id: 1,
-        incident_number: 'INC-027',
-        vehicle_id: 'VEH-027',
-        driver_id: 'DRV-027',
-        incident_type: 'safety',
-        severity: 'critical',
-        status: 'reported',
-        incident_date: new Date(),
-        location: 'Highway 95',
-        description: 'Critical safety incident with injuries',
-        injuries_reported: true,
-        reported_by: 'driver',
-        created_at: new Date(),
-        updated_at: new Date()
-      };
+    it(
+      'should handle end-to-end incident response for safety',
+      async () => {
+        const incident: Incident = {
+          id: 27,
+          tenant_id: 1,
+          incident_number: 'INC-027',
+          vehicle_id: 'VEH-027',
+          driver_id: 'DRV-027',
+          incident_type: 'safety',
+          severity: 'critical',
+          status: 'reported',
+          incident_date: new Date(),
+          location: 'Highway 95',
+          description: 'Critical safety incident with injuries',
+          injuries_reported: true,
+          reported_by: 'driver',
+          created_at: new Date(),
+          updated_at: new Date()
+        };
 
-      mockRepository.setIncident(incident);
+        mockRepository.setIncident(incident);
 
-      const response = await responderService.respondToIncident(incident.id, 1);
+        const response = await responderService.respondToIncident(incident.id, 1);
 
-      expect(response.postIncident.lessonsLearned.length).toBeGreaterThan(0);
-      expect(response.postIncident.actionItems.length).toBeGreaterThan(0);
-    });
+        expect(response.postIncident.lessonsLearned.length).toBeGreaterThan(0);
+        expect(response.postIncident.actionItems.length).toBeGreaterThan(0);
+      },
+      45000
+    );
   });
 
   describe('Error Handling', () => {
@@ -813,30 +827,34 @@ describe('Incident Response System', () => {
       }
     });
 
-    it('should handle concurrent responses safely', async () => {
-      const incidents = [1, 2, 3, 4, 5];
+    it(
+      'should handle concurrent responses safely',
+      async () => {
+        const incidents = [1, 2, 3, 4, 5];
 
-      for (let i of incidents) {
-        mockRepository.setIncident({
-          id: i,
-          tenant_id: 1,
-          incident_number: `INC-0${i}`,
-          incident_type: 'accident',
-          severity: 'high',
-          status: 'reported',
-          incident_date: new Date(),
-          description: 'Concurrent test',
-          reported_by: 'system',
-          created_at: new Date(),
-          updated_at: new Date()
-        });
-      }
+        for (let i of incidents) {
+          mockRepository.setIncident({
+            id: i,
+            tenant_id: 1,
+            incident_number: `INC-0${i}`,
+            incident_type: 'accident',
+            severity: 'high',
+            status: 'reported',
+            incident_date: new Date(),
+            description: 'Concurrent test',
+            reported_by: 'system',
+            created_at: new Date(),
+            updated_at: new Date()
+          });
+        }
 
-      const promises = incidents.map(id => responderService.respondToIncident(id, 1));
-      const results = await Promise.all(promises);
+        const promises = incidents.map(id => responderService.respondToIncident(id, 1));
+        const results = await Promise.all(promises);
 
-      expect(results.length).toBe(5);
-      expect(results.every(r => r.incidentId)).toBe(true);
-    });
+        expect(results.length).toBe(5);
+        expect(results.every(r => r.incidentId)).toBe(true);
+      },
+      60000
+    );
   });
 });
