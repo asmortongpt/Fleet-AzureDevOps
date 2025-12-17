@@ -294,18 +294,6 @@ export const navigationItems: NavigationItem[] = [
     section: "procurement"
   },
   {
-    id: "procurement-hub",
-    label: "Procurement Hub",
-    icon: <Package className="w-5 h-5" />,
-    section: "procurement"
-  },
-  {
-    id: "communication-hub",
-    label: "Communication Hub",
-    icon: <ChatsCircle className="w-5 h-5" />,
-    section: "communication"
-  },
-  {
     id: "ai-assistant",
     label: "AI Assistant",
     icon: <Robot className="w-5 h-5" />,
@@ -490,6 +478,18 @@ export const navigationItems: NavigationItem[] = [
     id: "reports-hub",
     label: "Reports Hub",
     icon: <PresentationChart className="w-5 h-5" />,
+    section: "hubs"
+  },
+  {
+    id: "procurement-hub",
+    label: "Procurement Hub",
+    icon: <Package className="w-5 h-5" />,
+    section: "hubs"
+  },
+  {
+    id: "communication-hub",
+    label: "Communication Hub",
+    icon: <ChatsCircle className="w-5 h-5" />,
     section: "hubs"
   },
   {
