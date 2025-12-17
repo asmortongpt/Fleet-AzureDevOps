@@ -90,6 +90,24 @@ export const navigationItems: NavigationItem[] = [
     section: "main"
   },
   {
+    id: "analytics-workspace",
+    label: "Analytics Workspace",
+    icon: <ChartLine className="w-5 h-5" />,
+    section: "main"
+  },
+  {
+    id: "compliance-workspace",
+    label: "Compliance Workspace",
+    icon: <Shield className="w-5 h-5" />,
+    section: "main"
+  },
+  {
+    id: "drivers-workspace",
+    label: "Drivers Workspace",
+    icon: <Users className="w-5 h-5" />,
+    section: "main"
+  },
+  {
     id: "dispatch-console",
     label: "Dispatch Console",
     icon: <Broadcast className="w-5 h-5" />,
