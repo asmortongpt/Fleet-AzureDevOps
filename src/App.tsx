@@ -97,6 +97,9 @@ const CustomFormBuilder = lazy(() => import("@/components/modules/tools/CustomFo
 // COMMUNICATION MODULES
 const CommunicationLog = lazy(() => import("@/components/modules/communication/CommunicationLog").then(m => ({ default: m.CommunicationLog })))
 
+// MAP-FIRST UX TRANSFORMATION
+const LiveFleetDashboard = lazy(() => import("@/components/dashboard/LiveFleetDashboard").then(m => ({ default: m.LiveFleetDashboard })))
+
 // COMPLIANCE MODULES
 const OSHAForms = lazy(() => import("@/components/modules/compliance/OSHAForms").then(m => ({ default: m.OSHAForms })))
 const VideoTelematics = lazy(() => import("@/components/modules/compliance/VideoTelematics").then(m => ({ default: m.VideoTelematics })))
@@ -144,7 +147,7 @@ const LoadingSpinner = () => (
 )
 
 function App() {
-  const [activeModule, setActiveModule] = useState("dashboard")
+  const [activeModule, setActiveModule] = useState("live-fleet-dashboard")
   const [sidebarOpen, setSidebarOpen] = useState(true)
   const [reactPlugin] = useState(() => telemetryService.initialize())
 
@@ -192,6 +195,8 @@ function App() {
 
   const renderModule = () => {
     switch (activeModule) {
+      case "live-fleet-dashboard":
+        return <LiveFleetDashboard />
       case "dashboard":
         return <FleetDashboardModern />
       case "executive-dashboard":
