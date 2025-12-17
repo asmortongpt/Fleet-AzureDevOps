@@ -54,6 +54,12 @@ export interface NavigationItem {
 
 export const navigationItems: NavigationItem[] = [
   {
+    id: "live-fleet-dashboard",
+    label: "Live Fleet Dashboard",
+    icon: <MapTrifold className="w-5 h-5" />,
+    section: "main"
+  },
+  {
     id: "dashboard",
     label: "Fleet Dashboard",
     icon: <Speedometer className="w-5 h-5" />,
@@ -117,30 +123,6 @@ export const navigationItems: NavigationItem[] = [
     id: "drivers-workspace",
     label: "Drivers Workspace",
     icon: <Users className="w-5 h-5" />,
-    section: "main"
-  },
-  {
-    id: "operations-hub",
-    label: "Operations Hub",
-    icon: <MapTrifold className="w-5 h-5" />,
-    section: "main"
-  },
-  {
-    id: "maintenance-hub",
-    label: "Maintenance Hub",
-    icon: <Wrench className="w-5 h-5" />,
-    section: "main"
-  },
-  {
-    id: "safety-hub",
-    label: "Safety Hub",
-    icon: <FirstAid className="w-5 h-5" />,
-    section: "main"
-  },
-  {
-    id: "assets-hub",
-    label: "Assets Hub",
-    icon: <Barcode className="w-5 h-5" />,
     section: "main"
   },
   {
