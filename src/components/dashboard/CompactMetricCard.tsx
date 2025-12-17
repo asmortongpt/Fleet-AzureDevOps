@@ -12,6 +12,8 @@ interface CompactMetricCardProps {
   status?: "success" | "warning" | "error" | "info"
   onClick?: () => void
   className?: string
+  testId?: string
+  valueTestId?: string
 }
 
 export function CompactMetricCard({
@@ -23,7 +25,9 @@ export function CompactMetricCard({
   icon,
   status = "info",
   onClick,
-  className
+  className,
+  testId,
+  valueTestId
 }: CompactMetricCardProps) {
   const getTrendIcon = () => {
     if (trend === "up") return <TrendUp className="w-3 h-3" weight="bold" />
@@ -56,6 +60,7 @@ export function CompactMetricCard({
       transition={{ duration: 0.3, ease: "easeOut" }}
       whileHover={{ scale: 1.01 }}
       whileTap={{ scale: 0.99 }}
+      data-testid={testId}
     >
       {icon && (
         <div className={cn("metric-icon-container", getStatusStyle())}>
@@ -72,6 +77,7 @@ export function CompactMetricCard({
             animate={{ opacity: 1 }}
             transition={{ duration: 0.5, delay: 0.1 }}
             title={String(value)}
+            data-testid={valueTestId}
           >
             {value}
           </motion.div>

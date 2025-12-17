@@ -1,5 +1,6 @@
 import { createClient, RedisClientType } from 'redis';
 
+import logger from '@/utils/logger';
 /**
  * Interface for Cache Service
  */
@@ -21,7 +22,7 @@ export class CacheService implements ICacheService {
   constructor(private redisUrl: string) {
     this.client = createClient({ url: this.redisUrl });
     this.client.on('error', (err) => {
-      console.error('Redis Client Error', err);
+      logger.error('Redis Client Error', err);
       this.connected = false;
     });
   }
@@ -30,9 +31,9 @@ export class CacheService implements ICacheService {
     try {
       await this.client.connect();
       this.connected = true;
-      console.log('✅ Redis connected');
+      logger.debug('✅ Redis connected');
     } catch (error) {
-      console.warn('⚠️ Cache connection failed – running without cache');
+      logger.warn('⚠️ Cache connection failed – running without cache');
       this.connected = false;
     }
   }
@@ -50,7 +51,7 @@ export class CacheService implements ICacheService {
       const value = await this.client.get(key);
       return value ? JSON.parse(value) : null;
     } catch (error) {
-      console.error(`Error getting key ${key}:`, error);
+      logger.error(`Error getting key ${key}:`, error);
       return null;
     }
   }
@@ -60,7 +61,7 @@ export class CacheService implements ICacheService {
     try {
       await this.client.set(key, JSON.stringify(value), { EX: ttlSeconds });
     } catch (error) {
-      console.error(`Error setting key ${key}:`, error);
+      logger.error(`Error setting key ${key}:`, error);
     }
   }
 
@@ -69,7 +70,7 @@ export class CacheService implements ICacheService {
     try {
       await this.client.del(key);
     } catch (error) {
-      console.error(`Error deleting key ${key}:`, error);
+      logger.error(`Error deleting key ${key}:`, error);
     }
   }
 
@@ -81,7 +82,7 @@ export class CacheService implements ICacheService {
         await this.client.del(keys);
       }
     } catch (error) {
-      console.error(`Error deleting pattern ${pattern}:`, error);
+      logger.error(`Error deleting pattern ${pattern}:`, error);
     }
   }
 

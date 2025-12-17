@@ -54,6 +54,7 @@ import {
 import { toast } from "sonner"
 import apiClient from "@/lib/api-client"
 
+import logger from '@/utils/logger';
 interface DataSource {
   id: string
   name: string
@@ -179,7 +180,7 @@ export function CustomReportBuilder() {
       setActiveTab("my-reports")
     },
     onError: (error) => {
-      console.error("Error saving report:", error)
+      logger.error("Error saving report:", error)
       toast.error("Failed to save report")
     }
   })
@@ -193,7 +194,7 @@ export function CustomReportBuilder() {
       window.open(`/api/custom-reports/${variables.reportId}/download/${result.executionId}`, '_blank')
     },
     onError: (error) => {
-      console.error("Error executing report:", error)
+      logger.error("Error executing report:", error)
       toast.error("Failed to execute report")
     }
   })
@@ -226,7 +227,7 @@ export function CustomReportBuilder() {
     },
     onError: (error: any) => {
       const message = error.message || "Failed to schedule report"
-      console.error("Error scheduling report:", error)
+      logger.error("Error scheduling report:", error)
       toast.error(message)
     }
   })
@@ -243,7 +244,7 @@ export function CustomReportBuilder() {
       setActiveTab("builder")
     },
     onError: (error) => {
-      console.error("Error loading template:", error)
+      logger.error("Error loading template:", error)
       toast.error("Failed to load template")
     }
   })

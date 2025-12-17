@@ -25,6 +25,7 @@ import {
 import { toast } from 'sonner'
 import { format } from 'date-fns'
 
+import logger from '@/utils/logger';
 interface ChargeRecord {
   id: string
   driver_id: string
@@ -108,7 +109,7 @@ export function ChargesAndBilling() {
     queryFn: () => apiClient(`/api/personal-use-charges?${getChargesParams()}`),
     staleTime: 30000,
     onError: (error: any) => {
-      console.error('Failed to fetch charges:', error)
+      logger.error('Failed to fetch charges:', error)
       toast.error('Failed to load billing data')
     }
   })
@@ -152,7 +153,7 @@ export function ChargesAndBilling() {
       queryClient.invalidateQueries({ queryKey: ['personal-use-charges'] })
     },
     onError: (error: any) => {
-      console.error('Failed to generate invoice:', error)
+      logger.error('Failed to generate invoice:', error)
       toast.error(error.message || 'Failed to generate invoice')
     }
   })
@@ -173,7 +174,7 @@ export function ChargesAndBilling() {
       queryClient.invalidateQueries({ queryKey: ['personal-use-charges'] })
     },
     onError: (error: any) => {
-      console.error('Failed to mark as paid:', error)
+      logger.error('Failed to mark as paid:', error)
       toast.error('Failed to update charge status')
     }
   })
@@ -199,7 +200,7 @@ export function ChargesAndBilling() {
       link.click()
       link.remove()
     } catch (error: any) {
-      console.error('Failed to download invoice:', error)
+      logger.error('Failed to download invoice:', error)
       toast.error('Failed to download invoice')
     }
   }

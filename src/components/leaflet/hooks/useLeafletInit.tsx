@@ -5,6 +5,7 @@
 
 import { useEffect, useRef, useState } from "react"
 
+import logger from '@/utils/logger';
 // Leaflet library instance
 let L: typeof import("leaflet") | null = null
 let leafletCssLoaded = false
@@ -29,7 +30,7 @@ async function ensureLeafletLoaded(): Promise<typeof import("leaflet")> {
         await import("leaflet/dist/leaflet.css")
         leafletCssLoaded = true
       } catch (cssError) {
-        console.warn("⚠️  Leaflet CSS could not be loaded:", cssError)
+        logger.warn("⚠️  Leaflet CSS could not be loaded:", cssError)
       }
     }
 
@@ -45,14 +46,14 @@ async function ensureLeafletLoaded(): Promise<typeof import("leaflet")> {
         shadowUrl: shadowUrl.default,
       })
     } catch (iconError) {
-      console.warn("⚠️  Leaflet icons could not be loaded:", iconError)
+      logger.warn("⚠️  Leaflet icons could not be loaded:", iconError)
     }
 
-    console.log("✅ Leaflet loaded successfully")
+    logger.debug("✅ Leaflet loaded successfully")
     return L
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : "Unknown error"
-    console.error("❌ Failed to load Leaflet:", errorMessage)
+    logger.error("❌ Failed to load Leaflet:", errorMessage)
     throw new Error(`Leaflet initialization failed: ${errorMessage}`)
   }
 }
@@ -210,7 +211,7 @@ export function useLeafletInit({ center, zoom, mapStyle, onReady, onError }: Use
       newTileLayer.addTo(mapInstanceRef.current)
       tileLayerRef.current = newTileLayer
     } catch (err) {
-      console.error("❌ Error updating tile layer:", err)
+      logger.error("❌ Error updating tile layer:", err)
     }
   }, [mapStyle, isReady])
 

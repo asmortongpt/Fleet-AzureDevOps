@@ -37,6 +37,7 @@ import {
 import { useAuth } from '@/hooks/useAuth'
 import { useInspect } from '@/services/inspect/InspectContext'
 
+import logger from '@/utils/logger';
 interface DispatchChannel {
   id: number
   name: string
@@ -170,7 +171,7 @@ export default function DispatchConsole() {
         }
       }
     } catch (error) {
-      console.error('Failed to load channels:', error)
+      logger.error('Failed to load channels:', error)
     }
   }
 
@@ -187,7 +188,7 @@ export default function DispatchConsole() {
         setTransmissionHistory(data.history)
       }
     } catch (error) {
-      console.error('Failed to load channel history:', error)
+      logger.error('Failed to load channel history:', error)
     }
   }
 
@@ -204,7 +205,7 @@ export default function DispatchConsole() {
         setActiveListeners(data.listeners)
       }
     } catch (error) {
-      console.error('Failed to load active listeners:', error)
+      logger.error('Failed to load active listeners:', error)
     }
   }
 
@@ -221,7 +222,7 @@ export default function DispatchConsole() {
         setEmergencyAlerts(data.alerts)
       }
     } catch (error) {
-      console.error('Failed to load emergency alerts:', error)
+      logger.error('Failed to load emergency alerts:', error)
     }
   }
 
@@ -236,7 +237,7 @@ export default function DispatchConsole() {
     const ws = new WebSocket(wsUrl)
 
     ws.onopen = () => {
-      console.log('WebSocket connected')
+      logger.debug('WebSocket connected')
       setIsConnected(true)
 
       // Join channel
@@ -258,12 +259,12 @@ export default function DispatchConsole() {
     }
 
     ws.onerror = (error) => {
-      console.error('WebSocket error:', error)
+      logger.error('WebSocket error:', error)
       setIsConnected(false)
     }
 
     ws.onclose = () => {
-      console.log('WebSocket closed')
+      logger.debug('WebSocket closed')
       setIsConnected(false)
     }
 
@@ -273,18 +274,18 @@ export default function DispatchConsole() {
   const handleWebSocketMessage = (message: any) => {
     switch (message.type) {
       case 'channel_joined':
-        console.log('Joined channel:', message.channel)
+        logger.debug('Joined channel:', message.channel)
         break
 
       case 'user_joined':
-        console.log('User joined:', message.username)
+        logger.debug('User joined:', message.username)
         if (selectedChannel) {
           loadActiveListeners(selectedChannel)
         }
         break
 
       case 'user_left':
-        console.log('User left')
+        logger.debug('User left')
         if (selectedChannel) {
           loadActiveListeners(selectedChannel)
         }
@@ -318,7 +319,7 @@ export default function DispatchConsole() {
         break
 
       default:
-        console.log('Unknown message type:', message.type)
+        logger.debug('Unknown message type:', message.type)
     }
   }
 
@@ -344,7 +345,7 @@ export default function DispatchConsole() {
       source.connect(audioContextRef.current.destination)
       source.start()
     } catch (error) {
-      console.error('Error playing audio chunk:', error)
+      logger.error('Error playing audio chunk:', error)
     }
   }
 
@@ -401,7 +402,7 @@ export default function DispatchConsole() {
         }))
       }
     } catch (error) {
-      console.error('Failed to start transmission:', error)
+      logger.error('Failed to start transmission:', error)
       alert('Failed to access microphone. Please check permissions.')
     }
   }
@@ -460,7 +461,7 @@ export default function DispatchConsole() {
         loadEmergencyAlerts()
       }
     } catch (error) {
-      console.error('Failed to send emergency alert:', error)
+      logger.error('Failed to send emergency alert:', error)
     }
   }
 

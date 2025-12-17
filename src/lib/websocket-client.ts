@@ -10,6 +10,7 @@
 
 import { useEffect, useRef, useCallback, useState } from 'react'
 
+import logger from '@/utils/logger';
 /* ============================================================
    TYPES
    ============================================================ */
@@ -313,7 +314,7 @@ export class WebSocketClient {
 
   private log(...args: any[]) {
     if (this.debug) {
-      console.log('[WebSocket]', ...args)
+      logger.debug('[WebSocket]', ...args)
     }
   }
 }

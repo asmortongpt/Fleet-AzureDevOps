@@ -10,6 +10,7 @@ import { createVehiclePopup, createFacilityPopup, createCameraPopup } from "../u
 
 import type { Vehicle, GISFacility, TrafficCamera } from "@/lib/types"
 
+import logger from '@/utils/logger';
 export type MarkerType = "vehicle" | "facility" | "camera"
 
 interface UseMarkerLayersProps {
@@ -105,11 +106,11 @@ export function useMarkerLayers({
 
           vehicleLayerRef.current.addLayer(marker)
         } catch (err) {
-          console.error(`Error creating vehicle marker for ${vehicle.id}:`, err)
+          logger.error(`Error creating vehicle marker for ${vehicle.id}:`, err)
         }
       })
     } catch (err) {
-      console.error("Error updating vehicle markers:", err)
+      logger.error("Error updating vehicle markers:", err)
     }
   }, 150)
 
@@ -146,11 +147,11 @@ export function useMarkerLayers({
 
           facilityLayerRef.current.addLayer(marker)
         } catch (err) {
-          console.error(`Error creating facility marker for ${facility.id}:`, err)
+          logger.error(`Error creating facility marker for ${facility.id}:`, err)
         }
       })
     } catch (err) {
-      console.error("Error updating facility markers:", err)
+      logger.error("Error updating facility markers:", err)
     }
   }, 150)
 
@@ -187,11 +188,11 @@ export function useMarkerLayers({
 
           cameraLayerRef.current.addLayer(marker)
         } catch (err) {
-          console.error(`Error creating camera marker for ${camera.id}:`, err)
+          logger.error(`Error creating camera marker for ${camera.id}:`, err)
         }
       })
     } catch (err) {
-      console.error("Error updating camera markers:", err)
+      logger.error("Error updating camera markers:", err)
     }
   }, 150)
 
