@@ -74,6 +74,7 @@ import { arcgisService } from "@/lib/arcgis/service"
 import type { ArcGISLayerConfig } from "@/lib/arcgis/types"
 import { apiClient } from "@/lib/api-client"
 
+import logger from '@/utils/logger';
 /**
  * Layer operation state for tracking individual layer operations
  */
@@ -228,12 +229,12 @@ export function ArcGISIntegration() {
       startHealthMonitoring()
 
     } catch (error) {
-      console.error('Failed to load ArcGIS layers:', error)
+      logger.error('Failed to load ArcGIS layers:', error)
 
       // Retry logic with exponential backoff
       if (retryCount < maxRetries) {
         const delay = Math.pow(2, retryCount) * 1000 // 1s, 2s, 4s
-        console.log(`Retrying in ${delay}ms... (attempt ${retryCount + 1}/${maxRetries})`)
+        logger.debug(`Retrying in ${delay}ms... (attempt ${retryCount + 1}/${maxRetries})`)
         setTimeout(() => loadLayers(retryCount + 1), delay)
       } else {
         setGlobalError(
@@ -284,7 +285,7 @@ export function ArcGISIntegration() {
       )
       return result.success ? 'healthy' : 'error'
     } catch (error) {
-      console.error(`Health check failed for layer ${layer.name}:`, error)
+      logger.error(`Health check failed for layer ${layer.name}:`, error)
       return 'error'
     }
   }
@@ -416,7 +417,7 @@ export function ArcGISIntegration() {
         setConnectionResult(result)
       }
     } catch (error) {
-      console.error('Connection test error:', error)
+      logger.error('Connection test error:', error)
       setConnectionResult({
         success: false,
         message: error instanceof Error ? error.message : 'Connection test failed',
@@ -503,7 +504,7 @@ export function ArcGISIntegration() {
       setConnectionResult(null)
 
     } catch (error) {
-      console.error('Failed to add layer:', error)
+      logger.error('Failed to add layer:', error)
       setConnectionResult({
         success: false,
         message: error instanceof Error ? error.message : 'Failed to add layer',
@@ -540,7 +541,7 @@ export function ArcGISIntegration() {
         ))
       }
     } catch (error) {
-      console.error('Failed to toggle layer:', error)
+      logger.error('Failed to toggle layer:', error)
       // Revert optimistic update
       setLayers(prev => prev.map(l =>
         l.id === layerId ? { ...l, enabled: layer.enabled } : l
@@ -567,7 +568,7 @@ export function ArcGISIntegration() {
       await updateLayerInAPI({ ...layer, opacity })
       updateLayerOperation(layerId, { loading: false, lastUpdated: new Date() })
     } catch (error) {
-      console.error('Failed to update opacity:', error)
+      logger.error('Failed to update opacity:', error)
       updateLayerOperation(layerId, {
         loading: false,
         error: error instanceof Error ? error.message : 'Failed to update opacity',
@@ -615,7 +616,7 @@ export function ArcGISIntegration() {
       await deleteLayerFromAPI(layerId)
       updateLayerOperation(layerId, { loading: false, lastUpdated: new Date() })
     } catch (error) {
-      console.error('Failed to delete layer:', error)
+      logger.error('Failed to delete layer:', error)
       // Restore on error
       setLayers(originalLayers)
       updateLayerOperation(layerId, {
@@ -651,7 +652,7 @@ export function ArcGISIntegration() {
         l.id === duplicatedLayer.id ? { ...l, health, lastChecked: new Date() } : l
       ))
     } catch (error) {
-      console.error('Failed to duplicate layer:', error)
+      logger.error('Failed to duplicate layer:', error)
       setLayers(prev => prev.filter(l => l.id !== duplicatedLayer.id))
     }
   }, [layers])
@@ -716,7 +717,7 @@ export function ArcGISIntegration() {
       }
       await apiClient.arcgisLayers.create(payload)
     } catch (error) {
-      console.error('Failed to save layer:', error)
+      logger.error('Failed to save layer:', error)
       throw error
     }
   }
@@ -738,7 +739,7 @@ export function ArcGISIntegration() {
       }
       await apiClient.arcgisLayers.update(layer.id, payload)
     } catch (error) {
-      console.error('Failed to update layer:', error)
+      logger.error('Failed to update layer:', error)
       throw error
     }
   }
@@ -751,7 +752,7 @@ export function ArcGISIntegration() {
     try {
       await apiClient.arcgisLayers.delete(layerId)
     } catch (error) {
-      console.error('Failed to delete layer:', error)
+      logger.error('Failed to delete layer:', error)
       throw error
     }
   }
@@ -812,7 +813,7 @@ export function ArcGISIntegration() {
       await loadLayers()
 
     } catch (error) {
-      console.error('Import failed:', error)
+      logger.error('Import failed:', error)
       alert(error instanceof Error ? error.message : 'Failed to import layers')
     }
   }, [importData, loadLayers])

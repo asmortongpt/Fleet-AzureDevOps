@@ -13,6 +13,7 @@
 import { useState, useCallback, useRef, useEffect } from 'react';
 import type { PTTState } from '@/types/radio';
 
+import logger from '@/utils/logger';
 interface UsePTTOptions {
   onAudioChunk?: (audioData: string) => void;
   onTransmissionStart?: (transmissionId: string) => void;
@@ -63,7 +64,7 @@ export function usePTT(options: UsePTTOptions = {}) {
 
       return true;
     } catch (error) {
-      console.error('[usePTT] Failed to initialize audio analysis:', error);
+      logger.error('[usePTT] Failed to initialize audio analysis:', error);
       return false;
     }
   }, []);
@@ -162,9 +163,9 @@ export function usePTT(options: UsePTTOptions = {}) {
       // Notify transmission start
       onTransmissionStart?.(transmissionId);
 
-      console.log('[usePTT] Transmission started:', transmissionId);
+      logger.debug('[usePTT] Transmission started:', transmissionId);
     } catch (error) {
-      console.error('[usePTT] Failed to start PTT:', error);
+      logger.error('[usePTT] Failed to start PTT:', error);
       setState(prev => ({
         ...prev,
         isPTTActive: false,
@@ -184,7 +185,7 @@ export function usePTT(options: UsePTTOptions = {}) {
     if (!state.isTransmitting) return;
 
     try {
-      console.log('[usePTT] Stopping transmission');
+      logger.debug('[usePTT] Stopping transmission');
 
       setState(prev => ({ ...prev, isPTTActive: false }));
 
@@ -215,9 +216,9 @@ export function usePTT(options: UsePTTOptions = {}) {
 
       setState(prev => ({ ...prev, isTransmitting: false, audioLevel: 0 }));
 
-      console.log('[usePTT] Transmission ended');
+      logger.debug('[usePTT] Transmission ended');
     } catch (error) {
-      console.error('[usePTT] Error stopping PTT:', error);
+      logger.error('[usePTT] Error stopping PTT:', error);
       setState(prev => ({
         ...prev,
         isTransmitting: false,

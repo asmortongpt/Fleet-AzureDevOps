@@ -113,7 +113,7 @@ export function ReceiptProcessing() {
       toast.success("Receipt processed successfully")
     } catch (error) {
       toast.error("Failed to process receipt")
-      console.error(error)
+      // Error already shown to user via toast
     } finally {
       setIsProcessing(false)
     }

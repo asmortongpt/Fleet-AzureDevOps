@@ -2,9 +2,10 @@ import { Alert, AlertTitle, AlertDescription } from "./components/ui/alert";
 import { Button } from "./components/ui/button";
 import { AlertTriangleIcon, RefreshCwIcon } from "lucide-react";
 
+import logger from '@/utils/logger';
 export const ErrorFallback = ({ error, resetErrorBoundary }) => {
   // Always show the error boundary - helps diagnose issues
-  console.error('[ErrorFallback] Caught error:', error);
+  logger.error('[ErrorFallback] Caught error:', error);
 
   return (
     <div className="min-h-screen bg-background flex items-center justify-center p-4">

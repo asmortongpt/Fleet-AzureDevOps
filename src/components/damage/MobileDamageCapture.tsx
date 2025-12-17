@@ -14,6 +14,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui
 import { Alert, AlertDescription } from '../ui/alert';
 import { Progress } from '../ui/progress';
 
+import logger from '@/utils/logger';
 interface MobileDamageCaptureProps {
   vehicleId: string;
   onAnalysisComplete: (analysis: any) => void;
@@ -137,7 +138,7 @@ export function MobileDamageCapture({ onAnalysisComplete }: MobileDamageCaptureP
       setCapturedFiles([]);
       setCaptureMode(null);
     } catch (error) {
-      console.error('Error analyzing photos:', error);
+      logger.error('Error analyzing photos:', error);
       alert('Failed to analyze photos. Please try again.');
     } finally {
       setIsAnalyzing(false);
@@ -180,7 +181,7 @@ export function MobileDamageCapture({ onAnalysisComplete }: MobileDamageCaptureP
       setCapturedFiles([]);
       setCaptureMode(null);
     } catch (error) {
-      console.error('Error analyzing video:', error);
+      logger.error('Error analyzing video:', error);
       alert('Failed to analyze video. Please try again.');
     } finally {
       setIsAnalyzing(false);

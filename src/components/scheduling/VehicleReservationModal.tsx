@@ -48,6 +48,7 @@ import { cn } from '@/lib/utils'
 import { VehicleReservation, CreateReservationRequest } from '@/types/scheduling'
 import { Vehicle, Driver } from '@/lib/types'
 
+import logger from '@/utils/logger';
 const reservationSchema = z.object({
   vehicleId: z.string().min(1, 'Vehicle is required'),
   driverId: z.string().optional(),
@@ -179,7 +180,7 @@ export function VehicleReservationModal({
           setConflicts([])
         }
       } catch (error) {
-        console.error('Failed to check availability:', error)
+        logger.error('Failed to check availability:', error)
       } finally {
         setChecking(false)
       }
@@ -219,7 +220,7 @@ export function VehicleReservationModal({
       onOpenChange(false)
       form.reset()
     } catch (error) {
-      console.error('Failed to submit reservation:', error)
+      logger.error('Failed to submit reservation:', error)
     } finally {
       setSubmitting(false)
     }

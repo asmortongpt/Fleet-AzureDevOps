@@ -9,6 +9,7 @@ import type { LayerWithStatus, LayerHealth } from "../types"
 
 import { apiClient } from "@/lib/api-client"
 
+import logger from '@/utils/logger';
 interface UseArcGISLayersReturn {
   layers: LayerWithStatus[]
   setLayers: React.Dispatch<React.SetStateAction<LayerWithStatus[]>>
@@ -41,7 +42,7 @@ export function useArcGISLayers(): UseArcGISLayersReturn {
         }))
       )
     } catch (err) {
-      console.error("Failed to load ArcGIS layers:", err)
+      logger.error("Failed to load ArcGIS layers:", err)
       if (retryCount < maxRetries) {
         const delay = Math.pow(2, retryCount) * 1000
         setTimeout(() => loadLayers(retryCount + 1), delay)

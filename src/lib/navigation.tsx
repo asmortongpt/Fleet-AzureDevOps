@@ -49,10 +49,16 @@ export interface NavigationItem {
   id: string
   label: string
   icon: ReactNode
-  section?: "main" | "management" | "procurement" | "communication" | "tools"
+  section?: "main" | "management" | "procurement" | "communication" | "tools" | "hubs"
 }
 
 export const navigationItems: NavigationItem[] = [
+  {
+    id: "live-fleet-dashboard",
+    label: "Live Fleet Dashboard",
+    icon: <MapTrifold className="w-5 h-5" />,
+    section: "main"
+  },
   {
     id: "dashboard",
     label: "Fleet Dashboard",
@@ -69,6 +75,54 @@ export const navigationItems: NavigationItem[] = [
     id: "admin-dashboard",
     label: "Admin Dashboard",
     icon: <Shield className="w-5 h-5" />,
+    section: "main"
+  },
+  {
+    id: "operations-workspace",
+    label: "Operations Workspace",
+    icon: <Broadcast className="w-5 h-5" />,
+    section: "main"
+  },
+  {
+    id: "fleet-workspace",
+    label: "Fleet Workspace",
+    icon: <CarProfile className="w-5 h-5" />,
+    section: "main"
+  },
+  {
+    id: "maintenance-workspace",
+    label: "Maintenance Workspace",
+    icon: <Wrench className="w-5 h-5" />,
+    section: "main"
+  },
+  {
+    id: "analytics-workspace",
+    label: "Analytics Workspace",
+    icon: <ChartLine className="w-5 h-5" />,
+    section: "main"
+  },
+  {
+    id: "compliance-workspace",
+    label: "Compliance Workspace",
+    icon: <Shield className="w-5 h-5" />,
+    section: "main"
+  },
+  {
+    id: "compliance-map",
+    label: "Compliance Map",
+    icon: <MapTrifold className="w-5 h-5" />,
+    section: "main"
+  },
+  {
+    id: "compliance-dashboard",
+    label: "Compliance Dashboard",
+    icon: <Shield className="w-5 h-5" />,
+    section: "main"
+  },
+  {
+    id: "drivers-workspace",
+    label: "Drivers Workspace",
+    icon: <Users className="w-5 h-5" />,
     section: "main"
   },
   {
@@ -154,6 +208,12 @@ export const navigationItems: NavigationItem[] = [
     id: "driver-mgmt",
     label: "Driver Performance",
     icon: <CarProfile className="w-5 h-5" />,
+    section: "management"
+  },
+  {
+    id: "drivers",
+    label: "Drivers Management",
+    icon: <Users className="w-5 h-5" />,
     section: "management"
   },
   {
@@ -355,6 +415,12 @@ export const navigationItems: NavigationItem[] = [
     section: "tools"
   },
   {
+    id: "analytics",
+    label: "Analytics Dashboard",
+    icon: <MapTrifold className="w-5 h-5" />,
+    section: "tools"
+  },
+  {
     id: "endpoint-monitor",
     label: "Endpoint Monitor",
     icon: <Pulse className="w-5 h-5" />,
@@ -395,6 +461,73 @@ export const navigationItems: NavigationItem[] = [
     label: "Settings",
     icon: <Gear className="w-5 h-5" />,
     section: "tools"
+  },
+  // HUBS (Map-First UX Transformation Phase 2-3)
+  {
+    id: "operations-hub",
+    label: "Operations Hub",
+    icon: <Broadcast className="w-5 h-5" />,
+    section: "hubs"
+  },
+  {
+    id: "reports-hub",
+    label: "Reports Hub",
+    icon: <PresentationChart className="w-5 h-5" />,
+    section: "hubs"
+  },
+  {
+    id: "procurement-hub",
+    label: "Procurement Hub",
+    icon: <Package className="w-5 h-5" />,
+    section: "hubs"
+  },
+  {
+    id: "communication-hub",
+    label: "Communication Hub",
+    icon: <ChatsCircle className="w-5 h-5" />,
+    section: "hubs"
+  },
+  {
+    id: "fleet-hub",
+    label: "Fleet Hub",
+    icon: <CarProfile className="w-5 h-5" />,
+    section: "hubs"
+  },
+  {
+    id: "maintenance-hub",
+    label: "Maintenance Hub",
+    icon: <Wrench className="w-5 h-5" />,
+    section: "hubs"
+  },
+  {
+    id: "analytics-hub",
+    label: "Analytics Hub",
+    icon: <ChartLine className="w-5 h-5" />,
+    section: "hubs"
+  },
+  {
+    id: "compliance-hub",
+    label: "Compliance Hub",
+    icon: <Shield className="w-5 h-5" />,
+    section: "hubs"
+  },
+  {
+    id: "drivers-hub",
+    label: "Drivers Hub",
+    icon: <Users className="w-5 h-5" />,
+    section: "hubs"
+  },
+  {
+    id: "safety-hub",
+    label: "Safety Hub",
+    icon: <FirstAid className="w-5 h-5" />,
+    section: "hubs"
+  },
+  {
+    id: "assets-hub",
+    label: "Assets Hub",
+    icon: <Barcode className="w-5 h-5" />,
+    section: "hubs"
   }
 ]
 

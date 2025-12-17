@@ -7,6 +7,7 @@
 import { useState, useEffect } from "react"
 import { fetchVehicleTelemetry, type OBD2Telemetry } from "../utils/api"
 
+import logger from '@/utils/logger';
 export function useGarageTelemetry(vehicleId: string | undefined) {
   const [telemetry, setTelemetry] = useState<OBD2Telemetry | null>(null)
   const [isLoading, setIsLoading] = useState(false)
@@ -27,7 +28,7 @@ export function useGarageTelemetry(vehicleId: string | undefined) {
           setTelemetry(data)
         }
       } catch (error) {
-        console.error("Failed to load telemetry:", error)
+        logger.error("Failed to load telemetry:", error)
         if (isMounted) {
           setTelemetry(null)
         }
