@@ -162,7 +162,7 @@ const LoadingSpinner = () => (
 )
 
 function App() {
-  const [activeModule, setActiveModule] = useState("live-fleet-dashboard")
+  const [activeModule, setActiveModule] = useState("dashboard")
   const [sidebarOpen, setSidebarOpen] = useState(true)
   const [reactPlugin] = useState(() => telemetryService.initialize())
 
@@ -233,11 +233,11 @@ function App() {
       case "reports-hub":
         return <ReportsHub data={fleetData} />
       case "operations-hub":
+        return <OperationsHub />
       case "procurement-hub":
         return <ProcurementHub />
       case "communication-hub":
         return <CommunicationHub />
-        return <OperationsHub />
       case "dispatch-console":
         return <DispatchConsole />
       case "people":
@@ -527,7 +527,7 @@ function App() {
           <EnhancedErrorBoundary
             showDetails={import.meta.env.DEV}
             onError={(error, errorInfo) => {
-              logger.error('App Error Boundary:', error, errorInfo);
+              console.error('App Error Boundary:', error, errorInfo);
             }}
           >
             <QueryErrorBoundary>
