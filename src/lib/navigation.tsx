@@ -131,12 +131,7 @@ export const navigationItems: NavigationItem[] = [
     icon: <MapPin className="w-5 h-5" />,
     section: "main"
   },
-  {
-    id: "people",
-    label: "People Management",
-    icon: <Users className="w-5 h-5" />,
-    section: "management"
-  },
+
   {
     id: "garage",
     label: "Garage & Service",
