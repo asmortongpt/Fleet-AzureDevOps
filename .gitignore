@@ -118,3 +118,5 @@ database-credentials-*.txt
 azure-credentials-*-MASTER.txt
 deployment-info-*.txt
 diagnose-whitescreen.js
+Fleet/
+Fleet-1/
