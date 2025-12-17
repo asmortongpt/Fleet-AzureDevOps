@@ -63,14 +63,15 @@ export function CompactMetricCard({
         </div>
       )}
 
-      <div className="metric-content">
-        <div className="metric-label">{title}</div>
+      <div className="metric-content min-w-0 flex-1">
+        <div className="metric-label truncate" title={title}>{title}</div>
         <div className="flex items-baseline gap-2">
           <motion.div
-            className="metric-value"
+            className="metric-value truncate"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.5, delay: 0.1 }}
+            title={String(value)}
           >
             {value}
           </motion.div>
@@ -82,7 +83,7 @@ export function CompactMetricCard({
           )}
         </div>
         {subtitle && (
-          <div className="metric-subtitle">{subtitle}</div>
+          <div className="metric-subtitle truncate" title={subtitle}>{subtitle}</div>
         )}
       </div>
     </motion.div>

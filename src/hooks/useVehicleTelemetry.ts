@@ -82,8 +82,8 @@ export function useVehicleTelemetry(options: UseVehicleTelemetryOptions = {}) {
   const vehiclesRef = useRef(vehicles)
   vehiclesRef.current = vehicles
 
-  // WebSocket URL for emulator - connect directly to port 3003
-  const wsUrl = `ws://localhost:3003`
+  // WebSocket URL for emulator - connect directly to port 3001
+  const wsUrl = `ws://localhost:3001`
 
   const handleMessage = useCallback((message: WebSocketMessage) => {
     setLastUpdate(new Date())
