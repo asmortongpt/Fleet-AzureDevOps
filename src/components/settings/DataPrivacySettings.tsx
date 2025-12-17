@@ -28,6 +28,7 @@ import {
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog'
 import { dataPrivacySettingsAtom, hasUnsavedChangesAtom } from '@/lib/reactive-state'
+import logger from '@/utils/logger';
 import {
   Lock,
   Download,
@@ -81,13 +82,13 @@ export function DataPrivacySettings() {
     setTimeout(() => {
       setIsExporting(false)
       // In real app, this would trigger a download
-      console.log('Exporting user data...')
+      logger.debug('Exporting user data...')
     }, 2000)
   }
 
   const handleDeleteAccount = () => {
     // In real app, this would call an API
-    console.log('Deleting account...')
+    logger.debug('Deleting account...')
   }
 
   return (

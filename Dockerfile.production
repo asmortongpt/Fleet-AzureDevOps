@@ -1,5 +1,9 @@
 FROM nginx:alpine
 
+# Security: Create non-root user for nginx
+RUN addgroup -g 1001 -S nginx-app && \
+    adduser -S nginx-app -u 1001 -G nginx-app
+
 # Copy pre-built dist folder
 COPY dist/ /usr/share/nginx/html/
 
@@ -10,13 +14,17 @@ COPY nginx.containerapp.conf /etc/nginx/nginx.conf
 COPY inject-runtime-config.sh /docker-entrypoint.d/40-inject-runtime-config.sh
 RUN chmod +x /docker-entrypoint.d/40-inject-runtime-config.sh
 
-# Create necessary temp directories for nginx
+# Security: Create necessary temp directories for nginx non-root operation
 RUN mkdir -p /tmp/client_body_temp /tmp/proxy_temp /tmp/fastcgi_temp /tmp/uwsgi_temp /tmp/scgi_temp && \
-    chown -R nginx:nginx /tmp/client_body_temp /tmp/proxy_temp /tmp/fastcgi_temp /tmp/uwsgi_temp /tmp/scgi_temp && \
-    chown -R nginx:nginx /usr/share/nginx/html
+    mkdir -p /var/cache/nginx /var/log/nginx /var/run && \
+    chown -R nginx-app:nginx-app /tmp/client_body_temp /tmp/proxy_temp /tmp/fastcgi_temp /tmp/uwsgi_temp /tmp/scgi_temp && \
+    chown -R nginx-app:nginx-app /var/cache/nginx /var/log/nginx /var/run /usr/share/nginx/html && \
+    chmod -R 755 /var/cache/nginx /var/log/nginx /var/run && \
+    touch /var/run/nginx.pid && \
+    chown nginx-app:nginx-app /var/run/nginx.pid
 
-# Don't set USER here - let Kubernetes security context handle it
-# USER nginx
+# Security: Switch to non-root user (runAsNonRoot: true)
+USER nginx-app
 
 EXPOSE 8080
 

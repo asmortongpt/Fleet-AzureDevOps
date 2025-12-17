@@ -66,8 +66,8 @@ export function useFleetData() {
   // Log API responses for debugging
   useEffect(() => {
     if (DEBUG_FLEET_DATA) {
-      console.log('[useFleetData] Demo Mode:', isDemoMode())
-      console.log('[useFleetData] API Data State:', {
+      logger.debug('[useFleetData] Demo Mode:', isDemoMode())
+      logger.debug('[useFleetData] API Data State:', {
         vehicles: { count: vehiclesData?.data?.length ?? 'N/A', loading: vehiclesLoading, error: !!vehiclesError },
         drivers: { count: driversData?.data?.length ?? 'N/A', loading: driversLoading, error: !!driversError },
         facilities: { count: facilitiesData?.data?.length ?? 'N/A', loading: facilitiesLoading, error: !!facilitiesError }
@@ -89,7 +89,7 @@ export function useFleetData() {
     if (isDemoMode()) {
       // Use demo data
       const demoVehicles = generateDemoVehicles(50)
-      if (DEBUG_FLEET_DATA) console.log('[useFleetData] Using demo vehicles:', demoVehicles.length)
+      if (DEBUG_FLEET_DATA) logger.debug('[useFleetData] Using demo vehicles:', demoVehicles.length)
       return demoVehicles
     }
     
@@ -104,7 +104,7 @@ export function useFleetData() {
   const drivers = useMemo(() => {
     if (isDemoMode()) {
       const demoDrivers = generateDemoDrivers(20)
-      if (DEBUG_FLEET_DATA) console.log('[useFleetData] Using demo drivers:', demoDrivers.length)
+      if (DEBUG_FLEET_DATA) logger.debug('[useFleetData] Using demo drivers:', demoDrivers.length)
       return demoDrivers
     }
     
@@ -115,7 +115,7 @@ export function useFleetData() {
   const workOrders = useMemo(() => {
     if (isDemoMode()) {
       const demoOrders = generateDemoWorkOrders(30)
-      if (DEBUG_FLEET_DATA) console.log('[useFleetData] Using demo work orders:', demoOrders.length)
+      if (DEBUG_FLEET_DATA) logger.debug('[useFleetData] Using demo work orders:', demoOrders.length)
       return demoOrders
     }
     
@@ -135,7 +135,7 @@ export function useFleetData() {
   const facilities = useMemo(() => {
     if (isDemoMode()) {
       const demoFacilities = generateDemoFacilities()
-      if (DEBUG_FLEET_DATA) console.log('[useFleetData] Using demo facilities:', demoFacilities.length)
+      if (DEBUG_FLEET_DATA) logger.debug('[useFleetData] Using demo facilities:', demoFacilities.length)
       return demoFacilities
     }
     
@@ -164,7 +164,7 @@ export function useFleetData() {
   // Log data extraction results for debugging
   useEffect(() => {
     if (DEBUG_FLEET_DATA) {
-      console.log('[useFleetData] Final data counts:', {
+      logger.debug('[useFleetData] Final data counts:', {
         vehicles: vehicles.length,
         drivers: drivers.length,
         workOrders: workOrders.length,
