@@ -1,5 +1,6 @@
 import { Pool } from 'pg';
 
+import logger from '@/utils/logger';
 /**
  * MaintenanceRepository handles database operations related to maintenance schedules.
  */
@@ -34,7 +35,7 @@ export class MaintenanceRepository {
       const result = await this.pool.query(query, [nextDueDate]);
       return result.rows;
     } catch (error) {
-      console.error('Error fetching maintenance schedules with telemetry:', error);
+      logger.error('Error fetching maintenance schedules with telemetry:', error);
       throw new Error('Database query failed');
     }
   }

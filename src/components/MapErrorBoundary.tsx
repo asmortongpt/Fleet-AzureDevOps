@@ -19,6 +19,7 @@ import { Card, CardHeader, CardContent, CardFooter } from '@/components/ui/card'
 import { categorizeError, ErrorCategory, CategorizedError } from '@/utils/retry'
 import type { MapProvider } from './UniversalMap'
 
+import logger from '@/utils/logger';
 // ============================================================================
 // Types & Interfaces
 // ============================================================================
@@ -186,7 +187,7 @@ function getErrorDetails(error: CategorizedError, provider?: MapProvider): {
 function reportError(error: Error, errorInfo: ErrorInfo, provider?: MapProvider): void {
   // In production, send to monitoring service (Sentry, LogRocket, etc.)
   if (process.env.NODE_ENV === 'production') {
-    console.error('Map Error Report:', {
+    logger.error('Map Error Report:', {
       error: {
         message: error.message,
         stack: error.stack,
@@ -206,7 +207,7 @@ function reportError(error: Error, errorInfo: ErrorInfo, provider?: MapProvider)
     // FUTURE: Integrate with your error monitoring service
     // Example: Sentry.captureException(error, { contexts: { react: errorInfo } })
   } else {
-    console.error('Map Error Boundary caught error:', error, errorInfo)
+    logger.error('Map Error Boundary caught error:', error, errorInfo)
   }
 }
 
@@ -337,7 +338,7 @@ export class MapErrorBoundary extends Component<MapErrorBoundaryProps, MapErrorB
     const { provider, onFallbackProvider } = this.props
 
     if (provider === 'google') {
-      console.warn('Google Maps failed, falling back to Leaflet...')
+      logger.warn('Google Maps failed, falling back to Leaflet...')
       this.setState({ fallbackAttempted: true })
       onFallbackProvider?.('leaflet')
     }
@@ -415,7 +416,7 @@ export class MapErrorBoundary extends Component<MapErrorBoundaryProps, MapErrorB
       alert('Cache cleared. Reloading page...')
       window.location.reload()
     } catch (error) {
-      console.error('Failed to clear cache:', error)
+      logger.error('Failed to clear cache:', error)
     }
   }
 
@@ -426,7 +427,7 @@ export class MapErrorBoundary extends Component<MapErrorBoundaryProps, MapErrorB
       alert('Settings reset. Reloading page...')
       window.location.reload()
     } catch (error) {
-      console.error('Failed to reset settings:', error)
+      logger.error('Failed to reset settings:', error)
     }
   }
 
@@ -465,7 +466,7 @@ export class MapErrorBoundary extends Component<MapErrorBoundaryProps, MapErrorB
         this.handleReport()
         break
       default:
-        console.warn('Unknown action:', action)
+        logger.warn('Unknown action:', action)
     }
   }
 

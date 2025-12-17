@@ -14,6 +14,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { AlertCircle, RefreshCw, WifiOff, ServerCrash } from 'lucide-react';
 import { getErrorMessage } from '@/hooks/useQueryWithErrorHandling';
 
+import logger from '@/utils/logger';
 interface QueryErrorFallbackProps {
   error: Error;
   resetErrorBoundary: () => void;
@@ -135,7 +136,7 @@ export const QueryErrorBoundary: React.FC<QueryErrorBoundaryProps> = ({
       {({ reset }) => (
         <EnhancedErrorBoundary
           onError={(error, errorInfo) => {
-            console.error('Query Error Boundary caught:', error, errorInfo);
+            logger.error('Query Error Boundary caught:', error, errorInfo);
           }}
           fallback={
             fallback || (

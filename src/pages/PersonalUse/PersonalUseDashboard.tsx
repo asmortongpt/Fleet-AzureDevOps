@@ -23,6 +23,7 @@ import { toast } from 'sonner'
 import { format } from 'date-fns'
 import { TripMarker } from '@/components/PersonalUse/TripMarker'
 
+import logger from '@/utils/logger';
 interface DashboardData {
   driver_id: string
   current_month: string
@@ -104,7 +105,7 @@ export function PersonalUseDashboard() {
     queryFn: () => apiClient('/api/reimbursements?status=pending&status=approved'),
     staleTime: 30000,
     onError: (error: any) => {
-      console.error('Failed to fetch dashboard data:', error)
+      logger.error('Failed to fetch dashboard data:', error)
       toast.error('Failed to load dashboard data')
     }
   })

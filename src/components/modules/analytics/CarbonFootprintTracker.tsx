@@ -28,6 +28,7 @@ import { Badge } from '../ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../ui/tabs';
 import { jsPDF } from 'jspdf';
 
+import logger from '@/utils/logger';
 interface CarbonData {
   vehicle_id: number;
   vehicle_name: string;
@@ -135,7 +136,7 @@ const CarbonFootprintTracker: React.FC = () => {
 
       setLoading(false);
     } catch (error) {
-      console.error('Error loading carbon data:', error);
+      logger.error('Error loading carbon data:', error);
       setLoading(false);
     }
   };
@@ -282,9 +283,9 @@ const CarbonFootprintTracker: React.FC = () => {
       // Save the PDF
       doc.save(`Carbon_Footprint_Report_${currentDate.replace(/\//g, '-')}.pdf`);
 
-      console.log('[CarbonFootprint] PDF report generated successfully');
+      logger.debug('[CarbonFootprint] PDF report generated successfully');
     } catch (error: any) {
-      console.error('[CarbonFootprint] Error generating PDF report:', error);
+      logger.error('[CarbonFootprint] Error generating PDF report:', error);
       alert(`Failed to generate PDF report: ${error.message}`);
     }
   };

@@ -31,6 +31,7 @@ import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { CheckCircle2, XCircle, Loader2, AlertCircle, Info } from 'lucide-react';
 
+import logger from '@/utils/logger';
 /**
  * Example 1: Basic Query with Error Handling and Loading State
  */
@@ -100,7 +101,7 @@ const MutationExample: React.FC = () => {
   const createVehicle = useCreateVehicle({
     // Toast notifications are automatic
     onSuccess: (data) => {
-      console.log('Vehicle created:', data);
+      logger.debug('Vehicle created:', data);
       // Reset form
       setFormData({
         make: '',

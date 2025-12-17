@@ -29,6 +29,7 @@ import { Progress } from '../ui/progress'
 import { Alert, AlertDescription } from '../ui/alert'
 import { apiClient } from '../../lib/api'
 
+import logger from '@/utils/logger';
 interface DocumentAnalysis {
   documentType: string
   confidence: number
@@ -123,7 +124,7 @@ export function DocumentScanner({
         onComplete(allAnalyses[allAnalyses.length - 1]) // or combine them
       }
     } catch (error: any) {
-      console.error('Document processing error:', error)
+      logger.error('Document processing error:', error)
       alert(`Error processing document: ${error.response?.data?.error || error.message}`)
     } finally {
       setIsProcessing(false)
