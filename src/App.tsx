@@ -36,9 +36,7 @@ import telemetryService from '@/lib/telemetry'
 
 // FLEET MODULES
 const FleetDashboard = lazy(() => import("@/components/modules/fleet/FleetDashboard").then(m => ({ default: m.FleetDashboard })))
-const FleetDashboardModern = lazy(() => import("@/components/modules/fleet/FleetDashboardModern").then(m => ({ default: m.FleetDashboardModern })))
 const FleetAnalytics = lazy(() => import("@/components/modules/fleet/FleetAnalytics").then(m => ({ default: m.FleetAnalytics })))
-const GPSTracking = lazy(() => import("@/components/modules/fleet/GPSTracking").then(m => ({ default: m.GPSTracking })))
 const VehicleTelemetry = lazy(() => import("@/components/modules/fleet/VehicleTelemetry").then(m => ({ default: m.VehicleTelemetry })))
 const VirtualGarage = lazy(() => import("@/components/modules/fleet/VirtualGarage").then(m => ({ default: m.VirtualGarage })))
 const FleetOptimizer = lazy(() => import("@/components/modules/fleet/FleetOptimizer").then(m => ({ default: m.FleetOptimizer })))
@@ -51,8 +49,9 @@ const CostAnalysisCenter = lazy(() => import("@/components/modules/analytics/Cos
 const CustomReportBuilder = lazy(() => import("@/components/modules/analytics/CustomReportBuilder").then(m => ({ default: m.CustomReportBuilder })))
 
 // ADMIN MODULES
+const CommandCenter = lazy(() => import("@/pages/CommandCenter"))
 const AdminDashboard = lazy(() => import("@/pages/AdminDashboard"))
-const PeopleManagement = lazy(() => import("@/components/modules/admin/PeopleManagement").then(m => ({ default: m.PeopleManagement })))
+
 const PolicyEngineWorkbench = lazy(() => import("@/components/modules/admin/PolicyEngineWorkbench").then(m => ({ default: m.PolicyEngineWorkbench })))
 const Notifications = lazy(() => import("@/components/modules/admin/Notifications").then(m => ({ default: m.Notifications })))
 const PushNotificationAdmin = lazy(() => import("@/components/modules/admin/PushNotificationAdmin"))
@@ -185,15 +184,18 @@ function App() {
   const renderModule = () => {
     switch (activeModule) {
       case "dashboard":
-        return <FleetDashboardModern />
+        return <CommandCenter />
       case "executive-dashboard":
         return <ExecutiveDashboard />
       case "admin-dashboard":
         return <AdminDashboard />
+      case "operations":
+        return <CommandCenter />
       case "dispatch-console":
-        return <DispatchConsole />
-      case "people":
-        return <PeopleManagement data={fleetData} />
+        return <CommandCenter />
+      case "fleet-hub": // Assuming 'fleet-hub' was a previous route or will be added
+        return <CommandCenter />
+
       case "garage":
         return <GarageService data={fleetData} />
       case "virtual-garage":
@@ -203,7 +205,7 @@ function App() {
       case "fuel":
         return <FuelManagement data={fleetData} />
       case "gps-tracking":
-        return <GPSTracking vehicles={fleetData.vehicles || []} facilities={facilities} />
+        return <CommandCenter />
       case "workbench":
         return <DataWorkbench data={fleetData} />
       case "mileage":
@@ -304,7 +306,7 @@ function App() {
       case "profile":
         return <ProfilePage />
       default:
-        return <FleetDashboardModern />
+        return <CommandCenter />
     }
   }
 
@@ -316,14 +318,19 @@ function App() {
       communication: [],
       tools: []
     }
-    
+
     navigationItems.forEach(item => {
       const section = item.section || "main"
       groups[section].push(item)
     })
-    
+
     return groups
   }, [])
+
+  // Determine if the current module needs full viewport (no padding)
+  const isFullWidthModule = useMemo(() => {
+    return ['dashboard', 'operations', 'dispatch-console', 'gps-tracking'].includes(activeModule);
+  }, [activeModule]);
 
   return (
     <DrilldownManager>
@@ -336,156 +343,157 @@ function App() {
       </a>
 
       <div className="min-h-screen bg-background flex">
-      <aside 
-        className={`fixed left-0 top-0 h-full bg-card border-r transition-all duration-300 z-50 ${
-          sidebarOpen ? "w-64" : "w-0"
-        } overflow-hidden`}
-      >
-        <div className="p-6 flex items-center justify-between border-b">
-          <div className="flex items-center gap-3">
-            <img
-              src="/logos/logo-horizontal.svg"
-              alt="Fleet Management"
-              className="h-8 w-auto"
-            />
+        <aside
+          className={`fixed left-0 top-0 h-full bg-card border-r transition-all duration-300 z-50 ${sidebarOpen ? "w-64" : "w-0"
+            } overflow-hidden`}
+        >
+          <div className="p-6 flex items-center justify-between border-b">
+            <div className="flex items-center gap-3">
+              <img
+                src="/logos/logo-horizontal.svg"
+                alt="Fleet Management"
+                className="h-8 w-auto"
+              />
+            </div>
           </div>
-        </div>
 
-        <ScrollArea className="h-[calc(100vh-140px)]">
-          <div className="p-4 space-y-6">
-            {Object.entries(groupedNav).map(([section, items]) => {
-              if (items.length === 0) return null
-              
-              return (
-                <div key={section}>
-                  <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2 px-2">
-                    {section}
-                  </p>
-                  <div className="space-y-1">
-                    {items.map(item => (
-                      <Button
-                        key={item.id}
-                        variant={activeModule === item.id ? "secondary" : "ghost"}
-                        className="w-full justify-start gap-2"
-                        onClick={() => {
-                          telemetryService.trackButtonClick(`nav-${item.id}`, {
-                            category: item.category,
-                            label: item.label
-                          })
-                          setActiveModule(item.id)
-                        }}
-                      >
-                        {item.icon}
-                        <span className="text-sm">{item.label}</span>
-                      </Button>
-                    ))}
+          <ScrollArea className="h-[calc(100vh-140px)]">
+            <div className="p-4 space-y-6">
+              {Object.entries(groupedNav).map(([section, items]) => {
+                if (items.length === 0) return null
+
+                return (
+                  <div key={section}>
+                    <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2 px-2">
+                      {section}
+                    </p>
+                    <div className="space-y-1">
+                      {items.map(item => (
+                        <Button
+                          key={item.id}
+                          variant={activeModule === item.id ? "secondary" : "ghost"}
+                          className="w-full justify-start gap-2"
+                          onClick={() => {
+                            telemetryService.trackButtonClick(`nav-${item.id}`, {
+                              category: item.category,
+                              label: item.label
+                            })
+                            setActiveModule(item.id)
+                          }}
+                        >
+                          {item.icon}
+                          <span className="text-sm">{item.label}</span>
+                        </Button>
+                      ))}
+                    </div>
                   </div>
-                </div>
-              )
-            })}
+                )
+              })}
+            </div>
+          </ScrollArea>
+
+          <div className="absolute bottom-0 left-0 right-0 p-4 border-t bg-card">
+            <Button
+              variant="ghost"
+              size="sm"
+              className="w-full justify-start gap-2"
+              onClick={() => setSidebarOpen(false)}
+            >
+              <X className="w-4 h-4" />
+              <span className="text-sm">Collapse</span>
+            </Button>
           </div>
-        </ScrollArea>
+        </aside>
 
-        <div className="absolute bottom-0 left-0 right-0 p-4 border-t bg-card">
-          <Button
-            variant="ghost"
-            size="sm"
-            className="w-full justify-start gap-2"
-            onClick={() => setSidebarOpen(false)}
-          >
-            <X className="w-4 h-4" />
-            <span className="text-sm">Collapse</span>
-          </Button>
-        </div>
-      </aside>
-
-      <div
-        className={`flex-1 transition-all duration-300 ${
-          sidebarOpen ? "ml-64" : "ml-0"
-        }`}
-      >
-        <header className="border-b bg-card sticky top-0 z-40">
-          <div className="px-6 h-16 flex items-center justify-between">
-            <div className="flex items-center gap-4">
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={() => setSidebarOpen(!sidebarOpen)}
-                title={sidebarOpen ? "Collapse sidebar" : "Expand sidebar"}
-              >
-                <List className="w-5 h-5" />
-              </Button>
-              <div>
-                <h2 className="font-semibold">
-                  {navigationItems.find(item => item.id === activeModule)?.label || "Dashboard"}
-                </h2>
-                <p className="text-xs text-muted-foreground">Fleet Management System</p>
+        <div
+          className={`flex-1 transition-all duration-300 ${sidebarOpen ? "ml-64" : "ml-0"
+            }`}
+        >
+          <header className="border-b bg-card sticky top-0 z-40">
+            <div className="px-6 h-16 flex items-center justify-between">
+              <div className="flex items-center gap-4">
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => setSidebarOpen(!sidebarOpen)}
+                  title={sidebarOpen ? "Collapse sidebar" : "Expand sidebar"}
+                >
+                  <List className="w-5 h-5" />
+                </Button>
+                <div>
+                  <h2 className="font-semibold">
+                    {navigationItems.find(item => item.id === activeModule)?.label || "Dashboard"}
+                  </h2>
+                  <p className="text-xs text-muted-foreground">Fleet Management System</p>
+                </div>
+              </div>
+              <div className="flex items-center gap-3">
+                <ThemeToggle />
+                <Button variant="ghost" size="icon">
+                  <Bell className="w-5 h-5" />
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => {
+                    telemetryService.trackButtonClick('nav-settings', { source: 'header' })
+                    setActiveModule('settings')
+                  }}
+                  title="Settings"
+                >
+                  <Gear className="w-5 h-5" />
+                </Button>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="ghost" className="relative h-10 w-10 rounded-full">
+                      <Avatar>
+                        <AvatarFallback className="bg-primary text-primary-foreground">
+                          FM
+                        </AvatarFallback>
+                      </Avatar>
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end">
+                    <DropdownMenuItem>
+                      <Gear className="w-4 h-4 mr-2" />
+                      Settings
+                    </DropdownMenuItem>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem>
+                      <SignOut className="w-4 h-4 mr-2" />
+                      Sign out
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
               </div>
             </div>
-            <div className="flex items-center gap-3">
-              <ThemeToggle />
-              <Button variant="ghost" size="icon">
-                <Bell className="w-5 h-5" />
-              </Button>
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={() => {
-                  telemetryService.trackButtonClick('nav-settings', { source: 'header' })
-                  setActiveModule('settings')
-                }}
-                title="Settings"
-              >
-                <Gear className="w-5 h-5" />
-              </Button>
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" className="relative h-10 w-10 rounded-full">
-                    <Avatar>
-                      <AvatarFallback className="bg-primary text-primary-foreground">
-                        FM
-                      </AvatarFallback>
-                    </Avatar>
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end">
-                  <DropdownMenuItem>
-                    <Gear className="w-4 h-4 mr-2" />
-                    Settings
-                  </DropdownMenuItem>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem>
-                    <SignOut className="w-4 h-4 mr-2" />
-                    Sign out
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-            </div>
-          </div>
-        </header>
+          </header>
 
-        <main id="main-content" className="p-6">
-          <EnhancedErrorBoundary
-            showDetails={import.meta.env.DEV}
-            onError={(error, errorInfo) => {
-              console.error('App Error Boundary:', error, errorInfo);
-            }}
+          <main
+            id="main-content"
+            className={isFullWidthModule ? "p-0 h-[calc(100vh-64px)] overflow-hidden relative" : "p-6"}
           >
-            <QueryErrorBoundary>
-              <Suspense fallback={<LoadingSpinner />}>
-                {renderModule()}
-              </Suspense>
-            </QueryErrorBoundary>
-          </EnhancedErrorBoundary>
-        </main>
-      </div>
-
-      {/* Role Switcher FAB button */}
-      <RoleSwitcher />
-
-      {/* Toast notifications */}
-      <ToastContainer />
+            <EnhancedErrorBoundary
+              showDetails={import.meta.env.DEV}
+              onError={(error, errorInfo) => {
+                console.error('App Error Boundary:', error, errorInfo);
+              }}
+            >
+              <QueryErrorBoundary>
+                <Suspense fallback={<div className="h-full w-full flex items-center justify-center"><LoadingSpinner /></div>}>
+                  {renderModule()}
+                </Suspense>
+              </QueryErrorBoundary>
+            </EnhancedErrorBoundary>
+          </main>
         </div>
+
+        {/* Role Switcher FAB button */}
+        <RoleSwitcher />
+
+        {/* Toast notifications */}
+        <ToastContainer />
+      </div>
     </DrilldownManager>
   )
 }
