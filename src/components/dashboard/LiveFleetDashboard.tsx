@@ -21,32 +21,61 @@ export function LiveFleetDashboard() {
   const maintenanceCount = vehicles.filter((v: any) => v.status === 'maintenance').length;
   const totalVehicles = vehicles.length;
 
+  // Quick actions for mobile
+  const quickActions = [
+    {
+      id: 'dispatch',
+      label: 'Dispatch',
+      icon: <Truck className="h-5 w-5" />,
+      onClick: () => console.log('Dispatch clicked')
+    },
+    {
+      id: 'maintenance',
+      label: 'Maintenance',
+      icon: <Wrench className="h-5 w-5" />,
+      onClick: () => console.log('Maintenance clicked')
+    },
+    {
+      id: 'alerts',
+      label: 'Alerts',
+      icon: <AlertCircle className="h-5 w-5" />,
+      onClick: () => console.log('Alerts clicked'),
+      badge: maintenanceCount
+    },
+    {
+      id: 'fuel',
+      label: 'Fuel',
+      icon: <Fuel className="h-5 w-5" />,
+      onClick: () => console.log('Fuel clicked')
+    }
+  ];
+
   // Side Panel Content
   const sidePanel = (
     <div className="space-y-4">
       <div>
-        <h2 className="text-2xl font-bold text-slate-900">Fleet Overview</h2>
-        <p className="text-sm text-slate-500 mt-1">Real-time vehicle monitoring</p>
+        <h2 className="text-xl sm:text-2xl font-bold text-slate-900">Fleet Overview</h2>
+        <p className="text-xs sm:text-sm text-slate-500 mt-1">Real-time vehicle monitoring</p>
       </div>
 
-      {/* Quick Stats */}
-      <div className="grid grid-cols-3 gap-2">
+      {/* Quick Stats - Responsive Grid */}
+      <div className="grid grid-cols-3 gap-2 sm:gap-3">
         <Card>
-          <CardContent className="pt-4 pb-3 px-3">
-            <div className="text-2xl font-bold text-green-600">{activeCount}</div>
-            <div className="text-xs text-slate-500">Active</div>
+          <CardContent className="pt-3 pb-2 px-2 sm:pt-4 sm:pb-3 sm:px-3">
+            <div className="text-xl sm:text-2xl font-bold text-green-600">{activeCount}</div>
+            <div className="text-[10px] sm:text-xs text-slate-500">Active</div>
           </CardContent>
         </Card>
         <Card>
-          <CardContent className="pt-4 pb-3 px-3">
-            <div className="text-2xl font-bold text-amber-600">{maintenanceCount}</div>
-            <div className="text-xs text-slate-500">Maintenance</div>
+          <CardContent className="pt-3 pb-2 px-2 sm:pt-4 sm:pb-3 sm:px-3">
+            <div className="text-xl sm:text-2xl font-bold text-amber-600">{maintenanceCount}</div>
+            <div className="text-[10px] sm:text-xs text-slate-500">Maintenance</div>
           </CardContent>
         </Card>
         <Card>
-          <CardContent className="pt-4 pb-3 px-3">
-            <div className="text-2xl font-bold text-slate-900">{totalVehicles}</div>
-            <div className="text-xs text-slate-500">Total</div>
+          <CardContent className="pt-3 pb-2 px-2 sm:pt-4 sm:pb-3 sm:px-3">
+            <div className="text-xl sm:text-2xl font-bold text-slate-900">{totalVehicles}</div>
+            <div className="text-[10px] sm:text-xs text-slate-500">Total</div>
           </CardContent>
         </Card>
       </div>
@@ -75,10 +104,17 @@ export function LiveFleetDashboard() {
         </Card>
       )}
 
-      {/* Quick Actions */}
+      {/* Quick Actions - Mobile Optimized */}
       <div className="space-y-2">
         <h3 className="text-sm font-semibold text-slate-700">Quick Actions</h3>
-        <div className="grid grid-cols-2 gap-2">
+        {/* Mobile: Horizontal scroll, Desktop: Grid */}
+        <div className="md:hidden">
+          <MobileQuickActions
+            actions={quickActions}
+            layout="horizontal-scroll"
+          />
+        </div>
+        <div className="hidden md:grid grid-cols-2 gap-2">
           <Button
             variant="outline"
             size="sm"
@@ -118,10 +154,22 @@ export function LiveFleetDashboard() {
         </div>
       </div>
 
-      {/* Vehicle List */}
+      {/* Vehicle List - Mobile uses MobileVehicleCard, Desktop uses custom */}
       <div>
         <h3 className="text-sm font-semibold text-slate-700 mb-2">Recent Activity</h3>
-        <div className="space-y-2 max-h-64 overflow-y-auto">
+        {/* Mobile: List variant */}
+        <div className="md:hidden space-y-0 max-h-64 overflow-y-auto border-t border-slate-200">
+          {vehicles.slice(0, 10).map((vehicle: any) => (
+            <MobileVehicleCard
+              key={vehicle.id}
+              vehicle={vehicle}
+              onClick={(v) => setSelectedVehicleId(v.id)}
+              variant="list"
+            />
+          ))}
+        </div>
+        {/* Desktop: Original design */}
+        <div className="hidden md:block space-y-2 max-h-64 overflow-y-auto">
           {vehicles.slice(0, 10).map((vehicle: any) => (
             <div
               key={vehicle.id}
@@ -184,6 +232,16 @@ export function LiveFleetDashboard() {
     );
   }
 
+  // Map controls for mobile
+  const mapControls = (
+    <MobileMapControls
+      onZoomIn={() => console.log('Zoom in')}
+      onZoomOut={() => console.log('Zoom out')}
+      onLocate={() => console.log('Locate me')}
+      onToggleLayers={() => console.log('Toggle layers')}
+    />
+  );
+
   return (
     <MapFirstLayout
       mapComponent={
@@ -191,6 +249,7 @@ export function LiveFleetDashboard() {
       }
       sidePanel={sidePanel}
       drawerContent={drawerContent}
+      mapControls={mapControls}
     />
   );
 }

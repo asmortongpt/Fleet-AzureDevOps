@@ -539,6 +539,18 @@ export const navigationItems: NavigationItem[] = [
     label: "Drivers Hub",
     icon: <Users className="w-5 h-5" />,
     section: "hubs"
+  },
+  {
+    id: "safety-hub",
+    label: "Safety Hub",
+    icon: <FirstAid className="w-5 h-5" />,
+    section: "hubs"
+  },
+  {
+    id: "assets-hub",
+    label: "Assets Hub",
+    icon: <Barcode className="w-5 h-5" />,
+    section: "hubs"
   }
 ]
 
