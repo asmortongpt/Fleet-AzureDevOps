@@ -89,6 +89,7 @@ import {
 import { toast } from "sonner"
 import { apiClient } from "@/lib/api-client"
 
+import logger from '@/utils/logger';
 interface Task {
   id: string
   task_title: string
@@ -160,7 +161,7 @@ export function EnhancedTaskManagement() {
       const response = await apiClient.get(`/api/task-management?${params.toString()}`)
       setTasks(response.tasks || [])
     } catch (error) {
-      console.error("Error fetching tasks:", error)
+      logger.error("Error fetching tasks:", error)
       toast.error("Failed to load tasks")
     } finally {
       setLoading(false)
@@ -194,7 +195,7 @@ export function EnhancedTaskManagement() {
         setNewTask(prev => ({ ...prev, estimated_hours: response.suggestions.estimatedHours }))
       }
     } catch (error) {
-      console.error("Error getting AI suggestions:", error)
+      logger.error("Error getting AI suggestions:", error)
       toast.error("Failed to get AI suggestions")
     } finally {
       setIsLoadingAI(false)
@@ -228,7 +229,7 @@ export function EnhancedTaskManagement() {
       setIsAddDialogOpen(true)
       toast.success("Task parsed from natural language!")
     } catch (error) {
-      console.error("Error parsing NLP task:", error)
+      logger.error("Error parsing NLP task:", error)
       toast.error("Failed to parse task")
     } finally {
       setIsLoadingAI(false)
@@ -248,7 +249,7 @@ export function EnhancedTaskManagement() {
       setIsAddDialogOpen(false)
       resetNewTask()
     } catch (error) {
-      console.error("Error creating task:", error)
+      logger.error("Error creating task:", error)
       toast.error("Failed to create task")
     }
   }
@@ -269,7 +270,7 @@ export function EnhancedTaskManagement() {
       setSelectedTasks(new Set())
       fetchTasks()
     } catch (error) {
-      console.error("Error performing bulk action:", error)
+      logger.error("Error performing bulk action:", error)
       toast.error(`Failed to ${action} tasks`)
     }
   }
@@ -290,7 +291,7 @@ export function EnhancedTaskManagement() {
 
       toast.success(`Tasks exported as ${format.toUpperCase()}`)
     } catch (error) {
-      console.error("Error exporting tasks:", error)
+      logger.error("Error exporting tasks:", error)
       toast.error("Failed to export tasks")
     }
   }

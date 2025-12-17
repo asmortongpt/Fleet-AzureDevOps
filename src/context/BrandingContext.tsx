@@ -17,7 +17,7 @@ export const BrandingProvider: React.FC<{ tenantId: string }> = ({ tenantId, chi
         const config = await BrandingService.getBrandingConfig(tenantId);
         setBrandingConfig(config);
       } catch (error) {
-        console.error('Error loading branding configuration', error);
+        // Silent failure for branding config - will use defaults
       }
     };
 

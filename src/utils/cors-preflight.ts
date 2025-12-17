@@ -50,14 +50,14 @@ export function handlePreflightRequest(
   requestHeaders: string[] = []
 ): Record<string, string> | null {
   if (!isOriginAllowed(origin)) {
-    console.warn('CORS: Origin not allowed:', origin);
+    logger.warn('CORS: Origin not allowed:', origin);
     return null;
   }
 
   // Allowed methods
   const allowedMethods = ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'];
   if (!allowedMethods.includes(requestMethod.toUpperCase())) {
-    console.warn('CORS: Method not allowed:', requestMethod);
+    logger.warn('CORS: Method not allowed:', requestMethod);
     return null;
   }
 
@@ -76,7 +76,7 @@ export function handlePreflightRequest(
     header => !allowedHeaders.includes(header)
   );
   if (invalidHeaders.length > 0) {
-    console.warn('CORS: Headers not allowed:', invalidHeaders);
+    logger.warn('CORS: Headers not allowed:', invalidHeaders);
   }
 
   return {

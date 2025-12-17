@@ -11,7 +11,7 @@ export function safeGetLocalStorage(key: string, defaultValue: string | null = n
     }
     return localStorage.getItem(key) ?? defaultValue
   } catch (error) {
-    console.warn("Failed to access localStorage:", error)
+    logger.warn("Failed to access localStorage:", error)
     return defaultValue
   }
 }
@@ -30,7 +30,7 @@ export function safeSetLocalStorage(key: string, value: string): boolean {
     localStorage.setItem(key, value)
     return true
   } catch (error) {
-    console.warn("Failed to set localStorage:", error)
+    logger.warn("Failed to set localStorage:", error)
     return false
   }
 }

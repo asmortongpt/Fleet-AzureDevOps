@@ -48,6 +48,7 @@ import {
 import { ArrowsClockwise } from "@phosphor-icons/react"
 import type { Vehicle, GISFacility } from "@/lib/types"
 
+import logger from '@/utils/logger';
 /**
  * Represents a stop in an optimized route
  */
@@ -179,7 +180,7 @@ export function AdvancedRouteOptimization() {
       }
       return []
     } catch (err) {
-      console.error("Error transforming routes:", err)
+      logger.error("Error transforming routes:", err)
       setError("Failed to load routes")
       return []
     }

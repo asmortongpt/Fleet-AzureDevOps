@@ -7,6 +7,7 @@ import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import bcrypt from 'bcryptjs';
 
+import logger from '@/utils/logger';
 interface CheckoutAssetModalProps {
   show: boolean;
   onHide: () => void;
@@ -50,13 +51,13 @@ const CheckoutAssetModal: React.FC<CheckoutAssetModalProps> = ({ show, onHide, a
 
       if (response.status === 200) {
         // Audit logging for critical action
-        console.log(`Asset ${assetId} checked out by ${data.assignee} for tenant ${tenantId}`);
+        logger.debug(`Asset ${assetId} checked out by ${data.assignee} for tenant ${tenantId}`);
         onHide();
       } else {
         throw new Error('Failed to checkout asset');
       }
     } catch (err) {
-      console.error('Error during asset checkout:', err);
+      logger.error('Error during asset checkout:', err);
       setError('An error occurred during checkout. Please try again.');
     }
   };
