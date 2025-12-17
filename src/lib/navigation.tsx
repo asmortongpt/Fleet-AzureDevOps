@@ -72,6 +72,24 @@ export const navigationItems: NavigationItem[] = [
     section: "main"
   },
   {
+    id: "operations-workspace",
+    label: "Operations Workspace",
+    icon: <Broadcast className="w-5 h-5" />,
+    section: "main"
+  },
+  {
+    id: "fleet-workspace",
+    label: "Fleet Workspace",
+    icon: <CarProfile className="w-5 h-5" />,
+    section: "main"
+  },
+  {
+    id: "maintenance-workspace",
+    label: "Maintenance Workspace",
+    icon: <Wrench className="w-5 h-5" />,
+    section: "main"
+  },
+  {
     id: "dispatch-console",
     label: "Dispatch Console",
     icon: <Broadcast className="w-5 h-5" />,
