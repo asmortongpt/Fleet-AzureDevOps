@@ -1,272 +1,301 @@
-# Fleet Management - Security Analysis & DI Verification Pipeline
+# Fleet Production Deployment Pipeline
+# Azure DevOps CI/CD for Docker Compose Multi-Service Application
+
 trigger:
   branches:
     include:
       - main
+      - stage-a/*
   paths:
-    include:
-      - 'api/src/**/*.ts'
-      - 'src/**/*.ts'
-      - 'package.json'
-      - 'api/package.json'
-
-pr:
-  branches:
-    include:
-      - main
-
-schedules:
-- cron: "0 6 * * 1"
-  displayName: Weekly Security Scan
-  branches:
-    include:
-      - main
-  always: true
+    exclude:
+      - '*.md'
+      - 'docs/**'
 
 variables:
-  NODE_VERSION: '20.x'
-
-pool:
-  vmImage: 'ubuntu-latest'
+  - group: fleet-production-secrets  # Variable group in Azure DevOps
+  - name: imageRepository
+    value: 'ctafleet'
+  - name: containerRegistry
+    value: 'fleetacr.azurecr.io'
+  - name: dockerComposeFile
+    value: 'docker-compose.production.yml'
+  - name: azureSubscription
+    value: 'Azure-Production'
+  - name: resourceGroup
+    value: 'fleet-production-rg'
+  - name: keyVaultName
+    value: 'fleet-secrets-0d326d71'
 
 stages:
-- stage: SecurityAnalysis
-  displayName: 'Security & Quality Analysis'
-  jobs:
+  - stage: Build
+    displayName: 'Build and Push Docker Images'
+    jobs:
+      - job: BuildImages
+        displayName: 'Build All Services'
+        pool:
+          vmImage: 'ubuntu-latest'
+        
+        steps:
+          - checkout: self
+            fetchDepth: 1
+          
+          - task: AzureKeyVault@2
+            displayName: 'Fetch Secrets from Key Vault'
+            inputs:
+              azureSubscription: '$(azureSubscription)'
+              KeyVaultName: '$(keyVaultName)'
+              SecretsFilter: '*'
+              RunAsPreJob: true
+          
+          - task: Docker@2
+            displayName: 'Login to ACR'
+            inputs:
+              command: login
+              containerRegistry: $(containerRegistry)
+          
+          - script: |
+              echo "Creating production .env file..."
+              cat > .env.production << ENVEOF
+              POSTGRES_DB=fleetdb
+              POSTGRES_USER=fleetadmin
+              POSTGRES_PASSWORD=$(DATABASE-PASSWORD)
+              POSTGRES_PORT=5432
+              REDIS_PASSWORD=$(redis-password)
+              REDIS_PORT=6379
+              API_PORT=3000
+              JWT_SECRET=$(jwt-secret)
+              JWT_EXPIRES_IN=1h
+              FRONTEND_PORT=80
+              AZURE_OPENAI_ENDPOINT=$(azure-openai-endpoint)
+              AZURE_OPENAI_KEY=$(azure-openai-key)
+              AZURE_STORAGE_CONNECTION_STRING=$(azure-storage-connection-string)
+              MS_GRAPH_CLIENT_ID=$(AZURE-AD-CLIENT-ID)
+              MS_GRAPH_CLIENT_SECRET=$(AZURE-AD-CLIENT-SECRET)
+              APPLICATION_INSIGHTS_CONNECTION_STRING=$(app-insights-connection-string)
+              VITE_AZURE_MAPS_SUBSCRIPTION_KEY=$(azure-maps-key)
+              GRAFANA_ADMIN_USER=admin
+              GRAFANA_ADMIN_PASSWORD=GrafanaFleet2024!
+              GRAFANA_ROOT_URL=https://fleet-monitoring.azurewebsites.net
+              CORS_ORIGIN=*
+              NODE_ENV=production
+              VITE_ENVIRONMENT=production
+              ENVIRONMENT=production
+              CACHE_BUST=$(Build.BuildId)
+              ENVEOF
+              echo "✅ Environment file created"
+            displayName: 'Create Production Environment File'
+          
+          - script: |
+              docker-compose -f $(dockerComposeFile) build \
+                --build-arg BUILDKIT_INLINE_CACHE=1 \
+                --parallel
+            displayName: 'Build Docker Images'
+            env:
+              DOCKER_BUILDKIT: 1
+              COMPOSE_DOCKER_CLI_BUILD: 1
+          
+          - script: |
+              docker-compose -f $(dockerComposeFile) push
+            displayName: 'Push Images to ACR'
+          
+          - task: PublishBuildArtifacts@1
+            displayName: 'Publish Docker Compose Files'
+            inputs:
+              PathtoPublish: '$(System.DefaultWorkingDirectory)'
+              ArtifactName: 'drop'
+              publishLocation: 'Container'
 
-  - job: CodeQLScan
-    displayName: 'CodeQL Security Scan'
-    timeoutInMinutes: 45
-    steps:
-    - checkout: self
-      fetchDepth: 0
-      clean: true
+  - stage: DeployStaging
+    displayName: 'Deploy to Staging'
+    dependsOn: Build
+    condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/main'))
+    jobs:
+      - deployment: DeployContainers
+        displayName: 'Deploy to Azure Container Instances'
+        pool:
+          vmImage: 'ubuntu-latest'
+        environment: 'fleet-staging'
+        strategy:
+          runOnce:
+            deploy:
+              steps:
+                - download: current
+                  artifact: drop
+                
+                - task: AzureCLI@2
+                  displayName: 'Deploy to Azure Container Instances'
+                  inputs:
+                    azureSubscription: '$(azureSubscription)'
+                    scriptType: 'bash'
+                    scriptLocation: 'inlineScript'
+                    inlineScript: |
+                      echo "🚀 Deploying Fleet to Azure Container Instances..."
+                      
+                      # Create resource group if not exists
+                      az group create --name $(resourceGroup)-staging --location eastus2
+                      
+                      # Deploy PostgreSQL
+                      az container create \
+                        --resource-group $(resourceGroup)-staging \
+                        --name fleet-postgres-staging \
+                        --image postgres:15-alpine \
+                        --dns-name-label fleet-postgres-staging \
+                        --ports 5432 \
+                        --environment-variables \
+                          POSTGRES_DB=fleetdb \
+                          POSTGRES_USER=fleetadmin \
+                        --secure-environment-variables \
+                          POSTGRES_PASSWORD=$(DATABASE-PASSWORD) \
+                        --cpu 2 --memory 4
+                      
+                      # Deploy Redis
+                      az container create \
+                        --resource-group $(resourceGroup)-staging \
+                        --name fleet-redis-staging \
+                        --image redis:7-alpine \
+                        --dns-name-label fleet-redis-staging \
+                        --ports 6379 \
+                        --command-line "redis-server --requirepass $(redis-password)" \
+                        --cpu 1 --memory 2
+                      
+                      # Deploy API
+                      az container create \
+                        --resource-group $(resourceGroup)-staging \
+                        --name fleet-api-staging \
+                        --image $(containerRegistry)/$(imageRepository)-api:$(Build.BuildId) \
+                        --registry-login-server $(containerRegistry) \
+                        --registry-username $(ACR_USERNAME) \
+                        --registry-password $(ACR_PASSWORD) \
+                        --dns-name-label fleet-api-staging \
+                        --ports 3000 \
+                        --environment-variables \
+                          NODE_ENV=production \
+                          PORT=3000 \
+                        --secure-environment-variables \
+                          DATABASE_URL="postgresql://fleetadmin:$(DATABASE-PASSWORD)@fleet-postgres-staging.eastus2.azurecontainer.io:5432/fleetdb" \
+                          REDIS_URL="redis://:$(redis-password)@fleet-redis-staging.eastus2.azurecontainer.io:6379" \
+                          JWT_SECRET=$(jwt-secret) \
+                        --cpu 2 --memory 4
+                      
+                      # Deploy Frontend
+                      az container create \
+                        --resource-group $(resourceGroup)-staging \
+                        --name fleet-frontend-staging \
+                        --image $(containerRegistry)/$(imageRepository)-frontend:$(Build.BuildId) \
+                        --registry-login-server $(containerRegistry) \
+                        --registry-username $(ACR_USERNAME) \
+                        --registry-password $(ACR_PASSWORD) \
+                        --dns-name-label fleet-staging \
+                        --ports 80 443 \
+                        --cpu 1 --memory 2
+                      
+                      echo "✅ Deployment complete!"
+                      echo "🌐 Frontend: https://fleet-staging.eastus2.azurecontainer.io"
+                      echo "🔌 API: https://fleet-api-staging.eastus2.azurecontainer.io"
+                
+                - task: AzureCLI@2
+                  displayName: 'Health Check'
+                  inputs:
+                    azureSubscription: '$(azureSubscription)'
+                    scriptType: 'bash'
+                    scriptLocation: 'inlineScript'
+                    inlineScript: |
+                      echo "🏥 Running health checks..."
+                      sleep 30  # Wait for containers to start
+                      
+                      API_URL="http://fleet-api-staging.eastus2.azurecontainer.io:3000/api/health"
+                      FRONTEND_URL="http://fleet-staging.eastus2.azurecontainer.io"
+                      
+                      # Check API health
+                      if curl -f -s "$API_URL" | grep -q "healthy"; then
+                        echo "✅ API is healthy"
+                      else
+                        echo "❌ API health check failed"
+                        exit 1
+                      fi
+                      
+                      # Check Frontend
+                      if curl -f -s "$FRONTEND_URL" > /dev/null; then
+                        echo "✅ Frontend is accessible"
+                      else
+                        echo "❌ Frontend health check failed"
+                        exit 1
+                      fi
 
-    - task: NodeTool@0
-      displayName: 'Setup Node.js $(NODE_VERSION)'
-      inputs:
-        versionSpec: $(NODE_VERSION)
-
-    - script: npm ci
-      displayName: 'Install Root Dependencies'
-      workingDirectory: $(Build.SourcesDirectory)
-
-    - script: npm ci
-      displayName: 'Install API Dependencies'
-      workingDirectory: $(Build.SourcesDirectory)/api
-
-    - task: AdvancedSecurity-Codeql-Init@1
-      displayName: 'Initialize CodeQL'
-      inputs:
-        languages: 'typescript'
-        querysuite: 'security-extended'
-
-    - task: AdvancedSecurity-Codeql-Autobuild@1
-      displayName: 'CodeQL Autobuild'
-
-    - task: AdvancedSecurity-Codeql-Analyze@1
-      displayName: 'Perform CodeQL Analysis'
-      inputs:
-        querysuite: 'security-extended'
-
-    - script: |
-        echo "##[section]CodeQL Security Scan Summary"
-        echo "✅ Scan completed successfully"
-        echo "📊 Results uploaded to Azure DevOps Advanced Security"
-        echo "🔍 SQL Injection Checks: PASS"
-        echo "🔒 Hardcoded Secrets Checks: PASS"
-        echo "✨ Phase 2 DI Migration Security: VERIFIED"
-      displayName: 'Security Scan Summary'
-
-  - job: DIVerification
-    displayName: 'Dependency Injection Container Verification'
-    dependsOn: []
-    steps:
-    - checkout: self
-      clean: true
-
-    - task: NodeTool@0
-      displayName: 'Setup Node.js $(NODE_VERSION)'
-      inputs:
-        versionSpec: $(NODE_VERSION)
-
-    - script: npm ci
-      displayName: 'Install API Dependencies'
-      workingDirectory: $(Build.SourcesDirectory)/api
-
-    - script: |
-        echo "##[section]Running TypeScript compilation check..."
-        npx tsc --noEmit || echo "##[warning]Pre-existing TypeScript errors detected (expected)"
-      displayName: 'TypeScript Compilation Check'
-      workingDirectory: $(Build.SourcesDirectory)/api
-
-    - script: |
-        mkdir -p src/__tests__
-        cat > src/__tests__/di-container-resolution.test.ts << 'EOF'
-        import { container } from '../container'
-
-        describe('DI Container Resolution - Phase 2 Verification', () => {
-          // All 94 services migrated in Phase 2
-          const serviceNames = [
-            // Tier 1: Foundation (3 services)
-            'auditService', 'storageManager', 'offlineStorageService',
-
-            // Tier 2: Business Logic (16 services)
-            'vehicleService', 'driverService', 'maintenanceService', 'fuelService',
-            'inspectionService', 'complianceService', 'safetyService', 'workOrderService',
-            'assetService', 'costService', 'tripService', 'routeService',
-            'dispatchService', 'reportService', 'dashboardService', 'policyService',
-
-            // Tier 3: Document Management (12 services)
-            'documentService', 'documentVersionService', 'documentSearchService',
-            'documentShareService', 'documentApprovalService', 'documentCategoryService',
-            'documentOcrService', 'documentTemplateService', 'documentRetentionService',
-            'documentAuditService', 'documentAccessService', 'documentIndexService',
-
-            // Tier 4: AI/ML Services (13 total)
-            'openaiService', 'aiValidationService', 'aiOcrService', 'aiIntakeService',
-            'aiTaskPrioritizationService', 'aiControlsService', 'aiPredictiveMaintenanceService',
-            'aiDriverScoringService', 'aiRoutePlanningService', 'aiAnomalyDetectionService',
-            'aiNaturalLanguageService', 'ai' + 'DataQualityService', 'aiReportingService',
-
-            // Tier 5: Integration (17 services)
-            'microsoftGraphService', 'teamsService', 'outlookService', 'smartcarService',
-            'stripeService', 'samsaraService', 'geocodingService', 'weatherService',
-            'fuelPriceService', 'evChargingService', 'telematicsService', 'externalApiService',
-            'webhookService', 'apiKeyService', 'oauthService', 'ssoService', 'idpService',
-
-            // Tier 6: Communication (2 services)
-            'emailService', 'smsService',
-
-            // Tier 7: Reporting (5 services)
-            'billingReportService', 'costAnalysisService', 'customReportService',
-            'executiveDashboardService', 'routeOptimizationService',
-
-            // Batch 1: Large Specialized (4 services)
-            'schedulingService', 'attachmentService', 'photoProcessingService',
-            'heavyEquipmentService',
-
-            // Batch 2: Medium Domain (6 services)
-            'jobQueueService', 'taskAssetConfigManager', 'notificationService',
-            'customFieldsService', 'analyticsService', 'recurringMaintenanceService',
-
-            // Batch 3: Small Utility (5 services)
-            'taskAssetAIService', 'collaborationService', 'vehicleIdentificationService',
-            'ocrService', 'utilizationCalcService'
-          ]
-
-          test('All 94 services should be registered in container', () => {
-            expect(serviceNames.length).toBe(94)
-          })
-
-          serviceNames.forEach(serviceName => {
-            test(\`\${serviceName} should resolve from container\`, () => {
-              expect(() => {
-                const service = container.resolve(serviceName)
-                expect(service).toBeDefined()
-                expect(service).not.toBeNull()
-              }).not.toThrow()
-            })
-          })
-
-          test('Services should have database pool injected via constructor', () => {
-            const testService = container.resolve('vehicleService')
-            expect(testService).toHaveProperty('db')
-          })
-
-          test('Services should use SINGLETON lifetime (same instance)', () => {
-            const service1 = container.resolve('vehicleService')
-            const service2 = container.resolve('vehicleService')
-            expect(service1).toBe(service2)
-          })
-        })
-        EOF
-        echo "##[section]✅ DI resolution test created"
-      displayName: 'Create DI Resolution Test'
-      workingDirectory: $(Build.SourcesDirectory)/api
-
-    - script: |
-        npm test -- --testPathPattern=di-container-resolution --passWithNoTests || echo "##[warning]Tests require runtime environment"
-      displayName: 'Run DI Container Tests'
-      workingDirectory: $(Build.SourcesDirectory)/api
-      continueOnError: true
-
-    - script: |
-        echo "##[section]====================================="
-        echo "##[section]DI Container Verification Summary"
-        echo "##[section]====================================="
-        echo ""
-        echo "✅ Phase 2: Services Migration COMPLETE"
-        echo "   • 94/94 services migrated to Awilix DI"
-        echo "   • Constructor injection implemented"
-        echo "   • SINGLETON lifetime configured"
-        echo "   • Zero legacy pool imports in services"
-        echo ""
-        echo "📊 Migration Statistics:"
-        echo "   • Tier 1 Foundation: 3/3 services"
-        echo "   • Tier 2 Business Logic: 16/16 services"
-        echo "   • Tier 3 Document Management: 12/12 services"
-        echo "   • Tier 4 AI/ML: 13/13 services"
-        echo "   • Tier 5 Integration: 17/17 services"
-        echo "   • Tier 6 Communication: 2/2 services"
-        echo "   • Tier 7 Reporting: 5/5 services"
-        echo "   • Batch 1 Large Specialized: 4/4 services"
-        echo "   • Batch 2 Medium Domain: 6/6 services"
-        echo "   • Batch 3 Small Utility: 5/5 services"
-        echo ""
-        echo "🔒 Security Status:"
-        echo "   • Zero vulnerabilities across 10 commits"
-        echo "   • 232 parameterized queries (no SQL injection)"
-        echo "   • Gitleaks pre-commit hooks active"
-        echo "   • TypeScript strict mode enabled"
-        echo ""
-        echo "📈 Code Quality:"
-        echo "   • ~14,498 lines converted"
-        echo "   • 42 function-to-class conversions"
-        echo "   • 26 singleton exports removed"
-        echo "   • 100% gitleaks compliance"
-        echo ""
-        echo "##[section]====================================="
-        echo "##[section]Phase 2 Migration: PRODUCTION READY ✅"
-        echo "##[section]====================================="
-      displayName: 'DI Verification Summary Report'
-
-- stage: BuildVerification
-  displayName: 'Build Verification'
-  dependsOn: SecurityAnalysis
-  condition: succeeded()
-  jobs:
-  - job: BuildFrontend
-    displayName: 'Build Frontend Application'
-    steps:
-    - checkout: self
-      clean: true
-
-    - task: NodeTool@0
-      displayName: 'Setup Node.js $(NODE_VERSION)'
-      inputs:
-        versionSpec: $(NODE_VERSION)
-
-    - script: npm ci
-      displayName: 'Install Dependencies'
-
-    - script: npx vite build
-      displayName: 'Build Frontend with Vite'
-
-    - script: |
-        if [ -d "dist" ]; then
-          echo "✅ Build successful - dist folder exists"
-          ls -la dist/
-          du -sh dist/
-        else
-          echo "❌ Build failed - dist folder not found"
-          exit 1
-        fi
-      displayName: 'Verify Build Output'
-
-    - task: PublishBuildArtifacts@1
-      displayName: 'Publish Build Artifacts'
-      inputs:
-        PathtoPublish: 'dist'
-        ArtifactName: 'fleet-frontend'
-        publishLocation: 'Container'
+  - stage: DeployProduction
+    displayName: 'Deploy to Production'
+    dependsOn: DeployStaging
+    condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/main'))
+    jobs:
+      - deployment: DeployProduction
+        displayName: 'Deploy to Production ACI'
+        pool:
+          vmImage: 'ubuntu-latest'
+        environment: 'fleet-production'
+        strategy:
+          runOnce:
+            deploy:
+              steps:
+                - download: current
+                  artifact: drop
+                
+                - task: AzureCLI@2
+                  displayName: 'Deploy to Production'
+                  inputs:
+                    azureSubscription: '$(azureSubscription)'
+                    scriptType: 'bash'
+                    scriptLocation: 'inlineScript'
+                    inlineScript: |
+                      echo "🚀 Deploying Fleet to Production..."
+                      
+                      az group create --name $(resourceGroup) --location eastus2
+                      
+                      # Production deployments (same as staging but with -prod suffix)
+                      az container create \
+                        --resource-group $(resourceGroup) \
+                        --name fleet-postgres-prod \
+                        --image postgres:15-alpine \
+                        --dns-name-label fleet-postgres-prod \
+                        --ports 5432 \
+                        --environment-variables POSTGRES_DB=fleetdb POSTGRES_USER=fleetadmin \
+                        --secure-environment-variables POSTGRES_PASSWORD=$(DATABASE-PASSWORD) \
+                        --cpu 4 --memory 8
+                      
+                      az container create \
+                        --resource-group $(resourceGroup) \
+                        --name fleet-redis-prod \
+                        --image redis:7-alpine \
+                        --dns-name-label fleet-redis-prod \
+                        --ports 6379 \
+                        --command-line "redis-server --requirepass $(redis-password)" \
+                        --cpu 2 --memory 4
+                      
+                      az container create \
+                        --resource-group $(resourceGroup) \
+                        --name fleet-api-prod \
+                        --image $(containerRegistry)/$(imageRepository)-api:$(Build.BuildId) \
+                        --registry-login-server $(containerRegistry) \
+                        --registry-username $(ACR_USERNAME) \
+                        --registry-password $(ACR_PASSWORD) \
+                        --dns-name-label fleet-api-prod \
+                        --ports 3000 \
+                        --environment-variables NODE_ENV=production PORT=3000 \
+                        --secure-environment-variables \
+                          DATABASE_URL="postgresql://fleetadmin:$(DATABASE-PASSWORD)@fleet-postgres-prod.eastus2.azurecontainer.io:5432/fleetdb" \
+                          REDIS_URL="redis://:$(redis-password)@fleet-redis-prod.eastus2.azurecontainer.io:6379" \
+                          JWT_SECRET=$(jwt-secret) \
+                        --cpu 4 --memory 8
+                      
+                      az container create \
+                        --resource-group $(resourceGroup) \
+                        --name fleet-frontend-prod \
+                        --image $(containerRegistry)/$(imageRepository)-frontend:$(Build.BuildId) \
+                        --registry-login-server $(containerRegistry) \
+                        --registry-username $(ACR_USERNAME) \
+                        --registry-password $(ACR_PASSWORD) \
+                        --dns-name-label fleet-production \
+                        --ports 80 443 \
+                        --cpu 2 --memory 4
+                      
+                      echo "✅ Production deployment complete!"
+                      echo "🌐 Production URL: https://fleet-production.eastus2.azurecontainer.io"
