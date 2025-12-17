@@ -121,6 +121,11 @@ const EquipmentDashboard = lazy(() => import("@/components/modules/assets/Equipm
 const DriverPerformance = lazy(() => import("@/components/modules/drivers/DriverPerformance").then(m => ({ default: m.DriverPerformance })))
 const DriverScorecard = lazy(() => import("@/components/modules/drivers/DriverScorecard").then(m => ({ default: m.DriverScorecard })))
 
+// WORKSPACE MODULES (Phase 1 UX Consolidation)
+const OperationsWorkspace = lazy(() => import("@/components/workspaces/OperationsWorkspace").then(m => ({ default: m.OperationsWorkspace })))
+const FleetWorkspace = lazy(() => import("@/components/workspaces/FleetWorkspace").then(m => ({ default: m.FleetWorkspace })))
+const MaintenanceWorkspace = lazy(() => import("@/components/workspaces/MaintenanceWorkspace").then(m => ({ default: m.MaintenanceWorkspace })))
+
 // PAGES
 const SettingsPage = lazy(() => import("@/pages/SettingsPage"))
 const ProfilePage = lazy(() => import("@/pages/ProfilePage"))
@@ -190,6 +195,12 @@ function App() {
         return <ExecutiveDashboard />
       case "admin-dashboard":
         return <AdminDashboard />
+      case "operations-workspace":
+        return <OperationsWorkspace data={fleetData} />
+      case "fleet-workspace":
+        return <FleetWorkspace data={fleetData} />
+      case "maintenance-workspace":
+        return <MaintenanceWorkspace data={fleetData} />
       case "dispatch-console":
         return <DispatchConsole />
       case "people":
