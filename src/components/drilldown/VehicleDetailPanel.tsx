@@ -34,6 +34,7 @@ import { MetricCard } from './MetricCard'
 import { AssetRelationshipsList } from './AssetRelationshipsList'
 import { VehicleHistoryTrail } from '@/components/vehicle/VehicleHistoryTrail'
 import { TripPlayback } from '@/components/vehicle/TripPlayback'
+import logger from '@/utils/logger';
 import {
   ExtendedVehicleData,
   ASSET_CATEGORY_LABELS,
@@ -541,7 +542,7 @@ export function VehicleDetailPanel({ vehicleId }: VehicleDetailPanelProps) {
                       startDate={dateRange.startDate}
                       endDate={dateRange.endDate}
                       onPointClick={(point) => {
-                        console.log('Location point clicked:', point)
+                        logger.debug('Location point clicked:', point)
                         setSelectedTripId(point.trip_id)
                       }}
                     />

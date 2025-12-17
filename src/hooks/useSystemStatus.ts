@@ -8,6 +8,7 @@ import { useVehicleTelemetry } from './useVehicleTelemetry'
 import { useOBD2Emulator } from './useOBD2Emulator'
 import apiClient from '@/lib/api-client'
 
+import logger from '@/utils/logger';
 export interface EmulatorStatus {
   id: string
   name: string
@@ -250,7 +251,7 @@ export function useSystemStatus(options: UseSystemStatusOptions = {}) {
           })))
         }
       } catch (error) {
-        console.error('Failed to fetch AI insights:', error)
+        logger.error('Failed to fetch AI insights:', error)
       }
     }
 

@@ -26,6 +26,7 @@ import {
 import { toast } from "sonner"
 import { apiClient } from "@/lib/api-client"
 
+import logger from '@/utils/logger';
 interface QAMessage {
   id: string
   type: 'question' | 'answer'
@@ -144,7 +145,7 @@ export function DocumentQA() {
       queryClient.invalidateQueries({ queryKey: ['documents', 'queries', 'history'] })
     },
     onError: (error, question) => {
-      console.error('Error asking question:', error)
+      logger.error('Error asking question:', error)
       toast.error('Failed to get answer. Please try again.')
 
       // Add user question to messages
@@ -179,7 +180,7 @@ export function DocumentQA() {
       toast.success('Thank you for your feedback!')
     },
     onError: (error) => {
-      console.error('Error submitting feedback:', error)
+      logger.error('Error submitting feedback:', error)
       toast.error('Failed to submit feedback')
     }
   })

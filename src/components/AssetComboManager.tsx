@@ -12,6 +12,7 @@
  */
 
 import React, { useState, useEffect } from 'react'
+import logger from '@/utils/logger';
 import {
   Link,
   Unlink,
@@ -115,7 +116,7 @@ export const AssetComboManager: React.FC<AssetComboManagerProps> = ({
       const data = await response.json()
       setVehicles(data.data || [])
     } catch (err: any) {
-      console.error('Error fetching vehicles:', err)
+      logger.error('Error fetching vehicles:', err)
     }
   }
 
@@ -132,7 +133,7 @@ export const AssetComboManager: React.FC<AssetComboManagerProps> = ({
       const data = await response.json()
       setRelationshipHistory(data.history || [])
     } catch (err: any) {
-      console.error('Error fetching history:', err)
+      logger.error('Error fetching history:', err)
     }
   }
 

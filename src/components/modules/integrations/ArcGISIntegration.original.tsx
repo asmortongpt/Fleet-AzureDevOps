@@ -48,6 +48,7 @@ import { apiClient } from "@/lib/api-client"
 import type { ArcGISLayerConfig } from "@/lib/arcgis/types"
 
 
+import logger from '@/utils/logger';
 type LayerHealth = "healthy" | "warning" | "error" | "unknown"
 
 interface LayerWithStatus extends ArcGISLayerConfig {
@@ -86,7 +87,7 @@ export function ArcGISIntegration() {
         }))
       )
     } catch (error) {
-      console.error("Failed to load ArcGIS layers:", error)
+      logger.error("Failed to load ArcGIS layers:", error)
       if (retryCount < maxRetries) {
         const delay = Math.pow(2, retryCount) * 1000
         setTimeout(() => loadLayers(retryCount + 1), delay)
