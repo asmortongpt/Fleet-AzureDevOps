@@ -50,7 +50,7 @@ function ChartContainer({
   const chartId = `chart-${id || uniqueId.replace(/:/g, "")}`
 
   return (
-    <ChartContext.Provider value={{ config) }}>
+    <ChartContext.Provider value={{ config }}>
       <div
         data-slot="chart"
         data-chart={chartId}
@@ -144,20 +144,20 @@ const ChartStyle = ({ id, config }: { id: string; config: ChartConfig }) => {
             ([theme, prefix]) => `
 ${prefix} [data-chart=${id}] {
 ${colorConfig
-  .map(([key, itemConfig]) => {
-    const color =
-      itemConfig.theme?.[theme as keyof typeof itemConfig.theme] ||
-      itemConfig.color
-    // Sanitize color value to prevent XSS
-    const sanitizedColor = sanitizeColor(color)
-    return sanitizedColor ? `  --color-${key}: ${sanitizedColor};` : null
-  })
-  .join("\n")}
+                .map(([key, itemConfig]) => {
+                  const color =
+                    itemConfig.theme?.[theme as keyof typeof itemConfig.theme] ||
+                    itemConfig.color
+                  // Sanitize color value to prevent XSS
+                  const sanitizedColor = sanitizeColor(color)
+                  return sanitizedColor ? `  --color-${key}: ${sanitizedColor};` : null
+                })
+                .join("\n")}
 }
 `
           )
           .join("\n"),
-     ) }}
+      }}
     />
   )
 }
@@ -353,7 +353,7 @@ function ChartLegendContent({
                 className="h-2 w-2 shrink-0 rounded-[2px]"
                 style={{
                   backgroundColor: item.color,
-               ) }}
+                }}
               />
             )}
             {itemConfig?.label}
@@ -376,8 +376,8 @@ function getPayloadConfigFromPayload(
 
   const payloadPayload =
     "payload" in payload &&
-    typeof payload.payload === "object" &&
-    payload.payload !== null
+      typeof payload.payload === "object" &&
+      payload.payload !== null
       ? payload.payload
       : undefined
 

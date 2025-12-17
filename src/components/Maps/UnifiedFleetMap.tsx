@@ -32,7 +32,7 @@ interface MapLayer {
   icon: React.ReactNode
   enabled: boolean
   color: string
-  count?: number
+  count?: number | string
 }
 
 /**
@@ -86,7 +86,7 @@ export const UnifiedFleetMap: React.FC<UnifiedFleetMapProps> = ({
   const [transitLayer, setTransitLayer] = useState<google.maps.TransitLayer | null>(null)
   const [bicyclingLayer, setBicyclingLayer] = useState<google.maps.BicyclingLayer | null>(null)
   const [geofences, setGeofences] = useState<Geofence[]>([])
-  const [showControls, setShowControls] = useState(true)
+  const [showControls, setShowControls] = useState(false)
 
   // Layer configuration
   const [layers, setLayers] = useState<MapLayer[]>([
@@ -149,16 +149,18 @@ export const UnifiedFleetMap: React.FC<UnifiedFleetMapProps> = ({
     setLayers(prev => prev.map(layer => {
       switch (layer.id) {
         case 'vehicles':
-          return { ...layer, count: vehicles.length }
+          const activeVehicles = vehicles.filter(v => v.status === 'active').length
+          return { ...layer, count: `${activeVehicles}/${vehicles.length}` }
         case 'facilities':
-          return { ...layer, count: facilities.length }
+          const operationalFacilities = facilities.filter(f => f.status === 'operational').length
+          return { ...layer, count: `${operationalFacilities}/${facilities.length}` }
         case 'geofences':
           return { ...layer, count: geofences.length }
         default:
           return layer
       }
     }))
-  }, [vehicles.length, facilities.length, geofences.length])
+  }, [vehicles, facilities, geofences.length]) // Added full dependencies
 
   /**
    * Handle map ready event
@@ -302,100 +304,96 @@ export const UnifiedFleetMap: React.FC<UnifiedFleetMapProps> = ({
 
   return (
     <div className="flex flex-col h-full">
-      {/* Layer Controls Bar */}
-      {showControls && (
-        <Card className="p-3 mb-3 border rounded-lg shadow-sm">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
+      {/* Floating Layer Controls (Top Left, below Tabs) */}
+      <div className="absolute top-14 left-2 z-10">
+        {showControls ? (
+          <Card className="p-3 border rounded-lg shadow-xl bg-background/95 backdrop-blur w-[600px] animate-in slide-in-from-top-2 duration-200">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-4">
+                <div className="flex items-center gap-2">
+                  <Layers className="w-5 h-5 text-muted-foreground" />
+                  <span className="font-medium">Map Layers</span>
+                </div>
+
+                <div className="flex flex-wrap gap-2">
+                  {layers.map(layer => (
+                    <div key={layer.id} className="flex items-center gap-1.5">
+                      <Switch
+                        id={layer.id}
+                        checked={layer.enabled}
+                        onCheckedChange={() => toggleLayer(layer.id)}
+                        className="scale-90"
+                      />
+                      <Label
+                        htmlFor={layer.id}
+                        className={`flex items-center gap-1 cursor-pointer text-sm ${layer.enabled ? layer.color : 'text-muted-foreground'
+                          }`}
+                      >
+                        {layer.icon}
+                        <span>{layer.name}</span>
+                        {layer.count !== undefined && (
+                          <Badge variant="secondary" className="ml-1 px-1.5 py-0 h-5 text-xs">
+                            {layer.count}
+                          </Badge>
+                        )}
+                      </Label>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
               <div className="flex items-center gap-2">
-                <Layers className="w-5 h-5 text-muted-foreground" />
-                <span className="font-medium">Map Layers</span>
-              </div>
-
-              <div className="flex flex-wrap gap-2">
-                {layers.map(layer => (
-                  <div key={layer.id} className="flex items-center gap-1.5">
-                    <Switch
-                      id={layer.id}
-                      checked={layer.enabled}
-                      onCheckedChange={() => toggleLayer(layer.id)}
-                      className="scale-90"
-                    />
-                    <Label
-                      htmlFor={layer.id}
-                      className={`flex items-center gap-1 cursor-pointer text-sm ${
-                        layer.enabled ? layer.color : 'text-muted-foreground'
-                      }`}
-                    >
-                      {layer.icon}
-                      <span>{layer.name}</span>
-                      {layer.count !== undefined && (
-                        <Badge variant="secondary" className="ml-1 px-1.5 py-0 h-5 text-xs">
-                          {layer.count}
-                        </Badge>
-                      )}
-                    </Label>
-                  </div>
-                ))}
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => toggleAllLayers(true)}
+                  className="text-xs h-7"
+                >
+                  <Eye className="w-3 h-3 mr-1" />
+                  All
+                </Button>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => toggleAllLayers(false)}
+                  className="text-xs h-7"
+                >
+                  <EyeOff className="w-3 h-3 mr-1" />
+                  None
+                </Button>
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  onClick={() => setShowControls(false)}
+                  className="text-xs h-7 w-7 p-0"
+                >
+                  <Settings className="w-3 h-3" />
+                </Button>
               </div>
             </div>
-
-            <div className="flex items-center gap-2">
-              <Button
-                size="sm"
-                variant="outline"
-                onClick={() => toggleAllLayers(true)}
-                className="text-xs"
-              >
-                <Eye className="w-3 h-3 mr-1" />
-                Show All
-              </Button>
-              <Button
-                size="sm"
-                variant="outline"
-                onClick={() => toggleAllLayers(false)}
-                className="text-xs"
-              >
-                <EyeOff className="w-3 h-3 mr-1" />
-                Hide All
-              </Button>
-              <Button
-                size="sm"
-                variant="ghost"
-                onClick={() => setShowControls(false)}
-                className="text-xs"
-              >
-                <Settings className="w-3 h-3" />
-              </Button>
-            </div>
-          </div>
-        </Card>
-      )}
-
-      {/* Collapsed Controls */}
-      {!showControls && (
-        <div className="absolute top-2 right-2 z-10">
+          </Card>
+        ) : (
           <Button
             size="sm"
-            variant="default"
+            variant="secondary"
             onClick={() => setShowControls(true)}
-            className="shadow-lg"
+            className="shadow-lg bg-background/95 backdrop-blur border border-white/10"
           >
-            <Layers className="w-4 h-4 mr-1" />
+            <Layers className="w-4 h-4 mr-2" />
             Show Layers
           </Button>
-        </div>
-      )}
+        )}
+      </div>
 
       {/* Main Content Area */}
       <div className="flex-1 relative">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="h-full">
-          <TabsList className="absolute top-2 left-2 z-10 bg-background/95 backdrop-blur">
-            <TabsTrigger value="map">Map View</TabsTrigger>
-            <TabsTrigger value="geofencing">
+          <TabsList className="absolute top-2 left-2 z-10 bg-background/95 backdrop-blur border border-white/10 shadow-lg rounded-lg h-9">
+            <TabsTrigger value="map" className="text-xs px-3">Map View</TabsTrigger>
+            <TabsTrigger value="geofencing" className="text-xs px-3">
               Geofencing
               {geofences.length > 0 && (
-                <Badge variant="secondary" className="ml-2 px-1.5 py-0 h-5">
+                <Badge variant="secondary" className="ml-2 px-1.5 py-0 h-4 min-w-[1.25rem] justify-center">
                   {geofences.length}
                 </Badge>
               )}
@@ -451,42 +449,6 @@ export const UnifiedFleetMap: React.FC<UnifiedFleetMapProps> = ({
             </div>
           </TabsContent>
         </Tabs>
-      </div>
-
-      {/* Status Bar */}
-      <div className="border-t bg-muted/50 px-3 py-2">
-        <div className="flex items-center justify-between text-xs text-muted-foreground">
-          <div className="flex items-center gap-4">
-            <span>
-              Vehicles: {vehicles.filter(v => v.status === 'active').length}/{vehicles.length} active
-            </span>
-            <span>•</span>
-            <span>
-              Facilities: {facilities.filter(f => f.status === 'operational').length}/{facilities.length} operational
-            </span>
-            {geofences.length > 0 && (
-              <>
-                <span>•</span>
-                <span>Geofences: {geofences.length}</span>
-              </>
-            )}
-          </div>
-          <div className="flex items-center gap-2">
-            {isDisplayingRealTimeData && (
-              <Badge variant="outline" className="text-xs">
-                <span className="w-1.5 h-1.5 bg-green-500 rounded-full mr-1 animate-pulse" />
-                Live Data
-              </Badge>
-            )}
-            {enableRealTime && !isDisplayingRealTimeData && (
-              <Badge variant="outline" className="text-xs text-yellow-600">
-                <span className="w-1.5 h-1.5 bg-yellow-500 rounded-full mr-1" />
-                Static Data
-              </Badge>
-            )}
-            <span>Last updated: {new Date().toLocaleTimeString()}</span>
-          </div>
-        </div>
       </div>
     </div>
   )

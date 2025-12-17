@@ -540,49 +540,82 @@ export function GoogleMap({
   /**
    * Render error state for missing API key
    */
+  /**
+   * Render "Tactical Grid View" (Fallback for missing API key)
+   */
   if (!hasValidApiKey) {
     return (
       <div
-        className={`w-full h-full flex items-center justify-center bg-muted/30 ${className}`}
+        className={`relative w-full h-full bg-slate-950 overflow-hidden ${className}`}
         style={{ minHeight: "500px" }}
       >
-        <div className="text-center p-6 max-w-md">
-          <div className="text-4xl mb-4">🗺️</div>
-          <p className="text-destructive font-semibold mb-2">
-            Google Maps API Key Required
-          </p>
-          <p className="text-sm text-muted-foreground mb-4">
-            Please configure VITE_GOOGLE_MAPS_API_KEY in your environment to enable maps
-          </p>
-          <div className="text-xs text-muted-foreground bg-muted p-4 rounded-lg text-left">
-            <p className="font-semibold mb-2">Setup Instructions:</p>
-            <ol className="list-decimal list-inside space-y-1.5">
-              <li>
-                Visit{" "}
-                <a
-                  href="https://console.cloud.google.com/google/maps-apis"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-primary underline hover:no-underline"
-                >
-                  Google Cloud Console
-                </a>
-              </li>
-              <li>Enable Maps JavaScript API</li>
-              <li>Create an API key</li>
-              <li>
-                Add to <code className="bg-background px-1.5 py-0.5 rounded text-xs">.env</code>:{" "}
-                <code className="bg-background px-1.5 py-0.5 rounded block mt-1">
-                  VITE_GOOGLE_MAPS_API_KEY=your_key_here
-                </code>
-              </li>
-              <li>Restart the development server</li>
-            </ol>
-            <p className="mt-3 text-center font-medium">
-              Free tier: $200/month credit (~28,000 map loads)
-            </p>
+        {/* Grid Background */}
+        <div className="absolute inset-0"
+          style={{
+            backgroundImage: 'linear-gradient(rgba(51, 65, 85, 0.3) 1px, transparent 1px), linear-gradient(90deg, rgba(51, 65, 85, 0.3) 1px, transparent 1px)',
+            backgroundSize: '40px 40px'
+          }}
+        />
+
+        {/* Radar Sweep Effect */}
+        <div className="absolute inset-0 rounded-full bg-gradient-to-r from-transparent via-emerald-500/10 to-transparent animate-spin-slow opacity-20" style={{ animationDuration: '8s' }} />
+
+        {/* Center Crosshair */}
+        <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+          <div className="w-64 h-64 border border-emerald-500/20 rounded-full flex items-center justify-center">
+            <div className="w-48 h-48 border border-emerald-500/20 rounded-full flex items-center justify-center">
+              <div className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse" />
+            </div>
           </div>
+          {/* Cross lines */}
+          <div className="absolute w-full h-px bg-emerald-500/20" />
+          <div className="absolute h-full w-px bg-emerald-500/20" />
         </div>
+
+        {/* Simulated Vehicle Markers (Kinetic Movement) */}
+        {vehicles.map((v, i) => {
+          // Deterministic pseudo-random position based on ID
+          const hash = v.id.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
+          const top = (hash * 17) % 70 + 15; // 15-85%
+          const left = (hash * 31) % 70 + 15; // 15-85%
+
+          // Generate a random duration for the patrol loop
+          const duration = 20 + (hash % 15);
+          const delay = -(hash % 20);
+
+          return (
+            <div
+              key={v.id}
+              className="absolute transform -translate-x-1/2 -translate-y-1/2 group cursor-pointer animate-patrol"
+              style={{
+                top: `${top}%`,
+                left: `${left}%`,
+                animationDuration: `${duration}s`,
+                animationDelay: `${delay}s`,
+                '--tx-1': `${(hash % 50) - 25}px`,
+                '--ty-1': `${(hash % 40) - 20}px`,
+                '--tx-2': `${(hash % 60) - 30}px`,
+                '--ty-2': `${(hash % 50) - 25}px`,
+                '--tx-3': `${(hash % 40) - 20}px`,
+                '--ty-3': `${(hash % 60) - 30}px`,
+              } as any}
+            >
+              <div className="relative">
+                <div className={`w-3 h-3 rounded-full ${v.status === 'active' ? 'bg-emerald-500 shadow-[0_0_10px_rgba(16,185,129,0.5)]' : 'bg-slate-500'} transition-all`} />
+                <div className="absolute -inset-2 border border-emerald-500/30 rounded-full opacity-0 group-hover:opacity-100 scale-0 group-hover:scale-100 transition-all duration-300" />
+
+                {/* Tooltip */}
+                <div className="absolute left-4 top-0 bg-slate-900 border border-emerald-500/30 px-2 py-1 rounded text-[10px] font-mono whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity z-20 pointer-events-none backdrop-blur-md shadow-xl">
+                  <div className="text-emerald-400 font-bold">{v.name}</div>
+                  <div className="text-slate-400">{v.status.toUpperCase()}</div>
+                  <div className="text-[9px] text-slate-500 mt-1">
+                    LAT: {typeof v.location?.lat === 'number' ? v.location.lat.toFixed(4) : 'N/A'}
+                  </div>
+                </div>
+              </div>
+            </div>
+          );
+        })}
       </div>
     )
   }
