@@ -13,12 +13,12 @@ interface MetricCardProps {
   status?: "success" | "warning" | "error" | "info"
 }
 
-export function MetricCard({ 
-  title, 
-  value, 
-  change, 
+export function MetricCard({
+  title,
+  value,
+  change,
   trend = "neutral",
-  subtitle, 
+  subtitle,
   icon,
   status
 }: MetricCardProps) {
@@ -43,23 +43,24 @@ export function MetricCard({
   }
 
   return (
-    <Card className="hover:shadow-md transition-shadow duration-200">
-      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-0.5 px-2 pt-2">
-        <CardTitle className="text-[10px] font-medium text-muted-foreground">
+    <Card className="hover:shadow-md transition-shadow duration-200 overflow-hidden">
+      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-0.5 px-2 pt-2 gap-2">
+        <CardTitle className="text-[10px] font-medium text-muted-foreground truncate min-w-0 flex-1" title={title}>
           {title}
         </CardTitle>
         {icon && (
-          <div className={`p-1 rounded ${getStatusColor()}`}>
+          <div className={`p-1 rounded ${getStatusColor()} shrink-0`}>
             {icon}
           </div>
         )}
       </CardHeader>
       <CardContent className="px-2 pb-2">
         <motion.div
-          className="text-base font-semibold metric-number"
+          className="text-base font-semibold metric-number truncate"
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.4, ease: "easeOut" }}
+          title={String(value)}
         >
           {value}
         </motion.div>
