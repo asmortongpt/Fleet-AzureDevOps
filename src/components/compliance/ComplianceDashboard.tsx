@@ -4,7 +4,6 @@ import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { Progress } from '@/components/ui/progress'
-import { Separator } from '@/components/ui/separator'
 import {
   Select,
   SelectContent,
@@ -15,14 +14,12 @@ import {
 import {
   Shield,
   AlertTriangle,
-  CheckCircle2,
   Clock,
   FileText,
   Calendar,
   TrendingUp,
   TrendingDown,
   Download,
-  Filter,
   Activity,
   Bell,
   FileCheck,
@@ -30,7 +27,6 @@ import {
   XCircle
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
-import { useVehicles, useDrivers } from '@/hooks/use-api'
 
 /**
  * Compliance Dashboard Component
