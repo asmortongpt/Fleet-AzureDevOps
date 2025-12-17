@@ -12,6 +12,7 @@ import { CheckCircle, XCircle, Clock, AlertTriangle } from 'lucide-react';
 import { format } from 'date-fns';
 import { useState } from 'react';
 
+import logger from '@/utils/logger';
 interface PendingApproval {
   id: string;
   policy_id: string;
@@ -38,7 +39,7 @@ export function PolicyQueue({ pendingApprovals }: PolicyQueueProps) {
         body: JSON.stringify({ notes: notes[id] }),
       });
     } catch (error) {
-      console.error('Failed to approve', error);
+      logger.error('Failed to approve', error);
     }
   };
 
@@ -50,7 +51,7 @@ export function PolicyQueue({ pendingApprovals }: PolicyQueueProps) {
         body: JSON.stringify({ reason: notes[id] }),
       });
     } catch (error) {
-      console.error('Failed to reject', error);
+      logger.error('Failed to reject', error);
     }
   };
 

@@ -20,6 +20,7 @@ import { apiClient } from "@/lib/api-client"
 import { Part, InventoryTransaction } from "@/lib/types"
 import { toast } from "sonner"
 
+import logger from '@/utils/logger';
 export interface InventoryStats {
   totalParts: number
   totalValue: number
@@ -38,7 +39,7 @@ async function fetchParts(): Promise<Part[]> {
     return response
   } catch (error) {
     // Fallback to emulator data
-    console.warn("API unavailable, using emulator data")
+    logger.warn("API unavailable, using emulator data")
     return generateEmulatorParts()
   }
 }
@@ -51,7 +52,7 @@ async function fetchInventoryStats(): Promise<InventoryStats> {
     const response = await apiClient.get<InventoryStats>("/api/v1/inventory/stats")
     return response
   } catch (error) {
-    console.warn("Stats API unavailable, calculating from parts")
+    logger.warn("Stats API unavailable, calculating from parts")
     const parts = await fetchParts()
     return calculateStats(parts)
   }
@@ -68,7 +69,7 @@ async function fetchTransactions(partId?: string): Promise<InventoryTransaction[
     const response = await apiClient.get<InventoryTransaction[]>(url)
     return response
   } catch (error) {
-    console.warn("Transactions API unavailable")
+    logger.warn("Transactions API unavailable")
     return []
   }
 }
@@ -304,7 +305,7 @@ export function useInventory() {
       queryClient.invalidateQueries({ queryKey: ["inventory", "stats"] })
     },
     onError: (error) => {
-      console.error("Failed to add part:", error)
+      logger.error("Failed to add part:", error)
       toast.error("Failed to add part")
     }
   })
@@ -318,7 +319,7 @@ export function useInventory() {
       queryClient.invalidateQueries({ queryKey: ["inventory", "stats"] })
     },
     onError: (error) => {
-      console.error("Failed to update part:", error)
+      logger.error("Failed to update part:", error)
       toast.error("Failed to update part")
     }
   })
@@ -331,7 +332,7 @@ export function useInventory() {
       queryClient.invalidateQueries({ queryKey: ["inventory", "stats"] })
     },
     onError: (error) => {
-      console.error("Failed to delete part:", error)
+      logger.error("Failed to delete part:", error)
       toast.error("Failed to delete part")
     }
   })
@@ -345,7 +346,7 @@ export function useInventory() {
       queryClient.invalidateQueries({ queryKey: ["inventory", "transactions"] })
     },
     onError: (error) => {
-      console.error("Failed to create transaction:", error)
+      logger.error("Failed to create transaction:", error)
       toast.error("Failed to record transaction")
     }
   })

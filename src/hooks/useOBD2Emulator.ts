@@ -6,6 +6,7 @@
 
 import { useState, useEffect, useCallback, useRef } from 'react'
 
+import logger from '@/utils/logger';
 const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:3000'
 
 interface OBD2Data {
@@ -94,7 +95,7 @@ export function useOBD2Emulator(autoConnect: boolean = false): UseOBD2EmulatorRe
           setError(message.message)
         }
       } catch (err) {
-        console.error('Failed to parse WebSocket message:', err)
+        logger.error('Failed to parse WebSocket message:', err)
       }
     }
 

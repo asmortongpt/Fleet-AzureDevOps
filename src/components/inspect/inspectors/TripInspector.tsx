@@ -15,6 +15,7 @@ import { Badge } from '@/components/ui/badge';
 import { apiClient } from '@/lib/api';
 import { Loader2, AlertCircle, MapPin, Clock, Fuel, DollarSign } from 'lucide-react';
 
+import logger from '@/utils/logger';
 interface TripInspectorProps {
   id: string;
   initialTab?: string;
@@ -64,7 +65,7 @@ export const TripInspector: React.FC<TripInspectorProps> = ({ id, initialTab = '
         setTrip(data);
       } catch (err: any) {
         setError(err.message || 'Failed to load trip data');
-        console.error('Error fetching trip:', err);
+        logger.error('Error fetching trip:', err);
       } finally {
         setLoading(false);
       }
