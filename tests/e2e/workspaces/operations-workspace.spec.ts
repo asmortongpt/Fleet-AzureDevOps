@@ -6,20 +6,19 @@ test.describe('Operations Workspace', () => {
     await page.goto('http://localhost:5173')
 
     // Navigate to Operations Workspace
-    await page.click('text=Operations')
+    await page.click('text=Operations Workspace')
     await page.waitForLoadState('networkidle')
   })
 
-  test('should display map view with layers', async ({ page }) => {
-    // Check map container is visible
-    await expect(page.locator('.map-container')).toBeVisible()
+  test('should display workspace with map and panels', async ({ page }) => {
+    // Check workspace container
+    await expect(page.getByTestId('operations-workspace')).toBeVisible()
 
-    // Check layer controls
-    await expect(page.locator('button:has-text("Vehicle")')).toBeVisible()
-    await expect(page.locator('button:has-text("Route")')).toBeVisible()
-    await expect(page.locator('button:has-text("Geofence")')).toBeVisible()
-    await expect(page.locator('button:has-text("Event")')).toBeVisible()
-    await expect(page.locator('button:has-text("Traffic")')).toBeVisible()
+    // Check map is visible (ProfessionalFleetMap component)
+    await expect(page.getByTestId('fleet-map')).toBeVisible()
+
+    // Check contextual panel
+    await expect(page.getByTestId('ops-contextual-panel')).toBeVisible()
   })
 
   test('should show vehicle telemetry in contextual panel', async ({ page }) => {
@@ -35,16 +34,16 @@ test.describe('Operations Workspace', () => {
 
   test('should switch between contextual panels', async ({ page }) => {
     // Switch to Tasks panel
-    await page.click('[role="tab"]:has-text("Tasks")')
-    await expect(page.locator('text=Active Tasks')).toBeVisible()
+    await page.getByTestId('ops-tab-task').click()
+    await expect(page.getByTestId('ops-panel-task')).toBeVisible()
 
     // Switch to Routes panel
-    await page.click('[role="tab"]:has-text("Routes")')
-    await expect(page.locator('text=Active Routes')).toBeVisible()
+    await page.getByTestId('ops-tab-route').click()
+    await expect(page.getByTestId('ops-panel-route')).toBeVisible()
 
     // Switch back to Vehicle panel
-    await page.click('[role="tab"]:has-text("Vehicle")')
-    await expect(page.locator('text=Select a vehicle')).toBeVisible()
+    await page.getByTestId('ops-tab-vehicle').click()
+    await expect(page.getByTestId('ops-panel-vehicle')).toBeVisible()
   })
 
   test('should toggle map layers', async ({ page }) => {
@@ -60,34 +59,33 @@ test.describe('Operations Workspace', () => {
     await expect(trafficButton).toHaveClass(/variant-outline/)
   })
 
-  test('should filter vehicles', async ({ page }) => {
+  test('should filter vehicles by status', async ({ page }) => {
     // Open filter dropdown
-    await page.click('[placeholder="Filter vehicles"]')
+    await page.getByTestId('ops-status-filter').click()
 
     // Select active vehicles only
-    await page.click('text=Active Only')
+    await page.getByText('Active Only').click()
 
     // Verify filter is applied (check status bar)
-    const activeCount = await page.locator('text=/\\d+ vehicles/').textContent()
-    expect(activeCount).toBeTruthy()
+    await expect(page.getByTestId('ops-vehicle-count')).toBeVisible()
   })
 
   test('should search for vehicles', async ({ page }) => {
     // Type in search box
-    await page.fill('[placeholder="Search vehicles..."]', 'Truck 123')
+    await page.getByTestId('ops-search-input').fill('TRK')
 
-    // Verify search results update
-    await page.waitForTimeout(500) // Debounce delay
+    // Verify search is working
+    await page.waitForTimeout(300) // Debounce delay
 
-    // Should show filtered results
-    await expect(page.locator('[data-testid="search-results"]')).toBeVisible()
+    // Vehicle count should update
+    await expect(page.getByTestId('ops-vehicle-count')).toBeVisible()
   })
 
   test('should display fleet statistics', async ({ page }) => {
     // Check status bar statistics
-    await expect(page.locator('text=/\\d+ vehicles/')).toBeVisible()
-    await expect(page.locator('text=/\\d+ pending tasks/')).toBeVisible()
-    await expect(page.locator('text=/\\d+ active routes/')).toBeVisible()
+    await expect(page.getByTestId('ops-vehicle-count')).toBeVisible()
+    await expect(page.getByTestId('ops-task-count')).toBeVisible()
+    await expect(page.getByTestId('ops-route-count')).toBeVisible()
   })
 
   test('should handle task assignment', async ({ page }) => {

@@ -34,48 +34,7 @@ import { useDrilldown } from "@/contexts/DrilldownContext"
 import { useVehicleTelemetry } from "@/hooks/useVehicleTelemetry"
 import { cn } from "@/lib/utils"
 
-// Map component with vehicle telemetry overlay
-const FleetMapView = ({ vehicles, facilities, selectedVehicle, onVehicleSelect }) => {
-  return (
-    <div className="relative h-full w-full bg-slate-100 dark:bg-slate-900">
-      {/* Map implementation with vehicle positions and telemetry */}
-      <div className="absolute inset-0 flex items-center justify-center text-muted-foreground">
-        <Truck className="h-12 w-12 mr-2" />
-        <span>Fleet Map Loading...</span>
-      </div>
-
-      {/* Fleet statistics overlay */}
-      <div className="absolute top-4 left-4 bg-background/95 backdrop-blur rounded-lg p-3 shadow-lg">
-        <div className="grid grid-cols-2 gap-3">
-          <div className="flex items-center gap-2">
-            <div className="h-2 w-2 bg-green-500 rounded-full animate-pulse" />
-            <span className="text-sm">
-              <span className="font-semibold">{vehicles?.filter(v => v.status === 'active').length || 0}</span> Active
-            </span>
-          </div>
-          <div className="flex items-center gap-2">
-            <div className="h-2 w-2 bg-yellow-500 rounded-full" />
-            <span className="text-sm">
-              <span className="font-semibold">{vehicles?.filter(v => v.status === 'idle').length || 0}</span> Idle
-            </span>
-          </div>
-          <div className="flex items-center gap-2">
-            <div className="h-2 w-2 bg-red-500 rounded-full" />
-            <span className="text-sm">
-              <span className="font-semibold">{vehicles?.filter(v => v.status === 'maintenance').length || 0}</span> Maintenance
-            </span>
-          </div>
-          <div className="flex items-center gap-2">
-            <div className="h-2 w-2 bg-gray-500 rounded-full" />
-            <span className="text-sm">
-              <span className="font-semibold">{vehicles?.filter(v => v.status === 'offline').length || 0}</span> Offline
-            </span>
-          </div>
-        </div>
-      </div>
-    </div>
-  )
-}
+import { ProfessionalFleetMap } from "@/components/Maps/ProfessionalFleetMap"
 
 // Vehicle Telemetry Panel
 const VehicleTelemetryPanel = ({ vehicle, telemetry }) => {
@@ -361,37 +320,57 @@ const VehicleInventoryPanel = ({ vehicles, onVehicleSelect }) => {
 }
 
 // Main Fleet Workspace Component
-export function FleetWorkspace({ data }) {
-  const [selectedVehicle, setSelectedVehicle] = useState(null)
+export function FleetWorkspace({ data }: { data?: any }) {
+  const [selectedVehicle, setSelectedVehicle] = useState<Vehicle | null>(null)
   const [activeView, setActiveView] = useState('map')
   const [activePanel, setActivePanel] = useState('telemetry')
 
   // API hooks
-  const { data: vehicles } = useVehicles()
-  const { data: facilities } = useFacilities()
-  const { data: drivers } = useDrivers()
+  const { data: vehicles = [] } = useVehicles()
+  const { data: facilities = [] } = useFacilities()
+  const { data: drivers = [] } = useDrivers()
   const { updateVehicle } = useVehicleMutations()
 
-  // Real-time telemetry
-  const telemetry = useVehicleTelemetry(selectedVehicle?.id)
+  // Real-time telemetry for all vehicles
+  const {
+    vehicles: realtimeVehicles,
+    isConnected: isRealtimeConnected,
+  } = useVehicleTelemetry({
+    enabled: true,
+    initialVehicles: vehicles as Vehicle[],
+  })
+
+  // Use real-time vehicles if available, otherwise use static data
+  const displayVehicles = realtimeVehicles.length > 0 ? realtimeVehicles : vehicles
 
   // Drilldown navigation
   const { push } = useDrilldown()
 
-  const handleVehicleSelect = useCallback((vehicle) => {
-    setSelectedVehicle(vehicle)
-    setActivePanel('telemetry')
-  }, [])
+  const handleVehicleSelect = useCallback((vehicleId: string) => {
+    const vehicle = displayVehicles.find((v: Vehicle) => v.id === vehicleId)
+    if (vehicle) {
+      setSelectedVehicle(vehicle as Vehicle)
+      setActivePanel('telemetry')
+    }
+  }, [displayVehicles])
+
+  // Stats overlay data
+  const stats = useMemo(() => ({
+    active: displayVehicles.filter((v: Vehicle) => v.status === 'active').length,
+    idle: displayVehicles.filter((v: Vehicle) => v.status === 'idle').length,
+    service: displayVehicles.filter((v: Vehicle) => v.status === 'service').length,
+    offline: displayVehicles.filter((v: Vehicle) => v.status === 'offline').length
+  }), [displayVehicles])
 
   return (
-    <div className="h-screen flex flex-col">
+    <div className="h-screen flex flex-col" data-testid="fleet-workspace">
       {/* View Switcher */}
       <div className="border-b px-4 py-2">
         <Tabs value={activeView} onValueChange={setActiveView}>
-          <TabsList>
-            <TabsTrigger value="map">Map View</TabsTrigger>
-            <TabsTrigger value="grid">Grid View</TabsTrigger>
-            <TabsTrigger value="3d">3D Garage</TabsTrigger>
+          <TabsList data-testid="fleet-view-tabs">
+            <TabsTrigger value="map" data-testid="fleet-tab-map">Map View</TabsTrigger>
+            <TabsTrigger value="grid" data-testid="fleet-tab-grid">Grid View</TabsTrigger>
+            <TabsTrigger value="3d" data-testid="fleet-tab-3d">3D Garage</TabsTrigger>
           </TabsList>
         </Tabs>
       </div>
@@ -401,23 +380,57 @@ export function FleetWorkspace({ data }) {
         {/* Left: Map or Grid View */}
         <div className="relative h-full">
           {activeView === 'map' && (
-            <FleetMapView
-              vehicles={vehicles}
-              facilities={facilities}
-              selectedVehicle={selectedVehicle}
-              onVehicleSelect={handleVehicleSelect}
-            />
+            <div className="relative h-full">
+              <ProfessionalFleetMap
+                vehicles={displayVehicles as Vehicle[]}
+                facilities={facilities}
+                height="100%"
+                onVehicleSelect={handleVehicleSelect}
+                showLegend={true}
+                enableRealTime={isRealtimeConnected}
+              />
+
+              {/* Fleet statistics overlay */}
+              <div className="absolute top-4 left-4 bg-background/95 backdrop-blur rounded-lg p-3 shadow-lg z-10" data-testid="fleet-stats-overlay">
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="flex items-center gap-2">
+                    <div className="h-2 w-2 bg-green-500 rounded-full animate-pulse" />
+                    <span className="text-sm">
+                      <span className="font-semibold" data-testid="fleet-stat-active">{stats.active}</span> Active
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <div className="h-2 w-2 bg-yellow-500 rounded-full" />
+                    <span className="text-sm">
+                      <span className="font-semibold" data-testid="fleet-stat-idle">{stats.idle}</span> Idle
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <div className="h-2 w-2 bg-red-500 rounded-full" />
+                    <span className="text-sm">
+                      <span className="font-semibold" data-testid="fleet-stat-service">{stats.service}</span> Service
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <div className="h-2 w-2 bg-gray-500 rounded-full" />
+                    <span className="text-sm">
+                      <span className="font-semibold" data-testid="fleet-stat-offline">{stats.offline}</span> Offline
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
           )}
 
           {activeView === 'grid' && (
             <VehicleInventoryPanel
-              vehicles={vehicles}
-              onVehicleSelect={handleVehicleSelect}
+              vehicles={displayVehicles}
+              onVehicleSelect={(v) => setSelectedVehicle(v as Vehicle)}
             />
           )}
 
           {activeView === '3d' && (
-            <div className="h-full flex items-center justify-center text-muted-foreground">
+            <div className="h-full flex items-center justify-center text-muted-foreground" data-testid="fleet-3d-placeholder">
               <Box className="h-12 w-12 mr-2" />
               <span>3D Garage View Coming Soon</span>
             </div>
@@ -425,39 +438,39 @@ export function FleetWorkspace({ data }) {
         </div>
 
         {/* Right: Contextual Panel */}
-        <div className="border-l bg-background">
+        <div className="border-l bg-background" data-testid="fleet-contextual-panel">
           <Tabs value={activePanel} onValueChange={setActivePanel} className="h-full flex flex-col">
             <TabsList className="w-full rounded-none justify-start px-2">
-              <TabsTrigger value="telemetry" className="flex-1">
+              <TabsTrigger value="telemetry" className="flex-1" data-testid="fleet-tab-telemetry">
                 <Activity className="h-4 w-4 mr-2" />
                 Telemetry
               </TabsTrigger>
-              <TabsTrigger value="inventory" className="flex-1">
+              <TabsTrigger value="inventory" className="flex-1" data-testid="fleet-tab-inventory">
                 <Truck className="h-4 w-4 mr-2" />
                 Inventory
               </TabsTrigger>
-              <TabsTrigger value="facility" className="flex-1">
+              <TabsTrigger value="facility" className="flex-1" data-testid="fleet-tab-facility">
                 <Wrench className="h-4 w-4 mr-2" />
                 Facility
               </TabsTrigger>
             </TabsList>
 
             <div className="flex-1 overflow-hidden">
-              <TabsContent value="telemetry" className="h-full m-0">
+              <TabsContent value="telemetry" className="h-full m-0" data-testid="fleet-panel-telemetry">
                 <VehicleTelemetryPanel
                   vehicle={selectedVehicle}
-                  telemetry={telemetry}
+                  telemetry={null}
                 />
               </TabsContent>
 
-              <TabsContent value="inventory" className="h-full m-0">
+              <TabsContent value="inventory" className="h-full m-0" data-testid="fleet-panel-inventory">
                 <VehicleInventoryPanel
-                  vehicles={vehicles}
-                  onVehicleSelect={handleVehicleSelect}
+                  vehicles={displayVehicles}
+                  onVehicleSelect={(v) => setSelectedVehicle(v as Vehicle)}
                 />
               </TabsContent>
 
-              <TabsContent value="facility" className="h-full m-0">
+              <TabsContent value="facility" className="h-full m-0" data-testid="fleet-panel-facility">
                 <div className="p-4 text-center text-muted-foreground">
                   Facility management panel
                 </div>
