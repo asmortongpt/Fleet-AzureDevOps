@@ -6,6 +6,9 @@ import { Button } from '../ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
 import { Badge } from '../ui/badge';
 import { AlertCircle, Truck, Wrench, MapPin, Gauge, Fuel } from 'lucide-react';
+import { MobileMapControls } from '../mobile/MobileMapControls';
+import { MobileQuickActions } from '../mobile/MobileQuickActions';
+import { MobileVehicleCard } from '../mobile/MobileVehicleCard';
 
 export function LiveFleetDashboard() {
   const { data: vehicles = [], isLoading } = useVehicles();
