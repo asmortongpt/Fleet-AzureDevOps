@@ -21,6 +21,7 @@ import {
 import { AxiosError } from 'axios';
 import { toast } from '@/utils/toast';
 
+import logger from '@/utils/logger';
 interface ErrorResponse {
   message?: string;
   error?: string;
@@ -88,7 +89,7 @@ export function getErrorMessage(error: unknown): string {
  * Reports error to monitoring service
  */
 function reportError(error: unknown, context: Record<string, any> = {}) {
-  console.error('Query Error:', error, context);
+  logger.error('Query Error:', error, context);
 
   // Report to Sentry/LogRocket if available
   if (typeof window !== 'undefined' && (window as any).Sentry) {
@@ -118,7 +119,7 @@ function reportError(error: unknown, context: Record<string, any> = {}) {
     const updatedLogs = [errorLog, ...existingLogs].slice(0, 50);
     localStorage.setItem('ctafleet-query-errors', JSON.stringify(updatedLogs));
   } catch (e) {
-    console.error('Failed to log error:', e);
+    logger.error('Failed to log error:', e);
   }
 }
 
@@ -307,7 +308,7 @@ export function useClearErrorLogs() {
       localStorage.removeItem('ctafleet-error-logs');
       toast.success('Error logs cleared');
     } catch (e) {
-      console.error('Failed to clear error logs:', e);
+      logger.error('Failed to clear error logs:', e);
     }
   };
 }
@@ -341,7 +342,7 @@ export function useDownloadErrorLogs() {
 
       toast.success('Error logs downloaded');
     } catch (e) {
-      console.error('Failed to download error logs:', e);
+      logger.error('Failed to download error logs:', e);
       toast.error('Failed to download error logs');
     }
   };

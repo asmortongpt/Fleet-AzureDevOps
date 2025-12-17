@@ -8,6 +8,7 @@ import EmulatorMonitor from './EmulatorMonitor';
 import AlertsPanel from './AlertsPanel';
 import apiClient from '../../lib/api-client';
 
+import logger from '@/utils/logger';
 interface MonitoringData {
   health: any;
   metrics: any;
@@ -52,7 +53,7 @@ const MonitoringDashboard: React.FC = () => {
 
       setLastRefresh(new Date());
     } catch (err) {
-      console.error('Failed to fetch monitoring data:', err);
+      logger.error('Failed to fetch monitoring data:', err);
       setError('Failed to fetch monitoring data. Please try again.');
     } finally {
       setLoading(false);

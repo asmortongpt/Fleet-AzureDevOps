@@ -47,6 +47,7 @@ import {
 import { toast } from "sonner"
 import { apiClient } from "@/lib/api-client"
 
+import logger from '@/utils/logger';
 interface Asset {
   id: string
   asset_tag: string
@@ -177,7 +178,7 @@ export function AssetManagement() {
       const response = await apiClient.get(`/api/asset-management?${params.toString()}`)
       setAssets(response.assets || [])
     } catch (error) {
-      console.error("Error fetching assets:", error)
+      logger.error("Error fetching assets:", error)
       toast.error("Failed to load assets")
     } finally {
       setLoading(false)
@@ -190,7 +191,7 @@ export function AssetManagement() {
       const response = await apiClient.get('/api/heavy-equipment')
       setHeavyEquipment(response.equipment || [])
     } catch (error) {
-      console.error("Error fetching heavy equipment:", error)
+      logger.error("Error fetching heavy equipment:", error)
       toast.error("Failed to load heavy equipment")
     } finally {
       setLoading(false)
@@ -249,7 +250,7 @@ export function AssetManagement() {
         rental_rate_daily: 0
       })
     } catch (error) {
-      console.error("Error adding equipment:", error)
+      logger.error("Error adding equipment:", error)
       toast.error("Failed to add heavy equipment")
     }
   }
@@ -271,7 +272,7 @@ export function AssetManagement() {
       setIsAddDialogOpen(false)
       resetNewAsset()
     } catch (error) {
-      console.error("Error adding asset:", error)
+      logger.error("Error adding asset:", error)
       toast.error("Failed to add asset")
     }
   }
@@ -294,7 +295,7 @@ export function AssetManagement() {
       setIsDetailsDialogOpen(false)
       setAssignmentData({ assigned_to: "", notes: "" })
     } catch (error) {
-      console.error("Error assigning asset:", error)
+      logger.error("Error assigning asset:", error)
       toast.error("Failed to assign asset")
     }
   }
@@ -323,7 +324,7 @@ export function AssetManagement() {
         notes: ""
       })
     } catch (error) {
-      console.error("Error transferring asset:", error)
+      logger.error("Error transferring asset:", error)
       toast.error("Failed to transfer asset")
     }
   }

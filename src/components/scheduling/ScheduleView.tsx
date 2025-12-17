@@ -48,6 +48,7 @@ import { cn } from '@/lib/utils'
 import { VehicleReservation, MaintenanceAppointment } from '@/types/scheduling'
 import { Vehicle, Driver, Technician } from '@/lib/types'
 
+import logger from '@/utils/logger';
 interface ScheduleViewProps {
   reservations?: VehicleReservation[]
   appointments?: MaintenanceAppointment[]
@@ -240,7 +241,7 @@ export function ScheduleView({
         onViewDetails(type, id)
       }
     } catch (error) {
-      console.error('Failed to perform action:', error)
+      logger.error('Failed to perform action:', error)
     }
   }
 

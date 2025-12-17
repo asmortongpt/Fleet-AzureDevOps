@@ -20,6 +20,7 @@ import { Badge } from './ui/badge'
 import { Button } from './ui/button'
 import { Card, CardContent } from './ui/card'
 
+import logger from '@/utils/logger';
 // ============================================================================
 // Types & Interfaces
 // ============================================================================
@@ -98,16 +99,16 @@ export function EnhancedUniversalMap(props: EnhancedUniversalMapProps) {
     enableNotifications: true,
     enableAutoRecovery: true,
     onError: (error) => {
-      console.error('Map error:', error)
+      logger.error('Map error:', error)
       onMapError?.(error, currentProvider)
     },
     onRecovery: () => {
-      console.log('Map recovered successfully')
+      logger.debug('Map recovered successfully')
       toast.success('Map service restored')
       onRecoverySuccess?.()
     },
     onCircuitStateChange: (state) => {
-      console.log('Circuit breaker state:', state)
+      logger.debug('Circuit breaker state:', state)
       if (state === 'OPEN') {
         toast.error('Map service temporarily unavailable. Will retry automatically.')
       }
@@ -115,7 +116,7 @@ export function EnhancedUniversalMap(props: EnhancedUniversalMapProps) {
     fallback: async () => {
       // Fallback to Leaflet if using Google Maps
       if (currentProvider === 'google') {
-        console.log('Falling back to Leaflet...')
+        logger.debug('Falling back to Leaflet...')
         handleProviderSwitch('leaflet')
       }
     },
@@ -131,13 +132,13 @@ export function EnhancedUniversalMap(props: EnhancedUniversalMapProps) {
       enabled: enableHealthMonitoring,
       interval: 60000, // Check every minute
       onStatusChange: (provider, status) => {
-        console.log(`${provider} status changed to:`, status)
+        logger.debug(`${provider} status changed to:`, status)
         if (status === HealthStatus.UNHEALTHY && provider === currentProvider) {
           toast.warning(`${provider} map service is experiencing issues`)
         }
       },
       onRateLimitDetected: (provider, resetTime) => {
-        console.warn(`Rate limit detected for ${provider}`, resetTime)
+        logger.warn(`Rate limit detected for ${provider}`, resetTime)
         toast.warning('Rate limit reached. Switching to alternative provider...')
         if (provider === currentProvider) {
           handleProviderSwitch(provider === 'google' ? 'leaflet' : 'google')
@@ -184,7 +185,7 @@ export function EnhancedUniversalMap(props: EnhancedUniversalMapProps) {
   const handleProviderSwitch = useCallback(
     (newProvider: MapProvider) => {
       const oldProvider = currentProvider
-      console.log(`Switching from ${oldProvider} to ${newProvider}`)
+      logger.debug(`Switching from ${oldProvider} to ${newProvider}`)
 
       setCurrentProvider(newProvider)
       setMapKey(prev => prev + 1)
@@ -201,7 +202,7 @@ export function EnhancedUniversalMap(props: EnhancedUniversalMapProps) {
    */
   const handleMapReady = useCallback(
     (provider: MapProvider) => {
-      console.log(`Map ready: ${provider}`)
+      logger.debug(`Map ready: ${provider}`)
       errorRecovery.clearError()
       onMapReady?.(provider)
     },
@@ -213,7 +214,7 @@ export function EnhancedUniversalMap(props: EnhancedUniversalMapProps) {
    */
   const handleMapError = useCallback(
     async (error: Error, provider: MapProvider) => {
-      console.error(`Map error in ${provider}:`, error)
+      logger.error(`Map error in ${provider}:`, error)
 
       // Use error recovery system
       await errorRecovery.execute(async () => {
@@ -260,7 +261,7 @@ export function EnhancedUniversalMap(props: EnhancedUniversalMapProps) {
       <MapErrorBoundary
         provider={currentProvider}
         onError={(error, errorInfo) => {
-          console.error('Error boundary caught:', error, errorInfo)
+          logger.error('Error boundary caught:', error, errorInfo)
           handleMapError(error, currentProvider)
         }}
         onFallbackProvider={handleProviderSwitch}

@@ -24,6 +24,7 @@ import {
 import { toast } from "sonner"
 import apiClient from "@/lib/api-client"
 
+import logger from '@/utils/logger';
 interface UtilizationMetric {
   vehicleId: string
   vehicleNumber: string
@@ -80,7 +81,7 @@ export function FleetOptimizer() {
       const response = await apiClient.get("/fleet-optimizer/utilization-heatmap")
       setUtilizationData(response)
     } catch (error) {
-      console.error("Error fetching utilization data:", error)
+      logger.error("Error fetching utilization data:", error)
       toast.error("Failed to load utilization data")
     } finally {
       setLoading(false)
@@ -92,7 +93,7 @@ export function FleetOptimizer() {
       const response = await apiClient.get("/fleet-optimizer/recommendations")
       setRecommendations(response)
     } catch (error) {
-      console.error("Error fetching recommendations:", error)
+      logger.error("Error fetching recommendations:", error)
       toast.error("Failed to load recommendations")
     }
   }
@@ -102,7 +103,7 @@ export function FleetOptimizer() {
       const response = await apiClient.get("/fleet-optimizer/optimal-fleet-size?avgDailyDemand=50")
       setFleetSize(response)
     } catch (error) {
-      console.error("Error fetching fleet size:", error)
+      logger.error("Error fetching fleet size:", error)
     }
   }
 

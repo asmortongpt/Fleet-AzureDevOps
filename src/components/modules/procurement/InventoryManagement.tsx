@@ -260,7 +260,7 @@ export function InventoryManagement() {
       resetNewPart()
     } catch (error) {
       toast.error("Failed to add part")
-      console.error(error)
+      // Error already shown to user via toast
     }
   }, [newPart, addPart])
 
@@ -274,7 +274,7 @@ export function InventoryManagement() {
       setSelectedPart(null)
     } catch (error) {
       toast.error("Failed to update part")
-      console.error(error)
+      // Error already shown to user via toast
     }
   }, [selectedPart, updatePart])
 
@@ -286,7 +286,7 @@ export function InventoryManagement() {
       toast.success("Part deleted successfully")
     } catch (error) {
       toast.error("Failed to delete part")
-      console.error(error)
+      // Error already shown to user via toast
     }
   }, [deletePart])
 
@@ -332,7 +332,7 @@ export function InventoryManagement() {
       setTransactionData({ type: "adjustment", quantity: 0, notes: "" })
     } catch (error) {
       toast.error("Failed to record transaction")
-      console.error(error)
+      // Error already shown to user via toast
     }
   }, [selectedPart, transactionData, createTransaction])
 

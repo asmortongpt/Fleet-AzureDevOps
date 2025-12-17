@@ -10,6 +10,7 @@ import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '.
 import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs';
 import { AlertCircle, Video, Eye, AlertTriangle, CheckCircle, XCircle, Play, Shield, Users } from 'lucide-react';import { cn } from '@/lib/utils';
 
+import logger from '@/utils/logger';
 interface VideoEvent {
   id: number;
   vehicle_name: string;
@@ -109,7 +110,7 @@ export default function VideoTelematicsDashboard() {
         setEvents(data.events || []);
       }
     } catch (error) {
-      console.error('Failed to load video events:', error);
+      logger.error('Failed to load video events:', error);
     } finally {
       setLoading(false);
     }
@@ -128,7 +129,7 @@ export default function VideoTelematicsDashboard() {
         setCameras(data.cameras || []);
       }
     } catch (error) {
-      console.error('Failed to load camera health:', error);
+      logger.error('Failed to load camera health:', error);
     }
   };
 
@@ -151,7 +152,7 @@ export default function VideoTelematicsDashboard() {
         loadVideoEvents();
       }
     } catch (error) {
-      console.error('Failed to review event:', error);
+      logger.error('Failed to review event:', error);
     }
   };
 
@@ -172,7 +173,7 @@ export default function VideoTelematicsDashboard() {
         loadVideoEvents();
       }
     } catch (error) {
-      console.error('Failed to mark for coaching:', error);
+      logger.error('Failed to mark for coaching:', error);
     }
   };
 
@@ -189,7 +190,7 @@ export default function VideoTelematicsDashboard() {
         return data.url;
       }
     } catch (error) {
-      console.error('Failed to get video URL:', error);
+      logger.error('Failed to get video URL:', error);
     }
     return null;
   };

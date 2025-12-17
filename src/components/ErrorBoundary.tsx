@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { AlertTriangle, RefreshCw, Home, Bug, Clock } from 'lucide-react'
 import { telemetryService } from '@/lib/telemetry'
 
+import logger from '@/utils/logger';
 interface Props {
   children: ReactNode
   fallback?: ReactNode
@@ -59,7 +60,7 @@ export class ErrorBoundary extends Component<Props, State> {
 
   componentDidCatch(error: Error, errorInfo: ErrorInfo) {
     const timestamp = new Date().toISOString()
-    console.error('ErrorBoundary caught error:', error, errorInfo)
+    logger.error('ErrorBoundary caught error:', error, errorInfo)
 
     // Update error count and store error info
     this.setState((prev) => ({
@@ -132,7 +133,7 @@ export class ErrorBoundary extends Component<Props, State> {
         retryCount: this.state.retryCount.toString(),
       })
     } catch (trackingError) {
-      console.error('Failed to track error in Application Insights:', trackingError)
+      logger.error('Failed to track error in Application Insights:', trackingError)
     }
   }
 
@@ -170,7 +171,7 @@ export class ErrorBoundary extends Component<Props, State> {
 
       localStorage.setItem('fleet-error-logs', JSON.stringify(updatedLogs))
     } catch (e) {
-      console.error('Failed to store error log:', e)
+      logger.error('Failed to store error log:', e)
     }
   }
 
@@ -264,7 +265,7 @@ export class ErrorBoundary extends Component<Props, State> {
 
       telemetryService.trackEvent('ErrorBoundary_DownloadLog')
     } catch (error) {
-      console.error('Failed to download error log:', error)
+      logger.error('Failed to download error log:', error)
     }
   }
 

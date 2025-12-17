@@ -1,4 +1,5 @@
 import React, { useState, useMemo } from 'react';
+import logger from '@/utils/logger';
 import {
   Box,
   Alert as MuiAlert,
@@ -149,12 +150,12 @@ const AlertsPanel: React.FC<Props> = ({ alerts = [], loading }) => {
 
   const handleAcknowledge = (alertId: string) => {
     // This would call an API to acknowledge the alert
-    console.log('Acknowledge alert:', alertId);
+    logger.debug('Acknowledge alert:', alertId);
   };
 
   const handleResolve = (alertId: string) => {
     // This would call an API to resolve the alert
-    console.log('Resolve alert:', alertId);
+    logger.debug('Resolve alert:', alertId);
   };
 
   const formatTimestamp = (timestamp: string) => {
