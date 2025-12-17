@@ -3,6 +3,7 @@ import { useState, useEffect, useCallback, useRef } from "react"
 import { MapProvider } from "../types"
 import { getActiveProvider } from "../utils/provider"
 
+import logger from '@/utils/logger';
 const STORAGE_EVENT_DEBOUNCE = 100
 
 export function useMapProvider(forceProvider?: MapProvider) {
@@ -20,7 +21,7 @@ export function useMapProvider(forceProvider?: MapProvider) {
     providerChangeTimeoutRef.current = setTimeout(() => {
       const newProvider = getActiveProvider(forceProvider)
       if (newProvider !== provider) {
-        console.log(`Provider changed to: ${newProvider}`)
+        logger.debug(`Provider changed to: ${newProvider}`)
         setProvider(newProvider)
         setFallbackAttempted(false)
       }

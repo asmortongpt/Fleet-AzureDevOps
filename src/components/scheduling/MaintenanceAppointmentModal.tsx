@@ -49,6 +49,7 @@ import { cn } from '@/lib/utils'
 import { MaintenanceAppointment, CreateMaintenanceRequest, AppointmentType, ServiceBay } from '@/types/scheduling'
 import { Vehicle, Technician } from '@/lib/types'
 
+import logger from '@/utils/logger';
 const appointmentSchema = z.object({
   vehicleId: z.string().min(1, 'Vehicle is required'),
   appointmentTypeId: z.string().min(1, 'Appointment type is required'),
@@ -200,7 +201,7 @@ export function MaintenanceAppointmentModal({
           setConflicts([])
         }
       } catch (error) {
-        console.error('Failed to check availability:', error)
+        logger.error('Failed to check availability:', error)
       } finally {
         setChecking(false)
       }
@@ -237,7 +238,7 @@ export function MaintenanceAppointmentModal({
       onOpenChange(false)
       form.reset()
     } catch (error) {
-      console.error('Failed to submit appointment:', error)
+      logger.error('Failed to submit appointment:', error)
     } finally {
       setSubmitting(false)
     }

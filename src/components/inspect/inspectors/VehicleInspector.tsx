@@ -17,6 +17,7 @@ import { apiClient } from '@/lib/api';
 import { OBD2Dashboard } from '@/components/obd2/OBD2Dashboard';
 import { Loader2, AlertCircle } from 'lucide-react';
 
+import logger from '@/utils/logger';
 interface VehicleInspectorProps {
   id: string;
   initialTab?: string;
@@ -60,7 +61,7 @@ export const VehicleInspector: React.FC<VehicleInspectorProps> = ({ id, initialT
         setVehicle(data);
       } catch (err: any) {
         setError(err.message || 'Failed to load vehicle data');
-        console.error('Error fetching vehicle:', err);
+        logger.error('Error fetching vehicle:', err);
       } finally {
         setLoading(false);
       }

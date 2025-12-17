@@ -42,7 +42,7 @@ export class MemoryLeakDetector {
    */
   public start(): void {
     if (typeof getMemoryUsage !== 'function') {
-      console.warn('Memory API is not supported in this environment.');
+      logger.warn('Memory API is not supported in this environment.');
       return;
     }
 
@@ -57,7 +57,7 @@ export class MemoryLeakDetector {
 
         this.detectLeak();
       } catch (error) {
-        console.error('Error during memory sampling:', error);
+        logger.error('Error during memory sampling:', error);
       }
     }, this.sampleRate);
   }

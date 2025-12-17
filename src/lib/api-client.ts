@@ -34,13 +34,13 @@ class APIClient {
   setToken(_token: string) {
     // DEPRECATED: Token is now set by backend via Set-Cookie header
     // This method does nothing - kept for API compatibility only
-    console.warn('[DEPRECATED] setToken() does nothing - tokens are httpOnly cookies managed by backend')
+    logger.warn('[DEPRECATED] setToken() does nothing - tokens are httpOnly cookies managed by backend')
   }
 
   clearToken() {
     // DEPRECATED: Token cleared by backend on logout
     // This method does nothing - kept for API compatibility only
-    console.warn('[DEPRECATED] clearToken() does nothing - tokens are httpOnly cookies managed by backend')
+    logger.warn('[DEPRECATED] clearToken() does nothing - tokens are httpOnly cookies managed by backend')
   }
 
   /**
@@ -79,7 +79,7 @@ class APIClient {
 
         // Fallback to alternate endpoint if primary fails
         if (!response.ok) {
-          console.warn('[CSRF] Primary endpoint failed, trying fallback /api/csrf')
+          logger.warn('[CSRF] Primary endpoint failed, trying fallback /api/csrf')
           response = await fetch(`${this.baseURL}/api/csrf`, {
             method: 'GET',
             credentials: 'include',
@@ -89,12 +89,12 @@ class APIClient {
         if (response.ok) {
           const data = await response.json()
           this.csrfToken = data.csrfToken || data.token || ''
-          console.log('[CSRF] Token initialized successfully')
+          logger.debug('[CSRF] Token initialized successfully')
         } else {
-          console.warn('[CSRF] Failed to fetch token:', response.status)
+          logger.warn('[CSRF] Failed to fetch token:', response.status)
         }
       } catch (error) {
-        console.error('[CSRF] Error fetching token:', error)
+        logger.error('[CSRF] Error fetching token:', error)
       } finally {
         this.csrfTokenPromise = null
       }
@@ -140,19 +140,28 @@ class APIClient {
 
     const url = `${this.baseURL}${endpoint}`
 
+    // SECURITY FIX P2 MED-SEC-010: Request timeout configuration
+    // Default: 30s for normal requests, 60s for uploads (configurable)
+    const controller = new AbortController()
+    const timeoutMs = (options as any).timeout || 30000 // 30 seconds default
+    const timeoutId = setTimeout(() => controller.abort(), timeoutMs)
+
     try {
       const response = await fetch(url, {
         ...options,
         headers,
-        credentials: 'include' // CRITICAL: Include httpOnly cookies with all requests
+        credentials: 'include', // CRITICAL: Include httpOnly cookies with all requests
+        signal: controller.signal
       })
+
+      clearTimeout(timeoutId)
 
       if (!response.ok) {
         const error = await response.json().catch(() => ({ error: 'Unknown error' }))
 
         // If CSRF token is invalid, refresh and retry once
         if (response.status === 403 && error.error?.includes('CSRF')) {
-          console.warn('CSRF token invalid, refreshing...')
+          logger.warn('CSRF token invalid, refreshing...')
           await this.refreshCsrfToken()
 
           // Retry the request with new CSRF token
@@ -187,6 +196,8 @@ class APIClient {
 
       return await response.json()
     } catch (error) {
+      clearTimeout(timeoutId)
+
       if (error instanceof APIError) {
         // Auto-logout on 401
         if (error.status === 401) {
@@ -194,6 +205,15 @@ class APIClient {
           window.location.href = '/login'
         }
         throw error
+      }
+
+      // SECURITY FIX P2 MED-SEC-010: Handle timeout errors with user-friendly message
+      if (error instanceof Error && error.name === 'AbortError') {
+        throw new APIError(
+          'Request timeout - please try again. The server took too long to respond.',
+          408, // HTTP 408 Request Timeout
+          { reason: 'timeout', timeoutMs }
+        )
       }
 
       // Network or other errors
@@ -213,19 +233,43 @@ class APIClient {
     return this.request<T>(`${endpoint}${queryString}`, { method: 'GET' })
   }
 
-  // POST request
+  // POST request with validation
   async post<T>(endpoint: string, data: any): Promise<T> {
+    // Import validation at runtime to avoid circular dependencies
+    const { sanitizeQueryParams } = await import('./validation')
+
+    // Sanitize data before sending
+    const sanitized = typeof data === 'object' && data !== null ?
+      Object.fromEntries(
+        Object.entries(data).map(([key, value]) => [
+          key,
+          typeof value === 'string' ? value.trim() : value
+        ])
+      ) : data
+
     return this.request<T>(endpoint, {
       method: 'POST',
-      body: JSON.stringify(data)
+      body: JSON.stringify(sanitized)
     })
   }
 
-  // PUT request
+  // PUT request with validation
   async put<T>(endpoint: string, data: any): Promise<T> {
+    // Import validation at runtime to avoid circular dependencies
+    const { sanitizeQueryParams } = await import('./validation')
+
+    // Sanitize data before sending
+    const sanitized = typeof data === 'object' && data !== null ?
+      Object.fromEntries(
+        Object.entries(data).map(([key, value]) => [
+          key,
+          typeof value === 'string' ? value.trim() : value
+        ])
+      ) : data
+
     return this.request<T>(endpoint, {
       method: 'PUT',
-      body: JSON.stringify(data)
+      body: JSON.stringify(sanitized)
     })
   }
 

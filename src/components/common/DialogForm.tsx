@@ -55,6 +55,7 @@ import {
 import { Textarea } from "@/components/ui/textarea"
 
 
+import logger from '@/utils/logger';
 // ============================================================================
 // TYPES
 // ============================================================================
@@ -228,7 +229,7 @@ export function DialogForm({
 
       handleOpenChange(false)
     } catch (error) {
-      console.error("Form submission error:", error)
+      logger.error("Form submission error:", error)
       toast.error(error instanceof Error ? error.message : "Failed to save")
     } finally {
       setIsSubmitting(false)

@@ -1,5 +1,6 @@
 import { useQuery, useMutation, useQueryClient, QueryClient, QueryKey } from '@tanstack/react-query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
+import logger from '@/utils/logger';
 
 /**
  * SECURITY (CRIT-F-002): CSRF Protection Implementation
@@ -56,14 +57,17 @@ async function getCsrfToken(): Promise<string> {
       if (response.ok) {
         const data = await response.json();
         csrfToken = data.csrfToken || data.token || '';
-        console.log('[CSRF] Token fetched successfully');
+        // SECURITY FIX P3 LOW-SEC-001: Use logger instead of console.log
+        logger.debug('[CSRF] Token fetched successfully');
         return csrfToken;
       } else {
-        console.warn('[CSRF] Failed to fetch token:', response.status);
+        // SECURITY FIX P3 LOW-SEC-001: Use logger instead of console.warn
+        logger.warn('[CSRF] Failed to fetch token:', response.status);
         return '';
       }
     } catch (error) {
-      console.error('[CSRF] Error fetching token:', error);
+      // SECURITY FIX P3 LOW-SEC-001: Use logger instead of console.error
+      logger.error('[CSRF] Error fetching token:', error);
       return '';
     } finally {
       csrfTokenPromise = null;
@@ -124,7 +128,8 @@ async function secureFetch(url: string, options: RequestInit = {}): Promise<Resp
   if (response.status === 403 && isStateChanging) {
     const errorData = await response.json().catch(() => ({}));
     if (errorData.code === 'CSRF_VALIDATION_FAILED' || errorData.error?.includes('CSRF')) {
-      console.warn('[CSRF] Validation failed, refreshing token and retrying...');
+      // SECURITY FIX P3 LOW-SEC-001: Use logger instead of console.warn
+      logger.warn('[CSRF] Validation failed, refreshing token and retrying...');
       await refreshCsrfToken();
       token = await getCsrfToken();
 

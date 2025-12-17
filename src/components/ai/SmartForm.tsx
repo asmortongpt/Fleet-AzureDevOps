@@ -18,6 +18,7 @@ import { Alert, AlertDescription } from '../ui/alert'
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/card'
 import { apiClient } from '../../lib/api'
 
+import logger from '@/utils/logger';
 interface FieldConfig {
   name: string
   label: string
@@ -91,7 +92,7 @@ export function SmartForm({
       })
       setValidation(response.data)
     } catch (error) {
-      console.error('Validation error:', error)
+      logger.error('Validation error:', error)
     } finally {
       setIsValidating(false)
     }
@@ -134,7 +135,7 @@ export function SmartForm({
     try {
       await onSubmit(formData)
     } catch (error) {
-      console.error('Submit error:', error)
+      logger.error('Submit error:', error)
     } finally {
       setIsSubmitting(false)
     }

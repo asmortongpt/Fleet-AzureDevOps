@@ -1,5 +1,6 @@
 import { Component, ErrorInfo, ReactNode } from "react"
 
+import logger from '@/utils/logger';
 /**
  * Error boundary state
  */
@@ -31,7 +32,7 @@ export class MapErrorBoundary extends Component<
   }
 
   componentDidCatch(error: Error, errorInfo: ErrorInfo): void {
-    console.error("Map Error Boundary caught an error:", error, errorInfo)
+    logger.error("Map Error Boundary caught an error:", error, errorInfo)
     this.setState({ errorInfo })
     this.props.onError?.(error, errorInfo)
   }

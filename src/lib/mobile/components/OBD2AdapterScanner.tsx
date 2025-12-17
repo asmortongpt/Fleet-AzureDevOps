@@ -11,13 +11,14 @@
  * ```tsx
  * <OBD2AdapterScanner
  *   vehicleId={vehicle.id}
- *   onAdapterConnected={(adapter) => console.log('Connected:', adapter)}
- *   onError={(error) => console.error(error)}
+ *   onAdapterConnected={(adapter) => logger.debug('Connected:', adapter)}
+ *   onError={(error) => logger.error(error)}
  * />
  * ```
  */
 
 import React, { useState, useEffect } from 'react'
+import logger from '@/utils/logger';
 import {
   View,
   Text,
@@ -121,7 +122,7 @@ export const OBD2AdapterScanner: React.FC<OBD2AdapterScannerProps> = ({
               setDtcs(diagnosticCodes)
               onDTCsDetected?.(diagnosticCodes)
             } catch (error) {
-              console.warn('Could not read DTCs on reconnect:', error)
+              logger.warn('Could not read DTCs on reconnect:', error)
             }
           }
 
@@ -131,11 +132,11 @@ export const OBD2AdapterScanner: React.FC<OBD2AdapterScannerProps> = ({
           }
         } else {
           setConnectionStatus('Failed to reconnect')
-          console.warn('Could not reconnect to saved adapter')
+          logger.warn('Could not reconnect to saved adapter')
         }
       }
     } catch (error) {
-      console.error('Error loading saved adapter:', error)
+      logger.error('Error loading saved adapter:', error)
       setConnectionStatus('Disconnected')
     }
   }
@@ -143,18 +144,18 @@ export const OBD2AdapterScanner: React.FC<OBD2AdapterScannerProps> = ({
   const savePairedAdapter = async (adapter: OBD2Adapter) => {
     try {
       await AsyncStorage.setItem('savedOBD2Adapter', JSON.stringify(adapter))
-      console.log('Saved paired adapter:', adapter.name)
+      logger.debug('Saved paired adapter:', adapter.name)
     } catch (error) {
-      console.error('Error saving adapter:', error)
+      logger.error('Error saving adapter:', error)
     }
   }
 
   const clearSavedAdapter = async () => {
     try {
       await AsyncStorage.removeItem('savedOBD2Adapter')
-      console.log('Cleared saved adapter')
+      logger.debug('Cleared saved adapter')
     } catch (error) {
-      console.error('Error clearing saved adapter:', error)
+      logger.error('Error clearing saved adapter:', error)
     }
   }
 
@@ -182,7 +183,7 @@ export const OBD2AdapterScanner: React.FC<OBD2AdapterScannerProps> = ({
           )
         }
       } catch (error) {
-        console.error('Permission request error:', error)
+        logger.error('Permission request error:', error)
       }
     }
   }
@@ -245,7 +246,7 @@ export const OBD2AdapterScanner: React.FC<OBD2AdapterScannerProps> = ({
         setVin(vehicleVIN)
         onAdapterConnected?.(adapter, vehicleVIN)
       } catch (error) {
-        console.warn('Could not read VIN:', error)
+        logger.warn('Could not read VIN:', error)
         onAdapterConnected?.(adapter)
       }
 
@@ -265,7 +266,7 @@ export const OBD2AdapterScanner: React.FC<OBD2AdapterScannerProps> = ({
             )
           }
         } catch (error) {
-          console.warn('Could not read DTCs:', error)
+          logger.warn('Could not read DTCs:', error)
         }
       }
 
