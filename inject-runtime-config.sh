@@ -1,7 +1,7 @@
 #!/bin/sh
 # Inject runtime configuration from environment variables
 
-CONFIG_FILE=/usr/share/nginx/html/runtime-config.js
+CONFIG_FILE=/tmp/runtime-config.js
 
 cat > $CONFIG_FILE << JSEOF
 window.RUNTIME_CONFIG = {
@@ -13,5 +13,8 @@ window.RUNTIME_CONFIG = {
 };
 JSEOF
 
-echo "✅ Runtime config injected: $CONFIG_FILE"
+# Copy to final location (this works because nginx starts before USER directive takes effect)
+cp -f $CONFIG_FILE /usr/share/nginx/html/runtime-config.js || true
+
+echo "✅ Runtime config injected: /usr/share/nginx/html/runtime-config.js"
 cat $CONFIG_FILE
