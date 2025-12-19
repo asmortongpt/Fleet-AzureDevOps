@@ -577,8 +577,7 @@ export function GoogleMap({
   if (!hasValidApiKey) {
     return (
       <div
-        className={`relative w-full h-full bg-slate-950 overflow-hidden ${className}`}
-        style={{ minHeight: "500px" }}
+        className={`relative w-full h-full min-h-[500px] bg-slate-950 overflow-hidden ${className}`}
       >
         {/* Grid Background */}
         <div className="absolute inset-0"
@@ -657,8 +656,7 @@ export function GoogleMap({
   if (error) {
     return (
       <div
-        className={`w-full h-full flex items-center justify-center bg-destructive/5 ${className}`}
-        style={{ minHeight: "500px" }}
+        className={`w-full h-full min-h-[500px] flex items-center justify-center bg-destructive/5 ${className}`}
       >
         <div className="text-center p-6 max-w-md">
           <div className="text-4xl mb-4">⚠️</div>
@@ -685,8 +683,7 @@ export function GoogleMap({
    */
   return (
     <div
-      className={`relative w-full h-full ${className}`}
-      style={{ minHeight: "500px" }}
+      className={`relative w-full h-full min-h-[500px] ${className}`}
     >
       <div ref={mapRef} className="absolute inset-0 w-full h-full rounded-lg overflow-hidden" />
       {isLoading && (
