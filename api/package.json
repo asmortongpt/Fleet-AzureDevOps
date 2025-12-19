@@ -4,7 +4,8 @@
   "description": "Fleet Management System - Backend API",
   "main": "dist/server.js",
   "scripts": {
-    "dev": "dotenv -e .env -- tsx watch src/server.ts",
+    "dev": "dotenv -e .env -- tsx watch src/server-simple.ts",
+    "dev:full": "dotenv -e .env -- tsx watch src/server.ts",
     "build": "tsc || true",
     "start": "node dist/server.js",
     "test": "vitest",
@@ -15,7 +16,8 @@
     "test:integration:coverage": "vitest --coverage --config vitest.integration.config.ts",
     "lint": "eslint src",
     "format": "prettier --write \"src/**/*.ts\"",
-    "seed": "tsx src/scripts/seed-comprehensive-test-data.ts",
+    "seed": "tsx src/scripts/seed-production-data.ts",
+    "seed:old": "tsx src/scripts/seed-comprehensive-test-data.ts",
     "seed:verify": "tsx src/scripts/verify-seed-data.ts",
     "analyze:coverage": "tsx src/scripts/analyze-coverage-gaps.ts",
     "seed:edge-cases": "tsx src/scripts/seed-edge-cases.ts",
@@ -24,7 +26,13 @@
     "setup:webhooks": "tsx src/scripts/setup-webhooks.ts",
     "verify:integration": "tsx src/scripts/verify-integration.ts",
     "webhooks:cleanup": "tsx src/scripts/cleanup-webhooks.ts",
-    "migrate": "tsx src/scripts/run-migrations.ts"
+    "migrate": "tsx src/scripts/run-migrations.ts",
+    "migrate:generate": "drizzle-kit generate",
+    "migrate:push": "drizzle-kit push",
+    "db:studio": "drizzle-kit studio",
+    "check:memory": "node --expose-gc --inspect src/scripts/check-memory.js",
+    "setup": "./setup-and-test.sh",
+    "check:db": "tsx -e 'import {checkDatabaseConnection} from \"./src/db/connection\"; checkDatabaseConnection().then(r => process.exit(r ? 0 : 1))'"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.20.0",
