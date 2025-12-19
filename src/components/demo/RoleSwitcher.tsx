@@ -1,11 +1,12 @@
 // Role Switcher Component for Demo Mode
 // Allows users to toggle between different roles to see different perspectives
 
-import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import React, { useState, useEffect } from 'react';
+
 import { useDemoMode } from '../../hooks/useDemoMode';
-import { showToast } from '../../utils/toast';
 import { trackEvent } from '../../utils/analytics';
+import { showToast } from '../../utils/toast';
 import './RoleSwitcher.css';
 
 export type UserRole =

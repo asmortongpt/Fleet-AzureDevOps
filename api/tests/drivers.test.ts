@@ -3,13 +3,13 @@
  * Tests all driver-related endpoints with comprehensive coverage
  */
 
-import { describe, it, expect, beforeEach, afterAll } from 'vitest'
+import { describe, it, expect } from 'vitest'
+
 import {
   makeRequest,
   setupTestHooks,
   generateTestDriver,
-  expectValidDriver,
-  resetEmulators
+  expectValidDriver
 } from './setup'
 
 describe('Driver API Tests', () => {

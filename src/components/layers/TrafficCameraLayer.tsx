@@ -1,13 +1,16 @@
-import React, { useCallback } from "react"
-import { useQuery } from "@tanstack/react-query"
-import { apiClient } from "@/lib/api-client"
-import { TrafficCamera } from "@/lib/types"
 import { VideoCamera } from "@phosphor-icons/react"
+import { useQuery } from "@tanstack/react-query"
+import React from "react"
+
 import {
     HoverCard,
     HoverCardContent,
     HoverCardTrigger,
 } from "@/components/ui/hover-card"
+import { apiClient } from "@/lib/api-client"
+import { TrafficCamera } from "@/lib/types"
+
+
 
 interface TrafficCameraLayerProps {
     visible: boolean;

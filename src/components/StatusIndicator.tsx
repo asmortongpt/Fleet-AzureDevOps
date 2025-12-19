@@ -1,6 +1,7 @@
-import { Badge } from "@/components/ui/badge"
 import { CheckCircle, Warning, XCircle, Circle } from "@phosphor-icons/react"
 import { motion } from "framer-motion"
+
+import { Badge } from "@/components/ui/badge"
 
 interface StatusIndicatorProps {
   status: "healthy" | "warning" | "critical" | "offline"

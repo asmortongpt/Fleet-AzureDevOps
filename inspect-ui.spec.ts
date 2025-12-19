@@ -1,4 +1,4 @@
-import { test, expect } from '@playwright/test'
+import { test } from '@playwright/test'
 
 test('Inspect UI rendering issue', async ({ page }) => {
   // Navigate to the app

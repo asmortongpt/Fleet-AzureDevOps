@@ -1,13 +1,4 @@
-import React, { useState, useMemo, useCallback } from "react"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
-import { ScrollArea } from "@/components/ui/scroll-area"
-import { Input } from "@/components/ui/input"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import {
-  MapPin,
   Package,
   TrendingUp,
   TrendingDown,
@@ -17,11 +8,19 @@ import {
   CheckCircle2,
   Clock,
   DollarSign,
-  BarChart3,
-  Filter
+  BarChart3
 } from "lucide-react"
-import { useDrilldown } from "@/contexts/DrilldownContext"
+import React, { useState, useMemo, useCallback } from "react"
+
 import { ProfessionalFleetMap } from "@/components/Maps/ProfessionalFleetMap"
+import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Input } from "@/components/ui/input"
+import { ScrollArea } from "@/components/ui/scroll-area"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { useDrilldown } from "@/contexts/DrilldownContext"
 import { cn } from "@/lib/utils"
 
 // Mock procurement data

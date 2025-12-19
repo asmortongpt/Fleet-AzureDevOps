@@ -1,7 +1,8 @@
-import { useState, useEffect, useRef } from 'react';
 import { Truck, ZoomIn, ZoomOut, Locate } from 'lucide-react';
-import { useVehicles } from '@/hooks/use-api';
+import { useState, useRef } from 'react';
+
 import { Button } from '@/components/ui/button';
+import { useVehicles } from '@/hooks/use-api';
 
 interface Vehicle {
   id: string;

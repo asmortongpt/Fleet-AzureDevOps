@@ -1,5 +1,19 @@
-import React, { useState, useMemo } from 'react';
-import logger from '@/utils/logger';
+import {
+  Error,
+  ExpandMore,
+  ExpandLess,
+  Close,
+  Search,
+  Notifications,
+  LocationOn,
+  AttachMoney,
+  Build,
+  Assignment,
+  DirectionsCar,
+  FilterList,
+  NotificationsActive,
+  NotificationsOff
+} from '@mui/icons-material';
 import {
   Box,
   Alert as MuiAlert,
@@ -22,25 +36,9 @@ import {
   ListItemSecondaryAction,
   Divider
 } from '@mui/material';
-import {
-  Error,
-  Warning,
-  Info,
-  CheckCircle,
-  ExpandMore,
-  ExpandLess,
-  Close,
-  Search,
-  Notifications,
-  LocationOn,
-  AttachMoney,
-  Build,
-  Assignment,
-  DirectionsCar,
-  FilterList,
-  NotificationsActive,
-  NotificationsOff
-} from '@mui/icons-material';
+import React, { useState, useMemo } from 'react';
+
+import logger from '@/utils/logger';
 
 interface Alert {
   id: string;

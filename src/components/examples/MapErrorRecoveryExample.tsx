@@ -9,15 +9,18 @@
  */
 
 import { useState } from 'react'
+
 import { EnhancedUniversalMap } from '../EnhancedUniversalMap'
 import { MapHealthDashboard } from '../MapHealthDashboard'
-import { Card, CardHeader, CardTitle, CardContent } from '../ui/card'
-import { Button } from '../ui/button'
-import { Badge } from '../ui/badge'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '../ui/tabs'
-import { Alert, AlertTitle, AlertDescription } from '../ui/alert'
-import type { Vehicle, GISFacility, TrafficCamera } from '@/lib/types'
 import type { MapProvider } from '../UniversalMap'
+import { Alert, AlertTitle, AlertDescription } from '../ui/alert'
+import { Badge } from '../ui/badge'
+import { Button } from '../ui/button'
+import { Card, CardHeader, CardTitle, CardContent } from '../ui/card'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '../ui/tabs'
+
+import type { Vehicle, GISFacility, TrafficCamera } from '@/lib/types'
+
 
 // ============================================================================
 // Demo Data

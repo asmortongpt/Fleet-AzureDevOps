@@ -1,7 +1,8 @@
 import { Queue, Worker, QueueScheduler, Job } from 'bullmq';
 import { createClient } from 'redis';
-import { logger } from './logger'; // Assuming a logger module is available
+
 import { FleetLocal } from './fleetLocal'; // Assuming FleetLocal is part of your codebase
+import { logger } from './logger'; // Assuming a logger module is available
 
 // FedRAMP compliance: Ensure Redis is configured with TLS and authentication
 const redisOptions = {

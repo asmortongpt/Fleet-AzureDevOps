@@ -16,7 +16,7 @@
  */
 
 import { Pool } from 'pg'
-import logger from '../utils/logger'
+
 
 // Optional EXIF parser for image metadata extraction
 let ExifParser: any = null

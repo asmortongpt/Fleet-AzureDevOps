@@ -1,10 +1,3 @@
-import { useState, useMemo } from "react"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Badge } from "@/components/ui/badge"
-import { MetricCard } from "@/components/MetricCard"
 import {
   Database,
   Download,
@@ -25,9 +18,13 @@ import {
   CaretUp,
   CaretDown
 } from "@phosphor-icons/react"
-import { Vehicle } from "@/lib/types"
-import { useFleetData } from "@/hooks/use-fleet-data"
+import { useState, useMemo } from "react"
 import { toast } from "sonner"
+
+import { MetricCard } from "@/components/MetricCard"
+import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import {
   Dialog,
   DialogContent,
@@ -36,6 +33,7 @@ import {
   DialogTitle,
   DialogFooter
 } from "@/components/ui/dialog"
+import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import {
   Select,
@@ -44,6 +42,9 @@ import {
   SelectTrigger,
   SelectValue
 } from "@/components/ui/select"
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
+import { useFleetData } from "@/hooks/use-fleet-data"
+import { Vehicle } from "@/lib/types"
 
 interface DataWorkbenchProps {
   data: ReturnType<typeof useFleetData>

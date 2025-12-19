@@ -3,7 +3,6 @@ import { Worker, Queue, QueueScheduler } from 'bullmq';
 import Redis from 'ioredis';
 import sharp from 'sharp';
 import { createLogger, transports, format } from 'winston';
-import { promisify } from 'util';
 
 // Initialize Redis connection
 const redisConnection = new Redis();

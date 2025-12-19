@@ -3,11 +3,11 @@
  * Features: Live search, recent searches, suggestions, filters
  */
 
-import { useState, useEffect, useRef, useTransition } from 'react';
 import { Search, Clock, X, SlidersHorizontal as Filter, Loader2, FileText, Sparkles } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import { useState, useEffect, useRef, useTransition } from 'react';
+
 import { Badge } from '@/components/ui/badge';
-import { Separator } from '@/components/ui/separator';
+import { Button } from '@/components/ui/button';
 import {
   Command,
   CommandEmpty,
@@ -16,6 +16,7 @@ import {
   CommandItem,
   CommandList,
 } from '@/components/ui/command';
+import { Separator } from '@/components/ui/separator';
 import { DocumentMetadata, SearchFilters } from '@/lib/documents/types';
 import { formatFileSize, formatRelativeTime, getDocumentColor } from '@/lib/documents/utils';
 

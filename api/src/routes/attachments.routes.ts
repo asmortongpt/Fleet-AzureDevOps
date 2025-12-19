@@ -12,17 +12,17 @@
 
 import { Router, Response } from 'express'
 import multer from 'multer'
-import { AuthRequest, authenticateJWT, authorize } from '../middleware/auth'
-import { auditLog } from '../middleware/audit'
-import attachmentService from '../services/attachment.service'
-import { getErrorMessage } from '../utils/error-handler'
-import { csrfProtection } from '../middleware/csrf'
-import { container } from '../container'
-import { TYPES } from '../types'
-import { AttachmentRepository } from '../repositories/attachments.repository'
-import { asyncHandler } from '../middleware/errorHandler'
-import { NotFoundError, ValidationError } from '../errors/app-error'
+
 import logger from '../config/logger'
+import { container } from '../container'
+import { ValidationError } from '../errors/app-error'
+import { auditLog } from '../middleware/audit'
+import { AuthRequest, authenticateJWT, authorize } from '../middleware/auth'
+import { csrfProtection } from '../middleware/csrf'
+import { AttachmentRepository } from '../repositories/attachments.repository'
+import attachmentService from '../services/attachment.service'
+import { TYPES } from '../types'
+import { getErrorMessage } from '../utils/error-handler'
 
 const router = Router()
 

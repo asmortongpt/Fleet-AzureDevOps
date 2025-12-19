@@ -2,8 +2,9 @@
  * Authentication Service
  * Handles user authentication, token generation, and refresh logic.
  */
-import jwt from 'jsonwebtoken';
 import { randomBytes } from 'crypto';
+
+import jwt from 'jsonwebtoken';
 
 interface RefreshToken {
     token: string;

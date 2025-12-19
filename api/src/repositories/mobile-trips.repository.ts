@@ -1,6 +1,7 @@
+import { Pool, PoolClient } from 'pg';
+
 import { BaseRepository } from '../repositories/BaseRepository';
 
-import { Pool, PoolClient } from 'pg';
 
 export interface StartTripData {
   tenantId: number;

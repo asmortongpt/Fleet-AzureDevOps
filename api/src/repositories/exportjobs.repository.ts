@@ -1,6 +1,7 @@
+import { Pool } from 'pg';
+
 import { BaseRepository } from '../repositories/BaseRepository';
 
-import { Pool } from 'pg';
 
 export interface ExportJobEntity {
   id: number;

@@ -5,8 +5,10 @@
  */
 
 import { useMemo } from "react"
-import type { GarageAsset } from "./use-garage-filters"
+
 import type { DamageReport, Inspection } from "../utils/api"
+
+import type { GarageAsset } from "./use-garage-filters"
 
 export function useGarageMetrics(
   assets: GarageAsset[],

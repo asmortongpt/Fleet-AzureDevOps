@@ -1,7 +1,8 @@
 import { Pool } from 'pg';
-import { VehicleService } from '../services/VehicleService';
-import { DriverService } from '../services/DriverService';
+
 import { CacheService } from '../config/cache';
+import { DriverService } from '../services/DriverService';
+import { VehicleService } from '../services/VehicleService';
 
 export class Container {
   private static instances = new Map<string, any>();

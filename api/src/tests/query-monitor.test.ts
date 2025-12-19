@@ -2,9 +2,10 @@
  * Query Performance Monitoring Tests
  */
 
-import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
-import { QueryMonitor } from '../utils/query-monitor';
 import { QueryResult } from 'pg';
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
+
+import { QueryMonitor } from '../utils/query-monitor';
 
 describe('QueryMonitor', () => {
   let monitor: QueryMonitor;

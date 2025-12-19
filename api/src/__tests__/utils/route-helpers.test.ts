@@ -2,14 +2,13 @@
  * Tests for route-helpers utilities
  */
 
-import { describe, it, expect, beforeEach } from '@jest/globals';
+import { describe, it, expect } from '@jest/globals';
+
 import {
   applyFilters,
   applyPagination,
   generateCacheKey,
   generateItemCacheKey,
-  FilterOptions,
-  PaginationOptions,
 } from '../../utils/route-helpers';
 
 describe('route-helpers', () => {

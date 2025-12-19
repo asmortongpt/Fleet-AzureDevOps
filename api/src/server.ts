@@ -28,12 +28,21 @@ import cors from 'cors'
 // Security middleware
 import { securityHeaders } from './middleware/security-headers'
 import { getCorsConfig, validateCorsConfiguration } from './middleware/corsConfig'
-import { globalLimiter, smartRateLimiter } from './middleware/rateLimiter'
+import { globalLimiter } from './middleware/rateLimiter'
 import { csrfProtection, getCsrfToken } from './middleware/csrf'
 
 // Core Fleet Management Routes
-import vehiclesRouter from './routes/vehicles'
+import adminJobsRouter from './routes/admin-jobs.routes'
+import aiInsightsRouter from './routes/ai-insights.routes'
+import aiSearchRouter from './routes/ai-search'
+import aiTaskAssetRouter from './routes/ai-task-asset.routes'
+import aiTaskPrioritizationRouter from './routes/ai-task-prioritization.routes'
+import annualReauthorizationRouter from './routes/annual-reauthorization.routes'
+import arcgisLayersRouter from './routes/arcgis-layers'
+import assetAnalyticsRouter from './routes/asset-analytics.routes'
+import assetManagementRouter from './routes/asset-management.routes'
 import driversRouter from './routes/drivers'
+import vehiclesRouter from './routes/vehicles'
 import fuelRouter from './routes/fuel-transactions'
 import maintenanceRouter from './routes/maintenance'
 import incidentsRouter from './routes/incidents'
@@ -44,8 +53,6 @@ import purchaseOrdersRouter from './routes/purchase-orders'
 import tasksRouter from './routes/tasks'
 
 // Asset Management Routes
-import assetManagementRouter from './routes/asset-management.routes'
-import assetAnalyticsRouter from './routes/asset-analytics.routes'
 import assetsMobileRouter from './routes/assets-mobile.routes'
 import heavyEquipmentRouter from './routes/heavy-equipment.routes'
 
@@ -62,6 +69,8 @@ import vehicleIdlingRouter from './routes/vehicle-idling.routes'
 // Maintenance & Inspection Routes
 import maintenanceSchedulesRouter from './routes/maintenance-schedules'
 import inspectionsRouter from './routes/inspections'
+import videoEventsRouter from './routes/video-events'
+import videoTelematicsRouter from './routes/video-telematics.routes'
 import workOrdersRouter from './routes/work-orders'
 
 // EV Management Routes
@@ -92,10 +101,6 @@ import assignmentReportingRouter from './routes/assignment-reporting.routes'
 import driverScorecardRouter from './routes/driver-scorecard.routes'
 
 // AI & Automation Routes
-import aiInsightsRouter from './routes/ai-insights.routes'
-import aiSearchRouter from './routes/ai-search'
-import aiTaskAssetRouter from './routes/ai-task-asset.routes'
-import aiTaskPrioritizationRouter from './routes/ai-task-prioritization.routes'
 import langchainRouter from './routes/langchain.routes'
 import fleetOptimizerRouter from './routes/fleet-optimizer.routes'
 
@@ -132,7 +137,6 @@ import tripUsageRouter from './routes/trip-usage'
 // Safety & Compliance Routes
 import safetyIncidentsRouter from './routes/safety-incidents'
 import oshaComplianceRouter from './routes/osha-compliance'
-import annualReauthorizationRouter from './routes/annual-reauthorization.routes'
 
 // Policy & Permission Routes
 import policiesRouter from './routes/policies'
@@ -146,10 +150,7 @@ import breakGlassRouter from './routes/break-glass'
 
 // External Integrations Routes
 import smartcarRouter from './routes/smartcar.routes'
-import arcgisLayersRouter from './routes/arcgis-layers'
 import outlookRouter from './routes/outlook.routes'
-import videoEventsRouter from './routes/video-events'
-import videoTelematicsRouter from './routes/video-telematics.routes'
 
 // Emulator & Testing Routes
 import emulatorRouter from './routes/emulator.routes'
@@ -171,8 +172,6 @@ import storageAdminRouter from './routes/storage-admin'
 import syncRouter from './routes/sync.routes'
 import qualityGatesRouter from './routes/quality-gates'
 import reservationsRouter from './routes/reservations.routes'
-import adminJobsRouter from './routes/admin-jobs.routes'
-
 import { telemetryMiddleware, errorTelemetryMiddleware, performanceMiddleware } from './middleware/telemetry'
 
 // Job Processing Infrastructure

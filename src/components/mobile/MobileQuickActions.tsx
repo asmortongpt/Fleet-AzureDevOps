@@ -1,8 +1,9 @@
+import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { useState, useRef, ReactNode } from 'react';
+
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
 
 interface QuickAction {
   id: string;

@@ -1,9 +1,10 @@
-import * as memwatch from 'memwatch-next';
-import { writeHeapSnapshot } from 'v8';
 import * as fs from 'fs';
 import * as path from 'path';
-import * as Sentry from '@sentry/node';
+import { writeHeapSnapshot } from 'v8';
+
 import { datadogRum } from '@datadog/browser-rum';
+import * as Sentry from '@sentry/node';
+import * as memwatch from 'memwatch-next';
 
 interface Config {
   heapUsageThreshold: number;

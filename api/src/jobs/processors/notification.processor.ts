@@ -7,8 +7,9 @@
 
 import { Job } from 'bull'
 import admin from 'firebase-admin'
-import logger from '../../utils/logger'
+
 import { pool } from '../../config/database'
+import logger from '../../utils/logger'
 
 /**
  * Initialize Firebase Admin SDK

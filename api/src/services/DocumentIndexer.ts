@@ -13,8 +13,8 @@
  */
 
 import { Pool } from 'pg'
+
 import SearchIndexService from './SearchIndexService'
-import logger from '../utils/logger'
 
 export interface IndexingJob {
   id: string

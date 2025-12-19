@@ -12,14 +12,16 @@
  */
 
 import { Component, ReactNode, ErrorInfo } from 'react'
-import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert'
-import { Button } from '@/components/ui/button'
-import { Badge } from '@/components/ui/badge'
-import { Card, CardHeader, CardContent, CardFooter } from '@/components/ui/card'
-import { categorizeError, ErrorCategory, CategorizedError } from '@/utils/retry'
+
 import type { MapProvider } from './UniversalMap'
 
+import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert'
+import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
+import { Card, CardHeader, CardContent, CardFooter } from '@/components/ui/card'
 import logger from '@/utils/logger';
+import { categorizeError, ErrorCategory, CategorizedError } from '@/utils/retry'
+
 // ============================================================================
 // Types & Interfaces
 // ============================================================================

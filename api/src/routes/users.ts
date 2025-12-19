@@ -1,6 +1,6 @@
 import express from 'express';
+
 import { userService } from '../services/UserService';
-import { NotFoundError } from '../errors/NotFoundError';
 
 const router = express.Router();
 

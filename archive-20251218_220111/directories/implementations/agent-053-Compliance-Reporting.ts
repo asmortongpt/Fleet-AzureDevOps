@@ -143,7 +143,6 @@ export class Logger {
 
 // src/tests/CTAFleetAgent53.test.ts
 import { CTAFleetAgent53 } from '../agents/CTAFleetAgent53';
-import { ComplianceStatus } from '../types/Compliance';
 
 describe('CTAFleetAgent53 - Compliance Reporting', () => {
   let agent: CTAFleetAgent53;

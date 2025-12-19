@@ -14,6 +14,7 @@
 import { execSync } from 'child_process';
 import { readFileSync, writeFileSync, existsSync } from 'fs';
 import { resolve } from 'path';
+
 import type { Plugin, ResolvedConfig } from 'vite';
 
 interface BuildVersionOptions {

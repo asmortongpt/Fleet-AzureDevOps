@@ -13,8 +13,9 @@
  */
 
 import { useEffect, useRef, useCallback, useState } from 'react';
-import { analytics, trackEvent, trackError, trackPerformance } from '../services/analytics';
+
 import { getTelemetryConfig } from '../config/telemetry';
+import { analytics, trackEvent, trackError, trackPerformance } from '../services/analytics';
 import { PrivacyManager } from '../utils/privacy';
 
 /**

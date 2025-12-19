@@ -1,9 +1,10 @@
 import express, { Request, Response, NextFunction } from 'express';
-import { Pool } from 'pg';
 import helmet from 'helmet';
-import { validateGeofence, validateAlertRule } from '../validators/geofenceValidators';
+import { Pool } from 'pg';
+
 import { auditLog } from '../utils/auditLog';
 import { logger } from '../utils/logger';
+import { validateGeofence, validateAlertRule } from '../validators/geofenceValidators';
 
 const router = express.Router();
 const pool = new Pool();

@@ -31,6 +31,7 @@
  * }
  */
 import { Pool } from 'pg';
+
 import { connectionManager, PoolType } from './connection-manager';
 /**
  * Initialize the connection manager

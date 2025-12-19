@@ -3,8 +3,9 @@
  */
 
 import { describe, it, expect, beforeAll, afterAll, beforeEach } from 'vitest'
+
 import { VehicleIdentificationService } from '../../src/services/vehicle-identification.service'
-import { testPool, cleanupDatabase, seedTestDatabase, closeTestDatabase } from '../setup'
+import { testPool, seedTestDatabase, closeTestDatabase } from '../setup'
 
 describe('VehicleIdentificationService', () => {
   let service: VehicleIdentificationService

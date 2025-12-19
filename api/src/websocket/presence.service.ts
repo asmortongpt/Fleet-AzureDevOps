@@ -1,6 +1,6 @@
+import type { RedisClientType } from "redis";
 import { Server, Socket } from "socket.io";
 import { z } from "zod";
-import type { RedisClientType } from "redis";
 
 interface Presence {
   userId: string;

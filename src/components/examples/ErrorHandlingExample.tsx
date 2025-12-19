@@ -9,8 +9,10 @@
  * - Retry functionality
  */
 
+import { CheckCircle2, Loader2, AlertCircle, Info } from 'lucide-react';
 import React, { useState } from 'react';
-import { QueryErrorBoundary, QueryErrorDisplay, InlineQueryError } from '@/components/errors/QueryErrorBoundary';
+
+import { QueryErrorBoundary, QueryErrorDisplay } from '@/components/errors/QueryErrorBoundary';
 import {
   SkeletonTable,
   SkeletonCard,
@@ -18,19 +20,15 @@ import {
   SkeletonList,
   Skeleton,
 } from '@/components/skeletons/SkeletonComponents';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import {
   useVehicles,
   useCreateVehicle,
-  useUpdateVehicle,
-  useDeleteVehicle,
 } from '@/hooks/useDataQueriesEnhanced';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { Badge } from '@/components/ui/badge';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { CheckCircle2, XCircle, Loader2, AlertCircle, Info } from 'lucide-react';
-
 import logger from '@/utils/logger';
 /**
  * Example 1: Basic Query with Error Handling and Loading State

@@ -1,6 +1,8 @@
-import { Skeleton } from "./skeleton";
-import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
+
+import { Skeleton } from "./skeleton";
+
+import { cn } from "@/lib/utils";
 
 /**
  * LoadingSkeleton - Comprehensive loading skeletons for all major UI sections

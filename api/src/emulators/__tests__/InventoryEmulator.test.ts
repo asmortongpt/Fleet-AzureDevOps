@@ -3,7 +3,8 @@
  * Validates inventory generation, transactions, and low stock alerts
  */
 
-import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
+import { describe, it, expect, beforeEach, afterEach } from 'vitest'
+
 import { InventoryEmulator } from '../InventoryEmulator'
 import type { EmulatorConfig } from '../types'
 

@@ -1,3 +1,5 @@
+import { Pool } from 'pg';
+
 import { BaseRepository } from '../repositories/BaseRepository';
 
 /**
@@ -14,7 +16,6 @@ import { BaseRepository } from '../repositories/BaseRepository';
  * Task: B3 - Agent 25 - Eliminate 19 direct database queries
  */
 
-import { Pool, PoolClient } from 'pg';
 
 export interface ReimbursementRequest {
   id: string;

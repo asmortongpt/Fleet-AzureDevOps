@@ -8,15 +8,16 @@
  * - Auto-complete
  */
 
-import React, { useState, useEffect } from 'react'
 import { AlertCircle, CheckCircle2, Lightbulb, TrendingUp, Loader2 } from 'lucide-react'
-import { Input } from '../ui/input'
-import { Button } from '../ui/button'
-import { Label } from '../ui/label'
-import { Badge } from '../ui/badge'
-import { Alert, AlertDescription } from '../ui/alert'
-import { Card, CardContent, CardHeader, CardTitle } from '../ui/card'
+import React, { useState, useEffect } from 'react'
+
 import { apiClient } from '../../lib/api'
+import { Alert, AlertDescription } from '../ui/alert'
+import { Badge } from '../ui/badge'
+import { Button } from '../ui/button'
+import { Card, CardContent, CardHeader, CardTitle } from '../ui/card'
+import { Input } from '../ui/input'
+import { Label } from '../ui/label'
 
 import logger from '@/utils/logger';
 interface FieldConfig {

@@ -11,8 +11,10 @@
  */
 
 import { Pool, PoolClient, QueryResult } from 'pg';
+
 import pool from '../config/database';
 import { SqlValue, SqlParams } from '../types';
+
 import { monitoredQuery } from './query-monitor';
 
 /**

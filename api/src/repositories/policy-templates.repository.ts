@@ -1,4 +1,3 @@
-import { BaseRepository } from '../repositories/BaseRepository';
 
 /**
  * Policy Templates Repository
@@ -11,8 +10,9 @@ import { BaseRepository } from '../repositories/BaseRepository';
  * - Compliance Dashboard Analytics
  */
 
-import { Pool, QueryResult } from 'pg';
-import { NotFoundError, DatabaseError } from '../errors/app-error';
+import { Pool } from 'pg';
+
+import { BaseRepository } from '../repositories/BaseRepository';
 
 export interface PolicyTemplate {
   id: number;

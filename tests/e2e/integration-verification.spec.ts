@@ -3,8 +3,9 @@
  * Tests frontend-emulator integration with visual and cryptographic evidence
  */
 
-import { test, expect } from '@playwright/test'
 import crypto from 'crypto'
+
+import { test, expect } from '@playwright/test'
 
 test.describe('Fleet Emulator Integration Verification', () => {
   test('should display live vehicle data from emulator', async ({ page }) => {

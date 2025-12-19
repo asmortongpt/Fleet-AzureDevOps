@@ -1,7 +1,8 @@
-import request from 'supertest'
-import express from 'express'
 import cookieParser from 'cookie-parser'
+import express from 'express'
 import jwt from 'jsonwebtoken'
+import request from 'supertest'
+
 import pool from '../src/config/database'
 import authRoutes from '../src/routes/auth'
 
