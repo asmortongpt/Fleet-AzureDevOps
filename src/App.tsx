@@ -16,7 +16,8 @@ import {
   SignOut,
   List,
   X,
-  CarProfile
+  CarProfile,
+  Shield
 } from "@phosphor-icons/react"
 import { navigationItems } from "@/lib/navigation"
 import { RoleSwitcher } from "@/components/demo/RoleSwitcher"
@@ -91,7 +92,7 @@ const Invoices = lazy(() => import("@/components/modules/procurement/Invoices").
 // TOOLS MODULES
 const MileageReimbursement = lazy(() => import("@/components/modules/tools/MileageReimbursement").then(m => ({ default: m.MileageReimbursement })))
 const ReceiptProcessing = lazy(() => import("@/components/modules/tools/ReceiptProcessing").then(m => ({ default: m.ReceiptProcessing })))
-const TrafficCameras = lazy(() => import("@/components/modules/tools/TrafficCameras").then(m => ({ default: m.TrafficCameras })))
+// const TrafficCameras = lazy(() => import("@/components/modules/tools/TrafficCameras").then(m => ({ default: m.TrafficCameras }))) // Deprecated -> Map First
 const CustomFormBuilder = lazy(() => import("@/components/modules/tools/CustomFormBuilder").then(m => ({ default: m.CustomFormBuilder })))
 
 // COMMUNICATION MODULES
@@ -160,8 +161,13 @@ const LoadingSpinner = () => (
   </div>
 )
 
+import { useAuth } from "@/contexts/AuthContext"
+
+// ... existing imports
+
 function App() {
-  const [activeModule, setActiveModule] = useState("dashboard")
+  const { user, canAccess } = useAuth()
+  const [activeModule, setActiveModule] = useState("live-fleet-dashboard")
   const [sidebarOpen, setSidebarOpen] = useState(true)
   const [reactPlugin] = useState(() => telemetryService.initialize())
 
@@ -169,45 +175,39 @@ function App() {
   // Use facilities from fleetData (which includes demo data fallback)
   const facilities = fleetData.facilities || []
 
-  useEffect(() => {
-    fleetData.initializeData()
-  }, [fleetData.initializeData])
+  // ... useEffects
 
-  // Initialize telemetry tracking
-  useEffect(() => {
-    // Track initial page view
-    telemetryService.trackPageView('Application Loaded')
+  // Verify access for current module
+  const currentNavItem = useMemo(() =>
+    navigationItems.find(item => item.id === activeModule),
+    [activeModule]
+  )
 
-    // Track performance metrics after page load
-    const perfTimer = setTimeout(() => {
-      telemetryService.trackPerformance()
-    }, 2000)
-
-    // Track route changes
-    const handleRouteChange = () => {
-      telemetryService.trackPageView(window.location.pathname)
+  const hasAccessToModule = useMemo(() => {
+    if (!currentNavItem) return true // Default to allow if not in nav (e.g. system pages)
+    // Check if item has restrictions
+    if (currentNavItem.roles || currentNavItem.permissions) {
+      return canAccess(currentNavItem.roles as any, currentNavItem.permissions)
     }
-
-    window.addEventListener('popstate', handleRouteChange)
-
-    return () => {
-      clearTimeout(perfTimer)
-      window.removeEventListener('popstate', handleRouteChange)
-    }
-  }, [])
-
-  // Track module changes
-  useEffect(() => {
-    if (activeModule) {
-      telemetryService.trackEvent('ModuleChanged', {
-        module: activeModule,
-        previousModule: window.sessionStorage.getItem('previousModule') || 'none'
-      })
-      window.sessionStorage.setItem('previousModule', activeModule)
-    }
-  }, [activeModule])
+    return true
+  }, [currentNavItem, canAccess])
 
   const renderModule = () => {
+    if (!hasAccessToModule) {
+      return (
+        <div className="flex flex-col items-center justify-center h-full p-8 text-center bg-gray-50 rounded-lg">
+          <Shield className="w-16 h-16 text-red-500 mb-4" />
+          <h2 className="text-2xl font-bold text-gray-900 mb-2">Access Denied</h2>
+          <p className="text-gray-600 mb-6">
+            You do not have permission to view this module.
+          </p>
+          <Button onClick={() => setActiveModule('live-fleet-dashboard')}>
+            Return to Dashboard
+          </Button>
+        </div>
+      )
+    }
+
     switch (activeModule) {
       case "live-fleet-dashboard":
         return <LiveFleetDashboard />
@@ -218,19 +218,19 @@ function App() {
       case "admin-dashboard":
         return <AdminDashboard />
       case "operations-workspace":
-        return <OperationsWorkspace data={fleetData} />
+        return <OperationsWorkspace />
       case "fleet-workspace":
-        return <FleetWorkspace data={fleetData} />
+        return <FleetWorkspace />
       case "maintenance-workspace":
-        return <MaintenanceWorkspace data={fleetData} />
+        return <MaintenanceWorkspace />
       case "analytics-workspace":
-        return <AnalyticsWorkspace data={fleetData} />
+        return <AnalyticsWorkspace />
       case "compliance-workspace":
-        return <ComplianceWorkspace data={fleetData} />
+        return <ComplianceWorkspace />
       case "drivers-workspace":
-        return <DriversWorkspace data={fleetData} />
+        return <DriversWorkspace />
       case "reports-hub":
-        return <ReportsHub data={fleetData} />
+        return <ReportsHub />
       case "operations-hub":
         return <OperationsHub />
       case "procurement-hub":
@@ -243,27 +243,28 @@ function App() {
         return <CommandCenter />
 
       case "garage":
-        return <GarageService data={fleetData} />
+        return <GarageService />
       case "virtual-garage":
-        return <VirtualGarage data={fleetData} />
+        return <VirtualGarage />
       case "predictive":
-        return <PredictiveMaintenance data={fleetData} />
+        return <PredictiveMaintenance />
       case "fuel":
-        return <FuelManagement data={fleetData} />
+        return <FuelManagement />
       case "gps-tracking":
         return <CommandCenter />
       case "workbench":
-        return <DataWorkbench data={fleetData} />
+        return <DataWorkbench />
       case "mileage":
-        return <MileageReimbursement data={fleetData} />
+        return <MileageReimbursement />
       case "routes":
-        return <RouteManagement data={fleetData} />
+        return <RouteManagement />
       case "gis-map":
-        return <GISCommandCenter data={fleetData} />
+        return <GISCommandCenter />
       case "traffic-cameras":
-        return <TrafficCameras />
+        // Map-First Consolidation: Redirect to Dashboard with layer active
+        return <LiveFleetDashboard initialLayer="traffic-cameras" />
       case "comprehensive":
-        return <FleetAnalytics data={fleetData} />
+        return <FleetAnalytics />
       case "vendor-management":
         return <VendorManagement />
       case "parts-inventory":
@@ -336,11 +337,11 @@ function App() {
       case "endpoint-monitor":
         return <EndpointMonitor />
       case "driver-mgmt":
-        return <DriverPerformance data={fleetData} />
+        return <DriverPerformance />
       case "driver-scorecard":
         return <DriverScorecard />
       case "drivers":
-        return <DriversDashboard data={fleetData} />
+        return <DriversDashboard />
       case "fleet-optimizer":
         return <FleetOptimizer />
       case "cost-analysis":
@@ -377,12 +378,21 @@ function App() {
     }
 
     navigationItems.forEach(item => {
+      // RBAC Filter: Skip if user doesn't have access
+      if (item.roles || item.permissions) {
+        if (!canAccess(item.roles as any, item.permissions)) {
+          return;
+        }
+      }
+
       const section = item.section || "main"
-      groups[section].push(item)
+      if (groups[section]) {
+        groups[section].push(item)
+      }
     })
 
     return groups
-  }, [])
+  }, [canAccess]) // Add canAccess dependency
 
   // Determine if the current module needs full viewport (no padding)
   const isFullWidthModule = useMemo(() => {
