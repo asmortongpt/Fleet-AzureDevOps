@@ -50,6 +50,9 @@ export interface NavigationItem {
   label: string
   icon: ReactNode
   section?: "main" | "management" | "procurement" | "communication" | "tools" | "hubs"
+  roles?: string[]
+  permissions?: string[]
+  category?: string
 }
 
 export const navigationItems: NavigationItem[] = [
@@ -69,13 +72,15 @@ export const navigationItems: NavigationItem[] = [
     id: "executive-dashboard",
     label: "Executive Dashboard",
     icon: <PresentationChart className="w-5 h-5" />,
-    section: "main"
+    section: "main",
+    roles: ['SuperAdmin', 'Admin', 'Manager']
   },
   {
     id: "admin-dashboard",
     label: "Admin Dashboard",
     icon: <Shield className="w-5 h-5" />,
-    section: "main"
+    section: "main",
+    roles: ['SuperAdmin', 'Admin']
   },
   {
     id: "operations-workspace",

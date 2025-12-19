@@ -3,8 +3,19 @@ import { visualizer } from 'rollup-plugin-visualizer';
 import tailwindcss from '@tailwindcss/vite';
 import path from 'path';
 
+import react from '@vitejs/plugin-react';
+
 export default defineConfig({
-  plugins: [tailwindcss()],
+  plugins: [
+    react({
+      babel: {
+        plugins: [
+          ["babel-plugin-react-compiler", { target: "18" }] // React Compiler (Forget)
+        ],
+      },
+    }),
+    tailwindcss()
+  ],
   resolve: {
     alias: {
       '@': path.resolve(__dirname, './src'),
