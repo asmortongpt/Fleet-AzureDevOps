@@ -36,6 +36,7 @@ export interface UsePerformanceMonitorOptions {
 
 export interface PerformanceMonitorReturn {
   startMetric: (name: string) => number;
+  endMetric: (name: string, startTime: number, metadata?: Record<string, any>) => void;
   recordMetric: (name: string, duration: number, metadata?: Record<string, any>) => void;
   metrics: PerformanceMetrics;
 }
@@ -80,7 +81,26 @@ export function usePerformanceMonitor(
   // Start a metric timer
   const startMetric = useCallback((name: string): number => {
     if (!enabled) return Date.now();
-    return performance.now();
+    if (typeof performance !== 'undefined' && typeof performance.now === 'function') {
+      return performance.now();
+    }
+    return Date.now();
+  }, [enabled]);
+
+  // End a metric timer and record the duration
+  const endMetric = useCallback((
+    name: string,
+    startTime: number,
+    metadata?: Record<string, any>
+  ) => {
+    if (!enabled) return;
+
+    const endTime = typeof performance !== 'undefined' && typeof performance.now === 'function'
+      ? performance.now()
+      : Date.now();
+
+    const duration = endTime - startTime;
+    recordMetric(name, duration, metadata);
   }, [enabled]);
 
   // Record a completed metric
@@ -222,6 +242,7 @@ export function usePerformanceMonitor(
   // Return the performance monitor API
   return {
     startMetric,
+    endMetric,
     recordMetric,
     metrics,
   };

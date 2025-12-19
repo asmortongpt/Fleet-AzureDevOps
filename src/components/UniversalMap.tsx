@@ -688,7 +688,7 @@ export function UniversalMap(props: UniversalMapProps) {
 
   return (
     <MapErrorBoundary onError={(error) => handleMapError(error)}>
-      <div className="relative w-full h-full">
+      <div className="relative w-full h-full min-h-[500px]">
         {/* Loading Overlay */}
         {loadingState === "loading" && (
           <div className="absolute inset-0 z-50 flex items-center justify-center bg-white/80 dark:bg-gray-900/80">
