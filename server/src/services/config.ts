@@ -46,7 +46,7 @@ export const config: AppConfig = {
     ssl: process.env.DATABASE_SSL === 'true',
     max: 20,
     idleTimeoutMillis: 30000,
-    connectionTimeoutMillis: 2000,
+    connectionTimeoutMillis: 10000, // Increased to 10 seconds for Azure PostgreSQL
   },
 
   redis: {
