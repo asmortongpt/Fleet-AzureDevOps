@@ -10,11 +10,22 @@
  * - OSHA compliance metrics dashboard
  */
 
+import {
+  FirstAid,
+  Warning,
+  MapPin,
+  TrendUp,
+  CheckCircle,
+  XCircle,
+  FileText,
+  Calendar
+} from "@phosphor-icons/react"
+import { GoogleMap, LoadScript, Marker, Circle } from "@react-google-maps/api"
 import { useState, useMemo } from "react"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import {
   Select,
   SelectContent,
@@ -30,20 +41,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
-import {
-  FirstAid,
-  Warning,
-  ShieldCheck,
-  MapPin,
-  TrendUp,
-  TrendDown,
-  CheckCircle,
-  XCircle,
-  Clock,
-  FileText,
-  Calendar
-} from "@phosphor-icons/react"
-import { GoogleMap, LoadScript, Marker, Circle, Polyline } from "@react-google-maps/api"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 
 // Safety incident severity levels
 type IncidentSeverity = "critical" | "high" | "medium" | "low"

@@ -1,7 +1,8 @@
-import { BaseRepository } from '../repositories/BaseRepository';
 
 import { Pool } from 'pg';
+
 import { InsurancePolicy } from '../models/insurance-policy.model';
+import { BaseRepository } from '../repositories/BaseRepository';
 
 export class InsurancePoliciesRepository extends BaseRepository<any> {
   private pool: Pool;

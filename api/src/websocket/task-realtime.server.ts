@@ -1,6 +1,8 @@
 import { Server as HttpServer } from 'http';
-import { Server, Socket } from 'socket.io';
+
 import jwt from 'jsonwebtoken';
+import { Server, Socket } from 'socket.io';
+
 import { getJwtSecret } from '../config/jwt.config';
 import logger from '../utils/logger';
 

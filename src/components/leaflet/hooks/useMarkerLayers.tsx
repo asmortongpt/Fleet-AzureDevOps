@@ -9,7 +9,6 @@ import { createVehicleIcon, createFacilityIcon, createCameraIcon } from "../util
 import { createVehiclePopup, createFacilityPopup, createCameraPopup } from "../utils/popups"
 
 import type { Vehicle, GISFacility, TrafficCamera } from "@/lib/types"
-
 import logger from '@/utils/logger';
 export type MarkerType = "vehicle" | "facility" | "camera"
 

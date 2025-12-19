@@ -20,9 +20,7 @@
  * Business Value: Seamless Teams integration for fleet communications
  */
 
-import microsoftGraphService from './microsoft-graph.service'
 import { pool } from '../config/database'
-import { logger } from '../utils/logger'
 import {
   Team,
   Channel,
@@ -38,6 +36,9 @@ import {
   CommunicationEntityLink,
   GraphApiResponse
 } from '../types/teams.types'
+import { logger } from '../utils/logger'
+
+import microsoftGraphService from './microsoft-graph.service'
 
 class TeamsService {
   /**

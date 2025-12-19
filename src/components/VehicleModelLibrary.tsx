@@ -3,16 +3,8 @@
  * Browse, search, and manage 3D vehicle models
  */
 
-import React, { useState, useEffect, useMemo } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import {
   Search,
-  Filter,
   Upload,
   Download,
   Star,
@@ -22,13 +14,18 @@ import {
   List,
   ChevronLeft,
   ChevronRight,
-  Loader2,
-  ExternalLink,
   Check,
 } from 'lucide-react';
-import { getVehicleModelsService, type Vehicle3DModel } from '@/services/vehicle-models';
-import { LoadingSpinner } from '@/components/LoadingSpinner';
+import React, { useState, useEffect, useMemo } from 'react';
 
+import { LoadingSpinner } from '@/components/LoadingSpinner';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { getVehicleModelsService, type Vehicle3DModel } from '@/services/vehicle-models';
 import logger from '@/utils/logger';
 interface VehicleModelLibraryProps {
   onSelectModel?: (model: Vehicle3DModel) => void;

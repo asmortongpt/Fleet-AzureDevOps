@@ -1,8 +1,7 @@
 import { Router } from "express"
+
 import { csrfProtection } from '../middleware/csrf'
-import { container } from '../container'
 import { asyncHandler } from '../middleware/errorHandler'
-import { NotFoundError, ValidationError } from '../errors/app-error'
 const router = Router()
 
 router.get("/", asyncHandler(async (req, res) => {

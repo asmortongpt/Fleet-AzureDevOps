@@ -9,14 +9,14 @@
  * - Timeline: Activity timeline and event history
  */
 
-import React, { useState, useEffect } from 'react';
-import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
-import { Card } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { apiClient } from '@/lib/api';
-import { OBD2Dashboard } from '@/components/obd2/OBD2Dashboard';
 import { Loader2, AlertCircle } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
 
+import { OBD2Dashboard } from '@/components/obd2/OBD2Dashboard';
+import { Badge } from '@/components/ui/badge';
+import { Card } from '@/components/ui/card';
+import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
+import { apiClient } from '@/lib/api';
 import logger from '@/utils/logger';
 interface VehicleInspectorProps {
   id: string;

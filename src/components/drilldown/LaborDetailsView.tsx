@@ -3,12 +3,13 @@
  * Shows detailed labor breakdown with technician hours and rates
  */
 
-import { DrilldownContent } from '@/components/DrilldownPanel'
-import { Card, CardContent } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
-import useSWR from 'swr'
 import { Users, Calendar } from 'lucide-react'
+import useSWR from 'swr'
+
+import { DrilldownContent } from '@/components/DrilldownPanel'
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
+import { Badge } from '@/components/ui/badge'
+import { Card, CardContent } from '@/components/ui/card'
 interface LaborDetailsViewProps {
   workOrderId: string
   workOrderNumber?: string

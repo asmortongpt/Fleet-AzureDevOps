@@ -2,9 +2,10 @@
  * Asset Management Component Tests
  */
 
-import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { render, screen, fireEvent, waitFor } from '@testing-library/react'
 import { BrowserRouter } from 'react-router-dom'
+import { describe, it, expect, vi, beforeEach } from 'vitest'
+
 import AssetManagement from '../../components/modules/AssetManagement'
 
 // Mock fetch

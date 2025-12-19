@@ -1,4 +1,5 @@
 import { pool } from '../db';
+
 import { BaseRepository } from './base.repository';
 
 /**

@@ -1,4 +1,3 @@
-import { ApplicationError } from '../errors/AppError';
 
 /**
  * Logs an error with structured logging.

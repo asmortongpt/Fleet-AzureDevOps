@@ -1,17 +1,3 @@
-import { useState, useEffect, useRef } from "react"
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Badge } from "@/components/ui/badge"
-import { ScrollArea } from "@/components/ui/scroll-area"
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue
-} from "@/components/ui/select"
 import {
   Robot,
   PaperPlaneRight,
@@ -23,9 +9,23 @@ import {
   Book,
   ChatCircleDots
 } from "@phosphor-icons/react"
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
+import { useState, useEffect, useRef } from "react"
 import { toast } from "sonner"
-import { apiClient } from "@/lib/api-client"
 
+import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Input } from "@/components/ui/input"
+import { ScrollArea } from "@/components/ui/scroll-area"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue
+} from "@/components/ui/select"
+import { apiClient } from "@/lib/api-client"
 import logger from '@/utils/logger';
 interface QAMessage {
   id: string

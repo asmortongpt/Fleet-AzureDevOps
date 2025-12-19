@@ -7,9 +7,10 @@
 
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
+
+import { Alert } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
-import { Alert } from '@/components/ui/alert'
 import {
   loginWithRedirect,
   loginWithPopup,

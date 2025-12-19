@@ -26,6 +26,7 @@ import {
   Platform
 } from 'react-native'
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons'
+
 import BarcodeScanner, { ScannedItem, PartDetails } from '../components/BarcodeScanner'
 
 export interface PartsScannerScreenProps {

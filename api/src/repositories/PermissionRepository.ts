@@ -8,8 +8,10 @@
  */
 
 import { injectable } from 'inversify';
-import { BaseRepository } from './base.repository';
+
 import { pool } from '../db';
+
+import { BaseRepository } from './base.repository';
 
 export interface Role {
   id: number;

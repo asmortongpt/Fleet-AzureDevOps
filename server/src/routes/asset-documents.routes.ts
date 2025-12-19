@@ -1,12 +1,12 @@
 import express, { Request, Response } from 'express';
-import { Pool } from 'pg';
-import bcrypt from 'bcrypt';
-import helmet from 'helmet';
-import { v4 as uuidv4 } from 'uuid';
 import { check, validationResult } from 'express-validator';
-import { logger } from '../utils/logger';
-import { auditLog } from '../utils/auditLog';
+import helmet from 'helmet';
+import { Pool } from 'pg';
+import { v4 as uuidv4 } from 'uuid';
+
 import { authenticateTenant } from '../middleware/authenticateTenant';
+import { auditLog } from '../utils/auditLog';
+import { logger } from '../utils/logger';
 
 const router = express.Router();
 const pool = new Pool(); // Assume pool is configured with environment variables

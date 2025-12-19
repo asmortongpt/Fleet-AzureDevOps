@@ -1,4 +1,5 @@
 import { CaretUp, CaretDown } from "@phosphor-icons/react"
+
 import { SortDirection } from "./types"
 
 interface SortIconProps {

@@ -6,9 +6,10 @@
  */
 
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
-import { assetManagementRepository, AssetManagementRepository } from '../asset-management.repository'
+
 import { connectionManager } from '../../config/connection-manager'
-import { NotFoundError, ValidationError, DatabaseError } from '../../errors/app-error'
+import { ValidationError, DatabaseError } from '../../errors/app-error'
+import { assetManagementRepository } from '../asset-management.repository'
 
 // Mock the connection manager
 vi.mock('../../config/connection-manager', () => ({

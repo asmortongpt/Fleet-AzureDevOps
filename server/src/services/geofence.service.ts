@@ -1,8 +1,8 @@
-import { Pool } from 'pg';
-import bcrypt from 'bcrypt';
 import * as turf from '@turf/turf';
-import { Logger } from '../utils/logger';
+import { Pool } from 'pg';
+
 import { AuditLogger } from '../utils/auditLogger';
+import { Logger } from '../utils/logger';
 import { validateGeofenceInput, validateRuleInput, validateLocationInput } from '../utils/validators';
 
 const pool = new Pool(); // Assume pool is configured elsewhere

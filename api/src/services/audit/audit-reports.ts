@@ -12,6 +12,7 @@
  */
 
 import { Pool } from 'pg'
+
 import { AuditLogger, AuditAction, AuditSeverity } from './audit-logger'
 
 export enum ReportType {

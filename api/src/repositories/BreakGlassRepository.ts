@@ -12,8 +12,10 @@
 
 import { injectable } from 'inversify';
 import { Pool } from 'pg';
-import { BaseRepository, QueryContext } from './BaseRepository';
+
 import { connectionManager } from '../config/connection-manager';
+
+import { BaseRepository, QueryContext } from './BaseRepository';
 
 export interface BreakGlassSession {
   id: string;

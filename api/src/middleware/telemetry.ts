@@ -1,6 +1,8 @@
-import { Request, Response, NextFunction } from 'express'
-import telemetryService from '../monitoring/applicationInsights'
 import crypto from 'crypto'
+
+import { Request, Response, NextFunction } from 'express'
+
+import telemetryService from '../monitoring/applicationInsights'
 
 /**
  * Extended request interface with telemetry tracking

@@ -1,13 +1,14 @@
 import { Router } from "express";
-import { csrfProtection } from '../middleware/csrf'
-import { container } from '../container';
-import { TYPES } from '../types';
-import { InspectionController } from '../modules/inspections/controllers/inspection.controller';
-import { asyncHandler } from '../middleware/errorHandler';
-import { authenticateJWT } from '../middleware/auth';
-import { requireRBAC, Role, PERMISSIONS } from '../middleware/rbac';
 import { z } from 'zod';
+
+import { container } from '../container';
+import { authenticateJWT } from '../middleware/auth';
+import { csrfProtection } from '../middleware/csrf'
+import { asyncHandler } from '../middleware/errorHandler';
+import { requireRBAC, Role, PERMISSIONS } from '../middleware/rbac';
 import { validateBody, validateParams } from '../middleware/validate';
+import { InspectionController } from '../modules/inspections/controllers/inspection.controller';
+import { TYPES } from '../types';
 
 const router = Router();
 const inspectionController = container.get<InspectionController>(TYPES.InspectionController);

@@ -4,11 +4,13 @@
  * Generates 1000+ realistic records across all tables
  */
 
+import { faker } from '@faker-js/faker';
+import * as bcrypt from 'bcrypt';
 import { drizzle } from 'drizzle-orm/node-postgres';
 import { Client } from 'pg';
-import { faker } from '@faker-js/faker';
+
 import * as schema from '../schemas/production.schema';
-import * as bcrypt from 'bcrypt';
+
 
 const DATABASE_URL = process.env.DATABASE_URL || 'postgresql://localhost:5432/fleet_dev';
 

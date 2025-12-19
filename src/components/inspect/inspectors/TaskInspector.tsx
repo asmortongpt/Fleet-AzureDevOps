@@ -7,14 +7,14 @@
  * - History: Activity log and change history
  */
 
+import { Loader2, AlertCircle, CheckCircle2, Circle, Clock } from 'lucide-react';
 import React, { useState, useEffect } from 'react';
-import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
-import { Card } from '@/components/ui/card';
+
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { Card } from '@/components/ui/card';
+import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { apiClient } from '@/lib/api';
-import { Loader2, AlertCircle, CheckCircle2, Circle, Clock } from 'lucide-react';
-
 import logger from '@/utils/logger';
 interface TaskInspectorProps {
   id: string;

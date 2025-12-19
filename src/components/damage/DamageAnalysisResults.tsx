@@ -1,9 +1,10 @@
+import { AlertCircle, CheckCircle, DollarSign, MapPin, Camera } from 'lucide-react';
 import React, { useState } from 'react';
-import { AlertCircle, CheckCircle, DollarSign, Calendar, MapPin, Camera } from 'lucide-react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui/card';
+
+import { Alert, AlertDescription } from '../ui/alert';
 import { Badge } from '../ui/badge';
 import { Button } from '../ui/button';
-import { Alert, AlertDescription } from '../ui/alert';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui/card';
 import { Separator } from '../ui/separator';
 
 interface DamageAnalysisResultsProps {

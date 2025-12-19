@@ -1,11 +1,12 @@
 import { Router, Request, Response } from 'express';
 import jwt from 'jsonwebtoken';
-import { config } from '../services/config';
-import { logger } from '../services/logger';
-import { db } from '../services/database';
-import { microsoftAuth } from '../services/microsoft-auth';
+
 import { authenticateToken } from '../middleware/auth';
 import { asyncHandler } from '../middleware/errorHandler';
+import { config } from '../services/config';
+import { db } from '../services/database';
+import { logger } from '../services/logger';
+import { microsoftAuth } from '../services/microsoft-auth';
 import { JWTPayload } from '../types';
 
 const router = Router();

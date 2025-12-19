@@ -1,4 +1,4 @@
-import { test, expect } from '@playwright/test'
+import { test } from '@playwright/test'
 
 const PROD_URL = 'https://fleet.capitaltechalliance.com'
 

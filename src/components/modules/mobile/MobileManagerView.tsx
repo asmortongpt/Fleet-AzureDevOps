@@ -9,18 +9,16 @@
  * - Monitor compliance exceptions
  */
 
-import React, { useState, useEffect } from 'react';
 import {
-  Car,
   Clock,
-  Users,
   CheckCircle,
-  XCircle,
   AlertTriangle,
   Phone,
   ThumbsUp,
   ThumbsDown,
 } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+
 import { useAuth } from '../../hooks/useAuth';
 
 import logger from '@/utils/logger';
