@@ -1,3 +1,10 @@
+// Initialize demo mode FIRST to prevent API errors
+if (typeof window !== 'undefined' && !localStorage.getItem('demo_mode')) {
+  localStorage.setItem('demo_mode', 'true');
+  localStorage.setItem('demo_role', 'fleet_manager');
+  console.log('[Fleet] Demo mode enabled by default');
+}
+
 // Initialize Sentry before all other imports for proper error tracking
 import { initSentry } from "./lib/sentry"
 initSentry()
