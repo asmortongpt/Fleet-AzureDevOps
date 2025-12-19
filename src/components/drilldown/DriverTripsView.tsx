@@ -3,10 +3,7 @@
  * Shows individual trips with performance data and safety incidents
  */
 
-import { DrilldownContent } from '@/components/DrilldownPanel'
-import { Card, CardContent } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
-import useSWR from 'swr'
+import { formatDistanceToNow } from 'date-fns'
 import {
   MapPin,
   Clock,
@@ -14,10 +11,13 @@ import {
   AlertTriangle,
   CheckCircle,
   TrendingUp,
-  Fuel,
   Route,
 } from 'lucide-react'
-import { formatDistanceToNow } from 'date-fns'
+import useSWR from 'swr'
+
+import { DrilldownContent } from '@/components/DrilldownPanel'
+import { Badge } from '@/components/ui/badge'
+import { Card, CardContent } from '@/components/ui/card'
 
 interface DriverTripsViewProps {
   driverId: string

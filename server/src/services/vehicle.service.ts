@@ -1,8 +1,8 @@
 // server/src/services/vehicle.service.ts
+import { CreateVehicleDto, Vehicle } from '../models/vehicle.model';
 import { VehicleRepository } from '../repositories/vehicle.repository';
 import { Logger } from '../utils/logger';
 import { UnitOfWork } from '../utils/unitOfWork';
-import { CreateVehicleDto, Vehicle } from '../models/vehicle.model';
 
 export interface IVehicleService {
   createVehicle(data: CreateVehicleDto, tenantId: number): Promise<Vehicle>;
@@ -47,8 +47,6 @@ export class VehicleService implements IVehicleService {
 
 // server/src/services/driver.service.ts
 import { DriverRepository } from '../repositories/driver.repository';
-import { Logger } from '../utils/logger';
-import { UnitOfWork } from '../utils/unitOfWork';
 import { CreateDriverDto, Driver } from '../models/driver.model';
 
 export interface IDriverService {
@@ -94,8 +92,6 @@ export class DriverService implements IDriverService {
 
 // server/src/services/maintenance.service.ts
 import { MaintenanceRepository } from '../repositories/maintenance.repository';
-import { Logger } from '../utils/logger';
-import { UnitOfWork } from '../utils/unitOfWork';
 import { CreateMaintenanceDto, Maintenance } from '../models/maintenance.model';
 
 export interface IMaintenanceService {

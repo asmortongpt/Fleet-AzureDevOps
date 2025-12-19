@@ -10,8 +10,8 @@
  * @module database/connectionManager
  */
 
-import { Pool, PoolConfig, PoolClient } from 'pg';
 import * as dotenv from 'dotenv';
+import { Pool, PoolConfig } from 'pg';
 
 dotenv.config();
 

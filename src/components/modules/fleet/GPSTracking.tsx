@@ -1,9 +1,3 @@
-import { useMemo, useState, useCallback, useEffect, useRef } from "react"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Alert, AlertDescription } from "@/components/ui/alert"
-import { Skeleton } from "@/components/ui/skeleton"
 import {
   MapPin,
   Circle,
@@ -11,10 +5,16 @@ import {
   Warning,
   Info
 } from "@phosphor-icons/react"
-import { Vehicle, GISFacility } from "@/lib/types"
-import { UniversalMap } from "@/components/UniversalMap"
-import { useInspect } from "@/services/inspect/InspectContext"
+import { useMemo, useState, useCallback, useEffect, useRef } from "react"
 
+import { UniversalMap } from "@/components/UniversalMap"
+import { Alert, AlertDescription } from "@/components/ui/alert"
+import { Badge } from "@/components/ui/badge"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Skeleton } from "@/components/ui/skeleton"
+import { Vehicle, GISFacility } from "@/lib/types"
+import { useInspect } from "@/services/inspect/InspectContext"
 import logger from '@/utils/logger';
 /**
  * Props for the GPSTracking component

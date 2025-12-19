@@ -1,19 +1,22 @@
+import { AlertCircle, Truck, Wrench, MapPin, Gauge, Fuel } from 'lucide-react';
 import { useState, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
+
 import { MapFirstLayout } from '../layout/MapFirstLayout';
 import { ProfessionalFleetMap } from '../map/ProfessionalFleetMap';
-import { useVehicles } from '@/hooks/use-api';
-import { Button } from '../ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
-import { Badge } from '../ui/badge';
-import { AlertCircle, Truck, Wrench, MapPin, Gauge, Fuel } from 'lucide-react';
 import { MobileMapControls } from '../mobile/MobileMapControls';
 import { MobileQuickActions } from '../mobile/MobileQuickActions';
 import { MobileVehicleCard } from '../mobile/MobileVehicleCard';
-import { generateDemoVehicles } from '@/lib/demo-data';
-import logger from '@/utils/logger';
+import { Badge } from '../ui/badge';
+import { Button } from '../ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
+
 import { TrafficCameraLayer } from '@/components/layers/TrafficCameraLayer';
 import { TrafficCameraControlPanel } from '@/components/panels/TrafficCameraControlPanel';
-import { useSearchParams } from 'react-router-dom';
+import { useVehicles } from '@/hooks/use-api';
+import { generateDemoVehicles } from '@/lib/demo-data';
+import logger from '@/utils/logger';
+
 
 const LOADING_TIMEOUT = 5000; // 5 seconds timeout
 

@@ -1,10 +1,35 @@
+import {
+  User,
+  Users,
+  Activity,
+  TrendingUp,
+  Calendar,
+  Phone,
+  Mail,
+  Shield,
+  AlertCircle,
+  CheckCircle2,
+  Clock,
+  Award,
+  Truck,
+  Coffee,
+  Moon,
+  Search,
+  Download,
+  Send,
+  MapPin,
+  BarChart3,
+  AlertTriangle
+} from "lucide-react"
 import { useState, useMemo } from "react"
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Button } from "@/components/ui/button"
+
+import { DriversMapView } from "./DriversMapView"
+
 import { Badge } from "@/components/ui/badge"
-import { ScrollArea } from "@/components/ui/scroll-area"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
+import { ScrollArea } from "@/components/ui/scroll-area"
 import {
   Select,
   SelectContent,
@@ -20,35 +45,10 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
-import {
-  User,
-  Users,
-  Activity,
-  TrendingUp,
-  TrendingDown,
-  Calendar,
-  Phone,
-  Mail,
-  Shield,
-  AlertCircle,
-  CheckCircle2,
-  Clock,
-  Award,
-  Truck,
-  Coffee,
-  Moon,
-  Search,
-  Filter,
-  Download,
-  Send,
-  MapPin,
-  BarChart3,
-  Briefcase,
-  AlertTriangle
-} from "lucide-react"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Driver, Vehicle } from "@/lib/types"
 import { cn } from "@/lib/utils"
-import { DriversMapView } from "./DriversMapView"
+
 
 interface DriversDashboardProps {
   data?: {

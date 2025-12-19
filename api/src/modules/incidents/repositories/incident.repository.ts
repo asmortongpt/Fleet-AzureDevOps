@@ -1,7 +1,8 @@
 import { injectable } from "inversify";
+
+import { pool } from "../../../db";
 import { BaseRepository } from "../../../repositories/base.repository";
 import type { Incident } from "../../../types/incident";
-import { pool } from "../../../db";
 
 @injectable()
 export class IncidentRepository extends BaseRepository<Incident> {

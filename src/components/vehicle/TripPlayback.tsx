@@ -13,16 +13,16 @@
  * - Responsive design
  */
 
-import React, { useEffect, useRef, useState, useCallback } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
+import { format } from 'date-fns';
+import { AlertCircle, Play, Pause, StopCircle, MapPin } from 'lucide-react';
+import React, { useEffect, useRef, useState } from 'react';
+import useSWR from 'swr';
+
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Slider } from '@/components/ui/slider';
-import { AlertCircle, Play, Pause, StopCircle, FastForward, Rewind, MapPin } from 'lucide-react';
-import useSWR from 'swr';
-import { format } from 'date-fns';
-
 import logger from '@/utils/logger';
 // ============================================================================
 // Types & Interfaces

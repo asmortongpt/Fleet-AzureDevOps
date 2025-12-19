@@ -1,5 +1,5 @@
-import { BaseRepository } from '../services/dal/BaseRepository'
 import { connectionManager } from '../config/connection-manager'
+import { BaseRepository } from '../services/dal/BaseRepository'
 
 export interface PersonalUsePolicy {
   id: string

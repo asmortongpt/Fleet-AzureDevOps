@@ -14,24 +14,24 @@ import {
   Alert,
   ActivityIndicator,
 } from 'react-native';
-import Gauge from './Gauge';
-import DTCCard from './DTCCard';
-import {
-  VehicleDiagnostics,
-  ConnectionStatus,
-  DTCCode,
-  GAUGE_CONFIGS,
-  ReadinessMonitors,
-  MonitorStatus,
-  celsiusToFahrenheit,
-  DTCSeverity,
-} from '../types/obd2';
+
 import {
   calculateVehicleHealth,
   HealthScoreBreakdown,
   RiskLevel,
   RecommendationPriority,
 } from '../services/VehicleHealthScore';
+import {
+  VehicleDiagnostics,
+  ConnectionStatus,
+  GAUGE_CONFIGS,
+  MonitorStatus,
+  celsiusToFahrenheit,
+  DTCSeverity,
+} from '../types/obd2';
+
+import DTCCard from './DTCCard';
+import Gauge from './Gauge';
 
 // ============================================================================
 // Types

@@ -3,8 +3,9 @@
  * Tests maintenance scheduling, work orders, and preventive maintenance logic
  */
 
-import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import { Pool } from 'pg';
+import { describe, it, expect, beforeEach, afterEach } from 'vitest';
+
 import {
   createMockVehicle,
   createMockMaintenanceSchedule,

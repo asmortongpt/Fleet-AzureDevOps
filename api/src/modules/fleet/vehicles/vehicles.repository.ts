@@ -1,4 +1,5 @@
 import { injectable } from 'inversify';
+
 import { BaseRepository } from '../../../repositories/BaseRepository';
 
 export interface Vehicle {

@@ -1,4 +1,5 @@
 import { Router } from 'express';
+
 import { PAGINATION } from '../config/constants';
 import logger from '../utils/logger';
 

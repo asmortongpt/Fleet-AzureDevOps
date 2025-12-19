@@ -1,23 +1,22 @@
-import React, { useState, useMemo } from 'react';
-import { MapFirstLayout } from '@/components/layout/MapFirstLayout';
-import { MaintenanceHubMap } from './MaintenanceHubMap';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { ScrollArea } from '@/components/ui/scroll-area';
 import {
   Wrench,
   Clock,
-  CheckCircle,
   Warning,
-  Package,
   CurrencyDollar,
   CalendarDots,
-  TrendUp,
   CarProfile,
   ListChecks
 } from '@phosphor-icons/react';
+import React, { useState, useMemo } from 'react';
+
+import { MaintenanceHubMap } from './MaintenanceHubMap';
+
+import { MapFirstLayout } from '@/components/layout/MapFirstLayout';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { ScrollArea } from '@/components/ui/scroll-area';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 interface WorkOrderItem {
   id: string;

@@ -1,9 +1,11 @@
 // Fleet API Server - Full Functional Version
 // Provides all required routes with mock data to bypass TypeScript compilation issues
-import express from 'express'
-import cors from 'cors'
-import { Server as WebSocketServer } from 'ws'
 import http from 'http'
+
+import cors from 'cors'
+import express from 'express'
+import { Server as WebSocketServer } from 'ws'
+
 
 const app = express()
 const PORT = process.env.PORT || 3001

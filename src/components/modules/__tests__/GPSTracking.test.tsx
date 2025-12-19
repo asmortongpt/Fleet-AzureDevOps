@@ -10,10 +10,12 @@
  * - Data updates and re-rendering
  */
 
-import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
 import { render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
+
 import { GPSTracking } from '../GPSTracking'
+
 import {
   createMockVehicles,
   createMockFacilities,

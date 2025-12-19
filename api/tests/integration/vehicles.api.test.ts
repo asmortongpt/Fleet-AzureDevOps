@@ -3,10 +3,10 @@
  * Tests complete vehicle API endpoints with authentication and database
  */
 
-import { describe, it, expect, beforeEach, afterEach } from 'vitest';
-import request from 'supertest';
-import { Pool } from 'pg';
 import express from 'express';
+import { Pool } from 'pg';
+import { describe, it, expect, beforeEach, afterEach } from 'vitest';
+
 import { createMockVehicle, createMockUser, createMockTenant } from '../fixtures';
 import { DatabaseTestHelper, generateTestToken } from '../helpers/test-helpers';
 

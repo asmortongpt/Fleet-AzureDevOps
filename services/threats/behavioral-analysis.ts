@@ -5,10 +5,10 @@
  */
 
 import { EventEmitter } from 'events';
+
 import type {
   BehaviorProfile,
   AnomalyDetectionResult,
-  BehavioralAnomaly,
   ThreatLevel
 } from './types';
 

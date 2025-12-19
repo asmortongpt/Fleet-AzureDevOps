@@ -1,10 +1,19 @@
-import { useMemo } from "react"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import {
+  CarProfile,
+  TrendUp,
+  Star,
+  Warning,
+  CheckCircle,
+  Trophy,
+  Target
+} from "@phosphor-icons/react"
+import { useMemo , useState } from "react"
+
+import { ChartCard } from "@/components/ChartCard"
+import { MetricCard } from "@/components/MetricCard"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { Progress } from "@/components/ui/progress"
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import {
   Dialog,
   DialogContent,
@@ -13,19 +22,9 @@ import {
   DialogTitle,
   DialogFooter
 } from "@/components/ui/dialog"
-import {
-  CarProfile,
-  TrendUp,
-  TrendDown,
-  Star,
-  Warning,
-  CheckCircle,
-  Trophy,
-  Target
-} from "@phosphor-icons/react"
-import { MetricCard } from "@/components/MetricCard"
-import { ChartCard } from "@/components/ChartCard"
-import { useState } from "react"
+import { Progress } from "@/components/ui/progress"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
 import { useFleetData } from "@/hooks/use-fleet-data"
 import { useInspect } from "@/services/inspect/InspectContext"
 

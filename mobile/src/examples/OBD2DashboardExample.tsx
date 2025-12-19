@@ -5,6 +5,7 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
 import { SafeAreaView, StyleSheet, StatusBar } from 'react-native';
+
 import OBD2Dashboard from '../components/OBD2Dashboard';
 import {
   VehicleDiagnostics,

@@ -1,6 +1,6 @@
-import { notificationSchema } from '../schemas/notification.schema';
 import { pool } from '../db';
 import { logger } from '../logger';
+import { notificationSchema } from '../schemas/notification.schema';
 
 export async function processNotification(job: any) {
   try {

@@ -1,6 +1,6 @@
-import { BaseService, PaginationParams, PaginatedResult, NotFoundError } from './base.service';
-import { logger } from './logger';
 import { MaintenanceRepository, MaintenanceRecord, MaintenanceRecordWithRelations } from '../repositories/maintenance.repository';
+
+import { BaseService, NotFoundError } from './base.service';
 
 export class MaintenanceService extends BaseService {
   constructor(

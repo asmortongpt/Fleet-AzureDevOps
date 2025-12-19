@@ -1,15 +1,16 @@
-import express, { Express, Request, Response } from 'express';
-import dotenv from 'dotenv';
 import cookieParser from 'cookie-parser';
 import cors from 'cors';
-import { logger } from './utils/logger';
+import dotenv from 'dotenv';
+import express, { Express, Request, Response } from 'express';
+
+import redisClient from './config/redis';
 import {
   securityMiddleware,
   additionalSecurityHeaders,
   apiLimiter,
 } from './middleware/security';
 import authRoutes from './routes/auth';
-import redisClient from './config/redis';
+import { logger } from './utils/logger';
 
 // Load environment variables
 dotenv.config();

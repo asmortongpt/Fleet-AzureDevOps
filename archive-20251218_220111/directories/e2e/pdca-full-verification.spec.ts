@@ -8,7 +8,7 @@
  * ACT: Report failures for remediation
  */
 
-import { test, expect, Page } from '@playwright/test'
+import { test, expect } from '@playwright/test'
 
 const PRODUCTION_URL = process.env.PRODUCTION_URL || 'https://fleet.capitaltechalliance.com'
 

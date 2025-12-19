@@ -1,8 +1,10 @@
-import { Request, Response, NextFunction } from 'express'
-import { AuthRequest } from './auth'
+import { Response, NextFunction } from 'express'
+
 import pool from '../config/database'
-import { isValidIdentifier } from '../utils/sql-safety'
 import logger from '../config/logger' // Wave 14: Add Winston logger
+import { isValidIdentifier } from '../utils/sql-safety'
+
+import { AuthRequest } from './auth'
 
 // Allowlist of tables for self-approval checks
 const SELF_APPROVAL_TABLES = ['work_orders', 'purchase_orders', 'safety_incidents'] as const;

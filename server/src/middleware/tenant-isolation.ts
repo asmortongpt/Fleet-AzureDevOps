@@ -1,7 +1,8 @@
 import { Request, Response, NextFunction } from 'express';
+import jwt from 'jsonwebtoken';
+
 import { pool } from '../lib/database';
 import { Logger } from '../lib/logger';
-import jwt from 'jsonwebtoken';
 
 interface User {
   id: string;

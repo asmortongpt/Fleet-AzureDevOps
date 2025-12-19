@@ -10,6 +10,7 @@
  * - Export options
  */
 
+import { format, formatDuration, intervalToDuration } from 'date-fns';
 import React, { useState } from 'react';
 import {
   View,
@@ -24,7 +25,6 @@ import {
   ActivityIndicator
 } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
-import { format, formatDuration, intervalToDuration } from 'date-fns';
 
 // =====================================================
 // Types

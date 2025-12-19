@@ -1,3 +1,5 @@
+import { Pool } from 'pg';
+
 import { BaseRepository } from '../repositories/BaseRepository';
 
 /**
@@ -10,7 +12,6 @@ import { BaseRepository } from '../repositories/BaseRepository';
  * - No string concatenation in SQL
  */
 
-import { Pool } from 'pg';
 
 export interface Team {
   id: number;

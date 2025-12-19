@@ -4,8 +4,8 @@
  * Features: Device selection, API testing, data injection, screen navigation
  */
 
-import React, { useState } from 'react'
 import { DeviceMobile, Globe, Database, Play, Bug, CheckCircle, XCircle } from '@phosphor-icons/react'
+import React, { useState } from 'react'
 
 interface Device {
   id: string

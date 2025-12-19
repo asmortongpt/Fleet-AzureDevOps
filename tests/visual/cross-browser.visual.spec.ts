@@ -5,7 +5,13 @@
  * consistent rendering on Chrome, Firefox, and Safari (WebKit).
  */
 
-import { test, expect, devices } from '@playwright/test';
+import { test, devices } from '@playwright/test';
+
+import {
+  MULTIPLE_VEHICLES,
+  MULTIPLE_FACILITIES,
+  MULTIPLE_CAMERAS,
+} from './fixtures/map-test-data';
 import {
   waitForMapLoad,
   waitForMarkers,
@@ -14,11 +20,6 @@ import {
   disableAnimations,
   VIEWPORTS,
 } from './helpers/visual-test-helpers';
-import {
-  MULTIPLE_VEHICLES,
-  MULTIPLE_FACILITIES,
-  MULTIPLE_CAMERAS,
-} from './fixtures/map-test-data';
 
 // Define projects for cross-browser testing
 const browsers = [

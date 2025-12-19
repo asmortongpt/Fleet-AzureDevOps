@@ -1,5 +1,6 @@
-import { Card } from "@/components/ui/card"
 import { Package, CurrencyDollar, TrendDown } from "@phosphor-icons/react"
+
+import { Card } from "@/components/ui/card"
 
 interface AssetStatsBarProps {
   totalAssets: number

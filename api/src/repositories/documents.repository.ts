@@ -1,4 +1,3 @@
-import { BaseRepository } from '../repositories/BaseRepository';
 
 /**
  * Documents Repository - Comprehensive document management data access layer
@@ -16,8 +15,10 @@ import { BaseRepository } from '../repositories/BaseRepository';
  * - Input validation on all identifiers
  */
 
-import { Pool, PoolClient } from 'pg';
+import { Pool } from 'pg';
+
 import { NotFoundError } from '../errors/app-error';
+import { BaseRepository } from '../repositories/BaseRepository';
 
 export interface Document {
   id: number;

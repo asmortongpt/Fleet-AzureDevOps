@@ -1,8 +1,9 @@
 import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
+
 import { config } from '../services/config';
-import { logger } from '../services/logger';
 import { db } from '../services/database';
+import { logger } from '../services/logger';
 import { JWTPayload, User } from '../types';
 
 // Extend Express Request type to include user

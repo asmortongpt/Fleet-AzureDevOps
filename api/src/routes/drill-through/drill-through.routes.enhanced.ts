@@ -1,14 +1,15 @@
+import csurf from 'csurf';
 import express, { Request, Response } from 'express';
+import rateLimit from 'express-rate-limit';
+import helmet from 'helmet';
 import { Pool } from 'pg';
 import { z } from 'zod';
-import helmet from 'helmet';
-import rateLimit from 'express-rate-limit';
-import csurf from 'csurf';
+
 import { generateExcel } from './utils/generateExcel';
 import { generatePDF } from './utils/generatePDF';
 import { buildDrillThroughQuery } from './utils/queryBuilder';
 import { validateEntityType, validateFilters, validateFormat } from './validators';
-import { csrfProtection } from '../middleware/csrf'
+
 
 
 const router = express.Router();
@@ -43,7 +44,7 @@ router.get('/:entityType', async (req: Request, res: Response) => {
     const offset = (pageNum - 1) * pageSizeNum;
 
     const filtersSchema = z.object({}).passthrough();
-    let parsedFilters = validateFilters(filtersSchema, filters);
+    const parsedFilters = validateFilters(filtersSchema, filters);
 
     const { query, countQuery, params, summary } = buildDrillThroughQuery(
       entityType,

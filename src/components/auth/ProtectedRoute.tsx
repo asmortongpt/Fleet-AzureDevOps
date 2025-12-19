@@ -12,13 +12,14 @@
 
 import { ReactNode, useEffect, useState } from 'react'
 import { Navigate, useLocation } from 'react-router-dom'
+
+import { useAuth } from '@/hooks/useAuth'
 import {
   initializeMsal,
   isAuthenticated,
   getAccount,
   getAccessToken
 } from '@/lib/auth'
-import { useAuth } from '@/hooks/useAuth'
 import logger from '@/utils/logger'
 
 interface ProtectedRouteProps {

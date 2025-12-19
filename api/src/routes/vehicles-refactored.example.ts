@@ -1,12 +1,10 @@
 import { Router, Request, Response } from 'express'
-import { container } from '../container'
-import { asyncHandler } from '../middleware/errorHandler'
-import { NotFoundError, ValidationError } from '../errors/app-error'
+
 import { inject } from '../config/container'
-import { VehicleService } from '../services/VehicleService'
+import { csrfProtection } from '../middleware/csrf'
 import { validate } from '../middleware/validate'
 import { vehicleCreateSchema, vehicleUpdateSchema } from '../schemas/vehicle.schema'
-import { csrfProtection } from '../middleware/csrf'
+import { VehicleService } from '../services/VehicleService'
 
 
 const router = Router()

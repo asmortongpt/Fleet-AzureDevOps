@@ -3,9 +3,6 @@
  * Features: Virtual scrolling, column sorting, row selection, context menu
  */
 
-import { useRef } from 'react';
-import { FixedSizeList as List } from 'react-window';
-import { useResizeObserver } from '@/hooks/useResizeObserver';
 import {
   ArrowUpDown,
   ArrowUp,
@@ -20,6 +17,10 @@ import {
   HardDrive,
   Tag as TagIcon
 } from 'lucide-react';
+import { useRef } from 'react';
+import { FixedSizeList as List } from 'react-window';
+
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import {
@@ -29,16 +30,14 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu';
-import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import {
   Table,
-  TableBody,
-  TableCell,
   TableHead,
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
+import { useResizeObserver } from '@/hooks/useResizeObserver';
 import { DocumentMetadata, SortField, SortOrder } from '@/lib/documents/types';
 import {
   formatFileSize,

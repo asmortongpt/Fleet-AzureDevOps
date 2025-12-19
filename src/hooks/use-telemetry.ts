@@ -4,6 +4,7 @@
  */
 
 import { useCallback, useEffect } from 'react'
+
 import telemetryService from '@/lib/telemetry'
 
 interface TelemetryHook {

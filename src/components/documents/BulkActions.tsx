@@ -3,13 +3,14 @@
  * Features: Multi-select, batch move, tag, share, delete, download
  */
 
-import { useState } from 'react';
 import { Download, Share2, Trash2, Tag, FolderOpen, Archive, CheckSquare } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import { useState } from 'react';
+
+import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Progress } from '@/components/ui/progress';
-import { Alert, AlertDescription } from '@/components/ui/alert';
 import {
   Select,
   SelectContent,
@@ -17,8 +18,8 @@ import {
   SelectTrigger,
   SelectValue
 } from '@/components/ui/select';
-import { BulkOperation, DocumentMetadata, Folder as FolderType } from '@/lib/documents/types';
 import { usePermissions } from '@/hooks/usePermissions';
+import { BulkOperation, DocumentMetadata, Folder as FolderType } from '@/lib/documents/types';
 
 interface BulkActionsProps {
   selectedDocuments: DocumentMetadata[];

@@ -11,15 +11,6 @@
  * Created: 2025-11-24
  */
 
-import React, { useState } from 'react'
-import { Button } from '@/components/ui/button'
-import { Badge } from '@/components/ui/badge'
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger
-} from '@/components/ui/tooltip'
 import {
   Warning,
   Eye,
@@ -27,9 +18,18 @@ import {
   PushPin,
   Plus,
   CaretUp,
-  CaretDown,
-  X
+  CaretDown
 } from '@phosphor-icons/react'
+import React, { useState } from 'react'
+
+import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger
+} from '@/components/ui/tooltip'
 import { cn } from '@/lib/utils'
 
 // Damage zone definitions for vehicle silhouette

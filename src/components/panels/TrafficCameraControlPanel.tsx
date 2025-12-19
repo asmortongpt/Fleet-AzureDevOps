@@ -1,8 +1,15 @@
+import {
+    MagnifyingGlass,
+    ArrowsClockwise,
+    VideoCamera,
+    X
+} from "@phosphor-icons/react"
 import { useQuery, useMutation } from "@tanstack/react-query"
-import { apiClient } from "@/lib/api-client"
+import { toast } from "sonner"
+
+import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
-import { Button } from "@/components/ui/button"
 import {
     Select,
     SelectContent,
@@ -10,13 +17,7 @@ import {
     SelectTrigger,
     SelectValue
 } from "@/components/ui/select"
-import {
-    MagnifyingGlass,
-    ArrowsClockwise,
-    VideoCamera,
-    X
-} from "@phosphor-icons/react"
-import { toast } from "sonner"
+import { apiClient } from "@/lib/api-client"
 import { CameraDataSource } from "@/lib/types"
 
 interface TrafficCameraControlPanelProps {

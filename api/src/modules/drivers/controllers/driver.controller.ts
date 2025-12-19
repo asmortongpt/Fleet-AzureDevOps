@@ -1,10 +1,11 @@
 import { Request, Response, NextFunction } from 'express';
 import { injectable, inject } from 'inversify';
-import { TYPES } from '../../../types';
-import { DriverService } from '../services/driver.service';
-import { ValidationError, NotFoundError } from '../../../errors/app-error';
+
 import { cacheService } from '../../../config/cache';
 import logger from '../../../config/logger';
+import { ValidationError, NotFoundError } from '../../../errors/app-error';
+import { TYPES } from '../../../types';
+import { DriverService } from '../services/driver.service';
 
 @injectable()
 export class DriverController {

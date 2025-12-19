@@ -1,4 +1,4 @@
-import { test, expect } from '@playwright/test';
+import { test } from '@playwright/test';
 
 test('diagnose production white screen', async ({ page }) => {
   // Capture all console messages

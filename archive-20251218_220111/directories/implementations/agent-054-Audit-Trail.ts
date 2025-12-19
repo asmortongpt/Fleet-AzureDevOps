@@ -1,8 +1,8 @@
 // src/agents/CTAFleetAgent54.ts
-import { Logger } from '../utils/Logger';
 import { AuditRecord } from '../models/AuditRecord';
-import { DatabaseService } from '../services/DatabaseService';
 import { ComplianceService } from '../services/ComplianceService';
+import { DatabaseService } from '../services/DatabaseService';
+import { Logger } from '../utils/Logger';
 
 export class CTAFleetAgent54 {
   private logger: Logger;
@@ -159,9 +159,6 @@ export class Logger {
 
 // src/tests/CTAFleetAgent54.test.ts
 import { CTAFleetAgent54 } from '../agents/CTAFleetAgent54';
-import { Logger } from '../utils/Logger';
-import { DatabaseService } from '../services/DatabaseService';
-import { ComplianceService } from '../services/ComplianceService';
 
 describe('CTAFleetAgent54 - Audit Trail (Compliance)', () => {
   let agent: CTAFleetAgent54;

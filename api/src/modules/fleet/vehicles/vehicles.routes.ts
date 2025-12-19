@@ -1,8 +1,10 @@
 import { Router } from 'express';
-import { container } from '../../../container';
-import { TYPES } from '../../../container';
-import { VehiclesService } from './vehicles.service';
+
+import { container , TYPES } from '../../../container';
 import { authenticateJWT } from '../../../middleware/auth';
+
+import { VehiclesService } from './vehicles.service';
+
 
 const router = Router();
 const vehiclesService = container.get<VehiclesService>(TYPES.VehiclesService);

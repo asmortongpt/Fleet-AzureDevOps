@@ -4,9 +4,11 @@
  */
 
 import { useState, useEffect, useCallback } from 'react'
+
 import { useEndpointHealth } from './useEndpointHealth'
-import { SocketConnectionInfo, SocketStatus } from '@/types/endpoint-monitor'
+
 import { WEBSOCKET_CONNECTIONS } from '@/config/endpoints'
+import { SocketConnectionInfo, SocketStatus } from '@/types/endpoint-monitor'
 
 interface UseEndpointMonitoringOptions {
   enabled?: boolean

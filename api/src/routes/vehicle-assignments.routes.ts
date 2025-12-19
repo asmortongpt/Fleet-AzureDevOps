@@ -12,18 +12,19 @@
  * - Approval workflows
  */
 
-import express, { Request, Response } from 'express';
+import express, { Response } from 'express';
 import { z } from 'zod';
-import { authenticateJWT, AuthRequest } from '../middleware/auth';
-import { requirePermission } from '../middleware/permissions';
-import { AssignmentNotificationService } from '../services/assignment-notification.service';
-import { getErrorMessage } from '../utils/error-handler';
-import { container } from '../container';
-import { TYPES } from '../types';
-import { csrfProtection } from '../middleware/csrf';
-import { NotFoundError, ValidationError } from '../errors/app-error';
+
 import logger from '../config/logger';
+import { container } from '../container';
+import { NotFoundError } from '../errors/app-error';
+import { authenticateJWT, AuthRequest } from '../middleware/auth';
+import { csrfProtection } from '../middleware/csrf';
+import { requirePermission } from '../middleware/permissions';
 import { VehicleAssignmentsRepository } from '../repositories/vehicle-assignments.repository';
+import { AssignmentNotificationService } from '../services/assignment-notification.service';
+import { TYPES } from '../types';
+import { getErrorMessage } from '../utils/error-handler';
 
 const router = express.Router();
 

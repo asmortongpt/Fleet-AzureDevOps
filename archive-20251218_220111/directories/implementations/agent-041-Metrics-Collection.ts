@@ -1,8 +1,8 @@
 // src/agents/CTAFleetAgent41.ts
-import { Logger } from '../utils/logger';
-import { MetricsCollector } from '../services/metricsCollector';
 import { Agent } from '../models/agent';
 import { Metric } from '../models/metric';
+import { MetricsCollector } from '../services/metricsCollector';
+import { Logger } from '../utils/logger';
 
 export class CTAFleetAgent41 implements Agent {
   private readonly agentId: string = 'CTAFleet-Agent-41';
@@ -123,8 +123,6 @@ export class MetricsCollector {
 
 // src/tests/CTAFleetAgent41.test.ts
 import { CTAFleetAgent41 } from '../agents/CTAFleetAgent41';
-import { Logger } from '../utils/logger';
-import { MetricsCollector } from '../services/metricsCollector';
 
 jest.useFakeTimers();
 

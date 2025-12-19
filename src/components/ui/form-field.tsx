@@ -1,7 +1,10 @@
-import { useState, useEffect, ComponentProps } from "react"
 import { Check, AlertCircle, Info } from "lucide-react"
-import { cn } from "@/lib/utils"
+import { useState, useEffect, ComponentProps } from "react"
+
 import { Input } from "./input"
+
+import { cn } from "@/lib/utils"
+
 
 interface FormFieldProps extends Omit<ComponentProps<"input">, "onChange"> {
   label: string
