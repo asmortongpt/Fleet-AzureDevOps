@@ -11,8 +11,6 @@
  * - Audit trail display
  */
 
-import React, { useState, useEffect } from 'react'
-import logger from '@/utils/logger';
 import {
   Link,
   Unlink,
@@ -22,15 +20,18 @@ import {
   Warning,
   CheckCircle,
   CalendarBlank,
-  User,
-  Trash
+  User
 } from '@phosphor-icons/react'
+import React, { useState, useEffect } from 'react'
+
 import type {
   ActiveAssetCombination,
   RelationshipHistoryEntry,
   RelationshipType,
   CreateAssetRelationshipRequest
 } from '../../api/src/types/asset.types'
+
+import logger from '@/utils/logger';
 
 interface AssetComboManagerProps {
   tenantId: string

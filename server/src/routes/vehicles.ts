@@ -1,4 +1,5 @@
 import express, { Request, Response, Router } from 'express';
+
 import { db } from '../services/database';
 import { logger } from '../services/logger';
 

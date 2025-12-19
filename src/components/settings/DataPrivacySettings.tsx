@@ -3,19 +3,18 @@
  * Data retention, export, deletion, and privacy preferences
  */
 
-import { useState } from 'react'
-import { useAtom } from 'jotai'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Label } from '@/components/ui/label'
-import { Button } from '@/components/ui/button'
-import { Switch } from '@/components/ui/switch'
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select'
+  Lock,
+  Download,
+  Trash,
+  Cookie,
+  ChartLine,
+  FileText,
+  Warning
+} from '@phosphor-icons/react'
+import { useAtom } from 'jotai'
+import { useState } from 'react'
+
 import {
   AlertDialog,
   AlertDialogAction,
@@ -27,17 +26,20 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Label } from '@/components/ui/label'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
+import { Switch } from '@/components/ui/switch'
 import { dataPrivacySettingsAtom, hasUnsavedChangesAtom } from '@/lib/reactive-state'
 import logger from '@/utils/logger';
-import {
-  Lock,
-  Download,
-  Trash,
-  Cookie,
-  ChartLine,
-  FileText,
-  Warning
-} from '@phosphor-icons/react'
+
 
 const retentionPeriods = [
   { value: '30', label: '30 days' },

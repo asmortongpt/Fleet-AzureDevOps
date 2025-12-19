@@ -1,4 +1,5 @@
-import { describe, it, expect, beforeAll, afterAll, beforeEach } from '@jest/globals'
+import { describe, it, expect, beforeAll, afterAll } from '@jest/globals'
+
 import { pool } from '../../db'
 import { OSHAComplianceRepository } from '../osha-compliance.repository'
 

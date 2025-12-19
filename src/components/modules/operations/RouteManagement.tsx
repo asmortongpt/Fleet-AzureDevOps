@@ -1,26 +1,26 @@
-import { useState, useMemo } from "react"
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog" // DialogDescription available
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import {
   MapTrifold,
   Plus,
   MapPin,
-  Clock,
   Path,
   TrendUp,
-  Warning,
   CheckCircle
 } from "@phosphor-icons/react"
-import { UniversalMap } from "@/components/UniversalMap"
-import { MetricCard } from "@/components/MetricCard"
-import { useFleetData } from "@/hooks/use-fleet-data"
+import { useState, useMemo } from "react"
 import { toast } from "sonner"
+
+import { MetricCard } from "@/components/MetricCard"
+import { UniversalMap } from "@/components/UniversalMap"
+import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog" // DialogDescription available
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { useFleetData } from "@/hooks/use-fleet-data"
+
 
 interface Route {
   id: string

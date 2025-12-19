@@ -8,7 +8,6 @@ import { useState, useEffect, useCallback, useRef } from "react"
 import type { LayerWithStatus, LayerHealth } from "../types"
 
 import { apiClient } from "@/lib/api-client"
-
 import logger from '@/utils/logger';
 interface UseArcGISLayersReturn {
   layers: LayerWithStatus[]

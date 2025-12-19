@@ -11,11 +11,20 @@
  * - ROI tracking metrics
  */
 
+import {
+  Barcode,
+  TrendUp,
+  CurrencyDollar,
+  ChartLine,
+  Calendar
+} from "@phosphor-icons/react"
+import { GoogleMap, LoadScript, Marker, HeatmapLayer } from "@react-google-maps/api"
 import { useState, useMemo } from "react"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Progress } from "@/components/ui/progress"
 import {
   Select,
   SelectContent,
@@ -31,23 +40,8 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
-import { Progress } from "@/components/ui/progress"
-import {
-  Barcode,
-  Engine,
-  TrendUp,
-  TrendDown,
-  CurrencyDollar,
-  ChartLine,
-  MapPin,
-  Calendar,
-  Wrench,
-  CheckCircle,
-  Warning,
-  Clock
-} from "@phosphor-icons/react"
-import { GoogleMap, LoadScript, Marker, HeatmapLayer } from "@react-google-maps/api"
-import type { Asset, AssetCategory, AssetType, OperationalStatus } from "@/types/asset.types"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import type { AssetType, OperationalStatus } from "@/types/asset.types"
 
 interface AssetMetrics {
   totalAssets: number

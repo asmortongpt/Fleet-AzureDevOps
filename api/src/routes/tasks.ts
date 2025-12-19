@@ -1,8 +1,7 @@
 import { Router } from "express"
-import { container } from '../container'
-import { asyncHandler } from '../middleware/errorHandler'
-import { NotFoundError, ValidationError } from '../errors/app-error'
+
 import { csrfProtection } from '../middleware/csrf'
+import { asyncHandler } from '../middleware/errorHandler'
 
 const router = Router()
 

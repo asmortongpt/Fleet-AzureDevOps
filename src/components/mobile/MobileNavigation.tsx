@@ -3,8 +3,8 @@
  * Bottom navigation, drawer, tabs, header, and FAB
  */
 
-import React, { useState, ReactNode } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
+import React, { useState, ReactNode } from 'react'
 
 /* ============================================================
    MOBILE BOTTOM NAV (Tab Bar)

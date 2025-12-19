@@ -1,11 +1,12 @@
-import { useState, useMemo } from "react"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { DataGrid } from "@/components/common/DataGrid"
+import { Plus, Edit, Trash, Phone, Mail } from "@phosphor-icons/react"
 import { ColumnDef } from "@tanstack/react-table"
-import { User, Plus, Edit, Trash, Phone, Mail } from "@phosphor-icons/react"
+import { useState, useMemo } from "react"
+
+import { DataGrid } from "@/components/common/DataGrid"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 
 interface Driver {
   id: string

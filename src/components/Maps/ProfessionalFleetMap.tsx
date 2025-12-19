@@ -1,8 +1,3 @@
-import React, { useMemo } from 'react'
-import { UnifiedFleetMap } from './UnifiedFleetMap'
-import { Card, CardContent, CardHeader, CardTitle } from '../ui/card'
-import { Badge } from '../ui/badge'
-import { Vehicle, GISFacility } from '@/lib/types'
 import {
   Car,
   MapPin,
@@ -12,6 +7,14 @@ import {
   BatteryMedium as Battery,
   AlertTriangle
 } from 'lucide-react'
+import React, { useMemo } from 'react'
+
+import { Badge } from '../ui/badge'
+import { Card, CardContent, CardHeader, CardTitle } from '../ui/card'
+
+import { UnifiedFleetMap } from './UnifiedFleetMap'
+
+import { Vehicle, GISFacility } from '@/lib/types'
 
 /**
  * Props for ProfessionalFleetMap

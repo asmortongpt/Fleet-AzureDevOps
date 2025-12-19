@@ -227,9 +227,9 @@ export function generateDemoWorkOrders(count: number = 30): WorkOrder[] {
     const status = statuses[Math.floor(i / 7.5)] // Distribute statuses evenly
     const type = types[i % types.length]
 
-    let createdDate = new Date(Date.now() - Math.random() * 30 * 24 * 60 * 60 * 1000)
-    let scheduledDate = new Date(createdDate.getTime() + Math.random() * 14 * 24 * 60 * 60 * 1000)
-    let completedDate = status === "completed" ? new Date(scheduledDate.getTime() + Math.random() * 7 * 24 * 60 * 60 * 1000) : undefined
+    const createdDate = new Date(Date.now() - Math.random() * 30 * 24 * 60 * 60 * 1000)
+    const scheduledDate = new Date(createdDate.getTime() + Math.random() * 14 * 24 * 60 * 60 * 1000)
+    const completedDate = status === "completed" ? new Date(scheduledDate.getTime() + Math.random() * 7 * 24 * 60 * 60 * 1000) : undefined
 
     workOrders.push({
       id: `WO-2024-${String(i + 1).padStart(3, '0')}`,

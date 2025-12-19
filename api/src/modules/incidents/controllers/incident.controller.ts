@@ -1,10 +1,11 @@
 import { Request, Response, NextFunction } from 'express';
 import { injectable, inject } from 'inversify';
-import { TYPES } from '../../../types';
-import { IncidentService } from '../services/incident.service';
-import { ValidationError, NotFoundError } from '../../../errors/app-error';
+
 import { cacheService } from '../../../config/cache';
 import logger from '../../../config/logger';
+import { ValidationError, NotFoundError } from '../../../errors/app-error';
+import { TYPES } from '../../../types';
+import { IncidentService } from '../services/incident.service';
 
 @injectable()
 export class IncidentController {

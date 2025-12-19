@@ -1,6 +1,6 @@
 
-import speakeasy from 'speakeasy';
 import QRCode from 'qrcode';
+import speakeasy from 'speakeasy';
 
 export class MFAService {
   async generateSecret(userId: number, email: string) {

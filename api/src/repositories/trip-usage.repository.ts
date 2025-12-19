@@ -1,6 +1,5 @@
-import { BaseRepository } from '../repositories/BaseRepository';
-
 import pool from '../config/database'
+import { BaseRepository } from '../repositories/BaseRepository';
 import {
   UsageType,
   ApprovalStatus,

@@ -1,5 +1,5 @@
-import { tripMarkingRepository } from '../trip-marking.repository'
 import { pool } from '../../db'
+import { tripMarkingRepository } from '../trip-marking.repository'
 
 // Mock the database pool
 jest.mock('../../db', () => ({

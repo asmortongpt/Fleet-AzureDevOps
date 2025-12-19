@@ -1,7 +1,8 @@
-import { Worker, Queue, QueueScheduler } from 'bullmq';
-import { createClient } from 'redis';
-import * as datadog from 'datadog-metrics';
 import * as process from 'process';
+
+import { Worker, Queue, QueueScheduler } from 'bullmq';
+import * as datadog from 'datadog-metrics';
+import { createClient } from 'redis';
 
 // Initialize Redis client
 const redisClient = createClient({ url: 'redis://localhost:6379' });

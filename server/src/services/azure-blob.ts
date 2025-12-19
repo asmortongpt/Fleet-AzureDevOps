@@ -3,16 +3,16 @@
  * Handles upload, download, and management of GLB/GLTF files
  */
 
+import * as crypto from 'crypto';
+import * as path from 'path';
+
 import {
   BlobServiceClient,
-  StorageSharedKeyCredential,
   ContainerClient,
   BlobUploadCommonResponse,
-  BlockBlobClient,
 } from '@azure/storage-blob';
+
 import { logger } from './logger';
-import * as path from 'path';
-import * as crypto from 'crypto';
 
 interface UploadOptions {
   fileName?: string;

@@ -3,10 +3,11 @@
  * Tests all security fixes: XSS, CSRF, SQL Injection, Tenant Isolation
  */
 
-import { test, expect } from '@playwright/test';
 import { execSync } from 'child_process';
 import * as fs from 'fs';
 import * as path from 'path';
+
+import { test, expect } from '@playwright/test';
 
 const PROJECT_ROOT = path.resolve(__dirname, '../..');
 

@@ -1,5 +1,7 @@
-import { describe, it, expect, beforeAll, afterAll, beforeEach } from '@jest/globals';
+import { describe, it, expect, beforeAll, afterAll } from '@jest/globals';
+
 import pool from '../config/database';
+
 import * as maintenanceSchedulesRepo from './maintenance-schedules.repository';
 
 describe('MaintenanceSchedulesRepository', () => {

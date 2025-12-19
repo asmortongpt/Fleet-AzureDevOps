@@ -1,7 +1,8 @@
-import { BaseRepository } from '../repositories/BaseRepository';
 
 import { Pool } from 'pg'
+
 import { NotFoundError, ValidationError } from '../lib/errors'
+import { BaseRepository } from '../repositories/BaseRepository';
 import { FIPSCryptoService } from '../services/fips-crypto.service'
 
 export interface PaginationParams {

@@ -10,7 +10,6 @@
  * - Offline-ready data sync (BR-11.6)
  */
 
-import React, { useState, useEffect } from 'react';
 import {
   Car,
   Clock,
@@ -23,6 +22,8 @@ import {
   Calendar,
   FileText,
 } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+
 import { useAuth } from '../../hooks/useAuth';
 
 import logger from '@/utils/logger';

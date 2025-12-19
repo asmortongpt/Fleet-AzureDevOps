@@ -1,6 +1,6 @@
-import { OpenAIVisionService, DamageDetectionResult } from './openaiVisionService';
 import { logger } from '../utils/logger';
-import * as THREE from 'three';
+
+import { OpenAIVisionService, DamageDetectionResult } from './openaiVisionService';
 
 export interface LiDARScanData {
   pointCloud: Array<{

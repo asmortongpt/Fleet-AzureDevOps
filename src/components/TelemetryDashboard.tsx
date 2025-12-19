@@ -8,8 +8,9 @@
  */
 
 import React, { useState, useEffect, useCallback } from 'react';
-import { analytics } from '../services/analytics';
+
 import { getTelemetryConfig } from '../config/telemetry';
+import { analytics } from '../services/analytics';
 import analyticsService from '../utils/analytics';
 
 import logger from '@/utils/logger';

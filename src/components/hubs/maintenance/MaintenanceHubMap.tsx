@@ -1,15 +1,16 @@
-import React, { useMemo, useState } from 'react';
-import { GoogleMap, Marker, InfoWindow } from '@react-google-maps/api';
-import { Badge } from '@/components/ui/badge';
-import { Card, CardContent } from '@/components/ui/card';
 import {
   Wrench,
   MapPin,
-  Package,
   Clock,
   CheckCircle,
   Warning
 } from '@phosphor-icons/react';
+import { GoogleMap, Marker, InfoWindow } from '@react-google-maps/api';
+import React, { useMemo, useState } from 'react';
+
+import { Badge } from '@/components/ui/badge';
+import { Card, CardContent } from '@/components/ui/card';
+
 
 interface WorkOrder {
   id: string;

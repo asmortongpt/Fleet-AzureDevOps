@@ -6,7 +6,9 @@
  */
 
 import { Readable } from 'stream';
+
 import axios from 'axios';
+
 import {
   BaseStorageAdapter,
   StorageConfig,

@@ -1,24 +1,23 @@
-import React, { useState, useMemo } from "react";
-import { HubLayout } from "../../components/layout/HubLayout";
-import { TaskManagement } from "../../components/modules/TaskManagement";
-import { MaintenanceScheduling } from "../../components/modules/MaintenanceScheduling";
-import { RouteManagement } from "../../components/modules/RouteManagement";
-import { useFleetData } from "../../hooks/use-fleet-data";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "../../components/ui/tabs";
-import { KPIStrip, KPIMetric } from "../../components/common/KPIStrip";
-import { DataGrid } from "../../components/common/DataGrid";
-import { ColumnDef } from "@tanstack/react-table";
-import { Badge } from "../../components/ui/badge";
 import {
   ListChecks,
   Wrench,
   MapTrifold,
   ClipboardText,
   Clock,
-  CheckCircle,
-  XCircle,
-  AlertTriangle,
 } from "@phosphor-icons/react";
+import { ColumnDef } from "@tanstack/react-table";
+import React, { useState, useMemo } from "react";
+
+import { DataGrid } from "../../components/common/DataGrid";
+import { KPIStrip, KPIMetric } from "../../components/common/KPIStrip";
+import { HubLayout } from "../../components/layout/HubLayout";
+import { MaintenanceScheduling } from "../../components/modules/MaintenanceScheduling";
+import { RouteManagement } from "../../components/modules/RouteManagement";
+import { TaskManagement } from "../../components/modules/TaskManagement";
+import { Badge } from "../../components/ui/badge";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "../../components/ui/tabs";
+import { useFleetData } from "../../hooks/use-fleet-data";
+
 
 type WorkModule = "tasks" | "maintenance" | "routes";
 

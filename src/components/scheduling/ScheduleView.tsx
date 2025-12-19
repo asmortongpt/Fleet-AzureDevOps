@@ -3,8 +3,17 @@
  * Timeline view of schedules with filtering and quick actions
  */
 
-import { useState, useMemo } from 'react'
 import { format, isWithinInterval, isSameDay } from 'date-fns'
+import AlertCircleIcon from 'lucide-react/dist/esm/icons/alert-circle'
+import CalendarIcon from 'lucide-react/dist/esm/icons/calendar'
+import CheckCircleIcon from 'lucide-react/dist/esm/icons/check-circle'
+import ClockIcon from 'lucide-react/dist/esm/icons/clock'
+import MoreVerticalIcon from 'lucide-react/dist/esm/icons/more-vertical'
+import SearchIcon from 'lucide-react/dist/esm/icons/search'
+import TruckIcon from 'lucide-react/dist/esm/icons/truck'
+import UserIcon from 'lucide-react/dist/esm/icons/user'
+import WrenchIcon from 'lucide-react/dist/esm/icons/wrench'
+import { useState, useMemo } from 'react'
 import {
   Card,
   CardContent,
@@ -12,6 +21,7 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card'
+import { Input } from '@/components/ui/input'
 import {
   Select,
   SelectContent,
@@ -19,12 +29,11 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
-import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
+import { Skeleton } from '@/components/ui/skeleton'
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { ScrollArea } from '@/components/ui/scroll-area'
-import { Skeleton } from '@/components/ui/skeleton'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import {
   DropdownMenu,
@@ -34,20 +43,12 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
-import SearchIcon from 'lucide-react/dist/esm/icons/search'
-import MoreVerticalIcon from 'lucide-react/dist/esm/icons/more-vertical'
-import CalendarIcon from 'lucide-react/dist/esm/icons/calendar'
-import TruckIcon from 'lucide-react/dist/esm/icons/truck'
-import WrenchIcon from 'lucide-react/dist/esm/icons/wrench'
-import CheckCircleIcon from 'lucide-react/dist/esm/icons/check-circle'
+
 import XCircleIcon from 'lucide-react/dist/esm/icons/x-circle'
-import ClockIcon from 'lucide-react/dist/esm/icons/clock'
-import UserIcon from 'lucide-react/dist/esm/icons/user'
-import AlertCircleIcon from 'lucide-react/dist/esm/icons/alert-circle'
+
+import { Vehicle, Driver, Technician } from '@/lib/types'
 import { cn } from '@/lib/utils'
 import { VehicleReservation, MaintenanceAppointment } from '@/types/scheduling'
-import { Vehicle, Driver, Technician } from '@/lib/types'
-
 import logger from '@/utils/logger';
 interface ScheduleViewProps {
   reservations?: VehicleReservation[]

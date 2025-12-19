@@ -25,11 +25,10 @@ import Svg, {
   Rect,
   Path,
   Text as SvgText,
-  Defs,
-  Marker as SvgMarker,
   Polygon,
 } from 'react-native-svg';
 import ViewShot from 'react-native-view-shot';
+
 import {
   PhotoAnnotationProps,
   Annotation,

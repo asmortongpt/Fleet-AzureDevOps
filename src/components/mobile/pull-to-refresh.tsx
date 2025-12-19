@@ -3,9 +3,9 @@
  * Implements pull-to-refresh gesture for mobile
  */
 
-import React, { ReactNode, useRef, useState } from 'react'
-import { usePullToRefresh } from '@/hooks/use-touch-gestures'
 import { RefreshCw } from 'lucide-react'
+import React, { ReactNode, useRef, useState } from 'react'
+
 
 interface PullToRefreshProps {
   children: ReactNode

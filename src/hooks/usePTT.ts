@@ -11,8 +11,8 @@
  */
 
 import { useState, useCallback, useRef, useEffect } from 'react';
-import type { PTTState } from '@/types/radio';
 
+import type { PTTState } from '@/types/radio';
 import logger from '@/utils/logger';
 interface UsePTTOptions {
   onAudioChunk?: (audioData: string) => void;

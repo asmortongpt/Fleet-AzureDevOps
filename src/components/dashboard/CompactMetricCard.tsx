@@ -1,5 +1,6 @@
-import { motion } from "framer-motion"
 import { TrendUp, TrendDown, Minus } from "@phosphor-icons/react"
+import { motion } from "framer-motion"
+
 import { cn } from "@/lib/utils"
 
 interface CompactMetricCardProps {

@@ -3,7 +3,9 @@
  * Language, timezone, date/time format, and display preferences
  */
 
+import { Globe, Calendar, House } from '@phosphor-icons/react'
 import { useAtom } from 'jotai'
+
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Label } from '@/components/ui/label'
 import {
@@ -14,7 +16,6 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { generalSettingsAtom, hasUnsavedChangesAtom } from '@/lib/reactive-state'
-import { Globe, Clock, Calendar, HashStraight, House, ListNumbers } from '@phosphor-icons/react'
 
 const languages = [
   { value: 'en-US', label: 'English (US)' },

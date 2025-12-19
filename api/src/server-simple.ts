@@ -3,12 +3,14 @@
  * Basic server to get started quickly
  */
 
-import express from 'express';
 import cors from 'cors';
+import { eq } from 'drizzle-orm';
+import express from 'express';
 import helmet from 'helmet';
+
 import { db, checkDatabaseConnection } from './db/connection';
 import { schema } from './schemas/production.schema';
-import { eq } from 'drizzle-orm';
+
 
 const app = express();
 const PORT = process.env.PORT || 3000;

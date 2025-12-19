@@ -1,12 +1,12 @@
-import React, { useState } from "react";
 import {
     Users,
     Truck,
     Wrench,
     Radio,
-    GasPump,
-    SquaresFour
+    GasPump
 } from "@phosphor-icons/react";
+import React, { useState } from "react";
+
 import { cn } from "@/lib/utils";
 
 interface CommandDockProps {

@@ -10,24 +10,23 @@
  * - Batch processing
  */
 
-import React, { useState, useRef } from 'react'
 import {
   Upload,
   Camera,
   File,
-  CheckCircle2,
   AlertCircle,
   Loader2,
   X,
-  Eye,
-  Download
+  Eye
 } from 'lucide-react'
+import React, { useState, useRef } from 'react'
+
+import { apiClient } from '../../lib/api'
+import { Alert, AlertDescription } from '../ui/alert'
+import { Badge } from '../ui/badge'
 import { Button } from '../ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/card'
-import { Badge } from '../ui/badge'
 import { Progress } from '../ui/progress'
-import { Alert, AlertDescription } from '../ui/alert'
-import { apiClient } from '../../lib/api'
 
 import logger from '@/utils/logger';
 interface DocumentAnalysis {

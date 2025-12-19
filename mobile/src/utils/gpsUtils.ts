@@ -6,6 +6,7 @@
  */
 
 import Geolocation from 'react-native-geolocation-service';
+
 import {
   GeoLocation,
   LocationError,

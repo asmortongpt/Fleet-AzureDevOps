@@ -1,15 +1,17 @@
-import express from 'express';
-import cors from 'cors';
-import helmet from 'helmet';
 import { createServer } from 'http';
-import { WebSocketServer } from 'ws';
+
+import cors from 'cors';
 import dotenv from 'dotenv';
+import express from 'express';
+import helmet from 'helmet';
+import { WebSocketServer } from 'ws';
+
 import { pool } from './db';
-import tasksRouter from './routes/tasks';
 import agentsRouter from './routes/agents';
 import assignmentsRouter from './routes/assignments';
-import progressRouter from './routes/progress';
 import gitRouter from './routes/git';
+import progressRouter from './routes/progress';
+import tasksRouter from './routes/tasks';
 
 dotenv.config();
 

@@ -1,5 +1,6 @@
 // src/connectionPool.ts
 import { createPool, Pool, PoolConnection } from 'mysql2/promise';
+
 import { Logger } from './logger';
 
 export interface ConnectionConfig {
@@ -164,7 +165,7 @@ if (require.main === module) {
 // tests/connectionPool.test.ts
 import { ConnectionPool, ConnectionConfig } from '../src/connectionPool';
 import { Logger } from '../src/logger';
-import { createConnection } from 'mysql2/promise';
+
 
 jest.mock('mysql2/promise', () => {
   const mockPool = {

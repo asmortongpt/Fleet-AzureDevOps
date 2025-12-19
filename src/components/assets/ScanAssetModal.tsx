@@ -1,10 +1,11 @@
-import React, { useState, useCallback } from 'react';
-import Webcam from 'react-webcam';
 import { BrowserMultiFormatReader } from '@zxing/library';
 import axios from 'axios';
-import { useFleetLocalContext } from '../../context/FleetLocalContext';
+import React, { useState, useCallback } from 'react';
 import { Helmet } from 'react-helmet';
 import { toast } from 'react-toastify';
+import Webcam from 'react-webcam';
+
+import { useFleetLocalContext } from '../../context/FleetLocalContext';
 
 import logger from '@/utils/logger';
 interface ScanAssetModalProps {

@@ -1,4 +1,4 @@
-import { test, expect } from '@playwright/test';
+import { test } from '@playwright/test';
 
 test('Screenshot 3D Garage Module', async ({ page }) => {
   // Go to root on port 4201 and wait for app to load

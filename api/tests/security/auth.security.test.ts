@@ -3,8 +3,9 @@
  * Tests for common security vulnerabilities
  */
 
-import { describe, it, expect, beforeAll, afterAll } from 'vitest'
 import request from 'supertest'
+import { describe, it, expect, beforeAll, afterAll } from 'vitest'
+
 import app from '../../src/server'
 import {
   generateTestToken,

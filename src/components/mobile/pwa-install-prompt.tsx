@@ -3,8 +3,8 @@
  * Prompts users to install the app on their device
  */
 
-import React, { useEffect, useState } from 'react'
 import { X, Download, Smartphone } from 'lucide-react'
+import React, { useEffect, useState } from 'react'
 
 import logger from '@/utils/logger';
 interface BeforeInstallPromptEvent extends Event {

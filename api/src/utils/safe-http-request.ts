@@ -10,8 +10,9 @@
  * - Implementing request timeouts
  */
 
-import axios, { AxiosRequestConfig, AxiosResponse } from 'axios'
 import { URL } from 'url'
+
+import axios, { AxiosRequestConfig, AxiosResponse } from 'axios'
 
 // Default allowed domains for external services
 const DEFAULT_ALLOWED_DOMAINS = [

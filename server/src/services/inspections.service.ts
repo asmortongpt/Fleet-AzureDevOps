@@ -1,6 +1,6 @@
-import { BaseService, PaginationParams, PaginatedResult, NotFoundError, ForbiddenError } from './base.service';
-import { logger } from './logger';
 import { InspectionsRepository, Inspection, InspectionWithRelations } from '../repositories/inspections.repository';
+
+import { BaseService, NotFoundError, ForbiddenError } from './base.service';
 
 export class InspectionsService extends BaseService {
   constructor(
