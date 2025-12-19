@@ -17,11 +17,12 @@ import logger from '../config/logger'; // Wave 22: Add Winston logger
  */
 
 import { Router, Request, Response } from 'express'
-import { VehicleIdlingService } from '../services/vehicle-idling.service'
-import { authenticateJWT } from '../middleware/auth'
-import { validateRequest } from '../middleware/validation'
 import { body, param, query } from 'express-validator'
+
+import { authenticateJWT } from '../middleware/auth'
 import { csrfProtection } from '../middleware/csrf'
+import { validateRequest } from '../middleware/validation'
+import { VehicleIdlingService } from '../services/vehicle-idling.service'
 
 
 const router = Router()

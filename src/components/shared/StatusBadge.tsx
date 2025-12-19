@@ -1,5 +1,6 @@
-import { Badge } from "@/components/ui/badge"
 import { Warning, CheckCircle, Clock, X } from "@phosphor-icons/react"
+
+import { Badge } from "@/components/ui/badge"
 import { cn } from "@/lib/utils"
 
 export type VehicleStatus =

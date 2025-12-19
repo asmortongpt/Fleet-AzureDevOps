@@ -7,16 +7,17 @@ import { NotFoundError, ValidationError } from '../errors/app-error'
  */
 
 import { Express } from 'express'
+
 import { documentSystemConfig } from '../config/document-system.config'
 
 // Import all document-related routes
-import ocrRoutes from './ocr.routes'
-import aiSearchRoutes from './ai-search'
 import aiChatRoutes from './ai-chat'
+import aiSearchRoutes from './ai-search'
 import documentGeoRoutes from './document-geo.routes'
+import ocrRoutes from './ocr.routes'
 import searchRoutes from './search'
 import storageAdminRoutes from './storage-admin'
-import { csrfProtection } from '../middleware/csrf'
+
 
 
 /**

@@ -15,9 +15,9 @@
  */
 
 import React, { useState, useEffect, useCallback, useRef } from 'react';
+
 import { useMapTelemetry, MapInteractionType } from '../hooks/useTelemetry';
-import { captureException, addBreadcrumb, ErrorSeverity } from '../services/errorReporting';
-import { withErrorBoundary } from '../services/errorReporting';
+import { captureException, addBreadcrumb, ErrorSeverity , withErrorBoundary } from '../services/errorReporting';
 
 import logger from '@/utils/logger';
 interface Marker {

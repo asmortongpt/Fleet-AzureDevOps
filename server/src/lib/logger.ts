@@ -3,8 +3,8 @@
  * Provides structured logging with automatic shipping to Azure Log Analytics
  */
 
-import winston from 'winston'
 import * as appInsights from 'applicationinsights'
+import winston from 'winston'
 
 // Initialize Application Insights if connection string is provided
 const appInsightsConnectionString = process.env.APPLICATION_INSIGHTS_CONNECTION_STRING ||

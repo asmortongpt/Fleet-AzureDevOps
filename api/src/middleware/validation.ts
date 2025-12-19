@@ -14,8 +14,9 @@
 
 import { Request, Response, NextFunction } from 'express'
 import { z, ZodSchema, ZodError } from 'zod'
+
 import { ValidationError } from '../errors/app-error'
-import { logger, securityLogger } from '../utils/logger'
+import { securityLogger } from '../utils/logger'
 
 /**
  * Validation target (where to validate from)

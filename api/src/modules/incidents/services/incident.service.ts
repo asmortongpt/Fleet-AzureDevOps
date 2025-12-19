@@ -1,8 +1,9 @@
 import { injectable, inject } from "inversify";
+
 import { BaseService } from "../../../services/base.service";
-import { IncidentRepository } from "../repositories/incident.repository";
 import { TYPES } from "../../../types";
 import type { Incident } from "../../../types/incident";
+import { IncidentRepository } from "../repositories/incident.repository";
 
 @injectable()
 export class IncidentService extends BaseService {

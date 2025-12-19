@@ -1,9 +1,8 @@
 // src/agents/CTAFleetAgent57.ts
 import { Agent, AgentConfig } from '../core/Agent';
 import { Vendor, VendorRiskProfile, ComplianceStatus } from '../types/VendorTypes';
-import { RiskAssessmentService } from '../services/RiskAssessmentService';
 import { ComplianceService } from '../services/ComplianceService';
-import { Logger } from '../utils/Logger';
+import { RiskAssessmentService } from '../services/RiskAssessmentService';
 
 export class CTAFleetAgent57 extends Agent {
   private riskAssessmentService: RiskAssessmentService;
@@ -131,7 +130,6 @@ export class RiskAssessmentService {
 }
 
 // src/services/ComplianceService.ts
-import { Vendor, ComplianceStatus } from '../types/VendorTypes';
 
 export class ComplianceService {
   public async checkCompliance(vendor: Vendor): Promise<ComplianceStatus> {
@@ -188,6 +186,7 @@ export abstract class Agent {
 // tests/CTAFleetAgent57.test.ts
 import { CTAFleetAgent57 } from '../src/agents/CTAFleetAgent57';
 import { Vendor, ComplianceStatus } from '../src/types/VendorTypes';
+import { Logger } from '../utils/Logger';
 
 describe('CTAFleetAgent57 - Vendor Risk Management', () => {
   let agent: CTAFleetAgent57;

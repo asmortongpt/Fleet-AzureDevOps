@@ -1,12 +1,3 @@
-import React, { useState, useRef, useEffect, useCallback } from 'react'
-import { GoogleMap } from '../GoogleMap'
-import { AdvancedGeofencing, Geofence } from './AdvancedGeofencing'
-import { Button } from '../ui/button'
-import { Card } from '../ui/card'
-import { Badge } from '../ui/badge'
-import { Switch } from '../ui/switch'
-import { Label } from '../ui/label'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '../ui/tabs'
 import {
   Car,
   MapPin,
@@ -20,8 +11,20 @@ import {
   EyeOff,
   Map as MapIcon
 } from 'lucide-react'
-import { Vehicle, GISFacility } from '@/lib/types'
+import React, { useState, useEffect, useCallback } from 'react'
+
+import { GoogleMap } from '../GoogleMap'
+import { Badge } from '../ui/badge'
+import { Button } from '../ui/button'
+import { Card } from '../ui/card'
+import { Label } from '../ui/label'
+import { Switch } from '../ui/switch'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '../ui/tabs'
+
+import { AdvancedGeofencing, Geofence } from './AdvancedGeofencing'
+
 import { useFleetData } from '@/hooks/use-fleet-data'
+import { Vehicle, GISFacility } from '@/lib/types'
 
 /**
  * Map layer configuration

@@ -1,4 +1,5 @@
 import * as msal from '@azure/msal-node';
+
 import { logger } from '../utils/logger';
 
 const config: msal.Configuration = {

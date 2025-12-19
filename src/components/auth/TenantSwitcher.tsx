@@ -4,8 +4,12 @@
  * SECURITY (CRIT-F-004): Only available to SuperAdmin users
  */
 
+import { Building2, Check, ChevronDown, Loader2 } from 'lucide-react';
 import { useState, useEffect } from 'react';
-import { useAuth } from '@/contexts/AuthContext';
+
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -14,10 +18,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Building2, Check, ChevronDown, Loader2 } from 'lucide-react';
-import { Alert, AlertDescription } from '@/components/ui/alert';
+import { useAuth } from '@/contexts/AuthContext';
 import logger from '@/utils/logger';
 
 interface Tenant {

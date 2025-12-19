@@ -1,10 +1,11 @@
 // src/hooks/useTokenRefresh.ts
 
-import { useState, useEffect } from 'react';
 import axios, { AxiosError } from 'axios';
+import { useState, useEffect } from 'react';
+
+import { refreshTokenEndpoint } from '../config/endpoints'; // Endpoint configuration
 import { useAuthContext } from '../context/AuthContext'; // Assuming there's an AuthContext for managing auth state
 import { logError } from '../utils/logger'; // Utility for logging errors
-import { refreshTokenEndpoint } from '../config/endpoints'; // Endpoint configuration
 
 interface TokenResponse {
   accessToken: string;

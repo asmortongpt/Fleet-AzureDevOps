@@ -6,8 +6,9 @@
  */
 
 import { createContext, useContext, useState, useEffect, useCallback, ReactNode } from 'react';
-import { initializeTokenRefresh, stopTokenRefresh } from '@/lib/auth/token-refresh';
+
 import { refreshCsrfToken, clearCsrfToken } from '@/hooks/use-api';
+import { initializeTokenRefresh, stopTokenRefresh } from '@/lib/auth/token-refresh';
 import logger from '@/utils/logger';
 
 export interface User {

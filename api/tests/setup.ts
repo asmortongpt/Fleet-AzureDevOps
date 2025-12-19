@@ -4,14 +4,10 @@
  */
 
 import { Application } from 'express'
-import request from 'supertest'
 import jwt from 'jsonwebtoken'
+import request from 'supertest'
 
 // Import emulators
-import { vehicleEmulator } from '../src/emulators/VehicleEmulator'
-import { driverEmulator } from '../src/emulators/DriverEmulator'
-import { fuelTransactionEmulator } from '../src/emulators/FuelTransactionEmulator'
-import { maintenanceRecordEmulator } from '../src/emulators/MaintenanceRecordEmulator'
 
 // Create test app instance (lazy loaded)
 let testApp: Application | null = null

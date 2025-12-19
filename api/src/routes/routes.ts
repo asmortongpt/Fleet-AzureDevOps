@@ -1,12 +1,13 @@
 import express, { Response } from 'express'
-import { NotFoundError } from '../errors/app-error'
-import logger from '../config/logger'
-import { AuthRequest, authenticateJWT } from '../middleware/auth'
-import { requirePermission } from '../middleware/permissions'
-import { auditLog } from '../middleware/audit'
-import { buildInsertClause, buildUpdateClause } from '../utils/sql-safety'
+
 import pool from '../config/database'
+import logger from '../config/logger'
+import { NotFoundError } from '../errors/app-error'
+import { auditLog } from '../middleware/audit'
+import { AuthRequest, authenticateJWT } from '../middleware/auth'
 import { csrfProtection } from '../middleware/csrf'
+import { requirePermission } from '../middleware/permissions'
+import { buildInsertClause, buildUpdateClause } from '../utils/sql-safety'
 
 const router = express.Router()
 router.use(authenticateJWT)

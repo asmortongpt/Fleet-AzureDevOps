@@ -1,7 +1,10 @@
-import session from 'express-session';
-import RedisStore from 'connect-redis';
-import { redis } from './cache';
 import crypto from 'crypto';
+
+import RedisStore from 'connect-redis';
+import session from 'express-session';
+
+import { redis } from './cache';
+
 
 export const sessionMiddleware = session({
   store: new RedisStore({ client: redis }),

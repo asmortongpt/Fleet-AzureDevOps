@@ -10,9 +10,9 @@
 
 import { injectable, inject } from 'inversify';
 import { Pool, PoolClient } from 'pg';
+
+import { DatabaseError } from '../errors/ApplicationError';
 import { TYPES } from '../types';
-import { connectionManager } from '../config/connection-manager';
-import { NotFoundError, DatabaseError } from '../errors/ApplicationError';
 
 export interface ModuleRole {
   name: string;

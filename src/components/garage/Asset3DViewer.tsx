@@ -12,8 +12,6 @@
  * Created: 2025-11-24
  */
 
-import React, { Suspense, useRef, useMemo, useState } from 'react'
-import { Canvas, useFrame, useThree } from '@react-three/fiber'
 import {
   OrbitControls,
   PerspectiveCamera,
@@ -24,13 +22,14 @@ import {
   Sphere,
   Cylinder,
   Box,
-  Text,
   Html,
-  useProgress,
-  Loader
+  useProgress
 } from '@react-three/drei'
-import { EffectComposer, Bloom, SSAO, ToneMapping } from '@react-three/postprocessing'
+import { Canvas, useFrame } from '@react-three/fiber'
+import { EffectComposer, Bloom, ToneMapping } from '@react-three/postprocessing'
+import React, { Suspense, useRef, useState } from 'react'
 import * as THREE from 'three'
+
 import { AssetCategory, AssetType } from '@/types/asset.types'
 
 // ============================================================================

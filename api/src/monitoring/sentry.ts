@@ -6,7 +6,7 @@
 import * as Sentry from '@sentry/node';
 import { nodeProfilingIntegration } from '@sentry/profiling-node';
 import { Request } from 'express';
-import { config } from '../config';
+
 
 export interface SentryConfig {
   init(): void;

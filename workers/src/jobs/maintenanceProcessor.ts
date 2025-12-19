@@ -1,6 +1,6 @@
-import { maintenanceSchema } from '../schemas/maintenance.schema';
 import { pool } from '../db';
 import { logger } from '../logger';
+import { maintenanceSchema } from '../schemas/maintenance.schema';
 
 export async function processMaintenance(job: any) {
   try {

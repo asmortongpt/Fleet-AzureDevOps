@@ -1,16 +1,7 @@
 import "reflect-metadata";
 import { Container } from "inversify";
+
 import { TYPES } from "./types";
-import { VehicleService } from "./modules/fleet/services/vehicle.service";
-import { VehicleRepository } from "./modules/fleet/repositories/vehicle.repository";
-import { VehicleController } from "./modules/fleet/controllers/vehicle.controller";
-import { DriverService } from "./modules/drivers/services/driver.service";
-import { DriverRepository } from "./modules/drivers/repositories/driver.repository";
-import { DriverController } from "./modules/drivers/controllers/driver.controller";
-import { MaintenanceService } from "./modules/maintenance/services/maintenance.service";
-import { MaintenanceRepository } from "./modules/maintenance/repositories/maintenance.repository";
-import { MaintenanceController } from "./modules/maintenance/controllers/maintenance.controller";
-import { FacilityService } from "./modules/facilities/services/facility.service";
 import { FacilityRepository } from "./modules/facilities/repositories/facility.repository";
 import { FacilityController } from "./modules/facilities/controllers/facility.controller";
 import { WorkOrderService } from "./modules/work-orders/services/work-order.service";
@@ -25,6 +16,16 @@ import { InspectionController } from "./modules/inspections/controllers/inspecti
 import { BreakGlassRepository } from "./repositories/BreakGlassRepository";
 import { PersonalUsePoliciesRepository } from "./repositories/PersonalUsePoliciesRepository";
 import { connectionManager } from "./config/connection-manager";
+import { DriverController } from "./modules/drivers/controllers/driver.controller";
+import { DriverRepository } from "./modules/drivers/repositories/driver.repository";
+import { DriverService } from "./modules/drivers/services/driver.service";
+import { FacilityService } from "./modules/facilities/services/facility.service";
+import { VehicleController } from "./modules/fleet/controllers/vehicle.controller";
+import { VehicleRepository } from "./modules/fleet/repositories/vehicle.repository";
+import { VehicleService } from "./modules/fleet/services/vehicle.service";
+import { MaintenanceController } from "./modules/maintenance/controllers/maintenance.controller";
+import { MaintenanceRepository } from "./modules/maintenance/repositories/maintenance.repository";
+import { MaintenanceService } from "./modules/maintenance/services/maintenance.service";
 import { PermissionsRepository } from "./repositories/PermissionsRepository";
 import { AttachmentRepository } from "./repositories/attachments.repository";
 import { VehicleAssignmentsRepository } from "./repositories/vehicle-assignments.repository";
@@ -87,6 +88,10 @@ container.bind(TYPES.VehicleAssignmentsRepository).to(VehicleAssignmentsReposito
 
 // Assignment Notification Service
 container.bind(TYPES.AssignmentNotificationService).to(AssignmentNotificationService);
+
+// Fuel Transaction Service
+import { FueltransactionService } from "./services/FuelTransactionService";
+container.bind(TYPES.FuelTransactionService).to(FueltransactionService);
 
 export { container };
 

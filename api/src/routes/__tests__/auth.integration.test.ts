@@ -1,8 +1,8 @@
 import request from 'supertest';
-import app from '../../server';
-import { pool } from '../../config/database';
+
 import { createAuthToken, createMockUser } from '../../__tests__/helpers';
-import { csrfProtection } from '../middleware/csrf'
+import { pool } from '../../config/database';
+import app from '../../server';
 
 
 describe('Auth Integration Tests', () => {

@@ -1,7 +1,9 @@
 import axios from 'axios';
+
+import { MicrosoftTokenResponse, MicrosoftUserProfile } from '../types';
+
 import { config } from './config';
 import { logger } from './logger';
-import { MicrosoftTokenResponse, MicrosoftUserProfile } from '../types';
 
 export class MicrosoftAuthService {
   private readonly authority: string;

@@ -3,13 +3,15 @@
  * Real-time video event monitoring, AI analysis, and driver safety management
  */
 
+import { AlertCircle, Video, Eye, AlertTriangle, CheckCircle, XCircle, Play, Shield, Users } from 'lucide-react';
 import { useState, useEffect } from 'react';
-import { Card, CardHeader, CardTitle, CardDescription, CardContent } from './ui/card';import { Button } from './ui/button';
-import { Badge } from './ui/badge';
-import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from './ui/select';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs';
-import { AlertCircle, Video, Eye, AlertTriangle, CheckCircle, XCircle, Play, Shield, Users } from 'lucide-react';import { cn } from '@/lib/utils';
 
+import { Badge } from './ui/badge';
+import { Button } from './ui/button';
+import { Card, CardHeader, CardTitle, CardDescription, CardContent } from './ui/card';import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from './ui/select';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs';
+
+import { cn } from '@/lib/utils';
 import logger from '@/utils/logger';
 interface VideoEvent {
   id: number;

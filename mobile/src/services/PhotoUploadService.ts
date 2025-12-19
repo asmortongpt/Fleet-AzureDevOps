@@ -12,10 +12,9 @@
  * - Compression and optimization
  */
 
-import { BlobServiceClient, BlockBlobClient, BlobUploadOptions } from '@azure/storage-blob';
-import { Platform } from 'react-native';
-import RNFS from 'react-native-fs';
+import { BlobServiceClient, BlobUploadOptions } from '@azure/storage-blob';
 import ImageResizer from '@bam.tech/react-native-image-resizer';
+import RNFS from 'react-native-fs';
 import { v4 as uuidv4 } from 'uuid';
 
 export interface UploadProgress {

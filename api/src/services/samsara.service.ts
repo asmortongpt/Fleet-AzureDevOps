@@ -5,9 +5,10 @@
  * Security: Uses SSRF-protected HTTP client to prevent server-side request forgery
  */
 
-import axios, { AxiosInstance } from 'axios';
+import { AxiosInstance } from 'axios';
 import { Pool } from 'pg';
-import { createSafeAxiosInstance, SSRFError } from '../utils/ssrf-protection';
+
+import { createSafeAxiosInstance } from '../utils/ssrf-protection';
 
 const SAMSARA_API_TOKEN = process.env.SAMSARA_API_TOKEN;
 const SAMSARA_BASE_URL = 'https://api.samsara.com';

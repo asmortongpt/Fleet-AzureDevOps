@@ -4,6 +4,7 @@
  */
 
 import React, { ReactNode } from 'react'
+
 import { useScrollDirection } from '@/hooks/use-touch-gestures'
 
 interface ScrollAwareHeaderProps {

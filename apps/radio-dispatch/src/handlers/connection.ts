@@ -1,5 +1,6 @@
 
 import * as signalR from '@microsoft/signalr';
+
 import { logger } from '../utils/logger';
 
 interface QueuedMessage {

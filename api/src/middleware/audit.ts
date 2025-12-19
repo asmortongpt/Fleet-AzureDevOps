@@ -1,8 +1,11 @@
-import { Response, NextFunction } from 'express'
-import { AuthRequest } from './auth'
-import pool from '../config/database'
 import crypto from 'crypto'
+
+import { Response, NextFunction } from 'express'
+
+import pool from '../config/database'
 import logger from '../utils/logger'
+
+import { AuthRequest } from './auth'
 
 export interface AuditOptions {
   action: 'CREATE' | 'READ' | 'UPDATE' | 'DELETE' | 'LOGIN' | 'LOGOUT' | 'EXPORT' | 'CALCULATE' | 'APPROVE' | 'REJECT' | 'BULK_CREATE' | 'SEARCH' | 'QUERY' | 'EXECUTE' | 'CERTIFY' | 'UPLOAD' | 'DOWNLOAD' | 'CREATE_CATEGORY' | 'RAG_QUERY' | 'REQUEST_ELEVATION' | 'VIEW_ELEVATION_REQUESTS' | 'APPROVE_ELEVATION' | 'REVOKE_ELEVATION' | 'VIEW_ACTIVE_ELEVATIONS'

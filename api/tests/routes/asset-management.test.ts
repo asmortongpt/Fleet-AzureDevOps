@@ -4,8 +4,9 @@
  * multi-tenant isolation, authentication, and authorization
  */
 
-import { describe, it, expect, beforeAll, afterAll, beforeEach } from 'vitest'
 import request from 'supertest'
+import { describe, it, expect, beforeAll, afterAll, beforeEach } from 'vitest'
+
 import app from '../../src/server'
 import {
   generateTestToken,

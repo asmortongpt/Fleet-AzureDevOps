@@ -12,22 +12,22 @@
  * Created: 2025-11-24
  */
 
-import React, { useState, useMemo, Suspense, lazy, useEffect } from 'react'
-import { useQuery } from '@tanstack/react-query'
-import { Button } from '@/components/ui/button'
-import { Badge } from '@/components/ui/badge'
-import { ScrollArea } from '@/components/ui/scroll-area'
 import {
   Car,
   Clock,
   Warning,
-  Gauge,
-  ListBullets,
-  CaretRight,
-  X,
   Eye,
   ArrowsClockwise
 } from '@phosphor-icons/react'
+import { useQuery } from '@tanstack/react-query'
+import React, { useState, useMemo, Suspense, lazy, useEffect } from 'react'
+
+import { DamageStrip, generateDemoDamages, type DamagePin } from '@/components/garage/DamageStrip'
+import { TimelineDrawer, generateDemoEvents, type TimelineEvent } from '@/components/garage/TimelineDrawer'
+import { VehicleHUD, type VehicleStats } from '@/components/garage/VehicleHUD'
+import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
+import { ScrollArea } from '@/components/ui/scroll-area'
 import { cn } from '@/lib/utils'
 import {
   AssetCategory,
@@ -37,10 +37,6 @@ import {
 
 // Lazy load components
 const Asset3DViewer = lazy(() => import('@/components/garage/Asset3DViewer').then(m => ({ default: m.Asset3DViewer })))
-import { VehicleHUD, type VehicleStats } from '@/components/garage/VehicleHUD'
-import { TimelineDrawer, generateDemoEvents, type TimelineEvent } from '@/components/garage/TimelineDrawer'
-import { DamageStrip, generateDemoDamages, type DamagePin } from '@/components/garage/DamageStrip'
-
 import logger from '@/utils/logger';
 // ============================================================================
 // TYPES

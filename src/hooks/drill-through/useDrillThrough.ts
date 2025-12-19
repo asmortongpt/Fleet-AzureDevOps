@@ -1,12 +1,14 @@
-import { useState, useCallback, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import logger from '@/utils/logger';
+import { useState, useCallback, useEffect } from 'react';
+
 import type {
-  DrillThroughConfig,
   DrillThroughResult,
   DrillThroughEntityType,
   ExportFormat,
 } from '../../types/drill-through';
+
+import logger from '@/utils/logger';
+
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
 

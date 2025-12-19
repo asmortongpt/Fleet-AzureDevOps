@@ -7,8 +7,9 @@
  * - Signature verification
  */
 
-import { describe, it, expect, beforeEach, vi } from 'vitest';
 import crypto from 'crypto';
+
+import { describe, it, expect, beforeEach, vi } from 'vitest';
 
 // Mock webhook payload types
 interface TeamsWebhookPayload {

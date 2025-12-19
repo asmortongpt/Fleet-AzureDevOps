@@ -1,4 +1,3 @@
-import { BaseRepository } from '../repositories/BaseRepository';
 
 /**
  * Asset Management Repository
@@ -17,10 +16,12 @@ import { BaseRepository } from '../repositories/BaseRepository';
  * - Analytics
  */
 
-import { Pool, PoolClient } from 'pg'
+import { Pool } from 'pg'
+
 import { connectionManager } from '../config/connection-manager'
-import { NotFoundError, ValidationError, DatabaseError } from '../errors/app-error'
 import logger from '../config/logger'
+import { NotFoundError, ValidationError, DatabaseError } from '../errors/app-error'
+import { BaseRepository } from '../repositories/BaseRepository';
 
 export interface Asset {
   id: string

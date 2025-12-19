@@ -16,13 +16,15 @@ import {
   Image,
 } from 'react-native';
 import { launchImageLibrary } from 'react-native-image-picker';
+
+import { MessagingService } from '../services/MessagingService';
 import {
   SMSDraft,
   SMSAttachment,
   MessagingContext,
   Contact,
 } from '../types/messaging.types';
-import { MessagingService } from '../services/MessagingService';
+
 import { MessageTemplateSelector } from './MessageTemplateSelector';
 
 interface SMSComposerProps {

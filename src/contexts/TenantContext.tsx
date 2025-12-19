@@ -1,5 +1,7 @@
 import React, { createContext, useContext, useEffect, useState, ReactNode } from 'react';
+
 import { useAuth } from './AuthContext';
+
 import logger from '@/utils/logger';
 
 interface TenantSettings {

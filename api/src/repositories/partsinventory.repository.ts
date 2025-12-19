@@ -1,7 +1,8 @@
-import { BaseRepository } from '../repositories/BaseRepository';
 
 import { Pool } from 'pg';
+
 import { PartsInventory } from '../models/parts-inventory.model';
+import { BaseRepository } from '../repositories/BaseRepository';
 
 export class PartsInventoryRepository extends BaseRepository<any> {
   private pool: Pool;

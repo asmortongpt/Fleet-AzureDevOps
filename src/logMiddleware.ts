@@ -4,6 +4,7 @@
  */
 
 import { Request, Response, NextFunction } from 'express';
+
 import { sanitizeForLogging } from './logSanitizer';
 
 import logger from '@/utils/logger';

@@ -10,12 +10,13 @@ import logger from '../config/logger'; // Wave 22: Add Winston logger
  */
 
 import { Router, Request, Response } from 'express'
+
 import { connectionManager } from '../config/connection-manager'
-import { queryPerformanceService } from '../services/query-performance.service'
 import { workerPool } from '../config/worker-pool'
 import { authenticateJWT } from '../middleware/auth'
-import { getErrorMessage } from '../utils/error-handler'
 import { csrfProtection } from '../middleware/csrf'
+import { queryPerformanceService } from '../services/query-performance.service'
+import { getErrorMessage } from '../utils/error-handler'
 
 
 const router = Router()

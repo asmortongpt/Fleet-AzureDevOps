@@ -1,29 +1,24 @@
-import React, { useState, useMemo, useCallback } from "react"
-import { Card } from "@/components/ui/card"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
-import { ScrollArea } from "@/components/ui/scroll-area"
-import { Input } from "@/components/ui/input"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import {
-  MapPin,
-  Navigation,
   AlertCircle,
   CheckCircle2,
   Clock,
   Route,
   Truck,
-  Package,
-  Map as MapIcon,
-  Filter,
-  Settings
+  Package
 } from "lucide-react"
-import { useVehicles, useDrivers, useRoutes, useFacilities, useWorkOrders } from "@/hooks/use-api"
-import { useDrilldown } from "@/contexts/DrilldownContext"
-import { useVehicleTelemetry } from "@/hooks/useVehicleTelemetry"
+import React, { useState, useMemo, useCallback } from "react"
+
 import { ProfessionalFleetMap } from "@/components/Maps/ProfessionalFleetMap"
-import { cn } from "@/lib/utils"
+import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
+import { Card } from "@/components/ui/card"
+import { Input } from "@/components/ui/input"
+import { ScrollArea } from "@/components/ui/scroll-area"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { useDrilldown } from "@/contexts/DrilldownContext"
+import { useVehicles, useDrivers, useRoutes, useFacilities, useWorkOrders } from "@/hooks/use-api"
+import { useVehicleTelemetry } from "@/hooks/useVehicleTelemetry"
 import { Vehicle } from "@/lib/types"
 
 // Contextual panel for vehicle information

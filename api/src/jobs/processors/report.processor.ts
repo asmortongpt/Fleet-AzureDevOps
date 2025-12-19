@@ -10,12 +10,14 @@
  * - Custom reports
  */
 
-import { Job } from 'bull'
-import { pool } from '../../config/database'
-import logger from '../../utils/logger'
-import * as XLSX from 'xlsx'
 import fs from 'fs'
 import path from 'path'
+
+import { Job } from 'bull'
+import * as XLSX from 'xlsx'
+
+import { pool } from '../../config/database'
+import logger from '../../utils/logger'
 import { addEmailJob } from '../queue'
 
 /**
