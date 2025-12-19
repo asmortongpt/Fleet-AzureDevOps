@@ -1,6 +1,6 @@
-import { VehicleService } from '../services/vehicleService';
 import { IMaintenanceService } from '../interfaces/IMaintenanceService';
 import { Vehicle } from '../models/Vehicle';
+import { VehicleService } from '../services/vehicleService';
 
 jest.mock('../services/maintenanceService');
 

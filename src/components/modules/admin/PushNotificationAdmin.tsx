@@ -3,24 +3,23 @@
  * Manage and send push notifications to mobile devices
  */
 
-import React, { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import logger from '@/utils/logger';
 import {
   Bell,
   Send,
   Clock,
   BarChart3,
-  Users,
   Smartphone,
   CheckCircle,
-  XCircle,
-  AlertTriangle,
   Calendar,
   FileText,
   TrendingUp,
   Eye
 } from 'lucide-react';
+import React, { useState } from 'react';
+
+import logger from '@/utils/logger';
+
 
 interface NotificationStats {
   totalSent: number;
@@ -273,7 +272,7 @@ const PushNotificationAdmin: React.FC = () => {
   const handleSendNotification = async () => {
     try {
       let endpoint = '/api/push-notifications/send';
-      let body: any = {
+      const body: any = {
         title: notificationForm.title,
         message: notificationForm.message,
         category: notificationForm.category,

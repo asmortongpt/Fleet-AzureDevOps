@@ -9,30 +9,28 @@
  * - Conflict count
  */
 
+import { formatDistanceToNow } from 'date-fns';
 import React, { useEffect, useState, useCallback } from 'react';
 import {
   View,
   StyleSheet,
   TouchableOpacity,
   Animated,
-  Platform,
 } from 'react-native';
 import {
   Banner,
   Button,
   ProgressBar,
   Text,
-  IconButton,
-  Badge,
   Portal,
   Dialog,
   Paragraph,
 } from 'react-native-paper';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
-import SyncManager from '../services/SyncManager';
+
 import ConflictResolverService from '../services/ConflictResolver';
+import SyncManager from '../services/SyncManager';
 import { SyncProgress, NetworkState } from '../types/queue';
-import { formatDistanceToNow } from 'date-fns';
 
 interface OfflineIndicatorProps {
   autoHide?: boolean; // Auto-hide when online and synced

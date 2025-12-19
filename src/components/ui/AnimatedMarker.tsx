@@ -1,6 +1,7 @@
 import { motion, HTMLMotionProps } from "framer-motion";
-import { cn } from "@/lib/utils";
 import { ReactNode } from "react";
+
+import { cn } from "@/lib/utils";
 
 interface AnimatedMarkerProps extends Omit<HTMLMotionProps<"div">, "children"> {
   /** Marker content (icon, number, etc.) */

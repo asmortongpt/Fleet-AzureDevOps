@@ -1,12 +1,3 @@
-import React from "react";
-import {
-    Sheet,
-    SheetContent,
-    SheetHeader,
-    SheetTitle,
-    SheetDescription,
-} from "../../ui/sheet";
-import { ScrollArea } from "../../ui/scroll-area";
 import {
     GasPump,
     TrendUp,
@@ -14,6 +5,16 @@ import {
     Drop,
     MapPin
 } from "@phosphor-icons/react";
+import React from "react";
+
+import {
+    Sheet,
+    SheetContent,
+    SheetHeader,
+    SheetTitle,
+    SheetDescription,
+} from "../../ui/sheet";
+
 import { useFleetData } from "@/hooks/use-fleet-data";
 
 interface FuelPanelProps {

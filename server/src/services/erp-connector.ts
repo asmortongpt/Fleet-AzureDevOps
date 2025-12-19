@@ -1,11 +1,13 @@
-import { Logger } from '../utils/logger';
-import { validateDepreciationEntries, validateRetirementData } from '../utils/validators';
-import { AuditLog } from '../utils/audit-log';
-import { ERPSystem } from './erp-systems';
 import { ERPIntegrationError } from '../errors/erp-integration-error';
+import { AuditLog } from '../utils/audit-log';
+import { Logger } from '../utils/logger';
+import { secureHttpClient } from '../utils/secure-http-client';
+import { validateDepreciationEntries, validateRetirementData } from '../utils/validators';
+
+import { ERPSystem } from './erp-systems';
+
 
 // FedRAMP Compliance: Ensure secure connection and data handling
-import { secureHttpClient } from '../utils/secure-http-client';
 
 export interface ERPConnector {
   postDepreciationJournal(tenantId: string, entries: DepreciationEntry[]): Promise<void>;

@@ -1,6 +1,6 @@
 import { createClient, RedisClientType } from 'redis';
+
 import { logger } from './logger';
-import { config } from './config';
 
 /**
  * Cache TTL Configuration (in seconds)

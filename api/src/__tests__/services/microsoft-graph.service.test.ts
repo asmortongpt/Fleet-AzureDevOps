@@ -1,4 +1,5 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
+
 import { MicrosoftGraphService } from '../services/microsoft-graph.service';
 
 /**

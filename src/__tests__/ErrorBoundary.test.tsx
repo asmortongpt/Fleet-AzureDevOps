@@ -4,9 +4,10 @@
  * Tests for the global error boundary with Application Insights integration
  */
 
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import { render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
+
 import { ErrorBoundary, useErrorHandler } from '../components/ErrorBoundary'
 import { telemetryService } from '../lib/telemetry'
 

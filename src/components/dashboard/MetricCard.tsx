@@ -1,6 +1,7 @@
-import { ReactNode } from "react"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { ArrowUp, ArrowDown, Minus } from "@phosphor-icons/react"
+import { ReactNode } from "react"
+
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 
 export interface MetricCardProps {
   /** Metric label/title */

@@ -2,14 +2,13 @@
  * Comprehensive form validation tests
  * Tests all forms across the application
  */
-import { test, expect } from '@playwright/test';
+import { test } from '@playwright/test';
+
 import {
   navigateToModule,
   takeVisualSnapshot,
   waitForPageReady,
-  openModal,
   closeModal,
-  fillForm,
 } from './helpers/test-helpers';
 
 const BASE_URL = 'http://localhost:5000';

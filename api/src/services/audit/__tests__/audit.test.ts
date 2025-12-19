@@ -3,12 +3,13 @@
  * 100% test coverage for audit logger, encryption, retention, and reporting
  */
 
-import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
 import { Pool } from 'pg'
+import { describe, it, expect, beforeEach, vi } from 'vitest'
+
 import { AuditLogger, AuditAction, AuditSeverity } from '../audit-logger'
+import { AuditReports, ReportType } from '../audit-reports'
 import { LogEncryption, BatchEncryption } from '../log-encryption'
 import { LogRetention, RetentionTier } from '../log-retention'
-import { AuditReports, ReportType } from '../audit-reports'
 
 /**
  * Mock Database Setup

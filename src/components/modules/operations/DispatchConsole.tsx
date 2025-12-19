@@ -15,7 +15,17 @@
  * Business Value: $200,000/year in dispatcher efficiency
  */
 
-import React, { useState, useEffect, useMemo } from 'react';
+import {
+  Radio as RadioIcon,
+  Mic,
+  MicOff,
+  Warning,
+  People,
+  VolumeUp,
+  VolumeOff,
+  Emergency,
+  Sensors
+} from '@mui/icons-material';
 import {
   Box,
   Card,
@@ -41,28 +51,13 @@ import {
   Tooltip,
   CircularProgress
 } from '@mui/material';
-import {
-  Radio as RadioIcon,
-  Mic,
-  MicOff,
-  Warning,
-  People,
-  VolumeUp,
-  VolumeOff,
-  PlayArrow,
-  Pause,
-  Emergency,
-  Sensors,
-  Map as MapIcon,
-  Notifications,
-  SignalCellularAlt
-} from '@mui/icons-material';
-import { useDispatchSocket } from '@/hooks/useDispatchSocket';
-import { usePTT } from '@/hooks/usePTT';
+import React, { useState, useEffect } from 'react';
+
 import { useAudioVisualization, useFrequencyBars } from '@/hooks/useAudioVisualization';
 import { useAuth } from '@/hooks/useAuth';
-import type { RadioChannel, Transmission, EmergencyAlert, DispatchUnit } from '@/types/radio';
-
+import { useDispatchSocket } from '@/hooks/useDispatchSocket';
+import { usePTT } from '@/hooks/usePTT';
+import type { RadioChannel } from '@/types/radio';
 import logger from '@/utils/logger';
 interface TabPanelProps {
   children?: React.ReactNode;

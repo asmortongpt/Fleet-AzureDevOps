@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
+
 import BrandingService from '../services/branding.service';
 import { BrandingConfig } from '../types/branding.d';
 

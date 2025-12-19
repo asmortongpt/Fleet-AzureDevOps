@@ -3,7 +3,8 @@
  * Tests alert creation, delivery, and management
  */
 
-import { describe, it, expect, beforeAll, afterAll, beforeEach, vi } from 'vitest'
+import { describe, it, expect, beforeAll, afterAll, beforeEach } from 'vitest'
+
 import { AlertEngineService } from '../../src/services/alert-engine.service'
 import { testPool, cleanupDatabase, seedTestDatabase, closeTestDatabase } from '../setup'
 

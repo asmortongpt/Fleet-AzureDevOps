@@ -1,12 +1,3 @@
-import { useState, useMemo } from 'react';
-import { MapFirstLayout } from '@/components/layout/MapFirstLayout';
-import { ProfessionalFleetMap } from '@/components/map/ProfessionalFleetMap';
-import { useVehicles } from '@/hooks/use-api';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Separator } from '@/components/ui/separator';
 import {
   Activity,
   Gauge,
@@ -18,6 +9,16 @@ import {
   Filter,
   Download
 } from 'lucide-react';
+import { useState, useMemo } from 'react';
+
+import { MapFirstLayout } from '@/components/layout/MapFirstLayout';
+import { ProfessionalFleetMap } from '@/components/map/ProfessionalFleetMap';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Separator } from '@/components/ui/separator';
+import { useVehicles } from '@/hooks/use-api';
 
 interface AnalyticsMapViewProps {
   analyticsType: 'heatmap' | 'routes' | 'performance' | 'fuel';

@@ -1,5 +1,6 @@
 import { Router, Request, Response } from 'express';
 import { Pool } from 'pg';
+
 import { GDPRService } from '../services/gdpr.service';
 import { logger } from '../services/logger';
 

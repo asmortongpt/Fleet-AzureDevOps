@@ -1,6 +1,7 @@
+import { PoolClient } from 'pg'
+
 import { connectionManager } from '../config/connection-manager'
 import { BaseRepository } from '../services/dal/BaseRepository'
-import { PoolClient } from 'pg'
 
 /**
  * Vehicle Assignment entity interface

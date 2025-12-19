@@ -1,11 +1,3 @@
-import { useState } from 'react';
-import { AnalyticsMapView } from './AnalyticsMapView';
-import { useVehicles } from '@/hooks/use-api';
-import { Card, CardContent } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Badge } from '@/components/ui/badge';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import {
   TrendingUp,
   TrendingDown,
@@ -20,6 +12,16 @@ import {
   Clock,
   Activity
 } from 'lucide-react';
+import { useState } from 'react';
+
+import { AnalyticsMapView } from './AnalyticsMapView';
+
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { useVehicles } from '@/hooks/use-api';
 
 type AnalyticsType = 'heatmap' | 'routes' | 'performance' | 'fuel';
 

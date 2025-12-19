@@ -13,6 +13,7 @@
  */
 
 import { Request, Response, NextFunction } from 'express'
+
 import { securityLogger } from '../utils/logger'
 
 /**

@@ -1,12 +1,23 @@
-import React, { useState, useMemo, useCallback } from "react"
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Button } from "@/components/ui/button"
+import {
+  User,
+  Users,
+  Trophy,
+  Star,
+  Truck,
+  Phone,
+  Mail,
+  Settings,
+  Plus,
+  Search,
+  BarChart3
+} from "lucide-react"
+import React, { useState, useMemo } from "react"
+
 import { Badge } from "@/components/ui/badge"
-import { ScrollArea } from "@/components/ui/scroll-area"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
-import { Progress } from "@/components/ui/progress"
-import { Separator } from "@/components/ui/separator"
+import { ScrollArea } from "@/components/ui/scroll-area"
 import {
   Select,
   SelectContent,
@@ -14,31 +25,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
-import {
-  User,
-  Users,
-  Trophy,
-  TrendingUp,
-  TrendingDown,
-  Star,
-  AlertTriangle,
-  CheckCircle2,
-  Clock,
-  MapPin,
-  Truck,
-  Calendar,
-  Phone,
-  Mail,
-  Shield,
-  Settings,
-  Plus,
-  Search,
-  Filter,
-  Award,
-  BarChart3
-} from "lucide-react"
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { useDrivers, useVehicles } from "@/hooks/use-api"
-import { useDrilldown } from "@/contexts/DrilldownContext"
 import { cn } from "@/lib/utils"
 
 // Driver Roster Panel

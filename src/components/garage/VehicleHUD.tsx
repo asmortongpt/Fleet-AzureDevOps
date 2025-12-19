@@ -12,10 +12,6 @@
  * Created: 2025-11-24
  */
 
-import React from 'react'
-import { Card, CardContent } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
-import { Progress } from '@/components/ui/progress'
 import {
   Gauge,
   Engine,
@@ -28,6 +24,10 @@ import {
   Drop,
   Tire
 } from '@phosphor-icons/react'
+import React from 'react'
+
+import { Badge } from '@/components/ui/badge'
+import { Progress } from '@/components/ui/progress'
 import { cn } from '@/lib/utils'
 
 interface VehicleStats {

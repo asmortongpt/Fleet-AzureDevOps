@@ -3,17 +3,6 @@
  * Displays and monitors ALL available API endpoints and emulator connections
  */
 
-import { useState, useMemo } from 'react'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { ScrollArea } from '@/components/ui/scroll-area'
-import {
-  Collapsible,
-  CollapsibleContent,
-  CollapsibleTrigger,
-} from '@/components/ui/collapsible'
 import {
   Circle,
   MagnifyingGlass,
@@ -27,10 +16,22 @@ import {
   Question,
   Clock
 } from '@phosphor-icons/react'
-import { useEndpointHealth } from '@/hooks/useEndpointHealth'
+import { useState, useMemo } from 'react'
+
+import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from '@/components/ui/collapsible'
+import { Input } from '@/components/ui/input'
+import { ScrollArea } from '@/components/ui/scroll-area'
 import { API_ENDPOINT_CATEGORIES, WEBSOCKET_CONNECTIONS } from '@/config/endpoints'
-import { EndpointStatus, SocketStatus } from '@/types/endpoint-monitor'
+import { useEndpointHealth } from '@/hooks/useEndpointHealth'
 import { cn } from '@/lib/utils'
+import { EndpointStatus, SocketStatus } from '@/types/endpoint-monitor'
 
 interface AllEndpointsMonitorProps {
   className?: string

@@ -4,25 +4,6 @@
  * Features: Status indicators, response times, collapsible categories, dark mode support
  */
 
-import { useState, useMemo } from 'react'
-import { useEndpointMonitoring } from '@/hooks/useEndpointMonitoring'
-import { API_ENDPOINT_CATEGORIES } from '@/config/endpoints'
-import { EndpointStatus, SocketStatus } from '@/types/endpoint-monitor'
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle
-} from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
-import {
-  Collapsible,
-  CollapsibleContent,
-  CollapsibleTrigger
-} from '@/components/ui/collapsible'
-import { ScrollArea } from '@/components/ui/scroll-area'
-import { Button } from '@/components/ui/button'
 import {
   Activity,
   CheckCircle2,
@@ -38,7 +19,27 @@ import {
   Server,
   Clock
 } from 'lucide-react'
+import { useState, useMemo } from 'react'
+
+import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle
+} from '@/components/ui/card'
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger
+} from '@/components/ui/collapsible'
+import { ScrollArea } from '@/components/ui/scroll-area'
+import { API_ENDPOINT_CATEGORIES } from '@/config/endpoints'
+import { useEndpointMonitoring } from '@/hooks/useEndpointMonitoring'
 import { cn } from '@/lib/utils'
+import { EndpointStatus, SocketStatus } from '@/types/endpoint-monitor'
 
 interface EndpointHealthDashboardProps {
   className?: string

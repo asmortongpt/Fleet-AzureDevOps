@@ -13,11 +13,12 @@
  * and enforce tenant_id isolation on ALL operations.
  */
 
-import { Pool, PoolClient } from 'pg';
 import { injectable, inject } from 'inversify';
-import { TYPES } from '../types';
+import { Pool } from 'pg';
+
 import { connectionManager } from '../config/connection-manager';
-import { NotFoundError, DatabaseError, ValidationError } from '../middleware/errorHandler';
+import { NotFoundError, ValidationError } from '../middleware/errorHandler';
+import { TYPES } from '../types';
 
 // Types
 export interface MobileDevice {

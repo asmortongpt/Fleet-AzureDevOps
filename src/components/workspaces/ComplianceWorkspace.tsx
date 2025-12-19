@@ -1,27 +1,10 @@
-import React, { useState, useMemo, useCallback } from "react"
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
-import { ScrollArea } from "@/components/ui/scroll-area"
-import { Input } from "@/components/ui/input"
-import { Separator } from "@/components/ui/separator"
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select"
 import {
   FileText,
   AlertTriangle,
-  CheckCircle2,
   Clock,
   Upload,
   Download,
   Search,
-  Filter,
   Shield,
   FileCheck,
   AlertCircle,
@@ -34,8 +17,22 @@ import {
   Trash2,
   Plus
 } from "lucide-react"
+import React, { useState, useMemo } from "react"
+
+import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Input } from "@/components/ui/input"
+import { ScrollArea } from "@/components/ui/scroll-area"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { useVehicles, useDrivers, useWorkOrders } from "@/hooks/use-api"
-import { useDrilldown } from "@/contexts/DrilldownContext"
 import { cn } from "@/lib/utils"
 
 // Document Management Panel

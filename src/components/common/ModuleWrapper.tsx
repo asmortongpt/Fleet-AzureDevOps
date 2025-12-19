@@ -12,15 +12,15 @@
  * Created: 2025-11-24
  */
 
+import { Warning, ArrowClockwise, Bug, Gauge } from '@phosphor-icons/react'
 import React, { Component, Suspense, useState, useEffect, useCallback } from 'react'
-import { Warning, ArrowClockwise, Bug, Gauge, Info } from '@phosphor-icons/react'
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
-import { Skeleton } from '@/components/ui/skeleton'
+
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
+import { Skeleton } from '@/components/ui/skeleton'
 import { cn } from '@/lib/utils'
-
 import logger from '@/utils/logger';
 // ============================================================================
 // ERROR BOUNDARY CLASS COMPONENT

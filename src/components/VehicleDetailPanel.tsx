@@ -1,4 +1,5 @@
 import React from 'react';
+
 import { openEntityDetail } from '../services/drilldownService';
 
 /**

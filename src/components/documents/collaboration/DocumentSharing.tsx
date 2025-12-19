@@ -3,14 +3,15 @@
  * Features: Share with users, permission levels, link sharing
  */
 
+import { Share2, Mail, Copy, Check, Globe, Lock, Eye, Edit3 } from 'lucide-react';
 import { useState } from 'react';
-import { Share2, Mail, Copy, Check, Globe, Lock, Eye, Edit3 } from 'lucide-react';import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
-import { Separator } from '@/components/ui/separator';
+import { Button } from '@/components/ui/button';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import {
   Select,
   SelectContent,
@@ -18,6 +19,7 @@ import {
   SelectTrigger,
   SelectValue
 } from '@/components/ui/select';
+import { Separator } from '@/components/ui/separator';
 import { Switch } from '@/components/ui/switch';
 import { DocumentMetadata, Collaborator } from '@/lib/documents/types';
 

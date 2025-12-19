@@ -4,8 +4,9 @@
 // Purpose: Detect and track vehicle idling to reduce fuel costs and emissions
 // ============================================================================
 
-import { Pool } from 'pg';
 import { EventEmitter } from 'events';
+
+import { Pool } from 'pg';
 
 interface IdlingEvent {
   id?: number;

@@ -1,9 +1,9 @@
 /**
  * Helper functions for E2E tests
  */
+import AxeBuilder from '@axe-core/playwright';
 import { Page, expect } from '@playwright/test';
 import type { AxeResults } from 'axe-core';
-import AxeBuilder from '@axe-core/playwright';
 
 /**
  * Navigate to a module by clicking its button in the sidebar

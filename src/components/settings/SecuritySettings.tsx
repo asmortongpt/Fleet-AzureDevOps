@@ -3,25 +3,6 @@
  * Password, 2FA, sessions, and API keys
  */
 
-import { useState } from 'react'
-import { useAtom } from 'jotai'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Label } from '@/components/ui/label'
-import { Input } from '@/components/ui/input'
-import { Button } from '@/components/ui/button'
-import { Switch } from '@/components/ui/switch'
-import { Badge } from '@/components/ui/badge'
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table'
-import { Progress } from '@/components/ui/progress'
-import { securitySettingsAtom, hasUnsavedChangesAtom } from '@/lib/reactive-state'
-import logger from '@/utils/logger';
 import {
   ShieldCheck,
   Key,
@@ -31,6 +12,27 @@ import {
   SignOut,
   Shield
 } from '@phosphor-icons/react'
+import { useAtom } from 'jotai'
+import { useState } from 'react'
+
+import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import { Progress } from '@/components/ui/progress'
+import { Switch } from '@/components/ui/switch'
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table'
+import { securitySettingsAtom, hasUnsavedChangesAtom } from '@/lib/reactive-state'
+import logger from '@/utils/logger';
+
 
 // Mock active sessions data
 const mockActiveSessions = [

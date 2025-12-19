@@ -1,6 +1,3 @@
-import { useState } from "react"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import {
   Truck,
   Users,
@@ -9,6 +6,10 @@ import {
   TrendingUp,
   Bell
 } from "@phosphor-icons/react"
+import { useState } from "react"
+
+import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 
 /**
  * SINGLE-PAGE FLEET MANAGEMENT DASHBOARD

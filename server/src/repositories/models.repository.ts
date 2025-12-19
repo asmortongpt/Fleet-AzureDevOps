@@ -1,4 +1,5 @@
-import { Pool, QueryResult } from 'pg';
+import { Pool } from 'pg';
+
 import { BaseRepository } from './base.repository';
 
 export interface VehicleModel {

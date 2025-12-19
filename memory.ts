@@ -1,5 +1,6 @@
-import { createLogger } from '../utils/logger';
 import memwatch from 'memwatch-next';
+
+import { createLogger } from '../utils/logger';
 
 const logger = createLogger('MemoryMonitor');
 

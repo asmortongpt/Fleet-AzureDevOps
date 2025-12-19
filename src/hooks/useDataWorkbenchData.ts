@@ -1,6 +1,7 @@
 import { useMemo } from "react"
-import { Vehicle } from "@/lib/types"
+
 import { MaintenanceRecord, FuelRecord } from "@/components/modules/DataWorkbench/types"
+import { Vehicle } from "@/lib/types"
 
 export function useDataWorkbenchData(vehicles: Vehicle[]) {
   // Generate realistic maintenance data

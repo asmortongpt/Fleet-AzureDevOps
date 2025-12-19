@@ -1,4 +1,4 @@
-import { test, expect } from '@playwright/test'
+import { test } from '@playwright/test'
 
 test('Fleet Dashboard - Visual Screenshot', async ({ page }) => {
   // Go to local dev server

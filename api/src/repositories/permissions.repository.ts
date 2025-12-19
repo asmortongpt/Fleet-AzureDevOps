@@ -1,3 +1,5 @@
+import { Pool } from 'pg';
+
 import { BaseRepository } from '../repositories/BaseRepository';
 
 /**
@@ -10,7 +12,6 @@ import { BaseRepository } from '../repositories/BaseRepository';
  * - Validates permission checks and enforces role hierarchy
  */
 
-import { Pool } from 'pg';
 
 export interface Permission {
   id: number;

@@ -3,12 +3,13 @@
  * Displays nested data with smooth animations and accessibility support
  */
 
-import React, { useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { X, ArrowLeft, Loader2 } from 'lucide-react'
-import { useDrilldown } from '@/contexts/DrilldownContext'
+import React, { useEffect } from 'react'
+
 import { Button } from '@/components/ui/button'
 import { ScrollArea } from '@/components/ui/scroll-area'
+import { useDrilldown } from '@/contexts/DrilldownContext'
 import { cn } from '@/lib/utils'
 
 interface DrilldownPanelProps {

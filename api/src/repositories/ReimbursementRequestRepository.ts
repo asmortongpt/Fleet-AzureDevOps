@@ -1,7 +1,8 @@
 import { injectable } from 'inversify';
-import { BaseRepository } from '../services/dal/BaseRepository';
+
 import { connectionManager } from '../config/connection-manager';
-import { ReimbursementStatus, ReimbursementRequest } from '../types/trip-usage';
+import { BaseRepository } from '../services/dal/BaseRepository';
+import { ReimbursementStatus } from '../types/trip-usage';
 
 export interface ReimbursementRequestRow {
   id: string;

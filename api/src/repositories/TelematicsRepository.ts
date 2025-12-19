@@ -11,7 +11,7 @@
  */
 
 import { injectable } from 'inversify'
-import { Pool, QueryResult } from 'pg'
+import { Pool } from 'pg'
 
 // ============================================================================
 // Interfaces

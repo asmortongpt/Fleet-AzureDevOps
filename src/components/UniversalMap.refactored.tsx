@@ -13,9 +13,9 @@ import { DEFAULT_CENTER, DEFAULT_ZOOM, calculateDynamicCenter } from "./Universa
 import { isValidCoordinates } from "./UniversalMap/utils/validation"
 
 import { usePerformanceMonitor } from "@/hooks/usePerformanceMonitor"
+import logger from '@/utils/logger';
 import { getMarkerOptimizationSuggestions } from "@/utils/performance"
 
-import logger from '@/utils/logger';
 const DEFAULT_CLUSTER_THRESHOLD = 100
 
 /**

@@ -6,9 +6,10 @@
  */
 
 import { Request, Response, NextFunction } from 'express'
-import { pool } from '../db'
-import logger from '../config/logger'
 import sharp from 'sharp'
+
+import logger from '../config/logger'
+import { pool } from '../db'
 
 /**
  * Check if user has permission to perform an action on an asset

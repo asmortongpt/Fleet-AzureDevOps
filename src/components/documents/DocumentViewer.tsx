@@ -3,7 +3,6 @@
  * Routes to specialized viewers based on document type
  */
 
-import { useState } from 'react';
 import {
   X,
   Download,
@@ -17,7 +16,16 @@ import {
   ChevronLeft,
   ChevronRight
 } from 'lucide-react';
+import { useState } from 'react';
+
+import { CodeViewer } from './viewer/CodeViewer';
+import { ImageViewer } from './viewer/ImageViewer';
+import { PdfViewer } from './viewer/PdfViewer';
+import { VideoViewer } from './viewer/VideoViewer';
+
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { Dialog, DialogContent } from '@/components/ui/dialog';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -25,13 +33,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu';
-import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { Separator } from '@/components/ui/separator';
-import { Badge } from '@/components/ui/badge';
-import { PdfViewer } from './viewer/PdfViewer';
-import { ImageViewer } from './viewer/ImageViewer';
-import { VideoViewer } from './viewer/VideoViewer';
-import { CodeViewer } from './viewer/CodeViewer';
 import { useViewerKeyboardShortcuts } from '@/hooks/documents/useKeyboardShortcuts';
 import { DocumentMetadata, DocumentViewerState } from '@/lib/documents/types';
 import { formatFileSize, formatRelativeTime } from '@/lib/documents/utils';

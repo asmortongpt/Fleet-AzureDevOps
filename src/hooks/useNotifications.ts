@@ -4,8 +4,8 @@
  */
 
 import { useEffect, useState } from 'react'
-import { NotificationSettings, PushNotification } from '@/types/microsoft'
 
+import { NotificationSettings, PushNotification } from '@/types/microsoft'
 import logger from '@/utils/logger';
 /**
  * SECURITY: Allowed redirect hosts for notification URLs

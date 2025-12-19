@@ -1,6 +1,7 @@
-import { Worker } from 'worker_threads';
-import Bull from 'bull';
 import path from 'path';
+import { Worker } from 'worker_threads';
+
+import Bull from 'bull';
 
 interface ReportData {
   type: 'PDF' | 'Excel' | 'CSV';

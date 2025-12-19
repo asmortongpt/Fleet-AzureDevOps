@@ -1,8 +1,10 @@
-import { BaseRepository } from '../repositories/BaseRepository';
+import { PoolClient } from 'pg'
 
 import { pool } from '../db'
 import { NotFoundError, ValidationError } from '../lib/errors'
-import { PoolClient } from 'pg'
+import { BaseRepository } from '../repositories/BaseRepository';
+
+
 
 export interface PaginationParams {
   page?: number
