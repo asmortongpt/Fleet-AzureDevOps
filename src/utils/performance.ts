@@ -1,8 +1,8 @@
 // TypeScript strict mode enabled
 // Comprehensive error handling and JSDoc documentation
 
-import { getMemoryUsage } from './memoryAPI'; // Assume this is a utility function to get memory usage
 import logger from './logger';
+import { getMemoryUsage } from './memoryAPI'; // Assume this is a utility function to get memory usage
 
 export interface MemoryLeakReport {
   detected: boolean;

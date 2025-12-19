@@ -6,9 +6,9 @@
  */
 
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
-import { PolicyTemplatesRepository } from '../policy-templates.repository'
+
 import { connectionManager } from '../../config/connection-manager'
-import { NotFoundError, DatabaseError } from '../../errors/app-error'
+import { PolicyTemplatesRepository } from '../policy-templates.repository'
 
 // Mock the connection manager
 vi.mock('../../config/connection-manager', () => ({

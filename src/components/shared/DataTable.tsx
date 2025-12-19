@@ -1,7 +1,9 @@
 import { ReactNode } from "react"
+
+import { LoadingSkeleton } from "./LoadingSkeleton"
+
 import { Card, CardContent } from "@/components/ui/card"
 import { cn } from "@/lib/utils"
-import { LoadingSkeleton } from "./LoadingSkeleton"
 
 interface Column<T> {
   key: string

@@ -14,9 +14,10 @@
  * @module tests/security/security-headers
  */
 
-import { describe, it, expect, beforeAll, afterAll } from 'vitest'
-import request from 'supertest'
 import express, { Express } from 'express'
+import request from 'supertest'
+import { describe, it, expect, beforeAll } from 'vitest'
+
 import { securityHeaders } from '../../src/middleware/security-headers'
 
 describe('Security Headers Middleware', () => {

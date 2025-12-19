@@ -1,6 +1,6 @@
-import { MaintenanceService } from '../services/maintenanceService';
 import { IVehicleService } from '../interfaces/IVehicleService';
 import { MaintenanceRecord } from '../models/MaintenanceRecord';
+import { MaintenanceService } from '../services/maintenanceService';
 
 jest.mock('../services/vehicleService');
 

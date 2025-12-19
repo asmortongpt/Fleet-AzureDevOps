@@ -21,6 +21,7 @@ export const TYPES = {
   InspectionService: Symbol.for("InspectionService"),
   DocumentService: Symbol.for("DocumentService"),
   AssignmentNotificationService: Symbol.for("AssignmentNotificationService"),
+  FuelTransactionService: Symbol.for("FuelTransactionService"),
 
   // Repositories
   VehicleRepository: Symbol.for("VehicleRepository"),

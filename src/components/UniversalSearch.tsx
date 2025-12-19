@@ -14,37 +14,27 @@
  * Created: 2025-11-23
  */
 
-import React, { useState, useCallback, useMemo, useEffect, useRef } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
 import {
   MagnifyingGlass, Car, User, Wrench, Package,
-  Truck, MapPin, FileText, X, ArrowRight, Clock,
+  Truck, MapPin, FileText, ArrowRight,
   Keyboard, CaretRight, Spinner
 } from '@phosphor-icons/react'
-import { Input } from '@/components/ui/input'
-import { Button } from '@/components/ui/button'
+import { motion } from 'framer-motion'
+import React, { useState, useCallback, useMemo, useEffect } from 'react'
+
 import { Badge } from '@/components/ui/badge'
-import { ScrollArea } from '@/components/ui/scroll-area'
-import { Separator } from '@/components/ui/separator'
+import { Button } from '@/components/ui/button'
 import {
   Dialog,
   DialogContent,
-  DialogHeader,
-  DialogTitle
+  DialogHeader
 } from '@/components/ui/dialog'
-import {
-  Command,
-  CommandDialog,
-  CommandEmpty,
-  CommandGroup,
-  CommandInput,
-  CommandItem,
-  CommandList,
-  CommandSeparator
-} from '@/components/ui/command'
-import { useEntityLinking, EntityType, EntityReference } from '@/contexts/EntityLinkingContext'
-import { useFleetData } from '@/hooks/use-fleet-data'
+import { Input } from '@/components/ui/input'
+import { ScrollArea } from '@/components/ui/scroll-area'
+import { Separator } from '@/components/ui/separator'
 import { useDrilldown } from '@/contexts/DrilldownContext'
+import { EntityType } from '@/contexts/EntityLinkingContext'
+import { useFleetData } from '@/hooks/use-fleet-data'
 import { useDebounce } from '@/hooks/useDebounce'
 import { cn } from '@/lib/utils'
 

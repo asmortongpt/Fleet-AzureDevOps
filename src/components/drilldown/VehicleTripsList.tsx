@@ -3,22 +3,23 @@
  * Shows list of trips with ability to drill into individual trip telemetry
  */
 
-import { useDrilldown } from '@/contexts/DrilldownContext'
-import { DrilldownContent } from '@/components/DrilldownPanel'
-import { Card, CardContent } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
-import { Badge } from '@/components/ui/badge'
-import useSWR from 'swr'
+import { formatDistanceToNow } from 'date-fns'
 import {
   MapPin,
   Clock,
   Route,
   User,
   Calendar,
-  TrendingUp,
   ArrowRight,
 } from 'lucide-react'
-import { formatDistanceToNow } from 'date-fns'
+import useSWR from 'swr'
+
+import { DrilldownContent } from '@/components/DrilldownPanel'
+import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent } from '@/components/ui/card'
+import { useDrilldown } from '@/contexts/DrilldownContext'
+
 
 interface VehicleTripsListProps {
   vehicleId: string

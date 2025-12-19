@@ -1,13 +1,5 @@
-import { useMemo, useState } from "react"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
 import {
-  MapTrifold,
   Buildings,
-  MapPin,
   Circle,
   CheckCircle,
   Warning,
@@ -15,11 +7,18 @@ import {
   Wrench,
   CarProfile
 } from "@phosphor-icons/react"
+import { useMemo, useState } from "react"
+
 import { MetricCard } from "@/components/MetricCard"
+import { UniversalMap } from "@/components/UniversalMap"
+import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
+import { useFacilities } from "@/hooks/use-api"
 import { useFleetData } from "@/hooks/use-fleet-data"
 import { Vehicle, GISFacility } from "@/lib/types"
-import { useFacilities } from "@/hooks/use-api"
-import { UniversalMap } from "@/components/UniversalMap"
 
 interface GISCommandCenterProps {
   data: ReturnType<typeof useFleetData>

@@ -1,7 +1,8 @@
-import { BaseRepository } from '../repositories/BaseRepository';
 
 import { Pool } from 'pg';
+
 import { NotificationPreferences } from '../models/notification-preferences.model';
+import { BaseRepository } from '../repositories/BaseRepository';
 
 export class NotificationPreferencesRepository extends BaseRepository<any> {
   private pool: Pool;

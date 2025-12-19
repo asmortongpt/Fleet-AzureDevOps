@@ -1,13 +1,14 @@
-import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { Container } from 'inversify';
-import { IncidentTriageService, PriorityLevel } from '../incident-triage';
-import { PlaybooksService, PlaybookActionStatus, PlaybookExecutionResult } from '../playbooks';
-import { ContainmentService, ContainmentActionType } from '../containment';
-import { RemediationService } from '../remediation';
-import { PostIncidentService } from '../post-incident';
-import { IncidentResponderService } from '../incident-responder';
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
+
 import { TYPES } from '../../../../types';
 import type { Incident } from '../../../../types/incident';
+import { ContainmentService, ContainmentActionType } from '../containment';
+import { IncidentResponderService } from '../incident-responder';
+import { IncidentTriageService, PriorityLevel } from '../incident-triage';
+import { PlaybooksService, PlaybookActionStatus } from '../playbooks';
+import { PostIncidentService } from '../post-incident';
+import { RemediationService } from '../remediation';
 
 // Mock Repository
 class MockIncidentRepository {
@@ -832,7 +833,7 @@ describe('Incident Response System', () => {
       async () => {
         const incidents = [1, 2, 3, 4, 5];
 
-        for (let i of incidents) {
+        for (const i of incidents) {
           mockRepository.setIncident({
             id: i,
             tenant_id: 1,

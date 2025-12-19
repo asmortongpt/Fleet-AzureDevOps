@@ -21,14 +21,15 @@
  * Reference: CWE-89 (SQL Injection), CWE-862 (Missing Authorization)
  */
 
-import express, { Request, Response } from 'express';
+import express, { Response } from 'express';
 import { Pool } from 'pg';
 import { z } from 'zod';
+
+import logger from '../config/logger';
 import { authenticateJWT, AuthRequest } from '../middleware/auth';
-import { getErrorMessage } from '../utils/error-handler';
 import { csrfProtection } from '../middleware/csrf';
 import ReservationsService, { UserContext } from '../services/reservations.service';
-import logger from '../config/logger';
+import { getErrorMessage } from '../utils/error-handler';
 
 const router = express.Router();
 

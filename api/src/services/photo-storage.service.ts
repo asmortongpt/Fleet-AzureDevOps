@@ -1,6 +1,7 @@
+import { Stream } from 'stream';
+
 import { BlobServiceClient } from '@azure/storage-blob';
 import sharp from 'sharp';
-import { Stream } from 'stream';
 
 /**
  * Service for storing photos in Azure Blob Storage with WebP compression and thumbnail generation.

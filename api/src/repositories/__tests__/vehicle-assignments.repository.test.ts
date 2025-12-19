@@ -6,6 +6,7 @@
  */
 
 import { Pool } from 'pg';
+
 import { VehicleAssignmentsRepository, CreateAssignmentData, UpdateAssignmentData } from '../vehicle-assignments.repository';
 
 describe('VehicleAssignmentsRepository', () => {

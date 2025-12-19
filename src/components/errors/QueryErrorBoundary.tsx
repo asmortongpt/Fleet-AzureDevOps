@@ -5,15 +5,15 @@
  * with retry functionality and user-friendly error messages
  */
 
-import React from 'react';
 import { QueryErrorResetBoundary } from '@tanstack/react-query';
+import { AlertCircle, RefreshCw, WifiOff, ServerCrash } from 'lucide-react';
+import React from 'react';
+
 import { EnhancedErrorBoundary } from '@/components/EnhancedErrorBoundary';
 import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { AlertCircle, RefreshCw, WifiOff, ServerCrash } from 'lucide-react';
 import { getErrorMessage } from '@/hooks/useQueryWithErrorHandling';
-
 import logger from '@/utils/logger';
 interface QueryErrorFallbackProps {
   error: Error;

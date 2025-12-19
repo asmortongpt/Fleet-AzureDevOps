@@ -1,7 +1,8 @@
 import express, { Request, Response, NextFunction } from 'express';
-import { csrfProtection } from './middleware/csrf';
 import helmet from 'helmet';
+
 import { vehicleController, userController, csrfController } from './controllers';
+import { csrfProtection } from './middleware/csrf';
 import { logger } from './utils/logger';
 
 const router = express.Router();

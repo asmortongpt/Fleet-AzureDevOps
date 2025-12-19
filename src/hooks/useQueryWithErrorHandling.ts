@@ -19,9 +19,10 @@ import {
   UseMutationResult
 } from '@tanstack/react-query';
 import { AxiosError } from 'axios';
-import { toast } from '@/utils/toast';
 
 import logger from '@/utils/logger';
+import { toast } from '@/utils/toast';
+
 interface ErrorResponse {
   message?: string;
   error?: string;

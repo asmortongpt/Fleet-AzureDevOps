@@ -1,5 +1,4 @@
-import { test, expect } from '@playwright/test'
-import { Page } from '@playwright/test'
+import { test, expect  } from '@playwright/test'
 
 test.describe('Operations Workspace', () => {
   test.beforeEach(async ({ page }) => {

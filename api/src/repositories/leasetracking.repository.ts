@@ -1,9 +1,10 @@
-import { BaseRepository } from '../repositories/BaseRepository';
 
-import { Repository } from 'typeorm';
-import { LeaseTracking } from '../entities/lease-tracking.entity';
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+
+import { LeaseTracking } from '../entities/lease-tracking.entity';
+import { BaseRepository } from '../repositories/BaseRepository';
 
 @Injectable()
 export class LeaseTrackingRepository extends BaseRepository<any> {

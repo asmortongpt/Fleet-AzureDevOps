@@ -14,20 +14,15 @@
  */
 
 import { bench, describe } from 'vitest';
+
+
+
 import {
   generateVehicles,
   generateFacilities,
   generateCameras,
-  BENCHMARK_DATASETS,
   generateClusteredDataset,
 } from './utils/test-data-generator';
-import {
-  measureTime,
-  measureMemory,
-  runBenchmark,
-  formatBytes,
-  formatDuration,
-} from './utils/performance-metrics';
 
 // ============================================================================
 // Configuration

@@ -3,12 +3,14 @@
  * Developer mode, API endpoint, feature flags, and debug settings
  */
 
+import { Code, Cpu, Flag, Bug, ChartBar, Warning } from '@phosphor-icons/react'
 import { useAtom } from 'jotai'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Label } from '@/components/ui/label'
-import { Input } from '@/components/ui/input'
-import { Switch } from '@/components/ui/switch'
+
 import { Badge } from '@/components/ui/badge'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import { Switch } from '@/components/ui/switch'
 import {
   Table,
   TableBody,
@@ -18,7 +20,6 @@ import {
   TableRow,
 } from '@/components/ui/table'
 import { advancedSettingsAtom, hasUnsavedChangesAtom } from '@/lib/reactive-state'
-import { Code, Cpu, Flag, Bug, ChartBar, Warning } from '@phosphor-icons/react'
 
 // Mock performance metrics
 const mockPerformanceMetrics = {

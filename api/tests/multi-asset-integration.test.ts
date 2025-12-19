@@ -11,8 +11,9 @@
 
 import { describe, it, expect, beforeAll, afterAll } from '@jest/globals'
 import request from 'supertest'
-import app from '../src/server'
+
 import pool from '../src/config/database'
+import app from '../src/server'
 
 describe('Multi-Asset Fleet Management - Integration Tests', () => {
   let authToken: string

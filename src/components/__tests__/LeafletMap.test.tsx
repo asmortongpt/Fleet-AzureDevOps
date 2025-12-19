@@ -12,9 +12,11 @@
  * - Performance optimizations
  */
 
-import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
 import { render, screen, waitFor } from '@testing-library/react'
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
+
 import { LeafletMap, isValidCoordinate, calculateDistance } from '../LeafletMap'
+
 import {
   createMockVehicles,
   createMockFacilities,
@@ -23,8 +25,7 @@ import {
   mockLeaflet,
   mockConsole,
   createMapContainer,
-  cleanupMapContainer,
-  expectValidCoordinates
+  cleanupMapContainer
 } from '@/test-utils'
 
 describe('LeafletMap', () => {

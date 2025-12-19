@@ -1,21 +1,20 @@
-import { useMemo } from "react"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Badge } from "@/components/ui/badge"
 import { 
   ChartLine,
   TrendUp,
-  TrendDown,
   CurrencyDollar,
   GasPump,
   Wrench,
   CarProfile,
   Clock
 } from "@phosphor-icons/react"
-import { MetricCard } from "@/components/MetricCard"
+import { useMemo , useState } from "react"
+
 import { ChartCard } from "@/components/ChartCard"
-import { useState } from "react"
+import { MetricCard } from "@/components/MetricCard"
+import { Badge } from "@/components/ui/badge"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
 import { useFleetData } from "@/hooks/use-fleet-data"
 
 interface FleetAnalyticsProps {

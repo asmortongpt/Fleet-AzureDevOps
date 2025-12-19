@@ -6,6 +6,7 @@
 import express, { Request, Response } from 'express'
 import { Pool } from 'pg'
 import { createClient } from 'redis'
+
 import { enhancedLogger as logger } from '../lib/logger'
 
 const router = express.Router()

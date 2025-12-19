@@ -6,8 +6,8 @@
  * Security: Fortune 50 standards with input validation and secure event handling
  */
 
-import { EventEmitter } from 'events';
 import crypto from 'crypto';
+import { EventEmitter } from 'events';
 
 export interface DispatchTransmission {
   id: string;

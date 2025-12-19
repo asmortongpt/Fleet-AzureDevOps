@@ -14,11 +14,13 @@
  * @module lib/logger
  */
 
+import fs from 'fs';
+import path from 'path';
+
+import { v4 as uuidv4 } from 'uuid';
 import winston from 'winston';
 import DailyRotateFile from 'winston-daily-rotate-file';
-import path from 'path';
-import fs from 'fs';
-import { v4 as uuidv4 } from 'uuid';
+
 
 // Ensure logs directory exists
 const logsDir = path.join(process.cwd(), 'logs');

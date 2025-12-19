@@ -4,8 +4,8 @@
  * Analyzes files, URLs, IPs, and domains for security threats
  */
 
-import { createHash } from 'crypto';
 import { EventEmitter } from 'events';
+
 import type { ThreatLevel, ThreatIndicator, ThreatAnalysisResult } from './types';
 
 const VIRUSTOTAL_API_KEY = process.env.VIRUSTOTAL_API_KEY || '';

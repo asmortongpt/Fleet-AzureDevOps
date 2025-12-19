@@ -1,7 +1,7 @@
-import { useQuery, useMutation, UseQueryResult, UseMutationResult } from 'react-query';
 import axios, { AxiosError } from 'axios';
+import { useQuery, useMutation, UseQueryResult, UseMutationResult } from 'react-query';
 import { toast } from 'react-toastify';
-import { useAuth } from '../context/AuthContext';
+
 import { logger } from '../utils/logger';
 import { validateInput } from '../utils/validation';
 

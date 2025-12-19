@@ -1,3 +1,5 @@
+import { TrendingUp, TrendingDown, TrendingFlat } from '@mui/icons-material';
+import { Box, ToggleButton, ToggleButtonGroup, Typography, Chip, Grid, Select, MenuItem, FormControl, InputLabel } from '@mui/material';
 import React, { useMemo, useState } from 'react';
 import {
   LineChart,
@@ -14,8 +16,6 @@ import {
   Pie,
   Cell
 } from 'recharts';
-import { Box, ToggleButton, ToggleButtonGroup, Typography, Chip, Grid, Select, MenuItem, FormControl, InputLabel } from '@mui/material';
-import { TrendingUp, TrendingDown, TrendingFlat } from '@mui/icons-material';
 
 interface Error {
   id: string;

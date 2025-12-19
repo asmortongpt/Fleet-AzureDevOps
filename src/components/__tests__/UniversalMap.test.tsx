@@ -10,8 +10,9 @@
  * - Integration with child map components
  */
 
-import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
 import { render, screen, waitFor } from '@testing-library/react'
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
+
 import {
   UniversalMap,
   getMapProvider,
@@ -21,6 +22,7 @@ import {
   resetMapProvider,
   type MapProvider
 } from '../UniversalMap'
+
 import {
   createMockVehicles,
   createMockFacilities,

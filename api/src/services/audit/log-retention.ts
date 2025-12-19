@@ -11,8 +11,9 @@
  * - Data disposal with verification
  */
 
-import { Pool } from 'pg'
 import { EventEmitter } from 'events'
+
+import { Pool } from 'pg'
 
 export enum RetentionTier {
   HOT = 'HOT',      // Recent logs (0-90 days) - Fast access

@@ -28,6 +28,7 @@
 
 import { lazy, Suspense, useState, useEffect, useRef, ComponentType } from 'react';
 import { ErrorBoundary } from 'react-error-boundary';
+
 import type { UniversalMapProps } from './UniversalMap';
 
 import logger from '@/utils/logger';

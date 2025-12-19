@@ -5,8 +5,7 @@
  */
 
 import { Pool } from 'pg'
-import path from 'path'
-import logger from '../utils/logger'
+
 import {
   Document,
   DocumentWithMetadata,
@@ -29,15 +28,14 @@ import {
   validateFileType,
   validateMetadata,
   validateTags,
-  needsOCR,
-  formatBytes
+  needsOCR
 } from '../utils/document-utils'
-import { StorageFactory } from './storage/storage-factory'
-import { StorageAdapter } from './storage/storage-adapter.base'
+
 import documentAuditService from './document-audit.service'
 import documentFolderService from './document-folder.service'
-import documentPermissionService from './document-permission.service'
 import documentVersionService from './document-version.service'
+import { StorageAdapter } from './storage/storage-adapter.base'
+import { StorageFactory } from './storage/storage-factory'
 
 export class DocumentStorageService {
   private storageAdapter?: StorageAdapter

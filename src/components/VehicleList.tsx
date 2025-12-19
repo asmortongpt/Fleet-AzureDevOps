@@ -1,4 +1,5 @@
 import React from 'react';
+
 import { Vehicle } from '../types/Vehicle';
 
 interface VehicleListProps {

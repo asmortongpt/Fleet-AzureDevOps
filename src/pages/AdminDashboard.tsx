@@ -1,7 +1,8 @@
-import React, { useEffect, useState } from 'react';
-import { Container, Box, Typography, Alert, Button, Tabs, Tab, Paper, IconButton } from '@mui/material';
-import { useNavigate } from 'react-router-dom';
 import { Dashboard, Security, Settings, People, Analytics, ArrowBack } from '@mui/icons-material';
+import { Container, Box, Typography, Alert, Button, Tabs, Tab, Paper, IconButton } from '@mui/material';
+import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+
 import MonitoringDashboard from '../components/admin/MonitoringDashboard';
 import { useAuth } from '../hooks/useAuth';
 

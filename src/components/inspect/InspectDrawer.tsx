@@ -1,12 +1,14 @@
 import React from "react";
-import { useInspect } from "@/services/inspect/InspectContext";
+
+import { InspectorRouter } from "./InspectorRouter";
+
 import {
   Sheet,
   SheetContent,
   SheetHeader,
   SheetTitle,
 } from "@/components/ui/sheet";
-import { InspectorRouter } from "./InspectorRouter";
+import { useInspect } from "@/services/inspect/InspectContext";
 
 export const InspectDrawer: React.FC = () => {
   const { target, closeInspect } = useInspect();

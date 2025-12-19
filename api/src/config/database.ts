@@ -31,8 +31,9 @@
  * }
  */
 
-import { Pool } from 'pg'
 import dotenv from 'dotenv'
+import { Pool } from 'pg'
+
 import { connectionManager, initializeConnectionManager, PoolType } from './connection-manager'
 
 dotenv.config()

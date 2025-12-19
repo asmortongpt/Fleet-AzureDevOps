@@ -4,7 +4,7 @@
  */
 
 import { Pool } from 'pg'
-import logger from '../utils/logger'
+
 import {
   DocumentFolder,
   FolderWithMetadata,
@@ -15,6 +15,7 @@ import {
   InvalidFolderHierarchyError
 } from '../types/document-storage.types'
 import { validateFolderName } from '../utils/document-utils'
+
 import documentAuditService from './document-audit.service'
 
 export class DocumentFolderService {
