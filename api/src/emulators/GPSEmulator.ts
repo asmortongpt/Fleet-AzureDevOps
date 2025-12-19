@@ -10,6 +10,7 @@
  */
 
 import { EventEmitter } from 'events'
+
 import { faker } from '@faker-js/faker'
 
 // GPS Position Interface

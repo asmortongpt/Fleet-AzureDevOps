@@ -3,8 +3,8 @@
  * Tests all components for WCAG 2.1 AA compliance using axe-core
  */
 
-import { test, expect } from '@playwright/test'
 import AxeBuilder from '@axe-core/playwright'
+import { test, expect } from '@playwright/test'
 
 const BASE_URL = process.env.BASE_URL || 'http://localhost:5173'
 

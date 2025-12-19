@@ -10,23 +10,23 @@
  * - Cost savings analysis
  */
 
-import React, { useState, useEffect } from 'react';
 import {
   ChartBarIcon,
   CloudIcon,
   BoltIcon,
   TruckIcon,
   ArrowTrendingDownIcon,
-  ArrowTrendingUpIcon,
-  CalendarIcon,
   DocumentArrowDownIcon,
   SparklesIcon
 } from '@heroicons/react/24/outline';
-import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
-import { Button } from '../ui/button';
-import { Badge } from '../ui/badge';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '../ui/tabs';
 import { jsPDF } from 'jspdf';
+import React, { useState, useEffect } from 'react';
+
+import { Badge } from '../ui/badge';
+import { Button } from '../ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '../ui/tabs';
+
 
 import logger from '@/utils/logger';
 interface CarbonData {

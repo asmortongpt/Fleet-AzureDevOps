@@ -1,18 +1,3 @@
-import React, { useState, useMemo, useCallback } from "react"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
-import { ScrollArea } from "@/components/ui/scroll-area"
-import { Progress } from "@/components/ui/progress"
-import { Separator } from "@/components/ui/separator"
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select"
 import {
   Truck,
   Battery,
@@ -23,18 +8,31 @@ import {
   User,
   Calendar,
   AlertCircle,
-  CheckCircle2,
   Box,
   Gauge,
-  ThermometerSun,
-  Zap
+  ThermometerSun
 } from "lucide-react"
-import { useVehicles, useFacilities, useDrivers, useVehicleMutations } from "@/hooks/use-api"
-import { useDrilldown } from "@/contexts/DrilldownContext"
-import { useVehicleTelemetry } from "@/hooks/useVehicleTelemetry"
-import { cn } from "@/lib/utils"
+import React, { useState, useMemo, useCallback } from "react"
 
 import { ProfessionalFleetMap } from "@/components/Maps/ProfessionalFleetMap"
+import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Progress } from "@/components/ui/progress"
+import { ScrollArea } from "@/components/ui/scroll-area"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
+import { Separator } from "@/components/ui/separator"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { useDrilldown } from "@/contexts/DrilldownContext"
+import { useVehicles, useFacilities, useDrivers, useVehicleMutations } from "@/hooks/use-api"
+import { useVehicleTelemetry } from "@/hooks/useVehicleTelemetry"
+import { cn } from "@/lib/utils"
 
 // Vehicle Telemetry Panel
 const VehicleTelemetryPanel = ({ vehicle, telemetry }) => {

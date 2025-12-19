@@ -3,21 +3,20 @@
  * Real-time fleet tracking, driver safety, and compliance
  */
 
-import express, { Response } from 'express'
-import { AuthRequest, authenticateJWT } from '../middleware/auth'
-import { requirePermission, rateLimit } from '../middleware/permissions'
-import { auditLog } from '../middleware/audit'
-import SamsaraService from '../services/samsara.service'
 import crypto from 'crypto'
-import { cacheMiddleware, invalidateOnWrite } from '../middleware/cache'
-import { getErrorMessage } from '../utils/error-handler'
-import { container } from '../container'
-import { asyncHandler } from '../middleware/errorHandler'
-import { NotFoundError, ValidationError } from '../errors/app-error'
-import logger from '../config/logger' // Wave 23: Add Winston logger
+
+import express, { Response } from 'express'
+
 import pool from '../config/database' // SECURITY: Import database pool
-import { tenantSafeQuery, tenantSafeQueryMany } from '../utils/dbHelpers'
+import logger from '../config/logger' // Wave 23: Add Winston logger
+import { NotFoundError, ValidationError } from '../errors/app-error'
+import { auditLog } from '../middleware/audit'
+import { AuthRequest, authenticateJWT } from '../middleware/auth'
 import { csrfProtection } from '../middleware/csrf'
+import { requirePermission, rateLimit } from '../middleware/permissions'
+import SamsaraService from '../services/samsara.service'
+import { tenantSafeQuery } from '../utils/dbHelpers'
+import { getErrorMessage } from '../utils/error-handler'
  // SECURITY: Tenant-safe query helpers
 
 const router = express.Router()

@@ -15,6 +15,13 @@
  */
 
 import { describe, it, expect, beforeAll } from 'vitest'
+
+import {
+  API_ENDPOINTS,
+  HTTP_STATUS,
+  INVALID_CREDENTIALS,
+  VALID_REGISTRATION_DATA,
+} from './fixtures'
 import {
   TEST_USERS,
   generateTestToken,
@@ -22,12 +29,6 @@ import {
   generateRefreshToken,
   checkDatabaseConnection
 } from './setup'
-import {
-  API_ENDPOINTS,
-  HTTP_STATUS,
-  INVALID_CREDENTIALS,
-  VALID_REGISTRATION_DATA,
-} from './fixtures'
 
 // Use native fetch or dynamic import for testing
 const BASE_URL = process.env.TEST_API_URL || 'http://localhost:3000'

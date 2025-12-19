@@ -1,13 +1,14 @@
-import { z } from 'zod';
 import express, { Response } from 'express';
+import { z } from 'zod';
+
 import { container } from '../container';
-import { TYPES } from '../types';
-import { AuthRequest, authenticateJWT } from '../middleware/auth';
-import { requirePermission } from '../middleware/permissions';
 import { auditLog } from '../middleware/audit';
+import { AuthRequest, authenticateJWT } from '../middleware/auth';
 import { csrfProtection } from '../middleware/csrf';
+import { requirePermission } from '../middleware/permissions';
 import { validate } from '../middleware/validate';
 import { BreakGlassRepository } from '../repositories/BreakGlassRepository';
+import { TYPES } from '../types';
 
 const router = express.Router();
 router.use(authenticateJWT);

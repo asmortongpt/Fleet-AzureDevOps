@@ -1,7 +1,9 @@
 import { Pool, PoolClient } from 'pg';
+
+import { User, Session } from '../types';
+
 import { config } from './config';
 import { logger } from './logger';
-import { User, Session } from '../types';
 
 class Database {
   private pool: Pool;

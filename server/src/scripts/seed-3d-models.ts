@@ -4,9 +4,10 @@
  */
 
 import { Pool } from 'pg';
-import { getSketchfabService } from '../services/sketchfab';
+
 import { getAzureBlobService } from '../services/azure-blob';
 import { logger } from '../services/logger';
+import { getSketchfabService } from '../services/sketchfab';
 
 interface ModelToSeed {
   searchQuery: string;

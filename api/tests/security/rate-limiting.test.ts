@@ -11,9 +11,10 @@
  * @module tests/security/rate-limiting
  */
 
-import { describe, it, expect, beforeEach, afterEach } from 'vitest'
-import request from 'supertest'
 import express, { Express } from 'express'
+import request from 'supertest'
+import { describe, it, expect, beforeEach } from 'vitest'
+
 import {
   globalLimiter,
   authLimiter,

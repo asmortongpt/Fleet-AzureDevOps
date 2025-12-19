@@ -1,5 +1,5 @@
-import winston from 'winston';
 import { Request, Response, NextFunction } from 'express';
+import winston from 'winston';
 
 // Create Winston logger instance
 export const logger = winston.createLogger({

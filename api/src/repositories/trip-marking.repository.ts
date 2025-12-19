@@ -1,7 +1,6 @@
-import { BaseRepository } from '../repositories/BaseRepository';
 
 import { pool } from '../db'
-import { NotFoundError, ValidationError } from '../lib/errors'
+import { BaseRepository } from '../repositories/BaseRepository';
 
 export interface PaginationParams {
   page?: number

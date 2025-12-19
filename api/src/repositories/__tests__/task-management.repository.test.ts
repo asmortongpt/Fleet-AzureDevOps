@@ -4,8 +4,8 @@
  * Tests tenant isolation and parameterized queries
  */
 
-import { taskManagementRepository, Task, TaskFilters } from '../task-management.repository'
 import { pool } from '../../db'
+import { taskManagementRepository, TaskFilters } from '../task-management.repository'
 
 describe('TaskManagementRepository', () => {
   const TEST_TENANT_ID = 'test-tenant-123'

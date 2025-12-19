@@ -1,4 +1,5 @@
 import { injectable } from 'inversify';
+
 import { BaseService } from '../../../services/base.service';
 import type { Incident } from '../../../types/incident';
 

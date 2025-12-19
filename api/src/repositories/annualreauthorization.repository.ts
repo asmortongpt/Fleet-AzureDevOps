@@ -1,6 +1,7 @@
+import { Pool, QueryResult } from 'pg';
+
 import { BaseRepository } from '../repositories/BaseRepository';
 
-import { Pool, QueryResult } from 'pg';
 
 export class AnnualReauthorizationRepository extends BaseRepository<any> {
   private pool: Pool;

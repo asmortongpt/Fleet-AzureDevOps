@@ -18,19 +18,7 @@
  * @module AdvancedRouteOptimization
  */
 
-import { useState, useEffect, useMemo, useCallback, useRef } from "react"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Badge } from "@/components/ui/badge"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Alert, AlertDescription } from "@/components/ui/alert"
-import { Switch } from "@/components/ui/switch"
-import { UniversalMap } from "@/components/UniversalMap"
-import { useFleetData } from "@/hooks/use-fleet-data"
-import { toast } from "sonner"
+import { ArrowsClockwise } from "@phosphor-icons/react"
 import {
   MapPin,
   Navigation,
@@ -38,16 +26,25 @@ import {
   TrendingDown,
   Zap,
   AlertCircle,
-  CheckCircle,
   Battery,
   CloudRain,
-  TrafficCone,
-  Plus,
-  Trash
+  TrafficCone
 } from "lucide-react"
-import { ArrowsClockwise } from "@phosphor-icons/react"
-import type { Vehicle, GISFacility } from "@/lib/types"
+import { useState, useEffect, useMemo, useCallback, useRef } from "react"
+import { toast } from "sonner"
 
+import { UniversalMap } from "@/components/UniversalMap"
+import { Alert, AlertDescription } from "@/components/ui/alert"
+import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Switch } from "@/components/ui/switch"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { useFleetData } from "@/hooks/use-fleet-data"
+import type { Vehicle, GISFacility } from "@/lib/types"
 import logger from '@/utils/logger';
 /**
  * Represents a stop in an optimized route

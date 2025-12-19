@@ -6,8 +6,9 @@
  * Provides control endpoints for starting/stopping emulation
  */
 
-import express from 'express'
 import { createServer } from 'http'
+
+import express from 'express'
 import { WebSocketServer } from 'ws'
 
 const PORT = process.env.EMULATOR_PORT || 3002

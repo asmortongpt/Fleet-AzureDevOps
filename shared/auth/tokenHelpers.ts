@@ -1,5 +1,5 @@
-import jwt from 'jsonwebtoken';
 import { BadRequestError } from '@shared/core/errors';
+import jwt from 'jsonwebtoken';
 
 const generateToken = (payload: object, secret: string, expiresIn: string = '1h'): string => {
   try {

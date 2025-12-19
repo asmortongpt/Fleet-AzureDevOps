@@ -12,7 +12,6 @@ import {
   ScrollView,
   View,
   Text,
-  TouchableOpacity,
   Alert,
 } from 'react-native';
 import { Provider as PaperProvider, Button, Card, Title, Paragraph } from 'react-native-paper';
@@ -20,9 +19,9 @@ import { Provider as PaperProvider, Button, Card, Title, Paragraph } from 'react
 // Import offline system components
 import { OfflineIndicator } from './src/components/OfflineIndicator';
 import { useSync } from './src/hooks/useSync';
-import SyncManager from './src/services/SyncManager';
-import OfflineQueueService from './src/services/OfflineQueueService';
 import DataPersistence from './src/services/DataPersistence';
+import OfflineQueueService from './src/services/OfflineQueueService';
+import SyncManager from './src/services/SyncManager';
 import { Priority, HttpMethod, OperationType } from './src/types/queue';
 
 /**

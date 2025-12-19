@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef, ImgHTMLAttributes } from 'react';
+
 import { Skeleton } from '@/components/ui/skeleton';
 
 interface OptimizedImageProps extends Omit<ImgHTMLAttributes<HTMLImageElement>, 'src'> {

@@ -1,6 +1,5 @@
-import { BaseRepository } from '../services/dal/BaseRepository'
 import { connectionManager } from '../config/connection-manager'
-import { PoolClient } from 'pg'
+import { BaseRepository } from '../services/dal/BaseRepository'
 
 /**
  * Vehicle entity interface

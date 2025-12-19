@@ -3,9 +3,9 @@
  * Parses notification payloads, routes to screens, and handles actions
  */
 
-import { Vibration, Platform } from 'react-native';
 import notifee, { AndroidGroupAlertBehavior } from '@notifee/react-native';
 import { FirebaseMessagingTypes } from '@react-native-firebase/messaging';
+import { Vibration, Platform } from 'react-native';
 
 export interface ParsedNotification {
   id: string;

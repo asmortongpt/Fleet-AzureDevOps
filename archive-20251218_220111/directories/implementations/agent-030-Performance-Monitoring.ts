@@ -1,6 +1,6 @@
 // src/agents/CTAFleetAgent30.ts
-import { Agent, AgentConfig } from '../types';
 import { PerformanceMetrics, MetricData } from '../models/PerformanceMetrics';
+import { Agent, AgentConfig } from '../types';
 import { Logger } from '../utils/Logger';
 
 export class CTAFleetAgent30 implements Agent {
@@ -156,7 +156,6 @@ export class Logger {
 
 // src/tests/CTAFleetAgent30.test.ts
 import { CTAFleetAgent30 } from '../agents/CTAFleetAgent30';
-import { AgentConfig } from '../types';
 
 describe('CTAFleetAgent30 - Performance Monitoring', () => {
   let agent: CTAFleetAgent30;

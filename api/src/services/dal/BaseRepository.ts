@@ -1,7 +1,9 @@
 import { Pool, PoolClient, QueryResult } from 'pg'
-import { DatabaseError, NotFoundError, ValidationError } from './errors'
-import { QueryLogger } from './QueryLogger'
+
 import { getTableColumns } from '../../utils/column-resolver'
+
+import { QueryLogger } from './QueryLogger'
+import { DatabaseError, NotFoundError, ValidationError } from './errors'
 
 /**
  * Base Repository Class

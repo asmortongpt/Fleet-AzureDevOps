@@ -1,28 +1,27 @@
-import React, { useState, useMemo, useCallback } from "react"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
-import { ScrollArea } from "@/components/ui/scroll-area"
-import { Progress } from "@/components/ui/progress"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import {
   Wrench,
   AlertTriangle,
   Calendar,
   CheckCircle2,
   Clock,
-  MapPin,
   Package,
   Truck,
   Building2,
   Settings,
   AlertCircle
 } from "lucide-react"
-import { useVehicles, useFacilities, useWorkOrders, useMaintenanceSchedules } from "@/hooks/use-api"
-import { useDrilldown } from "@/contexts/DrilldownContext"
-import { useVehicleTelemetry } from "@/hooks/useVehicleTelemetry"
+import React, { useState, useMemo, useCallback } from "react"
+
 import { ProfessionalFleetMap } from "@/components/Maps/ProfessionalFleetMap"
+import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Progress } from "@/components/ui/progress"
+import { ScrollArea } from "@/components/ui/scroll-area"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { useVehicles, useFacilities, useWorkOrders, useMaintenanceSchedules } from "@/hooks/use-api"
+import { useVehicleTelemetry } from "@/hooks/useVehicleTelemetry"
 import { Vehicle } from "@/lib/types"
 import { cn } from "@/lib/utils"
 

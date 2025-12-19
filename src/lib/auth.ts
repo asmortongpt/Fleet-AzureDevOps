@@ -27,6 +27,7 @@ import {
   RedirectRequest,
   PopupRequest
 } from '@azure/msal-browser'
+
 import logger from '@/utils/logger'
 
 // Azure AD Configuration from environment

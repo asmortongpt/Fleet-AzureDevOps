@@ -1,4 +1,3 @@
-import React, { useState, useRef, useCallback } from 'react';
 import {
   Camera,
   Video,
@@ -9,9 +8,11 @@ import {
   Loader2,
   Info
 } from 'lucide-react';
+import React, { useState, useRef, useCallback } from 'react';
+
+import { Alert, AlertDescription } from '../ui/alert';
 import { Button } from '../ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui/card';
-import { Alert, AlertDescription } from '../ui/alert';
 import { Progress } from '../ui/progress';
 
 import logger from '@/utils/logger';

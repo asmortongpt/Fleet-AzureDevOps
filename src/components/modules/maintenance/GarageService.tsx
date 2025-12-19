@@ -1,20 +1,20 @@
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
-import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
-import { MetricCard } from "@/components/MetricCard"
 import { 
   Wrench, 
   User, 
-  Clock, 
-  CurrencyDollar,
-  CheckCircle,
+  Clock,
   Warning,
   Plus
 } from "@phosphor-icons/react"
-import { WorkOrder } from "@/lib/types"
 import { useState } from "react"
+
+import { MetricCard } from "@/components/MetricCard"
+import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
 import { useFleetData } from "@/hooks/use-fleet-data"
+import { WorkOrder } from "@/lib/types"
+
 
 interface GarageServiceProps {
   data: ReturnType<typeof useFleetData>

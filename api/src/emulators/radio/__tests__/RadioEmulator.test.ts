@@ -5,8 +5,9 @@
  */
 
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
-import { RadioEmulator } from '../RadioEmulator'
+
 import { Vehicle, EmulatorConfig } from '../../types'
+import { RadioEmulator } from '../RadioEmulator'
 
 describe('RadioEmulator', () => {
   let radioEmulator: RadioEmulator

@@ -1,10 +1,11 @@
-import { Router, Request, Response } from 'express';
 import * as msal from '@azure/msal-node';
+import { Router, Request, Response } from 'express';
+
 import { pca, REDIRECT_URI } from '../config/azureAD';
-import { generateAccessToken, generateRefreshToken, verifyToken } from '../utils/jwt';
 import redisClient from '../config/redis';
-import { logger } from '../utils/logger';
 import { authLimiter } from '../middleware/security';
+import { generateAccessToken, generateRefreshToken, verifyToken } from '../utils/jwt';
+import { logger } from '../utils/logger';
 
 const router = Router();
 

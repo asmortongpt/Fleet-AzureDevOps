@@ -1,16 +1,16 @@
 import express, { Response } from 'express'
-import { csrfProtection } from '../middleware/csrf'
-import { NotFoundError } from '../errors/app-error'
-import { AuthRequest, authenticateJWT } from '../middleware/auth'
-import { requirePermission } from '../middleware/permissions'
-import { auditLog } from '../middleware/audit'
-import { buildInsertClause, buildUpdateClause } from '../utils/sql-safety'
+
 import pool from '../config/database'
+import { auditLog } from '../middleware/audit'
+import { AuthRequest, authenticateJWT } from '../middleware/auth'
+import { csrfProtection } from '../middleware/csrf'
+import { requirePermission } from '../middleware/permissions'
 import {
   CreateRecurringScheduleRequest,
   UpdateRecurrencePatternRequest,
   ManualWorkOrderGenerationRequest
 } from '../types/maintenance'
+import { buildInsertClause, buildUpdateClause } from '../utils/sql-safety'
 
 const router = express.Router()
 router.use(authenticateJWT)

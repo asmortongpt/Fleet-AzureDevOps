@@ -3,12 +3,21 @@
  * Form for creating and editing vehicle reservations with availability checking
  */
 
-import { useState, useEffect } from 'react'
-import { sanitizeUserInput } from '@/utils/xss-sanitizer'
-import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import * as z from 'zod'
 import { format } from 'date-fns'
+
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
+import { Alert, AlertDescription } from '@/components/ui/alert'
+import { Badge } from '@/components/ui/badge'
+import CalendarIcon from 'lucide-react/dist/esm/icons/calendar'
+import AlertCircleIcon from 'lucide-react/dist/esm/icons/alert-circle'
+import ClockIcon from 'lucide-react/dist/esm/icons/clock'
+import TruckIcon from 'lucide-react/dist/esm/icons/truck'
+import { useState, useEffect } from 'react'
+import { useForm } from 'react-hook-form'
+import * as z from 'zod'
+import { Button } from '@/components/ui/button'
+import { Calendar } from '@/components/ui/calendar'
 import {
   Dialog,
   DialogContent,
@@ -26,6 +35,7 @@ import {
   FormLabel,
   FormMessage,
 } from '@/components/ui/form'
+import { Input } from '@/components/ui/input'
 import {
   Select,
   SelectContent,
@@ -33,21 +43,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
-import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
-import { Button } from '@/components/ui/button'
-import { Calendar } from '@/components/ui/calendar'
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
-import { Alert, AlertDescription } from '@/components/ui/alert'
-import { Badge } from '@/components/ui/badge'
-import CalendarIcon from 'lucide-react/dist/esm/icons/calendar'
-import AlertCircleIcon from 'lucide-react/dist/esm/icons/alert-circle'
-import ClockIcon from 'lucide-react/dist/esm/icons/clock'
-import TruckIcon from 'lucide-react/dist/esm/icons/truck'
+import { Vehicle, Driver } from '@/lib/types'
 import { cn } from '@/lib/utils'
 import { VehicleReservation, CreateReservationRequest } from '@/types/scheduling'
-import { Vehicle, Driver } from '@/lib/types'
-
 import logger from '@/utils/logger';
 const reservationSchema = z.object({
   vehicleId: z.string().min(1, 'Vehicle is required'),
@@ -103,7 +102,7 @@ const RESERVATION_TYPES = [
 const generateTimeSlots = () => {
   const slots: string[] = []
   for (let hour = 0; hour < 24; hour++) {
-    for (let minute of [0, 30]) {
+    for (const minute of [0, 30]) {
       const time = `${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}`
       slots.push(time)
     }
