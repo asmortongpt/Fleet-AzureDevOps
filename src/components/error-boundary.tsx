@@ -3,12 +3,12 @@
  * Catches React errors and reports them to Sentry with session replay
  */
 
-import React, { Component, ErrorInfo, ReactNode } from 'react'
 import * as Sentry from '@sentry/react'
 import { AlertTriangle, RefreshCw, Home } from 'lucide-react'
+import React, { Component, ErrorInfo, ReactNode } from 'react'
+
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-
 import logger from '@/utils/logger';
 interface Props {
   children: ReactNode

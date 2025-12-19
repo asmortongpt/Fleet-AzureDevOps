@@ -12,17 +12,8 @@
  * - Interactive states
  */
 
-import { test, expect, Page } from '@playwright/test';
-import {
-  waitForMapLoad,
-  waitForMarkers,
-  stabilizeMap,
-  takeVisualSnapshot,
-  takeResponsiveSnapshots,
-  compareThemes,
-  disableAnimations,
-  VIEWPORTS,
-} from './helpers/visual-test-helpers';
+import { test } from '@playwright/test';
+
 import {
   SINGLE_VEHICLE,
   MULTIPLE_VEHICLES,
@@ -33,6 +24,16 @@ import {
   EMPTY_MAP,
   DENSE_MAP,
 } from './fixtures/map-test-data';
+import {
+  waitForMapLoad,
+  waitForMarkers,
+  stabilizeMap,
+  takeVisualSnapshot,
+  takeResponsiveSnapshots,
+  compareThemes,
+  disableAnimations,
+  VIEWPORTS,
+} from './helpers/visual-test-helpers';
 
 test.describe('UniversalMap - Visual Regression Tests', () => {
   test.beforeEach(async ({ page }) => {

@@ -1,7 +1,8 @@
 import { Pool } from 'pg';
+
 import { Model3DRepository } from '../repositories/model3d.repository';
-import { getSketchfabService } from '../services/sketchfab';
 import { getAzureBlobService } from '../services/azure-blob';
+import { getSketchfabService } from '../services/sketchfab';
 
 export interface ModelsContainerDeps {
   db: Pool;

@@ -1,4 +1,15 @@
+import {
+    Microphone,
+    Radio,
+    Warning,
+    SpeakerHigh,
+    SpeakerSlash
+} from "@phosphor-icons/react";
 import React, { useState, useEffect } from "react";
+
+import { Badge } from "../../ui/badge";
+import { Button } from "../../ui/button";
+import { ScrollArea } from "../../ui/scroll-area";
 import {
     Sheet,
     SheetContent,
@@ -6,19 +17,7 @@ import {
     SheetTitle,
     SheetDescription,
 } from "../../ui/sheet";
-import { Button } from "../../ui/button";
-import { Badge } from "../../ui/badge";
-import { ScrollArea } from "../../ui/scroll-area";
-import {
-    Microphone,
-    MicrophoneSlash,
-    Radio,
-    Warning,
-    Clock,
-    SpeakerHigh,
-    SpeakerSlash,
-    Broadcast
-} from "@phosphor-icons/react";
+
 import { useDispatchSocket } from "@/hooks/useDispatchSocket";
 import { usePTT } from "@/hooks/usePTT";
 

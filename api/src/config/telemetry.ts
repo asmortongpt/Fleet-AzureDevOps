@@ -5,10 +5,10 @@
  * Exports traces to Azure Application Insights or any OTLP-compatible backend
  */
 
-import { NodeSDK } from '@opentelemetry/sdk-node';
 import { getNodeAutoInstrumentations } from '@opentelemetry/auto-instrumentations-node';
 import { OTLPTraceExporter } from '@opentelemetry/exporter-trace-otlp-http';
-import { detectResources, defaultResource, resourceFromAttributes } from '@opentelemetry/resources';
+import { defaultResource, resourceFromAttributes } from '@opentelemetry/resources';
+import { NodeSDK } from '@opentelemetry/sdk-node';
 import { ATTR_SERVICE_NAME, ATTR_SERVICE_VERSION } from '@opentelemetry/semantic-conventions';
 
 // Configuration
@@ -112,7 +112,7 @@ export default sdk;
  * Custom span creation helper
  * Use this to create manual spans for business logic
  */
-import { trace, context, SpanStatusCode } from '@opentelemetry/api';
+import { trace, SpanStatusCode } from '@opentelemetry/api';
 
 export const tracer = trace.getTracer(serviceName, serviceVersion);
 

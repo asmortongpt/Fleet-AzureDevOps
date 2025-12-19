@@ -3,23 +3,6 @@
  * Tabbed interface with left sidebar navigation on desktop, top tabs on mobile
  */
 
-import { useState, useEffect } from 'react'
-import { useAtom } from 'jotai'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { ScrollArea } from '@/components/ui/scroll-area'
-import { Badge } from '@/components/ui/badge'
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from '@/components/ui/alert-dialog'
 import {
   Gear,
   Palette,
@@ -31,14 +14,32 @@ import {
   FloppyDisk,
   Check,
 } from '@phosphor-icons/react'
-import { hasUnsavedChangesAtom } from '@/lib/reactive-state'
-import { GeneralSettings } from '@/components/settings/GeneralSettings'
-import { AppearanceSettings } from '@/components/settings/AppearanceSettings'
-import { NotificationSettings } from '@/components/settings/NotificationSettings'
-import { FleetSettings } from '@/components/settings/FleetSettings'
-import { SecuritySettings } from '@/components/settings/SecuritySettings'
-import { DataPrivacySettings } from '@/components/settings/DataPrivacySettings'
+import { useAtom } from 'jotai'
+import { useState, useEffect } from 'react'
+
 import { AdvancedSettings } from '@/components/settings/AdvancedSettings'
+import { AppearanceSettings } from '@/components/settings/AppearanceSettings'
+import { DataPrivacySettings } from '@/components/settings/DataPrivacySettings'
+import { FleetSettings } from '@/components/settings/FleetSettings'
+import { GeneralSettings } from '@/components/settings/GeneralSettings'
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog'
+import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { ScrollArea } from '@/components/ui/scroll-area'
+import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { hasUnsavedChangesAtom } from '@/lib/reactive-state'
+import { NotificationSettings } from '@/components/settings/NotificationSettings'
+import { SecuritySettings } from '@/components/settings/SecuritySettings'
 
 type SettingsTab =
   | 'general'

@@ -1,8 +1,7 @@
 import express, { Request, Response } from 'express';
-import { Pool } from 'pg';
-import bcrypt from 'bcrypt';
 import helmet from 'helmet';
-import { validate as uuidValidate } from 'uuid';
+import { Pool } from 'pg';
+
 import { auditLog, errorLog } from '../utils/logger';
 import { validateTenantId, validateAssetId } from '../utils/validators';
 

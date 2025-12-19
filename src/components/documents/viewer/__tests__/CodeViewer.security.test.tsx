@@ -3,12 +3,16 @@
  * Tests XSS protection and sanitization
  */
 
-import { describe, it, expect, beforeEach } from 'vitest';
-import { render, screen, waitFor } from '@testing-library/react';
-import { CodeViewer } from '../CodeViewer';
-import { XSS_TEST_PAYLOADS, isPayloadSanitized } from './xss-test-payloads';
-import { DocumentMetadata } from '@/lib/documents/types';
+import { render, waitFor } from '@testing-library/react';
 import DOMPurify from 'dompurify';
+import { describe, it, expect, beforeEach } from 'vitest';
+
+import { CodeViewer } from '../CodeViewer';
+
+import { XSS_TEST_PAYLOADS, isPayloadSanitized } from './xss-test-payloads';
+
+import { DocumentMetadata } from '@/lib/documents/types';
+
 
 // Mock document
 const createMockDocument = (content: string): DocumentMetadata => ({

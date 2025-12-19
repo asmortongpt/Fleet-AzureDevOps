@@ -3,15 +3,17 @@
  * Features: Type, date range, size, tags, categories
  */
 
+import { Calendar, Tag, FileType, Sparkles } from 'lucide-react';
 import { useState, useTransition } from 'react';
-import { Calendar, Tag, FileType, Sparkles } from 'lucide-react';import { Button } from '@/components/ui/button';
+
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Calendar as CalendarComponent } from '@/components/ui/calendar';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
-import { Separator } from '@/components/ui/separator';
-import { Badge } from '@/components/ui/badge';
-import { Calendar as CalendarComponent } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { Separator } from '@/components/ui/separator';
 import { SearchFilters as Filters, DocumentType, FileCategory } from '@/lib/documents/types';
 
 interface SearchFiltersProps {

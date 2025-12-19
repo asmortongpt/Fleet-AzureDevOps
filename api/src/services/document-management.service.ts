@@ -10,14 +10,17 @@
  * - Audit logging
  */
 
-import { Pool } from 'pg'
+import crypto from 'crypto'
 import fs from 'fs/promises'
 import path from 'path'
-import crypto from 'crypto'
-import { DocumentRAGService } from './document-rag.service'
-import pdfParse from 'pdf-parse'
+
+
 import mammoth from 'mammoth'
-import logger from '../utils/logger'
+import pdfParse from 'pdf-parse'
+import { Pool } from 'pg'
+
+import { DocumentRAGService } from './document-rag.service'
+
 
 export interface Document {
   id: string

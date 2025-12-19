@@ -3,11 +3,12 @@
  * Shows trailers attached to tractors, equipment attachments, etc.
  */
 
+import { Link2, AlertCircle, Loader2 } from 'lucide-react'
+import useSWR from 'swr'
+
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
-import useSWR from 'swr'
-import { Link2, AlertCircle, Loader2 } from 'lucide-react'
 
 export interface AssetRelationshipsListProps {
   /** ID of the vehicle to show relationships for */

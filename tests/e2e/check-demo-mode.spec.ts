@@ -1,4 +1,4 @@
-import { test, expect } from '@playwright/test'
+import { test } from '@playwright/test'
 
 test('Check demo mode and component rendering', async ({ page }) => {
   await page.goto('http://172.168.57.73');

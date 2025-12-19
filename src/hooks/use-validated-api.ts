@@ -9,10 +9,11 @@
  * - After:  import { useVehicles } from '@/hooks/use-validated-api'
  */
 
-import { z } from 'zod'
-import { useValidatedQuery, useValidatedMutation, invalidateQueries } from './use-validated-query'
 import { useQueryClient } from '@tanstack/react-query'
-import logger from '@/utils/logger';
+import { z } from 'zod'
+
+import { useValidatedQuery, useValidatedMutation, invalidateQueries } from './use-validated-query'
+
 import {
   vehicleSchema,
   vehiclesArraySchema,

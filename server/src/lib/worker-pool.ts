@@ -1,9 +1,10 @@
+import { exec } from 'child_process';
+import { promisify } from 'util';
+
 import { Queue, Worker, Job } from 'bullmq';
+import { FleetLocal } from 'fleet-local'; // Assuming this is the existing codebase
 import Redis from 'ioredis';
 import { createLogger, transports, format } from 'winston';
-import { FleetLocal } from 'fleet-local'; // Assuming this is the existing codebase
-import { promisify } from 'util';
-import { exec } from 'child_process';
 
 const execAsync = promisify(exec);
 

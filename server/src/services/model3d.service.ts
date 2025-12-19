@@ -5,6 +5,7 @@
  */
 
 import { Model3DRepository, Model3D, Model3DSearchParams, Model3DCreateParams } from '../repositories/model3d.repository';
+
 import { logger } from './logger';
 
 export interface UploadModelData {

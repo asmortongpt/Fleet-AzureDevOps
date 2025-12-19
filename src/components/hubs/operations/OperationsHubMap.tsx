@@ -1,8 +1,9 @@
-import { useState, useEffect } from 'react';
 import { Truck, Package, MapPin, Navigation, Circle, AlertTriangle } from 'lucide-react';
-import { useVehicles } from '@/hooks/use-api';
-import { Button } from '@/components/ui/button';
+import { useState } from 'react';
+
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { useVehicles } from '@/hooks/use-api';
 
 interface Vehicle {
   id: string;

@@ -10,11 +10,13 @@
  * - Application Insights status
  */
 
+import * as fs from 'fs'
+import * as os from 'os'
+
 import { Router, Request, Response } from 'express'
+
 import { pool } from '../config/db-pool'
 import telemetryService from '../monitoring/applicationInsights'
-import * as os from 'os'
-import * as fs from 'fs'
 
 const router = Router()
 

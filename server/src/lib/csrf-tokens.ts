@@ -1,9 +1,11 @@
 // server/src/lib/csrf-tokens.ts
 
 import crypto from 'crypto';
+
 import { Request, Response, NextFunction } from 'express';
-import { Logger } from './logger'; // Assuming a logger module is available
+
 import { FleetLocalConfig } from './config'; // Assuming a config module is available
+import { Logger } from './logger'; // Assuming a logger module is available
 
 // Enable TypeScript strict mode
 'use strict';

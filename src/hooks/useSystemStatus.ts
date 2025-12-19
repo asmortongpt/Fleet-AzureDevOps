@@ -3,11 +3,12 @@
  * Connects all emulators and AI services to provide comprehensive real-time status
  */
 
-import { useState, useEffect, useCallback, useMemo } from 'react'
-import { useVehicleTelemetry } from './useVehicleTelemetry'
-import { useOBD2Emulator } from './useOBD2Emulator'
-import apiClient from '@/lib/api-client'
+import { useState, useEffect, useCallback } from 'react'
 
+import { useOBD2Emulator } from './useOBD2Emulator'
+import { useVehicleTelemetry } from './useVehicleTelemetry'
+
+import apiClient from '@/lib/api-client'
 import logger from '@/utils/logger';
 export interface EmulatorStatus {
   id: string

@@ -1,8 +1,11 @@
-import { useState, useEffect } from "react"
 import { X, Keyboard } from "lucide-react"
-import { cn } from "@/lib/utils"
+import { useState, useEffect } from "react"
+
 import { Button } from "./button"
-import { GLOBAL_SHORTCUTS } from "@/hooks/use-keyboard-shortcuts"
+
+import { cn } from "@/lib/utils"
+
+
 
 interface ShortcutGroup {
   category: string

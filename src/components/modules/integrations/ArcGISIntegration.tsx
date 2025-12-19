@@ -24,16 +24,30 @@
  * @version 2.0.0
  */
 
+import {
+  Plus,
+  Trash,
+  Eye,
+  EyeSlash,
+  GlobeHemisphereWest,
+  CheckCircle,
+  Warning,
+  Download,
+  Upload,
+  ArrowClockwise,
+  DotsThree,
+  Copy,
+  CaretUp,
+  CaretDown,
+  Info,
+  XCircle,
+} from "@phosphor-icons/react"
 import { useState, useEffect, useCallback, useMemo, useRef } from "react"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Badge } from "@/components/ui/badge"
-import { Slider } from "@/components/ui/slider"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
+import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import {
   Dialog,
   DialogContent,
@@ -50,30 +64,13 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import {
-  Plus,
-  Trash,
-  Eye,
-  EyeSlash,
-  GlobeHemisphereWest,
-  CheckCircle,
-  Warning,
-  MapPin,
-  ArrowsDownUp,
-  Download,
-  Upload,
-  ArrowClockwise,
-  DotsThree,
-  Copy,
-  CaretUp,
-  CaretDown,
-  Info,
-  XCircle,
-} from "@phosphor-icons/react"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { Slider } from "@/components/ui/slider"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { apiClient } from "@/lib/api-client"
 import { arcgisService } from "@/lib/arcgis/service"
 import type { ArcGISLayerConfig } from "@/lib/arcgis/types"
-import { apiClient } from "@/lib/api-client"
-
 import logger from '@/utils/logger';
 /**
  * Layer operation state for tracking individual layer operations

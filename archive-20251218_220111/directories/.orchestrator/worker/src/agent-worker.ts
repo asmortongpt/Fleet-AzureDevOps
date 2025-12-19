@@ -10,13 +10,14 @@
  * - Manages Git branches and commits
  */
 
-import axios, { AxiosInstance } from 'axios';
-import WebSocket from 'ws';
-import simpleGit, { SimpleGit } from 'simple-git';
 import { spawn } from 'child_process';
 import * as fs from 'fs';
-import * as path from 'path';
 import * as os from 'os';
+import * as path from 'path';
+
+import axios, { AxiosInstance } from 'axios';
+import simpleGit, { SimpleGit } from 'simple-git';
+import WebSocket from 'ws';
 
 // ============================================================================
 // Configuration

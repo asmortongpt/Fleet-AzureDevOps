@@ -4,20 +4,21 @@
  */
 
 import React from 'react'
-import { DrilldownProvider, useDrilldown } from '@/contexts/DrilldownContext'
+
 import { DrilldownBreadcrumbs } from '@/components/DrilldownBreadcrumbs'
 import { DrilldownPanel } from '@/components/DrilldownPanel'
-import { VehicleDetailPanel } from '@/components/drilldown/VehicleDetailPanel'
-import { VehicleTripsList } from '@/components/drilldown/VehicleTripsList'
-import { TripTelemetryView } from '@/components/drilldown/TripTelemetryView'
 import { DriverDetailPanel } from '@/components/drilldown/DriverDetailPanel'
 import { DriverPerformanceView } from '@/components/drilldown/DriverPerformanceView'
 import { DriverTripsView } from '@/components/drilldown/DriverTripsView'
-import { WorkOrderDetailPanel } from '@/components/drilldown/WorkOrderDetailPanel'
-import { PartsBreakdownView } from '@/components/drilldown/PartsBreakdownView'
-import { LaborDetailsView } from '@/components/drilldown/LaborDetailsView'
 import { FacilityDetailPanel } from '@/components/drilldown/FacilityDetailPanel'
 import { FacilityVehiclesView } from '@/components/drilldown/FacilityVehiclesView'
+import { LaborDetailsView } from '@/components/drilldown/LaborDetailsView'
+import { PartsBreakdownView } from '@/components/drilldown/PartsBreakdownView'
+import { TripTelemetryView } from '@/components/drilldown/TripTelemetryView'
+import { VehicleDetailPanel } from '@/components/drilldown/VehicleDetailPanel'
+import { VehicleTripsList } from '@/components/drilldown/VehicleTripsList'
+import { WorkOrderDetailPanel } from '@/components/drilldown/WorkOrderDetailPanel'
+import { DrilldownProvider, useDrilldown } from '@/contexts/DrilldownContext'
 
 interface DrilldownManagerProps {
   children: React.ReactNode

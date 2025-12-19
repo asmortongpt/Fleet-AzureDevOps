@@ -8,13 +8,13 @@
  * - Schedule: Assigned vehicles, routes, and shifts
  */
 
-import React, { useState, useEffect } from 'react';
-import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
-import { Card } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { apiClient } from '@/lib/api';
 import { Loader2, AlertCircle, TrendingUp, TrendingDown } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
 
+import { Badge } from '@/components/ui/badge';
+import { Card } from '@/components/ui/card';
+import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
+import { apiClient } from '@/lib/api';
 import logger from '@/utils/logger';
 interface DriverInspectorProps {
   id: string;

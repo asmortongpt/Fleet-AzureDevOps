@@ -7,14 +7,14 @@
  * - Actions: Response history and available actions
  */
 
+import { Loader2, AlertCircle, AlertTriangle, CheckCircle, XCircle } from 'lucide-react';
 import React, { useState, useEffect } from 'react';
-import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
-import { Card } from '@/components/ui/card';
+
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { Card } from '@/components/ui/card';
+import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { apiClient } from '@/lib/api';
-import { Loader2, AlertCircle, AlertTriangle, CheckCircle, XCircle } from 'lucide-react';
-
 import logger from '@/utils/logger';
 interface AlertInspectorProps {
   id: string;

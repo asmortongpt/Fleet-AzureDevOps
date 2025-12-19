@@ -7,10 +7,11 @@
  * Tracks which migrations have been applied to avoid re-running them.
  */
 
-import { Pool } from 'pg';
 import * as fs from 'fs';
 import * as path from 'path';
+
 import * as dotenv from 'dotenv';
+import { Pool } from 'pg';
 
 // Load environment variables
 dotenv.config();

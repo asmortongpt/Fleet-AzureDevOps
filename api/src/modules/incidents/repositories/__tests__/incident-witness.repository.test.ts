@@ -1,6 +1,7 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { IncidentWitnessRepository } from '../incident-witness.repository';
+
 import { pool } from '../../../../db';
+import { IncidentWitnessRepository } from '../incident-witness.repository';
 
 vi.mock('../../../../db', () => ({
   pool: {

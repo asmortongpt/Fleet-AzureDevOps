@@ -1,7 +1,8 @@
-import { processTelemetry } from './telemetryProcessor';
-import { telemetrySchema } from '../schemas/telemetry.schema';
 import { pool } from '../db';
 import { logger } from '../logger';
+import { telemetrySchema } from '../schemas/telemetry.schema';
+
+import { processTelemetry } from './telemetryProcessor';
 
 jest.mock('../db', () => ({
   pool: {

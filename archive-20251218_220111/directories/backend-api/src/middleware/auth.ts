@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
-import { verifyToken } from '../utils/jwt';
+
 import redisClient from '../config/redis';
+import { verifyToken } from '../utils/jwt';
 import { logger } from '../utils/logger';
 
 declare global {

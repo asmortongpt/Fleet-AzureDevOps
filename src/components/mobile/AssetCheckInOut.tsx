@@ -1,13 +1,12 @@
-import React, { useState, useEffect } from 'react';
-import { Button, StyleSheet, View, Text, TextInput, TouchableOpacity, Image } from 'react-native';
 import { Camera } from 'expo-camera';
 import * as Location from 'expo-location';
+import React, { useState, useEffect } from 'react';
+import { Button, StyleSheet, View, Text, TextInput, TouchableOpacity, Image } from 'react-native';
 import { z } from 'zod';
-import { base64 } from 'react-native-base64';
-import { QRCodeSVG } from 'qrcode.react';
-import { compressToWebP } from '../utils/compressToWebP';
-import { uploadPhoto } from '../services/photo-storage.service';
+
 import { checkInAsset, checkOutAsset } from '../api/assets';
+import { uploadPhoto } from '../services/photo-storage.service';
+import { compressToWebP } from '../utils/compressToWebP';
 
 interface AssetCheckInOutProps {
   tenantId: string;

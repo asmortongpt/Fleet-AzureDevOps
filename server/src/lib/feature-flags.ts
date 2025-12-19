@@ -1,6 +1,7 @@
 import { cache } from './cache';
 import { pool } from './database';
-import { Request, Response, NextFunction } from 'express';
+
+import express, { Request, Response, NextFunction } from 'express';
 
 interface FeatureFlag {
   id: string;
@@ -136,6 +137,7 @@ app.post('/admin/feature-flags/:id', async (req, res) => {
 
 // Frontend hook for flag checks
 import { useContext, useEffect, useState } from 'react';
+
 import { FeatureFlagContext } from './FeatureFlagContext';
 
 export function useFeatureFlag(flagId: string, defaultValue: boolean): boolean {

@@ -1,6 +1,6 @@
 #!/usr/bin/env ts-node
-import * as fs from 'fs';
 import { execSync } from 'child_process';
+import * as fs from 'fs';
 
 // Auto-generated table schemas
 const tableSchemas: Record<string, string[]> = {

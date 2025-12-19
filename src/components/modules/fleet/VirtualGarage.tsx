@@ -17,11 +17,43 @@
  * Created: 2025-11-24
  */
 
-import { useState, useEffect, useMemo, Suspense, lazy } from "react"
+import {
+  Car,
+  Truck,
+  Camera,
+  Upload,
+  Cube,
+  Warning,
+  Clock,
+  GearSix,
+  Lightning,
+  Warehouse,
+  MagnifyingGlass,
+  Package,
+  Crane,
+  Engine,
+  Gauge,
+  Barcode,
+  ArrowsClockwise,
+  Eye
+} from "@phosphor-icons/react"
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
+import { useState, useEffect, useMemo, Suspense, lazy } from "react"
+import { useDropzone } from "react-dropzone"
+import { toast } from "sonner"
+
 import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+  DialogFooter
+} from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { ScrollArea } from "@/components/ui/scroll-area"
@@ -32,62 +64,22 @@ import {
   SelectTrigger,
   SelectValue
 } from "@/components/ui/select"
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-  DialogFooter
-} from "@/components/ui/dialog"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { useDropzone } from "react-dropzone"
-import {
-  Car,
-  Truck,
-  Camera,
-  Upload,
-  Cube,
-  Warning,
-  CheckCircle,
-  Clock,
-  Wrench,
-  GearSix,
-  Lightning,
-  Warehouse,
-  MapPin,
-  MagnifyingGlass,
-  CaretDown,
-  Package,
-  Crane,
-  ForkKnife,
-  Engine,
-  Gauge,
-  Toolbox,
-  HardHat,
-  Barcode,
-  Factory,
-  ArrowsClockwise,
-  Eye
-} from "@phosphor-icons/react"
+
 
 // Lazy load the 3D viewer to avoid SSR issues and reduce initial bundle
 const Asset3DViewer = lazy(() => import("@/components/garage/Asset3DViewer").then(m => ({ default: m.Asset3DViewer })))
-import { toast } from "sonner"
+
 import { apiClient } from "@/lib/api-client"
-import logger from '@/utils/logger';
 import {
   Asset,
   AssetCategory,
   AssetType,
   ASSET_CATEGORY_LABELS,
-  ASSET_TYPE_LABELS,
-  ASSET_TYPES_BY_CATEGORY,
   getAssetCategoryLabel,
-  getAssetTypeLabel,
   OperationalStatus
 } from "@/types/asset.types"
+import logger from '@/utils/logger';
 
 // ============================================================================
 // TYPES

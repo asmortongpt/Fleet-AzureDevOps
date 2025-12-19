@@ -7,15 +7,16 @@
  */
 
 import { Router, Request, Response } from 'express';
-import { permissionEngine } from '../permissions/engine';
-import { auditService } from '../services/auditService';
-import { requireAdmin, requireRole } from '../middleware/modulePermissions';
-import { User } from '../permissions/types';
-import { container } from '../container';
-import { TYPES } from '../types';
-import { PermissionsRepository } from '../repositories/PermissionsRepository';
-import { csrfProtection } from '../middleware/csrf';
+
 import logger from '../config/logger';
+import { container } from '../container';
+import { csrfProtection } from '../middleware/csrf';
+import { requireAdmin, requireRole } from '../middleware/modulePermissions';
+import { permissionEngine } from '../permissions/engine';
+import { User } from '../permissions/types';
+import { PermissionsRepository } from '../repositories/PermissionsRepository';
+import { auditService } from '../services/auditService';
+import { TYPES } from '../types';
 
 const router = Router();
 

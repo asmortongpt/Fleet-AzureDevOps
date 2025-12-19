@@ -1,6 +1,7 @@
+import { Pool, QueryResult } from 'pg';
+
 import { BaseRepository } from '../repositories/BaseRepository';
 
-import { Pool, QueryResult } from 'pg';
 
 export interface Trip {
   id: number;

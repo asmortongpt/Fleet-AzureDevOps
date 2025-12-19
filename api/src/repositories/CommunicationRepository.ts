@@ -1,5 +1,6 @@
-import { BaseRepository } from './BaseRepository'
 import { Pool } from 'pg'
+
+import { BaseRepository } from './BaseRepository'
 
 export interface Communication {
   id: number

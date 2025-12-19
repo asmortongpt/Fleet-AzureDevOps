@@ -11,9 +11,11 @@
  */
 
 import { injectable } from 'inversify';
-import { Pool } from 'pg';
-import { BaseRepository, QueryContext } from './BaseRepository';
+
 import { ApprovalWorkflow } from '../types/trip-usage';
+
+import { BaseRepository, QueryContext } from './BaseRepository';
+
 
 export interface PersonalUsePolicy {
   id: string;

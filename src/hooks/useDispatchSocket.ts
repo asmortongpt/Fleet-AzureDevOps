@@ -12,14 +12,14 @@
 
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { io, Socket } from 'socket.io-client';
-import logger from '@/utils/logger';
+
 import type {
   Transmission,
   RadioChannel,
   EmergencyAlert,
-  DispatchUnit,
-  DispatchSocketMessage
+  DispatchUnit
 } from '@/types/radio';
+import logger from '@/utils/logger';
 
 interface UseDispatchSocketOptions {
   channelId?: string;
