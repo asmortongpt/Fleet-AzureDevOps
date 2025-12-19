@@ -66,7 +66,13 @@ export function TrafficCameraControlPanel({
                         </div>
                         Traffic Feed
                     </CardTitle>
-                    <p className="text-[10px] uppercase tracking-wider text-slate-500 font-semibold mt-1 ml-1">Live Monitoring</p>
+                    <div className="flex items-center mt-1 ml-1 gap-1.5">
+                        <div className="relative flex h-2 w-2">
+                            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+                            <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
+                        </div>
+                        <span className="text-[10px] uppercase tracking-wider text-slate-500 font-semibold">Live Monitoring</span>
+                    </div>
                 </div>
                 <Button variant="ghost" size="icon" className="h-8 w-8 hover:bg-black/5 rounded-full" onClick={onClose}>
                     <X className="w-4 h-4 text-slate-500" />
