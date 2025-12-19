@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect, lazy, Suspense } from "react"
+import { useState, useMemo, lazy, Suspense } from "react"
 import { Button } from "@/components/ui/button"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { ScrollArea } from "@/components/ui/scroll-area"
@@ -16,19 +16,18 @@ import {
   SignOut,
   List,
   X,
-  CarProfile,
   Shield
 } from "@phosphor-icons/react"
 import { navigationItems } from "@/lib/navigation"
 import { RoleSwitcher } from "@/components/demo/RoleSwitcher"
 import { ToastContainer } from "@/components/common/ToastContainer"
-import { ErrorBoundary } from "@/components/ErrorBoundary"
+
 import { EnhancedErrorBoundary } from "@/components/EnhancedErrorBoundary"
 import { QueryErrorBoundary } from "@/components/errors/QueryErrorBoundary"
 import { ThemeToggle } from "@/components/ThemeToggle"
 import { DrilldownManager } from "@/components/DrilldownManager"
 import { useFleetData } from "@/hooks/use-fleet-data"
-import { useFacilities } from "@/hooks/use-api"
+
 import { withAITracking } from '@microsoft/applicationinsights-react-js'
 import telemetryService from '@/lib/telemetry'
 
@@ -36,7 +35,7 @@ import telemetryService from '@/lib/telemetry'
 // Modules now organized in feature-based folders for better maintainability
 
 // FLEET MODULES
-const FleetDashboard = lazy(() => import("@/components/modules/fleet/FleetDashboard").then(m => ({ default: m.FleetDashboard })))
+
 const FleetAnalytics = lazy(() => import("@/components/modules/fleet/FleetAnalytics").then(m => ({ default: m.FleetAnalytics })))
 const VehicleTelemetry = lazy(() => import("@/components/modules/fleet/VehicleTelemetry").then(m => ({ default: m.VehicleTelemetry })))
 const VirtualGarage = lazy(() => import("@/components/modules/fleet/VirtualGarage").then(m => ({ default: m.VirtualGarage })))
@@ -73,7 +72,7 @@ const RouteManagement = lazy(() => import("@/components/modules/operations/Route
 const GeofenceManagement = lazy(() => import("@/components/modules/operations/GeofenceManagement").then(m => ({ default: m.GeofenceManagement })))
 const AdvancedRouteOptimization = lazy(() => import("@/components/modules/operations/AdvancedRouteOptimization").then(m => ({ default: m.AdvancedRouteOptimization })))
 const TaskManagement = lazy(() => import("@/components/modules/operations/TaskManagement").then(m => ({ default: m.TaskManagement })))
-const DispatchConsole = lazy(() => import("@/components/DispatchConsole"))
+
 
 // INTEGRATIONS MODULES
 const GISCommandCenter = lazy(() => import("@/components/modules/integrations/GISCommandCenter").then(m => ({ default: m.GISCommandCenter })))
@@ -92,7 +91,7 @@ const Invoices = lazy(() => import("@/components/modules/procurement/Invoices").
 // TOOLS MODULES
 const MileageReimbursement = lazy(() => import("@/components/modules/tools/MileageReimbursement").then(m => ({ default: m.MileageReimbursement })))
 const ReceiptProcessing = lazy(() => import("@/components/modules/tools/ReceiptProcessing").then(m => ({ default: m.ReceiptProcessing })))
-// const TrafficCameras = lazy(() => import("@/components/modules/tools/TrafficCameras").then(m => ({ default: m.TrafficCameras }))) // Deprecated -> Map First
+
 const CustomFormBuilder = lazy(() => import("@/components/modules/tools/CustomFormBuilder").then(m => ({ default: m.CustomFormBuilder })))
 
 // COMMUNICATION MODULES
@@ -109,8 +108,6 @@ const DocumentManagement = lazy(() => import("@/components/modules/compliance/Do
 const DocumentQA = lazy(() => import("@/components/modules/compliance/DocumentQA").then(m => ({ default: m.DocumentQA })))
 
 // COMPLIANCE - PHASE 2 MAP-FIRST MODULES
-const ComplianceMapView = lazy(() => import("@/components/compliance/ComplianceMapView").then(m => ({ default: m.ComplianceMapView })))
-const ComplianceDashboard = lazy(() => import("@/components/compliance/ComplianceDashboard").then(m => ({ default: m.ComplianceDashboard })))
 
 // CHARGING MODULES
 const EVChargingManagement = lazy(() => import("@/components/modules/charging/EVChargingManagement").then(m => ({ default: m.EVChargingManagement })))
@@ -166,14 +163,12 @@ import { useAuth } from "@/contexts/AuthContext"
 // ... existing imports
 
 function App() {
-  const { user, canAccess } = useAuth()
+  const { canAccess } = useAuth()
   const [activeModule, setActiveModule] = useState("live-fleet-dashboard")
   const [sidebarOpen, setSidebarOpen] = useState(true)
-  const [reactPlugin] = useState(() => telemetryService.initialize())
+  useState(() => telemetryService.initialize())
 
   const fleetData = useFleetData()
-  // Use facilities from fleetData (which includes demo data fallback)
-  const facilities = fleetData.facilities || []
 
   // ... useEffects
 
