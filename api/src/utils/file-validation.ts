@@ -1,6 +1,7 @@
-import { fileTypeFromBuffer } from 'file-type'
 import crypto from 'crypto'
 import path from 'path'
+
+import { fileTypeFromBuffer } from 'file-type'
 
 /**
  * File Validation Utilities

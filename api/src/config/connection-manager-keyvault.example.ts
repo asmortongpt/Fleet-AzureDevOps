@@ -12,9 +12,10 @@
  * Example implementation below:
  */
 
-import { Pool } from 'pg'
-import { getSecret } from './secrets'
 import { ConnectionError } from '../services/dal/errors'
+
+import { getSecret } from './secrets'
+
 
 /**
  * Initialize database configuration with secrets from Azure Key Vault

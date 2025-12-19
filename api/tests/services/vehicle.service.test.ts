@@ -3,8 +3,9 @@
  * Tests all vehicle-related business logic
  */
 
-import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { Pool } from 'pg';
+import { describe, it, expect, beforeEach, afterEach } from 'vitest';
+
 import { createMockVehicle, createBulkMockData, createMockElectricVehicle } from '../fixtures';
 import { DatabaseTestHelper } from '../helpers/test-helpers';
 

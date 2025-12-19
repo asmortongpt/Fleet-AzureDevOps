@@ -1,14 +1,15 @@
+import { CarProfile } from '@phosphor-icons/react'
+import { useMutation } from '@tanstack/react-query'
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { useMutation } from '@tanstack/react-query'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+
+import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Separator } from '@/components/ui/separator'
 import { signInWithMicrosoft, setAuthToken } from '@/lib/microsoft-auth'
-import { CarProfile } from '@phosphor-icons/react'
 import logger from '@/utils/logger'
 
 /**

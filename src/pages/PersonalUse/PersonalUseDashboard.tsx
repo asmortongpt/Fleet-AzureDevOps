@@ -1,15 +1,5 @@
-import { useState } from 'react'
-import { useQuery } from '@tanstack/react-query'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
-import { Progress } from '@/components/ui/progress'
-import { Badge } from '@/components/ui/badge'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
-import { Alert, AlertDescription } from '@/components/ui/alert'
 import {
   Car,
-  Gauge,
   CurrencyDollar,
   Receipt,
   CalendarDots,
@@ -19,10 +9,19 @@ import {
   Clock,
   X
 } from '@phosphor-icons/react'
-import { toast } from 'sonner'
+import { useQuery } from '@tanstack/react-query'
 import { format } from 'date-fns'
-import { TripMarker } from '@/components/PersonalUse/TripMarker'
+import { useState } from 'react'
+import { toast } from 'sonner'
 
+import { TripMarker } from '@/components/PersonalUse/TripMarker'
+import { Alert, AlertDescription } from '@/components/ui/alert'
+import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Progress } from '@/components/ui/progress'
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import logger from '@/utils/logger';
 interface DashboardData {
   driver_id: string

@@ -11,7 +11,6 @@
  */
 
 import WifiManager from 'react-native-wifi-reborn'
-import { Platform } from 'react-native'
 
 export interface DashcamInfo {
   brand: string

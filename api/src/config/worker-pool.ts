@@ -13,10 +13,10 @@
  * - OCR processing
  */
 
-import { Worker } from 'worker_threads'
 import { EventEmitter } from 'events'
 import * as os from 'os'
 import * as path from 'path'
+import { Worker } from 'worker_threads'
 
 interface WorkerTask {
   id: string

@@ -1,5 +1,6 @@
-import { Card } from "@/components/ui/card"
 import { Car, Wrench, BatteryLow, Warning } from "@phosphor-icons/react"
+
+import { Card } from "@/components/ui/card"
 
 interface FleetMetricsBarProps {
   totalVehicles: number

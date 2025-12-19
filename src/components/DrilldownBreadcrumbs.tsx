@@ -3,10 +3,11 @@
  * Shows the path through nested data with clickable navigation
  */
 
-import React from 'react'
 import { ChevronRight, Home } from 'lucide-react'
-import { useDrilldown } from '@/contexts/DrilldownContext'
+import React from 'react'
+
 import { Button } from '@/components/ui/button'
+import { useDrilldown } from '@/contexts/DrilldownContext'
 import { cn } from '@/lib/utils'
 
 export function DrilldownBreadcrumbs() {

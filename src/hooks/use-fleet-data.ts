@@ -3,13 +3,13 @@
  * Uses API data when available, falls back to demo data
  */
 
+import { useCallback, useEffect, useMemo } from 'react'
+
 import {
   useVehicles,
   useVehicleMutations,
   useDrivers,
   useDriverMutations,
-  useMaintenance,
-  useMaintenanceMutations,
   useWorkOrders,
   useWorkOrderMutations,
   useFuelTransactions,
@@ -21,9 +21,8 @@ import {
   useRoutes,
   useRouteMutations
 } from '@/hooks/use-api'
-import { useCallback, useEffect, useMemo } from 'react'
-import logger from '@/utils/logger'
 import { generateDemoVehicles, generateDemoDrivers, generateDemoWorkOrders, generateDemoFacilities } from '@/lib/demo-data'
+import logger from '@/utils/logger'
 
 // Check if demo mode is enabled (default: true)
 const isDemoMode = () => {

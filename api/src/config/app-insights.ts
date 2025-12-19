@@ -1,4 +1,5 @@
 import * as appInsights from 'applicationinsights'
+
 import { logger } from '../utils/logger'
 
 interface CustomProperties {

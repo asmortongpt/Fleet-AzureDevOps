@@ -1,12 +1,14 @@
 import { motion, AnimatePresence } from "framer-motion";
-import { cn } from "@/lib/utils";
 import { ReactNode, useState } from "react";
+
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
 } from "./tooltip";
+
+import { cn } from "@/lib/utils";
 
 /**
  * InteractiveTooltip - Rich tooltips with vehicle data and interactive elements

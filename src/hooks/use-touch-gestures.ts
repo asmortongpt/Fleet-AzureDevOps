@@ -3,7 +3,7 @@
  * Provides swipe, pinch, long-press, and other touch interactions
  */
 
-import { useEffect, useRef, RefObject, useCallback } from 'react'
+import React, { useEffect, useRef, RefObject } from 'react'
 
 /* ============================================================
    TYPES

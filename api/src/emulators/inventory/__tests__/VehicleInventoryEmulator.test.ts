@@ -4,8 +4,9 @@
  */
 
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
-import { VehicleInventoryEmulator, EquipmentCategory, EquipmentCondition, ComplianceStatus } from '../VehicleInventoryEmulator'
+
 import { EmulatorConfig } from '../../types'
+import { VehicleInventoryEmulator, EquipmentCategory } from '../VehicleInventoryEmulator'
 
 describe('VehicleInventoryEmulator', () => {
   let emulator: VehicleInventoryEmulator

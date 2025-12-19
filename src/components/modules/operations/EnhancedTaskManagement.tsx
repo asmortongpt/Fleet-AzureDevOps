@@ -13,20 +13,33 @@
  * - Export and reporting
  */
 
-import { useState, useEffect, useMemo } from "react"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Badge } from "@/components/ui/badge"
-import { Progress } from "@/components/ui/progress"
 import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow
-} from "@/components/ui/table"
+  Plus,
+  MagnifyingGlass,
+  CheckCircle,
+  Clock,
+  User,
+  CalendarDots,
+  ListChecks,
+  DotsThree,
+  Download,
+  Funnel,
+  Lightning,
+  Sparkle,
+  Brain,
+  CaretDown,
+  Calendar,
+  List,
+  Kanban as KanbanIcon,
+  ChartBar,
+  Rows
+} from "@phosphor-icons/react"
+import { useState, useEffect, useMemo } from "react"
+import { toast } from "sonner"
+
+import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import {
   Dialog,
   DialogContent,
@@ -42,10 +55,12 @@ import {
   DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuSeparator,
-  DropdownMenuTrigger,
-  DropdownMenuCheckboxItem
+  DropdownMenuTrigger
 } from "@/components/ui/dropdown-menu"
+import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import { Progress } from "@/components/ui/progress"
+import { ScrollArea } from "@/components/ui/scroll-area"
 import {
   Select,
   SelectContent,
@@ -53,42 +68,22 @@ import {
   SelectTrigger,
   SelectValue
 } from "@/components/ui/select"
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow
+} from "@/components/ui/table"
 import { Textarea } from "@/components/ui/textarea"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { ScrollArea } from "@/components/ui/scroll-area"
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip"
-import {
-  Plus,
-  MagnifyingGlass,
-  CheckCircle,
-  Clock,
-  User,
-  CalendarDots,
-  ChatCircle,
-  ListChecks,
-  ChartLine,
-  DotsThree,
-  Download,
-  Upload,
-  Funnel,
-  Lightning,
-  Sparkle,
-  Brain,
-  CaretDown,
-  Calendar,
-  List,
-  Kanban as KanbanIcon,
-  ChartBar,
-  Rows
-} from "@phosphor-icons/react"
-import { toast } from "sonner"
 import { apiClient } from "@/lib/api-client"
-
 import logger from '@/utils/logger';
 interface Task {
   id: string

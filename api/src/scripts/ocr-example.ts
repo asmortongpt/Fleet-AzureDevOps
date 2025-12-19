@@ -6,9 +6,7 @@
 
 import {
   extractText,
-  processDocument,
   batchProcessDocuments,
-  getDocumentsPendingOcr,
   isOcrConfigured,
   getOcrStatus
 } from '../services/ocr.service'

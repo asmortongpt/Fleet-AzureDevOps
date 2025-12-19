@@ -3,13 +3,14 @@
  * Features: AI-suggested tags, categories, auto-classification
  */
 
-import { useState } from 'react';
 import { Tag, Sparkles, Plus, X, Check } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import { useState } from 'react';
+
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Progress } from '@/components/ui/progress';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Separator } from '@/components/ui/separator';
 import { DocumentMetadata, FileCategory } from '@/lib/documents/types';

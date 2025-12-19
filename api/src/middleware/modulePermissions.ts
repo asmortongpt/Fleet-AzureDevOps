@@ -5,9 +5,10 @@
  */
 
 import { Request, Response, NextFunction } from 'express';
+
 import { permissionEngine } from '../permissions/engine';
-import { auditService } from '../services/auditService';
 import { User } from '../permissions/types';
+import { auditService } from '../services/auditService';
 
 /**
  * Require user to have access to a specific module

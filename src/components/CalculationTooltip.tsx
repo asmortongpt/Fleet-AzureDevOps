@@ -1,7 +1,8 @@
-import React from 'react';
-import { HoverCard, HoverCardContent, HoverCardTrigger } from '@/components/ui/hover-card';
 import { InfoIcon, Copy } from 'lucide-react';
+import React from 'react';
+
 import { Button } from '@/components/ui/button';
+import { HoverCard, HoverCardContent, HoverCardTrigger } from '@/components/ui/hover-card';
 
 interface CalculationTooltipProps {
   metricName: string;

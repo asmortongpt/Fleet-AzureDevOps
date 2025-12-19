@@ -3,7 +3,6 @@
  * Features: Nested folders, drag-drop, folder management, quick filters
  */
 
-import { useState } from 'react';
 import {
   Folder,
   FolderOpen,
@@ -20,6 +19,9 @@ import {
   Tag as TagIcon,
   FileText
 } from 'lucide-react';
+import { useState } from 'react';
+
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
@@ -29,9 +31,8 @@ import {
   DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Badge } from '@/components/ui/badge';
-import { cn } from '@/lib/utils';
 import { Folder as FolderType } from '@/lib/documents/types';
+import { cn } from '@/lib/utils';
 
 interface DocumentSidebarProps {
   currentFolderId?: string;

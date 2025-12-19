@@ -1,6 +1,6 @@
-import { BaseService, PaginationParams, PaginatedResult, NotFoundError } from './base.service';
-import { logger } from './logger';
 import { VehiclesRepository, Vehicle, VehicleWithRelations } from '../repositories/vehicles.repository';
+
+import { BaseService, NotFoundError } from './base.service';
 
 export class VehiclesService extends BaseService {
   constructor(

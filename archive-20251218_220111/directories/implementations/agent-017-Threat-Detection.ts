@@ -1,8 +1,8 @@
 // src/agents/CTAFleetAgent17.ts
-import { Logger } from '../utils/Logger';
-import { ThreatIntelligenceService } from '../services/ThreatIntelligenceService';
-import { AlertService } from '../services/AlertService';
 import { SystemMonitor } from '../monitoring/SystemMonitor';
+import { AlertService } from '../services/AlertService';
+import { ThreatIntelligenceService } from '../services/ThreatIntelligenceService';
+import { Logger } from '../utils/Logger';
 
 export interface Threat {
   id: string;
@@ -220,10 +220,6 @@ export class Logger {
 
 // src/tests/CTAFleetAgent17.test.ts
 import { CTAFleetAgent17, Threat } from '../agents/CTAFleetAgent17';
-import { Logger } from '../utils/Logger';
-import { ThreatIntelligenceService } from '../services/ThreatIntelligenceService';
-import { AlertService } from '../services/AlertService';
-import { SystemMonitor } from '../monitoring/SystemMonitor';
 
 jest.mock('../services/ThreatIntelligenceService');
 jest.mock('../services/AlertService');

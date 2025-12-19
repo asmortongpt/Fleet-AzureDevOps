@@ -1,10 +1,3 @@
-import { useMemo } from 'react'
-import { useQuery, useQueryClient } from '@tanstack/react-query'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
-import { Badge } from '@/components/ui/badge'
-import { ScrollArea } from '@/components/ui/scroll-area'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import {
   ChartLine,
   TrendUp,
@@ -25,6 +18,8 @@ import {
   ShieldCheck,
   Lightning
 } from '@phosphor-icons/react'
+import { useQuery, useQueryClient } from '@tanstack/react-query'
+import { useMemo } from 'react'
 import {
   LineChart,
   Line,
@@ -42,6 +37,13 @@ import {
   Area,
   AreaChart
 } from 'recharts'
+
+import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { ScrollArea } from '@/components/ui/scroll-area'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+
 
 interface KPIData {
   totalVehicles: number

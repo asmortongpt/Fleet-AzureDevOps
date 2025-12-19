@@ -5,9 +5,10 @@
  * Fixes all remaining TypeScript template literal syntax errors
  */
 
-import { Project, SyntaxKind, Node, TemplateExpression, NoSubstitutionTemplateLiteral } from 'ts-morph';
 import * as fs from 'fs';
 import * as path from 'path';
+
+import { Project, SyntaxKind } from 'ts-morph';
 
 interface FixResult {
   file: string;

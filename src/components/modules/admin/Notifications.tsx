@@ -10,10 +10,30 @@
  * - Alert rules management
  */
 
+import {
+  Bell,
+  Check,
+  CheckCircle,
+  Warning,
+  Info,
+  ArrowUp,
+  MagnifyingGlass,
+  Funnel
+} from '@phosphor-icons/react'
 import { useState, useEffect } from 'react'
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
+
 import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter
+} from '@/components/ui/dialog'
+import { Input } from '@/components/ui/input'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import {
   Select,
@@ -22,29 +42,7 @@ import {
   SelectTrigger,
   SelectValue
 } from '@/components/ui/select'
-import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-  DialogFooter
-} from '@/components/ui/dialog'
-import {
-  Bell,
-  Check,
-  CheckCircle,
-  Warning,
-  Info,
-  X,
-  ArrowUp,
-  ArrowDown,
-  MagnifyingGlass,
-  Funnel
-} from '@phosphor-icons/react'
 import { apiClient } from '@/lib/api-client'
 import { useInspect } from '@/services/inspect/InspectContext'
 

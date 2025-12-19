@@ -29,6 +29,8 @@
  */
 
 import { useState, useEffect, useMemo } from "react"
+
+import type { PerformanceMetrics } from "@/hooks/usePerformanceMonitor"
 import {
   FPSMonitor,
   MemoryLeakDetector,
@@ -36,7 +38,6 @@ import {
   FPS_THRESHOLDS,
 } from "@/utils/performance"
 import type { FPSData, WebVital, MemoryLeakReport } from "@/utils/performance"
-import type { PerformanceMetrics } from "@/hooks/usePerformanceMonitor"
 
 // ============================================================================
 // Types & Interfaces

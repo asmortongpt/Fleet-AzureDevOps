@@ -1,9 +1,10 @@
-import * as memwatch from 'memwatch-next';
 import * as fs from 'fs';
 import * as path from 'path';
-import * as heapdump from 'heapdump';
-import * as Sentry from '@sentry/node';
+
 import { datadogRum } from '@datadog/browser-rum';
+import * as Sentry from '@sentry/node';
+import * as heapdump from 'heapdump';
+import * as memwatch from 'memwatch-next';
 
 // Initialize Sentry
 Sentry.init({

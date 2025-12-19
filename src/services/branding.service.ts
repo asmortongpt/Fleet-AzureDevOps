@@ -1,5 +1,6 @@
-import { BrandingConfig } from '../types/branding.d';
 import axios from 'axios';
+
+import { BrandingConfig } from '../types/branding.d';
 
 import logger from '@/utils/logger';
 /**

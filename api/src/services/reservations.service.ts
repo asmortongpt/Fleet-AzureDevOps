@@ -6,6 +6,10 @@
  */
 
 import { Pool, PoolClient } from 'pg';
+
+import logger from '../config/logger';
+import { NotFoundError, ValidationError } from '../middleware/errorHandler';
+import { QueryContext, PaginationOptions, PaginatedResult } from '../repositories/BaseRepository';
 import ReservationsRepository, {
   Reservation,
   ReservationWithDetails,
@@ -13,10 +17,9 @@ import ReservationsRepository, {
   UpdateReservationData,
   ReservationFilters,
 } from '../repositories/ReservationsRepository';
-import { QueryContext, PaginationOptions, PaginatedResult } from '../repositories/BaseRepository';
-import { NotFoundError, ValidationError } from '../middleware/errorHandler';
+
 import MicrosoftIntegrationService from './microsoft-integration.service';
-import logger from '../config/logger';
+
 
 export interface UserContext {
   id: string;

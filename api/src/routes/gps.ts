@@ -8,6 +8,7 @@ import logger from '../config/logger'; // Wave 17: Add Winston logger
  */
 
 import { Router, Request, Response } from 'express'
+
 import { csrfProtection } from '../middleware/csrf'
 
 const router = Router()

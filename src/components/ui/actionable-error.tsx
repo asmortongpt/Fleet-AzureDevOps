@@ -1,7 +1,10 @@
-import { ComponentProps, ReactNode } from "react"
 import { AlertCircle, RefreshCw, HelpCircle } from "lucide-react"
-import { cn } from "@/lib/utils"
+import { ComponentProps, ReactNode } from "react"
+
 import { Button } from "./button"
+
+import { cn } from "@/lib/utils"
+
 
 interface ActionableErrorProps extends ComponentProps<"div"> {
   title: string

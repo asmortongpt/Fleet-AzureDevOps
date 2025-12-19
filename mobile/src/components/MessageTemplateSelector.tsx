@@ -15,12 +15,12 @@ import {
   ActivityIndicator,
   Alert,
 } from 'react-native';
+
+import { MessagingService } from '../services/MessagingService';
 import {
   MessageTemplate,
-  TemplateVariable,
   MessagingContext,
 } from '../types/messaging.types';
-import { MessagingService } from '../services/MessagingService';
 
 interface MessageTemplateSelectorProps {
   type: 'email' | 'sms' | 'teams';
@@ -166,7 +166,7 @@ export const MessageTemplateSelector: React.FC<MessageTemplateSelectorProps> = (
     }
 
     // Replace variables in template
-    let processedTemplate = { ...selectedTemplate };
+    const processedTemplate = { ...selectedTemplate };
     if (processedTemplate.subject) {
       processedTemplate.subject = replaceVariables(
         processedTemplate.subject,

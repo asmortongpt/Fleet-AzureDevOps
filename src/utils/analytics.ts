@@ -84,12 +84,13 @@ class AnalyticsService {
 
       localStorage.setItem('analytics_events', JSON.stringify(events));
 
-      // TODO: Replace with actual analytics service call
-      // await fetch('/api/analytics/track', {
-      //   method: 'POST',
-      //   headers: { 'Content-Type': 'application/json' },
-      //   body: JSON.stringify(event),
-      // });
+      // Send to Application Insights via Telemetry Service
+      // This ensures all analytics are consolidated in one place
+      import('@/lib/telemetry').then(({ telemetryService }) => {
+        telemetryService.trackEvent(event.name, event.properties)
+      }).catch(err => {
+        logger.error('Failed to load telemetry service', err)
+      })
     } catch (error) {
       logger.error('Failed to send analytics event:', { error });
     }

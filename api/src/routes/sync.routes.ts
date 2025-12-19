@@ -19,11 +19,12 @@ import logger from '../config/logger'; // Wave 26: Add Winston logger
  */
 
 import { Router, Request, Response } from 'express'
-import syncService from '../services/sync.service'
-import teamsSync from '../jobs/teams-sync.job'
+
 import outlookSync from '../jobs/outlook-sync.job'
-import { getErrorMessage } from '../utils/error-handler'
+import teamsSync from '../jobs/teams-sync.job'
 import { csrfProtection } from '../middleware/csrf'
+import syncService from '../services/sync.service'
+import { getErrorMessage } from '../utils/error-handler'
 
 
 const router = Router()

@@ -9,11 +9,12 @@
  * 5. Input validation works correctly
  */
 
-import request from 'supertest';
-import { Container } from 'inversify';
 import express, { Express } from 'express';
-import { TYPES } from '../../types';
+import { Container } from 'inversify';
+import request from 'supertest';
+
 import { BreakGlassRepository } from '../../repositories/BreakGlassRepository';
+import { TYPES } from '../../types';
 import breakGlassRouter from '../break-glass';
 
 // Mock the container

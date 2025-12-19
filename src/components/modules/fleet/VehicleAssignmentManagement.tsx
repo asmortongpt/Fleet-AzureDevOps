@@ -6,25 +6,22 @@
  * Supports BR-1 through BR-11 requirements
  */
 
-import React, { useState, useEffect } from 'react';
 import {
-  Users,
   Car,
   Calendar,
   Clock,
   FileText,
   CheckCircle,
-  XCircle,
   AlertTriangle,
   TrendingUp,
   MapPin,
-  Building,
   BarChart,
   Download,
   Plus,
   Search,
-  Filter,
 } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+
 import { useAuth } from '../../hooks/useAuth';
 import { usePermissions } from '../../hooks/usePermissions';
 

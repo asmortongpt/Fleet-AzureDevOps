@@ -1,19 +1,18 @@
+import axios from 'axios'
 import express, { Request, Response } from 'express'
+import { z } from 'zod'
+
+import pool from '../config/database' // SECURITY: Import database pool
+import logger from '../config/logger'; // Wave 16: Add Winston logger
+import { NotFoundError } from '../errors/app-error'
+import { createAuditLog } from '../middleware/audit'
 import { csrfProtection } from '../middleware/csrf'
 
-import { container } from '../container'
-import { asyncHandler } from '../middleware/errorHandler'
-import { NotFoundError, ValidationError } from '../errors/app-error'
-import logger from '../config/logger'; // Wave 16: Add Winston logger
-import { createAuditLog } from '../middleware/audit'
-import { z } from 'zod'
+
 // CRIT-F-004: Updated to use centralized rate limiters
-import { authLimiter, registrationLimiter, passwordResetLimiter, checkBruteForce, bruteForce } from '../middleware/rateLimiter'
+import { authLimiter, registrationLimiter, checkBruteForce, bruteForce } from '../middleware/rateLimiter'
 import { FIPSCryptoService } from '../services/fips-crypto.service'
 import { FIPSJWTService } from '../services/fips-jwt.service'
-import axios from 'axios'
-import jwt from 'jsonwebtoken'
-import pool from '../config/database' // SECURITY: Import database pool
 
 const router = express.Router()
 
@@ -296,7 +295,7 @@ router.post('/register',csrfProtection,  csrfProtection, registrationLimiter, as
     const passwordHash = await FIPSCryptoService.hashPassword(data.password)
 
     // Get default tenant (or create one)
-    let tenantResult = await pool.query('SELECT id FROM tenants LIMIT 1')
+    const tenantResult = await pool.query('SELECT id FROM tenants LIMIT 1')
     let tenantId: string
 
     if (tenantResult.rows.length === 0) {
@@ -719,7 +718,7 @@ router.get('/microsoft/callback', async (req: Request, res: Response) => {
     // SECURITY NOTE: For SSO, we check globally across all tenants first
     // Then assign to the default tenant if they don't exist
     // This prevents duplicate SSO users across tenants
-    let userResult = await pool.query(
+    const userResult = await pool.query(
       'SELECT id, email, first_name, last_name, role, tenant_id FROM users WHERE email = $1',
       [email]
     )

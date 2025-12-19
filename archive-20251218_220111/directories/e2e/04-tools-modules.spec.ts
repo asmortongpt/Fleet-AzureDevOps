@@ -2,15 +2,14 @@
  * Comprehensive E2E tests for TOOLS section (15 modules)
  * Tests include functional testing and visual regression
  */
-import { test, expect } from '@playwright/test';
+import { test } from '@playwright/test';
+
 import {
   navigateToModule,
   takeVisualSnapshot,
   verifyModuleLoaded,
   waitForPageReady,
-  openModal,
   closeModal,
-  testTableSort,
 } from './helpers/test-helpers';
 
 const BASE_URL = 'http://localhost:5000';

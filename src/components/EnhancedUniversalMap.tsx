@@ -11,16 +11,17 @@
  */
 
 import { useState, useEffect, useCallback } from 'react'
-import { UniversalMap, UniversalMapProps, MapProvider } from './UniversalMap'
+
 import { MapErrorBoundary } from './MapErrorBoundary'
-import { useErrorRecovery } from '@/hooks/useErrorRecovery'
-import { useMapHealthCheck, HealthStatus } from '@/utils/mapHealthCheck'
-import { toast } from '@/utils/toast'
+import { UniversalMap, UniversalMapProps, MapProvider } from './UniversalMap'
 import { Badge } from './ui/badge'
 import { Button } from './ui/button'
 import { Card, CardContent } from './ui/card'
 
+import { useErrorRecovery } from '@/hooks/useErrorRecovery'
 import logger from '@/utils/logger';
+import { useMapHealthCheck, HealthStatus } from '@/utils/mapHealthCheck'
+import { toast } from '@/utils/toast'
 // ============================================================================
 // Types & Interfaces
 // ============================================================================

@@ -7,9 +7,10 @@
  * Security: CWE-89 (SQL Injection) - All queries use parameterization
  */
 
-import { Pool, PoolClient } from 'pg';
+
+import { NotFoundError, DatabaseError } from '../middleware/errorHandler';
+
 import { BaseRepository, QueryContext, PaginatedResult, PaginationOptions } from './BaseRepository';
-import { NotFoundError, DatabaseError, ValidationError } from '../middleware/errorHandler';
 
 export interface Reservation {
   id: string;
