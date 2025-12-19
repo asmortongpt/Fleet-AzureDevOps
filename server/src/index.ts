@@ -192,15 +192,20 @@ app.use(errorHandler);
 // Start server
 async function startServer() {
   try {
-    // Test database connection
+    // Test database connection (non-blocking)
     logger.info('Testing database connection...');
-    const dbHealthy = await db.testConnection();
-
-    if (!dbHealthy) {
-      throw new Error('Database connection failed');
+    try {
+      const dbHealthy = await db.testConnection();
+      if (dbHealthy) {
+        logger.info('Database connection successful');
+      } else {
+        logger.warn('Database connection failed - API will start without database connectivity');
+      }
+    } catch (dbError) {
+      logger.warn('Database connection error - API will start without database connectivity', {
+        error: dbError instanceof Error ? dbError.message : dbError
+      });
     }
-
-    logger.info('Database connection successful');
 
     // Start HTTP server
     const server = app.listen(config.port, () => {
