@@ -11,16 +11,15 @@ initSentry()
 
 import React from "react"
 import ReactDOM from "react-dom/client"
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom"
+import { BrowserRouter, Routes, Route } from "react-router-dom"
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
-import * as Sentry from "@sentry/react"
-import { AuthProvider } from "./components/providers/AuthProvider"
+import { AuthProvider } from "./contexts/AuthContext"
+import { TenantProvider } from "./contexts/TenantContext"
+import { FeatureFlagProvider } from "./contexts/FeatureFlagContext"
 import { InspectProvider } from "./services/inspect/InspectContext"
 import { DrilldownProvider } from "./contexts/DrilldownContext"
-import { useAuth } from "./hooks/useAuth"
 import { SentryErrorBoundary } from "./components/errors/SentryErrorBoundary"
 import App from "./App"
-import Login from "./pages/Login"
 import "./index.css"
 import "./styles/design-tokens-responsive.css"
 import "./styles/responsive-utilities.css"
@@ -37,21 +36,6 @@ const queryClient = new QueryClient({
   },
 })
 
-function ProtectedRoute({ children }: { children: React.ReactNode }) {
-  // TEMPORARILY DISABLED: Authentication bypassed for direct dashboard access
-  // const { isAuthenticated, isLoading } = useAuth()
-
-  // if (isLoading) {
-  //   return <div>Loading authentication...</div>
-  // }
-
-  // if (!isAuthenticated) {
-  //   return <Navigate to="/login" replace />
-  // }
-
-  return <>{children}</>
-}
-
 // Use Sentry's BrowserRouter integration (disabled - using regular Routes)
 // const SentryRoutes = Sentry.withSentryRouting(Routes)
 const SentryRoutes = Routes
@@ -61,22 +45,26 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
     <QueryClientProvider client={queryClient}>
       <SentryErrorBoundary level="page">
         <AuthProvider>
-          <DrilldownProvider>
-            <InspectProvider>
-              <BrowserRouter>
-                <SentryRoutes>
-                  <Route
-                    path="/*"
-                    element={
-                      <SentryErrorBoundary level="section">
-                        <App />
-                      </SentryErrorBoundary>
-                    }
-                  />
-                </SentryRoutes>
-              </BrowserRouter>
-            </InspectProvider>
-          </DrilldownProvider>
+          <TenantProvider>
+            <FeatureFlagProvider>
+              <DrilldownProvider>
+                <InspectProvider>
+                  <BrowserRouter>
+                    <SentryRoutes>
+                      <Route
+                        path="/*"
+                        element={
+                          <SentryErrorBoundary level="section">
+                            <App />
+                          </SentryErrorBoundary>
+                        }
+                      />
+                    </SentryRoutes>
+                  </BrowserRouter>
+                </InspectProvider>
+              </DrilldownProvider>
+            </FeatureFlagProvider>
+          </TenantProvider>
         </AuthProvider>
       </SentryErrorBoundary>
     </QueryClientProvider>

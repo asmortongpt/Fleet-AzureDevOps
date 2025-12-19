@@ -183,7 +183,7 @@ export class VehicleRepository extends BaseRepository<Vehicle> {
           status_count
         ) FILTER (WHERE status IS NOT NULL) as by_status,
         json_object_agg(
-          COALESCE(asset_type, `unknown`),
+          COALESCE(asset_type, 'unknown'),
           asset_type_count
         ) FILTER (WHERE asset_type IS NOT NULL) as by_asset_type
       FROM (
@@ -213,5 +213,38 @@ export class VehicleRepository extends BaseRepository<Vehicle> {
       by_status: row.by_status || {},
       by_asset_type: row.by_asset_type || {}
     }
+  }
+
+  /**
+   * Find all vehicles with details (joins)
+   */
+  async findAllWithDetails(
+    tenantId: string,
+    filters: Record<string, any> = {}
+  ): Promise<any[]> {
+    const whereConditions: string[] = ['v.tenant_id = $1']
+    const values: any[] = [tenantId]
+    let paramCount = 1
+
+    if (filters.status) {
+      paramCount++
+      whereConditions.push(`v.status = $${paramCount}`)
+      values.push(filters.status)
+    }
+
+    const query = `
+      SELECT
+        v.*,
+        u.first_name || ' ' || u.last_name as assigned_driver_name,
+        f.name as assigned_facility_name
+      FROM vehicles v
+      LEFT JOIN users u ON v.assigned_driver_id = u.id
+      LEFT JOIN facilities f ON v.assigned_facility_id = f.id
+      WHERE ${whereConditions.join(' AND ')}
+      ORDER BY v.created_at DESC
+    `
+
+    const result = await this.query(query, values)
+    return result.rows
   }
 }
