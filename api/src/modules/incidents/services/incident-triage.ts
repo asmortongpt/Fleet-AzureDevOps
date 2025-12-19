@@ -1,8 +1,9 @@
 import { injectable, inject } from 'inversify';
+
 import { BaseService } from '../../../services/base.service';
-import { IncidentRepository } from '../repositories/incident.repository';
 import { TYPES } from '../../../types';
 import type { Incident } from '../../../types/incident';
+import { IncidentRepository } from '../repositories/incident.repository';
 
 /**
  * Priority levels for incident classification
@@ -324,7 +325,7 @@ export class IncidentTriageService extends BaseService {
       'other': 240        // 4 hours
     };
 
-    let time = baseTime[incidentType] || 240;
+    const time = baseTime[incidentType] || 240;
 
     // Adjust based on priority
     const priorityMultipliers: Record<PriorityLevel, number> = {

@@ -1,19 +1,9 @@
-import React, { useState, useMemo, useCallback } from "react"
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
-import { ScrollArea } from "@/components/ui/scroll-area"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Input } from "@/components/ui/input"
-import { Separator } from "@/components/ui/separator"
 import {
   BarChart3,
   LineChart,
   PieChart,
   TrendingUp,
   TrendingDown,
-  Calendar,
   Download,
   Filter,
   RefreshCw,
@@ -26,9 +16,16 @@ import {
   Wrench,
   Clock
 } from "lucide-react"
+import React, { useState } from "react"
+
+import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
+import { ScrollArea } from "@/components/ui/scroll-area"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Separator } from "@/components/ui/separator"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { useVehicles, useWorkOrders, useFacilities, useDrivers } from "@/hooks/use-api"
-import { useDrilldown } from "@/contexts/DrilldownContext"
-import { cn } from "@/lib/utils"
 
 // Executive Dashboard Panel
 const ExecutiveDashboard = ({ vehicles, workOrders, drivers }) => {

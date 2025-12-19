@@ -2,6 +2,7 @@
 // Comprehensive error handling and JSDoc documentation
 
 import { useEffect, useRef, useState, useCallback } from 'react';
+
 import { MemoryLeakDetector } from '@/utils/performance';
 
 // ============================================================================

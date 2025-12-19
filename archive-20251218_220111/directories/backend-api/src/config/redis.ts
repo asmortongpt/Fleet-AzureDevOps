@@ -1,4 +1,5 @@
 import Redis from 'ioredis';
+
 import { logger } from '../utils/logger';
 
 const redisClient = new Redis({

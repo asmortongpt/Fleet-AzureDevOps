@@ -1,6 +1,7 @@
 import React from "react";
-import { useInspect } from "@/services/inspect/InspectContext";
+
 import { Button } from "@/components/ui/button";
+import { useInspect } from "@/services/inspect/InspectContext";
 
 /**
  * Test component to verify the inspect system works

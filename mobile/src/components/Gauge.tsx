@@ -5,7 +5,6 @@
 
 import React, { useEffect } from 'react';
 import { View, Text, StyleSheet } from 'react-native';
-import Svg, { Circle, Path, G, Line } from 'react-native-svg';
 import Animated, {
   useSharedValue,
   useAnimatedProps,
@@ -13,6 +12,8 @@ import Animated, {
   interpolate,
   Extrapolate,
 } from 'react-native-reanimated';
+import Svg, { Circle, Path, G, Line } from 'react-native-svg';
+
 import { GaugeConfig } from '../types/obd2';
 
 // ============================================================================

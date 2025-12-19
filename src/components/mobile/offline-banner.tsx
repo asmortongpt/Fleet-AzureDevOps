@@ -3,10 +3,10 @@
  * Displays when the app is offline and shows sync status
  */
 
-import React, { useEffect, useState } from 'react'
-import { offlineManager, type OfflineState } from '@/lib/offline-manager'
 import { WifiOff, Wifi, RefreshCw } from 'lucide-react'
+import React, { useEffect, useState } from 'react'
 
+import { offlineManager, type OfflineState } from '@/lib/offline-manager'
 import logger from '@/utils/logger';
 export function OfflineBanner() {
   const [offlineState, setOfflineState] = useState<OfflineState | null>(null)

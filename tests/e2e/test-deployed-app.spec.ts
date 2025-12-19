@@ -1,4 +1,4 @@
-import { test, expect } from '@playwright/test'
+import { test } from '@playwright/test'
 
 test('Fleet app loads and API calls work', async ({ page }) => {
   // Listen for console messages

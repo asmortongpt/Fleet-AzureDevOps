@@ -1,10 +1,21 @@
+import {
+  User,
+  Activity,
+  Phone,
+  Mail,
+  Clock,
+  Award,
+  Truck,
+  Moon
+} from "lucide-react"
 import { useState, useMemo } from "react"
+
+import { ProfessionalFleetMap } from "@/components/Maps/ProfessionalFleetMap"
 import { MapFirstLayout } from "@/components/layout/MapFirstLayout"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { ScrollArea } from "@/components/ui/scroll-area"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import {
   Select,
   SelectContent,
@@ -12,24 +23,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
-import {
-  User,
-  MapPin,
-  Activity,
-  TrendingUp,
-  Calendar,
-  Phone,
-  Mail,
-  Shield,
-  AlertCircle,
-  CheckCircle2,
-  Clock,
-  Award,
-  Truck,
-  Coffee,
-  Moon
-} from "lucide-react"
-import { ProfessionalFleetMap } from "@/components/Maps/ProfessionalFleetMap"
 import { Driver, Vehicle } from "@/lib/types"
 import { cn } from "@/lib/utils"
 

@@ -1,7 +1,8 @@
 import { Request, Response, NextFunction } from 'express';
+
 import { getUserRoles, getRoutePermissions } from '../services/permissionsService';
-import { Logger } from '../utils/logger';
 import { FedRAMPCompliantLogger } from '../utils/fedrampLogger';
+import { Logger } from '../utils/logger';
 
 // Ensure TypeScript strict mode is enabled in tsconfig.json
 

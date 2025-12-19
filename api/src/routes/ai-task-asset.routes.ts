@@ -8,8 +8,10 @@ import logger from '../config/logger'; // Wave 23: Add Winston logger
  */
 
 import { Router } from 'express'
+
 import type { AuthRequest } from '../middleware/auth'
 import { authenticateJWT } from '../middleware/auth'
+import { csrfProtection } from '../middleware/csrf'
 import {
   analyzeTaskAndSuggest,
   suggestTaskAssignee,
@@ -18,15 +20,12 @@ import {
   parseNaturalLanguageTask,
   answerQuestionAboutAssetOrTask
 } from '../services/ai/task-asset-ai.service'
+import TaskAssetConfigManager from '../services/config/task-asset-config.service'
 import {
   optimizeTaskSchedule,
   analyzeAssetLifecycle,
-  predictMaintenanceWithMCP,
-  queryWithNaturalLanguage,
   mcpManager
 } from '../services/mcp/task-asset-mcp.service'
-import TaskAssetConfigManager from '../services/config/task-asset-config.service'
-import { csrfProtection } from '../middleware/csrf'
 
 
 const router = Router()

@@ -3,14 +3,15 @@
  * Live radio feed with real-time transcription and automated dispatch
  */
 
-import { useState, useEffect } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Badge } from '@/components/ui/badge';
+import { Radio, Activity, FileText, Settings } from 'lucide-react';
+import { useState } from 'react';
+
+import { PolicyQueue } from '@/components/radio/PolicyQueue';
 import { RadioFeed } from '@/components/radio/RadioFeed';
 import { TranscriptPanel } from '@/components/radio/TranscriptPanel';
-import { PolicyQueue } from '@/components/radio/PolicyQueue';
-import { Radio, Activity, FileText, Settings } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useRadioSocket } from '@/hooks/useRadioSocket';
 
 export default function RadioDispatchPage() {

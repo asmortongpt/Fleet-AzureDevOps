@@ -1,5 +1,5 @@
 import { doubleCsrf } from "csrf-csrf";
-import { Request, Response } from "express";
+import { Request } from "express";
 
 export const {
   invalidCsrfTokenError, // This is just for convenience if you plan on making your own error handler

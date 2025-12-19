@@ -1,4 +1,3 @@
-import React, { useState } from "react";
 import {
   useReactTable,
   getCoreRowModel,
@@ -12,15 +11,6 @@ import {
   PaginationState,
 } from "@tanstack/react-table";
 import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import { Button } from "@/components/ui/button";
-import {
   ChevronLeft,
   ChevronRight,
   ChevronsLeft,
@@ -29,8 +19,19 @@ import {
   ArrowDown,
   ArrowUpDown,
 } from "lucide-react";
-import { useInspect } from "@/services/inspect/InspectContext";
+import React, { useState } from "react";
+
+import { Button } from "@/components/ui/button";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import { cn } from "@/lib/utils";
+import { useInspect } from "@/services/inspect/InspectContext";
 
 interface DataGridProps<TData> {
   data: TData[];

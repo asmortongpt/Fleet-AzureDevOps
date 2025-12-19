@@ -1,5 +1,5 @@
-import QRCode from 'qrcode';
 import { Request, Response } from 'express';
+import QRCode from 'qrcode';
 import { z } from 'zod';
 
 /**

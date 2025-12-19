@@ -1,13 +1,12 @@
 import express, { Response } from 'express'
-import { container } from '../container'
-import { asyncHandler } from '../middleware/errorHandler'
-import { NotFoundError, ValidationError } from '../errors/app-error'
+
 import logger from '../config/logger'; // Wave 30: Add Winston logger
-import { AuthRequest, authenticateJWT } from '../middleware/auth'
-import { requirePermission } from '../middleware/permissions'
+import { ValidationError } from '../errors/app-error'
 import { auditLog } from '../middleware/audit'
-import fleetOptimizerService from '../services/fleet-optimizer.service'
+import { AuthRequest, authenticateJWT } from '../middleware/auth'
 import { csrfProtection } from '../middleware/csrf'
+import { requirePermission } from '../middleware/permissions'
+import fleetOptimizerService from '../services/fleet-optimizer.service'
 
 
 const router = express.Router()

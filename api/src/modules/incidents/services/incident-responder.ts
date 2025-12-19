@@ -1,13 +1,15 @@
 import { injectable, inject } from 'inversify';
+
 import { BaseService } from '../../../services/base.service';
-import { IncidentRepository } from '../repositories/incident.repository';
-import { IncidentTriageService, PriorityLevel } from './incident-triage';
-import { PlaybooksService } from './playbooks';
-import { ContainmentService } from './containment';
-import { RemediationService } from './remediation';
-import { PostIncidentService } from './post-incident';
 import { TYPES } from '../../../types';
 import type { Incident } from '../../../types/incident';
+import { IncidentRepository } from '../repositories/incident.repository';
+
+import { ContainmentService } from './containment';
+import { IncidentTriageService, PriorityLevel } from './incident-triage';
+import { PlaybooksService } from './playbooks';
+import { PostIncidentService } from './post-incident';
+import { RemediationService } from './remediation';
 
 /**
  * Complete incident response result

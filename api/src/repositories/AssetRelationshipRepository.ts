@@ -1,6 +1,7 @@
-import { BaseRepository } from '../services/dal/BaseRepository'
-import { connectionManager } from '../config/connection-manager'
 import { PoolClient } from 'pg'
+
+import { connectionManager } from '../config/connection-manager'
+import { BaseRepository } from '../services/dal/BaseRepository'
 
 export interface AssetRelationship {
   id: string

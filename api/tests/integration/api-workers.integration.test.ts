@@ -1,8 +1,9 @@
 
 import { describe, it, expect, beforeAll, afterAll } from '@jest/globals';
+
+import { queueManager } from '../../src/jobs/queueManager';
 import { createTestDatabase, cleanupTestDatabase } from '../helpers/test-db';
 import { startTestServer } from '../helpers/test-server';
-import { queueManager } from '../../src/jobs/queueManager';
 
 describe('API and Workers Integration Tests', () => {
   let testDb;

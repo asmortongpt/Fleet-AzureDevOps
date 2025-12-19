@@ -1,6 +1,6 @@
-import { telemetrySchema } from '../schemas/telemetry.schema';
 import { pool } from '../db';
 import { logger } from '../logger';
+import { telemetrySchema } from '../schemas/telemetry.schema';
 
 export async function processTelemetry(job: any) {
   try {

@@ -24,17 +24,18 @@ handleGracefulShutdown()
 import express from 'express'
 import cors from 'cors'
 import helmet from 'helmet'
-import vehiclesRouter from './routes/vehicles'
+
 import driversRouter from './routes/drivers'
 import fuelRouter from './routes/fuel-transactions'
-import maintenanceRouter from './routes/maintenance'
 import incidentsRouter from './routes/incidents'
-import partsRouter from './routes/parts'
-import vendorsRouter from './routes/vendors'
 import invoicesRouter from './routes/invoices'
+import maintenanceRouter from './routes/maintenance'
+import partsRouter from './routes/parts'
+import chargesRouter from './routes/personal-use-charges'
 import purchaseOrdersRouter from './routes/purchase-orders'
 import tasksRouter from './routes/tasks'
-import chargesRouter from './routes/personal-use-charges'
+import vehiclesRouter from './routes/vehicles'
+import vendorsRouter from './routes/vendors'
 import { telemetryMiddleware, errorTelemetryMiddleware, performanceMiddleware } from './middleware/telemetry'
 
 const app = express()

@@ -1,10 +1,10 @@
+import { AlertTriangle, RefreshCw, Home, Bug, Clock } from 'lucide-react'
 import { Component, ReactNode, ErrorInfo } from 'react'
+
 import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
-import { AlertTriangle, RefreshCw, Home, Bug, Clock } from 'lucide-react'
 import { telemetryService } from '@/lib/telemetry'
-
 import logger from '@/utils/logger';
 interface Props {
   children: ReactNode

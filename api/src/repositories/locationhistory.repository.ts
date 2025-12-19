@@ -1,7 +1,8 @@
-import { BaseRepository } from '../repositories/BaseRepository';
 
 import { Pool } from 'pg';
+
 import { LocationHistory } from '../models/location-history.model';
+import { BaseRepository } from '../repositories/BaseRepository';
 
 export class LocationHistoryRepository extends BaseRepository<any> {
   private pool: Pool;

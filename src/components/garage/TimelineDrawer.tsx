@@ -11,13 +11,6 @@
  * Created: 2025-11-24
  */
 
-import React, { useState } from 'react'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
-import { Button } from '@/components/ui/button'
-import { ScrollArea } from '@/components/ui/scroll-area'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { format, formatDistanceToNow } from 'date-fns'
 import {
   Clock,
   Wrench,
@@ -28,13 +21,17 @@ import {
   CaretDown,
   Car,
   GasPump,
-  Tire,
-  Drop,
-  Lightning,
   ShieldCheck,
   X,
   CaretDoubleRight
 } from '@phosphor-icons/react'
+import { format, formatDistanceToNow } from 'date-fns'
+import React, { useState } from 'react'
+
+import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
+import { ScrollArea } from '@/components/ui/scroll-area'
+import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { cn } from '@/lib/utils'
 
 // Event types

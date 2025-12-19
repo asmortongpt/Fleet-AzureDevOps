@@ -8,14 +8,16 @@ import {
   ErrorInfo,
   ReactNode,
 } from "react"
-import { LeafletMap } from "./LeafletMap"
+
 import { GoogleMap } from "./GoogleMap"
-import { Vehicle, GISFacility, TrafficCamera } from "@/lib/types"
-import { usePerformanceMonitor } from "@/hooks/usePerformanceMonitor"
+import { LeafletMap } from "./LeafletMap"
 import { PerformanceMonitor } from "./PerformanceMonitor"
+
+import { usePerformanceMonitor } from "@/hooks/usePerformanceMonitor"
+import { Vehicle, GISFacility, TrafficCamera } from "@/lib/types"
+import logger from '@/utils/logger';
 import { getMarkerOptimizationSuggestions } from "@/utils/performance"
 
-import logger from '@/utils/logger';
 // ============================================================================
 // Types & Interfaces
 // ============================================================================

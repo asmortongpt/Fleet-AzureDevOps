@@ -1,6 +1,7 @@
 // server/src/lib/permissions.ts
 
 import { Request, Response, NextFunction } from 'express';
+
 import { getUserRoles, getRoutePermissions } from './authService';
 import { Logger } from './logger';
 

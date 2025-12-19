@@ -1,8 +1,15 @@
+import {
+  QrCode,
+  Barcode,
+  Camera,
+  MagnifyingGlass,
+  CarProfile,
+  Check
+} from "@phosphor-icons/react"
 import { useState } from "react"
+import { toast } from "sonner"
+
 import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import {
   Dialog,
@@ -12,17 +19,10 @@ import {
   DialogTitle,
   DialogTrigger
 } from "@/components/ui/dialog"
-import {
-  QrCode,
-  Barcode,
-  Camera,
-  MagnifyingGlass,
-  CarProfile,
-  Check
-} from "@phosphor-icons/react"
-import { toast } from "sonner"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import apiClient from "@/lib/api-client"
-
 import logger from '@/utils/logger';
 export interface VehicleInfo {
   vehicleId: string
@@ -133,22 +133,24 @@ export function VehicleIdentification({
     toast.info("QR code scanner integration coming soon", {
       description: "Use browser camera API or dedicated QR scanner app"
     })
-    // PRODUCTION TODO: Integrate with browser camera API or QR scanner library
-    // Example: https://github.com/nimiq/qr-scanner
+    logger.info("QR Scan feature requested - requires hardware camera integration")
+    // Note: Browser camera API integration scheduled for future phase
   }
 
   const handleVINScan = () => {
     toast.info("VIN barcode scanner coming soon", {
       description: "Use barcode scanner hardware or mobile app"
     })
-    // PRODUCTION TODO: Integrate with barcode scanner hardware or library
+    logger.info("VIN Scan feature requested - requires hardware barcode scanner")
+    // Note: Hardware scanner integration scheduled for future phase
   }
 
   const handlePlateScan = () => {
     toast.info("License plate OCR coming soon", {
       description: "Azure Computer Vision integration required for OCR"
     })
-    // PRODUCTION TODO: Implement camera capture and Azure OCR integration
+    logger.info("Plate Scan feature requested - requires Azure OCR integration")
+    // Note: Azure OCR integration scheduled for future phase
   }
 
   return (

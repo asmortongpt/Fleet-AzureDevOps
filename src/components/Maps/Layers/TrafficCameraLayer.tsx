@@ -1,7 +1,8 @@
+import { divIcon } from 'leaflet';
+import { Camera, ExternalLink } from 'lucide-react';
 import React, { useState } from 'react';
 import { Marker, Popup } from 'react-leaflet';
-import { Icon, divIcon } from 'leaflet';
-import { Camera, ExternalLink } from 'lucide-react';
+
 import { useTrafficCameras } from '../../../hooks/useTrafficCameras';
 import type { TrafficCamera } from '../../../types/traffic-cameras';
 

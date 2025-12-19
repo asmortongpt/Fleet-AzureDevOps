@@ -1,10 +1,11 @@
 import express, { Request, Response, Router } from 'express';
-import { db } from '../services/database';
-import { logger } from '../services/logger';
+
 import { authenticateToken } from '../middleware/auth';
 import { tenantIsolation } from '../middleware/tenant-isolation';
 import { validate } from '../middleware/validation';
 import { createRouteSchema, updateRouteSchema } from '../schemas/route.schema';
+import { db } from '../services/database';
+import { logger } from '../services/logger';
 
 const router: Router = express.Router();
 

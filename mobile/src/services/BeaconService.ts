@@ -10,7 +10,7 @@
  * - Support for iBeacon and Eddystone formats
  */
 
-import { Platform, PermissionsAndroid, Alert } from 'react-native'
+import { Platform, PermissionsAndroid } from 'react-native'
 import Beacons from 'react-native-beacons-manager'
 
 export type BeaconProximity = 'immediate' | 'near' | 'far' | 'unknown'

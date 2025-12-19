@@ -9,28 +9,20 @@
 
 // Fleet filters - eliminates duplicate filter logic across 12+ modules
 export { useVehicleFilters } from './useVehicleFilters'
-export type { VehicleFilters, FilterStats } from './useVehicleFilters'
+export type { FilterOptions as VehicleFilters } from './useVehicleFilters'
 
 // Fleet metrics - eliminates duplicate calculation logic across 8+ modules
 export { useFleetMetrics } from './useFleetMetrics'
-export type {
-  UtilizationMetrics,
-  CostMetrics,
-  MaintenanceMetrics,
-  ComplianceMetrics,
-  EfficiencyMetrics,
-  FleetMetrics
-} from './useFleetMetrics'
+export type { FleetMetrics } from './useFleetMetrics'
 
 // Confirmation dialogs - eliminates duplicate dialog management across 20+ modules
-// TODO: Implement useConfirmationDialog hook
-// export {
-//   useConfirmationDialog,
-//   useDeleteConfirmation,
-//   useSaveConfirmation,
-//   useDiscardConfirmation
-// } from './useConfirmationDialog'
-// export type { ConfirmationConfig } from './useConfirmationDialog'
+export {
+  useConfirmationDialog,
+  useDeleteConfirmation,
+  useSaveConfirmation,
+  useDiscardConfirmation
+} from './useConfirmationDialog'
+export type { ConfirmationConfig } from './useConfirmationDialog'
 
 // ============================================================================
 // EXISTING HOOKS

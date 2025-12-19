@@ -5,11 +5,12 @@
  */
 
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
-import ThreatDetector from '../threat-detector';
-import BehavioralAnalyzer from '../behavioral-analysis';
-import ThreatScorer from '../threat-scoring';
-import ThreatIntelligenceService from '../threat-intel';
+
 import AutomatedThreatHunter from '../automated-hunting';
+import BehavioralAnalyzer from '../behavioral-analysis';
+import ThreatDetector from '../threat-detector';
+import ThreatIntelligenceService from '../threat-intel';
+import ThreatScorer from '../threat-scoring';
 import type {
   ThreatAnalysisResult,
   BehaviorProfile,

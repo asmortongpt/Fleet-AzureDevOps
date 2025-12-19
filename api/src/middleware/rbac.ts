@@ -15,10 +15,12 @@
  * @module middleware/rbac
  */
 
-import { Request, Response, NextFunction } from 'express'
-import { AuthRequest } from './auth'
+import { Response, NextFunction } from 'express'
+
 import pool from '../config/database'
 import logger from '../config/logger'
+
+import { AuthRequest } from './auth'
 import { getUserPermissions, clearPermissionCache } from './permissions'
 
 // ============================================================================

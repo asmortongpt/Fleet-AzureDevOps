@@ -12,9 +12,8 @@
  * - Multi-tenant support
  */
 
-import { Pool } from 'pg'
-import { PoolClient } from 'pg'
-import logger from '../utils/logger'
+import { Pool  } from 'pg'
+
 
 export interface SearchFilters {
   vehicleId?: string

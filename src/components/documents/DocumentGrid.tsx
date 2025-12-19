@@ -3,9 +3,6 @@
  * Features: Thumbnails, hover actions, drag-drop selection, infinite scroll
  */
 
-import { useRef, useState } from 'react';
-import { FixedSizeGrid as Grid } from 'react-window';
-import { useResizeObserver } from '@/hooks/useResizeObserver';
 import {
   MoreVertical,
   Download,
@@ -16,6 +13,10 @@ import {
   Copy,
   Tag as TagIcon
 } from 'lucide-react';
+import { useRef, useState } from 'react';
+import { FixedSizeGrid as Grid } from 'react-window';
+
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import {
@@ -25,8 +26,8 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu';
-import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
+import { useResizeObserver } from '@/hooks/useResizeObserver';
 import { DocumentMetadata } from '@/lib/documents/types';
 import {
   formatFileSize,

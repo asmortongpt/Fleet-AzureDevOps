@@ -131,8 +131,6 @@ export class Logger {
 
 // src/tests/CTAFleetAgent47.test.ts
 import { CTAFleetAgent47 } from '../agents/CTAFleetAgent47';
-import { PatientData } from '../types/patient';
-import { Logger } from '../utils/logger';
 
 class MockLogger extends Logger {
   public infoMessages: string[] = [];

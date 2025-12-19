@@ -12,7 +12,7 @@
 
 import crypto from 'crypto';
 import { Readable } from 'stream';
-import { Pool } from 'pg';
+
 import {
   IStorageAdapter,
   StorageConfig,
@@ -20,21 +20,18 @@ import {
   UploadResult,
   DownloadOptions,
   DownloadResult,
-  FileMetadata,
   ListOptions,
   ListResult,
-  CopyOptions,
   GetUrlOptions,
-  StorageStats,
   QuotaExceededError,
   FileNotFoundError
 } from '../storage/StorageAdapter';
+import { AzureBlobStorageAdapter } from '../storage/adapters/AzureBlobStorageAdapter';
+import { BoxStorageAdapter } from '../storage/adapters/BoxStorageAdapter';
+import { DropboxStorageAdapter } from '../storage/adapters/DropboxStorageAdapter';
+import { GoogleCloudStorageAdapter } from '../storage/adapters/GoogleCloudStorageAdapter';
 import { LocalStorageAdapter } from '../storage/adapters/LocalStorageAdapter';
 import { S3StorageAdapter } from '../storage/adapters/S3StorageAdapter';
-import { AzureBlobStorageAdapter } from '../storage/adapters/AzureBlobStorageAdapter';
-import { GoogleCloudStorageAdapter } from '../storage/adapters/GoogleCloudStorageAdapter';
-import { DropboxStorageAdapter } from '../storage/adapters/DropboxStorageAdapter';
-import { BoxStorageAdapter } from '../storage/adapters/BoxStorageAdapter';
 import { SharePointStorageAdapter } from '../storage/adapters/SharePointStorageAdapter';
 
 export interface StorageTier {

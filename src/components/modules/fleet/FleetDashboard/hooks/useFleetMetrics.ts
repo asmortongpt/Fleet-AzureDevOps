@@ -1,4 +1,5 @@
 import { useMemo } from "react"
+
 import { Vehicle } from "@/lib/types"
 
 export function useFleetMetrics(vehicles: Vehicle[]) {

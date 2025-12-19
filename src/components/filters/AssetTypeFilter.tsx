@@ -12,7 +12,6 @@
  * - Group and location filtering
  */
 
-import React, { useState } from 'react'
 import {
   Funnel,
   X,
@@ -20,10 +19,10 @@ import {
   Engine,
   Wrench,
   CheckCircle,
-  Calendar,
-  MapPin,
-  Users
+  Calendar
 } from '@phosphor-icons/react'
+import React, { useState } from 'react'
+
 import { Button } from '@/components/ui/button'
 
 // Import types from frontend types
@@ -34,7 +33,6 @@ import type {
   OperationalStatus,
   PrimaryMetric
 } from '@/types/asset.types'
-
 import {
   ASSET_CATEGORY_LABELS,
   ASSET_TYPE_LABELS,

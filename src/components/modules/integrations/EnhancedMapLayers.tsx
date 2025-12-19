@@ -18,18 +18,6 @@
  * @version 2.0.0
  */
 
-import { useState, useCallback, useMemo } from "react"
-import { useQuery } from "@tanstack/react-query"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
-import { Skeleton } from "@/components/ui/skeleton"
-import { UniversalMap } from "@/components/UniversalMap"
-import { useFleetData } from "@/hooks/use-fleet-data"
-import { useSafetyIncidents, useChargingStations } from "@/hooks/use-api"
-import logger from '@/utils/logger';
 import {
   MapTrifold,
   CloudRain,
@@ -46,6 +34,20 @@ import {
   ArrowClockwise,
   Info
 } from "@phosphor-icons/react"
+import { useQuery } from "@tanstack/react-query"
+import { useState, useCallback, useMemo } from "react"
+
+import { UniversalMap } from "@/components/UniversalMap"
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
+import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Skeleton } from "@/components/ui/skeleton"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { useSafetyIncidents, useChargingStations } from "@/hooks/use-api"
+import { useFleetData } from "@/hooks/use-fleet-data"
+import logger from '@/utils/logger';
+
 
 // ============================================================================
 // Type Definitions

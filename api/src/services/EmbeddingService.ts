@@ -16,7 +16,7 @@
 
 import OpenAI from 'openai'
 import { Pool } from 'pg'
-import logger from '../utils/logger'
+
 
 // Cohere SDK (optional)
 interface CohereClient {

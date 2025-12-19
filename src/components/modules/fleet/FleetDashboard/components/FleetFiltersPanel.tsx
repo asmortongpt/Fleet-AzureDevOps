@@ -1,9 +1,9 @@
+import { MagnifyingGlass, FunnelSimple, X } from "@phosphor-icons/react"
+
+import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { sanitizeUserInput } from '@/utils/xss-sanitizer'
 import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Badge } from "@/components/ui/badge"
-import { MagnifyingGlass, FunnelSimple, X } from "@phosphor-icons/react"
 
 interface FleetFiltersPanelProps {
   statusFilter: string

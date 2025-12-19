@@ -9,11 +9,9 @@
  * - ProgressIndicator for async operations
  */
 
-import { useState } from "react";
 import { motion } from "framer-motion";
-import { Card } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useState } from "react";
+
 
 // Import all new components
 import {
@@ -21,7 +19,17 @@ import {
   AnimatedMarkerCluster,
   AnimatedMarkerRoute,
 } from "@/components/ui/AnimatedMarker";
-
+import {
+  HeatmapGradient,
+  ZoneOverlay,
+  PerformanceGradient,
+  AnimatedBackground,
+} from "@/components/ui/GradientOverlay";
+import {
+  InteractiveTooltip,
+  SimpleTooltip,
+  DataTooltip,
+} from "@/components/ui/InteractiveTooltip";
 import {
   MapLoadingSkeleton,
   VehicleListLoadingSkeleton,
@@ -30,20 +38,6 @@ import {
   DetailPanelLoadingSkeleton,
   ChartLoadingSkeleton,
 } from "@/components/ui/LoadingSkeleton";
-
-import {
-  InteractiveTooltip,
-  SimpleTooltip,
-  DataTooltip,
-} from "@/components/ui/InteractiveTooltip";
-
-import {
-  HeatmapGradient,
-  ZoneOverlay,
-  PerformanceGradient,
-  AnimatedBackground,
-} from "@/components/ui/GradientOverlay";
-
 import {
   LinearProgress,
   CircularProgress,
@@ -52,6 +46,9 @@ import {
   LoadingSpinner,
   PulsingDots,
 } from "@/components/ui/ProgressIndicator";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 export function AnimationShowcase() {
   const [activeTab, setActiveTab] = useState("markers");

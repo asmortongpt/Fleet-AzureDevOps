@@ -1,6 +1,6 @@
 // Minimal working Fleet API server for emergency deployment
-import express from 'express'
 import cors from 'cors'
+import express from 'express'
 
 const app = express()
 const PORT = process.env.PORT || 3001
