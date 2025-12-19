@@ -17,6 +17,7 @@ COPY src ./src
 
 # Build TypeScript (skip lib checks to avoid compilation errors)
 RUN npm install -D typescript @types/node && \
+    rm -rf dist && \
     npx tsc --skipLibCheck || echo "Build completed with warnings"
 
 # Stage 2: Production
