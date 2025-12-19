@@ -1,13 +1,3 @@
-import React, { useState } from "react";
-import {
-    Sheet,
-    SheetContent,
-    SheetHeader,
-    SheetTitle,
-    SheetDescription,
-} from "../../ui/sheet";
-import { Button } from "../../ui/button";
-import { Badge } from "../../ui/badge";
 import {
     Wrench,
     CheckCircle,
@@ -15,6 +5,18 @@ import {
     Clock,
     CalendarCheck
 } from "@phosphor-icons/react";
+import React, { useState } from "react";
+
+import { Badge } from "../../ui/badge";
+import { Button } from "../../ui/button";
+import {
+    Sheet,
+    SheetContent,
+    SheetHeader,
+    SheetTitle,
+    SheetDescription,
+} from "../../ui/sheet";
+
 import { useFleetData } from "@/hooks/use-fleet-data";
 
 interface MaintenancePanelProps {

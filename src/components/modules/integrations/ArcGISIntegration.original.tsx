@@ -46,8 +46,6 @@ import { Slider } from "@/components/ui/slider"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { apiClient } from "@/lib/api-client"
 import type { ArcGISLayerConfig } from "@/lib/arcgis/types"
-
-
 import logger from '@/utils/logger';
 type LayerHealth = "healthy" | "warning" | "error" | "unknown"
 

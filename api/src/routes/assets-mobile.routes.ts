@@ -1,10 +1,6 @@
 import express from 'express'
-import { container } from '../container'
-import { asyncHandler } from '../middleware/errorHandler'
-import { NotFoundError, ValidationError } from '../errors/app-error'
-import logger from '../config/logger' // Wave 33: Add Winston logger (FINAL WAVE!)
-import multer from 'multer'
-import { pool } from '../db'
+
+
 // DISABLED: authMiddleware module does not exist, verifyJWT not found in codebase
 // import { verifyJWT } from '../middleware/authMiddleware'
 // import {
@@ -14,7 +10,11 @@ import { pool } from '../db'
 //   rateLimiter,
 // } from '../utils/securityUtils'
 import { Request, Response } from 'express'
+import multer from 'multer'
 import { z } from 'zod'
+
+import logger from '../config/logger' // Wave 33: Add Winston logger (FINAL WAVE!)
+import { pool } from '../db'
 import { csrfProtection } from '../middleware/csrf'
 
 

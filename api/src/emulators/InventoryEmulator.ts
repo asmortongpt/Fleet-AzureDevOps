@@ -11,8 +11,10 @@
  */
 
 import { EventEmitter } from 'events'
+
 import { faker } from '@faker-js/faker'
-import type { EmulatorConfig, Vehicle, EmulatorEvent } from './types'
+
+import type { EmulatorConfig, EmulatorEvent } from './types'
 
 // ============================================================================
 // INTERFACES

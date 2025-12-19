@@ -8,8 +8,9 @@
  * Security: Repository enforces parameterized queries and tenant isolation.
  */
 
-import admin from 'firebase-admin';
 import apn from 'apn';
+import admin from 'firebase-admin';
+
 import { PushNotificationRepository } from '../repositories/push-notification.repository';
 import type {
   MobileDevice,

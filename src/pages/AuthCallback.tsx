@@ -1,10 +1,11 @@
+import { Loader2, CheckCircle2, XCircle } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { getAuthErrorFromUrl } from '@/lib/microsoft-auth'
-import { Loader2, CheckCircle2, XCircle } from 'lucide-react'
 import logger from '@/utils/logger'
 
 /**

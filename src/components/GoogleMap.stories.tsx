@@ -1,7 +1,9 @@
 import type { Meta, StoryObj } from "@storybook/react"
-import { GoogleMap } from "./GoogleMap"
-import { generateMockVehicles, generateMockFacilities, generateMockCameras } from "../../.storybook/mockData"
+
 import { withMapContainer } from "../../.storybook/decorators"
+import { generateMockVehicles, generateMockFacilities, generateMockCameras } from "../../.storybook/mockData"
+
+import { GoogleMap } from "./GoogleMap"
 
 const meta = {
   title: "Maps/GoogleMap",

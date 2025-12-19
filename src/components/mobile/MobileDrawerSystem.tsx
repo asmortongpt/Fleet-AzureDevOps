@@ -1,7 +1,8 @@
-import { useState, useEffect, useRef, ReactNode } from 'react';
+import { GripHorizontal } from 'lucide-react';
+import { useState, useRef, ReactNode } from 'react';
+
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from '@/components/ui/sheet';
 import { cn } from '@/lib/utils';
-import { GripHorizontal } from 'lucide-react';
 
 type SnapPoint = 'collapsed' | 'half' | 'full';
 

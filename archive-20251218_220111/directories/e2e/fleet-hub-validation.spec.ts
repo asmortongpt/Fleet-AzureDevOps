@@ -1,6 +1,7 @@
-import { test, expect, Page } from '@playwright/test';
 import * as fs from 'fs';
 import * as path from 'path';
+
+import { test, expect, Page } from '@playwright/test';
 
 const FLEET_HUB_URL = 'http://localhost:5173/hubs/fleet';
 const SCREENSHOTS_DIR = '/Users/andrewmorton/Documents/GitHub/Fleet/test-results/fleet-hub-screenshots';

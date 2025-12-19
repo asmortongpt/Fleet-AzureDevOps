@@ -1,11 +1,10 @@
+import { Envelope, PaperPlaneTilt, Paperclip, Star, ArrowLeft } from "@phosphor-icons/react"
 import { useState } from "react"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
+import { toast } from "sonner"
+
 import { Badge } from "@/components/ui/badge"
-import { Textarea } from "@/components/ui/textarea"
-import { ScrollArea } from "@/components/ui/scroll-area"
-import { Separator } from "@/components/ui/separator"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import {
   Dialog,
   DialogContent,
@@ -15,11 +14,14 @@ import {
   DialogTrigger,
   DialogFooter
 } from "@/components/ui/dialog"
+import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Envelope, PaperPlaneTilt, Paperclip, Star, ArrowLeft } from "@phosphor-icons/react"
-import { MSOutlookEmail } from "@/lib/types"
+import { ScrollArea } from "@/components/ui/scroll-area"
+import { Separator } from "@/components/ui/separator"
+import { Textarea } from "@/components/ui/textarea"
 import { msOfficeService } from "@/lib/msOfficeIntegration"
-import { toast } from "sonner"
+import { MSOutlookEmail } from "@/lib/types"
+
 
 export function EmailCenter() {
   const [emails, setEmails] = useState<MSOutlookEmail[]>([])

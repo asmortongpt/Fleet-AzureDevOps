@@ -3,24 +3,24 @@
  * Shows comprehensive work order information with parts and labor breakdown
  */
 
-import { useDrilldown } from '@/contexts/DrilldownContext'
-import { DrilldownContent } from '@/components/DrilldownPanel'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
-import { Badge } from '@/components/ui/badge'
-import { Progress } from '@/components/ui/progress'
-import useSWR from 'swr'
 import {
   Wrench,
   Calendar,
   DollarSign,
-  User,
   Clock,
   Package,
   Users,
   AlertCircle,
-  CheckCircle,
 } from 'lucide-react'
+import useSWR from 'swr'
+
+import { DrilldownContent } from '@/components/DrilldownPanel'
+import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Progress } from '@/components/ui/progress'
+import { useDrilldown } from '@/contexts/DrilldownContext'
+
 
 interface WorkOrderDetailPanelProps {
   workOrderId: string

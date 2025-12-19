@@ -9,8 +9,9 @@
 
 import { Job } from 'bull'
 import nodemailer from 'nodemailer'
-import logger from '../../utils/logger'
+
 import { pool } from '../../config/database'
+import logger from '../../utils/logger'
 
 /**
  * Email transporter configuration

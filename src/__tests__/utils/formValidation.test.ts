@@ -3,7 +3,9 @@
  * Test Coverage: 100%
  */
 
-import { describe, it, expect, vi } from 'vitest';
+import { describe, it, expect } from 'vitest';
+import { z } from 'zod';
+
 import {
   emailValidator,
   phoneValidator,
@@ -15,10 +17,6 @@ import {
   vehicleSchema,
   driverSchema,
   workOrderSchema,
-  maintenanceScheduleSchema,
-  partSchema,
-  vendorSchema,
-  fuelTransactionSchema,
   validateFutureDate,
   validateDateRange,
   validateFileSize,
@@ -27,7 +25,6 @@ import {
   safeParseWithErrors,
   fieldValidators,
 } from '@/utils/formValidation';
-import { z } from 'zod';
 
 describe('formValidation', () => {
   describe('Basic Validators', () => {

@@ -1,5 +1,5 @@
-import { UserRepository } from '../repositories/UserRepository';
 import { NotFoundError } from '../errors/NotFoundError';
+import { UserRepository } from '../repositories/UserRepository';
 
 export class UserService {
   private userRepository: UserRepository;

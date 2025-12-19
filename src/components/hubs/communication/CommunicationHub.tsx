@@ -1,12 +1,3 @@
-import React, { useState, useMemo, useCallback } from "react"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
-import { ScrollArea } from "@/components/ui/scroll-area"
-import { Input } from "@/components/ui/input"
-import { Textarea } from "@/components/ui/textarea"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import {
   MessageSquare,
   Send,
@@ -15,13 +6,19 @@ import {
   MapPin,
   Users,
   Bell,
-  CheckCircle2,
-  Clock,
-  Filter,
   Megaphone
 } from "lucide-react"
-import { useDrilldown } from "@/contexts/DrilldownContext"
+import React, { useState, useMemo, useCallback } from "react"
+
 import { ProfessionalFleetMap } from "@/components/Maps/ProfessionalFleetMap"
+import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
+import { Card } from "@/components/ui/card"
+import { Input } from "@/components/ui/input"
+import { ScrollArea } from "@/components/ui/scroll-area"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Textarea } from "@/components/ui/textarea"
 import { cn } from "@/lib/utils"
 
 // Mock communication data

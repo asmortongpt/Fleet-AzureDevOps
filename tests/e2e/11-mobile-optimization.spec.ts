@@ -3,7 +3,7 @@
  * Validates mobile responsiveness, touch gestures, offline mode, and PWA features
  */
 
-import { test, expect, devices, type Page } from '@playwright/test'
+import { test, expect, devices } from '@playwright/test'
 
 // Test configurations for different mobile devices
 const mobileDevices = [

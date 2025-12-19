@@ -1,6 +1,7 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { IncidentTimelineRepository } from '../incident-timeline.repository';
+
 import { pool } from '../../../../db';
+import { IncidentTimelineRepository } from '../incident-timeline.repository';
 
 vi.mock('../../../../db', () => ({
   pool: {

@@ -14,13 +14,6 @@
  * Business Value: $150,000/year in dispatcher efficiency
  */
 
-import React, { useState, useEffect, useRef, useCallback } from 'react'
-import { Button } from './ui/button'
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from './ui/card'
-import { Badge } from './ui/badge'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs'
-import { ScrollArea } from './ui/scroll-area'
-import { Alert, AlertDescription } from './ui/alert'
 import {
   Radio,
   Mic,
@@ -30,13 +23,20 @@ import {
   Volume2,
   VolumeX,
   Play,
-  Pause,
   PhoneCall,
   Activity
 } from 'lucide-react'
+import React, { useState, useEffect, useRef, useCallback } from 'react'
+
+import { Alert, AlertDescription } from './ui/alert'
+import { Badge } from './ui/badge'
+import { Button } from './ui/button'
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from './ui/card'
+import { ScrollArea } from './ui/scroll-area'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs'
+
 import { useAuth } from '@/hooks/useAuth'
 import { useInspect } from '@/services/inspect/InspectContext'
-
 import logger from '@/utils/logger';
 interface DispatchChannel {
   id: number

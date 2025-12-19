@@ -4,7 +4,6 @@
  * Can be enhanced with video.js integration
  */
 
-import { useState, useRef, useEffect } from 'react';
 import {
   Play,
   Pause,
@@ -15,8 +14,9 @@ import {
   SkipBack,
   SkipForward
 } from 'lucide-react';
+import { useState, useRef, useEffect } from 'react';
+
 import { Button } from '@/components/ui/button';
-import { Slider } from '@/components/ui/slider';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -25,6 +25,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu';
+import { Slider } from '@/components/ui/slider';
 import { DocumentMetadata } from '@/lib/documents/types';
 
 interface VideoViewerProps {

@@ -15,11 +15,33 @@
  * @security Admin/Manager only - enforced via usePermissions
  */
 
+import {
+  MagnifyingGlass,
+  Package,
+  TrendUp,
+  Warning,
+  ArrowsClockwise,
+  Plus,
+  Wrench,
+  CalendarBlank,
+  CurrencyDollar
+} from "@phosphor-icons/react"
 import { useState, useMemo, useCallback } from "react"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
+import { toast } from "sonner"
+
 import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter
+} from "@/components/ui/dialog"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
 import { Progress } from "@/components/ui/progress"
 import {
   Table,
@@ -29,41 +51,10 @@ import {
   TableHeader,
   TableRow
 } from "@/components/ui/table"
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-  DialogFooter
-} from "@/components/ui/dialog"
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue
-} from "@/components/ui/select"
-import { Label } from "@/components/ui/label"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import {
-  MagnifyingGlass,
-  Package,
-  TrendUp,
-  Warning,
-  ShoppingCart,
-  ArrowsClockwise,
-  Plus,
-  Wrench,
-  CalendarBlank,
-  CurrencyDollar
-} from "@phosphor-icons/react"
-import { toast } from "sonner"
 import { usePermissions } from "@/hooks/usePermissions"
 import { useVehicleInventory } from "@/hooks/useVehicleInventory"
-import { Part, InventoryTransaction, WorkOrder } from "@/lib/types"
-
+import { Part } from "@/lib/types"
 import logger from '@/utils/logger';
 interface VehicleInventoryProps {
   vehicleId: string

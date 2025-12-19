@@ -5,8 +5,9 @@
  * Ensures tenant isolation and parameterized queries
  */
 
-import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { Pool } from 'pg';
+import { describe, it, expect, beforeEach, vi } from 'vitest';
+
 import { CommunicationsRepository } from '../communications.repository';
 
 describe('CommunicationsRepository', () => {

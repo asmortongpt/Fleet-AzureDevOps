@@ -1,15 +1,4 @@
-import { useState, useMemo, lazy, Suspense } from "react"
-import { Button } from "@/components/ui/button"
-import { Avatar, AvatarFallback } from "@/components/ui/avatar"
-import { ScrollArea } from "@/components/ui/scroll-area"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-  DropdownMenuSeparator
-} from "@/components/ui/dropdown-menu"
+import { withAITracking } from '@microsoft/applicationinsights-react-js'
 import {
   Gear,
   Bell,
@@ -18,17 +7,27 @@ import {
   X,
   Shield
 } from "@phosphor-icons/react"
-import { navigationItems } from "@/lib/navigation"
-import { RoleSwitcher } from "@/components/demo/RoleSwitcher"
-import { ToastContainer } from "@/components/common/ToastContainer"
+import { useState, useMemo, lazy, Suspense } from "react"
 
-import { EnhancedErrorBoundary } from "@/components/EnhancedErrorBoundary"
-import { QueryErrorBoundary } from "@/components/errors/QueryErrorBoundary"
-import { ThemeToggle } from "@/components/ThemeToggle"
 import { DrilldownManager } from "@/components/DrilldownManager"
+import { EnhancedErrorBoundary } from "@/components/EnhancedErrorBoundary"
+import { ThemeToggle } from "@/components/ThemeToggle"
+import { ToastContainer } from "@/components/common/ToastContainer"
+import { RoleSwitcher } from "@/components/demo/RoleSwitcher"
+import { QueryErrorBoundary } from "@/components/errors/QueryErrorBoundary"
+import { Avatar, AvatarFallback } from "@/components/ui/avatar"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { ScrollArea } from "@/components/ui/scroll-area"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+  DropdownMenuSeparator
+} from "@/components/ui/dropdown-menu"
 import { useFleetData } from "@/hooks/use-fleet-data"
-
-import { withAITracking } from '@microsoft/applicationinsights-react-js'
+import { navigationItems } from "@/lib/navigation"
 import telemetryService from '@/lib/telemetry'
 
 // Lazy load all modules for code splitting - reduces initial bundle by 80%+

@@ -4,9 +4,8 @@
  * Integrates with communications logging for complete email tracking
  */
 
-import { microsoftGraphService, MicrosoftGraphService } from './microsoft-graph.service'
-import { logger } from '../utils/logger'
 import { Pool } from 'pg'
+
 import {
   Email,
   EmailMessage,
@@ -17,7 +16,6 @@ import {
   ReplyEmailRequest,
   ForwardEmailRequest,
   UpdateEmailRequest,
-  MoveEmailRequest,
   CreateFolderRequest,
   SearchEmailsRequest,
   CategorizeEmailRequest,
@@ -25,10 +23,12 @@ import {
   EmailListResponse,
   AttachmentListResponse,
   FolderListResponse,
-  EmailRecipient,
   EmailFilter,
   EmailToCommunicationLog
 } from '../types/outlook.types'
+import { logger } from '../utils/logger'
+
+import { microsoftGraphService } from './microsoft-graph.service'
 
 class OutlookService {
   private defaultUserId: string

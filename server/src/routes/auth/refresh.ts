@@ -1,8 +1,8 @@
 import express, { Request, Response, NextFunction } from 'express';
-import jwt from 'jsonwebtoken';
-import { getLogger } from '../../utils/logger';
-import { verifyRefreshToken, generateAccessToken, generateRefreshToken } from '../../services/authService';
+
 import { User } from '../../models/user';
+import { verifyRefreshToken, generateAccessToken, generateRefreshToken } from '../../services/authService';
+import { getLogger } from '../../utils/logger';
 
 const router = express.Router();
 const logger = getLogger('auth-refresh');

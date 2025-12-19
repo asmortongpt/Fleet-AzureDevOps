@@ -5,8 +5,9 @@
  * to identify correct selectors and navigation patterns.
  */
 
-import { test } from '@playwright/test';
 import * as fs from 'fs';
+
+import { test } from '@playwright/test';
 
 test('Inspect Production App Structure', async ({ page }) => {
   console.log('🔍 Starting production app inspection...');

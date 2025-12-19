@@ -2,9 +2,11 @@
 // Manages user authentication state, login, logout, and token management
 
 import { useState, useEffect, useCallback, createContext, useContext } from 'react';
+
+import { refreshCsrfToken, clearCsrfToken } from './use-api';
+
 import logger from '@/utils/logger'
 // SECURITY (CRIT-F-002): Import CSRF token management functions
-import { refreshCsrfToken, clearCsrfToken } from './use-api';
 
 interface User {
   id: string;

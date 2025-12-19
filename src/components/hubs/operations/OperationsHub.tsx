@@ -1,12 +1,3 @@
-import { useState, useMemo } from 'react';
-import { MapFirstLayout } from '@/components/layout/MapFirstLayout';
-import { OperationsHubMap } from './OperationsHubMap';
-import { useVehicles, useDrivers, useWorkOrders } from '@/hooks/use-api';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import { Switch } from '@/components/ui/switch';
-import { Label } from '@/components/ui/label';
 import {
   Truck,
   Package,
@@ -20,6 +11,17 @@ import {
   Settings,
   Zap
 } from 'lucide-react';
+import { useState, useMemo } from 'react';
+
+import { OperationsHubMap } from './OperationsHubMap';
+
+import { MapFirstLayout } from '@/components/layout/MapFirstLayout';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Label } from '@/components/ui/label';
+import { Switch } from '@/components/ui/switch';
+import { useVehicles, useDrivers, useWorkOrders } from '@/hooks/use-api';
 
 interface Vehicle {
   id: string;

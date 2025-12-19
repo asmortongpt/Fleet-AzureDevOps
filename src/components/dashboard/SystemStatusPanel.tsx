@@ -3,10 +3,6 @@
  * Displays real-time status of all emulators and AI services
  */
 
-import React, { useState } from 'react'
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
 import {
   Circle,
   Broadcast,
@@ -19,6 +15,11 @@ import {
   Cpu,
   Database
 } from "@phosphor-icons/react"
+import React, { useState } from 'react'
+
+import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { EmulatorStatus, AIServiceStatus, SystemHealthMetrics } from '@/hooks/useSystemStatus'
 
 interface SystemStatusPanelProps {

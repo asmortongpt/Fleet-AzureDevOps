@@ -18,10 +18,12 @@
  * - NIST SP 800-63B
  */
 
-import { Request, Response, NextFunction } from 'express'
+import { Response, NextFunction } from 'express'
 import jwt from 'jsonwebtoken'
 import jwksClient from 'jwks-rsa'
+
 import logger from '../utils/logger'
+
 import { AuthRequest } from './auth'
 
 // Azure AD Configuration

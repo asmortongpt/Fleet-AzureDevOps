@@ -1,3 +1,5 @@
+import { Pool, PoolClient } from 'pg';
+
 import { BaseRepository } from '../repositories/BaseRepository';
 
 /**
@@ -13,7 +15,6 @@ import { BaseRepository } from '../repositories/BaseRepository';
  * Security: CWE-89 (SQL Injection Prevention)
  */
 
-import { Pool, PoolClient } from 'pg';
 
 export interface VehicleReservation {
   id: string;

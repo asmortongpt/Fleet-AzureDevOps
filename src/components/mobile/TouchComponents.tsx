@@ -3,8 +3,8 @@
  * Swipeable cards, pull-to-refresh, infinite scroll, bottom sheets, and more
  */
 
-import React, { useState, useRef, useEffect, ReactNode } from 'react'
 import { motion, PanInfo, useMotionValue, useTransform, AnimatePresence } from 'framer-motion'
+import React, { useState, useRef, useEffect, ReactNode } from 'react'
 
 /* ============================================================
    SWIPEABLE CARD

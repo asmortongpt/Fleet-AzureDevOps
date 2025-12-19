@@ -6,10 +6,11 @@
  * All queries filter by tenant_id for multi-tenancy
  */
 
-import { Pool } from 'pg';
 import { injectable, inject } from 'inversify';
-import { TYPES } from '../types';
+import { Pool } from 'pg';
+
 import logger from '../config/logger';
+import { TYPES } from '../types';
 
 export interface VehicleAssignment {
   id: string;
@@ -108,8 +109,8 @@ export class VehicleAssignmentsRepository {
   ): Promise<any[]> {
     const offset = (pagination.page - 1) * pagination.limit;
 
-    let whereConditions = ['va.tenant_id = $1'];
-    let params: any[] = [tenantId];
+    const whereConditions = ['va.tenant_id = $1'];
+    const params: any[] = [tenantId];
     let paramIndex = 2;
 
     // Apply scope filtering
@@ -183,8 +184,8 @@ export class VehicleAssignmentsRepository {
    * Used in GET /vehicle-assignments
    */
   async count(tenantId: string, filters: VehicleAssignmentFilters): Promise<number> {
-    let whereConditions = ['va.tenant_id = $1'];
-    let params: any[] = [tenantId];
+    const whereConditions = ['va.tenant_id = $1'];
+    const params: any[] = [tenantId];
     let paramIndex = 2;
 
     // Apply scope filtering

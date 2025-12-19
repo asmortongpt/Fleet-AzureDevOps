@@ -1,19 +1,22 @@
-import { Router } from "express"
-import { csrfProtection } from '../middleware/csrf'
-import { container } from '../container'
-import { asyncHandler } from '../middleware/errorHandler'
-import { NotFoundError, ValidationError } from '../errors/app-error'
+import { Router, Request, Response } from "express"
+
 import { cacheService } from '../config/cache';
+import logger from '../config/logger'; // Wave 10: Add Winston logger
+import { container } from '../container'
+import { NotFoundError, ValidationError } from '../errors/app-error'
+import { TYPES } from '../types'
+import { VehicleService } from '../modules/fleet/services/vehicle.service'
+import { authenticateJWT } from '../middleware/auth';
+import { doubleCsrfProtection as csrfProtection } from '../middleware/csrf'
+import { asyncHandler } from '../middleware/errorHandler'
+import { requireRBAC, Role, PERMISSIONS } from '../middleware/rbac';
+import { validateBody, validateQuery, validateParams, validateAll } from '../middleware/validate';
 import {
   vehicleCreateSchema,
   vehicleUpdateSchema,
   vehicleQuerySchema,
   vehicleIdSchema
 } from '../schemas/vehicles.schema';
-import { validateBody, validateQuery, validateParams, validateAll } from '../middleware/validate';
-import logger from '../config/logger'; // Wave 10: Add Winston logger
-import { authenticateJWT } from '../middleware/auth';
-import { requireRBAC, Role, PERMISSIONS } from '../middleware/rbac';
 
 const router = Router()
 
@@ -30,7 +33,7 @@ router.get("/",
     resourceType: 'vehicle'
   }),
   validateQuery(vehicleQuerySchema),
-  asyncHandler(async (req, res) => {
+  asyncHandler(async (req: Request, res: Response) => {
     const { page = 1, pageSize = 20, search, status } = req.query
     const tenantId = (req as any).user?.tenant_id
 
@@ -47,7 +50,7 @@ router.get("/",
     }
 
     // Use DI-resolved VehicleService instead of emulator
-    const vehicleService = container.resolve('vehicleService')
+    const vehicleService = container.get<VehicleService>(TYPES.VehicleService)
 
     // Get all vehicles for this tenant
     let vehicles = await vehicleService.getAllVehicles(tenantId)
@@ -92,7 +95,7 @@ router.get("/:id",
     resourceType: 'vehicle'
   }),
   validateParams(vehicleIdSchema),
-  asyncHandler(async (req, res) => {
+  asyncHandler(async (req: Request, res: Response) => {
     const tenantId = (req as any).user?.tenant_id
     const vehicleId = Number(req.params.id)
 
@@ -110,7 +113,7 @@ router.get("/:id",
     }
 
     // Use DI-resolved VehicleService
-    const vehicleService = container.resolve('vehicleService')
+    const vehicleService = container.get<VehicleService>(TYPES.VehicleService)
     const vehicle = await vehicleService.getVehicleById(vehicleId, tenantId)
 
     if (!vehicle) {
@@ -128,14 +131,14 @@ router.get("/:id",
 // POST create vehicle - Requires admin or manager role
 // CRIT-B-003: Comprehensive input validation with sanitization
 router.post("/",
- csrfProtection,  csrfProtection, requireRBAC({
+  csrfProtection, requireRBAC({
     roles: [Role.ADMIN, Role.MANAGER],
     permissions: [PERMISSIONS.VEHICLE_CREATE],
     enforceTenantIsolation: true,
     resourceType: 'vehicle'
   }),
   validateBody(vehicleCreateSchema),
-  asyncHandler(async (req, res) => {
+  asyncHandler(async (req: Request, res: Response) => {
     const tenantId = (req as any).user?.tenant_id
 
     if (!tenantId) {
@@ -148,7 +151,7 @@ router.post("/",
     }
 
     // Use DI-resolved VehicleService
-    const vehicleService = container.resolve('vehicleService')
+    const vehicleService = container.get<VehicleService>(TYPES.VehicleService)
     const vehicle = await vehicleService.createVehicle(req.body, tenantId)
 
     // Wave 12 (Revised): Invalidate list cache on create
@@ -163,7 +166,7 @@ router.post("/",
 // PUT update vehicle - Requires admin or manager role + tenant isolation
 // CRIT-B-003: Validates both URL params and request body
 router.put("/:id",
- csrfProtection,  csrfProtection, requireRBAC({
+  csrfProtection, requireRBAC({
     roles: [Role.ADMIN, Role.MANAGER],
     permissions: [PERMISSIONS.VEHICLE_UPDATE],
     enforceTenantIsolation: true,
@@ -173,7 +176,7 @@ router.put("/:id",
     params: vehicleIdSchema,
     body: vehicleUpdateSchema
   }),
-  asyncHandler(async (req, res) => {
+  asyncHandler(async (req: Request, res: Response) => {
     const tenantId = (req as any).user?.tenant_id
     const vehicleId = Number(req.params.id)
 
@@ -182,7 +185,7 @@ router.put("/:id",
     }
 
     // Use DI-resolved VehicleService
-    const vehicleService = container.resolve('vehicleService')
+    const vehicleService = container.get<VehicleService>(TYPES.VehicleService)
 
     // VehicleService.updateVehicle will throw error if vehicle not found or access denied
     const vehicle = await vehicleService.updateVehicle(vehicleId, req.body, tenantId)
@@ -203,14 +206,14 @@ router.put("/:id",
 // DELETE vehicle
 // CRIT-B-003: Added URL parameter validation
 router.delete("/:id",
- csrfProtection,  csrfProtection, requireRBAC({
+  csrfProtection, requireRBAC({
     roles: [Role.ADMIN, Role.MANAGER],
     permissions: [PERMISSIONS.VEHICLE_DELETE],
     enforceTenantIsolation: true,
     resourceType: 'vehicle'
   }),
   validateParams(vehicleIdSchema),
-  asyncHandler(async (req, res) => {
+  asyncHandler(async (req: Request, res: Response) => {
     const tenantId = (req as any).user?.tenant_id
     const vehicleId = Number(req.params.id)
 
@@ -219,7 +222,7 @@ router.delete("/:id",
     }
 
     // Use DI-resolved VehicleService
-    const vehicleService = container.resolve('vehicleService')
+    const vehicleService = container.get<VehicleService>(TYPES.VehicleService)
     const deleted = await vehicleService.deleteVehicle(vehicleId, tenantId)
 
     if (!deleted) {

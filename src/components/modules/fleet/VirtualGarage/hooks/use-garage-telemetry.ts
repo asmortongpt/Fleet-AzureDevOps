@@ -5,6 +5,7 @@
  */
 
 import { useState, useEffect } from "react"
+
 import { fetchVehicleTelemetry, type OBD2Telemetry } from "../utils/api"
 
 import logger from '@/utils/logger';

@@ -11,7 +11,7 @@
  */
 
 import { useState, useCallback, useRef, useEffect } from 'react'
-import { toast } from '@/utils/toast'
+
 import logger from '@/utils/logger'
 import {
   withRetry,
@@ -19,8 +19,8 @@ import {
   ErrorCategory,
   CategorizedError,
   RetryConfig,
-  RetryResult,
 } from '@/utils/retry'
+import { toast } from '@/utils/toast'
 
 // ============================================================================
 // Types & Interfaces

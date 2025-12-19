@@ -1,5 +1,6 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { Request, Response, NextFunction } from 'express';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
+
 import type { Vehicle } from '../../../src/types/vehicle';
 
 // Mock container before imports

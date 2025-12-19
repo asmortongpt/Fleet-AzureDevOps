@@ -5,8 +5,9 @@
  * Note: Health checks are NOT tenant-filtered as they monitor system-level resources
  */
 
-import { Pool } from 'pg';
 import { injectable } from 'inversify';
+import { Pool } from 'pg';
+
 import { connectionManager } from '../config/connection-manager';
 import { DatabaseError } from '../errors/ApplicationError';
 

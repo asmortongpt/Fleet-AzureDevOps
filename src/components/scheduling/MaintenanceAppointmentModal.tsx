@@ -3,11 +3,21 @@
  * Form for scheduling maintenance appointments with service bay and technician assignment
  */
 
+import { zodResolver } from '@hookform/resolvers/zod'
+import { format } from 'date-fns'
+import AlertCircleIcon from 'lucide-react/dist/esm/icons/alert-circle'
+import CalendarIcon from 'lucide-react/dist/esm/icons/calendar'
+import CheckCircleIcon from 'lucide-react/dist/esm/icons/check-circle'
+import ClockIcon from 'lucide-react/dist/esm/icons/clock'
+import WrenchIcon from 'lucide-react/dist/esm/icons/wrench'
 import { useState, useEffect } from 'react'
 import { useForm } from 'react-hook-form'
-import { zodResolver } from '@hookform/resolvers/zod'
 import * as z from 'zod'
-import { format } from 'date-fns'
+
+import { Alert, AlertDescription } from '@/components/ui/alert'
+import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
+import { Calendar } from '@/components/ui/calendar'
 import {
   Dialog,
   DialogContent,
@@ -25,6 +35,10 @@ import {
   FormLabel,
   FormMessage,
 } from '@/components/ui/form'
+import { Input } from '@/components/ui/input'
+import { Textarea } from '@/components/ui/textarea'
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
 import {
   Select,
   SelectContent,
@@ -32,23 +46,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
-import { Input } from '@/components/ui/input'
-import { Textarea } from '@/components/ui/textarea'
-import { Button } from '@/components/ui/button'
-import { Calendar } from '@/components/ui/calendar'
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
-import { Alert, AlertDescription } from '@/components/ui/alert'
-import { Badge } from '@/components/ui/badge'
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
-import CalendarIcon from 'lucide-react/dist/esm/icons/calendar'
-import AlertCircleIcon from 'lucide-react/dist/esm/icons/alert-circle'
-import ClockIcon from 'lucide-react/dist/esm/icons/clock'
-import WrenchIcon from 'lucide-react/dist/esm/icons/wrench'
-import CheckCircleIcon from 'lucide-react/dist/esm/icons/check-circle'
+import { Vehicle, Technician } from '@/lib/types'
 import { cn } from '@/lib/utils'
 import { MaintenanceAppointment, CreateMaintenanceRequest, AppointmentType, ServiceBay } from '@/types/scheduling'
-import { Vehicle, Technician } from '@/lib/types'
-
 import logger from '@/utils/logger';
 const appointmentSchema = z.object({
   vehicleId: z.string().min(1, 'Vehicle is required'),
@@ -96,7 +96,7 @@ interface MaintenanceAppointmentModalProps {
 const generateTimeSlots = () => {
   const slots: string[] = []
   for (let hour = 7; hour < 19; hour++) {
-    for (let minute of [0, 30]) {
+    for (const minute of [0, 30]) {
       const time = `${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}`
       slots.push(time)
     }
