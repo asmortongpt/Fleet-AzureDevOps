@@ -4,8 +4,8 @@ import express, { Request, Response } from 'express';
 import rateLimit from 'express-rate-limit';
 import helmet from 'helmet';
 
-import { csrfProtection, getCsrfToken, csrfErrorHandler } from '../../api/src/middleware/csrf';
-import { monitorRequests, getMetrics, getAverageResponseTime } from '../../api/src/middleware/monitoring';
+import { csrfProtection, getCsrfToken, csrfErrorHandler } from './middleware/csrf';
+import { monitorRequests, getMetrics, getAverageResponseTime } from './middleware/monitoring';
 
 import { startDataRetentionCron, startDataRetentionReportCron } from './jobs/data-retention.cron';
 import { apiVersioning, versionInfoEndpoint } from './middleware/api-versioning';
