@@ -197,7 +197,7 @@ export class MobileIntegrationService {
     await this.db.query(
       `UPDATE mobile_devices
        SET last_sync_at = $1, updated_at = $1
-       WHERE device_id = $2',
+       WHERE device_id = $2`
       [syncedAt, request.device_id]
     )
 
@@ -297,7 +297,7 @@ export class MobileIntegrationService {
       photos,
       notes,
       created_at,
-      updated_at FROM vehicles WHERE tenant_id = $1 AND id = $2',
+      updated_at FROM vehicles WHERE tenant_id = $1 AND id = $2`
       [tenantId, data.vehicle_id]
     )
     result.vehicle = vehicleResult.rows[0]
@@ -337,7 +337,7 @@ export class MobileIntegrationService {
       status,
       notes,
       created_at,
-      updated_at FROM optimized_routes WHERE id = $1',
+      updated_at FROM optimized_routes WHERE id = $1`
         [data.route_id]
       )
       result.route = routeResult.rows[0]
@@ -465,7 +465,7 @@ export class MobileIntegrationService {
       await this.db.query(
         `INSERT INTO work_orders
          (tenant_id, vehicle_id, type, priority, description, estimated_cost, status)
-         VALUES ($1, $2, 'damage_repair', 'high', $3, $4, 'open`)`,
+         VALUES ($1, $2, 'damage_repair', 'high', $3, $4, 'open')`
         [
           tenantId,
           data.vehicle_id,

@@ -15,10 +15,12 @@ interface Vehicle {
 
 interface ProfessionalFleetMapProps {
   onVehicleSelect?: (vehicleId: string) => void;
+  children?: React.ReactNode;
 }
 
-export function ProfessionalFleetMap({ onVehicleSelect }: ProfessionalFleetMapProps) {
-  const { data: vehicles = [] } = useVehicles();
+export function ProfessionalFleetMap({ onVehicleSelect, children }: ProfessionalFleetMapProps) {
+  const { data } = useVehicles();
+  const vehicles: Vehicle[] = Array.isArray(data) ? data : [];
   const [zoom, setZoom] = useState(6);
   const mapRef = useRef<HTMLDivElement>(null);
 
@@ -92,6 +94,9 @@ export function ProfessionalFleetMap({ onVehicleSelect }: ProfessionalFleetMapPr
               </div>
             ))}
           </div>
+
+          {/* Layer Overlays (Traffic Cameras, etc) */}
+          {children}
         </div>
       </div>
     </div>
