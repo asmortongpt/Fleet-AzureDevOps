@@ -11,14 +11,39 @@ import { MobileQuickActions } from '../mobile/MobileQuickActions';
 import { MobileVehicleCard } from '../mobile/MobileVehicleCard';
 import { generateDemoVehicles } from '@/lib/demo-data';
 import logger from '@/utils/logger';
+import { TrafficCameraLayer } from '@/components/layers/TrafficCameraLayer';
+import { TrafficCameraControlPanel } from '@/components/panels/TrafficCameraControlPanel';
+import { useSearchParams } from 'react-router-dom';
 
 const LOADING_TIMEOUT = 5000; // 5 seconds timeout
 
-export function LiveFleetDashboard() {
+interface LiveFleetDashboardProps {
+  initialLayer?: string;
+}
+
+export function LiveFleetDashboard({ initialLayer }: LiveFleetDashboardProps = {}) {
   const { data: vehiclesData, isLoading: apiLoading, error: apiError } = useVehicles();
   const [vehicles, setVehicles] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [selectedVehicleId, setSelectedVehicleId] = useState<string | null>(null);
+
+  // -- Traffic Camera State --
+  const [searchParams] = useSearchParams();
+  const [showTrafficCameras, setShowTrafficCameras] = useState(false);
+  const [trafficCameraFilters, setTrafficCameraFilters] = useState({
+    search: "",
+    status: "all" as "all" | "operational" | "offline",
+    source: "all"
+  });
+  const [selectedCameraId, setSelectedCameraId] = useState<string>();
+
+  // Deep linking for 'layer=cameras' or prop injection
+  useEffect(() => {
+    if (searchParams.get('layer') === 'cameras' || initialLayer === 'traffic-cameras') {
+      setShowTrafficCameras(true);
+    }
+  }, [searchParams, initialLayer]);
+
 
   // Timeout fallback to demo data
   useEffect(() => {
@@ -230,11 +255,10 @@ export function LiveFleetDashboard() {
           {vehicles.slice(0, 10).map((vehicle: any) => (
             <div
               key={vehicle.id}
-              className={`p-3 rounded-lg border cursor-pointer transition-colors ${
-                selectedVehicleId === vehicle.id
-                  ? 'border-blue-500 bg-blue-50'
-                  : 'border-slate-200 hover:border-slate-300'
-              }`}
+              className={`p-3 rounded-lg border cursor-pointer transition-colors ${selectedVehicleId === vehicle.id
+                ? 'border-blue-500 bg-blue-50'
+                : 'border-slate-200 hover:border-slate-300'
+                }`}
               onClick={() => setSelectedVehicleId(vehicle.id)}
               data-testid={`vehicle-list-item-${vehicle.id}`}
             >
@@ -310,13 +334,40 @@ export function LiveFleetDashboard() {
   );
 
   return (
-    <MapFirstLayout
-      mapComponent={
-        <ProfessionalFleetMap onVehicleSelect={setSelectedVehicleId} />
-      }
-      sidePanel={sidePanel}
-      drawerContent={drawerContent}
-      mapControls={mapControls}
-    />
+    <div className="relative h-full w-full">
+      <MapFirstLayout
+        mapComponent={
+          <ProfessionalFleetMap onVehicleSelect={setSelectedVehicleId}>
+            <TrafficCameraLayer
+              visible={showTrafficCameras}
+              filters={trafficCameraFilters}
+              onCameraSelect={(cam) => setSelectedCameraId(cam.id)}
+              selectedCameraId={selectedCameraId}
+            />
+          </ProfessionalFleetMap>
+        }
+        sidePanel={sidePanel}
+        drawerContent={drawerContent}
+        mapControls={mapControls}
+      />
+
+      {/* Layer Controls - Overlay */}
+      <TrafficCameraControlPanel
+        isVisible={showTrafficCameras}
+        filters={trafficCameraFilters}
+        onFilterChange={(k, v) => setTrafficCameraFilters(prev => ({ ...prev, [k]: v }))}
+        onClose={() => setShowTrafficCameras(false)}
+      />
+
+      {/* Floating Toggle (Temporary until integrated into MapControls) */}
+      {!showTrafficCameras && (
+        <Button
+          className="fixed bottom-6 right-6 z-50 shadow-lg"
+          onClick={() => setShowTrafficCameras(true)}
+        >
+          Show Traffic Cameras
+        </Button>
+      )}
+    </div>
   );
 }
