@@ -85,8 +85,9 @@ const DEMO_USERS: Record<UserRole, DemoUserProfile> = {
 export const useDemoMode = () => {
   const { setUser } = useAuth();
   const [isDemoMode, setIsDemoMode] = useState(() => {
-    // Check localStorage for demo mode state
-    return localStorage.getItem('demo_mode') === 'true';
+    // Check localStorage for demo mode state - default to true if not set
+    const demoMode = localStorage.getItem('demo_mode');
+    return demoMode !== 'false'; // Default to demo mode unless explicitly disabled
   });
 
   const [currentRole, setCurrentRole] = useState<UserRole>(() => {
