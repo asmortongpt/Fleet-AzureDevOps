@@ -172,7 +172,7 @@ router.get('/:queueName/failed', async (req: Request, res: Response, next: NextF
  * POST /api/admin/jobs/:queueName/retry/:jobId
  * Retry a failed job
  */
-router.post('/:queueName/retry/:jobId',csrfProtection,  csrfProtection, async (req: Request, res: Response, next: NextFunction) => {
+router.post('/:queueName/retry/:jobId', csrfProtection, async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { queueName, jobId } = req.params
 
@@ -195,7 +195,7 @@ router.post('/:queueName/retry/:jobId',csrfProtection,  csrfProtection, async (r
  * DELETE /api/admin/jobs/:queueName/:jobId
  * Remove a job from queue
  */
-router.delete('/:queueName/:jobId',csrfProtection,  csrfProtection, async (req: Request, res: Response, next: NextFunction) => {
+router.delete('/:queueName/:jobId', csrfProtection, async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { queueName, jobId } = req.params
 
@@ -218,7 +218,7 @@ router.delete('/:queueName/:jobId',csrfProtection,  csrfProtection, async (req: 
  * POST /api/admin/jobs/:queueName/clean
  * Clean completed/failed jobs from queue
  */
-router.post('/:queueName/clean',csrfProtection,  csrfProtection, async (req: Request, res: Response, next: NextFunction) => {
+router.post('/:queueName/clean', csrfProtection, async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { queueName } = req.params
     const { grace = 3600000 } = req.body // 1 hour default
@@ -242,7 +242,7 @@ router.post('/:queueName/clean',csrfProtection,  csrfProtection, async (req: Req
  * POST /api/admin/jobs/:queueName/pause
  * Pause queue processing
  */
-router.post('/:queueName/pause',csrfProtection,  csrfProtection, async (req: Request, res: Response, next: NextFunction) => {
+router.post('/:queueName/pause', csrfProtection, async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { queueName } = req.params
 
@@ -265,7 +265,7 @@ router.post('/:queueName/pause',csrfProtection,  csrfProtection, async (req: Req
  * POST /api/admin/jobs/:queueName/resume
  * Resume queue processing
  */
-router.post('/:queueName/resume',csrfProtection,  csrfProtection, async (req: Request, res: Response, next: NextFunction) => {
+router.post('/:queueName/resume', csrfProtection, async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { queueName } = req.params
 
@@ -331,7 +331,7 @@ router.get('/:queueName/job/:jobId', async (req: Request, res: Response, next: N
  * POST /api/admin/jobs/:queueName/job/:jobId/promote
  * Promote a delayed job to execute immediately
  */
-router.post('/:queueName/job/:jobId/promote',csrfProtection,  csrfProtection, async (req: Request, res: Response, next: NextFunction) => {
+router.post('/:queueName/job/:jobId/promote', csrfProtection, async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { queueName, jobId } = req.params
 

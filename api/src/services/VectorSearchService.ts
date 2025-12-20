@@ -381,14 +381,14 @@ export class VectorSearchService {
 
     try {
       // Build filter conditions
-      let filterSQL = '`
+      let filterSQL = ''
       const params: any[] = [tenantId, JSON.stringify(queryVector), limit]
 
       if (Object.keys(filter).length > 0) {
         const filterConditions = Object.entries(filter)
           .map(([key, value], index) => {
             params.push(value)
-            return `metadata->>`${key}` = $${params.length}`
+            return `metadata->>'${key}' = $${params.length}`
           })
           .join(` AND `)
 
@@ -710,7 +710,7 @@ export class VectorSearchService {
           MIN(created_at) as oldest_document,
           MAX(created_at) as newest_document
         FROM document_embeddings
-        WHERE tenant_id = $1',
+        WHERE tenant_id = $1`,
         [tenantId]
       )
 

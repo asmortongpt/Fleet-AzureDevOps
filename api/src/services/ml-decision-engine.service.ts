@@ -56,7 +56,7 @@ class MLDecisionEngineService {
   constructor(
     private db: Pool,
     private logger: typeof logger
-  ) {}
+  ) { }
 
   /**
    * Predict vehicle maintenance needs
@@ -285,7 +285,7 @@ class MLDecisionEngineService {
       is_correct,
       error_magnitude,
       metadata,
-      created_at FROM predictions WHERE id = $1',
+      created_at FROM predictions WHERE id = $1`,
         [predictionId]
       )
 
@@ -338,7 +338,7 @@ class MLDecisionEngineService {
        FROM vehicles v
        LEFT JOIN work_orders wo ON v.id = wo.vehicle_id
        WHERE v.id = $1 AND v.tenant_id = $2
-       GROUP BY v.id',
+       GROUP BY v.id`,
       [vehicleId, tenantId]
     )
 
@@ -429,7 +429,7 @@ class MLDecisionEngineService {
        WHERE t.driver_id = $1
          AND t.tenant_id = $2
          AND t.start_time >= NOW() - ($3::integer * INTERVAL '1 day')
-       GROUP BY t.driver_id',
+       GROUP BY t.driver_id`,
       [driverId, tenantId, days]
     )
 
