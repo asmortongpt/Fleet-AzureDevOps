@@ -17,45 +17,26 @@ export default defineConfig({
   },
   build: {
     target: 'esnext',
-    sourcemap: process.env.NODE_ENV === 'development',
+    sourcemap: false, // Disable sourcemaps in production build to save memory
     rollupOptions: {
       output: {
+        // Simplified chunking strategy to reduce memory usage
         manualChunks(id) {
           if (id.includes('node_modules')) {
-            if (id.includes('react') || id.includes('react-dom') || id.includes('react-router-dom')) {
+            if (id.includes('react')) {
               return 'react-vendor';
             }
-            if (id.includes('@radix-ui') || id.includes('lucide-react') || id.includes('shadcn')) {
-              return 'ui-vendor';
-            }
-          }
-          // Lazy-loaded modules
-          if (id.includes('lazy')) {
-            return 'lazy-modules';
+            return 'vendor';
           }
         },
         chunkFileNames: '[name]-[hash].js',
         entryFileNames: '[name]-[hash].js',
         assetFileNames: '[name]-[hash].[ext]',
       },
-      plugins: [
-        visualizer({
-          filename: './dist/stats.html',
-          open: true,
-        }),
-      ],
+      // Remove visualizer plugin in production to save memory
     },
-    minify: 'terser',
-    terserOptions: {
-      compress: {
-        drop_console: true,
-        drop_debugger: true,
-        passes: 2,
-      },
-      output: {
-        comments: false,
-      },
-    },
+    // Use esbuild instead of terser - much faster and less memory intensive
+    minify: 'esbuild',
     assetsInlineLimit: 4096, // 4KB
   },
   optimizeDeps: {
@@ -63,5 +44,6 @@ export default defineConfig({
   },
   esbuild: {
     treeShaking: true,
+    drop: ['console', 'debugger'], // Drop console/debugger in production
   },
 });

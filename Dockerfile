@@ -10,7 +10,7 @@ WORKDIR /app
 RUN apk add --no-cache python3 make g++
 
 # Increase Node.js memory limit BEFORE any npm operations (4GB max for ACR agents)
-ENV NODE_OPTIONS="--max-old-space-size=3072"
+ENV NODE_OPTIONS="--max-old-space-size=4096"
 
 # Copy package.json only (not lock file to avoid platform binding issues)
 COPY package.json ./
