@@ -34,7 +34,7 @@ const SemanticSearchSchema = z.object({
   query: z.string().min(1).max(1000),
   limit: z.number().min(1).max(100).optional().default(10),
   minScore: z.number().min(0).max(1).optional().default(0.7),
-  filter: z.record(z.any().optional(),
+  filter: z.record(z.any()).optional(),
   includeMetadata: z.boolean().optional().default(true),
 })
 
@@ -70,7 +70,7 @@ const SemanticSearchSchema = z.object({
  */
 router.post(
   '/semantic',
- csrfProtection,  csrfProtection, authorize('admin', 'fleet_manager', 'dispatcher', 'driver'),
+  csrfProtection, authorize('admin', 'fleet_manager', 'dispatcher', 'driver'),
   auditLog({ action: 'SEARCH', resourceType: 'semantic_search' }),
   async (req: AuthRequest, res: Response) => {
     try {
@@ -129,7 +129,7 @@ const HybridSearchSchema = z.object({
   minScore: z.number().min(0).max(1).optional().default(0.5),
   keywordWeight: z.number().min(0).max(1).optional().default(0.3),
   vectorWeight: z.number().min(0).max(1).optional().default(0.7),
-  filter: z.record(z.any().optional(),
+  filter: z.record(z.any()).optional(),
 })
 
 /**
@@ -145,7 +145,7 @@ const HybridSearchSchema = z.object({
  */
 router.post(
   '/hybrid',
- csrfProtection,  csrfProtection, authorize('admin', 'fleet_manager', 'dispatcher', 'driver'),
+  csrfProtection, authorize('admin', 'fleet_manager', 'dispatcher', 'driver'),
   auditLog({ action: 'SEARCH', resourceType: 'hybrid_search' }),
   async (req: AuthRequest, res: Response) => {
     try {
@@ -204,7 +204,7 @@ router.post(
 
 const DocumentQASchema = z.object({
   question: z.string().min(3).max(1000),
-  documentIds: z.array(z.string().optional(),
+  documentIds: z.array(z.string()).optional(),
   includeSourceText: z.boolean().optional().default(true),
   maxSources: z.number().min(1).max(10).optional().default(5),
 })
@@ -222,7 +222,7 @@ const DocumentQASchema = z.object({
  */
 router.post(
   '/qa',
- csrfProtection,  csrfProtection, authorize('admin', 'fleet_manager', 'dispatcher', 'driver'),
+  csrfProtection, authorize('admin', 'fleet_manager', 'dispatcher', 'driver'),
   auditLog({ action: 'QUERY', resourceType: 'document_qa' }),
   async (req: AuthRequest, res: Response) => {
     try {
@@ -245,7 +245,7 @@ router.post(
         answer: response.answer,
         sources: qaData.includeSourceText
           ? response.sources
-          : response.sources.map(s => ({ documentId: s.documentId, score: s.score }),
+          : response.sources.map(s => ({ documentId: s.documentId, score: s.score })),
         confidence: response.confidence,
         modelUsed: response.modelUsed,
         responseTimeMs: responseTime,
@@ -282,7 +282,7 @@ const QueryExpansionSchema = z.object({
  */
 router.post(
   '/expand-query',
- csrfProtection,  csrfProtection, authorize('admin', 'fleet_manager', 'dispatcher', 'driver'),
+  csrfProtection, authorize('admin', 'fleet_manager', 'dispatcher', 'driver'),
   auditLog({ action: 'QUERY', resourceType: 'query_expansion' }),
   async (req: AuthRequest, res: Response) => {
     try {
@@ -329,7 +329,7 @@ router.post(
 const IndexDocumentSchema = z.object({
   documentId: z.string(),
   content: z.string().min(10),
-  metadata: z.record(z.any().optional(),
+  metadata: z.record(z.any()).optional(),
   chunkStrategy: z.enum(['semantic', 'fixed', 'sentence', 'paragraph']).optional().default('semantic'),
   chunkSize: z.number().min(100).max(4096).optional().default(512),
   chunkOverlap: z.number().min(0).max(512).optional().default(50),
@@ -348,7 +348,7 @@ const IndexDocumentSchema = z.object({
  */
 router.post(
   '/index',
- csrfProtection,  csrfProtection, authorize('admin', 'fleet_manager'),
+  csrfProtection, authorize('admin', 'fleet_manager'),
   auditLog({ action: 'CREATE', resourceType: 'document_index' }),
   async (req: AuthRequest, res: Response) => {
     try {
@@ -415,7 +415,7 @@ const BatchIndexSchema = z.object({
     z.object({
       documentId: z.string(),
       content: z.string().min(10),
-      metadata: z.record(z.any().optional(),
+      metadata: z.record(z.any()).optional(),
     })
   ).min(1).max(100),
 })
@@ -432,7 +432,7 @@ const BatchIndexSchema = z.object({
  */
 router.post(
   '/index/batch',
- csrfProtection,  csrfProtection, authorize('admin', 'fleet_manager'),
+  csrfProtection, authorize('admin', 'fleet_manager'),
   auditLog({ action: 'CREATE', resourceType: 'batch_index' }),
   async (req: AuthRequest, res: Response) => {
     try {
@@ -586,7 +586,7 @@ const FeedbackSchema = z.object({
  */
 router.post(
   '/feedback',
- csrfProtection,  csrfProtection, authorize('admin', 'fleet_manager', 'dispatcher', 'driver'),
+  csrfProtection, authorize('admin', 'fleet_manager', 'dispatcher', 'driver'),
   auditLog({ action: 'CREATE', resourceType: 'search_feedback' }),
   async (req: AuthRequest, res: Response) => {
     try {

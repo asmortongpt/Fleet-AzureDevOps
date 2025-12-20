@@ -51,7 +51,7 @@ class RAGEngineService {
   constructor(
     private db: Pool,
     private logger: typeof logger
-  ) {}
+  ) { }
 
   /**
    * Index a document into the RAG system
@@ -214,18 +214,17 @@ class RAGEngineService {
       .map((chunk, idx) => `[Source ${idx + 1}: ${chunk.document_title}]\n${chunk.content_chunk}`)
       .join(`\n\n`)
 
-    const systemPrompt = 'You are a Fleet Management AI assistant with access to the organization's fleet policies, procedures, maintenance histories, and documentation.
+    const systemPrompt = `You are a Fleet Management AI assistant with access to the organization's fleet policies, procedures, maintenance histories, and documentation.
 
 Your task is to answer questions accurately based on the provided context from the knowledge base. Always:
 1. Base your answers strictly on the provided context
 2. Cite specific sources when possible
-3. If the context doesn`t contain the answer, say so clearly
+3. If the context doesn't contain the answer, say so clearly
 4. Be concise but thorough
 5. Focus on practical, actionable information
 
 Context from Knowledge Base:
 ${contextText}`
-
     const response = await openai.chat.completions.create({
       model: this.chatModel,
       messages: [
@@ -375,7 +374,7 @@ ${contextText}`
   async deleteDocument(tenantId: string, documentId: string): Promise<number> {
     const result = await this.db.query(
       `DELETE FROM embedding_vectors
-       WHERE tenant_id = $1 AND document_id = $2',
+       WHERE tenant_id = $1 AND document_id = $2`,
       [tenantId, documentId]
     )
 
@@ -394,7 +393,7 @@ ${contextText}`
         COUNT(DISTINCT document_type) as document_types,
         AVG(LENGTH(content_chunk)) as avg_chunk_size
        FROM embedding_vectors
-       WHERE tenant_id = $1',
+       WHERE tenant_id = $1`,
       [tenantId]
     )
 
@@ -405,7 +404,7 @@ ${contextText}`
         COUNT(*) FILTER (WHERE was_helpful = true) as helpful_queries,
         COUNT(*) FILTER (WHERE was_helpful = false) as unhelpful_queries
        FROM rag_queries
-       WHERE tenant_id = $1 AND created_at >= NOW() - INTERVAL '30 days'',
+       WHERE tenant_id = $1 AND created_at >= NOW() - INTERVAL '30 days'`,
       [tenantId]
     )
 

@@ -24,10 +24,11 @@ import { csrfProtection } from '../middleware/csrf'
 
 const router = express.Router();
 
-let pool: Pool;
-export function setDatabasePool(dbPool: Pool) {
-  pool = dbPool;
-}
+import { pool } from '../db';
+// let pool: Pool;
+// export function setDatabasePool(dbPool: Pool) {
+//   pool = dbPool;
+// }
 
 // =====================================================
 // Validation Schemas
@@ -48,7 +49,7 @@ const createReauthDecisionSchema = z.object({
   modification_notes: z.string().optional(),
   new_vehicle_id: z.string().uuid().optional(),
   new_driver_id: z.string().uuid().optional(),
-  parameter_changes: z.record(z.any().optional(),
+  parameter_changes: z.record(z.any()).optional(),
   termination_reason: z.string().optional(),
   termination_effective_date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional(),
   director_notes: z.string().optional(),
@@ -75,7 +76,7 @@ router.get(
 
       if (year) {
         whereConditions.push(`arc.year = $${paramIndex++}`);
-        params.push(parseInt(year as string);
+        params.push(parseInt(year as string));
       }
       if (status) {
         whereConditions.push(`arc.status = $${paramIndex++}`);
@@ -105,7 +106,7 @@ router.get(
         FROM annual_reauthorization_cycles arc
         WHERE ${whereClause}
       `;
-      const countResult = await pool.query(countQuery, params.slice(0, -2);
+      const countResult = await pool.query(countQuery, params.slice(0, -2));
       const total = parseInt(countResult.rows[0].total);
 
       res.json({
@@ -114,7 +115,7 @@ router.get(
           page: parseInt(page as string),
           limit: parseInt(limit as string),
           total,
-          pages: Math.ceil(total / parseInt(limit as string),
+          pages: Math.ceil(total / parseInt(limit as string)),
         },
       });
     } catch (error: any) {
@@ -134,7 +135,7 @@ router.get(
 
 router.post(
   '/',
- csrfProtection,  csrfProtection, authenticateJWT,
+  csrfProtection, authenticateJWT,
   requirePermission(`reauthorization:submit:global`),
   async (req: AuthRequest, res: Response) => {
     try {
@@ -227,7 +228,7 @@ router.get(
       let whereConditions = [
         'va.tenant_id = $1',
         'va.lifecycle_state = \'active\'',
-        '(va.assignment_type = \'designated\' OR va.assignment_type = \'on_call\`)`,
+        '(va.assignment_type = \'designated\' OR va.assignment_type = \'on_call\')',
       ];
       let params: any[] = [tenant_id];
       let paramIndex = 2;
@@ -286,7 +287,7 @@ router.get(
 
 router.post(
   '/decisions',
- csrfProtection,  csrfProtection, authenticateJWT,
+  csrfProtection, authenticateJWT,
   requirePermission('reauthorization:review:team'),
   async (req: AuthRequest, res: Response) => {
     try {
@@ -375,7 +376,7 @@ router.post(
 
 router.post(
   '/:id/submit',
- csrfProtection,  csrfProtection, authenticateJWT,
+  csrfProtection, authenticateJWT,
   requirePermission('reauthorization:submit:global'),
   async (req: AuthRequest, res: Response) => {
     try {

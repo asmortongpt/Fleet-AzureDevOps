@@ -164,7 +164,7 @@ export async function optimizeTaskSchedule(
     const servers = mcpManager.getConnectedServers()
 
     // Look for an optimization MCP server
-    const optimizationServer = servers.find(s => s.includes(`optimize`) || s.includes(`schedule'))
+    const optimizationServer = servers.find(s => s.includes('optimize') || s.includes('schedule'))
 
     if (!optimizationServer) {
       throw new Error('No optimization MCP server connected')
@@ -233,11 +233,11 @@ export async function analyzeAssetLifecycle(asset: any): Promise<{
     return result.content[0].type === 'text'
       ? JSON.parse(result.content[0].text)
       : {
-          currentPhase: 'unknown',
-          remainingLifeYears: 0,
-          recommendations: [],
-          costProjections: []
-        }
+        currentPhase: 'unknown',
+        remainingLifeYears: 0,
+        recommendations: [],
+        costProjections: []
+      }
   } catch (error) {
     console.error('Error analyzing asset lifecycle:', error)
     return {
