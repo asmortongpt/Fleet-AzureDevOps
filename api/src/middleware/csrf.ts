@@ -18,3 +18,12 @@ export const {
   ignoredMethods: ["GET", "HEAD", "OPTIONS"], // A list of request methods that will not be checked.
   getTokenFromRequest: (req: Request) => req.headers["x-csrf-token"], // A function that returns the token from the request
 });
+
+// ALIASES for backward compatibility with existing routes
+export const csrfProtection = doubleCsrfProtection;
+
+// CSRF Token endpoint handler
+export const getCsrfToken = (req: any, res: any) => {
+  const token = generateToken(req, res);
+  res.json({ csrfToken: token });
+};

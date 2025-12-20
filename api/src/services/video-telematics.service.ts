@@ -150,7 +150,7 @@ class VideoTelematicsService {
     await this.db.query(
       `UPDATE vehicle_cameras
        SET status = $1, last_ping_at = NOW(), firmware_version = $2, updated_at = NOW()
-       WHERE id = $3',
+       WHERE id = $3`,
       [status, firmwareVersion, cameraId]
     );
   }
@@ -255,7 +255,7 @@ class VideoTelematicsService {
       params.push(filters.markedAsEvidence);
     }
 
-    const whereClause = conditions.length > 0 ? `WHERE ${conditions.join(` AND `)}' : '`;
+    const whereClause = conditions.length > 0 ? `WHERE ${conditions.join(' AND ')}` : '';
 
     const page = filters.page || 1;
     const limit = filters.limit || 50;
@@ -374,7 +374,7 @@ class VideoTelematicsService {
         `UPDATE video_safety_events
          SET video_storage_path = $1,
              video_file_size_mb = $2,
-             video_download_status = `ready`,
+             video_download_status = 'ready',
              updated_at = NOW()
          WHERE id = $3`,
         [storagePath, fileSizeMb, eventId]
@@ -388,9 +388,9 @@ class VideoTelematicsService {
 
       await this.db.query(
         `UPDATE video_safety_events
-         SET video_download_status = `failed`,
+         SET video_download_status = 'failed',
              updated_at = NOW()
-         WHERE id = $1',
+         WHERE id = $1`,
         [eventId]
       );
 
@@ -499,17 +499,17 @@ class VideoTelematicsService {
       `UPDATE video_safety_events
        SET evidence_locker_id = $1,
            marked_as_evidence = true,
-           retention_policy = `extended`,
+           retention_policy = 'extended',
            updated_at = NOW()
-       WHERE id = $2',
+       WHERE id = $2`,
       [lockerId, eventId]
     );
 
     // Audit log
     await this.db.query(
       `INSERT INTO video_privacy_audit
-       (video_event_id, accessed_by, access_type, access_reason)
-       VALUES ($1, $2, 'share', 'Added to evidence locker`)`,
+      (video_event_id, accessed_by, access_type, access_reason)
+       VALUES($1, $2, 'share', 'Added to evidence locker')`,
       [eventId, userId]
     );
 
@@ -585,7 +585,7 @@ class VideoTelematicsService {
       params.push(filters.legalHold);
     }
 
-    const whereClause = conditions.length > 0 ? `WHERE ${conditions.join(` AND `)}' : ``;
+    const whereClause = conditions.length > 0 ? `WHERE ${conditions.join(' AND ')}` : '';
 
     const page = filters.page || 1;
     const limit = filters.limit || 20;
@@ -593,15 +593,15 @@ class VideoTelematicsService {
 
     const result = await this.db.query(
       `SELECT el.*,
-              COUNT(vse.id) as video_count,
-              u.username as created_by_name
+      COUNT(vse.id) as video_count,
+      u.username as created_by_name
        FROM evidence_locker el
        LEFT JOIN video_safety_events vse ON vse.evidence_locker_id = el.id
        LEFT JOIN users u ON el.created_by = u.id
        ${whereClause}
        GROUP BY el.id, u.username
        ORDER BY el.created_at DESC
-       LIMIT $${paramIndex} OFFSET $${paramIndex + 1}`,
+       LIMIT $${paramIndex} OFFSET $${paramIndex + 1} `,
       [...params, limit, offset]
     );
 
@@ -618,12 +618,12 @@ class VideoTelematicsService {
     await this.db.query(
       `UPDATE video_safety_events
        SET coaching_required = true,
-           updated_at = NOW()
+      updated_at = NOW()
        WHERE id = $1`,
       [eventId]
     );
 
-    logger.info(`Event ${eventId} marked for coaching by user ${userId}`);
+    logger.info(`Event ${eventId} marked for coaching by user ${userId} `);
   }
 
   /**
@@ -640,8 +640,8 @@ class VideoTelematicsService {
   }): Promise<number> {
     const result = await this.db.query(
       `INSERT INTO driver_coaching_sessions
-       (driver_id, video_event_id, session_type, coaching_topic, coach_id, coach_notes, scheduled_at)
-       VALUES ($1, $2, $3, $4, $5, $6, $7)
+      (driver_id, video_event_id, session_type, coaching_topic, coach_id, coach_notes, scheduled_at)
+    VALUES($1, $2, $3, $4, $5, $6, $7)
        RETURNING id`,
       [
         data.driverId,
@@ -669,10 +669,10 @@ class VideoTelematicsService {
     await this.db.query(
       `UPDATE driver_coaching_sessions
        SET conducted_at = NOW(),
-           outcome = $1,
-           action_items = $2,
-           driver_acknowledgment = $3,
-           updated_at = NOW()
+      outcome = $1,
+      action_items = $2,
+      driver_acknowledgment = $3,
+      updated_at = NOW()
        WHERE id = $4`,
       [outcome, actionItems, driverAcknowledgment, sessionId]
     );
@@ -681,12 +681,12 @@ class VideoTelematicsService {
     await this.db.query(
       `UPDATE video_safety_events
        SET coaching_completed = true,
-           coaching_completed_at = NOW()
+      coaching_completed_at = NOW()
        WHERE id = (SELECT video_event_id FROM driver_coaching_sessions WHERE id = $1)`,
       [sessionId]
     );
 
-    logger.info(`Coaching session ${sessionId} completed with outcome: ${outcome}`);
+    logger.info(`Coaching session ${sessionId} completed with outcome: ${outcome} `);
   }
 
   /**

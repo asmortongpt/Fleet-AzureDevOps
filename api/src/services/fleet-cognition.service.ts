@@ -450,7 +450,7 @@ class FleetCognitionService {
        LEFT JOIN trips t ON v.id = t.vehicle_id
        WHERE v.tenant_id = $1 AND v.status = 'active'
        GROUP BY v.id
-       HAVING MAX(t.end_time) < NOW() - INTERVAL '14 days' OR MAX(t.end_time) IS NULL',
+       HAVING MAX(t.end_time) < NOW() - INTERVAL '14 days' OR MAX(t.end_time) IS NULL`,
       [tenantId]
     )
 
@@ -576,7 +576,7 @@ class FleetCognitionService {
   private async getRecentInsights(tenantId: string, days: number): Promise<any[]> {
     const result = await this.db.query(
       `SELECT id, tenant_id, insight_type, insight_data, confidence_score, created_at FROM cognition_insights
-       WHERE tenant_id = $1 AND created_at >= NOW() - INTERVAL `${days} days`
+       WHERE tenant_id = $1 AND created_at >= NOW() - INTERVAL '${days} days'
        ORDER BY created_at DESC`,
       [tenantId]
     )
@@ -586,7 +586,7 @@ class FleetCognitionService {
   private async getRecentPatterns(tenantId: string, days: number): Promise<any[]> {
     const result = await this.db.query(
       `SELECT id, tenant_id, vehicle_id, pattern_type, pattern_data, confidence_score, detected_at FROM detected_patterns
-       WHERE tenant_id = $1 AND last_detected_at >= NOW() - INTERVAL `${days} days`
+       WHERE tenant_id = $1 AND last_detected_at >= NOW() - INTERVAL '${days} days'
        ORDER BY occurrence_count DESC`,
       [tenantId]
     )
@@ -673,7 +673,7 @@ class FleetCognitionService {
       `SELECT
         COUNT(*) as total_vehicles,
         COUNT(*) FILTER (WHERE status = 'maintenance') as in_maintenance
-       FROM vehicles WHERE tenant_id = $1 AND status IN ('active', 'maintenance')',
+       FROM vehicles WHERE tenant_id = $1 AND status IN ('active', 'maintenance')`,
       [tenantId]
     )
 
@@ -687,7 +687,7 @@ class FleetCognitionService {
     const result = await this.db.query(
       `SELECT COUNT(*) as incident_count
        FROM safety_incidents
-       WHERE tenant_id = $1 AND incident_date >= NOW() - INTERVAL '90 days'',
+       WHERE tenant_id = $1 AND incident_date >= NOW() - INTERVAL '90 days'`,
       [tenantId]
     )
 
@@ -709,7 +709,7 @@ class FleetCognitionService {
     const result = await this.db.query(
       `SELECT COUNT(*) as incident_count
        FROM safety_incidents
-       WHERE tenant_id = $1 AND incident_date >= NOW() - INTERVAL '30 days'',
+       WHERE tenant_id = $1 AND incident_date >= NOW() - INTERVAL '30 days'`,
       [tenantId]
     )
 

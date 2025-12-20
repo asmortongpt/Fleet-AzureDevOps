@@ -1,5 +1,5 @@
-import { AlertCircle, Truck, Wrench, MapPin, Gauge, Fuel } from 'lucide-react';
-import { useState, useEffect } from 'react';
+import { AlertCircle, Truck, Wrench, MapPin, Gauge, Fuel, Video, Users } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 
 import { MapFirstLayout } from '../layout/MapFirstLayout';
@@ -13,8 +13,16 @@ import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
 
 import { TrafficCameraLayer } from '@/components/layers/TrafficCameraLayer';
 import { TrafficCameraControlPanel } from '@/components/panels/TrafficCameraControlPanel';
-import { useVehicles } from '@/hooks/use-api';
+import { GeofenceLayer } from '@/components/layers/GeofenceLayer';
+import { GeofenceControlPanel } from '@/components/panels/GeofenceControlPanel';
+import { GeofenceIntelligencePanel } from '@/components/panels/GeofenceIntelligencePanel';
+import { DriverControlPanel } from '@/components/panels/DriverControlPanel';
+import { DriverDetailPanel } from '@/components/panels/DriverDetailPanel';
+import { MapLayerControl } from '@/components/map/MapLayerControl';
+import { useVehicles, useDrivers } from '@/hooks/use-api';
+import { useGeofenceBreachDetector } from '@/hooks/use-geofence-breach';
 import { generateDemoVehicles } from '@/lib/demo-data';
+import { Geofence, Driver } from '@/lib/types';
 import logger from '@/utils/logger';
 
 
@@ -24,11 +32,23 @@ interface LiveFleetDashboardProps {
   initialLayer?: string;
 }
 
-export function LiveFleetDashboard({ initialLayer }: LiveFleetDashboardProps = {}) {
+// ... existing imports
+
+export const LiveFleetDashboard = React.memo(function LiveFleetDashboard({ initialLayer }: LiveFleetDashboardProps = {}) {
+
   const { data: vehiclesData, isLoading: apiLoading, error: apiError } = useVehicles();
+  const { data: driversData } = useDrivers();
   const [vehicles, setVehicles] = useState<any[]>([]);
+  const [drivers, setDrivers] = useState<Driver[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [selectedVehicleId, setSelectedVehicleId] = useState<string | null>(null);
+
+  // -- Data Sync --
+  useEffect(() => {
+    if (driversData) {
+      setDrivers(driversData as Driver[]);
+    }
+  }, [driversData]);
 
   // -- Traffic Camera State --
   const [searchParams] = useSearchParams();
@@ -40,10 +60,52 @@ export function LiveFleetDashboard({ initialLayer }: LiveFleetDashboardProps = {
   });
   const [selectedCameraId, setSelectedCameraId] = useState<string>();
 
-  // Deep linking for 'layer=cameras' or prop injection
+  // -- Geofence State --
+  const [showGeofences, setShowGeofences] = useState(false);
+  const [selectedGeofenceForIntelligence, setSelectedGeofenceForIntelligence] = useState<Geofence | null>(null);
+  const [geofences, setGeofences] = useState<Geofence[]>([
+    // Pre-seed with a demo geofence so users see something immediately
+    {
+      id: 'demo-1',
+      tenantId: 'demo',
+      name: 'Main HQ',
+      description: 'Headquarters geofence',
+      type: 'circle',
+      active: true,
+      color: '#3B82F6',
+      center: { lat: 30.4383, lng: -84.2807 }, // Tallahassee
+      radius: 1000,
+      triggers: { onEnter: true, onExit: true, onDwell: false },
+      notifyUsers: [],
+      notifyRoles: [],
+      alertPriority: 'medium',
+      createdBy: 'system',
+      createdAt: new Date().toISOString(),
+      lastModified: new Date().toISOString()
+    }
+  ]);
+
+  // -- Driver State --
+  const [showDrivers, setShowDrivers] = useState(false);
+  const [selectedDriverForDetail, setSelectedDriverForDetail] = useState<Driver | null>(null);
+
+  // Advanced: Breach Detection Hook
+  const { activeBreaches, breachesByGeofence } = useGeofenceBreachDetector(vehicles, geofences);
+  const activeBreachCount = activeBreaches.length;
+  // Get IDs of geofences that have at least one active breach
+  const breachedGeofenceIds = Object.keys(breachesByGeofence).filter(id => (breachesByGeofence[id]?.length || 0) > 0);
+
+  // Deep linking for layers
   useEffect(() => {
-    if (searchParams.get('layer') === 'cameras' || initialLayer === 'traffic-cameras') {
+    const layerParam = searchParams.get('layer');
+    if (layerParam === 'cameras' || initialLayer === 'traffic-cameras') {
       setShowTrafficCameras(true);
+    }
+    if (layerParam === 'geofences' || initialLayer === 'geofences') {
+      setShowGeofences(true);
+    }
+    if (layerParam === 'drivers' || initialLayer === 'drivers') {
+      setShowDrivers(true);
     }
   }, [searchParams, initialLayer]);
 
@@ -347,6 +409,12 @@ export function LiveFleetDashboard({ initialLayer }: LiveFleetDashboardProps = {
               onCameraSelect={(cam) => setSelectedCameraId(cam.id)}
               selectedCameraId={selectedCameraId}
             />
+            <GeofenceLayer
+              visible={showGeofences}
+              geofences={geofences}
+              onGeofenceSelect={setSelectedGeofenceForIntelligence}
+              breachedGeofenceIds={breachedGeofenceIds}
+            />
           </ProfessionalFleetMap>
         }
         sidePanel={sidePanel}
@@ -355,22 +423,72 @@ export function LiveFleetDashboard({ initialLayer }: LiveFleetDashboardProps = {
       />
 
       {/* Layer Controls - Overlay */}
-      <TrafficCameraControlPanel
+      < TrafficCameraControlPanel
         isVisible={showTrafficCameras}
         filters={trafficCameraFilters}
         onFilterChange={(k, v) => setTrafficCameraFilters(prev => ({ ...prev, [k]: v }))}
         onClose={() => setShowTrafficCameras(false)}
       />
 
-      {/* Floating Toggle (Temporary until integrated into MapControls) */}
-      {!showTrafficCameras && (
-        <Button
-          className="fixed bottom-6 right-6 z-50 shadow-lg"
-          onClick={() => setShowTrafficCameras(true)}
-        >
-          Show Traffic Cameras
-        </Button>
-      )}
-    </div>
+      < GeofenceControlPanel
+        isVisible={showGeofences}
+        geofences={geofences}
+        onGeofencesChange={setGeofences}
+        onClose={() => setShowGeofences(false)}
+      />
+
+      <GeofenceIntelligencePanel
+        geofence={selectedGeofenceForIntelligence}
+        onClose={() => setSelectedGeofenceForIntelligence(null)}
+        vehicles={vehicles}
+        breachedVehicleIds={selectedGeofenceForIntelligence ? (breachesByGeofence[selectedGeofenceForIntelligence.id] || []) : []}
+      />
+
+      {/* Driver Management Panels */}
+      <DriverControlPanel
+        isVisible={showDrivers}
+        drivers={drivers}
+        onDriverSelect={setSelectedDriverForDetail}
+        onClose={() => setShowDrivers(false)}
+        onDriversChange={setDrivers}
+      />
+
+      <DriverDetailPanel
+        driver={selectedDriverForDetail}
+        vehicles={vehicles}
+        onClose={() => setSelectedDriverForDetail(null)}
+      />
+
+      {/* Unified Layer Control */}
+      <MapLayerControl
+        layers={[
+          {
+            id: 'traffic-cameras',
+            label: 'Traffic Cameras',
+            icon: <Video className="w-4 h-4" />,
+            active: showTrafficCameras,
+            count: 12, // Demo count
+            onToggle: setShowTrafficCameras
+          },
+          {
+            id: 'geofences',
+            label: 'Geofences',
+            icon: <MapPin className="w-4 h-4" />,
+            active: showGeofences,
+            // Show active breach count if any (critical info), otherwise total active count
+            count: activeBreachCount > 0 ? activeBreachCount : geofences.filter(g => g.active).length,
+            onToggle: setShowGeofences
+          },
+          {
+            id: 'drivers',
+            label: 'Drivers',
+            icon: <Users className="w-4 h-4" />,
+            active: showDrivers,
+            count: drivers.length,
+            onToggle: setShowDrivers
+          }
+        ]}
+      />
+    </div >
   );
-}
+});

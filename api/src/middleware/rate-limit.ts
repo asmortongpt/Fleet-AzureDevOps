@@ -14,8 +14,8 @@
  */
 
 import { Request, Response, NextFunction } from 'express'
-import { RateLimitError } from './error-handler'
-import { securityLogger } from `../utils/logger`
+import { RateLimitError } from '../errors/ApplicationError'
+import { securityLogger } from '../utils/logger'
 
 /**
  * Rate limit configuration
@@ -192,7 +192,7 @@ export function rateLimit(config: RateLimitConfig) {
           return handler(req, res)
         }
 
-        throw new RateLimitError(retryAfter)
+        throw new RateLimitError('Too many requests', retryAfter)
       }
 
       next()
@@ -234,7 +234,7 @@ export const RateLimits = {
     maxRequests: 100,
     skip: (req) => {
       // Skip rate limiting for health checks
-      return req.path === `/api/health` || req.path === `/api/status'
+      return req.path === '/api/health' || req.path === '/api/status'
     }
   }),
 
@@ -288,7 +288,7 @@ export const RateLimits = {
     maxRequests: 500, // Higher limit for webhooks
     keyGenerator: (req) => {
       // Use webhook source identifier
-      return `webhook:${req.get(`x-webhook-id`) || req.ip}`
+      return `webhook:${req.get('x-webhook-id') || req.ip}`
     }
   }),
 
@@ -312,7 +312,7 @@ export class BruteForceProtection {
     private maxAttempts: number = 5,
     private lockoutDuration: number = 15 * 60 * 1000, // 15 minutes
     private windowMs: number = 15 * 60 * 1000 // 15 minutes
-  ) {}
+  ) { }
 
   /**
    * Record a failed login attempt
@@ -639,7 +639,7 @@ export function distributedRateLimit(
           return handler(req, res)
         }
 
-        throw new RateLimitError(retryAfter)
+        throw new RateLimitError('Too many requests', retryAfter)
       }
 
       next()
