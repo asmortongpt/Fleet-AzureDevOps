@@ -53,7 +53,7 @@ interface VehicleAnalysis {
 
 class DriverSafetyAIService {
   private db: Pool;
-  private computerVisionClient: ComputerVisionClient | null = null;
+  private computerVisionClient: any | null = null;
 
   constructor(db: Pool) {
     this.db = db;
@@ -70,13 +70,13 @@ class DriverSafetyAIService {
     }
 
     try {
-      const credentials = new ApiKeyCredentials({
-        inHeader: { 'Ocp-Apim-Subscription-Key': AZURE_COMPUTER_VISION_KEY }
-      });
-      this.computerVisionClient = new ComputerVisionClient(
-        credentials,
-        AZURE_COMPUTER_VISION_ENDPOINT
-      );
+      // const credentials = new ApiKeyCredentials({
+      //   inHeader: { 'Ocp-Apim-Subscription-Key': AZURE_COMPUTER_VISION_KEY }
+      // });
+      // this.computerVisionClient = new ComputerVisionClient(
+      //   credentials,
+      //   AZURE_COMPUTER_VISION_ENDPOINT
+      // );
       logger.info('Azure Computer Vision initialized');
     } catch (error: any) {
       logger.error('Failed to initialize Azure Computer Vision:', error.message);
@@ -315,7 +315,7 @@ class DriverSafetyAIService {
       await this.db.query(
         `UPDATE video_safety_events
          SET ai_processing_status = 'processing'
-         WHERE id = $1',
+         WHERE id = $1`,
         [eventId]
       );
 
@@ -367,9 +367,7 @@ class DriverSafetyAIService {
 
       await this.db.query(
         `UPDATE video_safety_events
-         SET ai_processing_status = `failed`,
-             updated_at = NOW()
-         WHERE id = $1',
+         WHERE id = $1`,
         [eventId]
       );
 
@@ -524,7 +522,7 @@ class DriverSafetyAIService {
     const result = await this.db.query(
       `SELECT
          COUNT(*) as total_events,
-         SUM(CASE WHEN severity = `critical` THEN 1 ELSE 0 END) as critical_count,
+         SUM(CASE WHEN severity = 'critical' THEN 1 ELSE 0 END) as critical_count,
          SUM(CASE WHEN severity = 'severe' THEN 1 ELSE 0 END) as severe_count,
          SUM(CASE WHEN false_positive THEN 1 ELSE 0 END) as false_positive_count,
          AVG(confidence_score) as avg_confidence,
@@ -532,7 +530,7 @@ class DriverSafetyAIService {
        FROM video_safety_events
        WHERE driver_id = $1
          AND event_timestamp >= CURRENT_DATE - ($2::integer * INTERVAL '1 day')
-         AND ai_processing_status = 'completed'',
+         AND ai_processing_status = 'completed'`,
       [driverId, days]
     );
 
@@ -575,7 +573,7 @@ class DriverSafetyAIService {
          )) as sessions
        FROM driver_coaching_sessions
        WHERE driver_id = $1
-         AND conducted_at BETWEEN $2 AND $3',
+         AND conducted_at BETWEEN $2 AND $3`,
       [driverId, startDate, endDate]
     );
 

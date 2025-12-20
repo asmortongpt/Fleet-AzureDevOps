@@ -1,3 +1,4 @@
+
 import {
   Truck,
   MapPin,
@@ -8,30 +9,17 @@ import {
   AlertTriangle,
   CheckCircle,
   Clock,
-  ChevronRight
+  ChevronRight,
+  Zap,
+  Power
 } from 'lucide-react';
 
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
+import { Vehicle } from '@/lib/types';
 
-
-interface Vehicle {
-  id: string;
-  vehicleNumber: string;
-  make: string;
-  model: string;
-  year?: number;
-  status: 'active' | 'maintenance' | 'inactive' | 'out-of-service';
-  latitude?: number;
-  longitude?: number;
-  fuelLevel?: number;
-  odometer?: number;
-  driver?: string;
-  lastUpdated?: string;
-  alerts?: number;
-}
 
 interface MobileVehicleCardProps {
   vehicle: Vehicle;
@@ -50,14 +38,19 @@ export function MobileVehicleCard({
   showQuickActions = false,
   className
 }: MobileVehicleCardProps) {
-  const statusConfig = {
+  const statusConfig: Record<string, { color: string; label: string; icon: any }> = {
     active: { color: 'bg-green-500', label: 'Active', icon: CheckCircle },
-    maintenance: { color: 'bg-amber-500', label: 'Maintenance', icon: AlertTriangle },
+    maintenance: { color: 'bg-amber-500', label: 'Maintenance', icon: AlertTriangle }, // Mapped from legacy
+    service: { color: 'bg-amber-500', label: 'Service', icon: Calendar },
     inactive: { color: 'bg-gray-500', label: 'Inactive', icon: Clock },
+    idle: { color: 'bg-blue-400', label: 'Idle', icon: Clock },
+    charging: { color: 'bg-green-400', label: 'Charging', icon: Zap },
+    emergency: { color: 'bg-red-600', label: 'Emergency', icon: AlertTriangle },
+    offline: { color: 'bg-gray-400', label: 'Offline', icon: Power },
     'out-of-service': { color: 'bg-red-500', label: 'Out of Service', icon: AlertTriangle }
   };
 
-  const statusInfo = statusConfig[vehicle.status];
+  const statusInfo = statusConfig[vehicle.status] || statusConfig.inactive;
   const StatusIcon = statusInfo.icon;
 
   if (variant === 'list') {
