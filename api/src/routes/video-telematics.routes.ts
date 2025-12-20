@@ -1,11 +1,3 @@
-/**
-import { container } from '../container'
-import { asyncHandler } from '../middleware/errorHandler'
-import { NotFoundError, ValidationError } from '../errors/app-error'
- * Video Telematics API Routes
- * Camera management, video events, evidence locker, and AI analysis
- */
-
 import express, { Response } from 'express';
 import { AuthRequest, authenticateJWT } from '../middleware/auth';
 import { requirePermission, rateLimit } from '../middleware/permissions';
@@ -15,6 +7,9 @@ import DriverSafetyAIService from '../services/driver-safety-ai.service';
 import { z } from 'zod';
 import { getErrorMessage } from '../utils/error-handler'
 import { csrfProtection } from '../middleware/csrf'
+import { pool } from '../db'
+import { securityLogger as logger } from '../utils/logger'
+import { ValidationError, NotFoundError } from '../errors/app-error'
 
 
 const router = express.Router();
@@ -41,7 +36,7 @@ router.get(
       const { vehicleId } = req.query;
 
       if (vehicleId) {
-        const cameras = await videoService.getVehicleCameras(Number(vehicleId);
+        const cameras = await videoService.getVehicleCameras(Number(vehicleId));
         return res.json({ cameras });
       }
 
@@ -69,7 +64,7 @@ router.get(
  */
 router.post(
   '/cameras',
- csrfProtection,  csrfProtection, requirePermission('video_event:create:global'),
+  csrfProtection, requirePermission('video_event:create:global'),
   auditLog({ action: 'CREATE', resourceType: 'cameras' }),
   async (req: AuthRequest, res: Response) => {
     try {
@@ -104,7 +99,7 @@ router.post(
  */
 router.patch(
   '/cameras/:id/health',
- csrfProtection,  csrfProtection, requirePermission('video_event:create:global'),
+  csrfProtection, requirePermission('video_event:create:global'),
   auditLog({ action: 'UPDATE', resourceType: 'camera_health' }),
   async (req: AuthRequest, res: Response) => {
     try {
@@ -189,7 +184,7 @@ router.get(
       await pool.query(
         `INSERT INTO video_privacy_audit
          (video_event_id, accessed_by, access_type, ip_address)
-         VALUES ($1, $2, 'view', $3)',
+         VALUES ($1, $2, 'view', $3)`,
         [req.params.id, req.user!.id, req.ip]
       );
 
@@ -212,7 +207,7 @@ router.get(
   auditLog({ action: 'READ', resourceType: 'video_clip' }),
   async (req: AuthRequest, res: Response) => {
     try {
-      const playbackUrl = await videoService.getVideoPlaybackUrl(Number(req.params.id);
+      const playbackUrl = await videoService.getVideoPlaybackUrl(Number(req.params.id));
 
       if (!playbackUrl) {
         throw new NotFoundError("Video clip not available");
@@ -221,8 +216,8 @@ router.get(
       // Log video access
       await pool.query(
         `INSERT INTO video_privacy_audit
-         (video_event_id, accessed_by, access_type, ip_address)
-         VALUES ($1, $2, 'view', $3)',
+        (video_event_id, accessed_by, access_type, ip_address)
+         VALUES($1, $2, 'view', $3)`,
         [req.params.id, req.user!.id, req.ip]
       );
 
@@ -240,7 +235,7 @@ router.get(
  */
 router.post(
   '/events',
- csrfProtection,  csrfProtection, requirePermission('video_event:create:global'),
+  csrfProtection, requirePermission('video_event:create:global'),
   auditLog({ action: 'CREATE', resourceType: 'video_events' }),
   async (req: AuthRequest, res: Response) => {
     try {
@@ -255,7 +250,7 @@ router.post(
         address: z.string().optional(),
         speedMph: z.number().optional(),
         gForce: z.number().optional(),
-        eventTimestamp: z.string().transform(s => new Date(s),
+        eventTimestamp: z.string().transform(s => new Date(s)),
         videoRequestId: z.string().optional(),
         videoUrl: z.string().optional(),
         videoThumbnailUrl: z.string().optional(),
@@ -283,7 +278,7 @@ router.post(
  */
 router.post(
   '/analyze',
- csrfProtection,  csrfProtection, requirePermission('video_event:create:global'),
+  csrfProtection, requirePermission('video_event:create:global'),
   auditLog({ action: 'UPDATE', resourceType: 'video_analysis' }),
   async (req: AuthRequest, res: Response) => {
     try {
@@ -295,7 +290,7 @@ router.post(
 
       // Process asynchronously
       aiService.processVideoEvent(eventId).catch(error => {
-        logger.error(`AI analysis failed for event ${eventId}:`, error) // Wave 20: Winston logger;
+        logger.error(`AI analysis failed for event ${eventId}: `, error) // Wave 20: Winston logger;
       });
 
       res.json({
@@ -316,7 +311,7 @@ router.post(
  */
 router.patch(
   '/events/:id/review',
- csrfProtection,  csrfProtection, requirePermission('video_event:create:global'),
+  csrfProtection, requirePermission('video_event:create:global'),
   auditLog({ action: 'UPDATE', resourceType: 'video_events' }),
   async (req: AuthRequest, res: Response) => {
     try {
@@ -325,12 +320,12 @@ router.patch(
       await pool.query(
         `UPDATE video_safety_events
          SET reviewed = $1,
-             reviewed_by = $2,
-             reviewed_at = NOW(),
-             review_notes = $3,
-             false_positive = $4,
-             coaching_required = $5,
-             updated_at = NOW()
+        reviewed_by = $2,
+        reviewed_at = NOW(),
+        review_notes = $3,
+        false_positive = $4,
+        coaching_required = $5,
+        updated_at = NOW()
          WHERE id = $6`,
         [
           reviewed,
@@ -348,7 +343,7 @@ router.patch(
 
       res.json({ message: `Video event reviewed successfully` });
     } catch (error: any) {
-      logger.error(`Review video event error:`, error) // Wave 20: Winston logger;
+      logger.error(`Review video event error: `, error) // Wave 20: Winston logger;
       res.status(500).json({ error: 'Failed to review video event' });
     }
   }
@@ -397,7 +392,7 @@ router.get(
   auditLog({ action: 'READ', resourceType: 'evidence_locker' }),
   async (req: AuthRequest, res: Response) => {
     try {
-      const locker = await videoService.getEvidenceLocker(Number(req.params.id);
+      const locker = await videoService.getEvidenceLocker(Number(req.params.id));
 
       if (!locker) {
         throw new NotFoundError("Evidence locker not found");
@@ -417,7 +412,7 @@ router.get(
  */
 router.post(
   '/evidence-locker',
- csrfProtection,  csrfProtection, requirePermission('video_event:create:global'),
+  csrfProtection, requirePermission('video_event:create:global'),
   auditLog({ action: 'CREATE', resourceType: 'evidence_locker' }),
   async (req: AuthRequest, res: Response) => {
     try {
@@ -456,7 +451,7 @@ router.post(
  */
 router.post(
   '/evidence-locker/:id/add-event',
- csrfProtection,  csrfProtection, requirePermission('video_event:create:global'),
+  csrfProtection, requirePermission('video_event:create:global'),
   auditLog({ action: 'UPDATE', resourceType: 'evidence_locker' }),
   async (req: AuthRequest, res: Response) => {
     try {
@@ -497,14 +492,14 @@ router.get(
     try {
       const result = await pool.query(
         `SELECT id, tenant_id, vehicle_id, driver_id, event_type, severity, date_time FROM events_requiring_coaching
-         WHERE vehicle_id IN (SELECT id FROM vehicles WHERE tenant_id = $1)
+         WHERE vehicle_id IN(SELECT id FROM vehicles WHERE tenant_id = $1)
          LIMIT 100`,
         [req.user!.tenant_id]
       );
 
       res.json({ events: result.rows });
     } catch (error: any) {
-      logger.error(`Get coaching events error:`, error) // Wave 20: Winston logger;
+      logger.error(`Get coaching events error: `, error) // Wave 20: Winston logger;
       res.status(500).json({ error: `Failed to fetch coaching events` });
     }
   }
@@ -516,7 +511,7 @@ router.get(
  */
 router.post(
   '/coaching/sessions',
- csrfProtection,  csrfProtection, requirePermission('video_event:create:global'),
+  csrfProtection, requirePermission('video_event:create:global'),
   auditLog({ action: 'CREATE', resourceType: 'coaching_sessions' }),
   async (req: AuthRequest, res: Response) => {
     try {
@@ -553,7 +548,7 @@ router.post(
  */
 router.patch(
   '/coaching/sessions/:id/complete',
- csrfProtection,  csrfProtection, requirePermission('video_event:create:global'),
+  csrfProtection, requirePermission('video_event:create:global'),
   auditLog({ action: 'UPDATE', resourceType: 'coaching_sessions' }),
   async (req: AuthRequest, res: Response) => {
     try {
@@ -584,7 +579,7 @@ router.patch(
  */
 router.post(
   '/privacy/blur',
- csrfProtection,  csrfProtection, requirePermission('video_event:delete:global'),
+  csrfProtection, requirePermission('video_event:delete:global'),
   auditLog({ action: 'UPDATE', resourceType: 'video_privacy' }),
   async (req: AuthRequest, res: Response) => {
     try {
@@ -592,8 +587,8 @@ router.post(
 
       // Queue privacy processing
       await pool.query(
-        `INSERT INTO video_processing_queue (video_event_id, task_type, priority)
-         VALUES ($1, 'privacy_blur', 2)',
+        `INSERT INTO video_processing_queue(video_event_id, task_type, priority)
+      VALUES($1, 'privacy_blur', 2)`,
         [eventId]
       );
 
@@ -601,8 +596,8 @@ router.post(
       await pool.query(
         `UPDATE video_safety_events
          SET privacy_faces_blurred = $1,
-             privacy_plates_blurred = $2,
-             privacy_processing_status = 'pending'
+        privacy_plates_blurred = $2,
+        privacy_processing_status = 'pending'
          WHERE id = $3`,
         [blurFaces, blurPlates, eventId]
       );
@@ -610,12 +605,12 @@ router.post(
       // Audit log
       await pool.query(
         `INSERT INTO video_privacy_audit
-         (video_event_id, accessed_by, access_type, privacy_action)
-         VALUES ($1, $2, 'privacy_filter', $3)',
+        (video_event_id, accessed_by, access_type, privacy_action)
+      VALUES($1, $2, 'privacy_filter', $3)`,
         [
           eventId,
           req.user!.id,
-          `blur_faces:${blurFaces}, blur_plates:${blurPlates}`
+          `blur_faces: ${blurFaces}, blur_plates: ${blurPlates}`
         ]
       );
 
@@ -625,7 +620,7 @@ router.post(
         status: 'pending'
       });
     } catch (error: any) {
-      logger.error(`Apply privacy blur error:`, error) // Wave 20: Winston logger;
+      logger.error(`Apply privacy blur error: `, error) // Wave 20: Winston logger;
       res.status(500).json({ error: 'Failed to apply privacy filters' });
     }
   }
@@ -670,9 +665,9 @@ router.get(
     try {
       const result = await pool.query(
         `SELECT id, tenant_id, driver_id, score, total_events, safe_events, violation_events FROM driver_video_scorecard
-         WHERE driver_id IN (
-           SELECT id FROM drivers WHERE tenant_id = $1
-         )
+         WHERE driver_id IN(
+          SELECT id FROM drivers WHERE tenant_id = $1
+        )
          ORDER BY total_events_30d DESC
          LIMIT 50`,
         [req.user!.tenant_id]
@@ -680,7 +675,7 @@ router.get(
 
       res.json({ scorecard: result.rows });
     } catch (error: any) {
-      logger.error(`Get scorecard error:`, error) // Wave 20: Winston logger;
+      logger.error(`Get scorecard error: `, error) // Wave 20: Winston logger;
       res.status(500).json({ error: `Failed to fetch scorecard` });
     }
   }
@@ -699,16 +694,16 @@ router.get(
     try {
       const result = await pool.query(
         `SELECT id, tenant_id, vehicle_id, camera_status, last_sync, battery_level FROM camera_health_status
-         WHERE vehicle_id IN (
-           SELECT id FROM vehicles WHERE tenant_id = $1
-         )
+         WHERE vehicle_id IN(
+          SELECT id FROM vehicles WHERE tenant_id = $1
+        )
          ORDER BY health_status, vehicle_name`,
         [req.user!.tenant_id]
       );
 
       res.json({ cameras: result.rows });
     } catch (error: any) {
-      logger.error(`Get camera health error:`, error) // Wave 20: Winston logger;
+      logger.error(`Get camera health error: `, error) // Wave 20: Winston logger;
       res.status(500).json({ error: `Failed to fetch camera health` });
     }
   }

@@ -19,6 +19,7 @@ import { TenantProvider } from "./contexts/TenantContext"
 import { FeatureFlagProvider } from "./contexts/FeatureFlagContext"
 import { InspectProvider } from "./services/inspect/InspectContext"
 import { DrilldownProvider } from "./contexts/DrilldownContext"
+import { NavigationProvider } from "./contexts/NavigationContext"
 import { SentryErrorBoundary } from "./components/errors/SentryErrorBoundary"
 import App from "./App"
 import "./index.css"
@@ -56,7 +57,9 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
                         path="/*"
                         element={
                           <SentryErrorBoundary level="section">
-                            <App />
+                            <NavigationProvider>
+                              <App />
+                            </NavigationProvider>
                           </SentryErrorBoundary>
                         }
                       />
