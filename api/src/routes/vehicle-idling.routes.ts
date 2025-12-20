@@ -21,7 +21,7 @@ import { body, param, query } from 'express-validator'
 
 import { authenticateJWT } from '../middleware/auth'
 import { csrfProtection } from '../middleware/csrf'
-import { validateRequest } from '../middleware/validation'
+import { validateRequest } from '../middleware/validate-request'
 import { VehicleIdlingService } from '../services/vehicle-idling.service'
 
 
@@ -62,7 +62,7 @@ router.get('/active', authenticateJWT, async (req: Request, res: Response) => {
  */
 router.get(
   '/active/:vehicleId',
-  authenticate,
+  authenticateJWT,
   param('vehicleId').isInt().toInt(),
   validateRequest,
   async (req: Request, res: Response) => {
@@ -106,7 +106,7 @@ router.get(
  */
 router.get(
   '/vehicle/:vehicleId',
-  authenticate,
+  authenticateJWT,
   param('vehicleId').isInt().toInt(),
   query('days').optional().isInt({ min: 1, max: 365 }).toInt(),
   query('limit').optional().isInt({ min: 1, max: 1000 }).toInt(),
@@ -152,7 +152,7 @@ router.get(
  */
 router.get(
   '/vehicle/:vehicleId/stats',
-  authenticate,
+  authenticateJWT,
   param('vehicleId').isInt().toInt(),
   query('days').optional().isInt({ min: 1, max: 365 }).toInt(),
   validateRequest,
@@ -192,7 +192,7 @@ router.get(
  */
 router.get(
   '/fleet/stats',
-  authenticate,
+  authenticateJWT,
   query('days').optional().isInt({ min: 1, max: 365 }).toInt(),
   validateRequest,
   async (req: Request, res: Response) => {
@@ -226,7 +226,7 @@ router.get(
  */
 router.get(
   '/top-offenders',
-  authenticate,
+  authenticateJWT,
   query('limit').optional().isInt({ min: 1, max: 100 }).toInt(),
   query('days').optional().isInt({ min: 1, max: 365 }).toInt(),
   validateRequest,
@@ -267,7 +267,7 @@ router.get(
  */
 router.get(
   '/driver/:driverId/performance',
-  authenticate,
+  authenticateJWT,
   param('driverId').isInt().toInt(),
   query('days').optional().isInt({ min: 1, max: 365 }).toInt(),
   validateRequest,
@@ -300,7 +300,7 @@ router.get(
  */
 router.get(
   '/driver/:driverId/history',
-  authenticate,
+  authenticateJWT,
   param('driverId').isInt().toInt(),
   query('days').optional().isInt({ min: 1, max: 365 }).toInt(),
   query('limit').optional().isInt({ min: 1, max: 1000 }).toInt(),
@@ -357,7 +357,7 @@ router.get(
  */
 router.post(
   '/manual',
- csrfProtection, authenticateJWT,
+  csrfProtection, authenticateJWT,
   body('vehicleId').isInt().toInt(),
   body('driverId').optional().isInt().toInt(),
   body('startTime').isISO8601(),
@@ -426,7 +426,7 @@ router.post(
  */
 router.get(
   '/thresholds/:vehicleId',
-  authenticate,
+  authenticateJWT,
   param('vehicleId').isInt().toInt(),
   validateRequest,
   async (req: Request, res: Response) => {
@@ -465,7 +465,7 @@ router.get(
  */
 router.put(
   '/thresholds/:vehicleId',
- csrfProtection, authenticateJWT,
+  csrfProtection, authenticateJWT,
   param('vehicleId').isInt().toInt(),
   body('warningThresholdSeconds').optional().isInt({ min: 60 }),
   body('alertThresholdSeconds').optional().isInt({ min: 60 }),
@@ -511,7 +511,7 @@ router.put(
  */
 router.get(
   '/alerts',
-  authenticate,
+  authenticateJWT,
   query('limit').optional().isInt({ min: 1, max: 500 }).toInt(),
   query('unacknowledged').optional().isBoolean(),
   validateRequest,
@@ -543,7 +543,7 @@ router.get(
  */
 router.post(
   '/alerts/:alertId/acknowledge',
- csrfProtection, authenticateJWT,
+  csrfProtection, authenticateJWT,
   param('alertId').isInt().toInt(),
   validateRequest,
   async (req: Request, res: Response) => {
@@ -581,7 +581,7 @@ router.post(
  */
 router.get(
   '/reports/monthly',
-  authenticate,
+  authenticateJWT,
   query('months').optional().isInt({ min: 1, max: 24 }).toInt(),
   validateRequest,
   async (req: Request, res: Response) => {

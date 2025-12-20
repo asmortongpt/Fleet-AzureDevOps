@@ -6,16 +6,17 @@ import logger from '../config/logger'; // Wave 19: Add Winston logger
 import { AuthRequest, authenticateJWT } from '../middleware/auth'
 import { requirePermission } from '../middleware/permissions'
 import { auditLog } from '../middleware/audit'
-import { rateLimit } from '../middleware/rateLimit'
+import { rateLimit } from '../middleware/rate-limit'
 import { z } from 'zod'
 import { buildInsertClause, buildUpdateClause } from '../utils/sql-safety'
 import { csrfProtection } from '../middleware/csrf'
+import { pool } from '../db'
 
 
 const router = express.Router()
 router.use(authenticateJWT)
 // Rate limit all video event endpoints to 10 requests per minute
-router.use(rateLimit(10, 60000)
+router.use(rateLimit(10, 60000))
 
 // GET /video-events
 router.get(
@@ -56,7 +57,7 @@ router.get(
           page: Number(page),
           limit: Number(limit),
           total: parseInt(countResult.rows[0].count),
-          pages: Math.ceil(countResult.rows[0].count / Number(limit)
+          pages: Math.ceil(countResult.rows[0].count / Number(limit))
         }
       })
     } catch (error) {
@@ -106,7 +107,7 @@ router.get(
 // POST /video-events
 router.post(
   '/',
- csrfProtection,  csrfProtection, requirePermission('video_event:create:global'),
+  csrfProtection, requirePermission('video_event:create:global'),
   auditLog({ action: 'CREATE', resourceType: 'video_events' }),
   async (req: AuthRequest, res: Response) => {
     try {

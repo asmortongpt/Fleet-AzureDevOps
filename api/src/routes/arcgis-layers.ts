@@ -42,7 +42,7 @@ const arcgisLayerSchema = z.object({
     labelSize: z.number().optional(),
     labelColor: z.string().optional()
   }).optional(),
-  metadata: z.record(z.any().optional()
+  metadata: z.record(z.any()).optional()
 })
 
 /**
@@ -141,7 +141,7 @@ router.get('/:id', requirePermission('geofence:view:fleet'), async (req: AuthReq
  */
 router.post(
   '/',
- csrfProtection,  csrfProtection, requirePermission('geofence:create:fleet'),
+  csrfProtection, requirePermission('geofence:create:fleet'),
   async (req: AuthRequest, res: Response) => {
     const tenantId = req.user!.tenant_id
 
@@ -153,7 +153,7 @@ router.post(
           tenant_id, name, description, service_url, layer_type,
           enabled, opacity, min_zoom, max_zoom, refresh_interval,
           authentication, styling, metadata, created_at, updated_at
-        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, NOW(), NOW()
+        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, NOW(), NOW())
         RETURNING *`,
         [
           tenantId,
@@ -206,7 +206,7 @@ router.post(
  */
 router.put(
   '/:id',
- csrfProtection,  csrfProtection, requirePermission(`geofence:create:fleet`),
+  csrfProtection, requirePermission(`geofence:create:fleet`),
   async (req: AuthRequest, res: Response) => {
     const tenantId = req.user!.tenant_id
     const { id } = req.params
@@ -257,15 +257,15 @@ router.put(
       }
       if (validated.authentication !== undefined) {
         updates.push(`authentication = $${paramCount++}`)
-        values.push(JSON.stringify(validated.authentication)
+        values.push(JSON.stringify(validated.authentication))
       }
       if (validated.styling !== undefined) {
         updates.push(`styling = $${paramCount++}`)
-        values.push(JSON.stringify(validated.styling)
+        values.push(JSON.stringify(validated.styling))
       }
       if (validated.metadata !== undefined) {
         updates.push(`metadata = $${paramCount++}`)
-        values.push(JSON.stringify(validated.metadata)
+        values.push(JSON.stringify(validated.metadata))
       }
 
       if (updates.length === 0) {
@@ -320,7 +320,7 @@ router.put(
  */
 router.delete(
   '/:id',
- csrfProtection,  csrfProtection, requirePermission('geofence:create:fleet'),
+  csrfProtection, requirePermission('geofence:create:fleet'),
   async (req: AuthRequest, res: Response) => {
     const tenantId = req.user!.tenant_id
     const { id } = req.params

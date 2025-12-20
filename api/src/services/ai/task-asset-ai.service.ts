@@ -48,39 +48,39 @@ export interface WorkflowSuggestion {
  */
 
 export class TaskAssetAIService {
-  constructor(private db: Pool) {}
+  constructor(private db: Pool) { }
 
   async analyzeTaskAndSuggest(taskData: {
-  title: string
-  description?: string
-  type?: string
-  tenant_id: string
-}): Promise<TaskSuggestion> {
-  try {
-    // TODO: Re-enable embeddings when import is fixed
-    // Find similar tasks using embeddings
-    // const taskText = `${taskData.title} ${taskData.description || ``}`
-    // const embedding = await embed(taskText)
+    title: string
+    description?: string
+    type?: string
+    tenant_id: string
+  }): Promise<TaskSuggestion> {
+    try {
+      // TODO: Re-enable embeddings when import is fixed
+      // Find similar tasks using embeddings
+      // const taskText = `${taskData.title} ${taskData.description || ``}`
+      // const embedding = await embed(taskText)
 
-    // Temporarily disabled - embedding service import needs fixing
-    const similarTasks = { rows: [] }
+      // Temporarily disabled - embedding service import needs fixing
+      const similarTasks = { rows: [] }
 
-    // const similarTasks = await this.db.query(
-    //   `SELECT
-    //     id, task_title, description, priority, assigned_to,
-    //     actual_hours, status, created_at,
-    //     (embedding <-> $1::vector) as similarity
-    //   FROM tasks
-    //   WHERE tenant_id = $2
-    //     AND embedding IS NOT NULL
-    //     AND status = `completed`
-    //   ORDER BY similarity ASC
-    //   LIMIT 5`,
-    //   [JSON.stringify(embedding), taskData.tenant_id]
-    // )
+      // const similarTasks = await this.db.query(
+      //   `SELECT
+      //     id, task_title, description, priority, assigned_to,
+      //     actual_hours, status, created_at,
+      //     (embedding <-> $1::vector) as similarity
+      //   FROM tasks
+      //   WHERE tenant_id = $2
+      //     AND embedding IS NOT NULL
+      //     AND status = 'completed'
+      //   ORDER BY similarity ASC
+      //   LIMIT 5`,
+      //   [JSON.stringify(embedding), taskData.tenant_id]
+      // )
 
-    // Use Claude to analyze and provide suggestions
-    const prompt = `Analyze this task and provide intelligent suggestions:
+      // Use Claude to analyze and provide suggestions
+      const prompt = `Analyze this task and provide intelligent suggestions:
 
 Task Title: ${taskData.title}
 Task Description: ${taskData.description || 'N/A'}
@@ -102,64 +102,64 @@ Based on this information, provide:
 
 Format your response as JSON with keys: suggestedPriority, estimatedHours, recommendations (array), challenges (array)`
 
-    const message = await anthropic.messages.create({
-      model: 'claude-sonnet-4-20250514',
-      max_tokens: 1024,
-      messages: [{
-        role: 'user',
-        content: prompt
-      }]
-    })
+      const message = await anthropic.messages.create({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 1024,
+        messages: [{
+          role: 'user',
+          content: prompt
+        }]
+      })
 
-    const responseText = message.content[0].type === 'text' ? message.content[0].text : '{}'
-    const suggestions = JSON.parse(responseText)
+      const responseText = message.content[0].type === 'text' ? message.content[0].text : '{}'
+      const suggestions = JSON.parse(responseText)
 
-    return {
-      suggestedPriority: suggestions.suggestedPriority,
-      estimatedHours: suggestions.estimatedHours,
-      similarTasks: similarTasks.rows,
-      recommendations: suggestions.recommendations || []
-    }
-  } catch (error) {
-    console.error('Error analyzing task:', error)
-    return {
-      recommendations: ['Unable to generate AI suggestions']
+      return {
+        suggestedPriority: suggestions.suggestedPriority,
+        estimatedHours: suggestions.estimatedHours,
+        similarTasks: similarTasks.rows,
+        recommendations: suggestions.recommendations || []
+      }
+    } catch (error) {
+      console.error('Error analyzing task:', error)
+      return {
+        recommendations: ['Unable to generate AI suggestions']
+      }
     }
   }
-}
 
-/**
- * Suggest best assignee for a task based on:
- * - Current workload
- * - Past performance on similar tasks
- * - Skill matching
- * - Availability
- */
+  /**
+   * Suggest best assignee for a task based on:
+   * - Current workload
+   * - Past performance on similar tasks
+   * - Skill matching
+   * - Availability
+   */
   async suggestTaskAssignee(taskData: {
-  title: string
-  description?: string
-  type?: string
-  priority?: string
-  tenant_id: string
-}): Promise<{ userId: string; userName: string; confidence: number; reason: string }[]> {
-  try {
-    // Get users and their current workload
-    const users = await this.db.query(
-      `SELECT
+    title: string
+    description?: string
+    type?: string
+    priority?: string
+    tenant_id: string
+  }): Promise<{ userId: string; userName: string; confidence: number; reason: string }[]> {
+    try {
+      // Get users and their current workload
+      const users = await this.db.query(
+        `SELECT
         u.id,
         u.first_name || ' ' || u.last_name as name,
         u.role,
         COUNT(t.id) FILTER (WHERE t.status IN ('pending', 'in_progress')) as active_tasks,
         AVG(t.actual_hours) FILTER (WHERE t.status = 'completed') as avg_completion_time,
-        COUNT(t.id) FILTER (WHERE t.status = `completed` AND t.task_type = $2) as similar_task_count
+        COUNT(t.id) FILTER (WHERE t.status = 'completed' AND t.task_type = $2) as similar_task_count
       FROM users u
       LEFT JOIN tasks t ON u.id = t.assigned_to AND t.tenant_id = $1
       WHERE u.tenant_id = $1 AND u.is_active = true
       GROUP BY u.id, u.first_name, u.last_name, u.role`,
-      [taskData.tenant_id, taskData.type]
-    )
+        [taskData.tenant_id, taskData.type]
+      )
 
-    const prompt = `Analyze and recommend the best assignee for this task:
+      const prompt = `Analyze and recommend the best assignee for this task:
 
 Task: ${taskData.title}
 Description: ${taskData.description || 'N/A'}
@@ -181,43 +181,43 @@ Recommend the top 3 assignees with:
 
 Return as JSON array: [{ userId, confidence, reason }]`
 
-    const message = await anthropic.messages.create({
-      model: 'claude-sonnet-4-20250514',
-      max_tokens: 1024,
-      messages: [{
-        role: 'user',
-        content: prompt
-      }]
-    })
+      const message = await anthropic.messages.create({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 1024,
+        messages: [{
+          role: 'user',
+          content: prompt
+        }]
+      })
 
-    const responseText = message.content[0].type === 'text' ? message.content[0].text : '[]'
-    const recommendations = JSON.parse(responseText)
+      const responseText = message.content[0].type === 'text' ? message.content[0].text : '[]'
+      const recommendations = JSON.parse(responseText)
 
-    // Enrich with user names
-    return recommendations.map((rec: any) => {
-      const user = users.rows.find(u => u.id === rec.userId)
-      return {
-        ...rec,
-        userName: user?.name || 'Unknown'
-      }
-    })
-  } catch (error) {
-    console.error(`Error suggesting assignee:`, error)
-    return []
+      // Enrich with user names
+      return recommendations.map((rec: any) => {
+        const user = users.rows.find(u => u.id === rec.userId)
+        return {
+          ...rec,
+          userName: user?.name || 'Unknown'
+        }
+      })
+    } catch (error) {
+      console.error(`Error suggesting assignee:`, error)
+      return []
+    }
   }
-}
 
-/**
- * Predict asset maintenance needs using ML and historical data
- */
+  /**
+   * Predict asset maintenance needs using ML and historical data
+   */
   async predictAssetMaintenance(
-  assetId: string,
-  tenant_id: string
-): Promise<AssetMaintenancePrediction | null> {
-  try {
-    // Get asset details and maintenance history
-    const assetQuery = await this.db.query(
-      `SELECT
+    assetId: string,
+    tenant_id: string
+  ): Promise<AssetMaintenancePrediction | null> {
+    try {
+      // Get asset details and maintenance history
+      const assetQuery = await this.db.query(
+        `SELECT
         a.*,
         COUNT(am.id) as maintenance_count,
         MAX(am.maintenance_date) as last_maintenance,
@@ -226,25 +226,25 @@ Return as JSON array: [{ userId, confidence, reason }]`
       LEFT JOIN asset_maintenance am ON a.id = am.asset_id
       WHERE a.id = $1 AND a.tenant_id = $2
       GROUP BY a.id`,
-      [assetId, tenant_id]
-    )
+        [assetId, tenant_id]
+      )
 
-    if (assetQuery.rows.length === 0) {
-      return null
-    }
+      if (assetQuery.rows.length === 0) {
+        return null
+      }
 
-    const asset = assetQuery.rows[0]
+      const asset = assetQuery.rows[0]
 
-    // Get maintenance history
-    const maintenanceHistory = await this.db.query(
-      `SELECT id, tenant_id, asset_id, maintenance_type, maintenance_date, status, created_at FROM asset_maintenance
+      // Get maintenance history
+      const maintenanceHistory = await this.db.query(
+        `SELECT id, tenant_id, asset_id, maintenance_type, maintenance_date, status, created_at FROM asset_maintenance
        WHERE asset_id = $1
        ORDER BY maintenance_date DESC
        LIMIT 10`,
-      [assetId]
-    )
+        [assetId]
+      )
 
-    const prompt = `Analyze this asset and predict maintenance needs:
+      const prompt = `Analyze this asset and predict maintenance needs:
 
 Asset: ${asset.asset_name}
 Type: ${asset.asset_type}
@@ -270,43 +270,43 @@ Predict:
 
 Return as JSON: { predictedDate, confidence, reasoning, estimatedCost, urgency }`
 
-    const message = await anthropic.messages.create({
-      model: 'claude-sonnet-4-20250514',
-      max_tokens: 1024,
-      messages: [{
-        role: 'user',
-        content: prompt
-      }]
-    })
+      const message = await anthropic.messages.create({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 1024,
+        messages: [{
+          role: 'user',
+          content: prompt
+        }]
+      })
 
-    const responseText = message.content[0].type === 'text' ? message.content[0].text : '{}'
-    const prediction = JSON.parse(responseText)
+      const responseText = message.content[0].type === 'text' ? message.content[0].text : '{}'
+      const prediction = JSON.parse(responseText)
 
-    return {
-      assetId,
-      predictedMaintenanceDate: new Date(prediction.predictedDate),
-      confidence: prediction.confidence,
-      reasoning: prediction.reasoning,
-      estimatedCost: prediction.estimatedCost,
-      urgency: prediction.urgency
+      return {
+        assetId,
+        predictedMaintenanceDate: new Date(prediction.predictedDate),
+        confidence: prediction.confidence,
+        reasoning: prediction.reasoning,
+        estimatedCost: prediction.estimatedCost,
+        urgency: prediction.urgency
+      }
+    } catch (error) {
+      console.error('Error predicting asset maintenance:', error)
+      return null
     }
-  } catch (error) {
-    console.error('Error predicting asset maintenance:', error)
-    return null
   }
-}
 
-/**
- * Generate workflow suggestions for task completion
- */
+  /**
+   * Generate workflow suggestions for task completion
+   */
   async suggestWorkflow(
-  taskId: string,
-  tenant_id: string
-): Promise<WorkflowSuggestion | null> {
-  try {
-    // Get task details and related information
-    const task = await this.db.query(
-      `SELECT
+    taskId: string,
+    tenant_id: string
+  ): Promise<WorkflowSuggestion | null> {
+    try {
+      // Get task details and related information
+      const task = await this.db.query(
+        `SELECT
         t.*,
         v.vehicle_number,
         u.first_name || ' ' || u.last_name as assignee_name
@@ -314,18 +314,18 @@ Return as JSON: { predictedDate, confidence, reasoning, estimatedCost, urgency }
       LEFT JOIN vehicles v ON t.vehicle_id = v.id
       LEFT JOIN users u ON t.assigned_to = u.id
       WHERE t.id = $1 AND t.tenant_id = $2`,
-      [taskId, tenant_id]
-    )
+        [taskId, tenant_id]
+      )
 
-    if (task.rows.length === 0) {
-      return null
-    }
+      if (task.rows.length === 0) {
+        return null
+      }
 
-    const taskData = task.rows[0]
+      const taskData = task.rows[0]
 
-    // Get subtasks and dependencies
-    const subtasks = await this.db.query(
-      `SELECT 
+      // Get subtasks and dependencies
+      const subtasks = await this.db.query(
+        `SELECT 
       id,
       tenant_id,
       task_title,
@@ -348,10 +348,10 @@ Return as JSON: { predictedDate, confidence, reasoning, estimatedCost, urgency }
       metadata,
       created_at,
       updated_at FROM tasks WHERE parent_task_id = $1`,
-      [taskId]
-    )
+        [taskId]
+      )
 
-    const prompt = `Create an optimal workflow for completing this task:
+      const prompt = `Create an optimal workflow for completing this task:
 
 Task: ${taskData.task_title}
 Description: ${taskData.description || 'N/A'}
@@ -370,46 +370,46 @@ Suggest:
 
 Return as JSON: { nextActions (array), dependencies (array), estimatedCompletion (ISO date), riskFactors (array) }`
 
-    const message = await anthropic.messages.create({
-      model: 'claude-sonnet-4-20250514',
-      max_tokens: 1536,
-      messages: [{
-        role: 'user',
-        content: prompt
-      }]
-    })
+      const message = await anthropic.messages.create({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 1536,
+        messages: [{
+          role: 'user',
+          content: prompt
+        }]
+      })
 
-    const responseText = message.content[0].type === 'text' ? message.content[0].text : '{}'
-    const workflow = JSON.parse(responseText)
+      const responseText = message.content[0].type === 'text' ? message.content[0].text : '{}'
+      const workflow = JSON.parse(responseText)
 
-    return {
-      nextActions: workflow.nextActions || [],
-      dependencies: workflow.dependencies || [],
-      estimatedCompletion: new Date(workflow.estimatedCompletion),
-      riskFactors: workflow.riskFactors || []
+      return {
+        nextActions: workflow.nextActions || [],
+        dependencies: workflow.dependencies || [],
+        estimatedCompletion: new Date(workflow.estimatedCompletion),
+        riskFactors: workflow.riskFactors || []
+      }
+    } catch (error) {
+      console.error(`Error suggesting workflow:`, error)
+      return null
     }
-  } catch (error) {
-    console.error(`Error suggesting workflow:`, error)
-    return null
   }
-}
 
-/**
- * Natural language task creation using AI
- */
+  /**
+   * Natural language task creation using AI
+   */
   async parseNaturalLanguageTask(
-  input: string,
-  tenant_id: string
-): Promise<{
-  title: string
-  description: string
-  type: string
-  priority: string
-  dueDate?: string
-  estimatedHours?: number
-}> {
-  try {
-    const prompt = `Parse this natural language input into a structured task:
+    input: string,
+    tenant_id: string
+  ): Promise<{
+    title: string
+    description: string
+    type: string
+    priority: string
+    dueDate?: string
+    estimatedHours?: number
+  }> {
+    try {
+      const prompt = `Parse this natural language input into a structured task:
 
 Input: "${input}"
 
@@ -423,70 +423,70 @@ Extract and return as JSON:
   "estimatedHours": number or null
 }`
 
-    const message = await anthropic.messages.create({
-      model: `claude-sonnet-4-20250514`,
-      max_tokens: 512,
-      messages: [{
-        role: 'user',
-        content: prompt
-      }]
-    })
+      const message = await anthropic.messages.create({
+        model: `claude-sonnet-4-20250514`,
+        max_tokens: 512,
+        messages: [{
+          role: 'user',
+          content: prompt
+        }]
+      })
 
-    const responseText = message.content[0].type === 'text' ? message.content[0].text : '{}'
-    return JSON.parse(responseText)
-  } catch (error) {
-    console.error('Error parsing natural language task:', error)
-    throw new Error('Failed to parse task')
+      const responseText = message.content[0].type === 'text' ? message.content[0].text : '{}'
+      return JSON.parse(responseText)
+    } catch (error) {
+      console.error('Error parsing natural language task:', error)
+      throw new Error('Failed to parse task')
+    }
   }
-}
 
-/**
- * RAG-powered document Q&A for assets and tasks
- */
+  /**
+   * RAG-powered document Q&A for assets and tasks
+   */
   async answerQuestionAboutAssetOrTask(
-  question: string,
-  contextId: string,
-  contextType: 'asset' | 'task',
-  tenant_id: string
-): Promise<string> {
-  try {
-    // Get relevant context
-    let context = ''
+    question: string,
+    contextId: string,
+    contextType: 'asset' | 'task',
+    tenant_id: string
+  ): Promise<string> {
+    try {
+      // Get relevant context
+      let context = ''
 
-    if (contextType === 'asset') {
-      const asset = await this.db.query(
-        `SELECT a.*,
+      if (contextType === 'asset') {
+        const asset = await this.db.query(
+          `SELECT a.*,
           (SELECT json_agg(am.* ORDER BY am.maintenance_date DESC)
            FROM asset_maintenance am WHERE am.asset_id = a.id) as maintenance_history
         FROM assets a
-        WHERE a.id = $1 AND a.tenant_id = $2',
-        [contextId, tenant_id]
-      )
+        WHERE a.id = $1 AND a.tenant_id = $2`,
+          [contextId, tenant_id]
+        )
 
-      if (asset.rows.length > 0) {
-        context = JSON.stringify(asset.rows[0], null, 2)
-      }
-    } else {
-      const task = await this.db.query(
-        `SELECT t.*,
+        if (asset.rows.length > 0) {
+          context = JSON.stringify(asset.rows[0], null, 2)
+        }
+      } else {
+        const task = await this.db.query(
+          `SELECT t.*,
           (SELECT json_agg(tc.*) FROM task_comments tc WHERE tc.task_id = t.id) as comments,
           (SELECT json_agg(tci.*) FROM task_checklist_items tci WHERE tci.task_id = t.id) as checklist
         FROM tasks t
-        WHERE t.id = $1 AND t.tenant_id = $2',
-        [contextId, tenant_id]
-      )
+        WHERE t.id = $1 AND t.tenant_id = $2`,
+          [contextId, tenant_id]
+        )
 
-      if (task.rows.length > 0) {
-        context = JSON.stringify(task.rows[0], null, 2)
+        if (task.rows.length > 0) {
+          context = JSON.stringify(task.rows[0], null, 2)
+        }
       }
-    }
 
-    const message = await anthropic.messages.create({
-      model: 'claude-sonnet-4-20250514',
-      max_tokens: 2048,
-      messages: [{
-        role: 'user',
-        content: `Answer this question based on the provided context:
+      const message = await anthropic.messages.create({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 2048,
+        messages: [{
+          role: 'user',
+          content: `Answer this question based on the provided context:
 
 Question: ${question}
 
@@ -494,15 +494,15 @@ Context (${contextType}):
 ${context}
 
 Provide a clear, concise answer based only on the information in the context. If the answer cannot be found in the context, say so.`
-      }]
-    })
+        }]
+      })
 
-    return message.content[0].type === 'text' ? message.content[0].text : 'Unable to answer'
-  } catch (error) {
-    console.error('Error answering question:', error)
-    throw new Error('Failed to answer question')
+      return message.content[0].type === 'text' ? message.content[0].text : 'Unable to answer'
+    } catch (error) {
+      console.error('Error answering question:', error)
+      throw new Error('Failed to answer question')
+    }
   }
-}
 }
 
 export default TaskAssetAIService
