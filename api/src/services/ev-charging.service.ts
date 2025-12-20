@@ -141,7 +141,7 @@ class EVChargingService {
       FROM charging_stations cs
       LEFT JOIN charging_connectors cc ON cs.id = cc.station_id
       WHERE cs.id = $1
-      GROUP BY cs.id',
+      GROUP BY cs.id`,
       [stationId]
     );
 
@@ -237,7 +237,7 @@ class EVChargingService {
       notes,
       created_at,
       updated_at FROM charging_reservations WHERE id = $1',
-      [reservationId]
+    [reservationId]
     );
 
     if (reservation.rows.length === 0) {
@@ -303,7 +303,7 @@ class EVChargingService {
       degradation_rate_percent_per_year,
       estimated_cycles_remaining,
       created_at,
-      updated_at FROM ev_specifications WHERE vehicle_id = $1',
+      updated_at FROM ev_specifications WHERE vehicle_id = $1`,
       [vehicleId]
     );
 
@@ -373,7 +373,7 @@ class EVChargingService {
        (vehicle_id, schedule_name, schedule_type, specific_date, start_time, end_time,
         target_soc_percent, charging_priority, max_charge_rate_kw, prefer_off_peak,
         prefer_renewable, is_active)
-       VALUES ($1, $2, `OneTime`, $3::date, $4::time, $5::time, $6, $7, $8, $9, $10, true)
+       VALUES ($1, $2, 'OneTime', $3::date, $4::time, $5::time, $6, $7, $8, $9, $10, true)
        RETURNING *`,
       [
         vehicleId,
@@ -471,17 +471,17 @@ class EVChargingService {
     // Insert or update carbon log
     await this.db.query(
       `INSERT INTO carbon_footprint_log
-       (vehicle_id, log_date, kwh_consumed, miles_driven, efficiency_kwh_per_mile,
+      (vehicle_id, log_date, kwh_consumed, miles_driven, efficiency_kwh_per_mile,
         grid_carbon_intensity_g_per_kwh, carbon_emitted_kg, ice_equivalent_gallons,
         ice_carbon_kg, carbon_saved_kg, carbon_saved_percent)
-       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
-       ON CONFLICT (vehicle_id, log_date)
+       VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
+       ON CONFLICT(vehicle_id, log_date)
        DO UPDATE SET
          kwh_consumed = EXCLUDED.kwh_consumed,
-         miles_driven = EXCLUDED.miles_driven,
-         efficiency_kwh_per_mile = EXCLUDED.efficiency_kwh_per_mile,
-         carbon_emitted_kg = EXCLUDED.carbon_emitted_kg,
-         carbon_saved_kg = EXCLUDED.carbon_saved_kg`,
+      miles_driven = EXCLUDED.miles_driven,
+      efficiency_kwh_per_mile = EXCLUDED.efficiency_kwh_per_mile,
+      carbon_emitted_kg = EXCLUDED.carbon_emitted_kg,
+      carbon_saved_kg = EXCLUDED.carbon_saved_kg`,
       [
         vehicleId,
         date,
@@ -502,32 +502,32 @@ class EVChargingService {
    * Generate ESG report
    */
   async generateESGReport(period: 'monthly' | 'quarterly' | 'annual', year: number, month?: number): Promise<any> {
-    let dateFilter = '`;
+    let dateFilter = '';
     let quarter: number | null = null;
 
     if (period === `monthly` && month) {
-      dateFilter = `AND EXTRACT(YEAR FROM log_date) = ${year} AND EXTRACT(MONTH FROM log_date) = ${month}`;
+      dateFilter = `AND EXTRACT(YEAR FROM log_date) = ${ year } AND EXTRACT(MONTH FROM log_date) = ${ month }`;
     } else if (period === `quarterly` && month) {
       quarter = Math.ceil(month / 3);
-      dateFilter = `AND EXTRACT(YEAR FROM log_date) = ${year} AND EXTRACT(QUARTER FROM log_date) = ${quarter}`;
+      dateFilter = `AND EXTRACT(YEAR FROM log_date) = ${ year } AND EXTRACT(QUARTER FROM log_date) = ${ quarter }`;
     } else if (period === `annual`) {
-      dateFilter = `AND EXTRACT(YEAR FROM log_date) = ${year}`;
+      dateFilter = `AND EXTRACT(YEAR FROM log_date) = ${ year }`;
     }
 
     // Aggregate carbon data
     const carbonResult = await this.db.query(
       `SELECT
          COUNT(DISTINCT vehicle_id) as ev_count,
-         SUM(kwh_consumed) as total_kwh,
-         SUM(miles_driven) as total_miles,
-         AVG(efficiency_kwh_per_mile) as avg_efficiency,
-         SUM(carbon_emitted_kg) as total_carbon_emitted,
-         SUM(carbon_saved_kg) as total_carbon_saved,
-         AVG(carbon_saved_percent) as avg_carbon_reduction,
-         SUM(renewable_energy_kwh) as total_renewable_kwh,
-         AVG(renewable_percent) as avg_renewable_percent
+      SUM(kwh_consumed) as total_kwh,
+      SUM(miles_driven) as total_miles,
+      AVG(efficiency_kwh_per_mile) as avg_efficiency,
+      SUM(carbon_emitted_kg) as total_carbon_emitted,
+      SUM(carbon_saved_kg) as total_carbon_saved,
+      AVG(carbon_saved_percent) as avg_carbon_reduction,
+      SUM(renewable_energy_kwh) as total_renewable_kwh,
+      AVG(renewable_percent) as avg_renewable_percent
        FROM carbon_footprint_log
-       WHERE 1=1 ${dateFilter}`
+       WHERE 1 = 1 ${ dateFilter }`
     );
 
     const carbon = carbonResult.rows[0];
@@ -536,12 +536,12 @@ class EVChargingService {
     const sessionResult = await this.db.query(
       `SELECT COUNT(*) as session_count
        FROM charging_sessions
-       WHERE session_status = `Completed` ${dateFilter.replace(`log_date`, 'DATE(start_time)')}`
+       WHERE session_status = 'Completed' ${ dateFilter.replace('log_date', 'DATE(start_time)') }`
     );
 
     // Get total fleet count
     const fleetResult = await this.db.query(
-      'SELECT COUNT(*) as total_count FROM vehicles WHERE status = 'active''
+      'SELECT COUNT(*) as total_count FROM vehicles WHERE status = \'active\''
     );
 
     const totalFleet = fleetResult.rows[0].total_count;
@@ -588,30 +588,30 @@ class EVChargingService {
     // Save report
     const result = await this.db.query(
       `INSERT INTO esg_reports
-       (report_period, report_year, report_month, report_quarter, total_ev_count, total_fleet_count,
+      (report_period, report_year, report_month, report_quarter, total_ev_count, total_fleet_count,
         ev_adoption_percent, total_kwh_consumed, total_miles_driven, avg_efficiency_kwh_per_mile,
         total_charging_sessions, total_carbon_emitted_kg, total_carbon_saved_kg, carbon_reduction_percent,
         total_renewable_kwh, renewable_percent, environmental_score, sustainability_rating, meets_esg_targets)
-       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19)
-       ON CONFLICT (report_period, report_year, report_month, report_quarter)
+       VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19)
+       ON CONFLICT(report_period, report_year, report_month, report_quarter)
        DO UPDATE SET
          total_ev_count = EXCLUDED.total_ev_count,
-         total_fleet_count = EXCLUDED.total_fleet_count,
-         ev_adoption_percent = EXCLUDED.ev_adoption_percent,
-         total_kwh_consumed = EXCLUDED.total_kwh_consumed,
-         total_miles_driven = EXCLUDED.total_miles_driven,
-         avg_efficiency_kwh_per_mile = EXCLUDED.avg_efficiency_kwh_per_mile,
-         total_charging_sessions = EXCLUDED.total_charging_sessions,
-         total_carbon_emitted_kg = EXCLUDED.total_carbon_emitted_kg,
-         total_carbon_saved_kg = EXCLUDED.total_carbon_saved_kg,
-         carbon_reduction_percent = EXCLUDED.carbon_reduction_percent,
-         total_renewable_kwh = EXCLUDED.total_renewable_kwh,
-         renewable_percent = EXCLUDED.renewable_percent,
-         environmental_score = EXCLUDED.environmental_score,
-         sustainability_rating = EXCLUDED.sustainability_rating,
-         meets_esg_targets = EXCLUDED.meets_esg_targets,
-         generated_at = NOW()
-       RETURNING *`,
+      total_fleet_count = EXCLUDED.total_fleet_count,
+      ev_adoption_percent = EXCLUDED.ev_adoption_percent,
+      total_kwh_consumed = EXCLUDED.total_kwh_consumed,
+      total_miles_driven = EXCLUDED.total_miles_driven,
+      avg_efficiency_kwh_per_mile = EXCLUDED.avg_efficiency_kwh_per_mile,
+      total_charging_sessions = EXCLUDED.total_charging_sessions,
+      total_carbon_emitted_kg = EXCLUDED.total_carbon_emitted_kg,
+      total_carbon_saved_kg = EXCLUDED.total_carbon_saved_kg,
+      carbon_reduction_percent = EXCLUDED.carbon_reduction_percent,
+      total_renewable_kwh = EXCLUDED.total_renewable_kwh,
+      renewable_percent = EXCLUDED.renewable_percent,
+      environmental_score = EXCLUDED.environmental_score,
+      sustainability_rating = EXCLUDED.sustainability_rating,
+      meets_esg_targets = EXCLUDED.meets_esg_targets,
+      generated_at = NOW()
+       RETURNING * `,
       Object.values(reportData)
     );
 
@@ -712,15 +712,15 @@ class EVChargingService {
     const result = await this.db.query(
       `SELECT
          COUNT(DISTINCT vehicle_id) as vehicle_count,
-         SUM(kwh_consumed) as total_kwh,
-         SUM(miles_driven) as total_miles,
-         SUM(carbon_emitted_kg) as total_carbon_kg,
-         SUM(carbon_saved_kg) as total_saved_kg,
-         AVG(carbon_saved_percent) as avg_reduction_percent,
-         SUM(ice_equivalent_gallons) as gasoline_avoided_gallons
+      SUM(kwh_consumed) as total_kwh,
+      SUM(miles_driven) as total_miles,
+      SUM(carbon_emitted_kg) as total_carbon_kg,
+      SUM(carbon_saved_kg) as total_saved_kg,
+      AVG(carbon_saved_percent) as avg_reduction_percent,
+      SUM(ice_equivalent_gallons) as gasoline_avoided_gallons
        FROM carbon_footprint_log
        WHERE log_date BETWEEN $1 AND $2',
-      [startDate, endDate]
+    [startDate, endDate]
     );
 
     return result.rows[0];
