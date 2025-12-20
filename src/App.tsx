@@ -1,31 +1,16 @@
 import { withAITracking } from '@microsoft/applicationinsights-react-js'
-import {
-  Gear,
-  Bell,
-  SignOut,
-  List,
-  X,
-  Shield
-} from "@phosphor-icons/react"
 import { useState, useMemo, lazy, Suspense } from "react"
+import { Shield } from "lucide-react"
 
 import { DrilldownManager } from "@/components/DrilldownManager"
 import { EnhancedErrorBoundary } from "@/components/EnhancedErrorBoundary"
-import { ThemeToggle } from "@/components/ThemeToggle"
+import { CommandCenterLayout } from "@/components/layout/CommandCenterLayout"
 import { ToastContainer } from "@/components/common/ToastContainer"
 import { RoleSwitcher } from "@/components/demo/RoleSwitcher"
 import { QueryErrorBoundary } from "@/components/errors/QueryErrorBoundary"
-import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { ScrollArea } from "@/components/ui/scroll-area"
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-  DropdownMenuSeparator
-} from "@/components/ui/dropdown-menu"
+
 import { useFleetData } from "@/hooks/use-fleet-data"
 import { navigationItems } from "@/lib/navigation"
 import telemetryService from '@/lib/telemetry'
@@ -68,7 +53,6 @@ const FuelPurchasing = lazy(() => import("@/components/modules/fuel/FuelPurchasi
 
 // OPERATIONS MODULES
 const RouteManagement = lazy(() => import("@/components/modules/operations/RouteManagement").then(m => ({ default: m.RouteManagement })))
-const GeofenceManagement = lazy(() => import("@/components/modules/operations/GeofenceManagement").then(m => ({ default: m.GeofenceManagement })))
 const AdvancedRouteOptimization = lazy(() => import("@/components/modules/operations/AdvancedRouteOptimization").then(m => ({ default: m.AdvancedRouteOptimization })))
 const TaskManagement = lazy(() => import("@/components/modules/operations/TaskManagement").then(m => ({ default: m.TaskManagement })))
 
@@ -124,7 +108,6 @@ const EquipmentDashboard = lazy(() => import("@/components/modules/assets/Equipm
 // DRIVER MODULES
 const DriverPerformance = lazy(() => import("@/components/modules/drivers/DriverPerformance").then(m => ({ default: m.DriverPerformance })))
 const DriverScorecard = lazy(() => import("@/components/modules/drivers/DriverScorecard").then(m => ({ default: m.DriverScorecard })))
-const DriversDashboard = lazy(() => import("@/components/drivers/DriversDashboard").then(m => ({ default: m.DriversDashboard })))
 
 // WORKSPACE MODULES (Phase 1 UX Consolidation)
 const OperationsWorkspace = lazy(() => import("@/components/workspaces/OperationsWorkspace").then(m => ({ default: m.OperationsWorkspace })))
@@ -132,7 +115,6 @@ const FleetWorkspace = lazy(() => import("@/components/workspaces/FleetWorkspace
 const MaintenanceWorkspace = lazy(() => import("@/components/workspaces/MaintenanceWorkspace").then(m => ({ default: m.MaintenanceWorkspace })))
 const AnalyticsWorkspace = lazy(() => import("@/components/workspaces/AnalyticsWorkspace").then(m => ({ default: m.AnalyticsWorkspace })))
 const ComplianceWorkspace = lazy(() => import("@/components/workspaces/ComplianceWorkspace").then(m => ({ default: m.ComplianceWorkspace })))
-const DriversWorkspace = lazy(() => import("@/components/workspaces/DriversWorkspace").then(m => ({ default: m.DriversWorkspace })))
 
 // HUB MODULES (Phase 2-3 Map-First UX Transformation)
 const ReportsHub = lazy(() => import("@/components/hubs/reports/ReportsHub").then(m => ({ default: m.ReportsHub })))
@@ -158,13 +140,13 @@ const LoadingSpinner = () => (
 )
 
 import { useAuth } from "@/contexts/AuthContext"
+import { useNavigation } from "@/contexts/NavigationContext"
 
 // ... existing imports
 
 function App() {
   const { canAccess } = useAuth()
-  const [activeModule, setActiveModule] = useState("live-fleet-dashboard")
-  const [sidebarOpen, setSidebarOpen] = useState(true)
+  const { activeModule, setActiveModule } = useNavigation()
   useState(() => telemetryService.initialize())
 
   const fleetData = useFleetData()
@@ -221,8 +203,7 @@ function App() {
         return <AnalyticsWorkspace />
       case "compliance-workspace":
         return <ComplianceWorkspace />
-      case "drivers-workspace":
-        return <DriversWorkspace />
+
       case "reports-hub":
         return <ReportsHub />
       case "operations-hub":
@@ -281,7 +262,8 @@ function App() {
       case "communication-log":
         return <CommunicationLog />
       case "geofences":
-        return <GeofenceManagement />
+        // Map-First Consolidation: Redirect to Dashboard with layer active
+        return <LiveFleetDashboard initialLayer="geofences" />
       case "osha-forms":
         return <OSHAForms />
       case "policy-engine":
@@ -335,7 +317,7 @@ function App() {
       case "driver-scorecard":
         return <DriverScorecard />
       case "drivers":
-        return <DriversDashboard />
+        return <LiveFleetDashboard initialLayer="drivers" />
       case "fleet-optimizer":
         return <FleetOptimizer />
       case "cost-analysis":
@@ -361,37 +343,7 @@ function App() {
     }
   }
 
-  const groupedNav = useMemo(() => {
-    const groups: Record<string, typeof navigationItems> = {
-      main: [],
-      management: [],
-      procurement: [],
-      communication: [],
-      tools: [],
-      hubs: []
-    }
 
-    navigationItems.forEach(item => {
-      // RBAC Filter: Skip if user doesn't have access
-      if (item.roles || item.permissions) {
-        if (!canAccess(item.roles as any, item.permissions)) {
-          return;
-        }
-      }
-
-      const section = item.section || "main"
-      if (groups[section]) {
-        groups[section].push(item)
-      }
-    })
-
-    return groups
-  }, [canAccess]) // Add canAccess dependency
-
-  // Determine if the current module needs full viewport (no padding)
-  const isFullWidthModule = useMemo(() => {
-    return ['dashboard', 'operations', 'dispatch-console', 'gps-tracking'].includes(activeModule);
-  }, [activeModule]);
 
   return (
     <DrilldownManager>
@@ -403,159 +355,28 @@ function App() {
         Skip to main content
       </a>
 
-      <div className="min-h-screen bg-background flex">
-        <aside
-          className={`fixed left-0 top-0 h-full bg-card border-r transition-all duration-300 z-50 ${sidebarOpen ? "w-64" : "w-0"
-            } overflow-hidden`}
+      <CommandCenterLayout>
+        <EnhancedErrorBoundary
+          showDetails={import.meta.env.DEV}
+          onError={(error, errorInfo) => {
+            console.error('App Error Boundary:', error, errorInfo);
+          }}
         >
-          <div className="p-6 flex items-center justify-between border-b">
-            <div className="flex items-center gap-3">
-              <img
-                src="/logos/logo-horizontal.svg"
-                alt="Fleet Management"
-                className="h-8 w-auto"
-              />
-            </div>
-          </div>
+          <QueryErrorBoundary>
+            <Suspense fallback={<div className="h-full w-full flex items-center justify-center"><LoadingSpinner /></div>}>
+              {renderModule()}
+            </Suspense>
+          </QueryErrorBoundary>
+        </EnhancedErrorBoundary>
+      </CommandCenterLayout>
 
-          <ScrollArea className="h-[calc(100vh-140px)]">
-            <div className="p-4 space-y-6">
-              {Object.entries(groupedNav).map(([section, items]) => {
-                if (items.length === 0) return null
+      {/* Role Switcher FAB button */}
+      <RoleSwitcher />
 
-                return (
-                  <div key={section}>
-                    <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2 px-2">
-                      {section}
-                    </p>
-                    <div className="space-y-1">
-                      {items.map(item => (
-                        <Button
-                          key={item.id}
-                          variant={activeModule === item.id ? "secondary" : "ghost"}
-                          className="w-full justify-start gap-2"
-                          onClick={() => {
-                            telemetryService.trackButtonClick(`nav-${item.id}`, {
-                              category: item.category,
-                              label: item.label
-                            })
-                            setActiveModule(item.id)
-                          }}
-                        >
-                          {item.icon}
-                          <span className="text-sm">{item.label}</span>
-                        </Button>
-                      ))}
-                    </div>
-                  </div>
-                )
-              })}
-            </div>
-          </ScrollArea>
+      {/* Toast notifications */}
+      <ToastContainer />
 
-          <div className="absolute bottom-0 left-0 right-0 p-4 border-t bg-card">
-            <Button
-              variant="ghost"
-              size="sm"
-              className="w-full justify-start gap-2"
-              onClick={() => setSidebarOpen(false)}
-            >
-              <X className="w-4 h-4" />
-              <span className="text-sm">Collapse</span>
-            </Button>
-          </div>
-        </aside>
-
-        <div
-          className={`flex-1 transition-all duration-300 ${sidebarOpen ? "ml-64" : "ml-0"
-            }`}
-        >
-          <header className="border-b bg-card sticky top-0 z-40">
-            <div className="px-6 h-16 flex items-center justify-between">
-              <div className="flex items-center gap-4">
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={() => setSidebarOpen(!sidebarOpen)}
-                  title={sidebarOpen ? "Collapse sidebar" : "Expand sidebar"}
-                >
-                  <List className="w-5 h-5" />
-                </Button>
-                <div>
-                  <h2 className="font-semibold">
-                    {navigationItems.find(item => item.id === activeModule)?.label || "Dashboard"}
-                  </h2>
-                  <p className="text-xs text-muted-foreground">Fleet Management System</p>
-                </div>
-              </div>
-              <div className="flex items-center gap-3">
-                <ThemeToggle />
-                <Button variant="ghost" size="icon">
-                  <Bell className="w-5 h-5" />
-                </Button>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={() => {
-                    telemetryService.trackButtonClick('nav-settings', { source: 'header' })
-                    setActiveModule('settings')
-                  }}
-                  title="Settings"
-                >
-                  <Gear className="w-5 h-5" />
-                </Button>
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" className="relative h-10 w-10 rounded-full">
-                      <Avatar>
-                        <AvatarFallback className="bg-primary text-primary-foreground">
-                          FM
-                        </AvatarFallback>
-                      </Avatar>
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end">
-                    <DropdownMenuItem>
-                      <Gear className="w-4 h-4 mr-2" />
-                      Settings
-                    </DropdownMenuItem>
-                    <DropdownMenuSeparator />
-                    <DropdownMenuItem>
-                      <SignOut className="w-4 h-4 mr-2" />
-                      Sign out
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              </div>
-            </div>
-          </header>
-
-          <main
-            id="main-content"
-            className={isFullWidthModule ? "p-0 h-[calc(100vh-64px)] overflow-hidden relative" : "p-6"}
-          >
-            <EnhancedErrorBoundary
-              showDetails={import.meta.env.DEV}
-              onError={(error, errorInfo) => {
-                console.error('App Error Boundary:', error, errorInfo);
-              }}
-            >
-              <QueryErrorBoundary>
-                <Suspense fallback={<div className="h-full w-full flex items-center justify-center"><LoadingSpinner /></div>}>
-                  {renderModule()}
-                </Suspense>
-              </QueryErrorBoundary>
-            </EnhancedErrorBoundary>
-          </main>
-        </div>
-
-        {/* Role Switcher FAB button */}
-        <RoleSwitcher />
-
-        {/* Toast notifications */}
-        <ToastContainer />
-      </div>
-    </DrilldownManager>
+    </DrilldownManager >
   )
 }
 
