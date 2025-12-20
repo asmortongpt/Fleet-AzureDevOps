@@ -1,3 +1,4 @@
+console.log('--- SERVER STARTING DEBUG ---')
 // Initialize Datadog APM FIRST (must be before ALL other imports)
 // DISABLED: Datadog APM initialization disabled for now
 // TODO: Re-enable when dd-trace package is properly installed

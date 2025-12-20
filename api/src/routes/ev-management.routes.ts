@@ -198,7 +198,7 @@ router.get(
  */
 router.post(
   '/chargers/:id/reserve',
- csrfProtection,  csrfProtection, authenticateJWT,
+  csrfProtection, csrfProtection, authenticateJWT,
   requirePermission('charging_station:create:fleet'),
   async (req: Request, res: Response) => {
     try {
@@ -256,7 +256,7 @@ router.post(
  */
 router.delete(
   '/reservations/:id/cancel',
- csrfProtection,  csrfProtection, authenticateJWT,
+  csrfProtection, csrfProtection, authenticateJWT,
   requirePermission('charging_station:delete:fleet'),
   async (req: Request, res: Response) => {
     try {
@@ -319,7 +319,7 @@ router.delete(
  */
 router.post(
   '/vehicles/:id/charge-schedule',
- csrfProtection,  csrfProtection, authenticateJWT,
+  csrfProtection, csrfProtection, authenticateJWT,
   requirePermission('charging_station:create:fleet'),
   async (req: Request, res: Response) => {
     try {
@@ -377,7 +377,7 @@ router.post(
  */
 router.post(
   '/chargers/:id/remote-start',
- csrfProtection,  csrfProtection, authenticateJWT,
+  csrfProtection, csrfProtection, authenticateJWT,
   requirePermission('charging_station:update:fleet'),
   async (req: Request, res: Response) => {
     try {
@@ -426,7 +426,7 @@ router.post(
  */
 router.post(
   '/sessions/:transactionId/stop',
- csrfProtection,  csrfProtection, authenticateJWT,
+  csrfProtection, csrfProtection, authenticateJWT,
   requirePermission('charging_station:update:fleet'),
   async (req: Request, res: Response) => {
     try {
@@ -522,7 +522,7 @@ router.get(
     try {
       const startDate = req.query.startDate
         ? new Date(req.query.startDate as string)
-        : new Date(new Date().setDate(new Date().getDate() - 30)
+        : new Date(new Date().setDate(new Date().getDate() - 30))
       const endDate = req.query.endDate ? new Date(req.query.endDate as string) : new Date()
       const vehicleId = req.query.vehicleId ? parseInt(req.query.vehicleId as string) : null
 
@@ -613,7 +613,7 @@ router.get(
       const year = parseInt(req.query.year as string)
       const month = req.query.month ? parseInt(req.query.month as string) : undefined
 
-      if (!['monthly', 'quarterly', 'annual'].includes(period) {
+      if (!['monthly', 'quarterly', 'annual'].includes(period)) {
         return res.status(400).json({
           success: false,
           error: 'Invalid period. Must be monthly, quarterly, or annual',
@@ -747,7 +747,7 @@ router.get(
          cs.*,
          cst.name as station_name,
          cst.station_id,
-         u.first_name || `` || u.last_name as driver_name
+         u.first_name || ' ' || u.last_name as driver_name
        FROM charging_sessions cs
        JOIN charging_stations cst ON cs.station_id = cst.id
        LEFT JOIN users u ON cs.driver_id = u.id

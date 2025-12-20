@@ -1,11 +1,14 @@
 import { Pool } from 'pg';
+import { injectable, inject } from 'inversify';
+import { TYPES } from '../types';
 
 /**
  * FueltransactionService - Business Logic Layer for Fueltransaction Operations
  * Extracted from route handlers for better separation of concerns
  */
+@injectable()
 export class FueltransactionService {
-  constructor(private db: Pool) {}
+  constructor(@inject(TYPES.DatabasePool) private db: Pool) { }
 
   async getAll(tenantId: number, filters?: any) {
     const query = `
@@ -30,7 +33,7 @@ export class FueltransactionService {
 
   async create(data: any, tenantId: number) {
     // TODO: Add business validation logic here
-    
+
     const query = `
       INSERT INTO fueltransactions (data, tenant_id, created_at, updated_at)
       VALUES ($1, $2, NOW(), NOW())
