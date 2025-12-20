@@ -10,7 +10,7 @@
  *
  * Migration from old pattern:
  * BEFORE: pool.query('SELECT * FROM work_orde WHERE tenant_id = $1 AND tenant_id = $1', [tenantId])
- * AFTER:  client.query('SELECT * FROM work_order WHERE tenant_id = $1 /* tenant_id validated */s WHERE tenant_id = $1 /* tenant_id validated */') // RLS auto-filters by tenant
+ * AFTER:  client.query('SELECT * FROM work_order WHERE tenant_id = $1') // RLS auto-filters by tenant
   *
  * Middleware Stack Order(CRITICAL):
  * 1. authenticateJWT - validates JWT, extracts user & tenant_id
@@ -218,7 +218,7 @@ router.get(
  */
 router.post(
   '/',
-  csrfProtection, csrfProtection, requirePermission('work_order:create'),
+  csrfProtection, requirePermission('work_order:create'),
   preventTenantIdOverride,  // CRITICAL: Prevent tenant_id override
   validateTenantReferences([
     { table: 'vehicles', column: 'id', field: 'vehicle_id', required: true },
@@ -292,7 +292,7 @@ router.post(
  */
 router.put(
   '/:id',
-  csrfProtection, csrfProtection, requirePermission('work_order:update'),
+  csrfProtection, requirePermission('work_order:update'),
   preventTenantIdOverride,
   validateTenantReferences([
     { table: 'vehicles', column: 'id', field: 'vehicle_id', required: false },
@@ -364,7 +364,7 @@ router.put(
  */
 router.delete(
   '/:id',
-  csrfProtection, csrfProtection, requirePermission('work_order:delete'),
+  csrfProtection, requirePermission('work_order:delete'),
   auditLog({ action: 'DELETE', resourceType: 'work_orders' }),
   async (req: AuthRequest, res: Response) => {
     try {

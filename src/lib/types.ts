@@ -635,6 +635,32 @@ export interface Route {
   updatedAt?: string;
 }
 
+// Geofence Management
+export interface Geofence {
+  id: string
+  tenantId: string
+  name: string
+  description: string
+  type: "circle" | "polygon" | "rectangle"
+  center?: { lat: number; lng: number }
+  radius?: number // meters for circle
+  coordinates?: { lat: number; lng: number }[] // for polygon/rectangle
+  color: string
+  active: boolean
+  triggers: {
+    onEnter: boolean
+    onExit: boolean
+    onDwell: boolean
+    dwellTimeMinutes?: number
+  }
+  notifyUsers: string[]
+  notifyRoles: string[]
+  alertPriority: "low" | "medium" | "high" | "critical"
+  createdBy: string
+  createdAt: string
+  lastModified: string
+}
+
 // ============================================================================
 // Document Management with Geospatial Support
 // ============================================================================

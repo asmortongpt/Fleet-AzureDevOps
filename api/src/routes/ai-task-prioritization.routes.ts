@@ -31,13 +31,10 @@ import rateLimit from 'express-rate-limit'
 import { z } from 'zod'
 import { csrfProtection } from '../middleware/csrf'
 
-import {
-  calculatePriorityScore,
-  recommendTaskAssignment,
-  analyzeDependencies,
-  getOptimalExecutionOrder,
-  optimizeResourceAllocation
-} from '../services/ai-task-prioritization'
+import { pool } from '../db'
+import AITaskPrioritizationService from '../services/ai-task-prioritization'
+
+const aiService = new AITaskPrioritizationService(pool)
 
 const router = Router()
 
@@ -69,7 +66,7 @@ const PrioritizeTaskSchema = z.object({
   vehicle_id: z.string().uuid().optional(),
   assigned_to: z.string().uuid().optional(),
   parent_task_id: z.string().uuid().optional(),
-  metadata: z.record(z.any().optional()
+  metadata: z.record(z.any()).optional()
 })
 
 const AssignTaskSchema = z.object({
@@ -88,11 +85,11 @@ const DependencyAnalysisSchema = z.object({
 })
 
 const ExecutionOrderSchema = z.object({
-  task_ids: z.array(z.string().uuid().min(1)
+  task_ids: z.array(z.string().uuid()).min(1)
 })
 
 const OptimizeResourcesSchema = z.object({
-  task_ids: z.array(z.string().uuid().min(1)
+  task_ids: z.array(z.string().uuid()).min(1)
 })
 
 const BatchPrioritizeSchema = z.object({
@@ -109,7 +106,7 @@ const BatchPrioritizeSchema = z.object({
  */
 router.post(
   '/prioritize',
- csrfProtection,  csrfProtection, requirePermission('report:generate:global'),
+  csrfProtection, requirePermission('report:generate:global'),
   async (req: AuthRequest, res) => {
     try {
       const tenantId = req.user?.tenant_id
@@ -127,7 +124,7 @@ router.post(
       }
 
       // Calculate priority score
-      const priorityScore = await calculatePriorityScore(taskData)
+      const priorityScore = await aiService.calculatePriorityScore(taskData)
 
       // Log the analysis
       await pool.query(
@@ -171,7 +168,7 @@ router.post(
  */
 router.post(
   '/assign',
- csrfProtection,  csrfProtection, requirePermission('report:generate:global'),
+  csrfProtection, requirePermission('report:generate:global'),
   async (req: AuthRequest, res) => {
     try {
       const tenantId = req.user?.tenant_id
@@ -189,7 +186,7 @@ router.post(
       }
 
       // Get recommendations
-      const recommendations = await recommendTaskAssignment(
+      const recommendations = await aiService.recommendTaskAssignment(
         taskData,
         validatedData.consider_location
       )
@@ -237,7 +234,7 @@ router.post(
  */
 router.post(
   '/dependencies',
- csrfProtection,  csrfProtection, requirePermission('report:view:global'),
+  csrfProtection, requirePermission('report:view:global'),
   async (req: AuthRequest, res) => {
     try {
       const tenantId = req.user?.tenant_id
@@ -249,7 +246,7 @@ router.post(
       const validatedData = DependencyAnalysisSchema.parse(req.body)
 
       // Analyze dependencies
-      const dependencyGraph = await analyzeDependencies(
+      const dependencyGraph = await aiService.analyzeDependencies(
         validatedData.task_id,
         tenantId
       )
@@ -278,7 +275,7 @@ router.post(
  */
 router.post(
   '/execution-order',
- csrfProtection,  csrfProtection, requirePermission('report:view:global'),
+  csrfProtection, requirePermission('report:view:global'),
   async (req: AuthRequest, res) => {
     try {
       const tenantId = req.user?.tenant_id
@@ -290,7 +287,7 @@ router.post(
       const validatedData = ExecutionOrderSchema.parse(req.body)
 
       // Get execution order
-      const executionOrder = await getOptimalExecutionOrder(
+      const executionOrder = await aiService.getOptimalExecutionOrder(
         validatedData.task_ids,
         tenantId
       )
@@ -320,7 +317,7 @@ router.post(
  */
 router.post(
   '/optimize',
- csrfProtection,  csrfProtection, requirePermission('report:generate:global'),
+  csrfProtection, requirePermission('report:generate:global'),
   async (req: AuthRequest, res) => {
     try {
       const tenantId = req.user?.tenant_id
@@ -332,7 +329,7 @@ router.post(
       const validatedData = OptimizeResourcesSchema.parse(req.body)
 
       // Optimize resources
-      const optimizations = await optimizeResourceAllocation(
+      const optimizations = await aiService.optimizeResourceAllocation(
         validatedData.task_ids,
         tenantId
       )
@@ -378,7 +375,7 @@ router.post(
  */
 router.post(
   '/batch-prioritize',
- csrfProtection,  csrfProtection, requirePermission('report:generate:global'),
+  csrfProtection, requirePermission('report:generate:global'),
   async (req: AuthRequest, res) => {
     try {
       const tenantId = req.user?.tenant_id
@@ -393,7 +390,7 @@ router.post(
       const results = await Promise.all(
         validatedData.tasks.map(async (task) => {
           const taskData = { ...task, tenant_id: tenantId }
-          const priorityScore = await calculatePriorityScore(taskData)
+          const priorityScore = await aiService.calculatePriorityScore(taskData)
           return {
             task: task.task_title,
             priorityScore

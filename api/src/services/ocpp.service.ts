@@ -304,7 +304,7 @@ class OCPPService extends EventEmitter {
        SET firmware_version = $1, model = $2, manufacturer = $3, is_online = true, last_heartbeat = NOW()
        WHERE station_id = $4`,
       [payload.chargingStation?.firmwareVersion, payload.chargingStation?.model,
-       payload.chargingStation?.vendorName, stationId]
+      payload.chargingStation?.vendorName, stationId]
     );
 
     return {
@@ -369,7 +369,7 @@ class OCPPService extends EventEmitter {
           meter_start, session_status, raw_ocpp_data)
          VALUES ($1, (SELECT id FROM charging_stations WHERE station_id = $2),
                  $3, $4, $5, NOW(), $6, 'Active', $7)
-         RETURNING id',
+         RETURNING id`,
         [
           transactionInfo.transactionId,
           stationId,
@@ -394,7 +394,7 @@ class OCPPService extends EventEmitter {
         `UPDATE charging_sessions
          SET end_time = NOW(), meter_stop = $1, session_status = 'Completed',
              stop_reason = $2
-         WHERE transaction_id = $3',
+         WHERE transaction_id = $3`,
         [meterStop, transactionInfo.stoppedReason, transactionInfo.transactionId]
       );
 
@@ -634,7 +634,7 @@ class OCPPService extends EventEmitter {
     const message = [MessageType.CALLRESULT, messageId, payload];
     ws.send(JSON.stringify(message));
 
-    this.logOCPPMessage(stationId, 'Outbound', MessageType.CALLRESULT, '`, payload, messageId);
+    this.logOCPPMessage(stationId, 'Outbound', MessageType.CALLRESULT, '', payload, messageId);
   }
 
   /**
@@ -740,7 +740,7 @@ class OCPPService extends EventEmitter {
          (station_id, message_id, message_type, action, direction, payload)
          VALUES ((SELECT id FROM charging_stations WHERE station_id = $1), $2, $3, $4, $5, $6)`,
         [stationId, messageId, messageType === 2 ? 'CALL' : messageType === 3 ? 'CALLRESULT' : 'CALLERROR',
-         action, direction, JSON.stringify(payload)]
+          action, direction, JSON.stringify(payload)]
       );
     } catch (error) {
       // Ignore logging errors
