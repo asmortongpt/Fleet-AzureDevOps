@@ -42,7 +42,7 @@ RUN BUILD_VERSION=$(date +%s) && \
     export VITE_BUILD_VERSION=$BUILD_VERSION
 
 # Build application with increased memory
-RUN npm run build:production || npm run build
+RUN npm run build
 
 # Inject build version into HTML for cache busting
 RUN BUILD_VERSION=$(cat /tmp/build_version.txt || date +%s) && \
