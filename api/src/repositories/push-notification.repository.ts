@@ -79,11 +79,20 @@ export interface DeliveryStats {
 
 @injectable()
 export class PushNotificationRepository {
-  private pool: Pool;
+  private _pool?: Pool;
 
   constructor(@inject(TYPES.DatabasePool) pool?: Pool) {
-    this.pool = pool || connectionManager.getPool();
+    this._pool = pool;
   }
+
+  private get pool(): Pool {
+    return this._pool || connectionManager.getPool();
+  }
+
+  private get pool(): Pool {
+    return this._pool || connectionManager.getPool();
+  }
+
 
   /**
    * Find existing device by token and user ID

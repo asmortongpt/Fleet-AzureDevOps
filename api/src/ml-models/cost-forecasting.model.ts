@@ -53,7 +53,7 @@ export class CostForecastingModel {
       // Get historical data
       const whereClause = category
         ? 'AND cost_category = $2'
-        : '`
+        : ''
 
       const params = category
         ? [tenantId, category]
@@ -61,11 +61,11 @@ export class CostForecastingModel {
 
       const result = await pool.query(
         `SELECT
-           DATE_TRUNC(`month`, transaction_date) as month,
+           DATE_TRUNC('month', transaction_date) as month,
            SUM(amount) as total_amount
          FROM cost_tracking
          WHERE tenant_id = $1 ${whereClause}
-         AND transaction_date >= CURRENT_DATE - INTERVAL `12 months`
+         AND transaction_date >= CURRENT_DATE - INTERVAL '12 months'
          GROUP BY DATE_TRUNC('month', transaction_date)
          ORDER BY month ASC`,
         params

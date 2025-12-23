@@ -130,7 +130,7 @@ export class OcrQueueService {
           document_id, tenant_id, user_id, file_path, file_name, file_size,
           mime_type, options, status, priority, progress
         ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
-        RETURNING id',
+        RETURNING id`,
         [
           jobData.documentId,
           jobData.tenantId,
@@ -271,7 +271,7 @@ export class OcrQueueService {
       // Update document status
       await this.db.query(
         `UPDATE documents
-         SET ocr_status = `completed`, ocr_completed_at = NOW(), extracted_text = $1
+         SET ocr_status = 'completed', ocr_completed_at = NOW(), extracted_text = $1
          WHERE id = $2`,
         [result.fullText, documentId]
       );
@@ -295,7 +295,7 @@ export class OcrQueueService {
 
       // Update document status
       await this.db.query(
-        `UPDATE documents SET ocr_status = `failed` WHERE id = $1`,
+        `UPDATE documents SET ocr_status = 'failed' WHERE id = $1`,
         [documentId]
       );
 
@@ -378,7 +378,7 @@ export class OcrQueueService {
     error?: string
   ): Promise<void> {
     try {
-      const updates: string[] = [`status = $2`, `progress = $3', `updated_at = NOW()`];
+      const updates: string[] = [`status = $2`, `progress = $3`, `updated_at = NOW()`];
       const values: any[] = [jobId, status, progress];
       let paramCount = 3;
 
@@ -404,7 +404,7 @@ export class OcrQueueService {
       }
 
       await this.db.query(
-        `UPDATE ocr_jobs SET ${updates.join(`, `)} WHERE id = $1',
+        `UPDATE ocr_jobs SET ${updates.join(', ')} WHERE id = $1`,
         values
       );
     } catch (error) {
@@ -434,14 +434,14 @@ export class OcrQueueService {
         await this.db.query(
           `UPDATE ocr_batch_jobs
            SET failed_documents = failed_documents + 1, updated_at = NOW()
-           WHERE id = $1',
+           WHERE id = $1`,
           [batchId]
         );
       } else {
         await this.db.query(
           `UPDATE ocr_batch_jobs
            SET completed_documents = completed_documents + 1, updated_at = NOW()
-           WHERE id = $1',
+           WHERE id = $1`,
           [batchId]
         );
       }
@@ -481,7 +481,7 @@ export class OcrQueueService {
           id, document_id, status, progress, result, error,
           started_at, completed_at, processing_time
         FROM ocr_jobs
-        WHERE id = $1',
+        WHERE id = $1`,
         [jobId]
       );
 
@@ -524,10 +524,7 @@ export class OcrQueueService {
       options,
       created_at,
       updated_at,
-      REFERENCES,
-      ON,
-      REFERENCES,
-      ON FROM ocr_batch_jobs WHERE id = $1`,
+      FROM ocr_batch_jobs WHERE id = $1`,
         [batchId]
       );
 
@@ -606,10 +603,7 @@ export class OcrQueueService {
       max_retries,
       created_at,
       updated_at,
-      REFERENCES,
-      ON,
-      REFERENCES,
-      ON FROM ocr_jobs WHERE id = $1`,
+      FROM ocr_jobs WHERE id = $1`,
         [jobId]
       );
 
@@ -668,7 +662,7 @@ export class OcrQueueService {
       const result = await this.db.query(
         `SELECT id FROM ocr_jobs
          WHERE status IN ($1, $2)
-         AND created_at > NOW() - INTERVAL `24 hours`
+         AND created_at > NOW() - INTERVAL '24 hours'
          ORDER BY priority ASC, created_at ASC
          LIMIT 100`,
         [OcrJobStatus.PENDING, OcrJobStatus.PROCESSING]
@@ -727,7 +721,7 @@ export class OcrQueueService {
             AVG(processing_time) as avg_processing_time,
             COUNT(*) FILTER (WHERE created_at > NOW() - INTERVAL '24 hours') as jobs_24h
            FROM ocr_jobs
-           WHERE tenant_id = $1'
+           WHERE tenant_id = $1`
         : `SELECT
             COUNT(*) FILTER (WHERE status = 'pending') as pending,
             COUNT(*) FILTER (WHERE status = 'processing') as processing,

@@ -14,6 +14,7 @@ import { auditLog } from '../middleware/audit'
 import SmartcarService from '../services/smartcar.service'
 import { buildSafeRedirectUrl, validateInternalPath } from '../utils/redirect-validator'
 import { csrfProtection } from '../middleware/csrf'
+import { pool } from '../db/connection';
 
 
 const router = express.Router()
@@ -96,7 +97,7 @@ router.get('/callback', async (req: Request, res: Response) => {
     }
 
     // Decode state parameter
-    const stateData = JSON.parse(Buffer.from(state as string, `base64`).toString(`utf-8`)
+    const stateData = JSON.parse(Buffer.from(state as string, `base64`).toString(`utf-8`))
     const { vehicle_id, user_id, tenant_id } = stateData
 
     // SECURITY: Validate vehicle_id is a valid integer to prevent path traversal
@@ -284,7 +285,7 @@ router.get(
  */
 router.post(
   '/vehicles/:id/lock',
- csrfProtection,  csrfProtection, authenticateJWT,
+  csrfProtection, csrfProtection, authenticateJWT,
   requirePermission('vehicle:update:fleet'),
   auditLog({ action: 'UPDATE', resourceType: 'smartcar_security' }),
   async (req: AuthRequest, res: Response) => {
@@ -317,7 +318,7 @@ router.post(
  */
 router.post(
   '/vehicles/:id/unlock',
- csrfProtection,  csrfProtection, authenticateJWT,
+  csrfProtection, csrfProtection, authenticateJWT,
   requirePermission('vehicle:update:fleet'),
   auditLog({ action: 'UPDATE', resourceType: 'smartcar_security' }),
   async (req: AuthRequest, res: Response) => {
@@ -350,7 +351,7 @@ router.post(
  */
 router.post(
   '/vehicles/:id/charge/start',
- csrfProtection,  csrfProtection, authenticateJWT,
+  csrfProtection, csrfProtection, authenticateJWT,
   requirePermission('vehicle:update:fleet'),
   auditLog({ action: 'UPDATE', resourceType: 'smartcar_charge' }),
   async (req: AuthRequest, res: Response) => {
@@ -383,7 +384,7 @@ router.post(
  */
 router.post(
   '/vehicles/:id/charge/stop',
- csrfProtection,  csrfProtection, authenticateJWT,
+  csrfProtection, csrfProtection, authenticateJWT,
   requirePermission('vehicle:update:fleet'),
   auditLog({ action: 'UPDATE', resourceType: 'smartcar_charge' }),
   async (req: AuthRequest, res: Response) => {
@@ -416,7 +417,7 @@ router.post(
  */
 router.delete(
   '/vehicles/:id/disconnect',
- csrfProtection,  csrfProtection, authenticateJWT,
+  csrfProtection, csrfProtection, authenticateJWT,
   requirePermission('vehicle:manage:global'),
   auditLog({ action: 'DELETE', resourceType: 'smartcar_connection' }),
   async (req: AuthRequest, res: Response) => {
@@ -458,7 +459,7 @@ router.delete(
  */
 router.post(
   '/vehicles/:id/sync',
- csrfProtection,  csrfProtection, authenticateJWT,
+  csrfProtection, csrfProtection, authenticateJWT,
   requirePermission('vehicle:update:fleet'),
   auditLog({ action: 'CREATE', resourceType: 'smartcar_sync' }),
   async (req: AuthRequest, res: Response) => {

@@ -23,6 +23,7 @@ import { auditLog } from '../middleware/audit';
 import ocrService from '../services/OcrService';
 import { getErrorMessage } from '../utils/error-handler'
 import { csrfProtection } from '../middleware/csrf'
+import { pool } from '../db/connection';
 
 
 const router = express.Router();
@@ -39,10 +40,10 @@ const upload = multer({
   fileFilter: (req, file, cb) => {
     const allowedTypes = ['image/jpeg', 'image/png', 'image/heic', `image/webp`];
 
-    if (allowedTypes.includes(file.mimetype) {
+    if (allowedTypes.includes(file.mimetype)) {
       cb(null, true);
     } else {
-      cb(new Error(`Unsupported file type: ${file.mimetype}`);
+      cb(new Error(`Unsupported file type: ${file.mimetype}`));
     }
   },
 });
@@ -62,7 +63,7 @@ const FuelReceiptOCRSchema = z.object({
       location: z.string().optional(),
       paymentMethod: z.string().optional(),
       notes: z.string().optional(),
-      confidenceScores: z.record(z.number().optional(),
+      confidenceScores: z.record(z.number().optional()),
     })
     .optional(),
 });
@@ -83,7 +84,7 @@ const OdometerOCRSchema = z.object({
 
 const ValidationSchema = z.object({
   type: z.enum(['fuel-receipt', 'odometer']),
-  data: z.record(z.any(),
+  data: z.record(z.any()),
 });
 
 /**
@@ -93,7 +94,7 @@ const ValidationSchema = z.object({
  */
 router.post(
   '/fuel-receipts/ocr',
- csrfProtection,  csrfProtection, requirePermission('fuel_transaction:create:own'),
+ csrfProtection, requirePermission('fuel_transaction:create:own'),
   upload.single('file'),
   auditLog({ action: 'CREATE', resourceType: 'fuel_receipt_ocr' }),
   async (req: AuthRequest, res: Response) => {
@@ -230,7 +231,7 @@ router.post(
  */
 router.post(
   '/odometer/ocr',
- csrfProtection,  csrfProtection, requirePermission('vehicle:update:own'),
+ csrfProtection, requirePermission('vehicle:update:own'),
   upload.single('file'),
   auditLog({ action: 'CREATE', resourceType: 'odometer_reading_ocr' }),
   async (req: AuthRequest, res: Response) => {
@@ -404,7 +405,7 @@ router.post(
  */
 router.post(
   '/ocr/validate',
- csrfProtection,  csrfProtection, requirePermission('fuel_transaction:view:own'),
+ csrfProtection, requirePermission('fuel_transaction:view:own'),
   auditLog({ action: 'READ', resourceType: 'ocr_validation' }),
   async (req: AuthRequest, res: Response) => {
     try {
@@ -438,7 +439,7 @@ router.post(
             validationResult.errors = error.errors.map(e => ({
               field: e.path.join(`.`),
               message: e.message,
-            });
+            }));
           }
         }
       } else if (validatedData.type === `odometer`) {
@@ -461,7 +462,7 @@ router.post(
             validationResult.errors = error.errors.map(e => ({
               field: e.path.join(`.`),
               message: e.message,
-            });
+            }));
           }
         }
       }
@@ -500,7 +501,7 @@ router.get(
       const { type, limit = 50, offset = 0 } = req.query;
 
       let query = `
-        SELECT ' + (await getTableColumns(pool, 'mobile_ocr_captures').join(', `) + ` FROM mobile_ocr_captures
+        SELECT * FROM mobile_ocr_captures
         WHERE tenant_id = $1 AND user_id = $2
       `;
       const params: any[] = [tenantId, userId];

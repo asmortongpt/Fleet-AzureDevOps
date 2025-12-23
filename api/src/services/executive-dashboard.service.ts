@@ -393,7 +393,7 @@ export class ExecutiveDashboardService {
         FROM safety_incidents si
         JOIN vehicles v ON si.vehicle_id = v.id
         WHERE si.tenant_id = $1
-          AND si.incident_date >= NOW() - INTERVAL `30 days`
+          AND si.incident_date >= NOW() - INTERVAL '30 days'
         GROUP BY v.id, v.vin, v.make, v.model
         HAVING COUNT(*) > 1
         ORDER BY incident_count DESC

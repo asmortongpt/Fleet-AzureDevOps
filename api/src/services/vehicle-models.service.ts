@@ -379,7 +379,7 @@ class VehicleModelsService {
 
     const query = `
       SELECT id, tenant_id, session_date, total_sessions, avg_session_duration, unique_users FROM ar_session_analytics
-      WHERE session_date >= CURRENT_DATE - INTERVAL `${days} days`
+      WHERE session_date >= CURRENT_DATE - INTERVAL '${daysNum} days'
       ORDER BY session_date DESC
     `;
 

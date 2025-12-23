@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState, useCallback } from "react"
 
-import { usePerformanceMonitor } from "@/hooks/usePerformanceMonitor"
+
 import { Vehicle, GISFacility, TrafficCamera } from "@/lib/types"
 import logger from '@/utils/logger';
 /**
@@ -33,6 +33,10 @@ export interface GoogleMapProps {
   onReady?: () => void
   /** Callback when an error occurs */
   onError?: (error: Error) => void
+  /** Force the simulated grid view (fallback) */
+  forceSimulatedView?: boolean
+  /** Callback when a vehicle action is triggered from the popup */
+  onVehicleAction?: (action: string, vehicleId: string) => void
 }
 
 /**
@@ -89,22 +93,16 @@ export function GoogleMap({
   showVehicles = true,
   showFacilities = true,
   showCameras = false,
-  showRoutes = false,
+  showRoutes: _showRoutes = false,
   mapStyle = "roadmap",
   center = [-84.2807, 30.4383], // Tallahassee, FL [lng, lat]
   zoom = 12, // Focused on Tallahassee area
   className = "",
   onReady,
   onError,
+  forceSimulatedView = false,
+  onVehicleAction,
 }: GoogleMapProps) {
-  // Performance monitoring
-  const perf = usePerformanceMonitor("GoogleMap", {
-    enabled: import.meta.env.DEV,
-    reportInterval: 10000, // Report every 10 seconds
-    slowRenderThreshold: 50,
-    highMemoryThreshold: 150,
-  })
-
   // Refs for DOM and map instances
   const mapRef = useRef<HTMLDivElement>(null)
   const mapInstanceRef = useRef<google.maps.Map | null>(null)
@@ -115,10 +113,43 @@ export function GoogleMap({
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [retryCount, setRetryCount] = useState(0)
+  const [forceFallback, setForceFallback] = useState(false)
 
   // Get and validate Google Maps API key
   const apiKey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY?.trim() || ""
-  const hasValidApiKey = apiKey.length > 0
+  const hasValidApiKey = apiKey.length > 0 && !forceFallback && !forceSimulatedView
+
+  // Handle global auth failure (Google Maps specific)
+  useEffect(() => {
+    // Define global callback if not exists
+    if (!(window as any).gm_authFailure) {
+      (window as any).gm_authFailure = () => {
+        logger.error("Google Maps Authentication Failure detected")
+        setForceFallback(true) // Switch to fallback view
+        setIsLoading(false)
+      }
+    }
+
+    return () => {
+      // Clean up potentially? usually global handler stays
+    }
+  }, [])
+
+  // Handle custom events from InfoWindows
+  useEffect(() => {
+    const handleVehicleAction = (e: Event) => {
+      if (onVehicleAction) {
+        const customEvent = e as CustomEvent
+        onVehicleAction(customEvent.detail.action, customEvent.detail.vehicleId)
+      }
+    }
+
+    window.addEventListener('vehicle-action', handleVehicleAction)
+
+    return () => {
+      window.removeEventListener('vehicle-action', handleVehicleAction)
+    }
+  }, [onVehicleAction])
 
   /**
    * Load Google Maps JavaScript API
@@ -175,7 +206,7 @@ export function GoogleMap({
       }
 
       // Error handler
-      script.onerror = (event) => {
+      script.onerror = () => {
         googleMapsLoadingState = "error"
         googleMapsLoadingPromise = null
         script.remove()
@@ -251,8 +282,7 @@ export function GoogleMap({
     // Initialize map if not already created
     if (!mapInstanceRef.current) {
       try {
-        // Track map initialization
-        const mapInitStart = perf.startMetric("mapInit")
+
 
         mapInstanceRef.current = new google.maps.Map(mapRef.current, {
           center: { lat: center[1], lng: center[0] },
@@ -291,12 +321,8 @@ export function GoogleMap({
         })
 
         // Track map initialization complete
-        perf.endMetric("mapInit", mapInitStart)
 
-        // Track time to interactive
-        perf.recordMetric("timeToInteractive", performance.now(), {
-          markerCount: vehicles.length + facilities.length + cameras.length,
-        })
+
 
         // Add test IDs to map controls after a short delay to ensure they're rendered
         setTimeout(() => {
@@ -362,8 +388,7 @@ export function GoogleMap({
       return
     }
 
-    // Track marker creation performance
-    const markerCreationStart = perf.startMetric("markerCreation")
+
 
     // Clear existing markers
     clearMarkers()
@@ -395,7 +420,7 @@ export function GoogleMap({
 
           // Add data-testid to marker element when DOM is ready
           google.maps.event.addListenerOnce(marker, 'visible', () => {
-            const markerDiv = marker.getDiv?.()
+            const markerDiv = (marker as any).getDiv?.()
             if (markerDiv) {
               markerDiv.setAttribute('data-testid', 'vehicle-marker')
               markerDiv.setAttribute('data-vehicle-id', vehicle.id)
@@ -493,12 +518,6 @@ export function GoogleMap({
       markersRef.current = newMarkers
 
       // Track marker creation complete
-      perf.endMetric("markerCreation", markerCreationStart, {
-        markerCount: newMarkers.length,
-        vehicleCount: vehicles.length,
-        facilityCount: facilities.length,
-        cameraCount: cameras.length,
-      })
 
       // Fit bounds to show all markers
       if (hasMarkers && mapInstanceRef.current) {
@@ -603,7 +622,7 @@ export function GoogleMap({
         </div>
 
         {/* Simulated Vehicle Markers (Kinetic Movement) */}
-        {vehicles.map((v, i) => {
+        {vehicles.map((v) => {
           // Deterministic pseudo-random position based on ID
           const hash = v.id.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
           const top = (hash * 17) % 70 + 15; // 15-85%
@@ -667,6 +686,12 @@ export function GoogleMap({
             className="px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 transition-colors text-sm font-medium"
           >
             Retry Loading
+          </button>
+          <button
+            onClick={() => setForceFallback(true)}
+            className="ml-2 px-4 py-2 bg-secondary text-secondary-foreground rounded-md hover:bg-secondary/90 transition-colors text-sm font-medium"
+          >
+            Switch to Grid View
           </button>
           {retryCount > 0 && (
             <p className="text-xs text-muted-foreground mt-2">
@@ -737,11 +762,11 @@ function createVehicleInfoHTML(vehicle: Vehicle): string {
   return `
     <div data-testid="marker-popup" style="padding: 14px; min-width: 220px; max-width: 320px; font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;">
       <div data-testid="popup-vehicle-id" style="font-weight: 600; font-size: 15px; margin-bottom: 10px; color: #1f2937; border-bottom: 2px solid #e5e7eb; padding-bottom: 6px;">
-        ${escapeHTML(vehicle.name)}
+        ${escapeHTML(vehicle.name || "Unknown Vehicle")}
       </div>
       <div style="font-size: 13px; color: #4b5563; margin-bottom: 6px; display: flex; justify-content: space-between;">
         <strong style="color: #6b7280;">Type:</strong>
-        <span style="text-transform: capitalize;">${escapeHTML(vehicle.type)}</span>
+        <span style="text-transform: capitalize;">${escapeHTML(vehicle.type || "Unknown")}</span>
       </div>
       <div style="font-size: 13px; color: #4b5563; margin-bottom: 6px; display: flex; justify-content: space-between;">
         <strong style="color: #6b7280;">Status:</strong>
@@ -756,6 +781,17 @@ function createVehicleInfoHTML(vehicle: Vehicle): string {
       <div style="font-size: 13px; color: #4b5563; margin-top: 8px; padding-top: 8px; border-top: 1px solid #e5e7eb;">
         <strong style="color: #6b7280; display: block; margin-bottom: 4px;">Location:</strong>
         <span style="font-size: 12px; color: #6b7280;">${escapeHTML(location)}</span>
+      </div>
+      
+      <div style="margin-top: 12px; display: flex; gap: 8px;">
+        <button 
+          onclick="(function(){ window.dispatchEvent(new CustomEvent('vehicle-action', { detail: { action: 'maintenance', vehicleId: '${escapeHTML(vehicle.id)}' } })); })()"
+          style="flex: 1; border: 1px solid #e5e7eb; background: #f9fafb; color: #374151; border-radius: 6px; padding: 6px 12px; font-size: 12px; font-weight: 500; cursor: pointer; transition: all 0.2s;"
+          onmouseover="this.style.background='#f3f4f6'"
+          onmouseout="this.style.background='#f9fafb'"
+        >
+          Report Issue
+        </button>
       </div>
     </div>
   `

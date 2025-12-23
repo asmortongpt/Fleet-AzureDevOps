@@ -21,6 +21,7 @@ import embeddingService from '../services/EmbeddingService'
 import documentAiService from '../services/DocumentAiService'
 import { getErrorMessage } from '../utils/error-handler'
 import { csrfProtection } from '../middleware/csrf'
+import { pool } from '../db/connection';
 
 
 const router = express.Router()

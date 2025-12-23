@@ -21,6 +21,7 @@ import { authenticateJWT, AuthRequest } from '../middleware/auth'
 import { requirePermission } from '../middleware/permissions'
 import { getErrorMessage } from '../utils/error-handler'
 import { csrfProtection } from '../middleware/csrf'
+import { pool } from '../db/connection';
 
 
 const router = express.Router()
@@ -43,7 +44,7 @@ const createOnCallPeriodSchema = z.object({
   schedule_notes: z.string().optional(),
   on_call_vehicle_assignment_id: z.string().uuid().optional(),
   geographic_region: z.string().optional(),
-  commuting_constraints: z.record(z.any().optional(),
+  commuting_constraints: z.record(z.any().optional()),
 })
 
 const updateOnCallPeriodSchema = createOnCallPeriodSchema.partial()
@@ -161,7 +162,7 @@ router.get(
         JOIN drivers dr ON ocp.driver_id = dr.id
         WHERE ${whereClause}
       `
-      const countResult = await pool.query(countQuery, params.slice(0, -2)
+      const countResult = await pool.query(countQuery, params.slice(0, -2))
       const total = parseInt(countResult.rows[0].total)
 
       res.json({
@@ -170,7 +171,7 @@ router.get(
           page: parseInt(page as string),
           limit: parseInt(limit as string),
           total,
-          pages: Math.ceil(total / parseInt(limit as string),
+          pages: Math.ceil(total / parseInt(limit as string)),
         },
       })
     } catch (error: any) {

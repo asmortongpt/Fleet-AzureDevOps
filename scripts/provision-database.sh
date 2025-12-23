@@ -236,7 +236,6 @@ az postgres flexible-server update \
   --resource-group "$RESOURCE_GROUP" \
   --name "$DB_SERVER_NAME" \
   --backup-retention "$BACKUP_RETENTION_DAYS" \
-  --geo-redundant-backup "$GEO_REDUNDANT_BACKUP" \
   --output none
 
 log_info "Backup retention: ${BACKUP_RETENTION_DAYS} days"
