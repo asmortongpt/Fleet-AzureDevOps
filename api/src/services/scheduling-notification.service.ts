@@ -20,8 +20,8 @@ interface SchedulingNotification {
   tenantId: string
   userId: string
   type: 'reservation_request' | 'reservation_approved' | 'reservation_rejected' |
-        'reservation_reminder' | 'maintenance_reminder' | 'conflict_detected' |
-        'reservation_cancelled' | 'maintenance_scheduled'
+  'reservation_reminder' | 'maintenance_reminder' | 'conflict_detected' |
+  'reservation_cancelled' | 'maintenance_scheduled'
   priority: 'low' | 'normal' | 'high' | 'urgent'
   recipientEmail?: string
   recipientPhone?: string
@@ -46,6 +46,8 @@ interface NotificationPreferences {
 }
 
 export class SchedulingNotificationService {
+  constructor(private db: Pool) { }
+
   /**
    * Send notification for new reservation request (to approvers)
    */
@@ -359,7 +361,8 @@ export class SchedulingNotificationService {
 
       if (userResult.rows.length === 0) {
         logger.warn('User not found for email notification', { userId })
-        return }
+        return
+      }
 
       const user = userResult.rows[0]
 

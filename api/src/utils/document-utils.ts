@@ -113,7 +113,7 @@ export function getExtensionFromMimeType(mimeType: string): string {
     'audio/wav': '.wav'
   }
 
-  return mimeToExt[mimeType] || '`
+  return mimeToExt[mimeType] || ''
 }
 
 /**
@@ -151,7 +151,7 @@ export function validateFileType(
   const isAllowed = allowedTypes.some(allowed => {
     // Support wildcards like "image/*"
     if (allowed.endsWith(`/*`)) {
-      const prefix = allowed.replace('/*', '`)
+      const prefix = allowed.replace('/*', '')
       return mimeType.startsWith(prefix)
     }
     return mimeType === allowed

@@ -5,6 +5,7 @@
  */
 
 import { Pool } from 'pg'
+import { pool } from '../config/database'
 
 import {
   Email,
@@ -836,5 +837,5 @@ class OutlookService {
 }
 
 // Export singleton instance
-export const outlookService = new OutlookService()
+export const outlookService = new OutlookService(pool)
 export default outlookService

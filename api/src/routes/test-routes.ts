@@ -1,15 +1,11 @@
 /**
-import { container } from '../container'
-import { asyncHandler } from '../middleware/errorHandler'
-import { NotFoundError, ValidationError } from '../errors/app-error'
  * Test Routes - No Authentication Required
  * Simplified routes that return mock data for testing
  */
 
 import express from 'express'
+import { NotFoundError } from '../errors/app-error'
 import {
-import { csrfProtection } from '../middleware/csrf'
-
   mockVehicles,
   mockDrivers,
   mockWorkOrders,
@@ -26,7 +22,7 @@ const router = express.Router()
 router.get('/vehicles', (req, res) => {
   const page = parseInt(req.query.page as string) || 1
   const limit = parseInt(req.query.limit as string) || 50
-  res.json(paginateResults(mockVehicles, page, limit)
+  res.json(paginateResults(mockVehicles, page, limit))
 })
 
 router.get('/vehicles/:id', (req, res) => {
@@ -39,7 +35,7 @@ router.get('/vehicles/:id', (req, res) => {
 router.get('/drivers', (req, res) => {
   const page = parseInt(req.query.page as string) || 1
   const limit = parseInt(req.query.limit as string) || 50
-  res.json(paginateResults(mockDrivers, page, limit)
+  res.json(paginateResults(mockDrivers, page, limit))
 })
 
 router.get('/drivers/:id', (req, res) => {
@@ -52,7 +48,7 @@ router.get('/drivers/:id', (req, res) => {
 router.get('/work-orders', (req, res) => {
   const page = parseInt(req.query.page as string) || 1
   const limit = parseInt(req.query.limit as string) || 50
-  res.json(paginateResults(mockWorkOrders, page, limit)
+  res.json(paginateResults(mockWorkOrders, page, limit))
 })
 
 router.get('/work-orders/:id', (req, res) => {
@@ -65,29 +61,28 @@ router.get('/work-orders/:id', (req, res) => {
 router.get('/fuel-transactions', (req, res) => {
   const page = parseInt(req.query.page as string) || 1
   const limit = parseInt(req.query.limit as string) || 50
-  res.json(paginateResults(mockFuelTransactions, page, limit)
+  res.json(paginateResults(mockFuelTransactions, page, limit))
 })
 
 // Facilities
 router.get('/facilities', (req, res) => {
   const page = parseInt(req.query.page as string) || 1
   const limit = parseInt(req.query.limit as string) || 50
-  res.json(paginateResults(mockFacilities, page, limit)
+  res.json(paginateResults(mockFacilities, page, limit))
 })
 
 // Maintenance Schedules
 router.get('/maintenance-schedules', (req, res) => {
   const page = parseInt(req.query.page as string) || 1
   const limit = parseInt(req.query.limit as string) || 50
-  res.json(paginateResults(mockMaintenanceSchedules, page, limit)
+  res.json(paginateResults(mockMaintenanceSchedules, page, limit))
 })
 
 // Routes
 router.get('/routes', (req, res) => {
   const page = parseInt(req.query.page as string) || 1
   const limit = parseInt(req.query.limit as string) || 50
-  res.json(paginateResults(mockRoutes, page, limit)
+  res.json(paginateResults(mockRoutes, page, limit))
 })
 
 export default router
-module.exports = { default: router }

@@ -7,7 +7,7 @@
 
 import { SpanStatusCode, Span } from '@opentelemetry/api';
 import * as appInsights from 'applicationinsights';
-import { Pool, QueryResult, PoolClient } from 'pg';
+import { Pool, QueryResult, PoolClient, QueryResultRow } from 'pg';
 
 import { tracer } from '../config/telemetry';
 
@@ -531,7 +531,7 @@ export const queryMonitor = new QueryMonitor();
  * Monitored query wrapper
  * Use this instead of pool.query() to get automatic monitoring
  */
-export async function monitoredQuery<T = any>(
+export async function monitoredQuery<T extends QueryResultRow = any>(
   pool: Pool | PoolClient,
   query: string,
   params?: any[]

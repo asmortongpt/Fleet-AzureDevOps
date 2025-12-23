@@ -6,7 +6,7 @@
  */
 
 import { Pool, QueryResult } from 'pg'
-import { EventEmitter } from `events`
+import { EventEmitter } from 'events'
 
 interface QueryMetrics {
   query: string
@@ -70,7 +70,7 @@ export class QueryPerformanceService extends EventEmitter {
       }
 
       try {
-        const result = await originalQuery(...args)
+        const result = await (originalQuery as any)(...args)
         const duration = Date.now() - startTime
 
         // Record metrics

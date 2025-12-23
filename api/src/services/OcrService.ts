@@ -42,7 +42,7 @@ async function loadOptionalProviders() {
     const visionModule = await import('@google-cloud/vision');
     vision = visionModule.default;
   }
-   catch (err) {
+  catch (err) {
     console.warn('Google Cloud Vision not available - install @google-cloud/vision for premium OCR');
   }
 
@@ -52,7 +52,7 @@ async function loadOptionalProviders() {
     AnalyzeDocumentCommand = textractModule.AnalyzeDocumentCommand;
     DetectDocumentTextCommand = textractModule.DetectDocumentTextCommand;
   }
-   catch (err) {
+  catch (err) {
     console.warn('AWS Textract not available - install @aws-sdk/client-textract for premium OCR');
   }
 
@@ -62,7 +62,7 @@ async function loadOptionalProviders() {
     ComputerVisionClient = azureModule.ComputerVisionClient;
     ApiKeyCredentials = msRestModule.ApiKeyCredentials;
   }
-   catch (err) {
+  catch (err) {
     console.warn('Azure Computer Vision not available - install @azure/cognitiveservices-computervision for premium OCR');
   }
 
@@ -71,7 +71,7 @@ async function loadOptionalProviders() {
     const pdfParseModule = await import('pdf-parse');
     pdfParse = pdfParseModule.default;
   }
-   catch (err) {
+  catch (err) {
     console.warn('pdf-parse not available - install pdf-parse for PDF document OCR');
   }
 
@@ -79,7 +79,7 @@ async function loadOptionalProviders() {
     const mammothModule = await import('mammoth');
     mammoth = mammothModule.default;
   }
-   catch (err) {
+  catch (err) {
     console.warn('mammoth not available - install mammoth for DOCX document OCR');
   }
 
@@ -87,12 +87,12 @@ async function loadOptionalProviders() {
     const xlsxModule = await import('xlsx');
     xlsx = xlsxModule.default;
   }
-   catch (err) {
+  catch (err) {
     console.warn('xlsx not available - install xlsx for Excel spreadsheet OCR');
   }
 
 
-// OCR Provider Types
+  // OCR Provider Types
 }
 
 export enum OcrProvider {
@@ -101,7 +101,7 @@ export enum OcrProvider {
   AWS_TEXTRACT = 'aws_textract',
   AZURE_VISION = 'azure_vision',
   AUTO = 'auto' // Automatically select best provider
-  }
+}
 
 
 // Document Types
@@ -124,7 +124,7 @@ export interface BoundingBox {
   y: number;
   width: number;
   height: number;
-  }
+}
 
 
 export interface OcrWord {
@@ -132,7 +132,7 @@ export interface OcrWord {
   confidence: number;
   boundingBox: BoundingBox;
   language?: string;
-  }
+}
 
 
 export interface OcrLine {
@@ -140,7 +140,7 @@ export interface OcrLine {
   confidence: number;
   words: OcrWord[];
   boundingBox: BoundingBox;
-  }
+}
 
 
 export interface OcrPage {
@@ -151,7 +151,7 @@ export interface OcrPage {
   boundingBox: BoundingBox;
   language?: string;
   rotation?: number;
-  }
+}
 
 
 export interface TableCell {
@@ -160,7 +160,7 @@ export interface TableCell {
   text: string;
   confidence: number;
   boundingBox: BoundingBox;
-  }
+}
 
 
 export interface OcrTable {
@@ -168,7 +168,7 @@ export interface OcrTable {
   columns: number;
   cells: TableCell[];
   confidence: number;
-  }
+}
 
 
 export interface FormField {
@@ -177,7 +177,7 @@ export interface FormField {
   confidence: number;
   keyBoundingBox?: BoundingBox;
   valueBoundingBox?: BoundingBox;
-  }
+}
 
 
 export interface OcrResult {
@@ -200,7 +200,7 @@ export interface OcrResult {
     fileSize: number;
     processedAt: Date;
   }
-  }
+}
 
 
 export interface OcrOptions {
@@ -212,22 +212,22 @@ export interface OcrOptions {
   pageNumbers?: number[]; // Specific pages to process
   dpi?: number; // Resolution for image conversion
   preprocessImage?: boolean; // Image enhancement
-  }
+}
 
 
 export class OcrService {
-  private googleVisionClient: vision.ImageAnnotatorClient | null = null;
+  private googleVisionClient: any = null;
 
-  private textractClient: TextractClient | null = null;
+  private textractClient: any = null;
 
-  private azureVisionClient: ComputerVisionClient | null = null;
+  private azureVisionClient: any = null;
 
   private initialized = false;
 
   constructor(private db: Pool) {
     // Don't call initialization in constructor - do it lazily
   }
-  
+
 
   /**
    * Initialize OCR provider clients (called lazily on first use)
@@ -268,8 +268,8 @@ export class OcrService {
 
       // Tesseract is always available (no initialization needed)
       console.log('✅ Tesseract.js available');
-  }
-     catch (error) {
+    }
+    catch (error) {
       console.error('Error initializing OCR providers:', error);
     }
 
@@ -330,11 +330,11 @@ export class OcrService {
       await this.saveOcrResult(result);
 
       return result;
-  }
-     catch (error) {
+    }
+    catch (error) {
       console.error('OCR processing error:', error);
       throw error;
-  }
+    }
   }
 
   /**
@@ -353,22 +353,22 @@ export class OcrService {
     let pdfData;
     try {
       pdfData = await pdfParse(fileBuffer);
-     }
-     catch (error) {
+    }
+    catch (error) {
       console.error('PDF parse error:', error);
-      }
+    }
 
     // If PDF has text, use it; otherwise OCR is needed
     if (pdfData && pdfData.text && pdfData.text.trim().length > 50) {
       // PDF has extractable text
       return this.createResultFromPDFText(documentId, pdfData, stats.size);
-     }
-     else {
+    }
+    else {
       // PDF needs OCR (scanned document)
       // Convert PDF to images and process with OCR
       // For now, use the selected provider for OCR
       return this.processImageWithProvider(fileBuffer, documentId, provider, options, stats.size);
-      }
+    }
   }
 
   /**
@@ -423,7 +423,7 @@ export class OcrService {
     let fullText = '';
     const pages: OcrPage[] = [];
 
-    workbook.SheetNames.forEach((sheetName, index) => {
+    workbook.SheetNames.forEach((sheetName: string, index: number) => {
       const sheet = workbook.Sheets[sheetName];
       const sheetText = xlsx.utils.sheet_to_csv(sheet);
       fullText += '\n--- Sheet: ' + sheetName + ' ---\n' + sheetText + '\n';
@@ -538,7 +538,7 @@ export class OcrService {
         throw new Error('Unsupported OCR provider: ' + provider);
     }
   }
-  
+
 
   /**
    * Process with Tesseract.js (using worker thread for CPU-intensive work)
@@ -565,8 +565,8 @@ export class OcrService {
               preserve_interword_spaces: '1'
             }
           }
-        
-      });
+
+        });
 
       // Timeout after 2 minutes
       const timeout = setTimeout(() => {
@@ -583,23 +583,23 @@ export class OcrService {
         // Simplified return for debugging
         const data = result.data;
         resolve({
-            provider: OcrProvider.TESSERACT,
-            documentId,
-            fullText: data.text,
-            pages: [],
-            languages: ['eng'],
-            primaryLanguage: 'eng',
-            averageConfidence: 0,
-            processingTime: 0,
-            metadata: {
-                documentFormat: 'image',
-                pageCount: 1,
-                hasHandwriting: false,
-                hasTables: false,
-                hasForms: false,
-                fileSize,
-                processedAt: new Date()
-            }
+          provider: OcrProvider.TESSERACT,
+          documentId,
+          fullText: data.text,
+          pages: [],
+          languages: ['eng'],
+          primaryLanguage: 'eng',
+          averageConfidence: 0,
+          processingTime: 0,
+          metadata: {
+            documentFormat: 'image',
+            pageCount: 1,
+            hasHandwriting: false,
+            hasTables: false,
+            hasForms: false,
+            fileSize,
+            processedAt: new Date()
+          }
         });
       });
 
@@ -639,15 +639,15 @@ export class OcrService {
       throw new Error('No text found in document');
     }
 
-    const pages: OcrPage[] = fullTextAnnotation.pages?.map((page, idx) => ({
+    const pages: OcrPage[] = fullTextAnnotation.pages?.map((page: any, idx: number) => ({
       pageNumber: idx + 1,
-      text: page.blocks?.map(b => b.paragraphs?.map(p => p.words?.map(w =>
-        w.symbols?.map(s => s.text).join('')).join(' ')).join('\n')).join('\n\n') || '',
+      text: page.blocks?.map((b: any) => b.paragraphs?.map((p: any) => p.words?.map((w: any) =>
+        w.symbols?.map((s: any) => s.text).join('')).join(' ')).join('\n')).join('\n\n') || '',
       confidence: page.confidence || 0,
-      lines: page.blocks?.flatMap(block =>
-        block.paragraphs?.flatMap(paragraph =>
-          paragraph.words?.map(word => ({
-            text: word.symbols?.map(s => s.text).join('') || '',
+      lines: page.blocks?.flatMap((block: any) =>
+        block.paragraphs?.flatMap((paragraph: any) =>
+          paragraph.words?.map((word: any) => ({
+            text: word.symbols?.map((s: any) => s.text).join('') || '',
             confidence: word.confidence || 0,
             words: [],
             boundingBox: this.convertGoogleBoundingBox(word.boundingBox)
@@ -660,10 +660,10 @@ export class OcrService {
 
     // Detect languages
     const detectedLanguages = Array.from(new Set(
-      fullTextAnnotation.pages?.flatMap(p =>
-        p.property?.detectedLanguages?.map(l => l.languageCode || '') || []
+      fullTextAnnotation.pages?.flatMap((p: any) =>
+        p.property?.detectedLanguages?.map((l: any) => l.languageCode || '') || []
       ) || []
-    )).filter(Boolean);
+    )).filter((l): l is string => !!l);
 
     return {
       provider: OcrProvider.GOOGLE_VISION,
@@ -685,7 +685,7 @@ export class OcrService {
       }
     };
   }
-  
+
 
   /**
    * Process with AWS Textract
@@ -703,30 +703,30 @@ export class OcrService {
     // Use AnalyzeDocument for tables/forms, or DetectDocumentText for simple text
     const command = options.detectTables || options.detectForms
       ? new AnalyzeDocumentCommand({
-          Document: { Bytes: imageBuffer  },
-          FeatureTypes: [
-            ...(options.detectTables ? ['TABLES'] : []),
-            ...(options.detectForms ? ['FORMS'] : [])
-          ] as any
-        })
+        Document: { Bytes: imageBuffer },
+        FeatureTypes: [
+          ...(options.detectTables ? ['TABLES'] : []),
+          ...(options.detectForms ? ['FORMS'] : [])
+        ] as any
+      })
       : new DetectDocumentTextCommand({
-          Document: { Bytes: imageBuffer }
-        });
+        Document: { Bytes: imageBuffer }
+      });
 
     const response = await this.textractClient.send(command);
 
     // Parse Textract response
     const blocks = response.Blocks || [];
-    const lines = blocks.filter(b => b.BlockType === 'LINE');
-    const words = blocks.filter(b => b.BlockType === 'WORD');
+    const lines = blocks.filter((b: any) => b.BlockType === 'LINE');
+    const words = blocks.filter((b: any) => b.BlockType === 'WORD');
 
-    const fullText = lines.map(l => l.Text).join('\n');
+    const fullText = lines.map((l: any) => l.Text).join('\n');
 
     const pages: OcrPage[] = [{
       pageNumber: 1,
       text: fullText,
-      confidence: words.reduce((sum, w) => sum + (w.Confidence || 0), 0) / words.length / 100,
-      lines: lines.map(line => ({
+      confidence: words.reduce((sum: number, w: any) => sum + (w.Confidence || 0), 0) / (words.length || 1) / 100,
+      lines: lines.map((line: any) => ({
         text: line.Text || '',
         confidence: (line.Confidence || 0) / 100,
         words: [],
@@ -738,9 +738,9 @@ export class OcrService {
     // Extract tables if requested
     const tables: OcrTable[] = [];
     if (options.detectTables) {
-      const tableBlocks = blocks.filter(b => b.BlockType === 'TABLE');
+      const tableBlocks = blocks.filter((b: any) => b.BlockType === 'TABLE');
       // Process table extraction (simplified for now)
-      tableBlocks.forEach(table => {
+      tableBlocks.forEach((table: any) => {
         tables.push({
           rows: 0,
           columns: 0,
@@ -748,15 +748,15 @@ export class OcrService {
           confidence: (table.Confidence || 0) / 100
         });
       });
-    
+
     }
     // Extract forms if requested
     const forms: FormField[] = [];
     if (options.detectForms) {
-      const keyValueBlocks = blocks.filter(b => b.BlockType === 'KEY_VALUE_SET');
+      const keyValueBlocks = blocks.filter((b: any) => b.BlockType === 'KEY_VALUE_SET');
       // Process form extraction (simplified for now)
     }
-    
+
 
     return {
       provider: OcrProvider.AWS_TEXTRACT,
@@ -780,7 +780,7 @@ export class OcrService {
       }
     };
   }
-  
+
 
   /**
    * Process with Azure Computer Vision
@@ -837,7 +837,7 @@ export class OcrService {
     }));
 
     const fullText = pages.map(p => p.text).join('\n\n');
-    const languages = Array.from(new Set(pages.map(p => p.language).filter(Boolean)));
+    const languages = Array.from(new Set(pages.map(p => p.language).filter((l: any): l is string => !!l)));
 
     return {
       provider: OcrProvider.AZURE_VISION,
@@ -859,7 +859,7 @@ export class OcrService {
       }
     };
   }
-  
+
 
   /**
    * Detect document format
@@ -884,7 +884,7 @@ export class OcrService {
     return formatMap[ext] || DocumentFormat.IMAGE_JPEG;
   }
 
-  
+
 
   /**
    * Select best OCR provider based on options and format
@@ -952,7 +952,7 @@ export class OcrService {
       }
     };
   }
-  
+
 
   /**
    * Convert text to line structure
@@ -977,7 +977,7 @@ export class OcrService {
     if (!bbox || !bbox.vertices || bbox.vertices.length < 4) {
       return { x: 0, y: 0, width: 0, height: 0 };
     }
-    
+
     const vertices = bbox.vertices;
     return {
       x: vertices[0].x || 0,
@@ -1055,11 +1055,11 @@ export class OcrService {
           JSON.stringify(result.metadata)
         ]
       );
-     }
-     catch (error) {
+    }
+    catch (error) {
       console.error('Error saving OCR result:', error);
       throw error;
-  }
+    }
   }
 
   /**
@@ -1095,10 +1095,10 @@ export class OcrService {
         metadata: JSON.parse(row.metadata)
       };
     }
-     catch (error) {
+    catch (error) {
       console.error('Error getting OCR result:', error);
       throw error;
-  }
+    }
   }
 
   /**
@@ -1126,22 +1126,22 @@ export class OcrService {
       );
 
       return result.rows;
-     }
-     catch (error) {
+    }
+    catch (error) {
       console.error('Error searching OCR results:', error);
       throw error;
+    }
   }
-  }
 
 
-// Export function to get singleton instance (lazy initialization)
-;
+  // Export function to get singleton instance (lazy initialization)
+  ;
 
 
-  
-    
-  
-  
+
+
+
+
 }
 
 export default OcrService;

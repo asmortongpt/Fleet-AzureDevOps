@@ -4,12 +4,12 @@
  * Integrates with Azure OpenAI for processing
  */
 
-import { Queue } from 'bull'
+import Queue from 'bull'
 import { z } from 'zod'
 import { Pool } from 'pg'
 import logger from '../utils/logger'
-import aiValidationService from './ai-validation.service'
-import aiControlsService from './ai-controls.service'
+import AIValidationService from './ai-validation.service'
+import AIControlsService from './ai-controls.service'
 
 // Request schemas
 export const AIRequestSchema = z.object({
@@ -75,11 +75,15 @@ export interface AIRequestRecord {
 
 class AIIntakeService {
   private requestQueue: Queue | null = null
+  private validationService: AIValidationService
+  private controlsService: AIControlsService
 
   constructor(
     private db: Pool,
     private logger: typeof logger
   ) {
+    this.validationService = new AIValidationService(db, logger)
+    this.controlsService = new AIControlsService(db, logger)
     this.initializeQueue()
   }
 
@@ -128,7 +132,7 @@ class AIIntakeService {
       const validatedRequest = AIRequestSchema.parse(request)
 
       // 2. Check rate limits and user permissions
-      const controlsCheck = await aiControlsService.checkRateLimits(tenantId, userId)
+      const controlsCheck = await this.controlsService.checkRateLimits(tenantId, userId)
       if (!controlsCheck.allowed) {
         this.logger.warn(`Rate limit exceeded for user ${userId}`, {
           tenantId,
@@ -136,14 +140,14 @@ class AIIntakeService {
           reason: controlsCheck.reason
         })
         return {
-          request_id: ``,
+          request_id: '',
           status: 'failed',
           message: `Rate limit exceeded: ${controlsCheck.reason}`
         }
       }
 
       // 3. Validate content (safety, injection, etc.)
-      const validationResult = await aiValidationService.validateRequest(validatedRequest)
+      const validationResult = await this.validationService.validateRequest(validatedRequest)
       if (!validationResult.isValid) {
         this.logger.warn(`AI request validation failed for user ${userId}`, {
           tenantId,
@@ -151,7 +155,7 @@ class AIIntakeService {
           reason: validationResult.reason
         })
         return {
-          request_id: ``,
+          request_id: '',
           status: 'failed',
           message: `Request validation failed: ${validationResult.reason}`
         }
@@ -175,7 +179,7 @@ class AIIntakeService {
           validatedRequest.context || {},
           JSON.stringify(validatedRequest.attachments || []),
           validatedRequest.parameters || {},
-          `queued`,
+          'queued',
           priority
         ]
       )
@@ -199,10 +203,10 @@ class AIIntakeService {
       }
 
       // 7. Record usage for rate limiting
-      await aiControlsService.recordUsage(tenantId, userId, validatedRequest.request_type)
+      await this.controlsService.recordUsage(tenantId, userId, validatedRequest.request_type)
 
       // 8. Audit log
-      await aiControlsService.logRequest(tenantId, userId, requestRecord.id, validatedRequest)
+      await this.controlsService.logRequest(tenantId, userId, requestRecord.id, validatedRequest)
 
       // 9. Calculate estimated wait time
       const queueStats = await this.getQueueStatistics()
@@ -228,14 +232,14 @@ class AIIntakeService {
 
       if (error.name === 'ZodError') {
         return {
-          request_id: '`,
+          request_id: '',
           status: 'failed',
           message: `Validation error: ${error.errors.map((e: any) => e.message).join(`, `)}`
         }
       }
 
       return {
-        request_id: ``,
+        request_id: '',
         status: 'failed',
         message: 'Failed to submit request'
       }
@@ -253,7 +257,7 @@ class AIIntakeService {
     try {
       const result = await this.db.query<AIRequestRecord>(
         `SELECT * FROM ai_requests
-         WHERE id = $1 AND tenant_id = $2 AND user_id = $3',
+         WHERE id = $1 AND tenant_id = $2 AND user_id = $3`,
         [requestId, tenantId, userId]
       )
 
@@ -274,7 +278,7 @@ class AIIntakeService {
         `UPDATE ai_requests
          SET status = 'cancelled', completed_at = NOW()
          WHERE id = $1 AND tenant_id = $2 AND user_id = $3
-           AND status IN ('queued', 'processing')',
+           AND status IN ('queued', 'processing')`,
         [requestId, tenantId, userId]
       )
 
@@ -352,7 +356,7 @@ class AIIntakeService {
           COUNT(*) FILTER (WHERE status = 'completed') as completed,
           COUNT(*) FILTER (WHERE status = 'failed') as failed
          FROM ai_requests
-         WHERE created_at > NOW() - INTERVAL '1 hour''
+         WHERE created_at > NOW() - INTERVAL '1 hour'`
       )
 
       return result.rows[0]
@@ -385,7 +389,7 @@ class AIIntakeService {
     // Adjust based on user tier
     if (userTier === 'enterprise') {
       priority += 2
-    } else if (userTier === `premium`) {
+    } else if (userTier === 'premium') {
       priority += 1
     }
 
@@ -415,8 +419,8 @@ class AIIntakeService {
     try {
       const result = await this.db.query(
         `DELETE FROM ai_requests
-         WHERE completed_at < NOW() - INTERVAL `${daysToKeep} days`
-           AND status IN (`completed`, `failed', 'cancelled`)`
+         WHERE completed_at < NOW() - INTERVAL '${daysToKeep} days'
+           AND status IN ('completed', 'failed', 'cancelled')`
       )
 
       this.logger.info(`Cleaned up ${result.rowCount} old AI requests`)

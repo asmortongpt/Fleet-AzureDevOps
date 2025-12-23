@@ -1,45 +1,61 @@
 import { BaseRepository } from '../repositories/BaseRepository';
+import { Pool, QueryResult } from 'pg';
 
-Here is a simple example of a TypeScript repository for integration logs. This repository includes methods for creating, reading, updating, and deleting integration logs. It also uses parameterized queries to prevent SQL injection attacks.
-
-
-import { EntityRepository, Repository } from 'typeorm';
-import { IntegrationLog } from '../entities/integration-log.entity';
-
-@EntityRepository(IntegrationLog)
-export class IntegrationLogsRepository extends Repository<IntegrationLog> {
-  constructor(pool: Pool) {
-    super(pool, 'LIntegration_LLogs_LRepository extends s');
-  }
-
-
-  async createLog(tenant_id: string, log: Partial<IntegrationLog>): Promise<IntegrationLog> {
-    const newLog = this.create({ ...log, tenant_id });
-    await this.save(newLog);
-    return newLog;
-  }
-
-  async getLogs(tenant_id: string): Promise<IntegrationLog[]> {
-    return this.find({ where: { tenant_id } });
-  }
-
-  async getLog(tenant_id: string, id: string): Promise<IntegrationLog> {
-    return this.findOne({ where: { tenant_id, id } });
-  }
-
-  async updateLog(tenant_id: string, id: string, log: Partial<IntegrationLog>): Promise<IntegrationLog> {
-    await this.update({ tenant_id, id }, log);
-    return this.getLog(tenant_id, id);
-  }
-
-  async deleteLog(tenant_id: string, id: string): Promise<void> {
-    await this.delete({ tenant_id, id });
-  }
+export interface IntegrationLog {
+  id: number;
+  tenant_id: number;
+  integration_name: string;
+  action: string;
+  status: string;
+  request_payload?: any;
+  response_payload?: any;
+  error_message?: string;
+  created_at: Date;
 }
 
+export class IntegrationLogsRepository extends BaseRepository<any> {
 
-In the above code, `IntegrationLog` is the entity that represents the integration log in the database. This entity should include fields for the `tenant_id` and any other information you want to store in the log.
+  private pool: Pool;
 
-The `createLog` method creates a new log for a specific tenant. The `getLogs` method retrieves all logs for a specific tenant. The `getLog` method retrieves a specific log for a specific tenant. The `updateLog` method updates a specific log for a specific tenant. The `deleteLog` method deletes a specific log for a specific tenant.
+  constructor(pool: Pool) {
+    super('integration_logs', pool);
+    this.pool = pool;
+  }
 
-Please note that you need to adjust this code to fit your actual database schema and your actual requirements.
+  async createLog(tenantId: number, log: Omit<IntegrationLog, 'id' | 'created_at'>): Promise<IntegrationLog> {
+    const query = `
+      INSERT INTO integration_logs (tenant_id, integration_name, action, status, request_payload, response_payload, error_message, created_at)
+      VALUES ($1, $2, $3, $4, $5, $6, $7, NOW())
+      RETURNING *
+    `;
+    const values = [
+      tenantId,
+      log.integration_name,
+      log.action,
+      log.status,
+      log.request_payload,
+      log.response_payload,
+      log.error_message
+    ];
+    const result: QueryResult<IntegrationLog> = await this.pool.query(query, values);
+    return result.rows[0];
+  }
+
+  async getLogs(tenantId: number): Promise<IntegrationLog[]> {
+    const query = `SELECT id, tenant_id, integration_name, action, status, request_payload, response_payload, error_message, created_at FROM integration_logs WHERE tenant_id = $1 ORDER BY created_at DESC`;
+    const result: QueryResult<IntegrationLog> = await this.pool.query(query, [tenantId]);
+    return result.rows;
+  }
+
+  async getLog(tenantId: number, id: number): Promise<IntegrationLog | null> {
+    const query = `SELECT id, tenant_id, integration_name, action, status, request_payload, response_payload, error_message, created_at FROM integration_logs WHERE id = $1 AND tenant_id = $2`;
+    const result: QueryResult<IntegrationLog> = await this.pool.query(query, [id, tenantId]);
+    return result.rows[0] || null;
+  }
+
+  async deleteLog(tenantId: number, id: number): Promise<boolean> {
+    const query = `DELETE FROM integration_logs WHERE id = $1 AND tenant_id = $2 RETURNING id`;
+    const result: QueryResult = await this.pool.query(query, [id, tenantId]);
+    return result.rowCount ? result.rowCount > 0 : false;
+  }
+}

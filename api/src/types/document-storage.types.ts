@@ -499,7 +499,7 @@ export class PermissionDeniedError extends DocumentError {
 
 export class DuplicateDocumentError extends DocumentError {
   constructor(fileName: string) {
-    super(`Duplicate document: ${fileName}`, `DUPLICATE_DOCUMENT', 409)
+    super(`Duplicate document: ${fileName}`, 'DUPLICATE_DOCUMENT', 409)
   }
 }
 

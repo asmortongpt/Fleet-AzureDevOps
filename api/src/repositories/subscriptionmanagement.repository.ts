@@ -1,17 +1,4 @@
 import { BaseRepository } from './BaseRepository';
-
-To create a TypeScript repository named `SubscriptionManagementRepository` for the `api/src/routes/subscription-management.routes.ts` file, we'll implement parameterized queries, include a `tenant_id` field, and provide CRUD operations. Let's break this down step-by-step:
-
-1. **Define the interface for Subscription**
-2. **Create the SubscriptionManagementRepository class**
-3. **Implement CRUD operations with parameterized queries**
-4. **Include tenant_id in all operations**
-
-Here's the implementation:
-
-
-// api/src/repositories/SubscriptionManagementRepository.ts
-
 import { Pool, QueryResult } from 'pg';
 
 // Define the Subscription interface
@@ -51,7 +38,7 @@ class SubscriptionManagementRepository {
       subscription.status
     ];
 
-    const result: QueryResult<Subscription> = await this.query(query, values);
+    const result: QueryResult<Subscription> = await this.pool.query(query, values);
     return result.rows[0];
   }
 
@@ -63,7 +50,7 @@ class SubscriptionManagementRepository {
     `;
     const values = [id, tenant_id];
 
-    const result: QueryResult<Subscription> = await this.query(query, values);
+    const result: QueryResult<Subscription> = await this.pool.query(query, values);
     return result.rows[0] || null;
   }
 
@@ -78,7 +65,7 @@ class SubscriptionManagementRepository {
     `;
     const values = [id, tenant_id, ...Object.values(updates)];
 
-    const result: QueryResult<Subscription> = await this.query(query, values);
+    const result: QueryResult<Subscription> = await this.pool.query(query, values);
     return result.rows[0] || null;
   }
 
@@ -91,8 +78,8 @@ class SubscriptionManagementRepository {
     `;
     const values = [id, tenant_id];
 
-    const result: QueryResult<{ id: number }> = await this.query(query, values);
-    return result.rowCount > 0;
+    const result: QueryResult<{ id: number }> = await this.pool.query(query, values);
+    return result.rowCount ? result.rowCount > 0 : false;
   }
 
   // List subscriptions for a tenant
@@ -104,47 +91,9 @@ class SubscriptionManagementRepository {
     `;
     const values = [tenant_id, limit, offset];
 
-    const result: QueryResult<Subscription> = await this.query(query, values);
+    const result: QueryResult<Subscription> = await this.pool.query(query, values);
     return result.rows;
   }
 }
 
 export default SubscriptionManagementRepository;
-
-
-This implementation includes:
-
-1. **Parameterized queries**: All SQL queries use parameterized statements to prevent SQL injection.
-2. **Tenant_id**: The `tenant_id` field is included in all operations to ensure multi-tenant support.
-3. **CRUD operations**: Create, Read, Update, and Delete operations are implemented.
-4. **List operation**: An additional method to list subscriptions for a tenant is included.
-
-To use this repository in your `subscription-management.routes.ts` file, you would typically do something like this:
-
-
-// api/src/routes/subscription-management.routes.ts
-
-import express from 'express';
-import SubscriptionManagementRepository from '../repositories/SubscriptionManagementRepository';
-import { Pool } from 'pg';
-
-const router = express.Router();
-const pool = new Pool(/* your database configuration */);
-const subscriptionRepository = new SubscriptionManagementRepository(pool);
-
-// Example route for creating a subscription
-router.post('/', async (req, res) => {
-  try {
-    const newSubscription = await subscriptionRepository.createSubscription(req.body);
-    res.status(201).json(newSubscription);
-  } catch (error) {
-    res.status(500).json({ error: 'Failed to create subscription' });
-  }
-});
-
-// Add more routes for other CRUD operations...
-
-export default router;
-
-
-This setup provides a solid foundation for managing subscriptions in a multi-tenant environment with proper security measures like parameterized queries.
