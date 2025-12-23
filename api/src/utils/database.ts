@@ -3,7 +3,7 @@
 
 import { Pool, QueryResult as PgQueryResult, PoolClient } from 'pg';
 import pool from '../config/database';
-import { QueryResult, SqlValue, SqlParams } from '../types';
+import { QueryResult, SqlValue, SqlParams } from '../types/database';
 import { monitoredQuery } from './query-monitor';
 
 /**
@@ -163,7 +163,7 @@ export function buildWhereClause(
   }
 
   return {
-    where: conditions.length > 0 ? `WHERE ${conditions.join(' AND ')}' : '',
+    where: conditions.length > 0 ? `WHERE ${conditions.join(' AND ')}` : '',
     values
   };
 }

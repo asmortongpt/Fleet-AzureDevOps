@@ -36,7 +36,6 @@ function scheduleMaterializedViewRefresh() {
     logger.info('Starting daily refresh of materialized views');
     await refreshMaterializedViews();
   }, {
-    scheduled: true,
     timezone: "UTC"
   });
 

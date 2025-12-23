@@ -1,8 +1,4 @@
 /**
-import { container } from '../container'
-import { asyncHandler } from '../middleware/errorHandler'
-import { NotFoundError, ValidationError } from '../errors/app-error'
-import logger from '../config/logger'; // Wave 22: Add Winston logger
  * Document Management Routes
  * Comprehensive document lifecycle and RAG-powered search
  *
@@ -26,7 +22,8 @@ import documentManagementService from '../services/document-management.service'
 import documentRAGService from '../services/document-rag.service'
 import { getErrorMessage } from '../utils/error-handler'
 import { csrfProtection } from '../middleware/csrf'
-
+import { ValidationError, NotFoundError } from '../errors/app-error'
+import logger from '../config/logger';
 
 const router = Router()
 
@@ -48,13 +45,13 @@ const upload = multer({
       'image/png',
       'image/gif',
       'application/vnd.ms-excel', // XLS
-      `application/vnd.openxmlformats-officedocument.spreadsheetml.sheet` // XLSX
+      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' // XLSX
     ]
 
-    if (allowedTypes.includes(file.mimetype) {
+    if (allowedTypes.includes(file.mimetype)) {
       cb(null, true)
     } else {
-      cb(new Error(`File type ${file.mimetype} not allowed`)
+      cb(new Error(`File type ${file.mimetype} not allowed`))
     }
   }
 })
@@ -88,48 +85,48 @@ router.use(authenticateJWT)
  *               isPublic:
  *                 type: boolean
  */
-router.post(`/upload`,
+router.post('/upload',
   csrfProtection, requirePermission('document:create:fleet'),
   auditLog({ action: 'UPLOAD', resourceType: 'documents' }),
   upload.single('file'),
   async (req: AuthRequest, res) => {
-  try {
-    if (!req.file) {
-      throw new ValidationError("No file uploaded")
+    try {
+      if (!req.file) {
+        throw new ValidationError("No file uploaded")
+      }
+
+      const tenantId = req.user?.tenant_id
+      const userId = req.user?.id
+
+      if (!tenantId || !userId) {
+        return res.status(401).json({ error: 'Unauthorized' })
+      }
+
+      const { categoryId, tags, description, isPublic, metadata } = req.body
+
+      const document = await documentManagementService.uploadDocument({
+        tenantId,
+        userId,
+        file: req.file,
+        categoryId,
+        tags: tags ? (Array.isArray(tags) ? tags : JSON.parse(tags)) : undefined,
+        description,
+        isPublic: isPublic === 'true' || isPublic === true,
+        metadata: metadata ? JSON.parse(metadata) : undefined
+      })
+
+      res.status(201).json({
+        document,
+        message: 'Document uploaded successfully'
+      })
+    } catch (error: any) {
+      logger.error('Error uploading document:', error)
+      res.status(500).json({
+        error: 'Failed to upload document',
+        details: getErrorMessage(error)
+      })
     }
-
-    const tenantId = req.user?.tenant_id
-    const userId = req.user?.id
-
-    if (!tenantId || !userId) {
-      return res.status(401).json({ error: 'Unauthorized' })
-    }
-
-    const { categoryId, tags, description, isPublic, metadata } = req.body
-
-    const document = await documentManagementService.uploadDocument({
-      tenantId,
-      userId,
-      file: req.file,
-      categoryId,
-      tags: tags ? (Array.isArray(tags) ? tags : JSON.parse(tags) : undefined,
-      description,
-      isPublic: isPublic === 'true' || isPublic === true,
-      metadata: metadata ? JSON.parse(metadata) : undefined
-    })
-
-    res.status(201).json({
-      document,
-      message: 'Document uploaded successfully'
-    })
-  } catch (error: any) {
-    logger.error('Error uploading document:', error) // Wave 22: Winston logger
-    res.status(500).json({
-      error: 'Failed to upload document',
-      details: getErrorMessage(error)
-    })
-  }
-})
+  })
 
 /**
  * @openapi
@@ -162,30 +159,30 @@ router.post(`/upload`,
 router.get('/',
   requirePermission('document:view:fleet'),
   async (req: AuthRequest, res) => {
-  try {
-    const tenantId = req.user?.tenant_id
+    try {
+      const tenantId = req.user?.tenant_id
 
-    if (!tenantId) {
-      return res.status(401).json({ error: 'Unauthorized' })
+      if (!tenantId) {
+        return res.status(401).json({ error: 'Unauthorized' })
+      }
+
+      const { categoryId, search, status, uploadedBy, limit, offset } = req.query
+
+      const result = await documentManagementService.getDocuments(tenantId, {
+        categoryId: categoryId as string,
+        search: search as string,
+        status: status as string,
+        uploadedBy: uploadedBy as string,
+        limit: limit ? parseInt(limit as string) : 50,
+        offset: offset ? parseInt(offset as string) : 0
+      })
+
+      res.json(result)
+    } catch (error) {
+      logger.error('Error fetching documents:', error)
+      res.status(500).json({ error: 'Failed to fetch documents' })
     }
-
-    const { categoryId, search, status, uploadedBy, limit, offset } = req.query
-
-    const result = await documentManagementService.getDocuments(tenantId, {
-      categoryId: categoryId as string,
-      search: search as string,
-      status: status as string,
-      uploadedBy: uploadedBy as string,
-      limit: limit ? parseInt(limit as string) : 50,
-      offset: offset ? parseInt(offset as string) : 0
-    })
-
-    res.json(result)
-  } catch (error) {
-    logger.error('Error fetching documents:', error) // Wave 22: Winston logger
-    res.status(500).json({ error: 'Failed to fetch documents' })
-  }
-})
+  })
 
 /**
  * @openapi
@@ -198,27 +195,27 @@ router.get('/:id',
   requirePermission('document:view:own'),
   auditLog({ action: 'READ', resourceType: 'documents' }),
   async (req: AuthRequest, res) => {
-  try {
-    const { id } = req.params
-    const tenantId = req.user?.tenant_id
-    const userId = req.user?.id
+    try {
+      const { id } = req.params
+      const tenantId = req.user?.tenant_id
+      const userId = req.user?.id
 
-    if (!tenantId || !userId) {
-      return res.status(401).json({ error: 'Unauthorized' })
+      if (!tenantId || !userId) {
+        return res.status(401).json({ error: 'Unauthorized' })
+      }
+
+      const document = await documentManagementService.getDocumentById(id, tenantId, userId)
+
+      if (!document) {
+        throw new NotFoundError("Document not found")
+      }
+
+      res.json({ document })
+    } catch (error) {
+      logger.error('Error fetching document:', error)
+      res.status(500).json({ error: 'Failed to fetch document' })
     }
-
-    const document = await documentManagementService.getDocumentById(id, tenantId, userId)
-
-    if (!document) {
-      throw new NotFoundError("Document not found")
-    }
-
-    res.json({ document })
-  } catch (error) {
-    logger.error('Error fetching document:', error) // Wave 22: Winston logger
-    res.status(500).json({ error: 'Failed to fetch document' })
-  }
-})
+  })
 
 /**
  * @openapi
@@ -228,37 +225,37 @@ router.get('/:id',
  *     tags: [Documents]
  */
 router.put('/:id',
- csrfProtection,  csrfProtection, requirePermission('document:update:own'),
+  csrfProtection, requirePermission('document:update:own'),
   auditLog({ action: 'UPDATE', resourceType: 'documents' }),
   async (req: AuthRequest, res) => {
-  try {
-    const { id } = req.params
-    const tenantId = req.user?.tenant_id
-    const userId = req.user?.id
+    try {
+      const { id } = req.params
+      const tenantId = req.user?.tenant_id
+      const userId = req.user?.id
 
-    if (!tenantId || !userId) {
-      return res.status(401).json({ error: 'Unauthorized' })
+      if (!tenantId || !userId) {
+        return res.status(401).json({ error: 'Unauthorized' })
+      }
+
+      const document = await documentManagementService.updateDocument(
+        id,
+        tenantId,
+        userId,
+        req.body
+      )
+
+      res.json({
+        document,
+        message: 'Document updated successfully'
+      })
+    } catch (error: any) {
+      logger.error('Error updating document:', error)
+      res.status(500).json({
+        error: 'Failed to update document',
+        details: getErrorMessage(error)
+      })
     }
-
-    const document = await documentManagementService.updateDocument(
-      id,
-      tenantId,
-      userId,
-      req.body
-    )
-
-    res.json({
-      document,
-      message: 'Document updated successfully'
-    })
-  } catch (error: any) {
-    logger.error('Error updating document:', error) // Wave 22: Winston logger
-    res.status(500).json({
-      error: 'Failed to update document',
-      details: getErrorMessage(error)
-    })
-  }
-})
+  })
 
 /**
  * @openapi
@@ -268,29 +265,29 @@ router.put('/:id',
  *     tags: [Documents]
  */
 router.delete('/:id',
- csrfProtection,  csrfProtection, requirePermission('document:delete:fleet'),
+  csrfProtection, requirePermission('document:delete:fleet'),
   auditLog({ action: 'DELETE', resourceType: 'documents' }),
   async (req: AuthRequest, res) => {
-  try {
-    const { id } = req.params
-    const tenantId = req.user?.tenant_id
-    const userId = req.user?.id
+    try {
+      const { id } = req.params
+      const tenantId = req.user?.tenant_id
+      const userId = req.user?.id
 
-    if (!tenantId || !userId) {
-      return res.status(401).json({ error: 'Unauthorized' })
+      if (!tenantId || !userId) {
+        return res.status(401).json({ error: 'Unauthorized' })
+      }
+
+      await documentManagementService.deleteDocument(id, tenantId, userId)
+
+      res.json({ message: 'Document deleted successfully' })
+    } catch (error: any) {
+      logger.error('Error deleting document:', error)
+      res.status(500).json({
+        error: 'Failed to delete document',
+        details: getErrorMessage(error)
+      })
     }
-
-    await documentManagementService.deleteDocument(id, tenantId, userId)
-
-    res.json({ message: 'Document deleted successfully' })
-  } catch (error: any) {
-    logger.error('Error deleting document:', error) // Wave 22: Winston logger
-    res.status(500).json({
-      error: 'Failed to delete document',
-      details: getErrorMessage(error)
-    })
-  }
-})
+  })
 
 /**
  * @openapi
@@ -303,33 +300,33 @@ router.get('/:id/download',
   requirePermission('document:view:own'),
   auditLog({ action: 'DOWNLOAD', resourceType: 'documents' }),
   async (req: AuthRequest, res) => {
-  try {
-    const { id } = req.params
-    const tenantId = req.user?.tenant_id
-    const userId = req.user?.id
+    try {
+      const { id } = req.params
+      const tenantId = req.user?.tenant_id
+      const userId = req.user?.id
 
-    if (!tenantId || !userId) {
-      return res.status(401).json({ error: 'Unauthorized' })
+      if (!tenantId || !userId) {
+        return res.status(401).json({ error: 'Unauthorized' })
+      }
+
+      const document = await documentManagementService.getDocumentById(id, tenantId, userId)
+
+      if (!document) {
+        throw new NotFoundError("Document not found")
+      }
+
+      // In production, this would serve from S3 or local storage
+      // For now, return the file URL
+      res.json({
+        download_url: document.file_url,
+        file_name: document.file_name,
+        message: 'Use the download_url to access the file'
+      })
+    } catch (error) {
+      logger.error('Error downloading document:', error)
+      res.status(500).json({ error: 'Failed to download document' })
     }
-
-    const document = await documentManagementService.getDocumentById(id, tenantId, userId)
-
-    if (!document) {
-      throw new NotFoundError("Document not found")
-    }
-
-    // In production, this would serve from S3 or local storage
-    // For now, return the file URL
-    res.json({
-      download_url: document.file_url,
-      file_name: document.file_name,
-      message: 'Use the download_url to access the file'
-    })
-  } catch (error) {
-    logger.error('Error downloading document:', error) // Wave 22: Winston logger
-    res.status(500).json({ error: 'Failed to download document' })
-  }
-})
+  })
 
 /**
  * @openapi
@@ -341,21 +338,21 @@ router.get('/:id/download',
 router.get('/categories/all',
   requirePermission('document:view:fleet'),
   async (req: AuthRequest, res) => {
-  try {
-    const tenantId = req.user?.tenant_id
+    try {
+      const tenantId = req.user?.tenant_id
 
-    if (!tenantId) {
-      return res.status(401).json({ error: 'Unauthorized' })
+      if (!tenantId) {
+        return res.status(401).json({ error: 'Unauthorized' })
+      }
+
+      const categories = await documentManagementService.getCategories(tenantId)
+
+      res.json({ categories })
+    } catch (error) {
+      logger.error('Error fetching categories:', error)
+      res.status(500).json({ error: 'Failed to fetch categories' })
     }
-
-    const categories = await documentManagementService.getCategories(tenantId)
-
-    res.json({ categories })
-  } catch (error) {
-    logger.error('Error fetching categories:', error) // Wave 22: Winston logger
-    res.status(500).json({ error: 'Failed to fetch categories' })
-  }
-})
+  })
 
 /**
  * @openapi
@@ -365,30 +362,30 @@ router.get('/categories/all',
  *     tags: [Documents]
  */
 router.post('/categories',
- csrfProtection,  csrfProtection, requirePermission('document:manage:global'),
+  csrfProtection, requirePermission('document:manage:global'),
   auditLog({ action: 'CREATE_CATEGORY', resourceType: 'document_categories' }),
   async (req: AuthRequest, res) => {
-  try {
-    const tenantId = req.user?.tenant_id
+    try {
+      const tenantId = req.user?.tenant_id
 
-    if (!tenantId) {
-      return res.status(401).json({ error: 'Unauthorized' })
+      if (!tenantId) {
+        return res.status(401).json({ error: 'Unauthorized' })
+      }
+
+      const category = await documentManagementService.createCategory(tenantId, req.body)
+
+      res.status(201).json({
+        category,
+        message: 'Category created successfully'
+      })
+    } catch (error: any) {
+      logger.error('Error creating category:', error)
+      res.status(500).json({
+        error: 'Failed to create category',
+        details: getErrorMessage(error)
+      })
     }
-
-    const category = await documentManagementService.createCategory(tenantId, req.body)
-
-    res.status(201).json({
-      category,
-      message: 'Category created successfully'
-    })
-  } catch (error: any) {
-    logger.error('Error creating category:', error) // Wave 22: Winston logger
-    res.status(500).json({
-      error: 'Failed to create category',
-      details: getErrorMessage(error)
-    })
-  }
-})
+  })
 
 /**
  * @openapi
@@ -410,37 +407,37 @@ router.post('/categories',
  *                 type: integer
  */
 router.post('/search',
- csrfProtection,  csrfProtection, requirePermission('document:view:fleet'),
+  csrfProtection, requirePermission('document:view:fleet'),
   async (req: AuthRequest, res) => {
-  try {
-    const tenantId = req.user?.tenant_id
+    try {
+      const tenantId = req.user?.tenant_id
 
-    if (!tenantId) {
-      return res.status(401).json({ error: 'Unauthorized' })
+      if (!tenantId) {
+        return res.status(401).json({ error: 'Unauthorized' })
+      }
+
+      const { query, categoryId, documentIds, limit, minScore } = req.body
+
+      if (!query) {
+        throw new ValidationError("Query is required")
+      }
+
+      const results = await documentRAGService.semanticSearch(tenantId, query, {
+        categoryId,
+        documentIds,
+        limit: limit || 10,
+        minScore: minScore || 0.7
+      })
+
+      res.json({ results, total: results.length })
+    } catch (error: any) {
+      logger.error('Error performing semantic search:', error)
+      res.status(500).json({
+        error: 'Failed to perform search',
+        details: getErrorMessage(error)
+      })
     }
-
-    const { query, categoryId, documentIds, limit, minScore } = req.body
-
-    if (!query) {
-      throw new ValidationError("Query is required")
-    }
-
-    const results = await documentRAGService.semanticSearch(tenantId, query, {
-      categoryId,
-      documentIds,
-      limit: limit || 10,
-      minScore: minScore || 0.7
-    })
-
-    res.json({ results, total: results.length })
-  } catch (error: any) {
-    logger.error('Error performing semantic search:', error) // Wave 22: Winston logger
-    res.status(500).json({
-      error: 'Failed to perform search',
-      details: getErrorMessage(error)
-    })
-  }
-})
+  })
 
 /**
  * @openapi
@@ -464,38 +461,38 @@ router.post('/search',
  *                   type: string
  */
 router.post('/ask',
- csrfProtection,  csrfProtection, requirePermission('document:view:fleet'),
+  csrfProtection, requirePermission('document:view:fleet'),
   auditLog({ action: 'RAG_QUERY', resourceType: 'documents' }),
   async (req: AuthRequest, res) => {
-  try {
-    const tenantId = req.user?.tenant_id
-    const userId = req.user?.id
+    try {
+      const tenantId = req.user?.tenant_id
+      const userId = req.user?.id
 
-    if (!tenantId || !userId) {
-      return res.status(401).json({ error: 'Unauthorized' })
+      if (!tenantId || !userId) {
+        return res.status(401).json({ error: 'Unauthorized' })
+      }
+
+      const { question, categoryId, documentIds, maxSources } = req.body
+
+      if (!question) {
+        throw new ValidationError("Question is required")
+      }
+
+      const result = await documentRAGService.askQuestion(tenantId, userId, question, {
+        categoryId,
+        documentIds,
+        maxSources: maxSources || 5
+      })
+
+      res.json(result)
+    } catch (error: any) {
+      logger.error('Error answering question:', error)
+      res.status(500).json({
+        error: 'Failed to answer question',
+        details: getErrorMessage(error)
+      })
     }
-
-    const { question, categoryId, documentIds, maxSources } = req.body
-
-    if (!question) {
-      throw new ValidationError("Question is required")
-    }
-
-    const result = await documentRAGService.askQuestion(tenantId, userId, question, {
-      categoryId,
-      documentIds,
-      maxSources: maxSources || 5
-    })
-
-    res.json(result)
-  } catch (error: any) {
-    logger.error('Error answering question:', error) // Wave 22: Winston logger
-    res.status(500).json({
-      error: 'Failed to answer question',
-      details: getErrorMessage(error)
-    })
-  }
-})
+  })
 
 /**
  * @openapi
@@ -507,26 +504,26 @@ router.post('/ask',
 router.get('/queries/history',
   requirePermission('document:view:fleet'),
   async (req: AuthRequest, res) => {
-  try {
-    const tenantId = req.user?.tenant_id
+    try {
+      const tenantId = req.user?.tenant_id
 
-    if (!tenantId) {
-      return res.status(401).json({ error: 'Unauthorized' })
+      if (!tenantId) {
+        return res.status(401).json({ error: 'Unauthorized' })
+      }
+
+      const { userId, limit } = req.query
+
+      const history = await documentRAGService.getQueryHistory(tenantId, {
+        userId: userId as string,
+        limit: limit ? parseInt(limit as string) : 50
+      })
+
+      res.json({ queries: history })
+    } catch (error) {
+      logger.error('Error fetching query history:', error)
+      res.status(500).json({ error: 'Failed to fetch query history' })
     }
-
-    const { userId, limit } = req.query
-
-    const history = await documentRAGService.getQueryHistory(tenantId, {
-      userId: userId as string,
-      limit: limit ? parseInt(limit as string) : 50
-    })
-
-    res.json({ queries: history })
-  } catch (error) {
-    logger.error('Error fetching query history:', error) // Wave 22: Winston logger
-    res.status(500).json({ error: 'Failed to fetch query history' })
-  }
-})
+  })
 
 /**
  * @openapi
@@ -536,27 +533,27 @@ router.get('/queries/history',
  *     tags: [Documents]
  */
 router.post('/queries/:id/feedback',
- csrfProtection,  csrfProtection, requirePermission('document:view:fleet'),
+  csrfProtection, requirePermission('document:view:fleet'),
   async (req: AuthRequest, res) => {
-  try {
-    const { id } = req.params
-    const { rating, comment } = req.body
+    try {
+      const { id } = req.params
+      const { rating, comment } = req.body
 
-    if (!rating || rating < 1 || rating > 5) {
-      throw new ValidationError("Rating must be between 1 and 5")
+      if (!rating || rating < 1 || rating > 5) {
+        throw new ValidationError("Rating must be between 1 and 5")
+      }
+
+      await documentRAGService.provideFeedback(id, rating, comment)
+
+      res.json({ message: 'Feedback submitted successfully' })
+    } catch (error: any) {
+      logger.error('Error submitting feedback:', error)
+      res.status(500).json({
+        error: 'Failed to submit feedback',
+        details: getErrorMessage(error)
+      })
     }
-
-    await documentRAGService.provideFeedback(id, rating, comment)
-
-    res.json({ message: 'Feedback submitted successfully' })
-  } catch (error: any) {
-    logger.error('Error submitting feedback:', error) // Wave 22: Winston logger
-    res.status(500).json({
-      error: 'Failed to submit feedback',
-      details: getErrorMessage(error)
-    })
-  }
-})
+  })
 
 /**
  * @openapi
@@ -568,22 +565,22 @@ router.post('/queries/:id/feedback',
 router.get('/:id/access-log',
   requirePermission('document:manage:global'),
   async (req: AuthRequest, res) => {
-  try {
-    const { id } = req.params
-    const tenantId = req.user?.tenant_id
+    try {
+      const { id } = req.params
+      const tenantId = req.user?.tenant_id
 
-    if (!tenantId) {
-      return res.status(401).json({ error: 'Unauthorized' })
+      if (!tenantId) {
+        return res.status(401).json({ error: 'Unauthorized' })
+      }
+
+      const accessLog = await documentManagementService.getAccessLog(id, tenantId)
+
+      res.json({ access_log: accessLog })
+    } catch (error) {
+      logger.error('Error fetching access log:', error)
+      res.status(500).json({ error: 'Failed to fetch access log' })
     }
-
-    const accessLog = await documentManagementService.getAccessLog(id, tenantId)
-
-    res.json({ access_log: accessLog })
-  } catch (error) {
-    logger.error('Error fetching access log:', error) // Wave 22: Winston logger
-    res.status(500).json({ error: 'Failed to fetch access log' })
-  }
-})
+  })
 
 /**
  * @openapi
@@ -595,26 +592,26 @@ router.get('/:id/access-log',
 router.get('/analytics/stats',
   requirePermission('document:manage:global'),
   async (req: AuthRequest, res) => {
-  try {
-    const tenantId = req.user?.tenant_id
+    try {
+      const tenantId = req.user?.tenant_id
 
-    if (!tenantId) {
-      return res.status(401).json({ error: 'Unauthorized' })
+      if (!tenantId) {
+        return res.status(401).json({ error: 'Unauthorized' })
+      }
+
+      const [docStats, ragStats] = await Promise.all([
+        documentManagementService.getStatistics(tenantId),
+        documentRAGService.getAnalytics(tenantId)
+      ])
+
+      res.json({
+        documents: docStats,
+        rag: ragStats
+      })
+    } catch (error) {
+      logger.error('Error fetching analytics:', error)
+      res.status(500).json({ error: 'Failed to fetch analytics' })
     }
-
-    const [docStats, ragStats] = await Promise.all([
-      documentManagementService.getStatistics(tenantId),
-      documentRAGService.getAnalytics(tenantId)
-    ])
-
-    res.json({
-      documents: docStats,
-      rag: ragStats
-    })
-  } catch (error) {
-    logger.error('Error fetching analytics:', error) // Wave 22: Winston logger
-    res.status(500).json({ error: 'Failed to fetch analytics' })
-  }
-})
+  })
 
 export default router

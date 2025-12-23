@@ -9,7 +9,7 @@
 
 import { Pool, PoolClient } from 'pg'
 import { GenericRepository } from '../base'
-import { DatabaseError } from "../../errors/AppError"'
+import { DatabaseError } from "../../errors/AppError"
 
 export interface TelemetryData {
   id?: string | number

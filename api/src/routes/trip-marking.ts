@@ -8,9 +8,9 @@ import { auditLog } from '../middleware/audit'
 import { z } from 'zod'
 import { getErrorMessage } from '../utils/error-handler'
 import { csrfProtection } from '../middleware/csrf'
+import { pool } from '../config/database';
 
 import {
-import { pool } from '../db/connection';
   UsageType,
   ApprovalStatus,
   calculateMileageBreakdown,
@@ -47,7 +47,7 @@ const splitTripSchema = z.object({
  */
 router.post(
   '/:id/mark',
- csrfProtection,  csrfProtection, auditLog({ action: 'UPDATE', resourceType: 'trips' }),
+  csrfProtection, auditLog({ action: 'UPDATE', resourceType: 'trips' }),
   async (req: AuthRequest, res: Response) => {
     try {
       const tripId = req.params.id
@@ -83,7 +83,7 @@ router.post(
       if (tripResult.rows.length === 0) {
         return res.status(404).json({
           success: false,
-          error: `Trip not found`
+          error: 'Trip not found'
         })
       }
 
@@ -239,8 +239,8 @@ router.post(
           estimated_charge
         },
         message: approval_status === ApprovalStatus.AUTO_APPROVED
-                  ? 'Trip marked and auto-approved'
-                  : 'Trip marked - pending approval'
+          ? 'Trip marked and auto-approved'
+          : 'Trip marked - pending approval'
       })
     } catch (error: any) {
       logger.error('Mark trip error:', error) // Wave 19: Winston logger
@@ -259,7 +259,7 @@ router.post(
  */
 router.post(
   '/start-personal',
- csrfProtection,  csrfProtection, auditLog({ action: 'CREATE', resourceType: 'trips' }),
+  csrfProtection, auditLog({ action: 'CREATE', resourceType: 'trips' }),
   async (req: AuthRequest, res: Response) => {
     try {
       const validation = startPersonalTripSchema.safeParse(req.body)
@@ -283,7 +283,7 @@ router.post(
       if (vehicleResult.rows.length === 0) {
         return res.status(404).json({
           success: false,
-          error: `Vehicle not found`
+          error: 'Vehicle not found'
         })
       }
 
@@ -316,10 +316,10 @@ router.post(
       res.status(201).json({
         success: true,
         data: result.rows[0],
-        message: `Personal trip started`
+        message: 'Personal trip started'
       })
     } catch (error: any) {
-      logger.error(`Start personal trip error:`, error) // Wave 19: Winston logger
+      logger.error('Start personal trip error:', error) // Wave 19: Winston logger
       res.status(500).json({
         success: false,
         error: 'Failed to start personal trip',
@@ -335,7 +335,7 @@ router.post(
  */
 router.patch(
   '/:id/split',
- csrfProtection,  csrfProtection, auditLog({ action: 'UPDATE', resourceType: 'trips' }),
+  csrfProtection, auditLog({ action: 'UPDATE', resourceType: 'trips' }),
   async (req: AuthRequest, res: Response) => {
     try {
       const tripId = req.params.id
@@ -363,7 +363,7 @@ router.patch(
       if (tripResult.rows.length === 0) {
         return res.status(404).json({
           success: false,
-          error: `Trip not found`
+          error: 'Trip not found'
         })
       }
 
@@ -448,10 +448,10 @@ router.patch(
           ...result.rows[0],
           estimated_charge
         },
-        message: `Trip split successfully`
+        message: 'Trip split successfully'
       })
     } catch (error: any) {
-      logger.error(`Split trip error:`, error) // Wave 19: Winston logger
+      logger.error('Split trip error:', error) // Wave 19: Winston logger
       res.status(500).json({
         success: false,
         error: 'Failed to split trip',
@@ -498,8 +498,8 @@ router.get('/my-personal', async (req: AuthRequest, res: Response) => {
     }
 
     query += ` ORDER BY t.trip_date DESC LIMIT $${paramIndex} OFFSET $${paramIndex + 1}`
-    params.push(parseInt(limit as string)
-    params.push(parseInt(offset as string)
+    params.push(parseInt(limit as string))
+    params.push(parseInt(offset as string))
 
     const result = await pool.query(query, params)
 
@@ -518,7 +518,7 @@ router.get('/my-personal', async (req: AuthRequest, res: Response) => {
       `SELECT COUNT(*)
        FROM trip_usage_classification
        WHERE driver_id = $1 AND tenant_id = $2
-         AND (usage_type = 'personal' OR usage_type = 'mixed')',
+         AND (usage_type = 'personal' OR usage_type = 'mixed')`,
       [req.user!.id, req.user!.tenant_id]
     )
 
@@ -567,7 +567,7 @@ router.get('/:id/usage', async (req: AuthRequest, res: Response) => {
     if (result.rows.length === 0) {
       return res.status(404).json({
         success: false,
-        error: `Trip usage classification not found`
+        error: 'Trip usage classification not found'
       })
     }
 
@@ -605,7 +605,7 @@ router.get('/:id/usage', async (req: AuthRequest, res: Response) => {
       }
     })
   } catch (error: any) {
-    logger.error(`Get trip usage error:`, error) // Wave 19: Winston logger
+    logger.error('Get trip usage error:', error) // Wave 19: Winston logger
     res.status(500).json({
       success: false,
       error: 'Failed to retrieve trip usage',

@@ -11,7 +11,7 @@
  */
 
 import { queueService } from './queue.service';
-import ocrService, { OcrOptions, OcrProvider, OcrResult } from './OcrService';
+import { OcrService, OcrOptions, OcrProvider, OcrResult } from './OcrService';
 import { Pool } from 'pg';
 import { JobPriority, QueueName } from '../types/queue.types';
 
@@ -72,8 +72,11 @@ export interface BatchOcrJob {
 
 export class OcrQueueService {
   private isInitialized = false;
+  private ocrService: OcrService;
 
-  constructor(private db: Pool) {}
+  constructor(private db: Pool) {
+    this.ocrService = new OcrService(db);
+  }
 
   /**
    * Initialize OCR queue processing
@@ -260,7 +263,7 @@ export class OcrQueueService {
       await this.updateJobStatus(jobId, OcrJobStatus.PROCESSING, 0);
 
       // Process document with OCR
-      const result = await ocrService.processDocument(filePath, documentId, options);
+      const result = await this.ocrService.processDocument(filePath, documentId, options);
 
       // Update job as completed
       await this.updateJobStatus(jobId, OcrJobStatus.COMPLETED, 100, result);
@@ -325,7 +328,7 @@ export class OcrQueueService {
       const batch = documents.slice(i, i + concurrency);
       const batchResults = await Promise.allSettled(
         batch.map(doc =>
-          ocrService.processDocument(doc.filePath, doc.documentId, options)
+          this.ocrService.processDocument(doc.filePath, doc.documentId, options)
         )
       );
 

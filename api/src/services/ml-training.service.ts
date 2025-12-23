@@ -42,7 +42,7 @@ class MLTrainingService {
 
   constructor(
     private db: Pool,
-    private logger: typeof logger
+    private logger: any
   ) {
     this.startScheduledTraining()
   }

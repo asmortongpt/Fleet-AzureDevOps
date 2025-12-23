@@ -99,7 +99,7 @@ async function runOutlookSync(): Promise<void> {
     const jobRecordResult = await pool.query(
       `INSERT INTO sync_jobs (job_type, status, started_at)
        VALUES ('outlook_sync', 'running', NOW())
-       RETURNING id',
+       RETURNING id`,
       []
     )
     const jobRecordId = jobRecordResult.rows[0].id
@@ -277,7 +277,7 @@ async function parseReceipts(): Promise<number> {
       FROM outlook_emails
       WHERE (categories @> '["Receipt"]'::jsonb OR categories @> '["Invoice"]'::jsonb)
       AND has_attachments = true
-      AND received_at > NOW() - INTERVAL `1 hour`
+      AND received_at > NOW() - INTERVAL '1 hour'
       AND id NOT IN (
         SELECT email_id FROM parsed_receipts WHERE email_id IS NOT NULL
       )

@@ -56,10 +56,10 @@ export class CameraSyncService {
           await pool.query(
             `UPDATE camera_data_sources
              SET last_sync_at = NOW(),
-                 last_sync_status = `failed`,
+                 last_sync_status = 'failed',
                  last_sync_error = $1,
                  updated_at = NOW()
-             WHERE id = $2',
+             WHERE id = $2`,
             [error.message, source.id]
           )
         }
@@ -81,7 +81,7 @@ export class CameraSyncService {
     let cameras: ExternalCamera[] = []
 
     // Fetch cameras based on source type
-    if (source.source_type === `arcgis`) {
+    if (source.source_type === 'arcgis') {
       cameras = await this.fetchArcGISCameras(source)
     } else {
       throw new Error(`Unsupported source type: ${source.source_type}`)
@@ -108,7 +108,7 @@ export class CameraSyncService {
     await pool.query(
       `UPDATE camera_data_sources
        SET last_sync_at = NOW(),
-           last_sync_status = `success`,
+           last_sync_status = 'success',
            last_sync_error = NULL,
            total_cameras_synced = $1,
            updated_at = NOW()
@@ -129,15 +129,15 @@ export class CameraSyncService {
     try {
       validateURL(url, {
         allowedDomains: [
-          `services.arcgis.com`,
+          'services.arcgis.com',
           'gis.example.com', // Add your trusted ArcGIS server domains here
           'arcgis.com',
           'services1.arcgis.com',
           'services2.arcgis.com',
-          `services3.arcgis.com`,
+          'services3.arcgis.com',
         ]
       })
-    } catch (error) {
+    } catch (error: any) {
       if (error instanceof SSRFError) {
         logger.error(`SSRF Protection blocked request to ${url}`, {
           sourceId: source.id,
@@ -149,7 +149,7 @@ export class CameraSyncService {
     }
 
     const params: Record<string, any> = {
-      where: `1=1`,
+      where: '1=1',
       outFields: '*',
       f: 'json',
       returnGeometry: true,

@@ -33,7 +33,7 @@ class CacheService {
       this.client = createClient({
         url: process.env.REDIS_URL || 'redis://localhost:6379',
         socket: {
-          reconnectStrategy: (retries) => {
+          reconnectStrategy: (retries: number) => {
             if (retries > 10) {
               console.error('Redis connection failed after 10 retries');
               return new Error('Redis connection failed');

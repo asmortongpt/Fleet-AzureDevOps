@@ -2,8 +2,7 @@ import { Router, Request, Response } from 'express';
 import { Pool } from 'pg';
 import ExcelJS from 'exceljs';
 import { PDFDocument, rgb, StandardFonts } from 'pdf-lib'
-import { csrfProtection } from '../middleware/csrf'
-;
+import { csrfProtection } from '../../middleware/csrf'
 
 const router = Router();
 
@@ -99,7 +98,7 @@ router.get('/:entityType/export', async (req: Request, res: Response) => {
 
     const result = await pool.query(exportQuery, exportParams);
 
-    const filename = '${entityType}_export_${new Date().toISOString().split('T')[0]}';
+    const filename = `${entityType}_export_${new Date().toISOString().split('T')[0]}`;
 
     switch (format) {
       case 'csv':
@@ -124,7 +123,7 @@ router.get('/:entityType/export', async (req: Request, res: Response) => {
  * Track drill-through analytics
  * POST /api/drill-through/analytics
  */
-router.post('/analytics',csrfProtection,  csrfProtection, async (req: Request, res: Response) => {
+router.post('/analytics', csrfProtection, async (req: Request, res: Response) => {
   try {
     const { entityType, filters, recordCount, exported, exportFormat } = req.body;
     const userId = (req as any).user?.id || null;
@@ -165,14 +164,10 @@ function buildDrillThroughQuery(
   Object.entries(filters).forEach(([key, value]) => {
     if (value !== undefined && value !== null) {
       if (Array.isArray(value)) {
-        const limitIndex = params.length + 1
-        const offsetIndex = params.length + 2
-        filterConditions.push(`${key} = ANY(${paramIndex})`);
+        filterConditions.push(`${key} = ANY($${paramIndex})`);
         params.push(value);
       } else {
-        const limitIndex = params.length + 1
-        const offsetIndex = params.length + 2
-        filterConditions.push(`${key} = ${paramIndex}`);
+        filterConditions.push(`${key} = $${paramIndex}`);
         params.push(value);
       }
       paramIndex++;
@@ -180,7 +175,7 @@ function buildDrillThroughQuery(
   });
 
   const whereClause =
-    filterConditions.length > 0 ? 'WHERE ${filterConditions.join(' AND ')}' : '';
+    filterConditions.length > 0 ? `WHERE ${filterConditions.join(' AND ')}` : '';
 
   // Entity-specific queries
   let baseQuery = '';
@@ -293,12 +288,8 @@ function buildDrillThroughQuery(
 
   // Add pagination
   params.push(limit, offset);
-  const limitIndex = params.length + 1
-  const offsetIndex = params.length + 2
-  const limitIndex = params.length + 1
-  const offsetIndex = params.length + 2
-  const query = `${baseQuery} LIMIT ${paramIndex} OFFSET $${paramIndex + 1}`;
-  const countQuery = 'SELECT COUNT(*) FROM (${baseQuery.replace(/ORDER BY .*/, '')}) as count_query';
+  const query = `${baseQuery} LIMIT $${paramIndex} OFFSET $${paramIndex + 1}`;
+  const countQuery = `SELECT COUNT(*) FROM (${baseQuery.replace(/ORDER BY .*/, '')}) as count_query`;
 
   const result: any = {
     query,
@@ -334,7 +325,7 @@ function exportCSV(res: Response, data: any[], filename: string) {
           // Escape quotes and wrap in quotes if contains comma
           const stringValue = value === null ? '' : String(value);
           return stringValue.includes(',')
-            ? '"${stringValue.replace(/"/g, '""')}"'
+            ? `"${stringValue.replace(/"/g, '""')}"`
             : stringValue;
         })
         .join(',')

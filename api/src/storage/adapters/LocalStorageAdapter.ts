@@ -66,8 +66,7 @@ export class LocalStorageAdapter extends BaseStorageAdapter {
       this.initialized = true;
     } catch (error) {
       throw new Error(
-        `Failed to initialize local storage at ${this.storagePath}: ${
-          error instanceof Error ? error.message : 'Unknown error'
+        `Failed to initialize local storage at ${this.storagePath}: ${error instanceof Error ? error.message : 'Unknown error'
         }`
       );
     }
@@ -156,12 +155,12 @@ export class LocalStorageAdapter extends BaseStorageAdapter {
     } catch (error) {
       // Clean up on error
       try {
-        await fs.unlink(filePath).catch(() => {});
-        await fs.unlink(metadataFilePath).catch(() => {});
-      } catch {}
+        await fs.unlink(filePath).catch(() => { });
+        await fs.unlink(metadataFilePath).catch(() => { });
+      } catch { }
 
       throw new Error(
-        `Failed to upload file: ${error instanceof Error ? error.message : `Unknown error'}'
+        `Failed to upload file: ${error instanceof Error ? error.message : 'Unknown error'}`
       );
     }
   }
@@ -233,7 +232,7 @@ export class LocalStorageAdapter extends BaseStorageAdapter {
 
     try {
       await fs.unlink(filePath);
-      await fs.unlink(metadataFilePath).catch(() => {}); // Ignore if metadata doesn't exist
+      await fs.unlink(metadataFilePath).catch(() => { }); // Ignore if metadata doesn't exist
 
       // Clean up empty directories
       await this.cleanupEmptyDirectories(path.dirname(filePath));
@@ -310,7 +309,7 @@ export class LocalStorageAdapter extends BaseStorageAdapter {
       const sourceMetadataPath = this.getMetadataPath(normalizedSource);
       const destMetadataPath = this.getMetadataPath(normalizedDest);
       await fs.mkdir(path.dirname(destMetadataPath), { recursive: true });
-      await fs.copyFile(sourceMetadataPath, destMetadataPath).catch(() => {});
+      await fs.copyFile(sourceMetadataPath, destMetadataPath).catch(() => { });
     }
 
     const stats = await fs.stat(destPath);
@@ -455,7 +454,8 @@ export class LocalStorageAdapter extends BaseStorageAdapter {
         const stats = await fs.stat(fullPath);
         const metadata = await this.getMetadata(relativePath).catch(() => ({
           filename: entry.name,
-          size: stats.size
+          size: stats.size,
+          mimeType: undefined
         }));
 
         files.push({

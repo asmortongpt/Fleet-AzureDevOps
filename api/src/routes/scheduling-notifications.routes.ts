@@ -1,7 +1,4 @@
 /**
-import { container } from '../container'
-import { asyncHandler } from '../middleware/errorHandler'
-import { NotFoundError, ValidationError } from '../errors/app-error'
  * Scheduling Notifications Routes
  * API endpoints for managing scheduling notification preferences
  */
@@ -10,8 +7,7 @@ import express, { Request, Response } from 'express'
 import schedulingNotificationService from '../services/scheduling-notification.service'
 import { logger } from '../utils/logger'
 import { csrfProtection } from '../middleware/csrf'
-import { pool } from '../db/connection';
-
+import { pool } from '../config/database';
 
 const router = express.Router()
 
@@ -71,7 +67,7 @@ router.get('/preferences', async (req: Request, res: Response) => {
       }
     })
   } catch (error) {
-    logger.error(`Error fetching notification preferences`, { error })
+    logger.error('Error fetching notification preferences', { error })
     res.status(500).json({
       success: false,
       error: 'Failed to fetch notification preferences'
@@ -83,7 +79,7 @@ router.get('/preferences', async (req: Request, res: Response) => {
  * PUT /api/scheduling-notifications/preferences
  * Update user's notification preferences
  */
-router.put('/preferences',csrfProtection,  csrfProtection, async (req: Request, res: Response) => {
+router.put('/preferences', csrfProtection, async (req: Request, res: Response) => {
   try {
     const { userId } = req.user as any
     const {
@@ -96,7 +92,7 @@ router.put('/preferences',csrfProtection,  csrfProtection, async (req: Request, 
     } = req.body
 
     // Validate reminder times
-    if (reminderTimes && !Array.isArray(reminderTimes) {
+    if (reminderTimes && !Array.isArray(reminderTimes)) {
       return res.status(400).json({
         success: false,
         error: 'reminderTimes must be an array of numbers'
@@ -116,14 +112,14 @@ router.put('/preferences',csrfProtection,  csrfProtection, async (req: Request, 
 
     // Validate quiet hours format (HH:MM)
     const timeRegex = /^([01]\d|2[0-3]):([0-5]\d)$/
-    if (quietHoursStart && !timeRegex.test(quietHoursStart) {
+    if (quietHoursStart && !timeRegex.test(quietHoursStart)) {
       return res.status(400).json({
         success: false,
         error: 'quietHoursStart must be in HH:MM format'
       })
     }
 
-    if (quietHoursEnd && !timeRegex.test(quietHoursEnd) {
+    if (quietHoursEnd && !timeRegex.test(quietHoursEnd)) {
       return res.status(400).json({
         success: false,
         error: 'quietHoursEnd must be in HH:MM format'
@@ -157,7 +153,7 @@ router.put('/preferences',csrfProtection,  csrfProtection, async (req: Request, 
 
     const prefs = result.rows[0]
 
-    logger.info(`Notification preferences updated`, { userId })
+    logger.info('Notification preferences updated', { userId })
 
     res.json({
       success: true,
@@ -186,12 +182,12 @@ router.put('/preferences',csrfProtection,  csrfProtection, async (req: Request, 
  * POST /api/scheduling-notifications/test
  * Send a test notification to verify settings
  */
-router.post('/test',csrfProtection,  csrfProtection, async (req: Request, res: Response) => {
+router.post('/test', csrfProtection, async (req: Request, res: Response) => {
   try {
     const { userId } = req.user as any
     const { channels } = req.body
 
-    if (!channels || !Array.isArray(channels) {
+    if (!channels || !Array.isArray(channels)) {
       return res.status(400).json({
         success: false,
         error: 'channels must be an array of notification types (email, sms, teams)'
@@ -200,21 +196,21 @@ router.post('/test',csrfProtection,  csrfProtection, async (req: Request, res: R
 
     const validChannels = ['email', 'sms', 'teams']
     for (const channel of channels) {
-      if (!validChannels.includes(channel) {
+      if (!validChannels.includes(channel)) {
         return res.status(400).json({
           success: false,
-          error: `Invalid channel: ${channel}. Must be one of: ${validChannels.join(`, `)}`
+          error: `Invalid channel: ${channel}. Must be one of: ${validChannels.join(', ')}`
         })
       }
     }
 
     await schedulingNotificationService.sendTestNotification(userId, channels)
 
-    logger.info(`Test notification sent`, { userId, channels })
+    logger.info('Test notification sent', { userId, channels })
 
     res.json({
       success: true,
-      message: `Test notifications sent via: ${channels.join(`, `)}`,
+      message: `Test notifications sent via: ${channels.join(', ')}`,
       channels
     })
   } catch (error) {
@@ -244,7 +240,7 @@ router.get('/history', async (req: Request, res: Response) => {
     if (userResult.rows.length === 0) {
       return res.status(404).json({
         success: false,
-        error: `User not found`
+        error: 'User not found'
       })
     }
 
@@ -332,14 +328,14 @@ router.get('/stats', async (req: Request, res: Response) => {
  * POST /api/scheduling-notifications/resend/:id
  * Resend a notification (admin only)
  */
-router.post('/resend/:id',csrfProtection,  csrfProtection, async (req: Request, res: Response) => {
+router.post('/resend/:id', csrfProtection, async (req: Request, res: Response) => {
   try {
     const { userId, role } = req.user as any
     const { id } = req.params
     const { type } = req.body // 'reservation' or 'maintenance'
 
     // Check if user is admin or manager
-    if (!['admin', 'fleet_manager'].includes(role) {
+    if (!['admin', 'fleet_manager'].includes(role)) {
       return res.status(403).json({
         success: false,
         error: 'Insufficient permissions. Admin or Fleet Manager role required.'
@@ -349,7 +345,7 @@ router.post('/resend/:id',csrfProtection,  csrfProtection, async (req: Request, 
     if (type === 'reservation') {
       const result = await pool.query(
         `SELECT vr.*, v.make, v.model, v.license_plate, v.vin,
-                u.first_name || ` ` || u.last_name as reserved_by_name,
+                u.first_name || ' ' || u.last_name as reserved_by_name,
                 vr.tenant_id
          FROM vehicle_reservations vr
          JOIN vehicles v ON vr.vehicle_id = v.id
@@ -386,7 +382,7 @@ router.post('/resend/:id',csrfProtection,  csrfProtection, async (req: Request, 
       const result = await pool.query(
         `SELECT sbs.*, v.make, v.model, v.license_plate, v.vin,
                 at.name as appointment_type, sb.bay_name,
-                u.first_name || ` ` || u.last_name as technician_name,
+                u.first_name || ' ' || u.last_name as technician_name,
                 sbs.tenant_id
          FROM service_bay_schedules sbs
          LEFT JOIN vehicles v ON sbs.vehicle_id = v.id
