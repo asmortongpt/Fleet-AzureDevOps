@@ -14,6 +14,7 @@ import fs from 'fs/promises'
 import { fileUploadLimiter } from '../config/rate-limiters'
 import { secureFileValidation } from '../utils/file-validation'
 import { csrfProtection } from '../middleware/csrf'
+import { pool } from '../db/connection'
 
 
 const router = express.Router()
@@ -35,10 +36,10 @@ const upload = multer({
       'application/vnd.ms-excel',
       'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
     ]
-    if (allowedTypes.includes(file.mimetype) {
+    if (allowedTypes.includes(file.mimetype)) {
       cb(null, true)
     } else {
-      cb(new Error('Invalid file type')
+      cb(new Error('Invalid file type'))
     }
   }
 })
@@ -67,7 +68,7 @@ router.get(
 
       let query = `
         SELECT d.*,
-               uploader.first_name || ` ` || uploader.last_name as uploaded_by_name
+               uploader.first_name || ' ' || uploader.last_name as uploaded_by_name
         FROM documents d
         LEFT JOIN drivers uploader ON d.uploaded_by = uploader.id
         WHERE uploader.tenant_id = $1 OR uploader.tenant_id IS NULL
@@ -128,7 +129,7 @@ router.get(
           page: Number(page),
           limit: Number(limit),
           total: parseInt(countResult.rows[0].count),
-          pages: Math.ceil(countResult.rows[0].count / Number(limit)
+          pages: Math.ceil(countResult.rows[0].count / Number(limit))
         }
       })
     } catch (error) {
@@ -255,7 +256,7 @@ router.get(
 // POST /documents/upload
 router.post(
   '/upload',
- csrfProtection,  csrfProtection, fileUploadLimiter, // Rate limit: 5 uploads per minute
+  csrfProtection, csrfProtection, fileUploadLimiter, // Rate limit: 5 uploads per minute
   requirePermission('document:create:fleet'),
   upload.single('file'),
   auditLog({ action: 'CREATE', resourceType: 'documents' }),
@@ -267,7 +268,7 @@ router.post(
 
       // SECURITY: Validate file content using magic bytes (not just MIME type)
       const validation = await secureFileValidation(req.file.buffer, req.file.originalname)
-      
+
       if (!validation.valid) {
         return res.status(400).json({
           error: 'File validation failed',
@@ -343,7 +344,7 @@ router.post(
 // POST /documents/camera-capture
 router.post(
   '/camera-capture',
- csrfProtection,  csrfProtection, fileUploadLimiter, // Rate limit: 5 uploads per minute
+  csrfProtection, csrfProtection, fileUploadLimiter, // Rate limit: 5 uploads per minute
   requirePermission('document:create:fleet'),
   upload.single('photo'),
   auditLog({ action: 'CREATE', resourceType: 'documents' }),
@@ -355,7 +356,7 @@ router.post(
 
       // SECURITY: Validate file content using magic bytes (not just MIME type)
       const validation = await secureFileValidation(req.file.buffer, req.file.originalname)
-      
+
       if (!validation.valid) {
         return res.status(400).json({
           error: 'File validation failed',
@@ -464,7 +465,7 @@ router.post(
 // PUT /documents/:id
 router.put(
   '/:id',
- csrfProtection,  csrfProtection, requirePermission('document:update:fleet'),
+  csrfProtection, csrfProtection, requirePermission('document:update:fleet'),
   validateScope('document'), // BOLA protection: validate user has access to this document
   auditLog({ action: 'UPDATE', resourceType: 'documents' }),
   async (req: AuthRequest, res: Response) => {
@@ -512,7 +513,7 @@ router.put(
 // DELETE /documents/:id
 router.delete(
   '/:id',
- csrfProtection,  csrfProtection, requirePermission('document:delete:fleet'),
+  csrfProtection, csrfProtection, requirePermission('document:delete:fleet'),
   validateScope('document'), // BOLA protection: validate user has access to this document
   auditLog({ action: 'DELETE', resourceType: 'documents' }),
   async (req: AuthRequest, res: Response) => {
@@ -557,7 +558,7 @@ router.delete(
 // POST /documents/:id/ocr
 router.post(
   '/:id/ocr',
- csrfProtection,  csrfProtection, requirePermission('document:create:fleet'),
+  csrfProtection, csrfProtection, requirePermission('document:create:fleet'),
   validateScope('document'), // BOLA protection: validate user has access to this document
   auditLog({ action: 'CREATE', resourceType: 'ocr_processing' }),
   async (req: AuthRequest, res: Response) => {
@@ -581,11 +582,11 @@ router.post(
         throw new NotFoundError("Document not found")
       }
 
-            // For now, create a placeholder OCR log entry
+      // For now, create a placeholder OCR log entry
       const ocrResult = await pool.query(
         `INSERT INTO ocr_processing_log (
           document_id, processing_status, processed_at
-        ) VALUES ($1, 'pending', NOW()
+        ) VALUES ($1, 'pending', NOW())
         RETURNING *`,
         [req.params.id]
       )
@@ -608,7 +609,7 @@ router.post(
 // POST /documents/:id/parse-receipt
 router.post(
   '/:id/parse-receipt',
- csrfProtection,  csrfProtection, requirePermission('document:create:fleet'),
+  csrfProtection, csrfProtection, requirePermission('document:create:fleet'),
   validateScope('document'), // BOLA protection: validate user has access to this document
   auditLog({ action: 'CREATE', resourceType: 'receipt_parsing' }),
   async (req: AuthRequest, res: Response) => {
@@ -631,7 +632,7 @@ router.post(
         throw new NotFoundError("Document not found")
       }
 
-            // This would use OCR + AI to extract line items, totals, vendor info, etc.
+      // This would use OCR + AI to extract line items, totals, vendor info, etc.
 
       res.status(202).json({
         message: 'Receipt parsing started'
@@ -646,14 +647,14 @@ router.post(
 // PUT /documents/:id/receipt-items
 router.put(
   '/:id/receipt-items',
- csrfProtection,  csrfProtection, requirePermission('document:update:fleet'),
+  csrfProtection, csrfProtection, requirePermission('document:update:fleet'),
   validateScope('document'), // BOLA protection: validate user has access to this document
   auditLog({ action: 'UPDATE', resourceType: 'receipt_line_items' }),
   async (req: AuthRequest, res: Response) => {
     try {
       const { line_items } = req.body
 
-      if (!Array.isArray(line_items) {
+      if (!Array.isArray(line_items)) {
         throw new ValidationError("line_items must be an array")
       }
 

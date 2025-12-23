@@ -46,7 +46,7 @@ interface ActivityEvent {
 }
 
 export class CollaborationService {
-  constructor(private db: Pool) {}
+  constructor(private db: Pool) { }
   private io: SocketIOServer | null = null
   private activeUsers: Map<string, CollaborationUser> = new Map()
   private entityViewers: Map<string, Set<string>> = new Map() // entityId -> Set of userIds
@@ -244,7 +244,8 @@ export class CollaborationService {
       // Validate table name against allowlist to prevent SQL injection
       if (!isValidCommentTable(table)) {
         socket.emit('error', { message: 'Invalid entity type' })
-        return }
+        return
+      }
 
       // Table and column names are validated/constant, safe to use in query
       const idColumn = data.entityType === 'task' ? 'task_id' : 'asset_id`
@@ -452,7 +453,9 @@ export class CollaborationService {
   }
 }
 
+import { pool } from '../../db/connection';
+
 // Global instance
-export const collaborationService = new CollaborationService()
+export const collaborationService = new CollaborationService(pool)
 
 export default collaborationService

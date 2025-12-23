@@ -606,7 +606,7 @@ class LangChainOrchestratorService {
       photos,
       notes,
       created_at,
-      updated_at FROM vehicles WHERE id = $1 AND tenant_id = $2',
+      updated_at FROM vehicles WHERE id = $1 AND tenant_id = $2`,
             [vehicleId, context.tenantId]
           )
           return JSON.stringify(result.rows[0] || {})
@@ -628,7 +628,7 @@ class LangChainOrchestratorService {
               context.tenantId,
               `${maintenanceType} - Vehicle ${vehicleId}`,
               `Scheduled maintenance: ${maintenanceType}`,
-              `maintenance`,
+              'maintenance',
               vehicleId,
               'medium',
               scheduledDate,
@@ -670,7 +670,7 @@ class LangChainOrchestratorService {
               COUNT(t.id) as pending_tasks,
               MAX(t.updated_at) as last_maintenance
        FROM vehicles v
-       LEFT JOIN tasks t ON t.related_asset_id = v.id AND t.task_type = `maintenance`
+       LEFT JOIN tasks t ON t.related_asset_id = v.id AND t.task_type = 'maintenance'
        WHERE v.id = $1 AND v.tenant_id = $2
        GROUP BY v.id`,
       [vehicleId, tenantId]
@@ -701,7 +701,7 @@ Provide a brief analysis of the vehicle condition and any immediate concerns.`
   private async getMaintenanceHistory(vehicleId: string, tenantId: string): Promise<any> {
     const result = await this.db.query(
       `SELECT id, tenant_id, title, description, status, priority, due_date, assigned_to, created_by, created_at, updated_at FROM tasks
-       WHERE related_asset_id = $1 AND tenant_id = $2 AND task_type = `maintenance`
+       WHERE related_asset_id = $1 AND tenant_id = $2 AND task_type = 'maintenance'
        ORDER BY created_at DESC LIMIT 10`,
       [vehicleId, tenantId]
     )
@@ -740,7 +740,7 @@ Generate a structured maintenance plan with:
     // In a real system, this would query available technicians
     // For now, return a placeholder
     return {
-      technician: `Auto-assigned`,
+      technician: 'Auto-assigned',
       status: 'pending_assignment',
       estimatedStartDate: new Date(Date.now() + 86400000).toISOString()
     }
@@ -852,7 +852,7 @@ Generate:
     return {
       routes: routeIds.map(id => ({
         id,
-        origin: `Location A`,
+        origin: 'Location A',
         destination: 'Location B',
         estimatedTime: 60
       }))

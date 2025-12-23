@@ -1,20 +1,19 @@
 /**
-import { container } from '../container'
-import { asyncHandler } from '../middleware/errorHandler'
-import { NotFoundError, ValidationError } from '../errors/app-error'
-import logger from '../config/logger'; // Wave 25: Add Winston logger
  * Push Notifications Routes
  * API endpoints for mobile push notification management
  */
 
-import express from 'express'
-import { authenticateJWT } from '../middleware/auth'
-import { requirePermission } from '../middleware/permissions'
-import { pushNotificationService } from '../services/push-notification.service'
-import { csrfProtection } from '../middleware/csrf'
+import express from 'express';
+import { authenticateJWT } from '../middleware/auth';
+import { requirePermission } from '../middleware/permissions';
+import { pushNotificationService } from '../services/push-notification.service';
+import { csrfProtection } from '../middleware/csrf';
+import { container } from '../container';
+import { asyncHandler } from '../middleware/errorHandler';
+import { NotFoundError, ValidationError } from '../errors/app-error';
+import logger from '../config/logger';
 
-
-const router = express.Router()
+const router = express.Router();
 
 /**
  * POST /api/push-notifications/register-device
@@ -22,50 +21,50 @@ const router = express.Router()
  */
 router.post(
   '/register-device',
- csrfProtection,  csrfProtection, authenticateJWT,
+  csrfProtection, authenticateJWT,
   requirePermission('communication:send:global'),
   async (req, res) => {
     try {
-      const { deviceToken, platform, deviceName, deviceModel, osVersion, appVersion } = req.body
+      const { deviceToken, platform, deviceName, deviceModel, osVersion, appVersion } = req.body;
 
       if (!deviceToken || !platform) {
         return res.status(400).json({
           success: false,
           error: 'Device token and platform are required',
-        })
+        });
       }
 
-      if (!['ios', 'android'].includes(platform) {
+      if (!['ios', 'android'].includes(platform)) {
         return res.status(400).json({
           success: false,
           error: 'Platform must be either "ios" or "android"',
-        })
+        });
       }
 
       const device = await pushNotificationService.registerDevice({
-        userId: req.user.id,
-        tenantId: req.user.tenantId,
+        userId: (req as any).user.id,
+        tenantId: (req as any).user.tenantId,
         deviceToken,
         platform,
         deviceName,
         deviceModel,
         osVersion,
         appVersion,
-      })
+      });
 
       res.json({
         success: true,
         data: device,
-      })
+      });
     } catch (error) {
-      logger.error('Error registering device:', error) // Wave 25: Winston logger;
+      logger.error('Error registering device:', error);
       res.status(500).json({
         success: false,
         error: 'Failed to register device',
-      })
+      });
     }
   }
-)
+);
 
 /**
  * DELETE /api/push-notifications/device/:deviceId
@@ -73,27 +72,27 @@ router.post(
  */
 router.delete(
   '/device/:deviceId',
- csrfProtection,  csrfProtection, authenticateJWT,
+  csrfProtection, authenticateJWT,
   requirePermission('communication:send:global'),
   async (req, res) => {
     try {
-      const { deviceId } = req.params
+      const { deviceId } = req.params;
 
-      const success = await pushNotificationService.unregisterDevice(deviceId)
+      const success = await pushNotificationService.unregisterDevice(deviceId);
 
       res.json({
         success,
         message: success ? 'Device unregistered successfully' : 'Failed to unregister device',
-      })
+      });
     } catch (error) {
-      logger.error('Error unregistering device:', error) // Wave 25: Winston logger;
+      logger.error('Error unregistering device:', error);
       res.status(500).json({
         success: false,
         error: 'Failed to unregister device',
-      })
+      });
     }
   }
-)
+);
 
 /**
  * POST /api/push-notifications/send
@@ -101,7 +100,7 @@ router.delete(
  */
 router.post(
   '/send',
- csrfProtection,  csrfProtection, authenticateJWT,
+  csrfProtection, authenticateJWT,
   requirePermission('communication:send:global'),
   async (req, res) => {
     try {
@@ -117,24 +116,24 @@ router.post(
         imageUrl,
         sound,
         badgeCount,
-      } = req.body
+      } = req.body;
 
       if (!recipients || !Array.isArray(recipients) || recipients.length === 0) {
         return res.status(400).json({
           success: false,
           error: 'Recipients array is required',
-        })
+        });
       }
 
       if (!title || !message) {
         return res.status(400).json({
           success: false,
           error: 'Title and message are required',
-        })
+        });
       }
 
       const notification = {
-        tenantId: req.user.tenantId,
+        tenantId: (req as any).user.tenantId,
         notificationType: notificationType || 'general',
         category: category || 'administrative',
         priority: priority || 'normal',
@@ -145,13 +144,13 @@ router.post(
         imageUrl,
         sound,
         badgeCount,
-        createdBy: req.user.id,
-      }
+        createdBy: (req as any).user.id,
+      };
 
       const notificationId = await pushNotificationService.sendNotification(
         notification,
         recipients
-      )
+      );
 
       res.json({
         success: true,
@@ -159,16 +158,16 @@ router.post(
           notificationId,
           recipientCount: recipients.length,
         },
-      })
+      });
     } catch (error) {
-      logger.error('Error sending notification:', error) // Wave 25: Winston logger;
+      logger.error('Error sending notification:', error);
       res.status(500).json({
         success: false,
         error: 'Failed to send notification',
-      })
+      });
     }
   }
-)
+);
 
 /**
  * POST /api/push-notifications/send-bulk
@@ -176,7 +175,7 @@ router.post(
  */
 router.post(
   '/send-bulk',
- csrfProtection,  csrfProtection, authenticateJWT,
+  csrfProtection, authenticateJWT,
   requirePermission('communication:broadcast:global'),
   async (req, res) => {
     try {
@@ -192,24 +191,24 @@ router.post(
         imageUrl,
         sound,
         badgeCount,
-      } = req.body
+      } = req.body;
 
       if (!userIds || !Array.isArray(userIds) || userIds.length === 0) {
         return res.status(400).json({
           success: false,
           error: 'User IDs array is required',
-        })
+        });
       }
 
       if (!title || !message) {
         return res.status(400).json({
           success: false,
           error: 'Title and message are required',
-        })
+        });
       }
 
       const notification = {
-        tenantId: req.user.tenantId,
+        tenantId: (req as any).user.tenantId,
         notificationType: notificationType || 'general',
         category: category || 'administrative',
         priority: priority || 'normal',
@@ -220,13 +219,13 @@ router.post(
         imageUrl,
         sound,
         badgeCount,
-        createdBy: req.user.id,
-      }
+        createdBy: (req as any).user.id,
+      };
 
       const notificationId = await pushNotificationService.sendBulkNotification(
         notification,
         userIds
-      )
+      );
 
       res.json({
         success: true,
@@ -234,16 +233,16 @@ router.post(
           notificationId,
           recipientCount: userIds.length,
         },
-      })
+      });
     } catch (error) {
-      logger.error('Error sending bulk notification:', error) // Wave 25: Winston logger;
+      logger.error('Error sending bulk notification:', error);
       res.status(500).json({
         success: false,
         error: 'Failed to send bulk notification',
-      })
+      });
     }
   }
-)
+);
 
 /**
  * POST /api/push-notifications/schedule
@@ -251,7 +250,7 @@ router.post(
  */
 router.post(
   '/schedule',
- csrfProtection,  csrfProtection, authenticateJWT,
+  csrfProtection, authenticateJWT,
   requirePermission('communication:send:global'),
   async (req, res) => {
     try {
@@ -268,31 +267,31 @@ router.post(
         imageUrl,
         sound,
         badgeCount,
-      } = req.body
+      } = req.body;
 
       if (!recipients || !Array.isArray(recipients) || recipients.length === 0) {
         return res.status(400).json({
           success: false,
           error: 'Recipients array is required',
-        })
+        });
       }
 
       if (!scheduledFor) {
         return res.status(400).json({
           success: false,
           error: 'Scheduled time is required',
-        })
+        });
       }
 
       if (!title || !message) {
         return res.status(400).json({
           success: false,
           error: 'Title and message are required',
-        })
+        });
       }
 
       const notification = {
-        tenantId: req.user.tenantId,
+        tenantId: (req as any).user.tenantId,
         notificationType: notificationType || 'general',
         category: category || 'administrative',
         priority: priority || 'normal',
@@ -303,14 +302,14 @@ router.post(
         imageUrl,
         sound,
         badgeCount,
-        createdBy: req.user.id,
-      }
+        createdBy: (req as any).user.id,
+      };
 
       const notificationId = await pushNotificationService.scheduleNotification(
         notification,
         recipients,
         new Date(scheduledFor)
-      )
+      );
 
       res.json({
         success: true,
@@ -319,16 +318,16 @@ router.post(
           recipientCount: recipients.length,
           scheduledFor,
         },
-      })
+      });
     } catch (error) {
-      logger.error('Error scheduling notification:', error) // Wave 25: Winston logger;
+      logger.error('Error scheduling notification:', error);
       res.status(500).json({
         success: false,
         error: 'Failed to schedule notification',
-      })
+      });
     }
   }
-)
+);
 
 /**
  * POST /api/push-notifications/send-from-template
@@ -336,40 +335,40 @@ router.post(
  */
 router.post(
   '/send-from-template',
- csrfProtection,  csrfProtection, authenticateJWT,
+  csrfProtection, authenticateJWT,
   requirePermission('communication:send:global'),
   async (req, res) => {
     try {
-      const { templateName, recipients, variables } = req.body
+      const { templateName, recipients, variables } = req.body;
 
       if (!templateName) {
         return res.status(400).json({
           success: false,
           error: 'Template name is required',
-        })
+        });
       }
 
       if (!recipients || !Array.isArray(recipients) || recipients.length === 0) {
         return res.status(400).json({
           success: false,
           error: 'Recipients array is required',
-        })
+        });
       }
 
       // Create notification from template
       const notification = await pushNotificationService.createFromTemplate(
         templateName,
-        req.user.tenantId,
+        (req as any).user.tenantId,
         variables || {}
-      )
+      );
 
-      notification.createdBy = req.user.id
+      notification.createdBy = (req as any).user.id;
 
       // Send notification
       const notificationId = await pushNotificationService.sendNotification(
         notification,
         recipients
-      )
+      );
 
       res.json({
         success: true,
@@ -377,16 +376,16 @@ router.post(
           notificationId,
           recipientCount: recipients.length,
         },
-      })
+      });
     } catch (error) {
-      logger.error('Error sending from template:', error) // Wave 25: Winston logger;
+      logger.error('Error sending from template:', error);
       res.status(500).json({
         success: false,
         error: 'Failed to send notification from template',
-      })
+      });
     }
   }
-)
+);
 
 /**
  * GET /api/push-notifications/history
@@ -398,22 +397,22 @@ router.get(
   requirePermission('communication:view:global'),
   async (req, res) => {
     try {
-      const { category, status, startDate, endDate, limit = 50, offset = 0 } = req.query
+      const { category, status, startDate, endDate, limit = 50, offset = 0 } = req.query;
 
       const filters: any = {
         limit: parseInt(limit as string),
         offset: parseInt(offset as string),
-      }
+      };
 
-      if (category) filters.category = category
-      if (status) filters.status = status
-      if (startDate) filters.startDate = new Date(startDate as string)
-      if (endDate) filters.endDate = new Date(endDate as string)
+      if (category) filters.category = category;
+      if (status) filters.status = status;
+      if (startDate) filters.startDate = new Date(startDate as string);
+      if (endDate) filters.endDate = new Date(endDate as string);
 
       const history = await pushNotificationService.getNotificationHistory(
-        req.user.tenantId,
+        (req as any).user.tenantId,
         filters
-      )
+      );
 
       res.json({
         success: true,
@@ -423,16 +422,16 @@ router.get(
           offset: filters.offset,
           total: history.length,
         },
-      })
+      });
     } catch (error) {
-      logger.error('Error getting notification history:', error) // Wave 25: Winston logger;
+      logger.error('Error getting notification history:', error);
       res.status(500).json({
         success: false,
         error: 'Failed to get notification history',
-      })
+      });
     }
   }
-)
+);
 
 /**
  * GET /api/push-notifications/stats
@@ -444,31 +443,31 @@ router.get(
   requirePermission('communication:view:global'),
   async (req, res) => {
     try {
-      const { startDate, endDate } = req.query
+      const { startDate, endDate } = req.query;
 
-      let dateRange
+      let dateRange;
       if (startDate && endDate) {
         dateRange = {
           start: new Date(startDate as string),
           end: new Date(endDate as string),
-        }
+        };
       }
 
-      const stats = await pushNotificationService.getDeliveryStats(req.user.tenantId, dateRange)
+      const stats = await pushNotificationService.getDeliveryStats((req as any).user.tenantId, dateRange);
 
       res.json({
         success: true,
         data: stats,
-      })
+      });
     } catch (error) {
-      logger.error('Error getting delivery stats:', error) // Wave 25: Winston logger;
+      logger.error('Error getting delivery stats:', error);
       res.status(500).json({
         success: false,
         error: 'Failed to get delivery statistics',
-      })
+      });
     }
   }
-)
+);
 
 /**
  * GET /api/push-notifications/templates
@@ -480,26 +479,26 @@ router.get(
   requirePermission('communication:view:global'),
   async (req, res) => {
     try {
-      const { category } = req.query
+      const { category } = req.query;
 
       const templates = await pushNotificationService.getTemplates(
-        req.user.tenantId,
+        (req as any).user.tenantId,
         category as string
-      )
+      );
 
       res.json({
         success: true,
         data: templates,
-      })
+      });
     } catch (error) {
-      logger.error('Error getting templates:', error) // Wave 25: Winston logger;
+      logger.error('Error getting templates:', error);
       res.status(500).json({
         success: false,
         error: 'Failed to get templates',
-      })
+      });
     }
   }
-)
+);
 
 /**
  * PUT /api/push-notifications/:id/opened
@@ -507,60 +506,60 @@ router.get(
  */
 router.put(
   '/:id/opened',
- csrfProtection,  csrfProtection, authenticateJWT,
+  csrfProtection, authenticateJWT,
   requirePermission('communication:view:global'),
   async (req, res) => {
     try {
-      const { id } = req.params
+      const { id } = req.params;
 
-      await pushNotificationService.trackNotificationOpened(id)
+      await pushNotificationService.trackNotificationOpened(id);
 
       res.json({
         success: true,
         message: 'Notification open tracked',
-      })
+      });
     } catch (error) {
-      logger.error('Error tracking notification open:', error) // Wave 25: Winston logger;
+      logger.error('Error tracking notification open:', error);
       res.status(500).json({
         success: false,
         error: 'Failed to track notification open',
-      })
+      });
     }
   }
-)
+);
 
 /**
  * PUT /api/push-notifications/:id/clicked
  * Track notification clicked with action
  */
-router.put('/:id/clicked',csrfProtection,  csrfProtection, authenticateJWT, async (req, res) => {
+router.put('/:id/clicked', csrfProtection, authenticateJWT, async (req, res) => {
   try {
-    const { id } = req.params
-    const { action } = req.body
+    const { id } = req.params;
+    const { action } = req.body;
 
-    await pushNotificationService.trackNotificationClicked(id, action)
+    await pushNotificationService.trackNotificationClicked(id, action);
 
     res.json({
       success: true,
       message: 'Notification click tracked',
-    })
+    });
   } catch (error) {
-    logger.error('Error tracking notification click:', error) // Wave 25: Winston logger;
+    logger.error('Error tracking notification click:', error);
     res.status(500).json({
       success: false,
       error: 'Failed to track notification click',
-    })
+    });
   }
-})
+});
 
 /**
  * POST /api/push-notifications/test
  * Send a test notification (for development)
  */
-router.post('/test',csrfProtection,  csrfProtection, authenticateJWT, async (req, res) => {
+router.post('/test', csrfProtection, authenticateJWT, async (req, res) => {
   try {
     const notification = {
-      tenantId: req.user.tenantId,
+      tenantId: (req as any).user.tenantId,
       notificationType: 'test',
       category: 'administrative' as const,
       priority: 'normal' as const,
@@ -571,12 +570,12 @@ router.post('/test',csrfProtection,  csrfProtection, authenticateJWT, async (req
         { id: 'acknowledge', title: 'Got It' },
         { id: 'dismiss', title: 'Dismiss' },
       ],
-      createdBy: req.user.id,
-    }
+      createdBy: (req as any).user.id,
+    };
 
     const notificationId = await pushNotificationService.sendNotification(notification, [
-      { userId: req.user.id },
-    ])
+      { userId: (req as any).user.id },
+    ]);
 
     res.json({
       success: true,
@@ -584,14 +583,14 @@ router.post('/test',csrfProtection,  csrfProtection, authenticateJWT, async (req
         notificationId,
         message: 'Test notification sent',
       },
-    })
+    });
   } catch (error) {
-    logger.error('Error sending test notification:', error) // Wave 25: Winston logger;
+    logger.error('Error sending test notification:', error);
     res.status(500).json({
       success: false,
       error: 'Failed to send test notification',
-    })
+    });
   }
-})
+});
 
-export default router
+export default router;

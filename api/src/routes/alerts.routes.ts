@@ -21,6 +21,7 @@ import { requirePermission } from '../middleware/permissions'
 import alertEngine from '../services/alert-engine.service'
 import { z } from 'zod'
 import { csrfProtection } from '../middleware/csrf'
+import { pool } from '../db/connection';
 
 
 // SECURITY: Input validation schemas

@@ -6,6 +6,7 @@ import logger from '../config/logger'; // Wave 18: Add Winston logger
 import axios from 'axios'
 import { getErrorMessage } from '../utils/error-handler'
 import { csrfProtection } from '../middleware/csrf'
+import { pool } from '../db/connection';
 
 
 const router = express.Router()
@@ -103,7 +104,7 @@ router.get('/rates', async (req: Request, res: Response) => {
  * POST /api/mileage-reimbursement/calculate
  * Calculate mileage reimbursement based on federal guidelines
  */
-router.post('/calculate',csrfProtection,  csrfProtection, async (req: Request, res: Response) => {
+router.post('/calculate',csrfProtection, async (req: Request, res: Response) => {
   try {
     const {
       miles,
@@ -150,7 +151,7 @@ router.post('/calculate',csrfProtection,  csrfProtection, async (req: Request, r
 
     // Calculate reimbursement
     const milesFloat = parseFloat(miles)
-    const reimbursementAmount = parseFloat((milesFloat * applicableRate).toFixed(2)
+    const reimbursementAmount = parseFloat((milesFloat * applicableRate).toFixed(2))
 
     // Build response
     const calculations = {
@@ -220,7 +221,7 @@ router.get('/rates/history', async (req: Request, res: Response) => {
  * POST /api/mileage-reimbursement/validate-trip
  * Validate trip data for federal reimbursement compliance
  */
-router.post('/validate-trip',csrfProtection,  csrfProtection, async (req: Request, res: Response) => {
+router.post('/validate-trip',csrfProtection, async (req: Request, res: Response) => {
   try {
     const {
       origin,
@@ -295,7 +296,7 @@ router.post('/validate-trip',csrfProtection,  csrfProtection, async (req: Reques
  * PUT /api/mileage-reimbursement/rates/tenant/:tenant_id
  * Update tenant-specific mileage rate (must not exceed federal rate)
  */
-router.put('/rates/tenant/:tenant_id',csrfProtection,  csrfProtection, async (req: Request, res: Response) => {
+router.put('/rates/tenant/:tenant_id',csrfProtection, async (req: Request, res: Response) => {
   try {
     const { tenant_id } = req.params
     const { rate, effective_date } = req.body

@@ -19,6 +19,7 @@ import {
 // ARCHITECTURE FIX: Import new error handling infrastructure
 import { errorHandler } from './middleware/errorHandler'
 import { initializeProcessErrorHandlers } from './middleware/processErrorHandlers'
+import { initializeConnectionManager } from './config/connection-manager' // Import connection manager initialization
 
 // Initialize Sentry
 sentryService.init()
@@ -182,6 +183,7 @@ import { processNotificationJob } from './jobs/processors/notification.processor
 import { processReportJob } from './jobs/processors/report.processor'
 import logger from './utils/logger'
 
+console.log('--- IMPORTS COMPLETED, CREATING APP ---');
 const app = express()
 const PORT = process.env.PORT || 3001
 
@@ -481,38 +483,63 @@ const initializeJobProcessors = () => {
   logger.info('  - Report queue: ready')
 }
 
-const server = app.listen(PORT, () => {
-  console.log(`Server running on http://localhost:${PORT}`)
-  console.log(`Application Insights: ${telemetryService.isActive() ? 'Enabled' : 'Disabled'}`)
-  console.log(`Sentry: ${process.env.SENTRY_DSN ? 'Enabled' : 'Disabled (no DSN configured)'}`)
-  console.log(`Environment: ${process.env.NODE_ENV || 'development'}`)
+console.log('--- READY TO LISTEN ON PORT ' + PORT + ' ---');
 
-  // ARCHITECTURE FIX: Initialize process-level error handlers
-  initializeProcessErrorHandlers(server)
+let server: any;
 
-  // Initialize Bull job processors
-  initializeJobProcessors()
+const startServer = async () => {
+  try {
+    // Initialize database connection manager FIRST
+    await initializeConnectionManager();
+    console.log('Database connection manager initialized');
 
-  // Track server startup in both monitoring systems
-  telemetryService.trackEvent('ServerStartup', {
-    port: PORT,
-    nodeVersion: process.version,
-    environment: process.env.NODE_ENV || 'development',
-    telemetryEnabled: telemetryService.isActive(),
-    sentryEnabled: !!process.env.SENTRY_DSN,
-    jobProcessorsEnabled: true
-  })
+    server = app.listen(PORT, () => {
+      console.log(`Server running on http://localhost:${PORT}`)
+      console.log(`Application Insights: ${telemetryService.isActive() ? 'Enabled' : 'Disabled'}`)
+      console.log(`Sentry: ${process.env.SENTRY_DSN ? 'Enabled' : 'Disabled (no DSN configured)'}`)
+      console.log(`Environment: ${process.env.NODE_ENV || 'development'}`)
 
-  // Also track in Sentry
-  sentryService.captureMessage('Server started successfully', 'info')
-  sentryService.addBreadcrumb('Server startup', 'lifecycle', {
-    port: PORT,
-    environment: process.env.NODE_ENV || 'development'
-  })
+      // ARCHITECTURE FIX: Initialize process-level error handlers
+      initializeProcessErrorHandlers(server)
 
-  // Initialize emulator tracking
-  initializeEmulatorTracking()
-})
+      // Initialize Bull job processors
+      initializeJobProcessors()
+
+      // Track server startup in both monitoring systems
+      telemetryService.trackEvent('ServerStartup', {
+        port: PORT,
+        nodeVersion: process.version,
+        environment: process.env.NODE_ENV || 'development',
+        telemetryEnabled: telemetryService.isActive(),
+        sentryEnabled: !!process.env.SENTRY_DSN,
+        jobProcessorsEnabled: true
+      })
+
+      // Also track in Sentry
+      sentryService.captureMessage('Server started successfully', 'info')
+      sentryService.addBreadcrumb('Server startup', 'lifecycle', {
+        port: PORT,
+        environment: process.env.NODE_ENV || 'development'
+      })
+
+      // Initialize emulator tracking
+      initializeEmulatorTracking()
+
+      // Initialize Real-Time Collaboration Service
+      try {
+        const { collaborationService } = require('./services/collaboration/real-time.service')
+        collaborationService.initialize(server)
+      } catch (err) {
+        console.error('Failed to initialize Collaboration Service:', err)
+      }
+    })
+  } catch (error) {
+    console.error('Failed to start server:', error);
+    process.exit(1);
+  }
+};
+
+startServer();
 
 // Graceful shutdown
 process.on('SIGTERM', async () => {

@@ -261,7 +261,7 @@ export class ExcelExportService {
     const filename = `${this.sanitizeFilename(options.title)}_${Date.now()}.csv`
     const filepath = path.join(this.OUTPUT_DIR, filename)
 
-    await fs.writeFile(filepath, lines.join(`\n`), `utf-8')
+    await fs.writeFile(filepath, lines.join(`\n`), 'utf-8')
 
     return filepath
   }
@@ -388,7 +388,7 @@ export class ExcelExportService {
 
     // Escape quotes and wrap in quotes if contains comma or quote
     if (formatted.includes(',') || formatted.includes('"') || formatted.includes('\n')) {
-      formatted = `"${formatted.replace(/"/g, """")}"`
+      formatted = `"${formatted.replace(/"/g, '""')}"`
     } else {
       formatted = `"${formatted}"`
     }

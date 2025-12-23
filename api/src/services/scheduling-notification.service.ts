@@ -547,7 +547,7 @@ export class SchedulingNotificationService {
       // Replace variables
       for (const [key, value] of Object.entries(data)) {
         const regex = new RegExp(`{{${key}}}`, `g`)
-        template = template.replace(regex, String(value || '`))
+        template = template.replace(regex, String(value || ''))
       }
 
       return template
@@ -812,8 +812,8 @@ export class SchedulingNotificationService {
         `INSERT INTO communications (
           communication_type, direction, subject, body,
           to_contact_emails, communication_datetime, status
-        ) VALUES ($1, $2, $3, $4, $5, NOW(), `Sent`)
-        RETURNING id',
+        ) VALUES ($1, $2, $3, $4, $5, NOW(), 'Sent')
+        RETURNING id`,
         [
           data.communicationType,
           data.direction,
@@ -830,7 +830,7 @@ export class SchedulingNotificationService {
         await this.db.query(
           `INSERT INTO communication_entity_links (
             communication_id, entity_type, entity_id, link_type
-          ) VALUES ($1, $2, $3, 'Primary Subject')',
+          ) VALUES ($1, $2, $3, 'Primary Subject')`,
           [communicationId, data.entityType, data.entityId]
         )
       }
@@ -871,7 +871,7 @@ export class SchedulingNotificationService {
     const result = await this.db.query(
       `SELECT id FROM scheduling_reminders_sent
        WHERE entity_id = $1 AND entity_type = $2 AND hours_before = $3
-       AND sent_at > NOW() - INTERVAL '2 hours'',
+       AND sent_at > NOW() - INTERVAL '2 hours'`,
       [entityId, entityType, hoursUntil]
     )
 
