@@ -10,6 +10,7 @@ import express, { Request, Response } from 'express'
 import schedulingNotificationService from '../services/scheduling-notification.service'
 import { logger } from '../utils/logger'
 import { csrfProtection } from '../middleware/csrf'
+import { pool } from '../db/connection';
 
 
 const router = express.Router()

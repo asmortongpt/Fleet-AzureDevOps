@@ -10,6 +10,7 @@ import { getErrorMessage } from '../utils/error-handler'
 import { csrfProtection } from '../middleware/csrf'
 
 import {
+import { pool } from '../db/connection';
   UsageType,
   ApprovalStatus,
   calculateMileageBreakdown,

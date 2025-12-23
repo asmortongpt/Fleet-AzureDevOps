@@ -32,6 +32,7 @@ import { handleDatabaseError, NotFoundError, ValidationError, withTransaction } 
 import { connectionManager } from '../config/connection-manager'
 import { z } from 'zod'
 import { csrfProtection } from '../middleware/csrf'
+import { pool } from '../db/connection';
 
 
 const router = express.Router()

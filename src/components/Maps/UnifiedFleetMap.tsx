@@ -54,6 +54,10 @@ export interface UnifiedFleetMapProps {
   enableRealTime?: boolean
   /** Custom height for the map */
   height?: string
+  /** Force the simulated grid view (fallback) */
+  forceSimulatedView?: boolean
+  /** Callback when map action occurs */
+  onVehicleAction?: (action: string, vehicleId: string) => void
 }
 
 /**
@@ -66,10 +70,8 @@ export interface UnifiedFleetMapProps {
 export const UnifiedFleetMap: React.FC<UnifiedFleetMapProps> = ({
   vehicles: initialVehicles = [],
   facilities: initialFacilities = [],
-  onVehicleSelect,
-  onFacilitySelect,
-  enableRealTime = true,
-  height = '100%'
+  forceSimulatedView = false,
+  onVehicleAction
 }) => {
   // Fleet data hook for real-time updates (only as fallback)
   const fleetData = useFleetData()
@@ -79,8 +81,7 @@ export const UnifiedFleetMap: React.FC<UnifiedFleetMapProps> = ({
   const vehicles = initialVehicles.length > 0 ? initialVehicles : fleetData.vehicles
   const facilities = initialFacilities.length > 0 ? initialFacilities : fleetData.facilities
 
-  // Track if we're actually displaying real-time data
-  const isDisplayingRealTimeData = initialVehicles.length > 0 && enableRealTime
+
 
   // State management
   const [activeTab, setActiveTab] = useState('map')
@@ -250,26 +251,7 @@ export const UnifiedFleetMap: React.FC<UnifiedFleetMapProps> = ({
     setGeofences(prev => prev.filter(g => g.id !== id))
   }, [])
 
-  /**
-   * Get enabled layers for map rendering
-   */
-  const getEnabledLayers = useCallback(() => {
-    const enabledLayers: any = {}
-    layers.forEach(layer => {
-      switch (layer.id) {
-        case 'vehicles':
-          enabledLayers.showVehicles = layer.enabled
-          break
-        case 'facilities':
-          enabledLayers.showFacilities = layer.enabled
-          break
-        case 'routes':
-          enabledLayers.showRoutes = layer.enabled
-          break
-      }
-    })
-    return enabledLayers
-  }, [layers])
+
 
   /**
    * Quick toggle for all layers
@@ -414,6 +396,8 @@ export const UnifiedFleetMap: React.FC<UnifiedFleetMapProps> = ({
                 showRoutes={layers.find(l => l.id === 'routes')?.enabled}
                 onReady={handleMapReady}
                 className="h-full"
+                forceSimulatedView={forceSimulatedView}
+                onVehicleAction={onVehicleAction}
               />
             </div>
           </TabsContent>
@@ -427,7 +411,9 @@ export const UnifiedFleetMap: React.FC<UnifiedFleetMapProps> = ({
                   facilities={layers.find(l => l.id === 'facilities')?.enabled ? facilities : []}
                   showVehicles={layers.find(l => l.id === 'vehicles')?.enabled}
                   showFacilities={layers.find(l => l.id === 'facilities')?.enabled}
+
                   showRoutes={false}
+                  onVehicleAction={onVehicleAction}
                   onReady={() => {
                     // Get map instance when ready
                     setTimeout(() => {

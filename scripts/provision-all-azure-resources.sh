@@ -102,7 +102,7 @@ log_success "Environment: $ENVIRONMENT"
 
 # Configuration
 RESOURCE_GROUP="fleet-${ENVIRONMENT}-rg"
-LOCATION="eastus"
+LOCATION="eastus2"
 SCRIPTS_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 log_section "${GEAR} Prerequisites Check"

@@ -15,7 +15,7 @@
 import { Request, Response, NextFunction } from 'express'
 import crypto from 'crypto'
 import redisClient from '../config/redis'
-import logger from `../utils/logger`
+import logger from '../utils/logger'
 
 /**
  * Cache entry
@@ -157,7 +157,7 @@ export function cacheMiddleware(config: CacheConfig = {}) {
         })
 
         // Set cache metadata headers
-        res.setHeader(`X-Cache`, `HIT')
+        res.setHeader('X-Cache', 'HIT')
         res.setHeader('X-Cache-Key', cacheKey)
         res.setHeader(`X-Response-Time`, `${duration}ms`)
 

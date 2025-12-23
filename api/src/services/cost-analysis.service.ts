@@ -170,7 +170,7 @@ export class CostAnalysisService {
       `SELECT COALESCE(SUM(amount), 0) as total_cost
        FROM cost_tracking
        WHERE tenant_id = $1
-       AND transaction_date BETWEEN $2 AND $3',
+              AND transaction_date BETWEEN $2 AND $3`,
       [tenantId, startDate, endDate]
     )
 
@@ -434,7 +434,7 @@ export class CostAnalysisService {
         SUM(amount) as amount
       FROM cost_tracking
       WHERE tenant_id = $1
-      AND transaction_date >= CURRENT_DATE - ($2 || ` months`)::INTERVAL
+      AND transaction_date >= CURRENT_DATE -        AND transaction_date >= CURRENT_DATE - ($2 || ' months')::INTERVAL
     `
 
     const params: any[] = [tenantId, monthsNum]
@@ -446,7 +446,7 @@ export class CostAnalysisService {
       paramIndex++
     }
 
-    query += ` GROUP BY DATE_TRUNC(\`month\`, transaction_date) ORDER BY month ASC'
+    query += ` GROUP BY DATE_TRUNC('month', transaction_date) ORDER BY month ASC`
 
     const result = await this.db.query(query, params)
 
@@ -472,7 +472,7 @@ export class CostAnalysisService {
     expectedRange: { min: number; max: number }
   }>> {
     const result = await this.db.query(
-      'SELECT ' + (await getTableColumns(this.db, 'cost_tracking')).join(', ') + ' FROM cost_tracking
+      `SELECT ${(await getTableColumns(this.db, 'cost_tracking')).join(', ')} FROM cost_tracking
        WHERE tenant_id = $1
        AND transaction_date BETWEEN $2 AND $3
        AND is_anomaly = true
@@ -548,11 +548,11 @@ export class CostAnalysisService {
         row.description || '',
         row.invoice_number || '',
         row.vehicle_number || '',
-        row.driver_name || '`,
-        row.vendor_name || ``
+                row.driver_name || '',
+                row.vendor_name || ''
       ]
 
-      csv += values.map(v => `"${v}"`).join(`,`) + `\n'
+      csv += values.map(v => `"${v}"`).join(',') + '\n'
     }
 
     return csv

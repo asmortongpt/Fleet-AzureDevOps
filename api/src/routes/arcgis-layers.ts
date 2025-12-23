@@ -8,6 +8,7 @@ import { logger } from '../utils/logger'
 import { z } from 'zod'
 import { getErrorMessage } from '../utils/error-handler'
 import { csrfProtection } from '../middleware/csrf'
+import { pool } from '../db/connection';
 
 
 const router = express.Router()

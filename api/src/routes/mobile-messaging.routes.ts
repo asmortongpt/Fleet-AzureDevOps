@@ -17,6 +17,7 @@ import { logger } from '../utils/logger';
 import twilio from 'twilio';
 import { getErrorMessage } from '../utils/error-handler'
 import { csrfProtection } from '../middleware/csrf'
+import { pool } from '../db/connection';
 
 
 const router = express.Router();
@@ -34,9 +35,9 @@ const twilioPhoneNumber = process.env.TWILIO_PHONE_NUMBER;
 // ============================================================================
 
 const sendEmailSchema = z.object({
-  to: z.union([z.string().email(), z.array(z.string().email()]),
-  cc: z.union([z.string().email(), z.array(z.string().email()]).optional(),
-  bcc: z.union([z.string().email(), z.array(z.string().email()]).optional(),
+  to: z.union([z.string().email(), z.array(z.string().email())]),
+  cc: z.union([z.string().email(), z.array(z.string().email())]).optional(),
+  bcc: z.union([z.string().email(), z.array(z.string().email())]).optional(),
   subject: z.string().min(1),
   body: z.string(),
   bodyType: z.enum(['text', 'html']).optional().default('html'),
@@ -89,7 +90,7 @@ router.post(
               name: att.name,
               contentType: att.type,
               contentBytes: '', // Would need to fetch and encode from URI
-            })
+            }))
           : undefined,
       });
 
@@ -104,8 +105,8 @@ router.post(
             ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, NOW()
             RETURNING id`,
             [
-              `Email`,
-              `Outbound`,
+              'Email',
+              'Outbound',
               validated.subject,
               validated.body,
               Array.isArray(validated.to) ? validated.to : [validated.to],
@@ -135,7 +136,7 @@ router.post(
                 communicationId,
                 link.entity_type,
                 link.entity_id,
-                link.link_type || `Related`,
+                link.link_type || 'Related',
               ]
             );
           }
@@ -237,8 +238,8 @@ router.post(
         ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, NOW()
         RETURNING id`,
         [
-          `SMS`,
-          `Outbound`,
+          'SMS',
+          'Outbound',
           validated.body,
           validated.to,
           twilioPhoneNumber,
@@ -261,7 +262,7 @@ router.post(
               communicationId,
               link.entity_type,
               link.entity_id,
-              link.link_type || `Related`,
+              link.link_type || 'Related',
             ]
           );
         }
@@ -308,7 +309,7 @@ const sendTeamsMessageSchema = z.object({
       })
     )
     .optional(),
-  attachments: z.array(z.any().optional(),
+  attachments: z.array(z.any().optional()),
   importance: z.enum(['normal', 'high', 'urgent']).optional(),
   entityLinks: z
     .array(
@@ -491,10 +492,10 @@ router.get(
       const driversResult = await pool.query(
         `SELECT
           id,
-          first_name || ` ` || last_name as name,
+          first_name || ' ' || last_name as name,
           email,
           phone_number,
-          `driver` as type
+          'driver' as type
         FROM drivers
         WHERE tenant_id = $1 AND status = 'Active'
         ORDER BY first_name, last_name`,
@@ -505,10 +506,10 @@ router.get(
       const usersResult = await pool.query(
         `SELECT
           d.id,
-          d.first_name || ` ` || d.last_name as name,
+          d.first_name || ' ' || d.last_name as name,
           d.email,
           d.phone_number,
-          `manager` as type
+          'manager' as type
         FROM drivers d
         WHERE d.tenant_id = $1
           AND d.status = 'Active'
@@ -587,7 +588,7 @@ router.get(
             status: {
               messageId,
               type,
-              status: comm.status || `sent`,
+              status: comm.status || 'sent',
               timestamp: comm.communication_datetime,
               error: comm.error_message || undefined,
             },

@@ -1,8 +1,4 @@
 /**
-import { container } from '../container'
-import { asyncHandler } from '../middleware/errorHandler'
-import { NotFoundError, ValidationError } from '../errors/app-error'
-import logger from '../config/logger'; // Wave 31: Add Winston logger
  * Mobile Trip Logging API Routes
  *
  * Endpoints for automated trip tracking with OBD2 integration
@@ -12,9 +8,10 @@ import express, { Request, Response } from 'express';
 import { authenticateJWT } from '../middleware/auth';
 import { requirePermission } from '../middleware/permissions';
 import { auditLog } from '../middleware/audit';
-import { z } from 'zod'
-import { csrfProtection } from '../middleware/csrf'
-;
+import logger from '../config/logger';
+import { z } from 'zod';
+import { csrfProtection } from '../middleware/csrf';
+import { pool } from '../db/connection';
 
 const router = express.Router();
 
@@ -74,7 +71,7 @@ const TripMetricsSchema = z.object({
     odometer_miles: z.number().optional(),
     mil_status: z.boolean().optional(),
     dtc_count: z.number().int().optional()
-  }).optional(),
+  })).optional(),
   breadcrumbs: z.array(z.object({
     timestamp: z.string().datetime(),
     latitude: z.number(),
@@ -87,7 +84,7 @@ const TripMetricsSchema = z.object({
     fuel_level_percent: z.number().optional(),
     coolant_temp_f: z.number().optional(),
     throttle_position_percent: z.number().optional()
-  }).optional(),
+  })).optional(),
   events: z.array(z.object({
     type: z.enum([
       'harsh_acceleration',
@@ -112,7 +109,7 @@ const TripMetricsSchema = z.object({
     speed_limit_mph: z.number().int().optional(),
     description: z.string(),
     metadata: z.any().optional()
-  }).optional()
+  })).optional()
 });
 
 const ClassifyTripSchema = z.object({
@@ -164,7 +161,7 @@ const ClassifyTripSchema = z.object({
  *       400:
  *         description: Invalid request data
  */
-router.post('/start',csrfProtection,  csrfProtection, requirePermission('route:create:own'), auditLog, async (req: Request, res: Response) => {
+router.post('/start', csrfProtection, requirePermission('route:create:own'), auditLog, async (req: Request, res: Response) => {
   try {
     const validated = StartTripSchema.parse(req.body);
     const userId = (req as any).user.id;
@@ -186,7 +183,7 @@ router.post('/start',csrfProtection,  csrfProtection, requirePermission('route:c
         tenantId,
         validated.vehicle_id || null,
         driverId,
-        `in_progress`,
+        'in_progress',
         validated.start_time,
         JSON.stringify(validated.start_location),
         validated.start_odometer_miles || null,
@@ -198,12 +195,12 @@ router.post('/start',csrfProtection,  csrfProtection, requirePermission('route:c
 
     res.status(201).json({
       success: true,
-      message: `Trip started`,
+      message: 'Trip started',
       trip_id: trip.id,
       trip
     });
   } catch (error: any) {
-    logger.error('Error starting trip:', error) // Wave 31: Winston logger;
+    logger.error('Error starting trip:', error);
     if (error instanceof z.ZodError) {
       return res.status(400).json({ error: 'Invalid request data', details: error.errors });
     }
@@ -248,7 +245,7 @@ router.post('/start',csrfProtection,  csrfProtection, requirePermission('route:c
  *       200:
  *         description: Trip ended successfully
  */
-router.post('/:id/end',csrfProtection,  csrfProtection, requirePermission('route:update:own'), auditLog, async (req: Request, res: Response) => {
+router.post('/:id/end', csrfProtection, requirePermission('route:update:own'), auditLog, async (req: Request, res: Response) => {
   try {
     const tripId = req.params.id;
     const validated = EndTripSchema.parse(req.body);
@@ -262,13 +259,13 @@ router.post('/:id/end',csrfProtection,  csrfProtection, requirePermission('route
     );
 
     if (tripCheck.rows.length === 0) {
-      return res.status(404).json({ error: `Trip not found` });
+      return res.status(404).json({ error: 'Trip not found' });
     }
 
     const trip = tripCheck.rows[0];
 
     // Verify user is the driver or has admin access
-    if (trip.driver_id !== userId && !['admin', 'fleet_manager'].includes((req as any).user.role) {
+    if (trip.driver_id !== userId && !['admin', 'fleet_manager'].includes((req as any).user.role)) {
       return res.status(403).json({ error: 'Access denied' });
     }
 
@@ -285,7 +282,7 @@ router.post('/:id/end',csrfProtection,  csrfProtection, requirePermission('route
     }
 
     // Update trip
-    const status = validated.status || `completed`;
+    const status = validated.status || 'completed';
     const result = await pool.query(
       `UPDATE trips SET
         status = $1,
@@ -331,11 +328,11 @@ router.post('/:id/end',csrfProtection,  csrfProtection, requirePermission('route
 
     res.json({
       success: true,
-      message: `Trip ended`,
+      message: 'Trip ended',
       trip: result.rows[0]
     });
   } catch (error: any) {
-    logger.error(`Error ending trip:`, error) // Wave 31: Winston logger;
+    logger.error('Error ending trip:', error);
     if (error instanceof z.ZodError) {
       return res.status(400).json({ error: 'Invalid request data', details: error.errors });
     }
@@ -381,7 +378,7 @@ router.post('/:id/end',csrfProtection,  csrfProtection, requirePermission('route
  *       200:
  *         description: Metrics saved successfully
  */
-router.post('/:id/metrics',csrfProtection,  csrfProtection, requirePermission('route:update:own'), async (req: Request, res: Response) => {
+router.post('/:id/metrics', csrfProtection, requirePermission('route:update:own'), async (req: Request, res: Response) => {
   try {
     const tripId = req.params.id;
     const validated = TripMetricsSchema.parse(req.body);
@@ -394,13 +391,13 @@ router.post('/:id/metrics',csrfProtection,  csrfProtection, requirePermission('r
     );
 
     if (tripCheck.rows.length === 0) {
-      return res.status(404).json({ error: `Trip not found` });
+      return res.status(404).json({ error: 'Trip not found' });
     }
 
     const client = await pool.connect();
 
     try {
-      await client.query(`BEGIN`);
+      await client.query('BEGIN');
 
       // Insert OBD2 metrics
       if (validated.metrics && validated.metrics.length > 0) {
@@ -420,7 +417,7 @@ router.post('/:id/metrics',csrfProtection,  csrfProtection, requirePermission('r
             m.dtc_count,
             m.mil_status
           ];
-          const placeholders = params.map((_, i) => `$${i + 1}`).join(`, `);
+          const placeholders = params.map((_, i) => `$${i + 1}`).join(', ');
           return { query: `(${placeholders})`, params };
         });
 
@@ -491,11 +488,11 @@ router.post('/:id/metrics',csrfProtection,  csrfProtection, requirePermission('r
         }
       }
 
-      await client.query(`COMMIT`);
+      await client.query('COMMIT');
 
       res.json({
         success: true,
-        message: `Metrics saved`,
+        message: 'Metrics saved',
         counts: {
           metrics: validated.metrics?.length || 0,
           breadcrumbs: validated.breadcrumbs?.length || 0,
@@ -503,13 +500,13 @@ router.post('/:id/metrics',csrfProtection,  csrfProtection, requirePermission('r
         }
       });
     } catch (error) {
-      await client.query(`ROLLBACK`);
+      await client.query('ROLLBACK');
       throw error;
     } finally {
       client.release();
     }
   } catch (error: any) {
-    logger.error('Error saving metrics:', error) // Wave 31: Winston logger;
+    logger.error('Error saving metrics:', error);
     if (error instanceof z.ZodError) {
       return res.status(400).json({ error: 'Invalid request data', details: error.errors });
     }
@@ -572,7 +569,7 @@ router.get('/:id', requirePermission('route:view:own'), async (req: Request, res
     );
 
     if (tripResult.rows.length === 0) {
-      return res.status(404).json({ error: `Trip not found` });
+      return res.status(404).json({ error: 'Trip not found' });
     }
 
     const trip = tripResult.rows[0];
@@ -615,8 +612,8 @@ router.get('/:id', requirePermission('route:view:own'), async (req: Request, res
       trip
     });
   } catch (error: any) {
-    logger.error(`Error getting trip:`, error) // Wave 31: Winston logger;
-    res.status(500).json({ error: `Failed to get trip` });
+    logger.error('Error getting trip:', error);
+    res.status(500).json({ error: 'Failed to get trip' });
   }
 });
 
@@ -653,7 +650,7 @@ router.get('/:id', requirePermission('route:view:own'), async (req: Request, res
  *       200:
  *         description: Trip classified
  */
-router.patch('/:id/classify',csrfProtection,  csrfProtection, requirePermission('route:update:own'), auditLog, async (req: Request, res: Response) => {
+router.patch('/:id/classify', csrfProtection, requirePermission('route:update:own'), auditLog, async (req: Request, res: Response) => {
   try {
     const tripId = req.params.id;
     const validated = ClassifyTripSchema.parse(req.body);
@@ -667,13 +664,13 @@ router.patch('/:id/classify',csrfProtection,  csrfProtection, requirePermission(
     );
 
     if (tripCheck.rows.length === 0) {
-      return res.status(404).json({ error: `Trip not found` });
+      return res.status(404).json({ error: 'Trip not found' });
     }
 
     const trip = tripCheck.rows[0];
 
     // Verify user is the driver or has admin access
-    if (trip.driver_id !== userId && !['admin', 'fleet_manager'].includes((req as any).user.role) {
+    if (trip.driver_id !== userId && !['admin', 'fleet_manager'].includes((req as any).user.role)) {
       return res.status(403).json({ error: 'Access denied' });
     }
 
@@ -718,9 +715,9 @@ router.patch('/:id/classify',csrfProtection,  csrfProtection, requirePermission(
           tripData.driver_id,
           validated.usage_type,
           validated.business_purpose || null,
-          validated.business_percentage || (validated.usage_type === `personal` ? 0 : 100),
+          validated.business_percentage || (validated.usage_type === 'personal' ? 0 : 100),
           tripData.distance_miles || 0,
-          validated.usage_type === `business` ? tripData.distance_miles :
+          validated.usage_type === 'business' ? tripData.distance_miles :
             (validated.business_percentage ? tripData.distance_miles * validated.business_percentage / 100 : 0),
           validated.usage_type === 'personal' ? tripData.distance_miles :
             (validated.business_percentage ? tripData.distance_miles * (100 - validated.business_percentage) / 100 : 0),
@@ -739,7 +736,7 @@ router.patch('/:id/classify',csrfProtection,  csrfProtection, requirePermission(
       trip: result.rows[0]
     });
   } catch (error: any) {
-    logger.error('Error classifying trip:', error) // Wave 31: Winston logger;
+    logger.error('Error classifying trip:', error);
     if (error instanceof z.ZodError) {
       return res.status(400).json({ error: 'Invalid request data', details: error.errors });
     }
@@ -811,7 +808,7 @@ router.get('/', requirePermission('route:view:fleet'), async (req: Request, res:
         v.name as vehicle_name,
         v.license_plate,
         u.name as driver_name,
-        (SELECT COUNT(*) FROM trip_events te WHERE te.trip_id = t.id AND te.severity IN ('high', 'critical') as critical_events
+        (SELECT COUNT(*) FROM trip_events te WHERE te.trip_id = t.id AND te.severity IN ('high', 'critical')) as critical_events
       FROM trips t
       LEFT JOIN vehicles v ON t.vehicle_id = v.id
       LEFT JOIN users u ON t.driver_id = u.id
@@ -851,10 +848,10 @@ router.get('/', requirePermission('route:view:fleet'), async (req: Request, res:
       params.push(end_date);
     }
 
-    query += ` ORDER BY t.start_time DESC`;
+    query += ' ORDER BY t.start_time DESC';
 
     // Get total count
-    const countQuery = query.replace(/SELECT.*FROM/, `SELECT COUNT(*) FROM`).split(`ORDER BY`)[0];
+    const countQuery = query.replace(/SELECT.*FROM/s, 'SELECT COUNT(*) FROM').split('ORDER BY')[0];
     const countResult = await pool.query(countQuery, params);
     const total = parseInt(countResult.rows[0].count);
 
@@ -880,8 +877,8 @@ router.get('/', requirePermission('route:view:fleet'), async (req: Request, res:
       }
     });
   } catch (error: any) {
-    logger.error(`Error getting trips:`, error) // Wave 31: Winston logger;
-    res.status(500).json({ error: `Failed to get trips` });
+    logger.error('Error getting trips:', error);
+    res.status(500).json({ error: 'Failed to get trips' });
   }
 });
 
