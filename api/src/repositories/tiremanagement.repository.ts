@@ -1,15 +1,4 @@
 import { BaseRepository } from '../repositories/BaseRepository';
-
-To create a TypeScript repository named `TireManagementRepository` for the `api/src/routes/tire-management.routes.ts` file, we'll implement parameterized queries, include a `tenant_id` field, and provide CRUD (Create, Read, Update, Delete) operations. Let's break this down step-by-step:
-
-1. First, we'll define the interface for our tire management data.
-2. Then, we'll create the `TireManagementRepository` class with CRUD methods.
-3. We'll use parameterized queries to prevent SQL injection.
-4. We'll include the `tenant_id` in all queries to ensure multi-tenant support.
-
-Here's the implementation:
-
-
 import { Pool, QueryResult } from 'pg';
 
 // Define the interface for tire management data
@@ -31,6 +20,7 @@ export class TireManagementRepository extends BaseRepository<any> {
   private pool: Pool;
 
   constructor(pool: Pool) {
+    super('tire_management', pool);
     this.pool = pool;
   }
 
@@ -107,7 +97,7 @@ export class TireManagementRepository extends BaseRepository<any> {
     const values = [id, tenant_id];
 
     const result: QueryResult = await this.pool.query(query, values);
-    return result.rowCount > 0;
+    return result.rowCount ? result.rowCount > 0 : false;
   }
 
   // List all tire management records for a tenant
@@ -122,34 +112,3 @@ export class TireManagementRepository extends BaseRepository<any> {
     return result.rows;
   }
 }
-
-
-This implementation includes the following features:
-
-1. A `TireManagement` interface to define the structure of our data.
-2. A `TireManagementRepository` class with CRUD operations:
-   - `create`: Inserts a new tire management record.
-   - `read`: Retrieves a single record by ID and tenant ID.
-   - `update`: Updates an existing record.
-   - `delete`: Deletes a record by ID and tenant ID.
-   - `list`: Retrieves all records for a specific tenant.
-3. All queries use parameterized queries to prevent SQL injection.
-4. The `tenant_id` is included in all queries to ensure multi-tenant support.
-5. The class uses a `Pool` object from the `pg` package, which should be injected when instantiating the repository.
-
-To use this repository in your `tire-management.routes.ts` file, you would typically create an instance of the repository and use its methods in your route handlers. For example:
-
-
-import { Pool } from 'pg';
-import { TireManagementRepository } from './TireManagementRepository';
-
-const pool = new Pool({
-  // Your database connection details
-});
-
-const tireManagementRepository = new TireManagementRepository(pool);
-
-// Use tireManagementRepository in your route handlers
-
-
-This implementation provides a solid foundation for managing tire-related data in a multi-tenant environment, with proper security measures in place through the use of parameterized queries.

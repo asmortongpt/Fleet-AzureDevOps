@@ -1,42 +1,50 @@
 import { BaseRepository } from './BaseRepository';
-
 import { Pool, QueryResult } from 'pg';
 
-class MobileTripsRepository {
+export interface MobileTrip {
+  id: number;
+  tenant_id: number;
+  driver_id: number;
+  vehicle_id: number;
+  start_time: Date;
+  end_time: Date;
+  start_location: string;
+  end_location: string;
+  distance: number;
+  status: string;
+  created_at: Date;
+  updated_at: Date;
+}
+
+export class MobileTripsRepository extends BaseRepository<any> {
+
   private pool: Pool;
 
   constructor(pool: Pool) {
+    super('mobile_trips', pool);
     this.pool = pool;
   }
 
-  async getAllTrips(tenantId: string): Promise<QueryResult> {
-    const query = 'SELECT id, tenant_id, created_at, updated_at FROM mobile_trips WHERE tenant_id = $1';
-    return this.query(query, [tenantId]);
+  async getAllTrips(tenantId: number): Promise<MobileTrip[]> {
+    const query = 'SELECT id, tenant_id, driver_id, vehicle_id, start_time, end_time, start_location, end_location, distance, status, created_at, updated_at FROM mobile_trips WHERE tenant_id = $1';
+    const result: QueryResult<MobileTrip> = await this.pool.query(query, [tenantId]);
+    return result.rows;
   }
 
-  async getTripById(tripId: string, tenantId: string): Promise<QueryResult> {
-    const query = 'SELECT id, tenant_id, created_at, updated_at FROM mobile_trips WHERE id = $1 AND tenant_id = $2';
-    return this.query(query, [tripId, tenantId]);
+  async getTripById(tripId: number, tenantId: number): Promise<MobileTrip | null> {
+    const query = 'SELECT id, tenant_id, driver_id, vehicle_id, start_time, end_time, start_location, end_location, distance, status, created_at, updated_at FROM mobile_trips WHERE id = $1 AND tenant_id = $2';
+    const result: QueryResult<MobileTrip> = await this.pool.query(query, [tripId, tenantId]);
+    return result.rows[0] || null;
   }
 
   async createTrip(
-    tripData: {
-      driver_id: string;
-      vehicle_id: string;
-      start_time: Date;
-      end_time: Date;
-      start_location: string;
-      end_location: string;
-      distance: number;
-      status: string;
-    },
-    tenantId: string
-  ): Promise<QueryResult> {
+    tripData: Omit<MobileTrip, 'id' | 'created_at' | 'updated_at'>
+  ): Promise<MobileTrip> {
     const query = `
       INSERT INTO mobile_trips (
         driver_id, vehicle_id, start_time, end_time, start_location, 
-        end_location, distance, status, tenant_id
-      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+        end_location, distance, status, tenant_id, created_at, updated_at
+      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, NOW(), NOW())
       RETURNING *
     `;
     const values = [
@@ -48,44 +56,43 @@ class MobileTripsRepository {
       tripData.end_location,
       tripData.distance,
       tripData.status,
-      tenantId
+      tripData.tenant_id
     ];
-    return this.query(query, values);
+    const result: QueryResult<MobileTrip> = await this.pool.query(query, values);
+    return result.rows[0];
   }
 
   async updateTrip(
-    tripId: string,
-    tripData: {
-      driver_id?: string;
-      vehicle_id?: string;
-      start_time?: Date;
-      end_time?: Date;
-      start_location?: string;
-      end_location?: string;
-      distance?: number;
-      status?: string;
-    },
-    tenantId: string
-  ): Promise<QueryResult> {
-    const set Clauses = Object.entries(tripData)
-      .map(([key, value], index) => `${key} = $${index + 1}`)
+    tripId: number,
+    tripData: Partial<MobileTrip>,
+    tenantId: number
+  ): Promise<MobileTrip | null> {
+    const setClause = Object.keys(tripData)
+      .map((key, index) => `${key} = $${index + 3}`)
       .join(', ');
-    const values = Object.values(tripData);
-    values.push(tripId);
-    values.push(tenantId);
+
+    if (!setClause) {
+      return this.getTripById(tripId, tenantId);
+    }
+
+    // keys are $3, $4...
+    // id=$1, tenantId=$2
 
     const query = `
       UPDATE mobile_trips
-      SET ${setClauses}
-      WHERE id = $${values.length - 1} AND tenant_id = $${values.length}
+      SET ${setClause}, updated_at = NOW()
+      WHERE id = $1 AND tenant_id = $2
       RETURNING *
     `;
-    return this.query(query, values);
+    const values = [tripId, tenantId, ...Object.values(tripData)];
+    const result: QueryResult<MobileTrip> = await this.pool.query(query, values);
+    return result.rows[0] || null;
   }
 
-  async deleteTrip(tripId: string, tenantId: string): Promise<QueryResult> {
-    const query = 'DELETE FROM mobile_trips WHERE id = $1 AND tenant_id = $2 RETURNING *';
-    return this.query(query, [tripId, tenantId]);
+  async deleteTrip(tripId: number, tenantId: number): Promise<boolean> {
+    const query = 'DELETE FROM mobile_trips WHERE id = $1 AND tenant_id = $2 RETURNING id';
+    const result: QueryResult = await this.pool.query(query, [tripId, tenantId]);
+    return result.rowCount ? result.rowCount > 0 : false;
   }
 }
 

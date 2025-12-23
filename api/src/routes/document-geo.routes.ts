@@ -1,8 +1,4 @@
 /**
-import { container } from '../container'
-import { asyncHandler } from '../middleware/errorHandler'
-import { NotFoundError, ValidationError } from '../errors/app-error'
-import logger from '../config/logger'; // Wave 26: Add Winston logger
  * Document Geospatial Routes
  *
  * RESTful API endpoints for geospatial document operations:
@@ -18,8 +14,8 @@ import { authenticateJWT } from '../middleware/auth'
 import documentGeoService from '../services/document-geo.service'
 import { getErrorMessage } from '../utils/error-handler'
 import { csrfProtection } from '../middleware/csrf'
-import { pool } from '../db/connection';
-
+import { ValidationError, NotFoundError } from '../errors/app-error'
+import logger from '../config/logger';
 
 const router = Router()
 
@@ -63,7 +59,7 @@ router.use(authenticateJWT)
  *                 type: number
  *                 description: Minimum distance in meters
  */
-router.post('/nearby',csrfProtection,  csrfProtection, async (req: AuthRequest, res) => {
+router.post('/nearby', csrfProtection, async (req: AuthRequest, res) => {
   try {
     const tenantId = req.user?.tenant_id
 
@@ -110,7 +106,7 @@ router.post('/nearby',csrfProtection,  csrfProtection, async (req: AuthRequest, 
       search_params: { lat, lng, radius }
     })
   } catch (error: any) {
-    logger.error('Error finding nearby documents:', error) // Wave 26: Winston logger
+    logger.error('Error finding nearby documents:', error)
     res.status(500).json({
       error: 'Failed to find nearby documents',
       details: getErrorMessage(error)
@@ -144,7 +140,7 @@ router.post('/nearby',csrfProtection,  csrfProtection, async (req: AuthRequest, 
  *               limit:
  *                 type: integer
  */
-router.post('/within-polygon',csrfProtection,  csrfProtection, async (req: AuthRequest, res) => {
+router.post('/within-polygon', csrfProtection, async (req: AuthRequest, res) => {
   try {
     const tenantId = req.user?.tenant_id
 
@@ -173,7 +169,7 @@ router.post('/within-polygon',csrfProtection,  csrfProtection, async (req: AuthR
       total: documents.length
     })
   } catch (error: any) {
-    logger.error('Error finding documents in polygon:', error) // Wave 26: Winston logger
+    logger.error('Error finding documents in polygon:', error)
     res.status(500).json({
       error: 'Failed to find documents in polygon',
       details: getErrorMessage(error)
@@ -212,7 +208,7 @@ router.post('/within-polygon',csrfProtection,  csrfProtection, async (req: AuthR
  *               limit:
  *                 type: integer
  */
-router.post('/along-route',csrfProtection,  csrfProtection, async (req: AuthRequest, res) => {
+router.post('/along-route', csrfProtection, async (req: AuthRequest, res) => {
   try {
     const tenantId = req.user?.tenant_id
 
@@ -252,7 +248,7 @@ router.post('/along-route',csrfProtection,  csrfProtection, async (req: AuthRequ
       total: documents.length
     })
   } catch (error: any) {
-    logger.error('Error finding documents along route:', error) // Wave 26: Winston logger
+    logger.error('Error finding documents along route:', error)
     res.status(500).json({
       error: 'Failed to find documents along route',
       details: getErrorMessage(error)
@@ -293,7 +289,7 @@ router.get('/heatmap', async (req: AuthRequest, res) => {
       total_cells: heatmap.length
     })
   } catch (error: any) {
-    logger.error('Error generating heatmap:', error) // Wave 26: Winston logger
+    logger.error('Error generating heatmap:', error)
     res.status(500).json({
       error: 'Failed to generate heatmap',
       details: getErrorMessage(error)
@@ -335,7 +331,7 @@ router.get('/clusters', async (req: AuthRequest, res) => {
       total_documents: clusters.reduce((sum, c) => sum + c.document_count, 0)
     })
   } catch (error: any) {
-    logger.error('Error clustering documents:', error) // Wave 26: Winston logger
+    logger.error('Error clustering documents:', error)
     res.status(500).json({
       error: 'Failed to cluster documents',
       details: getErrorMessage(error)
@@ -360,7 +356,7 @@ router.get('/clusters', async (req: AuthRequest, res) => {
  *               address:
  *                 type: string
  */
-router.post('/geocode',csrfProtection,  csrfProtection, async (req: AuthRequest, res) => {
+router.post('/geocode', csrfProtection, async (req: AuthRequest, res) => {
   try {
     const { address } = req.body
 
@@ -376,7 +372,7 @@ router.post('/geocode',csrfProtection,  csrfProtection, async (req: AuthRequest,
 
     res.json({ result })
   } catch (error: any) {
-    logger.error('Error geocoding address:', error) // Wave 26: Winston logger
+    logger.error('Error geocoding address:', error)
     res.status(500).json({
       error: 'Failed to geocode address',
       details: getErrorMessage(error)
@@ -404,7 +400,7 @@ router.post('/geocode',csrfProtection,  csrfProtection, async (req: AuthRequest,
  *               lng:
  *                 type: number
  */
-router.post('/reverse-geocode',csrfProtection,  csrfProtection, async (req: AuthRequest, res) => {
+router.post('/reverse-geocode', csrfProtection, async (req: AuthRequest, res) => {
   try {
     const { lat, lng } = req.body
 
@@ -427,7 +423,7 @@ router.post('/reverse-geocode',csrfProtection,  csrfProtection, async (req: Auth
 
     res.json({ result })
   } catch (error: any) {
-    logger.error('Error reverse geocoding:', error) // Wave 26: Winston logger
+    logger.error('Error reverse geocoding:', error)
     res.status(500).json({
       error: 'Failed to reverse geocode',
       details: getErrorMessage(error)
@@ -461,7 +457,7 @@ router.post('/reverse-geocode',csrfProtection,  csrfProtection, async (req: Auth
  *               lng:
  *                 type: number
  */
-router.put('/:id/location',csrfProtection,  csrfProtection, async (req: AuthRequest, res) => {
+router.put('/:id/location', csrfProtection, async (req: AuthRequest, res) => {
   try {
     const { id } = req.params
     const { lat, lng } = req.body
@@ -484,7 +480,7 @@ router.put('/:id/location',csrfProtection,  csrfProtection, async (req: AuthRequ
       location: { lat, lng }
     })
   } catch (error: any) {
-    logger.error('Error setting document location:', error) // Wave 26: Winston logger
+    logger.error('Error setting document location:', error)
     res.status(500).json({
       error: 'Failed to set document location',
       details: getErrorMessage(error)
@@ -514,7 +510,7 @@ router.get('/all', async (req: AuthRequest, res) => {
       total: documents.length
     })
   } catch (error: any) {
-    logger.error('Error getting geolocated documents:', error) // Wave 26: Winston logger
+    logger.error('Error getting geolocated documents:', error)
     res.status(500).json({
       error: 'Failed to get geolocated documents',
       details: getErrorMessage(error)
@@ -535,12 +531,12 @@ router.get('/all', async (req: AuthRequest, res) => {
  *         schema:
  *           type: string
  */
-router.post('/:id/extract-location',csrfProtection,  csrfProtection, async (req: AuthRequest, res) => {
+router.post('/:id/extract-location', csrfProtection, async (req: AuthRequest, res) => {
   try {
     const { id } = req.params
 
     // Get document info
-    const pool = (await import('../config/database').default
+    const pool = (await import('../config/database')).default
     const result = await pool.query(
       'SELECT file_url, file_type FROM documents WHERE tenant_id = $1 AND id = $2',
       [req.user!.tenant_id, id]
@@ -560,7 +556,7 @@ router.post('/:id/extract-location',csrfProtection,  csrfProtection, async (req:
       note: 'Location will be extracted from EXIF data or text content'
     })
   } catch (error: any) {
-    logger.error('Error extracting location:', error) // Wave 26: Winston logger
+    logger.error('Error extracting location:', error)
     res.status(500).json({
       error: 'Failed to extract location',
       details: getErrorMessage(error)

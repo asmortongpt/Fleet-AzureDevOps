@@ -1,7 +1,4 @@
 /**
-import { container } from '../container'
-import { asyncHandler } from '../middleware/errorHandler'
-import { NotFoundError, ValidationError } from '../errors/app-error'
  * Inspections Routes - DAL Example Implementation
  *
  * This file demonstrates advanced DAL usage including:
@@ -49,7 +46,7 @@ const inspectionCreateSchema = z.object({
 
 const inspectionCompleteSchema = z.object({
   passed: z.boolean(),
-  defects_found: z.array(z.any().optional(),
+  defects_found: z.array(z.any()).optional(),
   notes: z.string().optional(),
   signature_url: z.string().url().optional()
 })
@@ -148,7 +145,7 @@ router.get(
   async (req: AuthRequest, res: Response) => {
     try {
       const { days = 7 } = req.query
-      const inspections = await inspectionRepo.findDueSoon(req.user!.tenant_id, Number(days)
+      const inspections = await inspectionRepo.findDueSoon(req.user!.tenant_id, Number(days))
       res.json({ data: inspections })
     } catch (error) {
       const { statusCode, error: message, code } = handleDatabaseError(error)
@@ -288,7 +285,7 @@ router.get(
  */
 router.post(
   '/',
- csrfProtection,  csrfProtection, requirePermission('inspection:create:fleet'),
+  csrfProtection, requirePermission('inspection:create:fleet'),
   auditLog({ action: 'CREATE', resourceType: 'inspections' }),
   async (req: AuthRequest, res: Response) => {
     try {
@@ -319,7 +316,7 @@ router.post(
  */
 router.put(
   '/:id',
- csrfProtection,  csrfProtection, requirePermission('inspection:update:fleet'),
+  csrfProtection, requirePermission('inspection:update:fleet'),
   auditLog({ action: 'UPDATE', resourceType: 'inspections' }),
   async (req: AuthRequest, res: Response) => {
     try {
@@ -353,7 +350,7 @@ router.put(
  */
 router.post(
   '/:id/complete',
- csrfProtection,  csrfProtection, requirePermission('inspection:update:fleet'),
+  csrfProtection, requirePermission('inspection:update:fleet'),
   auditLog({ action: 'UPDATE', resourceType: 'inspections' }),
   async (req: AuthRequest, res: Response) => {
     try {
@@ -412,7 +409,7 @@ router.post(
  */
 router.delete(
   '/:id',
- csrfProtection,  csrfProtection, requirePermission('inspection:delete:fleet'),
+  csrfProtection, requirePermission('inspection:delete:fleet'),
   auditLog({ action: 'DELETE', resourceType: 'inspections' }),
   async (req: AuthRequest, res: Response) => {
     try {
@@ -438,7 +435,7 @@ router.delete(
  */
 router.post(
   '/schedule-bulk',
- csrfProtection,  csrfProtection, requirePermission('inspection:create:fleet'),
+  csrfProtection, requirePermission('inspection:create:fleet'),
   auditLog({ action: 'CREATE', resourceType: 'inspections' }),
   async (req: AuthRequest, res: Response) => {
     try {

@@ -209,7 +209,7 @@ export class AuditService {
 
     const result = await this.db.query(
       `DELETE FROM permission_audit_log
-       WHERE timestamp < $1',
+       WHERE timestamp < $1`,
       [cutoffDate]
     );
 

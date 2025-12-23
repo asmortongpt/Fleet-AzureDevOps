@@ -1,41 +1,76 @@
 import { BaseRepository } from '../repositories/BaseRepository';
+import { Pool, QueryResult } from 'pg';
 
-Here is a basic implementation of a TypeScript repository for Geofencing:
-
-
-import { EntityRepository, Repository } from 'typeorm';
-import { Geofencing } from '../entities/geofencing.entity';
-
-@EntityRepository(Geofencing)
-export class GeofencingRepository extends Repository<Geofencing> {
-  constructor(pool: Pool) {
-    super(pool, 'LGeofencing_LRepository extends s');
-  }
-
-  async createGeofencing(tenant_id: string, geofencingData: any): Promise<Geofencing> {
-    const geofencing = this.create({ ...geofencingData, tenant_id });
-    return this.save(geofencing);
-  }
-
-  async getGeofencings(tenant_id: string): Promise<Geofencing[]> {
-    return this.find({ where: { tenant_id } });
-  }
-
-  async getGeofencing(tenant_id: string, id: string): Promise<Geofencing> {
-    return this.findOne({ where: { tenant_id, id } });
-  }
-
-  async updateGeofencing(tenant_id: string, id: string, geofencingData: any): Promise<Geofencing> {
-    await this.update({ tenant_id, id }, geofencingData);
-    return this.getGeofencing(tenant_id, id);
-  }
-
-  async deleteGeofencing(tenant_id: string, id: string): Promise<void> {
-    await this.delete({ tenant_id, id });
-  }
+export interface Geofencing {
+  id: number;
+  tenant_id: number;
+  name: string;
+  description: string;
+  coordinates: any;
+  created_at: Date;
+  updated_at: Date;
 }
 
+export class GeofencingRepository extends BaseRepository<any> {
 
-This repository provides CRUD operations for a Geofencing entity. Each operation is scoped to a specific tenant_id, ensuring that data is isolated for each tenant.
+  private pool: Pool;
 
-Please note that this is a basic implementation and might need to be adjusted based on your actual needs and the structure of your Geofencing entity and your database. Also, error handling is not included in this example and should be added.
+  constructor(pool: Pool) {
+    super('geofencing', pool);
+    this.pool = pool;
+  }
+
+  async createGeofencing(tenantId: number, geofencingData: Omit<Geofencing, 'id' | 'created_at' | 'updated_at'>): Promise<Geofencing> {
+    const query = `
+      INSERT INTO geofencing (tenant_id, name, description, coordinates, created_at, updated_at)
+      VALUES ($1, $2, $3, $4, NOW(), NOW())
+      RETURNING *
+    `;
+    const values = [
+      tenantId,
+      geofencingData.name,
+      geofencingData.description,
+      geofencingData.coordinates
+    ];
+    const result: QueryResult<Geofencing> = await this.pool.query(query, values);
+    return result.rows[0];
+  }
+
+  async getGeofencings(tenantId: number): Promise<Geofencing[]> {
+    const query = `SELECT id, tenant_id, name, description, coordinates, created_at, updated_at FROM geofencing WHERE tenant_id = $1`;
+    const result: QueryResult<Geofencing> = await this.pool.query(query, [tenantId]);
+    return result.rows;
+  }
+
+  async getGeofencing(tenantId: number, id: number): Promise<Geofencing | null> {
+    const query = `SELECT id, tenant_id, name, description, coordinates, created_at, updated_at FROM geofencing WHERE id = $1 AND tenant_id = $2`;
+    const result: QueryResult<Geofencing> = await this.pool.query(query, [id, tenantId]);
+    return result.rows[0] || null;
+  }
+
+  async updateGeofencing(tenantId: number, id: number, geofencingData: Partial<Geofencing>): Promise<Geofencing | null> {
+    const setClause = Object.keys(geofencingData)
+      .map((key, index) => `${key} = $${index + 3}`)
+      .join(', ');
+
+    if (!setClause) {
+      return this.getGeofencing(tenantId, id);
+    }
+
+    const query = `
+      UPDATE geofencing
+      SET ${setClause}, updated_at = NOW()
+      WHERE id = $1 AND tenant_id = $2
+      RETURNING *
+    `;
+    const values = [id, tenantId, ...Object.values(geofencingData)];
+    const result: QueryResult<Geofencing> = await this.pool.query(query, values);
+    return result.rows[0] || null;
+  }
+
+  async deleteGeofencing(tenantId: number, id: number): Promise<boolean> {
+    const query = `DELETE FROM geofencing WHERE id = $1 AND tenant_id = $2 RETURNING id`;
+    const result: QueryResult = await this.pool.query(query, [id, tenantId]);
+    return result.rowCount ? result.rowCount > 0 : false;
+  }
+}

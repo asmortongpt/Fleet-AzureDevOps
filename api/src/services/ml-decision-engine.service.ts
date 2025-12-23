@@ -55,7 +55,7 @@ export interface CostForecast {
 class MLDecisionEngineService {
   constructor(
     private db: Pool,
-    private logger: typeof logger
+    private logger: any
   ) { }
 
   /**

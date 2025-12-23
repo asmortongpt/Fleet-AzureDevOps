@@ -1,66 +1,44 @@
-Here is a TypeScript code snippet that follows the security rules and requirements you provided:
-import { container } from '../container'
-import { asyncHandler } from '../middleware/errorHandler'
-import { NotFoundError, ValidationError } from '../errors/app-error'
 
-```typescript
 import express, { Request, Response, NextFunction } from 'express';
-import jwt from 'express-jwt';
-import jwksRsa from 'jwks-rsa';
 import { Pool } from 'pg';
-import dotenv from 'dotenv';
-import { csrfProtection } from '../middleware/csrf'
-import { pool } from '../db/connection';
+import { ValidationError } from '../errors/app-error';
+import { authenticateJWT } from '../middleware/auth';
+import { csrfProtection } from '../middleware/csrf';
 
+// Assuming pool is exported from db/connection or config/database. Using common pattern.
+import pool from '../config/database';
 
-dotenv.config();
-
-const app = express();
-
-// JWT middleware
-app.use(
-  jwt({
-    secret: jwksRsa.expressJwtSecret({
-      cache: true,
-      rateLimit: true,
-      jwksRequestsPerMinute: 5,
-      jwksUri: process.env.JWKS_URI,
-    }),
-    audience: process.env.AUDIENCE,
-    issuer: process.env.ISSUER,
-    algorithms: ['RS256'],
-  })
-);
-
-const pool = new Pool({
-  connectionString: process.env.DATABASE_URL,
-});
+const router = express.Router();
 
 type Coordinate = {
   lat: number;
   lng: number;
 };
 
-app.get('/api/weather/current', async (req: Request, res: Response, next: NextFunction) => {
-  const { lat, lng }: Coordinate = req.query;
+router.get('/current', authenticateJWT, async (req: Request, res: Response, next: NextFunction) => {
+  const lat = req.query.lat ? parseFloat(req.query.lat as string) : undefined;
+  const lng = req.query.lng ? parseFloat(req.query.lng as string) : undefined;
 
-  if (!lat || !lng) {
-    throw new ValidationError("Invalid coordinates");
+  if (lat === undefined || lng === undefined) {
+    res.status(400).json({ error: "Invalid coordinates" });
+    return;
   }
 
   try {
     const result = await pool.query('SELECT * FROM weather WHERE lat = $1 AND lng = $2', [lat, lng]);
-    res.json(result.rows[0]);
+    res.json(result.rows[0] || {});
   } catch (err) {
     next(err);
   }
 });
 
-app.get('/api/weather/forecast', async (req: Request, res: Response, next: NextFunction) => {
-  const { lat, lng }: Coordinate = req.query;
+router.get('/forecast', authenticateJWT, async (req: Request, res: Response, next: NextFunction) => {
+  const lat = req.query.lat ? parseFloat(req.query.lat as string) : undefined;
+  const lng = req.query.lng ? parseFloat(req.query.lng as string) : undefined;
 
-  if (!lat || !lng) {
-    throw new ValidationError("Invalid coordinates");
+  if (lat === undefined || lng === undefined) {
+    res.status(400).json({ error: "Invalid coordinates" });
+    return;
   }
 
   try {
@@ -71,7 +49,7 @@ app.get('/api/weather/forecast', async (req: Request, res: Response, next: NextF
   }
 });
 
-app.get('/api/weather/alerts', async (_req: Request, res: Response, next: NextFunction) => {
+router.get('/alerts', authenticateJWT, async (_req: Request, res: Response, next: NextFunction) => {
   try {
     const result = await pool.query('SELECT * FROM weather_alerts WHERE state = $1', ['Florida']);
     res.json(result.rows);
@@ -80,7 +58,7 @@ app.get('/api/weather/alerts', async (_req: Request, res: Response, next: NextFu
   }
 });
 
-app.get('/api/weather/radar', async (_req: Request, res: Response, next: NextFunction) => {
+router.get('/radar', authenticateJWT, async (_req: Request, res: Response, next: NextFunction) => {
   try {
     const result = await pool.query('SELECT * FROM weather_radar WHERE state = $1', ['Florida']);
     res.json(result.rows);
@@ -89,14 +67,4 @@ app.get('/api/weather/radar', async (_req: Request, res: Response, next: NextFun
   }
 });
 
-app.use((err: Error, _req: Request, res: Response, _next: NextFunction) => {
-  console.error(err.stack);
-  res.status(500).json({ error: 'Something went wrong' });
-});
-
-app.listen(process.env.PORT, () => {
-  console.log(`Server is running on port ${process.env.PORT}`);
-});
-```
-
-This code uses the `express-jwt` and `jwks-rsa` libraries for JWT authentication. It also uses the `pg` library to interact with a PostgreSQL database using parameterized queries. The `dotenv` library is used to load environment variables from a `.env` file. The code includes error handling middleware at the end of the file to catch any errors that occur in the route handlers.
+export default router;

@@ -77,11 +77,11 @@ async function processOCR(data: TesseractWorkerData): Promise<TesseractWorkerRes
       data: {
         text: ocrData.text,
         confidence: ocrData.confidence,
-        lines: ocrData.lines.map(line => ({
+        lines: ocrData.lines.map((line: any) => ({
           text: line.text,
           confidence: line.confidence,
           bbox: line.bbox,
-          words: line.words.map(word => ({
+          words: line.words.map((word: any) => ({
             text: word.text,
             confidence: word.confidence,
             bbox: word.bbox
