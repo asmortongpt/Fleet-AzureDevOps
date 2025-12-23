@@ -20,6 +20,7 @@ import { microsoftGraphService } from '../services/microsoft-graph.service';
 import { queueService } from '../services/queue.service';
 import { getErrorMessage } from '../utils/error-handler';
 import { csrfProtection } from '../middleware/csrf'
+import { pool } from '../db/connection';
 
 
 const router = express.Router();
@@ -139,7 +140,7 @@ router.get('/microsoft', async (req: Request, res: Response) => {
           resource: sub.resource,
           status: sub.status,
           expiresAt: sub.expiration_date_time
-        })
+        }))
       }
     };
   } catch (error: unknown) {
@@ -238,7 +239,7 @@ router.get('/microsoft', async (req: Request, res: Response) => {
 
   // Set appropriate HTTP status code
   const httpStatus = results.status === 'healthy' ? 200 :
-                     results.status === 'degraded' ? 200 : 503;
+    results.status === 'degraded' ? 200 : 503;
 
   res.status(httpStatus).json(results);
 });
@@ -280,11 +281,11 @@ router.get('/microsoft/metrics', async (req: Request, res: Response) => {
     const queueStats = await queueService.getQueueStats(`teams-outbound`);
     metrics.push(`# HELP queue_jobs_waiting Number of jobs waiting in queue`);
     metrics.push(`# TYPE queue_jobs_waiting gauge`);
-    metrics.push("queue_jobs_waiting{queue="teams-outbound"} ${queueStats.waiting || 0}");
+    metrics.push(`queue_jobs_waiting{queue="teams-outbound"} ${queueStats.waiting || 0}`);
 
     metrics.push(`# HELP queue_jobs_active Number of active jobs`);
     metrics.push(`# TYPE queue_jobs_active gauge`);
-    metrics.push("queue_jobs_active{queue="teams-outbound"} ${queueStats.active || 0}");
+    metrics.push(`queue_jobs_active{queue="teams-outbound"} ${queueStats.active || 0}`);
 
     // Webhook subscriptions
     const webhookService = await import(`../services/webhook.service`);
@@ -310,7 +311,7 @@ router.get('/microsoft/metrics', async (req: Request, res: Response) => {
     metrics.push(`# Error: ${getErrorMessage(error)}`);
   }
 
-  res.send(metrics.join(`\n`);
+  res.send(metrics.join(`\n`));
 });
 
 export default router;

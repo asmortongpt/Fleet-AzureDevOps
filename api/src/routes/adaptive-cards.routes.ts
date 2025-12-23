@@ -18,6 +18,7 @@ import {
 } from '../services/adaptive-cards.service'
 import { handleCardAction } from '../services/actionable-messages.service'
 import { csrfProtection } from '../middleware/csrf'
+import { pool } from '../db/connection';
 
 
 const router = express.Router()

@@ -296,7 +296,8 @@ export class FuelPurchasingService {
         `SELECT AVG(price_per_gallon) as avg_price
          FROM fuel_prices
          WHERE fuel_type = $1
-         AND timestamp >= NOW() - INTERVAL '24 hours'',
+         AND timestamp >= NOW() - INTERVAL '24 hours'`,
+
         [orderData.fuelType]
       )
 
@@ -439,7 +440,8 @@ export class FuelPurchasingService {
          FROM fuel_purchase_orders
          WHERE tenant_id = $1
          AND purchase_date BETWEEN $2 AND $3
-         AND status = 'completed'',
+         AND status = 'completed'`,
+
         [tenantId, periodStart, periodEnd]
       )
 
@@ -508,7 +510,7 @@ export class FuelPurchasingService {
   private generateMockStations(lat: number, lng: number, radiusMiles: number): FuelStation[] {
     const brands = ['Shell', 'BP', 'Chevron', 'Exxon', 'Mobil', '76', 'Arco', 'Valero']
     const cities = ['Downtown', 'Midtown', 'Westside', 'Eastside', 'Northpoint', 'Southbay']
-    const states = ['CA', 'TX', 'FL', 'NY`, `IL`]
+    const states = ['CA', 'TX', 'FL', 'NY', 'IL']
 
     const stations: FuelStation[] = []
     const numStations = 12

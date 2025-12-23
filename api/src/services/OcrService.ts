@@ -41,58 +41,67 @@ async function loadOptionalProviders() {
   try {
     const visionModule = await import('@google-cloud/vision');
     vision = visionModule.default;
+  }
    catch (err) {
     console.warn('Google Cloud Vision not available - install @google-cloud/vision for premium OCR');
-  
+  }
 
   try {
     const textractModule = await import('@aws-sdk/client-textract');
     TextractClient = textractModule.TextractClient;
     AnalyzeDocumentCommand = textractModule.AnalyzeDocumentCommand;
     DetectDocumentTextCommand = textractModule.DetectDocumentTextCommand;
+  }
    catch (err) {
     console.warn('AWS Textract not available - install @aws-sdk/client-textract for premium OCR');
-  
+  }
 
   try {
     const azureModule = await import('@azure/cognitiveservices-computervision');
     const msRestModule = await import('@azure/ms-rest-js');
     ComputerVisionClient = azureModule.ComputerVisionClient;
     ApiKeyCredentials = msRestModule.ApiKeyCredentials;
+  }
    catch (err) {
     console.warn('Azure Computer Vision not available - install @azure/cognitiveservices-computervision for premium OCR');
-  
+  }
 
   // Document parsing libraries
   try {
     const pdfParseModule = await import('pdf-parse');
     pdfParse = pdfParseModule.default;
+  }
    catch (err) {
     console.warn('pdf-parse not available - install pdf-parse for PDF document OCR');
-  
+  }
 
   try {
     const mammothModule = await import('mammoth');
     mammoth = mammothModule.default;
+  }
    catch (err) {
     console.warn('mammoth not available - install mammoth for DOCX document OCR');
-  
+  }
 
   try {
     const xlsxModule = await import('xlsx');
     xlsx = xlsxModule.default;
+  }
    catch (err) {
     console.warn('xlsx not available - install xlsx for Excel spreadsheet OCR');
-  
+  }
 
 
 // OCR Provider Types
+}
+
 export enum OcrProvider {
   TESSERACT = 'tesseract',
   GOOGLE_VISION = 'google_vision',
   AWS_TEXTRACT = 'aws_textract',
   AZURE_VISION = 'azure_vision',
   AUTO = 'auto' // Automatically select best provider
+  }
 
 
 // Document Types
@@ -106,6 +115,7 @@ export enum DocumentFormat {
   XLSX = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
   TXT = 'text/plain',
   CSV = 'text/csv'
+}
 
 
 // OCR Result Interfaces
@@ -114,6 +124,7 @@ export interface BoundingBox {
   y: number;
   width: number;
   height: number;
+  }
 
 
 export interface OcrWord {
@@ -121,6 +132,7 @@ export interface OcrWord {
   confidence: number;
   boundingBox: BoundingBox;
   language?: string;
+  }
 
 
 export interface OcrLine {
@@ -128,6 +140,7 @@ export interface OcrLine {
   confidence: number;
   words: OcrWord[];
   boundingBox: BoundingBox;
+  }
 
 
 export interface OcrPage {
@@ -138,6 +151,7 @@ export interface OcrPage {
   boundingBox: BoundingBox;
   language?: string;
   rotation?: number;
+  }
 
 
 export interface TableCell {
@@ -146,6 +160,7 @@ export interface TableCell {
   text: string;
   confidence: number;
   boundingBox: BoundingBox;
+  }
 
 
 export interface OcrTable {
@@ -153,6 +168,7 @@ export interface OcrTable {
   columns: number;
   cells: TableCell[];
   confidence: number;
+  }
 
 
 export interface FormField {
@@ -161,6 +177,7 @@ export interface FormField {
   confidence: number;
   keyBoundingBox?: BoundingBox;
   valueBoundingBox?: BoundingBox;
+  }
 
 
 export interface OcrResult {
@@ -182,7 +199,8 @@ export interface OcrResult {
     hasForms: boolean;
     fileSize: number;
     processedAt: Date;
-  ;
+  }
+  }
 
 
 export interface OcrOptions {
@@ -194,16 +212,21 @@ export interface OcrOptions {
   pageNumbers?: number[]; // Specific pages to process
   dpi?: number; // Resolution for image conversion
   preprocessImage?: boolean; // Image enhancement
+  }
 
 
 export class OcrService {
   private googleVisionClient: vision.ImageAnnotatorClient | null = null;
+
   private textractClient: TextractClient | null = null;
+
   private azureVisionClient: ComputerVisionClient | null = null;
+
   private initialized = false;
 
   constructor(private db: Pool) {
     // Don't call initialization in constructor - do it lazily
+  }
   
 
   /**
@@ -216,9 +239,9 @@ export class OcrService {
       if (process.env.GOOGLE_CLOUD_PROJECT && process.env.GOOGLE_APPLICATION_CREDENTIALS) {
         this.googleVisionClient = new vision.ImageAnnotatorClient({
           keyFilename: process.env.GOOGLE_APPLICATION_CREDENTIALS
-        );
+        });
         console.log('✅ Google Cloud Vision initialized');
-      
+      }
 
       // Initialize AWS Textract
       if (process.env.AWS_ACCESS_KEY_ID && process.env.AWS_SECRET_ACCESS_KEY) {
@@ -227,30 +250,31 @@ export class OcrService {
           credentials: {
             accessKeyId: process.env.AWS_ACCESS_KEY_ID,
             secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY
-          
-        );
+          }
+        });
         console.log('✅ AWS Textract initialized');
-      
+      }
 
       // Initialize Azure Computer Vision
       if (process.env.AZURE_VISION_KEY && process.env.AZURE_VISION_ENDPOINT) {
         this.azureVisionClient = new ComputerVisionClient(
           new ApiKeyCredentials({
-            inHeader: { 'Ocp-Apim-Subscription-Key': process.env.AZURE_VISION_KEY 
-          ),
+            inHeader: { 'Ocp-Apim-Subscription-Key': process.env.AZURE_VISION_KEY }
+          }),
           process.env.AZURE_VISION_ENDPOINT
         );
         console.log('✅ Azure Computer Vision initialized');
-      
+      }
 
       // Tesseract is always available (no initialization needed)
       console.log('✅ Tesseract.js available');
+  }
      catch (error) {
       console.error('Error initializing OCR providers:', error);
-    
+    }
 
     this.initialized = true;
-  
+  }
 
   /**
    * Main OCR processing method
@@ -258,7 +282,7 @@ export class OcrService {
   async processDocument(
     filePath: string,
     documentId: string,
-    options: OcrOptions = {
+    options: OcrOptions = {}
   ): Promise<OcrResult> {
     // Ensure providers are initialized
     this.initializeProviders();
@@ -297,7 +321,7 @@ export class OcrService {
           // Image formats
           result = await this.processImage(filePath, documentId, provider, options);
           break;
-      
+      }
 
       // Calculate processing time
       result.processingTime = Date.now() - startTime;
@@ -306,11 +330,12 @@ export class OcrService {
       await this.saveOcrResult(result);
 
       return result;
+  }
      catch (error) {
       console.error('OCR processing error:', error);
       throw error;
-    
-  
+  }
+  }
 
   /**
    * Process PDF document
@@ -328,21 +353,23 @@ export class OcrService {
     let pdfData;
     try {
       pdfData = await pdfParse(fileBuffer);
+     }
      catch (error) {
       console.error('PDF parse error:', error);
-    
+      }
 
     // If PDF has text, use it; otherwise OCR is needed
     if (pdfData && pdfData.text && pdfData.text.trim().length > 50) {
       // PDF has extractable text
       return this.createResultFromPDFText(documentId, pdfData, stats.size);
+     }
      else {
       // PDF needs OCR (scanned document)
       // Convert PDF to images and process with OCR
       // For now, use the selected provider for OCR
       return this.processImageWithProvider(fileBuffer, documentId, provider, options, stats.size);
-    
-  
+      }
+  }
 
   /**
    * Process DOCX document
@@ -354,7 +381,7 @@ export class OcrService {
   ): Promise<OcrResult> {
     const fileBuffer = await fs.readFile(filePath);
     const stats = await fs.stat(filePath);
-    const result = await mammoth.extractRawText({ buffer: fileBuffer );
+    const result = await mammoth.extractRawText({ buffer: fileBuffer });
 
     return {
       provider: OcrProvider.TESSERACT, // Not really OCR, but text extraction
@@ -365,8 +392,8 @@ export class OcrService {
         text: result.value,
         confidence: 1.0,
         lines: this.convertTextToLines(result.value),
-        boundingBox: { x: 0, y: 0, width: 0, height: 0 
-      ],
+        boundingBox: { x: 0, y: 0, width: 0, height: 0 }
+      }],
       languages: ['eng'],
       primaryLanguage: 'eng',
       averageConfidence: 1.0,
@@ -379,9 +406,9 @@ export class OcrService {
         hasForms: false,
         fileSize: stats.size,
         processedAt: new Date()
-      
-    ;
-  
+      }
+    };
+  }
 
   /**
    * Process XLSX document
@@ -393,29 +420,29 @@ export class OcrService {
   ): Promise<OcrResult> {
     const workbook = xlsx.readFile(filePath);
     const stats = await fs.stat(filePath);
-    let fullText = ``;
+    let fullText = '';
     const pages: OcrPage[] = [];
 
     workbook.SheetNames.forEach((sheetName, index) => {
       const sheet = workbook.Sheets[sheetName];
       const sheetText = xlsx.utils.sheet_to_csv(sheet);
-      fullText += `\n--- Sheet: ${sheetName ---\n${sheetText\n`;
+      fullText += '\n--- Sheet: ' + sheetName + ' ---\n' + sheetText + '\n';
 
       pages.push({
         pageNumber: index + 1,
         text: sheetText,
         confidence: 1.0,
         lines: this.convertTextToLines(sheetText),
-        boundingBox: { x: 0, y: 0, width: 0, height: 0 
-      );
-    );
+        boundingBox: { x: 0, y: 0, width: 0, height: 0 }
+      });
+    });
 
     return {
       provider: OcrProvider.TESSERACT,
       documentId,
       fullText: fullText.trim(),
       pages,
-      languages: [`eng`],
+      languages: ['eng'],
       primaryLanguage: 'eng',
       averageConfidence: 1.0,
       processingTime: 0,
@@ -427,9 +454,9 @@ export class OcrService {
         hasForms: false,
         fileSize: stats.size,
         processedAt: new Date()
-      
-    ;
-  
+      }
+    };
+  }
 
   /**
    * Process text file (TXT, CSV)
@@ -451,8 +478,8 @@ export class OcrService {
         text,
         confidence: 1.0,
         lines: this.convertTextToLines(text),
-        boundingBox: { x: 0, y: 0, width: 0, height: 0 
-      ],
+        boundingBox: { x: 0, y: 0, width: 0, height: 0 }
+      }],
       languages: ['eng'],
       primaryLanguage: 'eng',
       averageConfidence: 1.0,
@@ -465,9 +492,9 @@ export class OcrService {
         hasForms: false,
         fileSize: stats.size,
         processedAt: new Date()
-      
-    ;
-  
+      }
+    };
+  }
 
   /**
    * Process image with OCR
@@ -482,7 +509,7 @@ export class OcrService {
     const stats = await fs.stat(filePath);
 
     return this.processImageWithProvider(fileBuffer, documentId, provider, options, stats.size);
-  
+  }
 
   /**
    * Process image with specific OCR provider
@@ -508,8 +535,9 @@ export class OcrService {
         return this.processWithAzureVision(imageBuffer, documentId, options, fileSize);
 
       default:
-        throw new Error(`Unsupported OCR provider: ${provider`);
-    
+        throw new Error('Unsupported OCR provider: ' + provider);
+    }
+  }
   
 
   /**
@@ -521,7 +549,7 @@ export class OcrService {
     options: OcrOptions,
     fileSize: number
   ): Promise<OcrResult> {
-    const { Worker  = await import(`worker_threads`);
+    const { Worker } = await import('worker_threads');
     const path = await import('path');
 
     return new Promise((resolve, reject) => {
@@ -535,79 +563,59 @@ export class OcrService {
             options: {
               tessedit_pageseg_mode: PSM.AUTO,
               preserve_interword_spaces: '1'
-            
-          
+            }
+          }
         
-      );
+      });
 
       // Timeout after 2 minutes
       const timeout = setTimeout(() => {
         worker.terminate();
         reject(new Error('OCR processing timeout (2 minutes)'));
-      , 120000);
+      }, 120000);
 
       worker.on('message', (result) => {
         clearTimeout(timeout);
-
         if (!result.success) {
           reject(new Error(result.error || 'OCR processing failed'));
           return;
-        
-
-        const data = result.data!;
-
-        // Build pages
-        const pages: OcrPage[] = [{
-          pageNumber: 1,
-          text: data.text,
-          confidence: data.confidence / 100,
-          lines: data.lines.map((line: any) => ({
-            text: line.text,
-            confidence: line.confidence / 100,
-            words: line.words.map((word: any) => ({
-              text: word.text,
-              confidence: word.confidence / 100,
-              boundingBox: word.bbox
-            )),
-            boundingBox: line.bbox
-          )),
-          boundingBox: { x: 0, y: 0, width: data.imageWidth, height: data.imageHeight 
-        ];
-
+        }
+        // Simplified return for debugging
+        const data = result.data;
         resolve({
-          provider: OcrProvider.TESSERACT,
-          documentId,
-          fullText: data.text,
-          pages,
-          languages: options.languages || ['eng'],
-          primaryLanguage: options.languages?.[0] || 'eng',
-          averageConfidence: data.confidence / 100,
-          processingTime: 0,
-          metadata: {
-            documentFormat: 'image',
-            pageCount: 1,
-            hasHandwriting: false,
-            hasTables: false,
-            hasForms: false,
-            fileSize,
-            processedAt: new Date()
-          
-        );
-      );
+            provider: OcrProvider.TESSERACT,
+            documentId,
+            fullText: data.text,
+            pages: [],
+            languages: ['eng'],
+            primaryLanguage: 'eng',
+            averageConfidence: 0,
+            processingTime: 0,
+            metadata: {
+                documentFormat: 'image',
+                pageCount: 1,
+                hasHandwriting: false,
+                hasTables: false,
+                hasForms: false,
+                fileSize,
+                processedAt: new Date()
+            }
+        });
+      });
 
       worker.on('error', (error) => {
         clearTimeout(timeout);
         reject(error);
-      );
+      });
 
-      worker.on(`exit`, (code) => {
+      worker.on('exit', (code) => {
         clearTimeout(timeout);
         if (code !== 0) {
-          reject(new Error(`Worker stopped with exit code ${code`));
-        
-      );
-    );
-  
+          reject(new Error('Worker stopped with exit code ' + code));
+        }
+      });
+    });
+  }
 
   /**
    * Process with Google Cloud Vision
@@ -619,17 +627,17 @@ export class OcrService {
     fileSize: number
   ): Promise<OcrResult> {
     if (!this.googleVisionClient) {
-      throw new Error(`Google Cloud Vision not configured`);
-    
+      throw new Error('Google Cloud Vision not configured');
+    }
 
     const [result] = await this.googleVisionClient.documentTextDetection({
-      image: { content: imageBuffer 
-    );
+      image: { content: imageBuffer }
+    });
 
     const fullTextAnnotation = result.fullTextAnnotation;
     if (!fullTextAnnotation) {
       throw new Error('No text found in document');
-    
+    }
 
     const pages: OcrPage[] = fullTextAnnotation.pages?.map((page, idx) => ({
       pageNumber: idx + 1,
@@ -643,12 +651,12 @@ export class OcrService {
             confidence: word.confidence || 0,
             words: [],
             boundingBox: this.convertGoogleBoundingBox(word.boundingBox)
-          )) || []
+          })) || []
         ) || []
       ) || [],
       boundingBox: this.convertGoogleBoundingBox(page.blocks?.[0]?.boundingBox),
       language: page.property?.detectedLanguages?.[0]?.languageCode
-    )) || [];
+    })) || [];
 
     // Detect languages
     const detectedLanguages = Array.from(new Set(
@@ -674,8 +682,9 @@ export class OcrService {
         hasForms: false,
         fileSize,
         processedAt: new Date()
-      
-    ;
+      }
+    };
+  }
   
 
   /**
@@ -689,20 +698,20 @@ export class OcrService {
   ): Promise<OcrResult> {
     if (!this.textractClient) {
       throw new Error('AWS Textract not configured');
-    
+    }
 
     // Use AnalyzeDocument for tables/forms, or DetectDocumentText for simple text
     const command = options.detectTables || options.detectForms
       ? new AnalyzeDocumentCommand({
-          Document: { Bytes: imageBuffer ,
+          Document: { Bytes: imageBuffer  },
           FeatureTypes: [
             ...(options.detectTables ? ['TABLES'] : []),
             ...(options.detectForms ? ['FORMS'] : [])
           ] as any
-        )
+        })
       : new DetectDocumentTextCommand({
-          Document: { Bytes: imageBuffer 
-        );
+          Document: { Bytes: imageBuffer }
+        });
 
     const response = await this.textractClient.send(command);
 
@@ -722,9 +731,9 @@ export class OcrService {
         confidence: (line.Confidence || 0) / 100,
         words: [],
         boundingBox: this.convertAWSBoundingBox(line.Geometry?.BoundingBox)
-      )),
-      boundingBox: { x: 0, y: 0, width: 1, height: 1 
-    ];
+      })),
+      boundingBox: { x: 0, y: 0, width: 1, height: 1 }
+    }];
 
     // Extract tables if requested
     const tables: OcrTable[] = [];
@@ -737,15 +746,16 @@ export class OcrService {
           columns: 0,
           cells: [],
           confidence: (table.Confidence || 0) / 100
-        );
-      );
+        });
+      });
     
-
+    }
     // Extract forms if requested
     const forms: FormField[] = [];
     if (options.detectForms) {
       const keyValueBlocks = blocks.filter(b => b.BlockType === 'KEY_VALUE_SET');
       // Process form extraction (simplified for now)
+    }
     
 
     return {
@@ -767,8 +777,9 @@ export class OcrService {
         hasForms: forms.length > 0,
         fileSize,
         processedAt: new Date()
-      
-    ;
+      }
+    };
+  }
   
 
   /**
@@ -782,7 +793,7 @@ export class OcrService {
   ): Promise<OcrResult> {
     if (!this.azureVisionClient) {
       throw new Error('Azure Computer Vision not configured');
-    
+    }
 
     // Use Read API for OCR
     const readResult = await this.azureVisionClient.readInStream(imageBuffer as any);
@@ -796,14 +807,14 @@ export class OcrService {
       result = await this.azureVisionClient.getReadResult(operationId!);
       if (result.status === 'succeeded') {
         break;
-      
+      }
       await new Promise(resolve => setTimeout(resolve, 1000));
       retries++;
-    
+    }
 
     if (result?.status !== 'succeeded') {
       throw new Error('Azure OCR failed or timed out');
-    
+    }
 
     const readResults = result.analyzeResult?.readResults || [];
     const pages: OcrPage[] = readResults.map((page: any, idx: number) => ({
@@ -817,13 +828,13 @@ export class OcrService {
           text: w.text,
           confidence: w.confidence || 0.95,
           boundingBox: this.convertAzureBoundingBox(w.boundingBox)
-        )) || [],
+        })) || [],
         boundingBox: this.convertAzureBoundingBox(line.boundingBox)
-      )),
-      boundingBox: { x: 0, y: 0, width: page.width, height: page.height ,
+      })),
+      boundingBox: { x: 0, y: 0, width: page.width, height: page.height },
       language: page.language,
       rotation: page.angle
-    ));
+    }));
 
     const fullText = pages.map(p => p.text).join('\n\n');
     const languages = Array.from(new Set(pages.map(p => p.language).filter(Boolean)));
@@ -845,8 +856,9 @@ export class OcrService {
         hasForms: false,
         fileSize,
         processedAt: new Date()
-      
-    ;
+      }
+    };
+  }
   
 
   /**
@@ -867,9 +879,11 @@ export class OcrService {
       '.xlsx': DocumentFormat.XLSX,
       '.txt': DocumentFormat.TXT,
       '.csv': DocumentFormat.CSV
-    ;
+    };
 
     return formatMap[ext] || DocumentFormat.IMAGE_JPEG;
+  }
+
   
 
   /**
@@ -883,26 +897,26 @@ export class OcrService {
     // If provider explicitly requested, use it (if available)
     if (requestedProvider && requestedProvider !== OcrProvider.AUTO) {
       return requestedProvider;
-    
+    }
 
     // Auto-select based on requirements
     if (options.detectTables || options.detectForms) {
       // AWS Textract is best for tables and forms
       if (this.textractClient) return OcrProvider.AWS_TEXTRACT;
-    
+    }
 
     if (options.detectHandwriting) {
       // Azure or AWS are best for handwriting
       if (this.azureVisionClient) return OcrProvider.AZURE_VISION;
       if (this.textractClient) return OcrProvider.AWS_TEXTRACT;
-    
+    }
 
     // For general OCR, prefer Google Vision if available
     if (this.googleVisionClient) return OcrProvider.GOOGLE_VISION;
 
     // Default to Tesseract (always available, free)
     return OcrProvider.TESSERACT;
-  
+  }
 
   /**
    * Create result from PDF text extraction
@@ -921,8 +935,8 @@ export class OcrService {
         text: pdfData.text,
         confidence: 1.0,
         lines: this.convertTextToLines(pdfData.text),
-        boundingBox: { x: 0, y: 0, width: 0, height: 0 
-      ],
+        boundingBox: { x: 0, y: 0, width: 0, height: 0 }
+      }],
       languages: ['eng'],
       primaryLanguage: 'eng',
       averageConfidence: 1.0,
@@ -935,8 +949,9 @@ export class OcrService {
         hasForms: false,
         fileSize,
         processedAt: new Date()
-      
-    ;
+      }
+    };
+  }
   
 
   /**
@@ -949,18 +964,19 @@ export class OcrService {
       words: line.split(/\s+/).map(word => ({
         text: word,
         confidence: 1.0,
-        boundingBox: { x: 0, y: 0, width: 0, height: 0 
-      )),
-      boundingBox: { x: 0, y: 0, width: 0, height: 0 
-    ));
-  
+        boundingBox: { x: 0, y: 0, width: 0, height: 0 }
+      })),
+      boundingBox: { x: 0, y: 0, width: 0, height: 0 }
+    }));
+  }
 
   /**
    * Convert Google Vision bounding box
    */
   private convertGoogleBoundingBox(bbox: any): BoundingBox {
     if (!bbox || !bbox.vertices || bbox.vertices.length < 4) {
-      return { x: 0, y: 0, width: 0, height: 0 ;
+      return { x: 0, y: 0, width: 0, height: 0 };
+    }
     
     const vertices = bbox.vertices;
     return {
@@ -968,39 +984,39 @@ export class OcrService {
       y: vertices[0].y || 0,
       width: (vertices[1].x || 0) - (vertices[0].x || 0),
       height: (vertices[2].y || 0) - (vertices[0].y || 0)
-    ;
-  
+    };
+  }
 
   /**
    * Convert AWS Textract bounding box
    */
   private convertAWSBoundingBox(bbox: any): BoundingBox {
     if (!bbox) {
-      return { x: 0, y: 0, width: 0, height: 0 ;
-    
+      return { x: 0, y: 0, width: 0, height: 0 };
+    }
     return {
       x: bbox.Left || 0,
       y: bbox.Top || 0,
       width: bbox.Width || 0,
       height: bbox.Height || 0
-    ;
-  
+    };
+  }
 
   /**
    * Convert Azure bounding box
    */
   private convertAzureBoundingBox(bbox: any): BoundingBox {
     if (!bbox || bbox.length < 8) {
-      return { x: 0, y: 0, width: 0, height: 0 ;
-    
+      return { x: 0, y: 0, width: 0, height: 0 };
+    }
     // Azure provides [x1,y1, x2,y2, x3,y3, x4,y4]
     return {
       x: bbox[0],
       y: bbox[1],
       width: bbox[2] - bbox[0],
       height: bbox[5] - bbox[1]
-    ;
-  
+    };
+  }
 
   /**
    * Save OCR result to database
@@ -1008,23 +1024,23 @@ export class OcrService {
   private async saveOcrResult(result: OcrResult): Promise<void> {
     try {
       await this.db.query(
-        `INSERT INTO ocr_results (
-          document_id, provider, full_text, pages, tables, forms,
-          languages, primary_language, average_confidence, processing_time,
-          metadata, created_at
-        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, NOW())
-        ON CONFLICT (document_id) DO UPDATE SET
-          provider = $2,
-          full_text = $3,
-          pages = $4,
-          tables = $5,
-          forms = $6,
-          languages = $7,
-          primary_language = $8,
-          average_confidence = $9,
-          processing_time = $10,
-          metadata = $11,
-          updated_at = NOW()`,
+        'INSERT INTO ocr_results ( ' +
+        'document_id, provider, full_text, pages, tables, forms, ' +
+        'languages, primary_language, average_confidence, processing_time, ' +
+        'metadata, created_at ' +
+        ') VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, NOW()) ' +
+        'ON CONFLICT (document_id) DO UPDATE SET ' +
+        'provider = $2, ' +
+        'full_text = $3, ' +
+        'pages = $4, ' +
+        'tables = $5, ' +
+        'forms = $6, ' +
+        'languages = $7, ' +
+        'primary_language = $8, ' +
+        'average_confidence = $9, ' +
+        'processing_time = $10, ' +
+        'metadata = $11, ' +
+        'updated_at = NOW()',
         [
           result.documentId,
           result.provider,
@@ -1039,11 +1055,12 @@ export class OcrService {
           JSON.stringify(result.metadata)
         ]
       );
+     }
      catch (error) {
       console.error('Error saving OCR result:', error);
       throw error;
-    
-  
+  }
+  }
 
   /**
    * Get OCR result by document ID
@@ -1051,17 +1068,17 @@ export class OcrService {
   async getOcrResult(documentId: string): Promise<OcrResult | null> {
     try {
       const result = await this.db.query(
-        `SELECT document_id, provider, full_text, pages, tables, forms,
-                languages, primary_language, average_confidence,
-                processing_time, metadata, created_at, updated_at
-         FROM ocr_results
-         WHERE document_id = $1',
+        'SELECT document_id, provider, full_text, pages, tables, forms, ' +
+        'languages, primary_language, average_confidence, ' +
+        'processing_time, metadata, created_at, updated_at ' +
+        'FROM ocr_results ' +
+        'WHERE document_id = $1',
         [documentId]
       );
 
       if (result.rows.length === 0) {
         return null;
-      
+      }
 
       const row = result.rows[0];
       return {
@@ -1076,12 +1093,13 @@ export class OcrService {
         averageConfidence: row.average_confidence,
         processingTime: row.processing_time,
         metadata: JSON.parse(row.metadata)
-      ;
+      };
+    }
      catch (error) {
       console.error('Error getting OCR result:', error);
       throw error;
-    
-  
+  }
+  }
 
   /**
    * Search OCR results
@@ -1089,30 +1107,31 @@ export class OcrService {
   async searchOcrResults(tenantId: string, query: string, limit: number = 20): Promise<any[]> {
     try {
       const result = await this.db.query(
-        `SELECT
-          ocr.document_id,
-          ocr.full_text,
-          ocr.primary_language,
-          ocr.average_confidence,
-          d.file_name,
-          d.file_url,
-          d.created_at,
-          ts_rank(to_tsvector('english', ocr.full_text), plainto_tsquery('english', $2)) as rank
-        FROM ocr_results ocr
-        JOIN documents d ON ocr.document_id = d.id
-        WHERE d.tenant_id = $1
-        AND to_tsvector('english', ocr.full_text) @@ plainto_tsquery('english', $2)
-        ORDER BY rank DESC
-        LIMIT $3`,
+        'SELECT ' +
+        'ocr.document_id, ' +
+        'ocr.full_text, ' +
+        'ocr.primary_language, ' +
+        'ocr.average_confidence, ' +
+        'd.file_name, ' +
+        'd.file_url, ' +
+        'd.created_at, ' +
+        'ts_rank(to_tsvector(\'english\', ocr.full_text), plainto_tsquery(\'english\', $2)) as rank ' +
+        'FROM ocr_results ocr ' +
+        'JOIN documents d ON ocr.document_id = d.id ' +
+        'WHERE d.tenant_id = $1 ' +
+        'AND to_tsvector(\'english\', ocr.full_text) @@ plainto_tsquery(\'english\', $2) ' +
+        'ORDER BY rank DESC ' +
+        'LIMIT $3',
         [tenantId, query, limit]
       );
 
       return result.rows;
+     }
      catch (error) {
       console.error('Error searching OCR results:', error);
       throw error;
-    
-  
+  }
+  }
 
 
 // Export function to get singleton instance (lazy initialization)
@@ -1123,6 +1142,6 @@ export class OcrService {
     
   
   
-
+}
 
 export default OcrService;

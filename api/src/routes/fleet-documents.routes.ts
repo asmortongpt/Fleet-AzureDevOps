@@ -21,6 +21,7 @@ import { auditLog } from '../middleware/audit'
 import documentService from '../services/document.service'
 import { getErrorMessage } from '../utils/error-handler'
 import { csrfProtection } from '../middleware/csrf'
+import { pool } from '../db/connection';
 
 
 const router = Router()
@@ -32,7 +33,7 @@ const storage = multer.diskStorage({
   },
   filename: (req, file, cb) => {
     const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9)
-    cb(null, file.fieldname + '-' + uniqueSuffix + path.extname(file.originalname)
+    cb(null, file.fieldname + '-' + uniqueSuffix + path.extname(file.originalname))
   }
 })
 
@@ -53,10 +54,10 @@ const upload = multer({
       'text/plain',
       'text/csv'
     ]
-    if (allowedTypes.includes(file.mimetype) {
+    if (allowedTypes.includes(file.mimetype)) {
       cb(null, true)
     } else {
-      cb(new Error('Invalid file type. Allowed types: images, PDF, Word, Excel, text files')
+      cb(new Error('Invalid file type. Allowed types: images, PDF, Word, Excel, text files'))
     }
   }
 })
@@ -115,7 +116,7 @@ router.use(authenticateJWT)
  */
 router.post(
   '/upload',
- csrfProtection,  csrfProtection, authorize('admin', 'fleet_manager', 'dispatcher', 'driver'),
+  csrfProtection, csrfProtection, authorize('admin', 'fleet_manager', 'dispatcher', 'driver'),
   upload.single('file'),
   auditLog({ action: 'CREATE', resourceType: 'fleet_document' }),
   async (req: AuthRequest, res: Response) => {
@@ -255,7 +256,7 @@ router.get(
           v.make || ' ' || v.model || ' (' || v.license_plate || ')' as vehicle_name,
           d.first_name || ' ' || d.last_name as driver_name,
           wo.title as work_order_title,
-          uploader.first_name || ` ` || uploader.last_name as uploaded_by_name
+          uploader.first_name || ' ' || uploader.last_name as uploaded_by_name
         FROM fleet_documents fd
         LEFT JOIN vehicles v ON fd.vehicle_id = v.id
         LEFT JOIN drivers d ON fd.driver_id = d.id
@@ -337,7 +338,7 @@ router.get(
           page: Number(page),
           limit: Number(limit),
           total: parseInt(countResult.rows[0].count),
-          pages: Math.ceil(countResult.rows[0].count / Number(limit)
+          pages: Math.ceil(countResult.rows[0].count / Number(limit))
         }
       })
     } catch (error: any) {
@@ -381,10 +382,10 @@ router.get(
       const result = await pool.query(
         `SELECT
           fd.*,
-          v.make || ' ` || v.model || ` (` || v.license_plate || ')' as vehicle_name,
-          d.first_name || ' ' || d.last_name as driver_name,
-          wo.title as work_order_title,
-          uploader.first_name || ' ' || uploader.last_name as uploaded_by_name
+          v.make || ' ' || v.model || ' (' || v.license_plate || ')' as vehicle_name,
+        d.first_name || ' ' || d.last_name as driver_name,
+        wo.title as work_order_title,
+        uploader.first_name || ' ' || uploader.last_name as uploaded_by_name
         FROM fleet_documents fd
         LEFT JOIN vehicles v ON fd.vehicle_id = v.id
         LEFT JOIN drivers d ON fd.driver_id = d.id
@@ -401,7 +402,7 @@ router.get(
       const document = result.rows[0]
 
       // Generate download URL (in production, this would be a signed URL)
-      const downloadUrl = `/api/fleet-documents/${document.id}/download`
+      const downloadUrl = `/ api / fleet - documents / ${document.id} / download`
 
       res.json({
         document: {
@@ -410,7 +411,7 @@ router.get(
         }
       })
     } catch (error: any) {
-      logger.error(`Get fleet document error:`, error) // Wave 31: Winston logger
+      logger.error(`Get fleet document error: `, error) // Wave 31: Winston logger
       res.status(500).json({
         error: 'Internal server error',
         details: process.env.NODE_ENV === 'development' ? getErrorMessage(error) : undefined
@@ -443,7 +444,7 @@ router.get(
  */
 router.delete(
   '/:id',
- csrfProtection,  csrfProtection, authorize('admin', 'fleet_manager', 'dispatcher'),
+  csrfProtection, csrfProtection, authorize('admin', 'fleet_manager', 'dispatcher'),
   auditLog({ action: 'DELETE', resourceType: 'fleet_document' }),
   async (req: AuthRequest, res: Response) => {
     try {
@@ -509,10 +510,10 @@ router.get(
       const result = await pool.query(
         `SELECT
           fd.*,
-          v.make || ' ` || v.model || ` (` || v.license_plate || ')' as vehicle_name,
-          d.first_name || ' ' || d.last_name as driver_name,
-          wo.title as work_order_title,
-          EXTRACT(DAY FROM (fd.expires_at - NOW()) as days_until_expiry
+          v.make || ' ' || v.model || ' (' || v.license_plate || ')' as vehicle_name,
+        d.first_name || ' ' || d.last_name as driver_name,
+        wo.title as work_order_title,
+        EXTRACT(DAY FROM(fd.expires_at - NOW())) as days_until_expiry
         FROM fleet_documents fd
         LEFT JOIN vehicles v ON fd.vehicle_id = v.id
         LEFT JOIN drivers d ON fd.driver_id = d.id
@@ -568,7 +569,7 @@ router.get(
  */
 router.post(
   '/:id/ocr',
- csrfProtection,  csrfProtection, authorize('admin', 'fleet_manager', 'dispatcher'),
+  csrfProtection, csrfProtection, authorize('admin', 'fleet_manager', 'dispatcher'),
   auditLog({ action: 'CREATE', resourceType: 'ocr_processing' }),
   async (req: AuthRequest, res: Response) => {
     try {
@@ -588,14 +589,14 @@ router.post(
 
       // Check if document is an image or PDF
       const ocrSupportedTypes = [
-        `image/jpeg`,
+        `image / jpeg`,
         'image/png',
         'image/gif',
         'image/webp',
         'application/pdf'
       ]
 
-      if (!ocrSupportedTypes.includes(document.mime_type) {
+      if (!ocrSupportedTypes.includes(document.mime_type)) {
         return res.status(400).json({
           error: 'OCR is only supported for images and PDF files'
         })
@@ -605,12 +606,12 @@ router.post(
       await pool.query(
         `UPDATE fleet_documents
          SET metadata = jsonb_set(
-           COALESCE(metadata, `{}`::jsonb),
-           `{ocr_status}`,
-           '"pending"'
-         ),
-         updated_at = NOW()
-         WHERE id = $1',
+          COALESCE(metadata, '{}':: jsonb),
+          '{ocr_status}',
+          '"pending"'
+        ),
+        updated_at = NOW()
+         WHERE id = $1`,
         [req.params.id]
       )
 
