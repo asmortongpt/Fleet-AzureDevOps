@@ -1,16 +1,4 @@
 import { BaseRepository } from '../repositories/BaseRepository';
-
-To create a TypeScript repository for vehicle history with parameterized queries, tenant_id, and CRUD operations, we'll need to design a class that encapsulates these functionalities. Let's break down the implementation step-by-step:
-
-1. Define the interface for VehicleHistory
-2. Create the VehicleHistoryRepository class
-3. Implement CRUD operations with parameterized queries and tenant_id
-
-Here's the implementation:
-
-
-// api/src/repositories/vehicle-history.repository.ts
-
 import { Pool, QueryResult } from 'pg';
 
 // Define the VehicleHistory interface
@@ -28,6 +16,7 @@ export class VehicleHistoryRepository extends BaseRepository<any> {
   private pool: Pool;
 
   constructor(pool: Pool) {
+    super('vehicle_history', pool);
     this.pool = pool;
   }
 
@@ -99,7 +88,7 @@ export class VehicleHistoryRepository extends BaseRepository<any> {
     const values = [id, tenantId];
 
     const result: QueryResult<{ id: number }> = await this.pool.query(query, values);
-    return result.rowCount > 0;
+    return result.rowCount ? result.rowCount > 0 : false;
   }
 
   // List all vehicle history entries for a tenant
@@ -115,58 +104,3 @@ export class VehicleHistoryRepository extends BaseRepository<any> {
     return result.rows;
   }
 }
-
-
-This implementation provides a `VehicleHistoryRepository` class that encapsulates CRUD operations for vehicle history entries. Here's a breakdown of the key features:
-
-1. **Parameterized Queries**: All database operations use parameterized queries to prevent SQL injection attacks.
-
-2. **Tenant ID**: Every operation includes the `tenant_id` parameter to ensure multi-tenant isolation.
-
-3. **CRUD Operations**:
-   - `create`: Inserts a new vehicle history entry
-   - `read`: Retrieves a single vehicle history entry by ID
-   - `update`: Updates an existing vehicle history entry
-   - `delete`: Deletes a vehicle history entry
-   - `list`: Retrieves all vehicle history entries for a tenant
-
-4. **Error Handling**: The `update` method throws an error if no fields are provided for updating.
-
-5. **Type Safety**: The repository uses TypeScript interfaces and generics to ensure type safety throughout the operations.
-
-To use this repository in your `vehicle-history.routes.ts` file, you would typically inject the `Pool` instance and create an instance of the `VehicleHistoryRepository`. Here's an example of how you might use it in a route handler:
-
-
-// api/src/routes/vehicle-history.routes.ts
-
-import express from 'express';
-import { Pool } from 'pg';
-import { VehicleHistoryRepository } from '../repositories/vehicle-history.repository';
-
-const router = express.Router();
-const pool = new Pool(/* your database configuration */);
-const vehicleHistoryRepository = new VehicleHistoryRepository(pool);
-
-router.post('/', async (req, res) => {
-  try {
-    const { vehicle_id, event_date, event_type, description } = req.body;
-    const tenantId = req.tenantId; // Assuming you have a middleware that sets this
-
-    const newVehicleHistory = await vehicleHistoryRepository.create(
-      { vehicle_id, event_date, event_type, description },
-      tenantId
-    );
-
-    res.status(201).json(newVehicleHistory);
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: 'Internal server error' });
-  }
-});
-
-// Implement other routes (GET, PUT, DELETE) similarly
-
-export default router;
-
-
-This implementation provides a solid foundation for managing vehicle history data in a multi-tenant environment with proper security measures in place.

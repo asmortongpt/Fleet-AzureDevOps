@@ -1,7 +1,4 @@
 /**
-import { container } from '../container'
-import { asyncHandler } from '../middleware/errorHandler'
-import { NotFoundError, ValidationError } from '../errors/app-error'
  * AI Chat Interface for Document Q&A
  *
  * Interactive chat interface powered by RAG:
@@ -19,11 +16,9 @@ import { auditLog } from '../middleware/audit'
 import { z } from 'zod'
 import OpenAI from 'openai'
 import vectorSearchService from '../services/VectorSearchService'
-import embeddingService from '../services/EmbeddingService'
 import { getErrorMessage } from '../utils/error-handler'
 import { csrfProtection } from '../middleware/csrf'
-import { pool } from '../db/connection';
-
+import { pool } from '../config/database';
 
 const router = express.Router()
 router.use(authenticateJWT)
@@ -40,7 +35,7 @@ if (process.env.OPENAI_API_KEY) {
 
 const CreateSessionSchema = z.object({
   title: z.string().optional(),
-  documentIds: z.array(z.string().optional(),
+  documentIds: z.array(z.string()).optional(),
   systemPrompt: z.string().optional(),
 })
 
@@ -56,7 +51,7 @@ const CreateSessionSchema = z.object({
  */
 router.post(
   '/sessions',
- csrfProtection,  csrfProtection, authorize('admin', 'fleet_manager', 'dispatcher', 'driver'),
+  csrfProtection, authorize('admin', 'fleet_manager', 'dispatcher', 'driver'),
   auditLog({ action: 'CREATE', resourceType: 'chat_session' }),
   async (req: AuthRequest, res: Response) => {
     try {
@@ -70,7 +65,7 @@ router.post(
         [
           req.user!.tenant_id,
           req.user!.id,
-          sessionData.title || `New Chat`,
+          sessionData.title || 'New Chat',
           JSON.stringify(sessionData.documentIds || []),
           sessionData.systemPrompt || getDefaultSystemPrompt(),
         ]
@@ -80,7 +75,7 @@ router.post(
         session: result.rows[0],
       })
     } catch (error: any) {
-      if (error.name === `ZodError`) {
+      if (error.name === 'ZodError') {
         return res.status(400).json({ error: 'Validation error', details: error.errors })
       }
       console.error('Create session error:', error)
@@ -120,8 +115,8 @@ router.get(
         sessions: result.rows,
       })
     } catch (error: any) {
-      console.error(`Get sessions error:`, error)
-      res.status(500).json({ error: `Failed to get sessions`, message: getErrorMessage(error) })
+      console.error('Get sessions error:', error)
+      res.status(500).json({ error: 'Failed to get sessions', message: getErrorMessage(error) })
     }
   }
 )
@@ -150,7 +145,7 @@ router.get(
       )
 
       if (sessionResult.rows.length === 0) {
-        return res.status(404).json({ error: `Session not found` })
+        return res.status(404).json({ error: 'Session not found' })
       }
 
       // Get messages
@@ -166,8 +161,8 @@ router.get(
         messages: messagesResult.rows,
       })
     } catch (error: any) {
-      console.error(`Get session error:`, error)
-      res.status(500).json({ error: `Failed to get session`, message: getErrorMessage(error) })
+      console.error('Get session error:', error)
+      res.status(500).json({ error: 'Failed to get session', message: getErrorMessage(error) })
     }
   }
 )
@@ -184,12 +179,12 @@ router.get(
  */
 router.delete(
   '/sessions/:id',
- csrfProtection,  csrfProtection, authorize('admin', 'fleet_manager', 'dispatcher', 'driver'),
+  csrfProtection, authorize('admin', 'fleet_manager', 'dispatcher', 'driver'),
   auditLog({ action: 'DELETE', resourceType: 'chat_session' }),
   async (req: AuthRequest, res: Response) => {
     try {
       // Delete messages first
-      await pool.query(`DELETE FROM chat_messages WHERE session_id = $1`, [req.params.id])
+      await pool.query('DELETE FROM chat_messages WHERE session_id = $1', [req.params.id])
 
       // Delete session
       await pool.query(
@@ -197,7 +192,7 @@ router.delete(
         [req.params.id, req.user!.tenant_id]
       )
 
-      res.json({ success: true, message: `Session deleted` })
+      res.json({ success: true, message: 'Session deleted' })
     } catch (error: any) {
       console.error('Delete session error:', error)
       res.status(500).json({ error: 'Failed to delete session', message: getErrorMessage(error) })
@@ -231,7 +226,7 @@ const ChatMessageSchema = z.object({
  */
 router.post(
   '/chat',
- csrfProtection,  csrfProtection, authorize('admin', 'fleet_manager', 'dispatcher', 'driver'),
+  csrfProtection, authorize('admin', 'fleet_manager', 'dispatcher', 'driver'),
   auditLog({ action: 'CREATE', resourceType: 'chat_message' }),
   async (req: AuthRequest, res: Response) => {
     try {
@@ -270,7 +265,7 @@ router.post(
       )
 
       if (sessionResult.rows.length === 0) {
-        return res.status(404).json({ error: `Session not found` })
+        return res.status(404).json({ error: 'Session not found' })
       }
 
       const session = sessionResult.rows[0]
@@ -278,7 +273,7 @@ router.post(
       // Save user message
       await pool.query(
         `INSERT INTO chat_messages (session_id, role, content, created_at)
-         VALUES ($1, $2, $3, NOW()`,
+         VALUES ($1, $2, $3, NOW())`,
         [chatData.sessionId, 'user', chatData.message]
       )
 
@@ -300,7 +295,7 @@ router.post(
       let sources: any[] = []
 
       if (chatData.searchDocuments) {
-        const documentScope = JSON.parse(session.document_scope || `[]`)
+        const documentScope = JSON.parse(session.document_scope || '[]')
 
         const searchResults = await vectorSearchService.search(
           req.user!.tenant_id,
@@ -318,14 +313,14 @@ router.post(
               (r, idx) =>
                 `[Source ${idx + 1}]\n${r.content}\n[Relevance: ${r.score.toFixed(2)}]`
             )
-            .join(`\n\n`)
+            .join('\n\n')
 
           sources = searchResults.map(r => ({
             documentId: r.id,
-            content: r.content.substring(0, 200) + `...`,
+            content: r.content.substring(0, 200) + '...',
             score: r.score,
             metadata: r.metadata,
-          })
+          }))
         }
       }
 
@@ -370,10 +365,10 @@ router.post(
       await pool.query(
         `INSERT INTO chat_messages (
           session_id, role, content, sources, model_used, tokens_used, created_at
-        ) VALUES ($1, $2, $3, $4, $5, $6, NOW()`,
+        ) VALUES ($1, $2, $3, $4, $5, $6, NOW())`,
         [
           chatData.sessionId,
-          `assistant`,
+          'assistant',
           aiResponse,
           JSON.stringify(sources),
           completion.model,
@@ -398,7 +393,7 @@ router.post(
         },
       })
     } catch (error: any) {
-      if (error.name === `ZodError`) {
+      if (error.name === 'ZodError') {
         return res.status(400).json({ error: 'Validation error', details: error.errors })
       }
       console.error('Chat error:', error)
@@ -424,7 +419,7 @@ router.post(
  */
 router.post(
   '/chat/stream',
- csrfProtection,  csrfProtection, authorize('admin', 'fleet_manager', 'dispatcher', 'driver'),
+  csrfProtection, authorize('admin', 'fleet_manager', 'dispatcher', 'driver'),
   auditLog({ action: 'CREATE', resourceType: 'chat_stream' }),
   async (req: AuthRequest, res: Response) => {
     try {
@@ -465,7 +460,7 @@ router.post(
       )
 
       if (sessionResult.rows.length === 0) {
-        res.write(`data: ${JSON.stringify({ error: `Session not found` })}\n\n`)
+        res.write(`data: ${JSON.stringify({ error: 'Session not found' })}\n\n`)
         res.end()
         return
       }
@@ -484,16 +479,16 @@ router.post(
 
       const relevantContext = searchResults
         .map((r, idx) => `[Source ${idx + 1}]\n${r.content}`)
-        .join(`\n\n`)
+        .join('\n\n')
 
       // Build messages
       const messages: any[] = [
         {
-          role: `system`,
+          role: 'system',
           content: session.system_prompt || getDefaultSystemPrompt(),
         },
         {
-          role: `user`,
+          role: 'user',
           content: relevantContext
             ? `Context:\n${relevantContext}\n\nQuestion: ${chatData.message}`
             : chatData.message,
@@ -502,7 +497,7 @@ router.post(
 
       // Stream response
       const stream = await openai.chat.completions.create({
-        model: `gpt-4-turbo-preview`,
+        model: 'gpt-4-turbo-preview',
         messages,
         stream: true,
         temperature: 0.7,
@@ -511,7 +506,7 @@ router.post(
       let fullResponse = ''
 
       for await (const chunk of stream) {
-        const content = chunk.choices[0]?.delta?.content || ``
+        const content = chunk.choices[0]?.delta?.content || ''
         if (content) {
           fullResponse += content
           res.write(`data: ${JSON.stringify({ content })}\n\n`)
@@ -524,7 +519,7 @@ router.post(
           sources: searchResults.map(r => ({
             documentId: r.id,
             score: r.score,
-          }),
+          })),
         })}\n\n`
       )
 
@@ -534,13 +529,19 @@ router.post(
       // Save messages
       await pool.query(
         `INSERT INTO chat_messages (session_id, role, content, created_at)
-         VALUES ($1, $2, $3, NOW(), ($1, $4, $5, NOW()`,
-        [chatData.sessionId, 'user', chatData.message, 'assistant', fullResponse]
+         VALUES ($1, $2, $3, NOW())`,
+        [chatData.sessionId, 'user', chatData.message]
+      )
+
+      await pool.query(
+        `INSERT INTO chat_messages (session_id, role, content, created_at)
+         VALUES ($1, $2, $3, NOW())`,
+        [chatData.sessionId, 'assistant', fullResponse]
       )
 
       res.end()
     } catch (error: any) {
-      console.error(`Streaming chat error:`, error)
+      console.error('Streaming chat error:', error)
       res.write(`data: ${JSON.stringify({ error: getErrorMessage(error) })}\n\n`)
       res.end()
     }
@@ -562,7 +563,7 @@ router.post(
  *       - bearerAuth: []
  */
 router.get(
-  `/suggestions`,
+  '/suggestions',
   authorize('admin', 'fleet_manager', 'dispatcher', 'driver'),
   async (req: AuthRequest, res: Response) => {
     try {
@@ -600,7 +601,7 @@ Guidelines:
 - Use bullet points for lists
 - Include relevant metrics and numbers when available
 
-You have access to the fleet's document repository and can search through maintenance records, compliance documents, driver information, and operational data.'
+You have access to the fleet's document repository and can search through maintenance records, compliance documents, driver information, and operational data.`
 }
 
 // ============================================================================

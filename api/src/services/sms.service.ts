@@ -58,7 +58,7 @@ export interface WebhookPayload {
 class SMSService {
   private client: twilio.Twilio | null = null;
   private fromNumber: string;
-  private limiter: Bottleneck;
+  private limiter!: Bottleneck;
   private isDevelopment = process.env.NODE_ENV !== 'production';
 
   constructor(private db: Pool) {

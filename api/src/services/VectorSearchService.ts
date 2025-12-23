@@ -64,7 +64,7 @@ export class VectorSearchService {
 
   constructor(
     private db: Pool,
-    private logger: typeof logger,
+    private logger: any,
     config: Partial<VectorStoreConfig> = {}
   ) {
     this.backend = config.backend || this.selectBestBackend()
@@ -125,6 +125,7 @@ export class VectorSearchService {
       const { Pinecone } = await import('@pinecone-database/pinecone')
       this.pinecone = new Pinecone({
         apiKey: process.env.PINECONE_API_KEY,
+        environment: process.env.PINECONE_ENVIRONMENT || 'us-west1-gcp'
       })
       console.log('✓ Pinecone backend initialized')
     } catch (error) {
@@ -171,7 +172,7 @@ export class VectorSearchService {
 
     // Generate embedding if not provided
     if (!document.embedding) {
-      const embeddingService = await import('./EmbeddingService').then(m => m.default())
+      const embeddingService = await import('./EmbeddingService').then(m => new m.default(this.db, this.logger))
       const embeddingResult = await embeddingService.generateEmbedding(document.content)
       document.embedding = embeddingResult.embedding
     }
@@ -236,7 +237,7 @@ export class VectorSearchService {
     await this.initializeBackend()
 
     // Generate query embedding
-    const embeddingService = await import('./EmbeddingService').then(m => m.default())
+    const embeddingService = await import('./EmbeddingService').then(m => new m.default(this.db, this.logger))
     const embeddingResult = await embeddingService.generateEmbedding(query)
 
     return this.searchByVector(tenantId, embeddingResult.embedding, options)

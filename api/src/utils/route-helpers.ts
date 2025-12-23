@@ -316,7 +316,7 @@ export async function handleUpdate<T>(
   // Invalidate both list and item cache
   await invalidateResourceCache(config.resource, tenantId);
   const itemCacheKey = generateItemCacheKey(config.resource, tenantId, id);
-  await cacheService.delete(itemCacheKey);
+  await cacheService.del(itemCacheKey);
 
   logger.info(`Updated ${config.logResource || config.resource}`, { tenantId, id });
 
@@ -349,7 +349,7 @@ export async function handleDelete(
   // Invalidate both list and item cache
   await invalidateResourceCache(config.resource, tenantId);
   const itemCacheKey = generateItemCacheKey(config.resource, tenantId, id);
-  await cacheService.delete(itemCacheKey);
+  await cacheService.del(itemCacheKey);
 
   logger.info(`Deleted ${config.logResource || config.resource}`, { tenantId, id });
 

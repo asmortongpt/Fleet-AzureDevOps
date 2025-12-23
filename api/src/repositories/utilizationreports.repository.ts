@@ -1,16 +1,4 @@
 import { BaseRepository } from '../repositories/BaseRepository';
-
-To create a TypeScript repository called `UtilizationReportsRepository` for the `utilization-reports.routes.ts` file, we'll need to implement CRUD operations with parameterized queries and support for a `tenant_id`. Let's break this down step-by-step:
-
-1. First, we'll create the repository file.
-2. We'll implement the CRUD operations using parameterized queries.
-3. We'll include the `tenant_id` in all queries to ensure multi-tenant support.
-
-Here's the implementation:
-
-
-// api/src/repositories/UtilizationReportsRepository.ts
-
 import { Pool, QueryResult } from 'pg';
 
 interface UtilizationReport {
@@ -26,6 +14,7 @@ export class UtilizationReportsRepository extends BaseRepository<any> {
   private pool: Pool;
 
   constructor(pool: Pool) {
+    super('utilization_reports', pool);
     this.pool = pool;
   }
 
@@ -105,8 +94,8 @@ export class UtilizationReportsRepository extends BaseRepository<any> {
     `;
     const values = [id, tenant_id];
 
-    const result: QueryResult = await this.pool.query(query, values);
-    return result.rowCount > 0;
+    const result: QueryResult<{ id: number }> = await this.pool.query(query, values);
+    return result.rowCount ? result.rowCount > 0 : false;
   }
 
   /**
@@ -129,58 +118,3 @@ export class UtilizationReportsRepository extends BaseRepository<any> {
     return result.rows;
   }
 }
-
-
-This implementation includes the following features:
-
-1. **Parameterized Queries**: All SQL queries use parameterized queries to prevent SQL injection attacks.
-
-2. **CRUD Operations**: The repository implements Create, Read, Update, and Delete operations for utilization reports.
-
-3. **Tenant ID**: All operations include the `tenant_id` parameter to ensure multi-tenant support. This allows the system to isolate data for different tenants.
-
-4. **Type Safety**: The repository uses TypeScript interfaces to define the structure of utilization reports, ensuring type safety throughout the application.
-
-5. **Pagination**: The `list` method supports pagination with `limit` and `offset` parameters.
-
-To use this repository in your `utilization-reports.routes.ts` file, you would typically inject the `UtilizationReportsRepository` into your route handlers. Here's a basic example of how you might use it:
-
-
-// api/src/routes/utilization-reports.routes.ts
-
-import express from 'express';
-import { UtilizationReportsRepository } from '../repositories/UtilizationReportsRepository';
-import { Pool } from 'pg';
-
-const router = express.Router();
-const pool = new Pool(/* your database configuration */);
-const utilizationReportsRepository = new UtilizationReportsRepository(pool);
-
-router.post('/', async (req, res) => {
-  try {
-    const report = await utilizationReportsRepository.create(req.body);
-    res.status(201).json(report);
-  } catch (error) {
-    res.status(500).json({ error: 'Failed to create utilization report' });
-  }
-});
-
-router.get('/:id', async (req, res) => {
-  try {
-    const report = await utilizationReportsRepository.read(parseInt(req.params.id), req.tenant_id);
-    if (report) {
-      res.json(report);
-    } else {
-      res.status(404).json({ error: 'Utilization report not found' });
-    }
-  } catch (error) {
-    res.status(500).json({ error: 'Failed to retrieve utilization report' });
-  }
-});
-
-// Implement other routes for update, delete, and list operations
-
-export default router;
-
-
-Remember to adjust the database connection and error handling according to your application's specific needs. Also, ensure that you're properly validating and sanitizing input data before passing it to the repository methods.

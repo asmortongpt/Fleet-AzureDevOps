@@ -254,7 +254,7 @@ export class QueueMonitor {
 
       const result = await pool.query(
         `SELECT
-          DATE_TRUNC(`hour`, timestamp) as hour,
+          DATE_TRUNC('hour', timestamp) as hour,
           AVG(jobs_pending) as avg_pending,
           AVG(jobs_active) as avg_active,
           AVG(jobs_completed) as avg_completed,
@@ -263,7 +263,7 @@ export class QueueMonitor {
           AVG(jobs_per_minute) as avg_jobs_per_minute
          FROM queue_statistics
          WHERE queue_name = $1 AND timestamp > NOW() - $2::INTERVAL
-         GROUP BY DATE_TRUNC(`hour`, timestamp)
+         GROUP BY DATE_TRUNC('hour', timestamp)
          ORDER BY hour DESC`,
         [queueName, interval]
       );
@@ -350,7 +350,7 @@ export class QueueMonitor {
 
       const result = await pool.query(
         `DELETE FROM queue_statistics
-         WHERE created_at < NOW() - ($1 || ` days`)::INTERVAL`,
+         WHERE created_at < NOW() - ($1 || ' days')::INTERVAL`,
         [daysToKeepNum]
       );
 
