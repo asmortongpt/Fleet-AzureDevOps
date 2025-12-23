@@ -8,6 +8,7 @@ import { auditLog } from '../middleware/audit'
 import { z } from 'zod'
 import { buildInsertClause, buildUpdateClause } from '../utils/sql-safety'
 import { csrfProtection } from '../middleware/csrf'
+import { pool } from '../db/connection';
 
 
 const router = express.Router()
@@ -43,7 +44,7 @@ router.get(
 
       let query = `
         SELECT o.*,
-               d.first_name || ` ` || d.last_name as employee_full_name,
+               d.first_name || ' ' || d.last_name as employee_full_name,
                v.unit_number as vehicle_unit
         FROM osha_300_log o
         LEFT JOIN drivers d ON o.employee_id = d.id
@@ -84,7 +85,7 @@ router.get(
           page: Number(page),
           limit: Number(limit),
           total: parseInt(countResult.rows[0].count),
-          pages: Math.ceil(countResult.rows[0].count / Number(limit)
+          pages: Math.ceil(countResult.rows[0].count / Number(limit))
         }
       })
     } catch (error) {
@@ -127,7 +128,7 @@ router.get(
 // POST /osha-compliance/300-log
 router.post(
   '/300-log',
- csrfProtection,  csrfProtection, requirePermission('osha:submit:global'),
+  csrfProtection, csrfProtection, requirePermission('osha:submit:global'),
   auditLog({ action: 'CREATE', resourceType: 'osha_300_log' }),
   async (req: AuthRequest, res: Response) => {
     try {
@@ -199,7 +200,7 @@ router.get(
       let query = `
         SELECT vsi.*,
                v.unit_number,
-               d.first_name || ` ` || d.last_name as driver_name
+               d.first_name || ' ' || d.last_name as driver_name
         FROM vehicle_safety_inspections vsi
         JOIN vehicles v ON vsi.vehicle_id = v.id
         JOIN drivers d ON vsi.driver_id = d.id
@@ -245,7 +246,7 @@ router.get(
           page: Number(page),
           limit: Number(limit),
           total: parseInt(countResult.rows[0].count),
-          pages: Math.ceil(countResult.rows[0].count / Number(limit)
+          pages: Math.ceil(countResult.rows[0].count / Number(limit))
         }
       })
     } catch (error) {
@@ -258,7 +259,7 @@ router.get(
 // POST /osha-compliance/safety-inspections
 router.post(
   '/safety-inspections',
- csrfProtection,  csrfProtection, requirePermission('osha:submit:global'),
+  csrfProtection, csrfProtection, requirePermission('osha:submit:global'),
   auditLog({ action: 'CREATE', resourceType: 'vehicle_safety_inspections' }),
   async (req: AuthRequest, res: Response) => {
     try {
@@ -295,7 +296,7 @@ router.get(
 
       let query = `
         SELECT str.*,
-               d.first_name || ` ` || d.last_name as employee_name
+               d.first_name || ' ' || d.last_name as employee_name
         FROM safety_training_records str
         JOIN drivers d ON str.employee_id = d.id
         WHERE d.tenant_id = $1
@@ -334,7 +335,7 @@ router.get(
           page: Number(page),
           limit: Number(limit),
           total: parseInt(countResult.rows[0].count),
-          pages: Math.ceil(countResult.rows[0].count / Number(limit)
+          pages: Math.ceil(countResult.rows[0].count / Number(limit))
         }
       })
     } catch (error) {
@@ -347,7 +348,7 @@ router.get(
 // POST /osha-compliance/training-records
 router.post(
   '/training-records',
- csrfProtection,  csrfProtection, requirePermission('osha:submit:global'),
+  csrfProtection, csrfProtection, requirePermission('osha:submit:global'),
   auditLog({ action: 'CREATE', resourceType: 'safety_training_records' }),
   async (req: AuthRequest, res: Response) => {
     try {
@@ -385,7 +386,7 @@ router.get(
       let query = `
         SELECT ai.*,
                v.unit_number,
-               d.first_name || ` ` || d.last_name as driver_name
+               d.first_name || ' ' || d.last_name as driver_name
         FROM accident_investigations ai
         LEFT JOIN vehicles v ON ai.vehicle_id = v.id
         LEFT JOIN drivers d ON ai.driver_id = d.id
@@ -419,7 +420,7 @@ router.get(
           page: Number(page),
           limit: Number(limit),
           total: parseInt(countResult.rows[0].count),
-          pages: Math.ceil(countResult.rows[0].count / Number(limit)
+          pages: Math.ceil(countResult.rows[0].count / Number(limit))
         }
       })
     } catch (error) {
@@ -432,7 +433,7 @@ router.get(
 // POST /osha-compliance/accident-investigations
 router.post(
   '/accident-investigations',
- csrfProtection,  csrfProtection, requirePermission('osha:submit:global'),
+  csrfProtection, csrfProtection, requirePermission('osha:submit:global'),
   auditLog({ action: 'CREATE', resourceType: 'accident_investigations' }),
   async (req: AuthRequest, res: Response) => {
     try {
@@ -484,7 +485,7 @@ router.get(
          JOIN vehicles v ON vsi.vehicle_id = v.id
          WHERE v.tenant_id = $1
          AND vsi.overall_status = 'Fail'
-         AND vsi.inspection_date >= CURRENT_DATE - INTERVAL '30 days'',
+         AND vsi.inspection_date >= CURRENT_DATE - INTERVAL '30 days'`,
         [req.user!.tenant_id]
       )
 
@@ -494,7 +495,7 @@ router.get(
          FROM safety_training_records str
          JOIN drivers d ON str.employee_id = d.id
          WHERE d.tenant_id = $1
-         AND str.certification_expiry_date BETWEEN CURRENT_DATE AND CURRENT_DATE + INTERVAL '60 days``,
+         AND str.certification_expiry_date BETWEEN CURRENT_DATE AND CURRENT_DATE + INTERVAL '60 days'`,
         [req.user!.tenant_id]
       )
 

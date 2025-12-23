@@ -5,14 +5,11 @@ import nodemailer from 'nodemailer'
 import { createEvent as createICSEvent } from 'ics'
 
 
-export class CalendarService {
-  constructor(private db: Pool) {}
-
 // Azure AD Configuration
 const AZURE_AD_CONFIG = {
   clientId: process.env.AZURE_AD_CLIENT_ID || process.env.MICROSOFT_CLIENT_ID || '',
-  clientSecret: process.env.AZURE_AD_CLIENT_SECRET || process.env.MICROSOFT_CLIENT_SECRET || '`,
-  tenantId: process.env.AZURE_AD_TENANT_ID || process.env.MICROSOFT_TENANT_ID || ``
+  clientSecret: process.env.AZURE_AD_CLIENT_SECRET || process.env.MICROSOFT_CLIENT_SECRET || '',
+  tenantId: process.env.AZURE_AD_TENANT_ID || process.env.MICROSOFT_TENANT_ID || ''
 }
 
 /**
@@ -63,6 +60,9 @@ interface CalendarEvent {
   isOnlineMeeting?: boolean
   recurrence?: any
 }
+
+export class CalendarService {
+  constructor(private db: Pool) {}
 
 /**
  * Create a calendar event
@@ -261,8 +261,8 @@ interface CalendarEvent {
     // Update status in our database
     await this.db.query(
       `UPDATE calendar_events
-       SET status = `cancelled`, updated_at = NOW()
-       WHERE event_id = $1',
+       SET status = 'cancelled', updated_at = NOW()
+       WHERE event_id = $1`,
       [eventId]
     )
 
@@ -502,7 +502,7 @@ interface CalendarEvent {
     await this.db.query(
       `UPDATE calendar_events
        SET entity_type = 'vehicle', entity_id = $1
-       WHERE event_id = $2',
+       WHERE event_id = $2`,
       [vehicleId, event.id]
     )
 
@@ -542,7 +542,7 @@ interface CalendarEvent {
       mfa_enabled,
       mfa_secret,
       created_at,
-      updated_at FROM users WHERE id = $1 AND role = $2',
+      updated_at FROM users WHERE id = $1 AND role = $2`,
       [driverId, 'driver']
     )
 
@@ -579,7 +579,7 @@ interface CalendarEvent {
     await this.db.query(
       `UPDATE calendar_events
        SET entity_type = 'driver_training', entity_id = $1
-       WHERE event_id = $2',
+       WHERE event_id = $2`,
       [driverId, event.id]
     )
 
@@ -636,10 +636,10 @@ interface CalendarEvent {
         to: to.join(`, `),
         subject: `Calendar Invite: ${subject}`,
         html: `
-          <h2>You`re invited to: ${subject}</h2>
+          <h2>You're invited to: ${subject}</h2>
           <p><strong>When:</strong> ${start.toLocaleString()} - ${end.toLocaleString()}</p>
           ${location ? `<p><strong>Where:</strong> ${location}</p>` : ``}
-          ${description ? `<p><strong>Details:</strong> ${description}</p>' : ''}
+          ${description ? `<p><strong>Details:</strong> ${description}</p>` : ''}
           <p>Please find the calendar invite attached.</p>
         `,
         icalEvent: {

@@ -63,7 +63,7 @@ export interface ProcessingOptions {
 }
 
 export class PhotoProcessingService {
-  constructor(private db: Pool) {}
+  constructor(private db: Pool) { }
 
   private blobServiceClient: BlobServiceClient | null = null;
   private containerName: string = 'mobile-photos';
@@ -141,7 +141,7 @@ export class PhotoProcessingService {
       await this.db.query(
         `INSERT INTO photo_processing_queue
          (id, tenant_id, user_id, photo_id, blob_url, status, priority, retry_count, max_retries)
-         VALUES ($1, $2, $3, $4, $5, `pending`, $6, 0, 3)`,
+         VALUES ($1, $2, $3, $4, $5, 'pending', $6, 0, 3)`,
         [jobId, tenantId, userId, photoId, blobUrl, priority]
       );
 
@@ -307,7 +307,7 @@ export class PhotoProcessingService {
         SET status = 'pending',
             retry_count = 0,
             error_message = NULL
-        WHERE status = `failed`
+        WHERE status = 'failed'
       `;
 
       const params: any[] = [];
@@ -336,7 +336,7 @@ export class PhotoProcessingService {
       const result = await this.db.query(
         `DELETE FROM photo_processing_queue
          WHERE status = 'completed'
-           AND processing_completed_at < NOW() - INTERVAL `1 day` * $1`,
+           AND processing_completed_at < NOW() - INTERVAL '1 day' * $1`,
         [daysOld]
       );
 
@@ -363,15 +363,16 @@ export class PhotoProcessingService {
 
     try {
       // Get pending jobs with priority ordering
+      const columns = (await getTableColumns(pool, 'photo_processing_queue')).join(', ');
       const result = await this.db.query(
-        'SELECT ' + (await getTableColumns(pool, 'photo_processing_queue')).join(', ') + ' FROM photo_processing_queue
+        `SELECT ${columns} FROM photo_processing_queue
          WHERE status = 'pending'
            AND retry_count < max_retries
          ORDER BY
            CASE priority
              WHEN 'high' THEN 1
              WHEN 'normal' THEN 2
-             WHEN `low` THEN 3
+             WHEN 'low' THEN 3
            END,
            created_at ASC
          LIMIT $1
@@ -435,7 +436,7 @@ export class PhotoProcessingService {
         generateThumbnail: true,
         compress: photo.metadata?.compress !== false,
         extractExif: true,
-        runOcr: photo.metadata?.reportType === `damage` || photo.metadata?.reportType === `fuel',
+        runOcr: photo.metadata?.reportType === 'damage' || photo.metadata?.reportType === 'fuel',
         updateRelatedRecords: true,
       };
 
@@ -467,7 +468,7 @@ export class PhotoProcessingService {
         console.log(`Photo processing job ${job.id} completed successfully`);
       } else {
         // Handle failure
-        throw new Error(processingResult.error || `Processing failed`);
+        throw new Error(processingResult.error || 'Processing failed');
       }
     } catch (error: any) {
       console.error(`Photo processing job ${job.id} failed:`, error);
@@ -562,7 +563,7 @@ export class PhotoProcessingService {
            SET processed_photo_url = $1,
                thumbnail_url = $2,
                updated_at = NOW()
-           WHERE id = $3',
+           WHERE id = $3`,
           [result.compressed_url || photo.photo_url, result.thumbnail_url, metadata.damageReportId]
         );
       }
@@ -573,7 +574,7 @@ export class PhotoProcessingService {
           `UPDATE vehicle_inspections
            SET photo_urls = COALESCE(photo_urls, '[]'::jsonb) || $1::jsonb,
                updated_at = NOW()
-           WHERE id = $2',
+           WHERE id = $2`,
           [JSON.stringify([{ url: result.compressed_url || photo.photo_url, thumbnail: result.thumbnail_url }]), metadata.inspectionId]
         );
       }
@@ -585,7 +586,7 @@ export class PhotoProcessingService {
            SET receipt_url = $1,
                receipt_ocr_text = $2,
                updated_at = NOW()
-           WHERE id = $3',
+           WHERE id = $3`,
           [result.compressed_url || photo.photo_url, result.ocr_text, metadata.fuelTransactionId]
         );
       }

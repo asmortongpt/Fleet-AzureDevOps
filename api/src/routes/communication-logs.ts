@@ -7,6 +7,7 @@ import { AuthRequest, authenticateJWT } from '../middleware/auth'
 import { csrfProtection } from '../middleware/csrf'
 import { requirePermission } from '../middleware/permissions'
 import { buildInsertClause, buildUpdateClause } from '../utils/sql-safety'
+import { pool } from '../db/connection';
 
 
 const router = express.Router()

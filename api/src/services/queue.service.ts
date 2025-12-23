@@ -541,7 +541,7 @@ class QueueService {
       await pool.query(
         `UPDATE job_tracking
          SET status = $2, result = $3, completed_at = NOW(), updated_at = NOW()
-         WHERE job_id = $1',
+         WHERE job_id = $1`,
         [jobId, JobStatus.COMPLETED, JSON.stringify({ data: result, processingTime })]
       );
     } catch (error) {
@@ -558,7 +558,7 @@ class QueueService {
         `UPDATE job_tracking
          SET status = $2, error = $3, stack_trace = $4, failed_at = NOW(),
              retry_count = retry_count + 1, updated_at = NOW()
-         WHERE job_id = $1',
+         WHERE job_id = $1`,
         [jobId, JobStatus.FAILED, error.message, error.stack]
       );
     } catch (err) {
@@ -605,7 +605,7 @@ class QueueService {
     try {
       // Get job from dead letter queue
       const result = await pool.query(
-        'SELECT 
+        `SELECT 
       id,
       job_id,
       queue_name,
@@ -622,7 +622,7 @@ class QueueService {
       resolution_notes,
       retry_attempted,
       retry_attempted_at,
-      created_at FROM dead_letter_queue WHERE job_id = $1 AND reviewed = FALSE',
+      created_at FROM dead_letter_queue WHERE job_id = $1 AND reviewed = FALSE`,
         [jobId]
       );
 
@@ -676,7 +676,7 @@ class QueueService {
             FILTER (WHERE completed_at IS NOT NULL) as avg_processing_time_ms,
           COUNT(*) FILTER (WHERE created_at > NOW() - INTERVAL '1 minute') as jobs_last_minute
          FROM job_tracking
-         WHERE queue_name = $1 AND created_at > NOW() - INTERVAL '24 hours'',
+         WHERE queue_name = $1 AND created_at > NOW() - INTERVAL '24 hours'`,
         [queueName]
       );
 

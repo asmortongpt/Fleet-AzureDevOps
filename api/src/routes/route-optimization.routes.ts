@@ -14,6 +14,7 @@ import * as routeOptimizationService from '../services/route-optimization.servic
 import { z } from 'zod'
 import { getErrorMessage } from '../utils/error-handler'
 import { csrfProtection } from '../middleware/csrf'
+import { pool } from '../db/connection';
 
 
 const router = express.Router()
@@ -263,7 +264,7 @@ router.get(
           page: Number(page),
           limit: Number(limit),
           total: parseInt(countResult.rows[0].count),
-          pages: Math.ceil(countResult.rows[0].count / Number(limit)
+          pages: Math.ceil(countResult.rows[0].count / Number(limit))
         }
       })
     } catch (error) {
