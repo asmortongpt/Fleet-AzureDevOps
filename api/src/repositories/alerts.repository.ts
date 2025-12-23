@@ -1,33 +1,37 @@
 import { BaseRepository } from '../repositories/BaseRepository';
+import { Pool, QueryResult } from 'pg';
 
-Here's a TypeScript repository class `AlertsRepository` designed to eliminate 14 queries from `api/src/routes/alerts.routes.ts`. This class uses parameterized queries, includes tenant_id filtering, and implements CRUD methods:
-
-
-import { PoolClient } from 'pg';
+export interface Alert {
+  id: number;
+  tenant_id: string;
+  title: string;
+  description: string;
+  severity: string;
+  status: string;
+  created_at: Date;
+  updated_at: Date;
+}
 
 export class AlertsRepository extends BaseRepository<any> {
+
+  private pool: Pool;
+
   constructor(pool: Pool) {
-    super(pool, 'LAlerts_LRepository extends _LBases');
+    super('alerts', pool);
+    this.pool = pool;
   }
 
-  private client: PoolClient;
-
-  constructor(client: PoolClient) {
-    this.client = client;
-  }
-
-  // Create a new alert
   async createAlert(alert: {
     tenant_id: string;
     title: string;
     description: string;
     severity: string;
     status: string;
-  }): Promise<number> {
+  }): Promise<Alert> {
     const query = `
-      INSERT INTO alerts (tenant_id, title, description, severity, status)
-      VALUES ($1, $2, $3, $4, $5)
-      RETURNING id
+      INSERT INTO alerts (tenant_id, title, description, severity, status, created_at, updated_at)
+      VALUES ($1, $2, $3, $4, $5, NOW(), NOW())
+      RETURNING *
     `;
     const values = [
       alert.tenant_id,
@@ -36,32 +40,31 @@ export class AlertsRepository extends BaseRepository<any> {
       alert.severity,
       alert.status,
     ];
-    const result = await this.client.query(query, values);
-    return result.rows[0].id;
+    const result: QueryResult<Alert> = await this.pool.query(query, values);
+    return result.rows[0];
   }
 
-  // Read all alerts for a tenant
-  async getAllAlerts(tenant_id: string): Promise<any[]> {
+  async getAllAlerts(tenant_id: string): Promise<Alert[]> {
     const query = `
-      SELECT id, tenant_id, created_at, updated_at FROM alerts
+      SELECT id, tenant_id, title, description, severity, status, created_at, updated_at
+      FROM alerts
       WHERE tenant_id = $1
       ORDER BY created_at DESC
     `;
-    const result = await this.client.query(query, [tenant_id]);
+    const result: QueryResult<Alert> = await this.pool.query(query, [tenant_id]);
     return result.rows;
   }
 
-  // Read a specific alert for a tenant
-  async getAlertById(tenant_id: string, alert_id: number): Promise<any | null> {
+  async getAlertById(tenant_id: string, alert_id: number): Promise<Alert | null> {
     const query = `
-      SELECT id, tenant_id, created_at, updated_at FROM alerts
+      SELECT id, tenant_id, title, description, severity, status, created_at, updated_at
+      FROM alerts
       WHERE tenant_id = $1 AND id = $2
     `;
-    const result = await this.client.query(query, [tenant_id, alert_id]);
+    const result: QueryResult<Alert> = await this.pool.query(query, [tenant_id, alert_id]);
     return result.rows[0] || null;
   }
 
-  // Update an alert
   async updateAlert(
     tenant_id: string,
     alert_id: number,
@@ -71,58 +74,28 @@ export class AlertsRepository extends BaseRepository<any> {
       severity?: string;
       status?: string;
     }
-  ): Promise<boolean> {
-    const setClauses = [];
-    const values = [tenant_id, alert_id];
-    let paramIndex = 3;
+  ): Promise<Alert | null> {
+    const setClause = Object.keys(updates)
+      .map((key, index) => `${key} = $${index + 3}`)
+      .join(', ');
 
-    for (const [key, value] of Object.entries(updates)) {
-      if (value !== undefined) {
-        setClauses.push(`${key} = $${paramIndex}`);
-        values.push(value);
-        paramIndex++;
-      }
+    if (!setClause) {
+      return this.getAlertById(tenant_id, alert_id);
     }
 
-    if (setClauses.length === 0) {
-      return false;
-    }
-
-    const query = `
-      UPDATE alerts
-      SET ${setClauses.join(', ')}
-      WHERE tenant_id = $1 AND id = $2
-      RETURNING id
-    `;
-
-    const result = await this.client.query(query, values);
-    return result.rowCount > 0;
+    const query = `UPDATE alerts SET ${setClause}, updated_at = NOW() WHERE id = $1 AND tenant_id = $2 RETURNING *`;
+    const values = [alert_id, tenant_id, ...Object.values(updates)];
+    const result: QueryResult<Alert> = await this.pool.query(query, values);
+    return result.rows[0] || null;
   }
 
-  // Delete an alert
   async deleteAlert(tenant_id: string, alert_id: number): Promise<boolean> {
     const query = `
       DELETE FROM alerts
       WHERE tenant_id = $1 AND id = $2
       RETURNING id
     `;
-    const result = await this.client.query(query, [tenant_id, alert_id]);
-    return result.rowCount > 0;
+    const result: QueryResult = await this.pool.query(query, [tenant_id, alert_id]);
+    return result.rowCount ? result.rowCount > 0 : false;
   }
 }
-
-
-This `AlertsRepository` class provides the following features:
-
-1. It uses parameterized queries with `$1`, `$2`, etc., to prevent SQL injection.
-2. All methods include `tenant_id` filtering to ensure data isolation between tenants.
-3. It implements CRUD (Create, Read, Update, Delete) methods:
-   - `createAlert`: Creates a new alert
-   - `getAllAlerts`: Retrieves all alerts for a tenant
-   - `getAlertById`: Retrieves a specific alert for a tenant
-   - `updateAlert`: Updates an existing alert
-   - `deleteAlert`: Deletes an alert
-
-4. The class uses a `PoolClient` from the `pg` package, which should be injected when instantiating the repository.
-
-To use this repository, you would typically create an instance of it in your route handlers, passing in a database client. This approach should help eliminate the 14 queries in your `alerts.routes.ts` file by centralizing database operations in this repository class.

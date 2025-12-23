@@ -1,48 +1,84 @@
 import { BaseRepository } from '../repositories/BaseRepository';
+import { Pool, QueryResult } from 'pg';
 
-Here is a basic example of a TypeScript repository for fraud detection. This repository includes methods for creating, reading, updating, and deleting (CRUD) fraud detection records. It also includes support for parameterized queries and tenant_id.
-
-
-import { getRepository, Repository } from 'typeorm';
-import { FraudDetection } from '../entities/FraudDetection';
-
-export class FraudDetectionRepository extends BaseRepository<any> {
-  constructor(pool: Pool) {
-    super(pool, 'LFraud_LDetection_LRepository extends _LBases');
-  }
-
-  private dao: Repository<FraudDetection>;
-
-  constructor() {
-    this.dao = getRepository(FraudDetection);
-  }
-
-  async create(data: FraudDetection) {
-    return await this.dao.save(data);
-  }
-
-  async detail(id: string) {
-    return await this.dao.findOne({ where: { id } });
-  }
-
-  async update(id: string, data: Partial<FraudDetection>) {
-    return await this.dao.update(id, data);
-  }
-
-  async delete(id: string) {
-    return await this.dao.delete(id);
-  }
-
-  async findByTenantId(tenant_id: string) {
-    return await this.dao.find({ where: { tenant_id } });
-  }
-
-  async query(query: string, parameters?: any[]) {
-    return await this.dao.query(query, parameters);
-  }
+export interface FraudDetection {
+  id: number;
+  tenant_id: number;
+  entity_type: string;
+  entity_id: number;
+  risk_score: number;
+  reasons: string[];
+  status: string;
+  created_at: Date;
+  updated_at: Date;
 }
 
+export class FraudDetectionRepository extends BaseRepository<any> {
 
-This repository uses the TypeORM library to interact with the database. The `FraudDetection` entity would represent a table in your database that contains fraud detection records.
+  private pool: Pool;
 
-Please note that you need to replace `FraudDetection` with your actual entity class and you might need to adjust the code according to your database design and business logic.
+  constructor(pool: Pool) {
+    super('fraud_detection', pool);
+    this.pool = pool;
+  }
+
+  async create(tenantId: number, data: Omit<FraudDetection, 'id' | 'created_at' | 'updated_at'>): Promise<FraudDetection> {
+    const query = `
+      INSERT INTO fraud_detection (tenant_id, entity_type, entity_id, risk_score, reasons, status, created_at, updated_at)
+      VALUES ($1, $2, $3, $4, $5, $6, NOW(), NOW())
+      RETURNING *
+    `;
+    const values = [
+      tenantId,
+      data.entity_type,
+      data.entity_id,
+      data.risk_score,
+      JSON.stringify(data.reasons),
+      data.status
+    ];
+    const result: QueryResult<FraudDetection> = await this.pool.query(query, values);
+    return result.rows[0];
+  }
+
+  async findById(id: number, tenantId: number): Promise<FraudDetection | null> {
+    const query = `SELECT id, tenant_id, entity_type, entity_id, risk_score, reasons, status, created_at, updated_at FROM fraud_detection WHERE id = $1 AND tenant_id = $2`;
+    const result: QueryResult<FraudDetection> = await this.pool.query(query, [id, tenantId]);
+    return result.rows[0] || null;
+  }
+
+  async update(id: number, tenantId: number, data: Partial<FraudDetection>): Promise<FraudDetection | null> {
+    const setClause = Object.keys(data)
+      .map((key, index) => `${key} = $${index + 3}`)
+      .join(', ');
+
+    if (!setClause) {
+      return this.findById(id, tenantId);
+    }
+
+    // Handle array serialization if reasons is updated
+    const values = [id, tenantId];
+    for (const key of Object.keys(data)) {
+      let val = (data as any)[key];
+      if (key === 'reasons' && Array.isArray(val)) {
+        val = JSON.stringify(val);
+      }
+      values.push(val);
+    }
+
+    const query = `UPDATE fraud_detection SET ${setClause}, updated_at = NOW() WHERE id = $1 AND tenant_id = $2 RETURNING *`;
+    const result: QueryResult<FraudDetection> = await this.pool.query(query, values);
+    return result.rows[0] || null;
+  }
+
+  async delete(id: number, tenantId: number): Promise<boolean> {
+    const query = `DELETE FROM fraud_detection WHERE id = $1 AND tenant_id = $2 RETURNING id`;
+    const result: QueryResult = await this.pool.query(query, [id, tenantId]);
+    return result.rowCount ? result.rowCount > 0 : false;
+  }
+
+  async findByTenantId(tenantId: number): Promise<FraudDetection[]> {
+    const query = `SELECT id, tenant_id, entity_type, entity_id, risk_score, reasons, status, created_at, updated_at FROM fraud_detection WHERE tenant_id = $1 ORDER BY created_at DESC`;
+    const result: QueryResult<FraudDetection> = await this.pool.query(query, [tenantId]);
+    return result.rows;
+  }
+}

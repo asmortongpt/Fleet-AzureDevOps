@@ -1,6 +1,3 @@
-Here is a TypeScript code snippet that fulfills your requirements:
-
-```typescript
 import express, { Express } from 'express';
 import { createServer, Server as HTTPServer } from 'http';
 import { Server as WSServer } from 'ws';
@@ -66,6 +63,3 @@ process.on('SIGTERM', stopServer);
 process.on('SIGINT', stopServer);
 
 export { startServer, stopServer };
-```
-
-This script creates an Express server and a WebSocket server that share the same port. It uses environment variables for configuration and parameterized queries for database access. It also handles server shutdown gracefully by closing the HTTP server and the PostgreSQL connection pool.

@@ -162,7 +162,7 @@ export async function safeDeleteFile(
 export async function safeStatFile(
   filePath: string,
   allowedDirectory: string
-): Promise<fs.Stats> {
+): Promise<fsSync.Stats> {
   const validatedPath = validatePathWithinDirectory(filePath, allowedDirectory);
 
   try {

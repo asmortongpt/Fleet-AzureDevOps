@@ -1,8 +1,4 @@
 /**
-import { container } from '../container'
-import { asyncHandler } from '../middleware/errorHandler'
-import { NotFoundError, ValidationError } from '../errors/app-error'
-import logger from '../config/logger'; // Wave 30: Add Winston logger
  * Incident Management Routes
  * Comprehensive incident tracking, investigation, and resolution
  *
@@ -22,8 +18,8 @@ import type { AuthRequest } from '../middleware/auth'
 import { authenticateJWT } from '../middleware/auth'
 import { requirePermission } from '../middleware/permissions'
 import { csrfProtection } from '../middleware/csrf'
-import { pool } from '../db/connection';
-
+import { pool } from '../config/database';
+import logger from '../config/logger';
 
 const router = Router()
 router.use(authenticateJWT)
@@ -40,7 +36,7 @@ router.get('/', requirePermission('safety_incident:view:global'), async (req: Au
         u_reported.first_name || ' ' || u_reported.last_name as reported_by_name,
         u_assigned.first_name || ' ' || u_assigned.last_name as assigned_to_name,
         v.vehicle_number as vehicle_involved,
-        d.first_name || ` ` || d.last_name as driver_name,
+        d.first_name || ' ' || d.last_name as driver_name,
         COUNT(DISTINCT ia.id) as action_count,
         COUNT(DISTINCT iph.id) as photo_count
       FROM incidents i
@@ -99,7 +95,7 @@ router.get('/', requirePermission('safety_incident:view:global'), async (req: Au
       total: result.rows.length
     })
   } catch (error) {
-    logger.error('Error fetching incidents:', error) // Wave 30: Winston logger
+    logger.error('Error fetching incidents:', error)
     res.status(500).json({ error: 'Failed to fetch incidents' })
   }
 })
@@ -114,8 +110,8 @@ router.get('/:id', requirePermission('safety_incident:view:global'), async (req:
       pool.query(
         `SELECT
           i.*,
-          u_reported.first_name || ` ` || u_reported.last_name as reported_by_name,
-          u_assigned.first_name || ` ` || u_assigned.last_name as assigned_to_name,
+          u_reported.first_name || ' ' || u_reported.last_name as reported_by_name,
+          u_assigned.first_name || ' ' || u_assigned.last_name as assigned_to_name,
           v.vehicle_number as vehicle_involved,
           d.first_name || ' ' || d.last_name as driver_name
         FROM incidents i
@@ -123,7 +119,7 @@ router.get('/:id', requirePermission('safety_incident:view:global'), async (req:
         LEFT JOIN users u_assigned ON i.assigned_investigator = u_assigned.id
         LEFT JOIN vehicles v ON i.vehicle_id = v.id
         LEFT JOIN drivers d ON i.driver_id = d.id
-        WHERE i.id = $1 AND i.tenant_id = $2',
+        WHERE i.id = $1 AND i.tenant_id = $2`,
         [id, tenantId]
       ),
       pool.query(
@@ -164,7 +160,7 @@ router.get('/:id', requirePermission('safety_incident:view:global'), async (req:
     ])
 
     if (incident.rows.length === 0) {
-      return res.status(404).json({ error: `Incident not found` })
+      return res.status(404).json({ error: 'Incident not found' })
     }
 
     res.json({
@@ -174,13 +170,13 @@ router.get('/:id', requirePermission('safety_incident:view:global'), async (req:
       witnesses: witnesses.rows
     })
   } catch (error) {
-    logger.error('Error fetching incident:', error) // Wave 30: Winston logger
+    logger.error('Error fetching incident:', error)
     res.status(500).json({ error: 'Failed to fetch incident' })
   }
 })
 
 // Create incident
-router.post('/',csrfProtection,  csrfProtection, requirePermission('safety_incident:create:global'), async (req: AuthRequest, res) => {
+router.post('/', csrfProtection, requirePermission('safety_incident:create:global'), async (req: AuthRequest, res) => {
   const client = await pool.connect()
   try {
     await client.query('BEGIN')
@@ -230,7 +226,7 @@ router.post('/',csrfProtection,  csrfProtection, requirePermission('safety_incid
     await client.query(
       `INSERT INTO incident_timeline (incident_id, event_type, description, performed_by)
        VALUES ($1, $2, $3, $4)`,
-      [incidentId, 'created', `Incident reported`, userId]
+      [incidentId, 'created', 'Incident reported', userId]
     )
 
     await client.query('COMMIT')
@@ -241,7 +237,7 @@ router.post('/',csrfProtection,  csrfProtection, requirePermission('safety_incid
     })
   } catch (error) {
     await client.query('ROLLBACK')
-    logger.error('Error creating incident:', error) // Wave 30: Winston logger
+    logger.error('Error creating incident:', error)
     res.status(500).json({ error: 'Failed to create incident' })
   } finally {
     client.release()
@@ -249,7 +245,7 @@ router.post('/',csrfProtection,  csrfProtection, requirePermission('safety_incid
 })
 
 // Update incident
-router.put('/:id',csrfProtection,  csrfProtection, requirePermission('safety_incident:update:global'), async (req: AuthRequest, res) => {
+router.put('/:id', csrfProtection, requirePermission('safety_incident:update:global'), async (req: AuthRequest, res) => {
   const client = await pool.connect()
   try {
     await client.query('BEGIN')
@@ -264,7 +260,7 @@ router.put('/:id',csrfProtection,  csrfProtection, requirePermission('safety_inc
     let paramCount = 1
 
     Object.keys(updates).forEach(key => {
-      if (updates[key] !== undefined && key !== `id` && key !== `tenant_id`) {
+      if (updates[key] !== undefined && key !== 'id' && key !== 'tenant_id') {
         setClauses.push(`${key} = $${paramCount}`)
         values.push(updates[key])
         paramCount++
@@ -272,23 +268,23 @@ router.put('/:id',csrfProtection,  csrfProtection, requirePermission('safety_inc
     })
 
     if (setClauses.length === 0) {
-      return res.status(400).json({ error: `No fields to update` })
+      return res.status(400).json({ error: 'No fields to update' })
     }
 
-    setClauses.push(`updated_at = NOW()`)
+    setClauses.push('updated_at = NOW()')
     values.push(id, tenantId)
 
     const result = await client.query(
       `UPDATE incidents
-       SET ${setClauses.join(`, `)}
+       SET ${setClauses.join(', ')}
        WHERE id = $${paramCount} AND tenant_id = $${paramCount + 1}
        RETURNING *`,
       values
     )
 
     if (result.rows.length === 0) {
-      await client.query(`ROLLBACK`)
-      return res.status(404).json({ error: `Incident not found` })
+      await client.query('ROLLBACK')
+      return res.status(404).json({ error: 'Incident not found' })
     }
 
     // Add timeline entry
@@ -299,15 +295,15 @@ router.put('/:id',csrfProtection,  csrfProtection, requirePermission('safety_inc
       [id, 'updated', `Updated: ${changedFields}`, userId]
     )
 
-    await client.query(`COMMIT`)
+    await client.query('COMMIT')
 
     res.json({
       incident: result.rows[0],
-      message: `Incident updated successfully`
+      message: 'Incident updated successfully'
     })
   } catch (error) {
-    await client.query(`ROLLBACK`)
-    logger.error('Error updating incident:', error) // Wave 30: Winston logger
+    await client.query('ROLLBACK')
+    logger.error('Error updating incident:', error)
     res.status(500).json({ error: 'Failed to update incident' })
   } finally {
     client.release()
@@ -315,7 +311,7 @@ router.put('/:id',csrfProtection,  csrfProtection, requirePermission('safety_inc
 })
 
 // Add corrective action
-router.post('/:id/actions',csrfProtection,  csrfProtection, requirePermission('safety_incident:update:global'), async (req: AuthRequest, res) => {
+router.post('/:id/actions', csrfProtection, requirePermission('safety_incident:update:global'), async (req: AuthRequest, res) => {
   const client = await pool.connect()
   try {
     await client.query('BEGIN')
@@ -339,15 +335,15 @@ router.post('/:id/actions',csrfProtection,  csrfProtection, requirePermission('s
       [id, 'action_added', `Corrective action assigned: ${action_description}`, userId]
     )
 
-    await client.query(`COMMIT`)
+    await client.query('COMMIT')
 
     res.status(201).json({
       action: result.rows[0],
-      message: `Corrective action added successfully`
+      message: 'Corrective action added successfully'
     })
   } catch (error) {
-    await client.query(`ROLLBACK`)
-    logger.error('Error adding action:', error) // Wave 30: Winston logger
+    await client.query('ROLLBACK')
+    logger.error('Error adding action:', error)
     res.status(500).json({ error: 'Failed to add corrective action' })
   } finally {
     client.release()
@@ -355,7 +351,7 @@ router.post('/:id/actions',csrfProtection,  csrfProtection, requirePermission('s
 })
 
 // Close incident
-router.post('/:id/close',csrfProtection,  csrfProtection, requirePermission('safety_incident:update:global'), async (req: AuthRequest, res) => {
+router.post('/:id/close', csrfProtection, requirePermission('safety_incident:update:global'), async (req: AuthRequest, res) => {
   const client = await pool.connect()
   try {
     await client.query('BEGIN')
@@ -379,7 +375,7 @@ router.post('/:id/close',csrfProtection,  csrfProtection, requirePermission('saf
     )
 
     if (result.rows.length === 0) {
-      await client.query(`ROLLBACK`)
+      await client.query('ROLLBACK')
       throw new NotFoundError("Incident not found")
     }
 
@@ -387,7 +383,7 @@ router.post('/:id/close',csrfProtection,  csrfProtection, requirePermission('saf
     await client.query(
       `INSERT INTO incident_timeline (incident_id, event_type, description, performed_by)
        VALUES ($1, $2, $3, $4)`,
-      [id, 'closed', `Incident investigation completed and closed`, userId]
+      [id, 'closed', 'Incident investigation completed and closed', userId]
     )
 
     await client.query('COMMIT')
@@ -398,7 +394,7 @@ router.post('/:id/close',csrfProtection,  csrfProtection, requirePermission('saf
     })
   } catch (error) {
     await client.query('ROLLBACK')
-    logger.error('Error closing incident:', error) // Wave 30: Winston logger
+    logger.error('Error closing incident:', error)
     res.status(500).json({ error: 'Failed to close incident' })
   } finally {
     client.release()
@@ -425,7 +421,7 @@ router.get('/analytics/summary', requirePermission('safety_incident:view:global'
       ),
       pool.query(
         `SELECT
-           DATE_TRUNC(`month`, incident_date) as month,
+           DATE_TRUNC('month', incident_date) as month,
            COUNT(*) as count
          FROM incidents
          WHERE tenant_id = $1 AND incident_date >= NOW() - INTERVAL '12 months'
@@ -442,7 +438,7 @@ router.get('/analytics/summary', requirePermission('safety_incident:view:global'
       monthly_trend: monthlyTrend.rows
     })
   } catch (error) {
-    logger.error('Error fetching analytics:', error) // Wave 30: Winston logger
+    logger.error('Error fetching analytics:', error)
     res.status(500).json({ error: 'Failed to fetch analytics' })
   }
 })

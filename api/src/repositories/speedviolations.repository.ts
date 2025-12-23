@@ -1,17 +1,20 @@
 import { BaseRepository } from '../repositories/BaseRepository';
-
-Let's create a TypeScript repository for managing speed violations, focusing on CRUD operations with parameterized queries and tenant_id support. We'll structure this repository to be used in the `api/src/routes/speed-violations.routes.ts` file.
-
-Here's the implementation of the `SpeedViolationsRepository`:
-
-
 import { Pool, QueryResult } from 'pg';
-import { SpeedViolation } from '../models/speed-violation.model';
+
+export interface SpeedViolation {
+  id: number;
+  vehicle_id: number;
+  speed: number;
+  location: string;
+  timestamp: Date;
+  tenant_id: string;
+}
 
 export class SpeedViolationsRepository extends BaseRepository<any> {
   private pool: Pool;
 
   constructor(pool: Pool) {
+    super('speed_violations', pool);
     this.pool = pool;
   }
 
@@ -21,7 +24,7 @@ export class SpeedViolationsRepository extends BaseRepository<any> {
    * @param tenantId - The ID of the tenant
    * @returns The created speed violation object
    */
-  async create(speedViolation: SpeedViolation, tenantId: string): Promise<SpeedViolation> {
+  async create(speedViolation: Omit<SpeedViolation, 'id'>, tenantId: string): Promise<SpeedViolation> {
     const query = `
       INSERT INTO speed_violations (vehicle_id, speed, location, timestamp, tenant_id)
       VALUES ($1, $2, $3, $4, $5)
@@ -64,7 +67,7 @@ export class SpeedViolationsRepository extends BaseRepository<any> {
    * @param tenantId - The ID of the tenant
    * @returns The updated speed violation object
    */
-  async update(id: number, speedViolation: SpeedViolation, tenantId: string): Promise<SpeedViolation> {
+  async update(id: number, speedViolation: Partial<SpeedViolation>, tenantId: string): Promise<SpeedViolation> {
     const query = `
       UPDATE speed_violations
       SET vehicle_id = $1, speed = $2, location = $3, timestamp = $4
@@ -101,7 +104,7 @@ export class SpeedViolationsRepository extends BaseRepository<any> {
     const values = [id, tenantId];
 
     const result: QueryResult = await this.pool.query(query, values);
-    return result.rowCount > 0;
+    return result.rowCount ? result.rowCount > 0 : false;
   }
 
   /**
@@ -121,45 +124,3 @@ export class SpeedViolationsRepository extends BaseRepository<any> {
     return result.rows;
   }
 }
-
-
-This `SpeedViolationsRepository` class provides the following features:
-
-1. **CRUD Operations**: It includes methods for Create, Read, Update, and Delete operations on speed violations.
-
-2. **Parameterized Queries**: All database queries use parameterized queries to prevent SQL injection attacks.
-
-3. **Tenant Support**: Every method includes a `tenantId` parameter to ensure multi-tenant support. The `tenant_id` is used in all queries to filter results and ensure data isolation between tenants.
-
-4. **Type Safety**: The class uses TypeScript's type system, including the `SpeedViolation` model imported from a separate file.
-
-5. **Error Handling**: The `update` method throws an error if the speed violation is not found or if the tenant doesn't have access to it.
-
-6. **List Method**: An additional `list` method is provided to retrieve all speed violations for a given tenant.
-
-To use this repository in your `speed-violations.routes.ts` file, you would typically instantiate it with a database connection pool and use its methods within your route handlers. For example:
-
-
-import { Router } from 'express';
-import { Pool } from 'pg';
-import { SpeedViolationsRepository } from '../repositories/speed-violations.repository';
-
-const router = Router();
-const pool = new Pool(/* your database configuration */);
-const speedViolationsRepository = new SpeedViolationsRepository(pool);
-
-router.post('/', async (req, res) => {
-  try {
-    const speedViolation = await speedViolationsRepository.create(req.body, req.tenantId);
-    res.status(201).json(speedViolation);
-  } catch (error) {
-    res.status(500).json({ error: 'Failed to create speed violation' });
-  }
-});
-
-// Implement other routes using the repository methods
-
-export default router;
-
-
-This implementation provides a solid foundation for managing speed violations in a multi-tenant environment with proper database interaction and type safety.

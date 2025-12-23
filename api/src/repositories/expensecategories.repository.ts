@@ -1,44 +1,71 @@
-Here is a basic implementation of an ExpenseCategoriesRepository for a TypeScript application. This repository includes methods for creating, reading, updating, and deleting expense categories. It also includes a method for getting all expense categories for a specific tenant.
+import { BaseRepository } from '../repositories/BaseRepository';
+import { Pool, QueryResult } from 'pg';
 
-
-import { getRepository, Repository } from 'typeorm';
-import { ExpenseCategory } from '../entities/ExpenseCategory';
-
-class ExpenseCategoriesRepository {
-  private ormRepository: Repository<ExpenseCategory>;
-
-  constructor() {
-    this.ormRepository = getRepository(ExpenseCategory);
-  }
-
-  public async findAll(tenant_id: string): Promise<ExpenseCategory[]> {
-    const expenseCategories = await this.ormRepository.find({ where: { tenant_id } });
-    return expenseCategories;
-  }
-
-  public async findById(id: string, tenant_id: string): Promise<ExpenseCategory | undefined> {
-    const expenseCategory = await this.ormRepository.findOne({ where: { id, tenant_id } });
-    return expenseCategory;
-  }
-
-  public async create(expenseCategoryData: ICreateExpenseCategoryDTO): Promise<ExpenseCategory> {
-    const expenseCategory = this.ormRepository.create(expenseCategoryData);
-    await this.ormRepository.save(expenseCategory);
-    return expenseCategory;
-  }
-
-  public async update(expenseCategory: ExpenseCategory): Promise<ExpenseCategory> {
-    return this.ormRepository.save(expenseCategory);
-  }
-
-  public async delete(id: string, tenant_id: string): Promise<void> {
-    await this.ormRepository.delete({ id, tenant_id });
-  }
+export interface ExpenseCategory {
+  id: number;
+  tenant_id: number;
+  name: string;
+  description: string;
+  is_active: boolean;
+  created_at: Date;
+  updated_at: Date;
 }
 
-export { ExpenseCategoriesRepository };
+export class ExpenseCategoriesRepository extends BaseRepository<any> {
 
+  private pool: Pool;
 
-Please note that this is a basic implementation and might need adjustments based on your application's specific needs. For example, the `ICreateExpenseCategoryDTO` interface used in the `create` method is not defined in this code. You would need to define it based on the data your application expects when creating a new expense category.
+  constructor(pool: Pool) {
+    super('expense_categories', pool);
+    this.pool = pool;
+  }
 
-Also, the `ExpenseCategory` entity is used here, which should represent a table in your database. You would need to define this entity according to your database schema.
+  async findAll(tenantId: number): Promise<ExpenseCategory[]> {
+    const query = `SELECT id, tenant_id, name, description, is_active, created_at, updated_at FROM expense_categories WHERE tenant_id = $1 ORDER BY name ASC`;
+    const result: QueryResult<ExpenseCategory> = await this.pool.query(query, [tenantId]);
+    return result.rows;
+  }
+
+  async findById(id: number, tenantId: number): Promise<ExpenseCategory | null> {
+    const query = `SELECT id, tenant_id, name, description, is_active, created_at, updated_at FROM expense_categories WHERE id = $1 AND tenant_id = $2`;
+    const result: QueryResult<ExpenseCategory> = await this.pool.query(query, [id, tenantId]);
+    return result.rows[0] || null;
+  }
+
+  async create(tenantId: number, expenseCategoryData: Omit<ExpenseCategory, 'id' | 'created_at' | 'updated_at'>): Promise<ExpenseCategory> {
+    const query = `
+      INSERT INTO expense_categories (tenant_id, name, description, is_active, created_at, updated_at)
+      VALUES ($1, $2, $3, $4, NOW(), NOW())
+      RETURNING *
+    `;
+    const values = [
+      tenantId,
+      expenseCategoryData.name,
+      expenseCategoryData.description,
+      expenseCategoryData.is_active
+    ];
+    const result: QueryResult<ExpenseCategory> = await this.pool.query(query, values);
+    return result.rows[0];
+  }
+
+  async update(tenantId: number, id: number, expenseCategoryData: Partial<ExpenseCategory>): Promise<ExpenseCategory | null> {
+    const setClause = Object.keys(expenseCategoryData)
+      .map((key, index) => `${key} = $${index + 3}`)
+      .join(', ');
+
+    if (!setClause) {
+      return this.findById(id, tenantId);
+    }
+
+    const query = `UPDATE expense_categories SET ${setClause}, updated_at = NOW() WHERE id = $1 AND tenant_id = $2 RETURNING *`;
+    const values = [id, tenantId, ...Object.values(expenseCategoryData)];
+    const result: QueryResult<ExpenseCategory> = await this.pool.query(query, values);
+    return result.rows[0] || null;
+  }
+
+  async delete(tenantId: number, id: number): Promise<boolean> {
+    const query = `DELETE FROM expense_categories WHERE id = $1 AND tenant_id = $2 RETURNING id`;
+    const result: QueryResult = await this.pool.query(query, [id, tenantId]);
+    return result.rowCount ? result.rowCount > 0 : false;
+  }
+}

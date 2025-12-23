@@ -166,7 +166,7 @@ async function sendErrorNotification(errorCount: number): Promise<void> {
     // Get admin users across all tenants
     const adminsResult = await pool.query(
       `SELECT id, email, tenant_id FROM users
-       WHERE role = `admin` AND is_active = true`
+       WHERE role = 'admin' AND is_active = true`
     )
 
     const message = `⚠️ Telematics Sync Errors: ${errorCount} error(s) occurred during the latest sync. Check logs for details.`
@@ -177,7 +177,7 @@ async function sendErrorNotification(errorCount: number): Promise<void> {
         `INSERT INTO telematics_webhook_events (
           provider_id, event_type, payload, processed
         ) VALUES (
-          (SELECT id FROM telematics_providers WHERE name = `system`),
+          (SELECT id FROM telematics_providers WHERE name = 'system'),
           'sync_error',
           $1,
           true
@@ -238,7 +238,8 @@ async function logSyncMetrics(metrics: {
 export function startTelematicsSync(): void {
   if (!ENABLE_SYNC) {
     logger.warn('Telematics sync is disabled by configuration')
-    return }
+    return
+  }
 
   logger.info(`Initializing telematics sync job`, {
     schedule: CRON_SCHEDULE,

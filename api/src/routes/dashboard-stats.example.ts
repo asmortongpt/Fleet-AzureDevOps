@@ -1,7 +1,4 @@
 /**
-import { container } from '../container'
-import { asyncHandler } from '../middleware/errorHandler'
-import { NotFoundError, ValidationError } from '../errors/app-error'
  * EXAMPLE: Dashboard Statistics Endpoint with Query Result Caching
  *
  * This demonstrates caching expensive aggregation queries that power dashboards.
@@ -14,8 +11,7 @@ import { requirePermission } from '../middleware/permissions'
 import { cache } from '../utils/cache'
 import { slowQueryLogger } from '../utils/performance'
 import { csrfProtection } from '../middleware/csrf'
-import { pool } from '../db/connection';
-
+import { pool } from '../config/database';
 
 const router = express.Router()
 router.use(authenticateJWT)
@@ -169,7 +165,7 @@ router.get('/fleet-health',
               v.id,
               v.year,
               v.odometer,
-              EXTRACT(YEAR FROM AGE(CURRENT_DATE, TO_DATE(v.year::text, 'YYYY')) as vehicle_age,
+              EXTRACT(YEAR FROM AGE(CURRENT_DATE, TO_DATE(v.year::text, 'YYYY'))) as vehicle_age,
               COUNT(DISTINCT ms.id) as scheduled_maintenance,
               COUNT(DISTINCT CASE WHEN ms.status = 'completed' THEN ms.id END) as completed_maintenance
             FROM vehicles v
@@ -236,14 +232,14 @@ router.get('/fleet-health',
  * Useful after bulk data imports or major system updates
  */
 router.post('/invalidate-cache',
- csrfProtection,  csrfProtection, requirePermission('dashboard:admin:global'),
+  csrfProtection, requirePermission('dashboard:admin:global'),
   async (req: AuthRequest, res: Response) => {
     try {
       const tenantId = req.user!.tenant_id
 
       // Invalidate all dashboard caches for this tenant
-      await cache.del(cache.getCacheKey(tenantId, 'dashboard:stats')
-      await cache.del(cache.getCacheKey(tenantId, 'dashboard:fleet-health')
+      await cache.del(cache.getCacheKey(tenantId, 'dashboard:stats'))
+      await cache.del(cache.getCacheKey(tenantId, 'dashboard:fleet-health'))
 
       // Could also invalidate route caches if needed
       // await cache.delPattern(`route:/api/dashboard*`)
@@ -275,15 +271,15 @@ router.post('/invalidate-cache',
  * Add to relevant routes:
  *
  * // After creating/updating/deleting vehicles
- * await cache.del(cache.getCacheKey(req.user.tenant_id, 'dashboard:stats')
- * await cache.del(cache.getCacheKey(req.user.tenant_id, 'dashboard:fleet-health')
+ * await cache.del(cache.getCacheKey(req.user.tenant_id, 'dashboard:stats'))
+ * await cache.del(cache.getCacheKey(req.user.tenant_id, 'dashboard:fleet-health'))
  *
  * // After work order status changes
- * await cache.del(cache.getCacheKey(req.user.tenant_id, 'dashboard:stats')
+ * await cache.del(cache.getCacheKey(req.user.tenant_id, 'dashboard:stats'))
  *
  * // After maintenance completion
- * await cache.del(cache.getCacheKey(req.user.tenant_id, 'dashboard:stats')
- * await cache.del(cache.getCacheKey(req.user.tenant_id, 'dashboard:fleet-health')
+ * await cache.del(cache.getCacheKey(req.user.tenant_id, 'dashboard:stats'))
+ * await cache.del(cache.getCacheKey(req.user.tenant_id, 'dashboard:fleet-health'))
  */
 
 export default router
