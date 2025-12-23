@@ -18,6 +18,7 @@ import { authenticateJWT } from '../middleware/auth'
 import documentGeoService from '../services/document-geo.service'
 import { getErrorMessage } from '../utils/error-handler'
 import { csrfProtection } from '../middleware/csrf'
+import { pool } from '../db/connection';
 
 
 const router = Router()

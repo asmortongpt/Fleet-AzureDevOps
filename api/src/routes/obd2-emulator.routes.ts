@@ -91,7 +91,7 @@ router.get('/scenarios', (_req: Request, res: Response) => {
  *       200:
  *         description: Emulation session started
  */
-router.post('/start',csrfProtection,  csrfProtection, (req: Request, res: Response) => {
+router.post('/start', csrfProtection, (req: Request, res: Response) => {
   try {
     const {
       vehicleId = 1,
@@ -156,7 +156,7 @@ router.post('/start',csrfProtection,  csrfProtection, (req: Request, res: Respon
  *       200:
  *         description: Emulation session stopped
  */
-router.post('/stop/:sessionId',csrfProtection,  csrfProtection, (req: Request, res: Response) => {
+router.post('/stop/:sessionId', csrfProtection, (req: Request, res: Response) => {
   try {
     const { sessionId } = req.params
 
@@ -223,7 +223,7 @@ router.get('/sessions', (_req: Request, res: Response) => {
       sessionId,
       ...demoSessions.get(sessionId),
       currentData: obd2Emulator.getSessionData(sessionId)
-    })
+    }))
 
     res.json(sessionDetails)
   } catch (error: any) {
@@ -297,7 +297,7 @@ export function setupOBD2WebSocket(server: any): void {
   server.on(`upgrade`, (request: any, socket: any, head: any) => {
     const url = new URL(request.url, `http://${request.headers.host}`)
 
-    if (url.pathname.startsWith(`/ws/obd2/`) {
+    if (url.pathname.startsWith(`/ws/obd2/`)) {
       wss.handleUpgrade(request, socket, head, (ws) => {
         wss.emit('connection', ws, request)
       })
@@ -324,19 +324,19 @@ export function setupOBD2WebSocket(server: any): void {
           type: 'subscribed',
           sessionId,
           message: 'Successfully subscribed to OBD2 data stream'
-        })
+        }))
       } else {
         ws.send(JSON.stringify({
           type: 'error',
           message: `Session ${sessionId} not found. Start a session first.`
-        })
+        }))
       }
     }
 
     // Handle messages from client
     ws.on(`message`, (message: string) => {
       try {
-        const data = JSON.parse(message.toString()
+        const data = JSON.parse(message.toString())
 
         switch (data.type) {
           case 'subscribe':
@@ -345,11 +345,11 @@ export function setupOBD2WebSocket(server: any): void {
               type: subscribed ? 'subscribed' : 'error',
               sessionId: data.sessionId,
               message: subscribed ? 'Subscribed to session' : 'Session not found'
-            })
+            }))
             break
 
           case 'ping':
-            ws.send(JSON.stringify({ type: 'pong', timestamp: Date.now() })
+            ws.send(JSON.stringify({ type: 'pong', timestamp: Date.now() }))
             break
 
           case 'get_data':
@@ -358,15 +358,15 @@ export function setupOBD2WebSocket(server: any): void {
               type: 'obd2_data',
               sessionId: data.sessionId,
               data: sessionData
-            })
+            }))
             break
 
           default:
-            ws.send(JSON.stringify({ type: 'error', message: 'Unknown message type' })
+            ws.send(JSON.stringify({ type: 'error', message: 'Unknown message type' }))
         }
       } catch (error) {
         logger.error('[OBD2 WebSocket] Error processing message:', error) // Wave 29: Winston logger
-        ws.send(JSON.stringify({ type: 'error', message: 'Invalid message format' })
+        ws.send(JSON.stringify({ type: 'error', message: 'Invalid message format' }))
       }
     })
 
@@ -387,7 +387,7 @@ export function setupOBD2WebSocket(server: any): void {
       type: 'connected',
       clientId,
       message: 'Connected to OBD2 emulator WebSocket'
-    })
+    }))
   })
 
   console.log('[OBD2 Emulator] WebSocket server initialized')

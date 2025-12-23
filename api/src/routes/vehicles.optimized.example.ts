@@ -24,6 +24,7 @@ import { validate } from '../middleware/validation'
 import { getPaginationParams, createPaginatedResponse } from '../utils/pagination'
 import { cache, cacheMiddleware } from '../utils/cache'
 import { csrfProtection } from '../middleware/csrf'
+import { pool } from '../db/connection';
  // ADD THIS LINE
 
 const router = express.Router()

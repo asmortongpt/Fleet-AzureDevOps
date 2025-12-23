@@ -51,7 +51,7 @@ router.get(
 // POST /api/custom-reports/from-template/:templateId - Create report from template
 router.post(
   '/from-template/:templateId',
- csrfProtection,  csrfProtection, requirePermission('report:generate:global'),
+ csrfProtection, requirePermission('report:generate:global'),
   auditLog({ action: 'CREATE', resourceType: 'custom_report' }),
   async (req: AuthRequest, res: Response) => {
     try {
@@ -123,7 +123,7 @@ router.get(
 // POST /api/custom-reports - Create new report
 router.post(
   '/',
- csrfProtection,  csrfProtection, requirePermission('report:generate:global'),
+ csrfProtection, requirePermission('report:generate:global'),
   auditLog({ action: 'CREATE', resourceType: 'custom_report' }),
   async (req: AuthRequest, res: Response) => {
     try {
@@ -203,7 +203,7 @@ router.post(
       const { id } = req.params
       const { format = 'csv' } = req.body
 
-      if (!['xlsx', 'csv', 'pdf'].includes(format) {
+      if (!['xlsx', 'csv', 'pdf'].includes(format)) {
         throw new ValidationError("Invalid format. Must be xlsx, csv, or pdf")
       }
 
@@ -287,11 +287,11 @@ router.get(
 
         // Send file
         res.setHeader('Content-Type', contentType)
-        res.setHeader(`Content-Disposition`, "attachment; filename="${executionRecord.id}.${extension}"`)
+        res.setHeader('Content-Disposition', `attachment; filename="${executionRecord.id}.${extension}"`)
         res.send(fileBuffer)
       } catch (error) {
         if (error instanceof PathTraversalError) {
-          logger.error(`Security violation - Path traversal attempt:`, getErrorMessage(error) // Wave 21: Winston logger
+          logger.error(`Security violation - Path traversal attempt:`, getErrorMessage(error)) // Wave 21: Winston logger
           return res.status(403).json({ error: 'Access denied' })
         }
         logger.error('File access error:', error) // Wave 21: Winston logger
@@ -307,7 +307,7 @@ router.get(
 // POST /api/custom-reports/:id/schedule - Schedule report
 router.post(
   '/:id/schedule',
- csrfProtection,  csrfProtection, requirePermission('report:generate:global'),
+ csrfProtection, requirePermission('report:generate:global'),
   auditLog({ action: 'CREATE', resourceType: 'report_schedule' }),
   async (req: AuthRequest, res: Response) => {
     try {
@@ -320,13 +320,13 @@ router.post(
         })
       }
 
-      if (!['daily', 'weekly', 'monthly', 'quarterly', 'custom'].includes(schedule_type) {
+      if (!['daily', 'weekly', 'monthly', 'quarterly', 'custom'].includes(schedule_type)) {
         return res.status(400).json({
           error: 'Invalid schedule_type. Must be daily, weekly, monthly, quarterly, or custom'
         })
       }
 
-      if (!['xlsx', 'csv', 'pdf'].includes(format) {
+      if (!['xlsx', 'csv', 'pdf'].includes(format)) {
         throw new ValidationError("Invalid format. Must be xlsx, csv, or pdf")
       }
 
@@ -372,7 +372,7 @@ router.get(
 // PUT /api/custom-reports/:id/schedules/:scheduleId - Update schedule
 router.put(
   '/:id/schedules/:scheduleId',
- csrfProtection,  csrfProtection, requirePermission('report:generate:global'),
+ csrfProtection, requirePermission('report:generate:global'),
   auditLog({ action: 'UPDATE', resourceType: 'report_schedule' }),
   async (req: AuthRequest, res: Response) => {
     try {
@@ -392,7 +392,7 @@ router.put(
 // DELETE /api/custom-reports/:id/schedules/:scheduleId - Delete schedule
 router.delete(
   '/:id/schedules/:scheduleId',
- csrfProtection,  csrfProtection, requirePermission('report:delete:global'),
+ csrfProtection, requirePermission('report:delete:global'),
   auditLog({ action: 'DELETE', resourceType: 'report_schedule' }),
   async (req: AuthRequest, res: Response) => {
     try {

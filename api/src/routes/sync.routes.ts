@@ -25,6 +25,7 @@ import teamsSync from '../jobs/teams-sync.job'
 import { csrfProtection } from '../middleware/csrf'
 import syncService from '../services/sync.service'
 import { getErrorMessage } from '../utils/error-handler'
+import { pool } from '../db/connection';
 
 
 const router = Router()

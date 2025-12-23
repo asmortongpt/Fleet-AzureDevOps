@@ -8,7 +8,8 @@ import {
   Truck,
   Building2,
   Settings,
-  AlertCircle
+  AlertCircle,
+  Grid
 } from "lucide-react"
 import React, { useState, useMemo, useCallback } from "react"
 
@@ -161,7 +162,20 @@ const VehicleMaintenancePanel = ({ vehicle, maintenanceHistory }) => {
             <Calendar className="h-4 w-4 mr-2" />
             Schedule Service
           </Button>
-          <Button variant="outline" className="w-full">
+          <Button
+            variant="outline"
+            className="w-full hover:bg-red-500/10 hover:text-red-500 hover:border-red-500/50 transition-colors"
+            onClick={() => {
+              // In a real app, this would open a modal
+              import('@/utils/toast').then(({ showToast }) => {
+                showToast('Maintenance request submitted', {
+                  type: 'success',
+                  title: 'Request Sent',
+                  duration: 3000
+                })
+              })
+            }}
+          >
             <Wrench className="h-4 w-4 mr-2" />
             Request Maintenance
           </Button>
@@ -177,7 +191,7 @@ const VehicleMaintenancePanel = ({ vehicle, maintenanceHistory }) => {
 // Work Orders Panel
 const WorkOrdersPanel = ({ workOrders, onWorkOrderSelect }) => {
   const getStatusIcon = (status) => {
-    switch(status) {
+    switch (status) {
       case 'completed':
         return <CheckCircle2 className="h-4 w-4 text-green-500" />
       case 'in_progress':
@@ -190,7 +204,7 @@ const WorkOrdersPanel = ({ workOrders, onWorkOrderSelect }) => {
   }
 
   const getPriorityColor = (priority) => {
-    switch(priority) {
+    switch (priority) {
       case 'critical':
         return 'destructive'
       case 'high':
@@ -274,6 +288,14 @@ export function MaintenanceWorkspace({ data }: { data?: any }) {
   const [activePanel, setActivePanel] = useState('facility')
   const [filterStatus, setFilterStatus] = useState('all')
 
+  // Check for API key to set initial view mode
+  const hasApiKey = useMemo(() => {
+    const key = import.meta.env.VITE_GOOGLE_MAPS_API_KEY
+    return key && key.length > 10 && !key.includes('YOUR_KEY')
+  }, [])
+
+  const [viewMode, setViewMode] = useState<'map' | 'tactical'>(hasApiKey ? 'map' : 'tactical')
+
   // API hooks
   const { data: vehicles = [] } = useVehicles()
   const { data: facilities = [] } = useFacilities()
@@ -335,11 +357,33 @@ export function MaintenanceWorkspace({ data }: { data?: any }) {
           onVehicleSelect={handleVehicleSelect}
           showLegend={true}
           enableRealTime={isRealtimeConnected}
+          forceSimulatedView={viewMode === 'tactical'}
         />
 
         {/* Maintenance Status Overlay */}
-        <div className="absolute top-4 left-4 bg-background/95 backdrop-blur rounded-lg shadow-lg z-10">
-          <div className="p-3 space-y-2">
+        <div className="absolute top-4 left-4 bg-background/95 backdrop-blur rounded-lg shadow-lg z-10 flex gap-2">
+          {/* View Mode Toggle */}
+          <div className="p-1 bg-muted rounded-md flex">
+            <Button
+              variant={viewMode === 'map' ? 'secondary' : 'ghost'}
+              size="sm"
+              className="h-8 px-3"
+              onClick={() => setViewMode('map')}
+            >
+              Map
+            </Button>
+            <Button
+              variant={viewMode === 'tactical' ? 'secondary' : 'ghost'}
+              size="sm"
+              className="h-8 px-3"
+              onClick={() => setViewMode('tactical')}
+            >
+              <Grid className="h-4 w-4 mr-2" />
+              Tactical
+            </Button>
+          </div>
+
+          <div className="p-1">
             <Select value={filterStatus} onValueChange={setFilterStatus}>
               <SelectTrigger className="w-48" data-testid="maint-filter">
                 <SelectValue placeholder="Filter vehicles" />

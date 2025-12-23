@@ -65,7 +65,7 @@ router.post('/events',csrfProtection,  csrfProtection, authenticateJWT, async (r
       event
     })
   } catch (error: any) {
-    logger.error('Error creating calendar event:', getErrorMessage(error) // Wave 25: Winston logger
+    logger.error('Error creating calendar event:', getErrorMessage(error)) // Wave 25: Winston logger
     res.status(500).json({ error: getErrorMessage(error) })
   }
 })
@@ -93,7 +93,7 @@ router.get('/events', authenticateJWT, async (req: Request, res: Response) => {
       events
     })
   } catch (error: any) {
-    logger.error('Error fetching calendar events:', getErrorMessage(error) // Wave 25: Winston logger
+    logger.error('Error fetching calendar events:', getErrorMessage(error)) // Wave 25: Winston logger
     res.status(500).json({ error: getErrorMessage(error) })
   }
 })
@@ -118,7 +118,7 @@ router.get('/events/:eventId', authenticateJWT, async (req: Request, res: Respon
       event
     })
   } catch (error: any) {
-    logger.error('Error fetching calendar event:', getErrorMessage(error) // Wave 25: Winston logger
+    logger.error('Error fetching calendar event:', getErrorMessage(error)) // Wave 25: Winston logger
     res.status(500).json({ error: getErrorMessage(error) })
   }
 })
@@ -152,7 +152,7 @@ router.patch('/events/:eventId',csrfProtection,  csrfProtection, authenticateJWT
       event
     })
   } catch (error: any) {
-    logger.error('Error updating calendar event:', getErrorMessage(error) // Wave 25: Winston logger
+    logger.error('Error updating calendar event:', getErrorMessage(error)) // Wave 25: Winston logger
     res.status(500).json({ error: getErrorMessage(error) })
   }
 })
@@ -177,7 +177,7 @@ router.delete('/events/:eventId',csrfProtection,  csrfProtection, authenticateJW
       message: 'Calendar event deleted'
     })
   } catch (error: any) {
-    logger.error('Error deleting calendar event:', getErrorMessage(error) // Wave 25: Winston logger
+    logger.error('Error deleting calendar event:', getErrorMessage(error)) // Wave 25: Winston logger
     res.status(500).json({ error: getErrorMessage(error) })
   }
 })
@@ -202,7 +202,7 @@ router.post('/events/:eventId/accept',csrfProtection,  csrfProtection, authentic
       message: 'Meeting accepted'
     })
   } catch (error: any) {
-    logger.error('Error accepting meeting:', getErrorMessage(error) // Wave 25: Winston logger
+    logger.error('Error accepting meeting:', getErrorMessage(error)) // Wave 25: Winston logger
     res.status(500).json({ error: getErrorMessage(error) })
   }
 })
@@ -227,7 +227,7 @@ router.post('/events/:eventId/decline',csrfProtection,  csrfProtection, authenti
       message: 'Meeting declined'
     })
   } catch (error: any) {
-    logger.error('Error declining meeting:', getErrorMessage(error) // Wave 25: Winston logger
+    logger.error('Error declining meeting:', getErrorMessage(error)) // Wave 25: Winston logger
     res.status(500).json({ error: getErrorMessage(error) })
   }
 })
@@ -252,7 +252,7 @@ router.post('/events/:eventId/tentative',csrfProtection,  csrfProtection, authen
       message: 'Meeting tentatively accepted'
     })
   } catch (error: any) {
-    logger.error('Error tentatively accepting meeting:', getErrorMessage(error) // Wave 25: Winston logger
+    logger.error('Error tentatively accepting meeting:', getErrorMessage(error)) // Wave 25: Winston logger
     res.status(500).json({ error: getErrorMessage(error) })
   }
 })
@@ -296,7 +296,7 @@ router.post('/find-times',csrfProtection,  csrfProtection, authenticateJWT, asyn
       suggestions
     })
   } catch (error: any) {
-    logger.error('Error finding meeting times:', getErrorMessage(error) // Wave 25: Winston logger
+    logger.error('Error finding meeting times:', getErrorMessage(error)) // Wave 25: Winston logger
     res.status(500).json({ error: getErrorMessage(error) })
   }
 })
@@ -327,7 +327,7 @@ router.get('/availability', authenticateJWT, async (req: Request, res: Response)
       availability
     })
   } catch (error: any) {
-    logger.error('Error getting availability:', getErrorMessage(error) // Wave 25: Winston logger
+    logger.error('Error getting availability:', getErrorMessage(error)) // Wave 25: Winston logger
     res.status(500).json({ error: getErrorMessage(error) })
   }
 })
@@ -361,7 +361,7 @@ router.post('/schedule-maintenance',csrfProtection,  csrfProtection, authenticat
       event
     })
   } catch (error: any) {
-    logger.error('Error scheduling maintenance:', getErrorMessage(error) // Wave 25: Winston logger
+    logger.error('Error scheduling maintenance:', getErrorMessage(error)) // Wave 25: Winston logger
     res.status(500).json({ error: getErrorMessage(error) })
   }
 })
@@ -396,7 +396,7 @@ router.post('/schedule-training',csrfProtection,  csrfProtection, authenticateJW
       event
     })
   } catch (error: any) {
-    logger.error('Error scheduling training:', getErrorMessage(error) // Wave 25: Winston logger
+    logger.error('Error scheduling training:', getErrorMessage(error)) // Wave 25: Winston logger
     res.status(500).json({ error: getErrorMessage(error) })
   }
 })

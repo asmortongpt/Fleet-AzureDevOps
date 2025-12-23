@@ -9,6 +9,7 @@ import jwt from 'express-jwt';
 import { Pool } from 'pg';
 import { config } from 'dotenv';
 import { csrfProtection } from '../middleware/csrf'
+import { pool } from '../db/connection';
 
 
 config();

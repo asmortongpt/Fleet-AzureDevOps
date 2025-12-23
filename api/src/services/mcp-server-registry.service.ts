@@ -319,7 +319,7 @@ class MCPServerRegistryService {
     try {
       // Get server info from database
       const result = await this.db.query(
-        'SELECT 
+        `SELECT 
       id,
       tenant_id,
       server_name,
@@ -337,7 +337,7 @@ class MCPServerRegistryService {
       error_message,
       created_by,
       created_at,
-      updated_at FROM mcp_servers WHERE id = $1',
+      updated_at FROM mcp_servers WHERE id = $1`,
         [serverId]
       )
 
@@ -354,7 +354,7 @@ class MCPServerRegistryService {
            SUM(CASE WHEN status = 'error' THEN 1 ELSE 0 END) as failed_requests,
            AVG(execution_time_ms) as avg_response_time
          FROM mcp_tool_executions
-         WHERE server_id = $1 AND created_at > NOW() - INTERVAL '15 minutes'',
+         WHERE server_id = $1 AND created_at > NOW() - INTERVAL '15 minutes'`,
         [serverId]
       )
 
