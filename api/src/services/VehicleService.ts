@@ -5,7 +5,7 @@ import { Pool } from 'pg';
  * Extracts business logic from route handlers
  */
 export class VehicleService {
-  constructor(private db: Pool) {}
+  constructor(private db: Pool) { }
 
   async getAllVehicles(tenantId: number, filters?: any) {
     // Business logic for fetching vehicles
@@ -31,7 +31,7 @@ export class VehicleService {
 
   async createVehicle(data: any, tenantId: number) {
     const { make, model, year, vin, license_plate, status } = data;
-    
+
     // Business validation
     if (!make || !model || !year) {
       throw new Error('Make, model, and year are required');
@@ -79,6 +79,6 @@ export class VehicleService {
       RETURNING id
     `;
     const result = await this.db.query(query, [id, tenantId]);
-    return result.rowCount > 0;
+    return (result.rowCount || 0) > 0;
   }
 }

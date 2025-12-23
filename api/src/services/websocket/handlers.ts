@@ -1,6 +1,3 @@
-Here is a TypeScript code snippet that follows your requirements:
-
-```typescript
 import { Client } from 'pg';
 import WebSocket from 'ws';
 import dotenv from 'dotenv';
@@ -18,7 +15,7 @@ const client = new Client({
 
 client.connect();
 
-const wss = new WebSocket.Server({ port: Number(process.env.WS_PORT) });
+const wss = new WebSocket.Server({ port: Number(process.env.WS_PORT) || 3002 }); // Use 3002 to avoid conflict if 3001 is server? Or rely on env.
 
 wss.on('connection', (ws) => {
   ws.on('message', async (message: string) => {
@@ -35,7 +32,7 @@ wss.on('connection', (ws) => {
           await client.query('DELETE FROM vehicle_tracking WHERE vehicle_id = $1 AND room_id = $2', [unVehicleMessage.vehicleId, unVehicleMessage.roomId]);
           break;
         case 'LOCATION_UPDATE':
-          ws.clients.forEach((client) => {
+          wss.clients.forEach((client) => {
             if (client.readyState === WebSocket.OPEN) {
               client.send(message);
             }
@@ -58,27 +55,3 @@ wss.on('connection', (ws) => {
     }
   });
 });
-```
-
-In the `messageTypes.ts` file, you would define your message types:
-
-```typescript
-export interface VehicleMessage {
-  type: 'SUBSCRIBE_VEHICLE' | 'UNSUBSCRIBE_VEHICLE';
-  vehicleId: string;
-  roomId: string;
-}
-
-export interface AlertMessage {
-  type: 'ALERT';
-  vehicleId: string;
-  alertType: string;
-  alertMessage: string;
-}
-
-export interface PingPongMessage {
-  type: 'PING' | 'PONG';
-}
-```
-
-This code uses the `ws` library for WebSocket server, the `pg` library for PostgreSQL client, and the `dotenv` library for environment variables. It connects to the PostgreSQL database using environment variables, starts a WebSocket server, and listens for messages. When a message is received, it is parsed and handled based on its type. If an error occurs during message handling, it is logged to the console.

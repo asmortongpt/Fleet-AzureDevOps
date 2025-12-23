@@ -1,47 +1,56 @@
 import { BaseRepository } from '../repositories/BaseRepository';
+import { Pool, QueryResult } from 'pg';
 
-Here is a sample TypeScript repository KeyManagementRepository for api/src/routes/key-management.routes.ts. This repository includes parameterized queries, tenant_id, and CRUD operations.
-
-
-import { KeyManagement } from '../models/key-management.model';
-import { Pool } from 'pg';
+export interface KeyManagement {
+    id: number;
+    tenant_id: number;
+    key_name: string;
+    key_value: string;
+    created_at: Date;
+    updated_at: Date;
+}
 
 export class KeyManagementRepository extends BaseRepository<any> {
+
     private pool: Pool;
 
     constructor(pool: Pool) {
+        super('key_management', pool);
         this.pool = pool;
     }
 
-    async createKeyManagement(tenant_id: string, key: string): Promise<KeyManagement> {
-        const query = 'INSERT INTO key_management(tenant_id, key) VALUES($1, $2) RETURNING *';
-        const values = [tenant_id, key];
-        const { rows } = await this.pool.query(query, values);
-        return rows[0];
+    async createKeyManagement(tenant_id: number, keyName: string, keyValue: string): Promise<KeyManagement> {
+        const query = 'INSERT INTO key_management (tenant_id, key_name, key_value, created_at, updated_at) VALUES ($1, $2, $3, NOW(), NOW()) RETURNING *';
+        const values = [tenant_id, keyName, keyValue];
+        const result: QueryResult<KeyManagement> = await this.pool.query(query, values);
+        return result.rows[0];
     }
 
-    async getKeyManagement(tenant_id: string): Promise<KeyManagement> {
-        const query = 'SELECT id, tenant_id, created_at, updated_at FROM key_management WHERE tenant_id = $1';
+    async getKeyManagement(tenant_id: number): Promise<KeyManagement[]> {
+        const query = 'SELECT id, tenant_id, key_name, key_value, created_at, updated_at FROM key_management WHERE tenant_id = $1';
         const values = [tenant_id];
-        const { rows } = await this.pool.query(query, values);
-        return rows[0];
+        const result: QueryResult<KeyManagement> = await this.pool.query(query, values);
+        return result.rows;
     }
 
-    async updateKeyManagement(tenant_id: string, key: string): Promise<KeyManagement> {
-        const query = 'UPDATE key_management SET key = $2 WHERE tenant_id = $1 RETURNING *';
-        const values = [tenant_id, key];
-        const { rows } = await this.pool.query(query, values);
-        return rows[0];
+    async getKeyManagementById(id: number, tenant_id: number): Promise<KeyManagement | null> {
+        const query = 'SELECT id, tenant_id, key_name, key_value, created_at, updated_at FROM key_management WHERE id = $1 AND tenant_id = $2';
+        const values = [id, tenant_id];
+        const result: QueryResult<KeyManagement> = await this.pool.query(query, values);
+        return result.rows[0] || null;
     }
 
-    async deleteKeyManagement(tenant_id: string): Promise<void> {
-        const query = 'DELETE FROM key_management WHERE tenant_id = $1';
-        const values = [tenant_id];
-        await this.pool.query(query, values);
+    async updateKeyManagement(id: number, tenant_id: number, keyName: string, keyValue: string): Promise<KeyManagement | null> {
+        const query = 'UPDATE key_management SET key_name = $3, key_value = $4, updated_at = NOW() WHERE id = $1 AND tenant_id = $2 RETURNING *';
+        const values = [id, tenant_id, keyName, keyValue];
+        const result: QueryResult<KeyManagement> = await this.pool.query(query, values);
+        return result.rows[0] || null;
+    }
+
+    async deleteKeyManagement(id: number, tenant_id: number): Promise<boolean> {
+        const query = 'DELETE FROM key_management WHERE id = $1 AND tenant_id = $2 RETURNING id';
+        const values = [id, tenant_id];
+        const result: QueryResult = await this.pool.query(query, values);
+        return result.rowCount ? result.rowCount > 0 : false;
     }
 }
-
-
-This repository assumes that you have a PostgreSQL database and you are using the pg library for Node.js. The KeyManagement model is a TypeScript interface that represents the structure of the data in the key_management table.
-
-Please replace the queries and the table name with your actual SQL queries and table name.

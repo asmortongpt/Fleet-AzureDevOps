@@ -83,7 +83,7 @@ check_prerequisites() {
 
     # Check required tools
     command -v az &> /dev/null || missing_tools+=("azure-cli")
-    command -v docker &> /dev/null || missing_tools+=("docker")
+    # command -v docker &> /dev/null || missing_tools+=("docker")
     command -v kubectl &> /dev/null || missing_tools+=("kubectl")
     command -v node &> /dev/null || missing_tools+=("node")
     command -v npm &> /dev/null || missing_tools+=("npm")
@@ -210,59 +210,55 @@ run_security_scan() {
     log_success "Security scan completed"
 }
 
-# Function to build and push Docker images
+# Function to build and push Docker images using Azure ACR Build
 build_and_push_images() {
-    log_step "Building and pushing Docker images..."
+    log_step "Building and pushing Docker images via Azure ACR..."
 
-    # Login to ACR
-    local registry_name=$(echo "$REGISTRY" | cut -d'.' -f1)
-    log_info "Logging in to Azure Container Registry: $registry_name"
-    az acr login --name "$registry_name"
-
-    # Build frontend image
-    log_info "Building frontend Docker image..."
-    docker build \
-        -t "$FRONTEND_IMAGE:$VERSION" \
-        -t "$FRONTEND_IMAGE:latest" \
+    # Extract registry name from login server if needed, or use ACR_NAME env var
+    local registry_name="${ACR_NAME:-${REGISTRY%%.*}}"
+    # Ensure registry exists/is logged in (login not strictly needed for build, but good for verification)
+    
+    log_info "Using Azure Container Registry: $registry_name"
+    
+    # Build frontend image in Azure
+    log_info "Building and pushing frontend image (in cloud)..."
+    az acr build \
+        --registry "$registry_name" \
+        --image "fleet-frontend:$VERSION" \
+        --image "fleet-frontend:latest" \
         --build-arg NODE_ENV=production \
         --build-arg VERSION="$VERSION" \
         --build-arg BUILD_DATE="$(date -u +'%Y-%m-%dT%H:%M:%SZ')" \
-        -f Dockerfile \
+        --file Dockerfile \
         .
 
     if [[ $? -ne 0 ]]; then
         log_error "Frontend image build failed"
         exit 1
     fi
-    log_success "Frontend image built"
+    log_success "Frontend image built and pushed"
 
-    # Build API image
-    log_info "Building API Docker image..."
-    docker build \
-        -t "$API_IMAGE:$VERSION" \
-        -t "$API_IMAGE:latest" \
+    # Build API image in Azure
+    log_info "Building and pushing API image (in cloud)..."
+    az acr build \
+        --registry "$registry_name" \
+        --image "fleet-api:$VERSION" \
+        --image "fleet-api:latest" \
         --build-arg NODE_ENV=production \
         --build-arg VERSION="$VERSION" \
         --build-arg BUILD_DATE="$(date -u +'%Y-%m-%dT%H:%M:%SZ')" \
-        -f api/Dockerfile \
+        --file api/Dockerfile \
         ./api
 
     if [[ $? -ne 0 ]]; then
         log_error "API image build failed"
         exit 1
     fi
-    log_success "API image built"
-
-    # Push images
-    log_info "Pushing images to registry..."
-
-    docker push "$FRONTEND_IMAGE:$VERSION"
-    docker push "$FRONTEND_IMAGE:latest"
-    log_success "Frontend image pushed: $FRONTEND_IMAGE:$VERSION"
-
-    docker push "$API_IMAGE:$VERSION"
-    docker push "$API_IMAGE:latest"
-    log_success "API image pushed: $API_IMAGE:$VERSION"
+    log_success "API image built and pushed"
+    
+    # Update image variables to full paths for Kubernetes matching
+    FRONTEND_IMAGE="${registry_name}.azurecr.io/fleet-frontend"
+    API_IMAGE="${registry_name}.azurecr.io/fleet-api"
 }
 
 # Function to run database migrations

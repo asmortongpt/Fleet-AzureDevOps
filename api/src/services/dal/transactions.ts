@@ -94,7 +94,7 @@ export async function withTransaction<T>(
  */
 export async function withTransactionIsolation<T>(
   pool: Pool,
-  isolationLevel: 'READ UNCOMMITTED' | 'READ COMMITTED' | 'REPEATABLE READ` | `SERIALIZABLE`,
+  isolationLevel: 'READ UNCOMMITTED' | 'READ COMMITTED' | 'REPEATABLE READ' | 'SERIALIZABLE',
   callback: (client: PoolClient) => Promise<T>
 ): Promise<T> {
   // Validate isolation level against allowlist
@@ -287,7 +287,7 @@ export class TransactionManager {
   private transactionLevel: number = 0
   private savepoints: string[] = []
 
-  constructor(private pool: Pool) {}
+  constructor(private pool: Pool) { }
 
   /**
    * Begin a new transaction

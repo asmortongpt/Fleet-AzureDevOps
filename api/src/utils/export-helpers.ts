@@ -278,7 +278,8 @@ export function createExportEndpoint(
     const tenantId = req.user?.tenant_id;
 
     if (!tenantId) {
-      return res.status(400).json({ error: 'Tenant ID is required' });
+      res.status(400).json({ error: 'Tenant ID is required' });
+      return;
     }
 
     try {

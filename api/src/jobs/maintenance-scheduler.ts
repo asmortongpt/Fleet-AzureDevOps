@@ -47,7 +47,8 @@ async function runMaintenanceScheduler(): Promise<void> {
 
     if (tenantsResult.rows.length === 0) {
       logger.warn(`No active tenants found`)
-      return }
+      return
+    }
 
     logger.info(`Processing ${tenantsResult.rows.length} active tenants`)
 
@@ -139,7 +140,7 @@ async function sendSummaryNotification(
     // Get fleet manager users
     const managersResult = await pool.query(
       `SELECT id, email FROM users
-       WHERE tenant_id = $1 AND role IN (`admin`, `fleet_manager`)
+       WHERE tenant_id = $1 AND role IN ('admin', 'fleet_manager')
        AND active = true`,
       [tenantId]
     )
@@ -160,7 +161,7 @@ Maintenance Scheduler Summary:
         `INSERT INTO maintenance_notifications (
           tenant_id, user_id, notification_type, message
         ) VALUES ($1, $2, $3, $4)`,
-        [tenantId, manager.id, `work_order_created`, message]
+        [tenantId, manager.id, 'work_order_created', message]
       )
     }
 
@@ -214,7 +215,8 @@ async function logSchedulerMetrics(metrics: {
 export function startMaintenanceScheduler(): void {
   if (!ENABLE_SCHEDULER) {
     logger.warn('Maintenance scheduler is disabled by configuration')
-    return }
+    return
+  }
 
   logger.info('Initializing maintenance scheduler', {
     schedule: CRON_SCHEDULE,

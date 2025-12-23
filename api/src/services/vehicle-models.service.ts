@@ -439,7 +439,7 @@ class VehicleModelsService {
       SELECT id, tenant_id, render_type, render_data, created_at FROM vehicle_3d_renders
       WHERE vehicle_id = $1
     `;
-    const params = [vehicleId];
+    const params: any[] = [vehicleId];
 
     if (featured !== undefined) {
       query += ` AND is_featured = $2`;

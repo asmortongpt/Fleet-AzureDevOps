@@ -8,7 +8,7 @@
 import { Pool, PoolClient } from 'pg';
 
 import logger from '../config/logger';
-import { NotFoundError, ValidationError } from '../middleware/errorHandler';
+import { NotFoundError, ValidationError } from '../errors/ApplicationError';
 import { QueryContext, PaginationOptions, PaginatedResult } from '../repositories/BaseRepository';
 import ReservationsRepository, {
   Reservation,
@@ -113,7 +113,7 @@ export class ReservationsService {
     );
 
     if (!reservation) {
-      throw new NotFoundError('Reservation not found or access denied');
+      throw new NotFoundError('Reservation', id);
     }
 
     return reservation;
@@ -136,7 +136,7 @@ export class ReservationsService {
     // Check if vehicle exists
     const vehicle = await this.repository.checkVehicleExists(data.vehicle_id, context);
     if (!vehicle) {
-      throw new NotFoundError('Vehicle not found');
+      throw new NotFoundError('Vehicle', data.vehicle_id);
     }
 
     // Check for conflicts
@@ -222,7 +222,7 @@ export class ReservationsService {
     );
 
     if (!existing) {
-      throw new NotFoundError('Reservation not found or access denied');
+      throw new NotFoundError('Reservation', id);
     }
 
     // Only allow updates to pending or confirmed reservations
@@ -290,7 +290,7 @@ export class ReservationsService {
     );
 
     if (!reservation) {
-      throw new NotFoundError('Reservation not found or access denied');
+      throw new NotFoundError('Reservation', id);
     }
 
     // Cancel reservation
@@ -340,7 +340,7 @@ export class ReservationsService {
     );
 
     if (!reservation) {
-      throw new NotFoundError('Reservation not found');
+      throw new NotFoundError('Reservation', id);
     }
 
     if (reservation.status !== 'pending') {
