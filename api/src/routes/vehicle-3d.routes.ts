@@ -17,6 +17,7 @@ import { csrfProtection } from '../middleware/csrf'
 import { requirePermission } from '../middleware/permissions'
 import VehicleModelsService from '../services/vehicle-models.service'
 import { getErrorMessage } from '../utils/error-handler'
+import { pool } from '../db/connection';
 
 
 const router = express.Router()

@@ -378,7 +378,7 @@ export class CustomReportService {
    */
   async getReportById(reportId: string, tenantId: string): Promise<CustomReport | null> {
     const result = await this.db.query(
-      'SELECT 
+      `SELECT 
       id,
       tenant_id,
       report_name,
@@ -395,7 +395,7 @@ export class CustomReportService {
       is_public,
       is_template,
       created_at,
-      updated_at FROM custom_reports WHERE id = $1 AND tenant_id = $2',
+      updated_at FROM custom_reports WHERE id = $1 AND tenant_id = $2`,
       [reportId, tenantId]
     )
 
@@ -490,7 +490,7 @@ export class CustomReportService {
       // Update execution record
       await this.db.query(
         `UPDATE report_executions SET
-          status = `completed`,
+          status = 'completed',
           execution_duration_ms = $1,
           row_count = $2,
           file_url = $3,
@@ -508,7 +508,7 @@ export class CustomReportService {
       // Update execution record with error
       await this.db.query(
         `UPDATE report_executions SET
-          status = `failed`,
+          status = 'failed',
           error_message = $1
         WHERE id = $2`,
         [error.message, executionId]
@@ -711,7 +711,7 @@ export class CustomReportService {
       usage_count,
       created_by,
       created_at,
-      updated_at FROM report_templates WHERE is_system_template = true'
+      updated_at FROM report_templates WHERE is_system_template = true`
     const params: any[] = []
 
     if (tenantId) {
@@ -739,7 +739,7 @@ export class CustomReportService {
     reportName: string
   ): Promise<CustomReport> {
     const template = await this.db.query(
-      'SELECT 
+      `SELECT 
       id,
       tenant_id,
       template_name,
@@ -751,7 +751,7 @@ export class CustomReportService {
       usage_count,
       created_by,
       created_at,
-      updated_at FROM report_templates WHERE id = $1',
+      updated_at FROM report_templates WHERE id = $1`,
       [templateId]
     )
 
@@ -785,7 +785,7 @@ export class CustomReportService {
     reportName: string
   ): Promise<void> {
     const execution = await this.db.query(
-      'SELECT 
+      `SELECT 
       id,
       report_id,
       schedule_id,
@@ -798,7 +798,7 @@ export class CustomReportService {
       format,
       status,
       error_message,
-      metadata FROM report_executions WHERE id = $1',
+      metadata FROM report_executions WHERE id = $1`,
       [executionId]
     )
 

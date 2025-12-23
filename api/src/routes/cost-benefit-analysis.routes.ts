@@ -20,6 +20,7 @@ import { authenticateJWT, AuthRequest } from '../middleware/auth'
 import { requirePermission } from '../middleware/permissions'
 import { getErrorMessage } from '../utils/error-handler'
 import { csrfProtection } from '../middleware/csrf'
+import { pool } from '../db/connection';
 
 
 const router = express.Router()
@@ -132,7 +133,7 @@ router.get(
         FROM cost_benefit_analyses cba
         WHERE ${whereClause}
       `
-      const countResult = await pool.query(countQuery, params.slice(0, -2)
+      const countResult = await pool.query(countQuery, params.slice(0, -2))
       const total = parseInt(countResult.rows[0].total)
 
       res.json({
@@ -141,7 +142,7 @@ router.get(
           page: parseInt(page as string),
           limit: parseInt(limit as string),
           total,
-          pages: Math.ceil(total / parseInt(limit as string),
+          pages: Math.ceil(total / parseInt(limit as string)),
         },
       })
     } catch (error: any) {
@@ -216,7 +217,7 @@ router.get(
 
 router.post(
   '/',
- csrfProtection,  csrfProtection, authenticateJWT,
+ csrfProtection, authenticateJWT,
   requirePermission('cost_benefit:create:team'),
   async (req: AuthRequest, res: Response) => {
     try {
@@ -309,7 +310,7 @@ router.post(
 
 router.put(
   '/:id',
- csrfProtection,  csrfProtection, authenticateJWT,
+ csrfProtection, authenticateJWT,
   requirePermission(`cost_benefit:create:team`),
   async (req: AuthRequest, res: Response) => {
     try {
@@ -375,7 +376,7 @@ router.put(
 
 router.post(
   '/:id/review',
- csrfProtection,  csrfProtection, authenticateJWT,
+ csrfProtection, authenticateJWT,
   requirePermission('cost_benefit:approve:fleet'),
   async (req: AuthRequest, res: Response) => {
     try {
@@ -428,7 +429,7 @@ router.post(
 
 router.delete(
   '/:id',
- csrfProtection,  csrfProtection, authenticateJWT,
+ csrfProtection, authenticateJWT,
   requirePermission('cost_benefit:create:team'),
   async (req: AuthRequest, res: Response) => {
     try {

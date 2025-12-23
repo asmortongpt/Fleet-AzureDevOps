@@ -12,6 +12,7 @@ import { queueService } from '../services/queue.service';
 import { QueueName, JobStatus } from '../types/queue.types';
 import { getErrorMessage } from '../utils/error-handler'
 import { csrfProtection } from '../middleware/csrf'
+import { pool } from '../db/connection';
 
 
 const router: Router = express.Router();
@@ -127,13 +128,13 @@ router.get(`/:queueName/jobs`, requireAdmin, async (req: Request, res: Response)
     }
 
     query += ` ORDER BY created_at DESC LIMIT $${params.length + 1} OFFSET $${params.length + 2}`;
-    params.push(parseInt(limit as string), parseInt(offset as string);
+    params.push(parseInt(limit as string), parseInt(offset as string));
 
     const result = await pool.query(query, params);
 
     // Get total count
     const countResult = await pool.query(
-      'SELECT COUNT(*) as total FROM job_tracking WHERE queue_name = $1${status ? ` AND status = $2` : ``}',
+      `SELECT COUNT(*) as total FROM job_tracking WHERE queue_name = $1${status ? ` AND status = $2` : ``}`,
       status ? [queueName, status] : [queueName]
     );
 
@@ -227,7 +228,7 @@ router.get('/dead-letter', requireAdmin, async (req: Request, res: Response) => 
     }
 
     query += ` ORDER BY moved_to_dlq_at DESC LIMIT $${params.length + 1} OFFSET $${params.length + 2}`;
-    params.push(parseInt(limit as string), parseInt(offset as string);
+    params.push(parseInt(limit as string), parseInt(offset as string));
 
     const result = await pool.query(query, params);
 
@@ -258,7 +259,7 @@ router.get('/dead-letter', requireAdmin, async (req: Request, res: Response) => 
  * POST /api/queue/:queueName/retry/:jobId
  * Retry a failed job
  */
-router.post('/:queueName/retry/:jobId',csrfProtection,  csrfProtection, requireAdmin, async (req: Request, res: Response) => {
+router.post('/:queueName/retry/:jobId', csrfProtection, csrfProtection, requireAdmin, async (req: Request, res: Response) => {
   try {
     const { jobId } = req.params;
 
@@ -330,7 +331,7 @@ router.post(`/:queueName/resume`, csrfProtection, requireAdmin, async (req: Requ
  * DELETE /api/queue/:queueName/clear
  * Clear all jobs from a queue (admin only, dangerous operation)
  */
-router.delete('/:queueName/clear',csrfProtection,  csrfProtection, requireAdmin, async (req: Request, res: Response) => {
+router.delete('/:queueName/clear', csrfProtection, csrfProtection, requireAdmin, async (req: Request, res: Response) => {
   try {
     const { queueName } = req.params;
     const { confirm } = req.query;
@@ -363,7 +364,7 @@ router.delete('/:queueName/clear',csrfProtection,  csrfProtection, requireAdmin,
  * POST /api/queue/dead-letter/:jobId/review
  * Mark a dead letter job as reviewed
  */
-router.post('/dead-letter/:jobId/review',csrfProtection,  csrfProtection, requireAdmin, async (req: Request, res: Response) => {
+router.post('/dead-letter/:jobId/review', csrfProtection, csrfProtection, requireAdmin, async (req: Request, res: Response) => {
   try {
     const { jobId } = req.params;
     const { reviewedBy, resolutionNotes } = req.body;
@@ -375,7 +376,7 @@ router.post('/dead-letter/:jobId/review',csrfProtection,  csrfProtection, requir
            reviewed_at = NOW(),
            resolution_notes = $2
        WHERE job_id = $3`,
-      [reviewedBy || 'admin`, resolutionNotes || `', jobId]
+      [reviewedBy || 'admin', resolutionNotes || '', jobId]
     );
 
     res.json({
@@ -420,11 +421,11 @@ router.get('/metrics', requireAdmin, async (req: Request, res: Response) => {
         COUNT(*) FILTER (WHERE status = 'failed') as failed_jobs,
         COUNT(*) FILTER (WHERE status = 'pending') as pending_jobs,
         COUNT(*) FILTER (WHERE status = 'active') as active_jobs,
-        AVG(EXTRACT(EPOCH FROM (completed_at - started_at) * 1000)
+        AVG(EXTRACT(EPOCH FROM (completed_at - started_at) * 1000))
           FILTER (WHERE completed_at IS NOT NULL) as avg_processing_time_ms,
-        MAX(EXTRACT(EPOCH FROM (completed_at - started_at) * 1000)
+        MAX(EXTRACT(EPOCH FROM (completed_at - started_at) * 1000))
           FILTER (WHERE completed_at IS NOT NULL) as max_processing_time_ms,
-        MIN(EXTRACT(EPOCH FROM (completed_at - started_at) * 1000)
+        MIN(EXTRACT(EPOCH FROM (completed_at - started_at) * 1000))
           FILTER (WHERE completed_at IS NOT NULL) as min_processing_time_ms
        FROM job_tracking
        WHERE created_at > NOW() - $1::INTERVAL
@@ -449,7 +450,7 @@ router.get('/metrics', requireAdmin, async (req: Request, res: Response) => {
       avgProcessingTimeMs: parseFloat(row.avg_processing_time_ms) || 0,
       maxProcessingTimeMs: parseFloat(row.max_processing_time_ms) || 0,
       minProcessingTimeMs: parseFloat(row.min_processing_time_ms) || 0
-    });
+    }));
 
     res.json({
       success: true,
@@ -474,7 +475,7 @@ router.get('/:queueName/job/:jobId', requireAdmin, async (req: Request, res: Res
     const { jobId } = req.params;
 
     const result = await pool.query(
-      'SELECT
+      `SELECT
       id,
       job_id,
       queue_name,
@@ -491,7 +492,7 @@ router.get('/:queueName/job/:jobId', requireAdmin, async (req: Request, res: Res
       completed_at,
       failed_at,
       created_at,
-      updated_at FROM job_tracking WHERE tenant_id = $1 AND job_id = $2',
+      updated_at FROM job_tracking WHERE tenant_id = $1 AND job_id = $2`,
       [req.user!.tenant_id, jobId]
     );
 

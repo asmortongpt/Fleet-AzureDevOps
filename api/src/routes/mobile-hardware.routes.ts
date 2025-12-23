@@ -84,7 +84,7 @@ router.post('/parts/scan',csrfProtection,  csrfProtection, requirePermission('in
     }
 
     // Check if part exists (mock)
-    if (validated.barcode.includes('NOTFOUND') {
+    if (validated.barcode.includes('NOTFOUND')) {
       return res.status(404).json({
         error: 'Part not found',
         barcode: validated.barcode
@@ -795,7 +795,7 @@ const BatchAddPartsSchema = z.object({
     partNumber: z.string().min(1),
     quantity: z.number().int().positive(),
     unitPrice: z.number().min(0)
-  })
+  }))
 })
 
 /**
@@ -846,7 +846,7 @@ router.post('/work-orders/:workOrderId/parts/batch',csrfProtection,  csrfProtect
       status: 'pending',
       addedBy: userId,
       addedAt: new Date().toISOString()
-    })
+    }))
 
     res.status(201).json({ parts: addedParts, count: addedParts.length })
   } catch (error: any) {

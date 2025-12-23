@@ -21,7 +21,7 @@ router.use(authenticateJWT)
 function maskFuelCardData(data: any): any {
   if (!data) return data
 
-  if (Array.isArray(data) {
+  if (Array.isArray(data)) {
     return data.map(maskFuelCardData)
   }
 
@@ -118,7 +118,7 @@ router.get(
 // POST /api/fuel-purchasing/recommend - Get fuel purchase recommendation
 router.post(
   '/recommend',
- csrfProtection,  csrfProtection, requirePermission('fuel_transaction:view:fleet'),
+ csrfProtection, requirePermission('fuel_transaction:view:fleet'),
   auditLog({ action: 'READ', resourceType: 'fuel_recommendations' }),
   async (req: AuthRequest, res: Response) => {
     try {
@@ -253,7 +253,7 @@ router.get(
 // POST /api/fuel-purchasing/purchase-order - Create purchase order
 router.post(
   '/purchase-order',
- csrfProtection,  csrfProtection, requirePermission('fuel_transaction:create:own'),
+ csrfProtection, requirePermission('fuel_transaction:create:own'),
   auditLog({ action: 'CREATE', resourceType: 'fuel_purchase' }),
   async (req: AuthRequest, res: Response) => {
     try {
@@ -263,7 +263,7 @@ router.post(
       )
 
       // Mask sensitive data in response
-      res.status(201).json(maskFuelCardData(order)
+      res.status(201).json(maskFuelCardData(order))
     } catch (error) {
       logger.error('Create purchase order error:', error) // Wave 21: Winston logger
       res.status(500).json({ error: 'Internal server error' })
@@ -286,7 +286,7 @@ router.get(
       )
 
       // Mask sensitive pricing data
-      res.json(maskFuelCardData(contracts)
+      res.json(maskFuelCardData(contracts))
     } catch (error) {
       logger.error('Get contracts error:', error) // Wave 21: Winston logger
       res.status(500).json({ error: 'Internal server error' })
@@ -297,7 +297,7 @@ router.get(
 // POST /api/fuel-purchasing/alerts - Create price alert
 router.post(
   '/alerts',
- csrfProtection,  csrfProtection, requirePermission('fuel_transaction:create:own'),
+ csrfProtection, requirePermission('fuel_transaction:create:own'),
   auditLog({ action: 'CREATE', resourceType: 'fuel_alerts' }),
   async (req: AuthRequest, res: Response) => {
     try {

@@ -19,6 +19,7 @@ import { authenticateJWT, AuthRequest } from '../middleware/auth';
 import { requirePermission } from '../middleware/permissions';
 import { getErrorMessage } from '../utils/error-handler'
 import { csrfProtection } from '../middleware/csrf'
+import { pool } from '../db/connection';
 
 
 const router = express.Router();
@@ -72,7 +73,7 @@ router.get(
           va.commuting_authorized,
           dr.home_county,
           dr.residence_region,
-          CASE WHEN va.secured_parking_location_id IS NOT NULL THEN 'Yes' ELSE `No` END AS has_secured_parking,
+          CASE WHEN va.secured_parking_location_id IS NOT NULL THEN 'Yes' ELSE 'No' END AS has_secured_parking,
           sp.name AS secured_parking_location
         FROM vehicle_assignments va
         JOIN vehicles v ON va.vehicle_id = v.id
@@ -219,7 +220,7 @@ router.get(
           v.unit_number,
           v.make || ' ' || v.model AS vehicle,
           dr.employee_number,
-          emp.first_name || ` ` || emp.last_name AS driver_name
+          emp.first_name || ' ' || emp.last_name AS driver_name
         FROM vehicle_assignment_history vah
         LEFT JOIN users u ON vah.changed_by_user_id = u.id
         LEFT JOIN vehicle_assignments va ON vah.vehicle_assignment_id = va.id
@@ -397,7 +398,7 @@ router.get(
       const query = `
         SELECT
           dept.name AS department,
-          u.first_name || ` ` || u.last_name AS driver_name,
+          u.first_name || ' ' || u.last_name AS driver_name,
           dr.employee_number,
           COUNT(DISTINCT ocp.id) as on_call_periods,
           SUM(ocp.callback_count) as total_callbacks,
@@ -502,7 +503,7 @@ router.get(
 
 router.post(
   '/export',
- csrfProtection,  csrfProtection, authenticateJWT,
+ csrfProtection, authenticateJWT,
   requirePermission('compliance_report:export:global'),
   async (req: AuthRequest, res: Response) => {
     try {

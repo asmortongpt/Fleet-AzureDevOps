@@ -280,7 +280,7 @@ class SMSService {
          SET status = $1,
              error_code = $2,
              error_message = $3,
-             delivered_at = CASE WHEN $1 = `delivered` THEN CURRENT_TIMESTAMP ELSE delivered_at END,
+             delivered_at = CASE WHEN $1 = 'delivered' THEN CURRENT_TIMESTAMP ELSE delivered_at END,
              updated_at = CURRENT_TIMESTAMP
          WHERE message_sid = $4`,
         [MessageStatus, ErrorCode, ErrorMessage, MessageSid]
@@ -404,7 +404,7 @@ class SMSService {
       const result = await this.db.query(
         `INSERT INTO sms_templates (tenant_id, name, body, category, variables)
          VALUES ($1, $2, $3, $4, $5)
-         RETURNING id',
+         RETURNING id`,
         [
           template.tenantId,
           template.name,

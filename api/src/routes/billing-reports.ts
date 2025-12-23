@@ -104,7 +104,7 @@ router.get('/payroll-csv/:period',
       const csv = await billingReportsService.generatePayrollCSV(tenantId, period)
 
       res.setHeader('Content-Type', 'text/csv')
-      res.setHeader(`Content-Disposition`, "attachment; filename="payroll-deductions-${period}.csv"`)
+      res.setHeader('Content-Disposition', `attachment; filename="payroll-deductions-${period}.csv"`)
       res.send(csv)
     } catch (error: any) {
       logger.error(`Failed to generate payroll CSV`, {
@@ -122,7 +122,7 @@ router.get('/payroll-csv/:period',
  * Requires: report:generate:global permission
  */
 router.post('/mark-billed/:period',
- csrfProtection,  csrfProtection, requirePermission('report:generate:global'),
+ csrfProtection, requirePermission('report:generate:global'),
   async (req: AuthRequest, res: Response) => {
     const tenantId = req.user!.tenant_id
     try {

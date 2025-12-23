@@ -16,9 +16,10 @@ import { aiProcessingLimiter } from '../config/rate-limiters'
 import { validateFileContent, validateFileSize } from '../utils/file-validation'
 import { authenticateJWT, AuthRequest } from '../middleware/auth'
 import { requirePermission } from '../middleware/permissions'
-import { rateLimit } from '../middleware/rateLimit'
+import { createRateLimiter } from '../middleware/rateLimiter'
 import { getErrorMessage } from '../utils/error-handler'
 import { csrfProtection } from '../middleware/csrf'
+import { pool } from '../db/connection';
 
 
 const router = express.Router()
@@ -65,10 +66,10 @@ const upload = multer({
   },
   fileFilter: (req, file, cb) => {
     // Accept images and videos
-    if (file.mimetype.startsWith('image/') || file.mimetype.startsWith('video/') {
+    if (file.mimetype.startsWith('image/') || file.mimetype.startsWith('video/')) {
       cb(null, true)
     } else {
-      cb(new Error('Only image and video files are allowed')
+      cb(new Error('Only image and video files are allowed'))
     }
   },
 })
@@ -80,9 +81,9 @@ const upload = multer({
  */
 router.post(
   '/analyze-photo',
- csrfProtection,  csrfProtection, authenticateJWT,
+  csrfProtection, csrfProtection, authenticateJWT,
   requirePermission('damage:analyze'),
-  rateLimit(20, 60000), // 20 requests per minute
+  createRateLimiter({ max: 20, windowMs: 60000 }), // 20 requests per minute
   upload.single('photo'),
   async (req: AuthRequest, res: Response) => {
     try {
@@ -165,9 +166,9 @@ router.post(
  */
 router.post(
   '/analyze-lidar',
- csrfProtection,  csrfProtection, authenticateJWT,
+  csrfProtection, csrfProtection, authenticateJWT,
   requirePermission('damage:analyze'),
-  rateLimit(10, 60000), // 10 requests per minute (more intensive)
+  createRateLimiter({ max: 10, windowMs: 60000 }), // 10 requests per minute (more intensive)
   upload.array('photos', 10),
   async (req: AuthRequest, res: Response) => {
     try {
@@ -237,9 +238,9 @@ router.post(
  */
 router.post(
   '/analyze-video',
- csrfProtection,  csrfProtection, authenticateJWT,
+  csrfProtection, csrfProtection, authenticateJWT,
   requirePermission('damage:analyze'),
-  rateLimit(5, 60000), // 5 requests per minute (very intensive)
+  createRateLimiter({ max: 5, windowMs: 60000 }), // 5 requests per minute (very intensive)
   upload.single('video'),
   async (req: AuthRequest, res: Response) => {
     try {
@@ -302,9 +303,9 @@ router.post(
  */
 router.post(
   '/comprehensive-analysis',
- csrfProtection,  csrfProtection, authenticateJWT,
+  csrfProtection, csrfProtection, authenticateJWT,
   requirePermission('damage:analyze'),
-  rateLimit(5, 60000), // 5 requests per minute (very intensive)
+  createRateLimiter({ max: 5, windowMs: 60000 }), // 5 requests per minute (very intensive)
   upload.array('photos', 20),
   async (req: AuthRequest, res: Response) => {
     try {
@@ -350,18 +351,18 @@ router.post(
       // Parse optional video data
       const videoData: VideoAnalysisData | undefined = req.body.videoUrl
         ? {
-            videoUrl: req.body.videoUrl,
-            metadata: {
-              duration: parseFloat(req.body.videoDuration || '0'),
-              fps: parseInt(req.body.videoFps || '30'),
-              resolution: {
-                width: parseInt(req.body.videoWidth || '1920'),
-                height: parseInt(req.body.videoHeight || '1080'),
-              },
-              format: req.body.videoFormat || 'mp4',
-              fileSize: parseInt(req.body.videoSize || '0'),
+          videoUrl: req.body.videoUrl,
+          metadata: {
+            duration: parseFloat(req.body.videoDuration || '0'),
+            fps: parseInt(req.body.videoFps || '30'),
+            resolution: {
+              width: parseInt(req.body.videoWidth || '1920'),
+              height: parseInt(req.body.videoHeight || '1080'),
             },
-          }
+            format: req.body.videoFormat || 'mp4',
+            fileSize: parseInt(req.body.videoSize || '0'),
+          },
+        }
         : undefined
 
       // Run comprehensive analysis
@@ -402,7 +403,7 @@ router.post(
  */
 router.post(
   '/save',
- csrfProtection,  csrfProtection, authenticateJWT,
+  csrfProtection, csrfProtection, authenticateJWT,
   requirePermission('damage:create'),
   async (req: AuthRequest, res: Response) => {
     try {
@@ -450,7 +451,7 @@ router.post(
               cost_estimate,
               repair_status,
               reported_at
-            ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, NOW()
+            ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, NOW())
             RETURNING id`,
             [
               vehicleId,

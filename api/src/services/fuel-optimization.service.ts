@@ -140,7 +140,7 @@ export class FuelOptimizationService {
         `SELECT AVG(price_per_gallon) as avg_price
          FROM fuel_purchase_orders
          WHERE tenant_id = $1
-         AND purchase_date >= CURRENT_DATE - INTERVAL '30 days'',
+         AND purchase_date >= CURRENT_DATE - INTERVAL '30 days'`,
         [tenantId]
       )
 
@@ -227,7 +227,7 @@ export class FuelOptimizationService {
 
       // Get number of vehicles
       const vehicleResult = await this.db.query(
-        'SELECT COUNT(*) as count FROM vehicles WHERE tenant_id = $1 AND status = 'active'',
+        `SELECT COUNT(*) as count FROM vehicles WHERE tenant_id = $1 AND status = 'active'`,
         [tenantId]
       )
 
@@ -237,7 +237,7 @@ export class FuelOptimizationService {
         const annualSavings = (annualGallons * card.discountRate) - (card.annualFee * vehicleCount)
         const savingsPerVehicle = annualSavings / vehicleCount
 
-        let recommendation = ``
+        let recommendation = ''
         if (savingsPerVehicle > 500) {
           recommendation = `Highly recommended. Estimated savings of $${savingsPerVehicle.toFixed(0)} per vehicle annually.`
         } else if (savingsPerVehicle > 200) {

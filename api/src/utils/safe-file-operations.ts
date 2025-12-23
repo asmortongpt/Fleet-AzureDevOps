@@ -12,14 +12,14 @@
 import fs from 'fs/promises';
 import fsSync from 'fs';
 import path from 'path';
-import { Readable } from `stream`;
+import { Readable } from 'stream';
 
 /**
  * Security error for path traversal attempts
  */
 export class PathTraversalError extends Error {
   constructor(attemptedPath: string, allowedDirectory: string) {
-    super("Path traversal detected: "${attemptedPath}" is outside allowed directory "${allowedDirectory}"`);
+    super(`Path traversal detected: "${attemptedPath}" is outside allowed directory "${allowedDirectory}"`);
     this.name = `PathTraversalError`;
   }
 }
@@ -68,7 +68,7 @@ export function sanitizeFilePath(filePath: string): string {
 
   // Remove parent directory references
   const parts = sanitized.split('/').filter(part => {
-    return part !== '..' && part !== '.' && part !== '`;
+    return part !== '..' && part !== '.' && part !== '';
   });
 
   return parts.join(`/`);

@@ -1,8 +1,9 @@
-/**
 import { container } from '../container'
 import { asyncHandler } from '../middleware/errorHandler'
 import { NotFoundError, ValidationError } from '../errors/app-error'
 import logger from '../config/logger'; // Wave 18: Add Winston logger
+/**
+/**
  * Cost Management Routes
  * Provides endpoints for cost tracking, budgeting, and analytics
  */
@@ -73,19 +74,19 @@ router.get('/', asyncHandler(async (req, res) => {
       costs.sort((a, b) => {
         const diff = b.amount - a.amount
         return sortOrder === 'asc' ? -diff : diff
-      }))
+      })
     } else if (sortBy === 'category') {
       costs.sort((a, b) => {
         const comp = a.category.localeCompare(b.category)
         return sortOrder === 'asc' ? comp : -comp
-      }))
+      })
     } else if (sortBy === 'vendor') {
       costs.sort((a, b) => {
         const aVendor = a.vendorName || ''
         const bVendor = b.vendorName || ''
         const comp = aVendor.localeCompare(bVendor)
         return sortOrder === 'asc' ? comp : -comp
-      }))
+      })
     }
     // Default is by date, which is already applied
 
@@ -112,10 +113,10 @@ router.get('/', asyncHandler(async (req, res) => {
         averageAmount: Number(avgAmount.toFixed(2)),
         count: total
       }
-    }))
+    })
   } catch (error) {
     logger.error('Error fetching costs:', error) // Wave 18: Winston logger
-    res.status(500).json({ error: 'Failed to fetch cost data' }))
+    res.status(500).json({ error: 'Failed to fetch cost data' })
   }
 }))
 
@@ -174,10 +175,10 @@ router.get('/vehicle/:vehicleId', asyncHandler(async (req, res) => {
           percent: Number(((amount / totalAmount) * 100).toFixed(1))
         })).sort((a, b) => b.amount - a.amount)
       }
-    }))
+    })
   } catch (error) {
     logger.error('Error fetching vehicle costs:', error) // Wave 18: Winston logger
-    res.status(500).json({ error: 'Failed to fetch vehicle cost data' }))
+    res.status(500).json({ error: 'Failed to fetch vehicle cost data' })
   }
 }))
 
@@ -198,10 +199,10 @@ router.get('/analytics', asyncHandler(async (req, res) => {
       analytics,
       forecast,
       generated: new Date().toISOString()
-    }))
+    })
   } catch (error) {
     logger.error('Error generating analytics:', error) // Wave 18: Winston logger
-    res.status(500).json({ error: 'Failed to generate cost analytics' }))
+    res.status(500).json({ error: 'Failed to generate cost analytics' })
   }
 }))
 
@@ -247,7 +248,7 @@ router.get('/budget', asyncHandler(async (req, res) => {
       monthData.categories.sort((a: BudgetTracking, b: BudgetTracking) =>
         b.variancePercent - a.variancePercent
       )
-    }))
+    })
 
     // Convert to array and sort by month (most recent first)
     const result = Object.values(byMonth)
@@ -260,10 +261,10 @@ router.get('/budget', asyncHandler(async (req, res) => {
         monthsTracked: result.length,
         categoriesTracked: Object.keys(costEmulator['categoryBudgets'] || {}).length
       }
-    }))
+    })
   } catch (error) {
     logger.error('Error fetching budget data:', error) // Wave 18: Winston logger
-    res.status(500).json({ error: 'Failed to fetch budget tracking data' }))
+    res.status(500).json({ error: 'Failed to fetch budget tracking data' })
   }
 }))
 
@@ -296,12 +297,12 @@ router.get('/budget/alerts', async (_req, res) => {
         underBudgetCount: underBudgetCategories.length,
         month: currentMonth
       }
-    }))
+    })
   } catch (error) {
     logger.error('Error fetching budget alerts:', error) // Wave 18: Winston logger
-    res.status(500).json({ error: 'Failed to fetch budget alerts' }))
+    res.status(500).json({ error: 'Failed to fetch budget alerts' })
   }
-}))
+});
 
 // GET cost breakdown by department
 router.get('/department-analysis', asyncHandler(async (req, res) => {
@@ -322,10 +323,10 @@ router.get('/department-analysis', asyncHandler(async (req, res) => {
         end: end.toISOString().split('T')[0]
       },
       totalCost: analytics.totalCosts
-    }))
+    })
   } catch (error) {
     logger.error('Error fetching department analysis:', error) // Wave 18: Winston logger
-    res.status(500).json({ error: 'Failed to fetch department analysis' }))
+    res.status(500).json({ error: 'Failed to fetch department analysis' })
   }
 }))
 
@@ -354,10 +355,10 @@ router.get('/vendor-analysis', asyncHandler(async (req, res) => {
         averagePerVendor: vendors.length > 0 ?
           Number((vendors.reduce((sum, v) => sum + v.amount, 0) / vendors.length).toFixed(2)) : 0
       }
-    }))
+    })
   } catch (error) {
     logger.error('Error fetching vendor analysis:', error) // Wave 18: Winston logger
-    res.status(500).json({ error: 'Failed to fetch vendor analysis' }))
+    res.status(500).json({ error: 'Failed to fetch vendor analysis' })
   }
 }))
 
@@ -371,9 +372,9 @@ router.get('/export', async (_req, res) => {
     res.send(csv)
   } catch (error) {
     logger.error('Error exporting costs:', error) // Wave 18: Winston logger
-    res.status(500).json({ error: 'Failed to export cost data' }))
+    res.status(500).json({ error: 'Failed to export cost data' })
   }
-}))
+});
 
 // POST create new cost entry
 router.post('/',csrfProtection,  csrfProtection, asyncHandler(async (req, res): Promise<any> => {
@@ -401,7 +402,7 @@ router.post('/',csrfProtection,  csrfProtection, asyncHandler(async (req, res): 
     if (!vehicleId || !category || !amount || !date || !description) {
       return res.status(400).json({
         error: 'Missing required fields: vehicleId, category, amount, date, description'
-      }))
+      })
     }
 
     // Validate category
@@ -410,12 +411,12 @@ router.post('/',csrfProtection,  csrfProtection, asyncHandler(async (req, res): 
     if (!validCategories.includes(category)) {
       return res.status(400).json({
         error: `Invalid category. Must be one of: ${validCategories.join(', ')}`
-      }))
+      })
     }
 
     // Validate amount
     if (typeof amount !== 'number' || amount <= 0) {
-      return res.status(400).json({ error: 'Amount must be a positive number' }))
+      return res.status(400).json({ error: 'Amount must be a positive number' })
     }
 
     const newCost = costEmulator.addCost({
@@ -435,15 +436,15 @@ router.post('/',csrfProtection,  csrfProtection, asyncHandler(async (req, res): 
       approvedBy,
       notes,
       mileageAtTime: mileageAtTime ? Number(mileageAtTime) : undefined
-    }))
+    })
 
     res.status(201).json({
       message: 'Cost entry created successfully',
       data: newCost
-    }))
+    })
   } catch (error) {
     logger.error('Error creating cost entry:', error) // Wave 18: Winston logger
-    res.status(500).json({ error: 'Failed to create cost entry' }))
+    res.status(500).json({ error: 'Failed to create cost entry' })
   }
 }))
 
@@ -453,7 +454,7 @@ router.post('/bulk-import',csrfProtection,  csrfProtection, asyncHandler(async (
     const { costs } = req.body
 
     if (!Array.isArray(costs) || costs.length === 0) {
-      return res.status(400).json({ error: 'Costs must be a non-empty array' }))
+      return res.status(400).json({ error: 'Costs must be a non-empty array' })
     }
 
     const validCategories = ['fuel', 'maintenance', 'insurance', 'depreciation',
@@ -485,22 +486,22 @@ router.post('/bulk-import',csrfProtection,  csrfProtection, asyncHandler(async (
           vehicleId: Number(cost.vehicleId),
           amount: Number(cost.amount),
           date: new Date(cost.date)
-        }))
+        })
 
         results.success++
       } catch (error) {
         results.failed++
         results.errors.push(`Row ${index + 1}: ${error}`)
       }
-    }))
+    })
 
     res.json({
       message: 'Bulk import completed',
       results
-    }))
+    })
   } catch (error) {
     logger.error('Error in bulk import:', error) // Wave 18: Winston logger
-    res.status(500).json({ error: 'Failed to process bulk import' }))
+    res.status(500).json({ error: 'Failed to process bulk import' })
   }
 }))
 
@@ -518,12 +519,12 @@ router.get('/forecast', async (_req, res) => {
         categoryCounts: currentState.categoryCounts
       },
       generated: new Date().toISOString()
-    }))
+    })
   } catch (error) {
     logger.error('Error generating forecast:', error) // Wave 18: Winston logger
-    res.status(500).json({ error: 'Failed to generate cost forecast' }))
+    res.status(500).json({ error: 'Failed to generate cost forecast' })
   }
-}))
+});
 
 // GET cost summary dashboard data
 router.get('/dashboard', async (_req, res) => {
@@ -578,12 +579,12 @@ router.get('/dashboard', async (_req, res) => {
         last6Months: monthAnalytics.monthlyTrend,
         yearOverYear: ytdAnalytics.yearOverYearComparison
       }
-    }))
+    })
   } catch (error) {
     logger.error('Error generating dashboard data:', error) // Wave 18: Winston logger
-    res.status(500).json({ error: 'Failed to generate dashboard data' }))
+    res.status(500).json({ error: 'Failed to generate dashboard data' })
   }
-}))
+});
 
 // Start the cost emulator
 costEmulator.start().catch(console.error)
