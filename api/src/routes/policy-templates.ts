@@ -8,8 +8,7 @@ import { auditLog } from '../middleware/audit'
 import { z } from 'zod'
 import { buildInsertClause, buildUpdateClause } from '../utils/sql-safety'
 import { csrfProtection } from '../middleware/csrf'
-import { pool } from '../db/connection';
-
+import { pool } from '../config/database';
 
 const router = express.Router()
 router.use(authenticateJWT)
@@ -97,15 +96,15 @@ router.get(
         }
       })
     } catch (error) {
-      console.error(`Get policy templates error:`, error)
-      res.status(500).json({ error: `Internal server error` })
+      console.error('Get policy templates error:', error)
+      res.status(500).json({ error: 'Internal server error' })
     }
   }
 )
 
 // GET /policy-templates/:id
 router.get(
-  `/:id`,
+  '/:id',
   requirePermission('policy:view:global'),
   auditLog({ action: 'READ', resourceType: 'policy_templates' }),
   async (req: AuthRequest, res: Response) => {
@@ -151,7 +150,7 @@ router.get(
       )
 
       if (result.rows.length === 0) {
-        return res.status(404).json({ error: `Policy template not found` })
+        return res.status(404).json({ error: 'Policy template not found' })
       }
 
       res.json(result.rows[0])
@@ -165,7 +164,7 @@ router.get(
 // POST /policy-templates
 router.post(
   '/',
- csrfProtection,  csrfProtection, requirePermission('policy:create:global'),
+  csrfProtection, requirePermission('policy:create:global'),
   auditLog({ action: 'CREATE', resourceType: 'policy_templates' }),
   async (req: AuthRequest, res: Response) => {
     try {
@@ -173,7 +172,7 @@ router.post(
 
       const { columnNames, placeholders, values } = buildInsertClause(
         data,
-        [`created_by`],
+        ['created_by'],
         1
       )
 
@@ -184,15 +183,15 @@ router.post(
 
       res.status(201).json(result.rows[0])
     } catch (error) {
-      console.error(`Create policy template error:`, error)
-      res.status(500).json({ error: `Internal server error` })
+      console.error('Create policy template error:', error)
+      res.status(500).json({ error: 'Internal server error' })
     }
   }
 )
 
 // PUT /policy-templates/:id
 router.put(
-  `/:id`,
+  '/:id',
   csrfProtection,
   requirePermission('policy:update:global'),
   auditLog({ action: 'UPDATE', resourceType: 'policy_templates' }),
@@ -210,13 +209,13 @@ router.put(
       )
 
       if (result.rows.length === 0) {
-        return res.status(404).json({ error: `Policy template not found` })
+        return res.status(404).json({ error: 'Policy template not found' })
       }
 
       res.json(result.rows[0])
     } catch (error) {
-      console.error(`Update policy template error:`, error)
-      res.status(500).json({ error: `Internal server error` })
+      console.error('Update policy template error:', error)
+      res.status(500).json({ error: 'Internal server error' })
     }
   }
 )
@@ -234,7 +233,7 @@ router.get(
     try {
       const result = await pool.query(
         `SELECT pa.*,
-                d.first_name || ` ` || d.last_name as employee_name,
+                d.first_name || ' ' || d.last_name as employee_name,
                 d.employee_id
          FROM policy_acknowledgments pa
          JOIN drivers d ON pa.employee_id = d.id
@@ -245,7 +244,7 @@ router.get(
 
       res.json({ data: result.rows })
     } catch (error) {
-      console.error(`Get policy acknowledgments error:`, error)
+      console.error('Get policy acknowledgments error:', error)
       res.status(500).json({ error: 'Internal server error' })
     }
   }
@@ -254,7 +253,7 @@ router.get(
 // POST /policy-templates/:id/acknowledge
 router.post(
   '/:id/acknowledge',
- csrfProtection,  csrfProtection, requirePermission('policy:create:global'),
+  csrfProtection, requirePermission('policy:create:global'),
   auditLog({ action: 'CREATE', resourceType: 'policy_acknowledgments' }),
   async (req: AuthRequest, res: Response) => {
     try {
@@ -298,14 +297,14 @@ router.post(
       await pool.query(
         `UPDATE policy_templates
          SET times_acknowledged = times_acknowledged + 1,
-             last_acknowledged_at = NOW()
+         last_acknowledged_at = NOW()
          WHERE id = $1`,
         [req.params.id]
       )
 
       res.status(201).json(result.rows[0])
     } catch (error) {
-      console.error(`Create policy acknowledgment error:`, error)
+      console.error('Create policy acknowledgment error:', error)
       res.status(500).json({ error: 'Internal server error' })
     }
   }
@@ -325,7 +324,7 @@ router.get(
       const result = await pool.query(
         `SELECT
           d.id AS employee_id,
-          d.first_name || ` ` || d.last_name AS employee_name,
+          d.first_name || ' ' || d.last_name AS employee_name,
           COUNT(DISTINCT pt.id) AS total_policies,
           COUNT(DISTINCT pa.policy_id) AS acknowledged_policies,
           COUNT(DISTINCT pt.id) - COUNT(DISTINCT pa.policy_id) AS pending_acknowledgments,
@@ -336,7 +335,7 @@ router.get(
          WHERE d.id = $1
            AND d.tenant_id = $2
            AND pt.status = 'Active'
-           AND (pt.applies_to_roles IS NULL OR d.role = ANY(pt.applies_to_roles)
+           AND (pt.applies_to_roles IS NULL OR d.role = ANY(pt.applies_to_roles))
          GROUP BY d.id, d.first_name, d.last_name`,
         [req.params.employee_id, req.user!.tenant_id]
       )
@@ -370,7 +369,7 @@ router.get(
       let query = `
         SELECT pv.*,
                pt.policy_name,
-               d.first_name || ` ` || d.last_name as employee_name,
+               d.first_name || ' ' || d.last_name as employee_name,
                d.employee_id as employee_number
         FROM policy_violations pv
         JOIN policy_templates pt ON pv.policy_id = pt.id
@@ -421,7 +420,7 @@ router.get(
         }
       })
     } catch (error) {
-      console.error(`Get policy violations error:`, error)
+      console.error('Get policy violations error:', error)
       res.status(500).json({ error: 'Internal server error' })
     }
   }
@@ -430,7 +429,7 @@ router.get(
 // POST /policy-templates/violations
 router.post(
   '/violations',
- csrfProtection,  csrfProtection, requirePermission('policy:delete:global'),
+  csrfProtection, requirePermission('policy:delete:global'),
   auditLog({ action: 'CREATE', resourceType: 'policy_violations' }),
   async (req: AuthRequest, res: Response) => {
     try {
@@ -438,7 +437,7 @@ router.post(
 
       const { columnNames, placeholders, values } = buildInsertClause(
         data,
-        [`created_by`],
+        ['created_by'],
         1
       )
 
@@ -449,8 +448,8 @@ router.post(
 
       res.status(201).json(result.rows[0])
     } catch (error) {
-      console.error(`Create policy violation error:`, error)
-      res.status(500).json({ error: `Internal server error` })
+      console.error('Create policy violation error:', error)
+      res.status(500).json({ error: 'Internal server error' })
     }
   }
 )
@@ -461,7 +460,7 @@ router.post(
 
 // GET /policy-templates/audits
 router.get(
-  `/audits`,
+  '/audits',
   requirePermission('policy:view:global'),
   auditLog({ action: 'READ', resourceType: 'policy_compliance_audits' }),
   async (req: AuthRequest, res: Response) => {
@@ -503,15 +502,15 @@ router.get(
         }
       })
     } catch (error) {
-      console.error(`Get policy compliance audits error:`, error)
-      res.status(500).json({ error: `Internal server error` })
+      console.error('Get policy compliance audits error:', error)
+      res.status(500).json({ error: 'Internal server error' })
     }
   }
 )
 
 // POST /policy-templates/audits
 router.post(
-  `/audits`,
+  '/audits',
   csrfProtection,
   requirePermission('policy:create:global'),
   auditLog({ action: 'CREATE', resourceType: 'policy_compliance_audits' }),
@@ -521,7 +520,7 @@ router.post(
 
       const { columnNames, placeholders, values } = buildInsertClause(
         data,
-        [`created_by`],
+        ['created_by'],
         1
       )
 
@@ -532,8 +531,8 @@ router.post(
 
       res.status(201).json(result.rows[0])
     } catch (error) {
-      console.error(`Create policy compliance audit error:`, error)
-      res.status(500).json({ error: `Internal server error` })
+      console.error('Create policy compliance audit error:', error)
+      res.status(500).json({ error: 'Internal server error' })
     }
   }
 )
@@ -544,7 +543,7 @@ router.post(
 
 // GET /policy-templates/dashboard
 router.get(
-  `/dashboard`,
+  '/dashboard',
   requirePermission('policy:view:global'),
   auditLog({ action: 'READ', resourceType: 'policy_templates_dashboard' }),
   async (req: AuthRequest, res: Response) => {
@@ -555,7 +554,7 @@ router.get(
                 COUNT(CASE WHEN next_review_date < CURRENT_DATE THEN 1 END) as overdue_reviews,
                 COUNT(CASE WHEN next_review_date BETWEEN CURRENT_DATE AND CURRENT_DATE + INTERVAL '30 days' THEN 1 END) as upcoming_reviews
          FROM policy_templates
-         WHERE status = 'Active''
+         WHERE status = 'Active'`
       )
 
       // Compliance rate
@@ -578,7 +577,7 @@ router.get(
          FROM policy_violations pv
          JOIN drivers d ON pv.employee_id = d.id
          WHERE d.tenant_id = $1
-         AND pv.violation_date >= DATE_TRUNC(`month`, CURRENT_DATE)
+         AND pv.violation_date >= DATE_TRUNC('month', CURRENT_DATE)
          GROUP BY severity
          ORDER BY count DESC`,
         [req.user!.tenant_id]
@@ -590,7 +589,7 @@ router.get(
         violations: violationsResult.rows
       })
     } catch (error) {
-      console.error(`Get policy templates dashboard error:`, error)
+      console.error('Get policy templates dashboard error:', error)
       res.status(500).json({ error: 'Internal server error' })
     }
   }

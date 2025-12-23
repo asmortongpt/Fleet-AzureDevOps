@@ -4,7 +4,7 @@
  * This is a template - integrate with @azure/storage-blob or aws-sdk as needed
  */
 
-import { BlobServiceClient, ContainerClient } from '@azure/storage-blob'
+import { BlobServiceClient, ContainerClient, BlobSASPermissions } from '@azure/storage-blob'
 
 import { StorageAdapter, StorageMetadata, UploadOptions } from './storage-adapter.base'
 
@@ -261,7 +261,7 @@ export class AzureBlobStorageAdapter extends StorageAdapter {
       // In production, use generateBlobSASQueryParameters
       // This is a simplified version
       const sasUrl = await blobClient.generateSasUrl({
-        permissions: 'r', // Read only
+        permissions: BlobSASPermissions.parse("r"),
         expiresOn
       })
 

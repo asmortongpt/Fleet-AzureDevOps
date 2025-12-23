@@ -21,6 +21,14 @@ import { validateWebhook, WebhookRequest } from '../../middleware/webhook-valida
 import { requirePermission } from '../../middleware/permissions'
 import webhookService from '../../services/webhook.service'
 import pool from '../../config/database'
+import { csrfProtection } from '../../middleware/csrf'
+
+// Helper function to get table columns (stubbed if missing)
+async function getTableColumns(pool: any, tableName: string): Promise<string[]> {
+  // In a real implementation this would query information_schema
+  // For now we return * to allow the query to run, or specific columns if known
+  return ['*']
+}
 
 const router = express.Router()
 
@@ -37,7 +45,7 @@ router.post(
 
       if (!notifications || !Array.isArray(notifications)) {
         console.error('❌ Invalid webhook payload structure')
-        return res.status(400).json({ error: `Invalid payload structure` })
+        return res.status(400).json({ error: 'Invalid payload structure' })
       }
 
       console.log(`📧 Received ${notifications.length} Outlook notification(s)`)
@@ -45,7 +53,7 @@ router.post(
       // Process notifications asynchronously
       // Return 202 Accepted immediately to avoid timeout
       res.status(202).json({
-        message: `Notifications received and queued for processing`,
+        message: 'Notifications received and queued for processing',
         count: notifications.length
       })
 
@@ -114,7 +122,7 @@ async function processNotificationAsync(notification: any): Promise<void> {
         [error.message, notification.subscriptionId, notification.resource]
       )
     } catch (dbError) {
-      console.error(`Failed to log error to database:`, dbError)
+      console.error('Failed to log error to database:', dbError)
     }
 
     throw error
@@ -139,7 +147,7 @@ async function handleEmailUpdate(notification: any): Promise<void> {
     // Check if email exists in our database
     const result = await pool.query(
       `SELECT id FROM communications
-       WHERE source_platform = `Microsoft Outlook`
+       WHERE source_platform = 'Microsoft Outlook'
        AND source_platform_id = $1`,
       [messageId]
     )
@@ -147,7 +155,8 @@ async function handleEmailUpdate(notification: any): Promise<void> {
     if (result.rows.length === 0) {
       // Email not in our DB, treat as new email
       await webhookService.processOutlookNotification(notification)
-      return }
+      return
+    }
 
     const communicationId = result.rows[0].id
 
@@ -155,8 +164,6 @@ async function handleEmailUpdate(notification: any): Promise<void> {
     const { Client } = require('@microsoft/microsoft-graph-client')
     const { TokenCredentialAuthenticationProvider } = require('@microsoft/microsoft-graph-client/authProviders/azureTokenCredentials')
     const { ClientSecretCredential } = require('@azure/identity')
-import { csrfProtection } from '../middleware/csrf'
-
 
     const AZURE_AD_CONFIG = {
       clientId: process.env.AZURE_AD_CLIENT_ID || process.env.MICROSOFT_CLIENT_ID || '',
@@ -171,14 +178,14 @@ import { csrfProtection } from '../middleware/csrf'
     )
 
     const authProvider = new TokenCredentialAuthenticationProvider(credential, {
-      scopes: [`https://graph.microsoft.com/.default`]
+      scopes: ['https://graph.microsoft.com/.default']
     })
 
     const graphClient = Client.initWithMiddleware({ authProvider })
 
     const email = await graphClient
       .api(`/users/${userEmail}/messages/${messageId}`)
-      .select(`id,subject,body,categories,isRead,flag`)
+      .select('id,subject,body,categories,isRead,flag')
       .get()
 
     // Update communication record
@@ -186,7 +193,7 @@ import { csrfProtection } from '../middleware/csrf'
       `UPDATE communications
        SET body = $1,
            updated_at = NOW(),
-           status = CASE WHEN $2 THEN `Read` ELSE `Unread` END,
+           status = CASE WHEN $2 THEN 'Read' ELSE 'Unread' END,
            metadata = jsonb_set(
              COALESCE(metadata, '{}'::jsonb),
              '{categories}',
@@ -230,13 +237,13 @@ async function handleEmailDelete(notification: any): Promise<void> {
        SET status = 'Deleted',
            updated_at = NOW(),
            metadata = jsonb_set(
-             COALESCE(metadata, `{}`::jsonb),
+             COALESCE(metadata, '{}'::jsonb),
              '{deletedAt}',
              $1::jsonb
            )
        WHERE source_platform = 'Microsoft Outlook'
        AND source_platform_id = $2
-       RETURNING id',
+       RETURNING id`,
       [JSON.stringify(new Date().toISOString()), messageId]
     )
 
@@ -264,8 +271,9 @@ router.get(
   async (req: AuthRequest, res: Response) => {
     try {
       // Only return subscriptions for user's tenant
+      const columns = await getTableColumns(pool, 'webhook_subscriptions');
       const result = await pool.query(
-        'SELECT ' + (await getTableColumns(pool, 'webhook_subscriptions')).join(', ') + ' FROM webhook_subscriptions
+        `SELECT ${columns.join(', ')} FROM webhook_subscriptions
          WHERE subscription_type = 'outlook_emails'
          AND status = 'active'
          AND tenant_id = $1
@@ -363,7 +371,7 @@ router.delete(
       )
 
       if (checkResult.rows.length === 0) {
-        return res.status(404).json({ error: `Subscription not found` })
+        return res.status(404).json({ error: 'Subscription not found' })
       }
 
       if (checkResult.rows[0].tenant_id !== req.user!.tenant_id) {
@@ -414,7 +422,7 @@ router.post(
       )
 
       if (checkResult.rows.length === 0) {
-        return res.status(404).json({ error: `Subscription not found` })
+        return res.status(404).json({ error: 'Subscription not found' })
       }
 
       if (checkResult.rows[0].tenant_id !== req.user!.tenant_id) {
@@ -470,7 +478,7 @@ router.get(
 
       if (processed !== undefined) {
         query += ` AND we.processed = $${params.length + 1}`
-        params.push(processed === `true`)
+        params.push(processed === 'true')
       }
 
       query += ` ORDER BY we.received_at DESC LIMIT $${params.length + 1}`
@@ -484,7 +492,7 @@ router.get(
       })
 
     } catch (error: any) {
-      console.error(`Failed to fetch webhook events:`, error)
+      console.error('Failed to fetch webhook events:', error)
       res.status(500).json({ error: 'Internal server error' })
     }
   }
@@ -551,13 +559,13 @@ router.post(
       )
 
       if (result.rows.length === 0) {
-        return res.status(404).json({ error: `Communication not found or access denied` })
+        return res.status(404).json({ error: 'Communication not found or access denied' })
       }
 
       const communication = result.rows[0]
 
       // Re-categorize using AI
-      const OpenAI = require(`openai`)
+      const OpenAI = require('openai')
       const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY })
 
       const completion = await openai.chat.completions.create({
@@ -587,7 +595,7 @@ router.post(
       )
 
       res.json({
-        message: `Email re-categorized successfully`,
+        message: 'Email re-categorized successfully',
         category
       })
 
@@ -629,8 +637,8 @@ router.get(
         `SELECT COUNT(*) as total
          FROM communications
          WHERE communication_type = 'Email'
-         AND source_platform = `Microsoft Outlook`
-         AND tenant_id = $1',
+         AND source_platform = 'Microsoft Outlook'
+         AND tenant_id = $1`,
         [req.user!.tenant_id]
       )
 
@@ -639,7 +647,7 @@ router.get(
         `SELECT ai_detected_category, COUNT(*) as count
          FROM communications
          WHERE communication_type = 'Email'
-         AND source_platform = `Microsoft Outlook`
+         AND source_platform = 'Microsoft Outlook'
          AND tenant_id = $1
          GROUP BY ai_detected_category
          ORDER BY count DESC
@@ -652,7 +660,7 @@ router.get(
         `SELECT ai_detected_priority, COUNT(*) as count
          FROM communications
          WHERE communication_type = 'Email'
-         AND source_platform = `Microsoft Outlook`
+         AND source_platform = 'Microsoft Outlook'
          AND tenant_id = $1
          GROUP BY ai_detected_priority
          ORDER BY count DESC`,
@@ -664,9 +672,9 @@ router.get(
         `SELECT COUNT(*) as recent_count
          FROM communications
          WHERE communication_type = 'Email'
-         AND source_platform = `Microsoft Outlook`
+         AND source_platform = 'Microsoft Outlook'
          AND tenant_id = $1
-         AND communication_datetime > NOW() - INTERVAL '24 hours'',
+         AND communication_datetime > NOW() - INTERVAL '24 hours'`,
         [req.user!.tenant_id]
       )
 
@@ -691,7 +699,7 @@ router.get(
       })
 
     } catch (error: any) {
-      console.error(`Failed to fetch stats:`, error)
+      console.error('Failed to fetch stats:', error)
       res.status(500).json({ error: 'Internal server error' })
     }
   }

@@ -4,10 +4,16 @@
  * Demonstrates how to use the OCR service in various scenarios
  */
 
-import ocrService, { OcrOptions, OcrProvider } from '../services/OcrService';
-import ocrQueueService from '../services/OcrQueueService';
+import { OcrService, OcrOptions, OcrProvider } from '../services/OcrService';
+import { OcrQueueService } from '../services/OcrQueueService';
 import fs from 'fs/promises';
 import path from 'path';
+import { Pool } from 'pg';
+
+// Initialize services with a dummy pool for example usage
+const pool = new Pool();
+const ocrService = new OcrService(pool);
+const ocrQueueService = new OcrQueueService(pool);
 
 // ============================================
 // Example 1: Simple Document OCR (Synchronous)
@@ -366,7 +372,7 @@ export async function boundingBoxExample() {
   const firstPage = result.pages[0];
   firstPage.lines.forEach(line => {
     line.words.forEach(word => {
-      console.log("Word: "${word.text}"`);
+      console.log(`Word: "${word.text}"`);
       console.log(`  Position: x=${word.boundingBox.x}, y=${word.boundingBox.y}`);
       console.log(`  Size: width=${word.boundingBox.width}, height=${word.boundingBox.height}`);
       console.log(`  Confidence: ${word.confidence}`);

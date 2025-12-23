@@ -1,46 +1,69 @@
 import { BaseRepository } from '../repositories/BaseRepository';
+import { Pool, QueryResult } from 'pg';
 
-Here is a basic example of a FuelEfficiencyRepository in TypeScript. This repository is designed to interact with a database to perform CRUD operations on data related to fuel efficiency. It uses parameterized queries to prevent SQL injection attacks. 
-
-
-import { Pool } from 'pg';
+export interface FuelEfficiency {
+  id: number;
+  tenant_id: number;
+  vehicle_id: number;
+  date: Date;
+  distance: number;
+  fuel_consumed: number;
+  efficiency_mpg: number;
+  created_at: Date;
+  updated_at: Date;
+}
 
 export class FuelEfficiencyRepository extends BaseRepository<any> {
+
   private pool: Pool;
 
   constructor(pool: Pool) {
+    super('fuel_efficiency', pool);
     this.pool = pool;
   }
 
-  async create(tenant_id: string, fuelEfficiencyData: any) {
-    const query = 'INSERT INTO fuel_efficiency (tenant_id, data) VALUES ($1, $2)';
-    const values = [tenant_id, fuelEfficiencyData];
-    await this.pool.query(query, values);
+  async create(tenantId: number, fuelEfficiencyData: Omit<FuelEfficiency, 'id' | 'created_at' | 'updated_at'>): Promise<FuelEfficiency> {
+    const query = `
+      INSERT INTO fuel_efficiency (tenant_id, vehicle_id, date, distance, fuel_consumed, efficiency_mpg, created_at, updated_at)
+      VALUES ($1, $2, $3, $4, $5, $6, NOW(), NOW())
+      RETURNING *
+    `;
+    const values = [
+      tenantId,
+      fuelEfficiencyData.vehicle_id,
+      fuelEfficiencyData.date,
+      fuelEfficiencyData.distance,
+      fuelEfficiencyData.fuel_consumed,
+      fuelEfficiencyData.efficiency_mpg
+    ];
+    const result: QueryResult<FuelEfficiency> = await this.pool.query(query, values);
+    return result.rows[0];
   }
 
-  async read(tenant_id: string) {
-    const query = 'SELECT id, tenant_id, created_at, updated_at FROM fuel_efficiency WHERE tenant_id = $1';
-    const values = [tenant_id];
-    const result = await this.pool.query(query, values);
+  async read(tenantId: number): Promise<FuelEfficiency[]> {
+    const query = `SELECT id, tenant_id, vehicle_id, date, distance, fuel_consumed, efficiency_mpg, created_at, updated_at FROM fuel_efficiency WHERE tenant_id = $1 ORDER BY date DESC`;
+    const result: QueryResult<FuelEfficiency> = await this.pool.query(query, [tenantId]);
     return result.rows;
   }
 
-  async update(tenant_id: string, fuelEfficiencyData: any) {
-    const query = 'UPDATE fuel_efficiency SET data = $2 WHERE tenant_id = $1';
-    const values = [tenant_id, fuelEfficiencyData];
-    await this.pool.query(query, values);
+  async update(tenantId: number, id: number, fuelEfficiencyData: Partial<FuelEfficiency>): Promise<FuelEfficiency | null> {
+    const setClause = Object.keys(fuelEfficiencyData)
+      .map((key, index) => `${key} = $${index + 3}`)
+      .join(', ');
+
+    if (!setClause) {
+      return null;
+    }
+
+    const query = `UPDATE fuel_efficiency SET ${setClause}, updated_at = NOW() WHERE tenant_id = $1 AND id = $2 RETURNING *`;
+    const values = [tenantId, id, ...Object.values(fuelEfficiencyData)];
+    const result: QueryResult<FuelEfficiency> = await this.pool.query(query, values);
+    return result.rows[0] || null;
   }
 
-  async delete(tenant_id: string) {
-    const query = 'DELETE FROM fuel_efficiency WHERE tenant_id = $1';
-    const values = [tenant_id];
-    await this.pool.query(query, values);
+  async delete(tenantId: number, id: number): Promise<boolean> {
+    const query = `DELETE FROM fuel_efficiency WHERE tenant_id = $1 AND id = $2 RETURNING id`;
+    const result: QueryResult = await this.pool.query(query, [tenantId, id]);
+    return result.rowCount ? result.rowCount > 0 : false;
   }
 }
-
-
-In this example, `Pool` is a class from the `pg` library, which is a PostgreSQL client for Node.js. This class is used to interact with the PostgreSQL database.
-
-Please note that the `fuelEfficiencyData` parameter is of type `any`. You should replace it with the appropriate type based on your application's needs. 
-
-Also, you need to replace the SQL queries with the ones that match your database schema. The ones provided here are just examples and may not work with your database without modification.

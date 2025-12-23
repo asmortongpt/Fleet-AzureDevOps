@@ -132,19 +132,21 @@ export function validateTenantReferences(configs: TenantValidationConfig[]) {
     const client = (req as any).dbClient
     if (!client) {
       logger.error('validateTenantReferences called without tenant context')
-      return res.status(500).json({
+      res.status(500).json({
         error: 'Internal server error',
         details: 'Tenant context not initialized',
         code: 'MISSING_TENANT_CONTEXT'
       })
+      return
     }
 
     if (!req.user?.tenant_id) {
       logger.error('validateTenantReferences called without authenticated user')
-      return res.status(401).json({
+      res.status(401).json({
         error: 'Authentication required',
         code: 'MISSING_AUTH'
       })
+      return
     }
 
     // Check each configured reference
@@ -163,11 +165,12 @@ export function validateTenantReferences(configs: TenantValidationConfig[]) {
           userId: req.user.id,
           tenantId: req.user.tenant_id
         })
-        return res.status(400).json({
+        res.status(400).json({
           error: 'Validation failed',
           details: `${config.field} is required`,
           code: 'MISSING_REQUIRED_REFERENCE'
         })
+        return
       }
 
       // Validate the reference
@@ -190,11 +193,12 @@ export function validateTenantReferences(configs: TenantValidationConfig[]) {
             userAgent: req.get('user-agent')
           })
 
-          return res.status(403).json({
+          res.status(403).json({
             error: 'Invalid reference',
             details: `${config.field} not found or access denied`,
             code: 'INVALID_TENANT_REFERENCE'
           })
+          return
         }
       }
     }
@@ -224,11 +228,12 @@ export function preventTenantIdOverride(
       method: req.method
     })
 
-    return res.status(400).json({
+    res.status(400).json({
       error: 'Validation failed',
       details: 'tenant_id cannot be specified in request body',
       code: 'TENANT_ID_OVERRIDE_BLOCKED'
     })
+    return
   }
 
   // Automatically set tenant_id from authenticated user
@@ -250,10 +255,11 @@ export function injectTenantId(
 ) {
   if (!req.user?.tenant_id) {
     logger.error('injectTenantId called without authenticated user')
-    return res.status(401).json({
+    res.status(401).json({
       error: 'Authentication required',
       code: 'MISSING_AUTH'
     })
+    return
   }
 
   // Prevent override if user tried to set it
@@ -264,11 +270,12 @@ export function injectTenantId(
       attemptedTenantId: req.body.tenant_id
     })
 
-    return res.status(403).json({
+    res.status(403).json({
       error: 'Access denied',
       details: 'Cannot override tenant ID',
       code: 'TENANT_ID_MISMATCH'
     })
+    return
   }
 
   // Set tenant_id from authenticated user

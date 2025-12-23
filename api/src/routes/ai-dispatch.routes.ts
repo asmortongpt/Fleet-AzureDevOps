@@ -1,7 +1,4 @@
 /**
-import { container } from '../container'
-import { asyncHandler } from '../middleware/errorHandler'
-import { NotFoundError, ValidationError } from '../errors/app-error'
  * AI-Directed Dispatch Routes
  *
  * RESTful API endpoints for AI-powered dispatch operations:
@@ -24,8 +21,7 @@ import { authenticateJWT } from '../middleware/auth'
 import { requirePermission } from '../middleware/permissions'
 import { body, query, validationResult } from 'express-validator'
 import { csrfProtection } from '../middleware/csrf'
-import { pool } from '../db/connection';
-
+import { pool } from '../config/database';
 
 const router = Router()
 
@@ -145,13 +141,13 @@ const validateDispatch = [
  */
 router.post(
   '/parse',
- csrfProtection,  csrfProtection, requirePermission('route:create:fleet'),
+  csrfProtection, requirePermission('route:create:fleet'),
   validateIncidentParse,
   async (req: Request, res: Response) => {
     try {
       // Validate request
       const errors = validationResult(req)
-      if (!errors.isEmpty() {
+      if (!errors.isEmpty()) {
         return res.status(400).json({
           success: false,
           errors: errors.array()
@@ -174,7 +170,7 @@ router.post(
       await pool.query(
         `INSERT INTO audit_logs
         (user_id, action, resource_type, resource_id, details, created_at)
-        VALUES ($1, $2, $3, $4, $5, NOW()`,
+        VALUES ($1, $2, $3, $4, $5, NOW())`,
         [
           userId,
           'AI_INCIDENT_PARSE',
@@ -248,12 +244,12 @@ router.post(
  */
 router.post(
   '/recommend',
- csrfProtection,  csrfProtection, requirePermission('route:view:fleet'),
+  csrfProtection, requirePermission('route:view:fleet'),
   validateRecommendation,
   async (req: Request, res: Response) => {
     try {
       const errors = validationResult(req)
-      if (!errors.isEmpty() {
+      if (!errors.isEmpty()) {
         return res.status(400).json({
           success: false,
           errors: errors.array()
@@ -287,7 +283,7 @@ router.post(
       })
 
       // Check if it's a "no vehicles" error
-      if (error instanceof Error && error.message.includes('No available vehicles') {
+      if (error instanceof Error && error.message.includes('No available vehicles')) {
         return res.status(404).json({
           success: false,
           error: error.message
@@ -350,12 +346,12 @@ router.post(
  */
 router.post(
   '/dispatch',
- csrfProtection,  csrfProtection, requirePermission('route:create:fleet'),
+  csrfProtection, requirePermission('route:create:fleet'),
   validateDispatch,
   async (req: Request, res: Response) => {
     try {
       const errors = validationResult(req)
-      if (!errors.isEmpty() {
+      if (!errors.isEmpty()) {
         return res.status(400).json({
           success: false,
           errors: errors.array()
@@ -402,7 +398,7 @@ router.post(
           status,
           created_at
         )
-        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, NOW()
+        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, NOW())
         RETURNING *`,
         [
           incident.incidentType,
@@ -435,7 +431,7 @@ router.post(
             ai_reasoning,
             created_at
           )
-          VALUES ($1, $2, $3, $4, $5, $6, NOW()
+          VALUES ($1, $2, $3, $4, $5, $6, NOW())
           RETURNING *`,
           [
             dispatchId,
@@ -458,7 +454,7 @@ router.post(
       await pool.query(
         `INSERT INTO audit_logs
         (user_id, action, resource_type, resource_id, details, created_at)
-        VALUES ($1, $2, $3, $4, $5, NOW()`,
+        VALUES ($1, $2, $3, $4, $5, NOW())`,
         [
           userId,
           'AI_DISPATCH_CREATE',
@@ -546,7 +542,7 @@ router.get(
   async (req: Request, res: Response) => {
     try {
       const errors = validationResult(req)
-      if (!errors.isEmpty() {
+      if (!errors.isEmpty()) {
         return res.status(400).json({
           success: false,
           errors: errors.array()
@@ -560,9 +556,9 @@ router.get(
       const location =
         req.query.lat && req.query.lng
           ? {
-              lat: parseFloat(req.query.lat as string),
-              lng: parseFloat(req.query.lng as string)
-            }
+            lat: parseFloat(req.query.lat as string),
+            lng: parseFloat(req.query.lng as string)
+          }
           : undefined
 
       logger.info('AI prediction request', {
@@ -625,7 +621,7 @@ router.get(
   async (req: Request, res: Response) => {
     try {
       const errors = validationResult(req)
-      if (!errors.isEmpty() {
+      if (!errors.isEmpty()) {
         return res.status(400).json({
           success: false,
           errors: errors.array()
@@ -693,12 +689,12 @@ router.get(
  */
 router.post(
   '/explain',
- csrfProtection,  csrfProtection, requirePermission('route:view:fleet'),
+  csrfProtection, requirePermission('route:view:fleet'),
   [body('recommendation').isObject()],
   async (req: Request, res: Response) => {
     try {
       const errors = validationResult(req)
-      if (!errors.isEmpty() {
+      if (!errors.isEmpty()) {
         return res.status(400).json({
           success: false,
           errors: errors.array()

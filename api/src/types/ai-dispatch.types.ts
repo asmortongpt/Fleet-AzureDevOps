@@ -449,14 +449,4 @@ export type Awaited<T> = T extends Promise<infer U> ? U : T
 // Export all types
 // ============================================================================
 
-export default {
-  IncidentParseResult,
-  Vehicle,
-  DispatchRecommendation,
-  DispatchPrediction,
-  DispatchAnalytics,
-  DispatchError,
-  AIServiceError,
-  NoVehiclesAvailableError,
-  InvalidLocationError
-}
+// End of types

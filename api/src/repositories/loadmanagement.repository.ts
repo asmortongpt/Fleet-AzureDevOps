@@ -1,74 +1,52 @@
 import { BaseRepository } from '../repositories/BaseRepository';
+import { Pool, QueryResult } from 'pg';
 
-Here's a basic example of a LoadManagementRepository in TypeScript:
-
-
-import { LoadManagement } from '../models/load-management.model';
-import { Pool } from 'pg';
+export interface LoadManagement {
+  id: number;
+  tenant_id: number;
+  data: any;
+  created_at: Date;
+  updated_at: Date;
+}
 
 export class LoadManagementRepository extends BaseRepository<any> {
+
   private pool: Pool;
 
   constructor(pool: Pool) {
+    super('load_management', pool);
     this.pool = pool;
   }
 
-  async create(loadManagement: LoadManagement, tenant_id: string): Promise<LoadManagement> {
-    const query = 'INSERT INTO load_management (tenant_id, data) VALUES ($1, $2) RETURNING *';
+  async create(loadManagement: Omit<LoadManagement, 'id' | 'created_at' | 'updated_at'>, tenant_id: number): Promise<LoadManagement> {
+    const query = 'INSERT INTO load_management (tenant_id, data, created_at, updated_at) VALUES ($1, $2, NOW(), NOW()) RETURNING *';
     const values = [tenant_id, loadManagement.data];
 
-    const { rows } = await this.pool.query(query, values);
-    return rows[0];
+    const result: QueryResult<LoadManagement> = await this.pool.query(query, values);
+    return result.rows[0];
   }
 
-  async read(tenant_id: string): Promise<LoadManagement[]> {
-    const query = 'SELECT id, created_at, updated_at FROM load_management WHERE tenant_id = $1';
+  async read(tenant_id: number): Promise<LoadManagement[]> {
+    const query = 'SELECT id, tenant_id, data, created_at, updated_at FROM load_management WHERE tenant_id = $1';
     const values = [tenant_id];
 
-    const { rows } = await this.pool.query(query, values);
-    return rows;
+    const result: QueryResult<LoadManagement> = await this.pool.query(query, values);
+    return result.rows;
   }
 
-  async update(loadManagement: LoadManagement, tenant_id: string): Promise<LoadManagement> {
-    const query = 'UPDATE load_management SET data = $1 WHERE id = $2 AND tenant_id = $3 RETURNING *';
+  async update(loadManagement: Partial<LoadManagement> & { id: number }, tenant_id: number): Promise<LoadManagement | null> {
+    const query = 'UPDATE load_management SET data = $1, updated_at = NOW() WHERE id = $2 AND tenant_id = $3 RETURNING *';
     const values = [loadManagement.data, loadManagement.id, tenant_id];
 
-    const { rows } = await this.pool.query(query, values);
-    return rows[0];
+    const result: QueryResult<LoadManagement> = await this.pool.query(query, values);
+    return result.rows[0] || null;
   }
 
-  async delete(id: string, tenant_id: string): Promise<void> {
-    const query = 'DELETE FROM load_management WHERE id = $1 AND tenant_id = $2';
+  async delete(id: number, tenant_id: number): Promise<boolean> {
+    const query = 'DELETE FROM load_management WHERE id = $1 AND tenant_id = $2 RETURNING id';
     const values = [id, tenant_id];
 
-    await this.pool.query(query, values);
+    const result: QueryResult = await this.pool.query(query, values);
+    return result.rowCount ? result.rowCount > 0 : false;
   }
 }
-
-
-This repository assumes that you have a `load_management` table in your PostgreSQL database with columns `id`, `tenant_id`, and `data`. The `LoadManagement` model is a simple interface with `id` and `data` properties.
-
-Please replace the `LoadManagement` model and the `load_management` table with your actual model and table. Also, you may need to adjust the queries and the `values` arrays according to your actual data structure.
-
-You can use this repository in your route handlers in `load-management.routes.ts`. For example:
-
-
-import express from 'express';
-import { Pool } from 'pg';
-import { LoadManagementRepository } from '../repositories/load-management.repository';
-
-const router = express.Router();
-const pool = new Pool();
-const loadManagementRepository = new LoadManagementRepository(pool);
-
-router.post('/', async (req, res) => {
-  const loadManagement = await loadManagementRepository.create(req.body, req.tenant_id);
-  res.json(loadManagement);
-});
-
-// other route handlers...
-
-export default router;
-
-
-This example assumes that you have `tenant_id` in your request object. If it's not the case, you need to adjust the code accordingly.
