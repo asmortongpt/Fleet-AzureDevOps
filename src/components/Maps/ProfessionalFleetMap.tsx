@@ -13,7 +13,9 @@ import { Badge } from '../ui/badge'
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/card'
 
 import { UnifiedFleetMap } from './UnifiedFleetMap'
+import { MaintenanceRequestDialog } from '../modules/maintenance/MaintenanceRequestDialog'
 
+import { useFleetData } from '@/hooks/use-fleet-data'
 import { Vehicle, GISFacility } from '@/lib/types'
 
 /**
@@ -34,6 +36,8 @@ export interface ProfessionalFleetMapProps {
   enableRealTime?: boolean
   /** Visual variant */
   variant?: 'default' | 'immersive'
+  /** Force the simulated grid view (fallback) */
+  forceSimulatedView?: boolean
 }
 
 /**
@@ -54,8 +58,20 @@ export const ProfessionalFleetMap: React.FC<ProfessionalFleetMapProps> = ({
   onVehicleSelect,
   showLegend = true,
   enableRealTime = true,
-  variant = 'default'
+  variant = 'default',
+  forceSimulatedView = false
 }) => {
+  const fleetData = useFleetData()
+  const [maintenanceDialogOpen, setMaintenanceDialogOpen] = React.useState(false)
+  const [selectedVehicleId, setSelectedVehicleId] = React.useState<string>("")
+
+  const handleVehicleAction = (action: string, vehicleId: string) => {
+    if (action === 'maintenance') {
+      setSelectedVehicleId(vehicleId)
+      setMaintenanceDialogOpen(true)
+    }
+  }
+
   // Calculate vehicle status metrics for legend
   const statusMetrics = useMemo(() => {
     const metrics = {
@@ -140,8 +156,18 @@ export const ProfessionalFleetMap: React.FC<ProfessionalFleetMapProps> = ({
             enableRealTime={enableRealTime}
             onVehicleSelect={onVehicleSelect}
             height={height}
+            forceSimulatedView={forceSimulatedView}
+            onVehicleAction={handleVehicleAction}
           />
         </div>
+
+        {/* Maintenance Request Dialog */}
+        <MaintenanceRequestDialog
+          open={maintenanceDialogOpen}
+          onOpenChange={setMaintenanceDialogOpen}
+          defaultVehicleId={selectedVehicleId}
+          data={fleetData}
+        />
 
         {/* Map Legend (Styled for Dark Mode/Immersive) */}
         {showLegend && activeLegendItems.length > 0 && (
@@ -216,6 +242,16 @@ export const ProfessionalFleetMap: React.FC<ProfessionalFleetMapProps> = ({
               enableRealTime={enableRealTime}
               onVehicleSelect={onVehicleSelect}
               height={height}
+              forceSimulatedView={forceSimulatedView}
+              onVehicleAction={handleVehicleAction}
+            />
+
+            {/* Maintenance Request Dialog */}
+            <MaintenanceRequestDialog
+              open={maintenanceDialogOpen}
+              onOpenChange={setMaintenanceDialogOpen}
+              defaultVehicleId={selectedVehicleId}
+              data={fleetData}
             />
           </div>
 

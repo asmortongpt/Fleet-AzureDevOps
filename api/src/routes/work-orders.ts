@@ -30,6 +30,7 @@ import { preventTenantIdOverride, validateTenantReferences, injectTenantId } fro
 import logger from '../config/logger'
 import { z } from 'zod'
 import { csrfProtection } from '../middleware/csrf'
+import { pool } from '../db/connection';
 
 
 const router = express.Router()

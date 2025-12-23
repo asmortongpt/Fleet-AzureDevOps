@@ -112,6 +112,7 @@ const DriverScorecard = lazy(() => import("@/components/modules/drivers/DriverSc
 // WORKSPACE MODULES (Phase 1 UX Consolidation)
 const OperationsWorkspace = lazy(() => import("@/components/workspaces/OperationsWorkspace").then(m => ({ default: m.OperationsWorkspace })))
 const FleetWorkspace = lazy(() => import("@/components/workspaces/FleetWorkspace").then(m => ({ default: m.FleetWorkspace })))
+const DriversWorkspace = lazy(() => import("@/components/workspaces/DriversWorkspace").then(m => ({ default: m.DriversWorkspace })))
 const MaintenanceWorkspace = lazy(() => import("@/components/workspaces/MaintenanceWorkspace").then(m => ({ default: m.MaintenanceWorkspace })))
 const AnalyticsWorkspace = lazy(() => import("@/components/workspaces/AnalyticsWorkspace").then(m => ({ default: m.AnalyticsWorkspace })))
 const ComplianceWorkspace = lazy(() => import("@/components/workspaces/ComplianceWorkspace").then(m => ({ default: m.ComplianceWorkspace })))
@@ -197,6 +198,8 @@ function App() {
         return <OperationsWorkspace />
       case "fleet-workspace":
         return <FleetWorkspace />
+      case "drivers-workspace":
+        return <DriversWorkspace />
       case "maintenance-workspace":
         return <MaintenanceWorkspace />
       case "analytics-workspace":
@@ -317,7 +320,7 @@ function App() {
       case "driver-scorecard":
         return <DriverScorecard />
       case "drivers":
-        return <LiveFleetDashboard initialLayer="drivers" />
+        return <DriversWorkspace />
       case "fleet-optimizer":
         return <FleetOptimizer />
       case "cost-analysis":

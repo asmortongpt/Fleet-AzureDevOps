@@ -9,7 +9,7 @@ import { requirePermission } from '../middleware/permissions';
 import { pushNotificationService } from '../services/push-notification.service';
 import { smsService } from '../services/sms.service'
 import { csrfProtection } from '../middleware/csrf'
-;
+import { logger } from '../utils/logger';
 
 const router = express.Router();
 
@@ -594,7 +594,7 @@ router.get(
  * POST /api/mobile/notifications/webhooks/twilio
  * Handle Twilio delivery status webhooks
  */
-router.post('/webhooks/twilio',csrfProtection,  csrfProtection, asyncHandler(async (req, res) => {
+router.post('/webhooks/twilio', csrfProtection, async (req, res) => {
   try {
     await smsService.handleWebhook(req.body);
 

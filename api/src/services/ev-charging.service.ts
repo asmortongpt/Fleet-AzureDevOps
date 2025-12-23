@@ -221,7 +221,7 @@ class EVChargingService {
    */
   async cancelReservation(reservationId: number): Promise<void> {
     const reservation = await this.db.query(
-      'SELECT 
+      `SELECT 
       id,
       station_id,
       connector_id,
@@ -236,8 +236,8 @@ class EVChargingService {
       reminder_sent,
       notes,
       created_at,
-      updated_at FROM charging_reservations WHERE id = $1',
-    [reservationId]
+      updated_at FROM charging_reservations WHERE id = $1`,
+      [reservationId]
     );
 
     if (reservation.rows.length === 0) {
@@ -445,7 +445,7 @@ class EVChargingService {
        FROM charging_sessions
        WHERE vehicle_id = $1
        AND DATE(start_time) = $2
-       AND session_status = `Completed``,
+       AND session_status = 'Completed'`,
       [vehicleId, date]
     );
 
@@ -455,7 +455,7 @@ class EVChargingService {
          MAX(odometer_miles) - MIN(odometer_miles) as miles_driven
        FROM vehicle_telemetry
        WHERE vehicle_id = $1
-       AND DATE(timestamp) = $2',
+       AND DATE(timestamp) = $2`,
       [vehicleId, date]
     );
 
@@ -506,12 +506,12 @@ class EVChargingService {
     let quarter: number | null = null;
 
     if (period === `monthly` && month) {
-      dateFilter = `AND EXTRACT(YEAR FROM log_date) = ${ year } AND EXTRACT(MONTH FROM log_date) = ${ month }`;
+      dateFilter = `AND EXTRACT(YEAR FROM log_date) = ${year} AND EXTRACT(MONTH FROM log_date) = ${month}`;
     } else if (period === `quarterly` && month) {
       quarter = Math.ceil(month / 3);
-      dateFilter = `AND EXTRACT(YEAR FROM log_date) = ${ year } AND EXTRACT(QUARTER FROM log_date) = ${ quarter }`;
+      dateFilter = `AND EXTRACT(YEAR FROM log_date) = ${year} AND EXTRACT(QUARTER FROM log_date) = ${quarter}`;
     } else if (period === `annual`) {
-      dateFilter = `AND EXTRACT(YEAR FROM log_date) = ${ year }`;
+      dateFilter = `AND EXTRACT(YEAR FROM log_date) = ${year}`;
     }
 
     // Aggregate carbon data
@@ -527,7 +527,7 @@ class EVChargingService {
       SUM(renewable_energy_kwh) as total_renewable_kwh,
       AVG(renewable_percent) as avg_renewable_percent
        FROM carbon_footprint_log
-       WHERE 1 = 1 ${ dateFilter }`
+       WHERE 1 = 1 ${dateFilter}`
     );
 
     const carbon = carbonResult.rows[0];
@@ -536,7 +536,7 @@ class EVChargingService {
     const sessionResult = await this.db.query(
       `SELECT COUNT(*) as session_count
        FROM charging_sessions
-       WHERE session_status = 'Completed' ${ dateFilter.replace('log_date', 'DATE(start_time)') }`
+       WHERE session_status = 'Completed' ${dateFilter.replace('log_date', 'DATE(start_time)')}`
     );
 
     // Get total fleet count
@@ -624,7 +624,7 @@ class EVChargingService {
   async monitorBatteryHealth(vehicleId: number): Promise<BatteryHealthReport> {
     // Get EV specs
     const specResult = await this.db.query(
-      'SELECT 
+      `SELECT 
       id,
       vehicle_id,
       battery_capacity_kwh,
@@ -647,7 +647,7 @@ class EVChargingService {
       degradation_rate_percent_per_year,
       estimated_cycles_remaining,
       created_at,
-      updated_at FROM ev_specifications WHERE vehicle_id = $1',
+      updated_at FROM ev_specifications WHERE vehicle_id = $1`,
       [vehicleId]
     );
 
@@ -719,8 +719,8 @@ class EVChargingService {
       AVG(carbon_saved_percent) as avg_reduction_percent,
       SUM(ice_equivalent_gallons) as gasoline_avoided_gallons
        FROM carbon_footprint_log
-       WHERE log_date BETWEEN $1 AND $2',
-    [startDate, endDate]
+       WHERE log_date BETWEEN $1 AND $2`,
+      [startDate, endDate]
     );
 
     return result.rows[0];

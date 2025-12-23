@@ -7,6 +7,7 @@ import { AuthRequest, authenticateJWT } from '../middleware/auth'
 import { csrfProtection } from '../middleware/csrf'
 import { requirePermission } from '../middleware/permissions'
 import driverScorecardService from '../services/driver-scorecard.service'
+import { pool } from '../db/connection';
 
 const router = express.Router()
 router.use(authenticateJWT)

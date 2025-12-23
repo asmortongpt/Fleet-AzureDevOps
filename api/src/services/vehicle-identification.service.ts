@@ -11,6 +11,7 @@
 import QRCode from 'qrcode'
 import { v4 as uuidv4 } from 'uuid'
 import { Pool } from 'pg'
+import { connectionManager } from '../config/connection-manager'
 
 export interface VehicleIdentification {
   vehicleId: string
@@ -24,7 +25,7 @@ export interface VehicleIdentification {
 }
 
 export class VehicleIdentificationService {
-  constructor(private db: Pool) {}
+  constructor(private db: Pool) { }
 
   /**
    * Generate QR code for a vehicle
@@ -72,7 +73,7 @@ export class VehicleIdentificationService {
       await this.db.query(
         `UPDATE vehicles
          SET qr_code = $1, updated_at = NOW()
-         WHERE id = $2 AND tenant_id = $3',
+         WHERE id = $2 AND tenant_id = $3`,
         [qrIdentifier, vehicleId, tenantId]
       )
 
@@ -99,7 +100,7 @@ export class VehicleIdentificationService {
       const result = await this.db.query(
         `SELECT id, vehicle_number, vin, license_plate, make, model, year, qr_code
          FROM vehicles
-         WHERE id = $1 AND tenant_id = $2',
+         WHERE id = $1 AND tenant_id = $2`,
         [parsed.vehicleId, tenantId]
       )
 
@@ -132,7 +133,7 @@ export class VehicleIdentificationService {
       const result = await this.db.query(
         `SELECT id, vehicle_number, vin, license_plate, make, model, year, qr_code
          FROM vehicles
-         WHERE UPPER(vin) = UPPER($1) AND tenant_id = $2',
+         WHERE UPPER(vin) = UPPER($1) AND tenant_id = $2`,
         [vin.trim(), tenantId]
       )
 
@@ -172,7 +173,7 @@ export class VehicleIdentificationService {
         `SELECT id, vehicle_number, vin, license_plate, make, model, year, qr_code
          FROM vehicles
          WHERE UPPER(REPLACE(REPLACE(license_plate, ' ', ''), '-', '')) = $1
-         AND tenant_id = $2',
+         AND tenant_id = $2`,
         [normalized, tenantId]
       )
 
@@ -322,7 +323,7 @@ export class VehicleIdentificationService {
       const vehicle = await this.db.query(
         `SELECT id, vehicle_number, vin, license_plate, make, model, year, qr_code
          FROM vehicles
-         WHERE id = $1 AND tenant_id = $2',
+         WHERE id = $1 AND tenant_id = $2`,
         [vehicleId, tenantId]
       )
 
@@ -376,7 +377,7 @@ let serviceInstance: VehicleIdentificationService | null = null
 
 export function getVehicleIdentificationService(): VehicleIdentificationService {
   if (!serviceInstance) {
-    serviceInstance = new VehicleIdentificationService()
+    serviceInstance = new VehicleIdentificationService(connectionManager.getPool())
   }
   return serviceInstance
 }

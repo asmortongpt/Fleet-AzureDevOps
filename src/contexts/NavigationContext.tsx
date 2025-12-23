@@ -1,4 +1,5 @@
-import React, { createContext, useContext, useState, useMemo, useCallback } from 'react';
+import React, { createContext, useContext, useState, useMemo, useCallback, useEffect } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { useAuth, UserRole } from '@/contexts/AuthContext';
 import { navigationItems, NavigationItem } from '@/lib/navigation';
 
@@ -14,7 +15,22 @@ const NavigationContext = createContext<NavigationContextType | undefined>(undef
 
 export function NavigationProvider({ children }: { children: React.ReactNode }) {
     const { user, isSuperAdmin } = useAuth();
-    const [activeModule, setActiveModuleState] = useState('live-fleet-dashboard');
+    const location = useLocation();
+    const navigate = useNavigate();
+
+    // Initialize state from URL if possible, fallback to default
+    const getModuleFromPath = (path: string) => {
+        const cleanPath = path.substring(1);
+        return cleanPath === '' ? 'live-fleet-dashboard' : cleanPath;
+    };
+
+    const [activeModule, setActiveModuleState] = useState(getModuleFromPath(location.pathname));
+
+    // Sync URL changes to state
+    useEffect(() => {
+        const moduleId = getModuleFromPath(location.pathname);
+        setActiveModuleState(moduleId);
+    }, [location.pathname]);
 
     // Filter navigation items based on user role/permissions
     const visibleNavItems = useMemo(() => {
@@ -44,10 +60,11 @@ export function NavigationProvider({ children }: { children: React.ReactNode }) 
     }, [visibleNavItems]);
 
     const navigateTo = useCallback((moduleId: string) => {
-        setActiveModuleState(moduleId);
-        // In the future, this could also handle React Router navigation push
-        // navigate('/' + moduleId); 
-    }, []);
+        // Map module ID to path
+        const path = moduleId === 'live-fleet-dashboard' ? '/' : `/${moduleId}`;
+        navigate(path);
+        // State update happens via useEffect
+    }, [navigate]);
 
     return (
         <NavigationContext.Provider value={{

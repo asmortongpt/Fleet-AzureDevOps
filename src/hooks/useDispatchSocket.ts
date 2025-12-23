@@ -64,7 +64,7 @@ export function useDispatchSocket(options: UseDispatchSocketOptions = {}) {
   const connect = useCallback(() => {
     if (socketRef.current?.connected) return;
 
-    const SOCKET_URL = import.meta.env.VITE_DISPATCH_SOCKET_URL || 'http://localhost:8000';
+    const SOCKET_URL = import.meta.env.VITE_DISPATCH_SOCKET_URL || import.meta.env.VITE_API_URL;
 
     const socket = io(SOCKET_URL, {
       transports: ['websocket', 'polling'],

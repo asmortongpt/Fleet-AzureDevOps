@@ -193,55 +193,61 @@ export const LiveFleetDashboard = React.memo(function LiveFleetDashboard({ initi
   const sidePanel = (
     <div className="space-y-4">
       <div>
-        <h2 className="text-xl sm:text-2xl font-bold text-slate-900">Fleet Overview</h2>
-        <p className="text-xs sm:text-sm text-slate-500 mt-1">Real-time vehicle monitoring</p>
+        <h2 className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-slate-100">Fleet Overview</h2>
+        <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-1">Real-time vehicle monitoring</p>
       </div>
 
       {/* Quick Stats - Responsive Grid */}
       <div className="grid grid-cols-3 gap-2 sm:gap-3">
-        <Card>
+        <Card className="bg-white/50 dark:bg-slate-900/50 backdrop-blur-md border-slate-200 dark:border-slate-800">
           <CardContent className="pt-3 pb-2 px-2 sm:pt-4 sm:pb-3 sm:px-3">
-            <div className="text-xl sm:text-2xl font-bold text-green-600">{activeCount}</div>
-            <div className="text-[10px] sm:text-xs text-slate-500">Active</div>
+            <div className="text-xl sm:text-2xl font-bold text-emerald-600 dark:text-emerald-400">{activeCount}</div>
+            <div className="text-[10px] sm:text-xs text-slate-500 dark:text-slate-400 font-medium uppercase tracking-wide">Active</div>
           </CardContent>
         </Card>
-        <Card>
+        <Card className="bg-white/50 dark:bg-slate-900/50 backdrop-blur-md border-slate-200 dark:border-slate-800">
           <CardContent className="pt-3 pb-2 px-2 sm:pt-4 sm:pb-3 sm:px-3">
-            <div className="text-xl sm:text-2xl font-bold text-amber-600">{maintenanceCount}</div>
-            <div className="text-[10px] sm:text-xs text-slate-500">Maintenance</div>
+            <div className="text-xl sm:text-2xl font-bold text-amber-600 dark:text-amber-400">{maintenanceCount}</div>
+            <div className="text-[10px] sm:text-xs text-slate-500 dark:text-slate-400 font-medium uppercase tracking-wide">Maint.</div>
           </CardContent>
         </Card>
-        <Card>
+        <Card className="bg-white/50 dark:bg-slate-900/50 backdrop-blur-md border-slate-200 dark:border-slate-800">
           <CardContent className="pt-3 pb-2 px-2 sm:pt-4 sm:pb-3 sm:px-3">
-            <div className="text-xl sm:text-2xl font-bold text-slate-900">{totalVehicles}</div>
-            <div className="text-[10px] sm:text-xs text-slate-500">Total</div>
+            <div className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-slate-100">{totalVehicles}</div>
+            <div className="text-[10px] sm:text-xs text-slate-500 dark:text-slate-400 font-medium uppercase tracking-wide">Total</div>
           </CardContent>
         </Card>
       </div>
 
       {/* Selected Vehicle Info */}
       {selectedVehicle && (
-        <Card>
-          <CardHeader className="pb-3">
+        <Card className="bg-white/80 dark:bg-slate-900/80 backdrop-blur-lg border-slate-200 dark:border-slate-700 shadow-lg">
+          <CardHeader className="pb-3 border-b border-slate-100 dark:border-slate-800">
             <CardTitle className="text-lg flex items-center justify-between">
-              <span>{selectedVehicle.vehicleNumber || selectedVehicle.number || 'N/A'}</span>
-              <Badge variant={selectedVehicle.status === 'active' ? 'default' : 'secondary'}>
+              <span className="font-mono text-slate-900 dark:text-slate-100">{selectedVehicle.vehicleNumber || selectedVehicle.number || 'N/A'}</span>
+              <Badge
+                className={selectedVehicle.status === 'active' ? 'bg-emerald-500 hover:bg-emerald-600' : 'bg-slate-500'}
+              >
                 {selectedVehicle.status}
               </Badge>
             </CardTitle>
           </CardHeader>
-          <CardContent className="space-y-3">
+          <CardContent className="space-y-3 pt-3">
             <div className="flex items-center text-sm">
-              <Truck className="h-4 w-4 mr-2 text-slate-500" />
-              <span className="font-medium">
+              <div className="p-1.5 rounded-md bg-slate-100 dark:bg-slate-800 mr-3">
+                <Truck className="h-4 w-4 text-slate-500 dark:text-slate-400" />
+              </div>
+              <span className="font-medium text-slate-700 dark:text-slate-200">
                 {selectedVehicle.name ||
                   `${selectedVehicle.make || ''} ${selectedVehicle.model || ''}`.trim() ||
                   'Unknown Vehicle'}
               </span>
             </div>
             <div className="flex items-center text-sm">
-              <MapPin className="h-4 w-4 mr-2 text-slate-500" />
-              <span>
+              <div className="p-1.5 rounded-md bg-slate-100 dark:bg-slate-800 mr-3">
+                <MapPin className="h-4 w-4 text-slate-500 dark:text-slate-400" />
+              </div>
+              <span className="font-mono text-slate-600 dark:text-slate-300">
                 {selectedVehicle.location?.lat?.toFixed(4) || selectedVehicle.latitude?.toFixed(4) || '0.0000'},
                 {' '}
                 {selectedVehicle.location?.lng?.toFixed(4) || selectedVehicle.longitude?.toFixed(4) || '0.0000'}

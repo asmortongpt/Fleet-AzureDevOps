@@ -23,6 +23,7 @@ import { requirePermission } from '../middleware/permissions';
 import { AssignmentNotificationService } from '../services/assignment-notification.service';
 import { getErrorMessage } from '../utils/error-handler'
 import { csrfProtection } from '../middleware/csrf'
+import { pool } from '../db/connection';
 
 
 const router = express.Router();
@@ -472,7 +473,7 @@ router.post(
       const tenant_id = req.user!.tenant_id;
       const user_id = req.user!.id;
 
-      if (!['approve', 'deny'].includes(action) {
+      if (!['approve', 'deny'].includes(action)) {
         return res.status(400).json({ error: 'Invalid action. Must be "approve" or "deny"' });
       }
 
@@ -564,27 +565,27 @@ router.get(
         assignments: await pool.query(
           `SELECT id, tenant_id, vehicle_id, driver_id, assignment_type, start_date, end_date, status, created_at, updated_at FROM vehicle_assignments
            WHERE driver_id = $1 AND tenant_id = $2
-           AND lifecycle_state IN ('active', 'approved')',
+           AND lifecycle_state IN ('active', 'approved')`,
           [driver_id, tenant_id]
         ),
         on_call_periods: await pool.query(
           `SELECT id, tenant_id, driver_id, start_datetime, end_datetime, status, created_at, updated_at FROM on_call_periods
            WHERE driver_id = $1 AND tenant_id = $2
-           AND is_active = true AND end_datetime >= NOW() - INTERVAL '7 days``,
+           AND is_active = true AND end_datetime >= NOW() - INTERVAL '7 days'`,
           [driver_id, tenant_id]
         ),
         vehicles: await pool.query(
           `SELECT v.* FROM vehicles v
            JOIN vehicle_assignments va ON v.id = va.vehicle_id
            WHERE va.driver_id = $1 AND va.tenant_id = $2
-           AND va.lifecycle_state = 'active'',
+           AND va.lifecycle_state = 'active'`,
           [driver_id, tenant_id]
         ),
         secured_parking: await pool.query(
           `SELECT sp.* FROM secured_parking_locations sp
            JOIN vehicle_assignments va ON sp.id = va.secured_parking_location_id
            WHERE va.driver_id = $1 AND va.tenant_id = $2
-           AND va.lifecycle_state = 'active'',
+           AND va.lifecycle_state = 'active'`,
           [driver_id, tenant_id]
         ),
       };
