@@ -18,6 +18,7 @@ import ExifReader from 'exifreader';
 import { Pool } from 'pg';
 import { v4 as uuidv4 } from 'uuid';
 import OcrService from './ocr.service';
+import { getTableColumns } from '../utils/column-resolver';
 
 export interface PhotoProcessingJob {
   id: string;
@@ -227,10 +228,10 @@ export class PhotoProcessingService {
       // Run OCR if needed
       if (options.runOcr) {
         try {
-          const ocrResult = await OcrService.processImage(photoBuffer, {
-            language: options.ocrLanguage || 'eng',
-            detectOrientation: true,
-          });
+          const ocrService = new OcrService(this.db);
+          // Use extractText with blobUrl and assume JPEG if not known
+          const mimeType = result.format ? `image/${result.format}` : 'image/jpeg';
+          const ocrResult = await ocrService.extractText(blobUrl, mimeType);
 
           result.ocr_text = ocrResult.text;
         } catch (error) {
@@ -363,7 +364,7 @@ export class PhotoProcessingService {
 
     try {
       // Get pending jobs with priority ordering
-      const columns = (await getTableColumns(pool, 'photo_processing_queue')).join(', ');
+      const columns = (await getTableColumns(this.db, 'photo_processing_queue')).join(', ');
       const result = await this.db.query(
         `SELECT ${columns} FROM photo_processing_queue
          WHERE status = 'pending'
@@ -634,7 +635,7 @@ export class PhotoProcessingService {
    */
   private async extractExifData(photoBuffer: Buffer): Promise<any> {
     try {
-      const tags = ExifReader.load(photoBuffer);
+      const tags: any = ExifReader.load(photoBuffer);
 
       return {
         dateTime: tags.DateTime?.description,

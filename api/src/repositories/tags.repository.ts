@@ -1,6 +1,4 @@
 import { BaseRepository } from '../repositories/BaseRepository';
-
-```typescript
 import { Pool } from 'pg';
 
 /**
@@ -19,7 +17,13 @@ export interface Tag {
  * TagsRepository class for handling database operations
  */
 export class TagsRepository extends BaseRepository<any> {
-  constructor(private pool: Pool) {}
+
+  private pool: Pool;
+
+  constructor(pool: Pool) {
+    super('tags', pool);
+    this.pool = pool;
+  }
 
   /**
    * Find all tags for a tenant

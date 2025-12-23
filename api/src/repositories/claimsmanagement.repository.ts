@@ -1,15 +1,4 @@
 import { BaseRepository } from '../repositories/BaseRepository';
-
-To create a TypeScript repository for claims management with parameterized queries, tenant_id, and CRUD operations, we'll need to design a class that encapsulates the database operations. Let's break this down step-by-step:
-
-1. We'll create a `ClaimsManagementRepository` class.
-2. The class will have methods for Create, Read, Update, and Delete operations.
-3. We'll use parameterized queries to prevent SQL injection.
-4. We'll include a `tenant_id` in all queries to ensure multi-tenant support.
-
-Here's the implementation:
-
-
 import { Pool, QueryResult } from 'pg';
 
 interface Claim {
@@ -27,6 +16,7 @@ export class ClaimsManagementRepository extends BaseRepository<any> {
   private pool: Pool;
 
   constructor(pool: Pool) {
+    super('claims', pool);
     this.pool = pool;
   }
 
@@ -95,7 +85,7 @@ export class ClaimsManagementRepository extends BaseRepository<any> {
     const values = [id, tenant_id];
 
     const result: QueryResult<{ id: number }> = await this.pool.query(query, values);
-    return result.rowCount > 0;
+    return result.rowCount ? result.rowCount > 0 : false;
   }
 
   // List all claims for a tenant
@@ -112,50 +102,3 @@ export class ClaimsManagementRepository extends BaseRepository<any> {
     return result.rows;
   }
 }
-
-
-This `ClaimsManagementRepository` class provides the following features:
-
-1. **Parameterized Queries**: All SQL queries use parameterized queries to prevent SQL injection attacks.
-
-2. **Tenant ID**: Every query includes a `tenant_id` parameter to ensure multi-tenant support. This allows the system to isolate data for different tenants.
-
-3. **CRUD Operations**:
-   - `createClaim`: Creates a new claim.
-   - `getClaimById`: Retrieves a claim by its ID.
-   - `updateClaim`: Updates an existing claim.
-   - `deleteClaim`: Deletes a claim.
-   - `listClaims`: Lists all claims for a specific tenant.
-
-4. **Type Safety**: The class uses TypeScript interfaces to define the structure of a `Claim` and ensure type safety throughout the operations.
-
-5. **Error Handling**: Basic error handling is implemented, such as throwing an error when trying to update with no valid fields.
-
-To use this repository in your `claims-management.routes.ts` file, you would typically create an instance of the repository and use its methods within your route handlers. Here's a simple example of how you might use it:
-
-
-import { Router } from 'express';
-import { Pool } from 'pg';
-import { ClaimsManagementRepository } from './ClaimsManagementRepository';
-
-const router = Router();
-const pool = new Pool({
-  // Your database connection details
-});
-const claimsRepository = new ClaimsManagementRepository(pool);
-
-router.post('/claims', async (req, res) => {
-  try {
-    const newClaim = await claimsRepository.createClaim(req.body);
-    res.status(201).json(newClaim);
-  } catch (error) {
-    res.status(500).json({ error: 'Failed to create claim' });
-  }
-});
-
-// Implement other routes using the repository methods
-
-export default router;
-
-
-This repository provides a solid foundation for managing claims in a multi-tenant environment with TypeScript and PostgreSQL. You can extend it further by adding more complex queries or additional methods as needed for your specific use case.

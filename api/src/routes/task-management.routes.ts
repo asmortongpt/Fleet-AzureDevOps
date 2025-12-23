@@ -1,8 +1,4 @@
 /**
-import { container } from '../container'
-import { asyncHandler } from '../middleware/errorHandler'
-import { NotFoundError, ValidationError } from '../errors/app-error'
-import logger from '../config/logger'; // Wave 31: Add Winston logger
  * Task Management Routes
  * Comprehensive task tracking, assignment, and workflow management
  *
@@ -21,8 +17,8 @@ import type { AuthRequest } from '../middleware/auth'
 import { authenticateJWT } from '../middleware/auth'
 import { requirePermission } from '../middleware/permissions'
 import { csrfProtection } from '../middleware/csrf'
-import { pool } from '../db/connection';
-
+import { pool } from '../config/database';
+import logger from '../config/logger';
 
 const router = Router()
 router.use(authenticateJWT)
@@ -37,7 +33,7 @@ router.get('/', requirePermission('report:view:global'), async (req: AuthRequest
       SELECT
         t.*,
         u_assigned.first_name || ' ' || u_assigned.last_name as assigned_to_name,
-        u_created.first_name || ` ` || u_created.last_name as created_by_name,
+        u_created.first_name || ' ' || u_created.last_name as created_by_name,
         v.vehicle_number as related_vehicle,
         COUNT(DISTINCT tc.id) as comment_count,
         COUNT(DISTINCT ta.id) as attachment_count
@@ -92,13 +88,13 @@ router.get('/', requirePermission('report:view:global'), async (req: AuthRequest
       total: result.rows.length
     })
   } catch (error) {
-    logger.error('Error fetching tasks:', error) // Wave 31: Winston logger
+    logger.error('Error fetching tasks:', error)
     res.status(500).json({ error: 'Failed to fetch tasks' })
   }
 })
 
 // Create task
-router.post('/',csrfProtection,  csrfProtection, requirePermission('report:generate:global'), async (req: AuthRequest, res) => {
+router.post('/', csrfProtection, requirePermission('report:generate:global'), async (req: AuthRequest, res) => {
   const client = await pool.connect()
   try {
     await client.query('BEGIN')
@@ -120,8 +116,8 @@ router.post('/',csrfProtection,  csrfProtection, requirePermission('report:gener
       ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)
       RETURNING *`,
       [
-        tenantId, title, description, category, priority || `medium`,
-        status || `todo`, assigned_to, userId, due_date, estimated_hours,
+        tenantId, title, description, category, priority || 'medium',
+        status || 'todo', assigned_to, userId, due_date, estimated_hours,
         related_vehicle_id, related_work_order_id,
         tags ? JSON.stringify(tags) : null
       ]
@@ -140,15 +136,15 @@ router.post('/',csrfProtection,  csrfProtection, requirePermission('report:gener
       }
     }
 
-    await client.query(`COMMIT`)
+    await client.query('COMMIT')
 
     res.status(201).json({
       task: result.rows[0],
-      message: `Task created successfully`
+      message: 'Task created successfully'
     })
   } catch (error) {
     await client.query('ROLLBACK')
-    logger.error('Error creating task:', error) // Wave 31: Winston logger
+    logger.error('Error creating task:', error)
     res.status(500).json({ error: 'Failed to create task' })
   } finally {
     client.release()
@@ -156,7 +152,7 @@ router.post('/',csrfProtection,  csrfProtection, requirePermission('report:gener
 })
 
 // Update task
-router.put('/:id',csrfProtection,  csrfProtection, requirePermission('report:generate:global'), async (req: AuthRequest, res) => {
+router.put('/:id', csrfProtection, requirePermission('report:generate:global'), async (req: AuthRequest, res) => {
   const client = await pool.connect()
   try {
     await client.query('BEGIN')
@@ -170,7 +166,7 @@ router.put('/:id',csrfProtection,  csrfProtection, requirePermission('report:gen
     let paramCount = 1
 
     Object.keys(updates).forEach(key => {
-      if (updates[key] !== undefined && key !== 'id' && key !== `tenant_id`) {
+      if (updates[key] !== undefined && key !== 'id' && key !== 'tenant_id') {
         setClauses.push(`${key} = $${paramCount}`)
         values.push(updates[key])
         paramCount++
@@ -178,26 +174,26 @@ router.put('/:id',csrfProtection,  csrfProtection, requirePermission('report:gen
     })
 
     if (setClauses.length === 0) {
-      return res.status(400).json({ error: `No fields to update` })
+      return res.status(400).json({ error: 'No fields to update' })
     }
 
-    setClauses.push(`updated_at = NOW()`)
+    setClauses.push('updated_at = NOW()')
     values.push(id, tenantId)
 
     const result = await client.query(
       `UPDATE tasks
-       SET ${setClauses.join(`, `)}
+       SET ${setClauses.join(', ')}
        WHERE id = $${paramCount} AND tenant_id = $${paramCount + 1}
        RETURNING *`,
       values
     )
 
     if (result.rows.length === 0) {
-      await client.query(`ROLLBACK`)
-      return res.status(404).json({ error: `Task not found` })
+      await client.query('ROLLBACK')
+      return res.status(404).json({ error: 'Task not found' })
     }
 
-    await client.query(`COMMIT`)
+    await client.query('COMMIT')
 
     res.json({
       task: result.rows[0],
@@ -205,7 +201,7 @@ router.put('/:id',csrfProtection,  csrfProtection, requirePermission('report:gen
     })
   } catch (error) {
     await client.query('ROLLBACK')
-    logger.error('Error updating task:', error) // Wave 31: Winston logger
+    logger.error('Error updating task:', error)
     res.status(500).json({ error: 'Failed to update task' })
   } finally {
     client.release()
@@ -213,7 +209,7 @@ router.put('/:id',csrfProtection,  csrfProtection, requirePermission('report:gen
 })
 
 // Add comment to task
-router.post('/:id/comments',csrfProtection,  csrfProtection, requirePermission('report:generate:global'), async (req: AuthRequest, res) => {
+router.post('/:id/comments', csrfProtection, requirePermission('report:generate:global'), async (req: AuthRequest, res) => {
   try {
     const { id } = req.params
     const { comment_text } = req.body
@@ -228,16 +224,16 @@ router.post('/:id/comments',csrfProtection,  csrfProtection, requirePermission('
 
     res.status(201).json({
       comment: result.rows[0],
-      message: `Comment added successfully`
+      message: 'Comment added successfully'
     })
   } catch (error) {
-    logger.error(`Error adding comment:`, error) // Wave 31: Winston logger
+    logger.error('Error adding comment:', error)
     res.status(500).json({ error: 'Failed to add comment' })
   }
 })
 
 // Track time on task
-router.post('/:id/time-entries',csrfProtection,  csrfProtection, requirePermission('report:generate:global'), async (req: AuthRequest, res) => {
+router.post('/:id/time-entries', csrfProtection, requirePermission('report:generate:global'), async (req: AuthRequest, res) => {
   try {
     const { id } = req.params
     const { hours_spent, description } = req.body
@@ -252,10 +248,10 @@ router.post('/:id/time-entries',csrfProtection,  csrfProtection, requirePermissi
 
     res.status(201).json({
       time_entry: result.rows[0],
-      message: `Time logged successfully`
+      message: 'Time logged successfully'
     })
   } catch (error) {
-    logger.error(`Error logging time:`, error) // Wave 31: Winston logger
+    logger.error('Error logging time:', error)
     res.status(500).json({ error: 'Failed to log time' })
   }
 })
@@ -283,7 +279,7 @@ router.get('/analytics/summary', requirePermission('report:view:global'), async 
            COUNT(*) FILTER (WHERE status = 'completed') as completed,
            COUNT(*) as total
          FROM tasks
-         WHERE tenant_id = $1 AND created_at >= NOW() - INTERVAL '30 days'',
+         WHERE tenant_id = $1 AND created_at >= NOW() - INTERVAL '30 days'`,
         [tenantId]
       )
     ])
@@ -303,7 +299,7 @@ router.get('/analytics/summary', requirePermission('report:view:global'), async 
       }
     })
   } catch (error) {
-    logger.error('Error fetching analytics:', error) // Wave 31: Winston logger
+    logger.error('Error fetching analytics:', error)
     res.status(500).json({ error: 'Failed to fetch analytics' })
   }
 })

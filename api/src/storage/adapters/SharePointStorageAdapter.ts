@@ -78,15 +78,14 @@ export class SharePointStorageAdapter extends BaseStorageAdapter {
 
       const library = drives.value.find((d: any) => d.name === this.libraryName);
       if (!library) {
-        throw new Error(`Document library `${this.libraryName}` not found`);
+        throw new Error(`Document library '${this.libraryName}' not found`);
       }
 
       this.driveId = library.id;
       this.initialized = true;
     } catch (error) {
       throw new Error(
-        `Failed to initialize SharePoint storage: ${
-          error instanceof Error ? error.message : 'Unknown error'
+        `Failed to initialize SharePoint storage: ${error instanceof Error ? error.message : 'Unknown error'
         }`
       );
     }
@@ -135,7 +134,7 @@ export class SharePointStorageAdapter extends BaseStorageAdapter {
         .api(`/drives/${this.driveId}/root:/${normalizedKey}:/createUploadSession`)
         .post({
           item: {
-            `@microsoft.graph.conflictBehavior`: options?.overwrite ? 'replace' : 'fail'
+            '@microsoft.graph.conflictBehavior': options?.overwrite ? 'replace' : 'fail'
           }
         });
 
@@ -238,7 +237,7 @@ export class SharePointStorageAdapter extends BaseStorageAdapter {
 
     try {
       const response = await this.graphClient
-        .api(`/drives/${this.driveId}/root${prefix ? `:/${prefix}:` : ''}/children')
+        .api(`/drives/${this.driveId}/root${prefix ? `:/${prefix}:` : ''}/children`)
         .top(options?.maxKeys || 1000)
         .get();
 
@@ -261,7 +260,7 @@ export class SharePointStorageAdapter extends BaseStorageAdapter {
       return {
         files,
         directories,
-        isTruncated: !!response[`@odata.nextLink`]
+        isTruncated: !!response['@odata.nextLink']
       };
     } catch (error: any) {
       if (error.statusCode === 404) {
@@ -288,7 +287,7 @@ export class SharePointStorageAdapter extends BaseStorageAdapter {
           name: normalizedDest.split(`/`).pop(),
           parentReference: {
             driveId: this.driveId,
-            path: `/drive/root/${normalizedDest.split(`/').slice(0, -1).join('/')}`
+            path: `/drive/root/${normalizedDest.split('/').slice(0, -1).join('/')}`
           }
         });
 

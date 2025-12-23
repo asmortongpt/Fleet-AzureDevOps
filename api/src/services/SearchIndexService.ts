@@ -108,7 +108,7 @@ export class SearchIndexService {
     if (this.cacheEnabled) {
       const cached = await cache.get(cacheKey)
       if (cached) {
-        return cached
+        return cached as { results: SearchResult[]; stats: SearchStats }
       }
     }
 

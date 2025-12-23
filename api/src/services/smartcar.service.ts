@@ -92,7 +92,7 @@ class SmartcarService {
     const params = new URLSearchParams({
       client_id: SMARTCAR_CLIENT_ID!,
       response_type: 'code',
-      redirect_uri: SMARTCAR_REDIRECT_URI,
+      redirect_uri: SMARTCAR_REDIRECT_URI || '',
       scope: [
         'required:read_vehicle_info',
         'required:read_location',
@@ -104,10 +104,10 @@ class SmartcarService {
         'required:read_fuel',
         'required:read_engine_oil',
         'required:read_tires'
-      ].join(` `),
+      ].join(' '),
       mode: SMARTCAR_MODE,
       ...(state && { state })
-    })
+    } as Record<string, string>)
 
     return `https://connect.smartcar.com/oauth/authorize?${params.toString()}`
   }

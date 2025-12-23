@@ -99,8 +99,7 @@ export class GoogleCloudStorageAdapter extends BaseStorageAdapter {
       this.initialized = true;
     } catch (error) {
       throw new Error(
-        `Failed to initialize Google Cloud Storage: ${
-          error instanceof Error ? error.message : 'Unknown error'
+        `Failed to initialize Google Cloud Storage: ${error instanceof Error ? error.message : 'Unknown error'
         }`
       );
     }
@@ -387,7 +386,7 @@ export class GoogleCloudStorageAdapter extends BaseStorageAdapter {
       expires,
       contentType: options?.contentType,
       responseDisposition: options?.contentDisposition
-        ? `${options.contentDisposition}${options.filename ? "; filename="${options.filename}"` : ``}'
+        ? `${options.contentDisposition}${options.filename ? `; filename="${options.filename}"` : ''}`
         : undefined
     });
 

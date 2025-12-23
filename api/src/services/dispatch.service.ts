@@ -88,7 +88,9 @@ export default class DispatchService {
    * Initialize Azure services for dispatch system (called lazily)
    */
   private initializeAzureServices() {
-    if (this.initialized) return try {
+    if (this.initialized) return
+
+    try {
       // Azure Blob Storage for audio archival
       const blobConnectionString = process.env.AZURE_STORAGE_CONNECTION_STRING
       if (blobConnectionString) {
@@ -130,13 +132,13 @@ export default class DispatchService {
       path: '/api/dispatch/ws'
     })
 
-    this.wss.on(`connection`, (ws: WebSocket, req) => {
+    this.wss.on('connection', (ws: WebSocket, req) => {
       const connectionId = uuidv4()
       this.logger.info(`🔌 New dispatch connection: ${connectionId}`)
 
       this.activeConnections.set(connectionId, ws)
 
-      ws.on(`message`, async (data: Buffer) => {
+      ws.on('message', async (data: Buffer) => {
         try {
           const message = JSON.parse(data.toString())
           await this.handleWebSocketMessage(connectionId, ws, message)
@@ -146,12 +148,12 @@ export default class DispatchService {
         }
       })
 
-      ws.on(`close`, () => {
+      ws.on('close', () => {
         this.logger.info(`🔌 Dispatch connection closed: ${connectionId}`)
         this.handleDisconnection(connectionId)
       })
 
-      ws.on(`error`, (error) => {
+      ws.on('error', (error) => {
         this.logger.error(`WebSocket error for ${connectionId}:`, error)
       })
     })
@@ -208,7 +210,7 @@ export default class DispatchService {
         VALUES ($1, $2, $3, $4, $5)
         ON CONFLICT (channel_id, user_id, connection_id)
         DO UPDATE SET last_heartbeat = CURRENT_TIMESTAMP
-      ', [channelId, userId, connectionId, deviceInfo?.type || 'web', deviceInfo])
+      `, [channelId, userId, connectionId, deviceInfo?.type || 'web', deviceInfo])
 
       // Add to in-memory channel listeners
       if (!this.channelListeners.has(channelId)) {
@@ -218,7 +220,7 @@ export default class DispatchService {
 
       // Get channel info
       const channelResult = await this.db.query(
-        'SELECT 
+        `SELECT 
       id,
       name,
       description,
@@ -228,7 +230,7 @@ export default class DispatchService {
       color_code,
       created_at,
       updated_at,
-      created_by FROM dispatch_channels WHERE id = $1',
+      created_by FROM dispatch_channels WHERE id = $1`,
         [channelId]
       )
 
@@ -367,9 +369,9 @@ export default class DispatchService {
       const result = await this.db.query(`
         UPDATE dispatch_transmissions
         SET transmission_end = $1,
-            duration_seconds = EXTRACT(EPOCH FROM ($1 - transmission_start)),
-            audio_blob_url = $2,
-            audio_size_bytes = $3
+        duration_seconds = EXTRACT(EPOCH FROM ($1 - transmission_start)),
+        audio_blob_url = $2,
+        audio_size_bytes = $3
         WHERE id = $4
         RETURNING duration_seconds
       `, [transmissionEnd, audioBlobUrl, audioBlob?.length || 0, transmissionId])
@@ -441,7 +443,7 @@ export default class DispatchService {
       await this.db.query(`
         INSERT INTO dispatch_transcriptions
         (transmission_id, transcription_text, confidence_score, transcription_service)
-        VALUES ($1, $2, $3, `azure-speech`)
+        VALUES ($1, $2, $3, 'azure-speech')
       `, [transmissionId, transcriptionText, confidenceScore])
 
       // Trigger AI incident tagging
@@ -470,7 +472,7 @@ export default class DispatchService {
         await this.db.query(`
           INSERT INTO dispatch_incident_tags
           (transmission_id, tag_type, confidence_score, detected_by, entities)
-          VALUES ($1, $2, $3, `azure-openai`, $4)
+          VALUES ($1, $2, $3, 'azure-openai', $4)
         `, [transmissionId, tag.type, tag.confidence, JSON.stringify(tag.entities)])
       }
 
@@ -588,7 +590,7 @@ export default class DispatchService {
    */
   async getChannels(userId?: number): Promise<DispatchChannel[]> {
     try {
-      let query = 'SELECT 
+      let query = `SELECT 
       id,
       name,
       description,
@@ -598,7 +600,7 @@ export default class DispatchService {
       color_code,
       created_at,
       updated_at,
-      created_by FROM dispatch_channels WHERE is_active = true'
+      created_by FROM dispatch_channels WHERE is_active = true`
       const params: any[] = []
 
       if (userId) {

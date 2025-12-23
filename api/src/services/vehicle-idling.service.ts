@@ -441,7 +441,7 @@ export class VehicleIdlingService extends EventEmitter {
         );
 
         if (response.ok) {
-          const data = await response.json();
+          const data: any = await response.json();
 
           if (data.addresses && data.addresses.length > 0) {
             const address = data.addresses[0].address;
@@ -493,24 +493,7 @@ export class VehicleIdlingService extends EventEmitter {
     }
   }
 
-  /**
-   * Get idling history for a vehicle
-   */
-  async getVehicleIdlingHistory(vehicleId: number, days: number = 30): Promise<any[]> {
-    const client = await this.pool.connect();
-    try {
-      const result = await client.query(
-        `SELECT * FROM vehicle_idling_events
-         WHERE vehicle_id = $1
-           AND start_time >= CURRENT_DATE - INTERVAL '1 day' * $2
-         ORDER BY start_time DESC`,
-        [vehicleId, days]
-      );
-      return result.rows;
-    } finally {
-      client.release();
-    }
-  }
+
 
   /**
    * Get idling statistics for a vehicle
@@ -707,7 +690,7 @@ export class VehicleIdlingService extends EventEmitter {
   /**
    * Create manual idling event (wrapper for reportManualIdlingEvent)
    */
-  async createManualIdlingEvent(eventData: Partial<IdlingEvent>): Promise<number> {
+  async createManualIdlingEvent(eventData: any): Promise<number> {
     const event: IdlingEvent = {
       vehicle_id: eventData.vehicleId!,
       driver_id: eventData.driverId,

@@ -1,8 +1,4 @@
 /**
-import { container } from '../container'
-import { asyncHandler } from '../middleware/errorHandler'
-import { NotFoundError, ValidationError } from '../errors/app-error'
-import logger from '../config/logger'; // Wave 26: Add Winston logger
  * Alert & Notification Routes
  * Centralized alert system for proactive fleet management
  *
@@ -21,17 +17,17 @@ import { requirePermission } from '../middleware/permissions'
 import alertEngine from '../services/alert-engine.service'
 import { z } from 'zod'
 import { csrfProtection } from '../middleware/csrf'
-import { pool } from '../db/connection';
-
+import { pool } from '../config/database';
+import logger from '../config/logger';
 
 // SECURITY: Input validation schemas
 const createAlertRuleSchema = z.object({
   rule_name: z.string().min(1).max(200),
   rule_type: z.enum(['maintenance_due', 'fuel_threshold', 'geofence_violation', 'speed_violation', 'idle_time', 'custom']),
-  conditions: z.record(z.any(),
+  conditions: z.record(z.any()),
   severity: z.enum(['info', 'warning', 'critical', 'emergency']),
-  channels: z.array(z.enum(['in_app', 'email', 'sms', 'push']).optional(),
-  recipients: z.array(z.string().uuid().optional(),
+  channels: z.array(z.enum(['in_app', 'email', 'sms', 'push'])).optional(),
+  recipients: z.array(z.string().uuid()).optional(),
   is_enabled: z.boolean().optional(),
   cooldown_minutes: z.number().int().min(0).max(1440).optional()
 })
@@ -89,7 +85,8 @@ router.use(authenticateJWT)
  *         schema:
  *           type: integer
  *           default: 50
- *         description: Maximum number of alerts to return *     responses:
+ *         description: Maximum number of alerts to return
+ *     responses:
  *       200:
  *         description: List of alerts
  *       401:
@@ -107,7 +104,7 @@ router.get('/', requirePermission('report:view:global'), async (req: AuthRequest
       SELECT
         a.*,
         u_ack.first_name || ' ' || u_ack.last_name as acknowledged_by_name,
-        u_res.first_name || ` ` || u_res.last_name as resolved_by_name
+        u_res.first_name || ' ' || u_res.last_name as resolved_by_name
       FROM alerts a
       LEFT JOIN users u_ack ON a.acknowledged_by = u_ack.id
       LEFT JOIN users u_res ON a.resolved_by = u_res.id
@@ -159,7 +156,7 @@ router.get('/', requirePermission('report:view:global'), async (req: AuthRequest
       total: result.rows.length
     })
   } catch (error) {
-    logger.error(`Error fetching alerts:`, error) // Wave 26: Winston logger
+    logger.error(`Error fetching alerts:`, error)
     res.status(500).json({ error: 'Failed to fetch alerts' })
   }
 })
@@ -209,7 +206,7 @@ router.get('/stats', requirePermission('report:view:global'), async (req: AuthRe
          FROM alerts
          WHERE tenant_id = $1
          AND status IN ('pending', 'sent')
-         AND severity IN ('critical', 'emergency')',
+         AND severity IN ('critical', 'emergency')`,
         [tenantId]
       ),
       // 7-day trend
@@ -217,7 +214,7 @@ router.get('/stats', requirePermission('report:view:global'), async (req: AuthRe
         `SELECT
            DATE(created_at) as date,
            COUNT(*) as count,
-           COUNT(*) FILTER (WHERE severity IN ('critical', 'emergency') as critical_count
+           COUNT(*) FILTER (WHERE severity IN ('critical', 'emergency')) as critical_count
          FROM alerts
          WHERE tenant_id = $1
          AND created_at >= NOW() - INTERVAL '7 days'
@@ -234,7 +231,7 @@ router.get('/stats', requirePermission('report:view:global'), async (req: AuthRe
       trend_7_days: trends.rows
     })
   } catch (error) {
-    logger.error('Error fetching alert stats:', error) // Wave 26: Winston logger
+    logger.error('Error fetching alert stats:', error)
     res.status(500).json({ error: 'Failed to fetch alert statistics' })
   }
 })
@@ -264,7 +261,7 @@ router.get('/stats', requirePermission('report:view:global'), async (req: AuthRe
  *       500:
  *         description: Server error
  */
-router.post('/:id/acknowledge',csrfProtection,  csrfProtection, requirePermission('report:view:global'), async (req: AuthRequest, res) => {
+router.post('/:id/acknowledge', csrfProtection, requirePermission('report:view:global'), async (req: AuthRequest, res) => {
   try {
     const { id } = req.params
     const userId = req.user?.id
@@ -290,7 +287,7 @@ router.post('/:id/acknowledge',csrfProtection,  csrfProtection, requirePermissio
       message: 'Alert acknowledged successfully'
     })
   } catch (error) {
-    logger.error('Error acknowledging alert:', error) // Wave 26: Winston logger
+    logger.error('Error acknowledging alert:', error)
     res.status(500).json({ error: 'Failed to acknowledge alert' })
   }
 })
@@ -330,7 +327,7 @@ router.post('/:id/acknowledge',csrfProtection,  csrfProtection, requirePermissio
  *       500:
  *         description: Server error
  */
-router.post('/:id/resolve',csrfProtection,  csrfProtection, requirePermission('report:view:global'), async (req: AuthRequest, res) => {
+router.post('/:id/resolve', csrfProtection, requirePermission('report:view:global'), async (req: AuthRequest, res) => {
   try {
     const { id } = req.params
     const { resolution_notes } = req.body
@@ -340,10 +337,10 @@ router.post('/:id/resolve',csrfProtection,  csrfProtection, requirePermission('r
     const result = await pool.query(
       `UPDATE alerts
        SET status = 'resolved',
-           resolved_at = NOW(),
-           resolved_by = $1,
-           resolution_notes = $2,
-           updated_at = NOW()
+       resolved_at = NOW(),
+       resolved_by = $1,
+       resolution_notes = $2,
+       updated_at = NOW()
        WHERE id = $3 AND tenant_id = $4
        RETURNING *`,
       [userId, resolution_notes, id, tenantId]
@@ -358,7 +355,7 @@ router.post('/:id/resolve',csrfProtection,  csrfProtection, requirePermission('r
       message: 'Alert resolved successfully'
     })
   } catch (error) {
-    logger.error('Error resolving alert:', error) // Wave 26: Winston logger
+    logger.error('Error resolving alert:', error)
     res.status(500).json({ error: 'Failed to resolve alert' })
   }
 })
@@ -386,7 +383,7 @@ router.get('/rules', requirePermission('report:view:global'), async (req: AuthRe
     const result = await pool.query(
       `SELECT
          ar.*,
-         u.first_name || ` ` || u.last_name as created_by_name
+         u.first_name || ' ' || u.last_name as created_by_name
        FROM alert_rules ar
        LEFT JOIN users u ON ar.created_by = u.id
        WHERE ar.tenant_id = $1
@@ -399,7 +396,7 @@ router.get('/rules', requirePermission('report:view:global'), async (req: AuthRe
       total: result.rows.length
     })
   } catch (error) {
-    logger.error(`Error fetching alert rules:`, error) // Wave 26: Winston logger
+    logger.error(`Error fetching alert rules:`, error)
     res.status(500).json({ error: 'Failed to fetch alert rules' })
   }
 })
@@ -453,7 +450,7 @@ router.get('/rules', requirePermission('report:view:global'), async (req: AuthRe
  *       500:
  *         description: Server error
  */
-router.post('/rules',csrfProtection,  csrfProtection, requirePermission('report:generate:global'), async (req: AuthRequest, res) => {
+router.post('/rules', csrfProtection, requirePermission('report:generate:global'), async (req: AuthRequest, res) => {
   try {
     // SECURITY: Validate input data
     const validatedData = createAlertRuleSchema.parse(req.body)
@@ -500,7 +497,7 @@ router.post('/rules',csrfProtection,  csrfProtection, requirePermission('report:
     if (error instanceof z.ZodError) {
       return res.status(400).json({ error: 'Validation error', details: error.errors })
     }
-    logger.error('Error creating alert rule:', error) // Wave 26: Winston logger
+    logger.error('Error creating alert rule:', error)
     res.status(500).json({ error: 'Failed to create alert rule' })
   }
 })
@@ -536,7 +533,7 @@ router.post('/rules',csrfProtection,  csrfProtection, requirePermission('report:
  *       500:
  *         description: Server error
  */
-router.put('/rules/:id',csrfProtection,  csrfProtection, requirePermission('report:generate:global'), async (req: AuthRequest, res) => {
+router.put('/rules/:id', csrfProtection, requirePermission('report:generate:global'), async (req: AuthRequest, res) => {
   try {
     // SECURITY: Validate input data
     const validatedData = updateAlertRuleSchema.parse(req.body)
@@ -555,13 +552,13 @@ router.put('/rules/:id',csrfProtection,  csrfProtection, requirePermission('repo
     ]
 
     Object.keys(updates).forEach(key => {
-      if (allowedFields.includes(key) && updates[key] !== undefined) {
+      if (allowedFields.includes(key) && (updates as any)[key] !== undefined) {
         setClauses.push(`${key} = $${paramCount}`)
         // Stringify objects for JSONB fields
         if (key === `conditions`) {
-          values.push(JSON.stringify(updates[key])
+          values.push(JSON.stringify((updates as any)[key]))
         } else {
-          values.push(updates[key])
+          values.push((updates as any)[key])
         }
         paramCount++
       }
@@ -591,7 +588,7 @@ router.put('/rules/:id',csrfProtection,  csrfProtection, requirePermission('repo
       message: `Alert rule updated successfully`
     })
   } catch (error) {
-    logger.error('Error updating alert rule:', error) // Wave 26: Winston logger
+    logger.error('Error updating alert rule:', error)
     res.status(500).json({ error: 'Failed to update alert rule' })
   }
 })
@@ -621,7 +618,7 @@ router.put('/rules/:id',csrfProtection,  csrfProtection, requirePermission('repo
  *       500:
  *         description: Server error
  */
-router.delete('/rules/:id',csrfProtection,  csrfProtection, requirePermission('report:generate:global'), async (req: AuthRequest, res) => {
+router.delete('/rules/:id', csrfProtection, requirePermission('report:generate:global'), async (req: AuthRequest, res) => {
   try {
     const { id } = req.params
     const tenantId = req.user?.tenant_id
@@ -641,7 +638,7 @@ router.delete('/rules/:id',csrfProtection,  csrfProtection, requirePermission('r
       message: 'Alert rule deleted successfully'
     })
   } catch (error) {
-    logger.error('Error deleting alert rule:', error) // Wave 26: Winston logger
+    logger.error('Error deleting alert rule:', error)
     res.status(500).json({ error: 'Failed to delete alert rule' })
   }
 })
@@ -674,7 +671,7 @@ router.delete('/rules/:id',csrfProtection,  csrfProtection, requirePermission('r
  *       500:
  *         description: Server error
  */
-router.get(`/notifications`, requirePermission(`report:view:global`), async (req: AuthRequest, res) => {
+router.get('/notifications', requirePermission('report:view:global'), async (req: AuthRequest, res) => {
   try {
     const { is_read, limit = 50 } = req.query
     const userId = req.user?.id
@@ -708,7 +705,7 @@ router.get(`/notifications`, requirePermission(`report:view:global`), async (req
       total: result.rows.length
     })
   } catch (error) {
-    logger.error(`Error fetching notifications:`, error) // Wave 26: Winston logger
+    logger.error(`Error fetching notifications:`, error)
     res.status(500).json({ error: 'Failed to fetch notifications' })
   }
 })
@@ -738,7 +735,7 @@ router.get(`/notifications`, requirePermission(`report:view:global`), async (req
  *       500:
  *         description: Server error
  */
-router.post('/notifications/:id/read',csrfProtection,  csrfProtection, requirePermission('report:view:global'), async (req: AuthRequest, res) => {
+router.post('/notifications/:id/read', csrfProtection, requirePermission('report:view:global'), async (req: AuthRequest, res) => {
   try {
     const { id } = req.params
     const userId = req.user?.id
@@ -760,7 +757,7 @@ router.post('/notifications/:id/read',csrfProtection,  csrfProtection, requirePe
       message: `Notification marked as read`
     })
   } catch (error) {
-    logger.error('Error marking notification as read:', error) // Wave 26: Winston logger
+    logger.error('Error marking notification as read:', error)
     res.status(500).json({ error: 'Failed to mark notification as read' })
   }
 })
@@ -781,7 +778,7 @@ router.post('/notifications/:id/read',csrfProtection,  csrfProtection, requirePe
  *       500:
  *         description: Server error
  */
-router.post('/notifications/read-all',csrfProtection,  csrfProtection, requirePermission('report:view:global'), async (req: AuthRequest, res) => {
+router.post('/notifications/read-all', csrfProtection, requirePermission('report:view:global'), async (req: AuthRequest, res) => {
   try {
     const userId = req.user?.id
 
@@ -798,8 +795,8 @@ router.post('/notifications/read-all',csrfProtection,  csrfProtection, requirePe
       count: result.rows.length
     })
   } catch (error) {
-    logger.error('Error marking all notifications as read:', error) // Wave 26: Winston logger
-    res.status(500).json({ error: 'Failed to mark all notifications as read' })
+    logger.error('Error marking all notifications as read:', error)
+    res.status(500).json({ error: 'Failed to mark notifications as read' })
   }
 })
 
