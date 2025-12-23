@@ -75,7 +75,7 @@ async function generateCoverageReport() {
       UNION ALL SELECT 'Purchase Orders', COUNT(*)::int FROM purchase_orders
       UNION ALL SELECT 'Telemetry Data Points', COUNT(*)::int FROM telemetry_data
       UNION ALL SELECT 'Notifications', COUNT(*)::int FROM notifications
-      UNION ALL SELECT `Audit Logs`, COUNT(*)::int FROM audit_logs
+      UNION ALL SELECT 'Audit Logs', COUNT(*)::int FROM audit_logs
       ORDER BY count DESC
     `);
 
@@ -237,7 +237,7 @@ async function generateCoverageReport() {
     const completedWorkOrders = await client.query(`
       SELECT
         COUNT(*)::int as total,
-        COUNT(CASE WHEN status = `completed` THEN 1 END)::int as completed
+        COUNT(CASE WHEN status = 'completed' THEN 1 END)::int as completed
       FROM work_orders
     `);
 
@@ -276,7 +276,7 @@ async function generateCoverageReport() {
       FROM work_orders
       UNION ALL
       SELECT
-        `Routes`,
+        'Routes',
         MIN(planned_start_time)::date,
         MAX(planned_start_time)::date
       FROM routes
@@ -302,7 +302,7 @@ async function generateCoverageReport() {
     console.log('│ Tenant                   │ Email                              │ Role         │ Active │');
     console.log('├──────────────────────────┼────────────────────────────────────┼──────────────┼────────┤');
     for (const row of sampleUsers.rows) {
-      console.log(`│ ${row.tenant.padEnd(24).substring(0, 24)} │ ${row.email.padEnd(34).substring(0, 34)} │ ${row.role.padEnd(12)} │ ${row.is_active ? `  ✓   ' : '  ✗   '} │`);
+      console.log(`│ ${row.tenant.padEnd(24).substring(0, 24)} │ ${row.email.padEnd(34).substring(0, 34)} │ ${row.role.padEnd(12)} │ ${row.is_active ? '  ✓   ' : '  ✗   '} │`);
     }
     console.log('└──────────────────────────┴────────────────────────────────────┴──────────────┴────────┘');
     console.log('\n   Password for all test users: TestPassword123!\n');

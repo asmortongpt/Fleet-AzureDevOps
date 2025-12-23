@@ -1,8 +1,4 @@
 /**
-import { container } from '../container'
-import { asyncHandler } from '../middleware/errorHandler'
-import { NotFoundError, ValidationError } from '../errors/app-error'
-import logger from '../config/logger'; // Wave 24: Add Winston logger
  * Fleet Management - Dispatch Radio Routes
  *
  * Endpoints:
@@ -22,11 +18,11 @@ import logger from '../config/logger'; // Wave 24: Add Winston logger
 import { Router, Request, Response } from 'express'
 import dispatchService from '../services/dispatch.service'
 import webrtcService from '../services/webrtc.service'
-import { authenticateJWT } from '../middleware/auth'
+import { authenticateJWT, AuthRequest } from '../middleware/auth'
 import { requirePermission } from '../middleware/permissions'
 import { csrfProtection } from '../middleware/csrf'
-import { pool } from '../db/connection';
-
+import { pool } from '../config/database';
+import logger from '../config/logger';
 
 const router = Router()
 
@@ -82,7 +78,7 @@ router.get('/channels', requirePermission('route:view:fleet'), async (req: Reque
       channels
     })
   } catch (error) {
-    logger.error('Error getting dispatch channels:', error) // Wave 24: Winston logger
+    logger.error('Error getting dispatch channels:', error)
     res.status(500).json({
       success: false,
       error: 'Failed to get dispatch channels'
@@ -125,13 +121,13 @@ router.get('/channels/:id', requirePermission('route:view:fleet'), async (req: R
       created_at,
       updated_at,
       created_by FROM dispatch_channels WHERE tenant_id = $1 AND id = $2 AND is_active = true`,
-      [req.user!.tenant_id, id]
+      [(req as any).user!.tenant_id, id]
     )
 
     if (result.rows.length === 0) {
       return res.status(404).json({
         success: false,
-        error: `Channel not found`
+        error: 'Channel not found'
       })
     }
 
@@ -140,7 +136,7 @@ router.get('/channels/:id', requirePermission('route:view:fleet'), async (req: R
       channel: result.rows[0]
     })
   } catch (error) {
-    logger.error('Error getting channel:', error) // Wave 24: Winston logger
+    logger.error('Error getting channel:', error)
     res.status(500).json({
       success: false,
       error: 'Failed to get channel'
@@ -184,7 +180,7 @@ router.get('/channels/:id', requirePermission('route:view:fleet'), async (req: R
  *       201:
  *         description: Channel created
  */
-router.post('/channels',csrfProtection,  csrfProtection, requirePermission('route:create:fleet'), async (req: Request, res: Response) => {
+router.post('/channels', csrfProtection, requirePermission('route:create:fleet'), async (req: Request, res: Response) => {
   try {
     const { name, description, channelType, priorityLevel, colorCode } = req.body
     const userId = (req as any).user?.id
@@ -202,14 +198,14 @@ router.post('/channels',csrfProtection,  csrfProtection, requirePermission('rout
       (name, description, channel_type, priority_level, color_code, created_by)
       VALUES ($1, $2, $3, $4, $5, $6)
       RETURNING *
-    ', [name, description, channelType, priorityLevel || 5, colorCode || '#3B82F6', userId])
+    `, [name, description, channelType, priorityLevel || 5, colorCode || '#3B82F6', userId])
 
     res.status(201).json({
       success: true,
       channel: result.rows[0]
     })
   } catch (error) {
-    logger.error('Error creating channel:', error) // Wave 24: Winston logger
+    logger.error('Error creating channel:', error)
     res.status(500).json({
       success: false,
       error: 'Failed to create channel'
@@ -253,7 +249,7 @@ router.get('/channels/:id/history', requirePermission('route:view:fleet'), async
       history
     })
   } catch (error) {
-    logger.error('Error getting channel history:', error) // Wave 24: Winston logger
+    logger.error('Error getting channel history:', error)
     res.status(500).json({
       success: false,
       error: 'Failed to get channel history'
@@ -284,7 +280,7 @@ router.get('/channels/:id/listeners', requirePermission('route:view:fleet'), asy
   try {
     const { id } = req.params
 
-    const listeners = await dispatchService.getActiveListeners(parseInt(id)
+    const listeners = await dispatchService.getActiveListeners(parseInt(id))
 
     res.json({
       success: true,
@@ -292,7 +288,7 @@ router.get('/channels/:id/listeners', requirePermission('route:view:fleet'), asy
       count: listeners.length
     })
   } catch (error) {
-    logger.error('Error getting listeners:', error) // Wave 24: Winston logger
+    logger.error('Error getting listeners:', error)
     res.status(500).json({
       success: false,
       error: 'Failed to get listeners'
@@ -336,7 +332,7 @@ router.get('/channels/:id/listeners', requirePermission('route:view:fleet'), asy
  *       201:
  *         description: Emergency alert created
  */
-router.post('/emergency',csrfProtection,  csrfProtection, requirePermission('route:create:fleet'), async (req: Request, res: Response) => {
+router.post('/emergency', csrfProtection, requirePermission('route:create:fleet'), async (req: Request, res: Response) => {
   try {
     const userId = (req as any).user?.id
     const { vehicleId, alertType, location, description } = req.body
@@ -362,7 +358,7 @@ router.post('/emergency',csrfProtection,  csrfProtection, requirePermission('rou
       alert
     })
   } catch (error) {
-    logger.error('Error creating emergency alert:', error) // Wave 24: Winston logger
+    logger.error('Error creating emergency alert:', error)
     res.status(500).json({
       success: false,
       error: 'Failed to create emergency alert'
@@ -433,7 +429,7 @@ router.get('/emergency', requirePermission('route:view:fleet'), async (req: Requ
       alerts: result.rows
     })
   } catch (error) {
-    logger.error('Error getting emergency alerts:', error) // Wave 24: Winston logger
+    logger.error('Error getting emergency alerts:', error)
     res.status(500).json({
       success: false,
       error: 'Failed to get emergency alerts'
@@ -460,7 +456,7 @@ router.get('/emergency', requirePermission('route:view:fleet'), async (req: Requ
  *       200:
  *         description: Alert acknowledged
  */
-router.put('/emergency/:id/acknowledge',csrfProtection,  csrfProtection, requirePermission('route:update:fleet'), async (req: AuthRequest, res: Response) => {
+router.put('/emergency/:id/acknowledge', csrfProtection, requirePermission('route:update:fleet'), async (req: AuthRequest, res: Response) => {
   try {
     const { id } = req.params
     const userId = (req as any).user?.id
@@ -486,7 +482,7 @@ router.put('/emergency/:id/acknowledge',csrfProtection,  csrfProtection, require
       alert: result.rows[0]
     })
   } catch (error) {
-    logger.error('Error acknowledging alert:', error) // Wave 24: Winston logger
+    logger.error('Error acknowledging alert:', error)
     res.status(500).json({
       success: false,
       error: 'Failed to acknowledge alert'
@@ -513,7 +509,7 @@ router.put('/emergency/:id/acknowledge',csrfProtection,  csrfProtection, require
  *       200:
  *         description: Alert resolved
  */
-router.put('/emergency/:id/resolve',csrfProtection,  csrfProtection, requirePermission('route:update:fleet'), async (req: Request, res: Response) => {
+router.put('/emergency/:id/resolve', csrfProtection, requirePermission('route:update:fleet'), async (req: Request, res: Response) => {
   try {
     const { id } = req.params
     const userId = (req as any).user?.id
@@ -523,7 +519,7 @@ router.put('/emergency/:id/resolve',csrfProtection,  csrfProtection, requirePerm
       SET alert_status = 'resolved',
           resolved_by = $1,
           resolved_at = CURRENT_TIMESTAMP,
-          response_time_seconds = EXTRACT(EPOCH FROM (CURRENT_TIMESTAMP - created_at)
+          response_time_seconds = EXTRACT(EPOCH FROM (CURRENT_TIMESTAMP - created_at))
       WHERE id = $2
       RETURNING *
     `, [userId, id])
@@ -540,7 +536,7 @@ router.put('/emergency/:id/resolve',csrfProtection,  csrfProtection, requirePerm
       alert: result.rows[0]
     })
   } catch (error) {
-    logger.error('Error resolving alert:', error) // Wave 24: Winston logger
+    logger.error('Error resolving alert:', error)
     res.status(500).json({
       success: false,
       error: 'Failed to resolve alert'
@@ -592,7 +588,7 @@ router.get('/metrics', requirePermission('route:view:fleet'), async (req: Reques
       peak_concurrent_users,
       transcription_accuracy,
       created_at FROM dispatch_metrics WHERE tenant_id = $1`
-    const params: any[] = [req.user!.tenant_id]
+    const params: any[] = [(req as any).user!.tenant_id]
 
     if (startDate) {
       params.push(startDate)
@@ -618,7 +614,7 @@ router.get('/metrics', requirePermission('route:view:fleet'), async (req: Reques
       metrics: result.rows
     })
   } catch (error) {
-    logger.error(`Error getting metrics:`, error) // Wave 24: Winston logger
+    logger.error(`Error getting metrics:`, error)
     res.status(500).json({
       success: false,
       error: `Failed to get metrics`
@@ -650,7 +646,7 @@ router.get('/metrics', requirePermission('route:view:fleet'), async (req: Reques
  *       200:
  *         description: WebRTC offer created
  */
-router.post('/webrtc/offer',csrfProtection,  csrfProtection, requirePermission(`route:create:fleet`), async (req: Request, res: Response) => {
+router.post('/webrtc/offer', csrfProtection, requirePermission(`route:create:fleet`), async (req: Request, res: Response) => {
   try {
     const userId = (req as any).user?.id
     const { channelId, connectionId } = req.body
@@ -666,7 +662,7 @@ router.post('/webrtc/offer',csrfProtection,  csrfProtection, requirePermission(`
       offer
     })
   } catch (error) {
-    logger.error(`Error creating WebRTC offer:`, error) // Wave 24: Winston logger
+    logger.error(`Error creating WebRTC offer:`, error)
     res.status(500).json({
       success: false,
       error: 'Failed to create WebRTC offer'
@@ -701,7 +697,7 @@ router.post('/webrtc/offer',csrfProtection,  csrfProtection, requirePermission(`
  *       200:
  *         description: Answer processed
  */
-router.post('/webrtc/answer',csrfProtection,  csrfProtection, requirePermission('route:create:fleet'), async (req: Request, res: Response) => {
+router.post('/webrtc/answer', csrfProtection, requirePermission('route:create:fleet'), async (req: Request, res: Response) => {
   try {
     const { connectionId, answer } = req.body
 
@@ -711,7 +707,7 @@ router.post('/webrtc/answer',csrfProtection,  csrfProtection, requirePermission(
       success: true
     })
   } catch (error) {
-    logger.error('Error handling WebRTC answer:', error) // Wave 24: Winston logger
+    logger.error('Error handling WebRTC answer:', error)
     res.status(500).json({
       success: false,
       error: 'Failed to handle answer'
@@ -746,7 +742,7 @@ router.post('/webrtc/answer',csrfProtection,  csrfProtection, requirePermission(
  *       200:
  *         description: ICE candidate added
  */
-router.post('/webrtc/ice-candidate',csrfProtection,  csrfProtection, requirePermission('route:create:fleet'), async (req: Request, res: Response) => {
+router.post('/webrtc/ice-candidate', csrfProtection, requirePermission('route:create:fleet'), async (req: Request, res: Response) => {
   try {
     const { connectionId, candidate } = req.body
 
@@ -756,7 +752,7 @@ router.post('/webrtc/ice-candidate',csrfProtection,  csrfProtection, requirePerm
       success: true
     })
   } catch (error) {
-    logger.error('Error adding ICE candidate:', error) // Wave 24: Winston logger
+    logger.error('Error adding ICE candidate:', error)
     res.status(500).json({
       success: false,
       error: 'Failed to add ICE candidate'

@@ -10,10 +10,10 @@
  * Always use req.user.tenant_id from authenticated JWT token
  */
 
-import { Pool, PoolClient, QueryResult } from 'pg';
+import { Pool, PoolClient, QueryResult, QueryResultRow } from 'pg';
 
 import pool from '../config/database';
-import { SqlValue, SqlParams } from '../types';
+import { SqlValue, SqlParams } from '../types/database';
 
 import { monitoredQuery } from './query-monitor';
 
@@ -84,7 +84,7 @@ function validateTenantIsolation(query: string): void {
  *   req.user!.tenant_id
  * )
  */
-export async function tenantSafeQuery<T = any>(
+export async function tenantSafeQuery<T extends QueryResultRow = any>(
   queryText: string,
   params: SqlParams = [],
   tenantId: string
@@ -120,7 +120,7 @@ export async function tenantSafeQuery<T = any>(
  * @param tenantId Tenant ID from req.user.tenant_id
  * @returns Single row or null
  */
-export async function tenantSafeQueryOne<T = any>(
+export async function tenantSafeQueryOne<T extends QueryResultRow = any>(
   queryText: string,
   params: SqlParams = [],
   tenantId: string
@@ -137,7 +137,7 @@ export async function tenantSafeQueryOne<T = any>(
  * @param tenantId Tenant ID from req.user.tenant_id
  * @returns Array of rows
  */
-export async function tenantSafeQueryMany<T = any>(
+export async function tenantSafeQueryMany<T extends QueryResultRow = any>(
   queryText: string,
   params: SqlParams = [],
   tenantId: string
@@ -155,7 +155,7 @@ export async function tenantSafeQueryMany<T = any>(
  * @returns Single row
  * @throws Error if no rows found
  */
-export async function tenantSafeQueryOneRequired<T = any>(
+export async function tenantSafeQueryOneRequired<T extends QueryResultRow = any>(
   queryText: string,
   params: SqlParams = [],
   tenantId: string
@@ -176,7 +176,7 @@ export async function tenantSafeQueryOneRequired<T = any>(
  * @param tenantId Tenant ID from req.user.tenant_id
  * @returns Query result
  */
-export async function tenantSafeClientQuery<T = any>(
+export async function tenantSafeClientQuery<T extends QueryResultRow = any>(
   client: PoolClient,
   queryText: string,
   params: SqlParams = [],

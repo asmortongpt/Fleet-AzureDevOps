@@ -1,10 +1,4 @@
 import { BaseRepository } from '../repositories/BaseRepository';
-
-Let's create a TypeScript repository for vehicle disposal management, focusing on CRUD operations with parameterized queries and tenant_id support. We'll structure this repository to be used in the `api/src/routes/vehicle-disposal.routes.ts` file.
-
-Here's the implementation of the `VehicleDisposalRepository`:
-
-
 import { Pool, QueryResult } from 'pg';
 
 interface VehicleDisposal {
@@ -23,6 +17,7 @@ export class VehicleDisposalRepository extends BaseRepository<any> {
   private pool: Pool;
 
   constructor(pool: Pool) {
+    super('vehicle_disposals', pool);
     this.pool = pool;
   }
 
@@ -79,14 +74,14 @@ export class VehicleDisposalRepository extends BaseRepository<any> {
     const setClause = Object.keys(vehicleDisposal)
       .map((key, index) => `${key} = $${index + 2}`)
       .join(', ');
-    
+
     const query = `
       UPDATE vehicle_disposals
       SET ${setClause}
       WHERE id = $1 AND tenant_id = $${Object.keys(vehicleDisposal).length + 2}
       RETURNING *;
     `;
-    
+
     const values = [
       id,
       ...Object.values(vehicleDisposal),
@@ -112,7 +107,7 @@ export class VehicleDisposalRepository extends BaseRepository<any> {
     const values = [id, tenantId];
 
     const result: QueryResult<{ id: number }> = await this.pool.query(query, values);
-    return result.rowCount > 0;
+    return result.rowCount ? result.rowCount > 0 : false;
   }
 
   /**
@@ -135,49 +130,3 @@ export class VehicleDisposalRepository extends BaseRepository<any> {
     return result.rows;
   }
 }
-
-
-This `VehicleDisposalRepository` class provides the following features:
-
-1. **CRUD Operations**: It includes methods for Create, Read, Update, and Delete operations on vehicle disposal records.
-
-2. **Parameterized Queries**: All database queries use parameterized queries to prevent SQL injection attacks.
-
-3. **Tenant Support**: Each method includes a `tenant_id` parameter to support multi-tenant environments.
-
-4. **Type Safety**: The class uses TypeScript interfaces to ensure type safety for the `VehicleDisposal` object.
-
-5. **Flexibility**: The `update` method allows partial updates, and the `list` method supports pagination.
-
-To use this repository in your `api/src/routes/vehicle-disposal.routes.ts` file, you would typically create an instance of the repository and use its methods in your route handlers. Here's a basic example of how you might use it:
-
-
-import { Router } from 'express';
-import { Pool } from 'pg';
-import { VehicleDisposalRepository } from './vehicle-disposal.repository';
-
-const router = Router();
-const pool = new Pool(/* your database configuration */);
-const vehicleDisposalRepository = new VehicleDisposalRepository(pool);
-
-router.post('/', async (req, res) => {
-  const { vehicle_id, disposal_date, disposal_method, disposal_location, notes } = req.body;
-  const tenantId = req.user.tenant_id; // Assuming you have a way to get the tenant ID
-
-  try {
-    const newVehicleDisposal = await vehicleDisposalRepository.create(
-      { vehicle_id, disposal_date, disposal_method, disposal_location, notes },
-      tenantId
-    );
-    res.status(201).json(newVehicleDisposal);
-  } catch (error) {
-    res.status(500).json({ error: 'Failed to create vehicle disposal record' });
-  }
-});
-
-// Implement other routes (GET, PUT, DELETE) similarly using the repository methods
-
-export default router;
-
-
-This repository provides a solid foundation for managing vehicle disposal records in a multi-tenant environment with proper security measures in place. You can extend it further by adding more complex queries or additional methods as needed for your specific use case.

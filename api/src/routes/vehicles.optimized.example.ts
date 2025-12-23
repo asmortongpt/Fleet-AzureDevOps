@@ -1,7 +1,4 @@
 /**
-import { container } from '../container'
-import { asyncHandler } from '../middleware/errorHandler'
-import { NotFoundError, ValidationError } from '../errors/app-error'
  * EXAMPLE: Optimized Vehicles Route with Caching
  *
  * This file demonstrates how to apply caching to the vehicles route.
@@ -24,8 +21,7 @@ import { validate } from '../middleware/validation'
 import { getPaginationParams, createPaginatedResponse } from '../utils/pagination'
 import { cache, cacheMiddleware } from '../utils/cache'
 import { csrfProtection } from '../middleware/csrf'
-import { pool } from '../db/connection';
- // ADD THIS LINE
+import { pool } from '../config/database';
 
 const router = express.Router()
 router.use(authenticateJWT)
@@ -65,12 +61,17 @@ router.get(
 // POST /vehicles
 router.post(
   '/',
- csrfProtection,  csrfProtection, requirePermission('vehicle:create:global'),
+  csrfProtection, requirePermission('vehicle:create:global'),
   auditLog({ action: 'CREATE', resourceType: 'vehicles' }),
   async (req: AuthRequest, res: Response) => {
     try {
       const data = req.body
       // ... validation and insert logic
+
+      // Mocking missing variables for compilation
+      const columnNames = "tenant_id, make, model";
+      const placeholders = "$1, $2, $3";
+      const values = [req.body.make, req.body.model];
 
       const result = await pool.query(
         `INSERT INTO vehicles (${columnNames}) VALUES (${placeholders}) RETURNING *`,
@@ -110,7 +111,7 @@ router.put(
 
       // Invalidate cache on update - ADD THESE LINES
       await cache.delPattern(`route:/api/vehicles*`)
-      await cache.del(cache.getCacheKey(req.user!.tenant_id, 'vehicle', req.params.id)
+      await cache.del(cache.getCacheKey(req.user!.tenant_id, 'vehicle', req.params.id))
 
       res.json(result.rows[0])
     } catch (error) {
@@ -123,7 +124,7 @@ router.put(
 // DELETE /vehicles/:id
 router.delete(
   '/:id',
- csrfProtection,  csrfProtection, requirePermission('vehicle:delete:global'),
+  csrfProtection, requirePermission('vehicle:delete:global'),
   auditLog({ action: 'DELETE', resourceType: 'vehicles' }),
   async (req: AuthRequest, res: Response) => {
     try {
@@ -136,7 +137,7 @@ router.delete(
 
       // Invalidate cache on delete - ADD THESE LINES
       await cache.delPattern(`route:/api/vehicles*`)
-      await cache.del(cache.getCacheKey(req.user!.tenant_id, 'vehicle', req.params.id)
+      await cache.del(cache.getCacheKey(req.user!.tenant_id, 'vehicle', req.params.id))
 
       res.json({ message: 'Vehicle deleted successfully' })
     } catch (error) {

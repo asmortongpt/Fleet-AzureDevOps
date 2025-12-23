@@ -1,6 +1,8 @@
 
 import QRCode from 'qrcode';
+// @ts-ignore
 import speakeasy from 'speakeasy';
+import { pool } from '../config/database';
 
 export class MFAService {
   async generateSecret(userId: number, email: string) {

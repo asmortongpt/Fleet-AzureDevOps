@@ -1,8 +1,4 @@
 /**
-import { container } from '../container'
-import { asyncHandler } from '../middleware/errorHandler'
-import { NotFoundError, ValidationError } from '../errors/app-error'
-import logger from '../config/logger'; // Wave 29: Add Winston logger
  * Route Optimization API Endpoints
  */
 
@@ -14,8 +10,8 @@ import * as routeOptimizationService from '../services/route-optimization.servic
 import { z } from 'zod'
 import { getErrorMessage } from '../utils/error-handler'
 import { csrfProtection } from '../middleware/csrf'
-import { pool } from '../db/connection';
-
+import { pool } from '../config/database';
+import logger from '../config/logger';
 
 const router = express.Router()
 router.use(authenticateJWT)
@@ -43,8 +39,8 @@ const StopSchema = z.object({
 const OptimizationRequestSchema = z.object({
   jobName: z.string(),
   stops: z.array(StopSchema).min(2),
-  vehicleIds: z.array(z.number().optional(),
-  driverIds: z.array(z.number().optional(),
+  vehicleIds: z.array(z.number()).optional(),
+  driverIds: z.array(z.number()).optional(),
   goal: z.enum(['minimize_time', 'minimize_distance', 'minimize_cost', 'balance']).default('balance'),
   considerTraffic: z.boolean().default(true),
   considerTimeWindows: z.boolean().default(true),
@@ -113,7 +109,7 @@ const OptimizationRequestSchema = z.object({
  */
 router.post(
   '/optimize',
- csrfProtection,  csrfProtection, requirePermission('route:create:fleet'),
+  csrfProtection, requirePermission('route:create:fleet'),
   auditLog({ action: 'CREATE', resourceType: 'route_optimization' }),
   async (req: AuthRequest, res: Response) => {
     try {
@@ -145,7 +141,7 @@ router.post(
       }
 
       if (vehicles.length === 0) {
-        return res.status(400).json({ error: `No available vehicles found` })
+        return res.status(400).json({ error: 'No available vehicles found' })
       }
 
       // Get drivers
@@ -195,7 +191,7 @@ router.post(
 
       res.json(result)
     } catch (error: any) {
-      logger.error(`Route optimization error:`, error) // Wave 29: Winston logger
+      logger.error('Route optimization error:', error)
 
       if (error.name === 'ZodError') {
         return res.status(400).json({
@@ -268,8 +264,8 @@ router.get(
         }
       })
     } catch (error) {
-      logger.error(`Get jobs error:`, error) // Wave 29: Winston logger
-      res.status(500).json({ error: `Internal server error` })
+      logger.error('Get jobs error:', error)
+      res.status(500).json({ error: 'Internal server error' })
     }
   }
 )
@@ -327,8 +323,8 @@ router.get(
         stops: stopsResult.rows
       })
     } catch (error) {
-      logger.error(`Get job error:`, error) // Wave 29: Winston logger
-      res.status(500).json({ error: `Internal server error` })
+      logger.error('Get job error:', error)
+      res.status(500).json({ error: 'Internal server error' })
     }
   }
 )
@@ -369,8 +365,8 @@ router.get(
 
       res.json({ data: result.rows })
     } catch (error) {
-      logger.error(`Get active routes error:`, error) // Wave 29: Winston logger
-      res.status(500).json({ error: `Internal server error` })
+      logger.error('Get active routes error:', error)
+      res.status(500).json({ error: 'Internal server error' })
     }
   }
 )
@@ -392,7 +388,7 @@ router.get(
   async (req: AuthRequest, res: Response) => {
     try {
       const routeResult = await pool.query(
-        `SELECT r.*, v.name as vehicle_name, d.first_name || ` ` || d.last_name as driver_name
+        `SELECT r.*, v.name as vehicle_name, d.first_name || ' ' || d.last_name as driver_name
          FROM optimized_routes r
          LEFT JOIN vehicles v ON r.vehicle_id = v.id
          LEFT JOIN drivers d ON r.driver_id = d.id
@@ -427,8 +423,8 @@ router.get(
         stops: stopsResult.rows
       })
     } catch (error) {
-      logger.error(`Get route error:`, error) // Wave 29: Winston logger
-      res.status(500).json({ error: `Internal server error` })
+      logger.error('Get route error:', error)
+      res.status(500).json({ error: 'Internal server error' })
     }
   }
 )
@@ -445,7 +441,7 @@ router.get(
  */
 router.put(
   '/routes/:id/update',
- csrfProtection,  csrfProtection, requirePermission('route:update:fleet'),
+  csrfProtection, requirePermission('route:update:fleet'),
   auditLog({ action: 'UPDATE', resourceType: 'route_optimization' }),
   async (req: AuthRequest, res: Response) => {
     try {
@@ -464,12 +460,12 @@ router.put(
       )
 
       if (result.rows.length === 0) {
-        return res.status(404).json({ error: `Route not found` })
+        return res.status(404).json({ error: 'Route not found' })
       }
 
       res.json(result.rows[0])
     } catch (error) {
-      logger.error(`Update route error:`, error) // Wave 29: Winston logger
+      logger.error('Update route error:', error)
       res.status(500).json({ error: 'Internal server error' })
     }
   }
@@ -487,7 +483,7 @@ router.put(
  */
 router.post(
   '/routes/:id/stops/:stopId/complete',
- csrfProtection,  csrfProtection, requirePermission('route:update:fleet'),
+  csrfProtection, requirePermission('route:update:fleet'),
   auditLog({ action: 'UPDATE', resourceType: 'route_optimization' }),
   async (req: AuthRequest, res: Response) => {
     try {
@@ -496,8 +492,8 @@ router.post(
       const result = await pool.query(
         `UPDATE route_stops
          SET status = 'completed',
-             actual_arrival_time = COALESCE($1, NOW(),
-             actual_departure_time = COALESCE($2, NOW(),
+             actual_arrival_time = COALESCE($1, NOW()),
+             actual_departure_time = COALESCE($2, NOW()),
              completion_notes = $3,
              updated_at = NOW()
          WHERE id = $4 AND assigned_route_id = $5
@@ -506,12 +502,12 @@ router.post(
       )
 
       if (result.rows.length === 0) {
-        return res.status(404).json({ error: `Stop not found` })
+        return res.status(404).json({ error: 'Stop not found' })
       }
 
       res.json(result.rows[0])
     } catch (error) {
-      logger.error('Complete stop error:', error) // Wave 29: Winston logger
+      logger.error('Complete stop error:', error)
       res.status(500).json({ error: 'Internal server error' })
     }
   }
@@ -543,7 +539,7 @@ router.get(
            AVG(optimization_score) as avg_optimization_score
          FROM route_optimization_jobs
          WHERE tenant_id = $1
-           AND created_at >= NOW() - INTERVAL '30 days'',
+           AND created_at >= NOW() - INTERVAL '30 days'`,
         [req.user!.tenant_id]
       )
 
@@ -572,8 +568,8 @@ router.get(
         recentJobs: recentResult.rows
       })
     } catch (error) {
-      logger.error(`Get stats error:`, error) // Wave 29: Winston logger
-      res.status(500).json({ error: `Internal server error` })
+      logger.error('Get stats error:', error)
+      res.status(500).json({ error: 'Internal server error' })
     }
   }
 )

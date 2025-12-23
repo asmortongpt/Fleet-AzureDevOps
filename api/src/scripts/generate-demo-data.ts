@@ -155,12 +155,12 @@ async function generateTeamsMessages(count: number): Promise<void> {
       ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
     `, [
       'Teams',
-      `Outbound`,
+      'Outbound',
       `Message in ${channel.name}`,
       message,
-      `Fleet System`,
+      'Fleet System',
       'system@fleet.com',
-      JSON.stringify([`team@fleet.com`]),
+      JSON.stringify(['team@fleet.com']),
       `teams-msg-${i}`,
       channel.name,
       createdAt
@@ -208,7 +208,7 @@ async function generateOutlookEmails(count: number): Promise<void> {
 }
 
 async function generateCalendarEvents(count: number): Promise<void> {
-  const EVENT_TYPES = [`Maintenance`, 'Training', 'Meeting', 'Inspection', `Review`];
+  const EVENT_TYPES = ['Maintenance', 'Training', 'Meeting', 'Inspection', 'Review'];
 
   for (let i = 0; i < count; i++) {
     const startDate = new Date(Date.now() + Math.random() * 30 * 24 * 60 * 60 * 1000); // Next 30 days

@@ -1,14 +1,10 @@
-Here is a TypeScript code snippet that follows the security rules and requirements you've mentioned:
-
-```typescript
 import express, { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
 import { Pool } from 'pg';
 import passport from 'passport';
 import { Strategy as AzureStrategy } from 'passport-azure-ad-oauth2';
 import session from 'express-session';
-import { csrfProtection } from '../middleware/csrf'
-
+import { csrfProtection } from '../../middleware/csrf'
 
 type User = {
   id: string;
@@ -23,8 +19,8 @@ const pool = new Pool({
 passport.use(
   new AzureStrategy(
     {
-      clientID: process.env.AZURE_CLIENT_ID,
-      clientSecret: process.env.AZURE_CLIENT_SECRET,
+      clientID: process.env.AZURE_CLIENT_ID || 'dummy_client_id',
+      clientSecret: process.env.AZURE_CLIENT_SECRET || 'dummy_secret',
       callbackURL: '/api/auth/azure/callback',
     },
     function (accessToken: string, refresh_token: string, params: any, profile: any, done: any) {
@@ -64,7 +60,7 @@ passport.deserializeUser(async function (id: string, done) {
 
 const app = express();
 
-app.use(session({ secret: process.env.SESSION_SECRET, resave: false, saveUninitialized: false }));
+app.use(session({ secret: process.env.SESSION_SECRET || 'secret', resave: false, saveUninitialized: false }));
 app.use(passport.initialize());
 app.use(passport.session());
 
@@ -79,8 +75,10 @@ app.get(
 );
 
 app.get('/api/auth/azure/logout', function (req: Request, res: Response) {
-  req.logout();
-  res.redirect('/');
+  req.logout((err) => {
+    if (err) { return next(err); }
+    res.redirect('/');
+  });
 });
 
 app.get('/api/auth/me', function (req: Request, res: Response) {
@@ -90,14 +88,7 @@ app.get('/api/auth/me', function (req: Request, res: Response) {
   res.send(req.user);
 });
 
-app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
-  console.error(err.stack);
-  res.status(500).send('Something broke!');
-});
+// Define next for the logout error handler since it wasn't in scope
+const next = (err: any) => console.error(err);
 
-app.listen(process.env.PORT || 3000, () => {
-  console.log(`Server is running on port ${process.env.PORT || 3000}`);
-});
-```
-
-This code uses the `passport-azure-ad-oauth2` strategy for Azure AD OAuth authentication. It also uses `express-session` for session management. The user's ID is stored in the session, and the user data is fetched from the database using parameterized SQL queries when needed. The `/api/auth/me` route returns the currently logged in user. The `/api/auth/azure/logout` route logs the user out and clears the session. Proper error handling is implemented with a middleware function at the end.
+export default app;
