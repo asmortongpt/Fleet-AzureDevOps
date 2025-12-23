@@ -20,6 +20,7 @@ import { appInsightsService } from '../config/app-insights'
 import { logger } from '../utils/logger'
 import { getErrorMessage } from '../utils/error-handler'
 import { csrfProtection } from '../middleware/csrf'
+import { pool } from '../db/connection';
 
 
 const router = express.Router()
@@ -58,7 +59,7 @@ const updateTripUsageSchema = z.object({
  */
 router.post(
   '/',
- csrfProtection,  csrfProtection, requirePermission('route:create:own'),
+  csrfProtection, csrfProtection, requirePermission('route:create:own'),
   auditLog({ action: 'CREATE', resourceType: 'trip_usage_classification' }),
   async (req: AuthRequest, res: Response) => {
     try {
@@ -66,7 +67,7 @@ router.post(
 
       // Validation: business purpose required for business/mixed trips
       if ((validated.usage_type === UsageType.BUSINESS || validated.usage_type === UsageType.MIXED) &&
-          !validated.business_purpose) {
+        !validated.business_purpose) {
         return res.status(400).json({
           error: 'Business purpose is required for business and mixed trips (federal requirement)'
         })
@@ -127,7 +128,7 @@ router.post(
         if (!policy.require_approval) {
           approvalStatus = ApprovalStatus.AUTO_APPROVED
         } else if (policy.auto_approve_under_miles &&
-                   validated.miles_total <= policy.auto_approve_under_miles) {
+          validated.miles_total <= policy.auto_approve_under_miles) {
           approvalStatus = ApprovalStatus.AUTO_APPROVED
         }
       }
@@ -174,7 +175,7 @@ router.post(
 
       // If personal/mixed and requires approval, notify manager
       if (approvalStatus === ApprovalStatus.PENDING &&
-          (validated.usage_type === UsageType.PERSONAL || validated.usage_type === UsageType.MIXED) {
+        (validated.usage_type === UsageType.PERSONAL || validated.usage_type === UsageType.MIXED)) {
 
         // Get driver and manager info for notification
         const driverInfo = await pool.query(
@@ -212,8 +213,8 @@ router.post(
         success: true,
         data: tripUsage,
         message: approvalStatus === ApprovalStatus.AUTO_APPROVED
-                  ? 'Trip usage recorded and auto-approved'
-                  : 'Trip usage recorded and pending approval'
+          ? 'Trip usage recorded and auto-approved'
+          : 'Trip usage recorded and pending approval'
       })
     } catch (error: any) {
       logger.error('Create trip usage error:', error) // Wave 19: Winston logger
@@ -233,21 +234,21 @@ router.get(
   '/',
   requirePermission(`route:view:fleet`),
   async (req: AuthRequest, res: Response) => {
-  try {
-    const {
-      driver_id,
-      vehicle_id,
-      usage_type,
-      approval_status,
-      start_date,
-      end_date,
-      month,
-      year,
-      limit = 50,
-      offset = 0
-    } = req.query as any
+    try {
+      const {
+        driver_id,
+        vehicle_id,
+        usage_type,
+        approval_status,
+        start_date,
+        end_date,
+        month,
+        year,
+        limit = 50,
+        offset = 0
+      } = req.query as any
 
-    let query = `
+      let query = `
       SELECT t.*,
              u.name as driver_name,
              v.vehicle_number as vehicle_number
@@ -256,91 +257,91 @@ router.get(
       LEFT JOIN vehicles v ON t.vehicle_id = v.id
       WHERE t.tenant_id = $1
     `
-    const params: any[] = [req.user!.tenant_id]
-    let paramCount = 1
+      const params: any[] = [req.user!.tenant_id]
+      let paramCount = 1
 
-    if (driver_id) {
-      paramCount++
-      query += ` AND t.driver_id = $${paramCount}`
-      params.push(driver_id)
-    }
-
-    if (vehicle_id) {
-      paramCount++
-      query += ` AND t.vehicle_id = $${paramCount}`
-      params.push(vehicle_id)
-    }
-
-    if (usage_type) {
-      paramCount++
-      query += ` AND t.usage_type = $${paramCount}`
-      params.push(usage_type)
-    }
-
-    if (approval_status) {
-      paramCount++
-      query += ` AND t.approval_status = $${paramCount}`
-      params.push(approval_status)
-    }
-
-    if (start_date) {
-      paramCount++
-      query += ` AND t.trip_date >= $${paramCount}`
-      params.push(start_date)
-    }
-
-    if (end_date) {
-      paramCount++
-      query += ` AND t.trip_date <= $${paramCount}`
-      params.push(end_date)
-    }
-
-    if (month) {
-      paramCount++
-      query += ` AND TO_CHAR(t.trip_date, 'YYYY-MM') = $${paramCount}`
-      params.push(month)
-    }
-
-    if (year) {
-      paramCount++
-      query += ` AND EXTRACT(YEAR FROM t.trip_date) = $${paramCount}`
-      params.push(year)
-    }
-
-    query += ` ORDER BY t.trip_date DESC, t.created_at DESC`
-
-    // Get total count
-    const countResult = await pool.query(
-      query.replace(`SELECT t.*, u.name as driver_name, v.vehicle_number as vehicle_number`, `SELECT COUNT(*)`),
-      params
-    )
-
-    // Add pagination
-    paramCount++
-    query += ` LIMIT $${paramCount}`
-    params.push(limit)
-
-    paramCount++
-    query += ` OFFSET $${paramCount}`
-    params.push(offset)
-
-    const result = await pool.query(query, params)
-
-    res.json({
-      success: true,
-      data: result.rows,
-      pagination: {
-        total: parseInt(countResult.rows[0].count),
-        limit: parseInt(limit),
-        offset: parseInt(offset),
-        has_more: parseInt(offset) + result.rows.length < parseInt(countResult.rows[0].count)
+      if (driver_id) {
+        paramCount++
+        query += ` AND t.driver_id = $${paramCount}`
+        params.push(driver_id)
       }
-    })
-  } catch (error: any) {
-    logger.error(`Get trip usage error:`, error) // Wave 19: Winston logger
-    res.status(500).json({ error: `Failed to retrieve trip usage data` })
-  }
-})
+
+      if (vehicle_id) {
+        paramCount++
+        query += ` AND t.vehicle_id = $${paramCount}`
+        params.push(vehicle_id)
+      }
+
+      if (usage_type) {
+        paramCount++
+        query += ` AND t.usage_type = $${paramCount}`
+        params.push(usage_type)
+      }
+
+      if (approval_status) {
+        paramCount++
+        query += ` AND t.approval_status = $${paramCount}`
+        params.push(approval_status)
+      }
+
+      if (start_date) {
+        paramCount++
+        query += ` AND t.trip_date >= $${paramCount}`
+        params.push(start_date)
+      }
+
+      if (end_date) {
+        paramCount++
+        query += ` AND t.trip_date <= $${paramCount}`
+        params.push(end_date)
+      }
+
+      if (month) {
+        paramCount++
+        query += ` AND TO_CHAR(t.trip_date, 'YYYY-MM') = $${paramCount}`
+        params.push(month)
+      }
+
+      if (year) {
+        paramCount++
+        query += ` AND EXTRACT(YEAR FROM t.trip_date) = $${paramCount}`
+        params.push(year)
+      }
+
+      query += ` ORDER BY t.trip_date DESC, t.created_at DESC`
+
+      // Get total count
+      const countResult = await pool.query(
+        query.replace(`SELECT t.*, u.name as driver_name, v.vehicle_number as vehicle_number`, `SELECT COUNT(*)`),
+        params
+      )
+
+      // Add pagination
+      paramCount++
+      query += ` LIMIT $${paramCount}`
+      params.push(limit)
+
+      paramCount++
+      query += ` OFFSET $${paramCount}`
+      params.push(offset)
+
+      const result = await pool.query(query, params)
+
+      res.json({
+        success: true,
+        data: result.rows,
+        pagination: {
+          total: parseInt(countResult.rows[0].count),
+          limit: parseInt(limit),
+          offset: parseInt(offset),
+          has_more: parseInt(offset) + result.rows.length < parseInt(countResult.rows[0].count)
+        }
+      })
+    } catch (error: any) {
+      logger.error(`Get trip usage error:`, error) // Wave 19: Winston logger
+      res.status(500).json({ error: `Failed to retrieve trip usage data` })
+    }
+  })
 
 /**
  * GET /api/trip-usage/:id
@@ -367,9 +368,9 @@ router.get(
     }
   }),
   async (req: AuthRequest, res: Response) => {
-  try {
-    const result = await pool.query(
-      `SELECT t.*,
+    try {
+      const result = await pool.query(
+        `SELECT t.*,
               u.name as driver_name,
               v.vehicle_number as vehicle_number,
               approver.name as approver_name
@@ -378,19 +379,19 @@ router.get(
        LEFT JOIN vehicles v ON t.vehicle_id = v.id
        LEFT JOIN users approver ON t.approved_by_user_id = approver.id
        WHERE t.id = $1 AND t.tenant_id = $2`,
-      [req.params.id, req.user!.tenant_id]
-    )
+        [req.params.id, req.user!.tenant_id]
+      )
 
-    if (result.rows.length === 0) {
-      return res.status(404).json({ error: `Trip usage classification not found` })
+      if (result.rows.length === 0) {
+        return res.status(404).json({ error: `Trip usage classification not found` })
+      }
+
+      res.json({ success: true, data: result.rows[0] })
+    } catch (error: any) {
+      logger.error('Get trip usage error:', error) // Wave 19: Winston logger
+      res.status(500).json({ error: 'Failed to retrieve trip usage data' })
     }
-
-    res.json({ success: true, data: result.rows[0] })
-  } catch (error: any) {
-    logger.error('Get trip usage error:', error) // Wave 19: Winston logger
-    res.status(500).json({ error: 'Failed to retrieve trip usage data' })
-  }
-})
+  })
 
 /**
  * PATCH /api/trip-usage/:id
@@ -398,7 +399,7 @@ router.get(
  */
 router.patch(
   '/:id',
- csrfProtection,  csrfProtection, requirePermission('route:update:own'),
+  csrfProtection, csrfProtection, requirePermission('route:update:own'),
   auditLog({ action: 'UPDATE', resourceType: 'trip_usage_classification' }),
   async (req: AuthRequest, res: Response) => {
     try {
@@ -428,13 +429,13 @@ router.patch(
 
       // Check permissions - only driver or admin/manager can update
       if (trip.driver_id !== req.user!.id &&
-          !['admin', 'fleet_manager'].includes(req.user!.role) {
+        !['admin', 'fleet_manager'].includes(req.user!.role)) {
         return res.status(403).json({ error: 'Insufficient permissions to update this trip' })
       }
 
       // If already approved, require manager approval to change
       if (trip.approval_status === ApprovalStatus.APPROVED &&
-          !['admin', 'fleet_manager'].includes(req.user!.role) {
+        !['admin', 'fleet_manager'].includes(req.user!.role)) {
         return res.status(403).json({
           error: `Cannot modify approved trips. Please contact your manager.`
         })
@@ -459,7 +460,7 @@ router.patch(
 
       // If changing to pending, reset approval
       if (validated.usage_type && validated.usage_type !== trip.usage_type) {
-        updates.push('approval_status = $' + (paramCount + 1)
+        updates.push('approval_status = $' + (paramCount + 1))
         values.push(ApprovalStatus.PENDING)
         updates.push('approved_by_user_id = NULL')
         updates.push(`approved_at = NULL`)
@@ -543,7 +544,7 @@ router.get(
  */
 router.post(
   '/:id/approve',
- csrfProtection,  csrfProtection, requirePermission('route:approve:fleet'),
+  csrfProtection, csrfProtection, requirePermission('route:approve:fleet'),
   auditLog({ action: 'APPROVE', resourceType: 'trip_usage_classification' }),
   async (req: AuthRequest, res: Response) => {
     try {
@@ -612,7 +613,7 @@ router.post(
  */
 router.post(
   '/:id/reject',
- csrfProtection,  csrfProtection, requirePermission('route:approve:fleet'),
+  csrfProtection, csrfProtection, requirePermission('route:approve:fleet'),
   auditLog({ action: 'REJECT', resourceType: 'trip_usage_classification' }),
   async (req: AuthRequest, res: Response) => {
     try {

@@ -97,7 +97,7 @@ export class GoogleCalendarService {
   private async getCalendarClient(userId: string, calendarIntegrationId?: string) {
   // Get user's Google tokens from database
   const query = calendarIntegrationId
-    ? 'SELECT 
+    ? `SELECT 
       id,
       tenant_id,
       user_id,
@@ -118,8 +118,8 @@ export class GoogleCalendarService {
       sync_errors,
       settings,
       created_at,
-      updated_at FROM calendar_integrations WHERE id = $1 AND provider = $2'
-    : 'SELECT 
+      updated_at FROM calendar_integrations WHERE id = $1 AND provider = $2`
+    : `SELECT 
       id,
       tenant_id,
       user_id,
@@ -140,7 +140,7 @@ export class GoogleCalendarService {
       sync_errors,
       settings,
       created_at,
-      updated_at FROM calendar_integrations WHERE user_id = $1 AND provider = $2 AND is_enabled = true LIMIT 1'
+      updated_at FROM calendar_integrations WHERE user_id = $1 AND provider = $2 AND is_enabled = true LIMIT 1`
 
   const params = calendarIntegrationId
     ? [calendarIntegrationId, 'google']
@@ -584,7 +584,7 @@ export class GoogleCalendarService {
       try {
         // Check if event already exists
         const existingEvent = await this.db.query(
-          'SELECT id FROM calendar_events WHERE event_id = $1 AND provider = $2',
+          `SELECT id FROM calendar_events WHERE event_id = $1 AND provider = $2`,
           [event.id, 'google']
         )
 
@@ -688,7 +688,7 @@ export class GoogleCalendarService {
   try {
     // Get integration
       const result = await this.db.query(
-      'SELECT 
+      `SELECT 
       id,
       tenant_id,
       user_id,
@@ -709,7 +709,7 @@ export class GoogleCalendarService {
       sync_errors,
       settings,
       created_at,
-      updated_at FROM calendar_integrations WHERE id = $1 AND user_id = $2 AND provider = $3',
+      updated_at FROM calendar_integrations WHERE id = $1 AND user_id = $2 AND provider = $3`,
       [integrationId, userId, 'google']
     )
 

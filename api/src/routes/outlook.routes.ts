@@ -34,12 +34,12 @@ router.use(authenticateJWT)
 // ============================================================================
 
 const sendEmailSchema = z.object({
-  to: z.union([z.string().email(), z.array(z.string().email()]),
+  to: z.union([z.string().email(), z.array(z.string().email())]),
   subject: z.string().min(1).max(500),
   body: z.string(),
   bodyType: z.enum(['text', 'html']).optional().default('html'),
-  cc: z.union([z.string().email(), z.array(z.string().email()]).optional(),
-  bcc: z.union([z.string().email(), z.array(z.string().email()]).optional(),
+  cc: z.union([z.string().email(), z.array(z.string().email())]).optional(),
+  bcc: z.union([z.string().email(), z.array(z.string().email())]).optional(),
   importance: z.enum(['low', 'normal', 'high']).optional().default('normal'),
   attachments: z.array(z.object({
     name: z.string(),
@@ -47,8 +47,8 @@ const sendEmailSchema = z.object({
     contentBytes: z.string(), // Base64 encoded
     isInline: z.boolean().optional(),
     contentId: z.string().optional()
-  }).optional(),
-  replyTo: z.union([z.string().email(), z.array(z.string().email()]).optional(),
+  })).optional(),
+  replyTo: z.union([z.string().email(), z.array(z.string().email())]).optional(),
   isDeliveryReceiptRequested: z.boolean().optional(),
   isReadReceiptRequested: z.boolean().optional(),
   saveToSentItems: z.boolean().optional().default(true),
@@ -57,7 +57,7 @@ const sendEmailSchema = z.object({
 
 router.post(
   '/send',
- csrfProtection,  csrfProtection, authorize('admin', 'fleet_manager', 'dispatcher'),
+  csrfProtection, csrfProtection, authorize('admin', 'fleet_manager', 'dispatcher'),
   auditLog({ action: 'CREATE', resourceType: 'outlook_email' }),
   async (req: AuthRequest, res: Response) => {
     try {
@@ -193,13 +193,13 @@ const replyEmailSchema = z.object({
     contentBytes: z.string(),
     isInline: z.boolean().optional(),
     contentId: z.string().optional()
-  }).optional(),
+  })).optional(),
   userId: z.string().email().optional()
 })
 
 router.post(
   '/messages/:messageId/reply',
- csrfProtection,  csrfProtection, authorize('admin', 'fleet_manager', 'dispatcher'),
+  csrfProtection, csrfProtection, authorize('admin', 'fleet_manager', 'dispatcher'),
   auditLog({ action: 'CREATE', resourceType: 'outlook_reply' }),
   async (req: AuthRequest, res: Response) => {
     try {
@@ -236,23 +236,23 @@ router.post(
 // ============================================================================
 
 const forwardEmailSchema = z.object({
-  to: z.union([z.string().email(), z.array(z.string().email()]),
+  to: z.union([z.string().email(), z.array(z.string().email())]),
   body: z.string().optional(),
   bodyType: z.enum(['text', 'html']).optional().default('html'),
-  cc: z.union([z.string().email(), z.array(z.string().email()]).optional(),
+  cc: z.union([z.string().email(), z.array(z.string().email())]).optional(),
   attachments: z.array(z.object({
     name: z.string(),
     contentType: z.string(),
     contentBytes: z.string(),
     isInline: z.boolean().optional(),
     contentId: z.string().optional()
-  }).optional(),
+  })).optional(),
   userId: z.string().email().optional()
 })
 
 router.post(
   '/messages/:messageId/forward',
- csrfProtection,  csrfProtection, authorize('admin', 'fleet_manager', 'dispatcher'),
+  csrfProtection, csrfProtection, authorize('admin', 'fleet_manager', 'dispatcher'),
   auditLog({ action: 'CREATE', resourceType: 'outlook_forward' }),
   async (req: AuthRequest, res: Response) => {
     try {
@@ -290,7 +290,7 @@ router.post(
 
 const updateEmailSchema = z.object({
   isRead: z.boolean().optional(),
-  categories: z.array(z.string().optional(),
+  categories: z.array(z.string()).optional(),
   importance: z.enum(['low', 'normal', 'high']).optional(),
   flag: z.object({
     flagStatus: z.enum(['notFlagged', 'complete', 'flagged']),
@@ -302,7 +302,7 @@ const updateEmailSchema = z.object({
 
 router.patch(
   '/messages/:messageId',
- csrfProtection,  csrfProtection, authorize('admin', 'fleet_manager', 'dispatcher'),
+  csrfProtection, csrfProtection, authorize('admin', 'fleet_manager', 'dispatcher'),
   auditLog({ action: 'UPDATE', resourceType: 'outlook_message' }),
   async (req: AuthRequest, res: Response) => {
     try {
@@ -341,7 +341,7 @@ router.patch(
 
 router.post(
   '/messages/:messageId/move',
- csrfProtection,  csrfProtection, authorize('admin', 'fleet_manager', 'dispatcher'),
+  csrfProtection, csrfProtection, authorize('admin', 'fleet_manager', 'dispatcher'),
   auditLog({ action: 'UPDATE', resourceType: 'outlook_message' }),
   async (req: AuthRequest, res: Response) => {
     try {
@@ -378,7 +378,7 @@ router.post(
 
 router.delete(
   '/messages/:messageId',
- csrfProtection,  csrfProtection, authorize('admin', 'fleet_manager', 'dispatcher'),
+  csrfProtection, csrfProtection, authorize('admin', 'fleet_manager', 'dispatcher'),
   auditLog({ action: 'DELETE', resourceType: 'outlook_message' }),
   async (req: AuthRequest, res: Response) => {
     try {
@@ -407,7 +407,7 @@ router.delete(
 
 router.post(
   '/messages/:messageId/read',
- csrfProtection,  csrfProtection, authorize('admin', 'fleet_manager', 'dispatcher'),
+  csrfProtection, csrfProtection, authorize('admin', 'fleet_manager', 'dispatcher'),
   auditLog({ action: 'UPDATE', resourceType: 'outlook_message' }),
   async (req: AuthRequest, res: Response) => {
     try {
@@ -418,7 +418,7 @@ router.post(
 
       res.json({
         success: true,
-        message: 'Email marked as ${isRead ? 'read' : 'unread'}'
+        message: `Email marked as ${isRead ? 'read' : 'unread'}`
       })
     } catch (error) {
       logger.error(`Mark as read error:`, error)
@@ -474,7 +474,7 @@ const createFolderSchema = z.object({
 
 router.post(
   '/folders',
- csrfProtection,  csrfProtection, authorize('admin', 'fleet_manager'),
+  csrfProtection, csrfProtection, authorize('admin', 'fleet_manager'),
   auditLog({ action: 'CREATE', resourceType: 'outlook_folder' }),
   async (req: AuthRequest, res: Response) => {
     try {
@@ -629,14 +629,14 @@ router.get(
 // ============================================================================
 
 const categorizeEmailSchema = z.object({
-  categories: z.array(z.string().min(1),
+  categories: z.array(z.string().min(1)),
   replace: z.boolean().optional().default(false),
   userId: z.string().email().optional()
 })
 
 router.post(
   '/messages/:messageId/categories',
- csrfProtection,  csrfProtection, authorize('admin', 'fleet_manager', 'dispatcher'),
+  csrfProtection, csrfProtection, authorize('admin', 'fleet_manager', 'dispatcher'),
   auditLog({ action: 'UPDATE', resourceType: 'outlook_message' }),
   async (req: AuthRequest, res: Response) => {
     try {
