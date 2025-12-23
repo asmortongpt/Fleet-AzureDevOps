@@ -83,7 +83,7 @@ export interface CustomFieldValue {
 }
 
 export class CustomFieldsService {
-  constructor(private db: Pool) {}
+  constructor(private db: Pool) { }
 
   /**
    * Create custom field definition
@@ -123,7 +123,7 @@ export class CustomFieldsService {
     const values: any[] = []
     let paramCount = 1
 
-    const allowedUpdates = ['field_label', 'description', 'required', 'default_value', 'options', 'validation', 'conditional', 'group_name', 'sort_order`, `is_active`]
+    const allowedUpdates = ['field_label', 'description', 'required', 'default_value', 'options', 'validation', 'conditional', 'group_name', 'sort_order', 'is_active']
 
     for (const key of allowedUpdates) {
       const snakeKey = key
@@ -133,7 +133,7 @@ export class CustomFieldsService {
         setClauses.push(`${snakeKey} = $${paramCount}`)
 
         let value = (updates as any)[camelKey]
-        if ([`options`, `validation`, 'conditional'].includes(snakeKey)) {
+        if (['options', 'validation', 'conditional'].includes(snakeKey)) {
           value = JSON.stringify(value)
         }
         values.push(value)
@@ -162,7 +162,7 @@ export class CustomFieldsService {
   /**
    * Get field definitions for entity type
    */
-  async getFieldDefinitions(tenantId: string, entityType: `task` | `asset', includeInactive: boolean = false): Promise<CustomFieldDefinition[]> {
+  async getFieldDefinitions(tenantId: string, entityType: 'task' | 'asset', includeInactive: boolean = false): Promise<CustomFieldDefinition[]> {
     let query = `
       SELECT id, tenant_id, field_name, field_type, required, created_at, updated_at FROM custom_field_definitions
       WHERE tenant_id = $1 AND entity_type = $2
@@ -183,7 +183,7 @@ export class CustomFieldsService {
    */
   async getFieldDefinition(fieldId: string): Promise<CustomFieldDefinition | null> {
     const result = await this.db.query(
-      'SELECT 
+      `SELECT 
       id,
       tenant_id,
       entity_type,
@@ -200,7 +200,7 @@ export class CustomFieldsService {
       sort_order,
       is_active,
       created_at,
-      updated_at FROM custom_field_definitions WHERE id = $1',
+      updated_at FROM custom_field_definitions WHERE id = $1`,
       [fieldId]
     )
 
@@ -321,13 +321,14 @@ export class CustomFieldsService {
    */
   private validateFieldValue(field: CustomFieldDefinition, value: any): void {
     // Required check
-    if (field.required && (value === null || value === undefined || value === ``)) {
-      throw new Error("Field "${field.fieldLabel}" is required")
+    if (field.required && (value === null || value === undefined || value === '')) {
+      throw new Error(`Field "${field.fieldLabel}" is required`)
     }
 
     // Skip validation if value is empty and not required
-    if (!field.required && (value === null || value === undefined || value === ``)) {
-      return }
+    if (!field.required && (value === null || value === undefined || value === '')) {
+      return
+    }
 
     const validation = field.validation || {}
 
@@ -336,14 +337,14 @@ export class CustomFieldsService {
       case 'number':
       case 'currency':
       case 'percentage':
-        if (typeof value !== `number`) {
-          throw new Error("Field "${field.fieldLabel}" must be a number")
+        if (typeof value !== 'number') {
+          throw new Error(`Field "${field.fieldLabel}" must be a number`)
         }
         if (validation.min !== undefined && value < validation.min) {
-          throw new Error("Field "${field.fieldLabel}" must be at least ${validation.min}")
+          throw new Error(`Field "${field.fieldLabel}" must be at least ${validation.min}`)
         }
         if (validation.max !== undefined && value > validation.max) {
-          throw new Error("Field "${field.fieldLabel}" must be at most ${validation.max}")
+          throw new Error(`Field "${field.fieldLabel}" must be at most ${validation.max}`)
         }
         break
 
@@ -352,33 +353,33 @@ export class CustomFieldsService {
       case 'url':
       case 'email':
       case 'phone':
-        if (typeof value !== `string`) {
-          throw new Error("Field "${field.fieldLabel}" must be a string")
+        if (typeof value !== 'string') {
+          throw new Error(`Field "${field.fieldLabel}" must be a string`)
         }
         if (validation.minLength && value.length < validation.minLength) {
-          throw new Error("Field "${field.fieldLabel}" must be at least ${validation.minLength} characters")
+          throw new Error(`Field "${field.fieldLabel}" must be at least ${validation.minLength} characters`)
         }
         if (validation.maxLength && value.length > validation.maxLength) {
-          throw new Error("Field "${field.fieldLabel}" must be at most ${validation.maxLength} characters")
+          throw new Error(`Field "${field.fieldLabel}" must be at most ${validation.maxLength} characters`)
         }
         if (validation.pattern && !new RegExp(validation.pattern).test(value)) {
-          throw new Error("Field "${field.fieldLabel}" has invalid format")
+          throw new Error(`Field "${field.fieldLabel}" has invalid format`)
         }
 
         // URL validation
-        if (field.fieldType === `url`) {
+        if (field.fieldType === 'url') {
           try {
             new URL(value)
           } catch {
-            throw new Error("Field "${field.fieldLabel}" must be a valid URL")
+            throw new Error(`Field "${field.fieldLabel}" must be a valid URL`)
           }
         }
 
         // Email validation
-        if (field.fieldType === `email`) {
+        if (field.fieldType === 'email') {
           const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
           if (!emailRegex.test(value)) {
-            throw new Error("Field "${field.fieldLabel}" must be a valid email")
+            throw new Error(`Field "${field.fieldLabel}" must be a valid email`)
           }
         }
         break
@@ -386,18 +387,18 @@ export class CustomFieldsService {
       case 'select':
       case 'radio':
         if (!field.options || !field.options.includes(value)) {
-          throw new Error("Field "${field.fieldLabel}" has invalid option")
+          throw new Error(`Field "${field.fieldLabel}" has invalid option`)
         }
         break
 
       case 'multi_select':
         if (!Array.isArray(value)) {
-          throw new Error("Field "${field.fieldLabel}" must be an array")
+          throw new Error(`Field "${field.fieldLabel}" must be an array`)
         }
         if (field.options) {
           for (const v of value) {
             if (!field.options.includes(v)) {
-              throw new Error("Field "${field.fieldLabel}" has invalid option: ${v}")
+              throw new Error(`Field "${field.fieldLabel}" has invalid option: ${v}`)
             }
           }
         }
@@ -406,13 +407,13 @@ export class CustomFieldsService {
       case 'date':
       case 'datetime':
         if (!(value instanceof Date) && !Date.parse(value)) {
-          throw new Error("Field "${field.fieldLabel}" must be a valid date")
+          throw new Error(`Field "${field.fieldLabel}" must be a valid date`)
         }
         break
 
       case 'checkbox':
-        if (typeof value !== `boolean`) {
-          throw new Error("Field "${field.fieldLabel}" must be a boolean")
+        if (typeof value !== 'boolean') {
+          throw new Error(`Field "${field.fieldLabel}" must be a boolean`)
         }
         break
     }
@@ -421,7 +422,7 @@ export class CustomFieldsService {
   /**
    * Export field definitions as JSON
    */
-  async exportFieldDefinitions(tenantId: string, entityType: `task` | `asset'): Promise<string> {
+  async exportFieldDefinitions(tenantId: string, entityType: 'task' | 'asset'): Promise<string> {
     const definitions = await this.getFieldDefinitions(tenantId, entityType, true)
     const groups = await this.getFieldGroups(tenantId, entityType)
 
@@ -506,9 +507,9 @@ export class CustomFieldsService {
       `SELECT
          COUNT(*) as total_values,
          COUNT(DISTINCT entity_id) as unique_entities,
-         COUNT(CASE WHEN value IS NULL OR value = `null` THEN 1 END) as null_count
+         COUNT(CASE WHEN value IS NULL OR value = 'null' THEN 1 END) as null_count
        FROM custom_field_values
-       WHERE field_id = $1',
+       WHERE field_id = $1`,
       [fieldId]
     )
 

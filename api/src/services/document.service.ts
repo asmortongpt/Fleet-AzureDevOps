@@ -104,7 +104,8 @@ export default class DocumentService {
 
       if (!accountNameMatch || !accountKeyMatch) {
         this.logger.error('Invalid Azure Storage connection string format')
-        return }
+        return
+      }
 
       this.accountName = accountNameMatch[1]
       this.accountKey = accountKeyMatch[1]
@@ -281,7 +282,7 @@ export default class DocumentService {
 
     try {
       const query = tenantId
-        ? 'SELECT 
+        ? `SELECT 
       id,
       tenant_id,
       vehicle_id,
@@ -303,7 +304,7 @@ export default class DocumentService {
       expires_at,
       is_archived,
       created_at,
-      updated_at FROM fleet_documents WHERE id = $1 AND tenant_id = $2'
+      updated_at FROM fleet_documents WHERE id = $1 AND tenant_id = $2`
         : 'SELECT id, tenant_id, document_name, document_type, file_path, created_at, updated_at FROM fleet_documents WHERE id = $1'
 
       const params = tenantId ? [documentId, tenantId] : [documentId]

@@ -1,17 +1,4 @@
 import { BaseRepository } from '../repositories/BaseRepository';
-
-To create a TypeScript repository named `TollIntegrationRepository` for the `api/src/routes/toll-integration.routes.ts` file, we'll implement parameterized queries, include a `tenant_id` field, and provide CRUD operations. Let's break this down step-by-step:
-
-1. First, we'll define the interface for our TollIntegration model.
-2. Then, we'll create the `TollIntegrationRepository` class with CRUD operations.
-3. We'll use parameterized queries to prevent SQL injection.
-4. We'll include `tenant_id` in all operations to ensure multi-tenant support.
-
-Here's the implementation:
-
-
-// api/src/repositories/toll-integration.repository.ts
-
 import { Pool, QueryResult } from 'pg';
 
 // Define the TollIntegration interface
@@ -29,6 +16,7 @@ export class TollIntegrationRepository extends BaseRepository<any> {
   private pool: Pool;
 
   constructor(pool: Pool) {
+    super('toll_integrations', pool);
     this.pool = pool;
   }
 
@@ -84,7 +72,7 @@ export class TollIntegrationRepository extends BaseRepository<any> {
     const values = [id, tenant_id];
 
     const result: QueryResult<{ id: number }> = await this.pool.query(query, values);
-    return result.rowCount > 0;
+    return result.rowCount ? result.rowCount > 0 : false;
   }
 
   // List toll integrations for a tenant
@@ -100,55 +88,3 @@ export class TollIntegrationRepository extends BaseRepository<any> {
     return result.rows;
   }
 }
-
-
-This implementation includes the following features:
-
-1. **Parameterized Queries**: All SQL queries use parameterized queries to prevent SQL injection attacks.
-
-2. **Tenant ID**: The `tenant_id` is included in all operations to ensure multi-tenant support. It's used as a filter in read, update, and delete operations, and as a required field in create operations.
-
-3. **CRUD Operations**:
-   - `create`: Inserts a new toll integration.
-   - `read`: Retrieves a toll integration by ID and tenant ID.
-   - `update`: Updates an existing toll integration.
-   - `delete`: Deletes a toll integration.
-   - `list`: Retrieves all toll integrations for a specific tenant.
-
-4. **TypeScript Interfaces**: We've defined a `TollIntegration` interface to ensure type safety throughout the repository.
-
-5. **Date Handling**: The `created_at` and `updated_at` fields are automatically set using `NOW()` in PostgreSQL.
-
-To use this repository in your `toll-integration.routes.ts` file, you would typically create an instance of the `TollIntegrationRepository` and use its methods in your route handlers. For example:
-
-
-// api/src/routes/toll-integration.routes.ts
-
-import express from 'express';
-import { Pool } from 'pg';
-import { TollIntegrationRepository } from '../repositories/toll-integration.repository';
-
-const router = express.Router();
-const pool = new Pool(/* your database configuration */);
-const tollIntegrationRepository = new TollIntegrationRepository(pool);
-
-// Example route for creating a new toll integration
-router.post('/', async (req, res) => {
-  try {
-    const newTollIntegration = await tollIntegrationRepository.create({
-      name: req.body.name,
-      description: req.body.description,
-      tenant_id: req.body.tenant_id
-    });
-    res.status(201).json(newTollIntegration);
-  } catch (error) {
-    res.status(500).json({ error: 'Failed to create toll integration' });
-  }
-});
-
-// Add other routes for read, update, delete, and list operations
-
-export default router;
-
-
-This implementation provides a solid foundation for your Toll Integration API, with proper handling of CRUD operations, multi-tenant support, and security through parameterized queries.

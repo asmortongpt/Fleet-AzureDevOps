@@ -5,9 +5,12 @@
  */
 
 import { Pool } from 'pg'
+import { pool } from '../config/database'
 import fleetOptimizationModel, { VehicleUtilizationData } from '../ml-models/fleet-optimization.model'
+// ... exports ...
 
-export interface UtilizationMetric {
+export class FleetOptimizerService {
+  private db = pool
   vehicleId: string
   vehicleNumber: string
   utilizationRate: number

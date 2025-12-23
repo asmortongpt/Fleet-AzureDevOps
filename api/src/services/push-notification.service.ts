@@ -9,7 +9,7 @@
  */
 
 import apn from 'apn';
-import admin from 'firebase-admin';
+import * as admin from 'firebase-admin';
 
 import { PushNotificationRepository } from '../repositories/push-notification.repository';
 import type {
@@ -75,7 +75,7 @@ class PushNotificationService {
   private initializeFCM() {
     try {
       // Check if FCM is already initialized
-      if (admin.apps.length > 0) {
+      if ((admin as any).apps.length > 0) {
         this.fcmInitialized = true;
         console.log('FCM already initialized');
         return;
@@ -489,7 +489,7 @@ class PushNotificationService {
           data: notification.data_payload || {},
         };
 
-        await admin.messaging().send(message);
+        await (admin as any).messaging().send(message);
         await this.updateRecipientStatus(notificationId, device.id, 'delivered');
       } catch (error: any) {
         console.error('Error sending to Android device:', error);

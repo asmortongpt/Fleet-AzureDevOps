@@ -1,8 +1,4 @@
 /**
-import { container } from '../container'
-import { asyncHandler } from '../middleware/errorHandler'
-import { NotFoundError, ValidationError } from '../errors/app-error'
-import logger from '../config/logger'; // Wave 33: Add Winston logger (FINAL WAVE!)
  * Crash Detection API Routes
  *
  * Handles crash reports from mobile devices and triggers emergency response
@@ -14,7 +10,8 @@ import { auditLog } from '../middleware/audit'
 import { z } from 'zod'
 import { getErrorMessage } from '../utils/error-handler'
 import { csrfProtection } from '../middleware/csrf'
-
+import { pool } from '../config/database';
+import logger from '../config/logger';
 
 const router = express.Router()
 
@@ -30,7 +27,7 @@ const CrashReportSchema = z.object({
   longitude: z.number().optional(),
   maxAcceleration: z.number(),
   userCanceled: z.boolean(),
-  telemetry: z.record(z.any().optional()
+  telemetry: z.record(z.any()).optional()
 })
 
 /**
@@ -76,7 +73,7 @@ const CrashReportSchema = z.object({
  *         description: Invalid request data
  */
 router.post('/crash',
- csrfProtection,  csrfProtection, auditLog(`crash_report_submitted`),
+  csrfProtection, auditLog('crash_report_submitted'),
   async (req: Request, res: Response) => {
     const client = await pool.connect()
 
@@ -131,7 +128,7 @@ router.post('/crash',
         acceleration: validated.maxAcceleration,
         userCanceled: validated.userCanceled,
         location: validated.latitude && validated.longitude ?
-          `${validated.latitude}, ${validated.longitude}` : `unknown`
+          `${validated.latitude}, ${validated.longitude}` : 'unknown'
       })
 
       res.status(201).json({
@@ -140,7 +137,7 @@ router.post('/crash',
         emergencyResponseTriggered: isEmergency
       })
     } catch (error: any) {
-      logger.error('Error saving crash report:', error) // Wave 33: Winston logger (FINAL WAVE!)
+      logger.error('Error saving crash report:', error)
       res.status(400).json({ error: getErrorMessage(error) })
     } finally {
       client.release()
@@ -197,7 +194,7 @@ router.get('/crash/history', async (req: Request, res: Response) => {
 
     res.json({ incidents: result.rows })
   } catch (error: any) {
-    logger.error(`Error fetching crash history:`, error) // Wave 33: Winston logger (FINAL WAVE!)
+    logger.error('Error fetching crash history:', error)
     res.status(500).json({ error: getErrorMessage(error) })
   } finally {
     client.release()
@@ -224,7 +221,7 @@ router.get('/crash/history', async (req: Request, res: Response) => {
  *       200:
  *         description: List of fleet crash incidents
  */
-router.get(`/crash/fleet`, async (req: Request, res: Response) => {
+router.get('/crash/fleet', async (req: Request, res: Response) => {
   const client = await pool.connect()
 
   try {
@@ -266,11 +263,11 @@ router.get(`/crash/fleet`, async (req: Request, res: Response) => {
         email: row.email
       },
       createdAt: row.created_at
-    })
+    }))
 
     res.json({ incidents })
   } catch (error: any) {
-    logger.error(`Error fetching fleet crash incidents:`, error) // Wave 33: Winston logger (FINAL WAVE!)
+    logger.error('Error fetching fleet crash incidents:', error)
     res.status(500).json({ error: getErrorMessage(error) })
   } finally {
     client.release()
@@ -302,9 +299,9 @@ async function triggerEmergencyResponse(incident: any, client: any) {
         incident.user_id,
         incident.driver_id,
         null, // vehicle_id (unknown from mobile crash detection)
-        `crash_detected`,
-        `critical`,
-        `🚨 CRASH DETECTED`,
+        'crash_detected',
+        'critical',
+        '🚨 CRASH DETECTED',
         `Vehicle crash detected with ${incident.max_acceleration}G impact. Emergency services have been notified.`,
         incident.latitude,
         incident.longitude,
@@ -330,16 +327,16 @@ async function triggerEmergencyResponse(incident: any, client: any) {
       SELECT
         $1,
         u.id,
-        `crash_alert`,
-        `🚨 Emergency: Crash Detected`,
-        `A driver has been in a crash. Emergency services notified.`,
+        'crash_alert',
+        '🚨 Emergency: Crash Detected',
+        'A driver has been in a crash. Emergency services notified.',
         'high',
         $2
       FROM users u
       INNER JOIN user_roles ur ON u.id = ur.user_id
       INNER JOIN roles r ON ur.role_id = r.id
       WHERE u.tenant_id = $1
-        AND r.name IN ('fleet_manager', 'admin`)`,
+        AND r.name IN ('fleet_manager', 'admin')`,
       [
         incident.tenant_id,
         JSON.stringify({
@@ -361,7 +358,7 @@ async function triggerEmergencyResponse(incident: any, client: any) {
     // - Company safety coordinator
 
   } catch (error) {
-    logger.error(`Error triggering emergency response:`, error) // Wave 33: Winston logger (FINAL WAVE!)
+    logger.error('Error triggering emergency response:', error)
   }
 }
 

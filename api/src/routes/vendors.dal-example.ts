@@ -1,7 +1,4 @@
 /**
-import { container } from '../container'
-import { asyncHandler } from '../middleware/errorHandler'
-import { NotFoundError, ValidationError } from '../errors/app-error'
  * Vendors Routes - DAL Example Implementation
  *
  * This file demonstrates how to use the Data Access Layer (DAL) with repositories
@@ -32,8 +29,7 @@ import { handleDatabaseError, NotFoundError, ValidationError, withTransaction } 
 import { connectionManager } from '../config/connection-manager'
 import { z } from 'zod'
 import { csrfProtection } from '../middleware/csrf'
-import { pool } from '../db/connection';
-
+import { pool } from '../config/database';
 
 const router = express.Router()
 router.use(authenticateJWT)
@@ -62,16 +58,6 @@ const vendorSchema = z.object({
 /**
  * GET /vendors
  * Get all vendors with pagination
- *
- * BEFORE (direct pool.query):
- * - Manual query construction
- * - Manual pagination logic
- * - Repeated error handling
- *
- * AFTER (DAL):
- * - Single repository call
- * - Built-in pagination
- * - Standardized error handling
  */
 router.get(
   '/',
@@ -99,8 +85,6 @@ router.get(
 /**
  * GET /vendors/active
  * Get only active vendors
- *
- * Demonstrates using custom repository methods
  */
 router.get(
   '/active',
@@ -120,8 +104,6 @@ router.get(
 /**
  * GET /vendors/stats
  * Get vendor statistics
- *
- * Demonstrates complex queries in repository
  */
 router.get(
   '/stats',
@@ -166,14 +148,6 @@ router.get(
 /**
  * GET /vendors/:id
  * Get a single vendor by ID
- *
- * BEFORE (direct pool.query):
- * - Manual query with WHERE clause
- * - Manual 404 check
- *
- * AFTER (DAL):
- * - Single repository call
- * - Type-safe return value
  */
 router.get(
   '/:id',
@@ -198,19 +172,10 @@ router.get(
 /**
  * POST /vendors
  * Create a new vendor
- *
- * BEFORE (direct pool.query):
- * - Manual INSERT query construction
- * - Manual parameter binding
- *
- * AFTER (DAL):
- * - Validation with Zod
- * - Single repository call
- * - Automatic tenant_id injection
  */
 router.post(
   '/',
- csrfProtection,  csrfProtection, requirePermission('vendor:create:global'),
+  csrfProtection, requirePermission('vendor:create:global'),
   auditLog({ action: 'CREATE', resourceType: 'vendors' }),
   async (req: AuthRequest, res: Response) => {
     try {
@@ -243,20 +208,10 @@ router.post(
 /**
  * PUT /vendors/:id
  * Update a vendor
- *
- * BEFORE (direct pool.query):
- * - Manual UPDATE query construction
- * - Manual parameter binding
- * - Manual 404 check
- *
- * AFTER (DAL):
- * - Validation with Zod
- * - Single repository call
- * - Automatic NotFoundError on missing record
  */
 router.put(
   '/:id',
- csrfProtection,  csrfProtection, requirePermission('vendor:update:global'),
+  csrfProtection, requirePermission('vendor:update:global'),
   auditLog({ action: 'UPDATE', resourceType: 'vendors' }),
   async (req: AuthRequest, res: Response) => {
     try {
@@ -296,18 +251,10 @@ router.put(
 /**
  * DELETE /vendors/:id
  * Delete a vendor
- *
- * BEFORE (direct pool.query):
- * - Manual DELETE query
- * - Manual 404 check
- *
- * AFTER (DAL):
- * - Single repository call
- * - Returns boolean success
  */
 router.delete(
   '/:id',
- csrfProtection,  csrfProtection, requirePermission('vendor:delete:global'),
+  csrfProtection, requirePermission('vendor:delete:global'),
   auditLog({ action: 'DELETE', resourceType: 'vendors' }),
   async (req: AuthRequest, res: Response) => {
     try {
@@ -328,12 +275,10 @@ router.delete(
 /**
  * POST /vendors/:id/deactivate
  * Soft delete a vendor (set is_active = false)
- *
- * Demonstrates soft delete functionality
  */
 router.post(
   '/:id/deactivate',
- csrfProtection,  csrfProtection, requirePermission('vendor:update:global'),
+  csrfProtection, requirePermission('vendor:update:global'),
   auditLog({ action: 'UPDATE', resourceType: 'vendors' }),
   async (req: AuthRequest, res: Response) => {
     try {
@@ -354,23 +299,21 @@ router.post(
 /**
  * POST /vendors/bulk
  * Bulk create vendors
- *
- * Demonstrates transaction usage for multi-step operations
  */
 router.post(
   '/bulk',
- csrfProtection,  csrfProtection, requirePermission('vendor:create:global'),
+  csrfProtection, requirePermission('vendor:create:global'),
   auditLog({ action: 'CREATE', resourceType: 'vendors' }),
   async (req: AuthRequest, res: Response) => {
     try {
       const { vendors } = req.body
 
       if (!Array.isArray(vendors) || vendors.length === 0) {
-        throw new ValidationError(`Vendors array is required`)
+        throw new ValidationError('Vendors array is required')
       }
 
       // Validate all vendors
-      const validatedVendors = vendors.map(v => vendorSchema.parse(v)
+      const validatedVendors = vendors.map(v => vendorSchema.parse(v))
 
       // Use transaction for atomic bulk insert
       const createdVendors = await withTransaction(
@@ -393,7 +336,7 @@ router.post(
       })
     } catch (error) {
       if (error instanceof z.ZodError) {
-        return res.status(400).json({ error: `Validation failed`, details: error.errors })
+        return res.status(400).json({ error: 'Validation failed', details: error.errors })
       }
 
       const { statusCode, error: message, code } = handleDatabaseError(error)

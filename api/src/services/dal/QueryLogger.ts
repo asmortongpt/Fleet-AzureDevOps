@@ -36,7 +36,9 @@ export class QueryLogger {
    * Log a query execution
    */
   logQuery(query: string, params?: any[]): void {
-    if (!this.enabled) return const log: QueryLog = {
+    if (!this.enabled) return
+
+    const log: QueryLog = {
       query: this.sanitizeQuery(query),
       params: this.sanitizeParams(params),
       timestamp: new Date(),

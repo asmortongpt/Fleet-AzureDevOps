@@ -54,7 +54,7 @@ async function runWebhookRenewal(): Promise<void> {
     const result = await pool.query(
       `SELECT subscription_id, subscription_type, expiration_date_time, team_id, channel_id, user_email
        FROM webhook_subscriptions
-       WHERE status = `active`
+       WHERE status = 'active'
        AND expiration_date_time < $1
        AND renewal_failure_count < 3
        ORDER BY expiration_date_time ASC`,
@@ -66,7 +66,8 @@ async function runWebhookRenewal(): Promise<void> {
 
     if (subscriptions.length === 0) {
       logger.info(`No subscriptions need renewal at this time`)
-      return }
+      return
+    }
 
     // Renew each subscription
     let successCount = 0
@@ -96,12 +97,12 @@ async function runWebhookRenewal(): Promise<void> {
           logger.error(`Subscription ${subscription.subscription_id} has failed renewal 3 times, marking as failed`)
 
           await pool.query(
-            `UPDATE webhook_subscriptions SET status = `failed' WHERE subscription_id = $1',
+            `UPDATE webhook_subscriptions SET status = 'failed' WHERE subscription_id = $1`,
             [subscription.subscription_id]
           )
 
-          // If it`s a critical subscription, try to recreate it
-          if (subscription.subscription_type === `teams_messages` && subscription.team_id && subscription.channel_id) {
+          // If it's a critical subscription, try to recreate it
+          if (subscription.subscription_type === 'teams_messages' && subscription.team_id && subscription.channel_id) {
             logger.info(`Attempting to recreate failed Teams subscription for team ${subscription.team_id}`)
 
             try {
@@ -124,7 +125,7 @@ async function runWebhookRenewal(): Promise<void> {
             } catch (recreateError: any) {
               logger.error('Failed to recreate subscription:', recreateError.message)
             }
-          } else if (subscription.subscription_type === `outlook_emails` && subscription.user_email) {
+          } else if (subscription.subscription_type === 'outlook_emails' && subscription.user_email) {
             logger.info(`Attempting to recreate failed Outlook subscription for ${subscription.user_email}`)
 
             try {
@@ -211,21 +212,21 @@ export async function getRenewalStats(): Promise<any> {
       `SELECT COUNT(*) as count
        FROM webhook_subscriptions
        WHERE status = 'active'
-       AND expiration_date_time < NOW() + INTERVAL '24 hours''
+       AND expiration_date_time < NOW() + INTERVAL '24 hours'`
     )
 
     // Failed subscriptions
     const failedResult = await pool.query(
       `SELECT COUNT(*) as count
        FROM webhook_subscriptions
-       WHERE status = 'failed''
+       WHERE status = 'failed'`
     )
 
     // Recent renewal activity
     const activityResult = await pool.query(
       `SELECT COUNT(*) as count
        FROM webhook_subscriptions
-       WHERE last_renewed_at > NOW() - INTERVAL '24 hours''
+       WHERE last_renewed_at > NOW() - INTERVAL '24 hours'`
     )
 
     return {

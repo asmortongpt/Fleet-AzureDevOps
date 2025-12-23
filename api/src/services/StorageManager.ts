@@ -12,6 +12,8 @@
 
 import crypto from 'crypto';
 import { Readable } from 'stream';
+import { Pool } from 'pg';
+import pool from '../config/database';
 
 import {
   IStorageAdapter,
@@ -84,6 +86,7 @@ export class StorageManager {
   private quotaConfig?: QuotaConfig;
   private enableDeduplication: boolean = false;
   private failoverOrder: string[] = [];
+  private db: Pool = pool;
 
   constructor(private config: StorageConfig, private options?: {
     enableDeduplication?: boolean;

@@ -5,7 +5,7 @@ import { Pool } from 'pg';
  * Extracted from route handlers for better separation of concerns
  */
 export class WorkorderService {
-  constructor(private db: Pool) {}
+  constructor(private db: Pool) { }
 
   async getAll(tenantId: number, filters?: any) {
     const query = `
@@ -30,7 +30,7 @@ export class WorkorderService {
 
   async create(data: any, tenantId: number) {
     // TODO: Add business validation logic here
-    
+
     const query = `
       INSERT INTO workorders (data, tenant_id, created_at, updated_at)
       VALUES ($1, $2, NOW(), NOW())
@@ -66,7 +66,7 @@ export class WorkorderService {
       RETURNING id
     `;
     const result = await this.db.query(query, [id, tenantId]);
-    return result.rowCount > 0;
+    return (result.rowCount || 0) > 0;
   }
 }
 

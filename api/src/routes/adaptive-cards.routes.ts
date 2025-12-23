@@ -1,9 +1,7 @@
 import express, { Request, Response } from 'express'
-import { container } from '../container'
-import { asyncHandler } from '../middleware/errorHandler'
-import { NotFoundError, ValidationError } from '../errors/app-error'
-import logger from '../config/logger'; // Wave 29: Add Winston logger
 import { authenticateJWT } from '../middleware/auth'
+import { NotFoundError, ValidationError } from '../errors/app-error'
+import logger from '../config/logger';
 import {
   createVehicleMaintenanceCard,
   createWorkOrderCard,
@@ -18,8 +16,7 @@ import {
 } from '../services/adaptive-cards.service'
 import { handleCardAction } from '../services/actionable-messages.service'
 import { csrfProtection } from '../middleware/csrf'
-import { pool } from '../db/connection';
-
+import { pool } from '../config/database';
 
 const router = express.Router()
 
@@ -27,13 +24,13 @@ const router = express.Router()
  * POST /api/cards/vehicle-maintenance
  * Send a vehicle maintenance alert card
  */
-router.post('/vehicle-maintenance',csrfProtection,  csrfProtection, authenticateJWT, async (req: Request, res: Response) => {
+router.post('/vehicle-maintenance', csrfProtection, authenticateJWT, async (req: Request, res: Response) => {
   try {
     const { vehicleId, maintenanceId, teamId, channelId, userId } = req.body
 
     // Get vehicle and maintenance data
     const vehicleResult = await pool.query(`SELECT id, tenant_id, vin, license_plate, make, model, year, color, current_mileage, status, acquired_date, disposition_date, purchase_price, residual_value, created_at, updated_at, deleted_at FROM vehicles WHERE id = $1`, [vehicleId])
-    const maintenanceResult = await pool.query(`SELECT * FROM maintenance WHERE tenant_id = $1 AND id = $1`, [maintenanceId])
+    const maintenanceResult = await pool.query(`SELECT * FROM maintenance WHERE tenant_id = $1 AND id = $2`, [req.user?.tenant_id, maintenanceId])
 
     if (vehicleResult.rows.length === 0 || maintenanceResult.rows.length === 0) {
       return res.status(404).json({ error: `Vehicle or maintenance record not found` })
@@ -68,7 +65,7 @@ router.post('/vehicle-maintenance',csrfProtection,  csrfProtection, authenticate
       card
     })
   } catch (error: any) {
-    logger.error('Error sending maintenance card:', error.message) // Wave 29: Winston logger
+    logger.error('Error sending maintenance card:', error.message)
     res.status(500).json({ error: error.message })
   }
 })
@@ -77,14 +74,14 @@ router.post('/vehicle-maintenance',csrfProtection,  csrfProtection, authenticate
  * POST /api/cards/work-order
  * Send a work order assignment card
  */
-router.post('/work-order',csrfProtection,  csrfProtection, authenticateJWT, async (req: Request, res: Response) => {
+router.post('/work-order', csrfProtection, authenticateJWT, async (req: Request, res: Response) => {
   try {
     const { workOrderId, teamId, channelId, userId } = req.body
 
     // Get work order data with vehicle and assignment details
     const workOrderResult = await pool.query(
       `SELECT wo.*, v.vehicle_number, v.make as vehicle_make, v.model as vehicle_model,
-              u.first_name || ` ` || u.last_name as assigned_to_name
+              u.first_name || ' ' || u.last_name as assigned_to_name
        FROM work_orders wo
        LEFT JOIN vehicles v ON wo.vehicle_id = v.id
        LEFT JOIN users u ON wo.assigned_to = u.id
@@ -124,7 +121,7 @@ router.post('/work-order',csrfProtection,  csrfProtection, authenticateJWT, asyn
       card
     })
   } catch (error: any) {
-    logger.error('Error sending work order card:', error.message) // Wave 29: Winston logger
+    logger.error('Error sending work order card:', error.message)
     res.status(500).json({ error: error.message })
   }
 })
@@ -133,20 +130,20 @@ router.post('/work-order',csrfProtection,  csrfProtection, authenticateJWT, asyn
  * POST /api/cards/incident
  * Send an incident report card
  */
-router.post('/incident',csrfProtection,  csrfProtection, authenticateJWT, async (req: Request, res: Response) => {
+router.post('/incident', csrfProtection, authenticateJWT, async (req: Request, res: Response) => {
   try {
     const { incidentId, teamId, channelId, userId } = req.body
 
     // Get incident data
     const incidentResult = await pool.query(
       `SELECT i.*, v.vehicle_number, v.make as vehicle_make, v.model as vehicle_model,
-              d.first_name || ` ` || d.last_name as driver_name,
-              r.first_name || ` ` || r.last_name as reported_by_name
+              d.first_name || ' ' || d.last_name as driver_name,
+              r.first_name || ' ' || r.last_name as reported_by_name
        FROM incidents i
        LEFT JOIN vehicles v ON i.vehicle_id = v.id
        LEFT JOIN users d ON i.driver_id = d.id
        LEFT JOIN users r ON i.reported_by = r.id
-       WHERE i.id = $1',
+       WHERE i.id = $1`,
       [incidentId]
     )
 
@@ -182,7 +179,7 @@ router.post('/incident',csrfProtection,  csrfProtection, authenticateJWT, async 
       card
     })
   } catch (error: any) {
-    logger.error('Error sending incident card:', error.message) // Wave 29: Winston logger
+    logger.error('Error sending incident card:', error.message)
     res.status(500).json({ error: error.message })
   }
 })
@@ -191,13 +188,13 @@ router.post('/incident',csrfProtection,  csrfProtection, authenticateJWT, async 
  * POST /api/cards/approval
  * Send an approval request card
  */
-router.post('/approval',csrfProtection,  csrfProtection, authenticateJWT, async (req: Request, res: Response) => {
+router.post('/approval', csrfProtection, authenticateJWT, async (req: Request, res: Response) => {
   try {
     const { approvalId, teamId, channelId, userId } = req.body
 
     // Get approval request data
     const approvalResult = await pool.query(
-      `SELECT a.*, u.first_name || ` ` || u.last_name as requested_by_name
+      `SELECT a.*, u.first_name || ' ' || u.last_name as requested_by_name
        FROM approvals a
        LEFT JOIN users u ON a.requested_by = u.id
        WHERE a.id = $1`,
@@ -236,7 +233,7 @@ router.post('/approval',csrfProtection,  csrfProtection, authenticateJWT, async 
       card
     })
   } catch (error: any) {
-    logger.error('Error sending approval card:', error.message) // Wave 29: Winston logger
+    logger.error('Error sending approval card:', error.message)
     res.status(500).json({ error: error.message })
   }
 })
@@ -245,7 +242,7 @@ router.post('/approval',csrfProtection,  csrfProtection, authenticateJWT, async 
  * POST /api/cards/driver-performance
  * Send a driver performance card
  */
-router.post('/driver-performance',csrfProtection,  csrfProtection, authenticateJWT, async (req: Request, res: Response) => {
+router.post('/driver-performance', csrfProtection, authenticateJWT, async (req: Request, res: Response) => {
   try {
     const { driverId, metrics, teamId, channelId, userId } = req.body
 
@@ -284,7 +281,7 @@ router.post('/driver-performance',csrfProtection,  csrfProtection, authenticateJ
       card
     })
   } catch (error: any) {
-    logger.error('Error sending performance card:', error.message) // Wave 29: Winston logger
+    logger.error('Error sending performance card:', error.message)
     res.status(500).json({ error: error.message })
   }
 })
@@ -293,14 +290,14 @@ router.post('/driver-performance',csrfProtection,  csrfProtection, authenticateJ
  * POST /api/cards/fuel-receipt
  * Send a fuel receipt card
  */
-router.post('/fuel-receipt',csrfProtection,  csrfProtection, authenticateJWT, async (req: Request, res: Response) => {
+router.post('/fuel-receipt', csrfProtection, authenticateJWT, async (req: Request, res: Response) => {
   try {
     const { receiptId, teamId, channelId, userId } = req.body
 
     // Get fuel receipt data
     const receiptResult = await pool.query(
       `SELECT fr.*, v.vehicle_number, v.make as vehicle_make, v.model as vehicle_model,
-              u.first_name || ` ` || u.last_name as driver_name
+              u.first_name || ' ' || u.last_name as driver_name
        FROM fuel_receipts fr
        LEFT JOIN vehicles v ON fr.vehicle_id = v.id
        LEFT JOIN users u ON fr.driver_id = u.id
@@ -340,7 +337,7 @@ router.post('/fuel-receipt',csrfProtection,  csrfProtection, authenticateJWT, as
       card
     })
   } catch (error: any) {
-    logger.error('Error sending fuel receipt card:', error.message) // Wave 29: Winston logger
+    logger.error('Error sending fuel receipt card:', error.message)
     res.status(500).json({ error: error.message })
   }
 })
@@ -349,7 +346,7 @@ router.post('/fuel-receipt',csrfProtection,  csrfProtection, authenticateJWT, as
  * POST /api/cards/inspection-checklist
  * Send an inspection checklist card
  */
-router.post('/inspection-checklist',csrfProtection,  csrfProtection, authenticateJWT, async (req: Request, res: Response) => {
+router.post('/inspection-checklist', csrfProtection, authenticateJWT, async (req: Request, res: Response) => {
   try {
     const { vehicleId, driverId, teamId, channelId, userId } = req.body
 
@@ -396,7 +393,7 @@ router.post('/inspection-checklist',csrfProtection,  csrfProtection, authenticat
       card
     })
   } catch (error: any) {
-    logger.error('Error sending inspection card:', error.message) // Wave 29: Winston logger
+    logger.error('Error sending inspection card:', error.message)
     res.status(500).json({ error: error.message })
   }
 })
@@ -405,7 +402,7 @@ router.post('/inspection-checklist',csrfProtection,  csrfProtection, authenticat
  * POST /api/cards/:cardType/action
  * Handle card button actions
  */
-router.post('/:cardType/action',csrfProtection,  csrfProtection, authenticateJWT, async (req: Request, res: Response) => {
+router.post('/:cardType/action', csrfProtection, authenticateJWT, async (req: Request, res: Response) => {
   try {
     const { cardType } = req.params
     const { action, cardId, teamId, channelId, messageId } = req.body
@@ -424,7 +421,7 @@ router.post('/:cardType/action',csrfProtection,  csrfProtection, authenticateJWT
       res.status(400).json(result)
     }
   } catch (error: any) {
-    logger.error('Error handling card action:', error.message) // Wave 29: Winston logger
+    logger.error('Error handling card action:', error.message)
     res.status(500).json({ error: error.message })
   }
 })
@@ -489,7 +486,7 @@ router.get('/preview/:cardType', authenticateJWT, async (req: Request, res: Resp
 
     res.json({ card })
   } catch (error: any) {
-    logger.error('Error generating card preview:', error.message) // Wave 29: Winston logger
+    logger.error('Error generating card preview:', error.message)
     res.status(500).json({ error: error.message })
   }
 })

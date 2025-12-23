@@ -93,7 +93,7 @@ class AIControlsService {
       const limits = this.RATE_LIMITS[userTier as keyof typeof this.RATE_LIMITS] || this.RATE_LIMITS.free
 
       // Check hourly limit
-      const hourlyCount = await this.getRequestCount(tenantId, userId, `hour`)
+      const hourlyCount = await this.getRequestCount(tenantId, userId, 'hour')
       if (hourlyCount >= limits.hourly) {
         return {
           allowed: false,
@@ -105,7 +105,7 @@ class AIControlsService {
       }
 
       // Check daily limit
-      const dailyCount = await this.getRequestCount(tenantId, userId, `day`)
+      const dailyCount = await this.getRequestCount(tenantId, userId, 'day')
       if (dailyCount >= limits.daily) {
         return {
           allowed: false,
@@ -117,7 +117,7 @@ class AIControlsService {
       }
 
       // Check token limit
-      const tokensToday = await this.getTokenCount(tenantId, userId, `day`)
+      const tokensToday = await this.getTokenCount(tenantId, userId, 'day')
       if (tokensToday >= limits.tokensDaily) {
         return {
           allowed: false,
@@ -201,7 +201,7 @@ class AIControlsService {
         `SELECT COUNT(*) as count
          FROM ai_requests
          WHERE tenant_id = $1 AND user_id = $2
-           AND created_at > NOW() - INTERVAL `${interval}``,
+           AND created_at > NOW() - INTERVAL '${interval}'`,
         [tenantId, userId]
       )
 
@@ -234,7 +234,7 @@ class AIControlsService {
         `SELECT COALESCE(SUM(tokens_used), 0) as total_tokens
          FROM ai_requests
          WHERE tenant_id = $1 AND user_id = $2
-           AND created_at > NOW() - INTERVAL `${interval}``,
+           AND created_at > NOW() - INTERVAL '${interval}'`,
         [tenantId, userId]
       )
 
@@ -358,7 +358,7 @@ class AIControlsService {
           COALESCE(SUM(cost) FILTER (WHERE created_at > NOW() - INTERVAL '1 day'), 0) as cost_today,
           COALESCE(SUM(cost) FILTER (WHERE created_at > NOW() - INTERVAL '1 month'), 0) as cost_month
          FROM ai_usage_logs
-         WHERE tenant_id = $1 AND user_id = $2',
+         WHERE tenant_id = $1 AND user_id = $2`,
         [tenantId, userId]
       )
 
@@ -476,11 +476,11 @@ class AIControlsService {
       const [auditResult, usageResult] = await Promise.all([
         this.db.query(
           `DELETE FROM ai_audit_logs
-           WHERE created_at < NOW() - INTERVAL `${daysToKeep} days``
+           WHERE created_at < NOW() - INTERVAL '${daysToKeep} days'`
         ),
         this.db.query(
           `DELETE FROM ai_usage_logs
-           WHERE created_at < NOW() - INTERVAL `${daysToKeep} days``
+           WHERE created_at < NOW() - INTERVAL '${daysToKeep} days'`
         )
       ])
 
