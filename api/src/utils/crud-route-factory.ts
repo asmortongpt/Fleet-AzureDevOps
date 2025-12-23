@@ -3,7 +3,7 @@
  * Creates standard REST routes with authentication, authorization, validation, caching
  */
 
-import { Router } from 'express';
+import { Router, Request, Response, NextFunction } from 'express';
 import { ZodSchema } from 'zod';
 
 import { container } from '../container';
@@ -108,7 +108,7 @@ export function createCRUDRoutes(config: CRUDRouteConfig): Router {
   const router = Router();
 
   // Apply authentication to all routes
-  router.use(authenticateJWT);
+  router.use(authenticateJWT as any);
 
   // Generate service method names
   const serviceMethods = {
@@ -124,6 +124,7 @@ export function createCRUDRoutes(config: CRUDRouteConfig): Router {
   const skipRoutes = config.skipRoutes || [];
 
   // LIST route: GET /
+  // LIST route: GET /
   if (!skipRoutes.includes('list')) {
     router.get(
       '/',
@@ -132,9 +133,9 @@ export function createCRUDRoutes(config: CRUDRouteConfig): Router {
         permissions: config.permissions.read || [],
         enforceTenantIsolation: true,
         resourceType: config.resourceType,
-      }),
-      config.schemas.query ? validateQuery(config.schemas.query) : (req, res, next) => next(),
-      asyncHandler(async (req, res) => {
+      }) as any,
+      config.schemas.query ? validateQuery(config.schemas.query) : ((req: Request, res: Response, next: NextFunction) => next()) as any,
+      asyncHandler(async (req: Request, res: Response) => {
         await handleListQuery(
           req,
           res,
@@ -149,7 +150,7 @@ export function createCRUDRoutes(config: CRUDRouteConfig): Router {
           },
           container
         );
-      })
+      }) as any
     );
   }
 
@@ -162,9 +163,9 @@ export function createCRUDRoutes(config: CRUDRouteConfig): Router {
         permissions: config.permissions.read || [],
         enforceTenantIsolation: true,
         resourceType: config.resourceType,
-      }),
-      config.schemas.params ? validateParams(config.schemas.params) : (req, res, next) => next(),
-      asyncHandler(async (req, res) => {
+      }) as any,
+      config.schemas.params ? validateParams(config.schemas.params) : ((req: Request, res: Response, next: NextFunction) => next()) as any,
+      asyncHandler(async (req: Request, res: Response) => {
         const item = await handleGetById(
           req,
           res,
@@ -178,7 +179,7 @@ export function createCRUDRoutes(config: CRUDRouteConfig): Router {
           container
         );
         res.json(item);
-      })
+      }) as any
     );
   }
 
@@ -191,9 +192,9 @@ export function createCRUDRoutes(config: CRUDRouteConfig): Router {
         permissions: config.permissions.create || [],
         enforceTenantIsolation: true,
         resourceType: config.resourceType,
-      }),
-      config.schemas.create ? validateBody(config.schemas.create) : (req, res, next) => next(),
-      asyncHandler(async (req, res) => {
+      }) as any,
+      config.schemas.create ? validateBody(config.schemas.create) : ((req: Request, res: Response, next: NextFunction) => next()) as any,
+      asyncHandler(async (req: Request, res: Response) => {
         await handleCreate(
           req,
           res,
@@ -205,7 +206,7 @@ export function createCRUDRoutes(config: CRUDRouteConfig): Router {
           },
           container
         );
-      })
+      }) as any
     );
   }
 
@@ -218,10 +219,10 @@ export function createCRUDRoutes(config: CRUDRouteConfig): Router {
         permissions: config.permissions.update || [],
         enforceTenantIsolation: true,
         resourceType: config.resourceType,
-      }),
-      config.schemas.params ? validateParams(config.schemas.params) : (req, res, next) => next(),
-      config.schemas.update ? validateBody(config.schemas.update) : (req, res, next) => next(),
-      asyncHandler(async (req, res) => {
+      }) as any,
+      config.schemas.params ? validateParams(config.schemas.params) : ((req: Request, res: Response, next: NextFunction) => next()) as any,
+      config.schemas.update ? validateBody(config.schemas.update) : ((req: Request, res: Response, next: NextFunction) => next()) as any,
+      asyncHandler(async (req: Request, res: Response) => {
         await handleUpdate(
           req,
           res,
@@ -233,7 +234,7 @@ export function createCRUDRoutes(config: CRUDRouteConfig): Router {
           },
           container
         );
-      })
+      }) as any
     );
   }
 
@@ -246,9 +247,9 @@ export function createCRUDRoutes(config: CRUDRouteConfig): Router {
         permissions: config.permissions.delete || [],
         enforceTenantIsolation: true,
         resourceType: config.resourceType,
-      }),
-      config.schemas.params ? validateParams(config.schemas.params) : (req, res, next) => next(),
-      asyncHandler(async (req, res) => {
+      }) as any,
+      config.schemas.params ? validateParams(config.schemas.params) : ((req: Request, res: Response, next: NextFunction) => next()) as any,
+      asyncHandler(async (req: Request, res: Response) => {
         await handleDelete(
           req,
           res,
@@ -260,7 +261,7 @@ export function createCRUDRoutes(config: CRUDRouteConfig): Router {
           },
           container
         );
-      })
+      }) as any
     );
   }
 

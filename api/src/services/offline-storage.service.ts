@@ -12,6 +12,8 @@
  * - Background sync scheduling
  */
 
+import { Pool } from 'pg';
+
 
 export interface OfflineData {
   id: string
@@ -45,6 +47,11 @@ export interface SyncQueue {
 }
 
 export class OfflineStorageService {
+  private db: Pool;
+
+  constructor(db: Pool) {
+    this.db = db;
+  }
   private readonly DEFAULT_TTL_SECONDS = 3600 // 1 hour
   private readonly MAX_RETRY_COUNT = 3
 

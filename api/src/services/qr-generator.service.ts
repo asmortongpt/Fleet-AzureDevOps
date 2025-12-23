@@ -42,7 +42,6 @@ export class QRGeneratorService {
           light: '#FFF', // Transparent background
         },
         width: 300,
-        height: 300,
         errorCorrectionLevel: 'H', // High error correction level for better scanning reliability
       });
 

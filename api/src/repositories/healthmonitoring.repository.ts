@@ -1,54 +1,67 @@
 import { BaseRepository } from '../repositories/BaseRepository';
+import { Pool, QueryResult } from 'pg';
 
-Here is an example of a TypeScript repository for health monitoring with parameterized queries, tenant_id, and CRUD operations:
-
-
-import { HealthMonitoring } from '../models/health-monitoring.model';
-import { Pool } from 'pg';
+export interface HealthMonitoring {
+    id: number;
+    tenant_id: number;
+    component: string;
+    status: string;
+    latency_ms: number;
+    error_message?: string;
+    created_at: Date;
+    updated_at: Date;
+}
 
 export class HealthMonitoringRepository extends BaseRepository<any> {
+
     private pool: Pool;
 
     constructor(pool: Pool) {
+        super('health_monitoring', pool);
         this.pool = pool;
     }
 
-    public async create(healthMonitoring: HealthMonitoring, tenant_id: string): Promise<HealthMonitoring> {
-        const result = await this.pool.query(
-            'INSERT INTO health_monitoring (tenant_id, status, timestamp) VALUES ($1, $2, $3) RETURNING *',
-            [tenant_id, healthMonitoring.status, healthMonitoring.timestamp]
-        );
-
+    async create(tenantId: number, healthMonitoring: Omit<HealthMonitoring, 'id' | 'created_at' | 'updated_at'>): Promise<HealthMonitoring> {
+        const query = `
+      INSERT INTO health_monitoring (tenant_id, component, status, latency_ms, error_message, created_at, updated_at)
+      VALUES ($1, $2, $3, $4, $5, NOW(), NOW())
+      RETURNING *
+    `;
+        const values = [
+            tenantId,
+            healthMonitoring.component,
+            healthMonitoring.status,
+            healthMonitoring.latency_ms,
+            healthMonitoring.error_message
+        ];
+        const result: QueryResult<HealthMonitoring> = await this.pool.query(query, values);
         return result.rows[0];
     }
 
-    public async read(tenant_id: string): Promise<HealthMonitoring[]> {
-        const result = await this.pool.query(
-            'SELECT id, tenant_id, created_at, updated_at FROM health_monitoring WHERE tenant_id = $1',
-            [tenant_id]
-        );
-
+    async read(tenantId: number): Promise<HealthMonitoring[]> {
+        const query = `SELECT id, tenant_id, component, status, latency_ms, error_message, created_at, updated_at FROM health_monitoring WHERE tenant_id = $1 ORDER BY created_at DESC`;
+        const result: QueryResult<HealthMonitoring> = await this.pool.query(query, [tenantId]);
         return result.rows;
     }
 
-    public async update(healthMonitoring: HealthMonitoring, tenant_id: string): Promise<HealthMonitoring> {
-        const result = await this.pool.query(
-            'UPDATE health_monitoring SET status = $1, timestamp = $2 WHERE tenant_id = $3 RETURNING *',
-            [healthMonitoring.status, healthMonitoring.timestamp, tenant_id]
-        );
+    async update(tenantId: number, id: number, healthMonitoring: Partial<HealthMonitoring>): Promise<HealthMonitoring | null> {
+        const setClause = Object.keys(healthMonitoring)
+            .map((key, index) => `${key} = $${index + 3}`)
+            .join(', ');
 
-        return result.rows[0];
+        if (!setClause) {
+            return null;
+        }
+
+        const query = `UPDATE health_monitoring SET ${setClause}, updated_at = NOW() WHERE tenant_id = $1 AND id = $2 RETURNING *`;
+        const values = [tenantId, id, ...Object.values(healthMonitoring)];
+        const result: QueryResult<HealthMonitoring> = await this.pool.query(query, values);
+        return result.rows[0] || null;
     }
 
-    public async delete(tenant_id: string): Promise<void> {
-        await this.pool.query(
-            'DELETE FROM health_monitoring WHERE tenant_id = $1',
-            [tenant_id]
-        );
+    async delete(tenantId: number, id: number): Promise<boolean> {
+        const query = `DELETE FROM health_monitoring WHERE tenant_id = $1 AND id = $2 RETURNING id`;
+        const result: QueryResult = await this.pool.query(query, [tenantId, id]);
+        return result.rowCount ? result.rowCount > 0 : false;
     }
 }
-
-
-This repository uses the `pg` package to interact with a PostgreSQL database. It assumes that you have a `health_monitoring` table in your database with `tenant_id`, `status`, and `timestamp` columns. The `tenant_id` is used to perform operations on data that belongs to a specific tenant.
-
-Please adjust the code according to your database schema and the package you are using to interact with your database.

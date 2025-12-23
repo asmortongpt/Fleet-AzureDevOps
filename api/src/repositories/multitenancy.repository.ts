@@ -1,72 +1,71 @@
 import { BaseRepository } from '../repositories/BaseRepository';
+import { Pool, QueryResult } from 'pg';
 
-Here is a basic example of a TypeScript repository for a multi-tenancy system. This example is using TypeORM but you can replace it with your preferred ORM.
-
-
-import { EntityRepository, Repository } from 'typeorm';
-import { MultiTenancy } from '../entities/MultiTenancy';
-
-@EntityRepository(MultiTenancy)
-export class MultiTenancyRepository extends Repository<MultiTenancy> {
-  constructor(pool: Pool) {
-    super(pool, 'LMulti_LTenancy_LRepository extends s');
-  }
-
-
-  async findByTenantId(tenant_id: string): Promise<MultiTenancy> {
-    return await this.findOne({ where: { tenant_id } });
-  }
-
-  async createAndSave(tenant_id: string, data: Partial<MultiTenancy>): Promise<MultiTenancy> {
-    const multiTenancy = this.create({ tenant_id, ...data });
-    return await this.save(multiTenancy);
-  }
-
-  async updateByTenantId(tenant_id: string, data: Partial<MultiTenancy>): Promise<MultiTenancy> {
-    await this.update({ tenant_id }, data);
-    return this.findByTenantId(tenant_id);
-  }
-
-  async deleteByTenantId(tenant_id: string): Promise<void> {
-    await this.delete({ tenant_id });
-  }
+export interface Tenant {
+  id: number;
+  name: string;
+  domain: string;
+  status: string;
+  subscription_id: number;
+  created_at: Date;
+  updated_at: Date;
 }
 
+export class MultiTenancyRepository extends BaseRepository<any> {
 
-And here is how you can use this repository in your routes:
+  private pool: Pool;
 
+  constructor(pool: Pool) {
+    super('tenants', pool);
+    this.pool = pool;
+  }
 
-import express from 'express';
-import { getCustomRepository } from 'typeorm';
-import { MultiTenancyRepository } from '../repositories/MultiTenancyRepository';
+  async findTenantById(id: number): Promise<Tenant | null> {
+    const query = `SELECT id, name, domain, status, subscription_id, created_at, updated_at FROM tenants WHERE id = $1`;
+    const result: QueryResult<Tenant> = await this.pool.query(query, [id]);
+    return result.rows[0] || null;
+  }
 
-const router = express.Router();
+  async findTenantByDomain(domain: string): Promise<Tenant | null> {
+    const query = `SELECT id, name, domain, status, subscription_id, created_at, updated_at FROM tenants WHERE domain = $1`;
+    const result: QueryResult<Tenant> = await this.pool.query(query, [domain]);
+    return result.rows[0] || null;
+  }
 
-router.get('/:tenant_id', async (req, res) => {
-  const repository = getCustomRepository(MultiTenancyRepository);
-  const multiTenancy = await repository.findByTenantId(req.params.tenant_id);
-  res.json(multiTenancy);
-});
+  async createTenant(tenant: Omit<Tenant, 'id' | 'created_at' | 'updated_at'>): Promise<Tenant> {
+    const query = `
+      INSERT INTO tenants (name, domain, status, subscription_id, created_at, updated_at)
+      VALUES ($1, $2, $3, $4, NOW(), NOW())
+      RETURNING *
+    `;
+    const values = [tenant.name, tenant.domain, tenant.status, tenant.subscription_id];
+    const result: QueryResult<Tenant> = await this.pool.query(query, values);
+    return result.rows[0];
+  }
 
-router.post('/', async (req, res) => {
-  const repository = getCustomRepository(MultiTenancyRepository);
-  const multiTenancy = await repository.createAndSave(req.body.tenant_id, req.body);
-  res.json(multiTenancy);
-});
+  async updateTenant(id: number, tenant: Partial<Tenant>): Promise<Tenant | null> {
+    const setClause = Object.keys(tenant)
+      .map((key, index) => `${key} = $${index + 2}`)
+      .join(', ');
 
-router.put('/:tenant_id', async (req, res) => {
-  const repository = getCustomRepository(MultiTenancyRepository);
-  const multiTenancy = await repository.updateByTenantId(req.params.tenant_id, req.body);
-  res.json(multiTenancy);
-});
+    if (!setClause) {
+      return this.findTenantById(id);
+    }
 
-router.delete('/:tenant_id', async (req, res) => {
-  const repository = getCustomRepository(MultiTenancyRepository);
-  await repository.deleteByTenantId(req.params.tenant_id);
-  res.json({ message: 'Deleted' });
-});
+    const query = `
+      UPDATE tenants
+      SET ${setClause}, updated_at = NOW()
+      WHERE id = $1
+      RETURNING *
+    `;
+    const values = [id, ...Object.values(tenant)];
+    const result: QueryResult<Tenant> = await this.pool.query(query, values);
+    return result.rows[0] || null;
+  }
 
-export default router;
-
-
-Please note that this is a very basic example and you might need to adjust it according to your needs. For example, you might want to add error handling, validation, etc.
+  async deleteTenant(id: number): Promise<boolean> {
+    const query = `DELETE FROM tenants WHERE id = $1`;
+    const result: QueryResult = await this.pool.query(query, [id]);
+    return result.rowCount ? result.rowCount > 0 : false;
+  }
+}

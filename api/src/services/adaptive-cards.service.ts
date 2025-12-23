@@ -6,7 +6,7 @@ import path from 'path'
 const AZURE_AD_CONFIG = {
   clientId: process.env.AZURE_AD_CLIENT_ID || process.env.MICROSOFT_CLIENT_ID || '',
   clientSecret: process.env.AZURE_AD_CLIENT_SECRET || process.env.MICROSOFT_CLIENT_SECRET || '',
-  tenantId: process.env.AZURE_AD_TENANT_ID || process.env.MICROSOFT_TENANT_ID || '`
+  tenantId: process.env.AZURE_AD_TENANT_ID || process.env.MICROSOFT_TENANT_ID || ''
 }
 
 /**
@@ -433,7 +433,7 @@ export async function sendAdaptiveCardToUser(
           {
             '@odata.type': '#microsoft.graph.aadUserConversationMember',
             roles: ['owner'],
-            `user@odata.bind`: `https://graph.microsoft.com/v1.0/users(`${userId}`)`
+            'user@odata.bind': `https://graph.microsoft.com/v1.0/users('${userId}')`
           }
         ]
       })

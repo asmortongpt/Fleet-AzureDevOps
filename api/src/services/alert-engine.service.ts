@@ -14,8 +14,8 @@ import nodemailer from 'nodemailer'
 export interface AlertRule {
   id: string
   rule_type: 'maintenance_due' | 'geofence_violation' | 'incident_critical' |
-             'task_overdue' | 'fuel_anomaly' | 'speed_violation' |
-             'idle_time' | 'asset_expiration' | 'driver_certification' | 'custom'
+  'task_overdue' | 'fuel_anomaly' | 'speed_violation' |
+  'idle_time' | 'asset_expiration' | 'driver_certification' | 'custom'
   name: string
   description?: string
   condition: any // JSON condition rules
@@ -45,12 +45,12 @@ export interface Alert {
 }
 
 export class AlertEngineService {
-  private emailTransporter: nodemailer.Transporter
+  private emailTransporter: nodemailer.Transporter | null = null
 
   constructor(private db: Pool) {
     // Initialize email transporter
     if (process.env.SMTP_HOST) {
-      this.emailTransporter = nodemailer.createTransporter({
+      this.emailTransporter = nodemailer.createTransport({
         host: process.env.SMTP_HOST,
         port: parseInt(process.env.SMTP_PORT || '587'),
         secure: process.env.SMTP_SECURE === 'true',
@@ -79,7 +79,7 @@ export class AlertEngineService {
       recipients?: string[]
     }
   ): Promise<Alert> {
-    const client = await pool.connect()
+    const client = await this.db.connect()
     try {
       await client.query('BEGIN')
 
@@ -112,7 +112,7 @@ export class AlertEngineService {
 
       // Mark as sent
       await client.query(
-        'UPDATE alerts SET status = 'sent' WHERE id = $1',
+        `UPDATE alerts SET status = 'sent' WHERE id = $1`,
         [alert.id]
       )
 
@@ -165,7 +165,7 @@ export class AlertEngineService {
    * Deliver in-app notification
    */
   private async deliverInApp(alert: any, recipients: string[], tenantId: string): Promise<void> {
-    const client = await pool.connect()
+    const client = await this.db.connect()
     try {
       for (const recipientId of recipients) {
         await client.query(
@@ -435,7 +435,7 @@ export class AlertEngineService {
        FROM vehicles v
        JOIN maintenance_schedules ms ON v.id = ms.vehicle_id
        WHERE v.tenant_id = $1
-       AND ms.status = `scheduled`
+       AND ms.status = 'scheduled'
        AND ms.due_date BETWEEN CURRENT_DATE AND CURRENT_DATE + INTERVAL '7 days'
        AND NOT EXISTS (
          SELECT 1 FROM alerts a
@@ -488,7 +488,7 @@ export class AlertEngineService {
         alert_type: 'task_overdue',
         severity: 'warning',
         title: `Overdue Task: ${row.task_title}`,
-        message: "Task "${row.task_title}" assigned to ${row.first_name} ${row.last_name} is overdue",
+        message: `Task "${row.task_title}" assigned to ${row.first_name} ${row.last_name} is overdue`,
         entity_type: 'task',
         entity_id: row.id,
         recipients: row.assigned_to ? [row.assigned_to] : undefined
@@ -550,7 +550,7 @@ export class AlertEngineService {
     await this.db.query(
       `UPDATE alerts
        SET status = 'acknowledged', acknowledged_at = NOW(), acknowledged_by = $1
-       WHERE id = $2',
+       WHERE id = $2`,
       [userId, alertId]
     )
   }
@@ -562,7 +562,7 @@ export class AlertEngineService {
     await this.db.query(
       `UPDATE alerts
        SET status = 'resolved', resolved_at = NOW()
-       WHERE id = $1',
+       WHERE id = $1`,
       [alertId]
     )
   }

@@ -136,7 +136,8 @@ export class CollaborationService {
    */
   private handleViewEntity(socket: any, data: { type: 'task' | 'asset', id: string }): void {
     const user = this.activeUsers.get(socket.id)
-    if (!user) return const entityKey = `${data.type}:${data.id}`
+    if (!user) return
+    const entityKey = `${data.type}:${data.id}`
 
     // Update user`s current view
     user.currentView = { type: data.type, id: data.id }
@@ -248,7 +249,7 @@ export class CollaborationService {
       }
 
       // Table and column names are validated/constant, safe to use in query
-      const idColumn = data.entityType === 'task' ? 'task_id' : 'asset_id`
+      const idColumn = data.entityType === 'task' ? 'task_id' : 'asset_id'
       const result = await this.db.query(
         `INSERT INTO ${table} (${idColumn}, created_by, comment_text)
          VALUES ($1, $2, $3)
@@ -289,7 +290,8 @@ export class CollaborationService {
    */
   private handleCursorMove(socket: any, data: { entityId: string, position: any }): void {
     const user = this.activeUsers.get(socket.id)
-    if (!user || !user.currentView) return const entityKey = `${user.currentView.type}:${user.currentView.id}`
+    if (!user || !user.currentView) return
+    const entityKey = `${user.currentView.type}:${user.currentView.id}`
     socket.to(entityKey).emit(`cursor:position`, {
       userId: user.userId,
       userName: user.userName,
@@ -354,7 +356,8 @@ export class CollaborationService {
    * Broadcast status change
    */
   broadcastStatusChange(entityType: 'task' | 'asset', entityId: string, oldStatus: string, newStatus: string, userId: string, userName: string): void {
-    if (!this.io) return const entityKey = `${entityType}:${entityId}`
+    if (!this.io) return
+    const entityKey = `${entityType}:${entityId}`
     this.io.to(entityKey).emit(`status:changed`, {
       entityType,
       entityId,
@@ -408,7 +411,8 @@ export class CollaborationService {
    * Broadcast to tenant
    */
   broadcastToTenant(tenantId: string, event: string, data: any): void {
-    if (!this.io) return this.io.to(`tenant:${tenantId}`).emit(event, data)
+    if (!this.io) return
+    this.io.to(`tenant:${tenantId}`).emit(event, data)
   }
 
   /**

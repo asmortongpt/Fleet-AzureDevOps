@@ -34,7 +34,7 @@ class AIValidationService {
   constructor(
     private db: Pool,
     private logger: typeof logger
-  ) {}
+  ) { }
 
   // Patterns for potential injection attacks
   private readonly INJECTION_PATTERNS = [
@@ -205,7 +205,7 @@ class AIValidationService {
     sanitized = sanitized.replace(/\0/g, '')
 
     // Remove control characters (except newlines and tabs)
-    sanitized = sanitized.replace(/[\x00-\x08\x0B-\x0C\x0E-\x1F\x7F]/g, '`)
+    sanitized = sanitized.replace(/[\x00-\x08\x0B-\x0C\x0E-\x1F\x7F]/g, '')
 
     // Limit consecutive newlines
     sanitized = sanitized.replace(/\n{4,}/g, `\n\n\n`)
