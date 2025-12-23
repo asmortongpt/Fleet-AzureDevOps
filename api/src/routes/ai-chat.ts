@@ -22,6 +22,7 @@ import vectorSearchService from '../services/VectorSearchService'
 import embeddingService from '../services/EmbeddingService'
 import { getErrorMessage } from '../utils/error-handler'
 import { csrfProtection } from '../middleware/csrf'
+import { pool } from '../db/connection';
 
 
 const router = express.Router()

@@ -78,7 +78,7 @@ function standardHandler(req: Request, res: Response, retryAfter: number): void 
 /**
  * Create a rate limiter with consistent configuration
  */
-function createRateLimiter(config: RateLimitConfig): RateLimitRequestHandler {
+export function createRateLimiter(config: RateLimitConfig): RateLimitRequestHandler {
   const {
     windowMs,
     max,
@@ -181,9 +181,9 @@ export const readLimiter = createRateLimiter({
     // Skip rate limiting for health checks and status endpoints
     const path = req.path.toLowerCase()
     return path === '/health' ||
-           path === '/api/health' ||
-           path === '/api/status' ||
-           path.startsWith('/api/health')
+      path === '/api/health' ||
+      path === '/api/status' ||
+      path.startsWith('/api/health')
   }
 })
 
@@ -316,8 +316,8 @@ export const globalLimiter = createRateLimiter({
     // Skip rate limiting for health checks
     const path = req.path.toLowerCase()
     return path === '/health' ||
-           path === '/api/health' ||
-           path === '/api/status'
+      path === '/api/health' ||
+      path === '/api/status'
   }
 })
 
@@ -363,7 +363,7 @@ export class BruteForceProtection {
     private maxAttempts: number = 5,
     private lockoutDuration: number = 15 * 60 * 1000, // 15 minutes
     private windowMs: number = 15 * 60 * 1000 // 15 minutes
-  ) {}
+  ) { }
 
   /**
    * Record a failed login attempt

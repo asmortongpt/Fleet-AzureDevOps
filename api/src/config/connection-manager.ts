@@ -60,6 +60,25 @@ export class ConnectionManager {
 
   constructor() {
     this.setupConfigurations()
+    this.createPools() // Create pools immediately to support DI at module load
+  }
+
+  /**
+   * Create pool instances synchronously
+   */
+  private createPools(): void {
+    if (this.pools.size > 0) return;
+
+    for (const [poolType, config] of this.poolConfigs.entries()) {
+      try {
+        const pool = new Pool(config)
+        // Setup pool event handlers
+        this.setupPoolEventHandlers(pool, poolType)
+        this.pools.set(poolType, pool)
+      } catch (error) {
+        console.error(`❌ Failed to create ${poolType} pool:`, error)
+      }
+    }
   }
 
   /**
@@ -67,7 +86,7 @@ export class ConnectionManager {
    */
   private setupConfigurations(): void {
     const baseConfig = {
-      host: process.env.DB_HOST || 'fleet-postgres-service',
+      host: process.env.DB_HOST || (process.env.NODE_ENV === 'production' ? 'fleet-postgres-service' : 'localhost'),
       port: parseInt(process.env.DB_PORT || '5432'),
       database: process.env.DB_NAME || 'fleetdb',
       ssl: getDatabaseSSLConfig(),
@@ -145,18 +164,14 @@ export class ConnectionManager {
 
     console.log(`Initializing database connection pools...`)
 
-    // Create pools based on available configurations
-    for (const [poolType, config] of this.poolConfigs.entries()) {
+    // Verify connections and start health checks
+    for (const [poolType, pool] of this.pools.entries()) {
       try {
-        const pool = new Pool(config)
-
-        // Setup pool event handlers
-        this.setupPoolEventHandlers(pool, poolType)
+        const config = this.poolConfigs.get(poolType)!;
 
         // Test connection
         await this.testConnection(pool, poolType)
 
-        this.pools.set(poolType, pool)
         console.log(`✅ ${poolType} pool initialized (user: ${config.user}, max: ${config.max})`)
 
         // Start health check monitoring
@@ -219,8 +234,10 @@ export class ConnectionManager {
    * Get a pool by type with fallback logic
    */
   getPool(poolType: PoolType = PoolType.WEBAPP): Pool {
-    if (!this.initialized) {
-      throw new ConnectionError(`Connection manager not initialized. Call initialize() first.`)
+    // If pools are created, we can return them even if not fully "initialized" (verified)
+    // This supports dependency injection during module loading
+    if (this.pools.size === 0) {
+      this.createPools(); // Fallback if somehow called before constructor finished?
     }
 
     // Try to get requested pool

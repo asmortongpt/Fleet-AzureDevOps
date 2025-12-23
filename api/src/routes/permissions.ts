@@ -5,6 +5,7 @@ import { NotFoundError, ValidationError } from '../errors/app-error'
 import { AuthRequest, authenticateJWT } from '../middleware/auth'
 import { getUserPermissions } from '../middleware/permissions'
 import { csrfProtection } from '../middleware/csrf'
+import { pool } from '../db/connection';
 
 
 const router = express.Router()
@@ -27,7 +28,7 @@ router.get('/me', async (req: AuthRequest, res: Response) => {
        JOIN user_roles ur ON r.id = ur.role_id
        WHERE ur.user_id = $1
        AND ur.is_active = true
-       AND (ur.expires_at IS NULL OR ur.expires_at > NOW()`,
+       AND (ur.expires_at IS NULL OR ur.expires_at > NOW())`,
       [req.user.id]
     )
 
@@ -96,7 +97,7 @@ router.get('/roles', async (req: AuthRequest, res: Response) => {
   try {
     // Check if user has permission to view roles
     const permissions = await getUserPermissions(req.user!.id)
-    if (!permissions.has('role:manage:global') {
+    if (!permissions.has('role:manage:global')) {
       return res.status(403).json({ error: 'Insufficient permissions' })
     }
 
@@ -126,7 +127,7 @@ router.get('/roles', async (req: AuthRequest, res: Response) => {
 router.get('/roles/:roleId/permissions', async (req: AuthRequest, res: Response) => {
   try {
     const permissions = await getUserPermissions(req.user!.id)
-    if (!permissions.has('role:manage:global') {
+    if (!permissions.has('role:manage:global')) {
       return res.status(403).json({ error: 'Insufficient permissions' })
     }
 

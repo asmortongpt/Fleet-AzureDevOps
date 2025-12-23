@@ -10,6 +10,7 @@ import { buildInsertClause, buildUpdateClause } from '../utils/sql-safety'
 import { validate } from '../middleware/validation'
 import { csrfProtection } from '../middleware/csrf'
 
+import { pool } from '../db/connection'
 import {
   createTelemetrySchema,
   updateTelemetrySchema,
@@ -33,7 +34,7 @@ router.get(
       const offset = (Number(page) - 1) * Number(limit)
 
       const result = await pool.query(
-        'SELECT ' + (await getTableColumns(pool, 'telemetry_data').join(', ') + ' FROM telemetry_data WHERE tenant_id = $1 ORDER BY created_at DESC LIMIT $2 OFFSET $3',
+        'SELECT ' + (await getTableColumns(pool, 'telemetry_data')).join(', ') + ' FROM telemetry_data WHERE tenant_id = $1 ORDER BY created_at DESC LIMIT $2 OFFSET $3',
         [req.user!.tenant_id, limit, offset]
       )
 
@@ -48,7 +49,7 @@ router.get(
           page: Number(page),
           limit: Number(limit),
           total: parseInt(countResult.rows[0].count),
-          pages: Math.ceil(countResult.rows[0].count / Number(limit)
+          pages: Math.ceil(countResult.rows[0].count / Number(limit))
         }
       })
     } catch (error) {
@@ -67,7 +68,7 @@ router.get(
   async (req: AuthRequest, res: Response) => {
     try {
       const result = await pool.query(
-        'SELECT ' + (await getTableColumns(pool, 'telemetry_data').join(', ') + ' FROM telemetry_data WHERE id = $1 AND tenant_id = $2',
+        'SELECT ' + (await getTableColumns(pool, 'telemetry_data')).join(', ') + ' FROM telemetry_data WHERE id = $1 AND tenant_id = $2',
         [req.params.id, req.user!.tenant_id]
       )
 
@@ -86,7 +87,7 @@ router.get(
 // POST /telemetry
 router.post(
   '/',
- csrfProtection,  csrfProtection, requirePermission('telemetry:view:fleet'),
+  csrfProtection, requirePermission('telemetry:view:fleet'),
   rateLimit(10, 60000),
   validate(createTelemetrySchema, 'body'),
   auditLog({ action: 'CREATE', resourceType: 'telemetry_data' }),
@@ -145,7 +146,7 @@ router.put(
 // DELETE /telemetry/:id
 router.delete(
   '/:id',
- csrfProtection,  csrfProtection, requirePermission('telemetry:view:fleet'),
+  csrfProtection, requirePermission('telemetry:view:fleet'),
   rateLimit(10, 60000),
   auditLog({ action: 'DELETE', resourceType: 'telemetry_data' }),
   async (req: AuthRequest, res: Response) => {

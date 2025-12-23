@@ -253,7 +253,7 @@ export class SchedulingService {
        LEFT JOIN service_bays sb ON sbs.service_bay_id = sb.id
        WHERE sbs.tenant_id = $1
          AND sbs.assigned_technician_id = $2
-         AND sbs.status NOT IN (`cancelled`, `completed')
+         AND sbs.status NOT IN ('cancelled', 'completed')
          AND (
            ($3 BETWEEN sbs.scheduled_start AND sbs.scheduled_end) OR
            ($4 BETWEEN sbs.scheduled_start AND sbs.scheduled_end) OR
@@ -296,7 +296,7 @@ export class SchedulingService {
     await client.query('BEGIN')
 
     // Check for conflicts
-    const conflicts = await checkVehicleConflicts(
+    const conflicts = await this.checkVehicleConflicts(
       tenantId,
       reservation.vehicleId,
       reservation.startTime,
@@ -340,7 +340,7 @@ export class SchedulingService {
     // Sync to calendar if enabled
     if (syncToCalendar) {
       try {
-        await syncReservationToCalendars(tenantId, createdReservation, reservation.reservedBy)
+        await this.syncReservationToCalendars(tenantId, createdReservation, reservation.reservedBy)
       } catch (error) {
         console.error('Error syncing to calendar:', error)
         // Don't fail the reservation if calendar sync fails
@@ -374,7 +374,7 @@ export class SchedulingService {
     await client.query('BEGIN')
 
     // Check vehicle conflicts
-    const vehicleConflicts = await checkVehicleConflicts(
+    const vehicleConflicts = await this.checkVehicleConflicts(
       tenantId,
       appointment.vehicleId,
       appointment.scheduledStart,
@@ -387,7 +387,7 @@ export class SchedulingService {
 
     // Check service bay conflicts if specified
     if (appointment.serviceBayId) {
-      const bayConflicts = await checkServiceBayConflicts(
+      const bayConflicts = await this.checkServiceBayConflicts(
         tenantId,
         appointment.serviceBayId,
         appointment.scheduledStart,
@@ -401,7 +401,7 @@ export class SchedulingService {
 
     // Check technician availability if specified
     if (appointment.assignedTechnicianId) {
-      const techAvailability = await checkTechnicianAvailability(
+      const techAvailability = await this.checkTechnicianAvailability(
         tenantId,
         appointment.assignedTechnicianId,
         appointment.scheduledStart,
@@ -440,7 +440,7 @@ export class SchedulingService {
     // Sync to calendar if enabled
     if (syncToCalendar) {
       try {
-        await syncMaintenanceToCalendars(tenantId, createdAppointment, userId)
+        await this.syncMaintenanceToCalendars(tenantId, createdAppointment, userId)
       } catch (error) {
         console.error('Error syncing to calendar:', error)
         // Don't fail the appointment if calendar sync fails
@@ -562,7 +562,7 @@ export class SchedulingService {
 /**
  * Sync reservation to all enabled calendars for a user
  */
-async function syncReservationToCalendars(
+private async syncReservationToCalendars(
   tenantId: string,
   reservation: any,
   userId: string
@@ -614,7 +614,7 @@ async function syncReservationToCalendars(
       Type: ${reservation.reservation_type}<br/>
       ${reservation.pickup_location ? `Pickup: ${reservation.pickup_location}<br/>` : ``}
       ${reservation.dropoff_location ? `Dropoff: ${reservation.dropoff_location}<br/>` : ``}
-      ${reservation.purpose ? `Purpose: ${reservation.purpose}<br/>' : ''}
+      ${reservation.purpose ? `Purpose: ${reservation.purpose}<br/>` : ''}
     `
 
     // Get enabled calendar integrations
@@ -676,7 +676,7 @@ async function syncReservationToCalendars(
 /**
  * Sync maintenance appointment to calendars
  */
-async function syncMaintenanceToCalendars(
+private async syncMaintenanceToCalendars(
   tenantId: string,
   appointment: any,
   userId: string
@@ -696,7 +696,8 @@ async function syncMaintenanceToCalendars(
       [appointment.id]
     )
 
-    if (details.rows.length === 0) return const appt = details.rows[0]
+    if (details.rows.length === 0) return
+    const appt = details.rows[0]
     const subject = `Maintenance: ${appt.appointment_type} - ${appt.make} ${appt.model}`
     const location = appt.bay_name || `Service Center`
     const body = `
@@ -705,7 +706,7 @@ async function syncMaintenanceToCalendars(
       VIN: ${appt.vin}<br/>
       Service Type: ${appt.appointment_type}<br/>
       ${appt.bay_name ? `Service Bay: ${appt.bay_name}<br/>` : ``}
-      ${appt.technician_name ? `Technician: ${appt.technician_name}<br/>' : ''}
+      ${appt.technician_name ? `Technician: ${appt.technician_name}<br/>` : ''}
     `
 
     // Get enabled calendar integrations for relevant users
@@ -816,7 +817,7 @@ async function syncMaintenanceToCalendars(
   try {
     // Get reservations
     const reservations = await this.db.query(
-      'SELECT vr.*, u.first_name || ' ' || u.last_name as reserved_by_name,
+      `SELECT vr.*, u.first_name || ' ' || u.last_name as reserved_by_name,
               du.first_name || ' ' || du.last_name as driver_name
        FROM vehicle_reservations vr
        JOIN users u ON vr.reserved_by = u.id
@@ -858,17 +859,6 @@ async function syncMaintenanceToCalendars(
   }
 }
 
-export default {
-  checkVehicleConflicts,
-  checkServiceBayConflicts,
-  checkTechnicianAvailability,
-  createVehicleReservation,
-  createMaintenanceAppointment,
-  findAvailableServiceBays,
-  findAvailableVehicles,
-  getUpcomingReservations,
-  getVehicleSchedule
-}
 
 }
 

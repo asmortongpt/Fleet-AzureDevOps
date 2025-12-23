@@ -27,7 +27,7 @@ router.use(authenticateJWT)
  * POST /api/langchain/execute
  * Execute a LangChain workflow
  */
-router.post('/execute',csrfProtection,  csrfProtection, requirePermission('report:generate:global'), async (req: Request, res: Response) => {
+router.post('/execute',csrfProtection, requirePermission('report:generate:global'), async (req: Request, res: Response) => {
   try {
     const { workflowType, parameters } = req.body
     const tenantId = (req as any).user.tenant_id
@@ -95,7 +95,7 @@ router.post('/execute',csrfProtection,  csrfProtection, requirePermission('repor
  * POST /api/langchain/chat
  * Chat with AI supervisor
  */
-router.post('/chat',csrfProtection,  csrfProtection, requirePermission('report:view:global'), async (req: Request, res: Response) => {
+router.post('/chat',csrfProtection, requirePermission('report:view:global'), async (req: Request, res: Response) => {
   try {
     const { message, sessionId, config } = req.body
     const tenantId = (req as any).user.tenant_id
@@ -178,7 +178,7 @@ router.post('/chat',csrfProtection,  csrfProtection, requirePermission('report:v
  * POST /api/langchain/supervisor/query
  * Query the AI supervisor directly
  */
-router.post('/supervisor/query',csrfProtection,  csrfProtection, requirePermission('report:view:global'), async (req: Request, res: Response) => {
+router.post('/supervisor/query',csrfProtection, requirePermission('report:view:global'), async (req: Request, res: Response) => {
   try {
     const { query, sessionId } = req.body
     const tenantId = (req as any).user.tenant_id
@@ -230,7 +230,7 @@ router.get('/agents', requirePermission('report:view:global'), async (req: Reque
         name: agent.name,
         role: agent.role,
         capabilities: agent.capabilities
-      })
+      }))
     })
   } catch (error: any) {
     logger.error('Failed to list agents', { error: getErrorMessage(error) })
@@ -566,7 +566,7 @@ router.get('/mcp/tools', requirePermission('report:view:global'), async (req: Re
  * DELETE /api/langchain/sessions/:sessionId
  * Clear a chat session
  */
-router.delete('/sessions/:sessionId',csrfProtection,  csrfProtection, requirePermission('report:generate:global'), async (req: Request, res: Response) => {
+router.delete('/sessions/:sessionId',csrfProtection, requirePermission('report:generate:global'), async (req: Request, res: Response) => {
   try {
     const { sessionId } = req.params
 

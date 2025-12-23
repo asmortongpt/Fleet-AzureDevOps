@@ -1,17 +1,13 @@
 import { Client } from '@microsoft/microsoft-graph-client'
 import axios from 'axios'
-import { Pool } from 'pg'
 import { validateURL, SSRFError } from '../utils/safe-http-request'
-
-
-export class PresenceService {
-  constructor(private db: Pool) {}
+import { pool } from '../db'
 
 // Azure AD Configuration
 const AZURE_AD_CONFIG = {
   clientId: process.env.AZURE_AD_CLIENT_ID || process.env.MICROSOFT_CLIENT_ID || '',
-  clientSecret: process.env.AZURE_AD_CLIENT_SECRET || process.env.MICROSOFT_CLIENT_SECRET || '`,
-  tenantId: process.env.AZURE_AD_TENANT_ID || process.env.MICROSOFT_TENANT_ID || ``
+  clientSecret: process.env.AZURE_AD_CLIENT_SECRET || process.env.MICROSOFT_CLIENT_SECRET || '',
+  tenantId: process.env.AZURE_AD_TENANT_ID || process.env.MICROSOFT_TENANT_ID || ''
 }
 
 /**
@@ -24,7 +20,7 @@ async function getGraphClient(): Promise<Client> {
     new URLSearchParams({
       client_id: AZURE_AD_CONFIG.clientId,
       client_secret: AZURE_AD_CONFIG.clientSecret,
-      scope: `https://graph.microsoft.com/.default`,
+      scope: 'https://graph.microsoft.com/.default',
       grant_type: 'client_credentials'
     }).toString(),
     {
@@ -45,7 +41,7 @@ async function getGraphClient(): Promise<Client> {
 
 export interface PresenceInfo {
   id: string
-  availability: 'Available' | 'AvailableIdle' | 'Away' | 'BeRightBack' | 'Busy' | 'BusyIdle' | 'DoNotDisturb' | 'Offline` | `PresenceUnknown`
+  availability: 'Available' | 'AvailableIdle' | 'Away' | 'BeRightBack' | 'Busy' | 'BusyIdle' | 'DoNotDisturb' | 'Offline' | 'PresenceUnknown'
   activity: string
   statusMessage?: {
     message?: {
@@ -59,7 +55,7 @@ export interface PresenceInfo {
 /**
  * Get presence information for a user
  */
-  async getPresence(userId: string): Promise<PresenceInfo> {
+export async function getPresence(userId: string): Promise<PresenceInfo> {
   try {
     const client = await getGraphClient()
 
@@ -83,7 +79,7 @@ export interface PresenceInfo {
 /**
  * Set presence for the current user (requires delegated permissions)
  */
-  async setPresence(
+export async function setPresence(
   userId: string,
   availability: string,
   activity: string,
@@ -128,7 +124,7 @@ export interface PresenceInfo {
 /**
  * Get presence for multiple users in a single request
  */
-  async getBatchPresence(userIds: string[]): Promise<PresenceInfo[]> {
+export async function getBatchPresence(userIds: string[]): Promise<PresenceInfo[]> {
   try {
     const client = await getGraphClient()
 
@@ -157,13 +153,13 @@ export interface PresenceInfo {
  * Subscribe to presence updates for users
  * Note: This requires setting up webhooks/subscriptions
  */
-  async subscribeToPresence(userIds: string[], webhookUrl: string): Promise<any> {
+export async function subscribeToPresence(userIds: string[], webhookUrl: string): Promise<any> {
   try {
     // SSRF Protection: Validate webhook URL
     // Only allow webhooks to our own application domain
     const allowedWebhookDomains = [
       process.env.WEBHOOK_BASE_URL?.replace(/^https?:\/\//, '').split('/')[0] || 'localhost',
-      `fleet.capitaltechalliance.com`,
+      'fleet.capitaltechalliance.com'
       // Add other trusted webhook receiver domains here
     ].filter(Boolean)
 
@@ -186,7 +182,7 @@ export interface PresenceInfo {
     const subscription = {
       changeType: 'updated',
       notificationUrl: webhookUrl,
-      resource: `/communications/presences?$filter=id in (${userIds.map(id => ``${id}``).join(`,')})',
+      resource: `/communications/presences?$filter=id in (${userIds.map(id => `'${id}'`).join(',')})`,
       expirationDateTime: new Date(Date.now() + 3600000).toISOString(), // 1 hour from now
       clientState: 'fleet-presence-subscription'
     }
@@ -206,14 +202,14 @@ export interface PresenceInfo {
 /**
  * Get driver availability based on presence
  */
-  async getDriverAvailability(driverId: string): Promise<{
+export async function getDriverAvailability(driverId: string): Promise<{
   available: boolean
   status: string
   presence?: PresenceInfo
 }> {
   try {
     // Get driver's Microsoft user ID
-    const driverResult = await this.db.query(
+    const driverResult = await pool.query(
       'SELECT email, sso_provider_id FROM users WHERE id = $1 AND role = $2',
       [driverId, 'driver']
     )
@@ -230,10 +226,10 @@ export interface PresenceInfo {
     // If driver doesn't have Microsoft SSO, check alternative availability indicators
     if (!driver.sso_provider_id) {
       // Check if driver has any active assignments
-      const assignmentResult = await this.db.query(
+      const assignmentResult = await pool.query(
         `SELECT COUNT(*) as active_count
          FROM work_orders
-         WHERE assigned_to = $1 AND status = 'in_progress'',
+         WHERE assigned_to = $1 AND status = 'in_progress'`,
         [driverId]
       )
 
@@ -286,7 +282,7 @@ export interface PresenceInfo {
 /**
  * Get availability for all drivers
  */
-  async getAllDriversAvailability(tenantId?: number): Promise<any[]> {
+export async function getAllDriversAvailability(tenantId?: number): Promise<any[]> {
   try {
     // Get all drivers with Microsoft SSO
     const query = tenantId
@@ -294,7 +290,7 @@ export interface PresenceInfo {
       : 'SELECT id, email, first_name, last_name, sso_provider_id FROM users WHERE role = $1'
 
     const params = tenantId ? ['driver', tenantId] : ['driver']
-    const driversResult = await this.db.query(query, params)
+    const driversResult = await pool.query(query, params)
 
     const drivers = driversResult.rows
 
@@ -317,7 +313,7 @@ export interface PresenceInfo {
       drivers.map(async (driver) => {
         if (driver.sso_provider_id && presenceMap[driver.sso_provider_id]) {
           const presence = presenceMap[driver.sso_provider_id]
-          const availableStatuses = [`Available`, `AvailableIdle`]
+          const availableStatuses = ['Available', 'AvailableIdle']
 
           return {
             driverId: driver.id,
@@ -330,10 +326,10 @@ export interface PresenceInfo {
           }
         } else {
           // Check alternative availability indicators
-          const assignmentResult = await this.db.query(
+          const assignmentResult = await pool.query(
             `SELECT COUNT(*) as active_count
              FROM work_orders
-             WHERE assigned_to = $1 AND status = `in_progress``,
+             WHERE assigned_to = $1 AND status = 'in_progress'`,
             [driver.id]
           )
 
@@ -344,7 +340,7 @@ export interface PresenceInfo {
             name: `${driver.first_name} ${driver.last_name}`,
             email: driver.email,
             available: !hasActiveWork,
-            status: hasActiveWork ? `Working` : `Available',
+            status: hasActiveWork ? 'Working' : 'Available',
             activity: hasActiveWork ? 'On assignment' : 'Available'
           }
         }
@@ -361,7 +357,7 @@ export interface PresenceInfo {
 /**
  * Find available drivers for urgent tasks
  */
-  async findAvailableDrivers(tenantId?: number): Promise<any[]> {
+export async function findAvailableDrivers(tenantId?: number): Promise<any[]> {
   const allDrivers = await getAllDriversAvailability(tenantId)
   return allDrivers.filter(driver => driver.available)
 }
@@ -370,7 +366,7 @@ export interface PresenceInfo {
  * Check if a user should be disturbed based on presence
  * Returns true if it's OK to send notifications/messages
  */
-  shouldNotifyUser(presence: PresenceInfo): boolean {
+export function shouldNotifyUser(presence: PresenceInfo): boolean {
   // Don't disturb users who are in Do Not Disturb mode or in a meeting
   const doNotDisturbStatuses = ['DoNotDisturb', 'Presenting', 'InAMeeting']
 
@@ -389,7 +385,7 @@ export interface PresenceInfo {
 /**
  * Get intelligent routing suggestion based on presence
  */
-  async getIntelligentRoutingSuggestion(
+export async function getIntelligentRoutingSuggestion(
   taskPriority: 'low' | 'medium' | 'high' | 'critical',
   candidateUserIds: string[]
 ): Promise<{
@@ -446,7 +442,7 @@ export interface PresenceInfo {
 
     // For critical tasks, suggest the top candidate even if they're busy
     // For other tasks, only suggest if they have a reasonable score
-    const minimumScore = taskPriority === `critical` ? 0 : taskPriority === `high` ? 30 : 70
+    const minimumScore = taskPriority === 'critical' ? 0 : taskPriority === 'high' ? 30 : 70
 
     if (topCandidate.score >= minimumScore) {
       return {
@@ -456,7 +452,7 @@ export interface PresenceInfo {
       }
     } else {
       return {
-        reason: `No users are currently available`,
+        reason: 'No users are currently available',
         allCandidates: scoredCandidates
       }
     }
@@ -468,8 +464,3 @@ export interface PresenceInfo {
     }
   }
 }
-
-
-}
-
-export default PresenceService

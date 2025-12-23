@@ -42,10 +42,10 @@ const MobileSyncSchema = z.object({
   device_id: z.string().min(1),
   last_sync_at: z.string().datetime().optional(),
   data: z.object({
-    inspections: z.array(z.any().optional(),
-    reports: z.array(z.any().optional(),
-    photos: z.array(z.any().optional(),
-    hos_logs: z.array(z.any().optional()
+    inspections: z.array(z.any().optional()),
+    reports: z.array(z.any().optional()),
+    photos: z.array(z.any().optional()),
+    hos_logs: z.array(z.any().optional())
   })
 })
 
@@ -83,7 +83,7 @@ const ARNavigationSchema = z.object({
 const DamageDetectionSchema = z.object({
   vehicle_id: z.number().int().positive(),
   photo_url: z.string().url(),
-  ai_detections: z.array(z.any(),
+  ai_detections: z.array(z.any()),
   severity: z.enum(['minor', 'moderate', 'major', 'severe']),
   estimated_cost: z.number().optional()
 })
@@ -477,7 +477,7 @@ router.get('/charging-stations/nearby', requirePermission('charging_station:view
     const longitude = parseFloat(req.query.longitude as string)
     const radius = req.query.radius ? parseFloat(req.query.radius as string) : 10
 
-    if (isNaN(latitude) || isNaN(longitude) {
+    if (isNaN(latitude) || isNaN(longitude)) {
       throw new ValidationError("Invalid latitude or longitude")
     }
 

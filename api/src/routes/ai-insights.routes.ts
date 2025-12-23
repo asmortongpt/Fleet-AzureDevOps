@@ -18,6 +18,7 @@ import mlTrainingService from '../services/ml-training.service'
 import mcpServerService from '../services/mcp-server.service'
 import { getErrorMessage } from '../utils/error-handler'
 import { csrfProtection } from '../middleware/csrf'
+import { pool } from '../db/connection';
 
 
 const router = express.Router()
