@@ -14,6 +14,7 @@ import { requirePermission } from '../middleware/permissions'
 import { cache } from '../utils/cache'
 import { slowQueryLogger } from '../utils/performance'
 import { csrfProtection } from '../middleware/csrf'
+import { pool } from '../db/connection';
 
 
 const router = express.Router()

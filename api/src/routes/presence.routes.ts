@@ -34,7 +34,7 @@ router.get('/:userId', authenticateJWT, async (req: Request, res: Response) => {
       presence
     })
   } catch (error: any) {
-    logger.error('Error fetching user presence:', getErrorMessage(error) // Wave 29: Winston logger
+    logger.error('Error fetching user presence:', getErrorMessage(error)) // Wave 29: Winston logger
     res.status(500).json({ error: getErrorMessage(error) })
   }
 })
@@ -43,7 +43,7 @@ router.get('/:userId', authenticateJWT, async (req: Request, res: Response) => {
  * POST /api/presence
  * Set presence status for the current user
  */
-router.post('/',csrfProtection,  csrfProtection, authenticateJWT, async (req: Request, res: Response) => {
+router.post('/', csrfProtection, authenticateJWT, async (req: Request, res: Response) => {
   try {
     const { userId, availability, activity, expirationDuration, statusMessage } = req.body
 
@@ -60,7 +60,7 @@ router.post('/',csrfProtection,  csrfProtection, authenticateJWT, async (req: Re
       message: 'Presence updated successfully'
     })
   } catch (error: any) {
-    logger.error('Error setting user presence:', getErrorMessage(error) // Wave 29: Winston logger
+    logger.error('Error setting user presence:', getErrorMessage(error)) // Wave 29: Winston logger
     res.status(500).json({ error: getErrorMessage(error) })
   }
 })
@@ -87,7 +87,7 @@ router.get('/batch/users', authenticateJWT, async (req: Request, res: Response) 
       presences
     })
   } catch (error: any) {
-    logger.error('Error fetching batch presence:', getErrorMessage(error) // Wave 29: Winston logger
+    logger.error('Error fetching batch presence:', getErrorMessage(error)) // Wave 29: Winston logger
     res.status(500).json({ error: getErrorMessage(error) })
   }
 })
@@ -108,7 +108,7 @@ router.get('/driver/:driverId', authenticateJWT, async (req: Request, res: Respo
       ...availability
     })
   } catch (error: any) {
-    logger.error('Error fetching driver availability:', getErrorMessage(error) // Wave 29: Winston logger
+    logger.error('Error fetching driver availability:', getErrorMessage(error)) // Wave 29: Winston logger
     res.status(500).json({ error: getErrorMessage(error) })
   }
 })
@@ -129,7 +129,7 @@ router.get('/drivers/all', authenticateJWT, async (req: Request, res: Response) 
       drivers
     })
   } catch (error: any) {
-    logger.error('Error fetching all drivers availability:', getErrorMessage(error) // Wave 29: Winston logger
+    logger.error('Error fetching all drivers availability:', getErrorMessage(error)) // Wave 29: Winston logger
     res.status(500).json({ error: getErrorMessage(error) })
   }
 })
@@ -150,7 +150,7 @@ router.get('/drivers/available', authenticateJWT, async (req: Request, res: Resp
       drivers: availableDrivers
     })
   } catch (error: any) {
-    logger.error('Error fetching available drivers:', getErrorMessage(error) // Wave 29: Winston logger
+    logger.error('Error fetching available drivers:', getErrorMessage(error)) // Wave 29: Winston logger
     res.status(500).json({ error: getErrorMessage(error) })
   }
 })
@@ -159,20 +159,20 @@ router.get('/drivers/available', authenticateJWT, async (req: Request, res: Resp
  * POST /api/presence/intelligent-routing
  * Get intelligent routing suggestion based on presence
  */
-router.post('/intelligent-routing',csrfProtection,  csrfProtection, authenticateJWT, async (req: Request, res: Response) => {
+router.post('/intelligent-routing', csrfProtection, authenticateJWT, async (req: Request, res: Response) => {
   try {
     const { taskPriority, candidateUserIds } = req.body
 
-    if (!taskPriority || !candidateUserIds || !Array.isArray(candidateUserIds) {
+    if (!taskPriority || !candidateUserIds || !Array.isArray(candidateUserIds)) {
       return res.status(400).json({
         error: 'Missing required fields: taskPriority, candidateUserIds (array)'
       })
     }
 
     const validPriorities = ['low', 'medium', 'high', 'critical']
-    if (!validPriorities.includes(taskPriority) {
+    if (!validPriorities.includes(taskPriority)) {
       return res.status(400).json({
-        error: `Invalid priority. Must be one of: ${validPriorities.join(`, `)}`
+        error: `Invalid priority. Must be one of: ${validPriorities.join(', ')}`
       })
     }
 
@@ -183,7 +183,7 @@ router.post('/intelligent-routing',csrfProtection,  csrfProtection, authenticate
       suggestion
     })
   } catch (error: any) {
-    logger.error(`Error getting intelligent routing suggestion:`, getErrorMessage(error) // Wave 29: Winston logger
+    logger.error('Error getting intelligent routing suggestion:', getErrorMessage(error)) // Wave 29: Winston logger
     res.status(500).json({ error: getErrorMessage(error) })
   }
 })
@@ -192,7 +192,7 @@ router.post('/intelligent-routing',csrfProtection,  csrfProtection, authenticate
  * POST /api/presence/subscribe
  * Subscribe to presence updates (webhook)
  */
-router.post('/subscribe',csrfProtection,  csrfProtection, authenticateJWT, async (req: Request, res: Response) => {
+router.post('/subscribe', csrfProtection, authenticateJWT, async (req: Request, res: Response) => {
   try {
     const { userIds, webhookUrl } = req.body
 
@@ -210,7 +210,7 @@ router.post('/subscribe',csrfProtection,  csrfProtection, authenticateJWT, async
       note: 'Webhook subscriptions require proper Azure configuration'
     })
   } catch (error: any) {
-    logger.error('Error creating presence subscription:', getErrorMessage(error) // Wave 29: Winston logger
+    logger.error('Error creating presence subscription:', getErrorMessage(error)) // Wave 29: Winston logger
     res.status(500).json({ error: getErrorMessage(error) })
   }
 })

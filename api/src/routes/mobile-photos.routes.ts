@@ -1,8 +1,4 @@
 /**
-import { container } from '../container'
-import { asyncHandler } from '../middleware/errorHandler'
-import { NotFoundError, ValidationError } from '../errors/app-error'
-import logger from '../config/logger'; // Wave 28: Add Winston logger
  * Mobile Photos API Routes
  *
  * Comprehensive endpoints for mobile photo upload and processing
@@ -23,14 +19,20 @@ import { BlobServiceClient } from '@azure/storage-blob';
 import { authenticateJWT } from '../middleware/auth';
 import { requirePermission } from '../middleware/permissions';
 import { auditLog } from '../middleware/audit';
-import photoProcessingService from '../services/photo-processing.service';
+import PhotoProcessingService from '../services/photo-processing.service';
+import logger from '../config/logger';
 import { v4 as uuidv4 } from 'uuid';
 import { z } from 'zod';
-import { getErrorMessage } from '../utils/error-handler'
-import { csrfProtection } from '../middleware/csrf'
+import { csrfProtection } from '../middleware/csrf';
+import { pool } from '../db/connection';
 
+const getErrorMessage = (error: unknown): string => {
+  if (error instanceof Error) return error.message;
+  return String(error);
+};
 
 const router = express.Router();
+const photoProcessingService = new PhotoProcessingService(pool);
 
 // Apply authentication to all routes
 router.use(authenticateJWT);
@@ -43,8 +45,8 @@ const upload = multer({
   },
   fileFilter: (req, file, cb) => {
     // Accept images only
-    if (!file.mimetype.startsWith('image/') {
-      return cb(new Error('Only image files are allowed');
+    if (!file.mimetype.startsWith('image/')) {
+      return cb(new Error('Only image files are allowed'));
     }
     cb(null, true);
   },
@@ -72,12 +74,12 @@ const PhotoMetadataSchema = z.object({
   reportType: z.enum(['damage', 'inspection', 'fuel', 'general']).optional(),
   latitude: z.number().optional(),
   longitude: z.number().optional(),
-  tags: z.array(z.string().optional(),
+  tags: z.array(z.string()).optional(),
   description: z.string().optional(),
 });
 
 const SyncCompleteSchema = z.object({
-  photoIds: z.array(z.number(),
+  photoIds: z.array(z.number()),
   deviceId: z.string(),
 });
 
@@ -113,7 +115,7 @@ const SyncCompleteSchema = z.object({
  */
 router.post(
   '/upload',
- csrfProtection,  csrfProtection, requirePermission('driver:create:global'),
+  csrfProtection, requirePermission('driver:create:global'),
   upload.single('photo'),
   auditLog,
   async (req: Request, res: Response) => {
@@ -176,7 +178,7 @@ router.post(
       const photoResult = await pool.query(
         `INSERT INTO mobile_photos
          (tenant_id, user_id, photo_url, file_name, file_size, mime_type, metadata, taken_at)
-         VALUES ($1, $2, $3, $4, $5, $6, $7, NOW()
+         VALUES ($1, $2, $3, $4, $5, $6, $7, NOW())
          RETURNING *`,
         [
           tenantId,
@@ -197,7 +199,7 @@ router.post(
         userId,
         photo.id,
         blobUrl,
-        priority as 'high` | `normal` | 'low'
+        priority as 'high' | 'normal' | 'low'
       );
 
       res.status(201).json({
@@ -210,7 +212,7 @@ router.post(
         },
       });
     } catch (error: any) {
-      logger.error('Photo upload error:', error) // Wave 28: Winston logger;
+      logger.error('Photo upload error:', error);
       res.status(500).json({
         error: 'Failed to upload photo',
         details: getErrorMessage(error),
@@ -250,7 +252,7 @@ router.post(
  */
 router.post(
   '/upload-batch',
- csrfProtection,  csrfProtection, requirePermission('driver:create:global'),
+  csrfProtection, requirePermission('driver:create:global'),
   upload.array('photos', 20), // Max 20 photos per batch
   auditLog,
   async (req: Request, res: Response) => {
@@ -320,7 +322,7 @@ router.post(
           const photoResult = await pool.query(
             `INSERT INTO mobile_photos
              (tenant_id, user_id, photo_url, file_name, file_size, mime_type, metadata, taken_at)
-             VALUES ($1, $2, $3, $4, $5, $6, $7, NOW()
+             VALUES ($1, $2, $3, $4, $5, $6, $7, NOW())
              RETURNING *`,
             [
               tenantId,
@@ -341,7 +343,7 @@ router.post(
             userId,
             photo.id,
             blobUrl,
-            metadata.priority || `normal`
+            metadata.priority || 'normal'
           );
 
           results.push({
@@ -353,7 +355,7 @@ router.post(
             },
           });
         } catch (error: any) {
-          logger.error(`Failed to upload photo ${i}:`, error) // Wave 28: Winston logger;
+          logger.error(`Failed to upload photo ${i}:`, error);
           errors.push({
             index: i,
             fileName: file.originalname,
@@ -371,7 +373,7 @@ router.post(
         errors,
       });
     } catch (error: any) {
-      logger.error(`Batch upload error:`, error) // Wave 28: Winston logger;
+      logger.error(`Batch upload error:`, error);
       res.status(500).json({
         error: `Failed to upload photos`,
         details: getErrorMessage(error),
@@ -401,7 +403,7 @@ router.post(
  */
 router.get(
   '/sync-queue',
-  requirePermission(`driver:view:global`),
+  requirePermission('driver:view:global'),
   async (req: Request, res: Response) => {
     try {
       const tenantId = (req as any).user.tenant_id;
@@ -442,7 +444,7 @@ router.get(
         count: result.rows.length,
       });
     } catch (error: any) {
-      logger.error(`Sync queue error:`, error) // Wave 28: Winston logger;
+      logger.error(`Sync queue error:`, error);
       res.status(500).json({
         error: 'Failed to get sync queue',
         details: getErrorMessage(error),
@@ -481,7 +483,7 @@ router.get(
  */
 router.post(
   '/sync-complete',
- csrfProtection,  csrfProtection, requirePermission('driver:update:global'),
+  csrfProtection, requirePermission('driver:update:global'),
   auditLog,
   async (req: Request, res: Response) => {
     try {
@@ -507,7 +509,7 @@ router.post(
         syncedIds: result.rows.map(r => r.id),
       });
     } catch (error: any) {
-      logger.error(`Sync complete error:`, error) // Wave 28: Winston logger;
+      logger.error(`Sync complete error:`, error);
       res.status(400).json({
         error: 'Failed to mark photos as synced',
         details: getErrorMessage(error),
@@ -568,7 +570,7 @@ router.get(
         photo: result.rows[0],
       });
     } catch (error: any) {
-      logger.error('Get status error:', error) // Wave 28: Winston logger;
+      logger.error('Get status error:', error);
       res.status(500).json({
         error: 'Failed to get photo status',
         details: getErrorMessage(error),
@@ -627,7 +629,7 @@ router.get(
         photo: result.rows[0],
       });
     } catch (error: any) {
-      logger.error('Get photo error:', error) // Wave 28: Winston logger;
+      logger.error('Get photo error:', error);
       res.status(500).json({
         error: 'Failed to get photo',
         details: getErrorMessage(error),
@@ -656,7 +658,7 @@ router.get(
  */
 router.delete(
   '/:id',
- csrfProtection,  csrfProtection, requirePermission('driver:delete:global'),
+  csrfProtection, requirePermission('driver:delete:global'),
   auditLog,
   async (req: Request, res: Response) => {
     try {
@@ -708,7 +710,7 @@ router.delete(
         message: 'Photo deleted successfully',
       });
     } catch (error: any) {
-      logger.error('Delete photo error:', error) // Wave 28: Winston logger;
+      logger.error('Delete photo error:', error);
       res.status(500).json({
         error: 'Failed to delete photo',
         details: getErrorMessage(error),
@@ -749,7 +751,7 @@ router.get(
         stats,
       });
     } catch (error: any) {
-      logger.error('Get stats error:', error) // Wave 28: Winston logger;
+      logger.error('Get stats error:', error);
       res.status(500).json({
         error: 'Failed to get processing stats',
         details: getErrorMessage(error),

@@ -3,6 +3,7 @@ import { Router, Request, Response } from 'express'
 import logger from '../config/logger' // Wave 27: Add Winston logger
 import { csrfProtection } from '../middleware/csrf'
 import { RouteFilters, UpdateStopStatusRequest } from '../types/route.types'
+import { RouteEmulator } from '../emulators/RouteEmulator'
 
 
 const router = Router()
@@ -147,7 +148,7 @@ router.get('/driver/:driverId', (req: Request, res: Response) => {
 /**
  * POST /api/routes - Create a new route
  */
-router.post('/',csrfProtection,  csrfProtection, (req: Request, res: Response) => {
+router.post('/', csrfProtection, csrfProtection, (req: Request, res: Response) => {
   try {
     const routeData = req.body
 
@@ -177,7 +178,7 @@ router.post('/',csrfProtection,  csrfProtection, (req: Request, res: Response) =
 /**
  * PUT /api/routes/:id - Update route (mark stops complete, update status, etc.)
  */
-router.put('/:id',csrfProtection,  csrfProtection, (req: Request, res: Response) => {
+router.put('/:id', csrfProtection, csrfProtection, (req: Request, res: Response) => {
   try {
     const routeId = parseInt(req.params.id)
     const updates = req.body
@@ -207,7 +208,7 @@ router.put('/:id',csrfProtection,  csrfProtection, (req: Request, res: Response)
 /**
  * PUT /api/routes/:routeId/stops/:stopId - Update a specific stop's status
  */
-router.put('/:routeId/stops/:stopId',csrfProtection,  csrfProtection, (req: Request, res: Response) => {
+router.put('/:routeId/stops/:stopId', csrfProtection, csrfProtection, (req: Request, res: Response) => {
   try {
     const routeId = parseInt(req.params.routeId)
     const stopId = parseInt(req.params.stopId)
@@ -249,7 +250,7 @@ router.put('/:routeId/stops/:stopId',csrfProtection,  csrfProtection, (req: Requ
 /**
  * DELETE /api/routes/:id - Cancel a route
  */
-router.delete('/:id',csrfProtection,  csrfProtection, (req: Request, res: Response) => {
+router.delete('/:id', csrfProtection, csrfProtection, (req: Request, res: Response) => {
   try {
     const routeId = parseInt(req.params.id)
 

@@ -40,7 +40,7 @@ router.use(authenticateJWT)
  */
 router.post(
   '/',
- csrfProtection,  csrfProtection, authorize('admin', 'fleet_manager', 'dispatcher', 'driver'),
+  csrfProtection, authorize('admin', 'fleet_manager', 'dispatcher', 'driver'),
   auditLog({ action: 'SEARCH', resourceType: 'documents' }),
   async (req: AuthRequest, res: Response) => {
     try {
@@ -52,7 +52,7 @@ router.post(
         operator: z.enum(['AND', 'OR']).optional(),
         categoryId: z.string().optional(),
         documentType: z.string().optional(),
-        tags: z.array(z.string().optional(),
+        tags: z.array(z.string().optional()),
         dateFrom: z.string().datetime().optional(),
         dateTo: z.string().datetime().optional(),
         uploadedBy: z.string().optional(),
@@ -61,7 +61,7 @@ router.post(
         limit: z.number().int().min(1).max(100).optional(),
         sortBy: z.enum(['relevance', 'date', 'popularity']).optional(),
         sortOrder: z.enum(['asc', 'desc']).optional(),
-        boost: z.record(z.number().optional(),
+        boost: z.record(z.number().optional()),
         minScore: z.number().optional()
       })
 
@@ -101,7 +101,7 @@ router.post(
           page: validated.page || 1,
           limit: validated.limit || 20,
           total: results.stats.total_results,
-          pages: Math.ceil(results.stats.total_results / (validated.limit || 20)
+          pages: Math.ceil(results.stats.total_results / (validated.limit || 20))
         }
       })
     } catch (error) {
@@ -202,7 +202,7 @@ router.get(
  */
 router.post(
   '/click',
- csrfProtection,  csrfProtection, authorize('admin', 'fleet_manager', 'dispatcher', 'driver'),
+  csrfProtection, authorize('admin', 'fleet_manager', 'dispatcher', 'driver'),
   async (req: AuthRequest, res: Response) => {
     try {
       const schema = z.object({
@@ -269,13 +269,13 @@ router.get(
  */
 router.post(
   '/saved',
- csrfProtection,  csrfProtection, authorize('admin', 'fleet_manager', 'dispatcher', 'driver'),
+  csrfProtection, authorize('admin', 'fleet_manager', 'dispatcher', 'driver'),
   async (req: AuthRequest, res: Response) => {
     try {
       const schema = z.object({
         name: z.string().min(1).max(100),
         query: z.string().min(1),
-        filters: z.record(z.any().optional(),
+        filters: z.record(z.any().optional()),
         notificationEnabled: z.boolean().optional()
       })
 
@@ -317,7 +317,7 @@ router.post(
  */
 router.delete(
   '/saved/:id',
- csrfProtection,  csrfProtection, authorize('admin', 'fleet_manager', 'dispatcher', 'driver'),
+  csrfProtection, authorize('admin', 'fleet_manager', 'dispatcher', 'driver'),
   async (req: AuthRequest, res: Response) => {
     try {
       await DocumentSearchService.deleteSavedSearch(
@@ -417,7 +417,7 @@ router.get(
  */
 router.post(
   '/index/document/:id',
- csrfProtection,  csrfProtection, authorize('admin', 'fleet_manager'),
+  csrfProtection, authorize('admin', 'fleet_manager'),
   auditLog({ action: 'INDEX', resourceType: 'documents' }),
   async (req: AuthRequest, res: Response) => {
     try {
@@ -449,13 +449,13 @@ router.post(
  */
 router.post(
   '/index/reindex',
- csrfProtection,  csrfProtection, authorize('admin'),
+  csrfProtection, authorize('admin'),
   auditLog({ action: 'REINDEX', resourceType: 'documents' }),
   async (req: AuthRequest, res: Response) => {
     try {
       const schema = z.object({
         categoryId: z.string().optional(),
-        documentIds: z.array(z.string().optional(),
+        documentIds: z.array(z.string().optional()),
         fullReindex: z.boolean().optional()
       })
 
@@ -527,7 +527,7 @@ router.get(
  */
 router.post(
   '/index/optimize',
- csrfProtection,  csrfProtection, authorize('admin'),
+  csrfProtection, authorize('admin'),
   auditLog({ action: 'OPTIMIZE_INDEX', resourceType: 'search_index' }),
   async (req: AuthRequest, res: Response) => {
     try {
@@ -578,7 +578,7 @@ router.get(
  */
 router.post(
   '/cache/clear',
- csrfProtection,  csrfProtection, authorize('admin'),
+  csrfProtection, authorize('admin'),
   auditLog({ action: 'CLEAR_CACHE', resourceType: 'search_cache' }),
   async (req: AuthRequest, res: Response) => {
     try {
@@ -604,7 +604,7 @@ router.post(
  */
 router.post(
   '/cache/warm',
- csrfProtection,  csrfProtection, authorize('admin'),
+  csrfProtection, authorize('admin'),
   async (req: AuthRequest, res: Response) => {
     try {
       await SearchIndexService.warmCache(req.user!.tenant_id)

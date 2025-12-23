@@ -140,7 +140,7 @@ export class FleetOptimizerService {
     const vehicleResult = await this.db.query(
       `SELECT vehicle_number, vehicle_type, purchase_price
        FROM vehicles
-       WHERE id = $1 AND tenant_id = $2',
+       WHERE id = $1 AND tenant_id = $2`,
       [vehicleId, tenantId]
     )
 
@@ -317,7 +317,7 @@ export class FleetOptimizerService {
             potential_savings, implementation_cost, payback_period_months,
             confidence_score, vehicle_ids, status
           ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, 'pending')
-          RETURNING id',
+          RETURNING id`,
           [
             tenantId, rec.type, rec.title, rec.description, rec.priority,
             rec.potentialSavings, rec.implementationCost, rec.paybackPeriodMonths,

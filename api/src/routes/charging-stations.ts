@@ -8,6 +8,7 @@ import { auditLog } from '../middleware/audit'
 import { z } from 'zod'
 import { buildInsertClause, buildUpdateClause } from '../utils/sql-safety'
 import { csrfProtection } from '../middleware/csrf'
+import { pool } from '../db/connection'
 
 
 const router = express.Router()
@@ -51,7 +52,7 @@ router.get(
           page: Number(page),
           limit: Number(limit),
           total: parseInt(countResult.rows[0].count),
-          pages: Math.ceil(countResult.rows[0].count / Number(limit)
+          pages: Math.ceil(countResult.rows[0].count / Number(limit))
         }
       })
     } catch (error) {
@@ -100,7 +101,7 @@ router.get(
 // POST /charging-stations
 router.post(
   '/',
- csrfProtection,  csrfProtection, requirePermission('charging_station:create:fleet'),
+  csrfProtection, csrfProtection, requirePermission('charging_station:create:fleet'),
   auditLog({ action: 'CREATE', resourceType: 'charging_stations' }),
   async (req: AuthRequest, res: Response) => {
     try {
@@ -154,7 +155,7 @@ router.put(
 // DELETE /charging-stations/:id
 router.delete(
   '/:id',
- csrfProtection,  csrfProtection, requirePermission('charging_station:delete:fleet'),
+  csrfProtection, csrfProtection, requirePermission('charging_station:delete:fleet'),
   auditLog({ action: 'DELETE', resourceType: 'charging_stations' }),
   async (req: AuthRequest, res: Response) => {
     try {

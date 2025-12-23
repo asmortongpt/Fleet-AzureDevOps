@@ -47,7 +47,7 @@ export interface EmailAttachment {
 }
 
 export class AttachmentService {
-  constructor(private db: Pool) {}
+
 
   private blobServiceClient: BlobServiceClient | null = null
   private graphClient: Client | null = null
@@ -93,7 +93,7 @@ export class AttachmentService {
     COMMUNICATION_FILES: 'communication-files'
   }
 
-  constructor() {
+  constructor(private db: Pool) {
     // Lazy initialization - only initialize when Azure Storage is configured
     const connectionString = process.env.AZURE_STORAGE_CONNECTION_STRING
     if (!connectionString) {
@@ -110,7 +110,8 @@ export class AttachmentService {
 
       if (!accountNameMatch || !accountKeyMatch) {
         console.error('Invalid Azure Storage connection string format')
-        return }
+        return
+      }
 
       this.accountName = accountNameMatch[1]
       this.accountKey = accountKeyMatch[1]
@@ -262,7 +263,7 @@ export class AttachmentService {
           mime_type, storage_path, storage_url, blob_url, thumbnail_url,
           virus_scan_status, is_scanned
         ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
-        RETURNING id',
+        RETURNING id`,
         [
           metadata.communicationId || null,
           uniqueFilename,
@@ -350,7 +351,7 @@ export class AttachmentService {
   async deleteFromAzure(blobUrl: string): Promise<void> {
     this.ensureInitialized()
 
-    try{
+    try {
       // SSRF Protection: Validate blob URL
       try {
         validateURL(blobUrl, {
@@ -495,7 +496,7 @@ export class AttachmentService {
       .api(`/drives/${driveId}/root:/General/${file.originalname}:/createUploadSession`)
       .post({
         item: {
-          `@microsoft.graph.conflictBehavior`: `rename'
+          '@microsoft.graph.conflictBehavior': 'rename'
         }
       })
 
@@ -588,7 +589,7 @@ export class AttachmentService {
       const result = await this.graphClient
         .api(`/me/messages/${messageId}/attachments`)
         .post({
-          `@odata.type`: `#microsoft.graph.fileAttachment',
+          '@odata.type': '#microsoft.graph.fileAttachment',
           ...attachment
         })
 
@@ -596,7 +597,7 @@ export class AttachmentService {
       await this.db.query(
         `UPDATE communication_attachments
          SET outlook_attachment_id = $1
-         WHERE original_filename = $2',
+         WHERE original_filename = $2`,
         [result.id, file.originalname]
       )
 

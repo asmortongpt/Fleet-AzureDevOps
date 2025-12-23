@@ -33,7 +33,7 @@ const trackMetrics = (req: Request, res: Response, next: Function) => {
     const responseTime = performance.now() - startTime
 
     // Store metric
-    if (!metricsStore.requests.has(endpoint) {
+    if (!metricsStore.requests.has(endpoint)) {
       metricsStore.requests.set(endpoint, [])
     }
 
@@ -94,8 +94,8 @@ router.get('/health', async (req: Request, res: Response) => {
     // Check API health by measuring a simple operation
     const apiStartTime = performance.now()
     const testResult = await Promise.race([
-      new Promise(resolve => setTimeout(() => resolve('ok'), 100),
-      new Promise((_, reject) => setTimeout(() => reject(new Error('Timeout'), 1000),
+      new Promise(resolve => setTimeout(() => resolve('ok'), 100)),
+      new Promise((_, reject) => setTimeout(() => reject(new Error('Timeout')), 1000)),
     ])
     const apiResponseTime = performance.now() - apiStartTime
 
@@ -151,7 +151,7 @@ router.get('/metrics', (req: Request, res: Response) => {
     const oneHourAgo = now - 3600000
 
     // Calculate metrics for each endpoint
-    const endpoints = Array.from(metricsStore.requests.entries()
+    const endpoints = Array.from(metricsStore.requests.entries())
       .map(([path, metrics]) => {
         const recentMetrics = metrics.filter(m => m.timestamp > oneHourAgo)
 
@@ -180,7 +180,7 @@ router.get('/metrics', (req: Request, res: Response) => {
       .filter(Boolean)
 
     // Calculate overall throughput
-    const allRecentRequests = Array.from(metricsStore.requests.values()
+    const allRecentRequests = Array.from(metricsStore.requests.values())
       .flat()
       .filter(m => m.timestamp > oneHourAgo)
 
