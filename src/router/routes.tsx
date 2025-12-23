@@ -3,8 +3,8 @@ import { createBrowserRouter, RouterProvider } from "react-router-dom";
 
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 
-// Layout component
-import { MainLayout } from "@/components/layout/MainLayout";
+import { CommandCenterLayout } from "@/components/layout/CommandCenterLayout";
+import { Outlet } from "react-router-dom";
 
 // Loading spinner component for Suspense fallback
 const LoadingSpinner = () => (
@@ -19,7 +19,7 @@ const LoadingSpinner = () => (
 // --- LAZY-LOADED MODULES ---
 // FLEET
 const FleetDashboard = lazy(() => import("@/components/modules/fleet/FleetDashboard").then(m => ({ default: m.FleetDashboard })));
-const FleetDashboardModern = lazy(() => import("@/components/modules/fleet/FleetDashboardModern").then(m => ({ default: m.FleetDashboardModern })));
+// const FleetDashboardModern = lazy(() => import("@/components/modules/fleet/FleetDashboardModern").then(m => ({ default: m.FleetDashboardModern })));
 const FleetAnalytics = lazy(() => import("@/components/modules/fleet/FleetAnalytics").then(m => ({ default: m.FleetAnalytics })));
 const GPSTracking = lazy(() => import("@/components/modules/fleet/GPSTracking").then(m => ({ default: m.GPSTracking })));
 const VehicleTelemetry = lazy(() => import("@/components/modules/fleet/VehicleTelemetry").then(m => ({ default: m.VehicleTelemetry })));
@@ -32,7 +32,7 @@ const EndpointMonitor = lazy(() => import("@/components/modules/analytics/Endpoi
 
 // ADMIN
 const AdminDashboard = lazy(() => import("@/pages/AdminDashboard"));
-const PeopleManagement = lazy(() => import("@/components/modules/admin/PeopleManagement").then(m => ({ default: m.PeopleManagement })));
+// const PeopleManagement = lazy(() => import("@/components/modules/admin/PeopleManagement").then(m => ({ default: m.PeopleManagement })));
 const PolicyEngineWorkbench = lazy(() => import("@/components/modules/admin/PolicyEngineWorkbench").then(m => ({ default: m.PolicyEngineWorkbench })));
 const Notifications = lazy(() => import("@/components/modules/admin/Notifications").then(m => ({ default: m.Notifications })));
 const PushNotificationAdmin = lazy(() => import("@/components/modules/admin/PushNotificationAdmin"));
@@ -48,7 +48,7 @@ const FuelPurchasing = lazy(() => import("@/components/modules/fuel/FuelPurchasi
 
 // OPERATIONS
 const RouteManagement = lazy(() => import("@/components/modules/operations/RouteManagement").then(m => ({ default: m.RouteManagement })));
-const GeofenceManagement = lazy(() => import("@/components/modules/operations/GeofenceManagement").then(m => ({ default: m.GeofenceManagement })));
+// const GeofenceManagement = lazy(() => import("@/components/modules/operations/GeofenceManagement").then(m => ({ default: m.GeofenceManagement })));
 const AdvancedRouteOptimization = lazy(() => import("@/components/modules/operations/AdvancedRouteOptimization").then(m => ({ default: m.AdvancedRouteOptimization })));
 const TaskManagement = lazy(() => import("@/components/modules/operations/TaskManagement").then(m => ({ default: m.TaskManagement })));
 const DispatchConsole = lazy(() => import("@/components/DispatchConsole"));
@@ -105,12 +105,12 @@ const routes = [
   { path: "executive-dashboard", element: <ExecutiveDashboard /> },
   { path: "admin-dashboard", element: <AdminDashboard /> },
   { path: "dispatch-console", element: <DispatchConsole /> },
-  { path: "people", element: <PeopleManagement /> },
+  // { path: "people", element: <PeopleManagement /> },
   { path: "garage", element: <GarageService /> },
   { path: "virtual-garage", element: <VirtualGarage /> },
   { path: "predictive", element: <PredictiveMaintenance /> },
   { path: "fuel", element: <FuelManagement /> },
-  { path: "gps-tracking", element: <GPSTracking /> },
+  { path: "gps-tracking", element: <GPSTracking vehicles={[]} facilities={[]} /> },
   { path: "workbench", element: <DataWorkbench /> },
   { path: "mileage", element: <MileageReimbursement /> },
   { path: "routes", element: <RouteManagement /> },
@@ -126,7 +126,7 @@ const routes = [
   { path: "maintenance-scheduling", element: <MaintenanceScheduling /> },
   { path: "receipt-processing", element: <ReceiptProcessing /> },
   { path: "communication-log", element: <CommunicationLog /> },
-  { path: "geofences", element: <GeofenceManagement /> },
+  // { path: "geofences", element: <GeofenceManagement /> },
   { path: "osha-forms", element: <OSHAForms /> },
   { path: "policy-engine", element: <PolicyEngineWorkbench /> },
   { path: "video-telematics", element: <VideoTelematics /> },
@@ -158,14 +158,19 @@ const routes = [
 export const router = createBrowserRouter([
   {
     path: "/",
-    element: <MainLayout />,
+    element: (
+      <CommandCenterLayout>
+        <Outlet />
+      </CommandCenterLayout>
+    ),
     children: [
       {
         index: true,
         element: (
           <ErrorBoundary>
             <Suspense fallback={<LoadingSpinner />}>
-              <FleetDashboardModern />
+              {/* <FleetDashboardModern /> */}
+              <div className="p-4 text-center">Dashboard Modern Not Found</div>
             </Suspense>
           </ErrorBoundary>
         ),

@@ -19,6 +19,9 @@ import { authenticateJWT } from '../middleware/auth'
 import { requirePermission } from '../middleware/permissions'
 import vehicleIdentificationService from '../services/vehicle-identification.service'
 import { getErrorMessage } from '../utils/error-handler'
+import logger from '../config/logger'
+import { csrfProtection } from '../middleware/csrf'
+import { NotFoundError, ValidationError } from '../errors/app-error'
 
 const router = Router()
 router.use(authenticateJWT)
@@ -43,7 +46,7 @@ router.use(authenticateJWT)
  *       404:
  *         description: Vehicle not found
  */
-router.post('/qr/generate/:vehicleId',csrfProtection,  csrfProtection, requirePermission('vehicle:update:fleet'), async (req: AuthRequest, res) => {
+router.post('/qr/generate/:vehicleId', csrfProtection, requirePermission('vehicle:update:fleet'), async (req: AuthRequest, res) => {
   try {
     const { vehicleId } = req.params
     const tenantId = req.user?.tenant_id
@@ -86,7 +89,7 @@ router.post('/qr/generate/:vehicleId',csrfProtection,  csrfProtection, requirePe
  *       404:
  *         description: Vehicle not found
  */
-router.post('/qr/scan',csrfProtection,  csrfProtection, requirePermission('vehicle:view:fleet'), async (req: AuthRequest, res) => {
+router.post('/qr/scan', csrfProtection, requirePermission('vehicle:view:fleet'), async (req: AuthRequest, res) => {
   try {
     const { qrData } = req.body
     const tenantId = req.user?.tenant_id
@@ -137,7 +140,7 @@ router.post('/qr/scan',csrfProtection,  csrfProtection, requirePermission('vehic
  *       404:
  *         description: Vehicle not found
  */
-router.post('/vin',csrfProtection,  csrfProtection, requirePermission('vehicle:view:fleet'), async (req: AuthRequest, res) => {
+router.post('/vin', csrfProtection, requirePermission('vehicle:view:fleet'), async (req: AuthRequest, res) => {
   try {
     const { vin } = req.body
     const tenantId = req.user?.tenant_id
@@ -151,7 +154,7 @@ router.post('/vin',csrfProtection,  csrfProtection, requirePermission('vehicle:v
     }
 
     // Validate VIN format
-    if (!vehicleIdentificationService.isValidVIN(vin) {
+    if (!vehicleIdentificationService.isValidVIN(vin)) {
       return res.status(400).json({
         error: 'Invalid VIN format',
         details: 'VIN must be 17 characters, alphanumeric, excluding I, O, Q'
@@ -194,7 +197,7 @@ router.post('/vin',csrfProtection,  csrfProtection, requirePermission('vehicle:v
  *       404:
  *         description: Vehicle not found
  */
-router.post('/license-plate',csrfProtection,  csrfProtection, requirePermission('vehicle:view:fleet'), async (req: AuthRequest, res) => {
+router.post('/license-plate', csrfProtection, requirePermission('vehicle:view:fleet'), async (req: AuthRequest, res) => {
   try {
     const { licensePlate } = req.body
     const tenantId = req.user?.tenant_id
@@ -249,7 +252,7 @@ router.post('/license-plate',csrfProtection,  csrfProtection, requirePermission(
  *       501:
  *         description: OCR service not configured
  */
-router.post('/license-plate/ocr',csrfProtection,  csrfProtection, requirePermission('vehicle:view:fleet'), async (req: AuthRequest, res) => {
+router.post('/license-plate/ocr', csrfProtection, requirePermission('vehicle:view:fleet'), async (req: AuthRequest, res) => {
   try {
     const { imageData } = req.body
     const tenantId = req.user?.tenant_id
@@ -275,7 +278,7 @@ router.post('/license-plate/ocr',csrfProtection,  csrfProtection, requirePermiss
   } catch (error: any) {
     logger.error('Error processing license plate image:', error) // Wave 30: Winston logger
 
-    if (getErrorMessage(error).includes('Azure Computer Vision') {
+    if (getErrorMessage(error).includes('Azure Computer Vision')) {
       return res.status(501).json({
         error: 'OCR service not configured',
         details: getErrorMessage(error)

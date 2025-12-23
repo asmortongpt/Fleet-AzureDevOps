@@ -45,103 +45,125 @@ const ExecutiveDashboard = ({ vehicles, workOrders, drivers }) => {
       value: `${avgUtilization}%`,
       trend: "+5.2%",
       isPositive: true,
-      icon: <Gauge className="h-4 w-4" />
+      icon: <Gauge className="h-5 w-5 text-blue-400" />,
+      bg: "from-blue-500/10 to-blue-500/5",
+      border: "border-blue-500/20"
     },
     {
       title: "Active Vehicles",
       value: activeVehicles,
       subtitle: `of ${totalVehicles} total`,
-      icon: <BarChart3 className="h-4 w-4" />
+      icon: <BarChart3 className="h-5 w-5 text-emerald-400" />,
+      bg: "from-emerald-500/10 to-emerald-500/5",
+      border: "border-emerald-500/20"
     },
     {
       title: "Maintenance Completion",
       value: `${completionRate}%`,
       trend: "+12.4%",
       isPositive: true,
-      icon: <Wrench className="h-4 w-4" />
+      icon: <Wrench className="h-5 w-5 text-amber-400" />,
+      bg: "from-amber-500/10 to-amber-500/5",
+      border: "border-amber-500/20"
     },
     {
       title: "Avg Fuel Cost",
       value: "$3.45",
       trend: "-0.8%",
       isPositive: true,
-      icon: <Fuel className="h-4 w-4" />
+      icon: <Fuel className="h-5 w-5 text-purple-400" />,
+      bg: "from-purple-500/10 to-purple-500/5",
+      border: "border-purple-500/20"
     },
     {
       title: "Total Cost/Mile",
       value: "$0.58",
       trend: "-2.3%",
       isPositive: true,
-      icon: <DollarSign className="h-4 w-4" />
+      icon: <DollarSign className="h-5 w-5 text-indigo-400" />,
+      bg: "from-indigo-500/10 to-indigo-500/5",
+      border: "border-indigo-500/20"
     },
     {
       title: "Avg Response Time",
       value: "14.2 min",
       trend: "-18%",
       isPositive: true,
-      icon: <Clock className="h-4 w-4" />
+      icon: <Clock className="h-5 w-5 text-cyan-400" />,
+      bg: "from-cyan-500/10 to-cyan-500/5",
+      border: "border-cyan-500/20"
     }
   ]
 
   return (
-    <ScrollArea className="h-full">
-      <div className="p-3 sm:p-4 md:p-6 space-y-4 sm:space-y-6">
-        <div>
-          <h2 className="text-xl sm:text-2xl font-bold">Executive Dashboard</h2>
-          <p className="text-xs sm:text-sm text-muted-foreground">Key performance indicators at a glance</p>
+    <ScrollArea className="h-full bg-[#0a0f1c]">
+      <div className="p-4 sm:p-6 space-y-6">
+        <div className="flex items-end justify-between">
+          <div>
+            <h2 className="text-2xl font-bold text-white tracking-tight">Executive Overview</h2>
+            <p className="text-sm text-slate-400 mt-1">Real-time fleet performance metrics</p>
+          </div>
+          <Button variant="outline" className="border-white/10 bg-white/5 text-slate-300 hover:bg-white/10 hover:text-white">
+            <Download className="h-4 w-4 mr-2" />
+            Export Report
+          </Button>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4" data-testid="analytics-kpi-grid">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4" data-testid="analytics-kpi-grid">
           {kpis.map((kpi, index) => (
-            <Card key={index} data-testid={`analytics-kpi-${index}`}>
+            <Card key={index} data-testid={`analytics-kpi-${index}`} className={`bg-gradient-to-br ${kpi.bg} border-white/5 backdrop-blur-sm`}>
               <CardContent className="p-6">
-                <div className="flex items-center justify-between mb-2">
-                  <span className="text-sm text-muted-foreground">{kpi.title}</span>
-                  <div className="text-muted-foreground">{kpi.icon}</div>
-                </div>
-                <div className="flex items-baseline gap-2">
-                  <span className="text-3xl font-bold">{kpi.value}</span>
+                <div className="flex items-center justify-between mb-4">
+                  <div className={`p-2 rounded-lg bg-white/5 border ${kpi.border || 'border-white/10'}`}>
+                    {kpi.icon}
+                  </div>
                   {kpi.trend && (
-                    <Badge variant={kpi.isPositive ? "default" : "destructive"} className="text-xs">
-                      {kpi.isPositive ? (
-                        <TrendingUp className="h-3 w-3 mr-1" />
-                      ) : (
-                        <TrendingDown className="h-3 w-3 mr-1" />
-                      )}
+                    <Badge variant="outline" className={`bg-black/20 border-white/10 ${kpi.isPositive ? "text-emerald-400" : "text-red-400"}`}>
+                      {kpi.isPositive ? <TrendingUp className="h-3 w-3 mr-1" /> : <TrendingDown className="h-3 w-3 mr-1" />}
                       {kpi.trend}
                     </Badge>
                   )}
                 </div>
-                {kpi.subtitle && (
-                  <p className="text-sm text-muted-foreground mt-1">{kpi.subtitle}</p>
-                )}
+                <div>
+                  <span className="text-sm font-medium text-slate-400 block mb-1">{kpi.title}</span>
+                  <div className="flex items-baseline gap-2">
+                    <span className="text-3xl font-bold text-white tracking-tight">{kpi.value}</span>
+                    {kpi.subtitle && (
+                      <span className="text-xs text-slate-500">{kpi.subtitle}</span>
+                    )}
+                  </div>
+                </div>
               </CardContent>
             </Card>
           ))}
         </div>
 
         {/* Charts Placeholder */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-          <Card>
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <Card className="bg-[#0f1526]/50 border-white/5 backdrop-blur-sm">
             <CardHeader>
-              <CardTitle className="text-base">Fleet Utilization Trend</CardTitle>
+              <CardTitle className="text-lg font-semibold text-slate-200">Fleet Utilization Trend</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="h-[200px] flex items-center justify-center text-muted-foreground">
-                <LineChart className="h-8 w-8 mr-2" />
-                <span>Chart visualization coming soon</span>
+              <div className="h-[250px] w-full bg-gradient-to-t from-blue-500/10 to-transparent rounded-lg border border-white/5 flex items-center justify-center text-slate-500">
+                <div className="flex flex-col items-center gap-2">
+                  <LineChart className="h-8 w-8 opacity-50" />
+                  <span className="text-sm">Utilization Data Visualization</span>
+                </div>
               </div>
             </CardContent>
           </Card>
 
-          <Card>
+          <Card className="bg-[#0f1526]/50 border-white/5 backdrop-blur-sm">
             <CardHeader>
-              <CardTitle className="text-base">Cost Distribution</CardTitle>
+              <CardTitle className="text-lg font-semibold text-slate-200">Cost Distribution</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="h-[200px] flex items-center justify-center text-muted-foreground">
-                <PieChart className="h-8 w-8 mr-2" />
-                <span>Chart visualization coming soon</span>
+              <div className="h-[250px] w-full bg-gradient-to-t from-purple-500/10 to-transparent rounded-lg border border-white/5 flex items-center justify-center text-slate-500">
+                <div className="flex flex-col items-center gap-2">
+                  <PieChart className="h-8 w-8 opacity-50" />
+                  <span className="text-sm">Cost Breakdown Visualization</span>
+                </div>
               </div>
             </CardContent>
           </Card>

@@ -36,7 +36,7 @@ const RegisterAdapterSchema = z.object({
   port: z.number().int().positive().optional(),
   firmware_version: z.string().optional(),
   hardware_version: z.string().optional(),
-  supported_protocols: z.array(z.string().optional(),
+  supported_protocols: z.array(z.string()).optional(),
   vehicle_id: z.number().int().positive().optional(),
   vin: z.string().length(17).optional(),
   protocol_detected: z.string().optional()
@@ -56,7 +56,7 @@ const ReportDTCsSchema = z.object({
     is_mil_on: z.boolean(),
     freeze_frame_data: z.any().optional(),
     detected_at: z.string().datetime()
-  })
+  })),
 })
 
 /**
@@ -300,7 +300,7 @@ router.get('/adapters/:adapterId', requirePermission('vehicle:view:fleet'), asyn
  *       400:
  *         description: Invalid request
  */
-router.post('/dtcs',csrfProtection,  csrfProtection, requirePermission('maintenance:create:fleet'), auditLog, async (req: Request, res: Response) => {
+router.post('/dtcs',csrfProtection, requirePermission('maintenance:create:fleet'), auditLog, async (req: Request, res: Response) => {
   try {
     const validated = ReportDTCsSchema.parse(req.body)
     const tenantId = (req as any).user.tenant_id
@@ -315,7 +315,7 @@ router.post('/dtcs',csrfProtection,  csrfProtection, requirePermission('maintena
         ...dtc,
         detected_at: new Date(dtc.detected_at)
       })
-    )
+    ))
 
     res.status(201).json(dtcs)
   } catch (error: any) {
@@ -458,7 +458,7 @@ router.delete(`/dtcs/:vehicleId`, csrfProtection, requirePermission(`maintenance
  *       201:
  *         description: Live data stored successfully
  */
-router.post('/live-data',csrfProtection,  csrfProtection, requirePermission('vehicle:view:fleet'), async (req: Request, res: Response) => {
+router.post('/live-data',csrfProtection, requirePermission('vehicle:view:fleet'), async (req: Request, res: Response) => {
   try {
     const validated = LiveDataSchema.parse(req.body)
     const tenantId = (req as any).user.tenant_id
@@ -563,7 +563,7 @@ router.get('/live-data/:vehicleId', requirePermission('vehicle:view:fleet'), asy
  *       201:
  *         description: Connection logged successfully
  */
-router.post('/connection-log',csrfProtection,  csrfProtection, requirePermission('vehicle:view:fleet'), async (req: Request, res: Response) => {
+router.post('/connection-log',csrfProtection, requirePermission('vehicle:view:fleet'), async (req: Request, res: Response) => {
   try {
     const validated = ConnectionLogSchema.parse(req.body)
     const tenantId = (req as any).user.tenant_id

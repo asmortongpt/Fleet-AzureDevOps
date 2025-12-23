@@ -203,7 +203,7 @@ export class OBD2ServiceBackend {
   ): Promise<OBD2Adapter | null> {
     const result = await this.db.query(
       `SELECT id, tenant_id, user_id, vehicle_id, adapter_type, connection_type, device_id, device_name, mac_address, ip_address, port, supported_protocols, firmware_version, hardware_version, vin, protocol_detected, is_paired, is_active, last_connected_at, last_data_received_at, pairing_metadata, created_at, updated_at FROM obd2_adapters
-       WHERE tenant_id = $1 AND id = $2',
+       WHERE tenant_id = $1 AND id = $2`,
       [tenantId, adapterId]
     )
 
@@ -221,7 +221,7 @@ export class OBD2ServiceBackend {
       `UPDATE obd2_adapters
        SET last_connected_at = CASE WHEN $2 THEN CURRENT_TIMESTAMP ELSE last_connected_at END,
            updated_at = CURRENT_TIMESTAMP
-       WHERE id = $1',
+       WHERE id = $1`,
       [adapterId, connected]
     )
   }
@@ -250,7 +250,7 @@ export class OBD2ServiceBackend {
       // Check if DTC already exists and is active
       const existing = await this.db.query(
         `SELECT id, tenant_id, vehicle_id, adapter_id, user_id, dtc_code, dtc_type, description, severity, status, is_mil_on, freeze_frame_data, detected_at, reported_at, cleared_at, cleared_by, resolution_notes, work_order_id, raw_data, metadata FROM obd2_diagnostic_codes
-         WHERE tenant_id = $1 AND vehicle_id = $2 AND dtc_code = $3 AND status = 'active'',
+         WHERE tenant_id = $1 AND vehicle_id = $2 AND dtc_code = $3 AND status = 'active'`,
         [tenantId, vehicleId, dtc.dtc_code]
       )
 
@@ -297,7 +297,7 @@ export class OBD2ServiceBackend {
   async getVehicleDiagnosticCodes(
     tenantId: number,
     vehicleId: number,
-    status?: 'active' | 'pending' | 'cleared` | `resolved`
+    status?: 'active' | 'pending' | 'cleared' | 'resolved'
   ): Promise<DiagnosticTroubleCode[]> {
     let query = `
       SELECT odc.*, lib.common_causes, lib.diagnostic_steps,
@@ -331,12 +331,12 @@ export class OBD2ServiceBackend {
   ): Promise<number> {
     const result = await this.db.query(
       `UPDATE obd2_diagnostic_codes
-       SET status = `cleared`,
+       SET status = 'cleared',
            cleared_at = CURRENT_TIMESTAMP,
            cleared_by = $3,
            updated_at = CURRENT_TIMESTAMP
        WHERE tenant_id = $1 AND vehicle_id = $2 AND status = 'active'
-       RETURNING id',
+       RETURNING id`,
       [tenantId, vehicleId, userId]
     )
 
@@ -378,7 +378,7 @@ export class OBD2ServiceBackend {
     await this.db.query(
       `UPDATE obd2_adapters
        SET last_data_received_at = CURRENT_TIMESTAMP
-       WHERE id = $1',
+       WHERE id = $1`,
       [adapterId]
     )
 
@@ -482,7 +482,7 @@ export class OBD2ServiceBackend {
   ): Promise<any> {
     const result = await this.db.query(
       `SELECT id, tenant_id, vehicle_id, health_score, last_assessed, issues_count, warning_count, dtc_summary, maintenance_due, estimated_repair_cost FROM obd2_vehicle_health_summary
-       WHERE tenant_id = $1 AND vehicle_id = $2',
+       WHERE tenant_id = $1 AND vehicle_id = $2`,
       [tenantId, vehicleId]
     )
 
@@ -498,7 +498,7 @@ export class OBD2ServiceBackend {
   ): Promise<any> {
     const result = await this.db.query(
       `SELECT id, tenant_id, adapter_id, success_rate, uptime_percent, last_checked, total_connections, failed_connections FROM obd2_connection_reliability
-       WHERE tenant_id = $1 AND adapter_id = $2',
+       WHERE tenant_id = $1 AND adapter_id = $2`,
       [tenantId, adapterId]
     )
 
@@ -578,11 +578,11 @@ export class OBD2ServiceBackend {
         `INSERT INTO work_orders
          (tenant_id, vehicle_id, type, priority, description, estimated_cost, status, metadata)
          VALUES ($1, $2, 'diagnostic', $3, $4, $5, 'open', $6)
-         RETURNING id',
+         RETURNING id`,
         [
           tenantId,
           vehicleId,
-          dtc.severity === 'critical' ? 'critical' : 'high`,
+          dtc.severity === 'critical' ? 'critical' : 'high',
                    `OBD2 Diagnostic Code: ${dtc.dtc_code} - ${dtc.description}`,
           estimatedCost,
           JSON.stringify({ dtc_id: dtcId, dtc_code: dtc.dtc_code })

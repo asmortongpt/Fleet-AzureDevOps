@@ -24,6 +24,7 @@ import os from 'os';
 import { promisify } from 'util';
 import { exec } from 'child_process';
 import { csrfProtection } from '../middleware/csrf'
+import { pool } from '../db/connection';
 
 
 const router = express.Router();
@@ -116,7 +117,7 @@ async function checkDatabase(): Promise<ComponentHealth> {
     const statsResult = await pool.query(`
       SELECT
         pg_database.datname,
-        pg_size_pretty(pg_database_size(pg_database.datname) AS size,
+        pg_size_pretty(pg_database_size(pg_database.datname)) AS size,
         (SELECT count(*) FROM pg_stat_activity WHERE datname = pg_database.datname) AS connections
       FROM pg_database
       WHERE datname = current_database()
@@ -138,7 +139,7 @@ async function checkDatabase(): Promise<ComponentHealth> {
       FROM pg_stat_statements
       WHERE mean_exec_time > 1000
       LIMIT 1
-    `).catch(() => ({ rows: [{ slow_query_count: 0 }] }); // If pg_stat_statements not available
+    `).catch(() => ({ rows: [{ slow_query_count: 0 }] })); // If pg_stat_statements not available
 
     await pool.end();
 
@@ -308,7 +309,7 @@ async function checkDisk(): Promise<ComponentHealth> {
     const parts = stdout.trim().split(/\s+/);
 
     const usage = parts[4] || '0%';
-    const usagePercent = parseInt(usage.replace('%', '');
+    const usagePercent = parseInt(usage.replace('%', ''));
 
     return {
       status: usagePercent < 80 ? 'healthy' : usagePercent < 90 ? 'degraded' : 'critical',
@@ -455,7 +456,7 @@ router.get(`/`, requireAdmin, async (req: Request, res: Response) => {
     };
 
     const httpStatus = overallStatus === 'healthy' ? 200 :
-                       overallStatus === 'degraded' ? 200 : 503;
+      overallStatus === 'degraded' ? 200 : 503;
 
     res.status(httpStatus).json(response);
 
@@ -490,7 +491,7 @@ router.get('/component/:name', requireAdmin, async (req: Request, res: Response)
   if (!checkFunction) {
     return res.status(404).json({
       error: 'Not Found',
-      message: `Component `${name}` not found`,
+      message: `Component '${name}' not found`,
       availableComponents: Object.keys(checks)
     });
   }
@@ -498,7 +499,7 @@ router.get('/component/:name', requireAdmin, async (req: Request, res: Response)
   try {
     const result = await checkFunction();
     const httpStatus = result.status === 'healthy' ? 200 :
-                       result.status === 'degraded' ? 200 : 503;
+      result.status === 'degraded' ? 200 : 503;
 
     res.status(httpStatus).json({
       component: name,

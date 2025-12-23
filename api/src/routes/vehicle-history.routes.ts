@@ -16,6 +16,7 @@ import { requirePermission, rateLimit } from '../middleware/permissions'
 import { auditLog } from '../middleware/audit'
 import { z } from 'zod'
 import { csrfProtection } from '../middleware/csrf'
+import { pool } from '../db/connection';
 
 
 const router = express.Router()
@@ -421,7 +422,7 @@ router.get(
         ) all_events
       `
 
-      const countResult = await pool.query(countQuery, params.slice(0, paramIndex - 2)
+      const countResult = await pool.query(countQuery, params.slice(0, paramIndex - 2))
       const total = parseInt(countResult.rows[0].count)
 
       res.json({
