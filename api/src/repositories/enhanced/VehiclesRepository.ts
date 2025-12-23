@@ -13,7 +13,7 @@
 
 import { Pool } from 'pg'
 
-import { DatabaseError } from "../../errors/AppError"'
+import { DatabaseError } from "../../errors/AppError"
 import { isValidIdentifier } from '../../utils/sql-safety'
 import { GenericRepository } from '../base'
 

@@ -1,8 +1,4 @@
 /**
-import { container } from '../container'
-import { asyncHandler } from '../middleware/errorHandler'
-import { NotFoundError, ValidationError } from '../errors/app-error'
-import logger from '../config/logger'; // Wave 28: Add Winston logger
  * Asset Relationships Routes
  * API for managing multi-asset combinations (tractor-trailer, machine-attachments)
  *
@@ -19,8 +15,8 @@ import { authenticateJWT } from '../middleware/auth'
 import { requirePermission } from '../middleware/permissions'
 import { auditLog } from '../middleware/audit'
 import { csrfProtection } from '../middleware/csrf'
-import { pool } from '../db/connection';
-
+import { pool } from '../config/database';
+import logger from '../config/logger';
 
 const router = Router()
 
@@ -75,7 +71,7 @@ router.get(
           vp.asset_type as parent_asset_type,
           vc.make || ' ' || vc.model || ' (' || vc.vin || ')' as child_asset_name,
           vc.asset_type as child_asset_type,
-          u.first_name || ` ` || u.last_name as created_by_name
+          u.first_name || ' ' || u.last_name as created_by_name
         FROM asset_relationships ar
         LEFT JOIN vehicles vp ON ar.parent_asset_id = vp.id
         LEFT JOIN vehicles vc ON ar.child_asset_id = vc.id
@@ -101,8 +97,8 @@ router.get(
         params.push(relationship_type)
       }
 
-      if (active_only === `true`) {
-        query += ` AND (ar.effective_to IS NULL OR ar.effective_to > NOW()`
+      if (active_only === 'true') {
+        query += ` AND (ar.effective_to IS NULL OR ar.effective_to > NOW())`
       }
 
       query += ` ORDER BY ar.effective_from DESC`
@@ -114,7 +110,7 @@ router.get(
         total: result.rows.length
       })
     } catch (error) {
-      logger.error('Error fetching asset relationships:', error) // Wave 28: Winston logger
+      logger.error('Error fetching asset relationships:', error)
       res.status(500).json({ error: 'Failed to fetch asset relationships' })
     }
   }
@@ -151,8 +147,8 @@ router.get(
         total: result.rows.length
       })
     } catch (error) {
-      logger.error(`Error fetching active combinations:`, error) // Wave 28: Winston logger
-      res.status(500).json({ error: `Failed to fetch active combinations` })
+      logger.error('Error fetching active combinations:', error)
+      res.status(500).json({ error: 'Failed to fetch active combinations' })
     }
   }
 )
@@ -188,8 +184,8 @@ router.get(
         total: result.rows.length
       })
     } catch (error) {
-      logger.error(`Error fetching active combinations:`, error) // Wave 28: Winston logger
-      res.status(500).json({ error: `Failed to fetch active combinations` })
+      logger.error('Error fetching active combinations:', error)
+      res.status(500).json({ error: 'Failed to fetch active combinations' })
     }
   }
 )
@@ -210,7 +206,7 @@ router.get(
       const result = await pool.query(
         `SELECT
           ar.*,
-          vp.make || ' ` || vp.model || ` (` || vp.vin || ')' as parent_asset_name,
+          vp.make || ' ' || vp.model || ' (' || vp.vin || ')' as parent_asset_name,
           vp.asset_type as parent_asset_type,
           vc.make || ' ' || vc.model || ' (' || vc.vin || ')' as child_asset_name,
           vc.asset_type as child_asset_type,
@@ -219,7 +215,7 @@ router.get(
         LEFT JOIN vehicles vp ON ar.parent_asset_id = vp.id
         LEFT JOIN vehicles vc ON ar.child_asset_id = vc.id
         LEFT JOIN users u ON ar.created_by = u.id
-        WHERE ar.id = $1 AND vp.tenant_id = $2',
+        WHERE ar.id = $1 AND vp.tenant_id = $2`,
         [req.params.id, req.user!.tenant_id]
       )
 
@@ -229,7 +225,7 @@ router.get(
 
       res.json({ relationship: result.rows[0] })
     } catch (error) {
-      logger.error('Error fetching relationship:', error) // Wave 28: Winston logger
+      logger.error('Error fetching relationship:', error)
       res.status(500).json({ error: 'Failed to fetch relationship' })
     }
   }
@@ -244,7 +240,7 @@ router.get(
  */
 router.post(
   '/',
- csrfProtection,  csrfProtection, requirePermission('vehicle:update:fleet'),
+  csrfProtection, requirePermission('vehicle:update:fleet'),
   auditLog({ action: 'CREATE', resourceType: 'asset_relationships' }),
   async (req: AuthRequest, res) => {
     const client = await pool.connect()
@@ -268,7 +264,7 @@ router.post(
       )
 
       if (vehicleCheck.rows.length !== 2) {
-        await client.query(`ROLLBACK`)
+        await client.query('ROLLBACK')
         return res.status(400).json({
           error: 'One or both assets not found or do not belong to your organization'
         })
@@ -278,14 +274,14 @@ router.post(
       const circularCheck = await client.query(
         `SELECT id FROM asset_relationships
          WHERE parent_asset_id = $1 AND child_asset_id = $2
-         AND (effective_to IS NULL OR effective_to > NOW()`,
+         AND (effective_to IS NULL OR effective_to > NOW())`,
         [child_asset_id, parent_asset_id]
       )
 
       if (circularCheck.rows.length > 0) {
-        await client.query(`ROLLBACK`)
+        await client.query('ROLLBACK')
         return res.status(400).json({
-          error: `Circular relationship detected: child asset is already a parent of this asset`
+          error: 'Circular relationship detected: child asset is already a parent of this asset'
         })
       }
 
@@ -306,15 +302,15 @@ router.post(
         ]
       )
 
-      await client.query(`COMMIT`)
+      await client.query('COMMIT')
 
       res.status(201).json({
         relationship: result.rows[0],
-        message: `Asset relationship created successfully`
+        message: 'Asset relationship created successfully'
       })
     } catch (error: any) {
       await client.query('ROLLBACK')
-      logger.error('Error creating asset relationship:', error) // Wave 28: Winston logger
+      logger.error('Error creating asset relationship:', error)
 
       if (error.constraint === 'asset_relationships_different_assets') {
         throw new ValidationError("Parent and child assets must be different")
@@ -336,7 +332,7 @@ router.post(
  */
 router.put(
   '/:id',
- csrfProtection,  csrfProtection, requirePermission('vehicle:update:fleet'),
+  csrfProtection, requirePermission('vehicle:update:fleet'),
   auditLog({ action: 'UPDATE', resourceType: 'asset_relationships' }),
   async (req: AuthRequest, res) => {
     const client = await pool.connect()
@@ -355,7 +351,7 @@ router.put(
       )
 
       if (existsCheck.rows.length === 0) {
-        await client.query(`ROLLBACK`)
+        await client.query('ROLLBACK')
         throw new NotFoundError("Relationship not found")
       }
 
@@ -371,15 +367,15 @@ router.put(
         [relationship_type, effective_from, effective_to, notes, req.params.id]
       )
 
-      await client.query(`COMMIT`)
+      await client.query('COMMIT')
 
       res.json({
         relationship: result.rows[0],
-        message: `Relationship updated successfully`
+        message: 'Relationship updated successfully'
       })
     } catch (error) {
       await client.query('ROLLBACK')
-      logger.error('Error updating relationship:', error) // Wave 28: Winston logger
+      logger.error('Error updating relationship:', error)
       res.status(500).json({ error: 'Failed to update relationship' })
     } finally {
       client.release()
@@ -396,7 +392,7 @@ router.put(
  */
 router.patch(
   '/:id/deactivate',
- csrfProtection,  csrfProtection, requirePermission('vehicle:update:fleet'),
+  csrfProtection, requirePermission('vehicle:update:fleet'),
   auditLog({ action: 'UPDATE', resourceType: 'asset_relationships' }),
   async (req: AuthRequest, res) => {
     try {
@@ -410,15 +406,15 @@ router.patch(
       )
 
       if (result.rows.length === 0) {
-        return res.status(404).json({ error: `Relationship not found` })
+        return res.status(404).json({ error: 'Relationship not found' })
       }
 
       res.json({
         relationship: result.rows[0],
-        message: `Relationship deactivated successfully`
+        message: 'Relationship deactivated successfully'
       })
     } catch (error) {
-      logger.error('Error deactivating relationship:', error) // Wave 28: Winston logger
+      logger.error('Error deactivating relationship:', error)
       res.status(500).json({ error: 'Failed to deactivate relationship' })
     }
   }
@@ -433,7 +429,7 @@ router.patch(
  */
 router.delete(
   '/:id',
- csrfProtection,  csrfProtection, requirePermission('vehicle:delete:fleet'),
+  csrfProtection, requirePermission('vehicle:delete:fleet'),
   auditLog({ action: 'DELETE', resourceType: 'asset_relationships' }),
   async (req: AuthRequest, res) => {
     try {
@@ -446,12 +442,12 @@ router.delete(
       )
 
       if (result.rows.length === 0) {
-        return res.status(404).json({ error: `Relationship not found` })
+        return res.status(404).json({ error: 'Relationship not found' })
       }
 
       res.json({ message: 'Relationship deleted successfully' })
     } catch (error) {
-      logger.error('Error deleting relationship:', error) // Wave 28: Winston logger
+      logger.error('Error deleting relationship:', error)
       res.status(500).json({ error: 'Failed to delete relationship' })
     }
   }
@@ -474,7 +470,7 @@ router.get(
       const result = await pool.query(
         `SELECT
           ar.*,
-          vp.make || ' ` || vp.model || ` (` || vp.vin || ')' as parent_asset_name,
+          vp.make || ' ' || vp.model || ' (' || vp.vin || ')' as parent_asset_name,
           vc.make || ' ' || vc.model || ' (' || vc.vin || ')' as child_asset_name,
           u.first_name || ' ' || u.last_name as created_by_name
         FROM asset_relationships ar
@@ -492,7 +488,7 @@ router.get(
         total: result.rows.length
       })
     } catch (error) {
-      logger.error('Error fetching relationship history:', error) // Wave 28: Winston logger
+      logger.error('Error fetching relationship history:', error)
       res.status(500).json({ error: 'Failed to fetch relationship history' })
     }
   }

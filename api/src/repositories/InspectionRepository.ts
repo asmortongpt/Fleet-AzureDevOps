@@ -1,183 +1,152 @@
-import { BaseRepository } from '../services/dal/BaseRepository'
-import { connectionManager } from '../config/connection-manager'
-import { PoolClient } from 'pg'
+import { BaseRepository } from '../repositories/BaseRepository';
+import { Pool, QueryResult } from 'pg';
 
-/**
- * Inspection entity interface
- */
 export interface Inspection {
-  id: string
-  tenant_id: string
-  vehicle_id?: string
-  driver_id?: string
-  inspector_id?: string
-  inspection_type: string
-  status: string
-  scheduled_date?: Date
-  completed_date?: Date
-  odometer?: number
-  location?: string
-  notes?: string
-  checklist_data?: any
-  defects_found?: any[]
-  signature_url?: string
-  passed?: boolean
-  created_at?: Date
-  updated_at?: Date
+  id: number;
+  tenant_id: number;
+  vehicle_id?: number;
+  driver_id?: number;
+  inspector_id?: number;
+  inspection_type: string;
+  status: string;
+  scheduled_date?: Date;
+  completed_date?: Date;
+  odometer?: number;
+  location?: string;
+  notes?: string;
+  checklist_data?: any;
+  defects_found?: any[];
+  signature_url?: string;
+  passed?: boolean;
+  created_at?: Date;
+  updated_at?: Date;
+  deleted_at?: Date;
 }
 
-/**
- * Inspection Repository
- * Provides data access operations for inspections using the DAL
- *
- * Example Usage:
- *
- * // Create repository instance
- * const inspectionRepo = new InspectionRepository()
- *
- * // Get paginated inspections
- * const result = await inspectionRepo.getPaginatedInspections(tenantId, { page: 1, limit: 50 })
- *
- * // Find inspections by vehicle
- * const vehicleInspections = await inspectionRepo.findByVehicle(tenantId, vehicleId)
- *
- * // Create inspection with transaction
- * const newInspection = await inspectionRepo.createInspection(tenantId, data)
- *
- * // Complete an inspection
- * await inspectionRepo.completeInspection(id, tenantId, { passed: true, defects: [] })
- */
-export class InspectionRepository extends BaseRepository<Inspection> {
-  constructor() {
-    super('inspections', connectionManager.getWritePool())
+export class InspectionRepository extends BaseRepository<any> {
+
+  private pool: Pool;
+
+  constructor(pool: Pool) {
+    super('inspections', pool);
+    this.pool = pool;
   }
 
-  /**
-   * Find all inspections for a tenant
-   */
-  async findByTenant(tenantId: string): Promise<Inspection[]> {
-    return this.findAll({
-      where: { tenant_id: tenantId },
-      orderBy: 'created_at DESC'
-    })
+  async findByTenant(tenantId: number): Promise<Inspection[]> {
+    const query = `SELECT * FROM inspections WHERE tenant_id = $1 AND deleted_at IS NULL ORDER BY created_at DESC`;
+    const result = await this.pool.query(query, [tenantId]);
+    return result.rows;
   }
 
-  /**
-   * Get paginated inspections for a tenant
-   */
   async getPaginatedInspections(
-    tenantId: string,
+    tenantId: number,
     options: { page?: number; limit?: number; orderBy?: string } = {}
   ) {
-    return this.paginate({
-      where: { tenant_id: tenantId },
-      page: options.page || 1,
-      limit: options.limit || 50,
-      orderBy: options.orderBy || 'created_at DESC'
-    })
+    const page = options.page || 1;
+    const limit = options.limit || 50;
+    const offset = (page - 1) * limit;
+    const orderBy = options.orderBy || 'created_at DESC';
+
+    const countQuery = `SELECT COUNT(*) FROM inspections WHERE tenant_id = $1 AND deleted_at IS NULL`;
+    const countRes = await this.pool.query(countQuery, [tenantId]);
+    const total = parseInt(countRes.rows[0].count);
+
+    const query = `SELECT * FROM inspections WHERE tenant_id = $1 AND deleted_at IS NULL ORDER BY ${orderBy} LIMIT $2 OFFSET $3`;
+    const result = await this.pool.query(query, [tenantId, limit, offset]);
+
+    return {
+      data: result.rows,
+      total,
+      page,
+      limit,
+      pages: Math.ceil(total / limit)
+    };
   }
 
-  /**
-   * Create a new inspection
-   */
-  async createInspection(tenantId: string, data: Partial<Inspection>): Promise<Inspection> {
-    return this.create({
-      ...data,
-      tenant_id: tenantId,
-      status: data.status || 'pending'
-    })
+  async createInspection(tenantId: number, data: Omit<Inspection, 'id' | 'created_at' | 'updated_at' | 'deleted_at'>): Promise<Inspection> {
+    // Assuming simple insert for now, real specific columns would be better but this maps to generic approach
+    const keys = Object.keys(data).join(', ');
+    const placeholders = Object.keys(data).map((_, i) => `$${i + 2}`).join(', ');
+    const values = Object.values(data);
+
+    const query = `INSERT INTO inspections (tenant_id, ${keys}, created_at, updated_at) VALUES ($1, ${placeholders}, NOW(), NOW()) RETURNING *`;
+    const result = await this.pool.query(query, [tenantId, ...values]);
+    return result.rows[0];
   }
 
-  /**
-   * Update an inspection
-   */
-  async updateInspection(id: string, tenantId: string, data: Partial<Inspection>): Promise<Inspection> {
-    return this.update(id, data, tenantId)
+  async updateInspection(id: number, tenantId: number, data: Partial<Inspection>): Promise<Inspection | null> {
+    const setClause = Object.keys(data)
+      .map((key, index) => `${key} = $${index + 3}`)
+      .join(', ');
+
+    if (!setClause) return null;
+
+    const query = `UPDATE inspections SET ${setClause}, updated_at = NOW() WHERE id = $1 AND tenant_id = $2 RETURNING *`;
+    const values = [id, tenantId, ...Object.values(data)];
+    const result = await this.pool.query(query, values);
+    return result.rows[0] || null;
   }
 
-  /**
-   * Delete an inspection
-   */
-  async deleteInspection(id: string, tenantId: string): Promise<boolean> {
-    return this.delete(id, tenantId)
+  async deleteInspection(id: number, tenantId: number): Promise<boolean> {
+    const query = `UPDATE inspections SET deleted_at = NOW() WHERE id = $1 AND tenant_id = $2 RETURNING id`;
+    const result = await this.pool.query(query, [id, tenantId]);
+    return result.rowCount ? result.rowCount > 0 : false;
   }
 
-  /**
-   * Find inspection by ID for a tenant
-   */
-  async findByIdAndTenant(id: string, tenantId: string): Promise<Inspection | null> {
-    return this.findById(id, tenantId)
+  async findByIdAndTenant(id: number, tenantId: number): Promise<Inspection | null> {
+    const query = `SELECT * FROM inspections WHERE id = $1 AND tenant_id = $2 AND deleted_at IS NULL`;
+    const result = await this.pool.query(query, [id, tenantId]);
+    return result.rows[0] || null;
   }
 
-  /**
-   * Find inspections by vehicle
-   */
-  async findByVehicle(tenantId: string, vehicleId: string): Promise<Inspection[]> {
-    return this.findAll({
-      where: { tenant_id: tenantId, vehicle_id: vehicleId },
-      orderBy: 'created_at DESC'
-    })
+  async findByVehicle(tenantId: number, vehicleId: number): Promise<Inspection[]> {
+    const query = `SELECT * FROM inspections WHERE tenant_id = $1 AND vehicle_id = $2 AND deleted_at IS NULL ORDER BY created_at DESC`;
+    const result = await this.pool.query(query, [tenantId, vehicleId]);
+    return result.rows;
   }
 
-  /**
-   * Find inspections by driver
-   */
-  async findByDriver(tenantId: string, driverId: string): Promise<Inspection[]> {
-    return this.findAll({
-      where: { tenant_id: tenantId, driver_id: driverId },
-      orderBy: 'created_at DESC'
-    })
+  async findByDriver(tenantId: number, driverId: number): Promise<Inspection[]> {
+    const query = `SELECT * FROM inspections WHERE tenant_id = $1 AND driver_id = $2 AND deleted_at IS NULL ORDER BY created_at DESC`;
+    const result = await this.pool.query(query, [tenantId, driverId]);
+    return result.rows;
   }
 
-  /**
-   * Find inspections by status
-   */
-  async findByStatus(tenantId: string, status: string): Promise<Inspection[]> {
-    return this.findAll({
-      where: { tenant_id: tenantId, status },
-      orderBy: 'scheduled_date DESC'
-    })
+  async findByStatus(tenantId: number, status: string): Promise<Inspection[]> {
+    const query = `SELECT * FROM inspections WHERE tenant_id = $1 AND status = $2 AND deleted_at IS NULL ORDER BY scheduled_date DESC`;
+    const result = await this.pool.query(query, [tenantId, status]);
+    return result.rows;
   }
 
-  /**
-   * Find pending inspections
-   */
-  async findPending(tenantId: string): Promise<Inspection[]> {
-    return this.findByStatus(tenantId, 'pending')
+  async findPending(tenantId: number): Promise<Inspection[]> {
+    return this.findByStatus(tenantId, 'pending');
   }
 
-  /**
-   * Find overdue inspections
-   */
-  async findOverdue(tenantId: string): Promise<Inspection[]> {
-    const columns = `id, tenant_id, vehicle_id, inspection_date, inspection_type, status, notes, created_at, updated_at`;
+  async findOverdue(tenantId: number): Promise<Inspection[]> {
     const query = `
-      SELECT ${columns} FROM ${this.tableName}
+      SELECT * FROM inspections
       WHERE tenant_id = $1
-        AND status = `pending`
+        AND status = 'pending'
         AND scheduled_date < NOW()
+        AND deleted_at IS NULL
       ORDER BY scheduled_date ASC
-    `
-    const result = await this.query<Inspection>(query, [tenantId])
-    return result.rows
+    `;
+    const result = await this.pool.query(query, [tenantId]);
+    return result.rows;
   }
 
-  /**
-   * Complete an inspection
-   */
   async completeInspection(
-    id: string,
-    tenantId: string,
+    id: number,
+    tenantId: number,
     data: {
-      passed: boolean
-      defects_found?: any[]
-      notes?: string
-      signature_url?: string
-    },
-    client?: PoolClient
-  ): Promise<Inspection> {
-    return this.update(
+      passed: boolean;
+      defects_found?: any[];
+      notes?: string;
+      signature_url?: string;
+    }
+  ): Promise<Inspection | null> {
+    return this.updateInspection(
       id,
+      tenantId,
       {
         status: 'completed',
         completed_date: new Date(),
@@ -185,22 +154,17 @@ export class InspectionRepository extends BaseRepository<Inspection> {
         defects_found: data.defects_found,
         notes: data.notes,
         signature_url: data.signature_url
-      },
-      tenantId,
-      client
-    )
+      }
+    );
   }
 
-  /**
-   * Get inspection statistics for a tenant
-   */
-  async getInspectionStats(tenantId: string): Promise<{
-    total: number
-    pending: number
-    completed: number
-    passed: number
-    failed: number
-    overdue: number
+  async getInspectionStats(tenantId: number): Promise<{
+    total: number;
+    pending: number;
+    completed: number;
+    passed: number;
+    failed: number;
+    overdue: number;
   }> {
     const query = `
       SELECT
@@ -209,76 +173,63 @@ export class InspectionRepository extends BaseRepository<Inspection> {
         COUNT(*) FILTER (WHERE status = 'completed') as completed,
         COUNT(*) FILTER (WHERE status = 'completed' AND passed = true) as passed,
         COUNT(*) FILTER (WHERE status = 'completed' AND passed = false) as failed,
-        COUNT(*) FILTER (WHERE status = `pending` AND scheduled_date < NOW()) as overdue
-      FROM ${this.tableName}
-      WHERE tenant_id = $1
-    `
+        COUNT(*) FILTER (WHERE status = 'pending' AND scheduled_date < NOW()) as overdue
+      FROM inspections
+      WHERE tenant_id = $1 AND deleted_at IS NULL
+    `;
 
-    const result = await this.query(query, [tenantId])
-    const row = result.rows[0]
+    const result = await this.pool.query(query, [tenantId]);
+    const row = result.rows[0];
 
     return {
-      total: parseInt(row.total),
-      pending: parseInt(row.pending),
-      completed: parseInt(row.completed),
-      passed: parseInt(row.passed),
-      failed: parseInt(row.failed),
-      overdue: parseInt(row.overdue)
-    }
+      total: parseInt(row.total || '0'),
+      pending: parseInt(row.pending || '0'),
+      completed: parseInt(row.completed || '0'),
+      passed: parseInt(row.passed || '0'),
+      failed: parseInt(row.failed || '0'),
+      overdue: parseInt(row.overdue || '0')
+    };
   }
 
-  /**
-   * Get inspections due soon (within next N days)
-   */
-  async findDueSoon(tenantId: string, daysAhead: number = 7): Promise<Inspection[]> {
-    const columns = `id, tenant_id, vehicle_id, inspection_date, inspection_type, status, notes, created_at, updated_at`;
-    // Validate and sanitize daysAhead parameter
-    const daysAheadNum = Math.max(1, Math.min(365, daysAhead || 7))
+  async findDueSoon(tenantId: number, daysAhead: number = 7): Promise<Inspection[]> {
+    const daysAheadNum = Math.max(1, Math.min(365, daysAhead || 7));
     const query = `
-      SELECT ${columns} FROM ${this.tableName}
+      SELECT * FROM inspections
       WHERE tenant_id = $1
-        AND status = `pending`
+        AND status = 'pending'
         AND scheduled_date BETWEEN NOW() AND NOW() + ($2 || ' days')::INTERVAL
+        AND deleted_at IS NULL
       ORDER BY scheduled_date ASC
-    `
-    const result = await this.query<Inspection>(query, [tenantId, daysAheadNum])
-    return result.rows
+    `;
+    const result = await this.pool.query(query, [tenantId, daysAheadNum]);
+    return result.rows;
   }
 
-  /**
-   * Get recent inspections for a vehicle
-   */
   async getRecentByVehicle(
-    tenantId: string,
-    vehicleId: string,
+    tenantId: number,
+    vehicleId: number,
     limit: number = 10
   ): Promise<Inspection[]> {
-    return this.findAll({
-      where: { tenant_id: tenantId, vehicle_id: vehicleId },
-      orderBy: 'created_at DESC',
-      limit
-    })
+    const query = `SELECT * FROM inspections WHERE tenant_id = $1 AND vehicle_id = $2 AND deleted_at IS NULL ORDER BY created_at DESC LIMIT $3`;
+    const result = await this.pool.query(query, [tenantId, vehicleId, limit]);
+    return result.rows;
   }
 
-  /**
-   * Count inspections by vehicle
-   */
-  async countByVehicle(tenantId: string, vehicleId: string): Promise<number> {
-    return this.count({ tenant_id: tenantId, vehicle_id: vehicleId })
+  async countByVehicle(tenantId: number, vehicleId: number): Promise<number> {
+    const query = `SELECT COUNT(*) as count FROM inspections WHERE tenant_id = $1 AND vehicle_id = $2 AND deleted_at IS NULL`;
+    const result = await this.pool.query(query, [tenantId, vehicleId]);
+    return parseInt(result.rows[0].count);
   }
 
-  /**
-   * Find inspections within date range
-   */
-  async findByDateRange(tenantId: string, startDate: Date, endDate: Date): Promise<Inspection[]> {
-    const columns = 'id, tenant_id, vehicle_id, inspection_date, inspection_type, status, notes, created_at, updated_at';
+  async findByDateRange(tenantId: number, startDate: Date, endDate: Date): Promise<Inspection[]> {
     const query = `
-      SELECT ${columns} FROM ${this.tableName}
+      SELECT * FROM inspections
       WHERE tenant_id = $1
         AND scheduled_date BETWEEN $2 AND $3
+        AND deleted_at IS NULL
       ORDER BY scheduled_date DESC
-    `
-    const result = await this.query<Inspection>(query, [tenantId, startDate, endDate])
-    return result.rows
+    `;
+    const result = await this.pool.query(query, [tenantId, startDate, endDate]);
+    return result.rows;
   }
 }

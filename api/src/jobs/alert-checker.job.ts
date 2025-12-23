@@ -60,7 +60,8 @@ async function runAlertChecker(): Promise<void> {
 
     if (tenantsResult.rows.length === 0) {
       logger.warn(`No active tenants found`)
-      return }
+      return
+    }
 
     logger.info(`Checking alerts for ${tenantsResult.rows.length} active tenants`)
 
@@ -79,7 +80,7 @@ async function runAlertChecker(): Promise<void> {
         const countResult = await pool.query(
           `SELECT COUNT(*) as count FROM alerts
            WHERE tenant_id = $1
-           AND created_at >= NOW() - INTERVAL `5 minutes``,
+           AND created_at >= NOW() - INTERVAL '5 minutes'`,
           [tenant.id]
         )
 
@@ -206,7 +207,8 @@ async function checkDriverCertificationAlerts(tenantId: string): Promise<void> {
 export function startAlertChecker(): void {
   if (!ENABLE_ALERT_CHECKER) {
     logger.warn('Alert checker is disabled by configuration')
-    return }
+    return
+  }
 
   logger.info('Initializing alert checker', {
     schedule: CRON_SCHEDULE,

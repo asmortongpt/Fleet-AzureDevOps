@@ -1,8 +1,8 @@
 import { BaseRepository } from '../repositories/BaseRepository';
-
-import { pool } from '../db'
-import { NotFoundError, ValidationError } from '../lib/errors'
-import { container } from '../di-container'
+import { Pool } from 'pg';
+import { pool } from '../config/database' // Changed to valid pool import
+import { NotFoundError, ValidationError } from '../errors/app-error'
+import { container } from '../container'
 import { CacheService, CacheKeys } from '../services/cache.service'
 
 export interface PaginationParams {
@@ -35,15 +35,13 @@ export interface Vehicle {
  * Includes Redis caching layer with cache invalidation on mutations
  */
 export class VehiclesRepository extends BaseRepository<any> {
-  constructor(pool: Pool) {
-    super(pool, 'LVehicles_LRepository extends _LBases');
-  }
-
   private cache: CacheService
 
-  constructor() {
+  constructor(pool: Pool) {
+    super('vehicles', pool);
     this.cache = container.resolve(CacheService)
   }
+
   /**
    * Find vehicle by ID with tenant isolation (cached)
    * @param id Vehicle ID
@@ -56,7 +54,7 @@ export class VehiclesRepository extends BaseRepository<any> {
     return await this.cache.getOrSet(
       cacheKey,
       async () => {
-        const result = await pool.query(
+        const result = await this.pool.query(
           'SELECT id, vin, license_plate, make, model, year, status, mileage, fuel_type, department, tenant_id, created_at, updated_at FROM vehicles WHERE id = $1 AND tenant_id = $2',
           [id, tenantId]
         )
@@ -84,7 +82,7 @@ export class VehiclesRepository extends BaseRepository<any> {
     const safeSortBy = allowedSortColumns.includes(sortBy) ? sortBy : 'created_at'
     const safeSortOrder = sortOrder === 'asc' ? 'ASC' : 'DESC'
 
-    const result = await pool.query(
+    const result = await this.pool.query(
       `SELECT id, vin, license_plate, make, model, year, status, mileage, fuel_type, department, tenant_id, created_at, updated_at FROM vehicles 
        WHERE tenant_id = $1 
        ORDER BY ${safeSortBy} ${safeSortOrder} 
@@ -101,7 +99,7 @@ export class VehiclesRepository extends BaseRepository<any> {
    * @returns Vehicle or null
    */
   async findByVIN(vin: string, tenantId: string): Promise<Vehicle | null> {
-    const result = await pool.query(
+    const result = await this.pool.query(
       'SELECT id, vin, license_plate, make, model, year, status, mileage, fuel_type, department, tenant_id, created_at, updated_at FROM vehicles WHERE vin = $1 AND tenant_id = $2',
       [vin, tenantId]
     )
@@ -118,7 +116,7 @@ export class VehiclesRepository extends BaseRepository<any> {
     status: 'active' | 'maintenance' | 'retired',
     tenantId: string
   ): Promise<Vehicle[]> {
-    const result = await pool.query(
+    const result = await this.pool.query(
       'SELECT id, vin, license_plate, make, model, year, status, mileage, fuel_type, department, tenant_id, created_at, updated_at FROM vehicles WHERE status = $1 AND tenant_id = $2 ORDER BY created_at DESC',
       [status, tenantId]
     )
@@ -143,7 +141,7 @@ export class VehiclesRepository extends BaseRepository<any> {
       throw new ValidationError(`Vehicle with VIN ${data.vin} already exists`)
     }
 
-    const result = await pool.query(
+    const result = await this.pool.query(
       `INSERT INTO vehicles (
         vin, license_plate, make, model, year, status, mileage, fuel_type, department, tenant_id
       )
@@ -187,7 +185,7 @@ export class VehiclesRepository extends BaseRepository<any> {
       throw new NotFoundError('Vehicle')
     }
 
-    const result = await pool.query(
+    const result = await this.pool.query(
       `UPDATE vehicles
        SET license_plate = COALESCE($1, license_plate),
            make = COALESCE($2, make),
@@ -228,7 +226,7 @@ export class VehiclesRepository extends BaseRepository<any> {
    * @returns true if deleted
    */
   async delete(id: number, tenantId: string): Promise<boolean> {
-    const result = await pool.query(
+    const result = await this.pool.query(
       'DELETE FROM vehicles WHERE id = $1 AND tenant_id = $2',
       [id, tenantId]
     )
@@ -249,7 +247,7 @@ export class VehiclesRepository extends BaseRepository<any> {
    * @returns Total count
    */
   async count(tenantId: string): Promise<number> {
-    const result = await pool.query(
+    const result = await this.pool.query(
       'SELECT COUNT(*) FROM vehicles WHERE tenant_id = $1',
       [tenantId]
     )
@@ -264,7 +262,7 @@ export class VehiclesRepository extends BaseRepository<any> {
    */
   async search(keyword: string, tenantId: string): Promise<Vehicle[]> {
     const searchTerm = `%${keyword}%`
-    const result = await pool.query(
+    const result = await this.pool.query(
       `SELECT id, vin, license_plate, make, model, year, status, mileage, fuel_type, department, tenant_id, created_at, updated_at FROM vehicles
        WHERE tenant_id = $1
        AND (
@@ -286,14 +284,12 @@ export class VehiclesRepository extends BaseRepository<any> {
    * @returns true if vehicle exists and belongs to tenant
    */
   async validateOwnership(id: number, tenantId: string): Promise<boolean> {
-    const result = await pool.query(
+    const result = await this.pool.query(
       'SELECT id FROM vehicles WHERE id = $1 AND tenant_id = $2',
       [id, tenantId]
     )
     return result.rows.length > 0
   }
-}
-
 
   // ========================================================================
   // EAGER LOADING METHODS - B9 (N+1 Query Prevention)
@@ -317,7 +313,7 @@ export class VehiclesRepository extends BaseRepository<any> {
     const safeSortBy = allowedSortColumns.includes(sortBy) ? `v.${sortBy}` : 'v.created_at'
     const safeSortOrder = sortOrder === 'asc' ? 'ASC' : 'DESC'
 
-    const result = await pool.query(
+    const result = await this.pool.query(
       `SELECT
         v.*,
         d.id as driver_id,
@@ -344,7 +340,7 @@ export class VehiclesRepository extends BaseRepository<any> {
    * @returns Vehicle with all relations or null
    */
   async findByIdWithRelations(id: number, tenantId: string): Promise<any | null> {
-    const result = await pool.query(
+    const result = await this.pool.query(
       `SELECT
         v.*,
         d.id as driver_id,
@@ -365,45 +361,46 @@ export class VehiclesRepository extends BaseRepository<any> {
     return result.rows[0] || null
   }
 
-export const vehiclesRepository = new VehiclesRepository()
+  /**
+   * N+1 PREVENTION: Fetch vehicle with driver and last 5 maintenance records
+   */
+  async findWithDriverAndMaintenance(id: string, tenantId: string) {
+    const query = `
+      SELECT
+        v.id, v.make, v.model, v.year, v.vin, v.license_plate, v.mileage, v.status,
+        d.id as driver_id, d.name as driver_name, d.email as driver_email, d.phone as driver_phone,
+        m.id as maintenance_id, m.type as maintenance_type, m.date as maintenance_date,
+        m.cost as maintenance_cost, m.description as maintenance_description
+      FROM vehicles v
+      LEFT JOIN drivers d ON v.driver_id = d.id
+      LEFT JOIN LATERAL (
+        SELECT * FROM maintenance
+        WHERE vehicle_id = v.id AND deleted_at IS NULL
+        ORDER BY date DESC
+        LIMIT 5
+      ) m ON true
+      WHERE v.id = $1 AND v.tenant_id = $2 AND v.deleted_at IS NULL
+    `;
+    const result = await this.pool.query(query, [id, tenantId]);
+    return result.rows;
+  }
 
-/**
- * N+1 PREVENTION: Fetch vehicle with driver and last 5 maintenance records
- */
-async findWithDriverAndMaintenance(id: string, tenantId: string) {
-  const query = `
-    SELECT
-      v.id, v.make, v.model, v.year, v.vin, v.license_plate, v.mileage, v.status,
-      d.id as driver_id, d.name as driver_name, d.email as driver_email, d.phone as driver_phone,
-      m.id as maintenance_id, m.type as maintenance_type, m.date as maintenance_date,
-      m.cost as maintenance_cost, m.description as maintenance_description
-    FROM vehicles v
-    LEFT JOIN drivers d ON v.driver_id = d.id
-    LEFT JOIN LATERAL (
-      SELECT * FROM maintenance
-      WHERE vehicle_id = v.id AND deleted_at IS NULL
-      ORDER BY date DESC
-      LIMIT 5
-    ) m ON true
-    WHERE v.id = $1 AND v.tenant_id = $2 AND v.deleted_at IS NULL
-  `;
-  const result = await this.pool.query(query, [id, tenantId]);
-  return result.rows;
+  /**
+   * N+1 PREVENTION: Fetch all vehicles with drivers and status
+   */
+  async findAllWithDriversAndStatus(tenantId: string) {
+    const query = `
+      SELECT
+        v.id, v.make, v.model, v.year, v.vin, v.license_plate, v.mileage, v.status,
+        d.id as driver_id, d.name as driver_name, d.email as driver_email
+      FROM vehicles v
+      LEFT JOIN drivers d ON v.driver_id = d.id
+      WHERE v.tenant_id = $1 AND v.deleted_at IS NULL
+      ORDER BY v.created_at DESC
+    `;
+    const result = await this.pool.query(query, [tenantId]);
+    return result.rows;
+  }
 }
 
-/**
- * N+1 PREVENTION: Fetch all vehicles with drivers and status
- */
-async findAllWithDriversAndStatus(tenantId: string) {
-  const query = `
-    SELECT
-      v.id, v.make, v.model, v.year, v.vin, v.license_plate, v.mileage, v.status,
-      d.id as driver_id, d.name as driver_name, d.email as driver_email
-    FROM vehicles v
-    LEFT JOIN drivers d ON v.driver_id = d.id
-    WHERE v.tenant_id = $1 AND v.deleted_at IS NULL
-    ORDER BY v.created_at DESC
-  `;
-  const result = await this.pool.query(query, [tenantId]);
-  return result.rows;
-}
+export const vehiclesRepository = new VehiclesRepository(pool)

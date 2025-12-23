@@ -1,51 +1,31 @@
+// ... imports
 import crypto from 'crypto'
 import path from 'path'
 
-import { fileTypeFromBuffer } from 'file-type'
+// Dynamic import for file-type handled inside functions
 
-/**
- * File Validation Utilities
- *
- * Implements secure file validation using magic bytes (file signatures)
- * instead of relying on MIME types which can be spoofed
- */
+const MAX_FILE_SIZES = {
+  image: 5 * 1024 * 1024, // 5MB
+  video: 100 * 1024 * 1024, // 100MB
+  document: 10 * 1024 * 1024 // 10MB
+};
 
-// Allowed file types with their MIME types and extensions
-export const ALLOWED_FILE_TYPES = {
-  // Images
-  'image/jpeg': ['.jpg', '.jpeg'],
-  'image/png': ['.png'],
-  'image/gif': ['.gif'],
-  'image/webp': ['.webp'],
-  'image/heic': ['.heic'],
-  'image/heif': ['.heif'],
+const ALLOWED_FILE_TYPES = {
+  'image/jpeg': true,
+  'image/png': true,
+  'image/gif': true,
+  'image/webp': true,
+  'application/pdf': true,
+  'application/msword': true,
+  'application/vnd.openxmlformats-officedocument.wordprocessingml.document': true,
+  'application/vnd.ms-excel': true,
+  'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet': true,
+  'text/plain': true,
+  'text/csv': true
+};
 
-  // Documents
-  'application/pdf': ['.pdf'],
-  'application/msword': ['.doc'],
-  'application/vnd.openxmlformats-officedocument.wordprocessingml.document': ['.docx'],
-  'application/vnd.ms-excel': ['.xls'],
-  'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet': ['.xlsx'],
-  'text/csv': ['.csv'],
+// ...
 
-  // Videos (for damage analysis)
-  'video/mp4': ['.mp4'],
-  'video/quicktime': ['.mov'],
-  'video/x-msvideo': ['.avi']
-}
-
-// Maximum file sizes by category (in bytes)
-export const MAX_FILE_SIZES = {
-  image: 10 * 1024 * 1024, // 10MB for images (reduced from 50MB)
-  document: 10 * 1024 * 1024, // 10MB for documents
-  video: 50 * 1024 * 1024 // 50MB for videos (AI analysis videos)
-}
-
-/**
- * Validate file content using magic bytes
- * @param buffer File buffer
- * @returns Validation result with file type info
- */
 export async function validateFileContent(buffer: Buffer): Promise<{
   valid: boolean
   mimeType?: string
@@ -54,6 +34,8 @@ export async function validateFileContent(buffer: Buffer): Promise<{
 }> {
   try {
     // Check file type using magic bytes
+    // @ts-ignore
+    const { fileTypeFromBuffer } = await import('file-type');
     const fileType = await fileTypeFromBuffer(buffer)
 
     if (!fileType) {

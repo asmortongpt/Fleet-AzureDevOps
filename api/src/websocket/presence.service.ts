@@ -63,7 +63,7 @@ export class PresenceService {
     this.presenceMap.get(taskId)!.push(presence);
     socket.join(taskId);
     this.io.to(taskId).emit("USER_JOINED", { userId, taskId });
-    await this.redis.sadd(`task:${taskId}:viewers`, userId);
+    await this.redis.sAdd(`task:${taskId}:viewers`, userId);
   }
 
   private async leaveTask(socket: Socket, userId: string, taskId: string): Promise<void> {
@@ -78,7 +78,7 @@ export class PresenceService {
           this.presenceMap.set(taskId, presences);
         }
         this.io.to(taskId).emit("USER_LEFT", { userId, taskId });
-        await this.redis.srem(`task:${taskId}:viewers`, userId);
+        await this.redis.sRem(`task:${taskId}:viewers`, userId);
       }
     }
     socket.leave(taskId);

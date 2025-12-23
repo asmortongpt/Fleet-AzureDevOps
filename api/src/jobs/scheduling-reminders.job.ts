@@ -109,7 +109,7 @@ async function processReservationReminders(): Promise<number> {
         FROM vehicle_reservations vr
         JOIN vehicles v ON vr.vehicle_id = v.id
         JOIN users u ON vr.reserved_by = u.id
-        WHERE vr.status IN ('confirmed', `pending`)
+        WHERE vr.status IN ('confirmed', 'pending')
           AND vr.start_time BETWEEN $1 AND $2
         ORDER BY vr.start_time`,
         [windowStart, windowEnd]
@@ -215,7 +215,7 @@ async function processMaintenanceReminders(): Promise<number> {
         LEFT JOIN appointment_types at ON sbs.appointment_type_id = at.id
         LEFT JOIN service_bays sb ON sbs.service_bay_id = sb.id
         LEFT JOIN users u ON sbs.assigned_technician_id = u.id
-        WHERE sbs.status IN (`scheduled`, `in_progress`)
+        WHERE sbs.status IN ('scheduled', 'in_progress')
           AND sbs.scheduled_start BETWEEN $1 AND $2
           AND sbs.assigned_technician_id IS NOT NULL
         ORDER BY sbs.scheduled_start`,
@@ -344,7 +344,7 @@ async function checkForConflicts(): Promise<void> {
       FROM vehicles v
       JOIN vehicle_reservations vr ON v.id = vr.vehicle_id
       WHERE vr.status IN ('confirmed', 'pending')
-        AND vr.start_time < NOW() + INTERVAL `7 days`
+        AND vr.start_time < NOW() + INTERVAL '7 days'
         AND vr.end_time > NOW()
       GROUP BY v.id, v.make, v.model, v.license_plate
       HAVING COUNT(*) > 1`
@@ -383,7 +383,8 @@ async function checkForConflicts(): Promise<void> {
 export function startSchedulingReminders(): void {
   if (!ENABLE_REMINDERS) {
     logger.warn('Scheduling reminders job is disabled by configuration')
-    return }
+    return
+  }
 
   logger.info('Initializing scheduling reminders job', {
     schedule: CRON_SCHEDULE,

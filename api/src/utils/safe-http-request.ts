@@ -12,7 +12,7 @@
 
 import { URL } from 'url'
 
-import axios, { AxiosRequestConfig, AxiosResponse } from 'axios'
+import axios, { AxiosRequestConfig, AxiosResponse, AxiosInstance } from 'axios'
 
 // Default allowed domains for external services
 const DEFAULT_ALLOWED_DOMAINS = [
@@ -297,7 +297,7 @@ export async function safeDelete<T = any>(
 export function createSafeAxiosInstance(
   baseURL: string,
   options: SafeRequestOptions = {}
-): typeof axios {
+): AxiosInstance {
   const { allowedDomains, allowPrivateIPs = false, ...axiosConfig } = options
 
   // Validate base URL

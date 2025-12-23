@@ -3,7 +3,7 @@
  * Manages message queues for reliable asynchronous processing using pg-boss
  */
 
-import PgBoss from 'pg-boss';
+const PgBoss = require('pg-boss');
 import Bottleneck from 'bottleneck';
 import { pool } from '../config/database';
 import {
@@ -29,7 +29,7 @@ import {
 } from '../types/queue.types';
 
 class QueueService {
-  private boss: PgBoss | null = null;
+  private boss: any = null;
   private rateLimiters: Map<string, Bottleneck> = new Map();
   private isInitialized = false;
 
@@ -111,11 +111,11 @@ class QueueService {
   private setupEventHandlers(): void {
     if (!this.boss) return;
 
-    this.boss.on('error', (error) => {
+    this.boss.on('error', (error: any) => {
       console.error('❌ Queue error:', error);
     });
 
-    this.boss.on('monitor-states', (states) => {
+    this.boss.on('monitor-states', (states: any) => {
       console.log('📊 Queue states:', states);
     });
   }
@@ -247,7 +247,7 @@ class QueueService {
   /**
    * Generic job enqueue method
    */
-  private async enqueueJob(
+  public async enqueueJob(
     queueName: QueueName,
     data: JobData,
     options: JobOptions = {}
@@ -321,7 +321,7 @@ class QueueService {
     const rateLimiterKey = this.getRateLimiterKey(queueName);
     const rateLimiter = this.rateLimiters.get(rateLimiterKey);
 
-    await this.boss.work(queueName, { teamSize: 5, teamConcurrency: 2 }, async (job) => {
+    await this.boss.work(queueName, { teamSize: 5, teamConcurrency: 2 }, async (job: any) => {
       const startTime = Date.now();
 
       try {

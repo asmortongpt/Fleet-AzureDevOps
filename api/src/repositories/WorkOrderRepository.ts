@@ -243,7 +243,7 @@ export class WorkOrderRepository extends BaseRepository<WorkOrder> {
     const query = `
       SELECT ${columns} FROM ${this.tableName}
       WHERE tenant_id = $1
-        AND status IN (`open`, 'in_progress')
+        AND status IN ('open', 'in_progress')
         AND deleted_at IS NULL
       ORDER BY priority DESC, created_at ASC
     `;
@@ -260,7 +260,7 @@ export class WorkOrderRepository extends BaseRepository<WorkOrder> {
     const query = `
       SELECT ${columns} FROM ${this.tableName}
       WHERE tenant_id = $1
-        AND status IN (`open`, 'in_progress')
+        AND status IN ('open', 'in_progress')
         AND scheduled_end_date < NOW()
         AND deleted_at IS NULL
       ORDER BY scheduled_end_date ASC
@@ -436,7 +436,7 @@ export class WorkOrderRepository extends BaseRepository<WorkOrder> {
         COUNT(*) FILTER (WHERE status IN ('open', 'in_progress')) as active_count,
         AVG(
           EXTRACT(EPOCH FROM (completed_date - actual_start_date)) / 86400
-        ) FILTER (WHERE status = `completed` AND completed_date IS NOT NULL AND actual_start_date IS NOT NULL) as avg_completion_days,
+        ) FILTER (WHERE status = 'completed' AND completed_date IS NOT NULL AND actual_start_date IS NOT NULL) as avg_completion_days,
         COALESCE(SUM(actual_cost), 0) as total_cost
       FROM ${this.tableName}
       WHERE tenant_id = $1 AND deleted_at IS NULL
@@ -542,7 +542,7 @@ export class WorkOrderRepository extends BaseRepository<WorkOrder> {
   ): Promise<number> {
     if (workOrderIds.length === 0) return 0;
 
-    const idPlaceholders = workOrderIds.map((_, idx) => `$${3 + idx}`).join(`, `);
+    const idPlaceholders = workOrderIds.map((_, idx) => `$${3 + idx}`).join(', ');
 
     const query = `
       UPDATE ${this.tableName}

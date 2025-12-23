@@ -1,41 +1,82 @@
 import { BaseRepository } from '../repositories/BaseRepository';
+import { Pool, QueryResult } from 'pg';
 
-Here is a simple example of a TypeScript repository for `HazmatComplianceRepository`:
-
-
-import { EntityRepository, Repository } from 'typeorm';
-import { HazmatCompliance } from '../entities/hazmat-compliance.entity';
-
-@EntityRepository(HazmatCompliance)
-export class HazmatComplianceRepository extends Repository<HazmatCompliance> {
-  constructor(pool: Pool) {
-    super(pool, 'LHazmat_LCompliance_LRepository extends s');
-  }
-
-  async createHazmatCompliance(tenant_id: string, hazmatComplianceData: any): Promise<HazmatCompliance> {
-    const hazmatCompliance = this.create({ ...hazmatComplianceData, tenant_id });
-    return this.save(hazmatCompliance);
-  }
-
-  async getHazmatCompliance(tenant_id: string, id: string): Promise<HazmatCompliance> {
-    return this.findOne({ where: { id, tenant_id } });
-  }
-
-  async getHazmatCompliances(tenant_id: string): Promise<HazmatCompliance[]> {
-    return this.find({ where: { tenant_id } });
-  }
-
-  async updateHazmatCompliance(tenant_id: string, id: string, hazmatComplianceData: any): Promise<HazmatCompliance> {
-    await this.update({ id, tenant_id }, hazmatComplianceData);
-    return this.getHazmatCompliance(tenant_id, id);
-  }
-
-  async deleteHazmatCompliance(tenant_id: string, id: string): Promise<void> {
-    await this.delete({ id, tenant_id });
-  }
+export interface HazmatCompliance {
+  id: number;
+  tenant_id: number;
+  driver_id: number;
+  vehicle_id: number;
+  license_number: string;
+  hazmat_type: string;
+  expiry_date: Date;
+  status: string;
+  created_at: Date;
+  updated_at: Date;
 }
 
+export class HazmatComplianceRepository extends BaseRepository<any> {
 
-This repository has the basic CRUD operations for `HazmatCompliance` entity. Each operation is parameterized with `tenant_id` to ensure data isolation between different tenants.
+  private pool: Pool;
 
-Please replace `any` with the actual type of `hazmatComplianceData` for better type safety. Also, you may need to adjust the code according to your actual database schema and business requirements.
+  constructor(pool: Pool) {
+    super('hazmat_compliance', pool);
+    this.pool = pool;
+  }
+
+  async createHazmatCompliance(tenantId: number, hazmatComplianceData: Omit<HazmatCompliance, 'id' | 'created_at' | 'updated_at'>): Promise<HazmatCompliance> {
+    const query = `
+      INSERT INTO hazmat_compliance (tenant_id, driver_id, vehicle_id, license_number, hazmat_type, expiry_date, status, created_at, updated_at)
+      VALUES ($1, $2, $3, $4, $5, $6, $7, NOW(), NOW())
+      RETURNING *
+    `;
+    const values = [
+      tenantId,
+      hazmatComplianceData.driver_id,
+      hazmatComplianceData.vehicle_id,
+      hazmatComplianceData.license_number,
+      hazmatComplianceData.hazmat_type,
+      hazmatComplianceData.expiry_date,
+      hazmatComplianceData.status
+    ];
+    const result: QueryResult<HazmatCompliance> = await this.pool.query(query, values);
+    return result.rows[0];
+  }
+
+  async getHazmatCompliances(tenantId: number): Promise<HazmatCompliance[]> {
+    const query = `SELECT id, tenant_id, driver_id, vehicle_id, license_number, hazmat_type, expiry_date, status, created_at, updated_at FROM hazmat_compliance WHERE tenant_id = $1`;
+    const result: QueryResult<HazmatCompliance> = await this.pool.query(query, [tenantId]);
+    return result.rows;
+  }
+
+  async getHazmatComplianceById(tenantId: number, id: number): Promise<HazmatCompliance | null> {
+    const query = `SELECT id, tenant_id, driver_id, vehicle_id, license_number, hazmat_type, expiry_date, status, created_at, updated_at FROM hazmat_compliance WHERE id = $1 AND tenant_id = $2`;
+    const result: QueryResult<HazmatCompliance> = await this.pool.query(query, [id, tenantId]);
+    return result.rows[0] || null;
+  }
+
+  async updateHazmatCompliance(tenantId: number, id: number, hazmatComplianceData: Partial<HazmatCompliance>): Promise<HazmatCompliance | null> {
+    const setClause = Object.keys(hazmatComplianceData)
+      .map((key, index) => `${key} = $${index + 3}`)
+      .join(', ');
+
+    if (!setClause) {
+      return this.getHazmatComplianceById(tenantId, id);
+    }
+
+    const query = `
+      UPDATE hazmat_compliance
+      SET ${setClause}, updated_at = NOW()
+      WHERE id = $1 AND tenant_id = $2
+      RETURNING *
+    `;
+    const values = [id, tenantId, ...Object.values(hazmatComplianceData)];
+    const result: QueryResult<HazmatCompliance> = await this.pool.query(query, values);
+    return result.rows[0] || null;
+  }
+
+  async deleteHazmatCompliance(tenantId: number, id: number): Promise<boolean> {
+    const query = `DELETE FROM hazmat_compliance WHERE id = $1 AND tenant_id = $2 RETURNING id`;
+    const result: QueryResult = await this.pool.query(query, [id, tenantId]);
+    return result.rowCount ? result.rowCount > 0 : false;
+  }
+}

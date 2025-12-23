@@ -375,7 +375,7 @@ export class PermissionEngine implements IPermissionEngine {
         try {
           const arrayMatch = right.match(/\[(.*?)\]/);
           if (arrayMatch) {
-            const values = arrayMatch[1].split(',').map(v => v.trim().replace(/['"]/g, '"));
+            const values = arrayMatch[1].split(',').map(v => v.trim().replace(/['"]/g, ''));
             return values.includes(String(leftValue));
           }
         } catch (e) {
