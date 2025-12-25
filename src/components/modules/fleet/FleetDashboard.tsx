@@ -8,7 +8,7 @@ import { useFleetMetrics } from "./FleetDashboard/hooks/useFleetMetrics"
 import { ProfessionalFleetMap } from "@/components/Maps/ProfessionalFleetMap"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { useDrilldown } from "@/contexts/DrilldownContext"
-import { useFleetData } from "@/hooks/use-fleet-data"
+import { useFleetDataBatched } from "@/hooks/use-fleet-data-batched" // BATCH-003: Use batched hook (7 requests → 1)
 import { useVehicleTelemetry } from "@/hooks/useVehicleTelemetry"
 import { Vehicle } from "@/lib/types"
 import { useInspect } from "@/services/inspect/InspectContext"
@@ -21,7 +21,8 @@ interface FleetDashboardProps {
 }
 
 export function FleetDashboard() {
-  const data = useFleetData()
+  // BATCH-003: Use batched hook - reduces 7 requests to 1 batch request
+  const data = useFleetDataBatched()
   const initialVehicles = data.vehicles || []
   const [layoutMode, setLayoutMode] = useState<LayoutMode>("split-50-50")
 
