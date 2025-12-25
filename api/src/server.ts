@@ -51,6 +51,7 @@ import assetManagementRouter from './routes/asset-management.routes'
 import assetsMobileRouter from './routes/assets-mobile.routes'
 import assignmentReportingRouter from './routes/assignment-reporting.routes'
 import attachmentsRouter from './routes/attachments.routes'
+import batchRouter from './routes/batch'
 import billingReportsRouter from './routes/billing-reports'
 import chargingSessionsRouter from './routes/charging-sessions'
 import communicationLogsRouter from './routes/communication-logs'
@@ -286,6 +287,10 @@ if (process.env.NODE_ENV === 'development') {
 // ============================================================================
 // API ROUTE REGISTRATIONS
 // ============================================================================
+
+// BATCH-001: Request batching endpoint (must be before other routes)
+app.use('/api/v1/batch', batchRouter)
+app.use('/api/batch', batchRouter)
 
 // Core Fleet Management Routes
 app.use('/api/vehicles', vehiclesRouter)
