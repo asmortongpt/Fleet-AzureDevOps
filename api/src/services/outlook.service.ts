@@ -5,8 +5,8 @@
  */
 
 import { Pool } from 'pg'
-import { pool } from '../config/database'
 
+import { pool } from '../config/database'
 import {
   Email,
   EmailMessage,

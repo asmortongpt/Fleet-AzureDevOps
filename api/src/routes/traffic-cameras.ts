@@ -1,11 +1,10 @@
 
 import express, { Request, Response, NextFunction } from 'express';
-import { Pool } from 'pg';
+
+import pool from '../config/database';
 import { authenticateJWT } from '../middleware/auth';
-import { csrfProtection } from '../middleware/csrf';
 
 // Assuming pool is exported from db/connection or config/database
-import pool from '../config/database';
 
 const router = express.Router();
 

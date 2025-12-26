@@ -1,4 +1,5 @@
 import Redis from 'ioredis';
+
 import { logger } from '../services/logger';
 
 let redis: Redis | null = null;

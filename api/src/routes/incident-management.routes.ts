@@ -14,12 +14,13 @@
  */
 
 import { Router } from 'express'
-import type { AuthRequest } from '../middleware/auth'
-import { authenticateJWT } from '../middleware/auth'
-import { requirePermission } from '../middleware/permissions'
-import { csrfProtection } from '../middleware/csrf'
+
 import { pool } from '../config/database';
 import logger from '../config/logger';
+import type { AuthRequest } from '../middleware/auth'
+import { authenticateJWT } from '../middleware/auth'
+import { csrfProtection } from '../middleware/csrf'
+import { requirePermission } from '../middleware/permissions'
 
 const router = Router()
 router.use(authenticateJWT)

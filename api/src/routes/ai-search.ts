@@ -13,15 +13,16 @@ import { NotFoundError, ValidationError } from '../errors/app-error'
  */
 
 import express, { Response } from 'express'
-import { AuthRequest, authenticateJWT, authorize } from '../middleware/auth'
-import { auditLog } from '../middleware/audit'
 import { z } from 'zod'
-import vectorSearchService from '../services/VectorSearchService'
-import embeddingService from '../services/EmbeddingService'
-import documentAiService from '../services/DocumentAiService'
-import { getErrorMessage } from '../utils/error-handler'
-import { csrfProtection } from '../middleware/csrf'
+
 import { pool } from '../db/connection';
+import { auditLog } from '../middleware/audit'
+import { AuthRequest, authenticateJWT, authorize } from '../middleware/auth'
+import { csrfProtection } from '../middleware/csrf'
+import documentAiService from '../services/DocumentAiService'
+import embeddingService from '../services/EmbeddingService'
+import vectorSearchService from '../services/VectorSearchService'
+import { getErrorMessage } from '../utils/error-handler'
 
 
 const router = express.Router()

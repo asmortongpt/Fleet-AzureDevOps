@@ -16,11 +16,10 @@ import { NotFoundError, ValidationError } from '../errors/app-error'
  */
 
 import express, { Request, Response } from 'express';
+
 import { microsoftGraphService } from '../services/microsoft-graph.service';
 import { queueService } from '../services/queue.service';
 import { getErrorMessage } from '../utils/error-handler';
-import { csrfProtection } from '../middleware/csrf'
-import { pool } from '../db/connection';
 
 
 const router = express.Router();

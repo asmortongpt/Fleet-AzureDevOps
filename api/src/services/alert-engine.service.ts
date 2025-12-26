@@ -8,8 +8,8 @@
  * - Alert history and acknowledgment tracking
  */
 
-import { Pool } from 'pg'
 import nodemailer from 'nodemailer'
+import { Pool } from 'pg'
 
 export interface AlertRule {
   id: string

@@ -3,9 +3,9 @@
  * Multi-camera video processing, storage, and evidence management
  */
 
-import { Pool } from 'pg';
-import axios from 'axios';
 import { BlobServiceClient, ContainerClient } from '@azure/storage-blob';
+import { Pool } from 'pg';
+
 import { logger } from '../utils/logger';
 import { safeGet, validateURL, SSRFError } from '../utils/safe-http-request';
 

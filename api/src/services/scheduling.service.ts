@@ -4,10 +4,10 @@
  * and calendar integrations (Microsoft + Google)
  */
 
-import { Pool } from 'pg'
+import { Pool  } from 'pg'
+
 import { CalendarService } from './calendar.service'
 import { GoogleCalendarService } from './google-calendar.service'
-import { QueryResult } from 'pg'
 
 interface SchedulingConflict {
   type: string

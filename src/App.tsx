@@ -1,16 +1,15 @@
 import { withAITracking } from '@microsoft/applicationinsights-react-js'
-import { useState, useMemo, lazy, Suspense } from "react"
 import { Shield } from "lucide-react"
+import { useState, useMemo, lazy, Suspense } from "react"
 
 import { DrilldownManager } from "@/components/DrilldownManager"
 import { EnhancedErrorBoundary } from "@/components/EnhancedErrorBoundary"
-import { CommandCenterLayout } from "@/components/layout/CommandCenterLayout"
 import { ToastContainer } from "@/components/common/ToastContainer"
 import { RoleSwitcher } from "@/components/demo/RoleSwitcher"
 import { QueryErrorBoundary } from "@/components/errors/QueryErrorBoundary"
+import { CommandCenterLayout } from "@/components/layout/CommandCenterLayout"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-
 import { useFleetData } from "@/hooks/use-fleet-data"
 import { navigationItems } from "@/lib/navigation"
 import telemetryService from '@/lib/telemetry'
@@ -125,6 +124,19 @@ const ProcurementHub = lazy(() => import("@/components/hubs/procurement/Procurem
 const CommunicationHub = lazy(() => import("@/components/hubs/communication/CommunicationHub").then(m => ({ default: m.CommunicationHub })))
 const SafetyHub = lazy(() => import("@/components/hubs/safety/SafetyHub").then(m => ({ default: m.SafetyHub })))
 const AssetsHub = lazy(() => import("@/components/hubs/assets/AssetsHub").then(m => ({ default: m.AssetsHub })))
+
+// NEW CONSOLIDATED HUB PAGES (Production Readiness Phase 3)
+const FleetHubPage = lazy(() => import("@/pages/FleetHub"))
+const OperationsHubPage = lazy(() => import("@/pages/OperationsHub"))
+const MaintenanceHubPage = lazy(() => import("@/pages/MaintenanceHub"))
+const DriversHubPage = lazy(() => import("@/pages/DriversHub"))
+const AnalyticsHubPage = lazy(() => import("@/pages/AnalyticsHub"))
+const ComplianceHubPage = lazy(() => import("@/pages/ComplianceHub"))
+const ProcurementHubPage = lazy(() => import("@/pages/ProcurementHub"))
+const AdminHubPage = lazy(() => import("@/pages/AdminHub"))
+const SafetyHubPage = lazy(() => import("@/pages/SafetyHub"))
+const AssetsHubPage = lazy(() => import("@/pages/AssetsHub"))
+const CommunicationHubPage = lazy(() => import("@/pages/CommunicationHub"))
 
 // PAGES
 const SettingsPage = lazy(() => import("@/pages/SettingsPage"))
@@ -341,6 +353,29 @@ function App() {
         return <SettingsPage />
       case "profile":
         return <ProfilePage />
+      // NEW CONSOLIDATED HUB PAGES (Production Readiness Phase 3)
+      case "fleet-hub-consolidated":
+        return <FleetHubPage />
+      case "operations-hub-consolidated":
+        return <OperationsHubPage />
+      case "maintenance-hub-consolidated":
+        return <MaintenanceHubPage />
+      case "drivers-hub-consolidated":
+        return <DriversHubPage />
+      case "analytics-hub-consolidated":
+        return <AnalyticsHubPage />
+      case "compliance-hub-consolidated":
+        return <ComplianceHubPage />
+      case "procurement-hub-consolidated":
+        return <ProcurementHubPage />
+      case "admin-hub-consolidated":
+        return <AdminHubPage />
+      case "safety-hub-consolidated":
+        return <SafetyHubPage />
+      case "assets-hub-consolidated":
+        return <AssetsHubPage />
+      case "communication-hub-consolidated":
+        return <CommunicationHubPage />
       default:
         return <CommandCenter />
     }

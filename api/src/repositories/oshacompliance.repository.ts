@@ -1,4 +1,5 @@
 import { Pool, QueryResult } from 'pg';
+
 import { BaseRepository } from './BaseRepository';
 
 interface OshaCompliance {

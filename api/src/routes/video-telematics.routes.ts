@@ -1,15 +1,16 @@
 import express, { Response } from 'express';
-import { AuthRequest, authenticateJWT } from '../middleware/auth';
-import { requirePermission, rateLimit } from '../middleware/permissions';
-import { auditLog } from '../middleware/audit';
-import VideoTelematicsService from '../services/video-telematics.service';
-import DriverSafetyAIService from '../services/driver-safety-ai.service';
 import { z } from 'zod';
-import { getErrorMessage } from '../utils/error-handler'
-import { csrfProtection } from '../middleware/csrf'
+
 import { pool } from '../db'
-import { securityLogger as logger } from '../utils/logger'
 import { ValidationError, NotFoundError } from '../errors/app-error'
+import { auditLog } from '../middleware/audit';
+import { AuthRequest, authenticateJWT } from '../middleware/auth';
+import { csrfProtection } from '../middleware/csrf'
+import { requirePermission, rateLimit } from '../middleware/permissions';
+import DriverSafetyAIService from '../services/driver-safety-ai.service';
+import VideoTelematicsService from '../services/video-telematics.service';
+import { getErrorMessage } from '../utils/error-handler'
+import { securityLogger as logger } from '../utils/logger'
 
 
 const router = express.Router();

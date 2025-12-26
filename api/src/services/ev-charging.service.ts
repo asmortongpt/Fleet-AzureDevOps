@@ -11,6 +11,7 @@
  */
 
 import { Pool } from 'pg';
+
 import OCPPService from './ocpp.service';
 
 interface SmartChargingParams {
