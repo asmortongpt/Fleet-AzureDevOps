@@ -1,9 +1,10 @@
+import { motion, AnimatePresence } from 'framer-motion';
 import { Layers, ChevronRight } from 'lucide-react';
 import { useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
-import { Badge } from '@/components/ui/badge';
 
 interface MapLayer {
     id: string;

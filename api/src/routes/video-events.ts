@@ -1,16 +1,14 @@
 import express, { Response } from 'express'
-import { container } from '../container'
-import { asyncHandler } from '../middleware/errorHandler'
-import { NotFoundError, ValidationError } from '../errors/app-error'
+
 import logger from '../config/logger'; // Wave 19: Add Winston logger
-import { AuthRequest, authenticateJWT } from '../middleware/auth'
-import { requirePermission } from '../middleware/permissions'
-import { auditLog } from '../middleware/audit'
-import { rateLimit } from '../middleware/rate-limit'
-import { z } from 'zod'
-import { buildInsertClause, buildUpdateClause } from '../utils/sql-safety'
-import { csrfProtection } from '../middleware/csrf'
 import { pool } from '../db'
+import { NotFoundError } from '../errors/app-error'
+import { auditLog } from '../middleware/audit'
+import { AuthRequest, authenticateJWT } from '../middleware/auth'
+import { csrfProtection } from '../middleware/csrf'
+import { requirePermission } from '../middleware/permissions'
+import { rateLimit } from '../middleware/rate-limit'
+import { buildInsertClause } from '../utils/sql-safety'
 
 
 const router = express.Router()

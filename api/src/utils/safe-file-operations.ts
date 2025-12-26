@@ -9,10 +9,9 @@
  * SECURITY: Always use these functions when dealing with user-provided file paths
  */
 
-import fs from 'fs/promises';
 import fsSync from 'fs';
+import fs from 'fs/promises';
 import path from 'path';
-import { Readable } from 'stream';
 
 /**
  * Security error for path traversal attempts

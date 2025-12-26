@@ -3,9 +3,10 @@
  * Manages connections to Claude MCP servers for tool use and context management
  */
 
-import { Pool } from 'pg'
-import { logger } from '../utils/logger'
 import axios, { AxiosInstance } from 'axios'
+import { Pool } from 'pg'
+
+import { logger } from '../utils/logger'
 
 export interface MCPServer {
   id: string

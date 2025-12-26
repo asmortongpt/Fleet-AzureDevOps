@@ -15,6 +15,7 @@
  */
 
 import { Pool } from 'pg'
+
 import { cache } from '../utils/cache'
 
 export interface SearchQuery {

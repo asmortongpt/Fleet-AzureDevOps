@@ -6,6 +6,7 @@
  */
 
 import { Pool } from 'pg'
+
 import fuelPriceForecastingModel from '../ml-models/fuel-price-forecasting.model'
 
 export interface FuelStation {

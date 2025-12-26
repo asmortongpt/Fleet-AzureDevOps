@@ -10,10 +10,11 @@ import logger from '../config/logger'; // Wave 29: Add Winston logger
  */
 
 import express, { Request, Response } from 'express'
-import { WebSocket, WebSocketServer } from 'ws'
 import { v4 as uuidv4 } from 'uuid'
-import obd2Emulator, { VehicleProfile, EmulatedOBD2Data } from '../services/obd2-emulator.service'
+import { WebSocket, WebSocketServer } from 'ws'
+
 import { csrfProtection } from '../middleware/csrf'
+import obd2Emulator, { VehicleProfile } from '../services/obd2-emulator.service'
 
 
 const router = express.Router()

@@ -4,7 +4,7 @@
  */
 
 import express from 'express'
-import { NotFoundError } from '../errors/app-error'
+
 import {
   mockVehicles,
   mockDrivers,
@@ -15,6 +15,7 @@ import {
   mockRoutes,
   paginateResults
 } from '../data/mock-data'
+import { NotFoundError } from '../errors/app-error'
 
 const router = express.Router()
 

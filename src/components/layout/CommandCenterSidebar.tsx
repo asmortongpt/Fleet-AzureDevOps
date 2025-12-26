@@ -4,10 +4,11 @@ import {
     ChevronLeft,
     Hexagon
 } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { cn } from '@/lib/utils';
-import { useNavigation } from '@/contexts/NavigationContext';
 import { useNavigate } from 'react-router-dom';
+
+import { Button } from '@/components/ui/button';
+import { useNavigation } from '@/contexts/NavigationContext';
+import { cn } from '@/lib/utils';
 
 interface CommandCenterSidebarProps {
     isSidebarOpen: boolean;

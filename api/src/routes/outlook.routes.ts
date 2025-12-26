@@ -7,14 +7,12 @@ import { NotFoundError, ValidationError } from '../errors/app-error'
  */
 
 import express, { Response } from 'express'
-import { AuthRequest, authenticateJWT, authorize } from '../middleware/auth'
-import { auditLog } from '../middleware/audit'
-import { outlookService } from '../services/outlook.service'
 import { z } from 'zod'
-import { logger } from '../utils/logger'
-import { getErrorMessage } from '../utils/error-handler'
-import { csrfProtection } from '../middleware/csrf'
 
+import { auditLog } from '../middleware/audit'
+import { AuthRequest, authenticateJWT, authorize } from '../middleware/auth'
+import { csrfProtection } from '../middleware/csrf'
+import { outlookService } from '../services/outlook.service'
 import {
   SendEmailRequest,
   ReplyEmailRequest,
@@ -23,6 +21,8 @@ import {
   CreateFolderRequest,
   CategorizeEmailRequest
 } from '../types/outlook.types'
+import { getErrorMessage } from '../utils/error-handler'
+import { logger } from '../utils/logger'
 
 const router = express.Router()
 

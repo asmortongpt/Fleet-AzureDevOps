@@ -6,9 +6,11 @@
  */
 
 import { Readable } from 'stream';
-import { Client } from '@microsoft/microsoft-graph-client';
+
 import { ClientSecretCredential } from '@azure/identity';
+import { Client } from '@microsoft/microsoft-graph-client';
 import { TokenCredentialAuthenticationProvider } from '@microsoft/microsoft-graph-client/authProviders/azureTokenCredentials';
+
 import {
   BaseStorageAdapter,
   StorageConfig,

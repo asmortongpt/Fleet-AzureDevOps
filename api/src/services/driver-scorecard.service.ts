@@ -5,6 +5,7 @@
  */
 
 import { Pool } from 'pg'
+
 import driverScoringModel, { DriverMetrics } from '../ml-models/driver-scoring.model'
 
 export interface DriverScorecard {

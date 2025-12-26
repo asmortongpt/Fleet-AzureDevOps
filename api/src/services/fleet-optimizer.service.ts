@@ -4,7 +4,6 @@
  * Analyzes fleet utilization and generates optimization recommendations
  */
 
-import { Pool } from 'pg'
 import { pool } from '../config/database'
 import fleetOptimizationModel, { VehicleUtilizationData } from '../ml-models/fleet-optimization.model'
 // ... exports ...

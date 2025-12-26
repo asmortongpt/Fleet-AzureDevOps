@@ -12,8 +12,10 @@
  * @module middleware/cache
  */
 
-import { Request, Response, NextFunction } from 'express'
 import crypto from 'crypto'
+
+import { Request, Response, NextFunction } from 'express'
+
 import redisClient from '../config/redis'
 import logger from '../utils/logger'
 

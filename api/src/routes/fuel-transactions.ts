@@ -1,8 +1,8 @@
 import { Router, Request, Response } from "express"
+
 import { container } from '../container'
-import { TYPES } from '../types'
-import { FueltransactionService } from '../services/FuelTransactionService'
 import { NotFoundError } from '../errors/app-error'
+import { authenticateJWT } from '../middleware/auth'
 import { doubleCsrfProtection as csrfProtection } from '../middleware/csrf'
 import { asyncHandler } from '../middleware/errorHandler'
 import { validate } from '../middleware/validation'
@@ -11,7 +11,8 @@ import {
   updateFuelTransactionSchema,
   getFuelTransactionsQuerySchema
 } from '../schemas/fuel-transactions.schema'
-import { authenticateJWT } from '../middleware/auth'
+import { FueltransactionService } from '../services/FuelTransactionService'
+import { TYPES } from '../types'
 
 const router = Router()
 

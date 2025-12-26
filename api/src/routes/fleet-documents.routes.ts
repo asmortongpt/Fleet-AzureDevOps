@@ -13,15 +13,16 @@ import logger from '../config/logger'; // Wave 31: Add Winston logger
  * - Download URL generation
  */
 
+import path from 'path'
+
 import { Router, Response } from 'express'
 import multer from 'multer'
-import path from 'path'
-import { AuthRequest, authenticateJWT, authorize } from '../middleware/auth'
-import { auditLog } from '../middleware/audit'
-import documentService from '../services/document.service'
-import { getErrorMessage } from '../utils/error-handler'
-import { csrfProtection } from '../middleware/csrf'
+
 import { pool } from '../db/connection';
+import { auditLog } from '../middleware/audit'
+import { AuthRequest, authenticateJWT, authorize } from '../middleware/auth'
+import { csrfProtection } from '../middleware/csrf'
+import { getErrorMessage } from '../utils/error-handler'
 
 
 const router = Router()

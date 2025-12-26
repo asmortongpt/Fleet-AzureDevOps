@@ -11,10 +11,11 @@
  * - Typing indicators
  */
 
-import { Server as SocketIOServer } from 'socket.io'
 import { Server as HTTPServer } from 'http'
+
 import jwt from 'jsonwebtoken'
 import { Pool } from 'pg'
+import { Server as SocketIOServer } from 'socket.io'
 
 // Allowlist of valid comment tables
 const COMMENT_TABLES = ['task_comments', 'asset_comments'] as const;

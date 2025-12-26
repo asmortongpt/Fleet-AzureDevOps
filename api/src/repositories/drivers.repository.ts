@@ -1,6 +1,7 @@
-import { BaseRepository } from '../repositories/BaseRepository';
 import { Pool, QueryResult } from 'pg';
+
 import { NotFoundError, ValidationError } from '../lib/errors';
+import { BaseRepository } from '../repositories/BaseRepository';
 
 export interface Driver {
   id: number

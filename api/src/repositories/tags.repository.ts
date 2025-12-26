@@ -1,5 +1,6 @@
-import { BaseRepository } from '../repositories/BaseRepository';
 import { Pool } from 'pg';
+
+import { BaseRepository } from '../repositories/BaseRepository';
 
 /**
  * Interface for Tag entity

@@ -7,8 +7,9 @@
 
 import cron from 'node-cron'
 import winston from 'winston'
-import { processRecurringSchedules, getRecurringScheduleStats } from '../services/recurring-maintenance'
+
 import pool from '../config/database'
+import { processRecurringSchedules, getRecurringScheduleStats } from '../services/recurring-maintenance'
 
 // Configure logger
 const logger = winston.createLogger({

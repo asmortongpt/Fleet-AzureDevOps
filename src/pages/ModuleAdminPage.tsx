@@ -1,16 +1,17 @@
+import { Save, RefreshCw, Shield } from 'lucide-react';
 import React, { useState, useEffect } from 'react';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Switch } from "@/components/ui/switch";
+import { toast } from "sonner";
+
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { ScrollArea } from "@/components/ui/scroll-area";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Switch } from "@/components/ui/switch";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { getModuleManager, ModuleDefinition } from '@/lib/moduleManager';
 import { useNavigation } from '@/contexts/NavigationContext';
+import { getModuleManager, ModuleDefinition } from '@/lib/moduleManager';
 import { navigationItems } from '@/lib/navigation';
-import { Save, RefreshCw, Shield, AlertTriangle } from 'lucide-react';
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { toast } from "sonner";
+
 
 export default function ModuleAdminPage() {
     const [modules, setModules] = useState<ModuleDefinition[]>([]);

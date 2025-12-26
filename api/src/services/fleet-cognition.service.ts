@@ -5,9 +5,7 @@
  */
 
 import { Pool } from 'pg'
-import logger from '../utils/logger'
-import mlDecisionEngineService from './ml-decision-engine.service'
-import ragEngineService from './rag-engine.service'
+
 
 export interface CognitionInsight {
   insight_type: string

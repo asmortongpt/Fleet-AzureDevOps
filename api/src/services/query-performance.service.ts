@@ -5,8 +5,9 @@
  * to identify slow queries, optimization opportunities, and potential issues.
  */
 
-import { Pool, QueryResult } from 'pg'
 import { EventEmitter } from 'events'
+
+import { Pool, QueryResult } from 'pg'
 
 interface QueryMetrics {
   query: string

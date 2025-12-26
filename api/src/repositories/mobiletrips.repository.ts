@@ -1,5 +1,6 @@
-import { BaseRepository } from './BaseRepository';
 import { Pool, QueryResult } from 'pg';
+
+import { BaseRepository } from './BaseRepository';
 
 export interface MobileTrip {
   id: number;

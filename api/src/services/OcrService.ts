@@ -17,10 +17,11 @@
  * - Bounding box extraction
  */
 
-import { Pool } from 'pg';
 import fs from 'fs/promises';
 import path from 'path';
-import { createWorker, PSM, OEM } from 'tesseract.js';
+
+import { Pool } from 'pg';
+import { PSM } from 'tesseract.js';
 
 // Optional cloud OCR provider imports - only load if packages are installed
 let vision: any = null;
