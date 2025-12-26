@@ -1,47 +1,15 @@
 import {
-  Speedometer,
-  Users,
-  Wrench,
-  ChartLine,
-  GasPump,
-  Gear,
   MapTrifold,
-  Database,
-  MapPin,
-  Receipt,
-  ClipboardText,
-  Pulse,
-  CarProfile,
-  Package,
-  ShoppingCart,
-  Storefront,
-  FileText,
-  ChatsCircle,
-  Robot,
-  CalendarDots,
-  Envelope,
-  Scan,
-  Chat,
-  FirstAid,
-  Brain,
-  VideoCamera,
-  BatteryCharging,
-  Engine,
-  Cube,
-  GlobeHemisphereWest,
   Broadcast,
-  TrafficSign,
-  Barcode,
-  CheckSquare,
+  Wrench,
+  Users,
+  ChartLine,
+  Shield,
+  Package,
+  Gear,
   Warning,
-  PresentationChart,
-  Bell,
-  FolderOpen,
-  ChatCircleDots,
-  Trophy,
-  ChartBar,
-  CurrencyDollar,
-  Shield
+  Barcode,
+  ChatsCircle
 } from "@phosphor-icons/react"
 import { ReactNode } from "react"
 
@@ -55,486 +23,112 @@ export interface NavigationItem {
   category?: string
 }
 
+/**
+ * Consolidated Hub Navigation
+ * 
+ * Production Readiness: 79 screens → 11 hubs
+ * Each hub uses the HubPage component with tabbed navigation
+ */
 export const navigationItems: NavigationItem[] = [
+  // ==================== PRIMARY HUBS ====================
   {
-    id: "live-fleet-dashboard",
-    label: "Live Fleet Dashboard",
+    id: "fleet-hub-consolidated",
+    label: "Fleet Hub",
     icon: <MapTrifold className="w-5 h-5" />,
-    section: "main"
+    section: "hubs",
+    category: "Operations"
   },
   {
-    id: "dashboard",
-    label: "Fleet Dashboard",
-    icon: <Speedometer className="w-5 h-5" />,
-    section: "main"
+    id: "operations-hub-consolidated",
+    label: "Operations Hub",
+    icon: <Broadcast className="w-5 h-5" />,
+    section: "hubs",
+    category: "Operations"
   },
   {
-    id: "executive-dashboard",
-    label: "Executive Dashboard",
-    icon: <PresentationChart className="w-5 h-5" />,
-    section: "main",
-    roles: ['SuperAdmin', 'Admin', 'Manager']
+    id: "maintenance-hub-consolidated",
+    label: "Maintenance Hub",
+    icon: <Wrench className="w-5 h-5" />,
+    section: "hubs",
+    category: "Operations"
   },
   {
-    id: "admin-dashboard",
-    label: "Admin Dashboard",
+    id: "drivers-hub-consolidated",
+    label: "Drivers Hub",
+    icon: <Users className="w-5 h-5" />,
+    section: "hubs",
+    category: "Operations"
+  },
+
+  // ==================== ANALYTICS & REPORTING ====================
+  {
+    id: "analytics-hub-consolidated",
+    label: "Analytics Hub",
+    icon: <ChartLine className="w-5 h-5" />,
+    section: "hubs",
+    category: "Analytics"
+  },
+
+  // ==================== COMPLIANCE & SAFETY ====================
+  {
+    id: "compliance-hub-consolidated",
+    label: "Compliance Hub",
     icon: <Shield className="w-5 h-5" />,
-    section: "main",
+    section: "hubs",
+    category: "Compliance"
+  },
+  {
+    id: "safety-hub-consolidated",
+    label: "Safety Hub",
+    icon: <Warning className="w-5 h-5" />,
+    section: "hubs",
+    category: "Compliance"
+  },
+
+  // ==================== PROCUREMENT & ASSETS ====================
+  {
+    id: "procurement-hub-consolidated",
+    label: "Procurement Hub",
+    icon: <Package className="w-5 h-5" />,
+    section: "hubs",
+    category: "Procurement"
+  },
+  {
+    id: "assets-hub-consolidated",
+    label: "Assets Hub",
+    icon: <Barcode className="w-5 h-5" />,
+    section: "hubs",
+    category: "Procurement"
+  },
+
+  // ==================== ADMIN & COMMUNICATION ====================
+  {
+    id: "admin-hub-consolidated",
+    label: "Admin Hub",
+    icon: <Gear className="w-5 h-5" />,
+    section: "hubs",
+    category: "Admin",
     roles: ['SuperAdmin', 'Admin']
   },
   {
-    id: "operations-workspace",
-    label: "Operations Workspace",
-    icon: <Broadcast className="w-5 h-5" />,
-    section: "main"
-  },
-  {
-    id: "fleet-workspace",
-    label: "Fleet Workspace",
-    icon: <CarProfile className="w-5 h-5" />,
-    section: "main"
-  },
-  {
-    id: "maintenance-workspace",
-    label: "Maintenance Workspace",
-    icon: <Wrench className="w-5 h-5" />,
-    section: "main"
-  },
-  {
-    id: "analytics-workspace",
-    label: "Analytics Workspace",
-    icon: <ChartLine className="w-5 h-5" />,
-    section: "main"
-  },
-  {
-    id: "compliance-workspace",
-    label: "Compliance Workspace",
-    icon: <Shield className="w-5 h-5" />,
-    section: "main"
-  },
-  {
-    id: "compliance-map",
-    label: "Compliance Map",
-    icon: <MapTrifold className="w-5 h-5" />,
-    section: "main"
-  },
-  {
-    id: "compliance-dashboard",
-    label: "Compliance Dashboard",
-    icon: <Shield className="w-5 h-5" />,
-    section: "main"
-  },
-  {
-    id: "drivers-workspace",
-    label: "Drivers Workspace",
-    icon: <Users className="w-5 h-5" />,
-    section: "main"
-  },
-  {
-    id: "dispatch-console",
-    label: "Dispatch Console",
-    icon: <Broadcast className="w-5 h-5" />,
-    section: "main"
-  },
-  {
-    id: "gps-tracking",
-    label: "Live GPS Tracking",
-    icon: <MapPin className="w-5 h-5" />,
-    section: "main"
-  },
-  {
-    id: "gis-map",
-    label: "GIS Command Center",
-    icon: <MapTrifold className="w-5 h-5" />,
-    section: "main"
-  },
-  {
-    id: "traffic-cameras",
-    label: "Traffic Cameras",
-    icon: <TrafficSign className="w-5 h-5" />,
-    section: "main"
-  },
-  {
-    id: "geofences",
-    label: "Geofence Management",
-    icon: <MapPin className="w-5 h-5" />,
-    section: "main"
-  },
-  {
-    id: "vehicle-telemetry",
-    label: "Vehicle Telemetry",
-    icon: <Engine className="w-5 h-5" />,
-    section: "main"
-  },
-  {
-    id: "map-layers",
-    label: "Enhanced Map Layers",
-    icon: <MapTrifold className="w-5 h-5" />,
-    section: "main"
-  },
-  {
-    id: "arcgis-integration",
-    label: "ArcGIS Integration",
-    icon: <GlobeHemisphereWest className="w-5 h-5" />,
-    section: "tools"
-  },
-  {
-    id: "map-settings",
-    label: "Map Provider Settings",
-    icon: <MapTrifold className="w-5 h-5" />,
-    section: "tools"
-  },
-  {
-    id: "route-optimization",
-    label: "Route Optimization",
-    icon: <MapPin className="w-5 h-5" />,
-    section: "main"
-  },
-
-  {
-    id: "garage",
-    label: "Garage & Service",
-    icon: <Wrench className="w-5 h-5" />,
-    section: "management"
-  },
-  {
-    id: "virtual-garage",
-    label: "Virtual Garage 3D",
-    icon: <Cube className="w-5 h-5" />,
-    section: "management"
-  },
-  {
-    id: "predictive",
-    label: "Predictive Maintenance",
-    icon: <Pulse className="w-5 h-5" />,
-    section: "management"
-  },
-  {
-    id: "driver-mgmt",
-    label: "Driver Performance",
-    icon: <CarProfile className="w-5 h-5" />,
-    section: "management"
-  },
-  {
-    id: "drivers",
-    label: "Drivers Management",
-    icon: <Users className="w-5 h-5" />,
-    section: "management"
-  },
-  {
-    id: "asset-management",
-    label: "Asset Management",
-    icon: <Barcode className="w-5 h-5" />,
-    section: "management"
-  },
-  {
-    id: "equipment-dashboard",
-    label: "Equipment Dashboard",
-    icon: <Engine className="w-5 h-5" />,
-    section: "management"
-  },
-  {
-    id: "task-management",
-    label: "Task Management",
-    icon: <CheckSquare className="w-5 h-5" />,
-    section: "management"
-  },
-  {
-    id: "incident-management",
-    label: "Incident Management",
-    icon: <Warning className="w-5 h-5" />,
-    section: "management"
-  },
-  {
-    id: "notifications",
-    label: "Alerts & Notifications",
-    icon: <Bell className="w-5 h-5" />,
-    section: "management"
-  },
-  {
-    id: "push-notification-admin",
-    label: "Push Notifications",
-    icon: <Bell className="w-5 h-5" />,
-    section: "communication"
-  },
-  {
-    id: "documents",
-    label: "Document Management",
-    icon: <FolderOpen className="w-5 h-5" />,
-    section: "management"
-  },
-  {
-    id: "document-qa",
-    label: "Document Q&A",
-    icon: <ChatCircleDots className="w-5 h-5" />,
-    section: "management"
-  },
-  {
-    id: "vendor-management",
-    label: "Vendor Management",
-    icon: <Storefront className="w-5 h-5" />,
-    section: "procurement"
-  },
-  {
-    id: "parts-inventory",
-    label: "Parts Inventory",
-    icon: <Package className="w-5 h-5" />,
-    section: "procurement"
-  },
-  {
-    id: "purchase-orders",
-    label: "Purchase Orders",
-    icon: <ShoppingCart className="w-5 h-5" />,
-    section: "procurement"
-  },
-  {
-    id: "invoices",
-    label: "Invoices & Billing",
-    icon: <FileText className="w-5 h-5" />,
-    section: "procurement"
-  },
-  {
-    id: "ai-assistant",
-    label: "AI Assistant",
-    icon: <Robot className="w-5 h-5" />,
-    section: "communication"
-  },
-  {
-    id: "teams-integration",
-    label: "Teams Messages",
-    icon: <ChatsCircle className="w-5 h-5" />,
-    section: "communication"
-  },
-  {
-    id: "email-center",
-    label: "Email Center",
-    icon: <Envelope className="w-5 h-5" />,
-    section: "communication"
-  },
-  {
-    id: "maintenance-scheduling",
-    label: "Maintenance Calendar",
-    icon: <CalendarDots className="w-5 h-5" />,
-    section: "communication"
-  },
-  {
-    id: "receipt-processing",
-    label: "Receipt Processing",
-    icon: <Scan className="w-5 h-5" />,
-    section: "communication"
-  },
-  {
-    id: "communication-log",
-    label: "Communication Log",
-    icon: <Chat className="w-5 h-5" />,
-    section: "communication"
-  },
-  {
-    id: "osha-forms",
-    label: "OSHA Safety Forms",
-    icon: <FirstAid className="w-5 h-5" />,
-    section: "communication"
-  },
-  {
-    id: "policy-engine",
-    label: "Policy Engine",
-    icon: <Brain className="w-5 h-5" />,
-    section: "communication"
-  },
-  {
-    id: "video-telematics",
-    label: "Video Telematics",
-    icon: <VideoCamera className="w-5 h-5" />,
-    section: "communication"
-  },
-  {
-    id: "ev-charging",
-    label: "EV Charging",
-    icon: <BatteryCharging className="w-5 h-5" />,
-    section: "communication"
-  },
-  {
-    id: "form-builder",
-    label: "Custom Form Builder",
-    icon: <FileText className="w-5 h-5" />,
-    section: "communication"
-  },
-  {
-    id: "mileage",
-    label: "Mileage Reimbursement",
-    icon: <Receipt className="w-5 h-5" />,
-    section: "tools"
-  },
-  {
-    id: "personal-use",
-    label: "Personal Use",
-    icon: <CarProfile className="w-5 h-5" />,
-    section: "tools"
-  },
-  {
-    id: "personal-use-policy",
-    label: "Personal Use Policy",
-    icon: <Brain className="w-5 h-5" />,
-    section: "tools"
-  },
-  {
-    id: "reimbursement-queue",
-    label: "Reimbursement Queue",
-    icon: <Receipt className="w-5 h-5" />,
-    section: "tools"
-  },
-  {
-    id: "charges-billing",
-    label: "Charges & Billing",
-    icon: <CurrencyDollar className="w-5 h-5" />,
-    section: "tools"
-  },
-  {
-    id: "maintenance-request",
-    label: "Maintenance Request",
-    icon: <ClipboardText className="w-5 h-5" />,
-    section: "tools"
-  },
-  {
-    id: "fuel",
-    label: "Fuel Management",
-    icon: <GasPump className="w-5 h-5" />,
-    section: "tools"
-  },
-  {
-    id: "routes",
-    label: "Route Management",
-    icon: <MapTrifold className="w-5 h-5" />,
-    section: "tools"
-  },
-  {
-    id: "workbench",
-    label: "Data Workbench",
-    icon: <Database className="w-5 h-5" />,
-    section: "tools"
-  },
-  {
-    id: "comprehensive",
-    label: "Fleet Analytics",
-    icon: <ChartLine className="w-5 h-5" />,
-    section: "tools"
-  },
-  {
-    id: "analytics",
-    label: "Analytics Dashboard",
-    icon: <MapTrifold className="w-5 h-5" />,
-    section: "tools"
-  },
-  {
-    id: "endpoint-monitor",
-    label: "Endpoint Monitor",
-    icon: <Pulse className="w-5 h-5" />,
-    section: "tools"
-  },
-  {
-    id: "driver-scorecard",
-    label: "Driver Scorecard",
-    icon: <Trophy className="w-5 h-5" />,
-    section: "tools"
-  },
-  {
-    id: "fleet-optimizer",
-    label: "Fleet Optimizer",
-    icon: <ChartBar className="w-5 h-5" />,
-    section: "tools"
-  },
-  {
-    id: "cost-analysis",
-    label: "Cost Analysis",
-    icon: <CurrencyDollar className="w-5 h-5" />,
-    section: "tools"
-  },
-  {
-    id: "fuel-purchasing",
-    label: "Fuel Purchasing",
-    icon: <GasPump className="w-5 h-5" />,
-    section: "tools"
-  },
-  {
-    id: "custom-reports",
-    label: "Custom Report Builder",
-    icon: <FileText className="w-5 h-5" />,
-    section: "tools"
-  },
-  {
-    id: "settings",
-    label: "Settings",
-    icon: <Gear className="w-5 h-5" />,
-    section: "tools"
-  },
-  // HUBS (Map-First UX Transformation Phase 2-3)
-  {
-    id: "operations-hub",
-    label: "Operations Hub",
-    icon: <Broadcast className="w-5 h-5" />,
-    section: "hubs"
-  },
-  {
-    id: "reports-hub",
-    label: "Reports Hub",
-    icon: <PresentationChart className="w-5 h-5" />,
-    section: "hubs"
-  },
-  {
-    id: "procurement-hub",
-    label: "Procurement Hub",
-    icon: <Package className="w-5 h-5" />,
-    section: "hubs"
-  },
-  {
-    id: "communication-hub",
+    id: "communication-hub-consolidated",
     label: "Communication Hub",
     icon: <ChatsCircle className="w-5 h-5" />,
-    section: "hubs"
+    section: "hubs",
+    category: "Communication"
   },
-  {
-    id: "fleet-hub",
-    label: "Fleet Hub",
-    icon: <CarProfile className="w-5 h-5" />,
-    section: "hubs"
-  },
-  {
-    id: "maintenance-hub",
-    label: "Maintenance Hub",
-    icon: <Wrench className="w-5 h-5" />,
-    section: "hubs"
-  },
-  {
-    id: "analytics-hub",
-    label: "Analytics Hub",
-    icon: <ChartLine className="w-5 h-5" />,
-    section: "hubs"
-  },
-  {
-    id: "compliance-hub",
-    label: "Compliance Hub",
-    icon: <Shield className="w-5 h-5" />,
-    section: "hubs"
-  },
-  {
-    id: "drivers-hub",
-    label: "Drivers Hub",
-    icon: <Users className="w-5 h-5" />,
-    section: "hubs"
-  },
-  {
-    id: "safety-hub",
-    label: "Safety Hub",
-    icon: <FirstAid className="w-5 h-5" />,
-    section: "hubs"
-  },
-  {
-    id: "assets-hub",
-    label: "Assets Hub",
-    icon: <Barcode className="w-5 h-5" />,
-    section: "hubs"
-  }
 ]
 
-// Export Gear icon for use in other components
-export { Gear }
+/**
+ * Get navigation items filtered by category
+ */
+export function getNavigationByCategory(category: string): NavigationItem[] {
+  return navigationItems.filter(item => item.category === category)
+}
+
+/**
+ * Get all unique categories
+ */
+export function getCategories(): string[] {
+  return [...new Set(navigationItems.map(item => item.category).filter(Boolean) as string[])]
+}
