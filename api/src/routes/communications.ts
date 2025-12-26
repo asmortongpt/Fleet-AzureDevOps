@@ -1,13 +1,12 @@
 import express, { Response } from 'express'
-import { container } from '../container'
-import { asyncHandler } from '../middleware/errorHandler'
-import { NotFoundError, ValidationError, ForbiddenError } from '../errors/app-error'
-import { AuthRequest, authenticateJWT } from '../middleware/auth'
-import { requirePermission } from '../middleware/permissions'
+
+import pool from '../config/database' // SECURITY: Import database pool
+import { NotFoundError, ForbiddenError } from '../errors/app-error'
 import { auditLog } from '../middleware/audit'
-import { z } from 'zod'
-import { buildInsertClause, buildUpdateClause } from '../utils/sql-safety'
+import { AuthRequest, authenticateJWT } from '../middleware/auth'
 import { cacheMiddleware, invalidateOnWrite, CacheStrategies } from '../middleware/cache'
+import { csrfProtection } from '../middleware/csrf'
+import { requirePermission } from '../middleware/permissions'
 import { validate } from '../middleware/validation'
 import {
   createCommunicationSchema,
@@ -16,9 +15,7 @@ import {
   getCommunicationsQuerySchema,
   createCommunicationTemplateSchema
 } from '../schemas/communications.schema'
-import pool from '../config/database' // SECURITY: Import database pool
-import { tenantSafeQuery, validateTenantOwnership } from '../utils/dbHelpers'
-import { csrfProtection } from '../middleware/csrf'
+import { buildInsertClause } from '../utils/sql-safety'
 
 
 const router = express.Router()

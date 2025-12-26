@@ -4,10 +4,11 @@
  * Runs all SQL migration files in order and tracks applied migrations
  */
 
-import { Pool } from 'pg';
 import * as fs from 'fs';
 import * as path from 'path';
+
 import dotenv from 'dotenv';
+import { Pool } from 'pg';
 
 dotenv.config();
 

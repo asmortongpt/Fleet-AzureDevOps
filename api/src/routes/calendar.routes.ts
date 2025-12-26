@@ -1,12 +1,9 @@
 import express, { Request, Response } from 'express'
-import { container } from '../container'
-import { asyncHandler } from '../middleware/errorHandler'
-import { NotFoundError, ValidationError } from '../errors/app-error'
-import logger from '../config/logger'; // Wave 25: Add Winston logger
-import { authenticateJWT } from '../middleware/auth'
-import { getErrorMessage } from '../utils/error-handler'
-import { csrfProtection } from '../middleware/csrf'
 
+import logger from '../config/logger'; // Wave 25: Add Winston logger
+import { ValidationError } from '../errors/app-error'
+import { authenticateJWT } from '../middleware/auth'
+import { csrfProtection } from '../middleware/csrf'
 import {
   createEvent,
   getEvents,
@@ -21,6 +18,7 @@ import {
   scheduleMaintenance,
   scheduleDriverTraining
 } from '../services/calendar.service'
+import { getErrorMessage } from '../utils/error-handler'
 
 const router = express.Router()
 

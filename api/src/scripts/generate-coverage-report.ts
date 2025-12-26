@@ -4,8 +4,8 @@
  * Shows data distribution, coverage matrix, and sample queries
  */
 
-import { Pool } from 'pg';
 import dotenv from 'dotenv';
+import { Pool } from 'pg';
 
 dotenv.config({ path: '../.env' });
 

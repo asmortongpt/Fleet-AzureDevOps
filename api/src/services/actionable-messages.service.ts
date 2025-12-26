@@ -1,7 +1,9 @@
 import { Pool } from 'pg'
-import { updateAdaptiveCard } from './adaptive-cards.service'
+
 import { createAuditLog } from '../middleware/audit'
 import logger from '../utils/logger'
+
+import { updateAdaptiveCard } from './adaptive-cards.service'
 
 interface CardAction {
   action: string

@@ -1,5 +1,6 @@
-import { BaseRepository } from '../repositories/BaseRepository';
 import { Pool, QueryResult } from 'pg';
+
+import { BaseRepository } from '../repositories/BaseRepository';
 
 export interface FleetComparison {
     id: number;

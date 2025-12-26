@@ -11,12 +11,13 @@ import logger from '../config/logger'; // Wave 33: Add Winston logger (FINAL WAV
  */
 
 import express, { Response } from 'express'
+import { z } from 'zod'
+
+import { pool } from '../db/connection';
+import { auditLog } from '../middleware/audit'
 import { AuthRequest, authenticateJWT } from '../middleware/auth'
 import { requirePermission, rateLimit } from '../middleware/permissions'
-import { auditLog } from '../middleware/audit'
-import { z } from 'zod'
-import { csrfProtection } from '../middleware/csrf'
-import { pool } from '../db/connection';
+
 
 
 const router = express.Router()

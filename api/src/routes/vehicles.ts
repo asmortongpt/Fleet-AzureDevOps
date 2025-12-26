@@ -4,19 +4,19 @@ import { cacheService } from '../config/cache';
 import logger from '../config/logger'; // Wave 10: Add Winston logger
 import { container } from '../container'
 import { NotFoundError, ValidationError } from '../errors/app-error'
-import { TYPES } from '../types'
-import { VehicleService } from '../modules/fleet/services/vehicle.service'
 import { authenticateJWT } from '../middleware/auth';
 import { doubleCsrfProtection as csrfProtection } from '../middleware/csrf'
 import { asyncHandler } from '../middleware/errorHandler'
 import { requireRBAC, Role, PERMISSIONS } from '../middleware/rbac';
 import { validateBody, validateQuery, validateParams, validateAll } from '../middleware/validate';
+import { VehicleService } from '../modules/fleet/services/vehicle.service'
 import {
   vehicleCreateSchema,
   vehicleUpdateSchema,
   vehicleQuerySchema,
   vehicleIdSchema
 } from '../schemas/vehicles.schema';
+import { TYPES } from '../types'
 
 const router = Router()
 

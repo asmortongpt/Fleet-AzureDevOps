@@ -5,9 +5,9 @@
  * Uses BATCH INSERTS for maximum performance
  */
 
-import { Pool } from 'pg';
-import dotenv from 'dotenv';
 import bcrypt from 'bcrypt';
+import dotenv from 'dotenv';
+import { Pool } from 'pg';
 
 dotenv.config({ path: '../.env' });
 

@@ -13,14 +13,15 @@ import logger from '../config/logger'; // Wave 32: Add Winston logger
  * - Analysis approval workflow
  */
 
-import express, { Request, Response } from 'express'
+import express, { Response } from 'express'
 import { Pool } from 'pg'
 import { z } from 'zod'
+
+import { pool } from '../db/connection';
 import { authenticateJWT, AuthRequest } from '../middleware/auth'
+import { csrfProtection } from '../middleware/csrf'
 import { requirePermission } from '../middleware/permissions'
 import { getErrorMessage } from '../utils/error-handler'
-import { csrfProtection } from '../middleware/csrf'
-import { pool } from '../db/connection';
 
 
 const router = express.Router()
@@ -88,8 +89,8 @@ router.get(
       const offset = (parseInt(page as string) - 1) * parseInt(limit as string)
       const tenant_id = req.user!.tenant_id
 
-      let whereConditions = [`cba.tenant_id = $1`]
-      let params: any[] = [tenant_id]
+      const whereConditions = [`cba.tenant_id = $1`]
+      const params: any[] = [tenant_id]
       let paramIndex = 2
 
       if (department_id) {

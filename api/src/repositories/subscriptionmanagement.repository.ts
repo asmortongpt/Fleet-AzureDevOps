@@ -1,4 +1,3 @@
-import { BaseRepository } from './BaseRepository';
 import { Pool, QueryResult } from 'pg';
 
 // Define the Subscription interface

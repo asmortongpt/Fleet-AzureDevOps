@@ -5,11 +5,12 @@
  */
 
 import Queue from 'bull'
-import { z } from 'zod'
 import { Pool } from 'pg'
-import logger from '../utils/logger'
-import AIValidationService from './ai-validation.service'
+import { z } from 'zod'
+
+
 import AIControlsService from './ai-controls.service'
+import AIValidationService from './ai-validation.service'
 
 // Request schemas
 export const AIRequestSchema = z.object({

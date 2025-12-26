@@ -11,14 +11,14 @@
  */
 
 import { Router } from 'express'
-import type { AuthRequest } from '../middleware/auth'
-import { authenticateJWT } from '../middleware/auth'
-import { requirePermission } from '../middleware/permissions'
-import alertEngine from '../services/alert-engine.service'
 import { z } from 'zod'
-import { csrfProtection } from '../middleware/csrf'
+
 import { pool } from '../config/database';
 import logger from '../config/logger';
+import type { AuthRequest } from '../middleware/auth'
+import { authenticateJWT } from '../middleware/auth'
+import { csrfProtection } from '../middleware/csrf'
+import { requirePermission } from '../middleware/permissions'
 
 // SECURITY: Input validation schemas
 const createAlertRuleSchema = z.object({

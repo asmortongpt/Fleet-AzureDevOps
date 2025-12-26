@@ -11,10 +11,11 @@
  */
 
 import { Pool } from 'pg'
+
 import { logger } from '../utils/logger'
+
 import outlookService from './outlook.service'
 import teamsService from './teams.service'
-import queueService from './queue.service'
 
 interface SchedulingNotification {
   tenantId: string

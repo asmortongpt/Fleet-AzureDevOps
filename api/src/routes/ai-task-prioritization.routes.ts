@@ -24,14 +24,14 @@ import logger from '../config/logger'; // Wave 32: Add Winston logger
  */
 
 import { Router } from 'express'
-import type { AuthRequest } from '../middleware/auth'
-import { authenticateJWT } from '../middleware/auth'
-import { requirePermission } from '../middleware/permissions'
 import rateLimit from 'express-rate-limit'
 import { z } from 'zod'
-import { csrfProtection } from '../middleware/csrf'
 
 import { pool } from '../db'
+import type { AuthRequest } from '../middleware/auth'
+import { authenticateJWT } from '../middleware/auth'
+import { csrfProtection } from '../middleware/csrf'
+import { requirePermission } from '../middleware/permissions'
 import AITaskPrioritizationService from '../services/ai-task-prioritization'
 
 const aiService = new AITaskPrioritizationService(pool)

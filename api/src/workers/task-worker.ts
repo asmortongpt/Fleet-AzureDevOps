@@ -6,6 +6,7 @@
  */
 
 import { parentPort } from 'worker_threads'
+
 import sharp from 'sharp'
 import { createWorker } from 'tesseract.js'
 // Import other heavy processing libraries as needed
