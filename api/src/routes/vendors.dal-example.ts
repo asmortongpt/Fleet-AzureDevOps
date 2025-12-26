@@ -21,15 +21,17 @@
  */
 
 import express, { Response } from 'express'
-import { AuthRequest, authenticateJWT } from '../middleware/auth'
-import { requirePermission } from '../middleware/permissions'
+import { z } from 'zod'
+
+import { connectionManager } from '../config/connection-manager'
 import { auditLog } from '../middleware/audit'
+import { AuthRequest, authenticateJWT } from '../middleware/auth'
+import { csrfProtection } from '../middleware/csrf'
+import { requirePermission } from '../middleware/permissions'
 import { VendorRepository } from '../repositories/VendorRepository'
 import { handleDatabaseError, NotFoundError, ValidationError, withTransaction } from '../services/dal'
-import { connectionManager } from '../config/connection-manager'
-import { z } from 'zod'
-import { csrfProtection } from '../middleware/csrf'
-import { pool } from '../config/database';
+
+
 
 const router = express.Router()
 router.use(authenticateJWT)

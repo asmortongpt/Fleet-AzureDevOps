@@ -6,12 +6,13 @@
  */
 
 import express, { Response } from 'express'
+
+import { pool } from '../config/database';
 import { AuthRequest, authenticateJWT } from '../middleware/auth'
+import { csrfProtection } from '../middleware/csrf'
 import { requirePermission } from '../middleware/permissions'
 import { cache } from '../utils/cache'
 import { slowQueryLogger } from '../utils/performance'
-import { csrfProtection } from '../middleware/csrf'
-import { pool } from '../config/database';
 
 const router = express.Router()
 router.use(authenticateJWT)

@@ -1,5 +1,6 @@
+import { Pool } from 'pg';
+
 import { BaseRepository } from '../repositories/BaseRepository';
-import { Pool, QueryResult } from 'pg';
 
 export interface MaintenanceSchedule {
   id: number;

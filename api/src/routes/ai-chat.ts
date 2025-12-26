@@ -11,14 +11,15 @@
  */
 
 import express, { Response } from 'express'
-import { AuthRequest, authenticateJWT, authorize } from '../middleware/auth'
-import { auditLog } from '../middleware/audit'
-import { z } from 'zod'
 import OpenAI from 'openai'
+import { z } from 'zod'
+
+import { pool } from '../config/database';
+import { auditLog } from '../middleware/audit'
+import { AuthRequest, authenticateJWT, authorize } from '../middleware/auth'
+import { csrfProtection } from '../middleware/csrf'
 import vectorSearchService from '../services/VectorSearchService'
 import { getErrorMessage } from '../utils/error-handler'
-import { csrfProtection } from '../middleware/csrf'
-import { pool } from '../config/database';
 
 const router = express.Router()
 router.use(authenticateJWT)

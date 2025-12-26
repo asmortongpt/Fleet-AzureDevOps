@@ -8,13 +8,14 @@ import logger from '../config/logger'; // Wave 24: Add Winston logger
  */
 
 import express, { Request, Response } from 'express'
-import { AuthRequest, authenticateJWT } from '../middleware/auth'
-import { requirePermission } from '../middleware/permissions'
-import { auditLog } from '../middleware/audit'
-import SmartcarService from '../services/smartcar.service'
-import { buildSafeRedirectUrl, validateInternalPath } from '../utils/redirect-validator'
-import { csrfProtection } from '../middleware/csrf'
+
 import { pool } from '../db/connection';
+import { auditLog } from '../middleware/audit'
+import { AuthRequest, authenticateJWT } from '../middleware/auth'
+import { csrfProtection } from '../middleware/csrf'
+import { requirePermission } from '../middleware/permissions'
+import SmartcarService from '../services/smartcar.service'
+import { buildSafeRedirectUrl } from '../utils/redirect-validator'
 
 
 const router = express.Router()

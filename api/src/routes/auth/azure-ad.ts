@@ -1,10 +1,10 @@
-import express, { Request, Response, NextFunction } from 'express';
+import express, { Request, Response } from 'express';
+import session from 'express-session';
 import jwt from 'jsonwebtoken';
-import { Pool } from 'pg';
 import passport from 'passport';
 import { Strategy as AzureStrategy } from 'passport-azure-ad-oauth2';
-import session from 'express-session';
-import { csrfProtection } from '../../middleware/csrf'
+import { Pool } from 'pg';
+
 
 type User = {
   id: string;

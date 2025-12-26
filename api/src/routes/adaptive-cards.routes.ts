@@ -1,7 +1,11 @@
 import express, { Request, Response } from 'express'
-import { authenticateJWT } from '../middleware/auth'
-import { NotFoundError, ValidationError } from '../errors/app-error'
+
+import { pool } from '../config/database';
 import logger from '../config/logger';
+import { NotFoundError, ValidationError } from '../errors/app-error'
+import { authenticateJWT } from '../middleware/auth'
+import { csrfProtection } from '../middleware/csrf'
+import { handleCardAction } from '../services/actionable-messages.service'
 import {
   createVehicleMaintenanceCard,
   createWorkOrderCard,
@@ -14,9 +18,6 @@ import {
   sendAdaptiveCardToUser,
   validateAdaptiveCard
 } from '../services/adaptive-cards.service'
-import { handleCardAction } from '../services/actionable-messages.service'
-import { csrfProtection } from '../middleware/csrf'
-import { pool } from '../config/database';
 
 const router = express.Router()
 

@@ -1,6 +1,7 @@
 import { useState } from 'react';
-import { CommandCenterSidebar } from './CommandCenterSidebar';
+
 import { CommandCenterHeader } from './CommandCenterHeader';
+import { CommandCenterSidebar } from './CommandCenterSidebar';
 
 interface CommandCenterLayoutProps {
     children: React.ReactNode;

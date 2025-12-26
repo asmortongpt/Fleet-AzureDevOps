@@ -3,8 +3,9 @@
  * Real-time AI analysis for driver behavior, distraction detection, and drowsiness monitoring
  */
 
-import { Pool } from 'pg';
 import axios from 'axios';
+import { Pool } from 'pg';
+
 // TODO: Install @azure/cognitiveservices-computervision and @azure/ms-rest-js
 // import { ComputerVisionClient } from '@azure/cognitiveservices-computervision';
 // import { ApiKeyCredentials } from '@azure/ms-rest-js';

@@ -7,7 +7,6 @@
  * Installation: npm install exceljs
  */
 
-import { Writable } from 'stream'
 import fs from 'fs/promises'
 import path from 'path'
 
@@ -380,7 +379,7 @@ export class ExcelExportService {
         formatted = parseFloat(value).toFixed(2)
         break
       case 'boolean':
-        formatted = Boolean(value) ? 'Yes' : 'No'
+        formatted = value ? 'Yes' : 'No'
         break
       default:
         formatted = String(value)

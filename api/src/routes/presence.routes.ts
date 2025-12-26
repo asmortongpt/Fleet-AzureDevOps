@@ -1,12 +1,9 @@
 import express, { Request, Response } from 'express'
-import { container } from '../container'
-import { asyncHandler } from '../middleware/errorHandler'
-import { NotFoundError, ValidationError } from '../errors/app-error'
-import logger from '../config/logger'; // Wave 29: Add Winston logger
-import { authenticateJWT } from '../middleware/auth'
-import { getErrorMessage } from '../utils/error-handler'
-import { csrfProtection } from '../middleware/csrf'
 
+import logger from '../config/logger'; // Wave 29: Add Winston logger
+import { ValidationError } from '../errors/app-error'
+import { authenticateJWT } from '../middleware/auth'
+import { csrfProtection } from '../middleware/csrf'
 import {
   getPresence,
   setPresence,
@@ -16,6 +13,7 @@ import {
   findAvailableDrivers,
   getIntelligentRoutingSuggestion
 } from '../services/presence.service'
+import { getErrorMessage } from '../utils/error-handler'
 
 const router = express.Router()
 

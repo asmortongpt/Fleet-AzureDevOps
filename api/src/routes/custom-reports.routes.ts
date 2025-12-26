@@ -1,18 +1,17 @@
-import express, { Response } from 'express'
-import { container } from '../container'
-import { asyncHandler } from '../middleware/errorHandler'
-import { NotFoundError, ValidationError } from '../errors/app-error'
-import logger from '../config/logger'; // Wave 21: Add Winston logger
-import { AuthRequest, authenticateJWT } from '../middleware/auth'
-import { requirePermission } from '../middleware/permissions'
-import { auditLog } from '../middleware/audit'
-import customReportService from '../services/custom-report.service'
-import reportScheduler from '../jobs/report-scheduler.job'
-import fs from 'fs/promises'
 import path from 'path'
-import { safeReadFile, PathTraversalError } from '../utils/safe-file-operations'
-import { getErrorMessage } from '../utils/error-handler'
+
+import express, { Response } from 'express'
+
+import logger from '../config/logger'; // Wave 21: Add Winston logger
+import { NotFoundError, ValidationError } from '../errors/app-error'
+import reportScheduler from '../jobs/report-scheduler.job'
+import { auditLog } from '../middleware/audit'
+import { AuthRequest, authenticateJWT } from '../middleware/auth'
 import { csrfProtection } from '../middleware/csrf'
+import { requirePermission } from '../middleware/permissions'
+import customReportService from '../services/custom-report.service'
+import { getErrorMessage } from '../utils/error-handler'
+import { safeReadFile, PathTraversalError } from '../utils/safe-file-operations'
 
 
 const router = express.Router()

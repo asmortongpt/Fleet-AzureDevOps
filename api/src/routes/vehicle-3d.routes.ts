@@ -11,13 +11,13 @@ import logger from '../config/logger'; // Wave 21: Add Winston logger
 import express, { Response } from 'express'
 import { z } from 'zod'
 
+import { pool } from '../db/connection';
 import { auditLog } from '../middleware/audit'
 import { AuthRequest, authenticateJWT } from '../middleware/auth'
 import { csrfProtection } from '../middleware/csrf'
 import { requirePermission } from '../middleware/permissions'
 import VehicleModelsService from '../services/vehicle-models.service'
 import { getErrorMessage } from '../utils/error-handler'
-import { pool } from '../db/connection';
 
 
 const router = express.Router()

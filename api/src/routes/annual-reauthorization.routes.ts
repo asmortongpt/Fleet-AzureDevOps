@@ -13,13 +13,13 @@ import logger from '../config/logger'; // Wave 33: Add Winston logger (FINAL WAV
  * - Electronic submission to Fleet Management
  */
 
-import express, { Request, Response } from 'express';
-import { Pool } from 'pg';
+import express, { Response } from 'express';
 import { z } from 'zod';
+
 import { authenticateJWT, AuthRequest } from '../middleware/auth';
+import { csrfProtection } from '../middleware/csrf'
 import { requirePermission } from '../middleware/permissions';
 import { getErrorMessage } from '../utils/error-handler'
-import { csrfProtection } from '../middleware/csrf'
 
 
 const router = express.Router();
@@ -70,8 +70,8 @@ router.get(
       const offset = (parseInt(page as string) - 1) * parseInt(limit as string);
       const tenant_id = req.user!.tenant_id;
 
-      let whereConditions = [`arc.tenant_id = $1`];
-      let params: any[] = [tenant_id];
+      const whereConditions = [`arc.tenant_id = $1`];
+      const params: any[] = [tenant_id];
       let paramIndex = 2;
 
       if (year) {
@@ -225,12 +225,12 @@ router.get(
       const { department_id, assignment_type } = req.query;
       const tenant_id = req.user!.tenant_id;
 
-      let whereConditions = [
+      const whereConditions = [
         'va.tenant_id = $1',
         'va.lifecycle_state = \'active\'',
         '(va.assignment_type = \'designated\' OR va.assignment_type = \'on_call\')',
       ];
-      let params: any[] = [tenant_id];
+      const params: any[] = [tenant_id];
       let paramIndex = 2;
 
       if (department_id) {
