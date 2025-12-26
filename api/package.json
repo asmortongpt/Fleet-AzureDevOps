@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "dotenv -e .env -- tsx watch src/server-simple.ts",
     "dev:full": "dotenv -e .env -- tsx watch src/server.ts",
-    "build": "tsc || true",
+    "build": "tsc",
     "start": "node dist/server.js",
     "test": "vitest",
     "test:watch": "vitest --watch",
