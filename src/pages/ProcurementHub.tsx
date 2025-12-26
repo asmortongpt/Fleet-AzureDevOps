@@ -1,15 +1,5 @@
 /**
  * ProcurementHub - Consolidated Procurement Management Hub
- * 
- * Consolidates 7 procurement-related screens:
- * - Vendor Management → Vendors Tab
- * - Parts Inventory → Parts Tab
- * - Purchase Orders → Orders Tab
- * - Invoices & Billing → Invoices Tab
- * - Receipt Processing → Receipts Tab
- * - Fuel Management → Fuel Tab
- * - Fuel Purchasing → Fuel Tab
- * 
  * Route: /procurement
  */
 
@@ -22,17 +12,9 @@ import {
     Scan,
     GasPump
 } from '@phosphor-icons/react'
-import React, { Suspense, lazy } from 'react'
 
-import { LoadingSkeleton } from '@/components/ui/LoadingSkeleton'
 import { HubPage, HubTab } from '@/components/ui/hub-page'
-
-const VendorManagement = lazy(() => import('@/components/modules/procurement/VendorManagement'))
-const FuelPurchasing = lazy(() => import('@/components/modules/fuel/FuelPurchasing'))
-
-function TabLoadingFallback() {
-    return <div className="p-6"><LoadingSkeleton /></div>
-}
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 
 export function ProcurementHub() {
     const tabs: HubTab[] = [
@@ -41,9 +23,15 @@ export function ProcurementHub() {
             label: 'Vendors',
             icon: <Storefront className="w-4 h-4" />,
             content: (
-                <Suspense fallback={<TabLoadingFallback />}>
-                    <VendorManagement />
-                </Suspense>
+                <div className="p-6">
+                    <h2 className="text-xl font-semibold mb-4">Vendor Management</h2>
+                    <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                        <Card><CardHeader><CardTitle>Active Vendors</CardTitle></CardHeader><CardContent className="text-2xl font-bold">34</CardContent></Card>
+                        <Card><CardHeader><CardTitle>Pending Orders</CardTitle></CardHeader><CardContent className="text-2xl font-bold text-yellow-500">8</CardContent></Card>
+                        <Card><CardHeader><CardTitle>This Month</CardTitle></CardHeader><CardContent className="text-2xl font-bold text-green-500">$45.2K</CardContent></Card>
+                        <Card><CardHeader><CardTitle>Overdue</CardTitle></CardHeader><CardContent className="text-2xl font-bold text-red-500">$2.1K</CardContent></Card>
+                    </div>
+                </div>
             ),
         },
         {
@@ -95,9 +83,10 @@ export function ProcurementHub() {
             label: 'Fuel',
             icon: <GasPump className="w-4 h-4" />,
             content: (
-                <Suspense fallback={<TabLoadingFallback />}>
-                    <FuelPurchasing />
-                </Suspense>
+                <div className="p-6">
+                    <h2 className="text-xl font-semibold mb-4">Fuel Purchasing</h2>
+                    <p className="text-muted-foreground">Fuel card management and purchasing.</p>
+                </div>
             ),
         },
     ]
