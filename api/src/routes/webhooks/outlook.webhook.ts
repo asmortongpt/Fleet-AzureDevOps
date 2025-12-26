@@ -16,12 +16,13 @@
  */
 
 import express, { Request, Response } from 'express'
-import { AuthRequest, authenticateJWT } from '../../middleware/auth'
-import { validateWebhook, WebhookRequest } from '../../middleware/webhook-validation'
-import { requirePermission } from '../../middleware/permissions'
-import webhookService from '../../services/webhook.service'
+
 import pool from '../../config/database'
+import { AuthRequest, authenticateJWT } from '../../middleware/auth'
 import { csrfProtection } from '../../middleware/csrf'
+import { requirePermission } from '../../middleware/permissions'
+import { validateWebhook, WebhookRequest } from '../../middleware/webhook-validation'
+import webhookService from '../../services/webhook.service'
 
 // Helper function to get table columns (stubbed if missing)
 async function getTableColumns(pool: any, tableName: string): Promise<string[]> {

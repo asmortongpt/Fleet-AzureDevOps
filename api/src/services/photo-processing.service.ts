@@ -12,13 +12,15 @@
  * - Queue-based async processing
  */
 
-import { BlobServiceClient, BlockBlobClient } from '@azure/storage-blob';
-import sharp from 'sharp';
+import { BlobServiceClient } from '@azure/storage-blob';
 import ExifReader from 'exifreader';
 import { Pool } from 'pg';
+import sharp from 'sharp';
 import { v4 as uuidv4 } from 'uuid';
-import OcrService from './ocr.service';
+
 import { getTableColumns } from '../utils/column-resolver';
+
+import OcrService from './ocr.service';
 
 export interface PhotoProcessingJob {
   id: string;

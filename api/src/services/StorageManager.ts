@@ -12,9 +12,10 @@
 
 import crypto from 'crypto';
 import { Readable } from 'stream';
-import { Pool } from 'pg';
-import pool from '../config/database';
 
+import { Pool } from 'pg';
+
+import pool from '../config/database';
 import {
   IStorageAdapter,
   StorageConfig,

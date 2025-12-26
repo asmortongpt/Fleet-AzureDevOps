@@ -16,6 +16,7 @@
 
 import cron from 'node-cron'
 import winston from 'winston'
+
 import pool from '../config/database'
 import syncService from '../services/sync.service'
 

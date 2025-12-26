@@ -1,12 +1,10 @@
 
 import express, { Request, Response, NextFunction } from 'express';
-import { Pool } from 'pg';
-import { ValidationError } from '../errors/app-error';
+
+import pool from '../config/database';
 import { authenticateJWT } from '../middleware/auth';
-import { csrfProtection } from '../middleware/csrf';
 
 // Assuming pool is exported from db/connection or config/database. Using common pattern.
-import pool from '../config/database';
 
 const router = express.Router();
 

@@ -3,7 +3,6 @@
  * Centralized service for logging permission checks and security events
  */
 
-import { Pool } from 'pg';
 import { AuditLogEntry } from '../permissions/types';
 
 export class AuditService {

@@ -4,9 +4,9 @@
  * Target: 5,000+ records in under 2 minutes
  */
 
-import { Pool } from 'pg';
-import dotenv from 'dotenv';
 import bcrypt from 'bcrypt';
+import dotenv from 'dotenv';
+import { Pool } from 'pg';
 
 dotenv.config({ path: '../.env' });
 

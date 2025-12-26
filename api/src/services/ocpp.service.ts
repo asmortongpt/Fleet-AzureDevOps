@@ -13,9 +13,10 @@
  * - Smart charging profiles
  */
 
-import WebSocket from 'ws';
-import { Pool } from 'pg';
 import { EventEmitter } from 'events';
+
+import { Pool } from 'pg';
+import WebSocket from 'ws';
 
 // OCPP 2.0.1 Message Types
 enum MessageType {

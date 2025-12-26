@@ -14,16 +14,17 @@
 
 import { Router } from 'express'
 import multer from 'multer'
+
+import logger from '../config/logger';
+import { ValidationError, NotFoundError } from '../errors/app-error'
+import { auditLog } from '../middleware/audit'
 import type { AuthRequest } from '../middleware/auth'
 import { authenticateJWT } from '../middleware/auth'
+import { csrfProtection } from '../middleware/csrf'
 import { requirePermission } from '../middleware/permissions'
-import { auditLog } from '../middleware/audit'
 import documentManagementService from '../services/document-management.service'
 import documentRAGService from '../services/document-rag.service'
 import { getErrorMessage } from '../utils/error-handler'
-import { csrfProtection } from '../middleware/csrf'
-import { ValidationError, NotFoundError } from '../errors/app-error'
-import logger from '../config/logger';
 
 const router = Router()
 

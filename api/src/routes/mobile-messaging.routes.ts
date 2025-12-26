@@ -7,17 +7,20 @@ import { NotFoundError, ValidationError } from '../errors/app-error'
  */
 
 import express, { Response } from 'express';
-import { AuthRequest, authenticateJWT } from '../middleware/auth';
-import { requirePermission } from '../middleware/permissions';
+import twilio from 'twilio';
+import { z } from 'zod';
+
+import { pool } from '../db/connection';
 import { auditLog } from '../middleware/audit';
+import { AuthRequest, authenticateJWT } from '../middleware/auth';
+import { csrfProtection } from '../middleware/csrf'
+import { requirePermission } from '../middleware/permissions';
 import { outlookService } from '../services/outlook.service';
 import teamsService from '../services/teams.service';
-import { z } from 'zod';
-import { logger } from '../utils/logger';
-import twilio from 'twilio';
 import { getErrorMessage } from '../utils/error-handler'
-import { csrfProtection } from '../middleware/csrf'
-import { pool } from '../db/connection';
+import { logger } from '../utils/logger';
+
+
 
 
 const router = express.Router();

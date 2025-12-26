@@ -1,15 +1,14 @@
 import express, { Response } from 'express'
-import { container } from '../container'
-import { asyncHandler } from '../middleware/errorHandler'
-import { NotFoundError, ValidationError } from '../errors/app-error'
+
 import logger from '../config/logger'; // Wave 21: Add Winston logger
-import { AuthRequest, authenticateJWT } from '../middleware/auth'
-import { requirePermission } from '../middleware/permissions'
+import { NotFoundError, ValidationError } from '../errors/app-error'
 import { auditLog } from '../middleware/audit'
-import fuelPurchasingService from '../services/fuel-purchasing.service'
-import fuelOptimizationService from '../services/fuel-optimization.service'
-import fuelPriceForecastingModel from '../ml-models/fuel-price-forecasting.model'
+import { AuthRequest, authenticateJWT } from '../middleware/auth'
 import { csrfProtection } from '../middleware/csrf'
+import { requirePermission } from '../middleware/permissions'
+import fuelPriceForecastingModel from '../ml-models/fuel-price-forecasting.model'
+import fuelOptimizationService from '../services/fuel-optimization.service'
+import fuelPurchasingService from '../services/fuel-purchasing.service'
 
 
 const router = express.Router()

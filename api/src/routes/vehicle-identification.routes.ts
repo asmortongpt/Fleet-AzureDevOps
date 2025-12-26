@@ -14,14 +14,15 @@ import logger from '../config/logger'; // Wave 30: Add Winston logger
  */
 
 import { Router } from 'express'
+
+import logger from '../config/logger'
+import { NotFoundError, ValidationError } from '../errors/app-error'
 import type { AuthRequest } from '../middleware/auth'
 import { authenticateJWT } from '../middleware/auth'
+import { csrfProtection } from '../middleware/csrf'
 import { requirePermission } from '../middleware/permissions'
 import vehicleIdentificationService from '../services/vehicle-identification.service'
 import { getErrorMessage } from '../utils/error-handler'
-import logger from '../config/logger'
-import { csrfProtection } from '../middleware/csrf'
-import { NotFoundError, ValidationError } from '../errors/app-error'
 
 const router = Router()
 router.use(authenticateJWT)

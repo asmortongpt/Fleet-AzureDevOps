@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react"
+import { motion, AnimatePresence } from "framer-motion"
 import {
     Users,
     Search,
@@ -9,12 +9,11 @@ import {
     AlertTriangle,
     X
 } from "lucide-react"
-import { motion, AnimatePresence } from "framer-motion"
+import { useState, useMemo } from "react"
 
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
-import { ScrollArea } from "@/components/ui/scroll-area"
+import { Button } from "@/components/ui/button"
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -22,9 +21,9 @@ import {
     DropdownMenuTrigger,
     DropdownMenuSeparator
 } from "@/components/ui/dropdown-menu"
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
+import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-
+import { ScrollArea } from "@/components/ui/scroll-area"
 import { Driver } from "@/lib/types"
 
 interface DriverControlPanelProps {

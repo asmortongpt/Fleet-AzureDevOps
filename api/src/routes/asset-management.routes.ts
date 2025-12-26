@@ -18,11 +18,11 @@ import logger from '../config/logger'; // Wave 28: Add Winston logger
 
 import { Router } from 'express'
 
+import { pool } from '../db/connection';
 import type { AuthRequest } from '../middleware/auth'
 import { authenticateJWT } from '../middleware/auth'
 import { csrfProtection } from '../middleware/csrf'
 import { requirePermission } from '../middleware/permissions'
-import { pool } from '../db/connection';
 
 
 const router = Router()

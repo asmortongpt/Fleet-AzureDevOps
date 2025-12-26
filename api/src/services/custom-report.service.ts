@@ -5,9 +5,10 @@
  * Supports multiple data sources, joins, filters, grouping, and aggregations
  */
 
-import { Pool } from 'pg'
-import excelExportService, { ExportColumn, ExportOptions } from './excel-export.service'
 import nodemailer from 'nodemailer'
+import { Pool } from 'pg'
+
+import excelExportService, { ExportOptions } from './excel-export.service'
 
 // Data source schema definitions
 interface DataSourceSchema {
