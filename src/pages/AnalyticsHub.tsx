@@ -1,15 +1,5 @@
 /**
  * AnalyticsHub - Consolidated Analytics & Reporting Hub
- * 
- * Consolidates 8 analytics-related screens:
- * - Executive Dashboard → Executive Tab
- * - Analytics Dashboard → Dashboard Tab
- * - Fleet Analytics → Fleet Tab
- * - Data Workbench → Workbench Tab
- * - Fleet Optimizer → Optimizer Tab
- * - Cost Analysis → Costs Tab
- * - Custom Reports → Reports Tab
- * 
  * Route: /analytics
  */
 
@@ -22,17 +12,9 @@ import {
     CurrencyDollar,
     FileText
 } from '@phosphor-icons/react'
-import React, { Suspense, lazy } from 'react'
 
-import { LoadingSkeleton } from '@/components/ui/LoadingSkeleton'
 import { HubPage, HubTab } from '@/components/ui/hub-page'
-
-const ExecutiveDashboard = lazy(() => import('@/components/modules/analytics/ExecutiveDashboard'))
-const DataWorkbench = lazy(() => import('@/components/modules/analytics/DataWorkbench'))
-
-function TabLoadingFallback() {
-    return <div className="p-6"><LoadingSkeleton /></div>
-}
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 
 export function AnalyticsHub() {
     const tabs: HubTab[] = [
@@ -41,9 +23,15 @@ export function AnalyticsHub() {
             label: 'Executive',
             icon: <PresentationChart className="w-4 h-4" />,
             content: (
-                <Suspense fallback={<TabLoadingFallback />}>
-                    <ExecutiveDashboard />
-                </Suspense>
+                <div className="p-6">
+                    <h2 className="text-xl font-semibold mb-4">Executive Dashboard</h2>
+                    <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                        <Card><CardHeader><CardTitle>Fleet Utilization</CardTitle></CardHeader><CardContent className="text-2xl font-bold text-green-500">87%</CardContent></Card>
+                        <Card><CardHeader><CardTitle>Cost per Mile</CardTitle></CardHeader><CardContent className="text-2xl font-bold">$0.42</CardContent></Card>
+                        <Card><CardHeader><CardTitle>On-Time Delivery</CardTitle></CardHeader><CardContent className="text-2xl font-bold text-green-500">94%</CardContent></Card>
+                        <Card><CardHeader><CardTitle>Safety Score</CardTitle></CardHeader><CardContent className="text-2xl font-bold text-blue-500">92</CardContent></Card>
+                    </div>
+                </div>
             ),
         },
         {
@@ -62,9 +50,10 @@ export function AnalyticsHub() {
             label: 'Workbench',
             icon: <Database className="w-4 h-4" />,
             content: (
-                <Suspense fallback={<TabLoadingFallback />}>
-                    <DataWorkbench />
-                </Suspense>
+                <div className="p-6">
+                    <h2 className="text-xl font-semibold mb-4">Data Workbench</h2>
+                    <p className="text-muted-foreground">Custom data exploration and queries.</p>
+                </div>
             ),
         },
         {

@@ -1,12 +1,5 @@
 /**
  * CommunicationHub - Consolidated Communication Hub
- * 
- * Consolidates 4 communication-related screens:
- * - AI Assistant → AI Tab
- * - Teams Integration → Teams Tab
- * - Email Center → Email Tab
- * - Communication Log → Log Tab
- * 
  * Route: /communication
  */
 
@@ -17,16 +10,9 @@ import {
     Envelope,
     Chat
 } from '@phosphor-icons/react'
-import React, { Suspense, lazy } from 'react'
 
-import { LoadingSkeleton } from '@/components/ui/LoadingSkeleton'
 import { HubPage, HubTab } from '@/components/ui/hub-page'
-
-const AIAssistant = lazy(() => import('@/components/modules/tools/AIAssistant'))
-
-function TabLoadingFallback() {
-    return <div className="p-6"><LoadingSkeleton /></div>
-}
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 
 export function CommunicationHub() {
     const tabs: HubTab[] = [
@@ -35,9 +21,15 @@ export function CommunicationHub() {
             label: 'AI Assistant',
             icon: <Robot className="w-4 h-4" />,
             content: (
-                <Suspense fallback={<TabLoadingFallback />}>
-                    <AIAssistant />
-                </Suspense>
+                <div className="p-6">
+                    <h2 className="text-xl font-semibold mb-4">AI Assistant</h2>
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                        <Card><CardHeader><CardTitle>Queries Today</CardTitle></CardHeader><CardContent className="text-2xl font-bold">145</CardContent></Card>
+                        <Card><CardHeader><CardTitle>Avg Response</CardTitle></CardHeader><CardContent className="text-2xl font-bold text-green-500">1.2s</CardContent></Card>
+                        <Card><CardHeader><CardTitle>Satisfaction</CardTitle></CardHeader><CardContent className="text-2xl font-bold text-blue-500">94%</CardContent></Card>
+                    </div>
+                    <p className="text-muted-foreground">Ask me anything about your fleet operations.</p>
+                </div>
             ),
         },
         {
