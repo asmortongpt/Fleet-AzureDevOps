@@ -16,13 +16,14 @@ import logger from '../config/logger'; // Wave 24: Add Winston logger
 
 import express, { Request, Response } from 'express'
 import { z } from 'zod'
-import OCPPService from '../services/ocpp.service'
-import EVChargingService from '../services/ev-charging.service'
-import { authenticateJWT } from '../middleware/auth'
-import { requirePermission } from '../middleware/permissions'
-import { getErrorMessage } from '../utils/error-handler'
-import { csrfProtection } from '../middleware/csrf'
+
 import { pool } from '../db/connection'
+import { authenticateJWT } from '../middleware/auth'
+import { csrfProtection } from '../middleware/csrf'
+import { requirePermission } from '../middleware/permissions'
+import EVChargingService from '../services/ev-charging.service'
+import OCPPService from '../services/ocpp.service'
+import { getErrorMessage } from '../utils/error-handler'
 
 
 const router = express.Router()

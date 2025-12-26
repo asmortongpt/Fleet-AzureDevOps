@@ -8,9 +8,10 @@
  * - Vehicle QR code generation for printing
  */
 
+import { Pool } from 'pg'
 import QRCode from 'qrcode'
 import { v4 as uuidv4 } from 'uuid'
-import { Pool } from 'pg'
+
 import { connectionManager } from '../config/connection-manager'
 
 export interface VehicleIdentification {

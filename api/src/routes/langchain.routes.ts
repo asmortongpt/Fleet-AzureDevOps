@@ -7,15 +7,16 @@ import { NotFoundError, ValidationError } from '../errors/app-error'
  */
 
 import { Router, Request, Response } from 'express'
-import { authenticateJWT } from '../middleware/auth'
-import { requirePermission } from '../middleware/permissions'
-import langchainOrchestratorService from '../services/langchain-orchestrator.service'
-import aiAgentSupervisorService from '../services/ai-agent-supervisor.service'
-import mcpServerRegistryService from '../services/mcp-server-registry.service'
-import { logger } from '../utils/logger'
 import { v4 as uuidv4 } from 'uuid'
-import { getErrorMessage } from '../utils/error-handler'
+
+import { authenticateJWT } from '../middleware/auth'
 import { csrfProtection } from '../middleware/csrf'
+import { requirePermission } from '../middleware/permissions'
+import aiAgentSupervisorService from '../services/ai-agent-supervisor.service'
+import langchainOrchestratorService from '../services/langchain-orchestrator.service'
+import mcpServerRegistryService from '../services/mcp-server-registry.service'
+import { getErrorMessage } from '../utils/error-handler'
+import { logger } from '../utils/logger'
 
 
 const router = Router()

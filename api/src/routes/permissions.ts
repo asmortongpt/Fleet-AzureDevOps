@@ -1,11 +1,8 @@
 import express, { Response } from 'express'
-import { container } from '../container'
-import { asyncHandler } from '../middleware/errorHandler'
-import { NotFoundError, ValidationError } from '../errors/app-error'
+
+import { pool } from '../db/connection';
 import { AuthRequest, authenticateJWT } from '../middleware/auth'
 import { getUserPermissions } from '../middleware/permissions'
-import { csrfProtection } from '../middleware/csrf'
-import { pool } from '../db/connection';
 
 
 const router = express.Router()

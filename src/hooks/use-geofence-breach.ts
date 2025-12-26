@@ -1,4 +1,5 @@
 import { useMemo } from 'react';
+
 import { Geofence } from '@/lib/types';
 
 interface Vehicle {

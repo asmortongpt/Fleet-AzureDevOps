@@ -4,11 +4,11 @@
  * Demonstrates how to use the OCR service in various scenarios
  */
 
-import { OcrService, OcrOptions, OcrProvider } from '../services/OcrService';
-import { OcrQueueService } from '../services/OcrQueueService';
-import fs from 'fs/promises';
-import path from 'path';
+
 import { Pool } from 'pg';
+
+import { OcrQueueService } from '../services/OcrQueueService';
+import { OcrService, OcrProvider } from '../services/OcrService';
 
 // Initialize services with a dummy pool for example usage
 const pool = new Pool();
@@ -135,7 +135,7 @@ export async function batchProcessingExample() {
   console.log('Batch Job ID:', batchId);
 
   // Poll for completion
-  let batchStatus = await ocrQueueService.getBatchStatus(batchId);
+  const batchStatus = await ocrQueueService.getBatchStatus(batchId);
   console.log('Status:', batchStatus?.status);
   console.log(`Progress:`, `${batchStatus?.completedDocuments}/${batchStatus?.totalDocuments}`);
 }

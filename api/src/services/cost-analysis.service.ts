@@ -5,6 +5,7 @@
  */
 
 import { Pool } from 'pg'
+
 import costForecastingModel from '../ml-models/cost-forecasting.model'
 
 export interface CostEntry {

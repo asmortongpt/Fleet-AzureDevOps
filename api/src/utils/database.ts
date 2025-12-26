@@ -1,9 +1,11 @@
 // Typed Database Query Wrapper
 // Provides type-safe database operations with proper error handling
 
-import { Pool, QueryResult as PgQueryResult, PoolClient } from 'pg';
+import { Pool, PoolClient } from 'pg';
+
 import pool from '../config/database';
 import { QueryResult, SqlValue, SqlParams } from '../types/database';
+
 import { monitoredQuery } from './query-monitor';
 
 /**

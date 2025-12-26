@@ -3,9 +3,8 @@
  * Validates AI inputs, sanitizes content, checks safety, and enforces limits
  */
 
-import { z } from 'zod'
 import { Pool } from 'pg'
-import logger from '../utils/logger'
+
 
 export interface ValidationResult {
   isValid: boolean

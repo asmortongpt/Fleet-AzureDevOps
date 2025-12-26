@@ -1,6 +1,7 @@
-import { Client } from '@microsoft/microsoft-graph-client'
 import fs from 'fs'
 import path from 'path'
+
+import { Client } from '@microsoft/microsoft-graph-client'
 
 // Azure AD Configuration
 const AZURE_AD_CONFIG = {

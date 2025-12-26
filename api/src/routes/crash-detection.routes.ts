@@ -5,13 +5,14 @@
  */
 
 import express, { Request, Response } from 'express'
-import { authenticateJWT } from '../middleware/auth'
-import { auditLog } from '../middleware/audit'
 import { z } from 'zod'
-import { getErrorMessage } from '../utils/error-handler'
-import { csrfProtection } from '../middleware/csrf'
+
 import { pool } from '../config/database';
 import logger from '../config/logger';
+import { auditLog } from '../middleware/audit'
+import { authenticateJWT } from '../middleware/auth'
+import { csrfProtection } from '../middleware/csrf'
+import { getErrorMessage } from '../utils/error-handler'
 
 const router = express.Router()
 

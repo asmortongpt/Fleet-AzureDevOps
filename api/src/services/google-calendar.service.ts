@@ -3,9 +3,10 @@
  * Provides calendar management functionality using Google Calendar API
  */
 
-import { google } from 'googleapis'
 import { OAuth2Client } from 'google-auth-library'
+import { google } from 'googleapis'
 import { Pool } from 'pg'
+
 import { safePost } from '../utils/ssrf-protection'
 
 // Allowed domains for Google Calendar OAuth requests
