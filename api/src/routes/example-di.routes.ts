@@ -11,10 +11,11 @@
  */
 
 import { Router, Request, Response } from 'express'
-import { authenticateJWT } from '../middleware/auth'
-import { DIContainer } from '../container'
-import { csrfProtection } from '../middleware/csrf'
+
 import logger from '../config/logger';
+import { DIContainer } from '../container'
+import { authenticateJWT } from '../middleware/auth'
+import { csrfProtection } from '../middleware/csrf'
 
 const router = Router()
 
@@ -155,7 +156,7 @@ router.get('/test-di', async (req: Request, res: Response) => {
     const hasExampleService = hasContainer && !!reqWithContainer.container.resolve
 
     // Try to resolve services
-    let servicesAvailable: string[] = []
+    const servicesAvailable: string[] = []
     if (hasContainer) {
       try {
         reqWithContainer.container.resolve('exampleDIService')

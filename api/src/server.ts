@@ -5,6 +5,17 @@ console.log('--- SERVER STARTING DEBUG ---')
 console.log('Datadog APM disabled')
 
 // Initialize monitoring services FIRST (before other imports)
+import cors from 'cors'
+import express from 'express'
+
+import { initializeConnectionManager } from './config/connection-manager' // Import connection manager initialization
+import { processEmailJob } from './jobs/processors/email.processor'
+import { processNotificationJob } from './jobs/processors/notification.processor'
+import { processReportJob } from './jobs/processors/report.processor'
+import { emailQueue, notificationQueue, reportQueue, closeAllQueues } from './jobs/queue'
+import { getCorsConfig, validateCorsConfiguration } from './middleware/corsConfig'
+import { errorHandler } from './middleware/errorHandler'
+import { initializeProcessErrorHandlers } from './middleware/processErrorHandlers'
 import telemetryService from './monitoring/applicationInsights'
 telemetryService.initialize()
 
@@ -17,19 +28,13 @@ import {
 } from './middleware/sentryErrorHandler'
 
 // ARCHITECTURE FIX: Import new error handling infrastructure
-import { errorHandler } from './middleware/errorHandler'
-import { initializeProcessErrorHandlers } from './middleware/processErrorHandlers'
-import { initializeConnectionManager } from './config/connection-manager' // Import connection manager initialization
 
 // Initialize Sentry
 sentryService.init()
 
-import express from 'express'
-import cors from 'cors'
 
 // Security middleware
 import { securityHeaders } from './middleware/security-headers'
-import { getCorsConfig, validateCorsConfiguration } from './middleware/corsConfig'
 import { globalLimiter } from './middleware/rateLimiter'
 import { csrfProtection, getCsrfToken } from './middleware/csrf'
 
@@ -43,6 +48,12 @@ import annualReauthorizationRouter from './routes/annual-reauthorization.routes'
 import arcgisLayersRouter from './routes/arcgis-layers'
 import assetAnalyticsRouter from './routes/asset-analytics.routes'
 import assetManagementRouter from './routes/asset-management.routes'
+import assetsMobileRouter from './routes/assets-mobile.routes'
+import assignmentReportingRouter from './routes/assignment-reporting.routes'
+import attachmentsRouter from './routes/attachments.routes'
+import billingReportsRouter from './routes/billing-reports'
+import chargingSessionsRouter from './routes/charging-sessions'
+import communicationLogsRouter from './routes/communication-logs'
 import driversRouter from './routes/drivers'
 import vehiclesRouter from './routes/vehicles'
 import fuelRouter from './routes/fuel-transactions'
@@ -55,11 +66,9 @@ import purchaseOrdersRouter from './routes/purchase-orders'
 import tasksRouter from './routes/tasks'
 
 // Asset Management Routes
-import assetsMobileRouter from './routes/assets-mobile.routes'
 import heavyEquipmentRouter from './routes/heavy-equipment.routes'
 
 // Dispatch & Communication Routes
-import communicationLogsRouter from './routes/communication-logs'
 import teamsRouter from './routes/teams.routes'
 
 // GPS & Tracking Routes
@@ -77,20 +86,17 @@ import workOrdersRouter from './routes/work-orders'
 
 // EV Management Routes
 import evManagementRouter from './routes/ev-management.routes'
-import chargingSessionsRouter from './routes/charging-sessions'
 import chargingStationsRouter from './routes/charging-stations'
 
 // Document Management Routes
 import documentsRouter from './routes/documents'
 import fleetDocumentsRouter from './routes/fleet-documents.routes'
-import attachmentsRouter from './routes/attachments.routes'
 import ocrRouter from './routes/ocr.routes'
 
 // Financial & Cost Management Routes
 import costsRouter from './routes/costs'
 import costAnalysisRouter from './routes/cost-analysis.routes'
 import costBenefitAnalysisRouter from './routes/cost-benefit-analysis.routes'
-import billingReportsRouter from './routes/billing-reports'
 import mileageReimbursementRouter from './routes/mileage-reimbursement'
 import chargesRouter from './routes/personal-use-charges'
 import personalUsePoliciesRouter from './routes/personal-use-policies'
@@ -99,7 +105,6 @@ import fuelPurchasingRouter from './routes/fuel-purchasing.routes'
 // Reporting & Analytics Routes
 import executiveDashboardRouter from './routes/executive-dashboard.routes'
 import customReportsRouter from './routes/custom-reports.routes'
-import assignmentReportingRouter from './routes/assignment-reporting.routes'
 import driverScorecardRouter from './routes/driver-scorecard.routes'
 
 // AI & Automation Routes
@@ -177,10 +182,6 @@ import reservationsRouter from './routes/reservations.routes'
 import { telemetryMiddleware, errorTelemetryMiddleware, performanceMiddleware } from './middleware/telemetry'
 
 // Job Processing Infrastructure
-import { emailQueue, notificationQueue, reportQueue, closeAllQueues } from './jobs/queue'
-import { processEmailJob } from './jobs/processors/email.processor'
-import { processNotificationJob } from './jobs/processors/notification.processor'
-import { processReportJob } from './jobs/processors/report.processor'
 import logger from './utils/logger'
 
 console.log('--- IMPORTS COMPLETED, CREATING APP ---');

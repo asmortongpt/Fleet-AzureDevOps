@@ -21,16 +21,16 @@
  */
 
 import express, { Response } from 'express'
-import { AuthRequest, authenticateJWT } from '../middleware/auth'
-import { setTenantContext } from '../middleware/tenant-context'
-import { requirePermission } from '../middleware/permissions'
+import { z } from 'zod'
+
+import logger from '../config/logger'
 import { auditLog } from '../middleware/audit'
+import { AuthRequest, authenticateJWT } from '../middleware/auth'
+import { csrfProtection } from '../middleware/csrf'
+import { requirePermission } from '../middleware/permissions'
+import { setTenantContext } from '../middleware/tenant-context'
 import { applyFieldMasking } from '../utils/fieldMasking'
 import { preventTenantIdOverride, validateTenantReferences, injectTenantId } from '../utils/tenant-validator'
-import logger from '../config/logger'
-import { z } from 'zod'
-import { csrfProtection } from '../middleware/csrf'
-import { pool } from '../db/connection';
 
 
 const router = express.Router()
@@ -92,7 +92,7 @@ router.get(
 
       const user = userResult.rows[0]
       let scopeFilter = ''
-      let scopeParams: any[] = []
+      const scopeParams: any[] = []
 
       if (user.scope_level === 'own') {
         // Mechanics only see their assigned work orders
@@ -108,7 +108,7 @@ router.get(
       // Build dynamic query
       // NOTE: No WHERE tenant_id clause! RLS handles tenant filtering
       let whereClause = scopeFilter
-      let queryParams = [...scopeParams]
+      const queryParams = [...scopeParams]
 
       if (status) {
         queryParams.push(status)

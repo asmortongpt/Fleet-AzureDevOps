@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import {
   Layout,
   Filter,
@@ -11,24 +11,23 @@ import {
   Map as MapIcon,
   Navigation
 } from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { useState, useMemo } from 'react';
 
-import { Button } from '@/components/ui/button';
+import { LiveFleetDashboard } from '@/components/dashboard/LiveFleetDashboard';
 import { Badge } from '@/components/ui/badge';
-import { ScrollArea } from '@/components/ui/scroll-area';
+import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Separator } from '@/components/ui/separator';
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu';
-
+import { Input } from '@/components/ui/input';
+import { ScrollArea } from '@/components/ui/scroll-area';
+import { Separator } from '@/components/ui/separator';
+import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useFleetData } from '@/hooks/use-fleet-data';
-import { LiveFleetDashboard } from '@/components/dashboard/LiveFleetDashboard';
 import { cn } from '@/lib/utils';
 
 export function OperationsWorkspace() {

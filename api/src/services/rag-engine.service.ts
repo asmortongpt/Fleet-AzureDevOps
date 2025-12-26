@@ -3,9 +3,9 @@
  * Provides semantic search and context-aware responses using vector embeddings
  */
 
-import { Pool } from 'pg'
-import logger from '../utils/logger'
 import OpenAI from 'openai'
+import { Pool } from 'pg'
+
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY

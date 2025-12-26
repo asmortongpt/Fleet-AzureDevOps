@@ -21,29 +21,30 @@ import {
     Car as FleetIcon,
     MapTrifold,
     Speedometer,
-    Activity,
+    Pulse,
     Cube,
     Video,
     Lightning
 } from '@phosphor-icons/react'
-import React, { Suspense, lazy } from 'react'
+import { Suspense, lazy } from 'react'
 
+import { Skeleton } from '@/components/ui/skeleton'
 import { HubPage, HubTab } from '@/components/ui/hub-page'
-import { LoadingSkeleton } from '@/components/ui/LoadingSkeleton'
 
 // Lazy load heavy components for performance
-const LiveFleetDashboard = lazy(() => import('@/components/LiveFleetDashboard'))
-const VehicleTelemetry = lazy(() => import('@/components/modules/fleet/VehicleTelemetry'))
-const VirtualGarage = lazy(() => import('@/components/modules/fleet/VirtualGarage'))
-const EVChargingManagement = lazy(() => import('@/components/modules/charging/EVChargingManagement'))
+const LiveFleetDashboard = lazy(() => import('@/components/dashboard/LiveFleetDashboard').then(m => ({ default: m.LiveFleetDashboard })))
+const VehicleTelemetry = lazy(() => import('@/components/modules/fleet/VehicleTelemetry').then(m => ({ default: m.VehicleTelemetry })))
+const VirtualGarage = lazy(() => import('@/components/modules/fleet/VirtualGarage').then(m => ({ default: m.VirtualGarage })))
+const EVChargingManagement = lazy(() => import('@/components/modules/charging/EVChargingManagement').then(m => ({ default: m.EVChargingManagement })))
 
 /**
  * Loading fallback for lazy-loaded tabs
  */
 function TabLoadingFallback() {
     return (
-        <div className="p-6">
-            <LoadingSkeleton />
+        <div className="p-6 space-y-4">
+            <Skeleton className="h-8 w-1/3" />
+            <Skeleton className="h-64 w-full" />
         </div>
     )
 }
@@ -80,7 +81,7 @@ export function FleetHub() {
         {
             id: 'telemetry',
             label: 'Telemetry',
-            icon: <Activity className="w-4 h-4" />,
+            icon: <Pulse className="w-4 h-4" />,
             content: (
                 <Suspense fallback={<TabLoadingFallback />}>
                     <VehicleTelemetry />

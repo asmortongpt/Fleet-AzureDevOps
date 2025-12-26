@@ -1,9 +1,11 @@
-import express, { Express } from 'express';
 import { createServer, Server as HTTPServer } from 'http';
-import { Server as WSServer } from 'ws';
-import { Pool } from 'pg';
-import { config as dotenvConfig } from 'dotenv';
 import { AddressInfo } from 'net';
+
+import { config as dotenvConfig } from 'dotenv';
+import express, { Express } from 'express';
+import { Pool } from 'pg';
+import { Server as WSServer } from 'ws';
+
 
 dotenvConfig();
 

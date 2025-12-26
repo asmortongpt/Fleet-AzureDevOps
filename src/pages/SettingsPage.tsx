@@ -22,6 +22,8 @@ import { AppearanceSettings } from '@/components/settings/AppearanceSettings'
 import { DataPrivacySettings } from '@/components/settings/DataPrivacySettings'
 import { FleetSettings } from '@/components/settings/FleetSettings'
 import { GeneralSettings } from '@/components/settings/GeneralSettings'
+import { NotificationSettings } from '@/components/settings/NotificationSettings'
+import { SecuritySettings } from '@/components/settings/SecuritySettings'
 import {
   AlertDialog,
   AlertDialogAction,
@@ -38,8 +40,6 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { hasUnsavedChangesAtom } from '@/lib/reactive-state'
-import { NotificationSettings } from '@/components/settings/NotificationSettings'
-import { SecuritySettings } from '@/components/settings/SecuritySettings'
 
 type SettingsTab =
   | 'general'

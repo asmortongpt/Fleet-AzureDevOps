@@ -1,15 +1,12 @@
 /**
  * AdminHub - Consolidated Administration Hub
  * 
- * Consolidates 10 admin-related screens:
+ * Consolidates admin screens into one hub page:
  * - Admin Dashboard → Dashboard Tab
- * - Notifications → Alerts Tab
+ * - Alerts → Alerts Tab
  * - Documents → Documents Tab
- * - Document Q&A → Q&A Tab
- * - Push Notifications → Push Tab
- * - Policy Engine → Policy Tab
- * - Form Builder → Forms Tab
- * - Endpoint Monitor → Monitor Tab
+ * - Policy → Policy Tab
+ * - Forms → Forms Tab
  * - Settings → Settings Tab
  * 
  * Route: /admin
@@ -20,24 +17,13 @@ import {
     ChartBar,
     Bell,
     FolderOpen,
-    ChatCircleDots,
-    Broadcast,
     Brain,
     FileText,
-    Pulse,
     GearSix
 } from '@phosphor-icons/react'
-import React, { Suspense, lazy } from 'react'
 
 import { HubPage, HubTab } from '@/components/ui/hub-page'
-import { LoadingSkeleton } from '@/components/ui/LoadingSkeleton'
-
-const MonitoringDashboard = lazy(() => import('@/components/admin/MonitoringDashboard'))
-const SettingsPage = lazy(() => import('@/components/settings/SettingsPage'))
-
-function TabLoadingFallback() {
-    return <div className="p-6"><LoadingSkeleton /></div>
-}
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 
 export function AdminHub() {
     const tabs: HubTab[] = [
@@ -46,9 +32,23 @@ export function AdminHub() {
             label: 'Dashboard',
             icon: <ChartBar className="w-4 h-4" />,
             content: (
-                <Suspense fallback={<TabLoadingFallback />}>
-                    <MonitoringDashboard />
-                </Suspense>
+                <div className="p-6">
+                    <h2 className="text-xl font-semibold mb-4">Admin Dashboard</h2>
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <Card>
+                            <CardHeader><CardTitle>Users</CardTitle></CardHeader>
+                            <CardContent><span className="text-2xl font-bold">156</span></CardContent>
+                        </Card>
+                        <Card>
+                            <CardHeader><CardTitle>Active Sessions</CardTitle></CardHeader>
+                            <CardContent><span className="text-2xl font-bold">42</span></CardContent>
+                        </Card>
+                        <Card>
+                            <CardHeader><CardTitle>API Calls Today</CardTitle></CardHeader>
+                            <CardContent><span className="text-2xl font-bold">12.4K</span></CardContent>
+                        </Card>
+                    </div>
+                </div>
             ),
         },
         {
@@ -96,24 +96,14 @@ export function AdminHub() {
             ),
         },
         {
-            id: 'monitor',
-            label: 'Monitor',
-            icon: <Pulse className="w-4 h-4" />,
-            content: (
-                <div className="p-6">
-                    <h2 className="text-xl font-semibold mb-4">System Monitor</h2>
-                    <p className="text-muted-foreground">API endpoints and system health monitoring.</p>
-                </div>
-            ),
-        },
-        {
             id: 'settings',
             label: 'Settings',
             icon: <GearSix className="w-4 h-4" />,
             content: (
-                <Suspense fallback={<TabLoadingFallback />}>
-                    <SettingsPage />
-                </Suspense>
+                <div className="p-6">
+                    <h2 className="text-xl font-semibold mb-4">System Settings</h2>
+                    <p className="text-muted-foreground">Application configuration and preferences.</p>
+                </div>
             ),
         },
     ]

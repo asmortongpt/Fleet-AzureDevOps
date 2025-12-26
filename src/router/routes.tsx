@@ -1,10 +1,8 @@
 import { lazy, Suspense } from "react";
-import { createBrowserRouter, RouterProvider } from "react-router-dom";
+import { createBrowserRouter, RouterProvider , Outlet } from "react-router-dom";
 
 import { ErrorBoundary } from "@/components/ErrorBoundary";
-
 import { CommandCenterLayout } from "@/components/layout/CommandCenterLayout";
-import { Outlet } from "react-router-dom";
 
 // Loading spinner component for Suspense fallback
 const LoadingSpinner = () => (

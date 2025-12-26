@@ -1,6 +1,7 @@
+import dotenv from 'dotenv';
 import { Client } from 'pg';
 import WebSocket from 'ws';
-import dotenv from 'dotenv';
+
 import { VehicleMessage, AlertMessage, PingPongMessage } from './messageTypes';
 
 dotenv.config();

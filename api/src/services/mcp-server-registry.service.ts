@@ -5,8 +5,10 @@
  */
 
 import { Pool } from 'pg'
+
 import { logger } from '../utils/logger'
-import mcpServerService, { MCPToolRequest, MCPToolResponse } from './mcp-server.service'
+
+import mcpServerService, { MCPToolResponse } from './mcp-server.service'
 
 export interface MCPServerHealth {
   serverId: string
