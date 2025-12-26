@@ -1,7 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
-import fs from 'fs';
-import path from 'path';
+
 
 interface UserPayload {
   id: string;

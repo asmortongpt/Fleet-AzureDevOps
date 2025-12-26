@@ -16,13 +16,14 @@
  */
 
 import { Router, Request, Response } from 'express'
-import dispatchService from '../services/dispatch.service'
-import webrtcService from '../services/webrtc.service'
-import { authenticateJWT, AuthRequest } from '../middleware/auth'
-import { requirePermission } from '../middleware/permissions'
-import { csrfProtection } from '../middleware/csrf'
+
 import { pool } from '../config/database';
 import logger from '../config/logger';
+import { authenticateJWT, AuthRequest } from '../middleware/auth'
+import { csrfProtection } from '../middleware/csrf'
+import { requirePermission } from '../middleware/permissions'
+import dispatchService from '../services/dispatch.service'
+import webrtcService from '../services/webrtc.service'
 
 const router = Router()
 

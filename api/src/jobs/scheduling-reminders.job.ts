@@ -14,6 +14,7 @@
 
 import cron from 'node-cron'
 import winston from 'winston'
+
 import pool from '../config/database'
 import schedulingNotificationService from '../services/scheduling-notification.service'
 

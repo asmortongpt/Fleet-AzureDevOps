@@ -18,13 +18,16 @@ import logger from '../config/logger'; // Wave 20: Add Winston logger
  */
 
 import express, { Response } from 'express'
-import { AuthRequest, authenticateJWT, authorize } from '../middleware/auth'
+import { z } from 'zod'
+
 import { auditLog } from '../middleware/audit'
+import { AuthRequest, authenticateJWT, authorize } from '../middleware/auth'
+import { csrfProtection } from '../middleware/csrf'
+import DocumentIndexer from '../services/DocumentIndexer'
 import DocumentSearchService from '../services/DocumentSearchService'
 import SearchIndexService from '../services/SearchIndexService'
-import DocumentIndexer from '../services/DocumentIndexer'
-import { z } from 'zod'
-import { csrfProtection } from '../middleware/csrf'
+
+
 
 
 const router = express.Router()

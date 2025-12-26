@@ -14,9 +14,9 @@
 
 import OpenAI from 'openai'
 import { Pool } from 'pg'
-import vectorSearchService from './VectorSearchService'
+
 import embeddingService from './EmbeddingService'
-import logger from '../utils/logger'
+import vectorSearchService from './VectorSearchService'
 
 export interface DocumentClassification {
   documentType: string

@@ -1,13 +1,13 @@
 import express, { Response } from 'express'
 
 import logger from '../config/logger'; // Wave 16: Add Winston logger
+import { pool } from '../db/connection';
 import { NotFoundError } from '../errors/app-error'
 import { auditLog } from '../middleware/audit'
 import { AuthRequest, authenticateJWT } from '../middleware/auth'
 import { csrfProtection } from '../middleware/csrf'
 import { requirePermission } from '../middleware/permissions'
 import { buildInsertClause, buildUpdateClause } from '../utils/sql-safety'
-import { pool } from '../db/connection';
 
 
 const router = express.Router()

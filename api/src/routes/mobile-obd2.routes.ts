@@ -9,13 +9,14 @@ import logger from '../config/logger'; // Wave 25: Add Winston logger
  */
 
 import express, { Request, Response } from 'express'
-import { authenticateJWT } from '../middleware/auth'
-import { requirePermission } from '../middleware/permissions'
-import { auditLog } from '../middleware/audit'
-import obd2Service from '../services/obd2.service'
 import { z } from 'zod'
-import { getErrorMessage } from '../utils/error-handler'
+
+import { auditLog } from '../middleware/audit'
+import { authenticateJWT } from '../middleware/auth'
 import { csrfProtection } from '../middleware/csrf'
+import { requirePermission } from '../middleware/permissions'
+import obd2Service from '../services/obd2.service'
+import { getErrorMessage } from '../utils/error-handler'
 
 
 const router = express.Router()
