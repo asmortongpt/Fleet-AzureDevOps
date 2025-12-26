@@ -1,11 +1,5 @@
 /**
  * AssetsHub - Consolidated Asset Management Hub
- * 
- * Consolidates 3 asset-related screens:
- * - Asset Management → Assets Tab
- * - Equipment Dashboard → Equipment Tab
- * - Inventory Tracking → Inventory Tab
- * 
  * Route: /assets
  */
 
@@ -15,16 +9,9 @@ import {
     Engine,
     Package
 } from '@phosphor-icons/react'
-import React, { Suspense, lazy } from 'react'
 
-import { LoadingSkeleton } from '@/components/ui/LoadingSkeleton'
 import { HubPage, HubTab } from '@/components/ui/hub-page'
-
-const AssetManagement = lazy(() => import('@/components/modules/assets/AssetManagement'))
-
-function TabLoadingFallback() {
-    return <div className="p-6"><LoadingSkeleton /></div>
-}
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 
 export function AssetsHub() {
     const tabs: HubTab[] = [
@@ -33,9 +20,15 @@ export function AssetsHub() {
             label: 'Assets',
             icon: <ListDashes className="w-4 h-4" />,
             content: (
-                <Suspense fallback={<TabLoadingFallback />}>
-                    <AssetManagement />
-                </Suspense>
+                <div className="p-6">
+                    <h2 className="text-xl font-semibold mb-4">Asset Management</h2>
+                    <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                        <Card><CardHeader><CardTitle>Total Assets</CardTitle></CardHeader><CardContent className="text-2xl font-bold">256</CardContent></Card>
+                        <Card><CardHeader><CardTitle>Active</CardTitle></CardHeader><CardContent className="text-2xl font-bold text-green-500">234</CardContent></Card>
+                        <Card><CardHeader><CardTitle>In Maintenance</CardTitle></CardHeader><CardContent className="text-2xl font-bold text-yellow-500">18</CardContent></Card>
+                        <Card><CardHeader><CardTitle>Retired</CardTitle></CardHeader><CardContent className="text-2xl font-bold text-gray-500">4</CardContent></Card>
+                    </div>
+                </div>
             ),
         },
         {
