@@ -3,15 +3,16 @@
  */
 
 import express, { Response } from 'express'
-import { AuthRequest, authenticateJWT } from '../middleware/auth'
-import { requirePermission } from '../middleware/permissions'
-import { auditLog } from '../middleware/audit'
-import * as routeOptimizationService from '../services/route-optimization.service'
 import { z } from 'zod'
-import { getErrorMessage } from '../utils/error-handler'
-import { csrfProtection } from '../middleware/csrf'
+
 import { pool } from '../config/database';
 import logger from '../config/logger';
+import { auditLog } from '../middleware/audit'
+import { AuthRequest, authenticateJWT } from '../middleware/auth'
+import { csrfProtection } from '../middleware/csrf'
+import { requirePermission } from '../middleware/permissions'
+import * as routeOptimizationService from '../services/route-optimization.service'
+import { getErrorMessage } from '../utils/error-handler'
 
 const router = express.Router()
 router.use(authenticateJWT)

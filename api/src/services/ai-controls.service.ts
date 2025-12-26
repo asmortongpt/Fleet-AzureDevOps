@@ -3,9 +3,9 @@
  * Rate limiting, user permissions, audit logging, and usage tracking for AI features
  */
 
-import { Pool } from 'pg'
-import logger from '../utils/logger'
 import Redis from 'ioredis'
+import { Pool } from 'pg'
+
 
 export interface RateLimitCheck {
   allowed: boolean

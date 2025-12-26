@@ -7,18 +7,18 @@ import { NotFoundError, ValidationError } from '../errors/app-error'
  */
 
 import express, { Response } from 'express'
-import { AuthRequest, authenticateJWT } from '../middleware/auth'
-import { requirePermission } from '../middleware/permissions'
-import { auditLog } from '../middleware/audit'
 import { z } from 'zod'
+
+import { pool } from '../db/connection';
+import { auditLog } from '../middleware/audit'
+import { AuthRequest, authenticateJWT } from '../middleware/auth'
+import { csrfProtection } from '../middleware/csrf'
+import { requirePermission } from '../middleware/permissions'
 import fleetCognitionService from '../services/fleet-cognition.service'
 import mlDecisionEngineService from '../services/ml-decision-engine.service'
-import ragEngineService from '../services/rag-engine.service'
 import mlTrainingService from '../services/ml-training.service'
-import mcpServerService from '../services/mcp-server.service'
+import ragEngineService from '../services/rag-engine.service'
 import { getErrorMessage } from '../utils/error-handler'
-import { csrfProtection } from '../middleware/csrf'
-import { pool } from '../db/connection';
 
 
 const router = express.Router()

@@ -4,8 +4,8 @@
  */
 
 import { pool } from '../config/database';
-import { QueueName, QueueHealth } from '../types/queue.types';
 import { queueService } from '../services/queue.service';
+import { QueueName, QueueHealth } from '../types/queue.types';
 
 interface AlertThresholds {
   maxBacklog: number;

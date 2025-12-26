@@ -1,26 +1,21 @@
 import express, { Response } from 'express'
-import { container } from '../container'
-import { asyncHandler } from '../middleware/errorHandler'
-import { NotFoundError, ValidationError } from '../errors/app-error'
-import logger from '../config/logger'; // Wave 19: Add Winston logger
-import { AuthRequest, authenticateJWT, authorize } from '../middleware/auth'
-import { requirePermission } from '../middleware/permissions'
-import { auditLog } from '../middleware/audit'
 import { z } from 'zod'
+
+import { appInsightsService } from '../config/app-insights'
+import logger from '../config/logger'; // Wave 19: Add Winston logger
+import { pool } from '../db/connection';
+import { NotFoundError, ValidationError } from '../errors/app-error'
+import { auditLog } from '../middleware/audit'
+import { AuthRequest, authenticateJWT } from '../middleware/auth'
+import { csrfProtection } from '../middleware/csrf'
+import { requirePermission } from '../middleware/permissions'
+import { emailNotificationService } from '../services/email-notifications'
 import {
   UsageType,
-  ApprovalStatus,
-  CreateTripUsageRequest,
-  UpdateTripUsageRequest,
-  TripUsageFilters,
-  calculateMileageBreakdown
+  ApprovalStatus
 } from '../types/trip-usage'
-import { emailNotificationService } from '../services/email-notifications'
-import { appInsightsService } from '../config/app-insights'
-import { logger } from '../utils/logger'
 import { getErrorMessage } from '../utils/error-handler'
-import { csrfProtection } from '../middleware/csrf'
-import { pool } from '../db/connection';
+import { logger } from '../utils/logger'
 
 
 const router = express.Router()

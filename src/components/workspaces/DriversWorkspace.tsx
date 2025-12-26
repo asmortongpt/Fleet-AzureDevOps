@@ -1,5 +1,4 @@
 
-import { useState, useMemo } from "react"
 import {
     Users,
     Map as MapIcon,
@@ -11,17 +10,17 @@ import {
     Award,
     TrendingUp
 } from "lucide-react"
+import { useState, useMemo } from "react"
 
-import { useFleetData } from "@/hooks/use-fleet-data"
 import { ProfessionalFleetMap } from "@/components/Maps/ProfessionalFleetMap"
 import { DriverCard } from "@/components/drivers/DriverCard"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Input } from "@/components/ui/input"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { useFleetData } from "@/hooks/use-fleet-data"
 import { Vehicle } from "@/lib/types"
 
 export function DriversWorkspace() {

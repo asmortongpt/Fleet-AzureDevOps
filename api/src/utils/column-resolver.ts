@@ -8,6 +8,7 @@
  */
 
 import { Pool } from 'pg';
+
 import { logger } from './logger';
 
 // Column cache to avoid repeated introspection

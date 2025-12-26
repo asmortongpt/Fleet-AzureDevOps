@@ -1,9 +1,12 @@
-import express, { Request, Response } from 'express'
-import { container } from '../container'
-import { asyncHandler } from '../middleware/errorHandler'
-import { NotFoundError, ValidationError } from '../errors/app-error'
+import express, { Response } from 'express'
 import multer from 'multer'
-import { v4 as uuidv4 } from 'uuid'
+
+import { pool } from '../db/connection';
+import { ValidationError } from '../errors/app-error'
+import { authenticateJWT, AuthRequest } from '../middleware/auth'
+import { csrfProtection } from '../middleware/csrf'
+import { requirePermission } from '../middleware/permissions'
+import { createRateLimiter } from '../middleware/rateLimiter'
 import {
   MobileDamageService,
   MobilePhotoData,
@@ -11,15 +14,9 @@ import {
   VideoAnalysisData,
 } from '../services/mobileDamageService'
 import { OpenAIVisionService } from '../services/openaiVisionService'
-import { logger } from '../utils/logger'
-import { aiProcessingLimiter } from '../config/rate-limiters'
-import { validateFileContent, validateFileSize } from '../utils/file-validation'
-import { authenticateJWT, AuthRequest } from '../middleware/auth'
-import { requirePermission } from '../middleware/permissions'
-import { createRateLimiter } from '../middleware/rateLimiter'
 import { getErrorMessage } from '../utils/error-handler'
-import { csrfProtection } from '../middleware/csrf'
-import { pool } from '../db/connection';
+import { validateFileContent, validateFileSize } from '../utils/file-validation'
+import { logger } from '../utils/logger'
 
 
 const router = express.Router()
