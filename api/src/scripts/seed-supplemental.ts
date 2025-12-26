@@ -4,9 +4,9 @@
  * Routes, Geofences, Inspections, Incidents, Vendors, etc.
  */
 
-import { Pool } from 'pg';
 import dotenv from 'dotenv';
-import { v4 as uuidv4 } from 'uuid'; // Assuming uuid is available, or use string interpolation for existing logical IDs. 
+import { Pool } from 'pg';
+// Assuming uuid is available, or use string interpolation for existing logical IDs. 
 // Note: The original code used database keys or expected IDs. 
 // I will stick to the logic provided which seems to rely on string interpolation in SQL only.
 

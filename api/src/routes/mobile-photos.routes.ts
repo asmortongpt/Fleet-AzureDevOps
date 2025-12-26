@@ -13,18 +13,21 @@
  * - GET /api/mobile/photos/processing/stats - Processing queue stats
  */
 
+import { BlobServiceClient } from '@azure/storage-blob';
 import express, { Request, Response } from 'express';
 import multer from 'multer';
-import { BlobServiceClient } from '@azure/storage-blob';
-import { authenticateJWT } from '../middleware/auth';
-import { requirePermission } from '../middleware/permissions';
-import { auditLog } from '../middleware/audit';
-import PhotoProcessingService from '../services/photo-processing.service';
-import logger from '../config/logger';
 import { v4 as uuidv4 } from 'uuid';
 import { z } from 'zod';
-import { csrfProtection } from '../middleware/csrf';
+
+import logger from '../config/logger';
 import { pool } from '../db/connection';
+import { auditLog } from '../middleware/audit';
+import { authenticateJWT } from '../middleware/auth';
+import { csrfProtection } from '../middleware/csrf';
+import { requirePermission } from '../middleware/permissions';
+import PhotoProcessingService from '../services/photo-processing.service';
+
+
 
 const getErrorMessage = (error: unknown): string => {
   if (error instanceof Error) return error.message;

@@ -18,13 +18,13 @@ import { NotFoundError, ValidationError } from '../errors/app-error'
  * - Recent errors
  */
 
-import express, { Request, Response } from 'express';
-import { Pool } from 'pg';
+import { exec } from 'child_process';
 import os from 'os';
 import { promisify } from 'util';
-import { exec } from 'child_process';
-import { csrfProtection } from '../middleware/csrf'
-import { pool } from '../db/connection';
+
+import express, { Request, Response } from 'express';
+import { Pool } from 'pg';
+
 
 
 const router = express.Router();

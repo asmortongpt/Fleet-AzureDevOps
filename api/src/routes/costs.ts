@@ -1,6 +1,5 @@
-import { container } from '../container'
-import { asyncHandler } from '../middleware/errorHandler'
-import { NotFoundError, ValidationError } from '../errors/app-error'
+import { Router } from 'express'
+
 import logger from '../config/logger'; // Wave 18: Add Winston logger
 /**
 /**
@@ -8,10 +7,10 @@ import logger from '../config/logger'; // Wave 18: Add Winston logger
  * Provides endpoints for cost tracking, budgeting, and analytics
  */
 
-import { Router } from 'express'
 import { costEmulator } from '../emulators/cost/CostEmulator'
 import type { BudgetTracking } from '../emulators/cost/CostEmulator'
 import { csrfProtection } from '../middleware/csrf'
+import { asyncHandler } from '../middleware/errorHandler'
 
 
 const router = Router()
@@ -67,7 +66,7 @@ router.get('/', asyncHandler(async (req, res) => {
     }
 
     // Get filtered costs
-    let costs = costEmulator.getAllCosts(filters)
+    const costs = costEmulator.getAllCosts(filters)
 
     // Apply sorting
     if (sortBy === 'amount') {

@@ -13,11 +13,11 @@ import incidentsRouter from './routes/incidents'
 import invoicesRouter from './routes/invoices'
 import maintenanceRouter from './routes/maintenance'
 import partsRouter from './routes/parts'
+import chargesRouter from './routes/personal-use-charges'
 import purchaseOrdersRouter from './routes/purchase-orders'
+import tasksRouter from './routes/tasks'
 import vehiclesRouter from './routes/vehicles'
 import vendorsRouter from './routes/vendors'
-import tasksRouter from './routes/tasks'
-import chargesRouter from './routes/personal-use-charges'
 
 const app = express()
 const PORT = process.env.PORT || 3001

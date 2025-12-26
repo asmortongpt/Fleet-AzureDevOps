@@ -12,8 +12,9 @@
 
 import cron from 'node-cron'
 import * as winston from 'winston'
-import webhookService from '../services/webhook.service'
+
 import pool from '../config/database'
+import webhookService from '../services/webhook.service'
 
 // Configure logger
 const logger = winston.createLogger({

@@ -4,14 +4,12 @@
  */
 
 import express from 'express';
+
+import logger from '../config/logger';
 import { authenticateJWT } from '../middleware/auth';
+import { csrfProtection } from '../middleware/csrf';
 import { requirePermission } from '../middleware/permissions';
 import { pushNotificationService } from '../services/push-notification.service';
-import { csrfProtection } from '../middleware/csrf';
-import { container } from '../container';
-import { asyncHandler } from '../middleware/errorHandler';
-import { NotFoundError, ValidationError } from '../errors/app-error';
-import logger from '../config/logger';
 
 const router = express.Router();
 

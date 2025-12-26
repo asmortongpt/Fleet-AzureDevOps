@@ -2,8 +2,9 @@
  * Streaming Query Service (Stubbed for Build)
  */
 
-import { Pool, QueryConfig } from 'pg'
 import { Readable } from 'stream'
+
+import { Pool, QueryConfig } from 'pg'
 
 export interface StreamingOptions {
   batchSize?: number

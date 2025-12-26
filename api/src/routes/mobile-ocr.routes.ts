@@ -12,18 +12,20 @@ import logger from '../config/logger'; // Wave 33: Add Winston logger (FINAL WAV
  * - Integration with existing fuel transactions and vehicle tracking
  */
 
-import express, { Request, Response } from 'express';
-import multer from 'multer';
-import path from 'path';
 import fs from 'fs/promises';
+import path from 'path';
+
+import express, { Response } from 'express';
+import multer from 'multer';
 import { z } from 'zod';
-import { authenticateJWT, AuthRequest } from '../middleware/auth';
-import { requirePermission } from '../middleware/permissions';
+
+import { pool } from '../db/connection';
 import { auditLog } from '../middleware/audit';
+import { authenticateJWT, AuthRequest } from '../middleware/auth';
+import { csrfProtection } from '../middleware/csrf'
+import { requirePermission } from '../middleware/permissions';
 import ocrService from '../services/OcrService';
 import { getErrorMessage } from '../utils/error-handler'
-import { csrfProtection } from '../middleware/csrf'
-import { pool } from '../db/connection';
 
 
 const router = express.Router();

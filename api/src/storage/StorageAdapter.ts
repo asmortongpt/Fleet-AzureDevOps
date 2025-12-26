@@ -6,7 +6,7 @@
  * Dropbox, Box.com, and SharePoint
  */
 
-import { Readable, Writable } from 'stream';
+import { Readable } from 'stream';
 
 /**
  * Storage configuration for different providers

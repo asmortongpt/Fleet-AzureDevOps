@@ -10,10 +10,12 @@
  * - Error recovery
  */
 
-import { queueService } from './queue.service';
-import { OcrService, OcrOptions, OcrProvider, OcrResult } from './OcrService';
 import { Pool } from 'pg';
-import { JobPriority, QueueName } from '../types/queue.types';
+
+import { JobPriority } from '../types/queue.types';
+
+import { OcrService, OcrOptions, OcrResult } from './OcrService';
+import { queueService } from './queue.service';
 
 // OCR Job Status
 export enum OcrJobStatus {

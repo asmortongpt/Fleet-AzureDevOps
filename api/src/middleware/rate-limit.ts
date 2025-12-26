@@ -14,6 +14,7 @@
  */
 
 import { Request, Response, NextFunction } from 'express'
+
 import { RateLimitError } from '../errors/ApplicationError'
 import { securityLogger } from '../utils/logger'
 

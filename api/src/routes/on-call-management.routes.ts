@@ -14,14 +14,15 @@ import logger from '../config/logger'; // Wave 27: Add Winston logger
  * - Geographic constraints
  */
 
-import express, { Request, Response } from 'express'
+import express, { Response } from 'express'
 import { Pool } from 'pg'
 import { z } from 'zod'
+
+import { pool } from '../db/connection';
 import { authenticateJWT, AuthRequest } from '../middleware/auth'
+import { csrfProtection } from '../middleware/csrf'
 import { requirePermission } from '../middleware/permissions'
 import { getErrorMessage } from '../utils/error-handler'
-import { csrfProtection } from '../middleware/csrf'
-import { pool } from '../db/connection';
 
 
 const router = express.Router()
@@ -96,8 +97,8 @@ router.get(
       const tenant_id = req.user!.tenant_id
       const user_scope = req.user!.scope_level
 
-      let whereConditions = ['ocp.tenant_id = $1']
-      let params: any[] = [tenant_id]
+      const whereConditions = ['ocp.tenant_id = $1']
+      const params: any[] = [tenant_id]
       let paramIndex = 2
 
       // Apply scope filtering
@@ -441,13 +442,13 @@ router.get(
       const tenant_id = req.user!.tenant_id
       const { driver_id, department_id } = req.query
 
-      let whereConditions = [
+      const whereConditions = [
         'ocp.tenant_id = $1',
         'ocp.is_active = true',
         'ocp.start_datetime <= NOW()',
         `ocp.end_datetime >= NOW()`,
       ]
-      let params: any[] = [tenant_id]
+      const params: any[] = [tenant_id]
       let paramIndex = 2
 
       if (driver_id) {

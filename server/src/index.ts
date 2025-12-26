@@ -4,16 +4,15 @@ import express, { Request, Response } from 'express';
 import rateLimit from 'express-rate-limit';
 import helmet from 'helmet';
 
-import { csrfProtection, getCsrfToken, csrfErrorHandler } from './middleware/csrf';
-import { monitorRequests, getMetrics, getAverageResponseTime } from './middleware/monitoring';
-
 import { startDataRetentionCron, startDataRetentionReportCron } from './jobs/data-retention.cron';
 import { apiVersioning, versionInfoEndpoint } from './middleware/api-versioning';
+import { csrfProtection, getCsrfToken, csrfErrorHandler } from './middleware/csrf';
 import { errorHandler, notFoundHandler } from './middleware/errorHandler';
+import { monitorRequests, getMetrics, getAverageResponseTime } from './middleware/monitoring';
 import authRoutes from './routes/auth';
+import cacheRoutes from './routes/cache-monitoring';
 import driversRoutes from './routes/drivers';
 import facilitiesRoutes from './routes/facilities';
-import cacheRoutes from './routes/cache-monitoring';
 import gdprRoutes from './routes/gdpr';
 import complianceRoutes from './routes/soc2-compliance';
 import vehiclesRoutes from './routes/vehicles';
