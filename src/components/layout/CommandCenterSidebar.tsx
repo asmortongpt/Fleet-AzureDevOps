@@ -20,6 +20,7 @@ export function CommandCenterSidebar({ isSidebarOpen, setIsSidebarOpen }: Comman
     const { activeModule, setActiveModule, visibleNavItems } = useNavigation();
 
     // Group items by section for better organization
+    const hubItems = visibleNavItems.filter(item => item.section === 'hubs');
     const mainItems = visibleNavItems.filter(item => item.section === 'main');
     const managementItems = visibleNavItems.filter(item => item.section === 'management');
     const toolItems = visibleNavItems.filter(item => item.section === 'tools');
@@ -72,11 +73,21 @@ export function CommandCenterSidebar({ isSidebarOpen, setIsSidebarOpen }: Comman
             {/* Nav Links */}
             <nav className="flex-1 py-4 px-3 space-y-6 overflow-y-auto no-scrollbar">
 
+                {/* Hubs Section - Consolidated Navigation */}
+                {hubItems.length > 0 && (
+                    <div className="space-y-1">
+                        {isSidebarOpen && <div className="px-2 text-[10px] font-bold text-blue-400 uppercase tracking-wider mb-2">Hubs</div>}
+                        {hubItems.map(item => <NavButton key={item.id} item={item} />)}
+                    </div>
+                )}
+
                 {/* Main Section */}
-                <div className="space-y-1">
-                    {isSidebarOpen && <div className="px-2 text-[10px] font-bold text-slate-600 uppercase tracking-wider mb-2">Command Center</div>}
-                    {mainItems.map(item => <NavButton key={item.id} item={item} />)}
-                </div>
+                {mainItems.length > 0 && (
+                    <div className="space-y-1">
+                        {isSidebarOpen && <div className="px-2 text-[10px] font-bold text-slate-600 uppercase tracking-wider mb-2 mt-4">Command Center</div>}
+                        {mainItems.map(item => <NavButton key={item.id} item={item} />)}
+                    </div>
+                )}
 
                 {/* Management Section */}
                 {managementItems.length > 0 && (
