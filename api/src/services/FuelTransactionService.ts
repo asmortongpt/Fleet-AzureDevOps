@@ -1,5 +1,6 @@
-import { Pool } from 'pg';
 import { injectable, inject } from 'inversify';
+import { Pool } from 'pg';
+
 import { TYPES } from '../types';
 
 /**

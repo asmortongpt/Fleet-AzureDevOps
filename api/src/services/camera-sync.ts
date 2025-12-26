@@ -1,6 +1,5 @@
 import { pool } from '../config/database'
 import { logger } from '../utils/logger'
-import axios from 'axios'
 import { safeGet, validateURL, SSRFError } from '../utils/safe-http-request'
 
 interface CameraDataSource {

@@ -9,6 +9,7 @@
  */
 
 import axios from 'axios'
+
 import { cacheInvalidation } from '../middleware/cache'
 
 interface BenchmarkResult {

@@ -9,13 +9,14 @@
  */
 
 import { Router } from 'express'
+
+import logger from '../config/logger';
+import { ValidationError, NotFoundError } from '../errors/app-error'
 import type { AuthRequest } from '../middleware/auth'
 import { authenticateJWT } from '../middleware/auth'
+import { csrfProtection } from '../middleware/csrf'
 import documentGeoService from '../services/document-geo.service'
 import { getErrorMessage } from '../utils/error-handler'
-import { csrfProtection } from '../middleware/csrf'
-import { ValidationError, NotFoundError } from '../errors/app-error'
-import logger from '../config/logger';
 
 const router = Router()
 

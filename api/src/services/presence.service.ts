@@ -1,7 +1,8 @@
 import { Client } from '@microsoft/microsoft-graph-client'
 import axios from 'axios'
-import { validateURL, SSRFError } from '../utils/safe-http-request'
+
 import { pool } from '../db'
+import { validateURL, SSRFError } from '../utils/safe-http-request'
 
 // Azure AD Configuration
 const AZURE_AD_CONFIG = {

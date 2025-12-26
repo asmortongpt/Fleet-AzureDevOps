@@ -4,8 +4,9 @@
  * This demonstrates best practices for repository pattern implementation
  */
 
-import { BaseRepository, QueryContext, PaginationOptions, PaginatedResult } from './BaseRepository';
 import { Pool } from 'pg';
+
+import { BaseRepository, QueryContext, PaginationOptions, PaginatedResult } from './BaseRepository';
 
 export interface Vehicle {
   id: number;

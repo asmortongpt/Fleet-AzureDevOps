@@ -9,7 +9,7 @@
  */
 
 import { Pool } from 'pg'
-import logger from '../utils/logger'
+
 
 export interface MaintenancePrediction {
   vehicle_id: string

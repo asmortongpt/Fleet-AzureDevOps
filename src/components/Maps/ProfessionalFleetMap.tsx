@@ -9,11 +9,11 @@ import {
 } from 'lucide-react'
 import React, { useMemo } from 'react'
 
+import { MaintenanceRequestDialog } from '../modules/maintenance/MaintenanceRequestDialog'
 import { Badge } from '../ui/badge'
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/card'
 
 import { UnifiedFleetMap } from './UnifiedFleetMap'
-import { MaintenanceRequestDialog } from '../modules/maintenance/MaintenanceRequestDialog'
 
 import { useFleetData } from '@/hooks/use-fleet-data'
 import { Vehicle, GISFacility } from '@/lib/types'

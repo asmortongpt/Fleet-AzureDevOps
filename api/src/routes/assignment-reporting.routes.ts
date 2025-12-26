@@ -13,13 +13,14 @@ import logger from '../config/logger'; // Wave 30: Add Winston logger
  * - Change history/audit trail
  */
 
-import express, { Request, Response } from 'express';
+import express, { Response } from 'express';
 import { Pool } from 'pg';
+
+import { pool } from '../db/connection';
 import { authenticateJWT, AuthRequest } from '../middleware/auth';
+import { csrfProtection } from '../middleware/csrf'
 import { requirePermission } from '../middleware/permissions';
 import { getErrorMessage } from '../utils/error-handler'
-import { csrfProtection } from '../middleware/csrf'
-import { pool } from '../db/connection';
 
 
 const router = express.Router();
@@ -43,8 +44,8 @@ router.get(
       const tenant_id = req.user!.tenant_id;
       const { department_id, assignment_type, format = 'json' } = req.query;
 
-      let whereConditions = [`va.tenant_id = $1`];
-      let params: any[] = [tenant_id];
+      const whereConditions = [`va.tenant_id = $1`];
+      const params: any[] = [tenant_id];
       let paramIndex = 2;
 
       if (department_id) {
@@ -188,8 +189,8 @@ router.get(
       const tenant_id = req.user!.tenant_id;
       const { start_date, end_date, assignment_id, change_type } = req.query;
 
-      let whereConditions = [`vah.tenant_id = $1`];
-      let params: any[] = [tenant_id];
+      const whereConditions = [`vah.tenant_id = $1`];
+      const params: any[] = [tenant_id];
       let paramIndex = 2;
 
       if (start_date) {
@@ -380,8 +381,8 @@ router.get(
       const tenant_id = req.user!.tenant_id;
       const { start_date, end_date } = req.query;
 
-      let whereConditions = [`ocp.tenant_id = $1`];
-      let params: any[] = [tenant_id];
+      const whereConditions = [`ocp.tenant_id = $1`];
+      const params: any[] = [tenant_id];
       let paramIndex = 2;
 
       if (start_date) {

@@ -1,7 +1,6 @@
 /**
  * Notification Service Stub
  */
-import { Pool } from 'pg';
 
 export interface Notification {
   id?: string;

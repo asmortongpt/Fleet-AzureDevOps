@@ -5,14 +5,12 @@
 
 import { readFileSync } from 'fs';
 import { join } from 'path';
+
 import {
   User,
-  UserRole,
   PermissionCheckResult,
   PermissionConfig,
   ModuleConfig,
-  ActionConfig,
-  FieldConfig,
   FieldVisibilityRule,
   VisibleModulesResult,
   FieldFilterResult,
