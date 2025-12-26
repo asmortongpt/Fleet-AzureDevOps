@@ -16,7 +16,7 @@
  */
 
 import { Pool } from 'pg'
-import logger from '../utils/logger'
+
 
 export interface VectorStoreConfig {
   backend: 'pgvector' | 'pinecone' | 'qdrant'

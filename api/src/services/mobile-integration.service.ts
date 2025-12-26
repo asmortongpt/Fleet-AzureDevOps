@@ -18,11 +18,8 @@
  */
 
 import { Pool } from 'pg'
+
 import OfflineStorageService from './offline-storage.service'
-import RouteOptimizationService from './route-optimization.service'
-import DispatchService from './dispatch.service'
-import EVChargingService from './ev-charging.service'
-import VideoTelematicsService from './video-telematics.service'
 
 export interface MobileDevice {
   id: number

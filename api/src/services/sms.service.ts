@@ -3,9 +3,9 @@
  * Handles SMS and MMS messaging via Twilio
  */
 
-import twilio from 'twilio';
-import { Pool } from 'pg';
 import Bottleneck from 'bottleneck';
+import { Pool } from 'pg';
+import twilio from 'twilio';
 
 export interface SMSMessage {
   to: string;

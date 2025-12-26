@@ -24,8 +24,8 @@ import {
 } from '@phosphor-icons/react'
 import React, { Suspense, lazy } from 'react'
 
-import { HubPage, HubTab } from '@/components/ui/hub-page'
 import { LoadingSkeleton } from '@/components/ui/LoadingSkeleton'
+import { HubPage, HubTab } from '@/components/ui/hub-page'
 
 const VendorManagement = lazy(() => import('@/components/modules/procurement/VendorManagement'))
 const FuelPurchasing = lazy(() => import('@/components/modules/fuel/FuelPurchasing'))

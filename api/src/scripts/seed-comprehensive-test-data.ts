@@ -3,9 +3,9 @@
  * COMPREHENSIVE SEED - Realistic Test Data
  */
 
-import { Pool } from 'pg';
-import dotenv from 'dotenv';
 import bcrypt from 'bcrypt';
+import dotenv from 'dotenv';
+import { Pool } from 'pg';
 
 dotenv.config({ path: '../.env' });
 

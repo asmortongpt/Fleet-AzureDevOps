@@ -1,8 +1,9 @@
-import WebSocket from 'ws';
 import url from 'url';
-import jwt from 'jsonwebtoken';
-import { Client, Pool, PoolClient } from 'pg';
+
 import { config } from 'dotenv';
+import jwt from 'jsonwebtoken';
+import { Pool, PoolClient } from 'pg';
+import WebSocket from 'ws';
 
 config();
 

@@ -1,8 +1,8 @@
 import { Client } from '@microsoft/microsoft-graph-client'
 import axios from 'axios'
-import { Pool } from 'pg'
-import nodemailer from 'nodemailer'
 import { createEvent as createICSEvent } from 'ics'
+import nodemailer from 'nodemailer'
+import { Pool } from 'pg'
 
 
 // Azure AD Configuration

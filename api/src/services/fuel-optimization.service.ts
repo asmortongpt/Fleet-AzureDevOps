@@ -6,8 +6,10 @@
  */
 
 import { Pool } from 'pg'
-import fuelPurchasingService from './fuel-purchasing.service'
+
 import fuelPriceForecastingModel from '../ml-models/fuel-price-forecasting.model'
+
+import fuelPurchasingService from './fuel-purchasing.service'
 
 export interface OptimalRefuelingLocation {
   vehicleId: string

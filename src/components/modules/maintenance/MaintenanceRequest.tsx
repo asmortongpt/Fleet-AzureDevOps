@@ -8,12 +8,13 @@ import {
 import { useState } from "react"
 import { toast } from "sonner"
 
+import { MaintenanceRequestDialog } from "./MaintenanceRequestDialog"
+
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { useFleetData } from "@/hooks/use-fleet-data"
 import { MaintenanceRequest as MaintenanceRequestType } from "@/lib/types"
-import { MaintenanceRequestDialog } from "./MaintenanceRequestDialog"
 
 
 interface MaintenanceRequestProps {

@@ -3,8 +3,8 @@
  * Manages message queues for reliable asynchronous processing using pg-boss
  */
 
-const PgBoss = require('pg-boss');
 import Bottleneck from 'bottleneck';
+
 import { pool } from '../config/database';
 import {
   QueueName,
@@ -12,12 +12,7 @@ import {
   JobStatus,
   JobData,
   JobOptions,
-  JobResult,
   QueueStats,
-  JobTracking,
-  DeadLetterJob,
-  RateLimitConfig,
-  ScheduledJob,
   ErrorType,
   RetryDecision,
   QueueHealth,
@@ -27,6 +22,8 @@ import {
   WebhookPayload,
   SyncPayload
 } from '../types/queue.types';
+
+const PgBoss = require('pg-boss');
 
 class QueueService {
   private boss: any = null;

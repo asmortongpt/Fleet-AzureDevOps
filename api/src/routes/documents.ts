@@ -1,20 +1,19 @@
 // TODO: Verify tenant isolation in all queries
-import express, { Response } from 'express'
-import { container } from '../container'
-import { asyncHandler } from '../middleware/errorHandler'
-import { NotFoundError, ValidationError } from '../errors/app-error'
-import logger from '../config/logger'; // Wave 19: Add Winston logger
-import { AuthRequest, authenticateJWT } from '../middleware/auth'
-import { requirePermission, validateScope } from '../middleware/permissions'
-import { auditLog } from '../middleware/audit'
-import { z } from 'zod'
-import multer from 'multer'
-import path from 'path'
 import fs from 'fs/promises'
+import path from 'path'
+
+import express, { Response } from 'express'
+import multer from 'multer'
+
+import logger from '../config/logger'; // Wave 19: Add Winston logger
 import { fileUploadLimiter } from '../config/rate-limiters'
-import { secureFileValidation } from '../utils/file-validation'
-import { csrfProtection } from '../middleware/csrf'
 import { pool } from '../db/connection'
+import { NotFoundError, ValidationError } from '../errors/app-error'
+import { auditLog } from '../middleware/audit'
+import { AuthRequest, authenticateJWT } from '../middleware/auth'
+import { csrfProtection } from '../middleware/csrf'
+import { requirePermission, validateScope } from '../middleware/permissions'
+import { secureFileValidation } from '../utils/file-validation'
 
 
 const router = express.Router()

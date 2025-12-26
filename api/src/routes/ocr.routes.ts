@@ -8,14 +8,16 @@ import logger from '../config/logger'; // Wave 25: Add Winston logger
  * Endpoints for OCR processing and management
  */
 
+import fs from 'fs/promises'
+
 import express, { Request, Response } from 'express'
 import multer from 'multer'
-import path from 'path'
-import fs from 'fs/promises'
-import ocrService, { OcrOptions, OcrProvider } from '../services/OcrService'
-import ocrQueueService from '../services/OcrQueueService'
-import { getErrorMessage } from '../utils/error-handler'
+
+
 import { csrfProtection } from '../middleware/csrf'
+import ocrQueueService from '../services/OcrQueueService'
+import ocrService, { OcrOptions, OcrProvider } from '../services/OcrService'
+import { getErrorMessage } from '../utils/error-handler'
 
 
 const router = express.Router()
