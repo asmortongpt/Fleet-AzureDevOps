@@ -1,11 +1,5 @@
 /**
  * SafetyHub - Consolidated Safety Management Hub
- * 
- * Consolidates 3 safety-related screens:
- * - Incident Management → Incidents Tab
- * - Video Telematics → Video Tab
- * - Safety Alerts → Alerts Tab
- * 
  * Route: /safety
  */
 
@@ -15,9 +9,9 @@ import {
     VideoCamera,
     Bell
 } from '@phosphor-icons/react'
-import React from 'react'
 
 import { HubPage, HubTab } from '@/components/ui/hub-page'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 
 export function SafetyHub() {
     const tabs: HubTab[] = [
@@ -28,7 +22,12 @@ export function SafetyHub() {
             content: (
                 <div className="p-6">
                     <h2 className="text-xl font-semibold mb-4">Incident Management</h2>
-                    <p className="text-muted-foreground">Safety incidents and accident reports.</p>
+                    <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                        <Card><CardHeader><CardTitle>Open Incidents</CardTitle></CardHeader><CardContent className="text-2xl font-bold text-red-500">3</CardContent></Card>
+                        <Card><CardHeader><CardTitle>Under Review</CardTitle></CardHeader><CardContent className="text-2xl font-bold text-yellow-500">5</CardContent></Card>
+                        <Card><CardHeader><CardTitle>Resolved (30d)</CardTitle></CardHeader><CardContent className="text-2xl font-bold text-green-500">12</CardContent></Card>
+                        <Card><CardHeader><CardTitle>Days Incident Free</CardTitle></CardHeader><CardContent className="text-2xl font-bold">47</CardContent></Card>
+                    </div>
                 </div>
             ),
         },
