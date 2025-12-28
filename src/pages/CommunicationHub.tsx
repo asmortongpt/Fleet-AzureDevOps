@@ -15,8 +15,11 @@ import {
 
 import { HubPage, HubTab } from '@/components/ui/hub-page'
 import { StatCard, ProgressRing, QuickStat, StatusDot } from '@/components/ui/stat-card'
+import { useDrilldown } from '@/contexts/DrilldownContext'
 
 function AIContent() {
+    const { push } = useDrilldown()
+
     return (
         <div className="p-6 space-y-6 bg-gradient-to-b from-slate-900/50 to-transparent">
             <div className="flex items-center justify-between">
@@ -24,17 +27,17 @@ function AIContent() {
                 <StatusDot status="online" label="Ready" />
             </div>
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                <StatCard title="Queries Today" value="145" variant="primary" icon={<Sparkle className="w-6 h-6" />} />
-                <StatCard title="Avg Response" value="1.2s" variant="success" />
-                <StatCard title="Satisfaction" value="94%" variant="success" />
-                <StatCard title="Conversations" value="89" variant="default" />
+                <StatCard title="Queries Today" value="145" variant="primary" icon={<Sparkle className="w-6 h-6" />} onClick={() => push({ type: 'ai-agent', data: { title: 'AI Queries' } })} />
+                <StatCard title="Avg Response" value="1.2s" variant="success" onClick={() => push({ type: 'ai-agent', data: { title: 'Response Time' } })} />
+                <StatCard title="Satisfaction" value="94%" variant="success" onClick={() => push({ type: 'ai-satisfaction', data: { title: 'Satisfaction' } })} />
+                <StatCard title="Conversations" value="89" variant="default" onClick={() => push({ type: 'ai-conversations', data: { title: 'Conversations' } })} />
             </div>
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <div className="bg-gradient-to-br from-slate-800/60 to-slate-900/60 backdrop-blur-xl rounded-xl border border-slate-700/50 p-6">
+                <div className="bg-gradient-to-br from-slate-800/60 to-slate-900/60 backdrop-blur-xl rounded-xl border border-slate-700/50 p-6 cursor-pointer hover:border-slate-600/50 transition-colors" onClick={() => push({ type: 'ai-agent', data: { title: 'Resolution Rate' } })}>
                     <h3 className="text-sm font-medium text-slate-400 uppercase tracking-wide mb-4">Resolution Rate</h3>
                     <ProgressRing progress={87} color="green" label="Resolved" sublabel="without escalation" />
                 </div>
-                <div className="bg-gradient-to-br from-slate-800/60 to-slate-900/60 backdrop-blur-xl rounded-xl border border-slate-700/50 p-6">
+                <div className="bg-gradient-to-br from-slate-800/60 to-slate-900/60 backdrop-blur-xl rounded-xl border border-slate-700/50 p-6 cursor-pointer hover:border-slate-600/50 transition-colors" onClick={() => push({ type: 'ai-agent', data: { title: 'AI Usage' } })}>
                     <h3 className="text-sm font-medium text-slate-400 uppercase tracking-wide mb-4">Usage</h3>
                     <QuickStat label="Fleet Queries" value="45%" />
                     <QuickStat label="Maintenance" value="28%" />
@@ -47,42 +50,48 @@ function AIContent() {
 }
 
 function TeamsContent() {
+    const { push } = useDrilldown()
+
     return (
         <div className="p-6 space-y-6 bg-gradient-to-b from-slate-900/50 to-transparent">
             <h2 className="text-2xl font-bold text-white">Teams Integration</h2>
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                <StatCard title="Connected Users" value="48" variant="primary" icon={<MicrosoftTeamsLogo className="w-6 h-6" />} />
-                <StatCard title="Messages Today" value="234" variant="success" />
-                <StatCard title="Channels" value="12" variant="default" />
-                <StatCard title="Automations" value="8" variant="success" />
+                <StatCard title="Connected Users" value="48" variant="primary" icon={<MicrosoftTeamsLogo className="w-6 h-6" />} onClick={() => push({ type: 'messages', data: { title: 'Connected Users' } })} />
+                <StatCard title="Messages Today" value="234" variant="success" onClick={() => push({ type: 'messages-today', data: { title: 'Messages Today' } })} />
+                <StatCard title="Channels" value="12" variant="default" onClick={() => push({ type: 'channels', data: { title: 'Channels' } })} />
+                <StatCard title="Automations" value="8" variant="success" onClick={() => push({ type: 'automations', data: { title: 'Automations' } })} />
             </div>
         </div>
     )
 }
 
 function EmailContent() {
+    const { push } = useDrilldown()
+
     return (
         <div className="p-6 space-y-6 bg-gradient-to-b from-slate-900/50 to-transparent">
             <h2 className="text-2xl font-bold text-white">Email Center</h2>
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                <StatCard title="Sent Today" value="156" variant="primary" icon={<PaperPlaneTilt className="w-6 h-6" />} />
-                <StatCard title="Templates" value="24" variant="default" />
-                <StatCard title="Open Rate" value="42%" variant="success" />
-                <StatCard title="Scheduled" value="12" variant="warning" />
+                <StatCard title="Sent Today" value="156" variant="primary" icon={<PaperPlaneTilt className="w-6 h-6" />} onClick={() => push({ type: 'email', data: { title: 'Emails Sent' } })} />
+                <StatCard title="Templates" value="24" variant="default" onClick={() => push({ type: 'email-templates', data: { title: 'Email Templates' } })} />
+                <StatCard title="Open Rate" value="42%" variant="success" onClick={() => push({ type: 'open-rate', data: { title: 'Open Rate' } })} />
+                <StatCard title="Scheduled" value="12" variant="warning" onClick={() => push({ type: 'scheduled-emails', data: { title: 'Scheduled Emails' } })} />
             </div>
         </div>
     )
 }
 
 function LogContent() {
+    const { push } = useDrilldown()
+
     return (
         <div className="p-6 space-y-6 bg-gradient-to-b from-slate-900/50 to-transparent">
             <h2 className="text-2xl font-bold text-white">Communication Log</h2>
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                <StatCard title="Total Messages" value="4,567" variant="primary" icon={<Chat className="w-6 h-6" />} />
-                <StatCard title="This Week" value="456" variant="success" />
-                <StatCard title="Flagged" value="12" variant="warning" />
-                <StatCard title="Archived" value="3.2K" variant="default" />
+                <StatCard title="Total Messages" value="4,567" variant="primary" icon={<Chat className="w-6 h-6" />} onClick={() => push({ type: 'communication-history', data: { title: 'Total Messages' } })} />
+                <StatCard title="This Week" value="456" variant="success" onClick={() => push({ type: 'communication-history', data: { title: 'This Week' } })} />
+                <StatCard title="Flagged" value="12" variant="warning" onClick={() => push({ type: 'flagged', data: { title: 'Flagged Messages' } })} />
+                <StatCard title="Archived" value="3.2K" variant="default" onClick={() => push({ type: 'archived', data: { title: 'Archived' } })} />
             </div>
         </div>
     )
