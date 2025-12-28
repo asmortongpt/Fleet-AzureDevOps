@@ -20,7 +20,10 @@ import { config } from './services/config';
 import { db } from './services/database';
 import { logger } from './services/logger';
 
-// Import Wave 4+ middleware
+// Import Phase 2 Security Middleware
+import { applySecurityHeaders } from './middleware/security-headers';
+import { authLimiter as phase2AuthLimiter, apiLimiter as phase2ApiLimiter, sensitiveOperationLimiter } from './middleware/rate-limiter';
+import { validate, schemas } from './middleware/input-validation';
 
 // Create Express app
 const app = express();
@@ -28,22 +31,8 @@ const app = express();
 // Trust proxy (required for rate limiting behind reverse proxy)
 app.set('trust proxy', 1);
 
-// Security middleware
-app.use(helmet({
-  contentSecurityPolicy: {
-    directives: {
-      defaultSrc: ["'self'"],
-      styleSrc: ["'self'", "'unsafe-inline'"],
-      scriptSrc: ["'self'"],
-      imgSrc: ["'self'", 'data:', 'https:'],
-    },
-  },
-  hsts: {
-    maxAge: 31536000,
-    includeSubDomains: true,
-    preload: true,
-  },
-}));
+// Phase 2 Enhanced Security Headers (replaces basic Helmet config)
+applySecurityHeaders(app);
 
 // CORS configuration
 app.use(cors({
@@ -53,9 +42,9 @@ app.use(cors({
   allowedHeaders: ['Content-Type', 'Authorization'],
 }));
 
-// Body parsing middleware
-app.use(express.json({ limit: '10mb' }));
-app.use(express.urlencoded({ extended: true, limit: '10mb' }));
+// Body parsing middleware (reduced from 10mb to 10kb for security - Phase 2)
+app.use(express.json({ limit: '10kb' }));
+app.use(express.urlencoded({ extended: true, limit: '10kb' }));
 
 // Cookie parser (required for CSRF)
 app.use(cookieParser());
@@ -69,25 +58,14 @@ app.use('/api', apiVersioning);
 // API version info endpoint
 app.get('/api/version', versionInfoEndpoint);
 
-// Rate limiting
-const authLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 10, // 10 requests per window
-  message: 'Too many authentication attempts, please try again later',
-  standardHeaders: true,
-  legacyHeaders: false,
-});
+// Phase 2 Enhanced Rate Limiting (with security event logging)
+app.use('/api/v1/auth', phase2AuthLimiter);
+app.use('/api', phase2ApiLimiter);
 
-const apiLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100, // 100 requests per window
-  message: 'Too many requests, please try again later',
-  standardHeaders: true,
-  legacyHeaders: false,
-});
-
-// Apply rate limiting to auth routes
-app.use('/api/v1/auth', authLimiter);
+// Sensitive operations rate limiting
+app.use('/api/v1/gdpr', sensitiveOperationLimiter); // Data export/deletion
+app.use('/api/v1/auth/reset-password', sensitiveOperationLimiter);
+app.use('/api/v1/auth/change-email', sensitiveOperationLimiter);
 
 // CSRF token endpoint (must be before CSRF protection)
 app.get('/api/v1/csrf-token', csrfProtection, getCsrfToken);
