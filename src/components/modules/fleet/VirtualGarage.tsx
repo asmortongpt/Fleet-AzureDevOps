@@ -696,7 +696,6 @@ async function submitTripoSRRequest(
 // ============================================================================
 
 export function VirtualGarage() {
-  const data = useFleetData()
   const queryClient = useQueryClient()
 
   // State
@@ -946,9 +945,8 @@ export function VirtualGarage() {
 
                 <div
                   {...getRootProps()}
-                  className={`border-2 border-dashed rounded-lg p-8 text-center cursor-pointer transition ${
-                    isDragActive ? "border-primary bg-primary/5" : "border-muted-foreground/25"
-                  }`}
+                  className={`border-2 border-dashed rounded-lg p-8 text-center cursor-pointer transition ${isDragActive ? "border-primary bg-primary/5" : "border-muted-foreground/25"
+                    }`}
                 >
                   <input {...getInputProps()} />
                   <Upload className="w-12 h-12 mx-auto mb-4 text-muted-foreground" />
