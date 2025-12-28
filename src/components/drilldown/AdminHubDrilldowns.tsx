@@ -6,7 +6,7 @@ import { Badge } from '@/components/ui/badge'
 import { Progress } from '@/components/ui/progress'
 import {
     Cpu, HardDrive, Users, Bell, CheckCircle, Warning,
-    FileText, Cloud, Clock, Activity
+    FileText, Cloud, Clock, Pulse
 } from '@phosphor-icons/react'
 
 export function SystemHealthDrilldown() {
@@ -44,7 +44,7 @@ export function SystemHealthDrilldown() {
             <Card className="bg-slate-800/50 border-slate-700">
                 <CardHeader className="pb-2">
                     <CardTitle className="text-white text-lg flex items-center gap-2">
-                        <Activity className="w-5 h-5 text-blue-400" />
+                        <Pulse className="w-5 h-5 text-blue-400" />
                         Service Status
                     </CardTitle>
                 </CardHeader>
