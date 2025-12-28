@@ -1,82 +1,138 @@
 /**
- * DriversHub - Consolidated Driver Management Hub
+ * DriversHub - Premium Driver Management Hub
  * Route: /drivers
  */
 
 import {
     Users as DriversIcon,
+    Users,
     UserList,
     ChartLine,
     Trophy,
     Car,
-    FileText
+    FileText,
+    Medal,
+    Star
 } from '@phosphor-icons/react'
 
 import { HubPage, HubTab } from '@/components/ui/hub-page'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { StatCard, ProgressRing, StatusDot, QuickStat } from '@/components/ui/stat-card'
+import { useDrilldown } from '@/contexts/DrilldownContext'
+
+function DriversListContent() {
+    const { push } = useDrilldown()
+
+    return (
+        <div className="p-6 space-y-6 bg-gradient-to-b from-slate-900/50 to-transparent min-h-full">
+            <div className="flex items-center justify-between">
+                <div>
+                    <h2 className="text-2xl font-bold text-white">Driver Roster</h2>
+                    <p className="text-slate-400 mt-1">Active driver management and status</p>
+                </div>
+                <StatusDot status="online" label="42 Active Now" />
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                <StatCard title="Total Drivers" value="48" subtitle="3 new this month" variant="primary" icon={<Users className="w-6 h-6" />} onClick={() => push({ type: 'total-drivers', data: { title: 'Total Drivers' } })} />
+                <StatCard title="On Duty" value="42" trend="up" trendValue="+2" variant="success" onClick={() => push({ type: 'on-duty', data: { title: 'On Duty Drivers' } })} />
+                <StatCard title="On Leave" value="4" variant="warning" onClick={() => push({ type: 'drivers-roster', data: { title: 'Drivers On Leave', filter: 'leave' } })} />
+                <StatCard title="Training" value="2" variant="default" onClick={() => push({ type: 'drivers-roster', data: { title: 'Drivers In Training', filter: 'training' } })} />
+            </div>
+
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <div className="bg-gradient-to-br from-slate-800/60 to-slate-900/60 backdrop-blur-xl rounded-xl border border-slate-700/50 p-6 cursor-pointer hover:border-slate-600/50 transition-colors" onClick={() => push({ type: 'driver-scorecard', data: { title: 'Certification Status' } })}>
+                    <h3 className="text-sm font-medium text-slate-400 uppercase tracking-wide mb-4">Certification Rate</h3>
+                    <div className="flex items-center justify-center">
+                        <ProgressRing progress={96} color="green" label="Certified" sublabel="46 of 48 current" />
+                    </div>
+                </div>
+
+                <div className="bg-gradient-to-br from-slate-800/60 to-slate-900/60 backdrop-blur-xl rounded-xl border border-slate-700/50 p-6 cursor-pointer hover:border-slate-600/50 transition-colors" onClick={() => push({ type: 'driver-performance-hub', data: { title: 'Performance Metrics' } })}>
+                    <h3 className="text-sm font-medium text-slate-400 uppercase tracking-wide mb-4">Performance</h3>
+                    <div className="space-y-1">
+                        <QuickStat label="Avg Rating" value="4.7/5" trend="up" />
+                        <QuickStat label="On-Time %" value="94.2%" trend="up" />
+                        <QuickStat label="Safety Score" value="92" />
+                        <QuickStat label="Tenure Avg" value="3.2 yrs" />
+                    </div>
+                </div>
+
+                <div className="bg-gradient-to-br from-slate-800/60 to-slate-900/60 backdrop-blur-xl rounded-xl border border-slate-700/50 p-6 cursor-pointer hover:border-slate-600/50 transition-colors" onClick={() => push({ type: 'drivers-roster', data: { title: 'Driver Availability' } })}>
+                    <h3 className="text-sm font-medium text-slate-400 uppercase tracking-wide mb-4">Availability</h3>
+                    <div className="flex items-center justify-center">
+                        <ProgressRing progress={88} color="blue" label="Available" sublabel="Today" />
+                    </div>
+                </div>
+            </div>
+        </div>
+    )
+}
+
+function PerformanceContent() {
+    const { push } = useDrilldown()
+
+    return (
+        <div className="p-6 space-y-6 bg-gradient-to-b from-slate-900/50 to-transparent">
+            <h2 className="text-2xl font-bold text-white">Driver Performance</h2>
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                <StatCard title="Top Performers" value="12" variant="success" icon={<Star className="w-6 h-6" />} onClick={() => push({ type: 'top-performers', data: { title: 'Top Performers' } })} />
+                <StatCard title="Meeting Target" value="28" variant="primary" onClick={() => push({ type: 'driver-performance-hub', data: { title: 'Meeting Target' } })} />
+                <StatCard title="Needs Coaching" value="6" variant="warning" onClick={() => push({ type: 'needs-coaching', data: { title: 'Needs Coaching' } })} />
+                <StatCard title="Improvement" value="2" variant="danger" onClick={() => push({ type: 'driver-performance-hub', data: { title: 'Needs Improvement' } })} />
+            </div>
+        </div>
+    )
+}
+
+function ScorecardContent() {
+    const { push } = useDrilldown()
+
+    return (
+        <div className="p-6 space-y-6 bg-gradient-to-b from-slate-900/50 to-transparent">
+            <h2 className="text-2xl font-bold text-white">Driver Scorecard</h2>
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                <StatCard title="Fleet Avg Score" value="87" variant="primary" icon={<Trophy className="w-6 h-6" />} />
+                <StatCard title="Top Score" value="98" variant="success" />
+                <StatCard title="This Month" value="+4%" trend="up" variant="success" />
+                <StatCard title="Awards Given" value="15" variant="default" icon={<Medal className="w-6 h-6" />} />
+            </div>
+        </div>
+    )
+}
+
+function PersonalUseContent() {
+    return (
+        <div className="p-6 space-y-6 bg-gradient-to-b from-slate-900/50 to-transparent">
+            <h2 className="text-2xl font-bold text-white">Personal Use Tracking</h2>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <StatCard title="Tracked Drivers" value="34" variant="primary" icon={<Car className="w-6 h-6" />} />
+                <StatCard title="Personal Miles" value="2,450" variant="default" />
+                <StatCard title="Compliance" value="98%" variant="success" />
+            </div>
+        </div>
+    )
+}
+
+function PolicyContent() {
+    return (
+        <div className="p-6 space-y-6 bg-gradient-to-b from-slate-900/50 to-transparent">
+            <h2 className="text-2xl font-bold text-white">Personal Use Policy</h2>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <StatCard title="Active Policies" value="3" variant="primary" icon={<FileText className="w-6 h-6" />} />
+                <StatCard title="Drivers Enrolled" value="34" variant="default" />
+                <StatCard title="Compliance Rate" value="98%" variant="success" />
+            </div>
+        </div>
+    )
+}
 
 export function DriversHub() {
     const tabs: HubTab[] = [
-        {
-            id: 'list',
-            label: 'Drivers',
-            icon: <UserList className="w-4 h-4" />,
-            content: (
-                <div className="p-6">
-                    <h2 className="text-xl font-semibold mb-4">Driver Roster</h2>
-                    <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                        <Card><CardHeader><CardTitle>Total Drivers</CardTitle></CardHeader><CardContent className="text-2xl font-bold">48</CardContent></Card>
-                        <Card><CardHeader><CardTitle>Active</CardTitle></CardHeader><CardContent className="text-2xl font-bold text-green-500">42</CardContent></Card>
-                        <Card><CardHeader><CardTitle>On Leave</CardTitle></CardHeader><CardContent className="text-2xl font-bold text-yellow-500">4</CardContent></Card>
-                        <Card><CardHeader><CardTitle>Training</CardTitle></CardHeader><CardContent className="text-2xl font-bold text-blue-500">2</CardContent></Card>
-                    </div>
-                </div>
-            ),
-        },
-        {
-            id: 'performance',
-            label: 'Performance',
-            icon: <ChartLine className="w-4 h-4" />,
-            content: (
-                <div className="p-6">
-                    <h2 className="text-xl font-semibold mb-4">Driver Performance</h2>
-                    <p className="text-muted-foreground">Performance metrics and analytics.</p>
-                </div>
-            ),
-        },
-        {
-            id: 'scorecard',
-            label: 'Scorecard',
-            icon: <Trophy className="w-4 h-4" />,
-            content: (
-                <div className="p-6">
-                    <h2 className="text-xl font-semibold mb-4">Driver Scorecard</h2>
-                    <p className="text-muted-foreground">Safety scores and rankings.</p>
-                </div>
-            ),
-        },
-        {
-            id: 'personal',
-            label: 'Personal Use',
-            icon: <Car className="w-4 h-4" />,
-            content: (
-                <div className="p-6">
-                    <h2 className="text-xl font-semibold mb-4">Personal Use Tracking</h2>
-                    <p className="text-muted-foreground">Personal vs business mileage.</p>
-                </div>
-            ),
-        },
-        {
-            id: 'policy',
-            label: 'Policy',
-            icon: <FileText className="w-4 h-4" />,
-            content: (
-                <div className="p-6">
-                    <h2 className="text-xl font-semibold mb-4">Personal Use Policy</h2>
-                    <p className="text-muted-foreground">Policy configuration.</p>
-                </div>
-            ),
-        },
+        { id: 'list', label: 'Drivers', icon: <UserList className="w-4 h-4" />, content: <DriversListContent /> },
+        { id: 'performance', label: 'Performance', icon: <ChartLine className="w-4 h-4" />, content: <PerformanceContent /> },
+        { id: 'scorecard', label: 'Scorecard', icon: <Trophy className="w-4 h-4" />, content: <ScorecardContent /> },
+        { id: 'personal', label: 'Personal Use', icon: <Car className="w-4 h-4" />, content: <PersonalUseContent /> },
+        { id: 'policy', label: 'Policy', icon: <FileText className="w-4 h-4" />, content: <PolicyContent /> },
     ]
 
     return (
