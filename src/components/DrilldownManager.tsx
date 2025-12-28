@@ -46,6 +46,24 @@ import {
   PurchaseOrdersDrilldown,
   FuelPurchasingDrilldown
 } from '@/components/drilldown/AdditionalHubDrilldowns'
+import {
+  AiAgentDrilldown,
+  MessagesDrilldown,
+  EmailDrilldown,
+  HistoryDrilldown
+} from '@/components/drilldown/CommunicationHubDrilldowns'
+import {
+  RegulationsDrilldown,
+  GeofenceComplianceDrilldown,
+  InspectionsDrilldown,
+  IFTADrilldown,
+  CSADrilldown
+} from '@/components/drilldown/ComplianceHubDrilldowns'
+import {
+  SystemHealthDrilldown,
+  AlertsDrilldown,
+  FilesDrilldown
+} from '@/components/drilldown/AdminHubDrilldowns'
 import { LaborDetailsView } from '@/components/drilldown/LaborDetailsView'
 import { PartsBreakdownView } from '@/components/drilldown/PartsBreakdownView'
 import { TripTelemetryView } from '@/components/drilldown/TripTelemetryView'
@@ -291,6 +309,80 @@ function DrilldownContent() {
     case 'fuel-purchasing':
     case 'fuel-cards':
       return <FuelPurchasingDrilldown />
+
+    // ============================================
+    // Communication Hub Drilldowns
+    // ============================================
+    case 'ai-agent':
+    case 'ai-conversations':
+    case 'ai-satisfaction':
+      return <AiAgentDrilldown />
+
+    case 'messages':
+    case 'messages-today':
+    case 'channels':
+    case 'automations':
+      return <MessagesDrilldown />
+
+    case 'email':
+    case 'email-templates':
+    case 'open-rate':
+    case 'scheduled-emails':
+      return <EmailDrilldown />
+
+    case 'communication-history':
+    case 'flagged':
+    case 'archived':
+      return <HistoryDrilldown />
+
+    // ============================================
+    // Compliance Hub Drilldowns
+    // ============================================
+    case 'regulations':
+    case 'dot-compliance':
+    case 'ifta-compliance':
+      return <RegulationsDrilldown />
+
+    case 'geofence-compliance':
+    case 'compliant-zones':
+    case 'attention-zones':
+      return <GeofenceComplianceDrilldown />
+
+    case 'inspections':
+    case 'inspections-due':
+    case 'hos-violations':
+    case 'eld-status':
+      return <InspectionsDrilldown />
+
+    case 'ifta':
+    case 'miles-tracked':
+    case 'fuel-tax-due':
+      return <IFTADrilldown />
+
+    case 'csa':
+    case 'csa-pending':
+    case 'incidents-ytd':
+    case 'days-safe':
+      return <CSADrilldown />
+
+    // ============================================
+    // Admin Hub Drilldowns
+    // ============================================
+    case 'system-health':
+    case 'active-sessions':
+    case 'uptime':
+      return <SystemHealthDrilldown />
+
+    case 'system-alerts':
+    case 'critical-alerts':
+    case 'resolved-today':
+    case 'suppressed':
+      return <AlertsDrilldown />
+
+    case 'files':
+    case 'shared-files':
+    case 'uploaded-today':
+      return <FilesDrilldown />
 
     // ============================================
     // Facility drilldown hierarchy
