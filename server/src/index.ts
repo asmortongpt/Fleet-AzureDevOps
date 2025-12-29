@@ -16,6 +16,7 @@ import facilitiesRoutes from './routes/facilities';
 import gdprRoutes from './routes/gdpr';
 import complianceRoutes from './routes/soc2-compliance';
 import vehiclesRoutes from './routes/vehicles';
+import securityRoutes from './routes/security';
 import { config } from './services/config';
 import { db } from './services/database';
 import { logger } from './services/logger';
@@ -112,6 +113,7 @@ app.get('/health', async (_req: Request, res: Response): Promise<void> => {
 
 // API routes
 app.use('/api/v1/auth', authRoutes);
+app.use('/api/v1/security', securityRoutes);
 
 // Apply general rate limiting to all other API routes
 app.use('/api', apiLimiter);
