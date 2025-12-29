@@ -1,6 +1,7 @@
 import { Pool, PoolClient } from 'pg'
 
 import { IRepository } from './IRepository'
+import { PaginatedResult, PaginationOptions } from './types'
 
 /**
  * Generic CRUD Repository Base Class
@@ -47,7 +48,7 @@ export abstract class BaseRepository<T, CreateDTO = Partial<T>, UpdateDTO = Part
    * Build WHERE clause for tenant isolation
    * Ensures Row-Level Security (RLS) at application layer
    */
-  protected buildTenantFilter(tenantId: number, paramIndex: number = 1): string {
+  protected buildTenantFilter(tenantId: string, paramIndex: number = 1): string {
     return `tenant_id = $${paramIndex}`
   }
 
@@ -55,7 +56,7 @@ export abstract class BaseRepository<T, CreateDTO = Partial<T>, UpdateDTO = Part
    * Find entity by ID with tenant isolation
    * Uses parameterized query to prevent SQL injection
    */
-  async findById(id: number | string, tenantId: number): Promise<T | null> {
+  async findById(id: number | string, tenantId: string, _client?: PoolClient): Promise<T | null> {
     const result = await this.pool.query(
       `SELECT id, name, created_at, updated_at, tenant_id FROM ${this.tableName} WHERE ${this.idColumn} = $1 AND tenant_id = $2`,
       [id, tenantId]
@@ -64,48 +65,51 @@ export abstract class BaseRepository<T, CreateDTO = Partial<T>, UpdateDTO = Part
   }
 
   /**
-   * Find all entities with optional filters
-   * Dynamically builds WHERE clause from filters object
+   * Find all entities with optional filters and pagination
    */
-  async findAll(filters: Record<string, any> = {}, tenantId: number): Promise<T[]> {
-    const whereClauses: string[] = [`tenant_id = $1`]
-    const params: any[] = [tenantId]
-    let paramIndex = 2
+  async findAll(tenantId: string, options: PaginationOptions = {}, _client?: PoolClient): Promise<PaginatedResult<T>> {
+    const { page = 1, limit = 50, sortBy = this.idColumn, sortOrder = 'DESC' } = options
+    const offset = (page - 1) * limit
 
-    // Build dynamic WHERE clause from filters
-    Object.entries(filters).forEach(([key, value]) => {
-      if (value !== undefined && value !== null) {
-        whereClauses.push(`${key} = $${paramIndex}`)
-        params.push(value)
-        paramIndex++
-      }
-    })
-
-    const whereClause = whereClauses.join(' AND ')
-    const result = await this.pool.query(
-      `SELECT id, name, created_at, updated_at, tenant_id FROM ${this.tableName} WHERE ${whereClause} ORDER BY ${this.idColumn} DESC`,
-      params
+    // Get total count
+    const countResult = await this.pool.query(
+      `SELECT COUNT(*) as count FROM ${this.tableName} WHERE tenant_id = $1`,
+      [tenantId]
     )
-    return result.rows
+    const total = parseInt(countResult.rows[0].count, 10)
+
+    // Get paginated data
+    const result = await this.pool.query(
+      `SELECT id, name, created_at, updated_at, tenant_id FROM ${this.tableName} WHERE tenant_id = $1 ORDER BY ${sortBy} ${sortOrder} LIMIT $2 OFFSET $3`,
+      [tenantId, limit, offset]
+    )
+
+    return {
+      data: result.rows,
+      pagination: {
+        page,
+        limit,
+        total,
+        totalPages: Math.ceil(total / limit)
+      }
+    }
   }
 
   /**
-   * Create new entity - must be implemented by subclass
-   * Subclasses handle specific column mapping and validation
+   * Create new entity
    */
-  abstract create(data: CreateDTO, tenantId: number): Promise<T>
+  abstract create(data: CreateDTO, tenantId: string, userId: string, client?: PoolClient): Promise<T>
 
   /**
-   * Update existing entity - must be implemented by subclass
-   * Subclasses handle specific column mapping and validation
+   * Update existing entity
    */
-  abstract update(id: number | string, data: UpdateDTO, tenantId: number): Promise<T>
+  abstract update(id: number | string, data: UpdateDTO, tenantId: string, userId: string, client?: PoolClient): Promise<T>
 
   /**
    * Delete entity with tenant isolation
    * Uses parameterized query to prevent SQL injection
    */
-  async delete(id: number | string, tenantId: number): Promise<boolean> {
+  async delete(id: number | string, tenantId: string, _userId: string, _client?: PoolClient): Promise<boolean> {
     const result = await this.pool.query(
       `DELETE FROM ${this.tableName} WHERE ${this.idColumn} = $1 AND tenant_id = $2`,
       [id, tenantId]
@@ -117,15 +121,15 @@ export abstract class BaseRepository<T, CreateDTO = Partial<T>, UpdateDTO = Part
    * Count entities with optional filters
    * Uses parameterized query for WHERE clause
    */
-  async count(filters: Record<string, any> = {}, tenantId: number): Promise<number> {
+  async count(conditions: Partial<T>, tenantId: string, _client?: PoolClient): Promise<number> {
     const whereClauses: string[] = [`tenant_id = $1`]
-    const params: any[] = [tenantId]
+    const params: (string | number | boolean)[] = [tenantId]
     let paramIndex = 2
 
-    Object.entries(filters).forEach(([key, value]) => {
+    Object.entries(conditions).forEach(([key, value]) => {
       if (value !== undefined && value !== null) {
         whereClauses.push(`${key} = $${paramIndex}`)
-        params.push(value)
+        params.push(value as string | number | boolean)
         paramIndex++
       }
     })
