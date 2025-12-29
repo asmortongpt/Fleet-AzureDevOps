@@ -29,6 +29,12 @@
     "node_modules",
     "dist",
     "src/**/*.test.ts",
-    "src/**/__tests__/**"
+    "src/**/__tests__/**",
+    "src/**/*.example.ts",
+    "src/**/*-example.ts",
+    "src/**/*.selectbak",
+    "src/**/examples/**",
+    "src/examples/**",
+    "src/scripts/**"
   ]
 }
