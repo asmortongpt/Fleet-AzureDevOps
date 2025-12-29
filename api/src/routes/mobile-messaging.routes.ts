@@ -18,7 +18,7 @@ import { requirePermission } from '../middleware/permissions';
 import { outlookService } from '../services/outlook.service';
 import teamsService from '../services/teams.service';
 import { getErrorMessage } from '../utils/error-handler'
-import { logger } from '../utils/logger';
+import { logger } from '../config/logger';
 
 
 

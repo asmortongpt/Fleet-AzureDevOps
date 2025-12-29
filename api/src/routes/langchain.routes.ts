@@ -16,7 +16,7 @@ import aiAgentSupervisorService from '../services/ai-agent-supervisor.service'
 import langchainOrchestratorService from '../services/langchain-orchestrator.service'
 import mcpServerRegistryService from '../services/mcp-server-registry.service'
 import { getErrorMessage } from '../utils/error-handler'
-import { logger } from '../utils/logger'
+import { logger } from '../config/logger'
 
 
 const router = Router()

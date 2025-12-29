@@ -10,7 +10,7 @@ import { csrfProtection } from '../middleware/csrf'
 import { requirePermission } from '../middleware/permissions';
 import { pushNotificationService } from '../services/push-notification.service';
 import { smsService } from '../services/sms.service'
-import { logger } from '../utils/logger';
+import { logger } from '../config/logger';
 
 const router = express.Router();
 

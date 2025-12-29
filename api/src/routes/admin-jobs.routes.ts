@@ -22,7 +22,7 @@ import {
   reportQueue,
 } from '../jobs/queue'
 import { csrfProtection } from '../middleware/csrf'
-import logger from '../utils/logger'
+import logger from '../config/logger'
 
 
 const router = Router()
