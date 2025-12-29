@@ -116,14 +116,14 @@ export function validate(schema: z.ZodType, source: 'body' | 'params' | 'query' 
           event: 'VALIDATION_FAILURE',
           endpoint: req.path,
           method: req.method,
-          errors: error.errors,
+          errors: error.issues,
           ip: req.ip,
           timestamp: new Date().toISOString()
         });
 
         res.status(400).json({
           error: 'Validation failed',
-          details: error.errors.map(err => ({
+          details: error.issues.map(err => ({
             field: err.path.join('.'),
             message: err.message,
             code: err.code
@@ -176,7 +176,7 @@ export function validateAndSanitize(schema: z.ZodType) {
       if (error instanceof z.ZodError) {
         res.status(400).json({
           error: 'Validation failed',
-          details: error.errors
+          details: error.issues
         });
       } else {
         res.status(500).json({ error: 'Internal server error' });

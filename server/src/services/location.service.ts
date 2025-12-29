@@ -1,7 +1,7 @@
 import { Pool } from 'pg';
 
-import { AuditLog } from '../utils/auditLog';
-import { Logger } from '../utils/logger';
+import { auditLog } from '../utils/auditLog';
+import { logger } from '../utils/logger';
 import { validateLatitude, validateLongitude, validateSource } from '../utils/validators';
 
 // FedRAMP/SOC 2 compliance: Ensure secure database connection
@@ -11,7 +11,7 @@ const pool = new Pool({
 });
 
 class LocationService {
-  private logger: Logger;
+  private logger: typeof logger;
 
   constructor() {
     this.logger = new Logger('LocationService');
@@ -32,7 +32,7 @@ class LocationService {
       await pool.query(query, [tenantId, assetId, source, lat, lng, accuracyM, capturedBy]);
 
       // Audit logging
-      AuditLog.log('record', { tenantId, assetId, source, capturedBy });
+      auditLog.log('record', { tenantId, assetId, source, capturedBy });
 
     } catch (error) {
       this.logger.error('Error recording location', error);
