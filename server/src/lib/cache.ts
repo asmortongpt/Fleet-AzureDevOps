@@ -108,3 +108,4 @@ export async function getDashboardStats(tenantId: string, fetcher: () => Promise
 }
 
 export const cache = cached; // Alias for compatibility
+export { redis }; // Export redis instance for session.ts and other modules
