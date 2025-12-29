@@ -1,7 +1,4 @@
 /**
-import { container } from '../container'
-import { asyncHandler } from '../middleware/errorHandler'
-import { NotFoundError, ValidationError } from '../errors/app-error'
  * Microsoft Teams Routes
  *
  * RESTful API endpoints for Teams integration:
@@ -15,6 +12,9 @@ import { NotFoundError, ValidationError } from '../errors/app-error'
  * All routes require authentication
  */
 
+import { container } from '../container'
+import { asyncHandler } from '../middleware/errorHandler'
+import { NotFoundError, ValidationError } from '../errors/app-error'
 import { Router, Response } from 'express'
 
 import { authenticateJWT, AuthRequest } from '../middleware/auth'
