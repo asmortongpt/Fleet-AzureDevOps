@@ -15,8 +15,8 @@ const CSRF_COOKIE_NAME = 'csrfToken';
 const CSRF_HEADER_NAME = 'X-CSRF-Token';
 const CSRF_TOKEN_LENGTH = 32;
 
-// Logger instance
-const appLogger = new Logger('CSRF-Tokens');
+// Logger instance (use imported logger)
+const appLogger = logger;
 
 /**
  * Generates a secure random CSRF token.
@@ -42,7 +42,7 @@ export function csrfTokenMiddleware(req: Request, res: Response, next: NextFunct
     const csrfToken = generateCsrfToken();
     res.cookie(CSRF_COOKIE_NAME, csrfToken, {
       httpOnly: true,
-      secure: FleetLocalConfig.isProduction, // Ensure secure flag is set in production
+      secure: process.env.NODE_ENV === 'production', // Ensure secure flag is set in production
       sameSite: 'strict',
     });
     res.setHeader(CSRF_HEADER_NAME, csrfToken);
@@ -59,7 +59,7 @@ export function csrfTokenMiddleware(req: Request, res: Response, next: NextFunct
  * @param {Response} res - Express response object
  * @param {NextFunction} next - Express next middleware function
  */
-export function verifyCsrfToken(req: Request, res: Response, next: NextFunction): void {
+export function verifyCsrfToken(req: Request, res: Response, next: NextFunction): Response | void {
   try {
     const csrfTokenFromCookie = req.cookies[CSRF_COOKIE_NAME];
     const csrfTokenFromHeader = req.headers[CSRF_HEADER_NAME.toLowerCase()];
@@ -72,7 +72,7 @@ export function verifyCsrfToken(req: Request, res: Response, next: NextFunction)
     next();
   } catch (error) {
     appLogger.error('Error verifying CSRF token:', error);
-    res.status(500).send('Internal Server Error');
+    return res.status(500).send('Internal Server Error');
   }
 }
 
