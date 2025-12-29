@@ -4,7 +4,7 @@ import jwt from 'jsonwebtoken';
 import { Server, Socket } from 'socket.io';
 
 import { getJwtSecret } from '../config/jwt.config';
-import logger from '../utils/logger';
+import logger from '../config/logger';
 
 /**
  * Task Real-Time WebSocket Server

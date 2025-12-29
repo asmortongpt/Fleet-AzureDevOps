@@ -40,7 +40,7 @@ import {
   BatchRequestItem,
   BatchResponseItem,
 } from '../types/microsoft-graph.types'
-import { logger } from '../utils/logger'
+import { logger } from '../config/logger'
 import { validateOutboundUrl } from '../utils/ssrf-protection'
 
 /**
