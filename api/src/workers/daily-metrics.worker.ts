@@ -3,7 +3,7 @@
 import cron from 'node-cron';
 
 import pool from '../config/database';
-import { logger } from '../utils/logger';
+import { logger } from '../config/logger';
 
 /**
  * Refreshes materialized views to ensure data is up to date.

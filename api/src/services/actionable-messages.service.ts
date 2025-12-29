@@ -1,7 +1,7 @@
 import { Pool } from 'pg'
 
 import { createAuditLog } from '../middleware/audit'
-import logger from '../utils/logger'
+import logger from '../config/logger'
 
 import { updateAdaptiveCard } from './adaptive-cards.service'
 

@@ -3,7 +3,7 @@ import crypto from 'crypto'
 import { Response, NextFunction } from 'express'
 
 import pool from '../config/database'
-import logger from '../utils/logger'
+import logger from '../config/logger'
 
 import { AuthRequest } from './auth'
 
