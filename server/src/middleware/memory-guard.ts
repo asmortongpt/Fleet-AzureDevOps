@@ -4,7 +4,7 @@ import path from 'path';
 import { datadogRum } from '@datadog/browser-rum';
 import { captureException } from '@sentry/node';
 import express, { Request, Response, NextFunction } from 'express';
-import memwatch from 'memwatch-next';
+// import memwatch from 'memwatch-next'; // Disabled - incompatible with Node.js v24
 
 
 interface MemoryUsage {
@@ -22,9 +22,9 @@ const circuitBreakerThreshold = parseInt(process.env.CIRCUIT_BREAKER_THRESHOLD |
 const heapSnapshotDir = process.env.HEAP_SNAPSHOT_DIR || './heap_snapshots';
 const fedRampComplianceNote = 'Ensure all data handling complies with FedRAMP requirements.';
 
-memwatch.on('leak', (info) => {
-  captureException(new Error(`Memory leak detected: ${info.reason}`));
-});
+// memwatch.on('leak', (info) => {
+//   captureException(new Error(`Memory leak detected: ${info.reason}`));
+// });
 
 const takeHeapSnapshot = (snapshotName: string): Promise<void> => {
   return new Promise((resolve, reject) => {
