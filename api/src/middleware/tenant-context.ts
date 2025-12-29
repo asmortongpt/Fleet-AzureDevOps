@@ -26,7 +26,7 @@
 import { Response, NextFunction } from 'express'
 
 import pool from '../config/database'
-import logger from '../utils/logger'
+import logger from '../config/logger'
 
 import { AuthRequest } from './auth'
 
@@ -328,7 +328,7 @@ export const requireTenantContext = async (
  * Usage in services:
  * ```typescript
  * import { setTenantContextDirect } from '../middleware/tenant-context'
-import logger from '../utils/logger'
+import logger from '../config/logger'
  *
  * const client = await pool.connect()
  * await setTenantContextDirect(client, tenantId)
