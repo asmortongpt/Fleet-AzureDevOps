@@ -31,8 +31,7 @@ const browsers = [
 test.describe('Cross-Browser Visual Tests', () => {
   for (const browser of browsers) {
     test.describe(`${browser.name.toUpperCase()} - Browser Tests`, () => {
-      test.use({ ...devices['Desktop ' + browser.name.charAt(0).toUpperCase() + browser.name.slice(1)] });
-
+      // Browser configuration is handled by playwright.config.ts projects
       test(`should render map correctly on ${browser.name}`, async ({ page, browserName }) => {
         test.skip(browserName !== browser.name, `Skipping - running only on ${browser.name}`);
 
@@ -160,9 +159,8 @@ test.describe('Cross-Browser Visual Tests', () => {
     ];
 
     for (const mobile of mobileDevices) {
-      test(`should render correctly on ${mobile.name}`, async ({ page }) => {
-        test.use(mobile.device);
-
+      test(`should render correctly on ${mobile.name}`, async ({ page, browserName }) => {
+        // Mobile device configuration is handled by playwright.config.ts projects
         await disableAnimations(page);
 
         await page.goto('/');
