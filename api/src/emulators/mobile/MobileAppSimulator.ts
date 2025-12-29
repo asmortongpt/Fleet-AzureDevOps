@@ -171,7 +171,7 @@ export class MobileAppSimulator extends EventEmitter {
         await this.saveFuelTransaction(transaction)
 
         console.log(`⛽ Generated fuel receipt for vehicle ${vehicle.id} at ${transaction.vendor}`)
-        this.emit(`fuel-receipt-generated`, transaction)
+        this.emit('fuel-receipt-generated', transaction)
       }
     } catch (error) {
       console.error(`❌ Error generating fuel receipts:`, error)
@@ -198,7 +198,7 @@ export class MobileAppSimulator extends EventEmitter {
         console.log(
           `🔧 Generated ${report.damage_severity} damage report for vehicle ${vehicle.id}: ${report.damage_type}`
         )
-        this.emit(`damage-report-generated`, report)
+        this.emit('damage-report-generated', report)
       }
     } catch (error) {
       console.error('❌ Error generating damage reports:', error)
@@ -228,7 +228,7 @@ export class MobileAppSimulator extends EventEmitter {
         console.log(
           `✅ Generated pre-trip inspection for vehicle ${vehicle.id}: ${inspection.overall_result}`
         )
-        this.emit(`inspection-generated`, inspection)
+        this.emit('inspection-generated', inspection)
       }
     } catch (error) {
       console.error(`❌ Error generating inspections:`, error)
@@ -257,7 +257,7 @@ export class MobileAppSimulator extends EventEmitter {
           console.log(
             `📱 Generated motion event for vehicle ${vehicle.id}: ${event.event_type} (${event.severity})`
           )
-          this.emit(`motion-event-generated`, event)
+          this.emit('motion-event-generated', event)
         }
       }
     } catch (error) {

@@ -110,7 +110,7 @@ export class MaintenanceEmulator extends EventEmitter {
       nextDueOdometer: this.odometer + this.getNextInterval(category)
     }
 
-    this.emit(`data`, event)
+    this.emit('data', event)
   }
 
   private generateUnscheduledMaintenance(): void {
