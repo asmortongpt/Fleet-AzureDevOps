@@ -15,7 +15,7 @@ import {
   ApprovalStatus
 } from '../types/trip-usage'
 import { getErrorMessage } from '../utils/error-handler'
-import { logger } from '../utils/logger'
+import { logger } from '../config/logger'
 
 
 const router = express.Router()
