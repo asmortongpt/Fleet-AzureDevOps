@@ -1,8 +1,4 @@
 /**
-import { container } from '../container'
-import { asyncHandler } from '../middleware/errorHandler'
-import { NotFoundError, ValidationError } from '../errors/app-error'
-import logger from '../config/logger'; // Wave 20: Add Winston logger
  * Scheduling Routes
  * API endpoints for vehicle reservations, maintenance scheduling,
  * service bay management, and calendar integration
@@ -15,7 +11,8 @@ import { csrfProtection } from '../middleware/csrf'
 import * as googleCalendar from '../services/google-calendar.service'
 import schedulingNotificationService from '../services/scheduling-notification.service'
 import * as schedulingService from '../services/scheduling.service'
-
+import { NotFoundError, ValidationError } from '../errors/app-error'
+import logger from '../config/logger'
 
 const router = express.Router()
 
