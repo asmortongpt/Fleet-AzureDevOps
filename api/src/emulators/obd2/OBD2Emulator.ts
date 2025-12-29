@@ -10,7 +10,7 @@
  */
 
 import { EventEmitter } from 'events'
-import { Vehicle, OBD2Data, EmulatorConfig } from `../types`
+import { Vehicle, OBD2Data, EmulatorConfig } from '../types'
 
 export class OBD2Emulator extends EventEmitter {
   private vehicle: Vehicle
