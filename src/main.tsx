@@ -9,6 +9,10 @@ if (typeof window !== 'undefined' && !localStorage.getItem('demo_mode')) {
 import { initSentry } from "./lib/sentry"
 initSentry()
 
+// Initialize Application Insights for production telemetry
+import telemetryService from "./lib/telemetry"
+const reactPlugin = telemetryService.initialize()
+
 import React from "react"
 import ReactDOM from "react-dom/client"
 import { BrowserRouter, Routes, Route } from "react-router-dom"
