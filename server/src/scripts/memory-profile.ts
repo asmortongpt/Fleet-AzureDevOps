@@ -6,7 +6,7 @@ import * as v8 from 'v8';
 
 import * as Sentry from '@sentry/node';
 import { Client, Configuration } from 'datadog-metrics';
-// // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // import * as memwatch // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // from 'memwatch-next';
+// import * as memwatch from 'memwatch-next'; // Disabled - incompatible with Node.js v24
 
 // Initialize Sentry
 Sentry.init({
@@ -47,19 +47,19 @@ function compareHeapSnapshots(snapshot1: string, snapshot2: string): void {
 
 // Monitor memory usage
 function monitorMemory(): void {
-  memwatch.on('leak', (info) => {
-    console.warn('Memory leak detected:', info);
-    Sentry.captureMessage('Memory leak detected', Sentry.Severity.Warning);
-    datadogClient.gauge('memory.leak', 1);
-  });
+  // memwatch.on('leak', (info) => {
+  //   console.warn('Memory leak detected:', info);
+  //   Sentry.captureMessage('Memory leak detected', Sentry.Severity.Warning);
+  //   datadogClient.gauge('memory.leak', 1);
+  // });
 
-  memwatch.on('stats', (stats) => {
-    if (stats.estimated_base > HEAP_GROWTH_THRESHOLD) {
-      console.warn('Heap growth threshold exceeded');
-      Sentry.captureMessage('Heap growth threshold exceeded', Sentry.Severity.Warning);
-      datadogClient.gauge('heap.growth', stats.estimated_base);
-    }
-  });
+  // memwatch.on('stats', (stats) => {
+  //   if (stats.estimated_base > HEAP_GROWTH_THRESHOLD) {
+  //     console.warn('Heap growth threshold exceeded');
+  //     Sentry.captureMessage('Heap growth threshold exceeded', Sentry.Severity.Warning);
+  //     datadogClient.gauge('heap.growth', stats.estimated_base);
+  //   }
+  // });
 
   setInterval(takeHeapSnapshot, HEAP_SNAPSHOT_INTERVAL);
 }
