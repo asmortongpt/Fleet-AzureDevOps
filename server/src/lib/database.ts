@@ -116,4 +116,14 @@ process.on('SIGTERM', async () => {
   process.exit(0);
 });
 
-export const pool = db; // Alias for compatibility
+// Create default pool for non-tenant-specific queries
+const defaultPool = new Pool({
+  host: process.env.DB_HOST || 'localhost',
+  port: Number(process.env.DB_PORT) || 5432,
+  database: process.env.DB_NAME || 'fleet',
+  user: process.env.DB_USER || 'postgres',
+  password: process.env.DB_PASSWORD || '',
+  ...poolConfig
+});
+
+export const pool = defaultPool; // Alias for compatibility
