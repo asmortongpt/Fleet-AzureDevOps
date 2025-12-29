@@ -1,10 +1,11 @@
 // Import necessary modules and types
 import { exec } from 'child_process';
 
-import { datadogRum } from '@datadog/browser-rum';
+// import { datadogRum } from '@datadog/browser-rum'; // Browser-only, not for Node.js
 import * as Sentry from '@sentry/node';
-import memwatch from 'memwatch-next';
+// import memwatch from 'memwatch-next'; // Package not available
 
+import { logger } from '../utils/logger';
 
 // Initialize Sentry
 Sentry.init({
@@ -12,17 +13,9 @@ Sentry.init({
   tracesSampleRate: 1.0,
 });
 
-// Initialize Datadog RUM
-datadogRum.init({
-  applicationId: process.env.DATADOG_APPLICATION_ID!,
-  clientToken: process.env.DATADOG_CLIENT_TOKEN!,
-  site: 'datadoghq.com',
-  service: 'your-service-name',
-  env: process.env.NODE_ENV,
-  version: '1.0.0',
-  sampleRate: 100,
-  trackInteractions: true,
-});
+// Note: Datadog RUM is for browser environments only
+// For backend monitoring, use @datadog/dd-trace instead
+// datadogRum.init(...) - commented out as it's not compatible with Node.js
 
 // Configurable thresholds
 const MEMORY_GROWTH_THRESHOLD = parseFloat(process.env.MEMORY_GROWTH_THRESHOLD!) || 1.5;
@@ -42,50 +35,33 @@ function generateHeapSnapshot(): void {
   });
 }
 
-// Monitor memory usage
-memwatch.on('leak', (info) => {
-  console.warn('Memory leak detected:', info);
-  Sentry.captureMessage('Memory leak detected', {
-    level: 'warning',
-    extra: info,
-  });
-  generateHeapSnapshot();
-});
-
-memwatch.on('stats', (stats) => {
-  if (stats.estimated_base > MEMORY_GROWTH_THRESHOLD) {
-    console.warn('Memory growth threshold exceeded:', stats);
-    Sentry.captureMessage('Memory growth threshold exceeded', {
-      level: 'warning',
-      extra: stats,
-    });
-    generateHeapSnapshot();
-  }
-});
-
-// Heap difference monitoring
-let hd: memwatch.HeapDiff | null = null;
+// Monitor memory usage using Node.js built-in process.memoryUsage()
 setInterval(() => {
-  if (hd) {
-    const diff = hd.end();
-    if (diff.change.size_bytes > HEAP_DIFF_THRESHOLD) {
-      console.warn('Heap difference threshold exceeded:', diff);
-      Sentry.captureMessage('Heap difference threshold exceeded', {
-        level: 'warning',
-        extra: diff,
-      });
+  const memUsage = process.memoryUsage();
+  const heapUsedMB = memUsage.heapUsed / 1024 / 1024;
+
+  logger.info('Memory usage', {
+    heapUsed: `${heapUsedMB.toFixed(2)} MB`,
+    heapTotal: `${(memUsage.heapTotal / 1024 / 1024).toFixed(2)} MB`,
+    external: `${(memUsage.external / 1024 / 1024).toFixed(2)} MB`,
+  });
+
+  // Check if heap usage exceeds threshold
+  if (heapUsedMB > 500) { // 500 MB threshold
+    logger.warn('High memory usage detected', { heapUsedMB });
+    Sentry.captureMessage('High memory usage detected', {
+      level: 'warning',
+      extra: { heapUsedMB, memUsage },
+    });
+
+    // Generate heap snapshot if memory is critically high
+    if (heapUsedMB > 1000) { // 1 GB critical threshold
       generateHeapSnapshot();
     }
   }
-  hd = new memwatch.HeapDiff();
-}, 60000);
-
-// Integration with existing Fleet Local codebase
-// Assume `fleetLocal` is an existing module in the codebase
-import { fleetLocal } from './fleetLocal';
-fleetLocal.initialize();
+}, 60000); // Check every minute
 
 // Ensure non-blocking monitoring
 process.nextTick(() => {
-  console.log('Memory monitoring initialized');
+  logger.info('Memory monitoring initialized');
 });

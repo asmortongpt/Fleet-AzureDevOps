@@ -1,11 +1,11 @@
 import { Pool } from 'pg';
 
 import { auditLog } from '../utils/auditLog';
-import { Logger } from '../utils/logger';
+import { logger } from '../utils/logger';
 import { validateLicenseInput, validateTenantId, validateAllocationInput } from '../utils/validators';
 
 const pool = new Pool();
-const logger = new Logger();
+const appLogger = new Logger();
 
 interface License {
   productName: string;
@@ -48,7 +48,7 @@ class LicenseService {
       auditLog('CREATE_LICENSE', tenantId, license);
     } catch (error) {
       await client.query('ROLLBACK');
-      logger.error('Error creating license', error);
+      appLogger.error('Error creating license', error);
       throw new Error('Error creating license');
     } finally {
       client.release();
@@ -68,7 +68,7 @@ class LicenseService {
       const result = await pool.query(queryText, [tenantId]);
       return result.rows;
     } catch (error) {
-      logger.error('Error listing licenses', error);
+      appLogger.error('Error listing licenses', error);
       throw new Error('Error listing licenses');
     }
   }
@@ -95,7 +95,7 @@ class LicenseService {
       auditLog('ALLOCATE_LICENSE', tenantId, allocation);
     } catch (error) {
       await client.query('ROLLBACK');
-      logger.error('Error allocating license', error);
+      appLogger.error('Error allocating license', error);
       throw new Error('Error allocating license');
     } finally {
       client.release();
