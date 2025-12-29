@@ -35,6 +35,11 @@
     "src/**/*.selectbak",
     "src/**/examples/**",
     "src/examples/**",
-    "src/scripts/**"
+    "src/scripts/**",
+    "src/routes/mobile-ocr.routes.ts",
+    "src/routes/ocr.routes.ts",
+    "src/services/document-geo.service.ts",
+    "src/services/fleet-optimizer.service.ts",
+    "src/repositories/enhanced/**"
   ]
 }
