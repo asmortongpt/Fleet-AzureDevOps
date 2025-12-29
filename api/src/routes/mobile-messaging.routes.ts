@@ -1,11 +1,11 @@
 /**
-import { container } from '../container'
-import { asyncHandler } from '../middleware/errorHandler'
-import { NotFoundError, ValidationError } from '../errors/app-error'
  * Mobile Messaging Routes
  * API endpoints for mobile app email, SMS, and Teams messaging
  */
 
+import { container } from '../container'
+import { asyncHandler } from '../middleware/errorHandler'
+import { NotFoundError, ValidationError } from '../errors/app-error'
 import express, { Response } from 'express';
 import twilio from 'twilio';
 import { z } from 'zod';
