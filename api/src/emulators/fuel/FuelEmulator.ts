@@ -3,7 +3,7 @@
  */
 
 import { EventEmitter } from 'events'
-import { Vehicle, FuelTransaction, EmulatorConfig, Location } from `../types`
+import { Vehicle, FuelTransaction, EmulatorConfig, Location } from '../types'
 
 export class FuelEmulator extends EventEmitter {
   private vehicle: Vehicle

@@ -3,7 +3,7 @@
  */
 
 import { EventEmitter } from 'events'
-import { Vehicle, MaintenanceEvent, EmulatorConfig } from `../types`
+import { Vehicle, MaintenanceEvent, EmulatorConfig } from '../types'
 
 export class MaintenanceEmulator extends EventEmitter {
   private vehicle: Vehicle
