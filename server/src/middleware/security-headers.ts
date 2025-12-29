@@ -145,7 +145,7 @@ export function validateSecurityHeaders(headers: Record<string, string>): {
   valid: boolean;
   missing: string[];
 } {
-  const required Headers = [
+  const requiredHeaders = [
     'strict-transport-security',
     'x-content-type-options',
     'x-frame-options',
