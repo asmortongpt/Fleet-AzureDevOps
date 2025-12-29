@@ -82,10 +82,14 @@ declare module 'xlsx' {
   }
 
   export function read(data: any, opts?: ParsingOptions): WorkBook;
+  export function writeFile(workbook: WorkBook, filename: string, opts?: any): void;
+
   export const utils: {
     sheet_to_json(worksheet: WorkSheet, opts?: any): any[];
     sheet_to_csv(worksheet: WorkSheet, opts?: any): string;
     book_new(): WorkBook;
+    json_to_sheet(data: any[], opts?: any): WorkSheet;
+    book_append_sheet(workbook: WorkBook, worksheet: WorkSheet, sheetName?: string): void;
   };
 }
 
@@ -97,6 +101,7 @@ declare module 'firebase-admin' {
   export interface Messaging {
     send(message: any): Promise<string>;
     sendMulticast(message: any): Promise<BatchResponse>;
+    sendToDevice(token: string | string[], message: any): Promise<any>;
   }
 
   export interface BatchResponse {
@@ -121,6 +126,8 @@ declare module 'firebase-admin' {
     credential?: any;
     databaseURL?: string;
   }): App;
+
+  export function messaging(): Messaging;
 
   export namespace credential {
     export function cert(serviceAccount: ServiceAccount | string): any;
