@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import { z, ZodError } from 'zod';
 
-import { Logger } from '../utils/logger'; // Assuming a logger utility is available
+import { logger } from '../utils/logger'; // Assuming a logger utility is available
 
 // FedRAMP Compliance: Ensure all data validations are in place to prevent unauthorized data access and data leaks.
 
@@ -27,10 +27,10 @@ export const validateFacility = (req: Request, res: Response, next: NextFunction
     next();
   } catch (error) {
     if (error instanceof ZodError) {
-      Logger.error("Validation error:", error.errors); // Log the validation error
-      res.status(400).json({ error: "Invalid request data", details: error.errors });
+      logger.error("Validation error:", error.issues); // Log the validation error
+      res.status(400).json({ error: "Invalid request data", details: error.issues });
     } else {
-      Logger.error("Unexpected error during validation:", error); // Log unexpected errors
+      logger.error("Unexpected error during validation:", error); // Log unexpected errors
       res.status(500).json({ error: "Internal server error" });
     }
   }

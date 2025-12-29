@@ -1,7 +1,7 @@
 // Import necessary modules
 import { Worker, isMainThread, parentPort, workerData } from 'worker_threads';
 
-import { Queue, Worker as BullWorker, QueueScheduler } from 'bullmq';
+import { Queue, Worker as BullWorker } from 'bullmq';
 import Redis from 'ioredis';
 import puppeteer from 'puppeteer';
 import { createLogger, transports, format } from 'winston';
@@ -24,7 +24,7 @@ const redis = new Redis();
 
 // Initialize Bull queue
 const pdfQueue = new Queue('pdf-generation', { connection: redis });
-new QueueScheduler('pdf-generation', { connection: redis });
+new ('pdf-generation', { connection: redis });
 
 // Worker function
 async function generatePDF(url: string, outputPath: string): Promise<void> {
