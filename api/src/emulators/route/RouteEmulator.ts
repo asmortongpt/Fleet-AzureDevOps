@@ -46,7 +46,7 @@ export class RouteEmulator extends EventEmitter {
     const route = this.routes.get(routeId)
     if (route) {
       this.currentRoute = route
-      this.emit(`data`, { vehicleId: this.vehicle.id, route, timestamp: new Date() })
+      this.emit('data', { vehicleId: this.vehicle.id, route, timestamp: new Date() })
     }
   }
 

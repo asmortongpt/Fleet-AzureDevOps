@@ -214,7 +214,7 @@ router.get('/:vehicleId/history', (req: Request, res: Response) => {
  * POST /api/gps/start
  * Start GPS emulation (for testing/demo purposes)
  */
-router.post('/start',csrfProtection,  csrfProtection, (req: Request, res: Response) => {
+router.post('/start',csrfProtection, (req: Request, res: Response) => {
   try {
     gpsEmulator.start()
 
@@ -235,7 +235,7 @@ router.post('/start',csrfProtection,  csrfProtection, (req: Request, res: Respon
  * POST /api/gps/stop
  * Stop GPS emulation (for testing/demo purposes)
  */
-router.post('/stop',csrfProtection,  csrfProtection, (req: Request, res: Response) => {
+router.post('/stop',csrfProtection, (req: Request, res: Response) => {
   try {
     gpsEmulator.stop()
 
