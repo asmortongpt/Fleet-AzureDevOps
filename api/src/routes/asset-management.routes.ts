@@ -1,8 +1,4 @@
 /**
-import { container } from '../container'
-import { asyncHandler } from '../middleware/errorHandler'
-import { NotFoundError, ValidationError } from '../errors/app-error'
-import logger from '../config/logger'; // Wave 28: Add Winston logger
  * Asset Management Routes
  * Comprehensive fleet asset tracking and lifecycle management
  *
@@ -16,6 +12,10 @@ import logger from '../config/logger'; // Wave 28: Add Winston logger
  * - Disposal management
  */
 
+import { container } from '../container'
+import { asyncHandler } from '../middleware/errorHandler'
+import { NotFoundError, ValidationError } from '../errors/app-error'
+import logger from '../config/logger'; // Wave 28: Add Winston logger
 import { Router } from 'express'
 
 import { pool } from '../db/connection';

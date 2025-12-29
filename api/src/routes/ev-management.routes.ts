@@ -1,8 +1,4 @@
 /**
-import { container } from '../container'
-import { asyncHandler } from '../middleware/errorHandler'
-import { NotFoundError, ValidationError } from '../errors/app-error'
-import logger from '../config/logger'; // Wave 24: Add Winston logger
  * EV Management Routes
  *
  * API endpoints for electric vehicle fleet management including:
@@ -14,6 +10,10 @@ import logger from '../config/logger'; // Wave 24: Add Winston logger
  * - Battery health monitoring
  */
 
+import { container } from '../container'
+import { asyncHandler } from '../middleware/errorHandler'
+import { NotFoundError, ValidationError } from '../errors/app-error'
+import logger from '../config/logger'; // Wave 24: Add Winston logger
 import express, { Request, Response } from 'express'
 import { z } from 'zod'
 
