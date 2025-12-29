@@ -79,8 +79,22 @@ export class EnhancedErrorBoundary extends Component<Props, State> {
   }
 
   private reportError(error: Error, errorInfo: ErrorInfo) {
-    // Integrate with your error reporting service
-    // Example: Sentry
+    // Application Insights - Production telemetry
+    try {
+      import('@/lib/telemetry').then((module) => {
+        const telemetryService = module.default;
+        telemetryService.trackException(error, 3, {
+          componentStack: errorInfo.componentStack,
+          errorBoundary: true,
+          url: window.location.href,
+          timestamp: new Date().toISOString(),
+        });
+      });
+    } catch (e) {
+      logger.error('Failed to report error to Application Insights:', e);
+    }
+
+    // Sentry - Error tracking
     if (typeof window !== 'undefined' && (window as any).Sentry) {
       (window as any).Sentry.captureException(error, {
         contexts: {
@@ -91,7 +105,7 @@ export class EnhancedErrorBoundary extends Component<Props, State> {
       });
     }
 
-    // Example: LogRocket
+    // LogRocket - Session replay
     if (typeof window !== 'undefined' && (window as any).LogRocket) {
       (window as any).LogRocket.captureException(error, {
         tags: {
