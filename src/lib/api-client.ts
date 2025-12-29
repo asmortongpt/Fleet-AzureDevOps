@@ -1,3 +1,5 @@
+import logger from '@/utils/logger'
+
 /**
  * Fleet Management API Client
  * Production-ready REST client with authentication, error handling, and retry logic

@@ -1,3 +1,5 @@
+import logger from '@/utils/logger'
+
 /**
  * Service for handling drilldown operations.
  * @module drilldownService
