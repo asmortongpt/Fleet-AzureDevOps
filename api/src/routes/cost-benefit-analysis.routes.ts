@@ -1,8 +1,4 @@
 /**
-import { container } from '../container'
-import { asyncHandler } from '../middleware/errorHandler'
-import { NotFoundError, ValidationError } from '../errors/app-error'
-import logger from '../config/logger'; // Wave 32: Add Winston logger
  * Cost/Benefit Analysis API Routes
  * Supports BR-5 (Cost/Benefit Analysis Management)
  *
@@ -13,6 +9,10 @@ import logger from '../config/logger'; // Wave 32: Add Winston logger
  * - Analysis approval workflow
  */
 
+import { container } from '../container'
+import { asyncHandler } from '../middleware/errorHandler'
+import { NotFoundError, ValidationError } from '../errors/app-error'
+import logger from '../config/logger'; // Wave 32: Add Winston logger
 import express, { Response } from 'express'
 import { Pool } from 'pg'
 import { z } from 'zod'
