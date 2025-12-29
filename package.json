@@ -6,7 +6,11 @@
   "scripts": {
     "dev": "vite",
     "kill": "fuser -k 5000/tcp",
+    "typecheck": "tsc --noEmit",
+    "typecheck:api": "cd api && tsc --noEmit",
+    "typecheck:all": "npm run typecheck && npm run typecheck:api",
     "build": "vite build",
+    "build:strict": "npm run typecheck && vite build",
     "build:analyze": "vite build && open dist/stats.html",
     "build:report": "vite build --mode production && echo '\n📊 Bundle analysis: dist/stats.html'",
     "build:check": "vite build && ./scripts/check-bundle-size.sh",
