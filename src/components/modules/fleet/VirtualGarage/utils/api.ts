@@ -1,3 +1,5 @@
+import logger from '@/utils/logger'
+
 /**
  * API Utility Functions for VirtualGarage
  *
