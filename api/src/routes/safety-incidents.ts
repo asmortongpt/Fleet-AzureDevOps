@@ -79,7 +79,7 @@ router.get(
 // POST /safety-incidents
 router.post(
   '/',
- csrfProtection,  csrfProtection, requirePermission('safety_incident:create:global'),
+ csrfProtection, requirePermission('safety_incident:create:global'),
   auditLog({ action: 'CREATE', resourceType: 'safety_incidents' }),
   async (req: AuthRequest, res: Response) => {
     try {
@@ -157,7 +157,7 @@ router.put(
 // DELETE /safety-incidents/:id
 router.delete(
   '/:id',
- csrfProtection,  csrfProtection, requirePermission('safety_incident:delete:global'),
+ csrfProtection, requirePermission('safety_incident:delete:global'),
   auditLog({ action: 'DELETE', resourceType: 'safety_incidents' }),
   async (req: AuthRequest, res: Response) => {
     try {

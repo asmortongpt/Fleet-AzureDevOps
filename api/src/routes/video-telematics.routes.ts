@@ -166,7 +166,7 @@ router.get(
         `SELECT vse.*,
                 v.name as vehicle_name,
                 v.vin,
-                d.first_name || ` ` || d.last_name as driver_name,
+                d.first_name || ' ' || d.last_name as driver_name,
                 vc.camera_type,
                 vc.camera_name
          FROM video_safety_events vse

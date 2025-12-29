@@ -88,7 +88,7 @@ export class FuelEmulator extends EventEmitter {
     this.fuelLevel = 95 // Fill up
     this.lastFuelStop = this.odometer
 
-    this.emit(`data`, transaction)
+    this.emit('data', transaction)
   }
 
   private getFuelPrice(): number {
