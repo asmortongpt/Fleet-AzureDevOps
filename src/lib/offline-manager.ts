@@ -1,3 +1,5 @@
+import logger from '@/utils/logger'
+
 /**
  * Offline Manager
  * Handles offline state, Service Worker registration, and cache management
