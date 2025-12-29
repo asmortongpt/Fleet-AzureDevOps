@@ -102,7 +102,7 @@ router.get(
     try {
       const result = await pool.query(
         `SELECT o.*,
-                d.first_name || ` ` || d.last_name as employee_full_name,
+                d.first_name || ' ' || d.last_name as employee_full_name,
                 v.unit_number as vehicle_unit
          FROM osha_300_log o
          LEFT JOIN drivers d ON o.employee_id = d.id

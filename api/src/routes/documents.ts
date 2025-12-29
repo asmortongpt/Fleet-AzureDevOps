@@ -149,7 +149,7 @@ router.get(
       // First check tenant isolation and get uploader info
       const result = await pool.query(
         `SELECT d.*,
-                uploader.first_name || ` ` || uploader.last_name as uploaded_by_name,
+                uploader.first_name || ' ' || uploader.last_name as uploaded_by_name,
                 uploader.tenant_id as uploader_tenant_id
          FROM documents d
          LEFT JOIN users uploader ON d.uploaded_by = uploader.id
@@ -785,7 +785,7 @@ router.get(
 
       // Recent uploads
       const recentResult = await pool.query(
-        `SELECT d.*, uploader.first_name || ` ` || uploader.last_name as uploaded_by_name
+        `SELECT d.*, uploader.first_name || ' ' || uploader.last_name as uploaded_by_name
          FROM documents d
          LEFT JOIN drivers uploader ON d.uploaded_by = uploader.id
          WHERE uploader.tenant_id = $1

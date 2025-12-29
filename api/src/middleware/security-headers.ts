@@ -93,9 +93,9 @@ function buildCSPHeader(directives: Record<string, string[]>): string {
       if (values.length === 0) {
         return key
       }
-      return `${key} ${values.join(` `)}`
+      return `${key} ${values.join(' ')}`
     })
-    .join(`; `)
+    .join('; ')
 }
 
 /**
@@ -107,7 +107,7 @@ function buildPermissionsPolicyHeader(policy: Record<string, string[]>): string 
       if (allowlist.length === 0) {
         return `${feature}=()`
       }
-      return `${feature}=(${allowlist.join(` `)})`
+      return `${feature}=(${allowlist.join(' ')})`
     })
     .join(', ')
 }
@@ -167,19 +167,19 @@ export function securityHeaders(config: SecurityHeadersConfig = {}) {
 
     // CSP Reporting
     if (csp.reportUri) {
-      res.setHeader(`Content-Security-Policy-Report-Only`,
+      res.setHeader('Content-Security-Policy-Report-Only',
         `${cspHeader}; report-uri ${csp.reportUri}`)
     }
 
     // HTTP Strict Transport Security (FedRAMP SC-8)
-    if (process.env.NODE_ENV === `production`) {
+    if (process.env.NODE_ENV === 'production') {
       const hstsMaxAge = hsts.maxAge || 31536000 // 1 year default
       const hstsIncludeSubDomains = hsts.includeSubDomains !== false
       const hstsPreload = hsts.preload || false
 
       let hstsValue = `max-age=${hstsMaxAge}`
       if (hstsIncludeSubDomains) {
-        hstsValue += `; includeSubDomains`
+        hstsValue += '; includeSubDomains'
       }
       if (hstsPreload) {
         hstsValue += '; preload'
