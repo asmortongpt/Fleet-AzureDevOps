@@ -121,7 +121,7 @@ export class WorkerPool extends EventEmitter {
         task.reject(error)
         workerInfo.errors++
         this.totalErrors++
-        this.emit(`taskError`, { taskId: task.id, workerId, error })
+        this.emit('taskError', { taskId: task.id, workerId, error })
       }
 
       // Mark worker as available
@@ -146,7 +146,7 @@ export class WorkerPool extends EventEmitter {
     })
 
     this.workers.set(workerId, workerInfo)
-    this.emit(`workerCreated`, { workerId, totalWorkers: this.workers.size })
+    this.emit('workerCreated', { workerId, totalWorkers: this.workers.size })
 
     return worker
   }
@@ -171,7 +171,7 @@ export class WorkerPool extends EventEmitter {
       this.taskQueue.push(task)
       this.taskQueue.sort((a, b) => b.priority - a.priority)
 
-      this.emit(`taskQueued`, { taskId: task.id, queueLength: this.taskQueue.length })
+      this.emit('taskQueued', { taskId: task.id, queueLength: this.taskQueue.length })
 
       // Try to process immediately
       this.processNextTask()
@@ -239,7 +239,7 @@ export class WorkerPool extends EventEmitter {
       data: task.data
     })
 
-    this.emit(`taskStarted`, { taskId: task.id, workerId, queueLength: this.taskQueue.length })
+    this.emit('taskStarted', { taskId: task.id, workerId, queueLength: this.taskQueue.length })
   }
 
   /**

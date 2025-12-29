@@ -140,7 +140,7 @@ router.get('/:id', requirePermission('vehicle:view:fleet'), async (req: AuthRequ
     const result = await pool.query(
       `SELECT
         a.*,
-        u.first_name || ` ` || u.last_name as assigned_to_name,
+        u.first_name || ' ' || u.last_name as assigned_to_name,
         u.email as assigned_to_email
       FROM assets a
       LEFT JOIN users u ON a.assigned_to = u.id
@@ -156,7 +156,7 @@ router.get('/:id', requirePermission('vehicle:view:fleet'), async (req: AuthRequ
     const history = await pool.query(
       `SELECT
         ah.*,
-        u.first_name || ` ` || u.last_name as performed_by_name
+        u.first_name || ' ' || u.last_name as performed_by_name
       FROM asset_history ah
       LEFT JOIN users u ON ah.performed_by = u.id
       WHERE ah.asset_id = $1
@@ -192,7 +192,7 @@ router.get('/:id', requirePermission('vehicle:view:fleet'), async (req: AuthRequ
  *     summary: Create new asset
  *     tags: [Assets]
  */
-router.post('/',csrfProtection,  csrfProtection, requirePermission('vehicle:create:fleet'), async (req: AuthRequest, res) => {
+router.post('/',csrfProtection, requirePermission('vehicle:create:fleet'), async (req: AuthRequest, res) => {
   const client = await pool.connect()
 
   try {
@@ -271,7 +271,7 @@ router.post('/',csrfProtection,  csrfProtection, requirePermission('vehicle:crea
  *     summary: Update asset
  *     tags: [Assets]
  */
-router.put('/:id',csrfProtection,  csrfProtection, requirePermission('vehicle:update:fleet'), async (req: AuthRequest, res) => {
+router.put('/:id',csrfProtection, requirePermission('vehicle:update:fleet'), async (req: AuthRequest, res) => {
   const client = await pool.connect()
 
   try {
@@ -346,7 +346,7 @@ router.put('/:id',csrfProtection,  csrfProtection, requirePermission('vehicle:up
  *     summary: Assign asset to user
  *     tags: [Assets]
  */
-router.post('/:id/assign',csrfProtection,  csrfProtection, requirePermission('vehicle:update:fleet'), async (req: AuthRequest, res) => {
+router.post('/:id/assign',csrfProtection, requirePermission('vehicle:update:fleet'), async (req: AuthRequest, res) => {
   const client = await pool.connect()
 
   try {
@@ -400,7 +400,7 @@ router.post('/:id/assign',csrfProtection,  csrfProtection, requirePermission('ve
  *     summary: Transfer asset to different location
  *     tags: [Assets]
  */
-router.post('/:id/transfer',csrfProtection,  csrfProtection, requirePermission('vehicle:update:fleet'), async (req: AuthRequest, res) => {
+router.post('/:id/transfer',csrfProtection, requirePermission('vehicle:update:fleet'), async (req: AuthRequest, res) => {
   const client = await pool.connect()
 
   try {
@@ -601,7 +601,7 @@ router.get('/analytics/summary', requirePermission('report:view:global'), async 
  *     summary: Dispose/retire asset
  *     tags: [Assets]
  */
-router.delete('/:id',csrfProtection,  csrfProtection, requirePermission('vehicle:delete:fleet'), async (req: AuthRequest, res) => {
+router.delete('/:id',csrfProtection, requirePermission('vehicle:delete:fleet'), async (req: AuthRequest, res) => {
   const client = await pool.connect()
 
   try {

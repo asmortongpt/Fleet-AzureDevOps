@@ -277,7 +277,7 @@ router.get('/:teamId/channels/:channelId/messages', async (req: AuthRequest, res
  *       500:
  *         description: Server error
  */
-router.post('/:teamId/channels/:channelId/messages',csrfProtection,  csrfProtection, async (req: AuthRequest, res: Response) => {
+router.post('/:teamId/channels/:channelId/messages',csrfProtection, async (req: AuthRequest, res: Response) => {
   try {
     const { teamId, channelId } = req.params
     const { message, subject, contentType, mentions, attachments, importance, entityLinks } = req.body
@@ -377,7 +377,7 @@ router.post('/:teamId/channels/:channelId/messages',csrfProtection,  csrfProtect
  *       500:
  *         description: Server error
  */
-router.post('/:teamId/channels/:channelId/messages/:messageId/replies',csrfProtection,  csrfProtection, async (req: AuthRequest, res: Response) => {
+router.post('/:teamId/channels/:channelId/messages/:messageId/replies',csrfProtection, async (req: AuthRequest, res: Response) => {
   try {
     const { teamId, channelId, messageId } = req.params
     const { message, contentType, mentions, attachments } = req.body
@@ -471,7 +471,7 @@ router.post('/:teamId/channels/:channelId/messages/:messageId/replies',csrfProte
  *       500:
  *         description: Server error
  */
-router.post('/:teamId/channels/:channelId/messages/:messageId/reactions',csrfProtection,  csrfProtection, async (req: AuthRequest, res: Response) => {
+router.post('/:teamId/channels/:channelId/messages/:messageId/reactions',csrfProtection, async (req: AuthRequest, res: Response) => {
   try {
     const { teamId, channelId, messageId } = req.params
     const { reactionType } = req.body
@@ -555,7 +555,7 @@ router.post('/:teamId/channels/:channelId/messages/:messageId/reactions',csrfPro
  *       500:
  *         description: Server error
  */
-router.post('/:teamId/channels',csrfProtection,  csrfProtection, async (req: AuthRequest, res: Response) => {
+router.post('/:teamId/channels',csrfProtection, async (req: AuthRequest, res: Response) => {
   try {
     const { teamId } = req.params
     const { displayName, description, membershipType } = req.body
@@ -646,7 +646,7 @@ router.post('/:teamId/channels',csrfProtection,  csrfProtection, async (req: Aut
  *       500:
  *         description: Server error
  */
-router.patch('/:teamId/channels/:channelId/messages/:messageId',csrfProtection,  csrfProtection, async (req: AuthRequest, res: Response) => {
+router.patch('/:teamId/channels/:channelId/messages/:messageId',csrfProtection, async (req: AuthRequest, res: Response) => {
   try {
     const { teamId, channelId, messageId } = req.params
     const { content, contentType } = req.body
@@ -722,7 +722,7 @@ router.patch('/:teamId/channels/:channelId/messages/:messageId',csrfProtection, 
  *       500:
  *         description: Server error
  */
-router.delete('/:teamId/channels/:channelId/messages/:messageId',csrfProtection,  csrfProtection, async (req: AuthRequest, res: Response) => {
+router.delete('/:teamId/channels/:channelId/messages/:messageId',csrfProtection, async (req: AuthRequest, res: Response) => {
   try {
     const { teamId, channelId, messageId } = req.params
 
