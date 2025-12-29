@@ -15,7 +15,7 @@ import { BufferMemory } from 'langchain/memory'
 import { Pool } from 'pg'
 import { z } from 'zod'
 
-import logger from '../utils/logger'
+import logger from '../config/logger'
 
 
 export interface WorkflowContext {

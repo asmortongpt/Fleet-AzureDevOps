@@ -6,7 +6,7 @@ import { AuthRequest, authenticateJWT } from '../middleware/auth'
 import { csrfProtection } from '../middleware/csrf'
 import { requirePermission } from '../middleware/permissions'
 import { getErrorMessage } from '../utils/error-handler'
-import { logger } from '../utils/logger'
+import { logger } from '../config/logger'
 
 
 

@@ -10,7 +10,7 @@ import { requirePermission, rateLimit } from '../middleware/permissions';
 import DriverSafetyAIService from '../services/driver-safety-ai.service';
 import VideoTelematicsService from '../services/video-telematics.service';
 import { getErrorMessage } from '../utils/error-handler'
-import { securityLogger as logger } from '../utils/logger'
+import { securityLogger as logger } from '../config/logger'
 
 
 const router = express.Router();

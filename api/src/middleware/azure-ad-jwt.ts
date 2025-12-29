@@ -22,7 +22,7 @@ import { Response, NextFunction } from 'express'
 import jwt from 'jsonwebtoken'
 import jwksClient from 'jwks-rsa'
 
-import logger from '../utils/logger'
+import logger from '../config/logger'
 
 import { AuthRequest } from './auth'
 
