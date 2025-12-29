@@ -123,9 +123,18 @@ class AuditLogger {
     const event = this.getEventById(eventId);
     if (!event) return false;
 
-    // Recalculate hash without hash field
-    const { hash, ...eventData } = event;
+    // Recalculate hash without hash, id, and previousHash fields (same as when created)
+    const { hash, id, previousHash, ...eventData } = event;
+
+    // Temporarily set this.previousHash to what it was when this event was created
+    // because calculateHash() uses this.previousHash internally
+    const savedPreviousHash = this.previousHash;
+    this.previousHash = previousHash || '';
+
     const calculatedHash = this.calculateHash(eventData);
+
+    // Restore the current previousHash
+    this.previousHash = savedPreviousHash;
 
     return calculatedHash !== hash;
   }
