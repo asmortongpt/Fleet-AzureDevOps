@@ -12,7 +12,13 @@ class DIContainer {
   private tenantContainers: Map<string, TenantScopedContainer> = new Map();
 
   public register<T>(identifier: ServiceIdentifier<T>, constructor: interfaces.Newable<T>, scope: 'singleton' | 'transient' | 'scoped' = 'singleton'): void {
-    this.getDefaultContainer().bind<T>(identifier).to(constructor).inScope(scope);
+    const binding = this.getDefaultContainer().bind<T>(identifier).to(constructor);
+    if (scope === 'singleton') {
+      binding.inSingletonScope();
+    } else if (scope === 'transient') {
+      binding.inTransientScope();
+    }
+    // Note: 'scoped' would typically use inRequestScope() but needs middleware setup
   }
 
   public resolve<T>(identifier: ServiceIdentifier<T>, tenantId: string): T {
@@ -41,20 +47,8 @@ class DIContainer {
 
 const container = new DIContainer();
 
-// Decorators
-function injectable(): ClassDecorator {
-  return (target: Function) => {
-    Reflect.defineMetadata('inversify:injectable', true, target);
-  };
-}
-
-function inject(identifier: ServiceIdentifier<any>): ParameterDecorator {
-  return (target: object, propertyKey: string | symbol, parameterIndex: number) => {
-    const existingInjectedParameters: any[] = Reflect.getOwnMetadata('inversify:inject', target, propertyKey) || [];
-    existingInjectedParameters.push({ index: parameterIndex, identifier });
-    Reflect.defineMetadata('inversify:inject', existingInjectedParameters, target, propertyKey);
-  };
-}
+// Export Inversify decorators directly to avoid conflicts
+export { injectable, inject } from 'inversify';
 
 // Express middleware integration
 function diMiddleware(req: any, res: any, next: Function) {
@@ -64,8 +58,9 @@ function diMiddleware(req: any, res: any, next: Function) {
     req.container = container;
     next();
   } catch (error) {
-    res.status(500).send({ error: error.message });
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+    res.status(500).send({ error: errorMessage });
   }
 }
 
-export { DIContainer, injectable, inject, diMiddleware };
+export { DIContainer, diMiddleware, container };
