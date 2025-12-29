@@ -1,8 +1,4 @@
 /**
-import { container } from '../container'
-import { asyncHandler } from '../middleware/errorHandler'
-import { NotFoundError, ValidationError } from '../errors/app-error'
-import logger from '../config/logger'; // Wave 24: Add Winston logger
  * Mobile Hardware Integration API Routes
  *
  * Comprehensive API endpoints for mobile hardware features:
@@ -13,6 +9,10 @@ import logger from '../config/logger'; // Wave 24: Add Winston logger
  * - Parts lookup and ordering
  */
 
+import { container } from '../container'
+import { asyncHandler } from '../middleware/errorHandler'
+import { NotFoundError, ValidationError } from '../errors/app-error'
+import logger from '../config/logger'; // Wave 24: Add Winston logger
 import express, { Request, Response } from 'express'
 import { z } from 'zod'
 
