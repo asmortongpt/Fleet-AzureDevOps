@@ -2,7 +2,7 @@ import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
 
 import { pool } from '../lib/database';
-import { Logger } from '../lib/logger';
+import { logger } from '../lib/logger';
 
 interface User {
   id: string;
@@ -24,7 +24,7 @@ export async function tenantIsolation(
   try {
     const authHeader = req.headers.authorization;
     if (!authHeader) {
-      Logger.warn('Authorization header missing');
+      logger.warn('Authorization header missing');
       return res.status(401).json({
         error: 'Unauthorized',
         message: 'Authorization header is required'
@@ -33,7 +33,7 @@ export async function tenantIsolation(
 
     const token = authHeader.split(' ')[1];
     if (!token) {
-      Logger.warn('JWT token missing');
+      logger.warn('JWT token missing');
       return res.status(401).json({
         error: 'Unauthorized',
         message: 'JWT token is required'
@@ -44,7 +44,7 @@ export async function tenantIsolation(
     const tenantId = decoded.tenantId;
 
     if (!tenantId) {
-      Logger.warn('Missing tenant_id in JWT', { userId: decoded.id });
+      logger.warn('Missing tenant_id in JWT', { userId: decoded.id });
       return res.status(403).json({
         error: 'Tenant isolation violation',
         message: 'No tenant context found'
@@ -64,7 +64,7 @@ export async function tenantIsolation(
       throw error;
     }
   } catch (error) {
-    Logger.error('Tenant isolation error', { error });
+    logger.error('Tenant isolation error', { error });
     res.status(500).json({
       error: 'Tenant isolation failed',
       message: 'Unable to establish tenant context'

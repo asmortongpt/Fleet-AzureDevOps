@@ -2,8 +2,8 @@ import { Request, Response } from 'express';
 import helmet from 'helmet';
 import { Pool } from 'pg';
 
-import { AuditLog } from '../utils/auditLog';
-import { Logger } from '../utils/logger';
+import { auditLog } from '../utils/auditLog';
+import { logger } from '../utils/logger';
 import { validateAssetId, validateCondition, validateNotes, validatePhotos, validateCoordinates } from '../utils/validators';
 
 
@@ -12,7 +12,7 @@ const pool = new Pool({
 });
 
 export class CheckoutService {
-  private logger: Logger;
+  private logger: typeof logger;
   private auditLog: AuditLog;
 
   constructor() {

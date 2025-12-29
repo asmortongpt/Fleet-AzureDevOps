@@ -2,11 +2,11 @@ import * as turf from '@turf/turf';
 import { Pool } from 'pg';
 
 import { AuditLogger } from '../utils/auditLogger';
-import { Logger } from '../utils/logger';
+import { logger } from '../utils/logger';
 import { validateGeofenceInput, validateRuleInput, validateLocationInput } from '../utils/validators';
 
 const pool = new Pool(); // Assume pool is configured elsewhere
-const logger = new Logger();
+const appLogger = new Logger();
 const auditLogger = new AuditLogger();
 
 export class GeofenceService {
@@ -28,13 +28,13 @@ export class GeofenceService {
         return res.rows[0].id;
       } catch (err) {
         await client.query('ROLLBACK');
-        logger.error('Error creating geofence', err);
+        appLogger.error('Error creating geofence', err);
         throw err;
       } finally {
         client.release();
       }
     } catch (err) {
-      logger.error('Validation or connection error', err);
+      appLogger.error('Validation or connection error', err);
       throw err;
     }
   }
@@ -57,13 +57,13 @@ export class GeofenceService {
         return res.rows[0].id;
       } catch (err) {
         await client.query('ROLLBACK');
-        logger.error('Error creating geofence rule', err);
+        appLogger.error('Error creating geofence rule', err);
         throw err;
       } finally {
         client.release();
       }
     } catch (err) {
-      logger.error('Validation or connection error', err);
+      appLogger.error('Validation or connection error', err);
       throw err;
     }
   }
@@ -98,13 +98,13 @@ export class GeofenceService {
           }
         }
       } catch (err) {
-        logger.error('Error evaluating location event', err);
+        appLogger.error('Error evaluating location event', err);
         throw err;
       } finally {
         client.release();
       }
     } catch (err) {
-      logger.error('Validation or connection error', err);
+      appLogger.error('Validation or connection error', err);
       throw err;
     }
   }
