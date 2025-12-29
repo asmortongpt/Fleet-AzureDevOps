@@ -1,3 +1,5 @@
+import logger from '@/utils/logger'
+
 /**
  * Safely access localStorage with fallback
  * @param key - Storage key
