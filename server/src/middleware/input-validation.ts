@@ -67,6 +67,32 @@ export const schemas = {
   id: z.object({
     id: z.number().int().positive(),
   }),
+
+  // Security module validation
+  auditLogEntry: z.object({
+    action: z.string().min(1).max(100),
+    resourceType: z.string().min(1).max(100),
+    resourceId: z.string().max(255).optional(),
+    before: z.any().optional(),
+    after: z.any().optional(),
+    details: z.any().optional(),
+  }),
+
+  loginRequest: z.object({
+    idToken: z.string().optional(),
+    email: z.string().email().max(255).optional(),
+  }),
+
+  refreshTokenRequest: z.object({
+    refreshToken: z.string().min(1).max(500),
+  }),
+
+  siemEventRequest: z.object({
+    action: z.string().min(1).max(100),
+    resourceType: z.string().min(1).max(100),
+    severity: z.enum(['CRITICAL', 'HIGH', 'MEDIUM', 'LOW', 'INFO']).optional(),
+    details: z.any().optional(),
+  }),
 };
 
 /**
