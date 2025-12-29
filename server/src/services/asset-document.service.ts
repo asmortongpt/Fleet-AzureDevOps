@@ -1,6 +1,6 @@
 import { Pool } from 'pg';
 
-import { Logger } from '../utils/logger';
+import { logger } from '../utils/logger';
 import { validateAssetDocumentInput } from '../utils/validation';
 
 import { AuditLogService } from './audit-log.service';
@@ -15,10 +15,10 @@ interface AssetDocument {
 
 class AssetDocumentService {
   private db: Pool;
-  private logger: Logger;
+  private logger: typeof logger;
   private auditLogService: AuditLogService;
 
-  constructor(db: Pool, logger: Logger, auditLogService: AuditLogService) {
+  constructor(db: Pool, logger: typeof logger, auditLogService: AuditLogService) {
     this.db = db;
     this.logger = logger;
     this.auditLogService = auditLogService;

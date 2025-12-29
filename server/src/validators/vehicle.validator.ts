@@ -31,7 +31,6 @@ export const vehicleFilterSchema = z.object({
 }).strict();
 
 // server/src/validators/driver.validator.ts
-import { z } from 'zod';
 
 export const createDriverSchema = z.object({
   firstName: z.string().trim().min(1).max(50),
@@ -53,7 +52,6 @@ export const updateDriverSchema = z.object({
 }).strict();
 
 // server/src/validators/maintenance.validator.ts
-import { z } from 'zod';
 
 export const createMaintenanceSchema = z.object({
   vehicleId: z.number().int().positive(),
@@ -72,8 +70,4 @@ export const updateMaintenanceSchema = z.object({
 }).strict();
 
 // server/src/validators/index.ts
-export * from './vehicle.validator';
-export * from './driver.validator';
-export * from './maintenance.validator';
-
 // Additional validators for asset management, telemetry, user management, and reports would follow a similar pattern, ensuring all fields are validated according to the requirements specified. Each schema would be exported from its respective file and then re-exported from this index file for easy import into the application.

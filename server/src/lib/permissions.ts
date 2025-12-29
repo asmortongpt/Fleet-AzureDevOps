@@ -3,7 +3,7 @@
 import { Request, Response, NextFunction } from 'express';
 
 import { getUserRoles, getRoutePermissions } from './authService';
-import { Logger } from './logger';
+import { logger } from './logger';
 
 // Enable strict mode in TypeScript
 'use strict';
@@ -41,7 +41,7 @@ export const rbacMiddleware = (requiredRoles: string[]) => {
             next();
         } catch (error) {
             // Log the error for auditing purposes
-            Logger.error(`RBAC Error: ${error.message}`, { userId: req.user?.id, path: req.path });
+            logger.error(`RBAC Error: ${error.message}`, { userId: req.user?.id, path: req.path });
 
             // FedRAMP Compliance: Ensure detailed error messages are not exposed to the client
             res.status(403).json({ error: 'Access denied.' });
@@ -62,7 +62,7 @@ export const protectRoute = (route: string) => {
             return rbacMiddleware(routePermissions)(req, res, next);
         } catch (error) {
             // Log the error for auditing purposes
-            Logger.error(`Route Protection Error: ${error.message}`, { route, path: req.path });
+            logger.error(`Route Protection Error: ${error.message}`, { route, path: req.path });
 
             // FedRAMP Compliance: Ensure detailed error messages are not exposed to the client
             res.status(500).json({ error: 'Internal server error.' });

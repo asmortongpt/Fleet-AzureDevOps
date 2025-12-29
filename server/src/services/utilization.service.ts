@@ -1,11 +1,11 @@
 import { Pool } from 'pg';
 
-import { AuditLog } from '../utils/auditLog';
-import { Logger } from '../utils/logger';
+import { auditLog } from '../utils/auditLog';
+import { logger } from '../utils/logger';
 import { validateDate, validateUUID, validateEventType } from '../utils/validators';
 
 const pool = new Pool();
-const logger = new Logger();
+const appLogger = new Logger();
 const auditLog = new AuditLog();
 
 export class UtilizationService {
@@ -37,7 +37,7 @@ export class UtilizationService {
       const result = await pool.query(query, [tenantId, categoryId, start, end]);
       return result.rows;
     } catch (error) {
-      logger.error('Error generating report', error);
+      appLogger.error('Error generating report', error);
       throw error;
     }
   }
@@ -77,7 +77,7 @@ export class UtilizationService {
       // Audit logging
       auditLog.log('recordUsageEvent', event.tenantId, event.assetId, event.eventType);
     } catch (error) {
-      logger.error('Error recording usage event', error);
+      appLogger.error('Error recording usage event', error);
       throw error;
     }
   }
