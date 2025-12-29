@@ -1,12 +1,12 @@
 /**
-import { container } from '../container'
-import { asyncHandler } from '../middleware/errorHandler'
-import { NotFoundError, ValidationError } from '../errors/app-error'
-import logger from '../config/logger'; // Wave 24: Add Winston logger
  * Smartcar Connected Vehicle Routes
  * OAuth flow and remote vehicle control
  */
 
+import { container } from '../container'
+import { asyncHandler } from '../middleware/errorHandler'
+import { NotFoundError, ValidationError } from '../errors/app-error'
+import logger from '../config/logger'; // Wave 24: Add Winston logger
 import express, { Request, Response } from 'express'
 
 import { pool } from '../db/connection';

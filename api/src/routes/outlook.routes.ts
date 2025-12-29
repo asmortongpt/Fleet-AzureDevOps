@@ -1,11 +1,11 @@
 /**
-import { container } from '../container'
-import { asyncHandler } from '../middleware/errorHandler'
-import { NotFoundError, ValidationError } from '../errors/app-error'
  * Outlook Email Integration Routes
  * REST API endpoints for full email management via Microsoft Graph API
  */
 
+import { container } from '../container'
+import { asyncHandler } from '../middleware/errorHandler'
+import { NotFoundError, ValidationError } from '../errors/app-error'
 import express, { Response } from 'express'
 import { z } from 'zod'
 
