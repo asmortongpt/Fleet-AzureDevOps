@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 
 import { AppInsightsClient } from '../services/AppInsightsClient';
-import { Logger } from '../services/Logger';
+import { logger } from '../services/Logger';
 
 interface ErrorContext {
   userId?: string;
@@ -182,7 +182,7 @@ export const errorHandler = (err: Error, req: Request, res: Response, next: Next
 
   // For critical non-operational errors, consider alerting or shutting down
   if (!appError.isOperational && appError.severity === ErrorSeverity.CRITICAL) {
-    Logger.error('CRITICAL non-operational error detected. Consider graceful shutdown.');
+    logger.error('CRITICAL non-operational error detected. Consider graceful shutdown.');
     // In a production environment, you might want to:
     // - Alert the on-call team
     // - Gracefully shutdown the server
@@ -227,16 +227,16 @@ function logError(error: AppError, context: ErrorContext): void {
   // Log to console/file
   switch (error.severity) {
     case ErrorSeverity.CRITICAL:
-      Logger.error(`[CRITICAL] ${JSON.stringify(logData)}`);
+      logger.error(`[CRITICAL] ${JSON.stringify(logData)}`);
       break;
     case ErrorSeverity.ERROR:
-      Logger.error(`[ERROR] ${JSON.stringify(logData)}`);
+      logger.error(`[ERROR] ${JSON.stringify(logData)}`);
       break;
     case ErrorSeverity.WARNING:
-      Logger.warn(`[WARNING] ${JSON.stringify(logData)}`);
+      logger.warn(`[WARNING] ${JSON.stringify(logData)}`);
       break;
     default:
-      Logger.info(`[INFO] ${JSON.stringify(logData)}`);
+      logger.info(`[INFO] ${JSON.stringify(logData)}`);
   }
 
   // Track in Application Insights
@@ -265,7 +265,7 @@ function logError(error: AppError, context: ErrorContext): void {
       },
     });
   } catch (trackingError) {
-    Logger.error(`Failed to track error in Application Insights: ${trackingError}`);
+    logger.error(`Failed to track error in Application Insights: ${trackingError}`);
   }
 }
 

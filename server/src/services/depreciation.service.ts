@@ -1,14 +1,14 @@
 import { Pool } from 'pg';
-import { Logger } from '../utils/logger';
+import { logger } from '../utils/logger';
 import { validateAssetId, validateTenantId, validateMonthISO } from '../utils/validators';
 import { DepreciationMethod, calculateDepreciation } from '../utils/depreciationCalculator';
-import { AuditLog } from '../utils/auditLog';
+import { auditLog } from '../utils/auditLog';
 
 class DepreciationService {
   private db: Pool;
-  private logger: Logger;
+  private logger: typeof logger;
 
-  constructor(db: Pool, logger: Logger) {
+  constructor(db: Pool, logger: typeof logger) {
     this.db = db;
     this.logger = logger;
   }
@@ -29,7 +29,7 @@ class DepreciationService {
       const depreciationSchedule = calculateDepreciation(asset, DepreciationMethod.STRAIGHT_LINE);
 
       // Audit logging for schedule generation
-      AuditLog.log('Depreciation schedule generated', { assetId, tenantId });
+      auditLog.log('Depreciation schedule generated', { assetId, tenantId });
 
       return depreciationSchedule;
     } catch (error) {
@@ -44,7 +44,7 @@ class DepreciationService {
       validateMonthISO(monthISO);
 
       const query = `
-        SELECT * FROM depreciation_entries 
+        SELECT * FROM depreciation_entries
         WHERE tenant_id = $1 AND month = $2
       `;
       const result = await this.db.query(query, [tenantId, monthISO]);
@@ -54,7 +54,7 @@ class DepreciationService {
       }
 
       // Audit logging for ERP export
-      AuditLog.log('ERP export generated', { tenantId, monthISO });
+      auditLog.log('ERP export generated', { tenantId, monthISO });
 
       return result.rows;
     } catch (error) {
@@ -65,59 +65,3 @@ class DepreciationService {
 }
 
 export default DepreciationService;
-```
-
-```typescript
-// utils/validators.ts
-export function validateAssetId(assetId: string): void {
-  if (!/^[a-zA-Z0-9-]+$/.test(assetId)) {
-    throw new Error('Invalid asset ID');
-  }
-}
-
-export function validateTenantId(tenantId: string): void {
-  if (!/^[a-zA-Z0-9-]+$/.test(tenantId)) {
-    throw new Error('Invalid tenant ID');
-  }
-}
-
-export function validateMonthISO(monthISO: string): void {
-  if (!/^\d{4}-\d{2}$/.test(monthISO)) {
-    throw new Error('Invalid month format');
-  }
-}
-```
-
-```typescript
-// utils/depreciationCalculator.ts
-export enum DepreciationMethod {
-  STRAIGHT_LINE,
-  DOUBLE_DECLINING,
-  MACRS
-}
-
-export function calculateDepreciation(asset: any, method: DepreciationMethod): any {
-  // Implement depreciation calculation logic based on the method
-  // This is a placeholder for actual calculation logic
-  return {};
-}
-```
-
-```typescript
-// utils/auditLog.ts
-export class AuditLog {
-  public static log(action: string, details: any): void {
-    // Implement audit logging logic
-    // This could be writing to a database, a file, or an external logging service
-  }
-}
-```
-
-```typescript
-// utils/logger.ts
-export class Logger {
-  public error(message: string, details: any): void {
-    // Implement error logging logic
-    // This could be writing to a console, a file, or an external logging service
-  }
-}

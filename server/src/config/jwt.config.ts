@@ -35,7 +35,7 @@ const envSchema = z.object({
 const env = envSchema.safeParse(process.env);
 
 if (!env.success) {
-  logger.error("Environment validation failed", { errors: env.error.errors });
+  logger.error("Environment validation failed", { errors: env.error.issues });
   throw new Error("Invalid environment configuration");
 }
 

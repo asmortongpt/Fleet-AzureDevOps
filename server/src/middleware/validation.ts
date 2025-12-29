@@ -87,3 +87,7 @@ export function rateLimit(maxRequests: number = 100, windowMs: number = 60000) {
     next();
   };
 }
+
+
+// Alias for compatibility
+export const validate = validateBody;

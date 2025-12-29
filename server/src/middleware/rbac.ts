@@ -2,7 +2,7 @@ import { Request, Response, NextFunction } from 'express';
 
 import { getUserRoles, getRoutePermissions } from '../services/permissionsService';
 import { FedRAMPCompliantLogger } from '../utils/fedrampLogger';
-import { Logger } from '../utils/logger';
+import { logger } from '../utils/logger';
 
 // Ensure TypeScript strict mode is enabled in tsconfig.json
 
@@ -12,28 +12,28 @@ export const rbacMiddleware = (requiredPermissions: string[]) => {
     try {
       const userId = req.user?.id;
       if (!userId) {
-        Logger.warn('Unauthorized access attempt: User ID is missing');
+        logger.warn('Unauthorized access attempt: User ID is missing');
         return res.status(401).json({ error: 'Unauthorized' });
       }
 
       // Fetch user roles from the database or cache
       const userRoles = await getUserRoles(userId);
       if (!userRoles) {
-        Logger.warn(`User with ID ${userId} has no roles assigned`);
+        logger.warn(`User with ID ${userId} has no roles assigned`);
         return res.status(403).json({ error: 'Forbidden' });
       }
 
       // Fetch route permissions
       const routePermissions = getRoutePermissions(requiredPermissions);
       if (!routePermissions) {
-        Logger.error(`Route permissions not found for the requested route`);
+        logger.error(`Route permissions not found for the requested route`);
         return res.status(500).json({ error: 'Internal Server Error' });
       }
 
       // Check if user roles include any of the required permissions
       const hasPermission = userRoles.some(role => routePermissions.includes(role));
       if (!hasPermission) {
-        Logger.warn(`User with ID ${userId} does not have the required permissions`);
+        logger.warn(`User with ID ${userId} does not have the required permissions`);
         return res.status(403).json({ error: 'Forbidden' });
       }
 
@@ -43,7 +43,7 @@ export const rbacMiddleware = (requiredPermissions: string[]) => {
       // Proceed to the next middleware or route handler
       next();
     } catch (error) {
-      Logger.error(`Error in RBAC middleware: ${error.message}`);
+      logger.error(`Error in RBAC middleware: ${error.message}`);
       FedRAMPCompliantLogger.logError(error, req.user?.id, req.path);
       res.status(500).json({ error: 'Internal Server Error' });
     }
