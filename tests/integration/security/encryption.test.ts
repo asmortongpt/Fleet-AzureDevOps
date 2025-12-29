@@ -119,7 +119,8 @@ describe('AES-256-GCM Encryption Service', () => {
       );
       const plaintextBytes = plaintext.length;
 
-      expect(ciphertextBytes).toBeLessThan(plaintextBytes * 1.5);
+      // AES-256-GCM + base64 overhead is ~52%, allow 1.6x
+      expect(ciphertextBytes).toBeLessThan(plaintextBytes * 1.6);
     });
   });
 
