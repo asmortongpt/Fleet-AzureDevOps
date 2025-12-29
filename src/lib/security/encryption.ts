@@ -75,6 +75,10 @@ export const sensitiveFields: Record<DataClassification, string[]> = {
   PUBLIC: [],
   INTERNAL: ['notes', 'comments'],
   CONFIDENTIAL: [
+    'ssn',
+    'email',
+    'address',
+    'phone',
     'driver.ssn',
     'driver.phone',
     'driver.email',
@@ -83,6 +87,8 @@ export const sensitiveFields: Record<DataClassification, string[]> = {
     'facility.address'
   ],
   RESTRICTED: [
+    'medicalInfo',
+    'bankAccount',
     'driver.medicalInfo',
     'driver.bankAccount',
     'payment.cardNumber',
