@@ -1,7 +1,7 @@
 // server/src/services/vehicle.service.ts
 import { CreateVehicleDto, Vehicle } from '../models/vehicle.model';
 import { VehicleRepository } from '../repositories/vehicle.repository';
-import { Logger } from '../utils/logger';
+import { logger } from '../utils/logger';
 import { UnitOfWork } from '../utils/unitOfWork';
 
 export interface IVehicleService {
@@ -12,7 +12,7 @@ export interface IVehicleService {
 export class VehicleService implements IVehicleService {
   constructor(
     private vehicleRepo: VehicleRepository,
-    private logger: Logger,
+    private logger: typeof logger,
     private uow: UnitOfWork
   ) {}
 
@@ -57,7 +57,7 @@ export interface IDriverService {
 export class DriverService implements IDriverService {
   constructor(
     private driverRepo: DriverRepository,
-    private logger: Logger,
+    private logger: typeof logger,
     private uow: UnitOfWork
   ) {}
 
@@ -102,7 +102,7 @@ export interface IMaintenanceService {
 export class MaintenanceService implements IMaintenanceService {
   constructor(
     private maintenanceRepo: MaintenanceRepository,
-    private logger: Logger,
+    private logger: typeof logger,
     private uow: UnitOfWork
   ) {}
 

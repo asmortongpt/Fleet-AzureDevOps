@@ -106,3 +106,5 @@ export async function getDriverProfile(tenantId: string, driverId: string, fetch
 export async function getDashboardStats(tenantId: string, fetcher: () => Promise<any>): Promise<any> {
   return cached({ tenantId, entity: 'dashboardStats', id: 'all', ttl: 120 }, fetcher);
 }
+
+export const cache = cached; // Alias for compatibility
