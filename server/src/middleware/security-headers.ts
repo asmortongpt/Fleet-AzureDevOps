@@ -74,12 +74,6 @@ export function applySecurityHeaders(app: Express): void {
       // DNS Prefetch Control - control browser DNS prefetching
       dnsPrefetchControl: { allow: false },
 
-      // Expect-CT - Certificate Transparency
-      expectCt: {
-        enforce: true,
-        maxAge: 86400 // 24 hours
-      },
-
       // Frameguard - X-Frame-Options (prevent clickjacking)
       frameguard: {
         action: 'deny' // DENY is most secure

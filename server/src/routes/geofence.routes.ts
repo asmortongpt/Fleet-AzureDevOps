@@ -1,6 +1,16 @@
 import express, { Request, Response, NextFunction } from 'express';
 import helmet from 'helmet';
 import { Pool } from 'pg';
+declare global {
+  namespace Express {
+    interface Request {
+      tenantId?: string;
+      userId?: string;
+    }
+  }
+}
+
+
 
 import { auditLog } from '../utils/auditLog';
 import { logger } from '../utils/logger';

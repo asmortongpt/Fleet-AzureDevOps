@@ -5,7 +5,7 @@ import crypto from 'crypto';
 import { Request, Response, NextFunction } from 'express';
 
 import { FleetLocalConfig } from './config'; // Assuming a config module is available
-import { Logger } from './logger'; // Assuming a logger module is available
+import { logger } from './logger'; // Assuming a logger module is available
 
 // Enable TypeScript strict mode
 'use strict';
@@ -16,7 +16,7 @@ const CSRF_HEADER_NAME = 'X-CSRF-Token';
 const CSRF_TOKEN_LENGTH = 32;
 
 // Logger instance
-const logger = new Logger('CSRF-Tokens');
+const appLogger = new Logger('CSRF-Tokens');
 
 /**
  * Generates a secure random CSRF token.
@@ -26,7 +26,7 @@ function generateCsrfToken(): string {
   try {
     return crypto.randomBytes(CSRF_TOKEN_LENGTH).toString('hex');
   } catch (error) {
-    logger.error('Error generating CSRF token:', error);
+    appLogger.error('Error generating CSRF token:', error);
     throw new Error('Failed to generate CSRF token');
   }
 }
@@ -48,7 +48,7 @@ export function csrfTokenMiddleware(req: Request, res: Response, next: NextFunct
     res.setHeader(CSRF_HEADER_NAME, csrfToken);
     next();
   } catch (error) {
-    logger.error('Error in CSRF token middleware:', error);
+    appLogger.error('Error in CSRF token middleware:', error);
     res.status(500).send('Internal Server Error');
   }
 }
@@ -65,13 +65,13 @@ export function verifyCsrfToken(req: Request, res: Response, next: NextFunction)
     const csrfTokenFromHeader = req.headers[CSRF_HEADER_NAME.toLowerCase()];
 
     if (!csrfTokenFromCookie || !csrfTokenFromHeader || csrfTokenFromCookie !== csrfTokenFromHeader) {
-      logger.warn('CSRF token verification failed');
+      appLogger.warn('CSRF token verification failed');
       return res.status(403).send('Forbidden');
     }
 
     next();
   } catch (error) {
-    logger.error('Error verifying CSRF token:', error);
+    appLogger.error('Error verifying CSRF token:', error);
     res.status(500).send('Internal Server Error');
   }
 }

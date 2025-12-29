@@ -3,6 +3,16 @@ import { check, validationResult } from 'express-validator';
 import helmet from 'helmet';
 import { Pool } from 'pg';
 import { v4 as uuidv4 } from 'uuid';
+declare global {
+  namespace Express {
+    interface Request {
+      tenantId?: string;
+      userId?: string;
+    }
+  }
+}
+
+
 
 import { authenticateTenant } from '../middleware/authenticateTenant';
 import { auditLog } from '../utils/auditLog';
