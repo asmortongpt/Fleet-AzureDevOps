@@ -1,6 +1,6 @@
 import { ERPIntegrationError } from '../errors/erp-integration-error';
-import { AuditLog } from '../utils/audit-log';
-import { Logger } from '../utils/logger';
+import { auditLog } from '../utils/audit-log';
+import { logger } from '../utils/logger';
 import { secureHttpClient } from '../utils/secure-http-client';
 import { validateDepreciationEntries, validateRetirementData } from '../utils/validators';
 
@@ -15,11 +15,11 @@ export interface ERPConnector {
 }
 
 export class ERPConnectorImpl implements ERPConnector {
-  private logger: Logger;
+  private logger: typeof logger;
   private auditLog: AuditLog;
   private erpSystem: ERPSystem;
 
-  constructor(logger: Logger, auditLog: AuditLog, erpSystem: ERPSystem) {
+  constructor(logger: typeof logger, auditLog: AuditLog, erpSystem: ERPSystem) {
     this.logger = logger;
     this.auditLog = auditLog;
     this.erpSystem = erpSystem;

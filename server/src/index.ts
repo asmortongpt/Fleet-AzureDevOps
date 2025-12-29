@@ -115,8 +115,8 @@ app.get('/health', async (_req: Request, res: Response): Promise<void> => {
 app.use('/api/v1/auth', authRoutes);
 app.use('/api/v1/security', securityRoutes);
 
-// Apply general rate limiting to all other API routes
-app.use('/api', apiLimiter);
+// Apply general rate limiting to all other API routes (already applied above at line 64)
+// app.use('/api', phase2ApiLimiter); // Already applied globally
 
 // Apply CSRF protection to all state-changing operations (POST/PUT/DELETE)
 // Note: GET requests don't need CSRF protection
