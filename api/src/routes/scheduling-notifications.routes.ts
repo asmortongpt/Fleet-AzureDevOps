@@ -8,7 +8,7 @@ import express, { Request, Response } from 'express'
 import { pool } from '../config/database';
 import { csrfProtection } from '../middleware/csrf'
 import schedulingNotificationService from '../services/scheduling-notification.service'
-import { logger } from '../utils/logger'
+import { logger } from '../config/logger'
 
 const router = express.Router()
 

@@ -6,7 +6,7 @@
 import { BlobServiceClient, ContainerClient } from '@azure/storage-blob';
 import { Pool } from 'pg';
 
-import { logger } from '../utils/logger';
+import { logger } from '../config/logger';
 import { safeGet, validateURL, SSRFError } from '../utils/safe-http-request';
 
 const AZURE_STORAGE_CONNECTION_STRING = process.env.AZURE_STORAGE_CONNECTION_STRING;
