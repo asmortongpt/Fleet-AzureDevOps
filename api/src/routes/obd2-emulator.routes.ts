@@ -1,14 +1,14 @@
 /**
-import { container } from '../container'
-import { asyncHandler } from '../middleware/errorHandler'
-import { NotFoundError, ValidationError } from '../errors/app-error'
-import logger from '../config/logger'; // Wave 29: Add Winston logger
  * OBD2 Emulator API Routes
  *
  * REST and WebSocket endpoints for the OBD2 emulator service.
  * Used for development, testing, and demo purposes.
  */
 
+import { container } from '../container'
+import { asyncHandler } from '../middleware/errorHandler'
+import { NotFoundError, ValidationError } from '../errors/app-error'
+import logger from '../config/logger'; // Wave 29: Add Winston logger
 import express, { Request, Response } from 'express'
 import { v4 as uuidv4 } from 'uuid'
 import { WebSocket, WebSocketServer } from 'ws'

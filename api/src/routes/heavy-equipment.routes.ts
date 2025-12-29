@@ -1,8 +1,4 @@
 /**
-import { container } from '../container'
-import { asyncHandler } from '../middleware/errorHandler'
-import { NotFoundError, ValidationError } from '../errors/app-error'
-import logger from '../config/logger'; // Wave 20: Add Winston logger
  * Heavy Equipment Routes
  * RESTful API for heavy equipment management
  *
@@ -16,6 +12,10 @@ import logger from '../config/logger'; // Wave 20: Add Winston logger
  * - Cost analysis
  */
 
+import { container } from '../container'
+import { asyncHandler } from '../middleware/errorHandler'
+import { NotFoundError, ValidationError } from '../errors/app-error'
+import logger from '../config/logger'; // Wave 20: Add Winston logger
 import { Router } from 'express'
 
 import type { AuthRequest } from '../middleware/auth'
