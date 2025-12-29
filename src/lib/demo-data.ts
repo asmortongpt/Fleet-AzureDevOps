@@ -50,12 +50,12 @@ export function generateDemoVehicles(count: number = 50): Vehicle[] {
     const city = usCities[Math.floor(i / 10) % usCities.length]
     const type = vehicleTypes[i % vehicleTypes.length]
     const makeData = makes[i % makes.length]
-    const model = makeData.models[Math.floor(Math.random() * makeData.models.length)]
+    const model = makeData!.models[Math.floor(Math.random() * makeData!.models.length)]
 
     // Determine if this is heavy equipment
-    const isHeavyEquipment = makeData.make === "Caterpillar" || makeData.make === "John Deere"
-    const isTrailer = model.includes("Trailer")
-    const isTruck = type === "truck" || makeData.make === "Freightliner"
+    const isHeavyEquipment = makeData!.make === "Caterpillar" || makeData!.make === "John Deere"
+    const isTrailer = model!.includes("Trailer")
+    const isTruck = type === "truck" || makeData!.make === "Freightliner"
 
     // More vehicles should be active for realistic demo
     const statusWeights = [0.4, 0.3, 0.1, 0.1, 0.05, 0.05]
@@ -70,7 +70,7 @@ export function generateDemoVehicles(count: number = 50): Vehicle[] {
       }
     }
 
-    const cityCode = city.name.substring(0, 3).toUpperCase()
+    const cityCode = city!.name.substring(0, 3).toUpperCase()
     const number = `TAL-${1001 + i}`
     const odometer = Math.floor(Math.random() * 80000 + 10000)
     const engineHours = isHeavyEquipment ? Math.floor(Math.random() * 5000 + 500) : undefined
@@ -78,24 +78,24 @@ export function generateDemoVehicles(count: number = 50): Vehicle[] {
     vehicles.push({
       id: `veh-${Math.random().toString(36).substr(2, 6)}`,
       tenantId: "demo-tenant-001",
-      name: `${makeData.make} ${model}`,
+      name: `${makeData!.make} ${model}`,
       number,
       type: isHeavyEquipment ? "construction" : (isTrailer ? "trailer" : type),
-      make: makeData.make,
+      make: makeData!.make,
       model,
       year: 2018 + (i % 7),
       vin: `1HGBH${Math.random().toString(36).substr(2, 12).toUpperCase()}`,
       licensePlate: `${String.fromCharCode(65 + Math.floor(Math.random() * 26))}${String.fromCharCode(65 + Math.floor(Math.random() * 26))}${Math.floor(Math.random() * 10000)}`,
       status,
       location: {
-        lat: city.lat + (Math.random() - 0.5) * 0.1,
-        lng: city.lng + (Math.random() - 0.5) * 0.1,
-        address: `${Math.floor(Math.random() * 9000 + 1000)} ${["Main", "Oak", "Broadway", "Park", "5th", "Monroe", "Tennessee"][Math.floor(Math.random() * 7)]} St, ${city.name}, FL`
+        lat: city!.lat + (Math.random() - 0.5) * 0.1,
+        lng: city!.lng + (Math.random() - 0.5) * 0.1,
+        address: `${Math.floor(Math.random() * 9000 + 1000)} ${["Main", "Oak", "Broadway", "Park", "5th", "Monroe", "Tennessee"][Math.floor(Math.random() * 7)]} St, ${city!.name}, FL`
       },
       region: regions[i % regions.length],
       department: departments[i % departments.length],
       fuelLevel: status === "active" ? Math.floor(Math.random() * 40 + 40) : Math.floor(Math.random() * 100),
-      fuelType: model.includes("Tesla") || model.includes("Leaf") ? "electric" : (isTruck ? "diesel" : "gasoline"),
+      fuelType: model!.includes("Tesla") || model!.includes("Leaf") ? "electric" : (isTruck ? "diesel" : "gasoline"),
       mileage: odometer,
       hoursUsed: engineHours,
       driver: status === "active" ? `Driver ${Math.floor(i / 3) + 1}` : undefined,
