@@ -1,3 +1,5 @@
+import logger from '@/utils/logger'
+
 /**
  * Fleet Application Telemetry Module - STUB IMPLEMENTATION
  *
