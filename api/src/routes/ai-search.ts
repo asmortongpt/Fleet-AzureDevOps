@@ -1,7 +1,4 @@
 /**
-import { container } from '../container'
-import { asyncHandler } from '../middleware/errorHandler'
-import { NotFoundError, ValidationError } from '../errors/app-error'
  * AI-Powered Semantic Search API Routes
  *
  * Advanced search capabilities using RAG (Retrieval-Augmented Generation):
@@ -12,6 +9,9 @@ import { NotFoundError, ValidationError } from '../errors/app-error'
  * - Search analytics and personalization
  */
 
+import { container } from '../container'
+import { asyncHandler } from '../middleware/errorHandler'
+import { NotFoundError, ValidationError } from '../errors/app-error'
 import express, { Response } from 'express'
 import { z } from 'zod'
 
