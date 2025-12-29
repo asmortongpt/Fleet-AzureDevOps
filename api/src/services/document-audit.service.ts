@@ -129,7 +129,7 @@ export class DocumentAuditService {
       let query = `
         SELECT
           dal.*,
-          u.first_name || ` ` || u.last_name as user_name,
+          u.first_name || ' ' || u.last_name as user_name,
           u.email as user_email
         FROM document_audit_log dal
         LEFT JOIN users u ON dal.user_id = u.id
@@ -202,7 +202,7 @@ export class DocumentAuditService {
       let query = `
         SELECT
           dal.*,
-          u.first_name || ` ` || u.last_name as user_name,
+          u.first_name || ' ' || u.last_name as user_name,
           u.email as user_email
         FROM document_audit_log dal
         LEFT JOIN users u ON dal.user_id = u.id
@@ -277,7 +277,7 @@ export class DocumentAuditService {
       let query = `
         SELECT
           dal.*,
-          u.first_name || ` ` || u.last_name as user_name,
+          u.first_name || ' ' || u.last_name as user_name,
           u.email as user_email,
           d.file_name as document_name,
           df.folder_name as folder_name
@@ -410,7 +410,7 @@ export class DocumentAuditService {
         this.db.query(
           `SELECT
              dal.user_id,
-             u.first_name || ` ` || u.last_name as user_name,
+             u.first_name || ' ' || u.last_name as user_name,
              COUNT(*) as count
            FROM document_audit_log dal
            LEFT JOIN users u ON dal.user_id = u.id

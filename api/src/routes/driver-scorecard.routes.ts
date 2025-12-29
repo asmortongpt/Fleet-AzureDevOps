@@ -135,7 +135,7 @@ router.get(
 // POST /api/driver-scorecard/calculate-all - Calculate all driver scores
 router.post(
   '/calculate-all',
- csrfProtection,  csrfProtection, requirePermission('report:generate:global'),
+ csrfProtection, requirePermission('report:generate:global'),
   auditLog({ action: 'UPDATE', resourceType: 'driver_scorecard' }),
   async (req: AuthRequest, res: Response) => {
     try {

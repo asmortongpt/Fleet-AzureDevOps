@@ -169,7 +169,7 @@ const ConnectionLogSchema = z.object({
  *       400:
  *         description: Invalid request
  */
-router.post('/connect',csrfProtection,  csrfProtection, requirePermission('vehicle:update:fleet'), auditLog, async (req: Request, res: Response) => {
+router.post('/connect',csrfProtection, requirePermission('vehicle:update:fleet'), auditLog, async (req: Request, res: Response) => {
   try {
     const validated = RegisterAdapterSchema.parse(req.body)
     const tenantId = (req as any).user.tenant_id
