@@ -16,7 +16,7 @@ import {
 import { OpenAIVisionService } from '../services/openaiVisionService'
 import { getErrorMessage } from '../utils/error-handler'
 import { validateFileContent, validateFileSize } from '../utils/file-validation'
-import { logger } from '../utils/logger'
+import { logger } from '../config/logger'
 
 
 const router = express.Router()
