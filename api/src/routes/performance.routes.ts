@@ -1,14 +1,14 @@
 /**
-import { container } from '../container'
-import { asyncHandler } from '../middleware/errorHandler'
-import { NotFoundError, ValidationError } from '../errors/app-error'
-import logger from '../config/logger'; // Wave 22: Add Winston logger
  * Performance Monitoring Routes
  *
  * Endpoints for monitoring database performance, connection pools,
  * worker threads, and query performance.
  */
 
+import { container } from '../container'
+import { asyncHandler } from '../middleware/errorHandler'
+import { NotFoundError, ValidationError } from '../errors/app-error'
+import logger from '../config/logger'; // Wave 22: Add Winston logger
 import { Router, Request, Response } from 'express'
 
 import { connectionManager } from '../config/connection-manager'

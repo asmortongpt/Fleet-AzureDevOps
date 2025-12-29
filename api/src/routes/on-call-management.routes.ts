@@ -1,8 +1,4 @@
 /**
-import { container } from '../container'
-import { asyncHandler } from '../middleware/errorHandler'
-import { NotFoundError, ValidationError } from '../errors/app-error'
-import logger from '../config/logger'; // Wave 27: Add Winston logger
  * On-Call Management API Routes
  * Supports BR-4 (On-Call Management)
  *
@@ -14,6 +10,10 @@ import logger from '../config/logger'; // Wave 27: Add Winston logger
  * - Geographic constraints
  */
 
+import { container } from '../container'
+import { asyncHandler } from '../middleware/errorHandler'
+import { NotFoundError, ValidationError } from '../errors/app-error'
+import logger from '../config/logger'; // Wave 27: Add Winston logger
 import express, { Response } from 'express'
 import { Pool } from 'pg'
 import { z } from 'zod'
