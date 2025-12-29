@@ -115,7 +115,7 @@ async function secureFetch(url: string, options: RequestInit = {}): Promise<Resp
 
   // Add CSRF token header for state-changing requests
   if (isStateChanging && token) {
-    headers['X-CSRF-Token'] = token;
+    (headers as Record<string, string>)["X-CSRF-Token"] = token;
   }
 
   const response = await fetch(url, {
@@ -134,7 +134,7 @@ async function secureFetch(url: string, options: RequestInit = {}): Promise<Resp
       token = await getCsrfToken();
 
       if (token) {
-        headers['X-CSRF-Token'] = token;
+        (headers as Record<string, string>)["X-CSRF-Token"] = token;
         const retryResponse = await fetch(url, {
           ...options,
           headers,

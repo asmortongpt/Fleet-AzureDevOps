@@ -1,3 +1,11 @@
+
+const logger = {
+  error: (...args: any[]) => console.error('[Telemetry]', ...args),
+  warn: (...args: any[]) => console.warn('[Telemetry]', ...args),
+  info: (...args: any[]) => console.log('[Telemetry]', ...args),
+  debug: (...args: any[]) => console.debug('[Telemetry]', ...args),
+};
+
 /**
  * Fleet Application Telemetry Module - STUB IMPLEMENTATION
  *
