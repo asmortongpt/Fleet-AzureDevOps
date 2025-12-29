@@ -29,11 +29,11 @@ import { isValidIdentifier } from '../../utils/sql-safety'
 import { IRepository } from './IRepository'
 import { PaginationOptions, PaginatedResult, isValidSortOrder } from './types'
 
-export abstract class GenericRepository<T extends { id?: string | number }> implements IRepository<T> {
+export abstract class GenericRepository<T extends { id?: string | number }> {
   protected abstract tableName: string
   protected abstract idColumn: string // Usually 'id'
 
-  constructor(protected pool: Pool) {}
+  constructor(protected pool: Pool) { }
 
   /**
    * Get database pool or client (supports transactions)
