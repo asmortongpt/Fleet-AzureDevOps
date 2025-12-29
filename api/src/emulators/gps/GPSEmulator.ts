@@ -17,7 +17,7 @@ import {
   Route,
   Geofence,
   Waypoint
-} from `../types`
+} from '../types'
 
 export class GPSEmulator extends EventEmitter {
   private vehicle: Vehicle
