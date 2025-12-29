@@ -1,5 +1,7 @@
-import { cache } from './cache';
+import { redis } from './cache';
 import { pool } from './database';
+import { Request, Response, NextFunction } from 'express';
+
 declare global {
   namespace Express {
     interface Request {
@@ -8,10 +10,6 @@ declare global {
     }
   }
 }
-
-
-
-import express, { Request, Response, NextFunction } from 'express';
 
 interface FeatureFlag {
   id: string;
@@ -33,9 +31,11 @@ export class FeatureFlagService {
     const cacheKey = `feature_flag:${flagId}:${tenantId}`;
 
     // Check cache first
-    const cached = await cache.get(cacheKey);
-    if (cached !== null) {
-      return cached === 'true';
+    if (redis) {
+      const cached = await redis.get(cacheKey);
+      if (cached !== null) {
+        return cached === 'true';
+      }
     }
 
     // Fetch from database
@@ -52,19 +52,19 @@ export class FeatureFlagService {
 
     // Check if globally disabled
     if (!flag.enabled) {
-      await cache.setex(cacheKey, 300, 'false');
+      if (redis) await redis.setex(cacheKey, 300, 'false');
       return false;
     }
 
     // Check tenant whitelist
     if (flag.tenant_whitelist.includes(tenantId)) {
-      await cache.setex(cacheKey, 300, 'true');
+      if (redis) await redis.setex(cacheKey, 300, 'true');
       return true;
     }
 
     // Check user whitelist
     if (userId && flag.user_whitelist.includes(userId)) {
-      await cache.setex(cacheKey, 300, 'true');
+      if (redis) await redis.setex(cacheKey, 300, 'true');
       return true;
     }
 
@@ -72,7 +72,7 @@ export class FeatureFlagService {
     const hash = this.hashUser(tenantId, userId);
     const enabled = hash < flag.rollout_percentage;
 
-    await cache.setex(cacheKey, 300, enabled ? 'true' : 'false');
+    if (redis) await redis.setex(cacheKey, 300, enabled ? 'true' : 'false');
     return enabled;
   }
 
@@ -85,18 +85,20 @@ export class FeatureFlagService {
   async getFlagValue<T>(
     flagId: string,
     tenantId: number,
-    userId?: number,
-    defaultValue: T
+    defaultValue: T,
+    userId?: number
   ): Promise<T> {
     const enabled = await this.isEnabled(flagId, tenantId, userId);
     if (!enabled) return defaultValue;
+
+    if (!pool) return defaultValue;
 
     const result = await pool.query(
       `SELECT value FROM feature_flags WHERE id = $1`,
       [flagId]
     );
 
-    return result.rows[0]?.value as T || defaultValue;
+    return (result.rows[0]?.value as T) || defaultValue;
   }
 
   async updateFlag(
@@ -104,12 +106,17 @@ export class FeatureFlagService {
     updates: Partial<FeatureFlag>
   ): Promise<void> {
     const { enabled, rollout_percentage, tenant_whitelist, user_whitelist, value } = updates;
+    if (!pool) return;
+
     await pool.query(
       `UPDATE feature_flags SET enabled = $1, rollout_percentage = $2, tenant_whitelist = $3, user_whitelist = $4, value = $5 WHERE id = $6`,
       [enabled, rollout_percentage, tenant_whitelist, user_whitelist, value, flagId]
     );
     // Invalidate cache
-    await cache.del(`feature_flag:${flagId}`);
+    if (redis) {
+      const keys = await redis.keys(`feature_flag:${flagId}:*`);
+      if (keys.length > 0) await redis.del(...keys);
+    }
   }
 }
 
@@ -122,18 +129,12 @@ export function tenantMiddleware(req: Request, res: Response, next: NextFunction
     res.status(400).send('Invalid tenant ID');
     return;
   }
-  req.tenantId = tenantId;
+  req.tenantId = String(tenantId);
   next();
 }
 
-// Express route example for admin API
-import express from 'express';
-const app = express();
-
-app.use(express.json());
-app.use(tenantMiddleware);
-
-app.post('/admin/feature-flags/:id', async (req, res) => {
+// Admin route handler for updating feature flags
+export async function updateFeatureFlagHandler(req: Request, res: Response): Promise<void> {
   const flagId = req.params.id;
   const updates = req.body as Partial<FeatureFlag>;
 
@@ -143,24 +144,4 @@ app.post('/admin/feature-flags/:id', async (req, res) => {
   } catch (error) {
     res.status(500).send('Error updating feature flag');
   }
-});
-
-// Frontend hook for flag checks
-import { useContext, useEffect, useState } from 'react';
-
-import { FeatureFlagContext } from './FeatureFlagContext';
-
-export function useFeatureFlag(flagId: string, defaultValue: boolean): boolean {
-  const { tenantId, userId } = useContext(FeatureFlagContext);
-  const [isEnabled, setIsEnabled] = useState<boolean>(defaultValue);
-
-  useEffect(() => {
-    async function checkFlag() {
-      const enabled = await featureFlags.isEnabled(flagId, tenantId, userId);
-      setIsEnabled(enabled);
-    }
-    checkFlag();
-  }, [flagId, tenantId, userId]);
-
-  return isEnabled;
 }
