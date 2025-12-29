@@ -1,40 +1,36 @@
-import { Queue, Job } from 'bull';
-import { Request, Response, NextFunction } from 'express';
-import helmet from 'helmet';
+//src/jobs/utilization.cron.ts - Daily utilization rollup job
+import Bull from 'bull';
 import { Pool } from 'pg';
-
-import { auditLog } from '../utils/auditLog';
-import { logger } from '../utils/logger';
+import { logger } from '../lib/logger';
 import { validateTenantId } from '../utils/validation';
-
-// Initialize security headers
-const app = express();
-app.use(helmet());
 
 // Database pool
 const pool = new Pool({
-  // Connection details
+  connectionString: process.env.DATABASE_URL,
+  ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : undefined
 });
 
-// Bull queue for scheduling
-const utilizationQueue = new Queue('utilizationQueue');
+// Bull queue for utilization calculations
+const utilizationQueue = new Bull('utilizationQueue', {
+  redis: {
+    host: process.env.REDIS_HOST || 'localhost',
+    port: parseInt(process.env.REDIS_PORT || '6379', 10)
+  }
+});
 
-// Function to calculate utilization
 async function calculateUtilization(tenantId: string): Promise<void> {
-  // Validate tenant ID
   if (!validateTenantId(tenantId)) {
     throw new Error('Invalid tenant ID');
   }
 
+  let client;
   try {
-    // Begin transaction
-    const client = await pool.connect();
+    client = await pool.connect();
     await client.query('BEGIN');
 
-    // Aggregate usage_events into utilization_daily
     const queryText = `
       INSERT INTO utilization_daily (tenant_id, asset_id, date, in_use_minutes, idle_minutes)
-      SELECT 
+      SELECT
         tenant_id,
         asset_id,
         date_trunc('day', event_time) AS date,
@@ -43,43 +39,46 @@ async function calculateUtilization(tenantId: string): Promise<void> {
       FROM usage_events
       WHERE tenant_id = $1
       GROUP BY tenant_id, asset_id, date
+      ON CONFLICT (tenant_id, asset_id, date)
+      DO UPDATE SET
+        in_use_minutes = EXCLUDED.in_use_minutes,
+        idle_minutes = EXCLUDED.idle_minutes
     `;
     await client.query(queryText, [tenantId]);
 
-    // Commit transaction
     await client.query('COMMIT');
-    auditLog('Utilization rollup completed', { tenantId });
+    logger.info('Utilization rollup completed', { tenantId });
   } catch (error) {
-    // Rollback transaction in case of error
-    await pool.query('ROLLBACK');
+    if (client) {
+      await client.query('ROLLBACK');
+    }
     logger.error('Error during utilization rollup', { error, tenantId });
     throw error;
   } finally {
-    // Release client
-    client.release();
+    if (client) {
+      client.release();
+    }
   }
 }
 
-// Cron job to run daily utilization rollup
-utilizationQueue.process(async (job: Job) => {
+utilizationQueue.process(async (job: Bull.Job) => {
   const { tenantId } = job.data;
   try {
     await calculateUtilization(tenantId);
   } catch (error) {
     logger.error('Failed to process utilization job', { error, tenantId });
+    throw error;
   }
 });
 
-// Schedule the job to run nightly
-utilizationQueue.add({}, { repeat: { cron: '0 0 * * *' } });
+utilizationQueue.add(
+  'daily-rollup',
+  { tenantId: 'default' },
+  {
+    repeat: { cron: '0 0 * * *' },
+    removeOnComplete: true,
+    removeOnFail: false
+  }
+);
 
-// Express error handling middleware
-app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
-  logger.error('Unhandled error', { error: err });
-  res.status(500).send('Internal Server Error');
-});
-
-// FedRAMP/SOC 2 compliance: Ensure all data is handled securely and access is logged
-// Multi-tenant isolation: Ensure tenant_id is used in all queries to isolate data
-
-export { utilizationQueue };
+export { utilizationQueue, calculateUtilization };
