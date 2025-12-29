@@ -115,3 +115,5 @@ process.on('SIGTERM', async () => {
   }
   process.exit(0);
 });
+
+export const pool = db; // Alias for compatibility

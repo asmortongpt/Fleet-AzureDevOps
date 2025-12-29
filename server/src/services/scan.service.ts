@@ -3,7 +3,7 @@ import helmet from 'helmet';
 import { Pool } from 'pg';
 
 import { AuditLogger } from '../utils/auditLogger';
-import { Logger } from '../utils/logger';
+import { logger } from '../utils/logger';
 import { validateScanType, validateCoordinates } from '../utils/validators';
 
 import { AssetService } from './asset.service';
@@ -11,7 +11,7 @@ import { LocationService } from './location.service';
 
 
 const pool = new Pool();
-const logger = new Logger();
+const appLogger = new Logger();
 const auditLogger = new AuditLogger();
 
 export class ScanService {
@@ -42,7 +42,7 @@ export class ScanService {
         client.release();
       }
     } catch (error) {
-      logger.error('Error creating scan session', error);
+      appLogger.error('Error creating scan session', error);
       throw error;
     }
   }
@@ -66,7 +66,7 @@ export class ScanService {
         client.release();
       }
     } catch (error) {
-      logger.error('Error recording scan', error);
+      appLogger.error('Error recording scan', error);
       throw error;
     }
   }
@@ -84,7 +84,7 @@ export class ScanService {
         client.release();
       }
     } catch (error) {
-      logger.error('Error closing scan session', error);
+      appLogger.error('Error closing scan session', error);
       throw error;
     }
   }

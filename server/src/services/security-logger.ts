@@ -166,16 +166,16 @@ export function logSecurityEvent(event: SecurityEvent): void {
 
   switch (severity) {
     case Severity.CRITICAL:
-      baseLogger.error('SECURITY_EVENT', sanitizedEvent);
+      baselogger.error('SECURITY_EVENT', sanitizedEvent);
       // TODO: Send alert to security team
       break;
     case Severity.HIGH:
-      baseLogger.warn('SECURITY_EVENT', sanitizedEvent);
+      baselogger.warn('SECURITY_EVENT', sanitizedEvent);
       break;
     case Severity.MEDIUM:
     case Severity.LOW:
     default:
-      baseLogger.info('SECURITY_EVENT', sanitizedEvent);
+      baselogger.info('SECURITY_EVENT', sanitizedEvent);
       break;
   }
 
