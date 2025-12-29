@@ -1,8 +1,4 @@
 /**
-import { container } from '../container'
-import { asyncHandler } from '../middleware/errorHandler'
-import { NotFoundError, ValidationError } from '../errors/app-error'
-import logger from '../config/logger'; // Wave 33: Add Winston logger (FINAL WAVE!)
  * Annual Reauthorization API Routes
  * Supports BR-9 (Annual Reauthorization - November Cycle)
  *
@@ -13,6 +9,10 @@ import logger from '../config/logger'; // Wave 33: Add Winston logger (FINAL WAV
  * - Electronic submission to Fleet Management
  */
 
+import { container } from '../container'
+import { asyncHandler } from '../middleware/errorHandler'
+import { NotFoundError, ValidationError } from '../errors/app-error'
+import logger from '../config/logger'; // Wave 33: Add Winston logger (FINAL WAVE!)
 import express, { Response } from 'express';
 import { z } from 'zod';
 

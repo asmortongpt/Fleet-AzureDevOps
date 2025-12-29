@@ -1,8 +1,4 @@
 /**
-import { container } from '../container'
-import { asyncHandler } from '../middleware/errorHandler'
-import { NotFoundError, ValidationError } from '../errors/app-error'
-import logger from '../config/logger'; // Wave 31: Add Winston logger
  * Mobile Assignment API Routes
  * Mobile-optimized endpoints for vehicle assignment management (BR-11)
  *
@@ -15,6 +11,10 @@ import logger from '../config/logger'; // Wave 31: Add Winston logger
  * - Offline data sync (BR-11.6)
  */
 
+import { container } from '../container'
+import { asyncHandler } from '../middleware/errorHandler'
+import { NotFoundError, ValidationError } from '../errors/app-error'
+import logger from '../config/logger'; // Wave 31: Add Winston logger
 import express, { Response } from 'express';
 import { Pool } from 'pg';
 import { z } from 'zod';
