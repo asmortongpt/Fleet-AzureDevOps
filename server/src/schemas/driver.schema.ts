@@ -21,7 +21,7 @@ export const validateDriver = (req: Request, res: Response, next: NextFunction) 
   } catch (error) {
     if (error instanceof ZodError) {
       // Log the validation error details
-      logger.error('Validation Error:', error.errors);
+      logger.error('Validation Error:', error.issues);
 
       // FedRAMP Compliance: Ensure that error messages do not expose sensitive information
       res.status(400).json({ message: 'Invalid driver data provided.' });

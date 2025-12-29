@@ -1,5 +1,15 @@
 import { cache } from './cache';
 import { pool } from './database';
+declare global {
+  namespace Express {
+    interface Request {
+      tenantId?: string;
+      userId?: string;
+    }
+  }
+}
+
+
 
 import express, { Request, Response, NextFunction } from 'express';
 

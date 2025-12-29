@@ -1,5 +1,5 @@
 // Import necessary modules
-import { Worker, Queue, QueueScheduler } from 'bullmq';
+import { Worker, Queue } from 'bullmq';
 import Redis from 'ioredis';
 import sharp from 'sharp';
 import { createLogger, transports, format } from 'winston';
@@ -9,7 +9,7 @@ const redisConnection = new Redis();
 
 // Initialize Bull queue
 const imageQueue = new Queue('image-optimization', { connection: redisConnection });
-const queueScheduler = new QueueScheduler('image-optimization', { connection: redisConnection });
+const queueScheduler = new ('image-optimization', { connection: redisConnection });
 
 // Logger setup
 const logger = createLogger({

@@ -2,9 +2,9 @@ import * as fs from 'fs';
 import * as path from 'path';
 import { writeHeapSnapshot } from 'v8';
 
-import { datadogRum } from '@datadog/browser-rum';
+// import { datadogRum } from '@datadog/browser-rum';
 import * as Sentry from '@sentry/node';
-import * as memwatch from 'memwatch-next';
+// import * as memwatch from 'memwatch-next';
 
 interface Config {
   heapUsageThreshold: number;
@@ -23,15 +23,15 @@ Sentry.init({
   tracesSampleRate: 1.0,
 });
 
-datadogRum.init({
-  applicationId: process.env.DATADOG_APP_ID || '',
-  clientToken: process.env.DATADOG_CLIENT_TOKEN || '',
-  site: 'datadoghq.com',
-  service: 'memory-monitoring-service',
-  version: '1.0.0',
-  sampleRate: 100,
-  trackInteractions: true,
-});
+// datadogRum.init({
+//   applicationId: process.env.DATADOG_APP_ID || '',
+//   clientToken: process.env.DATADOG_CLIENT_TOKEN || '',
+//   site: 'datadoghq.com',
+//   service: 'memory-monitoring-service',
+//   version: '1.0.0',
+//   sampleRate: 100,
+//   trackInteractions: true,
+// });
 
 function ensureSnapshotDirExists(): void {
   if (!fs.existsSync(config.snapshotDir)) {
@@ -46,30 +46,32 @@ function takeHeapSnapshot(label: string): void {
 }
 
 function monitorMemoryUsage(): void {
-  memwatch.on('stats', (stats) => {
-    const heapUsage = stats.current_base / stats.estimated_base;
-    if (heapUsage > config.heapUsageThreshold) {
-      Sentry.captureMessage(`High heap usage detected: ${heapUsage}`);
-      takeHeapSnapshot('high-usage');
-    }
-  });
+  // memwatch.on('stats', (stats) => {
+  //   const heapUsage = stats.current_base / stats.estimated_base;
+  //   if (heapUsage > config.heapUsageThreshold) {
+  //     Sentry.captureMessage(`High heap usage detected: ${heapUsage}`);
+  //     takeHeapSnapshot('high-usage');
+  //   }
+  // });
 
-  memwatch.on('leak', (info) => {
-    Sentry.captureException(new Error(`Memory leak detected: ${info.reason}`));
-    takeHeapSnapshot('leak-detected');
-  });
+  // memwatch.on('leak', (info) => {
+  //   Sentry.captureException(new Error(`Memory leak detected: ${info.reason}`));
+  //   takeHeapSnapshot('leak-detected');
+  // });
+  console.log('Memory monitoring disabled - memwatch module not available');
 }
 
 function monitorHeapGrowth(): void {
-  let lastHeapSize = 0;
-  memwatch.on('stats', (stats) => {
-    const heapGrowth = (stats.current_base - lastHeapSize) / lastHeapSize;
-    lastHeapSize = stats.current_base;
-    if (heapGrowth > config.heapGrowthThreshold) {
-      Sentry.captureMessage(`Heap growth detected: ${heapGrowth}`);
-      takeHeapSnapshot('heap-growth');
-    }
-  });
+  // let lastHeapSize = 0;
+  // memwatch.on('stats', (stats) => {
+  //   const heapGrowth = (stats.current_base - lastHeapSize) / lastHeapSize;
+  //   lastHeapSize = stats.current_base;
+  //   if (heapGrowth > config.heapGrowthThreshold) {
+  //     Sentry.captureMessage(`Heap growth detected: ${heapGrowth}`);
+  //     takeHeapSnapshot('heap-growth');
+  //   }
+  // });
+  console.log('Heap growth monitoring disabled - memwatch module not available');
 }
 
 function initializeMonitoring(): void {

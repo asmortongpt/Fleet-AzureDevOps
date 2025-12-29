@@ -22,8 +22,8 @@ export const validateVehicle = (req: Request, res: Response, next: NextFunction)
     next();
   } catch (error) {
     if (error instanceof ZodError) {
-      logger.error('Validation Error:', error.errors);
-      res.status(400).json({ error: 'Invalid vehicle data', details: error.errors });
+      logger.error('Validation Error:', error.issues);
+      res.status(400).json({ error: 'Invalid vehicle data', details: error.issues });
     } else {
       logger.error('Unexpected Error:', error);
       res.status(500).json({ error: 'Internal Server Error' });
