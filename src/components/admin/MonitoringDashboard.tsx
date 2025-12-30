@@ -13,7 +13,7 @@ import SystemHealthWidget from './SystemHealthWidget';
 import logger from '@/utils/logger';
 
 // Import proper interfaces from child components
-interface SystemHealth {
+interface DashboardSystemHealth {
   status: 'healthy' | 'degraded' | 'down';
   uptime: number;
   version: string;
@@ -25,7 +25,7 @@ interface SystemHealth {
   };
 }
 
-interface Metrics {
+interface DashboardMetrics {
   requestsPerMinute: number;
   activeConnections: number;
   averageResponseTime: number;
@@ -33,7 +33,7 @@ interface Metrics {
   throughput: number;
 }
 
-interface EmulatorGroup {
+interface DashboardEmulatorGroup {
   name: string;
   type: string;
   instances: Array<{
@@ -48,7 +48,7 @@ interface EmulatorGroup {
   }>;
 }
 
-interface Error {
+interface DashboardError {
   id: string;
   timestamp: number;
   type: string;
@@ -56,7 +56,7 @@ interface Error {
   severity: 'low' | 'medium' | 'high' | 'critical';
 }
 
-interface Alert {
+interface DashboardAlert {
   id: string;
   timestamp: number;
   type: string;
@@ -67,11 +67,11 @@ interface Alert {
 }
 
 interface MonitoringData {
-  health: SystemHealth | null;
-  metrics: Metrics | null;
-  emulators: EmulatorGroup | null;
-  errors: Error[];
-  alerts: Alert[];
+  health: DashboardSystemHealth | null;
+  metrics: DashboardMetrics | null;
+  emulators: DashboardEmulatorGroup | null;
+  errors: DashboardError[];
+  alerts: DashboardAlert[];
 }
 
 const MonitoringDashboard: React.FC = () => {
@@ -230,7 +230,7 @@ const MonitoringDashboard: React.FC = () => {
                 Performance Metrics
               </Typography>
               <PerformanceMetrics
-                metrics={data.metrics}
+                metrics={data.metrics as any}
                 loading={loading}
               />
             </CardContent>
@@ -245,7 +245,7 @@ const MonitoringDashboard: React.FC = () => {
                 Error Rate Analysis
               </Typography>
               <ErrorRateChart
-                errors={data.errors}
+                errors={data.errors as any}
                 loading={loading}
               />
             </CardContent>
@@ -260,7 +260,7 @@ const MonitoringDashboard: React.FC = () => {
                 Emulator Status
               </Typography>
               <EmulatorMonitor
-                emulators={data.emulators}
+                emulators={data.emulators as any}
                 loading={loading}
               />
             </CardContent>
