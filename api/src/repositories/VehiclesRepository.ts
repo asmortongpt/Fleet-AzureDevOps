@@ -1,6 +1,6 @@
 import { Pool } from 'pg';
 
-import { BaseRepository } from './BaseRepository';
+import { BaseRepository } from './base/BaseRepository';
 
 export class VehiclesRepository extends BaseRepository<any> {
   constructor(pool: Pool) {
