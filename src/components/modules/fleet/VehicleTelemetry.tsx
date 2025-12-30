@@ -14,7 +14,7 @@ import {
 import { useState } from "react"
 import { toast } from "sonner"
 
-import { UniversalMap } from "@/components/UniversalMap"
+import { UniversalMap, UniversalMapProps } from "@/components/UniversalMap"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
@@ -44,7 +44,6 @@ import {
 } from "@/components/ui/table"
 import { useFleetData } from "@/hooks/use-fleet-data"
 import { useInspect } from "@/services/inspect/InspectContext"
-
 
 interface VehicleTelemetry {
   id: string
@@ -132,7 +131,7 @@ export function VehicleTelemetry() {
     return matchesSearch && matchesSource && matchesConnected
   })
 
-  const handleSmartcarCommand = (vehicleId: string, command: string) => {
+  const handleSmartcarCommand = (_vehicleId: string, command: string) => {
     toast.info(`Sending ${command} command to vehicle...`)
     setTimeout(() => {
       toast.success(`Command executed successfully`)
@@ -451,8 +450,8 @@ export function VehicleTelemetry() {
         <CardContent>
           <div className="h-[400px] rounded-lg overflow-hidden border">
             <UniversalMap
-              vehicles={fleetVehicles}
-              facilities={facilities}
+              vehicles={fleetVehicles as UniversalMapProps['vehicles']}
+              facilities={facilities as UniversalMapProps['facilities']}
               showVehicles={true}
               showFacilities={true}
               mapStyle="road"
@@ -491,71 +490,48 @@ export function VehicleTelemetry() {
                 filteredVehicles.map(vehicle => (
                   <TableRow key={vehicle.id}>
                     <TableCell>
-                      <div>
-                        <div className="font-medium">{vehicle.vehicleNumber}</div>
-                        <div className="text-sm text-muted-foreground">
-                          {vehicle.year} {vehicle.make} {vehicle.model}
-                        </div>
+                      <div className="font-medium">{vehicle.vehicleNumber}</div>
+                      <div className="text-sm text-muted-foreground">
+                        {vehicle.make} {vehicle.model} ({vehicle.year})
                       </div>
                     </TableCell>
                     <TableCell>{getDataSourceBadge(vehicle.dataSource)}</TableCell>
                     <TableCell>
                       {vehicle.connected ? (
-                        <Badge className="bg-green-100 text-green-700" variant="secondary">
-                          <CheckCircle className="w-3 h-3 mr-1" />
+                        <Badge variant="secondary" className="bg-green-100 text-green-700">
                           Connected
                         </Badge>
                       ) : (
-                        <Badge className="bg-gray-100 text-gray-700" variant="secondary">
-                          Offline
+                        <Badge variant="secondary" className="bg-red-100 text-red-700">
+                          Disconnected
+                        </Badge>
+                      )}
+                    </TableCell>
+                    <TableCell>{vehicle.liveData.odometer.toLocaleString()} mi</TableCell>
+                    <TableCell>
+                      {vehicle.liveData.stateOfCharge !== undefined
+                        ? `${vehicle.liveData.stateOfCharge}% SOC`
+                        : `${vehicle.liveData.fuelLevel}% Fuel`}
+                    </TableCell>
+                    <TableCell>
+                      {vehicle.dtcCodes.length > 0 ? (
+                        <Badge variant="secondary" className={getDTCSeverityColor(vehicle.dtcCodes[0].severity)}>
+                          {vehicle.dtcCodes.length} Code{vehicle.dtcCodes.length > 1 ? 's' : ''}
+                        </Badge>
+                      ) : (
+                        <Badge variant="secondary" className="bg-gray-100 text-gray-700">
+                          No Issues
                         </Badge>
                       )}
                     </TableCell>
                     <TableCell>
-                      <div className="text-sm">{vehicle.liveData.odometer.toLocaleString()} mi</div>
-                    </TableCell>
-                    <TableCell>
-                      {vehicle.liveData.stateOfCharge !== undefined ? (
-                        <div className="flex items-center gap-1">
-                          <BatteryCharging className="w-4 h-4 text-green-600" />
-                          <span className="text-sm">{vehicle.liveData.stateOfCharge}%</span>
-                        </div>
-                      ) : (
-                        <div className="flex items-center gap-1">
-                          <Drop className="w-4 h-4 text-blue-600" />
-                          <span className="text-sm">{vehicle.liveData.fuelLevel}%</span>
-                        </div>
-                      )}
-                    </TableCell>
-                    <TableCell>
-                      {vehicle.dtcCodes.filter(dtc => !dtc.cleared).length > 0 ? (
-                        <Badge className="bg-orange-100 text-orange-700" variant="secondary">
-                          <Warning className="w-3 h-3 mr-1" />
-                          {vehicle.dtcCodes.filter(dtc => !dtc.cleared).length}
-                        </Badge>
-                      ) : (
-                        <span className="text-sm text-muted-foreground">None</span>
-                      )}
-                    </TableCell>
-                    <TableCell>
-                      <div className="flex gap-1">
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => handleViewDetails(vehicle)}
-                        >
-                          Details
-                        </Button>
-                        {vehicle.smartcarCapabilities && (
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => handleSmartcarCommand(vehicle.id, "refresh")}
-                          >
-                            Refresh
-                          </Button>
-                        )}
-                      </div>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => handleViewDetails(vehicle)}
+                      >
+                        Details
+                      </Button>
                     </TableCell>
                   </TableRow>
                 ))
@@ -566,144 +542,168 @@ export function VehicleTelemetry() {
       </Card>
 
       <Dialog open={isDetailsOpen} onOpenChange={setIsDetailsOpen}>
-        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+        <DialogContent className="max-w-5xl">
           <DialogHeader>
             <DialogTitle>Vehicle Telemetry Details</DialogTitle>
             <DialogDescription>
-              {selectedVehicle?.vehicleNumber} - {selectedVehicle?.year} {selectedVehicle?.make}{" "}
-              {selectedVehicle?.model}
+              Detailed live data for {selectedVehicle?.vehicleNumber}
             </DialogDescription>
           </DialogHeader>
           {selectedVehicle && (
-            <div className="space-y-4">
-              <div className="grid grid-cols-3 gap-4">
+            <div className="space-y-6">
+              <div className="grid grid-cols-2 gap-6">
                 <Card>
-                  <CardHeader className="pb-2">
-                    <CardTitle className="text-sm flex items-center gap-2">
-                      <Speedometer className="w-4 h-4" />
-                      Speed & RPM
-                    </CardTitle>
+                  <CardHeader>
+                    <CardTitle>Vehicle Information</CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <div className="text-2xl font-bold">{selectedVehicle.liveData.speed} mph</div>
-                    <div className="text-xs text-muted-foreground">
-                      {selectedVehicle.liveData.rpm} RPM
+                    <div className="space-y-2">
+                      <div>
+                        <span className="text-muted-foreground">Number:</span> {selectedVehicle.vehicleNumber}
+                      </div>
+                      <div>
+                        <span className="text-muted-foreground">Make/Model:</span> {selectedVehicle.make} {selectedVehicle.model} ({selectedVehicle.year})
+                      </div>
+                      <div>
+                        <span className="text-muted-foreground">VIN:</span> {selectedVehicle.vin}
+                      </div>
+                      <div>
+                        <span className="text-muted-foreground">Data Source:</span> {selectedVehicle.dataSource}
+                      </div>
+                      <div>
+                        <span className="text-muted-foreground">Last Update:</span> {new Date(selectedVehicle.lastUpdate).toLocaleString()}
+                      </div>
                     </div>
                   </CardContent>
                 </Card>
 
                 <Card>
-                  <CardHeader className="pb-2">
-                    <CardTitle className="text-sm flex items-center gap-2">
-                      <ThermometerSimple className="w-4 h-4" />
-                      Temperature
-                    </CardTitle>
+                  <CardHeader>
+                    <CardTitle>Live Metrics</CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <div className="text-2xl font-bold">{selectedVehicle.liveData.engineTemp}°F</div>
-                    <div className="text-xs text-muted-foreground">
-                      Coolant: {selectedVehicle.liveData.coolantTemp}°F
-                    </div>
-                  </CardContent>
-                </Card>
-
-                <Card>
-                  <CardHeader className="pb-2">
-                    <CardTitle className="text-sm flex items-center gap-2">
-                      <Gauge className="w-4 h-4" />
-                      Tire Pressure
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="grid grid-cols-2 gap-1 text-xs">
-                      <div>FL: {selectedVehicle.liveData.tirePressure.fl} psi</div>
-                      <div>FR: {selectedVehicle.liveData.tirePressure.fr} psi</div>
-                      <div>RL: {selectedVehicle.liveData.tirePressure.rl} psi</div>
-                      <div>RR: {selectedVehicle.liveData.tirePressure.rr} psi</div>
+                    <div className="space-y-2">
+                      <div className="flex items-center gap-2">
+                        <Speedometer className="w-4 h-4 text-muted-foreground" />
+                        <span className="text-muted-foreground">Speed:</span> {selectedVehicle.liveData.speed} mph
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Gauge className="w-4 h-4 text-muted-foreground" />
+                        <span className="text-muted-foreground">Odometer:</span> {selectedVehicle.liveData.odometer.toLocaleString()} mi
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Drop className="w-4 h-4 text-muted-foreground" />
+                        <span className="text-muted-foreground">Fuel:</span> {selectedVehicle.liveData.fuelLevel}%
+                      </div>
+                      {selectedVehicle.liveData.stateOfCharge !== undefined && (
+                        <div className="flex items-center gap-2">
+                          <BatteryCharging className="w-4 h-4 text-muted-foreground" />
+                          <span className="text-muted-foreground">SOC:</span> {selectedVehicle.liveData.stateOfCharge}%
+                        </div>
+                      )}
+                      <div className="flex items-center gap-2">
+                        <ThermometerSimple className="w-4 h-4 text-muted-foreground" />
+                        <span className="text-muted-foreground">Engine Temp:</span> {selectedVehicle.liveData.engineTemp}°F
+                      </div>
                     </div>
                   </CardContent>
                 </Card>
               </div>
 
               {selectedVehicle.dtcCodes.length > 0 && (
-                <div className="border-t pt-4">
-                  <h3 className="font-semibold mb-3">Diagnostic Trouble Codes</h3>
-                  <div className="space-y-2">
-                    {selectedVehicle.dtcCodes.map((dtc, idx) => (
-                      <div key={idx} className="flex items-center justify-between p-3 border rounded">
-                        <div className="flex-1">
-                          <div className="flex items-center gap-2">
-                            <Badge
-                              className={getDTCSeverityColor(dtc.severity)}
-                              variant="secondary"
-                            >
-                              {dtc.code}
-                            </Badge>
-                            {dtc.cleared && (
-                              <Badge variant="outline" className="text-xs">
-                                Cleared
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Diagnostic Trouble Codes ({selectedVehicle.dtcCodes.length})</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <Table>
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead>Code</TableHead>
+                          <TableHead>Description</TableHead>
+                          <TableHead>Severity</TableHead>
+                          <TableHead>Timestamp</TableHead>
+                          <TableHead>Action</TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {selectedVehicle.dtcCodes.map(dtc => (
+                          <TableRow key={dtc.code}>
+                            <TableCell>{dtc.code}</TableCell>
+                            <TableCell>{dtc.description}</TableCell>
+                            <TableCell>
+                              <Badge className={getDTCSeverityColor(dtc.severity)} variant="secondary">
+                                {dtc.severity.charAt(0).toUpperCase() + dtc.severity.slice(1)}
                               </Badge>
-                            )}
-                          </div>
-                          <p className="text-sm text-muted-foreground mt-1">{dtc.description}</p>
-                        </div>
-                        {!dtc.cleared && (
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => handleClearDTC(selectedVehicle.id, dtc.code)}
-                          >
-                            Clear
-                          </Button>
-                        )}
-                      </div>
-                    ))}
-                  </div>
-                </div>
+                            </TableCell>
+                            <TableCell>{new Date(dtc.timestamp).toLocaleString()}</TableCell>
+                            <TableCell>
+                              {!dtc.cleared ? (
+                                <Button
+                                  size="sm"
+                                  variant="outline"
+                                  onClick={() => handleClearDTC(selectedVehicle.id, dtc.code)}
+                                >
+                                  Clear
+                                </Button>
+                              ) : (
+                                <span className="text-muted-foreground text-sm">Cleared</span>
+                              )}
+                            </TableCell>
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                    </Table>
+                  </CardContent>
+                </Card>
               )}
 
-              {selectedVehicle.smartcarCapabilities && (
-                <div className="border-t pt-4">
-                  <h3 className="font-semibold mb-3">Smartcar Remote Control</h3>
-                  <div className="grid grid-cols-2 gap-2">
-                    {selectedVehicle.smartcarCapabilities.canLock && (
-                      <Button
-                        variant="outline"
-                        onClick={() => handleSmartcarCommand(selectedVehicle.id, "lock")}
-                      >
-                        <LockKey className="w-4 h-4 mr-2" />
-                        Lock Doors
-                      </Button>
-                    )}
-                    {selectedVehicle.smartcarCapabilities.canUnlock && (
-                      <Button
-                        variant="outline"
-                        onClick={() => handleSmartcarCommand(selectedVehicle.id, "unlock")}
-                      >
-                        <LockKey className="w-4 h-4 mr-2" />
-                        Unlock Doors
-                      </Button>
-                    )}
-                    {selectedVehicle.smartcarCapabilities.canStartCharge && (
-                      <Button
-                        variant="outline"
-                        onClick={() => handleSmartcarCommand(selectedVehicle.id, "start-charge")}
-                      >
-                        <BatteryCharging className="w-4 h-4 mr-2" />
-                        Start Charge
-                      </Button>
-                    )}
-                    {selectedVehicle.smartcarCapabilities.canStopCharge && (
-                      <Button
-                        variant="outline"
-                        onClick={() => handleSmartcarCommand(selectedVehicle.id, "stop-charge")}
-                      >
-                        <BatteryCharging className="w-4 h-4 mr-2" />
-                        Stop Charge
-                      </Button>
-                    )}
-                  </div>
-                </div>
+              {selectedVehicle.dataSource === "smartcar" && selectedVehicle.smartcarCapabilities && (
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Smartcar Controls</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="flex gap-2">
+                      {selectedVehicle.smartcarCapabilities.canLock && (
+                        <Button
+                          variant="outline"
+                          onClick={() => handleSmartcarCommand(selectedVehicle.id, "lock")}
+                        >
+                          <LockKey className="w-4 h-4 mr-2" />
+                          Lock
+                        </Button>
+                      )}
+                      {selectedVehicle.smartcarCapabilities.canUnlock && (
+                        <Button
+                          variant="outline"
+                          onClick={() => handleSmartcarCommand(selectedVehicle.id, "unlock")}
+                        >
+                          <LockKey className="w-4 h-4 mr-2" />
+                          Unlock
+                        </Button>
+                      )}
+                      {selectedVehicle.smartcarCapabilities.canStartCharge && (
+                        <Button
+                          variant="outline"
+                          onClick={() => handleSmartcarCommand(selectedVehicle.id, "start charge")}
+                        >
+                          <BatteryCharging className="w-4 h-4 mr-2" />
+                          Start Charge
+                        </Button>
+                      )}
+                      {selectedVehicle.smartcarCapabilities.canStopCharge && (
+                        <Button
+                          variant="outline"
+                          onClick={() => handleSmartcarCommand(selectedVehicle.id, "stop charge")}
+                        >
+                          <BatteryCharging className="w-4 h-4 mr-2" />
+                          Stop Charge
+                        </Button>
+                      )}
+                    </div>
+                  </CardContent>
+                </Card>
               )}
             </div>
           )}

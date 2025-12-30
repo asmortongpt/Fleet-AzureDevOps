@@ -5,7 +5,7 @@ import { ApiResponse } from '../utils/apiResponse';
 /**
  * Middleware to ensure all responses conform to a standard format.
  */
-export const apiResponseMiddleware = (req: Request, res: Response, next: NextFunction): void => {
+export const apiResponseMiddleware = (_req: Request, res: Response, next: NextFunction): void => {
   const originalSend = res.send.bind(res);
 
   res.send = (body: any): Response => {
@@ -14,7 +14,7 @@ export const apiResponseMiddleware = (req: Request, res: Response, next: NextFun
     }
 
     if (typeof body === 'object' && !body.success) {
-      return ApiResponse.error(res, body.error || 'An error occurred');
+      return ApiResponse.failure(res, body.error || 'An error occurred');
     }
 
     return originalSend(body);

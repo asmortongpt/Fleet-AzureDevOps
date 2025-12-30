@@ -1,3 +1,3 @@
 // Mobile module exports
-export { MobileEmployeeDashboard } from './MobileEmployeeDashboard'
-export { MobileManagerView } from './MobileManagerView'
+export { default as MobileEmployeeDashboard } from './MobileEmployeeDashboard'
+export { default as MobileManagerView } from './MobileManagerView'

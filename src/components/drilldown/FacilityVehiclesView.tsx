@@ -15,10 +15,23 @@ interface FacilityVehiclesViewProps {
   facilityName?: string
 }
 
+interface Vehicle {
+  id: string
+  name: string
+  year: number
+  make: string
+  model: string
+  status: string
+  mileage?: number
+  fuel_level?: number
+  health_score?: number
+  assigned_to?: string
+}
+
 const fetcher = (url: string) => fetch(url).then((r) => r.json())
 
 export function FacilityVehiclesView({ facilityId, facilityName }: FacilityVehiclesViewProps) {
-  const { data: vehicles, error, isLoading, mutate } = useSWR(
+  const { data: vehicles, error, isLoading, mutate } = useSWR<Vehicle[]>(
     `/api/facilities/${facilityId}/vehicles`,
     fetcher
   )
@@ -45,7 +58,7 @@ export function FacilityVehiclesView({ facilityId, facilityName }: FacilityVehic
             </Card>
           ) : (
             <div className="space-y-3">
-              {vehicles.map((vehicle: any) => (
+              {vehicles.map((vehicle) => (
                 <Card key={vehicle.id}>
                   <CardContent className="p-4">
                     <div className="space-y-3">
@@ -56,7 +69,7 @@ export function FacilityVehiclesView({ facilityId, facilityName }: FacilityVehic
                             {vehicle.year} {vehicle.make} {vehicle.model}
                           </p>
                         </div>
-                        <Badge variant={vehicle.status === 'active' ? 'success' : 'secondary'}>
+                        <Badge variant="outline">
                           {vehicle.status}
                         </Badge>
                       </div>
@@ -68,7 +81,7 @@ export function FacilityVehiclesView({ facilityId, facilityName }: FacilityVehic
                             <span>Mileage</span>
                           </div>
                           <p className="text-sm font-medium">
-                            {vehicle.mileage?.toLocaleString() || '0'} mi
+                            {vehicle.mileage?.toLocaleString() ?? '0'} mi
                           </p>
                         </div>
                         <div>
@@ -76,14 +89,14 @@ export function FacilityVehiclesView({ facilityId, facilityName }: FacilityVehic
                             <Fuel className="h-3 w-3" />
                             <span>Fuel</span>
                           </div>
-                          <p className="text-sm font-medium">{vehicle.fuel_level || 0}%</p>
+                          <p className="text-sm font-medium">{vehicle.fuel_level ?? 0}%</p>
                         </div>
                         <div>
                           <div className="flex items-center gap-1 text-xs text-muted-foreground mb-1">
                             <Activity className="h-3 w-3" />
                             <span>Health</span>
                           </div>
-                          <p className="text-sm font-medium">{vehicle.health_score || 0}%</p>
+                          <p className="text-sm font-medium">{vehicle.health_score ?? 0}%</p>
                         </div>
                       </div>
 

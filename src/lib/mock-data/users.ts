@@ -343,8 +343,8 @@ export const mockUsers: User[] = [
   // Generate additional users
   ...Array.from({ length: 68 }, (_, i) => {
     const userId = `user-${i + 3}`
-    const firstName = firstNames[i % firstNames.length]
-    const lastName = lastNames[Math.floor(i / firstNames.length) % lastNames.length]
+    const firstName = firstNames[i % firstNames.length] ?? 'Unknown'
+    const lastName = lastNames[Math.floor(i / firstNames.length) % lastNames.length] ?? 'User'
     const displayName = `${firstName} ${lastName}`
     const email = `${firstName.toLowerCase()}.${lastName.toLowerCase()}${i}@fleetmanager.com`
     const department = departments[i % departments.length]

@@ -36,7 +36,9 @@ export function swapArrayItems<T>(array: T[], index1: number, index2: number): T
     return array
   }
   const newArray = [...array]
-  ;[newArray[index1], newArray[index2]] = [newArray[index2], newArray[index1]]
+  const temp = newArray[index1]
+  newArray[index1] = newArray[index2]
+  newArray[index2] = temp
   return newArray
 }
 

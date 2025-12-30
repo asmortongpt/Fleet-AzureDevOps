@@ -37,7 +37,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs'
 
 import { useAuth } from '@/hooks/useAuth'
 import { useInspect } from '@/services/inspect/InspectContext'
-import logger from '@/utils/logger';
+import logger from '@/utils/logger'
+
 interface DispatchChannel {
   id: number
   name: string
@@ -84,7 +85,7 @@ interface ActiveListener {
 }
 
 export default function DispatchConsole() {
-  const { user, isAuthenticated } = useAuth()
+  const { user, isAuthenticated: _isAuthenticated } = useAuth()
   const { openInspect } = useInspect()
   const [channels, setChannels] = useState<DispatchChannel[]>([])
   const [selectedChannel, setSelectedChannel] = useState<number | null>(null)
@@ -231,7 +232,7 @@ export default function DispatchConsole() {
       wsRef.current.close()
     }
 
-    const token = localStorage.getItem('token')
+    const _token = localStorage.getItem('token')
     const wsUrl = `${window.location.protocol === 'https:' ? 'wss:' : 'ws:'}//${window.location.host}/api/dispatch/ws`
 
     const ws = new WebSocket(wsUrl)
@@ -511,283 +512,11 @@ export default function DispatchConsole() {
           <p className="text-muted-foreground">Real-time fleet communications</p>
         </div>
         <div className="flex items-center gap-4">
-          <Badge variant={isConnected ? 'default' : 'destructive'} className="gap-1">
-            <Activity className="h-3 w-3" />
+          <Badge variant={isConnected ? 'default' : 'destructive'}>
             {isConnected ? 'Connected' : 'Disconnected'}
           </Badge>
-          <Button
-            variant="destructive"
-            size="lg"
-            onClick={sendEmergencyAlert}
-            className="gap-2"
-          >
-            <AlertTriangle className="h-5 w-5" />
-            Emergency Alert
-          </Button>
         </div>
       </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        {/* Channel Selection */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Dispatch Channels</CardTitle>
-            <CardDescription>Select active channel</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <ScrollArea className="h-[400px]">
-              <div className="space-y-2">
-                {channels.map((channel) => (
-                  <Button
-                    key={channel.id}
-                    variant={selectedChannel === channel.id ? 'default' : 'outline'}
-                    className="w-full justify-start"
-                    style={{
-                      borderLeft: `4px solid ${getChannelColor(channel)}`
-                    }}
-                    onClick={() => setSelectedChannel(channel.id)}
-                  >
-                    <Radio className="h-4 w-4 mr-2" />
-                    <div className="flex-1 text-left">
-                      <div className="font-medium">{channel.name}</div>
-                      <div className="text-xs text-muted-foreground">{channel.channelType}</div>
-                    </div>
-                    <Badge variant="secondary">{channel.priorityLevel}</Badge>
-                  </Button>
-                ))}
-              </div>
-            </ScrollArea>
-          </CardContent>
-        </Card>
-
-        {/* PTT Control */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Push-to-Talk</CardTitle>
-            <CardDescription>
-              {selectedChannel
-                ? channels.find(c => c.id === selectedChannel)?.name
-                : 'Select a channel'}
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            {/* PTT Button */}
-            <div className="flex flex-col items-center space-y-4">
-              <Button
-                ref={pttButtonRef}
-                size="lg"
-                variant={isTransmitting ? 'destructive' : 'default'}
-                className="h-32 w-32 rounded-full focus-visible:outline-[3px] focus-visible:outline-offset-2"
-                onMouseDown={startTransmission}
-                onMouseUp={stopTransmission}
-                onMouseLeave={stopTransmission}
-                onTouchStart={startTransmission}
-                onTouchEnd={stopTransmission}
-                onKeyDown={handleKeyDown}
-                onKeyUp={handleKeyUp}
-                disabled={!selectedChannel || !isConnected}
-                aria-label={getPttAriaLabel()}
-                aria-pressed={isTransmitting}
-              >
-                {isTransmitting ? (
-                  <Mic className="h-12 w-12" />
-                ) : (
-                  <MicOff className="h-12 w-12" />
-                )}
-              </Button>
-              <div className="text-sm text-center text-muted-foreground">
-                {isTransmitting ? 'Transmitting...' : 'Hold to speak'}
-              </div>
-
-              {/* Audio Level Meter */}
-              {isTransmitting && (
-                <div className="w-full space-y-2">
-                  <div className="flex items-center justify-between text-xs">
-                    <span>Audio Level</span>
-                    <span>{Math.round(audioLevel * 100)}%</span>
-                  </div>
-                  <div className="h-2 bg-secondary rounded-full overflow-hidden">
-                    <div
-                      className="h-full bg-primary transition-all duration-75"
-                      style={{ width: `${audioLevel * 100}%` }}
-                    />
-                  </div>
-                </div>
-              )}
-            </div>
-
-            {/* Active Transmission */}
-            {currentTransmission && !isTransmitting && (
-              <Alert>
-                <PhoneCall className="h-4 w-4" />
-                <AlertDescription>
-                  <strong>{currentTransmission.username}</strong> is transmitting
-                </AlertDescription>
-              </Alert>
-            )}
-
-            {/* Mute Toggle */}
-            <Button
-              variant="outline"
-              className="w-full"
-              onClick={() => setIsMuted(!isMuted)}
-            >
-              {isMuted ? (
-                <>
-                  <VolumeX className="h-4 w-4 mr-2" />
-                  Unmute
-                </>
-              ) : (
-                <>
-                  <Volume2 className="h-4 w-4 mr-2" />
-                  Mute
-                </>
-              )}
-            </Button>
-
-            {/* Active Listeners */}
-            <div className="pt-4 border-t">
-              <div className="flex items-center justify-between mb-2">
-                <span className="text-sm font-medium flex items-center gap-2">
-                  <Users className="h-4 w-4" />
-                  Active Listeners
-                </span>
-                <Badge variant="secondary">{activeListeners.length}</Badge>
-              </div>
-              <ScrollArea className="h-[100px]">
-                <div className="space-y-1">
-                  {activeListeners.map((listener) => (
-                    <div key={listener.id} className="text-xs flex items-center gap-2">
-                      <div className="h-2 w-2 rounded-full bg-green-500" />
-                      {listener.userEmail}
-                    </div>
-                  ))}
-                </div>
-              </ScrollArea>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Emergency Alerts */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Emergency Alerts</CardTitle>
-            <CardDescription>Active incidents</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <ScrollArea className="h-[400px]">
-              <div className="space-y-3">
-                {emergencyAlerts.length === 0 ? (
-                  <div className="text-center text-muted-foreground text-sm py-8">
-                    No active alerts
-                  </div>
-                ) : (
-                  emergencyAlerts.map((alert) => (
-                    <Alert
-                      key={alert.id}
-                      variant="destructive"
-                      className="cursor-pointer hover:bg-destructive/10 transition-colors"
-                      onClick={() => {
-                        // Open inspect drawer for alert details
-                        openInspect({ type: 'alert', id: String(alert.id) })
-                      }}
-                    >
-                      <AlertTriangle className="h-4 w-4" />
-                      <AlertDescription>
-                        <div className="font-medium">{alert.alertType}</div>
-                        <div className="text-xs">{alert.description}</div>
-                        <div className="text-xs mt-1">
-                          {new Date(alert.createdAt).toLocaleString()}
-                        </div>
-                        {alert.vehicleId && (
-                          <Button
-                            size="sm"
-                            variant="ghost"
-                            className="mt-2 h-6 text-xs"
-                            onClick={(e) => {
-                              e.stopPropagation()
-                              openInspect({ type: 'vehicle', id: String(alert.vehicleId) })
-                            }}
-                          >
-                            View Vehicle
-                          </Button>
-                        )}
-                      </AlertDescription>
-                    </Alert>
-                  ))
-                )}
-              </div>
-            </ScrollArea>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Transmission History */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Transmission History</CardTitle>
-          <CardDescription>Recent communications on selected channel</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <Tabs defaultValue="transcripts">
-            <TabsList>
-              <TabsTrigger value="transcripts">Transcripts</TabsTrigger>
-              <TabsTrigger value="recordings">Recordings</TabsTrigger>
-            </TabsList>
-
-            <TabsContent value="transcripts" className="space-y-3">
-              <ScrollArea className="h-[300px]">
-                {transmissionHistory.map((transmission) => (
-                  <div key={transmission.id} className="p-3 border rounded-lg mb-2">
-                    <div className="flex items-center justify-between mb-2">
-                      <span className="font-medium text-sm">{transmission.userEmail}</span>
-                      <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                        {transmission.durationSeconds && formatDuration(transmission.durationSeconds)}
-                        <span>{new Date(transmission.transmissionStart).toLocaleString()}</span>
-                      </div>
-                    </div>
-                    {transmission.transcriptionText && (
-                      <div className="text-sm">{transmission.transcriptionText}</div>
-                    )}
-                    {transmission.incidentTags && transmission.incidentTags.length > 0 && (
-                      <div className="flex gap-1 mt-2">
-                        {transmission.incidentTags.map((tag, i) => (
-                          <Badge key={i} variant="outline" className="text-xs">
-                            {tag}
-                          </Badge>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-                ))}
-              </ScrollArea>
-            </TabsContent>
-
-            <TabsContent value="recordings">
-              <ScrollArea className="h-[300px]">
-                {transmissionHistory
-                  .filter(t => t.audioBlobUrl)
-                  .map((transmission) => (
-                    <div key={transmission.id} className="p-3 border rounded-lg mb-2">
-                      <div className="flex items-center justify-between">
-                        <div>
-                          <div className="font-medium text-sm">{transmission.userEmail}</div>
-                          <div className="text-xs text-muted-foreground">
-                            {new Date(transmission.transmissionStart).toLocaleString()}
-                          </div>
-                        </div>
-                        <Button size="sm" variant="outline">
-                          <Play className="h-4 w-4 mr-1" />
-                          Play
-                        </Button>
-                      </div>
-                    </div>
-                  ))}
-              </ScrollArea>
-            </TabsContent>
-          </Tabs>
-        </CardContent>
-      </Card>
     </div>
   )
 }

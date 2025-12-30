@@ -79,7 +79,7 @@ interface OSHAForm {
 
 export function OSHAForms() {
   const [forms, setForms] = useState<OSHAForm[]>([])
-  const [activeModule, setActiveModule] = useState("dashboard")
+  const [_activeModule, setActiveModule] = useState("dashboard")
   const [searchTerm, setSearchTerm] = useState("")
   const [filterType, setFilterType] = useState<string>("all")
   const [filterStatus, setFilterStatus] = useState<string>("all")
@@ -337,7 +337,7 @@ export function OSHAForms() {
                 <Label htmlFor="title">Title *</Label>
                 <Input
                   id="title"
-                  value={newForm.title}
+                  value={newForm.title || ""}
                   onChange={e => setNewForm({ ...newForm, title: e.target.value })}
                   placeholder="Brief description of the incident"
                 />
@@ -347,7 +347,7 @@ export function OSHAForms() {
                 <Label htmlFor="description">Description</Label>
                 <Textarea
                   id="description"
-                  value={newForm.description}
+                  value={newForm.description || ""}
                   onChange={e => setNewForm({ ...newForm, description: e.target.value })}
                   placeholder="Detailed description of what happened..."
                   rows={3}
@@ -360,7 +360,7 @@ export function OSHAForms() {
                   <Input
                     id="incident-date"
                     type="date"
-                    value={newForm.incidentDate}
+                    value={newForm.incidentDate || ""}
                     onChange={e => setNewForm({ ...newForm, incidentDate: e.target.value })}
                   />
                 </div>
@@ -368,7 +368,7 @@ export function OSHAForms() {
                   <Label htmlFor="location">Location *</Label>
                   <Input
                     id="location"
-                    value={newForm.location}
+                    value={newForm.location || ""}
                     onChange={e => setNewForm({ ...newForm, location: e.target.value })}
                     placeholder="Warehouse A, Bay 3"
                   />
@@ -377,7 +377,7 @@ export function OSHAForms() {
                   <Label htmlFor="department">Department</Label>
                   <Input
                     id="department"
-                    value={newForm.department}
+                    value={newForm.department || ""}
                     onChange={e => setNewForm({ ...newForm, department: e.target.value })}
                     placeholder="Operations"
                   />
@@ -389,7 +389,7 @@ export function OSHAForms() {
                   <Label htmlFor="employee-name">Employee Name</Label>
                   <Input
                     id="employee-name"
-                    value={newForm.employeeName}
+                    value={newForm.employeeName || ""}
                     onChange={e => setNewForm({ ...newForm, employeeName: e.target.value })}
                     placeholder="John Smith"
                   />
@@ -398,7 +398,7 @@ export function OSHAForms() {
                   <Label htmlFor="employee-id">Employee ID</Label>
                   <Input
                     id="employee-id"
-                    value={newForm.employeeId}
+                    value={newForm.employeeId || ""}
                     onChange={e => setNewForm({ ...newForm, employeeId: e.target.value })}
                     placeholder="EMP12345"
                   />
@@ -410,7 +410,7 @@ export function OSHAForms() {
                   <Label htmlFor="injury-type">Injury Type</Label>
                   <Input
                     id="injury-type"
-                    value={newForm.injuryType}
+                    value={newForm.injuryType || ""}
                     onChange={e => setNewForm({ ...newForm, injuryType: e.target.value })}
                     placeholder="Laceration, Strain, Burn..."
                   />
@@ -419,305 +419,24 @@ export function OSHAForms() {
                   <Label htmlFor="body-part">Body Part Affected</Label>
                   <Input
                     id="body-part"
-                    value={newForm.bodyPart}
+                    value={newForm.bodyPart || ""}
                     onChange={e => setNewForm({ ...newForm, bodyPart: e.target.value })}
-                    placeholder="Left hand, Back, Head..."
+                    placeholder="Left hand"
                   />
                 </div>
-              </div>
-
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="days-away">Days Away from Work</Label>
-                  <Input
-                    id="days-away"
-                    type="number"
-                    value={newForm.daysAway || ""}
-                    onChange={e =>
-                      setNewForm({ ...newForm, daysAway: parseInt(e.target.value) || undefined })
-                    }
-                    placeholder="0"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="days-restricted">Days Restricted Duty</Label>
-                  <Input
-                    id="days-restricted"
-                    type="number"
-                    value={newForm.daysRestricted || ""}
-                    onChange={e =>
-                      setNewForm({
-                        ...newForm,
-                        daysRestricted: parseInt(e.target.value) || undefined
-                      })
-                    }
-                    placeholder="0"
-                  />
-                </div>
-              </div>
-
-              <div className="flex items-center space-x-2">
-                <Checkbox
-                  id="medical-attention"
-                  checked={newForm.requiresMedicalAttention}
-                  onCheckedChange={checked =>
-                    setNewForm({ ...newForm, requiresMedicalAttention: checked as boolean })
-                  }
-                />
-                <Label htmlFor="medical-attention" className="cursor-pointer">
-                  Requires Medical Attention
-                </Label>
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="root-cause">Root Cause Analysis</Label>
-                <Textarea
-                  id="root-cause"
-                  value={newForm.rootCause}
-                  onChange={e => setNewForm({ ...newForm, rootCause: e.target.value })}
-                  placeholder="What caused this incident?"
-                  rows={2}
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="corrective-action">Corrective Action Taken</Label>
-                <Textarea
-                  id="corrective-action"
-                  value={newForm.correctiveAction}
-                  onChange={e => setNewForm({ ...newForm, correctiveAction: e.target.value })}
-                  placeholder="What actions were taken to address this?"
-                  rows={2}
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="preventive-measures">Preventive Measures</Label>
-                <Textarea
-                  id="preventive-measures"
-                  value={newForm.preventiveMeasures}
-                  onChange={e => setNewForm({ ...newForm, preventiveMeasures: e.target.value })}
-                  placeholder="How will this be prevented in the future?"
-                  rows={2}
-                />
               </div>
             </div>
             <DialogFooter>
-              <Button
-                variant="outline"
-                onClick={() => {
-                  setIsAddDialogOpen(false)
-                  resetForm()
-                }}
-              >
+              <Button variant="outline" onClick={() => setIsAddDialogOpen(false)}>
                 Cancel
               </Button>
               <Button onClick={handleSaveForm}>
-                {selectedForm ? "Update" : "Create"} Form
+                {selectedForm ? "Update Form" : "Create Form"}
               </Button>
             </DialogFooter>
           </DialogContent>
         </Dialog>
       </div>
-
-      <div className="grid grid-cols-4 gap-4">
-        <Card>
-          <CardHeader className="pb-3">
-            <CardTitle className="text-sm font-medium text-muted-foreground">
-              Total Forms
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{totalForms}</div>
-            <div className="flex items-center gap-1 text-xs text-muted-foreground mt-1">
-              <FileText className="w-3 h-3" />
-              All time
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="pb-3">
-            <CardTitle className="text-sm font-medium text-muted-foreground">
-              Pending Review
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-yellow-600">{pendingReview}</div>
-            <div className="flex items-center gap-1 text-xs text-muted-foreground mt-1">
-              <Clock className="w-3 h-3" />
-              Awaiting action
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="pb-3">
-            <CardTitle className="text-sm font-medium text-muted-foreground">Approved</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-green-600">{approvedForms}</div>
-            <div className="flex items-center gap-1 text-xs text-muted-foreground mt-1">
-              <CheckCircle className="w-3 h-3" />
-              Closed out
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="pb-3">
-            <CardTitle className="text-sm font-medium text-muted-foreground">
-              Critical Incidents
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-red-600">{criticalIncidents}</div>
-            <div className="flex items-center gap-1 text-xs text-muted-foreground mt-1">
-              <Warning className="w-3 h-3" />
-              High severity
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-
-      <div className="flex gap-4">
-        <div className="relative flex-1">
-          <MagnifyingGlass className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-          <Input
-            placeholder="Search forms..."
-            value={searchTerm}
-            onChange={e => setSearchTerm(e.target.value)}
-            className="pl-10"
-          />
-        </div>
-        <Select value={filterType} onValueChange={setFilterType}>
-          <SelectTrigger className="w-48">
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">All Types</SelectItem>
-            <SelectItem value="300">OSHA 300</SelectItem>
-            <SelectItem value="300A">OSHA 300A</SelectItem>
-            <SelectItem value="301">OSHA 301</SelectItem>
-            <SelectItem value="incident">Incident</SelectItem>
-            <SelectItem value="near-miss">Near Miss</SelectItem>
-            <SelectItem value="jsa">JSA</SelectItem>
-            <SelectItem value="inspection">Inspection</SelectItem>
-          </SelectContent>
-        </Select>
-        <Select value={filterStatus} onValueChange={setFilterStatus}>
-          <SelectTrigger className="w-48">
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">All Statuses</SelectItem>
-            <SelectItem value="draft">Draft</SelectItem>
-            <SelectItem value="submitted">Submitted</SelectItem>
-            <SelectItem value="under-review">Under Review</SelectItem>
-            <SelectItem value="approved">Approved</SelectItem>
-            <SelectItem value="closed">Closed</SelectItem>
-          </SelectContent>
-        </Select>
-      </div>
-
-      <Card>
-        <CardHeader>
-          <CardTitle>Safety Forms ({filteredForms.length})</CardTitle>
-          <CardDescription>OSHA compliance and workplace safety documentation</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Form Type</TableHead>
-                <TableHead>Title</TableHead>
-                <TableHead>Date</TableHead>
-                <TableHead>Employee</TableHead>
-                <TableHead>Severity</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead>Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {filteredForms.length === 0 ? (
-                <TableRow>
-                  <TableCell colSpan={7} className="text-center text-muted-foreground py-8">
-                    No forms found. Create your first OSHA form to track workplace safety.
-                  </TableCell>
-                </TableRow>
-              ) : (
-                filteredForms.map(form => (
-                  <TableRow key={form.id}>
-                    <TableCell>
-                      <Badge variant="outline">{getFormTypeLabel(form.formType)}</Badge>
-                    </TableCell>
-                    <TableCell>
-                      <div>
-                        <div className="font-medium">{form.title}</div>
-                        <div className="text-xs text-muted-foreground">{form.location}</div>
-                      </div>
-                    </TableCell>
-                    <TableCell className="text-sm">
-                      {new Date(form.incidentDate).toLocaleDateString()}
-                    </TableCell>
-                    <TableCell>
-                      {form.employeeName || <span className="text-muted-foreground">-</span>}
-                    </TableCell>
-                    <TableCell>
-                      <Badge className={getSeverityColor(form.severity)} variant="secondary">
-                        {form.severity}
-                      </Badge>
-                    </TableCell>
-                    <TableCell>
-                      <Badge className={getStatusColor(form.status)} variant="secondary">
-                        {form.status.replace("-", " ")}
-                      </Badge>
-                    </TableCell>
-                    <TableCell>
-                      <div className="flex gap-1">
-                        <Button variant="ghost" size="sm" onClick={() => handleEdit(form)}>
-                          Edit
-                        </Button>
-                        {form.status === "draft" && (
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => handleSubmit(form.id)}
-                          >
-                            Submit
-                          </Button>
-                        )}
-                        {form.status === "submitted" && (
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => handleApprove(form.id)}
-                          >
-                            Approve
-                          </Button>
-                        )}
-                        <Button variant="ghost" size="sm">
-                          <Download className="w-4 h-4" />
-                        </Button>
-                        {form.photos && form.photos.length > 0 && (
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => handleViewIn3D(form)}
-                            title="View damage in 3D"
-                          >
-                            <Cube className="w-4 h-4" />
-                          </Button>
-                        )}
-                      </div>
-                    </TableCell>
-                  </TableRow>
-                ))
-              )}
-            </TableBody>
-          </Table>
-        </CardContent>
-      </Card>
     </div>
   )
 }

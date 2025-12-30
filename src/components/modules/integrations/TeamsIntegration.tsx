@@ -29,7 +29,6 @@ import { Textarea } from "@/components/ui/textarea"
 import { msOfficeService } from "@/lib/msOfficeIntegration"
 import { MSTeamsMessage } from "@/lib/types"
 
-
 export function TeamsIntegration() {
   const [messages, setMessages] = useState<MSTeamsMessage[]>([])
   const [selectedChannel, setSelectedChannel] = useState("fleet-ops")
@@ -60,7 +59,7 @@ export function TeamsIntegration() {
         selectedChannel,
         newMessage.subject,
         newMessage.content,
-        newMessage.mentions
+        newMessage.mentions.join(", ")
       )
 
       setMessages(current => [...(current || []), message])
@@ -78,7 +77,8 @@ export function TeamsIntegration() {
         "maintenance",
         "Maintenance Alert",
         `A ${priority} priority maintenance issue requires attention.`,
-        priority
+        priority,
+        []
       )
 
       setMessages(current => [...(current || []), message])
@@ -232,7 +232,7 @@ export function TeamsIntegration() {
                   <div key={message.id} className="space-y-2">
                     <div className="flex items-start gap-3">
                       <div className="w-8 h-8 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-sm font-semibold">
-                        {message.author.charAt(0)}
+                        {message.author?.charAt(0) ?? "?"}
                       </div>
                       <div className="flex-1">
                         <div className="flex items-center gap-2 mb-1">

@@ -430,27 +430,26 @@ export function EntityLinkingProvider({
     const linked = getLinkedEntities('vehicle', vehicleId)
     const vehicleWorkOrders = workOrders.filter(wo => wo.vehicleId === vehicleId)
     const vehicleFuel = fuelTransactions.filter(ft => ft.vehicleId === vehicleId)
-    const vehicleMaintenance = maintenanceSchedules.filter(ms => ms.vehicleId === vehicleId)
+    const _vehicleMaintenance = maintenanceSchedules.filter(ms => ms.vehicleId === vehicleId)
 
     // Calculate total costs
     const workOrderCosts = vehicleWorkOrders.reduce((sum, wo) => sum + (wo.cost || 0), 0)
-    const fuelCosts = vehicleFuel.reduce((sum, ft) => sum + (ft.gallons * ft.pricePerGallon), 0)
+    const fuelCosts = vehicleFuel.reduce((sum, ft) => sum + (ft.totalCost || 0), 0)
 
     return {
-      vehicle: { type: 'vehicle', id: vehicleId, label: `${vehicle.make} ${vehicle.model}`, data: vehicle },
-      assignedDriver: linked.drivers[0] || null,
-      recentWorkOrders: linked.workOrders.slice(0, 5),
-      upcomingMaintenance: linked.maintenanceRecords.filter(m =>
-        maintenanceSchedules.find(ms => ms.id === m.id)?.status === 'scheduled'
-      ),
-      fuelHistory: linked.fuelTransactions.slice(0, 10),
-      activeTrips: linked.trips.filter(t => t.data?.status === 'active'),
+      vehicle: {
+        type: 'vehicle',
+        id: vehicle.id,
+        label: `${vehicle.make} ${vehicle.model} (${vehicle.number})`,
+        data: vehicle
+      },
+      assignedDriver: linked.drivers.length > 0 ? linked.drivers[0] : null,
+      recentWorkOrders: linked.workOrders,
+      upcomingMaintenance: linked.maintenanceRecords,
+      fuelHistory: linked.fuelTransactions,
+      activeTrips: linked.trips,
       linkedAssets: linked.assets,
-      alerts: (vehicle.alerts || []).map((alert, i) => ({
-        type: 'alert' as EntityType,
-        id: `${vehicleId}-alert-${i}`,
-        label: alert
-      })),
+      alerts: linked.alerts,
       documents: linked.documents,
       totalCost: workOrderCosts + fuelCosts
     }
@@ -466,17 +465,18 @@ export function EntityLinkingProvider({
     const linked = getLinkedEntities('driver', driverId)
 
     return {
-      driver: { type: 'driver', id: driverId, label: driver.name, data: driver },
-      assignedVehicle: linked.vehicles[0] || null,
-      recentTrips: linked.trips.slice(0, 10),
+      driver: {
+        type: 'driver',
+        id: driver.id,
+        label: driver.name,
+        data: driver
+      },
+      assignedVehicle: linked.vehicles.length > 0 ? linked.vehicles[0] : null,
+      recentTrips: linked.trips,
       performanceAlerts: linked.alerts,
-      certifications: driver.certifications.map((cert, i) => ({
-        type: 'document' as EntityType,
-        id: `${driverId}-cert-${i}`,
-        label: cert
-      })),
-      communications: linked.documents.filter(d => d.type === 'communication'),
-      safetyScore: driver.safetyScore
+      certifications: linked.documents.filter(doc => doc.label.toLowerCase().includes('cert')),
+      communications: linked.documents.filter(doc => doc.label.toLowerCase().includes('comm')),
+      safetyScore: driver.safetyScore || 0
     }
   }, [drivers, getLinkedEntities])
 
@@ -488,19 +488,21 @@ export function EntityLinkingProvider({
     }
 
     const linked = getLinkedEntities('work-order', workOrderId)
-    const partsCost = workOrder.parts?.reduce((sum, p) => sum + (p.cost * p.quantity), 0) || 0
 
     return {
-      workOrder: { type: 'work-order', id: workOrderId, label: `WO-${workOrderId.slice(-6)}`, data: workOrder },
-      vehicle: linked.vehicles[0] || null,
-      assignedTechnician: workOrder.assignedTo
-        ? { type: 'driver', id: workOrder.assignedTo, label: workOrder.assignedTo }
-        : null,
+      workOrder: {
+        type: 'work-order',
+        id: workOrder.id,
+        label: `WO-${workOrder.id.slice(-6)} - ${workOrder.serviceType}`,
+        data: workOrder
+      },
+      vehicle: linked.vehicles.length > 0 ? linked.vehicles[0] : null,
+      assignedTechnician: linked.drivers.length > 0 ? linked.drivers[0] : null,
       partsUsed: linked.parts,
-      relatedInvoice: linked.invoices[0] || null,
-      vendor: linked.vendors[0] || null,
-      estimatedCost: workOrder.cost || 0,
-      actualCost: partsCost + (workOrder.laborHours || 0) * 75 // $75/hr labor rate
+      relatedInvoice: linked.invoices.length > 0 ? linked.invoices[0] : null,
+      vendor: linked.vendors.length > 0 ? linked.vendors[0] : null,
+      estimatedCost: workOrder.estimatedCost || 0,
+      actualCost: workOrder.cost || 0
     }
   }, [workOrders, getLinkedEntities])
 
@@ -513,20 +515,20 @@ export function EntityLinkingProvider({
     fuel: fuelTransactions.length,
     part: parts.length,
     vendor: vendors.length,
-    invoice: 0, // From API
-    'purchase-order': 0, // From API
-    facility: 0, // From API
-    trip: 0, // From API
-    route: 0, // From API
-    asset: vehicles.filter(v => v.asset_category).length,
-    equipment: vehicles.filter(v => v.asset_category === 'HEAVY_EQUIPMENT').length,
-    trailer: vehicles.filter(v => v.asset_category === 'TRAILER').length,
-    alert: vehicles.reduce((sum, v) => sum + (v.alerts?.length || 0), 0),
-    document: 0, // From API
-    communication: 0 // From API
-  }), [vehicles, drivers, workOrders, maintenanceSchedules, fuelTransactions, parts, vendors])
+    invoice: 0,
+    'purchase-order': 0,
+    facility: 0,
+    trip: 0,
+    route: 0,
+    asset: 0,
+    equipment: 0,
+    trailer: 0,
+    alert: 0,
+    document: 0,
+    communication: 0
+  } as Record<EntityType, number>), [vehicles, drivers, workOrders, maintenanceSchedules, fuelTransactions, parts, vendors])
 
-  const value: EntityLinkingContextType = useMemo(() => ({
+  const value = useMemo(() => ({
     getLinkedEntities,
     findRelationships,
     navigateToEntity,
@@ -540,9 +542,18 @@ export function EntityLinkingProvider({
     isLoading,
     entityCounts
   }), [
-    getLinkedEntities, findRelationships, navigateToEntity, navigateToRelated,
-    registerRelationship, removeRelationship, getVehicleContext, getDriverContext,
-    getWorkOrderContext, lastUpdate, isLoading, entityCounts
+    getLinkedEntities,
+    findRelationships,
+    navigateToEntity,
+    navigateToRelated,
+    registerRelationship,
+    removeRelationship,
+    getVehicleContext,
+    getDriverContext,
+    getWorkOrderContext,
+    lastUpdate,
+    isLoading,
+    entityCounts
   ])
 
   return (
@@ -551,5 +562,3 @@ export function EntityLinkingProvider({
     </EntityLinkingContext.Provider>
   )
 }
-
-export default EntityLinkingContext

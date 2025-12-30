@@ -1,6 +1,8 @@
 import { VehicleRepository } from '../repositories/VehicleRepository';
 
-import { FleetDatabase } from './FleetDatabase';
+export interface FleetDatabase {
+  vehicleDao: () => VehicleRepository;
+}
 
 /**
  * Adapter to wrap RoomDatabase DAOs for DI consistency.
@@ -17,7 +19,7 @@ export class FleetDatabaseAdapter {
    * @returns {VehicleRepository} The vehicle repository.
    */
   getVehicleRepository(): VehicleRepository {
-    return this.fleetDatabase.vehicleDao();
+    return this.fleetDatabase?.vehicleDao();
   }
 
   // Additional methods for other DAOs...
