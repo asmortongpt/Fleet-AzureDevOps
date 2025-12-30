@@ -164,6 +164,8 @@
     "react-dom": "^18.3.1",
     "react-dropzone": "^14.3.8",
     "react-error-boundary": "^6.0.0",
+    "react-helmet": "^6.1.0",
+    "react-helmet-async": "^2.0.5",
     "react-hook-form": "^7.54.2",
     "react-hot-toast": "^2.6.0",
     "react-leaflet": "^4.2.1",
