@@ -50,11 +50,11 @@ export function AnalyticsMapView({ analyticsType, onVehicleSelect }: AnalyticsMa
 
   // Filter vehicles based on selected filters
   const filteredVehicles = useMemo(() => {
-    if (statusFilter === 'all') return vehicles as Vehicle[];
-    return (vehicles as Vehicle[]).filter((v: Vehicle) => v.status === statusFilter);
+    if (statusFilter === 'all') return vehicles as unknown as Vehicle[];
+    return (vehicles as unknown as Vehicle[]).filter((v: Vehicle) => v.status === statusFilter);
   }, [vehicles, statusFilter]);
 
-  const selectedVehicle = (vehicles as Vehicle[]).find((v: Vehicle) => v.id === selectedVehicleId) || (vehicles as Vehicle[])[0];
+  const selectedVehicle = (vehicles as unknown as Vehicle[]).find((v: Vehicle) => v.id === selectedVehicleId) || (vehicles as unknown as Vehicle[])[0];
 
   // Calculate aggregate metrics
   const metrics = useMemo((): VehicleMetrics => {

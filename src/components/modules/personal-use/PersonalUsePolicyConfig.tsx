@@ -124,11 +124,15 @@ export const PersonalUsePolicyConfig: React.FC<PersonalUsePolicyConfigProps> = (
     queryKey: ['personal-use-policies'],
     queryFn: () => apiClient('/api/personal-use-policies'),
     staleTime: Infinity,
-    gcTime: Infinity,
-    onError: (err: any) => {
-      logger.error('Failed to fetch policy:', err)
-    }
+    gcTime: Infinity
   })
+
+  // Handle errors with useEffect
+  React.useEffect(() => {
+    if (error) {
+      logger.error('Failed to fetch policy:', error)
+    }
+  }, [error])
 
   const existingPolicy = policyData?.data || null
 
