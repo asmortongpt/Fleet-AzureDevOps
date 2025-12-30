@@ -25,7 +25,8 @@ import {
 } from '@/components/ui/dropdown-menu'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { apiClient } from '@/lib/api-client'
-import logger from '@/utils/logger';
+import logger from '@/utils/logger'
+
 interface Notification {
   id: string
   title: string
@@ -36,7 +37,11 @@ interface Notification {
   link?: string
 }
 
-export function NotificationBell({ onNavigate }: { onNavigate: (module: string) => void }) {
+interface NotificationResponse {
+  notifications: Notification[]
+}
+
+export function NotificationBell({ onNavigate }: { onNavigate: (module: string, _params?: unknown) => void }) {
   const [notifications, setNotifications] = useState<Notification[]>([])
   const [unreadCount, setUnreadCount] = useState(0)
   const [isLoading, setIsLoading] = useState(false)
@@ -44,7 +49,7 @@ export function NotificationBell({ onNavigate }: { onNavigate: (module: string) 
   const fetchNotifications = async () => {
     try {
       setIsLoading(true)
-      const response = await apiClient.get('/api/alerts/notifications?limit=10')
+      const response = await apiClient.get<NotificationResponse>('/api/alerts/notifications?limit=10')
       const data = response.data
 
       setNotifications(data.notifications || [])

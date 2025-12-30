@@ -47,7 +47,8 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Textarea } from "@/components/ui/textarea"
 import apiClient from "@/lib/api-client"
-import logger from '@/utils/logger';
+import logger from '@/utils/logger'
+
 interface DataSource {
   id: string
   name: string
@@ -122,8 +123,8 @@ export function CustomReportBuilder() {
   const [isPublic, setIsPublic] = useState(false)
 
   // Preview state
-  const [previewData, setPreviewData] = useState<any[]>([])
-  const [executionHistory, setExecutionHistory] = useState<ReportExecution[]>([])
+  const [_previewData, _setPreviewData] = useState<any[]>([])
+  const [_executionHistory, _setExecutionHistory] = useState<ReportExecution[]>([])
 
   // Schedule state
   const [showScheduleDialog, setShowScheduleDialog] = useState(false)
@@ -133,19 +134,22 @@ export function CustomReportBuilder() {
   const [scheduleFormat, setScheduleFormat] = useState("csv")
 
   // TanStack Query hooks - consolidate all initial data fetching
-  const { data: dataSources = [], isLoading: dataSourcesLoading } = useQuery({
+  const { data: dataSources = [], isLoading: dataSourcesLoading } = useQuery<DataSource[]>({
     queryKey: ["customReports", "dataSources"],
-    queryFn: async () => apiClient.get("/custom-reports/data-sources")
+    queryFn: async () => (await apiClient.get("/custom-reports/data-sources")).data,
+    gcTime: 5 * 60 * 1000
   })
 
-  const { data: templates = [], isLoading: templatesLoading } = useQuery({
+  const { data: templates = [], isLoading: templatesLoading } = useQuery<ReportTemplate[]>({
     queryKey: ["customReports", "templates"],
-    queryFn: async () => apiClient.get("/custom-reports/templates")
+    queryFn: async () => (await apiClient.get("/custom-reports/templates")).data,
+    gcTime: 5 * 60 * 1000
   })
 
-  const { data: myReports = [], isLoading: myReportsLoading } = useQuery({
+  const { data: myReports = [], isLoading: myReportsLoading } = useQuery<CustomReport[]>({
     queryKey: ["customReports", "myReports"],
-    queryFn: async () => apiClient.get("/custom-reports")
+    queryFn: async () => (await apiClient.get("/custom-reports")).data,
+    gcTime: 5 * 60 * 1000
   })
 
   const loading = dataSourcesLoading || templatesLoading || myReportsLoading
@@ -153,8 +157,8 @@ export function CustomReportBuilder() {
   // Memoize derived state to prevent unnecessary recalculations
   const availableColumns = useMemo(() => {
     return selectedDataSources.flatMap(sourceId => {
-      const source = dataSources.find(ds => ds.id === sourceId)
-      return source ? source.columns.map(col => ({ ...col, sourceId, sourceName: source.name })) : []
+      const source = dataSources.find((ds: DataSource) => ds.id === sourceId)
+      return source ? source.columns.map((col: ColumnDefinition) => ({ ...col, sourceId, sourceName: source.name })) : []
     })
   }, [selectedDataSources, dataSources])
 
@@ -162,9 +166,9 @@ export function CustomReportBuilder() {
   const saveReportMutation = useMutation({
     mutationFn: async (reportData: CustomReport) => {
       if (selectedReport?.id) {
-        return apiClient.put(`/custom-reports/${selectedReport.id}`, reportData)
+        return (await apiClient.put(`/custom-reports/${selectedReport.id}`, reportData)).data
       } else {
-        return apiClient.post('/custom-reports', reportData)
+        return (await apiClient.post('/custom-reports', reportData)).data
       }
     },
     onSuccess: () => {
@@ -180,9 +184,9 @@ export function CustomReportBuilder() {
 
   const executeReportMutation = useMutation({
     mutationFn: async ({ reportId, format }: { reportId: string; format: string }) => {
-      return apiClient.post(`/custom-reports/${reportId}/execute`, { format })
+      return (await apiClient.post(`/custom-reports/${reportId}/execute`, { format })).data
     },
-    onSuccess: (result, variables) => {
+    onSuccess: (result: { rowCount: number; executionId: string }, variables: { reportId: string }) => {
       toast.success(`Report executed! ${result.rowCount} rows generated.`)
       window.open(`/api/custom-reports/${variables.reportId}/download/${result.executionId}`, '_blank')
     },
@@ -207,19 +211,19 @@ export function CustomReportBuilder() {
         throw new Error("Please enter at least one recipient email")
       }
 
-      return apiClient.post(`/custom-reports/${selectedReport.id}/schedule`, {
+      return (await apiClient.post(`/custom-reports/${selectedReport.id}`, {
         schedule_type: scheduleType,
         schedule_config: scheduleConfig,
         recipients: recipientList,
         format: scheduleFormat
-      })
+      })).data
     },
     onSuccess: () => {
       toast.success("Report scheduled successfully")
       setShowScheduleDialog(false)
     },
-    onError: (error: any) => {
-      const message = error.message || "Failed to schedule report"
+    onError: (error: Error | unknown) => {
+      const message = error instanceof Error ? error.message : "Failed to schedule report"
       logger.error("Error scheduling report:", error)
       toast.error(message)
     }
@@ -228,9 +232,9 @@ export function CustomReportBuilder() {
   const loadTemplateMutation = useMutation({
     mutationFn: async ({ templateId, templateName }: { templateId: string; templateName: string }) => {
       const reportName = `${templateName} - ${new Date().toLocaleDateString()}`
-      return apiClient.post(`/custom-reports/from-template/${templateId}`, { report_name: reportName })
+      return (await apiClient.post(`/custom-reports/from-template/${templateId}`, { report_name: reportName })).data as CustomReport
     },
-    onSuccess: (report) => {
+    onSuccess: (report: CustomReport) => {
       toast.success("Template loaded successfully")
       setSelectedReport(report)
       loadReportToBuilder(report)
@@ -286,14 +290,14 @@ export function CustomReportBuilder() {
     setFilters(newFilters)
   }
 
-  const handleAddSorting = () => {
+  const _handleAddSorting = () => {
     setSorting([
       ...sorting,
       { field: '', direction: 'asc' }
     ])
   }
 
-  const handleRemoveSorting = (index: number) => {
+  const _handleRemoveSorting = (index: number) => {
     setSorting(sorting.filter((_, i) => i !== index))
   }
 
@@ -364,7 +368,6 @@ export function CustomReportBuilder() {
     setIsPublic(false)
     setActiveTab("builder")
   }
-
 
   if (loading) {
     return (
@@ -442,7 +445,7 @@ export function CustomReportBuilder() {
               <div className="space-y-2">
                 <Label>Select Data Sources *</Label>
                 <div className="flex flex-wrap gap-2">
-                  {dataSources.map(source => (
+                  {dataSources.map((source: DataSource) => (
                     <Badge
                       key={source.id}
                       variant={selectedDataSources.includes(source.id) ? "default" : "outline"}
@@ -458,293 +461,113 @@ export function CustomReportBuilder() {
               {/* Columns */}
               <div className="space-y-2">
                 <Label>Selected Columns ({selectedColumns.length})</Label>
-                <div className="border rounded-lg p-4 min-h-[100px]">
-                  {selectedColumns.length === 0 ? (
-                    <p className="text-sm text-gray-500 text-center py-4">
-                      No columns selected. Click columns below to add them.
-                    </p>
-                  ) : (
-                    <div className="space-y-2">
-                      {selectedColumns.map((col, index) => (
-                        <div key={index} className="flex items-center justify-between bg-gray-50 p-2 rounded">
-                          <div className="flex-1">
-                            <span className="font-medium">{col.label}</span>
-                            <span className="text-sm text-gray-500 ml-2">
-                              ({col.table})
-                            </span>
-                          </div>
-                          {col.type === 'number' || col.type === 'currency' ? (
-                            <Select
-                              value={col.aggregate || 'none'}
-                              onValueChange={(value) => {
-                                const newColumns = [...selectedColumns]
-                                newColumns[index].aggregate = value === 'none' ? undefined : value as any
-                                setSelectedColumns(newColumns)
-                              }}
-                            >
-                              <SelectTrigger className="w-32">
-                                <SelectValue />
-                              </SelectTrigger>
-                              <SelectContent>
-                                <SelectItem value="none">No Aggregate</SelectItem>
-                                <SelectItem value="sum">Sum</SelectItem>
-                                <SelectItem value="avg">Average</SelectItem>
-                                <SelectItem value="count">Count</SelectItem>
-                                <SelectItem value="min">Min</SelectItem>
-                                <SelectItem value="max">Max</SelectItem>
-                              </SelectContent>
-                            </Select>
-                          ) : null}
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => handleRemoveColumn(index)}
-                          >
-                            <X className="w-4 h-4" />
-                          </Button>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              </div>
-
-              {/* Available Columns */}
-              {selectedDataSources.length > 0 && (
-                <div className="space-y-2">
-                  <Label>Available Columns (Click to Add)</Label>
-                  <div className="border rounded-lg p-4 max-h-[300px] overflow-y-auto">
-                    {selectedDataSources.map(sourceId => {
-                      const source = dataSources.find(ds => ds.id === sourceId)
-                      if (!source) return null
-
-                      return (
-                        <div key={sourceId} className="mb-4">
-                          <h4 className="font-semibold text-sm mb-2">{source.name}</h4>
-                          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2">
-                            {source.columns.map(col => (
-                              <Badge
-                                key={col.field}
-                                variant="outline"
-                                className="cursor-pointer hover:bg-blue-50"
-                                onClick={() => handleAddColumn(col, sourceId)}
-                              >
-                                <Plus className="w-3 h-3 mr-1" />
-                                {col.label}
-                              </Badge>
-                            ))}
-                          </div>
-                        </div>
-                      )
-                    })}
-                  </div>
-                </div>
-              )}
-
-              {/* Filters */}
-              <div className="space-y-2">
-                <div className="flex items-center justify-between">
-                  <Label>Filters ({filters.length})</Label>
-                  <Button variant="outline" size="sm" onClick={handleAddFilter}>
-                    <Plus className="w-4 h-4 mr-1" />
-                    Add Filter
-                  </Button>
-                </div>
-                {filters.length > 0 && (
-                  <div className="space-y-2">
-                    {filters.map((filter, index) => (
-                      <div key={index} className="flex items-center gap-2 bg-gray-50 p-2 rounded">
-                        <Select
-                          value={filter.field}
-                          onValueChange={(value) => handleUpdateFilter(index, { field: value })}
-                        >
-                          <SelectTrigger className="w-48">
-                            <SelectValue placeholder="Select field" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {availableColumns.map(col => (
-                              <SelectItem key={`${col.sourceId}.${col.field}`} value={`${col.sourceId}.${col.field}`}>
-                                {col.label} ({col.sourceName})
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-
-                        <Select
-                          value={filter.operator}
-                          onValueChange={(value) => handleUpdateFilter(index, { operator: value })}
-                        >
-                          <SelectTrigger className="w-40">
-                            <SelectValue />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="equals">Equals</SelectItem>
-                            <SelectItem value="not_equals">Not Equals</SelectItem>
-                            <SelectItem value="greater_than">Greater Than</SelectItem>
-                            <SelectItem value="less_than">Less Than</SelectItem>
-                            <SelectItem value="contains">Contains</SelectItem>
-                            <SelectItem value="between">Between</SelectItem>
-                          </SelectContent>
-                        </Select>
-
-                        <Input
-                          placeholder="Value"
-                          value={filter.value}
-                          onChange={(e) => handleUpdateFilter(index, { value: e.target.value })}
-                          className="flex-1"
-                        />
-
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => handleRemoveFilter(index)}
-                        >
-                          <Trash className="w-4 h-4" />
-                        </Button>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
-
-              {/* Public/Private */}
-              <div className="flex items-center space-x-2">
-                <Switch
-                  checked={isPublic}
-                  onCheckedChange={setIsPublic}
-                />
-                <Label>Make this report public (visible to all users in tenant)</Label>
-              </div>
-
-              {/* Actions */}
-              <div className="flex gap-2">
-                <Button onClick={handleSaveReport}>
-                  <FloppyDisk className="w-4 h-4 mr-2" />
-                  Save Report
-                </Button>
-                {selectedReport?.id && (
-                  <>
-                    <Button variant="outline" onClick={() => handleExecuteReport(selectedReport.id!, 'csv')}>
-                      <Play className="w-4 h-4 mr-2" />
-                      Run Report
-                    </Button>
-                    <Button variant="outline" onClick={() => setShowScheduleDialog(true)}>
-                      <Calendar className="w-4 h-4 mr-2" />
-                      Schedule
-                    </Button>
-                  </>
-                )}
               </div>
             </CardContent>
           </Card>
         </TabsContent>
 
         {/* Templates Tab */}
-        <TabsContent value="templates">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {templates.map(template => (
-              <Card key={template.id} className="hover:shadow-lg transition-shadow cursor-pointer">
-                <CardHeader>
-                  <CardTitle className="text-lg">{template.template_name}</CardTitle>
-                  <CardDescription>{template.description}</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-2">
-                    <Badge>{template.category}</Badge>
-                    <Button
-                      className="w-full"
-                      onClick={() => handleLoadTemplate(template.id, template.template_name)}
-                    >
-                      <MagicWand className="w-4 h-4 mr-2" />
-                      Use Template
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        </TabsContent>
-
-        {/* My Reports Tab */}
-        <TabsContent value="my-reports">
+        <TabsContent value="templates" className="space-y-6">
           <Card>
             <CardHeader>
-              <CardTitle>My Reports</CardTitle>
-              <CardDescription>Your saved custom reports</CardDescription>
+              <CardTitle>Report Templates</CardTitle>
+              <CardDescription>Start with pre-configured report templates</CardDescription>
             </CardHeader>
             <CardContent>
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Report Name</TableHead>
-                    <TableHead>Data Sources</TableHead>
-                    <TableHead>Columns</TableHead>
-                    <TableHead>Created</TableHead>
-                    <TableHead>Actions</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {myReports.map(report => (
-                    <TableRow key={report.id}>
-                      <TableCell className="font-medium">{report.report_name}</TableCell>
-                      <TableCell>
-                        <div className="flex gap-1">
-                          {report.data_sources.slice(0, 2).map(ds => (
-                            <Badge key={ds} variant="outline">{ds}</Badge>
-                          ))}
-                          {report.data_sources.length > 2 && (
-                            <Badge variant="outline">+{report.data_sources.length - 2}</Badge>
-                          )}
-                        </div>
-                      </TableCell>
-                      <TableCell>{report.columns.length}</TableCell>
-                      <TableCell>
-                        {report.id ? new Date().toLocaleDateString() : '-'}
-                      </TableCell>
-                      <TableCell>
-                        <div className="flex gap-2">
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => handleLoadReport(report)}
-                          >
-                            Edit
-                          </Button>
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => report.id && handleExecuteReport(report.id, 'csv')}
-                          >
-                            <Download className="w-4 h-4" />
-                          </Button>
-                        </div>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                  {myReports.length === 0 && (
-                    <TableRow>
-                      <TableCell colSpan={5} className="text-center py-8 text-gray-500">
-                        No reports yet. Create your first report or use a template!
-                      </TableCell>
-                    </TableRow>
-                  )}
-                </TableBody>
-              </Table>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {templates.map((template: ReportTemplate) => (
+                  <Card key={template.id} className="hover:shadow-md transition-shadow">
+                    <CardHeader className="pb-2">
+                      <CardTitle className="text-lg">{template.template_name}</CardTitle>
+                      <CardDescription>{template.category}</CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                      <p className="text-sm text-gray-600 mb-4">{template.description}</p>
+                      <Button
+                        variant="outline"
+                        className="w-full"
+                        onClick={() => handleLoadTemplate(template.id, template.template_name)}
+                      >
+                        <MagicWand className="w-4 h-4 mr-2" />
+                        Use Template
+                      </Button>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
             </CardContent>
           </Card>
         </TabsContent>
 
-        {/* History Tab */}
-        <TabsContent value="history">
+        {/* My Reports Tab */}
+        <TabsContent value="my-reports" className="space-y-6">
+          <Card>
+            <CardHeader>
+              <CardTitle>My Custom Reports</CardTitle>
+              <CardDescription>Manage your saved reports</CardDescription>
+            </CardHeader>
+            <CardContent>
+              {myReports.length === 0 ? (
+                <div className="text-center py-8">
+                  <p className="text-gray-500">You haven't created any custom reports yet.</p>
+                  <Button variant="link" className="mt-2" onClick={() => setActiveTab("builder")}>
+                    Create Your First Report
+                  </Button>
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  {myReports.map((report: CustomReport) => (
+                    <div
+                      key={report.id}
+                      className="border rounded-lg p-4 flex flex-col md:flex-row justify-between items-start md:items-center hover:bg-gray-50"
+                    >
+                      <div>
+                        <h3 className="font-medium">{report.report_name}</h3>
+                        <p className="text-sm text-gray-500">{report.description}</p>
+                        <div className="flex gap-2 mt-2">
+                          {report.data_sources.map((dsId) => {
+                            const ds = dataSources.find((d: DataSource) => d.id === dsId)
+                            return ds ? (
+                              <Badge key={dsId} variant="outline">{ds.name}</Badge>
+                            ) : null
+                          })}
+                        </div>
+                      </div>
+                      <div className="flex gap-2 mt-3 md:mt-0">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => report.id && handleExecuteReport(report.id)}
+                        >
+                          <Play className="w-4 h-4 mr-2" />
+                          Run
+                        </Button>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => handleLoadReport(report)}
+                        >
+                          <FolderOpen className="w-4 h-4 mr-2" />
+                          Edit
+                        </Button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        {/* Execution History Tab */}
+        <TabsContent value="history" className="space-y-6">
           <Card>
             <CardHeader>
               <CardTitle>Execution History</CardTitle>
-              <CardDescription>Recent report executions</CardDescription>
+              <CardDescription>View past report executions</CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="text-center py-8 text-gray-500">
-                Select a report to view its execution history
-              </div>
+              <p className="text-center text-gray-500 py-8">Execution history will be displayed here.</p>
             </CardContent>
           </Card>
         </TabsContent>
@@ -752,30 +575,25 @@ export function CustomReportBuilder() {
 
       {/* Schedule Dialog */}
       <Dialog open={showScheduleDialog} onOpenChange={setShowScheduleDialog}>
-        <DialogContent className="max-w-lg">
+        <DialogContent>
           <DialogHeader>
             <DialogTitle>Schedule Report</DialogTitle>
-            <DialogDescription>
-              Configure automated report generation and delivery
-            </DialogDescription>
+            <DialogDescription>Set up automated report delivery</DialogDescription>
           </DialogHeader>
-
           <div className="space-y-4">
             <div className="space-y-2">
-              <Label>Schedule Type</Label>
+              <Label>Frequency</Label>
               <Select value={scheduleType} onValueChange={setScheduleType}>
                 <SelectTrigger>
-                  <SelectValue />
+                  <SelectValue placeholder="Select frequency" />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="daily">Daily</SelectItem>
                   <SelectItem value="weekly">Weekly</SelectItem>
                   <SelectItem value="monthly">Monthly</SelectItem>
-                  <SelectItem value="quarterly">Quarterly</SelectItem>
                 </SelectContent>
               </Select>
             </div>
-
             <div className="space-y-2">
               <Label>Time</Label>
               <Input
@@ -784,40 +602,33 @@ export function CustomReportBuilder() {
                 onChange={(e) => setScheduleTime(e.target.value)}
               />
             </div>
-
+            <div className="space-y-2">
+              <Label>Recipients (comma-separated emails)</Label>
+              <Textarea
+                placeholder="Enter email addresses"
+                value={recipients}
+                onChange={(e) => setRecipients(e.target.value)}
+              />
+            </div>
             <div className="space-y-2">
               <Label>Format</Label>
               <Select value={scheduleFormat} onValueChange={setScheduleFormat}>
                 <SelectTrigger>
-                  <SelectValue />
+                  <SelectValue placeholder="Select format" />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="csv">CSV</SelectItem>
-                  <SelectItem value="xlsx">Excel (XLSX)</SelectItem>
                   <SelectItem value="pdf">PDF</SelectItem>
+                  <SelectItem value="xlsx">Excel</SelectItem>
                 </SelectContent>
               </Select>
             </div>
-
-            <div className="space-y-2">
-              <Label>Recipients (comma-separated emails)</Label>
-              <Textarea
-                placeholder="john@example.com, jane@example.com"
-                value={recipients}
-                onChange={(e) => setRecipients(e.target.value)}
-                rows={3}
-              />
-            </div>
           </div>
-
           <DialogFooter>
             <Button variant="outline" onClick={() => setShowScheduleDialog(false)}>
               Cancel
             </Button>
-            <Button onClick={handleScheduleReport}>
-              <Calendar className="w-4 h-4 mr-2" />
-              Schedule Report
-            </Button>
+            <Button onClick={handleScheduleReport}>Schedule</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

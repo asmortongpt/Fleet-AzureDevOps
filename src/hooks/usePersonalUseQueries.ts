@@ -58,7 +58,7 @@ export function usePersonalUsePolicies() {
       return response.data as Policy
     },
     staleTime: 5 * 60 * 1000, // 5 minutes
-    gcTime: 10 * 60 * 1000, // 10 minutes (formerly cacheTime)
+    gcTime: 10 * 60 * 1000, // 10 minutes
     retry: 2,
     enabled: true,
   })
@@ -118,7 +118,7 @@ export function useCreateTripUsage() {
       queryClient.setQueryData(personalUseQueryKeys.tripUsage(data.id), data)
     },
     onError: (error: any) => {
-      const errorMessage = error.response?.data?.error || error.message || 'Failed to create trip usage'
+      const _errorMessage = error.response?.data?.error || error.message || 'Failed to create trip usage'
       logger.error('Error creating trip usage:', { error })
     }
   })
@@ -136,7 +136,7 @@ export function useMarkTrip() {
       const response: any = await apiClient.personalUse.markTrip(tripId, data)
       return response.data
     },
-    onSuccess: (data, variables) => {
+    onSuccess: (_data, variables) => {
       // Invalidate trip usages to refresh list
       queryClient.invalidateQueries({ queryKey: personalUseQueryKeys.tripUsages() })
 
@@ -146,7 +146,7 @@ export function useMarkTrip() {
       })
     },
     onError: (error: any) => {
-      const errorMessage = error.response?.data?.error || error.message || 'Failed to mark trip'
+      const _errorMessage = error.response?.data?.error || error.message || 'Failed to mark trip'
       logger.error('Error marking trip:', { error })
     }
   })
@@ -171,7 +171,7 @@ export function useUpdateTripUsage() {
       queryClient.invalidateQueries({ queryKey: personalUseQueryKeys.tripUsages() })
     },
     onError: (error: any) => {
-      const errorMessage = error.response?.data?.error || error.message || 'Failed to update trip usage'
+      const _errorMessage = error.response?.data?.error || error.message || 'Failed to update trip usage'
       logger.error('Error updating trip usage:', { error })
     }
   })
@@ -187,7 +187,7 @@ export function useDeleteTripUsage() {
     mutationFn: async (id: string) => {
       await apiClient.personalUse.deleteTripUsage(id)
     },
-    onSuccess: (data, id) => {
+    onSuccess: (_data, id) => {
       // Remove from cache
       queryClient.removeQueries({ queryKey: personalUseQueryKeys.tripUsage(id) })
 
@@ -195,7 +195,7 @@ export function useDeleteTripUsage() {
       queryClient.invalidateQueries({ queryKey: personalUseQueryKeys.tripUsages() })
     },
     onError: (error: any) => {
-      const errorMessage = error.response?.data?.error || error.message || 'Failed to delete trip usage'
+      const _errorMessage = error.response?.data?.error || error.message || 'Failed to delete trip usage'
       logger.error('Error deleting trip usage:', { error })
     }
   })

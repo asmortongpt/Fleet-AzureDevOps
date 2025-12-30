@@ -37,7 +37,7 @@ const SystemHealthWidget: React.FC<Props> = ({ health, loading }) => {
 
   const statusColor = useMemo(() => {
     if (!health) return 'default';
-    switch (health?.status) {
+    switch (health.status) {
       case 'healthy': return 'success';
       case 'degraded': return 'warning';
       case 'down': return 'error';
@@ -97,7 +97,7 @@ const SystemHealthWidget: React.FC<Props> = ({ health, loading }) => {
             {statusIcon}
             <Chip
               label={health.status.toUpperCase()}
-              color={statusColor as any}
+              color={statusColor}
               size="large"
               sx={{ fontWeight: 'bold' }}
             />
@@ -122,7 +122,7 @@ const SystemHealthWidget: React.FC<Props> = ({ health, loading }) => {
                 <LinearProgress
                   variant="determinate"
                   value={availability}
-                  color={statusColor as any}
+                  color={statusColor}
                   sx={{ mt: 1, height: 8, borderRadius: 4 }}
                 />
               </Box>
@@ -154,10 +154,20 @@ const SystemHealthWidget: React.FC<Props> = ({ health, loading }) => {
                 </Typography>
                 <Chip
                   size="small"
-                  label={health.components?.api?.responseTime < 200 ? 'Fast' :
-                         health.components?.api?.responseTime < 500 ? 'Normal' : 'Slow'}
-                  color={health.components?.api?.responseTime < 200 ? 'success' :
-                         health.components?.api?.responseTime < 500 ? 'default' : 'warning'}
+                  label={
+                    health.components?.api?.responseTime < 200
+                      ? 'Fast'
+                      : health.components?.api?.responseTime < 500
+                      ? 'Normal'
+                      : 'Slow'
+                  }
+                  color={
+                    health.components?.api?.responseTime < 200
+                      ? 'success'
+                      : health.components?.api?.responseTime < 500
+                      ? 'default'
+                      : 'warning'
+                  }
                   sx={{ mt: 1 }}
                 />
               </Box>
@@ -177,7 +187,9 @@ const SystemHealthWidget: React.FC<Props> = ({ health, loading }) => {
                       <Chip
                         size="small"
                         label={health.components?.api?.status || 'Unknown'}
-                        color={health.components?.api?.status === 'healthy' ? 'success' : 'error'}
+                        color={
+                          health.components?.api?.status === 'healthy' ? 'success' : 'error'
+                        }
                       />
                     </Box>
                     <Typography variant="caption" color="text.secondary">
@@ -194,7 +206,11 @@ const SystemHealthWidget: React.FC<Props> = ({ health, loading }) => {
                       <Chip
                         size="small"
                         label={health.components?.emulators?.status || 'Unknown'}
-                        color={health.components?.emulators?.status === 'healthy' ? 'success' : 'error'}
+                        color={
+                          health.components?.emulators?.status === 'healthy'
+                            ? 'success'
+                            : 'error'
+                        }
                       />
                     </Box>
                     <Typography variant="caption" color="text.secondary">
@@ -211,7 +227,11 @@ const SystemHealthWidget: React.FC<Props> = ({ health, loading }) => {
                       <Chip
                         size="small"
                         label={health.components?.database?.status || 'Unknown'}
-                        color={health.components?.database?.status === 'healthy' ? 'success' : 'error'}
+                        color={
+                          health.components?.database?.status === 'healthy'
+                            ? 'success'
+                            : 'error'
+                        }
                       />
                     </Box>
                     <Typography variant="caption" color="text.secondary">

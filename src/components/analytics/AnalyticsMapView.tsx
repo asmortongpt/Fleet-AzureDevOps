@@ -32,6 +32,16 @@ interface VehicleMetrics {
   fuelCost: number;
 }
 
+interface Vehicle {
+  id: string;
+  vehicleNumber: string;
+  make: string;
+  model: string;
+  status: string;
+  latitude?: number;
+  longitude?: number;
+}
+
 export function AnalyticsMapView({ analyticsType, onVehicleSelect }: AnalyticsMapViewProps) {
   const { data: vehicles = [], isLoading } = useVehicles();
   const [selectedVehicleId, setSelectedVehicleId] = useState<string | null>(null);
@@ -40,11 +50,11 @@ export function AnalyticsMapView({ analyticsType, onVehicleSelect }: AnalyticsMa
 
   // Filter vehicles based on selected filters
   const filteredVehicles = useMemo(() => {
-    if (statusFilter === 'all') return vehicles;
-    return vehicles.filter((v: { status: string }) => v.status === statusFilter);
+    if (statusFilter === 'all') return vehicles as Vehicle[];
+    return (vehicles as Vehicle[]).filter((v: Vehicle) => v.status === statusFilter);
   }, [vehicles, statusFilter]);
 
-  const selectedVehicle = vehicles.find((v: { id: string }) => v.id === selectedVehicleId) || vehicles[0];
+  const selectedVehicle = (vehicles as Vehicle[]).find((v: Vehicle) => v.id === selectedVehicleId) || (vehicles as Vehicle[])[0];
 
   // Calculate aggregate metrics
   const metrics = useMemo((): VehicleMetrics => {
@@ -297,7 +307,7 @@ export function AnalyticsMapView({ analyticsType, onVehicleSelect }: AnalyticsMa
       {/* Vehicle Count */}
       <div className="pt-2 border-t">
         <div className="text-xs text-muted-foreground text-center">
-          Showing {filteredVehicles.length} of {vehicles.length} vehicles
+          Showing {(filteredVehicles as Vehicle[]).length} of {(vehicles as Vehicle[]).length} vehicles
         </div>
       </div>
     </div>

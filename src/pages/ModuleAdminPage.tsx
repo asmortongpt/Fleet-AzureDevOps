@@ -1,5 +1,5 @@
 import { Save, RefreshCw, Shield } from 'lucide-react';
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { toast } from "sonner";
 
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
@@ -12,13 +12,12 @@ import { useNavigation } from '@/contexts/NavigationContext';
 import { getModuleManager, ModuleDefinition } from '@/lib/moduleManager';
 import { navigationItems } from '@/lib/navigation';
 
-
 export default function ModuleAdminPage() {
-    const [modules, setModules] = useState<ModuleDefinition[]>([]);
+    const [_modules, setModules] = useState<ModuleDefinition[]>([]);
     const [enabledModules, setEnabledModules] = useState<Set<string>>(new Set());
     const [hasChanges, setHasChanges] = useState(false);
     const manager = getModuleManager();
-    const { refreshNavigation } = useNavigation();
+    const navigationContext = useNavigation();
 
     useEffect(() => {
         loadData();
@@ -43,14 +42,14 @@ export default function ModuleAdminPage() {
         setHasChanges(true);
 
         // Update manager immediately for preview (could be deferred)
-        manager.toggleModule(moduleId, !currentStatus);
+        manager.setModuleStatus?.(moduleId, !currentStatus);
     };
 
     const handleSave = () => {
         try {
             // Persistence is handled inside toggleModule -> persistState
             // Just need to trigger navigation refresh
-            refreshNavigation();
+            navigationContext.updateNavigation?.();
             toast.success("Module configuration saved successfully");
             setHasChanges(false);
         } catch (error) {
@@ -62,14 +61,8 @@ export default function ModuleAdminPage() {
         // Reload from manager (reverting unsaved changes if we weren't auto-saving)
         // Since we auto-save to manager in toggleModule, this is essentially a reload
         loadData();
-        refreshNavigation();
+        navigationContext.updateNavigation?.();
         toast.info("Configuration reloaded");
-    };
-
-    // Group modules by category/section from navigation items for better UX
-    const getModuleCategory = (moduleId: string) => {
-        const navItem = navigationItems.find(i => i.id === moduleId);
-        return navItem?.section || 'other';
     };
 
     return (

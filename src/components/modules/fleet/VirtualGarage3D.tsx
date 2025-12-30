@@ -20,7 +20,7 @@ import {
   ArrowsClockwise
 } from '@phosphor-icons/react'
 import { useQuery } from '@tanstack/react-query'
-import React, { useState, useMemo, Suspense, lazy, useEffect } from 'react'
+import { useState, useMemo, Suspense, lazy, useEffect } from 'react'
 
 import { DamageStrip, generateDemoDamages, type DamagePin } from '@/components/garage/DamageStrip'
 import { TimelineDrawer, generateDemoEvents, type TimelineEvent } from '@/components/garage/TimelineDrawer'
@@ -97,7 +97,7 @@ const DEMO_VEHICLES: GarageVehicle[] = [
     type: 'PICKUP_TRUCK',
     color: '#2563eb',
     department: 'Operations',
-    status: 'ACTIVE',
+    status: OperationalStatus.ACTIVE,
     mileage: 45230,
     oilLife: 72,
     brakeLife: 65,
@@ -117,7 +117,7 @@ const DEMO_VEHICLES: GarageVehicle[] = [
     type: 'SUV',
     color: '#dc2626',
     department: 'Executive',
-    status: 'ACTIVE',
+    status: OperationalStatus.ACTIVE,
     mileage: 28500,
     oilLife: 100, // EV
     brakeLife: 90,
@@ -137,7 +137,7 @@ const DEMO_VEHICLES: GarageVehicle[] = [
     type: 'CARGO_VAN',
     color: '#6366f1',
     department: 'Service',
-    status: 'ACTIVE',
+    status: OperationalStatus.ACTIVE,
     mileage: 62400,
     oilLife: 45,
     brakeLife: 55,
@@ -274,7 +274,7 @@ function Viewer3DFallback() {
 // MAIN COMPONENT
 // ============================================================================
 
-export function VirtualGarage3D({ data }: { data?: any }) {
+export function VirtualGarage3D({ data: _data }: { data?: any }) {
   // State
   const [selectedVehicle, setSelectedVehicle] = useState<GarageVehicle | null>(null)
   const [isTimelineOpen, setIsTimelineOpen] = useState(false)
@@ -285,7 +285,8 @@ export function VirtualGarage3D({ data }: { data?: any }) {
     queryKey: ['garage-vehicles'],
     queryFn: fetchVehicles,
     staleTime: 30 * 1000,
-    refetchInterval: 30000
+    refetchInterval: 30000,
+    gcTime: 5 * 60 * 1000
   })
 
   // Fetch real-time telemetry
@@ -294,7 +295,8 @@ export function VirtualGarage3D({ data }: { data?: any }) {
     queryFn: () => fetchTelemetry(selectedVehicle?.id || ''),
     enabled: !!selectedVehicle?.id,
     staleTime: 1000,
-    refetchInterval: 2000
+    refetchInterval: 2000,
+    gcTime: 5 * 60 * 1000
   })
 
   // Select first vehicle by default
@@ -380,7 +382,7 @@ export function VirtualGarage3D({ data }: { data?: any }) {
         <VehicleSelector
           vehicles={vehicles}
           selectedId={selectedVehicle?.id}
-          onSelect={setSelectedVehicle}
+          onSelect={(vehicle) => setSelectedVehicle(vehicle)}
         />
       </div>
 

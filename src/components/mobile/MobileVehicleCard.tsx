@@ -1,4 +1,3 @@
-
 import {
   Truck,
   MapPin,
@@ -19,7 +18,6 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Vehicle } from '@/lib/types';
 import { cn } from '@/lib/utils';
-
 
 interface MobileVehicleCardProps {
   vehicle: Vehicle;
@@ -70,10 +68,10 @@ export function MobileVehicleCard({
         {/* Vehicle Info */}
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 mb-1">
-            <span className="font-semibold text-sm truncate">{vehicle.vehicleNumber}</span>
-            {vehicle.alerts && vehicle.alerts > 0 && (
+            <span className="font-semibold text-sm truncate">{vehicle.id}</span>
+            {vehicle.alerts && vehicle.alerts.length > 0 && (
               <Badge variant="destructive" className="h-5 text-xs px-1.5">
-                {vehicle.alerts}
+                {vehicle.alerts.length}
               </Badge>
             )}
           </div>
@@ -122,16 +120,16 @@ export function MobileVehicleCard({
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2 mb-1">
                 <Truck className="h-4 w-4 text-slate-600 flex-shrink-0" />
-                <h3 className="font-semibold text-sm truncate">{vehicle.vehicleNumber}</h3>
+                <h3 className="font-semibold text-sm truncate">{vehicle.id}</h3>
               </div>
               <p className="text-xs text-muted-foreground truncate">
                 {vehicle.make} {vehicle.model}
               </p>
             </div>
             <div className="flex items-center gap-2 flex-shrink-0">
-              {vehicle.alerts && vehicle.alerts > 0 && (
+              {vehicle.alerts && vehicle.alerts.length > 0 && (
                 <Badge variant="destructive" className="h-5 text-xs px-1.5">
-                  {vehicle.alerts}
+                  {vehicle.alerts.length}
                 </Badge>
               )}
               <StatusIcon className={cn('h-4 w-4', statusInfo.color.replace('bg-', 'text-'))} />
@@ -186,16 +184,16 @@ export function MobileVehicleCard({
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2 mb-1">
               <Truck className="h-5 w-5 text-slate-600 flex-shrink-0" />
-              <h3 className="font-bold text-base truncate">{vehicle.vehicleNumber}</h3>
+              <h3 className="font-bold text-base truncate">{vehicle.id}</h3>
             </div>
             <p className="text-sm text-muted-foreground">
               {vehicle.make} {vehicle.model} {vehicle.year}
             </p>
           </div>
           <div className="flex flex-col items-end gap-2">
-            {vehicle.alerts && vehicle.alerts > 0 && (
+            {vehicle.alerts && vehicle.alerts.length > 0 && (
               <Badge variant="destructive" className="h-6 text-xs px-2">
-                {vehicle.alerts} Alert{vehicle.alerts > 1 ? 's' : ''}
+                {vehicle.alerts.length} Alert{vehicle.alerts.length > 1 ? 's' : ''}
               </Badge>
             )}
             <Badge
@@ -218,12 +216,12 @@ export function MobileVehicleCard({
             </div>
           )}
 
-          {(vehicle.latitude !== undefined && vehicle.longitude !== undefined) && (
+          {(vehicle.location?.latitude !== undefined && vehicle.location?.longitude !== undefined) && (
             <div className="flex items-center gap-2 text-sm">
               <MapPin className="h-4 w-4 text-muted-foreground flex-shrink-0" />
               <span className="text-muted-foreground">Location:</span>
               <span className="font-medium text-xs">
-                {vehicle.latitude.toFixed(4)}, {vehicle.longitude.toFixed(4)}
+                {vehicle.location.latitude.toFixed(4)}, {vehicle.location.longitude.toFixed(4)}
               </span>
             </div>
           )}
@@ -250,10 +248,10 @@ export function MobileVehicleCard({
             )}
           </div>
 
-          {vehicle.lastUpdated && (
+          {vehicle.updatedAt && (
             <div className="flex items-center gap-2 text-xs text-muted-foreground">
               <Clock className="h-3 w-3" />
-              <span>Updated {vehicle.lastUpdated}</span>
+              <span>Updated {vehicle.updatedAt}</span>
             </div>
           )}
         </div>

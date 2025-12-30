@@ -103,8 +103,8 @@ export const loginSchema = z.object({
 export const registerSchema = z.object({
   email: emailSchema,
   password: passwordSchema,
-  first_name: safeStringSchema.min(1, 'First name required'),
-  last_name: safeStringSchema.min(1, 'Last name required'),
+  first_name: z.string().min(1, 'First name required').transform(val => safeStringSchema.parse(val)),
+  last_name: z.string().min(1, 'Last name required').transform(val => safeStringSchema.parse(val)),
   phone: phoneSchema,
   role: z.enum(['driver', 'admin', 'manager', 'technician']).optional()
 })
@@ -117,8 +117,8 @@ export const vehicleCreateSchema = z.object({
   vin: z.string()
     .length(17, 'VIN must be 17 characters')
     .regex(/^[A-HJ-NPR-Z0-9]{17}$/, 'Invalid VIN format'),
-  make: safeStringSchema.min(1, 'Make required'),
-  model: safeStringSchema.min(1, 'Model required'),
+  make: z.string().min(1, 'Make required').transform(val => safeStringSchema.parse(val)),
+  model: z.string().min(1, 'Model required').transform(val => safeStringSchema.parse(val)),
   year: z.number()
     .int()
     .min(1900, 'Invalid year')
@@ -150,11 +150,11 @@ export const vehicleTelemetrySchema = z.object({
 // ============================================================================
 
 export const driverCreateSchema = z.object({
-  first_name: safeStringSchema.min(1, 'First name required'),
-  last_name: safeStringSchema.min(1, 'Last name required'),
+  first_name: z.string().min(1, 'First name required').transform(val => safeStringSchema.parse(val)),
+  last_name: z.string().min(1, 'Last name required').transform(val => safeStringSchema.parse(val)),
   email: emailSchema,
   phone: phoneSchema,
-  license_number: safeStringSchema.min(1, 'License number required'),
+  license_number: z.string().min(1, 'License number required').transform(val => safeStringSchema.parse(val)),
   license_expiry: dateSchema,
   status: statusSchema.optional(),
   role: z.enum(['driver', 'technician', 'fleet_manager']).optional()
@@ -168,7 +168,7 @@ export const driverUpdateSchema = driverCreateSchema.partial()
 
 export const workOrderCreateSchema = z.object({
   vehicle_id: uuidSchema,
-  title: safeStringSchema.min(1, 'Title required'),
+  title: z.string().min(1, 'Title required').transform(val => safeStringSchema.parse(val)),
   description: textAreaSchema,
   priority: z.enum(['low', 'medium', 'high', 'critical']),
   status: z.enum(['pending', 'in_progress', 'completed', 'cancelled']).optional(),
@@ -201,7 +201,7 @@ export const fuelTransactionSchema = z.object({
 // ============================================================================
 
 export const facilityCreateSchema = z.object({
-  name: safeStringSchema.min(1, 'Facility name required'),
+  name: z.string().min(1, 'Facility name required').transform(val => safeStringSchema.parse(val)),
   type: z.enum(['garage', 'depot', 'charging_station', 'warehouse']),
   address: safeStringSchema,
   city: safeStringSchema,
@@ -221,7 +221,7 @@ export const facilityUpdateSchema = facilityCreateSchema.partial()
 
 export const maintenanceScheduleSchema = z.object({
   vehicle_id: uuidSchema,
-  service_type: safeStringSchema.min(1, 'Service type required'),
+  service_type: z.string().min(1, 'Service type required').transform(val => safeStringSchema.parse(val)),
   interval_miles: positiveIntSchema.optional(),
   interval_days: positiveIntSchema.optional(),
   last_service_date: dateSchema.optional(),
@@ -236,7 +236,7 @@ export const maintenanceScheduleSchema = z.object({
 // ============================================================================
 
 export const routeCreateSchema = z.object({
-  name: safeStringSchema.min(1, 'Route name required'),
+  name: z.string().min(1, 'Route name required').transform(val => safeStringSchema.parse(val)),
   description: textAreaSchema.optional(),
   start_location: safeStringSchema,
   end_location: safeStringSchema,
@@ -260,7 +260,7 @@ export const routeUpdateSchema = routeCreateSchema.partial()
 
 export const purchaseOrderSchema = z.object({
   vendor_id: uuidSchema,
-  order_number: safeStringSchema.min(1, 'Order number required'),
+  order_number: z.string().min(1, 'Order number required').transform(val => safeStringSchema.parse(val)),
   order_date: dateSchema,
   expected_delivery: dateSchema.optional(),
   status: z.enum(['draft', 'submitted', 'approved', 'received', 'cancelled']).optional(),
@@ -283,7 +283,7 @@ export const purchaseOrderSchema = z.object({
 // ============================================================================
 
 export const vendorCreateSchema = z.object({
-  name: safeStringSchema.min(1, 'Vendor name required'),
+  name: z.string().min(1, 'Vendor name required').transform(val => safeStringSchema.parse(val)),
   contact_name: safeStringSchema.optional(),
   email: emailSchema.optional(),
   phone: phoneSchema,

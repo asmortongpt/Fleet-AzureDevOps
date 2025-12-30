@@ -61,11 +61,12 @@ export function useVehicles(
   return useQueryWithErrorHandling<Vehicle[]>(
     queryKeys.vehicles,
     async () => {
-      const response = await apiClient.get<Vehicle[]>('/vehicles');
-      return response.data;
+      const response = await apiClient.get<{ data: Vehicle[] }>('/vehicles');
+      return response?.data ?? [];
     },
     {
       staleTime: 5 * 60 * 1000, // 5 minutes
+      gcTime: 10 * 60 * 1000,
       errorMessage: 'Failed to load vehicles. Please try again.',
       ...options,
     }
@@ -79,11 +80,12 @@ export function useVehicle(
   return useQueryWithErrorHandling<Vehicle>(
     queryKeys.vehicle(id),
     async () => {
-      const response = await apiClient.get<Vehicle>(`/vehicles/${id}`);
-      return response.data;
+      const response = await apiClient.get<{ data: Vehicle }>(`/vehicles/${id}`);
+      return response?.data;
     },
     {
       enabled: !!id,
+      gcTime: 10 * 60 * 1000,
       errorMessage: `Failed to load vehicle details. Please try again.`,
       ...options,
     }
@@ -97,8 +99,8 @@ export function useCreateVehicle(
 
   return useMutationWithErrorHandling<Vehicle, unknown, Omit<Vehicle, 'id'>>(
     async (vehicle) => {
-      const response = await apiClient.post<Vehicle>('/vehicles', vehicle);
-      return response.data;
+      const response = await apiClient.post<{ data: Vehicle }>('/vehicles', vehicle);
+      return response?.data;
     },
     {
       successMessage: 'Vehicle created successfully',
@@ -118,8 +120,8 @@ export function useUpdateVehicle(
 
   return useMutationWithErrorHandling<Vehicle, unknown, Partial<Vehicle> & { id: string }>(
     async ({ id, ...updates }) => {
-      const response = await apiClient.patch<Vehicle>(`/vehicles/${id}`, updates);
-      return response.data;
+      const response = await apiClient.patch<{ data: Vehicle }>(`/vehicles/${id}`, updates);
+      return response?.data;
     },
     {
       successMessage: 'Vehicle updated successfully',
@@ -163,11 +165,12 @@ export function useDrivers(
   return useQueryWithErrorHandling<Driver[]>(
     queryKeys.drivers,
     async () => {
-      const response = await apiClient.get<Driver[]>('/drivers');
-      return response.data;
+      const response = await apiClient.get<{ data: Driver[] }>('/drivers');
+      return response?.data ?? [];
     },
     {
       staleTime: 5 * 60 * 1000,
+      gcTime: 10 * 60 * 1000,
       errorMessage: 'Failed to load drivers. Please try again.',
       ...options,
     }
@@ -181,11 +184,12 @@ export function useDriver(
   return useQueryWithErrorHandling<Driver>(
     queryKeys.driver(id),
     async () => {
-      const response = await apiClient.get<Driver>(`/drivers/${id}`);
-      return response.data;
+      const response = await apiClient.get<{ data: Driver }>(`/drivers/${id}`);
+      return response?.data;
     },
     {
       enabled: !!id,
+      gcTime: 10 * 60 * 1000,
       errorMessage: 'Failed to load driver details. Please try again.',
       ...options,
     }
@@ -199,8 +203,8 @@ export function useCreateDriver(
 
   return useMutationWithErrorHandling<Driver, unknown, Omit<Driver, 'id'>>(
     async (driver) => {
-      const response = await apiClient.post<Driver>('/drivers', driver);
-      return response.data;
+      const response = await apiClient.post<{ data: Driver }>('/drivers', driver);
+      return response?.data;
     },
     {
       successMessage: 'Driver created successfully',
@@ -220,8 +224,8 @@ export function useUpdateDriver(
 
   return useMutationWithErrorHandling<Driver, unknown, Partial<Driver> & { id: string }>(
     async ({ id, ...updates }) => {
-      const response = await apiClient.patch<Driver>(`/drivers/${id}`, updates);
-      return response.data;
+      const response = await apiClient.patch<{ data: Driver }>(`/drivers/${id}`, updates);
+      return response?.data;
     },
     {
       successMessage: 'Driver updated successfully',
@@ -246,13 +250,14 @@ export function useWorkOrders(
   return useQueryWithErrorHandling<WorkOrder[]>(
     [...queryKeys.workOrders, filters],
     async () => {
-      const response = await apiClient.get<WorkOrder[]>('/work-orders', {
+      const response = await apiClient.get<{ data: WorkOrder[] }>('/work-orders', {
         params: filters,
       });
-      return response.data;
+      return response?.data ?? [];
     },
     {
       staleTime: 2 * 60 * 1000, // 2 minutes (more frequent updates for work orders)
+      gcTime: 5 * 60 * 1000,
       errorMessage: 'Failed to load work orders. Please try again.',
       ...options,
     }
@@ -266,11 +271,12 @@ export function useWorkOrder(
   return useQueryWithErrorHandling<WorkOrder>(
     queryKeys.workOrder(id),
     async () => {
-      const response = await apiClient.get<WorkOrder>(`/work-orders/${id}`);
-      return response.data;
+      const response = await apiClient.get<{ data: WorkOrder }>(`/work-orders/${id}`);
+      return response?.data;
     },
     {
       enabled: !!id,
+      gcTime: 5 * 60 * 1000,
       errorMessage: 'Failed to load work order details. Please try again.',
       ...options,
     }
@@ -284,8 +290,8 @@ export function useCreateWorkOrder(
 
   return useMutationWithErrorHandling<WorkOrder, unknown, Omit<WorkOrder, 'id'>>(
     async (workOrder) => {
-      const response = await apiClient.post<WorkOrder>('/work-orders', workOrder);
-      return response.data;
+      const response = await apiClient.post<{ data: WorkOrder }>('/work-orders', workOrder);
+      return response?.data;
     },
     {
       successMessage: 'Work order created successfully',
@@ -305,8 +311,8 @@ export function useUpdateWorkOrder(
 
   return useMutationWithErrorHandling<WorkOrder, unknown, Partial<WorkOrder> & { id: string }>(
     async ({ id, ...updates }) => {
-      const response = await apiClient.patch<WorkOrder>(`/work-orders/${id}`, updates);
-      return response.data;
+      const response = await apiClient.patch<{ data: WorkOrder }>(`/work-orders/${id}`, updates);
+      return response?.data;
     },
     {
       successMessage: 'Work order updated successfully',
@@ -331,13 +337,14 @@ export function useFuelTransactions(
   return useQueryWithErrorHandling<FuelTransaction[]>(
     [...queryKeys.fuelTransactions, filters],
     async () => {
-      const response = await apiClient.get<FuelTransaction[]>('/fuel-transactions', {
+      const response = await apiClient.get<{ data: FuelTransaction[] }>('/fuel-transactions', {
         params: filters,
       });
-      return response.data;
+      return response?.data ?? [];
     },
     {
       staleTime: 5 * 60 * 1000,
+      gcTime: 10 * 60 * 1000,
       errorMessage: 'Failed to load fuel transactions. Please try again.',
       ...options,
     }
@@ -354,11 +361,12 @@ export function useParts(
   return useQueryWithErrorHandling<Part[]>(
     queryKeys.parts,
     async () => {
-      const response = await apiClient.get<Part[]>('/parts');
-      return response.data;
+      const response = await apiClient.get<{ data: Part[] }>('/parts');
+      return response?.data ?? [];
     },
     {
       staleTime: 10 * 60 * 1000, // 10 minutes (parts inventory changes less frequently)
+      gcTime: 15 * 60 * 1000,
       errorMessage: 'Failed to load parts inventory. Please try again.',
       ...options,
     }
@@ -372,11 +380,12 @@ export function usePart(
   return useQueryWithErrorHandling<Part>(
     queryKeys.part(id),
     async () => {
-      const response = await apiClient.get<Part>(`/parts/${id}`);
-      return response.data;
+      const response = await apiClient.get<{ data: Part }>(`/parts/${id}`);
+      return response?.data;
     },
     {
       enabled: !!id,
+      gcTime: 15 * 60 * 1000,
       errorMessage: 'Failed to load part details. Please try again.',
       ...options,
     }
@@ -393,11 +402,12 @@ export function useVendors(
   return useQueryWithErrorHandling<Vendor[]>(
     queryKeys.vendors,
     async () => {
-      const response = await apiClient.get<Vendor[]>('/vendors');
-      return response.data;
+      const response = await apiClient.get<{ data: Vendor[] }>('/vendors');
+      return response?.data ?? [];
     },
     {
       staleTime: 15 * 60 * 1000, // 15 minutes
+      gcTime: 20 * 60 * 1000,
       errorMessage: 'Failed to load vendors. Please try again.',
       ...options,
     }
@@ -411,11 +421,12 @@ export function useVendor(
   return useQueryWithErrorHandling<Vendor>(
     queryKeys.vendor(id),
     async () => {
-      const response = await apiClient.get<Vendor>(`/vendors/${id}`);
-      return response.data;
+      const response = await apiClient.get<{ data: Vendor }>(`/vendors/${id}`);
+      return response?.data;
     },
     {
       enabled: !!id,
+      gcTime: 20 * 60 * 1000,
       errorMessage: 'Failed to load vendor details. Please try again.',
       ...options,
     }
@@ -432,11 +443,12 @@ export function useFacilities(
   return useQueryWithErrorHandling<GISFacility[]>(
     queryKeys.facilities,
     async () => {
-      const response = await apiClient.get<GISFacility[]>('/facilities');
-      return response.data;
+      const response = await apiClient.get<{ data: GISFacility[] }>('/facilities');
+      return response?.data ?? [];
     },
     {
       staleTime: 15 * 60 * 1000,
+      gcTime: 20 * 60 * 1000,
       errorMessage: 'Failed to load facilities. Please try again.',
       ...options,
     }
@@ -454,8 +466,8 @@ export function usePrefetchVehicle() {
     queryClient.prefetchQuery({
       queryKey: queryKeys.vehicle(id),
       queryFn: async () => {
-        const response = await apiClient.get<Vehicle>(`/vehicles/${id}`);
-        return response.data;
+        const response = await apiClient.get<{ data: Vehicle }>(`/vehicles/${id}`);
+        return response?.data;
       },
     });
   };
@@ -468,8 +480,8 @@ export function usePrefetchDriver() {
     queryClient.prefetchQuery({
       queryKey: queryKeys.driver(id),
       queryFn: async () => {
-        const response = await apiClient.get<Driver>(`/drivers/${id}`);
-        return response.data;
+        const response = await apiClient.get<{ data: Driver }>(`/drivers/${id}`);
+        return response?.data;
       },
     });
   };

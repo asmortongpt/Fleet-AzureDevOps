@@ -86,13 +86,16 @@ export function useSwipeGesture<T extends HTMLElement>(
 
     const handleTouchStart = (e: TouchEvent) => {
       const touch = e.touches[0]
-      startX = touch.pageX
-      startY = touch.pageY
-      startTime = Date.now()
+      if (touch) {
+        startX = touch.pageX
+        startY = touch.pageY
+        startTime = Date.now()
+      }
     }
 
     const handleTouchEnd = (e: TouchEvent) => {
       const touch = e.changedTouches[0]
+      if (!touch) return
       const distX = touch.pageX - startX
       const distY = touch.pageY - startY
       const elapsedTime = Date.now() - startTime
@@ -166,20 +169,28 @@ export function usePinchGesture<T extends HTMLElement>(
 
     const handleTouchStart = (e: TouchEvent) => {
       if (e.touches.length === 2) {
-        e.preventDefault()
-        initialDistance = getDistance(e.touches[0], e.touches[1])
-        if (haptic) triggerHaptic('light')
-        if (onPinchStart) onPinchStart(currentScale)
+        const touch1 = e.touches[0]
+        const touch2 = e.touches[1]
+        if (touch1 && touch2) {
+          e.preventDefault()
+          initialDistance = getDistance(touch1, touch2)
+          if (haptic) triggerHaptic('light')
+          if (onPinchStart) onPinchStart(currentScale)
+        }
       }
     }
 
     const handleTouchMove = (e: TouchEvent) => {
       if (e.touches.length === 2) {
-        e.preventDefault()
-        const currentDistance = getDistance(e.touches[0], e.touches[1])
-        const scale = currentDistance / initialDistance
-        currentScale = Math.min(Math.max(scale, minScale), maxScale)
-        if (onPinchMove) onPinchMove(currentScale)
+        const touch1 = e.touches[0]
+        const touch2 = e.touches[1]
+        if (touch1 && touch2) {
+          e.preventDefault()
+          const currentDistance = getDistance(touch1, touch2)
+          const scale = currentDistance / initialDistance
+          currentScale = Math.min(Math.max(scale, minScale), maxScale)
+          if (onPinchMove) onPinchMove(currentScale)
+        }
       }
     }
 
@@ -270,21 +281,27 @@ export function usePullToRefresh<T extends HTMLElement>(
     const handleTouchStart = (e: TouchEvent) => {
       // Only trigger if at top of scrollable container
       if (element.scrollTop === 0) {
-        startYRef.current = e.touches[0].pageY
+        const touch = e.touches[0]
+        if (touch) {
+          startYRef.current = touch.pageY
+        }
       }
     }
 
     const handleTouchMove = (e: TouchEvent) => {
       if (isRefreshingRef.current || element.scrollTop !== 0) return
 
-      currentYRef.current = e.touches[0].pageY
-      const pullDistance = (currentYRef.current - startYRef.current) * resistance
+      const touch = e.touches[0]
+      if (touch) {
+        currentYRef.current = touch.pageY
+        const pullDistance = (currentYRef.current - startYRef.current) * resistance
 
-      if (pullDistance > 0) {
-        e.preventDefault()
-        // Visual feedback can be added here (stretch element)
-        if (pullDistance > threshold && haptic) {
-          triggerHaptic('light')
+        if (pullDistance > 0) {
+          e.preventDefault()
+          // Visual feedback can be added here (stretch element)
+          if (pullDistance > threshold && haptic) {
+            triggerHaptic('light')
+          }
         }
       }
     }
@@ -399,6 +416,3 @@ export function useScrollDirection(threshold = 10) {
    ============================================================ */
 
 export { triggerHaptic }
-
-// Fix import for React
-import React from 'react'

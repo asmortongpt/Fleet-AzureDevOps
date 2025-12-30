@@ -28,6 +28,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { usePermissions } from "@/hooks/usePermissions"
 import apiClient from "@/lib/api-client"
 import logger from '@/utils/logger';
+
 interface CostSummary {
   totalCost: number
   categoryBreakdown: Array<{
@@ -71,13 +72,13 @@ interface CostForecast {
 }
 
 export function CostAnalysisCenter() {
-  const { canViewFinancial, isAdmin, canAccessField } = usePermissions()
+  const { canViewFinancial, isAdmin, _canAccessField } = usePermissions()
   const [costSummary, setCostSummary] = useState<CostSummary | null>(null)
   const [budgetStatus, setBudgetStatus] = useState<BudgetStatus[]>([])
   const [forecasts, setForecasts] = useState<CostForecast[]>([])
   const [loading, setLoading] = useState(true)
   const [activeTab, setActiveTab] = useState("overview")
-  const [dateRange, setDateRange] = useState({
+  const [_dateRange, _setDateRange] = useState({
     startDate: new Date(new Date().getFullYear(), new Date().getMonth(), 1),
     endDate: new Date()
   })
@@ -100,24 +101,24 @@ export function CostAnalysisCenter() {
 
   useEffect(() => {
     fetchCostData()
-  }, [dateRange])
+  }, [_dateRange])
 
   const fetchCostData = async () => {
     setLoading(true)
     try {
       // Fetch cost summary
       const summaryResponse = await apiClient.get(
-        `/cost-analysis/summary?startDate=${dateRange.startDate.toISOString()}&endDate=${dateRange.endDate.toISOString()}`
+        `/cost-analysis/summary?startDate=${_dateRange.startDate.toISOString()}&endDate=${_dateRange.endDate.toISOString()}`
       )
-      setCostSummary(summaryResponse)
+      setCostSummary(summaryResponse.data as CostSummary | null)
 
       // Fetch budget status
       const budgetResponse = await apiClient.get("/cost-analysis/budget-status")
-      setBudgetStatus(budgetResponse)
+      setBudgetStatus(budgetResponse.data as BudgetStatus[])
 
       // Fetch forecasts
       const forecastResponse = await apiClient.get("/cost-analysis/forecast?months=3")
-      setForecasts(forecastResponse)
+      setForecasts(forecastResponse.data as CostForecast[])
     } catch (error) {
       logger.error("Error fetching cost data:", error)
       toast.error("Failed to load cost analysis data")
@@ -129,7 +130,7 @@ export function CostAnalysisCenter() {
   const exportData = async () => {
     try {
       const response = await fetch(
-        `/api/cost-analysis/export?startDate=${dateRange.startDate.toISOString()}&endDate=${dateRange.endDate.toISOString()}`,
+        `/api/cost-analysis/export?startDate=${_dateRange.startDate.toISOString()}&endDate=${_dateRange.endDate.toISOString()}`,
         {
           headers: {
             'Authorization': `Bearer ${localStorage.getItem('token')}`
@@ -143,7 +144,7 @@ export function CostAnalysisCenter() {
       const url = window.URL.createObjectURL(blob)
       const a = document.createElement('a')
       a.href = url
-      a.download = `cost-analysis-${dateRange.startDate.toISOString().split('T')[0]}.csv`
+      a.download = `cost-analysis-${_dateRange.startDate.toISOString().split('T')[0]}.csv`
       document.body.appendChild(a)
       a.click()
       window.URL.revokeObjectURL(url)
@@ -407,55 +408,51 @@ export function CostAnalysisCenter() {
         <TabsContent value="budget" className="space-y-6">
           <Card>
             <CardHeader>
-              <CardTitle>Budget vs Actual</CardTitle>
-              <CardDescription>Track spending against allocated budgets</CardDescription>
+              <CardTitle>Budget Tracking</CardTitle>
+              <CardDescription>Current budget status by category</CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="space-y-6">
-                {budgetStatus.map((budget) => (
-                  <div key={budget.category} className="space-y-2">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <div className="font-semibold">{budget.category}</div>
-                        <div className="text-sm text-gray-600">
-                          ${budget.spent.toLocaleString()} of ${budget.allocated.toLocaleString()}
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Category</TableHead>
+                    <TableHead>Allocated</TableHead>
+                    <TableHead>Spent</TableHead>
+                    <TableHead>Remaining</TableHead>
+                    <TableHead>Usage</TableHead>
+                    <TableHead>Forecasted</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {budgetStatus.map((status) => (
+                    <TableRow key={status.category}>
+                      <TableCell className="font-medium">
+                        <div className="flex items-center gap-2">
+                          <div className={`w-3 h-3 rounded-full ${getCategoryColor(status.category)}`} />
+                          {status.category}
                         </div>
-                      </div>
-                      <div className="text-right">
-                        <Badge
-                          variant={budget.isOverBudget ? "destructive" : budget.percentageUsed > 90 ? "default" : "secondary"}
-                          className="mb-1"
-                        >
-                          {budget.percentageUsed.toFixed(0)}% Used
-                        </Badge>
-                        <div className="text-sm text-gray-600">
-                          ${budget.remaining.toLocaleString()} remaining
+                      </TableCell>
+                      <TableCell>${status.allocated.toLocaleString()}</TableCell>
+                      <TableCell className={status.isOverBudget ? 'text-red-600 font-bold' : ''}>
+                        ${status.spent.toLocaleString()}
+                      </TableCell>
+                      <TableCell className={status.remaining < 0 ? 'text-red-600' : 'text-green-600'}>
+                        ${status.remaining.toLocaleString()}
+                      </TableCell>
+                      <TableCell>
+                        <div className="w-full bg-gray-200 rounded-full h-2">
+                          <div
+                            className={`h-2 rounded-full ${status.isOverBudget ? 'bg-red-500' : 'bg-blue-500'}`}
+                            style={{ width: `${Math.min(status.percentageUsed, 100)}%` }}
+                          />
                         </div>
-                      </div>
-                    </div>
-                    <div className="w-full bg-gray-200 rounded-full h-3">
-                      <div
-                        className={`h-3 rounded-full ${
-                          budget.isOverBudget
-                            ? 'bg-red-500'
-                            : budget.percentageUsed > 90
-                            ? 'bg-yellow-500'
-                            : 'bg-green-500'
-                        }`}
-                        style={{ width: `${Math.min(budget.percentageUsed, 100)}%` }}
-                      />
-                    </div>
-                    {budget.forecastedSpend > budget.allocated && (
-                      <div className="flex items-center gap-2 text-sm text-red-600">
-                        <Bell className="h-4 w-4" weight="fill" />
-                        <span>
-                          Forecasted to exceed budget by ${(budget.forecastedSpend - budget.allocated).toLocaleString()}
-                        </span>
-                      </div>
-                    )}
-                  </div>
-                ))}
-              </div>
+                        <div className="text-xs text-gray-600 mt-1">{status.percentageUsed.toFixed(1)}%</div>
+                      </TableCell>
+                      <TableCell>${status.forecastedSpend.toLocaleString()}</TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
             </CardContent>
           </Card>
         </TabsContent>
@@ -463,94 +460,72 @@ export function CostAnalysisCenter() {
         <TabsContent value="forecast" className="space-y-6">
           <Card>
             <CardHeader>
-              <CardTitle>Cost Forecasting</CardTitle>
-              <CardDescription>ML-powered predictions for upcoming periods</CardDescription>
+              <CardTitle>Cost Forecast</CardTitle>
+              <CardDescription>Predicted costs for upcoming periods</CardDescription>
             </CardHeader>
             <CardContent>
-              {forecasts.length > 0 ? (
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Period</TableHead>
-                      <TableHead>Predicted Amount</TableHead>
-                      <TableHead>Lower Bound</TableHead>
-                      <TableHead>Upper Bound</TableHead>
-                      <TableHead>Confidence</TableHead>
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Period</TableHead>
+                    <TableHead>Predicted Amount</TableHead>
+                    <TableHead>Range</TableHead>
+                    <TableHead>Confidence</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {forecasts.map((forecast, idx) => (
+                    <TableRow key={idx}>
+                      <TableCell className="font-medium">{forecast.period}</TableCell>
+                      <TableCell className="font-bold">${forecast.predictedAmount.toLocaleString()}</TableCell>
+                      <TableCell>
+                        ${forecast.lowerBound.toLocaleString()} - ${forecast.upperBound.toLocaleString()}
+                      </TableCell>
+                      <TableCell>{(forecast.confidence * 100).toFixed(1)}%</TableCell>
                     </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {forecasts.map((forecast, idx) => (
-                      <TableRow key={idx}>
-                        <TableCell className="font-medium">
-                          <Calendar className="h-4 w-4 inline mr-2" />
-                          {forecast.period}
-                        </TableCell>
-                        <TableCell className="font-bold text-blue-600">
-                          ${forecast.predictedAmount.toLocaleString()}
-                        </TableCell>
-                        <TableCell className="text-gray-600">
-                          ${forecast.lowerBound.toLocaleString()}
-                        </TableCell>
-                        <TableCell className="text-gray-600">
-                          ${forecast.upperBound.toLocaleString()}
-                        </TableCell>
-                        <TableCell>
-                          <Badge variant="outline">{forecast.confidence}%</Badge>
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              ) : (
-                <div className="text-center py-12 text-gray-500">
-                  <p>No forecast data available</p>
-                </div>
-              )}
+                  ))}
+                </TableBody>
+              </Table>
             </CardContent>
           </Card>
         </TabsContent>
 
         <TabsContent value="anomalies" className="space-y-6">
-          {costSummary && (
+          {costSummary?.anomalies && (
             <Card>
               <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Warning className="h-5 w-5 text-red-600" weight="fill" />
-                  Cost Anomalies Detected
-                </CardTitle>
-                <CardDescription>Unusual spending patterns flagged by ML algorithms</CardDescription>
+                <CardTitle>Cost Anomalies</CardTitle>
+                <CardDescription>Unusual spending patterns detected</CardDescription>
               </CardHeader>
               <CardContent>
                 {costSummary.anomalies.length > 0 ? (
-                  <div className="space-y-4">
-                    {costSummary.anomalies.map((anomaly) => (
-                      <Card key={anomaly.id} className="border-l-4 border-l-red-500">
-                        <CardContent className="pt-6">
-                          <div className="flex items-start justify-between">
-                            <div className="flex-1">
-                              <div className="flex items-center gap-2 mb-2">
-                                <Badge variant="destructive">{anomaly.category}</Badge>
-                                <span className="text-sm text-gray-600">
-                                  {new Date(anomaly.date).toLocaleDateString()}
-                                </span>
-                              </div>
-                              <p className="text-sm mb-2">{anomaly.reason}</p>
-                            </div>
-                            <div className="text-right">
-                              <div className="text-2xl font-bold text-red-600">
-                                ${anomaly.amount.toLocaleString()}
-                              </div>
-                            </div>
-                          </div>
-                        </CardContent>
-                      </Card>
-                    ))}
-                  </div>
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Date</TableHead>
+                        <TableHead>Category</TableHead>
+                        <TableHead>Amount</TableHead>
+                        <TableHead>Reason</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {costSummary.anomalies.map((anomaly) => (
+                        <TableRow key={anomaly.id}>
+                          <TableCell>{new Date(anomaly.date).toLocaleDateString()}</TableCell>
+                          <TableCell>
+                            <Badge variant="destructive">{anomaly.category}</Badge>
+                          </TableCell>
+                          <TableCell className="font-bold text-red-600">
+                            ${anomaly.amount.toLocaleString()}
+                          </TableCell>
+                          <TableCell>{anomaly.reason}</TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
                 ) : (
-                  <div className="text-center py-12 text-gray-500">
-                    <CheckCircle className="h-16 w-16 mx-auto mb-3 opacity-50 text-green-500" />
-                    <p className="text-lg font-medium">No anomalies detected</p>
-                    <p className="text-sm">All spending patterns appear normal</p>
+                  <div className="text-center py-8 text-gray-500">
+                    No anomalies detected for this period.
                   </div>
                 )}
               </CardContent>

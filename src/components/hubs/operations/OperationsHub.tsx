@@ -40,6 +40,11 @@ interface WorkOrder {
   type?: string;
 }
 
+interface Driver {
+  id: string;
+  name?: string;
+}
+
 export function OperationsHub() {
   const { data: vehicles = [], isLoading: vehiclesLoading } = useVehicles();
   const { data: drivers = [] } = useDrivers();
@@ -52,18 +57,18 @@ export function OperationsHub() {
 
   // Calculate operational metrics
   const metrics = useMemo(() => {
-    const activeVehicles = vehicles.filter((v: Vehicle) => v.status === 'active');
+    const activeVehicles = (vehicles as Vehicle[]).filter((v: Vehicle) => v.status === 'active');
     const enRouteCount = Math.floor(activeVehicles.length * 0.6);
-    const completedToday = Math.floor(workOrders.length * 0.3);
+    const completedToday = Math.floor((workOrders as WorkOrder[]).length * 0.3);
 
     return {
       activeJobs: enRouteCount,
-      pendingDispatch: Math.floor(workOrders.length * 0.1),
+      pendingDispatch: Math.floor((workOrders as WorkOrder[]).length * 0.1),
       enRoute: enRouteCount,
       completed: completedToday,
-      totalVehicles: vehicles.length,
+      totalVehicles: (vehicles as Vehicle[]).length,
       activeVehicles: activeVehicles.length,
-      availableDrivers: Math.floor(drivers.length * 0.4)
+      availableDrivers: Math.floor((drivers as Driver[]).length * 0.4)
     };
   }, [vehicles, drivers, workOrders]);
 
@@ -91,7 +96,7 @@ export function OperationsHub() {
     ];
   }, []);
 
-  const selectedVehicle = vehicles.find((v: Vehicle) => v.id === selectedVehicleId);
+  const selectedVehicle = (vehicles as Vehicle[]).find((v: Vehicle) => v.id === selectedVehicleId);
 
   // Side Panel Content - Operations Control
   const sidePanel = (

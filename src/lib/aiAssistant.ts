@@ -1,5 +1,13 @@
 import { AIAssistantMessage } from "./types"
 
+declare global {
+  interface Window {
+    spark?: {
+      llm: (prompt: string, model?: string, jsonMode?: boolean) => Promise<string>
+    }
+  }
+}
+
 export class AIFleetAssistant {
   private conversationHistory: AIAssistantMessage[] = []
 
@@ -41,11 +49,11 @@ export class AIFleetAssistant {
   ): Promise<{ subject: string; body: string }> {
     const promptText = `Draft a professional email to ${vendorName} requesting ${serviceType} for vehicle ${vehicleNumber}. The urgency is ${urgency}. Include a request for cost estimate and timeline.`
     
-    const response = await window.spark.llm(promptText)
+    const response = await window.spark?.llm(promptText) ?? ""
 
     const lines = response.split('\n')
-    const subject = lines[0].replace('Subject:', '').trim()
-    const body = lines.slice(2).join('\n').trim()
+    const subject = lines[0]?.replace('Subject:', '').trim() ?? ""
+    const body = lines.slice(2).join('\n').trim() ?? ""
 
     return { subject, body }
   }
@@ -57,7 +65,7 @@ export class AIFleetAssistant {
 
     const promptText = `Summarize this maintenance history in 2-3 sentences, highlighting patterns and recommendations: ${summaryData}`
     
-    return await window.spark.llm(promptText)
+    return await window.spark?.llm(promptText) ?? ""
   }
 
   async analyzeReceipt(receiptText: string): Promise<{
@@ -69,12 +77,18 @@ export class AIFleetAssistant {
   }> {
     const promptText = `Analyze this receipt and extract: category, total amount, vendor name, and line items. Return as JSON. Receipt text: ${receiptText}`
     
-    const jsonResponse = await window.spark.llm(promptText, "gpt-4o-mini", true)
-    const data = JSON.parse(jsonResponse)
+    const jsonResponse = await window.spark?.llm(promptText, "gpt-4o-mini", true) ?? "{}"
+    const data = JSON.parse(jsonResponse || "{}") as {
+      category?: string
+      amount?: string
+      vendor?: string
+      items?: string[]
+      confidence?: number
+    }
 
     return {
       category: data.category || "unknown",
-      amount: parseFloat(data.amount) || 0,
+      amount: parseFloat(data.amount || "0") || 0,
       vendor: data.vendor || "Unknown Vendor",
       items: data.items || [],
       confidence: data.confidence || 0.8
@@ -88,8 +102,10 @@ export class AIFleetAssistant {
   ): Promise<{ vendorName: string; reason: string; estimatedCost: number }[]> {
     const promptText = `Suggest 3 vendor options for ${serviceType} near ${location} with budget around $${budget}. Return as JSON with array of vendors containing vendorName, reason, and estimatedCost.`
     
-    const jsonResponse = await window.spark.llm(promptText, "gpt-4o-mini", true)
-    const data = JSON.parse(jsonResponse)
+    const jsonResponse = await window.spark?.llm(promptText, "gpt-4o-mini", true) ?? "{}"
+    const data = JSON.parse(jsonResponse || "{}") as {
+      vendors?: { vendorName: string; reason: string; estimatedCost: number }[]
+    }
 
     return data.vendors || []
   }
@@ -104,8 +120,10 @@ export class AIFleetAssistant {
   ): Promise<string[]> {
     const promptText = `Based on vehicle data - Mileage: ${vehicleData.mileage}, Last Service: ${vehicleData.lastService}, Age: ${vehicleData.age} years, Type: ${vehicleData.type} - provide 3-5 specific maintenance recommendations as a JSON array.`
     
-    const jsonResponse = await window.spark.llm(promptText, "gpt-4o-mini", true)
-    const data = JSON.parse(jsonResponse)
+    const jsonResponse = await window.spark?.llm(promptText, "gpt-4o-mini", true) ?? "{}"
+    const data = JSON.parse(jsonResponse || "{}") as {
+      recommendations?: string[]
+    }
 
     return data.recommendations || []
   }
@@ -117,14 +135,22 @@ export class AIFleetAssistant {
   ): Promise<string> {
     const promptText = `Create a Microsoft Teams announcement about ${topic}. Details: ${details}. Urgency level: ${urgency}. Use appropriate formatting and emojis. Keep it professional but engaging.`
     
-    return await window.spark.llm(promptText)
+    return await window.spark?.llm(promptText) ?? ""
   }
 
   async translateError(errorCode: string): Promise<{ explanation: string; steps: string[] }> {
     const promptText = `Explain vehicle diagnostic error code ${errorCode} in simple terms and provide troubleshooting steps. Return as JSON with 'explanation' and 'steps' array.`
     
-    const jsonResponse = await window.spark.llm(promptText, "gpt-4o-mini", true)
-    return JSON.parse(jsonResponse)
+    const jsonResponse = await window.spark?.llm(promptText, "gpt-4o-mini", true) ?? "{}"
+    const data = JSON.parse(jsonResponse || "{}") as {
+      explanation?: string
+      steps?: string[]
+    }
+    
+    return {
+      explanation: data.explanation || "",
+      steps: data.steps || []
+    }
   }
 
   async optimizePurchaseOrder(
@@ -134,8 +160,16 @@ export class AIFleetAssistant {
     
     const promptText = `Analyze these parts orders and suggest optimization: ${itemsText}. Return as JSON with 'suggestion' string and 'consolidatedOrders' array.`
     
-    const jsonResponse = await window.spark.llm(promptText, "gpt-4o-mini", true)
-    return JSON.parse(jsonResponse)
+    const jsonResponse = await window.spark?.llm(promptText, "gpt-4o-mini", true) ?? "{}"
+    const data = JSON.parse(jsonResponse || "{}") as {
+      suggestion?: string
+      consolidatedOrders?: any[]
+    }
+    
+    return {
+      suggestion: data.suggestion || "",
+      consolidatedOrders: data.consolidatedOrders || []
+    }
   }
 
   private async generateResponse(

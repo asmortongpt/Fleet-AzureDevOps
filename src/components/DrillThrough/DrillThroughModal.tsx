@@ -1,10 +1,11 @@
 import { X, Filter, RefreshCw, ChevronLeft, ChevronRight } from 'lucide-react';
-import React, { useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 
 import { useDrillThrough } from '../../hooks/drill-through/useDrillThrough';
 import type { DrillThroughConfig, ExportFormat } from '../../types/drill-through';
 
 import logger from '@/utils/logger';
+
 interface DrillThroughModalProps {
   /** Drill-through configuration */
   config: DrillThroughConfig;
@@ -28,11 +29,11 @@ export function DrillThroughModal({ config, isOpen, onClose }: DrillThroughModal
     isLoading,
     error,
     page,
-    goToPage,
     nextPage,
     previousPage,
-    setFilters,
-    filters,
+    _goToPage,
+    _setFilters,
+    _filters,
     exportData,
     isExporting,
     refetch,
@@ -134,21 +135,21 @@ export function DrillThroughModal({ config, isOpen, onClose }: DrillThroughModal
               <span className="text-sm text-gray-600 dark:text-gray-400">Export:</span>
               <button
                 onClick={() => handleExport('csv')}
-                disabled={isExporting || !data?.data.length}
+                disabled={isExporting || !data?.data?.length}
                 className="px-3 py-1 rounded bg-green-600 text-white hover:bg-green-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-sm"
               >
                 CSV
               </button>
               <button
                 onClick={() => handleExport('excel')}
-                disabled={isExporting || !data?.data.length}
+                disabled={isExporting || !data?.data?.length}
                 className="px-3 py-1 rounded bg-blue-600 text-white hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-sm"
               >
                 Excel
               </button>
               <button
                 onClick={() => handleExport('pdf')}
-                disabled={isExporting || !data?.data.length}
+                disabled={isExporting || !data?.data?.length}
                 className="px-3 py-1 rounded bg-red-600 text-white hover:bg-red-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-sm"
               >
                 PDF
@@ -253,9 +254,9 @@ export function DrillThroughModal({ config, isOpen, onClose }: DrillThroughModal
         {data && data.totalPages > 1 && (
           <div className="flex items-center justify-between p-4 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900">
             <p className="text-sm text-gray-600 dark:text-gray-400">
-              Showing {((page - 1) * data.pageSize) + 1} to{' '}
-              {Math.min(page * data.pageSize, data.totalCount)} of{' '}
-              {data.totalCount.toLocaleString()} records
+              Showing {((page - 1) * (data.pageSize ?? 0)) + 1} to{' '}
+              {Math.min(page * (data.pageSize ?? 0), data.totalCount ?? 0)} of{' '}
+              {(data.totalCount ?? 0).toLocaleString()} records
             </p>
             <div className="flex items-center gap-2">
               <button
@@ -284,19 +285,19 @@ export function DrillThroughModal({ config, isOpen, onClose }: DrillThroughModal
 }
 
 // Helper function to format values based on type
-function formatValue(value: any, type?: string): string {
+function formatValue(value: unknown, type?: string): string {
   if (value === null || value === undefined) return '—';
 
   switch (type) {
     case 'date':
-      return new Date(value).toLocaleDateString();
+      return new Date(value as string | Date).toLocaleDateString();
     case 'currency':
       return new Intl.NumberFormat('en-US', {
         style: 'currency',
         currency: 'USD',
-      }).format(value);
+      }).format(value as number);
     case 'number':
-      return typeof value === 'number' ? value.toLocaleString() : value;
+      return typeof value === 'number' ? value.toLocaleString() : String(value);
     case 'boolean':
       return value ? 'Yes' : 'No';
     default:

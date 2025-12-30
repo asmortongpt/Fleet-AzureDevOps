@@ -1,4 +1,4 @@
-import { BrowserMultiFormatReader } from '@zxing/library';
+import { BrowserMultiFormatReader, IBrowserCodeReaderOptions, Result } from '@zxing/library';
 import axios from 'axios';
 import React, { useState, useCallback } from 'react';
 import { Helmet } from 'react-helmet';
@@ -8,15 +8,16 @@ import Webcam from 'react-webcam';
 import { useFleetLocalContext } from '../../context/FleetLocalContext';
 
 import logger from '@/utils/logger';
+
 interface ScanAssetModalProps {
   tenantId: string;
   onClose: () => void;
 }
 
 const ScanAssetModal: React.FC<ScanAssetModalProps> = ({ tenantId, onClose }) => {
-  const [scannedCode, setScannedCode] = useState<string | null>(null);
+  const [_scannedCode, setScannedCode] = useState<string | null>(null);
   const [assetDetails, setAssetDetails] = useState<any>(null);
-  const [location, setLocation] = useState<GeolocationPosition | null>(null);
+  const [_location, setLocation] = useState<GeolocationPosition | null>(null);
   const { addToOfflineQueue } = useFleetLocalContext();
 
   const handleScan = useCallback(async (code: string) => {
@@ -66,7 +67,7 @@ const ScanAssetModal: React.FC<ScanAssetModalProps> = ({ tenantId, onClose }) =>
         onUserMediaError={handleError}
         onUserMedia={() => {
           const codeReader = new BrowserMultiFormatReader();
-          codeReader.decodeFromVideoDevice(undefined, 'video', (result, err) => {
+          codeReader.decodeFromVideoDevice(undefined, 'video', (result: Result | null, err: Error | null) => {
             if (result) {
               handleScan(result.getText());
             }
@@ -80,9 +81,9 @@ const ScanAssetModal: React.FC<ScanAssetModalProps> = ({ tenantId, onClose }) =>
       {assetDetails && (
         <div className="asset-details">
           <h3>Asset Details</h3>
-          <p>ID: {assetDetails.id}</p>
-          <p>Name: {assetDetails.name}</p>
-          <p>Description: {assetDetails.description}</p>
+          <p>ID: {assetDetails?.id}</p>
+          <p>Name: {assetDetails?.name}</p>
+          <p>Description: {assetDetails?.description}</p>
         </div>
       )}
       <button onClick={onClose}>Close</button>

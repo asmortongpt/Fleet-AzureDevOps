@@ -46,7 +46,8 @@ import {
 } from "@/components/ui/table"
 import { Textarea } from "@/components/ui/textarea"
 import { apiClient } from "@/lib/api-client"
-import logger from '@/utils/logger';
+import logger from '@/utils/logger'
+
 interface Document {
   id: string
   file_name: string
@@ -96,7 +97,7 @@ export function DocumentManagement() {
   const [isUploadDialogOpen, setIsUploadDialogOpen] = useState(false)
   const [selectedDocument, setSelectedDocument] = useState<Document | null>(null)
   const [isDetailsDialogOpen, setIsDetailsDialogOpen] = useState(false)
-  const [viewMode, setViewMode] = useState<"grid" | "list">("list")
+  const [_viewMode, _setViewMode] = useState<"grid" | "list">("list")
 
   // Upload form state
   const [uploadFile, setUploadFile] = useState<File | null>(null)
@@ -106,14 +107,16 @@ export function DocumentManagement() {
     description: "",
     isPublic: false
   })
-  const fileInputRef = useRef<HTMLInputElement>(null)
+  const _fileInputRef = useRef<HTMLInputElement>(null)
 
   // TanStack Query hooks
-  const { data: documents = [], isLoading: documentsLoading, error: documentsError } = useQuery({    queryKey: ["documents"],
+  const { data: documents = [], isLoading: documentsLoading, error: _documentsError } = useQuery({
+    queryKey: ["documents"],
     queryFn: async () => {
       const response = await apiClient.get<{ documents: Document[]; total: number }>('/documents')
       return response.documents || []
-    }
+    },
+    gcTime: 5 * 60 * 1000
   })
 
   const { data: categories = [], isLoading: categoriesLoading } = useQuery({
@@ -121,7 +124,8 @@ export function DocumentManagement() {
     queryFn: async () => {
       const response = await apiClient.get<{ categories: DocumentCategory[] }>('/documents/categories/all')
       return response.categories || []
-    }
+    },
+    gcTime: 5 * 60 * 1000
   })
 
   const { data: stats, isLoading: statsLoading } = useQuery({
@@ -129,7 +133,8 @@ export function DocumentManagement() {
     queryFn: async () => {
       const response = await apiClient.get<{ documents: DocumentStats }>('/documents/analytics/stats')
       return response.documents
-    }
+    },
+    gcTime: 5 * 60 * 1000
   })
 
   const loading = documentsLoading || categoriesLoading || statsLoading
@@ -417,116 +422,81 @@ export function DocumentManagement() {
       <Card>
         <CardHeader>
           <CardTitle>Documents ({filteredDocuments.length})</CardTitle>
-          <CardDescription>
-            Manage and search your fleet documentation
-          </CardDescription>
+          <CardDescription>Manage your document library</CardDescription>
         </CardHeader>
         <CardContent>
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Document</TableHead>
+                <TableHead>File Name</TableHead>
                 <TableHead>Category</TableHead>
+                <TableHead>Type</TableHead>
                 <TableHead>Size</TableHead>
                 <TableHead>Uploaded</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead className="text-right">Actions</TableHead>
+                <TableHead>Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
-              {filteredDocuments.length === 0 ? (
-                <TableRow>
-                  <TableCell colSpan={6} className="text-center text-muted-foreground py-8">
-                    No documents found. Upload your first document to get started.
-                  </TableCell>
-                </TableRow>
-              ) : (
-                filteredDocuments.map(doc => (
+              {filteredDocuments.length > 0 ? (
+                filteredDocuments.map((doc) => (
                   <TableRow key={doc.id}>
-                    <TableCell>
-                      <div className="flex items-center gap-3">
+                    <TableCell className="font-medium">
+                      <div className="flex items-center">
                         {getFileIcon(doc.file_type)}
-                        <div>
-                          <div className="font-medium">{doc.file_name}</div>
-                          {doc.description && (
-                            <div className="text-sm text-muted-foreground truncate max-w-md">
-                              {doc.description}
-                            </div>
-                          )}
-                          {doc.tags && doc.tags.length > 0 && (
-                            <div className="flex gap-1 mt-1">
-                              {doc.tags.slice(0, 3).map((tag, idx) => (
-                                <Badge key={idx} variant="secondary" className="text-xs">
-                                  {tag}
-                                </Badge>
-                              ))}
-                            </div>
-                          )}
-                        </div>
+                        <span className="ml-2">{doc.file_name}</span>
                       </div>
                     </TableCell>
                     <TableCell>
-                      {doc.category_name && (
+                      {doc.category_name ? (
                         <Badge style={{ backgroundColor: doc.category_color }}>
                           {doc.category_name}
                         </Badge>
+                      ) : (
+                        <span className="text-muted-foreground">Uncategorized</span>
                       )}
                     </TableCell>
+                    <TableCell>{doc.file_type}</TableCell>
                     <TableCell>{formatFileSize(doc.file_size)}</TableCell>
                     <TableCell>
-                      <div className="text-sm">
-                        <div>{formatDistanceToNow(new Date(doc.created_at), { addSuffix: true })}</div>
-                        <div className="text-muted-foreground">{doc.uploaded_by_name}</div>
-                      </div>
+                      {formatDistanceToNow(new Date(doc.created_at), { addSuffix: true })}
+                      {doc.uploaded_by_name && ` by ${doc.uploaded_by_name}`}
                     </TableCell>
                     <TableCell>
-                      <div className="flex flex-col gap-1">
-                        {doc.embedding_status === 'completed' ? (
-                          <Badge variant="outline" className="text-green-600 border-green-600">
-                            AI Ready
-                          </Badge>
-                        ) : doc.embedding_status === 'processing' ? (
-                          <Badge variant="outline" className="text-yellow-600 border-yellow-600">
-                            Processing
-                          </Badge>
-                        ) : (
-                          <Badge variant="outline">Pending</Badge>
-                        )}
-                      </div>
-                    </TableCell>
-                    <TableCell className="text-right">
-                      <div className="flex justify-end gap-2">
+                      <div className="flex items-center gap-2">
                         <Button
-                          variant="ghost"
+                          variant="outline"
                           size="sm"
                           onClick={() => {
                             setSelectedDocument(doc)
                             setIsDetailsDialogOpen(true)
                           }}
-                          aria-label={`View details for ${doc.name}`}
                         >
-                          <Eye className="w-4 h-4" aria-hidden="true" />
+                          <Eye className="w-4 h-4" />
                         </Button>
                         <Button
-                          variant="ghost"
+                          variant="outline"
                           size="sm"
                           onClick={() => handleDownloadDocument(doc)}
-                          aria-label={`Download ${doc.name}`}
                         >
-                          <Download className="w-4 h-4" aria-hidden="true" />
+                          <Download className="w-4 h-4" />
                         </Button>
                         <Button
-                          variant="ghost"
+                          variant="destructive"
                           size="sm"
                           onClick={() => handleDeleteDocument(doc.id)}
-                          aria-label={`Delete ${doc.name}`}
                         >
-                          <Trash className="w-4 h-4 text-red-500" aria-hidden="true" />
+                          <Trash className="w-4 h-4" />
                         </Button>
                       </div>
                     </TableCell>
                   </TableRow>
                 ))
+              ) : (
+                <TableRow>
+                  <TableCell colSpan={6} className="text-center text-muted-foreground">
+                    No documents found
+                  </TableCell>
+                </TableRow>
               )}
             </TableBody>
           </Table>
@@ -537,60 +507,79 @@ export function DocumentManagement() {
       <Dialog open={isDetailsDialogOpen} onOpenChange={setIsDetailsDialogOpen}>
         <DialogContent className="max-w-3xl">
           <DialogHeader>
-            <DialogTitle>Document Details</DialogTitle>
+            <DialogTitle>{selectedDocument?.file_name}</DialogTitle>
+            <DialogDescription>Document details and metadata</DialogDescription>
           </DialogHeader>
           {selectedDocument && (
-            <div className="space-y-4 py-4">
-              <div className="flex items-start gap-4">
-                {getFileIcon(selectedDocument.file_type)}
-                <div className="flex-1">
-                  <h3 className="font-semibold text-lg">{selectedDocument.file_name}</h3>
-                  <p className="text-sm text-muted-foreground">{selectedDocument.description}</p>
-                </div>
-              </div>
-
+            <div className="space-y-6 py-4">
               <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <Label className="text-muted-foreground">File Size</Label>
-                  <p>{formatFileSize(selectedDocument.file_size)}</p>
+                <div className="space-y-2">
+                  <Label>File Type</Label>
+                  <div className="text-sm">{selectedDocument.file_type}</div>
                 </div>
-                <div>
-                  <Label className="text-muted-foreground">Version</Label>
-                  <p>v{selectedDocument.version_number}</p>
+                <div className="space-y-2">
+                  <Label>File Size</Label>
+                  <div className="text-sm">{formatFileSize(selectedDocument.file_size)}</div>
                 </div>
-                <div>
-                  <Label className="text-muted-foreground">Uploaded By</Label>
-                  <p>{selectedDocument.uploaded_by_name}</p>
+                <div className="space-y-2">
+                  <Label>Category</Label>
+                  <div className="text-sm">{selectedDocument.category_name || 'Uncategorized'}</div>
                 </div>
-                <div>
-                  <Label className="text-muted-foreground">Upload Date</Label>
-                  <p>{new Date(selectedDocument.created_at).toLocaleDateString()}</p>
+                <div className="space-y-2">
+                  <Label>Uploaded By</Label>
+                  <div className="text-sm">{selectedDocument.uploaded_by_name || selectedDocument.uploaded_by}</div>
+                </div>
+                <div className="space-y-2">
+                  <Label>Uploaded At</Label>
+                  <div className="text-sm">{new Date(selectedDocument.created_at).toLocaleString()}</div>
+                </div>
+                <div className="space-y-2">
+                  <Label>Version</Label>
+                  <div className="text-sm">v{selectedDocument.version_number}</div>
                 </div>
               </div>
-
-              {selectedDocument.tags && selectedDocument.tags.length > 0 && (
-                <div>
-                  <Label className="text-muted-foreground">Tags</Label>
-                  <div className="flex gap-2 mt-2">
-                    {selectedDocument.tags.map((tag, idx) => (
-                      <Badge key={idx} variant="secondary">
-                        {tag}
-                      </Badge>
+              {selectedDocument.description && (
+                <div className="space-y-2">
+                  <Label>Description</Label>
+                  <div className="text-sm">{selectedDocument.description}</div>
+                </div>
+              )}
+              {selectedDocument.tags?.length && (
+                <div className="space-y-2">
+                  <Label>Tags</Label>
+                  <div className="flex flex-wrap gap-2">
+                    {selectedDocument.tags.map(tag => (
+                      <Badge key={tag} variant="secondary">{tag}</Badge>
                     ))}
                   </div>
                 </div>
               )}
-
-              {selectedDocument.extracted_text && (
-                <div>
-                  <Label className="text-muted-foreground">Extracted Text Preview</Label>
-                  <div className="mt-2 p-4 bg-muted rounded-lg text-sm max-h-48 overflow-y-auto">
-                    {selectedDocument.extracted_text.substring(0, 500)}...
+              <div className="space-y-2">
+                <Label>AI Processing Status</Label>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <div className="text-sm font-medium">OCR Status</div>
+                    <div className="text-sm text-muted-foreground">{selectedDocument.ocr_status}</div>
+                  </div>
+                  <div>
+                    <div className="text-sm font-medium">Embedding Status</div>
+                    <div className="text-sm text-muted-foreground">{selectedDocument.embedding_status}</div>
                   </div>
                 </div>
-              )}
+              </div>
             </div>
           )}
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setIsDetailsDialogOpen(false)}>
+              Close
+            </Button>
+            {selectedDocument && (
+              <Button onClick={() => handleDownloadDocument(selectedDocument)}>
+                <Download className="w-4 h-4 mr-2" />
+                Download
+              </Button>
+            )}
+          </DialogFooter>
         </DialogContent>
       </Dialog>
     </div>
