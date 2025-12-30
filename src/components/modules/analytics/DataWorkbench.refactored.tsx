@@ -45,9 +45,7 @@ interface MaintenanceMetrics {
 }
 
 interface MaintenanceTabProps {
-  vehicles: Vehicle[];
   maintenanceRecords: MaintenanceRecord[];
-  maintenanceMetrics: MaintenanceMetrics;
   onScheduleService: () => void;
 }
 
@@ -224,9 +222,7 @@ export function DataWorkbench({ data }: DataWorkbenchProps) {
 
         <TabsContent value="maintenance" className="space-y-4">
           <MaintenanceTab
-            vehicles={vehicles}
             maintenanceRecords={maintenanceRecords}
-            maintenanceMetrics={maintenanceMetrics}
             onScheduleService={() => setIsScheduleServiceDialogOpen(true)}
           />
         </TabsContent>
