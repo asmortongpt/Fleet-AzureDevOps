@@ -64,7 +64,7 @@ export const RouteInspector: React.FC<RouteInspectorProps> = ({ id, initialTab =
       try {
         setLoading(true);
         setError(null);
-        const data = await apiClient.get(`/api/routes/${id}`);
+        const data = await apiClient.get<Route>(`/api/routes/${id}`);
         setRoute(data);
       } catch (err: any) {
         setError(err.message || 'Failed to load route data');

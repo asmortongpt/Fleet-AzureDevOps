@@ -204,7 +204,7 @@ export function useFleetData() {
   }, [vehicleMutations.updateVehicle])
 
   const deleteVehicle = useCallback(async (id: string) => {
-    return await vehicleMutations.deleteVehicle.mutateAsync(id)
+    return await vehicleMutations.deleteVehicle.mutateAsync({ id, tenant_id: '' })
   }, [vehicleMutations.deleteVehicle])
 
   const addDriver = useCallback(async (driver: any) => {
@@ -216,7 +216,7 @@ export function useFleetData() {
   }, [driverMutations.updateDriver])
 
   const deleteDriver = useCallback(async (id: string) => {
-    return await driverMutations.deleteDriver.mutateAsync(id)
+    return await driverMutations.deleteDriver.mutateAsync({ id, tenant_id: '' })
   }, [driverMutations.deleteDriver])
 
   const addStaff = useCallback(async (person: any) => {
@@ -228,7 +228,7 @@ export function useFleetData() {
   }, [driverMutations.updateDriver])
 
   const deleteStaff = useCallback(async (id: string) => {
-    return await driverMutations.deleteDriver.mutateAsync(id)
+    return await driverMutations.deleteDriver.mutateAsync({ id, tenant_id: '' })
   }, [driverMutations.deleteDriver])
 
   const addWorkOrder = useCallback(async (order: any) => {
