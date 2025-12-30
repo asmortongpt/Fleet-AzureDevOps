@@ -265,7 +265,7 @@ export function useVehicleTelemetry(options: UseVehicleTelemetryOptions = {}) {
               updated.set(vehicleId, {
                 ...current,
                 status: isCharging ? 'charging' : current.status,
-                batteryLevel: chargeLevel ?? current.batteryLevel
+                fuelLevel: chargeLevel ?? current.fuelLevel
               })
               return updated
             }
