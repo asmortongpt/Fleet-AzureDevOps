@@ -1,17 +1,4 @@
 import React, { useState, useEffect } from 'react'
-import {
-  View,
-  Text,
-  StyleSheet,
-  FlatList,
-  TouchableOpacity,
-  ActivityIndicator,
-  Alert,
-  RefreshControl,
-  Platform,
-  PermissionsAndroid
-} from 'react-native'
-import AsyncStorage from '@react-native-async-storage/async-storage'
 
 import OBD2Service, {
   OBD2Adapter,
@@ -146,27 +133,25 @@ export const OBD2AdapterScanner: React.FC<OBD2AdapterScannerProps> = ({
   // =====================================================
 
   const requestPermissions = async () => {
-    if (Platform.OS === 'android') {
-      try {
-        const granted = await PermissionsAndroid.requestMultiple([
-          PermissionsAndroid.PERMISSIONS.BLUETOOTH_SCAN,
-          PermissionsAndroid.PERMISSIONS.BLUETOOTH_CONNECT,
-          PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION
-        ])
+    // Web-based permission handling
+    try {
+      // For web, request necessary permissions using Web Permissions API
+      if (navigator.permissions) {
+        const permissions = [
+          'bluetooth',
+          'geolocation'
+        ]
 
-        const allGranted = Object.values(granted).every(
-          status => status === PermissionsAndroid.RESULTS.GRANTED
-        )
-
-        if (!allGranted) {
-          Alert.alert(
-            'Permissions Required',
-            'Bluetooth and location permissions are required to scan for OBD2 adapters.'
-          )
+        for (const perm of permissions) {
+          try {
+            await navigator.permissions.query({ name: perm as PermissionName })
+          } catch (error) {
+            logger.error(`Permission query error for ${perm}:`, error)
+          }
         }
-      } catch (error) {
-        logger.error('Permission request error:', error)
       }
+    } catch (error) {
+      logger.error('Permission request error:', error)
     }
   }
 
@@ -185,10 +170,7 @@ export const OBD2AdapterScanner: React.FC<OBD2AdapterScannerProps> = ({
       setConnectionStatus(`Found ${foundAdapters.length} adapter(s)`)
 
       if (foundAdapters.length === 0) {
-        Alert.alert(
-          'No Adapters Found',
-          'Make sure your OBD2 adapter is plugged in and turned on. Check that Bluetooth is enabled on your device.'
-        )
+        logger.warn('No adapters found during scan')
       }
     } catch (error: unknown) {
       setConnectionStatus('Scan failed')
