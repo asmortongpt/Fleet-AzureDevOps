@@ -81,6 +81,8 @@ export function useFleetData() {
   const workOrderMutations = useWorkOrderMutations()
   const facilityMutations = useFacilityMutations()
   const routeMutations = useRouteMutations()
+  const maintenanceMutations = useMaintenanceMutations()
+  const fuelMutations = useFuelMutations()
 
   // Extract data arrays with demo fallback
   const vehicles = useMemo((): Vehicle[] => {
