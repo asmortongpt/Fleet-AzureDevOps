@@ -1,4 +1,5 @@
 import { useRef, useState, useEffect, ReactNode } from 'react';
+
 interface VirtualListProps<T> {
   items: T[];
   itemHeight: number;
@@ -55,6 +56,7 @@ export function VirtualList<T>({
       container.addEventListener('scroll', handleScroll, { passive: true });
       return () => container.removeEventListener('scroll', handleScroll);
     }
+    return () => {};
   }, []);
 
   if (items.length === 0 && EmptyComponent) {
@@ -167,13 +169,13 @@ export function DynamicVirtualList<T>({
     currentHeight < scrollTop + containerHeight
   ) {
     endIndex++;
-    currentHeight = cumulativeHeights[endIndex];
+    currentHeight = cumulativeHeights[endIndex] || 0;
   }
 
   endIndex = Math.min(items.length - 1, endIndex + overscan);
 
   const visibleItems = items.slice(startIndex, endIndex + 1);
-  const offsetY = startIndex > 0 ? cumulativeHeights[startIndex - 1] : 0;
+  const offsetY = startIndex > 0 ? cumulativeHeights[startIndex - 1] || 0 : 0;
 
   const handleScroll = () => {
     if (containerRef.current) {
@@ -203,6 +205,7 @@ export function DynamicVirtualList<T>({
       container.addEventListener('scroll', handleScroll, { passive: true });
       return () => container.removeEventListener('scroll', handleScroll);
     }
+    return () => {};
   }, []);
 
   if (items.length === 0 && EmptyComponent) {
@@ -313,6 +316,7 @@ export function VirtualGrid<T>({
       container.addEventListener('scroll', handleScroll, { passive: true });
       return () => container.removeEventListener('scroll', handleScroll);
     }
+    return () => {};
   }, []);
 
   return (

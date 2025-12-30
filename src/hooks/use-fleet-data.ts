@@ -44,10 +44,10 @@ export function useFleetData() {
   const { data: vehiclesData, isLoading: vehiclesLoading, error: vehiclesError } = useVehicles()
   const { data: driversData, isLoading: driversLoading, error: driversError } = useDrivers()
   const { data: workOrdersData, isLoading: workOrdersLoading, error: workOrdersError } = useWorkOrders()
-  const { data: fuelTransactionsData, isLoading: fuelLoading, error: fuelError } = useFuelTransactions()
+  const { data: fuelTransactionsData, isLoading: fuelLoading, error: _fuelError } = useFuelTransactions()
   const { data: facilitiesData, isLoading: facilitiesLoading, error: facilitiesError } = useFacilities()
-  const { data: maintenanceData, isLoading: maintenanceLoading, error: maintenanceError } = useMaintenanceSchedules()
-  const { data: routesData, isLoading: routesLoading, error: routesError } = useRoutes()
+  const { data: maintenanceData, isLoading: _maintenanceLoading, error: _maintenanceError } = useMaintenanceSchedules()
+  const { data: routesData, isLoading: routesLoading, error: _routesError } = useRoutes()
 
   // Store API responses for debugging
   useEffect(() => {
@@ -67,9 +67,9 @@ export function useFleetData() {
     if (DEBUG_FLEET_DATA) {
       logger.debug('[useFleetData] Demo Mode:', isDemoMode())
       logger.debug('[useFleetData] API Data State:', {
-        vehicles: { count: vehiclesData?.data?.length ?? 'N/A', loading: vehiclesLoading, error: !!vehiclesError },
-        drivers: { count: driversData?.data?.length ?? 'N/A', loading: driversLoading, error: !!driversError },
-        facilities: { count: facilitiesData?.data?.length ?? 'N/A', loading: facilitiesLoading, error: !!facilitiesError }
+        vehicles: { count: vehiclesData?.length ?? 'N/A', loading: vehiclesLoading, error: !!vehiclesError },
+        drivers: { count: driversData?.length ?? 'N/A', loading: driversLoading, error: !!driversError },
+        facilities: { count: facilitiesData?.length ?? 'N/A', loading: facilitiesLoading, error: !!facilitiesError }
       })
     }
   }, [vehiclesData, driversData, facilitiesData, vehiclesError, driversError, facilitiesError, vehiclesLoading, driversLoading, facilitiesLoading])
@@ -93,12 +93,12 @@ export function useFleetData() {
     }
     
     // Use API data
-    const rawVehicles = vehiclesData?.data || []
+    const rawVehicles = vehiclesData || []
     return Array.isArray(rawVehicles) ? rawVehicles.map(v => ({
       ...v,
       alerts: Array.isArray(v.alerts) ? v.alerts : []
     })) : []
-  }, [vehiclesData?.data])
+  }, [vehiclesData]);
 
   const drivers = useMemo(() => {
     if (isDemoMode()) {
@@ -107,9 +107,9 @@ export function useFleetData() {
       return demoDrivers
     }
     
-    const rawDrivers = driversData?.data || []
+    const rawDrivers = driversData || []
     return Array.isArray(rawDrivers) ? rawDrivers : []
-  }, [driversData?.data])
+  }, [driversData]);
 
   const workOrders = useMemo(() => {
     if (isDemoMode()) {
@@ -118,18 +118,18 @@ export function useFleetData() {
       return demoOrders
     }
     
-    const rawWorkOrders = workOrdersData?.data || []
+    const rawWorkOrders = workOrdersData || []
     return Array.isArray(rawWorkOrders) ? rawWorkOrders : []
-  }, [workOrdersData?.data])
+  }, [workOrdersData]);
 
   const fuelTransactions = useMemo(() => {
     if (isDemoMode()) {
       return [] // No demo fuel transactions for now
     }
     
-    const rawFuelTransactions = fuelTransactionsData?.data || []
+    const rawFuelTransactions = fuelTransactionsData || []
     return Array.isArray(rawFuelTransactions) ? rawFuelTransactions : []
-  }, [fuelTransactionsData?.data])
+  }, [fuelTransactionsData]);
 
   const facilities = useMemo(() => {
     if (isDemoMode()) {
@@ -138,27 +138,27 @@ export function useFleetData() {
       return demoFacilities
     }
     
-    const rawFacilities = facilitiesData?.data || []
+    const rawFacilities = facilitiesData || []
     return Array.isArray(rawFacilities) ? rawFacilities : []
-  }, [facilitiesData?.data])
+  }, [facilitiesData]);
 
   const maintenanceSchedules = useMemo(() => {
     if (isDemoMode()) {
       return [] // No demo maintenance schedules for now
     }
     
-    const rawMaintenanceSchedules = maintenanceData?.data || []
+    const rawMaintenanceSchedules = maintenanceData || []
     return Array.isArray(rawMaintenanceSchedules) ? rawMaintenanceSchedules : []
-  }, [maintenanceData?.data])
+  }, [maintenanceData]);
 
   const routes = useMemo(() => {
     if (isDemoMode()) {
       return [] // No demo routes for now
     }
     
-    const rawRoutes = routesData?.data || []
+    const rawRoutes = routesData || []
     return Array.isArray(rawRoutes) ? rawRoutes : []
-  }, [routesData?.data])
+  }, [routesData]);
 
   // Log data extraction results for debugging
   useEffect(() => {
@@ -174,7 +174,7 @@ export function useFleetData() {
   }, [vehicles.length, drivers.length, workOrders.length, facilities.length])
 
   // Legacy compatibility
-  const serviceBays = useMemo(() => facilities, [facilities])
+  const _serviceBays = useMemo(() => facilities, [facilities])
   const staff = useMemo(() =>
     drivers.filter((d: any) => d.role === 'technician' || d.role === 'fleet_manager'),
     [drivers]
@@ -195,92 +195,92 @@ export function useFleetData() {
 
   // CRUD operations using API mutations
   const addVehicle = useCallback(async (vehicle: any) => {
-    return await vehicleMutations.create(vehicle)
-  }, [vehicleMutations])
+    return await vehicleMutations.createVehicle.mutateAsync(vehicle)
+  }, [vehicleMutations.createVehicle])
 
   const updateVehicle = useCallback(async (id: string, updates: any) => {
-    return await vehicleMutations.update(id, updates)
-  }, [vehicleMutations])
+    return await vehicleMutations.updateVehicle.mutateAsync({ id, updates })
+  }, [vehicleMutations.updateVehicle])
 
   const deleteVehicle = useCallback(async (id: string) => {
-    return await vehicleMutations.delete(id)
-  }, [vehicleMutations])
+    return await vehicleMutations.deleteVehicle.mutateAsync(id)
+  }, [vehicleMutations.deleteVehicle])
 
   const addDriver = useCallback(async (driver: any) => {
-    return await driverMutations.create(driver)
-  }, [driverMutations])
+    return await driverMutations.createDriver.mutateAsync(driver)
+  }, [driverMutations.createDriver])
 
   const updateDriver = useCallback(async (id: string, updates: any) => {
-    return await driverMutations.update(id, updates)
-  }, [driverMutations])
+    return await driverMutations.updateDriver.mutateAsync({ id, updates })
+  }, [driverMutations.updateDriver])
 
   const deleteDriver = useCallback(async (id: string) => {
-    return await driverMutations.delete(id)
-  }, [driverMutations])
+    return await driverMutations.deleteDriver.mutateAsync(id)
+  }, [driverMutations.deleteDriver])
 
   const addStaff = useCallback(async (person: any) => {
-    return await driverMutations.create({ ...person, role: 'technician' })
-  }, [driverMutations])
+    return await driverMutations.createDriver.mutateAsync({ ...person, role: 'technician' })
+  }, [driverMutations.createDriver])
 
   const updateStaff = useCallback(async (id: string, updates: any) => {
-    return await driverMutations.update(id, updates)
-  }, [driverMutations])
+    return await driverMutations.updateDriver.mutateAsync({ id, updates })
+  }, [driverMutations.updateDriver])
 
   const deleteStaff = useCallback(async (id: string) => {
-    return await driverMutations.delete(id)
-  }, [driverMutations])
+    return await driverMutations.deleteDriver.mutateAsync(id)
+  }, [driverMutations.deleteDriver])
 
   const addWorkOrder = useCallback(async (order: any) => {
-    return await workOrderMutations.create(order)
-  }, [workOrderMutations])
+    return await workOrderMutations.createWorkOrder.mutateAsync(order)
+  }, [workOrderMutations.createWorkOrder])
 
   const updateWorkOrder = useCallback(async (id: string, updates: any) => {
-    return await workOrderMutations.update(id, updates)
-  }, [workOrderMutations])
+    return await workOrderMutations.updateWorkOrder.mutateAsync({ id, updates })
+  }, [workOrderMutations.updateWorkOrder])
 
   const deleteWorkOrder = useCallback(async (id: string) => {
-    return await workOrderMutations.delete(id)
-  }, [workOrderMutations])
+    return await workOrderMutations.deleteWorkOrder.mutateAsync(id)
+  }, [workOrderMutations.deleteWorkOrder])
 
   const addFuelTransaction = useCallback(async (transaction: any) => {
-    return await fuelMutations.create(transaction)
-  }, [fuelMutations])
+    return await fuelMutations.createFuelTransaction.mutateAsync(transaction)
+  }, [fuelMutations.createFuelTransaction])
 
   const updateServiceBay = useCallback(async (id: string, updates: any) => {
-    return await facilityMutations.update(id, updates)
-  }, [facilityMutations])
+    return await facilityMutations.updateFacility.mutateAsync({ id, updates })
+  }, [facilityMutations.updateFacility])
 
   const addMileageReimbursement = useCallback(async (reimbursement: any) => {
-    return await fuelMutations.create({ ...reimbursement, type: 'mileage' })
-  }, [fuelMutations])
+    return await fuelMutations.createFuelTransaction.mutateAsync({ ...reimbursement, type: 'mileage' })
+  }, [fuelMutations.createFuelTransaction])
 
   const updateMileageReimbursement = useCallback(async (id: string, updates: any) => {
-    return await fuelMutations.update(id, updates)
-  }, [fuelMutations])
+    return await fuelMutations.updateFuelTransaction.mutateAsync({ id, updates })
+  }, [fuelMutations.updateFuelTransaction])
 
   const deleteMileageReimbursement = useCallback(async (id: string) => {
-    return await fuelMutations.delete(id)
-  }, [fuelMutations])
+    return await fuelMutations.deleteFuelTransaction.mutateAsync(id)
+  }, [fuelMutations.deleteFuelTransaction])
 
   const addMaintenanceRequest = useCallback(async (request: any) => {
-    return await maintenanceMutations.create(request)
-  }, [maintenanceMutations])
+    return await maintenanceMutations.createMaintenanceSchedule.mutateAsync(request)
+  }, [maintenanceMutations.createMaintenanceSchedule])
 
   const updateMaintenanceRequest = useCallback(async (id: string, updates: any) => {
-    return await maintenanceMutations.update(id, updates)
-  }, [maintenanceMutations])
+    return await maintenanceMutations.updateMaintenanceSchedule.mutateAsync({ id, updates })
+  }, [maintenanceMutations.updateMaintenanceSchedule])
 
   const addRoute = useCallback(async (route: any) => {
-    return await routeMutations.create(route)
-  }, [routeMutations])
+    return await routeMutations.createRoute.mutateAsync(route)
+  }, [routeMutations.createRoute])
 
   const updateRoute = useCallback(async (id: string, updates: any) => {
-    return await routeMutations.update(id, updates)
-  }, [routeMutations])
+    return await routeMutations.updateRoute.mutateAsync({ id, updates })
+  }, [routeMutations.updateRoute])
 
   const deleteRoute = useCallback(async (id: string) => {
-    return await routeMutations.delete(id)
-  }, [routeMutations])
+    return await routeMutations.deleteRoute.mutateAsync(id)
+  }, [routeMutations.deleteRoute])
 
   // Filter mileage reimbursements
   const mileageReimbursements = useMemo(() =>

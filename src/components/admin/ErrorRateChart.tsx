@@ -82,7 +82,7 @@ const ErrorRateChart: React.FC<Props> = ({ errors = [], loading }) => {
       '30d': 86400000 // 1 day
     }[timeRange];
 
-    const data = [];
+    const data: Array<{ time: string; errors: number; unique: number }> = [];
     for (let i = intervals - 1; i >= 0; i--) {
       const startTime = now - (i + 1) * intervalMs;
       const endTime = now - i * intervalMs;
@@ -146,7 +146,7 @@ const ErrorRateChart: React.FC<Props> = ({ errors = [], loading }) => {
           <ToggleButtonGroup
             value={chartType}
             exclusive
-            onChange={(_, value) => value && setChartType(value)}
+            onChange={(_event, value) => value && setChartType(value)}
             size="small"
           >
             <ToggleButton value="line">Line</ToggleButton>
@@ -157,7 +157,7 @@ const ErrorRateChart: React.FC<Props> = ({ errors = [], loading }) => {
           <ToggleButtonGroup
             value={timeRange}
             exclusive
-            onChange={(_, value) => value && setTimeRange(value)}
+            onChange={(_event, value) => value && setTimeRange(value)}
             size="small"
           >
             <ToggleButton value="1h">1H</ToggleButton>
@@ -171,7 +171,7 @@ const ErrorRateChart: React.FC<Props> = ({ errors = [], loading }) => {
             <Select
               value={filterEndpoint}
               label="Endpoint"
-              onChange={(e) => setFilterEndpoint(e.target.value)}
+              onChange={(e) => setFilterEndpoint(e.target.value as string)}
             >
               <MenuItem value="all">All Endpoints</MenuItem>
               {endpoints.map(endpoint => (
@@ -205,7 +205,7 @@ const ErrorRateChart: React.FC<Props> = ({ errors = [], loading }) => {
               fill="#8884d8"
               dataKey="value"
             >
-              {pieData.map((_, index) => (
+              {pieData.map((_entry, index) => (
                 <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
               ))}
             </Pie>

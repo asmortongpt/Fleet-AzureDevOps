@@ -18,13 +18,13 @@
 import { ReactNode } from 'react';
 import { Navigate } from 'react-router-dom';
 
-import { useAuth } from '@/hooks/useAuth';
+import { useAuth, UserRole } from '@/hooks/useAuth';
 import logger from '@/utils/logger';
 
 interface ProtectedRouteProps {
   children: ReactNode;
   requireAuth?: boolean; // Default: true
-  requiredRole?: string | string[];
+  requiredRole?: UserRole | UserRole[];
   requiredPermission?: string | string[];
   redirectTo?: string; // Default: '/login'
   fallback?: ReactNode; // Optional custom fallback for unauthorized
@@ -117,7 +117,9 @@ export function ProtectedRoute({
  *
  * return (
  *   <div>
- *     {canRender ? <AdminTools /> : <AccessDenied />}
+ *     {
+
+canRender ? <AdminTools /> : <AccessDenied />}
  *   </div>
  * );
  */
@@ -125,7 +127,7 @@ export function useProtectedContent({
   requiredRole,
   requiredPermission
 }: {
-  requiredRole?: string | string[];
+  requiredRole?: UserRole | UserRole[];
   requiredPermission?: string | string[];
 }) {
   const { user, isAuthenticated, canAccess } = useAuth();
@@ -185,7 +187,7 @@ export function RequireRole({
   children,
   fallback = null
 }: {
-  role: string | string[];
+  role: UserRole | UserRole[];
   children: ReactNode;
   fallback?: ReactNode;
 }) {

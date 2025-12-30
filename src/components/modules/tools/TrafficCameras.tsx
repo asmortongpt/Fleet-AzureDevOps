@@ -27,11 +27,11 @@ import {
   XCircle,
   Info
 } from "@phosphor-icons/react"
-import { useQuery, useMutation } from "@tanstack/react-query"
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
 import React, { useState, useCallback, useMemo, useRef, useEffect } from "react"
 import { toast } from "sonner"
 
-import { UniversalMap } from "@/components/UniversalMap"
+import { UniversalMap, UniversalMapProps } from "@/components/UniversalMap"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -46,7 +46,6 @@ import {
 import { useInterval } from "@/hooks"
 import { apiClient } from "@/lib/api-client"
 import { TrafficCamera, CameraDataSource } from "@/lib/types"
-
 
 // ============================================================================
 // Types & Interfaces
@@ -88,7 +87,6 @@ interface CameraStats {
 // Constants & Configuration
 // ============================================================================
 
-const SYNC_TIMEOUT = 10000 // 10 seconds
 const AUTO_SYNC_INTERVAL = 300000 // 5 minutes
 
 /**
@@ -133,6 +131,8 @@ export function TrafficCameras(): JSX.Element {
   const syncTimeoutRef = useRef<NodeJS.Timeout | null>(null)
 
   // ========== TanStack Query Hooks ==========
+  const queryClient = useQueryClient()
+  
   /**
    * Query for loading cameras and data sources
    */
@@ -141,7 +141,8 @@ export function TrafficCameras(): JSX.Element {
     queryFn: async () => {
       const result = await apiClient.trafficCameras.list()
       return result as TrafficCamera[]
-    }
+    },
+    gcTime: 5 * 60 * 1000 // 5 minutes
   })
 
   const { data: sourcesData = [], isLoading: sourcesLoading } = useQuery({
@@ -149,7 +150,8 @@ export function TrafficCameras(): JSX.Element {
     queryFn: async () => {
       const result = await apiClient.trafficCameras.sources()
       return result as CameraDataSource[]
-    }
+    },
+    gcTime: 5 * 60 * 1000 // 5 minutes
   })
 
   /**
@@ -161,6 +163,8 @@ export function TrafficCameras(): JSX.Element {
     },
     onSuccess: () => {
       setState(prev => ({ ...prev, isSyncing: false, lastSyncTime: new Date() }))
+      queryClient.invalidateQueries({ queryKey: ["trafficCameras", "cameras"] })
+      queryClient.invalidateQueries({ queryKey: ["trafficCameras", "sources"] })
       toast.success("Camera data synchronized successfully")
     },
     onError: (error) => {
@@ -332,7 +336,7 @@ export function TrafficCameras(): JSX.Element {
 
     // Use first camera's coordinates
     const firstCamera = camerasWithCoords[0]
-    return [firstCamera.longitude!, firstCamera.latitude!]
+    return firstCamera ? [firstCamera.longitude as number, firstCamera.latitude as number] : undefined
   }, [filteredCameras])
 
   // ========== Render Helpers ==========
@@ -357,6 +361,12 @@ export function TrafficCameras(): JSX.Element {
 
     return date.toLocaleString()
   }, [])
+
+  // ========== Data Loading Handler ==========
+  const reloadData = useCallback(() => {
+    queryClient.invalidateQueries({ queryKey: ["trafficCameras", "cameras"] })
+    queryClient.invalidateQueries({ queryKey: ["trafficCameras", "sources"] })
+  }, [queryClient])
 
   // ========== Render ==========
 
@@ -391,7 +401,7 @@ export function TrafficCameras(): JSX.Element {
           <XCircle className="w-16 h-16 text-destructive mx-auto mb-4" />
           <h3 className="text-lg font-semibold text-foreground mb-2">Failed to Load Cameras</h3>
           <p className="text-sm text-muted-foreground mb-4">{state.error}</p>
-          <Button onClick={() => loadData(false)}>
+          <Button onClick={reloadData}>
             <ArrowsClockwise className="w-4 h-4 mr-2" />
             Retry
           </Button>
@@ -433,7 +443,7 @@ export function TrafficCameras(): JSX.Element {
                 <h4 className="font-medium text-destructive">Sync Error</h4>
                 <p className="text-sm text-muted-foreground mt-1">{state.error}</p>
               </div>
-              <Button variant="outline" size="sm" onClick={() => loadData(false)}>
+              <Button variant="outline" size="sm" onClick={reloadData}>
                 Retry
               </Button>
             </div>
@@ -501,45 +511,35 @@ export function TrafficCameras(): JSX.Element {
               <Input
                 placeholder="Search cameras..."
                 value={state.searchTerm}
-                onChange={(e) =>
-                  setState(prev => ({ ...prev, searchTerm: e.target.value }))
-                }
-                className="pl-10"
-                aria-label="Search cameras"
+                onChange={(e) => setState(prev => ({ ...prev, searchTerm: e.target.value }))}
+                className="pl-9"
+                aria-label="Search cameras by name or location"
               />
             </div>
-
             <Select
               value={state.statusFilter}
-              onValueChange={(value: CameraStatusFilter) =>
-                setState(prev => ({ ...prev, statusFilter: value }))
-              }
+              onValueChange={(value: CameraStatusFilter) => setState(prev => ({ ...prev, statusFilter: value }))}
             >
-              <SelectTrigger>
+              <SelectTrigger aria-label="Filter by camera status">
                 <SelectValue placeholder="Filter by status" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">All Status</SelectItem>
+                <SelectItem value="all">All Statuses</SelectItem>
                 <SelectItem value="operational">Operational Only</SelectItem>
                 <SelectItem value="offline">Offline Only</SelectItem>
               </SelectContent>
             </Select>
-
             <Select
               value={state.sourceFilter}
-              onValueChange={(value) =>
-                setState(prev => ({ ...prev, sourceFilter: value }))
-              }
+              onValueChange={(value) => setState(prev => ({ ...prev, sourceFilter: value }))}
             >
-              <SelectTrigger>
+              <SelectTrigger aria-label="Filter by data source">
                 <SelectValue placeholder="Filter by source" />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">All Sources</SelectItem>
                 {state.sources.map(source => (
-                  <SelectItem key={source.id} value={source.id}>
-                    {source.name}
-                  </SelectItem>
+                  <SelectItem key={source.id} value={source.id}>{source.name}</SelectItem>
                 ))}
               </SelectContent>
             </Select>
@@ -547,201 +547,94 @@ export function TrafficCameras(): JSX.Element {
         </CardContent>
       </Card>
 
-      {/* Map and Camera List */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Map */}
-        <Card className="lg:col-span-2">
-          <CardHeader>
-            <CardTitle>Camera Locations</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="h-[600px] bg-muted rounded-lg overflow-hidden border">
-              {filteredCameras.length > 0 ? (
-                <UniversalMap
-                  cameras={filteredCameras}
-                  showCameras={true}
-                  showVehicles={false}
-                  showFacilities={false}
-                  mapStyle="road"
-                  className="w-full h-full"
-                  center={mapCenter}
-                  zoom={12}
-                />
-              ) : (
-                <div className="flex items-center justify-center h-full">
-                  <div className="text-center">
-                    <Info className="w-12 h-12 text-muted-foreground mx-auto mb-3" />
-                    <p className="text-sm text-muted-foreground">
-                      No cameras to display
-                    </p>
-                  </div>
-                </div>
-              )}
-            </div>
-            <div className="mt-4 flex items-center justify-between p-3 border rounded-lg">
-              <div className="flex gap-4">
-                <div className="flex items-center gap-2">
-                  <div className="w-3 h-3 rounded-sm bg-blue-600"></div>
-                  <span className="text-sm">Operational ({stats.operational})</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <div className="w-3 h-3 rounded-sm bg-gray-400"></div>
-                  <span className="text-sm">Offline ({stats.offline})</span>
-                </div>
-              </div>
-              <p className="text-sm text-muted-foreground">
-                Showing {filteredCameras.length} of {stats.total} cameras
-              </p>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Camera List */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Camera List</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-3 max-h-[600px] overflow-y-auto pr-2">
-              {filteredCameras.length === 0 ? (
-                <div className="text-center py-12">
-                  <VideoCamera className="w-12 h-12 text-muted-foreground mx-auto mb-3" />
-                  <p className="text-sm text-muted-foreground">
-                    {state.searchTerm || state.statusFilter !== "all" || state.sourceFilter !== "all"
-                      ? "No cameras match your filters"
-                      : "No cameras available"
-                    }
-                  </p>
-                </div>
-              ) : (
-                filteredCameras.map(camera => (
-                  <div
-                    key={camera.id}
-                    className={`p-3 border rounded-lg hover:bg-muted/50 cursor-pointer transition ${
-                      state.selectedCamera?.id === camera.id
-                        ? 'border-primary bg-muted/50'
-                        : ''
-                    }`}
-                    onClick={() => handleCameraClick(camera)}
-                    role="button"
-                    tabIndex={0}
-                    onKeyPress={(e) => {
-                      if (e.key === 'Enter' || e.key === ' ') {
-                        handleCameraClick(camera)
-                      }
-                    }}
-                    aria-label={`Camera: ${camera.name}, ${camera.operational ? 'operational' : 'offline'}`}
-                  >
-                    <div className="flex items-start justify-between gap-2">
-                      <div className="flex-1 min-w-0">
-                        <h4 className="font-medium text-sm truncate">{camera.name}</h4>
-                        {camera.address && (
-                          <p className="text-xs text-muted-foreground mt-1 flex items-center gap-1">
-                            <MapPin className="w-3 h-3 flex-shrink-0" />
-                            <span className="truncate">{camera.address}</span>
-                          </p>
-                        )}
-                        {camera.crossStreets && (
-                          <p className="text-xs text-muted-foreground mt-1 truncate">
-                            {camera.crossStreets}
-                          </p>
-                        )}
-                        {!camera.crossStreets && camera.crossStreet1 && camera.crossStreet2 && (
-                          <p className="text-xs text-muted-foreground mt-1 truncate">
-                            {camera.crossStreet1} & {camera.crossStreet2}
-                          </p>
-                        )}
-                      </div>
-                      <Badge
-                        variant={camera.operational ? "default" : "destructive"}
-                        className="flex-shrink-0"
-                      >
-                        {camera.operational ? "Active" : "Offline"}
-                      </Badge>
-                    </div>
-                    {(camera.cameraUrl || camera.streamUrl || camera.imageUrl) && (
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        className="w-full mt-2"
-                        onClick={(e) => handleViewFeed(camera, e)}
-                        aria-label={`View feed for ${camera.name}`}
-                      >
-                        <VideoCamera className="w-4 h-4 mr-2" />
-                        View Feed
-                      </Button>
-                    )}
-                  </div>
-                ))
-              )}
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Data Sources Status */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Data Sources</CardTitle>
-        </CardHeader>
-        <CardContent>
-          {state.sources.length === 0 ? (
-            <div className="text-center py-8">
-              <Info className="w-12 h-12 text-muted-foreground mx-auto mb-3" />
-              <p className="text-sm text-muted-foreground">No data sources configured</p>
-            </div>
-          ) : (
-            <div className="space-y-3">
-              {state.sources.map(source => (
-                <div
-                  key={source.id}
-                  className="flex items-center justify-between p-3 border rounded-lg"
-                >
-                  <div className="flex-1">
-                    <h4 className="font-medium">{source.name}</h4>
-                    {source.description && (
-                      <p className="text-sm text-muted-foreground mt-1">
-                        {source.description}
-                      </p>
-                    )}
-                    <div className="flex items-center gap-4 mt-2 flex-wrap">
-                      <span className="text-xs text-muted-foreground">
-                        {source.totalCamerasSynced} cameras
-                      </span>
-                      {source.lastSyncAt && (
-                        <span className="text-xs text-muted-foreground">
-                          Last sync: {new Date(source.lastSyncAt).toLocaleString()}
-                        </span>
-                      )}
-                      {source.syncIntervalMinutes && (
-                        <span className="text-xs text-muted-foreground">
-                          Sync every {source.syncIntervalMinutes} minutes
-                        </span>
-                      )}
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-3 flex-shrink-0">
-                    <Badge
-                      variant={
-                        source.lastSyncStatus === 'success'
-                          ? 'default'
-                          : source.lastSyncStatus === 'failed'
-                          ? 'destructive'
-                          : 'secondary'
-                      }
-                    >
-                      {source.lastSyncStatus || 'pending'}
-                    </Badge>
-                    <Badge variant={source.enabled ? 'default' : 'secondary'}>
-                      {source.enabled ? 'Enabled' : 'Disabled'}
-                    </Badge>
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
+      {/* Map View */}
+      <Card className="overflow-hidden">
+        <CardContent className="p-0">
+          <UniversalMap
+            cameras={filteredCameras}
+            showCameras={true}
+            showVehicles={false}
+            showFacilities={false}
+            mapStyle="default"
+            className="h-[500px]"
+            center={mapCenter}
+            zoom={10}
+            onCameraClick={handleCameraClick}
+            selectedCamera={state.selectedCamera}
+          />
         </CardContent>
       </Card>
+
+      {/* Camera Details (if selected) */}
+      {state.selectedCamera && (
+        <Card>
+          <CardHeader>
+            <CardTitle>{state.selectedCamera.name}</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <p className="text-sm text-muted-foreground">Location</p>
+                  <p className="font-medium">{state.selectedCamera.address || 'N/A'}</p>
+                  {state.selectedCamera.crossStreets && (
+                    <p className="text-sm text-muted-foreground">{state.selectedCamera.crossStreets}</p>
+                  )}
+                </div>
+                <div className="flex justify-end">
+                  <Button
+                    variant="outline"
+                    onClick={(e) => handleViewFeed(state.selectedCamera as TrafficCamera, e)}
+                  >
+                    <VideoCamera className="w-4 h-4 mr-2" />
+                    View Feed
+                  </Button>
+                </div>
+              </div>
+              <div className="flex items-center gap-2">
+                <Badge variant={state.selectedCamera.operational ? "default" : "destructive"}>
+                  {state.selectedCamera.operational ? "Operational" : "Offline"}
+                </Badge>
+                <Badge variant={state.selectedCamera.enabled ? "default" : "secondary"}>
+                  {state.selectedCamera.enabled ? "Enabled" : "Disabled"}
+                </Badge>
+              </div>
+              {state.selectedCamera.sourceId && (
+                <div>
+                  <p className="text-sm text-muted-foreground">Data Source</p>
+                  <p className="font-medium">
+                    {state.sources.find(s => s.id === state.selectedCamera?.sourceId)?.name || 'Unknown'}
+                  </p>
+                </div>
+              )}
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Empty State for Filtered Results */}
+      {filteredCameras.length === 0 && !state.isLoading && (
+        <Card>
+          <CardContent className="pt-6 text-center">
+            <Info className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
+            <h3 className="text-lg font-medium mb-2">No cameras found</h3>
+            <p className="text-sm text-muted-foreground mb-4">
+              No cameras match your current filters or search terms.
+            </p>
+            <Button
+              variant="outline"
+              onClick={() => setState(prev => ({
+                ...prev,
+                searchTerm: '',
+                statusFilter: 'all',
+                sourceFilter: 'all'
+              }))}
+            >
+              Clear Filters
+            </Button>
+          </CardContent>
+        </Card>
+      )}
     </div>
   )
 }

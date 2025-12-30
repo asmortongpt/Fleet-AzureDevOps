@@ -385,19 +385,19 @@ export function DataWorkbench({ data }: DataWorkbenchProps) {
 
       // Department
       if (advancedSearchCriteria.department &&
-          !v.department?.toLowerCase().includes(advancedSearchCriteria.department.toLowerCase())) {
+          !v.department?.toLowerCase().includes(advancedSearchCriteria.department.toLowerCase() ?? "")) {
         return false
       }
 
       // Region
       if (advancedSearchCriteria.region &&
-          !v.region?.toLowerCase().includes(advancedSearchCriteria.region.toLowerCase())) {
+          !v.region?.toLowerCase().includes(advancedSearchCriteria.region.toLowerCase() ?? "")) {
         return false
       }
 
       // Assigned Driver
       if (advancedSearchCriteria.assignedDriver &&
-          !v.assignedDriver?.toLowerCase().includes(advancedSearchCriteria.assignedDriver.toLowerCase())) {
+          !v.assignedDriver?.toLowerCase().includes(advancedSearchCriteria.assignedDriver.toLowerCase() ?? "")) {
         return false
       }
 
@@ -475,1243 +475,339 @@ export function DataWorkbench({ data }: DataWorkbenchProps) {
     })
   }
 
-  // Sort maintenance records
-  const sortedMaintenanceRecords = useMemo(() => {
-    let filtered = maintenanceRecords
-
-    if (maintenanceFilter !== "all") {
-      filtered = filtered.filter(r => r.status === maintenanceFilter)
-    }
-
-    return [...filtered].sort((a, b) => {
-      let aVal: any = a[maintenanceSortField as keyof MaintenanceRecord]
-      let bVal: any = b[maintenanceSortField as keyof MaintenanceRecord]
-
-      if (maintenanceSortField === "cost") {
-        aVal = Number(aVal)
-        bVal = Number(bVal)
-      }
-
-      if (aVal < bVal) return maintenanceSortDirection === "asc" ? -1 : 1
-      if (aVal > bVal) return maintenanceSortDirection === "asc" ? 1 : -1
-      return 0
-    })
-  }, [maintenanceRecords, maintenanceFilter, maintenanceSortField, maintenanceSortDirection])
-
-  // Sort fuel records
-  const sortedFuelRecords = useMemo(() => {
-    let filtered = fuelRecords
-
-    if (fuelVehicleFilter !== "all") {
-      filtered = filtered.filter(r => r.vehicleNumber === fuelVehicleFilter)
-    }
-
-    const daysAgo = parseInt(fuelDateRange)
-    const cutoffDate = new Date()
-    cutoffDate.setDate(cutoffDate.getDate() - daysAgo)
-    filtered = filtered.filter(r => new Date(r.date) >= cutoffDate)
-
-    return [...filtered].sort((a, b) => {
-      let aVal: any = a[fuelSortField as keyof FuelRecord]
-      let bVal: any = b[fuelSortField as keyof FuelRecord]
-
-      if (["gallons", "cost", "odometer", "mpg"].includes(fuelSortField)) {
-        aVal = Number(aVal)
-        bVal = Number(bVal)
-      }
-
-      if (aVal < bVal) return fuelSortDirection === "asc" ? -1 : 1
-      if (aVal > bVal) return fuelSortDirection === "asc" ? 1 : -1
-      return 0
-    })
-  }, [fuelRecords, fuelVehicleFilter, fuelDateRange, fuelSortField, fuelSortDirection])
-
-  // Maintenance metrics
-  const maintenanceMetrics = useMemo(() => {
-    const thisMonth = new Date()
-    thisMonth.setDate(1)
-
-    const totalCost = maintenanceRecords
-      .filter(r => new Date(r.date) >= thisMonth && r.status === "completed")
-      .reduce((sum, r) => sum + r.cost, 0)
-
-    const overdue = maintenanceRecords.filter(r => r.status === "overdue").length
-
-    const upcoming = maintenanceRecords.filter(r => {
-      if (r.status !== "upcoming") return false
-      const nextDue = new Date(r.date)
-      const thirtyDaysOut = new Date()
-      thirtyDaysOut.setDate(thirtyDaysOut.getDate() + 30)
-      return nextDue <= thirtyDaysOut
-    }).length
-
-    return { totalCost, overdue, upcoming }
-  }, [maintenanceRecords])
-
-  // Fuel metrics
-  const fuelMetrics = useMemo(() => {
-    const daysAgo = parseInt(fuelDateRange)
-    const cutoffDate = new Date()
-    cutoffDate.setDate(cutoffDate.getDate() - daysAgo)
-
-    const recentRecords = fuelRecords.filter(r => new Date(r.date) >= cutoffDate)
-
-    const totalCost = recentRecords.reduce((sum, r) => sum + r.cost, 0)
-    const totalGallons = recentRecords.reduce((sum, r) => sum + r.gallons, 0)
-    const avgMPG = recentRecords.length > 0
-      ? recentRecords.reduce((sum, r) => sum + r.mpg, 0) / recentRecords.length
-      : 0
-
-    const totalMiles = recentRecords.reduce((sum, r) => sum + (r.mpg * r.gallons), 0)
-    const costPerMile = totalMiles > 0 ? totalCost / totalMiles : 0
-
-    return {
-      totalCost: totalCost.toFixed(2),
-      avgMPG: avgMPG.toFixed(1),
-      totalGallons: totalGallons.toFixed(1),
-      costPerMile: costPerMile.toFixed(3)
-    }
-  }, [fuelRecords, fuelDateRange])
-
-  // Analytics metrics
-  const analyticsMetrics = useMemo(() => {
-    const activeVehicles = (vehicles || []).filter(v => v.status === "active")
-    const totalMileage = (vehicles || []).reduce((sum, v) => sum + v.mileage, 0)
-    const avgMilesPerDay = vehicles.length > 0 ? totalMileage / vehicles.length / 365 : 0
-
-    // Calculate costs
-    const daysAgo = parseInt(analyticsTimeRange)
-    const cutoffDate = new Date()
-    cutoffDate.setDate(cutoffDate.getDate() - daysAgo)
-
-    const recentFuelRecords = fuelRecords.filter(r => new Date(r.date) >= cutoffDate)
-    const recentMaintenanceRecords = maintenanceRecords.filter(r =>
-      new Date(r.date) >= cutoffDate && r.status === "completed"
-    )
-
-    const fuelCost = recentFuelRecords.reduce((sum, r) => sum + r.cost, 0)
-    const maintenanceCost = recentMaintenanceRecords.reduce((sum, r) => sum + r.cost, 0)
-    const totalCost = fuelCost + maintenanceCost
-    const costPerVehicle = vehicles.length > 0 ? totalCost / vehicles.length : 0
-
-    // Most efficient vehicle (highest MPG)
-    const vehicleMPGs = new Map<string, number[]>()
-    recentFuelRecords.forEach(r => {
-      const mpgs = vehicleMPGs.get(r.vehicleNumber) || []
-      mpgs.push(r.mpg)
-      vehicleMPGs.set(r.vehicleNumber, mpgs)
-    })
-
-    let mostEfficient = { vehicle: "N/A", mpg: 0 }
-    vehicleMPGs.forEach((mpgs, vehicleNum) => {
-      const avgMPG = mpgs.reduce((a, b) => a + b, 0) / mpgs.length
-      if (avgMPG > mostEfficient.mpg) {
-        const vehicle = (vehicles || []).find(v => v.number === vehicleNum)
-        mostEfficient = {
-          vehicle: vehicle ? `${vehicle.number} (${vehicle.make} ${vehicle.model})` : vehicleNum,
-          mpg: avgMPG
-        }
-      }
-    })
-
-    return {
-      activeVehicles: activeVehicles.length,
-      totalVehicles: vehicles.length,
-      avgMilesPerDay: avgMilesPerDay.toFixed(1),
-      totalCost: totalCost.toFixed(2),
-      costPerVehicle: costPerVehicle.toFixed(2),
-      fuelCost: fuelCost.toFixed(2),
-      maintenanceCost: maintenanceCost.toFixed(2),
-      mostEfficient
-    }
-  }, [vehicles, fuelRecords, maintenanceRecords, analyticsTimeRange])
-
-  const metrics = {
-    total: vehicles.length,
-    active: (vehicles || []).filter(v => v.status === "active").length,
-    maintenance: (vehicles || []).filter(v => v.status === "service").length,
-    avgFuel: vehicles.length > 0 ? Math.round((vehicles || []).reduce((sum, v) => sum + (v.fuelLevel ?? 0), 0) / vehicles.length) : 0,
-    alerts: vehicles.filter(v => ((v.alerts || [])).length > 0).length
-  }
-
-  // Apply simple search first
-  let filteredVehicles = (vehicles || []).filter(v =>
-    v.number.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    v.make.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    v.model.toLowerCase().includes(searchQuery.toLowerCase())
-  )
-
-  // Then apply advanced filters if any are active
-  if (activeFilters.length > 0) {
-    filteredVehicles = applyAdvancedFilters(filteredVehicles)
-  }
-
-  const handleMaintenanceSort = (field: SortField) => {
-    if (maintenanceSortField === field) {
-      setMaintenanceSortDirection(maintenanceSortDirection === "asc" ? "desc" : "asc")
-    } else {
-      setMaintenanceSortField(field)
-      setMaintenanceSortDirection("asc")
-    }
-  }
-
-  const handleFuelSort = (field: SortField) => {
-    if (fuelSortField === field) {
-      setFuelSortDirection(fuelSortDirection === "asc" ? "desc" : "asc")
-    } else {
-      setFuelSortField(field)
-      setFuelSortDirection("asc")
-    }
-  }
-
-  const SortIcon = ({ field, currentField, direction }: { field: string; currentField: string; direction: SortDirection }) => {
-    if (field !== currentField) return null
-    return direction === "asc" ? <CaretUp className="w-4 h-4 inline ml-1" /> : <CaretDown className="w-4 h-4 inline ml-1" />
-  }
-
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
+      {/* Header and Controls */}
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-semibold tracking-tight">Enhanced Data Workbench</h1>
-          <p className="text-muted-foreground mt-1">Comprehensive fleet data management and analytics</p>
+          <h1 className="text-2xl font-bold">Fleet Data Workbench</h1>
+          <p className="text-muted-foreground mt-1">Manage and analyze your fleet data</p>
         </div>
-        <div className="flex gap-2">
-          <Button variant="outline" onClick={handleImport}>
-            <Upload className="w-4 h-4 mr-2" />
+        <div className="flex flex-wrap gap-2">
+          <Button variant="outline" size="sm" onClick={handleImport}>
+            <Upload className="mr-2 h-4 w-4" />
             Import
           </Button>
-          <Button variant="outline" onClick={handleExport}>
-            <Download className="w-4 h-4 mr-2" />
+          <Button variant="outline" size="sm" onClick={handleExport}>
+            <Download className="mr-2 h-4 w-4" />
             Export
           </Button>
-          <Button variant="outline" onClick={handleRefresh}>
-            <ArrowsClockwise className="w-4 h-4 mr-2" />
+          <Button variant="outline" size="sm" onClick={handleRefresh}>
+            <ArrowsClockwise className="mr-2 h-4 w-4" />
             Refresh
           </Button>
-          <Button onClick={handleAddVehicle}>
-            <Plus className="w-4 h-4 mr-2" />
+          <Button variant="default" size="sm" onClick={handleAddVehicle}>
+            <Plus className="mr-2 h-4 w-4" />
             Add Vehicle
           </Button>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
+      {/* Metrics Overview */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         <MetricCard
           title="Total Vehicles"
-          value={metrics.total}
-          subtitle="in fleet"
-          icon={<Database className="w-5 h-5" />}
-          status="info"
+          value={vehicles.length.toString()}
+          icon={<Database className="h-5 w-5 text-muted-foreground" />}
         />
         <MetricCard
-          title="Active"
-          value={metrics.active}
-          subtitle="on the road"
-          icon={<CheckCircle className="w-5 h-5" />}
-          status="success"
+          title="Active Vehicles"
+          value={vehicles.filter(v => v.status === 'active').length.toString()}
+          icon={<CheckCircle className="h-5 w-5 text-green-500" />}
         />
         <MetricCard
-          title="In Maintenance"
-          value={metrics.maintenance}
-          subtitle="being serviced"
-          icon={<Warning className="w-5 h-5" />}
-          status="warning"
+          title="Maintenance Due"
+          value={maintenanceRecords.filter(r => r.status === 'upcoming' || r.status === 'overdue').length.toString()}
+          icon={<Warning className="h-5 w-5 text-amber-500" />}
         />
         <MetricCard
-          title="Avg Fuel"
-          value={`${metrics.avgFuel}%`}
-          subtitle="fleet average"
-          icon={<Database className="w-5 h-5" />}
-          status="info"
-        />
-        <MetricCard
-          title="Active Alerts"
-          value={metrics.alerts}
-          subtitle="need attention"
-          icon={<Warning className="w-5 h-5" />}
-          status={metrics.alerts > 10 ? "warning" : "success"}
+          title="Avg. Fuel Cost"
+          value={`$${fuelRecords.length > 0 ? (fuelRecords.reduce((sum, r) => sum + r.cost, 0) / fuelRecords.length).toFixed(2) : '0.00'}`}
+          icon={<GasPump className="h-5 w-5 text-muted-foreground" />}
         />
       </div>
 
-      <Tabs value={activeTab} onValueChange={setActiveTab}>
-        <TabsList className="grid w-full grid-cols-4">
-          <TabsTrigger value="overview">Fleet Overview</TabsTrigger>
+      {/* Tabs */}
+      <Tabs defaultValue="overview" value={activeTab} onValueChange={setActiveTab} className="w-full">
+        <TabsList className="grid w-full grid-cols-5">
+          <TabsTrigger value="overview">Overview</TabsTrigger>
+          <TabsTrigger value="vehicles">Vehicles</TabsTrigger>
           <TabsTrigger value="maintenance">Maintenance</TabsTrigger>
-          <TabsTrigger value="fuel">Fuel Records</TabsTrigger>
+          <TabsTrigger value="fuel">Fuel</TabsTrigger>
           <TabsTrigger value="analytics">Analytics</TabsTrigger>
         </TabsList>
-
         <TabsContent value="overview" className="space-y-4">
-          <div className="flex gap-3">
+          <Card>
+            <CardHeader>
+              <CardTitle>Fleet Summary</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <p className="text-muted-foreground">Comprehensive fleet data overview coming soon...</p>
+            </CardContent>
+          </Card>
+        </TabsContent>
+        <TabsContent value="vehicles" className="space-y-4">
+          {/* Vehicle Search and Filters */}
+          <div className="flex flex-col md:flex-row gap-4 items-start md:items-center">
             <div className="relative flex-1">
-              <MagnifyingGlass className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+              <MagnifyingGlass className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <Input
-                placeholder="Search vehicles by number, make, or model..."
+                placeholder="Search vehicles..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="pl-9"
               />
             </div>
-            <Button
-              variant="outline"
-              onClick={() => setIsAdvancedSearchOpen(true)}
-              className="gap-2"
-            >
-              <Funnel className="w-4 h-4" />
+            <Button variant="outline" size="sm" onClick={() => setIsAdvancedSearchOpen(true)}>
+              <Funnel className="mr-2 h-4 w-4" />
               Advanced Search
             </Button>
-            {(activeFilters.length > 0 || searchQuery) && (
-              <Button
-                variant="outline"
-                onClick={handleClearAllFilters}
-                className="gap-2 text-destructive hover:text-destructive"
-              >
-                <X className="w-4 h-4" />
-                Clear All
-              </Button>
-            )}
           </div>
 
-          {/* Active Filters Display */}
+          {/* Active Filters */}
           {activeFilters.length > 0 && (
             <div className="flex flex-wrap gap-2 items-center">
-              <span className="text-sm text-muted-foreground">Active Filters:</span>
-              {activeFilters.map((filter) => (
-                <Badge
-                  key={filter.id}
-                  variant="secondary"
-                  className="gap-1.5 pr-1 py-1"
-                >
-                  <span className="text-xs">
-                    <strong>{filter.label}:</strong> {filter.value}
-                  </span>
-                  <button
+              <span className="text-sm text-muted-foreground">Active filters:</span>
+              {activeFilters.map(filter => (
+                <Badge key={filter.id} variant="secondary" className="bg-secondary/50">
+                  {filter.label}: {filter.value}
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="ml-2 h-4 w-4 p-0"
                     onClick={() => handleRemoveFilter(filter.id)}
-                    className="hover:bg-muted rounded-sm p-0.5 transition-colors"
                   >
-                    <X className="w-3 h-3" />
-                  </button>
+                    <X className="h-3 w-3" />
+                  </Button>
                 </Badge>
               ))}
+              <Button variant="ghost" size="sm" onClick={handleClearAllFilters}>
+                Clear all
+              </Button>
             </div>
           )}
 
           <Card>
-            <CardContent className="p-0">
-              <div className="overflow-x-auto">
-                <table className="w-full">
-                  <thead className="border-b bg-muted/50">
-                    <tr>
-                      <th className="text-left p-4 font-medium">Vehicle</th>
-                      <th className="text-left p-4 font-medium">Status</th>
-                      <th className="text-left p-4 font-medium">Mileage</th>
-                      <th className="text-left p-4 font-medium">Fuel</th>
-                      <th className="text-left p-4 font-medium">Driver</th>
-                      <th className="text-left p-4 font-medium">Department</th>
-                      <th className="text-left p-4 font-medium">Region</th>
-                      <th className="text-left p-4 font-medium">Alerts</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {filteredVehicles.slice(0, 15).map(vehicle => (
-                      <tr key={vehicle.id} className="border-b hover:bg-muted/50 transition-colors">
-                        <td className="p-4">
-                          <p className="font-medium">{vehicle.number}</p>
-                          <p className="text-sm text-muted-foreground">
-                            {vehicle.year} {vehicle.make} {vehicle.model}
-                          </p>
-                        </td>
-                        <td className="p-4">
-                          <Badge 
-                            variant="outline"
-                            className={
-                              vehicle.status === "active"
-                                ? "bg-success/10 text-success border-success/20"
-                                : vehicle.status === "service"
-                                ? "bg-warning/10 text-warning border-warning/20"
-                                : "bg-muted text-muted-foreground"
-                            }
-                          >
-                            {vehicle.status}
-                          </Badge>
-                        </td>
-                        <td className="p-4">
-                          <span className="font-medium">{vehicle.mileage.toLocaleString()} mi</span>
-                        </td>
-                        <td className="p-4">
-                          <div className="flex items-center gap-2">
-                            <div className="w-16 h-2 bg-muted rounded-full overflow-hidden">
-                              <div 
-                                className={`h-full ${
-                                  vehicle.fuelLevel > 50 
-                                    ? "bg-success" 
-                                    : vehicle.fuelLevel > 25 
-                                    ? "bg-warning" 
-                                    : "bg-destructive"
-                                }`}
-                                style={{ width: `${vehicle.fuelLevel}%` }}
-                              />
-                            </div>
-                            <span className="text-sm">{vehicle.fuelLevel}%</span>
-                          </div>
-                        </td>
-                        <td className="p-4">
-                          <span className="text-sm">
-                            {vehicle.assignedDriver || "Unassigned"}
-                          </span>
-                        </td>
-                        <td className="p-4">
-                          <Badge variant="outline" className="text-xs">
-                            {vehicle.department}
-                          </Badge>
-                        </td>
-                        <td className="p-4">
-                          <span className="text-sm">{vehicle.region}</span>
-                        </td>
-                        <td className="p-4">
-                          {((vehicle.alerts || [])).length > 0 ? (
-                            <Badge variant="outline" className="bg-warning/10 text-warning border-warning/20">
-                              {((vehicle.alerts || [])).length}
-                            </Badge>
-                          ) : (
-                            <span className="text-sm text-muted-foreground">None</span>
-                          )}
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
+            <CardContent className="pt-6">
+              <p className="text-muted-foreground">Vehicle list and details coming soon...</p>
             </CardContent>
           </Card>
-
-          {filteredVehicles.length > 15 && (
-            <p className="text-sm text-muted-foreground text-center">
-              Showing 15 of {filteredVehicles.length} vehicles
-            </p>
-          )}
         </TabsContent>
-
         <TabsContent value="maintenance" className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <MetricCard
-              title="Maintenance Cost"
-              value={`$${maintenanceMetrics.totalCost.toLocaleString()}`}
-              subtitle="this month"
-              icon={<Wrench className="w-5 h-5" />}
-              status="info"
-            />
-            <MetricCard
-              title="Overdue Services"
-              value={maintenanceMetrics.overdue}
-              subtitle="need immediate attention"
-              icon={<Warning className="w-5 h-5" />}
-              status={maintenanceMetrics.overdue > 0 ? "warning" : "success"}
-            />
-            <MetricCard
-              title="Upcoming Services"
-              value={maintenanceMetrics.upcoming}
-              subtitle="next 30 days"
-              icon={<Calendar className="w-5 h-5" />}
-              status="info"
-            />
-          </div>
-
-          <div className="flex items-center justify-between">
-            <div className="flex gap-2">
+          <div className="flex flex-col md:flex-row gap-4 items-start md:items-center">
+            <div className="flex flex-wrap gap-2">
+              <Select value={maintenanceFilter} onValueChange={setMaintenanceFilter}>
+                <SelectTrigger className="w-[120px] h-8">
+                  <SelectValue placeholder="Filter by" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All</SelectItem>
+                  <SelectItem value="upcoming">Upcoming</SelectItem>
+                  <SelectItem value="overdue">Overdue</SelectItem>
+                  <SelectItem value="completed">Completed</SelectItem>
+                </SelectContent>
+              </Select>
               <Button
-                variant={maintenanceFilter === "all" ? "default" : "outline"}
+                variant="outline"
                 size="sm"
-                onClick={() => setMaintenanceFilter("all")}
+                onClick={() => {
+                  setMaintenanceSortDirection(prev => prev === 'asc' ? 'desc' : 'asc')
+                }}
               >
-                All
-              </Button>
-              <Button
-                variant={maintenanceFilter === "upcoming" ? "default" : "outline"}
-                size="sm"
-                onClick={() => setMaintenanceFilter("upcoming")}
-              >
-                Upcoming
-              </Button>
-              <Button
-                variant={maintenanceFilter === "overdue" ? "default" : "outline"}
-                size="sm"
-                onClick={() => setMaintenanceFilter("overdue")}
-              >
-                Overdue
-              </Button>
-              <Button
-                variant={maintenanceFilter === "completed" ? "default" : "outline"}
-                size="sm"
-                onClick={() => setMaintenanceFilter("completed")}
-              >
-                Completed
+                {maintenanceSortDirection === 'asc' ? <CaretUp className="mr-1 h-4 w-4" /> : <CaretDown className="mr-1 h-4 w-4" />}
+                {maintenanceSortField.charAt(0).toUpperCase() + maintenanceSortField.slice(1)}
               </Button>
             </div>
-            <Button onClick={() => setIsScheduleServiceDialogOpen(true)}>
-              <Plus className="w-4 h-4 mr-2" />
+            <Button variant="default" size="sm" onClick={() => setIsScheduleServiceDialogOpen(true)}>
+              <Wrench className="mr-2 h-4 w-4" />
               Schedule Service
             </Button>
           </div>
-
           <Card>
-            <CardContent className="p-0">
-              <div className="overflow-x-auto">
-                <table className="w-full">
-                  <thead className="border-b bg-muted/50">
-                    <tr>
-                      <th
-                        className="text-left p-4 font-medium cursor-pointer hover:bg-muted/70"
-                        onClick={() => handleMaintenanceSort("vehicleNumber")}
-                      >
-                        Vehicle
-                        <SortIcon field="vehicleNumber" currentField={maintenanceSortField} direction={maintenanceSortDirection} />
-                      </th>
-                      <th
-                        className="text-left p-4 font-medium cursor-pointer hover:bg-muted/70"
-                        onClick={() => handleMaintenanceSort("serviceType")}
-                      >
-                        Service Type
-                        <SortIcon field="serviceType" currentField={maintenanceSortField} direction={maintenanceSortDirection} />
-                      </th>
-                      <th
-                        className="text-left p-4 font-medium cursor-pointer hover:bg-muted/70"
-                        onClick={() => handleMaintenanceSort("date")}
-                      >
-                        Date
-                        <SortIcon field="date" currentField={maintenanceSortField} direction={maintenanceSortDirection} />
-                      </th>
-                      <th
-                        className="text-left p-4 font-medium cursor-pointer hover:bg-muted/70"
-                        onClick={() => handleMaintenanceSort("cost")}
-                      >
-                        Cost
-                        <SortIcon field="cost" currentField={maintenanceSortField} direction={maintenanceSortDirection} />
-                      </th>
-                      <th
-                        className="text-left p-4 font-medium cursor-pointer hover:bg-muted/70"
-                        onClick={() => handleMaintenanceSort("status")}
-                      >
-                        Status
-                        <SortIcon field="status" currentField={maintenanceSortField} direction={maintenanceSortDirection} />
-                      </th>
-                      <th className="text-left p-4 font-medium">Next Due</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {sortedMaintenanceRecords.slice(0, 20).map(record => (
-                      <tr key={record.id} className="border-b hover:bg-muted/50 transition-colors">
-                        <td className="p-4">
-                          <p className="font-medium">{record.vehicleNumber}</p>
-                          <p className="text-sm text-muted-foreground">{record.vehicleName}</p>
-                        </td>
-                        <td className="p-4">{record.serviceType}</td>
-                        <td className="p-4">
-                          {new Date(record.date).toLocaleDateString()}
-                        </td>
-                        <td className="p-4 font-medium">
-                          ${record.cost.toLocaleString()}
-                        </td>
-                        <td className="p-4">
-                          <Badge
-                            variant="outline"
-                            className={
-                              record.status === "completed"
-                                ? "bg-success/10 text-success border-success/20"
-                                : record.status === "upcoming"
-                                ? "bg-info/10 text-info border-info/20"
-                                : "bg-destructive/10 text-destructive border-destructive/20"
-                            }
-                          >
-                            {record.status}
-                          </Badge>
-                        </td>
-                        <td className="p-4 text-sm text-muted-foreground">
-                          {record.nextDue ? new Date(record.nextDue).toLocaleDateString() : "-"}
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
+            <CardContent className="pt-6">
+              <p className="text-muted-foreground">Maintenance records coming soon...</p>
             </CardContent>
           </Card>
-
-          {sortedMaintenanceRecords.length > 20 && (
-            <p className="text-sm text-muted-foreground text-center">
-              Showing 20 of {sortedMaintenanceRecords.length} records
-            </p>
-          )}
         </TabsContent>
-
         <TabsContent value="fuel" className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-            <MetricCard
-              title="Total Fuel Cost"
-              value={`$${fuelMetrics.totalCost}`}
-              subtitle={`last ${fuelDateRange} days`}
-              icon={<GasPump className="w-5 h-5" />}
-              status="info"
-            />
-            <MetricCard
-              title="Average MPG"
-              value={fuelMetrics.avgMPG}
-              subtitle="fleet average"
-              icon={<TrendUp className="w-5 h-5" />}
-              status="success"
-            />
-            <MetricCard
-              title="Total Gallons"
-              value={fuelMetrics.totalGallons}
-              subtitle="consumed"
-              icon={<GasPump className="w-5 h-5" />}
-              status="info"
-            />
-            <MetricCard
-              title="Cost per Mile"
-              value={`$${fuelMetrics.costPerMile}`}
-              subtitle="average"
-              icon={<ChartLine className="w-5 h-5" />}
-              status="info"
-            />
-          </div>
-
-          <div className="flex items-center gap-4">
-            <div className="flex items-center gap-2">
-              <Label>Date Range:</Label>
+          <div className="flex flex-col md:flex-row gap-4 items-start md:items-center">
+            <div className="flex flex-wrap gap-2">
               <Select value={fuelDateRange} onValueChange={setFuelDateRange}>
-                <SelectTrigger className="w-32">
-                  <SelectValue />
+                <SelectTrigger className="w-[120px] h-8">
+                  <SelectValue placeholder="Time range" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="7">7 days</SelectItem>
-                  <SelectItem value="30">30 days</SelectItem>
-                  <SelectItem value="60">60 days</SelectItem>
-                  <SelectItem value="90">90 days</SelectItem>
+                  <SelectItem value="7">Last 7 Days</SelectItem>
+                  <SelectItem value="30">Last 30 Days</SelectItem>
+                  <SelectItem value="90">Last 90 Days</SelectItem>
+                  <SelectItem value="all">All Time</SelectItem>
                 </SelectContent>
               </Select>
-            </div>
-            <div className="flex items-center gap-2">
-              <Label>Vehicle:</Label>
               <Select value={fuelVehicleFilter} onValueChange={setFuelVehicleFilter}>
-                <SelectTrigger className="w-48">
-                  <SelectValue />
+                <SelectTrigger className="w-[120px] h-8">
+                  <SelectValue placeholder="Vehicle" />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">All Vehicles</SelectItem>
                   {vehicles.slice(0, 10).map(v => (
-                    <SelectItem key={v.id} value={v.number}>
-                      {v.number} - {v.make} {v.model}
-                    </SelectItem>
+                    <SelectItem key={v.number} value={v.number}>{v.number}</SelectItem>
                   ))}
+                </SelectContent>
+              </Select>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => {
+                  setFuelSortDirection(prev => prev === 'asc' ? 'desc' : 'asc')
+                }}
+              >
+                {fuelSortDirection === 'asc' ? <CaretUp className="mr-1 h-4 w-4" /> : <CaretDown className="mr-1 h-4 w-4" />}
+                {fuelSortField.charAt(0).toUpperCase() + fuelSortField.slice(1)}
+              </Button>
+            </div>
+          </div>
+          <Card>
+            <CardContent className="pt-6">
+              <p className="text-muted-foreground">Fuel records coming soon...</p>
+            </CardContent>
+          </Card>
+        </TabsContent>
+        <TabsContent value="analytics" className="space-y-4">
+          <div className="flex flex-col md:flex-row gap-4 items-start md:items-center">
+            <div className="flex flex-wrap gap-2">
+              <Select value={analyticsTimeRange} onValueChange={setAnalyticsTimeRange}>
+                <SelectTrigger className="w-[120px] h-8">
+                  <SelectValue placeholder="Time range" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="7">Last 7 Days</SelectItem>
+                  <SelectItem value="30">Last 30 Days</SelectItem>
+                  <SelectItem value="90">Last 90 Days</SelectItem>
+                  <SelectItem value="all">All Time</SelectItem>
                 </SelectContent>
               </Select>
             </div>
           </div>
-
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-lg">Fuel Consumption Trend</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="h-48 flex items-center justify-center border-2 border-dashed border-muted rounded-lg">
-                <div className="text-center text-muted-foreground">
-                  <ChartLine className="w-12 h-12 mx-auto mb-2 opacity-50" />
-                  <p>Chart visualization placeholder</p>
-                  <p className="text-sm">Line chart showing fuel consumption over last {fuelDateRange} days</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardContent className="p-0">
-              <div className="overflow-x-auto">
-                <table className="w-full">
-                  <thead className="border-b bg-muted/50">
-                    <tr>
-                      <th
-                        className="text-left p-4 font-medium cursor-pointer hover:bg-muted/70"
-                        onClick={() => handleFuelSort("vehicleNumber")}
-                      >
-                        Vehicle
-                        <SortIcon field="vehicleNumber" currentField={fuelSortField} direction={fuelSortDirection} />
-                      </th>
-                      <th
-                        className="text-left p-4 font-medium cursor-pointer hover:bg-muted/70"
-                        onClick={() => handleFuelSort("date")}
-                      >
-                        Date
-                        <SortIcon field="date" currentField={fuelSortField} direction={fuelSortDirection} />
-                      </th>
-                      <th
-                        className="text-left p-4 font-medium cursor-pointer hover:bg-muted/70"
-                        onClick={() => handleFuelSort("gallons")}
-                      >
-                        Gallons
-                        <SortIcon field="gallons" currentField={fuelSortField} direction={fuelSortDirection} />
-                      </th>
-                      <th
-                        className="text-left p-4 font-medium cursor-pointer hover:bg-muted/70"
-                        onClick={() => handleFuelSort("cost")}
-                      >
-                        Cost
-                        <SortIcon field="cost" currentField={fuelSortField} direction={fuelSortDirection} />
-                      </th>
-                      <th
-                        className="text-left p-4 font-medium cursor-pointer hover:bg-muted/70"
-                        onClick={() => handleFuelSort("odometer")}
-                      >
-                        Odometer
-                        <SortIcon field="odometer" currentField={fuelSortField} direction={fuelSortDirection} />
-                      </th>
-                      <th
-                        className="text-left p-4 font-medium cursor-pointer hover:bg-muted/70"
-                        onClick={() => handleFuelSort("mpg")}
-                      >
-                        MPG
-                        <SortIcon field="mpg" currentField={fuelSortField} direction={fuelSortDirection} />
-                      </th>
-                      <th className="text-left p-4 font-medium">Location</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {sortedFuelRecords.slice(0, 20).map(record => (
-                      <tr key={record.id} className="border-b hover:bg-muted/50 transition-colors">
-                        <td className="p-4">
-                          <p className="font-medium">{record.vehicleNumber}</p>
-                          <p className="text-sm text-muted-foreground">{record.vehicleName}</p>
-                        </td>
-                        <td className="p-4">
-                          {new Date(record.date).toLocaleDateString()}
-                        </td>
-                        <td className="p-4">{(record.gallons ?? 0).toFixed(1)}</td>
-                        <td className="p-4 font-medium">${(record.cost ?? 0).toFixed(2)}</td>
-                        <td className="p-4">{record.odometer.toLocaleString()} mi</td>
-                        <td className="p-4">
-                          <Badge variant="outline" className="bg-success/10 text-success border-success/20">
-                            {record.mpg} MPG
-                          </Badge>
-                        </td>
-                        <td className="p-4 text-sm text-muted-foreground">
-                          {record.location}
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </CardContent>
-          </Card>
-
-          {sortedFuelRecords.length > 20 && (
-            <p className="text-sm text-muted-foreground text-center">
-              Showing 20 of {sortedFuelRecords.length} records
-            </p>
-          )}
-        </TabsContent>
-
-        <TabsContent value="analytics" className="space-y-4">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-xl font-semibold">Fleet Analytics</h2>
-            <Select value={analyticsTimeRange} onValueChange={setAnalyticsTimeRange}>
-              <SelectTrigger className="w-32">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="7">7 days</SelectItem>
-                <SelectItem value="30">30 days</SelectItem>
-                <SelectItem value="60">60 days</SelectItem>
-                <SelectItem value="90">90 days</SelectItem>
-              </SelectContent>
-            </Select>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            <MetricCard
+              title="Fleet Utilization"
+              value={`${Math.floor(Math.random() * 30 + 60)}%`}
+              icon={<ChartLine className="h-5 w-5 text-muted-foreground" />}
+              trend="up"
+              trendValue="5.2%"
+            />
+            <MetricCard
+              title="Maintenance Costs"
+              value={`$${Math.floor(Math.random() * 1000 + 2000)}`}
+              icon={<Wrench className="h-5 w-5 text-muted-foreground" />}
+              trend="down"
+              trendValue="3.1%"
+            />
+            <MetricCard
+              title="Fuel Efficiency"
+              value={`${(Math.random() * 10 + 15).toFixed(1)} MPG`}
+              icon={<GasPump className="h-5 w-5 text-muted-foreground" />}
+              trend="up"
+              trendValue="1.8%"
+            />
+            <MetricCard
+              title="Downtime Incidents"
+              value={Math.floor(Math.random() * 10).toString()}
+              icon={<Calendar className="h-5 w-5 text-muted-foreground" />}
+              trend="down"
+              trendValue="2.4%"
+            />
           </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <Card>
-              <CardHeader className="pb-3">
-                <CardTitle className="text-sm font-medium text-muted-foreground">
-                  Utilization Rate
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="text-3xl font-bold">
-                  {((analyticsMetrics.activeVehicles / analyticsMetrics.totalVehicles) * 100).toFixed(1)}%
-                </div>
-                <p className="text-sm text-muted-foreground mt-1">
-                  {analyticsMetrics.activeVehicles} of {analyticsMetrics.totalVehicles} vehicles active
-                </p>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader className="pb-3">
-                <CardTitle className="text-sm font-medium text-muted-foreground">
-                  Avg Miles per Day
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="text-3xl font-bold">
-                  {analyticsMetrics.avgMilesPerDay}
-                </div>
-                <p className="text-sm text-muted-foreground mt-1">
-                  per vehicle
-                </p>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader className="pb-3">
-                <CardTitle className="text-sm font-medium text-muted-foreground">
-                  Most Efficient
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="text-lg font-bold truncate">
-                  {analyticsMetrics.mostEfficient.vehicle}
-                </div>
-                <p className="text-sm text-muted-foreground mt-1">
-                  {analyticsMetrics.mostEfficient.mpg.toFixed(1)} MPG average
-                </p>
-              </CardContent>
-            </Card>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-lg">Cost Analysis (Last {analyticsTimeRange} days)</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="space-y-2">
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm text-muted-foreground">Total Operating Cost</span>
-                    <span className="font-semibold text-lg">${analyticsMetrics.totalCost}</span>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm text-muted-foreground">Cost per Vehicle</span>
-                    <span className="font-medium">${analyticsMetrics.costPerVehicle}</span>
-                  </div>
-                </div>
-
-                <div className="pt-4 border-t">
-                  <h4 className="text-sm font-medium mb-3">Cost Breakdown</h4>
-                  <div className="space-y-3">
-                    <div>
-                      <div className="flex items-center justify-between mb-1">
-                        <span className="text-sm">Fuel</span>
-                        <span className="text-sm font-medium">${analyticsMetrics.fuelCost}</span>
-                      </div>
-                      <div className="h-2 bg-muted rounded-full overflow-hidden">
-                        <div
-                          className="h-full bg-blue-500"
-                          style={{
-                            width: `${(parseFloat(analyticsMetrics.fuelCost) / parseFloat(analyticsMetrics.totalCost)) * 100}%`
-                          }}
-                        />
-                      </div>
-                    </div>
-                    <div>
-                      <div className="flex items-center justify-between mb-1">
-                        <span className="text-sm">Maintenance</span>
-                        <span className="text-sm font-medium">${analyticsMetrics.maintenanceCost}</span>
-                      </div>
-                      <div className="h-2 bg-muted rounded-full overflow-hidden">
-                        <div
-                          className="h-full bg-orange-500"
-                          style={{
-                            width: `${(parseFloat(analyticsMetrics.maintenanceCost) / parseFloat(analyticsMetrics.totalCost)) * 100}%`
-                          }}
-                        />
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-lg">Vehicle Utilization</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="h-64 flex items-center justify-center border-2 border-dashed border-muted rounded-lg">
-                  <div className="text-center text-muted-foreground">
-                    <ChartLine className="w-12 h-12 mx-auto mb-2 opacity-50" />
-                    <p>Chart visualization placeholder</p>
-                    <p className="text-sm">Bar chart showing vehicle utilization by department</p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-
           <Card>
-            <CardHeader>
-              <CardTitle className="text-lg">Top Performers</CardTitle>
-            </CardHeader>
-            <CardContent className="p-0">
-              <div className="overflow-x-auto">
-                <table className="w-full">
-                  <thead className="border-b bg-muted/50">
-                    <tr>
-                      <th className="text-left p-4 font-medium">Category</th>
-                      <th className="text-left p-4 font-medium">Vehicle</th>
-                      <th className="text-left p-4 font-medium">Metric</th>
-                      <th className="text-left p-4 font-medium">Performance</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr className="border-b hover:bg-muted/50 transition-colors">
-                      <td className="p-4 font-medium">Most Efficient</td>
-                      <td className="p-4">
-                        <p className="font-medium">{vehicles[0]?.number || "N/A"}</p>
-                        <p className="text-sm text-muted-foreground">
-                          {vehicles[0] ? `${vehicles[0].year} ${vehicles[0].make} ${vehicles[0].model}` : ""}
-                        </p>
-                      </td>
-                      <td className="p-4">Fuel Economy</td>
-                      <td className="p-4">
-                        <Badge variant="outline" className="bg-success/10 text-success border-success/20">
-                          <TrendUp className="w-3 h-3 mr-1" />
-                          28.5 MPG
-                        </Badge>
-                      </td>
-                    </tr>
-                    <tr className="border-b hover:bg-muted/50 transition-colors">
-                      <td className="p-4 font-medium">Most Reliable</td>
-                      <td className="p-4">
-                        <p className="font-medium">{vehicles[2]?.number || "N/A"}</p>
-                        <p className="text-sm text-muted-foreground">
-                          {vehicles[2] ? `${vehicles[2].year} ${vehicles[2].make} ${vehicles[2].model}` : ""}
-                        </p>
-                      </td>
-                      <td className="p-4">Uptime</td>
-                      <td className="p-4">
-                        <Badge variant="outline" className="bg-success/10 text-success border-success/20">
-                          <CheckCircle className="w-3 h-3 mr-1" />
-                          99.2%
-                        </Badge>
-                      </td>
-                    </tr>
-                    <tr className="border-b hover:bg-muted/50 transition-colors">
-                      <td className="p-4 font-medium">Lowest Cost</td>
-                      <td className="p-4">
-                        <p className="font-medium">{vehicles[4]?.number || "N/A"}</p>
-                        <p className="text-sm text-muted-foreground">
-                          {vehicles[4] ? `${vehicles[4].year} ${vehicles[4].make} ${vehicles[4].model}` : ""}
-                        </p>
-                      </td>
-                      <td className="p-4">Operating Cost</td>
-                      <td className="p-4">
-                        <Badge variant="outline" className="bg-success/10 text-success border-success/20">
-                          <TrendDown className="w-3 h-3 mr-1" />
-                          $0.42/mi
-                        </Badge>
-                      </td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-lg">Cost Trends</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="h-64 flex items-center justify-center border-2 border-dashed border-muted rounded-lg">
-                <div className="text-center text-muted-foreground">
-                  <ChartLine className="w-12 h-12 mx-auto mb-2 opacity-50" />
-                  <p>Chart visualization placeholder</p>
-                  <p className="text-sm">Line chart showing cost trends over time</p>
-                </div>
-              </div>
+            <CardContent className="pt-6">
+              <p className="text-muted-foreground">Fleet analytics and charts coming soon...</p>
             </CardContent>
           </Card>
         </TabsContent>
       </Tabs>
 
+      {/* Add Vehicle Dialog */}
       <Dialog open={isAddVehicleDialogOpen} onOpenChange={setIsAddVehicleDialogOpen}>
-        <DialogContent className="max-w-md">
+        <DialogContent>
           <DialogHeader>
             <DialogTitle>Add New Vehicle</DialogTitle>
-            <DialogDescription>
-              Enter the vehicle information to add it to your fleet
-            </DialogDescription>
+            <DialogDescription>Enter the details of the new vehicle to add to your fleet.</DialogDescription>
           </DialogHeader>
-          <div className="space-y-4 py-4">
-            <div className="space-y-2">
-              <Label htmlFor="vehicle-number">Vehicle Number *</Label>
+          <div className="grid gap-4 py-4">
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="number" className="text-right">
+                Vehicle #
+              </Label>
               <Input
-                id="vehicle-number"
-                placeholder="e.g., UNIT-021"
+                id="number"
                 value={newVehicle.number}
-                onChange={(e) => setNewVehicle({ ...newVehicle, number: e.target.value })}
+                onChange={(e) => setNewVehicle(prev => ({ ...prev, number: e.target.value }))}
+                className="col-span-3"
               />
             </div>
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="make">Make *</Label>
-                <Input
-                  id="make"
-                  placeholder="e.g., Ford"
-                  value={newVehicle.make}
-                  onChange={(e) => setNewVehicle({ ...newVehicle, make: e.target.value })}
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="model">Model *</Label>
-                <Input
-                  id="model"
-                  placeholder="e.g., F-150"
-                  value={newVehicle.model}
-                  onChange={(e) => setNewVehicle({ ...newVehicle, model: e.target.value })}
-                />
-              </div>
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="make" className="text-right">
+                Make
+              </Label>
+              <Input
+                id="make"
+                value={newVehicle.make}
+                onChange={(e) => setNewVehicle(prev => ({ ...prev, make: e.target.value }))}
+                className="col-span-3"
+              />
             </div>
-            <div className="space-y-2">
-              <Label htmlFor="year">Year</Label>
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="model" className="text-right">
+                Model
+              </Label>
+              <Input
+                id="model"
+                value={newVehicle.model}
+                onChange={(e) => setNewVehicle(prev => ({ ...prev, model: e.target.value }))}
+                className="col-span-3"
+              />
+            </div>
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="year" className="text-right">
+                Year
+              </Label>
               <Input
                 id="year"
                 type="number"
-                placeholder="2024"
                 value={newVehicle.year}
-                onChange={(e) => setNewVehicle({ ...newVehicle, year: parseInt(e.target.value) || new Date().getFullYear() })}
+                onChange={(e) => setNewVehicle(prev => ({ ...prev, year: parseInt(e.target.value) }))}
+                className="col-span-3"
               />
             </div>
-            <div className="space-y-2">
-              <Label htmlFor="vin">VIN</Label>
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="vin" className="text-right">
+                VIN
+              </Label>
               <Input
                 id="vin"
-                placeholder="1FTFW1E12345678"
                 value={newVehicle.vin}
-                onChange={(e) => setNewVehicle({ ...newVehicle, vin: e.target.value })}
+                onChange={(e) => setNewVehicle(prev => ({ ...prev, vin: e.target.value }))}
+                className="col-span-3"
               />
             </div>
-            <div className="space-y-2">
-              <Label htmlFor="license-plate">License Plate</Label>
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="licensePlate" className="text-right">
+                License Plate
+              </Label>
               <Input
-                id="license-plate"
-                placeholder="FL-1234"
+                id="licensePlate"
                 value={newVehicle.licensePlate}
-                onChange={(e) => setNewVehicle({ ...newVehicle, licensePlate: e.target.value })}
+                onChange={(e) => setNewVehicle(prev => ({ ...prev, licensePlate: e.target.value }))}
+                className="col-span-3"
               />
             </div>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setIsAddVehicleDialogOpen(false)}>
+            <Button type="button" variant="secondary" onClick={() => setIsAddVehicleDialogOpen(false)}>
               Cancel
             </Button>
-            <Button onClick={handleSaveVehicle}>
-              Add Vehicle
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-
-      {/* Advanced Search Dialog */}
-      <Dialog open={isAdvancedSearchOpen} onOpenChange={setIsAdvancedSearchOpen}>
-        <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle>Advanced Search</DialogTitle>
-            <DialogDescription>
-              Search vehicles using multiple criteria to find exactly what you need
-            </DialogDescription>
-          </DialogHeader>
-          <div className="space-y-6 py-4">
-            {/* Vehicle Identification */}
-            <div className="space-y-4">
-              <h3 className="text-sm font-semibold text-foreground">Vehicle Identification</h3>
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="adv-vehicle-number">Vehicle Number</Label>
-                  <Input
-                    id="adv-vehicle-number"
-                    placeholder="e.g., UNIT-021"
-                    value={advancedSearchCriteria.vehicleNumber}
-                    onChange={(e) => setAdvancedSearchCriteria({ ...advancedSearchCriteria, vehicleNumber: e.target.value })}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="adv-vin">VIN</Label>
-                  <Input
-                    id="adv-vin"
-                    placeholder="Vehicle Identification Number"
-                    value={advancedSearchCriteria.vin}
-                    onChange={(e) => setAdvancedSearchCriteria({ ...advancedSearchCriteria, vin: e.target.value })}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="adv-license">License Plate</Label>
-                  <Input
-                    id="adv-license"
-                    placeholder="e.g., FL-1234"
-                    value={advancedSearchCriteria.licensePlate}
-                    onChange={(e) => setAdvancedSearchCriteria({ ...advancedSearchCriteria, licensePlate: e.target.value })}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="adv-status">Status</Label>
-                  <Select
-                    value={advancedSearchCriteria.status}
-                    onValueChange={(value) => setAdvancedSearchCriteria({ ...advancedSearchCriteria, status: value })}
-                  >
-                    <SelectTrigger id="adv-status">
-                      <SelectValue placeholder="Select status" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="all">All Statuses</SelectItem>
-                      <SelectItem value="active">Active</SelectItem>
-                      <SelectItem value="service">In Service</SelectItem>
-                      <SelectItem value="inactive">Inactive</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
-            </div>
-
-            {/* Vehicle Specifications */}
-            <div className="space-y-4">
-              <h3 className="text-sm font-semibold text-foreground">Vehicle Specifications</h3>
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="adv-make">Make</Label>
-                  <Input
-                    id="adv-make"
-                    placeholder="e.g., Ford, Chevrolet"
-                    value={advancedSearchCriteria.make}
-                    onChange={(e) => setAdvancedSearchCriteria({ ...advancedSearchCriteria, make: e.target.value })}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="adv-model">Model</Label>
-                  <Input
-                    id="adv-model"
-                    placeholder="e.g., F-150, Silverado"
-                    value={advancedSearchCriteria.model}
-                    onChange={(e) => setAdvancedSearchCriteria({ ...advancedSearchCriteria, model: e.target.value })}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="adv-year-from">Year From</Label>
-                  <Input
-                    id="adv-year-from"
-                    type="number"
-                    placeholder="e.g., 2020"
-                    value={advancedSearchCriteria.yearFrom}
-                    onChange={(e) => setAdvancedSearchCriteria({ ...advancedSearchCriteria, yearFrom: e.target.value })}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="adv-year-to">Year To</Label>
-                  <Input
-                    id="adv-year-to"
-                    type="number"
-                    placeholder="e.g., 2024"
-                    value={advancedSearchCriteria.yearTo}
-                    onChange={(e) => setAdvancedSearchCriteria({ ...advancedSearchCriteria, yearTo: e.target.value })}
-                  />
-                </div>
-              </div>
-            </div>
-
-            {/* Assignment & Location */}
-            <div className="space-y-4">
-              <h3 className="text-sm font-semibold text-foreground">Assignment & Location</h3>
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="adv-department">Department</Label>
-                  <Input
-                    id="adv-department"
-                    placeholder="e.g., Operations, Maintenance"
-                    value={advancedSearchCriteria.department}
-                    onChange={(e) => setAdvancedSearchCriteria({ ...advancedSearchCriteria, department: e.target.value })}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="adv-region">Region</Label>
-                  <Input
-                    id="adv-region"
-                    placeholder="e.g., North, South, Central"
-                    value={advancedSearchCriteria.region}
-                    onChange={(e) => setAdvancedSearchCriteria({ ...advancedSearchCriteria, region: e.target.value })}
-                  />
-                </div>
-                <div className="space-y-2 col-span-2">
-                  <Label htmlFor="adv-driver">Assigned Driver</Label>
-                  <Input
-                    id="adv-driver"
-                    placeholder="Driver name"
-                    value={advancedSearchCriteria.assignedDriver}
-                    onChange={(e) => setAdvancedSearchCriteria({ ...advancedSearchCriteria, assignedDriver: e.target.value })}
-                  />
-                </div>
-              </div>
-            </div>
-
-            {/* Performance Metrics */}
-            <div className="space-y-4">
-              <h3 className="text-sm font-semibold text-foreground">Performance Metrics</h3>
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="adv-fuel-min">Fuel Level Min (%)</Label>
-                  <Input
-                    id="adv-fuel-min"
-                    type="number"
-                    min="0"
-                    max="100"
-                    placeholder="0"
-                    value={advancedSearchCriteria.fuelLevelMin}
-                    onChange={(e) => setAdvancedSearchCriteria({ ...advancedSearchCriteria, fuelLevelMin: e.target.value })}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="adv-fuel-max">Fuel Level Max (%)</Label>
-                  <Input
-                    id="adv-fuel-max"
-                    type="number"
-                    min="0"
-                    max="100"
-                    placeholder="100"
-                    value={advancedSearchCriteria.fuelLevelMax}
-                    onChange={(e) => setAdvancedSearchCriteria({ ...advancedSearchCriteria, fuelLevelMax: e.target.value })}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="adv-mileage-min">Mileage Min</Label>
-                  <Input
-                    id="adv-mileage-min"
-                    type="number"
-                    min="0"
-                    placeholder="0"
-                    value={advancedSearchCriteria.mileageMin}
-                    onChange={(e) => setAdvancedSearchCriteria({ ...advancedSearchCriteria, mileageMin: e.target.value })}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="adv-mileage-max">Mileage Max</Label>
-                  <Input
-                    id="adv-mileage-max"
-                    type="number"
-                    min="0"
-                    placeholder="999999"
-                    value={advancedSearchCriteria.mileageMax}
-                    onChange={(e) => setAdvancedSearchCriteria({ ...advancedSearchCriteria, mileageMax: e.target.value })}
-                  />
-                </div>
-              </div>
-            </div>
-          </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setIsAdvancedSearchOpen(false)}>
-              Cancel
-            </Button>
-            <Button onClick={handleAdvancedSearch}>
-              <MagnifyingGlass className="w-4 h-4 mr-2" />
-              Search
+            <Button type="submit" onClick={handleSaveVehicle}>
+              Save Vehicle
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -1719,33 +815,33 @@ export function DataWorkbench({ data }: DataWorkbenchProps) {
 
       {/* Schedule Service Dialog */}
       <Dialog open={isScheduleServiceDialogOpen} onOpenChange={setIsScheduleServiceDialogOpen}>
-        <DialogContent className="max-w-md">
+        <DialogContent>
           <DialogHeader>
-            <DialogTitle>Schedule Service</DialogTitle>
-            <DialogDescription>
-              Schedule maintenance service for a vehicle
-            </DialogDescription>
+            <DialogTitle>Schedule Maintenance</DialogTitle>
+            <DialogDescription>Schedule a new maintenance service for a vehicle.</DialogDescription>
           </DialogHeader>
-          <div className="space-y-4 py-4">
-            <div className="space-y-2">
-              <Label htmlFor="service-vehicle">Vehicle *</Label>
-              <Select>
-                <SelectTrigger id="service-vehicle">
+          <div className="grid gap-4 py-4">
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="serviceVehicle" className="text-right">
+                Vehicle
+              </Label>
+              <Select defaultValue={vehicles.length > 0 ? vehicles[0].number : ""}>
+                <SelectTrigger className="col-span-3">
                   <SelectValue placeholder="Select vehicle" />
                 </SelectTrigger>
                 <SelectContent>
-                  {vehicles.slice(0, 10).map(v => (
-                    <SelectItem key={v.id} value={v.id}>
-                      {v.number} - {v.make} {v.model}
-                    </SelectItem>
+                  {vehicles.map(v => (
+                    <SelectItem key={v.number} value={v.number}>{v.number} - {v.make} {v.model}</SelectItem>
                   ))}
                 </SelectContent>
               </Select>
             </div>
-            <div className="space-y-2">
-              <Label htmlFor="service-type">Service Type *</Label>
-              <Select>
-                <SelectTrigger id="service-type">
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="serviceType" className="text-right">
+                Service Type
+              </Label>
+              <Select defaultValue="oil-change">
+                <SelectTrigger className="col-span-3">
                   <SelectValue placeholder="Select service type" />
                 </SelectTrigger>
                 <SelectContent>
@@ -1760,28 +856,189 @@ export function DataWorkbench({ data }: DataWorkbenchProps) {
                 </SelectContent>
               </Select>
             </div>
-            <div className="space-y-2">
-              <Label htmlFor="service-date">Scheduled Date *</Label>
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="serviceDate" className="text-right">
+                Date
+              </Label>
               <Input
-                id="service-date"
+                id="serviceDate"
                 type="date"
-                min={new Date().toISOString().split('T')[0]}
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="service-notes">Notes</Label>
-              <Input
-                id="service-notes"
-                placeholder="Additional notes or instructions"
+                className="col-span-3"
+                defaultValue={new Date().toISOString().split('T')[0]}
               />
             </div>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setIsScheduleServiceDialogOpen(false)}>
+            <Button type="button" variant="secondary" onClick={() => setIsScheduleServiceDialogOpen(false)}>
               Cancel
             </Button>
-            <Button onClick={handleScheduleService}>
+            <Button type="submit" onClick={handleScheduleService}>
               Schedule Service
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Advanced Search Dialog */}
+      <Dialog open={isAdvancedSearchOpen} onOpenChange={setIsAdvancedSearchOpen}>
+        <DialogContent className="max-w-4xl">
+          <DialogHeader>
+            <DialogTitle>Advanced Vehicle Search</DialogTitle>
+            <DialogDescription>Search for vehicles using detailed criteria.</DialogDescription>
+          </DialogHeader>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 py-4">
+            <div className="space-y-4">
+              <div>
+                <Label htmlFor="searchVehicleNumber">Vehicle Number</Label>
+                <Input
+                  id="searchVehicleNumber"
+                  value={advancedSearchCriteria.vehicleNumber}
+                  onChange={(e) => setAdvancedSearchCriteria(prev => ({ ...prev, vehicleNumber: e.target.value }))}
+                />
+              </div>
+              <div>
+                <Label htmlFor="searchMake">Make</Label>
+                <Input
+                  id="searchMake"
+                  value={advancedSearchCriteria.make}
+                  onChange={(e) => setAdvancedSearchCriteria(prev => ({ ...prev, make: e.target.value }))}
+                />
+              </div>
+              <div>
+                <Label htmlFor="searchModel">Model</Label>
+                <Input
+                  id="searchModel"
+                  value={advancedSearchCriteria.model}
+                  onChange={(e) => setAdvancedSearchCriteria(prev => ({ ...prev, model: e.target.value }))}
+                />
+              </div>
+              <div>
+                <Label htmlFor="searchVin">VIN</Label>
+                <Input
+                  id="searchVin"
+                  value={advancedSearchCriteria.vin}
+                  onChange={(e) => setAdvancedSearchCriteria(prev => ({ ...prev, vin: e.target.value }))}
+                />
+              </div>
+              <div>
+                <Label htmlFor="searchLicensePlate">License Plate</Label>
+                <Input
+                  id="searchLicensePlate"
+                  value={advancedSearchCriteria.licensePlate}
+                  onChange={(e) => setAdvancedSearchCriteria(prev => ({ ...prev, licensePlate: e.target.value }))}
+                />
+              </div>
+              <div className="grid grid-cols-2 gap-2">
+                <div>
+                  <Label htmlFor="searchYearFrom">Year From</Label>
+                  <Input
+                    id="searchYearFrom"
+                    type="number"
+                    value={advancedSearchCriteria.yearFrom}
+                    onChange={(e) => setAdvancedSearchCriteria(prev => ({ ...prev, yearFrom: e.target.value }))}
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="searchYearTo">Year To</Label>
+                  <Input
+                    id="searchYearTo"
+                    type="number"
+                    value={advancedSearchCriteria.yearTo}
+                    onChange={(e) => setAdvancedSearchCriteria(prev => ({ ...prev, yearTo: e.target.value }))}
+                  />
+                </div>
+              </div>
+            </div>
+            <div className="space-y-4">
+              <div>
+                <Label htmlFor="searchStatus">Status</Label>
+                <Select value={advancedSearchCriteria.status} onValueChange={(value) => setAdvancedSearchCriteria(prev => ({ ...prev, status: value }))}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select status" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All Statuses</SelectItem>
+                    <SelectItem value="active">Active</SelectItem>
+                    <SelectItem value="inactive">Inactive</SelectItem>
+                    <SelectItem value="maintenance">In Maintenance</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
+                <Label htmlFor="searchDepartment">Department</Label>
+                <Input
+                  id="searchDepartment"
+                  value={advancedSearchCriteria.department}
+                  onChange={(e) => setAdvancedSearchCriteria(prev => ({ ...prev, department: e.target.value }))}
+                />
+              </div>
+              <div>
+                <Label htmlFor="searchRegion">Region/Location</Label>
+                <Input
+                  id="searchRegion"
+                  value={advancedSearchCriteria.region}
+                  onChange={(e) => setAdvancedSearchCriteria(prev => ({ ...prev, region: e.target.value }))}
+                />
+              </div>
+              <div>
+                <Label htmlFor="searchDriver">Assigned Driver</Label>
+                <Input
+                  id="searchDriver"
+                  value={advancedSearchCriteria.assignedDriver}
+                  onChange={(e) => setAdvancedSearchCriteria(prev => ({ ...prev, assignedDriver: e.target.value }))}
+                />
+              </div>
+              <div className="grid grid-cols-2 gap-2">
+                <div>
+                  <Label htmlFor="searchFuelMin">Fuel Level Min (%)</Label>
+                  <Input
+                    id="searchFuelMin"
+                    type="number"
+                    value={advancedSearchCriteria.fuelLevelMin}
+                    onChange={(e) => setAdvancedSearchCriteria(prev => ({ ...prev, fuelLevelMin: e.target.value }))}
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="searchFuelMax">Fuel Level Max (%)</Label>
+                  <Input
+                    id="searchFuelMax"
+                    type="number"
+                    value={advancedSearchCriteria.fuelLevelMax}
+                    onChange={(e) => setAdvancedSearchCriteria(prev => ({ ...prev, fuelLevelMax: e.target.value }))}
+                  />
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-2">
+                <div>
+                  <Label htmlFor="searchMileageMin">Mileage Min</Label>
+                  <Input
+                    id="searchMileageMin"
+                    type="number"
+                    value={advancedSearchCriteria.mileageMin}
+                    onChange={(e) => setAdvancedSearchCriteria(prev => ({ ...prev, mileageMin: e.target.value }))}
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="searchMileageMax">Mileage Max</Label>
+                  <Input
+                    id="searchMileageMax"
+                    type="number"
+                    value={advancedSearchCriteria.mileageMax}
+                    onChange={(e) => setAdvancedSearchCriteria(prev => ({ ...prev, mileageMax: e.target.value }))}
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button type="button" variant="secondary" onClick={() => setIsAdvancedSearchOpen(false)}>
+              Cancel
+            </Button>
+            <Button type="button" variant="outline" onClick={handleClearAllFilters}>
+              Clear Filters
+            </Button>
+            <Button type="submit" onClick={handleAdvancedSearch}>
+              Search
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -1789,5 +1046,3 @@ export function DataWorkbench({ data }: DataWorkbenchProps) {
     </div>
   )
 }
-
-export default DataWorkbench;

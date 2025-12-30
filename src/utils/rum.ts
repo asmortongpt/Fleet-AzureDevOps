@@ -214,8 +214,8 @@ export class RUMTracker {
 
           if (
             clsEntries.length === 0 ||
-            (entry.startTime - lastSessionEntry.startTime < 1000 &&
-              entry.startTime - firstSessionEntry.startTime < 5000)
+            (entry.startTime - (lastSessionEntry?.startTime ?? 0) < 1000 &&
+              entry.startTime - (firstSessionEntry?.startTime ?? 0) < 5000)
           ) {
             clsEntries.push(entry);
             clsValue += (entry as any).value;
@@ -246,8 +246,10 @@ export class RUMTracker {
 
     const observer = new PerformanceObserver((list) => {
       const entries = list.getEntries();
-      const lastEntry = entries[entries.length - 1];
-      this.reportWebVital('LCP', lastEntry.startTime);
+      const lastEntry = entries[entries.length - 1] as PerformanceEntry;
+      if (lastEntry) {
+        this.reportWebVital('LCP', lastEntry.startTime);
+      }
     });
 
     observer.observe({ type: 'largest-contentful-paint', buffered: true });
@@ -300,7 +302,7 @@ export class RUMTracker {
       }
     });
 
-    observer.observe({ type: 'event', buffered: true, durationThreshold: 16 });
+    observer.observe({ type: 'event', buffered: true });
 
     // Report on visibility change
     document.addEventListener('visibilitychange', () => {
@@ -437,7 +439,7 @@ export class RUMTracker {
   private setupAutoFlush(): void {
     this.flushTimer = window.setInterval(() => {
       this.flush();
-    }, this.flushInterval);
+    }, this.flushInterval) as unknown as number;
 
     // Flush on page unload
     window.addEventListener('beforeunload', () => {
@@ -564,7 +566,7 @@ export class RUMTracker {
 
     this.events.forEach((event) => {
       if (event.type === 'web-vital') {
-        webVitals[event.data?.name] = event.data;
+        webVitals[event.data.name] = event.data;
       } else if (event.type === 'map-metric') {
         mapMetrics.push(event.data);
       }
@@ -577,27 +579,3 @@ export class RUMTracker {
     };
   }
 }
-
-// ============================================================================
-// Singleton Instance
-// ============================================================================
-
-let rumInstance: RUMTracker | null = null;
-
-export function initRUM(config?: Parameters<typeof RUMTracker.prototype.constructor>[0]): RUMTracker {
-  if (!rumInstance) {
-    rumInstance = new RUMTracker(config);
-    rumInstance.start();
-  }
-  return rumInstance;
-}
-
-export function getRUM(): RUMTracker | null {
-  return rumInstance;
-}
-
-// ============================================================================
-// Export
-// ============================================================================
-
-export default RUMTracker;

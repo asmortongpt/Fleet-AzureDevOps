@@ -58,7 +58,7 @@ export function DocumentUploader({
       const validation = validateFile(file, { maxSize, allowedTypes });
 
       if (!validation.valid) {
-        setRejectedFiles(prev => [...prev, { file, error: validation.error! }]);
+        setRejectedFiles(prev => [...prev, { file, error: validation.error || 'Invalid file' }]);
         return;
       }
 
@@ -88,7 +88,7 @@ export function DocumentUploader({
     maxSize,
   });
 
-  const simulateUpload = (fileId: string, file: File) => {
+  const simulateUpload = (fileId: string, _file: File) => {
     let progress = 0;
 
     const interval = setInterval(() => {
@@ -120,7 +120,7 @@ export function DocumentUploader({
               ...item,
               progress,
               status: 'uploading',
-              uploadedBytes: Math.floor((progress / 100) * item.totalBytes)
+              uploadedBytes: Math.floor((progress / 100) * (item.totalBytes || 0))
             });
           }
           return newQueue;
