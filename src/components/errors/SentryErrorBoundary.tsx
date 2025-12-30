@@ -343,9 +343,7 @@ export class SentryErrorBoundary extends Component<Props, State> {
  */
 export const useSentryErrorHandler = () => {
   return (_error: Error) => {
-    captureException(_error, {
-      tags: { context: 'manual_error_handler' }
-    })
+    captureException(_error)
   }
 }
 
