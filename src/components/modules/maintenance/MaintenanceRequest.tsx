@@ -14,7 +14,7 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { useFleetData } from "@/hooks/use-fleet-data"
-import { MaintenanceRequest as MaintenanceRequestType } from "@/lib/types"
+import { MaintenanceSchedule } from "@/lib/types"
 
 
 interface MaintenanceRequestProps {
@@ -25,12 +25,12 @@ export function MaintenanceRequest({ data }: MaintenanceRequestProps) {
   const [dialogOpen, setDialogOpen] = useState(false)
 
 
-  const handleStatusChange = (id: string, status: MaintenanceRequestType["status"]) => {
+  const handleStatusChange = (id: string, status: MaintenanceSchedule["status"]) => {
     data.updateMaintenanceRequest(id, { status })
     toast.success(`Request ${status}`)
   }
 
-  const getPriorityColor = (priority: MaintenanceRequestType["priority"]) => {
+  const getPriorityColor = (priority: MaintenanceSchedule["priority"]) => {
     const colors = {
       low: "bg-muted text-muted-foreground",
       medium: "bg-accent/10 text-accent border-accent/20",
@@ -40,24 +40,22 @@ export function MaintenanceRequest({ data }: MaintenanceRequestProps) {
     return colors[priority]
   }
 
-  const getStatusColor = (status: string) => {
-    const colors: Record<string, string> = {
-      pending: "bg-warning/10 text-warning border-warning/20",
-      approved: "bg-accent/10 text-accent border-accent/20",
-      "in-progress": "bg-accent/10 text-accent border-accent/20",
-      completed: "bg-success/10 text-success border-success/20",
+  const getStatusColor = (status: MaintenanceSchedule["status"]) => {
+    const colors: Record<MaintenanceSchedule["status"], string> = {
+      scheduled: "bg-muted text-muted-foreground",
       due: "bg-warning/10 text-warning border-warning/20",
-      overdue: "bg-destructive/10 text-destructive border-destructive/20"
+      overdue: "bg-destructive/10 text-destructive border-destructive/20",
+      completed: "bg-success/10 text-success border-success/20"
     }
-    return colors[status] || "bg-muted text-muted-foreground"
+    return colors[status]
   }
 
   const requests = data.maintenanceRequests || []
   const vehicles = data.vehicles || []
 
-  const pendingCount = requests.filter(r => r.status === "pending").length
-  const approvedCount = requests.filter(r => r.status === "approved").length
-  const inProgressCount = requests.filter(r => r.status === "in-progress").length
+  const scheduledCount = requests.filter(r => r.status === "scheduled").length
+  const dueCount = requests.filter(r => r.status === "due").length
+  const overdueCount = requests.filter(r => r.status === "overdue").length
 
 
   return (
@@ -82,12 +80,26 @@ export function MaintenanceRequest({ data }: MaintenanceRequestProps) {
         <Card>
           <CardContent className="p-6">
             <div className="flex items-center gap-3">
+              <div className="p-3 bg-muted rounded-lg">
+                <Clock className="w-6 h-6" />
+              </div>
+              <div>
+                <p className="text-sm text-muted-foreground">Scheduled</p>
+                <p className="text-2xl font-semibold metric-number">{scheduledCount}</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardContent className="p-6">
+            <div className="flex items-center gap-3">
               <div className="p-3 bg-warning/10 text-warning rounded-lg">
                 <Clock className="w-6 h-6" />
               </div>
               <div>
-                <p className="text-sm text-muted-foreground">Pending</p>
-                <p className="text-2xl font-semibold metric-number">{pendingCount}</p>
+                <p className="text-sm text-muted-foreground">Due</p>
+                <p className="text-2xl font-semibold metric-number">{dueCount}</p>
               </div>
             </div>
           </CardContent>
@@ -96,26 +108,12 @@ export function MaintenanceRequest({ data }: MaintenanceRequestProps) {
         <Card>
           <CardContent className="p-6">
             <div className="flex items-center gap-3">
-              <div className="p-3 bg-accent/10 text-accent rounded-lg">
-                <CheckCircle className="w-6 h-6" />
-              </div>
-              <div>
-                <p className="text-sm text-muted-foreground">Approved</p>
-                <p className="text-2xl font-semibold metric-number">{approvedCount}</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardContent className="p-6">
-            <div className="flex items-center gap-3">
-              <div className="p-3 bg-accent/10 text-accent rounded-lg">
+              <div className="p-3 bg-destructive/10 text-destructive rounded-lg">
                 <Wrench className="w-6 h-6" />
               </div>
               <div>
-                <p className="text-sm text-muted-foreground">In Progress</p>
-                <p className="text-2xl font-semibold metric-number">{inProgressCount}</p>
+                <p className="text-sm text-muted-foreground">Overdue</p>
+                <p className="text-2xl font-semibold metric-number">{overdueCount}</p>
               </div>
             </div>
           </CardContent>

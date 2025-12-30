@@ -25,7 +25,7 @@ async function loadMapboxGL(): Promise<typeof import("mapbox-gl")> {
     }
 
     logger.debug("✅ Mapbox GL loaded successfully")
-    return mapboxgl
+    return mapboxgl as typeof import("mapbox-gl")
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : "Unknown error"
     logger.error("❌ Failed to load Mapbox GL:", errorMessage)
