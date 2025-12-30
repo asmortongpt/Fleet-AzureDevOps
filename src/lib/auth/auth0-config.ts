@@ -12,7 +12,21 @@
  * SOC 2: CC6.1, CC6.2, CC6.3
  */
 
-import { Auth0Client, Auth0ClientOptions } from '@auth0/auth0-spa-js';
+import Auth0Client from '@auth0/auth0-spa-js';
+
+// Define Auth0ClientOptions locally since package may not be installed
+type Auth0ClientOptions = {
+  domain: string;
+  clientId: string;
+  authorizationParams?: {
+    redirect_uri?: string;
+    audience?: string;
+    scope?: string;
+  };
+  cacheLocation?: 'memory' | 'localstorage';
+  useRefreshTokens?: boolean;
+  useRefreshTokensFallback?: boolean;
+};
 import { PublicClientApplication, Configuration } from '@azure/msal-browser';
 
 /**
