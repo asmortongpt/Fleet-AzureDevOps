@@ -107,16 +107,20 @@ export function PersonalUseDashboard() {
     gcTime: 30000
   })
 
-  const { data: reimbursementsRes, error: _reimbursementsError, refetch: refetchDashboard } = useQuery({
+  const { data: reimbursementsRes, error: reimbursementsError, refetch: refetchDashboard } = useQuery({
     queryKey: ['reimbursements-dashboard'],
     queryFn: () => apiClient('/api/reimbursements?status=pending&status=approved'),
     staleTime: 30000,
-    gcTime: 30000,
-    onError: (error: unknown) => {
-      logger.error('Failed to fetch dashboard data:', error)
+    gcTime: 30000
+  })
+
+  // Handle errors with useEffect
+  React.useEffect(() => {
+    if (reimbursementsError) {
+      logger.error('Failed to fetch dashboard data:', reimbursementsError)
       toast.error('Failed to load dashboard data')
     }
-  })
+  }, [reimbursementsError])
 
   const dashboardData = dashboardRes as DashboardData | null
   const recentTrips = (tripsRes as PersonalTrip[]) || []
