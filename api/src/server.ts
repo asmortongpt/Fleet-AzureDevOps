@@ -40,7 +40,7 @@ import { csrfProtection, getCsrfToken } from './middleware/csrf'
 
 // Core Fleet Management Routes
 import adminJobsRouter from './routes/admin-jobs.routes'
-import aiInsightsRouter from './routes/ai-insights.routes'
+// DISABLED: import aiInsightsRouter from './routes/ai-insights.routes'
 import aiSearchRouter from './routes/ai-search'
 import aiTaskAssetRouter from './routes/ai-task-asset.routes'
 import aiTaskPrioritizationRouter from './routes/ai-task-prioritization.routes'
@@ -92,7 +92,7 @@ import chargingStationsRouter from './routes/charging-stations'
 // Document Management Routes
 import documentsRouter from './routes/documents'
 import fleetDocumentsRouter from './routes/fleet-documents.routes'
-import ocrRouter from './routes/ocr.routes'
+// DISABLED: import ocrRouter from './routes/ocr.routes'
 
 // Financial & Cost Management Routes
 import costsRouter from './routes/costs'
@@ -109,7 +109,7 @@ import customReportsRouter from './routes/custom-reports.routes'
 import driverScorecardRouter from './routes/driver-scorecard.routes'
 
 // AI & Automation Routes
-import langchainRouter from './routes/langchain.routes'
+// DISABLED: import langchainRouter from './routes/langchain.routes'
 // DISABLED: import fleetOptimizerRouter from './routes/fleet-optimizer.routes'
 
 // Task & Schedule Management Routes
@@ -353,11 +353,11 @@ app.use('/api/assignment-reporting', assignmentReportingRouter)
 app.use('/api/driver-scorecard', driverScorecardRouter)
 
 // AI & Automation Routes
-app.use('/api/ai-insights', aiInsightsRouter)
+// DISABLED: app.use('/api/ai-insights', aiInsightsRouter)
 app.use('/api/ai-search', aiSearchRouter)
 app.use('/api/ai-task-asset', aiTaskAssetRouter)
 app.use('/api/ai-tasks', aiTaskPrioritizationRouter)
-app.use('/api/langchain', langchainRouter)
+// DISABLED: app.use('/api/langchain', langchainRouter)
 // DISABLED: app.use('/api/fleet-optimizer', fleetOptimizerRouter)
 
 // Task & Schedule Management Routes
