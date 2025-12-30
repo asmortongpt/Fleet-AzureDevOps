@@ -69,68 +69,6 @@ export abstract class BaseRepository<T, CreateDTO = Partial<T>, UpdateDTO = Part
   }
 
   /**
-   * Find entity by ID with tenant isolation
-   * Uses parameterized query to prevent SQL injection
-   */
-  async findById(id: number | string, tenantId: number | string, _client?: PoolClient): Promise<T | null> {
-    const result = await this.pool.query(
-      `SELECT * FROM ${this.tableName} WHERE ${this.idColumn} = $1 AND tenant_id = $2`,
-      [id, tenantId]
-    )
-    return result.rows[0] || null
-  }
-
-  /**
-   * Find all entities with optional filters
-   * Dynamically builds WHERE clause from filters object
-   */
-  async findAll(filters: Record<string, unknown> = {}, tenantId: number | string): Promise<T[]> {
-    const whereClauses: string[] = [`tenant_id = $1`]
-    const params: unknown[] = [tenantId]
-    let paramIndex = 2
-
-    // Build dynamic WHERE clause from filters
-    Object.entries(filters).forEach(([key, value]) => {
-      if (value !== undefined && value !== null) {
-        whereClauses.push(`${key} = $${paramIndex}`)
-        params.push(value)
-        paramIndex++
-      }
-    })
-
-    const whereClause = whereClauses.join(' AND ')
-    const result = await this.pool.query(
-      `SELECT * FROM ${this.tableName} WHERE ${whereClause} ORDER BY ${this.idColumn} DESC`,
-      params
-    )
-    return result.rows
-  }
-
-  /**
-   * Create new entity - must be implemented by subclass
-   * Subclasses handle specific column mapping and validation
-   */
-  abstract create(data: CreateDTO, tenantId: number | string): Promise<T>
-
-  /**
-   * Update existing entity - must be implemented by subclass
-   * Subclasses handle specific column mapping and validation
-   */
-  abstract update(id: number | string, data: UpdateDTO, tenantId: number | string): Promise<T>
-
-  /**
-   * Delete entity with tenant isolation
-   * Uses parameterized query to prevent SQL injection
-   */
-  async delete(id: number | string, tenantId: number | string): Promise<boolean> {
-    const result = await this.pool.query(
-      `DELETE FROM ${this.tableName} WHERE ${this.idColumn} = $1 AND tenant_id = $2`,
-      [id, tenantId]
-    )
-    return result.rowCount !== null && result.rowCount > 0
-  }
-
-  /**
    * Count entities with optional filters
    * Uses parameterized query for WHERE clause
    */
