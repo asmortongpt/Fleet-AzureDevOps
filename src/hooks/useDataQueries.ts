@@ -156,9 +156,9 @@ export function useUpdateDriver() {
   return useMutation({
     mutationFn: async ({ id, ...updates }: Partial<Driver> & { id: string }) => {
       const response = await apiClient.put<Driver>(`/api/drivers/${id}`, updates);
-      return response;
+      return (response as any)?.data || response;
     },
-    onSuccess: (data) => {
+    onSuccess: (data: any) => {
       queryClient.invalidateQueries({ queryKey: queryKeys.drivers });
       queryClient.invalidateQueries({ queryKey: queryKeys.driver(data?.id || '') });
     },
@@ -215,9 +215,9 @@ export function useUpdateWorkOrder() {
   return useMutation({
     mutationFn: async ({ id, ...updates }: Partial<WorkOrder> & { id: string }) => {
       const response = await apiClient.put<WorkOrder>(`/api/work-orders/${id}`, updates);
-      return response;
+      return (response as any)?.data || response;
     },
-    onSuccess: (data) => {
+    onSuccess: (data: any) => {
       queryClient.invalidateQueries({ queryKey: queryKeys.workOrders });
       queryClient.invalidateQueries({ queryKey: queryKeys.workOrder(data?.id || '') });
     },

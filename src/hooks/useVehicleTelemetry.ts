@@ -118,7 +118,8 @@ export function useVehicleTelemetry(options: UseVehicleTelemetryOptions = {}) {
               ...current,
               location: data?.gps ? {
                 lat: data.gps.latitude,
-                lng: data.gps.longitude
+                lng: data.gps.longitude,
+                address: current.location?.address ?? ''
               } : current.location,
               speed: data?.gps?.speed ?? data?.obd?.speed ?? current.speed,
               lastUpdated: new Date().toISOString(),
