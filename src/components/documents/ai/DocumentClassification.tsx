@@ -34,8 +34,7 @@ export function DocumentClassification({
   document,
   suggestedTags,
   onApplyTag,
-  onRemoveTag,
-  _onChangeCategory
+  onRemoveTag
 }: DocumentClassificationProps) {
   const [newTag, setNewTag] = useState('');
   const [showAllSuggestions, setShowAllSuggestions] = useState(false);
