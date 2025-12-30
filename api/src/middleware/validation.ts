@@ -107,14 +107,14 @@ export function validate(
           userAgent: req.get('user-agent'),
           details: {
             endpoint: req.path,
-            errors: error.errors,
+            errors: error.issues,
             data: sanitizeForLogging(req[target])
           },
           severity: 'low'
         })
 
         // Format error message
-        const formattedErrors = error.errors.map(err => ({
+        const formattedErrors = error.issues.map(err => ({
           field: err.path.join('.'),
           message: options.messages?.[err.path.join('.')] || err.message,
           code: err.code,
@@ -156,7 +156,7 @@ export function validateAll(schemas: {
       next()
     } catch (error) {
       if (error instanceof ZodError) {
-        const formattedErrors = error.errors.map(err => ({
+        const formattedErrors = error.issues.map(err => ({
           field: err.path.join('.'),
           message: err.message
         }))
