@@ -92,7 +92,7 @@ const SystemHealthWidget: React.FC<Props> = ({ health, loading }) => {
     <Paper sx={{ p: 3 }}>
       <Grid container spacing={3}>
         {/* Main Status */}
-        <Grid item xs={12} md={3}>
+        <Grid size={{ xs: 12, md: 3 }}>
           <Box display="flex" flexDirection="column" alignItems="center" gap={2}>
             {statusIcon}
             <Chip
@@ -108,10 +108,10 @@ const SystemHealthWidget: React.FC<Props> = ({ health, loading }) => {
         </Grid>
 
         {/* Metrics */}
-        <Grid item xs={12} md={9}>
+        <Grid size={{ xs: 12, md: 9 }}>
           <Grid container spacing={2}>
             {/* Availability */}
-            <Grid item xs={12} md={4}>
+            <Grid size={{ xs: 12, md: 4 }}>
               <Box sx={{ mb: 1 }}>
                 <Typography variant="body2" color="text.secondary" gutterBottom>
                   Availability
@@ -129,7 +129,7 @@ const SystemHealthWidget: React.FC<Props> = ({ health, loading }) => {
             </Grid>
 
             {/* Uptime */}
-            <Grid item xs={12} md={4}>
+            <Grid size={{ xs: 12, md: 4 }}>
               <Box sx={{ mb: 1 }}>
                 <Typography variant="body2" color="text.secondary" gutterBottom>
                   Uptime
@@ -144,7 +144,7 @@ const SystemHealthWidget: React.FC<Props> = ({ health, loading }) => {
             </Grid>
 
             {/* Response Time */}
-            <Grid item xs={12} md={4}>
+            <Grid size={{ xs: 12, md: 4 }}>
               <Box sx={{ mb: 1 }}>
                 <Typography variant="body2" color="text.secondary" gutterBottom>
                   Avg Response Time
@@ -174,13 +174,13 @@ const SystemHealthWidget: React.FC<Props> = ({ health, loading }) => {
             </Grid>
 
             {/* Component Status */}
-            <Grid item xs={12}>
+            <Grid size={{ xs: 12 }}>
               <Typography variant="body2" color="text.secondary" gutterBottom>
                 Component Status
               </Typography>
               <Grid container spacing={2} sx={{ mt: 1 }}>
                 {/* API Status */}
-                <Grid item xs={12} md={4}>
+                <Grid size={{ xs: 12, md: 4 }}>
                   <Paper sx={{ p: 2, bgcolor: 'background.default' }}>
                     <Box display="flex" justifyContent="space-between" alignItems="center">
                       <Typography variant="body2">API Service</Typography>
@@ -199,7 +199,7 @@ const SystemHealthWidget: React.FC<Props> = ({ health, loading }) => {
                 </Grid>
 
                 {/* Emulators Status */}
-                <Grid item xs={12} md={4}>
+                <Grid size={{ xs: 12, md: 4 }}>
                   <Paper sx={{ p: 2, bgcolor: 'background.default' }}>
                     <Box display="flex" justifyContent="space-between" alignItems="center">
                       <Typography variant="body2">Emulators</Typography>
@@ -220,7 +220,7 @@ const SystemHealthWidget: React.FC<Props> = ({ health, loading }) => {
                 </Grid>
 
                 {/* Database Status */}
-                <Grid item xs={12} md={4}>
+                <Grid size={{ xs: 12, md: 4 }}>
                   <Paper sx={{ p: 2, bgcolor: 'background.default' }}>
                     <Box display="flex" justifyContent="space-between" alignItems="center">
                       <Typography variant="body2">Database</Typography>
@@ -243,7 +243,7 @@ const SystemHealthWidget: React.FC<Props> = ({ health, loading }) => {
             </Grid>
 
             {/* System Info */}
-            <Grid item xs={12}>
+            <Grid size={{ xs: 12 }}>
               <Box display="flex" justifyContent="space-between" alignItems="center" sx={{ mt: 2 }}>
                 <Typography variant="caption" color="text.secondary">
                   Version: {health.version || 'Unknown'}
