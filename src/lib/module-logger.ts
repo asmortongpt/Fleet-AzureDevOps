@@ -270,7 +270,7 @@ class ModuleLoggerClass {
   // REPORTING
   // -------------------------------------------------------------------------
 
-  getModuleMetrics(module?: string): typeof NativeMap<string, ModuleMetrics> | ModuleMetrics | undefined {
+  getModuleMetrics(module?: string): any {
     if (module) {
       return this.metrics.get(module)
     }
