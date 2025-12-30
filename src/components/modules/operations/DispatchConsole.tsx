@@ -216,7 +216,7 @@ export default function DispatchConsole() {
 
       <Grid container spacing={3}>
         {/* Left Panel - Channels */}
-        <Grid item xs={12} md={3}>
+        <Grid size={{ xs: 12, md: 3 }}>
           <Card elevation={3}>
             <CardContent>
               <Typography variant="h6" gutterBottom sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
@@ -258,7 +258,7 @@ export default function DispatchConsole() {
         </Grid>
 
         {/* Center Panel - PTT Control */}
-        <Grid item xs={12} md={6}>
+        <Grid size={{ xs: 12, md: 6 }}>
           <Card elevation={3}>
             <CardContent>
               <Typography variant="h6" gutterBottom>
@@ -402,7 +402,7 @@ export default function DispatchConsole() {
         </Grid>
 
         {/* Right Panel - Emergency Alerts & History */}
-        <Grid item xs={12} md={3}>
+        <Grid size={{ xs: 12, md: 3 }}>
           <Card elevation={3} sx={{ height: '100%' }}>
             <CardContent>
               <Tabs value={tabValue} onChange={(_, v) => setTabValue(v)} variant="fullWidth">
