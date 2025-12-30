@@ -20,22 +20,34 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { useDrilldown } from '@/contexts/DrilldownContext'
 
-
 interface VehicleTripsListProps {
   vehicleId: string
   vehicleName?: string
+}
+
+interface Trip {
+  id: string
+  status: string
+  driver_name?: string
+  start_time?: string
+  duration?: string
+  start_location?: string
+  end_location?: string
+  distance?: number
+  avg_speed?: number
+  fuel_used?: number
 }
 
 const fetcher = (url: string) => fetch(url).then((r) => r.json())
 
 export function VehicleTripsList({ vehicleId, vehicleName }: VehicleTripsListProps) {
   const { push } = useDrilldown()
-  const { data: trips, error, isLoading, mutate } = useSWR(
+  const { data: trips, error, isLoading, mutate } = useSWR<Trip[]>(
     `/api/vehicles/${vehicleId}/trips`,
     fetcher
   )
 
-  const handleViewTelemetry = (trip: any) => {
+  const handleViewTelemetry = (trip: Trip) => {
     push({
       id: `trip-telemetry-${trip.id}`,
       type: 'trip-telemetry',
@@ -68,7 +80,7 @@ export function VehicleTripsList({ vehicleId, vehicleName }: VehicleTripsListPro
             </Card>
           ) : (
             <div className="space-y-3">
-              {trips.map((trip: any) => (
+              {trips.map((trip) => (
                 <Card
                   key={trip.id}
                   className="hover:shadow-md transition-shadow cursor-pointer group"
@@ -80,7 +92,7 @@ export function VehicleTripsList({ vehicleId, vehicleName }: VehicleTripsListPro
                         {/* Trip Header */}
                         <div className="flex items-center justify-between">
                           <div className="flex items-center gap-2">
-                            <Badge variant={trip.status === 'completed' ? 'success' : 'default'}>
+                            <Badge variant="default">
                               {trip.status}
                             </Badge>
                             <span className="text-xs text-muted-foreground">

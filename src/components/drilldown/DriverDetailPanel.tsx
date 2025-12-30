@@ -24,16 +24,41 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Progress } from '@/components/ui/progress'
 import { useDrilldown } from '@/contexts/DrilldownContext'
 
-
 interface DriverDetailPanelProps {
   driverId: string
+}
+
+interface DriverData {
+  avatar_url?: string
+  name: string
+  employee_id?: string
+  status: string
+  verified?: boolean
+  email?: string
+  phone?: string
+  hire_date?: string
+  safety_score?: number
+  performance_score?: number
+  total_miles?: number
+  total_trips?: number
+  total_hours?: number
+  incident_count?: number
+  certifications?: Array<{
+    name: string
+    number?: string
+    expiry_date?: string
+  }>
+  violations?: Array<{
+    type: string
+    date?: string
+  }>
 }
 
 const fetcher = (url: string) => fetch(url).then((r) => r.json())
 
 export function DriverDetailPanel({ driverId }: DriverDetailPanelProps) {
   const { push } = useDrilldown()
-  const { data: driver, error, isLoading, mutate } = useSWR(
+  const { data: driver, error, isLoading, mutate } = useSWR<DriverData>(
     `/api/drivers/${driverId}`,
     fetcher
   )
@@ -71,7 +96,7 @@ export function DriverDetailPanel({ driverId }: DriverDetailPanelProps) {
                 Employee ID: {driver.employee_id || 'N/A'}
               </p>
               <div className="flex items-center gap-2 mt-2">
-                <Badge variant={driver.status === 'active' ? 'success' : 'secondary'}>
+                <Badge variant={driver.status === 'active' ? 'default' : 'secondary'}>
                   {driver.status}
                 </Badge>
                 {driver.verified && (
@@ -182,7 +207,7 @@ export function DriverDetailPanel({ driverId }: DriverDetailPanelProps) {
               </CardHeader>
               <CardContent>
                 <ul className="space-y-3">
-                  {driver.certifications.map((cert: any, idx: number) => (
+                  {driver.certifications.map((cert, idx) => (
                     <li key={idx} className="flex items-center justify-between p-2 rounded bg-muted/50">
                       <div className="flex items-center gap-2">
                         <Award className="h-4 w-4 text-primary" />
@@ -227,7 +252,7 @@ export function DriverDetailPanel({ driverId }: DriverDetailPanelProps) {
               </CardHeader>
               <CardContent>
                 <ul className="space-y-2">
-                  {driver.violations.map((violation: any, idx: number) => (
+                  {driver.violations.map((violation, idx) => (
                     <li
                       key={idx}
                       className="flex items-start gap-2 p-2 rounded bg-destructive/10"

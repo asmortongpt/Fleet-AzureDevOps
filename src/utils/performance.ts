@@ -98,7 +98,9 @@ export class MemoryLeakDetector {
       return;
     }
 
-    const increase = this.memorySnapshots[this.memorySnapshots.length - 1] - this.memorySnapshots[0];
+    const lastSnapshot = this.memorySnapshots[this.memorySnapshots.length - 1];
+    const firstSnapshot = this.memorySnapshots[0];
+    const increase = lastSnapshot - firstSnapshot;
     if (increase > this.memoryLeakThreshold) {
       this.callback({
         detected: true,

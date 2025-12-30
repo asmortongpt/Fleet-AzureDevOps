@@ -4,6 +4,7 @@ import { useState, useRef, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { useVehicles } from '@/hooks/use-api';
 import { generateDemoVehicles } from '@/lib/demo-data';
+import { Vehicle as VehicleType } from '@/lib/types';
 
 interface Vehicle {
   id: string;
@@ -33,10 +34,10 @@ export function ProfessionalFleetMap({ onVehicleSelect, children }: Professional
     if (!isLoading) {
       if (error || !data || (Array.isArray(data) && data.length === 0)) {
         // API failed or returned empty - use demo data
-        const demoVehicles = generateDemoVehicles(50) as Vehicle[];
+        const demoVehicles = generateDemoVehicles(50) as unknown as Vehicle[];
         setVehicles(demoVehicles);
       } else if (Array.isArray(data)) {
-        setVehicles(data as Vehicle[]);
+        setVehicles(data as unknown as Vehicle[]);
       }
     }
   }, [data, isLoading, error]);
@@ -45,7 +46,7 @@ export function ProfessionalFleetMap({ onVehicleSelect, children }: Professional
   useEffect(() => {
     const timer = setTimeout(() => {
       if (vehicles.length === 0) {
-        const demoVehicles = generateDemoVehicles(50) as Vehicle[];
+        const demoVehicles = generateDemoVehicles(50) as unknown as Vehicle[];
         setVehicles(demoVehicles);
       }
     }, 3000);

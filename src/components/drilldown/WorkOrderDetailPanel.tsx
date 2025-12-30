@@ -21,7 +21,6 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Progress } from '@/components/ui/progress'
 import { useDrilldown } from '@/contexts/DrilldownContext'
 
-
 interface WorkOrderDetailPanelProps {
   workOrderId: string
 }
@@ -53,13 +52,13 @@ export function WorkOrderDetailPanel({ workOrderId }: WorkOrderDetailPanelProps)
     })
   }
 
-  const getStatusColor = (status: string) => {
+  const getStatusColor = (status: string | undefined): 'default' | 'destructive' | 'outline' | 'secondary' | null => {
     switch (status?.toLowerCase()) {
       case 'completed':
-        return 'success'
+        return 'default'
       case 'in_progress':
       case 'in progress':
-        return 'warning'
+        return 'default'
       case 'pending':
         return 'secondary'
       case 'cancelled':
@@ -69,12 +68,12 @@ export function WorkOrderDetailPanel({ workOrderId }: WorkOrderDetailPanelProps)
     }
   }
 
-  const getPriorityColor = (priority: string) => {
+  const getPriorityColor = (priority: string | undefined): 'default' | 'destructive' | 'outline' | 'secondary' | null => {
     switch (priority?.toLowerCase()) {
       case 'critical':
         return 'destructive'
       case 'high':
-        return 'warning'
+        return 'default'
       case 'medium':
         return 'default'
       case 'low':

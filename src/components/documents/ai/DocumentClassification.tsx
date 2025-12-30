@@ -27,7 +27,7 @@ interface DocumentClassificationProps {
   suggestedTags: SuggestedTag[];
   onApplyTag: (tag: string) => void;
   onRemoveTag: (tag: string) => void;
-  onChangeCategory: (category: FileCategory) => void;
+  onChangeCategory?: (category: FileCategory) => void;
 }
 
 export function DocumentClassification({
@@ -35,7 +35,7 @@ export function DocumentClassification({
   suggestedTags,
   onApplyTag,
   onRemoveTag,
-  onChangeCategory
+  _onChangeCategory
 }: DocumentClassificationProps) {
   const [newTag, setNewTag] = useState('');
   const [showAllSuggestions, setShowAllSuggestions] = useState(false);

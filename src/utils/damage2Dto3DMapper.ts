@@ -94,10 +94,13 @@ export class Damage2Dto3DMapper {
 
     // Step 5: Use first intersection
     const intersection = intersects[0];
+    if (!intersection) {
+      return null;
+    }
 
     return {
       position: intersection.point.clone(),
-      normal: intersection.face?.normal.clone() || new THREE.Vector3(0, 1, 0)
+      normal: intersection.face?.normal?.clone() || new THREE.Vector3(0, 1, 0)
     };
   }
 

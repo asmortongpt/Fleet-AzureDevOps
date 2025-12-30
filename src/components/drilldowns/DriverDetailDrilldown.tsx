@@ -1,9 +1,16 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { Driver } from '@/types'
+
+interface Driver {
+  name: string;
+  email: string;
+  phone: string;
+  licenseNumber: string;
+  status: string;
+}
 
 interface DriverDetailDrilldownProps {
-  driver: Driver
+  driver: Driver;
 }
 
 export function DriverDetailDrilldown({ driver }: DriverDetailDrilldownProps) {
@@ -11,7 +18,7 @@ export function DriverDetailDrilldown({ driver }: DriverDetailDrilldownProps) {
     <div className="space-y-6">
       <Card>
         <CardHeader>
-          <CardTitle>{driver.name}</CardTitle>
+          <CardTitle>{driver?.name}</CardTitle>
         </CardHeader>
         <CardContent>
           <Tabs defaultValue="profile">
@@ -26,19 +33,19 @@ export function DriverDetailDrilldown({ driver }: DriverDetailDrilldownProps) {
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <p className="text-sm font-medium">Email</p>
-                  <p className="text-lg">{driver.email}</p>
+                  <p className="text-lg">{driver?.email}</p>
                 </div>
                 <div>
                   <p className="text-sm font-medium">Phone</p>
-                  <p className="text-lg">{driver.phone}</p>
+                  <p className="text-lg">{driver?.phone}</p>
                 </div>
                 <div>
                   <p className="text-sm font-medium">License Number</p>
-                  <p className="text-lg">{driver.licenseNumber}</p>
+                  <p className="text-lg">{driver?.licenseNumber}</p>
                 </div>
                 <div>
                   <p className="text-sm font-medium">Status</p>
-                  <p className="text-lg capitalize">{driver.status}</p>
+                  <p className="text-lg capitalize">{driver?.status}</p>
                 </div>
               </div>
             </TabsContent>

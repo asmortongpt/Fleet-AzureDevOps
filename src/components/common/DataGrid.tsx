@@ -19,7 +19,7 @@ import {
   ArrowDown,
   ArrowUpDown,
 } from "lucide-react";
-import React, { useState } from "react";
+import { useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -31,7 +31,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { cn } from "@/lib/utils";
-import { useInspect } from "@/services/inspect/InspectContext";
+import { useInspect, InspectType } from "@/services/inspect/InspectContext";
 
 interface DataGridProps<TData> {
   data: TData[];
@@ -39,7 +39,7 @@ interface DataGridProps<TData> {
   pageSize?: number;
   onRowClick?: (row: TData) => void;
   enableInspector?: boolean;
-  inspectorType?: string;
+  inspectorType?: InspectType;
   className?: string;
   compactMode?: boolean;
   stickyHeader?: boolean;

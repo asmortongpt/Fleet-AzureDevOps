@@ -5,7 +5,8 @@ import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
 import { telemetryService } from '@/lib/telemetry'
-import logger from '@/utils/logger';
+import logger from '@/utils/logger'
+
 interface Props {
   children: ReactNode
   fallback?: ReactNode
@@ -73,7 +74,7 @@ export class ErrorBoundary extends Component<Props, State> {
       timestamp,
       error: error.message,
       stack: error.stack,
-      componentStack: errorInfo?.componentStack
+      componentStack: errorInfo?.componentStack ?? undefined
     }
     errorLog.push(errorEntry)
     if (errorLog.length > 50) errorLog.shift()

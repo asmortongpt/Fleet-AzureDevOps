@@ -1,5 +1,5 @@
 import { AlertCircle, CheckCircle, DollarSign, MapPin, Camera } from 'lucide-react';
-import React, { useState } from 'react';
+import { useState } from 'react';
 
 import { Alert, AlertDescription } from '../ui/alert';
 import { Badge } from '../ui/badge';
