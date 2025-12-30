@@ -47,8 +47,8 @@ const mockInventory = [
 ]
 
 // Supplier Panel Component
-const SupplierPanel = ({ supplier, _onClose }: { supplier: any; _onClose: () => void }) => {
-  const { _push } = useDrilldown()
+const SupplierPanel = ({ supplier }: { supplier: any; _onClose: () => void }) => {
+  useDrilldown()
 
   if (!supplier) {
     return (

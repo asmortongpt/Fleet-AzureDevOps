@@ -119,7 +119,6 @@ export function MaintenanceAppointmentModal({
   appointmentTypes = [],
   serviceBays = [],
   technicians = [],
-  _isLoading = false,
   onCheckAvailability,
 }: MaintenanceAppointmentModalProps) {
   const [checking, setChecking] = useState(false)
