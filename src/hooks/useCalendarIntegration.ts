@@ -228,7 +228,7 @@ function useUpdateCalendarIntegrationInternal() {
         success: boolean
         integration: CalendarIntegration
       }>(`/api/scheduling/calendar/integrations/${integrationId}`, settings)
-      return response.integration
+      return (response as any)?.data?.integration || (response as any)?.integration
     },
     onMutate: async ({ integrationId, settings }) => {
       await queryClient.cancelQueries({ queryKey: calendarKeys.integrations() })
