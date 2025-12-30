@@ -2,7 +2,7 @@ import { Pool, QueryResult } from 'pg';
 
 import { WorkflowAutomation } from '../models/WorkflowAutomation';
 
-import { BaseRepository } from './BaseRepository';
+import { BaseRepository } from './base/BaseRepository';
 
 export class WorkflowAutomationRepository extends BaseRepository<any> {
   private pool: Pool;
