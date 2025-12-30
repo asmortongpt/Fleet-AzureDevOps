@@ -59,7 +59,13 @@ export function useAssets() {
     try {
       const response: ApiResponse<Asset> = await apiClient.post("/api/assets", asset)
       if (response?.data) {
-        setAssets((prev) => [...prev, response.data])
+        setAssets((prev) => {
+          const newAsset = response.data;
+          if (newAsset) {
+            return [...prev, newAsset];
+          }
+          return prev;
+        })
         toast.success("Asset added successfully")
         return response.data
       }

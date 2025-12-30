@@ -70,13 +70,6 @@ interface UtilizationData {
   total_revenue: number
 }
 
-interface ApiResponse<T> {
-  equipment?: T;
-  schedules?: T;
-  alerts?: T;
-  matrix?: T;
-}
-
 export function EquipmentDashboard() {
   const [equipment, setEquipment] = useState<Equipment[]>([])
   const [maintenanceSchedules, setMaintenanceSchedules] = useState<MaintenanceSchedule[]>([])
@@ -107,17 +100,18 @@ export function EquipmentDashboard() {
         apiClient.get<ApiResponse<{ matrix: any[] }>>('/api/heavy-equipment/certifications/matrix')
       ])
 
-      if (isSuccessResponse(equipmentRes)) {
-        setEquipment(equipmentRes?.data?.equipment ?? [])
+      // Type-safe response handling
+      if (isSuccessResponse(equipmentRes) && equipmentRes.data?.equipment) {
+        setEquipment(equipmentRes.data.equipment)
       }
-      if (isSuccessResponse(schedulesRes)) {
-        setMaintenanceSchedules(schedulesRes?.data?.schedules ?? [])
+      if (isSuccessResponse(schedulesRes) && schedulesRes.data?.schedules) {
+        setMaintenanceSchedules(schedulesRes.data.schedules)
       }
-      if (isSuccessResponse(certificationsRes)) {
-        setCertifications(certificationsRes?.data?.alerts ?? [])
+      if (isSuccessResponse(certificationsRes) && certificationsRes.data?.alerts) {
+        setCertifications(certificationsRes.data.alerts)
       }
-      if (isSuccessResponse(matrixRes)) {
-        setCertificationMatrix(matrixRes?.data?.matrix ?? [])
+      if (isSuccessResponse(matrixRes) && matrixRes.data?.matrix) {
+        setCertificationMatrix(matrixRes.data.matrix)
       }
     } catch (error) {
       logger.error("Error fetching dashboard data:", error)
