@@ -1,11 +1,11 @@
 /**
-import { container } from '../container'
-import { asyncHandler } from '../middleware/errorHandler'
-import { NotFoundError, ValidationError } from '../errors/app-error'
  * LangChain API Routes
  * Endpoints for AI-powered workflows, chat, and agent interactions
  */
 
+import { container } from '../container'
+import { asyncHandler } from '../middleware/errorHandler'
+import { NotFoundError, ValidationError } from '../errors/app-error'
 import { Router, Request, Response } from 'express'
 import { v4 as uuidv4 } from 'uuid'
 
@@ -16,7 +16,7 @@ import aiAgentSupervisorService from '../services/ai-agent-supervisor.service'
 import langchainOrchestratorService from '../services/langchain-orchestrator.service'
 import mcpServerRegistryService from '../services/mcp-server-registry.service'
 import { getErrorMessage } from '../utils/error-handler'
-import { logger } from '../utils/logger'
+import { logger } from '../config/logger'
 
 
 const router = Router()

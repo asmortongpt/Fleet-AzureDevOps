@@ -27,7 +27,7 @@ import {
   EmailFilter,
   EmailToCommunicationLog
 } from '../types/outlook.types'
-import { logger } from '../utils/logger'
+import { logger } from '../config/logger'
 
 import { microsoftGraphService } from './microsoft-graph.service'
 

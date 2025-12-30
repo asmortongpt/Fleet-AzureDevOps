@@ -1,7 +1,4 @@
 /**
-import { container } from '../container'
-import { asyncHandler } from '../middleware/errorHandler'
-import { NotFoundError, ValidationError } from '../errors/app-error'
  * Microsoft Integration Health Check Dashboard
  *
  * Provides comprehensive health checks for all Microsoft integration components:
@@ -15,6 +12,9 @@ import { NotFoundError, ValidationError } from '../errors/app-error'
  * - Database connectivity
  */
 
+import { container } from '../container'
+import { asyncHandler } from '../middleware/errorHandler'
+import { NotFoundError, ValidationError } from '../errors/app-error'
 import express, { Request, Response } from 'express';
 
 import { microsoftGraphService } from '../services/microsoft-graph.service';

@@ -3,7 +3,7 @@
  */
 
 import { EventEmitter } from 'events'
-import { Vehicle, MaintenanceEvent, EmulatorConfig } from `../types`
+import { Vehicle, MaintenanceEvent, EmulatorConfig } from '../types'
 
 export class MaintenanceEmulator extends EventEmitter {
   private vehicle: Vehicle
@@ -110,7 +110,7 @@ export class MaintenanceEmulator extends EventEmitter {
       nextDueOdometer: this.odometer + this.getNextInterval(category)
     }
 
-    this.emit(`data`, event)
+    this.emit('data', event)
   }
 
   private generateUnscheduledMaintenance(): void {

@@ -1,13 +1,13 @@
 /**
-import { container } from '../container'
-import { asyncHandler } from '../middleware/errorHandler'
-import { NotFoundError, ValidationError } from '../errors/app-error'
-import logger from '../config/logger'; // Wave 21: Add Winston logger
  * Vehicle 3D Models API Routes
  *
  * Endpoints for 3D vehicle visualization, AR, and customization
  */
 
+import { container } from '../container'
+import { asyncHandler } from '../middleware/errorHandler'
+import { NotFoundError, ValidationError } from '../errors/app-error'
+import logger from '../config/logger'; // Wave 21: Add Winston logger
 import express, { Response } from 'express'
 import { z } from 'zod'
 
@@ -95,7 +95,7 @@ router.get('/:id/ar-model', optionalAuth, async (req: AuthRequest, res: Response
  */
 router.post(
   '/:id/customize',
- csrfProtection,  csrfProtection, authenticateJWT,
+ csrfProtection, authenticateJWT,
   requirePermission('vehicle:update:fleet'),
   auditLog({ action: 'UPDATE', resourceType: 'vehicle_customization' }),
   async (req: AuthRequest, res: Response) => {
@@ -122,7 +122,7 @@ router.post(
     } catch (error: any) {
       logger.error('Save customization error:', error) // Wave 21: Winston logger;
       if (error instanceof z.ZodError) {
-        return res.status(400).json({ error: 'Invalid customization data', details: error.errors })
+        return res.status(400).json({ error: 'Invalid customization data', details: error.issues })
       }
       res.status(500).json({ error: getErrorMessage(error) || 'Internal server error' })
     }
@@ -199,7 +199,7 @@ router.get(
  */
 router.post(
   '/:id/damage-markers',
- csrfProtection,  csrfProtection, authenticateJWT,
+ csrfProtection, authenticateJWT,
   requirePermission('damage_report:create:own'),
   auditLog({ action: 'UPDATE', resourceType: 'vehicle_damage' }),
   async (req: AuthRequest, res: Response) => {
@@ -231,7 +231,7 @@ router.post(
     } catch (error: any) {
       logger.error('Update damage markers error:', error) // Wave 21: Winston logger;
       if (error instanceof z.ZodError) {
-        return res.status(400).json({ error: 'Invalid damage marker data', details: error.errors })
+        return res.status(400).json({ error: 'Invalid damage marker data', details: error.issues })
       }
       res.status(500).json({ error: getErrorMessage(error) || 'Internal server error' })
     }
@@ -242,7 +242,7 @@ router.post(
  * POST /api/vehicles/:id/ar-session
  * Track AR viewing session
  */
-router.post('/:id/ar-session',csrfProtection,  csrfProtection, optionalAuth, async (req: AuthRequest, res: Response) => {
+router.post('/:id/ar-session',csrfProtection, optionalAuth, async (req: AuthRequest, res: Response) => {
   try {
     const vehicleId = parseInt(req.params.id)
 
@@ -273,7 +273,7 @@ router.post('/:id/ar-session',csrfProtection,  csrfProtection, optionalAuth, asy
   } catch (error: any) {
     logger.error('Track AR session error:', error) // Wave 21: Winston logger;
     if (error instanceof z.ZodError) {
-      return res.status(400).json({ error: 'Invalid session data', details: error.errors })
+      return res.status(400).json({ error: 'Invalid session data', details: error.issues })
     }
     res.status(500).json({ error: getErrorMessage(error) || 'Internal server error' })
   }
@@ -283,7 +283,7 @@ router.post('/:id/ar-session',csrfProtection,  csrfProtection, optionalAuth, asy
  * PUT /api/ar-sessions/:sessionId
  * End AR session and update metrics
  */
-router.put('/ar-sessions/:sessionId',csrfProtection,  csrfProtection, optionalAuth, async (req: AuthRequest, res: Response) => {
+router.put('/ar-sessions/:sessionId',csrfProtection, optionalAuth, async (req: AuthRequest, res: Response) => {
   try {
     const sessionId = parseInt(req.params.sessionId)
 
@@ -306,7 +306,7 @@ router.put('/ar-sessions/:sessionId',csrfProtection,  csrfProtection, optionalAu
   } catch (error: any) {
     logger.error('End AR session error:', error) // Wave 21: Winston logger;
     if (error instanceof z.ZodError) {
-      return res.status(400).json({ error: 'Invalid update data', details: error.errors })
+      return res.status(400).json({ error: 'Invalid update data', details: error.issues })
     }
     res.status(500).json({ error: getErrorMessage(error) || 'Internal server error' })
   }
@@ -344,7 +344,7 @@ router.get(
  */
 router.post(
   '/:id/render',
- csrfProtection,  csrfProtection, authenticateJWT,
+ csrfProtection, authenticateJWT,
   requirePermission('vehicle:view:fleet'),
   auditLog({ action: 'CREATE', resourceType: 'vehicle_render' }),
   async (req: AuthRequest, res: Response) => {
@@ -378,7 +378,7 @@ router.post(
     } catch (error: any) {
       logger.error('Create render error:', error) // Wave 21: Winston logger;
       if (error instanceof z.ZodError) {
-        return res.status(400).json({ error: 'Invalid render data', details: error.errors })
+        return res.status(400).json({ error: 'Invalid render data', details: error.issues })
       }
       res.status(500).json({ error: getErrorMessage(error) || 'Internal server error' })
     }
@@ -410,7 +410,7 @@ router.get('/:id/renders', optionalAuth, async (req: AuthRequest, res: Response)
  * POST /api/3d-performance
  * Track 3D viewer performance metrics
  */
-router.post('/3d-performance',csrfProtection,  csrfProtection, optionalAuth, async (req: AuthRequest, res: Response) => {
+router.post('/3d-performance',csrfProtection, optionalAuth, async (req: AuthRequest, res: Response) => {
   try {
     const schema = z.object({
       sessionId: z.string(),
@@ -440,7 +440,7 @@ router.post('/3d-performance',csrfProtection,  csrfProtection, optionalAuth, asy
   } catch (error: any) {
     logger.error('Track performance error:', error) // Wave 21: Winston logger;
     if (error instanceof z.ZodError) {
-      return res.status(400).json({ error: 'Invalid metrics data', details: error.errors })
+      return res.status(400).json({ error: 'Invalid metrics data', details: error.issues })
     }
     res.status(500).json({ error: getErrorMessage(error) || 'Internal server error' })
   }
@@ -475,7 +475,7 @@ router.get(
  */
 router.post(
   '/:id/3d-instance',
- csrfProtection,  csrfProtection, authenticateJWT,
+ csrfProtection, authenticateJWT,
   requirePermission('vehicle:update:fleet'),
   auditLog({ action: 'CREATE', resourceType: 'vehicle_3d_instance' }),
   async (req: AuthRequest, res: Response) => {

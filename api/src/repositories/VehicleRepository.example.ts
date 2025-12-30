@@ -6,7 +6,7 @@
 
 import { Pool } from 'pg';
 
-import { BaseRepository, QueryContext, PaginationOptions, PaginatedResult } from './BaseRepository';
+import { BaseRepository, QueryContext, PaginationOptions, PaginatedResult } from './base/BaseRepository';
 
 export interface Vehicle {
   id: number;

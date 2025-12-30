@@ -1,8 +1,4 @@
 /**
-import { container } from '../container'
-import { asyncHandler } from '../middleware/errorHandler'
-import { NotFoundError, ValidationError } from '../errors/app-error'
-import logger from '../config/logger'; // Wave 20: Add Winston logger
  * Heavy Equipment Routes
  * RESTful API for heavy equipment management
  *
@@ -16,6 +12,10 @@ import logger from '../config/logger'; // Wave 20: Add Winston logger
  * - Cost analysis
  */
 
+import { container } from '../container'
+import { asyncHandler } from '../middleware/errorHandler'
+import { NotFoundError, ValidationError } from '../errors/app-error'
+import logger from '../config/logger'; // Wave 20: Add Winston logger
 import { Router } from 'express'
 
 import type { AuthRequest } from '../middleware/auth'
@@ -108,7 +108,7 @@ router.get('/:id', requirePermission('vehicle:view:fleet'), async (req: AuthRequ
  *     summary: Create new heavy equipment
  *     tags: [Heavy Equipment]
  */
-router.post('/',csrfProtection,  csrfProtection, requirePermission('vehicle:create:fleet'), async (req: AuthRequest, res) => {
+router.post('/',csrfProtection, requirePermission('vehicle:create:fleet'), async (req: AuthRequest, res) => {
   try {
     const tenantId = req.user?.tenant_id
     const userId = req.user?.id
@@ -137,7 +137,7 @@ router.post('/',csrfProtection,  csrfProtection, requirePermission('vehicle:crea
  *     summary: Update heavy equipment
  *     tags: [Heavy Equipment]
  */
-router.put('/:id',csrfProtection,  csrfProtection, requirePermission('vehicle:update:fleet'), async (req: AuthRequest, res) => {
+router.put('/:id',csrfProtection, requirePermission('vehicle:update:fleet'), async (req: AuthRequest, res) => {
   try {
     const { id } = req.params
     const tenantId = req.user?.tenant_id
@@ -166,7 +166,7 @@ router.put('/:id',csrfProtection,  csrfProtection, requirePermission('vehicle:up
  *     summary: Record hour meter reading
  *     tags: [Heavy Equipment]
  */
-router.post('/:id/hour-meter',csrfProtection,  csrfProtection, requirePermission('vehicle:update:fleet'), async (req: AuthRequest, res) => {
+router.post('/:id/hour-meter',csrfProtection, requirePermission('vehicle:update:fleet'), async (req: AuthRequest, res) => {
   try {
     const { id } = req.params
     const userId = req.user?.id
@@ -294,7 +294,7 @@ router.get('/certifications/matrix', requirePermission('driver:view:global'), as
  *     summary: Create operator certification
  *     tags: [Heavy Equipment]
  */
-router.post('/certifications/create',csrfProtection,  csrfProtection, requirePermission('driver:create:global'), async (req: AuthRequest, res) => {
+router.post('/certifications/create',csrfProtection, requirePermission('driver:create:global'), async (req: AuthRequest, res) => {
   try {
     const tenantId = req.user?.tenant_id
 
@@ -345,7 +345,7 @@ router.get('/attachments/:equipmentId', requirePermission('vehicle:view:fleet'),
  *     summary: Add equipment attachment
  *     tags: [Heavy Equipment]
  */
-router.post('/attachments',csrfProtection,  csrfProtection, requirePermission('vehicle:update:fleet'), async (req: AuthRequest, res) => {
+router.post('/attachments',csrfProtection, requirePermission('vehicle:update:fleet'), async (req: AuthRequest, res) => {
   try {
     const attachment = await heavyEquipmentService.addAttachment(req.body)
 
@@ -366,7 +366,7 @@ router.post('/attachments',csrfProtection,  csrfProtection, requirePermission('v
  *     summary: Update attachment status (attach/detach)
  *     tags: [Heavy Equipment]
  */
-router.patch('/attachments/:id/status',csrfProtection,  csrfProtection, requirePermission('vehicle:update:fleet'), async (req: AuthRequest, res) => {
+router.patch('/attachments/:id/status',csrfProtection, requirePermission('vehicle:update:fleet'), async (req: AuthRequest, res) => {
   try {
     const { id } = req.params
     const { is_attached } = req.body
@@ -390,7 +390,7 @@ router.patch('/attachments/:id/status',csrfProtection,  csrfProtection, requireP
  *     summary: Complete inspection checklist
  *     tags: [Heavy Equipment]
  */
-router.post('/:id/inspection',csrfProtection,  csrfProtection, requirePermission('vehicle:update:fleet'), async (req: AuthRequest, res) => {
+router.post('/:id/inspection',csrfProtection, requirePermission('vehicle:update:fleet'), async (req: AuthRequest, res) => {
   try {
     const { id } = req.params
     const userId = req.user?.id

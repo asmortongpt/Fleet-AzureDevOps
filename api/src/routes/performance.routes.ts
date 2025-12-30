@@ -1,14 +1,14 @@
 /**
-import { container } from '../container'
-import { asyncHandler } from '../middleware/errorHandler'
-import { NotFoundError, ValidationError } from '../errors/app-error'
-import logger from '../config/logger'; // Wave 22: Add Winston logger
  * Performance Monitoring Routes
  *
  * Endpoints for monitoring database performance, connection pools,
  * worker threads, and query performance.
  */
 
+import { container } from '../container'
+import { asyncHandler } from '../middleware/errorHandler'
+import { NotFoundError, ValidationError } from '../errors/app-error'
+import logger from '../config/logger'; // Wave 22: Add Winston logger
 import { Router, Request, Response } from 'express'
 
 import { connectionManager } from '../config/connection-manager'
@@ -222,7 +222,7 @@ router.get('/queries/summary', authenticateJWT, (req: Request, res: Response) =>
  * @desc Analyze query plan
  * @access Private (Admin)
  */
-router.post('/queries/analyze',csrfProtection,  csrfProtection, authenticateJWT, async (req: Request, res: Response) => {
+router.post('/queries/analyze',csrfProtection, authenticateJWT, async (req: Request, res: Response) => {
   try {
     const { query, params } = req.body
 
@@ -248,7 +248,7 @@ router.post('/queries/analyze',csrfProtection,  csrfProtection, authenticateJWT,
  * @desc Clear query metrics
  * @access Private (Admin)
  */
-router.delete('/queries/metrics',csrfProtection,  csrfProtection, authenticateJWT, (req: Request, res: Response) => {
+router.delete('/queries/metrics',csrfProtection, authenticateJWT, (req: Request, res: Response) => {
   try {
     queryPerformanceService.clearMetrics()
 
@@ -360,7 +360,7 @@ router.get('/memory', authenticateJWT, (req: Request, res: Response) => {
  * @desc Trigger garbage collection (if --expose-gc flag is set)
  * @access Private (Admin)
  */
-router.post('/gc',csrfProtection,  csrfProtection, authenticateJWT, (req: Request, res: Response) => {
+router.post('/gc',csrfProtection, authenticateJWT, (req: Request, res: Response) => {
   try {
     if (global.gc) {
       const before = process.memoryUsage()

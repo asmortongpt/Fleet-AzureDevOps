@@ -213,7 +213,7 @@ router.get('/detailed-stats', async (req: Request, res: Response) => {
  * POST /api/monitoring/query-performance/reset
  * Reset query performance statistics
  */
-router.post('/reset',csrfProtection,  csrfProtection, async (req: Request, res: Response) => {
+router.post('/reset',csrfProtection, async (req: Request, res: Response) => {
   try {
     queryMonitor.resetStats();
 

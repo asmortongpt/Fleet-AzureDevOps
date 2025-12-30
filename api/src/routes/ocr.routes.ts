@@ -1,13 +1,13 @@
 /**
-import { container } from '../container'
-import { asyncHandler } from '../middleware/errorHandler'
-import { NotFoundError, ValidationError } from '../errors/app-error'
-import logger from '../config/logger'; // Wave 25: Add Winston logger
  * OCR API Routes
  *
  * Endpoints for OCR processing and management
  */
 
+import { container } from '../container'
+import { asyncHandler } from '../middleware/errorHandler'
+import { NotFoundError, ValidationError } from '../errors/app-error'
+import logger from '../config/logger'; // Wave 25: Add Winston logger
 import fs from 'fs/promises'
 
 import express, { Request, Response } from 'express'
