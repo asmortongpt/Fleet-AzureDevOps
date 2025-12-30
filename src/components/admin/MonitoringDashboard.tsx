@@ -275,7 +275,7 @@ const MonitoringDashboard: React.FC = () => {
                 Active Alerts & Warnings
               </Typography>
               <AlertsPanel
-                alerts={data.alerts}
+                alerts={data.alerts as any}
                 loading={loading}
               />
             </CardContent>
