@@ -1,2 +1,2 @@
 // Drivers services
-export * from './drivers.service';
+export * from './driver.service';
