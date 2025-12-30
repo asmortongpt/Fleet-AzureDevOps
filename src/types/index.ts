@@ -40,6 +40,10 @@ export interface Asset {
     lat: number
     lng: number
   }
+  // Backwards compatibility: allow direct lat/lng access
+  latitude?: number
+  longitude?: number
+  lastSeen?: string
 }
 
 export interface Geofence {
