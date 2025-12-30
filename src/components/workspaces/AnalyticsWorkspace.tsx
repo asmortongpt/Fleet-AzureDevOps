@@ -385,3 +385,34 @@ const ReportBuilder = () => {
     </ScrollArea>
   )
 }
+// Main AnalyticsWorkspace component
+export function AnalyticsWorkspace() {
+  const { data: vehicles } = useVehicles()
+  const { data: workOrders } = useWorkOrders()
+  const { data: facilities } = useFacilities()
+  const { data: drivers } = useDrivers()
+  const [activeView, setActiveView] = useState<'executive' | 'analysis'>('executive')
+
+  return (
+    <div className="h-screen flex flex-col">
+      <div className="p-4 border-b">
+        <Tabs value={activeView} onValueChange={(v) => setActiveView(v as 'executive' | 'analysis')}>
+          <TabsList>
+            <TabsTrigger value="executive">Executive Dashboard</TabsTrigger>
+            <TabsTrigger value="analysis">Data Analysis</TabsTrigger>
+          </TabsList>
+        </Tabs>
+      </div>
+      <div className="flex-1 overflow-hidden">
+        {activeView === 'executive' && (
+          <ExecutiveDashboard vehicles={(vehicles || []) as Vehicle[]} workOrders={(workOrders || []) as WorkOrder[]} _drivers={drivers} />
+        )}
+        {activeView === 'analysis' && (
+          <DataAnalysis vehicles={(vehicles || []) as Vehicle[]} _workOrders={workOrders} _facilities={facilities} />
+        )}
+      </div>
+    </div>
+  )
+}
+
+export default AnalyticsWorkspace

@@ -37,6 +37,7 @@ import { EntityType } from '@/contexts/EntityLinkingContext'
 import { useFleetData } from '@/hooks/use-fleet-data'
 import { useDebounce } from '@/hooks/useDebounce'
 import { cn } from '@/lib/utils'
+import { Vehicle, Driver, WorkOrder } from '@/lib/types'
 
 // ============================================================================
 // TYPES
@@ -49,7 +50,7 @@ export interface SearchResult {
   subtitle?: string
   description?: string
   score: number
-  data?: any
+  data?: Vehicle | Driver | WorkOrder | any
   matches?: SearchMatch[]
 }
 
@@ -72,6 +73,14 @@ interface UniversalSearchProps {
   onResultSelect?: (result: SearchResult) => void
   placeholder?: string
   className?: string
+}
+
+interface Route {
+  id: string
+  name?: string
+  startLocation?: string
+  endLocation?: string
+  status?: string
 }
 
 // ============================================================================
@@ -110,146 +119,154 @@ function useUniversalSearch(query: string, enabled: boolean = true) {
     const searchResults: SearchResult[] = []
 
     // Search vehicles
-    vehicles?.forEach(vehicle => {
-      const fields = [
-        { field: 'number', value: vehicle.number },
-        { field: 'vin', value: vehicle.vin },
-        { field: 'make', value: vehicle.make },
-        { field: 'model', value: vehicle.model },
-        { field: 'licensePlate', value: vehicle.licensePlate },
-        { field: 'driver', value: vehicle.assignedDriver || '' }
-      ]
+    if (Array.isArray(vehicles)) {
+      vehicles.forEach((vehicle: Vehicle) => {
+        const fields = [
+          { field: 'number', value: vehicle.number || '' },
+          { field: 'vin', value: vehicle.vin || '' },
+          { field: 'make', value: vehicle.make || '' },
+          { field: 'model', value: vehicle.model || '' },
+          { field: 'licensePlate', value: vehicle.licensePlate || '' },
+          { field: 'driver', value: vehicle.assignedDriver || '' }
+        ]
 
-      const matches: SearchMatch[] = []
-      let score = 0
+        const matches: SearchMatch[] = []
+        let score = 0
 
-      fields.forEach(({ field, value }) => {
-        if (value && value.toLowerCase().includes(searchTerm)) {
-          const startIdx = value.toLowerCase().indexOf(searchTerm)
-          matches.push({
-            field,
-            value,
-            highlight: value.substring(0, startIdx) +
-              '<mark>' + value.substring(startIdx, startIdx + searchTerm.length) + '</mark>' +
-              value.substring(startIdx + searchTerm.length)
+        fields.forEach(({ field, value }) => {
+          if (value && value.toLowerCase().includes(searchTerm)) {
+            const startIdx = value.toLowerCase().indexOf(searchTerm)
+            matches.push({
+              field,
+              value,
+              highlight: value.substring(0, startIdx) +
+                '<mark>' + value.substring(startIdx, startIdx + searchTerm.length) + '</mark>' +
+                value.substring(startIdx + searchTerm.length)
+            })
+            // Exact match scores higher
+            score += value.toLowerCase() === searchTerm ? 100 : 50
+          }
+        })
+
+        if (matches.length > 0) {
+          searchResults.push({
+            type: 'vehicle',
+            id: vehicle.id,
+            title: `${vehicle.year} ${vehicle.make} ${vehicle.model}`,
+            subtitle: vehicle.number,
+            description: `${vehicle.status} | ${vehicle.region}`,
+            score,
+            data: vehicle,
+            matches
           })
-          // Exact match scores higher
-          score += value.toLowerCase() === searchTerm ? 100 : 50
         }
       })
-
-      if (matches.length > 0) {
-        searchResults.push({
-          type: 'vehicle',
-          id: vehicle.id,
-          title: `${vehicle.year} ${vehicle.make} ${vehicle.model}`,
-          subtitle: vehicle.number,
-          description: `${vehicle.status} | ${vehicle.region}`,
-          score,
-          data: vehicle,
-          matches
-        })
-      }
-    })
+    }
 
     // Search drivers
-    drivers?.forEach(driver => {
-      const fields = [
-        { field: 'name', value: driver.name },
-        { field: 'employeeId', value: driver.employeeId },
-        { field: 'email', value: driver.email },
-        { field: 'phone', value: driver.phone },
-        { field: 'department', value: driver.department }
-      ]
+    if (Array.isArray(drivers)) {
+      drivers.forEach((driver: Driver) => {
+        const fields = [
+          { field: 'name', value: driver.name || '' },
+          { field: 'employeeId', value: driver.employeeId || '' },
+          { field: 'email', value: driver.email || '' },
+          { field: 'phone', value: driver.phone || '' },
+          { field: 'department', value: driver.department || '' }
+        ]
 
-      const matches: SearchMatch[] = []
-      let score = 0
+        const matches: SearchMatch[] = []
+        let score = 0
 
-      fields.forEach(({ field, value }) => {
-        if (value && value.toLowerCase().includes(searchTerm)) {
-          matches.push({ field, value, highlight: highlightMatch(value, searchTerm) })
-          score += value.toLowerCase() === searchTerm ? 100 : 50
+        fields.forEach(({ field, value }) => {
+          if (value && value.toLowerCase().includes(searchTerm)) {
+            matches.push({ field, value, highlight: highlightMatch(value, searchTerm) })
+            score += value.toLowerCase() === searchTerm ? 100 : 50
+          }
+        })
+
+        if (matches.length > 0) {
+          searchResults.push({
+            type: 'driver',
+            id: driver.id,
+            title: driver.name,
+            subtitle: driver.employeeId,
+            description: driver.department,
+            score,
+            data: driver,
+            matches
+          })
         }
       })
-
-      if (matches.length > 0) {
-        searchResults.push({
-          type: 'driver',
-          id: driver.id,
-          title: driver.name,
-          subtitle: driver.employeeId,
-          description: driver.department,
-          score,
-          data: driver,
-          matches
-        })
-      }
-    })
+    }
 
     // Search work orders
-    workOrders?.forEach(wo => {
-      const fields = [
-        { field: 'id', value: wo.id },
-        { field: 'vehicleNumber', value: wo.vehicleNumber },
-        { field: 'serviceType', value: wo.serviceType },
-        { field: 'description', value: wo.description }
-      ]
+    if (Array.isArray(workOrders)) {
+      workOrders.forEach((wo: WorkOrder) => {
+        const fields = [
+          { field: 'id', value: wo.id || '' },
+          { field: 'vehicleNumber', value: wo.vehicleNumber || '' },
+          { field: 'serviceType', value: wo.serviceType || '' },
+          { field: 'description', value: wo.description || '' }
+        ]
 
-      const matches: SearchMatch[] = []
-      let score = 0
+        const matches: SearchMatch[] = []
+        let score = 0
 
-      fields.forEach(({ field, value }) => {
-        if (value && value.toLowerCase().includes(searchTerm)) {
-          matches.push({ field, value, highlight: highlightMatch(value, searchTerm) })
-          score += value.toLowerCase() === searchTerm ? 100 : 50
+        fields.forEach(({ field, value }) => {
+          if (value && value.toLowerCase().includes(searchTerm)) {
+            matches.push({ field, value, highlight: highlightMatch(value, searchTerm) })
+            score += value.toLowerCase() === searchTerm ? 100 : 50
+          }
+        })
+
+        if (matches.length > 0) {
+          searchResults.push({
+            type: 'work-order',
+            id: wo.id,
+            title: `WO-${wo.id.slice(-6)} - ${wo.serviceType}`,
+            subtitle: wo.vehicleNumber,
+            description: `${wo.status} | ${wo.priority} priority`,
+            score,
+            data: wo,
+            matches
+          })
         }
       })
-
-      if (matches.length > 0) {
-        searchResults.push({
-          type: 'work-order',
-          id: wo.id,
-          title: `WO-${wo.id.slice(-6)} - ${wo.serviceType}`,
-          subtitle: wo.vehicleNumber,
-          description: `${wo.status} | ${wo.priority} priority`,
-          score,
-          data: wo,
-          matches
-        })
-      }
-    })
+    }
 
     // Search routes
-    routes?.forEach(route => {
-      const fields = [
-        { field: 'name', value: route.name || '' },
-        { field: 'startLocation', value: route.startLocation || '' },
-        { field: 'endLocation', value: route.endLocation || '' }
-      ]
+    if (Array.isArray(routes)) {
+      routes.forEach((route: Route) => {
+        const fields = [
+          { field: 'name', value: route.name || '' },
+          { field: 'startLocation', value: route.startLocation || '' },
+          { field: 'endLocation', value: route.endLocation || '' }
+        ]
 
-      const matches: SearchMatch[] = []
-      let score = 0
+        const matches: SearchMatch[] = []
+        let score = 0
 
-      fields.forEach(({ field, value }) => {
-        if (value && value.toLowerCase().includes(searchTerm)) {
-          matches.push({ field, value, highlight: highlightMatch(value, searchTerm) })
-          score += value.toLowerCase() === searchTerm ? 100 : 50
+        fields.forEach(({ field, value }) => {
+          if (value && value.toLowerCase().includes(searchTerm)) {
+            matches.push({ field, value, highlight: highlightMatch(value, searchTerm) })
+            score += value.toLowerCase() === searchTerm ? 100 : 50
+          }
+        })
+
+        if (matches.length > 0) {
+          searchResults.push({
+            type: 'route',
+            id: route.id,
+            title: route.name || `Route ${route.id}`,
+            subtitle: `${route.startLocation || ''} -> ${route.endLocation || ''}`,
+            description: route.status || '',
+            score,
+            data: route,
+            matches
+          })
         }
       })
-
-      if (matches.length > 0) {
-        searchResults.push({
-          type: 'route',
-          id: route.id,
-          title: route.name || `Route ${route.id}`,
-          subtitle: `${route.startLocation} -> ${route.endLocation}`,
-          description: route.status,
-          score,
-          data: route,
-          matches
-        })
-      }
-    })
+    }
 
     // Sort by score
     searchResults.sort((a, b) => b.score - a.score)
@@ -266,11 +283,11 @@ function useUniversalSearch(query: string, enabled: boolean = true) {
 // ============================================================================
 
 function highlightMatch(value: string, term: string): string {
-  const _idx = value.toLowerCase().indexOf(term.toLowerCase())
-  if (_idx === -1) return value
-  return value.substring(0, _idx) +
-    '<mark>' + value.substring(_idx, _idx + term.length) + '</mark>' +
-    value.substring(_idx + term.length)
+  const idx = value.toLowerCase().indexOf(term.toLowerCase())
+  if (idx === -1) return value
+  return value.substring(0, idx) +
+    '<mark>' + value.substring(idx, idx + term.length) + '</mark>' +
+    value.substring(idx + term.length)
 }
 
 function getCategoryForType(type: EntityType): SearchCategory | undefined {
