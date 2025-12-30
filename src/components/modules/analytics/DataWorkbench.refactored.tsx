@@ -52,9 +52,6 @@ interface MaintenanceTabProps {
 interface FuelTabProps {
   vehicles: Vehicle[];
   fuelRecords: FuelRecord[];
-  maintenanceRecords: MaintenanceRecord[];
-  timeRange?: string;
-  onTimeRangeChange?: (range: string) => void;
 }
 
 interface AnalyticsTabProps {
@@ -66,13 +63,16 @@ interface AnalyticsTabProps {
 }
 
 interface DataWorkbenchDialogsProps {
-  isAddVehicleDialogOpen: boolean;
-  setIsAddVehicleDialogOpen: Dispatch<SetStateAction<boolean>>;
-  isScheduleServiceDialogOpen: boolean;
-  setIsScheduleServiceDialogOpen: Dispatch<SetStateAction<boolean>>;
-  isAdvancedSearchOpen: boolean;
-  setIsAdvancedSearchOpen: Dispatch<SetStateAction<boolean>>;
   vehicles: Vehicle[];
+  isAddVehicleOpen: boolean;
+  isScheduleServiceOpen: boolean;
+  isAdvancedSearchOpen: boolean;
+  onAddVehicleClose: () => void;
+  onScheduleServiceClose: () => void;
+  onAdvancedSearchClose: () => void;
+  onAddVehicle: (vehicle: any) => void;
+  onScheduleService: () => void;
+  onAdvancedSearch: (criteria: any) => void;
 }
 
 interface DataWorkbenchProps {
@@ -228,12 +228,9 @@ export function DataWorkbench({ data }: DataWorkbenchProps) {
         </TabsContent>
 
         <TabsContent value="fuel" className="space-y-4">
-          <FuelTab 
-            vehicles={vehicles} 
-            fuelRecords={fuelRecords} 
-            maintenanceRecords={maintenanceRecords}
-            timeRange=""
-            onTimeRangeChange={() => {}} 
+          <FuelTab
+            vehicles={vehicles}
+            fuelRecords={fuelRecords}
           />
         </TabsContent>
 
@@ -250,13 +247,16 @@ export function DataWorkbench({ data }: DataWorkbenchProps) {
 
       {/* Dialogs */}
       <DataWorkbenchDialogs
-        isAddVehicleDialogOpen={isAddVehicleDialogOpen}
-        setIsAddVehicleDialogOpen={setIsAddVehicleDialogOpen}
-        isScheduleServiceDialogOpen={isScheduleServiceDialogOpen}
-        setIsScheduleServiceDialogOpen={setIsScheduleServiceDialogOpen}
-        isAdvancedSearchOpen={isAdvancedSearchOpen}
-        setIsAdvancedSearchOpen={setIsAdvancedSearchOpen}
         vehicles={vehicles}
+        isAddVehicleOpen={isAddVehicleDialogOpen}
+        isScheduleServiceOpen={isScheduleServiceDialogOpen}
+        isAdvancedSearchOpen={isAdvancedSearchOpen}
+        onAddVehicleClose={() => setIsAddVehicleDialogOpen(false)}
+        onScheduleServiceClose={() => setIsScheduleServiceDialogOpen(false)}
+        onAdvancedSearchClose={() => setIsAdvancedSearchOpen(false)}
+        onAddVehicle={() => {}}
+        onScheduleService={() => {}}
+        onAdvancedSearch={() => {}}
       />
     </div>
   )
