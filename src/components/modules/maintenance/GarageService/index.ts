@@ -1,1 +1,1 @@
-export * from "./GarageService";
+export * from "../GarageService";
