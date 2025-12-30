@@ -99,7 +99,6 @@ export function useFleetData() {
       ...(v as Partial<Vehicle>),
       id: v.id || '',
       tenant_id: v.tenant_id || '',
-      tenantId: v.tenantId || v.tenant_id || '',
       // Ensure alerts is always a string array (Vehicle interface already includes alerts: string[])
       alerts: Array.isArray((v as any).alerts) ? (v as any).alerts : []
     } as Vehicle)) : []
