@@ -11,15 +11,6 @@ import { getAuthHeaders } from '../../utils/auth/index';
 import { logger } from '../../utils/logger/index';
 import { validateCategory, validateStatus } from '../../utils/validators/index';
 
-Helmet.defaultProps = {
-  defaultTitle: 'Asset Location Map',
-  titleTemplate: '%s - Asset Management',
-  meta: [
-    { name: 'viewport', content: 'width=device-width, initial-scale=1' },
-    { httpEquiv: 'Content-Security-Policy', content: "default-src 'self'; script-src 'self'; style-src 'self';" },
-  ],
-};
-
 const AssetLocationMap: React.FC<{ tenantId: string }> = ({ tenantId }) => {
   const [assets, setAssets] = useState<Asset[]>([]);
   const [geofences, setGeofences] = useState<Geofence[]>([]);
