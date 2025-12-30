@@ -96,10 +96,13 @@ export function useFleetData() {
     // Use API data - ensure alerts is always an array
     const rawVehicles = vehiclesData || []
     return Array.isArray(rawVehicles) ? rawVehicles.map((v): Vehicle => ({
-      ...v,
+      ...(v as Partial<Vehicle>),
+      id: v.id || '',
+      tenant_id: v.tenant_id || '',
+      tenantId: v.tenantId || v.tenant_id || '',
       // Ensure alerts is always a string array (Vehicle interface already includes alerts: string[])
       alerts: Array.isArray((v as any).alerts) ? (v as any).alerts : []
-    })) : []
+    } as Vehicle)) : []
   }, [vehiclesData]);
 
   const drivers = useMemo((): Driver[] => {

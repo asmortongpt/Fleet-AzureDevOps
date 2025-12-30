@@ -77,7 +77,7 @@ export function ArcGISIntegration() {
       setGlobalError(null)
       abortControllerRef.current = new AbortController()
 
-      const layersData = await apiClient.arcgisLayers.list()
+      const layersData = await apiClient.arcgisLayers.list() as ArcGISLayerConfig[]
       setLayers(
         layersData.map((layer: ArcGISLayerConfig) => ({
           ...layer,
