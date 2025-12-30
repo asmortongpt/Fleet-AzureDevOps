@@ -536,7 +536,7 @@ export default function Asset3DViewer({
   assetType,
   color,
   customModelUrl,
-  _showStats,
+  
   autoRotate = false,
   onLoad
 }: Asset3DViewerProps) {

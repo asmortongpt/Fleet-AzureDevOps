@@ -39,9 +39,7 @@ interface ConversationalIntakeProps {
 }
 
 export function ConversationalIntake({
-  onSubmit,
-  _onCancel,
-  _initialIntent
+  onSubmit
 }: ConversationalIntakeProps) {
   const [messages, setMessages] = useState<Message[]>([
     {

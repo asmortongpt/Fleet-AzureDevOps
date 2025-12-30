@@ -279,7 +279,7 @@ const mapCenter = {
   lng: -84.2807
 }
 
-const getSeverityColor = (severity: IncidentSeverity): string => {
+const getSeverityColor = (severity: IncidentSeverity): "destructive" | "default" | "secondary" | "outline" => {
   switch (severity) {
     case "critical": return "destructive"
     case "high": return "default"

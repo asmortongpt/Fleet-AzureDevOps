@@ -23,14 +23,17 @@ import {
 } from '@phosphor-icons/react'
 import React, { useState } from 'react'
 
-// Import types from backend
+// Import types from frontend types
 import type {
   AssetCategory,
   AssetType,
   PowerType,
   OperationalStatus,
-  PrimaryMetric
-} from '../../api/src/types/asset.types'
+  UsageMetric
+} from '@/types/asset.types'
+
+// PrimaryMetric alias for UsageMetric (for backwards compatibility)
+type PrimaryMetric = UsageMetric
 
 interface AssetTypeFilterProps {
   onFilterChange: (filters: FilterState) => void
@@ -102,17 +105,15 @@ const assetTypesByCategory: Record<AssetCategory, { value: AssetType; label: str
 const powerTypes: { value: PowerType; label: string }[] = [
   { value: 'SELF_POWERED', label: 'Self-Powered' },
   { value: 'TOWED', label: 'Towed' },
-  { value: 'CARRIED', label: 'Carried' },
   { value: 'STATIONARY', label: 'Stationary' },
-  { value: 'MANUAL', label: 'Manual' }
+  { value: 'PORTABLE', label: 'Portable' }
 ]
 
 const operationalStatuses: { value: OperationalStatus; label: string; color: string }[] = [
   { value: 'AVAILABLE', label: 'Available', color: 'text-green-600' },
   { value: 'IN_USE', label: 'In Use', color: 'text-blue-600' },
   { value: 'MAINTENANCE', label: 'Maintenance', color: 'text-orange-600' },
-  { value: 'RESERVED', label: 'Reserved', color: 'text-purple-600' },
-  { value: 'OUT_OF_SERVICE', label: 'Out of Service', color: 'text-red-600' }
+  { value: 'RESERVED', label: 'Reserved', color: 'text-purple-600' }
 ]
 
 const primaryMetrics: { value: PrimaryMetric; label: string }[] = [

@@ -200,7 +200,7 @@ const WorkOrdersPanel = ({ workOrders, onWorkOrderSelect }: { workOrders: WorkOr
     }
   }
 
-  const getPriorityColor = (priority: string): string => {
+  const getPriorityColor = (priority: string): "destructive" | "default" | "secondary" | "outline" => {
     switch (priority) {
       case 'critical':
         return 'destructive'
