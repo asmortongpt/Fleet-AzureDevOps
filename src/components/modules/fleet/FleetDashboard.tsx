@@ -87,10 +87,9 @@ export function FleetDashboard() {
   const renderLayout = () => {
     const mapSection = (
       <div className="h-full">
-        <ProfessionalFleetMap 
-          vehicles={filteredVehicles} 
-          onVehicleClick={handleVehicleClick} 
-          mapStyle="default"
+        <ProfessionalFleetMap
+          vehicles={filteredVehicles as unknown as Vehicle[]}
+          onVehicleSelect={handleVehicleClick}
         />
       </div>
     )

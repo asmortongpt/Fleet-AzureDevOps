@@ -101,7 +101,7 @@ export function useUpdateVehicle() {
     },
 
     // Optimistic update (optional)
-    onMutate: async ({ id, data }) => {
+    onMutate: async ({ id, data }: { id: string; data: Partial<Vehicle> }) => {
       // Cancel outgoing refetches
       await queryClient.cancelQueries({ queryKey: queryKeys.vehicles.detail(id) })
 

@@ -102,8 +102,8 @@ export function FleetOptimizer() {
   const fetchFleetSize = async () => {
     try {
       const response = await apiClient.get<FleetSize>("/fleet-optimizer/optimal-fleet-size?avgDailyDemand=50")
-      if (response?.data) {
-        setFleetSize(response.data)
+      if (response) {
+        setFleetSize(response)
       }
     } catch (error) {
       logger.error("Error fetching fleet size:", error)
@@ -313,7 +313,6 @@ export function FleetOptimizer() {
                           <Progress
                             value={vehicle.utilizationRate}
                             className="h-2"
-                            indicatorClassName={getUtilizationColor(vehicle.utilizationRate)}
                           />
                         </div>
                       </TableCell>
