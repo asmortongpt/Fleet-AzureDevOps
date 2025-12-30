@@ -76,7 +76,7 @@ export function DriverScorecard() {
     setLoading(true)
     try {
       const response = await apiClient.get<LeaderboardEntry[]>("/api/driver-scorecard/leaderboard")
-      setLeaderboard(response.data)
+      setLeaderboard(response)
     } catch (error) {
       toast.error("Failed to load leaderboard")
     } finally {
@@ -93,13 +93,13 @@ export function DriverScorecard() {
       const achievementsResponse = await apiClient.get<Achievement[]>(
         `/api/driver-scorecard/driver/${driver.driverId}/achievements`
       )
-      setAchievements(achievementsResponse.data)
+      setAchievements(achievementsResponse)
 
       // Fetch score history
       const historyResponse = await apiClient.get<ScoreHistory[]>(
         `/api/driver-scorecard/driver/${driver.driverId}/history`
       )
-      setScoreHistory(historyResponse.data)
+      setScoreHistory(historyResponse)
     } catch (error) {
       toast.error("Failed to load driver details")
     }

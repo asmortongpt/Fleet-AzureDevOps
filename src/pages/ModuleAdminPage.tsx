@@ -42,14 +42,14 @@ export default function ModuleAdminPage() {
         setHasChanges(true);
 
         // Update manager immediately for preview (could be deferred)
-        manager.setModuleStatus?.(moduleId, !currentStatus);
+        manager.setModuleStatus(moduleId, !currentStatus);
     };
 
     const handleSave = () => {
         try {
             // Persistence is handled inside toggleModule -> persistState
             // Just need to trigger navigation refresh
-            navigationContext.updateNavigation?.();
+            navigationContext.updateNavigation();
             toast.success("Module configuration saved successfully");
             setHasChanges(false);
         } catch (error) {
@@ -61,7 +61,7 @@ export default function ModuleAdminPage() {
         // Reload from manager (reverting unsaved changes if we weren't auto-saving)
         // Since we auto-save to manager in toggleModule, this is essentially a reload
         loadData();
-        navigationContext.updateNavigation?.();
+        navigationContext.updateNavigation();
         toast.info("Configuration reloaded");
     };
 

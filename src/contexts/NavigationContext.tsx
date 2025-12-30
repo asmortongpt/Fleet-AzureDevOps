@@ -10,6 +10,7 @@ interface NavigationContextType {
     visibleNavItems: NavigationItem[];
     getNavItemsBySection: (section: string) => NavigationItem[];
     navigateTo: (moduleId: string) => void;
+    updateNavigation: () => void;
 }
 
 const NavigationContext = createContext<NavigationContextType | undefined>(undefined);
@@ -67,13 +68,19 @@ export function NavigationProvider({ children }: { children: React.ReactNode }) 
         // State update happens via useEffect
     }, [navigate]);
 
+    const updateNavigation = () => {
+        // Force re-render of visible nav items
+        setActiveModuleState(activeModule);
+    };
+
     return (
         <NavigationContext.Provider value={{
             activeModule,
             setActiveModule: setActiveModuleState,
             visibleNavItems,
             getNavItemsBySection,
-            navigateTo
+            navigateTo,
+            updateNavigation
         }}>
             {children}
         </NavigationContext.Provider>

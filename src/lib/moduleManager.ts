@@ -169,6 +169,17 @@ export class ModuleManager {
   }
 
   /**
+   * Set the status (enabled/disabled) of a module
+   */
+  setModuleStatus(moduleId: string, enabled: boolean): void {
+    if (enabled) {
+      this.enabledModules.add(moduleId)
+    } else {
+      this.enabledModules.delete(moduleId)
+    }
+  }
+
+  /**
    * Calculate total monthly cost for customer
    */
   calculateMonthlyCost(): number {

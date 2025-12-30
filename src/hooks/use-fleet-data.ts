@@ -106,7 +106,7 @@ export function useFleetData() {
     }
 
     const rawDrivers = driversData || []
-    return Array.isArray(rawDrivers) ? rawDrivers : []
+    return Array.isArray(rawDrivers) ? (rawDrivers as unknown as Driver[]) : []
   }, [driversData]);
 
   const workOrders = useMemo((): WorkOrder[] => {
@@ -117,7 +117,7 @@ export function useFleetData() {
     }
 
     const rawWorkOrders = workOrdersData || []
-    return Array.isArray(rawWorkOrders) ? rawWorkOrders : []
+    return Array.isArray(rawWorkOrders) ? (rawWorkOrders as unknown as WorkOrder[]) : []
   }, [workOrdersData]);
 
   const fuelTransactions = useMemo(() => {
@@ -137,7 +137,7 @@ export function useFleetData() {
     }
 
     const rawFacilities = facilitiesData || []
-    return Array.isArray(rawFacilities) ? rawFacilities : []
+    return Array.isArray(rawFacilities) ? (rawFacilities as unknown as GISFacility[]) : []
   }, [facilitiesData]);
 
   const maintenanceSchedules = useMemo(() => {

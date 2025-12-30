@@ -1,18 +1,21 @@
 /**
  * Asset Relationships API Client Extension
- * Add this to the main api-client.ts file
+ * This file is for reference only. The actual implementation is in api-client.ts
  *
  * Usage:
- * 1. Import this in api-client.ts
- * 2. Add to APIClient class
+ * import { apiClient } from '@/lib/api-client'
+ *
+ * // List active combinations
+ * const { combinations } = await apiClient.assetRelationships.listActive()
  */
 
+// Type definitions only - implementation is in api-client.ts
 export const assetRelationshipsEndpoints = {
   /**
    * List all asset relationships with optional filters
    * @param params - Query parameters (parent_asset_id, child_asset_id, relationship_type, active_only)
    */
-  list: function(params?: {
+  list: function(this: any, params?: {
     parent_asset_id?: string
     child_asset_id?: string
     relationship_type?: string
@@ -25,7 +28,7 @@ export const assetRelationshipsEndpoints = {
    * Get active asset combinations from vw_active_asset_combos view
    * @returns List of currently active parent-child asset relationships
    */
-  listActive: function(): Promise<any> {
+  listActive: function(this: any): Promise<any> {
     return this.get('/api/asset-relationships/active')
   },
 
@@ -33,7 +36,7 @@ export const assetRelationshipsEndpoints = {
    * Get a specific relationship by ID
    * @param id - Relationship ID
    */
-  get: function(id: string): Promise<any> {
+  get: function(this: any, id: string): Promise<any> {
     return this.get(`/api/asset-relationships/${id}`)
   },
 
@@ -42,7 +45,7 @@ export const assetRelationshipsEndpoints = {
    * @param assetId - Asset ID (can be parent or child)
    * @returns All relationships (past and present) for the asset
    */
-  getHistory: function(assetId: string): Promise<any> {
+  getHistory: function(this: any, assetId: string): Promise<any> {
     return this.get(`/api/asset-relationships/history/${assetId}`)
   },
 
@@ -58,7 +61,7 @@ export const assetRelationshipsEndpoints = {
    *   notes: 'Winter haul configuration'
    * })
    */
-  create: function(data: {
+  create: function(this: any, data: {
     parent_asset_id: string
     child_asset_id: string
     relationship_type: 'TOWS' | 'ATTACHED' | 'CARRIES' | 'POWERS' | 'CONTAINS'
@@ -66,7 +69,7 @@ export const assetRelationshipsEndpoints = {
     effective_to?: string
     notes?: string
   }): Promise<any> {
-    return this.request('POST', '/api/asset-relationships', data)
+    return this.post('/api/asset-relationships', data)
   },
 
   /**
@@ -74,13 +77,13 @@ export const assetRelationshipsEndpoints = {
    * @param id - Relationship ID
    * @param data - Fields to update
    */
-  update: function(id: string, data: {
+  update: function(this: any, id: string, data: {
     relationship_type?: 'TOWS' | 'ATTACHED' | 'CARRIES' | 'POWERS' | 'CONTAINS'
     effective_from?: string
     effective_to?: string
     notes?: string
   }): Promise<any> {
-    return this.request('PUT', `/api/asset-relationships/${id}`, data)
+    return this.put(`/api/asset-relationships/${id}`, data)
   },
 
   /**
@@ -88,8 +91,8 @@ export const assetRelationshipsEndpoints = {
    * This is the recommended way to "delete" relationships to preserve history
    * @param id - Relationship ID
    */
-  deactivate: function(id: string): Promise<any> {
-    return this.request('PATCH', `/api/asset-relationships/${id}/deactivate`, {})
+  deactivate: function(this: any, id: string): Promise<any> {
+    return this.patch(`/api/asset-relationships/${id}/deactivate`, {})
   },
 
   /**
@@ -98,8 +101,8 @@ export const assetRelationshipsEndpoints = {
    * Use deactivate() instead unless you really need to delete
    * @param id - Relationship ID
    */
-  delete: function(id: string): Promise<any> {
-    return this.request('DELETE', `/api/asset-relationships/${id}`)
+  delete: function(this: any, id: string): Promise<any> {
+    return this.delete(`/api/asset-relationships/${id}`)
   }
 }
 
