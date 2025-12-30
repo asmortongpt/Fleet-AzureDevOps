@@ -20,7 +20,7 @@ export class MaintenanceService {
    */
   async scheduleMaintenanceForVehicle(vehicleId: string, tenantId: string): Promise<void> {
     try {
-      const vehicle = await this.vehicleRepository.findById(vehicleId, tenantId);
+      const vehicle = await this.vehicleRepository.getById(vehicleId);
       if (!vehicle) {
         this.logger.error(`Vehicle with ID ${vehicleId} not found for tenant ${tenantId}`);
         throw new Error('Vehicle not found');

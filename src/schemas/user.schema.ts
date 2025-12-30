@@ -146,7 +146,9 @@ export const userPermissionsSchema = z.object({
 // COMBINED USER SCHEMA (ALL 15 FIELDS + PERMISSIONS)
 // ============================================================================
 
-export const userSchema = z.intersection(userDetailsSchema, userPermissionsSchema)
+const userSchemaBase = z.intersection(userDetailsSchema, userPermissionsSchema)
+
+export const userSchema = userSchemaBase
   .refine(
     (data: { role: string; canManageUsers: boolean; canManageSettings: boolean }) => {
       // Validation: Super admin and admin must have management permissions
@@ -161,13 +163,13 @@ export const userSchema = z.intersection(userDetailsSchema, userPermissionsSchem
     }
   )
   .refine(
-    (data: { 
-      canDeleteVehicles: boolean; 
-      canEditVehicles: boolean; 
-      canDeleteDrivers: boolean; 
-      canEditDrivers: boolean; 
-      canDeleteWorkOrders: boolean; 
-      canEditWorkOrders: boolean 
+    (data: {
+      canDeleteVehicles: boolean;
+      canEditVehicles: boolean;
+      canDeleteDrivers: boolean;
+      canEditDrivers: boolean;
+      canDeleteWorkOrders: boolean;
+      canEditWorkOrders: boolean
     }) => {
       // Validation: Cannot delete without edit permission
       if (data.canDeleteVehicles && !data.canEditVehicles) {
@@ -204,7 +206,7 @@ export const userSchema = z.intersection(userDetailsSchema, userPermissionsSchem
 export type UserFormData = z.infer<typeof userSchema>
 
 // Partial schema for updates (all fields optional except required ones)
-export const userUpdateSchema = userSchema.partial().omit({ password: true, confirmPassword: true })
+export const userUpdateSchema = userSchemaBase.partial().omit({ password: true, confirmPassword: true })
 
 // Password change schema
 export const passwordChangeSchema = z.object({
