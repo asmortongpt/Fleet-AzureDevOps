@@ -112,15 +112,9 @@ export function createMockCamera(overrides?: Partial<TrafficCamera>): TrafficCam
     address: 'Main St & 1st Ave, Tallahassee, FL',
     crossStreet1: '',
     crossStreet2: '',
-    crossStreets: 'Main St & 1st Ave',
-    cameraUrl: 'https://example.com/camera/1',
     latitude: 30.4383,
     longitude: -84.2807,
-    operational: true,
-    direction: '',
-    lastChecked: '',
-    createdAt: '',
-    updatedAt: '',
+    enabled: true,
     ...overrides
   }
 }

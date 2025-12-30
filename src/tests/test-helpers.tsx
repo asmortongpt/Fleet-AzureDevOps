@@ -29,11 +29,6 @@ export function createTestQueryClient() {
         retry: false,
       },
     },
-    logger: {
-      log: vi.fn(),
-      warn: vi.fn(),
-      error: vi.fn(),
-    },
   });
 }
 
