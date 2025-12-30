@@ -18,3 +18,6 @@ export function FleetLocalProvider({ children }: { children: ReactNode }) {
 export function useFleetLocal() {
   return useContext(FleetLocalContext)
 }
+
+// Alias export for compatibility
+export const useFleetLocalContext = useFleetLocal

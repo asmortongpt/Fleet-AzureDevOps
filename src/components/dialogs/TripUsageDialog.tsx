@@ -249,10 +249,10 @@ export function TripUsageDialog({
           {/* Mixed Use Percentage Slider */}
           {formData.usage_type === 'mixed' && (
             <div className="space-y-3 p-4 border rounded-lg bg-accent/50">
-              <Label className="text-base font-semibold">Business Percentage: {formData.business_percentage}%</Label>
+              <Label className="text-base font-semibold">Business Percentage: {formData.business_percentage ?? 50}%</Label>
               <Slider
-                value={[formData.business_percentage]}
-                onValueChange={([value]) => setFormData({ ...formData, business_percentage: value })}
+                value={[formData.business_percentage ?? 50]}
+                onValueChange={([value]) => setFormData({ ...formData, business_percentage: value ?? 50 })}
                 min={1}
                 max={99}
                 step={1}

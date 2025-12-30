@@ -10,9 +10,8 @@ import {
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Progress } from '@/components/ui/progress'
-import { useDrilldown } from '@/contexts/DrilldownContext'
+import { useDrilldown, DrilldownLevel } from '@/contexts/DrilldownContext'
 import { generateDemoDrivers, generateDemoWorkOrders, generateDemoVehicles } from '@/lib/demo-data'
-import { DrilldownLevel } from '@/types/drilldown'
 
 // Define interfaces for data structures
 interface Driver {
@@ -347,5 +346,81 @@ export function GarageDrilldown() {
                 </CardContent>
             </Card>
         </div>
+    )
+}
+
+// Additional Hub Drilldowns
+export function PredictiveMaintenanceDrilldown() {
+    return (
+        <Card className="bg-slate-800/50 border-slate-700">
+            <CardHeader>
+                <CardTitle className="text-white flex items-center gap-2">
+                    <Wrench className="w-5 h-5" weight="fill" /> Predictive Maintenance
+                </CardTitle>
+            </CardHeader>
+            <CardContent className="text-slate-400">
+                Predictive maintenance insights will be displayed here
+            </CardContent>
+        </Card>
+    )
+}
+
+export function MaintenanceCalendarDrilldown() {
+    return (
+        <Card className="bg-slate-800/50 border-slate-700">
+            <CardHeader>
+                <CardTitle className="text-white flex items-center gap-2">
+                    <CalendarDots className="w-5 h-5" weight="fill" /> Maintenance Calendar
+                </CardTitle>
+            </CardHeader>
+            <CardContent className="text-slate-400">
+                Maintenance calendar will be displayed here
+            </CardContent>
+        </Card>
+    )
+}
+
+export function ExecutiveDashboardDrilldown() {
+    return (
+        <Card className="bg-slate-800/50 border-slate-700">
+            <CardHeader>
+                <CardTitle className="text-white flex items-center gap-2">
+                    <ChartLine className="w-5 w-5" weight="fill" /> Executive Dashboard
+                </CardTitle>
+            </CardHeader>
+            <CardContent className="text-slate-400">
+                Executive dashboard metrics will be displayed here
+            </CardContent>
+        </Card>
+    )
+}
+
+export function CostAnalysisDrilldown() {
+    return (
+        <Card className="bg-slate-800/50 border-slate-700">
+            <CardHeader>
+                <CardTitle className="text-white flex items-center gap-2">
+                    <CurrencyDollar className="w-5 h-5" weight="fill" /> Cost Analysis
+                </CardTitle>
+            </CardHeader>
+            <CardContent className="text-slate-400">
+                Cost analysis details will be displayed here
+            </CardContent>
+        </Card>
+    )
+}
+
+export function FleetOptimizerDrilldown() {
+    return (
+        <Card className="bg-slate-800/50 border-slate-700">
+            <CardHeader>
+                <CardTitle className="text-white flex items-center gap-2">
+                    <Gauge className="w-5 h-5" weight="fill" /> Fleet Optimizer
+                </CardTitle>
+            </CardHeader>
+            <CardContent className="text-slate-400">
+                Fleet optimization recommendations will be displayed here
+            </CardContent>
+        </Card>
     )
 }

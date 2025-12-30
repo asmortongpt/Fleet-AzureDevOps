@@ -559,3 +559,73 @@ export function useDriverMutations() {
 
   return { createDriver, updateDriver, deleteDriver };
 }
+
+// Additional mutation hooks
+export function useWorkOrderMutations() {
+  const queryClient = useQueryClient();
+  return {
+    createWorkOrder: useMutation({
+      mutationFn: async (workOrder: unknown) => workOrder,
+      onSuccess: () => queryClient.invalidateQueries({ queryKey: ['workOrders'] })
+    }),
+    updateWorkOrder: useMutation({
+      mutationFn: async (workOrder: unknown) => workOrder,
+      onSuccess: () => queryClient.invalidateQueries({ queryKey: ['workOrders'] })
+    }),
+    deleteWorkOrder: useMutation({
+      mutationFn: async (id: string) => id,
+      onSuccess: () => queryClient.invalidateQueries({ queryKey: ['workOrders'] })
+    })
+  };
+}
+
+export function useFacilityMutations() {
+  const queryClient = useQueryClient();
+  return {
+    createFacility: useMutation({
+      mutationFn: async (facility: unknown) => facility,
+      onSuccess: () => queryClient.invalidateQueries({ queryKey: ['facilities'] })
+    }),
+    updateFacility: useMutation({
+      mutationFn: async (facility: unknown) => facility,
+      onSuccess: () => queryClient.invalidateQueries({ queryKey: ['facilities'] })
+    }),
+    deleteFacility: useMutation({
+      mutationFn: async (id: string) => id,
+      onSuccess: () => queryClient.invalidateQueries({ queryKey: ['facilities'] })
+    })
+  };
+}
+
+export function useRouteMutations() {
+  const queryClient = useQueryClient();
+  return {
+    createRoute: useMutation({
+      mutationFn: async (route: unknown) => route,
+      onSuccess: () => queryClient.invalidateQueries({ queryKey: ['routes'] })
+    }),
+    updateRoute: useMutation({
+      mutationFn: async (route: unknown) => route,
+      onSuccess: () => queryClient.invalidateQueries({ queryKey: ['routes'] })
+    }),
+    deleteRoute: useMutation({
+      mutationFn: async (id: string) => id,
+      onSuccess: () => queryClient.invalidateQueries({ queryKey: ['routes'] })
+    })
+  };
+}
+
+// Additional hooks
+export function useSafetyIncidents() {
+  return useQuery({
+    queryKey: ['safetyIncidents'],
+    queryFn: async () => []
+  });
+}
+
+export function useChargingStations() {
+  return useQuery({
+    queryKey: ['chargingStations'],
+    queryFn: async () => []
+  });
+}
