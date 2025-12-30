@@ -305,7 +305,7 @@ export function MaintenanceWorkspace({ _data }: { _data?: unknown }) {
     isConnected: isRealtimeConnected,
   } = useVehicleTelemetry({
     enabled: true,
-    initialVehicles: vehicles as Vehicle[],
+    initialVehicles: vehicles as unknown as Vehicle[],
   })
 
   // Use real-time vehicles if available, otherwise use static data
@@ -313,7 +313,7 @@ export function MaintenanceWorkspace({ _data }: { _data?: unknown }) {
 
   // Filter vehicles that need maintenance
   const maintenanceVehicles = useMemo(() => {
-    return (displayVehicles as Vehicle[]).filter((v: Vehicle) => {
+    return (displayVehicles as unknown as Vehicle[]).filter((v: Vehicle) => {
       if (filterStatus === 'all') return true
       if (filterStatus === 'service') return v.status === 'service'
       if (filterStatus === 'alerts') return v.alerts && v.alerts.length > 0
@@ -340,7 +340,7 @@ export function MaintenanceWorkspace({ _data }: { _data?: unknown }) {
     serviceDue: (displayVehicles as Vehicle[]).filter((v: Vehicle) =>
       v.nextService && (v.nextService - (v.mileage || 0)) < 500
     ).length,
-    workOrdersPending: (workOrders as WorkOrder[]).filter((w: WorkOrder) => w.status === 'pending').length
+    workOrdersPending: (workOrders as unknown as WorkOrder[]).filter((w: WorkOrder) => w.status === 'pending').length
   }), [displayVehicles, workOrders])
 
   return (
