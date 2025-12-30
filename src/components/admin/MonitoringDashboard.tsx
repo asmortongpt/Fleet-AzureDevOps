@@ -12,38 +12,66 @@ import SystemHealthWidget from './SystemHealthWidget';
 
 import logger from '@/utils/logger';
 
-interface HealthData {
-  status?: string;
-  uptime?: number;
-  components?: {
-    api?: {
-      responseTime?: number;
-    };
+// Import proper interfaces from child components
+interface SystemHealth {
+  status: 'healthy' | 'degraded' | 'down';
+  uptime: number;
+  version: string;
+  timestamp: string;
+  components: {
+    api: { status: string; responseTime: number };
+    emulators: { status: string; activeCount: number };
+    database: { status: string; connectionPool: number };
   };
 }
 
-interface MetricsData {
-  requestsPerMinute?: number;
+interface Metrics {
+  requestsPerMinute: number;
+  activeConnections: number;
+  averageResponseTime: number;
+  errorRate: number;
+  throughput: number;
 }
 
-interface EmulatorData {
-  active?: any[];
+interface EmulatorGroup {
+  name: string;
+  type: string;
+  instances: Array<{
+    id: string;
+    status: 'active' | 'inactive' | 'error';
+    lastActivity: string;
+    metrics: {
+      messagesProcessed: number;
+      errorCount: number;
+      uptime: number;
+    };
+  }>;
 }
 
-interface ErrorData {
-  timestamp?: number;
+interface Error {
+  id: string;
+  timestamp: number;
+  type: string;
+  message: string;
+  severity: 'low' | 'medium' | 'high' | 'critical';
 }
 
-interface AlertData {
-  status?: string;
+interface Alert {
+  id: string;
+  timestamp: number;
+  type: string;
+  severity: 'info' | 'warning' | 'error' | 'critical';
+  message: string;
+  status: 'active' | 'acknowledged' | 'resolved';
+  source: string;
 }
 
 interface MonitoringData {
-  health: HealthData | null;
-  metrics: MetricsData | null;
-  emulators: EmulatorData | null;
-  errors: ErrorData[];
-  alerts: AlertData[];
+  health: SystemHealth | null;
+  metrics: Metrics | null;
+  emulators: EmulatorGroup | null;
+  errors: Error[];
+  alerts: Alert[];
 }
 
 const MonitoringDashboard: React.FC = () => {
@@ -73,11 +101,11 @@ const MonitoringDashboard: React.FC = () => {
       ]);
 
       setData({
-        health: healthRes.data as HealthData,
-        metrics: metricsRes.data as MetricsData,
-        emulators: emulatorsRes.data as EmulatorData,
-        errors: (errorsRes.data as ErrorData[]) || [],
-        alerts: (alertsRes.data as AlertData[]) || []
+        health: healthRes.data as SystemHealth,
+        metrics: metricsRes.data as Metrics,
+        emulators: emulatorsRes.data as EmulatorGroup,
+        errors: (errorsRes.data as Error[]) || [],
+        alerts: (alertsRes.data as Alert[]) || []
       });
 
       setLastRefresh(new Date());

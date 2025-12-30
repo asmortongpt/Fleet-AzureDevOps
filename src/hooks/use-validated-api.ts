@@ -148,7 +148,7 @@ export function useVehicleMutations() {
     vehicleSchema,
     {
       onSuccess: () => {
-        invalidateQueries(queryClient, { queryKey: ['vehicles'] })
+        invalidateQueries(queryClient, ['vehicles'])
       }
     }
   )
@@ -166,8 +166,10 @@ export function useVehicleMutations() {
     vehicleSchema,
     {
       onSuccess: (data) => {
-        invalidateQueries(queryClient, { queryKey: ['vehicles'] })
-        invalidateQueries(queryClient, { queryKey: ['vehicle', data?.id] })
+        invalidateQueries(queryClient, ['vehicles'])
+        if (data?.id) {
+          invalidateQueries(queryClient, ['vehicle', data.id])
+        }
       }
     }
   )
@@ -184,7 +186,7 @@ export function useVehicleMutations() {
     z.object({ success: z.boolean(), id: z.string() }),
     {
       onSuccess: () => {
-        invalidateQueries(queryClient, { queryKey: ['vehicles'] })
+        invalidateQueries(queryClient, ['vehicles'])
       }
     }
   )
@@ -259,7 +261,7 @@ export function useDriverMutations() {
     driverSchema,
     {
       onSuccess: () => {
-        invalidateQueries(queryClient, { queryKey: ['drivers'] })
+        invalidateQueries(queryClient, ['drivers'])
       }
     }
   )
@@ -277,8 +279,10 @@ export function useDriverMutations() {
     driverSchema,
     {
       onSuccess: (data) => {
-        invalidateQueries(queryClient, { queryKey: ['drivers'] })
-        invalidateQueries(queryClient, { queryKey: ['driver', data?.id] })
+        invalidateQueries(queryClient, ['drivers'])
+        if (data?.id) {
+          invalidateQueries(queryClient, ['driver', data.id])
+        }
       }
     }
   )
@@ -295,7 +299,7 @@ export function useDriverMutations() {
     z.object({ success: z.boolean(), id: z.string() }),
     {
       onSuccess: () => {
-        invalidateQueries(queryClient, { queryKey: ['drivers'] })
+        invalidateQueries(queryClient, ['drivers'])
       }
     }
   )

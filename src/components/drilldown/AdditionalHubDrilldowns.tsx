@@ -289,3 +289,70 @@ export function RoutesDrilldown() {
         </div>
     )
 }
+
+// ============ PROCUREMENT HUB DRILLDOWNS ============
+
+export function TasksDrilldown() {
+    return (
+        <Card className="bg-slate-800/50 border-slate-700">
+            <CardHeader>
+                <CardTitle className="text-white">Tasks Drilldown</CardTitle>
+            </CardHeader>
+            <CardContent className="text-slate-400">
+                Task details will be displayed here
+            </CardContent>
+        </Card>
+    )
+}
+
+export function VendorsDrilldown() {
+    return (
+        <Card className="bg-slate-800/50 border-slate-700">
+            <CardHeader>
+                <CardTitle className="text-white">Vendors Drilldown</CardTitle>
+            </CardHeader>
+            <CardContent className="text-slate-400">
+                Vendor details will be displayed here
+            </CardContent>
+        </Card>
+    )
+}
+
+export function PartsInventoryDrilldown() {
+    return (
+        <Card className="bg-slate-800/50 border-slate-700">
+            <CardHeader>
+                <CardTitle className="text-white">Parts Inventory Drilldown</CardTitle>
+            </CardHeader>
+            <CardContent className="text-slate-400">
+                Parts inventory details will be displayed here
+            </CardContent>
+        </Card>
+    )
+}
+
+export function PurchaseOrdersDrilldown() {
+    return (
+        <Card className="bg-slate-800/50 border-slate-700">
+            <CardHeader>
+                <CardTitle className="text-white">Purchase Orders Drilldown</CardTitle>
+            </CardHeader>
+            <CardContent className="text-slate-400">
+                Purchase order details will be displayed here
+            </CardContent>
+        </Card>
+    )
+}
+
+export function FuelPurchasingDrilldown() {
+    return (
+        <Card className="bg-slate-800/50 border-slate-700">
+            <CardHeader>
+                <CardTitle className="text-white">Fuel Purchasing Drilldown</CardTitle>
+            </CardHeader>
+            <CardContent className="text-slate-400">
+                Fuel purchasing details will be displayed here
+            </CardContent>
+        </Card>
+    )
+}

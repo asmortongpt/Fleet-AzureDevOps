@@ -34,7 +34,7 @@ export function RouteGuard({
   const {
     isLoading,
     hasModule,
-    _hasRole,
+    
     hasAnyRole,
     can
   } = usePermissionContext();

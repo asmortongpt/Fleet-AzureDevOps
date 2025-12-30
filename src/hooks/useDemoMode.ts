@@ -23,9 +23,6 @@ interface DemoUserProfile {
   lastName: string;
   role: UserRole;
   avatar: string;
-}
-
-interface User extends DemoUserProfile {
   token?: string;
 }
 
