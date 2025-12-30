@@ -25,20 +25,21 @@ interface SemanticSearchProps {
 }
 
 export function SemanticSearch({ onSearch }: SemanticSearchProps) {
-  const [query, setQuery] = useState('');
+  const [query, setQuery] = useState<string>('');
   const [results, setResults] = useState<SemanticSearchResult[]>([]);
   const [isPending, startTransition] = useTransition();
 
-  const handleSearch = async () => {
+  const handleSearch = () => {
     if (!query.trim()) return;
 
-    startTransition(async () => {
-      const searchResults = await onSearch(query.trim());
-      setResults(searchResults);
+    startTransition(() => {
+      onSearch(query.trim()).then((searchResults) => {
+        setResults(searchResults);
+      });
     });
   };
 
-  const exampleQueries = [
+  const exampleQueries: string[] = [
     'Documents about vehicle damage from last month',
     'Insurance claims with high severity',
     'Maintenance reports needing immediate action',
@@ -168,7 +169,7 @@ function SearchResultCard({ result }: { result: SemanticSearchResult }) {
           </div>
 
           {/* Tags */}
-          {result.tags.length > 0 && (
+          {result.tags?.length > 0 && (
             <div className="flex flex-wrap gap-1">
               {result.tags.slice(0, 3).map((tag) => (
                 <Badge key={tag} variant="secondary" className="text-xs">

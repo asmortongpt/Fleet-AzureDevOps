@@ -1,6 +1,5 @@
-import { Plus, GripVertical, X, FileText, Eye } from "lucide-react"
+import { Plus, GripVertical, X, FileText, Eye, Save } from "lucide-react"
 import { useState } from "react"
-
 
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -9,6 +8,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+
 interface FormField {
   id: string
   type: "text" | "number" | "date" | "select" | "checkbox" | "textarea" | "signature" | "photo" | "file"
@@ -74,7 +74,7 @@ export function CustomFormBuilder() {
     { value: "signature", label: "Signature Pad" },
     { value: "photo", label: "Photo Capture" },
     { value: "file", label: "File Upload" }
-  ]
+  ] as const
 
   const handleCreateForm = () => {
     const newForm: CustomForm = {
@@ -237,7 +237,7 @@ export function CustomFormBuilder() {
 
               <div className="space-y-2">
                 <Label htmlFor="category">Category</Label>
-                <Select value={editingForm.category} onValueChange={(value: any) => setEditingForm({ ...editingForm, category: value })}>
+                <Select value={editingForm.category} onValueChange={(value: "osha" | "inspection" | "jsa" | "incident" | "custom") => setEditingForm({ ...editingForm, category: value })}>
                   <SelectTrigger id="category">
                     <SelectValue />
                   </SelectTrigger>
@@ -280,7 +280,7 @@ export function CustomFormBuilder() {
                 </div>
               ) : (
                 <div className="space-y-3">
-                  {editingForm.fields.map((field, index) => (
+                  {editingForm.fields.map((field, _index) => (
                     <div key={field.id} className="flex items-start gap-3 p-4 border rounded-lg bg-muted/50">
                       <div className="cursor-move pt-2">
                         <GripVertical className="h-5 w-5 text-muted-foreground" />
@@ -288,7 +288,7 @@ export function CustomFormBuilder() {
                       <div className="flex-1 grid gap-3 md:grid-cols-4">
                         <div className="space-y-2">
                           <Label className="text-xs">Field Type</Label>
-                          <Select value={field.type} onValueChange={(value: any) => handleUpdateField(field.id, { type: value })}>
+                          <Select value={field.type} onValueChange={(value: "text" | "number" | "date" | "select" | "checkbox" | "textarea" | "signature" | "photo" | "file") => handleUpdateField(field.id, { type: value })}>
                             <SelectTrigger>
                               <SelectValue />
                             </SelectTrigger>
@@ -376,77 +376,9 @@ export function CustomFormBuilder() {
                       </Badge>
                     </div>
                   </CardHeader>
-                  <CardContent>
-                    <div className="space-y-3">
-                      <div className="flex items-center justify-between text-sm">
-                        <span className="text-muted-foreground">Fields</span>
-                        <span className="font-medium">{form.fields.length}</span>
-                      </div>
-                      <div className="flex items-center justify-between text-sm">
-                        <span className="text-muted-foreground">Version</span>
-                        <span className="font-medium">{form.version}</span>
-                      </div>
-                      <div className="flex items-center justify-between text-sm">
-                        <span className="text-muted-foreground">Category</span>
-                        <Badge variant="outline">{form.category}</Badge>
-                      </div>
-
-                      <div className="flex gap-2 pt-2">
-                        <Button variant="outline" size="sm" className="flex-1" onClick={() => setEditingForm(form)}>
-                          Edit
-                        </Button>
-                        <Button variant="outline" size="sm" className="flex-1">
-                          <Eye className="mr-2 h-4 w-4" />
-                          Preview
-                        </Button>
-                      </div>
-                    </div>
-                  </CardContent>
                 </Card>
               ))}
             </div>
-          </TabsContent>
-
-          <TabsContent value="osha">
-            <Card>
-              <CardHeader>
-                <CardTitle>OSHA Forms</CardTitle>
-                <CardDescription>OSHA 300, 300A, 301, and custom safety forms</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <p className="text-sm text-muted-foreground">
-                  {forms.filter(f => f.category === "osha").length} OSHA forms available
-                </p>
-              </CardContent>
-            </Card>
-          </TabsContent>
-
-          <TabsContent value="inspection">
-            <Card>
-              <CardHeader>
-                <CardTitle>Inspection Forms</CardTitle>
-                <CardDescription>Vehicle and equipment inspection checklists</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <p className="text-sm text-muted-foreground">
-                  {forms.filter(f => f.category === "inspection").length} inspection forms available
-                </p>
-              </CardContent>
-            </Card>
-          </TabsContent>
-
-          <TabsContent value="jsa">
-            <Card>
-              <CardHeader>
-                <CardTitle>Job Safety Analysis Forms</CardTitle>
-                <CardDescription>JSA and hazard assessment documentation</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <p className="text-sm text-muted-foreground">
-                  {forms.filter(f => f.category === "jsa").length} JSA forms available
-                </p>
-              </CardContent>
-            </Card>
           </TabsContent>
         </Tabs>
       )}

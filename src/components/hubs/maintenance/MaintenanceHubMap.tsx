@@ -6,11 +6,10 @@ import {
   Warning
 } from '@phosphor-icons/react';
 import { GoogleMap, Marker, InfoWindow } from '@react-google-maps/api';
-import React, { useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
-
 
 interface WorkOrder {
   id: string;
@@ -57,7 +56,7 @@ export function MaintenanceHubMap({
 }: MaintenanceHubMapProps) {
   const [selectedWorkOrder, setSelectedWorkOrder] = useState<WorkOrder | null>(null);
   const [selectedLocation, setSelectedLocation] = useState<ServiceLocation | null>(null);
-  const [map, setMap] = useState<google.maps.Map | null>(null);
+  const [_map, setMap] = useState<google.maps.Map | null>(null);
 
   // Sample work orders - would come from props/API in production
   const sampleWorkOrders: WorkOrder[] = useMemo(() => [

@@ -24,7 +24,7 @@ export function useSanitizedInput(
   initialValue: string = '',
   options: SanitizationOptions = {}
 ) {
-  const { mode = 'strict', trim = true, maxLength } = options;
+  const { maxLength } = options;
 
   const [rawValue, setRawValue] = useState<string>(initialValue);
   const [sanitizedValue, setSanitizedValue] = useState<string>(

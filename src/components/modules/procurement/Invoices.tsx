@@ -16,28 +16,28 @@ import {
 import { Invoice } from "@/lib/types"
 
 export function Invoices() {
-  const [invoices, setInvoices] = useState<Invoice[]>([])
-  const [searchTerm, setSearchTerm] = useState("")
-  const [filterStatus, setFilterStatus] = useState<string>("all")
+  const [invoices, _setInvoices] = useState<Invoice[]>([])
+  const [searchTerm, setSearchTerm] = useState<string>("")
+  const [_filterStatus, setFilterStatus] = useState<string>("all")
 
   const filteredInvoices = (invoices || []).filter(invoice => {
     const matchesSearch =
-      invoice.invoiceNumber.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      invoice.vendorName.toLowerCase().includes(searchTerm.toLowerCase())
-    const matchesStatus = filterStatus === "all" || invoice.status === filterStatus
+      invoice?.invoiceNumber?.toLowerCase()?.includes(searchTerm.toLowerCase()) ||
+      invoice?.vendorName?.toLowerCase()?.includes(searchTerm.toLowerCase())
+    const matchesStatus = _filterStatus === "all" || invoice?.status === _filterStatus
 
     return matchesSearch && matchesStatus
   })
 
-  const totalInvoiced = (invoices || []).reduce((sum, inv) => sum + inv.total, 0)
-  const totalPaid = (invoices || []).reduce((sum, inv) => sum + inv.amountPaid, 0)
-  const totalOutstanding = (invoices || []).reduce((sum, inv) => sum + inv.balance, 0)
+  const totalInvoiced = (invoices || []).reduce((sum, inv) => sum + (inv?.total ?? 0), 0)
+  const totalPaid = (invoices || []).reduce((sum, inv) => sum + (inv?.amountPaid ?? 0), 0)
+  const totalOutstanding = (invoices || []).reduce((sum, inv) => sum + (inv?.balance ?? 0), 0)
   const overdueCount = (invoices || []).filter(inv => {
-    const dueDate = new Date(inv.dueDate)
-    return dueDate < new Date() && inv.status !== "paid"
+    const dueDate = new Date(inv?.dueDate ?? "")
+    return dueDate < new Date() && inv?.status !== "paid"
   }).length
 
-  const getStatusColor = (status: Invoice["status"]) => {
+  const getStatusColor = (status: Invoice["status"]): string => {
     const colors: Record<Invoice["status"], string> = {
       draft: "bg-gray-100 text-gray-700",
       pending: "bg-yellow-100 text-yellow-700",
@@ -157,23 +157,23 @@ export function Invoices() {
                 </TableRow>
               ) : (
                 filteredInvoices.map(invoice => (
-                  <TableRow key={invoice.id}>
-                    <TableCell className="font-mono font-medium">{invoice.invoiceNumber}</TableCell>
-                    <TableCell>{invoice.vendorName}</TableCell>
-                    <TableCell>{new Date(invoice.date).toLocaleDateString()}</TableCell>
+                  <TableRow key={invoice?.id}>
+                    <TableCell className="font-mono font-medium">{invoice?.invoiceNumber}</TableCell>
+                    <TableCell>{invoice?.vendorName}</TableCell>
+                    <TableCell>{new Date(invoice?.date ?? "").toLocaleDateString()}</TableCell>
                     <TableCell>
-                      <span className={new Date(invoice.dueDate) < new Date() && invoice.status !== "paid" ? "text-red-600 font-medium" : ""}>
-                        {new Date(invoice.dueDate).toLocaleDateString()}
+                      <span className={new Date(invoice?.dueDate ?? "") < new Date() && invoice?.status !== "paid" ? "text-red-600 font-medium" : ""}>
+                        {new Date(invoice?.dueDate ?? "").toLocaleDateString()}
                       </span>
                     </TableCell>
-                    <TableCell className="font-semibold">${invoice.total.toLocaleString()}</TableCell>
-                    <TableCell className="text-green-600">${invoice.amountPaid.toLocaleString()}</TableCell>
-                    <TableCell className={invoice.balance > 0 ? "text-yellow-600 font-medium" : ""}>
-                      ${invoice.balance.toLocaleString()}
+                    <TableCell className="font-semibold">${(invoice?.total ?? 0).toLocaleString()}</TableCell>
+                    <TableCell className="text-green-600">${(invoice?.amountPaid ?? 0).toLocaleString()}</TableCell>
+                    <TableCell className={(invoice?.balance ?? 0) > 0 ? "text-yellow-600 font-medium" : ""}>
+                      ${(invoice?.balance ?? 0).toLocaleString()}
                     </TableCell>
                     <TableCell>
-                      <Badge className={getStatusColor(invoice.status)} variant="secondary">
-                        {invoice.status}
+                      <Badge className={getStatusColor(invoice?.status ?? "draft")} variant="secondary">
+                        {invoice?.status}
                       </Badge>
                     </TableCell>
                     <TableCell>

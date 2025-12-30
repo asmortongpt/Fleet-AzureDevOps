@@ -1,9 +1,10 @@
-import { OrbitControls, useGLTF, Environment } from '@react-three/drei'
-import { Canvas } from '@react-three/fiber'
+import React from 'react';
+import { OrbitControls, useGLTF, Environment } from '@react-three/drei';
+import { Canvas } from '@react-three/fiber';
 
 function VehicleModel({ path }: { path: string }) {
-  const { scene } = useGLTF(path || '/models/default-vehicle.glb')
-  return <primitive object={scene} scale={0.5} />
+  const { scene } = useGLTF(path || '/models/default-vehicle.glb');
+  return <primitive object={scene} scale={0.5} />;
 }
 
 export function Quick3DTest() {
@@ -17,32 +18,41 @@ export function Quick3DTest() {
         <Environment preset="sunset" />
       </Canvas>
     </div>
-  )
+  );
 }
 
 // AI Integration Component
 export function QuickAITest() {
-  const [response, setResponse] = React.useState('')
-  const [loading, setLoading] = React.useState(false)
+  const [response, setResponse] = React.useState<string>('');
+  const [loading, setLoading] = React.useState<boolean>(false);
 
   const testAI = async () => {
-    setLoading(true)
-    const res = await fetch('http://localhost:3000/api/ai/query', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ query: 'Analyze vehicle health status' })
-    })
-    const data = await res.json()
-    setResponse(data.response)
-    setLoading(false)
-  }
+    setLoading(true);
+    try {
+      const res = await fetch('http://localhost:3000/api/ai/query', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ query: 'Analyze vehicle health status' }),
+      });
+      const data = await res.json();
+      setResponse(data?.response || '');
+    } catch (_error) {
+      setResponse('Error occurred while fetching AI response');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <div>
       <button onClick={testAI} disabled={loading}>
         {loading ? 'Testing AI...' : 'Test Claude AI'}
       </button>
-      {response && <div style={{ marginTop: 10, padding: 10, background: '#f0f0f0' }}>{response}</div>}
+      {response && (
+        <div style={{ marginTop: 10, padding: 10, background: '#f0f0f0' }}>
+          {response}
+        </div>
+      )}
     </div>
-  )
+  );
 }

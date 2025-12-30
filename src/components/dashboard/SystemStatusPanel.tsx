@@ -15,7 +15,7 @@ import {
   Cpu,
   Database
 } from "@phosphor-icons/react"
-import React, { useState } from 'react'
+import { useState } from 'react'
 
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"

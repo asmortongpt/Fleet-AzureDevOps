@@ -1,6 +1,4 @@
 import { InfoIcon, Copy } from 'lucide-react';
-import React from 'react';
-
 import { Button } from '@/components/ui/button';
 import { HoverCard, HoverCardContent, HoverCardTrigger } from '@/components/ui/hover-card';
 
@@ -23,7 +21,7 @@ export default function CalculationTooltip({
 }: CalculationTooltipProps) {
   
   const copyFormula = () => {
-    navigator.clipboard.writeText(formula);
+    navigator.clipboard?.writeText(formula);
   };
 
   const formatDate = (date: Date | string) => {

@@ -3,7 +3,7 @@ import {
   CheckCircle, XCircle, Car, Clock, Star, Shield,
   GraduationCap, Phone, Mail
 } from 'lucide-react';
-import React, { useState } from 'react';
+import { useState } from 'react';
 
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
@@ -317,93 +317,49 @@ export function DriverDetailView({ driver, onClose }: DriverDetailViewProps) {
                   <CardTitle className="text-sm">Safety Score</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="flex items-end gap-2">
-                    <p className={`text-4xl font-bold ${getScoreColor(performanceMetrics.safetyScore)}`}>
-                      {performanceMetrics.safetyScore}
-                    </p>
-                    <p className="text-muted-foreground mb-1">/ 100</p>
-                  </div>
-                  <Progress value={performanceMetrics.safetyScore} className="mt-2" />
-                  <p className="text-xs text-muted-foreground mt-2">Based on incident-free miles and compliance</p>
+                  <div className="text-2xl font-bold mb-2">{performanceMetrics.safetyScore}%</div>
+                  <Progress value={performanceMetrics.safetyScore} className="w-full" />
+                  <p className="text-xs text-muted-foreground mt-1">Top 10% of fleet</p>
                 </CardContent>
               </Card>
-
               <Card>
                 <CardHeader className="pb-2">
                   <CardTitle className="text-sm">Fuel Efficiency</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="flex items-end gap-2">
-                    <p className={`text-4xl font-bold ${getScoreColor(performanceMetrics.fuelEfficiency)}`}>
-                      {performanceMetrics.fuelEfficiency}
-                    </p>
-                    <p className="text-muted-foreground mb-1">/ 100</p>
-                  </div>
-                  <Progress value={performanceMetrics.fuelEfficiency} className="mt-2" />
-                  <p className="text-xs text-muted-foreground mt-2">MPG performance vs. fleet average</p>
+                  <div className="text-2xl font-bold mb-2">{performanceMetrics.fuelEfficiency}%</div>
+                  <Progress value={performanceMetrics.fuelEfficiency} className="w-full" />
+                  <p className="text-xs text-muted-foreground mt-1">Above fleet average</p>
                 </CardContent>
               </Card>
-
               <Card>
                 <CardHeader className="pb-2">
                   <CardTitle className="text-sm">On-Time Performance</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="flex items-end gap-2">
-                    <p className={`text-4xl font-bold ${getScoreColor(performanceMetrics.onTimePerformance)}`}>
-                      {performanceMetrics.onTimePerformance}
-                    </p>
-                    <p className="text-muted-foreground mb-1">/ 100</p>
-                  </div>
-                  <Progress value={performanceMetrics.onTimePerformance} className="mt-2" />
-                  <p className="text-xs text-muted-foreground mt-2">Deliveries on schedule</p>
+                  <div className="text-2xl font-bold mb-2">{performanceMetrics.onTimePerformance}%</div>
+                  <Progress value={performanceMetrics.onTimePerformance} className="w-full" />
+                  <p className="text-xs text-muted-foreground mt-1">Excellent performance</p>
                 </CardContent>
               </Card>
-
               <Card>
                 <CardHeader className="pb-2">
                   <CardTitle className="text-sm">Customer Satisfaction</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="flex items-end gap-2">
-                    <p className={`text-4xl font-bold ${getScoreColor(performanceMetrics.customerSatisfaction)}`}>
-                      {performanceMetrics.customerSatisfaction}
-                    </p>
-                    <p className="text-muted-foreground mb-1">/ 100</p>
-                  </div>
-                  <Progress value={performanceMetrics.customerSatisfaction} className="mt-2" />
-                  <p className="text-xs text-muted-foreground mt-2">Average customer rating</p>
+                  <div className="text-2xl font-bold mb-2">{performanceMetrics.customerSatisfaction}%</div>
+                  <Progress value={performanceMetrics.customerSatisfaction} className="w-full" />
+                  <p className="text-xs text-muted-foreground mt-1">Based on feedback</p>
                 </CardContent>
               </Card>
-
               <Card>
                 <CardHeader className="pb-2">
                   <CardTitle className="text-sm">Maintenance Compliance</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="flex items-end gap-2">
-                    <p className={`text-4xl font-bold ${getScoreColor(performanceMetrics.maintenanceCompliance)}`}>
-                      {performanceMetrics.maintenanceCompliance}
-                    </p>
-                    <p className="text-muted-foreground mb-1">/ 100</p>
-                  </div>
-                  <Progress value={performanceMetrics.maintenanceCompliance} className="mt-2" />
-                  <p className="text-xs text-muted-foreground mt-2">Pre-trip inspections completed</p>
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardHeader className="pb-2">
-                  <CardTitle className="text-sm">Overall Rating</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="flex items-center gap-2">
-                    <Star className="w-8 h-8 fill-yellow-400 text-yellow-400" />
-                    <p className="text-4xl font-bold text-yellow-600">{performanceMetrics.overallRating}</p>
-                    <p className="text-muted-foreground">/ 5.0</p>
-                  </div>
-                  <Progress value={(performanceMetrics.overallRating / 5) * 100} className="mt-2" />
-                  <p className="text-xs text-muted-foreground mt-2">Composite performance score</p>
+                  <div className="text-2xl font-bold mb-2">{performanceMetrics.maintenanceCompliance}%</div>
+                  <Progress value={performanceMetrics.maintenanceCompliance} className="w-full" />
+                  <p className="text-xs text-muted-foreground mt-1">Pre-trip inspections</p>
                 </CardContent>
               </Card>
             </div>
@@ -415,46 +371,32 @@ export function DriverDetailView({ driver, onClose }: DriverDetailViewProps) {
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <Car className="w-5 h-5" />
-                  Vehicle Assignment History
+                  Vehicle Assignments
                 </CardTitle>
-                <CardDescription>{assignments.length} total assignments</CardDescription>
+                <CardDescription>Current and past vehicle assignments</CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="space-y-3">
                   {assignments.map((assignment) => (
-                    <div
-                      key={assignment.vehicleId}
-                      className="border rounded-lg p-4 hover:bg-gray-50 dark:hover:bg-gray-800 cursor-pointer transition-colors"
-                      onClick={() => push({
-                        id: `vehicle-${assignment.vehicleId}`,
-                        type: 'vehicle',
-                        label: `${assignment.make} ${assignment.model}`,
-                        data: assignment
-                      })}
-                    >
-                      <div className="flex items-start justify-between">
+                    <div key={assignment.vehicleId} className="border rounded-lg p-4">
+                      <div className="flex items-start justify-between mb-2">
                         <div className="flex-1">
-                          <div className="flex items-center gap-2 mb-2">
+                          <div className="flex items-center gap-2 mb-1">
                             <h4 className="font-semibold">{assignment.make} {assignment.model}</h4>
                             {getStatusBadge(assignment.status)}
                           </div>
-                          <p className="text-sm text-muted-foreground mb-3">Vehicle ID: {assignment.vehicleId}</p>
-                          <div className="grid grid-cols-2 md:grid-cols-3 gap-4 text-xs">
-                            <div>
-                              <span className="text-muted-foreground">Assigned:</span>
-                              <p className="font-medium">{assignment.assignedDate}</p>
-                            </div>
-                            {assignment.endDate && (
-                              <div>
-                                <span className="text-muted-foreground">Ended:</span>
-                                <p className="font-medium">{assignment.endDate}</p>
-                              </div>
-                            )}
-                            <div>
-                              <span className="text-muted-foreground">Miles Driven:</span>
-                              <p className="font-medium">{assignment.milesDriven.toLocaleString()}</p>
-                            </div>
-                          </div>
+                          <p className="text-sm text-muted-foreground">ID: {assignment.vehicleId}</p>
+                        </div>
+                        <p className="text-sm font-medium">{assignment.milesDriven.toLocaleString()} mi</p>
+                      </div>
+                      <div className="grid grid-cols-2 gap-4 text-xs mt-3 pt-3 border-t">
+                        <div>
+                          <span className="text-muted-foreground">Assigned:</span>
+                          <p className="font-medium">{assignment.assignedDate}</p>
+                        </div>
+                        <div>
+                          <span className="text-muted-foreground">End Date:</span>
+                          <p className="font-medium">{assignment.endDate || 'Current'}</p>
                         </div>
                       </div>
                     </div>
@@ -470,32 +412,31 @@ export function DriverDetailView({ driver, onClose }: DriverDetailViewProps) {
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <GraduationCap className="w-5 h-5" />
-                  Training & Development
+                  Training Records
                 </CardTitle>
-                <CardDescription>{trainingRecords.length} total courses</CardDescription>
+                <CardDescription>Completed and scheduled training sessions</CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="space-y-3">
-                  {trainingRecords.map((training) => (
-                    <div key={training.id} className="border rounded-lg p-4">
+                  {trainingRecords.map((record) => (
+                    <div key={record.id} className="border rounded-lg p-4">
                       <div className="flex items-start justify-between mb-2">
                         <div className="flex-1">
                           <div className="flex items-center gap-2 mb-1">
-                            <h4 className="font-semibold">{training.course}</h4>
-                            {getStatusBadge(training.status)}
+                            <h4 className="font-semibold">{record.course}</h4>
+                            {getStatusBadge(record.status)}
                           </div>
-                          <p className="text-sm text-muted-foreground">Instructor: {training.instructor}</p>
+                          <p className="text-sm text-muted-foreground">Instructor: {record.instructor}</p>
                         </div>
-                        {training.score && (
-                          <div className="text-right">
-                            <p className={`text-2xl font-bold ${getScoreColor(training.score)}`}>{training.score}</p>
-                            <p className="text-xs text-muted-foreground">Score</p>
+                        {record.score && (
+                          <div className={`font-bold text-lg ${getScoreColor(record.score)}`}>
+                            {record.score}%
                           </div>
                         )}
                       </div>
                       <div className="text-xs mt-3 pt-3 border-t">
                         <span className="text-muted-foreground">Date:</span>
-                        <p className="font-medium">{training.date}</p>
+                        <span className="font-medium ml-1">{record.date}</span>
                       </div>
                     </div>
                   ))}

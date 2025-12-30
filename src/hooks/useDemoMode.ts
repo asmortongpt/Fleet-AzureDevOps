@@ -25,6 +25,10 @@ interface DemoUserProfile {
   avatar: string;
 }
 
+interface User extends DemoUserProfile {
+  token?: string;
+}
+
 // Demo user profiles for each role
 const DEMO_USERS: Record<UserRole, DemoUserProfile> = {
   fleet_manager: {
