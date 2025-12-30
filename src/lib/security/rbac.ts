@@ -3,7 +3,6 @@
  * FedRAMP-compliant authorization framework
  */
 
-import logger from '@/utils/logger'
 export type Permission = 
   // Vehicle permissions
   | "vehicles.view" | "vehicles.create" | "vehicles.edit" | "vehicles.delete" | "vehicles.assign"

@@ -1,13 +1,15 @@
 /**
  * ComplianceHubDrilldowns - Drilldown components for Compliance hub
  */
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
-import { Progress } from '@/components/ui/progress'
 import {
-    ShieldCheck, Warning, Clock, CheckCircle, FileText,
-    MapPin, Truck, GasPump, Certificate, Scale
+    ShieldCheck, Clock, FileText,
+    MapPin, GasPump
 } from '@phosphor-icons/react'
+
+import { Badge } from '@/components/ui/badge'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Progress } from '@/components/ui/progress'
+
 
 export function RegulationsDrilldown() {
     return (
