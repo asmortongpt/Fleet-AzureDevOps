@@ -171,10 +171,9 @@ export function generateDemoFacilities(): GISFacility[] {
         lng: -84.2807
       },
       address: "1000 Apalachee Pkwy, Tallahassee, FL 32301",
+      region: "Central",
       capacity: 15,
-      currentOccupancy: 8,
       status: "operational",
-      serviceBays: 8,
       tenantId: "demo-tenant-001"
     },
     {
@@ -186,10 +185,9 @@ export function generateDemoFacilities(): GISFacility[] {
         lng: -84.2600
       },
       address: "2500 N Monroe St, Tallahassee, FL 32303",
+      region: "North",
       capacity: 10,
-      currentOccupancy: 6,
       status: "operational",
-      serviceBays: 6,
       tenantId: "demo-tenant-001"
     },
     {
@@ -201,10 +199,9 @@ export function generateDemoFacilities(): GISFacility[] {
         lng: -84.2300
       },
       address: "3200 Capital Circle NE, Tallahassee, FL 32308",
+      region: "Northeast",
       capacity: 10,
-      currentOccupancy: 5,
       status: "operational",
-      serviceBays: 5,
       tenantId: "demo-tenant-001"
     },
     {
@@ -216,10 +213,9 @@ export function generateDemoFacilities(): GISFacility[] {
         lng: -84.2400
       },
       address: "4500 Southwood Blvd, Tallahassee, FL 32311",
+      region: "South",
       capacity: 8,
-      currentOccupancy: 4,
       status: "operational",
-      serviceBays: 4,
       tenantId: "demo-tenant-001"
     },
     {
@@ -231,10 +227,9 @@ export function generateDemoFacilities(): GISFacility[] {
         lng: -84.2200
       },
       address: "1800 Thomasville Rd, Tallahassee, FL 32303",
+      region: "North",
       capacity: 7,
-      currentOccupancy: 5,
       status: "operational",
-      serviceBays: 5,
       tenantId: "demo-tenant-001"
     }
   ]
@@ -294,18 +289,19 @@ export function generateDemoWorkOrders(count: number = 30): WorkOrder[] {
 
     workOrders.push({
       id: `WO-2024-${String(i + 1).padStart(3, '0')}`,
+      tenantId: "demo-tenant-001",
       vehicleId: `veh-demo-${1000 + (i % 50)}`,
-      type,
+      vehicleNumber: `VEH-${1000 + (i % 50)}`,
+      serviceType: type,
       description: `${type} for vehicle maintenance`,
       status,
       priority: priorities[Math.floor(Math.random() * priorities.length)] || "medium",
       assignedTo: status !== "pending" ? `Technician ${(i % 5) + 1}` : "",
-      createdAt: createdDate.toISOString(),
-      scheduledDate: scheduledDate.toISOString().split('T')[0],
-      completedDate: completedDate?.toISOString().split('T')[0] ?? "",
+      createdDate: createdDate.toISOString().split('T')[0],
+      dueDate: scheduledDate.toISOString().split('T')[0],
+      completedDate: completedDate?.toISOString().split('T')[0],
       estimatedCost: Math.floor(Math.random() * 800 + 200),
-      actualCost: status === "completed" ? Math.floor(Math.random() * 800 + 200) : 0,
-      tenantId: "demo-tenant-001"
+      createdBy: "System"
     })
   }
 
@@ -323,14 +319,15 @@ export function generateDemoFuelTransactions(count: number = 100): FuelTransacti
     transactions.push({
       id: `fuel-demo-${3000 + i}`,
       vehicleId: `veh-demo-${1000 + (i % 50)}`,
-      driverId: `drv-demo-${2000 + (i % 30)}`,
+      vehicleNumber: `VEH-${1000 + (i % 50)}`,
       date: date.toISOString().split('T')[0],
       gallons: Number(gallons.toFixed(2)),
       pricePerGallon: Number(pricePerGallon.toFixed(2)),
       totalCost: Number((gallons * pricePerGallon).toFixed(2)),
-      location: `Station ${(i % 10) + 1}`,
+      mpg: Math.floor(Math.random() * 8 + 12),
+      station: `Station ${(i % 10) + 1}`,
+      paymentMethod: "Company Card",
       odometer: Math.floor(Math.random() * 50000 + 10000),
-      tenantId: "demo-tenant-001"
     })
   }
 
