@@ -307,7 +307,8 @@ interface Route {
   updated_at: string;
 }
 
-const queryClient = new QueryClient();
+// Note: queryClient instance created here for type reference only
+// Actual queryClient is obtained via useQueryClient() hook in components
 
 const queryKeyFactory = {
   vehicles: (filters: VehicleFilters) => ['vehicles', filters],
@@ -474,18 +475,20 @@ export function useVehicleMutations() {
       );
       return { previousVehicles };
     },
-    onError: (err, updatedVehicle, context) => {
+    onError: (_err, updatedVehicle, context) => {
       if (context?.previousVehicles) {
         queryClient.setQueryData(queryKeyFactory.vehicles({ tenant_id: updatedVehicle.tenant_id }), context.previousVehicles);
       }
     },
     onSettled: (updatedVehicle) => {
-      queryClient.invalidateQueries(queryKeyFactory.vehicles({ tenant_id: updatedVehicle.tenant_id }));
+      if (updatedVehicle) {
+        queryClient.invalidateQueries(queryKeyFactory.vehicles({ tenant_id: updatedVehicle.tenant_id }));
+      }
     },
   });
 
   const deleteVehicle = useMutation<void, Error, { id: string; tenant_id: string }>({
-    mutationFn: async ({ id, tenant_id }) => {
+    mutationFn: async ({ id }) => {
       const res = await secureFetch(`/api/vehicles/${id}`, {
         method: 'DELETE',
       });
