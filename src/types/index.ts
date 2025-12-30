@@ -23,4 +23,10 @@ export interface WorkOrder {
   id: string
   title: string
   status: string
+  description?: string
+  dueDate?: string
+  priority?: string
+  assignedTo?: string
+  vehicleId?: string
+  type?: string
 }
