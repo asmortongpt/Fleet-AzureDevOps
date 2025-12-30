@@ -166,7 +166,7 @@ export function DriverTripsView({ driverId, driverName }: DriverTripsViewProps) 
                         </div>
 
                         {/* Incidents */}
-                        {trip.incidents?.length > 0 && (
+                        {trip.incidents && trip.incidents.length > 0 && (
                           <div className="pt-3 border-t">
                             <div className="flex items-center gap-2 mb-2">
                               <AlertTriangle className="h-4 w-4 text-destructive" />
@@ -201,7 +201,7 @@ export function DriverTripsView({ driverId, driverName }: DriverTripsViewProps) 
                         )}
 
                         {/* Performance Highlights */}
-                        {trip.highlights?.length > 0 && (
+                        {trip.highlights && trip.highlights.length > 0 && (
                           <div className="pt-3 border-t">
                             <div className="flex items-center gap-2 mb-2">
                               <CheckCircle className="h-4 w-4 text-green-600" />

@@ -206,7 +206,7 @@ const VehicleTelemetryPanel = ({ vehicle, telemetry }: { vehicle: Vehicle | null
                 {vehicle.lastServiceDate || "N/A"}
               </span>
             </div>
-            {vehicle.maintenanceAlerts?.length > 0 && (
+            {vehicle.maintenanceAlerts && vehicle.maintenanceAlerts.length > 0 && (
               <div className="space-y-2">
                 <Separator />
                 <div className="space-y-1">
