@@ -1,5 +1,3 @@
-*/
-
 import { MagnifyingGlass, X, Funnel } from '@phosphor-icons/react'
 
 import { Badge } from '@/components/ui/badge'

@@ -16,7 +16,7 @@ import { PerformanceMonitor } from "./PerformanceMonitor"
 import { usePerformanceMonitor } from "@/hooks/usePerformanceMonitor"
 import { Vehicle, GISFacility, TrafficCamera } from "@/lib/types"
 import logger from '@/utils/logger';
-import { getMarkerOptimizationSuggestions, PerformanceSuggestion } from "@/utils/performance"
+import { getMarkerOptimizationSuggestions } from "@/utils/performance"
 
 // ============================================================================
 // Types & Interfaces
@@ -407,4 +407,426 @@ function getActiveProvider(forceProvider?: MapProvider): MapProvider {
  * - Google Maps: Google Maps Platform - requires API key, $200/month free credit
  *
  * Usage:
+ * ```tsx
+ * <UniversalMap
+ *   vehicles={vehicles}
+ *   facilities={facilities}
+ *   cameras={cameras}
+ *   showVehicles={true}
+ *   showFacilities={true}
+ *   center={[30.4383, -84.2807]}
+ *   zoom={13}
+ *   onMapReady={(provider) => logger.debug(`Map ready: ${provider}`)}
+ * />
+ * ```
  *
+ * Provider Management:
+ * ```tsx
+ * // Get current provider
+ * const provider = getMapProvider()
+ *
+ * // Set provider preference
+ * setMapProvider("google")
+ * ```
+ */
+export function UniversalMap(props: UniversalMapProps) {
+  // --------------------------------------------------------------------------
+  // Props Destructuring with Defaults
+  // --------------------------------------------------------------------------
+
+  const {
+    vehicles = [],
+    facilities = [],
+    cameras = [],
+    showVehicles = true,
+    showFacilities = true,
+    showCameras = true,
+    showRoutes = false,
+    center = DEFAULT_CENTER,
+    zoom = DEFAULT_ZOOM,
+    className = "",
+    onMapReady,
+    onMapError,
+    forceProvider,
+    enableClustering = true,
+    clusterThreshold = DEFAULT_CLUSTER_THRESHOLD,
+    enablePerformanceMonitoring = import.meta.env.DEV,
+    showPerformanceMonitor = import.meta.env.DEV,
+  } = props
+
+  // --------------------------------------------------------------------------
+  // State Management
+  // --------------------------------------------------------------------------
+
+  const [provider, setProvider] = useState<MapProvider>(() => getActiveProvider(forceProvider))
+  const [loadingState, setLoadingState] = useState<MapLoadingState>("idle")
+  const [fallbackAttempted, setFallbackAttempted] = useState(false)
+
+  // --------------------------------------------------------------------------
+  // Performance Monitoring
+  // --------------------------------------------------------------------------
+
+  const perf = usePerformanceMonitor("UniversalMap", {
+    enabled: enablePerformanceMonitoring,
+    reportInterval: 10000, // Report every 10 seconds
+    slowRenderThreshold: 50,
+    highMemoryThreshold: 150,
+  })
+
+  // --------------------------------------------------------------------------
+  // Refs
+  // --------------------------------------------------------------------------
+
+  const mountedRef = useRef(true)
+  const storageListenerRef = useRef<(() => void) | null>(null)
+  const providerChangeTimeoutRef = useRef<NodeJS.Timeout | null>(null)
+
+  // --------------------------------------------------------------------------
+  // Memoized Values
+  // --------------------------------------------------------------------------
+
+  /**
+   * Validated center coordinates - dynamically calculated from markers if not provided
+   * Priority: 1) Explicit center prop, 2) Calculated from markers, 3) DEFAULT_CENTER
+   */
+  const validatedCenter = useMemo(() => {
+    // If explicit center provided, use it
+    if (isValidCoordinates(center)) {
+      return center
+    }
+
+    // Calculate center dynamically from markers
+    const dynamicCenter = calculateDynamicCenter(vehicles, facilities, cameras)
+
+    // Log if using dynamic center (only in dev)
+    if (process.env.NODE_ENV === 'development' && (vehicles.length > 0 || facilities.length > 0 || cameras.length > 0)) {
+      logger.debug("Map center calculated from markers:", dynamicCenter)
+    }
+
+    return dynamicCenter
+  }, [center, vehicles, facilities, cameras])
+
+  /**
+   * Validated zoom level with bounds
+   */
+  const validatedZoom = useMemo(() => {
+    const zoomValue = typeof zoom === "number" && !isNaN(zoom) ? zoom : DEFAULT_ZOOM
+    // Clamp zoom between 1 and 20
+    return Math.max(1, Math.min(20, zoomValue))
+  }, [zoom])
+
+  /**
+   * Total marker count for clustering decision
+   */
+  const totalMarkerCount = useMemo(() => {
+    let count = 0
+    if (showVehicles) count += vehicles.length
+    if (showFacilities) count += facilities.length
+    if (showCameras) count += cameras.length
+    return count
+  }, [vehicles.length, facilities.length, cameras.length, showVehicles, showFacilities, showCameras])
+
+  /**
+   * Whether clustering should be enabled based on marker count
+   */
+  const shouldCluster = useMemo(() => {
+    return enableClustering && totalMarkerCount > clusterThreshold
+  }, [enableClustering, totalMarkerCount, clusterThreshold])
+
+  // --------------------------------------------------------------------------
+  // Callbacks
+  // --------------------------------------------------------------------------
+
+  /**
+   * Handle map provider errors with fallback to Leaflet
+   */
+  const handleMapError = useCallback(
+    (error: Error) => {
+      logger.error(`Map provider "${provider}" encountered error:`, error)
+
+      if (!mountedRef.current) return
+
+      setLoadingState("error")
+      onMapError?.(error, provider)
+
+      // If Google Maps fails and we haven't tried fallback, switch to Leaflet
+      if (provider === "google" && !fallbackAttempted) {
+        logger.warn("Google Maps failed, falling back to Leaflet...")
+        setFallbackAttempted(true)
+        setProvider("leaflet")
+        setLoadingState("loading")
+      }
+    },
+    [provider, fallbackAttempted, onMapError]
+  )
+
+  /**
+   * Handle successful map initialization
+   */
+  const handleMapReady = useCallback(() => {
+    if (!mountedRef.current) return
+
+    // Track time to interactive
+    const initTime = performance.now()
+    perf.recordMetric("timeToInteractive", initTime, {
+      provider,
+      markerCount: totalMarkerCount,
+      clustering: shouldCluster,
+    })
+
+    setLoadingState("ready")
+    onMapReady?.(provider)
+
+    // Log optimization suggestions in dev mode
+    if (import.meta.env.DEV && totalMarkerCount > 0) {
+      const suggestions = getMarkerOptimizationSuggestions(totalMarkerCount)
+      if (suggestions.length > 0) {
+        logger.debug("\n🚀 Performance Optimization Suggestions:")
+        suggestions.forEach((s) => {
+          logger.debug(`  ${s.priority === "high" ? "🔴" : s.priority === "medium" ? "🟡" : "🟢"} ${s.message}`)
+          logger.debug(`     Impact: ${s.impact} | Effort: ${s.effort}`)
+        })
+      }
+    }
+  }, [provider, onMapReady, perf, totalMarkerCount, shouldCluster])
+
+  /**
+   * Handle storage events (provider changes from other tabs)
+   */
+  const handleStorageChange = useCallback(() => {
+    if (!mountedRef.current) return
+
+    // Debounce storage events
+    if (providerChangeTimeoutRef.current) {
+      clearTimeout(providerChangeTimeoutRef.current)
+    }
+
+    providerChangeTimeoutRef.current = setTimeout(() => {
+      const newProvider = getActiveProvider(forceProvider)
+      if (newProvider !== provider) {
+        logger.debug(`Provider changed to: ${newProvider}`)
+        setProvider(newProvider)
+        setLoadingState("loading")
+        setFallbackAttempted(false)
+      }
+    }, STORAGE_EVENT_DEBOUNCE)
+  }, [provider, forceProvider])
+
+  // --------------------------------------------------------------------------
+  // Effects
+  // --------------------------------------------------------------------------
+
+  /**
+   * Component mount/unmount lifecycle
+   */
+  useEffect(() => {
+    mountedRef.current = true
+
+    // Track map initialization
+    const initStart = perf.startMetric("mapInit")
+    setLoadingState("loading")
+
+    return () => {
+      mountedRef.current = false
+
+      // Cleanup timeout
+      if (providerChangeTimeoutRef.current) {
+        clearTimeout(providerChangeTimeoutRef.current)
+      }
+
+      // Cleanup storage listener
+      if (storageListenerRef.current) {
+        storageListenerRef.current()
+      }
+
+      // Track component unmount
+      perf.recordMetric("componentLifetime", Date.now() - initStart)
+    }
+  }, [])
+
+  /**
+   * Listen for storage changes (cross-tab provider switching)
+   */
+  useEffect(() => {
+    // Don't listen if provider is forced
+    if (forceProvider) return
+
+    const cleanup = () => {
+      window.removeEventListener("storage", handleStorageChange)
+    }
+
+    window.addEventListener("storage", handleStorageChange)
+    storageListenerRef.current = cleanup
+
+    return cleanup
+  }, [handleStorageChange, forceProvider])
+
+  /**
+   * Update loading state when provider changes
+   */
+  useEffect(() => {
+    setLoadingState("loading")
+  }, [provider])
+
+  // --------------------------------------------------------------------------
+  // Render
+  // --------------------------------------------------------------------------
+
+  /**
+   * Common props passed to both map implementations
+   */
+  const commonMapProps = {
+    vehicles,
+    facilities,
+    cameras,
+    showVehicles,
+    showFacilities,
+    showCameras,
+    showRoutes,
+    center: validatedCenter,
+    zoom: validatedZoom,
+    className,
+  }
+
+  return (
+    <MapErrorBoundary onError={(error) => handleMapError(error)}>
+      <div className="relative w-full h-full min-h-[500px]">
+        {/* Loading Overlay */}
+        {loadingState === "loading" && (
+          <div className="absolute inset-0 z-50 flex items-center justify-center bg-white/80 dark:bg-gray-900/80">
+            <div className="flex flex-col items-center gap-3">
+              <div className="w-12 h-12 border-4 border-blue-500 border-t-transparent rounded-full animate-spin" />
+              <p className="text-sm text-gray-600 dark:text-gray-400">
+                Loading {provider === "google" ? "Google Maps" : "OpenStreetMap"}...
+              </p>
+            </div>
+          </div>
+        )}
+
+        {/* Map Provider Components */}
+        {provider === "google" ? (
+          <GoogleMap
+            {...commonMapProps}
+            key="google-map"
+            onError={handleMapError}
+            onReady={handleMapReady}
+          />
+        ) : (
+          <LeafletMap
+            {...commonMapProps}
+            key="leaflet-map"
+            onError={handleMapError}
+            onReady={handleMapReady}
+          />
+        )}
+
+        {/* Clustering Info Badge */}
+        {shouldCluster && (
+          <div className="absolute bottom-4 left-4 z-40 bg-white/90 dark:bg-gray-800/90 px-3 py-1.5 rounded-md shadow-md text-xs text-gray-600 dark:text-gray-300">
+            Clustering {totalMarkerCount} markers
+          </div>
+        )}
+
+        {/* Provider Badge (Development Only) */}
+        {process.env.NODE_ENV === "development" && (
+          <div className="absolute top-4 right-4 z-40 bg-black/70 text-white px-2 py-1 rounded text-xs font-mono">
+            {provider === "google" ? "Google Maps" : "Leaflet/OSM"}
+          </div>
+        )}
+
+        {/* Performance Monitor Dashboard */}
+        {showPerformanceMonitor && (
+          <PerformanceMonitor
+            componentName={`UniversalMap (${provider})`}
+            position="bottom-right"
+            defaultExpanded={false}
+            metrics={perf.metrics}
+            showFPS={true}
+            showMemory={true}
+            showWebVitals={true}
+            detectMemoryLeaks={true}
+          />
+        )}
+      </div>
+    </MapErrorBoundary>
+  )
+}
+
+// ============================================================================
+// Public API Functions
+// ============================================================================
+
+/**
+ * Get the current active map provider
+ * @returns Current map provider
+ */
+export function getMapProvider(): MapProvider {
+  return getActiveProvider()
+}
+
+/**
+ * Set the map provider preference
+ * @param provider - Provider to use ("leaflet" or "google")
+ * @param reloadPage - Whether to reload the page (default: true)
+ * @returns Success status
+ */
+export function setMapProvider(provider: MapProvider, reloadPage = true): boolean {
+  if (!isValidProvider(provider)) {
+    logger.error(`Invalid map provider: ${provider}`)
+    return false
+  }
+
+  // Validate Google Maps availability
+  if (provider === "google" && !hasGoogleMapsApiKey()) {
+    logger.error("Cannot set Google Maps provider: API key not available")
+    return false
+  }
+
+  const success = safeSetLocalStorage(STORAGE_KEY, provider)
+
+  if (success && reloadPage && typeof window !== "undefined") {
+    window.location.reload()
+  }
+
+  return success
+}
+
+/**
+ * Check if a map provider is available
+ * @param provider - Provider to check
+ * @returns True if provider is available
+ */
+export function isMapProviderAvailable(provider: MapProvider): boolean {
+  if (!isValidProvider(provider)) {
+    return false
+  }
+
+  if (provider === "google") {
+    return hasGoogleMapsApiKey()
+  }
+
+  // Leaflet is always available
+  return true
+}
+
+/**
+ * Get list of available map providers
+ * @returns Array of available providers
+ */
+export function getAvailableProviders(): MapProvider[] {
+  const providers: MapProvider[] = ["leaflet"]
+
+  if (hasGoogleMapsApiKey()) {
+    providers.push("google")
+  }
+
+  return providers
+}
+
+/**
+ * Reset map provider to default (Leaflet)
+ * @param reloadPage - Whether to reload the page (default: true)
+ */
+export function resetMapProvider(reloadPage = true): void {
+  setMapProvider("leaflet", reloadPage)
+}

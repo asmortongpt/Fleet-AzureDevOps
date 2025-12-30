@@ -1,5 +1,3 @@
-*/
-
 import { Upload, X, File, Image as ImageIcon } from "@phosphor-icons/react"
 import { useState, useCallback } from "react"
 import { useDropzone, Accept } from "react-dropzone"
