@@ -215,7 +215,7 @@ export function ArcGISIntegration() {
       // Create abort controller for this request
       abortControllerRef.current = new AbortController()
 
-      const layersData = await apiClient.arcgisLayers.list()
+      const layersData = await apiClient.arcgisLayers.list() as LayerWithStatus[]
       setLayers(layersData.map((layer: LayerWithStatus) => ({
         ...layer,
         health: 'unknown' as LayerHealth,
