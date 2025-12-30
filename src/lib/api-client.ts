@@ -467,4 +467,9 @@ class APIClient {
   }
 }
 
-export default new APIClient(API_BASE_URL)
+// Create singleton instance
+const client = new APIClient(API_BASE_URL)
+
+// Export both as default and named export for compatibility
+export default client
+export { client as apiClient }
