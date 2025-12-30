@@ -478,7 +478,7 @@ export function EnhancedMapLayers() {
   return (
     <div className="relative h-full w-full">
       <UniversalMap
-        cameras={trafficCameras}
+        cameras={trafficCameras as any}
         vehicles={vehicles}
         facilities={facilities}
         onCameraClick={(camera: any) => setSelectedCamera(camera)}
