@@ -198,6 +198,51 @@ const logger = {
     if (isDevelopment || DEBUG_ENABLED) {
       console.groupEnd()
     }
+  },
+
+  /**
+   * BACKWARDS COMPATIBILITY: Legacy method names
+   * These are aliases for the standard methods to support older code
+   */
+
+  /**
+   * Alias for error() - for backwards compatibility
+   * @deprecated Use logger.error() instead
+   */
+  logError: (...args: any[]) => {
+    logger.error(...args)
+  },
+
+  /**
+   * Audit logging - for security-relevant events
+   * Logs at INFO level with [AUDIT] prefix
+   */
+  logAudit: (event: string, details?: any) => {
+    console.log(...formatMessage('AUDIT', event, details ? redactValue(details) : ''))
+  },
+
+  /**
+   * Alias for info() - for backwards compatibility
+   * @deprecated Use logger.info() instead
+   */
+  logInfo: (...args: any[]) => {
+    logger.info(...args)
+  },
+
+  /**
+   * Alias for warn() - for backwards compatibility
+   * @deprecated Use logger.warn() instead
+   */
+  logWarn: (...args: any[]) => {
+    logger.warn(...args)
+  },
+
+  /**
+   * Alias for debug() - for backwards compatibility
+   * @deprecated Use logger.debug() instead
+   */
+  logDebug: (...args: any[]) => {
+    logger.debug(...args)
   }
 }
 
@@ -206,3 +251,8 @@ export default logger
 
 // Also export named for flexibility
 export { logger }
+
+// Export createLogger for backwards compatibility with some modules
+export function createLogger() {
+  return logger
+}

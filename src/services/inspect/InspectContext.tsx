@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useMemo, useState } from "react";
 
-import { InspectTarget } from "./types";
+import { InspectTarget, InspectType } from "./types";
 
 type InspectCtx = {
   target: InspectTarget | null;
@@ -27,3 +27,6 @@ export function useInspect() {
   if (!v) throw new Error("useInspect must be used inside InspectProvider");
   return v;
 }
+
+// Re-export types for convenience
+export type { InspectType, InspectTarget }

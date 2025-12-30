@@ -53,7 +53,7 @@ const demoFacilities: GISFacility[] = [
     location: { lat: 30.4283, lng: -84.2707, address: '' },
     address: '',
     region: '',
-    status: 'active',
+    status: 'operational',
   },
 ]
 
