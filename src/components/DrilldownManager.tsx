@@ -7,6 +7,36 @@ import React from 'react'
 
 import { DrilldownBreadcrumbs } from '@/components/DrilldownBreadcrumbs'
 import { DrilldownPanel } from '@/components/DrilldownPanel'
+import {
+  IncidentsDrilldown,
+  SafetyScoreDetailDrilldown,
+  VideoTelematicsDrilldown,
+  DispatchDrilldown,
+  RoutesDrilldown,
+  TasksDrilldown,
+  VendorsDrilldown,
+  PartsInventoryDrilldown,
+  PurchaseOrdersDrilldown,
+  FuelPurchasingDrilldown
+} from '@/components/drilldown/AdditionalHubDrilldowns'
+import {
+  SystemHealthDrilldown,
+  AlertsDrilldown,
+  FilesDrilldown
+} from '@/components/drilldown/AdminHubDrilldowns'
+import {
+  AiAgentDrilldown,
+  MessagesDrilldown,
+  EmailDrilldown,
+  HistoryDrilldown
+} from '@/components/drilldown/CommunicationHubDrilldowns'
+import {
+  RegulationsDrilldown,
+  GeofenceComplianceDrilldown,
+  InspectionsDrilldown,
+  IFTADrilldown,
+  CSADrilldown
+} from '@/components/drilldown/ComplianceHubDrilldowns'
 import { DriverDetailPanel } from '@/components/drilldown/DriverDetailPanel'
 import { DriverPerformanceView } from '@/components/drilldown/DriverPerformanceView'
 import { DriverTripsView } from '@/components/drilldown/DriverTripsView'
@@ -34,36 +64,6 @@ import {
   CostAnalysisDrilldown,
   FleetOptimizerDrilldown
 } from '@/components/drilldown/HubDrilldowns'
-import {
-  IncidentsDrilldown,
-  SafetyScoreDetailDrilldown,
-  VideoTelematicsDrilldown,
-  DispatchDrilldown,
-  RoutesDrilldown,
-  TasksDrilldown,
-  VendorsDrilldown,
-  PartsInventoryDrilldown,
-  PurchaseOrdersDrilldown,
-  FuelPurchasingDrilldown
-} from '@/components/drilldown/AdditionalHubDrilldowns'
-import {
-  AiAgentDrilldown,
-  MessagesDrilldown,
-  EmailDrilldown,
-  HistoryDrilldown
-} from '@/components/drilldown/CommunicationHubDrilldowns'
-import {
-  RegulationsDrilldown,
-  GeofenceComplianceDrilldown,
-  InspectionsDrilldown,
-  IFTADrilldown,
-  CSADrilldown
-} from '@/components/drilldown/ComplianceHubDrilldowns'
-import {
-  SystemHealthDrilldown,
-  AlertsDrilldown,
-  FilesDrilldown
-} from '@/components/drilldown/AdminHubDrilldowns'
 import { LaborDetailsView } from '@/components/drilldown/LaborDetailsView'
 import { PartsBreakdownView } from '@/components/drilldown/PartsBreakdownView'
 import { TripTelemetryView } from '@/components/drilldown/TripTelemetryView'

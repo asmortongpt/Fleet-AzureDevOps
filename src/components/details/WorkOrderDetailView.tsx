@@ -1,14 +1,14 @@
+import {
+  Wrench, Clock, CheckCircle, XCircle,
+  AlertTriangle, User, Package, Image as ImageIcon
+} from 'lucide-react';
 import React, { useState } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
-import {
-  Wrench, DollarSign, Calendar, Clock, CheckCircle, XCircle,
-  AlertTriangle, User, Package, Image as ImageIcon, FileText,
-  TrendingUp, MapPin
-} from 'lucide-react';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 interface WorkOrder {
   id: string;

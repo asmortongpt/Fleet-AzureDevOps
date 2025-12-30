@@ -1,14 +1,15 @@
-import React, { useState } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Progress } from '@/components/ui/progress';
 import {
-  Car, FileText, Wrench, DollarSign, MapPin, Calendar,
+  Car, FileText, Wrench, DollarSign, Calendar,
   TrendingUp, AlertTriangle, CheckCircle, XCircle, Clock,
   Gauge, Fuel, ThermometerSun, Activity, Download, ExternalLink
 } from 'lucide-react';
+import React, { useState } from 'react';
+
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Progress } from '@/components/ui/progress';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useDrilldown } from '@/contexts/DrilldownContext';
 import type { Vehicle } from '@/types';
 
