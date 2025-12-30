@@ -21,7 +21,6 @@
  * Usage:
  * ```tsx
  * import { exportToCSV, exportToExcel, importFromCSV } from '@/lib/export-utils'
-import logger from '@/utils/logger';
  *
  * // Export
  * const handleExport = () => {
@@ -37,6 +36,9 @@ import logger from '@/utils/logger';
  * }
  * ```
  */
+
+import logger from '@/utils/logger'
+import XLSX from 'xlsx'
 
 export interface ExportOptions {
   filename?: string
