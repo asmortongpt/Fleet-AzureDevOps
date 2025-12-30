@@ -342,9 +342,8 @@ export class SentryErrorBoundary extends Component<Props, State> {
  * Sentry Error Boundary Hook for functional components
  */
 export const useSentryErrorHandler = () => {
-  return (_error: Error, errorInfo?: React.ErrorInfo) => {
+  return (_error: Error) => {
     captureException(_error, {
-      extra: { react: errorInfo },
       tags: { context: 'manual_error_handler' }
     })
   }

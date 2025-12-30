@@ -1,6 +1,4 @@
-import { createLogger } from '@/utils/logger';
-
-const logger = createLogger();
+import logger from '@/utils/logger';
 
 /**
  * Service Worker Registration Module
