@@ -85,7 +85,7 @@ import {
 } from "@/components/ui/tooltip"
 import { apiClient } from "@/lib/api-client"
 import { isSuccessResponse } from "@/lib/schemas/responses"
-import type { ApiResponse } from "@/lib/schemas/responses"
+import type { ApiResponse, SuccessResponse } from "@/lib/schemas/responses"
 import logger from '@/utils/logger'
 
 interface Task {
@@ -179,9 +179,10 @@ export function EnhancedTaskManagement() {
       if (filterStatus !== "all") params.append("status", filterStatus)
       if (filterType !== "all") params.append("category", filterType)
 
-      const response = await apiClient.get<ApiResponse<{ tasks: Task[] }>>(`/api/task-management?${params.toString()}`)
+      const response = await apiClient.get<ApiResponse<unknown>>(`/api/task-management?${params.toString()}`)
       if (isSuccessResponse(response)) {
-        setTasks(response.data?.tasks || [])
+        const typedResponse = response as SuccessResponse<{ tasks: Task[] }>
+        setTasks(typedResponse.data?.tasks || [])
       }
     } catch (error) {
       logger.error("Error fetching tasks:", error)
@@ -200,14 +201,15 @@ export function EnhancedTaskManagement() {
 
     setIsLoadingAI(true)
     try {
-      const response = await apiClient.post<ApiResponse<{ suggestions: any }>>("/api/ai/task-suggestions", {
+      const response = await apiClient.post<ApiResponse<unknown>>("/api/ai/task-suggestions", {
         title: taskData.task_title,
         description: taskData.description,
         type: taskData.task_type
       })
 
       if (isSuccessResponse(response)) {
-        setAiSuggestions(response.data?.suggestions)
+        const typedResponse = response as SuccessResponse<{ suggestions: any }>
+        setAiSuggestions(typedResponse.data?.suggestions)
         setShowAISuggestions(true)
         toast.success("AI suggestions generated!")
 

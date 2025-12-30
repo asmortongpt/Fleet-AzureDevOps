@@ -51,6 +51,14 @@ interface MaintenanceTabProps {
   onScheduleService: () => void;
 }
 
+interface FuelTabProps {
+  vehicles: Vehicle[];
+  fuelRecords: FuelRecord[];
+  maintenanceRecords: MaintenanceRecord[];
+  timeRange?: string;
+  onTimeRangeChange?: (range: string) => void;
+}
+
 interface AnalyticsTabProps {
   vehicles: Vehicle[];
   fuelRecords: FuelRecord[];
