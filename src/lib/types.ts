@@ -252,6 +252,9 @@ export interface GISFacility {
     lat: number
     lng: number
   }
+  // Backwards compatibility: allow direct lat/lng access
+  lat?: number
+  lng?: number
   address: string
   region: string
   status: "operational" | "maintenance" | "closed"
@@ -653,6 +656,9 @@ export interface Geofence {
   description: string
   type: "circle" | "polygon" | "rectangle"
   center?: { lat: number; lng: number }
+  // Backwards compatibility: allow direct lat/lng access
+  latitude?: number
+  longitude?: number
   radius?: number // meters for circle
   coordinates?: { lat: number; lng: number }[] // for polygon/rectangle
   color: string
