@@ -1,16 +1,16 @@
 /**
  * AdditionalHubDrilldowns - Drilldown components for Safety, Operations, and Procurement hubs
  */
-import { useDrilldown } from '@/contexts/DrilldownContext'
-import { generateDemoVehicles, generateDemoDrivers, generateDemoWorkOrders } from '@/lib/demo-data'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
-import { Progress } from '@/components/ui/progress'
 import {
-    Warning, ShieldCheck, VideoCamera, Bell, Truck, Package, MapTrifold,
-    Clock, CheckCircle, ArrowRight, TrendUp, TrendDown, Storefront,
-    Cube, ShoppingCart, FileText, GasPump, Play, Eye
+    Warning, ShieldCheck, VideoCamera, Truck, Package, MapTrifold, CheckCircle, Storefront,
+    Cube, ShoppingCart, GasPump, Play, Eye
 } from '@phosphor-icons/react'
+
+import { Badge } from '@/components/ui/badge'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Progress } from '@/components/ui/progress'
+import { useDrilldown } from '@/contexts/DrilldownContext'
+
 
 // ============ SAFETY HUB DRILLDOWNS ============
 

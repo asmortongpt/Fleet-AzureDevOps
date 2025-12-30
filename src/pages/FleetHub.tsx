@@ -21,10 +21,10 @@ import {
 } from '@phosphor-icons/react'
 import { Suspense, lazy, Component, ReactNode, ErrorInfo } from 'react'
 
-import { HubPage, HubTab } from '@/components/ui/hub-page'
-import { StatCard, ProgressRing, StatusDot, QuickStat } from '@/components/ui/stat-card'
-import { Skeleton } from '@/components/ui/skeleton'
 import { Button } from '@/components/ui/button'
+import { HubPage, HubTab } from '@/components/ui/hub-page'
+import { Skeleton } from '@/components/ui/skeleton'
+import { StatCard, ProgressRing, StatusDot, QuickStat } from '@/components/ui/stat-card'
 
 // Lazy load heavy components for performance
 const LiveFleetDashboard = lazy(() => import('@/components/dashboard/LiveFleetDashboard').then(m => ({ default: m.LiveFleetDashboard })))

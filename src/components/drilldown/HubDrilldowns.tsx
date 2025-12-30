@@ -1,17 +1,18 @@
 /**
  * HubDrilldowns - Rich drilldown components for Drivers, Maintenance, and Analytics hubs
  */
+import {
+    User, Star, Trophy, Clock, Shield, ChartLine, Wrench,
+    CheckCircle, Warning, ArrowRight, TrendUp, TrendDown, CalendarDots,
+    CurrencyDollar, Gauge
+} from '@phosphor-icons/react'
+
+import { Badge } from '@/components/ui/badge'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Progress } from '@/components/ui/progress'
 import { useDrilldown } from '@/contexts/DrilldownContext'
 import { generateDemoDrivers, generateDemoWorkOrders, generateDemoVehicles } from '@/lib/demo-data'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
-import { Badge } from '@/components/ui/badge'
-import { Progress } from '@/components/ui/progress'
-import {
-    User, Star, Trophy, Car, Clock, Shield, ChartLine, Wrench,
-    CheckCircle, Warning, ArrowRight, TrendUp, TrendDown, CalendarDots,
-    CurrencyDollar, Gauge, FileText, Database
-} from '@phosphor-icons/react'
+
 
 // ============ DRIVERS HUB DRILLDOWNS ============
 
