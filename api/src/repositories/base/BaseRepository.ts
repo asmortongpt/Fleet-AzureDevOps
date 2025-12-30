@@ -41,6 +41,17 @@ export abstract class BaseRepository<T, CreateDTO = Partial<T>, UpdateDTO = Part
   }
 
   /**
+   * Execute a custom parameterized query
+   * @param sql - SQL query with $1, $2, etc. placeholders
+   * @param params - Array of parameter values
+   * @returns Query result rows
+   */
+  protected async query<R = T>(sql: string, params: unknown[] = []): Promise<R[]> {
+    const result = await this.pool.query(sql, params)
+    return result.rows as R[]
+  }
+
+  /**
    * Build WHERE clause for tenant isolation
    * Ensures Row-Level Security (RLS) at application layer
    */
