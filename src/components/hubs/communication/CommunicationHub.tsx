@@ -4,13 +4,12 @@ import {
   AlertCircle,
   Radio,
   MapPin,
-  Users,
   Bell,
   Megaphone
 } from "lucide-react"
-import React, { useState, useMemo, useCallback } from "react"
+import { useState, useMemo, useCallback } from "react"
 
-import { ProfessionalFleetMap } from "@/components/Maps/ProfessionalFleetMap"
+import { ProfessionalFleetMap, GISFacility } from "@/components/Maps/ProfessionalFleetMap"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
@@ -67,29 +66,59 @@ const mockMessages = [
     status: "read",
     type: "notification"
   }
-]
+] as const;
 
 const mockChatThreads = [
   { id: "thread-1", participant: "Fleet Supervisor", lastMessage: "Copy that, will route around", unread: 0, active: true },
   { id: "thread-2", participant: "Driver 005", lastMessage: "On my way to pickup", unread: 2, active: true },
   { id: "thread-3", participant: "Maintenance Team", lastMessage: "Scheduled for tomorrow", unread: 0, active: false },
   { id: "thread-4", participant: "Dispatch Center", lastMessage: "New route assigned", unread: 1, active: true }
-]
+] as const;
 
 const mockBroadcastZones = [
   { id: "zone-1", name: "Downtown", radius: 5, center: { lat: 38.9072, lng: -77.0369 }, vehicles: 12, active: true },
   { id: "zone-2", name: "North District", radius: 8, center: { lat: 38.9369, lng: -77.0899 }, vehicles: 8, active: true },
   { id: "zone-3", name: "South District", radius: 6, center: { lat: 38.8816, lng: -77.0910 }, vehicles: 15, active: false }
-]
+] as const;
 
 const mockAlerts = [
   { id: "alert-1", type: "weather", message: "Heavy rain in Zone 3", severity: "warning", activeUntil: "6:00 PM" },
   { id: "alert-2", type: "traffic", message: "Accident on I-495", severity: "critical", activeUntil: "4:30 PM" },
   { id: "alert-3", type: "maintenance", message: "Fleet inspection tomorrow", severity: "info", activeUntil: "Tomorrow" }
-]
+] as const;
+
+// Types
+interface Message {
+  id: string;
+  from: string;
+  fromLocation: { lat: number; lng: number };
+  subject: string;
+  content: string;
+  timestamp: string;
+  priority: string;
+  status: string;
+  type: string;
+}
+
+interface ChatThread {
+  id: string;
+  participant: string;
+  lastMessage: string;
+  unread: number;
+  active: boolean;
+}
+
+interface BroadcastZone {
+  id: string;
+  name: string;
+  radius: number;
+  center: { lat: number; lng: number };
+  vehicles: number;
+  active: boolean;
+}
 
 // Message Panel Component
-const MessagePanel = ({ messages, onMessageSelect }: { messages: any[]; onMessageSelect: (msg: any) => void }) => {
+const MessagePanel = ({ messages, onMessageSelect }: { messages: Message[]; onMessageSelect: (msg: Message) => void }) => {
   const getPriorityColor = (priority: string) => {
     switch(priority) {
       case 'high': return 'text-red-600'
@@ -152,7 +181,7 @@ const MessagePanel = ({ messages, onMessageSelect }: { messages: any[]; onMessag
 }
 
 // Chat Panel Component
-const ChatPanel = ({ threads, onThreadSelect }: { threads: any[]; onThreadSelect: (thread: any) => void }) => {
+const ChatPanel = ({ threads, onThreadSelect }: { threads: ChatThread[]; onThreadSelect: (thread: ChatThread) => void }) => {
   return (
     <ScrollArea className="h-full">
       <div className="p-4 space-y-2">
@@ -194,12 +223,11 @@ const ChatPanel = ({ threads, onThreadSelect }: { threads: any[]; onThreadSelect
 }
 
 // Broadcast Panel Component
-const BroadcastPanel = ({ zones }: { zones: any[] }) => {
+const BroadcastPanel = ({ zones }: { zones: BroadcastZone[] }) => {
   const [selectedZone, setSelectedZone] = useState<string>("")
   const [broadcastMessage, setBroadcastMessage] = useState("")
 
   const handleBroadcast = () => {
-    // Handle broadcast logic
     console.log("Broadcasting to zone:", selectedZone, "Message:", broadcastMessage)
     setBroadcastMessage("")
   }
@@ -304,7 +332,7 @@ const BroadcastPanel = ({ zones }: { zones: any[] }) => {
 }
 
 // Message Thread Panel (detailed view)
-const MessageThreadPanel = ({ message }: { message: any }) => {
+const MessageThreadPanel = ({ message }: { message: Message | null }) => {
   const [reply, setReply] = useState("")
 
   if (!message) {
@@ -379,7 +407,7 @@ const MessageThreadPanel = ({ message }: { message: any }) => {
 
 // Main Communication Hub Component
 export function CommunicationHub() {
-  const [selectedEntity, setSelectedEntity] = useState<{ type: string; data: any } | null>(null)
+  const [selectedEntity, setSelectedEntity] = useState<{ type: string; data: Message | ChatThread | null } | null>(null)
   const [activePanel, setActivePanel] = useState('messages')
   const [searchQuery, setSearchQuery] = useState('')
   const [priorityFilter, setPriorityFilter] = useState('all')
@@ -413,139 +441,91 @@ export function CommunicationHub() {
       name: zone.name,
       location: zone.center,
       type: 'zone',
-      radius: zone.radius
-    }))
+      radius: zone.radius,
+      description: '',
+      category: 'zone',
+      status: zone.active ? 'active' : 'inactive'
+    } as GISFacility))
   }, [])
 
   const handleMessageSelect = useCallback((messageId: string) => {
-    const message = mockMessages.find(m => m.id === messageId)
+    const message = mockMessages.find(m => m.id === messageId);
     if (message) {
-      setSelectedEntity({ type: 'message', data: message })
-      setActivePanel('thread')
+      setSelectedEntity({ type: 'message', data: message });
     }
-  }, [])
+  }, []);
 
   return (
-    <div className="h-screen grid grid-cols-[1fr_400px]" data-testid="communication-hub">
-      {/* Map Section */}
-      <div className="relative h-full">
-        <ProfessionalFleetMap
-          vehicles={messageMarkers as any}
-          facilities={zoneMarkers}
-          height="100vh"
-          onVehicleSelect={handleMessageSelect}
-          showLegend={true}
-          enableRealTime={false}
-        />
-
-        {/* Map Controls Overlay */}
-        <div className="absolute top-4 left-4 bg-background/95 backdrop-blur rounded-lg shadow-lg z-10">
-          <div className="p-3 space-y-2">
-            <Select value={priorityFilter} onValueChange={setPriorityFilter}>
-              <SelectTrigger className="w-48" data-testid="comm-priority-filter">
-                <SelectValue placeholder="Filter by priority" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Priorities</SelectItem>
-                <SelectItem value="high">High Priority</SelectItem>
-                <SelectItem value="normal">Normal Priority</SelectItem>
-                <SelectItem value="low">Low Priority</SelectItem>
-              </SelectContent>
-            </Select>
-
-            <Input
-              placeholder="Search messages..."
-              className="w-48"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              data-testid="comm-search-input"
-            />
-          </div>
+    <div className="flex h-full overflow-hidden">
+      <div className="flex-1 flex flex-col overflow-hidden">
+        <div className="p-4 border-b">
+          <h2 className="text-xl font-semibold">Communication Hub</h2>
         </div>
-
-        {/* Status Bar */}
-        <div className="absolute bottom-4 left-4 right-[420px] bg-background/95 backdrop-blur rounded-lg shadow-lg p-3 z-10">
-          <div className="flex items-center justify-between">
-            <div className="flex gap-4">
-              <div className="flex items-center gap-2" data-testid="comm-message-count">
-                <MessageSquare className="h-4 w-4 text-muted-foreground" />
-                <span className="text-sm">
-                  <span className="font-semibold">{mockMessages.length}</span> messages
-                </span>
+        <div className="flex-1 overflow-hidden">
+          <Tabs defaultValue="messages" value={activePanel} onValueChange={setActivePanel} className="w-full h-full">
+            <TabsList className="grid grid-cols-3 m-4">
+              <TabsTrigger value="messages">Messages</TabsTrigger>
+              <TabsTrigger value="chats">Chats</TabsTrigger>
+              <TabsTrigger value="broadcast">Broadcast</TabsTrigger>
+            </TabsList>
+            <TabsContent value="messages" className="h-[calc(100%-60px)]">
+              <div className="flex h-full">
+                <div className="w-1/3 border-r">
+                  <div className="p-4 border-b">
+                    <Input
+                      placeholder="Search messages..."
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                    />
+                    <Select value={priorityFilter} onValueChange={setPriorityFilter}>
+                      <SelectTrigger className="w-[120px] mt-2">
+                        <SelectValue placeholder="Filter" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="all">All Priorities</SelectItem>
+                        <SelectItem value="high">High</SelectItem>
+                        <SelectItem value="normal">Normal</SelectItem>
+                        <SelectItem value="low">Low</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <MessagePanel 
+                    messages={mockMessages as unknown as Message[]} 
+                    onMessageSelect={(msg) => handleMessageSelect(msg.id)} 
+                  />
+                </div>
+                <div className="w-2/3">
+                  <MessageThreadPanel message={selectedEntity?.type === 'message' ? selectedEntity.data as Message : null} />
+                </div>
               </div>
-              <div className="flex items-center gap-2" data-testid="comm-unread-count">
-                <Bell className="h-4 w-4 text-muted-foreground" />
-                <span className="text-sm">
-                  <span className="font-semibold">{mockMessages.filter(m => m.status === 'unread').length}</span> unread
-                </span>
+            </TabsContent>
+            <TabsContent value="chats" className="h-[calc(100%-60px)]">
+              <div className="flex h-full">
+                <div className="w-1/3 border-r">
+                  <ChatPanel 
+                    threads={mockChatThreads as unknown as ChatThread[]} 
+                    onThreadSelect={(thread) => setSelectedEntity({ type: 'chat', data: thread })} 
+                  />
+                </div>
+                <div className="w-2/3">
+                  <div className="p-4 text-muted-foreground">
+                    Chat thread details would be shown here
+                  </div>
+                </div>
               </div>
-              <div className="flex items-center gap-2" data-testid="comm-chat-count">
-                <Users className="h-4 w-4 text-muted-foreground" />
-                <span className="text-sm">
-                  <span className="font-semibold">{mockChatThreads.filter(t => t.active).length}</span> active chats
-                </span>
-              </div>
-            </div>
-
-            <Badge variant="outline" className="bg-blue-100 text-blue-700 border-blue-300 dark:bg-blue-950 dark:text-blue-400 dark:border-blue-800">
-              <Radio className="h-3 w-3 mr-2" />
-              Communication Active
-            </Badge>
-          </div>
+            </TabsContent>
+            <TabsContent value="broadcast" className="h-[calc(100%-60px)]">
+              <BroadcastPanel zones={mockBroadcastZones as unknown as BroadcastZone[]} />
+            </TabsContent>
+          </Tabs>
         </div>
       </div>
-
-      {/* Contextual Panel Section */}
-      <div className="border-l bg-background" data-testid="comm-contextual-panel">
-        <Tabs value={activePanel} onValueChange={setActivePanel} className="h-full flex flex-col">
-          <TabsList className="w-full rounded-none justify-start px-2">
-            <TabsTrigger value="messages" className="flex-1" data-testid="comm-tab-messages">
-              <MessageSquare className="h-4 w-4 mr-2" />
-              Messages
-            </TabsTrigger>
-            <TabsTrigger value="chats" className="flex-1" data-testid="comm-tab-chats">
-              <Users className="h-4 w-4 mr-2" />
-              Chats
-            </TabsTrigger>
-            <TabsTrigger value="broadcast" className="flex-1" data-testid="comm-tab-broadcast">
-              <Radio className="h-4 w-4 mr-2" />
-              Broadcast
-            </TabsTrigger>
-            <TabsTrigger value="thread" className="flex-1" data-testid="comm-tab-thread">
-              <Send className="h-4 w-4 mr-2" />
-              Thread
-            </TabsTrigger>
-          </TabsList>
-
-          <div className="flex-1 overflow-hidden">
-            <TabsContent value="messages" className="h-full m-0" data-testid="comm-panel-messages">
-              <MessagePanel
-                messages={mockMessages}
-                onMessageSelect={(msg) => {
-                  setSelectedEntity({ type: 'message', data: msg })
-                  setActivePanel('thread')
-                }}
-              />
-            </TabsContent>
-
-            <TabsContent value="chats" className="h-full m-0" data-testid="comm-panel-chats">
-              <ChatPanel
-                threads={mockChatThreads}
-                onThreadSelect={(thread) => setSelectedEntity({ type: 'chat', data: thread })}
-              />
-            </TabsContent>
-
-            <TabsContent value="broadcast" className="h-full m-0" data-testid="comm-panel-broadcast">
-              <BroadcastPanel zones={mockBroadcastZones} />
-            </TabsContent>
-
-            <TabsContent value="thread" className="h-full m-0" data-testid="comm-panel-thread">
-              <MessageThreadPanel
-                message={selectedEntity?.type === 'message' ? selectedEntity.data : null}
-              />
-            </TabsContent>
-          </div>
-        </Tabs>
+      <div className="w-1/3 border-l">
+        <ProfessionalFleetMap 
+          vehicles={messageMarkers} 
+          facilities={zoneMarkers} 
+          center={{ lat: 38.9072, lng: -77.0369 }} 
+        />
       </div>
     </div>
   )

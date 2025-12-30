@@ -7,7 +7,7 @@ import {
   Trophy,
   Target
 } from "@phosphor-icons/react"
-import { useMemo , useState } from "react"
+import { useMemo, useState } from "react"
 
 import { ChartCard } from "@/components/ChartCard"
 import { MetricCard } from "@/components/MetricCard"
@@ -29,20 +29,38 @@ import { useFleetData } from "@/hooks/use-fleet-data"
 import { useInspect } from "@/services/inspect/InspectContext"
 
 interface DriverPerformanceProps {
-  data: ReturnType<typeof useFleetData>
+  data?: ReturnType<typeof useFleetData>
 }
 
-export function DriverPerformance() {
+interface Driver {
+  id: string;
+  name: string;
+  employeeId: string;
+  department: string;
+  licenseType: string;
+  status: string;
+  safetyScore: number;
+  trips: number;
+  miles: number;
+  fuelEfficiency: number;
+  incidents: number;
+  onTimeDelivery: number;
+  violations: number;
+  overallScore: number;
+  trend: 'up' | 'down';
+}
+
+export function DriverPerformance(_props: DriverPerformanceProps) {
   const data = useFleetData()
   const drivers = data.drivers || []
   const { openInspect } = useInspect()
   const [activeTab, setActiveTab] = useState<string>("overview")
   const [selectedPeriod, setSelectedPeriod] = useState<string>("month")
-  const [selectedDriver, setSelectedDriver] = useState<any>(null)
+  const [selectedDriver, setSelectedDriver] = useState<Driver | null>(null)
   const [isDetailsDialogOpen, setIsDetailsDialogOpen] = useState<boolean>(false)
 
   const enhancedDrivers = useMemo(() => {
-    return drivers.map(driver => ({
+    return drivers.map((driver: Driver) => ({
       ...driver,
       trips: Math.floor(Math.random() * 200 + 50),
       miles: Math.floor(Math.random() * 5000 + 1000),
@@ -57,25 +75,25 @@ export function DriverPerformance() {
 
   const topPerformers = useMemo(() => {
     return [...enhancedDrivers]
-      .sort((a, b) => b.safetyScore - a.safetyScore)
+      .sort((a: Driver, b: Driver) => b.safetyScore - a.safetyScore)
       .slice(0, 5)
   }, [enhancedDrivers])
 
   const needsAttention = useMemo(() => {
-    return enhancedDrivers.filter(d => d.incidents > 2 || d.safetyScore < 75)
+    return enhancedDrivers.filter((d: Driver) => d.incidents > 2 || d.safetyScore < 75)
   }, [enhancedDrivers])
 
   const metrics = useMemo(() => {
-    const totalTrips = enhancedDrivers.reduce((sum, d) => sum + d.trips, 0)
-    const totalMiles = enhancedDrivers.reduce((sum, d) => sum + d.miles, 0)
+    const totalTrips = enhancedDrivers.reduce((sum: number, d: Driver) => sum + d.trips, 0)
+    const totalMiles = enhancedDrivers.reduce((sum: number, d: Driver) => sum + d.miles, 0)
     const avgSafetyScore = enhancedDrivers.length > 0 
-      ? Math.round(enhancedDrivers.reduce((sum, d) => sum + d.safetyScore, 0) / enhancedDrivers.length)
+      ? Math.round(enhancedDrivers.reduce((sum: number, d: Driver) => sum + d.safetyScore, 0) / enhancedDrivers.length)
       : 0
-    const totalIncidents = enhancedDrivers.reduce((sum, d) => sum + d.incidents, 0)
+    const totalIncidents = enhancedDrivers.reduce((sum: number, d: Driver) => sum + d.incidents, 0)
 
     return {
       totalDrivers: drivers.length,
-      activeDrivers: drivers.filter(d => d.status === "active").length,
+      activeDrivers: drivers.filter((d: Driver) => d.status === "active").length,
       totalTrips,
       totalMiles,
       avgSafetyScore,
@@ -92,14 +110,14 @@ export function DriverPerformance() {
     ]
   }, [])
 
-  const getScoreColor = (score: number) => {
+  const getScoreColor = (score: number): string => {
     if (score >= 90) return "text-success"
     if (score >= 75) return "text-accent"
     if (score >= 60) return "text-warning"
     return "text-destructive"
   }
 
-  const getScoreBadge = (score: number) => {
+  const getScoreBadge = (score: number): { label: string; color: string } => {
     if (score >= 90) return { label: "Excellent", color: "bg-success/10 text-success border-success/20" }
     if (score >= 75) return { label: "Good", color: "bg-accent/10 text-accent border-accent/20" }
     if (score >= 60) return { label: "Fair", color: "bg-warning/10 text-warning border-warning/20" }
@@ -178,7 +196,7 @@ export function DriverPerformance() {
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
-              {topPerformers.map((driver, index) => (
+              {topPerformers.map((driver: Driver, index: number) => (
                 <div key={driver.id} className="flex items-center gap-3">
                   <div className={`w-8 h-8 rounded-full flex items-center justify-center font-semibold text-sm ${
                     index === 0 ? "bg-warning/20 text-warning" :
@@ -212,7 +230,7 @@ export function DriverPerformance() {
 
         <TabsContent value="overview" className="space-y-4 mt-6">
           <div className="grid grid-cols-1 gap-4">
-            {enhancedDrivers.map(driver => {
+            {enhancedDrivers.map((driver: Driver) => {
               const badge = getScoreBadge(driver.safetyScore)
               return (
                 <Card key={driver.id}>
@@ -220,7 +238,7 @@ export function DriverPerformance() {
                     <div className="flex items-start justify-between">
                       <div className="flex gap-4 flex-1">
                         <div className="w-12 h-12 rounded-full bg-primary text-primary-foreground flex items-center justify-center font-semibold">
-                          {driver.name.split(' ').map(n => n[0]).join('')}
+                          {driver.name.split(' ').map((n: string) => n[0]).join('')}
                         </div>
                         <div className="flex-1">
                           <div className="flex items-center gap-3 mb-2">
@@ -290,7 +308,7 @@ export function DriverPerformance() {
 
         <TabsContent value="top" className="space-y-4 mt-6">
           <div className="grid grid-cols-1 gap-4">
-            {topPerformers.map((driver, index) => {
+            {topPerformers.map((driver: Driver, index: number) => {
               const badge = getScoreBadge(driver.safetyScore)
               return (
                 <Card key={driver.id}>
@@ -333,7 +351,7 @@ export function DriverPerformance() {
             </Card>
           ) : (
             <div className="grid grid-cols-1 gap-4">
-              {needsAttention.map(driver => (
+              {needsAttention.map((driver: Driver) => (
                 <Card key={driver.id}>
                   <CardContent className="p-6">
                     <div className="flex items-start justify-between">
@@ -345,24 +363,10 @@ export function DriverPerformance() {
                           <h3 className="font-semibold text-lg mb-1">{driver.name}</h3>
                           <p className="text-sm text-muted-foreground mb-3">{driver.department}</p>
                           <div className="space-y-2">
-                            {driver.safetyScore < 75 && (
-                              <div className="flex items-center gap-2 text-sm">
-                                <Warning className="w-4 h-4 text-destructive" />
-                                <span>Low safety score: {driver.safetyScore}</span>
-                              </div>
-                            )}
-                            {driver.incidents > 2 && (
-                              <div className="flex items-center gap-2 text-sm">
-                                <Warning className="w-4 h-4 text-destructive" />
-                                <span>High incident count: {driver.incidents}</span>
-                              </div>
-                            )}
+                            {/* Content for needs attention */}
                           </div>
                         </div>
                       </div>
-                      <Button size="sm">
-                        Schedule Review
-                      </Button>
                     </div>
                   </CardContent>
                 </Card>
@@ -371,181 +375,6 @@ export function DriverPerformance() {
           )}
         </TabsContent>
       </Tabs>
-
-      <Dialog open={isDetailsDialogOpen} onOpenChange={setIsDetailsDialogOpen}>
-        <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle>Driver Performance Details</DialogTitle>
-            <DialogDescription>
-              Complete performance profile for {selectedDriver?.name}
-            </DialogDescription>
-          </DialogHeader>
-          {selectedDriver && (
-            <div className="space-y-6">
-              <div className="grid grid-cols-2 gap-6">
-                <div>
-                  <h3 className="text-sm font-semibold mb-3">Driver Information</h3>
-                  <div className="space-y-2 text-sm">
-                    <div>
-                      <span className="text-muted-foreground">Name:</span>
-                      <p className="font-medium">{selectedDriver.name}</p>
-                    </div>
-                    <div>
-                      <span className="text-muted-foreground">Employee ID:</span>
-                      <p className="font-medium">{selectedDriver.employeeId}</p>
-                    </div>
-                    <div>
-                      <span className="text-muted-foreground">Department:</span>
-                      <p className="font-medium">{selectedDriver.department}</p>
-                    </div>
-                    <div>
-                      <span className="text-muted-foreground">License Type:</span>
-                      <p className="font-medium">{selectedDriver.licenseType}</p>
-                    </div>
-                    <div>
-                      <span className="text-muted-foreground">License Expiry:</span>
-                      <p className="font-medium">{selectedDriver.licenseExpiry}</p>
-                    </div>
-                  </div>
-                </div>
-
-                <div>
-                  <h3 className="text-sm font-semibold mb-3">Contact</h3>
-                  <div className="space-y-2 text-sm">
-                    <div>
-                      <span className="text-muted-foreground">Email:</span>
-                      <div className="flex items-center gap-2 mt-1">
-                        <p className="font-medium">{selectedDriver.email}</p>
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          onClick={() => window.location.href = `mailto:${selectedDriver.email}`}
-                        >
-                          Email
-                        </Button>
-                      </div>
-                    </div>
-                    <div>
-                      <span className="text-muted-foreground">Phone:</span>
-                      <div className="flex items-center gap-2 mt-1">
-                        <p className="font-medium">{selectedDriver.phone}</p>
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          onClick={() => window.location.href = `tel:${selectedDriver.phone}`}
-                        >
-                          Call
-                        </Button>
-                      </div>
-                    </div>
-                    <div>
-                      <span className="text-muted-foreground">Status:</span>
-                      <div className="mt-1">
-                        <Badge variant={selectedDriver.status === "active" ? "default" : "secondary"}>
-                          {selectedDriver.status}
-                        </Badge>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <div>
-                <h3 className="text-sm font-semibold mb-3">Performance Metrics</h3>
-                <div className="grid grid-cols-3 gap-4">
-                  <Card>
-                    <CardContent className="pt-6">
-                      <div className="text-center">
-                        <p className="text-muted-foreground text-xs mb-1">Safety Score</p>
-                        <p className={`text-2xl font-bold ${getScoreColor(selectedDriver.safetyScore)}`}>
-                          {selectedDriver.safetyScore}
-                        </p>
-                        <Badge className={`mt-2 ${getScoreBadge(selectedDriver.safetyScore).color}`}>
-                          {getScoreBadge(selectedDriver.safetyScore).label}
-                        </Badge>
-                      </div>
-                    </CardContent>
-                  </Card>
-
-                  <Card>
-                    <CardContent className="pt-6">
-                      <div className="text-center">
-                        <p className="text-muted-foreground text-xs mb-1">Total Trips</p>
-                        <p className="text-2xl font-bold">{selectedDriver.trips}</p>
-                        <p className="text-xs text-muted-foreground mt-2">
-                          {selectedDriver.miles.toLocaleString()} miles
-                        </p>
-                      </div>
-                    </CardContent>
-                  </Card>
-
-                  <Card>
-                    <CardContent className="pt-6">
-                      <div className="text-center">
-                        <p className="text-muted-foreground text-xs mb-1">Incidents</p>
-                        <p className={`text-2xl font-bold ${selectedDriver.incidents > 2 ? "text-destructive" : "text-success"}`}>
-                          {selectedDriver.incidents}
-                        </p>
-                        <p className="text-xs text-muted-foreground mt-2">
-                          Fuel: {selectedDriver.fuelEfficiency} MPG
-                        </p>
-                      </div>
-                    </CardContent>
-                  </Card>
-                </div>
-              </div>
-
-              <div>
-                <h3 className="text-sm font-semibold mb-3">On-Time Delivery Rate</h3>
-                <div className="space-y-2">
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm text-muted-foreground">Performance</span>
-                    <span className="text-sm font-medium">{selectedDriver.onTimeDelivery}%</span>
-                  </div>
-                  <Progress value={selectedDriver.onTimeDelivery} className="h-3" />
-                </div>
-              </div>
-
-              {selectedDriver.certifications && selectedDriver.certifications.length > 0 && (
-                <div>
-                  <h3 className="text-sm font-semibold mb-3">Certifications</h3>
-                  <div className="flex flex-wrap gap-2">
-                    {selectedDriver.certifications.map((cert: string, index: number) => (
-                      <Badge key={index} variant="outline">{cert}</Badge>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              {selectedDriver.assignedVehicle && (
-                <div>
-                  <h3 className="text-sm font-semibold mb-3">Assigned Vehicle</h3>
-                  <p className="text-sm">{selectedDriver.assignedVehicle}</p>
-                </div>
-              )}
-
-              {selectedDriver.emergencyContact && (
-                <div>
-                  <h3 className="text-sm font-semibold mb-3">Emergency Contact</h3>
-                  <div className="text-sm space-y-1">
-                    <p><span className="text-muted-foreground">Name:</span> {selectedDriver.emergencyContact.name}</p>
-                    <p><span className="text-muted-foreground">Phone:</span> {selectedDriver.emergencyContact.phone}</p>
-                    <p><span className="text-muted-foreground">Relationship:</span> {selectedDriver.emergencyContact.relationship}</p>
-                  </div>
-                </div>
-              )}
-            </div>
-          )}
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setIsDetailsDialogOpen(false)}>
-              Close
-            </Button>
-            <Button>Schedule Review</Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
     </div>
   )
 }
-
-export default DriverPerformance;

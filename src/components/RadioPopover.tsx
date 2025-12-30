@@ -22,7 +22,7 @@ import {
   ExternalLink,
   Circle
 } from 'lucide-react'
-import React, { useState } from 'react'
+import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 
 import { Badge } from "@/components/ui/badge"
@@ -34,24 +34,29 @@ import {
 } from "@/components/ui/popover"
 import { ScrollArea } from "@/components/ui/scroll-area"
 
-
 interface RadioPopoverProps {
   className?: string
 }
 
-export function RadioPopover({ className }: RadioPopoverProps) {
+export function RadioPopover({ className }: RadioPopoverProps): JSX.Element {
   const navigate = useNavigate()
-  const [isTransmitting, setIsTransmitting] = useState(false)
-  const [selectedChannel, setSelectedChannel] = useState(1)
+  const [isTransmitting, setIsTransmitting] = useState<boolean>(false)
+  const [selectedChannel, setSelectedChannel] = useState<number>(1)
 
   // Mock data - replace with real data from your radio service
-  const channels = [
+  const channels: Array<{ id: number; name: string; active: boolean }> = [
     { id: 1, name: 'Operations', active: true },
     { id: 2, name: 'Emergency', active: false },
     { id: 3, name: 'Maintenance', active: false },
   ]
 
-  const recentTransmissions = [
+  const recentTransmissions: Array<{
+    id: number;
+    user: string;
+    message: string;
+    time: string;
+    isEmergency: boolean;
+  }> = [
     {
       id: 1,
       user: 'Unit 247',
@@ -75,15 +80,15 @@ export function RadioPopover({ className }: RadioPopoverProps) {
     },
   ]
 
-  const emergencyCount = recentTransmissions.filter(t => t.isEmergency).length
+  const emergencyCount: number = recentTransmissions.filter(t => t.isEmergency).length
 
-  const handlePTT = () => {
+  const handlePTT = (): void => {
     setIsTransmitting(true)
     // Implement PTT logic here
     setTimeout(() => setIsTransmitting(false), 2000) // Auto-release for demo
   }
 
-  const openFullConsole = () => {
+  const openFullConsole = (): void => {
     navigate('/hubs/operations?module=dispatch')
   }
 
@@ -92,7 +97,7 @@ export function RadioPopover({ className }: RadioPopoverProps) {
       <PopoverTrigger asChild>
         <Button
           variant="outline"
-          className={`relative ${className}`}
+          className={`relative ${className ?? ''}`}
           size="sm"
         >
           <Radio className="w-4 h-4 mr-2" />

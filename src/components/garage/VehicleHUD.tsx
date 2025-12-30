@@ -70,13 +70,13 @@ interface VehicleHUDProps {
 }
 
 // Helper to get color based on percentage
-function getHealthColor(value: number): string {
+function _getHealthColor(value: number): string {
   if (value >= 70) return 'text-green-500'
   if (value >= 40) return 'text-yellow-500'
   return 'text-red-500'
 }
 
-function getProgressColor(value: number): string {
+function _getProgressColor(value: number): string {
   if (value >= 70) return 'bg-green-500'
   if (value >= 40) return 'bg-yellow-500'
   return 'bg-red-500'
@@ -198,7 +198,7 @@ function CircularGauge({
 }
 
 export function VehicleHUD({ stats, className, compact = false }: VehicleHUDProps) {
-  const hasWarning = stats.checkEngineLight || (stats.dtcCodes && stats.dtcCodes.length > 0)
+  const hasWarning = stats.checkEngineLight || (stats.dtcCodes?.length && stats.dtcCodes.length > 0)
 
   if (compact) {
     return (
@@ -208,7 +208,7 @@ export function VehicleHUD({ stats, className, compact = false }: VehicleHUDProp
           <div className="flex items-center gap-2 p-2 rounded-lg bg-red-950/50 border border-red-500/50">
             <Warning className="w-4 h-4 text-red-400 animate-pulse" />
             <span className="text-xs text-red-300">Check Engine</span>
-            {stats.dtcCodes && stats.dtcCodes.length > 0 && (
+            {stats.dtcCodes?.length && stats.dtcCodes.length > 0 && (
               <Badge variant="destructive" className="text-xs ml-auto">
                 {stats.dtcCodes.length} DTC{stats.dtcCodes.length > 1 ? 's' : ''}
               </Badge>
@@ -265,7 +265,7 @@ export function VehicleHUD({ stats, className, compact = false }: VehicleHUDProp
             <Warning className="w-5 h-5 text-red-400" />
             <span className="text-sm font-medium text-red-300">Check Engine Light Active</span>
           </div>
-          {stats.dtcCodes && stats.dtcCodes.length > 0 && (
+          {stats.dtcCodes?.length && stats.dtcCodes.length > 0 && (
             <div className="flex flex-wrap gap-1 mt-2">
               {stats.dtcCodes.map((code, i) => (
                 <Badge key={i} variant="destructive" className="text-xs font-mono">

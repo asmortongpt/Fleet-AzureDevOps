@@ -10,17 +10,16 @@ import { useState, useMemo } from "react"
 import { toast } from "sonner"
 
 import { MetricCard } from "@/components/MetricCard"
-import { UniversalMap } from "@/components/UniversalMap"
+import { UniversalMap, UniversalMapProps } from "@/components/UniversalMap"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog" // DialogDescription available
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { useFleetData } from "@/hooks/use-fleet-data"
-
 
 interface Route {
   id: string
@@ -41,15 +40,11 @@ interface Route {
   efficiency: number
 }
 
-interface RouteManagementProps {
-  data: ReturnType<typeof useFleetData>
-}
-
 export function RouteManagement() {
   const data = useFleetData()
   const fleetData = useFleetData()
-  const allVehicles = fleetData.vehicles || []
-  const facilities = fleetData.facilities || []
+  const allVehicles = fleetData?.vehicles || []
+  const facilities = fleetData?.facilities || []
 
   const [routes, setRoutes] = useState<Route[]>([])
   const [activeTab, setActiveTab] = useState<string>("active")
@@ -61,8 +56,8 @@ export function RouteManagement() {
   const [endLocation, setEndLocation] = useState("")
   const [scheduledStart, setScheduledStart] = useState("")
 
-  const vehicles = data.vehicles || []
-  const drivers = data.drivers || []
+  const vehicles = data?.vehicles || []
+  const drivers = data?.drivers || []
 
   const metrics = useMemo(() => {
     const routeList = routes || []

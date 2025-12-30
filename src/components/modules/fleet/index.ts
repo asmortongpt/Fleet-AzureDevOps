@@ -1,10 +1,10 @@
 // Fleet module exports
 export { FleetAnalytics } from './FleetAnalytics'
 export { FleetDashboard } from './FleetDashboard'
-export { FleetDashboardModern } from './FleetDashboardModern'
+export { FleetDashboardModern } from './FleetDashboardModern/FleetDashboardModern'
 export { FleetOptimizer } from './FleetOptimizer'
 export { GPSTracking } from './GPSTracking'
-export { VehicleAssignmentManagement } from './VehicleAssignmentManagement'
+export { default as VehicleAssignmentManagement } from './VehicleAssignmentManagement'
 export { VehicleInventory } from './VehicleInventory'
 export { VehicleManagement } from './VehicleManagement'
 export { VehicleTelemetry } from './VehicleTelemetry'

@@ -3,7 +3,7 @@
  * Protects routes based on module/permission requirements
  */
 
-import React, { ReactNode } from 'react';
+import { ReactNode } from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
 
 import { usePermissionContext } from '../../contexts/PermissionContext';
@@ -34,7 +34,7 @@ export function RouteGuard({
   const {
     isLoading,
     hasModule,
-    hasRole,
+    _hasRole,
     hasAnyRole,
     can
   } = usePermissionContext();
