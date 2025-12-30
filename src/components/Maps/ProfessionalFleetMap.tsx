@@ -18,6 +18,9 @@ import { UnifiedFleetMap } from './UnifiedFleetMap'
 import { useFleetData } from '@/hooks/use-fleet-data'
 import { Vehicle, GISFacility } from '@/lib/types'
 
+// Re-export GISFacility for components that import from this module
+export type { GISFacility }
+
 /**
  * Props for ProfessionalFleetMap
  */
