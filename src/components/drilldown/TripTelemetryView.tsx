@@ -11,7 +11,7 @@ import {
   Clock,
   TrendingUp,
 } from 'lucide-react'
-import React, { useState } from 'react'
+import { useState } from 'react'
 import useSWR from 'swr'
 
 import { DrilldownContent } from '@/components/DrilldownPanel'
@@ -20,10 +20,29 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 
 interface TripTelemetryViewProps {
   tripId: string
-  trip?: any
+  trip?: unknown
 }
 
-const fetcher = (url: string) => fetch(url).then((r) => r.json())
+interface TelemetryData {
+  gps_points?: Array<{ lat?: number; lng?: number; timestamp?: string }>
+  duration?: string
+  max_speed?: number
+  max_speed_location?: string
+  avg_speed?: number
+  fuel_economy?: number
+  fuel_used?: number
+  fuel_start?: number
+  fuel_end?: number
+  fuel_cost?: number
+  idle_time?: string
+  hard_braking?: number
+  rapid_acceleration?: number
+  speeding?: number
+  events?: Array<{ type?: string; timestamp?: string }>
+}
+
+const fetcher = (url: string): Promise<TelemetryData> =>
+  fetch(url).then((r) => r.json())
 
 export function TripTelemetryView({ tripId, trip }: TripTelemetryViewProps) {
   const [activeTab, setActiveTab] = useState('overview')
@@ -81,7 +100,7 @@ export function TripTelemetryView({ tripId, trip }: TripTelemetryViewProps) {
                   </CardHeader>
                   <CardContent>
                     <div className="text-2xl font-bold">
-                      {telemetry.duration || trip?.duration || 'N/A'}
+                      {telemetry.duration || (trip as { duration?: string })?.duration || 'N/A'}
                     </div>
                     <p className="text-xs text-muted-foreground mt-1">
                       Total trip time
@@ -165,7 +184,7 @@ export function TripTelemetryView({ tripId, trip }: TripTelemetryViewProps) {
                 <CardContent>
                   {telemetry.gps_points && telemetry.gps_points.length > 0 ? (
                     <div className="space-y-2 max-h-96 overflow-y-auto">
-                      {telemetry.gps_points.map((point: any, idx: number) => (
+                      {telemetry.gps_points.map((point, idx) => (
                         <div
                           key={idx}
                           className="flex items-center justify-between p-2 rounded bg-muted/50 text-sm"
@@ -215,7 +234,7 @@ export function TripTelemetryView({ tripId, trip }: TripTelemetryViewProps) {
                         {telemetry.max_speed
                           ? `${telemetry.max_speed.toFixed(0)} mph`
                           : 'N/A'}
-                        {telemetry.max_speed > 80 && (
+                        {telemetry.max_speed && telemetry.max_speed > 80 && (
                           <TrendingUp className="h-4 w-4 text-destructive" />
                         )}
                       </span>
@@ -236,14 +255,14 @@ export function TripTelemetryView({ tripId, trip }: TripTelemetryViewProps) {
                 </CardHeader>
                 <CardContent className="space-y-3">
                   {telemetry.events && telemetry.events.length > 0 ? (
-                    telemetry.events.map((event: any, idx: number) => (
+                    telemetry.events.map((event, idx) => (
                       <div
                         key={idx}
                         className="flex items-start gap-2 p-2 rounded bg-muted/50"
                       >
                         <Activity className="h-4 w-4 text-muted-foreground mt-0.5" />
                         <div className="flex-1">
-                          <p className="text-sm font-medium">{event.type}</p>
+                          <p className="text-sm font-medium">{event.type || 'Unknown'}</p>
                           <p className="text-xs text-muted-foreground">
                             {event.timestamp
                               ? new Date(event.timestamp).toLocaleString()

@@ -8,6 +8,7 @@ import { useEffect, useState, useCallback } from 'react'
 
 import type { Vehicle } from '@/lib/types'
 import logger from '@/utils/logger';
+
 interface EmulatorStatus {
   connected: boolean
   vehicleCount: number
@@ -22,6 +23,7 @@ interface EmulatorTelemetry {
   location: {
     lat: number
     lng: number
+    address?: string
   }
   status: Vehicle['status']
   timestamp: string
@@ -57,7 +59,7 @@ export function useEmulatorEnhancement() {
           return true
         }
       }
-    } catch (error) {
+    } catch (_error) {
       // Silently fail - emulator not available, site works fine without it
     }
     return false
@@ -92,7 +94,7 @@ export function useEmulatorEnhancement() {
               lastUpdate: new Date()
             }))
           }
-        } catch (error) {
+        } catch (_error) {
           // Ignore malformed WebSocket messages
         }
       }
@@ -111,7 +113,7 @@ export function useEmulatorEnhancement() {
       }
 
       setWs(websocket)
-    } catch (error) {
+    } catch (_error) {
       // Could not connect to emulator WebSocket - silent fallback
     }
   }, [])
@@ -150,8 +152,11 @@ export function useEmulatorEnhancement() {
       ...vehicle,
       speed: live.speed,
       fuel: live.fuel,
-      battery: live.battery ?? vehicle.battery,
-      location: live.location,
+      battery: live.battery ?? (vehicle as any).battery,
+      location: {
+        ...live.location,
+        address: live.location.address ?? ''
+      },
       status: live.status,
       // Add visual indicator that this is live data
       _isLive: true as any,

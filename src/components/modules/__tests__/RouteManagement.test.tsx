@@ -12,7 +12,7 @@
 import { render, screen } from '@testing-library/react'
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
 
-import { RouteManagement } from '../RouteManagement'
+import RouteManagement from '../RouteManagement'
 
 import {
   setupLeafletMocks,

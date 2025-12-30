@@ -34,7 +34,7 @@ interface DriversMapViewProps {
 
 export function DriversMapView({ drivers, vehicles, onDriverSelect }: DriversMapViewProps) {
   const [selectedDriver, setSelectedDriver] = useState<Driver | null>(null)
-  const [activeTab, setActiveTab] = useState("overview")
+  const [_activeTab, _setActiveTab] = useState("overview")
   const [statusFilter, setStatusFilter] = useState<string>("all")
 
   // Filter drivers by status

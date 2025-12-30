@@ -4,7 +4,7 @@ import { format } from "date-fns"
 import { useState, useMemo } from "react"
 import { toast } from "sonner"
 
-import { DataGrid } from "@/components/common/DataGrid"
+import { DataGrid, DataGridProps } from "@/components/common/DataGrid"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Calendar } from "@/components/ui/calendar"
@@ -33,9 +33,6 @@ import {
 } from "@/components/ui/select"
 import { Textarea } from "@/components/ui/textarea"
 import { MaintenanceSchedule } from "@/lib/types"
-
-
-
 
 export function MaintenanceScheduling() {
   const [schedules, setSchedules] = useState<MaintenanceSchedule[]>([])
@@ -70,7 +67,7 @@ export function MaintenanceScheduling() {
       status: "scheduled",
       nextDue: newSchedule.scheduledDate.toISOString(),
       estimatedCost: newSchedule.estimatedCost,
-      frequency: "As Needed",
+      frequency: "monthly",
       notes: newSchedule.notes
     }
 
@@ -334,7 +331,7 @@ export function MaintenanceScheduling() {
           <CardDescription>Next scheduled services across all vehicles</CardDescription>
         </CardHeader>
         <CardContent className="p-0">
-          <DataGrid
+          <DataGrid<MaintenanceSchedule>
             data={upcomingSchedules}
             columns={maintenanceColumns}
             enableSearch={true}
@@ -410,161 +407,8 @@ export function MaintenanceScheduling() {
                   </div>
                 </div>
               </div>
-
-              <div>
-                <h3 className="text-sm font-semibold mb-3">Cost & Provider</h3>
-                <div className="grid grid-cols-2 gap-4 text-sm">
-                  <div>
-                    <span className="text-muted-foreground">Estimated Cost:</span>
-                    <p className="font-medium text-lg">${selectedSchedule.estimatedCost.toLocaleString()}</p>
-                  </div>
-                  {selectedSchedule.assignedTechnician && (
-                    <div>
-                      <span className="text-muted-foreground">Assigned Technician:</span>
-                      <p className="font-medium">{selectedSchedule.assignedTechnician}</p>
-                    </div>
-                  )}
-                  {selectedSchedule.serviceProvider && (
-                    <div>
-                      <span className="text-muted-foreground">Service Provider:</span>
-                      <p className="font-medium">{selectedSchedule.serviceProvider}</p>
-                    </div>
-                  )}
-                </div>
-              </div>
-
-              {selectedSchedule.notes && (
-                <div>
-                  <h3 className="text-sm font-semibold mb-3">Notes</h3>
-                  <p className="text-sm text-muted-foreground bg-muted p-3 rounded-md">
-                    {selectedSchedule.notes}
-                  </p>
-                </div>
-              )}
-
-              {selectedSchedule.parts && selectedSchedule.parts.length > 0 && (
-                <div>
-                  <h3 className="text-sm font-semibold mb-3">Required Parts</h3>
-                  <div className="flex flex-wrap gap-2">
-                    {selectedSchedule.parts.map((part, index) => (
-                      <Badge key={index} variant="outline">{part}</Badge>
-                    ))}
-                  </div>
-                </div>
-              )}
             </div>
           )}
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setIsDetailsDialogOpen(false)}>
-              Close
-            </Button>
-            {selectedSchedule && selectedSchedule.status !== "completed" && (
-              <Button>Schedule Service</Button>
-            )}
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-
-      <Dialog open={isScheduleDialogOpen} onOpenChange={setIsScheduleDialogOpen}>
-        <DialogContent className="max-w-lg">
-          <DialogHeader>
-            <DialogTitle>Schedule Maintenance</DialogTitle>
-            <DialogDescription>
-              Schedule a new maintenance service for a vehicle
-            </DialogDescription>
-          </DialogHeader>
-          <div className="space-y-4 py-4">
-            <div className="space-y-2">
-              <Label htmlFor="vehicle">Vehicle Number *</Label>
-              <Input
-                id="vehicle"
-                placeholder="e.g., UNIT-001"
-                value={newSchedule.vehicleNumber}
-                onChange={(e) => setNewSchedule({ ...newSchedule, vehicleNumber: e.target.value })}
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="service-type">Service Type *</Label>
-              <Input
-                id="service-type"
-                placeholder="e.g., Oil Change, Tire Rotation"
-                value={newSchedule.serviceType}
-                onChange={(e) => setNewSchedule({ ...newSchedule, serviceType: e.target.value })}
-              />
-            </div>
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="priority">Priority</Label>
-                <Select
-                  value={newSchedule.priority}
-                  onValueChange={(value: MaintenanceSchedule["priority"]) =>
-                    setNewSchedule({ ...newSchedule, priority: value })
-                  }
-                >
-                  <SelectTrigger id="priority">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="low">Low</SelectItem>
-                    <SelectItem value="medium">Medium</SelectItem>
-                    <SelectItem value="high">High</SelectItem>
-                    <SelectItem value="urgent">Urgent</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="cost">Estimated Cost</Label>
-                <Input
-                  id="cost"
-                  type="number"
-                  placeholder="0.00"
-                  value={newSchedule.estimatedCost}
-                  onChange={(e) =>
-                    setNewSchedule({ ...newSchedule, estimatedCost: parseFloat(e.target.value) || 0 })
-                  }
-                />
-              </div>
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="date">Scheduled Date</Label>
-              <Popover>
-                <PopoverTrigger asChild>
-                  <Button variant="outline" className="w-full justify-start">
-                    <CalendarDots className="w-4 h-4 mr-2" />
-                    {format(newSchedule.scheduledDate, "PPP")}
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent className="w-auto p-0">
-                  <Calendar
-                    mode="single"
-                    selected={newSchedule.scheduledDate}
-                    onSelect={(date) =>
-                      date && setNewSchedule({ ...newSchedule, scheduledDate: date })
-                    }
-                    initialFocus
-                  />
-                </PopoverContent>
-              </Popover>
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="notes">Notes</Label>
-              <Textarea
-                id="notes"
-                placeholder="Additional notes or instructions..."
-                value={newSchedule.notes}
-                onChange={(e) => setNewSchedule({ ...newSchedule, notes: e.target.value })}
-                rows={3}
-              />
-            </div>
-          </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setIsScheduleDialogOpen(false)}>
-              Cancel
-            </Button>
-            <Button onClick={handleSaveSchedule}>
-              Schedule Service
-            </Button>
-          </DialogFooter>
         </DialogContent>
       </Dialog>
     </div>

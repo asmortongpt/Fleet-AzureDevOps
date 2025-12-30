@@ -2,7 +2,7 @@ import {
   Building2, Users, Car, Package, TrendingUp, MapPin, Phone,
   Mail, CheckCircle, Wrench, BarChart3, XCircle
 } from 'lucide-react';
-import React, { useState } from 'react';
+import { useState } from 'react';
 
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -116,7 +116,7 @@ export function FacilityDetailView({ facility, onClose }: FacilityDetailViewProp
             <div className="flex flex-wrap gap-4 mt-4">
               <div>
                 <p className="text-xs text-purple-200">Location</p>
-                <p className="text-sm font-semibold">{facility.city}, {facility.state}</p>
+                <p className="text-sm font-semibold">{facility.city ?? 'N/A'}, {facility.state ?? 'N/A'}</p>
               </div>
               <div>
                 <p className="text-xs text-purple-200">Manager</p>
@@ -172,16 +172,16 @@ export function FacilityDetailView({ facility, onClose }: FacilityDetailViewProp
                   </div>
                   <div className="flex flex-col gap-1 pt-2 border-t">
                     <p className="text-xs text-muted-foreground">Address:</p>
-                    <p className="font-medium">{facility.address}</p>
-                    <p className="font-medium">{facility.city}, {facility.state} {facility.zip}</p>
+                    <p className="font-medium">{facility.address ?? 'N/A'}</p>
+                    <p className="font-medium">{facility.city ?? 'N/A'}, {facility.state ?? 'N/A'} {facility.zip ?? 'N/A'}</p>
                   </div>
                   <div className="flex items-center gap-2 pt-2">
                     <Phone className="w-3 h-3 text-muted-foreground" />
-                    <span className="text-xs">{facility.phone}</span>
+                    <span className="text-xs">{facility.phone ?? 'N/A'}</span>
                   </div>
                   <div className="flex items-center gap-2">
                     <Mail className="w-3 h-3 text-muted-foreground" />
-                    <span className="text-xs">{facility.email}</span>
+                    <span className="text-xs">{facility.email ?? 'N/A'}</span>
                   </div>
                 </CardContent>
               </Card>
@@ -314,11 +314,11 @@ export function FacilityDetailView({ facility, onClose }: FacilityDetailViewProp
                 <CardContent>
                   <div className="text-center mb-4">
                     <p className="text-4xl font-bold text-purple-600">{capacityMetrics.currentStaff}</p>
-                    <p className="text-sm text-muted-foreground">of {capacityMetrics.staffCapacity} positions</p>
+                    <p className="text-sm text-muted-foreground">of {capacityMetrics.staffCapacity} staff</p>
                   </div>
                   <Progress value={capacityMetrics.staffUtilization} className="mb-2" />
                   <div className="flex justify-between text-xs">
-                    <span className="text-green-600">Filled: {capacityMetrics.currentStaff}</span>
+                    <span className="text-green-600">Active: {capacityMetrics.currentStaff}</span>
                     <span className="text-gray-500">Open: {capacityMetrics.staffCapacity - capacityMetrics.currentStaff}</span>
                   </div>
                 </CardContent>
@@ -330,33 +330,25 @@ export function FacilityDetailView({ facility, onClose }: FacilityDetailViewProp
           <TabsContent value="vehicles">
             <Card>
               <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Car className="w-5 h-5" />
-                  Assigned Vehicles
+                <CardTitle className="text-sm flex items-center gap-2">
+                  <Car className="w-4 h-4" />
+                  Assigned Vehicles ({assignedVehicles.length})
                 </CardTitle>
-                <CardDescription>{assignedVehicles.length} vehicles at this facility</CardDescription>
               </CardHeader>
               <CardContent>
-                <div className="space-y-2">
+                <div className="space-y-3">
                   {assignedVehicles.map((vehicle) => (
-                    <div
-                      key={vehicle.id}
-                      className="flex items-center justify-between p-3 border rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 cursor-pointer transition-colors"
-                      onClick={() => push({
-                        id: `vehicle-${vehicle.id}`,
-                        type: 'vehicle',
-                        label: `${vehicle.make} ${vehicle.model}`,
-                        data: vehicle
-                      })}
-                    >
-                      <div className="flex-1">
-                        <div className="flex items-center gap-2 mb-1">
-                          <p className="font-medium">{vehicle.make} {vehicle.model} ({vehicle.year})</p>
-                          {getStatusBadge(vehicle.status)}
+                    <div key={vehicle.id} className="border rounded-md p-3 text-sm">
+                      <div className="flex justify-between items-center mb-2">
+                        <div className="font-medium">
+                          {vehicle.year} {vehicle.make} {vehicle.model}
                         </div>
-                        <p className="text-sm text-muted-foreground">
-                          {vehicle.id} • Driver: {vehicle.driver} • Assigned: {vehicle.assignedDate}
-                        </p>
+                        {getStatusBadge(vehicle.status)}
+                      </div>
+                      <div className="grid grid-cols-2 gap-2 text-xs text-muted-foreground">
+                        <div>ID: {vehicle.id}</div>
+                        <div>Assigned: {vehicle.assignedDate}</div>
+                        <div>Driver: {vehicle.driver}</div>
                       </div>
                     </div>
                   ))}
@@ -369,39 +361,32 @@ export function FacilityDetailView({ facility, onClose }: FacilityDetailViewProp
           <TabsContent value="staff">
             <Card>
               <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Users className="w-5 h-5" />
-                  Staff Directory
+                <CardTitle className="text-sm flex items-center gap-2">
+                  <Users className="w-4 h-4" />
+                  Facility Staff ({staff.length})
                 </CardTitle>
-                <CardDescription>{staff.length} employees at this facility</CardDescription>
               </CardHeader>
               <CardContent>
-                <div className="space-y-2">
-                  {staff.map((employee) => (
-                    <div key={employee.id} className="border rounded-lg p-3">
-                      <div className="flex items-start justify-between">
-                        <div className="flex-1">
-                          <div className="flex items-center gap-2 mb-1">
-                            <p className="font-medium">{employee.name}</p>
-                            <Badge variant="secondary" className="text-xs">{employee.shift}</Badge>
-                          </div>
-                          <p className="text-sm text-muted-foreground mb-2">
-                            {employee.role} • {employee.department}
-                          </p>
-                          {employee.certifications.length > 0 && (
-                            <div className="flex gap-1 mb-2">
-                              {employee.certifications.map((cert, idx) => (
-                                <Badge key={idx} variant="outline" className="text-xs">
-                                  {cert}
-                                </Badge>
-                              ))}
-                            </div>
-                          )}
-                          <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                            <Phone className="w-3 h-3" />
-                            <span>{employee.phone}</span>
-                          </div>
-                        </div>
+                <div className="space-y-3">
+                  {staff.map((member) => (
+                    <div key={member.id} className="border rounded-md p-3 text-sm">
+                      <div className="flex justify-between items-center mb-2">
+                        <div className="font-medium">{member.name}</div>
+                        <div className="text-xs text-muted-foreground">{member.shift} Shift</div>
+                      </div>
+                      <div className="grid grid-cols-2 gap-2 text-xs">
+                        <div className="text-muted-foreground">Role:</div>
+                        <div>{member.role}</div>
+                        <div className="text-muted-foreground">Department:</div>
+                        <div>{member.department}</div>
+                        <div className="text-muted-foreground">Phone:</div>
+                        <div>{member.phone}</div>
+                        {member.certifications.length > 0 && (
+                          <>
+                            <div className="text-muted-foreground">Certifications:</div>
+                            <div>{member.certifications.join(', ')}</div>
+                          </>
+                        )}
                       </div>
                     </div>
                   ))}
@@ -414,36 +399,28 @@ export function FacilityDetailView({ facility, onClose }: FacilityDetailViewProp
           <TabsContent value="equipment">
             <Card>
               <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Package className="w-5 h-5" />
-                  Equipment Inventory
+                <CardTitle className="text-sm flex items-center gap-2">
+                  <Package className="w-4 h-4" />
+                  Shop Equipment ({equipment.length})
                 </CardTitle>
-                <CardDescription>{equipment.length} pieces of equipment</CardDescription>
               </CardHeader>
               <CardContent>
-                <div className="space-y-2">
+                <div className="space-y-3">
                   {equipment.map((item) => (
-                    <div key={item.id} className="border rounded-lg p-3">
-                      <div className="flex items-start justify-between mb-2">
-                        <div className="flex-1">
-                          <div className="flex items-center gap-2 mb-1">
-                            <p className="font-medium">{item.name}</p>
-                            {getStatusBadge(item.status)}
-                          </div>
-                          <p className="text-sm text-muted-foreground">
-                            Type: {item.type} • Location: Bay {item.bay}
-                          </p>
-                        </div>
+                    <div key={item.id} className="border rounded-md p-3 text-sm">
+                      <div className="flex justify-between items-center mb-2">
+                        <div className="font-medium">{item.name}</div>
+                        {getStatusBadge(item.status)}
                       </div>
-                      <div className="grid grid-cols-2 gap-4 text-xs pt-2 border-t">
-                        <div>
-                          <span className="text-muted-foreground">Last Service:</span>
-                          <p className="font-medium">{item.lastService}</p>
-                        </div>
-                        <div>
-                          <span className="text-muted-foreground">Next Service:</span>
-                          <p className="font-medium">{item.nextService}</p>
-                        </div>
+                      <div className="grid grid-cols-2 gap-2 text-xs">
+                        <div className="text-muted-foreground">Type:</div>
+                        <div>{item.type}</div>
+                        <div className="text-muted-foreground">Bay:</div>
+                        <div>{item.bay}</div>
+                        <div className="text-muted-foreground">Last Service:</div>
+                        <div>{item.lastService}</div>
+                        <div className="text-muted-foreground">Next Service:</div>
+                        <div>{item.nextService}</div>
                       </div>
                     </div>
                   ))}

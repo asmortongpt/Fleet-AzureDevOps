@@ -138,7 +138,7 @@ export function DocumentMap({
   // --------------------------------------------------------------------------
 
   const [selectedCategories, setSelectedCategories] = useState<string[]>([])
-  const [selectedTags, setSelectedTags] = useState<string[]>([])
+  const [_selectedTags, _setSelectedTags] = useState<string[]>([])
   const [searchQuery, setSearchQuery] = useState('')
   const [mapStyle, setMapStyle] = useState<'osm' | 'dark' | 'satellite'>('osm')
 

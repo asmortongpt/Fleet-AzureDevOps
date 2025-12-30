@@ -9,7 +9,8 @@ import { useOBD2Emulator } from './useOBD2Emulator'
 import { useVehicleTelemetry } from './useVehicleTelemetry'
 
 import apiClient from '@/lib/api-client'
-import logger from '@/utils/logger';
+import logger from '@/utils/logger'
+
 export interface EmulatorStatus {
   id: string
   name: string
@@ -244,9 +245,9 @@ export function useSystemStatus(options: UseSystemStatusOptions = {}) {
     const fetchInsights = async () => {
       try {
         // Fetch from AI insights endpoint
-        const response = await apiClient.get('/api/ai-insights/latest')
-        if (response.data?.insights) {
-          setAIInsights(response.data.insights.map((insight: any) => ({
+        const response = await apiClient.get<{ data?: { insights?: any[] } }>('/api/ai-insights/latest')
+        if (response?.data?.insights) {
+          setAIInsights(response.data.insights.map((insight) => ({
             ...insight,
             timestamp: new Date(insight.timestamp)
           })))

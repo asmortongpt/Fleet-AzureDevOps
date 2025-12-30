@@ -8,11 +8,13 @@ import { useState, useEffect } from 'react';
 
 import { Badge } from './ui/badge';
 import { Button } from './ui/button';
-import { Card, CardHeader, CardTitle, CardDescription, CardContent } from './ui/card';import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from './ui/select';
+import { Card, CardHeader, CardTitle, CardDescription, CardContent } from './ui/card';
+import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from './ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs';
 
 import { cn } from '@/lib/utils';
 import logger from '@/utils/logger';
+
 interface VideoEvent {
   id: number;
   vehicle_name: string;
@@ -75,7 +77,7 @@ export default function VideoTelematicsDashboard() {
   const [events, setEvents] = useState<VideoEvent[]>([]);
   const [cameras, setCameras] = useState<CameraHealth[]>([]);
   const [loading, setLoading] = useState(true);
-  const [selectedEvent, setSelectedEvent] = useState<VideoEvent | null>(null);
+  const [_selectedEvent, _setSelectedEvent] = useState<VideoEvent | null>(null);
   const [filters, setFilters] = useState({
     severity: 'all',
     eventType: 'all',
@@ -414,99 +416,35 @@ export default function VideoTelematicsDashboard() {
 
                         <div className="grid grid-cols-2 md:grid-cols-4 gap-2 text-sm mb-3">
                           <div>
-                            <span className="text-muted-foreground">Time:</span>{' '}
-                            {new Date(event.event_timestamp).toLocaleString()}
+                            <span className="text-muted-foreground">Time:</span> {event.event_timestamp}
+                          </div>
+                          <div>
+                            <span className="text-muted-foreground">Location:</span> {event.address}
                           </div>
                           <div>
                             <span className="text-muted-foreground">Speed:</span> {event.speed_mph} mph
                           </div>
                           <div>
-                            <span className="text-muted-foreground">G-Force:</span> {event.g_force?.toFixed(2) || 'N/A'} g
-                          </div>
-                          <div>
-                            <span className="text-muted-foreground">AI Confidence:</span>{' '}
-                            {event.confidence_score ? `${(event.confidence_score * 100).toFixed(0)}%` : 'N/A'}
+                            <span className="text-muted-foreground">G-Force:</span> {event.g_force}
                           </div>
                         </div>
 
-                        {event.address && (
-                          <p className="text-sm text-muted-foreground mb-3">{event.address}</p>
-                        )}
-
-                        {/* AI Detected Behaviors */}
-                        {event.ai_detected_behaviors && event.ai_detected_behaviors.length > 0 && (
-                          <div className="flex flex-wrap gap-2 mb-3">
-                            {event.ai_detected_behaviors.map((behavior: any, idx: number) => (
-                              <Badge key={idx} variant="outline" className="text-xs">
-                                {behavior.behavior}: {(behavior.confidence * 100).toFixed(0)}%
-                              </Badge>
-                            ))}
-                          </div>
-                        )}
-
-                        {/* Actions */}
-                        <div className="flex flex-wrap gap-2">
-                          <Button
-                            size="sm"
-                            variant="default"
-                            onClick={() => handlePlayVideo(event)}
-                          >
-                            <Play className="h-4 w-4 mr-1" />
-                            Play Video
+                        <div className="flex gap-2">
+                          <Button variant="outline" size="sm" onClick={() => handlePlayVideo(event)}>
+                            <Play className="h-4 w-4 mr-2" /> Play Video
                           </Button>
-
                           {!event.reviewed && (
                             <>
-                              <Button
-                                size="sm"
-                                variant="outline"
-                                onClick={() => handleReviewEvent(event.id, true, false)}
-                              >
-                                <CheckCircle className="h-4 w-4 mr-1" />
-                                Mark Reviewed
+                              <Button variant="outline" size="sm" onClick={() => handleReviewEvent(event.id, true)}>
+                                <CheckCircle className="h-4 w-4 mr-2" /> Mark Reviewed
                               </Button>
-
-                              <Button
-                                size="sm"
-                                variant="outline"
-                                onClick={() => handleReviewEvent(event.id, true, true)}
-                              >
-                                <XCircle className="h-4 w-4 mr-1" />
-                                False Positive
+                              <Button variant="outline" size="sm" onClick={() => handleReviewEvent(event.id, true, true)}>
+                                <XCircle className="h-4 w-4 mr-2" /> False Positive
+                              </Button>
+                              <Button variant="outline" size="sm" onClick={() => handleMarkForCoaching(event.id)}>
+                                <Users className="h-4 w-4 mr-2" /> Needs Coaching
                               </Button>
                             </>
-                          )}
-
-                          {!event.coaching_required && (
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              onClick={() => handleMarkForCoaching(event.id)}
-                            >
-                              <Users className="h-4 w-4 mr-1" />
-                              Requires Coaching
-                            </Button>
-                          )}
-
-                          {event.marked_as_evidence && (
-                            <Badge variant="outline">
-                              <Shield className="h-3 w-3 mr-1" />
-                              Evidence
-                            </Badge>
-                          )}
-
-                          {event.coaching_required && (
-                            <Badge variant="outline" className="bg-orange-50">
-                              <AlertTriangle className="h-3 w-3 mr-1" />
-                              Coaching Required
-                            </Badge>
-                          )}
-
-                          {event.reviewed && (
-                            <Badge variant="outline" className="bg-green-50">
-                              <CheckCircle className="h-3 w-3 mr-1" />
-                              Reviewed
-                            </Badge>
                           )}
                         </div>
                       </div>
@@ -520,84 +458,110 @@ export default function VideoTelematicsDashboard() {
 
         {/* Camera Health Tab */}
         <TabsContent value="cameras" className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {(cameras || []).map((camera) => (
-              <Card key={camera.id}>
-                <CardHeader>
-                  <div className="flex items-center justify-between">
-                    <CardTitle className="text-lg">{camera.vehicle_name}</CardTitle>
-                    <Badge className={cn(
-                      camera.health_status === 'online' ? 'bg-green-100 text-green-800' :
-                      camera.health_status === 'offline' ? 'bg-red-100 text-red-800' :
-                      'bg-gray-100 text-gray-800'
-                    )}>
-                      {camera.health_status}
-                    </Badge>
-                  </div>
-                  <CardDescription>{camera.camera_type.replace('_', ' ').toUpperCase()}</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-2 text-sm">
-                    <div className="flex justify-between">
-                      <span className="text-muted-foreground">VIN:</span>
-                      <span className="font-mono">{camera.vin}</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-muted-foreground">Status:</span>
-                      <span>{camera.status}</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-muted-foreground">Last Ping:</span>
-                      <span>
-                        {camera.last_ping_at
-                          ? `${camera.hours_since_ping.toFixed(1)}h ago`
-                          : 'Never'}
-                      </span>
-                    </div>
-                    {camera.firmware_version && (
-                      <div className="flex justify-between">
-                        <span className="text-muted-foreground">Firmware:</span>
-                        <span>{camera.firmware_version}</span>
-                      </div>
-                    )}
-                  </div>
+          <div className="space-y-3">
+            {cameras.length === 0 ? (
+              <Card>
+                <CardContent className="pt-6 text-center">
+                  <p className="text-muted-foreground">No camera health data available</p>
                 </CardContent>
               </Card>
-            ))}
+            ) : (
+              cameras.map((camera) => (
+                <Card key={camera.id}>
+                  <CardContent className="pt-6">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <h3 className="font-semibold">{camera.vehicle_name}</h3>
+                        <p className="text-sm text-muted-foreground">
+                          VIN: {camera.vin} • {camera.camera_type}
+                        </p>
+                        <p className="text-sm text-muted-foreground">
+                          Last Ping: {camera.last_ping_at} ({camera.hours_since_ping} hours ago)
+                        </p>
+                        <p className="text-sm text-muted-foreground">Firmware: {camera.firmware_version}</p>
+                      </div>
+                      <Badge
+                        className={cn(
+                          camera.health_status === 'online' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+                        )}
+                      >
+                        {camera.health_status === 'online' ? 'Online' : 'Offline'}
+                      </Badge>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))
+            )}
           </div>
         </TabsContent>
 
         {/* Coaching Queue Tab */}
         <TabsContent value="coaching" className="space-y-4">
-          <Card>
-            <CardHeader>
-              <CardTitle>Events Requiring Coaching</CardTitle>
-              <CardDescription>Review and schedule coaching sessions for drivers</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-3">
-                {(events || []).filter(e => e.coaching_required && !e.reviewed).map((event) => (
-                  <div key={event.id} className="border rounded p-4">
-                    <div className="flex justify-between items-start mb-2">
-                      <div>
-                        <h4 className="font-semibold">{event.driver_name}</h4>
-                        <p className="text-sm text-muted-foreground">
-                          {eventTypeLabels[event.event_type]} - {new Date(event.event_timestamp).toLocaleDateString()}
-                        </p>
+          <div className="space-y-3">
+            {events.filter(e => e.coaching_required && !e.reviewed).length === 0 ? (
+              <Card>
+                <CardContent className="pt-6 text-center">
+                  <p className="text-muted-foreground">No events in coaching queue</p>
+                </CardContent>
+              </Card>
+            ) : (
+              events
+                .filter(e => e.coaching_required && !e.reviewed)
+                .map((event) => (
+                  <Card key={event.id}>
+                    <CardContent className="pt-6">
+                      <div className="flex items-start gap-4">
+                        <div className="flex-shrink-0">
+                          {event.video_thumbnail_url ? (
+                            <img
+                              src={event.video_thumbnail_url}
+                              alt="Event thumbnail"
+                              className="w-32 h-20 object-cover rounded border"
+                            />
+                          ) : (
+                            <div className="w-32 h-20 bg-gray-200 rounded border flex items-center justify-center">
+                              <Video className="h-8 w-8 text-gray-400" />
+                            </div>
+                          )}
+                        </div>
+
+                        <div className="flex-grow">
+                          <div className="flex items-start justify-between mb-2">
+                            <div>
+                              <h3 className="font-semibold text-lg">{eventTypeLabels[event.event_type] || event.event_type}</h3>
+                              <p className="text-sm text-muted-foreground">
+                                {event.vehicle_name} {event.driver_name && `• ${event.driver_name}`}
+                              </p>
+                            </div>
+                            <Badge className={cn('ml-2', severityColors[event.severity as keyof typeof severityColors])}>
+                              {event.severity}
+                            </Badge>
+                          </div>
+
+                          <div className="grid grid-cols-2 md:grid-cols-4 gap-2 text-sm mb-3">
+                            <div>
+                              <span className="text-muted-foreground">Time:</span> {event.event_timestamp}
+                            </div>
+                            <div>
+                              <span className="text-muted-foreground">Location:</span> {event.address}
+                            </div>
+                          </div>
+
+                          <div className="flex gap-2">
+                            <Button variant="outline" size="sm" onClick={() => handlePlayVideo(event)}>
+                              <Play className="h-4 w-4 mr-2" /> Play Video
+                            </Button>
+                            <Button variant="outline" size="sm" onClick={() => handleReviewEvent(event.id, true)}>
+                              <CheckCircle className="h-4 w-4 mr-2" /> Complete Coaching
+                            </Button>
+                          </div>
+                        </div>
                       </div>
-                      <Badge className={severityColors[event.severity as keyof typeof severityColors]}>
-                        {event.severity}
-                      </Badge>
-                    </div>
-                    <Button size="sm" onClick={() => handlePlayVideo(event)}>
-                      <Play className="h-4 w-4 mr-1" />
-                      Review Video
-                    </Button>
-                  </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
+                    </CardContent>
+                  </Card>
+                ))
+            )}
+          </div>
         </TabsContent>
       </Tabs>
     </div>
