@@ -61,7 +61,7 @@ export const TripInspector: React.FC<TripInspectorProps> = ({ id, initialTab = '
       try {
         setLoading(true);
         setError(null);
-        const data = await apiClient.get(`/api/trips/${id}`);
+        const data = await apiClient.get<Trip>(`/api/trips/${id}`);
         setTrip(data);
       } catch (err: any) {
         setError(err.message || 'Failed to load trip data');
