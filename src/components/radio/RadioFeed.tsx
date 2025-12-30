@@ -30,15 +30,16 @@ interface RadioFeedProps {
 }
 
 const PRIORITY_COLORS = {
-  CRITICAL: 'destructive',
-  HIGH: 'warning',
-  NORMAL: 'default',
-  LOW: 'secondary',
-} as const;
+  CRITICAL: 'destructive' as const,
+  HIGH: 'destructive' as const,
+  NORMAL: 'default' as const,
+  LOW: 'secondary' as const,
+};
 
 export function RadioFeed({ channelId, onChannelSelect, transmissions }: RadioFeedProps) {
-  const getPriorityColor = (priority: string) => {
-    return PRIORITY_COLORS[priority as keyof typeof PRIORITY_COLORS] || 'default';
+  const getPriorityColor = (priority: string): "destructive" | "default" | "secondary" | "outline" => {
+    const color = PRIORITY_COLORS[priority as keyof typeof PRIORITY_COLORS];
+    return color || 'default';
   };
 
   return (

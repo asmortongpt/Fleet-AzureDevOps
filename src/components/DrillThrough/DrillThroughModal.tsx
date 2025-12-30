@@ -31,9 +31,9 @@ export function DrillThroughModal({ config, isOpen, onClose }: DrillThroughModal
     page,
     nextPage,
     previousPage,
-    _goToPage,
-    _setFilters,
-    _filters,
+    
+    
+    
     exportData,
     isExporting,
     refetch,

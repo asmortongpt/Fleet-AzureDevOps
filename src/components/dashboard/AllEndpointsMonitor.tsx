@@ -43,7 +43,7 @@ export function AllEndpointsMonitor({ className }: AllEndpointsMonitorProps) {
 
   const {
     endpoints,
-    _sockets,
+    
     summary,
     testEndpoint,
     testAllEndpoints,

@@ -225,7 +225,7 @@ export function ChargesAndBilling() {
   })
 
   const getStatusBadge = (status: string) => {
-    const variants: Record<string, { variant: string; icon: React.ComponentType<{ className?: string }>; label: string }> = {
+    const variants: Record<string, { variant: "default" | "destructive" | "outline" | "secondary"; icon: React.ComponentType<{ className?: string }>; label: string }> = {
       pending: { variant: 'outline', icon: Clock, label: 'Pending' },
       invoiced: { variant: 'secondary', icon: FileText, label: 'Invoiced' },
       billed: { variant: 'default', icon: Receipt, label: 'Billed' },
