@@ -142,7 +142,7 @@ export function MaintenanceRequest({ data }: MaintenanceRequestProps) {
                       </div>
                       <div>
                         <h4 className="font-semibold">{request.vehicleNumber}</h4>
-                        <p className="text-sm text-muted-foreground">{request.issueType}</p>
+                        <p className="text-sm text-muted-foreground">{request.serviceType}</p>
                       </div>
                     </div>
                     <div className="flex gap-2">
@@ -155,31 +155,23 @@ export function MaintenanceRequest({ data }: MaintenanceRequestProps) {
                     </div>
                   </div>
 
-                  <p className="text-sm mb-3">{request.description}</p>
+                  <p className="text-sm mb-3">{request.notes || "No notes"}</p>
 
                   <div className="flex items-center justify-between text-sm text-muted-foreground">
                     <div>
-                      Requested by {request.requestedBy} on {request.requestDate}
+                      Scheduled for {request.nextDue}
                     </div>
-                    {request.status === "pending" && (
-                      <div className="flex gap-2">
-                        <Button size="sm" variant="outline" onClick={() => handleStatusChange(request.id, "approved")}>
-                          Approve
-                        </Button>
-                        <Button size="sm" variant="outline" onClick={() => handleStatusChange(request.id, "in-progress")}>
-                          Start Work
-                        </Button>
-                      </div>
-                    )}
-                    {request.status === "approved" && (
-                      <Button size="sm" variant="outline" onClick={() => handleStatusChange(request.id, "in-progress")}>
-                        Start Work
-                      </Button>
-                    )}
-                    {request.status === "in-progress" && (
+                    {request.status === "due" && (
                       <Button size="sm" variant="outline" onClick={() => handleStatusChange(request.id, "completed")}>
                         Complete
                       </Button>
+                    )}
+                    {request.status === "overdue" && (
+                      <div className="flex gap-2">
+                        <Button size="sm" variant="destructive" onClick={() => handleStatusChange(request.id, "completed")}>
+                          Complete Overdue
+                        </Button>
+                      </div>
                     )}
                   </div>
                 </div>
