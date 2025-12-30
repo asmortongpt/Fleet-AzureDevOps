@@ -58,10 +58,20 @@ declare module 'react-bootstrap' {
 }
 
 declare module '@zxing/library' {
-    export class BrowserMultiFormatReader { }
+    export class BrowserMultiFormatReader {
+        decodeFromVideoDevice(
+            deviceId: string | undefined,
+            videoElement: HTMLVideoElement,
+            callback: (result: Result, error?: Error) => void
+        ): void;
+        reset(): void;
+    }
     export class BrowserQRCodeReader { }
     export enum BarcodeFormat { }
-    export class Result { }
+    export class Result {
+        getText(): string;
+        getBarcodeFormat(): BarcodeFormat;
+    }
 }
 
 declare module 'react-webcam' {
@@ -76,4 +86,78 @@ declare module 'bcryptjs' {
     export function hashSync(data: string, saltOrRounds: string | number): string;
     export function compareSync(data: string, encrypted: string): boolean;
     export function genSaltSync(rounds?: number): string;
+}
+
+declare module '@tanstack/react-virtual' {
+    export const useVirtualizer: any;
+    export const VirtualItem: any;
+}
+
+declare module 'awilix' {
+    export const createContainer: any;
+    export const asClass: any;
+    export const asFunction: any;
+    export const asValue: any;
+    export const InjectionMode: any;
+    export type AwilixContainer = any;
+}
+
+declare module 'web-vitals' {
+    export const onCLS: any;
+    export const onFID: any;
+    export const onFCP: any;
+    export const onLCP: any;
+    export const onTTFB: any;
+}
+
+declare module '@auth0/auth0-spa-js' {
+    export default class Auth0Client {
+        constructor(options: any);
+        loginWithRedirect(options?: any): Promise<void>;
+        handleRedirectCallback(): Promise<any>;
+        getTokenSilently(options?: any): Promise<string>;
+        getUser(): Promise<any>;
+        logout(options?: any): void;
+        isAuthenticated(): Promise<boolean>;
+    }
+}
+
+declare module 'winston' {
+    export const createLogger: any;
+    export const format: any;
+    export const transports: any;
+    export const Logger: any;
+}
+
+declare module 'expo-camera' {
+    export const Camera: any;
+    export const CameraType: any;
+    export const BarCodeScanner: any;
+}
+
+declare module 'expo-location' {
+    export const requestForegroundPermissionsAsync: any;
+    export const getCurrentPositionAsync: any;
+    export const watchPositionAsync: any;
+}
+
+declare module 'react-native' {
+    export const View: any;
+    export const Text: any;
+    export const StyleSheet: any;
+    export const TouchableOpacity: any;
+    export const ActivityIndicator: any;
+    export const Platform: any;
+    export const Dimensions: any;
+    export const Alert: any;
+}
+
+declare module '@react-native-async-storage/async-storage' {
+    const AsyncStorage: {
+        getItem(key: string): Promise<string | null>;
+        setItem(key: string, value: string): Promise<void>;
+        removeItem(key: string): Promise<void>;
+        clear(): Promise<void>;
+    };
+    export default AsyncStorage;
 }

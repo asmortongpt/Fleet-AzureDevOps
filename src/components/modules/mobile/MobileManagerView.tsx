@@ -19,7 +19,7 @@ import {
 } from 'lucide-react';
 import React, { useState, useEffect } from 'react';
 
-import { useAuth } from '../../hooks/useAuth';
+import { useAuth } from '@/hooks/useAuth';
 
 import logger from '@/utils/logger';
 interface PendingAssignment {
