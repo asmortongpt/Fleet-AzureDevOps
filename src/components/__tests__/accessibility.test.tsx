@@ -21,14 +21,15 @@ import { UniversalMap } from '../UniversalMap'
 
 import type { Vehicle, GISFacility, TrafficCamera } from '@/lib/types'
 
-// Extend Jest matchers
+// Extend Vitest matchers
+// @ts-expect-error - toHaveNoViolations types don't match vitest expect signature
 expect.extend(toHaveNoViolations)
 
 // ============================================================================
 // Test Data
 // ============================================================================
 
-const mockVehicles: Vehicle[] = [
+const mockVehicles: Partial<Vehicle>[] = [
   {
     id: 'v1',
     name: 'Vehicle 1',
@@ -50,6 +51,7 @@ const mockVehicles: Vehicle[] = [
     location: {
       lat: 30.4483,
       lng: -84.2707,
+      address: '456 Oak St, Tallahassee, FL',
     },
   },
 ]
@@ -62,6 +64,7 @@ const mockFacilities: GISFacility[] = [
     status: 'operational',
     capacity: 50,
     address: '456 Depot Ave, Tallahassee, FL',
+    region: 'North',
     location: {
       lat: 30.4283,
       lng: -84.2907,
