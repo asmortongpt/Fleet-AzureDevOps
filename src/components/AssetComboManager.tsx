@@ -1,19 +1,6 @@
-/**
- * Asset Combo Manager Component
- * Manage asset relationships (tractor-trailer combos, equipment attachments)
- *
- * Features:
- * - View active asset combinations
- * - Create new relationships (TOWS, ATTACHED, CARRIES, POWERS, CONTAINS)
- * - View relationship history
- * - Deactivate relationships
- * - Temporal tracking (effective_from/effective_to)
- * - Audit trail display
- */
-
 import {
   Link,
-  Unlink,
+  LinkBreak,
   Clock,
   Plus,
   X,
@@ -36,7 +23,7 @@ import logger from '@/utils/logger';
 interface AssetComboManagerProps {
   tenantId: string
   onRelationshipCreated?: () => void
-  selectedAssetId?: string // If provided, show relationships for this asset
+  selectedAssetId?: string
 }
 
 interface Vehicle {
@@ -48,7 +35,7 @@ interface Vehicle {
   asset_type: string
 }
 
-const relationshipTypes: { value: RelationshipType; label: string; description: string }[] = [
+const relationshipTypes: { value: string; label: string; description: string }[] = [
   { value: 'TOWS', label: 'Tows', description: 'Parent tows child (e.g., tractor-trailer)' },
   { value: 'ATTACHED', label: 'Attached', description: 'Child is attached to parent (e.g., backhoe attachment)' },
   { value: 'CARRIES', label: 'Carries', description: 'Parent carries child' },
@@ -57,7 +44,7 @@ const relationshipTypes: { value: RelationshipType; label: string; description: 
 ]
 
 export const AssetComboManager: React.FC<AssetComboManagerProps> = ({
-  tenantId,
+  _tenantId,
   onRelationshipCreated,
   selectedAssetId
 }) => {
@@ -72,7 +59,7 @@ export const AssetComboManager: React.FC<AssetComboManagerProps> = ({
   // Form state
   const [parentAssetId, setParentAssetId] = useState('')
   const [childAssetId, setChildAssetId] = useState('')
-  const [relationshipType, setRelationshipType] = useState<RelationshipType>('TOWS')
+  const [relationshipType, setRelationshipType] = useState<string>('TOWS')
   const [effectiveFrom, setEffectiveFrom] = useState(new Date().toISOString().split('T')[0])
   const [notes, setNotes] = useState('')
 
@@ -97,8 +84,8 @@ export const AssetComboManager: React.FC<AssetComboManagerProps> = ({
 
       const data = await response.json()
       setActiveCombos(data.combinations || [])
-    } catch (err: any) {
-      setError(err.message)
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : 'Unknown error')
     } finally {
       setLoading(false)
     }
@@ -116,7 +103,7 @@ export const AssetComboManager: React.FC<AssetComboManagerProps> = ({
 
       const data = await response.json()
       setVehicles(data.data || [])
-    } catch (err: any) {
+    } catch (err: unknown) {
       logger.error('Error fetching vehicles:', err)
     }
   }
@@ -133,7 +120,7 @@ export const AssetComboManager: React.FC<AssetComboManagerProps> = ({
 
       const data = await response.json()
       setRelationshipHistory(data.history || [])
-    } catch (err: any) {
+    } catch (err: unknown) {
       logger.error('Error fetching history:', err)
     }
   }
@@ -153,7 +140,7 @@ export const AssetComboManager: React.FC<AssetComboManagerProps> = ({
       const payload: CreateAssetRelationshipRequest = {
         parent_asset_id: parentAssetId,
         child_asset_id: childAssetId,
-        relationship_type: relationshipType,
+        relationship_type: relationshipType as RelationshipType,
         effective_from: effectiveFrom,
         notes: notes || undefined
       }
@@ -187,8 +174,8 @@ export const AssetComboManager: React.FC<AssetComboManagerProps> = ({
         fetchRelationshipHistory(selectedAssetId)
       }
       onRelationshipCreated?.()
-    } catch (err: any) {
-      setError(err.message)
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : 'Unknown error')
     }
   }
 
@@ -211,12 +198,12 @@ export const AssetComboManager: React.FC<AssetComboManagerProps> = ({
       if (selectedAssetId) {
         fetchRelationshipHistory(selectedAssetId)
       }
-    } catch (err: any) {
-      setError(err.message)
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : 'Unknown error')
     }
   }
 
-  const getVehicleLabel = (vehicle: Vehicle) =>
+  const getVehicleLabel = (vehicle: Vehicle): string =>
     `${vehicle.year} ${vehicle.make} ${vehicle.model} (${vehicle.vin})`
 
   const filteredCombos = selectedAssetId
@@ -318,7 +305,7 @@ export const AssetComboManager: React.FC<AssetComboManagerProps> = ({
                     onClick={() => handleDeactivateRelationship(combo.relationship_id)}
                     className="flex items-center gap-2 px-3 py-2 text-red-600 hover:bg-red-50 rounded-md transition-colors"
                   >
-                    <Unlink className="w-4 h-4" />
+                    <LinkBreak className="w-4 h-4" />
                     Deactivate
                   </button>
                 </div>
@@ -403,12 +390,12 @@ export const AssetComboManager: React.FC<AssetComboManagerProps> = ({
               {/* Relationship Type */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Relationship Type *
+                  Relationship Type
                 </label>
                 <select
                   value={relationshipType}
-                  onChange={(e) => setRelationshipType(e.target.value as RelationshipType)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  onChange={(e) => setRelationshipType(e.target.value)}
+                  className="w-full p-2 border border-gray-300 rounded-md"
                 >
                   {relationshipTypes.map(type => (
                     <option key={type.value} value={type.value}>
@@ -421,17 +408,17 @@ export const AssetComboManager: React.FC<AssetComboManagerProps> = ({
               {/* Parent Asset */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Parent Asset * (Tows/Powers/Contains)
+                  Parent Asset
                 </label>
                 <select
                   value={parentAssetId}
                   onChange={(e) => setParentAssetId(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  className="w-full p-2 border border-gray-300 rounded-md"
                 >
-                  <option value="">Select parent asset...</option>
+                  <option value="">Select Parent Asset</option>
                   {vehicles.map(vehicle => (
                     <option key={vehicle.id} value={vehicle.id}>
-                      {getVehicleLabel(vehicle)} - {vehicle.asset_type}
+                      {getVehicleLabel(vehicle)}
                     </option>
                   ))}
                 </select>
@@ -440,35 +427,32 @@ export const AssetComboManager: React.FC<AssetComboManagerProps> = ({
               {/* Child Asset */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Child Asset * (Towed/Powered/Contained)
+                  Child Asset
                 </label>
                 <select
                   value={childAssetId}
                   onChange={(e) => setChildAssetId(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                  disabled={!parentAssetId}
+                  className="w-full p-2 border border-gray-300 rounded-md"
                 >
-                  <option value="">Select child asset...</option>
-                  {vehicles
-                    .filter(v => v.id !== parentAssetId)
-                    .map(vehicle => (
-                      <option key={vehicle.id} value={vehicle.id}>
-                        {getVehicleLabel(vehicle)} - {vehicle.asset_type}
-                      </option>
-                    ))}
+                  <option value="">Select Child Asset</option>
+                  {vehicles.map(vehicle => (
+                    <option key={vehicle.id} value={vehicle.id}>
+                      {getVehicleLabel(vehicle)}
+                    </option>
+                  ))}
                 </select>
               </div>
 
               {/* Effective From */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Effective From *
+                  Effective From
                 </label>
                 <input
                   type="date"
                   value={effectiveFrom}
                   onChange={(e) => setEffectiveFrom(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  className="w-full p-2 border border-gray-300 rounded-md"
                 />
               </div>
 
@@ -481,19 +465,15 @@ export const AssetComboManager: React.FC<AssetComboManagerProps> = ({
                   value={notes}
                   onChange={(e) => setNotes(e.target.value)}
                   rows={3}
-                  placeholder="Add any relevant notes about this relationship..."
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  className="w-full p-2 border border-gray-300 rounded-md"
                 />
               </div>
             </div>
 
-            <div className="flex items-center justify-end gap-3 px-6 py-4 border-t border-gray-200 bg-gray-50">
+            <div className="flex justify-end gap-3 px-6 py-4 border-t border-gray-200">
               <button
-                onClick={() => {
-                  setShowCreateDialog(false)
-                  setError(null)
-                }}
-                className="px-4 py-2 text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 transition-colors"
+                onClick={() => setShowCreateDialog(false)}
+                className="px-4 py-2 text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200 transition-colors"
               >
                 Cancel
               </button>
@@ -510,5 +490,3 @@ export const AssetComboManager: React.FC<AssetComboManagerProps> = ({
     </div>
   )
 }
-
-export default AssetComboManager

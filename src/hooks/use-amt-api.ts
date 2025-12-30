@@ -1,5 +1,5 @@
 import axios, { AxiosError } from 'axios';
-import { useQuery, useMutation, UseQueryResult, UseMutationResult } from 'react-query';
+import { useQuery, useMutation, UseQueryResult, UseMutationResult } from '@tanstack/react-query';
 import { toast } from 'react-toastify';
 
 import { logger } from '../utils/logger';
@@ -35,78 +35,106 @@ apiClient.interceptors.response.use(
 );
 
 function useScanSession(tenant_id: string): UseQueryResult<ApiResponse<any>, AxiosError> {
-  return useQuery(['scanSession', tenant_id], async () => {
-    validateInput(tenant_id, 'string');
-    const response = await apiClient.get(`/scan-session`, { params: { tenant_id } });
-    return response.data;
+  return useQuery({
+    queryKey: ['scanSession', tenant_id],
+    queryFn: async () => {
+      validateInput(tenant_id, 'string');
+      const response = await apiClient.get(`/scan-session`, { params: { tenant_id } });
+      return response?.data;
+    },
+    gcTime: 5 * 60 * 1000,
   });
 }
 
 function useRecordScan(tenant_id: string): UseMutationResult<ApiResponse<any>, AxiosError, any> {
-  return useMutation(async (scanData: any) => {
-    validateInput(tenant_id, 'string');
-    validateInput(scanData, 'object');
-    const response = await apiClient.post(`/record-scan`, { ...scanData, tenant_id });
-    return response.data;
+  return useMutation({
+    mutationFn: async (scanData: any) => {
+      validateInput(tenant_id, 'string');
+      validateInput(scanData, 'object');
+      const response = await apiClient.post(`/record-scan`, { ...scanData, tenant_id });
+      return response?.data;
+    },
   });
 }
 
 function useCheckout(tenant_id: string): UseMutationResult<ApiResponse<any>, AxiosError, any> {
-  return useMutation(async (checkoutData: any) => {
-    validateInput(tenant_id, 'string');
-    validateInput(checkoutData, 'object');
-    const response = await apiClient.post(`/checkout`, { ...checkoutData, tenant_id });
-    return response.data;
+  return useMutation({
+    mutationFn: async (checkoutData: any) => {
+      validateInput(tenant_id, 'string');
+      validateInput(checkoutData, 'object');
+      const response = await apiClient.post(`/checkout`, { ...checkoutData, tenant_id });
+      return response?.data;
+    },
   });
 }
 
 function useCheckin(tenant_id: string): UseMutationResult<ApiResponse<any>, AxiosError, any> {
-  return useMutation(async (checkinData: any) => {
-    validateInput(tenant_id, 'string');
-    validateInput(checkinData, 'object');
-    const response = await apiClient.post(`/checkin`, { ...checkinData, tenant_id });
-    return response.data;
+  return useMutation({
+    mutationFn: async (checkinData: any) => {
+      validateInput(tenant_id, 'string');
+      validateInput(checkinData, 'object');
+      const response = await apiClient.post(`/checkin`, { ...checkinData, tenant_id });
+      return response?.data;
+    },
   });
 }
 
 function useAssetLocation(tenant_id: string): UseQueryResult<ApiResponse<any>, AxiosError> {
-  return useQuery(['assetLocation', tenant_id], async () => {
-    validateInput(tenant_id, 'string');
-    const response = await apiClient.get(`/asset-location`, { params: { tenant_id } });
-    return response.data;
+  return useQuery({
+    queryKey: ['assetLocation', tenant_id],
+    queryFn: async () => {
+      validateInput(tenant_id, 'string');
+      const response = await apiClient.get(`/asset-location`, { params: { tenant_id } });
+      return response?.data;
+    },
+    gcTime: 5 * 60 * 1000,
   });
 }
 
 function useGeofences(tenant_id: string): UseQueryResult<ApiResponse<any>, AxiosError> {
-  return useQuery(['geofences', tenant_id], async () => {
-    validateInput(tenant_id, 'string');
-    const response = await apiClient.get(`/geofences`, { params: { tenant_id } });
-    return response.data;
+  return useQuery({
+    queryKey: ['geofences', tenant_id],
+    queryFn: async () => {
+      validateInput(tenant_id, 'string');
+      const response = await apiClient.get(`/geofences`, { params: { tenant_id } });
+      return response?.data;
+    },
+    gcTime: 5 * 60 * 1000,
   });
 }
 
 function useUtilizationReport(tenant_id: string): UseQueryResult<ApiResponse<any>, AxiosError> {
-  return useQuery(['utilizationReport', tenant_id], async () => {
-    validateInput(tenant_id, 'string');
-    const response = await apiClient.get(`/utilization-report`, { params: { tenant_id } });
-    return response.data;
+  return useQuery({
+    queryKey: ['utilizationReport', tenant_id],
+    queryFn: async () => {
+      validateInput(tenant_id, 'string');
+      const response = await apiClient.get(`/utilization-report`, { params: { tenant_id } });
+      return response?.data;
+    },
+    gcTime: 5 * 60 * 1000,
   });
 }
 
 function useLicenses(tenant_id: string): UseQueryResult<ApiResponse<any>, AxiosError> {
-  return useQuery(['licenses', tenant_id], async () => {
-    validateInput(tenant_id, 'string');
-    const response = await apiClient.get(`/licenses`, { params: { tenant_id } });
-    return response.data;
+  return useQuery({
+    queryKey: ['licenses', tenant_id],
+    queryFn: async () => {
+      validateInput(tenant_id, 'string');
+      const response = await apiClient.get(`/licenses`, { params: { tenant_id } });
+      return response?.data;
+    },
+    gcTime: 5 * 60 * 1000,
   });
 }
 
 function useAllocateLicense(tenant_id: string): UseMutationResult<ApiResponse<any>, AxiosError, any> {
-  return useMutation(async (licenseData: any) => {
-    validateInput(tenant_id, 'string');
-    validateInput(licenseData, 'object');
-    const response = await apiClient.post(`/allocate-license`, { ...licenseData, tenant_id });
-    return response.data;
+  return useMutation({
+    mutationFn: async (licenseData: any) => {
+      validateInput(tenant_id, 'string');
+      validateInput(licenseData, 'object');
+      const response = await apiClient.post(`/allocate-license`, { ...licenseData, tenant_id });
+      return response?.data;
+    },
   });
 }
 

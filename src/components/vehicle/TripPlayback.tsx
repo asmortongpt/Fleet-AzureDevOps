@@ -15,7 +15,7 @@
 
 import { format } from 'date-fns';
 import { AlertCircle, Play, Pause, StopCircle, MapPin } from 'lucide-react';
-import React, { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import useSWR from 'swr';
 
 import { Badge } from '@/components/ui/badge';
@@ -299,14 +299,16 @@ export function TripPlayback({ tripId, autoPlay = false }: TripPlaybackProps) {
         startMarker.addTo(mapRef.current);
 
         const lastPoint = breadcrumbs[breadcrumbs.length - 1];
-        const endMarker = leaflet.marker([lastPoint.latitude, lastPoint.longitude], {
-          icon: leaflet.divIcon({
-            html: '<div style="background: #ef4444; color: white; padding: 4px 8px; border-radius: 4px; font-weight: bold; font-size: 12px;">END</div>',
-            className: 'end-marker',
-            iconAnchor: [20, 30]
-          })
-        });
-        endMarker.addTo(mapRef.current);
+        if (lastPoint) {
+          const endMarker = leaflet.marker([lastPoint.latitude, lastPoint.longitude], {
+            icon: leaflet.divIcon({
+              html: '<div style="background: #ef4444; color: white; padding: 4px 8px; border-radius: 4px; font-weight: bold; font-size: 12px;">END</div>',
+              className: 'end-marker',
+              iconAnchor: [20, 30]
+            })
+          });
+          endMarker.addTo(mapRef.current);
+        }
 
         // Fit map to show entire route
         mapRef.current.fitBounds(polyline.getBounds(), { padding: [50, 50] });
@@ -375,19 +377,21 @@ export function TripPlayback({ tripId, autoPlay = false }: TripPlaybackProps) {
     const currentPoint = data.breadcrumbs[currentIndex];
     const nextPoint = data.breadcrumbs[Math.min(currentIndex + 1, data.breadcrumbs.length - 1)];
 
-    const [lat, lng] = interpolatePosition(currentPoint, nextPoint, progress);
-    vehicleMarkerRef.current.setLatLng([lat, lng]);
+    if (currentPoint && nextPoint) {
+      const [lat, lng] = interpolatePosition(currentPoint, nextPoint, progress);
+      vehicleMarkerRef.current.setLatLng([lat, lng]);
 
-    // Update popup with current data
-    const popup = `
-      <div class="p-2 min-w-[200px]">
-        <p class="font-bold">${format(new Date(currentPoint.timestamp), 'h:mm:ss a')}</p>
-        <p class="text-sm">Speed: ${currentPoint.speed_mph?.toFixed(1) || 'N/A'} mph</p>
-        ${currentPoint.engine_rpm ? `<p class="text-sm">RPM: ${currentPoint.engine_rpm}</p>` : ''}
-        ${currentPoint.fuel_level_percent ? `<p class="text-sm">Fuel: ${currentPoint.fuel_level_percent}%</p>` : ''}
-      </div>
-    `;
-    vehicleMarkerRef.current.setPopupContent(popup);
+      // Update popup with current data
+      const popup = `
+        <div class="p-2 min-w-[200px]">
+          <p class="font-bold">${format(new Date(currentPoint.timestamp), 'h:mm:ss a')}</p>
+          <p class="text-sm">Speed: ${currentPoint.speed_mph?.toFixed(1) || 'N/A'} mph</p>
+          ${currentPoint.engine_rpm ? `<p class="text-sm">RPM: ${currentPoint.engine_rpm}</p>` : ''}
+          ${currentPoint.fuel_level_percent ? `<p class="text-sm">Fuel: ${currentPoint.fuel_level_percent}%</p>` : ''}
+        </div>
+      `;
+      vehicleMarkerRef.current.setPopupContent(popup);
+    }
   }, [currentIndex, progress, data]);
 
   // Control handlers
@@ -478,55 +482,37 @@ export function TripPlayback({ tripId, autoPlay = false }: TripPlaybackProps) {
                     {data.breadcrumbs[currentIndex] &&
                       format(new Date(data.breadcrumbs[currentIndex].timestamp), 'h:mm:ss a')}
                   </span>
-                  <span className="font-semibold">
-                    {Math.round(currentPercentage)}%
-                  </span>
-                  <span className="text-muted-foreground">
-                    {data.breadcrumbs[data.breadcrumbs.length - 1] &&
-                      format(
-                        new Date(data.breadcrumbs[data.breadcrumbs.length - 1].timestamp),
-                        'h:mm:ss a'
-                      )}
-                  </span>
                 </div>
                 <Slider
                   value={[currentPercentage]}
                   onValueChange={handleSliderChange}
+                  min={0}
                   max={100}
                   step={0.1}
-                  className="w-full"
                 />
               </div>
 
-              {/* Control Buttons */}
-              <div className="flex items-center justify-between">
+              {/* Controls Row */}
+              <div className="flex items-center gap-4 flex-wrap">
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={handlePlayPause}
+                  className="w-20"
+                >
+                  {isPlaying ? <Pause className="h-4 w-4 mr-2" /> : <Play className="h-4 w-4 mr-2" />}
+                  {isPlaying ? 'Pause' : 'Play'}
+                </Button>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={handleStop}
+                  className="w-20"
+                >
+                  <StopCircle className="h-4 w-4 mr-2" />
+                  Stop
+                </Button>
                 <div className="flex items-center gap-2">
-                  <Button
-                    size="sm"
-                    variant={isPlaying ? 'default' : 'outline'}
-                    onClick={handlePlayPause}
-                  >
-                    {isPlaying ? (
-                      <>
-                        <Pause className="h-4 w-4 mr-1" />
-                        Pause
-                      </>
-                    ) : (
-                      <>
-                        <Play className="h-4 w-4 mr-1" />
-                        Play
-                      </>
-                    )}
-                  </Button>
-                  <Button size="sm" variant="outline" onClick={handleStop}>
-                    <StopCircle className="h-4 w-4 mr-1" />
-                    Stop
-                  </Button>
-                </div>
-
-                {/* Speed Selector */}
-                <div className="flex items-center gap-2">
-                  <span className="text-sm text-muted-foreground">Speed:</span>
                   {([0.5, 1, 2, 4, 8] as PlaybackSpeed[]).map(speed => (
                     <Button
                       key={speed}
@@ -542,22 +528,22 @@ export function TripPlayback({ tripId, autoPlay = false }: TripPlaybackProps) {
               </div>
 
               {/* Trip Stats */}
-              <div className="grid grid-cols-4 gap-4 pt-4 border-t">
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-2 text-sm">
                 <div>
-                  <p className="text-sm text-muted-foreground">Distance</p>
-                  <p className="font-semibold">{data.trip.distance_miles.toFixed(1)} mi</p>
+                  <p className="text-muted-foreground">Distance</p>
+                  <p className="font-medium">{data.trip.distance_miles.toFixed(1)} mi</p>
                 </div>
                 <div>
-                  <p className="text-sm text-muted-foreground">Duration</p>
-                  <p className="font-semibold">{formatDuration(data.trip.duration_seconds)}</p>
+                  <p className="text-muted-foreground">Duration</p>
+                  <p className="font-medium">{formatDuration(data.trip.duration_seconds)}</p>
                 </div>
                 <div>
-                  <p className="text-sm text-muted-foreground">Avg Speed</p>
-                  <p className="font-semibold">{data.trip.avg_speed_mph.toFixed(1)} mph</p>
+                  <p className="text-muted-foreground">Avg Speed</p>
+                  <p className="font-medium">{data.trip.avg_speed_mph.toFixed(1)} mph</p>
                 </div>
                 <div>
-                  <p className="text-sm text-muted-foreground">Max Speed</p>
-                  <p className="font-semibold">{data.trip.max_speed_mph.toFixed(1)} mph</p>
+                  <p className="text-muted-foreground">Max Speed</p>
+                  <p className="font-medium">{data.trip.max_speed_mph.toFixed(1)} mph</p>
                 </div>
               </div>
             </div>

@@ -1,14 +1,6 @@
-/**
- * Vehicle Reservation Modal Component
- * Form for creating and editing vehicle reservations with availability checking
- */
-
 import { zodResolver } from '@hookform/resolvers/zod'
 import { format } from 'date-fns'
-import AlertCircleIcon from 'lucide-react/dist/esm/icons/alert-circle'
-import CalendarIcon from 'lucide-react/dist/esm/icons/calendar'
-import ClockIcon from 'lucide-react/dist/esm/icons/clock'
-import TruckIcon from 'lucide-react/dist/esm/icons/truck'
+import { AlertCircle, Calendar, Clock, Truck } from 'lucide-react'
 import { useState, useEffect } from 'react'
 import { useForm } from 'react-hook-form'
 import * as z from 'zod'
@@ -16,7 +8,7 @@ import * as z from 'zod'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import { Calendar } from '@/components/ui/calendar'
+import { Calendar as CalendarComponent } from '@/components/ui/calendar'
 import {
   Dialog,
   DialogContent,
@@ -47,7 +39,8 @@ import { Textarea } from '@/components/ui/textarea'
 import { Vehicle, Driver } from '@/lib/types'
 import { cn } from '@/lib/utils'
 import { VehicleReservation, CreateReservationRequest } from '@/types/scheduling'
-import logger from '@/utils/logger';
+import logger from '@/utils/logger'
+
 const reservationSchema = z.object({
   vehicleId: z.string().min(1, 'Vehicle is required'),
   driverId: z.string().optional(),
@@ -70,8 +63,8 @@ const reservationSchema = z.object({
   const end = new Date(data.endDate)
   const [startHour, startMin] = data.startTime.split(':').map(Number)
   const [endHour, endMin] = data.endTime.split(':').map(Number)
-  start.setHours(startHour, startMin, 0, 0)
-  end.setHours(endHour, endMin, 0, 0)
+  start.setHours(startHour || 0, startMin || 0, 0, 0)
+  end.setHours(endHour || 0, endMin || 0, 0, 0)
   return end > start
 }, {
   message: 'End date/time must be after start date/time',
@@ -166,10 +159,10 @@ export function VehicleReservationModal({
         const [endHour, endMin] = watchEndTime.split(':').map(Number)
 
         const startDateTime = new Date(watchStartDate)
-        startDateTime.setHours(startHour, startMin, 0, 0)
+        startDateTime.setHours(startHour || 0, startMin || 0, 0, 0)
 
         const endDateTime = new Date(watchEndDate)
-        endDateTime.setHours(endHour, endMin, 0, 0)
+        endDateTime.setHours(endHour || 0, endMin || 0, 0, 0)
 
         const result = await onCheckAvailability(watchVehicleId, startDateTime, endDateTime)
 
@@ -197,10 +190,10 @@ export function VehicleReservationModal({
       const [endHour, endMin] = values.endTime.split(':').map(Number)
 
       const startDateTime = new Date(values.startDate)
-      startDateTime.setHours(startHour, startMin, 0, 0)
+      startDateTime.setHours(startHour || 0, startMin || 0, 0, 0)
 
       const endDateTime = new Date(values.endDate)
-      endDateTime.setHours(endHour, endMin, 0, 0)
+      endDateTime.setHours(endHour || 0, endMin || 0, 0, 0)
 
       const requestData: CreateReservationRequest = {
         vehicleId: values.vehicleId,
@@ -232,7 +225,7 @@ export function VehicleReservationModal({
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
-            <TruckIcon className="h-5 w-5" />
+            <Truck className="h-5 w-5" />
             {isEditing ? 'Edit Vehicle Reservation' : 'New Vehicle Reservation'}
           </DialogTitle>
           <DialogDescription>
@@ -323,12 +316,12 @@ export function VehicleReservationModal({
                             ) : (
                               <span>Pick a date</span>
                             )}
-                            <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                            <Calendar className="ml-auto h-4 w-4 opacity-50" />
                           </Button>
                         </FormControl>
                       </PopoverTrigger>
                       <PopoverContent className="w-auto p-0" align="start">
-                        <Calendar
+                        <CalendarComponent
                           mode="single"
                           selected={field.value}
                           onSelect={field.onChange}
@@ -389,12 +382,12 @@ export function VehicleReservationModal({
                             ) : (
                               <span>Pick a date</span>
                             )}
-                            <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                            <Calendar className="ml-auto h-4 w-4 opacity-50" />
                           </Button>
                         </FormControl>
                       </PopoverTrigger>
                       <PopoverContent className="w-auto p-0" align="start">
-                        <Calendar
+                        <CalendarComponent
                           mode="single"
                           selected={field.value}
                           onSelect={field.onChange}
@@ -433,29 +426,17 @@ export function VehicleReservationModal({
               />
             </div>
 
-            {/* Availability Check Status */}
-            {checking && (
-              <Alert>
-                <ClockIcon className="h-4 w-4" />
-                <AlertDescription>Checking vehicle availability...</AlertDescription>
-              </Alert>
-            )}
-
+            {/* Conflicts Alert */}
             {conflicts.length > 0 && (
               <Alert variant="destructive">
-                <AlertCircleIcon className="h-4 w-4" />
+                <AlertCircle className="h-4 w-4" />
                 <AlertDescription>
-                  <div className="font-semibold mb-2">Scheduling Conflicts Detected:</div>
-                  <ul className="list-disc list-inside space-y-1">
-                    {conflicts.map((conflict, idx) => (
-                      <li key={idx}>{conflict.description}</li>
-                    ))}
-                  </ul>
+                  This vehicle is already reserved for the selected time. There are {conflicts.length} conflicting reservation(s).
                 </AlertDescription>
               </Alert>
             )}
 
-            {/* Driver Assignment */}
+            {/* Driver Selection */}
             <FormField
               control={form.control}
               name="driverId"
@@ -471,20 +452,17 @@ export function VehicleReservationModal({
                     <SelectContent>
                       {drivers.map((driver) => (
                         <SelectItem key={driver.id} value={driver.id}>
-                          {driver.name} - {driver.licenseType}
+                          {driver.firstName} {driver.lastName}
                         </SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
-                  <FormDescription>
-                    Assign a specific driver to this reservation
-                  </FormDescription>
                   <FormMessage />
                 </FormItem>
               )}
             />
 
-            {/* Locations */}
+            {/* Location Fields */}
             <div className="grid grid-cols-2 gap-4">
               <FormField
                 control={form.control}
@@ -493,7 +471,7 @@ export function VehicleReservationModal({
                   <FormItem>
                     <FormLabel>Pickup Location</FormLabel>
                     <FormControl>
-                      <Input placeholder="Enter pickup location" {...field}  aria-label="Enter pickup location" />
+                      <Input {...field} placeholder="Enter pickup location" />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -505,9 +483,9 @@ export function VehicleReservationModal({
                 name="dropoffLocation"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Dropoff Location</FormLabel>
+                    <FormLabel>Drop-off Location</FormLabel>
                     <FormControl>
-                      <Input placeholder="Enter dropoff location" {...field}  aria-label="Enter dropoff location" />
+                      <Input {...field} placeholder="Enter drop-off location" />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -525,14 +503,11 @@ export function VehicleReservationModal({
                   <FormControl>
                     <Input
                       type="number"
-                      placeholder="0"
-                      {...field}
-                      value={field.value || ''}
+                      placeholder="Enter estimated miles"
+                      value={field.value ?? ''}
+                      onChange={(e) => field.onChange(e.target.value ? Number(e.target.value) : undefined)}
                     />
                   </FormControl>
-                  <FormDescription>
-                    Estimated mileage for this trip
-                  </FormDescription>
                   <FormMessage />
                 </FormItem>
               )}
@@ -546,7 +521,7 @@ export function VehicleReservationModal({
                 <FormItem>
                   <FormLabel>Purpose *</FormLabel>
                   <FormControl>
-                    <Input placeholder="Brief description of purpose" {...field}  aria-label="Brief description of purpose" />
+                    <Input {...field} placeholder="Enter purpose of reservation" />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -561,12 +536,7 @@ export function VehicleReservationModal({
                 <FormItem>
                   <FormLabel>Notes</FormLabel>
                   <FormControl>
-                    <Textarea
-                      placeholder="Additional notes or special requirements..."
-                      className="resize-none"
-                      rows={3}
-                      {...field}
-                    />
+                    <Textarea {...field} placeholder="Additional notes or details" />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -574,19 +544,14 @@ export function VehicleReservationModal({
             />
 
             <DialogFooter>
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => onOpenChange(false)}
-                disabled={submitting}
-              >
+              <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
                 Cancel
               </Button>
               <Button
                 type="submit"
-                disabled={submitting || checking || conflicts.length > 0}
+                disabled={checking || submitting || conflicts.length > 0}
               >
-                {submitting ? 'Saving...' : isEditing ? 'Update Reservation' : 'Create Reservation'}
+                {submitting ? 'Submitting...' : isEditing ? 'Update Reservation' : 'Create Reservation'}
               </Button>
             </DialogFooter>
           </form>

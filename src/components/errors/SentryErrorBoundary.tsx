@@ -12,7 +12,8 @@ import { captureException, showFeedbackWidget } from '../../lib/sentry'
 
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
-import logger from '@/utils/logger';
+import logger from '@/utils/logger'
+
 interface Props {
   children: ReactNode
   fallback?: ReactNode
@@ -136,9 +137,7 @@ export class SentryErrorBoundary extends Component<Props, State> {
 
   handleReportFeedback = () => {
     if (this.state.eventId) {
-      showFeedbackWidget({
-        eventId: this.state.eventId
-      })
+      showFeedbackWidget()
     }
   }
 
@@ -201,7 +200,7 @@ export class SentryErrorBoundary extends Component<Props, State> {
   }
 
   render() {
-    const { hasError, error, errorCount } = this.state
+    const { hasError, errorCount } = this.state
     const { children, fallback, showDetails: showDetailsProp, level = 'component' } = this.props
 
     if (!hasError) {
@@ -343,10 +342,10 @@ export class SentryErrorBoundary extends Component<Props, State> {
  * Sentry Error Boundary Hook for functional components
  */
 export const useSentryErrorHandler = () => {
-  return (error: Error, errorInfo?: React.ErrorInfo) => {
-    captureException(error, {
-      react: errorInfo,
-      context: 'manual_error_handler'
+  return (_error: Error, errorInfo?: React.ErrorInfo) => {
+    captureException(_error, {
+      extra: { react: errorInfo },
+      tags: { context: 'manual_error_handler' }
     })
   }
 }

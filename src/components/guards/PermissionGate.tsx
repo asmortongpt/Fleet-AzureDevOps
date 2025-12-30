@@ -3,11 +3,11 @@
  * Conditionally renders children based on permissions
  */
 
-import React, { ReactNode } from 'react';
+import { ReactNode } from 'react';
 
 import { usePermissionContext } from '../../contexts/PermissionContext';
 import { UserRole } from '../../hooks/usePermissions';
-import { Tooltip } from '../ui/tooltip';
+import { Tooltip, TooltipProps } from '../ui/tooltip';
 
 interface PermissionGateProps {
   children: ReactNode;
@@ -39,7 +39,7 @@ export function PermissionGate({
   const {
     can,
     hasModule,
-    hasRole,
+    hasRole: _hasRole,
     hasAnyRole,
     canAccessField,
     isLoading
@@ -90,7 +90,7 @@ export function PermissionGate({
       const message = tooltipMessage || 'You do not have permission to access this feature';
 
       return (
-        <Tooltip content={message}>
+        <Tooltip content={message} {...({} as TooltipProps)}>
           <div className="opacity-50 cursor-not-allowed pointer-events-none">
             {children}
           </div>

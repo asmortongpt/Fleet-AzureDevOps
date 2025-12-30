@@ -15,7 +15,7 @@
 
 import { format } from 'date-fns';
 import { AlertCircle, MapPin, Eye, EyeOff, Calendar } from 'lucide-react';
-import React, { useEffect, useRef, useState, useCallback } from 'react';
+import { useEffect, useRef, useState, useCallback } from 'react';
 import useSWR from 'swr';
 
 import { Badge } from '@/components/ui/badge';
@@ -131,7 +131,7 @@ export function VehicleHistoryTrail({
   onPointClick
 }: VehicleHistoryTrailProps) {
   const [visible, setVisible] = useState(true);
-  const [hoveredPoint, setHoveredPoint] = useState<LocationPoint | null>(null);
+  const [_hoveredPoint, _setHoveredPoint] = useState<LocationPoint | null>(null);
   const mapRef = useRef<any>(null);
   const polylineRef = useRef<any>(null);
   const markersRef = useRef<any[]>([]);
@@ -243,19 +243,21 @@ export function VehicleHistoryTrail({
         for (let i = 0; i < points.length - 1; i++) {
           const point1 = points[i];
           const point2 = points[i + 1];
-          const color = getColorForTimestamp(point1.timestamp, oldestTime, newestTime);
+          if (point1 && point2) {
+            const color = getColorForTimestamp(point1.timestamp, oldestTime, newestTime);
 
-          const segment = leaflet.polyline(
-            [[point1.latitude, point1.longitude], [point2.latitude, point2.longitude]],
-            {
-              color: color,
-              weight: 3,
-              opacity: 0.7
-            }
-          );
+            const segment = leaflet.polyline(
+              [[point1.latitude, point1.longitude], [point2.latitude, point2.longitude]],
+              {
+                color: color,
+                weight: 3,
+                opacity: 0.7
+              }
+            );
 
-          segments.push(segment);
-          segment.addTo(mapRef.current);
+            segments.push(segment);
+            segment.addTo(mapRef.current);
+          }
         }
 
         // Add markers at significant points (every 100th point or significant events)
@@ -311,8 +313,8 @@ export function VehicleHistoryTrail({
     setVisible(!visible);
     if (polylineRef.current && mapRef.current) {
       if (visible) {
-        polylineRef.current.forEach((segment: any) => mapRef.current.removeLayer(segment));
-        markersRef.current.forEach(marker => mapRef.current.removeLayer(marker));
+        polylineRef.current.forEach((segment: any) => mapRef.current?.removeLayer(segment));
+        markersRef.current.forEach(marker => mapRef.current?.removeLayer(marker));
       }
     }
   };

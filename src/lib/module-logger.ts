@@ -64,7 +64,7 @@ interface ValidationResult {
 
 class ModuleLoggerClass {
   private logs: LogEntry[] = []
-  private metrics: NativeMap<string, ModuleMetrics> = new NativeMap()
+  private metrics: typeof NativeMap<string, ModuleMetrics> = new NativeMap()
   private maxLogs = 1000
   private isEnabled = true
   private logToConsole = process.env.NODE_ENV === 'development'
@@ -270,7 +270,7 @@ class ModuleLoggerClass {
   // REPORTING
   // -------------------------------------------------------------------------
 
-  getModuleMetrics(module?: string): NativeMap<string, ModuleMetrics> | ModuleMetrics | undefined {
+  getModuleMetrics(module?: string): typeof NativeMap<string, ModuleMetrics> | ModuleMetrics | undefined {
     if (module) {
       return this.metrics.get(module)
     }
@@ -287,7 +287,7 @@ class ModuleLoggerClass {
       filtered = filtered.filter(l => l.level === filters.level)
     }
     if (filters?.since) {
-      filtered = filtered.filter(l => new Date(l.timestamp) >= filters.since!)
+      filtered = filtered.filter(l => new Date(l.timestamp) >= filters.since)
     }
 
     return filtered
@@ -296,7 +296,7 @@ class ModuleLoggerClass {
   getHealthReport(): Record<string, { score: number; status: string; issues: string[] }> {
     const report: Record<string, { score: number; status: string; issues: string[] }> = {}
 
-    this.metrics.forEach((metrics, module) => {
+    this.metrics.forEach((metrics: ModuleMetrics, module: string) => {
       const issues: string[] = []
 
       if (metrics.errorCount > 0) {

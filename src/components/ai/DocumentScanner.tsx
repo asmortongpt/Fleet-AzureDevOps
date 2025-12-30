@@ -28,7 +28,8 @@ import { Button } from '../ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/card'
 import { Progress } from '../ui/progress'
 
-import logger from '@/utils/logger';
+import logger from '@/utils/logger'
+
 interface DocumentAnalysis {
   documentType: string
   confidence: number
@@ -110,21 +111,26 @@ export function DocumentScanner({
           }
         })
 
-        setAnalyses(prev => new Map(prev).set(file.name, response.data))
+        const analysisData = response.data as DocumentAnalysis
+        setAnalyses(prev => new Map(prev).set(file.name, analysisData))
 
         if (onComplete && !allowBatch) {
-          onComplete(response.data)
+          onComplete(analysisData)
         }
       }
 
       if (onComplete && allowBatch && filesToProcess.length > 0) {
         // Return all analyses
         const allAnalyses = Array.from(analyses.values())
-        onComplete(allAnalyses[allAnalyses.length - 1]) // or combine them
+        const latestAnalysis = allAnalyses[allAnalyses.length - 1]
+        if (latestAnalysis) {
+          onComplete(latestAnalysis)
+        }
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error('Document processing error:', error)
-      alert(`Error processing document: ${error.response?.data?.error || error.message}`)
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error'
+      alert(`Error processing document: ${errorMessage}`)
     } finally {
       setIsProcessing(false)
     }
@@ -201,7 +207,7 @@ export function DocumentScanner({
               </Button>
 
               {/* Camera capture for mobile */}
-              {navigator.mediaDevices && navigator.mediaDevices.getUserMedia && (
+              {navigator.mediaDevices?.getUserMedia && (
                 <Button
                   type="button"
                   variant="outline"
@@ -210,7 +216,10 @@ export function DocumentScanner({
                     input.type = 'file'
                     input.accept = 'image/*'
                     input.capture = 'environment'
-                    input.onchange = (e: any) => handleFileSelect(e.target.files)
+                    input.onchange = (e: Event) => {
+                      const target = e.target as HTMLInputElement
+                      handleFileSelect(target.files)
+                    }
                     input.click()
                   }}
                   disabled={isProcessing}
@@ -345,9 +354,9 @@ export function DocumentScanner({
                           {analysis.suggestedMatches.driver && (
                             <div className="flex items-center gap-2">
                               <Badge variant="outline">Driver</Badge>
-                              <span className="text-sm">{analysis.suggestedMatches.driver?.name}</span>
+                              <span className="text-sm">{analysis.suggestedMatches.driver.name}</span>
                               <Badge variant="secondary" className="text-xs">
-                                {Math.round(analysis.suggestedMatches.driver?.confidence * 100)}% match
+                                {Math.round(analysis.suggestedMatches.driver.confidence * 100)}% match
                               </Badge>
                             </div>
                           )}

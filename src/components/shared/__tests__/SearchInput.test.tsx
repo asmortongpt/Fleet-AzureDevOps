@@ -6,18 +6,18 @@ import { SearchInput } from '../SearchInput';
 
 // Mock useDebounce hook
 vi.mock('@/hooks/useDebounce', () => ({
-  useDebounce: (value: string, delay: number) => {
+  useDebounce: (value: string, _delay: number) => {
     return value; // For testing, return immediately
   }
 }));
 
 describe('SearchInput', () => {
-  let mockOnChange: ReturnType<typeof vi.fn>;
-  let mockOnDebouncedChange: ReturnType<typeof vi.fn>;
+  let mockOnChange: vi.MockedFunction<(value: string) => void>;
+  let mockOnDebouncedChange: vi.MockedFunction<(value: string) => void>;
 
   beforeEach(() => {
-    mockOnChange = vi.fn();
-    mockOnDebouncedChange = vi.fn();
+    mockOnChange = vi.fn<(value: string) => void>();
+    mockOnDebouncedChange = vi.fn<(value: string) => void>();
   });
 
   describe('rendering', () => {

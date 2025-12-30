@@ -1,10 +1,6 @@
-import logger from '@/utils/logger'
+import { createLogger } from '@/utils/logger';
 
-/**
- * CORS Preflight Handlers
- * Frontend Security - Task 8/8
- * Fortune 50 Security Standards
- */
+const logger = createLogger();
 
 /**
  * Allowed CORS origins (configured via environment)
@@ -29,7 +25,7 @@ export function isOriginAllowed(origin: string): boolean {
   }
 
   // Check wildcard patterns
-  return ALLOWED_ORIGINS.some(allowed => {
+  return ALLOWED_ORIGINS.some((allowed: string) => {
     if (allowed.includes('*')) {
       const pattern = allowed.replace(/\*/g, '.*');
       const regex = new RegExp(`^${pattern}$`);
@@ -145,7 +141,7 @@ export async function corsSafeFetch(
     options.mode = 'cors';
 
     // Add Origin header
-    const headers = new Headers(options.headers);
+    const headers = new Headers(options.headers as HeadersInit);
     headers.set('Origin', window.location.origin);
     options.headers = headers;
   }

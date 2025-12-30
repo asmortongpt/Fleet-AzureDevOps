@@ -1,4 +1,6 @@
-import logger from '@/utils/logger'
+import { createLogger } from '@/utils/logger';
+
+const logger = createLogger();
 
 /**
  * Service for handling drilldown operations.
@@ -10,10 +12,10 @@ interface DrilldownConfig {
 }
 
 const drilldownConfig: DrilldownConfig = {
-  vehicle: (id, name) => logger.debug(`Navigating to vehicle detail: ${id}, ${name}`),
-  driver: (id, name) => logger.debug(`Navigating to driver detail: ${id}, ${name}`),
-  maintenance: (id, name) => logger.debug(`Navigating to maintenance detail: ${id}, ${name}`),
-  facility: (id, name) => logger.debug(`Navigating to facility detail: ${id}, ${name}`)
+  vehicle: (id: string, name: string) => logger.debug(`Navigating to vehicle detail: ${id}, ${name}`),
+  driver: (id: string, name: string) => logger.debug(`Navigating to driver detail: ${id}, ${name}`),
+  maintenance: (id: string, name: string) => logger.debug(`Navigating to maintenance detail: ${id}, ${name}`),
+  facility: (id: string, name: string) => logger.debug(`Navigating to facility detail: ${id}, ${name}`)
 };
 
 /**

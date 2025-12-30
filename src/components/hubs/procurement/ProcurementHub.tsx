@@ -10,9 +10,9 @@ import {
   DollarSign,
   BarChart3
 } from "lucide-react"
-import React, { useState, useMemo, useCallback } from "react"
+import { useState, useMemo, useCallback } from "react"
 
-import { ProfessionalFleetMap } from "@/components/Maps/ProfessionalFleetMap"
+import { ProfessionalFleetMap, GISFacility } from "@/components/Maps/ProfessionalFleetMap"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -47,8 +47,8 @@ const mockInventory = [
 ]
 
 // Supplier Panel Component
-const SupplierPanel = ({ supplier, onClose }: { supplier: any; onClose: () => void }) => {
-  const { push } = useDrilldown()
+const SupplierPanel = ({ supplier, _onClose }: { supplier: any; _onClose: () => void }) => {
+  const { _push } = useDrilldown()
 
   if (!supplier) {
     return (
@@ -316,7 +316,7 @@ export function ProcurementHub() {
         name: po.trackingId,
         location: po.delivery,
         type: 'delivery'
-      }))
+      })) as GISFacility[]
   }, [])
 
   const handleSupplierSelect = useCallback((supplierId: string) => {
@@ -364,83 +364,33 @@ export function ProcurementHub() {
               className="w-48"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              data-testid="procurement-search-input"
+              data-testid="procurement-search"
             />
-          </div>
-        </div>
-
-        {/* Status Bar */}
-        <div className="absolute bottom-4 left-4 right-[420px] bg-background/95 backdrop-blur rounded-lg shadow-lg p-3 z-10">
-          <div className="flex items-center justify-between">
-            <div className="flex gap-4">
-              <div className="flex items-center gap-2" data-testid="procurement-supplier-count">
-                <Building2 className="h-4 w-4 text-muted-foreground" />
-                <span className="text-sm">
-                  <span className="font-semibold">{mockSuppliers.length}</span> suppliers
-                </span>
-              </div>
-              <div className="flex items-center gap-2" data-testid="procurement-po-count">
-                <Package className="h-4 w-4 text-muted-foreground" />
-                <span className="text-sm">
-                  <span className="font-semibold">{mockPurchaseOrders.filter(po => po.status !== 'delivered').length}</span> active orders
-                </span>
-              </div>
-              <div className="flex items-center gap-2" data-testid="procurement-delivery-count">
-                <Truck className="h-4 w-4 text-muted-foreground" />
-                <span className="text-sm">
-                  <span className="font-semibold">{mockPurchaseOrders.filter(po => po.status === 'in_transit').length}</span> in transit
-                </span>
-              </div>
-            </div>
           </div>
         </div>
       </div>
 
-      {/* Contextual Panel Section */}
-      <div className="border-l bg-background" data-testid="procurement-contextual-panel">
-        <Tabs value={activePanel} onValueChange={setActivePanel} className="h-full flex flex-col">
-          <TabsList className="w-full rounded-none justify-start px-2">
-            <TabsTrigger value="dashboard" className="flex-1" data-testid="procurement-tab-dashboard">
-              <BarChart3 className="h-4 w-4 mr-2" />
-              Dashboard
-            </TabsTrigger>
-            <TabsTrigger value="supplier" className="flex-1" data-testid="procurement-tab-supplier">
-              <Building2 className="h-4 w-4 mr-2" />
-              Supplier
-            </TabsTrigger>
-            <TabsTrigger value="orders" className="flex-1" data-testid="procurement-tab-orders">
-              <Package className="h-4 w-4 mr-2" />
-              Orders
-            </TabsTrigger>
-            <TabsTrigger value="inventory" className="flex-1" data-testid="procurement-tab-inventory">
-              <TrendingUp className="h-4 w-4 mr-2" />
-              Inventory
-            </TabsTrigger>
+      {/* Sidebar Panel */}
+      <div className="bg-background border-l h-full">
+        <Tabs defaultValue="dashboard" value={activePanel} onValueChange={setActivePanel} className="w-full">
+          <TabsList className="grid w-full grid-cols-4">
+            <TabsTrigger value="dashboard">Dashboard</TabsTrigger>
+            <TabsTrigger value="supplier">Supplier</TabsTrigger>
+            <TabsTrigger value="orders">Orders</TabsTrigger>
+            <TabsTrigger value="inventory">Inventory</TabsTrigger>
           </TabsList>
-
-          <div className="flex-1 overflow-hidden">
-            <TabsContent value="dashboard" className="h-full m-0" data-testid="procurement-panel-dashboard">
-              <DashboardPanel />
-            </TabsContent>
-
-            <TabsContent value="supplier" className="h-full m-0" data-testid="procurement-panel-supplier">
-              <SupplierPanel
-                supplier={selectedEntity?.type === 'supplier' ? selectedEntity.data : null}
-                onClose={() => setSelectedEntity(null)}
-              />
-            </TabsContent>
-
-            <TabsContent value="orders" className="h-full m-0" data-testid="procurement-panel-orders">
-              <PurchaseOrdersPanel
-                orders={mockPurchaseOrders}
-                onOrderSelect={(order) => setSelectedEntity({ type: 'order', data: order })}
-              />
-            </TabsContent>
-
-            <TabsContent value="inventory" className="h-full m-0" data-testid="procurement-panel-inventory">
-              <InventoryPanel inventory={mockInventory} />
-            </TabsContent>
-          </div>
+          <TabsContent value="dashboard" className="h-[calc(100vh-48px)] mt-0">
+            <DashboardPanel />
+          </TabsContent>
+          <TabsContent value="supplier" className="h-[calc(100vh-48px)] mt-0">
+            <SupplierPanel supplier={selectedEntity?.type === 'supplier' ? selectedEntity.data : null} _onClose={() => {}} />
+          </TabsContent>
+          <TabsContent value="orders" className="h-[calc(100vh-48px)] mt-0">
+            <PurchaseOrdersPanel orders={mockPurchaseOrders} onOrderSelect={(order) => setSelectedEntity({ type: 'order', data: order })} />
+          </TabsContent>
+          <TabsContent value="inventory" className="h-[calc(100vh-48px)] mt-0">
+            <InventoryPanel inventory={mockInventory} />
+          </TabsContent>
         </Tabs>
       </div>
     </div>
