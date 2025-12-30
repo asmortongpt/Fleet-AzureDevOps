@@ -157,7 +157,7 @@ router.put(
     } catch (error: any) {
       console.error('Update policy error:', error);
       if (error instanceof z.ZodError) {
-        return res.status(400).json({ error: 'Invalid request data', details: error.errors });
+        return res.status(400).json({ error: 'Invalid request data', details: error.issues });
       }
       res.status(500).json({ error: 'Failed to update personal use policy' });
     }
