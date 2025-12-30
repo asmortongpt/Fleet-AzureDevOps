@@ -27,7 +27,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { Textarea } from '@/components/ui/textarea'
 import { usePermissions } from '@/hooks/usePermissions'
-import logger from '@/utils/logger';
+import logger from '@/utils/logger'
+
 interface ReimbursementRequest {
   id: string
   driver_id: string
@@ -54,7 +55,7 @@ interface QueueSummary {
   avg_days_pending: number
 }
 
-const apiClient = async (url: string) => {
+const apiClient = async (url: string): Promise<any> => {
   const token = localStorage.getItem('token')
   const response = await fetch(url, {
     headers: { Authorization: `Bearer ${token}` }
@@ -63,7 +64,7 @@ const apiClient = async (url: string) => {
   return response.json()
 }
 
-const apiMutation = async (url: string, method: string, data?: any) => {
+const apiMutation = async (url: string, method: string, data?: unknown): Promise<any> => {
   const token = localStorage.getItem('token')
   const response = await fetch(url, {
     method,
@@ -113,17 +114,19 @@ export function ReimbursementQueue() {
     )
   }
 
-  const getQueueParams = () => {
+  const getQueueParams = (): string => {
     const params = new URLSearchParams()
     if (statusFilter && statusFilter !== 'all') params.append('status', statusFilter)
     if (categoryFilter && categoryFilter !== 'all') params.append('category', categoryFilter)
     return params.toString()
   }
 
-  const { data: queueData, isLoading: loading, error: queueError } = useQuery({    queryKey: ['reimbursement-queue', statusFilter, categoryFilter],
+  const { data: queueData, isLoading: loading } = useQuery({
+    queryKey: ['reimbursement-queue', statusFilter, categoryFilter],
     queryFn: () => apiClient(`/api/reimbursements?${getQueueParams()}`),
     staleTime: 30000,
-    onError: (error: any) => {
+    gcTime: 60000,
+    onError: (error: unknown) => {
       logger.error('Failed to fetch queue:', error)
       toast.error('Failed to load reimbursement queue')
     }
@@ -133,21 +136,22 @@ export function ReimbursementQueue() {
     queryKey: ['reimbursement-summary'],
     queryFn: () => apiClient('/api/reimbursements/queue/pending'),
     staleTime: 30000,
+    gcTime: 60000,
     enabled: statusFilter === 'pending'
   })
 
-  const requests = queueData?.data || []
-  const summary = summaryData?.summary || null
+  const requests: ReimbursementRequest[] = queueData?.data || []
+  const summary: QueueSummary | null = summaryData?.summary || null
 
-  const handleSelectAll = (checked: boolean) => {
+  const handleSelectAll = (checked: boolean): void => {
     if (checked) {
-      setSelectedRequests(new Set(requests.map(r => r.id)))
+      setSelectedRequests(new Set(requests.map((r: ReimbursementRequest) => r.id)))
     } else {
       setSelectedRequests(new Set())
     }
   }
 
-  const handleSelectRequest = (id: string, checked: boolean) => {
+  const handleSelectRequest = (id: string, checked: boolean): void => {
     const newSelected = new Set(selectedRequests)
     if (checked) {
       newSelected.add(id)
@@ -157,14 +161,15 @@ export function ReimbursementQueue() {
     setSelectedRequests(newSelected)
   }
 
-  const handleReview = (request: ReimbursementRequest, action: 'approve' | 'reject') => {
+  const handleReview = (request: ReimbursementRequest, action: 'approve' | 'reject'): void => {
     setReviewingRequest(request)
     setReviewAction(action)
     setReviewNotes('')
     setApprovedAmount(request.request_amount.toString())
   }
 
-  const { mutate: reviewRequest, isPending: isReviewingPending } = useMutation({    mutationFn: async () => {
+  const { mutate: reviewRequest, isPending: _isReviewingPending } = useMutation({
+    mutationFn: async () => {
       if (!reviewingRequest) throw new Error('No request selected')
 
       const endpoint = reviewAction === 'approve'
@@ -192,13 +197,14 @@ export function ReimbursementQueue() {
       queryClient.invalidateQueries({ queryKey: ['reimbursement-queue'] })
       queryClient.invalidateQueries({ queryKey: ['reimbursement-summary'] })
     },
-    onError: (error: any) => {
+    onError: (error: unknown) => {
       logger.error('Failed to review request:', error)
-      toast.error(error.message || 'Failed to review request')
+      toast.error(error instanceof Error ? error.message : 'Failed to review request')
     }
   })
 
-  const { mutate: bulkApprove, isPending: isBulkApprovePending } = useMutation({    mutationFn: async () => {
+  const { mutate: bulkApprove, isPending: _isBulkApprovePending } = useMutation({
+    mutationFn: async () => {
       if (selectedRequests.size === 0) throw new Error('No requests selected')
 
       const promises = Array.from(selectedRequests).map(id =>
@@ -213,13 +219,13 @@ export function ReimbursementQueue() {
       queryClient.invalidateQueries({ queryKey: ['reimbursement-queue'] })
       queryClient.invalidateQueries({ queryKey: ['reimbursement-summary'] })
     },
-    onError: (error: any) => {
+    onError: (error: unknown) => {
       logger.error('Bulk approve failed:', error)
       toast.error('Some approvals failed')
     }
   })
 
-  const submitReview = () => {
+  const submitReview = (): void => {
     if (!reviewingRequest) return
 
     if (reviewAction === 'reject' && !reviewNotes.trim()) {
@@ -235,7 +241,7 @@ export function ReimbursementQueue() {
     reviewRequest()
   }
 
-  const handleBulkApprove = () => {
+  const handleBulkApprove = (): void => {
     if (selectedRequests.size === 0) {
       toast.error('No requests selected')
       return
@@ -244,7 +250,7 @@ export function ReimbursementQueue() {
     bulkApprove()
   }
 
-  const filteredRequests = requests.filter(r => {
+  const filteredRequests = requests.filter((r: ReimbursementRequest) => {
     if (driverFilter && !r.driver_name.toLowerCase().includes(driverFilter.toLowerCase())) {
       return false
     }
@@ -252,7 +258,7 @@ export function ReimbursementQueue() {
   })
 
   const getStatusBadge = (status: string) => {
-    const variants: Record<string, any> = {
+    const variants: Record<string, { variant: string; icon: React.ComponentType<{ className?: string }>; label: string }> = {
       pending: { variant: 'outline', icon: Clock, label: 'Pending' },
       approved: { variant: 'secondary', icon: CheckCircle, label: 'Approved' },
       rejected: { variant: 'destructive', icon: XCircle, label: 'Rejected' },
@@ -263,7 +269,7 @@ export function ReimbursementQueue() {
     const Icon = config.icon
 
     return (
-      <Badge variant={config.variant} className="gap-1">
+      <Badge variant={config.variant as any} className="gap-1">
         <Icon className="w-3 h-3" />
         {config.label}
       </Badge>
@@ -424,87 +430,62 @@ export function ReimbursementQueue() {
                   <TableHead className="w-12">
                     <Checkbox
                       checked={selectedRequests.size === filteredRequests.length}
-                      onCheckedChange={handleSelectAll}
+                      onCheckedChange={(checked) => handleSelectAll(checked === true)}
                     />
                   </TableHead>
                   <TableHead>Driver</TableHead>
-                  <TableHead>Submitted</TableHead>
-                  <TableHead>Description</TableHead>
-                  <TableHead>Category</TableHead>
                   <TableHead>Amount</TableHead>
+                  <TableHead>Category</TableHead>
+                  <TableHead>Expense Date</TableHead>
                   <TableHead>Status</TableHead>
-                  <TableHead>Receipt</TableHead>
-                  <TableHead>Actions</TableHead>
+                  <TableHead>Submitted</TableHead>
+                  <TableHead className="text-right">Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {filteredRequests.map((request) => (
+                {filteredRequests.map((request: ReimbursementRequest) => (
                   <TableRow key={request.id}>
                     <TableCell>
                       <Checkbox
                         checked={selectedRequests.has(request.id)}
-                        onCheckedChange={(checked) =>
-                          handleSelectRequest(request.id, checked as boolean)
-                        }
+                        onCheckedChange={(checked) => handleSelectRequest(request.id, checked === true)}
                       />
                     </TableCell>
-                    <TableCell>
-                      <div>
-                        <div className="font-medium">{request.driver_name}</div>
-                        <div className="text-xs text-muted-foreground">
-                          {request.driver_email}
-                        </div>
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      {format(new Date(request.submitted_at), 'MMM dd, yyyy')}
-                    </TableCell>
-                    <TableCell className="max-w-xs truncate">
-                      {request.description || '-'}
-                    </TableCell>
-                    <TableCell>
-                      {request.category ? (
-                        <Badge variant="outline">{request.category}</Badge>
-                      ) : (
-                        '-'
-                      )}
-                    </TableCell>
-                    <TableCell className="font-semibold">
-                      ${request.request_amount.toFixed(2)}
-                    </TableCell>
+                    <TableCell>{request.driver_name}</TableCell>
+                    <TableCell>${request.request_amount.toFixed(2)}</TableCell>
+                    <TableCell>{request.category || 'N/A'}</TableCell>
+                    <TableCell>{format(new Date(request.expense_date), 'MMM d, yyyy')}</TableCell>
                     <TableCell>{getStatusBadge(request.status)}</TableCell>
-                    <TableCell>
-                      {request.receipt_file_path ? (
+                    <TableCell>{format(new Date(request.submitted_at), 'MMM d, yyyy')}</TableCell>
+                    <TableCell className="text-right">
+                      <div className="flex items-center justify-end gap-2">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => handleReview(request, 'approve')}
+                          disabled={request.status !== 'pending' || (!isAdmin && !isFleetManager)}
+                        >
+                          <Check className="w-3 h-3 mr-1" />
+                          Approve
+                        </Button>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => handleReview(request, 'reject')}
+                          disabled={request.status !== 'pending' || (!isAdmin && !isFleetManager)}
+                        >
+                          <X className="w-3 h-3 mr-1" />
+                          Reject
+                        </Button>
                         <Button
                           variant="ghost"
                           size="sm"
-                          onClick={() => setViewingReceipt(request.receipt_file_path!)}
+                          onClick={() => setViewingReceipt(request.receipt_file_path || null)}
+                          disabled={!request.receipt_file_path}
                         >
                           <Eye className="w-4 h-4" />
                         </Button>
-                      ) : (
-                        <span className="text-muted-foreground text-sm">No receipt</span>
-                      )}
-                    </TableCell>
-                    <TableCell>
-                      {request.status === 'pending' && (isAdmin || isFleetManager) && (
-                        <div className="flex gap-1">
-                          <Button
-                            size="sm"
-                            variant="default"
-                            onClick={() => handleReview(request, 'approve')}
-                          >
-                            <Check className="w-4 h-4" />
-                          </Button>
-                          <Button
-                            size="sm"
-                            variant="destructive"
-                            onClick={() => handleReview(request, 'reject')}
-                          >
-                            <X className="w-4 h-4" />
-                          </Button>
-                        </div>
-                      )}
+                      </div>
                     </TableCell>
                   </TableRow>
                 ))}
@@ -517,66 +498,53 @@ export function ReimbursementQueue() {
       {/* Review Dialog */}
       {reviewingRequest && (
         <Dialog open={!!reviewingRequest} onOpenChange={() => setReviewingRequest(null)}>
-          <DialogContent className="max-w-md">
+          <DialogContent className="sm:max-w-[425px]">
             <DialogHeader>
               <DialogTitle>
-                {reviewAction === 'approve' ? 'Approve' : 'Reject'} Reimbursement
+                {reviewAction === 'approve' ? 'Approve Reimbursement' : 'Reject Reimbursement'}
               </DialogTitle>
               <DialogDescription>
-                Request from {reviewingRequest.driver_name} for ${reviewingRequest.request_amount.toFixed(2)}
+                {reviewAction === 'approve'
+                  ? 'Review and approve the reimbursement amount.'
+                  : 'Provide a reason for rejecting this reimbursement.'}
               </DialogDescription>
             </DialogHeader>
-
-            <div className="space-y-4">
-              <div>
-                <Label className="text-sm font-medium">Description</Label>
-                <p className="text-sm text-muted-foreground mt-1">
-                  {reviewingRequest.description || 'No description provided'}
-                </p>
+            <div className="grid gap-4 py-4">
+              <div className="space-y-2">
+                <Label>Driver</Label>
+                <Input value={reviewingRequest.driver_name} disabled />
               </div>
-
+              <div className="space-y-2">
+                <Label>Requested Amount</Label>
+                <Input value={`$${reviewingRequest.request_amount.toFixed(2)}`} disabled />
+              </div>
               {reviewAction === 'approve' && (
                 <div className="space-y-2">
-                  <Label htmlFor="approved-amount">Approved Amount</Label>
+                  <Label>Approved Amount</Label>
                   <Input
-                    id="approved-amount"
                     type="number"
-                    step="0.01"
                     value={approvedAmount}
                     onChange={(e) => setApprovedAmount(e.target.value)}
-                    max={reviewingRequest.request_amount}
                   />
-                  <p className="text-xs text-muted-foreground">
-                    Max: ${reviewingRequest.request_amount.toFixed(2)}
-                  </p>
                 </div>
               )}
-
               <div className="space-y-2">
-                <Label htmlFor="review-notes">
-                  {reviewAction === 'approve' ? 'Notes (Optional)' : 'Rejection Reason *'}
-                </Label>
+                <Label>Reviewer Notes {reviewAction === 'reject' && <span className="text-red-500">*</span>}</Label>
                 <Textarea
-                  id="review-notes"
+                  placeholder={reviewAction === 'approve' ? 'Optional notes' : 'Reason for rejection'}
                   value={reviewNotes}
                   onChange={(e) => setReviewNotes(e.target.value)}
-                  placeholder={
-                    reviewAction === 'approve'
-                      ? 'Add any notes about this approval...'
-                      : 'Explain why this request is being rejected...'
-                  }
-                  rows={3}
                 />
               </div>
             </div>
-
             <DialogFooter>
-              <Button variant="outline" onClick={() => setReviewingRequest(null)}>
+              <Button type="button" variant="secondary" onClick={() => setReviewingRequest(null)}>
                 Cancel
               </Button>
               <Button
-                onClick={submitReview}
+                type="submit"
                 variant={reviewAction === 'approve' ? 'default' : 'destructive'}
+                onClick={submitReview}
               >
                 {reviewAction === 'approve' ? (
                   <>
@@ -600,21 +568,26 @@ export function ReimbursementQueue() {
         <Dialog open={!!viewingReceipt} onOpenChange={() => setViewingReceipt(null)}>
           <DialogContent className="max-w-3xl">
             <DialogHeader>
-              <DialogTitle>Receipt</DialogTitle>
+              <DialogTitle>View Receipt</DialogTitle>
             </DialogHeader>
-            <div className="space-y-4">
+            <div className="py-4">
               <img
                 src={viewingReceipt}
                 alt="Receipt"
-                className="w-full h-auto max-h-[600px] object-contain"
+                className="w-full h-auto max-h-[60vh] object-contain"
               />
-              <Button asChild variant="outline" className="w-full">
+            </div>
+            <DialogFooter>
+              <Button asChild>
                 <a href={viewingReceipt} download target="_blank" rel="noopener noreferrer">
                   <Download className="w-4 h-4 mr-2" />
-                  Download Receipt
+                  Download
                 </a>
               </Button>
-            </div>
+              <Button type="button" variant="secondary" onClick={() => setViewingReceipt(null)}>
+                Close
+              </Button>
+            </DialogFooter>
           </DialogContent>
         </Dialog>
       )}

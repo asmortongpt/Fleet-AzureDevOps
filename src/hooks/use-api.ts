@@ -1,4 +1,4 @@
-import { useQuery, useMutation, useQueryClient, QueryClient, QueryKey } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient, QueryKey } from '@tanstack/react-query';
 
 import logger from '@/utils/logger';
 
@@ -23,7 +23,7 @@ import logger from '@/utils/logger';
  */
 
 // CSRF Token Management
-let csrfToken: string | null = null;
+let csrfToken: string = '';
 let csrfTokenPromise: Promise<string> | null = null;
 
 /**
@@ -56,7 +56,7 @@ async function getCsrfToken(): Promise<string> {
 
       if (response.ok) {
         const data = await response.json();
-        csrfToken = data.csrfToken || data.token || '';
+        csrfToken = (data.csrfToken || data.token || '') as string;
         // SECURITY FIX P3 LOW-SEC-001: Use logger instead of console.log
         logger.debug('[CSRF] Token fetched successfully');
         return csrfToken;
@@ -81,7 +81,7 @@ async function getCsrfToken(): Promise<string> {
  * Refreshes the CSRF token (called after 403 errors or logout)
  */
 export async function refreshCsrfToken(): Promise<void> {
-  csrfToken = null;
+  csrfToken = '';
   csrfTokenPromise = null;
   await getCsrfToken();
 }
@@ -90,7 +90,7 @@ export async function refreshCsrfToken(): Promise<void> {
  * Clears the CSRF token (called on logout)
  */
 export function clearCsrfToken(): void {
-  csrfToken = null;
+  csrfToken = '';
   csrfTokenPromise = null;
 }
 
@@ -307,22 +307,19 @@ interface Route {
   updated_at: string;
 }
 
-// Note: queryClient instance created here for type reference only
-// Actual queryClient is obtained via useQueryClient() hook in components
-
 const queryKeyFactory = {
-  vehicles: (filters: VehicleFilters) => ['vehicles', filters],
-  drivers: (filters: DriverFilters) => ['drivers', filters],
-  maintenance: (filters: MaintenanceFilters) => ['maintenance', filters],
-  workOrders: (filters: WorkOrderFilters) => ['workOrders', filters],
-  fuelTransactions: (filters: FuelTransactionFilters) => ['fuelTransactions', filters],
-  facilities: (filters: FacilityFilters) => ['facilities', filters],
-  maintenanceSchedules: (filters: MaintenanceScheduleFilters) => ['maintenanceSchedules', filters],
-  routes: (filters: RouteFilters) => ['routes', filters],
+  vehicles: (filters: VehicleFilters) => ['vehicles', filters] as QueryKey,
+  drivers: (filters: DriverFilters) => ['drivers', filters] as QueryKey,
+  maintenance: (filters: MaintenanceFilters) => ['maintenance', filters] as QueryKey,
+  workOrders: (filters: WorkOrderFilters) => ['workOrders', filters] as QueryKey,
+  fuelTransactions: (filters: FuelTransactionFilters) => ['fuelTransactions', filters] as QueryKey,
+  facilities: (filters: FacilityFilters) => ['facilities', filters] as QueryKey,
+  maintenanceSchedules: (filters: MaintenanceScheduleFilters) => ['maintenanceSchedules', filters] as QueryKey,
+  routes: (filters: RouteFilters) => ['routes', filters] as QueryKey,
 };
 
 export function useVehicles(filters: VehicleFilters = { tenant_id: '' }) {
-  return useQuery<any, Error>({
+  return useQuery<Vehicle[], Error>({
     queryKey: queryKeyFactory.vehicles(filters),
     queryFn: async () => {
       const params = new URLSearchParams(filters as Record<string, string>);
@@ -331,13 +328,13 @@ export function useVehicles(filters: VehicleFilters = { tenant_id: '' }) {
       return res.json();
     },
     staleTime: 5 * 60 * 1000,
-    cacheTime: 10 * 60 * 1000,
+    gcTime: 10 * 60 * 1000,
     refetchOnWindowFocus: false,
   });
 }
 
 export function useDrivers(filters: DriverFilters = { tenant_id: '' }) {
-  return useQuery<any, Error>({
+  return useQuery<Driver[], Error>({
     queryKey: queryKeyFactory.drivers(filters),
     queryFn: async () => {
       const params = new URLSearchParams(filters as Record<string, string>);
@@ -346,28 +343,28 @@ export function useDrivers(filters: DriverFilters = { tenant_id: '' }) {
       return res.json();
     },
     staleTime: 5 * 60 * 1000,
-    cacheTime: 10 * 60 * 1000,
+    gcTime: 10 * 60 * 1000,
     refetchOnWindowFocus: false,
   });
 }
 
 export function useMaintenance(filters: MaintenanceFilters = { tenant_id: '', startDate: '', endDate: '' }) {
-  return useQuery<any, Error>({
+  return useQuery<Maintenance[], Error>({
     queryKey: queryKeyFactory.maintenance(filters),
     queryFn: async () => {
-      const params = new URLSearchParams(filters as Record<string, string>);
+      const params = new URLSearchParams(filters as unknown as Record<string, string>);
       const res = await secureFetch(`/api/maintenance?${params}`);
       if (!res.ok) throw new Error('Network response was not ok');
       return res.json();
     },
     staleTime: 5 * 60 * 1000,
-    cacheTime: 10 * 60 * 1000,
+    gcTime: 10 * 60 * 1000,
     refetchOnWindowFocus: false,
   });
 }
 
 export function useWorkOrders(filters: WorkOrderFilters = { tenant_id: '' }) {
-  return useQuery<any, Error>({
+  return useQuery<WorkOrder[], Error>({
     queryKey: queryKeyFactory.workOrders(filters),
     queryFn: async () => {
       const params = new URLSearchParams(filters as Record<string, string>);
@@ -376,13 +373,13 @@ export function useWorkOrders(filters: WorkOrderFilters = { tenant_id: '' }) {
       return res.json();
     },
     staleTime: 5 * 60 * 1000,
-    cacheTime: 10 * 60 * 1000,
+    gcTime: 10 * 60 * 1000,
     refetchOnWindowFocus: false,
   });
 }
 
 export function useFuelTransactions(filters: FuelTransactionFilters = { tenant_id: '' }) {
-  return useQuery<any, Error>({
+  return useQuery<FuelTransaction[], Error>({
     queryKey: queryKeyFactory.fuelTransactions(filters),
     queryFn: async () => {
       const params = new URLSearchParams(filters as Record<string, string>);
@@ -391,13 +388,13 @@ export function useFuelTransactions(filters: FuelTransactionFilters = { tenant_i
       return res.json();
     },
     staleTime: 5 * 60 * 1000,
-    cacheTime: 10 * 60 * 1000,
+    gcTime: 10 * 60 * 1000,
     refetchOnWindowFocus: false,
   });
 }
 
 export function useFacilities(filters: FacilityFilters = { tenant_id: '' }) {
-  return useQuery<any, Error>({
+  return useQuery<Facility[], Error>({
     queryKey: queryKeyFactory.facilities(filters),
     queryFn: async () => {
       const params = new URLSearchParams(filters as Record<string, string>);
@@ -406,13 +403,13 @@ export function useFacilities(filters: FacilityFilters = { tenant_id: '' }) {
       return res.json();
     },
     staleTime: 5 * 60 * 1000,
-    cacheTime: 10 * 60 * 1000,
+    gcTime: 10 * 60 * 1000,
     refetchOnWindowFocus: false,
   });
 }
 
 export function useMaintenanceSchedules(filters: MaintenanceScheduleFilters = { tenant_id: '' }) {
-  return useQuery<any, Error>({
+  return useQuery<MaintenanceSchedule[], Error>({
     queryKey: queryKeyFactory.maintenanceSchedules(filters),
     queryFn: async () => {
       const params = new URLSearchParams(filters as Record<string, string>);
@@ -421,13 +418,13 @@ export function useMaintenanceSchedules(filters: MaintenanceScheduleFilters = { 
       return res.json();
     },
     staleTime: 5 * 60 * 1000,
-    cacheTime: 10 * 60 * 1000,
+    gcTime: 10 * 60 * 1000,
     refetchOnWindowFocus: false,
   });
 }
 
 export function useRoutes(filters: RouteFilters = { tenant_id: '' }) {
-  return useQuery<any, Error>({
+  return useQuery<Route[], Error>({
     queryKey: queryKeyFactory.routes(filters),
     queryFn: async () => {
       const params = new URLSearchParams(filters as Record<string, string>);
@@ -436,7 +433,7 @@ export function useRoutes(filters: RouteFilters = { tenant_id: '' }) {
       return res.json();
     },
     staleTime: 5 * 60 * 1000,
-    cacheTime: 10 * 60 * 1000,
+    gcTime: 10 * 60 * 1000,
     refetchOnWindowFocus: false,
   });
 }
@@ -454,7 +451,7 @@ export function useVehicleMutations() {
       return res.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries(queryKeyFactory.vehicles({ tenant_id: '' }));
+      queryClient.invalidateQueries({ queryKey: queryKeyFactory.vehicles({ tenant_id: '' }) });
     },
   });
 
@@ -468,7 +465,7 @@ export function useVehicleMutations() {
       return res.json();
     },
     onMutate: async (updatedVehicle) => {
-      await queryClient.cancelQueries(queryKeyFactory.vehicles({ tenant_id: updatedVehicle.tenant_id }));
+      await queryClient.cancelQueries({ queryKey: queryKeyFactory.vehicles({ tenant_id: updatedVehicle.tenant_id }) });
       const previousVehicles = queryClient.getQueryData<Vehicle[]>(queryKeyFactory.vehicles({ tenant_id: updatedVehicle.tenant_id }));
       queryClient.setQueryData<Vehicle[]>(queryKeyFactory.vehicles({ tenant_id: updatedVehicle.tenant_id }), (old) =>
         old?.map((vehicle) => (vehicle.id === updatedVehicle.id ? updatedVehicle : vehicle))
@@ -482,20 +479,20 @@ export function useVehicleMutations() {
     },
     onSettled: (updatedVehicle) => {
       if (updatedVehicle) {
-        queryClient.invalidateQueries(queryKeyFactory.vehicles({ tenant_id: updatedVehicle.tenant_id }));
+        queryClient.invalidateQueries({ queryKey: queryKeyFactory.vehicles({ tenant_id: updatedVehicle.tenant_id }) });
       }
     },
   });
 
   const deleteVehicle = useMutation<void, Error, { id: string; tenant_id: string }>({
-    mutationFn: async ({ id }) => {
+    mutationFn: async ({ id, _tenant_id }) => {
       const res = await secureFetch(`/api/vehicles/${id}`, {
         method: 'DELETE',
       });
       if (!res.ok) throw new Error('Network response was not ok');
     },
-    onSuccess: (_, { tenant_id }) => {
-      queryClient.invalidateQueries(queryKeyFactory.vehicles({ tenant_id }));
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({ queryKey: queryKeyFactory.vehicles({ tenant_id: variables.tenant_id }) });
     },
   });
 
@@ -509,14 +506,13 @@ export function useDriverMutations() {
     mutationFn: async (newDriver) => {
       const res = await secureFetch('/api/drivers', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(newDriver),
       });
       if (!res.ok) throw new Error('Network response was not ok');
       return res.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries(queryKeyFactory.drivers({ tenant_id: '' }));
+      queryClient.invalidateQueries({ queryKey: queryKeyFactory.drivers({ tenant_id: '' }) });
     },
   });
 
@@ -524,379 +520,42 @@ export function useDriverMutations() {
     mutationFn: async (updatedDriver) => {
       const res = await secureFetch(`/api/drivers/${updatedDriver.id}`, {
         method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(updatedDriver),
       });
       if (!res.ok) throw new Error('Network response was not ok');
       return res.json();
     },
     onMutate: async (updatedDriver) => {
-      await queryClient.cancelQueries(queryKeyFactory.drivers({ tenant_id: updatedDriver.tenant_id }));
+      await queryClient.cancelQueries({ queryKey: queryKeyFactory.drivers({ tenant_id: updatedDriver.tenant_id }) });
       const previousDrivers = queryClient.getQueryData<Driver[]>(queryKeyFactory.drivers({ tenant_id: updatedDriver.tenant_id }));
       queryClient.setQueryData<Driver[]>(queryKeyFactory.drivers({ tenant_id: updatedDriver.tenant_id }), (old) =>
         old?.map((driver) => (driver.id === updatedDriver.id ? updatedDriver : driver))
       );
       return { previousDrivers };
     },
-    onError: (err, updatedDriver, context) => {
+    onError: (_err, updatedDriver, context) => {
       if (context?.previousDrivers) {
         queryClient.setQueryData(queryKeyFactory.drivers({ tenant_id: updatedDriver.tenant_id }), context.previousDrivers);
       }
     },
     onSettled: (updatedDriver) => {
-      queryClient.invalidateQueries(queryKeyFactory.drivers({ tenant_id: updatedDriver.tenant_id }));
+      if (updatedDriver) {
+        queryClient.invalidateQueries({ queryKey: queryKeyFactory.drivers({ tenant_id: updatedDriver.tenant_id }) });
+      }
     },
   });
 
   const deleteDriver = useMutation<void, Error, { id: string; tenant_id: string }>({
-    mutationFn: async ({ id, tenant_id }) => {
+    mutationFn: async ({ id, _tenant_id }) => {
       const res = await secureFetch(`/api/drivers/${id}`, {
         method: 'DELETE',
       });
       if (!res.ok) throw new Error('Network response was not ok');
     },
-    onSuccess: (_, { tenant_id }) => {
-      queryClient.invalidateQueries(queryKeyFactory.drivers({ tenant_id }));
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({ queryKey: queryKeyFactory.drivers({ tenant_id: variables.tenant_id }) });
     },
   });
 
   return { createDriver, updateDriver, deleteDriver };
-}
-
-export function useMaintenanceMutations() {
-  const queryClient = useQueryClient();
-
-  const createMaintenance = useMutation<Maintenance, Error, Maintenance>({
-    mutationFn: async (newMaintenance) => {
-      const res = await secureFetch('/api/maintenance', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(newMaintenance),
-      });
-      if (!res.ok) throw new Error('Network response was not ok');
-      return res.json();
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries(queryKeyFactory.maintenance({ tenant_id: '', startDate: '', endDate: '' }));
-    },
-  });
-
-  const updateMaintenance = useMutation<Maintenance, Error, Maintenance>({
-    mutationFn: async (updatedMaintenance) => {
-      const res = await secureFetch(`/api/maintenance/${updatedMaintenance.id}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(updatedMaintenance),
-      });
-      if (!res.ok) throw new Error('Network response was not ok');
-      return res.json();
-    },
-    onMutate: async (updatedMaintenance) => {
-      await queryClient.cancelQueries(queryKeyFactory.maintenance({ tenant_id: updatedMaintenance.tenant_id, startDate: '', endDate: '' }));
-      const previousMaintenance = queryClient.getQueryData<Maintenance[]>(queryKeyFactory.maintenance({ tenant_id: updatedMaintenance.tenant_id, startDate: '', endDate: '' }));
-      queryClient.setQueryData<Maintenance[]>(queryKeyFactory.maintenance({ tenant_id: updatedMaintenance.tenant_id, startDate: '', endDate: '' }), (old) =>
-        old?.map((maintenance) => (maintenance.id === updatedMaintenance.id ? updatedMaintenance : maintenance))
-      );
-      return { previousMaintenance };
-    },
-    onError: (err, updatedMaintenance, context) => {
-      if (context?.previousMaintenance) {
-        queryClient.setQueryData(queryKeyFactory.maintenance({ tenant_id: updatedMaintenance.tenant_id, startDate: '', endDate: '' }), context.previousMaintenance);
-      }
-    },
-    onSettled: (updatedMaintenance) => {
-      queryClient.invalidateQueries(queryKeyFactory.maintenance({ tenant_id: updatedMaintenance.tenant_id, startDate: '', endDate: '' }));
-    },
-  });
-
-  const deleteMaintenance = useMutation<void, Error, { id: string; tenant_id: string }>({
-    mutationFn: async ({ id, tenant_id }) => {
-      const res = await secureFetch(`/api/maintenance/${id}`, {
-        method: 'DELETE',
-      });
-      if (!res.ok) throw new Error('Network response was not ok');
-    },
-    onSuccess: (_, { tenant_id }) => {
-      queryClient.invalidateQueries(queryKeyFactory.maintenance({ tenant_id, startDate: '', endDate: '' }));
-    },
-  });
-
-  return { createMaintenance, updateMaintenance, deleteMaintenance };
-}
-
-export function useWorkOrderMutations() {
-  const queryClient = useQueryClient();
-
-  const createWorkOrder = useMutation<WorkOrder, Error, WorkOrder>({
-    mutationFn: async (newWorkOrder) => {
-      const res = await secureFetch('/api/work-orders', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(newWorkOrder),
-      });
-      if (!res.ok) throw new Error('Failed to create work order');
-      return res.json();
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries(['workOrders'] as QueryKey);
-    },
-  });
-
-  const updateWorkOrder = useMutation<WorkOrder, Error, { id: string; data: Partial<WorkOrder> }>({
-    mutationFn: async ({ id, data }) => {
-      const res = await secureFetch(`/api/work-orders/${id}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data),
-      });
-      if (!res.ok) throw new Error('Failed to update work order');
-      return res.json();
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries(['workOrders'] as QueryKey);
-    },
-  });
-
-  const deleteWorkOrder = useMutation<void, Error, string>({
-    mutationFn: async (id) => {
-      const res = await secureFetch(`/api/work-orders/${id}`, {
-        method: 'DELETE',
-      });
-      if (!res.ok) throw new Error('Failed to delete work order');
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries(['workOrders'] as QueryKey);
-    },
-  });
-
-  return {
-    create: createWorkOrder.mutateAsync,
-    update: (id: string, data: Partial<WorkOrder>) => updateWorkOrder.mutateAsync({ id, data }),
-    delete: deleteWorkOrder.mutateAsync,
-  };
-}
-
-export function useFuelTransactionMutations() {
-  const queryClient = useQueryClient();
-
-  const createFuelTransaction = useMutation<FuelTransaction, Error, FuelTransaction>({
-    mutationFn: async (newFuelTransaction) => {
-      const res = await secureFetch('/api/fuel-transactions', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(newFuelTransaction),
-      });
-      if (!res.ok) throw new Error('Failed to create fuel transaction');
-      return res.json();
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries(['fuelTransactions'] as QueryKey);
-    },
-  });
-
-  const updateFuelTransaction = useMutation<FuelTransaction, Error, { id: string; data: Partial<FuelTransaction> }>({
-    mutationFn: async ({ id, data }) => {
-      const res = await secureFetch(`/api/fuel-transactions/${id}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data),
-      });
-      if (!res.ok) throw new Error('Failed to update fuel transaction');
-      return res.json();
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries(['fuelTransactions'] as QueryKey);
-    },
-  });
-
-  const deleteFuelTransaction = useMutation<void, Error, string>({
-    mutationFn: async (id) => {
-      const res = await secureFetch(`/api/fuel-transactions/${id}`, {
-        method: 'DELETE',
-      });
-      if (!res.ok) throw new Error('Failed to delete fuel transaction');
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries(['fuelTransactions'] as QueryKey);
-    },
-  });
-
-  return {
-    create: createFuelTransaction.mutateAsync,
-    update: (id: string, data: Partial<FuelTransaction>) => updateFuelTransaction.mutateAsync({ id, data }),
-    delete: deleteFuelTransaction.mutateAsync,
-  };
-}
-
-export function useFacilityMutations() {
-  const queryClient = useQueryClient();
-
-  const createFacility = useMutation<Facility, Error, Facility>({
-    mutationFn: async (newFacility) => {
-      const res = await secureFetch('/api/facilities', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(newFacility),
-      });
-      if (!res.ok) throw new Error('Failed to create facility');
-      return res.json();
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries(['facilities'] as QueryKey);
-    },
-  });
-
-  const updateFacility = useMutation<Facility, Error, { id: string; data: Partial<Facility> }>({
-    mutationFn: async ({ id, data }) => {
-      const res = await secureFetch(`/api/facilities/${id}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data),
-      });
-      if (!res.ok) throw new Error('Failed to update facility');
-      return res.json();
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries(['facilities'] as QueryKey);
-    },
-  });
-
-  const deleteFacility = useMutation<void, Error, string>({
-    mutationFn: async (id) => {
-      const res = await secureFetch(`/api/facilities/${id}`, {
-        method: 'DELETE',
-      });
-      if (!res.ok) throw new Error('Failed to delete facility');
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries(['facilities'] as QueryKey);
-    },
-  });
-
-  return {
-    create: createFacility.mutateAsync,
-    update: (id: string, data: Partial<Facility>) => updateFacility.mutateAsync({ id, data }),
-    delete: deleteFacility.mutateAsync,
-  };
-}
-
-export function useMaintenanceScheduleMutations() {
-  const queryClient = useQueryClient();
-
-  const createMaintenanceSchedule = useMutation<MaintenanceSchedule, Error, MaintenanceSchedule>({
-    mutationFn: async (newMaintenanceSchedule) => {
-      const res = await secureFetch('/api/maintenance-schedules', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(newMaintenanceSchedule),
-      });
-      if (!res.ok) throw new Error('Failed to create maintenance schedule');
-      return res.json();
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries(['maintenanceSchedules'] as QueryKey);
-    },
-  });
-
-  const updateMaintenanceSchedule = useMutation<MaintenanceSchedule, Error, { id: string; data: Partial<MaintenanceSchedule> }>({
-    mutationFn: async ({ id, data }) => {
-      const res = await secureFetch(`/api/maintenance-schedules/${id}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data),
-      });
-      if (!res.ok) throw new Error('Failed to update maintenance schedule');
-      return res.json();
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries(['maintenanceSchedules'] as QueryKey);
-    },
-  });
-
-  const deleteMaintenanceSchedule = useMutation<void, Error, string>({
-    mutationFn: async (id) => {
-      const res = await secureFetch(`/api/maintenance-schedules/${id}`, {
-        method: 'DELETE',
-      });
-      if (!res.ok) throw new Error('Failed to delete maintenance schedule');
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries(['maintenanceSchedules'] as QueryKey);
-    },
-  });
-
-  return {
-    create: createMaintenanceSchedule.mutateAsync,
-    update: (id: string, data: Partial<MaintenanceSchedule>) => updateMaintenanceSchedule.mutateAsync({ id, data }),
-    delete: deleteMaintenanceSchedule.mutateAsync,
-  };
-}
-
-export function useRouteMutations() {
-  const queryClient = useQueryClient();
-
-  const createRoute = useMutation<Route, Error, Route>({
-    mutationFn: async (newRoute) => {
-      const res = await secureFetch('/api/routes', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(newRoute),
-      });
-      if (!res.ok) throw new Error('Failed to create route');
-      return res.json();
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries(['routes'] as QueryKey);
-    },
-  });
-
-  const updateRoute = useMutation<Route, Error, { id: string; data: Partial<Route> }>({
-    mutationFn: async ({ id, data }) => {
-      const res = await secureFetch(`/api/routes/${id}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data),
-      });
-      if (!res.ok) throw new Error('Failed to update route');
-      return res.json();
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries(['routes'] as QueryKey);
-    },
-  });
-
-  const deleteRoute = useMutation<void, Error, string>({
-    mutationFn: async (id) => {
-      const res = await secureFetch(`/api/routes/${id}`, {
-        method: 'DELETE',
-      });
-      if (!res.ok) throw new Error('Failed to delete route');
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries(['routes'] as QueryKey);
-    },
-  });
-
-  return {
-    create: createRoute.mutateAsync,
-    update: (id: string, data: Partial<Route>) => updateRoute.mutateAsync({ id, data }),
-    delete: deleteRoute.mutateAsync,
-  };
-}
-
-// Stub hooks for missing exports
-export function useSafetyIncidents() {
-  return {
-    data: [],
-    isLoading: false,
-    error: null
-  };
-}
-
-export function useChargingStations() {
-  return {
-    data: [],
-    isLoading: false,
-    error: null
-  };
 }

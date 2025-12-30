@@ -12,14 +12,9 @@ import {
   ArrowsClockwise,
   Plus
 } from '@phosphor-icons/react'
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+import { useQuery, useMutation, useQueryClient, MutationFunction, MutateOptions } from '@tanstack/react-query'
 import React, { useState } from 'react'
 import { toast } from 'sonner'
-
-import {
-  TripUsageClassification,
-  ApprovalStatus
-} from '../../types/trip-usage'
 
 import { TripUsageDialog } from '@/components/dialogs/TripUsageDialog'
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
@@ -30,8 +25,25 @@ import { Progress } from '@/components/ui/progress'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import logger from '@/utils/logger';
+import logger from '@/utils/logger'
 
+interface TripUsageClassification {
+  id?: string
+  trip_date?: string
+  vehicle_id?: string
+  miles_total?: number
+  usage_type?: string
+  approval_status?: 'pending' | 'approved' | 'rejected' | 'auto_approved'
+  business_purpose?: string
+  rejection_reason?: string
+}
+
+interface ApprovalStatus {
+  pending: 'pending'
+  approved: 'approved'
+  rejected: 'rejected'
+  auto_approved: 'auto_approved'
+}
 
 interface PersonalUseDashboardProps {
   currentTheme?: string
@@ -77,20 +89,20 @@ const EmptyState = ({ message }: { message: string }) => (
 )
 
 const apiClient = async (url: string) => {
-  const token = localStorage.getItem('token')
+  const _token = localStorage.getItem('token')
   const response = await fetch(url, {
-    headers: { Authorization: `Bearer ${token}` }
+    headers: { Authorization: `Bearer ${_token}` }
   })
   if (!response.ok) throw new Error('Failed to fetch')
   return response.json()
 }
 
 const apiMutation = async (url: string, method: string, data?: any) => {
-  const token = localStorage.getItem('token')
+  const _token = localStorage.getItem('token')
   const response = await fetch(url, {
     method,
     headers: {
-      Authorization: `Bearer ${token}`,
+      Authorization: `Bearer ${_token}`,
       'Content-Type': 'application/json'
     },
     body: data ? JSON.stringify(data) : undefined
@@ -103,7 +115,7 @@ const apiMutation = async (url: string, method: string, data?: any) => {
 }
 
 export const PersonalUseDashboard: React.FC<PersonalUseDashboardProps> = ({
-  currentTheme
+  currentTheme: _currentTheme
 }) => {
   const queryClient = useQueryClient()
   const [userRole, setUserRole] = useState<'driver' | 'manager' | 'admin'>('driver')
@@ -116,7 +128,7 @@ export const PersonalUseDashboard: React.FC<PersonalUseDashboardProps> = ({
 
   React.useEffect(() => {
     // Get user info from localStorage or token
-    const token = localStorage.getItem('token')
+    const _token = localStorage.getItem('token')
     const user = JSON.parse(localStorage.getItem('user') || '{}')
     setUserId(user.id || '')
     setUserRole(user.role || 'driver')
@@ -127,21 +139,24 @@ export const PersonalUseDashboard: React.FC<PersonalUseDashboardProps> = ({
     queryKey: ['personal-use-limits', userId],
     queryFn: () => apiClient(`/api/personal-use-policies/limits/${userId}`),
     enabled: userRole === 'driver' && !!userId,
-    staleTime: 30000
+    staleTime: 30000,
+    gcTime: 60000
   })
 
   const { data: tripsData, isLoading: tripsLoading } = useQuery({
     queryKey: ['trip-usage', userId],
     queryFn: () => apiClient(`/api/trip-usage?driver_id=${userId}&limit=50`),
     enabled: userRole === 'driver' && !!userId,
-    staleTime: 30000
+    staleTime: 30000,
+    gcTime: 60000
   })
 
   const { data: chargesData, isLoading: chargesLoading } = useQuery({
     queryKey: ['personal-use-charges-dashboard', userId],
     queryFn: () => apiClient(`/api/personal-use-charges?driver_id=${userId}`),
     enabled: userRole === 'driver' && !!userId,
-    staleTime: 30000
+    staleTime: 30000,
+    gcTime: 60000
   })
 
   // Manager data queries
@@ -150,9 +165,10 @@ export const PersonalUseDashboard: React.FC<PersonalUseDashboardProps> = ({
     queryFn: () => apiClient('/api/trip-usage/pending-approval'),
     enabled: userRole !== 'driver',
     staleTime: 30000,
-    onError: (err: any) => {
+    gcTime: 60000,
+    onError: (err: unknown) => {
       logger.error('Failed to fetch dashboard data:', err)
-      toast.error(err.message || 'Failed to load dashboard data')
+      toast.error(err instanceof Error ? err.message : 'Failed to load dashboard data')
     }
   })
 
@@ -175,27 +191,29 @@ export const PersonalUseDashboard: React.FC<PersonalUseDashboardProps> = ({
     : approvalsLoading
   const error = approvalsError
 
-  const { mutate: approveTrip, isPending: isApprovingTrip } = useMutation({    mutationFn: async (tripId: string) => {
+  const { mutate: approveTrip, isPending: _isApprovingTrip } = useMutation({
+    mutationFn: async (tripId: string) => {
       return apiMutation(`/api/trip-usage/${tripId}/approve`, 'POST', {})
     },
     onSuccess: () => {
       toast.success('Trip approved successfully')
       queryClient.invalidateQueries({ queryKey: ['trip-usage-pending-approval'] })
     },
-    onError: (err: any) => {
-      toast.error(err.message || 'Failed to approve trip')
+    onError: (err: unknown) => {
+      toast.error(err instanceof Error ? err.message : 'Failed to approve trip')
     }
   })
 
-  const { mutate: rejectTrip, isPending: isRejectingTrip } = useMutation({    mutationFn: async (tripId: string, reason: string) => {
+  const { mutate: rejectTrip, isPending: _isRejectingTrip } = useMutation({
+    mutationFn: async ({ tripId, reason }: { tripId: string; reason: string }) => {
       return apiMutation(`/api/trip-usage/${tripId}/reject`, 'POST', { rejection_reason: reason })
-    },
+    } as MutationFunction<any, { tripId: string; reason: string }>,
     onSuccess: () => {
       toast.success('Trip rejected')
       queryClient.invalidateQueries({ queryKey: ['trip-usage-pending-approval'] })
     },
-    onError: (err: any) => {
-      toast.error(err.message || 'Failed to reject trip')
+    onError: (err: unknown) => {
+      toast.error(err instanceof Error ? err.message : 'Failed to reject trip')
     }
   })
 
@@ -206,21 +224,22 @@ export const PersonalUseDashboard: React.FC<PersonalUseDashboardProps> = ({
   const handleRejectTrip = (tripId: string) => {
     const reason = prompt('Enter rejection reason:')
     if (!reason) return
-    rejectTrip(tripId, reason)
+    rejectTrip({ tripId, reason } as { tripId: string; reason: string })
   }
 
-  const getStatusBadge = (status: ApprovalStatus) => {
-    const variants: Record<ApprovalStatus, { variant: any; icon: any }> = {
+  const getStatusBadge = (status: string) => {
+    const variants: Record<string, { variant: 'default' | 'secondary' | 'destructive' | 'outline'; icon: React.ComponentType<{ className?: string }> }> = {
       pending: { variant: 'secondary', icon: Clock },
       approved: { variant: 'default', icon: CheckCircle },
       rejected: { variant: 'destructive', icon: XCircle },
       auto_approved: { variant: 'outline', icon: CheckCircle }
     }
 
-    const { variant, icon: Icon } = variants[status]
+    const variantInfo = variants[status] || { variant: 'secondary', icon: Clock }
+    const { variant, icon: Icon } = variantInfo
 
     return (
-      <Badge variant={variant as any} className="flex items-center gap-1">
+      <Badge variant={variant} className="flex items-center gap-1">
         <Icon className="w-3 h-3" />
         {status.replace('_', ' ')}
       </Badge>
@@ -245,12 +264,12 @@ export const PersonalUseDashboard: React.FC<PersonalUseDashboardProps> = ({
     const data = userRole === 'driver' ? recentTrips : pendingApprovals
     const csv = [
       ['Date', 'Vehicle', 'Miles', 'Type', 'Status', 'Purpose'].join(','),
-      ...(data || []).map(trip => [
-        new Date(trip.trip_date).toLocaleDateString(),
-        trip.vehicle_id,
-        trip.miles_total,
-        trip.usage_type,
-        trip.approval_status,
+      ...(data || []).map((trip: TripUsageClassification) => [
+        new Date(trip.trip_date || '').toLocaleDateString(),
+        trip.vehicle_id || '',
+        trip.miles_total || 0,
+        trip.usage_type || '',
+        trip.approval_status || '',
         trip.business_purpose || ''
       ].join(','))
     ].join('\n')
@@ -350,7 +369,7 @@ export const PersonalUseDashboard: React.FC<PersonalUseDashboardProps> = ({
                       <Calendar className="w-5 h-5 text-muted-foreground" />
                     </CardTitle>
                     <CardDescription>
-                      {usageLimits?.current_month.period || new Date().toISOString().slice(0, 7)}
+                      {usageLimits?.current_month?.period || new Date().toISOString().slice(0, 7)}
                     </CardDescription>
                   </CardHeader>
                   <CardContent className="space-y-4">
@@ -360,17 +379,17 @@ export const PersonalUseDashboard: React.FC<PersonalUseDashboardProps> = ({
                           {(usageLimits?.current_month?.personal_miles ?? 0).toFixed(1)} miles
                         </span>
                         <span className="text-muted-foreground">
-                          {usageLimits?.current_month.limit
+                          {usageLimits?.current_month?.limit
                             ? `of ${usageLimits.current_month.limit} miles`
                             : 'No limit set'}
                         </span>
                       </div>
                       <Progress
-                        value={usageLimits?.current_month.percentage_used || 0}
+                        value={usageLimits?.current_month?.percentage_used || 0}
                         className={
-                          (usageLimits?.current_month.percentage_used || 0) >= 95
+                          (usageLimits?.current_month?.percentage_used || 0) >= 95
                             ? 'bg-red-500'
-                            : (usageLimits?.current_month.percentage_used || 0) >= 80
+                            : (usageLimits?.current_month?.percentage_used || 0) >= 80
                             ? 'bg-yellow-500'
                             : ''
                         }
@@ -380,7 +399,7 @@ export const PersonalUseDashboard: React.FC<PersonalUseDashboardProps> = ({
                       </div>
                     </div>
 
-                    {usageLimits?.current_month.exceeds_limit && (
+                    {usageLimits?.current_month?.exceeds_limit && (
                       <Alert variant="destructive">
                         <Warning className="h-4 w-4" />
                         <AlertDescription>
@@ -389,8 +408,8 @@ export const PersonalUseDashboard: React.FC<PersonalUseDashboardProps> = ({
                       </Alert>
                     )}
 
-                    {!usageLimits?.current_month.exceeds_limit &&
-                     (usageLimits?.current_month.percentage_used || 0) >= 80 && (
+                    {!usageLimits?.current_month?.exceeds_limit &&
+                     (usageLimits?.current_month?.percentage_used || 0) >= 80 && (
                       <Alert>
                         <Warning className="h-4 w-4" />
                         <AlertDescription>
@@ -406,10 +425,10 @@ export const PersonalUseDashboard: React.FC<PersonalUseDashboardProps> = ({
                   <CardHeader>
                     <CardTitle className="flex items-center justify-between">
                       <span>Annual Personal Use</span>
-                      <TrendUp className="w-5 h-5 text-muted-foreground" />
+                      <Calendar className="w-5 h-5 text-muted-foreground" />
                     </CardTitle>
                     <CardDescription>
-                      Year {usageLimits?.current_year.year || new Date().getFullYear()}
+                      {usageLimits?.current_year?.period || new Date().getFullYear().toString()}
                     </CardDescription>
                   </CardHeader>
                   <CardContent className="space-y-4">
@@ -419,17 +438,17 @@ export const PersonalUseDashboard: React.FC<PersonalUseDashboardProps> = ({
                           {(usageLimits?.current_year?.personal_miles ?? 0).toFixed(1)} miles
                         </span>
                         <span className="text-muted-foreground">
-                          {usageLimits?.current_year.limit
+                          {usageLimits?.current_year?.limit
                             ? `of ${usageLimits.current_year.limit} miles`
                             : 'No limit set'}
                         </span>
                       </div>
                       <Progress
-                        value={usageLimits?.current_year.percentage_used || 0}
+                        value={usageLimits?.current_year?.percentage_used || 0}
                         className={
-                          (usageLimits?.current_year.percentage_used || 0) >= 95
+                          (usageLimits?.current_year?.percentage_used || 0) >= 95
                             ? 'bg-red-500'
-                            : (usageLimits?.current_year.percentage_used || 0) >= 80
+                            : (usageLimits?.current_year?.percentage_used || 0) >= 80
                             ? 'bg-yellow-500'
                             : ''
                         }
@@ -439,11 +458,21 @@ export const PersonalUseDashboard: React.FC<PersonalUseDashboardProps> = ({
                       </div>
                     </div>
 
-                    {usageLimits?.current_year.exceeds_limit && (
+                    {usageLimits?.current_year?.exceeds_limit && (
                       <Alert variant="destructive">
                         <Warning className="h-4 w-4" />
                         <AlertDescription>
-                          Annual limit exceeded! Further personal use is not permitted.
+                          Annual limit exceeded! Additional usage may require approval.
+                        </AlertDescription>
+                      </Alert>
+                    )}
+
+                    {!usageLimits?.current_year?.exceeds_limit &&
+                     (usageLimits?.current_year?.percentage_used || 0) >= 80 && (
+                      <Alert>
+                        <Warning className="h-4 w-4" />
+                        <AlertDescription>
+                          Approaching annual limit ({(usageLimits?.current_year?.percentage_used ?? 0).toFixed(0)}% used)
                         </AlertDescription>
                       </Alert>
                     )}
@@ -451,217 +480,214 @@ export const PersonalUseDashboard: React.FC<PersonalUseDashboardProps> = ({
                 </Card>
               </div>
 
-              {/* Warnings */}
-              {usageLimits?.warnings && usageLimits.warnings.length > 0 && (
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="flex items-center gap-2">
-                      <Warning className="w-5 h-5 text-yellow-500" />
-                      Usage Warnings
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <ul className="space-y-2">
-                      {usageLimits.warnings.map((warning, idx) => (
-                        <li key={idx} className="flex items-start gap-2">
-                          <span className="text-yellow-500">•</span>
-                          <span>{warning}</span>
-                        </li>
-                      ))}
-                    </ul>
-                  </CardContent>
-                </Card>
+              {/* Warnings/Alerts */}
+              {usageLimits?.warnings?.length > 0 && (
+                <Alert variant="destructive" className="mb-6">
+                  <Warning className="h-4 w-4" />
+                  <AlertTitle>Usage Alerts</AlertTitle>
+                  <AlertDescription className="space-y-2">
+                    {usageLimits.warnings.map((warning: string, idx: number) => (
+                      <div key={idx}>- {warning}</div>
+                    ))}
+                  </AlertDescription>
+                </Alert>
               )}
 
-              {/* Recent Trips Summary */}
+              {/* Recent Trips */}
               <Card>
                 <CardHeader>
-                  <CardTitle>Recent Trips (Last 30 Days)</CardTitle>
+                  <CardTitle className="flex items-center justify-between">
+                    <span>Recent Trips</span>
+                    <Button variant="link" size="sm" className="p-0 h-auto">
+                      View All
+                    </Button>
+                  </CardTitle>
+                  <CardDescription>Your most recent trip classifications</CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <div className="grid grid-cols-3 gap-4">
-                    <div className="text-center p-4 border rounded-lg">
-                      <div className="text-2xl font-bold text-green-600">
-                        {recentTrips.filter(t => t.usage_type === 'business').length}
-                      </div>
-                      <div className="text-sm text-muted-foreground">Business</div>
-                    </div>
-                    <div className="text-center p-4 border rounded-lg">
-                      <div className="text-2xl font-bold text-blue-600">
-                        {recentTrips.filter(t => t.usage_type === 'personal').length}
-                      </div>
-                      <div className="text-sm text-muted-foreground">Personal</div>
-                    </div>
-                    <div className="text-center p-4 border rounded-lg">
-                      <div className="text-2xl font-bold text-yellow-600">
-                        {recentTrips.filter(t => t.usage_type === 'mixed').length}
-                      </div>
-                      <div className="text-sm text-muted-foreground">Mixed</div>
-                    </div>
-                  </div>
+                  {recentTrips.length > 0 ? (
+                    <Table>
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead>Date</TableHead>
+                          <TableHead>Vehicle</TableHead>
+                          <TableHead>Miles</TableHead>
+                          <TableHead>Type</TableHead>
+                          <TableHead>Status</TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {recentTrips.slice(0, 5).map((t: TripUsageClassification) => (
+                          <TableRow key={t.id}>
+                            <TableCell>{new Date(t.trip_date || '').toLocaleDateString()}</TableCell>
+                            <TableCell>{t.vehicle_id || 'N/A'}</TableCell>
+                            <TableCell>{t.miles_total?.toFixed(1) || 0}</TableCell>
+                            <TableCell>{t.usage_type ? getUsageTypeBadge(t.usage_type) : 'N/A'}</TableCell>
+                            <TableCell>{t.approval_status ? getStatusBadge(t.approval_status) : 'N/A'}</TableCell>
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                    </Table>
+                  ) : (
+                    <EmptyState message="No recent trips recorded" />
+                  )}
+                </CardContent>
+              </Card>
+
+              {/* Charges */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center justify-between">
+                    <span>Recent Charges</span>
+                    <Button variant="link" size="sm" className="p-0 h-auto">
+                      View All
+                    </Button>
+                  </CardTitle>
+                  <CardDescription>Personal use charges and fees</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  {charges.length > 0 ? (
+                    <Table>
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead>Date</TableHead>
+                          <TableHead>Amount</TableHead>
+                          <TableHead>Type</TableHead>
+                          <TableHead>Status</TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {charges.slice(0, 5).map((charge: any) => (
+                          <TableRow key={charge.id}>
+                            <TableCell>{new Date(charge.date || '').toLocaleDateString()}</TableCell>
+                            <TableCell>${(charge.amount || 0).toFixed(2)}</TableCell>
+                            <TableCell>{charge.type || 'N/A'}</TableCell>
+                            <TableCell>{charge.status || 'N/A'}</TableCell>
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                    </Table>
+                  ) : (
+                    <EmptyState message="No charges recorded" />
+                  )}
                 </CardContent>
               </Card>
             </TabsContent>
 
             {/* Trips Tab */}
-            <TabsContent value="trips" className="space-y-4">
-              {/* Filters */}
-              <Card>
-                <CardContent className="pt-6">
-                  <div className="flex gap-4">
-                    <Select value={usageTypeFilter} onValueChange={setUsageTypeFilter}>
-                      <SelectTrigger className="w-[180px]">
-                        <SelectValue placeholder="Usage Type" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="all">All Types</SelectItem>
-                        <SelectItem value="business">Business</SelectItem>
-                        <SelectItem value="personal">Personal</SelectItem>
-                        <SelectItem value="mixed">Mixed</SelectItem>
-                      </SelectContent>
-                    </Select>
+            <TabsContent value="trips" className="space-y-6">
+              <div className="flex flex-wrap gap-4 mb-4">
+                <div className="w-48">
+                  <Select value={dateFilter} onValueChange={(value) => setDateFilter(value as '30days' | '90days' | 'year')}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Date Range" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="30days">Last 30 Days</SelectItem>
+                      <SelectItem value="90days">Last 90 Days</SelectItem>
+                      <SelectItem value="year">This Year</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="w-48">
+                  <Select value={usageTypeFilter} onValueChange={setUsageTypeFilter}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Usage Type" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">All Types</SelectItem>
+                      <SelectItem value="business">Business</SelectItem>
+                      <SelectItem value="personal">Personal</SelectItem>
+                      <SelectItem value="mixed">Mixed</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="w-48">
+                  <Select value={statusFilter} onValueChange={setStatusFilter}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Status" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">All Statuses</SelectItem>
+                      <SelectItem value="pending">Pending</SelectItem>
+                      <SelectItem value="approved">Approved</SelectItem>
+                      <SelectItem value="rejected">Rejected</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
 
-                    <Select value={statusFilter} onValueChange={setStatusFilter}>
-                      <SelectTrigger className="w-[180px]">
-                        <SelectValue placeholder="Status" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="all">All Status</SelectItem>
-                        <SelectItem value="pending">Pending</SelectItem>
-                        <SelectItem value="approved">Approved</SelectItem>
-                        <SelectItem value="rejected">Rejected</SelectItem>
-                      </SelectContent>
-                    </Select>
-
-                    <Select value={dateFilter} onValueChange={setDateFilter}>
-                      <SelectTrigger className="w-[180px]">
-                        <SelectValue placeholder="Time Period" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="30days">Last 30 Days</SelectItem>
-                        <SelectItem value="90days">Last 90 Days</SelectItem>
-                        <SelectItem value="year">This Year</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                </CardContent>
-              </Card>
-
-              {/* Trips Table */}
               <Card>
                 <CardHeader>
                   <CardTitle>Trip History</CardTitle>
-                  <CardDescription>
-                    {recentTrips.length} trips recorded
-                  </CardDescription>
+                  <CardDescription>All recorded trips and classifications</CardDescription>
                 </CardHeader>
                 <CardContent>
-                  {recentTrips.length === 0 ? (
-                    <EmptyState message="No trips recorded yet. Start by recording your first trip!" />
-                  ) : (
+                  {recentTrips.length > 0 ? (
                     <Table>
                       <TableHeader>
                         <TableRow>
                           <TableHead>Date</TableHead>
-                          <TableHead>Type</TableHead>
+                          <TableHead>Vehicle</TableHead>
                           <TableHead>Miles</TableHead>
-                          <TableHead>Purpose/Notes</TableHead>
+                          <TableHead>Type</TableHead>
                           <TableHead>Status</TableHead>
-                          <TableHead>Actions</TableHead>
+                          <TableHead>Purpose</TableHead>
                         </TableRow>
                       </TableHeader>
                       <TableBody>
-                        {recentTrips
-                          .filter(trip =>
-                            (usageTypeFilter === 'all' || trip.usage_type === usageTypeFilter) &&
-                            (statusFilter === 'all' || trip.approval_status === statusFilter)
-                          )
-                          .map((trip) => (
+                        {recentTrips.map((trip: TripUsageClassification) => (
                           <TableRow key={trip.id}>
-                            <TableCell>
-                              {new Date(trip.trip_date).toLocaleDateString()}
-                            </TableCell>
-                            <TableCell>
-                              {getUsageTypeBadge(trip.usage_type)}
-                            </TableCell>
-                            <TableCell>
-                              <div className="space-y-1">
-                                <div>{trip.miles_total} mi</div>
-                                {trip.usage_type === 'mixed' && (
-                                  <div className="text-xs text-muted-foreground">
-                                    B: {trip.miles_business} / P: {trip.miles_personal}
-                                  </div>
-                                )}
-                              </div>
-                            </TableCell>
-                            <TableCell className="max-w-xs truncate">
-                              {trip.business_purpose || trip.personal_notes || '-'}
-                            </TableCell>
-                            <TableCell>
-                              {getStatusBadge(trip.approval_status)}
-                            </TableCell>
-                            <TableCell>
-                              <Button variant="ghost" size="sm">
-                                <FileText className="w-4 h-4" />
-                              </Button>
-                            </TableCell>
+                            <TableCell>{new Date(trip.trip_date || '').toLocaleDateString()}</TableCell>
+                            <TableCell>{trip.vehicle_id || 'N/A'}</TableCell>
+                            <TableCell>{trip.miles_total?.toFixed(1) || 0}</TableCell>
+                            <TableCell>{trip.usage_type ? getUsageTypeBadge(trip.usage_type) : 'N/A'}</TableCell>
+                            <TableCell>{trip.approval_status ? getStatusBadge(trip.approval_status) : 'N/A'}</TableCell>
+                            <TableCell>{trip.business_purpose || 'N/A'}</TableCell>
                           </TableRow>
                         ))}
                       </TableBody>
                     </Table>
+                  ) : (
+                    <EmptyState message="No trips recorded for the selected filters" />
                   )}
                 </CardContent>
               </Card>
             </TabsContent>
 
             {/* Charges Tab */}
-            <TabsContent value="charges" className="space-y-4">
+            <TabsContent value="charges" className="space-y-6">
               <Card>
                 <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <CurrencyDollar className="w-5 h-5" />
-                    Personal Use Charges
-                  </CardTitle>
-                  <CardDescription>
-                    Billing statements for personal vehicle use
-                  </CardDescription>
+                  <CardTitle>Personal Use Charges</CardTitle>
+                  <CardDescription>Charges and fees for personal vehicle usage</CardDescription>
                 </CardHeader>
                 <CardContent>
-                  {charges.length === 0 ? (
-                    <EmptyState message="No charges recorded" />
-                  ) : (
+                  {charges.length > 0 ? (
                     <Table>
                       <TableHeader>
                         <TableRow>
-                          <TableHead>Period</TableHead>
-                          <TableHead>Miles</TableHead>
-                          <TableHead>Rate</TableHead>
-                          <TableHead>Total</TableHead>
+                          <TableHead>Date</TableHead>
+                          <TableHead>Amount</TableHead>
+                          <TableHead>Type</TableHead>
                           <TableHead>Status</TableHead>
-                          <TableHead>Due Date</TableHead>
+                          <TableHead>Description</TableHead>
                         </TableRow>
                       </TableHeader>
                       <TableBody>
-                        {charges.map((charge) => (
+                        {charges.map((charge: any) => (
                           <TableRow key={charge.id}>
-                            <TableCell>{charge.charge_period}</TableCell>
-                            <TableCell>{charge.miles_charged}</TableCell>
-                            <TableCell>${(charge?.rate_per_mile ?? 0).toFixed(2)}/mi</TableCell>
-                            <TableCell className="font-semibold">
-                              ${(charge?.total_charge ?? 0).toFixed(2)}
-                            </TableCell>
-                            <TableCell>
-                              <Badge>{charge.charge_status}</Badge>
-                            </TableCell>
-                            <TableCell>
-                              {charge.due_date
-                                ? new Date(charge.due_date).toLocaleDateString()
-                                : '-'}
-                            </TableCell>
+                            <TableCell>{new Date(charge.date || '').toLocaleDateString()}</TableCell>
+                            <TableCell>${(charge.amount || 0).toFixed(2)}</TableCell>
+                            <TableCell>{charge.type || 'N/A'}</TableCell>
+                            <TableCell>{charge.status || 'N/A'}</TableCell>
+                            <TableCell>{charge.description || 'N/A'}</TableCell>
                           </TableRow>
                         ))}
                       </TableBody>
                     </Table>
+                  ) : (
+                    <EmptyState message="No charges recorded" />
                   )}
                 </CardContent>
               </Card>
@@ -669,146 +695,127 @@ export const PersonalUseDashboard: React.FC<PersonalUseDashboardProps> = ({
           </>
         )}
 
-        {/* MANAGER VIEW */}
-        {(userRole === 'manager' || userRole === 'admin') && (
+        {/* MANAGER/ADMIN VIEW */}
+        {userRole !== 'driver' && (
           <>
             {/* Approvals Tab */}
-            <TabsContent value="approvals" className="space-y-4">
-              {/* Summary Cards */}
-              <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                <Card>
-                  <CardHeader className="pb-2">
-                    <CardTitle className="text-sm font-medium">Pending Approvals</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="text-2xl font-bold">
-                      {teamSummary?.pending_approvals || 0}
-                    </div>
-                  </CardContent>
-                </Card>
-
-                <Card>
-                  <CardHeader className="pb-2">
-                    <CardTitle className="text-sm font-medium">Team Members</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="text-2xl font-bold">
-                      {teamSummary?.total_members || 0}
-                    </div>
-                  </CardContent>
-                </Card>
-
-                <Card>
-                  <CardHeader className="pb-2">
-                    <CardTitle className="text-sm font-medium">Near Limit</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="text-2xl font-bold text-yellow-600">
-                      {teamSummary?.drivers_near_limit || 0}
-                    </div>
-                  </CardContent>
-                </Card>
-
-                <Card>
-                  <CardHeader className="pb-2">
-                    <CardTitle className="text-sm font-medium">Charges This Month</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="text-2xl font-bold">
-                      ${(teamSummary?.total_charges_this_month ?? 0).toFixed(2)}
-                    </div>
-                  </CardContent>
-                </Card>
-              </div>
-
-              {/* Approval Queue */}
+            <TabsContent value="approvals" className="space-y-6">
               <Card>
                 <CardHeader>
-                  <CardTitle>Approval Queue</CardTitle>
-                  <CardDescription>
-                    {pendingApprovals.filter(t => t.approval_status === 'pending').length} trips pending approval
-                  </CardDescription>
+                  <CardTitle>Pending Approvals</CardTitle>
+                  <CardDescription>Trip classifications awaiting review</CardDescription>
                 </CardHeader>
                 <CardContent>
-                  {pendingApprovals.filter(t => t.approval_status === 'pending').length === 0 ? (
-                    <EmptyState message="No pending approvals" />
-                  ) : (
+                  {pendingApprovals.length > 0 ? (
                     <Table>
                       <TableHeader>
                         <TableRow>
-                          <TableHead>Driver</TableHead>
                           <TableHead>Date</TableHead>
-                          <TableHead>Type</TableHead>
+                          <TableHead>Driver</TableHead>
+                          <TableHead>Vehicle</TableHead>
                           <TableHead>Miles</TableHead>
-                          <TableHead>Purpose</TableHead>
+                          <TableHead>Type</TableHead>
+                          <TableHead>Status</TableHead>
                           <TableHead>Actions</TableHead>
                         </TableRow>
                       </TableHeader>
                       <TableBody>
-                        {pendingApprovals
-                          .filter(t => t.approval_status === 'pending')
-                          .map((trip) => (
+                        {pendingApprovals.map((trip: PendingApproval) => (
                           <TableRow key={trip.id}>
-                            <TableCell>{trip.driver_name || trip.driver_id}</TableCell>
+                            <TableCell>{new Date(trip.trip_date || '').toLocaleDateString()}</TableCell>
+                            <TableCell>{trip.driver_name || 'N/A'}</TableCell>
+                            <TableCell>{trip.vehicle_name || trip.vehicle_id || 'N/A'}</TableCell>
+                            <TableCell>{trip.miles_total?.toFixed(1) || 0}</TableCell>
+                            <TableCell>{trip.usage_type ? getUsageTypeBadge(trip.usage_type) : 'N/A'}</TableCell>
+                            <TableCell>{trip.approval_status ? getStatusBadge(trip.approval_status) : 'N/A'}</TableCell>
                             <TableCell>
-                              {new Date(trip.trip_date).toLocaleDateString()}
-                            </TableCell>
-                            <TableCell>
-                              {getUsageTypeBadge(trip.usage_type)}
-                            </TableCell>
-                            <TableCell>{trip.miles_total} mi</TableCell>
-                            <TableCell className="max-w-xs truncate">
-                              {trip.business_purpose || trip.personal_notes}
-                            </TableCell>
-                            <TableCell>
-                              <div className="flex gap-2">
-                                <Button
-                                  size="sm"
-                                  variant="default"
-                                  onClick={() => handleApproveTrip(trip.id)}
-                                >
-                                  <CheckCircle className="w-4 h-4 mr-1" />
-                                  Approve
-                                </Button>
-                                <Button
-                                  size="sm"
-                                  variant="destructive"
-                                  onClick={() => handleRejectTrip(trip.id)}
-                                >
-                                  <XCircle className="w-4 h-4 mr-1" />
-                                  Reject
-                                </Button>
-                              </div>
+                              {trip.approval_status === 'pending' && (
+                                <div className="flex gap-2">
+                                  <Button
+                                    size="sm"
+                                    variant="outline"
+                                    onClick={() => handleApproveTrip(trip.id || '')}
+                                  >
+                                    Approve
+                                  </Button>
+                                  <Button
+                                    size="sm"
+                                    variant="destructive"
+                                    onClick={() => handleRejectTrip(trip.id || '')}
+                                  >
+                                    Reject
+                                  </Button>
+                                </div>
+                              )}
                             </TableCell>
                           </TableRow>
                         ))}
                       </TableBody>
                     </Table>
+                  ) : (
+                    <EmptyState message="No trips pending approval" />
                   )}
                 </CardContent>
               </Card>
             </TabsContent>
 
             {/* Team Overview Tab */}
-            <TabsContent value="team">
+            <TabsContent value="team" className="space-y-6">
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
+                <Card>
+                  <CardHeader className="pb-2">
+                    <CardTitle className="text-sm font-medium">Team Members</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="text-2xl font-bold">{teamSummary?.total_members || 0}</div>
+                  </CardContent>
+                </Card>
+                <Card>
+                  <CardHeader className="pb-2">
+                    <CardTitle className="text-sm font-medium">Pending Approvals</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="text-2xl font-bold">{teamSummary?.pending_approvals || 0}</div>
+                  </CardContent>
+                </Card>
+                <Card>
+                  <CardHeader className="pb-2">
+                    <CardTitle className="text-sm font-medium">Drivers Near Limit</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="text-2xl font-bold">{teamSummary?.drivers_near_limit || 0}</div>
+                  </CardContent>
+                </Card>
+                <Card>
+                  <CardHeader className="pb-2">
+                    <CardTitle className="text-sm font-medium">Charges This Month</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="text-2xl font-bold">${(teamSummary?.total_charges_this_month || 0).toFixed(2)}</div>
+                  </CardContent>
+                </Card>
+              </div>
+
               <Card>
                 <CardHeader>
-                  <CardTitle>Team Usage Overview</CardTitle>
+                  <CardTitle>Team Trip History</CardTitle>
+                  <CardDescription>Recent trips across all team members</CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <EmptyState message="Team overview feature coming soon" />
+                  <EmptyState message="Team trip history will be displayed here" />
                 </CardContent>
               </Card>
             </TabsContent>
 
             {/* Violations Tab */}
-            <TabsContent value="violations">
+            <TabsContent value="violations" className="space-y-6">
               <Card>
                 <CardHeader>
                   <CardTitle>Policy Violations</CardTitle>
+                  <CardDescription>Drivers exceeding personal use limits or with unapproved trips</CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <EmptyState message="No policy violations detected" />
+                  <EmptyState message="Policy violations will be displayed here" />
                 </CardContent>
               </Card>
             </TabsContent>
@@ -818,5 +825,3 @@ export const PersonalUseDashboard: React.FC<PersonalUseDashboardProps> = ({
     </div>
   )
 }
-
-export default PersonalUseDashboard

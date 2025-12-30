@@ -24,6 +24,11 @@ interface TelemetryHook {
   isActive: boolean
 }
 
+interface WebVitalsMetric {
+  id: string
+  value: number
+}
+
 /**
  * Hook to track telemetry events throughout the application
  */
@@ -83,15 +88,15 @@ export function useTelemetry(): TelemetryHook {
   // Track performance metrics when hook is first used
   useEffect(() => {
     // Track Web Vitals
-    if ('web-vitals' in window || typeof window !== 'undefined') {
+    if (typeof window !== 'undefined') {
       // Import web-vitals dynamically if available
       import('web-vitals')
         .then(({ getCLS, getFID, getFCP, getLCP, getTTFB }) => {
-          getCLS((metric) => trackMetric('CLS', metric.value, { id: metric.id }))
-          getFID((metric) => trackMetric('FID', metric.value, { id: metric.id }))
-          getFCP((metric) => trackMetric('FCP', metric.value, { id: metric.id }))
-          getLCP((metric) => trackMetric('LCP', metric.value, { id: metric.id }))
-          getTTFB((metric) => trackMetric('TTFB', metric.value, { id: metric.id }))
+          getCLS?.((metric: WebVitalsMetric) => trackMetric('CLS', metric.value, { id: metric.id }));
+          getFID?.((metric: WebVitalsMetric) => trackMetric('FID', metric.value, { id: metric.id }));
+          getFCP?.((metric: WebVitalsMetric) => trackMetric('FCP', metric.value, { id: metric.id }));
+          getLCP?.((metric: WebVitalsMetric) => trackMetric('LCP', metric.value, { id: metric.id }));
+          getTTFB?.((metric: WebVitalsMetric) => trackMetric('TTFB', metric.value, { id: metric.id }));
         })
         .catch(() => {
           // web-vitals not available, use basic performance tracking

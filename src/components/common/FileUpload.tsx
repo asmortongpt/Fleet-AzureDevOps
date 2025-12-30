@@ -1,29 +1,4 @@
-/**
- * FileUpload - Reusable file upload component with drag-and-drop
- *
- * A flexible file upload component that supports drag-and-drop,
- * multiple files, file type restrictions, and preview thumbnails.
- *
- * Features:
- * - Drag-and-drop support
- * - Multiple file upload
- * - File type restrictions
- * - Size validation
- * - Image preview thumbnails
- * - File list with remove option
- * - Progress indicator (optional)
- *
- * Usage:
- * ```tsx
- * <FileUpload
- *   accept={{ 'image/*': ['.png', '.jpg', '.jpeg'] }}
- *   multiple
- *   maxSize={5 * 1024 * 1024} // 5MB
- *   onFilesChange={(files) => setFiles(files)}
- *   showPreview
- * />
- * ```
- */
+*/
 
 import { Upload, X, File, Image as ImageIcon } from "@phosphor-icons/react"
 import { useState, useCallback } from "react"
@@ -105,7 +80,9 @@ export function FileUpload({
         ? [...files, ...acceptedFiles].slice(0, maxFiles)
         : multiple
         ? [...files, ...acceptedFiles]
-        : [acceptedFiles[0]]
+        : acceptedFiles.length > 0
+        ? [acceptedFiles[0]]
+        : []
 
       setFiles(newFiles)
       onFilesChange(newFiles)
@@ -133,8 +110,8 @@ export function FileUpload({
     onFilesChange(newFiles)
 
     // Clean up preview URL
-    if (previewUrls.has(file.name)) {
-      URL.revokeObjectURL(previewUrls.get(file.name)!)
+    if (file && previewUrls.has(file.name)) {
+      URL.revokeObjectURL(previewUrls.get(file.name) ?? "")
       const newPreviewUrls = new Map(previewUrls)
       newPreviewUrls.delete(file.name)
       setPreviewUrls(newPreviewUrls)
@@ -211,7 +188,7 @@ export function FileUpload({
                     {/* Preview or Icon */}
                     {showPreview && previewUrls.has(file.name) ? (
                       <img
-                        src={previewUrls.get(file.name)}
+                        src={previewUrls.get(file.name) ?? ""}
                         alt={file.name}
                         className="w-12 h-12 object-cover rounded"
                       />

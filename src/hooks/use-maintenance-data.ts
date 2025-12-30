@@ -41,8 +41,8 @@ export function useMaintenanceData(vehicles: Vehicle[]) {
 
         records.push({
           id: `maint-${idx}-${i}`,
-          vehicleNumber: vehicle.number,
-          vehicleName: `${vehicle.year} ${vehicle.make} ${vehicle.model}`,
+          vehicleNumber: vehicle.number ?? "",
+          vehicleName: `${vehicle.year ?? ""} ${vehicle.make ?? ""} ${vehicle.model ?? ""}`,
           serviceType: serviceTypes[Math.floor(Math.random() * serviceTypes.length)],
           date: date.toISOString().split("T")[0],
           cost: Math.floor(Math.random() * 500) + 50,

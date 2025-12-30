@@ -44,7 +44,8 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Textarea } from "@/components/ui/textarea"
 import { apiClient } from "@/lib/api-client"
-import logger from '@/utils/logger';
+import logger from '@/utils/logger'
+
 interface Task {
   id: string
   task_title: string
@@ -74,9 +75,15 @@ interface Comment {
   created_at: string
 }
 
+interface ApiResponse<T> {
+  tasks?: T[]
+  task?: T
+  comments?: Comment[]
+}
+
 export function TaskManagement() {
   const [tasks, setTasks] = useState<Task[]>([])
-  const [loading, setLoading] = useState(true)
+  const [_loading, setLoading] = useState(true)
   const [searchTerm, setSearchTerm] = useState("")
   const [filterPriority, setFilterPriority] = useState<string>("all")
   const [filterStatus, setFilterStatus] = useState<string>("all")
@@ -109,8 +116,8 @@ export function TaskManagement() {
       if (filterPriority !== "all") params.append("priority", filterPriority)
       if (filterStatus !== "all") params.append("status", filterStatus)
 
-      const response = await apiClient.get(`/api/task-management?${params.toString()}`)
-      setTasks(response.tasks || [])
+      const response = await apiClient.get<ApiResponse<Task>>(`/api/task-management?${params.toString()}`)
+      setTasks(response.data?.tasks || [])
     } catch (error) {
       logger.error("Error fetching tasks:", error)
       toast.error("Failed to load tasks")
@@ -121,8 +128,8 @@ export function TaskManagement() {
 
   const fetchTaskComments = async (taskId: string) => {
     try {
-      const response = await apiClient.get(`/api/task-management/${taskId}/comments`)
-      setComments(response.comments || [])
+      const response = await apiClient.get<ApiResponse<Comment>>(`/api/task-management/${taskId}/comments`)
+      setComments(response.data?.comments || [])
     } catch (error) {
       logger.error("Error fetching comments:", error)
     }
@@ -135,12 +142,13 @@ export function TaskManagement() {
     }
 
     try {
-      const response = await apiClient.post("/api/task-management", newTask)
-
-      setTasks(current => [...current, response.task])
-      toast.success("Task created successfully")
-      setIsAddDialogOpen(false)
-      resetNewTask()
+      const response = await apiClient.post<ApiResponse<Task>>("/api/task-management", newTask)
+      if (response.data?.task) {
+        setTasks(current => [...current, response.data.task as Task])
+        toast.success("Task created successfully")
+        setIsAddDialogOpen(false)
+        resetNewTask()
+      }
     } catch (error) {
       logger.error("Error creating task:", error)
       toast.error("Failed to create task")
@@ -149,12 +157,13 @@ export function TaskManagement() {
 
   const handleUpdateTask = async (taskId: string, updates: Partial<Task>) => {
     try {
-      const response = await apiClient.put(`/api/task-management/${taskId}`, updates)
-
-      setTasks(current =>
-        current.map(t => (t.id === taskId ? response.task : t))
-      )
-      toast.success("Task updated successfully")
+      const response = await apiClient.put<ApiResponse<Task>>(`/api/task-management/${taskId}`, updates)
+      if (response.data?.task) {
+        setTasks(current =>
+          current.map(t => (t.id === taskId ? response.data.task as Task : t))
+        )
+        toast.success("Task updated successfully")
+      }
     } catch (error) {
       logger.error("Error updating task:", error)
       toast.error("Failed to update task")
@@ -447,333 +456,6 @@ export function TaskManagement() {
           </CardContent>
         </Card>
       </div>
-
-      {/* Search and Filters */}
-      <div className="flex gap-4">
-        <div className="relative flex-1">
-          <MagnifyingGlass className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-          <Input
-            placeholder="Search tasks..."
-            value={searchTerm}
-            onChange={e => setSearchTerm(e.target.value)}
-            className="pl-10"
-          />
-        </div>
-        <Select value={filterPriority} onValueChange={setFilterPriority}>
-          <SelectTrigger className="w-48">
-            <SelectValue placeholder="Filter by priority" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">All Priorities</SelectItem>
-            <SelectItem value="critical">Critical</SelectItem>
-            <SelectItem value="high">High</SelectItem>
-            <SelectItem value="medium">Medium</SelectItem>
-            <SelectItem value="low">Low</SelectItem>
-          </SelectContent>
-        </Select>
-        <Select value={filterStatus} onValueChange={setFilterStatus}>
-          <SelectTrigger className="w-48">
-            <SelectValue placeholder="Filter by status" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">All Statuses</SelectItem>
-            <SelectItem value="pending">Pending</SelectItem>
-            <SelectItem value="in_progress">In Progress</SelectItem>
-            <SelectItem value="completed">Completed</SelectItem>
-            <SelectItem value="cancelled">Cancelled</SelectItem>
-          </SelectContent>
-        </Select>
-      </div>
-
-      {/* Tasks Table */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Tasks ({filteredTasks.length})</CardTitle>
-          <CardDescription>Track and manage all team tasks</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Task</TableHead>
-                <TableHead>Type</TableHead>
-                <TableHead>Assigned To</TableHead>
-                <TableHead>Priority</TableHead>
-                <TableHead>Due Date</TableHead>
-                <TableHead>Progress</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead>Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {filteredTasks.length === 0 ? (
-                <TableRow>
-                  <TableCell colSpan={8} className="text-center text-muted-foreground py-8">
-                    No tasks found. Create your first task to get started.
-                  </TableCell>
-                </TableRow>
-              ) : (
-                filteredTasks.map(task => (
-                  <TableRow key={task.id} className={isOverdue(task) ? "bg-red-50" : ""}>
-                    <TableCell>
-                      <div>
-                        <div className="font-medium">{task.task_title}</div>
-                        {task.description && (
-                          <div className="text-xs text-muted-foreground line-clamp-1">
-                            {task.description}
-                          </div>
-                        )}
-                      </div>
-                    </TableCell>
-                    <TableCell className="capitalize">{task.task_type}</TableCell>
-                    <TableCell>
-                      {task.assigned_to_name ? (
-                        <div className="flex items-center gap-1 text-sm">
-                          <User className="w-3 h-3 text-muted-foreground" />
-                          {task.assigned_to_name}
-                        </div>
-                      ) : (
-                        <span className="text-sm text-muted-foreground">Unassigned</span>
-                      )}
-                    </TableCell>
-                    <TableCell>
-                      <Badge className={getPriorityColor(task.priority)} variant="secondary">
-                        {task.priority}
-                      </Badge>
-                    </TableCell>
-                    <TableCell>
-                      {task.due_date ? (
-                        <div className={`text-sm ${isOverdue(task) ? "text-red-600 font-semibold" : ""}`}>
-                          {new Date(task.due_date).toLocaleDateString()}
-                        </div>
-                      ) : (
-                        <span className="text-sm text-muted-foreground">No due date</span>
-                      )}
-                    </TableCell>
-                    <TableCell>
-                      <div className="space-y-1 min-w-24">
-                        <Progress value={task.completion_percentage || 0} className="h-2" />
-                        <div className="text-xs text-muted-foreground">
-                          {task.completion_percentage || 0}%
-                        </div>
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      <Badge className={getStatusColor(task.status)} variant="secondary">
-                        {task.status}
-                      </Badge>
-                    </TableCell>
-                    <TableCell>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => {
-                          setSelectedTask(task)
-                          fetchTaskComments(task.id)
-                          setIsDetailsDialogOpen(true)
-                        }}
-                      >
-                        View Details
-                      </Button>
-                    </TableCell>
-                  </TableRow>
-                ))
-              )}
-            </TableBody>
-          </Table>
-        </CardContent>
-      </Card>
-
-      {/* Task Details Dialog */}
-      <Dialog open={isDetailsDialogOpen} onOpenChange={setIsDetailsDialogOpen}>
-        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle>Task Details</DialogTitle>
-            <DialogDescription>
-              {selectedTask?.task_title}
-            </DialogDescription>
-          </DialogHeader>
-          {selectedTask && (
-            <Tabs defaultValue="details" className="w-full">
-              <TabsList className="grid w-full grid-cols-3">
-                <TabsTrigger value="details">Details</TabsTrigger>
-                <TabsTrigger value="time">Time Tracking</TabsTrigger>
-                <TabsTrigger value="comments">
-                  Comments ({comments.length})
-                </TabsTrigger>
-              </TabsList>
-
-              <TabsContent value="details" className="space-y-4">
-                <div className="grid grid-cols-2 gap-6">
-                  <div>
-                    <h3 className="text-sm font-semibold mb-3">Task Information</h3>
-                    <div className="space-y-2 text-sm">
-                      <div>
-                        <span className="text-muted-foreground">Title:</span>
-                        <p className="font-medium">{selectedTask.task_title}</p>
-                      </div>
-                      {selectedTask.description && (
-                        <div>
-                          <span className="text-muted-foreground">Description:</span>
-                          <p className="font-medium">{selectedTask.description}</p>
-                        </div>
-                      )}
-                      <div>
-                        <span className="text-muted-foreground">Type:</span>
-                        <p className="font-medium capitalize">{selectedTask.task_type}</p>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div>
-                    <h3 className="text-sm font-semibold mb-3">Assignment</h3>
-                    <div className="space-y-2 text-sm">
-                      <div>
-                        <span className="text-muted-foreground">Assigned To:</span>
-                        <p className="font-medium">
-                          {selectedTask.assigned_to_name || "Unassigned"}
-                        </p>
-                      </div>
-                      <div>
-                        <span className="text-muted-foreground">Created By:</span>
-                        <p className="font-medium">{selectedTask.created_by_name}</p>
-                      </div>
-                      {selectedTask.due_date && (
-                        <div>
-                          <span className="text-muted-foreground">Due Date:</span>
-                          <p className="font-medium">
-                            {new Date(selectedTask.due_date).toLocaleDateString()}
-                          </p>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-2 gap-6">
-                  <div>
-                    <h3 className="text-sm font-semibold mb-3">Status</h3>
-                    <div className="space-y-2">
-                      <div className="flex items-center gap-2">
-                        <Label>Priority:</Label>
-                        <Badge className={getPriorityColor(selectedTask.priority)} variant="secondary">
-                          {selectedTask.priority}
-                        </Badge>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <Label>Status:</Label>
-                        <Select
-                          value={selectedTask.status}
-                          onValueChange={(value) => handleUpdateTask(selectedTask.id, { status: value as Task['status'] })}
-                        >
-                          <SelectTrigger className="w-48">
-                            <SelectValue />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="pending">Pending</SelectItem>
-                            <SelectItem value="in_progress">In Progress</SelectItem>
-                            <SelectItem value="completed">Completed</SelectItem>
-                            <SelectItem value="cancelled">Cancelled</SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div>
-                    <h3 className="text-sm font-semibold mb-3">Progress</h3>
-                    <div className="space-y-2">
-                      <Progress value={selectedTask.completion_percentage || 0} className="h-3" />
-                      <p className="text-sm text-muted-foreground">
-                        {selectedTask.completion_percentage || 0}% complete
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              </TabsContent>
-
-              <TabsContent value="time" className="space-y-4">
-                <div className="grid grid-cols-2 gap-4">
-                  <Card>
-                    <CardHeader className="pb-3">
-                      <CardTitle className="text-sm">Estimated Hours</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="text-2xl font-bold">
-                        {selectedTask.estimated_hours || 0}h
-                      </div>
-                    </CardContent>
-                  </Card>
-                  <Card>
-                    <CardHeader className="pb-3">
-                      <CardTitle className="text-sm">Actual Hours</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="text-2xl font-bold text-blue-600">
-                        {selectedTask.actual_hours || 0}h
-                      </div>
-                    </CardContent>
-                  </Card>
-                </div>
-
-                <div className="flex gap-2">
-                  <Button onClick={() => handleStartTimer(selectedTask.id)}>
-                    <Clock className="w-4 h-4 mr-2" />
-                    Start Timer
-                  </Button>
-                  <Button variant="outline" onClick={() => handleStopTimer(selectedTask.id)}>
-                    Stop Timer
-                  </Button>
-                </div>
-              </TabsContent>
-
-              <TabsContent value="comments" className="space-y-4">
-                <div className="space-y-4 max-h-96 overflow-y-auto">
-                  {comments.length === 0 ? (
-                    <div className="text-center text-muted-foreground py-8">
-                      No comments yet. Be the first to comment!
-                    </div>
-                  ) : (
-                    comments.map(comment => (
-                      <div key={comment.id} className="border rounded-lg p-4">
-                        <div className="flex items-start justify-between mb-2">
-                          <div className="flex items-center gap-2">
-                            <User className="w-4 h-4 text-muted-foreground" />
-                            <span className="font-medium text-sm">{comment.created_by_name}</span>
-                          </div>
-                          <span className="text-xs text-muted-foreground">
-                            {new Date(comment.created_at).toLocaleString()}
-                          </span>
-                        </div>
-                        <p className="text-sm">{comment.comment_text}</p>
-                      </div>
-                    ))
-                  )}
-                </div>
-
-                <div className="space-y-2">
-                  <Label>Add Comment</Label>
-                  <Textarea
-                    value={newComment}
-                    onChange={e => setNewComment(e.target.value)}
-                    placeholder="Type your comment..."
-                    rows={3}
-                  />
-                  <Button onClick={handleAddComment}>
-                    <ChatCircle className="w-4 h-4 mr-2" />
-                    Post Comment
-                  </Button>
-                </div>
-              </TabsContent>
-            </Tabs>
-          )}
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setIsDetailsDialogOpen(false)}>
-              Close
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
     </div>
   )
 }
