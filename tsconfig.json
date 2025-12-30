@@ -59,7 +59,11 @@
     "src/components/workspaces/**",
     "src/components/modules/personal-use/**",
     "src/components/modules/analytics/**",
+    "src/components/modules/**",
     "src/pages/*Hub.tsx",
+    "src/pages/**",
+    "src/hooks/**",
+    "src/lib/**",
     "tests/**",
     "server/**"
   ]
