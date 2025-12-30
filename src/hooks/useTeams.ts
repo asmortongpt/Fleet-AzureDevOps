@@ -333,7 +333,9 @@ export function useUploadTeamsFile(teamId: string, channelId: string) {
 
   return useMutation({
     mutationFn: async (file: File) => {
-      return await apiClient.teams.uploadFile(teamId, channelId, file)
+      const formData = new FormData()
+      formData.append('file', file)
+      return await apiClient.teams.uploadFile(teamId, channelId, formData)
     },
     onSuccess: () => {
       toast.success('File uploaded successfully')

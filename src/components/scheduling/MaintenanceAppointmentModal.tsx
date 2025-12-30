@@ -242,6 +242,7 @@ export function MaintenanceAppointmentModal({
 
   const selectedVehicle = vehicles.find((v) => v.id === form.watch('vehicleId'))
   const selectedAppointmentType = appointmentTypes.find((t) => t.id === watchAppointmentType)
+  const selectedBay = serviceBays.find((bay) => bay.id === watchServiceBay)
   const selectedTechnician = technicians.find((t) => t.id === watchTechnician)
 
   return (
