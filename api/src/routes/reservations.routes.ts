@@ -248,7 +248,7 @@ router.post('/', csrfProtection, authenticateJWT, async (req: AuthRequest, res: 
     if (error instanceof z.ZodError) {
       return res.status(400).json({
         error: 'Validation error',
-        details: error.errors,
+        details: error.issues,
       });
     }
 
@@ -312,7 +312,7 @@ router.put('/:id', csrfProtection, authenticateJWT, async (req: AuthRequest, res
     if (error instanceof z.ZodError) {
       return res.status(400).json({
         error: 'Validation error',
-        details: error.errors,
+        details: error.issues,
       });
     }
 
@@ -419,7 +419,7 @@ router.post('/:id/approve', csrfProtection, authenticateJWT, async (req: AuthReq
     if (error instanceof z.ZodError) {
       return res.status(400).json({
         error: 'Validation error',
-        details: error.errors,
+        details: error.issues,
       });
     }
 
