@@ -17,12 +17,12 @@ import { WorkOrder, ServiceBay, Technician } from "@/lib/types"
 
 // Type guard to check if a facility is a ServiceBay
 function isServiceBay(item: unknown): item is ServiceBay {
-  return (
+  return !!(
     item &&
     typeof item === 'object' &&
     'number' in item &&
     'status' in item &&
-    (item.status === 'occupied' || item.status === 'available' || item.status === 'maintenance')
+    ((item as any).status === 'occupied' || (item as any).status === 'available' || (item as any).status === 'maintenance')
   )
 }
 
