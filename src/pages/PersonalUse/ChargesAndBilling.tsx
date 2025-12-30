@@ -110,16 +110,20 @@ export function ChargesAndBilling() {
     return params.toString()
   }
 
-  const { data: chargesData, isLoading: loading } = useQuery({
+  const { data: chargesData, isLoading: loading, error: chargesError } = useQuery({
     queryKey: ['personal-use-charges', selectedPeriod, statusFilter],
     queryFn: () => apiClient<ChargeRecord[]>(`/api/personal-use-charges?${getChargesParams()}`),
     staleTime: 30000,
-    gcTime: 60000,
-    onError: (error: unknown) => {
-      logger.error('Failed to fetch charges:', error)
+    gcTime: 60000
+  })
+
+  // Handle errors with useEffect
+  React.useEffect(() => {
+    if (chargesError) {
+      logger.error('Failed to fetch charges:', chargesError)
       toast.error('Failed to load billing data')
     }
-  })
+  }, [chargesError])
 
   const { data: summaryData } = useQuery({
     queryKey: ['personal-use-charges-summary'],
