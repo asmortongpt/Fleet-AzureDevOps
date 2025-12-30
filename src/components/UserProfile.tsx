@@ -21,7 +21,9 @@ const UserProfile: React.FC<{ userId: string }> = ({ userId }) => {
     const loadUserProfile = async () => {
       try {
         const userData = await fetchUserProfile(userId);
-        setUser(userData);
+        if (userData) {
+          setUser(userData as User);
+        }
       } catch (err) {
         if (err instanceof AppError) {
           setError(err.message);

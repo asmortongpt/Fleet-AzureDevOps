@@ -1,6 +1,6 @@
 import { CheckCircle, Warning, Error, HourglassEmpty } from '@mui/icons-material';
 import { Box, Paper, Typography, LinearProgress, Chip, CircularProgress } from '@mui/material';
-import Grid from '@mui/material/Grid2';
+import Grid from '@mui/material/Grid';
 import React, { useMemo } from 'react';
 
 interface SystemHealth {
