@@ -205,9 +205,9 @@ export const PersonalUseDashboard: React.FC<PersonalUseDashboardProps> = ({
   })
 
   const { mutate: rejectTrip, isPending: _isRejectingTrip } = useMutation({
-    mutationFn: async ({ tripId, reason }: { tripId: string; reason: string }) => {
+    mutationFn: (async ({ tripId, reason }: { tripId: string; reason: string }) => {
       return apiMutation(`/api/trip-usage/${tripId}/reject`, 'POST', { rejection_reason: reason })
-    } as MutationFunction<any, { tripId: string; reason: string }>,
+    }) as MutationFunction<any, { tripId: string; reason: string }>,
     onSuccess: () => {
       toast.success('Trip rejected')
       queryClient.invalidateQueries({ queryKey: ['trip-usage-pending-approval'] })
