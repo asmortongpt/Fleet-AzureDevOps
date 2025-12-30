@@ -172,16 +172,16 @@ export function FilterBar({
                 <SelectContent>
                   <SelectItem value="all">All</SelectItem>
                   <SelectItem value="electric">
-                    Electric {stats && `(${stats?.electric ?? 0})`}
+                    Electric {stats && `(${(stats as any)?.electric ?? 0})`}
                   </SelectItem>
                   <SelectItem value="hybrid">
-                    Hybrid {stats && `(${stats?.hybrid ?? 0})`}
+                    Hybrid {stats && `(${(stats as any)?.hybrid ?? 0})`}
                   </SelectItem>
                   <SelectItem value="gas">
-                    Gas {stats && `(${stats?.gas ?? 0})`}
+                    Gas {stats && `(${(stats as any)?.gas ?? 0})`}
                   </SelectItem>
                   <SelectItem value="diesel">
-                    Diesel {stats && `(${stats?.diesel ?? 0})`}
+                    Diesel {stats && `(${(stats as any)?.diesel ?? 0})`}
                   </SelectItem>
                   <SelectItem value="other">Other</SelectItem>
                 </SelectContent>
@@ -280,7 +280,7 @@ export function FilterBar({
                 htmlFor="assigned-only"
                 className="text-sm font-normal cursor-pointer"
               >
-                Assigned Only {stats && `(${stats?.assigned ?? 0})`}
+                Assigned Only {stats && `(${(stats as any)?.assigned ?? 0})`}
               </Label>
             </div>
 
@@ -296,7 +296,7 @@ export function FilterBar({
                 htmlFor="available-only"
                 className="text-sm font-normal cursor-pointer"
               >
-                Available Only {stats && `(${stats?.available ?? 0})`}
+                Available Only {stats && `(${(stats as any)?.available ?? 0})`}
               </Label>
             </div>
           </div>
