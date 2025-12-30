@@ -525,7 +525,6 @@ export function CommunicationHub() {
         <ProfessionalFleetMap
           vehicles={messageMarkers as unknown as Vehicle[]}
           facilities={zoneMarkers}
-          center={{ lat: 38.9072, lng: -77.0369 }}
         />
       </div>
     </div>
