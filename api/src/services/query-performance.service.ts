@@ -87,7 +87,7 @@ export class QueryPerformanceService extends EventEmitter {
 
         // Check for slow query
         if (duration > this.slowQueryThreshold) {
-          this.emit(`slowQuery`, {
+          this.emit('slowQuery', {
             query: this.sanitizeQuery(query),
             duration,
             poolType
@@ -134,7 +134,7 @@ export class QueryPerformanceService extends EventEmitter {
     }
 
     // Emit event
-    this.emit(`queryExecuted`, metrics)
+    this.emit('queryExecuted', metrics)
   }
 
   /**

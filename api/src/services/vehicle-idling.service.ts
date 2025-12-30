@@ -171,7 +171,7 @@ export class VehicleIdlingService extends EventEmitter {
       console.log(`[IdlingService] Started idling event ${eventId} for vehicle ${state.vehicle_id}`);
 
       // Emit event for real-time updates
-      this.emit(`idling:started`, {
+      this.emit('idling:started', {
         event_id: eventId,
         vehicle_id: state.vehicle_id,
         driver_id: state.driver_id,
@@ -218,7 +218,7 @@ export class VehicleIdlingService extends EventEmitter {
         console.log(`[IdlingService] Ended idling event ${eventId} for vehicle ${vehicleId}. Duration: ${event.duration_seconds}s`);
 
         // Emit event for real-time updates
-        this.emit(`idling:ended`, {
+        this.emit('idling:ended', {
           event_id: eventId,
           vehicle_id: event.vehicle_id,
           driver_id: event.driver_id,
@@ -356,7 +356,7 @@ export class VehicleIdlingService extends EventEmitter {
       console.log(`[IdlingService] ${severity.toUpperCase()} alert triggered for event ${eventId}`);
 
       // Emit for real-time notifications
-      this.emit(`idling:alert`, {
+      this.emit('idling:alert', {
         event_id: eventId,
         vehicle_id: vehicleId,
         driver_id: driverId,

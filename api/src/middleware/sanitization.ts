@@ -14,7 +14,7 @@
 
 import { Request, Response, NextFunction } from 'express'
 
-import { securityLogger } from '../utils/logger'
+import { securityLogger } from '../config/logger'
 
 /**
  * Dangerous patterns that should be sanitized

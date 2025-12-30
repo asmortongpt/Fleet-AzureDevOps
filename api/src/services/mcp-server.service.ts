@@ -6,7 +6,7 @@
 import axios, { AxiosInstance } from 'axios'
 import { Pool } from 'pg'
 
-import { logger } from '../utils/logger'
+import { logger } from '../config/logger'
 
 export interface MCPServer {
   id: string

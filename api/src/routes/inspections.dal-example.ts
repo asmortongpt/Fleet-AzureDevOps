@@ -304,7 +304,7 @@ router.post(
       res.status(201).json(inspection)
     } catch (error) {
       if (error instanceof z.ZodError) {
-        return res.status(400).json({ error: 'Validation failed', details: error.errors })
+        return res.status(400).json({ error: 'Validation failed', details: error.issues })
       }
 
       const { statusCode, error: message, code } = handleDatabaseError(error)
@@ -336,7 +336,7 @@ router.put(
       res.json(inspection)
     } catch (error) {
       if (error instanceof z.ZodError) {
-        return res.status(400).json({ error: 'Validation failed', details: error.errors })
+        return res.status(400).json({ error: 'Validation failed', details: error.issues })
       }
 
       const { statusCode, error: message, code } = handleDatabaseError(error)
@@ -397,7 +397,7 @@ router.post(
       res.json(inspection)
     } catch (error) {
       if (error instanceof z.ZodError) {
-        return res.status(400).json({ error: 'Validation failed', details: error.errors })
+        return res.status(400).json({ error: 'Validation failed', details: error.issues })
       }
 
       const { statusCode, error: message, code } = handleDatabaseError(error)
