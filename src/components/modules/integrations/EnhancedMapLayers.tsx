@@ -237,7 +237,7 @@ export function EnhancedMapLayers() {
    * Transform API incident data to component format
    */
   const trafficIncidents = useMemo<TrafficIncident[]>(() => {
-    const incidents = (incidentsData?.data || incidentsData) as any[];
+    const incidents = Array.isArray(incidentsData) ? incidentsData : ((incidentsData as any)?.data || []) as any[];
     if (!incidents) return []
 
     try {
