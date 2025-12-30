@@ -334,7 +334,7 @@ Fleet Management Team
 
   async getTeamsChannels(teamId: string): Promise<any[]> {
     try {
-      const response = await apiClient.teams.listChannels(teamId) as { value?: any[] };
+      const response = await apiClient.teams.channels.list() as { value?: any[] };
       return response.value || []
     } catch (error) {
       logger.error('Error getting Teams channels:', { error })
