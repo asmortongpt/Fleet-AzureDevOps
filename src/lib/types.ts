@@ -1,3 +1,19 @@
+// ============================================================================
+// API Response Wrappers
+// ============================================================================
+
+/**
+ * Generic API Response Wrapper
+ * Some endpoints wrap responses in { data: T }, others return T directly
+ * This type supports both patterns for backwards compatibility
+ */
+export interface APIResponse<T> {
+  data: T
+  success?: boolean
+  message?: string
+  error?: string
+}
+
 // Multi-tenant support
 export interface Tenant {
   id: string
