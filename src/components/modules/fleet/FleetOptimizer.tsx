@@ -24,7 +24,8 @@ import {
 } from "@/components/ui/table"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import apiClient from "@/lib/api-client"
-import logger from '@/utils/logger';
+import logger from '@/utils/logger'
+
 interface UtilizationMetric {
   vehicleId: string
   vehicleNumber: string
@@ -79,7 +80,7 @@ export function FleetOptimizer() {
     setLoading(true)
     try {
       const response = await apiClient.get("/fleet-optimizer/utilization-heatmap")
-      setUtilizationData(response)
+      setUtilizationData(response.data as UtilizationMetric[])
     } catch (error) {
       logger.error("Error fetching utilization data:", error)
       toast.error("Failed to load utilization data")
@@ -91,7 +92,7 @@ export function FleetOptimizer() {
   const fetchRecommendations = async () => {
     try {
       const response = await apiClient.get("/fleet-optimizer/recommendations")
-      setRecommendations(response)
+      setRecommendations(response.data as Recommendation[])
     } catch (error) {
       logger.error("Error fetching recommendations:", error)
       toast.error("Failed to load recommendations")
@@ -101,7 +102,7 @@ export function FleetOptimizer() {
   const fetchFleetSize = async () => {
     try {
       const response = await apiClient.get("/fleet-optimizer/optimal-fleet-size?avgDailyDemand=50")
-      setFleetSize(response)
+      setFleetSize(response.data as FleetSize)
     } catch (error) {
       logger.error("Error fetching fleet size:", error)
     }
@@ -386,26 +387,18 @@ export function FleetOptimizer() {
                           </div>
                         </div>
                         <div>
-                          <div className="text-xs text-gray-500">Confidence</div>
+                          <div className="text-xs text-gray-500">Confidence Score</div>
                           <div className="text-lg font-bold">
-                            {rec.confidenceScore.toFixed(0)}%
+                            {(rec.confidenceScore * 100).toFixed(0)}%
                           </div>
                         </div>
                       </div>
-
-                      {rec.vehicleIds && rec.vehicleIds.length > 0 && (
-                        <div className="text-sm text-gray-600">
-                          Affects {rec.vehicleIds.length} vehicle(s)
-                        </div>
-                      )}
                     </CardContent>
                   </Card>
                 ))
               ) : (
-                <div className="text-center py-12 text-gray-500">
-                  <Lightbulb className="h-16 w-16 mx-auto mb-3 opacity-50" />
-                  <p className="text-lg font-medium">No recommendations available</p>
-                  <p className="text-sm">Analyze fleet data to generate recommendations</p>
+                <div className="text-center py-8 text-gray-500">
+                  No recommendations available at this time.
                 </div>
               )}
             </CardContent>

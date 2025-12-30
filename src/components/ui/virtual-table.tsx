@@ -1,5 +1,5 @@
 import { useVirtualizer } from '@tanstack/react-virtual';
-import React, { useRef, useCallback } from 'react';
+import { ReactNode, useRef, useCallback } from 'react';
 
 interface VirtualTableProps<T> {
   data: T[];
@@ -12,7 +12,7 @@ function VirtualTable<T>({ data, columns }: VirtualTableProps<T>): JSX.Element {
   const rowVirtualizer = useVirtualizer({
     count: data.length,
     getScrollElement: () => parentRef.current,
-    estimateSize: () => 50, // Average row height
+    estimateSize: () => 50,
     overscan: 10,
   });
 
@@ -20,13 +20,15 @@ function VirtualTable<T>({ data, columns }: VirtualTableProps<T>): JSX.Element {
     horizontal: true,
     count: columns.length,
     getScrollElement: () => parentRef.current,
-    estimateSize: (index) => columns[index].width,
+    estimateSize: (index: number) => columns[index]?.width ?? 100,
     overscan: 5,
   });
 
   const renderRow = useCallback(
     (virtualRow: { index: number; start: number; size: number }) => {
       const rowData = data[virtualRow.index];
+      if (!rowData) return null;
+
       return (
         <div
           key={virtualRow.index}
@@ -40,7 +42,7 @@ function VirtualTable<T>({ data, columns }: VirtualTableProps<T>): JSX.Element {
             display: 'flex',
           }}
         >
-          {columnVirtualizer.getVirtualItems().map((virtualColumn) => (
+          {columnVirtualizer.getVirtualItems().map((virtualColumn: { index: number; start: number; size: number }) => (
             <div
               key={virtualColumn.index}
               style={{
@@ -55,7 +57,7 @@ function VirtualTable<T>({ data, columns }: VirtualTableProps<T>): JSX.Element {
                 textOverflow: 'ellipsis',
               }}
             >
-              {rowData[columns[virtualColumn.index].key as keyof T]}
+              {rowData[columns[virtualColumn.index]?.key as keyof T] as ReactNode}
             </div>
           ))}
         </div>

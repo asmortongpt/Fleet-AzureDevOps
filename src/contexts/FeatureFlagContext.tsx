@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useCallback, ReactNode } from 'react';
+import { createContext, useContext, useCallback, ReactNode } from 'react';
 
 import { useAuth } from './AuthContext';
 import { useTenant } from './TenantContext';
@@ -25,6 +25,11 @@ interface FeatureFlagProviderProps {
     children: ReactNode;
 }
 
+interface TenantSettingsWithPlan {
+    plan?: string;
+    features?: Record<FeatureFlagKey, boolean>;
+}
+
 export const FeatureFlagProvider = ({ children }: FeatureFlagProviderProps) => {
     const { user } = useAuth();
     const { settings } = useTenant();
@@ -40,8 +45,9 @@ export const FeatureFlagProvider = ({ children }: FeatureFlagProviderProps) => {
         if (user?.role === 'SuperAdmin') return true;
 
         // 2. Check tenant settings (database-backed feature flags)
-        if (settings?.features && settings.features[featureKey] !== undefined) {
-            if (!settings.features[featureKey]) return false;
+        const typedSettings = settings as TenantSettingsWithPlan | undefined;
+        if (typedSettings?.features && typedSettings.features[featureKey] !== undefined) {
+            if (!typedSettings.features[featureKey]) return false;
         }
 
         // 3. Check environment/global flags
@@ -53,10 +59,10 @@ export const FeatureFlagProvider = ({ children }: FeatureFlagProviderProps) => {
         if (envFlag === 'true') return true;
 
         // 4. Check minimum plan requirement
-        if (flagMetadata.minimumPlan && settings?.plan) {
+        if (flagMetadata.minimumPlan && typedSettings?.plan) {
             const planHierarchy = ['free', 'basic', 'professional', 'enterprise'];
             const requiredLevel = planHierarchy.indexOf(flagMetadata.minimumPlan);
-            const currentLevel = planHierarchy.indexOf(settings.plan);
+            const currentLevel = planHierarchy.indexOf(typedSettings.plan);
             if (currentLevel < requiredLevel) return false;
         }
 

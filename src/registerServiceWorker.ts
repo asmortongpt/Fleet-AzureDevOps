@@ -1,4 +1,6 @@
-import logger from '@/utils/logger'
+import { createLogger } from '@/utils/logger';
+
+const logger = createLogger('ServiceWorker');
 
 /**
  * Service Worker Registration Module
@@ -37,7 +39,7 @@ export async function registerServiceWorker(
   config: ServiceWorkerConfig = {}
 ): Promise<ServiceWorkerRegistration | null> {
   if (!isServiceWorkerSupported()) {
-    logger.warn('[ServiceWorker] Service workers are not supported in this browser');
+    logger.warn('Service workers are not supported in this browser');
     return null;
   }
 
@@ -47,7 +49,7 @@ export async function registerServiceWorker(
     import.meta.env.VITE_ENABLE_SW === 'true';
 
   if (!shouldRegister) {
-    logger.debug('[ServiceWorker] Skipping registration in development mode');
+    logger.debug('Skipping registration in development mode');
     return null;
   }
 
@@ -59,17 +61,17 @@ export async function registerServiceWorker(
 
     swRegistration = registration;
 
-    logger.debug('[ServiceWorker] Registration successful:', registration.scope);
+    logger.debug('Registration successful:', registration.scope);
 
     // Handle different registration states
     if (registration.installing) {
-      logger.debug('[ServiceWorker] Installing...');
+      logger.debug('Installing...');
       trackInstallation(registration.installing, config);
     } else if (registration.waiting) {
-      logger.debug('[ServiceWorker] New version waiting');
+      logger.debug('New version waiting');
       config.onUpdate?.(registration);
     } else if (registration.active) {
-      logger.debug('[ServiceWorker] Active');
+      logger.debug('Active');
       config.onReady?.(registration);
     }
 
@@ -77,33 +79,33 @@ export async function registerServiceWorker(
     registration.addEventListener('updatefound', () => {
       const newWorker = registration.installing;
       if (newWorker) {
-        logger.debug('[ServiceWorker] Update found, new version installing...');
+        logger.debug('Update found, new version installing...');
         trackInstallation(newWorker, config);
       }
     });
 
     // Listen for messages from the service worker
     navigator.serviceWorker.addEventListener('message', (event) => {
-      logger.debug('[ServiceWorker] Message from SW:', event.data);
+      logger.debug('Message from SW:', event.data);
       config.onMessage?.(event);
 
       // Handle specific message types
       if (event.data?.type === 'SW_ACTIVATED') {
-        logger.debug(`[ServiceWorker] New version activated: ${event.data.version}`);
+        logger.debug(`New version activated: ${event.data.version}`);
       }
     });
 
     // Check for updates periodically (every 60 minutes)
     setInterval(() => {
-      logger.debug('[ServiceWorker] Checking for updates...');
+      logger.debug('Checking for updates...');
       registration.update().catch((err) => {
-        logger.warn('[ServiceWorker] Update check failed:', err);
+        logger.warn('Update check failed:', err);
       });
     }, 60 * 60 * 1000);
 
     return registration;
   } catch (error) {
-    logger.error('[ServiceWorker] Registration failed:', error);
+    logger.error('Registration failed:', error);
     config.onError?.(error as Error);
     return null;
   }
@@ -117,19 +119,19 @@ function trackInstallation(
   config: ServiceWorkerConfig
 ): void {
   worker.addEventListener('statechange', () => {
-    logger.debug('[ServiceWorker] State changed:', worker.state);
+    logger.debug('State changed:', worker.state);
 
     switch (worker.state) {
       case 'installed':
         if (navigator.serviceWorker.controller) {
           // New version installed while old one was active
-          logger.debug('[ServiceWorker] New version available');
+          logger.debug('New version available');
           if (swRegistration) {
             config.onUpdate?.(swRegistration);
           }
         } else {
           // First install
-          logger.debug('[ServiceWorker] Content cached for offline use');
+          logger.debug('Content cached for offline use');
           if (swRegistration) {
             config.onSuccess?.(swRegistration);
           }
@@ -137,14 +139,14 @@ function trackInstallation(
         break;
 
       case 'activated':
-        logger.debug('[ServiceWorker] Activated');
+        logger.debug('Activated');
         if (swRegistration) {
           config.onReady?.(swRegistration);
         }
         break;
 
       case 'redundant':
-        logger.debug('[ServiceWorker] Redundant (replaced by newer version)');
+        logger.debug('Redundant (replaced by newer version)');
         break;
     }
   });
@@ -162,13 +164,13 @@ export async function unregisterServiceWorker(): Promise<boolean> {
     const registration = await navigator.serviceWorker.getRegistration();
     if (registration) {
       const success = await registration.unregister();
-      logger.debug('[ServiceWorker] Unregistered:', success);
+      logger.debug('Unregistered:', success);
       swRegistration = null;
       return success;
     }
     return false;
   } catch (error) {
-    logger.error('[ServiceWorker] Unregister failed:', error);
+    logger.error('Unregister failed:', error);
     return false;
   }
 }
@@ -189,9 +191,9 @@ export async function checkForUpdates(): Promise<void> {
   if (swRegistration) {
     try {
       await swRegistration.update();
-      logger.debug('[ServiceWorker] Update check completed');
+      logger.debug('Update check completed');
     } catch (error) {
-      logger.error('[ServiceWorker] Update check failed:', error);
+      logger.error('Update check failed:', error);
     }
   }
 }
@@ -237,12 +239,12 @@ export async function clearCaches(): Promise<void> {
 
   await Promise.all(
     ctafleetCaches.map((name) => {
-      logger.debug('[ServiceWorker] Clearing cache:', name);
+      logger.debug('Clearing cache:', name);
       return caches.delete(name);
     })
   );
 
-  logger.debug('[ServiceWorker] All caches cleared');
+  logger.debug('All caches cleared');
 }
 
 /**
@@ -325,10 +327,10 @@ export function showUpdateNotification(): Promise<boolean> {
  */
 export function initializeServiceWorker(): void {
   registerServiceWorker({
-    onReady: (registration) => {
+    onReady: (_registration) => {
       logger.debug('[App] Service Worker ready');
     },
-    onUpdate: async (registration) => {
+    onUpdate: async (_registration) => {
       logger.debug('[App] New version available');
 
       const shouldUpdate = await showUpdateNotification();
@@ -340,7 +342,7 @@ export function initializeServiceWorker(): void {
         }, 100);
       }
     },
-    onSuccess: (registration) => {
+    onSuccess: (_registration) => {
       logger.debug('[App] Content cached for offline use');
     },
     onError: (error) => {

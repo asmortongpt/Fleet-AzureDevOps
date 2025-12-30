@@ -1,6 +1,6 @@
 import axios from 'axios';
 import React, { useEffect, useState } from 'react';
-import { Helmet } from 'react-helmet';
+import { Helmet } from 'react-helmet-async';
 
 import { useTenantId } from '../../hooks/useTenantId';
 import { logger } from '../../utils/logger';
@@ -10,7 +10,6 @@ import { Alert } from './Alert';
 import { AllocationAssignment } from './AllocationAssignment';
 import { LicenseBar } from './LicenseBar';
 import { RenewalCalendar } from './RenewalCalendar';
-
 
 interface License {
   id: string;
@@ -34,8 +33,8 @@ const LicenseManagement: React.FC = () => {
           withCredentials: true,
         });
 
-        if (validateLicenseData(response.data)) {
-          setLicenses(response.data);
+        if (validateLicenseData(response?.data)) {
+          setLicenses(response?.data as License[]);
         } else {
           throw new Error('Invalid license data received');
         }
@@ -45,7 +44,9 @@ const LicenseManagement: React.FC = () => {
       }
     };
 
-    fetchLicenses();
+    if (tenantId) {
+      fetchLicenses();
+    }
   }, [tenantId]);
 
   return (
@@ -59,13 +60,13 @@ const LicenseManagement: React.FC = () => {
         <h1>License Management</h1>
         {error && <Alert message={error} type="error" />}
         <div className="license-list">
-          {licenses.map((license) => (
-            <div key={license.id} className="license-item">
-              <h2>{license.name}</h2>
-              <LicenseBar seatsUsed={license.seatsUsed} totalSeats={license.totalSeats} />
-              <RenewalCalendar renewalDate={license.renewalDate} />
-              <AllocationAssignment licenseId={license.id} />
-              {license.seatsUsed > license.totalSeats && (
+          {licenses?.map((license) => (
+            <div key={license?.id} className="license-item">
+              <h2>{license?.name}</h2>
+              <LicenseBar seatsUsed={license?.seatsUsed} totalSeats={license?.totalSeats} />
+              <RenewalCalendar renewalDate={license?.renewalDate} />
+              <AllocationAssignment licenseId={license?.id} />
+              {license?.seatsUsed > license?.totalSeats && (
                 <Alert message="Over allocation detected!" type="warning" />
               )}
             </div>

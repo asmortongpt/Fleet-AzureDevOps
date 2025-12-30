@@ -30,7 +30,7 @@ export function MobileMapControls({
   className,
   isFullscreen = false
 }: MobileMapControlsProps) {
-  const [isExpanded, setIsExpanded] = useState(false);
+  const [_isExpanded, _setIsExpanded] = useState(false);
 
   // Touch-optimized button size (44px minimum for accessibility)
   const buttonSize = 'h-11 w-11 sm:h-10 sm:w-10';
@@ -178,7 +178,7 @@ export function GestureMapWrapper({
   };
 
   const handleTouchMove = (e: React.TouchEvent) => {
-    if (e.touches.length === 2 && initialDistance && onPinchZoom) {
+    if (e.touches.length === 2 && initialDistance !== null && onPinchZoom) {
       // Pinch zoom
       const distance = Math.hypot(
         e.touches[0].clientX - e.touches[1].clientX,

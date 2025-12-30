@@ -1,18 +1,16 @@
 import axios from 'axios';
 import React, { useEffect, useState, useCallback } from 'react';
-import Helmet from 'react-helmet';
+import { Helmet } from 'react-helmet-async';
 import { MapContainer, TileLayer, Marker, Popup, Circle, Polygon } from 'react-leaflet';
 import { toast } from 'react-toastify';
 import { io, Socket } from 'socket.io-client';
 
 import 'react-toastify/dist/ReactToastify.css';
-import { Asset, Geofence } from '../../types';
-import { getAuthHeaders } from '../../utils/auth';
-import { logError, logAudit } from '../../utils/logger';
-import { validateCategory, validateStatus } from '../../utils/validators';
+import { Asset, Geofence } from '../../types/index';
+import { getAuthHeaders } from '../../utils/auth/index';
+import * as logger from '../../utils/logger/index';
+import { validateCategory, validateStatus } from '../../utils/validators/index';
 
-
-// FedRAMP/SOC 2 compliance: Ensure secure headers
 Helmet.defaultProps = {
   defaultTitle: 'Asset Location Map',
   titleTemplate: '%s - Asset Management',
@@ -25,7 +23,7 @@ Helmet.defaultProps = {
 const AssetLocationMap: React.FC<{ tenantId: string }> = ({ tenantId }) => {
   const [assets, setAssets] = useState<Asset[]>([]);
   const [geofences, setGeofences] = useState<Geofence[]>([]);
-  const [socket, setSocket] = useState<Socket | null>(null);
+  const [_socket, setSocket] = useState<Socket | null>(null);
 
   const fetchAssets = useCallback(async (category?: string, status?: string) => {
     try {
@@ -39,7 +37,7 @@ const AssetLocationMap: React.FC<{ tenantId: string }> = ({ tenantId }) => {
       });
       setAssets(response.data);
     } catch (error) {
-      logError('Failed to fetch assets', error);
+      logger.logError('Failed to fetch assets', error);
       toast.error('Error fetching assets');
     }
   }, [tenantId]);
@@ -52,7 +50,7 @@ const AssetLocationMap: React.FC<{ tenantId: string }> = ({ tenantId }) => {
       });
       setGeofences(response.data);
     } catch (error) {
-      logError('Failed to fetch geofences', error);
+      logger.logError('Failed to fetch geofences', error);
       toast.error('Error fetching geofences');
     }
   }, [tenantId]);
@@ -64,16 +62,16 @@ const AssetLocationMap: React.FC<{ tenantId: string }> = ({ tenantId }) => {
     const newSocket = io(process.env.REACT_APP_WS_URL || '', {
       query: { tenant_id: tenantId },
       transports: ['websocket'],
-      secure: true, // Ensure WebSocket is secure
+      secure: true,
     });
 
     newSocket.on('assetUpdate', (updatedAsset: Asset) => {
       setAssets((prevAssets) => prevAssets.map(asset => asset.id === updatedAsset.id ? updatedAsset : asset));
-      logAudit('Asset updated via WebSocket', updatedAsset);
+      logger.logAudit('Asset updated via WebSocket', updatedAsset);
     });
 
     newSocket.on('connect_error', (error) => {
-      logError('WebSocket connection error', error);
+      logger.logError('WebSocket connection error', error);
       toast.error('WebSocket connection error');
     });
 

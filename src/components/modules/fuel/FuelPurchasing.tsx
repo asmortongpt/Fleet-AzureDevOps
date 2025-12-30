@@ -86,13 +86,20 @@ interface FuelContract {
   status: string
 }
 
+interface SavingsData {
+  totalSavings: number
+  totalGallons: number
+  averagePricePaid: number
+  marketAveragePrice: number
+}
+
 export function FuelPurchasing() {
   const [activeTab, setActiveTab] = useState("map")
   const [nearbyStations, setNearbyStations] = useState<FuelStation[]>([])
   const [forecasts, setForecasts] = useState<PriceForecast[]>([])
   const [purchaseRecommendation, setPurchaseRecommendation] = useState<PurchaseRecommendation | null>(null)
   const [contracts, setContracts] = useState<FuelContract[]>([])
-  const [savings, setSavings] = useState<any>(null)
+  const [savings, setSavings] = useState<SavingsData | null>(null)
   const [loading, setLoading] = useState(false)
 
   // Search parameters
@@ -121,7 +128,7 @@ export function FuelPurchasing() {
       const data = await apiClient.get(
         `/fuel-purchasing/prices/nearby?lat=${searchLat}&lng=${searchLng}&radius=${searchRadius}&fuelType=${selectedFuelType}`
       )
-      setNearbyStations(data)
+      setNearbyStations(data as FuelStation[])
     } catch (error) {
       // Error already shown to user via toast.error
       toast.error("Failed to load nearby stations")
@@ -135,7 +142,7 @@ export function FuelPurchasing() {
       const data = await apiClient.get(
         `/fuel-purchasing/forecast?fuelType=${selectedFuelType}&days=14`
       )
-      setForecasts(data)
+      setForecasts(data as PriceForecast[])
     } catch (error) {
       // Silent failure - forecast data is optional
     }
@@ -146,7 +153,7 @@ export function FuelPurchasing() {
       const data = await apiClient.get(
         `/fuel-purchasing/forecast/timing?fuelType=${selectedFuelType}&currentPrice=3.45`
       )
-      setPurchaseRecommendation(data)
+      setPurchaseRecommendation(data as PurchaseRecommendation)
     } catch (error) {
       // Silent failure - recommendation data is optional
     }
@@ -155,7 +162,7 @@ export function FuelPurchasing() {
   const fetchContracts = async () => {
     try {
       const data = await apiClient.get("/fuel-purchasing/contracts?status=active")
-      setContracts(data)
+      setContracts(data as FuelContract[])
     } catch (error) {
       // Silent failure - contracts data is optional
     }
@@ -168,7 +175,7 @@ export function FuelPurchasing() {
       const data = await apiClient.get(
         `/fuel-purchasing/savings?startDate=${startDate}&endDate=${endDate}`
       )
-      setSavings(data)
+      setSavings(data as SavingsData)
     } catch (error) {
       // Silent failure - savings data is optional
     }
@@ -220,10 +227,10 @@ export function FuelPurchasing() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-green-600">
-              ${savings?.totalSavings?.toFixed(0) || '0'}
+              ${savings?.totalSavings.toFixed(0) || '0'}
             </div>
             <div className="text-xs text-gray-600 mt-1">
-              {savings?.totalGallons?.toFixed(0) || '0'} gallons purchased
+              {savings?.totalGallons.toFixed(0) || '0'} gallons purchased
             </div>
           </CardContent>
         </Card>
@@ -425,317 +432,26 @@ export function FuelPurchasing() {
                         </TableCell>
                         <TableCell>
                           <div className="text-lg font-bold text-green-600">
-                            {formatPrice(station.currentPrices?.[selectedFuelType] || 0)}
+                            {formatPrice(station.currentPrices[selectedFuelType] || 0)}
                           </div>
                         </TableCell>
                         <TableCell>
                           <div className="flex flex-wrap gap-1">
                             {station.acceptsFleetCards && (
-                              <Badge variant="secondary" className="text-xs">Fleet Card</Badge>
-                            )}
-                            {station.has24HourAccess && (
-                              <Badge variant="secondary" className="text-xs">24/7</Badge>
-                            )}
-                            {station.hasTruckAccess && (
-                              <Badge variant="secondary" className="text-xs">Truck</Badge>
+                              <Badge variant="outline">Fleet Cards</Badge>
                             )}
                           </div>
                         </TableCell>
                         <TableCell>
-                          <div className="flex items-center gap-1">
-                            <span className="text-yellow-500">★</span>
-                            <span className="font-medium">{station.rating.toFixed(1)}</span>
-                          </div>
+                          <div className="text-sm">{station.rating.toFixed(1)}/5</div>
                         </TableCell>
                       </TableRow>
                     ))}
                   </TableBody>
                 </Table>
               ) : (
-                <div className="text-center py-8 text-gray-500">
-                  <GasPump className="h-16 w-16 mx-auto mb-3 opacity-50" />
-                  <p className="text-lg font-medium">No stations found</p>
-                  <p className="text-sm">Try adjusting your search parameters</p>
-                </div>
-              )}
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        <TabsContent value="forecasts" className="space-y-6">
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <ChartLine className="h-5 w-5 text-blue-600" weight="fill" />
-                14-Day Price Forecast
-              </CardTitle>
-              <CardDescription>AI-powered price predictions for {selectedFuelType} fuel</CardDescription>
-            </CardHeader>
-            <CardContent>
-              {forecasts.length > 0 ? (
-                <div className="space-y-4">
-                  {/* Price Trend Chart */}
-                  <div className="h-48 flex items-end gap-1">
-                    {forecasts.slice(0, 14).map((forecast, idx) => {
-                      const maxPrice = Math.max(...forecasts.map(f => f.predictedPrice))
-                      const minPrice = Math.min(...forecasts.map(f => f.predictedPrice))
-                      const range = maxPrice - minPrice
-                      const heightPercent = range > 0
-                        ? ((forecast.predictedPrice - minPrice) / range) * 100
-                        : 50
-
-                      return (
-                        <div key={idx} className="flex-1 flex flex-col items-center">
-                          <div
-                            className="w-full bg-blue-500 rounded-t hover:bg-blue-600 transition-colors cursor-pointer"
-                            style={{ height: `${heightPercent}%`, minHeight: '20%' }}
-                            title={`${forecast.date}: ${formatPrice(forecast.predictedPrice)}`}
-                          />
-                          <div className="text-xs text-gray-500 mt-1 rotate-45 origin-top-left">
-                            {new Date(forecast.date).getDate()}
-                          </div>
-                        </div>
-                      )
-                    })}
-                  </div>
-
-                  {/* Forecast Table */}
-                  <Table>
-                    <TableHeader>
-                      <TableRow>
-                        <TableHead>Date</TableHead>
-                        <TableHead>Predicted Price</TableHead>
-                        <TableHead>Range</TableHead>
-                        <TableHead>Confidence</TableHead>
-                        <TableHead>Trend</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {forecasts.slice(0, 7).map((forecast, idx) => {
-                        const prevPrice = idx > 0 ? forecasts[idx - 1].predictedPrice : forecast.predictedPrice
-                        const priceDiff = forecast.predictedPrice - prevPrice
-                        const isUp = priceDiff > 0
-
-                        return (
-                          <TableRow key={forecast.date}>
-                            <TableCell className="font-medium">
-                              {new Date(forecast.date).toLocaleDateString('en-US', {
-                                month: 'short',
-                                day: 'numeric'
-                              })}
-                            </TableCell>
-                            <TableCell className="text-lg font-bold">
-                              {formatPrice(forecast.predictedPrice)}
-                            </TableCell>
-                            <TableCell className="text-sm text-gray-600">
-                              {formatPrice(forecast.confidenceIntervalLow)} - {formatPrice(forecast.confidenceIntervalHigh)}
-                            </TableCell>
-                            <TableCell>
-                              <Badge variant="outline">
-                                {forecast.confidenceScore.toFixed(0)}%
-                              </Badge>
-                            </TableCell>
-                            <TableCell>
-                              {idx > 0 && (
-                                <div className={`flex items-center gap-1 ${isUp ? 'text-red-600' : 'text-green-600'}`}>
-                                  {isUp ? <TrendUp className="h-4 w-4" /> : <TrendDown className="h-4 w-4" />}
-                                  <span className="text-sm font-medium">
-                                    {Math.abs(priceDiff).toFixed(3)}
-                                  </span>
-                                </div>
-                              )}
-                            </TableCell>
-                          </TableRow>
-                        )
-                      })}
-                    </TableBody>
-                  </Table>
-                </div>
-              ) : (
-                <div className="text-center py-8 text-gray-500">
-                  <ChartLine className="h-16 w-16 mx-auto mb-3 opacity-50" />
-                  <p className="text-lg font-medium">No forecast data available</p>
-                </div>
-              )}
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        <TabsContent value="contracts" className="space-y-6">
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <FileText className="h-5 w-5 text-blue-600" weight="fill" />
-                Fuel Contracts
-              </CardTitle>
-              <CardDescription>Active supplier agreements and discounts</CardDescription>
-            </CardHeader>
-            <CardContent>
-              {contracts.length > 0 ? (
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Supplier</TableHead>
-                      <TableHead>Contract Type</TableHead>
-                      <TableHead>Fuel Types</TableHead>
-                      <TableHead>Discount</TableHead>
-                      <TableHead>Period</TableHead>
-                      <TableHead>Status</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {contracts.map((contract) => (
-                      <TableRow key={contract.id}>
-                        <TableCell className="font-medium">{contract.supplierName}</TableCell>
-                        <TableCell>
-                          <Badge variant="outline">{contract.contractType}</Badge>
-                        </TableCell>
-                        <TableCell>
-                          <div className="flex flex-wrap gap-1">
-                            {contract.fuelTypes.map(type => (
-                              <Badge key={type} variant="secondary" className="text-xs">
-                                {type}
-                              </Badge>
-                            ))}
-                          </div>
-                        </TableCell>
-                        <TableCell className="text-green-600 font-bold">
-                          {contract.discountRate.toFixed(1)}%
-                        </TableCell>
-                        <TableCell className="text-sm">
-                          {new Date(contract.startDate).toLocaleDateString()} -<br />
-                          {new Date(contract.endDate).toLocaleDateString()}
-                        </TableCell>
-                        <TableCell>
-                          <Badge
-                            variant={contract.status === 'active' ? 'default' : 'secondary'}
-                          >
-                            {contract.status}
-                          </Badge>
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              ) : (
-                <div className="text-center py-8 text-gray-500">
-                  <FileText className="h-16 w-16 mx-auto mb-3 opacity-50" />
-                  <p className="text-lg font-medium">No active contracts</p>
-                  <p className="text-sm">Set up supplier contracts to unlock volume discounts</p>
-                </div>
-              )}
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        <TabsContent value="alerts" className="space-y-6">
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Bell className="h-5 w-5 text-blue-600" weight="fill" />
-                Price Alerts
-              </CardTitle>
-              <CardDescription>Get notified when fuel prices meet your criteria</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="text-center py-8 text-gray-500">
-                <Bell className="h-16 w-16 mx-auto mb-3 opacity-50" />
-                <p className="text-lg font-medium">No alerts configured</p>
-                <p className="text-sm mb-4">Create alerts to monitor fuel prices</p>
-                <Button>
-                  <Bell className="h-4 w-4 mr-2" />
-                  Create Alert
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        <TabsContent value="savings" className="space-y-6">
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <CurrencyDollar className="h-5 w-5 text-green-600" weight="fill" />
-                Savings Calculator
-              </CardTitle>
-              <CardDescription>Track your fuel cost optimization savings</CardDescription>
-            </CardHeader>
-            <CardContent>
-              {savings && (
-                <div className="space-y-6">
-                  <div className="grid grid-cols-2 gap-6">
-                    <div>
-                      <h3 className="font-semibold mb-4">Last 30 Days Performance</h3>
-                      <div className="space-y-3">
-                        <div className="flex justify-between items-center">
-                          <span className="text-gray-600">Total Gallons</span>
-                          <span className="font-bold">{savings.totalGallons?.toFixed(0)}</span>
-                        </div>
-                        <div className="flex justify-between items-center">
-                          <span className="text-gray-600">Total Spent</span>
-                          <span className="font-bold">${savings.totalSpent?.toFixed(2)}</span>
-                        </div>
-                        <div className="flex justify-between items-center">
-                          <span className="text-gray-600">Avg Price Paid</span>
-                          <span className="font-bold">{formatPrice(savings.averagePricePaid)}</span>
-                        </div>
-                        <div className="flex justify-between items-center">
-                          <span className="text-gray-600">Market Average</span>
-                          <span className="font-bold">{formatPrice(savings.marketAveragePrice)}</span>
-                        </div>
-                      </div>
-                    </div>
-
-                    <div>
-                      <h3 className="font-semibold mb-4">Savings Breakdown</h3>
-                      <div className="space-y-3">
-                        <div className="flex justify-between items-center">
-                          <span className="text-gray-600">Contract Discounts</span>
-                          <span className="font-bold text-green-600">
-                            ${savings.savingsBreakdown?.contractDiscounts?.toFixed(2)}
-                          </span>
-                        </div>
-                        <div className="flex justify-between items-center">
-                          <span className="text-gray-600">Optimal Timing</span>
-                          <span className="font-bold text-green-600">
-                            ${savings.savingsBreakdown?.optimalTiming?.toFixed(2)}
-                          </span>
-                        </div>
-                        <div className="flex justify-between items-center">
-                          <span className="text-gray-600">Optimal Location</span>
-                          <span className="font-bold text-green-600">
-                            ${savings.savingsBreakdown?.optimalLocation?.toFixed(2)}
-                          </span>
-                        </div>
-                        <div className="flex justify-between items-center">
-                          <span className="text-gray-600">Bulk Purchase</span>
-                          <span className="font-bold text-green-600">
-                            ${savings.savingsBreakdown?.bulkPurchase?.toFixed(2)}
-                          </span>
-                        </div>
-                        <div className="pt-3 border-t flex justify-between items-center">
-                          <span className="font-semibold">Total Savings</span>
-                          <span className="text-xl font-bold text-green-600">
-                            ${savings.totalSavings?.toFixed(2)}
-                          </span>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="p-4 bg-green-50 rounded-lg">
-                    <div className="flex items-center gap-2 mb-2">
-                      <CheckCircle className="h-5 w-5 text-green-600" weight="fill" />
-                      <span className="font-semibold text-green-900">Optimization Impact</span>
-                    </div>
-                    <p className="text-sm text-green-800">
-                      You've saved{' '}
-                      <span className="font-bold">
-                        {((savings.totalSavings / savings.totalSpent) * 100).toFixed(1)}%
-                      </span>{' '}
-                      compared to market average prices. Keep up the great work!
-                    </p>
-                  </div>
+                <div className="text-center py-8 text-gray-600">
+                  No stations found. Try adjusting your search criteria.
                 </div>
               )}
             </CardContent>

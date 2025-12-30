@@ -4,12 +4,7 @@
  */
 
 import { format, startOfWeek, endOfWeek, startOfMonth, endOfMonth, eachDayOfInterval, isSameMonth, isSameDay, addMonths, subMonths, addWeeks, subWeeks, addDays, subDays, startOfDay, endOfDay, parseISO } from 'date-fns'
-import AlertCircleIcon from 'lucide-react/dist/esm/icons/alert-circle'
-import CalendarIcon from 'lucide-react/dist/esm/icons/calendar'
-import ChevronLeftIcon from 'lucide-react/dist/esm/icons/chevron-left'
-import ChevronRightIcon from 'lucide-react/dist/esm/icons/chevron-right'
-import TruckIcon from 'lucide-react/dist/esm/icons/truck'
-import WrenchIcon from 'lucide-react/dist/esm/icons/wrench'
+import { AlertCircle, Calendar, ChevronLeft, ChevronRight, Truck, Wrench } from 'lucide-react'
 import { useState, useMemo } from 'react'
 
 import { Alert, AlertDescription } from '@/components/ui/alert'
@@ -210,7 +205,7 @@ export function SchedulingCalendar({
   if (error) {
     return (
       <Alert variant="destructive" className={className}>
-        <AlertCircleIcon className="h-4 w-4" />
+        <AlertCircle className="h-4 w-4" />
         <AlertDescription>
           Failed to load calendar events: {error.message}
         </AlertDescription>
@@ -223,7 +218,7 @@ export function SchedulingCalendar({
       <CardHeader>
         <div className="flex items-center justify-between">
           <CardTitle className="flex items-center gap-2">
-            <CalendarIcon className="h-5 w-5" />
+            <Calendar className="h-5 w-5" />
             Fleet Schedule
           </CardTitle>
           <div className="flex items-center gap-2">
@@ -239,10 +234,10 @@ export function SchedulingCalendar({
         <div className="flex items-center justify-between mt-4">
           <div className="flex items-center gap-2">
             <Button variant="outline" size="sm" onClick={navigatePrevious}>
-              <ChevronLeftIcon className="h-4 w-4" />
+              <ChevronLeft className="h-4 w-4" />
             </Button>
             <Button variant="outline" size="sm" onClick={navigateNext}>
-              <ChevronRightIcon className="h-4 w-4" />
+              <ChevronRight className="h-4 w-4" />
             </Button>
             <Button variant="outline" size="sm" onClick={navigateToday}>
               Today
@@ -252,13 +247,13 @@ export function SchedulingCalendar({
           <div className="flex items-center gap-4">
             {onCreateReservation && (
               <Button variant="outline" size="sm" onClick={() => onCreateReservation(selectedDate || currentDate)}>
-                <TruckIcon className="h-4 w-4 mr-1" />
+                <Truck className="h-4 w-4 mr-1" />
                 New Reservation
               </Button>
             )}
             {onCreateMaintenance && (
               <Button variant="outline" size="sm" onClick={() => onCreateMaintenance(selectedDate || currentDate)}>
-                <WrenchIcon className="h-4 w-4 mr-1" />
+                <Wrench className="h-4 w-4 mr-1" />
                 New Maintenance
               </Button>
             )}
@@ -385,96 +380,6 @@ export function SchedulingCalendar({
                 </ScrollArea>
               </div>
             )}
-
-            {view === 'day' && (
-              <div className="space-y-2">
-                <ScrollArea className="h-[600px] pr-4">
-                  {Array.from({ length: 24 }).map((_, hour) => {
-                    const hourStart = new Date(currentDate).setHours(hour, 0, 0, 0)
-                    const hourEnd = new Date(currentDate).setHours(hour, 59, 59, 999)
-                    const hourEvents = events.filter((event) => {
-                      return event.start.getTime() <= hourEnd && event.end.getTime() >= hourStart
-                    })
-
-                    return (
-                      <div key={hour} className="flex border-t">
-                        <div className="w-24 text-sm text-muted-foreground p-2 flex-shrink-0">
-                          {format(new Date().setHours(hour, 0, 0, 0), 'h:mm a')}
-                        </div>
-                        <button
-                          onClick={() => handleDateSelect(new Date(currentDate.setHours(hour)))}
-                          className="flex-1 min-h-20 p-2 hover:bg-accent transition-colors"
-                        >
-                          <div className="space-y-1">
-                            {hourEvents.map((event) => (
-                              <div
-                                key={event.id}
-                                onClick={(e) => {
-                                  e.stopPropagation()
-                                  handleEventClick(event)
-                                }}
-                                className={cn(
-                                  'p-2 rounded border cursor-pointer',
-                                  event.color
-                                )}
-                              >
-                                <div className="flex items-center justify-between mb-1">
-                                  <div className="flex items-center gap-2">
-                                    {event.type === 'reservation' ? (
-                                      <TruckIcon className="h-4 w-4" />
-                                    ) : (
-                                      <WrenchIcon className="h-4 w-4" />
-                                    )}
-                                    <span className="font-semibold">{event.title}</span>
-                                  </div>
-                                  {event.priority && (
-                                    <Badge variant="outline" className={cn('text-white', PRIORITY_COLORS[event.priority])}>
-                                      {event.priority}
-                                    </Badge>
-                                  )}
-                                </div>
-                                <div className="text-xs">
-                                  {format(event.start, 'h:mm a')} - {format(event.end, 'h:mm a')}
-                                </div>
-                                {event.vehicleNumber && (
-                                  <div className="text-xs mt-1">Vehicle: {event.vehicleNumber}</div>
-                                )}
-                              </div>
-                            ))}
-                          </div>
-                        </button>
-                      </div>
-                    )
-                  })}
-                </ScrollArea>
-              </div>
-            )}
-
-            {/* Legend */}
-            <div className="mt-4 pt-4 border-t">
-              <div className="flex items-center gap-4 flex-wrap text-sm">
-                <div className="flex items-center gap-2">
-                  <div className="w-3 h-3 rounded-full bg-blue-500" />
-                  <span>Reservation</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <div className="w-3 h-3 rounded-full bg-purple-500" />
-                  <span>Maintenance</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <div className="w-3 h-3 rounded-full bg-green-500" />
-                  <span>Active</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <div className="w-3 h-3 rounded-full bg-yellow-500" />
-                  <span>Pending</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <div className="w-3 h-3 rounded-full bg-gray-400" />
-                  <span>Completed</span>
-                </div>
-              </div>
-            </div>
           </>
         )}
       </CardContent>
