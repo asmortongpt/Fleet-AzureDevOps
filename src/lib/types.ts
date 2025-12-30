@@ -167,12 +167,14 @@ export interface WorkOrder {
   vehicleId: string
   vehicleNumber: string
   serviceType: string
+  title?: string // Optional title for display purposes
   priority: "low" | "medium" | "high" | "urgent"
   status: "pending" | "in-progress" | "completed" | "cancelled"
   assignedTo?: string
   cost?: number
   laborHours?: number
   createdDate: string
+  dueDate?: string // Due date for work order completion
   completedDate?: string
   description: string
   notes?: string[]
@@ -195,14 +197,21 @@ export interface FuelTransaction {
   id: string
   vehicleId: string
   vehicleNumber: string
+  vehicleType?: string
   date: string
   station: string
   gallons: number
   pricePerGallon: number
   totalCost: number
+  cost?: number // Alias for totalCost for backwards compatibility
   mpg: number
   paymentMethod: string
   odometer: number
+  locationData?: {
+    lat: number
+    lng: number
+    address?: string
+  }
 }
 
 export interface MaintenanceRequest {
