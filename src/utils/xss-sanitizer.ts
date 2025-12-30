@@ -13,7 +13,7 @@ import logger from '@/utils/logger';
  * @param options - DOMPurify configuration options
  * @returns Sanitized HTML string
  */
-export function sanitizeHtml(dirty: string, options?: Partial<DOMPurify.Config>): string {
+export function sanitizeHtml(dirty: string, options?: Record<string, unknown>): string {
   if (!dirty || typeof dirty !== 'string') {
     return '';
   }
@@ -24,7 +24,7 @@ export function sanitizeHtml(dirty: string, options?: Partial<DOMPurify.Config>)
     ALLOW_DATA_ATTR: false,
     SAFE_FOR_TEMPLATES: true,
     ...(options || {}),
-  } as const;
+  };
 
   return DOMPurify.sanitize(dirty, config);
 }

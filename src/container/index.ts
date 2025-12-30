@@ -1,4 +1,4 @@
-import { createContainer, asClass, Lifetime } from 'awilix';
+import { createContainer, asClass } from 'awilix';
 
 import { DriverRepository } from '../repositories/DriverRepository';
 import { InspectionRepository } from '../repositories/InspectionRepository';
@@ -14,13 +14,13 @@ export const configureContainer = (): DIContainer => {
   const container = createContainer<DIContainer>();
 
   container.register({
-    vehicleRepository: asClass(VehicleRepository, { lifetime: Lifetime.SINGLETON }),
-    driverRepository: asClass(DriverRepository, { lifetime: Lifetime.SINGLETON }),
-    vendorRepository: asClass(VendorRepository, { lifetime: Lifetime.SINGLETON }),
-    inspectionRepository: asClass(InspectionRepository, { lifetime: Lifetime.SINGLETON }),
-    maintenanceRepository: asClass(MaintenanceRepository, { lifetime: Lifetime.SINGLETON }),
-    workOrderRepository: asClass(WorkOrderRepository, { lifetime: Lifetime.SINGLETON }),
-    logger: asClass(Logger, { lifetime: Lifetime.SINGLETON })
+    vehicleRepository: asClass(VehicleRepository, { lifetime: 'singleton' }),
+    driverRepository: asClass(DriverRepository, { lifetime: 'singleton' }),
+    vendorRepository: asClass(VendorRepository, { lifetime: 'singleton' }),
+    inspectionRepository: asClass(InspectionRepository, { lifetime: 'singleton' }),
+    maintenanceRepository: asClass(MaintenanceRepository, { lifetime: 'singleton' }),
+    workOrderRepository: asClass(WorkOrderRepository, { lifetime: 'singleton' }),
+    logger: asClass(Logger, { lifetime: 'singleton' })
   });
 
   return container;
