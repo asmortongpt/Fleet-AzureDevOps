@@ -16,7 +16,6 @@ import {
   useFacilities,
   useFacilityMutations,
   useMaintenanceSchedules,
-  useMaintenanceScheduleMutations,
   useRoutes,
   useRouteMutations
 } from '@/hooks/use-api'
@@ -78,9 +77,7 @@ export function useFleetData() {
   const vehicleMutations = useVehicleMutations()
   const driverMutations = useDriverMutations()
   const workOrderMutations = useWorkOrderMutations()
-  const fuelMutations = useFuelTransactionMutations()
   const facilityMutations = useFacilityMutations()
-  const maintenanceMutations = useMaintenanceScheduleMutations()
   const routeMutations = useRouteMutations()
 
   // Extract data arrays with demo fallback
