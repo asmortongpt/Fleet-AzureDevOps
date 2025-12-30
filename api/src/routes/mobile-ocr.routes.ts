@@ -214,7 +214,7 @@ router.post(
       if (error instanceof z.ZodError) {
         return res.status(400).json({
           error: 'Validation error',
-          details: error.errors,
+          details: error.issues,
         });
       }
 
@@ -388,7 +388,7 @@ router.post(
       if (error instanceof z.ZodError) {
         return res.status(400).json({
           error: 'Validation error',
-          details: error.errors,
+          details: error.issues,
         });
       }
 
@@ -438,7 +438,7 @@ router.post(
           }
         } catch (error: any) {
           if (error instanceof z.ZodError) {
-            validationResult.errors = error.errors.map(e => ({
+            validationResult.errors = error.issues.map(e => ({
               field: e.path.join(`.`),
               message: e.message,
             }));
@@ -461,7 +461,7 @@ router.post(
           }
         } catch (error: any) {
           if (error instanceof z.ZodError) {
-            validationResult.errors = error.errors.map(e => ({
+            validationResult.errors = error.issues.map(e => ({
               field: e.path.join(`.`),
               message: e.message,
             }));
@@ -476,7 +476,7 @@ router.post(
       if (error instanceof z.ZodError) {
         return res.status(400).json({
           error: 'Invalid request',
-          details: error.errors,
+          details: error.issues,
         });
       }
 
