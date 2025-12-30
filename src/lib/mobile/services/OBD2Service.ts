@@ -596,7 +596,7 @@ export class OBD2Service {
 
       return value
     } catch (error) {
-      logger.error('Error', { error: `Error reading PID ${pidKey}:`, error })
+      logger.error(`Error reading PID ${pidKey}:`, error)
       throw new Error(`Failed to read PID: ${error}`)
     }
   }
