@@ -381,7 +381,7 @@ export const OBD2AdapterScanner: React.FC<OBD2AdapterScannerProps> = ({
       'ENGINE_LOAD'
     ]
 
-    OBD2Service.startLiveDataStream(pidKeys, 1000, (data) => {
+    OBD2Service.startLiveDataStream(pidKeys, 1000, (data: LiveOBD2Data) => {
       setLiveData(data)
       onLiveDataUpdate?.(data)
     })
