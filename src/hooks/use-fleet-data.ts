@@ -13,6 +13,7 @@ import {
   useWorkOrders,
   useWorkOrderMutations,
   useFuelTransactions,
+  useFuelMutations,
   useFacilities,
   useFacilityMutations,
   useMaintenanceSchedules,
