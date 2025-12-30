@@ -61,6 +61,18 @@ export abstract class BaseRepository<T extends { id: string | number }> {
   }
 
   /**
+   * Execute a custom parameterized query (for subclass convenience)
+   * @param sql - SQL query with $1, $2, etc. placeholders  
+   * @param params - Array of parameter values
+   * @returns Query result rows
+   */
+  protected async query<R = T>(sql: string, params: unknown[] = []): Promise<R[]> {
+    const pool = connectionManager.getPool();
+    const result = await pool.query(sql, params);
+    return result.rows as R[];
+  }
+
+  /**
    * Find single record by ID
    */
   async findById(id: string | number, context: QueryContext): Promise<T | null> {
