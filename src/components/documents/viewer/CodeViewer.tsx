@@ -4,7 +4,6 @@
  * SECURITY: Uses DOMPurify to sanitize HTML and prevent XSS attacks
  */
 
-
 import DOMPurify from 'dompurify';
 import { Copy, Check, Search, Download } from 'lucide-react';
 import { useState, useEffect } from 'react';
@@ -15,33 +14,34 @@ import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { DocumentMetadata } from '@/lib/documents/types';
 import logger from '@/utils/logger';
-import { sanitizeHtml } from '@/utils/xss-sanitizer'
+import { sanitizeHtml } from '@/utils/xss-sanitizer';
+
 interface CodeViewerProps {
   document: DocumentMetadata;
 }
 
 export function CodeViewer({ document }: CodeViewerProps) {
-  const [code, setCode] = useState('');
-  const [copied, setCopied] = useState(false);
-  const [searchQuery, setSearchQuery] = useState('');
-  const [loading, setLoading] = useState(true);
+  const [code, setCode] = useState<string>('');
+  const [copied, setCopied] = useState<boolean>(false);
+  const [searchQuery, setSearchQuery] = useState<string>('');
+  const [loading, setLoading] = useState<boolean>(true);
 
   useEffect(() => {
     // Fetch code content
     fetch(document.url)
-      .then(res => res.text())
-      .then(text => {
+      .then((res) => res.text())
+      .then((text) => {
         setCode(text);
         setLoading(false);
       })
-      .catch(err => {
+      .catch((err) => {
         logger.error('Error loading code:', err);
         setCode('// Error loading file');
         setLoading(false);
       });
   }, [document.url]);
 
-  const handleCopy = async () => {
+  const handleCopy = async (): Promise<void> => {
     try {
       await navigator.clipboard.writeText(code);
       setCopied(true);
@@ -51,7 +51,7 @@ export function CodeViewer({ document }: CodeViewerProps) {
     }
   };
 
-  const handleDownload = () => {
+  const handleDownload = (): void => {
     const blob = new Blob([code], { type: 'text/plain' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
@@ -61,7 +61,7 @@ export function CodeViewer({ document }: CodeViewerProps) {
     URL.revokeObjectURL(url);
   };
 
-  const getLanguage = () => {
+  const getLanguage = (): string => {
     const ext = document.name.split('.').pop()?.toLowerCase() || '';
     const langMap: Record<string, string> = {
       js: 'JavaScript',
@@ -130,7 +130,7 @@ export function CodeViewer({ document }: CodeViewerProps) {
     ];
 
     // This is a simplified highlighter. For production, use a library like Prism.js
-    keywords.forEach(keyword => {
+    keywords.forEach((keyword) => {
       const regex = new RegExp(`\\b${keyword}\\b`, 'g');
       highlighted = highlighted.replace(regex, `<span class="text-purple-600 dark:text-purple-400 font-semibold">${keyword}</span>`);
     });
@@ -255,7 +255,7 @@ export function CodeViewer({ document }: CodeViewerProps) {
                   <td className="px-4 py-0.5">
                     <pre
                       className="whitespace-pre-wrap break-all"
-                      dangerouslySetInnerHTML={{ __html: sanitizeHtml( sanitizeHtml(highlightCode(line) || '&nbsp;') ) }}
+                      dangerouslySetInnerHTML={{ __html: sanitizeHtml(sanitizeHtml(highlightCode(line) || '&nbsp;')) }}
                     />
                   </td>
                 </tr>

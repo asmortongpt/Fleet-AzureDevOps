@@ -2,7 +2,7 @@ import {
   Wrench, Clock, CheckCircle, XCircle,
   AlertTriangle, User, Package, Image as ImageIcon
 } from 'lucide-react';
-import React, { useState } from 'react';
+import { useState } from 'react';
 
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -319,14 +319,17 @@ export function WorkOrderDetailView({ workOrder, onClose }: WorkOrderDetailViewP
                       <div className="flex flex-col items-center">
                         <div className="w-3 h-3 rounded-full bg-orange-600 border-4 border-orange-200" />
                         {index < timeline.length - 1 && (
-                          <div className="w-px h-full bg-orange-200 my-1" />
+                          <div className="w-0.5 h-full bg-orange-200" />
                         )}
                       </div>
-                      <div className="flex-1 pb-4">
-                        <p className="font-medium text-sm">{event.event}</p>
-                        <p className="text-xs text-muted-foreground">
-                          {event.date} • {event.user}
-                        </p>
+                      <div className="flex-1 pt-1">
+                        <div className="flex justify-between text-sm">
+                          <span className="font-medium">{event.event}</span>
+                          <span className="text-muted-foreground">{event.date}</span>
+                        </div>
+                        <div className="text-xs text-muted-foreground mt-1">
+                          {event.user}
+                        </div>
                       </div>
                     </div>
                   ))}
@@ -339,18 +342,18 @@ export function WorkOrderDetailView({ workOrder, onClose }: WorkOrderDetailViewP
           <TabsContent value="photos">
             <Card>
               <CardHeader>
-                <CardTitle>Work Order Photos</CardTitle>
-                <CardDescription>{photos.length} photos attached</CardDescription>
+                <CardTitle>Documentation Photos</CardTitle>
+                <CardDescription>{photos.length} photos uploaded</CardDescription>
               </CardHeader>
               <CardContent>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
                   {photos.map((photo) => (
                     <div key={photo.id} className="border rounded-lg overflow-hidden">
-                      <div className="aspect-video bg-gray-200 dark:bg-gray-700 flex items-center justify-center">
+                      <div className="w-full h-48 bg-gray-200 flex items-center justify-center">
                         <ImageIcon className="w-12 h-12 text-gray-400" />
                       </div>
                       <div className="p-3">
-                        <p className="text-sm font-medium">{photo.caption}</p>
+                        <p className="text-sm font-medium mb-1">{photo.caption}</p>
                         <p className="text-xs text-muted-foreground">{photo.timestamp}</p>
                       </div>
                     </div>

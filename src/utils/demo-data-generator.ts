@@ -7,9 +7,9 @@
  * Generate a random date within a range
  */
 export function generateRandomDate(daysAgo: number, futureOffset: number = 0): string {
-  const date = new Date()
-  date.setDate(date.getDate() - daysAgo + futureOffset)
-  return date.toISOString().split("T")[0]
+  const date = new Date();
+  date.setDate(date.getDate() - daysAgo + futureOffset);
+  return date.toISOString().split("T")[0] as string;
 }
 
 /**
@@ -20,47 +20,48 @@ export function generateDateRange(
   daysBetween: number = 3,
   startOffset: number = 0
 ): string[] {
-  const dates: string[] = []
+  const dates: string[] = [];
   for (let i = 0; i < count; i++) {
-    const daysAgo = startOffset + (count - i - 1) * daysBetween
-    dates.push(generateRandomDate(daysAgo))
+    const daysAgo = startOffset + (count - i - 1) * daysBetween;
+    dates.push(generateRandomDate(daysAgo));
   }
-  return dates
+  return dates;
 }
 
 /**
  * Get a random item from an array
  */
 export function randomItem<T>(array: T[]): T {
-  return array[Math.floor(Math.random() * array.length)]
+  const selected = array[Math.floor(Math.random() * array.length)];
+  return selected as T;
 }
 
 /**
  * Generate a random number in a range
  */
 export function randomInt(min: number, max: number): number {
-  return Math.floor(Math.random() * (max - min + 1)) + min
+  return Math.floor(Math.random() * (max - min + 1)) + min;
 }
 
 /**
  * Generate a random float in a range
  */
 export function randomFloat(min: number, max: number, decimals: number = 2): number {
-  return parseFloat((Math.random() * (max - min) + min).toFixed(decimals))
+  return parseFloat((Math.random() * (max - min) + min).toFixed(decimals));
 }
 
 /**
  * Generate unique IDs for records
  */
 export function generateRecordId(prefix: string, index: number, subIndex: number): string {
-  return `${prefix}-${index}-${subIndex}`
+  return `${prefix}-${index}-${subIndex}`;
 }
 
 /**
  * Sort records by date descending (most recent first)
  */
 export function sortByDateDesc<T extends { date: string }>(records: T[]): T[] {
-  return records.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
+  return records.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
 }
 
 /**
@@ -69,26 +70,26 @@ export function sortByDateDesc<T extends { date: string }>(records: T[]): T[] {
 export function calculateStatus(
   daysOffset: number,
   options: {
-    upcomingThreshold?: number
-    overdueThreshold?: number
+    upcomingThreshold?: number;
+    overdueThreshold?: number;
   } = {}
 ): 'upcoming' | 'overdue' | 'completed' {
-  const { upcomingThreshold = 0, overdueThreshold = 60 } = options
+  const { upcomingThreshold = 0, overdueThreshold = 60 } = options;
 
-  if (daysOffset < upcomingThreshold) return 'upcoming'
-  if (daysOffset > overdueThreshold) return 'overdue'
-  return 'completed'
+  if (daysOffset < upcomingThreshold) return 'upcoming';
+  if (daysOffset > overdueThreshold) return 'overdue';
+  return 'completed';
 }
 
 /**
  * Generate vehicle name from vehicle data
  */
 export function formatVehicleName(vehicle: {
-  year?: number | string
-  make: string
-  model: string
+  year?: number | string;
+  make: string;
+  model: string;
 }): string {
-  return vehicle.year ? `${vehicle.year} ${vehicle.make} ${vehicle.model}` : `${vehicle.make} ${vehicle.model}`
+  return vehicle.year ? `${vehicle.year} ${vehicle.make} ${vehicle.model}` : `${vehicle.make} ${vehicle.model}`;
 }
 
 /**
@@ -103,7 +104,7 @@ export const COMMON_LOCATIONS = [
   "East Side",
   "West Terminal",
   "Airport Hub"
-]
+];
 
 /**
  * Common service types for maintenance
@@ -119,4 +120,4 @@ export const COMMON_SERVICE_TYPES = [
   "Inspection",
   "Alignment",
   "Coolant Flush"
-]
+];

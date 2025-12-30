@@ -60,7 +60,10 @@ export type Filters = z.infer<typeof filtersSchema>
  * Filter group with logical operator
  * Allows complex nested filter conditions
  */
-export const filterGroupSchema = z.object({
+export const filterGroupSchema: z.ZodObject<{
+  logic: z.ZodDefault<z.ZodEnum<['and', 'or']>>;
+  filters: z.ZodArray<z.ZodUnion<[typeof filterSchema, z.ZodLazy<typeof filterGroupSchema>]>>;
+}> = z.object({
   logic: z.enum(['and', 'or']).default('and'),
   filters: z.array(
     z.union([

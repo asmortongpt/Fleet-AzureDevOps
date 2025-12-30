@@ -4,9 +4,10 @@
  */
 
 import { X, Download, Smartphone } from 'lucide-react'
-import React, { useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 
 import logger from '@/utils/logger';
+
 interface BeforeInstallPromptEvent extends Event {
   prompt: () => Promise<void>
   userChoice: Promise<{ outcome: 'accepted' | 'dismissed' }>
@@ -63,10 +64,11 @@ export function PWAInstallPrompt() {
     if (!deferredPrompt) return
 
     // Show the install prompt
-    deferredPrompt.prompt()
+    await deferredPrompt.prompt?.()
 
     // Wait for the user to respond to the prompt
-    const { outcome } = await deferredPrompt.userChoice
+    const userChoice = await deferredPrompt.userChoice
+    const outcome = userChoice?.outcome
 
     if (outcome === 'accepted') {
       logger.debug('[PWA] User accepted the install prompt')

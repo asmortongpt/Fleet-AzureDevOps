@@ -5,7 +5,6 @@ import { Card, CardContent, CardHeader, CardTitle } from "./card"
 
 import { cn } from "@/lib/utils"
 
-
 interface KPICardProps extends ComponentProps<"div"> {
   title: string
   value: number | string
@@ -47,9 +46,9 @@ export function KPICard({
   const calculatedTrend =
     trend ||
     (previousValue !== undefined
-      ? value > previousValue
+      ? Number(value) > previousValue
         ? "up"
-        : value < previousValue
+        : Number(value) < previousValue
           ? "down"
           : "flat"
       : undefined)
