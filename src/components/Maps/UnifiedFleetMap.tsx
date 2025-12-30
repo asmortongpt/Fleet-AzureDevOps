@@ -389,8 +389,8 @@ export const UnifiedFleetMap: React.FC<UnifiedFleetMapProps> = ({
           <TabsContent value="map" className="h-full mt-0">
             <div className="map-container h-full">
               <GoogleMap
-                vehicles={layers.find(l => l.id === 'vehicles')?.enabled ? vehicles : []}
-                facilities={layers.find(l => l.id === 'facilities')?.enabled ? facilities : []}
+                vehicles={(layers.find(l => l.id === 'vehicles')?.enabled ? vehicles : []) as Vehicle[]}
+                facilities={(layers.find(l => l.id === 'facilities')?.enabled ? facilities : []) as GISFacility[]}
                 showVehicles={layers.find(l => l.id === 'vehicles')?.enabled}
                 showFacilities={layers.find(l => l.id === 'facilities')?.enabled}
                 showRoutes={layers.find(l => l.id === 'routes')?.enabled}
@@ -407,8 +407,8 @@ export const UnifiedFleetMap: React.FC<UnifiedFleetMapProps> = ({
             <div className="flex h-full">
               <div className="flex-1">
                 <GoogleMap
-                  vehicles={layers.find(l => l.id === 'vehicles')?.enabled ? vehicles : []}
-                  facilities={layers.find(l => l.id === 'facilities')?.enabled ? facilities : []}
+                  vehicles={(layers.find(l => l.id === 'vehicles')?.enabled ? vehicles : []) as Vehicle[]}
+                  facilities={(layers.find(l => l.id === 'facilities')?.enabled ? facilities : []) as GISFacility[]}
                   showVehicles={layers.find(l => l.id === 'vehicles')?.enabled}
                   showFacilities={layers.find(l => l.id === 'facilities')?.enabled}
 
