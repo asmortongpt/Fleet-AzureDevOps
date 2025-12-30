@@ -75,10 +75,9 @@ export function DriverScorecard() {
   const fetchLeaderboard = async () => {
     setLoading(true)
     try {
-      const response = await apiClient.get("/api/driver-scorecard/leaderboard")
-      setLeaderboard(response)
+      const response = await apiClient.get<LeaderboardEntry[]>("/api/driver-scorecard/leaderboard")
+      setLeaderboard(response.data)
     } catch (error) {
-      // Error already shown to user via toast.error
       toast.error("Failed to load leaderboard")
     } finally {
       setLoading(false)
@@ -91,18 +90,17 @@ export function DriverScorecard() {
       setActiveTab("driver-detail")
 
       // Fetch achievements
-      const achievementsResponse = await apiClient.get(
+      const achievementsResponse = await apiClient.get<Achievement[]>(
         `/api/driver-scorecard/driver/${driver.driverId}/achievements`
       )
-      setAchievements(achievementsResponse)
+      setAchievements(achievementsResponse.data)
 
       // Fetch score history
-      const historyResponse = await apiClient.get(
+      const historyResponse = await apiClient.get<ScoreHistory[]>(
         `/api/driver-scorecard/driver/${driver.driverId}/history`
       )
-      setScoreHistory(historyResponse)
+      setScoreHistory(historyResponse.data)
     } catch (error) {
-      // Error already shown to user via toast.error
       toast.error("Failed to load driver details")
     }
   }
@@ -185,14 +183,14 @@ export function DriverScorecard() {
                   <CardDescription>2nd Place</CardDescription>
                 </CardHeader>
                 <CardContent className="text-center">
-                  <div className={`text-3xl font-bold ${getScoreColor(leaderboard[1]?.overallScore)}`}>
-                    {leaderboard[1]?.overallScore.toFixed(1)}
+                  <div className={`text-3xl font-bold ${getScoreColor(leaderboard[1]?.overallScore || 0)}`}>
+                    {(leaderboard[1]?.overallScore || 0).toFixed(1)}
                   </div>
                   <Button
                     variant="outline"
                     size="sm"
                     className="mt-3"
-                    onClick={() => fetchDriverDetails(leaderboard[1])}
+                    onClick={() => leaderboard[1] && fetchDriverDetails(leaderboard[1])}
                   >
                     View Details
                   </Button>
@@ -209,15 +207,15 @@ export function DriverScorecard() {
                   <CardDescription className="font-semibold">1st Place - Champion!</CardDescription>
                 </CardHeader>
                 <CardContent className="text-center">
-                  <div className={`text-4xl font-bold ${getScoreColor(leaderboard[0]?.overallScore)}`}>
-                    {leaderboard[0]?.overallScore.toFixed(1)}
+                  <div className={`text-4xl font-bold ${getScoreColor(leaderboard[0]?.overallScore || 0)}`}>
+                    {(leaderboard[0]?.overallScore || 0).toFixed(1)}
                   </div>
                   <Badge className="mt-2" variant="default">Top Performer</Badge>
                   <Button
                     variant="default"
                     size="sm"
                     className="mt-3 w-full"
-                    onClick={() => fetchDriverDetails(leaderboard[0])}
+                    onClick={() => leaderboard[0] && fetchDriverDetails(leaderboard[0])}
                   >
                     View Details
                   </Button>
@@ -234,14 +232,14 @@ export function DriverScorecard() {
                   <CardDescription>3rd Place</CardDescription>
                 </CardHeader>
                 <CardContent className="text-center">
-                  <div className={`text-3xl font-bold ${getScoreColor(leaderboard[2]?.overallScore)}`}>
-                    {leaderboard[2]?.overallScore.toFixed(1)}
+                  <div className={`text-3xl font-bold ${getScoreColor(leaderboard[2]?.overallScore || 0)}`}>
+                    {(leaderboard[2]?.overallScore || 0).toFixed(1)}
                   </div>
                   <Button
                     variant="outline"
                     size="sm"
                     className="mt-3"
-                    onClick={() => fetchDriverDetails(leaderboard[2])}
+                    onClick={() => leaderboard[2] && fetchDriverDetails(leaderboard[2])}
                   >
                     View Details
                   </Button>
@@ -379,74 +377,17 @@ export function DriverScorecard() {
                             <div className="flex justify-center mb-3 text-yellow-600">
                               {getAchievementIcon(achievement.icon)}
                             </div>
-                            <div className="font-semibold text-sm mb-1">
-                              {achievement.achievementName}
-                            </div>
-                            <div className="text-xs text-gray-600 mb-2">
-                              {achievement.achievementDescription}
-                            </div>
-                            <Badge variant="secondary" className="text-xs">
-                              {achievement.points} points
-                            </Badge>
+                            <div className="text-lg font-semibold">{achievement.achievementName}</div>
+                            <div className="text-sm text-gray-600">{achievement.achievementDescription}</div>
+                            <div className="text-sm mt-1">+{achievement.points.toString()} points</div>
                           </CardContent>
                         </Card>
                       ))}
                     </div>
                   ) : (
                     <div className="text-center py-8 text-gray-500">
-                      <Target className="h-12 w-12 mx-auto mb-2 opacity-50" />
-                      <p>No achievements earned yet</p>
-                      <p className="text-sm">Keep improving to unlock badges!</p>
-                    </div>
-                  )}
-                </CardContent>
-              </Card>
-
-              {/* Score History */}
-              <Card>
-                <CardHeader>
-                  <CardTitle>Performance History</CardTitle>
-                  <CardDescription>Score trends over time</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  {scoreHistory.length > 0 ? (
-                    <Table>
-                      <TableHeader>
-                        <TableRow>
-                          <TableHead>Period</TableHead>
-                          <TableHead>Overall</TableHead>
-                          <TableHead>Safety</TableHead>
-                          <TableHead>Efficiency</TableHead>
-                          <TableHead>Compliance</TableHead>
-                          <TableHead>Rank</TableHead>
-                          <TableHead>Trend</TableHead>
-                        </TableRow>
-                      </TableHeader>
-                      <TableBody>
-                        {scoreHistory.map((period, idx) => (
-                          <TableRow key={idx}>
-                            <TableCell className="text-sm">
-                              {new Date(period.period_end).toLocaleDateString()}
-                            </TableCell>
-                            <TableCell>
-                              <Badge className={getScoreBgColor(parseFloat(period.overall_score))}>
-                                <span className={getScoreColor(parseFloat(period.overall_score))}>
-                                  {parseFloat(period.overall_score).toFixed(1)}
-                                </span>
-                              </Badge>
-                            </TableCell>
-                            <TableCell>{parseFloat(period.safety_score).toFixed(1)}</TableCell>
-                            <TableCell>{parseFloat(period.efficiency_score).toFixed(1)}</TableCell>
-                            <TableCell>{parseFloat(period.compliance_score).toFixed(1)}</TableCell>
-                            <TableCell>#{period.rank_position}</TableCell>
-                            <TableCell>{getTrendIcon(period.trend)}</TableCell>
-                          </TableRow>
-                        ))}
-                      </TableBody>
-                    </Table>
-                  ) : (
-                    <div className="text-center py-8 text-gray-500">
-                      <p>No historical data available</p>
+                      <Target className="h-12 w-12 mx-auto mb-3 text-gray-400" weight="duotone" />
+                      <p>No achievements earned yet. Keep driving safely!</p>
                     </div>
                   )}
                 </CardContent>

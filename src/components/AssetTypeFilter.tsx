@@ -52,50 +52,50 @@ export interface FilterState {
 
 // Filter options derived from backend enums
 const assetCategories: { value: AssetCategory; label: string; icon: typeof Truck }[] = [
-  { value: 'PASSENGER_VEHICLE', label: 'Passenger Vehicle', icon: Truck },
-  { value: 'HEAVY_EQUIPMENT', label: 'Heavy Equipment', icon: Engine },
-  { value: 'TRAILER', label: 'Trailer', icon: Truck },
-  { value: 'TRACTOR', label: 'Tractor', icon: Engine },
-  { value: 'SPECIALTY', label: 'Specialty Equipment', icon: Wrench },
-  { value: 'NON_POWERED', label: 'Non-Powered Asset', icon: Truck }
+  { value: 'PASSENGER_VEHICLE' as AssetCategory, label: 'Passenger Vehicle', icon: Truck },
+  { value: 'HEAVY_EQUIPMENT' as AssetCategory, label: 'Heavy Equipment', icon: Engine },
+  { value: 'TRAILER' as AssetCategory, label: 'Trailer', icon: Truck },
+  { value: 'TRACTOR' as AssetCategory, label: 'Tractor', icon: Engine },
+  { value: 'SPECIALTY' as AssetCategory, label: 'Specialty Equipment', icon: Wrench },
+  { value: 'NON_POWERED' as AssetCategory, label: 'Non-Powered Asset', icon: Truck }
 ]
 
 const assetTypesByCategory: Record<AssetCategory, { value: AssetType; label: string }[]> = {
-  PASSENGER_VEHICLE: [
-    { value: 'SEDAN', label: 'Sedan' },
-    { value: 'SUV', label: 'SUV' },
-    { value: 'TRUCK', label: 'Truck' },
-    { value: 'VAN', label: 'Van' }
+  'PASSENGER_VEHICLE': [
+    { value: 'SEDAN' as AssetType, label: 'Sedan' },
+    { value: 'SUV' as AssetType, label: 'SUV' },
+    { value: 'TRUCK' as AssetType, label: 'Truck' },
+    { value: 'VAN' as AssetType, label: 'Van' }
   ],
-  HEAVY_EQUIPMENT: [
-    { value: 'EXCAVATOR', label: 'Excavator' },
-    { value: 'BULLDOZER', label: 'Bulldozer' },
-    { value: 'LOADER', label: 'Loader' },
-    { value: 'BACKHOE', label: 'Backhoe' },
-    { value: 'GRADER', label: 'Grader' },
-    { value: 'ROLLER', label: 'Roller' },
-    { value: 'CRANE', label: 'Crane' },
-    { value: 'FORKLIFT', label: 'Forklift' }
+  'HEAVY_EQUIPMENT': [
+    { value: 'EXCAVATOR' as AssetType, label: 'Excavator' },
+    { value: 'BULLDOZER' as AssetType, label: 'Bulldozer' },
+    { value: 'LOADER' as AssetType, label: 'Loader' },
+    { value: 'BACKHOE' as AssetType, label: 'Backhoe' },
+    { value: 'GRADER' as AssetType, label: 'Grader' },
+    { value: 'ROLLER' as AssetType, label: 'Roller' },
+    { value: 'CRANE' as AssetType, label: 'Crane' },
+    { value: 'FORKLIFT' as AssetType, label: 'Forklift' }
   ],
-  TRAILER: [
-    { value: 'FLATBED', label: 'Flatbed' },
-    { value: 'ENCLOSED', label: 'Enclosed' },
-    { value: 'DUMP', label: 'Dump' },
-    { value: 'LOWBOY', label: 'Lowboy' },
-    { value: 'REFRIGERATED', label: 'Refrigerated' }
+  'TRAILER': [
+    { value: 'FLATBED' as AssetType, label: 'Flatbed' },
+    { value: 'ENCLOSED' as AssetType, label: 'Enclosed' },
+    { value: 'DUMP' as AssetType, label: 'Dump' },
+    { value: 'LOWBOY' as AssetType, label: 'Lowboy' },
+    { value: 'REFRIGERATED' as AssetType, label: 'Refrigerated' }
   ],
-  TRACTOR: [
-    { value: 'FARM_TRACTOR', label: 'Farm Tractor' },
-    { value: 'ROAD_TRACTOR', label: 'Road Tractor' }
+  'TRACTOR': [
+    { value: 'FARM_TRACTOR' as AssetType, label: 'Farm Tractor' },
+    { value: 'ROAD_TRACTOR' as AssetType, label: 'Road Tractor' }
   ],
-  SPECIALTY: [
-    { value: 'GENERATOR', label: 'Generator' },
-    { value: 'COMPRESSOR', label: 'Compressor' },
-    { value: 'PUMP', label: 'Pump' },
-    { value: 'WELDER', label: 'Welder' }
+  'SPECIALTY': [
+    { value: 'GENERATOR' as AssetType, label: 'Generator' },
+    { value: 'COMPRESSOR' as AssetType, label: 'Compressor' },
+    { value: 'PUMP' as AssetType, label: 'Pump' },
+    { value: 'WELDER' as AssetType, label: 'Welder' }
   ],
-  NON_POWERED: [
-    { value: 'OTHER', label: 'Other' }
+  'NON_POWERED': [
+    { value: 'OTHER' as AssetType, label: 'Other' }
   ]
 }
 

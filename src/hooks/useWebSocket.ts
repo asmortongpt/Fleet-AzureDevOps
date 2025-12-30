@@ -40,7 +40,7 @@ export function useWebSocket(options: UseWebSocketOptions = {}) {
   const [lastMessage, setLastMessage] = useState<WebSocketMessage | null>(null)
   const wsRef = useRef<WebSocket | null>(null)
   const reconnectCountRef = useRef(0)
-  const listenersRef = useRef<NativeMap<string, Set<(data: any) => void>>>(new NativeMap())
+  const listenersRef = useRef<Map<string, Set<(data: WebSocketMessage) => void>>>(new NativeMap())
 
   const connect = useCallback(() => {
     if (wsRef.current?.readyState === WebSocket.OPEN) {
@@ -120,7 +120,7 @@ export function useWebSocket(options: UseWebSocketOptions = {}) {
     }
   }, [])
 
-  const subscribe = useCallback((eventType: string, callback: (data: any) => void) => {
+  const subscribe = useCallback((eventType: string, callback: (data: WebSocketMessage) => void) => {
     if (!listenersRef.current.has(eventType)) {
       listenersRef.current.set(eventType, new Set())
     }

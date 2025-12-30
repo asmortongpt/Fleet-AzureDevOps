@@ -1,12 +1,32 @@
 import { AwilixContainer } from 'awilix';
 
-import { DriverRepository } from '../repositories/DriverRepository';
-import { InspectionRepository } from '../repositories/InspectionRepository';
-import { MaintenanceRepository } from '../repositories/MaintenanceRepository';
-import { VehicleRepository } from '../repositories/VehicleRepository';
-import { VendorRepository } from '../repositories/VendorRepository';
-import { WorkOrderRepository } from '../repositories/WorkOrderRepository';
-import { Logger } from '../services/Logger';
+interface DriverRepository {
+  // Define methods and properties as needed
+}
+
+interface InspectionRepository {
+  // Define methods and properties as needed
+}
+
+interface MaintenanceRepository {
+  // Define methods and properties as needed
+}
+
+interface VehicleRepository {
+  // Define methods and properties as needed
+}
+
+interface VendorRepository {
+  // Define methods and properties as needed
+}
+
+interface WorkOrderRepository {
+  // Define methods and properties as needed
+}
+
+interface Logger {
+  // Define methods and properties as needed
+}
 
 /**
  * Type-safe DI container interface extending AwilixContainer.

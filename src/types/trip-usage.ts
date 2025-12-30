@@ -456,7 +456,7 @@ export function formatChargePeriod(date: Date): string {
 
 export function getChargePeriodDates(period: string): { start: Date; end: Date } {
   const [year, month] = period.split('-').map(Number)
-  const start = new Date(year, month - 1, 1)
-  const end = new Date(year, month, 0) // Last day of month
+  const start = new Date(year, (month ?? 1) - 1, 1)
+  const end = new Date(year, month ?? 1, 0) // Last day of month
   return { start, end }
 }

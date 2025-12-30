@@ -106,13 +106,21 @@ export function createMockFacilities(count: number): GISFacility[] {
 export function createMockCamera(overrides?: Partial<TrafficCamera>): TrafficCamera {
   return {
     id: 'camera-1',
+    sourceId: '',
+    externalId: '',
     name: 'Main St & 1st Ave',
+    address: 'Main St & 1st Ave, Tallahassee, FL',
+    crossStreet1: '',
+    crossStreet2: '',
+    crossStreets: 'Main St & 1st Ave',
+    cameraUrl: 'https://example.com/camera/1',
     latitude: 30.4383,
     longitude: -84.2807,
-    address: 'Main St & 1st Ave, Tallahassee, FL',
-    crossStreets: 'Main St & 1st Ave',
     operational: true,
-    cameraUrl: 'https://example.com/camera/1',
+    direction: '',
+    lastChecked: '',
+    createdAt: '',
+    updatedAt: '',
     ...overrides
   }
 }
@@ -139,7 +147,7 @@ export function createMockCameras(count: number): TrafficCamera[] {
  */
 export const mockLeaflet = {
   version: '1.9.4',
-  map: vi.fn((element: HTMLElement, options?: any) => ({
+  map: vi.fn((element: HTMLElement, _options?: any) => ({
     setView: vi.fn().mockReturnThis(),
     fitBounds: vi.fn().mockReturnThis(),
     setZoom: vi.fn().mockReturnThis(),
@@ -166,13 +174,13 @@ export const mockLeaflet = {
     flyTo: vi.fn(),
     _container: element
   })),
-  tileLayer: vi.fn((url: string, options?: any) => ({
+  tileLayer: vi.fn((_url: string, _options?: any) => ({
     addTo: vi.fn().mockReturnThis(),
     remove: vi.fn(),
     on: vi.fn(),
     off: vi.fn()
   })),
-  marker: vi.fn((latlng: [number, number], options?: any) => ({
+  marker: vi.fn((latlng: [number, number], _options?: any) => ({
     addTo: vi.fn().mockReturnThis(),
     setLatLng: vi.fn().mockReturnThis(),
     setIcon: vi.fn().mockReturnThis(),
@@ -240,7 +248,7 @@ export function setupLeafletMocks() {
  * Mock Google Maps API
  */
 export const mockGoogleMaps = {
-  Map: vi.fn((element: HTMLElement, options?: any) => ({
+  Map: vi.fn((element: HTMLElement, _options?: any) => ({
     setCenter: vi.fn(),
     setZoom: vi.fn(),
     getZoom: vi.fn().mockReturnValue(13),
@@ -255,26 +263,26 @@ export const mockGoogleMaps = {
     panTo: vi.fn(),
     _element: element
   })),
-  Marker: vi.fn((options?: any) => ({
+  Marker: vi.fn((_options?: any) => ({
     setMap: vi.fn(),
     setPosition: vi.fn(),
     setIcon: vi.fn(),
     setTitle: vi.fn(),
     getPosition: vi.fn().mockReturnValue({
-      lat: () => options?.position?.lat || 30.4383,
-      lng: () => options?.position?.lng || -84.2807
+      lat: () => _options?.position?.lat || 30.4383,
+      lng: () => _options?.position?.lng || -84.2807
     }),
-    addListener: vi.fn((event: string, callback: Function) => {
+    addListener: vi.fn((_event: string, _callback: Function) => {
       // Return a listener object that can be removed
       return { remove: vi.fn() }
     }),
     remove: vi.fn()
   })),
-  InfoWindow: vi.fn((options?: any) => ({
+  InfoWindow: vi.fn((_options?: any) => ({
     open: vi.fn(),
     close: vi.fn(),
     setContent: vi.fn(),
-    getContent: vi.fn().mockReturnValue(options?.content || '')
+    getContent: vi.fn().mockReturnValue(_options?.content || '')
   })),
   LatLngBounds: vi.fn(() => ({
     extend: vi.fn(),
@@ -283,10 +291,10 @@ export const mockGoogleMaps = {
     getSouthWest: vi.fn().mockReturnValue({ lat: () => 30.3, lng: () => -84.4 })
   })),
   event: {
-    addListener: vi.fn((instance: any, event: string, callback: Function) => ({
+    addListener: vi.fn((_instance: any, _event: string, _callback: Function) => ({
       remove: vi.fn()
     })),
-    addListenerOnce: vi.fn((instance: any, event: string, callback: Function) => ({
+    addListenerOnce: vi.fn((_instance: any, _event: string, _callback: Function) => ({
       remove: vi.fn()
     })),
     removeListener: vi.fn(),
@@ -388,9 +396,9 @@ export function mockLocalStorage() {
  */
 export function renderWithProviders(
   ui: ReactElement,
-  options?: Omit<RenderOptions, 'wrapper'>
+  _options?: Omit<RenderOptions, 'wrapper'>
 ) {
-  return render(ui, { ...options })
+  return render(ui, { ..._options })
 }
 
 // ============================================================================

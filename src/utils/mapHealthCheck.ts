@@ -246,7 +246,7 @@ export class MapHealthCheckManager {
 
       // Call callbacks
       if (rateLimited) {
-        this.config.onRateLimitDetected?.(provider, metadata.resetTime)
+        this.config.onRateLimitDetected?.(provider, metadata?.resetTime)
       }
 
       return result
@@ -264,7 +264,7 @@ export class MapHealthCheckManager {
         responseTime,
         rateLimited,
         error: err,
-        timestamp: Date.now(),
+         timestamp: Date.now(),
       }
 
       // Update statistics
@@ -544,106 +544,34 @@ export function useMapHealthCheck(
   statistics: Map<MapServiceProvider, HealthStatistics>
   getStatus: (provider: MapServiceProvider) => HealthStatus
   checkHealth: (provider: MapServiceProvider) => Promise<HealthCheckResult>
-  recommendedProvider: MapServiceProvider
 } {
-  const [, forceUpdate] = useState({})
-  const manager = getHealthCheckManager(config)
+  const [manager] = useState(() => new MapHealthCheckManager(config))
+  const [statistics, setStatistics] = useState<Map<MapServiceProvider, HealthStatistics>>(new Map())
 
-  // Start monitoring on mount
   useEffect(() => {
-    providers.forEach(provider => manager.startMonitoring(provider))
+    providers.forEach(provider => {
+      manager.startMonitoring(provider)
+    })
 
-    // Force re-render periodically to update UI
-    const updateInterval = setInterval(() => {
-      forceUpdate({})
-    }, 5000)
+    const updateStats = () => {
+      setStatistics(manager.getAllStatistics())
+    }
+
+    const interval = setInterval(updateStats, 1000)
+    updateStats()
 
     return () => {
-      clearInterval(updateInterval)
-      providers.forEach(provider => manager.stopMonitoring(provider))
+      clearInterval(interval)
+      providers.forEach(provider => {
+        manager.stopMonitoring(provider)
+      })
     }
-  }, [providers, manager])
+  }, [manager, providers])
 
   return {
     manager,
-    statistics: manager.getAllStatistics(),
+    statistics,
     getStatus: (provider: MapServiceProvider) => manager.getStatus(provider),
     checkHealth: (provider: MapServiceProvider) => manager.checkHealth(provider),
-    recommendedProvider: manager.getRecommendedProvider(),
   }
-}
-
-// ============================================================================
-// Utility Functions
-// ============================================================================
-
-/**
- * Check offline status
- */
-export function isOffline(): boolean {
-  return !navigator.onLine
-}
-
-/**
- * Wait for online status
- */
-export function waitForOnline(timeout = 30000): Promise<void> {
-  return new Promise((resolve, reject) => {
-    if (navigator.onLine) {
-      resolve()
-      return
-    }
-
-    const timeoutId = setTimeout(() => {
-      window.removeEventListener('online', handleOnline)
-      reject(new Error('Timeout waiting for online status'))
-    }, timeout)
-
-    const handleOnline = () => {
-      clearTimeout(timeoutId)
-      resolve()
-    }
-
-    window.addEventListener('online', handleOnline, { once: true })
-  })
-}
-
-/**
- * Get network information (if available)
- */
-export function getNetworkInfo(): {
-  type?: string
-  effectiveType?: string
-  downlink?: number
-  rtt?: number
-  saveData?: boolean
-} {
-  // @ts-ignore - NetworkInformation API is experimental
-  const connection = navigator.connection || navigator.mozConnection || navigator.webkitConnection
-
-  if (!connection) {
-    return {}
-  }
-
-  return {
-    type: connection.type,
-    effectiveType: connection.effectiveType,
-    downlink: connection.downlink,
-    rtt: connection.rtt,
-    saveData: connection.saveData,
-  }
-}
-
-// ============================================================================
-// Exports
-// ============================================================================
-
-export default {
-  MapHealthCheckManager,
-  getHealthCheckManager,
-  resetHealthCheckManager,
-  useMapHealthCheck,
-  isOffline,
-  waitForOnline,
-  getNetworkInfo,
 }

@@ -1,6 +1,5 @@
 import { MaintenanceRepository } from '../repositories/MaintenanceRepository';
 import { VehicleRepository } from '../repositories/VehicleRepository';
-
 import { Logger } from './Logger';
 
 /**
@@ -8,7 +7,7 @@ import { Logger } from './Logger';
  */
 export class MaintenanceService {
   constructor(
-    private maintenanceRepository: MaintenanceRepository,
+    private _maintenanceRepository: MaintenanceRepository,
     private vehicleRepository: VehicleRepository,
     private logger: Logger
   ) {}
@@ -27,7 +26,7 @@ export class MaintenanceService {
         throw new Error('Vehicle not found');
       }
       // ... additional business logic ...
-    } catch (error) {
+    } catch (error: unknown) {
       this.logger.error('Error scheduling maintenance', error);
       throw error;
     }

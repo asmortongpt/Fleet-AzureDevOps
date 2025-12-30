@@ -64,11 +64,13 @@ export function DocumentGrid({
   const rowCount = Math.ceil(documents.length / columnCount);
 
   // Cell renderer
-  const Cell = ({ columnIndex, rowIndex, style }: any) => {
+  const Cell = ({ columnIndex, rowIndex, style }: { columnIndex: number; rowIndex: number; style: React.CSSProperties }) => {
     const index = rowIndex * columnCount + columnIndex;
     if (index >= documents.length) return null;
 
     const document = documents[index];
+    if (!document) return null;
+
     const isSelected = selectedIds.has(document.id);
 
     return (

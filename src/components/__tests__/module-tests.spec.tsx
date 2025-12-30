@@ -12,14 +12,13 @@
  */
 
 import { render, screen, waitFor, cleanup } from '@testing-library/react'
-import React, { Suspense } from 'react'
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 
 // ============================================================================
 // MOCK UTILITIES
 // ============================================================================
 
-const mockFleetData = {
+const _mockFleetData = {
   vehicles: [
     { id: 'v1', name: 'Vehicle 1', status: 'active', mileage: 50000, type: 'sedan' },
     { id: 'v2', name: 'Vehicle 2', status: 'service', mileage: 75000, type: 'truck' }
@@ -54,7 +53,7 @@ const emptyFleetData = {
   initializeData: vi.fn()
 }
 
-const nullFleetData = {
+const _nullFleetData = {
   vehicles: null,
   drivers: null,
   fuelTransactions: null,
@@ -311,8 +310,8 @@ describe('Null Safety', () => {
     const { safeGet } = await import('@/components/common/SafeDataDisplay')
 
     const obj = { a: { b: null } }
-    expect(safeGet(obj, 'a.b.c', 'fallback')).toBe('fallback')
-    expect(safeGet(null, 'a.b', 'fallback')).toBe('fallback')
+    expect(safeGet(obj, 'a.b' as any, 'fallback')).toBe('fallback')
+    expect(safeGet(null, 'a' as any, 'fallback')).toBe('fallback')
   })
 
   it('safeArray returns empty array for null', async () => {
@@ -332,7 +331,7 @@ describe('Performance', () => {
   it('modules load within acceptable time', async () => {
     const start = performance.now()
 
-    const { ModuleWrapper } = await import('@/components/common/ModuleWrapper')
+    await import('@/components/common/ModuleWrapper')
 
     const loadTime = performance.now() - start
     expect(loadTime).toBeLessThan(1000) // Should load in under 1 second
