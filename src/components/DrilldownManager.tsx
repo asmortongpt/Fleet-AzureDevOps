@@ -106,7 +106,7 @@ function DrilldownContent() {
     case 'on-time':
     case 'idle-time':
     case 'mpg':
-      return <PerformanceMetricsDrilldown metricType={currentLevel.type} />
+      return <PerformanceMetricsDrilldown />
 
     case 'drivers-stats':
       return <DriverStatsDrilldown />
@@ -120,10 +120,7 @@ function DrilldownContent() {
       return <SafetyScoreDrilldown />
 
     case 'vehicle-list':
-      return <VehicleListDrilldown
-        vehicles={currentLevel.data?.vehicles || []}
-        filter={currentLevel.data?.filter || 'all'}
-      />
+      return <VehicleListDrilldown />
 
     // ============================================
     // Vehicle drilldown hierarchy

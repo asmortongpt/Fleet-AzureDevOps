@@ -26,7 +26,7 @@ export function useVehicles(params?: {
     queryKey: ['vehicles', params],
     queryFn: async () => {
       const response = await api.get<Vehicle[]>('/vehicles', { params })
-      return response?.data
+      return response ?? []
     },
   })
 }
@@ -35,8 +35,8 @@ export function useVehicle(id: number) {
   return useQuery({
     queryKey: ['vehicle', id],
     queryFn: async () => {
-      const response = await api.get<{ data: Vehicle }>(`/vehicles/${id}`)
-      return response?.data?.data
+      const response = await api.get<Vehicle>(`/vehicles/${id}`)
+      return response
     },
     enabled: !!id,
   })
@@ -48,7 +48,7 @@ export function useCreateVehicle() {
   return useMutation({
     mutationFn: async (data: Partial<Vehicle>) => {
       const response = await api.post<Vehicle>('/vehicles', data)
-      return response?.data
+      return response
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['vehicles'] })
@@ -62,7 +62,7 @@ export function useUpdateVehicle() {
   return useMutation({
     mutationFn: async ({ id, data }: { id: number; data: Partial<Vehicle> }) => {
       const response = await api.put<Vehicle>(`/vehicles/${id}`, data)
-      return response?.data
+      return response
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['vehicles'] })

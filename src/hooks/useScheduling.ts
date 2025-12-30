@@ -143,7 +143,7 @@ export function useUpdateReservation() {
 
   return useMutation({
     mutationFn: async ({ id, data }: { id: string; data: UpdateReservationRequest }) => {
-      const response = await apiClient.batch<{
+      const response = await apiClient.put<{
         success: boolean
         message: string
         reservation: VehicleReservation
@@ -341,7 +341,7 @@ export function useUpdateMaintenanceAppointment() {
 
   return useMutation({
     mutationFn: async ({ id, data }: { id: string; data: UpdateMaintenanceRequest }) => {
-      const response = await apiClient.batch<{
+      const response = await apiClient.put<{
         success: boolean
         message: string
         appointment: MaintenanceAppointment
@@ -383,7 +383,7 @@ export function useCancelMaintenanceAppointment() {
 
   return useMutation({
     mutationFn: async (id: string) => {
-      const response = await apiClient.batch<{
+      const response = await apiClient.put<{
         success: boolean
         message: string
         appointment: MaintenanceAppointment

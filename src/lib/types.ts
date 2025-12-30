@@ -146,6 +146,8 @@ export interface Driver {
   tenantId: string
   employeeId: string
   name: string
+  firstName?: string // First name of the driver
+  lastName?: string // Last name of the driver
   email: string
   phone: string
   department: string
@@ -363,6 +365,9 @@ export interface PurchaseOrder {
   receivedBy?: string
   receivedDate?: string
   attachments?: string[]
+  requestedBy?: string // User who requested the purchase order
+  department?: string // Department requesting the purchase
+  shippingAddress?: string // Shipping address for the order
 }
 
 export interface PurchaseOrderItem {

@@ -345,7 +345,7 @@ export function LazyMap({
         }}
       >
         <Suspense fallback={getLoadingSkeleton(skeletonVariant, minHeight)}>
-          <MapComponent {...mapProps} className={className} />
+          <MapComponent {...(mapProps as any)} className={className} />
         </Suspense>
       </ErrorBoundary>
     </div>
