@@ -312,14 +312,14 @@ export function useUpdateWorkOrder(
   return useMutationWithErrorHandling<WorkOrder, unknown, Partial<WorkOrder> & { id: string }>(
     async ({ id, ...updates }) => {
       const response = await apiClient.put<WorkOrder>(`/api/work-orders/${id}`, updates);
-      return response;
+      return (response as any)?.data || response;
     },
     {
       successMessage: 'Work order updated successfully',
       errorMessage: 'Failed to update work order. Please try again.',
-      onSuccess: (data) => {
+      onSuccess: (data: any) => {
         queryClient.invalidateQueries({ queryKey: queryKeys.workOrders });
-        queryClient.invalidateQueries({ queryKey: queryKeys.workOrder(data.id) });
+        queryClient.invalidateQueries({ queryKey: queryKeys.workOrder(data?.id) });
       },
       ...options,
     }
