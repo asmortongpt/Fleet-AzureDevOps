@@ -45,6 +45,14 @@ export interface Asset {
 export interface Geofence {
   id: string
   name: string
-  coordinates: Array<{ lat: number; lng: number }>
-  type: 'polygon' | 'circle'
+  description?: string
+  type: 'circle' | 'polygon' | 'rectangle'
+  center?: { lat: number; lng: number }
+  // Backwards compatibility: allow direct lat/lng access
+  latitude?: number
+  longitude?: number
+  radius?: number // meters for circle
+  coordinates?: Array<{ lat: number; lng: number }> // for polygon/rectangle
+  color?: string
+  active?: boolean
 }
