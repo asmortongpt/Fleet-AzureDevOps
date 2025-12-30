@@ -50,15 +50,13 @@ export function transformDriver(apiDriver: any): Driver {
     employeeId: apiDriver?.employee_id || apiDriver?.id?.toString() || '',
     email: apiDriver?.email || user?.email || '',
     phone: apiDriver?.phone || user?.phone || '',
-    licenseNumber: apiDriver?.license_number || '',
     licenseType: apiDriver?.cdl_class || apiDriver?.license_type || 'B',
     licenseExpiry: apiDriver?.license_expiry || '',
-    status: apiDriver?.is_active === false ? 'inactive' : (apiDriver?.status || 'active'),
+    status: apiDriver?.is_active === false ? 'off-duty' : (apiDriver?.status || 'active'),
     safetyScore: apiDriver?.safety_score || Math.floor(Math.random() * 30 + 70),
     department: apiDriver?.department || 'Operations',
     assignedVehicle: apiDriver?.assigned_vehicle_id?.toString(),
     certifications: parseCertifications(apiDriver?.certifications) || [],
-    emergencyContact: apiDriver?.emergency_contact
   }
 }
 
@@ -72,9 +70,6 @@ export function transformFacility(apiFacility: any): Facility {
     name: apiFacility?.name || 'Unknown Facility',
     type: apiFacility?.type || apiFacility?.facility_type || 'office',
     address: apiFacility?.address || '',
-    city: apiFacility?.city || '',
-    state: apiFacility?.state || '',
-    zip: apiFacility?.zip || '',
     region: apiFacility?.region || 'Central',
     location: {
       lat: parseFloat(apiFacility?.location_lat || apiFacility?.latitude || '0'),
@@ -82,7 +77,6 @@ export function transformFacility(apiFacility: any): Facility {
     },
     status: apiFacility?.status || 'operational',
     capacity: apiFacility?.capacity,
-    manager: apiFacility?.manager
   }
 }
 
