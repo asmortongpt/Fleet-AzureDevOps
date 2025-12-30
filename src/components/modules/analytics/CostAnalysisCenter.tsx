@@ -107,18 +107,18 @@ export function CostAnalysisCenter() {
     setLoading(true)
     try {
       // Fetch cost summary
-      const summaryResponse = await apiClient.get(
+      const summaryResponse = await apiClient.get<CostSummary>(
         `/cost-analysis/summary?startDate=${_dateRange.startDate.toISOString()}&endDate=${_dateRange.endDate.toISOString()}`
       )
-      setCostSummary(summaryResponse.data as CostSummary | null)
+      setCostSummary(summaryResponse?.data ?? null)
 
       // Fetch budget status
-      const budgetResponse = await apiClient.get("/cost-analysis/budget-status")
-      setBudgetStatus(budgetResponse.data as BudgetStatus[])
+      const budgetResponse = await apiClient.get<BudgetStatus[]>("/cost-analysis/budget-status")
+      setBudgetStatus(budgetResponse?.data ?? [])
 
       // Fetch forecasts
-      const forecastResponse = await apiClient.get("/cost-analysis/forecast?months=3")
-      setForecasts(forecastResponse.data as CostForecast[])
+      const forecastResponse = await apiClient.get<CostForecast[]>("/cost-analysis/forecast?months=3")
+      setForecasts(forecastResponse?.data ?? [])
     } catch (error) {
       logger.error("Error fetching cost data:", error)
       toast.error("Failed to load cost analysis data")

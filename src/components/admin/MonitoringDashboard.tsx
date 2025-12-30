@@ -93,19 +93,19 @@ const MonitoringDashboard: React.FC = () => {
 
       // Fetch all monitoring data in parallel
       const [healthRes, metricsRes, emulatorsRes, errorsRes, alertsRes] = await Promise.all([
-        apiClient.get('/monitoring/health'),
-        apiClient.get('/monitoring/metrics'),
-        apiClient.get('/monitoring/emulators'),
-        apiClient.get('/monitoring/errors'),
-        apiClient.get('/monitoring/alerts')
+        apiClient.get<SystemHealth>('/monitoring/health'),
+        apiClient.get<Metrics>('/monitoring/metrics'),
+        apiClient.get<EmulatorGroup>('/monitoring/emulators'),
+        apiClient.get<Error[]>('/monitoring/errors'),
+        apiClient.get<Alert[]>('/monitoring/alerts')
       ]);
 
       setData({
-        health: healthRes.data as SystemHealth,
-        metrics: metricsRes.data as Metrics,
-        emulators: emulatorsRes.data as EmulatorGroup,
-        errors: (errorsRes.data as Error[]) || [],
-        alerts: (alertsRes.data as Alert[]) || []
+        health: healthRes?.data ?? null,
+        metrics: metricsRes?.data ?? null,
+        emulators: emulatorsRes?.data ?? null,
+        errors: errorsRes?.data ?? [],
+        alerts: alertsRes?.data ?? []
       });
 
       setLastRefresh(new Date());

@@ -79,8 +79,8 @@ export function FleetOptimizer() {
   const fetchUtilizationData = async () => {
     setLoading(true)
     try {
-      const response = await apiClient.get("/fleet-optimizer/utilization-heatmap")
-      setUtilizationData(response.data as UtilizationMetric[])
+      const response = await apiClient.get<UtilizationMetric[]>("/fleet-optimizer/utilization-heatmap")
+      setUtilizationData(response?.data ?? [])
     } catch (error) {
       logger.error("Error fetching utilization data:", error)
       toast.error("Failed to load utilization data")
@@ -91,8 +91,8 @@ export function FleetOptimizer() {
 
   const fetchRecommendations = async () => {
     try {
-      const response = await apiClient.get("/fleet-optimizer/recommendations")
-      setRecommendations(response.data as Recommendation[])
+      const response = await apiClient.get<Recommendation[]>("/fleet-optimizer/recommendations")
+      setRecommendations(response?.data ?? [])
     } catch (error) {
       logger.error("Error fetching recommendations:", error)
       toast.error("Failed to load recommendations")
@@ -101,8 +101,10 @@ export function FleetOptimizer() {
 
   const fetchFleetSize = async () => {
     try {
-      const response = await apiClient.get("/fleet-optimizer/optimal-fleet-size?avgDailyDemand=50")
-      setFleetSize(response.data as FleetSize)
+      const response = await apiClient.get<FleetSize>("/fleet-optimizer/optimal-fleet-size?avgDailyDemand=50")
+      if (response?.data) {
+        setFleetSize(response.data)
+      }
     } catch (error) {
       logger.error("Error fetching fleet size:", error)
     }
