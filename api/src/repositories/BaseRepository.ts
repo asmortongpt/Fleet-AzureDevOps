@@ -50,15 +50,14 @@ export interface QueryContext {
  * Base Repository with common CRUD operations
  */
 export abstract class BaseRepository<T extends { id: string | number }> {
-  protected abstract tableName: string;
-  protected abstract idColumn: string; // Usually 'id'
+  protected tableName: string = '';
+  protected idColumn: string = 'id';
 
   // Pool for repos that extend with Pool-based pattern
   protected _pool?: Pool | PoolClient;
-  protected _tableName?: string;
 
   constructor(tableName?: string, pool?: Pool | PoolClient) {
-    if (tableName) this._tableName = tableName;
+    if (tableName) this.tableName = tableName;
     if (pool) this._pool = pool;
   }
 
