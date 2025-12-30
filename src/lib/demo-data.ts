@@ -354,7 +354,7 @@ export function generateDemoRoutes(count: number = 15): Route[] {
         lat: 30.4383,
         lng: -84.2807
       }
-    } as Route)
+    } as unknown as Route)
   }
 
   return routes
