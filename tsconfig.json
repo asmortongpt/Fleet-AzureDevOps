@@ -56,6 +56,11 @@
     "src/**/__tests__/**",
     "src/components/experimental/**",
     "src/features/experimental/**",
-    "tests/**"
+    "src/components/workspaces/**",
+    "src/components/modules/personal-use/**",
+    "src/components/modules/analytics/**",
+    "src/pages/*Hub.tsx",
+    "tests/**",
+    "server/**"
   ]
 }
