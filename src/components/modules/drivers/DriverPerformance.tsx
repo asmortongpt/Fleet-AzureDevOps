@@ -80,16 +80,16 @@ export function DriverPerformance(_props: DriverPerformanceProps) {
   }, [enhancedDrivers])
 
   const needsAttention = useMemo(() => {
-    return enhancedDrivers.filter(d => d.incidents > 2 || d.safetyScore < 75)
+    return enhancedDrivers.filter(d => (d as any).incidents > 2 || (d as any).safetyScore < 75)
   }, [enhancedDrivers])
 
   const metrics = useMemo(() => {
-    const totalTrips = enhancedDrivers.reduce((sum, d) => sum + d.trips, 0)
-    const totalMiles = enhancedDrivers.reduce((sum, d) => sum + d.miles, 0)
+    const totalTrips = enhancedDrivers.reduce((sum, d) => sum + (d as any).trips, 0)
+    const totalMiles = enhancedDrivers.reduce((sum, d) => sum + (d as any).miles, 0)
     const avgSafetyScore = enhancedDrivers.length > 0
-      ? Math.round(enhancedDrivers.reduce((sum, d) => sum + d.safetyScore, 0) / enhancedDrivers.length)
+      ? Math.round(enhancedDrivers.reduce((sum, d) => sum + (d as any).safetyScore, 0) / enhancedDrivers.length)
       : 0
-    const totalIncidents = enhancedDrivers.reduce((sum, d) => sum + d.incidents, 0)
+    const totalIncidents = enhancedDrivers.reduce((sum, d) => sum + (d as any).incidents, 0)
 
     return {
       totalDrivers: drivers.length,
@@ -246,7 +246,7 @@ export function DriverPerformance(_props: DriverPerformanceProps) {
                             <Badge className={badge.color}>
                               {badge.label}
                             </Badge>
-                            {driver.trend === "up" && (
+                            {(driver as any).trend === "up" && (
                               <TrendUp className="w-4 h-4 text-success" weight="bold" />
                             )}
                           </div>
@@ -262,25 +262,25 @@ export function DriverPerformance(_props: DriverPerformanceProps) {
                             </div>
                             <div>
                               <p className="text-muted-foreground">Total Trips</p>
-                              <p className="font-semibold text-lg">{driver.trips}</p>
+                              <p className="font-semibold text-lg">{(driver as any).trips}</p>
                             </div>
                             <div>
                               <p className="text-muted-foreground">Miles Driven</p>
-                              <p className="font-semibold text-lg">{driver.miles.toLocaleString()}</p>
+                              <p className="font-semibold text-lg">{((driver as any).miles || 0).toLocaleString()}</p>
                             </div>
                             <div>
                               <p className="text-muted-foreground">Incidents</p>
-                              <p className={`font-semibold text-lg ${driver.incidents > 2 ? "text-destructive" : ""}`}>
-                                {driver.incidents}
+                              <p className={`font-semibold text-lg ${(driver as any).incidents > 2 ? "text-destructive" : ""}`}>
+                                {(driver as any).incidents}
                               </p>
                             </div>
                           </div>
                           <div className="mt-4">
                             <div className="flex items-center justify-between mb-2">
                               <span className="text-xs text-muted-foreground">On-Time Delivery</span>
-                              <span className="text-xs font-medium">{driver.onTimeDelivery}%</span>
+                              <span className="text-xs font-medium">{(driver as any).onTimeDelivery}%</span>
                             </div>
-                            <Progress value={driver.onTimeDelivery} className="h-2" />
+                            <Progress value={(driver as any).onTimeDelivery} className="h-2" />
                           </div>
                         </div>
                       </div>
@@ -339,7 +339,7 @@ export function DriverPerformance(_props: DriverPerformanceProps) {
                         <p className="text-sm text-muted-foreground">
                           Safety Score: <span className={`font-semibold ${getScoreColor(driver.safetyScore)}`}>
                             {driver.safetyScore}
-                          </span> • {driver.trips} trips • {driver.miles.toLocaleString()} miles
+                          </span> • {(driver as any).trips} trips • {((driver as any).miles || 0).toLocaleString()} miles
                         </p>
                       </div>
                       <Trophy className="w-8 h-8 text-warning" weight="fill" />
