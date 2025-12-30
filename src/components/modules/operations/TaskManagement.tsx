@@ -149,8 +149,8 @@ export function TaskManagement() {
 
     try {
       const response = await apiClient.post<ApiResponse<{ task: Task }>>("/api/task-management", newTask)
-      if (isSuccessResponse(response) && response.data?.task) {
-        setTasks(current => [...current, response.data.task as Task])
+      if (isSuccessResponse(response) && response?.data?.task) {
+        setTasks(current => [...current, response.data.task])
         toast.success("Task created successfully")
         setIsAddDialogOpen(false)
         resetNewTask()
@@ -164,9 +164,9 @@ export function TaskManagement() {
   const handleUpdateTask = async (taskId: string, updates: Partial<Task>) => {
     try {
       const response = await apiClient.put<ApiResponse<{ task: Task }>>(`/api/task-management/${taskId}`, updates)
-      if (isSuccessResponse(response) && response.data?.task) {
+      if (isSuccessResponse(response) && response?.data?.task) {
         setTasks(current =>
-          current.map(t => (t.id === taskId ? response.data.task as Task : t))
+          current.map(t => (t.id === taskId ? response.data.task : t))
         )
         toast.success("Task updated successfully")
       }
