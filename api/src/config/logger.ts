@@ -6,17 +6,18 @@ import winston from 'winston';
  */
 
 // Sanitize sensitive data from logs
-const sanitizeLog = winston.format((info) => {
+const sanitizeLog = winston.format((info: winston.Logform.TransformableInfo) => {
   const sensitiveFields = ['password', 'token', 'secret', 'apiKey', 'authorization'];
-  
-  if (info.message && typeof info.message === 'object') {
+
+  const message = info.message as Record<string, unknown> | undefined;
+  if (message && typeof message === 'object') {
     sensitiveFields.forEach(field => {
-      if (info.message[field]) {
-        info.message[field] = '[REDACTED]';
+      if (message[field]) {
+        message[field] = '[REDACTED]';
       }
     });
   }
-  
+
   return info;
 });
 
