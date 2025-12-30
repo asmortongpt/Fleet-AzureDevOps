@@ -133,7 +133,7 @@ const VehicleMaintenancePanel = ({ vehicle, _maintenanceHistory }: { vehicle: Ve
                     </span>
                   </div>
                   <Progress
-                    value={(vehicle.mileage || 0) / Number(vehicle.nextService) * 100}
+                    value={Number(vehicle.nextService) > 0 ? ((vehicle.mileage || 0) / Number(vehicle.nextService)) * 100 : 0}
                     className="h-2"
                   />
                 </div>
