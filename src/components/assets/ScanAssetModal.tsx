@@ -33,7 +33,9 @@ const ScanAssetModal: React.FC<ScanAssetModalProps> = ({ tenantId, onClose }) =>
       logger.error('Error fetching asset details:', error);
       toast.error('Failed to fetch asset details.');
       // Add to offline queue
-      addToOfflineQueue({ type: 'SCAN', code, tenantId });
+      if (typeof addToOfflineQueue === 'function') {
+        addToOfflineQueue({ type: 'SCAN', code, tenantId });
+      }
     }
   }, [tenantId, addToOfflineQueue]);
 
