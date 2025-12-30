@@ -217,7 +217,7 @@ export function ChargesAndBilling() {
     generateInvoice()
   }
 
-  const filteredCharges = charges.filter((charge) => {
+  const filteredCharges = charges.filter((charge: ChargeRecord) => {
     if (driverFilter && charge.driver_name && !charge.driver_name.toLowerCase().includes(driverFilter.toLowerCase())) {
       return false
     }
@@ -412,7 +412,7 @@ export function ChargesAndBilling() {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {filteredCharges.map((charge) => (
+                    {filteredCharges.map((charge: ChargeRecord) => (
                       <TableRow key={charge.id} className={isOverdue(charge.due_date) ? 'bg-destructive/5' : ''}>
                         <TableCell>
                           <div className="font-medium">{charge.driver_name || 'Unknown Driver'}</div>

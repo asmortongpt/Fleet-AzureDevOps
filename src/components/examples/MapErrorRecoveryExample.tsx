@@ -82,8 +82,13 @@ const demoFacilities: GISFacility[] = [
 const demoCameras: TrafficCamera[] = [
   {
     id: 'c1',
+    sourceId: 'source-1',
+    externalId: 'ext-1',
     name: 'Camera-001',
-    status: 'online',
+    address: 'Main St & Oak Ave',
+    latitude: 30.4383,
+    longitude: -84.2807,
+    enabled: true,
   },
 ]
 
