@@ -179,9 +179,10 @@ export function EnhancedTaskManagement() {
       if (filterStatus !== "all") params.append("status", filterStatus)
       if (filterType !== "all") params.append("category", filterType)
 
-      const response = await apiClient.get<ApiResponse<unknown>>(`/api/task-management?${params.toString()}`)
-      if (isSuccessResponse(response)) {
-        const typedResponse = response as SuccessResponse<{ tasks: Task[] }>
+      const response = await apiClient.get<unknown>(`/api/task-management?${params.toString()}`)
+      const apiResponse = response as ApiResponse<unknown>
+      if (isSuccessResponse(apiResponse)) {
+        const typedResponse = apiResponse as SuccessResponse<{ tasks: Task[] }>
         setTasks(typedResponse.data?.tasks || [])
       }
     } catch (error) {
@@ -201,14 +202,15 @@ export function EnhancedTaskManagement() {
 
     setIsLoadingAI(true)
     try {
-      const response = await apiClient.post<ApiResponse<unknown>>("/api/ai/task-suggestions", {
+      const response = await apiClient.post<unknown>("/api/ai/task-suggestions", {
         title: taskData.task_title,
         description: taskData.description,
         type: taskData.task_type
       })
 
-      if (isSuccessResponse(response)) {
-        const typedResponse = response as SuccessResponse<{ suggestions: any }>
+      const apiResponse = response as ApiResponse<unknown>
+      if (isSuccessResponse(apiResponse)) {
+        const typedResponse = apiResponse as SuccessResponse<{ suggestions: any }>
         setAiSuggestions(typedResponse.data?.suggestions)
         setShowAISuggestions(true)
         toast.success("AI suggestions generated!")

@@ -40,14 +40,16 @@ export function MaintenanceRequest({ data }: MaintenanceRequestProps) {
     return colors[priority]
   }
 
-  const getStatusColor = (status: MaintenanceRequestType["status"]) => {
-    const colors: Record<MaintenanceRequestType["status"], string> = {
+  const getStatusColor = (status: string) => {
+    const colors: Record<string, string> = {
       pending: "bg-warning/10 text-warning border-warning/20",
       approved: "bg-accent/10 text-accent border-accent/20",
       "in-progress": "bg-accent/10 text-accent border-accent/20",
-      completed: "bg-success/10 text-success border-success/20"
+      completed: "bg-success/10 text-success border-success/20",
+      due: "bg-warning/10 text-warning border-warning/20",
+      overdue: "bg-destructive/10 text-destructive border-destructive/20"
     }
-    return colors[status]
+    return colors[status] || "bg-muted text-muted-foreground"
   }
 
   const requests = data.maintenanceRequests || []

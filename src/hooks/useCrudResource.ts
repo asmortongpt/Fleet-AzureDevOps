@@ -32,7 +32,7 @@ export function createCrudHooks<T extends { id?: number | string }>(
     return useQuery({
       queryKey: [queryKey, params],
       queryFn: async () => {
-        const response = await axios.get(`/${resourceName}`, { params })
+        const response = await axios.get<T[]>(`/${resourceName}`, { params })
         return response?.data
       },
       gcTime: 5 * 60 * 1000,
@@ -47,7 +47,7 @@ export function createCrudHooks<T extends { id?: number | string }>(
     return useQuery({
       queryKey: [queryKey, id],
       queryFn: async () => {
-        const response = await axios.get(`/${resourceName}/${id}`)
+        const response = await axios.get<T>(`/${resourceName}/${id}`)
         return response?.data?.data || response?.data
       },
       enabled: !!id,
@@ -64,7 +64,7 @@ export function createCrudHooks<T extends { id?: number | string }>(
 
     return useMutation({
       mutationFn: async (data: Partial<T>) => {
-        const response = await axios.post(`/${resourceName}`, data)
+        const response = await axios.post<T>(`/${resourceName}`, data)
         return response?.data
       },
       onSuccess: () => {
@@ -82,7 +82,7 @@ export function createCrudHooks<T extends { id?: number | string }>(
 
     return useMutation({
       mutationFn: async ({ id, data }: { id: number | string; data: Partial<T> }) => {
-        const response = await axios.put(`/${resourceName}/${id}`, data)
+        const response = await axios.put<T>(`/${resourceName}/${id}`, data)
         return response?.data
       },
       onSuccess: (_, variables) => {
