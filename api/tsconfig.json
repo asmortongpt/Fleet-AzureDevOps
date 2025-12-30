@@ -57,14 +57,22 @@
     "src/routes/ai-task-asset.routes.ts",
     "src/routes/mobile-integration.routes.ts",
     "src/routes/cost-analysis.routes.ts",
+    "src/routes/document-system.routes.ts",
+    "src/routes/ai-chat.ts",
     "src/services/document-geo.service.ts",
     "src/services/fleet-optimizer.service.ts",
     "src/services/attachment.service.ts",
     "src/services/ai-task-prioritization.ts",
     "src/services/document-storage.service.ts",
+    "src/services/document-folder.service.ts",
+    "src/services/DocumentSearchService.ts",
     "src/repositories/enhanced/**",
     "src/repositories/ReservationsRepository.ts",
     "src/repositories/vehicles.repository.ts",
-    "src/repositories/PersonalUsePoliciesRepository.ts"
+    "src/repositories/PersonalUsePoliciesRepository.ts",
+    "src/repositories/leasetracking.repository.ts",
+    "src/repositories/fuelcardintegration.repository.ts",
+    "src/repositories/asset-management.repository.ts",
+    "src/emulators/**"
   ]
 }
