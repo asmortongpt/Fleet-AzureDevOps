@@ -253,7 +253,7 @@ const WorkHub: React.FC = () => {
   );
 
   return (
-    <HubLayout title="Work Management" icon={ClipboardText}>
+    <HubLayout title="Work Management">
       <div className="h-full flex flex-col gap-4 p-4">
         {/* KPI Strip at the top */}
         <KPIStrip metrics={kpiMetrics} />
