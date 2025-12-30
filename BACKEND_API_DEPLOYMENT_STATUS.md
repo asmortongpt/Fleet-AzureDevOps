@@ -158,7 +158,7 @@ The application requires these environment variables (from `/server/src/services
        FRONTEND_URL=https://proud-bay-0fdc8040f.3.azurestaticapps.net \
      --secure-environment-variables \
        DATABASE_PASSWORD=<CORRECT_PASSWORD_HERE> \
-       AZURE_AD_CLIENT_SECRET=aJN8Q~py5Vf.tH9xfhrhIBl.ofsRRvQB9owhGcdE \
+       AZURE_AD_CLIENT_SECRET=<from-azure-keyvault> \
        JWT_SECRET=fleet-production-jwt-secret-2025 \
      --location eastus2
    ```
