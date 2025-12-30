@@ -362,18 +362,7 @@ export function FleetWorkspace({ _data }: { _data?: unknown }) {
     isConnected: isRealtimeConnected,
   } = useVehicleTelemetry({
     enabled: true,
-    initialVehicles: (vehicles as unknown[]).map(v => ({
-      id: (v as any).id,
-      year: (v as any).year,
-      make: (v as any).make,
-      model: (v as any).model,
-      vin: (v as any).vin,
-      licensePlate: (v as any).licensePlate,
-      status: (v as any).status,
-      fuelType: (v as any).fuelType,
-      fuelLevel: (v as any).fuelLevel,
-      mileage: (v as any).mileage,
-    })) as FleetVehicle[],
+    initialVehicles: (vehicles as unknown as Vehicle[]),
   })
 
   // Use real-time vehicles if available, otherwise use static data
