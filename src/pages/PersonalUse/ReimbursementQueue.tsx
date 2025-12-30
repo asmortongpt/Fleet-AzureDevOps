@@ -121,16 +121,20 @@ export function ReimbursementQueue() {
     return params.toString()
   }
 
-  const { data: queueData, isLoading: loading } = useQuery({
+  const { data: queueData, isLoading: loading, error: queueError } = useQuery({
     queryKey: ['reimbursement-queue', statusFilter, categoryFilter],
     queryFn: () => apiClient(`/api/reimbursements?${getQueueParams()}`),
     staleTime: 30000,
-    gcTime: 60000,
-    onError: (error: unknown) => {
-      logger.error('Failed to fetch queue:', error)
+    gcTime: 60000
+  })
+
+  // Handle errors with useEffect
+  React.useEffect(() => {
+    if (queueError) {
+      logger.error('Failed to fetch queue:', queueError)
       toast.error('Failed to load reimbursement queue')
     }
-  })
+  }, [queueError])
 
   const { data: summaryData } = useQuery({
     queryKey: ['reimbursement-summary'],
