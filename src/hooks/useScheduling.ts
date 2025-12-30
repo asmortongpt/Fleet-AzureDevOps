@@ -52,7 +52,7 @@ export function useReservations(filters?: ReservationFilters) {
         success: boolean
         count: number
         reservations: VehicleReservation[]
-      }>('/api/scheduling/reservations', filters)
+      }>('/api/scheduling/reservations', filters as Record<string, unknown> | undefined)
       return response.reservations
     },
     staleTime: 30000, // 30 seconds
@@ -258,7 +258,7 @@ export function useMaintenanceAppointments(filters?: MaintenanceFilters) {
         success: boolean
         count: number
         appointments: MaintenanceAppointment[]
-      }>('/api/scheduling/maintenance', filters)
+      }>('/api/scheduling/maintenance', filters as Record<string, unknown> | undefined)
       return response.appointments
     },
     staleTime: 30000, // 30 seconds
@@ -432,7 +432,7 @@ export function useAvailableVehicles(params: AvailableVehiclesParams, options?: 
         success: boolean
         count: number
         vehicles: Vehicle[]
-      }>('/api/scheduling/available-vehicles', params)
+      }>('/api/scheduling/available-vehicles', params as Record<string, unknown>)
       return response.vehicles
     },
     enabled: options?.enabled !== false && !!params.startTime && !!params.endTime,
@@ -452,7 +452,7 @@ export function useAvailableServiceBays(params: AvailableServiceBaysParams, opti
         success: boolean
         count: number
         serviceBays: ServiceBay[]
-      }>('/api/scheduling/available-service-bays', params)
+      }>('/api/scheduling/available-service-bays', params as Record<string, unknown>)
       return response.serviceBays
     },
     enabled: options?.enabled !== false,

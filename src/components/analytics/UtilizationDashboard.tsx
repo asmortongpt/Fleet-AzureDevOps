@@ -48,13 +48,13 @@ const UtilizationDashboard: React.FC = () => {
     const fetchData = async () => {
       try {
         const idleAssetsData = await fetchIdleAssets(tenantId);
-        setIdleAssets(idleAssetsData);
+        setIdleAssets(idleAssetsData as Asset[]);
 
         const utilizationData = await fetchUtilizationData(tenantId);
-        setUtilizationData(utilizationData);
+        setUtilizationData(utilizationData as UtilizationData[]);
 
         const roiMetricsData = await fetchROIMetrics(tenantId);
-        setRoiMetrics(roiMetricsData);
+        setRoiMetrics(roiMetricsData as ROIMetric[]);
 
         logger.logAudit('Utilization dashboard data fetched', { tenantId });
       } catch (error) {

@@ -76,7 +76,7 @@ export const TaskInspector: React.FC<TaskInspectorProps> = ({ id, initialTab = '
       try {
         setLoading(true);
         setError(null);
-        const data = await apiClient.get(`/api/tasks/${id}`);
+        const data = await apiClient.get<Task>(`/api/tasks/${id}`);
         setTask(data);
       } catch (err: any) {
         setError(err.message || 'Failed to load task data');
