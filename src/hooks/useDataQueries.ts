@@ -155,7 +155,7 @@ export function useUpdateDriver() {
 
   return useMutation({
     mutationFn: async ({ id, ...updates }: Partial<Driver> & { id: string }) => {
-      const response = await apiClient.patch<Driver>(`/drivers/${id}`, updates);
+      const response = await apiClient.batch<Driver>(`/drivers/${id}`, updates);
       return response;
     },
     onSuccess: (data) => {
@@ -214,7 +214,7 @@ export function useUpdateWorkOrder() {
 
   return useMutation({
     mutationFn: async ({ id, ...updates }: Partial<WorkOrder> & { id: string }) => {
-      const response = await apiClient.patch<WorkOrder>(`/work-orders/${id}`, updates);
+      const response = await apiClient.batch<WorkOrder>(`/work-orders/${id}`, updates);
       return response;
     },
     onSuccess: (data) => {
