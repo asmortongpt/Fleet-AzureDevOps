@@ -10,6 +10,7 @@ import {
 import { useState, useMemo, useCallback } from "react"
 
 import { ProfessionalFleetMap, GISFacility } from "@/components/Maps/ProfessionalFleetMap"
+import type { Vehicle } from "@/types"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
@@ -521,10 +522,10 @@ export function CommunicationHub() {
         </div>
       </div>
       <div className="w-1/3 border-l">
-        <ProfessionalFleetMap 
-          vehicles={messageMarkers} 
-          facilities={zoneMarkers} 
-          center={{ lat: 38.9072, lng: -77.0369 }} 
+        <ProfessionalFleetMap
+          vehicles={messageMarkers as unknown as Vehicle[]}
+          facilities={zoneMarkers}
+          center={{ lat: 38.9072, lng: -77.0369 }}
         />
       </div>
     </div>

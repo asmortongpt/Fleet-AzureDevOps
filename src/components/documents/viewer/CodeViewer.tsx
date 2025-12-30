@@ -20,7 +20,7 @@ interface CodeViewerProps {
   document: DocumentMetadata;
 }
 
-export function CodeViewer({ document }: CodeViewerProps) {
+export function CodeViewer({ document: docMetadata }: CodeViewerProps) {
   const [code, setCode] = useState<string>('');
   const [copied, setCopied] = useState<boolean>(false);
   const [searchQuery, setSearchQuery] = useState<string>('');
@@ -28,7 +28,7 @@ export function CodeViewer({ document }: CodeViewerProps) {
 
   useEffect(() => {
     // Fetch code content
-    fetch(document.url)
+    fetch(docMetadata.url)
       .then((res) => res.text())
       .then((text) => {
         setCode(text);
@@ -39,7 +39,7 @@ export function CodeViewer({ document }: CodeViewerProps) {
         setCode('// Error loading file');
         setLoading(false);
       });
-  }, [document.url]);
+  }, [docMetadata.url]);
 
   const handleCopy = async (): Promise<void> => {
     try {
@@ -56,13 +56,13 @@ export function CodeViewer({ document }: CodeViewerProps) {
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = document.name;
+    a.download = docMetadata.name;
     a.click();
     URL.revokeObjectURL(url);
   };
 
   const getLanguage = (): string => {
-    const ext = document.name.split('.').pop()?.toLowerCase() || '';
+    const ext = docMetadata.name.split('.').pop()?.toLowerCase() || '';
     const langMap: Record<string, string> = {
       js: 'JavaScript',
       jsx: 'React',

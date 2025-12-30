@@ -40,8 +40,19 @@ const AssetCheckInOut: React.FC<AssetCheckInOutProps> = ({ tenantId, onCheckInOu
     if (camera) {
       const options = { quality: 0.5, base64: true };
       const data = await camera.takePictureAsync(options);
-      const compressedImage = await compressToWebP(data?.uri);
-      setImage(compressedImage);
+      if (data?.uri) {
+        const compressedImage = await compressToWebP(data.uri);
+        // Convert Blob to data URL or URI string
+        if (compressedImage instanceof Blob) {
+          const reader = new FileReader();
+          reader.onload = () => {
+            setImage(reader.result as string);
+          };
+          reader.readAsDataURL(compressedImage);
+        } else if (typeof compressedImage === 'string') {
+          setImage(compressedImage);
+        }
+      }
     }
   };
 
@@ -54,10 +65,21 @@ const AssetCheckInOut: React.FC<AssetCheckInOutProps> = ({ tenantId, onCheckInOu
       const photoUrl = await uploadPhoto(image, tenantId);
       const gpsCoords = { lat: _location.coords?.latitude ?? 0, lng: _location.coords?.longitude ?? 0 };
 
+      // Create properly typed payload
+      const payload = {
+        photoUrl: typeof photoUrl === 'string' ? photoUrl : '',
+        gpsCoords,
+        conditionRating,
+        signature: _signature || '',
+        tenantId
+      };
+
       if (_isCheckingIn) {
-        await checkInAsset({ photoUrl, gpsCoords, conditionRating, signature: _signature, tenantId }, {});
+        // checkInAsset expects (data, options) - provide empty options object
+        await checkInAsset(payload as any, {});
       } else {
-        await checkOutAsset({ photoUrl, gpsCoords, conditionRating, signature: _signature, tenantId }, {});
+        // checkOutAsset expects (data, options) - provide empty options object
+        await checkOutAsset(payload as any, {});
       }
 
       onCheckInOutSuccess();

@@ -123,13 +123,15 @@ interface ApiResponse<T> {
 }
 
 interface NLPResponse {
-  task: {
-    title: string
-    description: string
-    type: string
-    priority: string
-    dueDate?: string
-    estimatedHours?: number
+  data: {
+    task: {
+      title: string
+      description: string
+      type: string
+      priority: string
+      dueDate?: string
+      estimatedHours?: number
+    }
   }
 }
 

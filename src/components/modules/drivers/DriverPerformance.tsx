@@ -230,7 +230,7 @@ export function DriverPerformance(_props: DriverPerformanceProps) {
 
         <TabsContent value="overview" className="space-y-4 mt-6">
           <div className="grid grid-cols-1 gap-4">
-            {enhancedDrivers.map((driver: Driver) => {
+            {enhancedDrivers.map((driver) => {
               const badge = getScoreBadge(driver.safetyScore)
               return (
                 <Card key={driver.id}>
@@ -308,7 +308,7 @@ export function DriverPerformance(_props: DriverPerformanceProps) {
 
         <TabsContent value="top" className="space-y-4 mt-6">
           <div className="grid grid-cols-1 gap-4">
-            {topPerformers.map((driver: Driver, index: number) => {
+            {topPerformers.map((driver, index) => {
               const badge = getScoreBadge(driver.safetyScore)
               return (
                 <Card key={driver.id}>
@@ -351,7 +351,7 @@ export function DriverPerformance(_props: DriverPerformanceProps) {
             </Card>
           ) : (
             <div className="grid grid-cols-1 gap-4">
-              {needsAttention.map((driver: Driver) => (
+              {needsAttention.map((driver) => (
                 <Card key={driver.id}>
                   <CardContent className="p-6">
                     <div className="flex items-start justify-between">

@@ -4,49 +4,33 @@ import axios, { AxiosError } from 'axios';
 import { useState, useEffect } from 'react';
 
 const REFRESH_TOKEN_ENDPOINT = '/api/refresh-token'; // Hardcoded endpoint as a fallback
-import { useAuthContext } from '../context/AuthContext'; // Ensure this file exists or create a type definition
-import logger from '../utils/logger'; // Changed to default import assuming logger is exported as default
+import { useAuth } from '../contexts/AuthContext';
+import logger from '../utils/logger';
 
 interface TokenResponse {
   accessToken: string;
   refreshToken: string;
 }
 
-interface AuthState {
-  accessToken?: string;
-  refreshToken?: string;
-}
-
 export const useTokenRefresh = (): { refresh: () => Promise<void> } => {
-  const { authState, setAuthState } = useAuthContext();
+  const { isAuthenticated, refreshToken } = useAuth();
   const [isRefreshing, setIsRefreshing] = useState<boolean>(false);
 
   useEffect(() => {
     const interval = setInterval(() => {
-      if (!isRefreshing && authState?.refreshToken) {
+      if (!isRefreshing && isAuthenticated) {
         refresh();
       }
     }, 15 * 60 * 1000); // Refresh every 15 minutes
 
     return () => clearInterval(interval);
-  }, [authState?.refreshToken, isRefreshing]);
+  }, [isAuthenticated, isRefreshing]);
 
   const refresh = async (): Promise<void> => {
     setIsRefreshing(true);
     try {
-      const response = await axios.post<TokenResponse>(REFRESH_TOKEN_ENDPOINT, {
-        refreshToken: authState?.refreshToken,
-      });
-
-      if (response?.data && response.data.accessToken && response.data.refreshToken) {
-        setAuthState({
-          ...authState,
-          accessToken: response.data.accessToken,
-          refreshToken: response.data.refreshToken,
-        });
-      } else {
-        throw new Error('Invalid token response structure');
-      }
+      // Call the auth context's built-in refreshToken method
+      await refreshToken();
     } catch (error) {
       handleError(error);
     } finally {

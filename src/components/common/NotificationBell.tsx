@@ -50,10 +50,9 @@ export function NotificationBell({ onNavigate }: { onNavigate: (module: string, 
     try {
       setIsLoading(true)
       const response = await apiClient.get<NotificationResponse>('/api/alerts/notifications?limit=10')
-      const data = response.data
 
-      setNotifications(data.notifications || [])
-      setUnreadCount(data.notifications?.filter((n: Notification) => !n.is_read).length || 0)
+      setNotifications(response.notifications || [])
+      setUnreadCount(response.notifications?.filter((n: Notification) => !n.is_read).length || 0)
     } catch (error) {
       logger.error('Error fetching notifications:', error)
     } finally {
