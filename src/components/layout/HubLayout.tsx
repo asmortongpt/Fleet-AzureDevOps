@@ -10,7 +10,10 @@ export const HubLayout: React.FC<{ title: string; icon?: React.ReactNode; childr
       alignItems: "center",
       justifyContent: "space-between"
     }}>
-      <h1 style={{ margin: 0, fontSize: 20, fontWeight: 600, color: "#fff" }}>{title}</h1>
+      <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+        {icon && <span style={{ fontSize: 20 }}>{icon}</span>}
+        <h1 style={{ margin: 0, fontSize: 20, fontWeight: 600, color: "#fff" }}>{title}</h1>
+      </div>
     </header>
     <main style={{ overflow: "auto", background: "#010409" }}>
       {children}
