@@ -30,8 +30,8 @@ export function useDrivers(params?: {
   return useQuery({
     queryKey: ['drivers', params],
     queryFn: async () => {
-      const response = await api.get('/drivers', { params })
-      return response.data
+      const response = await api.get<Driver[]>('/drivers', { params })
+      return response?.data
     },
   })
 }
@@ -40,8 +40,8 @@ export function useDriver(id: number) {
   return useQuery({
     queryKey: ['driver', id],
     queryFn: async () => {
-      const response = await api.get(`/drivers/${id}`)
-      return response.data.data
+      const response = await api.get<{ data: Driver }>(`/drivers/${id}`)
+      return response?.data?.data
     },
     enabled: !!id,
   })
@@ -52,8 +52,8 @@ export function useCreateDriver() {
 
   return useMutation({
     mutationFn: async (data: Partial<Driver>) => {
-      const response = await api.post('/drivers', data)
-      return response.data
+      const response = await api.post<Driver>('/drivers', data)
+      return response?.data
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['drivers'] })
@@ -66,8 +66,8 @@ export function useUpdateDriver() {
 
   return useMutation({
     mutationFn: async ({ id, data }: { id: number; data: Partial<Driver> }) => {
-      const response = await api.put(`/drivers/${id}`, data)
-      return response.data
+      const response = await api.put<Driver>(`/drivers/${id}`, data)
+      return response?.data
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['drivers'] })
