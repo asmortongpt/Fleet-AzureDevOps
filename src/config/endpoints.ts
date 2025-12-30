@@ -3,7 +3,7 @@
  * This file defines all available API endpoints and WebSocket connections
  */
 
-import { EndpointCategory, SocketConnectionInfo } from '@/types/endpoint-monitor'
+import { EndpointCategory, SocketConnectionInfo, EndpointInfo } from '@/types/endpoint-monitor'
 
 export const API_ENDPOINT_CATEGORIES: EndpointCategory[] = [
   {
