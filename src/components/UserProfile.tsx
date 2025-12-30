@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 
 import { AppError } from '../errors/AppError';
 import { fetchUserProfile } from '../services/userService';
+import type { User } from '@/lib/types';
 
 /**
  * UserProfile component displays user information.
