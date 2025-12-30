@@ -2,26 +2,14 @@
  * Base Repository Pattern Implementation
  *
  * Provides a consistent data access layer with:
- * - CRUD operations
- * - Tenant isolation (RLS)
  * - Transaction support
- * - Error handling
- * - Pagination
+ * - Query utilities
+ * - Pagination helpers
  */
 
 import { Pool, PoolClient } from 'pg';
 
 import { connectionManager } from '../config/connection-manager';
-import { NotFoundError, DatabaseError } from '../middleware/errorHandler';
-import { isValidIdentifier } from '../utils/sql-safety';
-
-// Valid sort orders allowlist
-const VALID_SORT_ORDERS = ['ASC', 'DESC'] as const;
-type ValidSortOrder = typeof VALID_SORT_ORDERS[number];
-
-function isValidSortOrder(order: string): order is ValidSortOrder {
-  return VALID_SORT_ORDERS.includes(order.toUpperCase() as ValidSortOrder);
-}
 
 export interface PaginationOptions {
   page?: number;
@@ -43,17 +31,16 @@ export interface PaginatedResult<T> {
 export interface QueryContext {
   userId: string;
   tenantId: string;
-  pool?: Pool | PoolClient; // Allow custom pool or transaction client
+  pool?: Pool | PoolClient;
 }
 
 /**
- * Base Repository with common CRUD operations
+ * Base Repository - provides utility methods for subclasses
+ * Subclasses implement their own CRUD operations
  */
 export abstract class BaseRepository<T extends { id: string | number }> {
   protected tableName: string = '';
   protected idColumn: string = 'id';
-
-  // Pool for repos that extend with Pool-based pattern
   protected _pool?: Pool | PoolClient;
 
   constructor(tableName?: string, pool?: Pool | PoolClient) {
@@ -62,20 +49,19 @@ export abstract class BaseRepository<T extends { id: string | number }> {
   }
 
   /**
-   * Get database pool (supports transactions)
+   * Get database pool
    */
-  protected getPool(context: QueryContext): Pool | PoolClient {
-    return context.pool || connectionManager.getPool();
+  protected getPool(context?: QueryContext): Pool | PoolClient {
+    if (this._pool) return this._pool;
+    if (context?.pool) return context.pool;
+    return connectionManager.getPool();
   }
 
   /**
-   * Execute a custom parameterized query (for subclass convenience)
-   * @param sql - SQL query with $1, $2, etc. placeholders  
-   * @param params - Array of parameter values
-   * @returns Query result rows
+   * Execute a custom parameterized query
    */
   protected async query<R = T>(sql: string, params: unknown[] = []): Promise<R[] & { rowCount: number }> {
-    const pool = connectionManager.getPool();
+    const pool = this.getPool();
     const result = await pool.query(sql, params);
     const rows = result.rows as R[] & { rowCount: number };
     rows.rowCount = result.rowCount ?? 0;
@@ -83,310 +69,78 @@ export abstract class BaseRepository<T extends { id: string | number }> {
   }
 
   /**
-   * Find single record by ID
+   * Execute query within a transaction
    */
-  async findById(id: string | number, context: QueryContext): Promise<T | null> {
+  protected async withTransaction<R>(
+    callback: (client: PoolClient) => Promise<R>
+  ): Promise<R> {
+    const pool = connectionManager.getPool();
+    const client = await pool.connect();
     try {
-      const pool = this.getPool(context);
-      const result = await pool.query(
-        `SELECT * FROM ${this.tableName} WHERE ${this.idColumn} = $1 AND tenant_id = $2`,
-        [id, context.tenantId]
-      );
-
-      return result.rows[0] || null;
+      await client.query('BEGIN');
+      const result = await callback(client);
+      await client.query('COMMIT');
+      return result;
     } catch (error) {
-      throw new DatabaseError(`Failed to find ${this.tableName} by ID`, { id, error });
+      await client.query('ROLLBACK');
+      throw error;
+    } finally {
+      client.release();
     }
   }
 
   /**
-   * Find single record by ID or throw NotFoundError
+   * Build WHERE clause from conditions
    */
-  async findByIdOrFail(id: string | number, context: QueryContext): Promise<T> {
-    const record = await this.findById(id, context);
-    if (!record) {
-      throw new NotFoundError(this.tableName);
-    }
-    return record;
+  protected buildWhereClause(conditions: Record<string, unknown>, startIndex: number = 1): { clause: string; params: unknown[]; nextIndex: number } {
+    const clauses: string[] = [];
+    const params: unknown[] = [];
+    let index = startIndex;
+
+    Object.entries(conditions).forEach(([key, value]) => {
+      if (value !== undefined && value !== null) {
+        clauses.push(`${key} = $${index}`);
+        params.push(value);
+        index++;
+      }
+    });
+
+    return {
+      clause: clauses.length > 0 ? clauses.join(' AND ') : '1=1',
+      params,
+      nextIndex: index
+    };
   }
 
   /**
-   * Find all records with pagination
+   * Build pagination clause
    */
-  async findAll(
-    context: QueryContext,
-    options: PaginationOptions = {}
-  ): Promise<PaginatedResult<T>> {
-    try {
-      const {
-        page = 1,
-        limit = 50,
-        sortBy = this.idColumn,
-        sortOrder = `DESC`
-      } = options;
-
-      const offset = (page - 1) * limit;
-      const pool = this.getPool(context);
-
-      // Validate sortBy column name to prevent SQL injection
-      if (!isValidIdentifier(sortBy)) {
-        throw new DatabaseError(`Invalid sort column: ${sortBy}`, { sortBy });
-      }
-
-      // Validate sort order against allowlist
-      if (!isValidSortOrder(sortOrder)) {
-        throw new DatabaseError(`Invalid sort order: ${sortOrder}`, { sortOrder });
-      }
-
-      // Get total count
-      const countResult = await pool.query(
-        `SELECT COUNT(*) as count FROM ${this.tableName} WHERE tenant_id = $1`,
-        [context.tenantId]
-      );
-      const total = parseInt(countResult.rows[0].count, 10);
-
-      // Get paginated data (sortBy and sortOrder are validated above)
-      const dataResult = await pool.query(
-        `SELECT * FROM ${this.tableName}
-         WHERE tenant_id = $1
-         ORDER BY ${sortBy} ${sortOrder}
-         LIMIT $2 OFFSET $3`,
-        [context.tenantId, limit, offset]
-      );
-
-      return {
-        data: dataResult.rows,
-        pagination: {
-          page,
-          limit,
-          total,
-          totalPages: Math.ceil(total / limit)
-        }
-      };
-    } catch (error) {
-      throw new DatabaseError(`Failed to fetch ${this.tableName} list`, { error });
-    }
+  protected buildPagination(page: number = 1, limit: number = 50): { clause: string; offset: number } {
+    const offset = (page - 1) * limit;
+    return {
+      clause: `LIMIT ${limit} OFFSET ${offset}`,
+      offset
+    };
   }
 
   /**
-   * Find records matching WHERE conditions
+   * Build sorting clause
    */
-  async findWhere(
-    conditions: Partial<T>,
-    context: QueryContext,
-    options: PaginationOptions = {}
-  ): Promise<PaginatedResult<T>> {
-    try {
-      const {
-        page = 1,
-        limit = 50,
-        sortBy = this.idColumn,
-        sortOrder = `DESC`
-      } = options;
-
-      const offset = (page - 1) * limit;
-      const pool = this.getPool(context);
-
-      // Validate sortBy column name to prevent SQL injection
-      if (!isValidIdentifier(sortBy)) {
-        throw new DatabaseError(`Invalid sort column: ${sortBy}`, { sortBy });
-      }
-
-      // Validate sort order against allowlist
-      if (!isValidSortOrder(sortOrder)) {
-        throw new DatabaseError(`Invalid sort order: ${sortOrder}`, { sortOrder });
-      }
-
-      // Build WHERE clause
-      const whereConditions = [`tenant_id = $1`];
-      const values: any[] = [context.tenantId];
-      let paramIndex = 2;
-
-      for (const [key, value] of Object.entries(conditions)) {
-        if (value !== undefined) {
-          // Validate column name to prevent SQL injection
-          if (!isValidIdentifier(key)) {
-            throw new DatabaseError(`Invalid column name: ${key}`, { key });
-          }
-          whereConditions.push(`${key} = $${paramIndex}`);
-          values.push(value);
-          paramIndex++;
-        }
-      }
-
-      const whereClause = whereConditions.join(` AND `);
-
-      // Get total count
-      const countResult = await pool.query(
-        `SELECT COUNT(*) as count FROM ${this.tableName} WHERE ${whereClause}`,
-        values
-      );
-      const total = parseInt(countResult.rows[0].count, 10);
-
-      // Get paginated data (sortBy and sortOrder are validated above)
-      const dataResult = await pool.query(
-        `SELECT * FROM ${this.tableName}
-         WHERE ${whereClause}
-         ORDER BY ${sortBy} ${sortOrder}
-         LIMIT $${paramIndex} OFFSET $${paramIndex + 1}`,
-        [...values, limit, offset]
-      );
-
-      return {
-        data: dataResult.rows,
-        pagination: {
-          page,
-          limit,
-          total,
-          totalPages: Math.ceil(total / limit)
-        }
-      };
-    } catch (error) {
-      throw new DatabaseError(`Failed to query ${this.tableName}`, { conditions, error });
-    }
+  protected buildSorting(sortBy: string = 'id', sortOrder: 'ASC' | 'DESC' = 'DESC'): string {
+    const safeSortBy = sortBy.replace(/[^a-zA-Z0-9_]/g, '');
+    const safeOrder = sortOrder === 'ASC' ? 'ASC' : 'DESC';
+    return `ORDER BY ${safeSortBy} ${safeOrder}`;
   }
 
   /**
-   * Create new record
+   * Build tenant isolation filter
    */
-  async create(data: Omit<T, `id`>, context: QueryContext): Promise<T> {
-    try {
-      const pool = this.getPool(context);
-
-      // Add tenant_id to data
-      const dataWithTenant = {
-        ...data,
-        tenant_id: context.tenantId,
-        created_by: context.userId
-      };
-
-      const columns = Object.keys(dataWithTenant);
-
-      // Validate all column names to prevent SQL injection
-      for (const col of columns) {
-        if (!isValidIdentifier(col)) {
-          throw new DatabaseError(`Invalid column name: ${col}`, { col });
-        }
-      }
-
-      const values = Object.values(dataWithTenant);
-      const placeholders = columns.map((_, i) => `$${i + 1}`).join(', ');
-
-      // Column names are validated above
-      const result = await pool.query(
-        `INSERT INTO ${this.tableName} (${columns.join(', ')})
-         VALUES (${placeholders})
-         RETURNING *`,
-        values
-      );
-
-      return result.rows[0];
-    } catch (error) {
-      throw new DatabaseError(`Failed to create ${this.tableName}`, { data, error });
-    }
+  protected buildTenantFilter(tenantId: number | string, paramIndex: number = 1): string {
+    return `tenant_id = $${paramIndex}`;
   }
 
   /**
-   * Update existing record
-   */
-  async update(
-    id: string | number,
-    data: Partial<Omit<T, `id`>>,
-    context: QueryContext
-  ): Promise<T> {
-    try {
-      const pool = this.getPool(context);
-
-      // Add updated metadata
-      const dataWithMeta = {
-        ...data,
-        updated_at: new Date(),
-        updated_by: context.userId
-      };
-
-      const columns = Object.keys(dataWithMeta);
-
-      // Validate all column names to prevent SQL injection
-      for (const col of columns) {
-        if (!isValidIdentifier(col)) {
-          throw new DatabaseError(`Invalid column name: ${col}`, { col });
-        }
-      }
-
-      const values = Object.values(dataWithMeta);
-      const setClause = columns.map((col, i) => `${col} = $${i + 1}`).join(`, `);
-
-      // Column names are validated above
-      const result = await pool.query(
-        `UPDATE ${this.tableName}
-         SET ${setClause}
-         WHERE ${this.idColumn} = $${columns.length + 1} AND tenant_id = $${columns.length + 2}
-         RETURNING *`,
-        [...values, id, context.tenantId]
-      );
-
-      if (result.rows.length === 0) {
-        throw new NotFoundError(this.tableName);
-      }
-
-      return result.rows[0];
-    } catch (error) {
-      if (error instanceof NotFoundError) throw error;
-      throw new DatabaseError(`Failed to update ${this.tableName}`, { id, data, error });
-    }
-  }
-
-  /**
-   * Delete record (soft delete if column exists, hard delete otherwise)
-   */
-  async delete(id: string | number, context: QueryContext): Promise<void> {
-    try {
-      const pool = this.getPool(context);
-
-      // Check if soft delete column exists
-      const hasSoftDelete = await this.hasColumn(`deleted_at`, pool);
-
-      if (hasSoftDelete) {
-        // Soft delete
-        await pool.query(
-          `UPDATE ${this.tableName}
-           SET deleted_at = NOW(), deleted_by = $1
-           WHERE ${this.idColumn} = $2 AND tenant_id = $3`,
-          [context.userId, id, context.tenantId]
-        );
-      } else {
-        // Hard delete
-        const result = await pool.query(
-          `DELETE FROM ${this.tableName}
-           WHERE ${this.idColumn} = $1 AND tenant_id = $2`,
-          [id, context.tenantId]
-        );
-
-        if (result.rowCount === 0) {
-          throw new NotFoundError(this.tableName);
-        }
-      }
-    } catch (error) {
-      if (error instanceof NotFoundError) throw error;
-      throw new DatabaseError(`Failed to delete ${this.tableName}`, { id, error });
-    }
-  }
-
-  /**
-   * Check if table has a specific column
-   */
-  private async hasColumn(columnName: string, pool: Pool | PoolClient): Promise<boolean> {
-    const result = await pool.query(
-      `SELECT column_name
-       FROM information_schema.columns
-       WHERE table_name = $1 AND column_name = $2`,
-      [this.tableName, columnName]
-    );
-    return result.rows.length > 0;
-  }
-
-  /**
-   * Execute in transaction
+   * Execute transaction
    */
   async transaction<R>(
     context: QueryContext,
@@ -397,14 +151,8 @@ export abstract class BaseRepository<T extends { id: string | number }> {
 
     try {
       await client.query('BEGIN');
-
-      const txContext: QueryContext = {
-        ...context,
-        pool: client
-      };
-
+      const txContext: QueryContext = { ...context, pool: client };
       const result = await callback(txContext);
-
       await client.query('COMMIT');
       return result;
     } catch (error) {
