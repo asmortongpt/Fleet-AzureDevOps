@@ -236,4 +236,53 @@ export const rolePermissions: Record<Role, Permission[]> = {
  * @returns true if user has permission, false otherwise
  *
  * @example
+ * ```ts
+ * const canEditVehicle = hasPermission(['fleet-manager'], 'vehicle:write');
+ * // Returns: true
+ * ```
+ */
+export function hasPermission(userRoles: Role[], permission: Permission): boolean {
+  // Admin has all permissions
+  if (userRoles.includes('admin')) {
+    return true;
+  }
+
+  // Check if any of the user's roles grant this permission
+  return userRoles.some(role => {
+    const permissions = rolePermissions[role];
+    return permissions.includes(permission) || permissions.includes('admin:all');
+  });
+}
+
+/**
+ * Check if a user has any of the specified permissions
  *
+ * @param userRoles - Array of roles assigned to the user
+ * @param permissions - Array of permissions to check (OR logic)
+ * @returns true if user has at least one permission
+ */
+export function hasAnyPermission(userRoles: Role[], permissions: Permission[]): boolean {
+  return permissions.some(permission => hasPermission(userRoles, permission));
+}
+
+/**
+ * Check if a user has all of the specified permissions
+ *
+ * @param userRoles - Array of roles assigned to the user
+ * @param permissions - Array of permissions to check (AND logic)
+ * @returns true if user has all permissions
+ */
+export function hasAllPermissions(userRoles: Role[], permissions: Permission[]): boolean {
+  return permissions.every(permission => hasPermission(userRoles, permission));
+}
+
+/**
+ * Get all permissions for a given set of roles
+ *
+ * @param userRoles - Array of roles assigned to the user
+ * @returns Array of all permissions the user has (deduplicated)
+ */
+export function getUserPermissions(userRoles: Role[]): Permission[] {
+  const allPermissions = userRoles.flatMap(role => rolePermissions[role]);
+  return Array.from(new Set(allPermissions));
+}
