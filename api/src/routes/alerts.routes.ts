@@ -495,7 +495,7 @@ router.post('/rules', csrfProtection, requirePermission('report:generate:global'
     })
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return res.status(400).json({ error: 'Validation error', details: error.errors })
+      return res.status(400).json({ error: 'Validation error', details: error.issues })
     }
     logger.error('Error creating alert rule:', error)
     res.status(500).json({ error: 'Failed to create alert rule' })

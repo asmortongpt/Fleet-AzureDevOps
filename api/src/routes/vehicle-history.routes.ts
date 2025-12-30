@@ -1,8 +1,4 @@
 /**
-import { container } from '../container'
-import { asyncHandler } from '../middleware/errorHandler'
-import { NotFoundError, ValidationError } from '../errors/app-error'
-import logger from '../config/logger'; // Wave 33: Add Winston logger (FINAL WAVE!)
  * Vehicle Location History API Routes
  *
  * Endpoints for tracking vehicle location history and trip breadcrumbs
@@ -10,6 +6,10 @@ import logger from '../config/logger'; // Wave 33: Add Winston logger (FINAL WAV
  * Security: JWT authentication required, RBAC permissions enforced, multi-tenant isolation
  */
 
+import { container } from '../container'
+import { asyncHandler } from '../middleware/errorHandler'
+import { NotFoundError, ValidationError } from '../errors/app-error'
+import logger from '../config/logger'; // Wave 33: Add Winston logger (FINAL WAVE!)
 import express, { Response } from 'express'
 import { z } from 'zod'
 

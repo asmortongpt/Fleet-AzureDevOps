@@ -1,8 +1,4 @@
 /**
-import { container } from '../container'
-import { asyncHandler } from '../middleware/errorHandler'
-import { NotFoundError, ValidationError } from '../errors/app-error'
-import logger from '../config/logger'; // Wave 27: Add Winston logger
  * On-Call Management API Routes
  * Supports BR-4 (On-Call Management)
  *
@@ -14,6 +10,10 @@ import logger from '../config/logger'; // Wave 27: Add Winston logger
  * - Geographic constraints
  */
 
+import { container } from '../container'
+import { asyncHandler } from '../middleware/errorHandler'
+import { NotFoundError, ValidationError } from '../errors/app-error'
+import logger from '../config/logger'; // Wave 27: Add Winston logger
 import express, { Response } from 'express'
 import { Pool } from 'pg'
 import { z } from 'zod'
@@ -241,7 +241,7 @@ router.get(
 
 router.post(
   '/',
- csrfProtection,  csrfProtection, authenticateJWT,
+ csrfProtection, authenticateJWT,
   requirePermission('on_call:create:team'),
   async (req: AuthRequest, res: Response) => {
     try {
@@ -298,7 +298,7 @@ router.post(
       if (error instanceof z.ZodError) {
         return res.status(400).json({
           error: 'Validation error',
-          details: error.errors,
+          details: error.issues,
         })
       }
       res.status(500).json({
@@ -316,7 +316,7 @@ router.post(
 
 router.put(
   '/:id',
- csrfProtection,  csrfProtection, authenticateJWT,
+ csrfProtection, authenticateJWT,
   requirePermission(`on_call:create:team`),
   async (req: AuthRequest, res: Response) => {
     try {
@@ -364,7 +364,7 @@ router.put(
       if (error instanceof z.ZodError) {
         return res.status(400).json({
           error: 'Validation error',
-          details: error.errors,
+          details: error.issues,
         })
       }
       res.status(500).json({
@@ -382,7 +382,7 @@ router.put(
 
 router.post(
   '/:id/acknowledge',
- csrfProtection,  csrfProtection, authenticateJWT,
+ csrfProtection, authenticateJWT,
   requirePermission('on_call:acknowledge:own'),
   async (req: AuthRequest, res: Response) => {
     try {
@@ -417,7 +417,7 @@ router.post(
       if (error instanceof z.ZodError) {
         return res.status(400).json({
           error: 'Validation error',
-          details: error.errors,
+          details: error.issues,
         })
       }
       res.status(500).json({
@@ -533,7 +533,7 @@ router.get(
 // POST /callback-trips
 router.post(
   '/callback-trips',
- csrfProtection,  csrfProtection, authenticateJWT,
+ csrfProtection, authenticateJWT,
   requirePermission('on_call:view:own'),
   async (req: AuthRequest, res: Response) => {
     try {
@@ -592,7 +592,7 @@ router.post(
       if (error instanceof z.ZodError) {
         return res.status(400).json({
           error: 'Validation error',
-          details: error.errors,
+          details: error.issues,
         })
       }
       res.status(500).json({
@@ -606,7 +606,7 @@ router.post(
 // DELETE /on-call-periods/:id
 router.delete(
   '/:id',
- csrfProtection,  csrfProtection, authenticateJWT,
+ csrfProtection, authenticateJWT,
   requirePermission('on_call:create:team'),
   async (req: AuthRequest, res: Response) => {
     try {

@@ -1,3 +1,5 @@
+import logger from '@/utils/logger'
+
 export function formatDate(date: Date): string {
   try {
     return date.toISOString().split('T')[0];

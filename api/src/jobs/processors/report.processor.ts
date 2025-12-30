@@ -17,7 +17,7 @@ import { Job } from 'bull'
 import * as XLSX from 'xlsx'
 
 import { pool } from '../../config/database'
-import logger from '../../utils/logger'
+import logger from '../../config/logger'
 import { addEmailJob } from '../queue'
 
 /**

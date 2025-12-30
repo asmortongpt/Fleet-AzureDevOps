@@ -26,14 +26,14 @@ router.get('/', async (req: Request, res: Response) => {
 })
 
 // POST /vehicles - Create with validation
-router.post('/',csrfProtection,  csrfProtection, validate(vehicleCreateSchema), async (req: Request, res: Response) => {
+router.post('/',csrfProtection, validate(vehicleCreateSchema), async (req: Request, res: Response) => {
   const tenantId = req.user?.tenantId
   const vehicle = await vehicleService.createVehicle(req.body, tenantId)
   res.status(201).json({ success: true, data: vehicle })
 })
 
 // PUT /vehicles/:id - Update with validation + IDOR protection
-router.put('/:id',csrfProtection,  csrfProtection, validate(vehicleUpdateSchema), async (req: Request, res: Response) => {
+router.put('/:id',csrfProtection, validate(vehicleUpdateSchema), async (req: Request, res: Response) => {
   const { id } = req.params
   const tenantId = req.user?.tenantId
 
@@ -42,7 +42,7 @@ router.put('/:id',csrfProtection,  csrfProtection, validate(vehicleUpdateSchema)
 })
 
 // DELETE /vehicles/:id - Soft delete with IDOR protection
-router.delete('/:id',csrfProtection,  csrfProtection, async (req: Request, res: Response) => {
+router.delete('/:id',csrfProtection, async (req: Request, res: Response) => {
   const { id } = req.params
   const tenantId = req.user?.tenantId
 

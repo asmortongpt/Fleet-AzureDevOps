@@ -1,13 +1,13 @@
 /**
-import { container } from '../container'
-import { asyncHandler } from '../middleware/errorHandler'
-import { NotFoundError, ValidationError } from '../errors/app-error'
-import logger from '../config/logger'; // Wave 28: Add Winston logger
  * Mobile App Integration API Routes
  *
  * Unified API endpoints for mobile app integration with all features
  */
 
+import { container } from '../container'
+import { asyncHandler } from '../middleware/errorHandler'
+import { NotFoundError, ValidationError } from '../errors/app-error'
+import logger from '../config/logger'; // Wave 28: Add Winston logger
 import express, { Request, Response } from 'express'
 import { z } from 'zod'
 
@@ -121,7 +121,7 @@ const DamageDetectionSchema = z.object({
  *       200:
  *         description: Device registered successfully
  */
-router.post('/register',csrfProtection,  csrfProtection, requirePermission('driver:create:global'), auditLog, async (req: Request, res: Response) => {
+router.post('/register',csrfProtection, requirePermission('driver:create:global'), auditLog, async (req: Request, res: Response) => {
   try {
     const validated = DeviceRegistrationSchema.parse(req.body)
     const userId = (req as any).user.id
@@ -181,7 +181,7 @@ router.post('/register',csrfProtection,  csrfProtection, requirePermission('driv
  *       200:
  *         description: Sync completed successfully
  */
-router.post('/sync',csrfProtection,  csrfProtection, requirePermission('driver:update:global'), auditLog, async (req: Request, res: Response) => {
+router.post('/sync',csrfProtection, requirePermission('driver:update:global'), auditLog, async (req: Request, res: Response) => {
   try {
     const validated = MobileSyncSchema.parse(req.body)
     const tenantId = (req as any).user.tenant_id
@@ -284,7 +284,7 @@ router.get('/route/:vehicleId', requirePermission('route:view:fleet'), async (re
  *       200:
  *         description: AR navigation data
  */
-router.post('/ar-navigation',csrfProtection,  csrfProtection, requirePermission('route:view:fleet'), async (req: Request, res: Response) => {
+router.post('/ar-navigation',csrfProtection, requirePermission('route:view:fleet'), async (req: Request, res: Response) => {
   try {
     const validated = ARNavigationSchema.parse(req.body)
     const tenantId = (req as any).user.tenant_id
@@ -332,7 +332,7 @@ router.post('/ar-navigation',csrfProtection,  csrfProtection, requirePermission(
  *       200:
  *         description: Command executed successfully
  */
-router.post('/keyless-entry',csrfProtection,  csrfProtection, requirePermission('vehicle:update:fleet'), auditLog, async (req: Request, res: Response) => {
+router.post('/keyless-entry',csrfProtection, requirePermission('vehicle:update:fleet'), auditLog, async (req: Request, res: Response) => {
   try {
     const validated = KeylessEntrySchema.parse(req.body)
     const tenantId = (req as any).user.tenant_id
@@ -381,7 +381,7 @@ router.post('/keyless-entry',csrfProtection,  csrfProtection, requirePermission(
  *       201:
  *         description: Damage detection created
  */
-router.post('/damage-detection',csrfProtection,  csrfProtection, requirePermission('safety_incident:create:global'), auditLog, async (req: Request, res: Response) => {
+router.post('/damage-detection',csrfProtection, requirePermission('safety_incident:create:global'), auditLog, async (req: Request, res: Response) => {
   try {
     const validated = DamageDetectionSchema.parse(req.body)
     const tenantId = (req as any).user.tenant_id
@@ -526,7 +526,7 @@ router.get('/charging-stations/nearby', requirePermission('charging_station:view
  *       200:
  *         description: Push notification sent
  */
-router.post('/push-notification',csrfProtection,  csrfProtection, requirePermission('communication:send:global'), auditLog, async (req: Request, res: Response) => {
+router.post('/push-notification',csrfProtection, requirePermission('communication:send:global'), auditLog, async (req: Request, res: Response) => {
   try {
     // Check if user is admin
     const userRole = (req as any).user.role

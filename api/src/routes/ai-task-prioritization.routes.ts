@@ -1,8 +1,4 @@
 /**
-import { container } from '../container'
-import { asyncHandler } from '../middleware/errorHandler'
-import { NotFoundError, ValidationError } from '../errors/app-error'
-import logger from '../config/logger'; // Wave 32: Add Winston logger
  * AI Task Prioritization API Routes
  *
  * Endpoints:
@@ -23,6 +19,10 @@ import logger from '../config/logger'; // Wave 32: Add Winston logger
  * @module ai-task-prioritization-routes
  */
 
+import { container } from '../container'
+import { asyncHandler } from '../middleware/errorHandler'
+import { NotFoundError, ValidationError } from '../errors/app-error'
+import logger from '../config/logger'; // Wave 32: Add Winston logger
 import { Router } from 'express'
 import rateLimit from 'express-rate-limit'
 import { z } from 'zod'
@@ -154,7 +154,7 @@ router.post(
       if (error instanceof z.ZodError) {
         return res.status(400).json({
           error: 'Invalid input data',
-          details: error.errors
+          details: error.issues
         })
       }
       res.status(500).json({ error: 'Failed to calculate priority score' })
@@ -220,7 +220,7 @@ router.post(
       if (error instanceof z.ZodError) {
         return res.status(400).json({
           error: 'Invalid input data',
-          details: error.errors
+          details: error.issues
         })
       }
       res.status(500).json({ error: 'Failed to generate recommendations' })
@@ -261,7 +261,7 @@ router.post(
       if (error instanceof z.ZodError) {
         return res.status(400).json({
           error: 'Invalid input data',
-          details: error.errors
+          details: error.issues
         })
       }
       res.status(500).json({ error: 'Failed to analyze dependencies' })
@@ -303,7 +303,7 @@ router.post(
       if (error instanceof z.ZodError) {
         return res.status(400).json({
           error: 'Invalid input data',
-          details: error.errors
+          details: error.issues
         })
       }
       res.status(500).json({ error: 'Failed to calculate execution order' })
@@ -361,7 +361,7 @@ router.post(
       if (error instanceof z.ZodError) {
         return res.status(400).json({
           error: 'Invalid input data',
-          details: error.errors
+          details: error.issues
         })
       }
       res.status(500).json({ error: 'Failed to optimize resources' })
@@ -424,7 +424,7 @@ router.post(
       if (error instanceof z.ZodError) {
         return res.status(400).json({
           error: 'Invalid input data',
-          details: error.errors
+          details: error.issues
         })
       }
       res.status(500).json({ error: 'Failed to batch prioritize tasks' })
