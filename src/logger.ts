@@ -14,7 +14,7 @@ export interface LogData {
   [key: string]: any;
 }
 
-const logger: Logger = createLogger({
+const logger = createLogger({
   level: 'info',
   format: format.combine(
     format.timestamp(),
