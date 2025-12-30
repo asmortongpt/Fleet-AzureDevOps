@@ -596,6 +596,24 @@ export function useRouteMutations() {
   };
 }
 
+export function useMaintenanceMutations() {
+  const queryClient = useQueryClient();
+  return {
+    createMaintenanceSchedule: useMutation({
+      mutationFn: async (schedule: unknown) => schedule,
+      onSuccess: () => queryClient.invalidateQueries({ queryKey: ['maintenanceSchedules'] })
+    }),
+    updateMaintenanceSchedule: useMutation({
+      mutationFn: async (schedule: unknown) => schedule,
+      onSuccess: () => queryClient.invalidateQueries({ queryKey: ['maintenanceSchedules'] })
+    }),
+    deleteMaintenanceSchedule: useMutation({
+      mutationFn: async (id: string) => id,
+      onSuccess: () => queryClient.invalidateQueries({ queryKey: ['maintenanceSchedules'] })
+    })
+  };
+}
+
 // Additional hooks
 export function useSafetyIncidents() {
   return useQuery({
