@@ -3,7 +3,7 @@
  * @description Centralized logging configuration with sanitization.
  */
 
-import { createLogger, format, transports, Logger, Logform } from 'winston';
+import { createLogger, format, transports, Logger } from 'winston';
 
 import { sanitizeForLogging } from './logSanitizer';
 
