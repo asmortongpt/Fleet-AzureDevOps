@@ -78,9 +78,11 @@ interface Comment {
 }
 
 interface ApiResponse<T> {
-  tasks?: T[]
-  task?: T
-  comments?: Comment[]
+  data?: {
+    tasks?: T[]
+    task?: T
+    comments?: Comment[]
+  }
 }
 
 export function TaskManagement() {

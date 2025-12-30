@@ -81,7 +81,7 @@ const AssetLocationMap: React.FC<{ tenantId: string }> = ({ tenantId }) => {
         attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
       />
       {assets.map(asset => (
-        <Marker key={asset.id} position={[asset.latitude, asset.longitude]}>
+        <Marker key={asset.id} position={[asset.latitude ?? 0, asset.longitude ?? 0] as LatLngExpression}>
           <Popup>
             <div>
               <strong>{asset.name}</strong><br />

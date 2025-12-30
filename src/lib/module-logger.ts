@@ -64,7 +64,7 @@ interface ValidationResult {
 
 class ModuleLoggerClass {
   private logs: LogEntry[] = []
-  private metrics: typeof NativeMap<string, ModuleMetrics> = new NativeMap()
+  private metrics: Map<string, ModuleMetrics> = new NativeMap()
   private maxLogs = 1000
   private isEnabled = true
   private logToConsole = process.env.NODE_ENV === 'development'

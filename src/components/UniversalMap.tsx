@@ -65,6 +65,9 @@ export interface UniversalMapProps {
   /** Initial zoom level (default: 13) */
   zoom?: number
 
+  /** Map style variant (default, satellite, terrain, etc.) */
+  mapStyle?: string
+
   /** Additional CSS class names */
   className?: string
 
@@ -88,6 +91,12 @@ export interface UniversalMapProps {
 
   /** Show performance monitor dashboard (default: true in dev mode) */
   showPerformanceMonitor?: boolean
+
+  /** Callback when camera marker is clicked */
+  onCameraClick?: (camera: TrafficCamera) => void
+
+  /** Currently selected camera */
+  selectedCamera?: TrafficCamera | null
 }
 
 /**
