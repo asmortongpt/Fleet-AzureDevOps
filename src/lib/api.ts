@@ -36,4 +36,8 @@ export async function apiRequest(url: string, options?: RequestInit): Promise<an
 // Re-export apiClient for direct access
 export { apiClient } from './api-client'
 export { APIError } from './api-client'
+
+// Named export for compatibility
+export const api = apiClient
+
 export default apiClient

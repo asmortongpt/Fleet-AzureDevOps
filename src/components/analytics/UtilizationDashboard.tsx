@@ -6,7 +6,7 @@ import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from 'r
 import { useAuth } from '../../hooks/useAuth';
 import { fetchIdleAssets, fetchUtilizationData, fetchROIMetrics } from '../../services/analyticsService';
 import { exportToCSV, exportToExcel } from '../../utils/exportUtils';
-import * as logger from '../../utils/logger';
+import { logger } from '../../utils/logger';
 import { validateTenantId } from '../../utils/validation';
 
 interface Asset {

@@ -8,7 +8,7 @@ import { io, Socket } from 'socket.io-client';
 import 'react-toastify/dist/ReactToastify.css';
 import { Asset, Geofence } from '../../types/index';
 import { getAuthHeaders } from '../../utils/auth/index';
-import * as logger from '../../utils/logger/index';
+import { logger } from '../../utils/logger/index';
 import { validateCategory, validateStatus } from '../../utils/validators/index';
 
 Helmet.defaultProps = {
