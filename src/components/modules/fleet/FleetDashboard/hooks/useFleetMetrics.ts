@@ -7,7 +7,7 @@ export function useFleetMetrics(vehicles: Vehicle[]) {
     const totalVehicles = vehicles.length
     const activeVehicles = vehicles.filter((v) => v.status === "active").length
     const inService = vehicles.filter((v) => v.status === "service").length
-    const inactive = vehicles.filter((v) => v.status === "inactive").length
+    const inactive = vehicles.filter((v) => v.status === "offline" || v.status === "idle").length
 
     const lowFuelVehicles = vehicles.filter((v) => v.fuelLevel < 25).length
     const criticalAlerts = vehicles.filter(
