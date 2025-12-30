@@ -85,17 +85,18 @@ export function PurchaseOrders() {
     const purchaseOrder: PurchaseOrder = {
       id: `po-${Date.now()}`,
       poNumber,
+      vendorId: `vendor-${Date.now()}`,
       vendorName: newPO.vendorName,
       date: new Date().toISOString(),
       expectedDelivery: newPO.expectedDelivery,
+      deliveryDate: "",
       items: newPO.items.filter(item => item.description && item.quantity > 0) as PurchaseOrder['items'],
+      subtotal: total * 0.9,
+      tax: total * 0.1,
+      shipping: 0,
       total,
       status: "pending-approval",
       notes: newPO.notes,
-      shippingAddress: newPO.shippingAddress || "",
-      requestedBy: "Current User",
-      department: "Fleet Maintenance",
-      deliveryDate: ""
     }
 
     setOrders([...(orders || []), purchaseOrder])
