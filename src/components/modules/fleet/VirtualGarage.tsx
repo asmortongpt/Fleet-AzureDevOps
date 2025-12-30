@@ -68,7 +68,7 @@ import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 
 
 // Lazy load the 3D viewer to avoid SSR issues and reduce initial bundle
-const Asset3DViewer = lazy(() => import("@/components/garage/Asset3DViewer").then(m => ({ default: m.Asset3DViewer })))
+const Asset3DViewer = lazy(() => import("@/components/garage/Asset3DViewer"))
 
 import { apiClient } from "@/lib/api-client"
 import {

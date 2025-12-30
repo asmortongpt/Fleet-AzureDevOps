@@ -86,7 +86,7 @@ export function VehicleManagement() {
         </CardHeader>
         <CardContent className="p-0">
           <DataGrid<Vehicle>
-            data={data?.data || []}
+            data={(data?.vehicles || []) as Vehicle[]}
             columns={columns}
             enableSearch={true}
             searchPlaceholder="Search vehicles..."

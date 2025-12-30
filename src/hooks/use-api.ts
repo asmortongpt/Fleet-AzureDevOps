@@ -436,7 +436,7 @@ export function useVehicleMutations() {
     },
   });
 
-  const updateVehicle = useMutation<Vehicle, Error, Vehicle>({
+  const updateVehicle = useMutation<Vehicle, Error, Vehicle, { previousVehicles?: Vehicle[] }>({
     mutationFn: async (updatedVehicle) => {
       const res = await secureFetch(`/api/vehicles/${updatedVehicle.id}`, {
         method: 'PUT',
@@ -497,7 +497,7 @@ export function useDriverMutations() {
     },
   });
 
-  const updateDriver = useMutation<Driver, Error, Driver>({
+  const updateDriver = useMutation<Driver, Error, Driver, { previousDrivers?: Driver[] }>({
     mutationFn: async (updatedDriver) => {
       const res = await secureFetch(`/api/drivers/${updatedDriver.id}`, {
         method: 'PUT',
