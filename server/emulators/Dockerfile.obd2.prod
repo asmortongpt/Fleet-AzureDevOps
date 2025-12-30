@@ -1,0 +1,15 @@
+FROM node:20-alpine
+
+WORKDIR /app
+
+# Install only socket.io (no full package.json)
+RUN npm install socket.io@4.8.1
+
+# Copy emulator
+COPY obd2-emulator.js .
+
+EXPOSE 8081
+
+USER node
+
+CMD ["node", "obd2-emulator.js"]
