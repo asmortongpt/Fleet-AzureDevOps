@@ -67,9 +67,13 @@
     "src/services/fleet-optimizer*.ts",
     "src/services/attachment*.ts",
     "src/services/audit*.ts",
+    "src/services/reservations*.ts",
+    "src/services/*-service.ts",
     "src/repositories/enhanced/**",
     "src/repositories/*Repository.ts",
     "src/repositories/*.repository.ts",
-    "src/config/connection-manager.ts"
+    "src/repositories/index.ts",
+    "src/config/connection-manager.ts",
+    "src/modules/fleet/vehicles/**"
   ]
 }
