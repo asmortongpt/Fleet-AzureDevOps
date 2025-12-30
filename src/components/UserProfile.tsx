@@ -22,7 +22,7 @@ const UserProfile: React.FC<{ userId: string }> = ({ userId }) => {
       try {
         const userData = await fetchUserProfile(userId);
         if (userData) {
-          setUser(userData as User);
+          setUser(userData as unknown as User);
         }
       } catch (err) {
         if (err instanceof AppError) {
