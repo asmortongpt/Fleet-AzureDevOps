@@ -1,39 +1,4 @@
-/**
- * Filter Bar Component
- *
- * Reusable filter bar with common filter controls.
- * Works seamlessly with useVehicleFilters hook.
- * Eliminates duplicate filter UI in 12+ modules.
- *
- * Features:
- * - Status filter dropdown
- * - Type filter dropdown
- * - Location filter dropdown
- * - Department filter dropdown
- * - Make filter dropdown
- * - Search input
- * - Quick toggles (assigned/available)
- * - Active filter indicator
- * - Reset filters button
- * - Responsive layout
- *
- * Usage:
- * ```tsx
- * const { filters, updateFilter, resetFilters, filterStats, uniqueLocations } = useVehicleFilters(vehicles)
- *
- * <FilterBar
- *   filters={filters}
- *   onFilterChange={updateFilter}
- *   onReset={resetFilters}
- *   stats={filterStats}
- *   locations={uniqueLocations}
- *   enableStatusFilter
- *   enableTypeFilter
- *   enableLocationFilter
- *   enableSearch
- * />
- * ```
- */
+*/
 
 import { MagnifyingGlass, X, Funnel } from '@phosphor-icons/react'
 
@@ -50,8 +15,11 @@ import {
   SelectTrigger,
   SelectValue
 } from '@/components/ui/select'
-import { VehicleFilters, FilterStats } from '@/hooks/useVehicleFilters'
+import { useVehicleFilters } from '@/hooks/useVehicleFilters'
 import { cn } from '@/lib/utils'
+
+export type VehicleFilters = ReturnType<typeof useVehicleFilters>['filters']
+export type FilterStats = ReturnType<typeof useVehicleFilters>['filterStats']
 
 export interface FilterBarProps {
   filters: VehicleFilters
@@ -164,26 +132,26 @@ export function FilterBar({
               </Label>
               <Select
                 value={filters.status}
-                onValueChange={(value: any) => onFilterChange('status', value)}
+                onValueChange={(value: string) => onFilterChange('status', value)}
               >
                 <SelectTrigger id="status">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">
-                    All {stats && `(${stats.all})`}
+                    All {stats && `(${stats?.all ?? 0})`}
                   </SelectItem>
                   <SelectItem value="active">
-                    Active {stats && `(${stats.active})`}
+                    Active {stats && `(${stats?.active ?? 0})`}
                   </SelectItem>
                   <SelectItem value="inactive">
-                    Inactive {stats && `(${stats.inactive})`}
+                    Inactive {stats && `(${stats?.inactive ?? 0})`}
                   </SelectItem>
                   <SelectItem value="maintenance">
-                    Maintenance {stats && `(${stats.maintenance})`}
+                    Maintenance {stats && `(${stats?.maintenance ?? 0})`}
                   </SelectItem>
                   <SelectItem value="out_of_service">
-                    Out of Service {stats && `(${stats.outOfService})`}
+                    Out of Service {stats && `(${stats?.outOfService ?? 0})`}
                   </SelectItem>
                 </SelectContent>
               </Select>
@@ -198,7 +166,7 @@ export function FilterBar({
               </Label>
               <Select
                 value={filters.type}
-                onValueChange={(value: any) => onFilterChange('type', value)}
+                onValueChange={(value: string) => onFilterChange('type', value)}
               >
                 <SelectTrigger id="type">
                   <SelectValue />
@@ -206,16 +174,16 @@ export function FilterBar({
                 <SelectContent>
                   <SelectItem value="all">All</SelectItem>
                   <SelectItem value="electric">
-                    Electric {stats && `(${stats.electric})`}
+                    Electric {stats && `(${stats?.electric ?? 0})`}
                   </SelectItem>
                   <SelectItem value="hybrid">
-                    Hybrid {stats && `(${stats.hybrid})`}
+                    Hybrid {stats && `(${stats?.hybrid ?? 0})`}
                   </SelectItem>
                   <SelectItem value="gas">
-                    Gas {stats && `(${stats.gas})`}
+                    Gas {stats && `(${stats?.gas ?? 0})`}
                   </SelectItem>
                   <SelectItem value="diesel">
-                    Diesel {stats && `(${stats.diesel})`}
+                    Diesel {stats && `(${stats?.diesel ?? 0})`}
                   </SelectItem>
                   <SelectItem value="other">Other</SelectItem>
                 </SelectContent>
@@ -231,7 +199,7 @@ export function FilterBar({
               </Label>
               <Select
                 value={filters.location}
-                onValueChange={(value) => onFilterChange('location', value)}
+                onValueChange={(value: string) => onFilterChange('location', value)}
               >
                 <SelectTrigger id="location">
                   <SelectValue />
@@ -256,7 +224,7 @@ export function FilterBar({
               </Label>
               <Select
                 value={filters.department}
-                onValueChange={(value) => onFilterChange('department', value)}
+                onValueChange={(value: string) => onFilterChange('department', value)}
               >
                 <SelectTrigger id="department">
                   <SelectValue />
@@ -281,7 +249,7 @@ export function FilterBar({
               </Label>
               <Select
                 value={filters.make}
-                onValueChange={(value) => onFilterChange('make', value)}
+                onValueChange={(value: string) => onFilterChange('make', value)}
               >
                 <SelectTrigger id="make">
                   <SelectValue />
@@ -314,7 +282,7 @@ export function FilterBar({
                 htmlFor="assigned-only"
                 className="text-sm font-normal cursor-pointer"
               >
-                Assigned Only {stats && `(${stats.assigned})`}
+                Assigned Only {stats && `(${stats?.assigned ?? 0})`}
               </Label>
             </div>
 
@@ -330,7 +298,7 @@ export function FilterBar({
                 htmlFor="available-only"
                 className="text-sm font-normal cursor-pointer"
               >
-                Available Only {stats && `(${stats.available})`}
+                Available Only {stats && `(${stats?.available ?? 0})`}
               </Label>
             </div>
           </div>

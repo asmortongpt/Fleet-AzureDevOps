@@ -24,6 +24,26 @@ interface DriverTripsViewProps {
   driverName?: string
 }
 
+interface Trip {
+  id: string
+  status: string
+  vehicle_name?: string
+  performance_score?: number
+  start_time?: string
+  duration?: string
+  start_location?: string
+  end_location?: string
+  distance?: number
+  avg_speed?: number
+  fuel_used?: number
+  incidents?: Array<{
+    type: string
+    severity?: string
+    timestamp?: string
+  }>
+  highlights?: string[]
+}
+
 const fetcher = (url: string) => fetch(url).then((r) => r.json())
 
 export function DriverTripsView({ driverId, driverName }: DriverTripsViewProps) {
@@ -33,8 +53,8 @@ export function DriverTripsView({ driverId, driverName }: DriverTripsViewProps) 
   )
 
   const getScoreBadge = (score: number) => {
-    if (score >= 90) return { variant: 'success' as const, label: 'Excellent' }
-    if (score >= 70) return { variant: 'warning' as const, label: 'Good' }
+    if (score >= 90) return { variant: 'default' as const, label: 'Excellent' }
+    if (score >= 70) return { variant: 'secondary' as const, label: 'Good' }
     return { variant: 'destructive' as const, label: 'Poor' }
   }
 
@@ -62,7 +82,7 @@ export function DriverTripsView({ driverId, driverName }: DriverTripsViewProps) 
             </Card>
           ) : (
             <div className="space-y-3">
-              {trips.map((trip: any) => {
+              {trips.map((trip: Trip) => {
                 const scoreBadge = getScoreBadge(trip.performance_score || 0)
                 return (
                   <Card key={trip.id} className="hover:shadow-md transition-shadow">
@@ -72,7 +92,7 @@ export function DriverTripsView({ driverId, driverName }: DriverTripsViewProps) 
                         <div className="flex items-start justify-between">
                           <div className="space-y-1">
                             <div className="flex items-center gap-2">
-                              <Badge variant={trip.status === 'completed' ? 'success' : 'default'}>
+                              <Badge variant={trip.status === 'completed' ? 'default' : 'default'}>
                                 {trip.status}
                               </Badge>
                               <span className="text-xs text-muted-foreground">
@@ -146,7 +166,7 @@ export function DriverTripsView({ driverId, driverName }: DriverTripsViewProps) 
                         </div>
 
                         {/* Incidents */}
-                        {trip.incidents && trip.incidents.length > 0 && (
+                        {trip.incidents?.length > 0 && (
                           <div className="pt-3 border-t">
                             <div className="flex items-center gap-2 mb-2">
                               <AlertTriangle className="h-4 w-4 text-destructive" />
@@ -155,7 +175,7 @@ export function DriverTripsView({ driverId, driverName }: DriverTripsViewProps) 
                               </span>
                             </div>
                             <ul className="space-y-2">
-                              {trip.incidents.map((incident: any, idx: number) => (
+                              {trip.incidents.map((incident, idx) => (
                                 <li
                                   key={idx}
                                   className="text-xs p-2 rounded bg-destructive/10 flex items-start gap-2"
@@ -181,14 +201,14 @@ export function DriverTripsView({ driverId, driverName }: DriverTripsViewProps) 
                         )}
 
                         {/* Performance Highlights */}
-                        {trip.highlights && trip.highlights.length > 0 && (
+                        {trip.highlights?.length > 0 && (
                           <div className="pt-3 border-t">
                             <div className="flex items-center gap-2 mb-2">
                               <CheckCircle className="h-4 w-4 text-green-600" />
                               <span className="text-sm font-medium">Highlights</span>
                             </div>
                             <ul className="space-y-1">
-                              {trip.highlights.map((highlight: string, idx: number) => (
+                              {trip.highlights.map((highlight, idx) => (
                                 <li
                                   key={idx}
                                   className="text-xs flex items-center gap-2 text-green-600"

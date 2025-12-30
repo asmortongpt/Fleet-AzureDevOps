@@ -36,11 +36,11 @@ interface KPICard {
 export function AnalyticsDashboard() {
   const { data: vehicles = [], isLoading } = useVehicles();
   const [analyticsType, setAnalyticsType] = useState<AnalyticsType>('heatmap');
-  const [selectedVehicleId, setSelectedVehicleId] = useState<string | null>(null);
+  const [_selectedVehicleId, setSelectedVehicleId] = useState<string | null>(null);
   const [exportFormat, setExportFormat] = useState('pdf');
 
   // Calculate KPIs from vehicle data
-  const totalMiles = vehicles.reduce((sum: number, v: { odometer?: number }) => sum + (v.odometer || 0), 0);
+  const totalMiles = vehicles?.reduce((sum: number, v: { odometer?: number }) => sum + (v.odometer || 0), 0) || 0;
   const avgMPG = 24.5; // Demo - calculate from real data
   const totalFuelCost = (totalMiles / avgMPG) * 3.45;
   const avgIdleTime = 12.3; // Demo - calculate from telemetry

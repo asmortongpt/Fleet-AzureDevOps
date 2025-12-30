@@ -64,7 +64,7 @@ vi.mock('@/hooks/useAudioVisualization', () => ({
 }));
 
 // Mock fetch
-global.fetch = vi.fn((url) => {
+global.fetch = vi.fn((url: string) => {
   if (url.includes('/api/dispatch/channels')) {
     return Promise.resolve({
       json: () => Promise.resolve({
@@ -429,10 +429,10 @@ describe('DispatchConsole', () => {
     it('toggles mute state', async () => {
       render(<DispatchConsole />);
 
-      const muteButton = screen.getByText('Mute');
-      expect(muteButton).toBeInTheDocument();
+      const _muteButton = screen.getByText('Mute');
+      expect(_muteButton).toBeInTheDocument();
 
-      fireEvent.click(muteButton);
+      fireEvent.click(_muteButton);
 
       await waitFor(() => {
         expect(screen.getByText('Unmute')).toBeInTheDocument();
@@ -452,7 +452,7 @@ describe('DispatchConsole', () => {
       const user = userEvent.setup();
       render(<DispatchConsole />);
 
-      const muteButton = screen.getByText('Mute');
+      const _muteButton = screen.getByText('Mute');
       await user.tab();
 
       // Button should be focusable
