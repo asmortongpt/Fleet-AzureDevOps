@@ -1,5 +1,5 @@
 // Tools module exports
-export { AIAssistant } from './AIAssistant'
+export { default as AIAssistant } from './AIAssistant'
 export { CustomFormBuilder } from './CustomFormBuilder'
 export { MileageReimbursement } from './MileageReimbursement'
 export { ReceiptProcessing } from './ReceiptProcessing'

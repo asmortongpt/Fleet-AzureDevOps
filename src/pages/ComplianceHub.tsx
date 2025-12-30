@@ -16,8 +16,7 @@ import {
 
 import { HubPage, HubTab } from '@/components/ui/hub-page'
 import { StatCard, ProgressRing, QuickStat } from '@/components/ui/stat-card'
-import { useDrilldown } from '@/contexts/DrilldownContext'
-import { DrilldownLevel } from '@/types/drilldown'
+import { useDrilldown, DrilldownLevel } from '@/contexts/DrilldownContext'
 
 function DashboardContent() {
     const { push } = useDrilldown()
