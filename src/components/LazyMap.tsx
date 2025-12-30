@@ -36,7 +36,8 @@ export type MapProvider = 'universal' | 'leaflet' | 'mapbox' | 'google';
 
 export type SkeletonVariant = 'simple' | 'detailed' | 'animated';
 
-export interface LazyMapProps extends Partial<UniversalMapProps>, Partial<MapboxMapProps>, Partial<LeafletMapProps>, Partial<GoogleMapProps> {
+// Base props for LazyMap
+interface BaseLazyMapProps {
   provider?: MapProvider;
   enablePrefetch?: boolean;
   skeletonVariant?: SkeletonVariant;
@@ -46,6 +47,13 @@ export interface LazyMapProps extends Partial<UniversalMapProps>, Partial<Mapbox
   onLoadComplete?: () => void;
   errorFallback?: ComponentType<{ error: Error; resetErrorBoundary: () => void }>;
 }
+
+// Combined type using intersection instead of extends to avoid conflicts
+export type LazyMapProps = BaseLazyMapProps &
+  Partial<UniversalMapProps> &
+  Partial<MapboxMapProps> &
+  Partial<LeafletMapProps> &
+  Partial<GoogleMapProps>;
 
 function SimpleLoadingSkeleton({ minHeight }: { minHeight: number }) {
   return (
