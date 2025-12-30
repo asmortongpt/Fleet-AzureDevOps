@@ -15,7 +15,7 @@ import {
   ApprovalStatus
 } from '../types/trip-usage'
 import { getErrorMessage } from '../utils/error-handler'
-import { logger } from '../utils/logger'
+import { logger } from '../config/logger'
 
 
 const router = express.Router()
@@ -214,7 +214,7 @@ router.post(
     } catch (error: any) {
       logger.error('Create trip usage error:', error) // Wave 19: Winston logger
       if (error instanceof z.ZodError) {
-        return res.status(400).json({ error: 'Invalid request data', details: error.errors })
+        return res.status(400).json({ error: 'Invalid request data', details: error.issues })
       }
       res.status(500).json({ error: 'Failed to create trip usage classification' })
     }
@@ -477,7 +477,7 @@ router.patch(
     } catch (error: any) {
       logger.error(`Update trip usage error:`, error) // Wave 19: Winston logger
       if (error instanceof z.ZodError) {
-        return res.status(400).json({ error: 'Invalid request data', details: error.errors })
+        return res.status(400).json({ error: 'Invalid request data', details: error.issues })
       }
       res.status(500).json({ error: 'Failed to update trip usage classification' })
     }

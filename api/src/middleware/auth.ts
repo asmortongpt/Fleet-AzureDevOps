@@ -2,7 +2,7 @@ import { Request, Response, NextFunction } from 'express'
 import jwt from 'jsonwebtoken'
 
 import pool from '../config/database'
-import logger from '../utils/logger'
+import logger from '../config/logger'
 
 export interface AuthRequest extends Request {
   user?: {

@@ -168,7 +168,7 @@ router.get(
 // POST /damage-reports
 router.post(
   '/',
- csrfProtection,  csrfProtection, requirePermission('damage_report:create:own'),
+ csrfProtection, requirePermission('damage_report:create:own'),
   auditLog({ action: 'CREATE', resourceType: 'damage_reports' }),
   async (req: AuthRequest, res: Response) => {
     try {
@@ -213,7 +213,7 @@ router.post(
 // PUT /damage-reports/:id
 router.put(
   '/:id',
- csrfProtection,  csrfProtection, requirePermission('damage_report:update:own'),
+ csrfProtection, requirePermission('damage_report:update:own'),
   auditLog({ action: 'UPDATE', resourceType: 'damage_reports' }),
   async (req: AuthRequest, res: Response) => {
     try {
@@ -258,7 +258,7 @@ router.put(
 // Update TripoSR processing status
 router.patch(
   '/:id/triposr-status',
- csrfProtection,  csrfProtection, requirePermission('damage_report:update:own'),
+ csrfProtection, requirePermission('damage_report:update:own'),
   auditLog({ action: 'UPDATE', resourceType: 'damage_reports' }),
   async (req: AuthRequest, res: Response) => {
     try {
@@ -290,7 +290,7 @@ router.patch(
 // DELETE /damage-reports/:id
 router.delete(
   '/:id',
- csrfProtection,  csrfProtection, requirePermission('damage_report:delete:fleet'),
+ csrfProtection, requirePermission('damage_report:delete:fleet'),
   auditLog({ action: 'DELETE', resourceType: 'damage_reports' }),
   async (req: AuthRequest, res: Response) => {
     try {
@@ -315,7 +315,7 @@ router.delete(
 // Upload photos, videos, and LiDAR scans for damage reports
 router.post(
   '/upload-media',
- csrfProtection,  csrfProtection, requirePermission('damage_report:create:own'),
+ csrfProtection, requirePermission('damage_report:create:own'),
   upload.array('media', 20), // Max 20 files per upload
   auditLog({ action: 'CREATE', resourceType: 'damage_report_media' }),
   async (req: AuthRequest, res: Response) => {

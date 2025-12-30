@@ -1,2 +1,2 @@
 // Fleet services
-export * from './fleet.service';
+export * from './vehicle.service';

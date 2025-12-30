@@ -100,7 +100,7 @@ router.get(
 // POST /policies (SafetyOfficer can create)
 router.post(
   '/',
- csrfProtection,  csrfProtection, requirePermission('policy:create:global'),
+ csrfProtection, requirePermission('policy:create:global'),
   auditLog({ action: 'CREATE', resourceType: 'policies' }),
   async (req: AuthRequest, res: Response) => {
     try {
@@ -155,7 +155,7 @@ router.put(
 // DELETE /policies/:id
 router.delete(
   '/:id',
- csrfProtection,  csrfProtection, requirePermission('policy:delete:global'),
+ csrfProtection, requirePermission('policy:delete:global'),
   auditLog({ action: 'DELETE', resourceType: 'policies' }),
   async (req: AuthRequest, res: Response) => {
     try {

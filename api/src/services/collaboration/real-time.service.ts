@@ -186,7 +186,7 @@ export class CollaborationService {
     socket.leave(entityKey)
 
     // Broadcast to others
-    socket.to(entityKey).emit(`viewer:left`, {
+    socket.to(entityKey).emit('viewer:left', {
       userId: user.userId,
       userName: user.userName,
       timestamp: new Date()
@@ -207,7 +207,7 @@ export class CollaborationService {
 
     const entityKey = user.currentView ? `${user.currentView.type}:${user.currentView.id}` : null
     if (entityKey) {
-      socket.to(entityKey).emit(`typing:indicator`, {
+      socket.to(entityKey).emit('typing:indicator', {
         userId: user.userId,
         userName: user.userName,
         isTyping: true
@@ -226,7 +226,7 @@ export class CollaborationService {
 
     const entityKey = user.currentView ? `${user.currentView.type}:${user.currentView.id}` : null
     if (entityKey) {
-      socket.to(entityKey).emit(`typing:indicator`, {
+      socket.to(entityKey).emit('typing:indicator', {
         userId: user.userId,
         userName: user.userName,
         isTyping: false
@@ -265,7 +265,7 @@ export class CollaborationService {
 
       // Broadcast to all viewers
       const entityKey = `${data.entityType}:${data.entityId}`
-      this.io!.to(entityKey).emit(`comment:added`, {
+      this.io!.to(entityKey).emit('comment:added', {
         entityType: data.entityType,
         entityId: data.entityId,
         comment
@@ -282,7 +282,7 @@ export class CollaborationService {
         timestamp: new Date()
       })
     } catch (error) {
-      socket.emit(`error`, { message: `Failed to add comment` })
+      socket.emit('error', { message: `Failed to add comment` })
     }
   }
 
@@ -293,7 +293,7 @@ export class CollaborationService {
     const user = this.activeUsers.get(socket.id)
     if (!user || !user.currentView) return
     const entityKey = `${user.currentView.type}:${user.currentView.id}`
-    socket.to(entityKey).emit(`cursor:position`, {
+    socket.to(entityKey).emit('cursor:position', {
       userId: user.userId,
       userName: user.userName,
       position: data.position
@@ -313,7 +313,7 @@ export class CollaborationService {
       this.entityViewers.get(entityKey)?.delete(user.userId)
 
       // Notify others
-      socket.to(entityKey).emit(`viewer:left`, {
+      socket.to(entityKey).emit('viewer:left', {
         userId: user.userId,
         userName: user.userName,
         timestamp: new Date()
@@ -333,7 +333,7 @@ export class CollaborationService {
     if (!this.io) return
 
     const entityKey = `${entityType}:${entityId}`
-    this.io.to(entityKey).emit(`entity:updated`, {
+    this.io.to(entityKey).emit('entity:updated', {
       entityType,
       entityId,
       update,
@@ -359,7 +359,7 @@ export class CollaborationService {
   broadcastStatusChange(entityType: 'task' | 'asset', entityId: string, oldStatus: string, newStatus: string, userId: string, userName: string): void {
     if (!this.io) return
     const entityKey = `${entityType}:${entityId}`
-    this.io.to(entityKey).emit(`status:changed`, {
+    this.io.to(entityKey).emit('status:changed', {
       entityType,
       entityId,
       oldStatus,
@@ -387,7 +387,7 @@ export class CollaborationService {
     if (!this.io) return
 
     const entityKey = `${entityType}:${entityId}`
-    this.io.to(entityKey).emit(`assignment:changed`, {
+    this.io.to(entityKey).emit('assignment:changed', {
       entityType,
       entityId,
       oldAssignee,

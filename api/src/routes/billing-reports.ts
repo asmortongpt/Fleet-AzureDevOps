@@ -5,7 +5,7 @@ import { csrfProtection } from '../middleware/csrf'
 import { requirePermission } from '../middleware/permissions'
 import { billingReportsService } from '../services/billing-reports'
 import { getErrorMessage } from '../utils/error-handler'
-import { logger } from '../utils/logger'
+import { logger } from '../config/logger'
 
 
 const router = express.Router()
