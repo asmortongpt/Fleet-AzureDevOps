@@ -11,7 +11,7 @@ import { Logger } from '../services/Logger';
 import { DIContainer } from './DIContainer';
 
 export const configureContainer = (): DIContainer => {
-  const container = createContainer<DIContainer>();
+  const container = createContainer() as DIContainer;
 
   container.register({
     vehicleRepository: asClass(VehicleRepository, { lifetime: 'singleton' }),

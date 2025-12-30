@@ -379,7 +379,7 @@ export function MapboxMap({
           onMapReady?.(map);
         });
 
-        map.on('error', (e) => {
+        map.on('error', (e: any) => {
           if (!isMounted) return;
           const error = e.error || new Error('Map error');
           setMapError(error.message);
