@@ -492,14 +492,16 @@ function VehicleModel({ category, type, color }: VehicleModelProps) {
   }
 
   switch (type as AssetType) {
-    // Vehicles
-    case 'SEDAN':
+    // Passenger Vehicles
+    case 'PASSENGER_CAR':
       return <SedanModel color={color} />;
     case 'SUV':
       return <SUVModel color={color} />;
     case 'PICKUP_TRUCK':
       return <PickupTruckModel color={color} />;
-    case 'HEAVY_TRUCK':
+    case 'MEDIUM_DUTY_TRUCK':
+    case 'HEAVY_DUTY_TRUCK':
+    case 'DUMP_TRUCK':
       return <HeavyTruckModel color={color} />;
     // Equipment
     case 'EXCAVATOR':
@@ -508,16 +510,22 @@ function VehicleModel({ category, type, color }: VehicleModelProps) {
       return <ForkliftModel color={color} />;
     case 'GENERATOR':
       return <GeneratorModel color={color} />;
-    case 'CRANE':
+    case 'MOBILE_CRANE':
+    case 'TOWER_CRANE':
       return <CraneModel color={color} />;
-    case 'COMPRESSOR':
+    case 'AIR_COMPRESSOR':
       return <CompressorModel color={color} />;
-    case 'PUMP':
+    case 'WATER_PUMP':
       return <PumpModel color={color} />;
     // Trailers
-    case 'ENCLOSED_TRAILER':
+    case 'DRY_VAN_TRAILER':
+    case 'FLATBED_TRAILER':
+    case 'REFRIGERATED_TRAILER':
+    case 'LOWBOY_TRAILER':
+    case 'TANK_TRAILER':
       return <EnclosedTrailerModel color={color} />;
-    case 'UTILITY_TRAILER':
+    case 'STORAGE_TRAILER':
+    case 'TOOLBOX_TRAILER':
       return <UtilityTrailerModel color={color} />;
     default:
       return <SedanModel color={color} />;
