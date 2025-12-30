@@ -21,6 +21,7 @@ import {
   useRoutes,
   useRouteMutations
 } from '@/hooks/use-api'
+import { Vehicle, Driver, WorkOrder, GISFacility } from '@/lib/types'
 import { generateDemoVehicles, generateDemoDrivers, generateDemoWorkOrders, generateDemoFacilities } from '@/lib/demo-data'
 import logger from '@/utils/logger'
 
@@ -84,7 +85,7 @@ export function useFleetData() {
   const routeMutations = useRouteMutations()
 
   // Extract data arrays with demo fallback
-  const vehicles = useMemo(() => {
+  const vehicles = useMemo((): Vehicle[] => {
     if (isDemoMode()) {
       // Use demo data
       const demoVehicles = generateDemoVehicles(50)
@@ -94,31 +95,31 @@ export function useFleetData() {
 
     // Use API data - ensure alerts is always an array
     const rawVehicles = vehiclesData || []
-    return Array.isArray(rawVehicles) ? rawVehicles.map(v => {
-      // Ensure alerts is always a string array
-      const alerts = Array.isArray(v.alerts) ? v.alerts : []
-      return { ...v, alerts } as typeof v & { alerts: string[] }
-    }) : []
+    return Array.isArray(rawVehicles) ? rawVehicles.map((v): Vehicle => ({
+      ...v,
+      // Ensure alerts is always a string array (Vehicle interface already includes alerts: string[])
+      alerts: Array.isArray(v.alerts) ? v.alerts : []
+    })) : []
   }, [vehiclesData]);
 
-  const drivers = useMemo(() => {
+  const drivers = useMemo((): Driver[] => {
     if (isDemoMode()) {
       const demoDrivers = generateDemoDrivers(20)
       if (DEBUG_FLEET_DATA) logger.debug('[useFleetData] Using demo drivers:', demoDrivers.length)
       return demoDrivers
     }
-    
+
     const rawDrivers = driversData || []
     return Array.isArray(rawDrivers) ? rawDrivers : []
   }, [driversData]);
 
-  const workOrders = useMemo(() => {
+  const workOrders = useMemo((): WorkOrder[] => {
     if (isDemoMode()) {
       const demoOrders = generateDemoWorkOrders(30)
       if (DEBUG_FLEET_DATA) logger.debug('[useFleetData] Using demo work orders:', demoOrders.length)
       return demoOrders
     }
-    
+
     const rawWorkOrders = workOrdersData || []
     return Array.isArray(rawWorkOrders) ? rawWorkOrders : []
   }, [workOrdersData]);
@@ -132,13 +133,13 @@ export function useFleetData() {
     return Array.isArray(rawFuelTransactions) ? rawFuelTransactions : []
   }, [fuelTransactionsData]);
 
-  const facilities = useMemo(() => {
+  const facilities = useMemo((): GISFacility[] => {
     if (isDemoMode()) {
       const demoFacilities = generateDemoFacilities()
       if (DEBUG_FLEET_DATA) logger.debug('[useFleetData] Using demo facilities:', demoFacilities.length)
       return demoFacilities
     }
-    
+
     const rawFacilities = facilitiesData || []
     return Array.isArray(rawFacilities) ? rawFacilities : []
   }, [facilitiesData]);
