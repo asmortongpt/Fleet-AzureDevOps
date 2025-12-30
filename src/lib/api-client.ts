@@ -512,7 +512,15 @@ class APIClient {
       }
       return this.post(`/api/teams/messages/${teamIdOrMessageId}/reactions`, { emoji: channelIdOrEmoji })
     },
-    uploadFile: (data: FormData) => this.post('/api/teams/files', data),
+    uploadFile: (teamIdOrData?: string | FormData, channelIdOrData?: string | FormData, fileData?: FormData) => {
+      if (teamIdOrData instanceof FormData) {
+        return this.post('/api/teams/files', teamIdOrData)
+      }
+      if (fileData) {
+        return this.post(`/api/teams/${teamIdOrData}/channels/${channelIdOrData}/files`, fileData)
+      }
+      return this.post('/api/teams/files', channelIdOrData)
+    },
     channels: {
       list: () => this.get('/api/teams/channels'),
       get: (id: string) => this.get(`/api/teams/channels/${id}`)
