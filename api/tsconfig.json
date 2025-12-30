@@ -53,9 +53,18 @@
     "src/routes/calendar.routes.ts",
     "src/routes/document-geo.routes.ts",
     "src/routes/fleet-optimizer.routes.ts",
+    "src/routes/scheduling.routes.ts",
+    "src/routes/ai-task-asset.routes.ts",
+    "src/routes/mobile-integration.routes.ts",
+    "src/routes/cost-analysis.routes.ts",
     "src/services/document-geo.service.ts",
     "src/services/fleet-optimizer.service.ts",
     "src/services/attachment.service.ts",
-    "src/repositories/enhanced/**"
+    "src/services/ai-task-prioritization.ts",
+    "src/services/document-storage.service.ts",
+    "src/repositories/enhanced/**",
+    "src/repositories/ReservationsRepository.ts",
+    "src/repositories/vehicles.repository.ts",
+    "src/repositories/PersonalUsePoliciesRepository.ts"
   ]
 }
