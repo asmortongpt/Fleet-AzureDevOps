@@ -51,7 +51,7 @@ export const DriverInspector: React.FC<DriverInspectorProps> = ({ id, initialTab
       try {
         setLoading(true);
         setError(null);
-        const data = await apiClient.get(`/api/drivers/${id}`);
+        const data = await apiClient.get<Driver>(`/api/drivers/${id}`);
         setDriver(data);
       } catch (err: any) {
         setError(err.message || 'Failed to load driver data');
