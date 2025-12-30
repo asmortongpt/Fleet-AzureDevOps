@@ -120,8 +120,8 @@ export function useUpdateVehicle(
 
   return useMutationWithErrorHandling<Vehicle, unknown, Partial<Vehicle> & { id: string }>(
     async ({ id, ...updates }) => {
-      const response = await apiClient.batch<{ data: Vehicle }>(`/vehicles/${id}`, updates);
-      return response?.data;
+      const response = await apiClient.put<Vehicle>(`/api/vehicles/${id}`, updates);
+      return response;
     },
     {
       successMessage: 'Vehicle updated successfully',
@@ -224,8 +224,8 @@ export function useUpdateDriver(
 
   return useMutationWithErrorHandling<Driver, unknown, Partial<Driver> & { id: string }>(
     async ({ id, ...updates }) => {
-      const response = await apiClient.batch<{ data: Driver }>(`/drivers/${id}`, updates);
-      return response?.data;
+      const response = await apiClient.put<Driver>(`/api/drivers/${id}`, updates);
+      return response;
     },
     {
       successMessage: 'Driver updated successfully',
@@ -311,8 +311,8 @@ export function useUpdateWorkOrder(
 
   return useMutationWithErrorHandling<WorkOrder, unknown, Partial<WorkOrder> & { id: string }>(
     async ({ id, ...updates }) => {
-      const response = await apiClient.batch<{ data: WorkOrder }>(`/work-orders/${id}`, updates);
-      return response?.data;
+      const response = await apiClient.put<WorkOrder>(`/api/work-orders/${id}`, updates);
+      return response;
     },
     {
       successMessage: 'Work order updated successfully',

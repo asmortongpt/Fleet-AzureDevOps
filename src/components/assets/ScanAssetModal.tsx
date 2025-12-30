@@ -69,14 +69,17 @@ const ScanAssetModal: React.FC<ScanAssetModalProps> = ({ tenantId, onClose }) =>
         onUserMediaError={handleError}
         onUserMedia={() => {
           const codeReader = new BrowserMultiFormatReader();
-          codeReader.decodeFromVideoDevice(undefined, 'video', (result: Result | null, err: Error | null) => {
-            if (result) {
-              handleScan(result.getText());
-            }
-            if (err) {
-              logger.error('Error decoding barcode:', err);
-            }
-          });
+          const videoElement = document.querySelector('video') as HTMLVideoElement;
+          if (videoElement) {
+            codeReader.decodeFromVideoElement(videoElement, (result: Result | null, err: Error | null) => {
+              if (result) {
+                handleScan(result.getText());
+              }
+              if (err) {
+                logger.error('Error decoding barcode:', err);
+              }
+            });
+          }
         }}
       />
       <button onClick={handleLocationCapture}>Capture Location</button>

@@ -90,12 +90,13 @@ export default function DispatchConsole() {
     },
     onTransmissionEnd: (audioBlob) => {
       logger.debug('PTT ended, blob size:', audioBlob.size);
-      if (ptt.currentTransmissionId) {
+      const transmissionId = ptt.currentTransmissionId;
+      if (transmissionId) {
         // Convert blob to base64 and send
         const reader = new FileReader();
         reader.onloadend = () => {
           const base64 = (reader.result as string).split(',')[1];
-          dispatch.endTransmission(ptt.currentTransmissionId, base64);
+          dispatch.endTransmission(transmissionId, base64);
         };
         reader.readAsDataURL(audioBlob);
       }
