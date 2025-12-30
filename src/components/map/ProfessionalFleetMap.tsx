@@ -1,4 +1,4 @@
-import { Truck, ZoomIn, ZoomOut, Locate, Navigation } from 'lucide-react';
+import { ZoomIn, ZoomOut, Locate, Navigation } from 'lucide-react';
 import { useState, useRef, useEffect } from 'react';
 
 import { Button } from '@/components/ui/button';
