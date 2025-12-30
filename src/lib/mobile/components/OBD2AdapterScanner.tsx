@@ -41,6 +41,8 @@ export const OBD2AdapterScanner: React.FC<OBD2AdapterScannerProps> = ({
   showDiagnostics = true,
   enableLiveData = false
 }) => {
+  // Create OBD2Service instance
+  const [obd2Service] = useState(() => new OBD2Service())
   const [adapters, setAdapters] = useState<OBD2Adapter[]>([])
   const [isScanning, setIsScanning] = useState(false)
   const [isConnecting, setIsConnecting] = useState(false)
@@ -60,10 +62,11 @@ export const OBD2AdapterScanner: React.FC<OBD2AdapterScannerProps> = ({
 
     return () => {
       // Cleanup on unmount
-      if (OBD2Service.isConnected()) {
-        OBD2Service.disconnect()
+      if (obd2Service.isConnected()) {
+        obd2Service.disconnect()
       }
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [autoConnect])
 
   // =====================================================
@@ -72,13 +75,13 @@ export const OBD2AdapterScanner: React.FC<OBD2AdapterScannerProps> = ({
 
   const loadSavedAdapter = async () => {
     try {
-      const savedAdapterJson = await AsyncStorage.getItem('savedOBD2Adapter')
+      const savedAdapterJson = localStorage.getItem('savedOBD2Adapter')
       if (savedAdapterJson) {
         const savedAdapter: OBD2Adapter = JSON.parse(savedAdapterJson)
 
         // Attempt to reconnect to saved adapter
         setConnectionStatus('Reconnecting to saved adapter...')
-        const success = await OBD2Service.connect(savedAdapter)
+        const success = await obd2Service.connect(savedAdapter)
 
         if (success) {
           setConnectedAdapter(savedAdapter)
@@ -88,7 +91,7 @@ export const OBD2AdapterScanner: React.FC<OBD2AdapterScannerProps> = ({
           // Read diagnostics if enabled
           if (showDiagnostics) {
             try {
-              const diagnosticCodes = await OBD2Service.readDTCs()
+              const diagnosticCodes = await obd2Service.readDTCs()
               setDtcs(diagnosticCodes)
               onDTCsDetected?.(diagnosticCodes)
             } catch (error) {
@@ -113,7 +116,7 @@ export const OBD2AdapterScanner: React.FC<OBD2AdapterScannerProps> = ({
 
   const savePairedAdapter = async (adapter: OBD2Adapter) => {
     try {
-      await AsyncStorage.setItem('savedOBD2Adapter', JSON.stringify(adapter))
+      localStorage.setItem('savedOBD2Adapter', JSON.stringify(adapter))
       logger.debug('Saved paired adapter:', adapter.name)
     } catch (error) {
       logger.error('Error saving adapter:', error)
@@ -122,7 +125,7 @@ export const OBD2AdapterScanner: React.FC<OBD2AdapterScannerProps> = ({
 
   const clearSavedAdapter = async () => {
     try {
-      await AsyncStorage.removeItem('savedOBD2Adapter')
+      localStorage.removeItem('savedOBD2Adapter')
       logger.debug('Cleared saved adapter')
     } catch (error) {
       logger.error('Error clearing saved adapter:', error)
@@ -165,7 +168,7 @@ export const OBD2AdapterScanner: React.FC<OBD2AdapterScannerProps> = ({
       setIsScanning(true)
       setConnectionStatus('Scanning for adapters...')
 
-      const foundAdapters = await OBD2Service.scanForAdapters()
+      const foundAdapters = await obd2Service.scanForAdapters()
 
       setAdapters(foundAdapters)
       setConnectionStatus(`Found ${foundAdapters.length} adapter(s)`)
@@ -192,7 +195,7 @@ export const OBD2AdapterScanner: React.FC<OBD2AdapterScannerProps> = ({
       setConnectionStatus(`Connecting to ${adapter.name}...`)
 
       // Connect
-      const success = await OBD2Service.connect(adapter)
+      const success = await obd2Service.connect(adapter)
 
       if (!success) {
         throw new Error('Connection failed')
@@ -207,7 +210,7 @@ export const OBD2AdapterScanner: React.FC<OBD2AdapterScannerProps> = ({
       // Read VIN
       setConnectionStatus('Reading VIN...')
       try {
-        const vehicleVIN = await OBD2Service.readVIN()
+        const vehicleVIN = await obd2Service.readVIN()
         setVin(vehicleVIN)
         onAdapterConnected?.(adapter, vehicleVIN)
       } catch (error) {
@@ -219,7 +222,7 @@ export const OBD2AdapterScanner: React.FC<OBD2AdapterScannerProps> = ({
       if (showDiagnostics) {
         setConnectionStatus('Reading diagnostic codes...')
         try {
-          const diagnosticCodes = await OBD2Service.readDTCs()
+          const diagnosticCodes = await obd2Service.readDTCs()
           setDtcs(diagnosticCodes)
           onDTCsDetected?.(diagnosticCodes)
 
@@ -253,7 +256,7 @@ export const OBD2AdapterScanner: React.FC<OBD2AdapterScannerProps> = ({
     try {
       setConnectionStatus('Disconnecting...')
 
-      await OBD2Service.disconnect()
+      await obd2Service.disconnect()
 
       setConnectedAdapter(null)
       setDtcs([])
@@ -286,7 +289,7 @@ export const OBD2AdapterScanner: React.FC<OBD2AdapterScannerProps> = ({
     try {
       setConnectionStatus('Reading diagnostic codes...')
 
-      const diagnosticCodes = await OBD2Service.readDTCs()
+      const diagnosticCodes = await obd2Service.readDTCs()
       setDtcs(diagnosticCodes)
       onDTCsDetected?.(diagnosticCodes)
 
@@ -310,7 +313,7 @@ export const OBD2AdapterScanner: React.FC<OBD2AdapterScannerProps> = ({
     try {
       setConnectionStatus('Clearing codes...')
 
-      const success = await OBD2Service.clearDTCs()
+      const success = await obd2Service.clearDTCs()
 
       if (success) {
         setDtcs([])
@@ -343,16 +346,16 @@ export const OBD2AdapterScanner: React.FC<OBD2AdapterScannerProps> = ({
       'ENGINE_LOAD'
     ]
 
-    OBD2Service.startLiveDataStream(pidKeys, 1000, (data: LiveOBD2Data) => {
+    obd2Service.startLiveDataStream(pidKeys, (data: LiveOBD2Data) => {
       setLiveData(data)
       onLiveDataUpdate?.(data)
-    })
+    }, 1000)
 
     setConnectionStatus('Connected - Live Data Active')
   }
 
   const stopLiveDataStream = () => {
-    OBD2Service.stopLiveDataStream()
+    obd2Service.stopLiveDataStream()
     setLiveData(null)
     setConnectionStatus('Connected')
   }
