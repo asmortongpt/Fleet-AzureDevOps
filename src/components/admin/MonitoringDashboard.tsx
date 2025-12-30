@@ -48,6 +48,11 @@ interface DashboardEmulatorGroup {
   }>;
 }
 
+// Type aliases for API responses to match interfaces
+type SystemHealth = DashboardSystemHealth;
+type Metrics = DashboardMetrics;
+type EmulatorGroup = DashboardEmulatorGroup;
+
 interface DashboardError {
   id: string;
   timestamp: number;
@@ -96,8 +101,8 @@ const MonitoringDashboard: React.FC = () => {
         apiClient.get<SystemHealth>('/monitoring/health'),
         apiClient.get<Metrics>('/monitoring/metrics'),
         apiClient.get<EmulatorGroup>('/monitoring/emulators'),
-        apiClient.get<Error[]>('/monitoring/errors'),
-        apiClient.get<Alert[]>('/monitoring/alerts')
+        apiClient.get<DashboardError[]>('/monitoring/errors'),
+        apiClient.get<DashboardAlert[]>('/monitoring/alerts')
       ]);
 
       setData({
