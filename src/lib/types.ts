@@ -47,6 +47,8 @@ export interface Vehicle {
   location: {
     lat: number
     lng: number
+    latitude?: number // Backwards compatibility alias
+    longitude?: number // Backwards compatibility alias
     address: string
   }
   region: string
@@ -113,6 +115,10 @@ export interface Vehicle {
   group_id?: string
   fleet_id?: string
   location_id?: string
+
+  // Timestamps
+  createdAt?: string
+  updatedAt?: string
 }
 
 export interface Driver {
