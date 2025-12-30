@@ -33,7 +33,7 @@ import {
 import { cn } from "@/lib/utils";
 import { useInspect, InspectType } from "@/services/inspect/InspectContext";
 
-interface DataGridProps<TData> {
+export interface DataGridProps<TData> {
   data: TData[];
   columns: ColumnDef<TData>[];
   pageSize?: number;

@@ -502,8 +502,8 @@ export function PersonalUseDashboard() {
       {/* Trip Details Modal */}
       {selectedTrip && (
         <TripMarker
-          trip={selectedTrip}
-          onClose={() => setSelectedTrip(null)}
+          tripId={selectedTrip.id}
+          onCancel={() => setSelectedTrip(null)}
         />
       )}
     </div>
