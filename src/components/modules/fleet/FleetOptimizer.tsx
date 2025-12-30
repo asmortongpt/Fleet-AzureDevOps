@@ -80,7 +80,7 @@ export function FleetOptimizer() {
     setLoading(true)
     try {
       const response = await apiClient.get<UtilizationMetric[]>("/fleet-optimizer/utilization-heatmap")
-      setUtilizationData(response?.data ?? [])
+      setUtilizationData(response ?? [])
     } catch (error) {
       logger.error("Error fetching utilization data:", error)
       toast.error("Failed to load utilization data")
@@ -92,7 +92,7 @@ export function FleetOptimizer() {
   const fetchRecommendations = async () => {
     try {
       const response = await apiClient.get<Recommendation[]>("/fleet-optimizer/recommendations")
-      setRecommendations(response?.data ?? [])
+      setRecommendations(response ?? [])
     } catch (error) {
       logger.error("Error fetching recommendations:", error)
       toast.error("Failed to load recommendations")
