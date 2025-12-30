@@ -31,14 +31,11 @@ export function useDataWorkbenchData(vehicles: Vehicle[]) {
 
         records.push({
           id: `maint-${idx}-${i}`,
-          vehicleNumber: vehicle.number,
-          vehicleName: `${vehicle.year} ${vehicle.make} ${vehicle.model}`,
-          serviceType: serviceTypes[Math.floor(Math.random() * serviceTypes.length)],
+          vehicleId: vehicle.id,
           date: date.toISOString().split('T')[0],
+          type: serviceTypes[Math.floor(Math.random() * serviceTypes.length)],
           cost: Math.floor(Math.random() * 500) + 50,
-          status: status,
-          nextDue: status === "completed" ? nextDueDate.toISOString().split('T')[0] : null,
-          notes: i % 3 === 0 ? "Routine maintenance" : undefined
+          description: i % 3 === 0 ? "Routine maintenance" : undefined
         })
       }
     })
@@ -67,13 +64,10 @@ export function useDataWorkbenchData(vehicles: Vehicle[]) {
 
         records.push({
           id: `fuel-${idx}-${i}`,
-          vehicleNumber: vehicle.number,
-          vehicleName: `${vehicle.year} ${vehicle.make} ${vehicle.model}`,
+          vehicleId: vehicle.id,
           date: date.toISOString().split('T')[0],
           gallons: gallons,
           cost: parseFloat((gallons * costPerGallon).toFixed(2)),
-          odometer: currentOdometer,
-          mpg: parseFloat((milesDriven / gallons).toFixed(1)),
           location: locations[Math.floor(Math.random() * locations.length)]
         })
       }
