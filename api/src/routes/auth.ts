@@ -266,7 +266,7 @@ router.post('/login',csrfProtection, authLimiter, checkBruteForce('email'), asyn
     })
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return res.status(400).json({ error: 'Validation error', details: error.errors })
+      return res.status(400).json({ error: 'Validation error', details: error.issues })
     }
     logger.error('Login error:', error) // Wave 16: Winston logger
     res.status(500).json({ error: 'Internal server error' })
@@ -355,7 +355,7 @@ router.post('/register',csrfProtection, registrationLimiter, async (req: Request
     })
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return res.status(400).json({ error: 'Validation error', details: error.errors })
+      return res.status(400).json({ error: 'Validation error', details: error.issues })
     }
     logger.error('Register error:', error) // Wave 16: Winston logger
     res.status(500).json({ error: 'Internal server error' })

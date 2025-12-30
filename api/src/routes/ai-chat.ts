@@ -77,7 +77,7 @@ router.post(
       })
     } catch (error: any) {
       if (error.name === 'ZodError') {
-        return res.status(400).json({ error: 'Validation error', details: error.errors })
+        return res.status(400).json({ error: 'Validation error', details: error.issues })
       }
       console.error('Create session error:', error)
       res.status(500).json({ error: 'Failed to create session', message: getErrorMessage(error) })
@@ -395,7 +395,7 @@ router.post(
       })
     } catch (error: any) {
       if (error.name === 'ZodError') {
-        return res.status(400).json({ error: 'Validation error', details: error.errors })
+        return res.status(400).json({ error: 'Validation error', details: error.issues })
       }
       console.error('Chat error:', error)
       res.status(500).json({ error: 'Chat failed', message: getErrorMessage(error) })
