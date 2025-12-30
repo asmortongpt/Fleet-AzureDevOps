@@ -431,7 +431,7 @@ export function MaintenanceWorkspace({ _data }: { _data?: unknown }) {
           </TabsList>
           <TabsContent value="facility" className="h-[calc(100vh-48px)] mt-0">
             <FacilityPanel
-              facilities={facilities}
+              facilities={facilities as unknown as Facility[]}
               onFacilitySelect={(facility) => {
                 setSelectedEntity({ type: 'facility', data: facility });
                 setActivePanel('facility');

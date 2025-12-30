@@ -59,8 +59,8 @@ export function DriverPerformance(_props: DriverPerformanceProps) {
   const [selectedDriver, setSelectedDriver] = useState<Driver | null>(null)
   const [isDetailsDialogOpen, setIsDetailsDialogOpen] = useState<boolean>(false)
 
-  const enhancedDrivers = useMemo(() => {
-    return drivers.map((driver: Driver) => ({
+  const enhancedDrivers: typeof drivers[number][] = useMemo(() => {
+    return drivers.map(driver => ({
       ...driver,
       trips: Math.floor(Math.random() * 200 + 50),
       miles: Math.floor(Math.random() * 5000 + 1000),
@@ -196,7 +196,7 @@ export function DriverPerformance(_props: DriverPerformanceProps) {
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
-              {topPerformers.map((driver: Driver, index: number) => (
+              {topPerformers.map((driver, index: number) => (
                 <div key={driver.id} className="flex items-center gap-3">
                   <div className={`w-8 h-8 rounded-full flex items-center justify-center font-semibold text-sm ${
                     index === 0 ? "bg-warning/20 text-warning" :
@@ -292,7 +292,9 @@ export function DriverPerformance(_props: DriverPerformanceProps) {
                           openInspect({ type: 'driver', id: driver.id })
 
                           // Also maintain dialog state for legacy UI
-                          setSelectedDriver(driver)
+                          // Cast enhanced driver to base Driver type
+                          const { trips, miles, fuelEfficiency, incidents, onTimeDelivery, violations, overallScore, trend, ...baseDriver } = driver
+                          setSelectedDriver(baseDriver as Driver)
                           setIsDetailsDialogOpen(true)
                         }}
                       >
