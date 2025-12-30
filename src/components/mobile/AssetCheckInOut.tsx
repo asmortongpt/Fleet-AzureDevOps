@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { z } from 'zod';
 
 import { checkInAsset, checkOutAsset } from '../api/assets';
-import { uploadPhoto } from '@/services/photo-storage.service';
+import photoStorageService from '@/services/photo-storage.service';
 import { compressToWebP } from '@/utils/compressToWebP';
 
 interface AssetCheckInOutProps {
@@ -20,7 +20,7 @@ const AssetCheckInOut: React.FC<AssetCheckInOutProps> = ({ tenantId, onCheckInOu
   const [hasLocationPermission, setHasLocationPermission] = useState<boolean | null>(null);
   const [camera, setCamera] = useState<typeof Camera | null>(null);
   const [image, setImage] = useState<string | null>(null);
-  const [_location, setLocation] = useState<Location.LocationObject | null>(null);
+  const [_location, setLocation] = useState<Location.LocationObjectCoords | null>(null);
   const [conditionRating, setConditionRating] = useState<string>('3');
   const [_signature, setSignature] = useState<string | null>(null);
   const [_isCheckingIn, setIsCheckingIn] = useState<boolean>(false);
