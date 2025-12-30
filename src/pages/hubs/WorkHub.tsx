@@ -330,7 +330,7 @@ const WorkHub: React.FC = () => {
                       <DataGrid
                         data={maintenanceData}
                         columns={maintenanceColumns}
-                        inspectorType="maintenance"
+                        inspectType={undefined}
                         className="h-full"
                       />
                     </TabsContent>
@@ -339,7 +339,7 @@ const WorkHub: React.FC = () => {
                       <DataGrid
                         data={maintenanceData.filter((m) => m.status === "scheduled")}
                         columns={maintenanceColumns}
-                        inspectorType="maintenance"
+                        inspectType={undefined}
                         className="h-full"
                       />
                     </TabsContent>
