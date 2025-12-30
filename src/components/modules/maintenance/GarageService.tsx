@@ -1,6 +1,6 @@
-import { 
-  Wrench, 
-  User, 
+import {
+  Wrench,
+  User,
   Clock,
   Warning,
   Plus
@@ -13,13 +13,51 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
 import { useFleetData } from "@/hooks/use-fleet-data"
-import { WorkOrder } from "@/lib/types"
+import { WorkOrder, ServiceBay, Technician } from "@/lib/types"
+
+// Type guard to check if a facility is a ServiceBay
+function isServiceBay(item: any): item is ServiceBay {
+  return (
+    item &&
+    typeof item === 'object' &&
+    'number' in item &&
+    'status' in item &&
+    (item.status === 'occupied' || item.status === 'available' || item.status === 'maintenance')
+  )
+}
+
+// Type guard to check if an item is a WorkOrder
+function isWorkOrder(item: any): item is WorkOrder {
+  return (
+    item &&
+    typeof item === 'object' &&
+    'vehicleNumber' in item &&
+    'serviceType' in item &&
+    'priority' in item &&
+    'status' in item
+  )
+}
+
+// Type guard to check if an item is a Technician
+function isTechnician(item: any): item is Technician {
+  return (
+    item &&
+    typeof item === 'object' &&
+    'name' in item &&
+    'specialization' in item &&
+    'availability' in item &&
+    'efficiency' in item
+  )
+}
 
 export function GarageService() {
   const data = useFleetData()
-  const serviceBays = data.serviceBays || []
-  const workOrders = data.workOrders || []
-  const technicians = data.technicians || []
+
+  // Filter and type-check data with safety
+  const serviceBays = (data.serviceBays || []).filter(isServiceBay)
+  const workOrders = (data.workOrders || []).filter(isWorkOrder)
+  const technicians = (data.technicians || []).filter(isTechnician)
+
   const [activeTab, setActiveTab] = useState<string>("dashboard")
 
   const metrics = {
@@ -275,11 +313,11 @@ export function GarageService() {
                       <div className="flex items-start justify-between mb-4">
                         <div>
                           <h3 className="font-semibold">{tech.name}</h3>
-                          <Badge 
-                            variant="outline" 
+                          <Badge
+                            variant="outline"
                             className={
-                              tech.availability === "available" 
-                                ? "bg-success/10 text-success border-success/20 mt-2" 
+                              tech.availability === "available"
+                                ? "bg-success/10 text-success border-success/20 mt-2"
                                 : tech.availability === "busy"
                                 ? "bg-warning/10 text-warning border-warning/20 mt-2"
                                 : "bg-muted text-muted-foreground mt-2"
@@ -297,7 +335,7 @@ export function GarageService() {
                         <div>
                           <p className="text-muted-foreground mb-1">Specializations:</p>
                           <div className="flex flex-wrap gap-1">
-                            {tech.specialization?.map((spec: string) => (
+                            {Array.isArray(tech.specialization) && tech.specialization.map((spec: string) => (
                               <Badge key={spec} variant="outline" className="text-xs">
                                 {spec}
                               </Badge>

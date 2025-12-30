@@ -252,7 +252,7 @@ const ErrorRateChart: React.FC<Props> = ({ errors = [], loading }) => {
 
       {/* Error Summary */}
       <Grid container spacing={2} sx={{ mt: 2 }}>
-        <Grid item xs={4}>
+        <Grid size={{ xs: 4 }}>
           <Box sx={{ textAlign: 'center' }}>
             <Typography variant="h6" color="error">
               {filteredErrors.filter(e => e.statusCode && e.statusCode >= 500).length}
@@ -262,7 +262,7 @@ const ErrorRateChart: React.FC<Props> = ({ errors = [], loading }) => {
             </Typography>
           </Box>
         </Grid>
-        <Grid item xs={4}>
+        <Grid size={{ xs: 4 }}>
           <Box sx={{ textAlign: 'center' }}>
             <Typography variant="h6" color="warning.main">
               {filteredErrors.filter(e => e.statusCode && e.statusCode >= 400 && e.statusCode < 500).length}
@@ -272,7 +272,7 @@ const ErrorRateChart: React.FC<Props> = ({ errors = [], loading }) => {
             </Typography>
           </Box>
         </Grid>
-        <Grid item xs={4}>
+        <Grid size={{ xs: 4 }}>
           <Box sx={{ textAlign: 'center' }}>
             <Typography variant="h6" color="info.main">
               {new Set(filteredErrors.map(e => e.endpoint)).size}

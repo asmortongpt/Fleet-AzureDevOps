@@ -175,25 +175,25 @@ const AlertsPanel: React.FC<Props> = ({ alerts = [], loading }) => {
     <Box>
       {/* Summary Stats */}
       <Grid container spacing={2} sx={{ mb: 3 }}>
-        <Grid item xs={6} md={3}>
+        <Grid size={{ xs: 6, md: 3 }}>
           <Paper sx={{ p: 2, textAlign: 'center', bgcolor: 'error.main', color: 'error.contrastText' }}>
             <Typography variant="h4">{alertsBySeverity.critical ?? 0}</Typography>
             <Typography variant="caption">Critical</Typography>
           </Paper>
         </Grid>
-        <Grid item xs={6} md={3}>
+        <Grid size={{ xs: 6, md: 3 }}>
           <Paper sx={{ p: 2, textAlign: 'center', bgcolor: 'error.light' }}>
             <Typography variant="h4">{alertsBySeverity.error ?? 0}</Typography>
             <Typography variant="caption">Errors</Typography>
           </Paper>
         </Grid>
-        <Grid item xs={6} md={3}>
+        <Grid size={{ xs: 6, md: 3 }}>
           <Paper sx={{ p: 2, textAlign: 'center', bgcolor: 'warning.light' }}>
             <Typography variant="h4">{alertsBySeverity.warning ?? 0}</Typography>
             <Typography variant="caption">Warnings</Typography>
           </Paper>
         </Grid>
-        <Grid item xs={6} md={3}>
+        <Grid size={{ xs: 6, md: 3 }}>
           <Paper sx={{ p: 2, textAlign: 'center', bgcolor: 'info.light' }}>
             <Typography variant="h4">{alertsBySeverity.info ?? 0}</Typography>
             <Typography variant="caption">Info</Typography>
@@ -204,7 +204,7 @@ const AlertsPanel: React.FC<Props> = ({ alerts = [], loading }) => {
       {/* Filters */}
       <Paper sx={{ p: 2, mb: 3 }}>
         <Grid container spacing={2} alignItems="center">
-          <Grid item xs={12} md={4}>
+          <Grid size={{ xs: 12, md: 4 }}>
             <TextField
               fullWidth
               size="small"
@@ -220,7 +220,7 @@ const AlertsPanel: React.FC<Props> = ({ alerts = [], loading }) => {
               }}
             />
           </Grid>
-          <Grid item xs={12} md={4}>
+          <Grid size={{ xs: 12, md: 4 }}>
             <ToggleButtonGroup
               value={severityFilter}
               onChange={(_event, value) => value && setSeverityFilter(value as string[])}
@@ -233,7 +233,7 @@ const AlertsPanel: React.FC<Props> = ({ alerts = [], loading }) => {
               <ToggleButton value="info">Info</ToggleButton>
             </ToggleButtonGroup>
           </Grid>
-          <Grid item xs={12} md={4}>
+          <Grid size={{ xs: 12, md: 4 }}>
             <Box display="flex" justifyContent="flex-end" gap={1}>
               <Chip
                 icon={showResolved ? <NotificationsActive /> : <NotificationsOff />}
