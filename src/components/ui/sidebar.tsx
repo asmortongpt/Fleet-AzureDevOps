@@ -2,7 +2,7 @@
 
 import { Slot } from "@radix-ui/react-slot"
 import { VariantProps, cva } from "class-variance-authority"
-import PanelLeftIcon from "lucide-react/dist/esm/icons/panel-left"
+import { PanelLeft as PanelLeftIcon } from "lucide-react"
 import { CSSProperties, ComponentProps, createContext, useCallback, useContext, useEffect, useMemo, useState } from "react"
 
 import { Button } from "@/components/ui/button"

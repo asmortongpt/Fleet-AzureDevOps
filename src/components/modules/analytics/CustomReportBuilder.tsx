@@ -136,19 +136,19 @@ export function CustomReportBuilder() {
   // TanStack Query hooks - consolidate all initial data fetching
   const { data: dataSources = [], isLoading: dataSourcesLoading } = useQuery<DataSource[]>({
     queryKey: ["customReports", "dataSources"],
-    queryFn: async () => (await apiClient.get("/custom-reports/data-sources")).data,
+    queryFn: async () => (await apiClient.get("/custom-reports/data-sources") as unknown as { data: DataSource[] }).data,
     gcTime: 5 * 60 * 1000
   })
 
   const { data: templates = [], isLoading: templatesLoading } = useQuery<ReportTemplate[]>({
     queryKey: ["customReports", "templates"],
-    queryFn: async () => (await apiClient.get("/custom-reports/templates")).data,
+    queryFn: async () => (await apiClient.get("/custom-reports/templates") as unknown as { data: ReportTemplate[] }).data,
     gcTime: 5 * 60 * 1000
   })
 
   const { data: myReports = [], isLoading: myReportsLoading } = useQuery<CustomReport[]>({
     queryKey: ["customReports", "myReports"],
-    queryFn: async () => (await apiClient.get("/custom-reports")).data,
+    queryFn: async () => (await apiClient.get("/custom-reports") as unknown as { data: CustomReport[] }).data,
     gcTime: 5 * 60 * 1000
   })
 
@@ -166,9 +166,9 @@ export function CustomReportBuilder() {
   const saveReportMutation = useMutation({
     mutationFn: async (reportData: CustomReport) => {
       if (selectedReport?.id) {
-        return (await apiClient.put(`/custom-reports/${selectedReport.id}`, reportData)).data
+        return (await apiClient.put(`/custom-reports/${selectedReport.id}`, reportData) as unknown as { data: CustomReport }).data
       } else {
-        return (await apiClient.post('/custom-reports', reportData)).data
+        return (await apiClient.post('/custom-reports', reportData) as unknown as { data: CustomReport }).data
       }
     },
     onSuccess: () => {
@@ -188,7 +188,7 @@ export function CustomReportBuilder() {
     { reportId: string; format: string }
   >({
     mutationFn: async ({ reportId, format }: { reportId: string; format: string }) => {
-      return (await apiClient.post(`/custom-reports/${reportId}/execute`, { format })).data
+      return (await apiClient.post(`/custom-reports/${reportId}/execute`, { format }) as unknown as { data: { rowCount: number; executionId: string } }).data
     },
     onSuccess: (result: { rowCount: number; executionId: string }, variables: { reportId: string }) => {
       toast.success(`Report executed! ${result.rowCount} rows generated.`)
@@ -220,7 +220,7 @@ export function CustomReportBuilder() {
         schedule_config: scheduleConfig,
         recipients: recipientList,
         format: scheduleFormat
-      })).data
+      }) as unknown as { data: unknown }).data
     },
     onSuccess: () => {
       toast.success("Report scheduled successfully")
@@ -236,7 +236,7 @@ export function CustomReportBuilder() {
   const loadTemplateMutation = useMutation({
     mutationFn: async ({ templateId, templateName }: { templateId: string; templateName: string }) => {
       const reportName = `${templateName} - ${new Date().toLocaleDateString()}`
-      return (await apiClient.post(`/custom-reports/from-template/${templateId}`, { report_name: reportName })).data as CustomReport
+      return (await apiClient.post(`/custom-reports/from-template/${templateId}`, { report_name: reportName }) as unknown as { data: CustomReport }).data
     },
     onSuccess: (report: CustomReport) => {
       toast.success("Template loaded successfully")
