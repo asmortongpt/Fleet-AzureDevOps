@@ -110,7 +110,7 @@ import driverScorecardRouter from './routes/driver-scorecard.routes'
 
 // AI & Automation Routes
 import langchainRouter from './routes/langchain.routes'
-import fleetOptimizerRouter from './routes/fleet-optimizer.routes'
+// DISABLED: import fleetOptimizerRouter from './routes/fleet-optimizer.routes'
 
 // Task & Schedule Management Routes
 import schedulingRouter from './routes/scheduling.routes'
@@ -124,7 +124,7 @@ import mobileIntegrationRouter from './routes/mobile-integration.routes'
 import mobileMessagingRouter from './routes/mobile-messaging.routes'
 import mobileNotificationsRouter from './routes/mobile-notifications.routes'
 import mobileObd2Router from './routes/mobile-obd2.routes'
-import mobileOcrRouter from './routes/mobile-ocr.routes'
+// DISABLED: import mobileOcrRouter from './routes/mobile-ocr.routes'
 import mobilePhotosRouter from './routes/mobile-photos.routes'
 import mobileTripsRouter from './routes/mobile-trips.routes'
 import pushNotificationsRouter from './routes/push-notifications.routes'
@@ -358,7 +358,7 @@ app.use('/api/ai-search', aiSearchRouter)
 app.use('/api/ai-task-asset', aiTaskAssetRouter)
 app.use('/api/ai-tasks', aiTaskPrioritizationRouter)
 app.use('/api/langchain', langchainRouter)
-app.use('/api/fleet-optimizer', fleetOptimizerRouter)
+// DISABLED: app.use('/api/fleet-optimizer', fleetOptimizerRouter)
 
 // Task & Schedule Management Routes
 app.use('/api/scheduling', schedulingRouter)
@@ -372,7 +372,7 @@ app.use('/api/mobile-integration', mobileIntegrationRouter)
 app.use('/api/mobile-messaging', mobileMessagingRouter)
 app.use('/api/mobile-notifications', mobileNotificationsRouter)
 app.use('/api/mobile-obd2', mobileObd2Router)
-app.use('/api/mobile-ocr', mobileOcrRouter)
+// DISABLED: app.use('/api/mobile-ocr', mobileOcrRouter)
 app.use('/api/mobile-photos', mobilePhotosRouter)
 app.use('/api/mobile-trips', mobileTripsRouter)
 app.use('/api/push-notifications', pushNotificationsRouter)
