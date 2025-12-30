@@ -119,7 +119,7 @@ export function Notifications() {
 
   const acknowledgeAlert = async (alertId: string) => {
     try {
-      await apiClient.post(`/api/alerts/${alertId}/acknowledge`)
+      await apiClient.post(`/api/alerts/${alertId}/acknowledge`, {})
       fetchAlerts()
       fetchStats()
     } catch (_error) {
