@@ -27,7 +27,7 @@ export class MSOfficeIntegrationService {
           name: f.name,
           contentType: f.type
         }))
-      })
+      }) as { id: string; from?: { user?: { displayName?: string } }; createdDateTime?: string };
 
       return {
         id: response.id,
@@ -38,7 +38,7 @@ export class MSOfficeIntegrationService {
         author: response.from?.user?.displayName || "You",
         timestamp: response.createdDateTime || new Date().toISOString(),
         attachments: attachments?.map(f => f.name),
-        mentions,
+        mentions: mentions || [],
         reactions: []
       }
     } catch (error) {
@@ -65,14 +65,14 @@ export class MSOfficeIntegrationService {
           toRecipients: to.map(email => ({ emailAddress: { address: email } })),
           ccRecipients: cc?.map(email => ({ emailAddress: { address: email } }))
         }
-      })
+      }) as { id?: string; from?: { emailAddress?: { address?: string } } };
 
       return {
         id: response.id || `email-${Date.now()}`,
         subject,
         from: response.from?.emailAddress?.address || "fleet@company.com",
         to,
-        cc,
+        cc: cc || [],
         date: new Date().toISOString(),
         body,
         attachments: attachments?.map(f => ({
@@ -80,7 +80,7 @@ export class MSOfficeIntegrationService {
           name: f.name,
           type: f.type,
           size: f.size
-        })),
+        })) || [],
         isRead: false,
         hasReceipt: false
       }
@@ -120,7 +120,7 @@ export class MSOfficeIntegrationService {
           contentType: 'HTML',
           content: description
         } : undefined
-      })
+      }) as { id: string };
 
       return {
         id: response.id,
@@ -161,10 +161,10 @@ Fleet Management Team
   async processReceiptFromEmail(emailId: string): Promise<Receipt> {
     try {
       // Get email and extract receipt data
-      const email: any = await apiClient.outlook.getMessage(emailId)
+      const _email: unknown = await apiClient.outlook.getMessage(emailId)
 
       // Use AI to process receipt
-      const ocrData = await apiClient.ai.processReceipt(emailId)
+      const ocrData = await apiClient.ai.processReceipt(emailId) as { merchantName?: string; total?: string };
 
       const receipt: Receipt = {
         id: `receipt-${Date.now()}`,
@@ -176,7 +176,12 @@ Fleet Management Team
         paymentMethod: "corporate-card",
         status: "pending",
         submittedBy: "email-automation",
-        ocrData
+        ocrData: {
+          merchantName: ocrData.merchantName,
+          date: undefined,
+          total: ocrData.total,
+          items: undefined
+        }
       }
 
       return receipt
@@ -192,10 +197,13 @@ Fleet Management Team
       const formData = new FormData()
       formData.append('image', imageFile)
 
-      const response = await fetch(`${apiClient['baseURL']}/api/ai/receipt/extract`, {
+      const baseURL = (apiClient as any).baseURL || '';
+      const token = (apiClient as any).token || '';
+
+      const response = await fetch(`${baseURL}/api/ai/receipt/extract`, {
         method: 'POST',
         headers: {
-          'Authorization': `Bearer ${apiClient['token']}`
+          'Authorization': `Bearer ${token}`
         },
         body: formData
       })
@@ -204,7 +212,7 @@ Fleet Management Team
         throw new Error('Failed to extract receipt data')
       }
 
-      return await response.json()
+      return await response.json() as Receipt["ocrData"];
     } catch (error) {
       logger.error('Error extracting receipt data:', { error })
       throw error
@@ -272,12 +280,12 @@ Fleet Management Team
     format: "excel" | "pdf" | "word"
   ): Promise<{ fileUrl: string; fileName: string }> {
     try {
-      const response: any = await apiClient.post('/api/reports/maintenance', {
+      const response = await apiClient.post('/api/reports/maintenance', {
         vehicleIds,
         startDate,
         endDate,
         format
-      })
+      }) as { fileUrl: string; fileName: string };
 
       return {
         fileUrl: response.fileUrl,
@@ -305,7 +313,7 @@ Fleet Management Team
 
   async syncOutlookContacts(): Promise<{ name: string; email: string; role: string }[]> {
     try {
-      const response: any = await apiClient.get('/api/outlook/contacts')
+      const response = await apiClient.get('/api/outlook/contacts') as { value?: { name: string; email: string; role: string }[] };
       return response.value || []
     } catch (error) {
       logger.error('Error syncing contacts:', { error })
@@ -326,7 +334,7 @@ Fleet Management Team
 
   async getTeamsChannels(teamId: string): Promise<any[]> {
     try {
-      const response: any = await apiClient.teams.listChannels(teamId)
+      const response = await apiClient.teams.listChannels(teamId) as { value?: any[] };
       return response.value || []
     } catch (error) {
       logger.error('Error getting Teams channels:', { error })
@@ -336,7 +344,7 @@ Fleet Management Team
 
   async getTeamsMessages(teamId: string, channelId: string): Promise<MSTeamsMessage[]> {
     try {
-      const response: any = await apiClient.teams.listMessages(teamId, channelId)
+      const response = await apiClient.teams.listMessages(teamId, channelId) as { value?: MSTeamsMessage[] };
       return response.value || []
     } catch (error) {
       logger.error('Error getting Teams messages:', { error })
@@ -346,7 +354,7 @@ Fleet Management Team
 
   async getEmails(filter?: any): Promise<MSOutlookEmail[]> {
     try {
-      const response: any = await apiClient.outlook.listMessages(filter)
+      const response = await apiClient.outlook.listMessages(filter) as { value?: MSOutlookEmail[] };
       return response.value || []
     } catch (error) {
       logger.error('Error getting emails:', { error })

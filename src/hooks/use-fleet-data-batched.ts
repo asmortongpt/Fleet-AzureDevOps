@@ -22,6 +22,25 @@ const isDemoMode = () => {
 // Debug flag
 const DEBUG_FLEET_DATA = typeof window !== 'undefined' && localStorage.getItem('debug_fleet_data') === 'true'
 
+interface BatchResponse {
+  success: boolean;
+  data?: {
+    data: any[];
+    total: number;
+  };
+  error?: any;
+}
+
+interface FleetBatchData {
+  vehicles: BatchResponse;
+  drivers: BatchResponse;
+  workOrders: BatchResponse;
+  fuelTransactions: BatchResponse;
+  facilities: BatchResponse;
+  maintenanceSchedules: BatchResponse;
+  routes: BatchResponse;
+}
+
 /**
  * Batched Fleet Data Hook
  *
@@ -40,7 +59,7 @@ export function useFleetDataBatched() {
   const queryClient = useQueryClient()
 
   // Fetch all data in a single batch request
-  const { data: batchData, isLoading, error } = useQuery({
+  const { data: batchData, isLoading, error } = useQuery<FleetBatchData>({
     queryKey: ['fleet-batch-data'],
     queryFn: async () => {
       if (isDemoMode()) {
@@ -65,7 +84,7 @@ export function useFleetDataBatched() {
         { method: 'GET', url: '/api/v1/facilities' },
         { method: 'GET', url: '/api/v1/maintenance-schedules' },
         { method: 'GET', url: '/api/v1/routes' },
-      ])
+      ]) as BatchResponse[];
 
       if (DEBUG_FLEET_DATA) {
         logger.debug('[useFleetDataBatched] Batch results:', {
@@ -89,7 +108,7 @@ export function useFleetDataBatched() {
       }
     },
     staleTime: 5 * 60 * 1000, // 5 minutes
-    cacheTime: 10 * 60 * 1000, // 10 minutes
+    gcTime: 10 * 60 * 1000, // 10 minutes
     refetchOnWindowFocus: false,
     enabled: true,
   })
@@ -141,7 +160,7 @@ export function useFleetDataBatched() {
   }, [batchData?.routes])
 
   // Legacy compatibility - computed values
-  const serviceBays = useMemo(() => facilities, [facilities])
+  const _serviceBays = useMemo(() => facilities, [facilities])
   const staff = useMemo(() =>
     drivers.filter((d: any) => d.role === 'technician' || d.role === 'fleet_manager'),
     [drivers]

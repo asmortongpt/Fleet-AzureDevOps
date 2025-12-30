@@ -12,7 +12,7 @@ import { useState } from 'react'
 
 import { EnhancedUniversalMap } from '../EnhancedUniversalMap'
 import { MapHealthDashboard } from '../MapHealthDashboard'
-import type { MapProvider } from '../UniversalMap'
+import type { MapProvider, MapServiceProvider } from '../UniversalMap'
 import { Alert, AlertTitle, AlertDescription } from '../ui/alert'
 import { Badge } from '../ui/badge'
 import { Button } from '../ui/button'
@@ -31,7 +31,7 @@ const demoVehicles: Vehicle[] = [
     id: '1',
     name: 'Fleet-001',
     status: 'active',
-    location: { lat: 30.4383, lng: -84.2807 },
+    location: { lat: 30.4383, lng: -84.2807, address: '' },
     speed: 45,
     heading: 90,
   },
@@ -39,7 +39,7 @@ const demoVehicles: Vehicle[] = [
     id: '2',
     name: 'Fleet-002',
     status: 'idle',
-    location: { lat: 30.4483, lng: -84.2907 },
+    location: { lat: 30.4483, lng: -84.2907, address: '' },
     speed: 0,
     heading: 0,
   },
@@ -50,7 +50,10 @@ const demoFacilities: GISFacility[] = [
     id: 'f1',
     name: 'Main Depot',
     type: 'depot',
-    location: { lat: 30.4283, lng: -84.2707 },
+    location: { lat: 30.4283, lng: -84.2707, address: '' },
+    address: '',
+    region: '',
+    status: 'active',
   },
 ]
 
@@ -58,7 +61,6 @@ const demoCameras: TrafficCamera[] = [
   {
     id: 'c1',
     name: 'Camera-001',
-    location: { lat: 30.4383, lng: -84.2607 },
     status: 'online',
   },
 ]
@@ -107,7 +109,7 @@ export function MapErrorRecoveryExample() {
     setSelectedProvider(to)
   }
 
-  const handleHealthProviderSelect = (provider: MapProvider) => {
+  const handleHealthProviderSelect = (provider: MapServiceProvider) => {
     addLog(`Health check for ${provider}`, 'info')
   }
 

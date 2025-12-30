@@ -1,14 +1,3 @@
-/**
- * Work Order Form Validation Schema (Zod)
- *
- * 28 fields organized into 3 sections:
- * 1. Work Order Details (12 fields)
- * 2. Parts & Labor (8 fields)
- * 3. Completion & Billing (8 fields)
- *
- * Real-time validation with actionable error messages
- */
-
 import { z } from 'zod'
 
 // ============================================================================
@@ -258,7 +247,7 @@ export const workOrderSchema = workOrderDetailsSchema
   .refine(
     (data) => {
       // Validation: Mileage out must be >= mileage in
-      if (data.mileageIn !== null && data.mileageOut !== null) {
+      if (data.mileageIn != null && data.mileageOut != null) {
         return data.mileageOut >= data.mileageIn
       }
       return true
@@ -271,7 +260,7 @@ export const workOrderSchema = workOrderDetailsSchema
   .refine(
     (data) => {
       // Validation: Actual hours must be reasonable vs estimated
-      if (data.estimatedHours !== null && data.actualHours !== null) {
+      if (data.estimatedHours != null && data.actualHours != null) {
         // Allow up to 3x estimated hours
         return data.actualHours <= data.estimatedHours * 3
       }
@@ -285,9 +274,9 @@ export const workOrderSchema = workOrderDetailsSchema
   .refine(
     (data) => {
       // Validation: Calculate labor cost if hours and rate provided
-      if (data.actualHours && data.laborRate) {
+      if (data.actualHours != null && data.laborRate != null) {
         const calculatedCost = data.actualHours * data.laborRate
-        if (data.laborCost && Math.abs(data.laborCost - calculatedCost) > 1) {
+        if (data.laborCost != null && Math.abs(data.laborCost - calculatedCost) > 1) {
           return false
         }
       }
@@ -329,7 +318,39 @@ export const workOrderSchema = workOrderDetailsSchema
 export type WorkOrderFormData = z.infer<typeof workOrderSchema>
 
 // Partial schema for updates (all fields optional)
-export const workOrderUpdateSchema = workOrderSchema.partial()
+export const workOrderUpdateSchema = z.object({
+  workOrderNumber: workOrderSchema.shape.workOrderNumber.optional(),
+  vehicleId: workOrderSchema.shape.vehicleId.optional(),
+  workType: workOrderSchema.shape.workType.optional(),
+  priority: workOrderSchema.shape.priority.optional(),
+  status: workOrderSchema.shape.status.optional(),
+  description: workOrderSchema.shape.description.optional(),
+  requestedBy: workOrderSchema.shape.requestedBy.optional(),
+  requestDate: workOrderSchema.shape.requestDate.optional(),
+  scheduledDate: workOrderSchema.shape.scheduledDate.optional(),
+  dueDate: workOrderSchema.shape.dueDate.optional(),
+  assignedTo: workOrderSchema.shape.assignedTo.optional(),
+  facility: workOrderSchema.shape.facility.optional(),
+  estimatedHours: workOrderSchema.shape.estimatedHours.optional(),
+  actualHours: workOrderSchema.shape.actualHours.optional(),
+  laborRate: workOrderSchema.shape.laborRate.optional(),
+  laborCost: workOrderSchema.shape.laborCost.optional(),
+  partsCost: workOrderSchema.shape.partsCost.optional(),
+  partsUsed: workOrderSchema.shape.partsUsed.optional(),
+  additionalCharges: workOrderSchema.shape.additionalCharges.optional(),
+  additionalChargesDescription: workOrderSchema.shape.additionalChargesDescription.optional(),
+  startDate: workOrderSchema.shape.startDate.optional(),
+  completionDate: workOrderSchema.shape.completionDate.optional(),
+  completionNotes: workOrderSchema.shape.completionNotes.optional(),
+  totalCost: workOrderSchema.shape.totalCost.optional(),
+  invoiceNumber: workOrderSchema.shape.invoiceNumber.optional(),
+  invoiceDate: workOrderSchema.shape.invoiceDate.optional(),
+  paymentStatus: workOrderSchema.shape.paymentStatus.optional(),
+  warranty: workOrderSchema.shape.warranty.optional(),
+  warrantyExpirationDate: workOrderSchema.shape.warrantyExpirationDate.optional(),
+  mileageIn: workOrderSchema.shape.mileageIn.optional(),
+  mileageOut: workOrderSchema.shape.mileageOut.optional(),
+})
 
 // Export schemas for each section
 export const workOrderSectionSchemas = {

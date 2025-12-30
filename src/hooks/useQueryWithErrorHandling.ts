@@ -93,7 +93,7 @@ function reportError(error: unknown, context: Record<string, any> = {}) {
   logger.error('Query Error:', error, context);
 
   // Report to Sentry/LogRocket if available
-  if (typeof window !== 'undefined' && (window as any).Sentry) {
+  if (typeof window !== 'undefined' && (window as any)?.Sentry) {
     (window as any).Sentry.captureException(error, {
       contexts: {
         query: context,
@@ -215,8 +215,8 @@ export function useQueryWithErrorHandling<TData = unknown, TError = unknown>(
   return query;
 }
 
-export interface UseMutationWithErrorHandlingOptions<TData, TError, TVariables>
-  extends Omit<UseMutationOptions<TData, TError, TVariables>, 'mutationFn'> {
+export interface UseMutationWithErrorHandlingOptions<TData, TError, TVariables, TContext = unknown>
+  extends Omit<UseMutationOptions<TData, TError, TVariables, TContext>, 'mutationFn'> {
   /**
    * Custom error message to display
    */
@@ -249,7 +249,7 @@ export function useMutationWithErrorHandling<
   TContext = unknown
 >(
   mutationFn: (variables: TVariables) => Promise<TData>,
-  options: UseMutationWithErrorHandlingOptions<TData, TError, TVariables> = {}
+  options: UseMutationWithErrorHandlingOptions<TData, TError, TVariables, TContext> = {}
 ): UseMutationResult<TData, TError, TVariables, TContext> {
   const {
     errorMessage,

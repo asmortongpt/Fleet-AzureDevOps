@@ -65,16 +65,16 @@ const assetCategories: { value: AssetCategory; label: string; icon: typeof Truck
   { value: 'HEAVY_EQUIPMENT', label: 'Heavy Equipment', icon: Engine },
   { value: 'TRAILER', label: 'Trailer', icon: Truck },
   { value: 'TRACTOR', label: 'Tractor', icon: Engine },
-  { value: 'SPECIALTY', label: 'Specialty Equipment', icon: Wrench },
+  { value: 'SPECIALTY_EQUIPMENT', label: 'Specialty Equipment', icon: Wrench },
   { value: 'NON_POWERED', label: 'Non-Powered Asset', icon: Truck }
 ]
 
 const powerTypes: { value: PowerType; label: string }[] = [
   { value: 'SELF_POWERED', label: 'Self-Powered' },
   { value: 'TOWED', label: 'Towed' },
-  { value: 'CARRIED', label: 'Carried' },
+  { value: 'CARRIED_ASSET', label: 'Carried' },
   { value: 'STATIONARY', label: 'Stationary' },
-  { value: 'MANUAL', label: 'Manual' }
+  { value: 'MANUAL_POWERED', label: 'Manual' }
 ]
 
 const operationalStatuses: { value: OperationalStatus; label: string; color: string }[] = [
@@ -82,16 +82,16 @@ const operationalStatuses: { value: OperationalStatus; label: string; color: str
   { value: 'IN_USE', label: 'In Use', color: 'text-blue-600' },
   { value: 'MAINTENANCE', label: 'Maintenance', color: 'text-orange-600' },
   { value: 'RESERVED', label: 'Reserved', color: 'text-purple-600' },
-  { value: 'OUT_OF_SERVICE', label: 'Out of Service', color: 'text-red-600' }
+  { value: 'OUT_OF_SERVICE_STATUS', label: 'Out of Service', color: 'text-red-600' }
 ]
 
 const primaryMetrics: { value: PrimaryMetric; label: string }[] = [
-  { value: 'ODOMETER', label: 'Odometer (Miles)' },
-  { value: 'ENGINE_HOURS', label: 'Engine Hours' },
-  { value: 'PTO_HOURS', label: 'PTO Hours' },
-  { value: 'AUX_HOURS', label: 'Auxiliary Hours' },
-  { value: 'CYCLES', label: 'Cycle Count' },
-  { value: 'CALENDAR', label: 'Calendar-Based' }
+  { value: 'odometer', label: 'Odometer (Miles)' },
+  { value: 'engine_hours', label: 'Engine Hours' },
+  { value: 'pto_hours', label: 'PTO Hours' },
+  { value: 'aux_hours', label: 'Auxiliary Hours' },
+  { value: 'cycles', label: 'Cycle Count' },
+  { value: 'calendar', label: 'Calendar-Based' }
 ]
 
 export const AssetTypeFilter: React.FC<AssetTypeFilterProps> = ({

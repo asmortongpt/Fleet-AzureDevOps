@@ -18,6 +18,13 @@ import { getMarkerOptimizationSuggestions } from "@/utils/performance"
 
 const DEFAULT_CLUSTER_THRESHOLD = 100
 
+interface OptimizationSuggestion {
+  priority: "high" | "medium" | "low";
+  message: string;
+  impact: string;
+  effort: string;
+}
+
 /**
  * UniversalMap - Robust dual map provider system with error handling
  *
@@ -124,7 +131,7 @@ export function UniversalMap(props: UniversalMapProps) {
     onMapReady?.(provider)
 
     if (import.meta.env.DEV && totalMarkerCount > 0) {
-      const suggestions = getMarkerOptimizationSuggestions(totalMarkerCount)
+      const suggestions = getMarkerOptimizationSuggestions(totalMarkerCount) as OptimizationSuggestion[]
       if (suggestions.length > 0) {
         logger.debug("\n🚀 Performance Optimization Suggestions:")
         suggestions.forEach((s) => {
@@ -144,7 +151,7 @@ export function UniversalMap(props: UniversalMapProps) {
       mountedRef.current = false
       perf.recordMetric("componentLifetime", Date.now() - initStart)
     }
-  }, [])
+  }, [perf])
 
   useEffect(() => {
     setLoadingState("loading")

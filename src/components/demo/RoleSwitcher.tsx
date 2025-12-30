@@ -164,7 +164,7 @@ const ROLES: RoleConfig[] = [
 export const RoleSwitcher: React.FC = () => {
   const { isDemoMode, currentRole, switchRole } = useDemoMode();
   const [isOpen, setIsOpen] = useState(false);
-  const [selectedRole, setSelectedRole] = useState<UserRole>('fleet_manager');
+  const [_selectedRole, _setSelectedRole] = useState<UserRole>('fleet_manager');
 
   const currentRoleConfig = ROLES.find(r => r.id === currentRole) || ROLES[0];
 
@@ -327,8 +327,12 @@ const RoleCard: React.FC<{
           className="user-avatar"
           onError={(e) => {
             // Fallback to emoji if image fails
-            e.currentTarget.style.display = 'none';
-            e.currentTarget.nextElementSibling!.style.display = 'flex';
+            const target = e.currentTarget as HTMLImageElement;
+            target.style.display = 'none';
+            const nextSibling = target.nextElementSibling as HTMLElement;
+            if (nextSibling) {
+              nextSibling.style.display = 'flex';
+            }
           }}
         />
         <div className="user-avatar-fallback" style={{ display: 'none', backgroundColor: role.color }}>
@@ -395,7 +399,7 @@ export const RoleSwitcherDropdown: React.FC = () => {
           ))}
 
           <div className="dropdown-footer">
-            <a href="/help/demo-mode" target="_blank">
+            <a href="/help/demo-mode" target="_blank" rel="noopener noreferrer">
               Learn about Demo Mode →
             </a>
           </div>

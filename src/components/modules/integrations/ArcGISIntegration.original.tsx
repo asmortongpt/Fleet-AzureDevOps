@@ -79,7 +79,7 @@ export function ArcGISIntegration() {
 
       const layersData = await apiClient.arcgisLayers.list()
       setLayers(
-        layersData.map((layer) => ({
+        layersData.map((layer: ArcGISLayerConfig) => ({
           ...layer,
           health: "unknown" as LayerHealth,
         }))
@@ -413,20 +413,25 @@ export function ArcGISIntegration() {
                       </div>
                     </CardHeader>
                     <CardContent>
-                      <div className="space-y-3">
-                        <div>
-                          <div className="flex items-center justify-between mb-2">
-                            <Label className="text-sm">Opacity</Label>
-                            <span className="text-sm font-medium">{Math.round(layer.opacity * 100)}%</span>
-                          </div>
+                      <div className="space-y-4">
+                        <div className="flex items-center gap-4">
+                          <Label className="w-20">Opacity</Label>
                           <Slider
-                            value={[layer.opacity * 100]}
-                            onValueChange={([value]) => handleOpacityChange(layer.id, value / 100)}
-                            max={100}
-                            step={1}
-                            disabled={!layer.enabled || operation?.loading}
+                            value={[layer.opacity]}
+                            onValueChange={(value) => handleOpacityChange(layer.id, value?.[0] ?? 1)}
+                            min={0}
+                            max={1}
+                            step={0.01}
+                            className="w-48"
                           />
+                          <span className="text-xs text-muted-foreground">{(layer.opacity * 100).toFixed(0)}%</span>
                         </div>
+                        {operation?.error && (
+                          <Alert variant="destructive" className="mt-2">
+                            <Warning className="w-4 h-4" />
+                            <AlertDescription>{operation.error}</AlertDescription>
+                          </Alert>
+                        )}
                       </div>
                     </CardContent>
                   </Card>

@@ -45,6 +45,7 @@ import {
 import { Textarea } from '@/components/ui/textarea'
 import { apiClient } from '@/lib/api-client'
 import { useInspect } from '@/services/inspect/InspectContext'
+import { AxiosResponse } from 'axios'
 
 interface Alert {
   id: string
@@ -70,6 +71,10 @@ interface AlertStats {
   trend_7_days: Array<{ date: string; count: string; critical_count: string }>
 }
 
+interface AlertsResponse {
+  alerts: Alert[]
+}
+
 export function Notifications() {
   const { openInspect } = useInspect()
   const [alerts, setAlerts] = useState<Alert[]>([])
@@ -85,13 +90,13 @@ export function Notifications() {
   const fetchAlerts = async () => {
     try {
       setIsLoading(true)
-      const params: any = { limit: 100 }
+      const params: Record<string, string | number> = { limit: 100 }
       if (selectedStatus !== 'all') params.status = selectedStatus
       if (selectedSeverity !== 'all') params.severity = selectedSeverity
 
-      const response = await apiClient.get('/api/alerts', { params })
+      const response: AxiosResponse<AlertsResponse> = await apiClient.get('/api/alerts', { params })
       setAlerts(response.data?.alerts || [])
-    } catch (error) {
+    } catch (_error) {
       // Silent failure - alerts data will retry on next fetch
     } finally {
       setIsLoading(false)
@@ -100,9 +105,9 @@ export function Notifications() {
 
   const fetchStats = async () => {
     try {
-      const response = await apiClient.get('/api/alerts/stats')
+      const response: AxiosResponse<AlertStats> = await apiClient.get('/api/alerts/stats')
       setStats(response.data)
-    } catch (error) {
+    } catch (_error) {
       // Silent failure - stats data is optional
     }
   }
@@ -117,7 +122,7 @@ export function Notifications() {
       await apiClient.post(`/api/alerts/${alertId}/acknowledge`)
       fetchAlerts()
       fetchStats()
-    } catch (error) {
+    } catch (_error) {
       // Silent failure - user will retry if needed
     }
   }
@@ -134,7 +139,7 @@ export function Notifications() {
       setSelectedAlert(null)
       fetchAlerts()
       fetchStats()
-    } catch (error) {
+    } catch (_error) {
       // Silent failure - user will retry if needed
     }
   }
@@ -416,22 +421,20 @@ export function Notifications() {
           <DialogHeader>
             <DialogTitle>Resolve Alert</DialogTitle>
             <DialogDescription>
-              Add notes about how this alert was resolved
+              Provide details about how this alert was resolved.
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4">
-            {selectedAlert && (
-              <div className="p-3 bg-muted rounded-lg">
-                <h4 className="font-semibold text-sm mb-1">{selectedAlert.title}</h4>
-                <p className="text-sm text-muted-foreground">{selectedAlert.message}</p>
-              </div>
-            )}
             <div>
-              <label className="text-sm font-medium mb-2 block">Resolution Notes</label>
+              <h4 className="font-semibold mb-1">{selectedAlert?.title}</h4>
+              <p className="text-sm text-muted-foreground">{selectedAlert?.message}</p>
+            </div>
+            <div>
+              <label className="block text-sm font-medium mb-1">Resolution Notes</label>
               <Textarea
-                placeholder="Describe how this alert was resolved..."
                 value={resolutionNotes}
                 onChange={(e) => setResolutionNotes(e.target.value)}
+                placeholder="Describe how this issue was resolved..."
                 rows={4}
               />
             </div>
@@ -440,8 +443,7 @@ export function Notifications() {
             <Button variant="outline" onClick={() => setResolveDialogOpen(false)}>
               Cancel
             </Button>
-            <Button onClick={resolveAlert}>
-              <CheckCircle className="w-4 h-4 mr-2" />
+            <Button onClick={resolveAlert} disabled={!resolutionNotes.trim()}>
               Resolve Alert
             </Button>
           </DialogFooter>

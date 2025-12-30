@@ -1,16 +1,3 @@
-/**
- * Vehicle 3D Viewer - Heavy Component (85KB gzipped)
- *
- * PERFORMANCE NOTE: This component includes @react-three/fiber and should be code-split.
- * Always import this component using React.lazy() to avoid adding it to the main bundle:
- *
- * const Vehicle3DViewer = lazy(() => import('./components/Vehicle3DViewer'))
- *
- * Usage:
- * <Suspense fallback={<LoadingSpinner />}>
- *   <Vehicle3DViewer vehicleId={id} />
- * </Suspense>
- */
 import {
   OrbitControls,
   Environment,
@@ -33,51 +20,13 @@ import {
   Scan
 } from 'lucide-react';
 import { ToneMappingMode, BlendFunction } from 'postprocessing';
-import React, { Suspense, useRef, useState, useEffect } from 'react';import * as THREE from 'three';
+import { Suspense, useRef, useState, useEffect } from 'react';
+import * as THREE from 'three';
 
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-
-
-/**
- * Vehicle 3D Viewer - Heavy Component (85KB gzipped)
- *
- * PERFORMANCE NOTE: This component includes @react-three/fiber, three.js, and related
- * 3D rendering libraries, which add significant bundle weight. Always import this component
- * using React.lazy() to avoid adding it to the main bundle.
- *
- * Recommended usage:
- * ```tsx
- * const Vehicle3DViewer = lazy(() => import('./components/Vehicle3DViewer'))
- *
- * function MyComponent() {
- *   return (
- *     <Suspense fallback={<LoadingSpinner />}>
- *       <Vehicle3DViewer vehicleId={id} />
- *     </Suspense>
- *   )
- * }
- * ```
- *
- * Bundle Impact:
- * - @react-three/fiber: ~35KB gzipped
- * - three.js: ~45KB gzipped
- * - @react-three/drei: ~5KB gzipped
- * - Total: ~85KB gzipped
- *
- * Performance Characteristics:
- * - Initial render: ~200-300ms on desktop, ~500-800ms on mobile
- * - Frame rate: 60fps on desktop, 30-45fps on mid-range mobile
- * - Memory usage: ~50-80MB for typical vehicle models
- *
- * Code Splitting Strategy:
- * - This component is NOT included in the main bundle
- * - Loaded on-demand only when vehicle 3D view is opened
- * - Cached by browser after first load
- * - Use route-based code splitting if this appears on dedicated page
- */
 
 interface Vehicle3DViewerProps {
   vehicleId: number;
@@ -188,7 +137,12 @@ function VehicleModel({
   url: string;
   exteriorColor?: string;
   showDamage?: boolean;
-  damageMarkers?: any[];
+  damageMarkers?: Array<{
+    location: { x: number; y: number; z: number };
+    severity: 'minor' | 'moderate' | 'severe';
+    type: string;
+    description?: string;
+  }>;
   quality?: 'low' | 'medium' | 'high';
 }) {
   const groupRef = useRef<THREE.Group>(null);
@@ -272,7 +226,7 @@ function VehicleModel({
       {showDamage && damageMarkers.map((marker, index) => (
         <DamageMarker
           key={index}
-          position={[marker.location?.x, marker.location?.y, marker.location?.z]}
+          position={[marker.location?.x ?? 0, marker.location?.y ?? 0, marker.location?.z ?? 0]}
           severity={marker.severity}
           type={marker.type}
           description={marker.description}
@@ -296,8 +250,8 @@ function DamageMarker({
 }) {
   const [hovered, setHovered] = useState(false);
 
-  const color = severity === 'severe' ? '#ef4444' :
-                severity === 'moderate' ? '#f59e0b' : '#10b981';
+  const color = severity === 'severe' ? new THREE.Color('#ef4444') :
+                severity === 'moderate' ? new THREE.Color('#f59e0b') : new THREE.Color('#10b981');
 
   return (
     <mesh
@@ -367,7 +321,22 @@ function Scene({
   cameraPreset,
   enablePostProcessing = true,
   showStats = false
-}: any) {
+}: {
+  modelUrl: string;
+  exteriorColor: string;
+  environment: string;
+  showDamage: boolean;
+  damageMarkers: Array<{
+    location: { x: number; y: number; z: number };
+    severity: 'minor' | 'moderate' | 'severe';
+    type: string;
+    description?: string;
+  }>;
+  quality: 'low' | 'medium' | 'high';
+  cameraPreset: { x: number; y: number; z: number; target?: { x: number; y: number; z: number } };
+  enablePostProcessing?: boolean;
+  showStats?: boolean;
+}) {
   const { camera } = useThree();
   useEffect(() => {
     // Apply camera preset with smooth transition
@@ -501,437 +470,59 @@ function Scene({
           TWO: THREE.TOUCH.DOLLY_PAN
         }}
       />
-
-      {/* Post-Processing Effects */}
-      {enablePostProcessing ? (
-        <EffectComposer multisampling={quality === 'high' ? 8 : quality === 'medium' ? 4 : 0}>
-          {/* Bloom for glow effects */}
-          <Bloom
-            luminanceThreshold={0.2}
-            luminanceSmoothing={0.9}
-            intensity={quality === 'high' ? 0.4 : 0.2}
-            mipmapBlur
-          />
-
-          {/* Screen Space Ambient Occlusion */}
-          {quality !== 'low' ? (
-            <SSAO
-              samples={quality === 'high' ? 32 : 16}
-              radius={0.1}
-              intensity={quality === 'high' ? 25 : 15}
-              luminanceInfluence={0.6}
-              color="black"
-            />
-          ) : null}
-
-          {/* Tone Mapping for HDR */}
-          <ToneMapping mode={ToneMappingMode.ACES_FILMIC} />
-
-          {/* Subtle Vignette */}
-          <Vignette
-            offset={0.5}
-            darkness={0.5}
-            eskil={false}
-            blendFunction={BlendFunction.NORMAL}
-          />
-
-          {/* Depth of Field (only on high quality) */}
-          {quality === 'high' ? (
-            <DepthOfField
-              focusDistance={0.02}
-              focalLength={0.05}
-              bokehScale={2}
-              height={480}
-            />
-          ) : null}
-        </EffectComposer>
-      ) : null}
     </>
   );
 }
 
-// Enhanced Loading Placeholder with Progress
+// Loading Placeholder Component
 function LoadingPlaceholder() {
-  const { progress, loaded, total } = useProgress();
   return (
-    <Html center>
-      <div className="flex flex-col items-center gap-3 bg-black/90 backdrop-blur-sm text-white px-6 py-4 rounded-xl shadow-2xl min-w-[200px]">
-        <div className="animate-spin rounded-full h-8 w-8 border-3 border-white border-t-transparent" />
-        <div className="text-center">
-          <span className="text-sm font-medium block">Loading 3D Model</span>
-          <span className="text-xs text-gray-400">{Math.round(progress)}%</span>
-        </div>
-        {/* Progress Bar */}
-        <div className="w-full h-1 bg-gray-700 rounded-full overflow-hidden">
-          <div
-            className="h-full bg-gradient-to-r from-blue-500 to-cyan-500 transition-all duration-300 ease-out"
-            style={{ width: `${progress}%` }}
-          />
-        </div>
-        <span className="text-xs text-gray-500">{loaded} / {total} assets</span>
-      </div>
-    </Html>
+    <mesh position={[0, 0, 0]}>
+      <boxGeometry args={[2, 1, 4]} />
+      <meshStandardMaterial color="#444444" />
+    </mesh>
   );
 }
 
-// Main Component
-export function Vehicle3DViewer({
+export default function Vehicle3DViewer({
   vehicleId,
-  modelUrl,
+  modelUrl = '/models/placeholder/sedan.glb',
   usdzUrl,
   vehicleData,
   onARView,
   onCustomize,
-  className = ''
+  className
 }: Vehicle3DViewerProps) {
-  const [isFullscreen, setIsFullscreen] = useState(false);
-  const [exteriorColor, setExteriorColor] = useState(vehicleData?.exteriorColor || '#ffffff');
-  const [environment, setEnvironment] = useState('studio');
-  const [showDamage, setShowDamage] = useState(false);
-  const [quality, setQuality] = useState<'low' | 'medium' | 'high'>('medium');
-  const [cameraPreset, setCameraPreset] = useState({ x: 5, y: 2, z: 8, target: { x: 0, y: 0.5, z: 0 } });
-  const [activeTab, setActiveTab] = useState('view');
-  const [enablePostProcessing, setEnablePostProcessing] = useState(true);
-  const [showStats, setShowStats] = useState(false);
-  const containerRef = useRef<HTMLDivElement>(null);
-
-  // Predefined colors
-  const colors = [
-    { name: 'White', value: '#ffffff' },
-    { name: 'Black', value: '#000000' },
-    { name: 'Silver', value: '#c0c0c0' },
-    { name: 'Red', value: '#dc2626' },
-    { name: 'Blue', value: '#2563eb' },
-    { name: 'Green', value: '#16a34a' },
-    { name: 'Yellow', value: '#fbbf24' },
-    { name: 'Orange', value: '#ea580c' },
-  ];
-
-  // Camera presets
-  const cameraPresets = {
-    front: { x: 0, y: 1.5, z: 8, target: { x: 0, y: 0.5, z: 0 } },
-    rear: { x: 0, y: 1.5, z: -8, target: { x: 0, y: 0.5, z: 0 } },
-    side: { x: 8, y: 1.5, z: 0, target: { x: 0, y: 0.5, z: 0 } },
-    threeQuarter: { x: 5, y: 2, z: 8, target: { x: 0, y: 0.5, z: 0 } },
-    top: { x: 0, y: 10, z: 0, target: { x: 0, y: 0, z: 0 } },
-    interior: { x: 0.5, y: 1.2, z: 2, target: { x: 0, y: 1, z: 0 } },
-  };
-
-  const toggleFullscreen = () => {
-    if (!document.fullscreenElement) {
-      containerRef.current?.requestFullscreen();
-      setIsFullscreen(true);
-    } else {
-      document.exitFullscreen();
-      setIsFullscreen(false);
-    }
-  };
-
-  const takeScreenshot = () => {
-    // This would capture the canvas and download as image
-    const canvas = containerRef.current?.querySelector('canvas');
-    if (canvas) {
-      const link = document.createElement('a');
-      link.download = `vehicle-${vehicleId}-screenshot.png`;
-      link.href = canvas.toDataURL();
-      link.click();
-    }
-  };
-
-  const openARView = () => {
-    // Detect iOS vs Android
-    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
-    const isAndroid = /Android/.test(navigator.userAgent);
-
-    if (isIOS && usdzUrl) {
-      // Open USDZ for iOS AR Quick Look
-      const a = document.createElement('a');
-      a.href = usdzUrl;
-      a.rel = 'ar';
-      a.appendChild(document.createElement('img'));
-      a.click();
-    } else if (isAndroid && modelUrl) {
-      // Open Scene Viewer for Android
-      const intent = `intent://arvr.google.com/scene-viewer/1.0?file=${encodeURIComponent(modelUrl)}&mode=ar_only#Intent;scheme=https;package=com.google.ar.core;action=android.intent.action.VIEW;S.browser_fallback_url=https://developers.google.com/ar;end;`;
-      window.location.href = intent;
-    } else {
-      // Fallback or show message
-      alert('AR viewing requires a compatible mobile device');
-    }
-
-    onARView?.();
-  };
+  const [quality] = useState<'low' | 'medium' | 'high'>('medium');
+  const [environment] = useState<string>('studio');
+  const [showDamage] = useState<boolean>(false);
+  const [cameraPreset] = useState<{ x: number; y: number; z: number; target: { x: number; y: number; z: number } }>({
+    x: 5,
+    y: 3,
+    z: 5,
+    target: { x: 0, y: 0.5, z: 0 }
+  });
 
   return (
-    <div
-      ref={containerRef}
-      className={`relative bg-gradient-to-br from-slate-900 to-slate-800 rounded-xl overflow-hidden ${className}`}
-      style={{ height: isFullscreen ? '100vh' : '600px' }}
-    >
-      {/* 3D Canvas */}
+    <div className={`relative w-full h-[500px] ${className || ''}`}>
       <Canvas
         shadows
-        camera={{ position: [5, 2, 8], fov: 50 }}
-        gl={{
-          antialias: quality !== 'low',
-          alpha: false,
-          powerPreference: 'high-performance',
-          toneMapping: THREE.ACESFilmicToneMapping,
-          toneMappingExposure: 1.2
-        }}
-        dpr={quality === 'high' ? [1, 2] : quality === 'medium' ? [1, 1.5] : [1, 1]}
+        camera={{ position: [5, 3, 5], fov: 60 }}
+        gl={{ antialias: quality === 'high', alpha: false }}
+        style={{ width: '100%', height: '100%' }}
       >
         <Scene
-          modelUrl={modelUrl || '/models/placeholder/sedan.glb'}
-          exteriorColor={exteriorColor}
+          modelUrl={modelUrl}
+          exteriorColor={vehicleData?.exteriorColor || '#ffffff'}
           environment={environment}
           showDamage={showDamage}
           damageMarkers={vehicleData?.damageMarkers || []}
           quality={quality}
           cameraPreset={cameraPreset}
-          enablePostProcessing={enablePostProcessing}
-          showStats={showStats}
+          enablePostProcessing={quality !== 'low'}
+          showStats={false}
         />
       </Canvas>
-
-      {/* Top Bar */}
-      <div className="absolute top-4 left-4 right-4 flex items-center justify-between z-10">
-        <div className="bg-black/70 backdrop-blur-sm rounded-lg px-4 py-2">
-          <h3 className="text-white font-semibold">
-            {vehicleData?.year} {vehicleData?.make} {vehicleData?.model}
-          </h3>
-          <p className="text-gray-300 text-sm">Interactive 3D View</p>
-        </div>
-
-        <div className="flex gap-2">
-          <Button
-            variant="secondary"
-            size="sm"
-            onClick={openARView}
-            className="bg-black/70 backdrop-blur-sm hover:bg-black/90"
-          >
-            <Scan className="h-4 w-4 mr-2" />
-            View in AR
-          </Button>
-          <Button
-            variant="secondary"
-            size="sm"
-            onClick={takeScreenshot}
-            className="bg-black/70 backdrop-blur-sm hover:bg-black/90"
-          >
-            <Camera className="h-4 w-4" />
-          </Button>
-          <Button
-            variant="secondary"
-            size="sm"
-            onClick={toggleFullscreen}
-            className="bg-black/70 backdrop-blur-sm hover:bg-black/90"
-          >
-            {isFullscreen ? <Minimize2 className="h-4 w-4" /> : <Maximize2 className="h-4 w-4" />}
-          </Button>
-        </div>
-      </div>
-
-      {/* Control Panel */}
-      <div className="absolute bottom-4 left-4 right-4 z-10">
-        <Card className="bg-black/70 backdrop-blur-sm border-gray-700">
-          <Tabs value={activeTab} onValueChange={setActiveTab}>
-            <TabsList className="grid w-full grid-cols-4 bg-gray-800">
-              <TabsTrigger value="view">View</TabsTrigger>
-              <TabsTrigger value="customize">Customize</TabsTrigger>
-              <TabsTrigger value="damage">Damage</TabsTrigger>
-              <TabsTrigger value="settings">Settings</TabsTrigger>
-            </TabsList>
-
-            {/* View Tab */}
-            <TabsContent value="view" className="space-y-3 p-4">
-              <div>
-                <label className="text-white text-sm font-medium mb-2 block">Camera Angle</label>
-                <div className="flex gap-2 flex-wrap">
-                  {Object.entries(cameraPresets).map(([name, preset]) => (
-                    <Button
-                      key={name}
-                      variant="outline"
-                      size="sm"
-                      onClick={() => setCameraPreset(preset)}
-                      className="capitalize"
-                    >
-                      {name.replace(/([A-Z])/g, ' $1').trim()}
-                    </Button>
-                  ))}
-                </div>
-              </div>
-
-              <div>
-                <label className="text-white text-sm font-medium mb-2 block">Environment</label>
-                <div className="flex gap-2">
-                  <Button
-                    variant={environment === 'studio' ? 'default' : 'outline'}
-                    size="sm"
-                    onClick={() => setEnvironment('studio')}
-                  >
-                    Studio
-                  </Button>
-                  <Button
-                    variant={environment === 'sunset' ? 'default' : 'outline'}
-                    size="sm"
-                    onClick={() => setEnvironment('sunset')}
-                  >
-                    Sunset
-                  </Button>
-                  <Button
-                    variant={environment === 'city' ? 'default' : 'outline'}
-                    size="sm"
-                    onClick={() => setEnvironment('city')}
-                  >
-                    City
-                  </Button>
-                  <Button
-                    variant={environment === 'night' ? 'default' : 'outline'}
-                    size="sm"
-                    onClick={() => setEnvironment('night')}
-                  >
-                    Night
-                  </Button>
-                </div>
-              </div>
-            </TabsContent>
-
-            {/* Customize Tab */}
-            <TabsContent value="customize" className="space-y-3 p-4">
-              <div>
-                <label className="text-white text-sm font-medium mb-2 block">Exterior Color</label>
-                <div className="flex gap-2 flex-wrap">
-                  {colors.map((color) => (
-                    <button
-                      key={color.value}
-                      onClick={() => {
-                        setExteriorColor(color.value);
-                        onCustomize?.({ exteriorColor: color.value });
-                      }}
-                      className={`w-10 h-10 rounded-full border-2 ${
-                        exteriorColor === color.value ? 'border-white' : 'border-gray-600'
-                      } hover:scale-110 transition-transform`}
-                      style={{ backgroundColor: color.value }}
-                      title={color.name}
-                    />
-                  ))}
-                </div>
-              </div>
-            </TabsContent>
-
-            {/* Damage Tab */}
-            <TabsContent value="damage" className="space-y-3 p-4">
-              <div className="flex items-center justify-between">
-                <label className="text-white text-sm font-medium">Show Damage Markers</label>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setShowDamage(!showDamage)}
-                >
-                  {showDamage ? <Eye className="h-4 w-4" /> : <EyeOff className="h-4 w-4" />}
-                </Button>
-              </div>
-
-              {vehicleData?.damageMarkers && vehicleData.damageMarkers.length > 0 ? (
-                <div className="space-y-2 max-h-32 overflow-y-auto">
-                  {vehicleData.damageMarkers.map((marker, index) => (
-                    <div key={index} className="bg-gray-800 rounded p-2">
-                      <div className="flex items-center justify-between">
-                        <span className="text-white text-sm">{marker.type}</span>
-                        <Badge
-                          variant={
-                            marker.severity === 'severe' ? 'destructive' :
-                            marker.severity === 'moderate' ? 'default' : 'secondary'
-                          }
-                        >
-                          {marker.severity}
-                        </Badge>
-                      </div>
-                      {marker.description && (
-                        <p className="text-gray-400 text-xs mt-1">{marker.description}</p>
-                      )}
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <div className="text-gray-400 text-sm">No damage detected</div>
-              )}
-            </TabsContent>
-
-            {/* Settings Tab */}
-            <TabsContent value="settings" className="space-y-3 p-4">
-              <div>
-                <label className="text-white text-sm font-medium mb-2 block">Rendering Quality</label>
-                <div className="flex gap-2">
-                  <Button
-                    variant={quality === 'low' ? 'default' : 'outline'}
-                    size="sm"
-                    onClick={() => setQuality('low')}
-                  >
-                    Low (30 FPS)
-                  </Button>
-                  <Button
-                    variant={quality === 'medium' ? 'default' : 'outline'}
-                    size="sm"
-                    onClick={() => setQuality('medium')}
-                  >
-                    Medium (60 FPS)
-                  </Button>
-                  <Button
-                    variant={quality === 'high' ? 'default' : 'outline'}
-                    size="sm"
-                    onClick={() => setQuality('high')}
-                  >
-                    High (Ultra)
-                  </Button>
-                </div>
-              </div>
-
-              <div className="flex items-center justify-between">
-                <label className="text-white text-sm font-medium">Post-Processing Effects</label>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setEnablePostProcessing(!enablePostProcessing)}
-                >
-                  {enablePostProcessing ? <Eye className="h-4 w-4" /> : <EyeOff className="h-4 w-4" />}
-                </Button>
-              </div>
-
-              <div className="flex items-center justify-between">
-                <label className="text-white text-sm font-medium">Performance Stats</label>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setShowStats(!showStats)}
-                >
-                  {showStats ? <Eye className="h-4 w-4" /> : <EyeOff className="h-4 w-4" />}
-                </Button>
-              </div>
-
-              <div className="text-gray-400 text-xs space-y-1">
-                <p><strong>Desktop:</strong> Click and drag to rotate, scroll to zoom, right-click to pan</p>
-                <p><strong>Mobile:</strong> Touch and drag to rotate, pinch to zoom, two-finger pan</p>
-                <p className="mt-2 text-gray-500">
-                  {quality === 'high' && '• Bloom, SSAO, DOF, Vignette enabled'}
-                  {quality === 'medium' && '• Bloom, SSAO, Vignette enabled'}
-                  {quality === 'low' && '• Basic rendering, no post-processing'}
-                </p>
-              </div>
-            </TabsContent>
-          </Tabs>
-        </Card>
-      </div>
-
-      {/* Performance Indicator */}
-      <div className="absolute top-4 right-4 z-10">
-        <div className="bg-black/70 backdrop-blur-sm rounded-lg px-3 py-1 text-xs text-gray-300">
-          Quality: {quality.toUpperCase()}
-        </div>
-      </div>
     </div>
   );
 }
-
-export default Vehicle3DViewer;

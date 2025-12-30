@@ -67,7 +67,7 @@ export const userDetailsSchema = z.object({
     .nullable(),
 })
   .refine(
-    (data) => {
+    (data: { password?: string | null; confirmPassword?: string | null }) => {
       // Password confirmation must match
       if (data.password && data.confirmPassword) {
         return data.password === data.confirmPassword
@@ -146,10 +146,9 @@ export const userPermissionsSchema = z.object({
 // COMBINED USER SCHEMA (ALL 15 FIELDS + PERMISSIONS)
 // ============================================================================
 
-export const userSchema = userDetailsSchema
-  .merge(userPermissionsSchema)
+export const userSchema = z.intersection(userDetailsSchema, userPermissionsSchema)
   .refine(
-    (data) => {
+    (data: { role: string; canManageUsers: boolean; canManageSettings: boolean }) => {
       // Validation: Super admin and admin must have management permissions
       if (data.role === 'super-admin' || data.role === 'admin') {
         return data.canManageUsers && data.canManageSettings
@@ -162,7 +161,14 @@ export const userSchema = userDetailsSchema
     }
   )
   .refine(
-    (data) => {
+    (data: { 
+      canDeleteVehicles: boolean; 
+      canEditVehicles: boolean; 
+      canDeleteDrivers: boolean; 
+      canEditDrivers: boolean; 
+      canDeleteWorkOrders: boolean; 
+      canEditWorkOrders: boolean 
+    }) => {
       // Validation: Cannot delete without edit permission
       if (data.canDeleteVehicles && !data.canEditVehicles) {
         return false
@@ -181,7 +187,7 @@ export const userSchema = userDetailsSchema
     }
   )
   .refine(
-    (data) => {
+    (data: { expirationDate?: Date | null }) => {
       // Validation: Expiration date must be in the future
       if (data.expirationDate) {
         return new Date(data.expirationDate) > new Date()
@@ -355,7 +361,7 @@ export function getDefaultPermissionsForRole(role: keyof typeof rolePermissions)
 
 // Helper function to check if user has permission
 export function hasPermission(user: Partial<UserFormData>, permission: string): boolean {
-  return (user as any)[permission] === true
+  return (user as Record<string, unknown>)[permission] === true
 }
 
 // Helper function to check if password meets requirements

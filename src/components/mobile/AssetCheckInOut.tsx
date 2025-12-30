@@ -21,17 +21,17 @@ const AssetCheckInOut: React.FC<AssetCheckInOutProps> = ({ tenantId, onCheckInOu
   const [hasLocationPermission, setHasLocationPermission] = useState<boolean | null>(null);
   const [camera, setCamera] = useState<Camera | null>(null);
   const [image, setImage] = useState<string | null>(null);
-  const [location, setLocation] = useState<Location.LocationObject | null>(null);
+  const [_location, setLocation] = useState<Location.LocationObject | null>(null);
   const [conditionRating, setConditionRating] = useState<string>('3');
-  const [signature, setSignature] = useState<string | null>(null);
-  const [isCheckingIn, setIsCheckingIn] = useState<boolean>(false);
+  const [_signature, setSignature] = useState<string | null>(null);
+  const [_isCheckingIn, setIsCheckingIn] = useState<boolean>(false);
 
   useEffect(() => {
     (async () => {
-      const cameraStatus = await Camera.requestPermissionsAsync();
+      const cameraStatus = await Camera.requestCameraPermissionsAsync();
       setHasCameraPermission(cameraStatus.status === 'granted');
 
-      const locationStatus = await Location.requestPermissionsAsync();
+      const locationStatus = await Location.requestForegroundPermissionsAsync();
       setHasLocationPermission(locationStatus.status === 'granted');
     })();
   }, []);
@@ -40,24 +40,24 @@ const AssetCheckInOut: React.FC<AssetCheckInOutProps> = ({ tenantId, onCheckInOu
     if (camera) {
       const options = { quality: 0.5, base64: true };
       const data = await camera.takePictureAsync(options);
-      const compressedImage = await compressToWebP(data.uri);
+      const compressedImage = await compressToWebP(data?.uri);
       setImage(compressedImage);
     }
   };
 
   const handleCheckInOut = async () => {
     try {
-      if (!image || !location || !conditionRatingSchema.safeParse(conditionRating).success) {
+      if (!image || !_location || !conditionRatingSchema.safeParse(conditionRating).success) {
         throw new Error('Missing or invalid input');
       }
 
       const photoUrl = await uploadPhoto(image, tenantId);
-      const gpsCoords = { lat: location.coords.latitude, lng: location.coords.longitude };
+      const gpsCoords = { lat: _location.coords?.latitude ?? 0, lng: _location.coords?.longitude ?? 0 };
 
-      if (isCheckingIn) {
-        await checkInAsset({ photoUrl, gpsCoords, conditionRating, signature, tenantId });
+      if (_isCheckingIn) {
+        await checkInAsset({ photoUrl, gpsCoords, conditionRating, signature: _signature, tenantId });
       } else {
-        await checkOutAsset({ photoUrl, gpsCoords, conditionRating, signature, tenantId });
+        await checkOutAsset({ photoUrl, gpsCoords, conditionRating, signature: _signature, tenantId });
       }
 
       onCheckInOutSuccess();
@@ -76,7 +76,7 @@ const AssetCheckInOut: React.FC<AssetCheckInOutProps> = ({ tenantId, onCheckInOu
 
   return (
     <View style={styles.container}>
-      <Camera style={styles.camera} ref={(ref) => setCamera(ref)} />
+      <Camera style={styles.camera} ref={(ref: Camera | null) => setCamera(ref)} />
       <Button title="Take Picture" onPress={handleTakePicture} />
       {image && <Image source={{ uri: image }} style={styles.preview} />}
       <TextInput
@@ -86,7 +86,7 @@ const AssetCheckInOut: React.FC<AssetCheckInOutProps> = ({ tenantId, onCheckInOu
         onChangeText={setConditionRating}
       />
       <TouchableOpacity style={styles.button} onPress={handleCheckInOut}>
-        <Text>{isCheckingIn ? 'Check In' : 'Check Out'}</Text>
+        <Text>{_isCheckingIn ? 'Check In' : 'Check Out'}</Text>
       </TouchableOpacity>
     </View>
   );

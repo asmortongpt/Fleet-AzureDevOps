@@ -5,11 +5,7 @@
 
 import { zodResolver } from '@hookform/resolvers/zod'
 import { format } from 'date-fns'
-import AlertCircleIcon from 'lucide-react/dist/esm/icons/alert-circle'
-import CalendarIcon from 'lucide-react/dist/esm/icons/calendar'
-import CheckCircleIcon from 'lucide-react/dist/esm/icons/check-circle'
-import ClockIcon from 'lucide-react/dist/esm/icons/clock'
-import WrenchIcon from 'lucide-react/dist/esm/icons/wrench'
+import { AlertCircle, Calendar, CheckCircle, Clock, Wrench } from 'lucide-react'
 import { useState, useEffect } from 'react'
 import { useForm } from 'react-hook-form'
 import * as z from 'zod'
@@ -17,7 +13,7 @@ import * as z from 'zod'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import { Calendar } from '@/components/ui/calendar'
+import { Calendar as CalendarComponent } from '@/components/ui/calendar'
 import {
   Dialog,
   DialogContent,
@@ -49,7 +45,8 @@ import { Textarea } from '@/components/ui/textarea'
 import { Vehicle, Technician } from '@/lib/types'
 import { cn } from '@/lib/utils'
 import { MaintenanceAppointment, CreateMaintenanceRequest, AppointmentType, ServiceBay } from '@/types/scheduling'
-import logger from '@/utils/logger';
+import logger from '@/utils/logger'
+
 const appointmentSchema = z.object({
   vehicleId: z.string().min(1, 'Vehicle is required'),
   appointmentTypeId: z.string().min(1, 'Appointment type is required'),
@@ -65,7 +62,7 @@ const appointmentSchema = z.object({
 }).refine((data) => {
   // Validate that end time doesn't exceed business hours
   const [hour, min] = data.startTime.split(':').map(Number)
-  const endMinutes = hour * 60 + min + data.duration
+  const endMinutes = (hour ?? 0) * 60 + (min ?? 0) + data.duration
   return endMinutes <= 19 * 60 // 7 PM
 }, {
   message: 'Appointment extends beyond business hours (7 PM)',
@@ -122,14 +119,14 @@ export function MaintenanceAppointmentModal({
   appointmentTypes = [],
   serviceBays = [],
   technicians = [],
-  isLoading = false,
+  _isLoading = false,
   onCheckAvailability,
 }: MaintenanceAppointmentModalProps) {
   const [checking, setChecking] = useState(false)
   const [conflicts, setConflicts] = useState<any[]>([])
   const [submitting, setSubmitting] = useState(false)
-  const [availableBays, setAvailableBays] = useState<ServiceBay[]>(serviceBays)
-  const [availableTechs, setAvailableTechs] = useState<Technician[]>(technicians)
+  const [_availableBays, _setAvailableBays] = useState<ServiceBay[]>(serviceBays)
+  const [_availableTechs, _setAvailableTechs] = useState<Technician[]>(technicians)
 
   const isEditing = !!appointment
 
@@ -161,7 +158,7 @@ export function MaintenanceAppointmentModal({
   useEffect(() => {
     const selectedType = appointmentTypes.find((t) => t.id === watchAppointmentType)
     if (selectedType && !isEditing) {
-      form.setValue('duration', selectedType.estimated_duration)
+      form.setValue('duration', selectedType.estimated_duration ?? 60)
     }
   }, [watchAppointmentType, appointmentTypes, form, isEditing])
 
@@ -183,10 +180,10 @@ export function MaintenanceAppointmentModal({
         const [hour, min] = watchStartTime.split(':').map(Number)
 
         const startDateTime = new Date(watchDate)
-        startDateTime.setHours(hour, min, 0, 0)
+        startDateTime.setHours(hour ?? 0, min ?? 0, 0, 0)
 
         const endDateTime = new Date(startDateTime)
-        endDateTime.setMinutes(endDateTime.getMinutes() + watchDuration)
+        endDateTime.setMinutes(endDateTime.getMinutes() + (watchDuration ?? 0))
 
         const result = await onCheckAvailability({
           serviceBayId: watchServiceBay || undefined,
@@ -218,10 +215,10 @@ export function MaintenanceAppointmentModal({
       const [hour, min] = values.startTime.split(':').map(Number)
 
       const startDateTime = new Date(values.date)
-      startDateTime.setHours(hour, min, 0, 0)
+      startDateTime.setHours(hour ?? 0, min ?? 0, 0, 0)
 
       const endDateTime = new Date(startDateTime)
-      endDateTime.setMinutes(endDateTime.getMinutes() + values.duration)
+      endDateTime.setMinutes(endDateTime.getMinutes() + (values.duration ?? 0))
 
       const requestData: CreateMaintenanceRequest = {
         vehicleId: values.vehicleId,
@@ -253,7 +250,7 @@ export function MaintenanceAppointmentModal({
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
-            <WrenchIcon className="h-5 w-5" />
+            <Wrench className="h-5 w-5" />
             {isEditing ? 'Edit Maintenance Appointment' : 'New Maintenance Appointment'}
           </DialogTitle>
           <DialogDescription>
@@ -384,23 +381,23 @@ export function MaintenanceAppointmentModal({
                             ) : (
                               <span>Pick a date</span>
                             )}
-                            <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                            <Calendar className="ml-auto h-4 w-4 opacity-50" />
                           </Button>
                         </FormControl>
                       </PopoverTrigger>
                       <PopoverContent className="w-auto p-0" align="start">
-                        <Calendar
+                        <CalendarComponent
                           mode="single"
                           selected={field.value}
                           onSelect={field.onChange}
                           disabled={(date) => {
                             const day = date.getDay()
-                            return date < new Date(new Date().setHours(0, 0, 0, 0)) || day === 0 || day === 6
+                            return date < new Date(new Date().setHours(0, 0, 0, 0))
                           }}
+                          initialFocus
                         />
                       </PopoverContent>
                     </Popover>
-                    <FormDescription>Weekdays only</FormDescription>
                     <FormMessage />
                   </FormItem>
                 )}
@@ -410,18 +407,18 @@ export function MaintenanceAppointmentModal({
                 control={form.control}
                 name="startTime"
                 render={({ field }) => (
-                  <FormItem>
+                  <FormItem className="flex flex-col col-span-1">
                     <FormLabel>Start Time *</FormLabel>
                     <Select onValueChange={field.onChange} defaultValue={field.value}>
                       <FormControl>
                         <SelectTrigger>
-                          <SelectValue placeholder="Select" />
+                          <SelectValue placeholder="Select time" />
                         </SelectTrigger>
                       </FormControl>
-                      <SelectContent className="max-h-60">
-                        {TIME_SLOTS.map((time) => (
-                          <SelectItem key={time} value={time}>
-                            {format(new Date(`2000-01-01T${time}`), 'h:mm a')}
+                      <SelectContent>
+                        {TIME_SLOTS.map((slot) => (
+                          <SelectItem key={slot} value={slot}>
+                            {slot}
                           </SelectItem>
                         ))}
                       </SelectContent>
@@ -430,141 +427,119 @@ export function MaintenanceAppointmentModal({
                   </FormItem>
                 )}
               />
+
+              <FormField
+                control={form.control}
+                name="duration"
+                render={({ field }) => (
+                  <FormItem className="flex flex-col col-span-1">
+                    <FormLabel>Duration (min) *</FormLabel>
+                    <FormControl>
+                      <Input
+                        type="number"
+                        step="15"
+                        min="15"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
             </div>
 
-            {/* Duration */}
-            <FormField
-              control={form.control}
-              name="duration"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Duration (minutes) *</FormLabel>
-                  <FormControl>
-                    <Input
-                      type="number"
-                      min="15"
-                      step="15"
-                      placeholder="60"
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormDescription>
-                    Estimated duration in 15-minute increments
-                  </FormDescription>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            {/* Service Bay Selection */}
-            <FormField
-              control={form.control}
-              name="serviceBayId"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Service Bay</FormLabel>
-                  <Select onValueChange={field.onChange} defaultValue={field.value}>
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select a service bay (optional)" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      {serviceBays
-                        .filter((bay) => bay.isActive)
-                        .map((bay) => (
+            {/* Service Bay and Technician */}
+            <div className="grid grid-cols-2 gap-4">
+              <FormField
+                control={form.control}
+                name="serviceBayId"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Service Bay</FormLabel>
+                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select bay" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {serviceBays.map((bay) => (
                           <SelectItem key={bay.id} value={bay.id}>
-                            {bay.bayName} ({bay.bayNumber})
-                            {bay.bayType && ` - ${bay.bayType}`}
+                            <div className="flex items-center justify-between w-full">
+                              <span>
+                                {bay.bay_name} #{bay.bay_number}
+                              </span>
+                              <Badge variant={bay.is_active ? 'default' : 'destructive'}>
+                                {bay.is_active ? 'Active' : 'Inactive'}
+                              </Badge>
+                            </div>
                           </SelectItem>
                         ))}
-                    </SelectContent>
-                  </Select>
-                  <FormDescription>
-                    Assign to a specific service bay
-                  </FormDescription>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+                      </SelectContent>
+                    </Select>
+                    <FormDescription>
+                      {bay => bay.bay_type ? `Type: ${bay.bay_type}` : ''}
+                    </FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
 
-            {/* Technician Assignment */}
-            <FormField
-              control={form.control}
-              name="assignedTechnicianId"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Assigned Technician</FormLabel>
-                  <Select onValueChange={field.onChange} defaultValue={field.value}>
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select a technician (optional)" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      {technicians.map((tech) => (
-                        <SelectItem key={tech.id} value={tech.id}>
-                          <div className="flex items-center justify-between gap-2 w-full">
-                            <span>{tech.name}</span>
-                            <Badge
-                              variant={
-                                tech.availability === 'available'
-                                  ? 'default'
-                                  : tech.availability === 'busy'
-                                  ? 'secondary'
-                                  : 'outline'
-                              }
-                            >
-                              {tech.availability}
-                            </Badge>
-                          </div>
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  <FormDescription>
-                    Assign to a specific technician
-                  </FormDescription>
-                  <FormMessage />
-                  {selectedTechnician && (
-                    <div className="text-sm text-muted-foreground mt-2">
-                      <div>Specialization: {selectedTechnician.specialization.join(', ')}</div>
-                      {selectedTechnician.certifications && selectedTechnician.certifications.length > 0 && (
-                        <div>Certifications: {selectedTechnician.certifications.join(', ')}</div>
-                      )}
-                    </div>
-                  )}
-                </FormItem>
-              )}
-            />
+              <FormField
+                control={form.control}
+                name="assignedTechnicianId"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Technician</FormLabel>
+                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select technician" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {technicians.map((tech) => (
+                          <SelectItem key={tech.id} value={tech.id}>
+                            {tech.firstName} {tech.lastName}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                    {selectedTechnician && (
+                      <FormDescription>
+                        {selectedTechnician.specialty || 'General Technician'}
+                      </FormDescription>
+                    )}
+                  </FormItem>
+                )}
+              />
+            </div>
 
-            {/* Availability Check Status */}
+            {/* Availability Check */}
             {checking && (
-              <Alert>
-                <ClockIcon className="h-4 w-4" />
+              <Alert variant="default" className="border-blue-200 bg-blue-50">
+                <Clock className="h-4 w-4 text-blue-600" />
                 <AlertDescription>Checking availability...</AlertDescription>
               </Alert>
             )}
-
-            {conflicts.length > 0 && (
+            {!checking && conflicts.length > 0 && (
               <Alert variant="destructive">
-                <AlertCircleIcon className="h-4 w-4" />
+                <AlertCircle className="h-4 w-4" />
                 <AlertDescription>
-                  <div className="font-semibold mb-2">Scheduling Conflicts Detected:</div>
-                  <ul className="list-disc list-inside space-y-1">
-                    {conflicts.map((conflict, idx) => (
-                      <li key={idx}>{conflict.description}</li>
-                    ))}
-                  </ul>
+                  Scheduling conflict detected. This {watchServiceBay ? 'bay' : 'technician'} is already booked for the selected time.
                 </AlertDescription>
               </Alert>
             )}
-
             {!checking && conflicts.length === 0 && (watchServiceBay || watchTechnician) && (
-              <Alert>
-                <CheckCircleIcon className="h-4 w-4 text-green-600" />
-                <AlertDescription className="text-green-600">
-                  No conflicts detected - time slot is available
+              <Alert variant="default" className="border-green-200 bg-green-50">
+                <CheckCircle className="h-4 w-4 text-green-600" />
+                <AlertDescription>
+                  {watchServiceBay && watchTechnician
+                    ? 'Bay and technician are available for the selected time.'
+                    : watchServiceBay
+                    ? 'Bay is available for the selected time.'
+                    : 'Technician is available for the selected time.'}
                 </AlertDescription>
               </Alert>
             )}
@@ -578,9 +553,8 @@ export function MaintenanceAppointmentModal({
                   <FormLabel>Notes</FormLabel>
                   <FormControl>
                     <Textarea
-                      placeholder="Additional notes, special requirements, or instructions..."
+                      placeholder="Add any additional details or special instructions..."
                       className="resize-none"
-                      rows={4}
                       {...field}
                     />
                   </FormControl>
@@ -589,13 +563,8 @@ export function MaintenanceAppointmentModal({
               )}
             />
 
-            <DialogFooter>
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => onOpenChange(false)}
-                disabled={submitting}
-              >
+            <DialogFooter className="pt-4">
+              <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
                 Cancel
               </Button>
               <Button

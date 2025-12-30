@@ -199,7 +199,8 @@ function randomFloat(min: number, max: number, decimals: number = 2): number {
 }
 
 function randomItem<T>(array: T[]): T {
-  return array[Math.floor(Math.random() * array.length)]
+  const selected = array[Math.floor(Math.random() * array.length)];
+  return selected;
 }
 
 function generateVIN(): string {
@@ -340,15 +341,15 @@ export function generateMockFacilities(count: number = 42): Facility[] {
  */
 export function generateMockAlerts(count: number = 8): Alert[] {
   const alerts: Alert[] = []
-  const alertTemplates = [
-    { type: "maintenance" as const, severity: "warning" as const, title: "Scheduled Maintenance Due", description: "Vehicle FL0234 requires scheduled maintenance within 3 days" },
-    { type: "fuel" as const, severity: "warning" as const, title: "Low Fuel Alert", description: "Vehicle FL0156 fuel level below 15%" },
-    { type: "safety" as const, severity: "critical" as const, title: "Safety Inspection Expired", description: "Vehicle FL0089 safety inspection expired - vehicle grounded" },
-    { type: "compliance" as const, severity: "warning" as const, title: "License Renewal Required", description: "Driver EMP54321 license expires in 15 days" },
-    { type: "system" as const, severity: "info" as const, title: "System Maintenance Scheduled", description: "Platform maintenance scheduled for Sunday 2:00 AM - 4:00 AM EST" },
-    { type: "maintenance" as const, severity: "critical" as const, title: "Engine Diagnostic Alert", description: "Vehicle FL0412 - Check Engine light activated" },
-    { type: "safety" as const, severity: "warning" as const, title: "Harsh Braking Detected", description: "Driver EMP67890 - Multiple harsh braking events detected" },
-    { type: "fuel" as const, severity: "info" as const, title: "Fuel Cost Spike", description: "Average fuel cost increased 8% this week" },
+  const alertTemplates: Alert[] = [
+    { id: "", type: "maintenance", severity: "warning", title: "Scheduled Maintenance Due", description: "Vehicle FL0234 requires scheduled maintenance within 3 days", timestamp: new Date(), acknowledged: false },
+    { id: "", type: "fuel", severity: "warning", title: "Low Fuel Alert", description: "Vehicle FL0156 fuel level below 15%", timestamp: new Date(), acknowledged: false },
+    { id: "", type: "safety", severity: "critical", title: "Safety Inspection Expired", description: "Vehicle FL0089 safety inspection expired - vehicle grounded", timestamp: new Date(), acknowledged: false },
+    { id: "", type: "compliance", severity: "warning", title: "License Renewal Required", description: "Driver EMP54321 license expires in 15 days", timestamp: new Date(), acknowledged: false },
+    { id: "", type: "system", severity: "info", title: "System Maintenance Scheduled", description: "Platform maintenance scheduled for Sunday 2:00 AM - 4:00 AM EST", timestamp: new Date(), acknowledged: false },
+    { id: "", type: "maintenance", severity: "critical", title: "Engine Diagnostic Alert", description: "Vehicle FL0412 - Check Engine light activated", timestamp: new Date(), acknowledged: false },
+    { id: "", type: "safety", severity: "warning", title: "Harsh Braking Detected", description: "Driver EMP67890 - Multiple harsh braking events detected", timestamp: new Date(), acknowledged: false },
+    { id: "", type: "fuel", severity: "info", title: "Fuel Cost Spike", description: "Average fuel cost increased 8% this week", timestamp: new Date(), acknowledged: false },
   ]
 
   for (let i = 0; i < Math.min(count, alertTemplates.length); i++) {
@@ -376,7 +377,7 @@ export function generateMockDashboardStats(): DashboardStats {
 
   // Calculate real stats from mock data
   const totalVehicles = vehicles.length
-  const activeVehicles = vehicles.filter(v => v.status === "active").length
+  const _activeVehicles = vehicles.filter(v => v.status === "active").length
   const activeDrivers = drivers.filter(d => d.status === "active").length
   const maintenanceDue = vehicles.filter(v => v.status === "maintenance" || v.status === "service").length
 
@@ -403,124 +404,7 @@ export function generateMockDashboardStats(): DashboardStats {
     // Additional metrics
     totalMileage: vehicles.reduce((sum, v) => sum + v.mileage, 0),
     fuelEfficiency: randomFloat(18.5, 24.5, 1), // MPG
-    uptime: randomFloat(95.0, 99.5, 1), // Percentage
-    utilizationRate: randomFloat(72.0, 88.0, 1), // Percentage
+    uptime: randomFloat(95.0, 99.9, 1),
+    utilizationRate: randomFloat(75.0, 95.0, 1),
   }
 }
-
-// ============================================================================
-// SINGLETON INSTANCES (Performance optimization)
-// ============================================================================
-
-let cachedVehicles: Vehicle[] | null = null
-let cachedDrivers: Driver[] | null = null
-let cachedFacilities: Facility[] | null = null
-let cachedStats: DashboardStats | null = null
-let cacheTimestamp = 0
-
-const CACHE_TTL = 5 * 60 * 1000 // 5 minutes
-
-/**
- * Get cached or generate vehicles
- * Implements smart caching to avoid regenerating data on every call
- */
-export function getMockVehicles(): Vehicle[] {
-  const now = Date.now()
-  if (!cachedVehicles || now - cacheTimestamp > CACHE_TTL) {
-    cachedVehicles = generateMockVehicles()
-    cacheTimestamp = now
-  }
-  return cachedVehicles
-}
-
-/**
- * Get cached or generate drivers
- */
-export function getMockDrivers(): Driver[] {
-  const now = Date.now()
-  if (!cachedDrivers || now - cacheTimestamp > CACHE_TTL) {
-    cachedDrivers = generateMockDrivers()
-  }
-  return cachedDrivers
-}
-
-/**
- * Get cached or generate facilities
- */
-export function getMockFacilities(): Facility[] {
-  const now = Date.now()
-  if (!cachedFacilities || now - cacheTimestamp > CACHE_TTL) {
-    cachedFacilities = generateMockFacilities()
-  }
-  return cachedFacilities
-}
-
-/**
- * Get cached or generate dashboard stats
- */
-export function getMockDashboardStats(): DashboardStats {
-  const now = Date.now()
-  if (!cachedStats || now - cacheTimestamp > CACHE_TTL) {
-    cachedStats = generateMockDashboardStats()
-  }
-  return cachedStats
-}
-
-/**
- * Clear all cached data (useful for testing or forced refresh)
- */
-export function clearMockDataCache(): void {
-  cachedVehicles = null
-  cachedDrivers = null
-  cachedFacilities = null
-  cachedStats = null
-  cacheTimestamp = 0
-}
-
-// ============================================================================
-// API RESPONSE SIMULATION
-// ============================================================================
-
-/**
- * Simulate API response with realistic timing
- * Adds network latency simulation for realistic testing
- */
-export async function simulateApiCall<T>(
-  data: T,
-  delay: number = 150
-): Promise<{ success: boolean; data: T; timestamp: string }> {
-  await new Promise(resolve => setTimeout(resolve, delay))
-
-  return {
-    success: true,
-    data,
-    timestamp: new Date().toISOString(),
-  }
-}
-
-/**
- * Health check response
- */
-export async function getMockHealthCheck() {
-  return simulateApiCall({
-    status: "healthy",
-    version: "2.0.0",
-    uptime: randomInt(100000, 999999),
-    alerts: generateMockAlerts().filter(a => !a.acknowledged).length,
-  })
-}
-
-/**
- * Main export for easy access to all mock data
- */
-export const mockData = {
-  vehicles: getMockVehicles,
-  drivers: getMockDrivers,
-  facilities: getMockFacilities,
-  stats: getMockDashboardStats,
-  alerts: generateMockAlerts,
-  healthCheck: getMockHealthCheck,
-  clearCache: clearMockDataCache,
-}
-
-export default mockData
