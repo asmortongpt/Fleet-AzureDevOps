@@ -41,7 +41,6 @@ class TelemetryService {
           enableCorsCorrelation: true,
           correlationHeaderExcludedDomains: ['127.0.0.1', 'localhost'],
           disableTelemetry: false,
-          verboseLogging: import.meta.env.DEV,
           diagnosticLogInterval: import.meta.env.DEV ? 10000 : 0,
           samplingPercentage: 100,
           disableCookiesUsage: false,
