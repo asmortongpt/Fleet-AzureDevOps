@@ -1,7 +1,4 @@
 /**
-import { container } from '../container'
-import { asyncHandler } from '../middleware/errorHandler'
-import { NotFoundError, ValidationError } from '../errors/app-error'
  * AI-Powered Semantic Search API Routes
  *
  * Advanced search capabilities using RAG (Retrieval-Augmented Generation):
@@ -12,6 +9,9 @@ import { NotFoundError, ValidationError } from '../errors/app-error'
  * - Search analytics and personalization
  */
 
+import { container } from '../container'
+import { asyncHandler } from '../middleware/errorHandler'
+import { NotFoundError, ValidationError } from '../errors/app-error'
 import express, { Response } from 'express'
 import { z } from 'zod'
 
@@ -113,7 +113,7 @@ router.post(
       })
     } catch (error: any) {
       if (error.name === 'ZodError') {
-        return res.status(400).json({ error: 'Validation error', details: error.errors })
+        return res.status(400).json({ error: 'Validation error', details: error.issues })
       }
       console.error('Semantic search error:', error)
       res.status(500).json({ error: 'Search failed', message: getErrorMessage(error) })
@@ -192,7 +192,7 @@ router.post(
       })
     } catch (error: any) {
       if (error.name === 'ZodError') {
-        return res.status(400).json({ error: 'Validation error', details: error.errors })
+        return res.status(400).json({ error: 'Validation error', details: error.issues })
       }
       console.error('Hybrid search error:', error)
       res.status(500).json({ error: 'Search failed', message: getErrorMessage(error) })
@@ -254,7 +254,7 @@ router.post(
       })
     } catch (error: any) {
       if (error.name === 'ZodError') {
-        return res.status(400).json({ error: 'Validation error', details: error.errors })
+        return res.status(400).json({ error: 'Validation error', details: error.issues })
       }
       console.error('Document Q&A error:', error)
       res.status(500).json({ error: 'Q&A failed', message: getErrorMessage(error) })
@@ -316,7 +316,7 @@ router.post(
       })
     } catch (error: any) {
       if (error.name === `ZodError`) {
-        return res.status(400).json({ error: `Validation error`, details: error.errors })
+        return res.status(400).json({ error: `Validation error`, details: error.issues })
       }
       console.error(`Query expansion error:`, error)
       res.status(500).json({ error: 'Expansion failed', message: getErrorMessage(error) })
@@ -400,7 +400,7 @@ router.post(
       })
     } catch (error: any) {
       if (error.name === `ZodError`) {
-        return res.status(400).json({ error: 'Validation error', details: error.errors })
+        return res.status(400).json({ error: 'Validation error', details: error.issues })
       }
       console.error('Document indexing error:', error)
       res.status(500).json({ error: 'Indexing failed', message: getErrorMessage(error) })
@@ -488,7 +488,7 @@ router.post(
       })
     } catch (error: any) {
       if (error.name === `ZodError`) {
-        return res.status(400).json({ error: 'Validation error', details: error.errors })
+        return res.status(400).json({ error: 'Validation error', details: error.issues })
       }
       console.error('Batch indexing error:', error)
       res.status(500).json({ error: 'Batch indexing failed', message: getErrorMessage(error) })
@@ -613,7 +613,7 @@ router.post(
       res.json({ success: true, message: `Feedback recorded` })
     } catch (error: any) {
       if (error.name === `ZodError`) {
-        return res.status(400).json({ error: 'Validation error', details: error.errors })
+        return res.status(400).json({ error: 'Validation error', details: error.issues })
       }
       console.error('Feedback error:', error)
       res.status(500).json({ error: 'Failed to record feedback', message: getErrorMessage(error) })

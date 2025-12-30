@@ -1,8 +1,4 @@
 /**
-import { container } from '../container'
-import { asyncHandler } from '../middleware/errorHandler'
-import { NotFoundError, ValidationError } from '../errors/app-error'
-import logger from '../config/logger'; // Wave 20: Add Winston logger
  * Search API Routes
  *
  * Comprehensive search endpoints for document discovery:
@@ -17,6 +13,10 @@ import logger from '../config/logger'; // Wave 20: Add Winston logger
  * - Search analytics
  */
 
+import { container } from '../container'
+import { asyncHandler } from '../middleware/errorHandler'
+import { NotFoundError, ValidationError } from '../errors/app-error'
+import logger from '../config/logger'; // Wave 20: Add Winston logger
 import express, { Response } from 'express'
 import { z } from 'zod'
 
@@ -113,7 +113,7 @@ router.post(
         return res.status(400).json({
           success: false,
           error: 'Validation error',
-          details: error.errors
+          details: error.issues
         })
       }
       res.status(500).json({
@@ -303,7 +303,7 @@ router.post(
         return res.status(400).json({
           success: false,
           error: 'Validation error',
-          details: error.errors
+          details: error.issues
         })
       }
       res.status(500).json({
@@ -480,7 +480,7 @@ router.post(
         return res.status(400).json({
           success: false,
           error: 'Validation error',
-          details: error.errors
+          details: error.issues
         })
       }
       res.status(500).json({

@@ -157,7 +157,7 @@ export class VideoTelematicsEmulator extends EventEmitter {
     });
 
     // Emit status update
-    this.emit(`update`, {
+    this.emit('update', {
       activeVehicles: this.vehicles.size,
       totalEvents: this.activeEvents.size,
       timestamp: new Date()

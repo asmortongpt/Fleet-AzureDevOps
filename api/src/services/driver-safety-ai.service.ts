@@ -9,7 +9,7 @@ import { Pool } from 'pg';
 // TODO: Install @azure/cognitiveservices-computervision and @azure/ms-rest-js
 // import { ComputerVisionClient } from '@azure/cognitiveservices-computervision';
 // import { ApiKeyCredentials } from '@azure/ms-rest-js';
-import { logger } from '../utils/logger';
+import { logger } from '../config/logger';
 
 const AZURE_COMPUTER_VISION_KEY = process.env.AZURE_COMPUTER_VISION_KEY;
 const AZURE_COMPUTER_VISION_ENDPOINT = process.env.AZURE_COMPUTER_VISION_ENDPOINT;

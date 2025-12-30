@@ -1,8 +1,4 @@
 /**
-import { container } from '../container'
-import { asyncHandler } from '../middleware/errorHandler'
-import { NotFoundError, ValidationError } from '../errors/app-error'
-import logger from '../config/logger'; // Wave 26: Add Winston logger
  * Fleet Management - Message Sync Routes
  *
  * Endpoints:
@@ -18,6 +14,10 @@ import logger from '../config/logger'; // Wave 26: Add Winston logger
  * - GET /api/sync/health - Get sync service health status
  */
 
+import { container } from '../container'
+import { asyncHandler } from '../middleware/errorHandler'
+import { NotFoundError, ValidationError } from '../errors/app-error'
+import logger from '../config/logger'; // Wave 26: Add Winston logger
 import { Router, Request, Response } from 'express'
 
 import { pool } from '../db/connection';
@@ -181,7 +181,7 @@ router.get('/status', async (req: Request, res: Response) => {
  *       403:
  *         description: Insufficient permissions
  */
-router.post('/full',csrfProtection,  csrfProtection, async (req: Request, res: Response) => {
+router.post('/full',csrfProtection, async (req: Request, res: Response) => {
   try {
     const userRole = (req as any).user?.role
 
@@ -412,7 +412,7 @@ router.post(`/outlook/all`, csrfProtection, async (req: Request, res: Response) 
  *       200:
  *         description: Error resolved successfully
  */
-router.delete('/errors/:id',csrfProtection,  csrfProtection, async (req: Request, res: Response) => {
+router.delete('/errors/:id',csrfProtection, async (req: Request, res: Response) => {
   try {
     const { id } = req.params
 

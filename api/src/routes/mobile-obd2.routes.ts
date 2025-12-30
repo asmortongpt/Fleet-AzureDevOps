@@ -1,13 +1,13 @@
 /**
-import { container } from '../container'
-import { asyncHandler } from '../middleware/errorHandler'
-import { NotFoundError, ValidationError } from '../errors/app-error'
-import logger from '../config/logger'; // Wave 25: Add Winston logger
  * Mobile OBD2 API Routes
  *
  * Endpoints for OBD2 adapter management and vehicle diagnostics
  */
 
+import { container } from '../container'
+import { asyncHandler } from '../middleware/errorHandler'
+import { NotFoundError, ValidationError } from '../errors/app-error'
+import logger from '../config/logger'; // Wave 25: Add Winston logger
 import express, { Request, Response } from 'express'
 import { z } from 'zod'
 
@@ -169,7 +169,7 @@ const ConnectionLogSchema = z.object({
  *       400:
  *         description: Invalid request
  */
-router.post('/connect',csrfProtection,  csrfProtection, requirePermission('vehicle:update:fleet'), auditLog, async (req: Request, res: Response) => {
+router.post('/connect',csrfProtection, requirePermission('vehicle:update:fleet'), auditLog, async (req: Request, res: Response) => {
   try {
     const validated = RegisterAdapterSchema.parse(req.body)
     const tenantId = (req as any).user.tenant_id

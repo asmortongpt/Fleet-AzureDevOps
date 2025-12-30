@@ -10,7 +10,7 @@
 
 import { NotFoundError, DatabaseError } from '../middleware/errorHandler';
 
-import { BaseRepository, QueryContext, PaginatedResult, PaginationOptions } from './BaseRepository';
+import { BaseRepository, QueryContext, PaginatedResult, PaginationOptions } from './base/BaseRepository';
 
 export interface Reservation {
   id: string;
