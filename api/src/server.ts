@@ -40,7 +40,7 @@ import { csrfProtection, getCsrfToken } from './middleware/csrf'
 
 // Core Fleet Management Routes
 import adminJobsRouter from './routes/admin-jobs.routes'
-import aiInsightsRouter from './routes/ai-insights.routes'
+// DISABLED: import aiInsightsRouter from './routes/ai-insights.routes'
 import aiSearchRouter from './routes/ai-search'
 import aiTaskAssetRouter from './routes/ai-task-asset.routes'
 import aiTaskPrioritizationRouter from './routes/ai-task-prioritization.routes'
@@ -50,7 +50,7 @@ import assetAnalyticsRouter from './routes/asset-analytics.routes'
 import assetManagementRouter from './routes/asset-management.routes'
 import assetsMobileRouter from './routes/assets-mobile.routes'
 import assignmentReportingRouter from './routes/assignment-reporting.routes'
-import attachmentsRouter from './routes/attachments.routes'
+// DISABLED: import attachmentsRouter from './routes/attachments.routes'
 import batchRouter from './routes/batch'
 import billingReportsRouter from './routes/billing-reports'
 import chargingSessionsRouter from './routes/charging-sessions'
@@ -67,7 +67,7 @@ import purchaseOrdersRouter from './routes/purchase-orders'
 import tasksRouter from './routes/tasks'
 
 // Asset Management Routes
-import heavyEquipmentRouter from './routes/heavy-equipment.routes'
+// DISABLED: import heavyEquipmentRouter from './routes/heavy-equipment.routes'
 
 // Dispatch & Communication Routes
 import teamsRouter from './routes/teams.routes'
@@ -92,7 +92,7 @@ import chargingStationsRouter from './routes/charging-stations'
 // Document Management Routes
 import documentsRouter from './routes/documents'
 import fleetDocumentsRouter from './routes/fleet-documents.routes'
-import ocrRouter from './routes/ocr.routes'
+// DISABLED: import ocrRouter from './routes/ocr.routes'
 
 // Financial & Cost Management Routes
 import costsRouter from './routes/costs'
@@ -101,16 +101,16 @@ import costBenefitAnalysisRouter from './routes/cost-benefit-analysis.routes'
 import mileageReimbursementRouter from './routes/mileage-reimbursement'
 import chargesRouter from './routes/personal-use-charges'
 import personalUsePoliciesRouter from './routes/personal-use-policies'
-import fuelPurchasingRouter from './routes/fuel-purchasing.routes'
+// DISABLED: import fuelPurchasingRouter from './routes/fuel-purchasing.routes'
 
 // Reporting & Analytics Routes
 import executiveDashboardRouter from './routes/executive-dashboard.routes'
-import customReportsRouter from './routes/custom-reports.routes'
+// DISABLED: import customReportsRouter from './routes/custom-reports.routes'
 import driverScorecardRouter from './routes/driver-scorecard.routes'
 
 // AI & Automation Routes
-import langchainRouter from './routes/langchain.routes'
-import fleetOptimizerRouter from './routes/fleet-optimizer.routes'
+// DISABLED: import langchainRouter from './routes/langchain.routes'
+// DISABLED: import fleetOptimizerRouter from './routes/fleet-optimizer.routes'
 
 // Task & Schedule Management Routes
 import schedulingRouter from './routes/scheduling.routes'
@@ -122,9 +122,9 @@ import mobileAssignmentRouter from './routes/mobile-assignment.routes'
 import mobileHardwareRouter from './routes/mobile-hardware.routes'
 import mobileIntegrationRouter from './routes/mobile-integration.routes'
 import mobileMessagingRouter from './routes/mobile-messaging.routes'
-import mobileNotificationsRouter from './routes/mobile-notifications.routes'
-import mobileObd2Router from './routes/mobile-obd2.routes'
-import mobileOcrRouter from './routes/mobile-ocr.routes'
+// DISABLED: import mobileNotificationsRouter from './routes/mobile-notifications.routes'
+// DISABLED: import mobileObd2Router from './routes/mobile-obd2.routes'
+// DISABLED: import mobileOcrRouter from './routes/mobile-ocr.routes'
 import mobilePhotosRouter from './routes/mobile-photos.routes'
 import mobileTripsRouter from './routes/mobile-trips.routes'
 import pushNotificationsRouter from './routes/push-notifications.routes'
@@ -132,7 +132,7 @@ import pushNotificationsRouter from './routes/push-notifications.routes'
 // Vehicle Management Routes
 import vehicleAssignmentsRouter from './routes/vehicle-assignments.routes'
 import vehicleHistoryRouter from './routes/vehicle-history.routes'
-import vehicleIdentificationRouter from './routes/vehicle-identification.routes'
+// DISABLED: import vehicleIdentificationRouter from './routes/vehicle-identification.routes'
 import vehicle3dRouter from './routes/vehicle-3d.routes'
 import damageRouter from './routes/damage'
 import damageReportsRouter from './routes/damage-reports'
@@ -308,7 +308,7 @@ app.use('/api/tasks', tasksRouter)
 app.use('/api/assets', assetManagementRouter)
 app.use('/api/asset-analytics', assetAnalyticsRouter)
 app.use('/api/assets-mobile', assetsMobileRouter)
-app.use('/api/heavy-equipment', heavyEquipmentRouter)
+// DISABLED: app.use('/api/heavy-equipment', heavyEquipmentRouter)
 
 // Dispatch & Communication Routes
 app.use('/api/communication-logs', communicationLogsRouter)
@@ -333,7 +333,7 @@ app.use('/api/charging-stations', chargingStationsRouter)
 // Document Management Routes
 app.use('/api/documents', documentsRouter)
 app.use('/api/fleet-documents', fleetDocumentsRouter)
-app.use('/api/attachments', attachmentsRouter)
+// DISABLED: app.use('/api/attachments', attachmentsRouter)
 app.use('/api/ocr', ocrRouter)
 
 // Financial & Cost Management Routes
@@ -344,21 +344,21 @@ app.use('/api/billing-reports', billingReportsRouter)
 app.use('/api/mileage-reimbursement', mileageReimbursementRouter)
 app.use('/api/personal-use-charges', chargesRouter)
 app.use('/api/personal-use-policies', personalUsePoliciesRouter)
-app.use('/api/fuel-purchasing', fuelPurchasingRouter)
+// DISABLED: app.use('/api/fuel-purchasing', fuelPurchasingRouter)
 
 // Reporting & Analytics Routes
 app.use('/api/executive-dashboard', executiveDashboardRouter)
-app.use('/api/custom-reports', customReportsRouter)
+// DISABLED: app.use('/api/custom-reports', customReportsRouter)
 app.use('/api/assignment-reporting', assignmentReportingRouter)
 app.use('/api/driver-scorecard', driverScorecardRouter)
 
 // AI & Automation Routes
-app.use('/api/ai-insights', aiInsightsRouter)
+// DISABLED: app.use('/api/ai-insights', aiInsightsRouter)
 app.use('/api/ai-search', aiSearchRouter)
 app.use('/api/ai-task-asset', aiTaskAssetRouter)
 app.use('/api/ai-tasks', aiTaskPrioritizationRouter)
-app.use('/api/langchain', langchainRouter)
-app.use('/api/fleet-optimizer', fleetOptimizerRouter)
+// DISABLED: app.use('/api/langchain', langchainRouter)
+// DISABLED: app.use('/api/fleet-optimizer', fleetOptimizerRouter)
 
 // Task & Schedule Management Routes
 app.use('/api/scheduling', schedulingRouter)
@@ -370,9 +370,9 @@ app.use('/api/mobile-assignment', mobileAssignmentRouter)
 app.use('/api/mobile-hardware', mobileHardwareRouter)
 app.use('/api/mobile-integration', mobileIntegrationRouter)
 app.use('/api/mobile-messaging', mobileMessagingRouter)
-app.use('/api/mobile-notifications', mobileNotificationsRouter)
-app.use('/api/mobile-obd2', mobileObd2Router)
-app.use('/api/mobile-ocr', mobileOcrRouter)
+// DISABLED: app.use('/api/mobile-notifications', mobileNotificationsRouter)
+// DISABLED: app.use('/api/mobile-obd2', mobileObd2Router)
+// DISABLED: app.use('/api/mobile-ocr', mobileOcrRouter)
 app.use('/api/mobile-photos', mobilePhotosRouter)
 app.use('/api/mobile-trips', mobileTripsRouter)
 app.use('/api/push-notifications', pushNotificationsRouter)
@@ -380,7 +380,7 @@ app.use('/api/push-notifications', pushNotificationsRouter)
 // Vehicle Management Routes
 app.use('/api/vehicle-assignments', vehicleAssignmentsRouter)
 app.use('/api/vehicle-history', vehicleHistoryRouter)
-app.use('/api/vehicle-identification', vehicleIdentificationRouter)
+// DISABLED: app.use('/api/vehicle-identification', vehicleIdentificationRouter)
 app.use('/api/vehicle-3d', vehicle3dRouter)
 app.use('/api/damage', damageRouter)
 app.use('/api/damage-reports', damageReportsRouter)

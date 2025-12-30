@@ -12,22 +12,16 @@ export {
   ForbiddenError,
   NotFoundError,
   ConflictError,
-  UnprocessableEntityError,
-  InternalServerError,
-  ServiceUnavailableError,
-  DatabaseError,
-  ExternalApiError
+  InternalError
 } from './AppError';
 
 // Re-export middleware error handler for backward compatibility
 export {
   errorHandler,
-  asyncHandler,
-  notFoundHandler,
-  registerProcessErrorHandlers,
-  // Also export legacy error names for compatibility
-  AuthenticationError,
-  AuthorizationError,
-  RateLimitError,
-  ExternalServiceError
+  asyncHandler
 } from '../middleware/errorHandler';
+
+// Alias for backward compatibility
+export { InternalError as InternalServerError } from './AppError';
+export { UnauthorizedError as AuthenticationError } from './AppError';
+export { ForbiddenError as AuthorizationError } from './AppError';

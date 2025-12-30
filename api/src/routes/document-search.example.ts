@@ -1,7 +1,4 @@
 /**
-import { container } from '../container'
-import { asyncHandler } from '../middleware/errorHandler'
-import { NotFoundError, ValidationError } from '../errors/app-error'
  * Document Search API Routes Example
  *
  * This file demonstrates how to integrate the DocumentSearchService
@@ -13,6 +10,9 @@ import { NotFoundError, ValidationError } from '../errors/app-error'
  * 3. Add authentication middleware as needed
  */
 
+import { container } from '../container'
+import { asyncHandler } from '../middleware/errorHandler'
+import { NotFoundError, ValidationError } from '../errors/app-error'
 import { Router, Request, Response } from 'express'
 
 import documentSearchService from '../services/document-search.service'
@@ -38,7 +38,7 @@ const router = Router()
  *   }
  * }
  */
-router.post('/',csrfProtection,  csrfProtection, async (req: Request, res: Response) => {
+router.post('/',csrfProtection, async (req: Request, res: Response) => {
   try {
     const { query, filters } = req.body
 
@@ -195,7 +195,7 @@ router.get('/stats', async (req: Request, res: Response) => {
  *   "tenantId": "tenant-123"  // for verification
  * }
  */
-router.post('/index/:documentId',csrfProtection,  csrfProtection, async (req: Request, res: Response) => {
+router.post('/index/:documentId',csrfProtection, async (req: Request, res: Response) => {
   try {
     const { documentId } = req.params
 
@@ -226,7 +226,7 @@ router.post('/index/:documentId',csrfProtection,  csrfProtection, async (req: Re
  *   "tenantId": "tenant-123"
  * }
  */
-router.post('/index/batch',csrfProtection,  csrfProtection, async (req: Request, res: Response) => {
+router.post('/index/batch',csrfProtection, async (req: Request, res: Response) => {
   try {
     const { documentIds } = req.body
 
