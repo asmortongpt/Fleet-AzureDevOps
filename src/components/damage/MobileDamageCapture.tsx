@@ -16,12 +16,14 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui
 import { Progress } from '../ui/progress';
 
 import logger from '@/utils/logger';
+
 interface MobileDamageCaptureProps {
   vehicleId: string;
   onAnalysisComplete: (analysis: any) => void;
 }
 
-export function MobileDamageCapture({ onAnalysisComplete }: MobileDamageCaptureProps) {  const [captureMode, setCaptureMode] = useState<'photo' | 'video' | 'lidar' | null>(null);
+export function MobileDamageCapture({ onAnalysisComplete }: MobileDamageCaptureProps) {
+  const [captureMode, setCaptureMode] = useState<'photo' | 'video' | 'lidar' | null>(null);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [analysisProgress, setAnalysisProgress] = useState(0);
   const [capturedFiles, setCapturedFiles] = useState<File[]>([]);
@@ -66,7 +68,7 @@ export function MobileDamageCapture({ onAnalysisComplete }: MobileDamageCaptureP
 
     // Trigger file input with camera
     fileInputRef.current.accept = 'image/*';
-    fileInputRef.current.capture = 'environment'; // Use rear camera
+    fileInputRef.current.setAttribute('capture', 'environment'); // Use rear camera
     fileInputRef.current.click();
   }, []);
 
@@ -75,7 +77,7 @@ export function MobileDamageCapture({ onAnalysisComplete }: MobileDamageCaptureP
 
     // Trigger file input with video camera
     videoInputRef.current.accept = 'video/*';
-    videoInputRef.current.capture = 'environment';
+    videoInputRef.current.setAttribute('capture', 'environment');
     videoInputRef.current.click();
   }, []);
 
@@ -155,7 +157,10 @@ export function MobileDamageCapture({ onAnalysisComplete }: MobileDamageCaptureP
 
     try {
       const formData = new FormData();
-      formData.append('video', capturedFiles[0]);
+      const videoFile = capturedFiles[0];
+      if (videoFile) {
+        formData.append('video', videoFile);
+      }
       formData.append('duration', '10'); // Would extract from video metadata
       formData.append('fps', '30');
       formData.append('frameInterval', '1'); // Extract 1 frame per second
@@ -394,7 +399,9 @@ export function MobileDamageCapture({ onAnalysisComplete }: MobileDamageCaptureP
             {capturedFiles.length > 0 && (
               <div className="space-y-4">
                 <div className="aspect-video rounded-md overflow-hidden bg-black">
-                  <video src={URL.createObjectURL(capturedFiles[0])} controls className="w-full h-full" />
+                  {capturedFiles[0] && (
+                    <video src={URL.createObjectURL(capturedFiles[0])} controls className="w-full h-full" />
+                  )}
                 </div>
 
                 <div className="flex gap-2">
@@ -420,10 +427,9 @@ export function MobileDamageCapture({ onAnalysisComplete }: MobileDamageCaptureP
               <AlertDescription>
                 <strong>Tips for video recording:</strong>
                 <ul className="list-disc list-inside mt-2 text-sm">
-                  <li>Walk slowly and steadily around vehicle</li>
-                  <li>Keep camera pointing at vehicle</li>
-                  <li>Pause briefly at each corner</li>
-                  <li>Focus on damaged areas for 2-3 seconds</li>
+                  <li>Hold camera steady and avoid blur</li>
+                  <li>Good lighting is essential</li>
+                  <li>Walk slowly around the vehicle</li>
                 </ul>
               </AlertDescription>
             </Alert>
@@ -431,85 +437,45 @@ export function MobileDamageCapture({ onAnalysisComplete }: MobileDamageCaptureP
         </Card>
       )}
 
-      {/* LiDAR Scan Mode (Placeholder) */}
-      {captureMode === 'lidar' && !isAnalyzing && (
-        <Card>
-          <CardHeader>
-            <CardTitle>LiDAR 3D Scan</CardTitle>
-            <CardDescription>
-              Launch native iOS 3D scanner app to capture high-precision point cloud data.
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <Alert className="mb-4">
-              <AlertCircle className="h-4 w-4" />
-              <AlertDescription>
-                LiDAR scanning requires a native iOS app. This feature will open the iOS 3D Scanner
-                or Polycam app if installed.
-              </AlertDescription>
-            </Alert>
-
-            <Button
-              variant="default"
-              className="w-full"
-              onClick={() => {
-                // In production, this would deep link to iOS scanning app
-                alert(
-                  'LiDAR scanning requires native iOS integration. Install Polycam or 3D Scanner app and import the scan.'
-                );
-              }}
-            >
-              <Scan className="mr-2 h-4 w-4" />
-              Launch 3D Scanner
-            </Button>
-          </CardContent>
-        </Card>
-      )}
+      {/* Hidden file inputs for capture */}
+      <input
+        type="file"
+        ref={fileInputRef}
+        className="hidden"
+        accept="image/*"
+        onChange={handleFileSelect}
+      />
+      <input
+        type="file"
+        ref={videoInputRef}
+        className="hidden"
+        accept="video/*"
+        onChange={handleFileSelect}
+      />
 
       {/* Analysis Progress */}
       {isAnalyzing && (
         <Card>
           <CardHeader>
-            <CardTitle className="flex items-center">
-              <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-              Analyzing Vehicle Damage...
-            </CardTitle>
+            <CardTitle>Analyzing Damage...</CardTitle>
             <CardDescription>
-              Our AI is processing your {captureMode === 'video' ? 'video' : 'photos'} to detect
-              and assess damage.
+              Processing your {captureMode === 'video' ? 'video' : 'photos'} with AI damage detection.
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <Progress value={analysisProgress} className="w-full" />
-            <div className="text-sm text-gray-600 space-y-1">
-              <p>✓ Uploading files...</p>
-              {analysisProgress > 20 && <p>✓ Detecting vehicle...</p>}
-              {analysisProgress > 40 && <p>✓ Identifying damage...</p>}
-              {analysisProgress > 60 && <p>✓ Calculating measurements...</p>}
-              {analysisProgress > 80 && <p>✓ Estimating repair costs...</p>}
+            <div className="flex justify-center">
+              <Loader2 className="h-8 w-8 animate-spin text-blue-500" />
             </div>
+            <Alert>
+              <AlertCircle className="h-4 w-4" />
+              <AlertDescription>
+                This may take a few moments. Please don't close the app or refresh the page.
+              </AlertDescription>
+            </Alert>
           </CardContent>
         </Card>
       )}
-
-      {/* Hidden file inputs */}
-      <input
-        ref={fileInputRef}
-        type="file"
-        accept="image/*"
-        capture="environment"
-        multiple
-        className="hidden"
-        onChange={handleFileSelect}
-      />
-      <input
-        ref={videoInputRef}
-        type="file"
-        accept="video/*"
-        capture="environment"
-        className="hidden"
-        onChange={handleFileSelect}
-      />
     </div>
   );
 }

@@ -15,11 +15,6 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
 import { useFleetData } from "@/hooks/use-fleet-data"
 import { WorkOrder } from "@/lib/types"
 
-
-interface GarageServiceProps {
-  data: ReturnType<typeof useFleetData>
-}
-
 export function GarageService() {
   const data = useFleetData()
   const serviceBays = data.serviceBays || []
@@ -302,7 +297,7 @@ export function GarageService() {
                         <div>
                           <p className="text-muted-foreground mb-1">Specializations:</p>
                           <div className="flex flex-wrap gap-1">
-                            {tech.specialization.map(spec => (
+                            {tech.specialization?.map((spec: string) => (
                               <Badge key={spec} variant="outline" className="text-xs">
                                 {spec}
                               </Badge>
@@ -317,19 +312,6 @@ export function GarageService() {
                   </Card>
                 ))}
               </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        <TabsContent value="schedule">
-          <Card>
-            <CardHeader>
-              <CardTitle>Recurring Maintenance Schedule</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-muted-foreground">
-                Configure and manage recurring maintenance schedules, service intervals, and automatic work order generation.
-              </p>
             </CardContent>
           </Card>
         </TabsContent>

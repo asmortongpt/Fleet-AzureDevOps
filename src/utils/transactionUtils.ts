@@ -3,7 +3,18 @@
  * @module transactionUtils
  */
 
-import { Transaction, Anomaly } from './types';
+interface Transaction {
+  amount: number;
+  merchant_name: string;
+  transaction_date: string;
+}
+
+interface Anomaly {
+  type: string;
+  severity: string;
+  count?: number;
+  average?: number;
+}
 
 /**
  * Finds duplicate transactions based on amount, merchant name, and transaction date.
@@ -14,8 +25,8 @@ export function findDuplicateTransactions(transactions: Transaction[]): Transact
   const seen = new Map<string, Transaction>();
   const duplicates: Transaction[] = [];
 
-  transactions.forEach(tx => {
-    const key = `${tx.amount}-${tx.merchant_name}-${tx.transaction_date}`;
+  transactions?.forEach(tx => {
+    const key = `${tx?.amount}-${tx?.merchant_name}-${tx?.transaction_date}`;
     if (seen.has(key)) {
       duplicates.push(tx);
     } else {
@@ -33,8 +44,8 @@ export function findDuplicateTransactions(transactions: Transaction[]): Transact
  */
 export function detectUnusualAmounts(transactions: Transaction[]): Anomaly[] {
   const anomalies: Anomaly[] = [];
-  const avgAmount = transactions.reduce((sum, tx) => sum + tx.amount, 0) / transactions.length;
-  const highAmount = transactions.filter(tx => tx.amount > avgAmount * 2.5);
+  const avgAmount = transactions?.reduce((sum, tx) => sum + (tx?.amount ?? 0), 0) / (transactions?.length || 1);
+  const highAmount = transactions?.filter(tx => (tx?.amount ?? 0) > avgAmount * 2.5) ?? [];
 
   if (highAmount.length > 3) {
     anomalies.push({
@@ -53,7 +64,7 @@ export function detectUnusualAmounts(transactions: Transaction[]): Anomaly[] {
  * @param {Transaction[]} transactions - List of transactions to analyze.
  * @returns {Anomaly[]} - List of geographic anomalies detected.
  */
-export function detectGeographicAnomalies(transactions: Transaction[]): Anomaly[] {
+export function detectGeographicAnomalies(_transactions: Transaction[]): Anomaly[] {
   // Placeholder for geographic anomaly detection logic
   return [];
 }

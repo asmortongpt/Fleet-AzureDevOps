@@ -34,7 +34,7 @@ export function VehicleForm({ initialData, onSubmit, onCancel }: VehicleFormProp
   const {
     register,
     handleSubmit,
-    formState: { errors, isSubmitting, touchedFields, dirtyFields },
+    formState: { errors, isSubmitting, touchedFields, dirtyFields: _dirtyFields },
     watch,
   } = useForm<VehicleFormData>({
     resolver: zodResolver(vehicleSchema),
@@ -43,7 +43,7 @@ export function VehicleForm({ initialData, onSubmit, onCancel }: VehicleFormProp
   })
 
   // Watch all fields for success indicators
-  const watchedFields = watch()
+  const _watchedFields = watch()
 
   // Helper to check if field is valid (touched + no errors)
   const isFieldValid = (fieldName: keyof VehicleFormData) => {

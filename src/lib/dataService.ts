@@ -1,4 +1,3 @@
-
 import logger from '@/utils/logger'
 
 /**
@@ -89,18 +88,18 @@ export class DataService {
     const item = allData.find(item => 
       item.id === id && (!item.tenantId || item.tenantId === this.tenantId)
     )
-    return item || null
+    return item ?? null
   }
 
   /**
    * Create new entity
    */
-  async create<T extends { tenantId?: string }>(
+  async create<T extends { id?: string; tenantId?: string }>(
     storageKey: string,
-    data: T
+    data: Omit<T, 'tenantId'> & Partial<Pick<T, 'tenantId'>>
   ): Promise<T> {
     const allData = this.getFromStorage<T[]>(storageKey) || []
-    const newData = { ...data, tenantId: this.tenantId }
+    const newData = { ...data, tenantId: this.tenantId } as T
     allData.push(newData)
     this.saveToStorage(storageKey, allData)
     return newData
@@ -123,7 +122,7 @@ export class DataService {
     
     allData[index] = { ...allData[index], ...updates }
     this.saveToStorage(storageKey, allData)
-    return allData[index]
+    return allData[index] ?? null
   }
 
   /**
@@ -275,7 +274,7 @@ export class DataService {
   private getFromStorage<T>(key: string): T | null {
     try {
       const item = localStorage.getItem(key)
-      return item ? JSON.parse(item) : null
+      return item ? JSON.parse(item) as T : null
     } catch {
       return null
     }

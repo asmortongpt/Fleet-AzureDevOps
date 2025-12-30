@@ -11,29 +11,29 @@ import { Vehicle, Driver, Facility } from './types'
  */
 export function transformVehicle(apiVehicle: any): Vehicle {
   return {
-    id: apiVehicle.id?.toString() || '',
-    tenantId: apiVehicle.tenant_id?.toString() || '',
-    number: apiVehicle.vehicle_number || apiVehicle.unit_number || `V-${apiVehicle.id}`,
-    type: normalizeVehicleType(apiVehicle.vehicle_type) || 'sedan',
-    make: apiVehicle.make || 'Unknown',
-    model: apiVehicle.model || 'Unknown',
-    year: apiVehicle.year || new Date().getFullYear(),
-    vin: apiVehicle.vin || '',
-    licensePlate: apiVehicle.license_plate || '',
-    status: normalizeStatus(apiVehicle.status) || 'idle',
+    id: apiVehicle?.id?.toString() || '',
+    tenantId: apiVehicle?.tenant_id?.toString() || '',
+    number: apiVehicle?.vehicle_number || apiVehicle?.unit_number || `V-${apiVehicle?.id}`,
+    type: normalizeVehicleType(apiVehicle?.vehicle_type) || 'sedan',
+    make: apiVehicle?.make || 'Unknown',
+    model: apiVehicle?.model || 'Unknown',
+    year: apiVehicle?.year || new Date().getFullYear(),
+    vin: apiVehicle?.vin || '',
+    licensePlate: apiVehicle?.license_plate || '',
+    status: normalizeStatus(apiVehicle?.status) || 'idle',
     location: parseLocation(apiVehicle),
-    region: apiVehicle.region || 'Central',
-    department: apiVehicle.department || 'General',
-    fuelLevel: apiVehicle.fuel_level ?? 75,
-    fuelType: apiVehicle.fuel_type || 'gasoline',
-    mileage: apiVehicle.current_mileage || apiVehicle.odometer || apiVehicle.mileage || 0,
-    hoursUsed: apiVehicle.hours_used,
-    assignedDriver: apiVehicle.assigned_driver_id?.toString(),
-    ownership: apiVehicle.ownership || 'owned',
-    lastService: apiVehicle.last_service || new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-    nextService: apiVehicle.next_service || new Date(Date.now() + 60 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-    alerts: parseAlerts(apiVehicle.alerts),
-    tags: parseTags(apiVehicle.tags)
+    region: apiVehicle?.region || 'Central',
+    department: apiVehicle?.department || 'General',
+    fuelLevel: apiVehicle?.fuel_level ?? 75,
+    fuelType: apiVehicle?.fuel_type || 'gasoline',
+    mileage: apiVehicle?.current_mileage || apiVehicle?.odometer || apiVehicle?.mileage || 0,
+    hoursUsed: apiVehicle?.hours_used,
+    assignedDriver: apiVehicle?.assigned_driver_id?.toString(),
+    ownership: apiVehicle?.ownership || 'owned',
+    lastService: apiVehicle?.last_service || new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+    nextService: apiVehicle?.next_service || new Date(Date.now() + 60 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+    alerts: parseAlerts(apiVehicle?.alerts),
+    tags: parseTags(apiVehicle?.tags) || []
   }
 }
 
@@ -41,24 +41,24 @@ export function transformVehicle(apiVehicle: any): Vehicle {
  * Transform driver data from API format to frontend format
  */
 export function transformDriver(apiDriver: any): Driver {
-  const user = apiDriver.user || {}
+  const user = apiDriver?.user || {}
 
   return {
-    id: apiDriver.id?.toString() || '',
-    tenantId: apiDriver.tenant_id?.toString() || '',
-    name: apiDriver.name || `${user.first_name || ''} ${user.last_name || ''}`.trim() || 'Unknown',
-    employeeId: apiDriver.employee_id || apiDriver.id?.toString() || '',
-    email: apiDriver.email || user.email || '',
-    phone: apiDriver.phone || user.phone || '',
-    licenseNumber: apiDriver.license_number || '',
-    licenseType: apiDriver.cdl_class || apiDriver.license_type || 'B',
-    licenseExpiry: apiDriver.license_expiry || '',
-    status: apiDriver.is_active === false ? 'inactive' : (apiDriver.status || 'active'),
-    safetyScore: apiDriver.safety_score || Math.floor(Math.random() * 30 + 70),
-    department: apiDriver.department || 'Operations',
-    assignedVehicle: apiDriver.assigned_vehicle_id?.toString(),
-    certifications: parseCertifications(apiDriver.certifications),
-    emergencyContact: apiDriver.emergency_contact
+    id: apiDriver?.id?.toString() || '',
+    tenantId: apiDriver?.tenant_id?.toString() || '',
+    name: apiDriver?.name || `${user?.first_name || ''} ${user?.last_name || ''}`.trim() || 'Unknown',
+    employeeId: apiDriver?.employee_id || apiDriver?.id?.toString() || '',
+    email: apiDriver?.email || user?.email || '',
+    phone: apiDriver?.phone || user?.phone || '',
+    licenseNumber: apiDriver?.license_number || '',
+    licenseType: apiDriver?.cdl_class || apiDriver?.license_type || 'B',
+    licenseExpiry: apiDriver?.license_expiry || '',
+    status: apiDriver?.is_active === false ? 'inactive' : (apiDriver?.status || 'active'),
+    safetyScore: apiDriver?.safety_score || Math.floor(Math.random() * 30 + 70),
+    department: apiDriver?.department || 'Operations',
+    assignedVehicle: apiDriver?.assigned_vehicle_id?.toString(),
+    certifications: parseCertifications(apiDriver?.certifications) || [],
+    emergencyContact: apiDriver?.emergency_contact
   }
 }
 
@@ -67,23 +67,22 @@ export function transformDriver(apiDriver: any): Driver {
  */
 export function transformFacility(apiFacility: any): Facility {
   return {
-    id: apiFacility.id?.toString() || '',
-    tenantId: apiFacility.tenant_id?.toString() || '',
-    name: apiFacility.name || 'Unknown Facility',
-    type: apiFacility.type || apiFacility.facility_type || 'office',
-    address: apiFacility.address || '',
-    city: apiFacility.city || '',
-    state: apiFacility.state || '',
-    zip: apiFacility.zip || '',
-    region: apiFacility.region || 'Central',
+    id: apiFacility?.id?.toString() || '',
+    tenantId: apiFacility?.tenant_id?.toString() || '',
+    name: apiFacility?.name || 'Unknown Facility',
+    type: apiFacility?.type || apiFacility?.facility_type || 'office',
+    address: apiFacility?.address || '',
+    city: apiFacility?.city || '',
+    state: apiFacility?.state || '',
+    zip: apiFacility?.zip || '',
+    region: apiFacility?.region || 'Central',
     location: {
-      lat: parseFloat(apiFacility.location_lat || apiFacility.latitude || '0'),
-      lng: parseFloat(apiFacility.location_lng || apiFacility.longitude || '0'),
-      address: apiFacility.address || ''
+      lat: parseFloat(apiFacility?.location_lat || apiFacility?.latitude || '0'),
+      lng: parseFloat(apiFacility?.location_lng || apiFacility?.longitude || '0')
     },
-    status: apiFacility.status || 'operational',
-    capacity: apiFacility.capacity,
-    manager: apiFacility.manager
+    status: apiFacility?.status || 'operational',
+    capacity: apiFacility?.capacity,
+    manager: apiFacility?.manager
   }
 }
 
@@ -131,8 +130,8 @@ function normalizeStatus(status: string | undefined): Vehicle['status'] {
 
 function parseLocation(apiVehicle: any) {
   // Try to get lat/lng from dedicated fields
-  let lat = parseFloat(apiVehicle.location_lat || '0')
-  let lng = parseFloat(apiVehicle.location_lng || '0')
+  let lat = parseFloat(apiVehicle?.location_lat || '0')
+  let lng = parseFloat(apiVehicle?.location_lng || '0')
 
   // If no GPS coordinates, generate some around Tallahassee, FL
   if (!lat && !lng) {
@@ -141,9 +140,9 @@ function parseLocation(apiVehicle: any) {
   }
 
   // Get address
-  let address = apiVehicle.location
+  let address = apiVehicle?.location
   if (typeof address !== 'string') {
-    address = apiVehicle.address || `${apiVehicle.city || 'Tallahassee'}, ${apiVehicle.state || 'FL'}`
+    address = apiVehicle?.address || `${apiVehicle?.city || 'Tallahassee'}, ${apiVehicle?.state || 'FL'}`
   }
 
   return {
@@ -155,7 +154,7 @@ function parseLocation(apiVehicle: any) {
 
 function parseAlerts(alerts: any): string[] {
   if (Array.isArray(alerts)) {
-    return alerts.map(a => typeof a === 'string' ? a : (a.message || a.alert_type || 'Alert'))
+    return alerts.map(a => typeof a === 'string' ? a : (a?.message || a?.alert_type || 'Alert'))
   }
   if (typeof alerts === 'string') {
     try {
@@ -168,30 +167,30 @@ function parseAlerts(alerts: any): string[] {
   return []
 }
 
-function parseTags(tags: any): string[] | undefined {
+function parseTags(tags: any): string[] {
   if (Array.isArray(tags)) return tags
   if (typeof tags === 'string') {
     try {
       const parsed = JSON.parse(tags)
-      return Array.isArray(parsed) ? parsed : undefined
+      return Array.isArray(parsed) ? parsed : []
     } catch {
-      return undefined
+      return []
     }
   }
-  return undefined
+  return []
 }
 
-function parseCertifications(certs: any): string[] | undefined {
+function parseCertifications(certs: any): string[] {
   if (Array.isArray(certs)) return certs
   if (typeof certs === 'string') {
     try {
       const parsed = JSON.parse(certs)
-      return Array.isArray(parsed) ? parsed : undefined
+      return Array.isArray(parsed) ? parsed : []
     } catch {
-      return undefined
+      return []
     }
   }
-  return undefined
+  return []
 }
 
 /**
