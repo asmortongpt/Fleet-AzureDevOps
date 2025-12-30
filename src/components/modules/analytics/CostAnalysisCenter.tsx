@@ -72,7 +72,7 @@ interface CostForecast {
 }
 
 export function CostAnalysisCenter() {
-  const { canViewFinancial, isAdmin, _canAccessField } = usePermissions()
+  const { canViewFinancial, isAdmin } = usePermissions()
   const [costSummary, setCostSummary] = useState<CostSummary | null>(null)
   const [budgetStatus, setBudgetStatus] = useState<BudgetStatus[]>([])
   const [forecasts, setForecasts] = useState<CostForecast[]>([])
