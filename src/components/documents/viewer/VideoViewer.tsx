@@ -32,7 +32,7 @@ interface VideoViewerProps {
   document: DocumentMetadata;
 }
 
-export function VideoViewer({ document }: VideoViewerProps) {
+export function VideoViewer({ document: docMetadata }: VideoViewerProps) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
@@ -137,7 +137,7 @@ export function VideoViewer({ document }: VideoViewerProps) {
     return `${minutes}:${seconds.toString().padStart(2, '0')}`;
   };
 
-  const isAudio = document.type === 'audio';
+  const isAudio = docMetadata.type === 'audio';
 
   return (
     <div
@@ -149,7 +149,7 @@ export function VideoViewer({ document }: VideoViewerProps) {
         {/* Video/Audio element */}
         <video
           ref={videoRef}
-          src={document.url}
+          src={docMetadata.url}
           className={`${isAudio ? 'hidden' : 'max-w-full max-h-full'}`}
           onClick={togglePlay}
         />
@@ -160,7 +160,7 @@ export function VideoViewer({ document }: VideoViewerProps) {
             <div className="w-48 h-48 rounded-full bg-primary/20 flex items-center justify-center">
               <Volume2 className="w-24 h-24 text-primary" />
             </div>
-            <h3 className="text-xl font-semibold">{document.name}</h3>
+            <h3 className="text-xl font-semibold">{docMetadata.name}</h3>
           </div>
         )}
 

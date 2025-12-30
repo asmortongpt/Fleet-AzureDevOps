@@ -143,7 +143,7 @@ const MonitoringDashboard: React.FC = () => {
       `System Health: ${data.health?.status || 'Unknown'}\n` +
       `Uptime: ${data.health?.uptime || 0} seconds\n` +
       `API Response Time: ${data.health?.components?.api?.responseTime || 0}ms\n` +
-      `Active Emulators: ${data.emulators?.active?.length || 0}\n` +
+      `Active Emulators: ${data.emulators?.instances?.filter(i => i.status === 'active')?.length || 0}\n` +
       `Total Errors: ${data.errors?.length || 0}\n` +
       `Active Alerts: ${data.alerts?.filter(a => a.status === 'active')?.length || 0}\n`;
 

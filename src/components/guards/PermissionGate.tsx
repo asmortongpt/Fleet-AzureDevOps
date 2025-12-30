@@ -7,7 +7,7 @@ import { ReactNode } from 'react';
 
 import { usePermissionContext } from '../../contexts/PermissionContext';
 import { UserRole } from '../../hooks/usePermissions';
-import { Tooltip, TooltipProps } from '../ui/tooltip';
+import { Tooltip, TooltipTrigger, TooltipContent } from '../ui/tooltip';
 
 interface PermissionGateProps {
   children: ReactNode;
@@ -90,10 +90,13 @@ export function PermissionGate({
       const message = tooltipMessage || 'You do not have permission to access this feature';
 
       return (
-        <Tooltip content={message} {...({} as TooltipProps)}>
-          <div className="opacity-50 cursor-not-allowed pointer-events-none">
-            {children}
-          </div>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <div className="opacity-50 cursor-not-allowed pointer-events-none">
+              {children}
+            </div>
+          </TooltipTrigger>
+          <TooltipContent>{message}</TooltipContent>
         </Tooltip>
       );
     }
