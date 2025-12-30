@@ -1,6 +1,6 @@
 import { Pool } from 'pg'
 
-import { BaseRepository } from './BaseRepository'
+import { BaseRepository } from './base/BaseRepository'
 
 export interface Route {
   id: number
