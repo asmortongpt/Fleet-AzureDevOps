@@ -122,7 +122,7 @@ router.post(
     } catch (error: any) {
       logger.error('Save customization error:', error) // Wave 21: Winston logger;
       if (error instanceof z.ZodError) {
-        return res.status(400).json({ error: 'Invalid customization data', details: error.errors })
+        return res.status(400).json({ error: 'Invalid customization data', details: error.issues })
       }
       res.status(500).json({ error: getErrorMessage(error) || 'Internal server error' })
     }
@@ -231,7 +231,7 @@ router.post(
     } catch (error: any) {
       logger.error('Update damage markers error:', error) // Wave 21: Winston logger;
       if (error instanceof z.ZodError) {
-        return res.status(400).json({ error: 'Invalid damage marker data', details: error.errors })
+        return res.status(400).json({ error: 'Invalid damage marker data', details: error.issues })
       }
       res.status(500).json({ error: getErrorMessage(error) || 'Internal server error' })
     }
@@ -273,7 +273,7 @@ router.post('/:id/ar-session',csrfProtection, optionalAuth, async (req: AuthRequ
   } catch (error: any) {
     logger.error('Track AR session error:', error) // Wave 21: Winston logger;
     if (error instanceof z.ZodError) {
-      return res.status(400).json({ error: 'Invalid session data', details: error.errors })
+      return res.status(400).json({ error: 'Invalid session data', details: error.issues })
     }
     res.status(500).json({ error: getErrorMessage(error) || 'Internal server error' })
   }
@@ -306,7 +306,7 @@ router.put('/ar-sessions/:sessionId',csrfProtection, optionalAuth, async (req: A
   } catch (error: any) {
     logger.error('End AR session error:', error) // Wave 21: Winston logger;
     if (error instanceof z.ZodError) {
-      return res.status(400).json({ error: 'Invalid update data', details: error.errors })
+      return res.status(400).json({ error: 'Invalid update data', details: error.issues })
     }
     res.status(500).json({ error: getErrorMessage(error) || 'Internal server error' })
   }
@@ -378,7 +378,7 @@ router.post(
     } catch (error: any) {
       logger.error('Create render error:', error) // Wave 21: Winston logger;
       if (error instanceof z.ZodError) {
-        return res.status(400).json({ error: 'Invalid render data', details: error.errors })
+        return res.status(400).json({ error: 'Invalid render data', details: error.issues })
       }
       res.status(500).json({ error: getErrorMessage(error) || 'Internal server error' })
     }
@@ -440,7 +440,7 @@ router.post('/3d-performance',csrfProtection, optionalAuth, async (req: AuthRequ
   } catch (error: any) {
     logger.error('Track performance error:', error) // Wave 21: Winston logger;
     if (error instanceof z.ZodError) {
-      return res.status(400).json({ error: 'Invalid metrics data', details: error.errors })
+      return res.status(400).json({ error: 'Invalid metrics data', details: error.issues })
     }
     res.status(500).json({ error: getErrorMessage(error) || 'Internal server error' })
   }
