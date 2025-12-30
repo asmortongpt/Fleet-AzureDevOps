@@ -614,6 +614,24 @@ export function useMaintenanceMutations() {
   };
 }
 
+export function useFuelMutations() {
+  const queryClient = useQueryClient();
+  return {
+    createFuelTransaction: useMutation({
+      mutationFn: async (transaction: unknown) => transaction,
+      onSuccess: () => queryClient.invalidateQueries({ queryKey: ['fuelTransactions'] })
+    }),
+    updateFuelTransaction: useMutation({
+      mutationFn: async (transaction: unknown) => transaction,
+      onSuccess: () => queryClient.invalidateQueries({ queryKey: ['fuelTransactions'] })
+    }),
+    deleteFuelTransaction: useMutation({
+      mutationFn: async (id: string) => id,
+      onSuccess: () => queryClient.invalidateQueries({ queryKey: ['fuelTransactions'] })
+    })
+  };
+}
+
 // Additional hooks
 export function useSafetyIncidents() {
   return useQuery({
