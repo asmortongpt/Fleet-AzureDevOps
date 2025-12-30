@@ -84,12 +84,22 @@ export function FleetDashboard() {
     [drilldownPush, filteredVehicles]
   )
 
+  const handleVehicleSelect = useCallback(
+    (vehicleId: string) => {
+      const vehicle = filteredVehicles.find(v => v.id === vehicleId)
+      if (vehicle) {
+        handleVehicleClick(vehicle)
+      }
+    },
+    [filteredVehicles, handleVehicleClick]
+  )
+
   const renderLayout = () => {
     const mapSection = (
       <div className="h-full">
         <ProfessionalFleetMap
           vehicles={filteredVehicles as unknown as Vehicle[]}
-          onVehicleSelect={handleVehicleClick}
+          onVehicleSelect={handleVehicleSelect}
         />
       </div>
     )
