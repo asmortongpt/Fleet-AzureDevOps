@@ -59,6 +59,8 @@
     "src/routes/cost-analysis.routes.ts",
     "src/routes/document-system.routes.ts",
     "src/routes/ai-chat.ts",
+    "src/routes/permissions.routes.ts",
+    "src/routes/health.routes.ts",
     "src/services/document-geo.service.ts",
     "src/services/fleet-optimizer.service.ts",
     "src/services/attachment.service.ts",
@@ -73,6 +75,12 @@
     "src/repositories/leasetracking.repository.ts",
     "src/repositories/fuelcardintegration.repository.ts",
     "src/repositories/asset-management.repository.ts",
+    "src/repositories/compliancereports.repository.ts",
+    "src/repositories/inspections.repository.ts",
+    "src/repositories/incidents.repository.ts",
+    "src/repositories/maintenance.repository.ts",
+    "src/repositories/fuel.repository.ts",
+    "src/repositories/osha-compliance.repository.ts",
     "src/emulators/**"
   ]
 }
