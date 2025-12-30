@@ -57,18 +57,18 @@ export function OperationsHub() {
 
   // Calculate operational metrics
   const metrics = useMemo(() => {
-    const activeVehicles = (vehicles as Vehicle[]).filter((v: Vehicle) => v.status === 'active');
+    const activeVehicles = (vehicles as unknown as Vehicle[]).filter((v: Vehicle) => v.status === 'active');
     const enRouteCount = Math.floor(activeVehicles.length * 0.6);
-    const completedToday = Math.floor((workOrders as WorkOrder[]).length * 0.3);
+    const completedToday = Math.floor((workOrders as unknown as WorkOrder[]).length * 0.3);
 
     return {
       activeJobs: enRouteCount,
-      pendingDispatch: Math.floor((workOrders as WorkOrder[]).length * 0.1),
+      pendingDispatch: Math.floor((workOrders as unknown as WorkOrder[]).length * 0.1),
       enRoute: enRouteCount,
       completed: completedToday,
-      totalVehicles: (vehicles as Vehicle[]).length,
+      totalVehicles: (vehicles as unknown as Vehicle[]).length,
       activeVehicles: activeVehicles.length,
-      availableDrivers: Math.floor((drivers as Driver[]).length * 0.4)
+      availableDrivers: Math.floor((drivers as unknown as Driver[]).length * 0.4)
     };
   }, [vehicles, drivers, workOrders]);
 

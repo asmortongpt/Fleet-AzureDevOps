@@ -353,8 +353,8 @@ export function ComplianceMapView() {
         {/* LEFT: Map View (70%) */}
         <div className="relative h-full border-r">
           <UnifiedFleetMap
-            vehicles={vehicles as Vehicle[]}
-            facilities={facilities as GISFacility[]}
+            vehicles={vehicles as unknown as Vehicle[]}
+            facilities={facilities as unknown as GISFacility[]}
             height="100%"
             onVehicleSelect={(vehicleId) => {
               // Find zone associated with vehicle
