@@ -33,7 +33,7 @@ export function useArcGISLayers(): UseArcGISLayersReturn {
       setError(null)
       abortControllerRef.current = new AbortController()
 
-      const layersData = await apiClient.arcgisLayers.list()
+      const layersData = await apiClient.arcgisLayers.list() as LayerWithStatus[]
       setLayers(
         layersData.map((layer: LayerWithStatus) => ({
           ...layer,

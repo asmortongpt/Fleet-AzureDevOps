@@ -12,7 +12,7 @@ import {
 } from '@phosphor-icons/react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { format } from 'date-fns'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { toast } from 'sonner'
 
 import { Alert, AlertDescription } from '@/components/ui/alert'
@@ -129,7 +129,7 @@ export function ReimbursementQueue() {
   })
 
   // Handle errors with useEffect
-  React.useEffect(() => {
+  useEffect(() => {
     if (queueError) {
       logger.error('Failed to fetch queue:', queueError)
       toast.error('Failed to load reimbursement queue')
