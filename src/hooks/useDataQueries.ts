@@ -3,7 +3,7 @@
  * Provides optimized caching, refetching, and state management
  */
 
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient, useInfiniteQuery } from '@tanstack/react-query';
 
 import { apiClient } from '@/lib/api-client';
 import type {
@@ -85,7 +85,7 @@ export function useUpdateVehicle() {
 
   return useMutation({
     mutationFn: async ({ id, ...updates }: Partial<Vehicle> & { id: string }) => {
-      const response = await apiClient.patch<Vehicle>(`/vehicles/${id}`, updates);
+      const response = await apiClient.put<Vehicle>(`/vehicles/${id}`, updates);
       return response;
     },
     onSuccess: (data) => {
@@ -351,7 +351,7 @@ export function usePrefetchDriver() {
 // ============================================================================
 
 export function useInfiniteVehicles() {
-  return useQuery({
+  return useInfiniteQuery({
     queryKey: ['vehicles', 'infinite'],
     queryFn: async ({ pageParam = 1 }: { pageParam?: number }) => {
       const response = await apiClient.get<Vehicle[]>('/vehicles', {
@@ -362,10 +362,10 @@ export function useInfiniteVehicles() {
       });
       return response;
     },
-    // @ts-ignore - This would need proper setup with useInfiniteQuery
     getNextPageParam: (_lastPage, _pages) => {
-      return _lastPage?.length === 20 ? _pages.length + 1 : undefined;
+      return Array.isArray(_lastPage) && _lastPage.length === 20 ? _pages.length + 1 : undefined;
     },
+    initialPageParam: 1,
     gcTime: 10 * 60 * 1000,
   });
 }

@@ -316,7 +316,7 @@ export function ProcurementHub() {
         name: po.trackingId,
         location: po.delivery,
         type: 'delivery'
-      })) as GISFacility[]
+      })) as unknown as GISFacility[]
   }, [])
 
   const handleSupplierSelect = useCallback((supplierId: string) => {
