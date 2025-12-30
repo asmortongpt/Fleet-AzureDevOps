@@ -1,2 +1,2 @@
 // Fleet routes
-export * from './fleet.routes';
+// No routes defined yet - placeholder
