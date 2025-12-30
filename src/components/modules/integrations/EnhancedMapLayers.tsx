@@ -478,13 +478,13 @@ export function EnhancedMapLayers() {
   return (
     <div className="relative h-full w-full">
       <UniversalMap
-        layers={layers}
-        trafficIncidents={trafficIncidents}
-        trafficCameras={trafficCameras}
-        weatherData={weatherData}
+        layers={layers as any}
+        trafficIncidents={trafficIncidents as any}
+        trafficCameras={trafficCameras as any}
+        weatherData={weatherData as any}
         vehicles={vehicles}
         facilities={facilities}
-        onCameraSelect={setSelectedCamera}
+        onCameraSelect={setSelectedCamera as any}
       />
       {/* Add other UI components as needed */}
     </div>
