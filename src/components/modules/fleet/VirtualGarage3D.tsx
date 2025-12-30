@@ -36,7 +36,7 @@ import {
 } from '@/types/asset.types'
 
 // Lazy load components
-const Asset3DViewer = lazy(() => import('@/components/garage/Asset3DViewer').then(m => ({ default: m.Asset3DViewer })))
+const Asset3DViewer = lazy(() => import('@/components/garage/Asset3DViewer'))
 import logger from '@/utils/logger';
 // ============================================================================
 // TYPES

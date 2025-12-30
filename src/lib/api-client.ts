@@ -542,11 +542,14 @@ class APIClient {
   // Calendar integration endpoints
   calendar = {
     list: (params?: Record<string, unknown>) => this.get('/api/calendar/events', params),
+    listEvents: (params?: Record<string, unknown>) => this.get('/api/calendar/events', params),
     get: (id: string) => this.get(`/api/calendar/events/${id}`),
     create: (data: unknown) => this.post('/api/calendar/events', data),
     createEvent: (data: unknown) => this.post('/api/calendar/events', data),
     update: (id: string, data: unknown) => this.put(`/api/calendar/events/${id}`, data),
-    delete: (id: string) => this.delete(`/api/calendar/events/${id}`)
+    updateEvent: (id: string, data: unknown) => this.put(`/api/calendar/events/${id}`, data),
+    delete: (id: string) => this.delete(`/api/calendar/events/${id}`),
+    deleteEvent: (id: string) => this.delete(`/api/calendar/events/${id}`)
   }
 
   // ArcGIS Layers integration endpoints
@@ -599,7 +602,13 @@ class APIClient {
     list: (params?: Record<string, unknown>) => this.get('/api/adaptive-cards', params),
     get: (id: string) => this.get(`/api/adaptive-cards/${id}`),
     create: (data: unknown) => this.post('/api/adaptive-cards', data),
-    send: (data: unknown) => this.post('/api/adaptive-cards/send', data)
+    send: (data: unknown) => this.post('/api/adaptive-cards/send', data),
+    sendMaintenanceCard: (teamId: string, channelId: string, data: unknown) =>
+      this.post(`/api/adaptive-cards/maintenance/${teamId}/${channelId}`, data),
+    sendWorkOrderCard: (teamId: string, channelId: string, data: unknown) =>
+      this.post(`/api/adaptive-cards/work-order/${teamId}/${channelId}`, data),
+    sendApprovalCard: (teamId: string, channelId: string, data: unknown) =>
+      this.post(`/api/adaptive-cards/approval/${teamId}/${channelId}`, data)
   }
 
   // Asset Relationships endpoints
