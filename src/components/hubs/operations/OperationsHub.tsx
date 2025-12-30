@@ -96,7 +96,7 @@ export function OperationsHub() {
     ];
   }, []);
 
-  const selectedVehicle = (vehicles as Vehicle[]).find((v: Vehicle) => v.id === selectedVehicleId);
+  const selectedVehicle = (vehicles as unknown as Vehicle[]).find((v: Vehicle) => v.id === selectedVehicleId);
 
   // Side Panel Content - Operations Control
   const sidePanel = (

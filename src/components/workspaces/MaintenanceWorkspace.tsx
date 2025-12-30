@@ -85,7 +85,7 @@ const VehicleMaintenancePanel = ({ vehicle, _maintenanceHistory }: { vehicle: Ve
   }
 
   const daysUntilService = vehicle.nextService
-    ? Math.floor(((vehicle.nextService - (vehicle.mileage || 0)) || 0) / 50)
+    ? Math.floor(((Number(vehicle.nextService) - (vehicle.mileage || 0)) || 0) / 50)
     : null
 
   return (
@@ -129,11 +129,11 @@ const VehicleMaintenancePanel = ({ vehicle, _maintenanceHistory }: { vehicle: Ve
                       "font-medium",
                       daysUntilService && daysUntilService < 7 ? "text-red-500" : "text-green-500"
                     )}>
-                      {(vehicle.nextService - (vehicle.mileage || 0)) || 0} mi
+                      {(Number(vehicle.nextService) - (vehicle.mileage || 0)) || 0} mi
                     </span>
                   </div>
                   <Progress
-                    value={(vehicle.mileage || 0) / vehicle.nextService * 100}
+                    value={(vehicle.mileage || 0) / Number(vehicle.nextService) * 100}
                     className="h-2"
                   />
                 </div>
@@ -318,7 +318,7 @@ export function MaintenanceWorkspace({ _data }: { _data?: unknown }) {
       if (filterStatus === 'service') return v.status === 'service'
       if (filterStatus === 'alerts') return v.alerts && v.alerts.length > 0
       if (filterStatus === 'due') {
-        return v.nextService && (v.nextService - (v.mileage || 0)) < 500
+        return v.nextService && (Number(v.nextService) - (v.mileage || 0)) < 500
       }
       return true
     })
@@ -338,7 +338,7 @@ export function MaintenanceWorkspace({ _data }: { _data?: unknown }) {
     inService: (displayVehicles as Vehicle[]).filter((v: Vehicle) => v.status === 'service').length,
     alertsPending: (displayVehicles as Vehicle[]).filter((v: Vehicle) => v.alerts && v.alerts.length > 0).length,
     serviceDue: (displayVehicles as Vehicle[]).filter((v: Vehicle) =>
-      v.nextService && (v.nextService - (v.mileage || 0)) < 500
+      v.nextService && (Number(v.nextService) - (v.mileage || 0)) < 500
     ).length,
     workOrdersPending: (workOrders as unknown as WorkOrder[]).filter((w: WorkOrder) => w.status === 'pending').length
   }), [displayVehicles, workOrders])
