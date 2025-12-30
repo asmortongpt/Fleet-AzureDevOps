@@ -558,7 +558,7 @@ fleet-session-secret = "<generated-256-bit-secret>"
 fleet-csrf-secret = "<generated-256-bit-secret>"
 
 # Azure AD
-fleet-azure-ad-client-secret = "aJN8Q~py5Vf.tH9xfhrhIBl.ofsRRvQB9owhGcdE"
+fleet-azure-ad-client-secret = "<from-azure-ad-app-registration>"
 
 # Container Registry
 fleet-acr-password = "<from-acr>"
