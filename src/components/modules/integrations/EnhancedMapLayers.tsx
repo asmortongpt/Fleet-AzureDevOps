@@ -477,7 +477,6 @@ export function EnhancedMapLayers() {
   return (
     <div className="relative h-full w-full">
       <UniversalMap
-        center={mapCenter}
         layers={layers}
         trafficIncidents={trafficIncidents}
         trafficCameras={trafficCameras}

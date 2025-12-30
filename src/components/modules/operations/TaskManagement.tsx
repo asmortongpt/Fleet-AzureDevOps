@@ -77,7 +77,7 @@ interface Comment {
   created_at: string
 }
 
-interface ApiResponse<T> {
+interface TaskApiResponse<T> {
   data?: {
     tasks?: T[]
     task?: T
