@@ -1,6 +1,6 @@
 import { createLogger } from '@/utils/logger'
 
-const logger = createLogger('UniversalMapStorage')
+const logger = createLogger()
 
 /**
  * Safely access localStorage with fallback
