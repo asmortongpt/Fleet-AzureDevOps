@@ -61,7 +61,7 @@ const AssetCheckInOut: React.FC<AssetCheckInOutProps> = ({ tenantId, onCheckInOu
         throw new Error('Missing or invalid input');
       }
 
-      const photoUrl = await uploadPhoto(image, tenantId);
+      const photoUrl = await photoStorageService.upload(new File([image], 'asset-photo.webp'));
       const gpsCoords = { lat: _location.coords?.latitude ?? 0, lng: _location.coords?.longitude ?? 0 };
 
       // Create properly typed payload
