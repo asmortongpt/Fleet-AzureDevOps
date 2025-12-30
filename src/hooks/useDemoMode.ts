@@ -123,12 +123,11 @@ export const useDemoMode = () => {
       id: demoUser.id,
       tenantId: 'demo-tenant',
       email: demoUser.email,
-      name: `${demoUser.firstName} ${demoUser.lastName}`,
+      firstName: demoUser.firstName,
+      lastName: demoUser.lastName,
       role: roleMap[initialRole] as any,
       permissions: ['read', 'write'],
-      status: 'active',
-      createdAt: new Date().toISOString(),
-      token: 'demo-token-' + demoUser.id
+      avatar: demoUser.avatar
     });
   }, [setUser]);
 
@@ -171,12 +170,11 @@ export const useDemoMode = () => {
       id: demoUser.id,
       tenantId: 'demo-tenant',
       email: demoUser.email,
-      name: `${demoUser.firstName} ${demoUser.lastName}`,
+      firstName: demoUser.firstName,
+      lastName: demoUser.lastName,
       role: roleMap[newRole] as any,
       permissions: ['read', 'write'],
-      status: 'active',
-      createdAt: new Date().toISOString(),
-      token: 'demo-token-' + demoUser.id
+      avatar: demoUser.avatar
     });
   }, [isDemoMode, setUser]);
 
