@@ -74,11 +74,11 @@ export function TeamsIntegration() {
   const handleNotifyMaintenance = async (priority: "low" | "medium" | "high" | "urgent") => {
     try {
       const message = await msOfficeService.createTeamsNotification(
+        "maintenance-team",
         "maintenance",
         "Maintenance Alert",
         `A ${priority} priority maintenance issue requires attention.`,
-        priority,
-        []
+        priority
       )
 
       setMessages(current => [...(current || []), message])

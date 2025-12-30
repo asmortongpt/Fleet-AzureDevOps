@@ -48,13 +48,19 @@ const UtilizationDashboard: React.FC = () => {
     const fetchData = async () => {
       try {
         const idleAssetsData = await fetchIdleAssets();
-        setIdleAssets(idleAssetsData);
+        if (Array.isArray(idleAssetsData)) {
+          setIdleAssets(idleAssetsData as Asset[]);
+        }
 
         const utilizationData = await fetchUtilizationData();
-        setUtilizationData(utilizationData);
+        if (Array.isArray(utilizationData)) {
+          setUtilizationData(utilizationData as UtilizationData[]);
+        }
 
         const roiMetricsData = await fetchROIMetrics();
-        setRoiMetrics(roiMetricsData);
+        if (Array.isArray(roiMetricsData)) {
+          setRoiMetrics(roiMetricsData as ROIMetric[]);
+        }
 
         logger.logAudit('Utilization dashboard data fetched', { tenantId });
       } catch (error) {
@@ -82,14 +88,14 @@ const UtilizationDashboard: React.FC = () => {
   return (
     <>
       <Helmet>
-        <meta http-equiv="Content-Security-Policy" content="default-src 'self';" />
-        <meta http-equiv="Strict-Transport-Security" content="max-age=31536000; includeSubDomains" />
+        <meta httpEquiv="Content-Security-Policy" content="default-src 'self';" />
+        <meta httpEquiv="Strict-Transport-Security" content="max-age=31536000; includeSubDomains" />
       </Helmet>
       <div>
         <h2>Idle Assets</h2>
         <Table columns={columns} dataSource={idleAssets} rowKey="id" />
-        <Button onClick={() => exportToCSV(idleAssets, 'idle-assets')}>Export to CSV</Button>
-        <Button onClick={() => exportToExcel(idleAssets, 'idle-assets')}>Export to Excel</Button>
+        <Button onClick={() => exportToCSV(idleAssets)}>Export to CSV</Button>
+        <Button onClick={() => exportToExcel(idleAssets)}>Export to Excel</Button>
       </div>
       <div>
         <h2>Utilization Rate</h2>

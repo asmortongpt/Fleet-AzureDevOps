@@ -224,7 +224,7 @@ function useUpdateCalendarIntegrationInternal() {
       integrationId: string
       settings: Partial<CalendarIntegration>
     }) => {
-      const response = await apiClient.batch<{
+      const response = await apiClient.put<{
         success: boolean
         integration: CalendarIntegration
       }>(`/api/scheduling/calendar/integrations/${integrationId}`, settings)

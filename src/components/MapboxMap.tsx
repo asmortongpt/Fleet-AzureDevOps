@@ -4,7 +4,7 @@ import { usePerformanceMonitor } from "@/hooks/usePerformanceMonitor"
 import { Vehicle, GISFacility, TrafficCamera } from "@/lib/types"
 import logger from '@/utils/logger';
 
-let mapboxgl: typeof import("mapbox-gl") | null = null
+let mapboxgl: (typeof import("mapbox-gl")) | null = null
 let mapboxCssLoaded = false
 
 async function loadMapboxGL(): Promise<typeof import("mapbox-gl")> {
@@ -179,7 +179,10 @@ function createCameraPopupHTML(camera: TrafficCamera): string {
   `
 }
 
-function escapeHtml(text: string): string {
+function escapeHtml(text: string | undefined): string {
+  if (!text || typeof text !== 'string') {
+    return ''
+  }
   const div = document.createElement('div')
   div.textContent = text
   return div.innerHTML
