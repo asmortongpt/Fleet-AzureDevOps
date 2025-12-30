@@ -42,7 +42,8 @@ pids
 
 # Uploads and generated files
 uploads/
-reports/
+/reports/
+!src/components/hubs/reports/
 *.csv
 *.xlsx
 *.pdf
