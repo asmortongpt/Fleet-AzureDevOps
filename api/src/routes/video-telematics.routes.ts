@@ -10,7 +10,7 @@ import { requirePermission, rateLimit } from '../middleware/permissions';
 import DriverSafetyAIService from '../services/driver-safety-ai.service';
 import VideoTelematicsService from '../services/video-telematics.service';
 import { getErrorMessage } from '../utils/error-handler'
-import { securityLogger as logger } from '../utils/logger'
+import { securityLogger as logger } from '../config/logger'
 
 
 const router = express.Router();
@@ -166,7 +166,7 @@ router.get(
         `SELECT vse.*,
                 v.name as vehicle_name,
                 v.vin,
-                d.first_name || ` ` || d.last_name as driver_name,
+                d.first_name || ' ' || d.last_name as driver_name,
                 vc.camera_type,
                 vc.camera_name
          FROM video_safety_events vse

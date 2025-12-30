@@ -17,7 +17,7 @@ import {
   Route,
   Geofence,
   Waypoint
-} from `../types`
+} from '../types'
 
 export class GPSEmulator extends EventEmitter {
   private vehicle: Vehicle
@@ -228,7 +228,7 @@ export class GPSEmulator extends EventEmitter {
     if (this.currentWaypointIndex >= this.currentRoute.waypoints.length) {
       // Route complete - loop back to start or stop
       this.currentWaypointIndex = 0
-      this.emit(`routeComplete`, { vehicleId: this.vehicle.id })
+      this.emit('routeComplete', { vehicleId: this.vehicle.id })
     }
 
     this.targetWaypoint = this.currentRoute.waypoints[this.currentWaypointIndex]

@@ -74,7 +74,7 @@ router.get(
  */
 router.post(
   '/connect',
- csrfProtection,  csrfProtection, requirePermission('telemetry:create:fleet'),
+ csrfProtection, requirePermission('telemetry:create:fleet'),
   auditLog({ action: 'CREATE', resourceType: 'vehicle_telematics_connections' }),
   async (req: AuthRequest, res: Response) => {
     try {
@@ -327,7 +327,7 @@ router.get(
           dse.address, dse.speed_mph, dse.g_force, dse.timestamp,
           dse.video_url, dse.video_thumbnail_url,
           v.name as vehicle_name, v.vin,
-          d.first_name || ` ` || d.last_name as driver_name,
+          d.first_name || ' ' || d.last_name as driver_name,
           tp.display_name as provider
         FROM driver_safety_events dse
         JOIN vehicles v ON dse.vehicle_id = v.id
@@ -397,7 +397,7 @@ router.get(
  */
 router.post(
   '/video/request',
- csrfProtection,  csrfProtection, requirePermission('telemetry:create:fleet'),
+ csrfProtection, requirePermission('telemetry:create:fleet'),
   auditLog({ action: 'CREATE', resourceType: 'video_request' }),
   async (req: AuthRequest, res: Response) => {
     try {
@@ -481,7 +481,7 @@ router.get(
  */
 router.post(
   '/webhook/samsara',
-csrfProtection,  csrfProtection,  csrfProtection, async (req: express.Request, res: Response) => {
+csrfProtection,  csrfProtection, async (req: express.Request, res: Response) => {
     try {
       // Verify webhook signature (if configured)
       const signature = req.headers['x-samsara-signature'] as string
@@ -528,7 +528,7 @@ csrfProtection,  csrfProtection,  csrfProtection, async (req: express.Request, r
  */
 router.post(
   '/sync',
- csrfProtection,  csrfProtection, requirePermission('telemetry:create:fleet'),
+ csrfProtection, requirePermission('telemetry:create:fleet'),
   auditLog({ action: 'CREATE', resourceType: 'telematics_sync' }),
   async (req: AuthRequest, res: Response) => {
     try {

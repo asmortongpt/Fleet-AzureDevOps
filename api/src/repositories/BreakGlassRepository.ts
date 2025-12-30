@@ -15,7 +15,7 @@ import { Pool } from 'pg';
 
 import { connectionManager } from '../config/connection-manager';
 
-import { BaseRepository, QueryContext } from './BaseRepository';
+import { BaseRepository, QueryContext } from './base/BaseRepository';
 
 export interface BreakGlassSession {
   id: string;
