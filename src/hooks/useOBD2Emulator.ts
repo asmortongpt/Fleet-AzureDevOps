@@ -75,7 +75,8 @@ export function useOBD2Emulator(autoConnect: boolean = false): UseOBD2EmulatorRe
     }
 
     const wsProtocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:'
-    const wsHost = API_BASE.replace(/^https?:\/\//, '')
+    const apiBase = API_BASE ?? 'http://localhost:3000'
+    const wsHost = apiBase.replace(/^https?:\/\//, '')
     const wsUrl = `${wsProtocol}//${wsHost}/ws/obd2/${sid}`
 
     const ws = new WebSocket(wsUrl)
