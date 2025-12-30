@@ -213,7 +213,7 @@ export function MapboxMap({
   zoom = DEFAULT_ZOOM,
   className = "",
   onMapReady,
-  _onReady,
+  
   onError
 }: MapboxMapProps) {
   const _perf = usePerformanceMonitor("MapboxMap", {

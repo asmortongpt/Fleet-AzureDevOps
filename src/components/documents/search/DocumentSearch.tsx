@@ -31,7 +31,7 @@ interface DocumentSearchProps {
 export function DocumentSearch({
   documents,
   onSelectDocument,
-  _onFiltersChange,
+  
   recentSearches = [],
   _onSaveSearch
 }: DocumentSearchProps) {
