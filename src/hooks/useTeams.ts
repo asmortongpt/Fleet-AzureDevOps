@@ -40,6 +40,7 @@ export function useTeams() {
       return response.value || []
     },
     staleTime: 5 * 60 * 1000, // 5 minutes
+    gcTime: 10 * 60 * 1000,
   })
 }
 
@@ -54,6 +55,7 @@ export function useTeam(teamId: string) {
     },
     enabled: !!teamId,
     staleTime: 5 * 60 * 1000,
+    gcTime: 10 * 60 * 1000,
   })
 }
 
@@ -71,6 +73,7 @@ export function useTeamsChannels(teamId: string) {
     },
     enabled: !!teamId,
     staleTime: 5 * 60 * 1000,
+    gcTime: 10 * 60 * 1000,
   })
 }
 
@@ -81,10 +84,11 @@ export function useTeamsChannel(teamId: string, channelId: string) {
   return useQuery({
     queryKey: teamsKeys.channel(teamId, channelId),
     queryFn: async () => {
-      return await apiClient.teams.getChannel(teamId, channelId) as TeamsChannel
+      return (await apiClient.teams.getChannel(teamId, channelId)) as TeamsChannel
     },
     enabled: !!teamId && !!channelId,
     staleTime: 5 * 60 * 1000,
+    gcTime: 10 * 60 * 1000,
   })
 }
 
@@ -93,10 +97,14 @@ export function useTeamsChannel(teamId: string, channelId: string) {
 /**
  * Fetch messages for a channel with real-time updates
  */
-export function useTeamsMessages(teamId: string, channelId: string, options?: {
-  limit?: number
-  enableRealtime?: boolean
-}) {
+export function useTeamsMessages(
+  teamId: string,
+  channelId: string,
+  options?: {
+    limit?: number
+    enableRealtime?: boolean
+  }
+) {
   const queryClient = useQueryClient()
   const { subscribe } = useWebSocket()
 
@@ -105,13 +113,14 @@ export function useTeamsMessages(teamId: string, channelId: string, options?: {
     queryFn: async () => {
       const response: any = await apiClient.teams.listMessages(teamId, channelId, {
         $top: options?.limit || 50,
-        $orderby: 'createdDateTime desc'
+        $orderby: 'createdDateTime desc',
       })
       return (response.value || []) as TeamsMessage[]
     },
     enabled: !!teamId && !!channelId,
     refetchOnWindowFocus: true,
     staleTime: 30 * 1000, // 30 seconds
+    gcTime: 60 * 1000,
   })
 
   // Real-time updates via WebSocket
@@ -132,7 +141,9 @@ export function useTeamsMessages(teamId: string, channelId: string, options?: {
         queryClient.setQueryData(
           teamsKeys.messages(teamId, channelId),
           (old: TeamsMessage[] = []) =>
-            old.map(msg => msg.id === message.data?.message.id ? message.data?.message : msg)
+            old.map((msg) =>
+              msg.id === message.data?.message?.id ? message.data?.message : msg
+            )
         )
       }
     })
@@ -142,7 +153,7 @@ export function useTeamsMessages(teamId: string, channelId: string, options?: {
         queryClient.setQueryData(
           teamsKeys.messages(teamId, channelId),
           (old: TeamsMessage[] = []) =>
-            old.filter(msg => msg.id !== message.data?.messageId)
+            old.filter((msg) => msg.id !== message.data?.messageId)
         )
       }
     })
@@ -164,9 +175,10 @@ export function useTeamsMessage(teamId: string, channelId: string, messageId: st
   return useQuery({
     queryKey: teamsKeys.message(teamId, channelId, messageId),
     queryFn: async () => {
-      return await apiClient.teams.getMessage(teamId, channelId, messageId) as TeamsMessage
+      return (await apiClient.teams.getMessage(teamId, channelId, messageId)) as TeamsMessage
     },
     enabled: !!teamId && !!channelId && !!messageId,
+    gcTime: 5 * 60 * 1000,
   })
 }
 
@@ -191,14 +203,14 @@ export function useSendTeamsMessage(teamId: string, channelId: string) {
         subject: data.subject,
         body: {
           contentType: data.contentType || 'html',
-          content: data.content
+          content: data.content,
         },
         importance: data.importance || 'normal',
         mentions: data.mentions,
-        attachments: data.attachments
+        attachments: data.attachments,
       })
     },
-    onMutate: async (newMessage) => {
+    onMutate: async (_newMessage) => {
       // Cancel outgoing refetches
       await queryClient.cancelQueries({ queryKey: teamsKeys.messages(teamId, channelId) })
 
@@ -210,15 +222,15 @@ export function useSendTeamsMessage(teamId: string, channelId: string) {
         id: `temp-${Date.now()}`,
         channelId,
         teamId,
-        subject: newMessage.subject,
-        content: newMessage.content,
-        contentType: newMessage.contentType || 'text',
+        subject: _newMessage.subject,
+        content: _newMessage.content,
+        contentType: _newMessage.contentType || 'text',
         author: {
           id: 'current-user',
-          name: 'You'
+          name: 'You',
         },
         createdAt: new Date().toISOString(),
-        deliveryStatus: 'sending'
+        deliveryStatus: 'sending',
       }
 
       queryClient.setQueryData(
@@ -228,9 +240,12 @@ export function useSendTeamsMessage(teamId: string, channelId: string) {
 
       return { previousMessages }
     },
-    onError: (err, newMessage, context) => {
+    onError: (_err, _newMessage, context) => {
       // Rollback on error
-      queryClient.setQueryData(teamsKeys.messages(teamId, channelId), context?.previousMessages)
+      queryClient.setQueryData(
+        teamsKeys.messages(teamId, channelId),
+        context?.previousMessages
+      )
       toast.error('Failed to send message')
     },
     onSuccess: () => {
@@ -257,8 +272,8 @@ export function useReplyToTeamsMessage(teamId: string, channelId: string, messag
       return await apiClient.teams.replyToMessage(teamId, channelId, messageId, {
         body: {
           contentType: data.contentType || 'html',
-          content: data.content
-        }
+          content: data.content,
+        },
       })
     },
     onSuccess: () => {
@@ -302,7 +317,9 @@ export function useAddTeamsReaction(teamId: string, channelId: string, messageId
       return await apiClient.teams.addReaction(teamId, channelId, messageId, reaction)
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: teamsKeys.message(teamId, channelId, messageId) })
+      queryClient.invalidateQueries({
+        queryKey: teamsKeys.message(teamId, channelId, messageId),
+      })
       queryClient.invalidateQueries({ queryKey: teamsKeys.messages(teamId, channelId) })
     },
   })
@@ -345,6 +362,6 @@ export function useTeamsRealtime(teamId: string, channelId: string) {
     isSending: sendMessage.isPending,
     replyToMessage: replyToMessage.mutate,
     deleteMessage: deleteMessage.mutate,
-    refetch: messages.refetch
+    refetch: messages.refetch,
   }
 }

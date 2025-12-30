@@ -44,7 +44,6 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 
-
 interface KPIData {
   totalVehicles: number
   activeVehicles: number
@@ -257,35 +256,44 @@ export function ExecutiveDashboard() {
     queryKey: ['executive-dashboard', 'kpis'],
     queryFn: fetchDashboardKpis,
     refetchInterval: 60000,
-    staleTime: 30000
+    staleTime: 30000,
+    gcTime: 60000
   })
 
   const { data: fleetHealth, isLoading: healthLoading } = useQuery<FleetHealth>({
     queryKey: ['executive-dashboard', 'fleet-health'],
     queryFn: fetchDashboardHealth,
     refetchInterval: 60000,
-    staleTime: 30000
+    staleTime: 30000,
+    gcTime: 60000
   })
 
   const { data: costAnalysis, isLoading: costsLoading } = useQuery<CostAnalysis>({
     queryKey: ['executive-dashboard', 'cost-analysis'],
     queryFn: fetchDashboardCosts,
     refetchInterval: 60000,
-    staleTime: 30000
+    staleTime: 30000,
+    gcTime: 60000
   })
 
   const { data: insights, isLoading: insightsLoading } = useQuery<AIInsight[]>({
     queryKey: ['executive-dashboard', 'insights'],
     queryFn: fetchDashboardInsights,
     refetchInterval: 60000,
-    staleTime: 30000
+    staleTime: 30000,
+    gcTime: 60000
   })
 
-  const { data: trends, isLoading: trendsLoading } = useQuery({
+  const { data: trends, isLoading: trendsLoading } = useQuery<{
+    utilization: TrendData[];
+    costs: TrendData[];
+    incidents: TrendData[];
+  }>({
     queryKey: ['executive-dashboard', 'trends'],
     queryFn: fetchDashboardTrends,
     refetchInterval: 60000,
-    staleTime: 30000
+    staleTime: 30000,
+    gcTime: 60000
   })
 
   const loading = kpisLoading || healthLoading || costsLoading || insightsLoading || trendsLoading
@@ -480,11 +488,11 @@ export function ExecutiveDashboard() {
                     <TrendDown className="w-4 h-4 text-danger" />
                   )}
                   <span className={`text-xs ${kpis.mileageChange >= 0 ? 'text-success' : 'text-danger'}`}>
-                    {Math.abs(kpis.mileageChange).toFixed(1)}% vs last month
+                    {kpis.mileageChange.toFixed(1)}% from last month
                   </span>
                 </div>
               </div>
-              <Target className="w-8 h-8 text-purple" weight="duotone" />
+              <Gauge className="w-8 h-8 text-primary" weight="duotone" />
             </div>
           </CardContent>
         </Card>
@@ -493,283 +501,54 @@ export function ExecutiveDashboard() {
           <CardContent className="pt-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-muted-foreground">Driver Safety Score</p>
-                <p className="text-2xl font-bold">{kpis.avgDriverSafetyScore.toFixed(1)}</p>
-                <p className="text-xs text-muted-foreground mt-1">
-                  {kpis.incidentRatePer100kMiles.toFixed(2)} incidents/100k mi
-                </p>
-              </div>
-              <ShieldCheck className="w-8 h-8 text-success" weight="duotone" />
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardContent className="pt-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-muted-foreground">Fuel Efficiency</p>
+                <p className="text-sm text-muted-foreground">Avg. Fuel Efficiency</p>
                 <p className="text-2xl font-bold">{kpis.avgFuelEfficiency.toFixed(1)} MPG</p>
-                <Badge variant="outline" className="mt-1">Fleet average</Badge>
+                <p className="text-xs text-muted-foreground mt-1">Fleet average</p>
               </div>
               <CurrencyDollar className="w-8 h-8 text-warning" weight="duotone" />
             </div>
           </CardContent>
         </Card>
-
-        <Card>
-          <CardContent className="pt-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-muted-foreground">Maintenance Cost</p>
-                <p className="text-2xl font-bold">${kpis.maintenanceCostPerVehicle.toFixed(0)}</p>
-                <p className="text-xs text-muted-foreground mt-1">per vehicle/month</p>
-              </div>
-              <Wrench className="w-8 h-8 text-primary" weight="duotone" />
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardContent className="pt-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-muted-foreground">Task Completion</p>
-                <p className="text-2xl font-bold">{kpis.taskCompletionRate.toFixed(1)}%</p>
-                <Badge variant="outline" className="mt-1">Work orders</Badge>
-              </div>
-              <CheckCircle className="w-8 h-8 text-success" weight="duotone" />
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardContent className="pt-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-muted-foreground">Alert Response Time</p>
-                <p className="text-2xl font-bold">{kpis.avgAlertResponseTime.toFixed(1)}h</p>
-                <p className="text-xs text-muted-foreground mt-1">average response</p>
-              </div>
-              <Clock className="w-8 h-8 text-cyan" weight="duotone" />
-            </div>
-          </CardContent>
-        </Card>
       </div>
 
-      {/* AI Insights Panel */}
-      <Card className="border-2 border-primary/20 bg-primary/5">
+      {/* AI Insights */}
+      <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <Brain className="w-6 h-6 text-primary" weight="duotone" />
-            AI-Powered Insights & Recommendations
+            <Brain className="w-6 h-6" />
+            AI-Powered Insights
           </CardTitle>
-          <CardDescription>
-            Machine learning analysis detecting patterns and anomalies
-          </CardDescription>
+          <CardDescription>Intelligent recommendations and alerts</CardDescription>
         </CardHeader>
         <CardContent>
-          <ScrollArea className="h-96">
-            <div className="space-y-3">
-              {insights.map((insight) => (
-                <Card key={insight.id} className="border-l-4" style={{ borderLeftColor: insight.type === 'critical' ? COLORS.danger : insight.type === 'warning' ? COLORS.warning : COLORS.primary }}>
-                  <CardContent className="pt-4">
-                    <div className="flex items-start gap-3">
-                      <div className={`p-2 rounded-lg ${insight.type === 'critical' ? 'bg-red-100 text-red-600' : insight.type === 'warning' ? 'bg-yellow-100 text-yellow-600' : 'bg-blue-100 text-blue-600'}`}>
+          <ScrollArea className="h-72">
+            <div className="space-y-4">
+              {insights?.map((insight) => (
+                <div key={insight.id} className="border rounded-md p-4 bg-muted/50">
+                  <div className="flex items-start justify-between">
+                    <div className="flex items-center gap-2">
+                      <div className={`text-${getInsightColor(insight.type)}-foreground`}>
                         {getInsightIcon(insight.type)}
                       </div>
-                      <div className="flex-1">
-                        <div className="flex items-center justify-between mb-2">
-                          <h4 className="font-semibold">{insight.title}</h4>
-                          <Badge variant={getInsightColor(insight.type)}>
-                            {(insight.confidence * 100).toFixed(0)}% confidence
-                          </Badge>
-                        </div>
-                        <p className="text-sm text-muted-foreground mb-3">{insight.message}</p>
-                        <div className="flex items-center gap-2">
-                          {insight.actionable && (
-                            <Button size="sm" variant="outline">
-                              Take Action
-                            </Button>
-                          )}
-                          {insight.relatedVehicle && (
-                            <Badge variant="secondary">VIN: {insight.relatedVehicle}</Badge>
-                          )}
-                          <span className="text-xs text-muted-foreground ml-auto">
-                            {new Date(insight.timestamp).toLocaleString()}
-                          </span>
-                        </div>
+                      <div>
+                        <p className="font-medium">{insight.title}</p>
+                        <p className="text-sm text-muted-foreground">
+                          Confidence: {(insight.confidence * 100).toFixed(0)}%
+                        </p>
                       </div>
                     </div>
-                  </CardContent>
-                </Card>
+                    {insight.actionable && (
+                      <Button variant="outline" size="sm">Take Action</Button>
+                    )}
+                  </div>
+                  <p className="mt-2 text-sm">{insight.message}</p>
+                  <p className="mt-1 text-xs text-muted-foreground">
+                    {new Date(insight.timestamp).toLocaleTimeString()}
+                  </p>
+                </div>
               ))}
             </div>
           </ScrollArea>
-        </CardContent>
-      </Card>
-
-      {/* Charts and Trends */}
-      <Tabs defaultValue="utilization" className="space-y-4">
-        <TabsList className="grid w-full grid-cols-3">
-          <TabsTrigger value="utilization">Fleet Utilization</TabsTrigger>
-          <TabsTrigger value="costs">Cost Analysis</TabsTrigger>
-          <TabsTrigger value="incidents">Incident Trends</TabsTrigger>
-        </TabsList>
-
-        <TabsContent value="utilization" className="space-y-4">
-          <Card>
-            <CardHeader>
-              <CardTitle>Fleet Utilization Over Time</CardTitle>
-              <CardDescription>30-day trend analysis of fleet activity</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <ResponsiveContainer width="100%" height={300}>
-                <AreaChart data={trends?.utilization || []}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="date" />
-                  <YAxis />
-                  <Tooltip />
-                  <Legend />
-                  <Area
-                    type="monotone"
-                    dataKey="value"
-                    stroke={COLORS.primary}
-                    fill={COLORS.primary}
-                    fillOpacity={0.3}
-                    name="Utilization %"
-                  />
-                </AreaChart>
-              </ResponsiveContainer>
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        <TabsContent value="costs" className="space-y-4">
-          <div className="grid grid-cols-2 gap-4">
-            <Card>
-              <CardHeader>
-                <CardTitle>Cost Breakdown</CardTitle>
-                <CardDescription>Current month expenses by category</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <ResponsiveContainer width="100%" height={300}>
-                  <PieChart>
-                    <Pie
-                      data={costAnalysis.breakdown}
-                      dataKey="amount"
-                      nameKey="category"
-                      cx="50%"
-                      cy="50%"
-                      outerRadius={100}
-                      label={(entry) => `${entry.category}: ${entry.percentage.toFixed(1)}%`}
-                    >
-                      {costAnalysis.breakdown.map((entry, index) => (
-                        <Cell key={`cell-${index}`} fill={PIE_COLORS[index % PIE_COLORS.length]} />
-                      ))}
-                    </Pie>
-                    <Tooltip />
-                  </PieChart>
-                </ResponsiveContainer>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader>
-                <CardTitle>Daily Cost Trend</CardTitle>
-                <CardDescription>30-day cost history</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <ResponsiveContainer width="100%" height={300}>
-                  <LineChart data={trends?.costs || []}>
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="date" />
-                    <YAxis />
-                    <Tooltip />
-                    <Legend />
-                    <Line
-                      type="monotone"
-                      dataKey="value"
-                      stroke={COLORS.warning}
-                      strokeWidth={2}
-                      name="Daily Costs ($)"
-                    />
-                  </LineChart>
-                </ResponsiveContainer>
-              </CardContent>
-            </Card>
-          </div>
-
-          <Card>
-            <CardHeader>
-              <CardTitle>Cost Summary</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-3 gap-4">
-                <div>
-                  <p className="text-sm text-muted-foreground">Total Monthly Costs</p>
-                  <p className="text-3xl font-bold">${costAnalysis.totalCosts.toLocaleString()}</p>
-                </div>
-                <div>
-                  <p className="text-sm text-muted-foreground">Cost Per Mile</p>
-                  <p className="text-3xl font-bold">${costAnalysis.costPerMile.toFixed(2)}</p>
-                </div>
-                <div>
-                  <p className="text-sm text-muted-foreground">Cost Per Vehicle</p>
-                  <p className="text-3xl font-bold">${costAnalysis.costPerVehicle.toFixed(2)}</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        <TabsContent value="incidents" className="space-y-4">
-          <Card>
-            <CardHeader>
-              <CardTitle>Safety Incident Trends</CardTitle>
-              <CardDescription>30-day incident history</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <ResponsiveContainer width="100%" height={300}>
-                <BarChart data={trends?.incidents || []}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="date" />
-                  <YAxis />
-                  <Tooltip />
-                  <Legend />
-                  <Bar dataKey="value" fill={COLORS.danger} name="Incidents" />
-                </BarChart>
-              </ResponsiveContainer>
-            </CardContent>
-          </Card>
-        </TabsContent>
-      </Tabs>
-
-      {/* Quick Actions */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Quick Actions</CardTitle>
-          <CardDescription>Common executive dashboard tasks</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-4 gap-3">
-            <Button variant="outline" className="h-20 flex-col gap-2">
-              <Truck className="w-6 h-6" />
-              <span className="text-xs">Fleet Overview</span>
-            </Button>
-            <Button variant="outline" className="h-20 flex-col gap-2">
-              <Wrench className="w-6 h-6" />
-              <span className="text-xs">Schedule Maintenance</span>
-            </Button>
-            <Button variant="outline" className="h-20 flex-col gap-2">
-              <ChartLine className="w-6 h-6" />
-              <span className="text-xs">View Reports</span>
-            </Button>
-            <Button variant="outline" className="h-20 flex-col gap-2">
-              <Users className="w-6 h-6" />
-              <span className="text-xs">Driver Management</span>
-            </Button>
-          </div>
         </CardContent>
       </Card>
     </div>

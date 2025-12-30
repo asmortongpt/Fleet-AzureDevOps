@@ -52,16 +52,16 @@ export interface PerformanceMonitorReturn {
  * @param options - Configuration options for performance monitoring
  */
 export function usePerformanceMonitor(
-  componentName?: string,
+  _componentName?: string,
   options: UsePerformanceMonitorOptions = {}
 ): PerformanceMonitorReturn {
   const {
     enabled = true,
     detectMemoryLeaks = true,
     memoryLeakCallback,
-    reportInterval = 10000,
+    _reportInterval = 10000,
     slowRenderThreshold = 50,
-    highMemoryThreshold = 150,
+    _highMemoryThreshold = 150,
   } = options;
 
   // State for metrics
@@ -90,9 +90,9 @@ export function usePerformanceMonitor(
 
   // End a metric timer and record the duration
   const endMetric = useCallback((
-    name: string,
+    _name: string,
     startTime: number,
-    metadata?: Record<string, any>
+    _metadata?: Record<string, any>
   ) => {
     if (!enabled) return;
 
@@ -101,14 +101,14 @@ export function usePerformanceMonitor(
       : Date.now();
 
     const duration = endTime - startTime;
-    recordMetric(name, duration, metadata);
+    recordMetric(_name, duration, _metadata);
   }, [enabled]);
 
   // Record a completed metric
   const recordMetric = useCallback((
     name: string,
     duration: number,
-    metadata?: Record<string, any>
+    _metadata?: Record<string, any>
   ) => {
     if (!enabled) return;
 

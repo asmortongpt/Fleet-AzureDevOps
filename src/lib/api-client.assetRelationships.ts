@@ -17,15 +17,15 @@ export const assetRelationshipsEndpoints = {
     child_asset_id?: string
     relationship_type?: string
     active_only?: boolean
-  }) {
-    return this.get('/api/asset-relationships', params)
+  }): Promise<any> {
+    return this.get('/api/asset-relationships', { params })
   },
 
   /**
    * Get active asset combinations from vw_active_asset_combos view
    * @returns List of currently active parent-child asset relationships
    */
-  listActive: function() {
+  listActive: function(): Promise<any> {
     return this.get('/api/asset-relationships/active')
   },
 
@@ -33,7 +33,7 @@ export const assetRelationshipsEndpoints = {
    * Get a specific relationship by ID
    * @param id - Relationship ID
    */
-  get: function(id: string) {
+  get: function(id: string): Promise<any> {
     return this.get(`/api/asset-relationships/${id}`)
   },
 
@@ -42,7 +42,7 @@ export const assetRelationshipsEndpoints = {
    * @param assetId - Asset ID (can be parent or child)
    * @returns All relationships (past and present) for the asset
    */
-  getHistory: function(assetId: string) {
+  getHistory: function(assetId: string): Promise<any> {
     return this.get(`/api/asset-relationships/history/${assetId}`)
   },
 
@@ -65,8 +65,8 @@ export const assetRelationshipsEndpoints = {
     effective_from?: string
     effective_to?: string
     notes?: string
-  }) {
-    return this.post('/api/asset-relationships', data)
+  }): Promise<any> {
+    return this.request('POST', '/api/asset-relationships', data)
   },
 
   /**
@@ -79,8 +79,8 @@ export const assetRelationshipsEndpoints = {
     effective_from?: string
     effective_to?: string
     notes?: string
-  }) {
-    return this.put(`/api/asset-relationships/${id}`, data)
+  }): Promise<any> {
+    return this.request('PUT', `/api/asset-relationships/${id}`, data)
   },
 
   /**
@@ -88,8 +88,8 @@ export const assetRelationshipsEndpoints = {
    * This is the recommended way to "delete" relationships to preserve history
    * @param id - Relationship ID
    */
-  deactivate: function(id: string) {
-    return this.patch(`/api/asset-relationships/${id}/deactivate`, {})
+  deactivate: function(id: string): Promise<any> {
+    return this.request('PATCH', `/api/asset-relationships/${id}/deactivate`, {})
   },
 
   /**
@@ -98,8 +98,8 @@ export const assetRelationshipsEndpoints = {
    * Use deactivate() instead unless you really need to delete
    * @param id - Relationship ID
    */
-  delete: function(id: string) {
-    return this.delete(`/api/asset-relationships/${id}`)
+  delete: function(id: string): Promise<any> {
+    return this.request('DELETE', `/api/asset-relationships/${id}`)
   }
 }
 

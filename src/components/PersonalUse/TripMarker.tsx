@@ -43,7 +43,7 @@ export function TripMarker({
   const [errors, setErrors] = useState<Record<string, string>>({})
 
   // Use TanStack Query for policy data
-  const { data: policy, isLoading: policyLoading } = usePersonalUsePolicies()
+  const { data: policy, isLoading: _policyLoading } = usePersonalUsePolicies()
   // Use TanStack Query mutation for marking trip
   const markTripMutation = useMarkTrip()
 
@@ -67,7 +67,7 @@ export function TripMarker({
       : 0
 
   const willAutoApprove =
-    policy?.auto_approve_under_miles && personalMiles <= policy.auto_approve_under_miles
+    policy?.auto_approve_under_miles && personalMiles <= (policy.auto_approve_under_miles ?? 0)
 
   const validate = (): boolean => {
     const newErrors: Record<string, string> = {}
@@ -112,8 +112,8 @@ export function TripMarker({
             toast.success('Trip marked successfully')
             onSave?.(data)
           },
-          onError: (error: any) => {
-            const errorMsg = error.response?.data?.error || error.message || 'Failed to mark trip'
+          onError: (error: unknown) => {
+            const errorMsg = error instanceof Error ? error.message : 'Failed to mark trip'
             toast.error(errorMsg)
           }
         }
@@ -129,7 +129,7 @@ export function TripMarker({
       <div className={cn('space-y-3', className)}>
         <RadioGroup
           value={usageType}
-          onValueChange={(value: any) => setUsageType(value)}
+          onValueChange={(value: 'business' | 'personal' | 'mixed') => setUsageType(value)}
           className="flex gap-2"
         >
           <div className="flex items-center space-x-1 flex-1">
@@ -162,7 +162,7 @@ export function TripMarker({
             </div>
             <Slider
               value={[businessPercentage]}
-              onValueChange={([value]) => setBusinessPercentage(value)}
+              onValueChange={([value]) => setBusinessPercentage(value ?? 50)}
               min={10}
               max={90}
               step={5}
@@ -209,7 +209,7 @@ export function TripMarker({
           <Label>Trip Type</Label>
           <RadioGroup
             value={usageType}
-            onValueChange={(value: any) => setUsageType(value)}
+            onValueChange={(value: 'business' | 'personal' | 'mixed') => setUsageType(value)}
             className="grid grid-cols-3 gap-4"
           >
             <div>
@@ -270,7 +270,7 @@ export function TripMarker({
             </div>
             <Slider
               value={[businessPercentage]}
-              onValueChange={([value]) => setBusinessPercentage(value)}
+              onValueChange={([value]) => setBusinessPercentage(value ?? 50)}
               min={10}
               max={90}
               step={5}
@@ -348,7 +348,7 @@ export function TripMarker({
                         <div className="flex items-center justify-between">
                           <span className="text-sm font-medium">Rate:</span>
                           <span className="text-sm">
-                            ${policy.personal_use_rate_per_mile?.toFixed(2)}/mile
+                            ${(policy.personal_use_rate_per_mile ?? 0).toFixed(2)}/mile
                           </span>
                         </div>
                         <div className="flex items-center justify-between font-semibold pt-2 border-t">

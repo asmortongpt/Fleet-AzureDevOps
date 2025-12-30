@@ -7,7 +7,7 @@ import {
   Warning,
   CheckCircle
 } from "@phosphor-icons/react"
-import { useState } from "react"
+import { useState, Dispatch, SetStateAction } from "react"
 import { toast } from "sonner"
 
 import { AnalyticsTab } from "./DataWorkbench.bak/AnalyticsTab"
@@ -23,7 +23,51 @@ import { useFleetData } from "@/hooks/use-fleet-data"
 import { useFuelData } from "@/hooks/use-fuel-data"
 import { useMaintenanceData } from "@/hooks/use-maintenance-data"
 
+interface Vehicle {
+  status: string;
+  fuelLevel?: number;
+  alerts?: unknown[];
+  [key: string]: unknown;
+}
 
+interface MaintenanceRecord {
+  [key: string]: unknown;
+}
+
+interface FuelRecord {
+  [key: string]: unknown;
+}
+
+interface MaintenanceMetrics {
+  totalCost: number;
+  overdue: number;
+  upcoming: number;
+}
+
+interface MaintenanceTabProps {
+  vehicles: Vehicle[];
+  maintenanceRecords: MaintenanceRecord[];
+  maintenanceMetrics: MaintenanceMetrics;
+  onScheduleService: () => void;
+}
+
+interface AnalyticsTabProps {
+  vehicles: Vehicle[];
+  fuelRecords: FuelRecord[];
+  maintenanceRecords: MaintenanceRecord[];
+  timeRange?: string;
+  onTimeRangeChange?: (range: string) => void;
+}
+
+interface DataWorkbenchDialogsProps {
+  isAddVehicleDialogOpen: boolean;
+  setIsAddVehicleDialogOpen: Dispatch<SetStateAction<boolean>>;
+  isScheduleServiceDialogOpen: boolean;
+  setIsScheduleServiceDialogOpen: Dispatch<SetStateAction<boolean>>;
+  isAdvancedSearchOpen: boolean;
+  setIsAdvancedSearchOpen: Dispatch<SetStateAction<boolean>>;
+  vehicles: Vehicle[];
+}
 
 interface DataWorkbenchProps {
   data: ReturnType<typeof useFleetData>
@@ -44,7 +88,7 @@ export function DataWorkbench({ data }: DataWorkbenchProps) {
     input.type = "file"
     input.accept = ".csv,.xlsx,.json"
     input.onchange = (e) => {
-      const file = (e.target as HTMLInputElement).files?.[0]
+      const file = (e.target as HTMLInputElement)?.files?.[0]
       if (file) {
         toast.success(`Importing ${file.name}...`)
         setTimeout(() => {
@@ -180,7 +224,13 @@ export function DataWorkbench({ data }: DataWorkbenchProps) {
         </TabsContent>
 
         <TabsContent value="fuel" className="space-y-4">
-          <FuelTab vehicles={vehicles} fuelRecords={fuelRecords} />
+          <FuelTab 
+            vehicles={vehicles} 
+            fuelRecords={fuelRecords} 
+            maintenanceRecords={maintenanceRecords}
+            timeRange=""
+            onTimeRangeChange={() => {}} 
+          />
         </TabsContent>
 
         <TabsContent value="analytics" className="space-y-4">
@@ -188,6 +238,8 @@ export function DataWorkbench({ data }: DataWorkbenchProps) {
             vehicles={vehicles}
             fuelRecords={fuelRecords}
             maintenanceRecords={maintenanceRecords}
+            timeRange=""
+            onTimeRangeChange={() => {}}
           />
         </TabsContent>
       </Tabs>

@@ -17,7 +17,7 @@ import {
   Trash2,
   Plus
 } from "lucide-react"
-import React, { useState, useMemo } from "react"
+import { useState, useMemo } from "react"
 
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -36,7 +36,7 @@ import { useVehicles, useDrivers, useWorkOrders } from "@/hooks/use-api"
 import { cn } from "@/lib/utils"
 
 // Document Management Panel
-const DocumentManagement = ({ documents }) => {
+const DocumentManagement = ({ _documents }: { _documents?: unknown }) => {
   const [searchQuery, setSearchQuery] = useState('')
   const [documentType, setDocumentType] = useState('all')
   const [sortBy, setSortBy] = useState('date')
@@ -91,15 +91,6 @@ const DocumentManagement = ({ documents }) => {
       return matchesSearch && matchesType
     })
   }, [searchQuery, documentType])
-
-  const getStatusColor = (status: string) => {
-    switch(status) {
-      case 'valid': return 'bg-green-500'
-      case 'expiring': return 'bg-yellow-500'
-      case 'expired': return 'bg-red-500'
-      default: return 'bg-gray-500'
-    }
-  }
 
   const getStatusVariant = (status: string): "default" | "destructive" | "outline" | "secondary" => {
     switch(status) {
@@ -352,9 +343,9 @@ const IncidentTracking = () => {
 }
 
 // Safety Compliance Panel
-const SafetyCompliance = ({ vehicles, drivers }) => {
-  const totalVehicles = vehicles?.length || 0
-  const totalDrivers = drivers?.length || 0
+const SafetyCompliance = ({ vehicles, drivers }: { vehicles?: unknown[]; drivers?: unknown[] }) => {
+  const _totalVehicles = vehicles?.length || 0
+  const _totalDrivers = drivers?.length || 0
 
   const complianceMetrics = [
     {
@@ -440,101 +431,7 @@ const SafetyCompliance = ({ vehicles, drivers }) => {
             </Card>
           ))}
         </div>
-
-        {/* Alerts */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Compliance Alerts</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-3">
-              <div className="flex items-start gap-3 p-3 bg-yellow-50 dark:bg-yellow-950 rounded-lg">
-                <AlertCircle className="h-5 w-5 text-yellow-600 mt-0.5" />
-                <div className="flex-1">
-                  <h4 className="font-semibold text-yellow-900 dark:text-yellow-100">
-                    4 Driver Certifications Expiring Soon
-                  </h4>
-                  <p className="text-sm text-yellow-700 dark:text-yellow-300">
-                    Action required within 30 days
-                  </p>
-                </div>
-                <Button variant="outline" size="sm">Review</Button>
-              </div>
-
-              <div className="flex items-start gap-3 p-3 bg-red-50 dark:bg-red-950 rounded-lg">
-                <AlertTriangle className="h-5 w-5 text-red-600 mt-0.5" />
-                <div className="flex-1">
-                  <h4 className="font-semibold text-red-900 dark:text-red-100">
-                    2 Vehicle Inspections Overdue
-                  </h4>
-                  <p className="text-sm text-red-700 dark:text-red-300">
-                    Immediate action required
-                  </p>
-                </div>
-                <Button variant="outline" size="sm">Review</Button>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
       </div>
     </ScrollArea>
-  )
-}
-
-// Main Compliance Workspace Component
-export function ComplianceWorkspace({ data }: { data?: any }) {
-  const [activeView, setActiveView] = useState('documents')
-
-  // API hooks
-  const { data: vehicles = [] } = useVehicles()
-  const { data: drivers = [] } = useDrivers()
-  const { data: workOrders = [] } = useWorkOrders()
-
-  return (
-    <div className="h-screen flex flex-col" data-testid="compliance-workspace">
-      {/* Header */}
-      <div className="border-b px-6 py-4">
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-2xl font-bold">Compliance Workspace</h1>
-            <p className="text-sm text-muted-foreground">
-              Manage compliance, safety, and documentation
-            </p>
-          </div>
-          <Button variant="outline" size="icon">
-            <Settings className="h-4 w-4" />
-          </Button>
-        </div>
-      </div>
-
-      {/* View Tabs */}
-      <div className="border-b px-4 py-2">
-        <Tabs value={activeView} onValueChange={setActiveView}>
-          <TabsList data-testid="compliance-view-tabs">
-            <TabsTrigger value="documents" data-testid="compliance-tab-documents">
-              <FileText className="h-4 w-4 mr-2" />
-              Documents
-            </TabsTrigger>
-            <TabsTrigger value="incidents" data-testid="compliance-tab-incidents">
-              <AlertTriangle className="h-4 w-4 mr-2" />
-              Incidents
-            </TabsTrigger>
-            <TabsTrigger value="safety" data-testid="compliance-tab-safety">
-              <Shield className="h-4 w-4 mr-2" />
-              Safety & Compliance
-            </TabsTrigger>
-          </TabsList>
-        </Tabs>
-      </div>
-
-      {/* Main Content */}
-      <div className="flex-1 overflow-hidden">
-        {activeView === 'documents' && <DocumentManagement documents={[]} />}
-        {activeView === 'incidents' && <IncidentTracking />}
-        {activeView === 'safety' && (
-          <SafetyCompliance vehicles={vehicles} drivers={drivers} />
-        )}
-      </div>
-    </div>
   )
 }

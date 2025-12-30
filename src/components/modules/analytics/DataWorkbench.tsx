@@ -7,7 +7,7 @@ import {
   Warning,
   CheckCircle
 } from "@phosphor-icons/react"
-import { useState } from "react"
+import { useState, Dispatch, SetStateAction } from "react"
 import { toast } from "sonner"
 
 import { AnalyticsTab } from "./DataWorkbench.bak/AnalyticsTab"
@@ -23,10 +23,56 @@ import { useFleetData } from "@/hooks/use-fleet-data"
 import { useFuelData } from "@/hooks/use-fuel-data"
 import { useMaintenanceData } from "@/hooks/use-maintenance-data"
 
+interface Vehicle {
+  status: string;
+  fuelLevel?: number;
+  alerts?: unknown[];
+}
 
+interface MaintenanceRecord {
+  id?: string;
+  vehicleId?: string;
+  date?: string;
+  type?: string;
+  cost?: number;
+  status?: string;
+}
 
-interface DataWorkbenchProps {
-  data: ReturnType<typeof useFleetData>
+interface FuelRecord {
+  id?: string;
+  vehicleId?: string;
+  date?: string;
+  amount?: number;
+  cost?: number;
+}
+
+interface MaintenanceTabProps {
+  vehicles: Vehicle[];
+  maintenanceRecords: MaintenanceRecord[];
+  maintenanceMetrics: {
+    totalCost: number;
+    overdue: number;
+    upcoming: number;
+  };
+  onScheduleService: () => void;
+}
+
+interface AnalyticsTabProps {
+  vehicles: Vehicle[];
+  fuelRecords: FuelRecord[];
+  maintenanceRecords: MaintenanceRecord[];
+  timeRange?: string;
+  onTimeRangeChange?: (range: string) => void;
+}
+
+interface DataWorkbenchDialogsProps {
+  isAddVehicleDialogOpen: boolean;
+  setIsAddVehicleDialogOpen: Dispatch<SetStateAction<boolean>>;
+  isScheduleServiceDialogOpen: boolean;
+  setIsScheduleServiceDialogOpen: Dispatch<SetStateAction<boolean>>;
+  isAdvancedSearchOpen: boolean;
+  setIsAdvancedSearchOpen: Dispatch<SetStateAction<boolean>>;
+  vehicles: Vehicle[];
 }
 
 export function DataWorkbench() {
@@ -45,7 +91,7 @@ export function DataWorkbench() {
     input.type = "file"
     input.accept = ".csv,.xlsx,.json"
     input.onchange = (e) => {
-      const file = (e.target as HTMLInputElement).files?.[0]
+      const file = (e.target as HTMLInputElement)?.files?.[0]
       if (file) {
         toast.success(`Importing ${file.name}...`)
         setTimeout(() => {
@@ -181,7 +227,7 @@ export function DataWorkbench() {
         </TabsContent>
 
         <TabsContent value="fuel" className="space-y-4">
-          <FuelTab vehicles={vehicles} fuelRecords={fuelRecords} />
+          <FuelTab vehicles={vehicles} fuelRecords={fuelRecords} maintenanceRecords={maintenanceRecords} />
         </TabsContent>
 
         <TabsContent value="analytics" className="space-y-4">
@@ -189,6 +235,8 @@ export function DataWorkbench() {
             vehicles={vehicles}
             fuelRecords={fuelRecords}
             maintenanceRecords={maintenanceRecords}
+            timeRange="default"
+            onTimeRangeChange={() => {}}
           />
         </TabsContent>
       </Tabs>

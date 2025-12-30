@@ -27,7 +27,7 @@ import {
 } from '@react-three/drei'
 import { Canvas, useFrame } from '@react-three/fiber'
 import { EffectComposer, Bloom, ToneMapping } from '@react-three/postprocessing'
-import React, { Suspense, useRef, useState } from 'react'
+import { Suspense, useRef, useState } from 'react'
 import * as THREE from 'three'
 
 import { AssetCategory, AssetType } from '@/types/asset.types'
@@ -372,330 +372,216 @@ function CraneModel({ color = '#F97316' }: { color?: string }) {
       <Box args={[0.5, 3, 0.4]} rotation={[0, 0, -1]} position={[0.5, 2.5, 0]}>
         <meshStandardMaterial color={color} metalness={0.5} roughness={0.4} />
       </Box>
-      {/* Boom extension */}
-      <Box args={[0.35, 2, 0.3]} rotation={[0, 0, -0.8]} position={[2, 3.5, 0]}>
-        <meshStandardMaterial color={color} metalness={0.5} roughness={0.4} />
-      </Box>
-      {/* Hook */}
-      <Sphere args={[0.15, 16, 16]} position={[3, 3, 0]}>
-        <meshStandardMaterial color="#4B5563" metalness={0.8} roughness={0.2} />
-      </Sphere>
-      {/* Outriggers */}
-      {[[1.5, 0.2, 1.2], [1.5, 0.2, -1.2], [-1.2, 0.2, 1.2], [-1.2, 0.2, -1.2]].map((pos, i) => (
-        <Cylinder key={i} args={[0.1, 0.15, 0.3, 8]} position={pos as [number, number, number]}>
-          <meshStandardMaterial color="#374151" metalness={0.6} roughness={0.4} />
-        </Cylinder>
-      ))}
-      {/* Wheels */}
-      {[[1, 0.25, 0.85], [1, 0.25, -0.85], [-1, 0.25, 0.85], [-1, 0.25, -0.85]].map((pos, i) => (
-        <Cylinder key={i} args={[0.25, 0.25, 0.2, 24]} rotation={[Math.PI / 2, 0, 0]} position={pos as [number, number, number]}>
-          <meshStandardMaterial color="#1F2937" metalness={0.1} roughness={0.8} />
-        </Cylinder>
-      ))}
     </group>
   )
 }
 
-// Trailer
-function TrailerModel({ color = '#6366F1' }: { color?: string }) {
+// Compressor
+function CompressorModel({ color = '#2563EB' }: { color?: string }) {
   return (
     <group>
-      {/* Main box */}
-      <RoundedBox args={[5, 2, 1.8]} radius={0.05} position={[0, 1.2, 0]}>
-        <meshStandardMaterial color={color} metalness={0.3} roughness={0.6} />
+      {/* Main body */}
+      <Cylinder args={[1, 1, 1.5, 24]} rotation={[0, 0, Math.PI / 2]} position={[0, 0.75, 0]}>
+        <meshStandardMaterial color={color} metalness={0.5} roughness={0.4} />
+      </Cylinder>
+      {/* Motor housing */}
+      <RoundedBox args={[0.6, 0.6, 0.8]} radius={0.05} position={[0, 1.1, 0]}>
+        <meshStandardMaterial color="#374151" metalness={0.6} roughness={0.5} />
       </RoundedBox>
-      {/* Frame */}
-      <Box args={[5.5, 0.2, 0.8]} position={[0, 0.3, 0]}>
-        <meshStandardMaterial color="#1F2937" metalness={0.5} roughness={0.5} />
-      </Box>
-      {/* Coupling */}
-      <Cylinder args={[0.1, 0.15, 0.5]} rotation={[0, 0, Math.PI / 2]} position={[2.8, 0.3, 0]}>
+      {/* Wheels */}
+      {[[-0.4, 0.3, 0.6], [-0.4, 0.3, -0.6]].map((pos, i) => (
+        <Cylinder key={i} args={[0.3, 0.3, 0.2, 16]} rotation={[Math.PI / 2, 0, 0]} position={pos as [number, number, number]}>
+          <meshStandardMaterial color="#1F2937" metalness={0.3} roughness={0.7} />
+        </Cylinder>
+      ))}
+      {/* Handle */}
+      <Cylinder args={[0.05, 0.05, 1.2, 8]} rotation={[0, Math.PI / 2, 0]} position={[0.8, 1.2, 0]}>
         <meshStandardMaterial color="#4B5563" metalness={0.7} roughness={0.3} />
       </Cylinder>
-      {/* Axles with wheels */}
-      {[-1.5, -0.5, 0.5].map((x, i) => (
-        <group key={i}>
-          <Cylinder args={[0.3, 0.3, 0.2, 24]} rotation={[Math.PI / 2, 0, 0]} position={[x, 0.3, 1]}>
-            <meshStandardMaterial color="#1F2937" metalness={0.1} roughness={0.8} />
-          </Cylinder>
-          <Cylinder args={[0.3, 0.3, 0.2, 24]} rotation={[Math.PI / 2, 0, 0]} position={[x, 0.3, -1]}>
-            <meshStandardMaterial color="#1F2937" metalness={0.1} roughness={0.8} />
-          </Cylinder>
-        </group>
-      ))}
     </group>
   )
 }
 
-// Generic Tool/Non-powered
-function ToolModel({ color = '#8B5CF6' }: { color?: string }) {
+// Pump
+function PumpModel({ color = '#059669' }: { color?: string }) {
   return (
     <group>
-      {/* Tool cart/container */}
-      <RoundedBox args={[1.5, 1, 1]} radius={0.08} position={[0, 0.6, 0]}>
-        <meshStandardMaterial color={color} metalness={0.4} roughness={0.5} />
+      {/* Pump housing */}
+      <RoundedBox args={[1.2, 0.8, 0.8]} radius={0.1} position={[0, 0.4, 0]}>
+        <meshStandardMaterial color={color} metalness={0.5} roughness={0.4} />
       </RoundedBox>
-      {/* Drawers */}
-      {[0.2, 0.5, 0.8].map((y, i) => (
-        <Box key={i} args={[1.45, 0.25, 0.02]} position={[0, y, 0.51]}>
-          <meshStandardMaterial color="#374151" metalness={0.3} roughness={0.6} />
-        </Box>
+      {/* Motor */}
+      <Cylinder args={[0.4, 0.4, 0.6, 16]} rotation={[0, 0, Math.PI / 2]} position={[-0.5, 0.6, 0]}>
+        <meshStandardMaterial color="#374151" metalness={0.6} roughness={0.5} />
+      </Cylinder>
+      {/* Inlet pipe */}
+      <Cylinder args={[0.1, 0.1, 0.5, 8]} position={[0.6, 0.6, 0]}>
+        <meshStandardMaterial color="#4B5563" metalness={0.7} roughness={0.3} />
+      </Cylinder>
+      {/* Outlet pipe */}
+      <Cylinder args={[0.1, 0.1, 0.5, 8]} rotation={[0, 0, Math.PI / 2]} position={[0.3, 0.9, 0]}>
+        <meshStandardMaterial color="#4B5563" metalness={0.7} roughness={0.3} />
+      </Cylinder>
+      {/* Base */}
+      <Box args={[1.4, 0.1, 1]} position={[0, 0.05, 0]}>
+        <meshStandardMaterial color="#1F2937" metalness={0.5} roughness={0.5} />
+      </Box>
+    </group>
+  )
+}
+
+// Enclosed Trailer
+function EnclosedTrailerModel({ color = '#6B7280' }: { color?: string }) {
+  return (
+    <group>
+      {/* Trailer body */}
+      <RoundedBox args={[4, 1.8, 1.8]} radius={0.1} position={[0, 1, 0]}>
+        <meshStandardMaterial color={color} metalness={0.6} roughness={0.3} />
+      </RoundedBox>
+      {/* Hitch */}
+      <Box args={[1, 0.1, 0.1]} position={[2.5, 0.5, 0]}>
+        <meshStandardMaterial color="#374151" metalness={0.7} roughness={0.3} />
+      </Box>
+      {/* Wheels */}
+      {[[-1.2, 0.4, 0.9], [-1.2, 0.4, -0.9], [1.2, 0.4, 0.9], [1.2, 0.4, -0.9]].map((pos, i) => (
+        <Cylinder key={i} args={[0.3, 0.3, 0.2, 16]} rotation={[Math.PI / 2, 0, 0]} position={pos as [number, number, number]}>
+          <meshStandardMaterial color="#1F2937" metalness={0.3} roughness={0.7} />
+        </Cylinder>
       ))}
-      {/* Handles */}
-      <Cylinder args={[0.03, 0.03, 0.3]} rotation={[0, 0, Math.PI / 2]} position={[0, 0.2, 0.53]}>
-        <meshStandardMaterial color="#6B7280" metalness={0.8} roughness={0.2} />
-      </Cylinder>
-      <Cylinder args={[0.03, 0.03, 0.3]} rotation={[0, 0, Math.PI / 2]} position={[0, 0.5, 0.53]}>
-        <meshStandardMaterial color="#6B7280" metalness={0.8} roughness={0.2} />
-      </Cylinder>
-      <Cylinder args={[0.03, 0.03, 0.3]} rotation={[0, 0, Math.PI / 2]} position={[0, 0.8, 0.53]}>
-        <meshStandardMaterial color="#6B7280" metalness={0.8} roughness={0.2} />
-      </Cylinder>
-      {/* Casters */}
-      {[[0.6, 0.1, 0.4], [0.6, 0.1, -0.4], [-0.6, 0.1, 0.4], [-0.6, 0.1, -0.4]].map((pos, i) => (
-        <Sphere key={i} args={[0.08, 12, 12]} position={pos as [number, number, number]}>
-          <meshStandardMaterial color="#1F2937" metalness={0.2} roughness={0.8} />
-        </Sphere>
+      {/* Door */}
+      <Box args={[0.05, 1.2, 1.4]} position={[-2, 1, 0]}>
+        <meshStandardMaterial color="#4B5563" metalness={0.6} roughness={0.4} />
+      </Box>
+    </group>
+  )
+}
+
+// Utility Trailer
+function UtilityTrailerModel({ color = '#6B7280' }: { color?: string }) {
+  return (
+    <group>
+      {/* Trailer bed */}
+      <Box args={[3, 0.1, 1.5]} position={[0, 0.5, 0]}>
+        <meshStandardMaterial color={color} metalness={0.6} roughness={0.3} />
+      </Box>
+      {/* Side rails */}
+      <Box args={[3, 0.4, 0.1]} position={[0, 0.7, 0.75]}>
+        <meshStandardMaterial color="#374151" metalness={0.7} roughness={0.3} />
+      </Box>
+      <Box args={[3, 0.4, 0.1]} position={[0, 0.7, -0.75]}>
+        <meshStandardMaterial color="#374151" metalness={0.7} roughness={0.3} />
+      </Box>
+      {/* Hitch */}
+      <Box args={[1, 0.1, 0.1]} position={[2, 0.5, 0]}>
+        <meshStandardMaterial color="#374151" metalness={0.7} roughness={0.3} />
+      </Box>
+      {/* Wheels */}
+      {[[-1, 0.3, 0.8], [-1, 0.3, -0.8]].map((pos, i) => (
+        <Cylinder key={i} args={[0.3, 0.3, 0.2, 16]} rotation={[Math.PI / 2, 0, 0]} position={pos as [number, number, number]}>
+          <meshStandardMaterial color="#1F2937" metalness={0.3} roughness={0.7} />
+        </Cylinder>
       ))}
     </group>
   )
 }
 
-// ============================================================================
-// MODEL SELECTOR
-// ============================================================================
-
+// Model selector based on asset type
 function VehicleModel({ category, type, color }: VehicleModelProps) {
-  const rotation = useRef(0)
-  const groupRef = useRef<THREE.Group>(null)
-
-  useFrame((state, delta) => {
-    if (groupRef.current) {
-      rotation.current += delta * 0.2
-      groupRef.current.rotation.y = rotation.current
-    }
-  })
-
-  const getModel = () => {
-    // First check specific asset type
-    switch (type) {
-      case 'EXCAVATOR':
-        return <ExcavatorModel color={color} />
-      case 'FORKLIFT':
-        return <ForkliftModel color={color} />
-      case 'MOBILE_CRANE':
-      case 'TOWER_CRANE':
-        return <CraneModel color={color} />
-      case 'GENERATOR':
-      case 'COMPRESSOR':
-      case 'PUMP':
-        return <GeneratorModel color={color} />
-      case 'FLATBED_TRAILER':
-      case 'ENCLOSED_TRAILER':
-      case 'UTILITY_TRAILER':
-        return <TrailerModel color={color} />
-      case 'PICKUP_TRUCK':
-        return <PickupTruckModel color={color} />
-      case 'SUV':
-        return <SUVModel color={color} />
-    }
-
-    // Fall back to category
-    switch (category) {
-      case 'PASSENGER_VEHICLE':
-        return <SedanModel color={color} />
-      case 'LIGHT_COMMERCIAL':
-        return <PickupTruckModel color={color} />
-      case 'HEAVY_TRUCK':
-        return <HeavyTruckModel color={color} />
-      case 'TRACTOR':
-        return <HeavyTruckModel color={color} />
-      case 'TRAILER':
-        return <TrailerModel color={color} />
-      case 'HEAVY_EQUIPMENT':
-        return <ExcavatorModel color={color} />
-      case 'UTILITY_VEHICLE':
-        return <SUVModel color={color} />
-      case 'SPECIALTY_EQUIPMENT':
-        return <GeneratorModel color={color} />
-      case 'NON_POWERED':
-        return <ToolModel color={color} />
-      default:
-        return <SedanModel color={color} />
-    }
+  if (!category && !type) {
+    return <SedanModel color={color} />;
   }
 
-  return (
-    <group ref={groupRef}>
-      {getModel()}
-    </group>
-  )
+  switch (type as AssetType) {
+    // Vehicles
+    case 'SEDAN':
+      return <SedanModel color={color} />;
+    case 'SUV':
+      return <SUVModel color={color} />;
+    case 'PICKUP_TRUCK':
+      return <PickupTruckModel color={color} />;
+    case 'HEAVY_TRUCK':
+      return <HeavyTruckModel color={color} />;
+    // Equipment
+    case 'EXCAVATOR':
+      return <ExcavatorModel color={color} />;
+    case 'FORKLIFT':
+      return <ForkliftModel color={color} />;
+    case 'GENERATOR':
+      return <GeneratorModel color={color} />;
+    case 'CRANE':
+      return <CraneModel color={color} />;
+    case 'COMPRESSOR':
+      return <CompressorModel color={color} />;
+    case 'PUMP':
+      return <PumpModel color={color} />;
+    // Trailers
+    case 'ENCLOSED_TRAILER':
+      return <EnclosedTrailerModel color={color} />;
+    case 'UTILITY_TRAILER':
+      return <UtilityTrailerModel color={color} />;
+    default:
+      return <SedanModel color={color} />;
+  }
 }
 
-// ============================================================================
-// GLTF MODEL LOADER
-// ============================================================================
-
-function GLTFModel({ url }: { url: string }) {
-  const { scene } = useGLTF(url)
-  const groupRef = useRef<THREE.Group>(null)
-
-  useFrame((state, delta) => {
-    if (groupRef.current) {
-      groupRef.current.rotation.y += delta * 0.2
-    }
-  })
-
-  return (
-    <group ref={groupRef}>
-      <primitive object={scene} scale={1} />
-    </group>
-  )
+// Custom GLTF Model Loader
+function CustomModel({ url, color }: { url: string; color?: string }) {
+  const { scene } = useGLTF(url, true);
+  return <primitive object={scene} />;
 }
 
-// ============================================================================
-// SCENE SETUP
-// ============================================================================
-
-function Scene({
+// Main Viewer Component
+export default function Asset3DViewer({
   assetCategory,
   assetType,
   color,
   customModelUrl,
-  autoRotate = true
-}: Asset3DViewerProps) {
-  return (
-    <>
-      {/* Camera */}
-      <PerspectiveCamera makeDefault position={[5, 3, 5]} fov={50} />
-
-      {/* Controls */}
-      <OrbitControls
-        enablePan={true}
-        enableZoom={true}
-        enableRotate={true}
-        autoRotate={!autoRotate}
-        autoRotateSpeed={0.5}
-        minDistance={3}
-        maxDistance={15}
-        maxPolarAngle={Math.PI / 2}
-      />
-
-      {/* Lighting */}
-      <ambientLight intensity={0.4} />
-      <directionalLight
-        position={[10, 10, 5]}
-        intensity={1.5}
-        castShadow
-        shadow-mapSize-width={2048}
-        shadow-mapSize-height={2048}
-      />
-      <directionalLight position={[-10, 5, -5]} intensity={0.5} />
-      <spotLight
-        position={[0, 10, 0]}
-        intensity={0.8}
-        angle={0.5}
-        penumbra={1}
-        castShadow
-      />
-
-      {/* Environment */}
-      <Environment preset="city" />
-
-      {/* Ground */}
-      <ContactShadows
-        position={[0, 0, 0]}
-        opacity={0.5}
-        scale={20}
-        blur={2}
-        far={10}
-      />
-
-      {/* Model */}
-      <Suspense fallback={<LoadingScreen />}>
-        {customModelUrl ? (
-          <GLTFModel url={customModelUrl} />
-        ) : (
-          <VehicleModel
-            category={assetCategory}
-            type={assetType}
-            color={color}
-          />
-        )}
-      </Suspense>
-
-      {/* Post-processing */}
-      <EffectComposer>
-        <Bloom
-          luminanceThreshold={0.9}
-          luminanceSmoothing={0.9}
-          intensity={0.2}
-        />
-        <ToneMapping />
-      </EffectComposer>
-    </>
-  )
-}
-
-// ============================================================================
-// MAIN COMPONENT
-// ============================================================================
-
-export function Asset3DViewer({
-  assetCategory,
-  assetType,
-  color = '#3B82F6',
-  make,
-  model,
-  customModelUrl,
-  showStats = false,
-  autoRotate = true,
+  _showStats,
+  autoRotate = false,
   onLoad
 }: Asset3DViewerProps) {
-  const [hasError, setHasError] = useState(false)
-
-  if (hasError) {
-    return (
-      <div className="w-full h-full flex items-center justify-center bg-muted rounded-lg">
-        <div className="text-center p-4">
-          <p className="text-lg font-medium">3D Viewer Unavailable</p>
-          <p className="text-sm text-muted-foreground">WebGL may not be supported</p>
-        </div>
-      </div>
-    )
-  }
+  const controlsRef = useRef<any>();
 
   return (
-    <div className="w-full h-full relative">
-      <Canvas
-        shadows
-        dpr={[1, 2]}
-        gl={{ antialias: true, alpha: true }}
-        onCreated={() => onLoad?.()}
-        onError={() => setHasError(true)}
-      >
-        <Scene
-          assetCategory={assetCategory}
-          assetType={assetType}
-          color={color}
-          customModelUrl={customModelUrl}
-          autoRotate={autoRotate}
-        />
-      </Canvas>
-
-      {/* Info overlay */}
-      {(make || model) && (
-        <div className="absolute bottom-4 left-4 bg-background/80 backdrop-blur-sm rounded-lg px-3 py-2">
-          <p className="font-medium">{make} {model}</p>
-        </div>
-      )}
-
-      {/* Controls hint */}
-      <div className="absolute bottom-4 right-4 bg-background/80 backdrop-blur-sm rounded-lg px-3 py-2 text-xs text-muted-foreground">
-        Drag to rotate | Scroll to zoom
-      </div>
-    </div>
-  )
+    <Canvas
+      style={{ width: '100%', height: '100%' }}
+      camera={{ position: [5, 5, 5], fov: 60 }}
+      onCreated={() => onLoad?.()}
+    >
+      <color attach="background" args={['#f3f4f6']} />
+      <ambientLight intensity={0.5} />
+      <pointLight position={[10, 10, 10]} intensity={1} />
+      <directionalLight
+        position={[0, 10, 5]}
+        intensity={1.5}
+        castShadow
+        shadow-mapSize={[1024, 1024]}
+      />
+      <Suspense fallback={<LoadingScreen />}>
+        {customModelUrl ? (
+          <CustomModel url={customModelUrl} color={color} />
+        ) : (
+          <VehicleModel category={assetCategory} type={assetType} color={color} />
+        )}
+      </Suspense>
+      <Environment preset="studio" />
+      <ContactShadows position={[0, 0, 0]} opacity={0.5} scale={10} blur={1} far={10} />
+      <OrbitControls
+        ref={controlsRef}
+        enableZoom={true}
+        enablePan={false}
+        enableRotate={true}
+        autoRotate={autoRotate}
+        autoRotateSpeed={2}
+        minDistance={3}
+        maxDistance={10}
+        target={[0, 1, 0]}
+      />
+      <PerspectiveCamera makeDefault position={[5, 5, 5]} fov={60} />
+      <EffectComposer>
+        <Bloom luminanceThreshold={0.2} luminanceSmoothing={0.9} height={300} />
+        <ToneMapping adaptive />
+      </EffectComposer>
+    </Canvas>
+  );
 }
-
-export default Asset3DViewer
