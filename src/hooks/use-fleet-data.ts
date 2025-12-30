@@ -284,10 +284,11 @@ export function useFleetData() {
   }, [routeMutations.deleteRoute])
 
   // Filter mileage reimbursements
-  const mileageReimbursements = useMemo(() =>
-    fuelTransactions.filter((transaction: any) => transaction.type === 'mileage'),
-    [fuelTransactions]
-  )
+  const mileageReimbursements = useMemo(():any => {
+    // TODO: Fetch actual mileage reimbursements from API endpoint
+    // For now, return empty array as FuelTransactions don't have mileage type
+    return []
+  }, [])
 
   return {
     vehicles,
