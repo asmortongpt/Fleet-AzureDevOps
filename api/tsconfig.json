@@ -74,6 +74,8 @@
     "src/repositories/*.repository.ts",
     "src/repositories/index.ts",
     "src/config/connection-manager.ts",
-    "src/modules/fleet/vehicles/**"
+    "src/modules/fleet/vehicles/**",
+    "src/middleware/**",
+    "src/routes/auth/**"
   ]
 }
