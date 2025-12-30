@@ -1,4 +1,4 @@
-import { BrowserMultiFormatReader, IBrowserCodeReaderOptions, Result } from '@zxing/library';
+import { BrowserMultiFormatReader, Result } from '@zxing/library';
 import axios from 'axios';
 import React, { useState, useCallback } from 'react';
 import { Helmet } from 'react-helmet';
