@@ -67,7 +67,6 @@ export function FleetDashboard() {
       openInspect({
         type: "vehicle",
         id: vehicle.id,
-        target: vehicle
       })
     },
     [drilldownPush, openInspect]
