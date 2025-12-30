@@ -148,7 +148,7 @@ export function IncidentManagement() {
       if (filterStatus !== "all") params.append("status", filterStatus)
 
       const response = await apiClient.get<{ incidents: any[] }>(`/api/incident-management?${params.toString()}`)
-      setIncidents(response?.data?.incidents ?? [])
+      setIncidents(response?.incidents ?? [])
     } catch (error) {
       logger.error("Error fetching incidents:", error)
       toast.error("Failed to load incidents")
@@ -160,8 +160,8 @@ export function IncidentManagement() {
   const fetchIncidentDetails = async (incidentId: string) => {
     try {
       const response = await apiClient.get<{ corrective_actions: any[]; timeline: any[] }>(`/api/incident-management/${incidentId}`)
-      setCorrectiveActions(response?.data?.corrective_actions ?? [])
-      setTimeline(response?.data?.timeline ?? [])
+      setCorrectiveActions(response?.corrective_actions ?? [])
+      setTimeline(response?.timeline ?? [])
     } catch (error) {
       logger.error("Error fetching incident details:", error)
     }
@@ -174,13 +174,10 @@ export function IncidentManagement() {
     }
 
     try {
-      const response = await apiClient.get<{ incident: any }>("/api/incident-management", {
-        method: "POST",
-        body: JSON.stringify(newIncident)
-      })
+      const response = await apiClient.post<{ incident: any }>("/api/incident-management", newIncident)
 
-      if (response?.data?.incident) {
-        setIncidents(current => [...current, response.data.incident])
+      if (response?.incident) {
+        setIncidents(current => [...current, response.incident])
       }
       toast.success("Incident reported successfully")
       setIsAddDialogOpen(false)
@@ -193,14 +190,11 @@ export function IncidentManagement() {
 
   const handleUpdateIncident = async (incidentId: string, updates: Partial<Incident>) => {
     try {
-      const response = await apiClient.get<{ incident: any }>(`/api/incident-management/${incidentId}`, {
-        method: "PUT",
-        body: JSON.stringify(updates)
-      })
+      const response = await apiClient.put<{ incident: any }>(`/api/incident-management/${incidentId}`, updates)
 
-      if (response?.data?.incident) {
+      if (response?.incident) {
         setIncidents(current =>
-          current.map(i => (i.id === incidentId ? response.data.incident : i))
+          current.map(i => (i.id === incidentId ? response.incident : i))
         )
       }
       toast.success("Incident updated successfully")

@@ -349,7 +349,7 @@ export function MaintenanceWorkspace({ _data }: { _data?: unknown }) {
       <div className="relative h-full">
         <ProfessionalFleetMap
           vehicles={maintenanceVehicles as Vehicle[]}
-          facilities={facilities}
+          facilities={facilities as unknown as import('@/lib/types').GISFacility[]}
           height="100vh"
           onVehicleSelect={handleVehicleSelect}
           showLegend={true}
@@ -446,7 +446,7 @@ export function MaintenanceWorkspace({ _data }: { _data?: unknown }) {
           </TabsContent>
           <TabsContent value="work" className="h-[calc(100vh-48px)] mt-0">
             <WorkOrdersPanel
-              workOrders={workOrders}
+              workOrders={workOrders as unknown as WorkOrder[]}
               onWorkOrderSelect={(order) => {
                 setSelectedEntity({ type: 'workOrder', data: order });
                 setActivePanel('work');
