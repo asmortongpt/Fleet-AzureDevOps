@@ -11,9 +11,9 @@ export async function createAsset(data: unknown) {
 }
 
 export async function checkInAsset(assetId: string, data: unknown) {
-  return { assetId, ...data }
+  return { assetId, ...(data as Record<string, unknown>) }
 }
 
 export async function checkOutAsset(assetId: string, data: unknown) {
-  return { assetId, ...data }
+  return { assetId, ...(data as Record<string, unknown>) }
 }
