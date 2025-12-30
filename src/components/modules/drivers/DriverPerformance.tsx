@@ -292,9 +292,17 @@ export function DriverPerformance(_props: DriverPerformanceProps) {
                           openInspect({ type: 'driver', id: driver.id })
 
                           // Also maintain dialog state for legacy UI
-                          // Cast enhanced driver to base Driver type
-                          const { trips, miles, fuelEfficiency, incidents, onTimeDelivery, violations, overallScore, trend, ...baseDriver } = driver
-                          setSelectedDriver(baseDriver as Driver)
+                          // Cast to base Driver type
+                          const baseDriver = {
+                            id: driver.id,
+                            name: driver.name,
+                            employeeId: driver.employeeId,
+                            department: driver.department,
+                            licenseType: driver.licenseType,
+                            status: driver.status,
+                            safetyScore: driver.safetyScore
+                          } as Driver
+                          setSelectedDriver(baseDriver)
                           setIsDetailsDialogOpen(true)
                         }}
                       >
