@@ -380,15 +380,17 @@ export function AssetManagement() {
     const now = new Date()
     const yearsSincePurchase = (now.getTime() - purchaseDate.getTime()) / (365.25 * 24 * 60 * 60 * 1000)
 
-    const annualDepreciation = asset.purchase_price * (asset.depreciation_rate / 100)
-    const totalDepreciation = Math.min(annualDepreciation * yearsSincePurchase, asset.purchase_price)
-    const currentValue = Math.max(asset.purchase_price - totalDepreciation, 0)
+    const purchasePrice = asset.purchase_price ?? 0
+    const depreciationRate = asset.depreciation_rate ?? 0
+    const annualDepreciation = purchasePrice * (depreciationRate / 100)
+    const totalDepreciation = Math.min(annualDepreciation * yearsSincePurchase, purchasePrice)
+    const currentValue = Math.max(purchasePrice - totalDepreciation, 0)
 
     // Calculate 10-year projections
     const projections = Array.from({ length: 10 }, (_, i) => {
       const year = i + 1
-      const yearDepreciation = Math.min(annualDepreciation * year, asset.purchase_price)
-      const yearValue = Math.max(asset.purchase_price - yearDepreciation, 0)
+      const yearDepreciation = Math.min(annualDepreciation * year, purchasePrice)
+      const yearValue = Math.max(purchasePrice - yearDepreciation, 0)
       return {
         year,
         value: yearValue,
