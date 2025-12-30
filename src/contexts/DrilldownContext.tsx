@@ -29,7 +29,10 @@ export function DrilldownProvider({ children }: { children: ReactNode }) {
   const [levels, setLevels] = useState<DrilldownLevel[]>([])
 
   const push = useCallback((level: Omit<DrilldownLevel, 'timestamp'>) => {
-    setLevels(prev => [...prev, { ...level, timestamp: Date.now() }])
+    // Auto-derive label from data.title if not provided (backward compatibility)
+    const labelToUse = level.label || level.data?.title || level.type || 'Details'
+    const idToUse = level.id || `drilldown-${Date.now()}`
+    setLevels(prev => [...prev, { ...level, id: idToUse, label: labelToUse, timestamp: Date.now() }])
   }, [])
 
   const pop = useCallback(() => {
