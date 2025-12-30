@@ -168,6 +168,7 @@ export interface Driver {
     safetyScore: number
     onTimeDeliveries?: number
     efficiency?: number
+    onTimeRate?: number // Percentage of on-time deliveries
   }
   specialization?: string[] // Special certifications or skills
   emergencyContact?: {
