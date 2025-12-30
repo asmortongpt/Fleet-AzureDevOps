@@ -331,7 +331,7 @@ describe('formValidation', () => {
       it('should return true for future dates', () => {
         const tomorrow = new Date();
         tomorrow.setDate(tomorrow.getDate() + 1);
-        const result = validateFutureDate(tomorrow.toISOString().split('T')[0]);
+        const result = validateFutureDate(tomorrow.toISOString().split('T')[0]!);
         expect(result).toBe(true);
       });
 
@@ -353,7 +353,7 @@ describe('formValidation', () => {
       it('should return false for past dates', () => {
         const yesterday = new Date();
         yesterday.setDate(yesterday.getDate() - 1);
-        const result = validateFutureDate(yesterday.toISOString().split('T')[0]);
+        const result = validateFutureDate(yesterday.toISOString().split('T')[0]!);
         expect(result).toBe(false);
       });
     });
