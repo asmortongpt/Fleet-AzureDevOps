@@ -36,7 +36,7 @@ export function BulkActions({
   onExecute,
   onClearSelection
 }: BulkActionsProps) {
-  const { can, isAdmin } = usePermissions();
+  const { can, isAdmin: _isAdmin } = usePermissions();
   const [showConfirm, setShowConfirm] = useState(false);
   const [currentOperation, setCurrentOperation] = useState<BulkOperation['operation'] | null>(null);
   const [isExecuting, setIsExecuting] = useState(false);
@@ -70,9 +70,11 @@ export function BulkActions({
     try {
       for (let i = 0; i < selectedDocuments.length; i++) {
         const doc = selectedDocuments[i];
-        window.open(doc.url, '_blank');
-        setProgress(((i + 1) / selectedDocuments.length) * 100);
-        await new Promise(resolve => setTimeout(resolve, 200));
+        if (doc) {
+          window.open(doc.url, '_blank');
+          setProgress(((i + 1) / selectedDocuments.length) * 100);
+          await new Promise(resolve => setTimeout(resolve, 200));
+        }
       }
       onClearSelection();
     } finally {

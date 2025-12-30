@@ -1,8 +1,8 @@
-import { Car, Plus, Edit, Trash, MapPin } from "@phosphor-icons/react"
+import { Car, Plus, PencilSimple, Trash, MapPin } from "@phosphor-icons/react"
 import { ColumnDef } from "@tanstack/react-table"
 import { useMemo } from "react"
 
-import { DataGrid } from "@/components/common/DataGrid"
+import { DataGrid, DataGridProps } from "@/components/common/DataGrid"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -66,7 +66,7 @@ export function VehicleManagement() {
       header: "Actions",
       cell: () => (
         <div className="flex gap-2">
-          <Button variant="ghost" size="sm"><Edit className="w-4 h-4" /></Button>
+          <Button variant="ghost" size="sm"><PencilSimple className="w-4 h-4" /></Button>
           <Button variant="ghost" size="sm"><Trash className="w-4 h-4" /></Button>
         </div>
       ),
@@ -85,7 +85,7 @@ export function VehicleManagement() {
           <CardTitle>Fleet Vehicles</CardTitle>
         </CardHeader>
         <CardContent className="p-0">
-          <DataGrid
+          <DataGrid<Vehicle>
             data={data?.data || []}
             columns={columns}
             enableSearch={true}

@@ -173,7 +173,7 @@ class ErrorReportingService {
 
     // Handle uncaught errors
     window.addEventListener('error', (event) => {
-      this.captureException(event.error || new Error(event.message), {
+      this.captureException(event.error || new Error(event.message || 'Unknown error'), {
         extra: {
           filename: event.filename,
           lineno: event.lineno,
@@ -356,7 +356,7 @@ class ErrorReportingService {
         level,
         breadcrumbs: this.breadcrumbs,
         contexts: context,
-        environment: getTelemetryConfig().errorReporting?.environment,
+        environment: getTelemetryConfig().errorReporting?.environment ?? 'unknown',
         timestamp: Date.now(),
       });
     }
@@ -454,7 +454,7 @@ class ErrorReportingService {
         },
         body: JSON.stringify(event),
       });
-    } catch (error) {
+    } catch (_error) {
       // Silent failure - don't log failed error reports to avoid infinite loops
     }
   }

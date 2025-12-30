@@ -35,7 +35,7 @@ export function MiniChart({
     purple: "bg-purple-500 dark:bg-purple-400"
   }
 
-  const bgColorClasses = {
+  const _bgColorClasses = {
     blue: "bg-blue-100 dark:bg-blue-950",
     green: "bg-green-100 dark:bg-green-950",
     amber: "bg-amber-100 dark:bg-amber-950",
@@ -173,7 +173,7 @@ interface DonutChartProps {
 }
 
 export function MiniDonutChart({ title, data, total, className }: DonutChartProps) {
-  const totalValue = total || data.reduce((sum, item) => sum + item.value, 0)
+  const totalValue = total ?? data.reduce((sum, item) => sum + item.value, 0)
 
   let currentAngle = 0
   const segments = data.map(item => {

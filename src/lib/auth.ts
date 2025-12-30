@@ -179,7 +179,7 @@ export const loginWithPopup = async (): Promise<AuthenticationResult> => {
 
   try {
     const response = await msalInstance.loginPopup(request)
-    logger.info('Login popup successful', { account: response.account.username })
+    logger.info('Login popup successful', { account: response.account?.username })
     return response
   } catch (error) {
     logger.error('Login popup failed:', { error })
@@ -196,11 +196,11 @@ export const logout = async (): Promise<void> => {
     await initializeMsal()
   }
 
-  const account = msalInstance.getAllAccounts()[0]
+  const account = msalInstance.getAllAccounts()[0] as AccountInfo | undefined;
 
   try {
     await msalInstance.logoutRedirect({
-      account,
+      account: account ?? undefined,
       postLogoutRedirectUri: AZURE_AD_CONFIG.postLogoutRedirectUri,
     })
     logger.info('Logout successful')
@@ -264,7 +264,7 @@ export const getAccessToken = async (scopes?: string[]): Promise<string> => {
       logger.warn('Interaction required for token acquisition')
       try {
         // Try redirect first (better UX)
-        await msalInstance.acquireTokenRedirect(request)
+        await msalInstance.acquireTokenRedirect(request as RedirectRequest)
         throw new Error('Redirecting to login...')
       } catch (redirectError) {
         logger.error('Token acquisition failed:', { error: redirectError })
@@ -347,7 +347,7 @@ export const getUserProfile = (): {
     id: account.localAccountId,
     email: account.username,
     name: account.name || account.username,
-    roles: (account.idTokenClaims as any)?.roles || [],
+    roles: (account.idTokenClaims as { roles?: string[] })?.roles || [],
   }
 }
 

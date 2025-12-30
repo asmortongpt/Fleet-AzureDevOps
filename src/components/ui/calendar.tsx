@@ -1,5 +1,4 @@
-import ChevronLeft from "lucide-react/dist/esm/icons/chevron-left"
-import ChevronRight from "lucide-react/dist/esm/icons/chevron-right"
+import { ChevronLeft, ChevronRight } from "lucide-react"
 import { ComponentProps } from "react"
 import { DayPicker } from "react-day-picker"
 
