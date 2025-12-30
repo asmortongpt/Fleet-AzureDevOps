@@ -21,6 +21,11 @@ export interface FilterStatsType {
   total: number;
   byStatus: Record<string, number>;
   byMake: Record<string, number>;
+  all?: number; // Total count
+  active?: number; // Active vehicles count
+  inactive?: number; // Inactive vehicles count
+  maintenance?: number; // Maintenance vehicles count
+  outOfService?: number; // Out of service vehicles count
 }
 
 export function useVehicleFilters<T extends { number: string; make: string; model: string; status: string }>(
