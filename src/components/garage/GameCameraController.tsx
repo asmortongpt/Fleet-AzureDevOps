@@ -51,9 +51,7 @@ export function GameCameraController({
   cameraPosition = 'default',
   enableIdleDrift = true,
   enableKeyboard = true,
-  onCameraMove,
-  _damagePoints = [],
-  _onDamagePointClick
+  onCameraMove
 }: GameCameraControllerProps) {
   const controlsRef = useRef<OrbitControlsImpl>(null)
   const { camera, gl } = useThree()
