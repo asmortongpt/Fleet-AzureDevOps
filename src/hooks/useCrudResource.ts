@@ -33,7 +33,7 @@ export function createCrudHooks<T extends { id?: number | string }>(
       queryKey: [queryKey, params],
       queryFn: async () => {
         const response = await axios.get<T[]>(`/${resourceName}`, { params })
-        return response ?? []
+        return response?.data ?? []
       },
       gcTime: 5 * 60 * 1000,
       ...queryOptions
@@ -48,7 +48,7 @@ export function createCrudHooks<T extends { id?: number | string }>(
       queryKey: [queryKey, id],
       queryFn: async () => {
         const response = await axios.get<T>(`/${resourceName}/${id}`)
-        return response
+        return response?.data ?? response
       },
       enabled: !!id,
       gcTime: 5 * 60 * 1000,
@@ -65,7 +65,7 @@ export function createCrudHooks<T extends { id?: number | string }>(
     return useMutation({
       mutationFn: async (data: Partial<T>) => {
         const response = await axios.post<T>(`/${resourceName}`, data)
-        return response
+        return response?.data ?? response
       },
       onSuccess: () => {
         queryClient.invalidateQueries({ queryKey: [queryKey] })
@@ -83,7 +83,7 @@ export function createCrudHooks<T extends { id?: number | string }>(
     return useMutation({
       mutationFn: async ({ id, data }: { id: number | string; data: Partial<T> }) => {
         const response = await axios.put<T>(`/${resourceName}/${id}`, data)
-        return response
+        return response?.data ?? response
       },
       onSuccess: (_, variables) => {
         queryClient.invalidateQueries({ queryKey: [queryKey] })
