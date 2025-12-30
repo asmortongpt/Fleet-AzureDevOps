@@ -24,6 +24,7 @@ import { Label } from "@/components/ui/label"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import apiClient from "@/lib/api-client"
 import logger from '@/utils/logger';
+
 export interface VehicleInfo {
   vehicleId: string
   vehicleNumber: string
@@ -39,6 +40,11 @@ interface VehicleIdentificationProps {
   onVehicleSelected: (vehicle: VehicleInfo) => void
   selectedVehicle?: VehicleInfo | null
   trigger?: React.ReactNode
+}
+
+interface ApiResponse {
+  vehicle?: VehicleInfo
+  vehicles?: VehicleInfo[]
 }
 
 export function VehicleIdentification({
@@ -61,7 +67,7 @@ export function VehicleIdentification({
 
     try {
       setLoading(true)
-      const response = await apiClient.get("/api/vehicle-identification/vin", {
+      const response: ApiResponse = await apiClient.get("/api/vehicle-identification/vin", {
         method: "POST",
         body: JSON.stringify({ vin: vinInput })
       })
@@ -71,9 +77,9 @@ export function VehicleIdentification({
         setOpen(false)
         toast.success("Vehicle identified successfully")
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error("Error identifying vehicle:", error)
-      toast.error(error.message || "Vehicle not found")
+      toast.error(error instanceof Error ? error.message : "Vehicle not found")
     } finally {
       setLoading(false)
     }
@@ -87,7 +93,7 @@ export function VehicleIdentification({
 
     try {
       setLoading(true)
-      const response = await apiClient.get("/api/vehicle-identification/license-plate", {
+      const response: ApiResponse = await apiClient.get("/api/vehicle-identification/license-plate", {
         method: "POST",
         body: JSON.stringify({ licensePlate: plateInput })
       })
@@ -97,9 +103,9 @@ export function VehicleIdentification({
         setOpen(false)
         toast.success("Vehicle identified successfully")
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error("Error identifying vehicle:", error)
-      toast.error(error.message || "Vehicle not found")
+      toast.error(error instanceof Error ? error.message : "Vehicle not found")
     } finally {
       setLoading(false)
     }
@@ -112,10 +118,10 @@ export function VehicleIdentification({
 
     try {
       setLoading(true)
-      const response = await apiClient.get(`/api/vehicle-identification/search?q=${encodeURIComponent(searchInput)}`)
+      const response: ApiResponse = await apiClient.get(`/api/vehicle-identification/search?q=${encodeURIComponent(searchInput)}`)
 
       setSearchResults(response.vehicles || [])
-    } catch (error) {
+    } catch (error: unknown) {
       logger.error("Error searching vehicles:", error)
       toast.error("Failed to search vehicles")
     } finally {
@@ -134,7 +140,6 @@ export function VehicleIdentification({
       description: "Use browser camera API or dedicated QR scanner app"
     })
     logger.info("QR Scan feature requested - requires hardware camera integration")
-    // Note: Browser camera API integration scheduled for future phase
   }
 
   const handleVINScan = () => {
@@ -142,7 +147,6 @@ export function VehicleIdentification({
       description: "Use barcode scanner hardware or mobile app"
     })
     logger.info("VIN Scan feature requested - requires hardware barcode scanner")
-    // Note: Hardware scanner integration scheduled for future phase
   }
 
   const handlePlateScan = () => {
@@ -150,7 +154,6 @@ export function VehicleIdentification({
       description: "Azure Computer Vision integration required for OCR"
     })
     logger.info("Plate Scan feature requested - requires Azure OCR integration")
-    // Note: Azure OCR integration scheduled for future phase
   }
 
   return (

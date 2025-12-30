@@ -405,10 +405,10 @@ export function ArcGISIntegration() {
 
         // Auto-populate form fields if empty
         if (!newLayer.name && capabilities.name) {
-          setNewLayer(prev => ({ ...prev, name: capabilities.name }))
+          setNewLayer(prev => ({ ...prev, name: capabilities.name ?? '' }))
         }
         if (!newLayer.description && capabilities.description) {
-          setNewLayer(prev => ({ ...prev, description: capabilities.description }))
+          setNewLayer(prev => ({ ...prev, description: capabilities.description ?? '' }))
         }
       } else {
         setConnectionResult(result)
@@ -516,311 +516,142 @@ export function ArcGISIntegration() {
    * @param layerId - Layer ID to toggle
    */
   const handleToggleLayer = useCallback(async (layerId: string) => {
-    const layer = layers.find(l => l.id === layerId)
-    if (!layer) return
+    const layer = layers.find(l => l.id === layerId);
+    if (!layer) return;
 
     // Optimistic update
     setLayers(prev => prev.map(l =>
-      l.id === layerId ? { ...l, enabled: !l.enabled, updatedAt: new Date().toISOString() } : l
-    ))
-
-    updateLayerOperation(layerId, { loading: true, error: null })
+      l.id === layerId ? { ...l, enabled: !l.enabled } : l
+    ));
 
     try {
-      await updateLayerInAPI({ ...layer, enabled: !layer.enabled })
-      updateLayerOperation(layerId, { loading: false, lastUpdated: new Date() })
-
-      // Trigger health check if enabling
-      if (!layer.enabled) {
-        const health = await checkLayerHealth({ ...layer, enabled: true })
-        setLayers(prev => prev.map(l =>
-          l.id === layerId ? { ...l, health, lastChecked: new Date() } : l
-        ))
-      }
+      await apiClient.arcgisLayers.update(layerId, { enabled: !layer.enabled });
     } catch (error) {
-      logger.error('Failed to toggle layer:', error)
-      // Revert optimistic update
+      logger.error(`Failed to toggle layer ${layerId}:`, error);
+      // Rollback on failure
       setLayers(prev => prev.map(l =>
         l.id === layerId ? { ...l, enabled: layer.enabled } : l
-      ))
-      updateLayerOperation(layerId, {
-        loading: false,
-        error: error instanceof Error ? error.message : 'Failed to update layer',
-      })
+      ));
     }
-  }, [layers])
-
-  /**
-   * Update layer opacity with debouncing for better performance
-   * @param layerId - Layer ID
-   * @param opacity - New opacity value (0-1)
-   */
-  const updateOpacityImmediate = useCallback(async (layerId: string, opacity: number) => {
-    const layer = layers.find(l => l.id === layerId)
-    if (!layer) return
-
-    updateLayerOperation(layerId, { loading: true, error: null })
-
-    try {
-      await updateLayerInAPI({ ...layer, opacity })
-      updateLayerOperation(layerId, { loading: false, lastUpdated: new Date() })
-    } catch (error) {
-      logger.error('Failed to update opacity:', error)
-      updateLayerOperation(layerId, {
-        loading: false,
-        error: error instanceof Error ? error.message : 'Failed to update opacity',
-      })
-    }
-  }, [layers])
-
-  // Debounced version for UI slider
-  const handleUpdateOpacity = useDebounce(updateOpacityImmediate, 500)
-
-  /**
-   * Immediate opacity update for UI responsiveness
-   * @param layerId - Layer ID
-   * @param opacity - New opacity value
-   */
-  const handleOpacityChange = useCallback((layerId: string, opacity: number) => {
-    // Update UI immediately
-    setLayers(prev => prev.map(l =>
-      l.id === layerId ? { ...l, opacity, updatedAt: new Date().toISOString() } : l
-    ))
-
-    // Debounce API call
-    handleUpdateOpacity(layerId, opacity)
-  }, [handleUpdateOpacity])
+  }, [layers]);
 
   /**
    * Delete a layer with confirmation
    * @param layerId - Layer ID to delete
    */
   const handleDeleteLayer = useCallback(async (layerId: string) => {
-    const layer = layers.find(l => l.id === layerId)
-    if (!layer) return
+    const layer = layers.find(l => l.id === layerId);
+    if (!layer) return;
 
-    if (!confirm(`Are you sure you want to remove "${layer.name}"? This action cannot be undone.`)) {
-      return
-    }
-
-    updateLayerOperation(layerId, { loading: true, error: null })
-
-    // Optimistic removal
-    const originalLayers = [...layers]
-    setLayers(prev => prev.filter(l => l.id !== layerId))
+    updateLayerOperation(layerId, { loading: true, error: null });
 
     try {
-      await deleteLayerFromAPI(layerId)
-      updateLayerOperation(layerId, { loading: false, lastUpdated: new Date() })
+      // Optimistically remove from UI
+      setLayers(prev => prev.filter(l => l.id !== layerId));
+      await apiClient.arcgisLayers.delete(layerId);
     } catch (error) {
-      logger.error('Failed to delete layer:', error)
-      // Restore on error
-      setLayers(originalLayers)
+      logger.error(`Failed to delete layer ${layerId}:`, error);
+      // Rollback on failure
+      setLayers(prev => [...prev, layer]);
       updateLayerOperation(layerId, {
         loading: false,
         error: error instanceof Error ? error.message : 'Failed to delete layer',
-      })
+      });
+    } finally {
+      updateLayerOperation(layerId, { loading: false });
     }
-  }, [layers])
+  }, [layers, updateLayerOperation]);
 
   /**
-   * Duplicate an existing layer
+   * Update layer opacity
+   * @param layerId - Layer ID to update
+   * @param opacity - New opacity value
+   */
+  const handleOpacityChange = useCallback(async (layerId: string, opacity: number) => {
+    const layer = layers.find(l => l.id === layerId);
+    if (!layer) return;
+
+    // Optimistic update
+    setLayers(prev => prev.map(l =>
+      l.id === layerId ? { ...l, opacity } : l
+    ));
+
+    try {
+      await apiClient.arcgisLayers.update(layerId, { opacity });
+    } catch (error) {
+      logger.error(`Failed to update opacity for layer ${layerId}:`, error);
+      // Rollback on failure
+      setLayers(prev => prev.map(l =>
+        l.id === layerId ? { ...l, opacity: layer.opacity } : l
+      ));
+    }
+  }, [layers]);
+
+  /**
+   * Duplicate a layer
    * @param layerId - Layer ID to duplicate
    */
   const handleDuplicateLayer = useCallback(async (layerId: string) => {
-    const layer = layers.find(l => l.id === layerId)
-    if (!layer) return
+    const layer = layers.find(l => l.id === layerId);
+    if (!layer) return;
 
-    const duplicatedLayer: ArcGISLayerConfig = {
+    const newLayerId = `arcgis-${Date.now()}`;
+    const duplicatedLayer: LayerWithStatus = {
       ...layer,
-      id: `arcgis-${Date.now()}`,
+      id: newLayerId,
       name: `${layer.name} (Copy)`,
+      health: 'unknown',
+      lastChecked: undefined,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
-    }
+    };
+
+    updateLayerOperation(newLayerId, { loading: true, error: null });
 
     try {
-      setLayers(prev => [...prev, { ...duplicatedLayer, health: 'unknown' }])
-      await saveLayerToAPI(duplicatedLayer)
-
-      // Check health
-      const health = await checkLayerHealth(duplicatedLayer)
-      setLayers(prev => prev.map(l =>
-        l.id === duplicatedLayer.id ? { ...l, health, lastChecked: new Date() } : l
-      ))
+      setLayers(prev => [...prev, duplicatedLayer]);
+      await saveLayerToAPI(duplicatedLayer);
+      updateLayerOperation(newLayerId, { loading: false, lastUpdated: new Date() });
     } catch (error) {
-      logger.error('Failed to duplicate layer:', error)
-      setLayers(prev => prev.filter(l => l.id !== duplicatedLayer.id))
+      logger.error(`Failed to duplicate layer ${layerId}:`, error);
+      setLayers(prev => prev.filter(l => l.id !== newLayerId));
+      updateLayerOperation(newLayerId, {
+        loading: false,
+        error: error instanceof Error ? error.message : 'Failed to duplicate layer',
+      });
     }
-  }, [layers])
+  }, [layers, updateLayerOperation]);
 
   /**
    * Move layer up in the list
-   * @param layerId - Layer ID to move
+   * @param index - Current index of the layer
    */
-  const handleMoveLayerUp = useCallback((layerId: string) => {
+  const handleMoveLayerUp = useCallback((index: number) => {
+    if (index <= 0) return;
     setLayers(prev => {
-      const index = prev.findIndex(l => l.id === layerId)
-      if (index <= 0) return prev
-
-      const newLayers = [...prev]
-      const temp = newLayers[index]
-      newLayers[index] = newLayers[index - 1]
-      newLayers[index - 1] = temp
-      return newLayers
-    })
-  }, [])
+      const newLayers = [...prev];
+      [newLayers[index], newLayers[index - 1]] = [newLayers[index - 1], newLayers[index]];
+      return newLayers;
+    });
+    // TODO: Update layer order in API if needed
+  }, []);
 
   /**
    * Move layer down in the list
-   * @param layerId - Layer ID to move
+   * @param index - Current index of the layer
    */
-  const handleMoveLayerDown = useCallback((layerId: string) => {
+  const handleMoveLayerDown = useCallback((index: number) => {
+    if (index >= layers.length - 1) return;
     setLayers(prev => {
-      const index = prev.findIndex(l => l.id === layerId)
-      if (index < 0 || index >= prev.length - 1) return prev
-
-      const newLayers = [...prev]
-      const temp = newLayers[index]
-      newLayers[index] = newLayers[index + 1]
-      newLayers[index + 1] = temp
-      return newLayers
-    })
-  }, [])
-
-  // ============================================================================
-  // API Interaction Functions
-  // ============================================================================
+      const newLayers = [...prev];
+      [newLayers[index], newLayers[index + 1]] = [newLayers[index + 1], newLayers[index]];
+      return newLayers;
+    });
+    // TODO: Update layer order in API if needed
+  }, [layers.length]);
 
   /**
-   * Save layer to API backend
-   * @param layer - Layer configuration to save
-   */
-  const saveLayerToAPI = async (layer: ArcGISLayerConfig) => {
-    try {
-      const payload = {
-        name: layer.name,
-        description: layer.description,
-        serviceUrl: layer.serviceUrl,
-        layerType: layer.layerType,
-        enabled: layer.enabled,
-        opacity: layer.opacity,
-        minZoom: layer.minZoom,
-        maxZoom: layer.maxZoom,
-        refreshInterval: layer.refreshInterval,
-        authentication: layer.authentication,
-        styling: layer.styling,
-        metadata: layer.metadata,
-      }
-      await apiClient.arcgisLayers.create(payload)
-    } catch (error) {
-      logger.error('Failed to save layer:', error)
-      throw error
-    }
-  }
-
-  /**
-   * Update layer in API backend
-   * @param layer - Updated layer configuration
-   */
-  const updateLayerInAPI = async (layer: ArcGISLayerConfig) => {
-    try {
-      const payload = {
-        enabled: layer.enabled,
-        opacity: layer.opacity,
-        minZoom: layer.minZoom,
-        maxZoom: layer.maxZoom,
-        refreshInterval: layer.refreshInterval,
-        styling: layer.styling,
-        metadata: layer.metadata,
-      }
-      await apiClient.arcgisLayers.update(layer.id, payload)
-    } catch (error) {
-      logger.error('Failed to update layer:', error)
-      throw error
-    }
-  }
-
-  /**
-   * Delete layer from API backend
-   * @param layerId - Layer ID to delete
-   */
-  const deleteLayerFromAPI = async (layerId: string) => {
-    try {
-      await apiClient.arcgisLayers.delete(layerId)
-    } catch (error) {
-      logger.error('Failed to delete layer:', error)
-      throw error
-    }
-  }
-
-  // ============================================================================
-  // Import/Export Functions
-  // ============================================================================
-
-  /**
-   * Export all layers to JSON
-   */
-  const handleExportLayers = useCallback(() => {
-    const exportData = {
-      version: '2.0',
-      exportedAt: new Date().toISOString(),
-      layers: layers.map(({ health, lastChecked, errorMessage, ...layer }) => layer),
-    }
-
-    const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' })
-    const url = URL.createObjectURL(blob)
-    const link = document.createElement('a')
-    link.href = url
-    link.download = `arcgis-layers-${Date.now()}.json`
-    document.body.appendChild(link)
-    link.click()
-    document.body.removeChild(link)
-    URL.revokeObjectURL(url)
-  }, [layers])
-
-  /**
-   * Import layers from JSON
-   */
-  const handleImportLayers = useCallback(async () => {
-    try {
-      const data = JSON.parse(importData)
-
-      if (!data.layers || !Array.isArray(data.layers)) {
-        throw new Error('Invalid import data format')
-      }
-
-      // Add each layer
-      for (const layerData of data.layers) {
-        const layer: ArcGISLayerConfig = {
-          ...layerData,
-          id: `arcgis-${Date.now()}-${Math.random()}`,
-          createdAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString(),
-        }
-
-        await saveLayerToAPI(layer)
-        setLayers(prev => [...prev, { ...layer, health: 'unknown' }])
-      }
-
-      setIsImportDialogOpen(false)
-      setImportData('')
-
-      // Refresh all layers after import
-      await loadLayers()
-
-    } catch (error) {
-      logger.error('Import failed:', error)
-      alert(error instanceof Error ? error.message : 'Failed to import layers')
-    }
-  }, [importData, loadLayers])
-
-  // ============================================================================
-  // Utility Functions
-  // ============================================================================
-
-  /**
-   * Reset the layer form to default values
+   * Reset form state
    */
   const resetForm = useCallback(() => {
     setNewLayer({
@@ -830,643 +661,412 @@ export function ArcGISIntegration() {
       layerType: 'feature',
       opacity: 1,
       token: '',
-    })
-  }, [])
+    });
+    setConnectionResult(null);
+  }, []);
 
   /**
-   * Get health badge component for a layer
-   * @param health - Layer health status
-   * @returns Badge component
+   * Save layer to API
+   * @param layer - Layer to save
    */
-  const getHealthBadge = (health?: LayerHealth) => {
-    switch (health) {
-      case 'healthy':
-        return <Badge variant="default" className="text-xs bg-green-600"><CheckCircle className="w-3 h-3 mr-1" weight="fill" />Healthy</Badge>
-      case 'warning':
-        return <Badge variant="default" className="text-xs bg-yellow-600"><Warning className="w-3 h-3 mr-1" weight="fill" />Warning</Badge>
-      case 'error':
-        return <Badge variant="destructive" className="text-xs"><XCircle className="w-3 h-3 mr-1" weight="fill" />Error</Badge>
-      default:
-        return <Badge variant="outline" className="text-xs"><Info className="w-3 h-3 mr-1" />Unknown</Badge>
+  const saveLayerToAPI = async (layer: ArcGISLayerConfig) => {
+    try {
+      await apiClient.arcgisLayers.create(layer);
+    } catch (error) {
+      logger.error(`Failed to save layer to API:`, error);
+      throw error;
     }
-  }
+  };
 
-  // ============================================================================
-  // Computed Values
-  // ============================================================================
+  /**
+   * Export layers to JSON
+   */
+  const handleExportLayers = useCallback(() => {
+    const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(layers, null, 2));
+    const downloadAnchorNode = document.createElement('a');
+    downloadAnchorNode.setAttribute("href", dataStr);
+    downloadAnchorNode.setAttribute("download", "arcgis-layers.json");
+    document.body.appendChild(downloadAnchorNode);
+    downloadAnchorNode.click();
+    downloadAnchorNode.remove();
+  }, [layers]);
 
-  const enabledLayersCount = useMemo(() => layers.filter(l => l.enabled).length, [layers])
-  const healthyLayersCount = useMemo(() => layers.filter(l => l.health === 'healthy').length, [layers])
-  const hasLayers = layers.length > 0
+  /**
+   * Import layers from JSON
+   */
+  const handleImportLayers = useCallback(async () => {
+    try {
+      const importedLayers = JSON.parse(importData) as LayerWithStatus[];
+      if (!Array.isArray(importedLayers)) {
+        throw new Error('Invalid import data format');
+      }
 
-  // ============================================================================
-  // Render
-  // ============================================================================
+      setGlobalLoading(true);
+      const newLayers = await Promise.all(
+        importedLayers.map(async (layer) => {
+          const newLayerId = `arcgis-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+          const newLayer = {
+            ...layer,
+            id: newLayerId,
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString(),
+            health: 'unknown' as LayerHealth,
+            lastChecked: undefined,
+          };
+          await saveLayerToAPI(newLayer);
+          return newLayer;
+        })
+      );
+
+      setLayers(prev => [...prev, ...newLayers]);
+      setIsImportDialogOpen(false);
+      setImportData('');
+    } catch (error) {
+      logger.error('Failed to import layers:', error);
+      setGlobalError(error instanceof Error ? error.message : 'Failed to import layers');
+    } finally {
+      setGlobalLoading(false);
+    }
+  }, [importData]);
+
+  // Memoized values for rendering
+  const healthyLayers = useMemo(() => layers.filter(l => l.health === 'healthy'), [layers]);
+  const warningLayers = useMemo(() => layers.filter(l => l.health === 'warning'), [layers]);
+  const errorLayers = useMemo(() => layers.filter(l => l.health === 'error'), [layers]);
+
+  // Debounced opacity update
+  const debouncedOpacityChange = useDebounce(handleOpacityChange, 300);
+
+  // Render layer list item
+  const renderLayerItem = (layer: LayerWithStatus, index: number) => {
+    const operationState = layerOperations.get(layer.id);
+    const isLoading = operationState?.loading ?? false;
+    const operationError = operationState?.error;
+
+    return (
+      <div key={layer.id} className="border-b last:border-b-0 py-3 flex items-center justify-between">
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-2">
+            {layer.enabled ? (
+              <Eye className="h-4 w-4 text-green-500" />
+            ) : (
+              <EyeSlash className="h-4 w-4 text-gray-400" />
+            )}
+            <span className="font-medium truncate">{layer.name}</span>
+            <Badge variant={layer.health === 'healthy' ? 'default' : 'destructive'}>
+              {layer.health}
+            </Badge>
+          </div>
+          <div className="text-sm text-gray-500 truncate">{layer.description}</div>
+          {operationError && (
+            <div className="text-xs text-red-500 mt-1">{operationError}</div>
+          )}
+        </div>
+
+        <div className="flex items-center gap-2">
+          <Slider
+            className="w-24"
+            value={[layer.opacity]}
+            min={0}
+            max={1}
+            step={0.1}
+            onValueChange={(value) => debouncedOpacityChange(layer.id, value[0] ?? 0)}
+            disabled={isLoading}
+          />
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => handleToggleLayer(layer.id)}
+            disabled={isLoading}
+          >
+            {layer.enabled ? <EyeSlash className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+          </Button>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" size="sm" disabled={isLoading}>
+                <DotsThree className="h-4 w-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem onClick={() => handleDuplicateLayer(layer.id)}>
+                <Copy className="h-4 w-4 mr-2" />
+                Duplicate
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => handleMoveLayerUp(index)}>
+                <CaretUp className="h-4 w-4 mr-2" />
+                Move Up
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => handleMoveLayerDown(index)}>
+                <CaretDown className="h-4 w-4 mr-2" />
+                Move Down
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem onClick={() => handleDeleteLayer(layer.id)} className="text-red-500">
+                <Trash className="h-4 w-4 mr-2" />
+                Delete
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
+      </div>
+    );
+  };
+
+  // Render connection test result
+  const renderConnectionResult = () => {
+    if (!connectionResult) return null;
+
+    return (
+      <Alert className={connectionResult.success ? 'border-green-500' : 'border-red-500'}>
+        {connectionResult.success ? (
+          <CheckCircle className="h-4 w-4 text-green-500" />
+        ) : (
+          <Warning className="h-4 w-4 text-red-500" />
+        )}
+        <AlertTitle>{connectionResult.success ? 'Success' : 'Error'}</AlertTitle>
+        <AlertDescription>{connectionResult.message}</AlertDescription>
+        {connectionResult.details && (
+          <div className="mt-2 text-sm text-gray-600">
+            <div>Type: {connectionResult.details.layerType ?? 'N/A'}</div>
+            <div>Capabilities: {connectionResult.details.capabilities?.join(', ') ?? 'N/A'}</div>
+          </div>
+        )}
+      </Alert>
+    );
+  };
 
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-semibold tracking-tight">ArcGIS Integration</h1>
-          <p className="text-muted-foreground mt-1">
-            Plug and play custom ArcGIS map layers
-            {hasLayers && ` • ${enabledLayersCount} active • ${healthyLayersCount} healthy`}
-          </p>
-        </div>
-
+      <div className="flex justify-between items-center">
+        <h2 className="text-2xl font-bold">ArcGIS Integration</h2>
         <div className="flex gap-2">
-          {hasLayers && (
-            <>
-              <Button variant="outline" size="sm" onClick={handleExportLayers}>
-                <Download className="w-4 h-4 mr-2" />
-                Export
-              </Button>
-              <Button variant="outline" size="sm" onClick={() => setIsImportDialogOpen(true)}>
-                <Upload className="w-4 h-4 mr-2" />
-                Import
-              </Button>
-              <Button variant="outline" size="sm" onClick={refreshAllLayerHealth}>
-                <ArrowClockwise className="w-4 h-4 mr-2" />
-                Refresh Health
-              </Button>
-            </>
-          )}
-
           <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
             <DialogTrigger asChild>
               <Button>
-                <Plus className="w-4 h-4 mr-2" />
+                <Plus className="h-4 w-4 mr-2" />
                 Add Layer
               </Button>
             </DialogTrigger>
-            <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+            <DialogContent className="sm:max-w-[425px]">
               <DialogHeader>
-                <DialogTitle>Add ArcGIS Layer</DialogTitle>
-                <DialogDescription>
-                  Connect to an ArcGIS REST service to add custom map layers
-                </DialogDescription>
+                <DialogTitle>Add New ArcGIS Layer</DialogTitle>
+                <DialogDescription>Configure a new ArcGIS layer integration.</DialogDescription>
               </DialogHeader>
-
-              <div className="space-y-4">
-                {/* Layer Name */}
-                <div className="space-y-2">
-                  <Label htmlFor="layer-name">
-                    Layer Name <span className="text-destructive">*</span>
+              <div className="grid gap-4 py-4">
+                <div className="grid grid-cols-4 items-center gap-4">
+                  <Label htmlFor="name" className="text-right">
+                    Name
                   </Label>
                   <Input
-                    id="layer-name"
-                    placeholder="e.g., Traffic Incidents"
+                    id="name"
                     value={newLayer.name}
-                    onChange={(e) => setNewLayer({ ...newLayer, name: e.target.value })}
+                    onChange={e => setNewLayer(prev => ({ ...prev, name: e.target.value }))}
+                    className="col-span-3"
                   />
                 </div>
-
-                {/* Service URL */}
-                <div className="space-y-2">
-                  <Label htmlFor="service-url">
-                    Service URL <span className="text-destructive">*</span>
+                <div className="grid grid-cols-4 items-center gap-4">
+                  <Label htmlFor="serviceUrl" className="text-right">
+                    Service URL
                   </Label>
                   <Input
-                    id="service-url"
-                    placeholder="https://services.arcgis.com/.../MapServer/0"
+                    id="serviceUrl"
                     value={newLayer.serviceUrl}
-                    onChange={(e) => setNewLayer({ ...newLayer, serviceUrl: e.target.value })}
-                  />
-                  <p className="text-xs text-muted-foreground">
-                    Enter the ArcGIS REST API endpoint (FeatureServer, MapServer, or ImageServer)
-                  </p>
-                </div>
-
-                {/* Description */}
-                <div className="space-y-2">
-                  <Label htmlFor="description">Description</Label>
-                  <Input
-                    id="description"
-                    placeholder="Optional description"
-                    value={newLayer.description}
-                    onChange={(e) => setNewLayer({ ...newLayer, description: e.target.value })}
+                    onChange={e => setNewLayer(prev => ({ ...prev, serviceUrl: e.target.value }))}
+                    className="col-span-3"
                   />
                 </div>
-
-                {/* Authentication Token */}
-                <div className="space-y-2">
-                  <Label htmlFor="token">Authentication Token (Optional)</Label>
+                <div className="grid grid-cols-4 items-center gap-4">
+                  <Label htmlFor="token" className="text-right">
+                    Token
+                  </Label>
                   <Input
                     id="token"
-                    type="password"
-                    placeholder="ArcGIS token for secured services"
                     value={newLayer.token}
-                    onChange={(e) => setNewLayer({ ...newLayer, token: e.target.value })}
+                    onChange={e => setNewLayer(prev => ({ ...prev, token: e.target.value }))}
+                    placeholder="Optional"
+                    className="col-span-3"
                   />
-                  <p className="text-xs text-muted-foreground">
-                    Required for secured ArcGIS services
-                  </p>
                 </div>
-
-                {/* Advanced Options */}
-                <details className="space-y-2">
-                  <summary className="cursor-pointer font-medium">Advanced Options</summary>
-                  <div className="space-y-4 mt-4 pl-4 border-l-2">
-                    {/* Opacity */}
-                    <div className="space-y-2">
-                      <Label>Layer Opacity</Label>
-                      <div className="flex items-center gap-4">
-                        <Slider
-                          value={[newLayer.opacity * 100]}
-                          onValueChange={([value]) => setNewLayer({ ...newLayer, opacity: value / 100 })}
-                          max={100}
-                          step={1}
-                          className="flex-1"
-                        />
-                        <span className="text-sm font-medium w-12">{Math.round(newLayer.opacity * 100)}%</span>
-                      </div>
-                    </div>
-
-                    {/* Zoom Levels */}
-                    <div className="grid grid-cols-2 gap-4">
-                      <div className="space-y-2">
-                        <Label htmlFor="min-zoom">Min Zoom Level</Label>
-                        <Input
-                          id="min-zoom"
-                          type="number"
-                          min="0"
-                          max="22"
-                          placeholder="0"
-                          value={newLayer.minZoom || ''}
-                          onChange={(e) => setNewLayer({ ...newLayer, minZoom: parseInt(e.target.value) || undefined })}
-                        />
-                      </div>
-                      <div className="space-y-2">
-                        <Label htmlFor="max-zoom">Max Zoom Level</Label>
-                        <Input
-                          id="max-zoom"
-                          type="number"
-                          min="0"
-                          max="22"
-                          placeholder="22"
-                          value={newLayer.maxZoom || ''}
-                          onChange={(e) => setNewLayer({ ...newLayer, maxZoom: parseInt(e.target.value) || undefined })}
-                        />
-                      </div>
-                    </div>
-
-                    {/* Refresh Interval */}
-                    <div className="space-y-2">
-                      <Label htmlFor="refresh-interval">Auto-refresh Interval (seconds)</Label>
-                      <Input
-                        id="refresh-interval"
-                        type="number"
-                        min="0"
-                        placeholder="0 (disabled)"
-                        value={newLayer.refreshInterval || ''}
-                        onChange={(e) => setNewLayer({ ...newLayer, refreshInterval: parseInt(e.target.value) || undefined })}
-                      />
-                      <p className="text-xs text-muted-foreground">
-                        Set to 0 to disable auto-refresh
-                      </p>
-                    </div>
+                <div className="grid grid-cols-4 items-center gap-4">
+                  <Label className="text-right">Type</Label>
+                  <div className="col-span-3">
+                    <Tabs
+                      value={newLayer.layerType}
+                      onValueChange={value =>
+                        setNewLayer(prev => ({ ...prev, layerType: value as any }))
+                      }
+                    >
+                      <TabsList>
+                        <TabsTrigger value="feature">Feature</TabsTrigger>
+                        <TabsTrigger value="tile">Tile</TabsTrigger>
+                        <TabsTrigger value="image">Image</TabsTrigger>
+                        <TabsTrigger value="dynamic">Dynamic</TabsTrigger>
+                        <TabsTrigger value="wms">WMS</TabsTrigger>
+                      </TabsList>
+                    </Tabs>
                   </div>
-                </details>
-
-                {/* Connection Test Result */}
-                {connectionResult && (
-                  <Alert variant={connectionResult.success ? "default" : "destructive"}>
-                    <AlertTitle className="flex items-center gap-2">
-                      {connectionResult.success ? (
-                        <CheckCircle className="w-4 h-4" weight="fill" />
-                      ) : (
-                        <Warning className="w-4 h-4" weight="fill" />
-                      )}
-                      {connectionResult.success ? 'Connection Successful' : 'Connection Failed'}
-                    </AlertTitle>
-                    <AlertDescription>
-                      {connectionResult.message}
-                      {connectionResult.details && (
-                        <div className="mt-2 text-xs space-y-1">
-                          {connectionResult.details.layerType && (
-                            <div>Type: <strong>{connectionResult.details.layerType}</strong></div>
-                          )}
-                          {connectionResult.details.capabilities && connectionResult.details.capabilities.length > 0 && (
-                            <div>Capabilities: <strong>{connectionResult.details.capabilities.join(', ')}</strong></div>
-                          )}
-                        </div>
-                      )}
-                    </AlertDescription>
-                  </Alert>
-                )}
+                </div>
+                <div className="grid grid-cols-4 items-center gap-4">
+                  <Label className="text-right">Opacity</Label>
+                  <div className="col-span-3">
+                    <Slider
+                      value={[newLayer.opacity]}
+                      min={0}
+                      max={1}
+                      step={0.1}
+                      onValueChange={value =>
+                        setNewLayer(prev => ({ ...prev, opacity: value[0] ?? 1 }))
+                      }
+                    />
+                  </div>
+                </div>
+                <div className="grid grid-cols-4 items-center gap-4">
+                  <Label htmlFor="description" className="text-right">
+                    Description
+                  </Label>
+                  <Input
+                    id="description"
+                    value={newLayer.description}
+                    onChange={e => setNewLayer(prev => ({ ...prev, description: e.target.value }))}
+                    className="col-span-3"
+                  />
+                </div>
               </div>
-
+              {renderConnectionResult()}
               <DialogFooter>
                 <Button
-                  variant="outline"
+                  type="button"
+                  variant="secondary"
                   onClick={handleTestConnection}
-                  disabled={testingConnection || !newLayer.serviceUrl}
+                  disabled={testingConnection}
                 >
-                  {testingConnection ? 'Testing...' : 'Test Connection'}
+                  Test Connection
                 </Button>
-                <Button
-                  onClick={handleAddLayer}
-                  disabled={testingConnection || !newLayer.name || !newLayer.serviceUrl}
-                >
-                  {testingConnection ? 'Adding...' : 'Add Layer'}
+                <Button type="submit" onClick={handleAddLayer} disabled={testingConnection}>
+                  Add Layer
                 </Button>
               </DialogFooter>
             </DialogContent>
           </Dialog>
+          <Dialog open={isImportDialogOpen} onOpenChange={setIsImportDialogOpen}>
+            <DialogTrigger asChild>
+              <Button variant="outline">
+                <Upload className="h-4 w-4 mr-2" />
+                Import
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="sm:max-w-[425px]">
+              <DialogHeader>
+                <DialogTitle>Import ArcGIS Layers</DialogTitle>
+                <DialogDescription>Paste your layer configuration JSON below.</DialogDescription>
+              </DialogHeader>
+              <div className="grid gap-4 py-4">
+                <div className="grid grid-cols-4 items-center gap-4">
+                  <Label htmlFor="importData" className="text-right">
+                    JSON Data
+                  </Label>
+                  <textarea
+                    id="importData"
+                    value={importData}
+                    onChange={e => setImportData(e.target.value)}
+                    className="col-span-3 h-32 border rounded-md p-2"
+                  />
+                </div>
+              </div>
+              <DialogFooter>
+                <Button type="submit" onClick={handleImportLayers} disabled={globalLoading}>
+                  Import Layers
+                </Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
+          <Button variant="outline" onClick={handleExportLayers}>
+            <Download className="h-4 w-4 mr-2" />
+            Export
+          </Button>
+          <Button variant="outline" onClick={refreshAllLayerHealth} disabled={globalLoading}>
+            <ArrowClockwise className="h-4 w-4 mr-2" />
+            Refresh
+          </Button>
         </div>
       </div>
 
-      {/* Global Error */}
+      {/* Status Summary */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between pb-2">
+            <CardTitle className="text-sm font-medium">Healthy Layers</CardTitle>
+            <CheckCircle className="h-4 w-4 text-green-500" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{healthyLayers.length}</div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between pb-2">
+            <CardTitle className="text-sm font-medium">Warnings</CardTitle>
+            <Warning className="h-4 w-4 text-yellow-500" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{warningLayers.length}</div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between pb-2">
+            <CardTitle className="text-sm font-medium">Errors</CardTitle>
+            <XCircle className="h-4 w-4 text-red-500" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{errorLayers.length}</div>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Global Error State */}
       {globalError && (
         <Alert variant="destructive">
-          <Warning className="w-4 h-4" />
+          <Warning className="h-4 w-4" />
           <AlertTitle>Error</AlertTitle>
           <AlertDescription>{globalError}</AlertDescription>
         </Alert>
       )}
 
-      {/* Main Content */}
-      <Tabs defaultValue="layers" className="space-y-4">
-        <TabsList>
-          <TabsTrigger value="layers">Active Layers ({layers.length})</TabsTrigger>
-          <TabsTrigger value="examples">Examples</TabsTrigger>
-          <TabsTrigger value="help">Help</TabsTrigger>
-        </TabsList>
-
-        {/* Layers Tab */}
-        <TabsContent value="layers" className="space-y-4">
-          {globalLoading ? (
-            <Card>
-              <CardContent className="flex flex-col items-center justify-center py-12">
-                <ArrowClockwise className="w-16 h-16 text-muted-foreground mb-4 animate-spin" />
-                <h3 className="text-lg font-semibold mb-2">Loading Layers...</h3>
-                <p className="text-muted-foreground text-center max-w-md">
-                  Please wait while we fetch your ArcGIS layers
-                </p>
-              </CardContent>
-            </Card>
-          ) : !hasLayers ? (
-            <Card>
-              <CardContent className="flex flex-col items-center justify-center py-12">
-                <GlobeHemisphereWest className="w-16 h-16 text-muted-foreground mb-4" />
-                <h3 className="text-lg font-semibold mb-2">No ArcGIS Layers Yet</h3>
-                <p className="text-muted-foreground text-center max-w-md mb-4">
-                  Add your first ArcGIS layer to visualize custom data on the fleet map
-                </p>
-                <Button onClick={() => setIsAddDialogOpen(true)}>
-                  <Plus className="w-4 h-4 mr-2" />
-                  Add Your First Layer
-                </Button>
-              </CardContent>
-            </Card>
-          ) : (
-            <div className="grid gap-4">
-              {layers.map((layer, index) => {
-                const operation = layerOperations.get(layer.id)
-
-                return (
-                  <Card key={layer.id} className={operation?.loading ? 'opacity-60' : ''}>
-                    <CardHeader>
-                      <div className="flex items-start justify-between">
-                        <div className="flex-1">
-                          <div className="flex items-center gap-2 mb-1 flex-wrap">
-                            <CardTitle className="text-lg">{layer.name}</CardTitle>
-                            <Badge variant="outline" className="text-xs">
-                              {layer.layerType}
-                            </Badge>
-                            {layer.enabled ? (
-                              <Badge variant="default" className="text-xs bg-success">
-                                Active
-                              </Badge>
-                            ) : (
-                              <Badge variant="secondary" className="text-xs">
-                                Inactive
-                              </Badge>
-                            )}
-                            {getHealthBadge(layer.health)}
-                          </div>
-                          {layer.description && (
-                            <CardDescription>{layer.description}</CardDescription>
-                          )}
-                          <p className="text-xs text-muted-foreground mt-2 font-mono truncate">
-                            {layer.serviceUrl}
-                          </p>
-                          {layer.lastChecked && (
-                            <p className="text-xs text-muted-foreground mt-1">
-                              Last checked: {new Date(layer.lastChecked).toLocaleString()}
-                            </p>
-                          )}
-                          {operation?.error && (
-                            <Alert variant="destructive" className="mt-2">
-                              <AlertDescription className="text-xs">{operation.error}</AlertDescription>
-                            </Alert>
-                          )}
-                        </div>
-                        <div className="flex items-center gap-2">
-                          {/* Reorder buttons */}
-                          <div className="flex flex-col">
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              className="h-5 w-5"
-                              onClick={() => handleMoveLayerUp(layer.id)}
-                              disabled={index === 0 || operation?.loading}
-                            >
-                              <CaretUp className="w-3 h-3" />
-                            </Button>
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              className="h-5 w-5"
-                              onClick={() => handleMoveLayerDown(layer.id)}
-                              disabled={index === layers.length - 1 || operation?.loading}
-                            >
-                              <CaretDown className="w-3 h-3" />
-                            </Button>
-                          </div>
-
-                          {/* Toggle visibility */}
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            onClick={() => handleToggleLayer(layer.id)}
-                            disabled={operation?.loading}
-                          >
-                            {layer.enabled ? (
-                              <Eye className="w-4 h-4" />
-                            ) : (
-                              <EyeSlash className="w-4 h-4" />
-                            )}
-                          </Button>
-
-                          {/* More options */}
-                          <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
-                              <Button variant="ghost" size="icon" disabled={operation?.loading}>
-                                <DotsThree className="w-4 h-4" />
-                              </Button>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent align="end">
-                              <DropdownMenuItem onClick={() => handleDuplicateLayer(layer.id)}>
-                                <Copy className="w-4 h-4 mr-2" />
-                                Duplicate
-                              </DropdownMenuItem>
-                              <DropdownMenuSeparator />
-                              <DropdownMenuItem
-                                onClick={() => handleDeleteLayer(layer.id)}
-                                className="text-destructive focus:text-destructive"
-                              >
-                                <Trash className="w-4 h-4 mr-2" />
-                                Delete
-                              </DropdownMenuItem>
-                            </DropdownMenuContent>
-                          </DropdownMenu>
-                        </div>
-                      </div>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="space-y-3">
-                        {/* Opacity Control */}
-                        <div>
-                          <div className="flex items-center justify-between mb-2">
-                            <Label className="text-sm">Opacity</Label>
-                            <span className="text-sm font-medium">{Math.round(layer.opacity * 100)}%</span>
-                          </div>
-                          <Slider
-                            value={[layer.opacity * 100]}
-                            onValueChange={([value]) => handleOpacityChange(layer.id, value / 100)}
-                            max={100}
-                            step={1}
-                            disabled={!layer.enabled || operation?.loading}
-                          />
-                        </div>
-
-                        {/* Capabilities */}
-                        {layer.metadata?.capabilities && (
-                          <div className="text-xs text-muted-foreground pt-2 border-t">
-                            <strong>Capabilities:</strong>{' '}
-                            {layer.metadata.capabilities.supportedOperations?.join(', ') || 'None'}
-                          </div>
-                        )}
-
-                        {/* Zoom Levels */}
-                        {(layer.minZoom !== undefined || layer.maxZoom !== undefined) && (
-                          <div className="text-xs text-muted-foreground">
-                            <strong>Zoom Range:</strong> {layer.minZoom || 0} - {layer.maxZoom || 22}
-                          </div>
-                        )}
-
-                        {/* Refresh Interval */}
-                        {layer.refreshInterval && (
-                          <div className="text-xs text-muted-foreground">
-                            <strong>Auto-refresh:</strong> Every {layer.refreshInterval}s
-                          </div>
-                        )}
-                      </div>
-                    </CardContent>
-                  </Card>
-                )
-              })}
-            </div>
-          )}
-        </TabsContent>
-
-        {/* Examples Tab */}
-        <TabsContent value="examples" className="space-y-4">
-          <Card>
-            <CardHeader>
-              <CardTitle>Example ArcGIS Services</CardTitle>
-              <CardDescription>
-                Public ArcGIS services you can use to test the integration
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <ExampleService
-                name="USA States"
-                url="https://sampleserver6.arcgisonline.com/arcgis/rest/services/USA/MapServer/2"
-                type="feature"
-                description="US state boundaries with population data"
-              />
-              <ExampleService
-                name="World Cities"
-                url="https://services.arcgis.com/P3ePLMYs2RVChkJx/arcgis/rest/services/World_Cities/FeatureServer/0"
-                type="feature"
-                description="Major cities worldwide with population information"
-              />
-              <ExampleService
-                name="Traffic Cameras (Minnesota)"
-                url="https://gis.dot.state.mn.us/arcgis/rest/services/sdw/traffic_cameras/MapServer/0"
-                type="feature"
-                description="Live traffic camera locations in Minnesota"
-              />
-              <ExampleService
-                name="World Imagery"
-                url="https://services.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer"
-                type="tile"
-                description="High-resolution satellite imagery worldwide"
-              />
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        {/* Help Tab */}
-        <TabsContent value="help" className="space-y-4">
-          <Card>
-            <CardHeader>
-              <CardTitle>How to Use ArcGIS Integration</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4 prose prose-sm max-w-none">
-              <div>
-                <h3 className="font-semibold text-base">Step 1: Find Your ArcGIS Service URL</h3>
-                <p className="text-muted-foreground">
-                  Obtain the REST API URL from your ArcGIS Online, Portal, or Server instance.
-                  The URL should end with /FeatureServer, /MapServer, or /ImageServer followed by
-                  an optional layer index (e.g., /FeatureServer/0).
-                </p>
-              </div>
-
-              <div>
-                <h3 className="font-semibold text-base">Step 2: Test Your Connection</h3>
-                <p className="text-muted-foreground">
-                  Before adding a layer, use the "Test Connection" button to verify the service
-                  is accessible and retrieve its capabilities. This will auto-populate layer
-                  information if available.
-                </p>
-              </div>
-
-              <div>
-                <h3 className="font-semibold text-base">Step 3: Add Authentication (if needed)</h3>
-                <p className="text-muted-foreground">
-                  For secured services, provide an ArcGIS token. Generate tokens from your ArcGIS
-                  portal's token generation page. Tokens typically expire after a set period and
-                  may need to be refreshed.
-                </p>
-              </div>
-
-              <div>
-                <h3 className="font-semibold text-base">Step 4: Configure Layer Settings</h3>
-                <p className="text-muted-foreground">
-                  Adjust opacity, zoom levels, and refresh intervals to control how the layer
-                  appears and behaves on your map. Advanced options allow fine-tuned control
-                  over layer visibility and performance.
-                </p>
-              </div>
-
-              <div>
-                <h3 className="font-semibold text-base">Supported Layer Types</h3>
-                <ul className="list-disc list-inside text-muted-foreground space-y-1">
-                  <li><strong>Feature Layers:</strong> Vector features with attributes and geometry</li>
-                  <li><strong>Tile Layers:</strong> Pre-rendered cached tiles for fast performance</li>
-                  <li><strong>Dynamic Layers:</strong> Server-rendered on demand with custom styling</li>
-                  <li><strong>Image Layers:</strong> Raster imagery and satellite data</li>
-                  <li><strong>WMS Layers:</strong> OGC Web Map Service endpoints</li>
-                </ul>
-              </div>
-
-              <div>
-                <h3 className="font-semibold text-base">Performance Tips</h3>
-                <ul className="list-disc list-inside text-muted-foreground space-y-1">
-                  <li>Set appropriate zoom level ranges to avoid loading unnecessary data</li>
-                  <li>Use tile layers when possible for better performance</li>
-                  <li>Limit the number of active layers to 3-5 for optimal map performance</li>
-                  <li>Disable auto-refresh unless real-time data is required</li>
-                </ul>
-              </div>
-
-              <div>
-                <h3 className="font-semibold text-base">Troubleshooting</h3>
-                <ul className="list-disc list-inside text-muted-foreground space-y-1">
-                  <li><strong>Connection Failed:</strong> Verify the URL is correct and the service is accessible</li>
-                  <li><strong>401 Unauthorized:</strong> Check your authentication token is valid and not expired</li>
-                  <li><strong>CORS Error:</strong> The ArcGIS service must allow requests from this domain</li>
-                  <li><strong>Layer Not Visible:</strong> Check zoom level constraints and layer opacity</li>
-                </ul>
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-      </Tabs>
-
-      {/* Import Dialog */}
-      <Dialog open={isImportDialogOpen} onOpenChange={setIsImportDialogOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Import Layers</DialogTitle>
-            <DialogDescription>
-              Paste the JSON export data to import layers
-            </DialogDescription>
-          </DialogHeader>
-          <div className="space-y-2">
-            <Label htmlFor="import-data">JSON Data</Label>
-            <textarea
-              id="import-data"
-              className="w-full min-h-[200px] p-2 border rounded-md font-mono text-xs"
-              placeholder='{"version": "2.0", "layers": [...]}'
-              value={importData}
-              onChange={(e) => setImportData(e.target.value)}
-            />
-          </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setIsImportDialogOpen(false)}>
-              Cancel
-            </Button>
-            <Button onClick={handleImportLayers} disabled={!importData}>
-              Import
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-    </div>
-  )
-}
-
-/**
- * Example Service Component
- * Displays a copyable example ArcGIS service URL
- *
- * @param props - Component props
- * @param props.name - Service name
- * @param props.url - Service URL
- * @param props.type - Service type
- * @param props.description - Service description
- */
-function ExampleService({
-  name,
-  url,
-  type,
-  description
-}: {
-  name: string
-  url: string
-  type: string
-  description: string
-}) {
-  /**
-   * Copy URL to clipboard
-   */
-  const copyToClipboard = useCallback(() => {
-    navigator.clipboard.writeText(url)
-  }, [url])
-
-  return (
-    <div className="border rounded-lg p-4 space-y-2 hover:bg-muted/50 transition-colors">
-      <div className="flex items-start justify-between">
-        <div>
-          <h4 className="font-semibold">{name}</h4>
-          <p className="text-sm text-muted-foreground">{description}</p>
+      {/* Loading State */}
+      {globalLoading ? (
+        <div className="flex justify-center items-center h-64">
+          <div className="animate-spin h-8 w-8 border-4 border-primary border-t-transparent rounded-full" />
         </div>
-        <Badge variant="outline">{type}</Badge>
-      </div>
-      <div className="flex items-center gap-2">
-        <code className="flex-1 text-xs bg-muted p-2 rounded font-mono truncate">
-          {url}
-        </code>
-        <Button size="sm" variant="outline" onClick={copyToClipboard}>
-          <Copy className="w-3 h-3 mr-1" />
-          Copy
-        </Button>
-      </div>
+      ) : (
+        <Card>
+          <CardHeader>
+            <CardTitle>ArcGIS Layers</CardTitle>
+            <CardDescription>Manage your ArcGIS layer integrations</CardDescription>
+          </CardHeader>
+          <CardContent>
+            {layers.length === 0 ? (
+              <div className="text-center py-8 text-gray-500">
+                <GlobeHemisphereWest className="h-12 w-12 mx-auto mb-2 text-gray-400" />
+                <p>No ArcGIS layers added yet. Click "Add Layer" to get started.</p>
+              </div>
+            ) : (
+              <div className="divide-y divide-gray-200">
+                {layers.map((layer, index) => renderLayerItem(layer, index))}
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Info Section */}
+      <Alert>
+        <Info className="h-4 w-4" />
+        <AlertTitle>About ArcGIS Integration</AlertTitle>
+        <AlertDescription>
+          This module allows integration with ArcGIS REST services including FeatureServer, MapServer, and ImageServer endpoints.
+          Add layers by providing service URLs and optional authentication tokens.
+        </AlertDescription>
+      </Alert>
     </div>
-  )
+  );
 }

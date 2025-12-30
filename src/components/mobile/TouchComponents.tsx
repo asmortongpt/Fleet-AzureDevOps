@@ -33,7 +33,7 @@ export function SwipeableCard({
   const leftOpacity = useTransform(x, [-threshold, 0], [1, 0])
   const rightOpacity = useTransform(x, [0, threshold], [0, 1])
 
-  const handleDragEnd = (event: MouseEvent | TouchEvent | PointerEvent, info: PanInfo) => {
+  const handleDragEnd = (_event: MouseEvent | TouchEvent | PointerEvent, info: PanInfo) => {
     setIsDragging(false)
 
     if (info.offset.x < -threshold && onSwipeLeft) {
@@ -101,10 +101,12 @@ export function PullToRefresh({ children, onRefresh, threshold = 80 }: PullToRef
     if (scrollTop > 0) return // Only work when scrolled to top
 
     const touch = e.touches[0]
+    if (!touch) return
     const startY = touch.clientY
 
     const handleTouchMove = (e: TouchEvent) => {
       const touch = e.touches[0]
+      if (!touch) return
       const currentY = touch.clientY
       const distance = Math.max(0, currentY - startY)
 
@@ -281,9 +283,9 @@ export function BottomSheet({
   const [snapIndex, setSnapIndex] = useState(defaultSnap)
   const y = useMotionValue(0)
 
-  const currentSnapPoint = snapPoints[snapIndex]
+  const currentSnapPoint = snapPoints[snapIndex] ?? 90
 
-  const handleDragEnd = (event: MouseEvent | TouchEvent | PointerEvent, info: PanInfo) => {
+  const handleDragEnd = (_event: MouseEvent | TouchEvent | PointerEvent, info: PanInfo) => {
     const velocity = info.velocity.y
     const offset = info.offset.y
 
@@ -484,6 +486,7 @@ export function GestureHandler({
     if (onPinch && e.touches.length === 2) {
       const touch1 = e.touches[0]
       const touch2 = e.touches[1]
+      if (!touch1 || !touch2) return
       const initialDistance = Math.hypot(
         touch2.clientX - touch1.clientX,
         touch2.clientY - touch1.clientY
@@ -493,6 +496,7 @@ export function GestureHandler({
         if (e.touches.length === 2) {
           const touch1 = e.touches[0]
           const touch2 = e.touches[1]
+          if (!touch1 || !touch2) return
           const currentDistance = Math.hypot(
             touch2.clientX - touch1.clientX,
             touch2.clientY - touch1.clientY
@@ -547,7 +551,6 @@ export function GestureHandler({
       className={className}
       onTouchStart={handleTouchStart}
       onTouchEnd={handleTouchEnd}
-      style={{ touchAction: 'manipulation' }}
     >
       {children}
     </div>

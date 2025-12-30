@@ -76,14 +76,14 @@ const PerformanceMetrics: React.FC<Props> = ({ metrics, loading }) => {
       .slice(0, 3);
   }, [metrics?.endpoints]);
 
-  const getPerformanceColor = (time: number) => {
+  const getPerformanceColor = (time: number): 'success' | 'primary' | 'warning' | 'error' => {
     if (time < 100) return 'success';
     if (time < 300) return 'primary';
     if (time < 1000) return 'warning';
     return 'error';
   };
 
-  const formatTime = (ms: number) => {
+  const formatTime = (ms: number): string => {
     if (ms >= 1000) return `${(ms / 1000).toFixed(2)}s`;
     return `${Math.round(ms)}ms`;
   };
@@ -147,7 +147,7 @@ const PerformanceMetrics: React.FC<Props> = ({ metrics, loading }) => {
               label={metrics.throughput?.avgResponseTime < 200 ? 'Excellent' :
                      metrics.throughput?.avgResponseTime < 500 ? 'Good' :
                      metrics.throughput?.avgResponseTime < 1000 ? 'Fair' : 'Poor'}
-              color={getPerformanceColor(metrics.throughput?.avgResponseTime || 0) as any}
+              color={getPerformanceColor(metrics.throughput?.avgResponseTime || 0)}
               sx={{ mt: 1 }}
             />
           </Paper>
@@ -274,21 +274,21 @@ const PerformanceMetrics: React.FC<Props> = ({ metrics, loading }) => {
                       <Chip
                         label={formatTime(endpoint.p50)}
                         size="small"
-                        color={getPerformanceColor(endpoint.p50) as any}
+                        color={getPerformanceColor(endpoint.p50)}
                       />
                     </TableCell>
                     <TableCell align="right">
                       <Chip
                         label={formatTime(endpoint.p95)}
                         size="small"
-                        color={getPerformanceColor(endpoint.p95) as any}
+                        color={getPerformanceColor(endpoint.p95)}
                       />
                     </TableCell>
                     <TableCell align="right">
                       <Chip
                         label={formatTime(endpoint.p99)}
                         size="small"
-                        color={getPerformanceColor(endpoint.p99) as any}
+                        color={getPerformanceColor(endpoint.p99)}
                       />
                     </TableCell>
                     <TableCell align="right">{endpoint.requestCount}</TableCell>

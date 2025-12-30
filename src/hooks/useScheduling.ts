@@ -33,8 +33,8 @@ export const schedulingKeys = {
   maintenanceList: (filters?: MaintenanceFilters) => [...schedulingKeys.maintenance(), { filters }] as const,
   maintenanceItem: (id: string) => [...schedulingKeys.maintenance(), id] as const,
   conflicts: (params: CheckConflictsRequest) => [...schedulingKeys.all, 'conflicts', params] as const,
-  availableVehicles: (params: AvailableVehiclesParams) => [...schedulingKeys.all, 'available-vehicles', params] as const,
-  availableServiceBays: (params: AvailableServiceBaysParams) => [...schedulingKeys.all, 'available-service-bays', params] as const,
+  availableVehicles: (params: AvailableVehiclesParams) => [...schedulingKeys.all, 'available-vehicles', params] as readonly ['scheduling', 'available-vehicles', AvailableVehiclesParams],
+  availableServiceBays: (params: AvailableServiceBaysParams) => [...schedulingKeys.all, 'available-service-bays', params] as readonly ['scheduling', 'available-service-bays', AvailableServiceBaysParams],
 }
 
 // ============================================
@@ -56,6 +56,7 @@ export function useReservations(filters?: ReservationFilters) {
       return response.reservations
     },
     staleTime: 30000, // 30 seconds
+    gcTime: 60000,
   })
 }
 
@@ -117,7 +118,7 @@ export function useCreateReservation() {
 
       return { previousReservations }
     },
-    onError: (err, newReservation, context) => {
+    onError: (_err, _newReservation, context) => {
       // Rollback on error
       if (context?.previousReservations) {
         queryClient.setQueryData(
@@ -129,7 +130,7 @@ export function useCreateReservation() {
     onSuccess: () => {
       // Invalidate and refetch
       queryClient.invalidateQueries({ queryKey: schedulingKeys.reservations() })
-      queryClient.invalidateQueries({ queryKey: schedulingKeys.availableVehicles })
+      queryClient.invalidateQueries({ queryKey: schedulingKeys.availableVehicles({} as AvailableVehiclesParams) })
     },
   })
 }
@@ -165,7 +166,8 @@ export function useUpdateReservation() {
 
       return { previousReservation }
     },
-    onError: (err, { id }, context) => {      if (context?.previousReservation) {
+    onError: (_err, { id }, context) => {
+      if (context?.previousReservation) {
         queryClient.setQueryData(schedulingKeys.reservation(id), context.previousReservation)
       }
     },
@@ -192,7 +194,7 @@ export function useCancelReservation() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: schedulingKeys.reservations() })
-      queryClient.invalidateQueries({ queryKey: schedulingKeys.availableVehicles })
+      queryClient.invalidateQueries({ queryKey: schedulingKeys.availableVehicles({} as AvailableVehiclesParams) })
     },
   })
 }
@@ -260,6 +262,7 @@ export function useMaintenanceAppointments(filters?: MaintenanceFilters) {
       return response.appointments
     },
     staleTime: 30000, // 30 seconds
+    gcTime: 60000,
   })
 }
 
@@ -315,7 +318,7 @@ export function useCreateMaintenanceAppointment() {
 
       return { previousAppointments }
     },
-    onError: (err, newAppointment, context) => {
+    onError: (_err, _newAppointment, context) => {
       if (context?.previousAppointments) {
         queryClient.setQueryData(
           schedulingKeys.maintenanceList(),
@@ -325,7 +328,7 @@ export function useCreateMaintenanceAppointment() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: schedulingKeys.maintenance() })
-      queryClient.invalidateQueries({ queryKey: schedulingKeys.availableServiceBays })
+      queryClient.invalidateQueries({ queryKey: schedulingKeys.availableServiceBays({} as AvailableServiceBaysParams) })
     },
   })
 }
@@ -360,7 +363,8 @@ export function useUpdateMaintenanceAppointment() {
 
       return { previousAppointment }
     },
-    onError: (err, { id }, context) => {      if (context?.previousAppointment) {
+    onError: (_err, { id }, context) => {
+      if (context?.previousAppointment) {
         queryClient.setQueryData(schedulingKeys.maintenanceItem(id), context.previousAppointment)
       }
     },
@@ -388,7 +392,7 @@ export function useCancelMaintenanceAppointment() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: schedulingKeys.maintenance() })
-      queryClient.invalidateQueries({ queryKey: schedulingKeys.availableServiceBays })
+      queryClient.invalidateQueries({ queryKey: schedulingKeys.availableServiceBays({} as AvailableServiceBaysParams) })
     },
   })
 }
@@ -413,6 +417,7 @@ export function useCheckConflicts(params: CheckConflictsRequest, options?: { ena
     },
     enabled: options?.enabled !== false,
     staleTime: 10000, // 10 seconds
+    gcTime: 20000,
   })
 }
 
@@ -432,6 +437,7 @@ export function useAvailableVehicles(params: AvailableVehiclesParams, options?: 
     },
     enabled: options?.enabled !== false && !!params.startTime && !!params.endTime,
     staleTime: 10000, // 10 seconds
+    gcTime: 20000,
   })
 }
 
@@ -449,42 +455,8 @@ export function useAvailableServiceBays(params: AvailableServiceBaysParams, opti
       }>('/api/scheduling/available-service-bays', params)
       return response.serviceBays
     },
-    enabled: options?.enabled !== false && !!params.facilityId && !!params.startTime && !!params.endTime,
+    enabled: options?.enabled !== false,
     staleTime: 10000, // 10 seconds
+    gcTime: 20000,
   })
-}
-
-// ============================================
-// COMBINED HOOK FOR SCHEDULING MODULE
-// ============================================
-
-/**
- * Main hook that provides all scheduling functionality
- * This is a convenience hook that combines all scheduling operations
- */
-export function useScheduling() {
-  return {
-    // Reservations
-    reservations: {
-      useList: useReservations,
-      useCreate: useCreateReservation,
-      useUpdate: useUpdateReservation,
-      useCancel: useCancelReservation,
-      useApprove: useApproveReservation,
-      useReject: useRejectReservation,
-    },
-    // Maintenance
-    maintenance: {
-      useList: useMaintenanceAppointments,
-      useCreate: useCreateMaintenanceAppointment,
-      useUpdate: useUpdateMaintenanceAppointment,
-      useCancel: useCancelMaintenanceAppointment,
-    },
-    // Availability
-    availability: {
-      useCheckConflicts: useCheckConflicts,
-      useAvailableVehicles: useAvailableVehicles,
-      useAvailableServiceBays: useAvailableServiceBays,
-    },
-  }
 }

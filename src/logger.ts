@@ -3,16 +3,16 @@
  * @description Centralized logging configuration with sanitization.
  */
 
-import { createLogger, format, transports } from 'winston';
+import { createLogger, format, transports, Logger, Logform } from 'winston';
 
 import { sanitizeForLogging } from './logSanitizer';
 
-const logger = createLogger({
+const logger: Logger = createLogger({
   level: 'info',
   format: format.combine(
     format.timestamp(),
     format.json(),
-    format.printf(({ level, message, timestamp }) => {
+    format.printf(({ level, message, timestamp }: { level: string; message: unknown; timestamp: string }) => {
       const sanitizedMessage = sanitizeForLogging(message);
       return `${timestamp} [${level}]: ${JSON.stringify(sanitizedMessage)}`;
     })

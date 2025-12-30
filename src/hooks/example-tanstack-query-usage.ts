@@ -5,7 +5,7 @@
  * You can copy these patterns to create your own query hooks.
  */
 
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+import { useQuery, useMutation, useQueryClient, useInfiniteQuery } from '@tanstack/react-query'
 
 import { queryKeys } from '@/config/query-client'
 
@@ -56,7 +56,7 @@ export function useVehicles(filters?: VehicleFilters) {
  */
 export function useVehicle(id: string | undefined) {
   return useQuery({
-    queryKey: queryKeys.vehicles.detail(id!),
+    queryKey: queryKeys.vehicles.detail(id ?? ''),
     queryFn: async () => {
       const response = await fetch(`/api/vehicles/${id}`)
       if (!response.ok) {
@@ -118,13 +118,15 @@ export function useUpdateVehicle() {
     },
 
     // On error, roll back
-    onError: (err, { id }, context) => {      if (context?.previousVehicle) {
+    onError: (_err: unknown, { id }: { id: string }, context?: { previousVehicle?: Vehicle }) => {
+      if (context?.previousVehicle) {
         queryClient.setQueryData(queryKeys.vehicles.detail(id), context.previousVehicle)
       }
     },
 
     // Always refetch after error or success
-    onSettled: (data, error, { id }) => {      // Invalidate and refetch
+    onSettled: (_data: unknown, _error: unknown, { id }: { id: string }) => {
+      // Invalidate and refetch
       queryClient.invalidateQueries({ queryKey: queryKeys.vehicles.detail(id) })
       queryClient.invalidateQueries({ queryKey: queryKeys.vehicles.lists() })
     },
@@ -174,8 +176,6 @@ export function useCreateVehicle() {
  *   isFetchingNextPage
  * } = useInfiniteVehicles()
  */
-import { useInfiniteQuery } from '@tanstack/react-query'
-
 export function useInfiniteVehicles(filters?: VehicleFilters) {
   return useInfiniteQuery({
     queryKey: queryKeys.vehicles.list(filters),

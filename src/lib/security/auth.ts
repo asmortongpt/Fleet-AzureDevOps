@@ -106,7 +106,7 @@ export interface APIToken {
  */
 export class SessionManager {
   private static readonly SESSION_TIMEOUT = 30 * 60 * 1000 // 30 minutes
-  private static readonly MAX_SESSIONS_PER_USER = 5
+  private static readonly _MAX_SESSIONS_PER_USER = 5
 
   static async createSession(
     userId: string,
@@ -263,7 +263,7 @@ export class APITokenService {
   ): Promise<APIToken> {
     const token = `fleetapi_${Math.random().toString(36).substr(2, 32)}`
     const expiresAt = options?.expiresIn 
-      ? new Date(Date.now() + options.expiresIn * 1000).toISOString()
+      ? new Date(Date.now() + (options.expiresIn * 1000)).toISOString()
       : undefined
 
     const apiToken: APIToken = {
@@ -316,7 +316,7 @@ export class APITokenService {
     sessionStorage.setItem(`api_token_${token.id}`, JSON.stringify(token))
   }
 
-  private static getStoredToken(tokenString: string): APIToken | null {
+  private static getStoredToken(_tokenString: string): APIToken | null {
     // SECURITY: In production, validate tokens server-side only
     // This is a client-side placeholder and should not be used for auth
     return null
@@ -389,12 +389,12 @@ export class PasswordPolicy {
  * Encryption utilities (FedRAMP compliant)
  */
 export class EncryptionService {
-  static async encryptData(data: string, key: string): Promise<string> {
+  static async encryptData(data: string, _key: string): Promise<string> {
     // In production, use AES-256-GCM or similar
     return `encrypted_${data}`
   }
 
-  static async decryptData(encryptedData: string, key: string): Promise<string> {
+  static async decryptData(encryptedData: string, _key: string): Promise<string> {
     // In production, implement proper decryption
     return encryptedData.replace("encrypted_", "")
   }

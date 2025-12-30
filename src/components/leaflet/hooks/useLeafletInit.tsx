@@ -129,7 +129,7 @@ export function useLeafletInit({ center, zoom, mapStyle, onReady, onError }: Use
         setLibraryLoaded(true)
         if (!isMountedRef.current || !mapContainerRef.current) return
 
-        const tileConfig = TILE_LAYERS[mapStyle] || TILE_LAYERS.osm
+        const tileConfig = TILE_LAYERS[mapStyle] ?? TILE_LAYERS.osm
 
         map = leaflet.map(mapContainerRef.current, {
           center,
@@ -143,8 +143,8 @@ export function useLeafletInit({ center, zoom, mapStyle, onReady, onError }: Use
 
         tileLayer = leaflet.tileLayer(tileConfig.url, {
           attribution: tileConfig.attribution,
-          maxZoom: tileConfig.maxZoom || 19,
-          subdomains: tileConfig.subdomains || ["a", "b", "c"],
+          maxZoom: tileConfig.maxZoom ?? 19,
+          subdomains: tileConfig.subdomains ?? ["a", "b", "c"],
         })
         tileLayer.addTo(map)
 
@@ -201,11 +201,11 @@ export function useLeafletInit({ center, zoom, mapStyle, onReady, onError }: Use
     try {
       if (tileLayerRef.current) tileLayerRef.current.remove()
 
-      const tileConfig = TILE_LAYERS[mapStyle] || TILE_LAYERS.osm
+      const tileConfig = TILE_LAYERS[mapStyle] ?? TILE_LAYERS.osm
       const newTileLayer = L.tileLayer(tileConfig.url, {
         attribution: tileConfig.attribution,
-        maxZoom: tileConfig.maxZoom || 19,
-        subdomains: tileConfig.subdomains || ["a", "b", "c"],
+        maxZoom: tileConfig.maxZoom ?? 19,
+        subdomains: tileConfig.subdomains ?? ["a", "b", "c"],
       })
 
       newTileLayer.addTo(mapInstanceRef.current)

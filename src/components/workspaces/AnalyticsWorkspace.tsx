@@ -16,7 +16,7 @@ import {
   Wrench,
   Clock
 } from "lucide-react"
-import React, { useState } from "react"
+import { useState } from "react"
 
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -27,12 +27,23 @@ import { Separator } from "@/components/ui/separator"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { useVehicles, useWorkOrders, useFacilities, useDrivers } from "@/hooks/use-api"
 
+// Define types for data structures
+interface Vehicle {
+  status: string;
+  [key: string]: unknown;
+}
+
+interface WorkOrder {
+  status: string;
+  [key: string]: unknown;
+}
+
 // Executive Dashboard Panel
-const ExecutiveDashboard = ({ vehicles, workOrders, drivers }) => {
+const ExecutiveDashboard = ({ vehicles, workOrders, _drivers }: { vehicles: Vehicle[] | null; workOrders: WorkOrder[] | null; _drivers: unknown }) => {
   const totalVehicles = vehicles?.length || 0
-  const activeVehicles = vehicles?.filter(v => v.status === 'active').length || 0
-  const pendingOrders = workOrders?.filter(wo => wo.status === 'pending').length || 0
-  const completedOrders = workOrders?.filter(wo => wo.status === 'completed').length || 0
+  const activeVehicles = vehicles?.filter((v: Vehicle) => v.status === 'active').length || 0
+  const pendingOrders = workOrders?.filter((wo: WorkOrder) => wo.status === 'pending').length || 0
+  const completedOrders = workOrders?.filter((wo: WorkOrder) => wo.status === 'completed').length || 0
 
   const avgUtilization = totalVehicles > 0 ? ((activeVehicles / totalVehicles) * 100).toFixed(1) : 0
   const completionRate = (pendingOrders + completedOrders) > 0
@@ -174,7 +185,7 @@ const ExecutiveDashboard = ({ vehicles, workOrders, drivers }) => {
 }
 
 // Data Analysis Panel
-const DataAnalysis = ({ vehicles, workOrders, facilities }) => {
+const DataAnalysis = ({ vehicles, _workOrders, _facilities }: { vehicles: Vehicle[] | null; _workOrders: unknown; _facilities: unknown }) => {
   const [selectedMetric, setSelectedMetric] = useState('utilization')
   const [dateRange, setDateRange] = useState('30d')
 
@@ -231,7 +242,7 @@ const DataAnalysis = ({ vehicles, workOrders, facilities }) => {
                       <div className="text-sm text-muted-foreground">Total Vehicles</div>
                     </div>
                     <div>
-                      <div className="text-2xl font-bold">{vehicles?.filter(v => v.status === 'active').length || 0}</div>
+                      <div className="text-2xl font-bold">{vehicles?.filter((v: Vehicle) => v.status === 'active').length || 0}</div>
                       <div className="text-sm text-muted-foreground">Active Now</div>
                     </div>
                     <div>
@@ -363,108 +374,14 @@ const ReportBuilder = () => {
                 <Download className="h-4 w-4 mr-2" />
                 Export
               </Button>
-              <Button variant="outline" size="icon">
-                <Share2 className="h-4 w-4" />
+              <Button variant="outline">
+                <Share2 className="h-4 w-4 mr-2" />
+                Share
               </Button>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle>Recent Reports</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-center py-8 text-muted-foreground">
-              No reports generated yet
             </div>
           </CardContent>
         </Card>
       </div>
     </ScrollArea>
-  )
-}
-
-// Main Analytics Workspace Component
-export function AnalyticsWorkspace({ data }: { data?: any }) {
-  const [activeView, setActiveView] = useState('executive')
-
-  // API hooks
-  const { data: vehicles = [] } = useVehicles()
-  const { data: workOrders = [] } = useWorkOrders()
-  const { data: facilities = [] } = useFacilities()
-  const { data: drivers = [] } = useDrivers()
-
-  return (
-    <div className="h-screen flex flex-col" data-testid="analytics-workspace">
-      {/* Header - Responsive */}
-      <div className="border-b px-3 py-3 sm:px-4 sm:py-4 md:px-6">
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-lg sm:text-xl md:text-2xl font-bold">Analytics Workspace</h1>
-            <p className="text-xs sm:text-sm text-muted-foreground hidden sm:block">
-              Comprehensive fleet analytics and reporting
-            </p>
-          </div>
-          <Button variant="outline" size="icon" className="h-8 w-8 sm:h-10 sm:w-10">
-            <Settings className="h-4 w-4" />
-          </Button>
-        </div>
-      </div>
-
-      {/* View Tabs - Responsive */}
-      <div className="border-b px-2 py-2 sm:px-4 overflow-x-auto">
-        <Tabs value={activeView} onValueChange={setActiveView}>
-          <TabsList data-testid="analytics-view-tabs" className="w-full sm:w-auto">
-            <TabsTrigger
-              value="executive"
-              data-testid="analytics-tab-executive"
-              className="text-xs sm:text-sm px-2 sm:px-3"
-            >
-              <BarChart3 className="h-3 w-3 sm:h-4 sm:w-4 sm:mr-2" />
-              <span className="hidden sm:inline">Executive Dashboard</span>
-              <span className="sm:hidden ml-1">Executive</span>
-            </TabsTrigger>
-            <TabsTrigger
-              value="analysis"
-              data-testid="analytics-tab-analysis"
-              className="text-xs sm:text-sm px-2 sm:px-3"
-            >
-              <LineChart className="h-3 w-3 sm:h-4 sm:w-4 sm:mr-2" />
-              <span className="hidden sm:inline">Data Analysis</span>
-              <span className="sm:hidden ml-1">Analysis</span>
-            </TabsTrigger>
-            <TabsTrigger
-              value="reports"
-              data-testid="analytics-tab-reports"
-              className="text-xs sm:text-sm px-2 sm:px-3"
-            >
-              <FileText className="h-3 w-3 sm:h-4 sm:w-4 sm:mr-2" />
-              <span className="hidden sm:inline">Report Builder</span>
-              <span className="sm:hidden ml-1">Reports</span>
-            </TabsTrigger>
-          </TabsList>
-        </Tabs>
-      </div>
-
-      {/* Main Content */}
-      <div className="flex-1 overflow-hidden">
-        {activeView === 'executive' && (
-          <ExecutiveDashboard
-            vehicles={vehicles}
-            workOrders={workOrders}
-            drivers={drivers}
-          />
-        )}
-        {activeView === 'analysis' && (
-          <DataAnalysis
-            vehicles={vehicles}
-            workOrders={workOrders}
-            facilities={facilities}
-          />
-        )}
-        {activeView === 'reports' && <ReportBuilder />}
-      </div>
-    </div>
   )
 }

@@ -94,7 +94,7 @@ const EmulatorMonitor: React.FC<Props> = ({ emulators, loading }) => {
     stopped: 'default',
     paused: 'warning',
     error: 'error'
-  };
+  } as const;
 
   // Combine active and inactive emulators
   const allEmulators = useMemo(() => {
@@ -202,7 +202,7 @@ const EmulatorMonitor: React.FC<Props> = ({ emulators, loading }) => {
           <Grid item xs={3}>
             <Box textAlign="center">
               <Typography variant="h5" color="primary">
-                {emulators.statistics?.totalRecords.toLocaleString() || 0}
+                {emulators.statistics?.totalRecords.toLocaleString() ?? 0}
               </Typography>
               <Typography variant="caption" color="text.secondary">
                 Total Records
@@ -212,7 +212,7 @@ const EmulatorMonitor: React.FC<Props> = ({ emulators, loading }) => {
           <Grid item xs={3}>
             <Box textAlign="center">
               <Typography variant="h5" color="success.main">
-                {emulators.active?.length || 0}
+                {emulators.active?.length ?? 0}
               </Typography>
               <Typography variant="caption" color="text.secondary">
                 Active Emulators
@@ -222,7 +222,7 @@ const EmulatorMonitor: React.FC<Props> = ({ emulators, loading }) => {
           <Grid item xs={3}>
             <Box textAlign="center">
               <Typography variant="h5">
-                {emulators.statistics?.totalMemory || 0} MB
+                {emulators.statistics?.totalMemory ?? 0} MB
               </Typography>
               <Typography variant="caption" color="text.secondary">
                 Memory Usage
@@ -232,7 +232,7 @@ const EmulatorMonitor: React.FC<Props> = ({ emulators, loading }) => {
           <Grid item xs={3}>
             <Box textAlign="center">
               <Typography variant="h5" color={emulators.statistics?.errorRate > 5 ? 'error' : 'text.primary'}>
-                {emulators.statistics?.errorRate?.toFixed(2) || 0}%
+                {(emulators.statistics?.errorRate ?? 0).toFixed(2)}%
               </Typography>
               <Typography variant="caption" color="text.secondary">
                 Error Rate
@@ -279,7 +279,7 @@ const EmulatorMonitor: React.FC<Props> = ({ emulators, loading }) => {
                       }
                       label={emulator.status}
                       size="small"
-                      color={statusColors[emulator.status] as any}
+                      color={statusColors[emulator.status]}
                     />
                   </TableCell>
                   <TableCell align="right">
@@ -296,7 +296,7 @@ const EmulatorMonitor: React.FC<Props> = ({ emulators, loading }) => {
                         </Typography>
                         <LinearProgress
                           variant="determinate"
-                          value={(emulator.memoryUsage / 100) * 100}
+                          value={Math.min((emulator.memoryUsage / 100) * 100, 100)}
                           sx={{ mt: 0.5, height: 4 }}
                           color={emulator.memoryUsage > 80 ? 'error' : 'primary'}
                         />
@@ -356,10 +356,10 @@ const EmulatorMonitor: React.FC<Props> = ({ emulators, loading }) => {
                               Auto-generate: {emulator.config?.autoGenerate ? 'Yes' : 'No'}
                             </Typography>
                             <Typography variant="body2">
-                              Batch size: {emulator.config?.batchSize || 10}
+                              Batch size: {emulator.config?.batchSize ?? 10}
                             </Typography>
                             <Typography variant="body2">
-                              Interval: {emulator.config?.interval || 60}s
+                              Interval: {emulator.config?.interval ?? 60}s
                             </Typography>
                           </Grid>
                           <Grid item xs={4}>
@@ -367,10 +367,10 @@ const EmulatorMonitor: React.FC<Props> = ({ emulators, loading }) => {
                               Performance
                             </Typography>
                             <Typography variant="body2">
-                              CPU Usage: {emulator.cpuUsage || 0}%
+                              CPU Usage: {emulator.cpuUsage ?? 0}%
                             </Typography>
                             <Typography variant="body2">
-                              Error Count: {emulator.errorCount || 0}
+                              Error Count: {emulator.errorCount ?? 0}
                             </Typography>
                           </Grid>
                           <Grid item xs={4}>
@@ -427,7 +427,7 @@ const EmulatorMonitor: React.FC<Props> = ({ emulators, loading }) => {
           </Button>
         </Box>
         <Typography variant="caption" color="text.secondary" sx={{ alignSelf: 'center' }}>
-          Average update frequency: {emulators.statistics?.avgUpdateFrequency || 0}s
+          Emulator Monitor
         </Typography>
       </Box>
     </Box>

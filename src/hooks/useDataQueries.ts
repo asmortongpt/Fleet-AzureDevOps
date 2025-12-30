@@ -47,9 +47,10 @@ export function useVehicles() {
     queryKey: queryKeys.vehicles,
     queryFn: async () => {
       const response = await apiClient.get<Vehicle[]>('/vehicles');
-      return response.data;
+      return response;
     },
     staleTime: 5 * 60 * 1000, // 5 minutes
+    gcTime: 10 * 60 * 1000,
   });
 }
 
@@ -58,9 +59,10 @@ export function useVehicle(id: string) {
     queryKey: queryKeys.vehicle(id),
     queryFn: async () => {
       const response = await apiClient.get<Vehicle>(`/vehicles/${id}`);
-      return response.data;
+      return response;
     },
     enabled: !!id,
+    gcTime: 10 * 60 * 1000,
   });
 }
 
@@ -70,7 +72,7 @@ export function useCreateVehicle() {
   return useMutation({
     mutationFn: async (vehicle: Omit<Vehicle, 'id'>) => {
       const response = await apiClient.post<Vehicle>('/vehicles', vehicle);
-      return response.data;
+      return response;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: queryKeys.vehicles });
@@ -84,11 +86,11 @@ export function useUpdateVehicle() {
   return useMutation({
     mutationFn: async ({ id, ...updates }: Partial<Vehicle> & { id: string }) => {
       const response = await apiClient.patch<Vehicle>(`/vehicles/${id}`, updates);
-      return response.data;
+      return response;
     },
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: queryKeys.vehicles });
-      queryClient.invalidateQueries({ queryKey: queryKeys.vehicle(data.id) });
+      queryClient.invalidateQueries({ queryKey: queryKeys.vehicle(data?.id || '') });
     },
   });
 }
@@ -115,9 +117,10 @@ export function useDrivers() {
     queryKey: queryKeys.drivers,
     queryFn: async () => {
       const response = await apiClient.get<Driver[]>('/drivers');
-      return response.data;
+      return response;
     },
     staleTime: 5 * 60 * 1000,
+    gcTime: 10 * 60 * 1000,
   });
 }
 
@@ -126,9 +129,10 @@ export function useDriver(id: string) {
     queryKey: queryKeys.driver(id),
     queryFn: async () => {
       const response = await apiClient.get<Driver>(`/drivers/${id}`);
-      return response.data;
+      return response;
     },
     enabled: !!id,
+    gcTime: 10 * 60 * 1000,
   });
 }
 
@@ -138,7 +142,7 @@ export function useCreateDriver() {
   return useMutation({
     mutationFn: async (driver: Omit<Driver, 'id'>) => {
       const response = await apiClient.post<Driver>('/drivers', driver);
-      return response.data;
+      return response;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: queryKeys.drivers });
@@ -152,11 +156,11 @@ export function useUpdateDriver() {
   return useMutation({
     mutationFn: async ({ id, ...updates }: Partial<Driver> & { id: string }) => {
       const response = await apiClient.patch<Driver>(`/drivers/${id}`, updates);
-      return response.data;
+      return response;
     },
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: queryKeys.drivers });
-      queryClient.invalidateQueries({ queryKey: queryKeys.driver(data.id) });
+      queryClient.invalidateQueries({ queryKey: queryKeys.driver(data?.id || '') });
     },
   });
 }
@@ -172,9 +176,10 @@ export function useWorkOrders(filters?: { status?: string; vehicleId?: string })
       const response = await apiClient.get<WorkOrder[]>('/work-orders', {
         params: filters,
       });
-      return response.data;
+      return response;
     },
     staleTime: 2 * 60 * 1000, // 2 minutes (more frequent updates for work orders)
+    gcTime: 5 * 60 * 1000,
   });
 }
 
@@ -183,9 +188,10 @@ export function useWorkOrder(id: string) {
     queryKey: queryKeys.workOrder(id),
     queryFn: async () => {
       const response = await apiClient.get<WorkOrder>(`/work-orders/${id}`);
-      return response.data;
+      return response;
     },
     enabled: !!id,
+    gcTime: 5 * 60 * 1000,
   });
 }
 
@@ -195,7 +201,7 @@ export function useCreateWorkOrder() {
   return useMutation({
     mutationFn: async (workOrder: Omit<WorkOrder, 'id'>) => {
       const response = await apiClient.post<WorkOrder>('/work-orders', workOrder);
-      return response.data;
+      return response;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: queryKeys.workOrders });
@@ -209,11 +215,11 @@ export function useUpdateWorkOrder() {
   return useMutation({
     mutationFn: async ({ id, ...updates }: Partial<WorkOrder> & { id: string }) => {
       const response = await apiClient.patch<WorkOrder>(`/work-orders/${id}`, updates);
-      return response.data;
+      return response;
     },
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: queryKeys.workOrders });
-      queryClient.invalidateQueries({ queryKey: queryKeys.workOrder(data.id) });
+      queryClient.invalidateQueries({ queryKey: queryKeys.workOrder(data?.id || '') });
     },
   });
 }
@@ -229,9 +235,10 @@ export function useFuelTransactions(filters?: { vehicleId?: string; startDate?: 
       const response = await apiClient.get<FuelTransaction[]>('/fuel-transactions', {
         params: filters,
       });
-      return response.data;
+      return response;
     },
     staleTime: 5 * 60 * 1000,
+    gcTime: 10 * 60 * 1000,
   });
 }
 
@@ -244,9 +251,10 @@ export function useParts() {
     queryKey: queryKeys.parts,
     queryFn: async () => {
       const response = await apiClient.get<Part[]>('/parts');
-      return response.data;
+      return response;
     },
     staleTime: 10 * 60 * 1000, // 10 minutes (parts inventory changes less frequently)
+    gcTime: 15 * 60 * 1000,
   });
 }
 
@@ -255,9 +263,10 @@ export function usePart(id: string) {
     queryKey: queryKeys.part(id),
     queryFn: async () => {
       const response = await apiClient.get<Part>(`/parts/${id}`);
-      return response.data;
+      return response;
     },
     enabled: !!id,
+    gcTime: 15 * 60 * 1000,
   });
 }
 
@@ -270,9 +279,10 @@ export function useVendors() {
     queryKey: queryKeys.vendors,
     queryFn: async () => {
       const response = await apiClient.get<Vendor[]>('/vendors');
-      return response.data;
+      return response;
     },
     staleTime: 15 * 60 * 1000, // 15 minutes
+    gcTime: 20 * 60 * 1000,
   });
 }
 
@@ -281,9 +291,10 @@ export function useVendor(id: string) {
     queryKey: queryKeys.vendor(id),
     queryFn: async () => {
       const response = await apiClient.get<Vendor>(`/vendors/${id}`);
-      return response.data;
+      return response;
     },
     enabled: !!id,
+    gcTime: 20 * 60 * 1000,
   });
 }
 
@@ -296,9 +307,10 @@ export function useFacilities() {
     queryKey: queryKeys.facilities,
     queryFn: async () => {
       const response = await apiClient.get<GISFacility[]>('/facilities');
-      return response.data;
+      return response;
     },
     staleTime: 15 * 60 * 1000,
+    gcTime: 20 * 60 * 1000,
   });
 }
 
@@ -314,7 +326,7 @@ export function usePrefetchVehicle() {
       queryKey: queryKeys.vehicle(id),
       queryFn: async () => {
         const response = await apiClient.get<Vehicle>(`/vehicles/${id}`);
-        return response.data;
+        return response;
       },
     });
   };
@@ -328,7 +340,7 @@ export function usePrefetchDriver() {
       queryKey: queryKeys.driver(id),
       queryFn: async () => {
         const response = await apiClient.get<Driver>(`/drivers/${id}`);
-        return response.data;
+        return response;
       },
     });
   };
@@ -341,18 +353,19 @@ export function usePrefetchDriver() {
 export function useInfiniteVehicles() {
   return useQuery({
     queryKey: ['vehicles', 'infinite'],
-    queryFn: async ({ pageParam = 1 }) => {
+    queryFn: async ({ pageParam = 1 }: { pageParam?: number }) => {
       const response = await apiClient.get<Vehicle[]>('/vehicles', {
         params: {
           page: pageParam,
           limit: 20,
         },
       });
-      return response.data;
+      return response;
     },
     // @ts-ignore - This would need proper setup with useInfiniteQuery
-    getNextPageParam: (lastPage, pages) => {
-      return lastPage.length === 20 ? pages.length + 1 : undefined;
+    getNextPageParam: (_lastPage, _pages) => {
+      return _lastPage?.length === 20 ? _pages.length + 1 : undefined;
     },
+    gcTime: 10 * 60 * 1000,
   });
 }
