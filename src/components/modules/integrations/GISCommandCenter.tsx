@@ -282,7 +282,7 @@ export function GISCommandCenter() {
                 {filteredFacilities.slice(0, 6).map((facility) => (
                   <div key={facility.id} className="flex items-start gap-3">
                     <div className="p-2 rounded-lg bg-primary/10 text-primary">
-                      {getFacilityIcon(facility.type)}
+                      {getFacilityIcon((facility as any).type)}
                     </div>
                     <div className="flex-1 min-w-0">
                       <p className="font-medium text-sm truncate">{facility.name}</p>

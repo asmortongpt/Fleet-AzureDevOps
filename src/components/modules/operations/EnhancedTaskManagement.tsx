@@ -112,7 +112,7 @@ interface Task {
   ai_suggestions?: any
 }
 
-interface ApiResponse<T> {
+interface TaskApiResponse<T> {
   tasks?: T[]
   task?: T
   suggestions?: {
