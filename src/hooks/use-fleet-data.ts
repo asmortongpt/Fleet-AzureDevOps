@@ -17,7 +17,8 @@ import {
   useFacilityMutations,
   useMaintenanceSchedules,
   useRoutes,
-  useRouteMutations
+  useRouteMutations,
+  useMaintenanceMutations
 } from '@/hooks/use-api'
 import { Vehicle, Driver, WorkOrder, GISFacility } from '@/lib/types'
 import { generateDemoVehicles, generateDemoDrivers, generateDemoWorkOrders, generateDemoFacilities } from '@/lib/demo-data'

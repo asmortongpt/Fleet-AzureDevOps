@@ -7,6 +7,13 @@ import { createLogger, format, transports, Logger, Logform } from 'winston';
 
 import { sanitizeForLogging } from './logSanitizer';
 
+// Define LogData type for logging
+export interface LogData {
+  email?: string;
+  phone?: string;
+  [key: string]: any;
+}
+
 const logger: Logger = createLogger({
   level: 'info',
   format: format.combine(

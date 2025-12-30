@@ -87,7 +87,7 @@ export function useVehicle(id: string | undefined) {
 export function useUpdateVehicle() {
   const queryClient = useQueryClient()
 
-  return useMutation({
+  return useMutation<Vehicle, Error, { id: string; data: Partial<Vehicle> }, { previousVehicle?: any }>({
     mutationFn: async ({ id, data }: { id: string; data: Partial<Vehicle> }) => {
       const response = await fetch(`/api/vehicles/${id}`, {
         method: 'PATCH',

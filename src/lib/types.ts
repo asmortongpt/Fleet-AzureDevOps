@@ -159,6 +159,13 @@ export interface Driver {
   status: "active" | "off-duty" | "on-leave" | "suspended" | "on_break"
   availability?: "available" | "busy" | "off-duty" | "on-leave" // Availability status
   avatar?: string
+  role?: string // Driver role
+  trips?: number // Number of trips completed
+  miles?: number // Total miles driven
+  incidents?: number // Number of incidents
+  efficiency?: number // Driver efficiency rating
+  activeWorkOrders?: number // Number of active work orders
+  onTimeDelivery?: number // On-time delivery percentage
   location?: {
     lat: number
     lng: number
@@ -311,6 +318,7 @@ export interface GISFacility {
   status: "operational" | "maintenance" | "closed"
   capacity?: number // Vehicle capacity for depots/service centers
   vehicle?: string // Currently servicing vehicle
+  technician?: string // Technician assigned to facility
   estimatedCompletion?: string // Estimated completion time for current service
   tenantId?: string // Multi-tenant support
 }

@@ -1,8 +1,9 @@
 import { AppError } from '../errors/AppError';
+import { User } from '../types/user-management';
 
 /**
  * Fetches user profile data from the API.
- * 
+ *
  * @param userId - The ID of the user to fetch.
  * @returns A promise that resolves to the user data.
  * @throws {AppError} If the fetch operation fails.
