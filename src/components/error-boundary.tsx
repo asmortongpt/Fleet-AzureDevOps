@@ -5,11 +5,12 @@
 
 import * as Sentry from '@sentry/react'
 import { AlertTriangle, RefreshCw, Home } from 'lucide-react'
-import React, { Component, ErrorInfo, ReactNode } from 'react'
+import { Component, ErrorInfo, ReactNode } from 'react'
 
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import logger from '@/utils/logger';
+import logger from '@/utils/logger'
+
 interface Props {
   children: ReactNode
   fallback?: ReactNode
@@ -81,9 +82,7 @@ class ErrorBoundary extends Component<Props, State> {
     })
 
     // Call custom error handler if provided
-    if (this.props.onError) {
-      this.props.onError(error, errorInfo)
-    }
+    this.props.onError?.(error, errorInfo)
   }
 
   handleReset = () => {
@@ -220,9 +219,7 @@ export class RouteErrorBoundary extends Component<Props & { routeName: string },
       Sentry.captureException(error)
     })
 
-    if (this.props.onError) {
-      this.props.onError(error, errorInfo)
-    }
+    this.props.onError?.(error, errorInfo)
   }
 
   handleReset = () => {
@@ -304,9 +301,7 @@ export class ComponentErrorBoundary extends Component<Props & { componentName: s
       Sentry.captureException(error)
     })
 
-    if (this.props.onError) {
-      this.props.onError(error, errorInfo)
-    }
+    this.props.onError?.(error, errorInfo)
   }
 
   handleReset = () => {

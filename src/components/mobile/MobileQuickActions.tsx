@@ -54,7 +54,7 @@ export function MobileQuickActions({
 
   const showLeftArrow = scrollPosition > 10;
   const showRightArrow = scrollContainerRef.current
-    ? scrollPosition < scrollContainerRef.current.scrollWidth - scrollContainerRef.current.offsetWidth - 10
+    ? scrollPosition < (scrollContainerRef.current.scrollWidth - scrollContainerRef.current.offsetWidth - 10)
     : false;
 
   if (layout === 'grid') {

@@ -31,14 +31,14 @@ interface DocumentSearchProps {
 export function DocumentSearch({
   documents,
   onSelectDocument,
-  onFiltersChange,
+  _onFiltersChange,
   recentSearches = [],
-  onSaveSearch
+  _onSaveSearch
 }: DocumentSearchProps) {
-  const [query, setQuery] = useState('');
-  const [isOpen, setIsOpen] = useState(false);
+  const [query, setQuery] = useState<string>('');
+  const [isOpen, setIsOpen] = useState<boolean>(false);
   const [results, setResults] = useState<DocumentMetadata[]>([]);
-  const [showFilters, setShowFilters] = useState(false);
+  const [showFilters, setShowFilters] = useState<boolean>(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const [isPending, startTransition] = useTransition();
 
@@ -65,20 +65,18 @@ export function DocumentSearch({
     return () => clearTimeout(timer);
   }, [query, documents]);
 
-  const handleSelectDocument = (document: DocumentMetadata) => {
-    if (onSelectDocument) {
-      onSelectDocument(document);
-    }
+  const handleSelectDocument = (document: DocumentMetadata): void => {
+    onSelectDocument?.(document);
     setIsOpen(false);
     setQuery('');
   };
 
-  const handleRecentSearch = (search: string) => {
+  const handleRecentSearch = (search: string): void => {
     setQuery(search);
     inputRef.current?.focus();
   };
 
-  const clearSearch = () => {
+  const clearSearch = (): void => {
     setQuery('');
     setResults([]);
     inputRef.current?.focus();

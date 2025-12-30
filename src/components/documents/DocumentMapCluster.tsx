@@ -88,7 +88,7 @@ function AutoFitBounds({ clusters }: { clusters: DocumentCluster[] }) {
  */
 export function DocumentMapCluster({
   clusters,
-  categories = [],
+  categories: _categories = [],
   center = [39.8283, -98.5795],
   zoom = 4,
   onClusterClick,
@@ -96,7 +96,7 @@ export function DocumentMapCluster({
   className = '',
   height = '600px'
 }: DocumentMapClusterProps) {
-  const [selectedCluster, setSelectedCluster] = useState<DocumentCluster | null>(null)
+  const [_selectedCluster, setSelectedCluster] = useState<DocumentCluster | null>(null)
   const [mapStyle] = useState<'osm' | 'dark'>('osm')
 
   // Calculate max cluster size for scaling
@@ -208,7 +208,7 @@ export function DocumentMapCluster({
                               )}
                               {doc.location && (
                                 <p className="text-xs text-gray-500 mt-1 font-mono">
-                                  {doc.location?.lat.toFixed(4)}, {doc.location?.lng.toFixed(4)}
+                                  {doc.location?.lat?.toFixed(4)}, {doc.location?.lng?.toFixed(4)}
                                 </p>
                               )}
                             </div>

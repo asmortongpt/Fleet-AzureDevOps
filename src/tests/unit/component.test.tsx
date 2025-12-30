@@ -3,11 +3,13 @@
  * Tests individual components in isolation
  */
 import { render, screen, fireEvent } from '@testing-library/react';
-import { describe, it, expect, vi } from 'vitest';import '@testing-library/jest-dom';
+import { describe, it, expect, vi } from 'vitest';
+import '@testing-library/jest-dom';
 
 // Mock components for testing (update paths as needed)
 describe('Button Component', () => {
   it('renders with text', () => {
+    render(<button>Click Me</button>);
     expect(screen.getByText('Click Me')).toBeInTheDocument();
   });
 
@@ -183,8 +185,8 @@ describe('Array Operations', () => {
     ];
 
     const sorted = [...vehicles].sort((a, b) => a.id - b.id);
-    expect(sorted[0].id).toBe(1);
-    expect(sorted[2].id).toBe(3);
+    expect(sorted[0]?.id).toBe(1);
+    expect(sorted[2]?.id).toBe(3);
   });
 
   it('groups vehicles by type', () => {

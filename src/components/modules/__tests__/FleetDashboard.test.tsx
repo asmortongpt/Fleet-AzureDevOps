@@ -12,7 +12,7 @@
 import { render, screen } from '@testing-library/react'
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
 
-import { FleetDashboard } from '../FleetDashboard'
+import FleetDashboard from '../FleetDashboard'
 
 import {
   setupLeafletMocks,

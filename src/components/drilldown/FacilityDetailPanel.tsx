@@ -21,12 +21,28 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Progress } from '@/components/ui/progress'
 import { useDrilldown } from '@/contexts/DrilldownContext'
 
-
 interface FacilityDetailPanelProps {
   facilityId: string
 }
 
-const fetcher = (url: string) => fetch(url).then((r) => r.json())
+interface FacilityData {
+  name: string
+  type?: string
+  status: string
+  address?: string
+  phone?: string
+  manager?: string
+  current_vehicles: number
+  capacity: number
+  stats?: {
+    active_vehicles: number
+    in_maintenance: number
+    available: number
+    out_of_service: number
+  }
+}
+
+const fetcher = (url: string): Promise<FacilityData> => fetch(url).then((r) => r.json())
 
 export function FacilityDetailPanel({ facilityId }: FacilityDetailPanelProps) {
   const { push } = useDrilldown()
@@ -57,7 +73,7 @@ export function FacilityDetailPanel({ facilityId }: FacilityDetailPanelProps) {
               <h3 className="text-2xl font-bold">{facility.name}</h3>
               <p className="text-sm text-muted-foreground">{facility.type || 'Facility'}</p>
               <div className="flex items-center gap-2 mt-2">
-                <Badge variant={facility.status === 'active' ? 'success' : 'secondary'}>
+                <Badge variant="default">
                   {facility.status}
                 </Badge>
               </div>

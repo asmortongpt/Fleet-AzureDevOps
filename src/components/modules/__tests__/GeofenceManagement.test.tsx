@@ -12,7 +12,7 @@
 import { render, screen } from '@testing-library/react'
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
 
-import { GeofenceManagement } from '../GeofenceManagement'
+import GeofenceManagement from '../GeofenceManagement'
 
 import {
   setupLeafletMocks,
@@ -28,7 +28,7 @@ describe('GeofenceManagement', () => {
   })
 
   afterEach(() => {
-    consoleMock.restore()
+    consoleMock.restore?.()
     vi.clearAllMocks()
   })
 

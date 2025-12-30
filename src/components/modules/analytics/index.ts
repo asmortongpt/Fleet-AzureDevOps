@@ -1,5 +1,5 @@
 // Analytics module exports
-export { CarbonFootprintTracker } from './CarbonFootprintTracker'
+export { default as CarbonFootprintTracker } from './CarbonFootprintTracker'
 export { CostAnalysisCenter } from './CostAnalysisCenter'
 export { CustomReportBuilder } from './CustomReportBuilder'
 export { DataWorkbench } from './DataWorkbench'

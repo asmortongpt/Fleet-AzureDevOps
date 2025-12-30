@@ -21,8 +21,8 @@ const createMockDocument = (content: string): DocumentMetadata => ({
   type: 'code',
   size: content.length,
   url: `data:text/plain;base64,${btoa(content)}`,
-  createdAt: new Date().toISOString(),
-  updatedAt: new Date().toISOString(),
+  createdAt: new Date(),
+  updatedAt: new Date(),
   mimeType: 'text/javascript',
 });
 

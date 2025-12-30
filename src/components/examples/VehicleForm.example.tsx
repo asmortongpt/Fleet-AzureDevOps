@@ -5,6 +5,7 @@ import { ErrorMessage, FieldError } from '../ErrorMessage';
 import { LoadingSpinner } from '../LoadingSpinner';
 
 import logger from '@/utils/logger';
+
 export const VehicleFormExample: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
@@ -23,18 +24,19 @@ export const VehicleFormExample: React.FC = () => {
       model: { required: true, minLength: 2 },
       year: {
         required: true,
-        custom: (value) => {
+        custom: (value: string) => {
           const year = parseInt(value);
           if (isNaN(year) || year < 1900 || year > new Date().getFullYear() + 1) {
             return 'Invalid year';
           }
+          return undefined;
         }
       },
       license_plate: { required: true }
     }
   );
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent): Promise<void> => {
     e.preventDefault();
     setSubmitError(null);
 
@@ -67,7 +69,7 @@ export const VehicleFormExample: React.FC = () => {
         <input
           type="text"
           value={values.vin}
-          onChange={(e) => handleChange('vin', e.target.value)}
+          onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleChange('vin', e.target.value)}
           onBlur={() => handleBlur('vin')}
           className={`mt-1 block w-full rounded-md border ${
             touched.vin && errors.vin ? 'border-red-500' : 'border-gray-300'
@@ -84,7 +86,7 @@ export const VehicleFormExample: React.FC = () => {
           <input
             type="text"
             value={values.make}
-            onChange={(e) => handleChange('make', e.target.value)}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleChange('make', e.target.value)}
             onBlur={() => handleBlur('make')}
             className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2"
           />
@@ -98,7 +100,7 @@ export const VehicleFormExample: React.FC = () => {
           <input
             type="text"
             value={values.model}
-            onChange={(e) => handleChange('model', e.target.value)}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleChange('model', e.target.value)}
             onBlur={() => handleBlur('model')}
             className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2"
           />

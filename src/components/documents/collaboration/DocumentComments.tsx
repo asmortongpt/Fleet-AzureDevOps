@@ -30,7 +30,7 @@ interface DocumentCommentsProps {
 }
 
 export function DocumentComments({
-  documentId,
+  _documentId,
   comments,
   currentUserId,
   onAddComment,
@@ -48,9 +48,9 @@ export function DocumentComments({
     }
   };
 
-  const handleReply = (commentId: string) => {
+  const _handleReply = (_commentId: string) => {
     if (replyContent.trim()) {
-      onAddComment(replyContent.trim(), commentId);
+      onAddComment(replyContent.trim(), _commentId);
       setReplyContent('');
       setReplyTo(null);
     }
@@ -201,7 +201,7 @@ function CommentThread({
                 variant="ghost"
                 size="sm"
                 className="h-7 text-xs"
-                onClick={() => onResolve(comment.id)}
+                onClick={() => onResolve?.(comment.id)}
               >
                 <CheckCircle className="mr-1 h-3 w-3" />
                 Resolve

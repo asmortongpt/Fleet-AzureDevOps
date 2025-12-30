@@ -326,7 +326,7 @@ const getPriorityBadge = (priority: string) => {
 
 export function AssetsHub() {
   const [activeTab, setActiveTab] = useState("location")
-  const [categoryFilter, setCategoryFilter] = useState<string>("all")
+  const [_categoryFilter, _setCategoryFilter] = useState<string>("all")
   const [statusFilter, setStatusFilter] = useState<string>("all")
   const [mapLoaded, setMapLoaded] = useState(false)
 
@@ -516,24 +516,8 @@ export function AssetsHub() {
                       <HeatmapLayer
                         data={heatmapData}
                         options={{
-                          radius: 50,
-                          opacity: 0.6,
-                          gradient: [
-                            'rgba(0, 255, 255, 0)',
-                            'rgba(0, 255, 255, 1)',
-                            'rgba(0, 191, 255, 1)',
-                            'rgba(0, 127, 255, 1)',
-                            'rgba(0, 63, 255, 1)',
-                            'rgba(0, 0, 255, 1)',
-                            'rgba(0, 0, 223, 1)',
-                            'rgba(0, 0, 191, 1)',
-                            'rgba(0, 0, 159, 1)',
-                            'rgba(0, 0, 127, 1)',
-                            'rgba(63, 0, 91, 1)',
-                            'rgba(127, 0, 63, 1)',
-                            'rgba(191, 0, 31, 1)',
-                            'rgba(255, 0, 0, 1)'
-                          ]
+                          radius: 20,
+                          opacity: 0.6
                         }}
                       />
                     )}
@@ -562,11 +546,11 @@ export function AssetsHub() {
                         position={{ lat: asset.location.lat, lng: asset.location.lng }}
                         icon={{
                           path: window.google.maps.SymbolPath.CIRCLE,
-                          scale: Math.sqrt(asset.value / 5000),
-                          fillColor: "#fbbf24",
+                          scale: Math.min(Math.max(asset.value / 100000 * 5, 8), 20),
+                          fillColor: "#10b981",
                           fillOpacity: 0.7,
                           strokeColor: "#fff",
-                          strokeWeight: 2
+                          strokeWeight: 1
                         }}
                         title={`${asset.name} - $${asset.value.toLocaleString()}`}
                       />
@@ -577,70 +561,62 @@ export function AssetsHub() {
             </Tabs>
           </div>
 
-          {/* RIGHT: Data Panel */}
-          <div className="overflow-auto">
-            <div className="p-4">
-              {/* Filters */}
-              <div className="flex gap-2 mb-4">
-                <Select value={statusFilter} onValueChange={setStatusFilter}>
-                  <SelectTrigger className="w-[180px]">
-                    <SelectValue placeholder="Status" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">All Statuses</SelectItem>
-                    <SelectItem value="AVAILABLE">Available</SelectItem>
-                    <SelectItem value="IN_USE">In Use</SelectItem>
-                    <SelectItem value="MAINTENANCE">Maintenance</SelectItem>
-                    <SelectItem value="RESERVED">Reserved</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
+          {/* RIGHT: Data Panels */}
+          <div className="h-full overflow-auto">
+            <Tabs defaultValue="inventory" className="flex flex-col h-full">
+              <TabsList className="w-full justify-start rounded-none border-b">
+                <TabsTrigger value="inventory">Inventory</TabsTrigger>
+                <TabsTrigger value="utilization">Utilization</TabsTrigger>
+                <TabsTrigger value="replacement">Replacement</TabsTrigger>
+              </TabsList>
 
-              <Tabs defaultValue="inventory">
-                <TabsList className="w-full">
-                  <TabsTrigger value="inventory" className="flex-1">Inventory</TabsTrigger>
-                  <TabsTrigger value="utilization-data" className="flex-1">Utilization</TabsTrigger>
-                  <TabsTrigger value="replacement" className="flex-1">Replacement</TabsTrigger>
-                </TabsList>
-
-                <TabsContent value="inventory" className="mt-4">
+              <TabsContent value="inventory" className="m-0 p-4">
+                <div className="space-y-4">
+                  <div className="flex justify-between items-center">
+                    <h2 className="text-lg font-semibold">Asset Inventory</h2>
+                    <div className="w-64">
+                      <Select value={statusFilter} onValueChange={setStatusFilter}>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Filter by status" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="all">All Statuses</SelectItem>
+                          <SelectItem value="AVAILABLE">Available</SelectItem>
+                          <SelectItem value="IN_USE">In Use</SelectItem>
+                          <SelectItem value="MAINTENANCE">Maintenance</SelectItem>
+                          <SelectItem value="RESERVED">Reserved</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
                   <Card>
-                    <CardHeader>
-                      <CardTitle>Asset Inventory</CardTitle>
-                    </CardHeader>
-                    <CardContent>
+                    <CardContent className="p-0">
                       <Table>
                         <TableHeader>
                           <TableRow>
-                            <TableHead>Asset</TableHead>
+                            <TableHead>Asset Name</TableHead>
                             <TableHead>Type</TableHead>
                             <TableHead>Status</TableHead>
-                            <TableHead className="text-right">Value</TableHead>
-                            <TableHead className="text-right">Utilization</TableHead>
+                            <TableHead>Value</TableHead>
+                            <TableHead>Utilization</TableHead>
                           </TableRow>
                         </TableHeader>
                         <TableBody>
                           {filteredAssets.map(asset => (
-                            <TableRow key={asset.id} className="cursor-pointer hover:bg-muted/50">
-                              <TableCell className="font-medium">
-                                {asset.name}
-                              </TableCell>
-                              <TableCell>
-                                <Badge variant="outline">{asset.type}</Badge>
-                              </TableCell>
+                            <TableRow key={asset.id}>
+                              <TableCell className="font-medium">{asset.name}</TableCell>
+                              <TableCell>{asset.type}</TableCell>
                               <TableCell>
                                 <div className="flex items-center gap-2">
                                   <div
                                     className="w-2 h-2 rounded-full"
                                     style={{ backgroundColor: getStatusColor(asset.status) }}
                                   />
-                                  <span className="text-sm">{asset.status}</span>
+                                  {asset.status}
                                 </div>
                               </TableCell>
-                              <TableCell className="text-right">
-                                ${asset.value.toLocaleString()}
-                              </TableCell>
-                              <TableCell className="text-right">
+                              <TableCell>${asset.value.toLocaleString()}</TableCell>
+                              <TableCell>
                                 <span className={getUtilizationColor(asset.utilizationRate)}>
                                   {asset.utilizationRate}%
                                 </span>
@@ -651,51 +627,41 @@ export function AssetsHub() {
                       </Table>
                     </CardContent>
                   </Card>
-                </TabsContent>
+                </div>
+              </TabsContent>
 
-                <TabsContent value="utilization-data" className="mt-4">
+              <TabsContent value="utilization" className="m-0 p-4">
+                <div className="space-y-4">
+                  <h2 className="text-lg font-semibold">Asset Utilization</h2>
                   <Card>
-                    <CardHeader>
-                      <CardTitle>Asset Utilization & ROI</CardTitle>
-                    </CardHeader>
-                    <CardContent>
+                    <CardContent className="p-0">
                       <Table>
                         <TableHeader>
                           <TableRow>
-                            <TableHead>Asset</TableHead>
-                            <TableHead className="text-right">Utilization</TableHead>
-                            <TableHead className="text-right">Revenue</TableHead>
-                            <TableHead className="text-right">Cost</TableHead>
-                            <TableHead className="text-right">ROI</TableHead>
+                            <TableHead>Asset Name</TableHead>
+                            <TableHead>Type</TableHead>
+                            <TableHead>Utilization</TableHead>
+                            <TableHead>Hours</TableHead>
+                            <TableHead>Revenue</TableHead>
+                            <TableHead>ROI</TableHead>
                           </TableRow>
                         </TableHeader>
                         <TableBody>
                           {demoUtilization.map(asset => (
-                            <TableRow key={asset.assetId} className="cursor-pointer hover:bg-muted/50">
-                              <TableCell className="font-medium">
-                                <div>
-                                  <div>{asset.assetName}</div>
-                                  <div className="text-xs text-muted-foreground">
-                                    {asset.hoursUsed}/{asset.hoursAvailable} hrs
-                                  </div>
-                                </div>
+                            <TableRow key={asset.assetId}>
+                              <TableCell className="font-medium">{asset.assetName}</TableCell>
+                              <TableCell>{asset.type}</TableCell>
+                              <TableCell>
+                                <span className={getUtilizationColor(asset.utilizationRate)}>
+                                  {asset.utilizationRate}%
+                                </span>
                               </TableCell>
-                              <TableCell className="text-right">
-                                <div className="flex flex-col items-end gap-1">
-                                  <span className={getUtilizationColor(asset.utilizationRate)}>
-                                    {asset.utilizationRate}%
-                                  </span>
-                                  <Progress value={asset.utilizationRate} className="w-16" />
-                                </div>
+                              <TableCell>
+                                {asset.hoursUsed}/{asset.hoursAvailable}
                               </TableCell>
-                              <TableCell className="text-right text-green-500">
-                                ${asset.revenue.toLocaleString()}
-                              </TableCell>
-                              <TableCell className="text-right text-red-500">
-                                ${asset.cost.toLocaleString()}
-                              </TableCell>
-                              <TableCell className="text-right">
-                                <Badge className="bg-green-500">{asset.roi}%</Badge>
+                              <TableCell>${asset.revenue.toLocaleString()}</TableCell>
+                              <TableCell className={asset.roi > 0 ? "text-green-500" : "text-red-500"}>
+                                {asset.roi}%
                               </TableCell>
                             </TableRow>
                           ))}
@@ -703,75 +669,43 @@ export function AssetsHub() {
                       </Table>
                     </CardContent>
                   </Card>
-                </TabsContent>
+                </div>
+              </TabsContent>
 
-                <TabsContent value="replacement" className="mt-4">
+              <TabsContent value="replacement" className="m-0 p-4">
+                <div className="space-y-4">
+                  <h2 className="text-lg font-semibold">Replacement Planning</h2>
                   <Card>
-                    <CardHeader>
-                      <CardTitle>Lifecycle & Replacement Planning</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="space-y-4">
-                        {demoReplacements.map(asset => (
-                          <Card key={asset.assetId}>
-                            <CardHeader>
-                              <div className="flex items-start justify-between">
-                                <div>
-                                  <CardTitle className="text-base">{asset.assetName}</CardTitle>
-                                  <p className="text-sm text-muted-foreground mt-1">
-                                    {asset.type} • {asset.age} years old
-                                  </p>
-                                </div>
-                                <div className="flex gap-2">
-                                  {getConditionBadge(asset.condition)}
-                                  {getPriorityBadge(asset.priority)}
-                                </div>
-                              </div>
-                            </CardHeader>
-                            <CardContent>
-                              <div className="space-y-3">
-                                <div className="flex items-center justify-between text-sm">
-                                  <div className="flex items-center gap-2">
-                                    <Calendar className="w-4 h-4 text-muted-foreground" />
-                                    <span>Replacement Year:</span>
-                                  </div>
-                                  <span className="font-medium">{asset.replacementYear}</span>
-                                </div>
-                                <div className="flex items-center justify-between text-sm">
-                                  <div className="flex items-center gap-2">
-                                    <CurrencyDollar className="w-4 h-4 text-muted-foreground" />
-                                    <span>Estimated Cost:</span>
-                                  </div>
-                                  <span className="font-medium">
-                                    ${asset.estimatedCost.toLocaleString()}
-                                  </span>
-                                </div>
-                                <div className="mt-2 p-3 bg-muted/50 rounded-md">
-                                  <p className="text-sm text-muted-foreground">
-                                    <span className="font-medium">Reason: </span>
-                                    {asset.reason}
-                                  </p>
-                                </div>
-                                <div className="flex gap-2 pt-2">
-                                  <Button variant="outline" size="sm" className="flex-1">
-                                    <Calendar className="w-4 h-4 mr-2" />
-                                    Schedule Review
-                                  </Button>
-                                  <Button variant="outline" size="sm" className="flex-1">
-                                    <CurrencyDollar className="w-4 h-4 mr-2" />
-                                    Get Quote
-                                  </Button>
-                                </div>
-                              </div>
-                            </CardContent>
-                          </Card>
-                        ))}
-                      </div>
+                    <CardContent className="p-0">
+                      <Table>
+                        <TableHeader>
+                          <TableRow>
+                            <TableHead>Asset Name</TableHead>
+                            <TableHead>Type</TableHead>
+                            <TableHead>Age</TableHead>
+                            <TableHead>Condition</TableHead>
+                            <TableHead>Replace By</TableHead>
+                            <TableHead>Priority</TableHead>
+                          </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                          {demoReplacements.map(asset => (
+                            <TableRow key={asset.assetId}>
+                              <TableCell className="font-medium">{asset.assetName}</TableCell>
+                              <TableCell>{asset.type}</TableCell>
+                              <TableCell>{asset.age} yrs</TableCell>
+                              <TableCell>{getConditionBadge(asset.condition)}</TableCell>
+                              <TableCell>{asset.replacementYear}</TableCell>
+                              <TableCell>{getPriorityBadge(asset.priority)}</TableCell>
+                            </TableRow>
+                          ))}
+                        </TableBody>
+                      </Table>
                     </CardContent>
                   </Card>
-                </TabsContent>
-              </Tabs>
-            </div>
+                </div>
+              </TabsContent>
+            </Tabs>
           </div>
         </div>
       </div>

@@ -3,8 +3,7 @@
  * Provides standard create, read, update, delete operations with React Query
  */
 import { useQuery, useMutation, useQueryClient, UseQueryOptions, UseMutationOptions } from '@tanstack/react-query'
-
-import { api } from '@/lib/api'
+import axios from '@/lib/api'
 
 export interface CrudResourceOptions<T> {
   resourceName: string // e.g., 'drivers', 'vehicles'
@@ -33,9 +32,10 @@ export function createCrudHooks<T extends { id?: number | string }>(
     return useQuery({
       queryKey: [queryKey, params],
       queryFn: async () => {
-        const response = await api.get(`/${resourceName}`, { params })
-        return response.data
+        const response = await axios.get(`/${resourceName}`, { params })
+        return response?.data
       },
+      gcTime: 5 * 60 * 1000,
       ...queryOptions
     })
   }
@@ -47,10 +47,11 @@ export function createCrudHooks<T extends { id?: number | string }>(
     return useQuery({
       queryKey: [queryKey, id],
       queryFn: async () => {
-        const response = await api.get(`/${resourceName}/${id}`)
-        return response.data.data || response.data
+        const response = await axios.get(`/${resourceName}/${id}`)
+        return response?.data?.data || response?.data
       },
       enabled: !!id,
+      gcTime: 5 * 60 * 1000,
       ...queryOptions
     })
   }
@@ -63,8 +64,8 @@ export function createCrudHooks<T extends { id?: number | string }>(
 
     return useMutation({
       mutationFn: async (data: Partial<T>) => {
-        const response = await api.post(`/${resourceName}`, data)
-        return response.data
+        const response = await axios.post(`/${resourceName}`, data)
+        return response?.data
       },
       onSuccess: () => {
         queryClient.invalidateQueries({ queryKey: [queryKey] })
@@ -81,8 +82,8 @@ export function createCrudHooks<T extends { id?: number | string }>(
 
     return useMutation({
       mutationFn: async ({ id, data }: { id: number | string; data: Partial<T> }) => {
-        const response = await api.put(`/${resourceName}/${id}`, data)
-        return response.data
+        const response = await axios.put(`/${resourceName}/${id}`, data)
+        return response?.data
       },
       onSuccess: (_, variables) => {
         queryClient.invalidateQueries({ queryKey: [queryKey] })
@@ -100,7 +101,7 @@ export function createCrudHooks<T extends { id?: number | string }>(
 
     return useMutation({
       mutationFn: async (id: number | string) => {
-        await api.delete(`/${resourceName}/${id}`)
+        await axios.delete(`/${resourceName}/${id}`)
       },
       onSuccess: () => {
         queryClient.invalidateQueries({ queryKey: [queryKey] })
@@ -117,18 +118,3 @@ export function createCrudHooks<T extends { id?: number | string }>(
     useDelete
   }
 }
-
-/**
- * Example usage:
- *
- * const driverHooks = createCrudHooks<Driver>({
- *   resourceName: 'drivers',
- *   queryKey: 'drivers'
- * })
- *
- * export const useDrivers = driverHooks.useList
- * export const useDriver = driverHooks.useOne
- * export const useCreateDriver = driverHooks.useCreate
- * export const useUpdateDriver = driverHooks.useUpdate
- * export const useDeleteDriver = driverHooks.useDelete
- */

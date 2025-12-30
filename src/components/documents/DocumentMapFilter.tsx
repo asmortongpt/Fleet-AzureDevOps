@@ -39,7 +39,7 @@ export function DocumentMapFilter({
   filteredDocuments
 }: DocumentMapFilterProps) {
   const [isExpanded, setIsExpanded] = useState(true)
-  const [isPending, startTransition] = useTransition()
+  const [_isPending, startTransition] = useTransition()
 
   // Toggle category selection
   const toggleCategory = (categoryName: string) => {
