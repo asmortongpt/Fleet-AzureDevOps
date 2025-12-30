@@ -101,7 +101,7 @@ export function GISCommandCenter() {
     return colors[status]
   }
 
-  const getFacilityIcon = (type: string) => {
+  const getFacilityIcon = (type: "office" | "depot" | "service-center" | "fueling-station") => {
     switch (type) {
       case "office":
         return <Buildings className="w-5 h-5" />
@@ -111,12 +111,9 @@ export function GISCommandCenter() {
         return <Wrench className="w-5 h-5" />
       case "fueling-station":
         return <GasPump className="w-5 h-5" />
-      case "garage":
-        return <Wrench className="w-5 h-5" />
-      case "warehouse":
-        return <Buildings className="w-5 h-5" />
       default:
-        return <Buildings className="w-5 h-5" />
+        const _exhaustive: never = type
+        return _exhaustive
     }
   }
 

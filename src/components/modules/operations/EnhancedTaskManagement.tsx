@@ -272,9 +272,10 @@ export function EnhancedTaskManagement() {
     }
 
     try {
-      const response = await apiClient.post<ApiResponse<unknown>>("/api/task-management", newTask)
-      if (isSuccessResponse(response)) {
-        const typedResponse = response as SuccessResponse<{ task: Task }>
+      const response = await apiClient.post<unknown>("/api/task-management", newTask)
+      const apiResponse = response as ApiResponse<unknown>
+      if (isSuccessResponse(apiResponse)) {
+        const typedResponse = apiResponse as SuccessResponse<{ task: Task }>
         if (typedResponse?.data?.task) {
           setTasks(current => [...current, typedResponse.data.task])
         }
