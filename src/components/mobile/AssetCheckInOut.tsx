@@ -1,7 +1,6 @@
 import { Camera } from 'expo-camera';
 import * as Location from 'expo-location';
 import React, { useState, useEffect } from 'react';
-import { Button, StyleSheet, View, Text, TextInput, TouchableOpacity, Image } from 'react-native';
 import { z } from 'zod';
 
 import { checkInAsset, checkOutAsset } from '../api/assets';
@@ -89,60 +88,39 @@ const AssetCheckInOut: React.FC<AssetCheckInOutProps> = ({ tenantId, onCheckInOu
   };
 
   if (hasCameraPermission === null || hasLocationPermission === null) {
-    return <View><Text>Requesting permissions...</Text></View>;
+    return <div>Requesting permissions...</div>;
   }
 
   if (!hasCameraPermission || !hasLocationPermission) {
-    return <View><Text>No access to camera or location</Text></View>;
+    return <div>No access to camera or location</div>;
   }
 
   return (
-    <View style={styles.container}>
-      <Camera style={styles.camera} ref={(ref: typeof Camera | null) => setCamera(ref)} />
-      <Button title="Take Picture" onPress={handleTakePicture} />
-      {image && <Image source={{ uri: image }} style={styles.preview} />}
-      <TextInput
-        style={styles.input}
+    <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
+      <video
+        style={{ width: 300, height: 300, borderRadius: 4, overflow: 'hidden' }}
+        ref={(ref) => {
+          if (ref) {
+            setCamera(ref as any);
+          }
+        }}
+      />
+      <button onClick={handleTakePicture}>Take Picture</button>
+      {image && <img src={image} style={{ width: 100, height: 100, marginTop: 15 }} alt="Preview" />}
+      <input
+        style={{ height: 40, margin: 12, borderWidth: 1, padding: 10, border: '1px solid #ccc' }}
         placeholder="Condition Rating (1-5)"
         value={conditionRating}
-        onChangeText={setConditionRating}
+        onChange={(e) => setConditionRating(e.target.value)}
       />
-      <TouchableOpacity style={styles.button} onPress={handleCheckInOut}>
-        <Text>{_isCheckingIn ? 'Check In' : 'Check Out'}</Text>
-      </TouchableOpacity>
-    </View>
+      <button
+        style={{ alignItems: 'center', backgroundColor: '#DDDDDD', padding: 10, marginTop: 10 }}
+        onClick={handleCheckInOut}
+      >
+        {_isCheckingIn ? 'Check In' : 'Check Out'}
+      </button>
+    </div>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  camera: {
-    width: 300,
-    height: 300,
-    borderRadius: 4,
-    overflow: 'hidden',
-  },
-  preview: {
-    width: 100,
-    height: 100,
-    marginTop: 15,
-  },
-  input: {
-    height: 40,
-    margin: 12,
-    borderWidth: 1,
-    padding: 10,
-  },
-  button: {
-    alignItems: 'center',
-    backgroundColor: '#DDDDDD',
-    padding: 10,
-    marginTop: 10,
-  },
-});
 
 export default AssetCheckInOut;
