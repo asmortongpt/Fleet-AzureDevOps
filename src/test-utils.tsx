@@ -116,7 +116,7 @@ export function createMockCamera(overrides?: Partial<TrafficCamera>): TrafficCam
     longitude: -84.2807,
     enabled: true,
     ...overrides
-  }
+  } as TrafficCamera
 }
 
 /**
