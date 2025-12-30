@@ -6,10 +6,8 @@ import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from 'r
 import { useAuth } from '../../hooks/useAuth';
 import { fetchIdleAssets, fetchUtilizationData, fetchROIMetrics } from '../../services/analyticsService';
 import { exportToCSV, exportToExcel } from '../../utils/exportUtils';
-import { logError, logAudit } from '../../utils/logger';
+import * as logger from '../../utils/logger';
 import { validateTenantId } from '../../utils/validation';
-
-
 
 interface Asset {
   id: string;
@@ -31,15 +29,19 @@ interface ROIMetric {
   roi: number;
 }
 
+interface AuthContextType {
+  tenantId?: string;
+}
+
 const UtilizationDashboard: React.FC = () => {
   const [idleAssets, setIdleAssets] = useState<Asset[]>([]);
   const [utilizationData, setUtilizationData] = useState<UtilizationData[]>([]);
   const [roiMetrics, setRoiMetrics] = useState<ROIMetric[]>([]);
-  const { tenantId } = useAuth();
+  const { tenantId } = useAuth() as AuthContextType;
 
   useEffect(() => {
-    if (!validateTenantId(tenantId)) {
-      logError('Invalid tenant ID');
+    if (!tenantId || !validateTenantId(tenantId)) {
+      logger.logError('Invalid tenant ID');
       return;
     }
 
@@ -54,9 +56,9 @@ const UtilizationDashboard: React.FC = () => {
         const roiMetricsData = await fetchROIMetrics(tenantId);
         setRoiMetrics(roiMetricsData);
 
-        logAudit('Utilization dashboard data fetched', { tenantId });
+        logger.logAudit('Utilization dashboard data fetched', { tenantId });
       } catch (error) {
-        logError('Error fetching utilization dashboard data', error);
+        logger.logError('Error fetching utilization dashboard data', error);
       }
     };
 

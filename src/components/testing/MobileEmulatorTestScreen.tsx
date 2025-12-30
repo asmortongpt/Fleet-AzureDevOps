@@ -1,11 +1,5 @@
-/**
- * Mobile Emulator Test Screen
- * Allows testing the Fleet Management app with iOS/Android emulators
- * Features: Device selection, API testing, data injection, screen navigation
- */
-
 import { DeviceMobile, Globe, Database, Play, Bug, CheckCircle, XCircle } from '@phosphor-icons/react'
-import React, { useState } from 'react'
+import { useState } from 'react'
 
 interface Device {
   id: string
@@ -97,11 +91,11 @@ export function MobileEmulatorTestScreen() {
           status: response.ok ? 'success' : 'error',
           response: data
         })
-      } catch (error) {
+      } catch (error: unknown) {
         results.push({
           ...endpoint,
           status: 'error',
-          response: { error: error.message }
+          response: { error: error instanceof Error ? error.message : 'Unknown error' }
         })
       }
     }
@@ -238,7 +232,7 @@ export function MobileEmulatorTestScreen() {
               />
               <button
                 onClick={() => {
-                  const iframe = document.getElementById('mobile-emulator-frame') as HTMLIFrameElement
+                  const iframe = document.getElementById('mobile-emulator-frame') as HTMLIFrameElement | null
                   if (iframe) iframe.src = iframeUrl
                 }}
                 className="w-full mt-2 py-2 px-4 bg-gray-600 hover:bg-gray-700 text-white rounded-lg transition-colors"

@@ -1,60 +1,19 @@
-/**
- * MapboxMap Component
- *
- * A production-ready, robust React component for rendering interactive Mapbox maps
- * with support for vehicles, facilities, and traffic cameras.
- *
- * Features:
- * - Multiple map styles (streets, satellite, outdoors, dark, light)
- * - Interactive markers with popups
- * - Automatic bounds fitting
- * - Comprehensive error handling
- * - Graceful degradation without API token
- * - Proper resource cleanup
- * - React 19 compatible
- * - TypeScript strict mode compatible
- *
- * @example
- * ```tsx
- * <MapboxMap
- *   vehicles={vehicleData}
- *   facilities={facilityData}
- *   showVehicles={true}
- *   mapStyle="streets"
- *   zoom={12}
- * />
- * ```
- */
-
 import { useEffect, useRef, useState, useCallback } from "react"
 
 import { usePerformanceMonitor } from "@/hooks/usePerformanceMonitor"
 import { Vehicle, GISFacility, TrafficCamera } from "@/lib/types"
 import logger from '@/utils/logger';
-// ============================================================================
-// Dynamic Import for Mapbox GL
-// Reduces initial bundle size by ~500kb - loads on demand
-// ============================================================================
 
 let mapboxgl: typeof import("mapbox-gl") | null = null
 let mapboxCssLoaded = false
 
-/**
- * Dynamically loads Mapbox GL library and CSS
- * Ensures library is only loaded when map component is rendered
- *
- * @returns Promise resolving to mapbox-gl module
- * @throws Error if Mapbox GL fails to load
- */
 async function loadMapboxGL(): Promise<typeof import("mapbox-gl")> {
   if (mapboxgl) return mapboxgl
 
   try {
-    // Dynamic import of Mapbox GL library
     const module = await import("mapbox-gl")
     mapboxgl = module.default || module
 
-    // Load CSS if not already loaded
     if (!mapboxCssLoaded && typeof window !== "undefined") {
       try {
         await import("mapbox-gl/dist/mapbox-gl.css")
@@ -62,7 +21,6 @@ async function loadMapboxGL(): Promise<typeof import("mapbox-gl")> {
         logger.debug("✅ Mapbox GL CSS loaded")
       } catch (cssError) {
         logger.warn("⚠️  Mapbox GL CSS could not be loaded:", cssError)
-        // Non-fatal: map will work but may not be styled correctly
       }
     }
 
@@ -75,47 +33,25 @@ async function loadMapboxGL(): Promise<typeof import("mapbox-gl")> {
   }
 }
 
-/**
- * Supported Mapbox map styles
- */
 export type MapStyle = "streets" | "satellite" | "outdoors" | "dark" | "light"
 
-/**
- * Props for the MapboxMap component
- */
 export interface MapboxMapProps {
-  /** Array of vehicles to display on the map */
   vehicles?: Vehicle[]
-  /** Array of facilities to display on the map */
   facilities?: GISFacility[]
-  /** Array of traffic cameras to display on the map */
   cameras?: TrafficCamera[]
-  /** Whether to show vehicle markers */
   showVehicles?: boolean
-  /** Whether to show facility markers */
   showFacilities?: boolean
-  /** Whether to show camera markers */
   showCameras?: boolean
-  /** Whether to show routes (future enhancement) */
   showRoutes?: boolean
-  /** Map style to use */
   mapStyle?: MapStyle
-  /** Initial center coordinates [longitude, latitude] */
   center?: [number, number]
-  /** Initial zoom level (0-22) */
   zoom?: number
-  /** Additional CSS classes */
   className?: string
-  /** Callback when map is ready */
   onMapReady?: (map: mapboxgl.Map) => void
   onReady?: () => void
-  /** Callback when an error occurs */
   onError?: (error: Error) => void
 }
 
-/**
- * Map of style names to Mapbox style URLs
- */
 const MAPBOX_STYLE_URLS: Record<MapStyle, string> = {
   streets: "mapbox://styles/mapbox/streets-v12",
   satellite: "mapbox://styles/mapbox/satellite-streets-v12",
@@ -124,43 +60,23 @@ const MAPBOX_STYLE_URLS: Record<MapStyle, string> = {
   light: "mapbox://styles/mapbox/light-v11"
 } as const
 
-/**
- * Default center of USA
- */
 const DEFAULT_CENTER: [number, number] = [-98.5795, 39.8283]
-
-/**
- * Default zoom level
- */
 const DEFAULT_ZOOM = 4
-
-/**
- * Minimum required length for a valid Mapbox token
- */
 const MIN_TOKEN_LENGTH = 50
 
-/**
- * Validates a Mapbox access token
- *
- * @param token - The token to validate
- * @returns True if the token appears valid, false otherwise
- */
 function validateMapboxToken(token: string | undefined): boolean {
   if (!token || typeof token !== 'string') {
     return false
   }
 
-  // Check if it's not a placeholder
   if (token.includes('demo') || token.includes('YOUR_') || token.includes('xxx')) {
     return false
   }
 
-  // Check minimum length (Mapbox tokens are typically 100+ characters)
   if (token.length < MIN_TOKEN_LENGTH) {
     return false
   }
 
-  // Check if it starts with 'pk.' (public token) or 'sk.' (secret token)
   if (!token.startsWith('pk.') && !token.startsWith('sk.')) {
     return false
   }
@@ -168,30 +84,18 @@ function validateMapboxToken(token: string | undefined): boolean {
   return true
 }
 
-/**
- * Gets the color for a vehicle based on its status
- *
- * @param status - The vehicle status
- * @returns Hex color code
- */
 function getVehicleColor(status: Vehicle["status"]): string {
   const colors: Record<Vehicle["status"], string> = {
-    active: "#10b981",      // green
-    idle: "#6b7280",        // gray
-    charging: "#3b82f6",    // blue
-    service: "#f59e0b",     // amber
-    emergency: "#ef4444",   // red
-    offline: "#374151"      // dark gray
+    active: "#10b981",
+    idle: "#6b7280",
+    charging: "#3b82f6",
+    service: "#f59e0b",
+    emergency: "#ef4444",
+    offline: "#374151"
   }
   return colors[status] || "#6b7280"
 }
 
-/**
- * Creates HTML content for a vehicle popup
- *
- * @param vehicle - The vehicle data
- * @returns HTML string for the popup
- */
 function createVehiclePopupHTML(vehicle: Vehicle): string {
   const locationText = vehicle.location?.address ||
     (vehicle.location ? `${vehicle.location?.lat.toFixed(4)}, ${vehicle.location?.lng.toFixed(4)}` : "Unknown")
@@ -215,12 +119,6 @@ function createVehiclePopupHTML(vehicle: Vehicle): string {
   `
 }
 
-/**
- * Creates HTML content for a facility popup
- *
- * @param facility - The facility data
- * @returns HTML string for the popup
- */
 function createFacilityPopupHTML(facility: GISFacility): string {
   return `
     <div style="padding: 12px; min-width: 200px; font-family: system-ui, -apple-system, sans-serif;">
@@ -241,12 +139,6 @@ function createFacilityPopupHTML(facility: GISFacility): string {
   `
 }
 
-/**
- * Creates HTML content for a camera popup
- *
- * @param camera - The camera data
- * @returns HTML string for the popup
- */
 function createCameraPopupHTML(camera: TrafficCamera): string {
   return `
     <div style="padding: 12px; min-width: 250px; max-width: 350px; font-family: system-ui, -apple-system, sans-serif;">
@@ -287,31 +179,17 @@ function createCameraPopupHTML(camera: TrafficCamera): string {
   `
 }
 
-/**
- * Escapes HTML special characters to prevent XSS
- *
- * @param text - Text to escape
- * @returns Escaped text
- */
 function escapeHtml(text: string): string {
   const div = document.createElement('div')
   div.textContent = text
   return div.innerHTML
 }
 
-/**
- * Sanitizes a URL to prevent XSS via javascript: or data: URI schemes
- * Only allows http:// and https:// URLs
- *
- * @param url - URL to sanitize
- * @returns Sanitized URL or empty string if invalid
- */
-function sanitizeUrl(url: string): string {
+function sanitizeUrl(url: string | undefined): string {
   if (!url) return ''
 
   try {
     const urlObj = new URL(url)
-    // Only allow http and https protocols
     if (urlObj.protocol === 'http:' || urlObj.protocol === 'https:') {
       return escapeHtml(url)
     }
@@ -322,12 +200,6 @@ function sanitizeUrl(url: string): string {
   return ''
 }
 
-/**
- * MapboxMap Component
- *
- * Renders an interactive map with vehicles, facilities, and cameras.
- * Handles all map lifecycle, markers, and error states.
- */
 export function MapboxMap({
   vehicles = [],
   facilities = [],
@@ -335,24 +207,22 @@ export function MapboxMap({
   showVehicles = true,
   showFacilities = true,
   showCameras = false,
-  showRoutes = true,
+  _showRoutes = true,
   mapStyle = "streets",
   center = DEFAULT_CENTER,
   zoom = DEFAULT_ZOOM,
   className = "",
   onMapReady,
-  onReady,
+  _onReady,
   onError
 }: MapboxMapProps) {
-  // Performance monitoring
-  const perf = usePerformanceMonitor("MapboxMap", {
+  const _perf = usePerformanceMonitor("MapboxMap", {
     enabled: import.meta.env.DEV,
-    reportInterval: 10000, // Report every 10 seconds
+    reportInterval: 10000,
     slowRenderThreshold: 50,
     highMemoryThreshold: 150,
   })
 
-  // Refs for DOM and Mapbox instances
   const mapContainerRef = useRef<HTMLDivElement>(null)
   const mapRef = useRef<mapboxgl.Map | null>(null)
   const vehicleMarkersRef = useRef<Map<string, mapboxgl.Marker>>(new Map())
@@ -360,17 +230,12 @@ export function MapboxMap({
   const cameraMarkersRef = useRef<Map<string, mapboxgl.Marker>>(new Map())
   const isCleaningUpRef = useRef(false)
 
-  // State
   const [mapReady, setMapReady] = useState(false)
   const [mapError, setMapError] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(true)
 
-  // Store mapbox reference for marker creation
   const mapboxRef = useRef<typeof import("mapbox-gl") | null>(null)
 
-  /**
-   * Creates a styled marker element for a vehicle
-   */
   const createVehicleMarkerElement = useCallback((vehicle: Vehicle): HTMLElement => {
     const el = document.createElement("div")
     el.className = "vehicle-marker"
@@ -390,7 +255,7 @@ export function MapboxMap({
       transition: transform 0.2s;
     `
 
-    const icon = vehicle.type === "car" ? "🚗" :
+    const icon = vehicle.type === "sedan" ? "🚗" :
                  vehicle.type === "truck" ? "🚚" :
                  vehicle.type === "van" ? "🚐" : "🚙"
     el.textContent = icon
@@ -401,9 +266,6 @@ export function MapboxMap({
     return el
   }, [])
 
-  /**
-   * Creates a styled marker element for a facility
-   */
   const createFacilityMarkerElement = useCallback((facility: GISFacility): HTMLElement => {
     const icons: Record<GISFacility["type"], string> = {
       office: "🏢",
@@ -438,9 +300,6 @@ export function MapboxMap({
     return el
   }, [])
 
-  /**
-   * Creates a styled marker element for a traffic camera
-   */
   const createCameraMarkerElement = useCallback((camera: TrafficCamera): HTMLElement => {
     const color = camera.operational ? "#3b82f6" : "#6b7280"
     const el = document.createElement("div")
@@ -468,445 +327,219 @@ export function MapboxMap({
     return el
   }, [])
 
-  /**
-   * Removes all markers from the map and clears the marker map
-   */
   const clearMarkers = useCallback((markerMap: Map<string, mapboxgl.Marker>) => {
     markerMap.forEach(marker => {
-      try {
-        marker.remove()
-      } catch (error) {
-        logger.error("Error removing marker:", error)
-      }
-    })
-    markerMap.clear()
-  }, [])
+      marker.remove();
+    });
+    markerMap.clear();
+  }, []);
 
-  /**
-   * Initialize the map with dynamic loading
-   */
   useEffect(() => {
-    // Prevent re-initialization
-    if (!mapContainerRef.current || mapRef.current) return
+    let isMounted = true;
 
-    // Get and validate Mapbox access token
-    const accessToken = import.meta.env.VITE_MAPBOX_ACCESS_TOKEN
-
-    if (!validateMapboxToken(accessToken)) {
-      const errorMessage = "Mapbox access token not configured. Set VITE_MAPBOX_ACCESS_TOKEN in .env file."
-      setMapError(errorMessage)
-      setIsLoading(false)
-      logger.error("VITE_MAPBOX_ACCESS_TOKEN is not set or invalid. Get your free token at https://www.mapbox.com/")
-
-      if (onError) {
-        onError(new Error(errorMessage))
-      }
-      return
-    }
-
-    // Async initialization function
     async function initializeMap() {
-      if (!mapContainerRef.current || mapRef.current || isCleaningUpRef.current) return
-
       try {
-        // Load Mapbox GL library dynamically
-        const mapbox = await loadMapboxGL()
-        if (!mapbox) {
-          throw new Error("Failed to load Mapbox GL library")
+        if (!isMounted) return;
+        setIsLoading(true);
+        const mapbox = await loadMapboxGL();
+        mapboxRef.current = mapbox;
+
+        if (!mapContainerRef.current) {
+          throw new Error("Map container not found");
         }
 
-        // Store reference for marker creation
-        mapboxRef.current = mapbox
-
-        // Check if component was unmounted during async load
-        if (!mapContainerRef.current || isCleaningUpRef.current) {
-          logger.debug("Component unmounted during Mapbox GL load, aborting initialization")
-          return
+        if (mapRef.current) {
+          mapRef.current.remove();
+          mapRef.current = null;
         }
 
-        // Set the access token
-        mapbox.accessToken = accessToken
+        const token = (mapbox as any).accessToken || process.env.NEXT_PUBLIC_MAPBOX_TOKEN || '';
+        if (!validateMapboxToken(token)) {
+          throw new Error("Invalid or missing Mapbox access token");
+        }
 
-        // Initialize map instance
+        (mapbox as any).accessToken = token;
+
         const map = new mapbox.Map({
           container: mapContainerRef.current,
           style: MAPBOX_STYLE_URLS[mapStyle],
           center: center,
           zoom: zoom,
-          attributionControl: true,
-          preserveDrawingBuffer: true, // Better for screenshots
-          antialias: true // Better rendering quality
-        })
+          attributionControl: false
+        });
 
-        // Add navigation controls (zoom, rotation)
-        const navControl = new mapbox.NavigationControl({
-          showCompass: true,
-          showZoom: true,
-          visualizePitch: true
-        })
-        map.addControl(navControl, "top-right")
+        mapRef.current = map;
 
-        // Add scale control
-        const scaleControl = new mapbox.ScaleControl({
-          maxWidth: 100,
-          unit: 'imperial'
-        })
-        map.addControl(scaleControl, "bottom-left")
+        map.on('load', () => {
+          if (!isMounted) return;
+          setMapReady(true);
+          setIsLoading(false);
+          onMapReady?.(map);
+        });
 
-        // Add fullscreen control
-        const fullscreenControl = new mapbox.FullscreenControl()
-        map.addControl(fullscreenControl, "top-right")
-
-        // Handle map load event
-        map.on("load", () => {
-          if (isCleaningUpRef.current) return
-
-          mapRef.current = map
-          setMapReady(true)
-          setIsLoading(false)
-          logger.debug("Mapbox loaded successfully")
-
-          if (onMapReady) {
-            onMapReady(map)
-          }
-        })
-
-        // Handle map errors
-        map.on("error", (e: any) => {
-          if (isCleaningUpRef.current) return
-
-          logger.error("Mapbox error:", e)
-          const errorMessage = `Failed to load map: ${e.error?.message || "Unknown error"}`
-          setMapError(errorMessage)
-          setIsLoading(false)
-
-          if (onError && e.error) {
-            onError(e.error)
-          }
-        })
-      } catch (error) {
-        const errorMessage = `Failed to initialize map: ${(error as Error).message}`
-        logger.error("Error initializing Mapbox:", error)
-        setMapError(errorMessage)
-        setIsLoading(false)
-
-        if (onError) {
-          onError(error as Error)
-        }
+        map.on('error', (e) => {
+          if (!isMounted) return;
+          const error = e.error || new Error('Map error');
+          setMapError(error.message);
+          onError?.(error);
+        });
+      } catch (err) {
+        if (!isMounted) return;
+        const error = err instanceof Error ? err : new Error(String(err));
+        setMapError(error.message);
+        setIsLoading(false);
+        onError?.(error);
       }
     }
 
-    // Start initialization
-    initializeMap()
+    if (!mapRef.current) {
+      initializeMap();
+    }
 
-    // Cleanup function
     return () => {
-      isCleaningUpRef.current = true
-
-      try {
-        // Clear all markers
-        clearMarkers(vehicleMarkersRef.current)
-        clearMarkers(facilityMarkersRef.current)
-        clearMarkers(cameraMarkersRef.current)
-
-        // Remove map instance
-        if (mapRef.current) {
-          mapRef.current.remove()
-        }
-
-        mapRef.current = null
-        setMapReady(false)
-      } catch (error) {
-        logger.error("Error during map cleanup:", error)
-      } finally {
-        isCleaningUpRef.current = false
+      isMounted = false;
+      isCleaningUpRef.current = true;
+      if (mapRef.current) {
+        mapRef.current.remove();
+        mapRef.current = null;
       }
-    }
-  }, []) // Only run once on mount
+      clearMarkers(vehicleMarkersRef.current);
+      clearMarkers(facilityMarkersRef.current);
+      clearMarkers(cameraMarkersRef.current);
+    };
+  }, [mapStyle, center, zoom, onMapReady, onError, clearMarkers]);
 
-  /**
-   * Update map style when changed
-   */
   useEffect(() => {
-    if (!mapRef.current || !mapReady || isCleaningUpRef.current) return
+    if (!mapReady || !mapRef.current || !mapboxRef.current) return;
 
-    try {
-      mapRef.current.setStyle(MAPBOX_STYLE_URLS[mapStyle])
-    } catch (error) {
-      logger.error("Error changing map style:", error)
-    }
-  }, [mapStyle, mapReady])
+    const mapbox = mapboxRef.current;
+    const map = mapRef.current;
 
-  /**
-   * Update vehicle markers when vehicles or visibility changes
-   */
-  useEffect(() => {
-    if (!mapRef.current || !mapReady || isCleaningUpRef.current || !mapboxRef.current) return
-
-    // Clear existing markers
-    clearMarkers(vehicleMarkersRef.current)
-
-    // Don't add markers if not visible
-    if (!showVehicles || !vehicles || vehicles.length === 0) return
-
-    try {
-      const mapbox = mapboxRef.current
-
-      // Add new markers
+    if (showVehicles) {
       vehicles.forEach(vehicle => {
-        if (!vehicle.location || !vehicle.id) return
+        if (!vehicle.location?.lat || !vehicle.location?.lng) return;
 
-        const el = createVehicleMarkerElement(vehicle)
-        const marker = new mapbox.Marker({ element: el })
-          .setLngLat([vehicle.location?.lng, vehicle.location?.lat])
-          .setPopup(
-            new mapbox.Popup({
-              offset: 25,
-              closeButton: true,
-              closeOnClick: false,
-              maxWidth: "300px"
-            }).setHTML(createVehiclePopupHTML(vehicle))
-          )
-
-        if (mapRef.current) {
-          marker.addTo(mapRef.current)
-          vehicleMarkersRef.current.set(vehicle.id, marker)
+        const existingMarker = vehicleMarkersRef.current.get(vehicle.id);
+        if (existingMarker) {
+          existingMarker.setLngLat([vehicle.location.lng, vehicle.location.lat]);
+          return;
         }
-      })
-    } catch (error) {
-      logger.error("Error updating vehicle markers:", error)
+
+        const el = createVehicleMarkerElement(vehicle);
+        const marker = new mapbox.Marker({ element: el })
+          .setLngLat([vehicle.location.lng, vehicle.location.lat])
+          .setPopup(new mapbox.Popup().setHTML(createVehiclePopupHTML(vehicle)))
+          .addTo(map);
+
+        vehicleMarkersRef.current.set(vehicle.id, marker);
+      });
+
+      vehicleMarkersRef.current.forEach((marker, id) => {
+        if (!vehicles.some(v => v.id === id)) {
+          marker.remove();
+          vehicleMarkersRef.current.delete(id);
+        }
+      });
+    } else {
+      clearMarkers(vehicleMarkersRef.current);
     }
-  }, [vehicles, showVehicles, mapReady, createVehicleMarkerElement, clearMarkers])
+  }, [vehicles, showVehicles, mapReady, clearMarkers]);
 
-  /**
-   * Update facility markers when facilities or visibility changes
-   */
   useEffect(() => {
-    if (!mapRef.current || !mapReady || isCleaningUpRef.current || !mapboxRef.current) return
+    if (!mapReady || !mapRef.current || !mapboxRef.current) return;
 
-    // Clear existing markers
-    clearMarkers(facilityMarkersRef.current)
+    const mapbox = mapboxRef.current;
+    const map = mapRef.current;
 
-    // Don't add markers if not visible
-    if (!showFacilities || !facilities || facilities.length === 0) return
-
-    try {
-      const mapbox = mapboxRef.current
-
-      // Add new markers
+    if (showFacilities) {
       facilities.forEach(facility => {
-        if (!facility.location || !facility.id) return
+        if (!facility.lat || !facility.lng) return;
 
-        const el = createFacilityMarkerElement(facility)
-        const marker = new mapbox.Marker({ element: el })
-          .setLngLat([facility.location?.lng, facility.location?.lat])
-          .setPopup(
-            new mapbox.Popup({
-              offset: 25,
-              closeButton: true,
-              closeOnClick: false,
-              maxWidth: "300px"
-            }).setHTML(createFacilityPopupHTML(facility))
-          )
-
-        if (mapRef.current) {
-          marker.addTo(mapRef.current)
-          facilityMarkersRef.current.set(facility.id, marker)
+        const existingMarker = facilityMarkersRef.current.get(facility.id);
+        if (existingMarker) {
+          existingMarker.setLngLat([facility.lng, facility.lat]);
+          return;
         }
-      })
-    } catch (error) {
-      logger.error("Error updating facility markers:", error)
+
+        const el = createFacilityMarkerElement(facility);
+        const marker = new mapbox.Marker({ element: el })
+          .setLngLat([facility.lng, facility.lat])
+          .setPopup(new mapbox.Popup().setHTML(createFacilityPopupHTML(facility)))
+          .addTo(map);
+
+        facilityMarkersRef.current.set(facility.id, marker);
+      });
+
+      facilityMarkersRef.current.forEach((marker, id) => {
+        if (!facilities.some(f => f.id === id)) {
+          marker.remove();
+          facilityMarkersRef.current.delete(id);
+        }
+      });
+    } else {
+      clearMarkers(facilityMarkersRef.current);
     }
-  }, [facilities, showFacilities, mapReady, createFacilityMarkerElement, clearMarkers])
+  }, [facilities, showFacilities, mapReady, clearMarkers]);
 
-  /**
-   * Update camera markers when cameras or visibility changes
-   */
   useEffect(() => {
-    if (!mapRef.current || !mapReady || isCleaningUpRef.current || !mapboxRef.current) return
+    if (!mapReady || !mapRef.current || !mapboxRef.current) return;
 
-    // Clear existing markers
-    clearMarkers(cameraMarkersRef.current)
+    const mapbox = mapboxRef.current;
+    const map = mapRef.current;
 
-    // Don't add markers if not visible
-    if (!showCameras || !cameras || cameras.length === 0) return
-
-    try {
-      const mapbox = mapboxRef.current
-
-      // Add new markers
+    if (showCameras) {
       cameras.forEach(camera => {
-        if (!camera.latitude || !camera.longitude || !camera.id) return
+        if (!camera.latitude || !camera.longitude) return;
 
-        const el = createCameraMarkerElement(camera)
+        const existingMarker = cameraMarkersRef.current.get(camera.id);
+        if (existingMarker) {
+          existingMarker.setLngLat([camera.longitude, camera.latitude]);
+          return;
+        }
+
+        const el = createCameraMarkerElement(camera);
         const marker = new mapbox.Marker({ element: el })
           .setLngLat([camera.longitude, camera.latitude])
-          .setPopup(
-            new mapbox.Popup({
-              offset: 25,
-              closeButton: true,
-              closeOnClick: false,
-              maxWidth: "350px"
-            }).setHTML(createCameraPopupHTML(camera))
-          )
+          .setPopup(new mapbox.Popup().setHTML(createCameraPopupHTML(camera)))
+          .addTo(map);
 
-        if (mapRef.current) {
-          marker.addTo(mapRef.current)
-          cameraMarkersRef.current.set(camera.id, marker)
+        cameraMarkersRef.current.set(camera.id, marker);
+      });
+
+      cameraMarkersRef.current.forEach((marker, id) => {
+        if (!cameras.some(c => c.id === id)) {
+          marker.remove();
+          cameraMarkersRef.current.delete(id);
         }
-      })
-    } catch (error) {
-      logger.error("Error updating camera markers:", error)
+      });
+    } else {
+      clearMarkers(cameraMarkersRef.current);
     }
-  }, [cameras, showCameras, mapReady, createCameraMarkerElement, clearMarkers])
+  }, [cameras, showCameras, mapReady, clearMarkers]);
 
-  /**
-   * Fit map bounds to show all visible markers
-   */
   useEffect(() => {
-    if (!mapRef.current || !mapReady || isCleaningUpRef.current || !mapboxRef.current) return
+    if (!mapReady || !mapRef.current) return;
+    const map = mapRef.current;
+    map.setStyle(MAPBOX_STYLE_URLS[mapStyle]);
+  }, [mapStyle, mapReady]);
 
-    const coordinates: [number, number][] = []
-
-    // Collect coordinates from visible markers
-    if (showVehicles && vehicles) {
-      vehicles.forEach(v => {
-        if (v.location) {
-          coordinates.push([v.location?.lng, v.location?.lat])
-        }
-      })
-    }
-
-    if (showFacilities && facilities) {
-      facilities.forEach(f => {
-        if (f.location) {
-          coordinates.push([f.location?.lng, f.location?.lat])
-        }
-      })
-    }
-
-    if (showCameras && cameras) {
-      cameras.forEach(c => {
-        if (c.latitude && c.longitude) {
-          coordinates.push([c.longitude, c.latitude])
-        }
-      })
-    }
-
-    // Fit bounds if we have coordinates
-    if (coordinates.length > 0) {
-      try {
-        const mapbox = mapboxRef.current
-        const bounds = coordinates.reduce((bounds, coord) => {
-          return bounds.extend(coord)
-        }, new mapbox.LngLatBounds(coordinates[0], coordinates[0]))
-
-        mapRef.current.fitBounds(bounds, {
-          padding: { top: 50, bottom: 50, left: 50, right: 50 },
-          maxZoom: 15,
-          duration: 1000 // Smooth animation
-        })
-      } catch (error) {
-        logger.error("Error fitting bounds:", error)
-      }
-    }
-  }, [vehicles, facilities, cameras, showVehicles, showFacilities, showCameras, mapReady])
-
-  /**
-   * Render error state
-   */
-  if (mapError) {
-    return (
-      <div
-        className={`w-full h-full flex items-center justify-center bg-muted/30 ${className}`}
-        style={{ minHeight: '500px' }}
-        role="alert"
-        aria-live="assertive"
-      >
-        <div className="text-center p-6 max-w-md">
-          <div className="mb-4">
-            <svg
-              className="mx-auto h-12 w-12 text-destructive"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-              aria-hidden="true"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
-              />
-            </svg>
-          </div>
-          <p className="text-destructive font-semibold mb-2">Map Error</p>
-          <p className="text-sm text-muted-foreground mb-4">{mapError}</p>
-          <div className="text-xs text-muted-foreground bg-muted p-4 rounded-lg text-left">
-            <p className="font-semibold mb-2">To fix this:</p>
-            <ol className="list-decimal list-inside space-y-1.5">
-              <li>
-                Sign up for free at{" "}
-                <a
-                  href="https://www.mapbox.com/"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-primary underline hover:no-underline"
-                >
-                  mapbox.com
-                </a>
-              </li>
-              <li>Get your access token from your account</li>
-              <li>
-                Add to <code className="bg-background px-1.5 py-0.5 rounded text-xs font-mono">.env</code> file:
-                <br />
-                <code className="bg-background px-1.5 py-0.5 rounded text-xs font-mono mt-1 inline-block">
-                  VITE_MAPBOX_ACCESS_TOKEN=your_token_here
-                </code>
-              </li>
-              <li>Restart the development server</li>
-            </ol>
-          </div>
-        </div>
-      </div>
-    )
-  }
-
-  /**
-   * Render loading state
-   */
-  if (isLoading) {
-    return (
-      <div
-        className={`w-full h-full flex items-center justify-center bg-muted/20 ${className}`}
-        style={{ minHeight: '500px' }}
-        role="status"
-        aria-live="polite"
-      >
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4" aria-hidden="true"></div>
-          <p className="text-sm text-muted-foreground">Loading Mapbox...</p>
-          <p className="text-xs text-muted-foreground/70 mt-1">Initializing map engine</p>
-        </div>
-      </div>
-    )
-  }
-
-  /**
-   * Render map
-   */
   return (
     <div
       ref={mapContainerRef}
-      className={`w-full h-full ${className}`}
-      style={{ minHeight: '500px' }}
-      role="region"
-      aria-label="Interactive map"
-    />
-  )
+      className={`map-container ${className}`.trim()}
+      style={{ width: '100%', height: '100%' }}
+    >
+      {isLoading && (
+        <div className="absolute inset-0 flex items-center justify-center bg-gray-200 bg-opacity-75 z-50">
+          <div className="text-lg font-medium text-gray-700">Loading map...</div>
+        </div>
+      )}
+      {mapError && (
+        <div className="absolute inset-0 flex flex-col items-center justify-center bg-red-50 bg-opacity-75 z-50 p-4 text-center">
+          <div className="text-lg font-medium text-red-800 mb-2">Map Error</div>
+          <div className="text-sm text-red-600 max-w-md">{mapError}</div>
+        </div>
+      )}
+    </div>
+  );
 }
-
-/**
- * Export default for convenience
- */
-export default MapboxMap

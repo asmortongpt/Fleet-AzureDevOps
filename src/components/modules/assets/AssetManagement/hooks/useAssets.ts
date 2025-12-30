@@ -3,6 +3,7 @@ import { toast } from "sonner"
 
 import { apiClient } from "@/lib/api-client"
 import logger from '@/utils/logger';
+
 export interface Asset {
   id: string
   asset_tag: string
@@ -27,6 +28,10 @@ export interface Asset {
   qr_code?: string
 }
 
+interface ApiResponse<T> {
+  data?: T;
+}
+
 export function useAssets() {
   const [assets, setAssets] = useState<Asset[]>([])
   const [loading, setLoading] = useState(true)
@@ -38,8 +43,8 @@ export function useAssets() {
   const fetchAssets = async () => {
     try {
       setLoading(true)
-      const response = await apiClient.get("/api/assets")
-      if (response.data) {
+      const response: ApiResponse<Asset[]> = await apiClient.get("/api/assets")
+      if (response?.data) {
         setAssets(response.data)
       }
     } catch (error) {
@@ -52,8 +57,8 @@ export function useAssets() {
 
   const addAsset = async (asset: Partial<Asset>) => {
     try {
-      const response = await apiClient.post("/api/assets", asset)
-      if (response.data) {
+      const response: ApiResponse<Asset> = await apiClient.post("/api/assets", asset)
+      if (response?.data) {
         setAssets((prev) => [...prev, response.data])
         toast.success("Asset added successfully")
         return response.data
@@ -67,8 +72,8 @@ export function useAssets() {
 
   const updateAsset = async (id: string, updates: Partial<Asset>) => {
     try {
-      const response = await apiClient.put(`/api/assets/${id}`, updates)
-      if (response.data) {
+      const response: ApiResponse<Asset> = await apiClient.put(`/api/assets/${id}`, updates)
+      if (response?.data) {
         setAssets((prev) => prev.map((a) => (a.id === id ? { ...a, ...updates } : a)))
         toast.success("Asset updated successfully")
         return response.data

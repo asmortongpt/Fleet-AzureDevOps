@@ -20,10 +20,6 @@ import { useFacilities } from "@/hooks/use-api"
 import { useFleetData } from "@/hooks/use-fleet-data"
 import { Vehicle, GISFacility } from "@/lib/types"
 
-interface GISCommandCenterProps {
-  data: ReturnType<typeof useFleetData>
-}
-
 export function GISCommandCenter() {
   const data = useFleetData()
   const vehicles = data.vehicles || []
@@ -59,19 +55,19 @@ export function GISCommandCenter() {
 
   const filteredVehicles = useMemo(() => {
     if (selectedRegion === "all") return vehicles
-    return vehicles.filter(v => v.region === selectedRegion)
+    return vehicles.filter((v: Vehicle) => v.region === selectedRegion)
   }, [vehicles, selectedRegion])
 
   const filteredFacilities = useMemo(() => {
     if (selectedRegion === "all") return facilities
-    return facilities.filter(f => f.region === selectedRegion)
+    return facilities.filter((f: GISFacility) => f.region === selectedRegion)
   }, [facilities, selectedRegion])
 
   const metrics = useMemo(() => {
-    const activeVehicles = filteredVehicles.filter(v => v.status === "active")
-    const operationalFacilities = filteredFacilities.filter(f => f.status === "operational")
-    const emergencyVehicles = filteredVehicles.filter(v => v.status === "emergency")
-    const serviceVehicles = filteredVehicles.filter(v => v.status === "service")
+    const activeVehicles = filteredVehicles.filter((v: Vehicle) => v.status === "active")
+    const operationalFacilities = filteredFacilities.filter((f: GISFacility) => f.status === "operational")
+    const emergencyVehicles = filteredVehicles.filter((v: Vehicle) => v.status === "emergency")
+    const serviceVehicles = filteredVehicles.filter((v: Vehicle) => v.status === "service")
 
     return {
       totalVehicles: filteredVehicles.length,
@@ -82,7 +78,7 @@ export function GISCommandCenter() {
     }
   }, [filteredVehicles, filteredFacilities])
 
-  const getStatusIcon = (status: Vehicle["status"]) => {
+  const _getStatusIcon = (status: Vehicle["status"]) => {
     switch (status) {
       case "active":
         return <CheckCircle className="w-4 h-4" weight="fill" />
@@ -93,7 +89,7 @@ export function GISCommandCenter() {
     }
   }
 
-  const getStatusColor = (status: Vehicle["status"]) => {
+  const _getStatusColor = (status: Vehicle["status"]) => {
     const colors = {
       active: "text-success",
       idle: "text-muted-foreground",
@@ -206,21 +202,21 @@ export function GISCommandCenter() {
               <div className="flex gap-2">
                 <Button 
                   size="sm" 
-                  variant={(layerVisibility || { vehicles: true, facilities: true, routes: true }).vehicles ? "default" : "outline"}
+                  variant={layerVisibility?.vehicles ? "default" : "outline"}
                   onClick={() => toggleLayer("vehicles")}
                 >
                   Vehicles
                 </Button>
                 <Button 
                   size="sm" 
-                  variant={(layerVisibility || { vehicles: true, facilities: true, routes: true }).facilities ? "default" : "outline"}
+                  variant={layerVisibility?.facilities ? "default" : "outline"}
                   onClick={() => toggleLayer("facilities")}
                 >
                   Facilities
                 </Button>
                 <Button 
                   size="sm" 
-                  variant={(layerVisibility || { vehicles: true, facilities: true, routes: true }).routes ? "default" : "outline"}
+                  variant={layerVisibility?.routes ? "default" : "outline"}
                   onClick={() => toggleLayer("routes")}
                 >
                   Routes
@@ -238,11 +234,11 @@ export function GISCommandCenter() {
               <TabsContent value={activeTab || "map"} className="mt-4">
                 <div className="aspect-video bg-muted rounded-lg overflow-hidden">
                   <UniversalMap
-                    vehicles={filteredVehicles}
-                    facilities={filteredFacilities}
-                    showVehicles={(layerVisibility || { vehicles: true, facilities: true, routes: true }).vehicles}
-                    showFacilities={(layerVisibility || { vehicles: true, facilities: true, routes: true }).facilities}
-                    showRoutes={(layerVisibility || { vehicles: true, facilities: true, routes: true }).routes}
+                    vehicles={filteredVehicles as Vehicle[]}
+                    facilities={filteredFacilities as GISFacility[]}
+                    showVehicles={layerVisibility?.vehicles ?? true}
+                    showFacilities={layerVisibility?.facilities ?? true}
+                    showRoutes={layerVisibility?.routes ?? true}
                     mapStyle={
                       activeTab === "satellite" ? "satellite_road_labels" :
                       activeTab === "terrain" ? "grayscale_dark" :
@@ -262,7 +258,7 @@ export function GISCommandCenter() {
                 </div>
                 <div className="flex items-center gap-2">
                   <Circle className="w-3 h-3 text-muted-foreground" weight="fill" />
-                  <span className="text-sm">Idle ({filteredVehicles.filter(v => v.status === "idle").length})</span>
+                  <span className="text-sm">Idle ({filteredVehicles.filter((v: Vehicle) => v.status === "idle").length})</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <Circle className="w-3 h-3 text-destructive" weight="fill" />
@@ -280,7 +276,7 @@ export function GISCommandCenter() {
             </CardHeader>
             <CardContent>
               <div className="space-y-3">
-                {filteredFacilities.slice(0, 6).map(facility => (
+                {filteredFacilities.slice(0, 6).map((facility: GISFacility) => (
                   <div key={facility.id} className="flex items-start gap-3">
                     <div className="p-2 rounded-lg bg-primary/10 text-primary">
                       {getFacilityIcon(facility.type)}

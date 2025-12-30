@@ -3,7 +3,7 @@ import {
   Clock, Fuel, Gauge, AlertTriangle, CheckCircle,
   Flag, XCircle
 } from 'lucide-react';
-import React, { useState } from 'react';
+import { useState } from 'react';
 
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -30,7 +30,7 @@ interface RouteDetailViewProps {
 }
 
 export function RouteDetailView({ route, onClose }: RouteDetailViewProps) {
-  const { push } = useDrilldown();
+  const { push: _push } = useDrilldown();
   const [activeTab, setActiveTab] = useState('playback');
   const [isPlaying, setIsPlaying] = useState(false);
   const [playbackPosition, setPlaybackPosition] = useState([0]);
@@ -64,7 +64,7 @@ export function RouteDetailView({ route, onClose }: RouteDetailViewProps) {
     { time: '12:15', type: 'geofence', severity: 'info', description: 'Entered restricted zone', location: 'Downtown Construction Area' }
   ];
 
-  const telemetryData = [
+  const _telemetryData = [
     { time: '08:00', speed: 0, fuel: 95, rpm: 0 },
     { time: '08:15', speed: 35, fuel: 94, rpm: 1800 },
     { time: '08:30', speed: 55, fuel: 92, rpm: 2200 },
@@ -196,7 +196,7 @@ export function RouteDetailView({ route, onClose }: RouteDetailViewProps) {
                     <MapPin className="w-12 h-12 text-gray-400 mx-auto mb-2" />
                     <p className="text-sm text-gray-500">Interactive map would display here</p>
                     <p className="text-xs text-gray-400 mt-1">
-                      Route from {stops[0].name} to {stops[stops.length - 1].name}
+                      Route from {stops[0]?.name ?? 'Start'} to {stops[stops.length - 1]?.name ?? 'End'}
                     </p>
                   </div>
                 </div>
@@ -328,7 +328,7 @@ export function RouteDetailView({ route, onClose }: RouteDetailViewProps) {
                               </div>
                               <div>
                                 <span className="text-muted-foreground">Duration:</span>
-                                <p className="font-medium">{stop.duration}</p>
+                                <p className="font-medium">{stop.duration ?? 'N/A'}</p>
                               </div>
                             </>
                           )}
@@ -349,30 +349,22 @@ export function RouteDetailView({ route, onClose }: RouteDetailViewProps) {
                   <AlertTriangle className="w-5 h-5" />
                   Route Events
                 </CardTitle>
-                <CardDescription>{events.length} events logged during this route</CardDescription>
+                <CardDescription>{events.length} events recorded during this route</CardDescription>
               </CardHeader>
               <CardContent>
-                <div className="space-y-3">
+                <div className="space-y-4">
                   {events.map((event, index) => (
-                    <div key={index} className="border rounded-lg p-3">
-                      <div className="flex items-start justify-between mb-2">
-                        <div className="flex-1">
-                          <div className="flex items-center gap-2 mb-1">
-                            <p className="font-medium text-sm capitalize">{event.type.replace('-', ' ')}</p>
-                            {getEventBadge(event.severity)}
-                          </div>
-                          <p className="text-sm text-muted-foreground mb-1">{event.description}</p>
-                          <div className="flex items-center gap-4 text-xs text-muted-foreground">
-                            <span className="flex items-center gap-1">
-                              <Clock className="w-3 h-3" />
-                              {event.time}
-                            </span>
-                            <span className="flex items-center gap-1">
-                              <MapPin className="w-3 h-3" />
-                              {event.location}
-                            </span>
-                          </div>
+                    <div key={index} className="border-b border-gray-200 dark:border-gray-700 pb-3 last:border-b-0">
+                      <div className="flex items-start justify-between mb-1">
+                        <div>
+                          <p className="font-semibold capitalize">{event.type.replace('-', ' ')}</p>
+                          <p className="text-sm text-muted-foreground">{event.description}</p>
                         </div>
+                        {getEventBadge(event.severity)}
+                      </div>
+                      <div className="flex items-center gap-4 text-xs text-muted-foreground">
+                        <span>{event.time}</span>
+                        <span>{event.location}</span>
                       </div>
                     </div>
                   ))}
@@ -383,60 +375,40 @@ export function RouteDetailView({ route, onClose }: RouteDetailViewProps) {
 
           {/* Analytics Tab */}
           <TabsContent value="analytics">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-              <Card>
-                <CardHeader>
-                  <CardTitle className="text-sm">Speed Analysis</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-2 text-sm">
-                    <div className="flex justify-between">
-                      <span className="text-muted-foreground">Average Speed:</span>
-                      <span className="font-medium">{routeOverview.avgSpeed} mph</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-muted-foreground">Max Speed:</span>
-                      <span className="font-medium">{routeOverview.maxSpeed} mph</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-muted-foreground">Speed Violations:</span>
-                      <span className="font-medium text-yellow-600">1</span>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardHeader>
-                  <CardTitle className="text-sm">Fuel Efficiency</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-2 text-sm">
-                    <div className="flex justify-between">
-                      <span className="text-muted-foreground">Fuel Used:</span>
-                      <span className="font-medium">{routeOverview.fuelUsed} gal</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-muted-foreground">MPG:</span>
-                      <span className="font-medium">{routeOverview.fuelEfficiency}</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-muted-foreground">vs Fleet Avg:</span>
-                      <span className="font-medium text-green-600">+2.3 MPG</span>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
-
-            {/* Telemetry Graph Placeholder */}
             <Card>
               <CardHeader>
-                <CardTitle>Telemetry Over Time</CardTitle>
+                <CardTitle className="flex items-center gap-2">
+                  <Gauge className="w-5 h-5" />
+                  Performance Analytics
+                </CardTitle>
+                <CardDescription>Route performance metrics and insights</CardDescription>
               </CardHeader>
               <CardContent>
-                <div className="h-64 bg-gray-100 dark:bg-gray-800 rounded-lg flex items-center justify-center">
-                  <p className="text-sm text-muted-foreground">Speed/Fuel/RPM graph would display here</p>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="space-y-4">
+                    <div className="bg-gray-100 dark:bg-gray-800 p-4 rounded-lg">
+                      <p className="text-sm font-medium mb-1">Fuel Efficiency</p>
+                      <p className="text-2xl font-bold">{routeOverview.fuelEfficiency} MPG</p>
+                      <p className="text-xs text-muted-foreground mt-1">Industry avg: 15.5 MPG</p>
+                    </div>
+                    <div className="bg-gray-100 dark:bg-gray-800 p-4 rounded-lg">
+                      <p className="text-sm font-medium mb-1">Idle Time Ratio</p>
+                      <p className="text-2xl font-bold">12%</p>
+                      <p className="text-xs text-muted-foreground mt-1">Target: &lt;10%</p>
+                    </div>
+                    <div className="bg-gray-100 dark:bg-gray-800 p-4 rounded-lg">
+                      <p className="text-sm font-medium mb-1">Speed Compliance</p>
+                      <p className="text-2xl font-bold">94%</p>
+                      <p className="text-xs text-muted-foreground mt-1">1 minor violation recorded</p>
+                    </div>
+                  </div>
+                  <div className="bg-gray-200 dark:bg-gray-700 rounded-lg flex items-center justify-center p-4">
+                    <div className="text-center">
+                      <Gauge className="w-12 h-12 text-gray-400 mx-auto mb-2" />
+                      <p className="text-sm text-gray-500">Performance charts would display here</p>
+                      <p className="text-xs text-gray-400 mt-1">Speed, fuel consumption, and RPM over time</p>
+                    </div>
+                  </div>
                 </div>
               </CardContent>
             </Card>
@@ -447,30 +419,23 @@ export function RouteDetailView({ route, onClose }: RouteDetailViewProps) {
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
-                  <MapPin className="w-5 h-5" />
+                  <Navigation className="w-5 h-5" />
                   Geofence Interactions
                 </CardTitle>
-                <CardDescription>{geofences.length} geofences interacted with</CardDescription>
+                <CardDescription>Route interactions with defined geofences</CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="space-y-3">
-                  {geofences.map((geofence) => (
-                    <div key={geofence.id} className="border rounded-lg p-3">
-                      <div className="flex items-center justify-between">
-                        <div className="flex-1">
-                          <div className="flex items-center gap-2 mb-1">
-                            <p className="font-medium">{geofence.name}</p>
-                            <Badge
-                              variant={geofence.type === 'restricted' ? 'destructive' : 'secondary'}
-                              className="text-xs capitalize"
-                            >
-                              {geofence.type}
-                            </Badge>
-                          </div>
-                          <p className="text-sm text-muted-foreground">
-                            {geofence.interactions} interaction{geofence.interactions !== 1 ? 's' : ''}
-                          </p>
+                  {geofences.map(geofence => (
+                    <div key={geofence.id} className="border border-gray-200 dark:border-gray-700 rounded-md p-3">
+                      <div className="flex items-start justify-between mb-1">
+                        <div>
+                          <p className="font-semibold">{geofence.name}</p>
+                          <p className="text-sm text-muted-foreground capitalize">{geofence.type} zone</p>
                         </div>
+                        <Badge variant={geofence.type === 'restricted' ? 'destructive' : 'secondary'}>
+                          {geofence.interactions} {geofence.interactions === 1 ? 'entry' : 'entries'}
+                        </Badge>
                       </div>
                     </div>
                   ))}

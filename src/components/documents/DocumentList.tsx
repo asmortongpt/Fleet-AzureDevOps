@@ -91,8 +91,11 @@ export function DocumentList({
     return <EmptyState />;
   }
 
-  const Row = ({ index, style }: any) => {
+  const Row = ({ index, style }: { index: number; style: React.CSSProperties }) => {
     const document = documents[index];
+    if (!document) {
+      return null;
+    }
     const isSelected = selectedIds.has(document.id);
 
     return (

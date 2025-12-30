@@ -26,7 +26,6 @@ import {
 import { Textarea } from "@/components/ui/textarea"
 import { PurchaseOrder } from "@/lib/types"
 
-
 interface POItem {
   description: string
   partNumber: string
@@ -45,7 +44,7 @@ interface NewPOForm {
 export function PurchaseOrders() {
   const [orders, setOrders] = useState<PurchaseOrder[]>([])
   const [searchTerm, setSearchTerm] = useState("")
-  const [filterStatus, setFilterStatus] = useState<string>("all")
+  const [_filterStatus, _setFilterStatus] = useState<string>("all")
   const [selectedOrder, setSelectedOrder] = useState<PurchaseOrder | null>(null)
   const [isDetailsDialogOpen, setIsDetailsDialogOpen] = useState(false)
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false)
@@ -64,7 +63,7 @@ export function PurchaseOrders() {
     const matchesSearch =
       order.poNumber.toLowerCase().includes(searchTerm.toLowerCase()) ||
       order.vendorName.toLowerCase().includes(searchTerm.toLowerCase())
-    const matchesStatus = filterStatus === "all" || order.status === filterStatus
+    const matchesStatus = _filterStatus === "all" || order.status === _filterStatus
 
     return matchesSearch && matchesStatus
   })
@@ -89,13 +88,14 @@ export function PurchaseOrders() {
       vendorName: newPO.vendorName,
       date: new Date().toISOString(),
       expectedDelivery: newPO.expectedDelivery,
-      items: newPO.items.filter(item => item.description && item.quantity > 0),
+      items: newPO.items.filter(item => item.description && item.quantity > 0) as PurchaseOrder['items'],
       total,
       status: "pending-approval",
       notes: newPO.notes,
-      shippingAddress: newPO.shippingAddress,
+      shippingAddress: newPO.shippingAddress || "",
       requestedBy: "Current User",
-      department: "Fleet Maintenance"
+      department: "Fleet Maintenance",
+      deliveryDate: ""
     }
 
     setOrders([...(orders || []), purchaseOrder])
@@ -398,9 +398,9 @@ export function PurchaseOrders() {
                     <thead className="bg-muted">
                       <tr>
                         <th className="text-left p-2 font-medium">Item</th>
-                        <th className="text-left p-2 font-medium">Part Number</th>
+                        <th className="text-left p-2 font-medium">Part #</th>
                         <th className="text-right p-2 font-medium">Qty</th>
-                        <th className="text-right p-2 font-medium">Unit Price</th>
+                        <th className="text-right p-2 font-medium">Price</th>
                         <th className="text-right p-2 font-medium">Total</th>
                       </tr>
                     </thead>
@@ -408,160 +408,195 @@ export function PurchaseOrders() {
                       {selectedOrder.items.map((item, index) => (
                         <tr key={index} className="border-t">
                           <td className="p-2">{item.description}</td>
-                          <td className="p-2 font-mono text-xs">{item.partNumber}</td>
+                          <td className="p-2 text-muted-foreground">{item.partNumber || '-'}</td>
                           <td className="p-2 text-right">{item.quantity}</td>
                           <td className="p-2 text-right">${item.unitPrice.toFixed(2)}</td>
                           <td className="p-2 text-right font-medium">${(item.quantity * item.unitPrice).toFixed(2)}</td>
                         </tr>
                       ))}
-                    </tbody>
-                    <tfoot className="bg-muted border-t-2">
-                      <tr>
-                        <td colSpan={4} className="p-2 text-right font-semibold">Total:</td>
-                        <td className="p-2 text-right font-bold">${selectedOrder.total.toLocaleString()}</td>
+                      <tr className="border-t font-medium">
+                        <td className="p-2" colSpan={4}>Total</td>
+                        <td className="p-2 text-right">${selectedOrder.total.toFixed(2)}</td>
                       </tr>
-                    </tfoot>
+                    </tbody>
                   </table>
                 </div>
               </div>
 
-              {selectedOrder.requestedBy && (
+              <div className="grid grid-cols-2 gap-6">
                 <div>
-                  <h3 className="text-sm font-semibold mb-3">Requestor Information</h3>
-                  <div className="text-sm">
-                    <p><span className="text-muted-foreground">Requested by:</span> {selectedOrder.requestedBy}</p>
-                    {selectedOrder.department && (
-                      <p><span className="text-muted-foreground">Department:</span> {selectedOrder.department}</p>
-                    )}
-                    {selectedOrder.approvedBy && (
-                      <p><span className="text-muted-foreground">Approved by:</span> {selectedOrder.approvedBy}</p>
-                    )}
+                  <h3 className="text-sm font-semibold mb-3">Request Information</h3>
+                  <div className="space-y-2 text-sm">
+                    <div>
+                      <span className="text-muted-foreground">Requested By:</span>
+                      <p className="font-medium">{selectedOrder.requestedBy || 'N/A'}</p>
+                    </div>
+                    <div>
+                      <span className="text-muted-foreground">Department:</span>
+                      <p className="font-medium">{selectedOrder.department || 'N/A'}</p>
+                    </div>
                   </div>
                 </div>
-              )}
+
+                <div>
+                  <h3 className="text-sm font-semibold mb-3">Shipping Information</h3>
+                  <div className="space-y-2 text-sm">
+                    <div>
+                      <span className="text-muted-foreground">Shipping Address:</span>
+                      <p className="font-medium">{selectedOrder.shippingAddress || 'N/A'}</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
 
               {selectedOrder.notes && (
                 <div>
                   <h3 className="text-sm font-semibold mb-3">Notes</h3>
-                  <p className="text-sm text-muted-foreground bg-muted p-3 rounded-md">
-                    {selectedOrder.notes}
-                  </p>
+                  <p className="text-sm whitespace-pre-line text-muted-foreground">{selectedOrder.notes}</p>
                 </div>
               )}
 
-              {selectedOrder.shippingAddress && (
-                <div>
-                  <h3 className="text-sm font-semibold mb-3">Shipping Address</h3>
-                  <p className="text-sm whitespace-pre-line">{selectedOrder.shippingAddress}</p>
-                </div>
-              )}
+              <div className="flex justify-end gap-2">
+                {selectedOrder.status === 'pending-approval' && (
+                  <>
+                    <Button variant="outline" onClick={() => setIsRejectDialogOpen(true)}>
+                      Reject
+                    </Button>
+                    <Button onClick={handleApproveOrder}>
+                      Approve Order
+                    </Button>
+                  </>
+                )}
+                {selectedOrder.status === 'approved' && (
+                  <Button onClick={handlePlaceOrder}>
+                    Place Order with Vendor
+                  </Button>
+                )}
+              </div>
             </div>
           )}
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={isRejectDialogOpen} onOpenChange={setIsRejectDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Reject Purchase Order</DialogTitle>
+            <DialogDescription>
+              Provide a reason for rejecting PO #{selectedOrder?.poNumber}
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="rejectionReason">Rejection Reason</Label>
+              <Textarea
+                id="rejectionReason"
+                placeholder="Explain why this purchase order is being rejected..."
+                value={rejectionReason}
+                onChange={e => setRejectionReason(e.target.value)}
+              />
+            </div>
+          </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setIsDetailsDialogOpen(false)}>
-              Close
+            <Button variant="outline" onClick={() => setIsRejectDialogOpen(false)}>
+              Cancel
             </Button>
-            {selectedOrder && selectedOrder.status === "pending-approval" && (
-              <>
-                <Button
-                  variant="outline"
-                  onClick={() => {
-                    setIsRejectDialogOpen(true)
-                  }}
-                >
-                  Reject
-                </Button>
-                <Button onClick={handleApproveOrder}>Approve Order</Button>
-              </>
-            )}
-            {selectedOrder && selectedOrder.status === "approved" && (
-              <Button onClick={handlePlaceOrder}>Place Order</Button>
-            )}
+            <Button variant="destructive" onClick={handleRejectOrder}>
+              Confirm Rejection
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
 
-      {/* Create Purchase Order Dialog */}
       <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
-        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+        <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Create New Purchase Order</DialogTitle>
             <DialogDescription>
-              Fill in the details below to create a new purchase order
+              Enter details for a new purchase order request
             </DialogDescription>
           </DialogHeader>
-          <div className="space-y-6 py-4">
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="vendor">Vendor Name *</Label>
-                <Input
-                  id="vendor"
-                  placeholder="e.g., AutoZone, NAPA, etc."
-                  value={newPO.vendorName}
-                  onChange={(e) => setNewPO({ ...newPO, vendorName: e.target.value })}
-                />
+          <div className="space-y-6">
+            <div className="space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="vendorName">Vendor Name</Label>
+                  <Input
+                    id="vendorName"
+                    placeholder="Enter vendor name"
+                    value={newPO.vendorName}
+                    onChange={e => setNewPO({ ...newPO, vendorName: e.target.value })}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="expectedDelivery">Expected Delivery</Label>
+                  <Input
+                    id="expectedDelivery"
+                    type="date"
+                    value={newPO.expectedDelivery}
+                    onChange={e => setNewPO({ ...newPO, expectedDelivery: e.target.value })}
+                  />
+                </div>
               </div>
+
               <div className="space-y-2">
-                <Label htmlFor="delivery-date">Expected Delivery</Label>
-                <Input
-                  id="delivery-date"
-                  type="date"
-                  value={newPO.expectedDelivery}
-                  onChange={(e) => setNewPO({ ...newPO, expectedDelivery: e.target.value })}
+                <Label>Shipping Address</Label>
+                <Textarea
+                  placeholder="Enter shipping address for this order"
+                  value={newPO.shippingAddress}
+                  onChange={e => setNewPO({ ...newPO, shippingAddress: e.target.value })}
                 />
               </div>
             </div>
 
-            <div className="space-y-3">
-              <div className="flex items-center justify-between">
-                <Label>Order Items *</Label>
-                <Button variant="outline" size="sm" onClick={addItem}>
-                  <Plus className="w-4 h-4 mr-1" />
-                  Add Item
-                </Button>
-              </div>
-              <div className="border rounded-lg p-4 space-y-3">
+            <div>
+              <h3 className="text-sm font-semibold mb-3">Items</h3>
+              <div className="space-y-4">
                 {newPO.items.map((item, index) => (
-                  <div key={index} className="grid grid-cols-12 gap-3 items-end">
-                    <div className="col-span-4 space-y-2">
-                      <Label className="text-xs">Description</Label>
-                      <Input
-                        placeholder="Item description"
-                        value={item.description}
-                        onChange={(e) => updateItem(index, 'description', e.target.value)}
-                      />
-                    </div>
-                    <div className="col-span-3 space-y-2">
-                      <Label className="text-xs">Part Number</Label>
-                      <Input
-                        placeholder="Part #"
-                        value={item.partNumber}
-                        onChange={(e) => updateItem(index, 'partNumber', e.target.value)}
-                      />
-                    </div>
-                    <div className="col-span-2 space-y-2">
-                      <Label className="text-xs">Quantity</Label>
-                      <Input
-                        type="number"
-                        min="1"
-                        value={item.quantity}
-                        onChange={(e) => updateItem(index, 'quantity', parseInt(e.target.value) || 1)}
-                      />
-                    </div>
-                    <div className="col-span-2 space-y-2">
-                      <Label className="text-xs">Unit Price</Label>
-                      <Input
-                        type="number"
-                        min="0"
-                        step="0.01"
-                        value={item.unitPrice}
-                        onChange={(e) => updateItem(index, 'unitPrice', parseFloat(e.target.value) || 0)}
-                      />
-                    </div>
-                    <div className="col-span-1">
+                  <div key={index} className="border rounded-md p-3 space-y-3">
+                    <div className="grid grid-cols-[2fr_1fr_1fr_1fr_0.5fr] gap-3 items-center">
+                      <div className="space-y-2">
+                        <Label htmlFor={`description-${index}`}>Description</Label>
+                        <Input
+                          id={`description-${index}`}
+                          placeholder="Item description"
+                          value={item.description}
+                          onChange={e => updateItem(index, 'description', e.target.value)}
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor={`partNumber-${index}`}>Part #</Label>
+                        <Input
+                          id={`partNumber-${index}`}
+                          placeholder="Part number"
+                          value={item.partNumber}
+                          onChange={e => updateItem(index, 'partNumber', e.target.value)}
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor={`quantity-${index}`}>Qty</Label>
+                        <Input
+                          id={`quantity-${index}`}
+                          type="number"
+                          min="1"
+                          value={item.quantity}
+                          onChange={e => updateItem(index, 'quantity', parseInt(e.target.value) || 1)}
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor={`unitPrice-${index}`}>Price</Label>
+                        <Input
+                          id={`unitPrice-${index}`}
+                          type="number"
+                          step="0.01"
+                          min="0"
+                          value={item.unitPrice}
+                          onChange={e => updateItem(index, 'unitPrice', parseFloat(e.target.value) || 0)}
+                        />
+                      </div>
                       <Button
                         variant="ghost"
-                        size="sm"
+                        size="icon"
                         onClick={() => removeItem(index)}
                         disabled={newPO.items.length === 1}
                       >
@@ -570,78 +605,32 @@ export function PurchaseOrders() {
                     </div>
                   </div>
                 ))}
-                <div className="pt-3 border-t">
-                  <div className="flex justify-between items-center">
-                    <span className="font-semibold">Total:</span>
-                    <span className="text-lg font-bold">
-                      ${newPO.items.reduce((sum, item) => sum + (item.quantity * item.unitPrice), 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                    </span>
-                  </div>
-                </div>
+                <Button variant="outline" size="sm" onClick={addItem}>
+                  <Plus className="w-3 h-3 mr-1" />
+                  Add Item
+                </Button>
               </div>
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="shipping">Shipping Address</Label>
-              <Textarea
-                id="shipping"
-                placeholder="Enter shipping address..."
-                value={newPO.shippingAddress}
-                onChange={(e) => setNewPO({ ...newPO, shippingAddress: e.target.value })}
-                rows={3}
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="notes">Notes</Label>
+              <Label htmlFor="notes">Additional Notes</Label>
               <Textarea
                 id="notes"
-                placeholder="Additional notes or special instructions..."
+                placeholder="Any additional information for this purchase order..."
                 value={newPO.notes}
-                onChange={(e) => setNewPO({ ...newPO, notes: e.target.value })}
-                rows={3}
+                onChange={e => setNewPO({ ...newPO, notes: e.target.value })}
               />
             </div>
-          </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setIsCreateDialogOpen(false)}>
-              Cancel
-            </Button>
-            <Button onClick={handleCreatePO}>
-              Create Purchase Order
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
 
-      {/* Reject Purchase Order Dialog */}
-      <Dialog open={isRejectDialogOpen} onOpenChange={setIsRejectDialogOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Reject Purchase Order</DialogTitle>
-            <DialogDescription>
-              Please provide a reason for rejecting PO #{selectedOrder?.poNumber}
-            </DialogDescription>
-          </DialogHeader>
-          <div className="py-4">
-            <Textarea
-              placeholder="Enter rejection reason..."
-              value={rejectionReason}
-              onChange={(e) => setRejectionReason(e.target.value)}
-              rows={4}
-            />
+            <div className="flex justify-end gap-2">
+              <Button variant="outline" onClick={() => setIsCreateDialogOpen(false)}>
+                Cancel
+              </Button>
+              <Button onClick={handleCreatePO}>
+                Create Purchase Order
+              </Button>
+            </div>
           </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => {
-              setIsRejectDialogOpen(false)
-              setRejectionReason("")
-            }}>
-              Cancel
-            </Button>
-            <Button variant="destructive" onClick={handleRejectOrder}>
-              Reject Order
-            </Button>
-          </DialogFooter>
         </DialogContent>
       </Dialog>
     </div>

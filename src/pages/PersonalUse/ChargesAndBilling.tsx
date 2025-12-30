@@ -25,7 +25,8 @@ import { Label } from '@/components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import logger from '@/utils/logger';
+import logger from '@/utils/logger'
+
 interface ChargeRecord {
   id: string
   driver_id: string
@@ -59,16 +60,20 @@ interface InvoiceData {
   due_date: string
 }
 
-const apiClient = async (url: string) => {
+interface ApiResponse<T> {
+  data: T
+}
+
+const apiClient = async <T>(url: string): Promise<ApiResponse<T>> => {
   const token = localStorage.getItem('token')
   const response = await fetch(url, {
     headers: { Authorization: `Bearer ${token}` }
   })
   if (!response.ok) throw new Error('Failed to fetch')
-  return response.json()
+  return response.json() as Promise<ApiResponse<T>>
 }
 
-const apiMutation = async (url: string, method: string, data?: any) => {
+const apiMutation = async (url: string, method: string, data?: unknown) => {
   const token = localStorage.getItem('token')
   const response = await fetch(url, {
     method,
@@ -105,10 +110,12 @@ export function ChargesAndBilling() {
     return params.toString()
   }
 
-  const { data: chargesData, isLoading: loading, error: chargesError } = useQuery({    queryKey: ['personal-use-charges', selectedPeriod, statusFilter],
-    queryFn: () => apiClient(`/api/personal-use-charges?${getChargesParams()}`),
+  const { data: chargesData, isLoading: loading } = useQuery({
+    queryKey: ['personal-use-charges', selectedPeriod, statusFilter],
+    queryFn: () => apiClient<ChargeRecord[]>(`/api/personal-use-charges?${getChargesParams()}`),
     staleTime: 30000,
-    onError: (error: any) => {
+    gcTime: 60000,
+    onError: (error: unknown) => {
       logger.error('Failed to fetch charges:', error)
       toast.error('Failed to load billing data')
     }
@@ -116,8 +123,9 @@ export function ChargesAndBilling() {
 
   const { data: summaryData } = useQuery({
     queryKey: ['personal-use-charges-summary'],
-    queryFn: () => apiClient('/api/personal-use-charges/summary'),
-    staleTime: 30000
+    queryFn: () => apiClient<BillingSummary>('/api/personal-use-charges/summary'),
+    staleTime: 30000,
+    gcTime: 60000
   })
 
   const charges = chargesData?.data || []
@@ -152,9 +160,9 @@ export function ChargesAndBilling() {
       setInvoiceDialogOpen(false)
       queryClient.invalidateQueries({ queryKey: ['personal-use-charges'] })
     },
-    onError: (error: any) => {
+    onError: (error: unknown) => {
       logger.error('Failed to generate invoice:', error)
-      toast.error(error.message || 'Failed to generate invoice')
+      toast.error(error instanceof Error ? error.message : 'Failed to generate invoice')
     }
   })
 
@@ -173,7 +181,7 @@ export function ChargesAndBilling() {
       toast.success('Charge marked as paid')
       queryClient.invalidateQueries({ queryKey: ['personal-use-charges'] })
     },
-    onError: (error: any) => {
+    onError: (error: unknown) => {
       logger.error('Failed to mark as paid:', error)
       toast.error('Failed to update charge status')
     }
@@ -199,7 +207,7 @@ export function ChargesAndBilling() {
       document.body.appendChild(link)
       link.click()
       link.remove()
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error('Failed to download invoice:', error)
       toast.error('Failed to download invoice')
     }
@@ -217,7 +225,7 @@ export function ChargesAndBilling() {
   })
 
   const getStatusBadge = (status: string) => {
-    const variants: Record<string, any> = {
+    const variants: Record<string, { variant: string; icon: React.ComponentType<{ className?: string }>; label: string }> = {
       pending: { variant: 'outline', icon: Clock, label: 'Pending' },
       invoiced: { variant: 'secondary', icon: FileText, label: 'Invoiced' },
       billed: { variant: 'default', icon: Receipt, label: 'Billed' },
@@ -415,67 +423,40 @@ export function ChargesAndBilling() {
                             {charge.charge_period}
                           </div>
                         </TableCell>
-                        <TableCell>{charge.miles_charged.toFixed(1)} mi</TableCell>
-                        <TableCell>${charge.rate_per_mile.toFixed(2)}/mi</TableCell>
-                        <TableCell className="font-semibold">${charge.total_charge.toFixed(2)}</TableCell>
+                        <TableCell>{charge.miles_charged}</TableCell>
+                        <TableCell>${charge.rate_per_mile.toFixed(2)}</TableCell>
+                        <TableCell className="font-medium">${charge.total_charge.toFixed(2)}</TableCell>
                         <TableCell>{getStatusBadge(charge.charge_status)}</TableCell>
+                        <TableCell>{charge.invoice_number || '-'}</TableCell>
+                        <TableCell>{charge.due_date || '-'}</TableCell>
                         <TableCell>
-                          {charge.invoice_number || (
-                            <span className="text-muted-foreground text-sm">-</span>
-                          )}
-                        </TableCell>
-                        <TableCell>
-                          {charge.due_date ? (
-                            <div className={isOverdue(charge.due_date) ? 'text-destructive font-semibold' : ''}>
-                              {format(new Date(charge.due_date), 'MMM dd, yyyy')}
-                              {isOverdue(charge.due_date) && (
-                                <div className="text-xs">Overdue</div>
-                              )}
-                            </div>
-                          ) : (
-                            '-'
-                          )}
-                        </TableCell>
-                        <TableCell>
-                          <div className="flex gap-1">
+                          <div className="flex items-center gap-2">
                             {charge.charge_status === 'pending' && (
                               <Button
                                 size="sm"
                                 variant="outline"
                                 onClick={() => handleGenerateInvoice(charge)}
                               >
-                                <FileText className="w-4 h-4 mr-1" />
-                                Invoice
+                                Generate Invoice
                               </Button>
                             )}
-                            {(charge.charge_status === 'invoiced' || charge.charge_status === 'billed') && (
-                              <>
-                                <Button
-                                  size="sm"
-                                  variant="outline"
-                                  onClick={() => handleDownloadInvoice(charge)}
-                                >
-                                  <Download className="w-4 h-4" />
-                                </Button>
-                                <Button
-                                  size="sm"
-                                  variant="default"
-                                  onClick={() => markPaid(charge.id)}
-                                  disabled={isMarkingPaid}
-                                >
-                                  <CreditCard className="w-4 h-4 mr-1" />
-                                  {isMarkingPaid ? 'Saving...' : 'Mark Paid'}
-                                </Button>
-                              </>
+                            {charge.charge_status === 'invoiced' && (
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                onClick={() => markPaid(charge.id)}
+                                disabled={isMarkingPaid}
+                              >
+                                Mark as Paid
+                              </Button>
                             )}
-                            {charge.charge_status === 'paid' && (
+                            {charge.invoice_number && (
                               <Button
                                 size="sm"
                                 variant="ghost"
                                 onClick={() => handleDownloadInvoice(charge)}
                               >
-                                <Download className="w-4 h-4 mr-1" />
-                                Receipt
+                                <Download className="w-4 h-4" />
                               </Button>
                             )}
                           </div>
@@ -493,67 +474,56 @@ export function ChargesAndBilling() {
           <Card>
             <CardHeader>
               <CardTitle>Billing Analytics</CardTitle>
-              <CardDescription>Revenue and collection metrics</CardDescription>
             </CardHeader>
             <CardContent>
-              <Alert>
-                <TrendUp className="h-4 w-4" />
-                <AlertDescription>
-                  Analytics dashboard coming soon. This will show monthly revenue trends, collection rates, and driver billing patterns.
-                </AlertDescription>
-              </Alert>
+              <div className="text-center py-8 text-muted-foreground">
+                Analytics and reporting features coming soon
+              </div>
             </CardContent>
           </Card>
         </TabsContent>
       </Tabs>
 
-      {/* Invoice Generation Dialog */}
+      {/* Invoice Dialog */}
       <Dialog open={invoiceDialogOpen} onOpenChange={setInvoiceDialogOpen}>
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Generate Invoice</DialogTitle>
-            <DialogDescription>Create an invoice for this charge</DialogDescription>
+            <DialogDescription>
+              Create an invoice for this personal use charge.
+            </DialogDescription>
           </DialogHeader>
-
           <div className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="invoice-number">Invoice Number</Label>
+              <Label>Invoice Number</Label>
               <Input
-                id="invoice-number"
                 value={invoiceData.invoice_number}
                 onChange={(e) => setInvoiceData({ ...invoiceData, invoice_number: e.target.value })}
-                placeholder="INV-001"
               />
             </div>
-
             <div className="space-y-2">
-              <Label htmlFor="invoice-date">Invoice Date</Label>
+              <Label>Invoice Date</Label>
               <Input
-                id="invoice-date"
                 type="date"
                 value={invoiceData.invoice_date}
                 onChange={(e) => setInvoiceData({ ...invoiceData, invoice_date: e.target.value })}
               />
             </div>
-
             <div className="space-y-2">
-              <Label htmlFor="due-date">Due Date</Label>
+              <Label>Due Date</Label>
               <Input
-                id="due-date"
                 type="date"
                 value={invoiceData.due_date}
                 onChange={(e) => setInvoiceData({ ...invoiceData, due_date: e.target.value })}
-                min={invoiceData.invoice_date}
               />
             </div>
           </div>
-
           <DialogFooter>
             <Button variant="outline" onClick={() => setInvoiceDialogOpen(false)}>
               Cancel
             </Button>
             <Button onClick={submitInvoice} disabled={isGeneratingInvoice}>
-              {isGeneratingInvoice ? 'Generating...' : 'Generate Invoice'}
+              Generate Invoice
             </Button>
           </DialogFooter>
         </DialogContent>

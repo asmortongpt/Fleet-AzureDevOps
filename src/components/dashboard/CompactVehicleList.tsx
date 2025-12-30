@@ -64,7 +64,7 @@ export function CompactVehicleList({
     return vehicles.slice(visibleRange.start, visibleRange.end)
   }, [vehicles, visibleRange])
 
-  const isRecentlyUpdated = (vehicle: Vehicle) => {
+  const isRecentlyUpdated = (vehicle: Vehicle & { lastUpdated?: string | Date }) => {
     if (!showRealtimeIndicator || !vehicle.lastUpdated) return false
     return (new Date().getTime() - new Date(vehicle.lastUpdated).getTime()) < 5000
   }
@@ -94,7 +94,7 @@ export function CompactVehicleList({
         >
           {visibleVehicles.map((vehicle, index) => {
             const wasRecentlyUpdated = isRecentlyUpdated(vehicle)
-            const actualIndex = visibleRange.start + index
+            const _actualIndex = visibleRange.start + index
 
             return (
               <motion.div

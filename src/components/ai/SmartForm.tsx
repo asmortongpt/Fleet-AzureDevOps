@@ -19,7 +19,8 @@ import { Card, CardContent, CardHeader, CardTitle } from '../ui/card'
 import { Input } from '../ui/input'
 import { Label } from '../ui/label'
 
-import logger from '@/utils/logger';
+import logger from '@/utils/logger'
+
 interface FieldConfig {
   name: string
   label: string
@@ -87,11 +88,11 @@ export function SmartForm({
   const validateForm = async () => {
     setIsValidating(true)
     try {
-      const response = await apiClient.post('/api/ai/validate', {
+      const response = await apiClient.post<{ data: ValidationResult }>('/api/ai/validate', {
         entityType,
         data: formData
       })
-      setValidation(response.data)
+      setValidation(response.data.data)
     } catch (error) {
       logger.error('Validation error:', error)
     } finally {
@@ -311,7 +312,7 @@ export function SmartForm({
           <div className="flex gap-2 pt-4">
             <Button
               type="submit"
-              disabled={isSubmitting || (validation && !validation.isValid)}
+              disabled={isSubmitting || (validation?.isValid === false)}
               className="flex-1"
             >
               {isSubmitting ? (

@@ -84,7 +84,7 @@ const AlertsPanel: React.FC<Props> = ({ alerts = [], loading }) => {
     warning: 'warning',
     error: 'error',
     critical: 'error'
-  };
+  } as const;
 
   // Filter alerts
   const filteredAlerts = useMemo(() => {
@@ -111,7 +111,7 @@ const AlertsPanel: React.FC<Props> = ({ alerts = [], loading }) => {
       filtered = filtered.filter(a =>
         a.title.toLowerCase().includes(term) ||
         a.message.toLowerCase().includes(term) ||
-        a.source?.toLowerCase().includes(term)
+        (a.source?.toLowerCase().includes(term) ?? false)
       );
     }
 
@@ -177,25 +177,25 @@ const AlertsPanel: React.FC<Props> = ({ alerts = [], loading }) => {
       <Grid container spacing={2} sx={{ mb: 3 }}>
         <Grid item xs={6} md={3}>
           <Paper sx={{ p: 2, textAlign: 'center', bgcolor: 'error.main', color: 'error.contrastText' }}>
-            <Typography variant="h4">{alertsBySeverity.critical}</Typography>
+            <Typography variant="h4">{alertsBySeverity.critical ?? 0}</Typography>
             <Typography variant="caption">Critical</Typography>
           </Paper>
         </Grid>
         <Grid item xs={6} md={3}>
           <Paper sx={{ p: 2, textAlign: 'center', bgcolor: 'error.light' }}>
-            <Typography variant="h4">{alertsBySeverity.error}</Typography>
+            <Typography variant="h4">{alertsBySeverity.error ?? 0}</Typography>
             <Typography variant="caption">Errors</Typography>
           </Paper>
         </Grid>
         <Grid item xs={6} md={3}>
           <Paper sx={{ p: 2, textAlign: 'center', bgcolor: 'warning.light' }}>
-            <Typography variant="h4">{alertsBySeverity.warning}</Typography>
+            <Typography variant="h4">{alertsBySeverity.warning ?? 0}</Typography>
             <Typography variant="caption">Warnings</Typography>
           </Paper>
         </Grid>
         <Grid item xs={6} md={3}>
           <Paper sx={{ p: 2, textAlign: 'center', bgcolor: 'info.light' }}>
-            <Typography variant="h4">{alertsBySeverity.info}</Typography>
+            <Typography variant="h4">{alertsBySeverity.info ?? 0}</Typography>
             <Typography variant="caption">Info</Typography>
           </Paper>
         </Grid>
@@ -223,7 +223,7 @@ const AlertsPanel: React.FC<Props> = ({ alerts = [], loading }) => {
           <Grid item xs={12} md={4}>
             <ToggleButtonGroup
               value={severityFilter}
-              onChange={(_, value) => value && setSeverityFilter(value)}
+              onChange={(_event, value) => value && setSeverityFilter(value as string[])}
               size="small"
             >
               <ToggleButton value="all">All</ToggleButton>
@@ -253,7 +253,7 @@ const AlertsPanel: React.FC<Props> = ({ alerts = [], loading }) => {
       <Box sx={{ mb: 2 }}>
         <ToggleButtonGroup
           value={typeFilter}
-          onChange={(_, value) => value && setTypeFilter(value)}
+          onChange={(_event, value) => value && setTypeFilter(value as string[])}
           size="small"
           sx={{ flexWrap: 'wrap' }}
         >
@@ -306,7 +306,7 @@ const AlertsPanel: React.FC<Props> = ({ alerts = [], loading }) => {
                       <Chip
                         label={alert.severity}
                         size="small"
-                        color={severityColors[alert.severity] as any}
+                        color={severityColors[alert.severity]}
                       />
                       {alert.status === 'acknowledged' && (
                         <Chip label="Acknowledged" size="small" variant="outlined" />
@@ -398,7 +398,7 @@ const AlertsPanel: React.FC<Props> = ({ alerts = [], loading }) => {
       )}
 
       {/* Critical Alert Banner */}
-      {alertsBySeverity.critical > 0 && (
+      {(alertsBySeverity.critical ?? 0) > 0 && (
         <MuiAlert
           severity="error"
           sx={{ position: 'fixed', bottom: 20, right: 20, zIndex: 1000 }}
@@ -409,7 +409,7 @@ const AlertsPanel: React.FC<Props> = ({ alerts = [], loading }) => {
           }
         >
           <AlertTitle>Critical Alerts Active</AlertTitle>
-          {alertsBySeverity.critical} critical alert(s) require immediate attention
+          {alertsBySeverity.critical ?? 0} critical alert(s) require immediate attention
         </MuiAlert>
       )}
     </Box>

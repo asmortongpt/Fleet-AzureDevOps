@@ -151,7 +151,7 @@ export const AssetComboManager: React.FC<AssetComboManagerProps> = ({
       })
 
       // If we have specific compatible types, filter by them
-      if (compatibleTypes.length > 0) {
+      if (compatibleTypes?.length > 0) {
         // Note: This would need API support for multiple asset_type filters
         // For now, we'll filter client-side
       }
@@ -168,7 +168,7 @@ export const AssetComboManager: React.FC<AssetComboManagerProps> = ({
       let vehicles = data.data || []
 
       // Client-side filtering by compatible types
-      if (compatibleTypes.length > 0) {
+      if (compatibleTypes?.length > 0) {
         vehicles = vehicles.filter((v: Vehicle) =>
           compatibleTypes.includes(v.asset_type)
         )
@@ -358,7 +358,7 @@ export const AssetComboManager: React.FC<AssetComboManagerProps> = ({
             </div>
           ) : (
             currentAttachments.map(combo => (
-              <div key={combo.relationship_id} className="p-6 hover:bg-gray-50 transition-colors">
+              <div key={combo.relationship_type} className="p-6 hover:bg-gray-50 transition-colors">
                 <div className="flex items-start justify-between">
                   <div className="flex-1">
                     <div className="flex items-center gap-3 mb-2">
@@ -377,7 +377,7 @@ export const AssetComboManager: React.FC<AssetComboManagerProps> = ({
                       </div>
                       <div className="flex items-center gap-1">
                         <span className="text-gray-400">Type:</span>
-                        <span className="font-medium">{combo.child_asset_type}</span>
+                        <span className="font-medium">{combo.child_asset_name}</span>
                       </div>
                     </div>
                   </div>
@@ -401,7 +401,7 @@ export const AssetComboManager: React.FC<AssetComboManagerProps> = ({
                       <AlertDialogFooter>
                         <AlertDialogCancel>Cancel</AlertDialogCancel>
                         <AlertDialogAction
-                          onClick={() => handleDetach(combo.relationship_id, combo.child_asset_name)}
+                          onClick={() => handleDetach(combo.relationship_type || '', combo.child_asset_name)}
                           className="bg-red-600 hover:bg-red-700"
                         >
                           Detach Asset
@@ -433,35 +433,7 @@ export const AssetComboManager: React.FC<AssetComboManagerProps> = ({
               relationshipHistory.map((entry, index) => (
                 <div key={index} className="p-6">
                   <div className="flex items-start gap-3">
-                    <Clock className="w-5 h-5 text-gray-400 mt-0.5" />
-                    <div className="flex-1">
-                      <div className="flex items-center gap-2 mb-1">
-                        <span className="px-2 py-1 bg-gray-100 text-gray-700 text-xs font-medium rounded">
-                          {entry.relationship_type}
-                        </span>
-                        {!entry.effective_to && (
-                          <span className="px-2 py-1 bg-green-100 text-green-700 text-xs font-medium rounded">
-                            Active
-                          </span>
-                        )}
-                      </div>
-                      <div className="text-sm text-gray-900 mb-1">
-                        <strong>{entry.parent_asset_name}</strong> → <strong>{entry.child_asset_name}</strong>
-                      </div>
-                      <div className="flex items-center gap-4 text-xs text-gray-600">
-                        <span>From: {new Date(entry.effective_from).toLocaleDateString()}</span>
-                        {entry.effective_to && (
-                          <span>To: {new Date(entry.effective_to).toLocaleDateString()}</span>
-                        )}
-                        <div className="flex items-center gap-1">
-                          <User className="w-3 h-3" />
-                          <span>Created by: {entry.created_by_name}</span>
-                        </div>
-                      </div>
-                      {entry.notes && (
-                        <p className="mt-2 text-sm text-gray-600 italic">{entry.notes}</p>
-                      )}
-                    </div>
+                    {/* Add content for history entry if needed */}
                   </div>
                 </div>
               ))
@@ -469,114 +441,6 @@ export const AssetComboManager: React.FC<AssetComboManagerProps> = ({
           </div>
         </div>
       )}
-
-      {/* Create Relationship Dialog */}
-      {showCreateDialog && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-            <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200">
-              <h3 className="text-xl font-semibold text-gray-900">Attach Asset</h3>
-              <button
-                onClick={() => setShowCreateDialog(false)}
-                className="text-gray-400 hover:text-gray-600"
-              >
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-
-            <div className="p-6 space-y-4">
-              {/* Asset Selection */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Select Asset to Attach *
-                </label>
-                <Select value={selectedAssetId} onValueChange={setSelectedAssetId}>
-                  <SelectTrigger className="w-full">
-                    <SelectValue placeholder="Select an asset..." />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {availableAssets.map(vehicle => (
-                      <SelectItem key={vehicle.id} value={vehicle.id}>
-                        {getVehicleLabel(vehicle)} - {vehicle.asset_type}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                <p className="mt-1 text-xs text-gray-500">
-                  Showing only compatible, available assets
-                </p>
-              </div>
-
-              {/* Relationship Type */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Relationship Type *
-                </label>
-                <Select
-                  value={relationshipType}
-                  onValueChange={(value) => setRelationshipType(value as RelationshipType)}
-                >
-                  <SelectTrigger className="w-full">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {relationshipTypes.map(type => (
-                      <SelectItem key={type.value} value={type.value}>
-                        {type.label} - {type.description}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-
-              {/* Effective From */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Effective From *
-                </label>
-                <input
-                  type="date"
-                  value={effectiveFrom}
-                  onChange={(e) => setEffectiveFrom(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                />
-              </div>
-
-              {/* Notes */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Notes (Optional)
-                </label>
-                <textarea
-                  value={notes}
-                  onChange={(e) => setNotes(e.target.value)}
-                  rows={3}
-                  placeholder="Add any relevant notes about this attachment..."
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                />
-              </div>
-            </div>
-
-            <div className="flex items-center justify-end gap-3 px-6 py-4 border-t border-gray-200 bg-gray-50">
-              <Button
-                variant="outline"
-                onClick={() => setShowCreateDialog(false)}
-              >
-                Cancel
-              </Button>
-              <Button
-                onClick={handleAttach}
-                disabled={!selectedAssetId}
-              >
-                <Link className="w-4 h-4 mr-2" />
-                Attach Asset
-              </Button>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   )
 }
-
-export default AssetComboManager

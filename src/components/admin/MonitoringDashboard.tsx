@@ -10,14 +10,40 @@ import ErrorRateChart from './ErrorRateChart';
 import PerformanceMetrics from './PerformanceMetrics';
 import SystemHealthWidget from './SystemHealthWidget';
 
-
 import logger from '@/utils/logger';
+
+interface HealthData {
+  status?: string;
+  uptime?: number;
+  components?: {
+    api?: {
+      responseTime?: number;
+    };
+  };
+}
+
+interface MetricsData {
+  requestsPerMinute?: number;
+}
+
+interface EmulatorData {
+  active?: any[];
+}
+
+interface ErrorData {
+  timestamp?: number;
+}
+
+interface AlertData {
+  status?: string;
+}
+
 interface MonitoringData {
-  health: any;
-  metrics: any;
-  emulators: any;
-  errors: any[];
-  alerts: any[];
+  health: HealthData | null;
+  metrics: MetricsData | null;
+  emulators: EmulatorData | null;
+  errors: ErrorData[];
+  alerts: AlertData[];
 }
 
 const MonitoringDashboard: React.FC = () => {
@@ -38,7 +64,7 @@ const MonitoringDashboard: React.FC = () => {
       setError(null);
 
       // Fetch all monitoring data in parallel
-      const [health, metrics, emulators, errors, alerts] = await Promise.all([
+      const [healthRes, metricsRes, emulatorsRes, errorsRes, alertsRes] = await Promise.all([
         apiClient.get('/monitoring/health'),
         apiClient.get('/monitoring/metrics'),
         apiClient.get('/monitoring/emulators'),
@@ -47,11 +73,11 @@ const MonitoringDashboard: React.FC = () => {
       ]);
 
       setData({
-        health: health,
-        metrics: metrics,
-        emulators: emulators,
-        errors: errors || [],
-        alerts: alerts || []
+        health: healthRes.data as HealthData,
+        metrics: metricsRes.data as MetricsData,
+        emulators: emulatorsRes.data as EmulatorData,
+        errors: (errorsRes.data as ErrorData[]) || [],
+        alerts: (alertsRes.data as AlertData[]) || []
       });
 
       setLastRefresh(new Date());
@@ -258,7 +284,7 @@ const MonitoringDashboard: React.FC = () => {
               <Paper sx={{ p: 2, textAlign: 'center' }}>
                 <Error color="error" />
                 <Typography variant="h6">
-                  {data.errors?.filter(e => e.timestamp > Date.now() - 3600000).length || 0}
+                  {data.errors?.filter(e => e.timestamp && e.timestamp > Date.now() - 3600000).length || 0}
                 </Typography>
                 <Typography variant="body2" color="text.secondary">
                   Errors (1h)
