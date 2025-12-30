@@ -14,7 +14,7 @@ import { injectable } from 'inversify';
 
 import { ApprovalWorkflow } from '../types/trip-usage';
 
-import { BaseRepository, QueryContext } from './BaseRepository';
+import { BaseRepository, QueryContext } from './base/BaseRepository';
 
 
 export interface PersonalUsePolicy {

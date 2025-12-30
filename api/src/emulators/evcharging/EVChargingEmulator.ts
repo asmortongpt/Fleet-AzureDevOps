@@ -190,7 +190,7 @@ export class EVChargingEmulator extends EventEmitter {
     // Find available station
     const availableStations = this.getAvailableStations();
     if (availableStations.length === 0) {
-      this.emit(`no-stations-available`, { vehicleId, timestamp: new Date() });
+      this.emit('no-stations-available', { vehicleId, timestamp: new Date() });
       return;
     }
 

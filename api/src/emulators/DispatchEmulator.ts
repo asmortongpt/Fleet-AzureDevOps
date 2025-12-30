@@ -571,7 +571,7 @@ export class DispatchEmulator extends EventEmitter {
       this.emit('transmission', transmission);
 
       // Emit channel-specific event
-      this.emit(`transmission:${transmission.channel}`, transmission);
+      this.emit('transmission:${transmission.channel}', transmission);
 
       // If emergency, emit special event
       if (transmission.priority === 'critical') {

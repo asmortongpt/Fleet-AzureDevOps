@@ -57,7 +57,7 @@ export const validate = (schema: AnyZodObject, options: ValidationOptions = {}) 
         return res.status(400).json({
           success: false,
           error: 'Validation failed',
-          details: error.errors.map(err => ({
+          details: error.issues.map(err => ({
             field: err.path.join('.'),
             message: err.message,
             code: err.code,
@@ -98,7 +98,7 @@ export const validateQuery = (schema: ZodSchema) => {
         return res.status(400).json({
           success: false,
           error: 'Invalid query parameters',
-          details: error.errors.map(err => ({
+          details: error.issues.map(err => ({
             field: err.path.join('.'),
             message: err.message,
             code: err.code,
@@ -129,7 +129,7 @@ export const validateParams = (schema: ZodSchema) => {
         return res.status(400).json({
           success: false,
           error: 'Invalid URL parameters',
-          details: error.errors.map(err => ({
+          details: error.issues.map(err => ({
             field: err.path.join('.'),
             message: err.message,
             code: err.code,
@@ -191,7 +191,7 @@ export const validateAll = (
         return res.status(400).json({
           success: false,
           error: 'Validation failed',
-          details: error.errors.map(err => ({
+          details: error.issues.map(err => ({
             field: err.path.join('.'),
             message: err.message,
             code: err.code,

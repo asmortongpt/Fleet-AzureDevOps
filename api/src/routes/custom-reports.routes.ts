@@ -151,7 +151,7 @@ router.post(
 // PUT /api/custom-reports/:id - Update report
 router.put(
   '/:id',
- csrfProtection,  csrfProtection, requirePermission('report:generate:global'),
+ csrfProtection, requirePermission('report:generate:global'),
   auditLog({ action: 'UPDATE', resourceType: 'custom_report' }),
   async (req: AuthRequest, res: Response) => {
     try {
@@ -176,7 +176,7 @@ router.put(
 // DELETE /api/custom-reports/:id - Delete report
 router.delete(
   '/:id',
- csrfProtection,  csrfProtection, requirePermission('report:delete:global'),
+ csrfProtection, requirePermission('report:delete:global'),
   auditLog({ action: 'DELETE', resourceType: 'custom_report' }),
   async (req: AuthRequest, res: Response) => {
     try {
@@ -195,7 +195,7 @@ router.delete(
 // POST /api/custom-reports/:id/execute - Execute report
 router.post(
   '/:id/execute',
- csrfProtection,  csrfProtection, requirePermission('report:generate:global'),
+ csrfProtection, requirePermission('report:generate:global'),
   auditLog({ action: 'EXECUTE', resourceType: 'custom_report' }),
   async (req: AuthRequest, res: Response) => {
     try {
