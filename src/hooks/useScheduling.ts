@@ -432,7 +432,7 @@ export function useAvailableVehicles(params: AvailableVehiclesParams, options?: 
         success: boolean
         count: number
         vehicles: Vehicle[]
-      }>('/api/scheduling/available-vehicles', params as Record<string, unknown>)
+      }>('/api/scheduling/available-vehicles', params as unknown as Record<string, unknown>)
       return response.vehicles
     },
     enabled: options?.enabled !== false && !!params.startTime && !!params.endTime,
@@ -452,7 +452,7 @@ export function useAvailableServiceBays(params: AvailableServiceBaysParams, opti
         success: boolean
         count: number
         serviceBays: ServiceBay[]
-      }>('/api/scheduling/available-service-bays', params as Record<string, unknown>)
+      }>('/api/scheduling/available-service-bays', params as unknown as Record<string, unknown>)
       return response.serviceBays
     },
     enabled: options?.enabled !== false,

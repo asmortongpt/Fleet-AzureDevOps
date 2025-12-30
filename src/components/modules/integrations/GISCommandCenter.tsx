@@ -234,8 +234,8 @@ export function GISCommandCenter() {
               <TabsContent value={activeTab || "map"} className="mt-4">
                 <div className="aspect-video bg-muted rounded-lg overflow-hidden">
                   <UniversalMap
-                    vehicles={filteredVehicles as Vehicle[]}
-                    facilities={filteredFacilities as GISFacility[]}
+                    vehicles={filteredVehicles as unknown as Vehicle[]}
+                    facilities={filteredFacilities as unknown as GISFacility[]}
                     showVehicles={layerVisibility?.vehicles ?? true}
                     showFacilities={layerVisibility?.facilities ?? true}
                     showRoutes={layerVisibility?.routes ?? true}
