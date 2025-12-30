@@ -41,7 +41,7 @@ export function AnalyticsDashboard() {
   const [exportFormat, setExportFormat] = useState('pdf');
 
   // Calculate KPIs from vehicle data
-  const totalMiles = (vehicles as Vehicle[]).reduce((sum: number, v: Vehicle) => sum + (v.odometer || 0), 0);
+  const totalMiles = (vehicles as unknown as Vehicle[]).reduce((sum: number, v: Vehicle) => sum + (v.odometer || 0), 0);
   const avgMPG = 24.5; // Demo - calculate from real data
   const totalFuelCost = (totalMiles / avgMPG) * 3.45;
   const avgIdleTime = 12.3; // Demo - calculate from telemetry
