@@ -65,6 +65,10 @@ export interface Vehicle {
   alerts: string[]
   customFields?: Record<string, any>
   tags?: string[]
+  // Telemetry fields
+  speed?: number // Current speed in mph
+  heading?: number // Current heading in degrees (0-360)
+  batteryLevel?: number // Battery level for electric/hybrid vehicles (0-100)
 
   // ============================================================================
   // MULTI-ASSET EXTENSIONS (Phase 3)
@@ -135,7 +139,19 @@ export interface Driver {
   safetyScore: number
   certifications: string[]
   status: "active" | "off-duty" | "on-leave"
+  availability?: "available" | "busy" | "off-duty" | "on-leave" // Availability status
   avatar?: string
+  location?: {
+    lat: number
+    lng: number
+    address?: string
+  }
+  performance?: {
+    safetyScore: number
+    onTimeDeliveries?: number
+    efficiency?: number
+  }
+  specialization?: string[] // Special certifications or skills
   emergencyContact?: {
     name: string
     phone: string
@@ -161,6 +177,7 @@ export interface ServiceBay {
   id: string
   number: string
   status: "occupied" | "available" | "maintenance"
+  is_active?: boolean // Active status flag
   vehicle?: string
   technician?: string
   serviceType?: string
@@ -178,6 +195,7 @@ export interface WorkOrder {
   status: "pending" | "in-progress" | "completed" | "cancelled"
   assignedTo?: string
   cost?: number
+  estimatedCost?: number // Estimated cost for work order
   laborHours?: number
   createdDate: string
   dueDate?: string // Due date for work order completion
@@ -192,11 +210,17 @@ export interface WorkOrder {
 export interface Technician {
   id: string
   name: string
+  firstName?: string
+  lastName?: string
+  specialty?: string // Primary specialty
   specialization: string[]
   availability: "available" | "busy" | "off-duty"
   efficiency: number
   certifications: string[]
   activeWorkOrders: number
+  email?: string
+  phone?: string
+  department?: string
 }
 
 export interface FuelTransaction {
@@ -253,7 +277,9 @@ export interface MileageReimbursement {
 export interface GISFacility {
   id: string
   name: string
+  number?: string // Facility number/identifier
   type: "office" | "depot" | "service-center" | "fueling-station"
+  serviceType?: string // Type of service provided
   location: {
     lat: number
     lng: number
@@ -265,6 +291,8 @@ export interface GISFacility {
   region: string
   status: "operational" | "maintenance" | "closed"
   capacity?: number // Vehicle capacity for depots/service centers
+  vehicle?: string // Currently servicing vehicle
+  estimatedCompletion?: string // Estimated completion time for current service
   tenantId?: string // Multi-tenant support
 }
 
@@ -306,6 +334,7 @@ export interface PurchaseOrder {
   vendorName: string
   date: string
   expectedDelivery: string
+  deliveryDate?: string // Actual delivery date
   status: "draft" | "pending-approval" | "approved" | "ordered" | "received" | "cancelled"
   items: PurchaseOrderItem[]
   subtotal: number
