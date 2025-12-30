@@ -13,7 +13,7 @@ const logger: Logger = createLogger({
     format.timestamp(),
     format.json(),
     format.printf(({ level, message, timestamp }: { level: string; message: unknown; timestamp: string }) => {
-      const sanitizedMessage = sanitizeForLogging(message);
+      const sanitizedMessage = sanitizeForLogging(message as LogData);
       return `${timestamp} [${level}]: ${JSON.stringify(sanitizedMessage)}`;
     })
   ),

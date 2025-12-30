@@ -64,7 +64,7 @@ export const AlertInspector: React.FC<AlertInspectorProps> = ({ id, initialTab =
       try {
         setLoading(true);
         setError(null);
-        const data = await apiClient.get(`/api/alerts/${id}`);
+        const data = await apiClient.get<Alert>(`/api/alerts/${id}`);
         setAlert(data);
       } catch (err: any) {
         setError(err.message || 'Failed to load alert data');
