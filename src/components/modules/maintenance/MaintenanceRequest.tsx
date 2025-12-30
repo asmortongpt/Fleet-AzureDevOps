@@ -50,7 +50,7 @@ export function MaintenanceRequest({ data }: MaintenanceRequestProps) {
     return colors[status]
   }
 
-  const requests = data.maintenanceRequests || []
+  const requests: MaintenanceSchedule[] = (data.maintenanceRequests || []) as MaintenanceSchedule[]
   const vehicles = data.vehicles || []
 
   const scheduledCount = requests.filter(r => r.status === "scheduled").length
@@ -141,13 +141,13 @@ export function MaintenanceRequest({ data }: MaintenanceRequestProps) {
                         <Car className="w-5 h-5" />
                       </div>
                       <div>
-                        <h4 className="font-semibold">{request.vehicleNumber}</h4>
-                        <p className="text-sm text-muted-foreground">{request.serviceType}</p>
+                        <h4 className="font-semibold">{(request as any).vehicleNumber}</h4>
+                        <p className="text-sm text-muted-foreground">{(request as any).issueType}</p>
                       </div>
                     </div>
                     <div className="flex gap-2">
-                      <Badge variant="outline" className={getPriorityColor(request.priority)}>
-                        {request.priority}
+                      <Badge variant="outline" className={getPriorityColor((request as any).priority)}>
+                        {(request as any).priority}
                       </Badge>
                       <Badge variant="outline" className={getStatusColor(request.status)}>
                         {request.status}
@@ -155,11 +155,11 @@ export function MaintenanceRequest({ data }: MaintenanceRequestProps) {
                     </div>
                   </div>
 
-                  <p className="text-sm mb-3">{request.notes || "No notes"}</p>
+                  <p className="text-sm mb-3">{(request as any).description || "No notes"}</p>
 
                   <div className="flex items-center justify-between text-sm text-muted-foreground">
                     <div>
-                      Scheduled for {request.nextDue}
+                      Requested by {(request as any).requestedBy} on {(request as any).requestDate}
                     </div>
                     {request.status === "due" && (
                       <Button size="sm" variant="outline" onClick={() => handleStatusChange(request.id, "completed")}>
