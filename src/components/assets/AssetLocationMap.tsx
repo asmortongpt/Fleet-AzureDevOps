@@ -1,4 +1,5 @@
 import axios from 'axios';
+import type { LatLngExpression } from 'leaflet';
 import React, { useEffect, useState, useCallback } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { MapContainer, TileLayer, Marker, Popup, Circle, Polygon } from 'react-leaflet';
@@ -93,14 +94,14 @@ const AssetLocationMap: React.FC<{ tenantId: string }> = ({ tenantId }) => {
         geofence.type === 'circle' ? (
           <Circle
             key={geofence.id}
-            center={[geofence.latitude, geofence.longitude]}
-            radius={geofence.radius}
+            center={[geofence.latitude ?? 0, geofence.longitude ?? 0] as LatLngExpression}
+            radius={geofence.radius ?? 1000}
             pathOptions={{ color: 'blue' }}
           />
         ) : (
           <Polygon
             key={geofence.id}
-            positions={geofence.coordinates}
+            positions={(geofence.coordinates ?? []).map(coord => [coord.lat, coord.lng] as LatLngExpression)}
             pathOptions={{ color: 'blue' }}
           />
         )
