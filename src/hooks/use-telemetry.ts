@@ -91,7 +91,8 @@ export function useTelemetry(): TelemetryHook {
     if (typeof window !== 'undefined') {
       // Import web-vitals dynamically if available
       import('web-vitals')
-        .then(({ getCLS, getFID, getFCP, getLCP, getTTFB }) => {
+        .then((module: any) => {
+          const { getCLS, getFID, getFCP, getLCP, getTTFB } = module;
           getCLS?.((metric: WebVitalsMetric) => trackMetric('CLS', metric.value, { id: metric.id }));
           getFID?.((metric: WebVitalsMetric) => trackMetric('FID', metric.value, { id: metric.id }));
           getFCP?.((metric: WebVitalsMetric) => trackMetric('FCP', metric.value, { id: metric.id }));

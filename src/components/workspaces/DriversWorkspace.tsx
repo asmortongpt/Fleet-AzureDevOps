@@ -153,7 +153,7 @@ export function DriversWorkspace() {
                                                   id: driver.id,
                                                   name: driver.name,
                                                   status: (driver.status === 'off-duty' ? 'off_duty' : driver.status === 'on-leave' ? 'inactive' : driver.status) as 'active' | 'inactive' | 'on_break' | 'off_duty',
-                                                  performance: driver.performance,
+                                                  performance: driver.performance ? { safetyScore: driver.performance.safetyScore, onTimeRate: driver.performance.onTimeDeliveries ?? 0 } : undefined,
                                                   contact: driver.phone,
                                                 }}
                                                 compact
@@ -174,7 +174,7 @@ export function DriversWorkspace() {
                                           id: driver.id,
                                           name: driver.name,
                                           status: (driver.status === 'off-duty' ? 'off_duty' : driver.status === 'on-leave' ? 'inactive' : driver.status) as 'active' | 'inactive' | 'on_break' | 'off_duty',
-                                          performance: driver.performance,
+                                          performance: driver.performance ? { safetyScore: driver.performance.safetyScore, onTimeRate: driver.performance.onTimeDeliveries ?? 0 } : undefined,
                                           contact: driver.phone,
                                         }}
                                         onClick={() => setSelectedDriverId(driver.id)}

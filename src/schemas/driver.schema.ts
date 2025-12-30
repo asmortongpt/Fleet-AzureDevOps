@@ -227,9 +227,11 @@ export const driverEmploymentSchema = z.object({
 // COMBINED DRIVER SCHEMA (ALL 33 FIELDS)
 // ============================================================================
 
-export const driverSchema = driverPersonalInfoSchema
+const driverSchemaBase = driverPersonalInfoSchema
   .merge(driverLicenseSchema)
   .merge(driverEmploymentSchema)
+
+export const driverSchema = driverSchemaBase
   .refine(
     (data) => {
       // Cross-field validation: License must not expire before medical certificate
@@ -289,7 +291,7 @@ export const driverSchema = driverPersonalInfoSchema
 export type DriverFormData = z.infer<typeof driverSchema>
 
 // Partial schema for updates (all fields optional)
-export const driverUpdateSchema = driverSchema.partial()
+export const driverUpdateSchema = driverSchemaBase.partial()
 
 // Export schemas for each section
 export const driverSectionSchemas = {
