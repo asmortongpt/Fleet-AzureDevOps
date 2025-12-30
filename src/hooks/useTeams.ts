@@ -68,7 +68,7 @@ export function useTeamsChannels(teamId: string) {
   return useQuery({
     queryKey: teamsKeys.channels(teamId),
     queryFn: async () => {
-      const response: any = await apiClient.teams.listChannels(teamId)
+      const response: any = await apiClient.teams.channels.list()
       return (response.value || []) as TeamsChannel[]
     },
     enabled: !!teamId,
@@ -84,7 +84,7 @@ export function useTeamsChannel(teamId: string, channelId: string) {
   return useQuery({
     queryKey: teamsKeys.channel(teamId, channelId),
     queryFn: async () => {
-      return (await apiClient.teams.getChannel(teamId, channelId)) as TeamsChannel
+      return (await apiClient.teams.channels.get(channelId)) as TeamsChannel
     },
     enabled: !!teamId && !!channelId,
     staleTime: 5 * 60 * 1000,

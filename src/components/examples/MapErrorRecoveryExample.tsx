@@ -12,7 +12,7 @@ import { useState } from 'react'
 
 import { EnhancedUniversalMap } from '../EnhancedUniversalMap'
 import { MapHealthDashboard } from '../MapHealthDashboard'
-import type { MapProvider, MapServiceProvider } from '../UniversalMap'
+import type { MapProvider } from '../UniversalMap'
 import { Alert, AlertTitle, AlertDescription } from '../ui/alert'
 import { Badge } from '../ui/badge'
 import { Button } from '../ui/button'
@@ -147,7 +147,7 @@ export function MapErrorRecoveryExample() {
     setSelectedProvider(to)
   }
 
-  const handleHealthProviderSelect = (provider: MapServiceProvider) => {
+  const handleHealthProviderSelect = (provider: string) => {
     addLog(`Health check for ${provider}`, 'info')
   }
 
