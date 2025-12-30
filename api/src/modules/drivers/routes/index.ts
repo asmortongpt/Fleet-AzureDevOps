@@ -1,2 +1,2 @@
 // Drivers routes
-export * from './drivers.routes';
+// No routes defined yet - placeholder
