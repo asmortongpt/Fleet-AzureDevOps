@@ -207,7 +207,6 @@ export function MapboxMap({
   showVehicles = true,
   showFacilities = true,
   showCameras = false,
-  _showRoutes = true,
   mapStyle = "streets",
   center = DEFAULT_CENTER,
   zoom = DEFAULT_ZOOM,

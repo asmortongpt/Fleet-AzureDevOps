@@ -44,6 +44,8 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Textarea } from "@/components/ui/textarea"
 import { apiClient } from "@/lib/api-client"
+import { isSuccessResponse } from "@/lib/schemas/responses"
+import type { ApiResponse } from "@/lib/schemas/responses"
 import logger from '@/utils/logger'
 
 interface Task {
@@ -116,8 +118,10 @@ export function TaskManagement() {
       if (filterPriority !== "all") params.append("priority", filterPriority)
       if (filterStatus !== "all") params.append("status", filterStatus)
 
-      const response = await apiClient.get<ApiResponse<Task>>(`/api/task-management?${params.toString()}`)
-      setTasks(response.data?.tasks || [])
+      const response = await apiClient.get<ApiResponse<{ tasks: Task[] }>>(`/api/task-management?${params.toString()}`)
+      if (isSuccessResponse(response)) {
+        setTasks(response.data?.tasks || [])
+      }
     } catch (error) {
       logger.error("Error fetching tasks:", error)
       toast.error("Failed to load tasks")
@@ -128,8 +132,10 @@ export function TaskManagement() {
 
   const fetchTaskComments = async (taskId: string) => {
     try {
-      const response = await apiClient.get<ApiResponse<Comment>>(`/api/task-management/${taskId}/comments`)
-      setComments(response.data?.comments || [])
+      const response = await apiClient.get<ApiResponse<{ comments: Comment[] }>>(`/api/task-management/${taskId}/comments`)
+      if (isSuccessResponse(response)) {
+        setComments(response.data?.comments || [])
+      }
     } catch (error) {
       logger.error("Error fetching comments:", error)
     }
@@ -142,8 +148,8 @@ export function TaskManagement() {
     }
 
     try {
-      const response = await apiClient.post<ApiResponse<Task>>("/api/task-management", newTask)
-      if (response.data?.task) {
+      const response = await apiClient.post<ApiResponse<{ task: Task }>>("/api/task-management", newTask)
+      if (isSuccessResponse(response) && response.data?.task) {
         setTasks(current => [...current, response.data.task as Task])
         toast.success("Task created successfully")
         setIsAddDialogOpen(false)
@@ -157,8 +163,8 @@ export function TaskManagement() {
 
   const handleUpdateTask = async (taskId: string, updates: Partial<Task>) => {
     try {
-      const response = await apiClient.put<ApiResponse<Task>>(`/api/task-management/${taskId}`, updates)
-      if (response.data?.task) {
+      const response = await apiClient.put<ApiResponse<{ task: Task }>>(`/api/task-management/${taskId}`, updates)
+      if (isSuccessResponse(response) && response.data?.task) {
         setTasks(current =>
           current.map(t => (t.id === taskId ? response.data.task as Task : t))
         )
