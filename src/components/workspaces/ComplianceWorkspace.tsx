@@ -435,3 +435,29 @@ const SafetyCompliance = ({ vehicles, drivers }: { vehicles?: unknown[]; drivers
     </ScrollArea>
   )
 }
+// Main ComplianceWorkspace component
+export function ComplianceWorkspace() {
+  const { data: vehicles } = useVehicles()
+  const { data: drivers } = useDrivers()
+  const { data: workOrders } = useWorkOrders()
+  const [activeView, setActiveView] = useState<'documents' | 'safety'>('documents')
+
+  return (
+    <div className="h-screen flex flex-col">
+      <div className="p-4 border-b">
+        <Tabs value={activeView} onValueChange={(v) => setActiveView(v as 'documents' | 'safety')}>
+          <TabsList>
+            <TabsTrigger value="documents">Document Management</TabsTrigger>
+            <TabsTrigger value="safety">Safety Compliance</TabsTrigger>
+          </TabsList>
+        </Tabs>
+      </div>
+      <div className="flex-1 overflow-hidden">
+        {activeView === 'documents' && <DocumentManagement />}
+        {activeView === 'safety' && <SafetyCompliance vehicles={vehicles} drivers={drivers} />}
+      </div>
+    </div>
+  )
+}
+
+export default ComplianceWorkspace
