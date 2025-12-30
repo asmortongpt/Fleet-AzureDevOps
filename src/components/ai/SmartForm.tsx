@@ -88,11 +88,11 @@ export function SmartForm({
   const validateForm = async () => {
     setIsValidating(true)
     try {
-      const response = await apiClient.post<{ data: ValidationResult }>('/api/ai/validate', {
+      const response = await apiClient.post<ValidationResult>('/api/ai/validate', {
         entityType,
         data: formData
       })
-      setValidation(response.data.data)
+      setValidation(response)
     } catch (error) {
       logger.error('Validation error:', error)
     } finally {

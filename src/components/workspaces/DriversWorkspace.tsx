@@ -149,7 +149,13 @@ export function DriversWorkspace() {
                                         {filteredDrivers.map(driver => (
                                             <DriverCard
                                                 key={driver.id}
-                                                driver={driver}
+                                                driver={{
+                                                  id: driver.id,
+                                                  name: driver.name,
+                                                  status: (driver.status === 'off-duty' ? 'off_duty' : driver.status === 'on-leave' ? 'inactive' : driver.status) as 'active' | 'inactive' | 'on_break' | 'off_duty',
+                                                  performance: driver.performance,
+                                                  contact: driver.phone,
+                                                }}
                                                 compact
                                                 onClick={() => setSelectedDriverId(driver.id)}
                                             />
@@ -164,7 +170,13 @@ export function DriversWorkspace() {
                                 {filteredDrivers.map(driver => (
                                     <DriverCard
                                         key={driver.id}
-                                        driver={driver}
+                                        driver={{
+                                          id: driver.id,
+                                          name: driver.name,
+                                          status: (driver.status === 'off-duty' ? 'off_duty' : driver.status === 'on-leave' ? 'inactive' : driver.status) as 'active' | 'inactive' | 'on_break' | 'off_duty',
+                                          performance: driver.performance,
+                                          contact: driver.phone,
+                                        }}
                                         onClick={() => setSelectedDriverId(driver.id)}
                                     />
                                 ))}
@@ -212,7 +224,7 @@ export function DriversWorkspace() {
                                         {selectedDriver.location && (
                                             <div className="flex items-center gap-2 text-sm">
                                                 <MapIcon className="w-4 h-4 text-muted-foreground" />
-                                                <span>{selectedDriver.location}</span>
+                                                <span>{selectedDriver.location.address || 'No address'}</span>
                                             </div>
                                         )}
 

@@ -477,7 +477,7 @@ export function MaintenanceAppointmentModal({
                       </SelectContent>
                     </Select>
                     <FormDescription>
-                      {(bay: ServiceBay) => bay.bay_type ? `Type: ${bay.bay_type}` : ''}
+                      {selectedBay?.bay_type ? `Type: ${selectedBay.bay_type}` : 'Select a service bay'}
                     </FormDescription>
                     <FormMessage />
                   </FormItem>
