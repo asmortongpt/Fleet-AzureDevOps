@@ -74,7 +74,7 @@ export function NotificationBell({ onNavigate }: { onNavigate: (module: string, 
 
   const markAsRead = async (notificationId: string) => {
     try {
-      await apiClient.post(`/api/alerts/notifications/${notificationId}/read`)
+      await apiClient.post(`/api/alerts/notifications/${notificationId}/read`, {})
 
       // Update local state
       setNotifications(prev =>
@@ -90,7 +90,7 @@ export function NotificationBell({ onNavigate }: { onNavigate: (module: string, 
 
   const markAllAsRead = async () => {
     try {
-      await apiClient.post('/api/alerts/notifications/read-all')
+      await apiClient.post('/api/alerts/notifications/read-all', {})
 
       // Update local state
       setNotifications(prev =>

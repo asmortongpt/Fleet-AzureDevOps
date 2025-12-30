@@ -105,11 +105,7 @@ export function DocumentScanner({
           formData.append('documentType', documentType)
         }
 
-        const response = await apiClient.post<DocumentAnalysis>('/api/ai/analyze-document', formData, {
-          headers: {
-            'Content-Type': 'multipart/form-data'
-          }
-        })
+        const response = await apiClient.post<DocumentAnalysis>('/api/ai/analyze-document', formData)
 
         const analysisData = response?.data
         setAnalyses(prev => new Map(prev).set(file.name, analysisData))
