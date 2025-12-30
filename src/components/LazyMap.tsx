@@ -36,7 +36,7 @@ export type MapProvider = 'universal' | 'leaflet' | 'mapbox' | 'google';
 
 export type SkeletonVariant = 'simple' | 'detailed' | 'animated';
 
-export interface LazyMapProps extends UniversalMapProps, MapboxMapProps, LeafletMapProps, GoogleMapProps {
+export interface LazyMapProps extends Partial<UniversalMapProps>, Partial<MapboxMapProps>, Partial<LeafletMapProps>, Partial<GoogleMapProps> {
   provider?: MapProvider;
   enablePrefetch?: boolean;
   skeletonVariant?: SkeletonVariant;
