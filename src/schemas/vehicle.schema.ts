@@ -327,10 +327,12 @@ export const vehicleTelematicsSchema = z.object({
 // COMBINED VEHICLE SCHEMA (ALL 47 FIELDS)
 // ============================================================================
 
-export const vehicleSchema = vehicleBasicInfoSchema
+const vehicleSchemaBase = vehicleBasicInfoSchema
   .merge(vehicleSpecsSchema)
   .merge(vehicleMaintenanceSchema)
   .merge(vehicleTelematicsSchema)
+
+export const vehicleSchema = vehicleSchemaBase
   .refine(
     (data) => {
       // Cross-field validation: Next service must be after last service
@@ -363,7 +365,7 @@ export const vehicleSchema = vehicleBasicInfoSchema
 export type VehicleFormData = z.infer<typeof vehicleSchema>
 
 // Partial schema for updates (all fields optional)
-export const vehicleUpdateSchema = vehicleSchema.partial()
+export const vehicleUpdateSchema = vehicleSchemaBase.partial()
 
 // Export schemas for each section
 export const vehicleSectionSchemas = {
