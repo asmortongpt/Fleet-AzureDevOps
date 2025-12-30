@@ -112,10 +112,10 @@ export const PersonalUsePolicyConfig: React.FC<PersonalUsePolicyConfigProps> = (
     approval_workflow: ApprovalWorkflow.MANAGER,
     auto_approve_under_miles: 50,
     notification_settings: {
-      notify_at_80_percent: true,
-      notify_at_95_percent: true,
-      notify_on_charge: true,
-      notify_on_rejection: true
+      notify_at_percentage: 80,
+      notify_manager_on_exceed: true,
+      notify_driver_on_limit: true,
+      email_notifications: true
     },
     effective_date: new Date().toISOString().split('T')[0]
   })
@@ -265,10 +265,10 @@ export const PersonalUsePolicyConfig: React.FC<PersonalUsePolicyConfigProps> = (
       approval_workflow: ApprovalWorkflow.MANAGER,
       auto_approve_under_miles: 50,
       notification_settings: {
-        notify_at_80_percent: true,
-        notify_at_95_percent: true,
-        notify_on_charge: true,
-        notify_on_rejection: true
+        notify_at_percentage: 80,
+        notify_manager_on_exceed: true,
+        notify_driver_on_limit: true,
+        email_notifications: true
       },
       effective_date: new Date().toISOString().split('T')[0]
     })
