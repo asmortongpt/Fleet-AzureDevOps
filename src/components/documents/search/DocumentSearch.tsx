@@ -31,9 +31,7 @@ interface DocumentSearchProps {
 export function DocumentSearch({
   documents,
   onSelectDocument,
-  
-  recentSearches = [],
-  _onSaveSearch
+  recentSearches = []
 }: DocumentSearchProps) {
   const [query, setQuery] = useState<string>('');
   const [isOpen, setIsOpen] = useState<boolean>(false);

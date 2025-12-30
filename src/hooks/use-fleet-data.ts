@@ -91,13 +91,14 @@ export function useFleetData() {
       if (DEBUG_FLEET_DATA) logger.debug('[useFleetData] Using demo vehicles:', demoVehicles.length)
       return demoVehicles
     }
-    
-    // Use API data
+
+    // Use API data - ensure alerts is always an array
     const rawVehicles = vehiclesData || []
-    return Array.isArray(rawVehicles) ? rawVehicles.map(v => ({
-      ...v,
-      alerts: Array.isArray(v.alerts) ? v.alerts : []
-    })) : []
+    return Array.isArray(rawVehicles) ? rawVehicles.map(v => {
+      // Ensure alerts is always a string array
+      const alerts = Array.isArray(v.alerts) ? v.alerts : []
+      return { ...v, alerts } as typeof v & { alerts: string[] }
+    }) : []
   }, [vehiclesData]);
 
   const drivers = useMemo(() => {
