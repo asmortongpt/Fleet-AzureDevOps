@@ -328,7 +328,7 @@ router.post(
       res.json(prediction)
     } catch (error: any) {
       if (error.name === 'ZodError') {
-        return res.status(400).json({ error: 'Validation error', details: error.errors })
+        return res.status(400).json({ error: 'Validation error', details: error.issues })
       }
       res.status(500).json({ error: 'Prediction failed', message: getErrorMessage(error) })
     }
@@ -367,7 +367,7 @@ router.post(
       res.json(score)
     } catch (error: any) {
       if (error.name === 'ZodError') {
-        return res.status(400).json({ error: 'Validation error', details: error.errors })
+        return res.status(400).json({ error: 'Validation error', details: error.issues })
       }
       res.status(500).json({ error: 'Scoring failed', message: getErrorMessage(error) })
     }
@@ -406,7 +406,7 @@ router.post(
       res.json(prediction)
     } catch (error: any) {
       if (error.name === 'ZodError') {
-        return res.status(400).json({ error: 'Validation error', details: error.errors })
+        return res.status(400).json({ error: 'Validation error', details: error.issues })
       }
       res.status(500).json({ error: 'Prediction failed', message: getErrorMessage(error) })
     }
@@ -443,7 +443,7 @@ router.post(
       res.json(forecast)
     } catch (error: any) {
       if (error.name === 'ZodError') {
-        return res.status(400).json({ error: 'Validation error', details: error.errors })
+        return res.status(400).json({ error: 'Validation error', details: error.issues })
       }
       res.status(500).json({ error: 'Forecasting failed', message: getErrorMessage(error) })
     }
@@ -521,7 +521,7 @@ router.post(
       res.json(response)
     } catch (error: any) {
       if (error.name === 'ZodError') {
-        return res.status(400).json({ error: 'Validation error', details: error.errors })
+        return res.status(400).json({ error: 'Validation error', details: error.issues })
       }
       res.status(500).json({ error: 'RAG query failed', message: getErrorMessage(error) })
     }
@@ -563,7 +563,7 @@ router.post(
       })
     } catch (error: any) {
       if (error.name === 'ZodError') {
-        return res.status(400).json({ error: 'Validation error', details: error.errors })
+        return res.status(400).json({ error: 'Validation error', details: error.issues })
       }
       res.status(500).json({ error: 'Indexing failed', message: getErrorMessage(error) })
     }
