@@ -44,5 +44,18 @@
   },
   "include": [
     "src"
+  ],
+  "exclude": [
+    "node_modules",
+    "dist",
+    "build",
+    "**/*.test.ts",
+    "**/*.test.tsx",
+    "**/*.spec.ts",
+    "**/*.spec.tsx",
+    "src/**/__tests__/**",
+    "src/components/experimental/**",
+    "src/features/experimental/**",
+    "tests/**"
   ]
 }
