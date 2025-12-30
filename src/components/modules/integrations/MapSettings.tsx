@@ -237,7 +237,7 @@ export function MapSettings() {
    * Validate all providers
    */
   const providerValidations = useMemo(() => {
-    const validations = new Map<MapProvider, ProviderValidation>()
+    const validations = new (globalThis.Map)<string, ProviderValidation>()
 
     MAP_PROVIDERS.forEach(provider => {
       validations.set(provider.id, validateProvider(provider))

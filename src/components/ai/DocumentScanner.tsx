@@ -202,7 +202,7 @@ export function DocumentScanner({
               </Button>
 
               {/* Camera capture for mobile */}
-              {navigator.mediaDevices?.getUserMedia && (
+              {typeof navigator !== 'undefined' && navigator.mediaDevices && (
                 <Button
                   type="button"
                   variant="outline"
