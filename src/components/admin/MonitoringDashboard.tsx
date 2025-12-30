@@ -101,11 +101,11 @@ const MonitoringDashboard: React.FC = () => {
       ]);
 
       setData({
-        health: healthRes?.data ?? null,
-        metrics: metricsRes?.data ?? null,
-        emulators: emulatorsRes?.data ?? null,
-        errors: errorsRes?.data ?? [],
-        alerts: alertsRes?.data ?? []
+        health: healthRes ?? null,
+        metrics: metricsRes ?? null,
+        emulators: emulatorsRes ?? null,
+        errors: errorsRes ?? [],
+        alerts: alertsRes ?? []
       });
 
       setLastRefresh(new Date());
