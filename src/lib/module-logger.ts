@@ -274,7 +274,7 @@ class ModuleLoggerClass {
     if (module) {
       return this.metrics.get(module)
     }
-    return this.metrics
+    return this.metrics as any
   }
 
   getLogs(filters?: { module?: string; level?: LogLevel; since?: Date }): LogEntry[] {
