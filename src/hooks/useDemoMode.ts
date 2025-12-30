@@ -109,8 +109,25 @@ export const useDemoMode = () => {
 
     // Set demo user in auth context
     const demoUser = DEMO_USERS[initialRole];
+    const roleMap: Record<UserRole, 'super-admin' | 'admin' | 'manager' | 'supervisor' | 'technician' | 'driver' | 'viewer'> = {
+      'fleet_manager': 'manager',
+      'driver': 'driver',
+      'technician': 'technician',
+      'dispatcher': 'manager',
+      'safety_officer': 'manager',
+      'accountant': 'viewer',
+      'admin': 'admin'
+    };
+
     setUser({
-      ...demoUser,
+      id: demoUser.id,
+      tenantId: 'demo-tenant',
+      email: demoUser.email,
+      name: `${demoUser.firstName} ${demoUser.lastName}`,
+      role: roleMap[initialRole],
+      permissions: ['read', 'write'],
+      status: 'active',
+      createdAt: new Date().toISOString(),
       token: 'demo-token-' + demoUser.id
     });
   }, [setUser]);
@@ -140,8 +157,25 @@ export const useDemoMode = () => {
 
     // Update demo user in auth context
     const demoUser = DEMO_USERS[newRole];
+    const roleMap: Record<UserRole, 'super-admin' | 'admin' | 'manager' | 'supervisor' | 'technician' | 'driver' | 'viewer'> = {
+      'fleet_manager': 'manager',
+      'driver': 'driver',
+      'technician': 'technician',
+      'dispatcher': 'manager',
+      'safety_officer': 'manager',
+      'accountant': 'viewer',
+      'admin': 'admin'
+    };
+
     setUser({
-      ...demoUser,
+      id: demoUser.id,
+      tenantId: 'demo-tenant',
+      email: demoUser.email,
+      name: `${demoUser.firstName} ${demoUser.lastName}`,
+      role: roleMap[newRole],
+      permissions: ['read', 'write'],
+      status: 'active',
+      createdAt: new Date().toISOString(),
       token: 'demo-token-' + demoUser.id
     });
   }, [isDemoMode, setUser]);

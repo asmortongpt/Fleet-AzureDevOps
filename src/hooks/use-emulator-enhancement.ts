@@ -150,17 +150,12 @@ export function useEmulatorEnhancement() {
     // Merge live telemetry with vehicle data
     return {
       ...vehicle,
-      speed: live.speed,
-      fuel: live.fuel,
-      battery: live.battery ?? (vehicle as any).battery,
+      fuelLevel: live.fuel ?? vehicle.fuelLevel,
       location: {
-        ...live.location,
-        address: live.location.address ?? ''
+        ...vehicle.location,
+        address: live.location.address ?? vehicle.location.address ?? ''
       },
       status: live.status,
-      // Add visual indicator that this is live data
-      _isLive: true as any,
-      _lastUpdate: live.timestamp
     }
   }, [liveData])
 
