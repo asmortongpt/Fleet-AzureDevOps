@@ -6,6 +6,8 @@ const logger = {
   debug: (...args: any[]) => console.debug('[Telemetry]', ...args),
 };
 
+
+
 /**
  * Fleet Application Telemetry Module - STUB IMPLEMENTATION
  *
@@ -178,13 +180,13 @@ export function trackMetric(_metric: IMetricTelemetry): void {
 
 export function startOperation(_operationName: string): () => void {
   if (!_telemetryInitialized) {
-    return () => {};
+    return () => { };
   }
   try {
-    return () => {}; // No-op stub
+    return () => { }; // No-op stub
   } catch (error) {
     logger.warn('[Telemetry] Failed to start operation:', error);
-    return () => {};
+    return () => { };
   }
 }
 
@@ -350,8 +352,8 @@ export function withErrorTracking<T extends (...args: unknown[]) => Promise<unkn
 
 export function createApiErrorInterceptor() {
   return {
-    onError: (_error: unknown, _config: { url: string; method: string }) => {},
-    onResponseError: (_error: unknown, _response: unknown) => {},
+    onError: (_error: unknown, _config: { url: string; method: string }) => { },
+    onResponseError: (_error: unknown, _response: unknown) => { },
   };
 }
 
@@ -586,12 +588,12 @@ export function trackAIAssistantUsed(_queryType: string, _responseTime?: number,
   try { /* No-op stub */ } catch (e) { logger.warn('[Telemetry] Failed to track AI assistant used:', e); }
 }
 export function createOperationTimer(_operationName: string): () => void {
-  if (!_telemetryInitialized) return () => {};
+  if (!_telemetryInitialized) return () => { };
   try {
-    return () => {};
+    return () => { };
   } catch (e) {
     logger.warn('[Telemetry] Failed to create operation timer:', e);
-    return () => {};
+    return () => { };
   }
 }
 export function trackPageLoad(_pageName: string, _loadTime: number): void {

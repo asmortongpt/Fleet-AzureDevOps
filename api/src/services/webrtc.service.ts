@@ -388,7 +388,7 @@ class WebRTCService extends EventEmitter {
       connection.state = `connecting`
 
       console.log(`📞 Received WebRTC answer for connection ${connectionId}`)
-      this.emit(`answer`, { connectionId, answer })
+      this.emit('answer', { connectionId, answer })
     } catch (error) {
       console.error('Error handling WebRTC answer:', error)
       throw error
@@ -410,7 +410,7 @@ class WebRTCService extends EventEmitter {
 
       // In production, this would add the ICE candidate to RTCPeerConnection
       console.log(`🧊 Added ICE candidate for connection ${connectionId}`)
-      this.emit(`icecandidate`, { connectionId, candidate })
+      this.emit('icecandidate', { connectionId, candidate })
     } catch (error) {
       console.error('Error adding ICE candidate:', error)
       throw error
@@ -460,7 +460,7 @@ class WebRTCService extends EventEmitter {
       const processedAudio = this.applyAudioProcessing(audioData, metadata)
 
       // Emit event for audio received
-      this.emit(`audioData`, {
+      this.emit('audioData', {
         connectionId,
         audioData: processedAudio,
         metadata
@@ -533,7 +533,7 @@ class WebRTCService extends EventEmitter {
       this.connections.delete(connectionId)
 
       console.log(`🔌 Closed WebRTC connection ${connectionId}`)
-      this.emit(`connectionClosed`, { connectionId })
+      this.emit('connectionClosed', { connectionId })
     } catch (error) {
       console.error('Error closing connection:', error)
     }

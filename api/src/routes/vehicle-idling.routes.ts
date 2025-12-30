@@ -1,8 +1,4 @@
 /**
-import { container } from '../container'
-import { asyncHandler } from '../middleware/errorHandler'
-import { NotFoundError, ValidationError } from '../errors/app-error'
-import logger from '../config/logger'; // Wave 22: Add Winston logger
  * Vehicle Idling Routes
  *
  * REST API endpoints for vehicle idling detection and analytics
@@ -16,6 +12,10 @@ import logger from '../config/logger'; // Wave 22: Add Winston logger
  * - Threshold configuration
  */
 
+import { container } from '../container'
+import { asyncHandler } from '../middleware/errorHandler'
+import { NotFoundError, ValidationError } from '../errors/app-error'
+import logger from '../config/logger'; // Wave 22: Add Winston logger
 import { Router, Request, Response } from 'express'
 import { body, param, query } from 'express-validator'
 

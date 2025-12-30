@@ -22,7 +22,7 @@ import { authenticateJWT } from '../middleware/auth'
 import { csrfProtection } from '../middleware/csrf'
 import { requirePermission } from '../middleware/permissions'
 import aiDispatchService from '../services/ai-dispatch'
-import logger from '../utils/logger'
+import logger from '../config/logger'
 
 
 

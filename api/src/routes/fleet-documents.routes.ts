@@ -1,8 +1,4 @@
 /**
-import { container } from '../container'
-import { asyncHandler } from '../middleware/errorHandler'
-import { NotFoundError, ValidationError } from '../errors/app-error'
-import logger from '../config/logger'; // Wave 31: Add Winston logger
  * Fleet Documents Routes
  *
  * Comprehensive document management API for fleet operations:
@@ -13,6 +9,10 @@ import logger from '../config/logger'; // Wave 31: Add Winston logger
  * - Download URL generation
  */
 
+import { container } from '../container'
+import { asyncHandler } from '../middleware/errorHandler'
+import { NotFoundError, ValidationError } from '../errors/app-error'
+import logger from '../config/logger'; // Wave 31: Add Winston logger
 import path from 'path'
 
 import { Router, Response } from 'express'
