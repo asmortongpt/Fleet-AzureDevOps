@@ -60,12 +60,12 @@ export function GISCommandCenter() {
 
   const filteredFacilities = useMemo(() => {
     if (selectedRegion === "all") return facilities
-    return facilities.filter(f => f.region === selectedRegion)
+    return facilities.filter(f => (f as any).region === selectedRegion)
   }, [facilities, selectedRegion])
 
   const metrics = useMemo(() => {
     const activeVehicles = filteredVehicles.filter(v => v.status === "active")
-    const operationalFacilities = filteredFacilities.filter(f => f.status === "operational")
+    const operationalFacilities = filteredFacilities.filter(f => (f as any).status === "operational")
     const emergencyVehicles = filteredVehicles.filter(v => v.status === "emergency")
     const serviceVehicles = filteredVehicles.filter(v => v.status === "service")
 
@@ -101,7 +101,7 @@ export function GISCommandCenter() {
     return colors[status]
   }
 
-  const getFacilityIcon = (type: GISFacility["type"]) => {
+  const getFacilityIcon = (type: string) => {
     switch (type) {
       case "office":
         return <Buildings className="w-5 h-5" />
@@ -111,6 +111,12 @@ export function GISCommandCenter() {
         return <Wrench className="w-5 h-5" />
       case "fueling-station":
         return <GasPump className="w-5 h-5" />
+      case "garage":
+        return <Wrench className="w-5 h-5" />
+      case "warehouse":
+        return <Buildings className="w-5 h-5" />
+      default:
+        return <Buildings className="w-5 h-5" />
     }
   }
 
@@ -286,15 +292,15 @@ export function GISCommandCenter() {
                       <p className="text-xs text-muted-foreground">{facility.type.replace("-", " ")}</p>
                       <p className="text-xs text-muted-foreground mt-1">{facility.address}</p>
                     </div>
-                    <Badge 
-                      variant="outline" 
+                    <Badge
+                      variant="outline"
                       className={
-                        facility.status === "operational" 
-                          ? "bg-success/10 text-success border-success/20" 
+                        (facility as any).status === "operational"
+                          ? "bg-success/10 text-success border-success/20"
                           : "bg-warning/10 text-warning border-warning/20"
                       }
                     >
-                      {facility.status}
+                      {(facility as any).status}
                     </Badge>
                   </div>
                 ))}
