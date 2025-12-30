@@ -109,7 +109,7 @@ const PerformanceMetrics: React.FC<Props> = ({ metrics, loading }) => {
       {/* Key Metrics Grid */}
       <Grid container spacing={2} sx={{ mb: 3 }}>
         {/* Throughput */}
-        <Grid item xs={12} md={6}>
+        <Grid size={{ xs: 12, md: 6 }}>
           <Paper sx={{ p: 2 }}>
             <Box display="flex" alignItems="center" gap={1} mb={1}>
               <NetworkCheck color="primary" />
@@ -133,7 +133,7 @@ const PerformanceMetrics: React.FC<Props> = ({ metrics, loading }) => {
         </Grid>
 
         {/* Average Response Time */}
-        <Grid item xs={12} md={6}>
+        <Grid size={{ xs: 12, md: 6 }}>
           <Paper sx={{ p: 2 }}>
             <Box display="flex" alignItems="center" gap={1} mb={1}>
               <Timer color="primary" />
@@ -154,7 +154,7 @@ const PerformanceMetrics: React.FC<Props> = ({ metrics, loading }) => {
         </Grid>
 
         {/* Cache Performance */}
-        <Grid item xs={12} md={6}>
+        <Grid size={{ xs: 12, md: 6 }}>
           <Paper sx={{ p: 2 }}>
             <Box display="flex" alignItems="center" gap={1} mb={1}>
               <Storage color="primary" />
@@ -177,7 +177,7 @@ const PerformanceMetrics: React.FC<Props> = ({ metrics, loading }) => {
         </Grid>
 
         {/* Database Performance */}
-        <Grid item xs={12} md={6}>
+        <Grid size={{ xs: 12, md: 6 }}>
           <Paper sx={{ p: 2 }}>
             <Box display="flex" alignItems="center" gap={1} mb={1}>
               <Speed color="primary" />
@@ -207,7 +207,7 @@ const PerformanceMetrics: React.FC<Props> = ({ metrics, loading }) => {
           Response Time Percentiles (All Endpoints)
         </Typography>
         <Grid container spacing={2}>
-          <Grid item xs={4}>
+          <Grid size={{ xs: 4 }}>
             <Box sx={{ textAlign: 'center' }}>
               <Typography variant="h6" color={getPerformanceColor(150)}>
                 {formatTime(150)}
@@ -217,7 +217,7 @@ const PerformanceMetrics: React.FC<Props> = ({ metrics, loading }) => {
               </Typography>
             </Box>
           </Grid>
-          <Grid item xs={4}>
+          <Grid size={{ xs: 4 }}>
             <Box sx={{ textAlign: 'center' }}>
               <Typography variant="h6" color={getPerformanceColor(450)}>
                 {formatTime(450)}
@@ -227,7 +227,7 @@ const PerformanceMetrics: React.FC<Props> = ({ metrics, loading }) => {
               </Typography>
             </Box>
           </Grid>
-          <Grid item xs={4}>
+          <Grid size={{ xs: 4 }}>
             <Box sx={{ textAlign: 'center' }}>
               <Typography variant="h6" color={getPerformanceColor(800)}>
                 {formatTime(800)}
