@@ -330,11 +330,11 @@ export function getPasswordStrength(password: string): {
     return { score, feedback }
   }
 
-  if (password.length >= 12) score++
-  if (/[a-z]/.test(password)) score++
-  if (/[A-Z]/.test(password)) score++
-  if (/[0-9]/.test(password)) score++
-  if (/[^A-Za-z0-9]/.test(password)) score++
+  if (password.length >= 12) score = (score + 1) as 0 | 1 | 2 | 3 | 4 | 5
+  if (/[a-z]/.test(password)) score = (score + 1) as 0 | 1 | 2 | 3 | 4 | 5
+  if (/[A-Z]/.test(password)) score = (score + 1) as 0 | 1 | 2 | 3 | 4 | 5
+  if (/[0-9]/.test(password)) score = (score + 1) as 0 | 1 | 2 | 3 | 4 | 5
+  if (/[^A-Za-z0-9]/.test(password)) score = (score + 1) as 0 | 1 | 2 | 3 | 4 | 5
 
   if (!/[a-z]/.test(password)) feedback.push('Add lowercase letters')
   if (!/[A-Z]/.test(password)) feedback.push('Add uppercase letters')
