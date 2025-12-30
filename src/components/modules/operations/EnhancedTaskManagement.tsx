@@ -306,7 +306,7 @@ export function EnhancedTaskManagement() {
         responseType: 'blob'
       })
 
-      const blob = new Blob([response?.data ?? new Blob()])
+      const blob = new Blob([response ?? new Blob()])
       const url = window.URL.createObjectURL(blob)
       const link = document.createElement('a')
       link.href = url
