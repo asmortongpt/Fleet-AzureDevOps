@@ -75,8 +75,9 @@ export function TripUsageDialog({
     }
 
     // Business percentage required for mixed trips
+    const businessPercentage = formData.business_percentage ?? 50
     if (formData.usage_type === 'mixed' &&
-        (formData.business_percentage <= 0 || formData.business_percentage >= 100)) {
+        (businessPercentage <= 0 || businessPercentage >= 100)) {
       return "Business percentage must be between 1-99 for mixed trips"
     }
 
@@ -106,7 +107,8 @@ export function TripUsageDialog({
     if (formData.usage_type === 'personal') {
       personalMiles = formData.miles_total
     } else if (formData.usage_type === 'mixed') {
-      personalMiles = formData.miles_total * ((100 - formData.business_percentage) / 100)
+      const businessPercentage = formData.business_percentage ?? 50
+      personalMiles = formData.miles_total * ((100 - businessPercentage) / 100)
     }
 
     return personalMiles * policy.personal_use_rate_per_mile
@@ -164,16 +166,17 @@ export function TripUsageDialog({
     })
   }
 
+  const businessPercentageValue = formData.business_percentage ?? 50
   const businessMiles = formData.usage_type === 'business'
     ? formData.miles_total
     : formData.usage_type === 'mixed'
-      ? formData.miles_total * (formData.business_percentage / 100)
+      ? formData.miles_total * (businessPercentageValue / 100)
       : 0
 
   const personalMiles = formData.usage_type === 'personal'
     ? formData.miles_total
     : formData.usage_type === 'mixed'
-      ? formData.miles_total * ((100 - formData.business_percentage) / 100)
+      ? formData.miles_total * ((100 - businessPercentageValue) / 100)
       : 0
 
   return (

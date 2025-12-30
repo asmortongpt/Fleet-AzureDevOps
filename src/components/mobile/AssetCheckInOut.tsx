@@ -55,9 +55,9 @@ const AssetCheckInOut: React.FC<AssetCheckInOutProps> = ({ tenantId, onCheckInOu
       const gpsCoords = { lat: _location.coords?.latitude ?? 0, lng: _location.coords?.longitude ?? 0 };
 
       if (_isCheckingIn) {
-        await checkInAsset({ photoUrl, gpsCoords, conditionRating, signature: _signature, tenantId });
+        await checkInAsset({ photoUrl, gpsCoords, conditionRating, signature: _signature, tenantId }, {});
       } else {
-        await checkOutAsset({ photoUrl, gpsCoords, conditionRating, signature: _signature, tenantId });
+        await checkOutAsset({ photoUrl, gpsCoords, conditionRating, signature: _signature, tenantId }, {});
       }
 
       onCheckInOutSuccess();
