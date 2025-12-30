@@ -469,8 +469,10 @@ class APIClient {
   // Microsoft Teams integration endpoints
   teams = {
     list: (params?: Record<string, unknown>) => this.get('/api/teams/messages', params),
+    listMessages: (params?: Record<string, unknown>) => this.get('/api/teams/messages', params),
     get: (id: string) => this.get(`/api/teams/messages/${id}`),
     send: (data: unknown) => this.post('/api/teams/messages', data),
+    sendMessage: (data: unknown) => this.post('/api/teams/messages', data),
     channels: {
       list: () => this.get('/api/teams/channels'),
       get: (id: string) => this.get(`/api/teams/channels/${id}`)
@@ -480,8 +482,12 @@ class APIClient {
   // Microsoft Outlook integration endpoints
   outlook = {
     list: (params?: Record<string, unknown>) => this.get('/api/outlook/emails', params),
+    listMessages: (params?: Record<string, unknown>) => this.get('/api/outlook/emails', params),
     get: (id: string) => this.get(`/api/outlook/emails/${id}`),
+    getMessage: (id: string) => this.get(`/api/outlook/emails/${id}`),
     send: (data: unknown) => this.post('/api/outlook/emails', data),
+    sendEmail: (data: unknown) => this.post('/api/outlook/emails', data),
+    replyToEmail: (id: string, data: unknown) => this.post(`/api/outlook/emails/${id}/reply`, data),
     folders: {
       list: () => this.get('/api/outlook/folders')
     }
@@ -492,6 +498,7 @@ class APIClient {
     list: (params?: Record<string, unknown>) => this.get('/api/calendar/events', params),
     get: (id: string) => this.get(`/api/calendar/events/${id}`),
     create: (data: unknown) => this.post('/api/calendar/events', data),
+    createEvent: (data: unknown) => this.post('/api/calendar/events', data),
     update: (id: string, data: unknown) => this.put(`/api/calendar/events/${id}`, data),
     delete: (id: string) => this.delete(`/api/calendar/events/${id}`)
   }
@@ -500,6 +507,9 @@ class APIClient {
   arcgisLayers = {
     list: (params?: Record<string, unknown>) => this.get('/api/arcgis/layers', params),
     get: (id: string) => this.get(`/api/arcgis/layers/${id}`),
+    create: (data: unknown) => this.post('/api/arcgis/layers', data),
+    update: (id: string, data: unknown) => this.put(`/api/arcgis/layers/${id}`, data),
+    delete: (id: string) => this.delete(`/api/arcgis/layers/${id}`),
     query: (layerId: string, params?: Record<string, unknown>) =>
       this.get(`/api/arcgis/layers/${layerId}/query`, params),
     features: (layerId: string, params?: Record<string, unknown>) =>
@@ -512,7 +522,14 @@ class APIClient {
     get: (id: string) => this.get(`/api/traffic-cameras/${id}`),
     nearby: (lat: number, lng: number, radiusMeters?: number) =>
       this.get('/api/traffic-cameras/nearby', { lat, lng, radiusMeters }),
-    sync: () => this.post('/api/traffic-cameras/sync', {})
+    sync: () => this.post('/api/traffic-cameras/sync', {}),
+    sources: {
+      list: () => this.get('/api/traffic-cameras/sources'),
+      get: (id: string) => this.get(`/api/traffic-cameras/sources/${id}`),
+      create: (data: unknown) => this.post('/api/traffic-cameras/sources', data),
+      update: (id: string, data: unknown) => this.put(`/api/traffic-cameras/sources/${id}`, data),
+      delete: (id: string) => this.delete(`/api/traffic-cameras/sources/${id}`)
+    }
   }
 
   // Personal Use tracking endpoints
