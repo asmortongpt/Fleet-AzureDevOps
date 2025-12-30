@@ -205,7 +205,7 @@ router.post('/start', csrfProtection, requirePermission('route:create:own'), aud
   } catch (error: any) {
     logger.error('Error starting trip:', error);
     if (error instanceof z.ZodError) {
-      return res.status(400).json({ error: 'Invalid request data', details: error.errors });
+      return res.status(400).json({ error: 'Invalid request data', details: error.issues });
     }
     res.status(500).json({ error: 'Failed to start trip' });
   }
@@ -337,7 +337,7 @@ router.post('/:id/end', csrfProtection, requirePermission('route:update:own'), a
   } catch (error: any) {
     logger.error('Error ending trip:', error);
     if (error instanceof z.ZodError) {
-      return res.status(400).json({ error: 'Invalid request data', details: error.errors });
+      return res.status(400).json({ error: 'Invalid request data', details: error.issues });
     }
     res.status(500).json({ error: 'Failed to end trip' });
   }
@@ -511,7 +511,7 @@ router.post('/:id/metrics', csrfProtection, requirePermission('route:update:own'
   } catch (error: any) {
     logger.error('Error saving metrics:', error);
     if (error instanceof z.ZodError) {
-      return res.status(400).json({ error: 'Invalid request data', details: error.errors });
+      return res.status(400).json({ error: 'Invalid request data', details: error.issues });
     }
     res.status(500).json({ error: 'Failed to save metrics' });
   }
@@ -741,7 +741,7 @@ router.patch('/:id/classify', csrfProtection, requirePermission('route:update:ow
   } catch (error: any) {
     logger.error('Error classifying trip:', error);
     if (error instanceof z.ZodError) {
-      return res.status(400).json({ error: 'Invalid request data', details: error.errors });
+      return res.status(400).json({ error: 'Invalid request data', details: error.issues });
     }
     res.status(500).json({ error: 'Failed to classify trip' });
   }

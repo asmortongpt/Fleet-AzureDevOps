@@ -1,2 +1,2 @@
 // Facilities repositories
-export * from './facilities.repository';
+export * from './facility.repository';
