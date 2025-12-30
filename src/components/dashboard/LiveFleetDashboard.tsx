@@ -46,7 +46,7 @@ export const LiveFleetDashboard = React.memo(function LiveFleetDashboard({ initi
   // -- Data Sync --
   useEffect(() => {
     if (driversData) {
-      setDrivers(driversData as Driver[]);
+      setDrivers(driversData as unknown as Driver[]);
     }
   }, [driversData]);
 
