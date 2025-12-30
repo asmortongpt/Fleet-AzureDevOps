@@ -1,6 +1,6 @@
 import { createLogger } from '@/utils/logger'
 
-const logger = createLogger('OfflineManager')
+const logger = createLogger()
 
 /**
  * Offline Manager

@@ -47,13 +47,13 @@ const UtilizationDashboard: React.FC = () => {
 
     const fetchData = async () => {
       try {
-        const idleAssetsData = await fetchIdleAssets(tenantId);
+        const idleAssetsData = await fetchIdleAssets();
         setIdleAssets(idleAssetsData as Asset[]);
 
-        const utilizationData = await fetchUtilizationData(tenantId);
+        const utilizationData = await fetchUtilizationData();
         setUtilizationData(utilizationData as UtilizationData[]);
 
-        const roiMetricsData = await fetchROIMetrics(tenantId);
+        const roiMetricsData = await fetchROIMetrics();
         setRoiMetrics(roiMetricsData as ROIMetric[]);
 
         logger.logAudit('Utilization dashboard data fetched', { tenantId });
@@ -88,8 +88,8 @@ const UtilizationDashboard: React.FC = () => {
       <div>
         <h2>Idle Assets</h2>
         <Table columns={columns} dataSource={idleAssets} rowKey="id" />
-        <Button onClick={() => exportToCSV(idleAssets, 'idle_assets.csv')}>Export to CSV</Button>
-        <Button onClick={() => exportToExcel(idleAssets, 'idle_assets.xlsx')}>Export to Excel</Button>
+        <Button onClick={() => exportToCSV(idleAssets)}>Export to CSV</Button>
+        <Button onClick={() => exportToExcel(idleAssets)}>Export to Excel</Button>
       </div>
       <div>
         <h2>Utilization Rate</h2>
