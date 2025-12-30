@@ -119,10 +119,11 @@ export function useVehicleTelemetry(options: UseVehicleTelemetryOptions = {}) {
               location: data?.gps ? {
                 lat: data.gps.latitude,
                 lng: data.gps.longitude,
+                latitude: data.gps.latitude,
+                longitude: data.gps.longitude,
                 address: current.location?.address ?? ''
               } : current.location,
               speed: data?.gps?.speed ?? data?.obd?.speed ?? current.speed,
-              lastUpdated: new Date().toISOString(),
               status: determineVehicleStatus(current, data)
             })
             return updated
@@ -153,10 +154,15 @@ export function useVehicleTelemetry(options: UseVehicleTelemetryOptions = {}) {
             const updated = new Map(prev)
             updated.set(vehicleId, {
               ...current,
-              location: { lat: latitude, lng: longitude },
+              location: {
+                lat: latitude,
+                lng: longitude,
+                latitude,
+                longitude,
+                address: current.location?.address ?? ''
+              },
               speed: speed ?? current.speed,
               heading: heading ?? current.heading,
-              lastUpdated: new Date().toISOString(),
               status: speed > 0 ? 'active' : (current.status === 'active' ? 'idle' : current.status)
             })
             return updated

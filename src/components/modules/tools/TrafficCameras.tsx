@@ -148,7 +148,7 @@ export function TrafficCameras(): JSX.Element {
   const { data: sourcesData = [], isLoading: sourcesLoading } = useQuery({
     queryKey: ["trafficCameras", "sources"],
     queryFn: async () => {
-      const result = await apiClient.trafficCameras.sources()
+      const result = await apiClient.trafficCameras.sources.list()
       return result as CameraDataSource[]
     },
     gcTime: 5 * 60 * 1000 // 5 minutes

@@ -4,10 +4,10 @@ import { usePerformanceMonitor } from "@/hooks/usePerformanceMonitor"
 import { Vehicle, GISFacility, TrafficCamera } from "@/lib/types"
 import logger from '@/utils/logger';
 
-let mapboxgl: (typeof import("mapbox-gl")) | null = null
+let mapboxgl: any | null = null
 let mapboxCssLoaded = false
 
-async function loadMapboxGL(): Promise<typeof import("mapbox-gl")> {
+async function loadMapboxGL(): Promise<any> {
   if (mapboxgl) return mapboxgl
 
   try {
