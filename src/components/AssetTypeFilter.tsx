@@ -64,13 +64,13 @@ const assetCategories: { value: AssetCategory; label: string; icon: typeof Truck
 ]
 
 const assetTypesByCategory: Record<AssetCategory, { value: AssetType; label: string }[]> = {
-  'PASSENGER_VEHICLE': [
+  'PASSENGER_VEHICLE' as AssetCategory: [
     { value: 'SEDAN' as AssetType, label: 'Sedan' },
     { value: 'SUV' as AssetType, label: 'SUV' },
     { value: 'TRUCK' as AssetType, label: 'Truck' },
     { value: 'VAN' as AssetType, label: 'Van' }
   ],
-  'HEAVY_EQUIPMENT': [
+  'HEAVY_EQUIPMENT' as AssetCategory: [
     { value: 'EXCAVATOR' as AssetType, label: 'Excavator' },
     { value: 'BULLDOZER' as AssetType, label: 'Bulldozer' },
     { value: 'LOADER' as AssetType, label: 'Loader' },
@@ -80,24 +80,24 @@ const assetTypesByCategory: Record<AssetCategory, { value: AssetType; label: str
     { value: 'CRANE' as AssetType, label: 'Crane' },
     { value: 'FORKLIFT' as AssetType, label: 'Forklift' }
   ],
-  'TRAILER': [
+  'TRAILER' as AssetCategory: [
     { value: 'FLATBED' as AssetType, label: 'Flatbed' },
     { value: 'ENCLOSED' as AssetType, label: 'Enclosed' },
     { value: 'DUMP' as AssetType, label: 'Dump' },
     { value: 'LOWBOY' as AssetType, label: 'Lowboy' },
     { value: 'REFRIGERATED' as AssetType, label: 'Refrigerated' }
   ],
-  'TRACTOR': [
+  'TRACTOR' as AssetCategory: [
     { value: 'FARM_TRACTOR' as AssetType, label: 'Farm Tractor' },
     { value: 'ROAD_TRACTOR' as AssetType, label: 'Road Tractor' }
   ],
-  'SPECIALTY': [
+  'SPECIALTY' as AssetCategory: [
     { value: 'GENERATOR' as AssetType, label: 'Generator' },
     { value: 'COMPRESSOR' as AssetType, label: 'Compressor' },
     { value: 'PUMP' as AssetType, label: 'Pump' },
     { value: 'WELDER' as AssetType, label: 'Welder' }
   ],
-  'NON_POWERED': [
+  'NON_POWERED' as AssetCategory: [
     { value: 'OTHER' as AssetType, label: 'Other' }
   ]
 }

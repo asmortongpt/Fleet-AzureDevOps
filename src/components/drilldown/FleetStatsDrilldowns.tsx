@@ -318,7 +318,7 @@ export function MaintenanceDrilldown() {
                                 <div>
                                     <div className="font-medium">{order.title}</div>
                                     <div className="text-xs text-muted-foreground">
-                                        {order.vehicle} • Due: {order.dueDate || 'N/A'}
+                                        {order.vehicleId} • Due: {order.dueDate || 'N/A'}
                                     </div>
                                 </div>
                                 <Badge variant={order.priority === 'urgent' ? 'destructive' : 'secondary'}>
@@ -418,7 +418,7 @@ export function FuelManagementDrilldown() {
                         {transactions.slice(0, 10).map(tx => (
                             <div key={tx.id} className="flex items-center justify-between py-2 border-b last:border-0">
                                 <div>
-                                    <div className="font-medium">{tx.vehicle}</div>
+                                    <div className="font-medium">{tx.vehicleId}</div>
                                     <div className="text-xs text-muted-foreground">
                                         {tx.date} • {tx.locationData?.address.split(',')[0] || 'Unknown Location'}
                                     </div>

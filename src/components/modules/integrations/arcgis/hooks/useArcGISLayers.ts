@@ -35,7 +35,7 @@ export function useArcGISLayers(): UseArcGISLayersReturn {
 
       const layersData = await apiClient.arcgisLayers.list()
       setLayers(
-        layersData.map((layer) => ({
+        layersData.map((layer: LayerWithStatus) => ({
           ...layer,
           health: "unknown" as LayerHealth,
         }))

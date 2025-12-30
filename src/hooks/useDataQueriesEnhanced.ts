@@ -120,7 +120,7 @@ export function useUpdateVehicle(
 
   return useMutationWithErrorHandling<Vehicle, unknown, Partial<Vehicle> & { id: string }>(
     async ({ id, ...updates }) => {
-      const response = await apiClient.patch<{ data: Vehicle }>(`/vehicles/${id}`, updates);
+      const response = await apiClient.batch<{ data: Vehicle }>(`/vehicles/${id}`, updates);
       return response?.data;
     },
     {
@@ -224,7 +224,7 @@ export function useUpdateDriver(
 
   return useMutationWithErrorHandling<Driver, unknown, Partial<Driver> & { id: string }>(
     async ({ id, ...updates }) => {
-      const response = await apiClient.patch<{ data: Driver }>(`/drivers/${id}`, updates);
+      const response = await apiClient.batch<{ data: Driver }>(`/drivers/${id}`, updates);
       return response?.data;
     },
     {
@@ -311,7 +311,7 @@ export function useUpdateWorkOrder(
 
   return useMutationWithErrorHandling<WorkOrder, unknown, Partial<WorkOrder> & { id: string }>(
     async ({ id, ...updates }) => {
-      const response = await apiClient.patch<{ data: WorkOrder }>(`/work-orders/${id}`, updates);
+      const response = await apiClient.batch<{ data: WorkOrder }>(`/work-orders/${id}`, updates);
       return response?.data;
     },
     {

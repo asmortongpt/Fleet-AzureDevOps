@@ -92,7 +92,6 @@ export function DataGrid<TData extends { id?: string | number }>({
       openInspect({
         type: inspectorType,
         id: row.id.toString(),
-        data: row,
       });
     }
   };
