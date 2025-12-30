@@ -9,7 +9,7 @@ interface BrandingContextProps {
 
 const BrandingContext = createContext<BrandingContextProps>({ brandingConfig: null });
 
-export const BrandingProvider: React.FC<{ tenantId: string }> = ({ tenantId, children }) => {
+export const BrandingProvider: React.FC<{ tenantId: string; children?: React.ReactNode }> = ({ tenantId, children }) => {
   const [brandingConfig, setBrandingConfig] = useState<BrandingConfig | null>(null);
 
   useEffect(() => {
