@@ -187,7 +187,7 @@ const MonitoringDashboard: React.FC = () => {
       {/* Main Dashboard Grid */}
       <Grid container spacing={3}>
         {/* System Health - Full Width */}
-        <Grid item xs={12}>
+        <Grid size={{ xs: 12 }}>
           <SystemHealthWidget
             health={data.health}
             loading={loading}
@@ -195,7 +195,7 @@ const MonitoringDashboard: React.FC = () => {
         </Grid>
 
         {/* Performance Metrics - Half Width */}
-        <Grid item xs={12} md={6}>
+        <Grid size={{ xs: 12, md: 6 }}>
           <Card sx={{ height: '100%' }}>
             <CardContent>
               <Typography variant="h6" gutterBottom>
@@ -210,7 +210,7 @@ const MonitoringDashboard: React.FC = () => {
         </Grid>
 
         {/* Error Rate Chart - Half Width */}
-        <Grid item xs={12} md={6}>
+        <Grid size={{ xs: 12, md: 6 }}>
           <Card sx={{ height: '100%' }}>
             <CardContent>
               <Typography variant="h6" gutterBottom>
@@ -225,7 +225,7 @@ const MonitoringDashboard: React.FC = () => {
         </Grid>
 
         {/* Emulator Monitor - Full Width */}
-        <Grid item xs={12}>
+        <Grid size={{ xs: 12 }}>
           <Card>
             <CardContent>
               <Typography variant="h6" gutterBottom>
@@ -240,7 +240,7 @@ const MonitoringDashboard: React.FC = () => {
         </Grid>
 
         {/* Alerts Panel - Full Width */}
-        <Grid item xs={12}>
+        <Grid size={{ xs: 12 }}>
           <Card>
             <CardContent>
               <Typography variant="h6" gutterBottom>
@@ -255,9 +255,9 @@ const MonitoringDashboard: React.FC = () => {
         </Grid>
 
         {/* Quick Stats */}
-        <Grid item xs={12}>
+        <Grid size={{ xs: 12 }}>
           <Grid container spacing={2}>
-            <Grid item xs={6} md={3}>
+            <Grid size={{ xs: 6, md: 3 }}>
               <Paper sx={{ p: 2, textAlign: 'center' }}>
                 <CheckCircle color="success" />
                 <Typography variant="h6">
@@ -269,7 +269,7 @@ const MonitoringDashboard: React.FC = () => {
                 </Typography>
               </Paper>
             </Grid>
-            <Grid item xs={6} md={3}>
+            <Grid size={{ xs: 6, md: 3 }}>
               <Paper sx={{ p: 2, textAlign: 'center' }}>
                 <Assessment color="primary" />
                 <Typography variant="h6">
@@ -280,7 +280,7 @@ const MonitoringDashboard: React.FC = () => {
                 </Typography>
               </Paper>
             </Grid>
-            <Grid item xs={6} md={3}>
+            <Grid size={{ xs: 6, md: 3 }}>
               <Paper sx={{ p: 2, textAlign: 'center' }}>
                 <Error color="error" />
                 <Typography variant="h6">
@@ -291,7 +291,7 @@ const MonitoringDashboard: React.FC = () => {
                 </Typography>
               </Paper>
             </Grid>
-            <Grid item xs={6} md={3}>
+            <Grid size={{ xs: 6, md: 3 }}>
               <Paper sx={{ p: 2, textAlign: 'center' }}>
                 <Warning color="warning" />
                 <Typography variant="h6">

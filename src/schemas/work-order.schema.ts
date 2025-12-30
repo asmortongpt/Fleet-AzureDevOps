@@ -202,9 +202,13 @@ export const workOrderCompletionSchema = z.object({
 // COMBINED WORK ORDER SCHEMA (ALL 28 FIELDS)
 // ============================================================================
 
-export const workOrderSchema = workOrderDetailsSchema
+// Base schema without refinements (used for accessing .shape)
+const workOrderBaseSchema = workOrderDetailsSchema
   .merge(workOrderPartsLaborSchema)
   .merge(workOrderCompletionSchema)
+
+// Full schema with refinements
+export const workOrderSchema = workOrderBaseSchema
   .refine(
     (data) => {
       // Validation: Scheduled date must be after request date
@@ -318,38 +322,39 @@ export const workOrderSchema = workOrderDetailsSchema
 export type WorkOrderFormData = z.infer<typeof workOrderSchema>
 
 // Partial schema for updates (all fields optional)
+// Use the base schema to access .shape before refinements are applied
 export const workOrderUpdateSchema = z.object({
-  workOrderNumber: workOrderSchema.shape.workOrderNumber.optional(),
-  vehicleId: workOrderSchema.shape.vehicleId.optional(),
-  workType: workOrderSchema.shape.workType.optional(),
-  priority: workOrderSchema.shape.priority.optional(),
-  status: workOrderSchema.shape.status.optional(),
-  description: workOrderSchema.shape.description.optional(),
-  requestedBy: workOrderSchema.shape.requestedBy.optional(),
-  requestDate: workOrderSchema.shape.requestDate.optional(),
-  scheduledDate: workOrderSchema.shape.scheduledDate.optional(),
-  dueDate: workOrderSchema.shape.dueDate.optional(),
-  assignedTo: workOrderSchema.shape.assignedTo.optional(),
-  facility: workOrderSchema.shape.facility.optional(),
-  estimatedHours: workOrderSchema.shape.estimatedHours.optional(),
-  actualHours: workOrderSchema.shape.actualHours.optional(),
-  laborRate: workOrderSchema.shape.laborRate.optional(),
-  laborCost: workOrderSchema.shape.laborCost.optional(),
-  partsCost: workOrderSchema.shape.partsCost.optional(),
-  partsUsed: workOrderSchema.shape.partsUsed.optional(),
-  additionalCharges: workOrderSchema.shape.additionalCharges.optional(),
-  additionalChargesDescription: workOrderSchema.shape.additionalChargesDescription.optional(),
-  startDate: workOrderSchema.shape.startDate.optional(),
-  completionDate: workOrderSchema.shape.completionDate.optional(),
-  completionNotes: workOrderSchema.shape.completionNotes.optional(),
-  totalCost: workOrderSchema.shape.totalCost.optional(),
-  invoiceNumber: workOrderSchema.shape.invoiceNumber.optional(),
-  invoiceDate: workOrderSchema.shape.invoiceDate.optional(),
-  paymentStatus: workOrderSchema.shape.paymentStatus.optional(),
-  warranty: workOrderSchema.shape.warranty.optional(),
-  warrantyExpirationDate: workOrderSchema.shape.warrantyExpirationDate.optional(),
-  mileageIn: workOrderSchema.shape.mileageIn.optional(),
-  mileageOut: workOrderSchema.shape.mileageOut.optional(),
+  workOrderNumber: workOrderBaseSchema.shape.workOrderNumber.optional(),
+  vehicleId: workOrderBaseSchema.shape.vehicleId.optional(),
+  workType: workOrderBaseSchema.shape.workType.optional(),
+  priority: workOrderBaseSchema.shape.priority.optional(),
+  status: workOrderBaseSchema.shape.status.optional(),
+  description: workOrderBaseSchema.shape.description.optional(),
+  requestedBy: workOrderBaseSchema.shape.requestedBy.optional(),
+  requestDate: workOrderBaseSchema.shape.requestDate.optional(),
+  scheduledDate: workOrderBaseSchema.shape.scheduledDate.optional(),
+  dueDate: workOrderBaseSchema.shape.dueDate.optional(),
+  assignedTo: workOrderBaseSchema.shape.assignedTo.optional(),
+  facility: workOrderBaseSchema.shape.facility.optional(),
+  estimatedHours: workOrderBaseSchema.shape.estimatedHours.optional(),
+  actualHours: workOrderBaseSchema.shape.actualHours.optional(),
+  laborRate: workOrderBaseSchema.shape.laborRate.optional(),
+  laborCost: workOrderBaseSchema.shape.laborCost.optional(),
+  partsCost: workOrderBaseSchema.shape.partsCost.optional(),
+  partsUsed: workOrderBaseSchema.shape.partsUsed.optional(),
+  additionalCharges: workOrderBaseSchema.shape.additionalCharges.optional(),
+  additionalChargesDescription: workOrderBaseSchema.shape.additionalChargesDescription.optional(),
+  startDate: workOrderBaseSchema.shape.startDate.optional(),
+  completionDate: workOrderBaseSchema.shape.completionDate.optional(),
+  completionNotes: workOrderBaseSchema.shape.completionNotes.optional(),
+  totalCost: workOrderBaseSchema.shape.totalCost.optional(),
+  invoiceNumber: workOrderBaseSchema.shape.invoiceNumber.optional(),
+  invoiceDate: workOrderBaseSchema.shape.invoiceDate.optional(),
+  paymentStatus: workOrderBaseSchema.shape.paymentStatus.optional(),
+  warranty: workOrderBaseSchema.shape.warranty.optional(),
+  warrantyExpirationDate: workOrderBaseSchema.shape.warrantyExpirationDate.optional(),
+  mileageIn: workOrderBaseSchema.shape.mileageIn.optional(),
+  mileageOut: workOrderBaseSchema.shape.mileageOut.optional(),
 })
 
 // Export schemas for each section
