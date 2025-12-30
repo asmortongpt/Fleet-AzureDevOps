@@ -227,7 +227,7 @@ export function DataWorkbench() {
         </TabsContent>
 
         <TabsContent value="fuel" className="space-y-4">
-          <FuelTab vehicles={vehicles} fuelRecords={fuelRecords} maintenanceRecords={maintenanceRecords} />
+          <FuelTab vehicles={vehicles} fuelRecords={fuelRecords} maintenanceRecords={maintenanceRecords} timeRange="" onTimeRangeChange={() => {}} />
         </TabsContent>
 
         <TabsContent value="analytics" className="space-y-4">
