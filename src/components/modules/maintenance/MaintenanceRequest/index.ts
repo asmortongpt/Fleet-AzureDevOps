@@ -1,1 +1,1 @@
-export * from "./MaintenanceRequest";
+export * from "../MaintenanceRequest";
