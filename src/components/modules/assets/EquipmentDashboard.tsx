@@ -20,6 +20,8 @@ import {
 } from "@/components/ui/table"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { apiClient } from "@/lib/api-client"
+import { isSuccessResponse } from "@/lib/schemas/responses"
+import type { ApiResponse } from "@/lib/schemas/responses"
 import logger from '@/utils/logger';
 
 interface Equipment {
@@ -99,16 +101,24 @@ export function EquipmentDashboard() {
         certificationsRes,
         matrixRes
       ] = await Promise.all([
-        apiClient.get<ApiResponse<Equipment[]>>('/api/heavy-equipment'),
-        apiClient.get<ApiResponse<MaintenanceSchedule[]>>('/api/heavy-equipment/maintenance/schedules'),
-        apiClient.get<ApiResponse<Certification[]>>('/api/heavy-equipment/certifications/expiring?days=60'),
-        apiClient.get<ApiResponse<any[]>>('/api/heavy-equipment/certifications/matrix')
+        apiClient.get<ApiResponse<{ equipment: Equipment[] }>>('/api/heavy-equipment'),
+        apiClient.get<ApiResponse<{ schedules: MaintenanceSchedule[] }>>('/api/heavy-equipment/maintenance/schedules'),
+        apiClient.get<ApiResponse<{ alerts: Certification[] }>>('/api/heavy-equipment/certifications/expiring?days=60'),
+        apiClient.get<ApiResponse<{ matrix: any[] }>>('/api/heavy-equipment/certifications/matrix')
       ])
 
-      setEquipment(equipmentRes.data.equipment || [])
-      setMaintenanceSchedules(schedulesRes.data.schedules || [])
-      setCertifications(certificationsRes.data.alerts || [])
-      setCertificationMatrix(matrixRes.data.matrix || [])
+      if (isSuccessResponse(equipmentRes)) {
+        setEquipment(equipmentRes.data.equipment || [])
+      }
+      if (isSuccessResponse(schedulesRes)) {
+        setMaintenanceSchedules(schedulesRes.data.schedules || [])
+      }
+      if (isSuccessResponse(certificationsRes)) {
+        setCertifications(certificationsRes.data.alerts || [])
+      }
+      if (isSuccessResponse(matrixRes)) {
+        setCertificationMatrix(matrixRes.data.matrix || [])
+      }
     } catch (error) {
       logger.error("Error fetching dashboard data:", error)
       toast.error("Failed to load dashboard data")
