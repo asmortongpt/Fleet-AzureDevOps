@@ -596,7 +596,7 @@ export function DataWorkbench({ data }: DataWorkbenchProps) {
         <TabsContent value="maintenance" className="space-y-4">
           <div className="flex flex-col md:flex-row gap-4 items-start md:items-center">
             <div className="flex flex-wrap gap-2">
-              <Select value={maintenanceFilter} onValueChange={setMaintenanceFilter}>
+              <Select value={maintenanceFilter} onValueChange={(value: string) => setMaintenanceFilter(value as "all" | "completed" | "overdue" | "upcoming")}>
                 <SelectTrigger className="w-[120px] h-8">
                   <SelectValue placeholder="Filter by" />
                 </SelectTrigger>
@@ -694,28 +694,28 @@ export function DataWorkbench({ data }: DataWorkbenchProps) {
               value={`${Math.floor(Math.random() * 30 + 60)}%`}
               icon={<ChartLine className="h-5 w-5 text-muted-foreground" />}
               trend="up"
-              trendValue="5.2%"
+              change={5.2}
             />
             <MetricCard
               title="Maintenance Costs"
               value={`$${Math.floor(Math.random() * 1000 + 2000)}`}
               icon={<Wrench className="h-5 w-5 text-muted-foreground" />}
               trend="down"
-              trendValue="3.1%"
+              change={3.1}
             />
             <MetricCard
               title="Fuel Efficiency"
               value={`${(Math.random() * 10 + 15).toFixed(1)} MPG`}
               icon={<GasPump className="h-5 w-5 text-muted-foreground" />}
               trend="up"
-              trendValue="1.8%"
+              change={1.8}
             />
             <MetricCard
               title="Downtime Incidents"
               value={Math.floor(Math.random() * 10).toString()}
               icon={<Calendar className="h-5 w-5 text-muted-foreground" />}
               trend="down"
-              trendValue="2.4%"
+              change={2.4}
             />
           </div>
           <Card>

@@ -401,7 +401,12 @@ export const AssetComboManager: React.FC<AssetComboManagerProps> = ({
                       <AlertDialogFooter>
                         <AlertDialogCancel>Cancel</AlertDialogCancel>
                         <AlertDialogAction
-                          onClick={() => handleDetach(combo.relationship_type || '', combo.child_asset_name)}
+                          onClick={() => {
+                            const relType = combo.relationship_type || 'unknown';
+                            if (relType && typeof relType === 'string') {
+                              handleDetach(relType, combo.child_asset_name);
+                            }
+                          }}
                           className="bg-red-600 hover:bg-red-700"
                         >
                           Detach Asset

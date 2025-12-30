@@ -222,23 +222,55 @@ export const FPS_THRESHOLDS = {
 // Marker Optimization Suggestions
 // ============================================================================
 
-export function getMarkerOptimizationSuggestions(markerCount?: number): string[] {
-  const suggestions: string[] = [];
+export interface OptimizationSuggestion {
+  priority: 'high' | 'medium' | 'low';
+  message: string;
+  impact: string;
+  effort: string;
+}
+
+export function getMarkerOptimizationSuggestions(markerCount?: number): OptimizationSuggestion[] {
+  const suggestions: OptimizationSuggestion[] = [];
 
   if (!markerCount) return suggestions;
 
   if (markerCount > 1000) {
-    suggestions.push('Consider implementing marker clustering for better performance');
-    suggestions.push('Use viewport-based filtering to only render visible markers');
+    suggestions.push({
+      priority: 'high',
+      message: 'Consider implementing marker clustering for better performance',
+      impact: 'High - Significantly improves rendering performance',
+      effort: 'Medium - Requires cluster library integration'
+    });
+    suggestions.push({
+      priority: 'high',
+      message: 'Use viewport-based filtering to only render visible markers',
+      impact: 'High - Reduces DOM nodes',
+      effort: 'Medium - Requires viewport tracking'
+    });
   }
 
   if (markerCount > 500) {
-    suggestions.push('Enable marker virtualization');
-    suggestions.push('Implement lazy loading for marker details');
+    suggestions.push({
+      priority: 'medium',
+      message: 'Enable marker virtualization',
+      impact: 'Medium - Improves scroll performance',
+      effort: 'Medium - Requires virtual scrolling library'
+    });
+    suggestions.push({
+      priority: 'medium',
+      message: 'Implement lazy loading for marker details',
+      impact: 'Medium - Reduces initial load time',
+      effort: 'Low - Can be added incrementally'
+    });
   }
 
   if (markerCount > 100) {
-    suggestions.push('Consider using canvas-based rendering instead of DOM markers');
+    suggestions.push({
+      priority: 'low',
+      message: 'Consider using canvas-based rendering instead of DOM markers',
+      impact: 'Medium - Better for very large datasets',
+      effort: 'High - Requires complete rewrite'
+    });
   }
 
   return suggestions;
