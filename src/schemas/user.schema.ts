@@ -206,7 +206,7 @@ export const userSchema = userSchemaBase
 export type UserFormData = z.infer<typeof userSchema>
 
 // Partial schema for updates (all fields optional except required ones)
-export const userUpdateSchema = userSchemaBase.partial().omit({ password: true, confirmPassword: true })
+export const userUpdateSchema = (userSchemaBase as any).partial().omit({ password: true, confirmPassword: true })
 
 // Password change schema
 export const passwordChangeSchema = z.object({

@@ -43,7 +43,7 @@ import {
   CircularProgress,
   Alert
 } from '@mui/material'
-import Grid from '@mui/material/Grid2'
+import Grid from '@mui/material/Grid'
 import { useQuery } from '@tanstack/react-query'
 import axios from 'axios'
 import React, { useState, useEffect, useRef, useCallback } from 'react'
