@@ -1,0 +1,1514 @@
+{
+    "registry_version": "1.0.0",
+    "generated_at": "2025-12-30T15:51:15-05:00",
+    "total_features": 42,
+    "features": [
+        {
+            "id": "FTR-001",
+            "name": "Fleet Hub - Overview",
+            "slug": "fleet-hub-overview",
+            "hub": "fleet",
+            "routes": [
+                "/fleet",
+                "/fleet-hub-consolidated"
+            ],
+            "api_endpoints": [
+                "/api/vehicles",
+                "/api/vehicles/:id",
+                "/api/fleet-optimizer"
+            ],
+            "entities": [
+                "Vehicle",
+                "VehicleLocation",
+                "VehicleStatus"
+            ],
+            "components": [
+                "FleetHub.tsx",
+                "FleetOverviewContent",
+                "FleetDashboard.tsx"
+            ],
+            "integrations": [],
+            "dependencies": [
+                "auth"
+            ],
+            "risk_level": "high",
+            "complexity": "high",
+            "priority": 1
+        },
+        {
+            "id": "FTR-002",
+            "name": "Fleet Hub - GPS Tracking",
+            "slug": "fleet-hub-gps",
+            "hub": "fleet",
+            "routes": [
+                "/gps-tracking"
+            ],
+            "api_endpoints": [
+                "/api/gps",
+                "/api/vehicles/locations",
+                "/api/telematics"
+            ],
+            "entities": [
+                "VehicleLocation",
+                "GPSData",
+                "Telematics"
+            ],
+            "components": [
+                "GPSTracking.tsx",
+                "LiveFleetDashboard.tsx",
+                "LeafletMap.tsx"
+            ],
+            "integrations": [
+                "ArcGIS",
+                "GoogleMaps"
+            ],
+            "dependencies": [
+                "auth",
+                "fleet-hub-overview"
+            ],
+            "risk_level": "high",
+            "complexity": "high",
+            "priority": 1
+        },
+        {
+            "id": "FTR-003",
+            "name": "Fleet Hub - Vehicle Telemetry",
+            "slug": "fleet-hub-telemetry",
+            "hub": "fleet",
+            "routes": [
+                "/vehicle-telemetry"
+            ],
+            "api_endpoints": [
+                "/api/telematics",
+                "/api/vehicles/:id/telemetry"
+            ],
+            "entities": [
+                "Telematics",
+                "OBD2Data",
+                "VehicleDiagnostics"
+            ],
+            "components": [
+                "VehicleTelemetry.tsx",
+                "TelemetryDashboard.tsx"
+            ],
+            "integrations": [
+                "OBD2",
+                "Smartcar"
+            ],
+            "dependencies": [
+                "auth",
+                "fleet-hub-overview"
+            ],
+            "risk_level": "medium",
+            "complexity": "medium",
+            "priority": 2
+        },
+        {
+            "id": "FTR-004",
+            "name": "Fleet Hub - Virtual Garage",
+            "slug": "fleet-hub-virtual-garage",
+            "hub": "fleet",
+            "routes": [
+                "/virtual-garage"
+            ],
+            "api_endpoints": [
+                "/api/vehicle-3d",
+                "/api/damage-reports"
+            ],
+            "entities": [
+                "Vehicle3DModel",
+                "DamageReport"
+            ],
+            "components": [
+                "VirtualGarage.tsx",
+                "Vehicle3DViewer.tsx",
+                "VirtualGarage3D.tsx"
+            ],
+            "integrations": [
+                "3D Models",
+                "Azure Blob"
+            ],
+            "dependencies": [
+                "auth",
+                "fleet-hub-overview"
+            ],
+            "risk_level": "medium",
+            "complexity": "high",
+            "priority": 3
+        },
+        {
+            "id": "FTR-005",
+            "name": "Fleet Hub - Video Telematics",
+            "slug": "fleet-hub-video",
+            "hub": "fleet",
+            "routes": [
+                "/video-telematics"
+            ],
+            "api_endpoints": [
+                "/api/video-telematics",
+                "/api/video-events"
+            ],
+            "entities": [
+                "VideoEvent",
+                "DashcamFootage"
+            ],
+            "components": [
+                "VideoTelematics.tsx",
+                "VideoTelematicsDashboard.tsx"
+            ],
+            "integrations": [
+                "Video Storage",
+                "AI Analysis"
+            ],
+            "dependencies": [
+                "auth",
+                "fleet-hub-overview"
+            ],
+            "risk_level": "medium",
+            "complexity": "high",
+            "priority": 2
+        },
+        {
+            "id": "FTR-006",
+            "name": "Fleet Hub - EV Charging",
+            "slug": "fleet-hub-ev-charging",
+            "hub": "fleet",
+            "routes": [
+                "/ev-charging"
+            ],
+            "api_endpoints": [
+                "/api/ev-management",
+                "/api/charging-stations",
+                "/api/charging-sessions"
+            ],
+            "entities": [
+                "ChargingStation",
+                "ChargingSession",
+                "EVVehicle"
+            ],
+            "components": [
+                "EVChargingManagement.tsx"
+            ],
+            "integrations": [
+                "OCPP"
+            ],
+            "dependencies": [
+                "auth",
+                "fleet-hub-overview"
+            ],
+            "risk_level": "medium",
+            "complexity": "medium",
+            "priority": 3
+        },
+        {
+            "id": "FTR-007",
+            "name": "Operations Hub - Overview",
+            "slug": "operations-hub-overview",
+            "hub": "operations",
+            "routes": [
+                "/operations-hub-consolidated"
+            ],
+            "api_endpoints": [
+                "/api/dispatch",
+                "/api/routes"
+            ],
+            "entities": [
+                "Dispatch",
+                "Route",
+                "Task"
+            ],
+            "components": [
+                "OperationsHub.tsx",
+                "OperationsWorkspace.tsx"
+            ],
+            "integrations": [],
+            "dependencies": [
+                "auth"
+            ],
+            "risk_level": "high",
+            "complexity": "high",
+            "priority": 1
+        },
+        {
+            "id": "FTR-008",
+            "name": "Operations Hub - Dispatch Console",
+            "slug": "operations-hub-dispatch",
+            "hub": "operations",
+            "routes": [
+                "/dispatch-console"
+            ],
+            "api_endpoints": [
+                "/api/dispatch",
+                "/api/ai-dispatch"
+            ],
+            "entities": [
+                "Dispatch",
+                "Driver",
+                "Vehicle",
+                "Assignment"
+            ],
+            "components": [
+                "DispatchConsole.tsx",
+                "CommandCenter.tsx"
+            ],
+            "integrations": [
+                "AI Dispatch"
+            ],
+            "dependencies": [
+                "auth",
+                "operations-hub-overview"
+            ],
+            "risk_level": "high",
+            "complexity": "high",
+            "priority": 1
+        },
+        {
+            "id": "FTR-009",
+            "name": "Operations Hub - Route Management",
+            "slug": "operations-hub-routes",
+            "hub": "operations",
+            "routes": [
+                "/routes",
+                "/route-optimization"
+            ],
+            "api_endpoints": [
+                "/api/route-optimization",
+                "/api/routes"
+            ],
+            "entities": [
+                "Route",
+                "Waypoint",
+                "Geofence"
+            ],
+            "components": [
+                "RouteManagement.tsx",
+                "AdvancedRouteOptimization.tsx",
+                "RouteOptimizer.tsx"
+            ],
+            "integrations": [
+                "ArcGIS",
+                "Google Maps"
+            ],
+            "dependencies": [
+                "auth",
+                "operations-hub-overview"
+            ],
+            "risk_level": "medium",
+            "complexity": "high",
+            "priority": 2
+        },
+        {
+            "id": "FTR-010",
+            "name": "Operations Hub - Task Management",
+            "slug": "operations-hub-tasks",
+            "hub": "operations",
+            "routes": [
+                "/task-management"
+            ],
+            "api_endpoints": [
+                "/api/task-management",
+                "/api/ai-task-prioritization"
+            ],
+            "entities": [
+                "Task",
+                "Assignment",
+                "Driver"
+            ],
+            "components": [
+                "TaskManagement.tsx"
+            ],
+            "integrations": [
+                "AI Task Prioritization"
+            ],
+            "dependencies": [
+                "auth",
+                "operations-hub-overview"
+            ],
+            "risk_level": "medium",
+            "complexity": "medium",
+            "priority": 2
+        },
+        {
+            "id": "FTR-011",
+            "name": "Operations Hub - Scheduling",
+            "slug": "operations-hub-scheduling",
+            "hub": "operations",
+            "routes": [
+                "/scheduling"
+            ],
+            "api_endpoints": [
+                "/api/scheduling",
+                "/api/calendar",
+                "/api/scheduling-notifications"
+            ],
+            "entities": [
+                "Schedule",
+                "Appointment",
+                "Notification"
+            ],
+            "components": [
+                "scheduling/*"
+            ],
+            "integrations": [
+                "Calendar",
+                "Notifications"
+            ],
+            "dependencies": [
+                "auth",
+                "operations-hub-overview"
+            ],
+            "risk_level": "medium",
+            "complexity": "medium",
+            "priority": 2
+        },
+        {
+            "id": "FTR-012",
+            "name": "Maintenance Hub - Garage Service",
+            "slug": "maintenance-hub-garage",
+            "hub": "maintenance",
+            "routes": [
+                "/garage",
+                "/maintenance-hub-consolidated"
+            ],
+            "api_endpoints": [
+                "/api/maintenance",
+                "/api/work-orders"
+            ],
+            "entities": [
+                "WorkOrder",
+                "MaintenanceEvent",
+                "ServiceBay"
+            ],
+            "components": [
+                "MaintenanceHub.tsx",
+                "GarageService.tsx"
+            ],
+            "integrations": [],
+            "dependencies": [
+                "auth"
+            ],
+            "risk_level": "high",
+            "complexity": "medium",
+            "priority": 1
+        },
+        {
+            "id": "FTR-013",
+            "name": "Maintenance Hub - Predictive Maintenance",
+            "slug": "maintenance-hub-predictive",
+            "hub": "maintenance",
+            "routes": [
+                "/predictive"
+            ],
+            "api_endpoints": [
+                "/api/maintenance-schedules",
+                "/api/ai-insights"
+            ],
+            "entities": [
+                "Prediction",
+                "MaintenanceSchedule",
+                "Alert"
+            ],
+            "components": [
+                "PredictiveMaintenance.tsx"
+            ],
+            "integrations": [
+                "AI/ML Predictions"
+            ],
+            "dependencies": [
+                "auth",
+                "maintenance-hub-garage"
+            ],
+            "risk_level": "medium",
+            "complexity": "high",
+            "priority": 2
+        },
+        {
+            "id": "FTR-014",
+            "name": "Maintenance Hub - Scheduling",
+            "slug": "maintenance-hub-scheduling",
+            "hub": "maintenance",
+            "routes": [
+                "/maintenance-scheduling"
+            ],
+            "api_endpoints": [
+                "/api/maintenance-schedules",
+                "/api/calendar"
+            ],
+            "entities": [
+                "MaintenanceSchedule",
+                "Appointment"
+            ],
+            "components": [
+                "MaintenanceScheduling.tsx"
+            ],
+            "integrations": [
+                "Calendar"
+            ],
+            "dependencies": [
+                "auth",
+                "maintenance-hub-garage"
+            ],
+            "risk_level": "medium",
+            "complexity": "medium",
+            "priority": 2
+        },
+        {
+            "id": "FTR-015",
+            "name": "Maintenance Hub - Requests",
+            "slug": "maintenance-hub-requests",
+            "hub": "maintenance",
+            "routes": [
+                "/maintenance-request"
+            ],
+            "api_endpoints": [
+                "/api/maintenance"
+            ],
+            "entities": [
+                "MaintenanceRequest",
+                "Approval"
+            ],
+            "components": [
+                "MaintenanceRequest.tsx"
+            ],
+            "integrations": [],
+            "dependencies": [
+                "auth",
+                "maintenance-hub-garage"
+            ],
+            "risk_level": "low",
+            "complexity": "low",
+            "priority": 3
+        },
+        {
+            "id": "FTR-016",
+            "name": "Drivers Hub - Roster Management",
+            "slug": "drivers-hub-roster",
+            "hub": "drivers",
+            "routes": [
+                "/drivers-hub-consolidated",
+                "/drivers"
+            ],
+            "api_endpoints": [
+                "/api/drivers"
+            ],
+            "entities": [
+                "Driver",
+                "DriverProfile",
+                "Certification"
+            ],
+            "components": [
+                "DriversHub.tsx",
+                "DriversWorkspace.tsx"
+            ],
+            "integrations": [],
+            "dependencies": [
+                "auth"
+            ],
+            "risk_level": "high",
+            "complexity": "medium",
+            "priority": 1
+        },
+        {
+            "id": "FTR-017",
+            "name": "Drivers Hub - Performance",
+            "slug": "drivers-hub-performance",
+            "hub": "drivers",
+            "routes": [
+                "/driver-mgmt"
+            ],
+            "api_endpoints": [
+                "/api/driver-scorecard",
+                "/api/performance"
+            ],
+            "entities": [
+                "DriverPerformance",
+                "Score",
+                "Metric"
+            ],
+            "components": [
+                "DriverPerformance.tsx"
+            ],
+            "integrations": [],
+            "dependencies": [
+                "auth",
+                "drivers-hub-roster"
+            ],
+            "risk_level": "medium",
+            "complexity": "medium",
+            "priority": 2
+        },
+        {
+            "id": "FTR-018",
+            "name": "Drivers Hub - Scorecard",
+            "slug": "drivers-hub-scorecard",
+            "hub": "drivers",
+            "routes": [
+                "/driver-scorecard"
+            ],
+            "api_endpoints": [
+                "/api/driver-scorecard"
+            ],
+            "entities": [
+                "Scorecard",
+                "Award",
+                "Rating"
+            ],
+            "components": [
+                "DriverScorecard.tsx"
+            ],
+            "integrations": [],
+            "dependencies": [
+                "auth",
+                "drivers-hub-roster"
+            ],
+            "risk_level": "low",
+            "complexity": "medium",
+            "priority": 3
+        },
+        {
+            "id": "FTR-019",
+            "name": "Drivers Hub - Personal Use",
+            "slug": "drivers-hub-personal-use",
+            "hub": "drivers",
+            "routes": [
+                "/personal-use",
+                "/personal-use-policy",
+                "/reimbursement-queue",
+                "/charges-billing"
+            ],
+            "api_endpoints": [
+                "/api/personal-use-policies",
+                "/api/reimbursement-requests",
+                "/api/trip-usage",
+                "/api/trip-marking"
+            ],
+            "entities": [
+                "PersonalUsePolicy",
+                "Trip",
+                "Reimbursement",
+                "Charge"
+            ],
+            "components": [
+                "PersonalUseDashboard.tsx",
+                "PersonalUsePolicyConfig.tsx",
+                "ReimbursementQueue.tsx",
+                "ChargesAndBilling.tsx"
+            ],
+            "integrations": [
+                "Billing"
+            ],
+            "dependencies": [
+                "auth",
+                "drivers-hub-roster"
+            ],
+            "risk_level": "medium",
+            "complexity": "medium",
+            "priority": 2
+        },
+        {
+            "id": "FTR-020",
+            "name": "Analytics Hub - Executive Dashboard",
+            "slug": "analytics-hub-executive",
+            "hub": "analytics",
+            "routes": [
+                "/analytics-hub-consolidated",
+                "/executive-dashboard"
+            ],
+            "api_endpoints": [
+                "/api/executive-dashboard",
+                "/api/cost-analysis"
+            ],
+            "entities": [
+                "Report",
+                "KPI",
+                "Dashboard"
+            ],
+            "components": [
+                "AnalyticsHub.tsx",
+                "ExecutiveDashboard.tsx",
+                "AnalyticsDashboard.tsx"
+            ],
+            "integrations": [],
+            "dependencies": [
+                "auth"
+            ],
+            "risk_level": "medium",
+            "complexity": "medium",
+            "priority": 1
+        },
+        {
+            "id": "FTR-021",
+            "name": "Analytics Hub - Data Workbench",
+            "slug": "analytics-hub-workbench",
+            "hub": "analytics",
+            "routes": [
+                "/workbench"
+            ],
+            "api_endpoints": [
+                "/api/custom-reports"
+            ],
+            "entities": [
+                "Report",
+                "Query",
+                "Dataset"
+            ],
+            "components": [
+                "DataWorkbench.tsx"
+            ],
+            "integrations": [],
+            "dependencies": [
+                "auth",
+                "analytics-hub-executive"
+            ],
+            "risk_level": "medium",
+            "complexity": "high",
+            "priority": 2
+        },
+        {
+            "id": "FTR-022",
+            "name": "Analytics Hub - Custom Reports",
+            "slug": "analytics-hub-reports",
+            "hub": "analytics",
+            "routes": [
+                "/custom-reports"
+            ],
+            "api_endpoints": [
+                "/api/custom-reports"
+            ],
+            "entities": [
+                "CustomReport",
+                "Template"
+            ],
+            "components": [
+                "CustomReportBuilder.tsx"
+            ],
+            "integrations": [],
+            "dependencies": [
+                "auth",
+                "analytics-hub-executive"
+            ],
+            "risk_level": "low",
+            "complexity": "medium",
+            "priority": 3
+        },
+        {
+            "id": "FTR-023",
+            "name": "Analytics Hub - Cost Analysis",
+            "slug": "analytics-hub-cost",
+            "hub": "analytics",
+            "routes": [
+                "/cost-analysis"
+            ],
+            "api_endpoints": [
+                "/api/cost-analysis",
+                "/api/cost-benefit-analysis",
+                "/api/costs"
+            ],
+            "entities": [
+                "Cost",
+                "Budget",
+                "Expense"
+            ],
+            "components": [
+                "CostAnalysisCenter.tsx"
+            ],
+            "integrations": [],
+            "dependencies": [
+                "auth",
+                "analytics-hub-executive"
+            ],
+            "risk_level": "medium",
+            "complexity": "medium",
+            "priority": 2
+        },
+        {
+            "id": "FTR-024",
+            "name": "Compliance Hub - Documents",
+            "slug": "compliance-hub-documents",
+            "hub": "compliance",
+            "routes": [
+                "/compliance-hub-consolidated",
+                "/documents",
+                "/document-qa"
+            ],
+            "api_endpoints": [
+                "/api/documents",
+                "/api/document-system",
+                "/api/fleet-documents"
+            ],
+            "entities": [
+                "Document",
+                "Compliance",
+                "Audit"
+            ],
+            "components": [
+                "ComplianceHub.tsx",
+                "DocumentManagement.tsx",
+                "DocumentQA.tsx"
+            ],
+            "integrations": [
+                "Azure Blob",
+                "OCR"
+            ],
+            "dependencies": [
+                "auth"
+            ],
+            "risk_level": "high",
+            "complexity": "medium",
+            "priority": 1
+        },
+        {
+            "id": "FTR-025",
+            "name": "Compliance Hub - OSHA Forms",
+            "slug": "compliance-hub-osha",
+            "hub": "compliance",
+            "routes": [
+                "/osha-forms"
+            ],
+            "api_endpoints": [
+                "/api/osha-compliance"
+            ],
+            "entities": [
+                "OSHAForm",
+                "Inspection",
+                "Violation"
+            ],
+            "components": [
+                "OSHAForms.tsx"
+            ],
+            "integrations": [],
+            "dependencies": [
+                "auth",
+                "compliance-hub-documents"
+            ],
+            "risk_level": "high",
+            "complexity": "medium",
+            "priority": 1
+        },
+        {
+            "id": "FTR-026",
+            "name": "Compliance Hub - Policy Engine",
+            "slug": "compliance-hub-policy",
+            "hub": "compliance",
+            "routes": [
+                "/policy-engine"
+            ],
+            "api_endpoints": [
+                "/api/policies",
+                "/api/policy-templates"
+            ],
+            "entities": [
+                "Policy",
+                "Rule",
+                "Template"
+            ],
+            "components": [
+                "PolicyEngineWorkbench.tsx"
+            ],
+            "integrations": [],
+            "dependencies": [
+                "auth",
+                "compliance-hub-documents"
+            ],
+            "risk_level": "medium",
+            "complexity": "high",
+            "priority": 2
+        },
+        {
+            "id": "FTR-027",
+            "name": "Safety Hub - Incident Management",
+            "slug": "safety-hub-incidents",
+            "hub": "safety",
+            "routes": [
+                "/safety-hub-consolidated",
+                "/incident-management"
+            ],
+            "api_endpoints": [
+                "/api/incident-management",
+                "/api/incidents",
+                "/api/safety-incidents",
+                "/api/crash-detection"
+            ],
+            "entities": [
+                "Incident",
+                "SafetyEvent",
+                "CrashReport"
+            ],
+            "components": [
+                "SafetyHub.tsx",
+                "IncidentManagement.tsx"
+            ],
+            "integrations": [
+                "Crash Detection AI"
+            ],
+            "dependencies": [
+                "auth"
+            ],
+            "risk_level": "high",
+            "complexity": "medium",
+            "priority": 1
+        },
+        {
+            "id": "FTR-028",
+            "name": "Safety Hub - Alerts",
+            "slug": "safety-hub-alerts",
+            "hub": "safety",
+            "routes": [
+                "/alerts"
+            ],
+            "api_endpoints": [
+                "/api/alerts"
+            ],
+            "entities": [
+                "Alert",
+                "Notification",
+                "Threshold"
+            ],
+            "components": [],
+            "integrations": [
+                "Push Notifications"
+            ],
+            "dependencies": [
+                "auth",
+                "safety-hub-incidents"
+            ],
+            "risk_level": "medium",
+            "complexity": "medium",
+            "priority": 2
+        },
+        {
+            "id": "FTR-029",
+            "name": "Procurement Hub - Vendor Management",
+            "slug": "procurement-hub-vendors",
+            "hub": "procurement",
+            "routes": [
+                "/procurement-hub-consolidated",
+                "/vendor-management"
+            ],
+            "api_endpoints": [
+                "/api/vendors"
+            ],
+            "entities": [
+                "Vendor",
+                "Contract"
+            ],
+            "components": [
+                "ProcurementHub.tsx",
+                "VendorManagement.tsx"
+            ],
+            "integrations": [],
+            "dependencies": [
+                "auth"
+            ],
+            "risk_level": "medium",
+            "complexity": "medium",
+            "priority": 2
+        },
+        {
+            "id": "FTR-030",
+            "name": "Procurement Hub - Parts Inventory",
+            "slug": "procurement-hub-parts",
+            "hub": "procurement",
+            "routes": [
+                "/parts-inventory"
+            ],
+            "api_endpoints": [
+                "/api/parts"
+            ],
+            "entities": [
+                "Part",
+                "Inventory",
+                "Stock"
+            ],
+            "components": [
+                "PartsInventory.tsx"
+            ],
+            "integrations": [],
+            "dependencies": [
+                "auth",
+                "procurement-hub-vendors"
+            ],
+            "risk_level": "medium",
+            "complexity": "medium",
+            "priority": 2
+        },
+        {
+            "id": "FTR-031",
+            "name": "Procurement Hub - Purchase Orders",
+            "slug": "procurement-hub-po",
+            "hub": "procurement",
+            "routes": [
+                "/purchase-orders"
+            ],
+            "api_endpoints": [
+                "/api/purchase-orders"
+            ],
+            "entities": [
+                "PurchaseOrder",
+                "LineItem"
+            ],
+            "components": [
+                "PurchaseOrders.tsx"
+            ],
+            "integrations": [],
+            "dependencies": [
+                "auth",
+                "procurement-hub-vendors"
+            ],
+            "risk_level": "medium",
+            "complexity": "medium",
+            "priority": 2
+        },
+        {
+            "id": "FTR-032",
+            "name": "Procurement Hub - Invoices",
+            "slug": "procurement-hub-invoices",
+            "hub": "procurement",
+            "routes": [
+                "/invoices"
+            ],
+            "api_endpoints": [
+                "/api/invoices"
+            ],
+            "entities": [
+                "Invoice",
+                "Payment"
+            ],
+            "components": [
+                "Invoices.tsx"
+            ],
+            "integrations": [
+                "Billing"
+            ],
+            "dependencies": [
+                "auth",
+                "procurement-hub-vendors"
+            ],
+            "risk_level": "medium",
+            "complexity": "low",
+            "priority": 3
+        },
+        {
+            "id": "FTR-033",
+            "name": "Assets Hub - Asset Management",
+            "slug": "assets-hub-management",
+            "hub": "assets",
+            "routes": [
+                "/assets-hub-consolidated",
+                "/asset-management",
+                "/equipment-dashboard"
+            ],
+            "api_endpoints": [
+                "/api/asset-management",
+                "/api/assets-mobile",
+                "/api/asset-analytics",
+                "/api/asset-relationships"
+            ],
+            "entities": [
+                "Asset",
+                "Equipment",
+                "AssetRelationship"
+            ],
+            "components": [
+                "AssetsHub.tsx",
+                "AssetManagement.tsx",
+                "EquipmentDashboard.tsx"
+            ],
+            "integrations": [],
+            "dependencies": [
+                "auth"
+            ],
+            "risk_level": "medium",
+            "complexity": "medium",
+            "priority": 2
+        },
+        {
+            "id": "FTR-034",
+            "name": "Assets Hub - Heavy Equipment",
+            "slug": "assets-hub-heavy-equipment",
+            "hub": "assets",
+            "routes": [
+                "/heavy-equipment"
+            ],
+            "api_endpoints": [
+                "/api/heavy-equipment"
+            ],
+            "entities": [
+                "HeavyEquipment",
+                "Attachment"
+            ],
+            "components": [],
+            "integrations": [],
+            "dependencies": [
+                "auth",
+                "assets-hub-management"
+            ],
+            "risk_level": "low",
+            "complexity": "medium",
+            "priority": 3
+        },
+        {
+            "id": "FTR-035",
+            "name": "Admin Hub - User Management",
+            "slug": "admin-hub-users",
+            "hub": "admin",
+            "routes": [
+                "/admin-hub-consolidated",
+                "/admin-dashboard"
+            ],
+            "api_endpoints": [
+                "/api/auth",
+                "/api/users",
+                "/api/permissions"
+            ],
+            "entities": [
+                "User",
+                "Role",
+                "Permission"
+            ],
+            "components": [
+                "AdminHub.tsx",
+                "AdminDashboard.tsx"
+            ],
+            "integrations": [
+                "Azure AD",
+                "Microsoft Auth"
+            ],
+            "dependencies": [],
+            "risk_level": "high",
+            "complexity": "high",
+            "priority": 1
+        },
+        {
+            "id": "FTR-036",
+            "name": "Admin Hub - Notifications",
+            "slug": "admin-hub-notifications",
+            "hub": "admin",
+            "routes": [
+                "/notifications",
+                "/push-notification-admin"
+            ],
+            "api_endpoints": [
+                "/api/push-notifications",
+                "/api/mobile-notifications"
+            ],
+            "entities": [
+                "Notification",
+                "PushSubscription"
+            ],
+            "components": [
+                "Notifications.tsx",
+                "PushNotificationAdmin.tsx"
+            ],
+            "integrations": [
+                "Push Notifications",
+                "FCM"
+            ],
+            "dependencies": [
+                "auth",
+                "admin-hub-users"
+            ],
+            "risk_level": "medium",
+            "complexity": "medium",
+            "priority": 2
+        },
+        {
+            "id": "FTR-037",
+            "name": "Communication Hub - Email Center",
+            "slug": "communication-hub-email",
+            "hub": "communication",
+            "routes": [
+                "/communication-hub-consolidated",
+                "/email-center"
+            ],
+            "api_endpoints": [
+                "/api/communications",
+                "/api/outlook"
+            ],
+            "entities": [
+                "Email",
+                "Thread",
+                "Contact"
+            ],
+            "components": [
+                "CommunicationHub.tsx",
+                "EmailCenter.tsx"
+            ],
+            "integrations": [
+                "Outlook",
+                "Microsoft Graph"
+            ],
+            "dependencies": [
+                "auth"
+            ],
+            "risk_level": "medium",
+            "complexity": "medium",
+            "priority": 2
+        },
+        {
+            "id": "FTR-038",
+            "name": "Communication Hub - Teams Integration",
+            "slug": "communication-hub-teams",
+            "hub": "communication",
+            "routes": [
+                "/teams-integration"
+            ],
+            "api_endpoints": [
+                "/api/teams",
+                "/api/adaptive-cards"
+            ],
+            "entities": [
+                "TeamsMessage",
+                "Channel"
+            ],
+            "components": [
+                "TeamsIntegration.tsx"
+            ],
+            "integrations": [
+                "Microsoft Teams"
+            ],
+            "dependencies": [
+                "auth",
+                "communication-hub-email"
+            ],
+            "risk_level": "medium",
+            "complexity": "high",
+            "priority": 2
+        },
+        {
+            "id": "FTR-039",
+            "name": "Communication Hub - Communication Log",
+            "slug": "communication-hub-log",
+            "hub": "communication",
+            "routes": [
+                "/communication-log"
+            ],
+            "api_endpoints": [
+                "/api/communication-logs"
+            ],
+            "entities": [
+                "CommunicationLog",
+                "Entry"
+            ],
+            "components": [
+                "CommunicationLog.tsx"
+            ],
+            "integrations": [],
+            "dependencies": [
+                "auth",
+                "communication-hub-email"
+            ],
+            "risk_level": "low",
+            "complexity": "low",
+            "priority": 3
+        },
+        {
+            "id": "FTR-040",
+            "name": "Fuel Management",
+            "slug": "fuel-management",
+            "hub": "fleet",
+            "routes": [
+                "/fuel",
+                "/fuel-purchasing"
+            ],
+            "api_endpoints": [
+                "/api/fuel-transactions",
+                "/api/fuel-purchasing"
+            ],
+            "entities": [
+                "FuelTransaction",
+                "FuelCard",
+                "FuelStation"
+            ],
+            "components": [
+                "FuelManagement.tsx",
+                "FuelPurchasing.tsx"
+            ],
+            "integrations": [
+                "Fuel Card Providers"
+            ],
+            "dependencies": [
+                "auth",
+                "fleet-hub-overview"
+            ],
+            "risk_level": "medium",
+            "complexity": "medium",
+            "priority": 2
+        },
+        {
+            "id": "FTR-041",
+            "name": "GIS Integration",
+            "slug": "gis-integration",
+            "hub": "integrations",
+            "routes": [
+                "/gis-map",
+                "/arcgis-integration",
+                "/map-settings",
+                "/map-layers"
+            ],
+            "api_endpoints": [
+                "/api/arcgis-layers",
+                "/api/geofences"
+            ],
+            "entities": [
+                "MapLayer",
+                "Geofence",
+                "GISData"
+            ],
+            "components": [
+                "GISCommandCenter.tsx",
+                "ArcGISIntegration.tsx",
+                "MapSettings.tsx",
+                "EnhancedMapLayers.tsx"
+            ],
+            "integrations": [
+                "ArcGIS",
+                "Esri"
+            ],
+            "dependencies": [
+                "auth"
+            ],
+            "risk_level": "medium",
+            "complexity": "high",
+            "priority": 2
+        },
+        {
+            "id": "FTR-042",
+            "name": "Mobile Integration",
+            "slug": "mobile-integration",
+            "hub": "integrations",
+            "routes": [],
+            "api_endpoints": [
+                "/api/mobile-integration",
+                "/api/mobile-assignment",
+                "/api/mobile-hardware",
+                "/api/mobile-messaging",
+                "/api/mobile-obd2",
+                "/api/mobile-ocr",
+                "/api/mobile-photos",
+                "/api/mobile-trips"
+            ],
+            "entities": [
+                "MobileDevice",
+                "MobileSession",
+                "MobileData"
+            ],
+            "components": [
+                "mobile/*"
+            ],
+            "integrations": [
+                "iOS",
+                "Android",
+                "OBD2"
+            ],
+            "dependencies": [
+                "auth"
+            ],
+            "risk_level": "high",
+            "complexity": "high",
+            "priority": 1
+        }
+    ],
+    "hub_summary": {
+        "fleet-hub": [
+            "FTR-001",
+            "FTR-002",
+            "FTR-003",
+            "FTR-004",
+            "FTR-005",
+            "FTR-006",
+            "FTR-040"
+        ],
+        "operations-hub": [
+            "FTR-007",
+            "FTR-008",
+            "FTR-009",
+            "FTR-010",
+            "FTR-011"
+        ],
+        "maintenance-hub": [
+            "FTR-012",
+            "FTR-013",
+            "FTR-014",
+            "FTR-015"
+        ],
+        "drivers-hub": [
+            "FTR-016",
+            "FTR-017",
+            "FTR-018",
+            "FTR-019"
+        ],
+        "analytics-hub": [
+            "FTR-020",
+            "FTR-021",
+            "FTR-022",
+            "FTR-023"
+        ],
+        "compliance-hub": [
+            "FTR-024",
+            "FTR-025",
+            "FTR-026"
+        ],
+        "safety-hub": [
+            "FTR-027",
+            "FTR-028"
+        ],
+        "procurement-hub": [
+            "FTR-029",
+            "FTR-030",
+            "FTR-031",
+            "FTR-032"
+        ],
+        "assets-hub": [
+            "FTR-033",
+            "FTR-034"
+        ],
+        "admin-hub": [
+            "FTR-035",
+            "FTR-036"
+        ],
+        "communication-hub": [
+            "FTR-037",
+            "FTR-038",
+            "FTR-039"
+        ]
+    },
+    "agent_allocation": {
+        "priority_1_high_risk": {
+            "agents": 12,
+            "features": [
+                "FTR-001",
+                "FTR-002",
+                "FTR-007",
+                "FTR-008",
+                "FTR-012",
+                "FTR-016",
+                "FTR-024",
+                "FTR-025",
+                "FTR-027",
+                "FTR-035",
+                "FTR-042"
+            ]
+        },
+        "priority_2_medium": {
+            "agents": 12,
+            "features": [
+                "FTR-003",
+                "FTR-005",
+                "FTR-009",
+                "FTR-010",
+                "FTR-011",
+                "FTR-013",
+                "FTR-014",
+                "FTR-017",
+                "FTR-019",
+                "FTR-020",
+                "FTR-021",
+                "FTR-023",
+                "FTR-026",
+                "FTR-028",
+                "FTR-029",
+                "FTR-030",
+                "FTR-031",
+                "FTR-033",
+                "FTR-036",
+                "FTR-037",
+                "FTR-038",
+                "FTR-040",
+                "FTR-041"
+            ]
+        },
+        "priority_3_low": {
+            "agents": 6,
+            "features": [
+                "FTR-004",
+                "FTR-006",
+                "FTR-015",
+                "FTR-018",
+                "FTR-022",
+                "FTR-032",
+                "FTR-034",
+                "FTR-039"
+            ]
+        }
+    },
+    "merge_order": [
+        {
+            "phase": 1,
+            "name": "Core Infrastructure",
+            "features": [
+                "FTR-035"
+            ],
+            "reason": "Auth/Admin must be stable first"
+        },
+        {
+            "phase": 2,
+            "name": "Primary Hubs",
+            "features": [
+                "FTR-001",
+                "FTR-007",
+                "FTR-012",
+                "FTR-016",
+                "FTR-020",
+                "FTR-024",
+                "FTR-027",
+                "FTR-029",
+                "FTR-033",
+                "FTR-037"
+            ],
+            "reason": "Hub overviews establish navigation"
+        },
+        {
+            "phase": 3,
+            "name": "High-Priority Features",
+            "features": [
+                "FTR-002",
+                "FTR-008",
+                "FTR-025",
+                "FTR-042"
+            ],
+            "reason": "Core operational features"
+        },
+        {
+            "phase": 4,
+            "name": "Secondary Features",
+            "features": [
+                "FTR-003",
+                "FTR-005",
+                "FTR-009",
+                "FTR-010",
+                "FTR-011",
+                "FTR-013",
+                "FTR-014",
+                "FTR-017",
+                "FTR-019",
+                "FTR-021",
+                "FTR-023",
+                "FTR-026",
+                "FTR-028",
+                "FTR-030",
+                "FTR-031",
+                "FTR-036",
+                "FTR-038",
+                "FTR-040",
+                "FTR-041"
+            ],
+            "reason": "Supporting features"
+        },
+        {
+            "phase": 5,
+            "name": "Low-Priority Polish",
+            "features": [
+                "FTR-004",
+                "FTR-006",
+                "FTR-015",
+                "FTR-018",
+                "FTR-022",
+                "FTR-032",
+                "FTR-034",
+                "FTR-039"
+            ],
+            "reason": "Final polish and edge cases"
+        }
+    ]
+}
