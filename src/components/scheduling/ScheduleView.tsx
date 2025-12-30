@@ -4,16 +4,7 @@
  */
 
 import { format, isWithinInterval, isSameDay } from 'date-fns'
-import AlertCircleIcon from 'lucide-react/dist/esm/icons/alert-circle'
-import CalendarIcon from 'lucide-react/dist/esm/icons/calendar'
-import CheckCircleIcon from 'lucide-react/dist/esm/icons/check-circle'
-import ClockIcon from 'lucide-react/dist/esm/icons/clock'
-import MoreVerticalIcon from 'lucide-react/dist/esm/icons/more-vertical'
-import SearchIcon from 'lucide-react/dist/esm/icons/search'
-import TruckIcon from 'lucide-react/dist/esm/icons/truck'
-import UserIcon from 'lucide-react/dist/esm/icons/user'
-import WrenchIcon from 'lucide-react/dist/esm/icons/wrench'
-import XCircleIcon from 'lucide-react/dist/esm/icons/x-circle'
+import { AlertCircle, Calendar, CheckCircle, Clock, MoreVertical, Search, Truck, User, Wrench, XCircle } from 'lucide-react'
 import { useState, useMemo } from 'react'
 
 import { Alert, AlertDescription } from '@/components/ui/alert'
@@ -48,7 +39,8 @@ import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Vehicle, Driver, Technician } from '@/lib/types'
 import { cn } from '@/lib/utils'
 import { VehicleReservation, MaintenanceAppointment } from '@/types/scheduling'
-import logger from '@/utils/logger';
+import logger from '@/utils/logger'
+
 interface ScheduleViewProps {
   reservations?: VehicleReservation[]
   appointments?: MaintenanceAppointment[]
@@ -251,7 +243,7 @@ export function ScheduleView({
         <div className="flex items-start justify-between">
           <div className="flex-1">
             <div className="flex items-center gap-2 mb-2">
-              <TruckIcon className="h-4 w-4 text-blue-600" />
+              <Truck className="h-4 w-4 text-blue-600" />
               <h4 className="font-semibold">
                 {reservation.make} {reservation.model}
               </h4>
@@ -267,7 +259,7 @@ export function ScheduleView({
 
             <div className="space-y-1 text-sm text-muted-foreground">
               <div className="flex items-center gap-2">
-                <CalendarIcon className="h-3 w-3" />
+                <Calendar className="h-3 w-3" />
                 <span>
                   {format(new Date(reservation.start_time), 'MMM d, h:mm a')} -{' '}
                   {format(new Date(reservation.end_time), 'h:mm a')}
@@ -282,13 +274,13 @@ export function ScheduleView({
               )}
               {reservation.reserved_by_name && (
                 <div className="flex items-center gap-2">
-                  <UserIcon className="h-3 w-3" />
+                  <User className="h-3 w-3" />
                   <span>Reserved by: {reservation.reserved_by_name}</span>
                 </div>
               )}
               {reservation.driver_name && (
                 <div className="flex items-center gap-2">
-                  <UserIcon className="h-3 w-3" />
+                  <User className="h-3 w-3" />
                   <span>Driver: {reservation.driver_name}</span>
                 </div>
               )}
@@ -309,7 +301,7 @@ export function ScheduleView({
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" size="icon">
-                <MoreVerticalIcon className="h-4 w-4" />
+                <MoreVertical className="h-4 w-4" />
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
@@ -324,14 +316,14 @@ export function ScheduleView({
                     onClick={() => handleQuickAction('approve', 'reservation', reservation.id)}
                     className="text-green-600"
                   >
-                    <CheckCircleIcon className="h-4 w-4 mr-2" />
+                    <CheckCircle className="h-4 w-4 mr-2" />
                     Approve
                   </DropdownMenuItem>
                   <DropdownMenuItem
                     onClick={() => handleQuickAction('reject', 'reservation', reservation.id)}
                     className="text-red-600"
                   >
-                    <XCircleIcon className="h-4 w-4 mr-2" />
+                    <XCircle className="h-4 w-4 mr-2" />
                     Reject
                   </DropdownMenuItem>
                 </>
@@ -339,7 +331,7 @@ export function ScheduleView({
               {reservation.status !== 'cancelled' && reservation.status !== 'completed' && (
                 <>
                   <DropdownMenuItem onClick={() => handleQuickAction('reschedule', 'reservation', reservation.id)}>
-                    <ClockIcon className="h-4 w-4 mr-2" />
+                    <Clock className="h-4 w-4 mr-2" />
                     Reschedule
                   </DropdownMenuItem>
                   <DropdownMenuSeparator />
@@ -347,7 +339,7 @@ export function ScheduleView({
                     onClick={() => handleQuickAction('cancel', 'reservation', reservation.id)}
                     className="text-red-600"
                   >
-                    <XCircleIcon className="h-4 w-4 mr-2" />
+                    <XCircle className="h-4 w-4 mr-2" />
                     Cancel
                   </DropdownMenuItem>
                 </>
@@ -365,14 +357,14 @@ export function ScheduleView({
         <div className="flex items-start justify-between">
           <div className="flex-1">
             <div className="flex items-center gap-2 mb-2">
-              <WrenchIcon className="h-4 w-4 text-purple-600" />
+              <Wrench className="h-4 w-4 text-purple-600" />
               <h4 className="font-semibold">{appointment.appointment_type || 'Maintenance'}</h4>
               <Badge variant="outline" className={cn('ml-2', STATUS_COLORS[appointment.status as keyof typeof STATUS_COLORS])}>
                 {appointment.status}
               </Badge>
               {appointment.priority && (
                 <div className="flex items-center gap-1">
-                  <div className={cn('w-2 h-2 rounded-full', PRIORITY_COLORS[appointment.priority])} />
+                  <div className={cn('w-2 h-2 rounded-full', PRIORITY_COLORS[appointment.priority as keyof typeof PRIORITY_COLORS])} />
                   <span className="text-xs capitalize">{appointment.priority}</span>
                 </div>
               )}
@@ -380,7 +372,7 @@ export function ScheduleView({
 
             <div className="space-y-1 text-sm text-muted-foreground">
               <div className="flex items-center gap-2">
-                <CalendarIcon className="h-3 w-3" />
+                <Calendar className="h-3 w-3" />
                 <span>
                   {format(new Date(appointment.scheduled_start), 'MMM d, h:mm a')} -{' '}
                   {format(new Date(appointment.scheduled_end), 'h:mm a')}
@@ -388,32 +380,10 @@ export function ScheduleView({
               </div>
               {appointment.vehicle_id && (
                 <div className="flex items-center gap-2">
-                  <TruckIcon className="h-3 w-3" />
+                  <Truck className="h-3 w-3" />
                   <span>
                     {appointment.make} {appointment.model}
-                    {appointment.license_plate && (
-                      <span className="font-mono text-xs bg-muted px-2 py-0.5 rounded ml-2">
-                        {appointment.license_plate}
-                      </span>
-                    )}
                   </span>
-                </div>
-              )}
-              {appointment.bay_name && (
-                <div className="text-xs">
-                  <strong>Bay:</strong> {appointment.bay_name}
-                  {appointment.bay_number && ` (${appointment.bay_number})`}
-                </div>
-              )}
-              {appointment.technician_name && (
-                <div className="flex items-center gap-2">
-                  <UserIcon className="h-3 w-3" />
-                  <span>Technician: {appointment.technician_name}</span>
-                </div>
-              )}
-              {appointment.work_order_number && (
-                <div className="text-xs">
-                  <strong>WO:</strong> #{appointment.work_order_number}
                 </div>
               )}
             </div>
@@ -422,7 +392,7 @@ export function ScheduleView({
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" size="icon">
-                <MoreVerticalIcon className="h-4 w-4" />
+                <MoreVertical className="h-4 w-4" />
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
@@ -434,7 +404,7 @@ export function ScheduleView({
               {appointment.status !== 'cancelled' && appointment.status !== 'completed' && (
                 <>
                   <DropdownMenuItem onClick={() => handleQuickAction('reschedule', 'maintenance', appointment.id)}>
-                    <ClockIcon className="h-4 w-4 mr-2" />
+                    <Clock className="h-4 w-4 mr-2" />
                     Reschedule
                   </DropdownMenuItem>
                   <DropdownMenuSeparator />
@@ -442,7 +412,7 @@ export function ScheduleView({
                     onClick={() => handleQuickAction('cancel', 'maintenance', appointment.id)}
                     className="text-red-600"
                   >
-                    <XCircleIcon className="h-4 w-4 mr-2" />
+                    <XCircle className="h-4 w-4 mr-2" />
                     Cancel
                   </DropdownMenuItem>
                 </>
@@ -450,162 +420,6 @@ export function ScheduleView({
             </DropdownMenuContent>
           </DropdownMenu>
         </div>
-      </CardContent>
-    </Card>
-  )
-
-  if (error) {
-    return (
-      <Alert variant="destructive" className={className}>
-        <AlertCircleIcon className="h-4 w-4" />
-        <AlertDescription>
-          Failed to load schedule: {error.message}
-        </AlertDescription>
-      </Alert>
-    )
-  }
-
-  return (
-    <Card className={cn('w-full', className)}>
-      <CardHeader>
-        <div className="flex items-center justify-between">
-          <div>
-            <CardTitle>Schedule Overview</CardTitle>
-            <CardDescription>
-              {filteredData.length} item{filteredData.length !== 1 ? 's' : ''} found
-            </CardDescription>
-          </div>
-          <Tabs value={viewType} onValueChange={(v) => setViewType(v as ViewType)}>
-            <TabsList>
-              <TabsTrigger value="all">All</TabsTrigger>
-              <TabsTrigger value="reservations">Reservations</TabsTrigger>
-              <TabsTrigger value="maintenance">Maintenance</TabsTrigger>
-            </TabsList>
-          </Tabs>
-        </div>
-
-        {/* Filters */}
-        <div className="flex flex-wrap gap-2 mt-4">
-          <div className="flex-1 min-w-[200px]">
-            <div className="relative">
-              <SearchIcon className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
-              <Input
-                placeholder="Search..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-8"
-              />
-            </div>
-          </div>
-
-          <Select value={dateFilter} onValueChange={(v: any) => setDateFilter(v)}>
-            <SelectTrigger className="w-[150px]">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="today">Today</SelectItem>
-              <SelectItem value="week">This Week</SelectItem>
-              <SelectItem value="all">All Time</SelectItem>
-            </SelectContent>
-          </Select>
-
-          <Select value={filterStatus} onValueChange={(v: any) => setFilterStatus(v)}>
-            <SelectTrigger className="w-[150px]">
-              <SelectValue placeholder="Status" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All Status</SelectItem>
-              <SelectItem value="pending">Pending</SelectItem>
-              <SelectItem value="confirmed">Confirmed</SelectItem>
-              <SelectItem value="active">Active</SelectItem>
-              <SelectItem value="scheduled">Scheduled</SelectItem>
-              <SelectItem value="in_progress">In Progress</SelectItem>
-            </SelectContent>
-          </Select>
-
-          <Select value={filterVehicle} onValueChange={setFilterVehicle}>
-            <SelectTrigger className="w-[200px]">
-              <SelectValue placeholder="Vehicle" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All Vehicles</SelectItem>
-              {vehicles.map((v) => (
-                <SelectItem key={v.id} value={v.id}>
-                  {v.make} {v.model} ({v.licensePlate})
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-
-          {viewType !== 'maintenance' && (
-            <Select value={filterDriver} onValueChange={setFilterDriver}>
-              <SelectTrigger className="w-[150px]">
-                <SelectValue placeholder="Driver" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Drivers</SelectItem>
-                {drivers.map((d) => (
-                  <SelectItem key={d.id} value={d.id}>
-                    {d.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          )}
-
-          {viewType !== 'reservations' && (
-            <Select value={filterTechnician} onValueChange={setFilterTechnician}>
-              <SelectTrigger className="w-[150px]">
-                <SelectValue placeholder="Technician" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Technicians</SelectItem>
-                {technicians.map((t) => (
-                  <SelectItem key={t.id} value={t.id}>
-                    {t.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          )}
-        </div>
-      </CardHeader>
-
-      <CardContent>
-        {isLoading ? (
-          <div className="space-y-4">
-            {[1, 2, 3].map((i) => (
-              <Skeleton key={i} className="h-32 w-full" />
-            ))}
-          </div>
-        ) : filteredData.length === 0 ? (
-          <div className="text-center py-12">
-            <CalendarIcon className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-            <h3 className="text-lg font-semibold mb-2">No schedules found</h3>
-            <p className="text-sm text-muted-foreground">
-              Try adjusting your filters or create a new reservation/appointment
-            </p>
-          </div>
-        ) : (
-          <ScrollArea className="h-[600px] pr-4">
-            <div className="space-y-6">
-              {groupedByDate.map(([date, items]) => (
-                <div key={date}>
-                  <h3 className="font-semibold text-lg mb-3 sticky top-0 bg-background py-2 z-10">
-                    {format(new Date(date), 'EEEE, MMMM d, yyyy')}
-                  </h3>
-                  <div className="space-y-3">
-                    {items.map(({ type, item }) =>
-                      type === 'reservation'
-                        ? renderReservationCard(item as VehicleReservation)
-                        : renderMaintenanceCard(item as MaintenanceAppointment)
-                    )}
-                  </div>
-                </div>
-              ))}
-            </div>
-          </ScrollArea>
-        )}
       </CardContent>
     </Card>
   )

@@ -27,7 +27,7 @@ export const calendarKeys = {
 /**
  * Hook to fetch user's calendar integrations
  */
-export function useCalendarIntegrations() {
+function useCalendarIntegrationsInternal() {
   return useQuery({
     queryKey: calendarKeys.integrations(),
     queryFn: async () => {
@@ -38,13 +38,14 @@ export function useCalendarIntegrations() {
       return response.integrations
     },
     staleTime: 60000, // 1 minute
+    gcTime: 60000,
   })
 }
 
 /**
  * Hook to get Google Calendar authorization URL
  */
-export function useGoogleCalendarAuthUrl() {
+function useGoogleCalendarAuthUrlInternal() {
   return useQuery({
     queryKey: calendarKeys.authUrl('google'),
     queryFn: async () => {
@@ -55,6 +56,7 @@ export function useGoogleCalendarAuthUrl() {
       return response.authUrl
     },
     staleTime: 300000, // 5 minutes
+    gcTime: 300000,
     enabled: false, // Don't auto-fetch, trigger manually
   })
 }
@@ -63,7 +65,7 @@ export function useGoogleCalendarAuthUrl() {
  * Hook to connect Google Calendar
  * Handles the OAuth callback and stores the integration
  */
-export function useConnectGoogleCalendar() {
+function useConnectGoogleCalendarInternal() {
   const queryClient = useQueryClient()
 
   return useMutation({
@@ -94,7 +96,7 @@ export function useConnectGoogleCalendar() {
 /**
  * Hook to disconnect/revoke a calendar integration
  */
-export function useDisconnectCalendar() {
+function useDisconnectCalendarInternal() {
   const queryClient = useQueryClient()
 
   return useMutation({
@@ -123,7 +125,7 @@ export function useDisconnectCalendar() {
 
       return { previousIntegrations }
     },
-    onError: (err, integrationId, context) => {
+    onError: (_err, _integrationId, context) => {
       // Rollback on error
       if (context?.previousIntegrations) {
         queryClient.setQueryData(
@@ -142,7 +144,7 @@ export function useDisconnectCalendar() {
 /**
  * Hook to manually trigger calendar sync
  */
-export function useSyncCalendar() {
+function useSyncCalendarInternal() {
   const queryClient = useQueryClient()
 
   return useMutation({
@@ -170,7 +172,8 @@ export function useSyncCalendar() {
         }
       )
     },
-    onSuccess: (result, { integrationId }) => {      // Update sync status and last sync time
+    onSuccess: (_result, { integrationId }) => {
+      // Update sync status and last sync time
       queryClient.setQueryData(
         calendarKeys.integrations(),
         (old: CalendarIntegration[] | undefined) => {
@@ -190,7 +193,8 @@ export function useSyncCalendar() {
       // Invalidate scheduling data as it may have changed
       queryClient.invalidateQueries({ queryKey: ['scheduling'] })
     },
-    onError: (err, { integrationId }) => {      // Update sync status to failed
+    onError: (_err, { integrationId }) => {
+      // Update sync status to failed
       queryClient.setQueryData(
         calendarKeys.integrations(),
         (old: CalendarIntegration[] | undefined) => {
@@ -209,7 +213,7 @@ export function useSyncCalendar() {
 /**
  * Hook to update calendar integration settings
  */
-export function useUpdateCalendarIntegration() {
+function useUpdateCalendarIntegrationInternal() {
   const queryClient = useQueryClient()
 
   return useMutation({
@@ -269,12 +273,12 @@ export function useUpdateCalendarIntegration() {
  * Main hook that provides all calendar integration functionality
  */
 export function useCalendarIntegration() {
-  const integrations = useCalendarIntegrations()
-  const getAuthUrl = useGoogleCalendarAuthUrl()
-  const connectGoogle = useConnectGoogleCalendar()
-  const disconnect = useDisconnectCalendar()
-  const sync = useSyncCalendar()
-  const updateSettings = useUpdateCalendarIntegration()
+  const integrations = useCalendarIntegrationsInternal()
+  const getAuthUrl = useGoogleCalendarAuthUrlInternal()
+  const connectGoogle = useConnectGoogleCalendarInternal()
+  const disconnect = useDisconnectCalendarInternal()
+  const sync = useSyncCalendarInternal()
+  const updateSettings = useUpdateCalendarIntegrationInternal()
 
   return {
     // Data
@@ -310,11 +314,9 @@ export function useCalendarIntegration() {
 }
 
 // Export individual hooks for flexibility
-export {
-  useCalendarIntegrations,
-  useGoogleCalendarAuthUrl,
-  useConnectGoogleCalendar,
-  useDisconnectCalendar,
-  useSyncCalendar,
-  useUpdateCalendarIntegration,
-}
+export const useCalendarIntegrations = useCalendarIntegrationsInternal;
+export const useGoogleCalendarAuthUrl = useGoogleCalendarAuthUrlInternal;
+export const useConnectGoogleCalendar = useConnectGoogleCalendarInternal;
+export const useDisconnectCalendar = useDisconnectCalendarInternal;
+export const useSyncCalendar = useSyncCalendarInternal;
+export const useUpdateCalendarIntegration = useUpdateCalendarIntegrationInternal;

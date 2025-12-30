@@ -8,37 +8,28 @@ import { useFleetMetrics } from "./FleetDashboard/hooks/useFleetMetrics"
 import { ProfessionalFleetMap } from "@/components/Maps/ProfessionalFleetMap"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { useDrilldown } from "@/contexts/DrilldownContext"
-import { useFleetDataBatched } from "@/hooks/use-fleet-data-batched" // BATCH-003: Use batched hook (7 requests → 1)
+import { useFleetDataBatched } from "@/hooks/use-fleet-data-batched"
 import { useVehicleTelemetry } from "@/hooks/useVehicleTelemetry"
 import { Vehicle } from "@/lib/types"
 import { useInspect } from "@/services/inspect/InspectContext"
 
-
 type LayoutMode = "split-50-50" | "split-70-30" | "map-only" | "table-only"
 
-interface FleetDashboardProps {
-  data: ReturnType<typeof useFleetData>
-}
-
 export function FleetDashboard() {
-  // BATCH-003: Use batched hook - reduces 7 requests to 1 batch request
   const data = useFleetDataBatched()
-  const initialVehicles = data.vehicles || []
+  const initialVehicles = data?.vehicles || []
   const [layoutMode, setLayoutMode] = useState<LayoutMode>("split-50-50")
 
-  // Drilldown & Inspect
   const { push: drilldownPush } = useDrilldown()
   const { openInspect } = useInspect()
 
-  // Real-time telemetry
   const { vehicles: realtimeVehicles } = useVehicleTelemetry({
     enabled: true,
     initialVehicles
   })
 
-  // Merge real-time data with initial vehicles
   const vehicles = useMemo(() => {
-    if (realtimeVehicles.length > 0) {
+    if (realtimeVehicles?.length > 0) {
       const merged = new Map<string, Vehicle>()
       initialVehicles.forEach((v) => merged.set(v.id, v))
       realtimeVehicles.forEach((v) => {
@@ -52,7 +43,6 @@ export function FleetDashboard() {
     return initialVehicles
   }, [initialVehicles, realtimeVehicles])
 
-  // Filtering
   const {
     statusFilter,
     setStatusFilter,
@@ -63,10 +53,8 @@ export function FleetDashboard() {
     clearAllFilters
   } = useFleetFilters(vehicles)
 
-  // Metrics
   const metrics = useFleetMetrics(filteredVehicles)
 
-  // Handlers
   const handleVehicleClick = useCallback(
     (vehicle: Vehicle) => {
       drilldownPush({
@@ -79,7 +67,7 @@ export function FleetDashboard() {
       openInspect({
         type: "vehicle",
         id: vehicle.id,
-        data: vehicle
+        target: vehicle
       })
     },
     [drilldownPush, openInspect]
@@ -97,11 +85,14 @@ export function FleetDashboard() {
     [drilldownPush, filteredVehicles]
   )
 
-  // Layout rendering
   const renderLayout = () => {
     const mapSection = (
       <div className="h-full">
-        <ProfessionalFleetMap vehicles={filteredVehicles} onVehicleClick={handleVehicleClick} />
+        <ProfessionalFleetMap 
+          vehicles={filteredVehicles} 
+          onVehicleClick={handleVehicleClick} 
+          mapStyle="default"
+        />
       </div>
     )
 
@@ -144,7 +135,6 @@ export function FleetDashboard() {
 
   return (
     <div className="space-y-6 p-6">
-      {/* Header */}
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-semibold tracking-tight">Fleet Dashboard</h1>
@@ -187,7 +177,6 @@ export function FleetDashboard() {
         </div>
       </div>
 
-      {/* Metrics */}
       <FleetMetricsBar
         totalVehicles={metrics.totalVehicles}
         activeVehicles={metrics.activeVehicles}
@@ -197,7 +186,6 @@ export function FleetDashboard() {
         onMetricClick={handleMetricClick}
       />
 
-      {/* Filters */}
       <FleetFiltersPanel
         statusFilter={statusFilter}
         setStatusFilter={setStatusFilter}
@@ -210,7 +198,6 @@ export function FleetDashboard() {
         onClearFilters={clearAllFilters}
       />
 
-      {/* Layout */}
       {renderLayout()}
     </div>
   )

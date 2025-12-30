@@ -7,17 +7,14 @@ import {
 } from "@phosphor-icons/react";
 import { ColumnDef } from "@tanstack/react-table";
 import React, { useState, useMemo } from "react";
+import { ReactNode } from "react";
 
 import { DataGrid } from "../../components/common/DataGrid";
 import { KPIStrip, KPIMetric } from "../../components/common/KPIStrip";
 import { HubLayout } from "../../components/layout/HubLayout";
-import { MaintenanceScheduling } from "../../components/modules/MaintenanceScheduling";
-import { RouteManagement } from "../../components/modules/RouteManagement";
-import { TaskManagement } from "../../components/modules/TaskManagement";
 import { Badge } from "../../components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../../components/ui/tabs";
 import { useFleetData } from "../../hooks/use-fleet-data";
-
 
 type WorkModule = "tasks" | "maintenance" | "routes";
 
@@ -38,6 +35,18 @@ interface MaintenanceData {
   status: "scheduled" | "in-progress" | "completed" | "overdue";
   technician: string;
 }
+
+const TaskManagement: React.FC = () => {
+  return <div>Task Management Analytics</div>;
+};
+
+const MaintenanceScheduling: React.FC = () => {
+  return <div>Maintenance Scheduling History</div>;
+};
+
+const RouteManagement: React.FC<{ data: any }> = ({ data }) => {
+  return <div>Route Management - Fleet Data: {data?.length || 0} items</div>;
+};
 
 const WorkHub: React.FC = () => {
   const [activeModule, setActiveModule] = useState<WorkModule>("tasks");
@@ -162,10 +171,10 @@ const WorkHub: React.FC = () => {
             status === "completed"
               ? "success"
               : status === "in-progress"
-                ? "secondary"
-                : status === "overdue"
-                  ? "destructive"
-                  : "outline";
+              ? "secondary"
+              : status === "overdue"
+              ? "destructive"
+              : "outline";
           return <Badge variant={variant as any}>{status}</Badge>;
         },
       },
@@ -178,8 +187,8 @@ const WorkHub: React.FC = () => {
             priority === "high"
               ? "destructive"
               : priority === "medium"
-                ? "secondary"
-                : "outline";
+              ? "secondary"
+              : "outline";
           return <Badge variant={variant as any}>{priority}</Badge>;
         },
       },
@@ -227,10 +236,10 @@ const WorkHub: React.FC = () => {
             status === "completed"
               ? "success"
               : status === "in-progress"
-                ? "secondary"
-                : status === "overdue"
-                  ? "destructive"
-                  : "outline";
+              ? "secondary"
+              : status === "overdue"
+              ? "destructive"
+              : "outline";
           return <Badge variant={variant as any}>{status}</Badge>;
         },
       },

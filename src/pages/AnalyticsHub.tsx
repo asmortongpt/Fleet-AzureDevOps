@@ -16,7 +16,7 @@ import {
 
 import { HubPage, HubTab } from '@/components/ui/hub-page'
 import { StatCard, ProgressRing, StatusDot, QuickStat } from '@/components/ui/stat-card'
-import { useDrilldown } from '@/contexts/DrilldownContext'
+import { useDrilldown, DrilldownLevel } from '@/contexts/DrilldownContext'
 
 function ExecutiveContent() {
     const { push } = useDrilldown()
@@ -32,21 +32,21 @@ function ExecutiveContent() {
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                <StatCard title="Fleet Utilization" value="87%" trend="up" trendValue="+5%" variant="success" icon={<Gauge className="w-6 h-6" />} onClick={() => push({ type: 'fleet-kpis', data: { title: 'Fleet Utilization' } })} />
-                <StatCard title="Cost per Mile" value="$0.42" trend="down" trendValue="-3¢" variant="success" icon={<CurrencyDollar className="w-6 h-6" />} onClick={() => push({ type: 'cost-analysis', data: { title: 'Cost per Mile' } })} />
-                <StatCard title="On-Time Rate" value="94%" trend="up" trendValue="+2%" variant="primary" onClick={() => push({ type: 'executive-dashboard', data: { title: 'On-Time Performance' } })} />
-                <StatCard title="Safety Score" value="92" trend="up" trendValue="+4" variant="success" onClick={() => push({ type: 'executive-dashboard', data: { title: 'Safety Score' } })} />
+                <StatCard title="Fleet Utilization" value="87%" trend="up" trendValue="+5%" variant="success" icon={<Gauge className="w-6 h-6" />} onClick={() => push({ type: 'fleet-kpis', data: { title: 'Fleet Utilization' } } as Omit<DrilldownLevel, "timestamp">)} />
+                <StatCard title="Cost per Mile" value="$0.42" trend="down" trendValue="-3¢" variant="success" icon={<CurrencyDollar className="w-6 h-6" />} onClick={() => push({ type: 'cost-analysis', data: { title: 'Cost per Mile' } } as Omit<DrilldownLevel, "timestamp">)} />
+                <StatCard title="On-Time Rate" value="94%" trend="up" trendValue="+2%" variant="primary" onClick={() => push({ type: 'executive-dashboard', data: { title: 'On-Time Performance' } } as Omit<DrilldownLevel, "timestamp">)} />
+                <StatCard title="Safety Score" value="92" trend="up" trendValue="+4" variant="success" onClick={() => push({ type: 'executive-dashboard', data: { title: 'Safety Score' } } as Omit<DrilldownLevel, "timestamp">)} />
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                <div className="bg-gradient-to-br from-slate-800/60 to-slate-900/60 backdrop-blur-xl rounded-xl border border-slate-700/50 p-6 cursor-pointer hover:border-slate-600/50 transition-colors" onClick={() => push({ type: 'executive-dashboard', data: { title: 'Revenue Trend' } })}>
+                <div className="bg-gradient-to-br from-slate-800/60 to-slate-900/60 backdrop-blur-xl rounded-xl border border-slate-700/50 p-6 cursor-pointer hover:border-slate-600/50 transition-colors" onClick={() => push({ type: 'executive-dashboard', data: { title: 'Revenue Trend' } } as Omit<DrilldownLevel, "timestamp">)}>
                     <h3 className="text-sm font-medium text-slate-400 uppercase tracking-wide mb-4">Revenue Trend</h3>
                     <div className="flex items-center justify-center">
                         <ProgressRing progress={112} color="green" label="$1.2M" sublabel="MTD vs target" />
                     </div>
                 </div>
 
-                <div className="bg-gradient-to-br from-slate-800/60 to-slate-900/60 backdrop-blur-xl rounded-xl border border-slate-700/50 p-6 cursor-pointer hover:border-slate-600/50 transition-colors" onClick={() => push({ type: 'executive-dashboard', data: { title: 'Key Metrics' } })}>
+                <div className="bg-gradient-to-br from-slate-800/60 to-slate-900/60 backdrop-blur-xl rounded-xl border border-slate-700/50 p-6 cursor-pointer hover:border-slate-600/50 transition-colors" onClick={() => push({ type: 'executive-dashboard', data: { title: 'Key Metrics' } } as Omit<DrilldownLevel, "timestamp">)}>
                     <h3 className="text-sm font-medium text-slate-400 uppercase tracking-wide mb-4">Key Metrics</h3>
                     <div className="space-y-1">
                         <QuickStat label="Total Revenue" value="$1.24M" trend="up" />
@@ -56,7 +56,7 @@ function ExecutiveContent() {
                     </div>
                 </div>
 
-                <div className="bg-gradient-to-br from-slate-800/60 to-slate-900/60 backdrop-blur-xl rounded-xl border border-slate-700/50 p-6 cursor-pointer hover:border-slate-600/50 transition-colors" onClick={() => push({ type: 'executive-dashboard', data: { title: 'Goal Progress' } })}>
+                <div className="bg-gradient-to-br from-slate-800/60 to-slate-900/60 backdrop-blur-xl rounded-xl border border-slate-700/50 p-6 cursor-pointer hover:border-slate-600/50 transition-colors" onClick={() => push({ type: 'executive-dashboard', data: { title: 'Goal Progress' } } as Omit<DrilldownLevel, "timestamp">)}>
                     <h3 className="text-sm font-medium text-slate-400 uppercase tracking-wide mb-4">Goal Progress</h3>
                     <div className="flex items-center justify-center">
                         <ProgressRing progress={78} color="blue" label="Q4 Goals" sublabel="12 of 15 complete" />
@@ -74,10 +74,10 @@ function DashboardContent() {
         <div className="p-6 space-y-6 bg-gradient-to-b from-slate-900/50 to-transparent">
             <h2 className="text-2xl font-bold text-white">Analytics Dashboard</h2>
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                <StatCard title="Active Reports" value="24" variant="primary" icon={<ChartBar className="w-6 h-6" />} onClick={() => push({ type: 'executive-dashboard', data: { title: 'Active Reports' } })} />
-                <StatCard title="Scheduled" value="12" variant="default" onClick={() => push({ type: 'executive-dashboard', data: { title: 'Scheduled Reports' } })} />
-                <StatCard title="This Week" value="156" variant="success" onClick={() => push({ type: 'executive-dashboard', data: { title: 'Weekly Reports' } })} />
-                <StatCard title="Data Points" value="2.4M" variant="default" onClick={() => push({ type: 'executive-dashboard', data: { title: 'Data Overview' } })} />
+                <StatCard title="Active Reports" value="24" variant="primary" icon={<ChartBar className="w-6 h-6" />} onClick={() => push({ type: 'executive-dashboard', data: { title: 'Active Reports' } } as Omit<DrilldownLevel, "timestamp">)} />
+                <StatCard title="Scheduled" value="12" variant="default" onClick={() => push({ type: 'executive-dashboard', data: { title: 'Scheduled Reports' } } as Omit<DrilldownLevel, "timestamp">)} />
+                <StatCard title="This Week" value="156" variant="success" onClick={() => push({ type: 'executive-dashboard', data: { title: 'Weekly Reports' } } as Omit<DrilldownLevel, "timestamp">)} />
+                <StatCard title="Data Points" value="2.4M" variant="default" onClick={() => push({ type: 'executive-dashboard', data: { title: 'Data Overview' } } as Omit<DrilldownLevel, "timestamp">)} />
             </div>
         </div>
     )
@@ -90,9 +90,9 @@ function WorkbenchContent() {
         <div className="p-6 space-y-6 bg-gradient-to-b from-slate-900/50 to-transparent">
             <h2 className="text-2xl font-bold text-white">Data Workbench</h2>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <StatCard title="Queries" value="45" variant="primary" icon={<Database className="w-6 h-6" />} onClick={() => push({ type: 'executive-dashboard', data: { title: 'Saved Queries' } })} />
-                <StatCard title="Saved Views" value="18" variant="default" onClick={() => push({ type: 'executive-dashboard', data: { title: 'Saved Views' } })} />
-                <StatCard title="Exports" value="23" variant="success" onClick={() => push({ type: 'executive-dashboard', data: { title: 'Exports' } })} />
+                <StatCard title="Queries" value="45" variant="primary" icon={<Database className="w-6 h-6" />} onClick={() => push({ type: 'executive-dashboard', data: { title: 'Saved Queries' } } as Omit<DrilldownLevel, "timestamp">)} />
+                <StatCard title="Saved Views" value="18" variant="default" onClick={() => push({ type: 'executive-dashboard', data: { title: 'Saved Views' } } as Omit<DrilldownLevel, "timestamp">)} />
+                <StatCard title="Exports" value="23" variant="success" onClick={() => push({ type: 'executive-dashboard', data: { title: 'Exports' } } as Omit<DrilldownLevel, "timestamp">)} />
             </div>
         </div>
     )
@@ -105,10 +105,10 @@ function OptimizerContent() {
         <div className="p-6 space-y-6 bg-gradient-to-b from-slate-900/50 to-transparent">
             <h2 className="text-2xl font-bold text-white">Fleet Optimizer</h2>
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                <StatCard title="Recommendations" value="8" variant="primary" icon={<TrendUp className="w-6 h-6" />} onClick={() => push({ type: 'optimization-recommendations', data: { title: 'Recommendations' } })} />
-                <StatCard title="Implemented" value="24" variant="success" onClick={() => push({ type: 'fleet-optimizer', data: { title: 'Implemented' } })} />
-                <StatCard title="Est. Savings" value="$45K" variant="success" onClick={() => push({ type: 'fleet-optimizer', data: { title: 'Estimated Savings' } })} />
-                <StatCard title="ROI" value="340%" variant="success" onClick={() => push({ type: 'fleet-optimizer', data: { title: 'ROI Analysis' } })} />
+                <StatCard title="Recommendations" value="8" variant="primary" icon={<TrendUp className="w-6 h-6" />} onClick={() => push({ type: 'optimization-recommendations', data: { title: 'Recommendations' } } as Omit<DrilldownLevel, "timestamp">)} />
+                <StatCard title="Implemented" value="24" variant="success" onClick={() => push({ type: 'fleet-optimizer', data: { title: 'Implemented' } } as Omit<DrilldownLevel, "timestamp">)} />
+                <StatCard title="Est. Savings" value="$45K" variant="success" onClick={() => push({ type: 'fleet-optimizer', data: { title: 'Estimated Savings' } } as Omit<DrilldownLevel, "timestamp">)} />
+                <StatCard title="ROI" value="340%" variant="success" onClick={() => push({ type: 'fleet-optimizer', data: { title: 'ROI Analysis' } } as Omit<DrilldownLevel, "timestamp">)} />
             </div>
         </div>
     )
@@ -121,17 +121,17 @@ function CostsContent() {
         <div className="p-6 space-y-6 bg-gradient-to-b from-slate-900/50 to-transparent">
             <h2 className="text-2xl font-bold text-white">Cost Analysis</h2>
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                <StatCard title="Total TCO" value="$2.4M" variant="primary" icon={<CurrencyDollar className="w-6 h-6" />} onClick={() => push({ type: 'total-tco', data: { title: 'Total Cost of Ownership' } })} />
-                <StatCard title="Per Vehicle" value="$15.4K" variant="default" onClick={() => push({ type: 'cost-analysis', data: { title: 'Per Vehicle Cost' } })} />
-                <StatCard title="Fuel Cost" value="$890K" variant="warning" onClick={() => push({ type: 'fuel-cost', data: { title: 'Fuel Cost Analysis' } })} />
-                <StatCard title="Savings YTD" value="$124K" variant="success" onClick={() => push({ type: 'cost-analysis', data: { title: 'Savings YTD' } })} />
+                <StatCard title="Total TCO" value="$2.4M" variant="primary" icon={<CurrencyDollar className="w-6 h-6" />} onClick={() => push({ type: 'total-tco', data: { title: 'Total Cost of Ownership' } } as Omit<DrilldownLevel, "timestamp">)} />
+                <StatCard title="Per Vehicle" value="$15.4K" variant="default" onClick={() => push({ type: 'cost-analysis', data: { title: 'Per Vehicle Cost' } } as Omit<DrilldownLevel, "timestamp">)} />
+                <StatCard title="Fuel Cost" value="$890K" variant="warning" onClick={() => push({ type: 'fuel-cost', data: { title: 'Fuel Cost Analysis' } } as Omit<DrilldownLevel, "timestamp">)} />
+                <StatCard title="Savings YTD" value="$124K" variant="success" onClick={() => push({ type: 'cost-analysis', data: { title: 'Savings YTD' } } as Omit<DrilldownLevel, "timestamp">)} />
             </div>
         </div>
     )
 }
 
 function ReportsContent() {
-    const { push } = useDrilldown()
+    const { push: _push } = useDrilldown()
 
     return (
         <div className="p-6 space-y-6 bg-gradient-to-b from-slate-900/50 to-transparent">

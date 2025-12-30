@@ -10,10 +10,6 @@ import { Logger } from '../services/Logger';
 
 import { DIContainer } from './DIContainer';
 
-/**
- * Initializes and configures the DI container.
- * @returns {DIContainer} Configured DI container.
- */
 export const configureContainer = (): DIContainer => {
   const container = createContainer<DIContainer>();
 

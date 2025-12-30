@@ -30,7 +30,7 @@ const hexToRgb = (hex: string): string => {
 
 const hexToHsl = (hex: string): string => {
   const rgb = hexToRgb(hex).match(/\d+/g)?.map(Number) || [0, 0, 0];
-  const [r, g, b] = rgb.map((v) => v / 255);
+  const [r, g, b] = rgb.map((v: number) => v / 255);
   const max = Math.max(r, g, b);
   const min = Math.min(r, g, b);
   let h = 0, s = 0, l = (max + min) / 2;
@@ -101,11 +101,11 @@ const neutralGrays: ColorShades = {
 };
 
 const colorUtilities: ColorUtilities = {
-  lighten: (color: string, percentage: number): string => {
+  lighten: (color: string, _percentage: number): string => {
     // Implement lighten logic
     return color;
   },
-  darken: (color: string, percentage: number): string => {
+  darken: (color: string, _percentage: number): string => {
     // Implement darken logic
     return color;
   },

@@ -54,7 +54,6 @@ describe('useExport', () => {
     it('should format filename with current date', () => {
       const { result } = renderHook(() => useExport());
       const testData = [{ id: 1 }];
-      const mockDate = '2024-01-15';
 
       vi.spyOn(Date.prototype, 'toISOString').mockReturnValue('2024-01-15T10:30:00.000Z');
 
@@ -167,7 +166,7 @@ describe('useExport', () => {
         result.current.exportToCSV(testData, 'test');
       });
 
-      const callArg = blobSpy.mock.calls[0][0][0];
+      const callArg = blobSpy.mock.calls[0]?.[0]?.[0] as string | undefined;
       expect(callArg).toContain('id,name,status');
     });
 
@@ -183,7 +182,7 @@ describe('useExport', () => {
         result.current.exportToCSV(testData, 'test');
       });
 
-      const callArg = blobSpy.mock.calls[0][0][0];
+      const callArg = blobSpy.mock.calls[0]?.[0]?.[0] as string | undefined;
       expect(callArg).toContain('"Test, Name"');
       expect(callArg).toContain('"A \\"quoted\\" value"');
     });
@@ -200,7 +199,7 @@ describe('useExport', () => {
         result.current.exportToCSV(testData, 'test');
       });
 
-      const callArg = blobSpy.mock.calls[0][0][0];
+      const callArg = blobSpy.mock.calls[0]?.[0]?.[0] as string | undefined;
       expect(callArg).toContain('1,"",""');
     });
 
@@ -243,8 +242,8 @@ describe('useExport', () => {
         result.current.exportToCSV(testData, 'test');
       });
 
-      const callArg = blobSpy.mock.calls[0][0][0];
-      const lines = callArg.split('\n');
+      const callArg = blobSpy.mock.calls[0]?.[0]?.[0] as string | undefined;
+      const lines = callArg?.split('\n') || [];
 
       expect(lines).toHaveLength(4); // header + 3 rows
       expect(lines[0]).toBe('id,name,value');
@@ -283,7 +282,7 @@ describe('useExport', () => {
       });
 
       // Should use first object's property order
-      const callArg = blobSpy.mock.calls[0][0][0];
+      const callArg = blobSpy.mock.calls[0]?.[0]?.[0] as string | undefined;
       expect(callArg).toContain('name,id,status');
     });
   });

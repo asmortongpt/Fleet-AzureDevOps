@@ -11,7 +11,7 @@ import {
   AlertCircle,
   Grid
 } from "lucide-react"
-import React, { useState, useMemo, useCallback } from "react"
+import { useState, useMemo, useCallback } from "react"
 
 import { ProfessionalFleetMap } from "@/components/Maps/ProfessionalFleetMap"
 import { Badge } from "@/components/ui/badge"
@@ -23,11 +23,12 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { useVehicles, useFacilities, useWorkOrders, useMaintenanceSchedules } from "@/hooks/use-api"
 import { useVehicleTelemetry } from "@/hooks/useVehicleTelemetry"
-import { Vehicle } from "@/lib/types"
+import { Vehicle, Facility, WorkOrder } from "@/lib/types"
 import { cn } from "@/lib/utils"
+import { toast, ToastOptions } from "react-hot-toast"
 
 // Facility Panel Component
-const FacilityPanel = ({ facilities, onFacilitySelect }) => {
+const FacilityPanel = ({ facilities, onFacilitySelect }: { facilities: Facility[]; onFacilitySelect: (facility: Facility) => void }) => {
   if (!facilities || facilities.length === 0) {
     return (
       <div className="p-4 text-center text-muted-foreground">
@@ -74,7 +75,7 @@ const FacilityPanel = ({ facilities, onFacilitySelect }) => {
 }
 
 // Vehicle Maintenance Panel
-const VehicleMaintenancePanel = ({ vehicle, maintenanceHistory }) => {
+const VehicleMaintenancePanel = ({ vehicle, _maintenanceHistory }: { vehicle: Vehicle | null; _maintenanceHistory: unknown }) => {
   if (!vehicle) {
     return (
       <div className="p-4 text-center text-muted-foreground">
@@ -83,8 +84,8 @@ const VehicleMaintenancePanel = ({ vehicle, maintenanceHistory }) => {
     )
   }
 
-  const daysUntilService = vehicle.nextServiceMiles
-    ? Math.floor((vehicle.nextServiceMiles - vehicle.mileage) / 50)
+  const daysUntilService = vehicle.nextService
+    ? Math.floor(((vehicle.nextService - (vehicle.mileage || 0)) || 0) / 50)
     : null
 
   return (
@@ -114,11 +115,11 @@ const VehicleMaintenancePanel = ({ vehicle, maintenanceHistory }) => {
               <span className="font-medium">{vehicle.mileage?.toLocaleString()} mi</span>
             </div>
 
-            {vehicle.nextServiceMiles && (
+            {vehicle.nextService && (
               <>
                 <div className="flex items-center justify-between">
                   <span className="text-sm">Next Service</span>
-                  <span className="font-medium">{vehicle.nextServiceMiles.toLocaleString()} mi</span>
+                  <span className="font-medium">{vehicle.nextService.toLocaleString()} mi</span>
                 </div>
 
                 <div className="space-y-1">
@@ -128,24 +129,24 @@ const VehicleMaintenancePanel = ({ vehicle, maintenanceHistory }) => {
                       "font-medium",
                       daysUntilService && daysUntilService < 7 ? "text-red-500" : "text-green-500"
                     )}>
-                      {vehicle.nextServiceMiles - vehicle.mileage} mi
+                      {(vehicle.nextService - (vehicle.mileage || 0)) || 0} mi
                     </span>
                   </div>
                   <Progress
-                    value={(vehicle.mileage / vehicle.nextServiceMiles) * 100}
+                    value={(vehicle.mileage || 0) / vehicle.nextService * 100}
                     className="h-2"
                   />
                 </div>
               </>
             )}
 
-            {vehicle.maintenanceAlerts && vehicle.maintenanceAlerts.length > 0 && (
+            {vehicle.alerts && vehicle.alerts.length > 0 && (
               <div className="mt-3 pt-3 border-t space-y-2">
                 <h4 className="text-sm font-medium flex items-center gap-2">
                   <AlertTriangle className="h-4 w-4 text-yellow-500" />
                   Active Alerts
                 </h4>
-                {vehicle.maintenanceAlerts.map((alert, i) => (
+                {vehicle.alerts.map((alert: string, i: number) => (
                   <div key={i} className="flex items-start gap-2 text-sm">
                     <AlertCircle className="h-4 w-4 text-yellow-500 mt-0.5 flex-shrink-0" />
                     <span>{alert}</span>
@@ -166,14 +167,10 @@ const VehicleMaintenancePanel = ({ vehicle, maintenanceHistory }) => {
             variant="outline"
             className="w-full hover:bg-red-500/10 hover:text-red-500 hover:border-red-500/50 transition-colors"
             onClick={() => {
-              // In a real app, this would open a modal
-              import('@/utils/toast').then(({ showToast }) => {
-                showToast('Maintenance request submitted', {
-                  type: 'success',
-                  title: 'Request Sent',
-                  duration: 3000
-                })
-              })
+              toast.success('Maintenance request submitted', {
+                duration: 3000,
+                position: 'top-center'
+              } as ToastOptions)
             }}
           >
             <Wrench className="h-4 w-4 mr-2" />
@@ -189,8 +186,8 @@ const VehicleMaintenancePanel = ({ vehicle, maintenanceHistory }) => {
 }
 
 // Work Orders Panel
-const WorkOrdersPanel = ({ workOrders, onWorkOrderSelect }) => {
-  const getStatusIcon = (status) => {
+const WorkOrdersPanel = ({ workOrders, onWorkOrderSelect }: { workOrders: WorkOrder[]; onWorkOrderSelect: (order: WorkOrder) => void }) => {
+  const getStatusIcon = (status: string): JSX.Element => {
     switch (status) {
       case 'completed':
         return <CheckCircle2 className="h-4 w-4 text-green-500" />
@@ -203,7 +200,7 @@ const WorkOrdersPanel = ({ workOrders, onWorkOrderSelect }) => {
     }
   }
 
-  const getPriorityColor = (priority) => {
+  const getPriorityColor = (priority: string): string => {
     switch (priority) {
       case 'critical':
         return 'destructive'
@@ -221,7 +218,7 @@ const WorkOrdersPanel = ({ workOrders, onWorkOrderSelect }) => {
       <div className="p-4 space-y-2">
         <h3 className="font-semibold mb-3">Work Orders</h3>
         {workOrders && workOrders.length > 0 ? (
-          workOrders.map(order => (
+          workOrders.map((order: WorkOrder) => (
             <Card
               key={order.id}
               className="cursor-pointer hover:bg-accent transition-colors"
@@ -267,7 +264,7 @@ const WorkOrdersPanel = ({ workOrders, onWorkOrderSelect }) => {
 }
 
 // Parts Inventory Panel
-const PartsPanel = ({ parts }) => {
+const PartsPanel = ({ _parts }: { _parts: unknown }) => {
   return (
     <ScrollArea className="h-full">
       <div className="p-4">
@@ -283,8 +280,8 @@ const PartsPanel = ({ parts }) => {
 }
 
 // Main Maintenance Workspace Component
-export function MaintenanceWorkspace({ data }: { data?: any }) {
-  const [selectedEntity, setSelectedEntity] = useState<{ type: string; data: any } | null>(null)
+export function MaintenanceWorkspace({ _data }: { _data?: unknown }) {
+  const [selectedEntity, setSelectedEntity] = useState<{ type: string; data: Vehicle | Facility | WorkOrder } | null>(null)
   const [activePanel, setActivePanel] = useState('facility')
   const [filterStatus, setFilterStatus] = useState('all')
 
@@ -300,7 +297,7 @@ export function MaintenanceWorkspace({ data }: { data?: any }) {
   const { data: vehicles = [] } = useVehicles()
   const { data: facilities = [] } = useFacilities()
   const { data: workOrders = [] } = useWorkOrders()
-  const { data: maintenanceSchedule = [] } = useMaintenanceSchedules()
+  const { data: _maintenanceSchedule = [] } = useMaintenanceSchedules()
 
   // Real-time telemetry
   const {
@@ -316,12 +313,12 @@ export function MaintenanceWorkspace({ data }: { data?: any }) {
 
   // Filter vehicles that need maintenance
   const maintenanceVehicles = useMemo(() => {
-    return displayVehicles.filter((v: Vehicle) => {
+    return (displayVehicles as Vehicle[]).filter((v: Vehicle) => {
       if (filterStatus === 'all') return true
       if (filterStatus === 'service') return v.status === 'service'
-      if (filterStatus === 'alerts') return v.maintenanceAlerts && v.maintenanceAlerts.length > 0
+      if (filterStatus === 'alerts') return v.alerts && v.alerts.length > 0
       if (filterStatus === 'due') {
-        return v.nextServiceMiles && (v.nextServiceMiles - v.mileage) < 500
+        return v.nextService && (v.nextService - (v.mileage || 0)) < 500
       }
       return true
     })
@@ -329,7 +326,7 @@ export function MaintenanceWorkspace({ data }: { data?: any }) {
 
   // Handle vehicle selection
   const handleVehicleSelect = useCallback((vehicleId: string) => {
-    const vehicle = displayVehicles.find((v: Vehicle) => v.id === vehicleId)
+    const vehicle = (displayVehicles as Vehicle[]).find((v: Vehicle) => v.id === vehicleId)
     if (vehicle) {
       setSelectedEntity({ type: 'vehicle', data: vehicle })
       setActivePanel('vehicle')
@@ -338,12 +335,12 @@ export function MaintenanceWorkspace({ data }: { data?: any }) {
 
   // Stats
   const stats = useMemo(() => ({
-    inService: displayVehicles.filter((v: Vehicle) => v.status === 'service').length,
-    alertsPending: displayVehicles.filter((v: Vehicle) => v.maintenanceAlerts && v.maintenanceAlerts.length > 0).length,
-    serviceDue: displayVehicles.filter((v: Vehicle) =>
-      v.nextServiceMiles && (v.nextServiceMiles - v.mileage) < 500
+    inService: (displayVehicles as Vehicle[]).filter((v: Vehicle) => v.status === 'service').length,
+    alertsPending: (displayVehicles as Vehicle[]).filter((v: Vehicle) => v.alerts && v.alerts.length > 0).length,
+    serviceDue: (displayVehicles as Vehicle[]).filter((v: Vehicle) =>
+      v.nextService && (v.nextService - (v.mileage || 0)) < 500
     ).length,
-    workOrdersPending: workOrders.filter((w: any) => w.status === 'pending').length
+    workOrdersPending: (workOrders as WorkOrder[]).filter((w: WorkOrder) => w.status === 'pending').length
   }), [displayVehicles, workOrders])
 
   return (
@@ -401,91 +398,64 @@ export function MaintenanceWorkspace({ data }: { data?: any }) {
         {/* Stats Bar */}
         <div className="absolute bottom-4 left-4 right-[420px] bg-background/95 backdrop-blur rounded-lg shadow-lg p-3 z-10">
           <div className="flex items-center justify-between">
-            <div className="flex gap-4">
-              <div className="flex items-center gap-2" data-testid="maint-stat-service">
+            <div className="flex items-center gap-4">
+              <div className="flex items-center gap-2">
+                <Truck className="h-4 w-4 text-muted-foreground" />
+                <span className="text-sm">In Service: {stats.inService}</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <AlertTriangle className="h-4 w-4 text-yellow-500" />
+                <span className="text-sm">Alerts: {stats.alertsPending}</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <Calendar className="h-4 w-4 text-red-500" />
+                <span className="text-sm">Due Soon: {stats.serviceDue}</span>
+              </div>
+              <div className="flex items-center gap-2">
                 <Wrench className="h-4 w-4 text-muted-foreground" />
-                <span className="text-sm">
-                  <span className="font-semibold">{stats.inService}</span> in service
-                </span>
-              </div>
-              <div className="flex items-center gap-2" data-testid="maint-stat-alerts">
-                <AlertTriangle className="h-4 w-4 text-muted-foreground" />
-                <span className="text-sm">
-                  <span className="font-semibold">{stats.alertsPending}</span> alerts
-                </span>
-              </div>
-              <div className="flex items-center gap-2" data-testid="maint-stat-due">
-                <Calendar className="h-4 w-4 text-muted-foreground" />
-                <span className="text-sm">
-                  <span className="font-semibold">{stats.serviceDue}</span> service due
-                </span>
-              </div>
-              <div className="flex items-center gap-2" data-testid="maint-stat-orders">
-                <Settings className="h-4 w-4 text-muted-foreground" />
-                <span className="text-sm">
-                  <span className="font-semibold">{stats.workOrdersPending}</span> pending orders
-                </span>
+                <span className="text-sm">Work Orders: {stats.workOrdersPending}</span>
               </div>
             </div>
-
-            {isRealtimeConnected && (
-              <Badge variant="outline" className="bg-green-100 text-green-700 border-green-300 dark:bg-green-950 dark:text-green-400 dark:border-green-800">
-                <div className="h-2 w-2 bg-green-500 rounded-full mr-2 animate-pulse" />
-                Live Data
-              </Badge>
-            )}
           </div>
         </div>
       </div>
 
-      {/* Contextual Panel Section */}
-      <div className="border-l bg-background" data-testid="maint-contextual-panel">
-        <Tabs value={activePanel} onValueChange={setActivePanel} className="h-full flex flex-col">
-          <TabsList className="w-full rounded-none justify-start px-2">
-            <TabsTrigger value="facility" className="flex-1" data-testid="maint-tab-facility">
-              <Building2 className="h-4 w-4 mr-2" />
-              Facilities
-            </TabsTrigger>
-            <TabsTrigger value="vehicle" className="flex-1" data-testid="maint-tab-vehicle">
-              <Truck className="h-4 w-4 mr-2" />
-              Vehicle
-            </TabsTrigger>
-            <TabsTrigger value="orders" className="flex-1" data-testid="maint-tab-orders">
-              <Settings className="h-4 w-4 mr-2" />
-              Orders
-            </TabsTrigger>
-            <TabsTrigger value="parts" className="flex-1" data-testid="maint-tab-parts">
-              <Package className="h-4 w-4 mr-2" />
-              Parts
-            </TabsTrigger>
+      {/* Sidebar */}
+      <div className="border-l h-full">
+        <Tabs defaultValue="facility" value={activePanel} onValueChange={setActivePanel} className="w-full h-full">
+          <TabsList className="grid w-full grid-cols-4">
+            <TabsTrigger value="facility">Facilities</TabsTrigger>
+            <TabsTrigger value="vehicle">Vehicle</TabsTrigger>
+            <TabsTrigger value="work">Work Orders</TabsTrigger>
+            <TabsTrigger value="parts">Parts</TabsTrigger>
           </TabsList>
-
-          <div className="flex-1 overflow-hidden">
-            <TabsContent value="facility" className="h-full m-0" data-testid="maint-panel-facility">
-              <FacilityPanel
-                facilities={facilities}
-                onFacilitySelect={(facility) => setSelectedEntity({ type: 'facility', data: facility })}
-              />
-            </TabsContent>
-
-            <TabsContent value="vehicle" className="h-full m-0" data-testid="maint-panel-vehicle">
-              <VehicleMaintenancePanel
-                vehicle={selectedEntity?.type === 'vehicle' ? selectedEntity.data : null}
-                maintenanceHistory={null}
-              />
-            </TabsContent>
-
-            <TabsContent value="orders" className="h-full m-0" data-testid="maint-panel-orders">
-              <WorkOrdersPanel
-                workOrders={workOrders}
-                onWorkOrderSelect={(order) => setSelectedEntity({ type: 'workOrder', data: order })}
-              />
-            </TabsContent>
-
-            <TabsContent value="parts" className="h-full m-0" data-testid="maint-panel-parts">
-              <PartsPanel parts={[]} />
-            </TabsContent>
-          </div>
+          <TabsContent value="facility" className="h-[calc(100vh-48px)] mt-0">
+            <FacilityPanel
+              facilities={facilities}
+              onFacilitySelect={(facility) => {
+                setSelectedEntity({ type: 'facility', data: facility });
+                setActivePanel('facility');
+              }}
+            />
+          </TabsContent>
+          <TabsContent value="vehicle" className="h-[calc(100vh-48px)] mt-0">
+            <VehicleMaintenancePanel
+              vehicle={selectedEntity?.type === 'vehicle' ? selectedEntity.data as Vehicle : null}
+              _maintenanceHistory={null}
+            />
+          </TabsContent>
+          <TabsContent value="work" className="h-[calc(100vh-48px)] mt-0">
+            <WorkOrdersPanel
+              workOrders={workOrders}
+              onWorkOrderSelect={(order) => {
+                setSelectedEntity({ type: 'workOrder', data: order });
+                setActivePanel('work');
+              }}
+            />
+          </TabsContent>
+          <TabsContent value="parts" className="h-[calc(100vh-48px)] mt-0">
+            <PartsPanel _parts={null} />
+          </TabsContent>
         </Tabs>
       </div>
     </div>

@@ -53,13 +53,13 @@ interface DocumentExplorerProps {
 
 export function DocumentExplorer({
   documents,
-  onDocumentSelect,
+  onDocumentSelect: _onDocumentSelect,
   onDocumentOpen,
   onUpload,
   onDelete,
   onShare,
-  onTag,
-  onMove,
+  onTag: _onTag,
+  onMove: _onMove,
   onRefresh,
   isLoading = false,
 }: DocumentExplorerProps) {
@@ -89,7 +89,7 @@ export function DocumentExplorer({
     }
 
     // Sort
-    filtered = sortDocuments(filtered, sortField, sortOrder);
+    filtered = sortDocuments(filtered, sortField as 'name' | 'date' | 'size' | 'type', sortOrder);
 
     return filtered;
   }, [documents, searchQuery, currentFolderId, sortField, sortOrder]);
