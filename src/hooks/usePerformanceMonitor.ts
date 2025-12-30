@@ -59,9 +59,7 @@ export function usePerformanceMonitor(
     enabled = true,
     detectMemoryLeaks = true,
     memoryLeakCallback,
-    _reportInterval = 10000,
     slowRenderThreshold = 50,
-    _highMemoryThreshold = 150,
   } = options;
 
   // State for metrics

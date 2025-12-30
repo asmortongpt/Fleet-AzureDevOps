@@ -351,7 +351,6 @@ export function LeafletMap({
   showVehicles = true,
   showFacilities = true,
   showCameras = false,
-  _showRoutes = false,
   mapStyle = "osm",
   center = MAP_CONFIG.defaultCenter,
   zoom = MAP_CONFIG.defaultZoom,
