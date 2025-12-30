@@ -465,6 +465,72 @@ class APIClient {
       this.put(`/api/charging-stations/${id}`, data),
     delete: (id: string) => this.delete(`/api/charging-stations/${id}`)
   }
+
+  // Microsoft Teams integration endpoints
+  teams = {
+    list: (params?: Record<string, unknown>) => this.get('/api/teams/messages', params),
+    get: (id: string) => this.get(`/api/teams/messages/${id}`),
+    send: (data: unknown) => this.post('/api/teams/messages', data),
+    channels: {
+      list: () => this.get('/api/teams/channels'),
+      get: (id: string) => this.get(`/api/teams/channels/${id}`)
+    }
+  }
+
+  // Microsoft Outlook integration endpoints
+  outlook = {
+    list: (params?: Record<string, unknown>) => this.get('/api/outlook/emails', params),
+    get: (id: string) => this.get(`/api/outlook/emails/${id}`),
+    send: (data: unknown) => this.post('/api/outlook/emails', data),
+    folders: {
+      list: () => this.get('/api/outlook/folders')
+    }
+  }
+
+  // Calendar integration endpoints
+  calendar = {
+    list: (params?: Record<string, unknown>) => this.get('/api/calendar/events', params),
+    get: (id: string) => this.get(`/api/calendar/events/${id}`),
+    create: (data: unknown) => this.post('/api/calendar/events', data),
+    update: (id: string, data: unknown) => this.put(`/api/calendar/events/${id}`, data),
+    delete: (id: string) => this.delete(`/api/calendar/events/${id}`)
+  }
+
+  // ArcGIS Layers integration endpoints
+  arcgisLayers = {
+    list: (params?: Record<string, unknown>) => this.get('/api/arcgis/layers', params),
+    get: (id: string) => this.get(`/api/arcgis/layers/${id}`),
+    query: (layerId: string, params?: Record<string, unknown>) =>
+      this.get(`/api/arcgis/layers/${layerId}/query`, params),
+    features: (layerId: string, params?: Record<string, unknown>) =>
+      this.get(`/api/arcgis/layers/${layerId}/features`, params)
+  }
+
+  // Traffic Cameras endpoints
+  trafficCameras = {
+    list: (params?: Record<string, unknown>) => this.get('/api/traffic-cameras', params),
+    get: (id: string) => this.get(`/api/traffic-cameras/${id}`),
+    nearby: (lat: number, lng: number, radiusMeters?: number) =>
+      this.get('/api/traffic-cameras/nearby', { lat, lng, radiusMeters }),
+    sync: () => this.post('/api/traffic-cameras/sync', {})
+  }
+
+  // Personal Use tracking endpoints
+  personalUse = {
+    list: (params?: Record<string, unknown>) => this.get('/api/personal-use', params),
+    get: (id: string) => this.get(`/api/personal-use/${id}`),
+    create: (data: unknown) => this.post('/api/personal-use', data),
+    update: (id: string, data: unknown) => this.put(`/api/personal-use/${id}`, data),
+    delete: (id: string) => this.delete(`/api/personal-use/${id}`)
+  }
+
+  // Adaptive Cards endpoints
+  adaptiveCards = {
+    list: (params?: Record<string, unknown>) => this.get('/api/adaptive-cards', params),
+    get: (id: string) => this.get(`/api/adaptive-cards/${id}`),
+    create: (data: unknown) => this.post('/api/adaptive-cards', data),
+    send: (data: unknown) => this.post('/api/adaptive-cards/send', data)
+  }
 }
 
 // Create singleton instance
