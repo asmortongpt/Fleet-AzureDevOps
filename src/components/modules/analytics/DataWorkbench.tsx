@@ -219,15 +219,13 @@ export function DataWorkbench() {
 
         <TabsContent value="maintenance" className="space-y-4">
           <MaintenanceTab
-            vehicles={vehicles}
             maintenanceRecords={maintenanceRecords}
-            maintenanceMetrics={maintenanceMetrics}
             onScheduleService={() => setIsScheduleServiceDialogOpen(true)}
           />
         </TabsContent>
 
         <TabsContent value="fuel" className="space-y-4">
-          <FuelTab vehicles={vehicles} fuelRecords={fuelRecords} maintenanceRecords={maintenanceRecords} timeRange="" onTimeRangeChange={() => {}} />
+          <FuelTab vehicles={vehicles} fuelRecords={fuelRecords} />
         </TabsContent>
 
         <TabsContent value="analytics" className="space-y-4">
@@ -243,13 +241,16 @@ export function DataWorkbench() {
 
       {/* Dialogs */}
       <DataWorkbenchDialogs
-        isAddVehicleDialogOpen={isAddVehicleDialogOpen}
-        setIsAddVehicleDialogOpen={setIsAddVehicleDialogOpen}
-        isScheduleServiceDialogOpen={isScheduleServiceDialogOpen}
-        setIsScheduleServiceDialogOpen={setIsScheduleServiceDialogOpen}
-        isAdvancedSearchOpen={isAdvancedSearchOpen}
-        setIsAdvancedSearchOpen={setIsAdvancedSearchOpen}
         vehicles={vehicles}
+        isAddVehicleOpen={isAddVehicleDialogOpen}
+        isScheduleServiceOpen={isScheduleServiceDialogOpen}
+        isAdvancedSearchOpen={isAdvancedSearchOpen}
+        onAddVehicleClose={() => setIsAddVehicleDialogOpen(false)}
+        onScheduleServiceClose={() => setIsScheduleServiceDialogOpen(false)}
+        onAdvancedSearchClose={() => setIsAdvancedSearchOpen(false)}
+        onAddVehicle={() => {}}
+        onScheduleService={() => {}}
+        onAdvancedSearch={() => {}}
       />
     </div>
   )
