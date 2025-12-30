@@ -19,7 +19,7 @@ const conditionRatingSchema = z.enum(['1', '2', '3', '4', '5']);
 const AssetCheckInOut: React.FC<AssetCheckInOutProps> = ({ tenantId, onCheckInOutSuccess, onError }) => {
   const [hasCameraPermission, setHasCameraPermission] = useState<boolean | null>(null);
   const [hasLocationPermission, setHasLocationPermission] = useState<boolean | null>(null);
-  const [camera, setCamera] = useState<Camera | null>(null);
+  const [camera, setCamera] = useState<typeof Camera | null>(null);
   const [image, setImage] = useState<string | null>(null);
   const [_location, setLocation] = useState<Location.LocationObject | null>(null);
   const [conditionRating, setConditionRating] = useState<string>('3');
@@ -98,7 +98,7 @@ const AssetCheckInOut: React.FC<AssetCheckInOutProps> = ({ tenantId, onCheckInOu
 
   return (
     <View style={styles.container}>
-      <Camera style={styles.camera} ref={(ref: Camera | null) => setCamera(ref)} />
+      <Camera style={styles.camera} ref={(ref: typeof Camera | null) => setCamera(ref)} />
       <Button title="Take Picture" onPress={handleTakePicture} />
       {image && <Image source={{ uri: image }} style={styles.preview} />}
       <TextInput
