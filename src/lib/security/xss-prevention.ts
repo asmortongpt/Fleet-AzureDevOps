@@ -61,4 +61,71 @@ const DOM_PURIFY_CONFIG: DOMPurify.Config = {
  * @returns Sanitized HTML safe for rendering
  *
  * @example
+ * ```ts
+ * const userInput = '<script>alert("XSS")</script><p>Safe content</p>';
+ * const safe = sanitizeHTML(userInput);
+ * // Returns: '<p>Safe content</p>'
+ * ```
+ */
+export function sanitizeHTML(
+  dirty: string,
+  config?: Partial<DOMPurify.Config>
+): string {
+  const cleanConfig = { ...DOM_PURIFY_CONFIG, ...config };
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  return DOMPurify.sanitize(dirty, cleanConfig as any) as unknown as string;
+}
+
+/**
+ * Sanitize user input for safe rendering in text contexts
+ * Removes all HTML tags and entities
  *
+ * @param input - Untrusted user input
+ * @returns Plain text with no HTML
+ */
+export function sanitizeText(input: string): string {
+  return DOMPurify.sanitize(input, {
+    ALLOWED_TAGS: [],
+    ALLOWED_ATTR: [],
+    KEEP_CONTENT: true,
+  });
+}
+
+/**
+ * Sanitize URL to prevent javascript: and data: schemes
+ *
+ * @param url - Untrusted URL string
+ * @returns Sanitized URL or empty string if invalid
+ */
+export function sanitizeURL(url: string): string {
+  const urlPattern = /^(?:(?:https?|mailto|tel):)/i;
+
+  if (!urlPattern.test(url)) {
+    return '';
+  }
+
+  return DOMPurify.sanitize(url, {
+    ALLOWED_TAGS: [],
+    ALLOWED_ATTR: [],
+  });
+}
+
+/**
+ * Content Security Policy (CSP) headers for production
+ *
+ * FedRAMP SI-10: Input validation
+ * OWASP: Defense in depth against XSS
+ */
+export const CSP_HEADERS = {
+  'Content-Security-Policy': [
+    "default-src 'self'",
+    "script-src 'self' 'unsafe-inline' 'unsafe-eval'", // Required for React dev
+    "style-src 'self' 'unsafe-inline'",
+    "img-src 'self' data: https:",
+    "font-src 'self' data:",
+    "connect-src 'self' https:",
+    "frame-ancestors 'none'",
+    "base-uri 'self'",
+    "form-action 'self'",
+  ].join('; '),
+};

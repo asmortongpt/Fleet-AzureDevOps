@@ -54,16 +54,6 @@
     "**/*.spec.ts",
     "**/*.spec.tsx",
     "src/**/__tests__/**",
-    "src/components/experimental/**",
-    "src/features/**",
-    "src/components/workspaces/**",
-    "src/components/modules/**",
-    "src/components/drilldown/**",
-    "src/pages/**",
-    "src/hooks/**",
-    "src/lib/**",
-    "src/telemetry/**",
-    "src/types/**",
     "tests/**",
     "server/**"
   ]
