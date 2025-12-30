@@ -165,12 +165,16 @@ export const PersonalUseDashboard: React.FC<PersonalUseDashboardProps> = ({
     queryFn: () => apiClient('/api/trip-usage/pending-approval'),
     enabled: userRole !== 'driver',
     staleTime: 30000,
-    gcTime: 60000,
-    onError: (err: unknown) => {
-      logger.error('Failed to fetch dashboard data:', err)
-      toast.error(err instanceof Error ? err.message : 'Failed to load dashboard data')
-    }
+    gcTime: 60000
   })
+
+  // Handle errors with useEffect
+  React.useEffect(() => {
+    if (approvalsError) {
+      logger.error('Failed to fetch dashboard data:', approvalsError)
+      toast.error(approvalsError instanceof Error ? approvalsError.message : 'Failed to load dashboard data')
+    }
+  }, [approvalsError])
 
   const usageLimits = limitsData?.data || null
   const recentTrips = tripsData?.data || []
