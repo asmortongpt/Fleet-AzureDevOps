@@ -1,5 +1,5 @@
 import { lazy, Suspense } from "react";
-import { createBrowserRouter, RouterProvider , Outlet } from "react-router-dom";
+import { createBrowserRouter, RouterProvider, Outlet } from "react-router-dom";
 
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { CommandCenterLayout } from "@/components/layout/CommandCenterLayout";
@@ -127,6 +127,7 @@ const routes = [
   // { path: "geofences", element: <GeofenceManagement /> },
   { path: "osha-forms", element: <OSHAForms /> },
   { path: "policy-engine", element: <PolicyEngineWorkbench /> },
+  { path: "policy-management", element: <PolicyEngineWorkbench /> },
   { path: "video-telematics", element: <VideoTelematics /> },
   { path: "ev-charging", element: <EVChargingManagement /> },
   { path: "vehicle-telemetry", element: <VehicleTelemetry /> },
