@@ -4,13 +4,14 @@ import { toast } from "sonner"
 
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Button } from "@/components/ui/button"
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from "@/components/ui/dialog" // DialogDescription available
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { Slider } from "@/components/ui/slider"
 import { Textarea } from "@/components/ui/textarea"
 import { usePersonalUsePolicies, useCreateTripUsage, type TripUsageData } from "@/hooks/usePersonalUseQueries"
+
 interface TripUsageDialogProps {
   trigger?: React.ReactNode
   vehicleId?: string
@@ -34,15 +35,15 @@ interface TripUsageFormData extends TripUsageData {
 
 export function TripUsageDialog({
   trigger,
-  vehicleId,
-  driverId,
+  vehicleId = "",
+  driverId = "",
   onSuccess,
   defaultValues
 }: TripUsageDialogProps) {
   const [open, setOpen] = useState(false)
   const [formData, setFormData] = useState<TripUsageFormData>({
-    vehicle_id: vehicleId || "",
-    driver_id: driverId || "",
+    vehicle_id: vehicleId,
+    driver_id: driverId,
     usage_type: 'business',
     business_purpose: "",
     business_percentage: 100,
@@ -57,7 +58,7 @@ export function TripUsageDialog({
   })
 
   // Use TanStack Query for policy data
-  const { data: policy, isLoading: policyLoading, error: policyError } = usePersonalUsePolicies()
+  const { data: policy, isLoading: _policyLoading, error: _policyError } = usePersonalUsePolicies()
   // Use TanStack Query mutation for creating trip usage
   const createTripMutation = useCreateTripUsage()
 
@@ -148,8 +149,8 @@ export function TripUsageDialog({
 
   const resetForm = () => {
     setFormData({
-      vehicle_id: vehicleId || "",
-      driver_id: driverId || "",
+      vehicle_id: vehicleId,
+      driver_id: driverId,
       usage_type: 'business',
       business_purpose: "",
       business_percentage: 100,
@@ -390,36 +391,20 @@ export function TripUsageDialog({
                 <strong>Estimated Personal Use Charge:</strong> ${calculateEstimatedCharge().toFixed(2)}
                 <br />
                 <span className="text-xs text-muted-foreground">
-                  Based on {personalMiles.toFixed(1)} personal miles at ${policy?.personal_use_rate_per_mile}/mile
+                  Based on {personalMiles.toFixed(1)} personal miles at ${policy?.personal_use_rate_per_mile ?? 0}/mile
                 </span>
-              </AlertDescription>
-            </Alert>
-          )}
-
-          {/* Approval Notice */}
-          {policy?.require_approval && formData.usage_type !== 'business' && (
-            <Alert>
-              <Info className="h-4 w-4" />
-              <AlertDescription>
-                This trip will require manager approval before processing.
               </AlertDescription>
             </Alert>
           )}
         </div>
 
         <DialogFooter>
-          <Button
-            variant="outline"
-            onClick={() => {
-              setOpen(false)
-              resetForm()
-            }}
+          <Button variant="outline" onClick={() => setOpen(false)}>Cancel</Button>
+          <Button 
+            onClick={handleSubmit} 
             disabled={createTripMutation.isPending}
           >
-            Cancel
-          </Button>
-          <Button onClick={handleSubmit} disabled={createTripMutation.isPending}>
-            {createTripMutation.isPending ? 'Saving...' : 'Record Trip'}
+            {createTripMutation.isPending ? 'Recording...' : 'Record Trip'}
           </Button>
         </DialogFooter>
       </DialogContent>

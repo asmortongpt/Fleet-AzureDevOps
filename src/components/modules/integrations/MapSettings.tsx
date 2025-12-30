@@ -207,22 +207,6 @@ function validateProvider(provider: MapProviderOption): ProviderValidation {
   }
 }
 
-/**
- * Get status badge color based on validation status
- */
-function getStatusColor(status: ProviderValidation["status"]): string {
-  switch (status) {
-    case "valid":
-      return "text-green-600 dark:text-green-400"
-    case "missing-key":
-      return "text-amber-600 dark:text-amber-400"
-    case "invalid":
-      return "text-red-600 dark:text-red-400"
-    default:
-      return "text-gray-600 dark:text-gray-400"
-  }
-}
-
 // ============================================================================
 // Main Component
 // ============================================================================
@@ -238,7 +222,7 @@ export function MapSettings() {
   // State Management
   // -------------------------------------------------------------------------
 
-  const [currentProvider, setCurrentProvider] = useState<MapProvider>(getMapProvider())
+  const [currentProvider, _setCurrentProvider] = useState<MapProvider>(getMapProvider())
   const [selectedProvider, setSelectedProvider] = useState<MapProvider>(currentProvider)
   const [isSaving, setIsSaving] = useState(false)
   const [isValidating, setIsValidating] = useState(true)
@@ -498,293 +482,147 @@ export function MapSettings() {
                 } ${!validation?.isAvailable && !isCurrentProvider ? "opacity-60" : ""}`}
               >
                 <div className="flex items-start space-x-3 p-4">
-                  <RadioGroupItem
-                    value={provider.id}
-                    id={provider.id}
-                    className="mt-1"
-                    disabled={!validation?.isAvailable && !isCurrentProvider}
-                  />
-                  <Label
-                    htmlFor={provider.id}
-                    className="flex-1 cursor-pointer"
-                  >
-                    <div className="space-y-3">
-                      {/* Provider Header */}
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-2">
-                          <div className="font-semibold text-base flex items-center gap-2">
-                            <Map className="w-4 h-4" />
-                            {provider.name}
-                          </div>
-                          {isCurrentProvider && (
-                            <Badge variant="default" className="text-xs">
-                              Current
-                            </Badge>
-                          )}
-                          {provider.status === "experimental" && (
-                            <Badge variant="outline" className="text-xs">
-                              Experimental
-                            </Badge>
-                          )}
-                          {provider.status === "coming-soon" && (
-                            <Badge variant="secondary" className="text-xs">
-                              Coming Soon
-                            </Badge>
-                          )}
-                        </div>
-                        <div className="flex items-center gap-1 text-sm font-semibold">
-                          <DollarSign className="w-4 h-4" />
-                          {provider.cost}
-                        </div>
-                      </div>
-
-                      {/* Provider Description */}
-                      <div className="text-sm text-muted-foreground">
-                        {provider.description}
-                      </div>
-
-                      {/* Validation Status */}
-                      {validation && (
-                        <div>{renderValidationStatus(provider)}</div>
-                      )}
-
-                      {/* Expanded Details when Selected */}
-                      {isSelected && (
-                        <div className="pt-3 border-t space-y-4">
-                          {/* Pros and Cons */}
-                          <div className="grid md:grid-cols-2 gap-4">
-                            <div>
-                              <div className="text-sm font-semibold text-green-600 dark:text-green-400 mb-2 flex items-center gap-1">
-                                <Zap className="w-4 h-4" />
-                                Advantages
-                              </div>
-                              <ul className="text-sm space-y-1.5">
-                                {provider.pros.map((pro, idx) => (
-                                  <li key={idx} className="flex items-start gap-2">
-                                    <Check className="w-4 h-4 text-green-600 dark:text-green-400 flex-shrink-0 mt-0.5" />
-                                    <span className="text-muted-foreground">{pro}</span>
-                                  </li>
-                                ))}
-                              </ul>
-                            </div>
-
-                            <div>
-                              <div className="text-sm font-semibold text-amber-600 dark:text-amber-400 mb-2 flex items-center gap-1">
-                                <Shield className="w-4 h-4" />
-                                Considerations
-                              </div>
-                              <ul className="text-sm space-y-1.5">
-                                {provider.cons.map((con, idx) => (
-                                  <li key={idx} className="flex items-start gap-2">
-                                    <span className="text-amber-600 dark:text-amber-400 flex-shrink-0 mt-0.5">
-                                      •
-                                    </span>
-                                    <span className="text-muted-foreground">{con}</span>
-                                  </li>
-                                ))}
-                              </ul>
-                            </div>
-                          </div>
-
-                          {/* Additional Notes */}
-                          {provider.notes && (
-                            <Alert>
-                              <Info className="h-4 w-4" />
-                              <AlertDescription className="text-sm">
-                                {provider.notes}
-                              </AlertDescription>
-                            </Alert>
-                          )}
-
-                          {/* Setup Instructions */}
-                          {provider.apiKeyRequired && (
-                            <div className="bg-muted p-4 rounded-lg space-y-3">
-                              <p className="text-sm font-semibold">
-                                {validation?.hasApiKey ? "API Key Configured" : "Setup Required"}
-                              </p>
-                              {!validation?.hasApiKey && (
-                                <>
-                                  <p className="text-xs text-muted-foreground">
-                                    This provider requires an API key. Follow these steps:
-                                  </p>
-                                  <ol className="text-xs text-muted-foreground space-y-1.5 list-decimal list-inside ml-2">
-                                    <li>Create an account at the provider's website</li>
-                                    <li>Generate an API key from the console</li>
-                                    <li>
-                                      Add <code className="bg-background px-1 py-0.5 rounded text-xs">
-                                        {provider.apiKeyEnvVar}
-                                      </code> to your .env file
-                                    </li>
-                                    <li>Restart the development server</li>
-                                  </ol>
-                                  {provider.setupUrl && (
-                                    <a
-                                      href={provider.setupUrl}
-                                      target="_blank"
-                                      rel="noopener noreferrer"
-                                      className="inline-flex items-center gap-1 text-xs text-primary hover:underline"
-                                    >
-                                      Get API Key
-                                      <ExternalLink className="h-3 w-3" />
-                                    </a>
-                                  )}
-                                </>
-                              )}
-                              {validation?.hasApiKey && (
-                                <div className="flex items-center gap-2 text-sm text-green-600 dark:text-green-400">
-                                  <CheckCircle className="h-4 w-4" />
-                                  <span>API key detected: {provider.apiKeyEnvVar}</span>
-                                </div>
-                              )}
-                            </div>
-                          )}
-                        </div>
-                      )}
-                    </div>
-                  </Label>
+                  <RadioGroupItem value={provider.id} id={provider.id} className="mt-1" />
+                  <div className="flex-1">
+                    <Label htmlFor={provider.id} className="font-medium cursor-pointer">
+                      {provider.name}
+                    </Label>
+                    <p className="text-sm text-muted-foreground mt-1">{provider.description}</p>
+                    {renderValidationStatus(provider)}
+                    {provider.notes && (
+                      <p className="text-xs text-muted-foreground mt-1 italic">{provider.notes}</p>
+                    )}
+                  </div>
+                  {isCurrentProvider && (
+                    <Badge variant="outline" className="text-xs">
+                      Current
+                    </Badge>
+                  )}
                 </div>
               </div>
             )
           })}
         </RadioGroup>
 
-        {/* Action Buttons */}
-        <div className="mt-6 flex items-center justify-between pt-4 border-t">
-          <div className="text-sm text-muted-foreground">
-            {selectedValidation?.hasApiKey ? (
-              <span className="flex items-center gap-1.5 text-green-600 dark:text-green-400">
-                <CheckCircle className="h-4 w-4" />
-                Ready to use
-              </span>
-            ) : (
-              <span className="flex items-center gap-1.5 text-amber-600 dark:text-amber-400">
-                <AlertTriangle className="h-4 w-4" />
-                {selectedOption?.apiKeyRequired
-                  ? "Configure API key before saving"
-                  : "Configuration required"}
-              </span>
-            )}
-          </div>
-
-          <div className="flex items-center gap-3">
-            {showConfirmation && selectedProvider !== currentProvider && (
-              <span className="text-sm text-muted-foreground italic">
-                Click Save to apply changes
-              </span>
-            )}
-            <Button
-              onClick={handleSave}
-              disabled={!canSave || isSaving}
-              size="lg"
-            >
-              {isSaving ? (
-                <>
-                  <span className="animate-spin mr-2">⏳</span>
-                  Applying...
-                </>
-              ) : selectedProvider === currentProvider ? (
-                "Current Provider"
-              ) : (
-                "Save & Apply"
-              )}
-            </Button>
-          </div>
-        </div>
-      </Card>
-
-      {/* Recommendation Card */}
-      <Card className="bg-blue-50 dark:bg-blue-950 border-blue-200 dark:border-blue-800">
-        <CardContent className="p-4">
-          <div className="flex items-start gap-3">
-            <Info className="h-5 w-5 text-blue-600 dark:text-blue-400 flex-shrink-0 mt-0.5" />
-            <div className="space-y-2">
-              <p className="text-sm font-semibold text-blue-900 dark:text-blue-100">
-                Recommendation
-              </p>
-              <p className="text-sm text-blue-800 dark:text-blue-200">
-                Start with <strong>OpenStreetMap</strong> (free, zero setup, works immediately).
-                Upgrade to <strong>Google Maps</strong> when you need advanced features like
-                Street View, real-time traffic, or better geocoding. The $200/month free credit
-                covers most fleet management use cases.
-              </p>
+        {/* Confirmation and Save */}
+        {showConfirmation && selectedValidation?.isAvailable && (
+          <div className="mt-6 p-4 border border-dashed border-primary rounded-md bg-primary/5">
+            <h4 className="font-medium text-primary mb-2">Confirm Provider Switch</h4>
+            <p className="text-sm text-muted-foreground mb-4">
+              Switching map providers will reload the application with the new mapping engine.
+              Some features may work differently based on provider capabilities.
+            </p>
+            <div className="flex gap-2">
+              <Button
+                onClick={handleSave}
+                disabled={isSaving || !canSave}
+                size="sm"
+              >
+                {isSaving ? "Switching..." : "Confirm & Switch Provider"}
+              </Button>
+              <Button
+                variant="outline"
+                onClick={() => setShowConfirmation(false)}
+                disabled={isSaving}
+                size="sm"
+              >
+                Cancel
+              </Button>
             </div>
           </div>
-        </CardContent>
+        )}
       </Card>
 
-      {/* Feature Comparison */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Feature Comparison</CardTitle>
-          <CardDescription>
-            Quick reference guide for choosing the right provider
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm">
-              <thead>
-                <tr className="border-b">
-                  <th className="text-left p-2 font-semibold">Feature</th>
-                  <th className="text-center p-2 font-semibold">Leaflet/OSM</th>
-                  <th className="text-center p-2 font-semibold">Google Maps</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y">
-                <tr>
-                  <td className="p-2">Cost</td>
-                  <td className="text-center p-2 text-green-600 dark:text-green-400 font-semibold">FREE</td>
-                  <td className="text-center p-2">$200/mo credit</td>
-                </tr>
-                <tr>
-                  <td className="p-2">Setup Required</td>
-                  <td className="text-center p-2">
-                    <XCircle className="h-4 w-4 inline text-green-600 dark:text-green-400" />
-                  </td>
-                  <td className="text-center p-2">
-                    <CheckCircle className="h-4 w-4 inline text-amber-600 dark:text-amber-400" />
-                  </td>
-                </tr>
-                <tr>
-                  <td className="p-2">Traffic Data</td>
-                  <td className="text-center p-2">Limited</td>
-                  <td className="text-center p-2">
-                    <CheckCircle className="h-4 w-4 inline text-green-600 dark:text-green-400" />
-                  </td>
-                </tr>
-                <tr>
-                  <td className="p-2">Street View</td>
-                  <td className="text-center p-2">
-                    <XCircle className="h-4 w-4 inline text-red-600 dark:text-red-400" />
-                  </td>
-                  <td className="text-center p-2">
-                    <CheckCircle className="h-4 w-4 inline text-green-600 dark:text-green-400" />
-                  </td>
-                </tr>
-                <tr>
-                  <td className="p-2">Custom Styling</td>
-                  <td className="text-center p-2">Basic</td>
-                  <td className="text-center p-2">Advanced</td>
-                </tr>
-                <tr>
-                  <td className="p-2">Geocoding Quality</td>
-                  <td className="text-center p-2">Good</td>
-                  <td className="text-center p-2">Excellent</td>
-                </tr>
-                <tr>
-                  <td className="p-2">3D Buildings</td>
-                  <td className="text-center p-2">
-                    <XCircle className="h-4 w-4 inline text-red-600 dark:text-red-400" />
-                  </td>
-                  <td className="text-center p-2">
-                    <CheckCircle className="h-4 w-4 inline text-green-600 dark:text-green-400" />
-                  </td>
-                </tr>
-              </tbody>
-            </table>
+      {/* Provider Details */}
+      {selectedOption && (
+        <Card className="p-6">
+          <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
+            <Map className="h-5 w-5" />
+            {selectedOption.name} Details
+          </h3>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="md:col-span-2">
+              <div className="space-y-6">
+                <div>
+                  <h4 className="text-sm font-medium text-muted-foreground mb-2 flex items-center gap-2">
+                    <Check className="h-4 w-4" />
+                    Advantages
+                  </h4>
+                  <ul className="space-y-1.5">
+                    {selectedOption.pros.map((pro, index) => (
+                      <li key={index} className="flex items-start gap-2 text-sm">
+                        <Check className="h-4 w-4 text-green-500 mt-0.5" />
+                        {pro}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+
+                <div>
+                  <h4 className="text-sm font-medium text-muted-foreground mb-2 flex items-center gap-2">
+                    <AlertTriangle className="h-4 w-4" />
+                    Considerations
+                  </h4>
+                  <ul className="space-y-1.5">
+                    {selectedOption.cons.map((con, index) => (
+                      <li key={index} className="flex items-start gap-2 text-sm">
+                        <AlertTriangle className="h-4 w-4 text-amber-500 mt-0.5" />
+                        {con}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              </div>
+            </div>
+
+            <div className="space-y-6">
+              <div>
+                <h4 className="text-sm font-medium text-muted-foreground mb-2 flex items-center gap-2">
+                  <DollarSign className="h-4 w-4" />
+                  Pricing
+                </h4>
+                <p className="text-sm font-medium">{selectedOption.cost}</p>
+              </div>
+
+              {selectedOption.apiKeyRequired && (
+                <div>
+                  <h4 className="text-sm font-medium text-muted-foreground mb-2 flex items-center gap-2">
+                    <Shield className="h-4 w-4" />
+                    API Key Requirement
+                  </h4>
+                  <p className="text-sm">
+                    {selectedValidation?.hasApiKey ? (
+                      <span className="text-green-600 dark:text-green-400">API Key Configured</span>
+                    ) : (
+                      <span className="text-amber-600 dark:text-amber-400">API Key Required</span>
+                    )}
+                  </p>
+                  {selectedOption.setupUrl && !selectedValidation?.hasApiKey && (
+                    <Button
+                      variant="link"
+                      size="sm"
+                      className="mt-2 p-0 h-auto"
+                      onClick={() => window.open(selectedOption.setupUrl, "_blank")}
+                    >
+                      Setup Instructions
+                      <ExternalLink className="h-3 w-3 ml-1" />
+                    </Button>
+                  )}
+                </div>
+              )}
+
+              <div>
+                <h4 className="text-sm font-medium text-muted-foreground mb-2 flex items-center gap-2">
+                  <Zap className="h-4 w-4" />
+                  Status
+                </h4>
+                <p className="text-sm capitalize">{selectedOption.status}</p>
+              </div>
+            </div>
           </div>
-        </CardContent>
-      </Card>
+        </Card>
+      )}
     </div>
   )
 }

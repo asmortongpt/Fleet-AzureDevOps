@@ -43,7 +43,7 @@ export function AllEndpointsMonitor({ className }: AllEndpointsMonitorProps) {
 
   const {
     endpoints,
-    sockets,
+    _sockets,
     summary,
     testEndpoint,
     testAllEndpoints,
@@ -104,19 +104,6 @@ export function AllEndpointsMonitor({ className }: AllEndpointsMonitorProps) {
         return <XCircle className="w-3 h-3 text-red-600" weight="fill" />
       default:
         return <Question className="w-3 h-3 text-gray-400" weight="fill" />
-    }
-  }
-
-  const getStatusBadgeVariant = (status: EndpointStatus) => {
-    switch (status) {
-      case 'healthy':
-        return 'default'
-      case 'warning':
-        return 'warning'
-      case 'error':
-        return 'destructive'
-      default:
-        return 'secondary'
     }
   }
 
@@ -288,7 +275,7 @@ export function AllEndpointsMonitor({ className }: AllEndpointsMonitorProps) {
                             </Badge>
                           )}
                           {warningCount > 0 && (
-                            <Badge variant="warning" className="h-4 px-1.5 text-[9px]">
+                            <Badge variant="outline" className="h-4 px-1.5 text-[9px] bg-yellow-600 text-white">
                               {warningCount}
                             </Badge>
                           )}
@@ -376,7 +363,7 @@ export function AllEndpointsMonitor({ className }: AllEndpointsMonitorProps) {
                       ) : (
                         <CaretRight className="w-3 h-3 text-muted-foreground" />
                       )}
-                      <span>WebSocket Connections</span>
+                      <span>WebSockets</span>
                       <Badge variant="secondary" className="h-4 px-1.5 text-[10px]">
                         {WEBSOCKET_CONNECTIONS.length}
                       </Badge>
@@ -384,51 +371,6 @@ export function AllEndpointsMonitor({ className }: AllEndpointsMonitorProps) {
                   </CardTitle>
                 </CardHeader>
               </CollapsibleTrigger>
-
-              <CollapsibleContent>
-                <CardContent className="px-3 pb-2 pt-0">
-                  <div className="space-y-1">
-                    {WEBSOCKET_CONNECTIONS.map(socket => (
-                      <div
-                        key={socket.id}
-                        className="flex items-center justify-between p-2 rounded-lg border border-border/30 hover:bg-muted/30 transition-colors"
-                      >
-                        <div className="flex items-center gap-2 flex-1 min-w-0">
-                          <Circle
-                            className={cn('w-2 h-2', getSocketStatusColor(socket.status))}
-                            weight="fill"
-                          />
-                          <div className="flex-1 min-w-0">
-                            <p className="text-[10px] font-semibold text-foreground">
-                              {socket.category}
-                            </p>
-                            <p className="text-[9px] text-muted-foreground truncate">
-                              {socket.url}
-                            </p>
-                            <p className="text-[9px] text-muted-foreground">
-                              {socket.description}
-                            </p>
-                          </div>
-                        </div>
-
-                        <div className="flex items-center gap-2 ml-2">
-                          <Badge
-                            variant={socket.status === 'connected' ? 'default' : 'secondary'}
-                            className="h-4 px-1.5 text-[9px]"
-                          >
-                            {socket.status}
-                          </Badge>
-                          {socket.messageCount > 0 && (
-                            <Badge variant="outline" className="h-4 px-1.5 text-[9px]">
-                              {socket.messageCount} msgs
-                            </Badge>
-                          )}
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </CardContent>
-              </CollapsibleContent>
             </Card>
           </Collapsible>
         </div>

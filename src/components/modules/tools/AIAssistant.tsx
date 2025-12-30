@@ -44,7 +44,7 @@ import {
   CircularProgress,
   Alert
 } from '@mui/material'
-import { useQuery, useQueryClient } from '@tanstack/react-query'
+import { useQuery } from '@tanstack/react-query'
 import axios from 'axios'
 import React, { useState, useEffect, useRef, useCallback } from 'react'
 
@@ -80,7 +80,7 @@ interface WorkflowExecution {
   status: 'running' | 'completed' | 'error'
   progress: number
   currentStep?: string
-  result?: any
+  result?: unknown
   error?: string
 }
 
@@ -96,7 +96,6 @@ const AIAssistant: React.FC = () => {
   const [workflowExecution, setWorkflowExecution] = useState<WorkflowExecution | null>(null)
   const [dataLoadError, setDataLoadError] = useState<string | null>(null)
   const messagesEndRef = useRef<HTMLDivElement>(null)
-  const queryClient = useQueryClient()
 
   // Helper function to get auth token
   const getAuthHeader = useCallback(() => {
@@ -105,45 +104,49 @@ const AIAssistant: React.FC = () => {
   }, [])
 
   // Fetch agents using TanStack Query
-  const { data: agents = [], isLoading: agentsLoading, error: agentsError } = useQuery({
+  const { data: agents = [], isLoading: agentsLoading, error: agentsError } = useQuery<Agent[]>({
     queryKey: ['agents'],
     queryFn: async () => {
       const response = await axios.get('/api/langchain/agents', {
         headers: getAuthHeader()
       })
-      return response.data?.agents
+      return response.data?.agents || []
     },
-    staleTime: 5 * 60 * 1000 // 5 minutes
+    staleTime: 5 * 60 * 1000, // 5 minutes
+    gcTime: 10 * 60 * 1000
   })
 
   // Fetch workflows using TanStack Query
-  const { data: workflows = [], isLoading: workflowsLoading, error: workflowsError } = useQuery({    queryKey: ['workflows'],
+  const { data: workflows = [], error: workflowsError } = useQuery<Workflow[]>({
+    queryKey: ['workflows'],
     queryFn: async () => {
       const response = await axios.get('/api/langchain/workflows', {
         headers: getAuthHeader()
       })
-      return response.data?.workflows
+      return response.data?.workflows || []
     },
-    staleTime: 5 * 60 * 1000
+    staleTime: 5 * 60 * 1000,
+    gcTime: 10 * 60 * 1000
   })
 
   // Fetch MCP servers using TanStack Query
-  const { data: mcpServers = [], isLoading: mcpLoading, error: mcpError } = useQuery({
+  const { data: mcpServers = [], isLoading: mcpLoading, error: mcpError } = useQuery<unknown[]>({
     queryKey: ['mcpServers'],
     queryFn: async () => {
       const response = await axios.get('/api/langchain/mcp/servers', {
         headers: getAuthHeader()
       })
-      return response.data?.servers
+      return response.data?.servers || []
     },
-    staleTime: 5 * 60 * 1000
+    staleTime: 5 * 60 * 1000,
+    gcTime: 10 * 60 * 1000
   })
 
   // Update error state if any query fails
   useEffect(() => {
     const errors = [agentsError, workflowsError, mcpError].filter(Boolean)
     if (errors.length > 0) {
-      const errorMessages = errors.map(e => (e as any)?.message || 'Failed to load data').join(', ')
+      const errorMessages = errors.map(e => (e as Error)?.message || 'Failed to load data').join(', ')
       setDataLoadError(errorMessages)
     } else {
       setDataLoadError(null)
@@ -206,7 +209,7 @@ You can chat with me naturally, or run structured workflows for complex tasks. H
       const assistantMessage: Message = {
         id: `msg-${Date.now()}-ai`,
         role: 'assistant',
-        content: response.data?.message,
+        content: response.data?.message || 'No response received',
         timestamp: new Date(),
         agentsUsed: response.data?.agentsUsed,
         tokensUsed: response.data?.tokensUsed,
@@ -214,21 +217,20 @@ You can chat with me naturally, or run structured workflows for complex tasks. H
       }
 
       setMessages(prev => [...prev, assistantMessage])
-    } catch (error: any) {
+    } catch (error: unknown) {
       const errorMessage: Message = {
         id: `msg-${Date.now()}-error`,
         role: 'assistant',
-        content: `Sorry, I encountered an error: ${error.response?.data?.error || error.message || 'Unknown error occurred'}`,
+        content: `Sorry, I encountered an error: ${(error as any)?.response?.data?.error || (error as any)?.message || 'Unknown error occurred'}`,
         timestamp: new Date()
       }
       setMessages(prev => [...prev, errorMessage])
-      // Error already shown to user via chat message
     } finally {
       setLoading(false)
     }
   }
 
-  const handleKeyPress = (e: React.KeyboardEvent) => {
+  const handleKeyPress = (e: React.KeyboardEvent<HTMLDivElement>) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault()
       sendMessage()
@@ -241,7 +243,6 @@ You can chat with me naturally, or run structured workflows for complex tasks. H
         headers: getAuthHeader()
       })
       setMessages([])
-      // Optionally refetch initial message
       setMessages([{
         id: 'welcome',
         role: 'assistant',
@@ -256,8 +257,7 @@ You can chat with me naturally, or run structured workflows for complex tasks. H
 You can chat with me naturally, or run structured workflows for complex tasks. How can I assist you today?`,
         timestamp: new Date()
       }])
-    } catch (error) {
-      // Silent failure for session clear - error shown to user via chat
+    } catch (error: unknown) {
       const errorMessage: Message = {
         id: `msg-${Date.now()}-error`,
         role: 'assistant',
@@ -306,18 +306,17 @@ You can chat with me naturally, or run structured workflows for complex tasks. H
         result
       })
 
-      // Add result to chat
       const resultMessage: Message = {
         id: `msg-${Date.now()}-workflow`,
         role: 'assistant',
         content: `Workflow "${selectedWorkflow.name}" completed successfully!\n\n${formatWorkflowResult(result)}`,
         timestamp: new Date(),
-        tokensUsed: result.totalTokens,
-        executionTimeMs: result.executionTimeMs
+        tokensUsed: result?.totalTokens,
+        executionTimeMs: result?.executionTimeMs
       }
       setMessages(prev => [...prev, resultMessage])
-    } catch (error: any) {
-      const errorMsg = error.response?.data?.error || error.message || 'Unknown error occurred'
+    } catch (error: unknown) {
+      const errorMsg = (error as any)?.response?.data?.error || (error as any)?.message || 'Unknown error occurred'
 
       setWorkflowExecution({
         workflowId: selectedWorkflow.id,
@@ -333,22 +332,21 @@ You can chat with me naturally, or run structured workflows for complex tasks. H
         timestamp: new Date()
       }
       setMessages(prev => [...prev, errorMessage])
-      // Error already shown to user via chat message
     }
   }
 
-  const formatWorkflowResult = (result: any): string => {
-    if (!result.finalResult) return 'No results available'
+  const formatWorkflowResult = (result: unknown): string => {
+    if (!(result as any)?.finalResult) return 'No results available'
 
     const lines: string[] = []
-    lines.push(`✓ Completed in ${result.executionTimeMs}ms`)
-    lines.push(`✓ ${result.steps.length} steps executed`)
-    lines.push(`✓ ${result.totalTokens} tokens used`)
+    lines.push(`✓ Completed in ${(result as any)?.executionTimeMs || 0}ms`)
+    lines.push(`✓ ${(result as any)?.steps?.length || 0} steps executed`)
+    lines.push(`✓ ${(result as any)?.totalTokens || 0} tokens used`)
     lines.push('')
     lines.push('**Key Results:**')
 
-    if (result.finalResult) {
-      Object.keys(result.finalResult).forEach(key => {
+    if ((result as any)?.finalResult) {
+      Object.keys((result as any).finalResult).forEach(key => {
         lines.push(`• ${key}: Available`)
       })
     }
@@ -393,7 +391,7 @@ You can chat with me naturally, or run structured workflows for complex tasks. H
         {/* Main Chat Area */}
         <Grid item xs={12} md={8} sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
           <Paper sx={{ flexGrow: 1, display: 'flex', flexDirection: 'column', height: '100%' }}>
-            <Tabs value={activeTab} onChange={(e, v) => setActiveTab(v)} sx={{ borderBottom: 1, borderColor: 'divider' }}>
+            <Tabs value={activeTab} onChange={(_, v) => setActiveTab(v)} sx={{ borderBottom: 1, borderColor: 'divider' }}>
               <Tab label="Chat" />
               <Tab label="Workflows" />
             </Tabs>
@@ -475,31 +473,35 @@ You can chat with me naturally, or run structured workflows for complex tasks. H
                   )}
                   <div ref={messagesEndRef} />
                 </Box>
-
-                <Divider />
-
-                <Box sx={{ p: 2 }}>
-                  <Box sx={{ display: 'flex', gap: 1 }}>
-                    <TextField
-                      fullWidth
-                      multiline
-                      maxRows={4}
-                      placeholder="Ask me anything about fleet management..."
-                      value={inputMessage}
-                      onChange={(e) => setInputMessage(e.target.value)}
-                      onKeyPress={handleKeyPress}
-                      disabled={loading}
-                    />
-                    <IconButton
-                      color="primary"
-                      onClick={sendMessage}
-                      disabled={!inputMessage.trim() || loading}
+                <Box sx={{ p: 2, borderTop: 1, borderColor: 'divider' }}>
+                  <TextField
+                    fullWidth
+                    multiline
+                    maxRows={4}
+                    value={inputMessage}
+                    onChange={(e) => setInputMessage(e.target.value)}
+                    onKeyPress={handleKeyPress}
+                    placeholder="Type your message..."
+                    disabled={loading}
+                    variant="outlined"
+                    InputProps={{
+                      endAdornment: (
+                        <IconButton onClick={sendMessage} disabled={loading || !inputMessage.trim()}>
+                          <SendIcon />
+                        </IconButton>
+                      )
+                    }}
+                  />
+                  <Box sx={{ mt: 1, display: 'flex', justifyContent: 'flex-end' }}>
+                    <Button
+                      variant="outlined"
+                      size="small"
+                      startIcon={<DeleteIcon />}
+                      onClick={clearChat}
+                      disabled={messages.length === 1}
                     >
-                      <SendIcon />
-                    </IconButton>
-                    <IconButton onClick={clearChat}>
-                      <DeleteIcon />
-                    </IconButton>
+                      Clear Chat
+                    </Button>
                   </Box>
                 </Box>
               </Box>
@@ -511,76 +513,56 @@ You can chat with me naturally, or run structured workflows for complex tasks. H
                 <Typography variant="h6" gutterBottom>
                   Available Workflows
                 </Typography>
-                <Typography variant="body2" color="text.secondary" paragraph>
-                  Execute pre-built AI workflows for common fleet management tasks
-                </Typography>
-
-                <Grid container spacing={2}>
-                  {workflows.map((workflow) => (
+                <Grid container spacing={3}>
+                  {workflows.map((workflow: Workflow) => (
                     <Grid item xs={12} sm={6} key={workflow.id}>
                       <Card>
                         <CardContent>
-                          <Typography variant="h6" gutterBottom>
-                            {workflow.name}
-                          </Typography>
-                          <Typography variant="body2" color="text.secondary" paragraph>
+                          <Typography variant="h6">{workflow.name}</Typography>
+                          <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
                             {workflow.description}
                           </Typography>
-                          <Chip
-                            icon={<SpeedIcon />}
-                            label={workflow.estimatedDuration}
-                            size="small"
-                            sx={{ mb: 2 }}
-                          />
-                          <Box>
-                            <Typography variant="caption" color="text.secondary">
-                              Steps:
-                            </Typography>
-                            <List dense>
-                              {workflow.steps.map((step, idx) => (
-                                <ListItem key={idx}>
-                                  <ListItemText
-                                    primary={step}
-                                    primaryTypographyProps={{ variant: 'body2' }}
-                                  />
-                                </ListItem>
-                              ))}
-                            </List>
+                          <Typography variant="caption" color="text.secondary">
+                            Estimated Duration: {workflow.estimatedDuration}
+                          </Typography>
+                          <Box sx={{ mt: 2 }}>
+                            <Button
+                              variant="contained"
+                              size="small"
+                              startIcon={<PlayIcon />}
+                              onClick={() => openWorkflowDialog(workflow)}
+                            >
+                              Run Workflow
+                            </Button>
                           </Box>
-                          <Button
-                            variant="contained"
-                            startIcon={<PlayIcon />}
-                            onClick={() => openWorkflowDialog(workflow)}
-                            fullWidth
-                          >
-                            Execute Workflow
-                          </Button>
                         </CardContent>
                       </Card>
                     </Grid>
                   ))}
                 </Grid>
-
                 {workflowExecution && (
-                  <Box sx={{ mt: 3 }}>
-                    <Alert
-                      severity={
-                        workflowExecution.status === 'completed'
-                          ? 'success'
-                          : workflowExecution.status === 'error'
-                          ? 'error'
-                          : 'info'
-                      }
-                    >
-                      <Typography variant="body2">
-                        {workflowExecution.status === 'running' && 'Workflow executing...'}
-                        {workflowExecution.status === 'completed' && 'Workflow completed successfully!'}
-                        {workflowExecution.status === 'error' && `Error: ${workflowExecution.error}`}
+                  <Box sx={{ mt: 4 }}>
+                    <Typography variant="h6" gutterBottom>
+                      Workflow Execution
+                    </Typography>
+                    <Paper sx={{ p: 2 }}>
+                      <Typography variant="body1">
+                        Workflow: {workflowExecution.workflowId}
                       </Typography>
-                      {workflowExecution.status === 'running' && (
-                        <LinearProgress sx={{ mt: 1 }} />
+                      <Typography variant="body2" color="text.secondary">
+                        Status: {workflowExecution.status}
+                      </Typography>
+                      <LinearProgress
+                        variant="determinate"
+                        value={workflowExecution.progress}
+                        sx={{ mt: 2, mb: 2 }}
+                      />
+                      {workflowExecution.error && (
+                        <Typography variant="body2" color="error">
+                          Error: {workflowExecution.error}
+                        </Typography>
                       )}
-                    </Alert>
+                    </Paper>
                   </Box>
                 )}
               </Box>
@@ -588,115 +570,97 @@ You can chat with me naturally, or run structured workflows for complex tasks. H
           </Paper>
         </Grid>
 
-        {/* Sidebar */}
-        <Grid item xs={12} md={4} sx={{ height: '100%', overflow: 'auto' }}>
-          {/* AI Agents */}
-          <Paper sx={{ p: 2, mb: 2 }}>
-            <Typography variant="h6" gutterBottom>
-              AI Agents
+        {/* Sidebar with Agents and MCP Servers */}
+        <Grid item xs={12} md={4} sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
+          <Paper sx={{ flexGrow: 1, display: 'flex', flexDirection: 'column', height: 0, overflow: 'auto' }}>
+            <Typography variant="h6" sx={{ p: 2 }}>
+              AI Resources
             </Typography>
-            {agentsLoading ? (
-              <Box sx={{ display: 'flex', justifyContent: 'center', p: 2 }}>
+            <Divider />
+            <Box sx={{ p: 2 }}>
+              <Typography variant="subtitle1" gutterBottom>
+                Specialized Agents
+              </Typography>
+              {agentsLoading ? (
                 <CircularProgress size={24} />
-              </Box>
-            ) : agents.length > 0 ? (
-              <List>
-                {agents.map((agent) => (
-                  <ListItem key={agent.id}>
-                    <ListItemIcon>{getAgentIcon(agent.id)}</ListItemIcon>
-                    <ListItemText
-                      primary={agent.name}
-                      secondary={agent.role}
-                    />
-                    <Chip label="Ready" size="small" color="success" />
-                  </ListItem>
-                ))}
-              </List>
-            ) : (
-              <ListItem>
-                <ListItemText
-                  primary="No agents loaded"
-                  secondary={agentsError ? 'Error loading agents' : 'Agents will appear when available'}
-                />
-              </ListItem>
-            )}
-          </Paper>
-
-          {/* MCP Server Status */}
-          <Paper sx={{ p: 2 }}>
-            <Typography variant="h6" gutterBottom>
-              MCP Server Status
-            </Typography>
-            {mcpLoading ? (
-              <Box sx={{ display: 'flex', justifyContent: 'center', p: 2 }}>
+              ) : (
+                <List dense>
+                  {agents.map((agent: Agent) => (
+                    <ListItem key={agent.id} disablePadding sx={{ py: 0.5 }}>
+                      <ListItemIcon sx={{ minWidth: 36 }}>
+                        {getAgentIcon(agent.id)}
+                      </ListItemIcon>
+                      <ListItemText
+                        primary={agent.name}
+                        secondary={agent.role}
+                      />
+                      <Chip
+                        label={agent.status || 'idle'}
+                        size="small"
+                        color={agent.status === 'active' ? 'success' : 'default'}
+                      />
+                    </ListItem>
+                  ))}
+                </List>
+              )}
+            </Box>
+            <Divider />
+            <Box sx={{ p: 2 }}>
+              <Typography variant="subtitle1" gutterBottom>
+                MCP Servers
+              </Typography>
+              {mcpLoading ? (
                 <CircularProgress size={24} />
-              </Box>
-            ) : mcpServers.length > 0 ? (
-              <List>
-                {mcpServers.map((server) => (
-                  <ListItem key={server.serverId}>
-                    <ListItemText
-                      primary={server.serverName}
-                      secondary={
-                        <>
-                          <Typography variant="caption" display="block">
-                            Response: {server.responseTime}ms
-                          </Typography>
-                          <Typography variant="caption" display="block">
-                            Success Rate: {server.successRate.toFixed(1)}%
-                          </Typography>
-                        </>
-                      }
-                    />
-                    <Chip
-                      label={server.status}
-                      size="small"
-                      color={getServerHealthColor(server.status) as any}
-                    />
-                  </ListItem>
-                ))}
-              </List>
-            ) : (
-              <ListItem>
-                <ListItemText
-                  primary="No MCP servers"
-                  secondary={mcpError ? 'Error loading servers' : 'Servers will appear when registered'}
-                />
-              </ListItem>
-            )}
+              ) : (
+                <List dense>
+                  {mcpServers.map((server: unknown, idx: number) => (
+                    <ListItem key={idx} disablePadding sx={{ py: 0.5 }}>
+                      <ListItemIcon sx={{ minWidth: 36 }}>
+                        <SpeedIcon />
+                      </ListItemIcon>
+                      <ListItemText
+                        primary={(server as any)?.name || 'Unknown Server'}
+                        secondary={`Load: ${(server as any)?.load || 'N/A'}`}
+                      />
+                      <Chip
+                        label={(server as any)?.status || 'unknown'}
+                        size="small"
+                        color={getServerHealthColor((server as any)?.status || 'unknown')}
+                      />
+                    </ListItem>
+                  ))}
+                </List>
+              )}
+            </Box>
           </Paper>
         </Grid>
       </Grid>
 
-      {/* Workflow Execution Dialog */}
+      {/* Workflow Parameters Dialog */}
       <Dialog open={workflowDialogOpen} onClose={() => setWorkflowDialogOpen(false)} maxWidth="sm" fullWidth>
-        <DialogTitle>Execute {selectedWorkflow?.name}</DialogTitle>
+        <DialogTitle>Run Workflow: {selectedWorkflow?.name}</DialogTitle>
         <DialogContent>
-          <Typography variant="body2" color="text.secondary" paragraph>
+          <Typography variant="body2" sx={{ mb: 2 }}>
             {selectedWorkflow?.description}
           </Typography>
-
-          {selectedWorkflow?.requiredParameters.map((param) => (
+          {selectedWorkflow?.requiredParameters.map((param: string) => (
             <TextField
               key={param}
-              fullWidth
+              margin="dense"
               label={param}
+              fullWidth
               value={workflowParams[param] || ''}
-              onChange={(e) => setWorkflowParams({ ...workflowParams, [param]: e.target.value })}
-              margin="normal"
-              required
+              onChange={(e) => setWorkflowParams(prev => ({ ...prev, [param]: e.target.value }))}
+              variant="outlined"
             />
           ))}
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setWorkflowDialogOpen(false)}>Cancel</Button>
           <Button
-            variant="contained"
             onClick={executeWorkflow}
-            disabled={
-              !selectedWorkflow ||
-              selectedWorkflow.requiredParameters.some(param => !workflowParams[param])
-            }
+            variant="contained"
+            disabled={selectedWorkflow?.requiredParameters.some(param => !workflowParams[param])}
           >
             Execute
           </Button>

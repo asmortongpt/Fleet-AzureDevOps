@@ -25,7 +25,8 @@ import { Switch } from '@/components/ui/switch'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import {
   ApprovalWorkflow,
-  CreatePolicyRequest
+  CreatePolicyRequest,
+  NotificationSettings
 } from '@/types/trip-usage'
 import logger from '@/utils/logger';
 
@@ -42,12 +43,7 @@ interface PolicyFormData {
   personal_use_rate_per_mile: number | null
   approval_workflow: ApprovalWorkflow
   auto_approve_under_miles: number | null
-  notification_settings: {
-    notify_at_80_percent: boolean
-    notify_at_95_percent: boolean
-    notify_on_charge: boolean
-    notify_on_rejection: boolean
-  }
+  notification_settings: NotificationSettings
   effective_date: string
 }
 
@@ -74,7 +70,7 @@ const ErrorDisplay = ({ error, onRetry }: { error: string; onRetry: () => void }
 )
 
 const apiClient = async (url: string) => {
-  const token = localStorage.getItem('token')
+  const token = localStorage.getItem('token') || '';
   const response = await fetch(url, {
     headers: { Authorization: `Bearer ${token}` }
   })
@@ -83,7 +79,7 @@ const apiClient = async (url: string) => {
 }
 
 const apiMutation = async (url: string, method: string, data?: any) => {
-  const token = localStorage.getItem('token')
+  const token = localStorage.getItem('token') || '';
   const response = await fetch(url, {
     method,
     headers: {
@@ -100,7 +96,7 @@ const apiMutation = async (url: string, method: string, data?: any) => {
 }
 
 export const PersonalUsePolicyConfig: React.FC<PersonalUsePolicyConfigProps> = ({
-  currentTheme
+  currentTheme: _currentTheme
 }) => {
   const queryClient = useQueryClient()
   const [showPreview, setShowPreview] = useState(false)
@@ -128,6 +124,7 @@ export const PersonalUsePolicyConfig: React.FC<PersonalUsePolicyConfigProps> = (
     queryKey: ['personal-use-policies'],
     queryFn: () => apiClient('/api/personal-use-policies'),
     staleTime: Infinity,
+    gcTime: Infinity,
     onError: (err: any) => {
       logger.error('Failed to fetch policy:', err)
     }
@@ -140,12 +137,12 @@ export const PersonalUsePolicyConfig: React.FC<PersonalUsePolicyConfigProps> = (
       setFormData({
         allow_personal_use: existingPolicy.allow_personal_use,
         require_approval: existingPolicy.require_approval,
-        max_personal_miles_per_month: existingPolicy.max_personal_miles_per_month,
-        max_personal_miles_per_year: existingPolicy.max_personal_miles_per_year,
+        max_personal_miles_per_month: existingPolicy.max_personal_miles_per_month ?? undefined,
+        max_personal_miles_per_year: existingPolicy.max_personal_miles_per_year ?? undefined,
         charge_personal_use: existingPolicy.charge_personal_use,
-        personal_use_rate_per_mile: existingPolicy.personal_use_rate_per_mile,
+        personal_use_rate_per_mile: existingPolicy.personal_use_rate_per_mile ?? undefined,
         approval_workflow: existingPolicy.approval_workflow,
-        auto_approve_under_miles: existingPolicy.auto_approve_under_miles,
+        auto_approve_under_miles: existingPolicy.auto_approve_under_miles ?? undefined,
         notification_settings: existingPolicy.notification_settings || {
           notify_at_80_percent: true,
           notify_at_95_percent: true,
@@ -205,21 +202,21 @@ export const PersonalUsePolicyConfig: React.FC<PersonalUsePolicyConfigProps> = (
   const { mutate: savePolicy, isPending: saving } = useMutation({
     mutationFn: async () => {
       const user = JSON.parse(localStorage.getItem('user') || '{}')
-      const tenantId = user.tenant_id
+      const tenantId = user.tenant_id || '';
 
       const payload: CreatePolicyRequest = {
         allow_personal_use: formData.allow_personal_use,
         require_approval: formData.require_approval,
-        max_personal_miles_per_month: formData.max_personal_miles_per_month,
-        max_personal_miles_per_year: formData.max_personal_miles_per_year,
+        max_personal_miles_per_month: formData.max_personal_miles_per_month ?? undefined,
+        max_personal_miles_per_year: formData.max_personal_miles_per_year ?? undefined,
         charge_personal_use: formData.charge_personal_use,
-        personal_use_rate_per_mile: formData.personal_use_rate_per_mile,
+        personal_use_rate_per_mile: formData.personal_use_rate_per_mile ?? undefined,
         reporting_required: true,
         approval_workflow: formData.approval_workflow,
         notification_settings: formData.notification_settings,
-        auto_approve_under_miles: formData.auto_approve_under_miles,
+        auto_approve_under_miles: formData.auto_approve_under_miles ?? undefined,
         effective_date: formData.effective_date
-      }
+      };
 
       return apiMutation(`/api/personal-use-policies/${tenantId}`, 'PUT', payload)
     },
@@ -368,7 +365,7 @@ export const PersonalUsePolicyConfig: React.FC<PersonalUsePolicyConfigProps> = (
                   id="allow_personal_use"
                   checked={formData.allow_personal_use}
                   onCheckedChange={(checked) =>
-                    updateFormData({ allow_personal_use: checked })
+                    updateFormData({ allow_personal_use: checked === true })
                   }
                 />
               </div>
@@ -389,7 +386,7 @@ export const PersonalUsePolicyConfig: React.FC<PersonalUsePolicyConfigProps> = (
                   id="require_approval"
                   checked={formData.require_approval}
                   onCheckedChange={(checked) =>
-                    updateFormData({ require_approval: checked })
+                    updateFormData({ require_approval: checked === true })
                   }
                   disabled={!formData.allow_personal_use}
                 />
@@ -408,446 +405,16 @@ export const PersonalUsePolicyConfig: React.FC<PersonalUsePolicyConfigProps> = (
                     <div className="flex items-center space-x-2">
                       <RadioGroupItem value={ApprovalWorkflow.MANAGER} id="manager" />
                       <Label htmlFor="manager" className="font-normal cursor-pointer">
-                        Manager Approval - Direct manager approves personal use
-                      </Label>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <RadioGroupItem value={ApprovalWorkflow.FLEET_ADMIN} id="fleet_admin" />
-                      <Label htmlFor="fleet_admin" className="font-normal cursor-pointer">
-                        Fleet Admin Approval - Fleet administrator approves all requests
-                      </Label>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <RadioGroupItem value={ApprovalWorkflow.BOTH} id="both" />
-                      <Label htmlFor="both" className="font-normal cursor-pointer">
-                        Both - Requires both manager and fleet admin approval
+                        Manager Approval - Direct manager ap
                       </Label>
                     </div>
                   </RadioGroup>
-
-                  {/* Auto-Approve Threshold */}
-                  <div className="space-y-2 mt-4">
-                    <Label htmlFor="auto_approve">
-                      Auto-Approve Threshold (optional)
-                    </Label>
-                    <div className="flex items-center gap-2">
-                      <Input
-                        id="auto_approve"
-                        type="number"
-                        min="0"
-                        step="1"
-                        value={formData.auto_approve_under_miles || ''}
-                        onChange={(e) =>
-                          updateFormData({
-                            auto_approve_under_miles: e.target.value
-                              ? parseInt(e.target.value)
-                              : null
-                          })
-                        }
-                        placeholder="e.g., 50"
-                        className="w-32"
-                      />
-                      <span className="text-sm text-muted-foreground">miles</span>
-                    </div>
-                    <p className="text-xs text-muted-foreground">
-                      Trips under this mileage will be automatically approved
-                    </p>
-                  </div>
                 </div>
               )}
-
-              <Separator />
-
-              {/* Effective Date */}
-              <div className="space-y-2">
-                <Label htmlFor="effective_date">Effective Date</Label>
-                <Input
-                  id="effective_date"
-                  type="date"
-                  value={formData.effective_date}
-                  onChange={(e) => updateFormData({ effective_date: e.target.value })}
-                  min={new Date().toISOString().split('T')[0]}
-                  className="w-64"
-                />
-                <p className="text-xs text-muted-foreground">
-                  Policy will take effect on this date
-                </p>
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        {/* Usage Limits Tab */}
-        <TabsContent value="limits" className="space-y-6">
-          <Card>
-            <CardHeader>
-              <CardTitle>Usage Limits</CardTitle>
-              <CardDescription>
-                Set monthly and annual personal use mileage limits
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-6">
-              {/* Monthly Limit */}
-              <div className="space-y-2">
-                <Label htmlFor="monthly_limit">
-                  Maximum Personal Miles Per Month
-                </Label>
-                <div className="flex items-center gap-2">
-                  <Input
-                    id="monthly_limit"
-                    type="number"
-                    min="0"
-                    step="1"
-                    value={formData.max_personal_miles_per_month || ''}
-                    onChange={(e) =>
-                      updateFormData({
-                        max_personal_miles_per_month: e.target.value
-                          ? parseInt(e.target.value)
-                          : null
-                      })
-                    }
-                    placeholder="e.g., 200"
-                    className="w-32"
-                    disabled={!formData.allow_personal_use}
-                  />
-                  <span className="text-sm text-muted-foreground">miles</span>
-                </div>
-                <p className="text-xs text-muted-foreground">
-                  Leave blank for no monthly limit
-                </p>
-              </div>
-
-              <Separator />
-
-              {/* Annual Limit */}
-              <div className="space-y-2">
-                <Label htmlFor="annual_limit">
-                  Maximum Personal Miles Per Year
-                </Label>
-                <div className="flex items-center gap-2">
-                  <Input
-                    id="annual_limit"
-                    type="number"
-                    min="0"
-                    step="1"
-                    value={formData.max_personal_miles_per_year || ''}
-                    onChange={(e) =>
-                      updateFormData({
-                        max_personal_miles_per_year: e.target.value
-                          ? parseInt(e.target.value)
-                          : null
-                      })
-                    }
-                    placeholder="e.g., 1000"
-                    className="w-32"
-                    disabled={!formData.allow_personal_use}
-                  />
-                  <span className="text-sm text-muted-foreground">miles</span>
-                </div>
-                <p className="text-xs text-muted-foreground">
-                  Leave blank for no annual limit
-                </p>
-              </div>
-
-              {/* Info Alert */}
-              <Alert>
-                <Info className="h-4 w-4" />
-                <AlertDescription>
-                  Drivers will be warned when they reach 80% of their limit and blocked at 100%.
-                  {formData.max_personal_miles_per_month && formData.max_personal_miles_per_year && (
-                    <div className="mt-2 text-sm">
-                      <strong>Current Settings:</strong>
-                      <br />• Monthly: {formData.max_personal_miles_per_month} miles
-                      <br />• Annual: {formData.max_personal_miles_per_year} miles
-                    </div>
-                  )}
-                </AlertDescription>
-              </Alert>
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        {/* Charging Tab */}
-        <TabsContent value="charging" className="space-y-6">
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <CurrencyDollar className="w-5 h-5" />
-                Personal Use Charging
-              </CardTitle>
-              <CardDescription>
-                Configure charges for personal vehicle use
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-6">
-              {/* Charge Personal Use */}
-              <div className="flex items-center justify-between">
-                <div className="space-y-0.5">
-                  <Label htmlFor="charge_personal_use" className="text-base">
-                    Charge for Personal Use
-                  </Label>
-                  <p className="text-sm text-muted-foreground">
-                    Bill drivers for personal vehicle use
-                  </p>
-                </div>
-                <Switch
-                  id="charge_personal_use"
-                  checked={formData.charge_personal_use}
-                  onCheckedChange={(checked) =>
-                    updateFormData({ charge_personal_use: checked })
-                  }
-                  disabled={!formData.allow_personal_use}
-                />
-              </div>
-
-              {/* Rate Per Mile */}
-              {formData.charge_personal_use && (
-                <div className="space-y-4 pl-6 border-l-2">
-                  <div className="space-y-2">
-                    <Label htmlFor="rate_per_mile">Rate Per Mile *</Label>
-                    <div className="flex items-center gap-2">
-                      <span className="text-sm">$</span>
-                      <Input
-                        id="rate_per_mile"
-                        type="number"
-                        min="0"
-                        step="0.01"
-                        value={formData.personal_use_rate_per_mile || ''}
-                        onChange={(e) =>
-                          updateFormData({
-                            personal_use_rate_per_mile: e.target.value
-                              ? parseFloat(e.target.value)
-                              : null
-                          })
-                        }
-                        placeholder="0.25"
-                        className="w-32"
-                      />
-                      <span className="text-sm text-muted-foreground">per mile</span>
-                    </div>
-                  </div>
-
-                  {/* IRS Rate Reference */}
-                  <Alert>
-                    <Info className="h-4 w-4" />
-                    <AlertDescription>
-                      <strong>Federal IRS Rate (2025):</strong> ${IRS_RATE_2025}/mile
-                      <br />
-                      Your rate cannot exceed the federal rate.
-                    </AlertDescription>
-                  </Alert>
-
-                  {/* Example Calculation */}
-                  <div className="p-4 bg-accent rounded-lg space-y-2">
-                    <h4 className="font-semibold text-sm">Example Calculation</h4>
-                    <p className="text-sm text-muted-foreground">
-                      For 100 personal miles: {calculateExampleCharge()}
-                    </p>
-                  </div>
-                </div>
-              )}
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        {/* Notifications Tab */}
-        <TabsContent value="notifications" className="space-y-6">
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Bell className="w-5 h-5" />
-                Notification Settings
-              </CardTitle>
-              <CardDescription>
-                Configure when drivers and managers receive notifications
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-6">
-              {/* Driver Notifications */}
-              <div className="space-y-4">
-                <h4 className="font-semibold">Driver Notifications</h4>
-
-                <div className="flex items-center space-x-2">
-                  <Checkbox
-                    id="notify_80"
-                    checked={formData.notification_settings.notify_at_80_percent}
-                    onCheckedChange={(checked) =>
-                      updateFormData({
-                        notification_settings: {
-                          ...formData.notification_settings,
-                          notify_at_80_percent: checked as boolean
-                        }
-                      })
-                    }
-                  />
-                  <Label htmlFor="notify_80" className="font-normal cursor-pointer">
-                    Notify at 80% of limit
-                  </Label>
-                </div>
-
-                <div className="flex items-center space-x-2">
-                  <Checkbox
-                    id="notify_95"
-                    checked={formData.notification_settings.notify_at_95_percent}
-                    onCheckedChange={(checked) =>
-                      updateFormData({
-                        notification_settings: {
-                          ...formData.notification_settings,
-                          notify_at_95_percent: checked as boolean
-                        }
-                      })
-                    }
-                  />
-                  <Label htmlFor="notify_95" className="font-normal cursor-pointer">
-                    Notify at 95% of limit (critical warning)
-                  </Label>
-                </div>
-
-                <div className="flex items-center space-x-2">
-                  <Checkbox
-                    id="notify_charge"
-                    checked={formData.notification_settings.notify_on_charge}
-                    onCheckedChange={(checked) =>
-                      updateFormData({
-                        notification_settings: {
-                          ...formData.notification_settings,
-                          notify_on_charge: checked as boolean
-                        }
-                      })
-                    }
-                  />
-                  <Label htmlFor="notify_charge" className="font-normal cursor-pointer">
-                    Notify when charges are generated
-                  </Label>
-                </div>
-
-                <div className="flex items-center space-x-2">
-                  <Checkbox
-                    id="notify_rejection"
-                    checked={formData.notification_settings.notify_on_rejection}
-                    onCheckedChange={(checked) =>
-                      updateFormData({
-                        notification_settings: {
-                          ...formData.notification_settings,
-                          notify_on_rejection: checked as boolean
-                        }
-                      })
-                    }
-                  />
-                  <Label htmlFor="notify_rejection" className="font-normal cursor-pointer">
-                    Notify when trips are rejected
-                  </Label>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        {/* Advanced Tab */}
-        <TabsContent value="advanced" className="space-y-6">
-          <Card>
-            <CardHeader>
-              <CardTitle>Advanced Settings</CardTitle>
-              <CardDescription>
-                Additional policy configuration options
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <Alert>
-                <Info className="h-4 w-4" />
-                <AlertDescription>
-                  <strong>Federal Compliance:</strong> All business trips require a documented
-                  business purpose per IRS regulations. This is enforced automatically.
-                </AlertDescription>
-              </Alert>
-
-              <Alert>
-                <Warning className="h-4 w-4" />
-                <AlertDescription>
-                  <strong>Policy Changes:</strong> Changes to this policy will take effect
-                  immediately for all new trips. Existing pending trips will follow the
-                  previous policy rules.
-                </AlertDescription>
-              </Alert>
             </CardContent>
           </Card>
         </TabsContent>
       </Tabs>
-
-      {/* Preview Section */}
-      {showPreview && (
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Eye className="w-5 h-5" />
-              Policy Preview
-            </CardTitle>
-            <CardDescription>
-              How this policy will appear to drivers
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="p-4 bg-accent rounded-lg space-y-3">
-              <div className="flex items-center gap-2">
-                {formData.allow_personal_use ? (
-                  <CheckCircle className="w-5 h-5 text-green-500" />
-                ) : (
-                  <XCircle className="w-5 h-5 text-red-500" />
-                )}
-                <span className="font-semibold">
-                  Personal use is {formData.allow_personal_use ? 'allowed' : 'not allowed'}
-                </span>
-              </div>
-
-              {formData.allow_personal_use && (
-                <>
-                  {formData.require_approval && (
-                    <div className="text-sm text-muted-foreground">
-                      • Approval required by {formData.approval_workflow.replace('_', ' ')}
-                    </div>
-                  )}
-
-                  {formData.max_personal_miles_per_month && (
-                    <div className="text-sm text-muted-foreground">
-                      • Monthly limit: {formData.max_personal_miles_per_month} miles
-                    </div>
-                  )}
-
-                  {formData.max_personal_miles_per_year && (
-                    <div className="text-sm text-muted-foreground">
-                      • Annual limit: {formData.max_personal_miles_per_year} miles
-                    </div>
-                  )}
-
-                  {formData.charge_personal_use && (
-                    <div className="text-sm text-muted-foreground">
-                      • Charges: ${formData.personal_use_rate_per_mile}/mile
-                    </div>
-                  )}
-
-                  {formData.auto_approve_under_miles && (
-                    <div className="text-sm text-muted-foreground">
-                      • Auto-approved under {formData.auto_approve_under_miles} miles
-                    </div>
-                  )}
-                </>
-              )}
-            </div>
-          </CardContent>
-        </Card>
-      )}
-
-      {/* Save Changes Warning */}
-      {hasChanges && (
-        <Alert>
-          <Warning className="h-4 w-4" />
-          <AlertDescription>
-            You have unsaved changes. Click "Save Policy" to apply these changes.
-          </AlertDescription>
-        </Alert>
-      )}
     </div>
   )
 }
-
-export default PersonalUsePolicyConfig

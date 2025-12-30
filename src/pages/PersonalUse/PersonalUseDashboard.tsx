@@ -22,7 +22,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Progress } from '@/components/ui/progress'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import logger from '@/utils/logger';
+import logger from '@/utils/logger'
+
 interface DashboardData {
   driver_id: string
   current_month: string
@@ -85,34 +86,42 @@ const apiClient = async (url: string) => {
 export function PersonalUseDashboard() {
   const [selectedTrip, setSelectedTrip] = useState<PersonalTrip | null>(null)
 
-  const { data: dashboardRes, isLoading: dashboardLoading, error: dashboardError } = useQuery({    queryKey: ['personal-use-dashboard'],
+  const { data: dashboardRes, isLoading: dashboardLoading, error: _dashboardError } = useQuery({
+    queryKey: ['personal-use-dashboard'],
     queryFn: () => apiClient('/api/personal-use-dashboard'),
-    staleTime: 30000
+    staleTime: 30000,
+    gcTime: 30000
   })
 
-  const { data: tripsRes, error: tripsError } = useQuery({    queryKey: ['personal-trips'],
+  const { data: tripsRes, error: _tripsError } = useQuery({
+    queryKey: ['personal-trips'],
     queryFn: () => apiClient('/api/trips/my-personal?limit=10'),
-    staleTime: 30000
+    staleTime: 30000,
+    gcTime: 30000
   })
 
-  const { data: chargesRes, error: chargesError } = useQuery({    queryKey: ['personal-use-charges-dashboard'],
+  const { data: chargesRes, error: _chargesError } = useQuery({
+    queryKey: ['personal-use-charges-dashboard'],
     queryFn: () => apiClient('/api/personal-use-charges?charge_status=pending&charge_status=invoiced&charge_status=billed'),
-    staleTime: 30000
+    staleTime: 30000,
+    gcTime: 30000
   })
 
-  const { data: reimbursementsRes, error: reimbursementsError, refetch: refetchDashboard } = useQuery({    queryKey: ['reimbursements-dashboard'],
+  const { data: reimbursementsRes, error: _reimbursementsError, refetch: refetchDashboard } = useQuery({
+    queryKey: ['reimbursements-dashboard'],
     queryFn: () => apiClient('/api/reimbursements?status=pending&status=approved'),
     staleTime: 30000,
-    onError: (error: any) => {
+    gcTime: 30000,
+    onError: (error: unknown) => {
       logger.error('Failed to fetch dashboard data:', error)
       toast.error('Failed to load dashboard data')
     }
   })
 
-  const dashboardData = dashboardRes?.data || null
-  const recentTrips = tripsRes?.data || []
-  const pendingCharges = chargesRes?.data || []
-  const reimbursements = reimbursementsRes?.data || []
+  const dashboardData = dashboardRes as DashboardData | null
+  const recentTrips = (tripsRes as PersonalTrip[]) || []
+  const pendingCharges = (chargesRes as PendingCharge[]) || []
+  const reimbursements = (reimbursementsRes as ReimbursementRequest[]) || []
   const loading = dashboardLoading
 
   const getUsageColor = (percentage?: number) => {
@@ -358,7 +367,7 @@ export function PersonalUseDashboard() {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {recentTrips.map((trip) => (
+                    {recentTrips.map((trip: PersonalTrip) => (
                       <TableRow key={trip.id}>
                         <TableCell>
                           {format(new Date(trip.trip_date), 'MMM dd, yyyy')}
@@ -421,18 +430,14 @@ export function PersonalUseDashboard() {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {pendingCharges.map((charge) => (
+                    {pendingCharges.map((charge: PendingCharge) => (
                       <TableRow key={charge.id}>
                         <TableCell>{charge.charge_period}</TableCell>
                         <TableCell>{charge.miles_charged.toFixed(1)} mi</TableCell>
-                        <TableCell className="font-semibold">
-                          ${charge.total_charge.toFixed(2)}
-                        </TableCell>
+                        <TableCell>${charge.total_charge.toFixed(2)}</TableCell>
                         <TableCell>{getStatusBadge(charge.charge_status)}</TableCell>
                         <TableCell>
-                          {charge.due_date
-                            ? format(new Date(charge.due_date), 'MMM dd, yyyy')
-                            : '-'}
+                          {charge.due_date ? format(new Date(charge.due_date), 'MMM dd, yyyy') : 'N/A'}
                         </TableCell>
                       </TableRow>
                     ))}
@@ -449,7 +454,7 @@ export function PersonalUseDashboard() {
             <CardHeader>
               <CardTitle>Reimbursement Requests</CardTitle>
               <CardDescription>
-                Your reimbursement requests and status
+                Your pending and recent reimbursement requests
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -461,31 +466,25 @@ export function PersonalUseDashboard() {
                 <Table>
                   <TableHeader>
                     <TableRow>
-                      <TableHead>Submitted</TableHead>
-                      <TableHead>Description</TableHead>
-                      <TableHead>Category</TableHead>
+                      <TableHead>Date</TableHead>
                       <TableHead>Amount</TableHead>
+                      <TableHead>Category</TableHead>
                       <TableHead>Status</TableHead>
+                      <TableHead>Submitted</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {reimbursements.map((request) => (
+                    {reimbursements.map((request: ReimbursementRequest) => (
                       <TableRow key={request.id}>
+                        <TableCell>
+                          {format(new Date(request.expense_date), 'MMM dd, yyyy')}
+                        </TableCell>
+                        <TableCell>${request.request_amount.toFixed(2)}</TableCell>
+                        <TableCell>{request.category || 'N/A'}</TableCell>
+                        <TableCell>{getStatusBadge(request.status)}</TableCell>
                         <TableCell>
                           {format(new Date(request.submitted_at), 'MMM dd, yyyy')}
                         </TableCell>
-                        <TableCell>{request.description || '-'}</TableCell>
-                        <TableCell>
-                          {request.category ? (
-                            <Badge variant="outline">{request.category}</Badge>
-                          ) : (
-                            '-'
-                          )}
-                        </TableCell>
-                        <TableCell className="font-semibold">
-                          ${request.request_amount.toFixed(2)}
-                        </TableCell>
-                        <TableCell>{getStatusBadge(request.status)}</TableCell>
                       </TableRow>
                     ))}
                   </TableBody>
@@ -496,23 +495,12 @@ export function PersonalUseDashboard() {
         </TabsContent>
       </Tabs>
 
-      {/* Trip Details Dialog (if needed) */}
+      {/* Trip Details Modal */}
       {selectedTrip && (
-        <div className="fixed inset-0 bg-background/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="max-w-2xl w-full">
-            <TripMarker
-              tripId={selectedTrip.id}
-              initialUsageType={selectedTrip.usage_type}
-              miles={selectedTrip.miles_total}
-              onSave={() => {
-                setSelectedTrip(null)
-                refetchDashboard()
-              }}
-              onCancel={() => setSelectedTrip(null)}
-              showCostPreview={true}
-            />
-          </div>
-        </div>
+        <TripMarker
+          trip={selectedTrip}
+          onClose={() => setSelectedTrip(null)}
+        />
       )}
     </div>
   )

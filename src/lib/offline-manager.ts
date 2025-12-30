@@ -1,4 +1,6 @@
-import logger from '@/utils/logger'
+import { createLogger } from '@/utils/logger'
+
+const logger = createLogger('OfflineManager')
 
 /**
  * Offline Manager
@@ -88,7 +90,11 @@ class OfflineDB {
     if (!this.db) await this.init()
 
     return new Promise((resolve, reject) => {
-      const transaction = this.db!.transaction([CACHE_STORE], 'readonly')
+      const transaction = this.db?.transaction([CACHE_STORE], 'readonly')
+      if (!transaction) {
+        reject(new Error('Database transaction failed to initialize'))
+        return
+      }
       const store = transaction.objectStore(CACHE_STORE)
       const request = store.get(url)
 
@@ -109,7 +115,11 @@ class OfflineDB {
     if (!this.db) await this.init()
 
     return new Promise((resolve, reject) => {
-      const transaction = this.db!.transaction([CACHE_STORE], 'readwrite')
+      const transaction = this.db?.transaction([CACHE_STORE], 'readwrite')
+      if (!transaction) {
+        reject(new Error('Database transaction failed to initialize'))
+        return
+      }
       const store = transaction.objectStore(CACHE_STORE)
       const request = store.put(response)
 
@@ -122,7 +132,11 @@ class OfflineDB {
     if (!this.db) await this.init()
 
     return new Promise((resolve, reject) => {
-      const transaction = this.db!.transaction([QUEUE_STORE], 'readwrite')
+      const transaction = this.db?.transaction([QUEUE_STORE], 'readwrite')
+      if (!transaction) {
+        reject(new Error('Database transaction failed to initialize'))
+        return
+      }
       const store = transaction.objectStore(QUEUE_STORE)
       const req = store.put(request)
 
@@ -135,7 +149,11 @@ class OfflineDB {
     if (!this.db) await this.init()
 
     return new Promise((resolve, reject) => {
-      const transaction = this.db!.transaction([QUEUE_STORE], 'readonly')
+      const transaction = this.db?.transaction([QUEUE_STORE], 'readonly')
+      if (!transaction) {
+        reject(new Error('Database transaction failed to initialize'))
+        return
+      }
       const store = transaction.objectStore(QUEUE_STORE)
       const request = store.getAll()
 
@@ -148,7 +166,11 @@ class OfflineDB {
     if (!this.db) await this.init()
 
     return new Promise((resolve, reject) => {
-      const transaction = this.db!.transaction([QUEUE_STORE], 'readwrite')
+      const transaction = this.db?.transaction([QUEUE_STORE], 'readwrite')
+      if (!transaction) {
+        reject(new Error('Database transaction failed to initialize'))
+        return
+      }
       const store = transaction.objectStore(QUEUE_STORE)
       const request = store.delete(id)
 
@@ -161,7 +183,11 @@ class OfflineDB {
     if (!this.db) await this.init()
 
     return new Promise((resolve, reject) => {
-      const transaction = this.db!.transaction([CACHE_STORE], 'readwrite')
+      const transaction = this.db?.transaction([CACHE_STORE], 'readwrite')
+      if (!transaction) {
+        reject(new Error('Database transaction failed to initialize'))
+        return
+      }
       const store = transaction.objectStore(CACHE_STORE)
       const index = store.index('expiresAt')
       const request = index.openCursor(IDBKeyRange.upperBound(Date.now()))
@@ -232,8 +258,9 @@ export class OfflineManager {
   }
 
   private notifyListeners() {
-    const state = this.getState()
-    this.listeners.forEach((listener) => listener(state))
+    this.getState().then((state) => {
+      this.listeners.forEach((listener) => listener(state))
+    })
   }
 
   public subscribe(listener: (state: OfflineState) => void): () => void {

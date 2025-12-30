@@ -40,8 +40,8 @@ interface ConversationalIntakeProps {
 
 export function ConversationalIntake({
   onSubmit,
-  onCancel,
-  initialIntent
+  _onCancel,
+  _initialIntent
 }: ConversationalIntakeProps) {
   const [messages, setMessages] = useState<Message[]>([
     {
@@ -80,7 +80,7 @@ export function ConversationalIntake({
     try {
       const response = await apiClient.post<{
         response: string
-        updatedContext: string
+        updatedContext: ConversationContext
         suggestions: string[]
         readyToSubmit?: boolean
         validatedData?: any

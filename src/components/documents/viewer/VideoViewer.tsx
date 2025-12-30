@@ -85,7 +85,7 @@ export function VideoViewer({ document }: VideoViewerProps) {
     const video = videoRef.current;
     if (!video) return;
 
-    const newVolume = values[0];
+    const newVolume = values[0] ?? 0;
     video.volume = newVolume;
     setVolume(newVolume);
     setIsMuted(newVolume === 0);
@@ -95,8 +95,9 @@ export function VideoViewer({ document }: VideoViewerProps) {
     const video = videoRef.current;
     if (!video) return;
 
-    video.currentTime = values[0];
-    setCurrentTime(values[0]);
+    const newTime = values[0] ?? 0;
+    video.currentTime = newTime;
+    setCurrentTime(newTime);
   };
 
   const handlePlaybackRateChange = (rate: number) => {
@@ -119,9 +120,9 @@ export function VideoViewer({ document }: VideoViewerProps) {
     if (!video) return;
 
     if (document.fullscreenElement) {
-      document.exitFullscreen();
+      document.exitFullscreen?.();
     } else {
-      video.requestFullscreen();
+      video.requestFullscreen?.();
     }
   };
 

@@ -1,10 +1,29 @@
 import { useEffect, useState } from 'react';
-import io from 'socket.io-client';
-
-import { EventTypes } from '../types/EventTypes';
-import { Task } from '../types/Task';
+import io, { Socket } from 'socket.io-client';
 
 import logger from '@/utils/logger';
+
+enum EventTypes {
+  TASK_CREATED = 'task:created',
+  TASK_UPDATED = 'task:updated',
+  TASK_DELETED = 'task:deleted',
+  TASK_ASSIGNED = 'task:assigned',
+  COMMENT_ADDED = 'comment:added',
+}
+
+interface Task {
+  id: string;
+  title: string;
+  description?: string;
+  status: string;
+  priority?: string;
+  dueDate?: string;
+  assigneeId?: string;
+  comments?: Array<{ id: string; content: string; userId: string; createdAt: string }>;
+  createdAt: string;
+  updatedAt?: string;
+}
+
 /**
  * Custom React hook for subscribing to real-time task updates.
  * Connects to a WebSocket server using Socket.IO to receive task-related events.
@@ -13,11 +32,11 @@ import logger from '@/utils/logger';
  */
 export const useRealtimeTasks = () => {
   const [tasks, setTasks] = useState<Task[]>([]);
-  const [socket, setSocket] = useState<SocketIOClient.Socket | null>(null);
+  const [socket, setSocket] = useState<Socket | null>(null);
 
   useEffect(() => {
     // Initialize Socket.IO client
-    const newSocket = io(process.env.REACT_APP_WEBSOCKET_URL!, {
+    const newSocket = io(process.env.REACT_APP_WEBSOCKET_URL || '', {
       auth: {
         token: localStorage.getItem('token'), // Assuming JWT token is stored in localStorage
       },

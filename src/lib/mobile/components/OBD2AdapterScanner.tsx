@@ -1,22 +1,3 @@
-/**
- * OBD2 Adapter Scanner Component
- *
- * React Native component for:
- * - Scanning for nearby OBD2 adapters
- * - Displaying connection status
- * - Pairing interface
- * - Saving adapter to vehicle
- *
- * Usage:
- * ```tsx
- * <OBD2AdapterScanner
- *   vehicleId={vehicle.id}
- *   onAdapterConnected={(adapter) => logger.debug('Connected:', adapter)}
- *   onError={(error) => logger.error(error)}
- * />
- * ```
- */
-
 import React, { useState, useEffect } from 'react'
 import {
   View,
@@ -30,6 +11,7 @@ import {
   Platform,
   PermissionsAndroid
 } from 'react-native'
+import AsyncStorage from '@react-native-async-storage/async-storage'
 
 import OBD2Service, {
   OBD2Adapter,
@@ -61,7 +43,7 @@ export interface OBD2AdapterScannerProps {
 // =====================================================
 
 export const OBD2AdapterScanner: React.FC<OBD2AdapterScannerProps> = ({
-  vehicleId,
+  vehicleId: _vehicleId,
   onAdapterConnected,
   onAdapterDisconnected,
   onDTCsDetected,
@@ -208,10 +190,10 @@ export const OBD2AdapterScanner: React.FC<OBD2AdapterScannerProps> = ({
           'Make sure your OBD2 adapter is plugged in and turned on. Check that Bluetooth is enabled on your device.'
         )
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       setConnectionStatus('Scan failed')
-      onError?.(error)
-      Alert.alert('Scan Error', error.message)
+      onError?.(error as Error)
+      Alert.alert('Scan Error', (error as Error).message)
     } finally {
       setIsScanning(false)
     }
@@ -282,11 +264,11 @@ export const OBD2AdapterScanner: React.FC<OBD2AdapterScannerProps> = ({
         `Connected to ${adapter.name}${vin ? `\nVIN: ${vin}` : ''}`,
         [{ text: 'OK' }]
       )
-    } catch (error: any) {
+    } catch (error: unknown) {
       setConnectionStatus('Connection failed')
       setConnectedAdapter(null)
-      onError?.(error)
-      Alert.alert('Connection Error', error.message)
+      onError?.(error as Error)
+      Alert.alert('Connection Error', (error as Error).message)
     } finally {
       setIsConnecting(false)
     }
@@ -310,9 +292,9 @@ export const OBD2AdapterScanner: React.FC<OBD2AdapterScannerProps> = ({
       onAdapterDisconnected?.()
 
       Alert.alert('Disconnected', 'Disconnected from OBD2 adapter')
-    } catch (error: any) {
-      onError?.(error)
-      Alert.alert('Disconnect Error', error.message)
+    } catch (error: unknown) {
+      onError?.(error as Error)
+      Alert.alert('Disconnect Error', (error as Error).message)
     }
   }
 
@@ -338,9 +320,9 @@ export const OBD2AdapterScanner: React.FC<OBD2AdapterScannerProps> = ({
       if (diagnosticCodes.length === 0) {
         Alert.alert('No Codes Found', 'No diagnostic trouble codes detected. Vehicle is healthy!')
       }
-    } catch (error: any) {
-      onError?.(error)
-      Alert.alert('Error Reading DTCs', error.message)
+    } catch (error: unknown) {
+      onError?.(error as Error)
+      Alert.alert('Error Reading DTCs', (error as Error).message)
     }
   }
 
@@ -371,10 +353,10 @@ export const OBD2AdapterScanner: React.FC<OBD2AdapterScannerProps> = ({
               } else {
                 throw new Error('Failed to clear codes')
               }
-            } catch (error: any) {
+            } catch (error: unknown) {
               setConnectionStatus('Connected')
-              onError?.(error)
-              Alert.alert('Error Clearing Codes', error.message)
+              onError?.(error as Error)
+              Alert.alert('Error Clearing Codes', (error as Error).message)
             }
           }
         }
@@ -505,141 +487,6 @@ export const OBD2AdapterScanner: React.FC<OBD2AdapterScannerProps> = ({
               </Text>
             )}
           </View>
-
-          <View style={styles.actionButtons}>
-            <TouchableOpacity
-              style={styles.actionButton}
-              onPress={readDiagnostics}
-            >
-              <Text style={styles.actionButtonText}>Read DTCs</Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity
-              style={[styles.actionButton, styles.actionButtonDanger]}
-              onPress={clearDiagnostics}
-            >
-              <Text style={styles.actionButtonText}>Clear DTCs</Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity
-              style={[styles.actionButton, styles.actionButtonSecondary]}
-              onPress={disconnectAdapter}
-            >
-              <Text style={styles.actionButtonText}>Disconnect</Text>
-            </TouchableOpacity>
-          </View>
-
-          {/* Live Data */}
-          {liveData && (
-            <View style={styles.liveDataSection}>
-              <Text style={styles.liveDataTitle}>Live Data</Text>
-              <View style={styles.liveDataGrid}>
-                {liveData.engineRPM !== undefined && (
-                  <View style={styles.liveDataItem}>
-                    <Text style={styles.liveDataLabel}>RPM</Text>
-                    <Text style={styles.liveDataValue}>{Math.round(liveData.engineRPM)}</Text>
-                  </View>
-                )}
-                {liveData.vehicleSpeed !== undefined && (
-                  <View style={styles.liveDataItem}>
-                    <Text style={styles.liveDataLabel}>Speed</Text>
-                    <Text style={styles.liveDataValue}>{Math.round(liveData.vehicleSpeed)} km/h</Text>
-                  </View>
-                )}
-                {liveData.coolantTemp !== undefined && (
-                  <View style={styles.liveDataItem}>
-                    <Text style={styles.liveDataLabel}>Coolant</Text>
-                    <Text style={styles.liveDataValue}>{Math.round(liveData.coolantTemp)}°C</Text>
-                  </View>
-                )}
-                {liveData.throttlePosition !== undefined && (
-                  <View style={styles.liveDataItem}>
-                    <Text style={styles.liveDataLabel}>Throttle</Text>
-                    <Text style={styles.liveDataValue}>{Math.round(liveData.throttlePosition)}%</Text>
-                  </View>
-                )}
-                {liveData.fuelLevel !== undefined && (
-                  <View style={styles.liveDataItem}>
-                    <Text style={styles.liveDataLabel}>Fuel</Text>
-                    <Text style={styles.liveDataValue}>{Math.round(liveData.fuelLevel)}%</Text>
-                  </View>
-                )}
-                {liveData.batteryVoltage !== undefined && (
-                  <View style={styles.liveDataItem}>
-                    <Text style={styles.liveDataLabel}>Battery</Text>
-                    <Text style={styles.liveDataValue}>{liveData.batteryVoltage.toFixed(1)}V</Text>
-                  </View>
-                )}
-              </View>
-
-              <TouchableOpacity
-                style={[styles.actionButton, styles.actionButtonSecondary]}
-                onPress={stopLiveDataStream}
-              >
-                <Text style={styles.actionButtonText}>Stop Live Data</Text>
-              </TouchableOpacity>
-            </View>
-          )}
-
-          {/* DTCs */}
-          {dtcs.length > 0 && (
-            <View style={styles.dtcsSection}>
-              <Text style={styles.dtcsTitle}>
-                Diagnostic Codes ({dtcs.length})
-              </Text>
-              <FlatList
-                data={dtcs}
-                renderItem={renderDTC}
-                keyExtractor={(item) => item.code}
-                scrollEnabled={false}
-              />
-            </View>
-          )}
-        </View>
-      )}
-
-      {/* Scan Button */}
-      {!connectedAdapter && (
-        <TouchableOpacity
-          style={styles.scanButton}
-          onPress={scanForAdapters}
-          disabled={isScanning}
-        >
-          {isScanning ? (
-            <ActivityIndicator color="#fff" />
-          ) : (
-            <Text style={styles.scanButtonText}>
-              {adapters.length > 0 ? 'Refresh Scan' : 'Scan for Adapters'}
-            </Text>
-          )}
-        </TouchableOpacity>
-      )}
-
-      {/* Adapter List */}
-      {!connectedAdapter && adapters.length > 0 && (
-        <View style={styles.adapterList}>
-          <Text style={styles.adapterListTitle}>Available Adapters</Text>
-          <FlatList
-            data={adapters}
-            renderItem={renderAdapter}
-            keyExtractor={(item) => item.id}
-            refreshControl={
-              <RefreshControl
-                refreshing={isScanning}
-                onRefresh={scanForAdapters}
-              />
-            }
-          />
-        </View>
-      )}
-
-      {/* Loading Overlay */}
-      {isConnecting && (
-        <View style={styles.loadingOverlay}>
-          <View style={styles.loadingCard}>
-            <ActivityIndicator size="large" color="#0066CC" />
-            <Text style={styles.loadingText}>{connectionStatus}</Text>
-          </View>
         </View>
       )}
     </View>
@@ -653,205 +500,68 @@ export const OBD2AdapterScanner: React.FC<OBD2AdapterScannerProps> = ({
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f5f5f5'
+    backgroundColor: '#f5f5f5',
+    padding: 16
   },
   header: {
-    padding: 20,
-    backgroundColor: '#fff',
-    borderBottomWidth: 1,
-    borderBottomColor: '#e0e0e0'
+    marginBottom: 20,
+    alignItems: 'center'
   },
   title: {
-    fontSize: 24,
+    fontSize: 22,
     fontWeight: 'bold',
-    color: '#333',
     marginBottom: 8
   },
   status: {
-    fontSize: 14,
+    fontSize: 16,
     color: '#666'
   },
   connectedSection: {
+    marginBottom: 24,
     backgroundColor: '#fff',
-    padding: 20,
-    marginBottom: 10
+    borderRadius: 10,
+    padding: 16,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 2
   },
   connectedInfo: {
-    marginBottom: 15
+    alignItems: 'center'
   },
   connectedTitle: {
-    fontSize: 12,
-    color: '#666',
-    marginBottom: 5,
-    textTransform: 'uppercase'
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginBottom: 8
   },
   connectedName: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    color: '#0066CC',
-    marginBottom: 5
+    fontSize: 16,
+    fontWeight: '500',
+    marginBottom: 4
   },
   vinText: {
     fontSize: 14,
-    color: '#333',
-    marginTop: 5
+    color: '#666',
+    marginBottom: 4
   },
   firmwareText: {
-    fontSize: 12,
-    color: '#666',
-    marginTop: 5
-  },
-  actionButtons: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 10,
-    marginBottom: 15
-  },
-  actionButton: {
-    backgroundColor: '#0066CC',
-    paddingVertical: 10,
-    paddingHorizontal: 15,
-    borderRadius: 8,
-    marginRight: 10,
-    marginBottom: 10
-  },
-  actionButtonSecondary: {
-    backgroundColor: '#666'
-  },
-  actionButtonDanger: {
-    backgroundColor: '#DC3545'
-  },
-  actionButtonText: {
-    color: '#fff',
-    fontWeight: 'bold',
-    fontSize: 14
-  },
-  liveDataSection: {
-    marginTop: 15,
-    paddingTop: 15,
-    borderTopWidth: 1,
-    borderTopColor: '#e0e0e0'
-  },
-  liveDataTitle: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: '#333',
-    marginBottom: 10
-  },
-  liveDataGrid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 10,
-    marginBottom: 15
-  },
-  liveDataItem: {
-    backgroundColor: '#f9f9f9',
-    padding: 10,
-    borderRadius: 8,
-    minWidth: 100,
-    alignItems: 'center'
-  },
-  liveDataLabel: {
-    fontSize: 12,
-    color: '#666',
-    marginBottom: 5
-  },
-  liveDataValue: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    color: '#0066CC'
-  },
-  dtcsSection: {
-    marginTop: 15,
-    paddingTop: 15,
-    borderTopWidth: 1,
-    borderTopColor: '#e0e0e0'
-  },
-  dtcsTitle: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: '#333',
-    marginBottom: 10
-  },
-  dtcCard: {
-    backgroundColor: '#fff3cd',
-    padding: 15,
-    borderRadius: 8,
-    borderLeftWidth: 4,
-    borderLeftColor: '#ffc107',
-    marginBottom: 10
-  },
-  dtcCardCritical: {
-    backgroundColor: '#f8d7da',
-    borderLeftColor: '#DC3545'
-  },
-  dtcCardMajor: {
-    backgroundColor: '#fff3cd',
-    borderLeftColor: '#ff9800'
-  },
-  dtcHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 5
-  },
-  dtcCode: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: '#333'
-  },
-  milBadge: {
-    backgroundColor: '#DC3545',
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 4
-  },
-  milBadgeText: {
-    color: '#fff',
-    fontSize: 10,
-    fontWeight: 'bold'
-  },
-  dtcDescription: {
     fontSize: 14,
-    color: '#333',
-    marginBottom: 5
-  },
-  dtcType: {
-    fontSize: 12,
     color: '#666'
-  },
-  scanButton: {
-    backgroundColor: '#0066CC',
-    margin: 20,
-    padding: 15,
-    borderRadius: 8,
-    alignItems: 'center'
-  },
-  scanButtonText: {
-    color: '#fff',
-    fontSize: 16,
-    fontWeight: 'bold'
-  },
-  adapterList: {
-    flex: 1,
-    padding: 20
-  },
-  adapterListTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: '#333',
-    marginBottom: 15
   },
   adapterCard: {
     backgroundColor: '#fff',
-    padding: 15,
-    borderRadius: 8,
-    marginBottom: 10,
-    borderWidth: 1,
-    borderColor: '#e0e0e0'
+    borderRadius: 10,
+    padding: 16,
+    marginBottom: 16,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 2
   },
   adapterCardConnected: {
-    borderColor: '#0066CC',
+    borderColor: '#4CAF50',
     borderWidth: 2
   },
   adapterHeader: {
@@ -859,16 +569,16 @@ const styles = StyleSheet.create({
     alignItems: 'center'
   },
   adapterIcon: {
-    width: 50,
-    height: 50,
-    borderRadius: 25,
-    backgroundColor: '#f0f0f0',
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: '#e0e0e0',
     justifyContent: 'center',
     alignItems: 'center',
-    marginRight: 15
+    marginRight: 12
   },
   adapterIconText: {
-    fontSize: 24
+    fontSize: 20
   },
   adapterInfo: {
     flex: 1
@@ -876,70 +586,94 @@ const styles = StyleSheet.create({
   adapterName: {
     fontSize: 16,
     fontWeight: 'bold',
-    color: '#333',
-    marginBottom: 4
+    marginBottom: 2
   },
   adapterDetails: {
-    fontSize: 12,
+    fontSize: 14,
     color: '#666',
     marginBottom: 2
   },
   adapterAddress: {
-    fontSize: 10,
+    fontSize: 12,
     color: '#999'
   },
   adapterStatus: {
     alignItems: 'flex-end'
   },
   connectedBadge: {
-    backgroundColor: '#28a745',
-    paddingHorizontal: 10,
-    paddingVertical: 4,
+    backgroundColor: '#4CAF50',
+    paddingHorizontal: 8,
+    paddingVertical: 2,
     borderRadius: 4,
-    marginBottom: 5
+    marginBottom: 4
   },
   connectedBadgeText: {
     color: '#fff',
-    fontSize: 10,
+    fontSize: 12,
     fontWeight: 'bold'
   },
   pairedBadge: {
-    backgroundColor: '#0066CC',
-    paddingHorizontal: 10,
-    paddingVertical: 4,
+    backgroundColor: '#2196F3',
+    paddingHorizontal: 8,
+    paddingVertical: 2,
     borderRadius: 4,
-    marginBottom: 5
+    marginBottom: 4
   },
   pairedBadgeText: {
     color: '#fff',
-    fontSize: 10,
+    fontSize: 12,
     fontWeight: 'bold'
   },
   signalStrength: {
-    fontSize: 10,
-    color: '#999'
+    fontSize: 12,
+    color: '#666'
   },
-  loadingOverlay: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-    justifyContent: 'center',
-    alignItems: 'center'
-  },
-  loadingCard: {
+  dtcCard: {
     backgroundColor: '#fff',
-    padding: 30,
     borderRadius: 10,
-    alignItems: 'center'
+    padding: 16,
+    marginBottom: 16,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 2
   },
-  loadingText: {
-    marginTop: 15,
+  dtcCardCritical: {
+    borderLeftColor: '#F44336',
+    borderLeftWidth: 4
+  },
+  dtcCardMajor: {
+    borderLeftColor: '#FF9800',
+    borderLeftWidth: 4
+  },
+  dtcHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 8
+  },
+  dtcCode: {
+    fontSize: 18,
+    fontWeight: 'bold'
+  },
+  milBadge: {
+    backgroundColor: '#F44336',
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+    borderRadius: 4
+  },
+  milBadgeText: {
+    color: '#fff',
+    fontSize: 12,
+    fontWeight: 'bold'
+  },
+  dtcDescription: {
     fontSize: 14,
-    color: '#333'
+    marginBottom: 8
+  },
+  dtcType: {
+    fontSize: 12,
+    color: '#666'
   }
 })
-
-export default OBD2AdapterScanner

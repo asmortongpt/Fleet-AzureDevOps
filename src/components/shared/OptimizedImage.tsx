@@ -31,7 +31,6 @@ export function OptimizedImage({
 }: OptimizedImageProps) {
   const [imageSrc, setImageSrc] = useState<string>(placeholderSrc || src);
   const [isLoading, setIsLoading] = useState(true);
-  const [hasError, setHasError] = useState(false);
   const imgRef = useRef<HTMLImageElement>(null);
   const [isInView, setIsInView] = useState(!lazy);
 
@@ -72,14 +71,12 @@ export function OptimizedImage({
     img.onload = () => {
       setImageSrc(src);
       setIsLoading(false);
-      setHasError(false);
       onLoad?.();
     };
 
     img.onerror = () => {
       setImageSrc(fallbackSrc);
       setIsLoading(false);
-      setHasError(true);
       onError?.();
     };
 
@@ -150,7 +147,7 @@ export function OptimizedImage({
 }
 
 // Responsive image component with srcset support
-interface ResponsiveImageProps extends OptimizedImageProps {
+interface ResponsiveImageProps extends Omit<OptimizedImageProps, 'srcSet' | 'sizes'> {
   srcSet?: {
     sm?: string;
     md?: string;
@@ -166,10 +163,10 @@ export function ResponsiveImage({
 }: ResponsiveImageProps) {
   const srcSetString = srcSet
     ? `
-      ${srcSet.sm} 640w,
-      ${srcSet.md} 768w,
-      ${srcSet.lg} 1024w,
-      ${srcSet.xl} 1920w
+      ${srcSet.sm ?? ''} 640w,
+      ${srcSet.md ?? ''} 768w,
+      ${srcSet.lg ?? ''} 1024w,
+      ${srcSet.xl ?? ''} 1920w
     `.trim()
     : undefined;
 

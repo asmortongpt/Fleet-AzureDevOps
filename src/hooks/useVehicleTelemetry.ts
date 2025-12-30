@@ -72,10 +72,10 @@ export function useVehicleTelemetry(options: UseVehicleTelemetryOptions = {}) {
   } = options
 
   // Vehicle state with real-time updates
-  const [vehicles, setVehicles] = useState<NativeMap<string, Vehicle>>(
+  const [vehicles, setVehicles] = useState<Map<string, Vehicle>>(
     new NativeMap(initialVehicles.map(v => [v.id, v]))
   )
-  const [telemetryHistory, setTelemetryHistory] = useState<NativeMap<string, TelemetryUpdate[]>>(new NativeMap())
+  const [telemetryHistory, setTelemetryHistory] = useState<Map<string, TelemetryUpdate[]>>(new NativeMap())
   const [emulatorStats, setEmulatorStats] = useState<EmulatorStats | null>(null)
   const [isEmulatorRunning, setIsEmulatorRunning] = useState(false)
   const [lastUpdate, setLastUpdate] = useState<Date | null>(null)
@@ -92,7 +92,7 @@ export function useVehicleTelemetry(options: UseVehicleTelemetryOptions = {}) {
     onEmulatorEvent?.(message)
 
     // Keep track of recent events (last 50)
-    setRecentEvents(prev => [message, ...prev.slice(0, 49)])
+    setRecentEvents((prev: WebSocketMessage[]) => [message, ...prev.slice(0, 49)])
 
     switch (message.type) {
       case 'vehicle:telemetry':
@@ -110,7 +110,7 @@ export function useVehicleTelemetry(options: UseVehicleTelemetryOptions = {}) {
         }
 
         // Update vehicle in state
-        setVehicles(prev => {
+        setVehicles((prev: Map<string, Vehicle>) => {
           const current = prev.get(vehicleId)
           if (current) {
             const updated = new Map(prev)
@@ -130,7 +130,7 @@ export function useVehicleTelemetry(options: UseVehicleTelemetryOptions = {}) {
         })
 
         // Store telemetry history
-        setTelemetryHistory(prev => {
+        setTelemetryHistory((prev: Map<string, TelemetryUpdate[]>) => {
           const history = prev.get(vehicleId) || []
           const updated = new Map(prev)
           updated.set(vehicleId, [...history.slice(-99), update]) // Keep last 100 updates
@@ -146,7 +146,7 @@ export function useVehicleTelemetry(options: UseVehicleTelemetryOptions = {}) {
         const { vehicleId, latitude, longitude, speed, heading } = message
         if (!vehicleId) return
 
-        setVehicles(prev => {
+        setVehicles((prev: Map<string, Vehicle>) => {
           const current = prev.get(vehicleId)
           if (current) {
             const updated = new Map(prev)
@@ -171,7 +171,7 @@ export function useVehicleTelemetry(options: UseVehicleTelemetryOptions = {}) {
         logger.warn(`Vehicle alert: ${vehicleId} - ${alertType} (${severity})`)
 
         if (vehicleId) {
-          setVehicles(prev => {
+          setVehicles((prev: Map<string, Vehicle>) => {
             const current = prev.get(vehicleId)
             if (current && severity === 'critical') {
               const updated = new Map(prev)
@@ -207,7 +207,7 @@ export function useVehicleTelemetry(options: UseVehicleTelemetryOptions = {}) {
       case 'vehicle:registered': {
         const { vehicle } = message
         if (vehicle) {
-          setVehicles(prev => {
+          setVehicles((prev: Map<string, Vehicle>) => {
             const updated = new Map(prev)
             updated.set(vehicle.id, vehicle)
             return updated
@@ -217,9 +217,9 @@ export function useVehicleTelemetry(options: UseVehicleTelemetryOptions = {}) {
       }
 
       case 'fuel:update': {
-        const { vehicleId, fuelLevel, consumption } = message
+        const { vehicleId, fuelLevel, consumption: _consumption } = message
         if (vehicleId) {
-          setVehicles(prev => {
+          setVehicles((prev: Map<string, Vehicle>) => {
             const current = prev.get(vehicleId)
             if (current) {
               const updated = new Map(prev)
@@ -236,9 +236,9 @@ export function useVehicleTelemetry(options: UseVehicleTelemetryOptions = {}) {
       }
 
       case 'maintenance:alert': {
-        const { vehicleId, maintenanceType, urgency } = message
+        const { vehicleId, maintenanceType: _maintenanceType, urgency } = message
         if (vehicleId && urgency === 'immediate') {
-          setVehicles(prev => {
+          setVehicles((prev: Map<string, Vehicle>) => {
             const current = prev.get(vehicleId)
             if (current) {
               const updated = new Map(prev)
@@ -258,7 +258,7 @@ export function useVehicleTelemetry(options: UseVehicleTelemetryOptions = {}) {
       case 'charging:status': {
         const { vehicleId, isCharging, chargeLevel } = message
         if (vehicleId) {
-          setVehicles(prev => {
+          setVehicles((prev: Map<string, Vehicle>) => {
             const current = prev.get(vehicleId)
             if (current) {
               const updated = new Map(prev)
