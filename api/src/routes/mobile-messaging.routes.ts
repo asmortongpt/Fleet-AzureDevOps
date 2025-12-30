@@ -1,11 +1,11 @@
 /**
-import { container } from '../container'
-import { asyncHandler } from '../middleware/errorHandler'
-import { NotFoundError, ValidationError } from '../errors/app-error'
  * Mobile Messaging Routes
  * API endpoints for mobile app email, SMS, and Teams messaging
  */
 
+import { container } from '../container'
+import { asyncHandler } from '../middleware/errorHandler'
+import { NotFoundError, ValidationError } from '../errors/app-error'
 import express, { Response } from 'express';
 import twilio from 'twilio';
 import { z } from 'zod';
@@ -18,7 +18,7 @@ import { requirePermission } from '../middleware/permissions';
 import { outlookService } from '../services/outlook.service';
 import teamsService from '../services/teams.service';
 import { getErrorMessage } from '../utils/error-handler'
-import { logger } from '../utils/logger';
+import { logger } from '../config/logger';
 
 
 
@@ -72,7 +72,7 @@ const sendEmailSchema = z.object({
  */
 router.post(
   '/email/send',
- csrfProtection,  csrfProtection, requirePermission('communication:send:global'),
+ csrfProtection, requirePermission('communication:send:global'),
   auditLog({ action: 'CREATE', resourceType: 'mobile_email' }),
   async (req: AuthRequest, res: Response) => {
     try {
@@ -166,7 +166,7 @@ router.post(
         return res.status(400).json({
           success: false,
           error: 'Validation error',
-          details: error.errors,
+          details: error.issues,
         });
       }
 
@@ -204,7 +204,7 @@ const sendSMSSchema = z.object({
  */
 router.post(
   '/sms/send',
- csrfProtection,  csrfProtection, requirePermission('communication:send:global'),
+ csrfProtection, requirePermission('communication:send:global'),
   auditLog({ action: 'CREATE', resourceType: 'mobile_sms' }),
   async (req: AuthRequest, res: Response) => {
     try {
@@ -282,7 +282,7 @@ router.post(
         return res.status(400).json({
           success: false,
           error: `Validation error`,
-          details: error.errors,
+          details: error.issues,
         });
       }
 
@@ -331,7 +331,7 @@ const sendTeamsMessageSchema = z.object({
  */
 router.post(
   '/teams/send',
- csrfProtection,  csrfProtection, requirePermission('communication:send:global'),
+ csrfProtection, requirePermission('communication:send:global'),
   auditLog({ action: 'CREATE', resourceType: 'mobile_teams' }),
   async (req: AuthRequest, res: Response) => {
     try {
@@ -362,7 +362,7 @@ router.post(
         return res.status(400).json({
           success: false,
           error: 'Validation error',
-          details: error.errors,
+          details: error.issues,
         });
       }
 
@@ -431,7 +431,7 @@ router.get(
  */
 router.post(
   '/templates',
- csrfProtection,  csrfProtection, requirePermission('communication:broadcast:global'),
+ csrfProtection, requirePermission('communication:broadcast:global'),
   auditLog({ action: 'CREATE', resourceType: 'communication_templates' }),
   async (req: AuthRequest, res: Response) => {
     try {

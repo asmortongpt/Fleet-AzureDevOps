@@ -191,7 +191,7 @@ class OCPPService extends EventEmitter {
         console.log(`✅ Connected to station ${stationId}`);
         this.connections.set(stationId, ws);
         this.updateStationStatus(stationId, { is_online: true, last_heartbeat: new Date() });
-        this.emit(`stationConnected`, stationId);
+        this.emit('stationConnected', stationId);
       });
 
       ws.on('message', (data: Buffer) => {
@@ -202,7 +202,7 @@ class OCPPService extends EventEmitter {
         console.log(`❌ Disconnected from station ${stationId}`);
         this.connections.delete(stationId);
         this.updateStationStatus(stationId, { is_online: false });
-        this.emit(`stationDisconnected`, stationId);
+        this.emit('stationDisconnected', stationId);
 
         // Attempt reconnection after 30 seconds
         setTimeout(() => this.connectStation(stationId), 30000);
@@ -210,7 +210,7 @@ class OCPPService extends EventEmitter {
 
       ws.on(`error`, (error) => {
         console.error(`WebSocket error for station ${stationId}:`, error.message);
-        this.emit(`stationError`, { stationId, error: error.message });
+        this.emit('stationError', { stationId, error: error.message });
       });
 
       return true;
@@ -349,7 +349,7 @@ class OCPPService extends EventEmitter {
     // Update station status (use worst connector status)
     await this.updateStationOverallStatus(stationId);
 
-    this.emit(`statusUpdate`, { stationId, connectorId, status: connectorStatus });
+    this.emit('statusUpdate', { stationId, connectorId, status: connectorStatus });
 
     return {};
   }

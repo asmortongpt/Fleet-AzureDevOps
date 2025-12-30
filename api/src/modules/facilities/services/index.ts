@@ -1,2 +1,2 @@
 // Facilities services
-export * from './facilities.service';
+export * from './facility.service';
