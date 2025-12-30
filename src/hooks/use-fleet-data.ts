@@ -98,7 +98,7 @@ export function useFleetData() {
     return Array.isArray(rawVehicles) ? rawVehicles.map((v): Vehicle => ({
       ...v,
       // Ensure alerts is always a string array (Vehicle interface already includes alerts: string[])
-      alerts: Array.isArray(v.alerts) ? v.alerts : []
+      alerts: Array.isArray((v as any).alerts) ? (v as any).alerts : []
     })) : []
   }, [vehiclesData]);
 
