@@ -469,8 +469,8 @@ export function MaintenanceAppointmentModal({
                               <span>
                                 {bay.bay_name} #{bay.bay_number}
                               </span>
-                              <Badge variant={bay.is_active ? 'default' : 'destructive'}>
-                                {bay.is_active ? 'Active' : 'Inactive'}
+                              <Badge variant={(bay as any).is_active ? 'default' : 'destructive'}>
+                                {(bay as any).is_active ? 'Active' : 'Inactive'}
                               </Badge>
                             </div>
                           </SelectItem>
