@@ -51,7 +51,7 @@ export const Breadcrumb: React.FC<BreadcrumbProps> = ({ items, className = '' })
 
 // Example usage component
 export const VehicleDetailBreadcrumb: React.FC<{ vehicleId: string; vehicleName: string }> = ({
-  _vehicleId,
+  
   vehicleName
 }) => {
   return (

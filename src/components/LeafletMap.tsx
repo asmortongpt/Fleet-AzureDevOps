@@ -368,9 +368,9 @@ export function LeafletMap({
 }: LeafletMapProps) {
   // ========== Accessibility ==========
   const {
-    _announce,
+    
     announceMapChange,
-    _isScreenReaderActive,
+    
   } = useAccessibility({
     enableAnnouncements,
     announceMarkerChanges: true,
