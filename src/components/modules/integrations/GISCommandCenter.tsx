@@ -55,19 +55,19 @@ export function GISCommandCenter() {
 
   const filteredVehicles = useMemo(() => {
     if (selectedRegion === "all") return vehicles
-    return vehicles.filter((v: Vehicle) => v.region === selectedRegion)
+    return vehicles.filter(v => v.region === selectedRegion)
   }, [vehicles, selectedRegion])
 
   const filteredFacilities = useMemo(() => {
     if (selectedRegion === "all") return facilities
-    return facilities.filter((f: GISFacility) => f.region === selectedRegion)
+    return facilities.filter(f => f.region === selectedRegion)
   }, [facilities, selectedRegion])
 
   const metrics = useMemo(() => {
-    const activeVehicles = filteredVehicles.filter((v: Vehicle) => v.status === "active")
-    const operationalFacilities = filteredFacilities.filter((f: GISFacility) => f.status === "operational")
-    const emergencyVehicles = filteredVehicles.filter((v: Vehicle) => v.status === "emergency")
-    const serviceVehicles = filteredVehicles.filter((v: Vehicle) => v.status === "service")
+    const activeVehicles = filteredVehicles.filter(v => v.status === "active")
+    const operationalFacilities = filteredFacilities.filter(f => f.status === "operational")
+    const emergencyVehicles = filteredVehicles.filter(v => v.status === "emergency")
+    const serviceVehicles = filteredVehicles.filter(v => v.status === "service")
 
     return {
       totalVehicles: filteredVehicles.length,
@@ -258,7 +258,7 @@ export function GISCommandCenter() {
                 </div>
                 <div className="flex items-center gap-2">
                   <Circle className="w-3 h-3 text-muted-foreground" weight="fill" />
-                  <span className="text-sm">Idle ({filteredVehicles.filter((v: Vehicle) => v.status === "idle").length})</span>
+                  <span className="text-sm">Idle ({filteredVehicles.filter(v => v.status === "idle").length})</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <Circle className="w-3 h-3 text-destructive" weight="fill" />
