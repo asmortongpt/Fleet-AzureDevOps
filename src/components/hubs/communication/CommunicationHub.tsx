@@ -446,7 +446,7 @@ export function CommunicationHub() {
       description: '',
       category: 'zone',
       status: zone.active ? 'active' : 'inactive'
-    } as GISFacility))
+    } as unknown as GISFacility))
   }, [])
 
   const handleMessageSelect = useCallback((messageId: string) => {

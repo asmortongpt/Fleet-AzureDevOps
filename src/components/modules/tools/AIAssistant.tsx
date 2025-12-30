@@ -389,7 +389,7 @@ You can chat with me naturally, or run structured workflows for complex tasks. H
 
       <Grid container spacing={3} sx={{ flexGrow: 1, height: 0 }}>
         {/* Main Chat Area */}
-        <Grid item xs={12} md={8} sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
+        <Grid size={{ xs: 12, md: 8 }} sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
           <Paper sx={{ flexGrow: 1, display: 'flex', flexDirection: 'column', height: '100%' }}>
             <Tabs value={activeTab} onChange={(_, v) => setActiveTab(v)} sx={{ borderBottom: 1, borderColor: 'divider' }}>
               <Tab label="Chat" />
@@ -515,7 +515,7 @@ You can chat with me naturally, or run structured workflows for complex tasks. H
                 </Typography>
                 <Grid container spacing={3}>
                   {workflows.map((workflow: Workflow) => (
-                    <Grid item xs={12} sm={6} key={workflow.id}>
+                    <Grid size={{ xs: 12, sm: 6 }} key={workflow.id}>
                       <Card>
                         <CardContent>
                           <Typography variant="h6">{workflow.name}</Typography>
@@ -571,7 +571,7 @@ You can chat with me naturally, or run structured workflows for complex tasks. H
         </Grid>
 
         {/* Sidebar with Agents and MCP Servers */}
-        <Grid item xs={12} md={4} sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
+        <Grid size={{ xs: 12, md: 4 }} sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
           <Paper sx={{ flexGrow: 1, display: 'flex', flexDirection: 'column', height: 0, overflow: 'auto' }}>
             <Typography variant="h6" sx={{ p: 2 }}>
               AI Resources

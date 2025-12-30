@@ -1,4 +1,4 @@
-import GripVerticalIcon from "lucide-react/dist/esm/icons/grip-vertical"
+import { GripVertical as GripVerticalIcon } from "lucide-react"
 import { ComponentProps } from "react"
 import * as ResizablePrimitive from "react-resizable-panels"
 
