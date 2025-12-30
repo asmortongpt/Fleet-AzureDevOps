@@ -20,6 +20,13 @@ export abstract class BaseRepository<T, CreateDTO = Partial<T>, UpdateDTO = Part
   }
 
   /**
+   * Get the database pool
+   */
+  protected getPool(): Pool {
+    return this.pool
+  }
+
+  /**
    * Execute query within a transaction
    * Automatically handles BEGIN, COMMIT, and ROLLBACK
    */
@@ -44,11 +51,13 @@ export abstract class BaseRepository<T, CreateDTO = Partial<T>, UpdateDTO = Part
    * Execute a custom parameterized query
    * @param sql - SQL query with $1, $2, etc. placeholders
    * @param params - Array of parameter values
-   * @returns Query result rows
+   * @returns Query result rows with rowCount
    */
-  protected async query<R = T>(sql: string, params: unknown[] = []): Promise<R[]> {
+  protected async query<R = T>(sql: string, params: unknown[] = []): Promise<R[] & { rowCount: number }> {
     const result = await this.pool.query(sql, params)
-    return result.rows as R[]
+    const rows = result.rows as R[] & { rowCount: number }
+    rows.rowCount = result.rowCount ?? 0
+    return rows
   }
 
   /**
