@@ -38,7 +38,7 @@ function useScanSession(tenant_id: string): UseQueryResult<ApiResponse<any>, Axi
   return useQuery({
     queryKey: ['scanSession', tenant_id],
     queryFn: async () => {
-      validateInput(tenant_id, 'string');
+      validateInput(tenant_id);
       const response = await apiClient.get(`/scan-session`, { params: { tenant_id } });
       return response?.data;
     },
@@ -49,8 +49,8 @@ function useScanSession(tenant_id: string): UseQueryResult<ApiResponse<any>, Axi
 function useRecordScan(tenant_id: string): UseMutationResult<ApiResponse<any>, AxiosError, any> {
   return useMutation({
     mutationFn: async (scanData: any) => {
-      validateInput(tenant_id, 'string');
-      validateInput(scanData, 'object');
+      validateInput(tenant_id);
+      validateInput(scanData);
       const response = await apiClient.post(`/record-scan`, { ...scanData, tenant_id });
       return response?.data;
     },
@@ -60,8 +60,8 @@ function useRecordScan(tenant_id: string): UseMutationResult<ApiResponse<any>, A
 function useCheckout(tenant_id: string): UseMutationResult<ApiResponse<any>, AxiosError, any> {
   return useMutation({
     mutationFn: async (checkoutData: any) => {
-      validateInput(tenant_id, 'string');
-      validateInput(checkoutData, 'object');
+      validateInput(tenant_id);
+      validateInput(checkoutData);
       const response = await apiClient.post(`/checkout`, { ...checkoutData, tenant_id });
       return response?.data;
     },
@@ -71,8 +71,8 @@ function useCheckout(tenant_id: string): UseMutationResult<ApiResponse<any>, Axi
 function useCheckin(tenant_id: string): UseMutationResult<ApiResponse<any>, AxiosError, any> {
   return useMutation({
     mutationFn: async (checkinData: any) => {
-      validateInput(tenant_id, 'string');
-      validateInput(checkinData, 'object');
+      validateInput(tenant_id);
+      validateInput(checkinData);
       const response = await apiClient.post(`/checkin`, { ...checkinData, tenant_id });
       return response?.data;
     },
@@ -83,7 +83,7 @@ function useAssetLocation(tenant_id: string): UseQueryResult<ApiResponse<any>, A
   return useQuery({
     queryKey: ['assetLocation', tenant_id],
     queryFn: async () => {
-      validateInput(tenant_id, 'string');
+      validateInput(tenant_id);
       const response = await apiClient.get(`/asset-location`, { params: { tenant_id } });
       return response?.data;
     },
@@ -95,7 +95,7 @@ function useGeofences(tenant_id: string): UseQueryResult<ApiResponse<any>, Axios
   return useQuery({
     queryKey: ['geofences', tenant_id],
     queryFn: async () => {
-      validateInput(tenant_id, 'string');
+      validateInput(tenant_id);
       const response = await apiClient.get(`/geofences`, { params: { tenant_id } });
       return response?.data;
     },
@@ -107,7 +107,7 @@ function useUtilizationReport(tenant_id: string): UseQueryResult<ApiResponse<any
   return useQuery({
     queryKey: ['utilizationReport', tenant_id],
     queryFn: async () => {
-      validateInput(tenant_id, 'string');
+      validateInput(tenant_id);
       const response = await apiClient.get(`/utilization-report`, { params: { tenant_id } });
       return response?.data;
     },
@@ -119,7 +119,7 @@ function useLicenses(tenant_id: string): UseQueryResult<ApiResponse<any>, AxiosE
   return useQuery({
     queryKey: ['licenses', tenant_id],
     queryFn: async () => {
-      validateInput(tenant_id, 'string');
+      validateInput(tenant_id);
       const response = await apiClient.get(`/licenses`, { params: { tenant_id } });
       return response?.data;
     },
@@ -130,8 +130,8 @@ function useLicenses(tenant_id: string): UseQueryResult<ApiResponse<any>, AxiosE
 function useAllocateLicense(tenant_id: string): UseMutationResult<ApiResponse<any>, AxiosError, any> {
   return useMutation({
     mutationFn: async (licenseData: any) => {
-      validateInput(tenant_id, 'string');
-      validateInput(licenseData, 'object');
+      validateInput(tenant_id);
+      validateInput(licenseData);
       const response = await apiClient.post(`/allocate-license`, { ...licenseData, tenant_id });
       return response?.data;
     },
