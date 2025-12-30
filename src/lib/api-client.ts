@@ -540,8 +540,8 @@ class APIClient {
     getFolder: (folderId: string) => this.get(`/api/outlook/folders/${folderId}`),
     forwardEmail: (id: string, data: unknown) => this.post(`/api/outlook/emails/${id}/forward`, data),
     deleteEmail: (id: string) => this.delete(`/api/outlook/emails/${id}`),
-    markAsRead: (id: string, isRead: boolean = true) => this.patch(`/api/outlook/emails/${id}`, { isRead }),
-    moveEmail: (id: string, folderId: string) => this.patch(`/api/outlook/emails/${id}`, { parentFolderId: folderId }),
+    markAsRead: (id: string, isRead: boolean = true) => this.put(`/api/outlook/emails/${id}`, { isRead }),
+    moveEmail: (id: string, folderId: string) => this.put(`/api/outlook/emails/${id}`, { parentFolderId: folderId }),
     folders: {
       list: () => this.get('/api/outlook/folders')
     }
@@ -627,7 +627,7 @@ class APIClient {
     getHistory: (assetId: string) => this.get(`/api/asset-relationships/history/${assetId}`),
     create: (data: unknown) => this.post('/api/asset-relationships', data),
     update: (id: string, data: unknown) => this.put(`/api/asset-relationships/${id}`, data),
-    deactivate: (id: string) => this.patch(`/api/asset-relationships/${id}/deactivate`, {}),
+    deactivate: (id: string) => this.put(`/api/asset-relationships/${id}/deactivate`, {}),
     delete: (id: string) => this.delete(`/api/asset-relationships/${id}`)
   }
 
