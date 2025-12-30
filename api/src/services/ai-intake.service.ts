@@ -235,7 +235,7 @@ class AIIntakeService {
         return {
           request_id: '',
           status: 'failed',
-          message: `Validation error: ${error.errors.map((e: any) => e.message).join(`, `)}`
+          message: `Validation error: ${error.issues.map((e: any) => e.message).join(`, `)}`
         }
       }
 
