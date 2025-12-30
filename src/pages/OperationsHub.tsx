@@ -11,7 +11,6 @@ import {
     CalendarDots,
     Truck,
     Package,
-    Clock,
     Warning
 } from '@phosphor-icons/react'
 
