@@ -508,4 +508,3 @@ export default function VirtualGarage() {
 }
 // Named export for compatibility
 export { VirtualGarage }
-export default VirtualGarage
