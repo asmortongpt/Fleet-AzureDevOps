@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react'
 
-import OBD2Service, {
+import {
+  OBD2Service,
   OBD2Adapter,
   ConnectionType,
   DiagnosticTroubleCode,
@@ -175,7 +176,7 @@ export const OBD2AdapterScanner: React.FC<OBD2AdapterScannerProps> = ({
     } catch (error: unknown) {
       setConnectionStatus('Scan failed')
       onError?.(error as Error)
-      Alert.alert('Scan Error', (error as Error).message)
+      logger.error('Scan error:', error)
     } finally {
       setIsScanning(false)
     }
@@ -223,11 +224,7 @@ export const OBD2AdapterScanner: React.FC<OBD2AdapterScannerProps> = ({
           onDTCsDetected?.(diagnosticCodes)
 
           if (diagnosticCodes.length > 0) {
-            Alert.alert(
-              'Diagnostic Codes Found',
-              `Found ${diagnosticCodes.length} diagnostic trouble code(s). Check the diagnostics tab for details.`,
-              [{ text: 'OK' }]
-            )
+            logger.info(`Found ${diagnosticCodes.length} diagnostic trouble code(s)`)
           }
         } catch (error) {
           logger.warn('Could not read DTCs:', error)
@@ -241,16 +238,12 @@ export const OBD2AdapterScanner: React.FC<OBD2AdapterScannerProps> = ({
 
       setConnectionStatus('Connected')
 
-      Alert.alert(
-        'Connected Successfully',
-        `Connected to ${adapter.name}${vin ? `\nVIN: ${vin}` : ''}`,
-        [{ text: 'OK' }]
-      )
+      logger.info(`Connected successfully to ${adapter.name}${vin ? ` - VIN: ${vin}` : ''}`)
     } catch (error: unknown) {
       setConnectionStatus('Connection failed')
       setConnectedAdapter(null)
       onError?.(error as Error)
-      Alert.alert('Connection Error', (error as Error).message)
+      logger.error('Connection error:', error)
     } finally {
       setIsConnecting(false)
     }
@@ -273,10 +266,10 @@ export const OBD2AdapterScanner: React.FC<OBD2AdapterScannerProps> = ({
 
       onAdapterDisconnected?.()
 
-      Alert.alert('Disconnected', 'Disconnected from OBD2 adapter')
+      logger.info('Disconnected from OBD2 adapter')
     } catch (error: unknown) {
       onError?.(error as Error)
-      Alert.alert('Disconnect Error', (error as Error).message)
+      logger.error('Disconnect error:', error)
     }
   }
 
@@ -286,7 +279,7 @@ export const OBD2AdapterScanner: React.FC<OBD2AdapterScannerProps> = ({
 
   const readDiagnostics = async () => {
     if (!connectedAdapter) {
-      Alert.alert('Not Connected', 'Please connect to an adapter first')
+      logger.warn('Not connected to adapter')
       return
     }
 
@@ -300,50 +293,37 @@ export const OBD2AdapterScanner: React.FC<OBD2AdapterScannerProps> = ({
       setConnectionStatus('Connected')
 
       if (diagnosticCodes.length === 0) {
-        Alert.alert('No Codes Found', 'No diagnostic trouble codes detected. Vehicle is healthy!')
+        logger.info('No diagnostic trouble codes detected')
       }
     } catch (error: unknown) {
       onError?.(error as Error)
-      Alert.alert('Error Reading DTCs', (error as Error).message)
+      logger.error('Error reading DTCs:', error)
     }
   }
 
   const clearDiagnostics = async () => {
     if (!connectedAdapter) {
-      Alert.alert('Not Connected', 'Please connect to an adapter first')
+      logger.warn('Not connected to adapter')
       return
     }
 
-    Alert.alert(
-      'Clear Diagnostic Codes?',
-      'This will clear all diagnostic trouble codes and turn off the check engine light. Are you sure?',
-      [
-        { text: 'Cancel', style: 'cancel' },
-        {
-          text: 'Clear Codes',
-          style: 'destructive',
-          onPress: async () => {
-            try {
-              setConnectionStatus('Clearing codes...')
+    try {
+      setConnectionStatus('Clearing codes...')
 
-              const success = await OBD2Service.clearDTCs()
+      const success = await OBD2Service.clearDTCs()
 
-              if (success) {
-                setDtcs([])
-                setConnectionStatus('Connected')
-                Alert.alert('Success', 'Diagnostic codes cleared successfully')
-              } else {
-                throw new Error('Failed to clear codes')
-              }
-            } catch (error: unknown) {
-              setConnectionStatus('Connected')
-              onError?.(error as Error)
-              Alert.alert('Error Clearing Codes', (error as Error).message)
-            }
-          }
-        }
-      ]
-    )
+      if (success) {
+        setDtcs([])
+        setConnectionStatus('Connected')
+        logger.info('Diagnostic codes cleared successfully')
+      } else {
+        throw new Error('Failed to clear codes')
+      }
+    } catch (error: unknown) {
+      setConnectionStatus('Connected')
+      onError?.(error as Error)
+      logger.error('Error clearing codes:', error)
+    }
   }
 
   // =====================================================
@@ -382,66 +362,106 @@ export const OBD2AdapterScanner: React.FC<OBD2AdapterScannerProps> = ({
   // =====================================================
 
   const renderAdapter = ({ item }: { item: OBD2Adapter }) => (
-    <TouchableOpacity
-      style={[
-        styles.adapterCard,
-        item.isConnected && styles.adapterCardConnected
-      ]}
-      onPress={() => connectToAdapter(item)}
-      disabled={isConnecting || item.isConnected}
+    <div
+      style={{
+        backgroundColor: '#fff',
+        borderRadius: 10,
+        padding: 16,
+        marginBottom: 16,
+        border: item.isConnected ? '2px solid #4CAF50' : '1px solid #ddd',
+        cursor: isConnecting || item.isConnected ? 'not-allowed' : 'pointer',
+        opacity: isConnecting || item.isConnected ? 0.6 : 1
+      }}
+      onClick={() => !isConnecting && !item.isConnected && connectToAdapter(item)}
     >
-      <View style={styles.adapterHeader}>
-        <View style={styles.adapterIcon}>
-          <Text style={styles.adapterIconText}>
-            {item.connectionType === ConnectionType.BLUETOOTH ? '📶' : '📡'}
-          </Text>
-        </View>
-        <View style={styles.adapterInfo}>
-          <Text style={styles.adapterName}>{item.name}</Text>
-          <Text style={styles.adapterDetails}>
+      <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'center' }}>
+        <div style={{
+          width: 40,
+          height: 40,
+          borderRadius: 20,
+          backgroundColor: '#e0e0e0',
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          marginRight: 12,
+          fontSize: 20
+        }}>
+          {item.connectionType === ConnectionType.BLUETOOTH ? '📶' : '📡'}
+        </div>
+        <div style={{ flex: 1 }}>
+          <div style={{ fontSize: 16, fontWeight: 'bold', marginBottom: 2 }}>{item.name}</div>
+          <div style={{ fontSize: 14, color: '#666', marginBottom: 2 }}>
             {item.type} • {item.connectionType.toUpperCase()}
-          </Text>
-          <Text style={styles.adapterAddress}>{item.address}</Text>
-        </View>
-        <View style={styles.adapterStatus}>
+          </div>
+          <div style={{ fontSize: 12, color: '#999' }}>{item.address}</div>
+        </div>
+        <div style={{ textAlign: 'right' }}>
           {item.isConnected ? (
-            <View style={styles.connectedBadge}>
-              <Text style={styles.connectedBadgeText}>Connected</Text>
-            </View>
+            <div style={{
+              backgroundColor: '#4CAF50',
+              paddingLeft: 8,
+              paddingRight: 8,
+              paddingTop: 2,
+              paddingBottom: 2,
+              borderRadius: 4,
+              marginBottom: 4,
+              color: '#fff',
+              fontSize: 12,
+              fontWeight: 'bold'
+            }}>Connected</div>
           ) : item.isPaired ? (
-            <View style={styles.pairedBadge}>
-              <Text style={styles.pairedBadgeText}>Paired</Text>
-            </View>
+            <div style={{
+              backgroundColor: '#2196F3',
+              paddingLeft: 8,
+              paddingRight: 8,
+              paddingTop: 2,
+              paddingBottom: 2,
+              borderRadius: 4,
+              marginBottom: 4,
+              color: '#fff',
+              fontSize: 12,
+              fontWeight: 'bold'
+            }}>Paired</div>
           ) : null}
           {item.rssi && (
-            <Text style={styles.signalStrength}>
+            <div style={{ fontSize: 12, color: '#666' }}>
               Signal: {item.rssi} dBm
-            </Text>
+            </div>
           )}
-        </View>
-      </View>
-    </TouchableOpacity>
+        </div>
+      </div>
+    </div>
   )
 
   const renderDTC = ({ item }: { item: DiagnosticTroubleCode }) => (
-    <View style={[
-      styles.dtcCard,
-      item.severity === 'critical' && styles.dtcCardCritical,
-      item.severity === 'major' && styles.dtcCardMajor
-    ]}>
-      <View style={styles.dtcHeader}>
-        <Text style={styles.dtcCode}>{item.code}</Text>
+    <div style={{
+      backgroundColor: '#fff',
+      borderRadius: 10,
+      padding: 16,
+      marginBottom: 16,
+      borderLeft: item.severity === 'critical' ? '4px solid #F44336' : item.severity === 'major' ? '4px solid #FF9800' : '4px solid #ddd'
+    }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
+        <div style={{ fontSize: 18, fontWeight: 'bold' }}>{item.code}</div>
         {item.isMILOn && (
-          <View style={styles.milBadge}>
-            <Text style={styles.milBadgeText}>⚠️ MIL ON</Text>
-          </View>
+          <div style={{
+            backgroundColor: '#F44336',
+            paddingLeft: 8,
+            paddingRight: 8,
+            paddingTop: 2,
+            paddingBottom: 2,
+            borderRadius: 4,
+            color: '#fff',
+            fontSize: 12,
+            fontWeight: 'bold'
+          }}>⚠️ MIL ON</div>
         )}
-      </View>
-      <Text style={styles.dtcDescription}>{item.description}</Text>
-      <Text style={styles.dtcType}>
+      </div>
+      <div style={{ fontSize: 14, marginBottom: 8 }}>{item.description}</div>
+      <div style={{ fontSize: 12, color: '#666' }}>
         Type: {item.type} • Severity: {item.severity}
-      </Text>
-    </View>
+      </div>
+    </div>
   )
 
   // =====================================================
@@ -449,213 +469,68 @@ export const OBD2AdapterScanner: React.FC<OBD2AdapterScannerProps> = ({
   // =====================================================
 
   return (
-    <View style={styles.container}>
+    <div style={{
+      display: 'flex',
+      flexDirection: 'column',
+      backgroundColor: '#f5f5f5',
+      padding: 16,
+      minHeight: '100vh'
+    }}>
       {/* Header */}
-      <View style={styles.header}>
-        <Text style={styles.title}>OBD2 Adapter Scanner</Text>
-        <Text style={styles.status}>{connectionStatus}</Text>
-      </View>
+      <div style={{
+        marginBottom: 20,
+        textAlign: 'center'
+      }}>
+        <h1 style={{
+          fontSize: 22,
+          fontWeight: 'bold',
+          marginBottom: 8,
+          margin: '0 0 8px 0'
+        }}>OBD2 Adapter Scanner</h1>
+        <div style={{
+          fontSize: 16,
+          color: '#666'
+        }}>{connectionStatus}</div>
+      </div>
 
       {/* Connected Adapter Info */}
       {connectedAdapter && (
-        <View style={styles.connectedSection}>
-          <View style={styles.connectedInfo}>
-            <Text style={styles.connectedTitle}>Connected Adapter</Text>
-            <Text style={styles.connectedName}>{connectedAdapter.name}</Text>
-            {vin && <Text style={styles.vinText}>VIN: {vin}</Text>}
+        <div style={{
+          marginBottom: 24,
+          backgroundColor: '#fff',
+          borderRadius: 10,
+          padding: 16,
+          boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)'
+        }}>
+          <div style={{
+            textAlign: 'center'
+          }}>
+            <div style={{
+              fontSize: 18,
+              fontWeight: 'bold',
+              marginBottom: 8
+            }}>Connected Adapter</div>
+            <div style={{
+              fontSize: 16,
+              fontWeight: '500',
+              marginBottom: 4
+            }}>{connectedAdapter.name}</div>
+            {vin && <div style={{
+              fontSize: 14,
+              color: '#666',
+              marginBottom: 4
+            }}>VIN: {vin}</div>}
             {connectedAdapter.firmwareVersion && (
-              <Text style={styles.firmwareText}>
+              <div style={{
+                fontSize: 14,
+                color: '#666'
+              }}>
                 Firmware: {connectedAdapter.firmwareVersion}
-              </Text>
+              </div>
             )}
-          </View>
-        </View>
+          </div>
+        </div>
       )}
-    </View>
+    </div>
   )
 }
-
-// =====================================================
-// Styles
-// =====================================================
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#f5f5f5',
-    padding: 16
-  },
-  header: {
-    marginBottom: 20,
-    alignItems: 'center'
-  },
-  title: {
-    fontSize: 22,
-    fontWeight: 'bold',
-    marginBottom: 8
-  },
-  status: {
-    fontSize: 16,
-    color: '#666'
-  },
-  connectedSection: {
-    marginBottom: 24,
-    backgroundColor: '#fff',
-    borderRadius: 10,
-    padding: 16,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 2
-  },
-  connectedInfo: {
-    alignItems: 'center'
-  },
-  connectedTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    marginBottom: 8
-  },
-  connectedName: {
-    fontSize: 16,
-    fontWeight: '500',
-    marginBottom: 4
-  },
-  vinText: {
-    fontSize: 14,
-    color: '#666',
-    marginBottom: 4
-  },
-  firmwareText: {
-    fontSize: 14,
-    color: '#666'
-  },
-  adapterCard: {
-    backgroundColor: '#fff',
-    borderRadius: 10,
-    padding: 16,
-    marginBottom: 16,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 2
-  },
-  adapterCardConnected: {
-    borderColor: '#4CAF50',
-    borderWidth: 2
-  },
-  adapterHeader: {
-    flexDirection: 'row',
-    alignItems: 'center'
-  },
-  adapterIcon: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: '#e0e0e0',
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginRight: 12
-  },
-  adapterIconText: {
-    fontSize: 20
-  },
-  adapterInfo: {
-    flex: 1
-  },
-  adapterName: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    marginBottom: 2
-  },
-  adapterDetails: {
-    fontSize: 14,
-    color: '#666',
-    marginBottom: 2
-  },
-  adapterAddress: {
-    fontSize: 12,
-    color: '#999'
-  },
-  adapterStatus: {
-    alignItems: 'flex-end'
-  },
-  connectedBadge: {
-    backgroundColor: '#4CAF50',
-    paddingHorizontal: 8,
-    paddingVertical: 2,
-    borderRadius: 4,
-    marginBottom: 4
-  },
-  connectedBadgeText: {
-    color: '#fff',
-    fontSize: 12,
-    fontWeight: 'bold'
-  },
-  pairedBadge: {
-    backgroundColor: '#2196F3',
-    paddingHorizontal: 8,
-    paddingVertical: 2,
-    borderRadius: 4,
-    marginBottom: 4
-  },
-  pairedBadgeText: {
-    color: '#fff',
-    fontSize: 12,
-    fontWeight: 'bold'
-  },
-  signalStrength: {
-    fontSize: 12,
-    color: '#666'
-  },
-  dtcCard: {
-    backgroundColor: '#fff',
-    borderRadius: 10,
-    padding: 16,
-    marginBottom: 16,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 2
-  },
-  dtcCardCritical: {
-    borderLeftColor: '#F44336',
-    borderLeftWidth: 4
-  },
-  dtcCardMajor: {
-    borderLeftColor: '#FF9800',
-    borderLeftWidth: 4
-  },
-  dtcHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 8
-  },
-  dtcCode: {
-    fontSize: 18,
-    fontWeight: 'bold'
-  },
-  milBadge: {
-    backgroundColor: '#F44336',
-    paddingHorizontal: 8,
-    paddingVertical: 2,
-    borderRadius: 4
-  },
-  milBadgeText: {
-    color: '#fff',
-    fontSize: 12,
-    fontWeight: 'bold'
-  },
-  dtcDescription: {
-    fontSize: 14,
-    marginBottom: 8
-  },
-  dtcType: {
-    fontSize: 12,
-    color: '#666'
-  }
-})
