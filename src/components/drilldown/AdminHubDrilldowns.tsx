@@ -1,13 +1,13 @@
 /**
  * AdminHubDrilldowns - Drilldown components for Admin hub
  */
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
-import { Progress } from '@/components/ui/progress'
 import {
-    Cpu, HardDrive, Users, Bell, CheckCircle, Warning,
-    FileText, Cloud, Clock, Pulse
+    Cpu, HardDrive, Users, Bell, CheckCircle, Warning, Pulse
 } from '@phosphor-icons/react'
+
+import { Badge } from '@/components/ui/badge'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+
 
 export function SystemHealthDrilldown() {
     return (
