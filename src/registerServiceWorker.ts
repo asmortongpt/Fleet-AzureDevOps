@@ -1,6 +1,6 @@
 import { createLogger } from '@/utils/logger';
 
-const logger = createLogger('ServiceWorker');
+const logger = createLogger();
 
 /**
  * Service Worker Registration Module
