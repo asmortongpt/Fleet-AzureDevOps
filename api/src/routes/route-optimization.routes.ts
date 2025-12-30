@@ -197,7 +197,7 @@ router.post(
       if (error.name === 'ZodError') {
         return res.status(400).json({
           error: 'Validation error',
-          details: error.errors
+          details: error.issues
         })
       }
 

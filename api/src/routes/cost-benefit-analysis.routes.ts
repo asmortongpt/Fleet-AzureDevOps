@@ -1,8 +1,4 @@
 /**
-import { container } from '../container'
-import { asyncHandler } from '../middleware/errorHandler'
-import { NotFoundError, ValidationError } from '../errors/app-error'
-import logger from '../config/logger'; // Wave 32: Add Winston logger
  * Cost/Benefit Analysis API Routes
  * Supports BR-5 (Cost/Benefit Analysis Management)
  *
@@ -13,6 +9,10 @@ import logger from '../config/logger'; // Wave 32: Add Winston logger
  * - Analysis approval workflow
  */
 
+import { container } from '../container'
+import { asyncHandler } from '../middleware/errorHandler'
+import { NotFoundError, ValidationError } from '../errors/app-error'
+import logger from '../config/logger'; // Wave 32: Add Winston logger
 import express, { Response } from 'express'
 import { Pool } from 'pg'
 import { z } from 'zod'
@@ -293,7 +293,7 @@ router.post(
       if (error instanceof z.ZodError) {
         return res.status(400).json({
           error: 'Validation error',
-          details: error.errors,
+          details: error.issues,
         })
       }
       res.status(500).json({
@@ -359,7 +359,7 @@ router.put(
       if (error instanceof z.ZodError) {
         return res.status(400).json({
           error: 'Validation error',
-          details: error.errors,
+          details: error.issues,
         })
       }
       res.status(500).json({
@@ -412,7 +412,7 @@ router.post(
       if (error instanceof z.ZodError) {
         return res.status(400).json({
           error: 'Validation error',
-          details: error.errors,
+          details: error.issues,
         })
       }
       res.status(500).json({

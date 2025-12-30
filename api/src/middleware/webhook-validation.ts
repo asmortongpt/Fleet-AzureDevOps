@@ -12,7 +12,7 @@
 import { Request, Response, NextFunction } from 'express'
 
 import pool from '../config/database'
-import logger from '../utils/logger'
+import logger from '../config/logger'
 
 export interface WebhookRequest extends Request {
   webhookValidated?: boolean

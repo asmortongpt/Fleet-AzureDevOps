@@ -1,8 +1,4 @@
 /**
-import { container } from '../container'
-import { asyncHandler } from '../middleware/errorHandler'
-import { NotFoundError, ValidationError } from '../errors/app-error'
-import logger from '../config/logger'; // Wave 31: Add Winston logger
  * Mobile Assignment API Routes
  * Mobile-optimized endpoints for vehicle assignment management (BR-11)
  *
@@ -15,6 +11,10 @@ import logger from '../config/logger'; // Wave 31: Add Winston logger
  * - Offline data sync (BR-11.6)
  */
 
+import { container } from '../container'
+import { asyncHandler } from '../middleware/errorHandler'
+import { NotFoundError, ValidationError } from '../errors/app-error'
+import logger from '../config/logger'; // Wave 31: Add Winston logger
 import express, { Response } from 'express';
 import { Pool } from 'pg';
 import { z } from 'zod';
@@ -192,7 +192,7 @@ router.get(
 
 router.post(
   '/on-call/:id/acknowledge',
- csrfProtection,  csrfProtection, authenticateJWT,
+ csrfProtection, authenticateJWT,
   requirePermission('on_call:acknowledge:own'),
   async (req: AuthRequest, res: Response) => {
     try {
@@ -251,7 +251,7 @@ router.post(
 
 router.post(
   '/callback-trip',
- csrfProtection,  csrfProtection, authenticateJWT,
+ csrfProtection, authenticateJWT,
   requirePermission('on_call:view:own'),
   async (req: AuthRequest, res: Response) => {
     try {
@@ -327,7 +327,7 @@ router.post(
       if (error instanceof z.ZodError) {
         return res.status(400).json({
           error: 'Validation error',
-          details: error.errors,
+          details: error.issues,
         });
       }
       res.status(500).json({
@@ -465,7 +465,7 @@ router.get(
 
 router.post(
   '/assignment/:id/quick-approve',
- csrfProtection,  csrfProtection, authenticateJWT,
+ csrfProtection, authenticateJWT,
   requirePermission('vehicle_assignment:approve:fleet'),
   async (req: AuthRequest, res: Response) => {
     try {

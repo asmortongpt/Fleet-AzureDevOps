@@ -13,7 +13,7 @@ declare global {
         limit: number
         current: number
         remaining: number
-        resetTime?: Date
+        resetTime: Date
       }
 
       // Authentication
@@ -63,7 +63,7 @@ declare module 'express-serve-static-core' {
       limit: number
       current: number
       remaining: number
-      resetTime?: Date
+      resetTime: Date
     }
     user?: {
       id: string

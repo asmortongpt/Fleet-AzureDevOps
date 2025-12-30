@@ -1,3 +1,5 @@
+import logger from '../config/logger'
+
 
 // Wrap all endpoint handlers in try-catch
 export async function getVehicleStatus(req, res) {

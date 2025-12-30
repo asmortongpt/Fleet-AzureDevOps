@@ -1,7 +1,7 @@
 import { Router } from 'express';
 
 import { PAGINATION } from '../config/constants';
-import logger from '../utils/logger';
+import logger from '../config/logger';
 
 const router = Router();
 
