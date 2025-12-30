@@ -29,6 +29,7 @@ export interface User {
   status: "active" | "inactive" | "suspended"
   lastLogin?: string
   createdAt: string
+  token?: string // Auth token for API requests
 }
 
 export interface Vehicle {

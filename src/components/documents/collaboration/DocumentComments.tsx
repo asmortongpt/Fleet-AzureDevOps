@@ -30,7 +30,7 @@ interface DocumentCommentsProps {
 }
 
 export function DocumentComments({
-  _documentId,
+  
   comments,
   currentUserId,
   onAddComment,

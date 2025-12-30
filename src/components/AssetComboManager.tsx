@@ -44,7 +44,7 @@ const relationshipTypes: { value: string; label: string; description: string }[]
 ]
 
 export const AssetComboManager: React.FC<AssetComboManagerProps> = ({
-  _tenantId,
+  
   onRelationshipCreated,
   selectedAssetId
 }) => {
