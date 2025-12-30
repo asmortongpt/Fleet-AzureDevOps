@@ -1,2 +1,2 @@
 // Facilities routes
-export * from './facilities.routes';
+// No routes defined yet - placeholder
