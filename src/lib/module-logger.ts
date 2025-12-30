@@ -287,7 +287,8 @@ class ModuleLoggerClass {
       filtered = filtered.filter(l => l.level === filters.level)
     }
     if (filters?.since) {
-      filtered = filtered.filter(l => new Date(l.timestamp) >= filters.since)
+      const sinceDate = filters.since ?? new Date(0)
+      filtered = filtered.filter(l => new Date(l.timestamp) >= sinceDate)
     }
 
     return filtered
