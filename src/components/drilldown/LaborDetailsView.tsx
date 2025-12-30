@@ -10,23 +10,36 @@ import { DrilldownContent } from '@/components/DrilldownPanel'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent } from '@/components/ui/card'
+
 interface LaborDetailsViewProps {
   workOrderId: string
   workOrderNumber?: string
 }
 
+interface LaborEntry {
+  id: string
+  technician_name: string
+  technician_avatar?: string
+  role?: string
+  certified?: boolean
+  task_description?: string
+  hours: number
+  rate: number
+  date?: string
+}
+
 const fetcher = (url: string) => fetch(url).then((r) => r.json())
 
 export function LaborDetailsView({ workOrderId, workOrderNumber }: LaborDetailsViewProps) {
-  const { data: labor, error, isLoading, mutate } = useSWR(
+  const { data: labor, error, isLoading, mutate } = useSWR<LaborEntry[]>(
     `/api/work-orders/${workOrderId}/labor`,
     fetcher
   )
 
-  const totalHours = labor?.reduce((sum: number, entry: any) => sum + (entry.hours || 0), 0) || 0
-  const totalCost = labor?.reduce((sum: number, entry: any) => sum + ((entry.hours * entry.rate) || 0), 0) || 0
+  const totalHours = labor?.reduce((sum: number, entry: LaborEntry) => sum + (entry.hours || 0), 0) || 0
+  const totalCost = labor?.reduce((sum: number, entry: LaborEntry) => sum + ((entry.hours * entry.rate) || 0), 0) || 0
 
-  const getInitials = (name: string) => {
+  const getInitials = (name: string): string => {
     return name.split(' ').map((n) => n[0]).join('').toUpperCase()
   }
 
@@ -52,7 +65,7 @@ export function LaborDetailsView({ workOrderId, workOrderNumber }: LaborDetailsV
             </Card>
           ) : (
             <div className="space-y-3">
-              {labor.map((entry: any) => (
+              {labor.map((entry: LaborEntry) => (
                 <Card key={entry.id}>
                   <CardContent className="p-4">
                     <div className="space-y-3">
@@ -68,7 +81,7 @@ export function LaborDetailsView({ workOrderId, workOrderNumber }: LaborDetailsV
                           </div>
                         </div>
                         {entry.certified && (
-                          <Badge variant="success">Certified</Badge>
+                          <Badge variant="default">Certified</Badge>
                         )}
                       </div>
 

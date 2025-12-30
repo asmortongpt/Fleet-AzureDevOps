@@ -21,10 +21,18 @@ export const VEHICLE_STATUS_COLORS: Record<Vehicle["status"], string> = {
  * Emoji icons for different vehicle types
  */
 export const VEHICLE_TYPE_EMOJI: Record<Vehicle["type"], string> = {
-  car: "🚗",
+  sedan: "🚗",
+  suv: "🚗",
   truck: "🚚",
   van: "🚐",
+  emergency: "🚑",
+  specialty: "🚜",
+  tractor: "🚜",
+  forklift: "🚜",
+  trailer: "🚛",
+  construction: "🚜",
   bus: "🚌",
+  motorcycle: "🏍️",
 } as const
 
 /**

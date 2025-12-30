@@ -18,6 +18,7 @@ import { Card } from '@/components/ui/card';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { apiClient } from '@/lib/api';
 import logger from '@/utils/logger';
+
 interface VehicleInspectorProps {
   id: string;
   initialTab?: string;
@@ -58,9 +59,10 @@ export const VehicleInspector: React.FC<VehicleInspectorProps> = ({ id, initialT
         setLoading(true);
         setError(null);
         const data = await apiClient.get(`/api/vehicles/${id}`);
-        setVehicle(data);
-      } catch (err: any) {
-        setError(err.message || 'Failed to load vehicle data');
+        setVehicle(data as Vehicle);
+      } catch (err: unknown) {
+        const errorMessage = err instanceof Error ? err.message : 'Failed to load vehicle data';
+        setError(errorMessage);
         logger.error('Error fetching vehicle:', err);
       } finally {
         setLoading(false);

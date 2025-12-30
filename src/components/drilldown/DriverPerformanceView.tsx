@@ -20,7 +20,6 @@ import { Progress } from '@/components/ui/progress'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { useDrilldown } from '@/contexts/DrilldownContext'
 
-
 interface DriverPerformanceViewProps {
   driverId: string
   driverName?: string
@@ -47,16 +46,10 @@ export function DriverPerformanceView({
     })
   }
 
-  const getScoreColor = (score: number) => {
+  const getScoreColor = (score: number): string => {
     if (score >= 90) return 'text-green-600'
     if (score >= 70) return 'text-yellow-600'
     return 'text-red-600'
-  }
-
-  const getScoreVariant = (score: number): 'success' | 'warning' | 'destructive' => {
-    if (score >= 90) return 'success'
-    if (score >= 70) return 'warning'
-    return 'destructive'
   }
 
   return (

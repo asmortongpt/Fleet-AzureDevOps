@@ -3,7 +3,7 @@ import {
   TrendingUp, AlertTriangle, CheckCircle, XCircle, Clock,
   Gauge, Fuel, ThermometerSun, Activity, Download, ExternalLink
 } from 'lucide-react';
-import React, { useState } from 'react';
+import { useState } from 'react';
 
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -11,7 +11,21 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Progress } from '@/components/ui/progress';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useDrilldown } from '@/contexts/DrilldownContext';
-import type { Vehicle } from '@/types';
+
+interface Vehicle {
+  id: string;
+  make: string;
+  model: string;
+  year: number;
+  vin?: string;
+  licensePlate?: string;
+  mileage?: number;
+  status: string;
+  color?: string;
+  assignedDriver?: string;
+  department?: string;
+  location?: string;
+}
 
 interface VehicleDetailViewProps {
   vehicle: Vehicle;
@@ -341,84 +355,75 @@ export function VehicleDetailView({ vehicle, onClose }: VehicleDetailViewProps) 
             </Card>
           </TabsContent>
 
-          {/* Real-time Telemetry Tab */}
+          {/* Live Telemetry Tab */}
           <TabsContent value="telemetry">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              <Card>
-                <CardHeader className="pb-2">
-                  <CardTitle className="text-sm flex items-center gap-2">
-                    <Gauge className="w-4 h-4" />
-                    Speed
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-3xl font-bold">{telemetryData.speed} <span className="text-lg font-normal text-muted-foreground">mph</span></p>
-                  <Progress value={telemetryData.speed} max={120} className="mt-2" />
-                </CardContent>
-              </Card>
+            <Card>
+              <CardHeader>
+                <CardTitle>Live Vehicle Telemetry</CardTitle>
+                <CardDescription>Last updated: {telemetryData.lastUpdate}</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="space-y-4">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <Gauge className="w-5 h-5 text-blue-600" />
+                        <span>Speed</span>
+                      </div>
+                      <span className="font-mono font-medium">{telemetryData.speed} mph</span>
+                    </div>
+                    <Progress value={telemetryData.speed} max={120} className="w-full" />
 
-              <Card>
-                <CardHeader className="pb-2">
-                  <CardTitle className="text-sm flex items-center gap-2">
-                    <Activity className="w-4 h-4" />
-                    RPM
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-3xl font-bold">{telemetryData.rpm.toLocaleString()}</p>
-                  <Progress value={(telemetryData.rpm / 6000) * 100} className="mt-2" />
-                </CardContent>
-              </Card>
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <Activity className="w-5 h-5 text-blue-600" />
+                        <span>Engine RPM</span>
+                      </div>
+                      <span className="font-mono font-medium">{telemetryData.rpm}</span>
+                    </div>
+                    <Progress value={telemetryData.rpm} max={8000} className="w-full" />
 
-              <Card>
-                <CardHeader className="pb-2">
-                  <CardTitle className="text-sm flex items-center gap-2">
-                    <Fuel className="w-4 h-4" />
-                    Fuel Level
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-3xl font-bold">{telemetryData.fuelLevel}%</p>
-                  <Progress value={telemetryData.fuelLevel} className="mt-2" />
-                </CardContent>
-              </Card>
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <Fuel className="w-5 h-5 text-blue-600" />
+                        <span>Fuel Level</span>
+                      </div>
+                      <span className="font-mono font-medium">{telemetryData.fuelLevel}%</span>
+                    </div>
+                    <Progress value={telemetryData.fuelLevel} max={100} className="w-full" />
+                  </div>
 
-              <Card>
-                <CardHeader className="pb-2">
-                  <CardTitle className="text-sm flex items-center gap-2">
-                    <ThermometerSun className="w-4 h-4" />
-                    Engine Temp
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-3xl font-bold">{telemetryData.engineTemp}°F</p>
-                  <Progress value={(telemetryData.engineTemp / 250) * 100} className="mt-2" />
-                </CardContent>
-              </Card>
+                  <div className="space-y-4">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <ThermometerSun className="w-5 h-5 text-blue-600" />
+                        <span>Engine Temperature</span>
+                      </div>
+                      <span className="font-mono font-medium">{telemetryData.engineTemp}°F</span>
+                    </div>
+                    <Progress value={telemetryData.engineTemp} max={300} className="w-full" />
 
-              <Card>
-                <CardHeader className="pb-2">
-                  <CardTitle className="text-sm">Oil Pressure</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-3xl font-bold">{telemetryData.oilPressure} <span className="text-lg font-normal text-muted-foreground">PSI</span></p>
-                  <Progress value={(telemetryData.oilPressure / 80) * 100} className="mt-2" />
-                </CardContent>
-              </Card>
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <Gauge className="w-5 h-5 text-blue-600" />
+                        <span>Oil Pressure</span>
+                      </div>
+                      <span className="font-mono font-medium">{telemetryData.oilPressure} psi</span>
+                    </div>
+                    <Progress value={telemetryData.oilPressure} max={100} className="w-full" />
 
-              <Card>
-                <CardHeader className="pb-2">
-                  <CardTitle className="text-sm">Battery</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-3xl font-bold">{telemetryData.batteryVoltage}V</p>
-                  <Progress value={(telemetryData.batteryVoltage / 15) * 100} className="mt-2" />
-                </CardContent>
-              </Card>
-            </div>
-            <p className="text-xs text-muted-foreground mt-4 text-center">
-              Last updated: {telemetryData.lastUpdate}
-            </p>
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <Activity className="w-5 h-5 text-blue-600" />
+                        <span>Battery Voltage</span>
+                      </div>
+                      <span className="font-mono font-medium">{telemetryData.batteryVoltage}V</span>
+                    </div>
+                    <Progress value={telemetryData.batteryVoltage} max={16} className="w-full" />
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
           </TabsContent>
 
           {/* Maintenance Schedule Tab */}
@@ -426,22 +431,34 @@ export function VehicleDetailView({ vehicle, onClose }: VehicleDetailViewProps) 
             <Card>
               <CardHeader>
                 <CardTitle>Maintenance Schedule</CardTitle>
-                <CardDescription>Upcoming and overdue maintenance items</CardDescription>
+                <CardDescription>Upcoming and overdue services</CardDescription>
               </CardHeader>
               <CardContent>
-                <div className="space-y-3">
+                <div className="space-y-4">
                   {maintenanceSchedule.map((item, index) => (
-                    <div key={index} className="flex items-center justify-between p-3 border rounded-lg">
-                      <div className="flex-1">
-                        <div className="flex items-center gap-2 mb-1">
-                          <p className="font-medium text-sm">{item.service}</p>
-                          {getStatusBadge(item.status)}
+                    <div
+                      key={index}
+                      className="border rounded-lg p-4 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+                    >
+                      <div className="flex items-start justify-between">
+                        <div className="flex-1">
+                          <div className="flex items-center gap-2 mb-2">
+                            <Wrench className="w-4 h-4 text-blue-600" />
+                            <h4 className="font-semibold">{item.service}</h4>
+                            {getStatusBadge(item.status)}
+                          </div>
+                          <div className="grid grid-cols-2 md:grid-cols-3 gap-4 text-xs">
+                            <div>
+                              <span className="text-muted-foreground">Next Due:</span>
+                              <p className="font-medium">{item.nextDue}</p>
+                            </div>
+                            <div>
+                              <span className="text-muted-foreground">Miles Due:</span>
+                              <p className="font-medium">{item.milesDue.toLocaleString()} mi</p>
+                            </div>
+                          </div>
                         </div>
-                        <p className="text-xs text-muted-foreground">
-                          Due: {item.nextDue} ({item.milesDue.toLocaleString()} miles)
-                        </p>
                       </div>
-                      <Button variant="outline" size="sm">Schedule</Button>
                     </div>
                   ))}
                 </div>
@@ -451,64 +468,53 @@ export function VehicleDetailView({ vehicle, onClose }: VehicleDetailViewProps) 
 
           {/* Cost Analysis Tab */}
           <TabsContent value="costs">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <Card>
-                <CardHeader>
-                  <CardTitle>Total Cost Breakdown</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div>
-                    <div className="flex justify-between mb-1">
-                      <span className="text-sm text-muted-foreground">Maintenance</span>
-                      <span className="font-medium">${costAnalysis.totalMaintenance.toLocaleString()}</span>
-                    </div>
-                    <Progress value={60} className="h-2" />
-                  </div>
-                  <div>
-                    <div className="flex justify-between mb-1">
-                      <span className="text-sm text-muted-foreground">Fuel</span>
-                      <span className="font-medium">${costAnalysis.totalFuel.toLocaleString()}</span>
-                    </div>
-                    <Progress value={32} className="h-2" />
-                  </div>
-                  <div>
-                    <div className="flex justify-between mb-1">
-                      <span className="text-sm text-muted-foreground">Repairs</span>
-                      <span className="font-medium">${costAnalysis.totalRepairs.toLocaleString()}</span>
-                    </div>
-                    <Progress value={8} className="h-2" />
-                  </div>
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardHeader>
-                  <CardTitle>Cost Metrics</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-3">
-                  <div className="flex items-center justify-between">
+            <Card>
+              <CardHeader>
+                <CardTitle>Cost Analysis</CardTitle>
+                <CardDescription>Lifetime costs and averages</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                  <div className="space-y-4">
                     <div className="flex items-center gap-2">
-                      <DollarSign className="w-5 h-5 text-green-600" />
-                      <span className="text-sm">Average Monthly Cost</span>
+                      <DollarSign className="w-5 h-5 text-blue-600" />
+                      <h3 className="font-semibold">Total Costs</h3>
                     </div>
-                    <span className="text-xl font-bold">${costAnalysis.averageMonthly}</span>
+                    <div className="space-y-2 text-sm">
+                      <div className="flex justify-between">
+                        <span className="text-muted-foreground">Maintenance:</span>
+                        <span className="font-mono font-medium">${costAnalysis.totalMaintenance.toFixed(2)}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-muted-foreground">Fuel:</span>
+                        <span className="font-mono font-medium">${costAnalysis.totalFuel.toFixed(2)}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-muted-foreground">Repairs:</span>
+                        <span className="font-mono font-medium">${costAnalysis.totalRepairs.toFixed(2)}</span>
+                      </div>
+                    </div>
                   </div>
-                  <div className="flex items-center justify-between">
+
+                  <div className="space-y-4">
                     <div className="flex items-center gap-2">
                       <TrendingUp className="w-5 h-5 text-blue-600" />
-                      <span className="text-sm">Cost Per Mile</span>
+                      <h3 className="font-semibold">Averages</h3>
                     </div>
-                    <span className="text-xl font-bold">${costAnalysis.costPerMile}</span>
+                    <div className="space-y-2 text-sm">
+                      <div className="flex justify-between">
+                        <span className="text-muted-foreground">Monthly Cost:</span>
+                        <span className="font-mono font-medium">${costAnalysis.averageMonthly.toFixed(2)}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-muted-foreground">Cost per Mile:</span>
+                        <span className="font-mono font-medium">${costAnalysis.costPerMile.toFixed(2)}</span>
+                      </div>
+                    </div>
                   </div>
-                  <div className="flex items-center justify-between pt-3 border-t">
-                    <span className="font-medium">Total Lifetime Cost</span>
-                    <span className="text-2xl font-bold text-blue-600">
-                      ${(costAnalysis.totalMaintenance + costAnalysis.totalFuel + costAnalysis.totalRepairs).toLocaleString()}
-                    </span>
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
+                </div>
+              </CardContent>
+            </Card>
           </TabsContent>
         </Tabs>
       </div>

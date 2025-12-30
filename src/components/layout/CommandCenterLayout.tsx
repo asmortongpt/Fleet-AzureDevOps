@@ -11,10 +11,10 @@ interface CommandCenterLayoutProps {
     children: React.ReactNode;
 }
 
-export function CommandCenterLayout({ children }: CommandCenterLayoutProps) {
-    const [isSidebarOpen, setIsSidebarOpen] = useState(true);
-    const [isMobile, setIsMobile] = useState(false);
-    const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+export function CommandCenterLayout({ children }: CommandCenterLayoutProps): JSX.Element {
+    const [isSidebarOpen, setIsSidebarOpen] = useState<boolean>(true);
+    const [isMobile, setIsMobile] = useState<boolean>(false);
+    const [mobileMenuOpen, setMobileMenuOpen] = useState<boolean>(false);
 
     // Detect mobile viewport
     useEffect(() => {
@@ -37,6 +37,7 @@ export function CommandCenterLayout({ children }: CommandCenterLayoutProps) {
             document.addEventListener('click', handleClickOutside);
             return () => document.removeEventListener('click', handleClickOutside);
         }
+        return () => {};
     }, [mobileMenuOpen]);
 
     return (

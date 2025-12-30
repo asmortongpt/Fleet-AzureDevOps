@@ -6,7 +6,6 @@
 import { RefreshCw } from 'lucide-react'
 import React, { ReactNode, useRef, useState } from 'react'
 
-
 interface PullToRefreshProps {
   children: ReactNode
   onRefresh: () => Promise<void>
@@ -53,7 +52,7 @@ export function PullToRefresh({
 
     const handleTouchStart = (e: TouchEvent) => {
       if (element.scrollTop === 0) {
-        startY = e.touches[0].pageY
+        startY = e.touches[0]?.pageY ?? 0
         pulling = true
       }
     }
@@ -61,7 +60,7 @@ export function PullToRefresh({
     const handleTouchMove = (e: TouchEvent) => {
       if (!pulling || isRefreshing || element.scrollTop !== 0) return
 
-      currentY = e.touches[0].pageY
+      currentY = e.touches[0]?.pageY ?? 0
       const distance = (currentY - startY) * resistance
 
       if (distance > 0) {

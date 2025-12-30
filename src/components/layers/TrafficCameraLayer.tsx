@@ -1,7 +1,5 @@
 import { VideoCamera } from "@phosphor-icons/react"
 import { useQuery } from "@tanstack/react-query"
-import React from "react"
-
 import {
     HoverCard,
     HoverCardContent,
@@ -9,8 +7,6 @@ import {
 } from "@/components/ui/hover-card"
 import { apiClient } from "@/lib/api-client"
 import { TrafficCamera } from "@/lib/types"
-
-
 
 interface TrafficCameraLayerProps {
     visible: boolean;
@@ -30,7 +26,8 @@ export function TrafficCameraLayer({ visible, filters, onCameraSelect, selectedC
             const result = await apiClient.trafficCameras.list()
             return result as TrafficCamera[]
         },
-        enabled: visible
+        enabled: visible,
+        gcTime: 5 * 60 * 1000
     });
 
     if (!visible) return null;
@@ -47,8 +44,8 @@ export function TrafficCameraLayer({ visible, filters, onCameraSelect, selectedC
         if (filters.search) {
             const search = filters.search.toLowerCase()
             return (
-                camera.name.toLowerCase().includes(search) ||
-                camera.address?.toLowerCase().includes(search)
+                camera.name?.toLowerCase().includes(search) ||
+                camera.address?.toLowerCase().includes(search) || false
             )
         }
 
@@ -62,13 +59,11 @@ export function TrafficCameraLayer({ visible, filters, onCameraSelect, selectedC
                     <HoverCardTrigger asChild>
                         <div
                             className={`
-                group absolute transform -translate-x-1/2 -translate-y-1/2 cursor-pointer transition-all duration-200
-                ${selectedCameraId === camera.id ? 'scale-125 z-50' : 'hover:scale-110 z-10'}
-              `}
+                                group absolute transform -translate-x-1/2 -translate-y-1/2 cursor-pointer transition-all duration-200
+                                ${selectedCameraId === camera.id ? 'scale-125 z-50' : 'hover:scale-110 z-10'}
+                            `}
                             style={{
-                                // Mock positioning for the demo map based on hashed coordinates or list index
-                                // In a real map, this would be handled by the map library's marker system
-                                left: `${((camera.longitude || 0) + 180) / 3.6}%`, // Placeholder conversion
+                                left: `${((camera.longitude || 0) + 180) / 3.6}%`,
                                 top: `${((camera.latitude || 0) + 90) / 1.8}%`
                             }}
                             onClick={(e) => {
@@ -78,13 +73,13 @@ export function TrafficCameraLayer({ visible, filters, onCameraSelect, selectedC
                         >
                             <div
                                 className={`
-                  p-1.5 rounded-full shadow-md border-2
-                  ${camera.operational
+                                    p-1.5 rounded-full shadow-md border-2
+                                    ${camera.operational
                                         ? 'bg-white border-green-500 text-green-600'
                                         : 'bg-white border-red-500 text-red-600'
                                     }
-                  ${selectedCameraId === camera.id ? 'ring-2 ring-primary ring-offset-2' : ''}
-                `}
+                                    ${selectedCameraId === camera.id ? 'ring-2 ring-primary ring-offset-2' : ''}
+                                `}
                             >
                                 {camera.operational && (
                                     <span className="absolute -top-1 -right-1 flex h-3 w-3">
@@ -109,7 +104,7 @@ export function TrafficCameraLayer({ visible, filters, onCameraSelect, selectedC
                                 <div className="relative aspect-video bg-muted rounded-md overflow-hidden">
                                     <img
                                         src={camera.imageUrl}
-                                        alt={camera.name}
+                                        alt={camera.name || 'Traffic Camera'}
                                         className="object-cover w-full h-full"
                                         loading="lazy"
                                     />
