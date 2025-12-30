@@ -338,7 +338,7 @@ export function FuelManagementDrilldown() {
     const { push } = useDrilldown()
     const transactions = generateDemoFuelTransactions(150)
 
-    const totalCost = transactions.reduce((sum, t) => sum + t.cost, 0)
+    const totalCost = transactions.reduce((sum, t) => sum + (t.cost ?? 0), 0)
     const totalGallons = transactions.reduce((sum, t) => sum + t.gallons, 0)
     const avgCostPerGallon = totalGallons > 0 ? (totalCost / totalGallons).toFixed(2) : '0.00'
 
@@ -400,7 +400,7 @@ export function FuelManagementDrilldown() {
                             <div className="flex items-center gap-4">
                                 <span className="font-semibold">{list.length}</span>
                                 <span className="text-sm text-muted-foreground">
-                                    ${(list.reduce((sum, t) => sum + t.cost, 0)).toFixed(2)}
+                                    ${(list.reduce((sum, t) => sum + (t.cost ?? 0), 0)).toFixed(2)}
                                 </span>
                             </div>
                         </div>
@@ -420,11 +420,11 @@ export function FuelManagementDrilldown() {
                                 <div>
                                     <div className="font-medium">{tx.vehicleId}</div>
                                     <div className="text-xs text-muted-foreground">
-                                        {tx.date} • {tx.locationData?.address.split(',')[0] || 'Unknown Location'}
+                                        {tx.date} • {(tx.locationData?.address?.split(',')[0] || 'Unknown Location')}
                                     </div>
                                 </div>
                                 <div className="text-right">
-                                    <div className="font-semibold">${tx.cost.toFixed(2)}</div>
+                                    <div className="font-semibold">${(tx.cost ?? 0).toFixed(2)}</div>
                                     <div className="text-xs text-muted-foreground">{tx.gallons.toFixed(2)} gal</div>
                                 </div>
                             </div>
