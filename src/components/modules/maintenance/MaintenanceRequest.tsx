@@ -50,7 +50,7 @@ export function MaintenanceRequest({ data }: MaintenanceRequestProps) {
     return colors[status]
   }
 
-  const requests: MaintenanceSchedule[] = (data.maintenanceRequests || []) as MaintenanceSchedule[]
+  const requests: MaintenanceSchedule[] = (data.maintenanceRequests || []) as unknown as MaintenanceSchedule[]
   const vehicles = data.vehicles || []
 
   const scheduledCount = requests.filter(r => r.status === "scheduled").length
