@@ -66,10 +66,12 @@ export abstract class BaseRepository<T extends { id: string | number }> {
    * @param params - Array of parameter values
    * @returns Query result rows
    */
-  protected async query<R = T>(sql: string, params: unknown[] = []): Promise<R[]> {
+  protected async query<R = T>(sql: string, params: unknown[] = []): Promise<R[] & { rowCount: number }> {
     const pool = connectionManager.getPool();
     const result = await pool.query(sql, params);
-    return result.rows as R[];
+    const rows = result.rows as R[] & { rowCount: number };
+    rows.rowCount = result.rowCount ?? 0;
+    return rows;
   }
 
   /**
