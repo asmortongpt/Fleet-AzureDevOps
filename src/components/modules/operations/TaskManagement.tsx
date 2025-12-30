@@ -120,9 +120,10 @@ export function TaskManagement() {
       if (filterPriority !== "all") params.append("priority", filterPriority)
       if (filterStatus !== "all") params.append("status", filterStatus)
 
-      const response = await apiClient.get<ApiResponse<unknown>>(`/api/task-management?${params.toString()}`)
-      if (isSuccessResponse(response)) {
-        const typedResponse = response as SuccessResponse<{ tasks: Task[] }>
+      const response = await apiClient.get<unknown>(`/api/task-management?${params.toString()}`)
+      const apiResponse = response as ApiResponse<unknown>
+      if (isSuccessResponse(apiResponse)) {
+        const typedResponse = apiResponse as SuccessResponse<{ tasks: Task[] }>
         setTasks(typedResponse.data?.tasks || [])
       }
     } catch (error) {
@@ -135,9 +136,10 @@ export function TaskManagement() {
 
   const fetchTaskComments = async (taskId: string) => {
     try {
-      const response = await apiClient.get<ApiResponse<unknown>>(`/api/task-management/${taskId}/comments`)
-      if (isSuccessResponse(response)) {
-        const typedResponse = response as SuccessResponse<{ comments: Comment[] }>
+      const response = await apiClient.get<unknown>(`/api/task-management/${taskId}/comments`)
+      const apiResponse = response as ApiResponse<unknown>
+      if (isSuccessResponse(apiResponse)) {
+        const typedResponse = apiResponse as SuccessResponse<{ comments: Comment[] }>
         setComments(typedResponse.data?.comments || [])
       }
     } catch (error) {
@@ -152,9 +154,10 @@ export function TaskManagement() {
     }
 
     try {
-      const response = await apiClient.post<ApiResponse<unknown>>("/api/task-management", newTask)
-      if (isSuccessResponse(response)) {
-        const typedResponse = response as SuccessResponse<{ task: Task }>
+      const response = await apiClient.post<unknown>("/api/task-management", newTask)
+      const apiResponse = response as ApiResponse<unknown>
+      if (isSuccessResponse(apiResponse)) {
+        const typedResponse = apiResponse as SuccessResponse<{ task: Task }>
         if (typedResponse?.data?.task) {
           setTasks(current => [...current, typedResponse.data.task])
           toast.success("Task created successfully")
@@ -170,9 +173,10 @@ export function TaskManagement() {
 
   const handleUpdateTask = async (taskId: string, updates: Partial<Task>) => {
     try {
-      const response = await apiClient.put<ApiResponse<unknown>>(`/api/task-management/${taskId}`, updates)
-      if (isSuccessResponse(response)) {
-        const typedResponse = response as SuccessResponse<{ task: Task }>
+      const response = await apiClient.put<unknown>(`/api/task-management/${taskId}`, updates)
+      const apiResponse = response as ApiResponse<unknown>
+      if (isSuccessResponse(apiResponse)) {
+        const typedResponse = apiResponse as SuccessResponse<{ task: Task }>
         if (typedResponse?.data?.task) {
           setTasks(current =>
             current.map(t => (t.id === taskId ? typedResponse.data.task : t))
