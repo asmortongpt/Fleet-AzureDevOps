@@ -18,7 +18,7 @@ export const assetRelationshipsEndpoints = {
     relationship_type?: string
     active_only?: boolean
   }): Promise<any> {
-    return this.get('/api/asset-relationships', { params })
+    return this.get('/api/asset-relationships', params)
   },
 
   /**
