@@ -1,5 +1,6 @@
 import { CheckCircle, Warning, Error, HourglassEmpty } from '@mui/icons-material';
-import { Box, Grid, Paper, Typography, LinearProgress, Chip, CircularProgress } from '@mui/material';
+import { Box, Paper, Typography, LinearProgress, Chip, CircularProgress } from '@mui/material';
+import Grid from '@mui/material/Grid2';
 import React, { useMemo } from 'react';
 
 interface SystemHealth {
@@ -98,8 +99,8 @@ const SystemHealthWidget: React.FC<Props> = ({ health, loading }) => {
             <Chip
               label={health.status.toUpperCase()}
               color={statusColor}
-              size="large"
-              sx={{ fontWeight: 'bold' }}
+              size="medium"
+              sx={{ fontWeight: 'bold', fontSize: '1rem', px: 2, py: 2.5 }}
             />
             <Typography variant="body2" color="text.secondary">
               System Status
