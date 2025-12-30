@@ -372,7 +372,7 @@ class APIClient {
 
   // Vehicle endpoints
   vehicles = {
-    list: (params?: unknown) => this.get('/api/vehicles', params),
+    list: (params?: Record<string, unknown>) => this.get('/api/vehicles', params),
     get: (id: string) => this.get(`/api/vehicles/${id}`),
     create: (data: unknown) => this.post('/api/vehicles', data),
     update: (id: string, data: unknown) => this.put(`/api/vehicles/${id}`, data),
@@ -383,7 +383,7 @@ class APIClient {
 
   // Driver endpoints
   drivers = {
-    list: (params?: unknown) => this.get('/api/drivers', params),
+    list: (params?: Record<string, unknown>) => this.get('/api/drivers', params),
     get: (id: string) => this.get(`/api/drivers/${id}`),
     create: (data: unknown) => this.post('/api/drivers', data),
     update: (id: string, data: unknown) => this.put(`/api/drivers/${id}`, data),
@@ -392,7 +392,7 @@ class APIClient {
 
   // Work Order endpoints
   workOrders = {
-    list: (params?: unknown) => this.get('/api/work-orders', params),
+    list: (params?: Record<string, unknown>) => this.get('/api/work-orders', params),
     get: (id: string) => this.get(`/api/work-orders/${id}`),
     create: (data: unknown) => this.post('/api/work-orders', data),
     update: (id: string, data: unknown) => this.put(`/api/work-orders/${id}`, data),
@@ -401,7 +401,7 @@ class APIClient {
 
   // Maintenance Schedule endpoints
   maintenanceSchedules = {
-    list: (params?: unknown) => this.get('/api/maintenance-schedules', params),
+    list: (params?: Record<string, unknown>) => this.get('/api/maintenance-schedules', params),
     get: (id: string) => this.get(`/api/maintenance-schedules/${id}`),
     create: (data: unknown) => this.post('/api/maintenance-schedules', data),
     update: (id: string, data: unknown) =>
@@ -411,7 +411,7 @@ class APIClient {
 
   // Fuel Transaction endpoints
   fuelTransactions = {
-    list: (params?: unknown) => this.get('/api/fuel-transactions', params),
+    list: (params?: Record<string, unknown>) => this.get('/api/fuel-transactions', params),
     get: (id: string) => this.get(`/api/fuel-transactions/${id}`),
     create: (data: unknown) => this.post('/api/fuel-transactions', data),
     update: (id: string, data: unknown) =>
@@ -421,7 +421,7 @@ class APIClient {
 
   // Route endpoints
   routes = {
-    list: (params?: unknown) => this.get('/api/routes', params),
+    list: (params?: Record<string, unknown>) => this.get('/api/routes', params),
     get: (id: string) => this.get(`/api/routes/${id}`),
     create: (data: unknown) => this.post('/api/routes', data),
     update: (id: string, data: unknown) => this.put(`/api/routes/${id}`, data),
@@ -430,7 +430,7 @@ class APIClient {
 
   // Geofence endpoints
   geofences = {
-    list: (params?: unknown) => this.get('/api/geofences', params),
+    list: (params?: Record<string, unknown>) => this.get('/api/geofences', params),
     get: (id: string) => this.get(`/api/geofences/${id}`),
     create: (data: unknown) => this.post('/api/geofences', data),
     update: (id: string, data: unknown) => this.put(`/api/geofences/${id}`, data),
@@ -439,7 +439,7 @@ class APIClient {
 
   // Inspection endpoints
   inspections = {
-    list: (params?: unknown) => this.get('/api/inspections', params),
+    list: (params?: Record<string, unknown>) => this.get('/api/inspections', params),
     get: (id: string) => this.get(`/api/inspections/${id}`),
     create: (data: unknown) => this.post('/api/inspections', data),
     update: (id: string, data: unknown) => this.put(`/api/inspections/${id}`, data),
@@ -448,7 +448,7 @@ class APIClient {
 
   // Safety Incident endpoints
   safetyIncidents = {
-    list: (params?: unknown) => this.get('/api/safety-incidents', params),
+    list: (params?: Record<string, unknown>) => this.get('/api/safety-incidents', params),
     get: (id: string) => this.get(`/api/safety-incidents/${id}`),
     create: (data: unknown) => this.post('/api/safety-incidents', data),
     update: (id: string, data: unknown) =>
@@ -458,7 +458,7 @@ class APIClient {
 
   // Charging Station endpoints
   chargingStations = {
-    list: (params?: unknown) => this.get('/api/charging-stations', params),
+    list: (params?: Record<string, unknown>) => this.get('/api/charging-stations', params),
     get: (id: string) => this.get(`/api/charging-stations/${id}`),
     create: (data: unknown) => this.post('/api/charging-stations', data),
     update: (id: string, data: unknown) =>
