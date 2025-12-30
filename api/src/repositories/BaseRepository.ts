@@ -53,6 +53,15 @@ export abstract class BaseRepository<T extends { id: string | number }> {
   protected abstract tableName: string;
   protected abstract idColumn: string; // Usually 'id'
 
+  // Pool for repos that extend with Pool-based pattern
+  protected _pool?: Pool | PoolClient;
+  protected _tableName?: string;
+
+  constructor(tableName?: string, pool?: Pool | PoolClient) {
+    if (tableName) this._tableName = tableName;
+    if (pool) this._pool = pool;
+  }
+
   /**
    * Get database pool (supports transactions)
    */
