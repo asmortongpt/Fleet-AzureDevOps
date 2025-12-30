@@ -830,3 +830,11 @@ export function getAvailableProviders(): MapProvider[] {
 export function resetMapProvider(reloadPage = true): void {
   setMapProvider("leaflet", reloadPage)
 }
+
+/**
+ * Map Service Provider component stub
+ * TODO: Implement actual provider component
+ */
+export function MapServiceProvider({ children }: { children: React.ReactNode }) {
+  return <>{children}</>
+}

@@ -35,13 +35,13 @@ const SystemHealthWidget: React.FC<Props> = ({ health, loading }) => {
     }
   }, [health]);
 
-  const statusColor = useMemo(() => {
-    if (!health) return 'default';
+  const statusColor = useMemo<'success' | 'warning' | 'error' | 'primary'>(() => {
+    if (!health) return 'primary';
     switch (health.status) {
       case 'healthy': return 'success';
       case 'degraded': return 'warning';
       case 'down': return 'error';
-      default: return 'default';
+      default: return 'primary';
     }
   }, [health]);
 

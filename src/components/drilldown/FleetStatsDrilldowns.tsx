@@ -435,3 +435,94 @@ export function FuelManagementDrilldown() {
         </div>
     )
 }
+
+// Additional Fleet Stats Drilldowns
+export function FuelStatsDrilldown() {
+    return (
+        <Card>
+            <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                    <Fuel className="h-5 w-5" /> Fuel Statistics
+                </CardTitle>
+            </CardHeader>
+            <CardContent className="text-muted-foreground">
+                Detailed fuel statistics will be displayed here
+            </CardContent>
+        </Card>
+    )
+}
+
+export function PerformanceMetricsDrilldown() {
+    return (
+        <Card>
+            <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                    <BarChart3 className="h-5 w-5" /> Performance Metrics
+                </CardTitle>
+            </CardHeader>
+            <CardContent className="text-muted-foreground">
+                Performance metrics will be displayed here
+            </CardContent>
+        </Card>
+    )
+}
+
+export function DriverStatsDrilldown() {
+    return (
+        <Card>
+            <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                    <Users className="h-5 w-5" /> Driver Statistics
+                </CardTitle>
+            </CardHeader>
+            <CardContent className="text-muted-foreground">
+                Driver statistics will be displayed here
+            </CardContent>
+        </Card>
+    )
+}
+
+export function UtilizationDrilldown() {
+    return (
+        <Card>
+            <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                    <Activity className="h-5 w-5" /> Utilization Details
+                </CardTitle>
+            </CardHeader>
+            <CardContent className="text-muted-foreground">
+                Utilization details will be displayed here
+            </CardContent>
+        </Card>
+    )
+}
+
+export function SafetyScoreDrilldown() {
+    return (
+        <Card>
+            <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                    <AlertCircle className="h-5 w-5" /> Safety Score Details
+                </CardTitle>
+            </CardHeader>
+            <CardContent className="text-muted-foreground">
+                Safety score details will be displayed here
+            </CardContent>
+        </Card>
+    )
+}
+
+export function VehicleListDrilldown() {
+    return (
+        <Card>
+            <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                    <Truck className="h-5 w-5" /> Vehicle List
+                </CardTitle>
+            </CardHeader>
+            <CardContent className="text-muted-foreground">
+                Vehicle list will be displayed here
+            </CardContent>
+        </Card>
+    )
+}

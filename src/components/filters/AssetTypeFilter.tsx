@@ -72,26 +72,25 @@ const assetCategories: { value: AssetCategory; label: string; icon: typeof Truck
 const powerTypes: { value: PowerType; label: string }[] = [
   { value: 'SELF_POWERED', label: 'Self-Powered' },
   { value: 'TOWED', label: 'Towed' },
-  { value: 'CARRIED_ASSET', label: 'Carried' },
   { value: 'STATIONARY', label: 'Stationary' },
-  { value: 'MANUAL_POWERED', label: 'Manual' }
+  { value: 'PORTABLE', label: 'Portable' }
 ]
 
 const operationalStatuses: { value: OperationalStatus; label: string; color: string }[] = [
   { value: 'AVAILABLE', label: 'Available', color: 'text-green-600' },
   { value: 'IN_USE', label: 'In Use', color: 'text-blue-600' },
   { value: 'MAINTENANCE', label: 'Maintenance', color: 'text-orange-600' },
-  { value: 'RESERVED', label: 'Reserved', color: 'text-purple-600' },
-  { value: 'OUT_OF_SERVICE_STATUS', label: 'Out of Service', color: 'text-red-600' }
+  { value: 'RESERVED', label: 'Reserved', color: 'text-purple-600' }
 ]
 
 const primaryMetrics: { value: PrimaryMetric; label: string }[] = [
-  { value: 'odometer', label: 'Odometer (Miles)' },
+  { value: 'mileage', label: 'Mileage' },
+  { value: 'fuel_consumed', label: 'Fuel Consumed' },
   { value: 'engine_hours', label: 'Engine Hours' },
   { value: 'pto_hours', label: 'PTO Hours' },
-  { value: 'aux_hours', label: 'Auxiliary Hours' },
-  { value: 'cycles', label: 'Cycle Count' },
-  { value: 'calendar', label: 'Calendar-Based' }
+  { value: 'idle_time', label: 'Idle Time' },
+  { value: 'cost', label: 'Cost' },
+  { value: 'efficiency', label: 'Efficiency' }
 ]
 
 export const AssetTypeFilter: React.FC<AssetTypeFilterProps> = ({

@@ -56,4 +56,7 @@ function TooltipContent({
   )
 }
 
+// Export type for tooltip props
+export type TooltipProps = ComponentProps<typeof TooltipPrimitive.Root>
+
 export { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider }
