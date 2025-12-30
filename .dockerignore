@@ -1,30 +1,45 @@
-# Minimal dockerignore for hotfix deployment
-# We NEED dist folder for this build, so only exclude truly unnecessary files
+# Node modules
+node_modules/
+npm-debug.log
+yarn-error.log
 
-# Dependencies (will be in dist already)
-node_modules
-package-lock.json
+# Development files
+.git/
+.github/
+.vscode/
+src/
+tests/
+playwright-report/
+test-results/
 
-# Git
-.git
+# Archives and large folders
+archive*/
+**/archive*/
+*.tar.gz
+*.zip
 
-# IDE
-.vscode
-.idea
-
-# OS
-.DS_Store
-
-# Large test directories
-playwright-report
-test-results
-benchmarks
-e2e/videos
-e2e/screenshots
+# Build artifacts (keep only dist/)
+.cache/
+coverage/
+*.log
 
 # Documentation
-docs
+*.md
+docs/
+README*
 
-# Temporary
-/tmp
-*.log
+# Config files not needed in Docker
+.env*
+.eslint*
+.prettier*
+tsconfig.json
+vite.config.ts
+playwright.config.ts
+package.json
+package-lock.json
+
+# Other unnecessary files
+ai-agents/
+mobile-apps/
+Dockerfile.*
+docker-compose.*
