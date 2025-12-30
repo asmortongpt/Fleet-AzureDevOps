@@ -1,13 +1,14 @@
 /**
  * CommunicationHubDrilldowns - Drilldown components for Communication hub
  */
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
-import { Progress } from '@/components/ui/progress'
 import {
-    ChatCircle, EnvelopeSimple, Clock, CheckCircle, Robot,
-    Users, TrendUp, Bell, Archive, Envelope
+    ChatCircle, EnvelopeSimple, Robot, Bell, Archive, Envelope
 } from '@phosphor-icons/react'
+
+import { Badge } from '@/components/ui/badge'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Progress } from '@/components/ui/progress'
+
 
 export function AiAgentDrilldown() {
     const conversations = [

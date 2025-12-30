@@ -1,15 +1,16 @@
+import {
+  User, Award, AlertTriangle,
+  CheckCircle, XCircle, Car, Clock, Star, Shield,
+  GraduationCap, Phone, Mail
+} from 'lucide-react';
 import React, { useState } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
-import {
-  User, Award, FileText, Calendar, TrendingUp, AlertTriangle,
-  CheckCircle, XCircle, Car, MapPin, Clock, Star, Shield,
-  GraduationCap, Phone, Mail, Home
-} from 'lucide-react';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useDrilldown } from '@/contexts/DrilldownContext';
 
 interface Driver {
