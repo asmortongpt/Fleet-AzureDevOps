@@ -1,2 +1,2 @@
 // Drivers repositories
-export * from './drivers.repository';
+export * from './driver.repository';
