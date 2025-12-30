@@ -264,13 +264,13 @@ export function useMutationWithErrorHandling<
 
   return useMutation<TData, TError, TVariables, TContext>({
     mutationFn,
-    onSuccess: (data, variables) => {
+    onSuccess: (data, variables, context, meta) => {
       if (showSuccessToast) {
         toast.success(successMessage);
       }
-      onSuccess?.(data, variables);
+      onSuccess?.(data, variables, context, meta);
     },
-    onError: (error, variables) => {
+    onError: (error, variables, context, meta) => {
       const userMessage = errorMessage || getErrorMessage(error);
 
       if (showErrorToast) {
@@ -284,7 +284,7 @@ export function useMutationWithErrorHandling<
         });
       }
 
-      onError?.(error, variables);
+      onError?.(error, variables, context, meta);
     },
     ...mutationOptions,
   });

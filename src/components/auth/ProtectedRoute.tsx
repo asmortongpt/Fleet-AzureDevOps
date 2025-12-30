@@ -72,7 +72,15 @@ export const ProtectedRoute = ({
 
         // Check role and permission authorization
         if (requiredRole || requiredPermission) {
-          const authorized = canAccess(requiredRole as string | string[] | undefined, requiredPermission as string | string[] | undefined)
+          // Validate requiredRole is string/string[] before passing
+          const normalizedRole = requiredRole && (typeof requiredRole === 'string' || Array.isArray(requiredRole))
+            ? requiredRole
+            : undefined
+          // Validate requiredPermission is string/string[] before passing
+          const normalizedPermission = requiredPermission && (typeof requiredPermission === 'string' || Array.isArray(requiredPermission))
+            ? requiredPermission
+            : undefined
+          const authorized = canAccess(normalizedRole, normalizedPermission)
           setIsAuthorized(authorized)
 
           if (!authorized) {

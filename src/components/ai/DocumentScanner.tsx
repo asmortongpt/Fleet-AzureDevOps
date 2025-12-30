@@ -105,9 +105,8 @@ export function DocumentScanner({
           formData.append('documentType', documentType)
         }
 
-        const response = await apiClient.post<DocumentAnalysis>('/api/ai/analyze-document', formData)
+        const analysisData = await apiClient.post<DocumentAnalysis>('/api/ai/analyze-document', formData)
 
-        const analysisData = response?.data
         setAnalyses(prev => new Map(prev).set(file.name, analysisData))
 
         if (onComplete && !allowBatch) {
