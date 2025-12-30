@@ -84,6 +84,8 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip"
 import { apiClient } from "@/lib/api-client"
+import { isSuccessResponse } from "@/lib/schemas/responses"
+import type { ApiResponse } from "@/lib/schemas/responses"
 import logger from '@/utils/logger'
 
 interface Task {
@@ -175,8 +177,10 @@ export function EnhancedTaskManagement() {
       if (filterStatus !== "all") params.append("status", filterStatus)
       if (filterType !== "all") params.append("category", filterType)
 
-      const response = await apiClient.get<ApiResponse<Task>>(`/api/task-management?${params.toString()}`)
-      setTasks(response.data?.tasks || [])
+      const response = await apiClient.get<ApiResponse<{ tasks: Task[] }>>(`/api/task-management?${params.toString()}`)
+      if (isSuccessResponse(response)) {
+        setTasks(response.data?.tasks || [])
+      }
     } catch (error) {
       logger.error("Error fetching tasks:", error)
       toast.error("Failed to load tasks")
@@ -194,22 +198,24 @@ export function EnhancedTaskManagement() {
 
     setIsLoadingAI(true)
     try {
-      const response = await apiClient.post<ApiResponse<Task>>("/api/ai/task-suggestions", {
+      const response = await apiClient.post<ApiResponse<{ suggestions: any }>>("/api/ai/task-suggestions", {
         title: taskData.task_title,
         description: taskData.description,
         type: taskData.task_type
       })
 
-      setAiSuggestions(response.data?.suggestions)
-      setShowAISuggestions(true)
-      toast.success("AI suggestions generated!")
+      if (isSuccessResponse(response)) {
+        setAiSuggestions(response.data?.suggestions)
+        setShowAISuggestions(true)
+        toast.success("AI suggestions generated!")
 
-      // Apply suggestions
-      if (response.data?.suggestions?.suggestedPriority) {
-        setNewTask(prev => ({ ...prev, priority: response.data?.suggestions?.suggestedPriority as 'low' | 'medium' | 'high' | 'critical' }))
-      }
-      if (response.data?.suggestions?.estimatedHours) {
-        setNewTask(prev => ({ ...prev, estimated_hours: response.data?.suggestions?.estimatedHours }))
+        // Apply suggestions
+        if (response.data?.suggestions?.suggestedPriority) {
+          setNewTask(prev => ({ ...prev, priority: response.data?.suggestions?.suggestedPriority as 'low' | 'medium' | 'high' | 'critical' }))
+        }
+        if (response.data?.suggestions?.estimatedHours) {
+          setNewTask(prev => ({ ...prev, estimated_hours: response.data?.suggestions?.estimatedHours }))
+        }
       }
     } catch (error) {
       logger.error("Error getting AI suggestions:", error)
@@ -260,8 +266,8 @@ export function EnhancedTaskManagement() {
     }
 
     try {
-      const response = await apiClient.post<ApiResponse<Task>>("/api/task-management", newTask)
-      if (response.data?.task) {
+      const response = await apiClient.post<ApiResponse<{ task: Task }>>("/api/task-management", newTask)
+      if (isSuccessResponse(response) && response.data?.task) {
         setTasks(current => [...current, response.data.task as Task])
       }
       toast.success("Task created successfully")

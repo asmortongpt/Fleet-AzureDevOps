@@ -485,7 +485,7 @@ export function useVehicleMutations() {
   });
 
   const deleteVehicle = useMutation<void, Error, { id: string; tenant_id: string }>({
-    mutationFn: async ({ id, _tenant_id }) => {
+    mutationFn: async ({ id }) => {
       const res = await secureFetch(`/api/vehicles/${id}`, {
         method: 'DELETE',
       });
@@ -546,7 +546,7 @@ export function useDriverMutations() {
   });
 
   const deleteDriver = useMutation<void, Error, { id: string; tenant_id: string }>({
-    mutationFn: async ({ id, _tenant_id }) => {
+    mutationFn: async ({ id }) => {
       const res = await secureFetch(`/api/drivers/${id}`, {
         method: 'DELETE',
       });
