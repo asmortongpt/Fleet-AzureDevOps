@@ -506,3 +506,6 @@ export default function VirtualGarage() {
     </div>
   );
 }
+// Named export for compatibility
+export { VirtualGarage }
+export default VirtualGarage

@@ -199,7 +199,7 @@ const EmulatorMonitor: React.FC<Props> = ({ emulators, loading }) => {
       {/* Overall Statistics */}
       <Paper sx={{ p: 2, mb: 3 }}>
         <Grid container spacing={3}>
-          <Grid item xs={3}>
+          <Grid size={{ xs: 3 }}>
             <Box textAlign="center">
               <Typography variant="h5" color="primary">
                 {emulators.statistics?.totalRecords.toLocaleString() ?? 0}
@@ -209,7 +209,7 @@ const EmulatorMonitor: React.FC<Props> = ({ emulators, loading }) => {
               </Typography>
             </Box>
           </Grid>
-          <Grid item xs={3}>
+          <Grid size={{ xs: 3 }}>
             <Box textAlign="center">
               <Typography variant="h5" color="success.main">
                 {emulators.active?.length ?? 0}
@@ -219,7 +219,7 @@ const EmulatorMonitor: React.FC<Props> = ({ emulators, loading }) => {
               </Typography>
             </Box>
           </Grid>
-          <Grid item xs={3}>
+          <Grid size={{ xs: 3 }}>
             <Box textAlign="center">
               <Typography variant="h5">
                 {emulators.statistics?.totalMemory ?? 0} MB
@@ -229,7 +229,7 @@ const EmulatorMonitor: React.FC<Props> = ({ emulators, loading }) => {
               </Typography>
             </Box>
           </Grid>
-          <Grid item xs={3}>
+          <Grid size={{ xs: 3 }}>
             <Box textAlign="center">
               <Typography variant="h5" color={emulators.statistics?.errorRate > 5 ? 'error' : 'text.primary'}>
                 {(emulators.statistics?.errorRate ?? 0).toFixed(2)}%
@@ -348,7 +348,7 @@ const EmulatorMonitor: React.FC<Props> = ({ emulators, loading }) => {
                     <Collapse in={expandedEmulator === emulator.id}>
                       <Box sx={{ p: 2, bgcolor: 'background.default' }}>
                         <Grid container spacing={2}>
-                          <Grid item xs={4}>
+                          <Grid size={{ xs: 4 }}>
                             <Typography variant="caption" color="text.secondary">
                               Configuration
                             </Typography>
@@ -362,7 +362,7 @@ const EmulatorMonitor: React.FC<Props> = ({ emulators, loading }) => {
                               Interval: {emulator.config?.interval ?? 60}s
                             </Typography>
                           </Grid>
-                          <Grid item xs={4}>
+                          <Grid size={{ xs: 4 }}>
                             <Typography variant="caption" color="text.secondary">
                               Performance
                             </Typography>
@@ -373,7 +373,7 @@ const EmulatorMonitor: React.FC<Props> = ({ emulators, loading }) => {
                               Error Count: {emulator.errorCount ?? 0}
                             </Typography>
                           </Grid>
-                          <Grid item xs={4}>
+                          <Grid size={{ xs: 4 }}>
                             <Box display="flex" gap={1}>
                               <Button
                                 size="small"
