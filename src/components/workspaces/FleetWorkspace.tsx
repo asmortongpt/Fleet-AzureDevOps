@@ -362,7 +362,7 @@ export function FleetWorkspace({ _data }: { _data?: unknown }) {
     isConnected: isRealtimeConnected,
   } = useVehicleTelemetry({
     enabled: true,
-    initialVehicles: vehicles as Vehicle[],
+    initialVehicles: vehicles as unknown as Vehicle[],
   })
 
   // Use real-time vehicles if available, otherwise use static data
@@ -372,7 +372,7 @@ export function FleetWorkspace({ _data }: { _data?: unknown }) {
   const { push: _push } = useDrilldown()
 
   const handleVehicleSelect = useCallback((vehicleId: string) => {
-    const vehicle = (displayVehicles as Vehicle[]).find((v: Vehicle) => v.id === vehicleId)
+    const vehicle = (displayVehicles as unknown as Vehicle[]).find((v: Vehicle) => v.id === vehicleId)
     if (vehicle) {
       setSelectedVehicle(vehicle)
       setActivePanel('telemetry')
@@ -381,10 +381,10 @@ export function FleetWorkspace({ _data }: { _data?: unknown }) {
 
   // Stats overlay data
   const stats = useMemo(() => ({
-    active: (displayVehicles as Vehicle[]).filter((v: Vehicle) => v.status === 'active').length,
-    idle: (displayVehicles as Vehicle[]).filter((v: Vehicle) => v.status === 'idle').length,
-    service: (displayVehicles as Vehicle[]).filter((v: Vehicle) => v.status === 'service').length,
-    offline: (displayVehicles as Vehicle[]).filter((v: Vehicle) => v.status === 'offline').length
+    active: (displayVehicles as unknown as Vehicle[]).filter((v: Vehicle) => v.status === 'active').length,
+    idle: (displayVehicles as unknown as Vehicle[]).filter((v: Vehicle) => v.status === 'idle').length,
+    service: (displayVehicles as unknown as Vehicle[]).filter((v: Vehicle) => v.status === 'service').length,
+    offline: (displayVehicles as unknown as Vehicle[]).filter((v: Vehicle) => v.status === 'offline').length
   }), [displayVehicles])
 
   return (

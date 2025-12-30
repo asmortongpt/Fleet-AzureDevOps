@@ -35,7 +35,7 @@ export function OperationsHubMap({
   const [_mapCenter, _setMapCenter] = useState({ lat: 28.5383, lng: -81.3792 }); // Orlando, FL default
 
   // Filter vehicles with coordinates
-  const vehiclesWithCoords = (vehicles as Vehicle[]).filter((v: Vehicle) =>
+  const vehiclesWithCoords = (vehicles as unknown as Vehicle[]).filter((v: Vehicle) =>
     v.latitude != null && v.longitude != null
   );
 
@@ -74,7 +74,7 @@ export function OperationsHubMap({
           </div>
           <div className="flex items-center gap-2">
             <div className="w-3 h-3 bg-amber-500 rounded-full"></div>
-            <span>Maintenance ({(vehicles as Vehicle[]).filter((v: Vehicle) => v.status === 'maintenance').length})</span>
+            <span>Maintenance ({(vehicles as unknown as Vehicle[]).filter((v: Vehicle) => v.status === 'maintenance').length})</span>
           </div>
           {showGeofences && (
             <div className="flex items-center gap-2">

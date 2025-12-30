@@ -45,7 +45,7 @@ export const FeatureFlagProvider = ({ children }: FeatureFlagProviderProps) => {
         if (user?.role === 'SuperAdmin') return true;
 
         // 2. Check tenant settings (database-backed feature flags)
-        const typedSettings = settings as TenantSettingsWithPlan | undefined;
+        const typedSettings = settings as unknown as TenantSettingsWithPlan | undefined;
         if (typedSettings?.features && typedSettings.features[featureKey] !== undefined) {
             if (!typedSettings.features[featureKey]) return false;
         }

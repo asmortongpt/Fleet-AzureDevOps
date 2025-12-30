@@ -405,10 +405,10 @@ export function AnalyticsWorkspace() {
       </div>
       <div className="flex-1 overflow-hidden">
         {activeView === 'executive' && (
-          <ExecutiveDashboard vehicles={(vehicles || []) as Vehicle[]} workOrders={(workOrders || []) as WorkOrder[]} _drivers={drivers} />
+          <ExecutiveDashboard vehicles={(vehicles || []) as unknown as Vehicle[]} workOrders={(workOrders || []) as unknown as WorkOrder[]} _drivers={drivers} />
         )}
         {activeView === 'analysis' && (
-          <DataAnalysis vehicles={(vehicles || []) as Vehicle[]} _workOrders={workOrders} _facilities={facilities} />
+          <DataAnalysis vehicles={(vehicles || []) as unknown as Vehicle[]} _workOrders={workOrders} _facilities={facilities} />
         )}
       </div>
     </div>
