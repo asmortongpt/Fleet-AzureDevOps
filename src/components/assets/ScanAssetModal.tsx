@@ -71,7 +71,7 @@ const ScanAssetModal: React.FC<ScanAssetModalProps> = ({ tenantId, onClose }) =>
           const codeReader = new BrowserMultiFormatReader();
           const videoElement = document.querySelector('video') as HTMLVideoElement;
           if (videoElement) {
-            codeReader.decodeFromVideoElement(videoElement, (result: Result | null, err: Error | null) => {
+            (codeReader as any).decodeFromVideoElement(videoElement, (result: Result | null, err: Error | null) => {
               if (result) {
                 handleScan(result.getText());
               }
