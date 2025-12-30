@@ -1,0 +1,14 @@
+{
+  "backend": {
+    "vehicle_service_layer": true,
+    "domain_routes_structure": true,
+    "dependency_injection": false
+  },
+  "frontend": {
+    "frontend_typescript_strict": true,
+    "eslint_config_frontend": true,
+    "reusable_components": true,
+    "reusable_hooks": true
+  },
+  "errors": []
+}
