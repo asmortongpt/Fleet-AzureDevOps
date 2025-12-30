@@ -137,19 +137,19 @@ export function FilterBar({
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">
-                    All {stats && `(${stats?.all ?? 0})`}
+                    All {stats && `(${(stats as any)?.all ?? 0})`}
                   </SelectItem>
                   <SelectItem value="active">
-                    Active {stats && `(${stats?.active ?? 0})`}
+                    Active {stats && `(${(stats as any)?.active ?? 0})`}
                   </SelectItem>
                   <SelectItem value="inactive">
-                    Inactive {stats && `(${stats?.inactive ?? 0})`}
+                    Inactive {stats && `(${(stats as any)?.inactive ?? 0})`}
                   </SelectItem>
                   <SelectItem value="maintenance">
-                    Maintenance {stats && `(${stats?.maintenance ?? 0})`}
+                    Maintenance {stats && `(${(stats as any)?.maintenance ?? 0})`}
                   </SelectItem>
                   <SelectItem value="out_of_service">
-                    Out of Service {stats && `(${stats?.outOfService ?? 0})`}
+                    Out of Service {stats && `(${(stats as any)?.outOfService ?? 0})`}
                   </SelectItem>
                 </SelectContent>
               </Select>
