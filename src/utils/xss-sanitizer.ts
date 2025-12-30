@@ -18,13 +18,13 @@ export function sanitizeHtml(dirty: string, options?: Partial<DOMPurify.Config>)
     return '';
   }
 
-  const config: DOMPurify.Config = {
+  const config = {
     ALLOWED_TAGS: ['b', 'i', 'em', 'strong', 'a', 'p', 'br', 'ul', 'ol', 'li', 'span', 'div'],
     ALLOWED_ATTR: ['href', 'title', 'target', 'rel', 'class'],
     ALLOW_DATA_ATTR: false,
     SAFE_FOR_TEMPLATES: true,
     ...(options || {}),
-  };
+  } as const;
 
   return DOMPurify.sanitize(dirty, config);
 }
