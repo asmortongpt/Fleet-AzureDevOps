@@ -121,14 +121,14 @@ export function useUpdateVehicle(
   return useMutationWithErrorHandling<Vehicle, unknown, Partial<Vehicle> & { id: string }>(
     async ({ id, ...updates }) => {
       const response = await apiClient.put<Vehicle>(`/api/vehicles/${id}`, updates);
-      return response;
+      return (response as any)?.data || response;
     },
     {
       successMessage: 'Vehicle updated successfully',
       errorMessage: 'Failed to update vehicle. Please try again.',
-      onSuccess: (data) => {
+      onSuccess: (data: any) => {
         queryClient.invalidateQueries({ queryKey: queryKeys.vehicles });
-        queryClient.invalidateQueries({ queryKey: queryKeys.vehicle(data.id) });
+        queryClient.invalidateQueries({ queryKey: queryKeys.vehicle(data?.id) });
       },
       ...options,
     }
@@ -225,14 +225,14 @@ export function useUpdateDriver(
   return useMutationWithErrorHandling<Driver, unknown, Partial<Driver> & { id: string }>(
     async ({ id, ...updates }) => {
       const response = await apiClient.put<Driver>(`/api/drivers/${id}`, updates);
-      return response;
+      return (response as any)?.data || response;
     },
     {
       successMessage: 'Driver updated successfully',
       errorMessage: 'Failed to update driver. Please try again.',
-      onSuccess: (data) => {
+      onSuccess: (data: any) => {
         queryClient.invalidateQueries({ queryKey: queryKeys.drivers });
-        queryClient.invalidateQueries({ queryKey: queryKeys.driver(data.id) });
+        queryClient.invalidateQueries({ queryKey: queryKeys.driver(data?.id) });
       },
       ...options,
     }
