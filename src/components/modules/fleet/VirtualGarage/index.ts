@@ -1,1 +1,1 @@
-export * from "./VirtualGarage";
+export * from "../VirtualGarage";
