@@ -24,7 +24,6 @@ import {
   TextField,
   Button,
   IconButton,
-  Grid,
   Card,
   CardContent,
   Chip,
@@ -44,6 +43,7 @@ import {
   CircularProgress,
   Alert
 } from '@mui/material'
+import Grid from '@mui/material/Grid2'
 import { useQuery } from '@tanstack/react-query'
 import axios from 'axios'
 import React, { useState, useEffect, useRef, useCallback } from 'react'
