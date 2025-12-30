@@ -6,6 +6,23 @@ export interface FilterOptions {
   makeFilter: string;
 }
 
+export interface VehicleFilterState {
+  searchTerm: string;
+  status: string;
+  type: string;
+  location: string;
+  department: string;
+  make: string;
+  assignedOnly: boolean;
+  availableOnly: boolean;
+}
+
+export interface FilterStatsType {
+  total: number;
+  byStatus: Record<string, number>;
+  byMake: Record<string, number>;
+}
+
 export function useVehicleFilters<T extends { number: string; make: string; model: string; status: string }>(
   vehicles: T[],
   options: FilterOptions
@@ -30,6 +47,24 @@ export function useVehicleFilters<T extends { number: string; make: string; mode
       filtered = filtered.filter(v => v.make === options.makeFilter);
     }
 
-    return filtered;
+    // Return object with filters and filterStats
+    const filters: VehicleFilterState = {
+      searchTerm: options.searchQuery,
+      status: options.statusFilter,
+      type: 'all',
+      location: 'all',
+      department: 'all',
+      make: options.makeFilter,
+      assignedOnly: false,
+      availableOnly: false,
+    };
+
+    const filterStats: FilterStatsType = {
+      total: vehicles.length,
+      byStatus: {},
+      byMake: {},
+    };
+
+    return { filtered, filters, filterStats };
   }, [vehicles, options.searchQuery, options.statusFilter, options.makeFilter]);
 }

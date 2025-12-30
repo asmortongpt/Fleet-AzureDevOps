@@ -182,7 +182,11 @@ export function CustomReportBuilder() {
     }
   })
 
-  const executeReportMutation = useMutation({
+  const executeReportMutation = useMutation<
+    { rowCount: number; executionId: string },
+    Error,
+    { reportId: string; format: string }
+  >({
     mutationFn: async ({ reportId, format }: { reportId: string; format: string }) => {
       return (await apiClient.post(`/custom-reports/${reportId}/execute`, { format })).data
     },

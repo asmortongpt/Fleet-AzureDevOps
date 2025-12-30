@@ -43,6 +43,10 @@ interface DataGridProps<TData> {
   className?: string;
   compactMode?: boolean;
   stickyHeader?: boolean;
+  enableSearch?: boolean;
+  searchPlaceholder?: string;
+  enablePagination?: boolean;
+  emptyMessage?: string;
 }
 
 export function DataGrid<TData extends { id?: string | number }>({

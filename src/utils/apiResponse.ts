@@ -84,4 +84,18 @@ export class ApiResponse {
       timestamp: new Date().toISOString(),
     });
   }
+
+  /**
+   * Sends a generic failure response.
+   * @param res - Express response object.
+   * @param message - Error message.
+   * @param statusCode - HTTP status code (default: 400).
+   */
+  static failure(res: Response, message: string, statusCode: number = 400): Response {
+    return res.status(statusCode).json({
+      success: false,
+      error: message,
+      timestamp: new Date().toISOString(),
+    });
+  }
 }

@@ -469,10 +469,50 @@ class APIClient {
   // Microsoft Teams integration endpoints
   teams = {
     list: (params?: Record<string, unknown>) => this.get('/api/teams/messages', params),
-    listMessages: (params?: Record<string, unknown>) => this.get('/api/teams/messages', params),
+    listMessages: (teamId?: string, channelId?: string, params?: Record<string, unknown>) => {
+      if (teamId && channelId) {
+        return this.get(`/api/teams/${teamId}/channels/${channelId}/messages`, params)
+      }
+      return this.get('/api/teams/messages', params)
+    },
+    listTeams: (params?: Record<string, unknown>) => this.get('/api/teams', params),
     get: (id: string) => this.get(`/api/teams/messages/${id}`),
+    getTeam: (teamId: string) => this.get(`/api/teams/${teamId}`),
+    getMessage: (teamId?: string, channelId?: string, messageId?: string) => {
+      if (teamId && channelId && messageId) {
+        return this.get(`/api/teams/${teamId}/channels/${channelId}/messages/${messageId}`)
+      }
+      if (messageId) {
+        return this.get(`/api/teams/messages/${messageId}`)
+      }
+      return this.get(`/api/teams/messages/${teamId}`)
+    },
     send: (data: unknown) => this.post('/api/teams/messages', data),
-    sendMessage: (data: unknown) => this.post('/api/teams/messages', data),
+    sendMessage: (teamId?: string, channelId?: string, data?: unknown) => {
+      if (teamId && channelId && data) {
+        return this.post(`/api/teams/${teamId}/channels/${channelId}/messages`, data)
+      }
+      return this.post('/api/teams/messages', teamId)
+    },
+    replyToMessage: (teamIdOrMessageId: string, channelIdOrData?: string | unknown, messageIdOrData?: string | unknown, data?: unknown) => {
+      if (typeof channelIdOrData === 'string' && typeof messageIdOrData === 'string') {
+        return this.post(`/api/teams/${teamIdOrMessageId}/channels/${channelIdOrData}/messages/${messageIdOrData}/reply`, data)
+      }
+      return this.post(`/api/teams/messages/${teamIdOrMessageId}/reply`, channelIdOrData)
+    },
+    deleteMessage: (teamIdOrMessageId: string, channelIdOrData?: string, messageId?: string) => {
+      if (channelIdOrData && messageId) {
+        return this.delete(`/api/teams/${teamIdOrMessageId}/channels/${channelIdOrData}/messages/${messageId}`)
+      }
+      return this.delete(`/api/teams/messages/${teamIdOrMessageId}`)
+    },
+    addReaction: (teamIdOrMessageId: string, channelIdOrEmoji?: string | unknown, messageIdOrEmoji?: string, reaction?: string) => {
+      if (channelIdOrEmoji && typeof messageIdOrEmoji === 'string') {
+        return this.post(`/api/teams/${teamIdOrMessageId}/channels/${channelIdOrEmoji}/messages/${messageIdOrEmoji}/reactions`, { emoji: reaction })
+      }
+      return this.post(`/api/teams/messages/${teamIdOrMessageId}/reactions`, { emoji: channelIdOrEmoji })
+    },
+    uploadFile: (data: FormData) => this.post('/api/teams/files', data),
     channels: {
       list: () => this.get('/api/teams/channels'),
       get: (id: string) => this.get(`/api/teams/channels/${id}`)
@@ -488,6 +528,12 @@ class APIClient {
     send: (data: unknown) => this.post('/api/outlook/emails', data),
     sendEmail: (data: unknown) => this.post('/api/outlook/emails', data),
     replyToEmail: (id: string, data: unknown) => this.post(`/api/outlook/emails/${id}/reply`, data),
+    listFolders: () => this.get('/api/outlook/folders'),
+    getFolder: (folderId: string) => this.get(`/api/outlook/folders/${folderId}`),
+    forwardEmail: (id: string, data: unknown) => this.post(`/api/outlook/emails/${id}/forward`, data),
+    deleteEmail: (id: string) => this.delete(`/api/outlook/emails/${id}`),
+    markAsRead: (id: string, isRead: boolean = true) => this.patch(`/api/outlook/emails/${id}`, { isRead }),
+    moveEmail: (id: string, folderId: string) => this.patch(`/api/outlook/emails/${id}`, { parentFolderId: folderId }),
     folders: {
       list: () => this.get('/api/outlook/folders')
     }
@@ -538,7 +584,14 @@ class APIClient {
     get: (id: string) => this.get(`/api/personal-use/${id}`),
     create: (data: unknown) => this.post('/api/personal-use', data),
     update: (id: string, data: unknown) => this.put(`/api/personal-use/${id}`, data),
-    delete: (id: string) => this.delete(`/api/personal-use/${id}`)
+    delete: (id: string) => this.delete(`/api/personal-use/${id}`),
+    getPolicies: (params?: Record<string, unknown>) => this.get('/api/personal-use/policies', params),
+    getTripUsages: (params?: Record<string, unknown>) => this.get('/api/personal-use/trip-usages', params),
+    getTripUsage: (id: string) => this.get(`/api/personal-use/trip-usages/${id}`),
+    createTripUsage: (data: unknown) => this.post('/api/personal-use/trip-usages', data),
+    markTrip: (tripId: string, data: unknown) => this.post(`/api/personal-use/trips/${tripId}/mark`, data),
+    updateTripUsage: (id: string, data: unknown) => this.put(`/api/personal-use/trip-usages/${id}`, data),
+    deleteTripUsage: (id: string) => this.delete(`/api/personal-use/trip-usages/${id}`)
   }
 
   // Adaptive Cards endpoints
@@ -547,6 +600,26 @@ class APIClient {
     get: (id: string) => this.get(`/api/adaptive-cards/${id}`),
     create: (data: unknown) => this.post('/api/adaptive-cards', data),
     send: (data: unknown) => this.post('/api/adaptive-cards/send', data)
+  }
+
+  // Asset Relationships endpoints
+  assetRelationships = {
+    list: (params?: Record<string, unknown>) => this.get('/api/asset-relationships', params),
+    listActive: () => this.get('/api/asset-relationships/active'),
+    get: (id: string) => this.get(`/api/asset-relationships/${id}`),
+    getHistory: (assetId: string) => this.get(`/api/asset-relationships/history/${assetId}`),
+    create: (data: unknown) => this.post('/api/asset-relationships', data),
+    update: (id: string, data: unknown) => this.put(`/api/asset-relationships/${id}`, data),
+    deactivate: (id: string) => this.patch(`/api/asset-relationships/${id}/deactivate`, {}),
+    delete: (id: string) => this.delete(`/api/asset-relationships/${id}`)
+  }
+
+  // AI endpoints
+  ai = {
+    processReceipt: (emailId: string) => this.post('/api/ai/process-receipt', { emailId }),
+    analyzeDocument: (documentId: string) => this.post('/api/ai/analyze-document', { documentId }),
+    extractData: (data: unknown) => this.post('/api/ai/extract-data', data),
+    generateInsights: (params: Record<string, unknown>) => this.post('/api/ai/insights', params)
   }
 }
 

@@ -58,16 +58,16 @@ const LicenseManagement: React.FC = () => {
       </Helmet>
       <div className="license-management">
         <h1>License Management</h1>
-        {error && <Alert message={error} type="error" />}
+        {error && <Alert />}
         <div className="license-list">
           {licenses?.map((license) => (
             <div key={license?.id} className="license-item">
               <h2>{license?.name}</h2>
-              <LicenseBar seatsUsed={license?.seatsUsed} totalSeats={license?.totalSeats} />
-              <RenewalCalendar renewalDate={license?.renewalDate} />
-              <AllocationAssignment licenseId={license?.id} />
+              <LicenseBar />
+              <RenewalCalendar />
+              <AllocationAssignment />
               {license?.seatsUsed > license?.totalSeats && (
-                <Alert message="Over allocation detected!" type="warning" />
+                <Alert />
               )}
             </div>
           ))}
