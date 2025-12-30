@@ -282,6 +282,7 @@ function App() {
       case "osha-forms":
         return <OSHAForms />
       case "policy-engine":
+      case "policy-management":
         return <PolicyEngineWorkbench />
       case "video-telematics":
         return <VideoTelematics />
