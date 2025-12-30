@@ -1,5 +1,6 @@
 import { useQuery, useMutation, useQueryClient, QueryKey } from '@tanstack/react-query';
 
+import type { FuelTransaction } from '@/lib/types';
 import logger from '@/utils/logger';
 
 /**
@@ -229,26 +230,6 @@ interface WorkOrder {
   engine_hours_reading?: number;
   notes?: string;
   created_by: string;
-  created_at: string;
-  updated_at: string;
-}
-
-interface FuelTransaction {
-  id: string;
-  tenant_id: string;
-  vehicle_id: string;
-  driver_id?: string;
-  fuel_card_id?: string;
-  transaction_date: string;
-  fuel_type: string;
-  quantity_gallons: number;
-  price_per_gallon: number;
-  total_cost: number;
-  odometer_reading?: number;
-  location?: string;
-  vendor?: string;
-  receipt_number?: string;
-  notes?: string;
   created_at: string;
   updated_at: string;
 }

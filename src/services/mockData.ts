@@ -19,6 +19,8 @@
 
 import { addDays, subDays } from "date-fns"
 
+import type { FuelTransaction as FuelTransactionType } from '@/lib/types';
+
 // ============================================================================
 // TYPE DEFINITIONS
 // ============================================================================
@@ -98,17 +100,7 @@ export interface MaintenanceRecord {
   priority: "low" | "medium" | "high" | "critical"
 }
 
-export interface FuelTransaction {
-  id: string
-  vehicleId: string
-  driverId: string
-  date: Date
-  gallons: number
-  pricePerGallon: number
-  totalCost: number
-  location: string
-  odometer: number
-}
+export type FuelTransaction = FuelTransactionType;
 
 export interface Alert {
   id: string
