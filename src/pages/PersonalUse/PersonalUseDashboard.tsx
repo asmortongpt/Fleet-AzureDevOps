@@ -11,7 +11,7 @@ import {
 } from '@phosphor-icons/react'
 import { useQuery } from '@tanstack/react-query'
 import { format } from 'date-fns'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { toast } from 'sonner'
 
 import { TripMarker } from '@/components/PersonalUse/TripMarker'
@@ -115,7 +115,7 @@ export function PersonalUseDashboard() {
   })
 
   // Handle errors with useEffect
-  React.useEffect(() => {
+  useEffect(() => {
     if (reimbursementsError) {
       logger.error('Failed to fetch dashboard data:', reimbursementsError)
       toast.error('Failed to load dashboard data')
