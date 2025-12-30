@@ -64,7 +64,7 @@ interface ApiResponse<T> {
   data: T
 }
 
-const apiClient = async <T>(url: string): Promise<ApiResponse<T>> => {
+const apiClient = async <T extends unknown>(url: string): Promise<ApiResponse<T>> => {
   const token = localStorage.getItem('token')
   const response = await fetch(url, {
     headers: { Authorization: `Bearer ${token}` }
