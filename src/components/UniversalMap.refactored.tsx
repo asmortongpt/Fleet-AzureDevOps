@@ -131,7 +131,7 @@ export function UniversalMap(props: UniversalMapProps) {
     onMapReady?.(provider)
 
     if (import.meta.env.DEV && totalMarkerCount > 0) {
-      const suggestions = getMarkerOptimizationSuggestions(totalMarkerCount) as OptimizationSuggestion[]
+      const suggestions = getMarkerOptimizationSuggestions(totalMarkerCount) as unknown as OptimizationSuggestion[]
       if (suggestions.length > 0) {
         logger.debug("\n🚀 Performance Optimization Suggestions:")
         suggestions.forEach((s) => {

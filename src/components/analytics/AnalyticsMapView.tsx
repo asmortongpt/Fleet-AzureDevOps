@@ -307,7 +307,7 @@ export function AnalyticsMapView({ analyticsType, onVehicleSelect }: AnalyticsMa
       {/* Vehicle Count */}
       <div className="pt-2 border-t">
         <div className="text-xs text-muted-foreground text-center">
-          Showing {(filteredVehicles as Vehicle[]).length} of {(vehicles as Vehicle[]).length} vehicles
+          Showing {(filteredVehicles as unknown as Vehicle[]).length} of {(vehicles as unknown as Vehicle[]).length} vehicles
         </div>
       </div>
     </div>
