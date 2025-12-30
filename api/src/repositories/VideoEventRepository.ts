@@ -1,6 +1,6 @@
 import { injectable } from 'inversify'
 
-import { BaseRepository, PaginatedResult, PaginationOptions, QueryContext } from './BaseRepository'
+import { BaseRepository, PaginatedResult, PaginationOptions, QueryContext } from './base/BaseRepository'
 
 /**
  * VideoEvent entity with complete field definitions
