@@ -166,7 +166,7 @@ export function MapHealthDashboard(props: MapHealthDashboardProps) {
             </CardDescription>
           </div>
           <Badge variant="outline" className="ml-auto">
-            Recommended: {getProviderName(healthCheck.recommendedProvider)}
+            Recommended: {getProviderName(healthCheck.manager.getRecommendedProvider())}
           </Badge>
         </div>
       </CardHeader>

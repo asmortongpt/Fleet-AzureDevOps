@@ -16,7 +16,7 @@ import { useFleetData } from "@/hooks/use-fleet-data"
 import { WorkOrder, ServiceBay, Technician } from "@/lib/types"
 
 // Type guard to check if a facility is a ServiceBay
-function isServiceBay(item: any): item is ServiceBay {
+function isServiceBay(item: unknown): item is ServiceBay {
   return (
     item &&
     typeof item === 'object' &&
@@ -61,7 +61,7 @@ export function GarageService() {
   const [activeTab, setActiveTab] = useState<string>("dashboard")
 
   const metrics = {
-    availableBays: serviceBays.filter(b => b.status === "available").length,
+    availableBays: serviceBays.filter(b => b.status === "operational").length,
     activeWorkOrders: workOrders.filter(w => w.status === "in-progress").length,
     availableTechs: technicians.filter(t => t.availability === "available").length,
     overdueJobs: workOrders.filter(w => w.status === "pending" && w.priority === "urgent").length
@@ -153,7 +153,16 @@ export function GarageService() {
                           <p className="text-sm text-muted-foreground">{bay.vehicle} • {bay.serviceType}</p>
                         )}
                       </div>
-                      <Badge variant="outline" className={bay.status === "available" ? "bg-success/10 text-success border-success/20" : "bg-warning/10 text-warning border-warning/20"}>
+                      <Badge
+                        variant="outline"
+                        className={
+                          bay.status === "operational"
+                            ? "bg-success/10 text-success border-success/20"
+                            : bay.status === "maintenance"
+                            ? "bg-accent/10 text-accent border-accent/20"
+                            : "bg-warning/10 text-warning border-warning/20"
+                        }
+                      >
                         {bay.status}
                       </Badge>
                     </div>
@@ -198,20 +207,38 @@ export function GarageService() {
             <CardContent>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {serviceBays.map(bay => (
-                  <Card key={bay.id} className={bay.status === "available" ? "border-success/50" : "border-warning/50"}>
+                  <Card
+                    key={bay.id}
+                    className={
+                      bay.status === "operational"
+                        ? "border-success/50"
+                        : bay.status === "maintenance"
+                        ? "border-accent/50"
+                        : "border-warning/50"
+                    }
+                  >
                     <CardContent className="p-6">
                       <div className="flex items-start justify-between mb-4">
                         <div>
                           <h3 className="font-semibold text-lg">{bay.number}</h3>
-                          <Badge variant="outline" className={bay.status === "available" ? "bg-success/10 text-success border-success/20 mt-2" : "bg-warning/10 text-warning border-warning/20 mt-2"}>
+                          <Badge
+                            variant="outline"
+                            className={
+                              bay.status === "operational"
+                                ? "bg-success/10 text-success border-success/20 mt-2"
+                                : bay.status === "maintenance"
+                                ? "bg-accent/10 text-accent border-accent/20 mt-2"
+                                : "bg-warning/10 text-warning border-warning/20 mt-2"
+                            }
+                          >
                             {bay.status}
                           </Badge>
                         </div>
-                        {bay.status === "occupied" && (
+                        {bay.status === "maintenance" && (
                           <Wrench className="w-6 h-6 text-muted-foreground" />
                         )}
                       </div>
-                      {bay.vehicle && (
+                      {bay.status !== "closed" && bay.vehicle && (
                         <div className="space-y-2 text-sm">
                           <div className="flex justify-between">
                             <span className="text-muted-foreground">Vehicle:</span>
@@ -233,7 +260,7 @@ export function GarageService() {
                           )}
                         </div>
                       )}
-                      {bay.status === "available" && (
+                      {bay.status === "operational" && !bay.vehicle && (
                         <p className="text-sm text-muted-foreground">Ready for service</p>
                       )}
                     </CardContent>

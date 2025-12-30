@@ -34,7 +34,7 @@ import { useVehicles, useFacilities, useDrivers, useVehicleMutations } from "@/h
 import { useVehicleTelemetry } from "@/hooks/useVehicleTelemetry"
 import { cn } from "@/lib/utils"
 
-interface Vehicle {
+interface FleetVehicle {
   id: string;
   year: number;
   make: string;
@@ -62,7 +62,7 @@ interface Telemetry {
 }
 
 // Vehicle Telemetry Panel
-const VehicleTelemetryPanel = ({ vehicle, telemetry }: { vehicle: Vehicle | null; telemetry: Telemetry | null }) => {
+const VehicleTelemetryPanel = ({ vehicle, telemetry }: { vehicle: FleetVehicle | null; telemetry: Telemetry | null }) => {
   if (!vehicle) {
     return (
       <div className="p-4 text-center text-muted-foreground">
@@ -235,7 +235,7 @@ const VehicleTelemetryPanel = ({ vehicle, telemetry }: { vehicle: Vehicle | null
 }
 
 // Vehicle Inventory Panel
-const VehicleInventoryPanel = ({ vehicles, onVehicleSelect }: { vehicles: Vehicle[]; onVehicleSelect: (vehicle: Vehicle) => void }) => {
+const VehicleInventoryPanel = ({ vehicles, onVehicleSelect }: { vehicles: FleetVehicle[]; onVehicleSelect: (vehicle: FleetVehicle) => void }) => {
   const [filter, setFilter] = useState('all')
   const [sortBy, setSortBy] = useState('status')
 
@@ -243,11 +243,11 @@ const VehicleInventoryPanel = ({ vehicles, onVehicleSelect }: { vehicles: Vehicl
     let filtered = vehicles || []
 
     if (filter !== 'all') {
-      filtered = filtered.filter((v: Vehicle) => v.status === filter)
+      filtered = filtered.filter((v: FleetVehicle) => v.status === filter)
     }
 
     // Sort vehicles
-    filtered.sort((a: Vehicle, b: Vehicle) => {
+    filtered.sort((a: FleetVehicle, b: FleetVehicle) => {
       if (sortBy === 'status') {
         return a.status.localeCompare(b.status)
       } else if (sortBy === 'fuel') {
@@ -302,7 +302,7 @@ const VehicleInventoryPanel = ({ vehicles, onVehicleSelect }: { vehicles: Vehicl
 
         {/* Vehicle List */}
         <div className="space-y-2">
-          {filteredVehicles.map((vehicle: Vehicle) => (
+          {filteredVehicles.map((vehicle: FleetVehicle) => (
             <Card
               key={vehicle.id}
               className="cursor-pointer hover:bg-accent transition-colors"
@@ -346,7 +346,7 @@ const VehicleInventoryPanel = ({ vehicles, onVehicleSelect }: { vehicles: Vehicl
 
 // Main Fleet Workspace Component
 export function FleetWorkspace({ _data }: { _data?: unknown }) {
-  const [selectedVehicle, setSelectedVehicle] = useState<Vehicle | null>(null)
+  const [selectedVehicle, setSelectedVehicle] = useState<FleetVehicle | null>(null)
   const [activeView, setActiveView] = useState('map')
   const [activePanel, setActivePanel] = useState('telemetry')
 
@@ -362,17 +362,17 @@ export function FleetWorkspace({ _data }: { _data?: unknown }) {
     isConnected: isRealtimeConnected,
   } = useVehicleTelemetry({
     enabled: true,
-    initialVehicles: vehicles as unknown as Vehicle[],
+    initialVehicles: vehicles as unknown as FleetVehicle[],
   })
 
   // Use real-time vehicles if available, otherwise use static data
-  const displayVehicles = realtimeVehicles.length > 0 ? realtimeVehicles : vehicles
+  const displayVehicles = realtimeVehicles.length > 0 ? realtimeVehicles : vehicles as unknown as FleetVehicle[]
 
   // Drilldown navigation
   const { push: _push } = useDrilldown()
 
   const handleVehicleSelect = useCallback((vehicleId: string) => {
-    const vehicle = (displayVehicles as unknown as Vehicle[]).find((v: Vehicle) => v.id === vehicleId)
+    const vehicle = (displayVehicles as unknown as FleetVehicle[]).find((v: FleetVehicle) => v.id === vehicleId)
     if (vehicle) {
       setSelectedVehicle(vehicle)
       setActivePanel('telemetry')
@@ -381,10 +381,10 @@ export function FleetWorkspace({ _data }: { _data?: unknown }) {
 
   // Stats overlay data
   const stats = useMemo(() => ({
-    active: (displayVehicles as unknown as Vehicle[]).filter((v: Vehicle) => v.status === 'active').length,
-    idle: (displayVehicles as unknown as Vehicle[]).filter((v: Vehicle) => v.status === 'idle').length,
-    service: (displayVehicles as unknown as Vehicle[]).filter((v: Vehicle) => v.status === 'service').length,
-    offline: (displayVehicles as unknown as Vehicle[]).filter((v: Vehicle) => v.status === 'offline').length
+    active: (displayVehicles as unknown as FleetVehicle[]).filter((v: FleetVehicle) => v.status === 'active').length,
+    idle: (displayVehicles as unknown as FleetVehicle[]).filter((v: FleetVehicle) => v.status === 'idle').length,
+    service: (displayVehicles as unknown as FleetVehicle[]).filter((v: FleetVehicle) => v.status === 'service').length,
+    offline: (displayVehicles as unknown as FleetVehicle[]).filter((v: FleetVehicle) => v.status === 'offline').length
   }), [displayVehicles])
 
   return (
