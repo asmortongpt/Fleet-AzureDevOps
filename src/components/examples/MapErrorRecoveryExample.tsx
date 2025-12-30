@@ -45,6 +45,10 @@ const demoVehicles: Vehicle[] = [
     fuelLevel: 75,
     fuelType: 'diesel',
     mileage: 1000,
+    ownership: 'owned',
+    lastService: '2024-01-15',
+    nextService: '2024-04-15',
+    alerts: [],
   },
   {
     id: '2',
@@ -64,6 +68,10 @@ const demoVehicles: Vehicle[] = [
     fuelLevel: 50,
     fuelType: 'diesel',
     mileage: 2000,
+    ownership: 'owned',
+    lastService: '2024-01-20',
+    nextService: '2024-04-20',
+    alerts: [],
   },
 ]
 
@@ -89,6 +97,9 @@ const demoCameras: TrafficCamera[] = [
     latitude: 30.4383,
     longitude: -84.2807,
     enabled: true,
+    operational: true,
+    createdAt: '2024-01-01T00:00:00Z',
+    updatedAt: '2024-01-01T00:00:00Z',
   },
 ]
 
