@@ -1,0 +1,2604 @@
+{
+  "timestamp": "2025-12-30T08:28:25.854472",
+  "total_errors": 876,
+  "by_code": {
+    "TS2769": 27,
+    "TS18046": 22,
+    "TS2322": 95,
+    "TS2339": 411,
+    "TS2554": 9,
+    "TS2774": 1,
+    "TS2362": 6,
+    "TS2352": 29,
+    "TS2305": 48,
+    "TS2345": 51,
+    "TS2353": 35,
+    "TS2724": 3,
+    "TS18048": 16,
+    "TS2551": 18,
+    "TS2678": 7,
+    "TS2459": 4,
+    "TS2320": 3,
+    "TS2740": 1,
+    "TS2307": 27,
+    "TS2571": 8,
+    "TS2365": 1,
+    "TS2367": 6,
+    "TS2693": 3,
+    "TS7006": 6,
+    "TS7009": 1,
+    "TS2558": 1,
+    "TS2739": 2,
+    "TS2561": 2,
+    "TS2614": 10,
+    "TS7016": 8,
+    "TS2304": 6,
+    "TS2363": 1,
+    "TS2741": 1,
+    "TS2613": 1,
+    "TS1117": 1,
+    "TS2502": 2,
+    "TS2615": 2,
+    "TS2783": 1
+  },
+  "by_file": {
+    "src/components/admin/EmulatorMonitor.tsx": 1,
+    "src/components/admin/MonitoringDashboard.tsx": 10,
+    "src/components/admin/SystemHealthWidget.tsx": 2,
+    "src/components/ai/ConversationalIntake.tsx": 2,
+    "src/components/ai/DocumentScanner.tsx": 3,
+    "src/components/ai/SmartForm.tsx": 1,
+    "src/components/analytics/AnalyticsDashboard.tsx": 2,
+    "src/components/analytics/AnalyticsMapView.tsx": 5,
+    "src/components/analytics/UtilizationDashboard.tsx": 9,
+    "src/components/AssetComboManager.enhanced.tsx": 1,
+    "src/components/AssetComboManager.tsx": 1,
+    "src/components/assets/AssetLocationMap.tsx": 10,
+    "src/components/assets/ScanAssetModal.tsx": 4,
+    "src/components/AssetTypeFilter.tsx": 16,
+    "src/components/auth/ProtectedRoute.tsx": 1,
+    "src/components/Breadcrumb.tsx": 1,
+    "src/components/common/DataGrid.tsx": 2,
+    "src/components/common/NotificationBell.tsx": 3,
+    "src/components/compliance/ComplianceMapView.tsx": 2,
+    "src/components/dashboard/AllEndpointsMonitor.tsx": 1,
+    "src/components/dashboard/LiveFleetDashboard.tsx": 1,
+    "src/components/dialogs/TripUsageDialog.tsx": 6,
+    "src/components/documents/ai/DocumentClassification.tsx": 1,
+    "src/components/documents/collaboration/DocumentComments.tsx": 1,
+    "src/components/documents/DocumentGrid.tsx": 1,
+    "src/components/documents/DocumentList.tsx": 1,
+    "src/components/documents/search/DocumentSearch.tsx": 2,
+    "src/components/documents/viewer/CodeViewer.tsx": 2,
+    "src/components/documents/viewer/VideoViewer.tsx": 2,
+    "src/components/drilldown/DriverTripsView.tsx": 6,
+    "src/components/drilldown/FleetStatsDrilldowns.tsx": 16,
+    "src/components/drilldown/HubDrilldowns.tsx": 1,
+    "src/components/DrilldownManager.tsx": 16,
+    "src/components/DrillThrough/DrillThroughModal.tsx": 3,
+    "src/components/errors/SentryErrorBoundary.tsx": 1,
+    "src/components/examples/MapErrorRecoveryExample.tsx": 6,
+    "src/components/filters/AssetTypeFilter.tsx": 7,
+    "src/components/garage/Asset3DViewer.tsx": 8,
+    "src/components/garage/GameCameraController.tsx": 2,
+    "src/components/guards/PermissionGate.tsx": 1,
+    "src/components/guards/RouteGuard.tsx": 1,
+    "src/components/hubs/communication/CommunicationHub.tsx": 2,
+    "src/components/hubs/operations/OperationsHub.tsx": 3,
+    "src/components/hubs/operations/OperationsHubMap.tsx": 2,
+    "src/components/hubs/procurement/ProcurementHub.tsx": 2,
+    "src/components/hubs/reports/ReportsHub.tsx": 2,
+    "src/components/hubs/safety/SafetyHub.tsx": 1,
+    "src/components/inspect/inspectors/AlertInspector.tsx": 1,
+    "src/components/inspect/inspectors/DriverInspector.tsx": 1,
+    "src/components/inspect/inspectors/RouteInspector.tsx": 1,
+    "src/components/inspect/inspectors/TaskInspector.tsx": 1,
+    "src/components/inspect/inspectors/TripInspector.tsx": 1,
+    "src/components/layers/TrafficCameraLayer.tsx": 1,
+    "src/components/LazyMap.tsx": 4,
+    "src/components/LeafletMap.tsx": 3,
+    "src/components/licenses/LicenseManagement.tsx": 6,
+    "src/components/MapboxMap.tsx": 11,
+    "src/components/MapHealthDashboard.tsx": 1,
+    "src/components/Maps/UnifiedFleetMap.tsx": 6,
+    "src/components/mobile/AssetCheckInOut.tsx": 7,
+    "src/components/mobile/MobileVehicleCard.tsx": 6,
+    "src/components/modules/admin/Notifications.tsx": 1,
+    "src/components/modules/analytics/CostAnalysisCenter.tsx": 4,
+    "src/components/modules/analytics/CustomReportBuilder.tsx": 9,
+    "src/components/modules/analytics/DataWorkbench.bak.tsx": 16,
+    "src/components/modules/analytics/DataWorkbench.original.tsx": 25,
+    "src/components/modules/analytics/DataWorkbench.refactored.tsx": 10,
+    "src/components/modules/analytics/DataWorkbench.tsx": 10,
+    "src/components/modules/assets/AssetManagement.original.tsx": 6,
+    "src/components/modules/assets/AssetManagement/hooks/useAssets.ts": 1,
+    "src/components/modules/assets/EquipmentDashboard.tsx": 4,
+    "src/components/modules/compliance/IncidentManagement.tsx": 5,
+    "src/components/modules/drivers/DriverPerformance.tsx": 15,
+    "src/components/modules/drivers/DriverScorecard.tsx": 3,
+    "src/components/modules/fleet/FleetAnalytics.refactored.tsx": 2,
+    "src/components/modules/fleet/FleetAnalytics.tsx": 8,
+    "src/components/modules/fleet/FleetDashboard.tsx": 2,
+    "src/components/modules/fleet/FleetDashboard/hooks/useFleetMetrics.ts": 1,
+    "src/components/modules/fleet/FleetOptimizer.tsx": 4,
+    "src/components/modules/fleet/GPSTracking.stories.tsx": 2,
+    "src/components/modules/fleet/VehicleManagement.tsx": 2,
+    "src/components/modules/fleet/VehicleTelemetry.tsx": 1,
+    "src/components/modules/fleet/VehicleTelemetry/index.ts": 1,
+    "src/components/modules/fleet/VirtualGarage.tsx": 1,
+    "src/components/modules/fleet/VirtualGarage/index.ts": 1,
+    "src/components/modules/fleet/VirtualGarage3D.tsx": 4,
+    "src/components/modules/fuel/FuelManagement.tsx": 15,
+    "src/components/modules/integrations/arcgis/hooks/useArcGISLayers.ts": 2,
+    "src/components/modules/integrations/arcgis/hooks/useLayerActions.ts": 3,
+    "src/components/modules/integrations/ArcGISIntegration.original.tsx": 4,
+    "src/components/modules/integrations/ArcGISIntegration.tsx": 6,
+    "src/components/modules/integrations/EnhancedMapLayers.tsx": 4,
+    "src/components/modules/integrations/GISCommandCenter.tsx": 11,
+    "src/components/modules/integrations/MapSettings.tsx": 2,
+    "src/components/modules/integrations/TeamsIntegration.tsx": 1,
+    "src/components/modules/maintenance/GarageService.tsx": 28,
+    "src/components/modules/maintenance/GarageService/index.ts": 1,
+    "src/components/modules/maintenance/MaintenanceRequest.tsx": 12,
+    "src/components/modules/maintenance/MaintenanceRequest/index.ts": 1,
+    "src/components/modules/maintenance/MaintenanceRequestDialog.tsx": 4,
+    "src/components/modules/maintenance/MaintenanceScheduling.tsx": 3,
+    "src/components/modules/maintenance/MaintenanceScheduling/index.ts": 1,
+    "src/components/modules/maintenance/PredictiveMaintenance.tsx": 4,
+    "src/components/modules/maintenance/PredictiveMaintenance/index.ts": 1,
+    "src/components/modules/mobile/MobileEmployeeDashboard.tsx": 1,
+    "src/components/modules/mobile/MobileManagerView.tsx": 1,
+    "src/components/modules/operations/DispatchConsole.tsx": 1,
+    "src/components/modules/operations/DriverRoster.tsx": 23,
+    "src/components/modules/operations/EnhancedTaskManagement.tsx": 15,
+    "src/components/modules/operations/FuelPanel.tsx": 6,
+    "src/components/modules/operations/index.ts": 1,
+    "src/components/modules/operations/MaintenancePanel.tsx": 1,
+    "src/components/modules/operations/RouteManagement.tsx": 8,
+    "src/components/modules/operations/TaskManagement.tsx": 6,
+    "src/components/modules/operations/VehicleRoster.tsx": 9,
+    "src/components/modules/personal-use/PersonalUseDashboard.tsx": 2,
+    "src/components/modules/personal-use/PersonalUsePolicyConfig.tsx": 4,
+    "src/components/modules/procurement/PurchaseOrders.tsx": 6,
+    "src/components/modules/tools/AIAssistant.tsx": 3,
+    "src/components/modules/tools/index.ts": 1,
+    "src/components/modules/tools/MileageReimbursement.tsx": 20,
+    "src/components/modules/tools/TrafficCameras.tsx": 4,
+    "src/components/panels/DriverControlPanel.tsx": 1,
+    "src/components/panels/TrafficCameraControlPanel.tsx": 2,
+    "src/components/ProtectedRoute.tsx": 1,
+    "src/components/radio/RadioFeed.tsx": 1,
+    "src/components/scheduling/MaintenanceAppointmentModal.tsx": 8,
+    "src/components/scheduling/VehicleReservationModal.tsx": 2,
+    "src/components/shared/FilterBar.tsx": 2,
+    "src/components/ui/calendar.tsx": 2,
+    "src/components/ui/command.tsx": 1,
+    "src/components/ui/dialog.tsx": 1,
+    "src/components/ui/input-otp.tsx": 1,
+    "src/components/ui/navigation-menu.tsx": 1,
+    "src/components/ui/radio-group.tsx": 1,
+    "src/components/ui/resizable.tsx": 1,
+    "src/components/ui/sheet.tsx": 1,
+    "src/components/ui/sidebar.tsx": 1,
+    "src/components/ui/virtual-table.tsx": 1,
+    "src/components/UniversalMap.refactored.tsx": 1,
+    "src/components/UniversalMap.tsx": 5,
+    "src/components/UniversalMap/utils/storage.ts": 1,
+    "src/components/UniversalSearch.tsx": 3,
+    "src/components/UserProfile.tsx": 1,
+    "src/components/VehicleList.tsx": 1,
+    "src/components/workspaces/AnalyticsWorkspace.tsx": 3,
+    "src/components/workspaces/DriversWorkspace.tsx": 23,
+    "src/components/workspaces/FleetWorkspace.tsx": 9,
+    "src/components/workspaces/MaintenanceWorkspace.tsx": 12,
+    "src/config/endpoints.ts": 1,
+    "src/container/DIContainer.ts": 1,
+    "src/container/index.ts": 1,
+    "src/context/BrandingContext.tsx": 1,
+    "src/contexts/EntityLinkingContext.tsx": 1,
+    "src/contexts/FeatureFlagContext.tsx": 1,
+    "src/hooks/example-tanstack-query-usage.ts": 3,
+    "src/hooks/use-amt-api.ts": 1,
+    "src/hooks/use-api.ts": 6,
+    "src/hooks/use-emulator-enhancement.ts": 1,
+    "src/hooks/use-fleet-data.ts": 13,
+    "src/hooks/use-telemetry.ts": 1,
+    "src/hooks/use-validated-api.ts": 8,
+    "src/hooks/useAdaptiveCards.ts": 3,
+    "src/hooks/useCalendar.ts": 4,
+    "src/hooks/useCalendarIntegration.ts": 1,
+    "src/hooks/useCrudResource.ts": 5,
+    "src/hooks/useDataQueries.ts": 4,
+    "src/hooks/useDataQueriesEnhanced.ts": 3,
+    "src/hooks/useDataWorkbenchData.ts": 2,
+    "src/hooks/useDemoMode.ts": 2,
+    "src/hooks/useDrivers.ts": 1,
+    "src/hooks/useFeatureFlag.ts": 1,
+    "src/hooks/useOBD2Emulator.ts": 1,
+    "src/hooks/useOutlook.ts": 10,
+    "src/hooks/usePerformanceMonitor.ts": 2,
+    "src/hooks/usePersonalUseQueries.ts": 7,
+    "src/hooks/useQueryWithErrorHandling.ts": 2,
+    "src/hooks/useScheduling.ts": 7,
+    "src/hooks/useTeams.ts": 11,
+    "src/hooks/useTokenRefresh.ts": 1,
+    "src/hooks/useVehicles.ts": 1,
+    "src/hooks/useVehicleTelemetry.ts": 7,
+    "src/lib/api-client.assetRelationships.ts": 5,
+    "src/lib/api-client.ts": 11,
+    "src/lib/auth/auth0-config.ts": 1,
+    "src/lib/data-transformers.ts": 2,
+    "src/lib/demo-data.ts": 8,
+    "src/lib/export-utils.ts": 3,
+    "src/lib/mobile/components/OBD2AdapterScanner.tsx": 4,
+    "src/lib/mobile/services/OBD2Service.ts": 1,
+    "src/lib/module-logger.ts": 8,
+    "src/lib/msOfficeIntegration.ts": 9,
+    "src/lib/offline-manager.ts": 1,
+    "src/lib/schemas/filters.ts": 4,
+    "src/lib/telemetry.ts": 1,
+    "src/lib/user-utils.ts": 1,
+    "src/logger.ts": 2,
+    "src/middleware/apiResponseMiddleware.ts": 1,
+    "src/pages/CommandCenter.tsx": 2,
+    "src/pages/ComplianceHub.tsx": 1,
+    "src/pages/hubs/index.ts": 3,
+    "src/pages/hubs/WorkHub.tsx": 1,
+    "src/pages/ModuleAdminPage.tsx": 3,
+    "src/pages/PersonalUse/ChargesAndBilling.tsx": 5,
+    "src/pages/PersonalUse/PersonalUseDashboard.tsx": 2,
+    "src/pages/PersonalUse/ReimbursementQueue.tsx": 2,
+    "src/pages/ProcurementHub.tsx": 1,
+    "src/registerServiceWorker.ts": 1,
+    "src/routes/api.routes.ts": 1,
+    "src/schemas/driver.schema.ts": 1,
+    "src/schemas/user.schema.ts": 1,
+    "src/schemas/vehicle.schema.ts": 1,
+    "src/services/drilldownService.ts": 1,
+    "src/services/MaintenanceService.ts": 1,
+    "src/services/mockData.ts": 1,
+    "src/services/userService.ts": 1,
+    "src/store/slices/formSlice.ts": 1,
+    "src/styles/design-tokens.ts": 1,
+    "src/test-utils.tsx": 1,
+    "src/tests/test-helpers.tsx": 1,
+    "src/utils/cors-preflight.ts": 1,
+    "src/utils/formatDate.ts": 1,
+    "src/utils/xss-sanitizer.ts": 1
+  },
+  "top_files": [
+    [
+      "src/components/modules/maintenance/GarageService.tsx",
+      [
+        {
+          "file": "src/components/modules/maintenance/GarageService.tsx",
+          "line": 64,
+          "column": 46,
+          "code": "TS2339",
+          "message": "Property 'status' does not exist on type 'GISFacility | Facility'."
+        },
+        {
+          "file": "src/components/modules/maintenance/GarageService.tsx",
+          "line": 66,
+          "column": 47,
+          "code": "TS2339",
+          "message": "Property 'availability' does not exist on type 'Driver | Driver'."
+        },
+        {
+          "file": "src/components/modules/maintenance/GarageService.tsx",
+          "line": 151,
+          "column": 57,
+          "code": "TS2339",
+          "message": "Property 'number' does not exist on type 'GISFacility | Facility'."
+        },
+        {
+          "file": "src/components/modules/maintenance/GarageService.tsx",
+          "line": 152,
+          "column": 30,
+          "code": "TS2339",
+          "message": "Property 'vehicle' does not exist on type 'GISFacility | Facility'."
+        },
+        {
+          "file": "src/components/modules/maintenance/GarageService.tsx",
+          "line": 153,
+          "column": 77,
+          "code": "TS2339",
+          "message": "Property 'vehicle' does not exist on type 'GISFacility | Facility'."
+        },
+        {
+          "file": "src/components/modules/maintenance/GarageService.tsx",
+          "line": 153,
+          "column": 93,
+          "code": "TS2339",
+          "message": "Property 'serviceType' does not exist on type 'GISFacility | Facility'."
+        },
+        {
+          "file": "src/components/modules/maintenance/GarageService.tsx",
+          "line": 156,
+          "column": 63,
+          "code": "TS2339",
+          "message": "Property 'status' does not exist on type 'GISFacility | Facility'."
+        },
+        {
+          "file": "src/components/modules/maintenance/GarageService.tsx",
+          "line": 157,
+          "column": 30,
+          "code": "TS2339",
+          "message": "Property 'status' does not exist on type 'GISFacility | Facility'."
+        },
+        {
+          "file": "src/components/modules/maintenance/GarageService.tsx",
+          "line": 201,
+          "column": 53,
+          "code": "TS2339",
+          "message": "Property 'status' does not exist on type 'GISFacility | Facility'."
+        },
+        {
+          "file": "src/components/modules/maintenance/GarageService.tsx",
+          "line": 205,
+          "column": 70,
+          "code": "TS2339",
+          "message": "Property 'number' does not exist on type 'GISFacility | Facility'."
+        },
+        {
+          "file": "src/components/modules/maintenance/GarageService.tsx",
+          "line": 206,
+          "column": 67,
+          "code": "TS2339",
+          "message": "Property 'status' does not exist on type 'GISFacility | Facility'."
+        },
+        {
+          "file": "src/components/modules/maintenance/GarageService.tsx",
+          "line": 207,
+          "column": 34,
+          "code": "TS2339",
+          "message": "Property 'status' does not exist on type 'GISFacility | Facility'."
+        },
+        {
+          "file": "src/components/modules/maintenance/GarageService.tsx",
+          "line": 210,
+          "column": 30,
+          "code": "TS2339",
+          "message": "Property 'status' does not exist on type 'GISFacility | Facility'."
+        },
+        {
+          "file": "src/components/modules/maintenance/GarageService.tsx",
+          "line": 214,
+          "column": 28,
+          "code": "TS2339",
+          "message": "Property 'vehicle' does not exist on type 'GISFacility | Facility'."
+        },
+        {
+          "file": "src/components/modules/maintenance/GarageService.tsx",
+          "line": 218,
+          "column": 64,
+          "code": "TS2339",
+          "message": "Property 'vehicle' does not exist on type 'GISFacility | Facility'."
+        },
+        {
+          "file": "src/components/modules/maintenance/GarageService.tsx",
+          "line": 222,
+          "column": 40,
+          "code": "TS2339",
+          "message": "Property 'serviceType' does not exist on type 'GISFacility | Facility'."
+        },
+        {
+          "file": "src/components/modules/maintenance/GarageService.tsx",
+          "line": 226,
+          "column": 40,
+          "code": "TS2339",
+          "message": "Property 'technician' does not exist on type 'GISFacility | Facility'."
+        },
+        {
+          "file": "src/components/modules/maintenance/GarageService.tsx",
+          "line": 228,
+          "column": 32,
+          "code": "TS2339",
+          "message": "Property 'estimatedCompletion' does not exist on type 'GISFacility | Facility'."
+        },
+        {
+          "file": "src/components/modules/maintenance/GarageService.tsx",
+          "line": 231,
+          "column": 51,
+          "code": "TS2339",
+          "message": "Property 'estimatedCompletion' does not exist on type 'GISFacility | Facility'."
+        },
+        {
+          "file": "src/components/modules/maintenance/GarageService.tsx",
+          "line": 236,
+          "column": 28,
+          "code": "TS2339",
+          "message": "Property 'status' does not exist on type 'GISFacility | Facility'."
+        },
+        {
+          "file": "src/components/modules/maintenance/GarageService.tsx",
+          "line": 315,
+          "column": 63,
+          "code": "TS2339",
+          "message": "Property 'name' does not exist on type 'Driver | Driver'."
+        },
+        {
+          "file": "src/components/modules/maintenance/GarageService.tsx",
+          "line": 319,
+          "column": 36,
+          "code": "TS2339",
+          "message": "Property 'availability' does not exist on type 'Driver | Driver'."
+        },
+        {
+          "file": "src/components/modules/maintenance/GarageService.tsx",
+          "line": 321,
+          "column": 40,
+          "code": "TS2339",
+          "message": "Property 'availability' does not exist on type 'Driver | Driver'."
+        },
+        {
+          "file": "src/components/modules/maintenance/GarageService.tsx",
+          "line": 326,
+          "column": 35,
+          "code": "TS2339",
+          "message": "Property 'availability' does not exist on type 'Driver | Driver'."
+        },
+        {
+          "file": "src/components/modules/maintenance/GarageService.tsx",
+          "line": 330,
+          "column": 71,
+          "code": "TS2339",
+          "message": "Property 'efficiency' does not exist on type 'Driver | Driver'."
+        },
+        {
+          "file": "src/components/modules/maintenance/GarageService.tsx",
+          "line": 338,
+          "column": 49,
+          "code": "TS2339",
+          "message": "Property 'specialization' does not exist on type 'Driver | Driver'."
+        },
+        {
+          "file": "src/components/modules/maintenance/GarageService.tsx",
+          "line": 338,
+          "column": 73,
+          "code": "TS2339",
+          "message": "Property 'specialization' does not exist on type 'Driver | Driver'."
+        },
+        {
+          "file": "src/components/modules/maintenance/GarageService.tsx",
+          "line": 346,
+          "column": 90,
+          "code": "TS2339",
+          "message": "Property 'activeWorkOrders' does not exist on type 'Driver | Driver'."
+        }
+      ]
+    ],
+    [
+      "src/components/modules/analytics/DataWorkbench.original.tsx",
+      [
+        {
+          "file": "src/components/modules/analytics/DataWorkbench.original.tsx",
+          "line": 173,
+          "column": 34,
+          "code": "TS2339",
+          "message": "Property 'number' does not exist on type 'Vehicle | { alerts: any; id: string; tenant_id: string; }'."
+        },
+        {
+          "file": "src/components/modules/analytics/DataWorkbench.original.tsx",
+          "line": 174,
+          "column": 35,
+          "code": "TS2339",
+          "message": "Property 'year' does not exist on type 'Vehicle | { alerts: any; id: string; tenant_id: string; }'."
+        },
+        {
+          "file": "src/components/modules/analytics/DataWorkbench.original.tsx",
+          "line": 174,
+          "column": 51,
+          "code": "TS2339",
+          "message": "Property 'make' does not exist on type 'Vehicle | { alerts: any; id: string; tenant_id: string; }'."
+        },
+        {
+          "file": "src/components/modules/analytics/DataWorkbench.original.tsx",
+          "line": 174,
+          "column": 67,
+          "code": "TS2339",
+          "message": "Property 'model' does not exist on type 'Vehicle | { alerts: any; id: string; tenant_id: string; }'."
+        },
+        {
+          "file": "src/components/modules/analytics/DataWorkbench.original.tsx",
+          "line": 195,
+          "column": 37,
+          "code": "TS2339",
+          "message": "Property 'mileage' does not exist on type 'Vehicle | { alerts: any; id: string; tenant_id: string; }'."
+        },
+        {
+          "file": "src/components/modules/analytics/DataWorkbench.original.tsx",
+          "line": 209,
+          "column": 34,
+          "code": "TS2339",
+          "message": "Property 'number' does not exist on type 'Vehicle | { alerts: any; id: string; tenant_id: string; }'."
+        },
+        {
+          "file": "src/components/modules/analytics/DataWorkbench.original.tsx",
+          "line": 210,
+          "column": 35,
+          "code": "TS2339",
+          "message": "Property 'year' does not exist on type 'Vehicle | { alerts: any; id: string; tenant_id: string; }'."
+        },
+        {
+          "file": "src/components/modules/analytics/DataWorkbench.original.tsx",
+          "line": 210,
+          "column": 51,
+          "code": "TS2339",
+          "message": "Property 'make' does not exist on type 'Vehicle | { alerts: any; id: string; tenant_id: string; }'."
+        },
+        {
+          "file": "src/components/modules/analytics/DataWorkbench.original.tsx",
+          "line": 210,
+          "column": 67,
+          "code": "TS2339",
+          "message": "Property 'model' does not exist on type 'Vehicle | { alerts: any; id: string; tenant_id: string; }'."
+        },
+        {
+          "file": "src/components/modules/analytics/DataWorkbench.original.tsx",
+          "line": 335,
+          "column": 42,
+          "code": "TS2345",
+          "message": "Argument of type 'Vehicle[] | { alerts: any; id: string; tenant_id: string; }[]' is not assignable to parameter of type 'Vehicle[]'."
+        },
+        {
+          "file": "src/components/modules/analytics/DataWorkbench.original.tsx",
+          "line": 515,
+          "column": 41,
+          "code": "TS2339",
+          "message": "Property 'status' does not exist on type 'Vehicle | { alerts: any; id: string; tenant_id: string; }'."
+        },
+        {
+          "file": "src/components/modules/analytics/DataWorkbench.original.tsx",
+          "line": 599,
+          "column": 49,
+          "code": "TS2322",
+          "message": "Type 'Dispatch<SetStateAction<\"all\" | \"completed\" | \"overdue\" | \"upcoming\">>' is not assignable to type '(value: string) => void'."
+        },
+        {
+          "file": "src/components/modules/analytics/DataWorkbench.original.tsx",
+          "line": 653,
+          "column": 40,
+          "code": "TS2339",
+          "message": "Property 'number' does not exist on type 'Vehicle | { alerts: any; id: string; tenant_id: string; }'."
+        },
+        {
+          "file": "src/components/modules/analytics/DataWorkbench.original.tsx",
+          "line": 653,
+          "column": 57,
+          "code": "TS2339",
+          "message": "Property 'number' does not exist on type 'Vehicle | { alerts: any; id: string; tenant_id: string; }'."
+        },
+        {
+          "file": "src/components/modules/analytics/DataWorkbench.original.tsx",
+          "line": 653,
+          "column": 68,
+          "code": "TS2339",
+          "message": "Property 'number' does not exist on type 'Vehicle | { alerts: any; id: string; tenant_id: string; }'."
+        },
+        {
+          "file": "src/components/modules/analytics/DataWorkbench.original.tsx",
+          "line": 697,
+          "column": 15,
+          "code": "TS2322",
+          "message": "Type '{ title: string; value: string; icon: Element; trend: \"up\"; trendValue: string; }' is not assignable to type 'IntrinsicAttributes & MetricCardProps'."
+        },
+        {
+          "file": "src/components/modules/analytics/DataWorkbench.original.tsx",
+          "line": 704,
+          "column": 15,
+          "code": "TS2322",
+          "message": "Type '{ title: string; value: string; icon: Element; trend: \"down\"; trendValue: string; }' is not assignable to type 'IntrinsicAttributes & MetricCardProps'."
+        },
+        {
+          "file": "src/components/modules/analytics/DataWorkbench.original.tsx",
+          "line": 711,
+          "column": 15,
+          "code": "TS2322",
+          "message": "Type '{ title: string; value: string; icon: Element; trend: \"up\"; trendValue: string; }' is not assignable to type 'IntrinsicAttributes & MetricCardProps'."
+        },
+        {
+          "file": "src/components/modules/analytics/DataWorkbench.original.tsx",
+          "line": 718,
+          "column": 15,
+          "code": "TS2322",
+          "message": "Type '{ title: string; value: string; icon: Element; trend: \"down\"; trendValue: string; }' is not assignable to type 'IntrinsicAttributes & MetricCardProps'."
+        },
+        {
+          "file": "src/components/modules/analytics/DataWorkbench.original.tsx",
+          "line": 828,
+          "column": 71,
+          "code": "TS2339",
+          "message": "Property 'number' does not exist on type 'Vehicle | { alerts: any; id: string; tenant_id: string; }'."
+        },
+        {
+          "file": "src/components/modules/analytics/DataWorkbench.original.tsx",
+          "line": 834,
+          "column": 40,
+          "code": "TS2339",
+          "message": "Property 'number' does not exist on type 'Vehicle | { alerts: any; id: string; tenant_id: string; }'."
+        },
+        {
+          "file": "src/components/modules/analytics/DataWorkbench.original.tsx",
+          "line": 834,
+          "column": 57,
+          "code": "TS2339",
+          "message": "Property 'number' does not exist on type 'Vehicle | { alerts: any; id: string; tenant_id: string; }'."
+        },
+        {
+          "file": "src/components/modules/analytics/DataWorkbench.original.tsx",
+          "line": 834,
+          "column": 68,
+          "code": "TS2339",
+          "message": "Property 'number' does not exist on type 'Vehicle | { alerts: any; id: string; tenant_id: string; }'."
+        },
+        {
+          "file": "src/components/modules/analytics/DataWorkbench.original.tsx",
+          "line": 834,
+          "column": 81,
+          "code": "TS2339",
+          "message": "Property 'make' does not exist on type 'Vehicle | { alerts: any; id: string; tenant_id: string; }'."
+        },
+        {
+          "file": "src/components/modules/analytics/DataWorkbench.original.tsx",
+          "line": 834,
+          "column": 90,
+          "code": "TS2339",
+          "message": "Property 'model' does not exist on type 'Vehicle | { alerts: any; id: string; tenant_id: string; }'."
+        }
+      ]
+    ],
+    [
+      "src/components/modules/operations/DriverRoster.tsx",
+      [
+        {
+          "file": "src/components/modules/operations/DriverRoster.tsx",
+          "line": 35,
+          "column": 12,
+          "code": "TS2339",
+          "message": "Property 'name' does not exist on type 'Driver | Driver'."
+        },
+        {
+          "file": "src/components/modules/operations/DriverRoster.tsx",
+          "line": 35,
+          "column": 22,
+          "code": "TS2339",
+          "message": "Property 'name' does not exist on type 'Driver | Driver'."
+        },
+        {
+          "file": "src/components/modules/operations/DriverRoster.tsx",
+          "line": 36,
+          "column": 12,
+          "code": "TS2339",
+          "message": "Property 'employeeId' does not exist on type 'Driver | Driver'."
+        },
+        {
+          "file": "src/components/modules/operations/DriverRoster.tsx",
+          "line": 36,
+          "column": 28,
+          "code": "TS2339",
+          "message": "Property 'employeeId' does not exist on type 'Driver | Driver'."
+        },
+        {
+          "file": "src/components/modules/operations/DriverRoster.tsx",
+          "line": 41,
+          "column": 12,
+          "code": "TS2339",
+          "message": "Property 'name' does not exist on type 'Driver | Driver'."
+        },
+        {
+          "file": "src/components/modules/operations/DriverRoster.tsx",
+          "line": 41,
+          "column": 22,
+          "code": "TS2339",
+          "message": "Property 'name' does not exist on type 'Driver | Driver'."
+        },
+        {
+          "file": "src/components/modules/operations/DriverRoster.tsx",
+          "line": 42,
+          "column": 12,
+          "code": "TS2339",
+          "message": "Property 'employeeId' does not exist on type 'Driver | Driver'."
+        },
+        {
+          "file": "src/components/modules/operations/DriverRoster.tsx",
+          "line": 42,
+          "column": 28,
+          "code": "TS2339",
+          "message": "Property 'employeeId' does not exist on type 'Driver | Driver'."
+        },
+        {
+          "file": "src/components/modules/operations/DriverRoster.tsx",
+          "line": 109,
+          "column": 53,
+          "code": "TS2339",
+          "message": "Property 'name' does not exist on type 'Driver | Driver'."
+        },
+        {
+          "file": "src/components/modules/operations/DriverRoster.tsx",
+          "line": 109,
+          "column": 67,
+          "code": "TS2339",
+          "message": "Property 'name' does not exist on type 'Driver | Driver'."
+        },
+        {
+          "file": "src/components/modules/operations/DriverRoster.tsx",
+          "line": 112,
+          "column": 89,
+          "code": "TS2339",
+          "message": "Property 'name' does not exist on type 'Driver | Driver'."
+        },
+        {
+          "file": "src/components/modules/operations/DriverRoster.tsx",
+          "line": 115,
+          "column": 61,
+          "code": "TS2339",
+          "message": "Property 'licenseType' does not exist on type 'Driver | Driver'."
+        },
+        {
+          "file": "src/components/modules/operations/DriverRoster.tsx",
+          "line": 117,
+          "column": 100,
+          "code": "TS2339",
+          "message": "Property 'status' does not exist on type 'Driver | Driver'."
+        },
+        {
+          "file": "src/components/modules/operations/DriverRoster.tsx",
+          "line": 119,
+          "column": 63,
+          "code": "TS2339",
+          "message": "Property 'status' does not exist on type 'Driver | Driver'."
+        },
+        {
+          "file": "src/components/modules/operations/DriverRoster.tsx",
+          "line": 130,
+          "column": 97,
+          "code": "TS2339",
+          "message": "Property 'phone' does not exist on type 'Driver | Driver'."
+        },
+        {
+          "file": "src/components/modules/operations/DriverRoster.tsx",
+          "line": 139,
+          "column": 100,
+          "code": "TS2339",
+          "message": "Property 'email' does not exist on type 'Driver | Driver'."
+        },
+        {
+          "file": "src/components/modules/operations/DriverRoster.tsx",
+          "line": 156,
+          "column": 49,
+          "code": "TS2339",
+          "message": "Property 'name' does not exist on type 'Driver | Driver'."
+        },
+        {
+          "file": "src/components/modules/operations/DriverRoster.tsx",
+          "line": 156,
+          "column": 63,
+          "code": "TS2339",
+          "message": "Property 'name' does not exist on type 'Driver | Driver'."
+        },
+        {
+          "file": "src/components/modules/operations/DriverRoster.tsx",
+          "line": 159,
+          "column": 85,
+          "code": "TS2339",
+          "message": "Property 'name' does not exist on type 'Driver | Driver'."
+        },
+        {
+          "file": "src/components/modules/operations/DriverRoster.tsx",
+          "line": 160,
+          "column": 96,
+          "code": "TS2339",
+          "message": "Property 'role' does not exist on type 'Driver | Driver'."
+        },
+        {
+          "file": "src/components/modules/operations/DriverRoster.tsx",
+          "line": 161,
+          "column": 103,
+          "code": "TS2339",
+          "message": "Property 'email' does not exist on type 'Driver | Driver'."
+        },
+        {
+          "file": "src/components/modules/operations/DriverRoster.tsx",
+          "line": 170,
+          "column": 93,
+          "code": "TS2339",
+          "message": "Property 'phone' does not exist on type 'Driver | Driver'."
+        },
+        {
+          "file": "src/components/modules/operations/DriverRoster.tsx",
+          "line": 179,
+          "column": 96,
+          "code": "TS2339",
+          "message": "Property 'email' does not exist on type 'Driver | Driver'."
+        }
+      ]
+    ],
+    [
+      "src/components/workspaces/DriversWorkspace.tsx",
+      [
+        {
+          "file": "src/components/workspaces/DriversWorkspace.tsx",
+          "line": 35,
+          "column": 42,
+          "code": "TS2339",
+          "message": "Property 'name' does not exist on type 'Driver | Driver'."
+        },
+        {
+          "file": "src/components/workspaces/DriversWorkspace.tsx",
+          "line": 37,
+          "column": 68,
+          "code": "TS2339",
+          "message": "Property 'status' does not exist on type 'Driver | Driver'."
+        },
+        {
+          "file": "src/components/workspaces/DriversWorkspace.tsx",
+          "line": 48,
+          "column": 30,
+          "code": "TS2339",
+          "message": "Property 'assignedVehicle' does not exist on type 'Driver | Driver'."
+        },
+        {
+          "file": "src/components/workspaces/DriversWorkspace.tsx",
+          "line": 52,
+          "column": 59,
+          "code": "TS2339",
+          "message": "Property 'assignedVehicle' does not exist on type 'Driver | Driver'."
+        },
+        {
+          "file": "src/components/workspaces/DriversWorkspace.tsx",
+          "line": 52,
+          "column": 80,
+          "code": "TS2339",
+          "message": "Property 'name' does not exist on type 'Vehicle | { alerts: any; id: string; tenant_id: string; }'."
+        },
+        {
+          "file": "src/components/workspaces/DriversWorkspace.tsx",
+          "line": 52,
+          "column": 104,
+          "code": "TS2339",
+          "message": "Property 'assignedVehicle' does not exist on type 'Driver | Driver'."
+        },
+        {
+          "file": "src/components/workspaces/DriversWorkspace.tsx",
+          "line": 62,
+          "column": 59,
+          "code": "TS2339",
+          "message": "Property 'assignedVehicle' does not exist on type 'Driver | Driver'."
+        },
+        {
+          "file": "src/components/workspaces/DriversWorkspace.tsx",
+          "line": 63,
+          "column": 57,
+          "code": "TS2339",
+          "message": "Property 'name' does not exist on type 'Driver | Driver'."
+        },
+        {
+          "file": "src/components/workspaces/DriversWorkspace.tsx",
+          "line": 101,
+          "column": 72,
+          "code": "TS2339",
+          "message": "Property 'assignedVehicle' does not exist on type 'Driver | Driver'."
+        },
+        {
+          "file": "src/components/workspaces/DriversWorkspace.tsx",
+          "line": 152,
+          "column": 49,
+          "code": "TS2322",
+          "message": "Type 'Driver | Driver' is not assignable to type '{ id: string; name: string; status: \"active\" | \"inactive\" | \"on_break\" | \"off_duty\"; vehicle?: string | undefined; location?: string | undefined; performance?: { safetyScore: number; onTimeRate: number; } | undefined; contact?: string | undefined; }'."
+        },
+        {
+          "file": "src/components/workspaces/DriversWorkspace.tsx",
+          "line": 167,
+          "column": 41,
+          "code": "TS2322",
+          "message": "Type 'Driver | Driver' is not assignable to type '{ id: string; name: string; status: \"active\" | \"inactive\" | \"on_break\" | \"off_duty\"; vehicle?: string | undefined; location?: string | undefined; performance?: { safetyScore: number; onTimeRate: number; } | undefined; contact?: string | undefined; }'."
+        },
+        {
+          "file": "src/components/workspaces/DriversWorkspace.tsx",
+          "line": 182,
+          "column": 53,
+          "code": "TS2339",
+          "message": "Property 'name' does not exist on type 'Driver | Driver'."
+        },
+        {
+          "file": "src/components/workspaces/DriversWorkspace.tsx",
+          "line": 185,
+          "column": 87,
+          "code": "TS2339",
+          "message": "Property 'name' does not exist on type 'Driver | Driver'."
+        },
+        {
+          "file": "src/components/workspaces/DriversWorkspace.tsx",
+          "line": 187,
+          "column": 116,
+          "code": "TS2339",
+          "message": "Property 'licenseType' does not exist on type 'Driver | Driver'."
+        },
+        {
+          "file": "src/components/workspaces/DriversWorkspace.tsx",
+          "line": 188,
+          "column": 65,
+          "code": "TS2339",
+          "message": "Property 'department' does not exist on type 'Driver | Driver'."
+        },
+        {
+          "file": "src/components/workspaces/DriversWorkspace.tsx",
+          "line": 204,
+          "column": 91,
+          "code": "TS2339",
+          "message": "Property 'status' does not exist on type 'Driver | Driver'."
+        },
+        {
+          "file": "src/components/workspaces/DriversWorkspace.tsx",
+          "line": 205,
+          "column": 64,
+          "code": "TS2339",
+          "message": "Property 'status' does not exist on type 'Driver | Driver'."
+        },
+        {
+          "file": "src/components/workspaces/DriversWorkspace.tsx",
+          "line": 207,
+          "column": 65,
+          "code": "TS2339",
+          "message": "Property 'status' does not exist on type 'Driver | Driver'."
+        },
+        {
+          "file": "src/components/workspaces/DriversWorkspace.tsx",
+          "line": 212,
+          "column": 57,
+          "code": "TS2339",
+          "message": "Property 'location' does not exist on type 'Driver | Driver'."
+        },
+        {
+          "file": "src/components/workspaces/DriversWorkspace.tsx",
+          "line": 215,
+          "column": 71,
+          "code": "TS2339",
+          "message": "Property 'location' does not exist on type 'Driver | Driver'."
+        },
+        {
+          "file": "src/components/workspaces/DriversWorkspace.tsx",
+          "line": 227,
+          "column": 110,
+          "code": "TS2339",
+          "message": "Property 'assignedVehicle' does not exist on type 'Driver | Driver'."
+        },
+        {
+          "file": "src/components/workspaces/DriversWorkspace.tsx",
+          "line": 243,
+          "column": 97,
+          "code": "TS2339",
+          "message": "Property 'performance' does not exist on type 'Driver | Driver'."
+        },
+        {
+          "file": "src/components/workspaces/DriversWorkspace.tsx",
+          "line": 252,
+          "column": 97,
+          "code": "TS2339",
+          "message": "Property 'performance' does not exist on type 'Driver | Driver'."
+        }
+      ]
+    ],
+    [
+      "src/components/modules/tools/MileageReimbursement.tsx",
+      [
+        {
+          "file": "src/components/modules/tools/MileageReimbursement.tsx",
+          "line": 102,
+          "column": 49,
+          "code": "TS2339",
+          "message": "Property 'status' does not exist on type 'FuelTransaction'."
+        },
+        {
+          "file": "src/components/modules/tools/MileageReimbursement.tsx",
+          "line": 102,
+          "column": 100,
+          "code": "TS2339",
+          "message": "Property 'amount' does not exist on type 'FuelTransaction'."
+        },
+        {
+          "file": "src/components/modules/tools/MileageReimbursement.tsx",
+          "line": 103,
+          "column": 48,
+          "code": "TS2339",
+          "message": "Property 'status' does not exist on type 'FuelTransaction'."
+        },
+        {
+          "file": "src/components/modules/tools/MileageReimbursement.tsx",
+          "line": 103,
+          "column": 98,
+          "code": "TS2339",
+          "message": "Property 'amount' does not exist on type 'FuelTransaction'."
+        },
+        {
+          "file": "src/components/modules/tools/MileageReimbursement.tsx",
+          "line": 104,
+          "column": 44,
+          "code": "TS2339",
+          "message": "Property 'status' does not exist on type 'FuelTransaction'."
+        },
+        {
+          "file": "src/components/modules/tools/MileageReimbursement.tsx",
+          "line": 104,
+          "column": 90,
+          "code": "TS2339",
+          "message": "Property 'amount' does not exist on type 'FuelTransaction'."
+        },
+        {
+          "file": "src/components/modules/tools/MileageReimbursement.tsx",
+          "line": 139,
+          "column": 39,
+          "code": "TS2339",
+          "message": "Property 'status' does not exist on type 'FuelTransaction'."
+        },
+        {
+          "file": "src/components/modules/tools/MileageReimbursement.tsx",
+          "line": 154,
+          "column": 39,
+          "code": "TS2339",
+          "message": "Property 'status' does not exist on type 'FuelTransaction'."
+        },
+        {
+          "file": "src/components/modules/tools/MileageReimbursement.tsx",
+          "line": 169,
+          "column": 39,
+          "code": "TS2339",
+          "message": "Property 'status' does not exist on type 'FuelTransaction'."
+        },
+        {
+          "file": "src/components/modules/tools/MileageReimbursement.tsx",
+          "line": 320,
+          "column": 59,
+          "code": "TS2339",
+          "message": "Property 'employeeName' does not exist on type 'FuelTransaction'."
+        },
+        {
+          "file": "src/components/modules/tools/MileageReimbursement.tsx",
+          "line": 324,
+          "column": 36,
+          "code": "TS2339",
+          "message": "Property 'tripDate' does not exist on type 'FuelTransaction'."
+        },
+        {
+          "file": "src/components/modules/tools/MileageReimbursement.tsx",
+          "line": 328,
+          "column": 36,
+          "code": "TS2339",
+          "message": "Property 'miles' does not exist on type 'FuelTransaction'."
+        },
+        {
+          "file": "src/components/modules/tools/MileageReimbursement.tsx",
+          "line": 332,
+          "column": 36,
+          "code": "TS2339",
+          "message": "Property 'vehicleType' does not exist on type 'FuelTransaction'."
+        },
+        {
+          "file": "src/components/modules/tools/MileageReimbursement.tsx",
+          "line": 336,
+          "column": 34,
+          "code": "TS2339",
+          "message": "Property 'startLocation' does not exist on type 'FuelTransaction'."
+        },
+        {
+          "file": "src/components/modules/tools/MileageReimbursement.tsx",
+          "line": 336,
+          "column": 60,
+          "code": "TS2551",
+          "message": "Property 'endLocation' does not exist on type 'FuelTransaction'. Did you mean 'location'?"
+        },
+        {
+          "file": "src/components/modules/tools/MileageReimbursement.tsx",
+          "line": 341,
+          "column": 84,
+          "code": "TS2339",
+          "message": "Property 'amount' does not exist on type 'FuelTransaction'."
+        },
+        {
+          "file": "src/components/modules/tools/MileageReimbursement.tsx",
+          "line": 342,
+          "column": 80,
+          "code": "TS2339",
+          "message": "Property 'status' does not exist on type 'FuelTransaction'."
+        },
+        {
+          "file": "src/components/modules/tools/MileageReimbursement.tsx",
+          "line": 343,
+          "column": 32,
+          "code": "TS2339",
+          "message": "Property 'status' does not exist on type 'FuelTransaction'."
+        },
+        {
+          "file": "src/components/modules/tools/MileageReimbursement.tsx",
+          "line": 345,
+          "column": 30,
+          "code": "TS2339",
+          "message": "Property 'status' does not exist on type 'FuelTransaction'."
+        },
+        {
+          "file": "src/components/modules/tools/MileageReimbursement.tsx",
+          "line": 355,
+          "column": 30,
+          "code": "TS2339",
+          "message": "Property 'status' does not exist on type 'FuelTransaction'."
+        }
+      ]
+    ],
+    [
+      "src/components/AssetTypeFilter.tsx",
+      [
+        {
+          "file": "src/components/AssetTypeFilter.tsx",
+          "line": 103,
+          "column": 5,
+          "code": "TS2322",
+          "message": "Type '\"SELF_POWERED\"' is not assignable to type 'PowerType'."
+        },
+        {
+          "file": "src/components/AssetTypeFilter.tsx",
+          "line": 104,
+          "column": 5,
+          "code": "TS2322",
+          "message": "Type '\"TOWED\"' is not assignable to type 'PowerType'."
+        },
+        {
+          "file": "src/components/AssetTypeFilter.tsx",
+          "line": 105,
+          "column": 5,
+          "code": "TS2322",
+          "message": "Type '\"CARRIED\"' is not assignable to type 'PowerType'."
+        },
+        {
+          "file": "src/components/AssetTypeFilter.tsx",
+          "line": 106,
+          "column": 5,
+          "code": "TS2322",
+          "message": "Type '\"STATIONARY\"' is not assignable to type 'PowerType'."
+        },
+        {
+          "file": "src/components/AssetTypeFilter.tsx",
+          "line": 107,
+          "column": 5,
+          "code": "TS2322",
+          "message": "Type '\"MANUAL\"' is not assignable to type 'PowerType'."
+        },
+        {
+          "file": "src/components/AssetTypeFilter.tsx",
+          "line": 111,
+          "column": 5,
+          "code": "TS2322",
+          "message": "Type '\"AVAILABLE\"' is not assignable to type 'OperationalStatus'."
+        },
+        {
+          "file": "src/components/AssetTypeFilter.tsx",
+          "line": 112,
+          "column": 5,
+          "code": "TS2322",
+          "message": "Type '\"IN_USE\"' is not assignable to type 'OperationalStatus'."
+        },
+        {
+          "file": "src/components/AssetTypeFilter.tsx",
+          "line": 113,
+          "column": 5,
+          "code": "TS2322",
+          "message": "Type '\"MAINTENANCE\"' is not assignable to type 'OperationalStatus'."
+        },
+        {
+          "file": "src/components/AssetTypeFilter.tsx",
+          "line": 114,
+          "column": 5,
+          "code": "TS2322",
+          "message": "Type '\"RESERVED\"' is not assignable to type 'OperationalStatus'."
+        },
+        {
+          "file": "src/components/AssetTypeFilter.tsx",
+          "line": 115,
+          "column": 5,
+          "code": "TS2322",
+          "message": "Type '\"OUT_OF_SERVICE\"' is not assignable to type 'OperationalStatus'."
+        },
+        {
+          "file": "src/components/AssetTypeFilter.tsx",
+          "line": 119,
+          "column": 5,
+          "code": "TS2322",
+          "message": "Type '\"ODOMETER\"' is not assignable to type 'PrimaryMetric'."
+        },
+        {
+          "file": "src/components/AssetTypeFilter.tsx",
+          "line": 120,
+          "column": 5,
+          "code": "TS2322",
+          "message": "Type '\"ENGINE_HOURS\"' is not assignable to type 'PrimaryMetric'."
+        },
+        {
+          "file": "src/components/AssetTypeFilter.tsx",
+          "line": 121,
+          "column": 5,
+          "code": "TS2322",
+          "message": "Type '\"PTO_HOURS\"' is not assignable to type 'PrimaryMetric'."
+        },
+        {
+          "file": "src/components/AssetTypeFilter.tsx",
+          "line": 122,
+          "column": 5,
+          "code": "TS2322",
+          "message": "Type '\"AUX_HOURS\"' is not assignable to type 'PrimaryMetric'."
+        },
+        {
+          "file": "src/components/AssetTypeFilter.tsx",
+          "line": 123,
+          "column": 5,
+          "code": "TS2322",
+          "message": "Type '\"CYCLES\"' is not assignable to type 'PrimaryMetric'."
+        },
+        {
+          "file": "src/components/AssetTypeFilter.tsx",
+          "line": 124,
+          "column": 5,
+          "code": "TS2322",
+          "message": "Type '\"CALENDAR\"' is not assignable to type 'PrimaryMetric'."
+        }
+      ]
+    ],
+    [
+      "src/components/drilldown/FleetStatsDrilldowns.tsx",
+      [
+        {
+          "file": "src/components/drilldown/FleetStatsDrilldowns.tsx",
+          "line": 229,
+          "column": 43,
+          "code": "TS2339",
+          "message": "Property 'dueDate' does not exist on type 'WorkOrder'."
+        },
+        {
+          "file": "src/components/drilldown/FleetStatsDrilldowns.tsx",
+          "line": 229,
+          "column": 65,
+          "code": "TS2339",
+          "message": "Property 'dueDate' does not exist on type 'WorkOrder'."
+        },
+        {
+          "file": "src/components/drilldown/FleetStatsDrilldowns.tsx",
+          "line": 231,
+          "column": 45,
+          "code": "TS2339",
+          "message": "Property 'dueDate' does not exist on type 'WorkOrder'."
+        },
+        {
+          "file": "src/components/drilldown/FleetStatsDrilldowns.tsx",
+          "line": 231,
+          "column": 67,
+          "code": "TS2339",
+          "message": "Property 'dueDate' does not exist on type 'WorkOrder'."
+        },
+        {
+          "file": "src/components/drilldown/FleetStatsDrilldowns.tsx",
+          "line": 319,
+          "column": 73,
+          "code": "TS2339",
+          "message": "Property 'title' does not exist on type 'WorkOrder'."
+        },
+        {
+          "file": "src/components/drilldown/FleetStatsDrilldowns.tsx",
+          "line": 321,
+          "column": 48,
+          "code": "TS2551",
+          "message": "Property 'vehicle' does not exist on type 'WorkOrder'. Did you mean 'vehicleId'?"
+        },
+        {
+          "file": "src/components/drilldown/FleetStatsDrilldowns.tsx",
+          "line": 321,
+          "column": 71,
+          "code": "TS2339",
+          "message": "Property 'dueDate' does not exist on type 'WorkOrder'."
+        },
+        {
+          "file": "src/components/drilldown/FleetStatsDrilldowns.tsx",
+          "line": 341,
+          "column": 63,
+          "code": "TS2339",
+          "message": "Property 'cost' does not exist on type 'FuelTransaction'."
+        },
+        {
+          "file": "src/components/drilldown/FleetStatsDrilldowns.tsx",
+          "line": 346,
+          "column": 43,
+          "code": "TS2339",
+          "message": "Property 'vehicleType' does not exist on type 'FuelTransaction'."
+        },
+        {
+          "file": "src/components/drilldown/FleetStatsDrilldowns.tsx",
+          "line": 347,
+          "column": 41,
+          "code": "TS2339",
+          "message": "Property 'vehicleType' does not exist on type 'FuelTransaction'."
+        },
+        {
+          "file": "src/components/drilldown/FleetStatsDrilldowns.tsx",
+          "line": 348,
+          "column": 43,
+          "code": "TS2339",
+          "message": "Property 'vehicleType' does not exist on type 'FuelTransaction'."
+        },
+        {
+          "file": "src/components/drilldown/FleetStatsDrilldowns.tsx",
+          "line": 349,
+          "column": 41,
+          "code": "TS2339",
+          "message": "Property 'vehicleType' does not exist on type 'FuelTransaction'."
+        },
+        {
+          "file": "src/components/drilldown/FleetStatsDrilldowns.tsx",
+          "line": 403,
+          "column": 72,
+          "code": "TS2339",
+          "message": "Property 'cost' does not exist on type 'FuelTransaction'."
+        },
+        {
+          "file": "src/components/drilldown/FleetStatsDrilldowns.tsx",
+          "line": 421,
+          "column": 70,
+          "code": "TS2551",
+          "message": "Property 'vehicle' does not exist on type 'FuelTransaction'. Did you mean 'vehicleId'?"
+        },
+        {
+          "file": "src/components/drilldown/FleetStatsDrilldowns.tsx",
+          "line": 423,
+          "column": 57,
+          "code": "TS2339",
+          "message": "Property 'locationData' does not exist on type 'FuelTransaction'."
+        },
+        {
+          "file": "src/components/drilldown/FleetStatsDrilldowns.tsx",
+          "line": 427,
+          "column": 73,
+          "code": "TS2339",
+          "message": "Property 'cost' does not exist on type 'FuelTransaction'."
+        }
+      ]
+    ],
+    [
+      "src/components/DrilldownManager.tsx",
+      [
+        {
+          "file": "src/components/DrilldownManager.tsx",
+          "line": 16,
+          "column": 3,
+          "code": "TS2305",
+          "message": "Module '\"@/components/drilldown/AdditionalHubDrilldowns\"' has no exported member 'TasksDrilldown'."
+        },
+        {
+          "file": "src/components/DrilldownManager.tsx",
+          "line": 17,
+          "column": 3,
+          "code": "TS2305",
+          "message": "Module '\"@/components/drilldown/AdditionalHubDrilldowns\"' has no exported member 'VendorsDrilldown'."
+        },
+        {
+          "file": "src/components/DrilldownManager.tsx",
+          "line": 18,
+          "column": 3,
+          "code": "TS2305",
+          "message": "Module '\"@/components/drilldown/AdditionalHubDrilldowns\"' has no exported member 'PartsInventoryDrilldown'."
+        },
+        {
+          "file": "src/components/DrilldownManager.tsx",
+          "line": 19,
+          "column": 3,
+          "code": "TS2305",
+          "message": "Module '\"@/components/drilldown/AdditionalHubDrilldowns\"' has no exported member 'PurchaseOrdersDrilldown'."
+        },
+        {
+          "file": "src/components/DrilldownManager.tsx",
+          "line": 20,
+          "column": 3,
+          "code": "TS2305",
+          "message": "Module '\"@/components/drilldown/AdditionalHubDrilldowns\"' has no exported member 'FuelPurchasingDrilldown'."
+        },
+        {
+          "file": "src/components/DrilldownManager.tsx",
+          "line": 49,
+          "column": 3,
+          "code": "TS2305",
+          "message": "Module '\"@/components/drilldown/FleetStatsDrilldowns\"' has no exported member 'FuelStatsDrilldown'."
+        },
+        {
+          "file": "src/components/DrilldownManager.tsx",
+          "line": 50,
+          "column": 3,
+          "code": "TS2305",
+          "message": "Module '\"@/components/drilldown/FleetStatsDrilldowns\"' has no exported member 'PerformanceMetricsDrilldown'."
+        },
+        {
+          "file": "src/components/DrilldownManager.tsx",
+          "line": 51,
+          "column": 3,
+          "code": "TS2305",
+          "message": "Module '\"@/components/drilldown/FleetStatsDrilldowns\"' has no exported member 'DriverStatsDrilldown'."
+        },
+        {
+          "file": "src/components/DrilldownManager.tsx",
+          "line": 52,
+          "column": 3,
+          "code": "TS2305",
+          "message": "Module '\"@/components/drilldown/FleetStatsDrilldowns\"' has no exported member 'UtilizationDrilldown'."
+        },
+        {
+          "file": "src/components/DrilldownManager.tsx",
+          "line": 53,
+          "column": 3,
+          "code": "TS2305",
+          "message": "Module '\"@/components/drilldown/FleetStatsDrilldowns\"' has no exported member 'SafetyScoreDrilldown'."
+        },
+        {
+          "file": "src/components/DrilldownManager.tsx",
+          "line": 54,
+          "column": 3,
+          "code": "TS2305",
+          "message": "Module '\"@/components/drilldown/FleetStatsDrilldowns\"' has no exported member 'VehicleListDrilldown'."
+        },
+        {
+          "file": "src/components/DrilldownManager.tsx",
+          "line": 61,
+          "column": 3,
+          "code": "TS2305",
+          "message": "Module '\"@/components/drilldown/HubDrilldowns\"' has no exported member 'PredictiveMaintenanceDrilldown'."
+        },
+        {
+          "file": "src/components/DrilldownManager.tsx",
+          "line": 62,
+          "column": 3,
+          "code": "TS2305",
+          "message": "Module '\"@/components/drilldown/HubDrilldowns\"' has no exported member 'MaintenanceCalendarDrilldown'."
+        },
+        {
+          "file": "src/components/DrilldownManager.tsx",
+          "line": 63,
+          "column": 3,
+          "code": "TS2305",
+          "message": "Module '\"@/components/drilldown/HubDrilldowns\"' has no exported member 'ExecutiveDashboardDrilldown'."
+        },
+        {
+          "file": "src/components/DrilldownManager.tsx",
+          "line": 64,
+          "column": 3,
+          "code": "TS2305",
+          "message": "Module '\"@/components/drilldown/HubDrilldowns\"' has no exported member 'CostAnalysisDrilldown'."
+        },
+        {
+          "file": "src/components/DrilldownManager.tsx",
+          "line": 65,
+          "column": 3,
+          "code": "TS2305",
+          "message": "Module '\"@/components/drilldown/HubDrilldowns\"' has no exported member 'FleetOptimizerDrilldown'."
+        }
+      ]
+    ],
+    [
+      "src/components/modules/analytics/DataWorkbench.bak.tsx",
+      [
+        {
+          "file": "src/components/modules/analytics/DataWorkbench.bak.tsx",
+          "line": 172,
+          "column": 77,
+          "code": "TS2345",
+          "message": "Argument of type 'Vehicle[] | { alerts: any; id: string; tenant_id: string; }[]' is not assignable to parameter of type 'Vehicle[]'."
+        },
+        {
+          "file": "src/components/modules/analytics/DataWorkbench.bak.tsx",
+          "line": 269,
+          "column": 41,
+          "code": "TS2339",
+          "message": "Property 'number' does not exist on type 'Vehicle | { alerts: any; id: string; tenant_id: string; }'."
+        },
+        {
+          "file": "src/components/modules/analytics/DataWorkbench.bak.tsx",
+          "line": 270,
+          "column": 32,
+          "code": "TS2339",
+          "message": "Property 'make' does not exist on type 'Vehicle | { alerts: any; id: string; tenant_id: string; }'."
+        },
+        {
+          "file": "src/components/modules/analytics/DataWorkbench.bak.tsx",
+          "line": 271,
+          "column": 33,
+          "code": "TS2339",
+          "message": "Property 'model' does not exist on type 'Vehicle | { alerts: any; id: string; tenant_id: string; }'."
+        },
+        {
+          "file": "src/components/modules/analytics/DataWorkbench.bak.tsx",
+          "line": 272,
+          "column": 31,
+          "code": "TS2339",
+          "message": "Property 'vin' does not exist on type 'Vehicle | { alerts: any; id: string; tenant_id: string; }'."
+        },
+        {
+          "file": "src/components/modules/analytics/DataWorkbench.bak.tsx",
+          "line": 273,
+          "column": 40,
+          "code": "TS2339",
+          "message": "Property 'licensePlate' does not exist on type 'Vehicle | { alerts: any; id: string; tenant_id: string; }'."
+        },
+        {
+          "file": "src/components/modules/analytics/DataWorkbench.bak.tsx",
+          "line": 274,
+          "column": 35,
+          "code": "TS2339",
+          "message": "Property 'year' does not exist on type 'Vehicle | { alerts: any; id: string; tenant_id: string; }'."
+        },
+        {
+          "file": "src/components/modules/analytics/DataWorkbench.bak.tsx",
+          "line": 275,
+          "column": 33,
+          "code": "TS2339",
+          "message": "Property 'year' does not exist on type 'Vehicle | { alerts: any; id: string; tenant_id: string; }'."
+        },
+        {
+          "file": "src/components/modules/analytics/DataWorkbench.bak.tsx",
+          "line": 276,
+          "column": 43,
+          "code": "TS2339",
+          "message": "Property 'status' does not exist on type 'Vehicle | { alerts: any; id: string; tenant_id: string; }'."
+        },
+        {
+          "file": "src/components/modules/analytics/DataWorkbench.bak.tsx",
+          "line": 277,
+          "column": 38,
+          "code": "TS2339",
+          "message": "Property 'department' does not exist on type 'Vehicle | { alerts: any; id: string; tenant_id: string; }'."
+        },
+        {
+          "file": "src/components/modules/analytics/DataWorkbench.bak.tsx",
+          "line": 278,
+          "column": 34,
+          "code": "TS2339",
+          "message": "Property 'region' does not exist on type 'Vehicle | { alerts: any; id: string; tenant_id: string; }'."
+        },
+        {
+          "file": "src/components/modules/analytics/DataWorkbench.bak.tsx",
+          "line": 279,
+          "column": 42,
+          "code": "TS2339",
+          "message": "Property 'assignedDriver' does not exist on type 'Vehicle | { alerts: any; id: string; tenant_id: string; }'."
+        },
+        {
+          "file": "src/components/modules/analytics/DataWorkbench.bak.tsx",
+          "line": 280,
+          "column": 39,
+          "code": "TS2339",
+          "message": "Property 'fuelLevel' does not exist on type 'Vehicle | { alerts: any; id: string; tenant_id: string; }'."
+        },
+        {
+          "file": "src/components/modules/analytics/DataWorkbench.bak.tsx",
+          "line": 281,
+          "column": 39,
+          "code": "TS2339",
+          "message": "Property 'fuelLevel' does not exist on type 'Vehicle | { alerts: any; id: string; tenant_id: string; }'."
+        },
+        {
+          "file": "src/components/modules/analytics/DataWorkbench.bak.tsx",
+          "line": 282,
+          "column": 37,
+          "code": "TS2339",
+          "message": "Property 'mileage' does not exist on type 'Vehicle | { alerts: any; id: string; tenant_id: string; }'."
+        },
+        {
+          "file": "src/components/modules/analytics/DataWorkbench.bak.tsx",
+          "line": 283,
+          "column": 37,
+          "code": "TS2339",
+          "message": "Property 'mileage' does not exist on type 'Vehicle | { alerts: any; id: string; tenant_id: string; }'."
+        }
+      ]
+    ],
+    [
+      "src/components/modules/drivers/DriverPerformance.tsx",
+      [
+        {
+          "file": "src/components/modules/drivers/DriverPerformance.tsx",
+          "line": 63,
+          "column": 24,
+          "code": "TS2345",
+          "message": "Argument of type '(driver: Driver) => { trips: number; miles: number; fuelEfficiency: number; incidents: number; onTimeDelivery: number; violations: number; overallScore: number; trend: string; id: string; name: string; ... 4 more ...; safetyScore: number; }' is not assignable to parameter of type '((value: Driver, index: number, array: Driver[]) => { trips: number; miles: number; fuelEfficiency: number; incidents: number; onTimeDelivery: number; violations: number; ... 8 more ...; safetyScore: number; }) & ((value: Driver, index: number, array: Driver[]) => { ...; })'."
+        },
+        {
+          "file": "src/components/modules/drivers/DriverPerformance.tsx",
+          "line": 78,
+          "column": 13,
+          "code": "TS2345",
+          "message": "Argument of type '(a: Driver, b: Driver) => number' is not assignable to parameter of type '(a: { trips: number; miles: number; fuelEfficiency: number; incidents: number; onTimeDelivery: number; violations: number; overallScore: number; trend: string; id: string; name: string; employeeId: string; department: string; licenseType: string; status: string; safetyScore: number; }, b: { ...; }) => number'."
+        },
+        {
+          "file": "src/components/modules/drivers/DriverPerformance.tsx",
+          "line": 83,
+          "column": 35,
+          "code": "TS2769",
+          "message": "No overload matches this call."
+        },
+        {
+          "file": "src/components/modules/drivers/DriverPerformance.tsx",
+          "line": 87,
+          "column": 47,
+          "code": "TS2769",
+          "message": "No overload matches this call."
+        },
+        {
+          "file": "src/components/modules/drivers/DriverPerformance.tsx",
+          "line": 88,
+          "column": 47,
+          "code": "TS2769",
+          "message": "No overload matches this call."
+        },
+        {
+          "file": "src/components/modules/drivers/DriverPerformance.tsx",
+          "line": 90,
+          "column": 20,
+          "code": "TS2362",
+          "message": "The left-hand side of an arithmetic operation must be of type 'any', 'number', 'bigint' or an enum type."
+        },
+        {
+          "file": "src/components/modules/drivers/DriverPerformance.tsx",
+          "line": 90,
+          "column": 43,
+          "code": "TS2769",
+          "message": "No overload matches this call."
+        },
+        {
+          "file": "src/components/modules/drivers/DriverPerformance.tsx",
+          "line": 92,
+          "column": 51,
+          "code": "TS2769",
+          "message": "No overload matches this call."
+        },
+        {
+          "file": "src/components/modules/drivers/DriverPerformance.tsx",
+          "line": 96,
+          "column": 37,
+          "code": "TS2769",
+          "message": "No overload matches this call."
+        },
+        {
+          "file": "src/components/modules/drivers/DriverPerformance.tsx",
+          "line": 171,
+          "column": 11,
+          "code": "TS2322",
+          "message": "Type '{ trips: number; miles: number; fuelEfficiency: number; incidents: number; onTimeDelivery: number; violations: number; overallScore: number; trend: string; id: string; name: string; employeeId: string; department: string; licenseType: string; status: string; safetyScore: number; }' is not assignable to type 'string | number'."
+        },
+        {
+          "file": "src/components/modules/drivers/DriverPerformance.tsx",
+          "line": 174,
+          "column": 19,
+          "code": "TS2365",
+          "message": "Operator '<' cannot be applied to types '{ trips: number; miles: number; fuelEfficiency: number; incidents: number; onTimeDelivery: number; violations: number; overallScore: number; trend: string; id: string; name: string; employeeId: string; department: string; licenseType: string; status: string; safetyScore: number; }' and 'number'."
+        },
+        {
+          "file": "src/components/modules/drivers/DriverPerformance.tsx",
+          "line": 199,
+          "column": 34,
+          "code": "TS2345",
+          "message": "Argument of type '(driver: Driver, index: number) => JSX.Element' is not assignable to parameter of type '(value: { trips: number; miles: number; fuelEfficiency: number; incidents: number; onTimeDelivery: number; violations: number; overallScore: number; trend: string; id: string; name: string; employeeId: string; department: string; licenseType: string; status: string; safetyScore: number; }, index: number, array: { .....'."
+        },
+        {
+          "file": "src/components/modules/drivers/DriverPerformance.tsx",
+          "line": 233,
+          "column": 34,
+          "code": "TS2345",
+          "message": "Argument of type '(driver: Driver) => JSX.Element' is not assignable to parameter of type '(value: { trips: number; miles: number; fuelEfficiency: number; incidents: number; onTimeDelivery: number; violations: number; overallScore: number; trend: string; id: string; name: string; employeeId: string; department: string; licenseType: string; status: string; safetyScore: number; }, index: number, array: { .....'."
+        },
+        {
+          "file": "src/components/modules/drivers/DriverPerformance.tsx",
+          "line": 311,
+          "column": 32,
+          "code": "TS2345",
+          "message": "Argument of type '(driver: Driver, index: number) => JSX.Element' is not assignable to parameter of type '(value: { trips: number; miles: number; fuelEfficiency: number; incidents: number; onTimeDelivery: number; violations: number; overallScore: number; trend: string; id: string; name: string; employeeId: string; department: string; licenseType: string; status: string; safetyScore: number; }, index: number, array: { .....'."
+        },
+        {
+          "file": "src/components/modules/drivers/DriverPerformance.tsx",
+          "line": 354,
+          "column": 35,
+          "code": "TS2345",
+          "message": "Argument of type '(driver: Driver) => JSX.Element' is not assignable to parameter of type '(value: { trips: number; miles: number; fuelEfficiency: number; incidents: number; onTimeDelivery: number; violations: number; overallScore: number; trend: string; id: string; name: string; employeeId: string; department: string; licenseType: string; status: string; safetyScore: number; }, index: number, array: { .....'."
+        }
+      ]
+    ],
+    [
+      "src/components/modules/fuel/FuelManagement.tsx",
+      [
+        {
+          "file": "src/components/modules/fuel/FuelManagement.tsx",
+          "line": 30,
+          "column": 65,
+          "code": "TS2551",
+          "message": "Property 'totalCost' does not exist on type 'FuelTransaction'. Did you mean 'total_cost'?"
+        },
+        {
+          "file": "src/components/modules/fuel/FuelManagement.tsx",
+          "line": 31,
+          "column": 68,
+          "code": "TS2339",
+          "message": "Property 'gallons' does not exist on type 'FuelTransaction'."
+        },
+        {
+          "file": "src/components/modules/fuel/FuelManagement.tsx",
+          "line": 34,
+          "column": 51,
+          "code": "TS2339",
+          "message": "Property 'mpg' does not exist on type 'FuelTransaction'."
+        },
+        {
+          "file": "src/components/modules/fuel/FuelManagement.tsx",
+          "line": 44,
+          "column": 17,
+          "code": "TS2339",
+          "message": "Property 'date' does not exist on type 'FuelTransaction'."
+        },
+        {
+          "file": "src/components/modules/fuel/FuelManagement.tsx",
+          "line": 45,
+          "column": 33,
+          "code": "TS2339",
+          "message": "Property 'date' does not exist on type 'FuelTransaction'."
+        },
+        {
+          "file": "src/components/modules/fuel/FuelManagement.tsx",
+          "line": 50,
+          "column": 62,
+          "code": "TS2551",
+          "message": "Property 'totalCost' does not exist on type 'FuelTransaction'. Did you mean 'total_cost'?"
+        },
+        {
+          "file": "src/components/modules/fuel/FuelManagement.tsx",
+          "line": 149,
+          "column": 39,
+          "code": "TS2339",
+          "message": "Property 'date' does not exist on type 'FuelTransaction'."
+        },
+        {
+          "file": "src/components/modules/fuel/FuelManagement.tsx",
+          "line": 149,
+          "column": 67,
+          "code": "TS2339",
+          "message": "Property 'date' does not exist on type 'FuelTransaction'."
+        },
+        {
+          "file": "src/components/modules/fuel/FuelManagement.tsx",
+          "line": 152,
+          "column": 39,
+          "code": "TS2339",
+          "message": "Property 'vehicleNumber' does not exist on type 'FuelTransaction'."
+        },
+        {
+          "file": "src/components/modules/fuel/FuelManagement.tsx",
+          "line": 155,
+          "column": 39,
+          "code": "TS2339",
+          "message": "Property 'station' does not exist on type 'FuelTransaction'."
+        },
+        {
+          "file": "src/components/modules/fuel/FuelManagement.tsx",
+          "line": 158,
+          "column": 40,
+          "code": "TS2339",
+          "message": "Property 'gallons' does not exist on type 'FuelTransaction'."
+        },
+        {
+          "file": "src/components/modules/fuel/FuelManagement.tsx",
+          "line": 161,
+          "column": 41,
+          "code": "TS2551",
+          "message": "Property 'pricePerGallon' does not exist on type 'FuelTransaction'. Did you mean 'price_per_gallon'?"
+        },
+        {
+          "file": "src/components/modules/fuel/FuelManagement.tsx",
+          "line": 164,
+          "column": 41,
+          "code": "TS2551",
+          "message": "Property 'totalCost' does not exist on type 'FuelTransaction'. Did you mean 'total_cost'?"
+        },
+        {
+          "file": "src/components/modules/fuel/FuelManagement.tsx",
+          "line": 167,
+          "column": 40,
+          "code": "TS2339",
+          "message": "Property 'mpg' does not exist on type 'FuelTransaction'."
+        },
+        {
+          "file": "src/components/modules/fuel/FuelManagement.tsx",
+          "line": 171,
+          "column": 41,
+          "code": "TS2339",
+          "message": "Property 'paymentMethod' does not exist on type 'FuelTransaction'."
+        }
+      ]
+    ],
+    [
+      "src/components/modules/operations/EnhancedTaskManagement.tsx",
+      [
+        {
+          "file": "src/components/modules/operations/EnhancedTaskManagement.tsx",
+          "line": 179,
+          "column": 25,
+          "code": "TS2339",
+          "message": "Property 'data' does not exist on type 'ApiResponse<Task>'."
+        },
+        {
+          "file": "src/components/modules/operations/EnhancedTaskManagement.tsx",
+          "line": 203,
+          "column": 33,
+          "code": "TS2339",
+          "message": "Property 'data' does not exist on type 'ApiResponse<Task>'."
+        },
+        {
+          "file": "src/components/modules/operations/EnhancedTaskManagement.tsx",
+          "line": 208,
+          "column": 20,
+          "code": "TS2339",
+          "message": "Property 'data' does not exist on type 'ApiResponse<Task>'."
+        },
+        {
+          "file": "src/components/modules/operations/EnhancedTaskManagement.tsx",
+          "line": 209,
+          "column": 59,
+          "code": "TS2339",
+          "message": "Property 'data' does not exist on type 'ApiResponse<Task>'."
+        },
+        {
+          "file": "src/components/modules/operations/EnhancedTaskManagement.tsx",
+          "line": 211,
+          "column": 20,
+          "code": "TS2339",
+          "message": "Property 'data' does not exist on type 'ApiResponse<Task>'."
+        },
+        {
+          "file": "src/components/modules/operations/EnhancedTaskManagement.tsx",
+          "line": 212,
+          "column": 66,
+          "code": "TS2339",
+          "message": "Property 'data' does not exist on type 'ApiResponse<Task>'."
+        },
+        {
+          "file": "src/components/modules/operations/EnhancedTaskManagement.tsx",
+          "line": 236,
+          "column": 30,
+          "code": "TS2339",
+          "message": "Property 'data' does not exist on type 'NLPResponse'."
+        },
+        {
+          "file": "src/components/modules/operations/EnhancedTaskManagement.tsx",
+          "line": 237,
+          "column": 31,
+          "code": "TS2339",
+          "message": "Property 'data' does not exist on type 'NLPResponse'."
+        },
+        {
+          "file": "src/components/modules/operations/EnhancedTaskManagement.tsx",
+          "line": 238,
+          "column": 29,
+          "code": "TS2339",
+          "message": "Property 'data' does not exist on type 'NLPResponse'."
+        },
+        {
+          "file": "src/components/modules/operations/EnhancedTaskManagement.tsx",
+          "line": 239,
+          "column": 28,
+          "code": "TS2339",
+          "message": "Property 'data' does not exist on type 'NLPResponse'."
+        },
+        {
+          "file": "src/components/modules/operations/EnhancedTaskManagement.tsx",
+          "line": 241,
+          "column": 28,
+          "code": "TS2339",
+          "message": "Property 'data' does not exist on type 'NLPResponse'."
+        },
+        {
+          "file": "src/components/modules/operations/EnhancedTaskManagement.tsx",
+          "line": 242,
+          "column": 35,
+          "code": "TS2339",
+          "message": "Property 'data' does not exist on type 'NLPResponse'."
+        },
+        {
+          "file": "src/components/modules/operations/EnhancedTaskManagement.tsx",
+          "line": 264,
+          "column": 20,
+          "code": "TS2339",
+          "message": "Property 'data' does not exist on type 'ApiResponse<Task>'."
+        },
+        {
+          "file": "src/components/modules/operations/EnhancedTaskManagement.tsx",
+          "line": 265,
+          "column": 51,
+          "code": "TS2339",
+          "message": "Property 'data' does not exist on type 'ApiResponse<Task>'."
+        },
+        {
+          "file": "src/components/modules/operations/EnhancedTaskManagement.tsx",
+          "line": 303,
+          "column": 30,
+          "code": "TS18046",
+          "message": "'response' is of type 'unknown'."
+        }
+      ]
+    ],
+    [
+      "src/hooks/use-fleet-data.ts",
+      [
+        {
+          "file": "src/hooks/use-fleet-data.ts",
+          "line": 14,
+          "column": 3,
+          "code": "TS2305",
+          "message": "Module '\"@/hooks/use-api\"' has no exported member 'useWorkOrderMutations'."
+        },
+        {
+          "file": "src/hooks/use-fleet-data.ts",
+          "line": 16,
+          "column": 3,
+          "code": "TS2724",
+          "message": "'\"@/hooks/use-api\"' has no exported member named 'useFuelTransactionMutations'. Did you mean 'useFuelTransactions'?"
+        },
+        {
+          "file": "src/hooks/use-fleet-data.ts",
+          "line": 18,
+          "column": 3,
+          "code": "TS2305",
+          "message": "Module '\"@/hooks/use-api\"' has no exported member 'useFacilityMutations'."
+        },
+        {
+          "file": "src/hooks/use-fleet-data.ts",
+          "line": 20,
+          "column": 3,
+          "code": "TS2724",
+          "message": "'\"@/hooks/use-api\"' has no exported member named 'useMaintenanceScheduleMutations'. Did you mean 'useMaintenanceSchedules'?"
+        },
+        {
+          "file": "src/hooks/use-fleet-data.ts",
+          "line": 22,
+          "column": 3,
+          "code": "TS2305",
+          "message": "Module '\"@/hooks/use-api\"' has no exported member 'useRouteMutations'."
+        },
+        {
+          "file": "src/hooks/use-fleet-data.ts",
+          "line": 99,
+          "column": 31,
+          "code": "TS2339",
+          "message": "Property 'alerts' does not exist on type 'Vehicle'."
+        },
+        {
+          "file": "src/hooks/use-fleet-data.ts",
+          "line": 99,
+          "column": 43,
+          "code": "TS2339",
+          "message": "Property 'alerts' does not exist on type 'Vehicle'."
+        },
+        {
+          "file": "src/hooks/use-fleet-data.ts",
+          "line": 202,
+          "column": 67,
+          "code": "TS2353",
+          "message": "Object literal may only specify known properties, and 'updates' does not exist in type 'Vehicle'."
+        },
+        {
+          "file": "src/hooks/use-fleet-data.ts",
+          "line": 206,
+          "column": 61,
+          "code": "TS2345",
+          "message": "Argument of type 'string' is not assignable to parameter of type '{ id: string; tenant_id: string; }'."
+        },
+        {
+          "file": "src/hooks/use-fleet-data.ts",
+          "line": 214,
+          "column": 65,
+          "code": "TS2353",
+          "message": "Object literal may only specify known properties, and 'updates' does not exist in type 'Driver'."
+        },
+        {
+          "file": "src/hooks/use-fleet-data.ts",
+          "line": 218,
+          "column": 59,
+          "code": "TS2345",
+          "message": "Argument of type 'string' is not assignable to parameter of type '{ id: string; tenant_id: string; }'."
+        },
+        {
+          "file": "src/hooks/use-fleet-data.ts",
+          "line": 226,
+          "column": 65,
+          "code": "TS2353",
+          "message": "Object literal may only specify known properties, and 'updates' does not exist in type 'Driver'."
+        },
+        {
+          "file": "src/hooks/use-fleet-data.ts",
+          "line": 230,
+          "column": 59,
+          "code": "TS2345",
+          "message": "Argument of type 'string' is not assignable to parameter of type '{ id: string; tenant_id: string; }'."
+        }
+      ]
+    ],
+    [
+      "src/components/modules/maintenance/MaintenanceRequest.tsx",
+      [
+        {
+          "file": "src/components/modules/maintenance/MaintenanceRequest.tsx",
+          "line": 57,
+          "column": 46,
+          "code": "TS2367",
+          "message": "This comparison appears to be unintentional because the types '\"pending\" | \"completed\" | \"overdue\" | \"due\"' and '\"approved\"' have no overlap."
+        },
+        {
+          "file": "src/components/modules/maintenance/MaintenanceRequest.tsx",
+          "line": 58,
+          "column": 48,
+          "code": "TS2367",
+          "message": "This comparison appears to be unintentional because the types '\"pending\" | \"completed\" | \"overdue\" | \"due\"' and '\"in-progress\"' have no overlap."
+        },
+        {
+          "file": "src/components/modules/maintenance/MaintenanceRequest.tsx",
+          "line": 144,
+          "column": 64,
+          "code": "TS2339",
+          "message": "Property 'vehicleNumber' does not exist on type 'MaintenanceSchedule'."
+        },
+        {
+          "file": "src/components/modules/maintenance/MaintenanceRequest.tsx",
+          "line": 145,
+          "column": 79,
+          "code": "TS2339",
+          "message": "Property 'issueType' does not exist on type 'MaintenanceSchedule'."
+        },
+        {
+          "file": "src/components/modules/maintenance/MaintenanceRequest.tsx",
+          "line": 149,
+          "column": 84,
+          "code": "TS2339",
+          "message": "Property 'priority' does not exist on type 'MaintenanceSchedule'."
+        },
+        {
+          "file": "src/components/modules/maintenance/MaintenanceRequest.tsx",
+          "line": 150,
+          "column": 34,
+          "code": "TS2339",
+          "message": "Property 'priority' does not exist on type 'MaintenanceSchedule'."
+        },
+        {
+          "file": "src/components/modules/maintenance/MaintenanceRequest.tsx",
+          "line": 152,
+          "column": 74,
+          "code": "TS2345",
+          "message": "Argument of type '\"pending\" | \"completed\" | \"overdue\" | \"due\"' is not assignable to parameter of type '\"pending\" | \"completed\" | \"in-progress\" | \"approved\"'."
+        },
+        {
+          "file": "src/components/modules/maintenance/MaintenanceRequest.tsx",
+          "line": 158,
+          "column": 56,
+          "code": "TS2339",
+          "message": "Property 'description' does not exist on type 'MaintenanceSchedule'."
+        },
+        {
+          "file": "src/components/modules/maintenance/MaintenanceRequest.tsx",
+          "line": 162,
+          "column": 45,
+          "code": "TS2339",
+          "message": "Property 'requestedBy' does not exist on type 'MaintenanceSchedule'."
+        },
+        {
+          "file": "src/components/modules/maintenance/MaintenanceRequest.tsx",
+          "line": 162,
+          "column": 70,
+          "code": "TS2339",
+          "message": "Property 'requestDate' does not exist on type 'MaintenanceSchedule'."
+        },
+        {
+          "file": "src/components/modules/maintenance/MaintenanceRequest.tsx",
+          "line": 174,
+          "column": 22,
+          "code": "TS2367",
+          "message": "This comparison appears to be unintentional because the types '\"pending\" | \"completed\" | \"overdue\" | \"due\"' and '\"approved\"' have no overlap."
+        },
+        {
+          "file": "src/components/modules/maintenance/MaintenanceRequest.tsx",
+          "line": 179,
+          "column": 22,
+          "code": "TS2367",
+          "message": "This comparison appears to be unintentional because the types '\"pending\" | \"completed\" | \"overdue\" | \"due\"' and '\"in-progress\"' have no overlap."
+        }
+      ]
+    ],
+    [
+      "src/components/workspaces/MaintenanceWorkspace.tsx",
+      [
+        {
+          "file": "src/components/workspaces/MaintenanceWorkspace.tsx",
+          "line": 88,
+          "column": 20,
+          "code": "TS2362",
+          "message": "The left-hand side of an arithmetic operation must be of type 'any', 'number', 'bigint' or an enum type."
+        },
+        {
+          "file": "src/components/workspaces/MaintenanceWorkspace.tsx",
+          "line": 132,
+          "column": 25,
+          "code": "TS2362",
+          "message": "The left-hand side of an arithmetic operation must be of type 'any', 'number', 'bigint' or an enum type."
+        },
+        {
+          "file": "src/components/workspaces/MaintenanceWorkspace.tsx",
+          "line": 136,
+          "column": 53,
+          "code": "TS2363",
+          "message": "The right-hand side of an arithmetic operation must be of type 'any', 'number', 'bigint' or an enum type."
+        },
+        {
+          "file": "src/components/workspaces/MaintenanceWorkspace.tsx",
+          "line": 233,
+          "column": 60,
+          "code": "TS2339",
+          "message": "Property 'title' does not exist on type 'WorkOrder'."
+        },
+        {
+          "file": "src/components/workspaces/MaintenanceWorkspace.tsx",
+          "line": 239,
+          "column": 30,
+          "code": "TS2322",
+          "message": "Type 'string' is not assignable to type '\"default\" | \"destructive\" | \"outline\" | \"secondary\" | null | undefined'."
+        },
+        {
+          "file": "src/components/workspaces/MaintenanceWorkspace.tsx",
+          "line": 308,
+          "column": 22,
+          "code": "TS2352",
+          "message": "Conversion of type 'Vehicle[]' to type 'import(\"/Users/andrewmorton/Documents/GitHub/fleet-local/src/lib/types\").Vehicle[]' may be a mistake because neither type sufficiently overlaps with the other. If this was intentional, convert the expression to 'unknown' first."
+        },
+        {
+          "file": "src/components/workspaces/MaintenanceWorkspace.tsx",
+          "line": 321,
+          "column": 34,
+          "code": "TS2362",
+          "message": "The left-hand side of an arithmetic operation must be of type 'any', 'number', 'bigint' or an enum type."
+        },
+        {
+          "file": "src/components/workspaces/MaintenanceWorkspace.tsx",
+          "line": 341,
+          "column": 25,
+          "code": "TS2362",
+          "message": "The left-hand side of an arithmetic operation must be of type 'any', 'number', 'bigint' or an enum type."
+        },
+        {
+          "file": "src/components/workspaces/MaintenanceWorkspace.tsx",
+          "line": 343,
+          "column": 25,
+          "code": "TS2352",
+          "message": "Conversion of type 'WorkOrder[]' to type 'import(\"/Users/andrewmorton/Documents/GitHub/fleet-local/src/lib/types\").WorkOrder[]' may be a mistake because neither type sufficiently overlaps with the other. If this was intentional, convert the expression to 'unknown' first."
+        },
+        {
+          "file": "src/components/workspaces/MaintenanceWorkspace.tsx",
+          "line": 352,
+          "column": 11,
+          "code": "TS2322",
+          "message": "Type 'Facility[]' is not assignable to type 'GISFacility[]'."
+        },
+        {
+          "file": "src/components/workspaces/MaintenanceWorkspace.tsx",
+          "line": 434,
+          "column": 15,
+          "code": "TS2322",
+          "message": "Type 'Facility[]' is not assignable to type 'GISFacility[]'."
+        },
+        {
+          "file": "src/components/workspaces/MaintenanceWorkspace.tsx",
+          "line": 449,
+          "column": 15,
+          "code": "TS2322",
+          "message": "Type 'WorkOrder[]' is not assignable to type 'import(\"/Users/andrewmorton/Documents/GitHub/fleet-local/src/lib/types\").WorkOrder[]'."
+        }
+      ]
+    ],
+    [
+      "src/components/MapboxMap.tsx",
+      [
+        {
+          "file": "src/components/MapboxMap.tsx",
+          "line": 15,
+          "column": 5,
+          "code": "TS2740",
+          "message": "Type '{ version: string; supported: IsSupported; setRTLTextPlugin: (url: string, callback?: Callback<{ err: Error | null | undefined; }> | null | undefined, deferred?: boolean | undefined) => void; ... 31 more ...; restoreNow: () => void; }' is missing the following properties from type 'typeof import(\"/Users/andrewmorton/Documents/GitHub/fleet-local/node_modules/mapbox-gl/dist/mapbox-gl\")': TargetFeature, GeoJSONSource, MapMouseEvent, MapTouchEvent, and 15 more."
+        },
+        {
+          "file": "src/components/MapboxMap.tsx",
+          "line": 28,
+          "column": 5,
+          "code": "TS2322",
+          "message": "Type 'typeof import(\"/Users/andrewmorton/Documents/GitHub/fleet-local/node_modules/mapbox-gl/dist/mapbox-gl\") | null' is not assignable to type 'typeof import(\"/Users/andrewmorton/Documents/GitHub/fleet-local/node_modules/mapbox-gl/dist/mapbox-gl\")'."
+        },
+        {
+          "file": "src/components/MapboxMap.tsx",
+          "line": 105,
+          "column": 89,
+          "code": "TS2345",
+          "message": "Argument of type 'string | undefined' is not assignable to parameter of type 'string'."
+        },
+        {
+          "file": "src/components/MapboxMap.tsx",
+          "line": 210,
+          "column": 3,
+          "code": "TS2339",
+          "message": "Property '_showRoutes' does not exist on type 'MapboxMapProps'."
+        },
+        {
+          "file": "src/components/MapboxMap.tsx",
+          "line": 216,
+          "column": 3,
+          "code": "TS2339",
+          "message": "Property '_onReady' does not exist on type 'MapboxMapProps'."
+        },
+        {
+          "file": "src/components/MapboxMap.tsx",
+          "line": 456,
+          "column": 23,
+          "code": "TS2339",
+          "message": "Property 'lat' does not exist on type 'GISFacility'."
+        },
+        {
+          "file": "src/components/MapboxMap.tsx",
+          "line": 456,
+          "column": 40,
+          "code": "TS2339",
+          "message": "Property 'lng' does not exist on type 'GISFacility'."
+        },
+        {
+          "file": "src/components/MapboxMap.tsx",
+          "line": 460,
+          "column": 46,
+          "code": "TS2339",
+          "message": "Property 'lng' does not exist on type 'GISFacility'."
+        },
+        {
+          "file": "src/components/MapboxMap.tsx",
+          "line": 460,
+          "column": 60,
+          "code": "TS2339",
+          "message": "Property 'lat' does not exist on type 'GISFacility'."
+        },
+        {
+          "file": "src/components/MapboxMap.tsx",
+          "line": 466,
+          "column": 32,
+          "code": "TS2339",
+          "message": "Property 'lng' does not exist on type 'GISFacility'."
+        },
+        {
+          "file": "src/components/MapboxMap.tsx",
+          "line": 466,
+          "column": 46,
+          "code": "TS2339",
+          "message": "Property 'lat' does not exist on type 'GISFacility'."
+        }
+      ]
+    ],
+    [
+      "src/components/modules/integrations/GISCommandCenter.tsx",
+      [
+        {
+          "file": "src/components/modules/integrations/GISCommandCenter.tsx",
+          "line": 52,
+          "column": 51,
+          "code": "TS2339",
+          "message": "Property 'region' does not exist on type 'Vehicle | { alerts: any; id: string; tenant_id: string; }'."
+        },
+        {
+          "file": "src/components/modules/integrations/GISCommandCenter.tsx",
+          "line": 58,
+          "column": 28,
+          "code": "TS2769",
+          "message": "No overload matches this call."
+        },
+        {
+          "file": "src/components/modules/integrations/GISCommandCenter.tsx",
+          "line": 63,
+          "column": 30,
+          "code": "TS2769",
+          "message": "No overload matches this call."
+        },
+        {
+          "file": "src/components/modules/integrations/GISCommandCenter.tsx",
+          "line": 67,
+          "column": 52,
+          "code": "TS2769",
+          "message": "No overload matches this call."
+        },
+        {
+          "file": "src/components/modules/integrations/GISCommandCenter.tsx",
+          "line": 68,
+          "column": 61,
+          "code": "TS2769",
+          "message": "No overload matches this call."
+        },
+        {
+          "file": "src/components/modules/integrations/GISCommandCenter.tsx",
+          "line": 69,
+          "column": 55,
+          "code": "TS2769",
+          "message": "No overload matches this call."
+        },
+        {
+          "file": "src/components/modules/integrations/GISCommandCenter.tsx",
+          "line": 70,
+          "column": 53,
+          "code": "TS2769",
+          "message": "No overload matches this call."
+        },
+        {
+          "file": "src/components/modules/integrations/GISCommandCenter.tsx",
+          "line": 238,
+          "column": 33,
+          "code": "TS2352",
+          "message": "Conversion of type 'Facility[]' to type 'GISFacility[]' may be a mistake because neither type sufficiently overlaps with the other. If this was intentional, convert the expression to 'unknown' first."
+        },
+        {
+          "file": "src/components/modules/integrations/GISCommandCenter.tsx",
+          "line": 242,
+          "column": 21,
+          "code": "TS2322",
+          "message": "Type '{ vehicles: Vehicle[]; facilities: GISFacility[]; showVehicles: boolean; showFacilities: boolean; showRoutes: boolean; mapStyle: string; className: string; }' is not assignable to type 'IntrinsicAttributes & UniversalMapProps'."
+        },
+        {
+          "file": "src/components/modules/integrations/GISCommandCenter.tsx",
+          "line": 261,
+          "column": 76,
+          "code": "TS2769",
+          "message": "No overload matches this call."
+        },
+        {
+          "file": "src/components/modules/integrations/GISCommandCenter.tsx",
+          "line": 279,
+          "column": 53,
+          "code": "TS2345",
+          "message": "Argument of type '(facility: GISFacility) => JSX.Element' is not assignable to parameter of type '(value: Facility, index: number, array: Facility[]) => Element'."
+        }
+      ]
+    ],
+    [
+      "src/hooks/useTeams.ts",
+      [
+        {
+          "file": "src/hooks/useTeams.ts",
+          "line": 39,
+          "column": 45,
+          "code": "TS2339",
+          "message": "Property 'teams' does not exist on type 'APIClient'."
+        },
+        {
+          "file": "src/hooks/useTeams.ts",
+          "line": 54,
+          "column": 30,
+          "code": "TS2339",
+          "message": "Property 'teams' does not exist on type 'APIClient'."
+        },
+        {
+          "file": "src/hooks/useTeams.ts",
+          "line": 71,
+          "column": 45,
+          "code": "TS2339",
+          "message": "Property 'teams' does not exist on type 'APIClient'."
+        },
+        {
+          "file": "src/hooks/useTeams.ts",
+          "line": 87,
+          "column": 31,
+          "code": "TS2339",
+          "message": "Property 'teams' does not exist on type 'APIClient'."
+        },
+        {
+          "file": "src/hooks/useTeams.ts",
+          "line": 114,
+          "column": 45,
+          "code": "TS2339",
+          "message": "Property 'teams' does not exist on type 'APIClient'."
+        },
+        {
+          "file": "src/hooks/useTeams.ts",
+          "line": 178,
+          "column": 31,
+          "code": "TS2339",
+          "message": "Property 'teams' does not exist on type 'APIClient'."
+        },
+        {
+          "file": "src/hooks/useTeams.ts",
+          "line": 202,
+          "column": 30,
+          "code": "TS2339",
+          "message": "Property 'teams' does not exist on type 'APIClient'."
+        },
+        {
+          "file": "src/hooks/useTeams.ts",
+          "line": 272,
+          "column": 30,
+          "code": "TS2339",
+          "message": "Property 'teams' does not exist on type 'APIClient'."
+        },
+        {
+          "file": "src/hooks/useTeams.ts",
+          "line": 297,
+          "column": 30,
+          "code": "TS2339",
+          "message": "Property 'teams' does not exist on type 'APIClient'."
+        },
+        {
+          "file": "src/hooks/useTeams.ts",
+          "line": 317,
+          "column": 30,
+          "code": "TS2339",
+          "message": "Property 'teams' does not exist on type 'APIClient'."
+        },
+        {
+          "file": "src/hooks/useTeams.ts",
+          "line": 336,
+          "column": 30,
+          "code": "TS2339",
+          "message": "Property 'teams' does not exist on type 'APIClient'."
+        }
+      ]
+    ],
+    [
+      "src/lib/api-client.ts",
+      [
+        {
+          "file": "src/lib/api-client.ts",
+          "line": 1,
+          "column": 10,
+          "code": "TS2614",
+          "message": "Module '\"@/utils/logger\"' has no exported member 'createLogger'. Did you mean to use 'import createLogger from \"@/utils/logger\"' instead?"
+        },
+        {
+          "file": "src/lib/api-client.ts",
+          "line": 375,
+          "column": 59,
+          "code": "TS2345",
+          "message": "Argument of type 'unknown' is not assignable to parameter of type 'Record<string, unknown> | undefined'."
+        },
+        {
+          "file": "src/lib/api-client.ts",
+          "line": 386,
+          "column": 58,
+          "code": "TS2345",
+          "message": "Argument of type 'unknown' is not assignable to parameter of type 'Record<string, unknown> | undefined'."
+        },
+        {
+          "file": "src/lib/api-client.ts",
+          "line": 395,
+          "column": 62,
+          "code": "TS2345",
+          "message": "Argument of type 'unknown' is not assignable to parameter of type 'Record<string, unknown> | undefined'."
+        },
+        {
+          "file": "src/lib/api-client.ts",
+          "line": 404,
+          "column": 72,
+          "code": "TS2345",
+          "message": "Argument of type 'unknown' is not assignable to parameter of type 'Record<string, unknown> | undefined'."
+        },
+        {
+          "file": "src/lib/api-client.ts",
+          "line": 414,
+          "column": 68,
+          "code": "TS2345",
+          "message": "Argument of type 'unknown' is not assignable to parameter of type 'Record<string, unknown> | undefined'."
+        },
+        {
+          "file": "src/lib/api-client.ts",
+          "line": 424,
+          "column": 57,
+          "code": "TS2345",
+          "message": "Argument of type 'unknown' is not assignable to parameter of type 'Record<string, unknown> | undefined'."
+        },
+        {
+          "file": "src/lib/api-client.ts",
+          "line": 433,
+          "column": 60,
+          "code": "TS2345",
+          "message": "Argument of type 'unknown' is not assignable to parameter of type 'Record<string, unknown> | undefined'."
+        },
+        {
+          "file": "src/lib/api-client.ts",
+          "line": 442,
+          "column": 62,
+          "code": "TS2345",
+          "message": "Argument of type 'unknown' is not assignable to parameter of type 'Record<string, unknown> | undefined'."
+        },
+        {
+          "file": "src/lib/api-client.ts",
+          "line": 451,
+          "column": 67,
+          "code": "TS2345",
+          "message": "Argument of type 'unknown' is not assignable to parameter of type 'Record<string, unknown> | undefined'."
+        },
+        {
+          "file": "src/lib/api-client.ts",
+          "line": 461,
+          "column": 68,
+          "code": "TS2345",
+          "message": "Argument of type 'unknown' is not assignable to parameter of type 'Record<string, unknown> | undefined'."
+        }
+      ]
+    ],
+    [
+      "src/components/admin/MonitoringDashboard.tsx",
+      [
+        {
+          "file": "src/components/admin/MonitoringDashboard.tsx",
+          "line": 76,
+          "column": 17,
+          "code": "TS18046",
+          "message": "'healthRes' is of type 'unknown'."
+        },
+        {
+          "file": "src/components/admin/MonitoringDashboard.tsx",
+          "line": 77,
+          "column": 18,
+          "code": "TS18046",
+          "message": "'metricsRes' is of type 'unknown'."
+        },
+        {
+          "file": "src/components/admin/MonitoringDashboard.tsx",
+          "line": 78,
+          "column": 20,
+          "code": "TS18046",
+          "message": "'emulatorsRes' is of type 'unknown'."
+        },
+        {
+          "file": "src/components/admin/MonitoringDashboard.tsx",
+          "line": 79,
+          "column": 18,
+          "code": "TS18046",
+          "message": "'errorsRes' is of type 'unknown'."
+        },
+        {
+          "file": "src/components/admin/MonitoringDashboard.tsx",
+          "line": 80,
+          "column": 18,
+          "code": "TS18046",
+          "message": "'alertsRes' is of type 'unknown'."
+        },
+        {
+          "file": "src/components/admin/MonitoringDashboard.tsx",
+          "line": 192,
+          "column": 13,
+          "code": "TS2322",
+          "message": "Type 'HealthData | null' is not assignable to type 'SystemHealth | null'."
+        },
+        {
+          "file": "src/components/admin/MonitoringDashboard.tsx",
+          "line": 205,
+          "column": 17,
+          "code": "TS2322",
+          "message": "Type 'MetricsData | null' is not assignable to type 'Metrics | null'."
+        },
+        {
+          "file": "src/components/admin/MonitoringDashboard.tsx",
+          "line": 220,
+          "column": 17,
+          "code": "TS2322",
+          "message": "Type 'ErrorData[]' is not assignable to type 'Error[]'."
+        },
+        {
+          "file": "src/components/admin/MonitoringDashboard.tsx",
+          "line": 235,
+          "column": 17,
+          "code": "TS2322",
+          "message": "Type 'EmulatorData | null' is not assignable to type 'EmulatorGroup | null'."
+        },
+        {
+          "file": "src/components/admin/MonitoringDashboard.tsx",
+          "line": 250,
+          "column": 17,
+          "code": "TS2322",
+          "message": "Type 'AlertData[]' is not assignable to type 'Alert[]'."
+        }
+      ]
+    ]
+  ]
+}

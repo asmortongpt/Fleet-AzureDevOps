@@ -30,3 +30,21 @@ export interface WorkOrder {
   vehicleId?: string
   type?: string
 }
+
+export interface Asset {
+  id: string
+  name: string
+  type: string
+  status: string
+  location?: {
+    lat: number
+    lng: number
+  }
+}
+
+export interface Geofence {
+  id: string
+  name: string
+  coordinates: Array<{ lat: number; lng: number }>
+  type: 'polygon' | 'circle'
+}
