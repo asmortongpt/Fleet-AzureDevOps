@@ -1,6 +1,6 @@
 import React from "react";
 
-export const HubLayout: React.FC<{ title: string; children: React.ReactNode }> = ({ title, children }) => (
+export const HubLayout: React.FC<{ title: string; icon?: React.ReactNode; children: React.ReactNode }> = ({ title, icon, children }) => (
   <div className="hub-layout" style={{ display: "grid", gridTemplateRows: "auto 1fr", height: "100vh" }}>
     <header style={{
       padding: "12px 16px",
