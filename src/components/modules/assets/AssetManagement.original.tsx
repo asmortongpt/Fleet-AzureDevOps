@@ -174,8 +174,8 @@ export function AssetManagement() {
       if (filterType !== "all") params.append("asset_type", filterType)
       if (filterStatus !== "all") params.append("status", filterStatus)
 
-      const response = await apiClient.get(`/api/asset-management?${params.toString()}`)
-      setAssets(response.assets || [])
+      const response = await apiClient.get<{ assets: any[] }>(`/api/asset-management?${params.toString()}`)
+      setAssets(response?.data?.assets ?? [])
     } catch (error) {
       logger.error("Error fetching assets:", error)
       toast.error("Failed to load assets")
@@ -187,8 +187,8 @@ export function AssetManagement() {
   const fetchHeavyEquipment = async () => {
     try {
       setLoading(true)
-      const response = await apiClient.get('/api/heavy-equipment')
-      setHeavyEquipment(response.equipment || [])
+      const response = await apiClient.get<{ equipment: any[] }>('/api/heavy-equipment')
+      setHeavyEquipment(response?.data?.equipment ?? [])
     } catch (error) {
       logger.error("Error fetching heavy equipment:", error)
       toast.error("Failed to load heavy equipment")
@@ -217,14 +217,14 @@ export function AssetManagement() {
         status: "active"
       }
 
-      const assetResponse = await apiClient.get("/api/asset-management", {
+      const assetResponse = await apiClient.get<{ asset: { id: string } }>("/api/asset-management", {
         method: "POST",
         body: JSON.stringify(assetData)
       })
 
       // Then create the heavy equipment record
       const equipmentData = {
-        asset_id: assetResponse.asset.id,
+        asset_id: assetResponse?.data?.asset?.id,
         ...newEquipment
       }
 
@@ -261,12 +261,14 @@ export function AssetManagement() {
     }
 
     try {
-      const response = await apiClient.get("/api/asset-management", {
+      const response = await apiClient.get<{ asset: any }>("/api/asset-management", {
         method: "POST",
         body: JSON.stringify(newAsset)
       })
 
-      setAssets(current => [...current, response.asset])
+      if (response?.data?.asset) {
+        setAssets(current => [...current, response.data.asset])
+      }
       toast.success("Asset added successfully")
       setIsAddDialogOpen(false)
       resetNewAsset()

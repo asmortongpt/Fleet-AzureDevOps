@@ -108,16 +108,16 @@ export function EquipmentDashboard() {
       ])
 
       if (isSuccessResponse(equipmentRes)) {
-        setEquipment(equipmentRes.data.equipment || [])
+        setEquipment(equipmentRes?.data?.equipment ?? [])
       }
       if (isSuccessResponse(schedulesRes)) {
-        setMaintenanceSchedules(schedulesRes.data.schedules || [])
+        setMaintenanceSchedules(schedulesRes?.data?.schedules ?? [])
       }
       if (isSuccessResponse(certificationsRes)) {
-        setCertifications(certificationsRes.data.alerts || [])
+        setCertifications(certificationsRes?.data?.alerts ?? [])
       }
       if (isSuccessResponse(matrixRes)) {
-        setCertificationMatrix(matrixRes.data.matrix || [])
+        setCertificationMatrix(matrixRes?.data?.matrix ?? [])
       }
     } catch (error) {
       logger.error("Error fetching dashboard data:", error)

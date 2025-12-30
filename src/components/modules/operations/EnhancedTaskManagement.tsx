@@ -267,8 +267,8 @@ export function EnhancedTaskManagement() {
 
     try {
       const response = await apiClient.post<ApiResponse<{ task: Task }>>("/api/task-management", newTask)
-      if (isSuccessResponse(response) && response.data?.task) {
-        setTasks(current => [...current, response.data.task as Task])
+      if (isSuccessResponse(response) && response?.data?.task) {
+        setTasks(current => [...current, response.data.task])
       }
       toast.success("Task created successfully")
       setIsAddDialogOpen(false)
@@ -302,11 +302,11 @@ export function EnhancedTaskManagement() {
 
   const exportTasks = async (format: 'csv' | 'excel' | 'pdf') => {
     try {
-      const response = await apiClient.get(`/api/task-management/export?format=${format}`, {
+      const response = await apiClient.get<Blob>(`/api/task-management/export?format=${format}`, {
         responseType: 'blob'
       })
 
-      const blob = new Blob([response.data as BlobPart])
+      const blob = new Blob([response?.data ?? new Blob()])
       const url = window.URL.createObjectURL(blob)
       const link = document.createElement('a')
       link.href = url
