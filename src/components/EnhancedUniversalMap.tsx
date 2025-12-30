@@ -18,7 +18,7 @@ import { Badge } from './ui/badge'
 import { Button } from './ui/button'
 import { Card, CardContent } from './ui/card'
 
-import { useErrorRecovery } from '@/hooks/useErrorRecovery'
+import { useErrorRecovery, ErrorRecoveryConfig } from '@/hooks/useErrorRecovery'
 import logger from '@/utils/logger';
 import { useMapHealthCheck, HealthStatus } from '@/utils/mapHealthCheck'
 import { toast } from '@/utils/toast'
@@ -93,7 +93,6 @@ export function EnhancedUniversalMap(props: EnhancedUniversalMapProps) {
   // --------------------------------------------------------------------------
 
   const errorRecovery = useErrorRecovery({
-    enabled: enableErrorRecovery,
     failureThreshold: 3,
     recoveryTimeout: 30000,
     maxRecoveryAttempts: 3,
@@ -121,7 +120,7 @@ export function EnhancedUniversalMap(props: EnhancedUniversalMapProps) {
         handleProviderSwitch('leaflet')
       }
     },
-  })
+  } as ErrorRecoveryConfig)
 
   // --------------------------------------------------------------------------
   // Health Monitoring Hook
@@ -130,7 +129,6 @@ export function EnhancedUniversalMap(props: EnhancedUniversalMapProps) {
   const healthCheck = useMapHealthCheck(
     enableHealthMonitoring ? ['google', 'leaflet'] : [],
     {
-      enabled: enableHealthMonitoring,
       interval: 60000, // Check every minute
       onStatusChange: (provider, status) => {
         logger.debug(`${provider} status changed to:`, status)

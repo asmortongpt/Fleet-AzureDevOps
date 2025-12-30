@@ -144,11 +144,11 @@ export function useVehicleMutations() {
       if (!res.ok) throw new Error(`Failed to create vehicle: ${res.statusText}`)
       return res.json()
     },
-    createVehicleSchema,
+    createVehicleSchema as z.ZodType<z.infer<typeof createVehicleSchema>>,
     vehicleSchema,
     {
       onSuccess: () => {
-        invalidateQueries(queryClient, ['vehicles'])
+        invalidateQueries(queryClient, { queryKey: ['vehicles'] })
       }
     }
   )
@@ -162,12 +162,12 @@ export function useVehicleMutations() {
       if (!res.ok) throw new Error(`Failed to update vehicle: ${res.statusText}`)
       return res.json()
     },
-    updateVehicleSchema,
+    updateVehicleSchema as z.ZodType<z.infer<typeof updateVehicleSchema>>,
     vehicleSchema,
     {
       onSuccess: (data) => {
-        invalidateQueries(queryClient, ['vehicles'])
-        invalidateQueries(queryClient, ['vehicle', data.id])
+        invalidateQueries(queryClient, { queryKey: ['vehicles'] })
+        invalidateQueries(queryClient, { queryKey: ['vehicle', data?.id] })
       }
     }
   )
@@ -184,7 +184,7 @@ export function useVehicleMutations() {
     z.object({ success: z.boolean(), id: z.string() }),
     {
       onSuccess: () => {
-        invalidateQueries(queryClient, ['vehicles'])
+        invalidateQueries(queryClient, { queryKey: ['vehicles'] })
       }
     }
   )
@@ -255,11 +255,11 @@ export function useDriverMutations() {
       if (!res.ok) throw new Error(`Failed to create driver: ${res.statusText}`)
       return res.json()
     },
-    createDriverSchema,
+    createDriverSchema as z.ZodType<z.infer<typeof createDriverSchema>>,
     driverSchema,
     {
       onSuccess: () => {
-        invalidateQueries(queryClient, ['drivers'])
+        invalidateQueries(queryClient, { queryKey: ['drivers'] })
       }
     }
   )
@@ -273,12 +273,12 @@ export function useDriverMutations() {
       if (!res.ok) throw new Error(`Failed to update driver: ${res.statusText}`)
       return res.json()
     },
-    updateDriverSchema,
+    updateDriverSchema as z.ZodType<z.infer<typeof updateDriverSchema>>,
     driverSchema,
     {
       onSuccess: (data) => {
-        invalidateQueries(queryClient, ['drivers'])
-        invalidateQueries(queryClient, ['driver', data.id])
+        invalidateQueries(queryClient, { queryKey: ['drivers'] })
+        invalidateQueries(queryClient, { queryKey: ['driver', data?.id] })
       }
     }
   )
@@ -295,7 +295,7 @@ export function useDriverMutations() {
     z.object({ success: z.boolean(), id: z.string() }),
     {
       onSuccess: () => {
-        invalidateQueries(queryClient, ['drivers'])
+        invalidateQueries(queryClient, { queryKey: ['drivers'] })
       }
     }
   )

@@ -16,7 +16,7 @@ export interface DocumentMapPopupProps {
 /**
  * Format file size to human-readable string
  */
-function formatFileSize(bytes: number): string {
+function _formatFileSize(bytes: number): string {
   if (bytes === 0) return '0 Bytes'
 
   const k = 1024
@@ -175,7 +175,7 @@ export function DocumentMapPopup({ document, onView, onDownload }: DocumentMapPo
             />
           </svg>
           <span>
-            {document.location?.lat.toFixed(4)}, {document.location?.lng.toFixed(4)}
+            {document.location?.lat?.toFixed(4)}, {document.location?.lng?.toFixed(4)}
           </span>
         </div>
       )}

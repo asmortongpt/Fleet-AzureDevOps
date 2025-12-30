@@ -1,4 +1,6 @@
-import logger from '@/utils/logger'
+import { createLogger } from '@/utils/logger'
+
+const logger = createLogger('UniversalMapStorage')
 
 /**
  * Safely access localStorage with fallback
@@ -8,7 +10,7 @@ import logger from '@/utils/logger'
  */
 export function safeGetLocalStorage(key: string, defaultValue: string | null = null): string | null {
   try {
-    if (typeof window === "undefined" || !window.localStorage) {
+    if (typeof window === "undefined" || !window?.localStorage) {
       return defaultValue
     }
     return localStorage.getItem(key) ?? defaultValue
@@ -26,7 +28,7 @@ export function safeGetLocalStorage(key: string, defaultValue: string | null = n
  */
 export function safeSetLocalStorage(key: string, value: string): boolean {
   try {
-    if (typeof window === "undefined" || !window.localStorage) {
+    if (typeof window === "undefined" || !window?.localStorage) {
       return false
     }
     localStorage.setItem(key, value)

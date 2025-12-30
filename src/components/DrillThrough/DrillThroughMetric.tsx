@@ -1,10 +1,9 @@
 import { ChevronRight } from 'lucide-react';
-import React, { useState } from 'react';
+import { useState } from 'react';
 
 import type { DrillThroughConfig } from '../../types/drill-through';
 
 import { DrillThroughModal } from './DrillThroughModal';
-
 
 interface DrillThroughMetricProps {
   /** Display value */
@@ -51,7 +50,7 @@ export function DrillThroughMetric({
 }: DrillThroughMetricProps) {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  const defaultTooltip = `Click to view ${config.title.toLowerCase()}`;
+  const defaultTooltip = `Click to view ${config.title?.toLowerCase() ?? 'details'}`;
 
   return (
     <>

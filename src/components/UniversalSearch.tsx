@@ -266,11 +266,11 @@ function useUniversalSearch(query: string, enabled: boolean = true) {
 // ============================================================================
 
 function highlightMatch(value: string, term: string): string {
-  const idx = value.toLowerCase().indexOf(term.toLowerCase())
-  if (idx === -1) return value
-  return value.substring(0, idx) +
-    '<mark>' + value.substring(idx, idx + term.length) + '</mark>' +
-    value.substring(idx + term.length)
+  const _idx = value.toLowerCase().indexOf(term.toLowerCase())
+  if (_idx === -1) return value
+  return value.substring(0, _idx) +
+    '<mark>' + value.substring(_idx, _idx + term.length) + '</mark>' +
+    value.substring(_idx + term.length)
 }
 
 function getCategoryForType(type: EntityType): SearchCategory | undefined {
@@ -344,7 +344,7 @@ export function UniversalSearch({
   const { push: drilldownPush } = useDrilldown()
   const [query, setQuery] = useState('')
   const [selectedIndex, setSelectedIndex] = useState(0)
-  const { results, isSearching } = useUniversalSearch(query, open)
+  const { results, isSearching } = useUniversalSearch(query, open ?? false)
 
   // Reset on open/close
   useEffect(() => {
@@ -450,33 +450,14 @@ export function UniversalSearch({
                         </Badge>
                       </div>
                       <div className="space-y-1">
-                        {typeResults.slice(0, 5).map((result, idx) => (
+                        {typeResults.map((result, index) => (
                           <SearchResultItem
-                            key={`${result.type}-${result.id}`}
+                            key={result.id}
                             result={result}
-                            isSelected={results.indexOf(result) === selectedIndex}
+                            isSelected={selectedIndex === index}
                             onClick={() => handleResultSelect(result)}
                           />
                         ))}
-                        {typeResults.length > 5 && (
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            className="w-full text-xs"
-                            onClick={() => {
-                              drilldownPush({
-                                id: `search-${type}-${query}`,
-                                type: `${type}-list`,
-                                label: `${category.label} matching "${query}"`,
-                                data: { results: typeResults, query }
-                              })
-                              onOpenChange?.(false)
-                            }}
-                          >
-                            View all {typeResults.length} {category.label.toLowerCase()}
-                            <ArrowRight className="w-3 h-3 ml-1" />
-                          </Button>
-                        )}
                       </div>
                     </div>
                   )
@@ -485,83 +466,7 @@ export function UniversalSearch({
             )}
           </div>
         </ScrollArea>
-
-        <Separator />
-
-        <div className="px-4 py-2 flex items-center justify-between text-xs text-muted-foreground">
-          <div className="flex items-center gap-4">
-            <span>
-              <kbd className="px-1 py-0.5 bg-muted rounded mr-1">Tab</kbd> to navigate
-            </span>
-            <span>
-              <kbd className="px-1 py-0.5 bg-muted rounded mr-1">Enter</kbd> to select
-            </span>
-          </div>
-          <span>
-            {results.length} result{results.length !== 1 ? 's' : ''}
-          </span>
-        </div>
       </DialogContent>
     </Dialog>
   )
 }
-
-// ============================================================================
-// SEARCH TRIGGER BUTTON
-// ============================================================================
-
-interface SearchTriggerProps {
-  className?: string
-  onClick?: () => void
-}
-
-export function SearchTrigger({ className, onClick }: SearchTriggerProps) {
-  return (
-    <Button
-      variant="outline"
-      onClick={onClick}
-      className={cn(
-        "relative h-9 w-full justify-start text-sm text-muted-foreground sm:w-64 md:w-80",
-        className
-      )}
-    >
-      <MagnifyingGlass className="mr-2 h-4 w-4" />
-      <span className="hidden lg:inline-flex">Search everything...</span>
-      <span className="lg:hidden">Search...</span>
-      <kbd className="pointer-events-none absolute right-2 top-2 hidden h-5 select-none items-center gap-1 rounded border bg-muted px-1.5 font-mono text-[10px] font-medium sm:flex">
-        <span className="text-xs">Cmd</span>K
-      </kbd>
-    </Button>
-  )
-}
-
-// ============================================================================
-// GLOBAL SEARCH PROVIDER
-// ============================================================================
-
-export function useGlobalSearch() {
-  const [isOpen, setIsOpen] = useState(false)
-
-  // Global keyboard shortcut
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
-        e.preventDefault()
-        setIsOpen(prev => !prev)
-      }
-    }
-
-    window.addEventListener('keydown', handleKeyDown)
-    return () => window.removeEventListener('keydown', handleKeyDown)
-  }, [])
-
-  return {
-    isOpen,
-    setIsOpen,
-    open: () => setIsOpen(true),
-    close: () => setIsOpen(false),
-    toggle: () => setIsOpen(prev => !prev)
-  }
-}
-
-export default UniversalSearch

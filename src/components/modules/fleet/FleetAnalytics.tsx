@@ -7,7 +7,7 @@ import {
   CarProfile,
   Clock
 } from "@phosphor-icons/react"
-import { useMemo , useState } from "react"
+import { useMemo, useState } from "react"
 
 import { ChartCard } from "@/components/ChartCard"
 import { MetricCard } from "@/components/MetricCard"
@@ -16,10 +16,6 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
 import { useFleetData } from "@/hooks/use-fleet-data"
-
-interface FleetAnalyticsProps {
-  data: ReturnType<typeof useFleetData>
-}
 
 export function FleetAnalytics() {
   const data = useFleetData()
@@ -32,7 +28,7 @@ export function FleetAnalytics() {
 
   const monthlyFleetData = useMemo(() => {
     const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun"]
-    return months.map((name, i) => {
+    return months.map((name, _i) => {
       const activeCount = Math.floor(Math.random() * 15 + 35)
       return {
         name,
@@ -59,7 +55,7 @@ export function FleetAnalytics() {
     return types.map(name => ({
       name,
       utilization: Math.floor(Math.random() * 30 + 65),
-      count: vehicles.filter(v => v.type.toLowerCase() === name.toLowerCase()).length
+      count: vehicles.filter(v => v?.type?.toLowerCase() === name.toLowerCase()).length
     }))
   }, [vehicles])
 
@@ -368,55 +364,10 @@ export function FleetAnalytics() {
                   <p className="text-sm font-medium text-muted-foreground">Utilization</p>
                 </div>
                 <p className="text-3xl font-semibold">{metrics.utilization}%</p>
-                <p className="text-sm text-muted-foreground mt-1">fleet efficiency</p>
+                <p className="text-sm text-muted-foreground mt-1">of total fleet</p>
               </CardContent>
             </Card>
           </div>
-
-          <Card>
-            <CardHeader>
-              <CardTitle>Performance Insights</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                <div className="flex items-start gap-4 p-4 border rounded-lg">
-                  <div className="p-2 rounded-lg bg-success/10 text-success">
-                    <TrendUp className="w-5 h-5" />
-                  </div>
-                  <div className="flex-1">
-                    <h4 className="font-semibold mb-1">Fleet Utilization Improving</h4>
-                    <p className="text-sm text-muted-foreground">
-                      Fleet utilization has increased by 3.2% compared to last period, indicating better resource allocation.
-                    </p>
-                  </div>
-                </div>
-
-                <div className="flex items-start gap-4 p-4 border rounded-lg">
-                  <div className="p-2 rounded-lg bg-warning/10 text-warning">
-                    <GasPump className="w-5 h-5" />
-                  </div>
-                  <div className="flex-1">
-                    <h4 className="font-semibold mb-1">Fuel Costs Rising</h4>
-                    <p className="text-sm text-muted-foreground">
-                      Fuel expenses have increased by 8.5%. Consider fuel efficiency training or route optimization.
-                    </p>
-                  </div>
-                </div>
-
-                <div className="flex items-start gap-4 p-4 border rounded-lg">
-                  <div className="p-2 rounded-lg bg-success/10 text-success">
-                    <Wrench className="w-5 h-5" />
-                  </div>
-                  <div className="flex-1">
-                    <h4 className="font-semibold mb-1">Maintenance Costs Decreasing</h4>
-                    <p className="text-sm text-muted-foreground">
-                      Maintenance expenses down by 2.3%, suggesting effective preventive maintenance practices.
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
         </TabsContent>
       </Tabs>
     </div>

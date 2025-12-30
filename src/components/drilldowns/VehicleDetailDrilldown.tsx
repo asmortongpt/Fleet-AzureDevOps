@@ -1,9 +1,18 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { Vehicle } from '@/types'
+
+interface Vehicle {
+  make: string;
+  model: string;
+  vin: string;
+  year: number;
+  mileage?: number;
+  status: string;
+  licensePlate: string;
+}
 
 interface VehicleDetailDrilldownProps {
-  vehicle: Vehicle
+  vehicle: Vehicle;
 }
 
 export function VehicleDetailDrilldown({ vehicle }: VehicleDetailDrilldownProps) {

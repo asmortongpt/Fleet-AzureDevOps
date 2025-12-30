@@ -14,6 +14,7 @@ import { useState, useCallback, useRef, useEffect } from 'react';
 
 import type { PTTState } from '@/types/radio';
 import logger from '@/utils/logger';
+
 interface UsePTTOptions {
   onAudioChunk?: (audioData: string) => void;
   onTransmissionStart?: (transmissionId: string) => void;
@@ -148,7 +149,8 @@ export function usePTT(options: UsePTTOptions = {}) {
           if (onAudioChunk) {
             const reader = new FileReader();
             reader.onloadend = () => {
-              const base64Audio = (reader.result as string).split(',')[1];
+              const result = reader.result as string;
+              const base64Audio = result.split(',')[1] || '';
               onAudioChunk(base64Audio);
             };
             reader.readAsDataURL(event.data);
@@ -288,6 +290,7 @@ export function usePTT(options: UsePTTOptions = {}) {
 
       return () => clearTimeout(timer);
     }
+    return () => {};
   }, [state.error]);
 
   return {
