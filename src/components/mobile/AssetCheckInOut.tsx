@@ -5,8 +5,8 @@ import { Button, StyleSheet, View, Text, TextInput, TouchableOpacity, Image } fr
 import { z } from 'zod';
 
 import { checkInAsset, checkOutAsset } from '../api/assets';
-import { uploadPhoto } from '../services/photo-storage.service';
-import { compressToWebP } from '../utils/compressToWebP';
+import { uploadPhoto } from '@/services/photo-storage.service';
+import { compressToWebP } from '@/utils/compressToWebP';
 
 interface AssetCheckInOutProps {
   tenantId: string;
