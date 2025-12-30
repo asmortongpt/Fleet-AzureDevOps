@@ -85,7 +85,7 @@ const AssetLocationMap: React.FC<{ tenantId: string }> = ({ tenantId }) => {
           <Popup>
             <div>
               <strong>{asset.name}</strong><br />
-              Last seen: {new Date(asset.lastSeen).toLocaleString()}
+              Last seen: {new Date(asset.lastSeen ?? Date.now()).toLocaleString()}
             </div>
           </Popup>
         </Marker>
