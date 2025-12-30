@@ -67,7 +67,7 @@ const formSlice = createSlice({
   reducers: {
     updateFormField(state, action: PayloadAction<{ field: keyof FormState; value: string | boolean }>) {
       const { field, value } = action.payload;
-      (state[field] as any) = value;
+      (state as any)[field] = value;
     },
     resetFormState() {
       return initialState;
