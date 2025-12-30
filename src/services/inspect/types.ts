@@ -5,7 +5,8 @@ export type InspectType =
   | "route"
   | "alert"
   | "task"
-  | "dispatch";
+  | "dispatch"
+  | "maintenance";
 
 export type InspectTarget = {
   type: InspectType;
