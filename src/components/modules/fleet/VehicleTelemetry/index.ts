@@ -1,1 +1,1 @@
-export * from "./VehicleTelemetry";
+export * from "../VehicleTelemetry";
