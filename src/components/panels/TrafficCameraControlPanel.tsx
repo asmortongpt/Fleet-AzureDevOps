@@ -49,7 +49,7 @@ export function TrafficCameraControlPanel({
     const { data: sources = [] } = useQuery({
         queryKey: ["trafficCameras", "sources"],
         queryFn: async () => {
-            const result = await apiClient.trafficCameras.sources()
+            const result = await apiClient.trafficCameras.sources.list()
             return result as CameraDataSource[]
         }
     })
