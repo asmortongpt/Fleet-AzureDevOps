@@ -61,13 +61,16 @@ export function MaintenanceScheduling() {
 
     const newMaintenanceSchedule: MaintenanceSchedule = {
       id: `maint-${Date.now()}`,
+      vehicleId: `vehicle-${Date.now()}`,
       vehicleNumber: newSchedule.vehicleNumber,
       serviceType: newSchedule.serviceType,
       priority: newSchedule.priority,
       status: "scheduled",
       nextDue: newSchedule.scheduledDate.toISOString(),
+      lastPerformed: new Date().toISOString(),
       estimatedCost: newSchedule.estimatedCost,
       frequency: "monthly",
+      autoSchedule: false,
       notes: newSchedule.notes
     }
 
