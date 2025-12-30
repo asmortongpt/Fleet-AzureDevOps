@@ -1,1 +1,1 @@
-export * from "./PredictiveMaintenance";
+export * from "../PredictiveMaintenance";
