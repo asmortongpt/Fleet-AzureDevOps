@@ -214,11 +214,11 @@ export function EnhancedTaskManagement() {
         toast.success("AI suggestions generated!")
 
         // Apply suggestions
-        if (response.data?.suggestions?.suggestedPriority) {
-          setNewTask(prev => ({ ...prev, priority: response.data?.suggestions?.suggestedPriority as 'low' | 'medium' | 'high' | 'critical' }))
+        if (typedResponse.data?.suggestions?.suggestedPriority) {
+          setNewTask(prev => ({ ...prev, priority: typedResponse.data?.suggestions?.suggestedPriority as 'low' | 'medium' | 'high' | 'critical' }))
         }
-        if (response.data?.suggestions?.estimatedHours) {
-          setNewTask(prev => ({ ...prev, estimated_hours: response.data?.suggestions?.estimatedHours }))
+        if (typedResponse.data?.suggestions?.estimatedHours) {
+          setNewTask(prev => ({ ...prev, estimated_hours: typedResponse.data?.suggestions?.estimatedHours }))
         }
       }
     } catch (error) {
@@ -270,9 +270,12 @@ export function EnhancedTaskManagement() {
     }
 
     try {
-      const response = await apiClient.post<ApiResponse<{ task: Task }>>("/api/task-management", newTask)
-      if (isSuccessResponse(response) && response?.data?.task) {
-        setTasks(current => [...current, response.data.task])
+      const response = await apiClient.post<ApiResponse<unknown>>("/api/task-management", newTask)
+      if (isSuccessResponse(response)) {
+        const typedResponse = response as SuccessResponse<{ task: Task }>
+        if (typedResponse?.data?.task) {
+          setTasks(current => [...current, typedResponse.data.task])
+        }
       }
       toast.success("Task created successfully")
       setIsAddDialogOpen(false)

@@ -80,7 +80,7 @@ export const ProtectedRoute = ({
           const normalizedPermission = requiredPermission && (typeof requiredPermission === 'string' || Array.isArray(requiredPermission))
             ? requiredPermission
             : undefined
-          const authorized = canAccess(normalizedRole, normalizedPermission)
+          const authorized = canAccess(normalizedRole as any, normalizedPermission as any)
           setIsAuthorized(authorized)
 
           if (!authorized) {
