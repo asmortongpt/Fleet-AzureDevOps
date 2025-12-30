@@ -163,7 +163,7 @@ export const cssVariables = Object.entries(designTokens).reduce((acc, [category,
   Object.entries(tokens).forEach(([key, value]) => {
     if (typeof value === 'object') {
       Object.entries(value).forEach(([subKey, subValue]) => {
-        acc[`--${category}-${key}-${subKey}`] = subValue as string;
+        acc[`--${category}-${key}-${subKey}`] = String(subValue);
       });
     } else {
       acc[`--${category}-${key}`] = value;

@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/react"
-import { withFullPage } from "../../../.storybook/decorators"
-import { generateMockVehicles, generateMockFacilities, getVehiclesByStatus, getActiveVehicles } from "../../../.storybook/mockData"
+import { withFullPage } from "@/../.storybook/decorators"
+import { generateMockVehicles, generateMockFacilities, getVehiclesByStatus, getActiveVehicles } from "@/../.storybook/mockData"
 import { GPSTracking } from "./GPSTracking"
 
 const meta = {
