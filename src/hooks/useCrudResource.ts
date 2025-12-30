@@ -83,7 +83,7 @@ export function createCrudHooks<T extends { id?: number | string }>(
     return useMutation({
       mutationFn: async ({ id, data }: { id: number | string; data: Partial<T> }) => {
         const response = await axios.put<T>(`/${resourceName}/${id}`, data)
-        return response
+        return (response as any)?.data || response as T
       },
       onSuccess: (_, variables) => {
         queryClient.invalidateQueries({ queryKey: [queryKey] })
