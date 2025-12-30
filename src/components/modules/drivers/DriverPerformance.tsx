@@ -75,25 +75,25 @@ export function DriverPerformance(_props: DriverPerformanceProps) {
 
   const topPerformers = useMemo(() => {
     return [...enhancedDrivers]
-      .sort((a: Driver, b: Driver) => b.safetyScore - a.safetyScore)
+      .sort((a, b) => b.safetyScore - a.safetyScore)
       .slice(0, 5)
   }, [enhancedDrivers])
 
   const needsAttention = useMemo(() => {
-    return enhancedDrivers.filter((d: Driver) => d.incidents > 2 || d.safetyScore < 75)
+    return enhancedDrivers.filter(d => d.incidents > 2 || d.safetyScore < 75)
   }, [enhancedDrivers])
 
   const metrics = useMemo(() => {
-    const totalTrips = enhancedDrivers.reduce((sum: number, d: Driver) => sum + d.trips, 0)
-    const totalMiles = enhancedDrivers.reduce((sum: number, d: Driver) => sum + d.miles, 0)
-    const avgSafetyScore = enhancedDrivers.length > 0 
-      ? Math.round(enhancedDrivers.reduce((sum: number, d: Driver) => sum + d.safetyScore, 0) / enhancedDrivers.length)
+    const totalTrips = enhancedDrivers.reduce((sum, d) => sum + d.trips, 0)
+    const totalMiles = enhancedDrivers.reduce((sum, d) => sum + d.miles, 0)
+    const avgSafetyScore = enhancedDrivers.length > 0
+      ? Math.round(enhancedDrivers.reduce((sum, d) => sum + d.safetyScore, 0) / enhancedDrivers.length)
       : 0
-    const totalIncidents = enhancedDrivers.reduce((sum: number, d: Driver) => sum + d.incidents, 0)
+    const totalIncidents = enhancedDrivers.reduce((sum, d) => sum + d.incidents, 0)
 
     return {
       totalDrivers: drivers.length,
-      activeDrivers: drivers.filter((d: Driver) => d.status === "active").length,
+      activeDrivers: drivers.filter(d => d.status === "active").length,
       totalTrips,
       totalMiles,
       avgSafetyScore,

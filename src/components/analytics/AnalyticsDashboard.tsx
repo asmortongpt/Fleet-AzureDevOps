@@ -22,6 +22,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useVehicles } from '@/hooks/use-api';
+import type { Vehicle } from '@/types';
 
 type AnalyticsType = 'heatmap' | 'routes' | 'performance' | 'fuel';
 
@@ -40,7 +41,7 @@ export function AnalyticsDashboard() {
   const [exportFormat, setExportFormat] = useState('pdf');
 
   // Calculate KPIs from vehicle data
-  const totalMiles = vehicles?.reduce((sum: number, v: { odometer?: number }) => sum + (v.odometer || 0), 0) || 0;
+  const totalMiles = (vehicles as Vehicle[]).reduce((sum: number, v: Vehicle) => sum + (v.odometer || 0), 0);
   const avgMPG = 24.5; // Demo - calculate from real data
   const totalFuelCost = (totalMiles / avgMPG) * 3.45;
   const avgIdleTime = 12.3; // Demo - calculate from telemetry
