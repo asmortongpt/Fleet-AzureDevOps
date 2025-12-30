@@ -403,8 +403,9 @@ export const AssetComboManager: React.FC<AssetComboManagerProps> = ({
                         <AlertDialogAction
                           onClick={() => {
                             const relType = combo.relationship_type || 'unknown';
-                            if (relType && typeof relType === 'string') {
-                              handleDetach(relType, combo.child_asset_name);
+                            const childName = combo.child_asset_name || 'Unknown Asset';
+                            if (relType && typeof relType === 'string' && typeof childName === 'string') {
+                              handleDetach(relType, childName);
                             }
                           }}
                           className="bg-red-600 hover:bg-red-700"
