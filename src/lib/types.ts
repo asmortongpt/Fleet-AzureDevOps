@@ -156,7 +156,7 @@ export interface Driver {
   assignedVehicle?: string
   safetyScore: number
   certifications: string[]
-  status: "active" | "off-duty" | "on-leave"
+  status: "active" | "off-duty" | "on-leave" | "suspended" | "on_break"
   availability?: "available" | "busy" | "off-duty" | "on-leave" // Availability status
   avatar?: string
   location?: {
