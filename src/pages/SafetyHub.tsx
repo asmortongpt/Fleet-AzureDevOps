@@ -8,8 +8,7 @@ import {
     WarningCircle,
     VideoCamera,
     Bell,
-    ShieldCheck,
-    FirstAid
+    ShieldCheck
 } from '@phosphor-icons/react'
 
 import { HubPage, HubTab } from '@/components/ui/hub-page'
