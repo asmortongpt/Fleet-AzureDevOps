@@ -1,12 +1,9 @@
 /**
- * AnalyticsPage - Advanced Analytics Dashboard with Interactive Charts
+ * AnalyticsPage - Real-time Analytics Dashboard
  * Route: /analytics
  *
- * Features:
- * - Real-time data from API endpoints with Redis caching
- * - Interactive cost and efficiency charts
- * - Drilldown navigation for detailed analysis
- * - Premium glassmorphism UI with micro-animations
+ * Displays comprehensive fleet analytics with real data from API endpoints
+ * Premium glassmorphism UI with micro-animations
  */
 
 import {
@@ -20,14 +17,9 @@ import {
   Clock,
   AlertTriangle,
   CheckCircle,
-  Fuel,
-  Calendar,
-  ArrowUpRight,
-  ArrowDownRight,
-  RefreshCw,
-  Download
+  Fuel
 } from 'lucide-react';
-import { useMemo, useState, useCallback } from 'react';
+import { useMemo, useState } from 'react';
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -41,10 +33,6 @@ import {
   useWorkOrders
 } from '@/hooks/use-api';
 import type { Vehicle, Driver, MaintenanceRecord, FuelTransaction, WorkOrder } from '@/types';
-import { CostAnalyticsChart, type CostDataPoint } from '@/components/analytics/CostAnalyticsChart';
-import { EfficiencyMetricsChart, type EfficiencyDataPoint } from '@/components/analytics/EfficiencyMetricsChart';
-import { DrilldownPanel } from '@/components/analytics/DrilldownPanel';
-import { useAggregatedAnalytics, useRealtimeAnalytics, type AnalyticsFilters } from '@/hooks/useAnalyticsData';
 
 interface KPICardProps {
   title: string;
@@ -130,32 +118,13 @@ function ChartCard({ title, value, subtitle, icon, children }: ChartCardProps) {
 
 export function AnalyticsPage() {
   const [timeRange, setTimeRange] = useState<'24h' | '7d' | '30d' | '90d'>('7d');
-  const [drilldownOpen, setDrilldownOpen] = useState(false);
-  const [drilldownData, setDrilldownData] = useState<any>(null);
-  const [realtimeEnabled, setRealtimeEnabled] = useState(true);
 
-  // Fetch data from API endpoints (existing)
+  // Fetch data from API endpoints
   const { data: vehicles = [], isLoading: vehiclesLoading, isError: vehiclesError } = useVehicles();
   const { data: drivers = [], isLoading: driversLoading, isError: driversError } = useDrivers();
   const { data: maintenance = [], isLoading: maintenanceLoading, isError: maintenanceError } = useMaintenance();
   const { data: fuelTransactions = [], isLoading: fuelLoading, isError: fuelError } = useFuelTransactions();
   const { data: workOrders = [], isLoading: workOrdersLoading, isError: workOrdersError } = useWorkOrders();
-
-  // Fetch advanced analytics data with caching
-  const analyticsFilters: AnalyticsFilters = useMemo(() => ({
-    startDate: new Date(Date.now() - 90 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-    endDate: new Date().toISOString().split('T')[0],
-  }), []);
-
-  const { data: advancedData, refetchAll } = useAggregatedAnalytics(analyticsFilters);
-
-  // Enable real-time updates
-  useRealtimeAnalytics(realtimeEnabled);
-
-  const handleDrilldown = useCallback((data: any) => {
-    setDrilldownData(data);
-    setDrilldownOpen(true);
-  }, []);
 
   // Calculate analytics from real data
   const analytics = useMemo(() => {
@@ -357,10 +326,6 @@ export function AnalyticsPage() {
           <TabsTrigger value="maintenance">
             <AlertTriangle className="w-4 h-4 mr-2" />
             Maintenance
-          </TabsTrigger>
-          <TabsTrigger value="advanced">
-            <Activity className="w-4 h-4 mr-2" />
-            Advanced Analytics
           </TabsTrigger>
         </TabsList>
 
@@ -583,173 +548,7 @@ export function AnalyticsPage() {
             </ChartCard>
           </div>
         </TabsContent>
-
-        {/* Advanced Analytics Tab */}
-        <TabsContent value="advanced" className="space-y-4">
-          <div className="flex items-center justify-between mb-4">
-            <div>
-              <h3 className="text-lg font-semibold text-white">Advanced Analytics & Insights</h3>
-              <p className="text-sm text-slate-400">Interactive charts with detailed drilldown capabilities</p>
-            </div>
-            <div className="flex items-center gap-2">
-              <Button
-                onClick={() => refetchAll()}
-                size="sm"
-                variant="outline"
-                className="border-slate-600 hover:bg-slate-700"
-              >
-                <RefreshCw className="w-4 h-4 mr-2" />
-                Refresh
-              </Button>
-              <Button
-                onClick={() => setRealtimeEnabled(!realtimeEnabled)}
-                size="sm"
-                variant={realtimeEnabled ? 'default' : 'outline'}
-                className={realtimeEnabled ? 'bg-green-600 hover:bg-green-700' : 'border-slate-600'}
-              >
-                {realtimeEnabled ? 'Real-time On' : 'Real-time Off'}
-              </Button>
-            </div>
-          </div>
-
-          {/* Cost Analytics Chart */}
-          <Card className="border-slate-700/50 bg-gradient-to-br from-slate-800/60 to-slate-900/60 backdrop-blur-xl">
-            <CardHeader>
-              <CardTitle className="text-white flex items-center justify-between">
-                <span className="flex items-center gap-2">
-                  <DollarSign className="w-5 h-5" />
-                  Cost Analytics
-                </span>
-                {advancedData?.metadata?.costMetadata?.cached && (
-                  <Badge variant="outline" className="text-xs">Cached</Badge>
-                )}
-              </CardTitle>
-              <p className="text-sm text-slate-400 mt-1">
-                Detailed cost breakdown by category with trend analysis
-              </p>
-            </CardHeader>
-            <CardContent>
-              <CostAnalyticsChart
-                data={advancedData?.cost || []}
-                type="composed"
-                showBudget={true}
-                timeframe="monthly"
-                onDataPointClick={(dataPoint) =>
-                  handleDrilldown({
-                    level: 'detail',
-                    title: `Cost Detail: ${dataPoint.date}`,
-                    subtitle: 'Daily cost breakdown',
-                    data: dataPoint,
-                  })
-                }
-              />
-            </CardContent>
-          </Card>
-
-          {/* Efficiency Metrics Chart */}
-          <Card className="border-slate-700/50 bg-gradient-to-br from-slate-800/60 to-slate-900/60 backdrop-blur-xl">
-            <CardHeader>
-              <CardTitle className="text-white flex items-center justify-between">
-                <span className="flex items-center gap-2">
-                  <Gauge className="w-5 h-5" />
-                  Efficiency Metrics
-                </span>
-                {advancedData?.metadata?.efficiencyMetadata?.cached && (
-                  <Badge variant="outline" className="text-xs">Cached</Badge>
-                )}
-              </CardTitle>
-              <p className="text-sm text-slate-400 mt-1">
-                Fleet utilization, MPG, and efficiency scores over time
-              </p>
-            </CardHeader>
-            <CardContent>
-              <EfficiencyMetricsChart
-                data={advancedData?.efficiency || []}
-                type="trend"
-                onDataPointClick={(dataPoint) =>
-                  handleDrilldown({
-                    level: 'detail',
-                    title: `Efficiency Detail: ${dataPoint.date}`,
-                    subtitle: 'Daily efficiency breakdown',
-                    data: dataPoint,
-                  })
-                }
-              />
-            </CardContent>
-          </Card>
-
-          {/* Additional Insights */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <Card className="border-slate-700/50 bg-slate-800/40 backdrop-blur-xl cursor-pointer hover:bg-slate-700/40 transition-colors"
-                  onClick={() => handleDrilldown({
-                    level: 'category',
-                    title: 'Cost Analysis',
-                    subtitle: 'Detailed cost breakdown',
-                    data: advancedData,
-                  })}>
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between mb-2">
-                  <span className="text-sm text-slate-400">Total Operating Cost</span>
-                  <DollarSign className="w-5 h-5 text-blue-400" />
-                </div>
-                <p className="text-2xl font-bold text-white">
-                  ${analytics.costs.totalOperating.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
-                </p>
-                <p className="text-xs text-slate-500 mt-1">Click for detailed breakdown</p>
-              </CardContent>
-            </Card>
-
-            <Card className="border-slate-700/50 bg-slate-800/40 backdrop-blur-xl cursor-pointer hover:bg-slate-700/40 transition-colors"
-                  onClick={() => handleDrilldown({
-                    level: 'category',
-                    title: 'Efficiency Score',
-                    subtitle: 'Fleet efficiency analysis',
-                    data: advancedData,
-                  })}>
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between mb-2">
-                  <span className="text-sm text-slate-400">Fleet Efficiency</span>
-                  <Activity className="w-5 h-5 text-green-400" />
-                </div>
-                <p className="text-2xl font-bold text-white">
-                  {analytics.fleet.utilization}%
-                </p>
-                <p className="text-xs text-slate-500 mt-1">Click for detailed metrics</p>
-              </CardContent>
-            </Card>
-
-            <Card className="border-slate-700/50 bg-slate-800/40 backdrop-blur-xl cursor-pointer hover:bg-slate-700/40 transition-colors"
-                  onClick={() => handleDrilldown({
-                    level: 'overview',
-                    title: 'Analytics Overview',
-                    subtitle: 'Comprehensive fleet analytics',
-                    data: {
-                      costData: advancedData?.cost,
-                      utilizationData: advancedData?.efficiency,
-                      efficiencyData: advancedData?.efficiency,
-                    },
-                  })}>
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between mb-2">
-                  <span className="text-sm text-slate-400">Avg Fuel Economy</span>
-                  <Fuel className="w-5 h-5 text-yellow-400" />
-                </div>
-                <p className="text-2xl font-bold text-white">
-                  {analytics.fuel.estimatedMPG} MPG
-                </p>
-                <p className="text-xs text-slate-500 mt-1">Click for trends</p>
-              </CardContent>
-            </Card>
-          </div>
-        </TabsContent>
       </Tabs>
-
-      {/* Drilldown Panel */}
-      <DrilldownPanel
-        isOpen={drilldownOpen}
-        onClose={() => setDrilldownOpen(false)}
-        initialData={drilldownData}
-      />
     </div>
   );
 }
