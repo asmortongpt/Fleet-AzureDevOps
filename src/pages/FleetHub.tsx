@@ -19,9 +19,11 @@ import {
     MapPin,
     Warning
 } from '@phosphor-icons/react'
-import { Suspense, lazy, Component, ReactNode, ErrorInfo } from 'react'
+import { Suspense, lazy, Component, ReactNode, ErrorInfo, useState } from 'react'
 
+import { VideoPlayer, DEMO_STREAMS } from '@/components/common/VideoPlayer'
 import { Button } from '@/components/ui/button'
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { HubPage, HubTab } from '@/components/ui/hub-page'
 import { Skeleton } from '@/components/ui/skeleton'
 import { StatCard, ProgressRing, StatusDot, QuickStat } from '@/components/ui/stat-card'
@@ -268,26 +270,34 @@ function FleetOverviewContent() {
 // VIDEO TELEMATICS CONTENT
 // ============================================================================
 
-// Camera feed data
+// Camera feed data with optional stream URLs
 interface CameraFeed {
     id: string
     location: string
     vehicleId: string
     status: 'recording' | 'offline' | 'standby'
     lastEvent?: string
+    streamUrl?: string
     thumbnail?: string
 }
 
+// In production, these would come from your telematics API
 const mockCameras: CameraFeed[] = [
-    { id: 'cam-001', location: 'Front Dash', vehicleId: 'V-1042', status: 'recording', lastEvent: 'Lane departure' },
-    { id: 'cam-002', location: 'Rear View', vehicleId: 'V-1042', status: 'recording' },
-    { id: 'cam-003', location: 'Driver Facing', vehicleId: 'V-1087', status: 'recording', lastEvent: 'Distraction alert' },
+    { id: 'cam-001', location: 'Front Dash', vehicleId: 'V-1042', status: 'recording', lastEvent: 'Lane departure', streamUrl: DEMO_STREAMS.live },
+    { id: 'cam-002', location: 'Rear View', vehicleId: 'V-1042', status: 'recording', streamUrl: DEMO_STREAMS.bigBuckBunny },
+    { id: 'cam-003', location: 'Driver Facing', vehicleId: 'V-1087', status: 'recording', lastEvent: 'Distraction alert', streamUrl: DEMO_STREAMS.sintel },
     { id: 'cam-004', location: 'Cargo Area', vehicleId: 'V-1087', status: 'standby' },
     { id: 'cam-005', location: 'Front Dash', vehicleId: 'V-1023', status: 'offline' },
-    { id: 'cam-006', location: 'Side Mirror L', vehicleId: 'V-1056', status: 'recording' },
+    { id: 'cam-006', location: 'Side Mirror L', vehicleId: 'V-1056', status: 'recording', streamUrl: DEMO_STREAMS.tears },
 ]
 
 function VideoContent() {
+    const [selectedCamera, setSelectedCamera] = useState<CameraFeed | null>(null)
+
+    const onlineCameras = mockCameras.filter(c => c.status !== 'offline').length
+    const recordingCameras = mockCameras.filter(c => c.status === 'recording').length
+    const eventsToday = mockCameras.filter(c => c.lastEvent).length
+
     return (
         <div className="p-4 space-y-4 bg-gradient-to-b from-slate-900/50 to-transparent h-full overflow-hidden flex flex-col">
             <div className="flex items-center justify-between">
@@ -295,60 +305,35 @@ function VideoContent() {
                     <h2 className="text-lg font-bold text-white">Video Telematics</h2>
                     <p className="text-xs text-slate-400">Live camera feeds from fleet vehicles</p>
                 </div>
-                <StatusDot status="online" label="Recording" />
+                <StatusDot status="online" label={`${recordingCameras} Recording`} />
             </div>
 
             <div className="grid grid-cols-3 gap-3">
-                <StatCard title="Cameras Online" value="148" variant="success" icon={<Video className="w-5 h-5" />} />
-                <StatCard title="Events Today" value="23" variant="warning" />
+                <StatCard title="Cameras Online" value={onlineCameras.toString()} variant="success" icon={<Video className="w-5 h-5" />} />
+                <StatCard title="Events Today" value={eventsToday.toString()} variant="warning" />
                 <StatCard title="Storage Used" value="2.4 TB" variant="default" />
             </div>
 
-            {/* Camera Feed Grid */}
+            {/* Camera Feed Grid with Real Video Players */}
             <div className="grid grid-cols-2 lg:grid-cols-3 gap-3 flex-1 overflow-auto">
                 {mockCameras.map(camera => (
                     <div
                         key={camera.id}
-                        className="bg-slate-900 rounded-lg border border-slate-700 overflow-hidden hover:border-slate-600 transition-colors cursor-pointer group"
+                        className="bg-slate-900 rounded-lg border border-slate-700 overflow-hidden hover:border-slate-600 transition-colors"
                     >
-                        {/* Camera Preview */}
-                        <div className="aspect-video bg-gradient-to-br from-slate-800 to-slate-900 flex items-center justify-center relative">
-                            <Video className="w-8 h-8 text-slate-600 group-hover:text-slate-500 transition-colors" />
-
-                            {/* Status indicator */}
-                            <div className="absolute top-2 left-2 flex items-center gap-1.5">
-                                <div className={`w-2 h-2 rounded-full ${
-                                    camera.status === 'recording' ? 'bg-red-500 animate-pulse' :
-                                    camera.status === 'standby' ? 'bg-yellow-500' : 'bg-gray-500'
-                                }`} />
-                                <span className="text-[10px] text-white font-medium uppercase tracking-wider">
-                                    {camera.status === 'recording' ? 'LIVE' :
-                                     camera.status === 'standby' ? 'STANDBY' : 'OFFLINE'}
-                                </span>
-                            </div>
-
-                            {/* Event badge */}
-                            {camera.lastEvent && camera.status === 'recording' && (
-                                <div className="absolute top-2 right-2 bg-amber-500/90 px-2 py-0.5 rounded text-[10px] font-medium text-white">
-                                    {camera.lastEvent}
-                                </div>
-                            )}
-
-                            {/* Playback overlay on hover */}
-                            <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                                <div className="w-12 h-12 rounded-full bg-white/20 flex items-center justify-center backdrop-blur-sm">
-                                    <div className="w-0 h-0 border-t-[8px] border-t-transparent border-l-[14px] border-l-white border-b-[8px] border-b-transparent ml-1" />
-                                </div>
-                            </div>
-                        </div>
-
-                        {/* Camera info */}
-                        <div className="p-2 border-t border-slate-700">
-                            <div className="flex items-center justify-between">
-                                <p className="text-xs font-medium text-white">{camera.location}</p>
-                                <span className="text-[10px] text-slate-400">{camera.vehicleId}</span>
-                            </div>
-                        </div>
+                        <VideoPlayer
+                            src={camera.status === 'recording' ? camera.streamUrl : undefined}
+                            status={camera.status}
+                            live={camera.status === 'recording'}
+                            eventAlert={camera.lastEvent}
+                            label={camera.location}
+                            assetId={camera.vehicleId}
+                            compact
+                            autoPlay={camera.status === 'recording'}
+                            muted
+                            className="aspect-video"
+                            onClick={() => camera.status === 'recording' && setSelectedCamera(camera)}
+                        />
                     </div>
                 ))}
             </div>
@@ -356,9 +341,33 @@ function VideoContent() {
             {/* View all cameras link */}
             <div className="text-center pt-2">
                 <button className="text-xs text-blue-400 hover:text-blue-300 transition-colors">
-                    View all 148 cameras →
+                    View all {mockCameras.length} cameras →
                 </button>
             </div>
+
+            {/* Fullscreen Camera Dialog */}
+            <Dialog open={!!selectedCamera} onOpenChange={() => setSelectedCamera(null)}>
+                <DialogContent className="max-w-4xl p-0 bg-black border-slate-700">
+                    <DialogHeader className="p-4 pb-2">
+                        <DialogTitle className="text-white flex items-center gap-2">
+                            <Video className="w-5 h-5" />
+                            {selectedCamera?.location} - {selectedCamera?.vehicleId}
+                        </DialogTitle>
+                    </DialogHeader>
+                    {selectedCamera && (
+                        <VideoPlayer
+                            src={selectedCamera.streamUrl}
+                            status={selectedCamera.status}
+                            live
+                            autoPlay
+                            muted={false}
+                            controls
+                            allowFullscreen
+                            className="aspect-video"
+                        />
+                    )}
+                </DialogContent>
+            </Dialog>
         </div>
     )
 }
