@@ -11,7 +11,7 @@ import {
   Eye,
   ShieldCheck
 } from "@phosphor-icons/react"
-import { useState } from "react"
+import { useState, useMemo } from "react"
 import { toast } from "sonner"
 
 import { Badge } from "@/components/ui/badge"
@@ -46,14 +46,34 @@ import {
 } from "@/components/ui/table"
 import { Textarea } from "@/components/ui/textarea"
 import type { Policy, PolicyType, PolicyMode, PolicyStatus } from "@/lib/policy-engine/types"
+import { usePolicies, usePolicyMutations } from "@/hooks/use-api"
+import { generateDemoPolicies } from "@/lib/demo-data"
+
+// Check if demo mode is enabled (default: true)
+const isDemoMode = () => {
+  if (typeof window === 'undefined') return true
+  const demoMode = localStorage.getItem('demo_mode')
+  return demoMode !== 'false' // Default to demo mode unless explicitly disabled
+}
 
 export function PolicyEngineWorkbench() {
-  const [policies, setPolicies] = useState<Policy[]>([])
   const [searchTerm, setSearchTerm] = useState("")
   const [filterType, setFilterType] = useState<string>("all")
   const [filterStatus, setFilterStatus] = useState<string>("all")
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false)
   const [selectedPolicy, setSelectedPolicy] = useState<Policy | null>(null)
+
+  // Fetch policies from API or use demo data
+  const { data: apiPolicies, isLoading } = usePolicies({ tenant_id: 'demo-tenant-001' })
+  const { createPolicy, updatePolicy, deletePolicy } = usePolicyMutations()
+
+  // Use demo data in demo mode, API data otherwise
+  const policies = useMemo((): Policy[] => {
+    if (isDemoMode()) {
+      return generateDemoPolicies()
+    }
+    return apiPolicies || []
+  }, [apiPolicies])
 
   const [newPolicy, setNewPolicy] = useState<Partial<Policy>>({
     type: "safety",
@@ -81,15 +101,23 @@ export function PolicyEngineWorkbench() {
     return matchesSearch && matchesType && matchesStatus
   })
 
-  const handleSavePolicy = () => {
+  const handleSavePolicy = async () => {
     if (!newPolicy.name || !newPolicy.description) {
       toast.error("Please fill in required fields")
       return
     }
 
+    // In demo mode, just show a message
+    if (isDemoMode()) {
+      toast.info("Demo mode: Policy changes are not persisted")
+      setIsAddDialogOpen(false)
+      resetForm()
+      return
+    }
+
     const policy: Policy = {
       id: selectedPolicy?.id || `policy-${Date.now()}`,
-      tenantId: "tenant-demo",
+      tenantId: "demo-tenant-001",
       name: newPolicy.name,
       description: newPolicy.description,
       type: newPolicy.type as PolicyType,
@@ -113,45 +141,61 @@ export function PolicyEngineWorkbench() {
       violationCount: selectedPolicy?.violationCount || 0
     }
 
-    if (selectedPolicy) {
-      setPolicies(current => (current || []).map(p => (p.id === policy.id ? policy : p)))
-      toast.success("Policy updated successfully")
-    } else {
-      setPolicies(current => [...(current || []), policy])
-      toast.success("Policy created successfully")
+    try {
+      if (selectedPolicy) {
+        await updatePolicy.mutateAsync(policy)
+        toast.success("Policy updated successfully")
+      } else {
+        await createPolicy.mutateAsync(policy)
+        toast.success("Policy created successfully")
+      }
+    } catch (error) {
+      toast.error("Failed to save policy")
+      console.error("Policy save error:", error)
     }
 
     setIsAddDialogOpen(false)
     resetForm()
   }
 
-  const handleActivate = (policyId: string) => {
-    setPolicies(current =>
-      (current || []).map(p =>
-        p.id === policyId ? { ...p, status: "active" as const } : p
-      )
-    )
-    toast.success("Policy activated")
+  const handleActivate = async (policyId: string) => {
+    if (isDemoMode()) {
+      toast.info("Demo mode: Policy changes are not persisted")
+      return
+    }
+
+    const policy = policies.find(p => p.id === policyId)
+    if (policy) {
+      try {
+        await updatePolicy.mutateAsync({ ...policy, status: "active" })
+        toast.success("Policy activated")
+      } catch (error) {
+        toast.error("Failed to activate policy")
+      }
+    }
   }
 
-  const handleDeactivate = (policyId: string) => {
-    setPolicies(current =>
-      (current || []).map(p =>
-        p.id === policyId ? { ...p, status: "draft" as const } : p
-      )
-    )
-    toast.success("Policy deactivated")
+  const handleDeactivate = async (policyId: string) => {
+    if (isDemoMode()) {
+      toast.info("Demo mode: Policy changes are not persisted")
+      return
+    }
+
+    const policy = policies.find(p => p.id === policyId)
+    if (policy) {
+      try {
+        await updatePolicy.mutateAsync({ ...policy, status: "draft" })
+        toast.success("Policy deactivated")
+      } catch (error) {
+        toast.error("Failed to deactivate policy")
+      }
+    }
   }
 
   const handleTest = (policyId: string) => {
     toast.info("Starting policy simulation in sandbox environment...")
     // Simulate testing
     setTimeout(() => {
-      setPolicies(current =>
-        (current || []).map(p =>
-          p.id === policyId ? { ...p, status: "testing" as const } : p
-        )
-      )
       toast.success("Policy test completed successfully")
     }, 2000)
   }

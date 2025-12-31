@@ -91,36 +91,95 @@ function ScorecardContent() {
         <div className="p-6 space-y-6 bg-gradient-to-b from-slate-900/50 to-transparent">
             <h2 className="text-2xl font-bold text-white">Driver Scorecard</h2>
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                <StatCard title="Fleet Avg Score" value="87" variant="primary" icon={<Trophy className="w-6 h-6" />} />
-                <StatCard title="Top Score" value="98" variant="success" />
-                <StatCard title="This Month" value="+4%" trend="up" variant="success" />
-                <StatCard title="Awards Given" value="15" variant="default" icon={<Medal className="w-6 h-6" />} />
+                <StatCard
+                    title="Fleet Avg Score"
+                    value="87"
+                    variant="primary"
+                    icon={<Trophy className="w-6 h-6" />}
+                    onClick={() => push({ type: 'fleet-avg-score', data: { title: 'Fleet Average Score' }, id: 'fleet-avg-score' } as Omit<DrilldownLevel, "timestamp">)}
+                />
+                <StatCard
+                    title="Top Score"
+                    value="98"
+                    variant="success"
+                    onClick={() => push({ type: 'top-score', data: { title: 'Top Score Drivers' }, id: 'top-score' } as Omit<DrilldownLevel, "timestamp">)}
+                />
+                <StatCard
+                    title="This Month"
+                    value="+4%"
+                    trend="up"
+                    variant="success"
+                    onClick={() => push({ type: 'scorecard-trend', data: { title: 'Monthly Trend' }, id: 'scorecard-trend' } as Omit<DrilldownLevel, "timestamp">)}
+                />
+                <StatCard
+                    title="Awards Given"
+                    value="15"
+                    variant="default"
+                    icon={<Medal className="w-6 h-6" />}
+                    onClick={() => push({ type: 'awards-given', data: { title: 'Awards Given' }, id: 'awards-given' } as Omit<DrilldownLevel, "timestamp">)}
+                />
             </div>
         </div>
     )
 }
 
 function PersonalUseContent() {
+    const { push } = useDrilldown()
+
     return (
         <div className="p-6 space-y-6 bg-gradient-to-b from-slate-900/50 to-transparent">
             <h2 className="text-2xl font-bold text-white">Personal Use Tracking</h2>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <StatCard title="Tracked Drivers" value="34" variant="primary" icon={<Car className="w-6 h-6" />} />
-                <StatCard title="Personal Miles" value="2,450" variant="default" />
-                <StatCard title="Compliance" value="98%" variant="success" />
+                <StatCard
+                    title="Tracked Drivers"
+                    value="34"
+                    variant="primary"
+                    icon={<Car className="w-6 h-6" />}
+                    onClick={() => push({ type: 'tracked-drivers', data: { title: 'Tracked Drivers' }, id: 'tracked-drivers' } as Omit<DrilldownLevel, "timestamp">)}
+                />
+                <StatCard
+                    title="Personal Miles"
+                    value="2,450"
+                    variant="default"
+                    onClick={() => push({ type: 'personal-miles', data: { title: 'Personal Miles' }, id: 'personal-miles' } as Omit<DrilldownLevel, "timestamp">)}
+                />
+                <StatCard
+                    title="Compliance"
+                    value="98%"
+                    variant="success"
+                    onClick={() => push({ type: 'personal-use-compliance', data: { title: 'Personal Use Compliance' }, id: 'personal-use-compliance' } as Omit<DrilldownLevel, "timestamp">)}
+                />
             </div>
         </div>
     )
 }
 
 function PolicyContent() {
+    const { push } = useDrilldown()
+
     return (
         <div className="p-6 space-y-6 bg-gradient-to-b from-slate-900/50 to-transparent">
             <h2 className="text-2xl font-bold text-white">Personal Use Policy</h2>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <StatCard title="Active Policies" value="3" variant="primary" icon={<FileText className="w-6 h-6" />} />
-                <StatCard title="Drivers Enrolled" value="34" variant="default" />
-                <StatCard title="Compliance Rate" value="98%" variant="success" />
+                <StatCard
+                    title="Active Policies"
+                    value="3"
+                    variant="primary"
+                    icon={<FileText className="w-6 h-6" />}
+                    onClick={() => push({ type: 'active-policies', data: { title: 'Active Policies' }, id: 'active-policies' } as Omit<DrilldownLevel, "timestamp">)}
+                />
+                <StatCard
+                    title="Drivers Enrolled"
+                    value="34"
+                    variant="default"
+                    onClick={() => push({ type: 'drivers-enrolled', data: { title: 'Drivers Enrolled' }, id: 'drivers-enrolled' } as Omit<DrilldownLevel, "timestamp">)}
+                />
+                <StatCard
+                    title="Compliance Rate"
+                    value="98%"
+                    variant="success"
+                    onClick={() => push({ type: 'policy-compliance', data: { title: 'Policy Compliance Rate' }, id: 'policy-compliance' } as Omit<DrilldownLevel, "timestamp">)}
+                />
             </div>
         </div>
     )

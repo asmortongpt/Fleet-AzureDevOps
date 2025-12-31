@@ -131,15 +131,31 @@ function CostsContent() {
 }
 
 function ReportsContent() {
-    const { push: _push } = useDrilldown()
+    const { push } = useDrilldown()
 
     return (
         <div className="p-6 space-y-6 bg-gradient-to-b from-slate-900/50 to-transparent">
             <h2 className="text-2xl font-bold text-white">Custom Reports</h2>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <StatCard title="Templates" value="18" variant="primary" icon={<FileText className="w-6 h-6" />} />
-                <StatCard title="Scheduled" value="12" variant="default" />
-                <StatCard title="Generated" value="245" variant="success" />
+                <StatCard
+                    title="Templates"
+                    value="18"
+                    variant="primary"
+                    icon={<FileText className="w-6 h-6" />}
+                    onClick={() => push({ type: 'report-templates', data: { title: 'Report Templates' } } as Omit<DrilldownLevel, "timestamp">)}
+                />
+                <StatCard
+                    title="Scheduled"
+                    value="12"
+                    variant="default"
+                    onClick={() => push({ type: 'scheduled-reports', data: { title: 'Scheduled Reports' } } as Omit<DrilldownLevel, "timestamp">)}
+                />
+                <StatCard
+                    title="Generated"
+                    value="245"
+                    variant="success"
+                    onClick={() => push({ type: 'generated-reports', data: { title: 'Generated Reports' } } as Omit<DrilldownLevel, "timestamp">)}
+                />
             </div>
         </div>
     )

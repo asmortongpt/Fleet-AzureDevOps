@@ -1,13 +1,15 @@
 /**
  * HubPage Component
- * 
+ *
  * Standardized layout wrapper for all hub pages in the consolidated architecture.
  * Provides consistent header, tab navigation, and content area.
- * 
+ * Enhanced with glassmorphism effects and smooth animations.
+ *
  * Part of Phase 2 UI consolidation: 79 screens → 18 hubs
  */
 
 import React, { ReactNode } from 'react'
+import { motion } from 'framer-motion'
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { cn } from '@/lib/utils'
@@ -80,54 +82,103 @@ export function HubPage({
             )}
             data-testid="hub-page"
         >
-            {/* Hub Header */}
-            <header
-                className="flex items-center justify-between px-6 py-4 border-b bg-background"
+            {/* Hub Header - Enhanced with glassmorphism */}
+            <motion.header
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.3 }}
+                className={cn(
+                    "flex items-center justify-between px-6 py-4 border-b",
+                    "bg-gradient-to-r from-slate-900/80 via-slate-800/60 to-slate-900/80",
+                    "backdrop-blur-md border-slate-700/50",
+                    "shadow-lg"
+                )}
                 data-testid="hub-header"
             >
                 <div className="flex items-center gap-3">
                     {icon && (
-                        <div className="flex items-center justify-center w-10 h-10 rounded-lg bg-primary/10 text-primary">
+                        <motion.div
+                            initial={{ scale: 0 }}
+                            animate={{ scale: 1 }}
+                            transition={{ delay: 0.1, type: "spring", stiffness: 200 }}
+                            className={cn(
+                                "flex items-center justify-center w-10 h-10 rounded-lg",
+                                "bg-primary/20 backdrop-blur-sm border border-primary/30",
+                                "text-primary shadow-lg"
+                            )}
+                        >
                             {icon}
-                        </div>
+                        </motion.div>
                     )}
-                    <div>
+                    <motion.div
+                        initial={{ opacity: 0, x: -10 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ delay: 0.15 }}
+                    >
                         <h1 className="text-2xl font-semibold text-foreground">{title}</h1>
                         {description && (
                             <p className="text-sm text-muted-foreground">{description}</p>
                         )}
-                    </div>
+                    </motion.div>
                 </div>
                 {headerActions && (
-                    <div className="flex items-center gap-2" data-testid="hub-actions">
+                    <motion.div
+                        initial={{ opacity: 0, x: 10 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ delay: 0.2 }}
+                        className="flex items-center gap-2"
+                        data-testid="hub-actions"
+                    >
                         {headerActions}
-                    </div>
+                    </motion.div>
                 )}
-            </header>
+            </motion.header>
 
-            {/* Tab Navigation */}
+            {/* Tab Navigation - Enhanced with glassmorphism */}
             <Tabs
                 defaultValue={activeTabId}
                 onValueChange={onTabChange}
                 className="flex flex-col flex-1 min-h-0"
             >
-                <TabsList
-                    className="w-full justify-start rounded-none border-b bg-background px-6 h-12"
-                    data-testid="hub-tabs"
+                <motion.div
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ delay: 0.25, duration: 0.3 }}
                 >
-                    {tabs.map((tab) => (
-                        <TabsTrigger
-                            key={tab.id}
-                            value={tab.id}
-                            disabled={tab.disabled}
-                            className="gap-2 data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none px-4"
-                            data-testid={`hub-tab-${tab.id}`}
-                        >
-                            {tab.icon}
-                            {tab.label}
-                        </TabsTrigger>
-                    ))}
-                </TabsList>
+                    <TabsList
+                        className={cn(
+                            "w-full justify-start rounded-none border-b px-6 h-12",
+                            "bg-gradient-to-b from-slate-900/60 to-slate-900/40",
+                            "backdrop-blur-sm border-slate-700/50",
+                            "shadow-md"
+                        )}
+                        data-testid="hub-tabs"
+                    >
+                        {tabs.map((tab, index) => (
+                            <motion.div
+                                key={tab.id}
+                                initial={{ opacity: 0, y: -5 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                transition={{ delay: 0.3 + index * 0.05, duration: 0.2 }}
+                            >
+                                <TabsTrigger
+                                    value={tab.id}
+                                    disabled={tab.disabled}
+                                    className={cn(
+                                        "gap-2 rounded-none px-4",
+                                        "data-[state=active]:bg-gradient-to-b data-[state=active]:from-primary/10 data-[state=active]:to-transparent",
+                                        "data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-primary",
+                                        "transition-all duration-200"
+                                    )}
+                                    data-testid={`hub-tab-${tab.id}`}
+                                >
+                                    {tab.icon}
+                                    {tab.label}
+                                </TabsTrigger>
+                            </motion.div>
+                        ))}
+                    </TabsList>
+                </motion.div>
 
                 {/* Tab Content */}
                 {tabs.map((tab) => (
