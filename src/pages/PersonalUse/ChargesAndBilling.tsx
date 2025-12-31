@@ -475,14 +475,77 @@ export function ChargesAndBilling() {
         </TabsContent>
 
         <TabsContent value="analytics">
-          <Card>
+          <div className="grid gap-4 md:grid-cols-2">
+            <Card>
+              <CardHeader>
+                <CardTitle>Monthly Billing Trend</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="flex items-end justify-between h-40 gap-2">
+                  {[2400, 3200, 2800, 4100, 3600, 4500, 3900, 4200, 5100, 4800, 5400, 5800].map((v, i) => (
+                    <div key={i} className="flex-1 flex flex-col items-center gap-1">
+                      <div className="w-full bg-blue-500 rounded-t" style={{ height: `${(v / 60)}px` }} />
+                      <span className="text-[9px] text-muted-foreground">{['J', 'F', 'M', 'A', 'M', 'J', 'J', 'A', 'S', 'O', 'N', 'D'][i]}</span>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardHeader>
+                <CardTitle>Collection Rate</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                {[
+                  { label: 'Paid on Time', value: 78, color: 'bg-green-500' },
+                  { label: 'Paid Late', value: 15, color: 'bg-yellow-500' },
+                  { label: 'Overdue', value: 5, color: 'bg-red-500' },
+                  { label: 'Waived', value: 2, color: 'bg-gray-500' },
+                ].map(item => (
+                  <div key={item.label} className="space-y-1">
+                    <div className="flex justify-between text-sm">
+                      <span>{item.label}</span>
+                      <span className="font-medium">{item.value}%</span>
+                    </div>
+                    <div className="w-full bg-accent/20 rounded-full h-2">
+                      <div className={`${item.color} h-2 rounded-full`} style={{ width: `${item.value}%` }} />
+                    </div>
+                  </div>
+                ))}
+              </CardContent>
+            </Card>
+          </div>
+          <Card className="mt-4">
             <CardHeader>
-              <CardTitle>Billing Analytics</CardTitle>
+              <CardTitle>Top Personal Use Drivers</CardTitle>
+              <CardDescription>Highest personal use charges this period</CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="text-center py-8 text-muted-foreground">
-                Analytics and reporting features coming soon
-              </div>
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Driver</TableHead>
+                    <TableHead>Total Miles</TableHead>
+                    <TableHead>Total Charges</TableHead>
+                    <TableHead>Status</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {[
+                    { name: 'John Smith', miles: 542, charges: 270.45, status: 'paid' },
+                    { name: 'Maria Garcia', miles: 428, charges: 214.00, status: 'invoiced' },
+                    { name: 'James Wilson', miles: 356, charges: 178.00, status: 'pending' },
+                    { name: 'Sarah Johnson', miles: 289, charges: 144.50, status: 'paid' },
+                  ].map(driver => (
+                    <TableRow key={driver.name}>
+                      <TableCell className="font-medium">{driver.name}</TableCell>
+                      <TableCell>{driver.miles}</TableCell>
+                      <TableCell>${driver.charges.toFixed(2)}</TableCell>
+                      <TableCell>{getStatusBadge(driver.status)}</TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
             </CardContent>
           </Card>
         </TabsContent>
