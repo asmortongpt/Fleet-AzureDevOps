@@ -20,7 +20,7 @@ import {
   CaretUp,
   CaretDown
 } from '@phosphor-icons/react'
-import { useState } from 'react'
+import React, { useState } from 'react'
 
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -182,9 +182,10 @@ function VehicleSilhouette({ className }: { className?: string }) {
       <path
         d="M180 40 C180 25 175 15 160 12 L140 10 C130 10 120 15 110 15 L90 15 C80 15 70 10 60 10 L40 12 C25 15 20 25 20 40 C20 55 25 65 40 68 L60 70 C70 70 80 65 90 65 L110 65 C120 65 130 70 140 70 L160 68 C175 65 180 55 180 40Z"
         fill="currentColor"
-        className="text-slate-700 stroke-slate-500"
+        className="text-slate-700"
         stroke="currentColor"
         strokeWidth="1"
+        className="stroke-slate-500"
       />
       {/* Windshield */}
       <path
@@ -196,7 +197,7 @@ function VehicleSilhouette({ className }: { className?: string }) {
       <path
         d="M60 20 C65 22 70 30 70 40 C70 50 65 58 60 60 L55 60 L55 20 L60 20Z"
         fill="currentColor"
-        className="text-slate-606"
+        className="text-slate-600"
       />
       {/* Wheels */}
       <ellipse cx="150" cy="15" rx="12" ry="8" fill="currentColor" className="text-slate-800" />
@@ -262,7 +263,6 @@ export function DamageStrip({
 }: DamageStripProps) {
   const [selectedDamage, setSelectedDamage] = useState<string | null>(null)
   const [showPins, setShowPins] = useState(true)
-  const _showAddMode = showAddMode; // Unused variable prefixed with underscore
 
   const activeDamages = damages.filter(d => !d.repaired)
   const repairedDamages = damages.filter(d => d.repaired)
