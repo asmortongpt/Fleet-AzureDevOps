@@ -342,10 +342,6 @@ const tableSchemas: Record<string, string[]> = {
   webhook_processing_queue: ['id', 'webhook_event_id', 'priority', 'status', 'attempts', 'max_attempts', 'next_retry_at', 'error_message', 'created_at', 'started_at', 'completed_at'],
   webhook_subscriptions: ['id', 'subscription_id', 'resource_type', 'resource_path', 'expiration_date', 'client_state', 'notification_url', 'is_active', 'last_notification_at', 'created_at', 'updated_at'],
   work_orders: ['id', 'tenant_id', 'work_order_number', 'vehicle_id', 'schedule_id', 'title', 'description', 'work_type', 'priority', 'status', 'scheduled_date', 'scheduled_start_time', 'scheduled_end_time', 'actual_start_time', 'actual_end_time', 'assigned_vendor_id', 'assigned_technician', 'assigned_by', 'odometer_in', 'odometer_out', 'engine_hours_in', 'engine_hours_out', 'fuel_level_in', 'fuel_level_out', 'services_performed', 'parts_used', 'labor_hours', 'estimated_cost', 'parts_cost', 'labor_cost', 'tax', 'total_cost', 'purchase_order_id', 'invoice_number', 'invoice_date', 'payment_status', 'inspection_results', 'issues_found', 'recommendations', 'photos', 'documents', 'requires_approval', 'approved_by', 'approved_at', 'approval_notes', 'created_by', 'created_at', 'updated_at', 'completed_at', 'cancelled_at', 'cancellation_reason'],
-};
-
-// Total tables: 338
-
   // Manually added missing table schemas
   communication_logs: ['id', 'tenant_id', 'communication_id', 'log_type', 'message', 'metadata', 'created_at'],
   purchase_orders: ['id', 'tenant_id', 'po_number', 'vendor_id', 'status', 'total_amount', 'created_by', 'created_at', 'updated_at'],
@@ -358,6 +354,9 @@ const tableSchemas: Record<string, string[]> = {
   vendors: ['id', 'tenant_id', 'name', 'contact_name', 'contact_email', 'contact_phone', 'address', 'is_active', 'created_at', 'updated_at'],
   telemetry_data: ['id', 'vehicle_id', 'timestamp', 'latitude', 'longitude', 'speed', 'heading', 'odometer', 'fuel_level', 'raw_data', 'created_at'],
   ocr_processing_log: ['id', 'document_id', 'processing_status', 'confidence_score', 'extracted_text', 'error_message', 'processed_at', 'created_at'],
+};
+
+// Total tables: 349
 
 interface QueryOccurrence {
   file: string;
