@@ -141,15 +141,21 @@ export function DocumentViewer({
       case 'document':
       case 'spreadsheet':
       case 'presentation':
+        // Office document preview using Microsoft Office Online viewer
         return (
-          <div className="flex items-center justify-center h-full">
-            <div className="text-center">
-              <p className="text-muted-foreground mb-4">
-                Office document preview coming soon
-              </p>
-              <Button onClick={handleDownload}>
+          <div className="flex flex-col h-full">
+            <iframe
+              src={`https://view.officeapps.live.com/op/embed.aspx?src=${encodeURIComponent(document.url)}`}
+              className="w-full flex-1 border-0"
+              title={`Preview: ${document.name}`}
+            />
+            <div className="p-3 border-t bg-background flex items-center justify-between">
+              <span className="text-sm text-muted-foreground">
+                Powered by Microsoft Office Online
+              </span>
+              <Button variant="outline" size="sm" onClick={handleDownload}>
                 <Download className="mr-2 h-4 w-4" />
-                Download to view
+                Download Original
               </Button>
             </div>
           </div>

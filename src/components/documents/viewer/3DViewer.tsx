@@ -45,12 +45,12 @@ export function ThreeDViewer({ document }: ThreeDViewerProps) {
           </div>
 
           <div className="mt-4 text-xs text-muted-foreground">
-            <p><strong>Features coming soon:</strong></p>
+            <p><strong>Available Controls:</strong></p>
             <ul className="list-disc list-inside">
-              <li>360° rotation and zoom</li>
-              <li>Wireframe and solid views</li>
-              <li>Measurements and annotations</li>
-              <li>Material and texture inspection</li>
+              <li>Left-click + drag: Rotate model</li>
+              <li>Scroll: Zoom in/out</li>
+              <li>Right-click + drag: Pan view</li>
+              <li>Double-click: Reset view</li>
             </ul>
           </div>
         </div>
