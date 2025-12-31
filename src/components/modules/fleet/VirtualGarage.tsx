@@ -138,9 +138,8 @@ const AssetDisplay: React.FC<AssetDisplayProps> = ({ asset }) => {
         <Suspense fallback={<Viewer3DFallback />}>
           <Asset3DViewer
             assetCategory={asset.asset_category}
-            assetType={asset.model}
             color={asset.color ?? 'white'}
-            gltfUrl={asset.damage_model_url}
+            customModelUrl={asset.damage_model_url}
           />
         </Suspense>
       </ViewerErrorBoundary>
