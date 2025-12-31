@@ -93,7 +93,7 @@ const DocumentManagement = ({ _documents }: { _documents?: unknown }) => {
   }, [searchQuery, documentType])
 
   const getStatusVariant = (status: string): "default" | "destructive" | "outline" | "secondary" => {
-    switch(status) {
+    switch (status) {
       case 'valid': return 'default'
       case 'expiring': return 'secondary'
       case 'expired': return 'destructive'
@@ -203,16 +203,16 @@ const DocumentManagement = ({ _documents }: { _documents?: unknown }) => {
                     </div>
                   </div>
                   <div className="flex gap-1">
-                    <Button variant="ghost" size="icon">
+                    <Button variant="ghost" size="icon" aria-label="View document">
                       <Eye className="h-4 w-4" />
                     </Button>
-                    <Button variant="ghost" size="icon">
+                    <Button variant="ghost" size="icon" aria-label="Download document">
                       <Download className="h-4 w-4" />
                     </Button>
-                    <Button variant="ghost" size="icon">
+                    <Button variant="ghost" size="icon" aria-label="Edit document">
                       <Edit className="h-4 w-4" />
                     </Button>
-                    <Button variant="ghost" size="icon">
+                    <Button variant="ghost" size="icon" aria-label="Delete document">
                       <Trash2 className="h-4 w-4" />
                     </Button>
                   </div>
@@ -267,7 +267,7 @@ const IncidentTracking = () => {
   ]
 
   const getSeverityColor = (severity: string) => {
-    switch(severity) {
+    switch (severity) {
       case 'low': return 'text-green-600'
       case 'minor': return 'text-yellow-600'
       case 'moderate': return 'text-orange-600'
@@ -379,7 +379,7 @@ const SafetyCompliance = ({ vehicles, drivers }: { vehicles?: unknown[]; drivers
   ]
 
   const getStatusColor = (status: string) => {
-    switch(status) {
+    switch (status) {
       case 'excellent': return 'text-green-600'
       case 'good': return 'text-blue-600'
       case 'warning': return 'text-yellow-600'

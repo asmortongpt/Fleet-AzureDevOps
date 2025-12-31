@@ -144,7 +144,7 @@ export function NotificationBell({ onNavigate }: { onNavigate: (module: string, 
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="ghost" size="icon" className="relative">
+        <Button variant="ghost" size="icon" className="relative" aria-label="View notifications">
           <Bell className="w-5 h-5" />
           {unreadCount > 0 && (
             <Badge
@@ -186,9 +186,8 @@ export function NotificationBell({ onNavigate }: { onNavigate: (module: string, 
               {notifications.map((notification) => (
                 <DropdownMenuItem
                   key={notification.id}
-                  className={`flex flex-col items-start gap-1 p-3 cursor-pointer ${
-                    !notification.is_read ? 'bg-accent/50' : ''
-                  } ${getSeverityBgColor(notification.severity)}`}
+                  className={`flex flex-col items-start gap-1 p-3 cursor-pointer ${!notification.is_read ? 'bg-accent/50' : ''
+                    } ${getSeverityBgColor(notification.severity)}`}
                   onClick={() => {
                     markAsRead(notification.id)
                     if (notification.link) {
