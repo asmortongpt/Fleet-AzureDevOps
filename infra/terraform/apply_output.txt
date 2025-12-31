@@ -1,0 +1,337 @@
+[0m[1mrandom_uuid.workbook_id: Creating...[0m[0m
+[0m[1mrandom_password.postgres_admin: Creating...[0m[0m
+[0m[1mrandom_uuid.workbook_id: Creation complete after 0s [id=82fb158c-b46e-8d8e-886c-ca2bab59329a][0m
+[0m[1mrandom_password.postgres_admin: Creation complete after 1s [id=none][0m
+[0m[1mazurerm_security_center_subscription_pricing.security_center_storage: Creating...[0m[0m
+[0m[1mazurerm_security_center_subscription_pricing.security_center_sql: Creating...[0m[0m
+[0m[1mazurerm_security_center_subscription_pricing.security_center_containers: Creating...[0m[0m
+[0m[1mazurerm_security_center_subscription_pricing.security_center_vms: Creating...[0m[0m
+[0m[1mazurerm_resource_group.main: Creating...[0m[0m
+[0m[1mazurerm_security_center_subscription_pricing.security_center_kubernetes: Creating...[0m[0m
+[0m[1mazurerm_subscription_policy_assignment.cis_benchmark: Creating...[0m[0m
+[0m[1mazurerm_security_center_subscription_pricing.security_center_vms: Creation complete after 8s [id=/subscriptions/021415c2-2f52-4a73-ae77-f8363165a5e1/providers/Microsoft.Security/pricings/VirtualMachines][0m
+[0m[1mazurerm_security_center_subscription_pricing.security_center_kubernetes: Creation complete after 9s [id=/subscriptions/021415c2-2f52-4a73-ae77-f8363165a5e1/providers/Microsoft.Security/pricings/KubernetesService][0m
+[0m[1mazurerm_security_center_subscription_pricing.security_center_containers: Still creating... [10s elapsed][0m[0m
+[0m[1mazurerm_resource_group.main: Still creating... [10s elapsed][0m[0m
+[0m[1mazurerm_security_center_subscription_pricing.security_center_containers: Creation complete after 11s [id=/subscriptions/021415c2-2f52-4a73-ae77-f8363165a5e1/providers/Microsoft.Security/pricings/ContainerRegistry][0m
+[0m[1mazurerm_resource_group.main: Creation complete after 11s [id=/subscriptions/021415c2-2f52-4a73-ae77-f8363165a5e1/resourceGroups/ctadispatch-production-eus2-rg][0m
+[0m[1mazurerm_private_dns_zone.keyvault[0]: Creating...[0m[0m
+[0m[1mazurerm_private_dns_zone.servicebus[0]: Creating...[0m[0m
+[0m[1mazurerm_private_dns_zone.storage_queue[0]: Creating...[0m[0m
+[0m[1mazurerm_private_dns_zone.redis[0]: Creating...[0m[0m
+[0m[1mazurerm_monitor_action_group.warning: Creating...[0m[0m
+[0m[1mazurerm_data_protection_backup_vault.main: Creating...[0m[0m
+[0m[1mazurerm_log_analytics_workspace.main: Creating...[0m[0m
+[0m[1mazurerm_servicebus_namespace.main: Creating...[0m[0m
+[0m[1mazurerm_container_registry.main: Creating...[0m[0m
+[0m[1mazurerm_network_security_group.data: Creating...[0m[0m
+[0m[1mazurerm_monitor_action_group.warning: Creation complete after 2s [id=/subscriptions/021415c2-2f52-4a73-ae77-f8363165a5e1/resourceGroups/ctadispatch-production-eus2-rg/providers/Microsoft.Insights/actionGroups/ctadispatch-production-warning-ag][0m
+[0m[1mazurerm_private_dns_zone.postgres[0]: Creating...[0m[0m
+[0m[1mazurerm_network_security_group.data: Creation complete after 3s [id=/subscriptions/021415c2-2f52-4a73-ae77-f8363165a5e1/resourceGroups/ctadispatch-production-eus2-rg/providers/Microsoft.Network/networkSecurityGroups/ctadispatch-production-data-nsg][0m
+[0m[1mazurerm_logic_app_workflow.compliance: Creating...[0m[0m
+[0m[1mazurerm_logic_app_workflow.compliance: Creation complete after 2s [id=/subscriptions/021415c2-2f52-4a73-ae77-f8363165a5e1/resourceGroups/ctadispatch-production-eus2-rg/providers/Microsoft.Logic/workflows/ctadispatch-compliance-workflow][0m
+[0m[1mazurerm_monitor_action_group.critical: Creating...[0m[0m
+[0m[1mazurerm_monitor_action_group.critical: Creation complete after 1s [id=/subscriptions/021415c2-2f52-4a73-ae77-f8363165a5e1/resourceGroups/ctadispatch-production-eus2-rg/providers/Microsoft.Insights/actionGroups/ctadispatch-production-critical-ag][0m
+[0m[1mazurerm_eventhub_namespace.main: Creating...[0m[0m
+[0m[1mazurerm_private_dns_zone.keyvault[0]: Still creating... [10s elapsed][0m[0m
+[0m[1mazurerm_private_dns_zone.servicebus[0]: Still creating... [10s elapsed][0m[0m
+[0m[1mazurerm_private_dns_zone.redis[0]: Still creating... [10s elapsed][0m[0m
+[0m[1mazurerm_private_dns_zone.storage_queue[0]: Still creating... [10s elapsed][0m[0m
+[0m[1mazurerm_data_protection_backup_vault.main: Still creating... [10s elapsed][0m[0m
+[0m[1mazurerm_log_analytics_workspace.main: Still creating... [10s elapsed][0m[0m
+[0m[1mazurerm_servicebus_namespace.main: Still creating... [10s elapsed][0m[0m
+[0m[1mazurerm_container_registry.main: Still creating... [10s elapsed][0m[0m
+[0m[1mazurerm_private_dns_zone.postgres[0]: Still creating... [10s elapsed][0m[0m
+[0m[1mazurerm_data_protection_backup_vault.main: Creation complete after 13s [id=/subscriptions/021415c2-2f52-4a73-ae77-f8363165a5e1/resourceGroups/ctadispatch-production-eus2-rg/providers/Microsoft.DataProtection/backupVaults/ctadispatch-backup-vault][0m
+[0m[1mazurerm_network_security_group.aks: Creating...[0m[0m
+[0m[1mazurerm_servicebus_namespace.main: Creation complete after 16s [id=/subscriptions/021415c2-2f52-4a73-ae77-f8363165a5e1/resourceGroups/ctadispatch-production-eus2-rg/providers/Microsoft.ServiceBus/namespaces/ctadispatch-production-eus2-servicebus][0m
+[0m[1mazurerm_network_security_group.private_endpoints: Creating...[0m[0m
+[0m[1mazurerm_eventhub_namespace.main: Still creating... [10s elapsed][0m[0m
+[0m[1mazurerm_network_security_group.aks: Creation complete after 4s [id=/subscriptions/021415c2-2f52-4a73-ae77-f8363165a5e1/resourceGroups/ctadispatch-production-eus2-rg/providers/Microsoft.Network/networkSecurityGroups/ctadispatch-production-aks-nsg][0m
+[0m[1mazurerm_network_ddos_protection_plan.main[0]: Creating...[0m[0m
+[0m[1mazurerm_network_security_group.private_endpoints: Creation complete after 3s [id=/subscriptions/021415c2-2f52-4a73-ae77-f8363165a5e1/resourceGroups/ctadispatch-production-eus2-rg/providers/Microsoft.Network/networkSecurityGroups/ctadispatch-production-pe-nsg][0m
+[0m[1mazurerm_private_dns_zone.storage_blob[0]: Creating...[0m[0m
+[0m[1mazurerm_private_dns_zone.keyvault[0]: Still creating... [20s elapsed][0m[0m
+[0m[1mazurerm_private_dns_zone.storage_queue[0]: Still creating... [20s elapsed][0m[0m
+[0m[1mazurerm_log_analytics_workspace.main: Still creating... [20s elapsed][0m[0m
+[0m[1mazurerm_private_dns_zone.servicebus[0]: Still creating... [20s elapsed][0m[0m
+[0m[1mazurerm_private_dns_zone.redis[0]: Still creating... [20s elapsed][0m[0m
+[0m[1mazurerm_container_registry.main: Still creating... [20s elapsed][0m[0m
+[0m[1mazurerm_private_dns_zone.postgres[0]: Still creating... [20s elapsed][0m[0m
+[0m[1mazurerm_eventhub_namespace.main: Still creating... [20s elapsed][0m[0m
+[0m[1mazurerm_network_ddos_protection_plan.main[0]: Still creating... [10s elapsed][0m[0m
+[0m[1mazurerm_network_ddos_protection_plan.main[0]: Creation complete after 12s [id=/subscriptions/021415c2-2f52-4a73-ae77-f8363165a5e1/resourceGroups/ctadispatch-production-eus2-rg/providers/Microsoft.Network/ddosProtectionPlans/ctadispatch-production-eus2-ddos][0m
+[0m[1mazurerm_logic_app_trigger_http_request.compliance: Creating...[0m[0m
+[0m[1mazurerm_private_dns_zone.storage_blob[0]: Still creating... [10s elapsed][0m[0m
+[0m[1mazurerm_private_dns_zone.redis[0]: Still creating... [30s elapsed][0m[0m
+[0m[1mazurerm_private_dns_zone.keyvault[0]: Still creating... [30s elapsed][0m[0m
+[0m[1mazurerm_private_dns_zone.servicebus[0]: Still creating... [30s elapsed][0m[0m
+[0m[1mazurerm_log_analytics_workspace.main: Still creating... [30s elapsed][0m[0m
+[0m[1mazurerm_private_dns_zone.storage_queue[0]: Still creating... [30s elapsed][0m[0m
+[0m[1mazurerm_container_registry.main: Still creating... [30s elapsed][0m[0m
+[0m[1mazurerm_logic_app_trigger_http_request.compliance: Creation complete after 2s [id=/subscriptions/021415c2-2f52-4a73-ae77-f8363165a5e1/resourceGroups/ctadispatch-production-eus2-rg/providers/Microsoft.Logic/workflows/ctadispatch-compliance-workflow/triggers/security-alert-trigger][0m
+[0m[1mazurerm_servicebus_topic.nlp_analysis: Creating...[0m[0m
+[0m[1mazurerm_private_dns_zone.postgres[0]: Still creating... [30s elapsed][0m[0m
+[0m[1mazurerm_eventhub_namespace.main: Creation complete after 26s [id=/subscriptions/021415c2-2f52-4a73-ae77-f8363165a5e1/resourceGroups/ctadispatch-production-eus2-rg/providers/Microsoft.EventHub/namespaces/ctadispatch-production-eus2-eh][0m
+[0m[1mazurerm_servicebus_queue.dead_letter: Creating...[0m[0m
+[0m[1mazurerm_private_dns_zone.servicebus[0]: Creation complete after 33s [id=/subscriptions/021415c2-2f52-4a73-ae77-f8363165a5e1/resourceGroups/ctadispatch-production-eus2-rg/providers/Microsoft.Network/privateDnsZones/privatelink.servicebus.windows.net][0m
+[0m[1mazurerm_private_dns_zone.keyvault[0]: Creation complete after 33s [id=/subscriptions/021415c2-2f52-4a73-ae77-f8363165a5e1/resourceGroups/ctadispatch-production-eus2-rg/providers/Microsoft.Network/privateDnsZones/privatelink.vaultcore.azure.net][0m
+[0m[1mazurerm_servicebus_namespace_authorization_rule.send: Creating...[0m[0m
+[0m[1mazurerm_servicebus_topic.transcription_results: Creating...[0m[0m
+[0m[1mazurerm_private_dns_zone.storage_queue[0]: Creation complete after 33s [id=/subscriptions/021415c2-2f52-4a73-ae77-f8363165a5e1/resourceGroups/ctadispatch-production-eus2-rg/providers/Microsoft.Network/privateDnsZones/privatelink.queue.core.windows.net][0m
+[0m[1mazurerm_servicebus_topic.policy_violations: Creating...[0m[0m
+[0m[1mazurerm_private_dns_zone.redis[0]: Creation complete after 33s [id=/subscriptions/021415c2-2f52-4a73-ae77-f8363165a5e1/resourceGroups/ctadispatch-production-eus2-rg/providers/Microsoft.Network/privateDnsZones/privatelink.redis.cache.windows.net][0m
+[0m[1mazurerm_servicebus_namespace_authorization_rule.listen: Creating...[0m[0m
+[0m[1mazurerm_servicebus_topic.nlp_analysis: Creation complete after 4s [id=/subscriptions/021415c2-2f52-4a73-ae77-f8363165a5e1/resourceGroups/ctadispatch-production-eus2-rg/providers/Microsoft.ServiceBus/namespaces/ctadispatch-production-eus2-servicebus/topics/nlp-analysis][0m
+[0m[1mazurerm_servicebus_topic.radio_transmissions: Creating...[0m[0m
+[0m[1mazurerm_private_dns_zone.postgres[0]: Creation complete after 33s [id=/subscriptions/021415c2-2f52-4a73-ae77-f8363165a5e1/resourceGroups/ctadispatch-production-eus2-rg/providers/Microsoft.Network/privateDnsZones/privatelink.postgres.database.azure.com][0m
+[0m[1mazurerm_virtual_network.main: Creating...[0m[0m
+[0m[1mazurerm_security_center_automation.compliance: Creating...[0m[0m
+[0m[1mazurerm_servicebus_topic.transcription_results: Creation complete after 5s [id=/subscriptions/021415c2-2f52-4a73-ae77-f8363165a5e1/resourceGroups/ctadispatch-production-eus2-rg/providers/Microsoft.ServiceBus/namespaces/ctadispatch-production-eus2-servicebus/topics/transcription-results][0m
+[0m[1mazurerm_eventhub_namespace_authorization_rule.listen: Creating...[0m[0m
+[0m[1mazurerm_servicebus_topic.policy_violations: Creation complete after 5s [id=/subscriptions/021415c2-2f52-4a73-ae77-f8363165a5e1/resourceGroups/ctadispatch-production-eus2-rg/providers/Microsoft.ServiceBus/namespaces/ctadispatch-production-eus2-servicebus/topics/policy-violations][0m
+[0m[1mazurerm_eventhub.gps_telemetry: Creating...[0m[0m
+[0m[1mazurerm_security_center_automation.compliance: Creation complete after 3s [id=/subscriptions/021415c2-2f52-4a73-ae77-f8363165a5e1/resourceGroups/ctadispatch-production-eus2-rg/providers/Microsoft.Security/automations/ctadispatch-compliance-automation][0m
+[0m[1mazurerm_eventhub_namespace_authorization_rule.send: Creating...[0m[0m
+[0m[1mazurerm_private_dns_zone.storage_blob[0]: Still creating... [20s elapsed][0m[0m
+[0m[1mazurerm_servicebus_topic.radio_transmissions: Creation complete after 5s [id=/subscriptions/021415c2-2f52-4a73-ae77-f8363165a5e1/resourceGroups/ctadispatch-production-eus2-rg/providers/Microsoft.ServiceBus/namespaces/ctadispatch-production-eus2-servicebus/topics/radio-transmissions][0m
+[0m[1mazurerm_eventhub.system_events: Creating...[0m[0m
+[0m[1mazurerm_container_registry.main: Still creating... [40s elapsed][0m[0m
+[0m[1mazurerm_log_analytics_workspace.main: Still creating... [40s elapsed][0m[0m
+[0m[1mazurerm_virtual_network.main: Creation complete after 6s [id=/subscriptions/021415c2-2f52-4a73-ae77-f8363165a5e1/resourceGroups/ctadispatch-production-eus2-rg/providers/Microsoft.Network/virtualNetworks/ctadispatch-production-eus2-vnet][0m
+[0m[1mazurerm_eventhub.radio_metadata: Creating...[0m[0m
+[0m[1mazurerm_eventhub.gps_telemetry: Creation complete after 4s [id=/subscriptions/021415c2-2f52-4a73-ae77-f8363165a5e1/resourceGroups/ctadispatch-production-eus2-rg/providers/Microsoft.EventHub/namespaces/ctadispatch-production-eus2-eh/eventhubs/gps-telemetry][0m
+[0m[1mazurerm_servicebus_subscription.policy_worker: Creating...[0m[0m
+[0m[1mazurerm_servicebus_namespace_authorization_rule.send: Creation complete after 9s [id=/subscriptions/021415c2-2f52-4a73-ae77-f8363165a5e1/resourceGroups/ctadispatch-production-eus2-rg/providers/Microsoft.ServiceBus/namespaces/ctadispatch-production-eus2-servicebus/authorizationRules/send][0m
+[0m[1mazurerm_servicebus_subscription.nlp_worker: Creating...[0m[0m
+[0m[1mazurerm_servicebus_namespace_authorization_rule.listen: Still creating... [10s elapsed][0m[0m
+[0m[1mazurerm_eventhub.system_events: Creation complete after 4s [id=/subscriptions/021415c2-2f52-4a73-ae77-f8363165a5e1/resourceGroups/ctadispatch-production-eus2-rg/providers/Microsoft.EventHub/namespaces/ctadispatch-production-eus2-eh/eventhubs/system-events][0m
+[0m[1mazurerm_servicebus_subscription.websocket_notifications: Creating...[0m[0m
+[0m[1mazurerm_log_analytics_workspace.main: Creation complete after 44s [id=/subscriptions/021415c2-2f52-4a73-ae77-f8363165a5e1/resourceGroups/ctadispatch-production-eus2-rg/providers/Microsoft.OperationalInsights/workspaces/ctadispatch-production-eus2-law][0m
+[0m[1mazurerm_servicebus_subscription.transcription_worker: Creating...[0m[0m
+[0m[1mazurerm_eventhub.radio_metadata: Creation complete after 4s [id=/subscriptions/021415c2-2f52-4a73-ae77-f8363165a5e1/resourceGroups/ctadispatch-production-eus2-rg/providers/Microsoft.EventHub/namespaces/ctadispatch-production-eus2-eh/eventhubs/radio-metadata][0m
+[0m[1mazurerm_private_dns_zone_virtual_network_link.keyvault[0]: Creating...[0m[0m
+[0m[1mazurerm_servicebus_subscription.policy_worker: Creation complete after 4s [id=/subscriptions/021415c2-2f52-4a73-ae77-f8363165a5e1/resourceGroups/ctadispatch-production-eus2-rg/providers/Microsoft.ServiceBus/namespaces/ctadispatch-production-eus2-servicebus/topics/nlp-analysis/subscriptions/policy-worker][0m
+[0m[1mazurerm_subnet.aks: Creating...[0m[0m
+[0m[1mazurerm_servicebus_subscription.nlp_worker: Creation complete after 4s [id=/subscriptions/021415c2-2f52-4a73-ae77-f8363165a5e1/resourceGroups/ctadispatch-production-eus2-rg/providers/Microsoft.ServiceBus/namespaces/ctadispatch-production-eus2-servicebus/topics/transcription-results/subscriptions/nlp-worker][0m
+[0m[1mazurerm_private_dns_zone_virtual_network_link.postgres[0]: Creating...[0m[0m
+[0m[1mazurerm_eventhub_namespace_authorization_rule.listen: Creation complete after 8s [id=/subscriptions/021415c2-2f52-4a73-ae77-f8363165a5e1/resourceGroups/ctadispatch-production-eus2-rg/providers/Microsoft.EventHub/namespaces/ctadispatch-production-eus2-eh/authorizationRules/listen][0m
+[0m[1mazurerm_private_dns_zone_virtual_network_link.redis[0]: Creating...[0m[0m
+[0m[1mazurerm_servicebus_subscription.websocket_notifications: Creation complete after 3s [id=/subscriptions/021415c2-2f52-4a73-ae77-f8363165a5e1/resourceGroups/ctadispatch-production-eus2-rg/providers/Microsoft.ServiceBus/namespaces/ctadispatch-production-eus2-servicebus/topics/policy-violations/subscriptions/websocket-notifications][0m
+[0m[1mazurerm_subnet.private_endpoints: Creating...[0m[0m
+[0m[1mazurerm_servicebus_subscription.transcription_worker: Creation complete after 4s [id=/subscriptions/021415c2-2f52-4a73-ae77-f8363165a5e1/resourceGroups/ctadispatch-production-eus2-rg/providers/Microsoft.ServiceBus/namespaces/ctadispatch-production-eus2-servicebus/topics/radio-transmissions/subscriptions/transcription-worker][0m
+[0m[1mazurerm_subnet.data: Creating...[0m[0m
+[0m[1mazurerm_eventhub_namespace_authorization_rule.send: Still creating... [10s elapsed][0m[0m
+[0m[1mazurerm_private_dns_zone.storage_blob[0]: Still creating... [30s elapsed][0m[0m
+[0m[1mazurerm_container_registry.main: Creation complete after 50s [id=/subscriptions/021415c2-2f52-4a73-ae77-f8363165a5e1/resourceGroups/ctadispatch-production-eus2-rg/providers/Microsoft.ContainerRegistry/registries/ctadispatchproductioneus2acr][0m
+[0m[1mazurerm_private_dns_zone_virtual_network_link.servicebus[0]: Creating...[0m[0m
+[0m[1mazurerm_subnet.aks: Creation complete after 5s [id=/subscriptions/021415c2-2f52-4a73-ae77-f8363165a5e1/resourceGroups/ctadispatch-production-eus2-rg/providers/Microsoft.Network/virtualNetworks/ctadispatch-production-eus2-vnet/subnets/ctadispatch-production-aks-subnet][0m
+[0m[1mazurerm_private_dns_zone_virtual_network_link.storage_queue[0]: Creating...[0m[0m
+[0m[1mazurerm_private_dns_zone.storage_blob[0]: Creation complete after 33s [id=/subscriptions/021415c2-2f52-4a73-ae77-f8363165a5e1/resourceGroups/ctadispatch-production-eus2-rg/providers/Microsoft.Network/privateDnsZones/privatelink.blob.core.windows.net][0m
+[0m[1mazurerm_eventhub_consumer_group.gps_processor: Creating...[0m[0m
+[0m[1mazurerm_servicebus_namespace_authorization_rule.listen: Still creating... [20s elapsed][0m[0m
+[0m[1mazurerm_eventhub_namespace_authorization_rule.send: Creation complete after 15s [id=/subscriptions/021415c2-2f52-4a73-ae77-f8363165a5e1/resourceGroups/ctadispatch-production-eus2-rg/providers/Microsoft.EventHub/namespaces/ctadispatch-production-eus2-eh/authorizationRules/send][0m
+[0m[1mazurerm_eventhub_consumer_group.system_monitor: Creating...[0m[0m
+[0m[1mazurerm_private_dns_zone_virtual_network_link.keyvault[0]: Still creating... [10s elapsed][0m[0m
+[0m[1mazurerm_eventhub_consumer_group.gps_processor: Creation complete after 4s [id=/subscriptions/021415c2-2f52-4a73-ae77-f8363165a5e1/resourceGroups/ctadispatch-production-eus2-rg/providers/Microsoft.EventHub/namespaces/ctadispatch-production-eus2-eh/eventhubs/gps-telemetry/consumerGroups/gps-processor][0m
+[0m[1mazurerm_monitor_diagnostic_setting.nsg_aks: Creating...[0m[0m
+[0m[1mazurerm_private_dns_zone_virtual_network_link.postgres[0]: Still creating... [10s elapsed][0m[0m
+[0m[1mazurerm_private_dns_zone_virtual_network_link.redis[0]: Still creating... [10s elapsed][0m[0m
+[0m[1mazurerm_subnet.private_endpoints: Creation complete after 9s [id=/subscriptions/021415c2-2f52-4a73-ae77-f8363165a5e1/resourceGroups/ctadispatch-production-eus2-rg/providers/Microsoft.Network/virtualNetworks/ctadispatch-production-eus2-vnet/subnets/ctadispatch-production-pe-subnet][0m
+[0m[1mazurerm_application_insights.main: Creating...[0m[0m
+[0m[1mazurerm_eventhub_consumer_group.system_monitor: Creation complete after 3s [id=/subscriptions/021415c2-2f52-4a73-ae77-f8363165a5e1/resourceGroups/ctadispatch-production-eus2-rg/providers/Microsoft.EventHub/namespaces/ctadispatch-production-eus2-eh/eventhubs/system-events/consumerGroups/system-monitor][0m
+[0m[1mazurerm_monitor_diagnostic_setting.servicebus: Creating...[0m[0m
+[0m[1mazurerm_subnet.data: Still creating... [10s elapsed][0m[0m
+[0m[1mazurerm_private_dns_zone_virtual_network_link.servicebus[0]: Still creating... [10s elapsed][0m[0m
+[0m[1mazurerm_monitor_diagnostic_setting.servicebus: Creation complete after 4s [id=/subscriptions/021415c2-2f52-4a73-ae77-f8363165a5e1/resourceGroups/ctadispatch-production-eus2-rg/providers/Microsoft.ServiceBus/namespaces/ctadispatch-production-eus2-servicebus|ctadispatch-production-sb-diag][0m
+[0m[1mazurerm_monitor_diagnostic_setting.eventhub: Creating...[0m[0m
+[0m[1mazurerm_private_dns_zone_virtual_network_link.storage_queue[0]: Still creating... [10s elapsed][0m[0m
+[0m[1mazurerm_subnet.data: Creation complete after 13s [id=/subscriptions/021415c2-2f52-4a73-ae77-f8363165a5e1/resourceGroups/ctadispatch-production-eus2-rg/providers/Microsoft.Network/virtualNetworks/ctadispatch-production-eus2-vnet/subnets/ctadispatch-production-data-subnet][0m
+[0m[1mazurerm_log_analytics_solution.container_insights: Creating...[0m[0m
+[0m[1mazurerm_monitor_diagnostic_setting.nsg_aks: Creation complete after 6s [id=/subscriptions/021415c2-2f52-4a73-ae77-f8363165a5e1/resourceGroups/ctadispatch-production-eus2-rg/providers/Microsoft.Network/networkSecurityGroups/ctadispatch-production-aks-nsg|ctadispatch-production-nsg-aks-diag][0m
+[0m[1mazurerm_log_analytics_solution.security_center[0]: Creating...[0m[0m
+[0m[1mazurerm_servicebus_namespace_authorization_rule.listen: Still creating... [30s elapsed][0m[0m
+[0m[1mazurerm_monitor_diagnostic_setting.eventhub: Creation complete after 3s [id=/subscriptions/021415c2-2f52-4a73-ae77-f8363165a5e1/resourceGroups/ctadispatch-production-eus2-rg/providers/Microsoft.EventHub/namespaces/ctadispatch-production-eus2-eh|ctadispatch-production-eh-diag][0m
+[0m[1mazurerm_monitor_diagnostic_setting.vnet: Creating...[0m[0m
+[0m[1mazurerm_private_dns_zone_virtual_network_link.keyvault[0]: Still creating... [20s elapsed][0m[0m
+[0m[1mazurerm_private_dns_zone_virtual_network_link.postgres[0]: Still creating... [20s elapsed][0m[0m
+[0m[1mazurerm_private_dns_zone_virtual_network_link.redis[0]: Still creating... [20s elapsed][0m[0m
+[0m[1mazurerm_application_insights.main: Still creating... [10s elapsed][0m[0m
+[0m[1mazurerm_monitor_diagnostic_setting.vnet: Creation complete after 4s [id=/subscriptions/021415c2-2f52-4a73-ae77-f8363165a5e1/resourceGroups/ctadispatch-production-eus2-rg/providers/Microsoft.Network/virtualNetworks/ctadispatch-production-eus2-vnet|ctadispatch-production-vnet-diag][0m
+[0m[1mazurerm_eventhub_consumer_group.radio_processor: Creating...[0m[0m
+[0m[1mazurerm_private_dns_zone_virtual_network_link.servicebus[0]: Still creating... [20s elapsed][0m[0m
+[0m[1mazurerm_private_dns_zone_virtual_network_link.storage_queue[0]: Still creating... [20s elapsed][0m[0m
+[0m[1mazurerm_log_analytics_solution.container_insights: Still creating... [10s elapsed][0m[0m
+[0m[1mazurerm_log_analytics_solution.security_center[0]: Still creating... [10s elapsed][0m[0m
+[0m[1mazurerm_eventhub_consumer_group.radio_processor: Creation complete after 4s [id=/subscriptions/021415c2-2f52-4a73-ae77-f8363165a5e1/resourceGroups/ctadispatch-production-eus2-rg/providers/Microsoft.EventHub/namespaces/ctadispatch-production-eus2-eh/eventhubs/radio-metadata/consumerGroups/radio-processor][0m
+[0m[1mazurerm_subnet_network_security_group_association.aks: Creating...[0m[0m
+[0m[1mazurerm_log_analytics_solution.container_insights: Creation complete after 12s [id=/subscriptions/021415c2-2f52-4a73-ae77-f8363165a5e1/resourceGroups/ctadispatch-production-eus2-rg/providers/Microsoft.OperationsManagement/solutions/ContainerInsights(ctadispatch-production-eus2-law)][0m
+[0m[1mazurerm_kubernetes_cluster.main: Creating...[0m[0m
+[0m[1mazurerm_servicebus_namespace_authorization_rule.listen: Still creating... [40s elapsed][0m[0m
+[0m[1mazurerm_log_analytics_solution.security_center[0]: Creation complete after 12s [id=/subscriptions/021415c2-2f52-4a73-ae77-f8363165a5e1/resourceGroups/ctadispatch-production-eus2-rg/providers/Microsoft.OperationsManagement/solutions/Security(ctadispatch-production-eus2-law)][0m
+[0m[1mazurerm_private_dns_zone_virtual_network_link.storage_blob[0]: Creating...[0m[0m
+[0m[1mazurerm_private_dns_zone_virtual_network_link.keyvault[0]: Still creating... [30s elapsed][0m[0m
+[0m[1mazurerm_private_dns_zone_virtual_network_link.postgres[0]: Still creating... [30s elapsed][0m[0m
+[0m[1mazurerm_private_dns_zone_virtual_network_link.redis[0]: Still creating... [30s elapsed][0m[0m
+[0m[1mazurerm_application_insights.main: Still creating... [20s elapsed][0m[0m
+[0m[1mazurerm_private_dns_zone_virtual_network_link.keyvault[0]: Creation complete after 32s [id=/subscriptions/021415c2-2f52-4a73-ae77-f8363165a5e1/resourceGroups/ctadispatch-production-eus2-rg/providers/Microsoft.Network/privateDnsZones/privatelink.vaultcore.azure.net/virtualNetworkLinks/ctadispatch-production-kv-dns-link][0m
+[0m[1mazurerm_subnet_network_security_group_association.private_endpoints: Creating...[0m[0m
+[0m[1mazurerm_subnet_network_security_group_association.aks: Creation complete after 6s [id=/subscriptions/021415c2-2f52-4a73-ae77-f8363165a5e1/resourceGroups/ctadispatch-production-eus2-rg/providers/Microsoft.Network/virtualNetworks/ctadispatch-production-eus2-vnet/subnets/ctadispatch-production-aks-subnet][0m
+[0m[1mazurerm_subnet_network_security_group_association.data: Creating...[0m[0m
+[0m[1mazurerm_private_dns_zone_virtual_network_link.redis[0]: Creation complete after 33s [id=/subscriptions/021415c2-2f52-4a73-ae77-f8363165a5e1/resourceGroups/ctadispatch-production-eus2-rg/providers/Microsoft.Network/privateDnsZones/privatelink.redis.cache.windows.net/virtualNetworkLinks/ctadispatch-production-redis-dns-link][0m
+[0m[1mazurerm_key_vault.main: Creating...[0m[0m
+[0m[1mazurerm_private_dns_zone_virtual_network_link.postgres[0]: Creation complete after 33s [id=/subscriptions/021415c2-2f52-4a73-ae77-f8363165a5e1/resourceGroups/ctadispatch-production-eus2-rg/providers/Microsoft.Network/privateDnsZones/privatelink.postgres.database.azure.com/virtualNetworkLinks/ctadispatch-production-postgres-dns-link][0m
+[0m[1mazurerm_storage_account.main: Creating...[0m[0m
+[0m[1mazurerm_private_dns_zone_virtual_network_link.servicebus[0]: Still creating... [30s elapsed][0m[0m
+[0m[1mazurerm_private_dns_zone_virtual_network_link.storage_queue[0]: Still creating... [30s elapsed][0m[0m
+[0m[1mazurerm_private_dns_zone_virtual_network_link.servicebus[0]: Creation complete after 33s [id=/subscriptions/021415c2-2f52-4a73-ae77-f8363165a5e1/resourceGroups/ctadispatch-production-eus2-rg/providers/Microsoft.Network/privateDnsZones/privatelink.servicebus.windows.net/virtualNetworkLinks/ctadispatch-production-sb-dns-link][0m
+[0m[1mazurerm_postgresql_flexible_server.main: Creating...[0m[0m
+[0m[1mazurerm_kubernetes_cluster.main: Still creating... [10s elapsed][0m[0m
+[0m[1mazurerm_subnet_network_security_group_association.private_endpoints: Creation complete after 6s [id=/subscriptions/021415c2-2f52-4a73-ae77-f8363165a5e1/resourceGroups/ctadispatch-production-eus2-rg/providers/Microsoft.Network/virtualNetworks/ctadispatch-production-eus2-vnet/subnets/ctadispatch-production-pe-subnet][0m
+[0m[1mazurerm_servicebus_namespace_authorization_rule.listen: Still creating... [50s elapsed][0m[0m
+[0m[1mazurerm_private_dns_zone_virtual_network_link.storage_blob[0]: Still creating... [10s elapsed][0m[0m
+[0m[1mazurerm_private_dns_zone_virtual_network_link.storage_queue[0]: Creation complete after 33s [id=/subscriptions/021415c2-2f52-4a73-ae77-f8363165a5e1/resourceGroups/ctadispatch-production-eus2-rg/providers/Microsoft.Network/privateDnsZones/privatelink.queue.core.windows.net/virtualNetworkLinks/ctadispatch-production-queue-dns-link][0m
+[0m[1mazurerm_application_insights.main: Still creating... [30s elapsed][0m[0m
+[0m[1mazurerm_subnet_network_security_group_association.data: Still creating... [10s elapsed][0m[0m
+[0m[1mazurerm_subnet_network_security_group_association.data: Creation complete after 11s [id=/subscriptions/021415c2-2f52-4a73-ae77-f8363165a5e1/resourceGroups/ctadispatch-production-eus2-rg/providers/Microsoft.Network/virtualNetworks/ctadispatch-production-eus2-vnet/subnets/ctadispatch-production-data-subnet][0m
+[0m[1mazurerm_key_vault.main: Still creating... [10s elapsed][0m[0m
+[0m[1mazurerm_storage_account.main: Still creating... [10s elapsed][0m[0m
+[0m[1mazurerm_application_insights.main: Creation complete after 35s [id=/subscriptions/021415c2-2f52-4a73-ae77-f8363165a5e1/resourceGroups/ctadispatch-production-eus2-rg/providers/Microsoft.Insights/components/ctadispatch-production-eus2-ai][0m
+[0m[1mazurerm_monitor_scheduled_query_rules_alert_v2.policy_violations: Creating...[0m[0m
+[0m[1mazurerm_monitor_scheduled_query_rules_alert_v2.api_error_rate: Creating...[0m[0m
+[0m[1mazurerm_servicebus_namespace_authorization_rule.listen: Still creating... [1m0s elapsed][0m[0m
+[0m[1mazurerm_private_dns_zone_virtual_network_link.storage_blob[0]: Still creating... [20s elapsed][0m[0m
+[0m[1mazurerm_monitor_scheduled_query_rules_alert_v2.policy_violations: Creation complete after 4s [id=/subscriptions/021415c2-2f52-4a73-ae77-f8363165a5e1/resourceGroups/ctadispatch-production-eus2-rg/providers/Microsoft.Insights/scheduledQueryRules/ctadispatch-production-policy-violations][0m
+[0m[1mazurerm_monitor_scheduled_query_rules_alert_v2.api_error_rate: Creation complete after 4s [id=/subscriptions/021415c2-2f52-4a73-ae77-f8363165a5e1/resourceGroups/ctadispatch-production-eus2-rg/providers/Microsoft.Insights/scheduledQueryRules/ctadispatch-production-api-error-rate][0m
+[0m[1mazurerm_storage_account.main: Still creating... [20s elapsed][0m[0m
+[0m[1mazurerm_servicebus_namespace_authorization_rule.listen: Still creating... [1m10s elapsed][0m[0m
+[0m[1mazurerm_private_dns_zone_virtual_network_link.storage_blob[0]: Still creating... [30s elapsed][0m[0m
+[0m[1mazurerm_private_dns_zone_virtual_network_link.storage_blob[0]: Creation complete after 32s [id=/subscriptions/021415c2-2f52-4a73-ae77-f8363165a5e1/resourceGroups/ctadispatch-production-eus2-rg/providers/Microsoft.Network/privateDnsZones/privatelink.blob.core.windows.net/virtualNetworkLinks/ctadispatch-production-blob-dns-link][0m
+[0m[1mazurerm_storage_account.main: Still creating... [30s elapsed][0m[0m
+[0m[1mazurerm_servicebus_namespace_authorization_rule.listen: Still creating... [1m20s elapsed][0m[0m
+[0m[1mazurerm_servicebus_namespace_authorization_rule.listen: Still creating... [1m30s elapsed][0m[0m
+[0m[1mazurerm_servicebus_namespace_authorization_rule.listen: Still creating... [1m40s elapsed][0m[0m
+[0m[1mazurerm_servicebus_namespace_authorization_rule.listen: Still creating... [1m50s elapsed][0m[0m
+[0m[1mazurerm_servicebus_namespace_authorization_rule.listen: Still creating... [2m0s elapsed][0m[0m
+[0m[1mazurerm_servicebus_namespace_authorization_rule.listen: Still creating... [2m10s elapsed][0m[0m
+[0m[1mazurerm_servicebus_namespace_authorization_rule.listen: Still creating... [2m20s elapsed][0m[0m
+[0m[1mazurerm_servicebus_namespace_authorization_rule.listen: Still creating... [2m30s elapsed][0m[0m
+[0m[1mazurerm_servicebus_namespace_authorization_rule.listen: Still creating... [2m40s elapsed][0m[0m
+[0m[1mazurerm_servicebus_namespace_authorization_rule.listen: Still creating... [2m50s elapsed][0m[0m
+[0m[1mazurerm_servicebus_namespace_authorization_rule.listen: Still creating... [3m0s elapsed][0m[0m
+[0m[1mazurerm_servicebus_namespace_authorization_rule.listen: Still creating... [3m10s elapsed][0m[0m
+[0m[1mazurerm_servicebus_namespace_authorization_rule.listen: Still creating... [3m20s elapsed][0m[0m
+[0m[1mazurerm_servicebus_namespace_authorization_rule.listen: Still creating... [3m30s elapsed][0m[0m
+[0m[1mazurerm_servicebus_namespace_authorization_rule.listen: Still creating... [3m40s elapsed][0m[0m
+[0m[1mazurerm_servicebus_namespace_authorization_rule.listen: Still creating... [3m50s elapsed][0m[0m
+[0m[1mazurerm_servicebus_namespace_authorization_rule.listen: Creation complete after 3m57s [id=/subscriptions/021415c2-2f52-4a73-ae77-f8363165a5e1/resourceGroups/ctadispatch-production-eus2-rg/providers/Microsoft.ServiceBus/namespaces/ctadispatch-production-eus2-servicebus/authorizationRules/listen][0m
+[33m╷[0m[0m
+[33m│[0m [0m[1m[33mWarning: [0m[0m[1mArgument is deprecated[0m
+[33m│[0m [0m
+[33m│[0m [0m[0m  with azurerm_kubernetes_cluster.main,
+[33m│[0m [0m  on main.tf line 99, in resource "azurerm_kubernetes_cluster" "main":
+[33m│[0m [0m  99:     node_taints = [4m[][0m[0m
+[33m│[0m [0m
+[33m│[0m [0mThis field will be removed in v4.0 of the Azure Provider since the AKS API
+[33m│[0m [0mdoesn't allow arbitrary node taints on the default node pool
+[33m│[0m [0m
+[33m│[0m [0m(and 10 more similar warnings elsewhere)
+[33m╵[0m[0m
+[31m╷[0m[0m
+[31m│[0m [0m[1m[31mError: [0m[0m[1mcreating Key Vault (Subscription: "021415c2-2f52-4a73-ae77-f8363165a5e1"
+[31m│[0m [0mResource Group Name: "ctadispatch-production-eus2-rg"
+[31m│[0m [0mKey Vault Name: "ctad-prod-eus2-kv"): performing CreateOrUpdate: vaults.VaultsClient#CreateOrUpdate: Failure sending request: StatusCode=0 -- Original Error: Code="VirtualNetworkNotValid" Message="Operation on Virtual Network could not be performed. StatusCode: 400 (BadRequest). Error Code: SubnetsHaveNoServiceEndpointsConfigured. Error Message: Subnets ctadispatch-production-data-subnet of virtual network /subscriptions/021415c2-2f52-4a73-ae77-f8363165a5e1/resourceGroups/ctadispatch-production-eus2-rg/providers/Microsoft.Network/virtualNetworks/ctadispatch-production-eus2-vnet do not have ServiceEndpoints for Microsoft.KeyVault resources configured. Add Microsoft.KeyVault to subnet's ServiceEndpoints collection before trying to ACL Microsoft.KeyVault resources to these subnets.."[0m
+[31m│[0m [0m
+[31m│[0m [0m[0m  with azurerm_key_vault.main,
+[31m│[0m [0m  on keyvault.tf line 10, in resource "azurerm_key_vault" "main":
+[31m│[0m [0m  10: resource "azurerm_key_vault" "main" [4m{[0m[0m
+[31m│[0m [0m
+[31m╵[0m[0m
+[31m╷[0m[0m
+[31m│[0m [0m[1m[31mError: [0m[0m[1mcreating Kubernetes Cluster (Subscription: "021415c2-2f52-4a73-ae77-f8363165a5e1"
+[31m│[0m [0mResource Group Name: "ctadispatch-production-eus2-rg"
+[31m│[0m [0mKubernetes Cluster Name: "ctadispatch-production-eus2-aks"): performing CreateOrUpdate: unexpected status 400 (400 Bad Request) with response: {
+[31m│[0m [0m  "code": "K8sVersionNotSupported",
+[31m│[0m [0m  "details": null,
+[31m│[0m [0m  "message": "Managed cluster ctadispatch-production-eus2-aks is on version 1.28.15, which is only available for Long-Term Support (LTS). If you intend to onboard to LTS, please ensure the cluster is in Premium tier and LTS support plan (see https://aka.ms/aks/enable-lts). Otherwise, use [az aks get-versions] command to get the supported version list in this region. For more information, please check https://aka.ms/supported-version-list",
+[31m│[0m [0m  "subcode": ""
+[31m│[0m [0m }[0m
+[31m│[0m [0m
+[31m│[0m [0m[0m  with azurerm_kubernetes_cluster.main,
+[31m│[0m [0m  on main.tf line 73, in resource "azurerm_kubernetes_cluster" "main":
+[31m│[0m [0m  73: resource "azurerm_kubernetes_cluster" "main" [4m{[0m[0m
+[31m│[0m [0m
+[31m╵[0m[0m
+[31m╷[0m[0m
+[31m│[0m [0m[1m[31mError: [0m[0m[1munexpected status 400 (400 Bad Request) with error: MessagingGatewayBadRequest: SubCode=40000. The supplied lock time exceeds the allowed maximum of '5' minutes. To know more visit https://aka.ms/sbResourceMgrExceptions. 
+[31m│[0m [0mParameter name: LockDuration
+[31m│[0m [0mActual value was 00:30:00. ExceptionDescription: The supplied lock time exceeds the allowed maximum of '5' minutes. To know more visit https://aka.ms/sbResourceMgrExceptions. 
+[31m│[0m [0mParameter name: LockDuration
+[31m│[0m [0mActual value was 00:30:00. TrackingId:daf04ced-6050-4752-8cc0-e38df51f2c19_G2, SystemTracker:ctadispatch-production-eus2-servicebus.servicebus.windows.net:dead-letter-queue, Timestamp:2025-10-18T01:22:05[0m
+[31m│[0m [0m
+[31m│[0m [0m[0m  with azurerm_servicebus_queue.dead_letter,
+[31m│[0m [0m  on messaging.tf line 114, in resource "azurerm_servicebus_queue" "dead_letter":
+[31m│[0m [0m 114: resource "azurerm_servicebus_queue" "dead_letter" [4m{[0m[0m
+[31m│[0m [0m
+[31m╵[0m[0m
+[31m╷[0m[0m
+[31m│[0m [0m[1m[31mError: [0m[0m[1mexpected value of source_id to not contain any uppercase letter[0m
+[31m│[0m [0m
+[31m│[0m [0m[0m  with azurerm_application_insights_workbook.operations_dashboard,
+[31m│[0m [0m  on monitoring.tf line 332, in resource "azurerm_application_insights_workbook" "operations_dashboard":
+[31m│[0m [0m 332:   source_id           = [4mazurerm_application_insights.main.id[0m[0m
+[31m│[0m [0m
+[31m╵[0m[0m
+[31m╷[0m[0m
+[31m│[0m [0m[1m[31mError: [0m[0m[1mcreating Flexible Server (Subscription: "021415c2-2f52-4a73-ae77-f8363165a5e1"
+[31m│[0m [0mResource Group Name: "ctadispatch-production-eus2-rg"
+[31m│[0m [0mFlexible Server Name: "ctadispatch-production-eus2-psql"): performing Create: unexpected status 400 (400 Bad Request) with error: ConflictingPublicNetworkAccessAndVirtualNetworkConfiguration: Conflicting configuration is detected between Public Network Access and Virtual Network arguments. Public Network Access is not supported along with Virtual Network feature.[0m
+[31m│[0m [0m
+[31m│[0m [0m[0m  with azurerm_postgresql_flexible_server.main,
+[31m│[0m [0m  on postgres.tf line 5, in resource "azurerm_postgresql_flexible_server" "main":
+[31m│[0m [0m   5: resource "azurerm_postgresql_flexible_server" "main" [4m{[0m[0m
+[31m│[0m [0m
+[31m╵[0m[0m
+[31m╷[0m[0m
+[31m│[0m [0m[1m[31mError: [0m[0m[1mthe pricing tier of this subscription is not Free  A resource with the ID "/subscriptions/021415c2-2f52-4a73-ae77-f8363165a5e1/providers/Microsoft.Security/pricings/SqlServers" already exists - to be managed via Terraform this resource needs to be imported into the State. Please see the resource documentation for "azurerm_security_center_subscription_pricing" for more information.[0m
+[31m│[0m [0m
+[31m│[0m [0m[0m  with azurerm_security_center_subscription_pricing.security_center_sql,
+[31m│[0m [0m  on security.tf line 15, in resource "azurerm_security_center_subscription_pricing" "security_center_sql":
+[31m│[0m [0m  15: resource "azurerm_security_center_subscription_pricing" "security_center_sql" [4m{[0m[0m
+[31m│[0m [0m
+[31m╵[0m[0m
+[31m╷[0m[0m
+[31m│[0m [0m[1m[31mError: [0m[0m[1mthe pricing tier of this subscription is not Free  A resource with the ID "/subscriptions/021415c2-2f52-4a73-ae77-f8363165a5e1/providers/Microsoft.Security/pricings/StorageAccounts" already exists - to be managed via Terraform this resource needs to be imported into the State. Please see the resource documentation for "azurerm_security_center_subscription_pricing" for more information.[0m
+[31m│[0m [0m
+[31m│[0m [0m[0m  with azurerm_security_center_subscription_pricing.security_center_storage,
+[31m│[0m [0m  on security.tf line 20, in resource "azurerm_security_center_subscription_pricing" "security_center_storage":
+[31m│[0m [0m  20: resource "azurerm_security_center_subscription_pricing" "security_center_storage" [4m{[0m[0m
+[31m│[0m [0m
+[31m╵[0m[0m
+[31m╷[0m[0m
+[31m│[0m [0m[1m[31mError: [0m[0m[1mcreating Scoped Policy Assignment (Scope: "/subscriptions/021415c2-2f52-4a73-ae77-f8363165a5e1"
+[31m│[0m [0mPolicy Assignment Name: "cis-benchmark"): unexpected status 400 (400 Bad Request) with error: UndefinedPolicyParameter: The policy assignment 'cis-benchmark' has the parameter(s) 'effect' which are not defined in the policy definition '1f3afdf9-d0c9-4c3d-847f-89da613e70a8 version 57.54.0'.[0m
+[31m│[0m [0m
+[31m│[0m [0m[0m  with azurerm_subscription_policy_assignment.cis_benchmark,
+[31m│[0m [0m  on security.tf line 39, in resource "azurerm_subscription_policy_assignment" "cis_benchmark":
+[31m│[0m [0m  39: resource "azurerm_subscription_policy_assignment" "cis_benchmark" [4m{[0m[0m
+[31m│[0m [0m
+[31m│[0m [0mcreating Scoped Policy Assignment (Scope:
+[31m│[0m [0m"/subscriptions/021415c2-2f52-4a73-ae77-f8363165a5e1"
+[31m│[0m [0mPolicy Assignment Name: "cis-benchmark"): unexpected status 400 (400 Bad
+[31m│[0m [0mRequest) with error: UndefinedPolicyParameter: The policy assignment
+[31m│[0m [0m'cis-benchmark' has the parameter(s) 'effect' which are not defined in the
+[31m│[0m [0mpolicy definition '1f3afdf9-d0c9-4c3d-847f-89da613e70a8 version 57.54.0'.
+[31m╵[0m[0m
+[31m╷[0m[0m
+[31m│[0m [0m[1m[31mError: [0m[0m[1mwaiting for the Data Plane for Storage Account (Subscription: "021415c2-2f52-4a73-ae77-f8363165a5e1"
+[31m│[0m [0mResource Group Name: "ctadispatch-production-eus2-rg"
+[31m│[0m [0mStorage Account Name: "ctadprodeus2sa") to become available: waiting for the Blob Service to become available: polling failed: executing request: unexpected status 403 (403 Key based authentication is not permitted on this storage account.) with KeyBasedAuthenticationNotPermitted: Key based authentication is not permitted on this storage account.
+[31m│[0m [0mRequestId:fe947fa2-701e-0004-59cd-3f9610000000
+[31m│[0m [0mTime:2025-10-18T01:23:21.2958871Z[0m
+[31m│[0m [0m
+[31m│[0m [0m[0m  with azurerm_storage_account.main,
+[31m│[0m [0m  on storage.tf line 5, in resource "azurerm_storage_account" "main":
+[31m│[0m [0m   5: resource "azurerm_storage_account" "main" [4m{[0m[0m
+[31m│[0m [0m
+[31m╵[0m[0m
