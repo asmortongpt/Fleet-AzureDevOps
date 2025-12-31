@@ -14,16 +14,40 @@ import {
 
 import { HubPage, HubTab } from '@/components/ui/hub-page'
 import { StatCard, ProgressRing, QuickStat } from '@/components/ui/stat-card'
+import { useDrilldown, DrilldownLevel } from '@/contexts/DrilldownContext'
 
 function AssetsContent() {
+    const { push } = useDrilldown()
+
     return (
         <div className="p-6 space-y-6 bg-gradient-to-b from-slate-900/50 to-transparent">
             <h2 className="text-2xl font-bold text-white">Asset Management</h2>
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                <StatCard title="Total Assets" value="256" variant="primary" icon={<Tag className="w-6 h-6" />} />
-                <StatCard title="Active" value="234" variant="success" />
-                <StatCard title="In Maintenance" value="18" variant="warning" />
-                <StatCard title="Retired" value="4" variant="default" />
+                <StatCard
+                    title="Total Assets"
+                    value="256"
+                    variant="primary"
+                    icon={<Tag className="w-6 h-6" />}
+                    onClick={() => push({ type: 'total-assets', data: { title: 'Total Assets' }, id: 'total-assets' } as Omit<DrilldownLevel, "timestamp">)}
+                />
+                <StatCard
+                    title="Active"
+                    value="234"
+                    variant="success"
+                    onClick={() => push({ type: 'active-assets', data: { title: 'Active Assets' }, id: 'active-assets' } as Omit<DrilldownLevel, "timestamp">)}
+                />
+                <StatCard
+                    title="In Maintenance"
+                    value="18"
+                    variant="warning"
+                    onClick={() => push({ type: 'assets-maintenance', data: { title: 'Assets In Maintenance' }, id: 'assets-maintenance' } as Omit<DrilldownLevel, "timestamp">)}
+                />
+                <StatCard
+                    title="Retired"
+                    value="4"
+                    variant="default"
+                    onClick={() => push({ type: 'retired-assets', data: { title: 'Retired Assets' }, id: 'retired-assets' } as Omit<DrilldownLevel, "timestamp">)}
+                />
             </div>
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 <div className="bg-gradient-to-br from-slate-800/60 to-slate-900/60 backdrop-blur-xl rounded-xl border border-slate-700/50 p-6">
@@ -42,28 +66,75 @@ function AssetsContent() {
 }
 
 function EquipmentContent() {
+    const { push } = useDrilldown()
+
     return (
         <div className="p-6 space-y-6 bg-gradient-to-b from-slate-900/50 to-transparent">
             <h2 className="text-2xl font-bold text-white">Equipment Dashboard</h2>
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                <StatCard title="Heavy Equipment" value="24" variant="primary" icon={<Engine className="w-6 h-6" />} />
-                <StatCard title="In Use" value="18" variant="success" />
-                <StatCard title="Available" value="4" variant="default" />
-                <StatCard title="Service Due" value="2" variant="warning" />
+                <StatCard
+                    title="Heavy Equipment"
+                    value="24"
+                    variant="primary"
+                    icon={<Engine className="w-6 h-6" />}
+                    onClick={() => push({ type: 'heavy-equipment', data: { title: 'Heavy Equipment' }, id: 'heavy-equipment' } as Omit<DrilldownLevel, "timestamp">)}
+                />
+                <StatCard
+                    title="In Use"
+                    value="18"
+                    variant="success"
+                    onClick={() => push({ type: 'equipment-in-use', data: { title: 'Equipment In Use' }, id: 'equipment-in-use' } as Omit<DrilldownLevel, "timestamp">)}
+                />
+                <StatCard
+                    title="Available"
+                    value="4"
+                    variant="default"
+                    onClick={() => push({ type: 'equipment-available', data: { title: 'Available Equipment' }, id: 'equipment-available' } as Omit<DrilldownLevel, "timestamp">)}
+                />
+                <StatCard
+                    title="Service Due"
+                    value="2"
+                    variant="warning"
+                    onClick={() => push({ type: 'equipment-service', data: { title: 'Equipment Service Due' }, id: 'equipment-service' } as Omit<DrilldownLevel, "timestamp">)}
+                />
             </div>
         </div>
     )
 }
 
 function InventoryContent() {
+    const { push } = useDrilldown()
+
     return (
         <div className="p-6 space-y-6 bg-gradient-to-b from-slate-900/50 to-transparent">
             <h2 className="text-2xl font-bold text-white">Inventory Tracking</h2>
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                <StatCard title="Total Items" value="1,456" variant="primary" icon={<Package className="w-6 h-6" />} />
-                <StatCard title="Tracked" value="1,420" variant="success" icon={<MapPin className="w-6 h-6" />} />
-                <StatCard title="Low Stock" value="24" variant="warning" />
-                <StatCard title="Reorder Pending" value="8" variant="default" />
+                <StatCard
+                    title="Total Items"
+                    value="1,456"
+                    variant="primary"
+                    icon={<Package className="w-6 h-6" />}
+                    onClick={() => push({ type: 'total-inventory', data: { title: 'Total Inventory Items' }, id: 'total-inventory' } as Omit<DrilldownLevel, "timestamp">)}
+                />
+                <StatCard
+                    title="Tracked"
+                    value="1,420"
+                    variant="success"
+                    icon={<MapPin className="w-6 h-6" />}
+                    onClick={() => push({ type: 'tracked-inventory', data: { title: 'Tracked Inventory' }, id: 'tracked-inventory' } as Omit<DrilldownLevel, "timestamp">)}
+                />
+                <StatCard
+                    title="Low Stock"
+                    value="24"
+                    variant="warning"
+                    onClick={() => push({ type: 'low-stock-inventory', data: { title: 'Low Stock Items' }, id: 'low-stock-inventory' } as Omit<DrilldownLevel, "timestamp">)}
+                />
+                <StatCard
+                    title="Reorder Pending"
+                    value="8"
+                    variant="default"
+                    onClick={() => push({ type: 'reorder-pending', data: { title: 'Reorder Pending' }, id: 'reorder-pending' } as Omit<DrilldownLevel, "timestamp">)}
+                />
             </div>
         </div>
     )
