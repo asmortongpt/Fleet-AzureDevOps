@@ -104,6 +104,9 @@ const ChargesAndBilling = lazy(() => import("@/pages/PersonalUse/ChargesAndBilli
 const AssetManagement = lazy(() => import("@/components/modules/assets/AssetManagement").then(m => ({ default: m.AssetManagement })))
 const EquipmentDashboard = lazy(() => import("@/components/modules/assets/EquipmentDashboard").then(m => ({ default: m.EquipmentDashboard })))
 
+// PAGES
+const AnalyticsPage = lazy(() => import("@/pages/AnalyticsPage"))
+
 // DRIVER MODULES
 const DriverPerformance = lazy(() => import("@/components/modules/drivers/DriverPerformance").then(m => ({ default: m.DriverPerformance })))
 const DriverScorecard = lazy(() => import("@/components/modules/drivers/DriverScorecard").then(m => ({ default: m.DriverScorecard })))
@@ -343,7 +346,7 @@ function App() {
       case "custom-reports":
         return <CustomReportBuilder />
       case "analytics":
-        return <AnalyticsDashboard />
+        return <AnalyticsPage />
       case "maintenance-request":
         return <MaintenanceRequest data={fleetData} />
       case "safety-hub":
