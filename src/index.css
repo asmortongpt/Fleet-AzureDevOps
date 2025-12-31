@@ -214,10 +214,227 @@
 }
 
 @keyframes pulseGlow {
-  0%, 100% { 
-    box-shadow: 0 0 5px var(--primary), 0 0 10px transparent; 
+  0%, 100% {
+    box-shadow: 0 0 5px var(--primary), 0 0 10px transparent;
   }
-  50% { 
-    box-shadow: 0 0 10px var(--primary), 0 0 20px var(--primary); 
+  50% {
+    box-shadow: 0 0 10px var(--primary), 0 0 20px var(--primary);
+  }
+}
+
+/* ============================================================================
+   ACCESSIBILITY - WCAG AAA Compliance
+   ============================================================================ */
+
+/* Screen Reader Only - Hide visually but available to screen readers */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+/* Screen Reader Only but visible on focus (e.g., skip links) */
+.sr-only-focusable:focus {
+  position: static;
+  width: auto;
+  height: auto;
+  padding: inherit;
+  margin: inherit;
+  overflow: visible;
+  clip: auto;
+  white-space: normal;
+}
+
+/* Skip Navigation Links */
+.skip-navigation {
+  position: relative;
+}
+
+.skip-link {
+  position: absolute;
+  top: -40px;
+  left: 0;
+  background: var(--primary);
+  color: var(--primary-foreground);
+  padding: 0.5rem 1rem;
+  text-decoration: none;
+  border-radius: 0 0 0.25rem 0;
+  z-index: 100;
+  transition: top 0.2s ease;
+  font-weight: 600;
+}
+
+.skip-link:focus {
+  top: 0;
+  outline: 3px solid var(--ring);
+  outline-offset: 2px;
+}
+
+/* Focus Visible - Only show focus ring on keyboard navigation */
+:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
+/* Remove outline on mouse click but keep for keyboard */
+:focus:not(:focus-visible) {
+  outline: none;
+}
+
+/* High contrast focus for critical interactive elements */
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+  outline: 3px solid var(--ring);
+  outline-offset: 2px;
+}
+
+/* Reduced Motion - Respect user preference for reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* High Contrast Mode Support */
+@media (prefers-contrast: high) {
+  :root {
+    --border: oklch(1 0 0);
+    --ring: oklch(1 0 0);
+  }
+
+  button,
+  a,
+  input,
+  select {
+    border: 2px solid currentColor;
+  }
+}
+
+/* Dark Mode Specific Accessibility Adjustments */
+@media (prefers-color-scheme: dark) {
+  /* Ensure sufficient contrast in dark mode */
+  :root {
+    --muted-foreground: oklch(0.75 0.05 245); /* Lighter for better readability */
+  }
+}
+
+/* Touch Target Size - Ensure minimum 44x44px touch targets for mobile */
+@media (max-width: 768px) {
+  button,
+  a,
+  input[type="checkbox"],
+  input[type="radio"] {
+    min-height: 44px;
+    min-width: 44px;
+  }
+}
+
+/* Keyboard Navigation Highlighting */
+[data-keyboard-user] *:focus {
+  outline: 3px solid var(--ring);
+  outline-offset: 2px;
+}
+
+/* ARIA Live Region Styling */
+[role="alert"],
+[role="status"] {
+  position: relative;
+}
+
+/* Ensure decorative icons don't interfere with screen readers */
+[aria-hidden="true"] {
+  pointer-events: none;
+}
+
+/* Accessible Table Styling */
+table[role="table"] th[role="columnheader"] {
+  position: relative;
+}
+
+table[role="table"] th[aria-sort]:hover {
+  cursor: pointer;
+  background: var(--muted);
+}
+
+/* Visual indicator for sortable columns */
+table[role="table"] th[aria-sort="none"]::after {
+  content: '⇅';
+  opacity: 0.3;
+  margin-left: 0.5rem;
+}
+
+table[role="table"] th[aria-sort="ascending"]::after {
+  content: '↑';
+  margin-left: 0.5rem;
+}
+
+table[role="table"] th[aria-sort="descending"]::after {
+  content: '↓';
+  margin-left: 0.5rem;
+}
+
+/* Accessible Form Error Styling */
+[aria-invalid="true"] {
+  border-color: var(--destructive);
+  outline-color: var(--destructive);
+}
+
+[role="alert"][id$="-error"] {
+  color: var(--destructive);
+  font-size: 0.875rem;
+  margin-top: 0.25rem;
+}
+
+/* Loading States - Accessible */
+[aria-busy="true"] {
+  cursor: wait;
+  opacity: 0.7;
+}
+
+/* Disabled State - Clear visual indicator */
+[aria-disabled="true"],
+:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Color Blind Friendly - Use patterns in addition to colors */
+.status-success::before {
+  content: '✓ ';
+}
+
+.status-error::before {
+  content: '✗ ';
+}
+
+.status-warning::before {
+  content: '⚠ ';
+}
+
+/* Print Styles - Accessibility */
+@media print {
+  .sr-only {
+    position: static;
+    width: auto;
+    height: auto;
+  }
+
+  [aria-hidden="true"] {
+    display: none;
   }
 }
