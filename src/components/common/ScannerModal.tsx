@@ -1,6 +1,6 @@
 /**
  * ScannerModal - Camera-based scanner for QR codes, VIN barcodes, and license plates
- * Uses navigator.mediaDevices.getUserMedia for camera access
+ * Uses @yudiel/react-qr-scanner for QR/barcode detection
  */
 
 import {
@@ -12,6 +12,7 @@ import {
   CheckCircle,
   Warning
 } from "@phosphor-icons/react"
+import { Scanner, IDetectedBarcode } from '@yudiel/react-qr-scanner'
 import { useState, useRef, useEffect, useCallback } from "react"
 
 import { Button } from "@/components/ui/button"
@@ -41,7 +42,7 @@ interface ScanResult {
   type: ScannerType
 }
 
-// VIN checksum validation
+// VIN checksum validation (ISO 3779)
 function validateVIN(vin: string): boolean {
   if (vin.length !== 17) return false
 
@@ -71,25 +72,39 @@ function validateVIN(vin: string): boolean {
   return vin[8].toUpperCase() === checkDigit
 }
 
-// Simple QR code detection simulation (in production, use a library like @yudiel/react-qr-scanner)
-function detectQRFromCanvas(canvas: HTMLCanvasElement): string | null {
-  // This is a placeholder - in production, integrate with a QR scanning library
-  // For demo purposes, we'll simulate occasional detection
+// Parse VIN from barcode (Code 39 format commonly used)
+function parseVINFromBarcode(rawValue: string): string | null {
+  // Clean up the value - remove any start/stop characters
+  let cleaned = rawValue.replace(/[^A-HJ-NPR-Z0-9]/gi, '').toUpperCase()
+
+  // VIN is exactly 17 characters
+  if (cleaned.length === 17) {
+    return cleaned
+  }
+
+  // Sometimes VIN barcodes include extra characters
+  if (cleaned.length > 17) {
+    // Try to find a 17-character VIN substring
+    for (let i = 0; i <= cleaned.length - 17; i++) {
+      const candidate = cleaned.substring(i, i + 17)
+      if (validateVIN(candidate)) {
+        return candidate
+      }
+    }
+    // Fall back to first 17 characters
+    return cleaned.substring(0, 17)
+  }
+
   return null
 }
 
 export function ScannerModal({ open, onOpenChange, type, onScan }: ScannerModalProps) {
-  const videoRef = useRef<HTMLVideoElement>(null)
-  const canvasRef = useRef<HTMLCanvasElement>(null)
-  const streamRef = useRef<MediaStream | null>(null)
-
-  const [isScanning, setIsScanning] = useState(false)
-  const [error, setError] = useState<string | null>(null)
   const [facingMode, setFacingMode] = useState<'user' | 'environment'>('environment')
   const [manualInput, setManualInput] = useState('')
   const [showManualInput, setShowManualInput] = useState(false)
   const [scanResult, setScanResult] = useState<ScanResult | null>(null)
-  const [torchEnabled, setTorchEnabled] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+  const [paused, setPaused] = useState(false)
 
   const getScannerTitle = () => {
     switch (type) {
@@ -102,100 +117,77 @@ export function ScannerModal({ open, onOpenChange, type, onScan }: ScannerModalP
   const getScannerDescription = () => {
     switch (type) {
       case 'qr': return 'Position the QR code within the frame'
-      case 'vin': return 'Align the VIN barcode within the frame'
+      case 'vin': return 'Align the VIN barcode (door jamb or dashboard) within the frame'
       case 'plate': return 'Center the license plate in the frame'
     }
   }
 
-  const startCamera = useCallback(async () => {
-    try {
-      setError(null)
-      setIsScanning(true)
-
-      const constraints: MediaStreamConstraints = {
-        video: {
-          facingMode,
-          width: { ideal: 1280 },
-          height: { ideal: 720 }
-        }
-      }
-
-      const stream = await navigator.mediaDevices.getUserMedia(constraints)
-      streamRef.current = stream
-
-      if (videoRef.current) {
-        videoRef.current.srcObject = stream
-        await videoRef.current.play()
-      }
-
-      logger.info(`Scanner started: ${type} mode`)
-    } catch (err) {
-      logger.error('Camera access error:', err)
-      setError('Unable to access camera. Please grant camera permissions.')
-      setIsScanning(false)
-    }
-  }, [facingMode, type])
-
-  const stopCamera = useCallback(() => {
-    if (streamRef.current) {
-      streamRef.current.getTracks().forEach(track => track.stop())
-      streamRef.current = null
-    }
-    setIsScanning(false)
-  }, [])
-
-  const toggleCamera = async () => {
-    stopCamera()
+  const toggleCamera = () => {
     setFacingMode(prev => prev === 'user' ? 'environment' : 'user')
   }
 
-  const toggleTorch = async () => {
-    if (streamRef.current) {
-      const track = streamRef.current.getVideoTracks()[0]
-      const capabilities = track.getCapabilities() as MediaTrackCapabilities & { torch?: boolean }
+  const handleScan = useCallback((detectedCodes: IDetectedBarcode[]) => {
+    if (detectedCodes.length === 0 || paused) return
 
-      if (capabilities.torch) {
-        await track.applyConstraints({
-          advanced: [{ torch: !torchEnabled } as MediaTrackConstraintSet]
-        })
-        setTorchEnabled(!torchEnabled)
-      }
-    }
-  }
+    const code = detectedCodes[0]
+    const rawValue = code.rawValue
 
-  // Simulated scan detection (in production, use proper libraries)
-  useEffect(() => {
-    if (!isScanning || !videoRef.current || !canvasRef.current) return
+    logger.info(`Barcode detected: ${rawValue} (format: ${code.format})`)
 
-    const canvas = canvasRef.current
-    const ctx = canvas.getContext('2d')
-    if (!ctx) return
-
-    const scanInterval = setInterval(() => {
-      if (!videoRef.current) return
-
-      canvas.width = videoRef.current.videoWidth
-      canvas.height = videoRef.current.videoHeight
-      ctx.drawImage(videoRef.current, 0, 0)
-
-      // In production, process the canvas with appropriate library
-      // For demo, we simulate detection after a few seconds
-      const detected = detectQRFromCanvas(canvas)
-      if (detected) {
-        handleScanResult(detected)
-      }
-    }, 500)
-
-    return () => clearInterval(scanInterval)
-  }, [isScanning])
-
-  const handleScanResult = (value: string) => {
+    let processedValue = rawValue.trim().toUpperCase()
     let isValid = true
-    let processedValue = value.trim().toUpperCase()
 
     if (type === 'vin') {
-      processedValue = processedValue.replace(/[^A-HJ-NPR-Z0-9]/g, '')
-      isValid = validateVIN(processedValue)
+      // Try to parse VIN from the barcode
+      const parsedVIN = parseVINFromBarcode(rawValue)
+      if (parsedVIN) {
+        processedValue = parsedVIN
+        isValid = validateVIN(processedValue)
+      } else {
+        // Not a valid VIN barcode
+        return
+      }
+    } else if (type === 'plate') {
+      // License plates: alphanumeric, 2-8 characters
+      processedValue = processedValue.replace(/[^A-Z0-9]/g, '')
+      isValid = processedValue.length >= 2 && processedValue.length <= 8
+      if (!isValid) return
+    } else if (type === 'qr') {
+      // QR codes can contain any data
+      isValid = processedValue.length > 0
+    }
+
+    // Pause scanning and show result
+    setPaused(true)
+    setScanResult({
+      value: processedValue,
+      confidence: isValid ? 95 : 70,
+      type
+    })
+  }, [type, paused])
+
+  const handleError = useCallback((err: unknown) => {
+    logger.error('Scanner error:', err)
+    if (err instanceof Error) {
+      if (err.name === 'NotAllowedError') {
+        setError('Camera access denied. Please grant camera permissions.')
+      } else if (err.name === 'NotFoundError') {
+        setError('No camera found on this device.')
+      } else {
+        setError(`Camera error: ${err.message}`)
+      }
+    }
+  }, [])
+
+  const handleManualSubmit = () => {
+    if (!manualInput.trim()) return
+
+    let processedValue = manualInput.trim().toUpperCase()
+    let isValid = true
+
+    if (type === 'vin') {
+      processedValue = processedValue.replace(/[^A-HJ-NPR-Z0-9]/gi, '')
+      isValid = processedValue.length === 17 && validateVIN(processedValue)
     } else if (type === 'plate') {
       processedValue = processedValue.replace(/[^A-Z0-9]/g, '')
       isValid = processedValue.length >= 2 && processedValue.length <= 8
@@ -203,18 +195,10 @@ export function ScannerModal({ open, onOpenChange, type, onScan }: ScannerModalP
 
     setScanResult({
       value: processedValue,
-      confidence: isValid ? 95 : 60,
+      confidence: isValid ? 100 : 60,
       type
     })
-
-    if (isValid) {
-      stopCamera()
-    }
-  }
-
-  const handleManualSubmit = () => {
-    if (!manualInput.trim()) return
-    handleScanResult(manualInput)
+    setPaused(true)
   }
 
   const confirmResult = () => {
@@ -224,25 +208,36 @@ export function ScannerModal({ open, onOpenChange, type, onScan }: ScannerModalP
     }
   }
 
+  const resetScanner = () => {
+    setScanResult(null)
+    setPaused(false)
+    setManualInput('')
+    setShowManualInput(false)
+    setError(null)
+  }
+
+  // Reset state when modal opens/closes or type changes
   useEffect(() => {
     if (open) {
-      startCamera()
-      setScanResult(null)
-      setManualInput('')
-      setShowManualInput(false)
-    } else {
-      stopCamera()
+      resetScanner()
     }
+  }, [open, type])
 
-    return () => stopCamera()
-  }, [open, startCamera, stopCamera])
-
-  // Restart camera when facing mode changes
-  useEffect(() => {
-    if (open && !scanResult) {
-      startCamera()
+  // Determine which barcode formats to scan based on type
+  const getFormats = (): string[] => {
+    switch (type) {
+      case 'qr':
+        return ['qr_code']
+      case 'vin':
+        // VIN barcodes are typically Code 39 or Code 128
+        return ['code_39', 'code_128', 'code_93', 'ean_13', 'ean_8']
+      case 'plate':
+        // For plates, scan any format that might encode text
+        return ['qr_code', 'code_39', 'code_128', 'data_matrix']
+      default:
+        return ['qr_code', 'code_39', 'code_128']
     }
-  }, [facingMode, open, scanResult, startCamera])
+  }
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -258,81 +253,93 @@ export function ScannerModal({ open, onOpenChange, type, onScan }: ScannerModalP
         </DialogHeader>
 
         <div className="relative bg-black">
-          {/* Camera Preview */}
-          {!scanResult && (
+          {/* Scanner or Result View */}
+          {!scanResult ? (
             <>
-              <video
-                ref={videoRef}
-                className="w-full aspect-[4/3] object-cover"
-                playsInline
-                muted
-              />
-              <canvas ref={canvasRef} className="hidden" />
+              {!error ? (
+                <div className="relative">
+                  <Scanner
+                    onScan={handleScan}
+                    onError={handleError}
+                    formats={getFormats()}
+                    paused={paused || showManualInput}
+                    components={{
+                      audio: false,
+                      torch: true,
+                      finder: true,
+                    }}
+                    constraints={{
+                      facingMode: facingMode,
+                    }}
+                    styles={{
+                      container: {
+                        width: '100%',
+                        aspectRatio: '4/3',
+                      },
+                      video: {
+                        width: '100%',
+                        height: '100%',
+                        objectFit: 'cover',
+                      },
+                    }}
+                  />
 
-              {/* Scan Frame Overlay */}
-              <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                <div className={`
-                  border-2 rounded-lg
-                  ${type === 'qr' ? 'w-48 h-48 border-blue-400' : ''}
-                  ${type === 'vin' ? 'w-72 h-16 border-green-400' : ''}
-                  ${type === 'plate' ? 'w-64 h-24 border-yellow-400' : ''}
-                `}>
-                  <div className="absolute -top-1 -left-1 w-4 h-4 border-t-2 border-l-2 border-current" />
-                  <div className="absolute -top-1 -right-1 w-4 h-4 border-t-2 border-r-2 border-current" />
-                  <div className="absolute -bottom-1 -left-1 w-4 h-4 border-b-2 border-l-2 border-current" />
-                  <div className="absolute -bottom-1 -right-1 w-4 h-4 border-b-2 border-r-2 border-current" />
+                  {/* Scan type indicator */}
+                  <div className="absolute top-3 left-3 flex items-center gap-2 bg-black/60 px-3 py-1.5 rounded-full">
+                    <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse" />
+                    <span className="text-white text-xs font-medium">
+                      {type === 'qr' ? 'QR Mode' : type === 'vin' ? 'VIN Mode' : 'Plate Mode'}
+                    </span>
+                  </div>
+
+                  {/* Camera controls */}
+                  <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-2">
+                    <Button
+                      size="sm"
+                      variant="secondary"
+                      className="bg-black/60 hover:bg-black/80 text-white"
+                      onClick={toggleCamera}
+                    >
+                      <FlipHorizontal className="w-4 h-4 mr-1" />
+                      Flip
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="secondary"
+                      className="bg-black/60 hover:bg-black/80 text-white"
+                      onClick={() => setShowManualInput(true)}
+                    >
+                      <Keyboard className="w-4 h-4 mr-1" />
+                      Manual
+                    </Button>
+                  </div>
                 </div>
-              </div>
-
-              {/* Scanning indicator */}
-              {isScanning && (
-                <div className="absolute top-3 left-3 flex items-center gap-2 bg-black/60 px-3 py-1.5 rounded-full">
-                  <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse" />
-                  <span className="text-white text-xs font-medium">Scanning...</span>
+              ) : (
+                /* Error state */
+                <div className="aspect-[4/3] flex items-center justify-center bg-background">
+                  <div className="text-center p-6 space-y-4">
+                    <Camera className="w-16 h-16 text-muted-foreground mx-auto" />
+                    <p className="text-destructive">{error}</p>
+                    <div className="flex gap-2 justify-center">
+                      <Button variant="outline" onClick={() => onOpenChange(false)}>
+                        Cancel
+                      </Button>
+                      <Button onClick={() => setShowManualInput(true)}>
+                        Enter Manually
+                      </Button>
+                    </div>
+                  </div>
                 </div>
               )}
-
-              {/* Camera controls */}
-              <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-2">
-                <Button
-                  size="sm"
-                  variant="secondary"
-                  className="bg-black/60 hover:bg-black/80"
-                  onClick={toggleCamera}
-                >
-                  <FlipHorizontal className="w-4 h-4 mr-1" />
-                  Flip
-                </Button>
-                <Button
-                  size="sm"
-                  variant="secondary"
-                  className="bg-black/60 hover:bg-black/80"
-                  onClick={toggleTorch}
-                >
-                  <Flashlight className={`w-4 h-4 mr-1 ${torchEnabled ? 'text-yellow-400' : ''}`} />
-                  Light
-                </Button>
-                <Button
-                  size="sm"
-                  variant="secondary"
-                  className="bg-black/60 hover:bg-black/80"
-                  onClick={() => setShowManualInput(true)}
-                >
-                  <Keyboard className="w-4 h-4 mr-1" />
-                  Manual
-                </Button>
-              </div>
             </>
-          )}
-
-          {/* Scan Result */}
-          {scanResult && (
+          ) : (
+            /* Scan Result */
             <div className="p-6 bg-background">
               <div className="text-center space-y-4">
                 {scanResult.confidence > 80 ? (
-                  <CheckCircle className="w-16 h-16 text-green-500 mx-auto" />
+                  <CheckCircle className="w-16 h-16 text-green-500 mx-auto" weight="fill" />
                 ) : (
-                  <Warning className="w-16 h-16 text-yellow-500 mx-auto" />
+                  <Warning className="w-16 h-16 text-yellow-500 mx-auto" weight="fill" />
                 )}
 
                 <div>
@@ -341,42 +348,25 @@ export function ScannerModal({ open, onOpenChange, type, onScan }: ScannerModalP
                     {type === 'vin' && 'VIN Detected'}
                     {type === 'plate' && 'License Plate Detected'}
                   </p>
-                  <p className="text-2xl font-mono font-bold">{scanResult.value}</p>
+                  <p className="text-2xl font-mono font-bold tracking-wide">{scanResult.value}</p>
                   {type === 'vin' && !validateVIN(scanResult.value) && (
-                    <p className="text-xs text-yellow-600 mt-1">VIN checksum may be invalid</p>
+                    <p className="text-xs text-yellow-600 mt-2">
+                      VIN checksum validation failed - please verify
+                    </p>
+                  )}
+                  {type === 'vin' && validateVIN(scanResult.value) && (
+                    <p className="text-xs text-green-600 mt-2">
+                      VIN checksum valid
+                    </p>
                   )}
                 </div>
 
                 <div className="flex gap-2 justify-center">
-                  <Button
-                    variant="outline"
-                    onClick={() => {
-                      setScanResult(null)
-                      startCamera()
-                    }}
-                  >
+                  <Button variant="outline" onClick={resetScanner}>
                     Scan Again
                   </Button>
                   <Button onClick={confirmResult}>
                     Use This {type === 'vin' ? 'VIN' : type === 'plate' ? 'Plate' : 'Code'}
-                  </Button>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* Error state */}
-          {error && !scanResult && (
-            <div className="absolute inset-0 flex items-center justify-center bg-background/95">
-              <div className="text-center p-6 space-y-4">
-                <Camera className="w-16 h-16 text-muted-foreground mx-auto" />
-                <p className="text-destructive">{error}</p>
-                <div className="flex gap-2 justify-center">
-                  <Button variant="outline" onClick={() => onOpenChange(false)}>
-                    Cancel
-                  </Button>
-                  <Button onClick={startCamera}>
-                    Try Again
                   </Button>
                 </div>
               </div>
@@ -410,6 +400,11 @@ export function ScannerModal({ open, onOpenChange, type, onScan }: ScannerModalP
                   Submit
                 </Button>
               </div>
+              {type === 'vin' && (
+                <p className="text-xs text-muted-foreground">
+                  17 alphanumeric characters (excluding I, O, Q)
+                </p>
+              )}
               <Button
                 variant="ghost"
                 size="sm"
@@ -426,7 +421,7 @@ export function ScannerModal({ open, onOpenChange, type, onScan }: ScannerModalP
         <Button
           variant="ghost"
           size="icon"
-          className="absolute top-2 right-2 text-white hover:bg-white/20"
+          className="absolute top-2 right-2 text-muted-foreground hover:bg-accent"
           onClick={() => onOpenChange(false)}
         >
           <X className="w-5 h-5" />
