@@ -157,12 +157,9 @@ export default defineConfig({
         safari10: true,
         toplevel: true,
       },
-      output: {
-        comments: false,
-        ecma: 2020,
-      },
       format: {
         comments: false,
+        ecma: 2020,
       },
     },
     assetsInlineLimit: 4096,
