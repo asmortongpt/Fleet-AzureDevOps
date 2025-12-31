@@ -142,7 +142,7 @@ export function OperationsWorkspace() {
                   </Badge>
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
-                      <Button size="icon" variant="ghost" className="h-8 w-8 hover:bg-white/10 rounded-full">
+                      <Button size="icon" variant="ghost" className="h-8 w-8 hover:bg-white/10 rounded-full" aria-label="More options">
                         <MoreHorizontal className="h-4 w-4 text-slate-400" />
                       </Button>
                     </DropdownMenuTrigger>
@@ -165,7 +165,7 @@ export function OperationsWorkspace() {
                     onChange={(e) => setSearchQuery(e.target.value)}
                   />
                 </div>
-                <Button size="icon" variant="ghost" className="h-9 w-9 bg-white/5 border border-white/5 hover:bg-white/10 rounded-lg shrink-0">
+                <Button size="icon" variant="ghost" className="h-9 w-9 bg-white/5 border border-white/5 hover:bg-white/10 rounded-lg shrink-0" aria-label="Add new task">
                   <Plus className="h-4 w-4 text-slate-400" />
                 </Button>
               </div>
@@ -251,7 +251,7 @@ function TaskCard({ task }: { task: any }) {
 
         {/* Hover Actions (Desktop) */}
         <div className="absolute right-2 top-2 opacity-0 group-hover:opacity-100 transition-all transform translate-x-2 group-hover:translate-x-0">
-          <Button size="icon" variant="ghost" className="h-7 w-7 rounded-full hover:bg-white/10 text-slate-400 hover:text-white">
+          <Button size="icon" variant="ghost" className="h-7 w-7 rounded-full hover:bg-white/10 text-slate-400 hover:text-white" aria-label="Task actions">
             <MoreHorizontal className="h-4 w-4" />
           </Button>
         </div>
