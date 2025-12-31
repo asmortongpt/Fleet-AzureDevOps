@@ -505,4 +505,42 @@ router.get('/maintenance/schedules', requirePermission('maintenance:view:fleet')
   }
 })
 
+/**
+ * @openapi
+ * /api/heavy-equipment/{id}/telemetrics:
+ *   get:
+ *     summary: Get real-time telematics data
+ *     tags: [Heavy Equipment]
+ */
+router.get('/:id/telemetrics', requirePermission('vehicle:view:fleet'), async (req: AuthRequest, res) => {
+  try {
+    const { id } = req.params
+
+    // In production, this would fetch real telematics data from IoT devices
+    // For now, return simulated data
+    const telemetrics = {
+      equipment_id: id,
+      timestamp: new Date().toISOString(),
+      engine_hours: 1245.5 + Math.random() * 10,
+      engine_rpm: 1500 + Math.random() * 500,
+      engine_temp_celsius: 85 + Math.random() * 15,
+      fuel_level_percent: 60 + Math.random() * 30,
+      fuel_consumption_rate: 5.2 + Math.random() * 2,
+      latitude: 38.9072 + (Math.random() - 0.5) * 0.1,
+      longitude: -77.0369 + (Math.random() - 0.5) * 0.1,
+      speed_mph: Math.random() * 15,
+      altitude_feet: 150 + Math.random() * 50,
+      hydraulic_pressure_psi: 2500 + Math.random() * 500,
+      battery_voltage: 12.5 + Math.random() * 0.5,
+      diagnostic_codes: [],
+      alerts: []
+    }
+
+    res.json({ telemetrics })
+  } catch (error) {
+    logger.error('Error fetching telematics data:', error) // Wave 20: Winston logger
+    res.status(500).json({ error: 'Failed to fetch telematics data' })
+  }
+})
+
 export default router
