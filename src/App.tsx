@@ -144,6 +144,8 @@ const CommunicationHubPage = lazy(() => import("@/pages/CommunicationHub"))
 // PAGES
 const SettingsPage = lazy(() => import("@/pages/SettingsPage"))
 const ProfilePage = lazy(() => import("@/pages/ProfilePage"))
+const SafetyAlertsPage = lazy(() => import("@/pages/SafetyAlertsPage"))
+const HeavyEquipmentPage = lazy(() => import("@/pages/HeavyEquipmentPage"))
 
 // Loading spinner component for Suspense fallback
 const LoadingSpinner = () => (
@@ -351,6 +353,10 @@ function App() {
         return <MaintenanceRequest data={fleetData} />
       case "safety-hub":
         return <SafetyHub />
+      case "safety-alerts":
+        return <SafetyAlertsPage />
+      case "heavy-equipment":
+        return <EquipmentDashboard /> // TODO: Replace with HeavyEquipmentPage when implemented
       case "assets-hub":
         return <AssetsHub />
       case "settings":

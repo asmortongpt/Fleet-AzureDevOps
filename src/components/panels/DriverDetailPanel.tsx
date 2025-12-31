@@ -42,7 +42,7 @@ export function DriverDetailPanel({ driver, onClose, vehicles = [] }: DriverDeta
             >
                 {/* Header / Profile Cover */}
                 <div className="relative h-32 bg-gradient-to-br from-slate-900 to-slate-800 shrink-0">
-                    <Button variant="ghost" size="icon" onClick={onClose} className="absolute right-2 top-2 text-white/50 hover:text-white hover:bg-white/10">
+                    <Button variant="ghost" size="icon" onClick={onClose} className="absolute right-2 top-2 text-white/50 hover:text-white hover:bg-white/10" aria-label="Close driver details">
                         <X className="w-5 h-5" />
                     </Button>
                     <div className="absolute -bottom-10 left-6">
