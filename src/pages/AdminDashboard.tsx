@@ -4,6 +4,7 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import MonitoringDashboard from '../components/admin/MonitoringDashboard';
+import { UserManagement } from '../components/admin/UserManagement';
 import { useAuth } from '../hooks/useAuth';
 
 interface TabPanelProps {
@@ -173,26 +174,7 @@ const AdminDashboard: React.FC = () => {
       </TabPanel>
 
       <TabPanel value={currentTab} index={1}>
-        <Paper sx={{ p: 3 }}>
-          <Typography variant="h5" gutterBottom>
-            User Management
-          </Typography>
-          <Typography color="text.secondary">
-            User management features will be available in the next release.
-          </Typography>
-          <Box sx={{ mt: 3 }}>
-            <Typography variant="body2" color="text.secondary">
-              Planned features:
-            </Typography>
-            <ul>
-              <li>View and manage user accounts</li>
-              <li>Role-based access control (RBAC)</li>
-              <li>User activity logs</li>
-              <li>Session management</li>
-              <li>Password policies</li>
-            </ul>
-          </Box>
-        </Paper>
+        <UserManagement />
       </TabPanel>
 
       <TabPanel value={currentTab} index={2}>
