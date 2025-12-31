@@ -13,9 +13,7 @@
 import * as fs from 'fs';
 import { execSync } from 'child_process';
 
-// Table schema definitions extracted from migrations
-const tableSchemas: Record<string, string[]> = {
-// Auto-generated table schemas
+// Auto-generated table schemas - extracted from migrations
 const tableSchemas: Record<string, string[]> = {
   accident_investigations: ['id', 'accident_date', 'accident_time', 'location', 'vehicle_id', 'driver_id', 'investigation_date', 'investigator_name', 'investigator_title', 'accident_type', 'severity', 'weather_conditions', 'road_conditions', 'visibility', 'what_happened', 'why_it_happened', 'immediate_causes', 'root_causes', 'contributing_factors', 'corrective_actions', 'preventive_measures', 'responsible_party', 'target_completion_date', 'actual_completion_date', 'effectiveness_review_date', 'effectiveness_review_notes', 'photos_url', 'police_report_url', 'witness_statements_url', 'investigation_status', 'created_at', 'updated_at'],
   activity_log: ['id', 'entity_type', 'entity_id', 'event_type', 'user_id', 'user_name', 'event_data', 'ip_address', 'user_agent', 'created_at'],
