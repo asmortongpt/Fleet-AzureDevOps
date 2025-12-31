@@ -205,6 +205,7 @@
     "@tailwindcss/postcss": "^4.1.8",
     "@tailwindcss/vite": "^4.1.17",
     "@tanstack/react-query-devtools": "^5.83.1",
+    "@tanstack/react-virtual": "^3.13.14",
     "@testing-library/jest-dom": "^6.9.1",
     "@testing-library/react": "^14.3.1",
     "@testing-library/user-event": "^14.6.1",

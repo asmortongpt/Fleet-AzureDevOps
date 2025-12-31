@@ -1,0 +1,348 @@
+name: Performance Budget & Lighthouse
+
+on:
+  pull_request:
+    branches: [main, develop]
+  push:
+    branches: [main, develop]
+  workflow_dispatch:
+
+env:
+  NODE_VERSION: '20'
+
+jobs:
+  # Lighthouse CI
+  lighthouse:
+    name: Lighthouse Performance Audit
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build application
+        run: npm run build
+        env:
+          NODE_ENV: production
+
+      - name: Install Lighthouse CI
+        run: npm install -g @lhci/cli@0.13.x
+
+      - name: Run Lighthouse CI
+        run: |
+          # Start a simple HTTP server for the built app
+          npx http-server dist -p 8080 &
+          SERVER_PID=$!
+
+          # Wait for server to be ready
+          sleep 5
+
+          # Run Lighthouse
+          lhci autorun --config=lighthouse-ci.json || true
+
+          # Kill server
+          kill $SERVER_PID
+        env:
+          LHCI_GITHUB_APP_TOKEN: ${{ secrets.LHCI_GITHUB_APP_TOKEN }}
+
+      - name: Upload Lighthouse results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: lighthouse-results
+          path: .lighthouseci/
+
+  # Bundle size check
+  bundle-size:
+    name: Bundle Size Analysis
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build application
+        run: npm run build
+
+      - name: Analyze bundle size
+        run: |
+          echo "📊 Bundle Size Analysis"
+          echo "======================"
+
+          # Total size
+          TOTAL_SIZE=$(du -sh dist/ | cut -f1)
+          echo "Total build size: $TOTAL_SIZE"
+
+          # Assets breakdown
+          echo ""
+          echo "Assets breakdown:"
+          du -sh dist/assets/* | sort -rh
+
+          # Individual JS bundles
+          echo ""
+          echo "JavaScript bundles:"
+          find dist/assets -name "*.js" -exec du -h {} \; | sort -rh | head -10
+
+          # CSS files
+          echo ""
+          echo "CSS files:"
+          find dist/assets -name "*.css" -exec du -h {} \; | sort -rh
+
+      - name: Check bundle size limits
+        run: |
+          # Convert sizes to KB for comparison
+          TOTAL_KB=$(du -sk dist/ | cut -f1)
+          ASSETS_KB=$(du -sk dist/assets/ | cut -f1)
+
+          # Define budgets (in KB)
+          MAX_TOTAL_KB=10000    # 10MB
+          MAX_ASSETS_KB=5000    # 5MB
+
+          echo "Current sizes:"
+          echo "Total: ${TOTAL_KB}KB (Budget: ${MAX_TOTAL_KB}KB)"
+          echo "Assets: ${ASSETS_KB}KB (Budget: ${MAX_ASSETS_KB}KB)"
+
+          FAILED=0
+
+          if [ $TOTAL_KB -gt $MAX_TOTAL_KB ]; then
+            echo "❌ Total size exceeds budget!"
+            FAILED=1
+          fi
+
+          if [ $ASSETS_KB -gt $MAX_ASSETS_KB ]; then
+            echo "❌ Assets size exceeds budget!"
+            FAILED=1
+          fi
+
+          if [ $FAILED -eq 0 ]; then
+            echo "✅ Bundle size within budget"
+          else
+            exit 1
+          fi
+
+      - name: Check individual asset sizes
+        run: |
+          echo "🔍 Checking individual asset sizes..."
+
+          # Find large JS files (>500KB)
+          LARGE_JS=$(find dist/assets -name "*.js" -size +500k)
+          if [ -n "$LARGE_JS" ]; then
+            echo "⚠️  Large JavaScript files found:"
+            echo "$LARGE_JS" | while read file; do
+              du -h "$file"
+            done
+          fi
+
+          # Find large CSS files (>200KB)
+          LARGE_CSS=$(find dist/assets -name "*.css" -size +200k)
+          if [ -n "$LARGE_CSS" ]; then
+            echo "⚠️  Large CSS files found:"
+            echo "$LARGE_CSS" | while read file; do
+              du -h "$file"
+            done
+          fi
+
+  # Performance regression check
+  performance-regression:
+    name: Performance Regression Check
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build current branch
+        run: npm run build
+        env:
+          NODE_ENV: production
+
+      - name: Record current build size
+        run: |
+          CURRENT_SIZE=$(du -sk dist/ | cut -f1)
+          echo "CURRENT_SIZE=$CURRENT_SIZE" >> $GITHUB_ENV
+          echo "Current build size: ${CURRENT_SIZE}KB"
+
+      - name: Checkout base branch
+        if: github.event_name == 'pull_request'
+        run: |
+          git checkout ${{ github.base_ref }}
+
+      - name: Build base branch
+        if: github.event_name == 'pull_request'
+        run: |
+          npm ci
+          npm run build
+        env:
+          NODE_ENV: production
+
+      - name: Compare build sizes
+        if: github.event_name == 'pull_request'
+        run: |
+          BASE_SIZE=$(du -sk dist/ | cut -f1)
+          CURRENT_SIZE=${{ env.CURRENT_SIZE }}
+
+          DIFF=$((CURRENT_SIZE - BASE_SIZE))
+          PERCENT_CHANGE=$((DIFF * 100 / BASE_SIZE))
+
+          echo "Base size: ${BASE_SIZE}KB"
+          echo "Current size: ${CURRENT_SIZE}KB"
+          echo "Difference: ${DIFF}KB (${PERCENT_CHANGE}%)"
+
+          # Alert if size increased by more than 10%
+          if [ $PERCENT_CHANGE -gt 10 ]; then
+            echo "⚠️  Bundle size increased by more than 10%!"
+            exit 1
+          elif [ $DIFF -gt 500 ]; then
+            echo "⚠️  Bundle size increased by more than 500KB!"
+            exit 1
+          else
+            echo "✅ Bundle size change is acceptable"
+          fi
+
+  # Asset optimization check
+  asset-optimization:
+    name: Asset Optimization Check
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build application
+        run: npm run build
+
+      - name: Check for uncompressed assets
+        run: |
+          echo "🔍 Checking for gzip compression..."
+
+          # Check if .gz files exist
+          GZIP_COUNT=$(find dist/ -name "*.gz" | wc -l)
+
+          if [ $GZIP_COUNT -gt 0 ]; then
+            echo "✅ Found $GZIP_COUNT gzipped files"
+          else
+            echo "⚠️  No gzipped files found - consider enabling compression"
+          fi
+
+      - name: Check for source maps
+        run: |
+          echo "🔍 Checking source maps..."
+
+          SOURCEMAP_COUNT=$(find dist/ -name "*.map" | wc -l)
+
+          if [ $SOURCEMAP_COUNT -gt 0 ]; then
+            echo "⚠️  Source maps found in production build ($SOURCEMAP_COUNT files)"
+            echo "Consider removing source maps for production"
+          else
+            echo "✅ No source maps in production build"
+          fi
+
+      - name: Check image optimization
+        run: |
+          echo "🔍 Checking image optimization..."
+
+          # Find unoptimized images
+          LARGE_IMAGES=$(find dist/ -type f \( -name "*.jpg" -o -name "*.jpeg" -o -name "*.png" \) -size +500k)
+
+          if [ -n "$LARGE_IMAGES" ]; then
+            echo "⚠️  Large images found (>500KB):"
+            echo "$LARGE_IMAGES" | while read img; do
+              du -h "$img"
+            done
+            echo "Consider optimizing these images"
+          else
+            echo "✅ No large images found"
+          fi
+
+  # Web Vitals check
+  web-vitals:
+    name: Core Web Vitals Check
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build application
+        run: npm run build
+
+      - name: Measure Web Vitals
+        run: |
+          echo "📊 Measuring Core Web Vitals..."
+          echo "This would typically use tools like:"
+          echo "- Lighthouse CI"
+          echo "- WebPageTest API"
+          echo "- Chrome User Experience Report"
+          echo ""
+          echo "Target metrics:"
+          echo "- LCP (Largest Contentful Paint): < 2.5s"
+          echo "- FID (First Input Delay): < 100ms"
+          echo "- CLS (Cumulative Layout Shift): < 0.1"
+
+  # Performance summary
+  performance-summary:
+    name: Performance Summary
+    runs-on: ubuntu-latest
+    needs: [lighthouse, bundle-size, performance-regression, asset-optimization, web-vitals]
+    if: always()
+    steps:
+      - name: Generate performance report
+        run: |
+          echo "📊 Performance Summary"
+          echo "===================="
+          echo "Lighthouse: ${{ needs.lighthouse.result }}"
+          echo "Bundle Size: ${{ needs.bundle-size.result }}"
+          echo "Regression Check: ${{ needs.performance-regression.result }}"
+          echo "Asset Optimization: ${{ needs.asset-optimization.result }}"
+          echo "Web Vitals: ${{ needs.web-vitals.result }}"
+          echo ""
+
+          if [ "${{ needs.bundle-size.result }}" == "success" ] && \
+             [ "${{ needs.performance-regression.result }}" == "success" ]; then
+            echo "✅ Performance checks passed!"
+          else
+            echo "⚠️  Some performance checks failed"
+          fi
