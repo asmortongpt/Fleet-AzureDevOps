@@ -134,6 +134,7 @@
     "@tanstack/react-table": "^8.21.3",
     "@types/dompurify": "^3.0.5",
     "@types/three": "^0.181.0",
+    "@yudiel/react-qr-scanner": "^2.5.0",
     "adaptivecards": "^3.0.5",
     "azure-maps-control": "^3.7.1",
     "class-variance-authority": "^0.7.1",
