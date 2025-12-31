@@ -161,13 +161,35 @@ const AssetDisplay: React.FC<AssetDisplayProps> = ({ asset }) => {
 // Fetch assets from API; throw error in production on failure; fallback to demo in development
 async function fetchAssets(): Promise<GarageAsset[]> {
   try {
-    const res = await fetch('/api/garage/assets');
-    if (!res.ok) throw new Error('Failed to fetch assets');
-    const data = (await res.json()) as GarageAsset[];
-    return data;
+    const res = await fetch('/api/vehicles');
+    if (!res.ok) throw new Error('Failed to fetch vehicles');
+
+    // API returns { data: Vehicle[], total: number }
+    const response = await res.json();
+    const vehicles = response.data || response;
+
+    // Transform vehicles to GarageAsset format
+    const assets: GarageAsset[] = Array.isArray(vehicles) ? vehicles.map((v: any) => ({
+      id: v.id?.toString() || '',
+      make: v.make || '',
+      model: v.model || '',
+      year: v.year || new Date().getFullYear(),
+      asset_name: v.number || `${v.year} ${v.make} ${v.model}`,
+      asset_tag: v.number || v.asset_tag,
+      license_plate: v.license_plate || v.licensePlate,
+      asset_category: v.asset_category,
+      vin: v.vin,
+      color: v.color,
+      odometer: v.odometer,
+      engine_hours: v.engine_hours,
+      damage_model_url: v.damage_model_url
+    })) : [];
+
+    return assets;
   } catch (error) {
     // Use demo data only in non-production to facilitate local development
     if (typeof process !== 'undefined' && process.env.NODE_ENV !== 'production') {
+      console.warn('Failed to fetch vehicles, using demo data:', error);
       return DEMO_ASSETS;
     }
     throw error;
