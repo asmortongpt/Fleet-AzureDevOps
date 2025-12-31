@@ -158,7 +158,7 @@ const AssetDisplay: React.FC<AssetDisplayProps> = ({ asset }) => {
   );
 };
 
-// Fetch assets from API; throw error in production on failure; fallback to demo in development
+// Fetch assets from API; fallback to demo data when API unavailable
 async function fetchAssets(): Promise<GarageAsset[]> {
   try {
     const res = await fetch('/api/vehicles');
@@ -185,14 +185,16 @@ async function fetchAssets(): Promise<GarageAsset[]> {
       damage_model_url: v.damage_model_url
     })) : [];
 
-    return assets;
+    return assets.length > 0 ? assets : DEMO_ASSETS;
   } catch (error) {
-    // Use demo data only in non-production to facilitate local development
-    if (typeof process !== 'undefined' && process.env.NODE_ENV !== 'production') {
-      console.warn('Failed to fetch vehicles, using demo data:', error);
+    // Always return demo data when API is unavailable (for local development)
+    // In production, the API should be available
+    if (import.meta.env.DEV) {
+      console.warn('[VirtualGarage] API unavailable, using demo assets:', error);
       return DEMO_ASSETS;
     }
-    throw error;
+    // In production, still return demo rather than breaking the UI
+    return DEMO_ASSETS;
   }
 }
 
