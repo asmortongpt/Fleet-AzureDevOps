@@ -25,40 +25,14 @@ import {
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { useGarageFilters } from './VirtualGarage/hooks/use-garage-filters';
-
-// Asset category type representing supported categories
-export type AssetCategory =
-  | 'PASSENGER'
-  | 'HEAVY'
-  | 'TRACTOR'
-  | 'TRAILER'
-  | 'HEAVY_EQUIPMENT'
-  | 'SPECIALTY'
-  | 'TOOL';
-
-// Interface for a fleet asset
-export interface GarageAsset {
-  id: string;
-  asset_category: AssetCategory;
-  asset_name?: string;
-  make: string;
-  model: string;
-  year: number;
-  asset_tag?: string;
-  license_plate?: string;
-  vin?: string;
-  color?: string;
-  odometer?: number;
-  engine_hours?: number;
-  damage_model_url?: string;
-}
+import { useGarageFilters, GarageAsset } from './VirtualGarage/hooks/use-garage-filters';
+import { AssetCategory } from '@/types/asset.types';
 
 // Demo assets used only in development as a fallback
 const DEMO_ASSETS: GarageAsset[] = [
   {
     id: '1',
-    asset_category: 'PASSENGER',
+    asset_category: 'PASSENGER_VEHICLE',
     asset_name: 'Sedan A',
     make: 'Toyota',
     model: 'Camry',
@@ -70,7 +44,7 @@ const DEMO_ASSETS: GarageAsset[] = [
   },
   {
     id: '2',
-    asset_category: 'HEAVY',
+    asset_category: 'HEAVY_TRUCK',
     asset_name: 'Truck B',
     make: 'Ford',
     model: 'F-150',
@@ -248,7 +222,7 @@ export function VirtualGarage() {
         <div className="p-4">
           <Select
             value={selectedCategory}
-            onValueChange={(value) => setSelectedCategory(value)}
+            onValueChange={(value) => setSelectedCategory(value as AssetCategory | "ALL")}
             disabled={isLoading || !!error}
           >
             <SelectTrigger>
