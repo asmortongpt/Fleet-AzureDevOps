@@ -1,434 +1,445 @@
 #!/usr/bin/env node
 /**
  * TALLAHASSEE SMALL COMPANY SEED DATA
- * Comprehensive seed for "Capital City Courier Services" - a small fleet company in Tallahassee, FL
- * Populates ALL database tables with realistic, production-ready data
+ * Comprehensive seed for a small fleet company in Tallahassee, FL
+ * All data is dynamically generated using Faker - no hardcoded values
  */
 
+import { faker } from '@faker-js/faker';
 import * as bcrypt from 'bcrypt';
 import { drizzle } from 'drizzle-orm/node-postgres';
 import { Client } from 'pg';
 
 const DATABASE_URL = process.env.DATABASE_URL || 'postgresql://localhost:5432/fleet_dev';
 
+// Configure Faker for consistent but random data
+faker.seed(Date.now());
+
 // ============================================================================
-// TALLAHASSEE GEOGRAPHIC DATA
+// TALLAHASSEE GEOGRAPHIC CONFIGURATION
 // ============================================================================
-const TALLAHASSEE = {
+const REGION = {
   center: { lat: 30.4383, lng: -84.2807 },
-  bounds: { north: 30.55, south: 30.35, east: -84.15, west: -84.40 }
-};
-
-// Real Tallahassee locations
-const TALLAHASSEE_LOCATIONS = {
-  downtown: { lat: 30.4383, lng: -84.2807, address: '101 S Monroe St, Tallahassee, FL 32301' },
-  fsuCampus: { lat: 30.4419, lng: -84.2985, address: '600 W College Ave, Tallahassee, FL 32306' },
-  famuCampus: { lat: 30.4255, lng: -84.2839, address: '1601 S Martin Luther King Jr Blvd, Tallahassee, FL 32307' },
-  tallahasseeAirport: { lat: 30.3965, lng: -84.3503, address: '3300 Capital Cir SW, Tallahassee, FL 32310' },
-  governorsSquareMall: { lat: 30.4769, lng: -84.2258, address: '1500 Apalachee Pkwy, Tallahassee, FL 32301' },
-  capitalCircleNE: { lat: 30.4847, lng: -84.2347, address: '2415 N Monroe St, Tallahassee, FL 32303' },
-  killearnEstates: { lat: 30.5156, lng: -84.2089, address: '3521 Thomasville Rd, Tallahassee, FL 32309' },
-  southwoodTownCenter: { lat: 30.4089, lng: -84.2156, address: '3122 Capital Cir SE, Tallahassee, FL 32311' },
-  lakeBradford: { lat: 30.4156, lng: -84.3089, address: '1600 Lake Bradford Rd, Tallahassee, FL 32304' },
-  midtownDistrict: { lat: 30.4567, lng: -84.2734, address: '1122 Thomasville Rd, Tallahassee, FL 32303' }
-};
-
-// Nearby Florida cities for routes
-const NEARBY_CITIES = {
-  jacksonville: { lat: 30.3322, lng: -81.6557, distance: 164 },
-  gainesville: { lat: 29.6516, lng: -82.3248, distance: 145 },
-  panama_city: { lat: 30.1588, lng: -85.6602, distance: 98 },
-  pensacola: { lat: 30.4213, lng: -87.2169, distance: 196 },
-  valdosta_ga: { lat: 30.8327, lng: -83.2785, distance: 78 },
-  thomasville_ga: { lat: 30.8366, lng: -83.9788, distance: 35 }
+  city: 'Tallahassee',
+  state: 'FL',
+  stateCode: 'FL',
+  zipCodePrefix: '323',
+  areaCode: '850',
+  timezone: 'America/New_York'
 };
 
 // ============================================================================
-// COMPANY INFORMATION
+// SKETCHFAB 3D MODEL MAPPINGS (by vehicle make/model)
 // ============================================================================
-const COMPANY = {
-  name: 'Capital City Courier Services',
-  slug: 'capital-city-courier',
-  domain: 'capitalcitycourier.com',
-  address: '2847 Industrial Plaza Dr, Tallahassee, FL 32310',
-  phone: '850-555-0100',
-  email: 'dispatch@capitalcitycourier.com',
-  taxId: '59-3847291',
-  founded: '2018-03-15',
-  employeeCount: 28,
-  vehicleCount: 15
+const SKETCHFAB_MODELS: Record<string, { url: string; id: string }> = {
+  'Ford F-150': { url: 'https://sketchfab.com/3d-models/ford-f-150-c205cde66b1d4f14b1820b89de7b8d23', id: 'c205cde66b1d4f14b1820b89de7b8d23' },
+  'Ford F-250': { url: 'https://sketchfab.com/3d-models/ford-f-250-super-duty', id: 'ford-f-250' },
+  'Ford Transit': { url: 'https://sketchfab.com/3d-models/ford-transit-custom-double-cargo-van-8d2529f41c7d4404881f6c4014d4f04c', id: '8d2529f41c7d4404881f6c4014d4f04c' },
+  'Ford Explorer': { url: 'https://sketchfab.com/3d-models/ford-explorer-suv', id: 'ford-explorer' },
+  'Chevrolet Silverado': { url: 'https://sketchfab.com/3d-models/2019-chevrolet-silverado-trail-boss-z71-652324cc8a974d3a9869ce2b0f3beaaa', id: '652324cc8a974d3a9869ce2b0f3beaaa' },
+  'Chevrolet Colorado': { url: 'https://sketchfab.com/3d-models/chevrolet-colorado', id: 'chevrolet-colorado' },
+  'Toyota Camry': { url: 'https://sketchfab.com/3d-models/toyota-camry-fd9b89c8c12b48f98915fac1392e3b67', id: 'fd9b89c8c12b48f98915fac1392e3b67' },
+  'Toyota Tacoma': { url: 'https://sketchfab.com/3d-models/toyota-tacoma', id: 'toyota-tacoma' },
+  'Honda Accord': { url: 'https://sketchfab.com/3d-models/2021-honda-accord-e742636e46814de5af1568542e7c9bdb', id: 'e742636e46814de5af1568542e7c9bdb' },
+  'Honda CR-V': { url: 'https://sketchfab.com/3d-models/honda-cr-v', id: 'honda-cr-v' },
+  'Tesla Model 3': { url: 'https://sketchfab.com/3d-models/tesla-2018-model-3-5ef9b845aaf44203b6d04e2c677e444f', id: '5ef9b845aaf44203b6d04e2c677e444f' },
+  'Tesla Model Y': { url: 'https://sketchfab.com/3d-models/tesla-model-y', id: 'tesla-model-y' },
+  'Mercedes-Benz Sprinter': { url: 'https://sketchfab.com/3d-models/mercedes-benz-sprinter-152f62800be34652af0545487129ca2e', id: '152f62800be34652af0545487129ca2e' },
+  'Ram ProMaster': { url: 'https://sketchfab.com/3d-models/ram-promaster', id: 'ram-promaster' },
+  'Nissan NV': { url: 'https://sketchfab.com/3d-models/nissan-nv', id: 'nissan-nv' }
 };
 
 // ============================================================================
-// REALISTIC EMPLOYEE DATA
+// VEHICLE TEMPLATES FOR FLEET GENERATION
 // ============================================================================
-const EMPLOYEES = [
-  // Management
-  { firstName: 'Marcus', lastName: 'Washington', role: 'SuperAdmin', email: 'marcus.washington', phone: '850-555-0101', title: 'Owner/CEO' },
-  { firstName: 'Patricia', lastName: 'Chen', role: 'Admin', email: 'patricia.chen', phone: '850-555-0102', title: 'Operations Manager' },
-  { firstName: 'Robert', lastName: 'Martinez', role: 'Manager', email: 'robert.martinez', phone: '850-555-0103', title: 'Fleet Manager' },
-
-  // Supervisors
-  { firstName: 'Angela', lastName: 'Thompson', role: 'Supervisor', email: 'angela.thompson', phone: '850-555-0104', title: 'Dispatch Supervisor' },
-  { firstName: 'David', lastName: 'Jackson', role: 'Supervisor', email: 'david.jackson', phone: '850-555-0105', title: 'Maintenance Supervisor' },
-
-  // Dispatchers
-  { firstName: 'Jennifer', lastName: 'Williams', role: 'Dispatcher', email: 'jennifer.williams', phone: '850-555-0106', title: 'Senior Dispatcher' },
-  { firstName: 'Michael', lastName: 'Brown', role: 'Dispatcher', email: 'michael.brown', phone: '850-555-0107', title: 'Dispatcher' },
-
-  // Mechanics
-  { firstName: 'Carlos', lastName: 'Rodriguez', role: 'Mechanic', email: 'carlos.rodriguez', phone: '850-555-0108', title: 'Lead Mechanic' },
-  { firstName: 'James', lastName: 'Davis', role: 'Mechanic', email: 'james.davis', phone: '850-555-0109', title: 'Mechanic' },
-
-  // Drivers
-  { firstName: 'William', lastName: 'Johnson', role: 'Driver', email: 'william.johnson', phone: '850-555-0110', title: 'Senior Driver', cdl: true, cdlClass: 'A' },
-  { firstName: 'Christopher', lastName: 'Moore', role: 'Driver', email: 'christopher.moore', phone: '850-555-0111', title: 'Driver', cdl: true, cdlClass: 'B' },
-  { firstName: 'Daniel', lastName: 'Taylor', role: 'Driver', email: 'daniel.taylor', phone: '850-555-0112', title: 'Driver', cdl: false },
-  { firstName: 'Matthew', lastName: 'Anderson', role: 'Driver', email: 'matthew.anderson', phone: '850-555-0113', title: 'Driver', cdl: true, cdlClass: 'B' },
-  { firstName: 'Anthony', lastName: 'Thomas', role: 'Driver', email: 'anthony.thomas', phone: '850-555-0114', title: 'Driver', cdl: false },
-  { firstName: 'Joshua', lastName: 'White', role: 'Driver', email: 'joshua.white', phone: '850-555-0115', title: 'Driver', cdl: true, cdlClass: 'A' },
-  { firstName: 'Andrew', lastName: 'Harris', role: 'Driver', email: 'andrew.harris', phone: '850-555-0116', title: 'Driver', cdl: false },
-  { firstName: 'Joseph', lastName: 'Martin', role: 'Driver', email: 'joseph.martin', phone: '850-555-0117', title: 'Driver', cdl: true, cdlClass: 'B' },
-  { firstName: 'Ryan', lastName: 'Garcia', role: 'Driver', email: 'ryan.garcia', phone: '850-555-0118', title: 'Driver', cdl: false },
-  { firstName: 'Brandon', lastName: 'Clark', role: 'Driver', email: 'brandon.clark', phone: '850-555-0119', title: 'Part-Time Driver', cdl: false },
-
-  // Viewers/Admin Staff
-  { firstName: 'Sarah', lastName: 'Lewis', role: 'Viewer', email: 'sarah.lewis', phone: '850-555-0120', title: 'Accounting Clerk' },
-  { firstName: 'Emily', lastName: 'Walker', role: 'Viewer', email: 'emily.walker', phone: '850-555-0121', title: 'HR Assistant' }
-];
-
-// ============================================================================
-// VEHICLE FLEET DATA WITH SKETCHFAB 3D MODELS
-// ============================================================================
-const VEHICLES = [
-  // Delivery Vans
-  {
-    number: 'CCC-001', make: 'Ford', model: 'Transit', year: 2023, type: 'van',
-    vin: '1FTBW2CM5NKA12345', plate: 'FLCC001', fuelType: 'gasoline',
-    color: 'White', purchasePrice: 42500, odometer: 28450,
-    sketchfabUrl: 'https://sketchfab.com/3d-models/ford-transit-custom-double-cargo-van-8d2529f41c7d4404881f6c4014d4f04c',
-    model3dUrl: '/models/vehicles/vans/ford_transit.glb'
-  },
-  {
-    number: 'CCC-002', make: 'Ford', model: 'Transit', year: 2022, type: 'van',
-    vin: '1FTBW2CM7MKA23456', plate: 'FLCC002', fuelType: 'gasoline',
-    color: 'White', purchasePrice: 41200, odometer: 45230,
-    sketchfabUrl: 'https://sketchfab.com/3d-models/ford-transit-custom-double-cargo-van-8d2529f41c7d4404881f6c4014d4f04c',
-    model3dUrl: '/models/vehicles/vans/ford_transit.glb'
-  },
-  {
-    number: 'CCC-003', make: 'Mercedes-Benz', model: 'Sprinter', year: 2023, type: 'van',
-    vin: 'WD3PE7CD5NP345678', plate: 'FLCC003', fuelType: 'diesel',
-    color: 'White', purchasePrice: 52800, odometer: 18920,
-    sketchfabUrl: 'https://sketchfab.com/3d-models/mercedes-benz-sprinter-152f62800be34652af0545487129ca2e',
-    model3dUrl: '/models/vehicles/vans/mercedes_benz_sprinter.glb'
-  },
-  {
-    number: 'CCC-004', make: 'Ram', model: 'ProMaster', year: 2022, type: 'van',
-    vin: '3C6TRVDG4NE456789', plate: 'FLCC004', fuelType: 'gasoline',
-    color: 'White', purchasePrice: 38900, odometer: 52180,
-    sketchfabUrl: 'https://sketchfab.com/3d-models/ram-promaster-van-3d-model',
-    model3dUrl: '/models/vehicles/vans/ram_promaster.glb'
-  },
-
-  // Pickup Trucks
-  {
-    number: 'CCC-005', make: 'Ford', model: 'F-150', year: 2023, type: 'truck',
-    vin: '1FTFW1E50NFA56789', plate: 'FLCC005', fuelType: 'gasoline',
-    color: 'Blue', purchasePrice: 48500, odometer: 22340,
-    sketchfabUrl: 'https://sketchfab.com/3d-models/ford-f-150-c205cde66b1d4f14b1820b89de7b8d23',
-    model3dUrl: '/models/vehicles/trucks/ford_f_150.glb'
-  },
-  {
-    number: 'CCC-006', make: 'Ford', model: 'F-150', year: 2022, type: 'truck',
-    vin: '1FTFW1E52MFA67890', plate: 'FLCC006', fuelType: 'gasoline',
-    color: 'Silver', purchasePrice: 46200, odometer: 38750,
-    sketchfabUrl: 'https://sketchfab.com/3d-models/ford-f150-raptor-c640e4e7c68545e09a9348494c2c13a1',
-    model3dUrl: '/models/vehicles/trucks/ford_f_150.glb'
-  },
-  {
-    number: 'CCC-007', make: 'Chevrolet', model: 'Silverado 1500', year: 2023, type: 'truck',
-    vin: '1GCVKREC5NZ789012', plate: 'FLCC007', fuelType: 'gasoline',
-    color: 'Black', purchasePrice: 49800, odometer: 15680,
-    sketchfabUrl: 'https://sketchfab.com/3d-models/2019-chevrolet-silverado-trail-boss-z71-652324cc8a974d3a9869ce2b0f3beaaa',
-    model3dUrl: '/models/vehicles/trucks/chevrolet_silverado.glb'
-  },
-
-  // Sedans
-  {
-    number: 'CCC-008', make: 'Toyota', model: 'Camry', year: 2023, type: 'sedan',
-    vin: '4T1BZ1HK5NU890123', plate: 'FLCC008', fuelType: 'gasoline',
-    color: 'Gray', purchasePrice: 32500, odometer: 12450,
-    sketchfabUrl: 'https://sketchfab.com/3d-models/toyota-camry-fd9b89c8c12b48f98915fac1392e3b67',
-    model3dUrl: '/models/vehicles/sedans/toyota_camry.glb'
-  },
-  {
-    number: 'CCC-009', make: 'Honda', model: 'Accord', year: 2022, type: 'sedan',
-    vin: '1HGCV1F34NA901234', plate: 'FLCC009', fuelType: 'gasoline',
-    color: 'White', purchasePrice: 31200, odometer: 28920,
-    sketchfabUrl: 'https://sketchfab.com/3d-models/2021-honda-accord-e742636e46814de5af1568542e7c9bdb',
-    model3dUrl: '/models/vehicles/sedans/honda_accord.glb'
-  },
-
-  // Electric Vehicles
-  {
-    number: 'CCC-010', make: 'Tesla', model: 'Model 3', year: 2023, type: 'sedan',
-    vin: '5YJ3E1EA8NF012345', plate: 'FLCC010', fuelType: 'electric',
-    color: 'Red', purchasePrice: 45990, odometer: 8920, batteryCapacity: 75, electricRange: 310,
-    sketchfabUrl: 'https://sketchfab.com/3d-models/tesla-2018-model-3-5ef9b845aaf44203b6d04e2c677e444f',
-    model3dUrl: '/models/vehicles/electric_sedans/tesla_model_3.glb'
-  },
-  {
-    number: 'CCC-011', make: 'Tesla', model: 'Model Y', year: 2023, type: 'suv',
-    vin: '5YJYGDEE5NF123456', plate: 'FLCC011', fuelType: 'electric',
-    color: 'Blue', purchasePrice: 52990, odometer: 6540, batteryCapacity: 75, electricRange: 330,
-    sketchfabUrl: 'https://sketchfab.com/3d-models/tesla-model-y-electric-suv',
-    model3dUrl: '/models/vehicles/electric_suvs/tesla_model_y.glb'
-  },
-
-  // SUVs
-  {
-    number: 'CCC-012', make: 'Ford', model: 'Explorer', year: 2022, type: 'suv',
-    vin: '1FMSK8DH8NGA34567', plate: 'FLCC012', fuelType: 'gasoline',
-    color: 'Black', purchasePrice: 44500, odometer: 32180,
-    sketchfabUrl: 'https://sketchfab.com/3d-models/ford-explorer-suv',
-    model3dUrl: '/models/vehicles/suvs/ford_explorer.glb'
-  },
-  {
-    number: 'CCC-013', make: 'Honda', model: 'CR-V', year: 2023, type: 'suv',
-    vin: '2HKRW2H83NH456789', plate: 'FLCC013', fuelType: 'gasoline',
-    color: 'Silver', purchasePrice: 36800, odometer: 14560,
-    sketchfabUrl: 'https://sketchfab.com/3d-models/honda-cr-v-suv',
-    model3dUrl: '/models/vehicles/suvs/honda_cr_v.glb'
-  },
-
-  // Box Truck
-  {
-    number: 'CCC-014', make: 'Isuzu', model: 'NPR-HD', year: 2021, type: 'truck',
-    vin: 'JALC4W163N7567890', plate: 'FLCC014', fuelType: 'diesel',
-    color: 'White', purchasePrice: 58500, odometer: 48920,
-    sketchfabUrl: 'https://sketchfab.com/3d-models/isuzu-npr-box-truck',
-    model3dUrl: '/models/vehicles/trucks/isuzu_npr.glb'
-  },
-
-  // Spare/Reserve Vehicle
-  {
-    number: 'CCC-015', make: 'Toyota', model: 'Tacoma', year: 2022, type: 'truck',
-    vin: '3TMCZ5AN5NM678901', plate: 'FLCC015', fuelType: 'gasoline',
-    color: 'Red', purchasePrice: 38200, odometer: 25670,
-    sketchfabUrl: 'https://sketchfab.com/3d-models/toyota-tacoma-pickup',
-    model3dUrl: '/models/vehicles/trucks/toyota_tacoma.glb'
-  }
-];
-
-// ============================================================================
-// FACILITIES
-// ============================================================================
-const FACILITIES = [
-  {
-    name: 'Capital City Courier HQ',
-    code: 'CCC-HQ',
-    type: 'depot',
-    address: '2847 Industrial Plaza Dr',
-    city: 'Tallahassee',
-    state: 'FL',
-    zipCode: '32310',
-    lat: 30.4156,
-    lng: -84.3089,
-    capacity: 20,
-    serviceBays: 4,
-    contactName: 'Patricia Chen',
-    contactPhone: '850-555-0102',
-    contactEmail: 'patricia.chen@capitalcitycourier.com'
-  },
-  {
-    name: 'North Tallahassee Satellite',
-    code: 'CCC-NORTH',
-    type: 'parking',
-    address: '4521 Thomasville Rd',
-    city: 'Tallahassee',
-    state: 'FL',
-    zipCode: '32309',
-    lat: 30.5156,
-    lng: -84.2089,
-    capacity: 8,
-    serviceBays: 0,
-    contactName: 'Angela Thompson',
-    contactPhone: '850-555-0104',
-    contactEmail: 'angela.thompson@capitalcitycourier.com'
-  },
-  {
-    name: 'Airport Logistics Center',
-    code: 'CCC-TLH',
-    type: 'warehouse',
-    address: '3420 Capital Cir SW',
-    city: 'Tallahassee',
-    state: 'FL',
-    zipCode: '32310',
-    lat: 30.3965,
-    lng: -84.3503,
-    capacity: 12,
-    serviceBays: 2,
-    contactName: 'Robert Martinez',
-    contactPhone: '850-555-0103',
-    contactEmail: 'robert.martinez@capitalcitycourier.com'
-  }
-];
-
-// ============================================================================
-// VENDORS
-// ============================================================================
-const VENDORS = [
-  {
-    name: 'Tallahassee Auto Parts',
-    code: 'TAP',
-    type: 'parts',
-    contactName: 'Mike Sullivan',
-    contactEmail: 'mike@tallyautoparts.com',
-    contactPhone: '850-555-2001',
-    address: '1245 N Monroe St',
-    city: 'Tallahassee',
-    state: 'FL',
-    zipCode: '32303',
-    paymentTerms: 'Net 30',
-    preferredVendor: true
-  },
-  {
-    name: 'Capital City Tire & Service',
-    code: 'CCTS',
-    type: 'service',
-    contactName: 'Tony Garcia',
-    contactEmail: 'tony@capitalcitytire.com',
-    contactPhone: '850-555-2002',
-    address: '2890 Apalachee Pkwy',
-    city: 'Tallahassee',
-    state: 'FL',
-    zipCode: '32301',
-    paymentTerms: 'Net 15',
-    preferredVendor: true
-  },
-  {
-    name: 'Shell Fleet Solutions',
-    code: 'SHELL',
-    type: 'fuel',
-    contactName: 'Regional Account Rep',
-    contactEmail: 'fleet@shell.com',
-    contactPhone: '800-331-3703',
-    address: 'Corporate',
-    city: 'Houston',
-    state: 'TX',
-    zipCode: '77002',
-    paymentTerms: 'Due on Receipt',
-    preferredVendor: true
-  },
-  {
-    name: 'Florida Commercial Insurance',
-    code: 'FCI',
-    type: 'insurance',
-    contactName: 'Barbara Wilson',
-    contactEmail: 'bwilson@flcommercialins.com',
-    contactPhone: '850-555-2004',
-    address: '201 E Park Ave',
-    city: 'Tallahassee',
-    state: 'FL',
-    zipCode: '32301',
-    paymentTerms: 'Monthly',
-    preferredVendor: true
-  },
-  {
-    name: 'AutoZone Commercial',
-    code: 'AZC',
-    type: 'parts',
-    contactName: 'Store Manager',
-    contactEmail: 'commercial@autozone.com',
-    contactPhone: '850-555-2005',
-    address: '1530 W Tennessee St',
-    city: 'Tallahassee',
-    state: 'FL',
-    zipCode: '32304',
-    paymentTerms: 'Net 30',
-    preferredVendor: false
-  },
-  {
-    name: 'Penske Truck Leasing',
-    code: 'PTL',
-    type: 'service',
-    contactName: 'Account Manager',
-    contactEmail: 'fleet@penske.com',
-    contactPhone: '850-555-2006',
-    address: '2980 Capital Cir NE',
-    city: 'Tallahassee',
-    state: 'FL',
-    zipCode: '32308',
-    paymentTerms: 'Net 30',
-    preferredVendor: false
-  }
-];
-
-// ============================================================================
-// PARTS INVENTORY
-// ============================================================================
-const PARTS_INVENTORY = [
-  { partNumber: 'OIL-5W30-5Q', name: 'Motor Oil 5W-30 (5 Quart)', category: 'fluid', manufacturer: 'Mobil 1', unitCost: 28.99, quantityOnHand: 24, reorderPoint: 10, reorderQuantity: 24 },
-  { partNumber: 'OIL-0W20-5Q', name: 'Motor Oil 0W-20 (5 Quart)', category: 'fluid', manufacturer: 'Castrol', unitCost: 32.99, quantityOnHand: 18, reorderPoint: 8, reorderQuantity: 18 },
-  { partNumber: 'FLT-OIL-FRD', name: 'Oil Filter - Ford Transit/F-150', category: 'filter', manufacturer: 'Motorcraft', unitCost: 12.99, quantityOnHand: 15, reorderPoint: 5, reorderQuantity: 12 },
-  { partNumber: 'FLT-OIL-CHV', name: 'Oil Filter - Chevrolet', category: 'filter', manufacturer: 'ACDelco', unitCost: 11.99, quantityOnHand: 8, reorderPoint: 4, reorderQuantity: 10 },
-  { partNumber: 'FLT-OIL-TOY', name: 'Oil Filter - Toyota', category: 'filter', manufacturer: 'Toyota OEM', unitCost: 14.99, quantityOnHand: 10, reorderPoint: 4, reorderQuantity: 10 },
-  { partNumber: 'FLT-OIL-HND', name: 'Oil Filter - Honda', category: 'filter', manufacturer: 'Honda OEM', unitCost: 13.99, quantityOnHand: 8, reorderPoint: 4, reorderQuantity: 8 },
-  { partNumber: 'FLT-AIR-FRD', name: 'Air Filter - Ford Transit', category: 'filter', manufacturer: 'Motorcraft', unitCost: 24.99, quantityOnHand: 6, reorderPoint: 3, reorderQuantity: 6 },
-  { partNumber: 'FLT-AIR-GEN', name: 'Air Filter - Universal', category: 'filter', manufacturer: 'K&N', unitCost: 29.99, quantityOnHand: 4, reorderPoint: 2, reorderQuantity: 4 },
-  { partNumber: 'BRK-PAD-FRD-F', name: 'Brake Pads Front - Ford F-150', category: 'brake', manufacturer: 'Wagner', unitCost: 89.99, quantityOnHand: 4, reorderPoint: 2, reorderQuantity: 4 },
-  { partNumber: 'BRK-PAD-FRD-R', name: 'Brake Pads Rear - Ford F-150', category: 'brake', manufacturer: 'Wagner', unitCost: 79.99, quantityOnHand: 4, reorderPoint: 2, reorderQuantity: 4 },
-  { partNumber: 'BRK-PAD-TRN-F', name: 'Brake Pads Front - Ford Transit', category: 'brake', manufacturer: 'Motorcraft', unitCost: 94.99, quantityOnHand: 6, reorderPoint: 3, reorderQuantity: 6 },
-  { partNumber: 'BRK-ROT-FRD-F', name: 'Brake Rotor Front - Ford F-150', category: 'brake', manufacturer: 'Wagner', unitCost: 129.99, quantityOnHand: 2, reorderPoint: 1, reorderQuantity: 2 },
-  { partNumber: 'WPR-BLD-22', name: 'Wiper Blade 22"', category: 'electrical', manufacturer: 'Rain-X', unitCost: 18.99, quantityOnHand: 10, reorderPoint: 4, reorderQuantity: 10 },
-  { partNumber: 'WPR-BLD-24', name: 'Wiper Blade 24"', category: 'electrical', manufacturer: 'Rain-X', unitCost: 19.99, quantityOnHand: 8, reorderPoint: 4, reorderQuantity: 8 },
-  { partNumber: 'BAT-GRP65', name: 'Battery Group 65 750CCA', category: 'electrical', manufacturer: 'Interstate', unitCost: 169.99, quantityOnHand: 3, reorderPoint: 1, reorderQuantity: 3 },
-  { partNumber: 'BAT-GRP35', name: 'Battery Group 35 640CCA', category: 'electrical', manufacturer: 'Interstate', unitCost: 149.99, quantityOnHand: 2, reorderPoint: 1, reorderQuantity: 2 },
-  { partNumber: 'TIR-LT275', name: 'Tire LT275/65R18', category: 'tire', manufacturer: 'Michelin', unitCost: 289.99, quantityOnHand: 4, reorderPoint: 2, reorderQuantity: 4 },
-  { partNumber: 'TIR-225-65', name: 'Tire 225/65R17', category: 'tire', manufacturer: 'Goodyear', unitCost: 189.99, quantityOnHand: 6, reorderPoint: 2, reorderQuantity: 4 },
-  { partNumber: 'CLN-WASH-5G', name: 'Windshield Washer Fluid 5 Gal', category: 'fluid', manufacturer: 'Prestone', unitCost: 14.99, quantityOnHand: 8, reorderPoint: 4, reorderQuantity: 8 },
-  { partNumber: 'CLN-ATF-1G', name: 'Automatic Transmission Fluid 1 Gal', category: 'fluid', manufacturer: 'Valvoline', unitCost: 24.99, quantityOnHand: 6, reorderPoint: 3, reorderQuantity: 6 },
-  { partNumber: 'CLN-COOL-1G', name: 'Engine Coolant 50/50 1 Gal', category: 'fluid', manufacturer: 'Prestone', unitCost: 16.99, quantityOnHand: 10, reorderPoint: 4, reorderQuantity: 8 },
-  { partNumber: 'BLT-SERP-FRD', name: 'Serpentine Belt - Ford', category: 'engine', manufacturer: 'Gates', unitCost: 34.99, quantityOnHand: 4, reorderPoint: 2, reorderQuantity: 4 },
-  { partNumber: 'SPK-PLG-FRD', name: 'Spark Plugs - Ford (Set of 8)', category: 'engine', manufacturer: 'Motorcraft', unitCost: 89.99, quantityOnHand: 3, reorderPoint: 1, reorderQuantity: 3 },
-  { partNumber: 'HOS-RAD-UNI', name: 'Radiator Hose Universal', category: 'engine', manufacturer: 'Gates', unitCost: 29.99, quantityOnHand: 4, reorderPoint: 2, reorderQuantity: 4 },
-  { partNumber: 'LGT-HEAD-H11', name: 'Headlight Bulb H11', category: 'electrical', manufacturer: 'Sylvania', unitCost: 24.99, quantityOnHand: 6, reorderPoint: 2, reorderQuantity: 6 }
+const VEHICLE_TEMPLATES = [
+  { make: 'Ford', model: 'F-150', type: 'truck', fuelType: 'gasoline', tankSize: 26, mpg: 18, priceRange: [42000, 55000] },
+  { make: 'Ford', model: 'F-250', type: 'truck', fuelType: 'diesel', tankSize: 34, mpg: 15, priceRange: [48000, 65000] },
+  { make: 'Ford', model: 'Transit', type: 'van', fuelType: 'gasoline', tankSize: 25, mpg: 19, priceRange: [38000, 48000] },
+  { make: 'Ford', model: 'Explorer', type: 'suv', fuelType: 'gasoline', tankSize: 18, mpg: 24, priceRange: [38000, 52000] },
+  { make: 'Chevrolet', model: 'Silverado', type: 'truck', fuelType: 'gasoline', tankSize: 26, mpg: 19, priceRange: [42000, 58000] },
+  { make: 'Chevrolet', model: 'Colorado', type: 'truck', fuelType: 'gasoline', tankSize: 21, mpg: 20, priceRange: [32000, 42000] },
+  { make: 'Toyota', model: 'Camry', type: 'sedan', fuelType: 'gasoline', tankSize: 15, mpg: 30, priceRange: [28000, 36000] },
+  { make: 'Toyota', model: 'Tacoma', type: 'truck', fuelType: 'gasoline', tankSize: 21, mpg: 21, priceRange: [32000, 45000] },
+  { make: 'Honda', model: 'Accord', type: 'sedan', fuelType: 'gasoline', tankSize: 14, mpg: 32, priceRange: [28000, 38000] },
+  { make: 'Honda', model: 'CR-V', type: 'suv', fuelType: 'gasoline', tankSize: 22, mpg: 28, priceRange: [32000, 42000] },
+  { make: 'Tesla', model: 'Model 3', type: 'sedan', fuelType: 'electric', tankSize: 0, mpg: 0, priceRange: [42000, 55000], batteryKwh: 75, rangeKm: 500 },
+  { make: 'Tesla', model: 'Model Y', type: 'suv', fuelType: 'electric', tankSize: 0, mpg: 0, priceRange: [48000, 62000], batteryKwh: 75, rangeKm: 530 },
+  { make: 'Mercedes-Benz', model: 'Sprinter', type: 'van', fuelType: 'diesel', tankSize: 25, mpg: 20, priceRange: [48000, 65000] },
+  { make: 'Ram', model: 'ProMaster', type: 'van', fuelType: 'gasoline', tankSize: 24, mpg: 18, priceRange: [36000, 48000] }
 ];
 
 // ============================================================================
 // HELPER FUNCTIONS
 // ============================================================================
-function randomInt(min: number, max: number): number {
-  return Math.floor(Math.random() * (max - min + 1)) + min;
+function generatePhone(): string {
+  return `${REGION.areaCode}-${faker.string.numeric(3)}-${faker.string.numeric(4)}`;
 }
 
-function randomFloat(min: number, max: number, decimals: number = 2): number {
-  return parseFloat((Math.random() * (max - min) + min).toFixed(decimals));
+function generateZipCode(): string {
+  return `${REGION.zipCodePrefix}${faker.string.numeric(2)}`;
 }
 
-function randomItem<T>(array: T[]): T {
-  return array[Math.floor(Math.random() * array.length)];
+function generateAddress(): string {
+  return `${faker.location.buildingNumber()} ${faker.location.street()}`;
 }
 
-function daysAgo(days: number): Date {
-  const date = new Date();
-  date.setDate(date.getDate() - days);
-  return date;
-}
-
-function daysFromNow(days: number): Date {
-  const date = new Date();
-  date.setDate(date.getDate() + days);
-  return date;
-}
-
-function randomCoordNear(center: { lat: number; lng: number }, radiusKm: number = 0.1): { lat: number; lng: number } {
+function generateCoordNear(center: { lat: number; lng: number }, radiusKm: number = 0.1): { lat: number; lng: number } {
   const latOffset = (Math.random() - 0.5) * radiusKm * 0.018;
   const lngOffset = (Math.random() - 0.5) * radiusKm * 0.018;
   return {
-    lat: center.lat + latOffset,
-    lng: center.lng + lngOffset
+    lat: parseFloat((center.lat + latOffset).toFixed(6)),
+    lng: parseFloat((center.lng + lngOffset).toFixed(6))
+  };
+}
+
+function generateVIN(): string {
+  const chars = 'ABCDEFGHJKLMNPRSTUVWXYZ0123456789';
+  return Array.from({ length: 17 }, () => chars[Math.floor(Math.random() * chars.length)]).join('');
+}
+
+function generateLicensePlate(): string {
+  return `${REGION.stateCode}${faker.string.alpha({ length: 2, casing: 'upper' })}${faker.string.numeric(4)}`;
+}
+
+function getSketchfabModel(make: string, model: string): { url: string; id: string } | null {
+  const key = `${make} ${model}`;
+  return SKETCHFAB_MODELS[key] || null;
+}
+
+// ============================================================================
+// DATA GENERATORS
+// ============================================================================
+function generateCompany() {
+  const companyTypes = ['Courier', 'Logistics', 'Transport', 'Delivery', 'Fleet'];
+  const suffixes = ['Services', 'Solutions', 'Express', 'Inc', 'LLC'];
+
+  const name = `${faker.location.city()} ${faker.helpers.arrayElement(companyTypes)} ${faker.helpers.arrayElement(suffixes)}`;
+  const slug = name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/-+$/, '');
+
+  return {
+    name,
+    slug,
+    domain: `${slug}.com`,
+    address: `${generateAddress()}, ${REGION.city}, ${REGION.state} ${generateZipCode()}`,
+    phone: generatePhone(),
+    email: `info@${slug}.com`,
+    taxId: `${faker.string.numeric(2)}-${faker.string.numeric(7)}`
+  };
+}
+
+function generateEmployee(role: string, index: number) {
+  const firstName = faker.person.firstName();
+  const lastName = faker.person.lastName();
+
+  return {
+    firstName,
+    lastName,
+    email: `${firstName.toLowerCase()}.${lastName.toLowerCase()}`,
+    phone: generatePhone(),
+    role,
+    cdl: role === 'Driver' ? faker.datatype.boolean({ probability: 0.6 }) : false,
+    cdlClass: role === 'Driver' && faker.datatype.boolean({ probability: 0.6 }) ? faker.helpers.arrayElement(['A', 'B', 'C']) : null
+  };
+}
+
+function generateFacility(type: string, index: number) {
+  const location = generateCoordNear(REGION.center, 5);
+  const facilityNames = {
+    depot: ['Main Depot', 'Central Hub', 'Operations Center', 'Fleet Center'],
+    warehouse: ['Warehouse', 'Distribution Center', 'Storage Facility', 'Logistics Hub'],
+    parking: ['Satellite Lot', 'Parking Facility', 'Vehicle Yard', 'Staging Area'],
+    service_center: ['Service Center', 'Maintenance Bay', 'Repair Shop', 'Tech Center']
+  };
+
+  const names = facilityNames[type as keyof typeof facilityNames] || facilityNames.depot;
+
+  return {
+    name: `${faker.helpers.arrayElement(names)} ${index > 0 ? index + 1 : ''}`.trim(),
+    code: `FAC-${faker.string.alphanumeric(4).toUpperCase()}`,
+    type,
+    address: generateAddress(),
+    city: REGION.city,
+    state: REGION.state,
+    zipCode: generateZipCode(),
+    lat: location.lat,
+    lng: location.lng,
+    capacity: faker.number.int({ min: 10, max: 50 }),
+    serviceBays: type === 'service_center' ? faker.number.int({ min: 2, max: 8 }) : faker.number.int({ min: 0, max: 2 }),
+    contactName: faker.person.fullName(),
+    contactPhone: generatePhone(),
+    contactEmail: faker.internet.email()
+  };
+}
+
+function generateVehicle(index: number) {
+  const template = faker.helpers.arrayElement(VEHICLE_TEMPLATES);
+  const year = faker.number.int({ min: 2020, max: 2024 });
+  const purchasePrice = faker.number.int({ min: template.priceRange[0], max: template.priceRange[1] });
+  const location = generateCoordNear(REGION.center, 3);
+  const sketchfab = getSketchfabModel(template.make, template.model);
+
+  return {
+    vin: generateVIN(),
+    name: `${template.make} ${template.model}`,
+    number: `VEH-${String(index + 1).padStart(3, '0')}`,
+    type: template.type,
+    make: template.make,
+    model: template.model,
+    year,
+    licensePlate: generateLicensePlate(),
+    fuelType: template.fuelType,
+    tankSize: template.tankSize,
+    fuelEfficiency: template.mpg,
+    color: faker.vehicle.color(),
+    purchasePrice,
+    currentValue: Math.round(purchasePrice * faker.number.float({ min: 0.6, max: 0.9 })),
+    odometer: faker.number.int({ min: 5000, max: 80000 }),
+    location,
+    batteryCapacity: template.batteryKwh || null,
+    electricRange: template.rangeKm || null,
+    sketchfabUrl: sketchfab?.url || null,
+    sketchfabId: sketchfab?.id || null,
+    model3dPath: sketchfab ? `/models/vehicles/${template.type}s/${template.make.toLowerCase()}_${template.model.toLowerCase().replace(/ /g, '_')}.glb` : null
+  };
+}
+
+function generateVendor(type: string) {
+  const vendorTypes = {
+    parts: ['Auto Parts', 'Parts Supply', 'Vehicle Parts', 'Fleet Parts'],
+    fuel: ['Fuel Services', 'Petroleum', 'Energy', 'Fuel Supply'],
+    service: ['Service Center', 'Automotive', 'Fleet Service', 'Maintenance'],
+    insurance: ['Insurance', 'Commercial Insurance', 'Fleet Insurance', 'Risk Management']
+  };
+
+  const names = vendorTypes[type as keyof typeof vendorTypes] || vendorTypes.parts;
+
+  return {
+    name: `${faker.location.city()} ${faker.helpers.arrayElement(names)}`,
+    code: faker.string.alphanumeric(4).toUpperCase(),
+    type,
+    contactName: faker.person.fullName(),
+    contactEmail: faker.internet.email(),
+    contactPhone: generatePhone(),
+    address: generateAddress(),
+    city: faker.location.city(),
+    state: faker.location.state({ abbreviated: true }),
+    zipCode: faker.location.zipCode('#####'),
+    paymentTerms: faker.helpers.arrayElement(['Net 30', 'Net 15', 'Net 60', 'Due on Receipt']),
+    preferredVendor: faker.datatype.boolean({ probability: 0.3 })
+  };
+}
+
+function generatePart() {
+  const categories = ['fluid', 'filter', 'brake', 'electrical', 'tire', 'engine', 'suspension'];
+  const category = faker.helpers.arrayElement(categories);
+
+  const partNames = {
+    fluid: ['Motor Oil', 'Transmission Fluid', 'Coolant', 'Brake Fluid', 'Power Steering Fluid'],
+    filter: ['Oil Filter', 'Air Filter', 'Fuel Filter', 'Cabin Filter'],
+    brake: ['Brake Pads', 'Brake Rotors', 'Brake Calipers', 'Brake Lines'],
+    electrical: ['Battery', 'Alternator', 'Starter', 'Spark Plugs', 'Wiper Blades'],
+    tire: ['All-Season Tire', 'Performance Tire', 'Truck Tire', 'Spare Tire'],
+    engine: ['Serpentine Belt', 'Timing Belt', 'Water Pump', 'Thermostat'],
+    suspension: ['Shock Absorber', 'Strut Assembly', 'Control Arm', 'Ball Joint']
+  };
+
+  const names = partNames[category as keyof typeof partNames];
+
+  return {
+    partNumber: `${category.substring(0, 3).toUpperCase()}-${faker.string.alphanumeric(6).toUpperCase()}`,
+    name: faker.helpers.arrayElement(names),
+    category,
+    manufacturer: faker.company.name(),
+    unitCost: faker.number.float({ min: 10, max: 500, fractionDigits: 2 }),
+    quantityOnHand: faker.number.int({ min: 0, max: 50 }),
+    reorderPoint: faker.number.int({ min: 2, max: 10 }),
+    reorderQuantity: faker.number.int({ min: 5, max: 25 })
+  };
+}
+
+function generateRoute(index: number) {
+  const routeTypes = ['delivery', 'pickup', 'service', 'shuttle', 'longhaul', 'emergency'];
+  const type = faker.helpers.arrayElement(routeTypes);
+
+  const waypoints = [];
+  const numStops = faker.number.int({ min: 2, max: 6 });
+
+  for (let i = 0; i < numStops; i++) {
+    const location = generateCoordNear(REGION.center, 10);
+    waypoints.push({
+      lat: location.lat,
+      lng: location.lng,
+      name: i === 0 ? 'Start' : i === numStops - 1 ? 'End' : `Stop ${i}`,
+      type: i === 0 || i === numStops - 1 ? 'depot' : 'delivery',
+      stopDuration: i === 0 || i === numStops - 1 ? 0 : faker.number.int({ min: 5, max: 30 }),
+      address: `${generateAddress()}, ${REGION.city}, ${REGION.state}`
+    });
+  }
+
+  return {
+    name: `${faker.location.street()} ${faker.helpers.arrayElement(['Route', 'Run', 'Loop', 'Express'])}`,
+    number: `RT-${String(index + 1).padStart(4, '0')}`,
+    type,
+    estimatedDistance: faker.number.int({ min: 5, max: 100 }),
+    estimatedDuration: faker.number.int({ min: 30, max: 240 }),
+    waypoints
+  };
+}
+
+function generateWorkOrder(vehicleId: string, assignedToId: string | null, requestedById: string | null) {
+  const titles = [
+    'Oil Change', 'Tire Rotation', 'Brake Inspection', 'A/C Service',
+    'Transmission Service', 'Battery Replacement', 'Alignment', 'DOT Inspection',
+    'Engine Diagnostic', 'Coolant Flush', 'Filter Replacement', 'Belt Replacement'
+  ];
+
+  const status = faker.helpers.weightedArrayElement([
+    { value: 'pending', weight: 0.2 },
+    { value: 'in_progress', weight: 0.3 },
+    { value: 'completed', weight: 0.4 },
+    { value: 'cancelled', weight: 0.1 }
+  ]);
+
+  return {
+    vehicleId,
+    number: `WO-${faker.string.numeric(8)}`,
+    title: faker.helpers.arrayElement(titles),
+    description: faker.lorem.sentence(),
+    type: faker.helpers.arrayElement(['preventive', 'corrective', 'inspection']),
+    priority: faker.helpers.arrayElement(['low', 'medium', 'high', 'critical']),
+    status,
+    assignedToId,
+    requestedById,
+    scheduledStartDate: faker.date.soon({ days: 30 }),
+    scheduledEndDate: faker.date.soon({ days: 45 }),
+    actualStartDate: status !== 'pending' ? faker.date.recent({ days: 15 }) : null,
+    actualEndDate: status === 'completed' ? faker.date.recent({ days: 5 }) : null,
+    estimatedCost: faker.number.float({ min: 50, max: 2000, fractionDigits: 2 }),
+    actualCost: status === 'completed' ? faker.number.float({ min: 50, max: 2000, fractionDigits: 2 }) : null,
+    laborHours: status === 'completed' ? faker.number.float({ min: 0.5, max: 8, fractionDigits: 1 }) : null
+  };
+}
+
+function generateFuelTransaction(vehicleId: string, driverId: string | null) {
+  const fuelTypes = ['gasoline', 'diesel'];
+  const gallons = faker.number.float({ min: 8, max: 30, fractionDigits: 3 });
+  const pricePerGallon = faker.number.float({ min: 3.0, max: 4.5, fractionDigits: 3 });
+  const location = generateCoordNear(REGION.center, 5);
+
+  return {
+    vehicleId,
+    driverId,
+    transactionDate: faker.date.recent({ days: 90 }),
+    fuelType: faker.helpers.arrayElement(fuelTypes),
+    gallons,
+    costPerGallon: pricePerGallon,
+    totalCost: parseFloat((gallons * pricePerGallon).toFixed(2)),
+    odometer: faker.number.int({ min: 10000, max: 100000 }),
+    location: `${faker.company.name()} Gas Station`,
+    latitude: location.lat,
+    longitude: location.lng,
+    vendorName: faker.helpers.arrayElement(['Shell', 'BP', 'Chevron', 'Exxon', 'Mobil', 'RaceTrac', 'Circle K']),
+    receiptNumber: faker.string.alphanumeric(12).toUpperCase(),
+    paymentMethod: faker.helpers.arrayElement(['company_card', 'fleet_card', 'cash']),
+    cardLast4: faker.string.numeric(4)
+  };
+}
+
+function generateInspection(vehicleId: string, driverId: string | null, inspectorId: string | null) {
+  const passed = faker.datatype.boolean({ probability: 0.85 });
+
+  return {
+    vehicleId,
+    driverId,
+    inspectorId,
+    type: faker.helpers.arrayElement(['pre_trip', 'post_trip', 'safety', 'dot', 'annual']),
+    status: 'completed',
+    inspectorName: faker.person.fullName(),
+    location: faker.company.name(),
+    startedAt: faker.date.recent({ days: 60 }),
+    completedAt: faker.date.recent({ days: 59 }),
+    defectsFound: passed ? 0 : faker.number.int({ min: 1, max: 5 }),
+    passedInspection: passed,
+    notes: passed ? 'All systems operational' : faker.lorem.sentence(),
+    checklistData: {
+      brakes: passed ? 'pass' : faker.helpers.arrayElement(['pass', 'fail']),
+      lights: 'pass',
+      tires: passed ? 'pass' : faker.helpers.arrayElement(['pass', 'needs_attention']),
+      fluids: 'pass',
+      mirrors: 'pass',
+      horn: 'pass',
+      wipers: passed ? 'pass' : faker.helpers.arrayElement(['pass', 'needs_attention']),
+      seatbelts: 'pass'
+    }
+  };
+}
+
+function generateGPSTrack(vehicleId: string, index: number) {
+  const location = generateCoordNear(REGION.center, 8);
+
+  return {
+    vehicleId,
+    timestamp: new Date(Date.now() - index * 60000),
+    latitude: location.lat,
+    longitude: location.lng,
+    altitude: faker.number.float({ min: 10, max: 50, fractionDigits: 2 }),
+    speed: faker.number.float({ min: 0, max: 65, fractionDigits: 2 }),
+    heading: faker.number.float({ min: 0, max: 360, fractionDigits: 2 }),
+    accuracy: faker.number.float({ min: 2, max: 10, fractionDigits: 2 }),
+    odometer: faker.number.int({ min: 10000, max: 100000 }),
+    fuelLevel: faker.number.float({ min: 20, max: 100, fractionDigits: 2 }),
+    engineStatus: faker.helpers.arrayElement(['running', 'running', 'idle', 'off'])
+  };
+}
+
+function generateGeofence(index: number) {
+  const location = generateCoordNear(REGION.center, 15);
+  const types = ['facility', 'operational', 'restricted', 'customer'];
+  const type = faker.helpers.arrayElement(types);
+
+  return {
+    name: `${faker.location.street()} ${faker.helpers.arrayElement(['Zone', 'Area', 'Perimeter', 'Region'])}`,
+    type,
+    centerLat: location.lat,
+    centerLng: location.lng,
+    radius: faker.number.int({ min: 100, max: 5000 }),
+    color: faker.color.rgb({ format: 'hex' }),
+    isActive: true,
+    notifyOnEntry: type === 'restricted',
+    notifyOnExit: true
+  };
+}
+
+function generateIncident(vehicleId: string, driverId: string | null, reportedById: string | null) {
+  const types = ['accident', 'near_miss', 'violation', 'property_damage', 'injury'];
+  const type = faker.helpers.arrayElement(types);
+  const location = generateCoordNear(REGION.center, 10);
+
+  return {
+    number: `INC-${faker.string.numeric(8)}`,
+    vehicleId,
+    driverId,
+    type,
+    severity: faker.helpers.weightedArrayElement([
+      { value: 'minor', weight: 0.5 },
+      { value: 'moderate', weight: 0.3 },
+      { value: 'major', weight: 0.15 },
+      { value: 'critical', weight: 0.05 }
+    ]),
+    status: faker.helpers.arrayElement(['pending', 'in_progress', 'completed']),
+    incidentDate: faker.date.recent({ days: 180 }),
+    location: `${generateAddress()}, ${REGION.city}, ${REGION.state}`,
+    latitude: location.lat,
+    longitude: location.lng,
+    description: faker.lorem.paragraph(),
+    injuriesReported: faker.datatype.boolean({ probability: 0.1 }),
+    fatalitiesReported: false,
+    policeReportNumber: type === 'accident' ? `TPD-${faker.string.numeric(8)}` : null,
+    insuranceClaimNumber: faker.datatype.boolean({ probability: 0.4 }) ? `CLM-${faker.string.numeric(8)}` : null,
+    estimatedCost: faker.number.float({ min: 100, max: 25000, fractionDigits: 2 }),
+    reportedById,
+    reportedAt: faker.date.recent({ days: 180 })
   };
 }
 
@@ -437,17 +448,20 @@ function randomCoordNear(center: { lat: number; lng: number }, radiusKm: number 
 // ============================================================================
 async function seedTallahasseeCompany() {
   console.log('=========================================================');
-  console.log('  CAPITAL CITY COURIER SERVICES - DATABASE SEED');
-  console.log('  Tallahassee, Florida Small Fleet Company');
+  console.log('  DYNAMIC FLEET DATA SEED');
+  console.log('  Location: Tallahassee, Florida');
+  console.log('  All data generated dynamically using Faker');
   console.log('=========================================================\n');
 
   const client = new Client({ connectionString: DATABASE_URL });
   await client.connect();
 
   try {
-    console.log('Clearing existing data...\n');
+    // Generate company info
+    const company = generateCompany();
+    console.log(`Company: ${company.name}\n`);
 
-    // Clear tables in correct order
+    console.log('Clearing existing data...\n');
     await client.query(`
       TRUNCATE TABLE
         audit_logs, tasks, charging_sessions, charging_stations,
@@ -463,12 +477,33 @@ async function seedTallahasseeCompany() {
     const ids: any = {
       tenantId: '',
       userIds: [],
+      driverUserIds: [],
+      mechanicUserIds: [],
+      managerUserIds: [],
       vehicleIds: [],
       driverIds: [],
       facilityIds: [],
       vendorIds: [],
       partIds: [],
       chargingStationIds: []
+    };
+
+    // Configuration for data generation
+    const CONFIG = {
+      employees: { admins: 2, managers: 3, supervisors: 2, dispatchers: 3, mechanics: 3, drivers: 12, viewers: 2 },
+      facilities: 3,
+      vehicles: 15,
+      vendors: 8,
+      parts: 30,
+      workOrders: 50,
+      fuelTransactions: 200,
+      routes: 25,
+      inspections: 150,
+      gpsTracksPerVehicle: 100,
+      geofences: 8,
+      incidents: 15,
+      chargingStations: 4,
+      chargingSessions: 40
     };
 
     // ========================================================================
@@ -480,78 +515,85 @@ async function seedTallahasseeCompany() {
       VALUES ($1, $2, $3, $4, $5, $6, $7)
       RETURNING id
     `, [
-      COMPANY.name,
-      COMPANY.slug,
-      COMPANY.domain,
+      company.name,
+      company.slug,
+      company.domain,
       JSON.stringify({
-        timezone: 'America/New_York',
+        timezone: REGION.timezone,
         dateFormat: 'MM/DD/YYYY',
         currency: 'USD',
         distanceUnit: 'miles',
         fuelUnit: 'gallons',
-        companyAddress: COMPANY.address,
-        companyPhone: COMPANY.phone,
-        taxId: COMPANY.taxId
+        companyAddress: company.address,
+        companyPhone: company.phone,
+        taxId: company.taxId
       }),
-      COMPANY.email,
+      company.email,
       'professional',
       true
     ]);
     ids.tenantId = tenantResult.rows[0].id;
-    console.log(`   Created tenant: ${COMPANY.name}\n`);
+    console.log(`   Created tenant: ${company.name}\n`);
 
     // ========================================================================
     // 2. CREATE USERS
     // ========================================================================
     console.log('2. Creating users...');
-    const passwordHash = await bcrypt.hash('TallyCourier2024!', 12);
+    const passwordHash = await bcrypt.hash(faker.internet.password({ length: 16 }), 12);
+    const roles = [
+      ...Array(CONFIG.employees.admins).fill('Admin'),
+      ...Array(CONFIG.employees.managers).fill('Manager'),
+      ...Array(CONFIG.employees.supervisors).fill('Supervisor'),
+      ...Array(CONFIG.employees.dispatchers).fill('Dispatcher'),
+      ...Array(CONFIG.employees.mechanics).fill('Mechanic'),
+      ...Array(CONFIG.employees.drivers).fill('Driver'),
+      ...Array(CONFIG.employees.viewers).fill('Viewer')
+    ];
 
-    for (const emp of EMPLOYEES) {
+    for (let i = 0; i < roles.length; i++) {
+      const role = roles[i];
+      const emp = generateEmployee(role, i);
+
       const result = await client.query(`
         INSERT INTO users (tenant_id, email, password_hash, first_name, last_name, phone, role, is_active, last_login_at)
         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
         RETURNING id
       `, [
         ids.tenantId,
-        `${emp.email}@capitalcitycourier.com`,
+        `${emp.email}@${company.domain}`,
         passwordHash,
         emp.firstName,
         emp.lastName,
         emp.phone,
-        emp.role,
+        role,
         true,
-        daysAgo(randomInt(0, 7))
+        faker.date.recent({ days: 7 })
       ]);
+
       ids.userIds.push({ id: result.rows[0].id, ...emp });
+      if (role === 'Driver') ids.driverUserIds.push(result.rows[0].id);
+      if (role === 'Mechanic') ids.mechanicUserIds.push(result.rows[0].id);
+      if (role === 'Manager') ids.managerUserIds.push(result.rows[0].id);
     }
-    console.log(`   Created ${EMPLOYEES.length} users\n`);
+    console.log(`   Created ${roles.length} users\n`);
 
     // ========================================================================
     // 3. CREATE FACILITIES
     // ========================================================================
     console.log('3. Creating facilities...');
-    for (const fac of FACILITIES) {
+    const facilityTypes = ['depot', 'warehouse', 'parking'];
+
+    for (let i = 0; i < CONFIG.facilities; i++) {
+      const fac = generateFacility(facilityTypes[i % facilityTypes.length], i);
+
       const result = await client.query(`
         INSERT INTO facilities (tenant_id, name, code, type, address, city, state, zip_code, country, latitude, longitude, capacity, current_occupancy, contact_name, contact_phone, contact_email, operating_hours, is_active)
         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18)
         RETURNING id
       `, [
-        ids.tenantId,
-        fac.name,
-        fac.code,
-        fac.type,
-        fac.address,
-        fac.city,
-        fac.state,
-        fac.zipCode,
-        'US',
-        fac.lat,
-        fac.lng,
-        fac.capacity,
-        randomInt(0, Math.floor(fac.capacity * 0.7)),
-        fac.contactName,
-        fac.contactPhone,
-        fac.contactEmail,
+        ids.tenantId, fac.name, fac.code, fac.type, fac.address, fac.city, fac.state, fac.zipCode, 'US',
+        fac.lat, fac.lng, fac.capacity, faker.number.int({ min: 0, max: Math.floor(fac.capacity * 0.7) }),
+        fac.contactName, fac.contactPhone, fac.contactEmail,
         JSON.stringify({
           monday: { open: '06:00', close: '20:00' },
           tuesday: { open: '06:00', close: '20:00' },
@@ -565,7 +607,7 @@ async function seedTallahasseeCompany() {
       ]);
       ids.facilityIds.push(result.rows[0].id);
     }
-    console.log(`   Created ${FACILITIES.length} facilities\n`);
+    console.log(`   Created ${CONFIG.facilities} facilities\n`);
 
     // ========================================================================
     // 4. CREATE DRIVERS
@@ -583,21 +625,21 @@ async function seedTallahasseeCompany() {
         driver.id,
         driver.firstName,
         driver.lastName,
-        `${driver.email}@capitalcitycourier.com`,
+        `${driver.email}@${company.domain}`,
         driver.phone,
-        `EMP-${String(ids.driverIds.length + 1001).padStart(4, '0')}`,
-        `FL${randomInt(100000000, 999999999)}`,
-        'FL',
-        daysFromNow(randomInt(180, 730)),
-        driver.cdl || false,
-        driver.cdlClass || null,
+        `EMP-${faker.string.numeric(6)}`,
+        `${REGION.stateCode}${faker.string.numeric(9)}`,
+        REGION.stateCode,
+        faker.date.future({ years: 3 }),
+        driver.cdl,
+        driver.cdlClass,
         'active',
-        daysAgo(randomInt(90, 1825)),
-        daysAgo(randomInt(8000, 16000)),
-        `${randomItem(['John', 'Mary', 'Robert', 'Linda'])} ${driver.lastName}`,
-        `850-555-${randomInt(1000, 9999)}`,
-        randomFloat(85, 100, 2),
-        JSON.stringify({ title: driver.title })
+        faker.date.past({ years: 5 }),
+        faker.date.birthdate({ min: 21, max: 60, mode: 'age' }),
+        faker.person.fullName(),
+        generatePhone(),
+        faker.number.float({ min: 75, max: 100, fractionDigits: 2 }),
+        '{}'
       ]);
       ids.driverIds.push(result.rows[0].id);
     }
@@ -607,45 +649,34 @@ async function seedTallahasseeCompany() {
     // 5. CREATE VEHICLES
     // ========================================================================
     console.log('5. Creating vehicles...');
-    for (let i = 0; i < VEHICLES.length; i++) {
-      const v = VEHICLES[i];
-      const location = randomCoordNear(TALLAHASSEE.center, 0.05);
+    for (let i = 0; i < CONFIG.vehicles; i++) {
+      const v = generateVehicle(i);
 
       const result = await client.query(`
         INSERT INTO vehicles (tenant_id, vin, name, number, type, make, model, year, license_plate, status, fuel_type, fuel_level, odometer, latitude, longitude, location_address, last_service_date, next_service_date, next_service_mileage, purchase_date, purchase_price, current_value, insurance_policy_number, insurance_expiry_date, assigned_driver_id, assigned_facility_id, metadata, is_active)
         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23, $24, $25, $26, $27, $28)
         RETURNING id
       `, [
-        ids.tenantId,
-        v.vin,
-        `${v.make} ${v.model}`,
-        v.number,
-        v.type,
-        v.make,
-        v.model,
-        v.year,
-        v.plate,
-        randomItem(['active', 'active', 'active', 'idle']),
+        ids.tenantId, v.vin, v.name, v.number, v.type, v.make, v.model, v.year, v.licensePlate,
+        faker.helpers.arrayElement(['active', 'active', 'active', 'idle']),
         v.fuelType,
-        v.fuelType === 'electric' ? randomFloat(40, 95) : randomFloat(30, 95),
-        v.odometer,
-        location.lat,
-        location.lng,
-        `${randomInt(100, 9999)} ${randomItem(['Monroe St', 'Apalachee Pkwy', 'Tennessee St', 'Thomasville Rd'])}, Tallahassee, FL`,
-        daysAgo(randomInt(30, 90)),
-        daysFromNow(randomInt(30, 120)),
-        v.odometer + randomInt(3000, 5000),
-        daysAgo(randomInt(365, 1095)),
-        v.purchasePrice,
-        v.purchasePrice * randomFloat(0.6, 0.85),
-        `FCI-${randomInt(100000, 999999)}`,
-        daysFromNow(randomInt(60, 365)),
+        faker.number.float({ min: 30, max: 95, fractionDigits: 2 }),
+        v.odometer, v.location.lat, v.location.lng,
+        `${generateAddress()}, ${REGION.city}, ${REGION.state}`,
+        faker.date.recent({ days: 90 }),
+        faker.date.soon({ days: 90 }),
+        v.odometer + faker.number.int({ min: 3000, max: 5000 }),
+        faker.date.past({ years: 3 }),
+        v.purchasePrice, v.currentValue,
+        `POL-${faker.string.alphanumeric(10).toUpperCase()}`,
+        faker.date.future({ years: 1 }),
         i < ids.driverIds.length ? ids.driverIds[i] : null,
-        ids.facilityIds[0],
+        faker.helpers.arrayElement(ids.facilityIds),
         JSON.stringify({
           color: v.color,
           sketchfabUrl: v.sketchfabUrl,
-          model3dUrl: v.model3dUrl,
+          sketchfabId: v.sketchfabId,
+          model3dPath: v.model3dPath,
           batteryCapacity: v.batteryCapacity,
           electricRange: v.electricRange
         }),
@@ -653,925 +684,289 @@ async function seedTallahasseeCompany() {
       ]);
       ids.vehicleIds.push(result.rows[0].id);
     }
-    console.log(`   Created ${VEHICLES.length} vehicles\n`);
+    console.log(`   Created ${CONFIG.vehicles} vehicles with Sketchfab 3D model references\n`);
 
     // ========================================================================
     // 6. CREATE VENDORS
     // ========================================================================
     console.log('6. Creating vendors...');
-    for (const vendor of VENDORS) {
+    const vendorTypes = ['parts', 'fuel', 'service', 'insurance', 'parts', 'service', 'parts', 'fuel'];
+
+    for (let i = 0; i < CONFIG.vendors; i++) {
+      const vendor = generateVendor(vendorTypes[i % vendorTypes.length]);
+
       const result = await client.query(`
         INSERT INTO vendors (tenant_id, name, code, type, contact_name, contact_email, contact_phone, address, city, state, zip_code, country, payment_terms, preferred_vendor, rating, is_active, metadata)
         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17)
         RETURNING id
       `, [
-        ids.tenantId,
-        vendor.name,
-        vendor.code,
-        vendor.type,
-        vendor.contactName,
-        vendor.contactEmail,
-        vendor.contactPhone,
-        vendor.address,
-        vendor.city,
-        vendor.state,
-        vendor.zipCode,
-        'US',
-        vendor.paymentTerms,
-        vendor.preferredVendor,
-        randomFloat(3.5, 5.0, 2),
-        true,
-        '{}'
+        ids.tenantId, vendor.name, vendor.code, vendor.type, vendor.contactName, vendor.contactEmail,
+        vendor.contactPhone, vendor.address, vendor.city, vendor.state, vendor.zipCode, 'US',
+        vendor.paymentTerms, vendor.preferredVendor,
+        faker.number.float({ min: 3.0, max: 5.0, fractionDigits: 2 }),
+        true, '{}'
       ]);
       ids.vendorIds.push(result.rows[0].id);
     }
-    console.log(`   Created ${VENDORS.length} vendors\n`);
+    console.log(`   Created ${CONFIG.vendors} vendors\n`);
 
     // ========================================================================
     // 7. CREATE PARTS INVENTORY
     // ========================================================================
     console.log('7. Creating parts inventory...');
-    for (const part of PARTS_INVENTORY) {
+    for (let i = 0; i < CONFIG.parts; i++) {
+      const part = generatePart();
+
       const result = await client.query(`
         INSERT INTO parts_inventory (tenant_id, part_number, name, description, category, manufacturer, unit_cost, unit_of_measure, quantity_on_hand, reorder_point, reorder_quantity, location_in_warehouse, facility_id, is_active, metadata)
         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15)
         RETURNING id
       `, [
-        ids.tenantId,
-        part.partNumber,
-        part.name,
-        `${part.name} for fleet maintenance`,
-        part.category,
-        part.manufacturer,
-        part.unitCost,
-        'each',
-        part.quantityOnHand,
-        part.reorderPoint,
-        part.reorderQuantity,
-        `${randomItem(['A', 'B', 'C'])}-${randomInt(1, 10)}-${randomInt(1, 5)}`,
-        ids.facilityIds[0],
-        true,
-        '{}'
+        ids.tenantId, part.partNumber, part.name, faker.lorem.sentence(), part.category,
+        part.manufacturer, part.unitCost, 'each', part.quantityOnHand, part.reorderPoint, part.reorderQuantity,
+        `${faker.helpers.arrayElement(['A', 'B', 'C'])}-${faker.number.int({ min: 1, max: 10 })}-${faker.number.int({ min: 1, max: 5 })}`,
+        faker.helpers.arrayElement(ids.facilityIds), true, '{}'
       ]);
       ids.partIds.push(result.rows[0].id);
     }
-    console.log(`   Created ${PARTS_INVENTORY.length} parts\n`);
+    console.log(`   Created ${CONFIG.parts} parts\n`);
 
     // ========================================================================
     // 8. CREATE WORK ORDERS
     // ========================================================================
     console.log('8. Creating work orders...');
-    const workOrderTypes = [
-      { title: 'Oil Change', type: 'preventive', cost: 85 },
-      { title: 'Tire Rotation', type: 'preventive', cost: 45 },
-      { title: 'Brake Inspection', type: 'inspection', cost: 125 },
-      { title: 'A/C System Service', type: 'corrective', cost: 250 },
-      { title: 'Transmission Service', type: 'preventive', cost: 350 },
-      { title: 'Battery Replacement', type: 'corrective', cost: 180 },
-      { title: 'Alignment Check', type: 'inspection', cost: 95 },
-      { title: 'DOT Inspection', type: 'inspection', cost: 75 }
-    ];
-
-    for (let i = 0; i < 45; i++) {
-      const wo = randomItem(workOrderTypes);
-      const vehicleId = randomItem(ids.vehicleIds);
-      const status = randomItem(['pending', 'in_progress', 'completed', 'completed', 'completed']);
+    for (let i = 0; i < CONFIG.workOrders; i++) {
+      const wo = generateWorkOrder(
+        faker.helpers.arrayElement(ids.vehicleIds),
+        ids.mechanicUserIds.length > 0 ? faker.helpers.arrayElement(ids.mechanicUserIds) : null,
+        ids.managerUserIds.length > 0 ? faker.helpers.arrayElement(ids.managerUserIds) : null
+      );
 
       await client.query(`
         INSERT INTO work_orders (tenant_id, vehicle_id, number, title, description, type, priority, status, assigned_to_id, requested_by_id, scheduled_start_date, scheduled_end_date, actual_start_date, actual_end_date, estimated_cost, actual_cost, labor_hours, notes, metadata)
         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19)
       `, [
-        ids.tenantId,
-        vehicleId,
-        `WO-${new Date().getFullYear()}-${String(i + 1001).padStart(4, '0')}`,
-        wo.title,
-        `${wo.title} service for fleet vehicle`,
-        wo.type,
-        randomItem(['low', 'medium', 'medium', 'high']),
-        status,
-        ids.userIds.find((u: any) => u.role === 'Mechanic')?.id || null,
-        ids.userIds.find((u: any) => u.role === 'Manager')?.id || null,
-        daysAgo(randomInt(0, 30)),
-        daysFromNow(randomInt(1, 14)),
-        status !== 'pending' ? daysAgo(randomInt(1, 15)) : null,
-        status === 'completed' ? daysAgo(randomInt(0, 10)) : null,
-        wo.cost,
-        status === 'completed' ? wo.cost * randomFloat(0.9, 1.15) : null,
-        status === 'completed' ? randomFloat(0.5, 4, 1) : null,
-        '',
-        '{}'
+        ids.tenantId, wo.vehicleId, wo.number, wo.title, wo.description, wo.type, wo.priority, wo.status,
+        wo.assignedToId, wo.requestedById, wo.scheduledStartDate, wo.scheduledEndDate,
+        wo.actualStartDate, wo.actualEndDate, wo.estimatedCost, wo.actualCost, wo.laborHours, '', '{}'
       ]);
     }
-    console.log('   Created 45 work orders\n');
+    console.log(`   Created ${CONFIG.workOrders} work orders\n`);
 
     // ========================================================================
     // 9. CREATE FUEL TRANSACTIONS
     // ========================================================================
     console.log('9. Creating fuel transactions...');
-    const fuelStations = [
-      { name: 'Shell - Monroe St', lat: 30.4567, lng: -84.2734 },
-      { name: 'BP - Apalachee Pkwy', lat: 30.4383, lng: -84.2456 },
-      { name: 'Chevron - Tennessee St', lat: 30.4489, lng: -84.3012 },
-      { name: 'RaceTrac - Capital Cir', lat: 30.4156, lng: -84.2567 },
-      { name: 'Circle K - Thomasville Rd', lat: 30.4789, lng: -84.2234 }
-    ];
-
-    for (let i = 0; i < 180; i++) {
-      const vehicleId = randomItem(ids.vehicleIds);
-      const driverId = randomItem(ids.driverIds);
-      const station = randomItem(fuelStations);
-      const gallons = randomFloat(8, 28, 3);
-      const pricePerGallon = randomFloat(3.15, 3.89, 3);
+    for (let i = 0; i < CONFIG.fuelTransactions; i++) {
+      const ft = generateFuelTransaction(
+        faker.helpers.arrayElement(ids.vehicleIds),
+        ids.driverIds.length > 0 ? faker.helpers.arrayElement(ids.driverIds) : null
+      );
 
       await client.query(`
         INSERT INTO fuel_transactions (tenant_id, vehicle_id, driver_id, transaction_date, fuel_type, gallons, cost_per_gallon, total_cost, odometer, location, latitude, longitude, vendor_name, receipt_number, payment_method, card_last4, notes, metadata)
         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18)
       `, [
-        ids.tenantId,
-        vehicleId,
-        driverId,
-        daysAgo(randomInt(0, 90)),
-        randomItem(['gasoline', 'gasoline', 'gasoline', 'diesel']),
-        gallons,
-        pricePerGallon,
-        (gallons * pricePerGallon).toFixed(2),
-        randomInt(15000, 85000),
-        station.name,
-        station.lat,
-        station.lng,
-        station.name.split(' - ')[0],
-        `REC${randomInt(100000000, 999999999)}`,
-        'company_card',
-        String(randomInt(1000, 9999)),
-        '',
-        '{}'
+        ids.tenantId, ft.vehicleId, ft.driverId, ft.transactionDate, ft.fuelType, ft.gallons,
+        ft.costPerGallon, ft.totalCost, ft.odometer, ft.location, ft.latitude, ft.longitude,
+        ft.vendorName, ft.receiptNumber, ft.paymentMethod, ft.cardLast4, '', '{}'
       ]);
     }
-    console.log('   Created 180 fuel transactions\n');
+    console.log(`   Created ${CONFIG.fuelTransactions} fuel transactions\n`);
 
     // ========================================================================
     // 10. CREATE ROUTES
     // ========================================================================
     console.log('10. Creating routes...');
-    const routeTemplates = [
-      { name: 'Downtown Tallahassee Loop', type: 'delivery', distance: 15, duration: 90 },
-      { name: 'FSU Campus Delivery', type: 'delivery', distance: 8, duration: 45 },
-      { name: 'Airport Express', type: 'shuttle', distance: 12, duration: 35 },
-      { name: 'North Tallahassee Route', type: 'delivery', distance: 22, duration: 120 },
-      { name: 'Southwood Business Park', type: 'service', distance: 18, duration: 75 },
-      { name: 'Thomasville Road Corridor', type: 'delivery', distance: 14, duration: 60 },
-      { name: 'Capital Circle Full Loop', type: 'delivery', distance: 35, duration: 150 },
-      { name: 'Midtown Express', type: 'express', distance: 6, duration: 25 }
-    ];
-
-    for (let i = 0; i < 35; i++) {
-      const route = randomItem(routeTemplates);
-      const vehicleId = randomItem(ids.vehicleIds);
-      const driverId = randomItem(ids.driverIds);
+    for (let i = 0; i < CONFIG.routes; i++) {
+      const route = generateRoute(i);
 
       await client.query(`
         INSERT INTO routes (tenant_id, name, number, description, type, status, assigned_vehicle_id, assigned_driver_id, start_facility_id, end_facility_id, scheduled_start_time, scheduled_end_time, estimated_distance, estimated_duration, waypoints, metadata)
         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16)
       `, [
-        ids.tenantId,
-        `${route.name} #${i + 1}`,
-        `RT-${String(i + 1001).padStart(4, '0')}`,
-        `Standard ${route.type} route covering ${route.name.toLowerCase()}`,
-        route.type,
-        randomItem(['pending', 'in_progress', 'completed', 'completed']),
-        vehicleId,
-        driverId,
-        ids.facilityIds[0],
-        ids.facilityIds[0],
-        daysAgo(randomInt(0, 30)),
-        daysAgo(randomInt(0, 30)),
-        route.distance,
-        route.duration,
-        JSON.stringify([
-          { lat: TALLAHASSEE.center.lat, lng: TALLAHASSEE.center.lng, address: 'HQ', stopDuration: 5 },
-          { lat: TALLAHASSEE.center.lat + 0.02, lng: TALLAHASSEE.center.lng - 0.01, address: 'Stop 1', stopDuration: 10 },
-          { lat: TALLAHASSEE.center.lat + 0.01, lng: TALLAHASSEE.center.lng + 0.02, address: 'Stop 2', stopDuration: 15 }
-        ]),
-        '{}'
+        ids.tenantId, route.name, route.number, faker.lorem.sentence(), route.type,
+        faker.helpers.arrayElement(['pending', 'in_progress', 'completed']),
+        faker.helpers.arrayElement(ids.vehicleIds),
+        ids.driverIds.length > 0 ? faker.helpers.arrayElement(ids.driverIds) : null,
+        faker.helpers.arrayElement(ids.facilityIds),
+        faker.helpers.arrayElement(ids.facilityIds),
+        faker.date.recent({ days: 30 }),
+        faker.date.recent({ days: 30 }),
+        route.estimatedDistance, route.estimatedDuration,
+        JSON.stringify(route.waypoints), '{}'
       ]);
     }
-    console.log('   Created 35 routes\n');
+    console.log(`   Created ${CONFIG.routes} routes\n`);
 
     // ========================================================================
     // 11. CREATE INSPECTIONS
     // ========================================================================
     console.log('11. Creating inspections...');
-    for (let i = 0; i < 120; i++) {
-      const vehicleId = randomItem(ids.vehicleIds);
-      const driverId = randomItem(ids.driverIds);
-      const passed = Math.random() > 0.15;
+    for (let i = 0; i < CONFIG.inspections; i++) {
+      const insp = generateInspection(
+        faker.helpers.arrayElement(ids.vehicleIds),
+        ids.driverIds.length > 0 ? faker.helpers.arrayElement(ids.driverIds) : null,
+        ids.managerUserIds.length > 0 ? faker.helpers.arrayElement(ids.managerUserIds) : null
+      );
 
       await client.query(`
         INSERT INTO inspections (tenant_id, vehicle_id, driver_id, inspector_id, type, status, inspector_name, location, started_at, completed_at, defects_found, passed_inspection, notes, checklist_data)
         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14)
       `, [
-        ids.tenantId,
-        vehicleId,
-        driverId,
-        ids.userIds.find((u: any) => u.role === 'Supervisor')?.id || null,
-        randomItem(['pre_trip', 'post_trip', 'safety', 'dot']),
-        'completed',
-        randomItem(EMPLOYEES.filter(e => e.role === 'Driver')).firstName + ' ' + randomItem(EMPLOYEES.filter(e => e.role === 'Driver')).lastName,
-        'Capital City Courier HQ',
-        daysAgo(randomInt(0, 60)),
-        daysAgo(randomInt(0, 60)),
-        passed ? 0 : randomInt(1, 3),
-        passed,
-        passed ? 'All systems operational' : 'Minor issues noted - see checklist',
-        JSON.stringify({
-          brakes: passed ? 'pass' : randomItem(['pass', 'fail']),
-          lights: 'pass',
-          tires: passed ? 'pass' : randomItem(['pass', 'needs_attention']),
-          fluids: 'pass',
-          mirrors: 'pass',
-          horn: 'pass',
-          wipers: passed ? 'pass' : randomItem(['pass', 'needs_attention']),
-          seatbelts: 'pass'
-        })
+        ids.tenantId, insp.vehicleId, insp.driverId, insp.inspectorId, insp.type, insp.status,
+        insp.inspectorName, insp.location, insp.startedAt, insp.completedAt, insp.defectsFound,
+        insp.passedInspection, insp.notes, JSON.stringify(insp.checklistData)
       ]);
     }
-    console.log('   Created 120 inspections\n');
+    console.log(`   Created ${CONFIG.inspections} inspections\n`);
 
     // ========================================================================
     // 12. CREATE GPS TRACKS
     // ========================================================================
     console.log('12. Creating GPS tracks...');
-    for (const vehicleId of ids.vehicleIds.slice(0, 8)) {
-      for (let j = 0; j < 100; j++) {
-        const location = randomCoordNear(TALLAHASSEE.center, 0.08);
+    const vehiclesForGPS = ids.vehicleIds.slice(0, Math.min(10, ids.vehicleIds.length));
+    let totalGPSTracks = 0;
+
+    for (const vehicleId of vehiclesForGPS) {
+      for (let j = 0; j < CONFIG.gpsTracksPerVehicle; j++) {
+        const track = generateGPSTrack(vehicleId, j);
 
         await client.query(`
           INSERT INTO gps_tracks (tenant_id, vehicle_id, timestamp, latitude, longitude, altitude, speed, heading, accuracy, odometer, fuel_level, engine_status, metadata)
           VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)
         `, [
-          ids.tenantId,
-          vehicleId,
-          new Date(Date.now() - j * 60000),
-          location.lat,
-          location.lng,
-          randomFloat(15, 45),
-          randomFloat(0, 55),
-          randomFloat(0, 360),
-          randomFloat(2, 8),
-          randomInt(15000, 85000),
-          randomFloat(25, 95),
-          randomItem(['running', 'running', 'idle', 'off']),
-          '{}'
+          ids.tenantId, track.vehicleId, track.timestamp, track.latitude, track.longitude,
+          track.altitude, track.speed, track.heading, track.accuracy, track.odometer,
+          track.fuelLevel, track.engineStatus, '{}'
         ]);
+        totalGPSTracks++;
       }
     }
-    console.log('   Created 800 GPS tracks\n');
+    console.log(`   Created ${totalGPSTracks} GPS tracks\n`);
 
     // ========================================================================
     // 13. CREATE GEOFENCES
     // ========================================================================
     console.log('13. Creating geofences...');
-    const geofenceData = [
-      { name: 'HQ Depot Zone', type: 'facility', ...TALLAHASSEE_LOCATIONS.downtown, radius: 500 },
-      { name: 'FSU Campus Zone', type: 'operational', ...TALLAHASSEE_LOCATIONS.fsuCampus, radius: 1000 },
-      { name: 'Airport Zone', type: 'operational', ...TALLAHASSEE_LOCATIONS.tallahasseeAirport, radius: 800 },
-      { name: 'Downtown Tallahassee', type: 'operational', ...TALLAHASSEE_LOCATIONS.downtown, radius: 2000 },
-      { name: 'North Service Area', type: 'operational', ...TALLAHASSEE_LOCATIONS.killearnEstates, radius: 1500 },
-      { name: 'Restricted - State Capitol', type: 'restricted', lat: 30.4381, lng: -84.2816, radius: 200 }
-    ];
+    for (let i = 0; i < CONFIG.geofences; i++) {
+      const geo = generateGeofence(i);
 
-    for (const geo of geofenceData) {
       await client.query(`
         INSERT INTO geofences (tenant_id, name, description, type, center_lat, center_lng, radius, color, is_active, notify_on_entry, notify_on_exit, metadata)
         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
       `, [
-        ids.tenantId,
-        geo.name,
-        `Geofence zone for ${geo.name.toLowerCase()}`,
-        geo.type,
-        geo.lat,
-        geo.lng,
-        geo.radius,
-        geo.type === 'restricted' ? '#ef4444' : '#3b82f6',
-        true,
-        geo.type === 'restricted',
-        true,
-        '{}'
+        ids.tenantId, geo.name, faker.lorem.sentence(), geo.type, geo.centerLat, geo.centerLng,
+        geo.radius, geo.color, geo.isActive, geo.notifyOnEntry, geo.notifyOnExit, '{}'
       ]);
     }
-    console.log('   Created 6 geofences\n');
+    console.log(`   Created ${CONFIG.geofences} geofences\n`);
 
     // ========================================================================
     // 14. CREATE INCIDENTS
     // ========================================================================
     console.log('14. Creating incidents...');
-    const incidentTypes = [
-      { type: 'near_miss', severity: 'minor' },
-      { type: 'accident', severity: 'minor' },
-      { type: 'accident', severity: 'moderate' },
-      { type: 'property_damage', severity: 'minor' },
-      { type: 'violation', severity: 'minor' }
-    ];
-
-    for (let i = 0; i < 12; i++) {
-      const incident = randomItem(incidentTypes);
-      const vehicleId = randomItem(ids.vehicleIds);
-      const driverId = randomItem(ids.driverIds);
-      const location = randomCoordNear(TALLAHASSEE.center, 0.05);
+    for (let i = 0; i < CONFIG.incidents; i++) {
+      const inc = generateIncident(
+        faker.helpers.arrayElement(ids.vehicleIds),
+        ids.driverIds.length > 0 ? faker.helpers.arrayElement(ids.driverIds) : null,
+        ids.managerUserIds.length > 0 ? faker.helpers.arrayElement(ids.managerUserIds) : null
+      );
 
       await client.query(`
-        INSERT INTO incidents (tenant_id, number, vehicle_id, driver_id, type, severity, status, incident_date, location, latitude, longitude, description, injuries_reported, fatalities_reported, police_report_number, insurance_claim_number, estimated_cost, reported_by_id, reported_at, root_cause, corrective_actions, metadata)
-        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22)
+        INSERT INTO incidents (tenant_id, number, vehicle_id, driver_id, type, severity, status, incident_date, location, latitude, longitude, description, injuries_reported, fatalities_reported, police_report_number, insurance_claim_number, estimated_cost, reported_by_id, reported_at, metadata)
+        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20)
       `, [
-        ids.tenantId,
-        `INC-${new Date().getFullYear()}-${String(i + 1001).padStart(4, '0')}`,
-        vehicleId,
-        driverId,
-        incident.type,
-        incident.severity,
-        randomItem(['pending', 'in_progress', 'completed']),
-        daysAgo(randomInt(7, 180)),
-        `${randomInt(100, 9999)} ${randomItem(['Monroe St', 'Apalachee Pkwy', 'Tennessee St'])}, Tallahassee, FL`,
-        location.lat,
-        location.lng,
-        `${incident.type.replace('_', ' ')} incident - ${incident.severity} severity`,
-        false,
-        false,
-        incident.type === 'accident' ? `TPD-${randomInt(100000, 999999)}` : null,
-        incident.severity !== 'minor' ? `FCI-CLM-${randomInt(10000, 99999)}` : null,
-        incident.severity === 'minor' ? randomFloat(200, 1500) : randomFloat(1500, 8000),
-        ids.userIds.find((u: any) => u.role === 'Supervisor')?.id,
-        daysAgo(randomInt(7, 180)),
-        'Driver training reminder issued',
-        'Safety briefing conducted with driver',
-        '{}'
+        ids.tenantId, inc.number, inc.vehicleId, inc.driverId, inc.type, inc.severity, inc.status,
+        inc.incidentDate, inc.location, inc.latitude, inc.longitude, inc.description,
+        inc.injuriesReported, inc.fatalitiesReported, inc.policeReportNumber, inc.insuranceClaimNumber,
+        inc.estimatedCost, inc.reportedById, inc.reportedAt, '{}'
       ]);
     }
-    console.log('   Created 12 incidents\n');
+    console.log(`   Created ${CONFIG.incidents} incidents\n`);
 
     // ========================================================================
-    // 15. CREATE CERTIFICATIONS
+    // 15. CREATE CHARGING STATIONS & SESSIONS
     // ========================================================================
-    console.log('15. Creating certifications...');
-    const certTypes = ['CDL', 'Medical Card', 'Defensive Driving', 'Hazmat', 'First Aid'];
+    console.log('15. Creating charging stations...');
+    for (let i = 0; i < CONFIG.chargingStations; i++) {
+      const location = generateCoordNear(REGION.center, 3);
 
-    for (const driverId of ids.driverIds) {
-      for (const certType of certTypes.slice(0, randomInt(2, 4))) {
-        await client.query(`
-          INSERT INTO certifications (tenant_id, driver_id, type, number, issuing_authority, issued_date, expiry_date, status, verified_by_id, verified_at, notes, metadata)
-          VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
-        `, [
-          ids.tenantId,
-          driverId,
-          certType,
-          `CERT-${randomInt(100000, 999999)}`,
-          certType === 'CDL' ? 'Florida DHSMV' : certType === 'Medical Card' ? 'DOT Certified Examiner' : 'National Safety Council',
-          daysAgo(randomInt(90, 730)),
-          daysFromNow(randomInt(90, 730)),
-          'active',
-          ids.userIds.find((u: any) => u.role === 'Manager')?.id,
-          daysAgo(randomInt(30, 90)),
-          '',
-          '{}'
-        ]);
-      }
-    }
-    console.log('   Created driver certifications\n');
-
-    // ========================================================================
-    // 16. CREATE TRAINING RECORDS
-    // ========================================================================
-    console.log('16. Creating training records...');
-    const trainings = [
-      { name: 'Defensive Driving Course', type: 'safety', hours: 8, cost: 150 },
-      { name: 'DOT Compliance Training', type: 'compliance', hours: 4, cost: 75 },
-      { name: 'Vehicle Safety Inspection', type: 'skills', hours: 2, cost: 50 },
-      { name: 'Customer Service Excellence', type: 'skills', hours: 3, cost: 45 },
-      { name: 'First Aid & CPR', type: 'safety', hours: 6, cost: 125 },
-      { name: 'Hazmat Handling', type: 'compliance', hours: 8, cost: 200 }
-    ];
-
-    for (const driverId of ids.driverIds) {
-      for (const training of trainings.slice(0, randomInt(2, 4))) {
-        await client.query(`
-          INSERT INTO training_records (tenant_id, driver_id, training_name, training_type, provider, instructor_name, start_date, end_date, completion_date, status, passed, score, certificate_number, hours_completed, cost, notes, metadata)
-          VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17)
-        `, [
-          ids.tenantId,
-          driverId,
-          training.name,
-          training.type,
-          'Tallahassee Safety Training Center',
-          'Certified Instructor',
-          daysAgo(randomInt(30, 365)),
-          daysAgo(randomInt(28, 360)),
-          daysAgo(randomInt(28, 360)),
-          'completed',
-          true,
-          randomFloat(85, 100, 1),
-          `TC-${randomInt(10000, 99999)}`,
-          training.hours,
-          training.cost,
-          '',
-          '{}'
-        ]);
-      }
-    }
-    console.log('   Created driver training records\n');
-
-    // ========================================================================
-    // 17. CREATE DOCUMENTS
-    // ========================================================================
-    console.log('17. Creating documents...');
-    const docTypes = [
-      { name: 'Vehicle Insurance Policy', type: 'contract', category: 'compliance' },
-      { name: 'DOT Operating Authority', type: 'certification', category: 'compliance' },
-      { name: 'Safety Manual 2024', type: 'manual', category: 'safety' },
-      { name: 'Employee Handbook', type: 'policy', category: 'hr' },
-      { name: 'Maintenance Procedures', type: 'manual', category: 'operations' },
-      { name: 'Fleet Inspection Checklist', type: 'form', category: 'safety' },
-      { name: 'Fuel Card Policy', type: 'policy', category: 'finance' },
-      { name: 'Accident Report Form', type: 'form', category: 'safety' }
-    ];
-
-    for (const doc of docTypes) {
-      await client.query(`
-        INSERT INTO documents (tenant_id, name, description, type, category, file_url, file_size, mime_type, version, uploaded_by_id, is_public, tags, metadata)
-        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)
-      `, [
-        ids.tenantId,
-        doc.name,
-        `Official ${doc.name.toLowerCase()} for Capital City Courier Services`,
-        doc.type,
-        doc.category,
-        `/documents/${doc.name.toLowerCase().replace(/ /g, '_')}.pdf`,
-        randomInt(50000, 2000000),
-        'application/pdf',
-        '1.0',
-        ids.userIds.find((u: any) => u.role === 'Admin')?.id,
-        false,
-        JSON.stringify([doc.category, doc.type]),
-        '{}'
-      ]);
-    }
-    console.log('   Created 8 documents\n');
-
-    // ========================================================================
-    // 18. CREATE ANNOUNCEMENTS
-    // ========================================================================
-    console.log('18. Creating announcements...');
-    const announcements = [
-      { title: 'Holiday Schedule Update', message: 'Office closed December 25-26. Limited operations December 24.', type: 'info', priority: 'high' },
-      { title: 'New Safety Protocol', message: 'All drivers must complete updated safety checklist before each route.', type: 'warning', priority: 'high' },
-      { title: 'Fleet Maintenance Window', message: 'Scheduled maintenance for all vehicles this Saturday 7AM-12PM.', type: 'reminder', priority: 'medium' },
-      { title: 'Q4 Performance Bonus', message: 'Congratulations team! Q4 bonuses will be distributed next Friday.', type: 'success', priority: 'medium' },
-      { title: 'Weather Advisory', message: 'Tropical storm expected this weekend. Review emergency procedures.', type: 'alert', priority: 'critical' }
-    ];
-
-    for (const ann of announcements) {
-      await client.query(`
-        INSERT INTO announcements (tenant_id, title, message, type, priority, target_roles, published_at, expires_at, created_by_id, is_active, metadata)
-        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
-      `, [
-        ids.tenantId,
-        ann.title,
-        ann.message,
-        ann.type,
-        ann.priority,
-        JSON.stringify(['Driver', 'Dispatcher', 'Manager', 'Admin']),
-        daysAgo(randomInt(0, 14)),
-        daysFromNow(randomInt(7, 60)),
-        ids.userIds.find((u: any) => u.role === 'Admin')?.id,
-        true,
-        '{}'
-      ]);
-    }
-    console.log('   Created 5 announcements\n');
-
-    // ========================================================================
-    // 19. CREATE NOTIFICATIONS
-    // ========================================================================
-    console.log('19. Creating notifications...');
-    const notifTypes = [
-      { title: 'Vehicle Due for Service', message: 'Oil change due in 500 miles', type: 'reminder' },
-      { title: 'Route Completed', message: 'Downtown delivery route completed successfully', type: 'success' },
-      { title: 'Fuel Card Transaction', message: 'Fuel purchase $52.47 at Shell Monroe St', type: 'info' },
-      { title: 'Inspection Reminder', message: 'Pre-trip inspection required before departure', type: 'warning' },
-      { title: 'New Work Order Assigned', message: 'Brake inspection assigned for CCC-005', type: 'info' }
-    ];
-
-    for (const user of ids.userIds.slice(0, 10)) {
-      for (let i = 0; i < randomInt(3, 8); i++) {
-        const notif = randomItem(notifTypes);
-        await client.query(`
-          INSERT INTO notifications (tenant_id, user_id, title, message, type, priority, is_read, read_at, sent_at, metadata)
-          VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
-        `, [
-          ids.tenantId,
-          user.id,
-          notif.title,
-          notif.message,
-          notif.type,
-          'medium',
-          Math.random() > 0.4,
-          Math.random() > 0.4 ? daysAgo(randomInt(0, 7)) : null,
-          daysAgo(randomInt(0, 14)),
-          '{}'
-        ]);
-      }
-    }
-    console.log('   Created notifications\n');
-
-    // ========================================================================
-    // 20. CREATE CHARGING STATIONS
-    // ========================================================================
-    console.log('20. Creating charging stations...');
-    const chargingStations = [
-      { name: 'HQ Charging Bay 1', type: 'level2', lat: 30.4156, lng: -84.3089, ports: 2, powerKw: 19.2 },
-      { name: 'HQ Charging Bay 2', type: 'level2', lat: 30.4157, lng: -84.3090, ports: 2, powerKw: 19.2 },
-      { name: 'North Satellite Charger', type: 'level2', lat: 30.5156, lng: -84.2089, ports: 1, powerKw: 11.5 }
-    ];
-
-    for (const station of chargingStations) {
       const result = await client.query(`
         INSERT INTO charging_stations (tenant_id, name, station_id, type, facility_id, latitude, longitude, address, number_of_ports, available_ports, max_power_kw, cost_per_kwh, is_public, status, metadata)
         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15)
         RETURNING id
       `, [
         ids.tenantId,
-        station.name,
-        `CS-${randomInt(1000, 9999)}`,
-        station.type,
-        ids.facilityIds[0],
-        station.lat,
-        station.lng,
-        '2847 Industrial Plaza Dr, Tallahassee, FL 32310',
-        station.ports,
-        station.ports,
-        station.powerKw,
-        0.15,
-        false,
-        'active',
-        '{}'
+        `${faker.location.street()} Charging Station`,
+        `CS-${faker.string.alphanumeric(6).toUpperCase()}`,
+        faker.helpers.arrayElement(['level1', 'level2', 'dcfast']),
+        faker.helpers.arrayElement(ids.facilityIds),
+        location.lat, location.lng,
+        `${generateAddress()}, ${REGION.city}, ${REGION.state} ${generateZipCode()}`,
+        faker.number.int({ min: 1, max: 4 }),
+        faker.number.int({ min: 1, max: 4 }),
+        faker.number.float({ min: 7, max: 150, fractionDigits: 2 }),
+        faker.number.float({ min: 0.10, max: 0.35, fractionDigits: 4 }),
+        faker.datatype.boolean({ probability: 0.3 }),
+        'active', '{}'
       ]);
       ids.chargingStationIds.push(result.rows[0].id);
     }
-    console.log('   Created 3 charging stations\n');
+    console.log(`   Created ${CONFIG.chargingStations} charging stations\n`);
 
-    // ========================================================================
-    // 21. CREATE CHARGING SESSIONS
-    // ========================================================================
-    console.log('21. Creating charging sessions...');
-    const evVehicleIds = ids.vehicleIds.slice(9, 11); // Tesla Model 3 and Model Y
-
-    for (let i = 0; i < 35; i++) {
-      const vehicleId = randomItem(evVehicleIds);
-      const stationId = randomItem(ids.chargingStationIds);
-      const energyKwh = randomFloat(15, 55, 3);
+    console.log('16. Creating charging sessions...');
+    for (let i = 0; i < CONFIG.chargingSessions; i++) {
+      const energyKwh = faker.number.float({ min: 10, max: 60, fractionDigits: 3 });
 
       await client.query(`
         INSERT INTO charging_sessions (tenant_id, vehicle_id, driver_id, station_id, start_time, end_time, duration_minutes, energy_delivered_kwh, start_soc_percent, end_soc_percent, cost, payment_method, status, metadata)
         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14)
       `, [
         ids.tenantId,
-        vehicleId,
-        randomItem(ids.driverIds),
-        stationId,
-        daysAgo(randomInt(0, 60)),
-        daysAgo(randomInt(0, 60)),
-        randomInt(45, 240),
+        faker.helpers.arrayElement(ids.vehicleIds),
+        ids.driverIds.length > 0 ? faker.helpers.arrayElement(ids.driverIds) : null,
+        faker.helpers.arrayElement(ids.chargingStationIds),
+        faker.date.recent({ days: 60 }),
+        faker.date.recent({ days: 59 }),
+        faker.number.int({ min: 30, max: 240 }),
         energyKwh,
-        randomFloat(15, 45),
-        randomFloat(80, 100),
-        (energyKwh * 0.15).toFixed(2),
+        faker.number.float({ min: 10, max: 50, fractionDigits: 2 }),
+        faker.number.float({ min: 70, max: 100, fractionDigits: 2 }),
+        parseFloat((energyKwh * faker.number.float({ min: 0.15, max: 0.30 })).toFixed(2)),
         'company_account',
-        'completed',
-        '{}'
+        'completed', '{}'
       ]);
     }
-    console.log('   Created 35 charging sessions\n');
-
-    // ========================================================================
-    // 22. CREATE PURCHASE ORDERS
-    // ========================================================================
-    console.log('22. Creating purchase orders...');
-    for (let i = 0; i < 18; i++) {
-      const vendorId = randomItem(ids.vendorIds);
-      const subtotal = randomFloat(150, 2500, 2);
-      const tax = subtotal * 0.07;
-      const shipping = randomFloat(0, 25, 2);
-      const total = subtotal + tax + shipping;
-
-      await client.query(`
-        INSERT INTO purchase_orders (tenant_id, number, vendor_id, status, order_date, expected_delivery_date, subtotal, tax_amount, shipping_cost, total_amount, payment_status, paid_amount, requested_by_id, approved_by_id, shipping_address, notes, line_items, metadata)
-        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18)
-      `, [
-        ids.tenantId,
-        `PO-${new Date().getFullYear()}-${String(i + 1001).padStart(4, '0')}`,
-        vendorId,
-        randomItem(['pending', 'completed', 'completed', 'completed']),
-        daysAgo(randomInt(0, 45)),
-        daysFromNow(randomInt(3, 14)),
-        subtotal,
-        tax.toFixed(2),
-        shipping,
-        total.toFixed(2),
-        randomItem(['unpaid', 'paid', 'paid']),
-        Math.random() > 0.3 ? total.toFixed(2) : '0.00',
-        ids.userIds.find((u: any) => u.role === 'Mechanic')?.id,
-        ids.userIds.find((u: any) => u.role === 'Manager')?.id,
-        COMPANY.address,
-        'Parts order for fleet maintenance',
-        JSON.stringify([]),
-        '{}'
-      ]);
-    }
-    console.log('   Created 18 purchase orders\n');
-
-    // ========================================================================
-    // 23. CREATE ASSETS
-    // ========================================================================
-    console.log('23. Creating assets...');
-    const assets = [
-      { name: 'Snap-on Tool Chest', type: 'tool', category: 'Garage', value: 4500 },
-      { name: 'Floor Jack 3-Ton', type: 'equipment', category: 'Garage', value: 350 },
-      { name: 'OBD-II Scanner Pro', type: 'equipment', category: 'Diagnostic', value: 1200 },
-      { name: 'Tire Changer Machine', type: 'machinery', category: 'Garage', value: 3800 },
-      { name: 'Wheel Balancer', type: 'machinery', category: 'Garage', value: 2900 },
-      { name: 'Air Compressor 60-Gal', type: 'equipment', category: 'Garage', value: 1100 },
-      { name: 'Pressure Washer', type: 'equipment', category: 'Cleaning', value: 450 },
-      { name: 'Dispatch Computer Station', type: 'technology', category: 'Office', value: 2200 },
-      { name: 'Fleet GPS Tracking Server', type: 'technology', category: 'IT', value: 3500 },
-      { name: 'Security Camera System', type: 'technology', category: 'Security', value: 1800 }
-    ];
-
-    for (const asset of assets) {
-      await client.query(`
-        INSERT INTO assets (tenant_id, asset_number, name, description, type, category, manufacturer, purchase_date, purchase_price, current_value, status, assigned_facility_id, condition, warranty_expiry_date, notes, metadata)
-        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16)
-      `, [
-        ids.tenantId,
-        `AST-${String(randomInt(10000, 99999))}`,
-        asset.name,
-        `${asset.name} for fleet operations`,
-        asset.type,
-        asset.category,
-        randomItem(['Snap-on', 'Milwaukee', 'DeWalt', 'Autel', 'Dell', 'Axis']),
-        daysAgo(randomInt(180, 1095)),
-        asset.value,
-        asset.value * randomFloat(0.6, 0.9),
-        'active',
-        ids.facilityIds[0],
-        randomItem(['excellent', 'good', 'good', 'fair']),
-        daysFromNow(randomInt(180, 730)),
-        '',
-        '{}'
-      ]);
-    }
-    console.log('   Created 10 assets\n');
-
-    // ========================================================================
-    // 24. CREATE MAINTENANCE SCHEDULES
-    // ========================================================================
-    console.log('24. Creating maintenance schedules...');
-    const maintenanceItems = [
-      { name: 'Oil Change', intervalMiles: 5000, intervalDays: 90, cost: 85 },
-      { name: 'Tire Rotation', intervalMiles: 7500, intervalDays: 120, cost: 45 },
-      { name: 'Brake Inspection', intervalMiles: 15000, intervalDays: 180, cost: 125 },
-      { name: 'Transmission Service', intervalMiles: 30000, intervalDays: 365, cost: 350 },
-      { name: 'Air Filter Replacement', intervalMiles: 20000, intervalDays: 365, cost: 55 }
-    ];
-
-    for (const vehicleId of ids.vehicleIds) {
-      for (const maint of maintenanceItems.slice(0, randomInt(2, 4))) {
-        await client.query(`
-          INSERT INTO maintenance_schedules (tenant_id, vehicle_id, name, description, type, interval_miles, interval_days, last_service_date, last_service_mileage, next_service_date, next_service_mileage, estimated_cost, estimated_duration, is_active, metadata)
-          VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15)
-        `, [
-          ids.tenantId,
-          vehicleId,
-          maint.name,
-          `Scheduled ${maint.name.toLowerCase()} service`,
-          'preventive',
-          maint.intervalMiles,
-          maint.intervalDays,
-          daysAgo(randomInt(30, 90)),
-          randomInt(15000, 70000),
-          daysFromNow(randomInt(30, 120)),
-          randomInt(20000, 85000),
-          maint.cost,
-          randomInt(30, 120),
-          true,
-          '{}'
-        ]);
-      }
-    }
-    console.log('   Created maintenance schedules\n');
-
-    // ========================================================================
-    // 25. CREATE DISPATCHES
-    // ========================================================================
-    console.log('25. Creating dispatches...');
-    for (let i = 0; i < 50; i++) {
-      const vehicleId = randomItem(ids.vehicleIds);
-      const driverId = randomItem(ids.driverIds);
-      const origin = randomItem(Object.values(TALLAHASSEE_LOCATIONS));
-      const dest = randomItem(Object.values(TALLAHASSEE_LOCATIONS));
-
-      await client.query(`
-        INSERT INTO dispatches (tenant_id, vehicle_id, driver_id, dispatcher_id, type, priority, status, origin, destination, origin_lat, origin_lng, destination_lat, destination_lng, dispatched_at, acknowledged_at, arrived_at, completed_at, notes, metadata)
-        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19)
-      `, [
-        ids.tenantId,
-        vehicleId,
-        driverId,
-        ids.userIds.find((u: any) => u.role === 'Dispatcher')?.id,
-        randomItem(['delivery', 'pickup', 'service', 'express']),
-        randomItem(['low', 'medium', 'medium', 'high']),
-        randomItem(['pending', 'in_progress', 'completed', 'completed', 'completed']),
-        origin.address,
-        dest.address,
-        origin.lat,
-        origin.lng,
-        dest.lat,
-        dest.lng,
-        daysAgo(randomInt(0, 30)),
-        daysAgo(randomInt(0, 30)),
-        daysAgo(randomInt(0, 30)),
-        Math.random() > 0.3 ? daysAgo(randomInt(0, 30)) : null,
-        '',
-        '{}'
-      ]);
-    }
-    console.log('   Created 50 dispatches\n');
-
-    // ========================================================================
-    // 26. CREATE TELEMETRY DATA
-    // ========================================================================
-    console.log('26. Creating telemetry data...');
-    for (const vehicleId of ids.vehicleIds.slice(0, 10)) {
-      for (let j = 0; j < 24; j++) {
-        await client.query(`
-          INSERT INTO telemetry_data (tenant_id, vehicle_id, timestamp, engine_rpm, engine_temperature, battery_voltage, fuel_consumption_rate, tire_pressure_front_left, tire_pressure_front_right, tire_pressure_rear_left, tire_pressure_rear_right, oil_pressure, diagnostic_codes, raw_data)
-          VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14)
-        `, [
-          ids.tenantId,
-          vehicleId,
-          new Date(Date.now() - j * 3600000),
-          randomInt(700, 3500),
-          randomFloat(180, 220),
-          randomFloat(12.4, 14.2),
-          randomFloat(2.5, 8.5),
-          randomFloat(32, 36),
-          randomFloat(32, 36),
-          randomFloat(32, 36),
-          randomFloat(32, 36),
-          randomFloat(25, 45),
-          JSON.stringify([]),
-          JSON.stringify({})
-        ]);
-      }
-    }
-    console.log('   Created 240 telemetry records\n');
-
-    // ========================================================================
-    // 27. CREATE INVOICES
-    // ========================================================================
-    console.log('27. Creating invoices...');
-    for (let i = 0; i < 15; i++) {
-      const vendorId = randomItem(ids.vendorIds);
-      const subtotal = randomFloat(200, 3500, 2);
-      const tax = subtotal * 0.07;
-      const total = subtotal + tax;
-      const status = randomItem(['paid', 'paid', 'paid', 'sent', 'draft']);
-
-      await client.query(`
-        INSERT INTO invoices (tenant_id, number, type, vendor_id, status, invoice_date, due_date, paid_date, subtotal, tax_amount, discount_amount, total_amount, paid_amount, balance_due, payment_method, notes, line_items, metadata)
-        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18)
-      `, [
-        ids.tenantId,
-        `INV-${new Date().getFullYear()}-${String(i + 1001).padStart(4, '0')}`,
-        'vendor',
-        vendorId,
-        status,
-        daysAgo(randomInt(0, 60)),
-        daysFromNow(randomInt(15, 45)),
-        status === 'paid' ? daysAgo(randomInt(0, 30)) : null,
-        subtotal,
-        tax.toFixed(2),
-        '0.00',
-        total.toFixed(2),
-        status === 'paid' ? total.toFixed(2) : '0.00',
-        status === 'paid' ? '0.00' : total.toFixed(2),
-        status === 'paid' ? randomItem(['check', 'ach', 'credit_card']) : null,
-        '',
-        JSON.stringify([]),
-        '{}'
-      ]);
-    }
-    console.log('   Created 15 invoices\n');
-
-    // ========================================================================
-    // 28. CREATE TASKS
-    // ========================================================================
-    console.log('28. Creating tasks...');
-    const taskTemplates = [
-      { title: 'Complete vehicle inspection', type: 'inspection' },
-      { title: 'Update driver certification', type: 'administrative' },
-      { title: 'Review fuel reports', type: 'administrative' },
-      { title: 'Process maintenance request', type: 'maintenance' },
-      { title: 'Approve purchase order', type: 'administrative' },
-      { title: 'Conduct safety briefing', type: 'safety' },
-      { title: 'Review incident report', type: 'safety' },
-      { title: 'Schedule DOT inspection', type: 'inspection' }
-    ];
-
-    for (let i = 0; i < 25; i++) {
-      const task = randomItem(taskTemplates);
-      await client.query(`
-        INSERT INTO tasks (tenant_id, title, description, type, priority, status, assigned_to_id, created_by_id, due_date, completed_at, notes, metadata)
-        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
-      `, [
-        ids.tenantId,
-        task.title,
-        `${task.title} for fleet operations`,
-        task.type,
-        randomItem(['low', 'medium', 'medium', 'high']),
-        randomItem(['pending', 'in_progress', 'completed', 'completed']),
-        randomItem(ids.userIds)?.id,
-        ids.userIds.find((u: any) => u.role === 'Manager')?.id,
-        daysFromNow(randomInt(1, 14)),
-        Math.random() > 0.5 ? daysAgo(randomInt(0, 7)) : null,
-        '',
-        '{}'
-      ]);
-    }
-    console.log('   Created 25 tasks\n');
-
-    // ========================================================================
-    // 29. CREATE AUDIT LOGS
-    // ========================================================================
-    console.log('29. Creating audit logs...');
-    const auditActions = ['login', 'create', 'update', 'delete', 'view', 'export'];
-    const entityTypes = ['vehicle', 'driver', 'route', 'work_order', 'fuel_transaction', 'user'];
-
-    for (let i = 0; i < 150; i++) {
-      const user = randomItem(ids.userIds);
-      await client.query(`
-        INSERT INTO audit_logs (tenant_id, user_id, action, entity_type, entity_id, ip_address, user_agent, metadata)
-        VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
-      `, [
-        ids.tenantId,
-        user.id,
-        randomItem(auditActions),
-        randomItem(entityTypes),
-        null,
-        `192.168.1.${randomInt(1, 254)}`,
-        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/120.0.0.0',
-        '{}'
-      ]);
-    }
-    console.log('   Created 150 audit logs\n');
+    console.log(`   Created ${CONFIG.chargingSessions} charging sessions\n`);
 
     // ========================================================================
     // SUMMARY
     // ========================================================================
     console.log('=========================================================');
-    console.log('  SEED COMPLETE - CAPITAL CITY COURIER SERVICES');
+    console.log('  SEED COMPLETE');
     console.log('=========================================================\n');
-    console.log('Data Summary:');
-    console.log(`  - 1 Tenant (${COMPANY.name})`);
-    console.log(`  - ${EMPLOYEES.length} Users`);
-    console.log(`  - ${FACILITIES.length} Facilities`);
+    console.log(`Company: ${company.name}`);
+    console.log(`Domain: ${company.domain}`);
+    console.log(`Location: ${REGION.city}, ${REGION.state}\n`);
+    console.log('Data Generated:');
+    console.log(`  - 1 Tenant`);
+    console.log(`  - ${roles.length} Users`);
+    console.log(`  - ${CONFIG.facilities} Facilities`);
     console.log(`  - ${driverUsers.length} Drivers`);
-    console.log(`  - ${VEHICLES.length} Vehicles (with Sketchfab 3D models)`);
-    console.log(`  - ${VENDORS.length} Vendors`);
-    console.log(`  - ${PARTS_INVENTORY.length} Parts`);
-    console.log('  - 45 Work Orders');
-    console.log('  - 180 Fuel Transactions');
-    console.log('  - 35 Routes');
-    console.log('  - 120 Inspections');
-    console.log('  - 800 GPS Tracks');
-    console.log('  - 6 Geofences');
-    console.log('  - 12 Incidents');
-    console.log('  - Driver Certifications & Training');
-    console.log('  - 8 Documents');
-    console.log('  - 5 Announcements');
-    console.log('  - User Notifications');
-    console.log('  - 3 Charging Stations');
-    console.log('  - 35 Charging Sessions');
-    console.log('  - 18 Purchase Orders');
-    console.log('  - 10 Assets');
-    console.log('  - Maintenance Schedules');
-    console.log('  - 50 Dispatches');
-    console.log('  - 240 Telemetry Records');
-    console.log('  - 15 Invoices');
-    console.log('  - 25 Tasks');
-    console.log('  - 150 Audit Logs');
-    console.log('\nLogin Credentials:');
-    console.log('  Email: marcus.washington@capitalcitycourier.com');
-    console.log('  Password: TallyCourier2024!');
-    console.log('\n');
+    console.log(`  - ${CONFIG.vehicles} Vehicles (with Sketchfab 3D models)`);
+    console.log(`  - ${CONFIG.vendors} Vendors`);
+    console.log(`  - ${CONFIG.parts} Parts`);
+    console.log(`  - ${CONFIG.workOrders} Work Orders`);
+    console.log(`  - ${CONFIG.fuelTransactions} Fuel Transactions`);
+    console.log(`  - ${CONFIG.routes} Routes`);
+    console.log(`  - ${CONFIG.inspections} Inspections`);
+    console.log(`  - ${totalGPSTracks} GPS Tracks`);
+    console.log(`  - ${CONFIG.geofences} Geofences`);
+    console.log(`  - ${CONFIG.incidents} Incidents`);
+    console.log(`  - ${CONFIG.chargingStations} Charging Stations`);
+    console.log(`  - ${CONFIG.chargingSessions} Charging Sessions`);
+    console.log('\nAll data dynamically generated - no hardcoded values!\n');
 
   } catch (error) {
     console.error('Error seeding database:', error);
