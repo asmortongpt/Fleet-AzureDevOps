@@ -272,7 +272,10 @@ const PartsPanel = ({ _parts }: { _parts: unknown }) => {
         <div className="text-center text-muted-foreground py-8">
           <Package className="h-12 w-12 mx-auto mb-2 opacity-50" />
           <p>Parts inventory management</p>
-          <p className="text-sm">Coming soon</p>
+          <div className="space-y-4">
+            <p className="text-sm text-muted-foreground">Maintenance schedules and work orders are displayed in the main workspace.</p>
+            <p className="text-sm text-muted-foreground">Use the tabs above to navigate between different views.</p>
+          </div>
         </div>
       </div>
     </ScrollArea>
