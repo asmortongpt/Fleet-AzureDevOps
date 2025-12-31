@@ -128,6 +128,69 @@ router.get("/:id",
   })
 )
 
+// GET vehicle trips - Requires authentication + tenant isolation
+router.get("/:id/trips",
+  requireRBAC({
+    roles: [Role.ADMIN, Role.MANAGER, Role.USER, Role.GUEST],
+    permissions: [PERMISSIONS.VEHICLE_READ],
+    enforceTenantIsolation: true,
+    resourceType: 'vehicle'
+  }),
+  validateParams(vehicleIdSchema),
+  asyncHandler(async (req: Request, res: Response) => {
+    const tenantId = (req as any).user?.tenant_id
+    const vehicleId = req.params.id
+
+    if (!tenantId) {
+      throw new ValidationError('Tenant ID is required')
+    }
+
+    // Cache key for trips
+    const cacheKey = `vehicle:${tenantId}:${vehicleId}:trips`
+    const cached = await cacheService.get<any[]>(cacheKey)
+
+    if (cached) {
+      logger.debug('Vehicle trips cache hit', { vehicleId, tenantId })
+      return res.json(cached)
+    }
+
+    // TODO: Implement actual trip fetching from database
+    // For now, return demo data to match frontend expectations
+    const demoTrips = [
+      {
+        id: `trip-${vehicleId}-1`,
+        status: 'completed',
+        driver_name: 'John Doe',
+        start_time: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
+        duration: '2h 30m',
+        start_location: '123 Main St, City, State',
+        end_location: '456 Oak Ave, City, State',
+        distance: 45.2,
+        avg_speed: 35.5,
+        fuel_used: 3.2
+      },
+      {
+        id: `trip-${vehicleId}-2`,
+        status: 'completed',
+        driver_name: 'Jane Smith',
+        start_time: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString(),
+        duration: '1h 45m',
+        start_location: '789 Elm St, City, State',
+        end_location: '321 Pine Rd, City, State',
+        distance: 28.7,
+        avg_speed: 32.1,
+        fuel_used: 2.1
+      }
+    ]
+
+    // Cache for 5 minutes
+    await cacheService.set(cacheKey, demoTrips, 300)
+
+    logger.info('Fetched vehicle trips', { vehicleId, tenantId, count: demoTrips.length })
+    res.json(demoTrips)
+  })
+)
+
 // POST create vehicle - Requires admin or manager role
 // CRIT-B-003: Comprehensive input validation with sanitization
 router.post("/",
