@@ -9,13 +9,20 @@ import {
   Lightning,
   Warning,
 } from "@phosphor-icons/react";
-import React, { useState } from "react";
+import React, { Suspense, useState } from "react";
 
 import { HubLayout } from "../../components/layout/HubLayout";
 import { Badge } from "../../components/ui/badge";
 import { Button } from "../../components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "../../components/ui/card";
-import { useFleetData } from "../../hooks/use-fleet-data";
+
+// Import actual analytics module components
+import { CostAnalysisCenter } from "../../components/modules/analytics/CostAnalysisCenter";
+import { CustomReportBuilder } from "../../components/modules/analytics/CustomReportBuilder";
+import { DataWorkbench } from "../../components/modules/analytics/DataWorkbench";
+import { ExecutiveDashboard } from "../../components/modules/analytics/ExecutiveDashboard";
+import { FleetAnalytics } from "../../components/modules/fleet/FleetAnalytics";
+import { PredictiveMaintenance } from "../../components/modules/maintenance/PredictiveMaintenance";
 
 type InsightsModule =
   | "overview"
@@ -26,39 +33,30 @@ type InsightsModule =
   | "cost-analysis"
   | "predictive";
 
-interface FleetData {
-  // Define the shape of fleet data as needed
-  [key: string]: unknown;
-}
-
-// Placeholder components with proper typing
-const CostAnalysisCenter: React.FC = () => <div>Cost Analysis Center (Placeholder)</div>;
-const CustomReportBuilder: React.FC = () => <div>Custom Report Builder (Placeholder)</div>;
-const DataWorkbench: React.FC = () => <div>Data Workbench (Placeholder)</div>;
-const ExecutiveDashboard: React.FC = () => <div>Executive Dashboard (Placeholder)</div>;
-const FleetAnalytics: React.FC<{ data: FleetData | null }> = ({ data }) => (
-  <div>Fleet Analytics (Placeholder) - Data: {data ? 'Available' : 'Loading'}</div>
+// Loading fallback for Suspense
+const ModuleLoader: React.FC = () => (
+  <div className="flex items-center justify-center h-64">
+    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+  </div>
 );
-const PredictiveMaintenance: React.FC = () => <div>Predictive Maintenance (Placeholder)</div>;
 
 const InsightsHub: React.FC = () => {
   const [activeModule, setActiveModule] = useState<InsightsModule>("overview");
-  const fleetData = useFleetData();
 
   const renderModule = () => {
     switch (activeModule) {
       case "executive":
-        return <ExecutiveDashboard />;
+        return <Suspense fallback={<ModuleLoader />}><ExecutiveDashboard /></Suspense>;
       case "analytics":
-        return <FleetAnalytics data={fleetData} />;
+        return <Suspense fallback={<ModuleLoader />}><FleetAnalytics /></Suspense>;
       case "reports":
-        return <CustomReportBuilder />;
+        return <Suspense fallback={<ModuleLoader />}><CustomReportBuilder /></Suspense>;
       case "workbench":
-        return <DataWorkbench />;
+        return <Suspense fallback={<ModuleLoader />}><DataWorkbench /></Suspense>;
       case "cost-analysis":
-        return <CostAnalysisCenter />;
+        return <Suspense fallback={<ModuleLoader />}><CostAnalysisCenter /></Suspense>;
       case "predictive":
-        return <PredictiveMaintenance />;
+        return <Suspense fallback={<ModuleLoader />}><PredictiveMaintenance /></Suspense>;
       case "overview":
       default:
         return (
