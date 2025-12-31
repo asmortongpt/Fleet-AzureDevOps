@@ -16,15 +16,15 @@ interface Asset3DViewerProps {
 
 function VehicleModel({ url, vehicleType }: { url: string; vehicleType: string }) {
   const { scene } = useGLTF(url);
-  
+
   useEffect(() => {
     // Apply photorealistic materials to vehicle
     const materials = PhotorealisticMaterials;
-    
+
     scene.traverse((child: any) => {
       if (child.isMesh) {
         const meshName = child.name.toLowerCase();
-        
+
         if (meshName.includes('body') || meshName.includes('paint')) {
           child.material = materials.createCarPaintMaterial('#1a5490', 'gloss');
         } else if (meshName.includes('glass') || meshName.includes('window')) {
@@ -37,7 +37,7 @@ function VehicleModel({ url, vehicleType }: { url: string; vehicleType: string }
       }
     });
   }, [scene, vehicleType]);
-  
+
   return <primitive object={scene} />;
 }
 
@@ -46,29 +46,29 @@ export function Asset3DViewer({ modelUrl, vehicleType = 'sedan', onLoad, onError
   const [deviceCapabilities, setDeviceCapabilities] = useState<any>(null);
   const [currentCamera, setCurrentCamera] = useState('hero');
   const [showControls, setShowControls] = useState(true);
-  
+
   useEffect(() => {
     // Detect device capabilities
     const capabilities = detectWebGLCapabilities();
     setDeviceCapabilities(capabilities);
   }, []);
-  
+
   const handleCameraChange = (preset: string) => {
     setCurrentCamera(preset);
   };
-  
+
   const cameraPresets = [
-    'hero', 'frontQuarter', 'rearQuarter', 'profile', 
+    'hero', 'frontQuarter', 'rearQuarter', 'profile',
     'topDown', 'interior', 'engineBay', 'wheelDetail'
   ];
-  
+
   return (
-    <div className=relative w-full h-full>
+    <div className="relative w-full h-full">
       <Canvas
         ref={canvasRef}
         shadows
         dpr={deviceCapabilities?.webgl2 ? [1, 2] : [1, 1.5]}
-        gl={{ 
+        gl={{
           antialias: true,
           alpha: true,
           powerPreference: 'high-performance'
@@ -76,7 +76,7 @@ export function Asset3DViewer({ modelUrl, vehicleType = 'sedan', onLoad, onError
       >
         <Suspense fallback={null}>
           <PerspectiveCamera makeDefault position={[4, 2, 4]} fov={50} />
-          
+
           {/* Lighting System */}
           <ambientLight intensity={0.3} />
           <directionalLight
@@ -87,13 +87,13 @@ export function Asset3DViewer({ modelUrl, vehicleType = 'sedan', onLoad, onError
             shadow-mapSize-height={2048}
           />
           <directionalLight position={[-10, 5, -5]} intensity={0.5} />
-          
+
           {/* Environment */}
           <Environment preset="sunset" background={false} />
-          
+
           {/* Vehicle Model with Photorealistic Materials */}
           <VehicleModel url={modelUrl} vehicleType={vehicleType} />
-          
+
           {/* Camera Controls */}
           <OrbitControls
             enablePan={true}
@@ -105,7 +105,7 @@ export function Asset3DViewer({ modelUrl, vehicleType = 'sedan', onLoad, onError
           />
         </Suspense>
       </Canvas>
-      
+
       {/* Camera Preset Controls */}
       {showControls && (
         <div className="absolute top-4 right-4 bg-white/90 rounded-lg shadow-lg p-4 space-y-2">
@@ -115,11 +115,10 @@ export function Asset3DViewer({ modelUrl, vehicleType = 'sedan', onLoad, onError
               <button
                 key={preset}
                 onClick={() => handleCameraChange(preset)}
-                className={`px-3 py-1 text-xs rounded ${
-                  currentCamera === preset
+                className={`px-3 py-1 text-xs rounded ${currentCamera === preset
                     ? 'bg-blue-600 text-white'
                     : 'bg-gray-200 hover:bg-gray-300'
-                }`}
+                  }`}
               >
                 {preset}
               </button>
@@ -127,7 +126,7 @@ export function Asset3DViewer({ modelUrl, vehicleType = 'sedan', onLoad, onError
           </div>
         </div>
       )}
-      
+
       {/* Device Info Badge */}
       {deviceCapabilities && (
         <div className="absolute bottom-4 left-4 bg-black/70 text-white text-xs px-3 py-2 rounded">
