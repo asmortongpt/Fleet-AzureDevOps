@@ -1,15 +1,17 @@
 /**
  * Premium Statistics Card Component
- * 
+ *
  * Features:
  * - Glassmorphism effect
  * - Gradient accents
  * - Trend indicators (up/down)
  * - Animated counters
  * - Hover effects
+ * - Entrance animations with framer-motion
  */
 
 import { ArrowUp, ArrowDown, Minus } from '@phosphor-icons/react'
+import { motion } from 'framer-motion'
 
 import { cn } from '@/lib/utils'
 
@@ -85,7 +87,12 @@ export function StatCard({
     const trendColor = trend === 'up' ? 'text-emerald-400' : trend === 'down' ? 'text-red-400' : 'text-slate-400'
 
     return (
-        <div
+        <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.3, ease: 'easeOut' }}
+            whileHover={isClickable ? { scale: 1.02, transition: { duration: 0.2 } } : {}}
+            whileTap={isClickable ? { scale: 0.99 } : {}}
             role={isClickable ? 'button' : undefined}
             tabIndex={isClickable ? 0 : undefined}
             onClick={onClick}
@@ -101,10 +108,10 @@ export function StatCard({
                 'relative overflow-hidden rounded-lg border p-3',
                 // Glassmorphism
                 'backdrop-blur-xl shadow-lg',
-                // Hover effects
-                'transition-all duration-200 hover:shadow-xl',
-                // Clickable styling
-                isClickable && 'cursor-pointer hover:scale-[1.02] hover:border-opacity-80 active:scale-[0.99] focus:outline-none focus:ring-2 focus:ring-blue-500/50',
+                // Hover effects - removed scale since we use whileHover
+                'transition-shadow duration-200 hover:shadow-xl',
+                // Clickable styling - removed scale classes since we use whileHover/whileTap
+                isClickable && 'cursor-pointer hover:border-opacity-80 focus:outline-none focus:ring-2 focus:ring-blue-500/50',
                 // Variant styles
                 styles.bg,
                 styles.border,
@@ -157,7 +164,7 @@ export function StatCard({
                     <span className="text-[9px] text-slate-500 uppercase tracking-wider">Click to drill down →</span>
                 </div>
             )}
-        </div>
+        </motion.div>
     )
 }
 
@@ -193,7 +200,12 @@ export function ProgressRing({
     const offset = circumference - (progress / 100) * circumference
 
     return (
-        <div className="relative inline-flex items-center justify-center">
+        <motion.div
+            initial={{ opacity: 0, scale: 0.8 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.4, ease: 'easeOut' }}
+            className="relative inline-flex items-center justify-center"
+        >
             <svg width={size} height={size} className="transform -rotate-90">
                 <circle
                     cx={size / 2}
@@ -204,24 +216,33 @@ export function ProgressRing({
                     strokeWidth={strokeWidth}
                     className="text-slate-700/50"
                 />
-                <circle
+                <motion.circle
                     cx={size / 2}
                     cy={size / 2}
                     r={radius}
                     fill="none"
                     strokeWidth={strokeWidth}
                     strokeDasharray={circumference}
-                    strokeDashoffset={offset}
                     strokeLinecap="round"
                     className={cn('transition-all duration-700 ease-out', ringColors[color])}
+                    initial={{ strokeDashoffset: circumference }}
+                    animate={{ strokeDashoffset: offset }}
+                    transition={{ duration: 1, ease: 'easeOut', delay: 0.2 }}
                 />
             </svg>
             <div className="absolute inset-0 flex flex-col items-center justify-center">
-                <span className="text-lg font-bold text-white">{progress}%</span>
+                <motion.span
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ delay: 0.3 }}
+                    className="text-lg font-bold text-white"
+                >
+                    {progress}%
+                </motion.span>
                 {label && <span className="text-[10px] text-slate-400">{label}</span>}
                 {sublabel && <span className="text-[8px] text-slate-500">{sublabel}</span>}
             </div>
-        </div>
+        </motion.div>
     )
 }
 
@@ -274,7 +295,10 @@ interface QuickStatProps {
 export function QuickStat({ label, value, trend, onClick }: QuickStatProps) {
     const isClickable = !!onClick
     return (
-        <div
+        <motion.div
+            initial={{ opacity: 0, x: -10 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.2 }}
             role={isClickable ? 'button' : undefined}
             tabIndex={isClickable ? 0 : undefined}
             onClick={onClick}
@@ -299,6 +323,35 @@ export function QuickStat({ label, value, trend, onClick }: QuickStatProps) {
                 )}
                 {isClickable && <span className="text-slate-600 text-xs">→</span>}
             </div>
-        </div>
+        </motion.div>
+    )
+}
+
+/**
+ * StatGrid Container - Provides stagger animation for child StatCards
+ * Wrap StatCards in this container for coordinated entrance animations
+ */
+interface StatGridProps {
+    children: React.ReactNode
+    className?: string
+    staggerDelay?: number
+}
+
+export function StatGrid({ children, className, staggerDelay = 0.1 }: StatGridProps) {
+    return (
+        <motion.div
+            initial="hidden"
+            animate="visible"
+            variants={{
+                visible: {
+                    transition: {
+                        staggerChildren: staggerDelay,
+                    },
+                },
+            }}
+            className={className}
+        >
+            {children}
+        </motion.div>
     )
 }
