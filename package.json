@@ -182,6 +182,7 @@
     "sonner": "^2.0.1",
     "swr": "^2.3.6",
     "tailwind-merge": "^3.0.2",
+    "tesseract.js": "^7.0.0",
     "three": "^0.181.2",
     "tough-cookie": "^4.1.4",
     "tw-animate-css": "^1.2.4",
