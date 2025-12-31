@@ -43,7 +43,7 @@
     }
   },
   "include": [
-    "src"
+    "src/index-check.ts"
   ],
   "exclude": [
     "node_modules",
