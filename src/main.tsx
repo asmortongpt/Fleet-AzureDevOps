@@ -43,6 +43,9 @@ import ReactDOM from "react-dom/client"
 import { BrowserRouter, Routes, Route } from "react-router-dom"
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
 
+// i18n Internationalization
+import './i18n/config'
+
 import { AuthProvider } from "./contexts/AuthContext"
 import { TenantProvider } from "./contexts/TenantContext"
 import { FeatureFlagProvider } from "./contexts/FeatureFlagContext"
