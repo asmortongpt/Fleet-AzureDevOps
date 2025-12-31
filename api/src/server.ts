@@ -163,6 +163,7 @@ import outlookRouter from './routes/outlook.routes'
 // Emulator & Testing Routes
 import emulatorRouter from './routes/emulator.routes'
 import obd2EmulatorRouter from './routes/obd2-emulator.routes'
+import demoRouter from './routes/demo.routes'
 
 // System Management Routes
 import monitoringRouter from './routes/monitoring'
@@ -415,6 +416,7 @@ app.use('/api/video-telematics', videoTelematicsRouter)
 // Emulator & Testing Routes
 app.use('/api/emulator', emulatorRouter)
 app.use('/api/obd2-emulator', obd2EmulatorRouter)
+app.use('/api/demo', demoRouter)
 
 // System Management Routes
 app.use('/api/monitoring', monitoringRouter)
