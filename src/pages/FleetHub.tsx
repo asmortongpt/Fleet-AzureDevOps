@@ -267,25 +267,97 @@ function FleetOverviewContent() {
 // ============================================================================
 // VIDEO TELEMATICS CONTENT
 // ============================================================================
+
+// Camera feed data
+interface CameraFeed {
+    id: string
+    location: string
+    vehicleId: string
+    status: 'recording' | 'offline' | 'standby'
+    lastEvent?: string
+    thumbnail?: string
+}
+
+const mockCameras: CameraFeed[] = [
+    { id: 'cam-001', location: 'Front Dash', vehicleId: 'V-1042', status: 'recording', lastEvent: 'Lane departure' },
+    { id: 'cam-002', location: 'Rear View', vehicleId: 'V-1042', status: 'recording' },
+    { id: 'cam-003', location: 'Driver Facing', vehicleId: 'V-1087', status: 'recording', lastEvent: 'Distraction alert' },
+    { id: 'cam-004', location: 'Cargo Area', vehicleId: 'V-1087', status: 'standby' },
+    { id: 'cam-005', location: 'Front Dash', vehicleId: 'V-1023', status: 'offline' },
+    { id: 'cam-006', location: 'Side Mirror L', vehicleId: 'V-1056', status: 'recording' },
+]
+
 function VideoContent() {
     return (
-        <div className="p-4 space-y-4 bg-gradient-to-b from-slate-900/50 to-transparent h-full">
+        <div className="p-4 space-y-4 bg-gradient-to-b from-slate-900/50 to-transparent h-full overflow-hidden flex flex-col">
             <div className="flex items-center justify-between">
-                <h2 className="text-lg font-bold text-white">Video Telematics</h2>
+                <div>
+                    <h2 className="text-lg font-bold text-white">Video Telematics</h2>
+                    <p className="text-xs text-slate-400">Live camera feeds from fleet vehicles</p>
+                </div>
                 <StatusDot status="online" label="Recording" />
             </div>
 
             <div className="grid grid-cols-3 gap-3">
-                <StatCard title="Cameras" value="148" variant="success" icon={<Video className="w-5 h-5" />} />
+                <StatCard title="Cameras Online" value="148" variant="success" icon={<Video className="w-5 h-5" />} />
                 <StatCard title="Events Today" value="23" variant="warning" />
-                <StatCard title="Storage" value="2.4 TB" variant="default" />
+                <StatCard title="Storage Used" value="2.4 TB" variant="default" />
             </div>
 
-            <div className="bg-slate-800/50 rounded-lg border border-slate-700/50 p-6 text-center flex-1 flex items-center justify-center">
-                <div>
-                    <Video className="w-12 h-12 mx-auto text-slate-500 mb-2" />
-                    <p className="text-sm text-slate-400">Video playback coming soon</p>
-                </div>
+            {/* Camera Feed Grid */}
+            <div className="grid grid-cols-2 lg:grid-cols-3 gap-3 flex-1 overflow-auto">
+                {mockCameras.map(camera => (
+                    <div
+                        key={camera.id}
+                        className="bg-slate-900 rounded-lg border border-slate-700 overflow-hidden hover:border-slate-600 transition-colors cursor-pointer group"
+                    >
+                        {/* Camera Preview */}
+                        <div className="aspect-video bg-gradient-to-br from-slate-800 to-slate-900 flex items-center justify-center relative">
+                            <Video className="w-8 h-8 text-slate-600 group-hover:text-slate-500 transition-colors" />
+
+                            {/* Status indicator */}
+                            <div className="absolute top-2 left-2 flex items-center gap-1.5">
+                                <div className={`w-2 h-2 rounded-full ${
+                                    camera.status === 'recording' ? 'bg-red-500 animate-pulse' :
+                                    camera.status === 'standby' ? 'bg-yellow-500' : 'bg-gray-500'
+                                }`} />
+                                <span className="text-[10px] text-white font-medium uppercase tracking-wider">
+                                    {camera.status === 'recording' ? 'LIVE' :
+                                     camera.status === 'standby' ? 'STANDBY' : 'OFFLINE'}
+                                </span>
+                            </div>
+
+                            {/* Event badge */}
+                            {camera.lastEvent && camera.status === 'recording' && (
+                                <div className="absolute top-2 right-2 bg-amber-500/90 px-2 py-0.5 rounded text-[10px] font-medium text-white">
+                                    {camera.lastEvent}
+                                </div>
+                            )}
+
+                            {/* Playback overlay on hover */}
+                            <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                                <div className="w-12 h-12 rounded-full bg-white/20 flex items-center justify-center backdrop-blur-sm">
+                                    <div className="w-0 h-0 border-t-[8px] border-t-transparent border-l-[14px] border-l-white border-b-[8px] border-b-transparent ml-1" />
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Camera info */}
+                        <div className="p-2 border-t border-slate-700">
+                            <div className="flex items-center justify-between">
+                                <p className="text-xs font-medium text-white">{camera.location}</p>
+                                <span className="text-[10px] text-slate-400">{camera.vehicleId}</span>
+                            </div>
+                        </div>
+                    </div>
+                ))}
+            </div>
+
+            {/* View all cameras link */}
+            <div className="text-center pt-2">
+                <button className="text-xs text-blue-400 hover:text-blue-300 transition-colors">
+                    View all 148 cameras →
+                </button>
             </div>
         </div>
     )
