@@ -117,10 +117,23 @@ export default function RadioDispatchPage() {
                 Configure dispatch automation rules and workflows
               </CardDescription>
             </CardHeader>
-            <CardContent>
-              <p className="text-sm text-muted-foreground">
-                Policy management interface coming soon...
-              </p>
+            <CardContent className="space-y-4">
+              {[
+                { name: 'Auto-Acknowledge Routine', description: 'Automatically acknowledge routine check-ins', enabled: true },
+                { name: 'Emergency Escalation', description: 'Escalate emergency keywords to supervisors', enabled: true },
+                { name: 'Fuel Request Auto-Dispatch', description: 'Auto-dispatch fuel requests to nearest driver', enabled: false },
+                { name: 'Break Request Approval', description: 'Auto-approve break requests under 30 minutes', enabled: true },
+              ].map((policy, i) => (
+                <div key={i} className="flex items-center justify-between p-4 border rounded-lg">
+                  <div>
+                    <p className="font-medium">{policy.name}</p>
+                    <p className="text-sm text-muted-foreground">{policy.description}</p>
+                  </div>
+                  <Badge variant={policy.enabled ? "default" : "secondary"}>
+                    {policy.enabled ? "Active" : "Inactive"}
+                  </Badge>
+                </div>
+              ))}
             </CardContent>
           </Card>
         </TabsContent>
