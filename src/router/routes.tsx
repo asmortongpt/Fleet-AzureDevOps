@@ -94,9 +94,13 @@ const ChargesAndBilling = lazy(() => import("@/pages/PersonalUse/ChargesAndBilli
 const AssetManagement = lazy(() => import("@/components/modules/assets/AssetManagement").then(m => ({ default: m.AssetManagement })));
 const EquipmentDashboard = lazy(() => import("@/components/modules/assets/EquipmentDashboard").then(m => ({ default: m.EquipmentDashboard })));
 
+// HEAVY EQUIPMENT
+const HeavyEquipmentPage = lazy(() => import("@/pages/HeavyEquipmentPage"));
+
 // PAGES
 const SettingsPage = lazy(() => import("@/pages/SettingsPage"));
 const ProfilePage = lazy(() => import("@/pages/ProfilePage"));
+const SafetyAlertsPage = lazy(() => import("@/pages/SafetyAlertsPage"));
 
 const routes = [
   { path: "dashboard", element: <FleetDashboard /> },
@@ -142,6 +146,7 @@ const routes = [
   { path: "map-settings", element: <MapSettings /> },
   { path: "asset-management", element: <AssetManagement /> },
   { path: "equipment-dashboard", element: <EquipmentDashboard /> },
+  { path: "heavy-equipment", element: <HeavyEquipmentPage /> },
   { path: "task-management", element: <TaskManagement /> },
   { path: "incident-management", element: <IncidentManagement /> },
   { path: "notifications", element: <Notifications /> },
@@ -150,6 +155,7 @@ const routes = [
   { path: "document-qa", element: <DocumentQA /> },
   { path: "fuel-purchasing", element: <FuelPurchasing /> },
   { path: "endpoint-monitor", element: <EndpointMonitor /> },
+  { path: "safety-alerts", element: <SafetyAlertsPage /> },
   { path: "settings", element: <SettingsPage /> },
   { path: "profile", element: <ProfilePage /> },
 ];
