@@ -1,0 +1,232 @@
+{
+  "project": "Fleet Management System",
+  "repo": "/Users/andrewmorton/Documents/GitHub/Fleet",
+  "orchestration_start": "2025-12-30T18:40:00Z",
+  "overall_percent_complete": 0,
+  "branches": [
+    {
+      "id": "fix/analytics-loading",
+      "priority": 1,
+      "category": "Critical",
+      "status": "pending",
+      "percent_complete": 0,
+      "assignee": null,
+      "dependencies": [],
+      "blockers": [],
+      "links": {
+        "branch": null,
+        "pr": null
+      }
+    },
+    {
+      "id": "fix/route-fallback-safety-alerts",
+      "priority": 1,
+      "category": "Critical",
+      "status": "pending",
+      "percent_complete": 0,
+      "assignee": null,
+      "dependencies": [],
+      "blockers": [],
+      "links": {
+        "branch": null,
+        "pr": null
+      }
+    },
+    {
+      "id": "fix/route-fallback-heavy-equipment",
+      "priority": 1,
+      "category": "Critical",
+      "status": "pending",
+      "percent_complete": 0,
+      "assignee": null,
+      "dependencies": [],
+      "blockers": [],
+      "links": {
+        "branch": null,
+        "pr": null
+      }
+    },
+    {
+      "id": "fix/route-fallback-cost-analytics",
+      "priority": 1,
+      "category": "Critical",
+      "status": "pending",
+      "percent_complete": 0,
+      "assignee": null,
+      "dependencies": [],
+      "blockers": [],
+      "links": {
+        "branch": null,
+        "pr": null
+      }
+    },
+    {
+      "id": "fix/route-fallback-analytics-workbench",
+      "priority": 1,
+      "category": "Critical",
+      "status": "pending",
+      "percent_complete": 0,
+      "assignee": null,
+      "dependencies": [],
+      "blockers": [],
+      "links": {
+        "branch": null,
+        "pr": null
+      }
+    },
+    {
+      "id": "fix/route-fallback-fleet-hub",
+      "priority": 1,
+      "category": "Critical",
+      "status": "pending",
+      "percent_complete": 0,
+      "assignee": null,
+      "dependencies": [],
+      "blockers": [],
+      "links": {
+        "branch": null,
+        "pr": null
+      }
+    },
+    {
+      "id": "fix/api-cors-configuration",
+      "priority": 2,
+      "category": "API",
+      "status": "pending",
+      "percent_complete": 0,
+      "assignee": null,
+      "dependencies": [],
+      "blockers": [],
+      "links": {
+        "branch": null,
+        "pr": null
+      }
+    },
+    {
+      "id": "fix/api-database-connection",
+      "priority": 2,
+      "category": "API",
+      "status": "pending",
+      "percent_complete": 0,
+      "assignee": null,
+      "dependencies": ["fix/api-cors-configuration"],
+      "blockers": [],
+      "links": {
+        "branch": null,
+        "pr": null
+      }
+    },
+    {
+      "id": "feat/data-population-validation",
+      "priority": 2,
+      "category": "Data",
+      "status": "pending",
+      "percent_complete": 0,
+      "assignee": null,
+      "dependencies": ["fix/api-database-connection"],
+      "blockers": [],
+      "links": {
+        "branch": null,
+        "pr": null
+      }
+    },
+    {
+      "id": "feat/safety-hub-complete",
+      "priority": 3,
+      "category": "Hub",
+      "status": "pending",
+      "percent_complete": 0,
+      "assignee": null,
+      "dependencies": ["feat/data-population-validation", "fix/route-fallback-safety-alerts"],
+      "blockers": [],
+      "links": {
+        "branch": null,
+        "pr": null
+      }
+    },
+    {
+      "id": "feat/personal-use-complete",
+      "priority": 3,
+      "category": "Hub",
+      "status": "pending",
+      "percent_complete": 0,
+      "assignee": null,
+      "dependencies": ["feat/data-population-validation"],
+      "blockers": [],
+      "links": {
+        "branch": null,
+        "pr": null
+      }
+    },
+    {
+      "id": "feat/policy-engine-data",
+      "priority": 3,
+      "category": "Hub",
+      "status": "pending",
+      "percent_complete": 0,
+      "assignee": null,
+      "dependencies": ["feat/data-population-validation"],
+      "blockers": [],
+      "links": {
+        "branch": null,
+        "pr": null
+      }
+    },
+    {
+      "id": "feat/drilldown-data-population",
+      "priority": 4,
+      "category": "UX",
+      "status": "pending",
+      "percent_complete": 0,
+      "assignee": null,
+      "dependencies": ["feat/data-population-validation"],
+      "blockers": [],
+      "links": {
+        "branch": null,
+        "pr": null
+      }
+    },
+    {
+      "id": "feat/visual-premium-polish",
+      "priority": 4,
+      "category": "UX",
+      "status": "pending",
+      "percent_complete": 0,
+      "assignee": null,
+      "dependencies": [],
+      "blockers": [],
+      "links": {
+        "branch": null,
+        "pr": null
+      }
+    },
+    {
+      "id": "feat/form-validation-complete",
+      "priority": 4,
+      "category": "UX",
+      "status": "pending",
+      "percent_complete": 0,
+      "assignee": null,
+      "dependencies": [],
+      "blockers": [],
+      "links": {
+        "branch": null,
+        "pr": null
+      }
+    }
+  ],
+  "quality_gates": {
+    "tests": "not_started",
+    "lint": "not_started",
+    "types": "not_started",
+    "security": "not_started",
+    "build": "not_started"
+  },
+  "notes": [
+    "Orchestration initialized",
+    "Using sequential execution with dependency tracking",
+    "All branches will be created from main branch",
+    "Local testing only - no remote push",
+    "Build validation required for each branch"
+  ]
+}
