@@ -1,4 +1,6 @@
 import { ComponentProps, ComponentType, createContext, CSSProperties, ReactNode, useContext, useId, useMemo } from "react"
+import { sanitizeHtml } from '@/utils/xss-sanitizer'
+
 import { ResponsiveContainer, Tooltip, Legend, LegendProps } from "recharts"
 
 import { cn } from "@/lib/utils"
@@ -120,7 +122,8 @@ function sanitizeColor(color: string | undefined): string | null {
     return trimmed.toLowerCase()
   }
 
-  // If none of the above, reject the color (silent rejection to avoid console noise)
+  // If none of the above, reject the color
+  console.warn(`Invalid color value rejected: ${color}`)
   return null
 }
 
@@ -141,21 +144,19 @@ const ChartStyle = ({ id, config }: { id: string; config: ChartConfig }) => {
             ([theme, prefix]) => `
 ${prefix} [data-chart=${id}] {
 ${colorConfig
-                .map(([key, itemConfig]) => {
-                  const color =
-                    itemConfig.theme?.[theme as keyof typeof itemConfig.theme] ||
-                    itemConfig.color ||
-                    '';
-                  // Sanitize color value to prevent XSS
-                  const sanitizedColor = sanitizeColor(color);
-                  return sanitizedColor ? `  --color-${key}: ${sanitizedColor};` : '';
-                })
-                .filter(Boolean)
-                .join("\n")}
+  .map(([key, itemConfig]) => {
+    const color =
+      itemConfig.theme?.[theme as keyof typeof itemConfig.theme] ||
+      itemConfig.color
+    // Sanitize color value to prevent XSS
+    const sanitizedColor = sanitizeColor(color)
+    return sanitizedColor ? `  --color-${key}: ${sanitizedColor};` : null
+  })
+  .join("\n")}
 }
 `
           )
-          .join("\n"),
+          .join("\n")
       }}
     />
   )
@@ -241,7 +242,7 @@ function ChartTooltipContent({
         {payload.map((item, index) => {
           const key = `${nameKey || item.name || item.dataKey || "value"}`
           const itemConfig = getPayloadConfigFromPayload(config, item, key)
-          const indicatorColor = color || item.payload?.fill || item.color || ''
+          const indicatorColor = color || item.payload.fill || item.color
 
           return (
             <div
@@ -351,7 +352,7 @@ function ChartLegendContent({
               <div
                 className="h-2 w-2 shrink-0 rounded-[2px]"
                 style={{
-                  backgroundColor: item.color || '',
+                  backgroundColor: item.color
                 }}
               />
             )}
@@ -375,8 +376,8 @@ function getPayloadConfigFromPayload(
 
   const payloadPayload =
     "payload" in payload &&
-      typeof payload.payload === "object" &&
-      payload.payload !== null
+    typeof payload.payload === "object" &&
+    payload.payload !== null
       ? payload.payload
       : undefined
 
