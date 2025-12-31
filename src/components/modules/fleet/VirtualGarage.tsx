@@ -25,7 +25,7 @@ import {
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import useGarageFilters from './VirtualGarage/hooks/use-garage-filters';
+import { useGarageFilters } from './VirtualGarage/hooks/use-garage-filters';
 
 // Asset category type representing supported categories
 export type AssetCategory =
@@ -97,7 +97,7 @@ const DEMO_ASSETS: GarageAsset[] = [
 ];
 
 // Lazy loaded 3D viewer component
-const Asset3DViewer = lazy(() => import('@/components/three/Asset3DViewer'));
+const Asset3DViewer = lazy(() => import('@/components/garage/Asset3DViewer'));
 
 // Fallback UI while 3D viewer is loading
 const Viewer3DFallback: React.FC = () => (
@@ -281,12 +281,11 @@ export function VirtualGarage() {
           )}
           {!isLoading && !error && (
             <ul>
-              {filteredAssets.map((asset) => (
+              {filteredAssets.map((asset: GarageAsset) => (
                 <li
                   key={asset.id}
-                  className={`p-4 border-b border-muted cursor-pointer ${
-                    selectedAsset?.id === asset.id ? 'bg-muted' : ''
-                  }`}
+                  className={`p-4 border-b border-muted cursor-pointer ${selectedAsset?.id === asset.id ? 'bg-muted' : ''
+                    }`}
                   onClick={() => handleSelectAsset(asset)}
                 >
                   <div className="font-medium">
@@ -312,6 +311,3 @@ export function VirtualGarage() {
     </div>
   );
 }
-
-// Named export for compatibility
-export { VirtualGarage };
