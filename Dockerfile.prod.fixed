@@ -1,6 +1,0 @@
-FROM nginx:alpine
-WORKDIR /usr/share/nginx/html
-COPY dist/ ./
-# Don't copy nginx.conf - use K8s ConfigMap instead
-EXPOSE 80
-CMD ["nginx", "-g", "daemon off;"]
