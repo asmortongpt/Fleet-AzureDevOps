@@ -17,10 +17,12 @@ import { DriverBehaviorEmulator } from './driver/DriverBehaviorEmulator'
 import { EVChargingEmulator } from './evcharging/EVChargingEmulator'
 import { FuelEmulator } from './fuel/FuelEmulator'
 import { GPSEmulator } from './gps/GPSEmulator'
+import { RealisticGPSEmulator } from './gps/RealisticGPSEmulator'
 import { VehicleInventoryEmulator } from './inventory/VehicleInventoryEmulator'
 import { IoTEmulator } from './iot/IoTEmulator'
 import { MaintenanceEmulator } from './maintenance/MaintenanceEmulator'
 import { OBD2Emulator } from './obd2/OBD2Emulator'
+import { RealisticOBD2Emulator } from './obd2/RealisticOBD2Emulator'
 import { RadioEmulator } from './radio/RadioEmulator'
 import { RouteEmulator } from './route/RouteEmulator'
 import {
@@ -499,29 +501,29 @@ export class EmulatorOrchestrator extends EventEmitter {
   private async startVehicleEmulators(vehicle: Vehicle): Promise<void> {
     const vehicleId = vehicle.id
 
-    // GPS Emulator
+    // GPS Emulator - Use production-grade RealisticGPSEmulator
     if (vehicle.features.includes('gps')) {
-      const gpsEmulator = new GPSEmulator(vehicle, this.config, this.geofences)
+      const gpsEmulator = new RealisticGPSEmulator(vehicle, this.config, this.geofences)
       gpsEmulator.on('data', (data) => this.emit('gps', {
         type: 'gps',
         vehicleId,
         timestamp: new Date(),
         data
       }))
-      this.gpsEmulators.set(vehicleId, gpsEmulator)
+      this.gpsEmulators.set(vehicleId, gpsEmulator as unknown as GPSEmulator)
       await gpsEmulator.start()
     }
 
-    // OBD-II Emulator
+    // OBD-II Emulator - Use production-grade RealisticOBD2Emulator
     if (vehicle.features.includes('obd2')) {
-      const obd2Emulator = new OBD2Emulator(vehicle, this.config)
+      const obd2Emulator = new RealisticOBD2Emulator(vehicle, this.config)
       obd2Emulator.on('data', (data) => this.emit('obd2', {
         type: 'obd2',
         vehicleId,
         timestamp: new Date(),
         data
       }))
-      this.obd2Emulators.set(vehicleId, obd2Emulator)
+      this.obd2Emulators.set(vehicleId, obd2Emulator as unknown as OBD2Emulator)
       await obd2Emulator.start()
     }
 
