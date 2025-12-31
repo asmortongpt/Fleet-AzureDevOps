@@ -152,24 +152,56 @@ export default defineConfig({
     {
       name: 'a11y',
       testDir: './tests/e2e',
-      testMatch: '**/*.a11y.spec.ts',
+      testMatch: '**/accessibility.spec.ts',
       use: {
         ...devices['Desktop Chrome'],
         viewport: { width: 1920, height: 1080 },
-      }
+      },
+      timeout: 60000,
     },
 
     // ========== Performance Testing ==========
     {
       name: 'performance',
       testDir: './tests/e2e',
-      testMatch: '**/*.perf.spec.ts',
+      testMatch: '**/performance.spec.ts',
       use: {
         ...devices['Desktop Chrome'],
+        viewport: { width: 1920, height: 1080 },
         launchOptions: {
-          args: ['--enable-precise-memory-info']
+          args: ['--enable-precise-memory-info', '--disable-dev-shm-usage']
         }
-      }
+      },
+      timeout: 60000,
+    },
+
+    // ========== Visual Regression - E2E ==========
+    {
+      name: 'visual-regression',
+      testDir: './tests/e2e',
+      testMatch: '**/visual-regression.spec.ts',
+      use: {
+        ...devices['Desktop Chrome'],
+        viewport: { width: 1920, height: 1080 },
+        deviceScaleFactor: 1,
+        launchOptions: {
+          args: [
+            '--disable-animations',
+            '--disable-smooth-scrolling',
+            '--disable-accelerated-2d-canvas',
+            '--disable-gpu-vsync',
+            '--disable-dev-shm-usage'
+          ]
+        }
+      },
+      expect: {
+        toHaveScreenshot: {
+          maxDiffPixels: 150,
+          threshold: 0.2,
+          animations: 'disabled',
+        },
+      },
+      timeout: 60000,
     },
   ],
 
