@@ -122,7 +122,7 @@ const DEMO_ASSETS: GarageAsset[] = [
   // Utility/Service Trucks
   {
     id: '7',
-    asset_category: 'CONSTRUCTION',
+    asset_category: 'HEAVY_EQUIPMENT',
     asset_name: 'Altech Service Truck',
     make: 'Altech',
     model: 'ST-200 Service',
@@ -136,7 +136,7 @@ const DEMO_ASSETS: GarageAsset[] = [
   },
   {
     id: '8',
-    asset_category: 'CONSTRUCTION',
+    asset_category: 'HEAVY_EQUIPMENT',
     asset_name: 'Altech Flatbed 250',
     make: 'Altech',
     model: 'FH-250 Flatbed',
@@ -165,7 +165,7 @@ const DEMO_ASSETS: GarageAsset[] = [
   },
   {
     id: '10',
-    asset_category: 'CONSTRUCTION',
+    asset_category: 'HEAVY_EQUIPMENT',
     asset_name: 'Altech Dump Truck',
     make: 'Altech',
     model: 'HD-40 Dump',
