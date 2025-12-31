@@ -19,7 +19,7 @@ import {
     ResponsiveContainer,
     ComposedChart,
 } from 'recharts'
-import { TrendDown, TrendUp, DollarSign } from '@phosphor-icons/react'
+import { TrendDown, TrendUp, CurrencyDollar } from '@phosphor-icons/react'
 
 export interface CostDataPoint {
     date: string
@@ -284,7 +284,7 @@ export const CostAnalyticsChart = memo<CostAnalyticsChartProps>(({
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                     <div className="bg-slate-800/40 rounded-lg p-4">
                         <div className="flex items-center gap-2 text-slate-400 text-sm mb-1">
-                            <DollarSign className="w-4 h-4" />
+                            <CurrencyDollar className="w-4 h-4" />
                             <span>Total Cost</span>
                         </div>
                         <p className="text-2xl font-bold text-white">
