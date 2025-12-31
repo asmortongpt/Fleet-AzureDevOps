@@ -32,9 +32,9 @@ export function CommandCenterHeader() {
 
             {/* Right Actions */}
             <div className="flex items-center gap-4 ml-6">
-                <Button variant="ghost" size="icon" className="relative text-slate-400 hover:text-white hover:bg-white/5 rounded-full">
+                <Button variant="ghost" size="icon" className="relative text-slate-400 hover:text-white hover:bg-white/5 rounded-full" aria-label="Notifications">
                     <Bell className="w-5 h-5" />
-                    <span className="absolute top-2 right-2.5 w-2 h-2 bg-red-500 rounded-full ring-2 ring-[#0d1221]" />
+                    <span className="absolute top-2 right-2.5 w-2 h-2 bg-red-500 rounded-full ring-2 ring-[#0d1221]" aria-hidden="true" />
                 </Button>
 
                 <div className="h-6 w-px bg-white/10 mx-2" />
