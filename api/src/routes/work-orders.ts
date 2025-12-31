@@ -399,4 +399,119 @@ router.delete(
   }
 )
 
+/**
+ * GET /work-orders/:id/parts
+ *
+ * Gets parts list for a specific work order
+ * RLS ensures user can only access work orders in their tenant
+ */
+router.get(
+  '/:id/parts',
+  requirePermission('work_order:view:team'),
+  applyFieldMasking('work_order'),
+  auditLog({ action: 'READ', resourceType: 'work_order_parts' }),
+  async (req: AuthRequest, res: Response) => {
+    try {
+      const workOrderId = req.params.id
+
+      // TODO: Implement actual parts fetching from database
+      // For now, return demo data to match frontend expectations
+      const parts = [
+        {
+          id: `part-${workOrderId}-1`,
+          name: 'Oil Filter',
+          part_number: 'OF-12345',
+          quantity: 2,
+          unit_cost: 12.50,
+          supplier: 'Auto Parts Inc.'
+        },
+        {
+          id: `part-${workOrderId}-2`,
+          name: 'Engine Oil (5W-30)',
+          part_number: 'EO-67890',
+          quantity: 6,
+          unit_cost: 8.75,
+          supplier: 'Auto Parts Inc.'
+        },
+        {
+          id: `part-${workOrderId}-3`,
+          name: 'Air Filter',
+          part_number: 'AF-54321',
+          quantity: 1,
+          unit_cost: 22.00,
+          supplier: 'OEM Supplier'
+        }
+      ]
+
+      res.json(parts)
+    } catch (error) {
+      logger.error('Failed to fetch work order parts', {
+        error,
+        workOrderId: req.params.id,
+        userId: req.user?.id
+      })
+      res.status(500).json({ error: 'Internal server error' })
+    }
+  }
+)
+
+/**
+ * GET /work-orders/:id/labor
+ *
+ * Gets labor details for a specific work order
+ * RLS ensures user can only access work orders in their tenant
+ */
+router.get(
+  '/:id/labor',
+  requirePermission('work_order:view:team'),
+  applyFieldMasking('work_order'),
+  auditLog({ action: 'READ', resourceType: 'work_order_labor' }),
+  async (req: AuthRequest, res: Response) => {
+    try {
+      const workOrderId = req.params.id
+
+      // TODO: Implement actual labor details fetching from database
+      // For now, return demo data to match frontend expectations
+      const labor = [
+        {
+          id: `labor-${workOrderId}-1`,
+          technician_name: 'Mike Johnson',
+          task: 'Oil change',
+          hours: 0.5,
+          rate: 75.00,
+          total: 37.50,
+          date: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString()
+        },
+        {
+          id: `labor-${workOrderId}-2`,
+          technician_name: 'Mike Johnson',
+          task: 'Filter replacement',
+          hours: 0.25,
+          rate: 75.00,
+          total: 18.75,
+          date: new Date(Date.now() - 1 * 60 * 60 * 1000).toISOString()
+        },
+        {
+          id: `labor-${workOrderId}-3`,
+          technician_name: 'Sarah Williams',
+          task: 'Inspection',
+          hours: 1.0,
+          rate: 85.00,
+          total: 85.00,
+          date: new Date(Date.now() - 3 * 60 * 60 * 1000).toISOString()
+        }
+      ]
+
+      res.json(labor)
+    } catch (error) {
+      logger.error('Failed to fetch work order labor', {
+        error,
+        workOrderId: req.params.id,
+        userId: req.user?.id
+      })
+      res.status(500).json({ error: 'Internal server error' })
+    }
+  }
+)
+
 export default router

@@ -97,16 +97,36 @@ function CalendarContent() {
 }
 
 function RequestsContent() {
-    const { push: _push } = useDrilldown()
+    const { push } = useDrilldown()
 
     return (
         <div className="p-6 space-y-6 bg-gradient-to-b from-slate-900/50 to-transparent">
             <h2 className="text-2xl font-bold text-white">Maintenance Requests</h2>
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                <StatCard title="New Requests" value="6" variant="primary" />
-                <StatCard title="In Review" value="4" variant="warning" />
-                <StatCard title="Approved" value="8" variant="success" />
-                <StatCard title="Completed" value="45" variant="default" />
+                <StatCard
+                    title="New Requests"
+                    value="6"
+                    variant="primary"
+                    onClick={() => push({ type: 'new-requests', data: { title: 'New Requests' }, id: 'new-requests' } as Omit<DrilldownLevel, "timestamp">)}
+                />
+                <StatCard
+                    title="In Review"
+                    value="4"
+                    variant="warning"
+                    onClick={() => push({ type: 'in-review', data: { title: 'In Review' }, id: 'in-review' } as Omit<DrilldownLevel, "timestamp">)}
+                />
+                <StatCard
+                    title="Approved"
+                    value="8"
+                    variant="success"
+                    onClick={() => push({ type: 'approved-requests', data: { title: 'Approved Requests' }, id: 'approved-requests' } as Omit<DrilldownLevel, "timestamp">)}
+                />
+                <StatCard
+                    title="Completed"
+                    value="45"
+                    variant="default"
+                    onClick={() => push({ type: 'completed-requests', data: { title: 'Completed Requests' }, id: 'completed-requests' } as Omit<DrilldownLevel, "timestamp">)}
+                />
             </div>
         </div>
     )
