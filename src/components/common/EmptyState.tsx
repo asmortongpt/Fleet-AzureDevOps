@@ -34,7 +34,7 @@ export function EmptyState({
     action,
     className,
 }: EmptyStateProps) {
-    const Icon = iconMap[icon]
+    const IconComponent = icon !== 'custom' ? iconMap[icon] : null
 
     return (
         <div className={cn(
@@ -42,7 +42,7 @@ export function EmptyState({
             className
         )}>
             <div className="w-16 h-16 rounded-full bg-slate-800/50 flex items-center justify-center mb-4">
-                {customIcon || (Icon && <Icon className="w-8 h-8 text-slate-500" />)}
+                {customIcon || (IconComponent && <IconComponent className="w-8 h-8 text-slate-500" />)}
             </div>
             <h3 className="text-lg font-semibold text-slate-200 mb-2">{title}</h3>
             {description && (
