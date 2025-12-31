@@ -9,6 +9,9 @@ import * as path from 'path'
 
 import { WebSocketServer, WebSocket } from 'ws'
 
+// Dynamic config generator for realistic data
+import { generateVehiclesConfig, generateRoutesConfig, EmulatorVehicle, EmulatorRoute, EmulatorGeofence } from './config/generateDynamicConfig'
+
 import { DispatchEmulator } from './DispatchEmulator'
 import { InventoryEmulator } from './InventoryEmulator'
 import { CostEmulator } from './cost/CostEmulator'
@@ -172,33 +175,70 @@ export class EmulatorOrchestrator extends EventEmitter {
 
   /**
    * Load vehicles from configuration
+   * Uses dynamic generation for realistic, non-hardcoded data
+   * Falls back to static JSON if dynamic generation fails
    */
   private loadVehicles(): void {
-    const vehiclesPath = path.join(__dirname, `config`, 'vehicles.json')
-    const data = JSON.parse(fs.readFileSync(vehiclesPath, 'utf-8'))
+    try {
+      // Use dynamic config generator for realistic data
+      const dynamicConfig = generateVehiclesConfig(15);
 
-    data.vehicles.forEach((vehicle: Vehicle) => {
-      this.vehicles.set(vehicle.id, vehicle)
-    })
+      dynamicConfig.vehicles.forEach((vehicle: EmulatorVehicle) => {
+        // Convert to Vehicle type expected by emulators
+        this.vehicles.set(vehicle.id, vehicle as unknown as Vehicle);
+      });
 
-    this.stats.totalVehicles = this.vehicles.size
+      console.log(`[EmulatorOrchestrator] Dynamically generated ${dynamicConfig.vehicles.length} vehicles`);
+    } catch (error) {
+      // Fallback to static JSON file if dynamic generation fails
+      console.warn('[EmulatorOrchestrator] Dynamic vehicle generation failed, falling back to static config');
+      const vehiclesPath = path.join(__dirname, `config`, 'vehicles.json');
+      const data = JSON.parse(fs.readFileSync(vehiclesPath, 'utf-8'));
+
+      data.vehicles.forEach((vehicle: Vehicle) => {
+        this.vehicles.set(vehicle.id, vehicle);
+      });
+    }
+
+    this.stats.totalVehicles = this.vehicles.size;
   }
 
   /**
    * Load routes from configuration
+   * Uses dynamic generation for realistic, non-hardcoded data
+   * Falls back to static JSON if dynamic generation fails
    */
   private loadRoutes(): void {
-    const routesPath = path.join(__dirname, 'config', 'routes.json')
-    const data = JSON.parse(fs.readFileSync(routesPath, 'utf-8'))
+    try {
+      // Use dynamic config generator for realistic data
+      const dynamicConfig = generateRoutesConfig(10, 8);
 
-    data.routes.forEach((route: Route) => {
-      this.routes.set(route.id, route)
-    })
+      dynamicConfig.routes.forEach((route: EmulatorRoute) => {
+        // Convert to Route type expected by emulators
+        this.routes.set(route.id, route as unknown as Route);
+      });
 
-    if (data.geofences) {
-      data.geofences.forEach((geofence: Geofence) => {
-        this.geofences.set(geofence.id, geofence)
-      })
+      dynamicConfig.geofences.forEach((geofence: EmulatorGeofence) => {
+        // Convert to Geofence type expected by emulators
+        this.geofences.set(geofence.id, geofence as unknown as Geofence);
+      });
+
+      console.log(`[EmulatorOrchestrator] Dynamically generated ${dynamicConfig.routes.length} routes and ${dynamicConfig.geofences.length} geofences`);
+    } catch (error) {
+      // Fallback to static JSON file if dynamic generation fails
+      console.warn('[EmulatorOrchestrator] Dynamic route generation failed, falling back to static config');
+      const routesPath = path.join(__dirname, 'config', 'routes.json');
+      const data = JSON.parse(fs.readFileSync(routesPath, 'utf-8'));
+
+      data.routes.forEach((route: Route) => {
+        this.routes.set(route.id, route);
+      });
+
+      if (data.geofences) {
+        data.geofences.forEach((geofence: Geofence) => {
+          this.geofences.set(geofence.id, geofence);
+        });
+      }
     }
   }
 

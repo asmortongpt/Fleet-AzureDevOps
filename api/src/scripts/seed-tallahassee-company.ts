@@ -31,22 +31,22 @@ const REGION = {
 // ============================================================================
 // SKETCHFAB 3D MODEL MAPPINGS (by vehicle make/model)
 // ============================================================================
-const SKETCHFAB_MODELS: Record<string, { url: string; id: string }> = {
-  'Ford F-150': { url: 'https://sketchfab.com/3d-models/ford-f-150-c205cde66b1d4f14b1820b89de7b8d23', id: 'c205cde66b1d4f14b1820b89de7b8d23' },
-  'Ford F-250': { url: 'https://sketchfab.com/3d-models/ford-f-250-super-duty', id: 'ford-f-250' },
-  'Ford Transit': { url: 'https://sketchfab.com/3d-models/ford-transit-custom-double-cargo-van-8d2529f41c7d4404881f6c4014d4f04c', id: '8d2529f41c7d4404881f6c4014d4f04c' },
-  'Ford Explorer': { url: 'https://sketchfab.com/3d-models/ford-explorer-suv', id: 'ford-explorer' },
-  'Chevrolet Silverado': { url: 'https://sketchfab.com/3d-models/2019-chevrolet-silverado-trail-boss-z71-652324cc8a974d3a9869ce2b0f3beaaa', id: '652324cc8a974d3a9869ce2b0f3beaaa' },
-  'Chevrolet Colorado': { url: 'https://sketchfab.com/3d-models/chevrolet-colorado', id: 'chevrolet-colorado' },
-  'Toyota Camry': { url: 'https://sketchfab.com/3d-models/toyota-camry-fd9b89c8c12b48f98915fac1392e3b67', id: 'fd9b89c8c12b48f98915fac1392e3b67' },
-  'Toyota Tacoma': { url: 'https://sketchfab.com/3d-models/toyota-tacoma', id: 'toyota-tacoma' },
-  'Honda Accord': { url: 'https://sketchfab.com/3d-models/2021-honda-accord-e742636e46814de5af1568542e7c9bdb', id: 'e742636e46814de5af1568542e7c9bdb' },
-  'Honda CR-V': { url: 'https://sketchfab.com/3d-models/honda-cr-v', id: 'honda-cr-v' },
-  'Tesla Model 3': { url: 'https://sketchfab.com/3d-models/tesla-2018-model-3-5ef9b845aaf44203b6d04e2c677e444f', id: '5ef9b845aaf44203b6d04e2c677e444f' },
-  'Tesla Model Y': { url: 'https://sketchfab.com/3d-models/tesla-model-y', id: 'tesla-model-y' },
-  'Mercedes-Benz Sprinter': { url: 'https://sketchfab.com/3d-models/mercedes-benz-sprinter-152f62800be34652af0545487129ca2e', id: '152f62800be34652af0545487129ca2e' },
-  'Ram ProMaster': { url: 'https://sketchfab.com/3d-models/ram-promaster', id: 'ram-promaster' },
-  'Nissan NV': { url: 'https://sketchfab.com/3d-models/nissan-nv', id: 'nissan-nv' }
+const SKETCHFAB_MODELS: Record<string, { url: string; id: string; author?: string; license?: string }> = {
+  'Ford F-150': { url: 'https://sketchfab.com/3d-models/ford-f-150-c205cde66b1d4f14b1820b89de7b8d23', id: 'c205cde66b1d4f14b1820b89de7b8d23', author: 'Ford Motor Company', license: 'CC-BY-4.0' },
+  'Ford F-250': { url: 'https://sketchfab.com/3d-models/ford-f-250-super-duty', id: 'ford-f-250', author: 'Ford Motor Company', license: 'CC-BY-4.0' },
+  'Ford Transit': { url: 'https://sketchfab.com/3d-models/ford-transit-custom-double-cargo-van-8d2529f41c7d4404881f6c4014d4f04c', id: '8d2529f41c7d4404881f6c4014d4f04c', author: 'Sketchfab Community', license: 'CC-BY-4.0' },
+  'Ford Explorer': { url: 'https://sketchfab.com/3d-models/ford-explorer-suv', id: 'ford-explorer', author: 'Ford Motor Company', license: 'CC-BY-4.0' },
+  'Chevrolet Silverado': { url: 'https://sketchfab.com/3d-models/2019-chevrolet-silverado-trail-boss-z71-652324cc8a974d3a9869ce2b0f3beaaa', id: '652324cc8a974d3a9869ce2b0f3beaaa', author: 'Chevrolet', license: 'CC-BY-4.0' },
+  'Chevrolet Colorado': { url: 'https://sketchfab.com/3d-models/chevrolet-colorado', id: 'chevrolet-colorado', author: 'Chevrolet', license: 'CC-BY-4.0' },
+  'Toyota Camry': { url: 'https://sketchfab.com/3d-models/toyota-camry-fd9b89c8c12b48f98915fac1392e3b67', id: 'fd9b89c8c12b48f98915fac1392e3b67', author: 'Toyota', license: 'CC-BY-4.0' },
+  'Toyota Tacoma': { url: 'https://sketchfab.com/3d-models/toyota-tacoma', id: 'toyota-tacoma', author: 'Toyota', license: 'CC-BY-4.0' },
+  'Honda Accord': { url: 'https://sketchfab.com/3d-models/2021-honda-accord-e742636e46814de5af1568542e7c9bdb', id: 'e742636e46814de5af1568542e7c9bdb', author: 'Honda', license: 'CC-BY-4.0' },
+  'Honda CR-V': { url: 'https://sketchfab.com/3d-models/honda-cr-v', id: 'honda-cr-v', author: 'Honda', license: 'CC-BY-4.0' },
+  'Tesla Model 3': { url: 'https://sketchfab.com/3d-models/tesla-2018-model-3-5ef9b845aaf44203b6d04e2c677e444f', id: '5ef9b845aaf44203b6d04e2c677e444f', author: 'Tesla', license: 'CC-BY-4.0' },
+  'Tesla Model Y': { url: 'https://sketchfab.com/3d-models/tesla-model-y', id: 'tesla-model-y', author: 'Tesla', license: 'CC-BY-4.0' },
+  'Mercedes-Benz Sprinter': { url: 'https://sketchfab.com/3d-models/mercedes-benz-sprinter-152f62800be34652af0545487129ca2e', id: '152f62800be34652af0545487129ca2e', author: 'Mercedes-Benz', license: 'CC-BY-4.0' },
+  'Ram ProMaster': { url: 'https://sketchfab.com/3d-models/ram-promaster', id: 'ram-promaster', author: 'Ram Trucks', license: 'CC-BY-4.0' },
+  'Nissan NV': { url: 'https://sketchfab.com/3d-models/nissan-nv', id: 'nissan-nv', author: 'Nissan', license: 'CC-BY-4.0' }
 };
 
 // ============================================================================
@@ -102,9 +102,43 @@ function generateLicensePlate(): string {
   return `${REGION.stateCode}${faker.string.alpha({ length: 2, casing: 'upper' })}${faker.string.numeric(4)}`;
 }
 
-function getSketchfabModel(make: string, model: string): { url: string; id: string } | null {
+function getSketchfabModel(make: string, model: string): { url: string; id: string; author?: string; license?: string } | null {
   const key = `${make} ${model}`;
   return SKETCHFAB_MODELS[key] || null;
+}
+
+function generate3DModel(template: typeof VEHICLE_TEMPLATES[0]) {
+  const sketchfab = getSketchfabModel(template.make, template.model);
+  if (!sketchfab) return null;
+
+  const qualityTiers = ['high', 'medium', 'low'];
+  const vehicleType = template.type === 'sedan' ? 'car' : template.type;
+
+  return {
+    name: `${template.make} ${template.model} 3D Model`,
+    description: `High-quality 3D model of ${template.make} ${template.model} for fleet visualization`,
+    vehicleType,
+    make: template.make,
+    model: template.model,
+    year: faker.number.int({ min: 2020, max: 2024 }),
+    fileUrl: sketchfab.url,
+    fileFormat: 'glTF',
+    fileSizeMb: faker.number.float({ min: 5, max: 50, fractionDigits: 2 }),
+    polyCount: faker.number.int({ min: 50000, max: 500000 }),
+    source: 'sketchfab',
+    sourceId: sketchfab.id,
+    license: sketchfab.license || 'CC-BY-4.0',
+    licenseUrl: 'https://creativecommons.org/licenses/by/4.0/',
+    author: sketchfab.author || faker.person.fullName(),
+    authorUrl: `https://sketchfab.com/${faker.internet.username()}`,
+    thumbnailUrl: `https://media.sketchfab.com/models/${sketchfab.id}/thumbnails/thumbnail.jpeg`,
+    qualityTier: faker.helpers.arrayElement(qualityTiers),
+    hasInterior: faker.datatype.boolean({ probability: 0.4 }),
+    hasPbrMaterials: true,
+    isFeatured: faker.datatype.boolean({ probability: 0.2 }),
+    isActive: true,
+    tags: JSON.stringify([template.type, template.make.toLowerCase(), template.fuelType, 'fleet'])
+  };
 }
 
 // ============================================================================
@@ -470,7 +504,7 @@ async function seedTallahasseeCompany() {
         training_records, certifications, incidents,
         geofences, telemetry_data, gps_tracks, dispatches, routes,
         fuel_transactions, inspections, maintenance_schedules, work_orders,
-        assets, drivers, vehicles, facilities, users, tenants
+        assets, drivers, vehicles, vehicle_3d_models, facilities, users, tenants
       RESTART IDENTITY CASCADE
     `);
 
@@ -485,7 +519,8 @@ async function seedTallahasseeCompany() {
       facilityIds: [],
       vendorIds: [],
       partIds: [],
-      chargingStationIds: []
+      chargingStationIds: [],
+      model3dIds: {} as Record<string, string>  // Maps "make model" to id
     };
 
     // Configuration for data generation
@@ -536,9 +571,32 @@ async function seedTallahasseeCompany() {
     console.log(`   Created tenant: ${company.name}\n`);
 
     // ========================================================================
-    // 2. CREATE USERS
+    // 2. CREATE 3D VEHICLE MODELS
     // ========================================================================
-    console.log('2. Creating users...');
+    console.log('2. Creating 3D vehicle models...');
+    for (const template of VEHICLE_TEMPLATES) {
+      const model3d = generate3DModel(template);
+      if (model3d) {
+        const result = await client.query(`
+          INSERT INTO vehicle_3d_models (name, description, vehicle_type, make, model, year, file_url, file_format, file_size_mb, poly_count, source, source_id, license, license_url, author, author_url, thumbnail_url, quality_tier, has_interior, has_pbr_materials, is_featured, is_active, tags)
+          VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23)
+          RETURNING id
+        `, [
+          model3d.name, model3d.description, model3d.vehicleType, model3d.make, model3d.model,
+          model3d.year, model3d.fileUrl, model3d.fileFormat, model3d.fileSizeMb, model3d.polyCount,
+          model3d.source, model3d.sourceId, model3d.license, model3d.licenseUrl, model3d.author,
+          model3d.authorUrl, model3d.thumbnailUrl, model3d.qualityTier, model3d.hasInterior,
+          model3d.hasPbrMaterials, model3d.isFeatured, model3d.isActive, model3d.tags
+        ]);
+        ids.model3dIds[`${template.make} ${template.model}`] = result.rows[0].id;
+      }
+    }
+    console.log(`   Created ${Object.keys(ids.model3dIds).length} 3D vehicle models from Sketchfab\n`);
+
+    // ========================================================================
+    // 3. CREATE USERS
+    // ========================================================================
+    console.log('3. Creating users...');
     const passwordHash = await bcrypt.hash(faker.internet.password({ length: 16 }), 12);
     const roles = [
       ...Array(CONFIG.employees.admins).fill('Admin'),
@@ -580,7 +638,7 @@ async function seedTallahasseeCompany() {
     // ========================================================================
     // 3. CREATE FACILITIES
     // ========================================================================
-    console.log('3. Creating facilities...');
+    console.log('4. Creating facilities...');
     const facilityTypes = ['depot', 'warehouse', 'parking'];
 
     for (let i = 0; i < CONFIG.facilities; i++) {
@@ -612,7 +670,7 @@ async function seedTallahasseeCompany() {
     // ========================================================================
     // 4. CREATE DRIVERS
     // ========================================================================
-    console.log('4. Creating drivers...');
+    console.log('5. Creating drivers...');
     const driverUsers = ids.userIds.filter((u: any) => u.role === 'Driver');
 
     for (const driver of driverUsers) {
@@ -648,13 +706,17 @@ async function seedTallahasseeCompany() {
     // ========================================================================
     // 5. CREATE VEHICLES
     // ========================================================================
-    console.log('5. Creating vehicles...');
+    console.log('6. Creating vehicles...');
     for (let i = 0; i < CONFIG.vehicles; i++) {
       const v = generateVehicle(i);
 
+      // Get 3D model ID if available
+      const model3dKey = `${v.make} ${v.model}`;
+      const model3dId = ids.model3dIds[model3dKey] || null;
+
       const result = await client.query(`
-        INSERT INTO vehicles (tenant_id, vin, name, number, type, make, model, year, license_plate, status, fuel_type, fuel_level, odometer, latitude, longitude, location_address, last_service_date, next_service_date, next_service_mileage, purchase_date, purchase_price, current_value, insurance_policy_number, insurance_expiry_date, assigned_driver_id, assigned_facility_id, metadata, is_active)
-        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23, $24, $25, $26, $27, $28)
+        INSERT INTO vehicles (tenant_id, vin, name, number, type, make, model, year, license_plate, status, fuel_type, fuel_level, odometer, latitude, longitude, location_address, last_service_date, next_service_date, next_service_mileage, purchase_date, purchase_price, current_value, insurance_policy_number, insurance_expiry_date, assigned_driver_id, assigned_facility_id, model_3d_id, metadata, is_active)
+        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23, $24, $25, $26, $27, $28, $29)
         RETURNING id
       `, [
         ids.tenantId, v.vin, v.name, v.number, v.type, v.make, v.model, v.year, v.licensePlate,
@@ -672,6 +734,7 @@ async function seedTallahasseeCompany() {
         faker.date.future({ years: 1 }),
         i < ids.driverIds.length ? ids.driverIds[i] : null,
         faker.helpers.arrayElement(ids.facilityIds),
+        model3dId,
         JSON.stringify({
           color: v.color,
           sketchfabUrl: v.sketchfabUrl,
@@ -689,7 +752,7 @@ async function seedTallahasseeCompany() {
     // ========================================================================
     // 6. CREATE VENDORS
     // ========================================================================
-    console.log('6. Creating vendors...');
+    console.log('7. Creating vendors...');
     const vendorTypes = ['parts', 'fuel', 'service', 'insurance', 'parts', 'service', 'parts', 'fuel'];
 
     for (let i = 0; i < CONFIG.vendors; i++) {
@@ -713,7 +776,7 @@ async function seedTallahasseeCompany() {
     // ========================================================================
     // 7. CREATE PARTS INVENTORY
     // ========================================================================
-    console.log('7. Creating parts inventory...');
+    console.log('8. Creating parts inventory...');
     for (let i = 0; i < CONFIG.parts; i++) {
       const part = generatePart();
 
@@ -734,7 +797,7 @@ async function seedTallahasseeCompany() {
     // ========================================================================
     // 8. CREATE WORK ORDERS
     // ========================================================================
-    console.log('8. Creating work orders...');
+    console.log('9. Creating work orders...');
     for (let i = 0; i < CONFIG.workOrders; i++) {
       const wo = generateWorkOrder(
         faker.helpers.arrayElement(ids.vehicleIds),
@@ -756,7 +819,7 @@ async function seedTallahasseeCompany() {
     // ========================================================================
     // 9. CREATE FUEL TRANSACTIONS
     // ========================================================================
-    console.log('9. Creating fuel transactions...');
+    console.log('10. Creating fuel transactions...');
     for (let i = 0; i < CONFIG.fuelTransactions; i++) {
       const ft = generateFuelTransaction(
         faker.helpers.arrayElement(ids.vehicleIds),
@@ -777,7 +840,7 @@ async function seedTallahasseeCompany() {
     // ========================================================================
     // 10. CREATE ROUTES
     // ========================================================================
-    console.log('10. Creating routes...');
+    console.log('11. Creating routes...');
     for (let i = 0; i < CONFIG.routes; i++) {
       const route = generateRoute(i);
 
@@ -802,7 +865,7 @@ async function seedTallahasseeCompany() {
     // ========================================================================
     // 11. CREATE INSPECTIONS
     // ========================================================================
-    console.log('11. Creating inspections...');
+    console.log('12. Creating inspections...');
     for (let i = 0; i < CONFIG.inspections; i++) {
       const insp = generateInspection(
         faker.helpers.arrayElement(ids.vehicleIds),
@@ -824,7 +887,7 @@ async function seedTallahasseeCompany() {
     // ========================================================================
     // 12. CREATE GPS TRACKS
     // ========================================================================
-    console.log('12. Creating GPS tracks...');
+    console.log('13. Creating GPS tracks...');
     const vehiclesForGPS = ids.vehicleIds.slice(0, Math.min(10, ids.vehicleIds.length));
     let totalGPSTracks = 0;
 
@@ -848,7 +911,7 @@ async function seedTallahasseeCompany() {
     // ========================================================================
     // 13. CREATE GEOFENCES
     // ========================================================================
-    console.log('13. Creating geofences...');
+    console.log('14. Creating geofences...');
     for (let i = 0; i < CONFIG.geofences; i++) {
       const geo = generateGeofence(i);
 
@@ -865,7 +928,7 @@ async function seedTallahasseeCompany() {
     // ========================================================================
     // 14. CREATE INCIDENTS
     // ========================================================================
-    console.log('14. Creating incidents...');
+    console.log('15. Creating incidents...');
     for (let i = 0; i < CONFIG.incidents; i++) {
       const inc = generateIncident(
         faker.helpers.arrayElement(ids.vehicleIds),
@@ -888,7 +951,7 @@ async function seedTallahasseeCompany() {
     // ========================================================================
     // 15. CREATE CHARGING STATIONS & SESSIONS
     // ========================================================================
-    console.log('15. Creating charging stations...');
+    console.log('16. Creating charging stations...');
     for (let i = 0; i < CONFIG.chargingStations; i++) {
       const location = generateCoordNear(REGION.center, 3);
 
@@ -915,7 +978,7 @@ async function seedTallahasseeCompany() {
     }
     console.log(`   Created ${CONFIG.chargingStations} charging stations\n`);
 
-    console.log('16. Creating charging sessions...');
+    console.log('17. Creating charging sessions...');
     for (let i = 0; i < CONFIG.chargingSessions; i++) {
       const energyKwh = faker.number.float({ min: 10, max: 60, fractionDigits: 3 });
 
@@ -951,10 +1014,11 @@ async function seedTallahasseeCompany() {
     console.log(`Location: ${REGION.city}, ${REGION.state}\n`);
     console.log('Data Generated:');
     console.log(`  - 1 Tenant`);
+    console.log(`  - ${Object.keys(ids.model3dIds).length} 3D Vehicle Models (from Sketchfab)`);
     console.log(`  - ${roles.length} Users`);
     console.log(`  - ${CONFIG.facilities} Facilities`);
     console.log(`  - ${driverUsers.length} Drivers`);
-    console.log(`  - ${CONFIG.vehicles} Vehicles (with Sketchfab 3D models)`);
+    console.log(`  - ${CONFIG.vehicles} Vehicles (linked to 3D models)`);
     console.log(`  - ${CONFIG.vendors} Vendors`);
     console.log(`  - ${CONFIG.parts} Parts`);
     console.log(`  - ${CONFIG.workOrders} Work Orders`);
