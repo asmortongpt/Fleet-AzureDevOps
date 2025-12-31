@@ -151,21 +151,18 @@ const AdminDashboard: React.FC = () => {
             iconPosition="start"
             label="User Management"
             {...a11yProps(1)}
-            disabled // Will be implemented in future
           />
           <Tab
             icon={<Security />}
             iconPosition="start"
             label="Security & Compliance"
             {...a11yProps(2)}
-            disabled // Will be implemented in future
           />
           <Tab
             icon={<Settings />}
             iconPosition="start"
             label="System Configuration"
             {...a11yProps(3)}
-            disabled // Will be implemented in future
           />
         </Tabs>
       </Paper>
