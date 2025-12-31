@@ -1,744 +1,139 @@
-/**
- * Asset3DViewer - 100% Photorealistic 3D Asset Rendering Component
- *
- * Features:
- * - React Three Fiber with WebGL rendering
- * - Photorealistic GLTF/GLB model loading from library
- * - Full PBR material system with car paint shaders
- * - HDRI environment lighting for studio-quality rendering
- * - Advanced post-processing: SSR, SSAO, DOF, bloom, color grading
- * - Realistic ground plane with reflections
- * - Interactive orbit controls
- * - AI-generated model integration fallback (Meshy.ai)
- *
- * Created: 2025-11-24
- * Updated: 2025-12-30 - Photorealistic upgrade
- */
-
-import {
-  OrbitControls,
-  PerspectiveCamera,
-  Environment,
-  useGLTF,
-  ContactShadows,
-  Html,
-  useProgress,
-  MeshReflectorMaterial,
-  Lightformer,
-} from '@react-three/drei'
-import { Canvas, useFrame } from '@react-three/fiber'
-import {
-  EffectComposer,
-  Bloom,
-  ToneMapping,
-  DepthOfField,
-  Vignette,
-  ChromaticAberration,
-  SSAO,
-  SSR,
-  LUT,
-} from '@react-three/postprocessing'
-import { Suspense, useRef, useState, useMemo } from 'react'
-import * as THREE from 'three'
-import { LUTCubeLoader } from 'three/examples/jsm/loaders/LUTCubeLoader.js'
-import { ToneMappingMode, BlendFunction } from 'postprocessing'
-
-import { AssetCategory, AssetType } from '@/types/asset.types'
-import { DamageOverlay, DamagePoint, DamageSeverity } from './DamageOverlay'
-import { usePhotorealisticModel } from './hooks/usePhotorealisticModel'
-
-// ============================================================================
-// PHOTOREALISTIC MODEL LIBRARY
-// ============================================================================
-
-/**
- * Mapping of asset types to photorealistic GLB model URLs.
- * These models are stored in /public/models/vehicles/
- */
-const PHOTOREALISTIC_MODELS: Record<string, string> = {
-  // Sedans
-  PASSENGER_CAR: '/models/vehicles/sedans/toyota_camry.glb',
-  SEDAN_TOYOTA_CAMRY: '/models/vehicles/sedans/toyota_camry.glb',
-  SEDAN_TOYOTA_COROLLA: '/models/vehicles/sedans/toyota_corolla.glb',
-  SEDAN_HONDA_ACCORD: '/models/vehicles/sedans/honda_accord.glb',
-  SEDAN_NISSAN_ALTIMA: '/models/vehicles/sedans/nissan_altima.glb',
-  SEDAN_TESLA_MODEL_3: '/models/vehicles/sedans/tesla_model_3.glb',
-  SEDAN_TESLA_MODEL_S: '/models/vehicles/sedans/tesla_model_s.glb',
-
-  // SUVs
-  SUV: '/models/vehicles/suvs/ford_explorer.glb',
-  SUV_FORD_EXPLORER: '/models/vehicles/suvs/ford_explorer.glb',
-  SUV_CHEVROLET_TAHOE: '/models/vehicles/suvs/chevrolet_tahoe.glb',
-  SUV_HONDA_CR_V: '/models/vehicles/suvs/honda_cr_v.glb',
-  SUV_JEEP_WRANGLER: '/models/vehicles/suvs/jeep_wrangler.glb',
-  SUV_TESLA_MODEL_X: '/models/vehicles/suvs/tesla_model_x.glb',
-  SUV_TESLA_MODEL_Y: '/models/vehicles/electric_suvs/tesla_model_y.glb',
-
-  // Pickup Trucks
-  PICKUP_TRUCK: '/models/vehicles/trucks/ford_f_150.glb',
-  TRUCK_FORD_F150: '/models/vehicles/trucks/ford_f_150.glb',
-  TRUCK_FORD_F250: '/models/vehicles/trucks/ford_f_250.glb',
-  TRUCK_CHEVROLET_SILVERADO: '/models/vehicles/trucks/chevrolet_silverado.glb',
-  TRUCK_CHEVROLET_COLORADO: '/models/vehicles/trucks/chevrolet_colorado.glb',
-  TRUCK_RAM_1500: '/models/vehicles/trucks/ram_1500.glb',
-  TRUCK_GMC_SIERRA: '/models/vehicles/trucks/gmc_sierra.glb',
-  TRUCK_TOYOTA_TACOMA: '/models/vehicles/trucks/toyota_tacoma.glb',
-
-  // Heavy Duty Trucks
-  HEAVY_DUTY_TRUCK: '/models/vehicles/trucks/kenworth_t680.glb',
-  MEDIUM_DUTY_TRUCK: '/models/vehicles/trucks/mack_anthem.glb',
-  DUMP_TRUCK: '/models/vehicles/construction/altech_hd_40_dump_truck.glb',
-  SEMI_TRUCK: '/models/vehicles/trucks/freightliner_cascadia.glb',
-  TRUCK_KENWORTH_T680: '/models/vehicles/trucks/kenworth_t680.glb',
-  TRUCK_MACK_ANTHEM: '/models/vehicles/trucks/mack_anthem.glb',
-  TRUCK_FREIGHTLINER_CASCADIA: '/models/vehicles/trucks/freightliner_cascadia.glb',
-
-  // Vans
-  VAN: '/models/vehicles/vans/ford_transit.glb',
-  VAN_FORD_TRANSIT: '/models/vehicles/vans/ford_transit.glb',
-  VAN_MERCEDES_SPRINTER: '/models/vehicles/vans/mercedes_benz_sprinter.glb',
-  VAN_RAM_PROMASTER: '/models/vehicles/vans/ram_promaster.glb',
-  VAN_NISSAN_NV3500: '/models/vehicles/vans/nissan_nv3500.glb',
-
-  // Construction Equipment
-  EXCAVATOR: '/models/vehicles/construction/caterpillar_320.glb',
-  EXCAVATOR_CATERPILLAR_320: '/models/vehicles/construction/caterpillar_320.glb',
-  EXCAVATOR_KOMATSU_PC210: '/models/vehicles/construction/komatsu_pc210.glb',
-  EXCAVATOR_HITACHI_ZX210: '/models/vehicles/construction/hitachi_zx210.glb',
-  EXCAVATOR_VOLVO_EC220: '/models/vehicles/construction/volvo_ec220.glb',
-  EXCAVATOR_JOHN_DEERE_200G: '/models/vehicles/construction/john_deere_200g.glb',
-  LOADER: '/models/vehicles/construction/john_deere_200g.glb',
-  CONCRETE_MIXER: '/models/vehicles/construction/altech_cm_3000_mixer.glb',
-  CONSTRUCTION_TRUCK_PETERBILT: '/models/vehicles/construction/peterbilt_567.glb',
-  CONSTRUCTION_TRUCK_KENWORTH: '/models/vehicles/construction/kenworth_t880.glb',
-  CONSTRUCTION_TRUCK_MACK: '/models/vehicles/construction/mack_granite.glb',
-
-  // Trailers
-  DRY_VAN_TRAILER: '/models/vehicles/trailers/wabash_duraplate.glb',
-  FLATBED_TRAILER: '/models/vehicles/trailers/utility_3000r.glb',
-  REFRIGERATED_TRAILER: '/models/vehicles/trailers/great_dane_freedom.glb',
-  LOWBOY_TRAILER: '/models/vehicles/trailers/utility_3000r.glb',
-  TANK_TRAILER: '/models/vehicles/trailers/stoughton_composite.glb',
-  STORAGE_TRAILER: '/models/vehicles/trailers/utility_3000r.glb',
-  TOOLBOX_TRAILER: '/models/vehicles/trailers/utility_3000r.glb',
-
-  // Service Vehicles
-  SERVICE_TRUCK: '/models/vehicles/trucks/altech_st_200_service.glb',
-  FUEL_TRUCK: '/models/vehicles/trucks/altech_fl_1500_fuel_lube.glb',
-  WATER_TRUCK: '/models/vehicles/trucks/altech_wt_2000_water.glb',
-  FLATBED_SERVICE: '/models/vehicles/trucks/altech_fh_250_flatbed.glb',
-
-  // Electric Vehicles
-  ELECTRIC_SEDAN: '/models/vehicles/electric_sedans/tesla_model_3.glb',
-  ELECTRIC_SUV: '/models/vehicles/electric_suvs/tesla_model_y.glb',
-  ELECTRIC_CHEVROLET_BOLT: '/models/vehicles/electric_sedans/chevrolet_bolt_ev.glb',
-}
-
-/**
- * Get photorealistic model URL for an asset type.
- * Falls back to category defaults if specific type not found.
- */
-function getModelUrl(
-  assetCategory?: AssetCategory,
-  assetType?: AssetType,
-  make?: string,
-  model?: string
-): string | null {
-  // Try exact match with type first
-  if (assetType && PHOTOREALISTIC_MODELS[assetType]) {
-    return PHOTOREALISTIC_MODELS[assetType]
-  }
-
-  // Try make/model combination
-  if (make && model) {
-    const makeModelKey = `${assetCategory}_${make.toUpperCase()}_${model.toUpperCase().replace(/\s+/g, '_')}`
-    if (PHOTOREALISTIC_MODELS[makeModelKey]) {
-      return PHOTOREALISTIC_MODELS[makeModelKey]
-    }
-  }
-
-  // Fall back to category defaults
-  if (assetCategory && PHOTOREALISTIC_MODELS[assetCategory]) {
-    return PHOTOREALISTIC_MODELS[assetCategory]
-  }
-
-  // Final fallback
-  return PHOTOREALISTIC_MODELS.PASSENGER_CAR
-}
-
-// ============================================================================
-// TYPES
-// ============================================================================
+import React, { useEffect, useRef, useState, Suspense } from 'react';
+import { Canvas } from '@react-three/fiber';
+import { OrbitControls, PerspectiveCamera, Environment, useGLTF } from '@react-three/drei';
+import { PhotorealisticMaterials } from '../../materials/PhotorealisticMaterials';
+import { CinematicCameraSystem } from '../../camera/CinematicCameraSystem';
+import { detectWebGLCapabilities } from '../../utils/WebGLCompatibilityManager';
+import { PBRMaterialSystem } from '../../materials/PBRMaterialSystem';
+import * as THREE from 'three';
 
 interface Asset3DViewerProps {
-  assetCategory?: AssetCategory
-  assetType?: AssetType
-  color?: string
-  make?: string
-  model?: string
-  year?: number
-  customModelUrl?: string
-  showStats?: boolean
-  autoRotate?: boolean
-  onLoad?: () => void
-  // Damage visualization props
-  damagePoints?: DamagePoint[]
-  selectedDamageId?: string
-  onSelectDamage?: (point: DamagePoint) => void
-  onAddDamage?: (point: Omit<DamagePoint, 'id' | 'createdAt'>) => void
-  onRemoveDamage?: (id: string) => void
-  isEditMode?: boolean
-  showDamage?: boolean
+  modelUrl: string;
+  vehicleType?: 'sedan' | 'suv' | 'truck' | 'construction';
+  onLoad?: () => void;
+  onError?: (error: Error) => void;
 }
 
-export type { DamagePoint, DamageSeverity }
-
-interface VehicleModelProps {
-  category?: AssetCategory
-  type?: AssetType
-  color?: string
-}
-
-// ============================================================================
-// LOADING INDICATOR
-// ============================================================================
-
-function LoadingScreen() {
-  const { progress } = useProgress()
-  return (
-    <Html center>
-      <div className="flex flex-col items-center gap-2">
-        <div className="w-16 h-16 border-4 border-primary border-t-transparent rounded-full animate-spin" />
-        <p className="text-sm text-muted-foreground font-medium">
-          Loading photorealistic model...
-        </p>
-        <p className="text-xs text-muted-foreground">{progress.toFixed(0)}%</p>
-      </div>
-    </Html>
-  )
-}
-
-// ============================================================================
-// PHOTOREALISTIC GROUND PLANE
-// ============================================================================
-
-function PhotorealisticGround() {
-  return (
-    <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.01, 0]} receiveShadow>
-      <planeGeometry args={[50, 50]} />
-      <MeshReflectorMaterial
-        blur={[300, 100]}
-        resolution={2048}
-        mixBlur={1}
-        mixStrength={80}
-        roughness={1}
-        depthScale={1.2}
-        minDepthThreshold={0.4}
-        maxDepthThreshold={1.4}
-        color="#050505"
-        metalness={0.8}
-        mirror={0.5}
-      />
-    </mesh>
-  )
-}
-
-// ============================================================================
-// STUDIO LIGHTING RIG
-// ============================================================================
-
-function StudioLightingRig() {
-  return (
-    <>
-      {/* Key Light - Main illumination */}
-      <directionalLight
-        position={[5, 8, 5]}
-        intensity={2.5}
-        castShadow
-        shadow-mapSize={[4096, 4096]}
-        shadow-camera-left={-10}
-        shadow-camera-right={10}
-        shadow-camera-top={10}
-        shadow-camera-bottom={-10}
-        shadow-bias={-0.0001}
-      />
-
-      {/* Fill Light - Soften shadows */}
-      <directionalLight
-        position={[-5, 3, -5]}
-        intensity={1.2}
-        color="#e8f4ff"
-      />
-
-      {/* Rim Light - Edge definition */}
-      <directionalLight
-        position={[0, 3, -8]}
-        intensity={1.5}
-        color="#fff5e6"
-      />
-
-      {/* Ambient base */}
-      <ambientLight intensity={0.4} />
-
-      {/* Point lights for accents */}
-      <pointLight position={[10, 10, 10]} intensity={0.8} color="#ffffff" />
-      <pointLight position={[-10, 5, -10]} intensity={0.5} color="#b3d9ff" />
-    </>
-  )
-}
-
-// ============================================================================
-// ADVANCED HDRI ENVIRONMENT
-// ============================================================================
-
-function HDRIEnvironment({ preset = 'studio' }: { preset: string }) {
-  // Using drei's Environment component with presets
-  // In production, you'd load custom HDRI files from /public/hdri/
-  const environmentPreset = useMemo(() => {
-    switch (preset) {
-      case 'sunset':
-        return 'sunset'
-      case 'outdoor':
-        return 'park'
-      case 'night':
-        return 'night'
-      case 'studio':
-      default:
-        return 'studio'
-    }
-  }, [preset])
-
-  return (
-    <>
-      <Environment preset={environmentPreset as any} background={false} />
-      {/* Add custom light formers for additional highlights */}
-      <Lightformer
-        intensity={2}
-        rotation-x={Math.PI / 2}
-        position={[0, 4, -9]}
-        scale={[10, 1, 1]}
-      />
-      <Lightformer
-        intensity={1}
-        rotation-x={Math.PI / 2}
-        position={[0, 4, 9]}
-        scale={[10, 1, 1]}
-      />
-    </>
-  )
-}
-
-// ============================================================================
-// PHOTOREALISTIC MODEL LOADER
-// ============================================================================
-
-interface PhotorealisticModelProps {
-  url: string
-  color?: string
-}
-
-function PhotorealisticModel({ url, color }: PhotorealisticModelProps) {
-  const { scene } = useGLTF(url, true)
-  const modelRef = useRef<THREE.Group>(null)
-
-  // Clone the scene to avoid modifying the cached version
-  const clonedScene = useMemo(() => scene.clone(), [scene])
-
-  // Apply color override if specified
-  useMemo(() => {
-    if (color && clonedScene) {
-      clonedScene.traverse((child) => {
-        if ((child as THREE.Mesh).isMesh) {
-          const mesh = child as THREE.Mesh
-          const material = mesh.material as THREE.MeshStandardMaterial & {
-            clearcoat?: number
-            clearcoatRoughness?: number
-            transmission?: number
-            ior?: number
-          }
-
-          // Only override paint materials, not glass or chrome
-          if (material && material.name?.toLowerCase().includes('paint')) {
-            material.color.set(color)
-
-            // Enhanced car paint shader properties
-            material.metalness = 0.9
-            material.roughness = 0.15
-            if ('clearcoat' in material) {
-              material.clearcoat = 1.0
-              material.clearcoatRoughness = 0.1
-            }
-            material.envMapIntensity = 1.5
-          }
-        }
-      })
-    }
-  }, [clonedScene, color])
-
-  // Enhanced material properties for photorealism
-  useMemo(() => {
-    clonedScene.traverse((child) => {
-      if ((child as THREE.Mesh).isMesh) {
-        const mesh = child as THREE.Mesh
-        mesh.castShadow = true
-        mesh.receiveShadow = true
-
-        const material = mesh.material as THREE.MeshStandardMaterial & {
-          clearcoat?: number
-          clearcoatRoughness?: number
-          transmission?: number
-          ior?: number
-        }
-
-        if (material) {
-          // Enhance existing materials with better PBR properties
-          const materialName = material.name?.toLowerCase() || ''
-
-          if (materialName.includes('glass')) {
-            // Glass material
-            material.transparent = true
-            material.opacity = 0.2
-            material.metalness = 0.0
-            material.roughness = 0.05
-            material.envMapIntensity = 2.0
-            if ('transmission' in material) {
-              material.transmission = 0.9
-              material.ior = 1.5
-            }
-          } else if (materialName.includes('chrome') || materialName.includes('metal')) {
-            // Chrome/metallic material
-            material.metalness = 1.0
-            material.roughness = 0.1
-            material.envMapIntensity = 2.0
-          } else if (materialName.includes('tire') || materialName.includes('rubber')) {
-            // Tire/rubber material
-            material.metalness = 0.0
-            material.roughness = 0.9
-            material.color.setHex(0x1a1a1a)
-          } else if (materialName.includes('light')) {
-            // Light materials (headlights, taillights)
-            material.emissive = material.color
-            material.emissiveIntensity = 0.8
-          } else {
-            // Default paint/body material
-            material.metalness = Math.max(material.metalness, 0.8)
-            material.roughness = Math.min(material.roughness, 0.25)
-            material.envMapIntensity = 1.5
-          }
-
-          // Enable clear coat for paint
-          if (!materialName.includes('glass') && !materialName.includes('tire')) {
-            if ('clearcoat' in material) {
-              material.clearcoat = 0.8
-              material.clearcoatRoughness = 0.15
-            }
-          }
+function VehicleModel({ url, vehicleType }: { url: string; vehicleType: string }) {
+  const { scene } = useGLTF(url);
+  
+  useEffect(() => {
+    // Apply photorealistic materials to vehicle
+    const materials = PhotorealisticMaterials;
+    
+    scene.traverse((child: any) => {
+      if (child.isMesh) {
+        const meshName = child.name.toLowerCase();
+        
+        if (meshName.includes('body') || meshName.includes('paint')) {
+          child.material = materials.createCarPaintMaterial('#1a5490', 'gloss');
+        } else if (meshName.includes('glass') || meshName.includes('window')) {
+          child.material = materials.createAutomotiveGlass(0.3);
+        } else if (meshName.includes('chrome') || meshName.includes('trim')) {
+          child.material = materials.createChromeMaterial();
+        } else if (meshName.includes('tire') || meshName.includes('wheel')) {
+          child.material = materials.createTireMaterial();
         }
       }
-    })
-  }, [clonedScene])
-
-  // Auto-center and scale the model
-  useMemo(() => {
-    if (clonedScene) {
-      const box = new THREE.Box3().setFromObject(clonedScene)
-      const center = box.getCenter(new THREE.Vector3())
-      const size = box.getSize(new THREE.Vector3())
-
-      // Center the model
-      clonedScene.position.sub(center)
-
-      // Scale to reasonable size (target ~3 units tall)
-      const maxDim = Math.max(size.x, size.y, size.z)
-      const targetSize = 3
-      const scale = targetSize / maxDim
-      clonedScene.scale.setScalar(scale)
-
-      // Lift off ground slightly
-      clonedScene.position.y = size.y * scale * 0.5
-    }
-  }, [clonedScene])
-
-  return <primitive ref={modelRef} object={clonedScene} />
+    });
+  }, [scene, vehicleType]);
+  
+  return <primitive object={scene} />;
 }
 
-// ============================================================================
-// ADVANCED POST-PROCESSING STACK
-// ============================================================================
-
-function PhotorealisticPostProcessing() {
+export function Asset3DViewer({ modelUrl, vehicleType = 'sedan', onLoad, onError }: Asset3DViewerProps) {
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const [deviceCapabilities, setDeviceCapabilities] = useState<any>(null);
+  const [currentCamera, setCurrentCamera] = useState('hero');
+  const [showControls, setShowControls] = useState(true);
+  
+  useEffect(() => {
+    // Detect device capabilities
+    const capabilities = detectWebGLCapabilities();
+    setDeviceCapabilities(capabilities);
+  }, []);
+  
+  const handleCameraChange = (preset: string) => {
+    setCurrentCamera(preset);
+  };
+  
+  const cameraPresets = [
+    'hero', 'frontQuarter', 'rearQuarter', 'profile', 
+    'topDown', 'interior', 'engineBay', 'wheelDetail'
+  ];
+  
   return (
-    <EffectComposer multisampling={8}>
-      {/* Screen Space Ambient Occlusion - adds depth and realism */}
-      <SSAO
-        blendFunction={BlendFunction.MULTIPLY}
-        samples={16}
-        radius={0.2}
-        intensity={30}
-        luminanceInfluence={0.6}
-        worldDistanceThreshold={0.5}
-        worldDistanceFalloff={0.5}
-        worldProximityThreshold={0.3}
-        worldProximityFalloff={0.1}
-      />
-
-      {/* Screen Space Reflections - realistic reflections */}
-      <SSR
-        intensity={0.45}
-        temporalResolve={true}
-        STRETCH_MISSED_RAYS={true}
-      />
-
-      {/* Realistic Bloom - subtle glow on highlights */}
-      <Bloom
-        intensity={0.3}
-        luminanceThreshold={0.8}
-        luminanceSmoothing={0.9}
-        mipmapBlur={true}
-        radius={0.85}
-      />
-
-      {/* Depth of Field - camera focus effect */}
-      <DepthOfField
-        focusDistance={0.015}
-        focalLength={0.05}
-        bokehScale={3}
-        height={480}
-      />
-
-      {/* Chromatic Aberration - lens imperfection (subtle) */}
-      <ChromaticAberration
-        offset={new THREE.Vector2(0.0005, 0.0005)}
-        radialModulation={false}
-        modulationOffset={0}
-      />
-
-      {/* Vignette - natural lens darkening */}
-      <Vignette
-        offset={0.3}
-        darkness={0.5}
-        eskil={false}
-        blendFunction={BlendFunction.NORMAL}
-      />
-
-      {/* Tone Mapping - cinematic color */}
-      <ToneMapping
-        mode={ToneMappingMode.ACES_FILMIC}
-        resolution={256}
-        whitePoint={4}
-        middleGrey={0.6}
-        minLuminance={0.01}
-        averageLuminance={1}
-        adaptationRate={2}
-      />
-    </EffectComposer>
-  )
-}
-
-// ============================================================================
-// MAIN VIEWER COMPONENT
-// ============================================================================
-
-export default function Asset3DViewer({
-  assetCategory,
-  assetType,
-  color,
-  make,
-  model,
-  year,
-  customModelUrl,
-  autoRotate = false,
-  onLoad,
-  // Damage props
-  damagePoints = [],
-  selectedDamageId,
-  onSelectDamage,
-  onAddDamage,
-  onRemoveDamage,
-  isEditMode = false,
-  showDamage = true
-}: Asset3DViewerProps) {
-  const controlsRef = useRef<any>()
-
-  // Determine which placeholder/fallback model to use
-  const placeholderUrl = useMemo(() => {
-    if (customModelUrl) return customModelUrl
-    return getModelUrl(assetCategory, assetType, make, model)
-  }, [customModelUrl, assetCategory, assetType, make, model])
-
-  // Use AI-generated photorealistic model (with fallback to placeholder)
-  const {
-    url: aiModelUrl,
-    isGenerating,
-    progress,
-    error: aiError,
-    usingPlaceholder
-  } = usePhotorealisticModel({
-    make,
-    model,
-    year,
-    color,
-    placeholderUrl: placeholderUrl ?? undefined,
-    enableAI: import.meta.env.VITE_MESHY_API_KEY ? true : false, // Only enable if API key present
-  })
-
-  // Use AI model if available, otherwise fallback to placeholder
-  const modelUrl = aiModelUrl || placeholderUrl
-
-  // Fallback if no model found at all
-  if (!modelUrl) {
-    return (
-      <div className="w-full h-full flex items-center justify-center text-muted-foreground">
-        No 3D model available for this asset type
-      </div>
-    )
-  }
-
-  return (
-    <div className="w-full h-full relative">
-      {/* AI Generation Progress Overlay */}
-      {isGenerating && (
-        <div className="absolute inset-0 z-10 flex items-center justify-center bg-black/50 backdrop-blur-sm">
-          <div className="bg-slate-800 p-6 rounded-lg shadow-2xl max-w-md">
-            <div className="flex items-center gap-3 mb-4">
-              <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin" />
-              <div>
-                <h3 className="text-lg font-semibold text-white">
-                  Generating Photorealistic Model
-                </h3>
-                <p className="text-sm text-slate-400">
-                  {make} {model} {year}
-                </p>
-              </div>
-            </div>
-            <div className="w-full bg-slate-700 rounded-full h-2 mb-2">
-              <div
-                className="bg-primary h-2 rounded-full transition-all duration-300"
-                style={{ width: `${progress}%` }}
-              />
-            </div>
-            <p className="text-xs text-slate-400 text-center">
-              {progress.toFixed(0)}% complete • First time only, then cached
-            </p>
+    <div className=relative w-full h-full>
+      <Canvas
+        ref={canvasRef}
+        shadows
+        dpr={deviceCapabilities?.webgl2 ? [1, 2] : [1, 1.5]}
+        gl={{ 
+          antialias: true,
+          alpha: true,
+          powerPreference: 'high-performance'
+        }}
+      >
+        <Suspense fallback={null}>
+          <PerspectiveCamera makeDefault position={[4, 2, 4]} fov={50} />
+          
+          {/* Lighting System */}
+          <ambientLight intensity={0.3} />
+          <directionalLight
+            position={[10, 10, 5]}
+            intensity={1}
+            castShadow
+            shadow-mapSize-width={2048}
+            shadow-mapSize-height={2048}
+          />
+          <directionalLight position={[-10, 5, -5]} intensity={0.5} />
+          
+          {/* Environment */}
+          <Environment preset="sunset" background={false} />
+          
+          {/* Vehicle Model with Photorealistic Materials */}
+          <VehicleModel url={modelUrl} vehicleType={vehicleType} />
+          
+          {/* Camera Controls */}
+          <OrbitControls
+            enablePan={true}
+            enableZoom={true}
+            enableRotate={true}
+            maxPolarAngle={Math.PI / 2}
+            minDistance={2}
+            maxDistance={20}
+          />
+        </Suspense>
+      </Canvas>
+      
+      {/* Camera Preset Controls */}
+      {showControls && (
+        <div className="absolute top-4 right-4 bg-white/90 rounded-lg shadow-lg p-4 space-y-2">
+          <h3 className="font-semibold text-sm mb-2">Camera Presets</h3>
+          <div className="grid grid-cols-2 gap-2">
+            {cameraPresets.map(preset => (
+              <button
+                key={preset}
+                onClick={() => handleCameraChange(preset)}
+                className={`px-3 py-1 text-xs rounded ${
+                  currentCamera === preset
+                    ? 'bg-blue-600 text-white'
+                    : 'bg-gray-200 hover:bg-gray-300'
+                }`}
+              >
+                {preset}
+              </button>
+            ))}
           </div>
         </div>
       )}
-
-      {/* Model Quality Badge */}
-      {!isGenerating && (
-        <div className="absolute top-2 right-2 z-10">
-          {usingPlaceholder ? (
-            <div className="bg-yellow-500/20 border border-yellow-500/50 text-yellow-200 px-3 py-1 rounded-full text-xs font-medium backdrop-blur-sm">
-              ⚠️ Placeholder Model
-            </div>
-          ) : (
-            <div className="bg-green-500/20 border border-green-500/50 text-green-200 px-3 py-1 rounded-full text-xs font-medium backdrop-blur-sm">
-              ✨ AI Photorealistic
-            </div>
-          )}
+      
+      {/* Device Info Badge */}
+      {deviceCapabilities && (
+        <div className="absolute bottom-4 left-4 bg-black/70 text-white text-xs px-3 py-2 rounded">
+          WebGL {deviceCapabilities.webgl2 ? '2.0' : '1.0'}
         </div>
       )}
-
-      <Canvas
-        style={{ width: '100%', height: '100%' }}
-        camera={{ position: [5, 5, 5], fov: 60 }}
-        onCreated={() => onLoad?.()}
-        shadows
-      >
-        {/* Background gradient */}
-        <color attach="background" args={['#1a1a2e']} />
-
-        {/* Enhanced lighting for photorealistic rendering */}
-        <ambientLight intensity={0.4} />
-        <spotLight
-          position={[10, 15, 10]}
-          angle={0.3}
-          penumbra={1}
-          intensity={1.5}
-          castShadow
-          shadow-mapSize={[2048, 2048]}
-        />
-        <spotLight
-          position={[-10, 10, -10]}
-          angle={0.3}
-          penumbra={1}
-          intensity={0.5}
-          color="#4a9eff"
-        />
-        <directionalLight
-          position={[0, 10, 5]}
-          intensity={1}
-          castShadow
-          shadow-mapSize={[2048, 2048]}
-        />
-
-        {/* Vehicle Model */}
-        <Suspense fallback={<LoadingScreen />}>
-          <PhotorealisticModel url={modelUrl} color={color} />
-        </Suspense>
-
-        {/* Damage Overlay */}
-        {showDamage && damagePoints.length > 0 && (
-          <DamageOverlay
-            damagePoints={damagePoints}
-            selectedDamageId={selectedDamageId}
-            onSelectDamage={onSelectDamage}
-            onAddDamage={onAddDamage}
-            onRemoveDamage={onRemoveDamage}
-            isEditMode={isEditMode}
-          />
-        )}
-
-        {/* HDRI Environment for photorealistic reflections */}
-        <Environment preset="city" background={false} />
-
-        {/* Ground shadows */}
-        <ContactShadows
-          position={[0, 0, 0]}
-          opacity={0.6}
-          scale={15}
-          blur={2}
-          far={10}
-          color="#000033"
-        />
-
-        {/* Controls */}
-        <OrbitControls
-          ref={controlsRef}
-          enableZoom={true}
-          enablePan={true}
-          enableRotate={true}
-          autoRotate={autoRotate}
-          autoRotateSpeed={1}
-          minDistance={2}
-          maxDistance={12}
-          target={[0, 0.8, 0]}
-          maxPolarAngle={Math.PI / 2 + 0.3}
-        />
-
-        <PerspectiveCamera makeDefault position={[5, 3, 5]} fov={50} />
-
-        {/* Post-processing for photorealistic quality */}
-        <EffectComposer>
-          <Bloom
-            luminanceThreshold={0.3}
-            luminanceSmoothing={0.9}
-            intensity={0.3}
-            height={400}
-          />
-          <ToneMapping adaptive />
-        </EffectComposer>
-      </Canvas>
     </div>
-  )
+  );
 }
-
-// Preload commonly used models for better performance
-const commonModels = [
-  PHOTOREALISTIC_MODELS.PASSENGER_CAR,
-  PHOTOREALISTIC_MODELS.SUV,
-  PHOTOREALISTIC_MODELS.PICKUP_TRUCK,
-]
-commonModels.forEach((url) => {
-  if (url) useGLTF.preload(url)
-})
