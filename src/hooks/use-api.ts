@@ -1,6 +1,7 @@
 import { useQuery, useMutation, useQueryClient, QueryKey } from '@tanstack/react-query';
 
 import type { FuelTransaction } from '@/lib/types';
+import type { Policy } from '@/lib/policy-engine/types';
 import logger from '@/utils/logger';
 
 /**
@@ -630,6 +631,98 @@ export function useFuelMutations() {
       onSuccess: () => queryClient.invalidateQueries({ queryKey: ['fuelTransactions'] })
     })
   };
+}
+
+interface PolicyFilters {
+  tenant_id: string;
+  type?: string;
+  status?: string;
+  [key: string]: string | number | undefined;
+}
+
+export function usePolicies(filters: PolicyFilters = { tenant_id: '' }) {
+  return useQuery<Policy[], Error>({
+    queryKey: ['policies', filters] as QueryKey,
+    queryFn: async () => {
+      const params = new URLSearchParams(filters as Record<string, string>);
+      const res = await secureFetch(`/api/policies?${params}`);
+      if (!res.ok) throw new Error('Network response was not ok');
+      return res.json();
+    },
+    staleTime: 5 * 60 * 1000,
+    gcTime: 10 * 60 * 1000,
+    refetchOnWindowFocus: false,
+  });
+}
+
+export function usePolicyMutations() {
+  const queryClient = useQueryClient();
+
+  const createPolicy = useMutation<Policy, Error, Partial<Policy>>({
+    mutationFn: async (newPolicy) => {
+      const res = await secureFetch('/api/policies', {
+        method: 'POST',
+        body: JSON.stringify(newPolicy),
+      });
+      if (!res.ok) throw new Error('Network response was not ok');
+      return res.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['policies'] });
+    },
+  });
+
+  const updatePolicy = useMutation<Policy, Error, Policy, { previousPolicies?: Policy[] }>({
+    mutationFn: async (updatedPolicy) => {
+      const res = await secureFetch(`/api/policies/${updatedPolicy.id}`, {
+        method: 'PUT',
+        body: JSON.stringify(updatedPolicy),
+      });
+      if (!res.ok) throw new Error('Network response was not ok');
+      return res.json();
+    },
+    onMutate: async (updatedPolicy) => {
+      await queryClient.cancelQueries({ queryKey: ['policies'] });
+      const previousPolicies = queryClient.getQueryData<Policy[]>(['policies']);
+      queryClient.setQueryData<Policy[]>(['policies'], (old) =>
+        old?.map((policy) => (policy.id === updatedPolicy.id ? updatedPolicy : policy))
+      );
+      return { previousPolicies };
+    },
+    onError: (_err, _updatedPolicy, context) => {
+      if (context?.previousPolicies) {
+        queryClient.setQueryData(['policies'], context.previousPolicies);
+      }
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: ['policies'] });
+    },
+  });
+
+  const deletePolicy = useMutation<void, Error, { id: string }>({
+    mutationFn: async ({ id }) => {
+      const res = await secureFetch(`/api/policies/${id}`, {
+        method: 'DELETE',
+      });
+      if (!res.ok) throw new Error('Network response was not ok');
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['policies'] });
+    },
+  });
+
+  const evaluatePolicy = useMutation<any, Error, { id: string; context: any }>({
+    mutationFn: async ({ id, context }) => {
+      const res = await secureFetch(`/api/policies/${id}/evaluate`, {
+        method: 'POST',
+        body: JSON.stringify({ context }),
+      });
+      if (!res.ok) throw new Error('Network response was not ok');
+      return res.json();
+    },
+  });
+
+  return { createPolicy, updatePolicy, deletePolicy, evaluatePolicy };
 }
 
 // Additional hooks
