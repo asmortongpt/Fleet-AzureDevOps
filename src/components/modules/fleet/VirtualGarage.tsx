@@ -151,6 +151,9 @@ const AssetDisplay: React.FC<AssetDisplayProps> = ({ asset }) => {
           <Suspense fallback={<Viewer3DFallback />}>
             <Asset3DViewer
               assetCategory={asset.asset_category}
+              make={asset.make}
+              model={asset.model}
+              year={asset.year}
               color={asset.color ?? '#3B82F6'}
               customModelUrl={asset.damage_model_url}
               damagePoints={damagePoints}
