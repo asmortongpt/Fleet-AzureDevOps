@@ -10,14 +10,13 @@
  * - Custom reports
  */
 
+import { Job } from 'bull'
+import { pool } from '../../config/database'
+import logger from '../../utils/logger'
+import ExcelJS from 'exceljs'
 import fs from 'fs'
 import path from 'path'
 
-import { Job } from 'bull'
-import * as XLSX from 'xlsx'
-
-import { pool } from '../../config/database'
-import logger from '../../config/logger'
 import { addEmailJob } from '../queue'
 
 /**
@@ -294,16 +293,39 @@ async function generateDriverPerformanceReport(parameters: any = {}) {
 /**
  * Export report to Excel
  */
-function exportToExcel(reportData: any, filename: string): string {
-  const wb = XLSX.utils.book_new()
+async function exportToExcel(reportData: any, filename: string): Promise<string> {
+  const workbook = new ExcelJS.Workbook()
 
   // Add data sheet
-  const ws = XLSX.utils.json_to_sheet(reportData.data)
-  XLSX.utils.book_append_sheet(wb, ws, 'Data')
+  const dataWorksheet = workbook.addWorksheet('Data')
+
+  // Add headers and data
+  if (reportData.data.length > 0) {
+    const headers = Object.keys(reportData.data[0])
+    dataWorksheet.columns = headers.map(header => ({
+      header: header,
+      key: header,
+      width: 15
+    }))
+
+    reportData.data.forEach((row: any) => {
+      dataWorksheet.addRow(row)
+    })
+
+    // Style header row
+    dataWorksheet.getRow(1).font = { bold: true }
+  }
 
   // Add summary sheet
-  const summaryWs = XLSX.utils.json_to_sheet([reportData.summary])
-  XLSX.utils.book_append_sheet(wb, summaryWs, 'Summary')
+  const summaryWorksheet = workbook.addWorksheet('Summary')
+  const summaryHeaders = Object.keys(reportData.summary)
+  summaryWorksheet.columns = summaryHeaders.map(header => ({
+    header: header,
+    key: header,
+    width: 20
+  }))
+  summaryWorksheet.addRow(reportData.summary)
+  summaryWorksheet.getRow(1).font = { bold: true }
 
   // Create output directory if it doesn't exist
   const outputDir = path.join(process.cwd(), 'reports')
@@ -312,7 +334,7 @@ function exportToExcel(reportData: any, filename: string): string {
   }
 
   const filepath = path.join(outputDir, filename)
-  XLSX.writeFile(wb, filepath)
+  await workbook.xlsx.writeFile(filepath)
 
   return filepath
 }
@@ -320,10 +342,23 @@ function exportToExcel(reportData: any, filename: string): string {
 /**
  * Export report to CSV
  */
-function exportToCsv(reportData: any, filename: string): string {
-  const wb = XLSX.utils.book_new()
-  const ws = XLSX.utils.json_to_sheet(reportData.data)
-  XLSX.utils.book_append_sheet(wb, ws, 'Data')
+async function exportToCsv(reportData: any, filename: string): Promise<string> {
+  const workbook = new ExcelJS.Workbook()
+  const worksheet = workbook.addWorksheet('Data')
+
+  // Add headers and data
+  if (reportData.data.length > 0) {
+    const headers = Object.keys(reportData.data[0])
+    worksheet.columns = headers.map(header => ({
+      header: header,
+      key: header,
+      width: 15
+    }))
+
+    reportData.data.forEach((row: any) => {
+      worksheet.addRow(row)
+    })
+  }
 
   const outputDir = path.join(process.cwd(), 'reports')
   if (!fs.existsSync(outputDir)) {
@@ -331,7 +366,7 @@ function exportToCsv(reportData: any, filename: string): string {
   }
 
   const filepath = path.join(outputDir, filename)
-  XLSX.writeFile(wb, filepath, { bookType: 'csv' })
+  await workbook.csv.writeFile(filepath)
 
   return filepath
 }
@@ -376,7 +411,7 @@ export async function processReportJob(job: Job): Promise<any> {
     // Export report to file
     const timestamp = new Date().toISOString().replace(/[:.]/g, '-')
     const filename = `${reportType}-${timestamp}.${format === 'csv' ? 'csv' : 'xlsx'}`
-    const filepath = format === 'csv' ? exportToCsv(reportData, filename) : exportToExcel(reportData, filename)
+    const filepath = format === 'csv' ? await exportToCsv(reportData, filename) : await exportToExcel(reportData, filename)
 
     logger.info(`Report generated: ${filepath}`)
 
