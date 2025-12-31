@@ -67,7 +67,7 @@ import purchaseOrdersRouter from './routes/purchase-orders'
 import tasksRouter from './routes/tasks'
 
 // Asset Management Routes
-// DISABLED: import heavyEquipmentRouter from './routes/heavy-equipment.routes'
+import heavyEquipmentRouter from './routes/heavy-equipment.routes'
 
 // Dispatch & Communication Routes
 import teamsRouter from './routes/teams.routes'
@@ -308,7 +308,7 @@ app.use('/api/tasks', tasksRouter)
 app.use('/api/assets', assetManagementRouter)
 app.use('/api/asset-analytics', assetAnalyticsRouter)
 app.use('/api/assets-mobile', assetsMobileRouter)
-// DISABLED: app.use('/api/heavy-equipment', heavyEquipmentRouter)
+app.use('/api/heavy-equipment', heavyEquipmentRouter)
 
 // Dispatch & Communication Routes
 app.use('/api/communication-logs', communicationLogsRouter)
