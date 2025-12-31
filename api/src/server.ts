@@ -232,6 +232,9 @@ app.use(securityHeaders({
 // 2. CORS Configuration - Strict origin validation
 app.use(cors(getCorsConfig()))
 
+// Handle preflight requests explicitly for all routes
+app.options('*', cors(getCorsConfig()))
+
 // 3. Body Parsers - After security headers and CORS
 app.use(express.json({ limit: '10mb' }))
 app.use(express.urlencoded({ extended: true, limit: '10mb' }))
