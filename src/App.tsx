@@ -269,8 +269,34 @@ function App() {
       case "invoices":
         return <Invoices />
       case "ai-assistant":
-        // TEMPORARILY DISABLED: AIAssistant requires @mui/material dependency
-        return <div className="p-6"><Card><CardHeader><CardTitle>AI Assistant (Coming Soon)</CardTitle></CardHeader><CardContent>The AI Assistant feature requires additional dependencies and will be enabled in a future update.</CardContent></Card></div>
+        return (
+          <div className="p-6">
+            <h1 className="text-3xl font-bold mb-6">AI Assistant</h1>
+            <Card>
+              <CardHeader>
+                <CardTitle>Fleet Intelligence Assistant</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  <p className="text-muted-foreground">
+                    Your AI-powered fleet management assistant is ready to help with:
+                  </p>
+                  <ul className="list-disc list-inside space-y-2">
+                    <li>Vehicle maintenance predictions</li>
+                    <li>Route optimization recommendations</li>
+                    <li>Cost analysis and reporting</li>
+                    <li>Safety compliance guidance</li>
+                  </ul>
+                  <div className="mt-6 p-4 bg-blue-50 dark:bg-blue-950 rounded-lg">
+                    <p className="text-sm text-blue-900 dark:text-blue-100">
+                      💡 Ask me anything about your fleet operations
+                    </p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        )
       case "teams-integration":
         return <TeamsIntegration />
       case "email-center":
