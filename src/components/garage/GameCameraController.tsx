@@ -51,7 +51,9 @@ export function GameCameraController({
   cameraPosition = 'default',
   enableIdleDrift = true,
   enableKeyboard = true,
-  onCameraMove
+  onCameraMove,
+  damagePoints = [],
+  onDamagePointClick
 }: GameCameraControllerProps) {
   const controlsRef = useRef<OrbitControlsImpl>(null)
   const { camera, gl } = useThree()
@@ -141,7 +143,7 @@ export function GameCameraController({
   }, [enableKeyboard])
 
   // Animation frame - handle transitions and idle drift
-  useFrame((_state, delta) => {
+  useFrame((state, delta) => {
     if (!controlsRef.current) return
 
     const transition = transitionRef.current
