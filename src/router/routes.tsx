@@ -27,6 +27,7 @@ const VirtualGarage = lazy(() => import("@/components/modules/fleet/VirtualGarag
 const ExecutiveDashboard = lazy(() => import("@/components/modules/analytics/ExecutiveDashboard").then(m => ({ default: m.ExecutiveDashboard })));
 const DataWorkbench = lazy(() => import("@/components/modules/analytics/DataWorkbench").then(m => ({ default: m.DataWorkbench })));
 const EndpointMonitor = lazy(() => import("@/components/modules/analytics/EndpointMonitor").then(m => ({ default: m.EndpointMonitor })));
+const AnalyticsWorkbench = lazy(() => import("@/pages/AnalyticsWorkbenchPage"));
 
 // ADMIN
 const AdminDashboard = lazy(() => import("@/pages/AdminDashboard"));
@@ -97,9 +98,14 @@ const EquipmentDashboard = lazy(() => import("@/components/modules/assets/Equipm
 // PAGES
 const SettingsPage = lazy(() => import("@/pages/SettingsPage"));
 const ProfilePage = lazy(() => import("@/pages/ProfilePage"));
+const CostAnalyticsPage = lazy(() => import("@/pages/CostAnalyticsPage"));
+
+// HUB PAGES
+const FleetHub = lazy(() => import("@/pages/FleetHub"));
 
 const routes = [
   { path: "dashboard", element: <FleetDashboard /> },
+  { path: "fleet-hub", element: <FleetHub /> },
   { path: "executive-dashboard", element: <ExecutiveDashboard /> },
   { path: "admin-dashboard", element: <AdminDashboard /> },
   { path: "dispatch-console", element: <DispatchConsole /> },
@@ -110,6 +116,7 @@ const routes = [
   { path: "fuel", element: <FuelManagement /> },
   { path: "gps-tracking", element: <GPSTracking vehicles={[]} facilities={[]} /> },
   { path: "workbench", element: <DataWorkbench /> },
+  { path: "analytics-workbench", element: <AnalyticsWorkbench /> },
   { path: "mileage", element: <MileageReimbursement /> },
   { path: "routes", element: <RouteManagement /> },
   { path: "gis-map", element: <GISCommandCenter /> },
@@ -152,6 +159,7 @@ const routes = [
   { path: "endpoint-monitor", element: <EndpointMonitor /> },
   { path: "settings", element: <SettingsPage /> },
   { path: "profile", element: <ProfilePage /> },
+  { path: "cost-analytics", element: <CostAnalyticsPage /> },
 ];
 
 export const router = createBrowserRouter([
