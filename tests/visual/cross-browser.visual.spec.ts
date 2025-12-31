@@ -5,13 +5,7 @@
  * consistent rendering on Chrome, Firefox, and Safari (WebKit).
  */
 
-import { test, devices } from '@playwright/test';
-
-import {
-  MULTIPLE_VEHICLES,
-  MULTIPLE_FACILITIES,
-  MULTIPLE_CAMERAS,
-} from './fixtures/map-test-data';
+import { test, expect, devices } from '@playwright/test';
 import {
   waitForMapLoad,
   waitForMarkers,
@@ -20,6 +14,11 @@ import {
   disableAnimations,
   VIEWPORTS,
 } from './helpers/visual-test-helpers';
+import {
+  MULTIPLE_VEHICLES,
+  MULTIPLE_FACILITIES,
+  MULTIPLE_CAMERAS,
+} from './fixtures/map-test-data';
 
 // Define projects for cross-browser testing
 const browsers = [
@@ -31,7 +30,8 @@ const browsers = [
 test.describe('Cross-Browser Visual Tests', () => {
   for (const browser of browsers) {
     test.describe(`${browser.name.toUpperCase()} - Browser Tests`, () => {
-      // Browser configuration is handled by playwright.config.ts projects
+      test.use({ ...devices['Desktop ' + browser.name.charAt(0).toUpperCase() + browser.name.slice(1)] });
+
       test(`should render map correctly on ${browser.name}`, async ({ page, browserName }) => {
         test.skip(browserName !== browser.name, `Skipping - running only on ${browser.name}`);
 
@@ -159,8 +159,9 @@ test.describe('Cross-Browser Visual Tests', () => {
     ];
 
     for (const mobile of mobileDevices) {
-      test(`should render correctly on ${mobile.name}`, async ({ page, browserName }) => {
-        // Mobile device configuration is handled by playwright.config.ts projects
+      test(`should render correctly on ${mobile.name}`, async ({ page }) => {
+        test.use(mobile.device);
+
         await disableAnimations(page);
 
         await page.goto('/');
