@@ -11,6 +11,7 @@ import { Badge } from '../ui/badge';
 import { Button } from '../ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
 
+import { WebSocketStatus } from '@/components/common/WebSocketStatus';
 import { GeofenceLayer } from '@/components/layers/GeofenceLayer';
 import { TrafficCameraLayer } from '@/components/layers/TrafficCameraLayer';
 import { MapLayerControl } from '@/components/map/MapLayerControl';
@@ -21,6 +22,12 @@ import { GeofenceIntelligencePanel } from '@/components/panels/GeofenceIntellige
 import { TrafficCameraControlPanel } from '@/components/panels/TrafficCameraControlPanel';
 import { useVehicles, useDrivers } from '@/hooks/use-api';
 import { useGeofenceBreachDetector } from '@/hooks/use-geofence-breach';
+import {
+  useAllVehicleLocations,
+  useFleetStatus,
+  useMaintenanceAlerts,
+  useGeofenceBreaches,
+} from '@/hooks/useWebSocketSubscriptions';
 import { generateDemoVehicles } from '@/lib/demo-data';
 import { Geofence, Driver } from '@/lib/types';
 import logger from '@/utils/logger';
@@ -42,6 +49,12 @@ export const LiveFleetDashboard = React.memo(function LiveFleetDashboard({ initi
   const [drivers, setDrivers] = useState<Driver[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [selectedVehicleId, setSelectedVehicleId] = useState<string | null>(null);
+
+  // Real-time WebSocket subscriptions
+  const { locations: vehicleLocations } = useAllVehicleLocations();
+  const { status: fleetStatus } = useFleetStatus();
+  const { alerts: maintenanceAlerts } = useMaintenanceAlerts({ maxAlerts: 50 });
+  const { breaches: geofenceBreaches } = useGeofenceBreaches({ maxBreaches: 50 });
 
   // -- Data Sync --
   useEffect(() => {
@@ -151,14 +164,46 @@ export const LiveFleetDashboard = React.memo(function LiveFleetDashboard({ initi
     }
   }, [apiLoading, apiError, vehiclesData]);
 
+  // Update vehicle locations from WebSocket
+  useEffect(() => {
+    if (vehicleLocations.size === 0) return;
+
+    setVehicles(prev => {
+      return prev.map(vehicle => {
+        const wsLocation = vehicleLocations.get(vehicle.id);
+        if (wsLocation) {
+          return {
+            ...vehicle,
+            location: {
+              lat: wsLocation.latitude,
+              lng: wsLocation.longitude,
+            },
+            latitude: wsLocation.latitude,
+            longitude: wsLocation.longitude,
+            speed: wsLocation.speed,
+            heading: wsLocation.heading,
+            lastUpdate: wsLocation.timestamp,
+          };
+        }
+        return vehicle;
+      });
+    });
+  }, [vehicleLocations]);
+
   const selectedVehicle = vehicles.find((v: any) => v.id === selectedVehicleId) || vehicles[0];
 
   // Quick stats - handle both 'active' and 'service' status
-  const activeCount = vehicles.filter((v: any) => v.status === 'active').length;
-  const maintenanceCount = vehicles.filter((v: any) =>
+  // Use WebSocket fleet status if available, otherwise calculate from vehicles
+  const activeCount = fleetStatus?.active ?? vehicles.filter((v: any) => v.status === 'active').length;
+  const maintenanceCount = fleetStatus?.maintenance ?? vehicles.filter((v: any) =>
     v.status === 'maintenance' || v.status === 'service'
   ).length;
-  const totalVehicles = vehicles.length;
+  const totalVehicles = fleetStatus?.totalVehicles ?? vehicles.length;
+
+  // Real-time maintenance alert count
+  const maintenanceAlertCount = maintenanceAlerts.filter(alert =>
+    alert.priority === 'high' || alert.priority === 'critical'
+  ).length;
 
   // Quick actions for mobile
   const quickActions = [
@@ -179,7 +224,7 @@ export const LiveFleetDashboard = React.memo(function LiveFleetDashboard({ initi
       label: 'Alerts',
       icon: <AlertCircle className="h-5 w-5" />,
       onClick: () => console.log('Alerts clicked'),
-      badge: maintenanceCount
+      badge: maintenanceAlertCount > 0 ? maintenanceAlertCount : maintenanceCount
     },
     {
       id: 'fuel',
@@ -192,9 +237,12 @@ export const LiveFleetDashboard = React.memo(function LiveFleetDashboard({ initi
   // Side Panel Content
   const sidePanel = (
     <div className="space-y-4">
-      <div>
-        <h2 className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-slate-100">Fleet Overview</h2>
-        <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-1">Real-time vehicle monitoring</p>
+      <div className="flex items-center justify-between">
+        <div>
+          <h2 className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-slate-100">Fleet Overview</h2>
+          <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-1">Real-time vehicle monitoring</p>
+        </div>
+        <WebSocketStatus variant="badge" showDetails={true} />
       </div>
 
       {/* Quick Stats - Responsive Grid */}
