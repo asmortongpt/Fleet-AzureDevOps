@@ -1,7 +1,7 @@
 import * as Sentry from '@sentry/node';
 import { Request, Response, NextFunction } from 'express';
 
-import { ApplicationError } from '../errors/AppError';
+import { AppError } from '../errors/AppError';
 import { logError, sanitizeError } from '../utils/error-handler';
 
 /**
@@ -16,7 +16,7 @@ export function errorMiddleware(err: Error, req: Request, res: Response, next: N
     return next(err);
   }
 
-  const isAppError = err instanceof ApplicationError;
+  const isAppError = err instanceof AppError;
   const statusCode = isAppError ? err.statusCode : 500;
   const errorMessage = isAppError ? err.message : 'Internal Server Error';
 
