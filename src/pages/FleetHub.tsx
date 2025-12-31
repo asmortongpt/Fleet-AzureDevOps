@@ -19,7 +19,7 @@ import {
     MapPin,
     Warning
 } from '@phosphor-icons/react'
-import { Suspense, lazy, Component, ReactNode, ErrorInfo } from 'react'
+import React, { Suspense, lazy, Component, ReactNode, ErrorInfo } from 'react'
 
 import { Button } from '@/components/ui/button'
 import { HubPage, HubTab } from '@/components/ui/hub-page'
@@ -267,7 +267,97 @@ function FleetOverviewContent() {
 // ============================================================================
 // VIDEO TELEMATICS CONTENT
 // ============================================================================
+
+interface CameraFeed {
+    id: string
+    location: string
+    status: 'recording' | 'offline' | 'buffering'
+    streamUrl?: string // HLS or direct video URL
+}
+
+function VideoPlayer({ camera }: { camera: CameraFeed }) {
+    const videoRef = React.useRef<HTMLVideoElement>(null)
+    const [error, setError] = React.useState(false)
+
+    React.useEffect(() => {
+        if (!camera.streamUrl || !videoRef.current) return
+
+        const video = videoRef.current
+
+        // Check for HLS support
+        if (camera.streamUrl.endsWith('.m3u8')) {
+            // Native HLS support (Safari) or use HLS.js
+            if (video.canPlayType('application/vnd.apple.mpegurl')) {
+                video.src = camera.streamUrl
+            } else {
+                // Dynamic import of HLS.js for other browsers
+                import('hls.js').then(({ default: Hls }) => {
+                    if (Hls.isSupported()) {
+                        const hls = new Hls()
+                        hls.loadSource(camera.streamUrl!)
+                        hls.attachMedia(video)
+                        hls.on(Hls.Events.ERROR, () => setError(true))
+                    }
+                }).catch(() => setError(true))
+            }
+        } else {
+            // Direct video URL
+            video.src = camera.streamUrl
+        }
+
+        video.play().catch(() => {
+            // Auto-play blocked, show play button
+        })
+    }, [camera.streamUrl])
+
+    if (!camera.streamUrl || camera.status === 'offline') {
+        return (
+            <div className="aspect-video bg-gradient-to-br from-slate-800 to-slate-900 flex items-center justify-center relative">
+                <Video className="w-8 h-8 text-slate-600" />
+                <div className="absolute top-2 left-2 flex items-center gap-1">
+                    <div className="w-2 h-2 rounded-full bg-gray-500" />
+                    <span className="text-[10px] text-white font-medium">OFFLINE</span>
+                </div>
+                <span className="absolute bottom-2 left-2 text-xs text-slate-400">{camera.id}</span>
+            </div>
+        )
+    }
+
+    return (
+        <div className="aspect-video bg-black relative overflow-hidden">
+            {error ? (
+                <div className="w-full h-full flex items-center justify-center text-slate-500">
+                    <Video className="w-8 h-8" />
+                </div>
+            ) : (
+                <video
+                    ref={videoRef}
+                    className="w-full h-full object-cover"
+                    muted
+                    playsInline
+                    autoPlay
+                />
+            )}
+            <div className="absolute top-2 left-2 flex items-center gap-1">
+                <div className={`w-2 h-2 rounded-full ${camera.status === 'recording' ? 'bg-red-500 animate-pulse' : 'bg-yellow-500'}`} />
+                <span className="text-[10px] text-white font-medium">
+                    {camera.status === 'recording' ? 'LIVE' : 'BUFFERING'}
+                </span>
+            </div>
+            <span className="absolute bottom-2 left-2 text-xs text-white/70 drop-shadow">{camera.id}</span>
+        </div>
+    )
+}
+
 function VideoContent() {
+    // Camera feeds - streamUrl can be set to real HLS/RTSP-to-HLS URL
+    const cameras: CameraFeed[] = [
+        { id: 'CAM-001', location: 'Front Gate', status: 'recording', streamUrl: undefined },
+        { id: 'CAM-002', location: 'Loading Bay A', status: 'recording', streamUrl: undefined },
+        { id: 'CAM-003', location: 'Parking Lot', status: 'recording', streamUrl: undefined },
+        { id: 'CAM-004', location: 'Service Bay', status: 'offline', streamUrl: undefined },
+    ]
+
     return (
         <div className="p-4 space-y-4 bg-gradient-to-b from-slate-900/50 to-transparent h-full">
             <div className="flex items-center justify-between">
@@ -282,27 +372,19 @@ function VideoContent() {
             </div>
 
             <div className="grid grid-cols-2 gap-3 flex-1">
-                {[
-                    { id: 'CAM-001', location: 'Front Gate', status: 'recording' },
-                    { id: 'CAM-002', location: 'Loading Bay A', status: 'recording' },
-                    { id: 'CAM-003', location: 'Parking Lot', status: 'recording' },
-                    { id: 'CAM-004', location: 'Service Bay', status: 'offline' },
-                ].map(camera => (
+                {cameras.map(camera => (
                     <div key={camera.id} className="bg-slate-900 rounded-lg border border-slate-700 overflow-hidden cursor-pointer hover:border-blue-500/50 transition-colors">
-                        <div className="aspect-video bg-gradient-to-br from-slate-800 to-slate-900 flex items-center justify-center relative">
-                            <Video className="w-8 h-8 text-slate-600" />
-                            <div className="absolute top-2 left-2 flex items-center gap-1">
-                                <div className={`w-2 h-2 rounded-full ${camera.status === 'recording' ? 'bg-red-500 animate-pulse' : 'bg-gray-500'}`} />
-                                <span className="text-[10px] text-white font-medium">{camera.status === 'recording' ? 'LIVE' : 'OFFLINE'}</span>
-                            </div>
-                            <span className="absolute bottom-2 left-2 text-xs text-slate-400">{camera.id}</span>
-                        </div>
+                        <VideoPlayer camera={camera} />
                         <div className="p-2 border-t border-slate-700">
                             <p className="text-xs font-medium text-white">{camera.location}</p>
                         </div>
                     </div>
                 ))}
             </div>
+
+            <p className="text-xs text-slate-500 text-center">
+                Configure camera stream URLs in the Video Management settings
+            </p>
         </div>
     )
 }
