@@ -37,7 +37,7 @@ export class BasePage {
   /**
    * Get element by role
    */
-  getByRole(role: string, options?: any): Locator {
+  getByRole(role: any, options?: any): Locator {
     return this.page.getByRole(role, options);
   }
 
