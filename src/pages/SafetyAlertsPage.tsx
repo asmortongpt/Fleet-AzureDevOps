@@ -17,14 +17,13 @@ import {
   Clock,
   TrendUp,
   TrendDown,
-  Activity,
-  AlertTriangle,
   ShieldCheck,
   FileText,
   Eye,
-  Filter,
   Download,
-  Calendar
+  Calendar,
+  ChartLine,
+  Funnel
 } from "@phosphor-icons/react"
 import { useState, useEffect } from "react"
 import { toast } from "sonner"
@@ -113,7 +112,7 @@ export default function SafetyAlertsPage() {
   const [searchTerm, setSearchTerm] = useState("")
   const [selectedAlert, setSelectedAlert] = useState<SafetyAlert | null>(null)
   const [detailsOpen, setDetailsOpen] = useState(false)
-  const [oshaMetrics, setOshaMetrics] = useState<OSHAMetrics>({
+  const [oshaMetrics] = useState<OSHAMetrics>({
     totalRecordableIncidents: 12,
     daysAwayRestrictedTransfer: 8,
     totalCases: 12,
@@ -318,15 +317,6 @@ export default function SafetyAlertsPage() {
     toast.success("Alert marked as resolved")
   }
 
-  const getSeverityColor = (severity: SafetyAlert["severity"]) => {
-    switch (severity) {
-      case "critical": return "bg-red-500"
-      case "high": return "bg-orange-500"
-      case "medium": return "bg-yellow-500"
-      case "low": return "bg-blue-500"
-    }
-  }
-
   const getSeverityBadge = (severity: SafetyAlert["severity"]) => {
     const colors = {
       critical: "bg-red-100 text-red-800 border-red-200",
@@ -358,11 +348,11 @@ export default function SafetyAlertsPage() {
 
   const getTypeIcon = (type: SafetyAlert["type"]) => {
     switch (type) {
-      case "injury": return <AlertTriangle className="w-4 h-4 text-red-600" />
+      case "injury": return <Warning className="w-4 h-4 text-red-600" />
       case "near-miss": return <Warning className="w-4 h-4 text-orange-600" />
       case "hazard": return <Warning className="w-4 h-4 text-yellow-600" />
       case "osha-violation": return <FileText className="w-4 h-4 text-red-600" />
-      case "equipment-failure": return <Activity className="w-4 h-4 text-orange-600" />
+      case "equipment-failure": return <ChartLine className="w-4 h-4 text-orange-600" />
       case "environmental": return <ShieldCheck className="w-4 h-4 text-green-600" />
     }
   }
@@ -423,7 +413,7 @@ export default function SafetyAlertsPage() {
                     <p className="text-2xl font-bold text-white mt-1">{criticalAlerts}</p>
                   </div>
                   <div className="p-2 rounded-lg bg-orange-500/10">
-                    <AlertTriangle className="w-5 h-5 text-orange-400" />
+                    <Warning className="w-5 h-5 text-orange-400" />
                   </div>
                 </div>
               </CardContent>
@@ -520,7 +510,7 @@ export default function SafetyAlertsPage() {
                     </SelectContent>
                   </Select>
                   <Button variant="outline" className="gap-2">
-                    <Filter className="w-4 h-4" />
+                    <Funnel className="w-4 h-4" />
                     Clear Filters
                   </Button>
                 </div>
