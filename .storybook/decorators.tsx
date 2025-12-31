@@ -16,18 +16,22 @@ export const withRouter: Decorator = (Story) => (
  * Theme decorator - applies dark/light theme based on global setting
  */
 export const withTheme: Decorator = (Story, context) => {
-  const theme = context.globals.theme || "light"
-  
-  React.useEffect(() => {
-    const root = document.documentElement
-    if (theme === "dark") {
-      root.classList.add("dark")
-    } else {
-      root.classList.remove("dark")
-    }
-  }, [theme])
+  const ThemeWrapper = () => {
+    const theme = context.globals.theme || "light"
 
-  return <Story />
+    React.useEffect(() => {
+      const root = document.documentElement
+      if (theme === "dark") {
+        root.classList.add("dark")
+      } else {
+        root.classList.remove("dark")
+      }
+    }, [theme])
+
+    return <Story />
+  }
+
+  return <ThemeWrapper />
 }
 
 /**
