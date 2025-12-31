@@ -263,16 +263,186 @@ const WorkOrdersPanel = ({ workOrders, onWorkOrderSelect }: { workOrders: WorkOr
   )
 }
 
+// Mock parts data
+interface Part {
+  id: string
+  name: string
+  partNumber: string
+  quantity: number
+  reorderPoint: number
+  status: 'in_stock' | 'low_stock' | 'out_of_stock' | 'on_order'
+  location: string
+  lastUsed?: string
+}
+
+interface Technician {
+  id: string
+  name: string
+  status: 'available' | 'busy' | 'break' | 'off'
+  currentTask?: string
+  completedToday: number
+}
+
+const mockParts: Part[] = [
+  { id: 'p1', name: 'Oil Filter', partNumber: 'OF-2024A', quantity: 45, reorderPoint: 20, status: 'in_stock', location: 'Shelf A-1' },
+  { id: 'p2', name: 'Brake Pads (Front)', partNumber: 'BP-F100', quantity: 8, reorderPoint: 15, status: 'low_stock', location: 'Shelf B-3' },
+  { id: 'p3', name: 'Air Filter', partNumber: 'AF-2024B', quantity: 32, reorderPoint: 10, status: 'in_stock', location: 'Shelf A-2' },
+  { id: 'p4', name: 'Spark Plugs (4-pack)', partNumber: 'SP-4PK', quantity: 0, reorderPoint: 12, status: 'on_order', location: 'Shelf C-1' },
+  { id: 'p5', name: 'Transmission Fluid', partNumber: 'TF-ATF4', quantity: 24, reorderPoint: 8, status: 'in_stock', location: 'Shelf D-2' },
+]
+
+const mockTechnicians: Technician[] = [
+  { id: 't1', name: 'Mike Johnson', status: 'busy', currentTask: 'V-1042 Oil Change', completedToday: 3 },
+  { id: 't2', name: 'Sarah Chen', status: 'available', completedToday: 5 },
+  { id: 't3', name: 'James Wilson', status: 'busy', currentTask: 'V-1087 Brake Service', completedToday: 2 },
+  { id: 't4', name: 'Maria Garcia', status: 'break', completedToday: 4 },
+]
+
 // Parts Inventory Panel
 const PartsPanel = ({ _parts }: { _parts: unknown }) => {
+  const getStatusColor = (status: Part['status']) => {
+    switch (status) {
+      case 'in_stock': return 'bg-green-500'
+      case 'low_stock': return 'bg-yellow-500'
+      case 'out_of_stock': return 'bg-red-500'
+      case 'on_order': return 'bg-blue-500'
+    }
+  }
+
+  const getStatusLabel = (status: Part['status']) => {
+    switch (status) {
+      case 'in_stock': return 'In Stock'
+      case 'low_stock': return 'Low Stock'
+      case 'out_of_stock': return 'Out of Stock'
+      case 'on_order': return 'On Order'
+    }
+  }
+
+  const getTechStatusColor = (status: Technician['status']) => {
+    switch (status) {
+      case 'available': return 'bg-green-500'
+      case 'busy': return 'bg-yellow-500'
+      case 'break': return 'bg-orange-500'
+      case 'off': return 'bg-gray-500'
+    }
+  }
+
+  // Calculate stats
+  const openWorkOrders = 12
+  const avgCompletionTime = '2.4h'
+  const partsOnOrder = mockParts.filter(p => p.status === 'on_order').length
+  const lowStockItems = mockParts.filter(p => p.status === 'low_stock').length
+
   return (
     <ScrollArea className="h-full">
-      <div className="p-4">
-        <h3 className="font-semibold mb-3">Parts Inventory</h3>
-        <div className="text-center text-muted-foreground py-8">
-          <Package className="h-12 w-12 mx-auto mb-2 opacity-50" />
-          <p>Parts inventory management</p>
-          <p className="text-sm">Coming soon</p>
+      <div className="p-4 space-y-4">
+        {/* Quick Stats */}
+        <div className="grid grid-cols-2 gap-2">
+          <div className="bg-muted rounded-lg p-3 text-center">
+            <p className="text-2xl font-bold">{openWorkOrders}</p>
+            <p className="text-xs text-muted-foreground">Open WOs</p>
+          </div>
+          <div className="bg-muted rounded-lg p-3 text-center">
+            <p className="text-2xl font-bold">{avgCompletionTime}</p>
+            <p className="text-xs text-muted-foreground">Avg Time</p>
+          </div>
+          <div className="bg-muted rounded-lg p-3 text-center">
+            <p className="text-2xl font-bold text-blue-500">{partsOnOrder}</p>
+            <p className="text-xs text-muted-foreground">Parts Ordered</p>
+          </div>
+          <div className="bg-muted rounded-lg p-3 text-center">
+            <p className="text-2xl font-bold text-yellow-500">{lowStockItems}</p>
+            <p className="text-xs text-muted-foreground">Low Stock</p>
+          </div>
+        </div>
+
+        {/* Technician Availability */}
+        <div>
+          <h3 className="font-semibold mb-2 flex items-center gap-2">
+            <Settings className="h-4 w-4" />
+            Technician Availability
+          </h3>
+          <div className="space-y-2">
+            {mockTechnicians.map(tech => (
+              <div key={tech.id} className="flex items-center justify-between p-2 bg-muted/50 rounded-lg">
+                <div className="flex items-center gap-2">
+                  <div className={`w-2 h-2 rounded-full ${getTechStatusColor(tech.status)}`} />
+                  <span className="text-sm font-medium">{tech.name}</span>
+                </div>
+                <div className="text-right">
+                  {tech.currentTask ? (
+                    <p className="text-xs text-muted-foreground">{tech.currentTask}</p>
+                  ) : (
+                    <Badge variant="outline" className="text-xs">Available</Badge>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Parts Request Shortcuts */}
+        <div>
+          <h3 className="font-semibold mb-2 flex items-center gap-2">
+            <Package className="h-4 w-4" />
+            Quick Actions
+          </h3>
+          <div className="grid grid-cols-2 gap-2">
+            <Button variant="outline" size="sm" className="justify-start">
+              <Package className="h-4 w-4 mr-2" />
+              Request Part
+            </Button>
+            <Button variant="outline" size="sm" className="justify-start">
+              <Truck className="h-4 w-4 mr-2" />
+              Track Order
+            </Button>
+            <Button variant="outline" size="sm" className="justify-start">
+              <AlertTriangle className="h-4 w-4 mr-2" />
+              Report Issue
+            </Button>
+            <Button variant="outline" size="sm" className="justify-start">
+              <CheckCircle2 className="h-4 w-4 mr-2" />
+              Complete WO
+            </Button>
+          </div>
+        </div>
+
+        {/* Parts Inventory */}
+        <div>
+          <h3 className="font-semibold mb-2">Parts Inventory</h3>
+          <div className="space-y-2">
+            {mockParts.map(part => (
+              <Card key={part.id} className="cursor-pointer hover:bg-accent transition-colors">
+                <CardContent className="p-3">
+                  <div className="flex items-start justify-between">
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2">
+                        <span className="font-medium text-sm">{part.name}</span>
+                        <Badge
+                          variant="outline"
+                          className={`text-[10px] ${
+                            part.status === 'low_stock' ? 'border-yellow-500 text-yellow-600' :
+                            part.status === 'out_of_stock' ? 'border-red-500 text-red-600' :
+                            part.status === 'on_order' ? 'border-blue-500 text-blue-600' :
+                            'border-green-500 text-green-600'
+                          }`}
+                        >
+                          {getStatusLabel(part.status)}
+                        </Badge>
+                      </div>
+                      <p className="text-xs text-muted-foreground mt-1">
+                        {part.partNumber} • {part.location}
+                      </p>
+                    </div>
+                    <div className="text-right">
+                      <p className="font-bold">{part.quantity}</p>
+                      <p className="text-[10px] text-muted-foreground">in stock</p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
         </div>
       </div>
     </ScrollArea>

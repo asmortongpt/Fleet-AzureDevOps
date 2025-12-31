@@ -20,6 +20,7 @@ import { useState } from 'react';
 
 import { CodeViewer } from './viewer/CodeViewer';
 import { ImageViewer } from './viewer/ImageViewer';
+import { OfficeViewer } from './viewer/OfficeViewer';
 import { PdfViewer } from './viewer/PdfViewer';
 import { VideoViewer } from './viewer/VideoViewer';
 
@@ -142,17 +143,7 @@ export function DocumentViewer({
       case 'spreadsheet':
       case 'presentation':
         return (
-          <div className="flex items-center justify-center h-full">
-            <div className="text-center">
-              <p className="text-muted-foreground mb-4">
-                Office document preview coming soon
-              </p>
-              <Button onClick={handleDownload}>
-                <Download className="mr-2 h-4 w-4" />
-                Download to view
-              </Button>
-            </div>
-          </div>
+          <OfficeViewer document={document} />
         );
 
       default:
