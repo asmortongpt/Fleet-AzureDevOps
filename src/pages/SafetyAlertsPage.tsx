@@ -706,14 +706,70 @@ export default function SafetyAlertsPage() {
             </Card>
           </TabsContent>
 
-          <TabsContent value="analytics" className="flex-1 overflow-auto p-6">
+          <TabsContent value="analytics" className="flex-1 overflow-auto p-6 space-y-4">
+            <div className="grid grid-cols-2 gap-4">
+              <Card className="bg-slate-800/50 border-slate-700">
+                <CardHeader>
+                  <CardTitle className="text-white">Incident Trend Analysis</CardTitle>
+                  <CardDescription>Monthly incident comparison</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="flex items-end justify-between h-32 gap-2">
+                    {[45, 32, 28, 56, 41, 23, 35, 29, 18, 24, 15, 12].map((h, i) => (
+                      <div key={i} className="flex-1 flex flex-col items-center gap-1">
+                        <div className="w-full bg-blue-500/80 rounded-t" style={{ height: `${h * 2}px` }} />
+                        <span className="text-[9px] text-slate-500">{['J', 'F', 'M', 'A', 'M', 'J', 'J', 'A', 'S', 'O', 'N', 'D'][i]}</span>
+                      </div>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+              <Card className="bg-slate-800/50 border-slate-700">
+                <CardHeader>
+                  <CardTitle className="text-white">Incident by Category</CardTitle>
+                  <CardDescription>Distribution breakdown</CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  {[
+                    { type: 'Near Miss', count: 45, pct: 40, color: 'bg-orange-500' },
+                    { type: 'Hazard', count: 32, pct: 28, color: 'bg-yellow-500' },
+                    { type: 'Injury', count: 18, pct: 16, color: 'bg-red-500' },
+                    { type: 'Equipment', count: 12, pct: 11, color: 'bg-purple-500' },
+                    { type: 'Environmental', count: 6, pct: 5, color: 'bg-green-500' },
+                  ].map(item => (
+                    <div key={item.type} className="space-y-1">
+                      <div className="flex justify-between text-xs">
+                        <span className="text-slate-300">{item.type}</span>
+                        <span className="text-white font-medium">{item.count} ({item.pct}%)</span>
+                      </div>
+                      <div className="w-full bg-slate-700 rounded-full h-2">
+                        <div className={`${item.color} h-2 rounded-full`} style={{ width: `${item.pct}%` }} />
+                      </div>
+                    </div>
+                  ))}
+                </CardContent>
+              </Card>
+            </div>
             <Card className="bg-slate-800/50 border-slate-700">
               <CardHeader>
-                <CardTitle className="text-white">Safety Analytics</CardTitle>
-                <CardDescription>Trends and insights coming soon</CardDescription>
+                <CardTitle className="text-white">Safety Performance Metrics</CardTitle>
+                <CardDescription>Key safety indicators over time</CardDescription>
               </CardHeader>
               <CardContent>
-                <p className="text-slate-400">Advanced analytics dashboard with predictive safety insights</p>
+                <div className="grid grid-cols-4 gap-4">
+                  {[
+                    { label: 'Days Since Last Injury', value: '47', trend: '+12', good: true },
+                    { label: 'Safety Training Completion', value: '94%', trend: '+8%', good: true },
+                    { label: 'Hazard Reports Resolved', value: '89%', trend: '+5%', good: true },
+                    { label: 'Average Resolution Time', value: '4.2h', trend: '-1.3h', good: true },
+                  ].map(metric => (
+                    <div key={metric.label} className="p-4 bg-slate-900/50 rounded-lg">
+                      <p className="text-xs text-slate-400 mb-1">{metric.label}</p>
+                      <p className="text-2xl font-bold text-white">{metric.value}</p>
+                      <p className={`text-xs ${metric.good ? 'text-green-400' : 'text-red-400'}`}>{metric.trend}</p>
+                    </div>
+                  ))}
+                </div>
               </CardContent>
             </Card>
           </TabsContent>
