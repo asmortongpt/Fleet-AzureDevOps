@@ -34,7 +34,7 @@ let ApiKeyCredentials: any = null;
 // Optional document parsing library imports - only load if packages are installed
 let pdfParse: any = null;
 let mammoth: any = null;
-let xlsx: any = null;
+let ExcelJS: any = null;
 
 // Lazy load optional OCR providers and document parsers
 async function loadOptionalProviders() {
@@ -85,11 +85,11 @@ async function loadOptionalProviders() {
   }
 
   try {
-    const xlsxModule = await import('xlsx');
-    xlsx = xlsxModule.default;
+    const excelModule = await import('exceljs');
+    ExcelJS = excelModule;
   }
   catch (err) {
-    console.warn('xlsx not available - install xlsx for Excel spreadsheet OCR');
+    console.warn('exceljs not available - install exceljs for Excel spreadsheet OCR');
   }
 
 
@@ -419,15 +419,26 @@ export class OcrService {
     documentId: string,
     options: OcrOptions
   ): Promise<OcrResult> {
-    const workbook = xlsx.readFile(filePath);
+    const workbook = new ExcelJS.Workbook();
+    await workbook.xlsx.readFile(filePath);
     const stats = await fs.stat(filePath);
     let fullText = '';
     const pages: OcrPage[] = [];
 
-    workbook.SheetNames.forEach((sheetName: string, index: number) => {
-      const sheet = workbook.Sheets[sheetName];
-      const sheetText = xlsx.utils.sheet_to_csv(sheet);
-      fullText += '\n--- Sheet: ' + sheetName + ' ---\n' + sheetText + '\n';
+    workbook.worksheets.forEach((worksheet, index) => {
+      const sheetName = worksheet.name;
+      let sheetText = '';
+
+      // Convert worksheet to CSV-like text
+      worksheet.eachRow((row, rowNumber) => {
+        const rowValues: string[] = [];
+        row.eachCell((cell, colNumber) => {
+          rowValues.push(cell.value?.toString() || '');
+        });
+        sheetText += rowValues.join(',') + '\n';
+      });
+
+      fullText += `\n--- Sheet: ${sheetName} ---\n${sheetText}\n`;
 
       pages.push({
         pageNumber: index + 1,
@@ -449,7 +460,7 @@ export class OcrService {
       processingTime: 0,
       metadata: {
         documentFormat: DocumentFormat.XLSX,
-        pageCount: workbook.SheetNames.length,
+        pageCount: workbook.worksheets.length,
         hasHandwriting: false,
         hasTables: true,
         hasForms: false,
