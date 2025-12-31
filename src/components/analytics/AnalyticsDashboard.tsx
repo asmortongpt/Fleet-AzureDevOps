@@ -10,7 +10,9 @@ import {
   Fuel,
   DollarSign,
   Clock,
-  Activity
+  Activity,
+  AlertTriangle,
+  BarChart3
 } from 'lucide-react';
 import { useState } from 'react';
 
@@ -35,7 +37,7 @@ interface KPICard {
 }
 
 export function AnalyticsDashboard() {
-  const { data: vehicles = [], isLoading } = useVehicles();
+  const { data: vehicles = [], isLoading, error, refetch } = useVehicles();
   const [analyticsType, setAnalyticsType] = useState<AnalyticsType>('heatmap');
   const [_selectedVehicleId, setSelectedVehicleId] = useState<string | null>(null);
   const [exportFormat, setExportFormat] = useState('pdf');
@@ -87,12 +89,37 @@ export function AnalyticsDashboard() {
     console.log('Sharing analytics report');
   };
 
+  if (error) {
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <div className="text-center space-y-4">
+          <AlertTriangle className="h-12 w-12 text-destructive mx-auto" />
+          <h2 className="text-lg font-semibold">Failed to load analytics</h2>
+          <p className="text-muted-foreground">{error.message}</p>
+          <Button onClick={() => refetch()}>Retry</Button>
+        </div>
+      </div>
+    );
+  }
+
   if (isLoading) {
     return (
       <div className="flex items-center justify-center h-screen">
         <div className="text-center space-y-2">
           <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto" />
           <p className="text-sm text-muted-foreground">Loading analytics dashboard...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!isLoading && vehicles.length === 0) {
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <div className="text-center space-y-4">
+          <BarChart3 className="h-12 w-12 text-muted-foreground mx-auto" />
+          <h2 className="text-lg font-semibold">No vehicle data available</h2>
+          <p className="text-muted-foreground">Add vehicles to see analytics</p>
         </div>
       </div>
     );
