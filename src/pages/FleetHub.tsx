@@ -281,11 +281,27 @@ function VideoContent() {
                 <StatCard title="Storage" value="2.4 TB" variant="default" />
             </div>
 
-            <div className="bg-slate-800/50 rounded-lg border border-slate-700/50 p-6 text-center flex-1 flex items-center justify-center">
-                <div>
-                    <Video className="w-12 h-12 mx-auto text-slate-500 mb-2" />
-                    <p className="text-sm text-slate-400">Video playback coming soon</p>
-                </div>
+            <div className="grid grid-cols-2 gap-3 flex-1">
+                {[
+                    { id: 'CAM-001', location: 'Front Gate', status: 'recording' },
+                    { id: 'CAM-002', location: 'Loading Bay A', status: 'recording' },
+                    { id: 'CAM-003', location: 'Parking Lot', status: 'recording' },
+                    { id: 'CAM-004', location: 'Service Bay', status: 'offline' },
+                ].map(camera => (
+                    <div key={camera.id} className="bg-slate-900 rounded-lg border border-slate-700 overflow-hidden cursor-pointer hover:border-blue-500/50 transition-colors">
+                        <div className="aspect-video bg-gradient-to-br from-slate-800 to-slate-900 flex items-center justify-center relative">
+                            <Video className="w-8 h-8 text-slate-600" />
+                            <div className="absolute top-2 left-2 flex items-center gap-1">
+                                <div className={`w-2 h-2 rounded-full ${camera.status === 'recording' ? 'bg-red-500 animate-pulse' : 'bg-gray-500'}`} />
+                                <span className="text-[10px] text-white font-medium">{camera.status === 'recording' ? 'LIVE' : 'OFFLINE'}</span>
+                            </div>
+                            <span className="absolute bottom-2 left-2 text-xs text-slate-400">{camera.id}</span>
+                        </div>
+                        <div className="p-2 border-t border-slate-700">
+                            <p className="text-xs font-medium text-white">{camera.location}</p>
+                        </div>
+                    </div>
+                ))}
             </div>
         </div>
     )
