@@ -45,6 +45,7 @@ import { ToneMappingMode, BlendFunction } from 'postprocessing'
 
 import { AssetCategory, AssetType } from '@/types/asset.types'
 import { DamageOverlay, DamagePoint, DamageSeverity } from './DamageOverlay'
+import { usePhotorealisticModel } from './hooks/usePhotorealisticModel'
 
 // ============================================================================
 // PHOTOREALISTIC MODEL LIBRARY
@@ -175,6 +176,7 @@ interface Asset3DViewerProps {
   color?: string
   make?: string
   model?: string
+  year?: number
   customModelUrl?: string
   showStats?: boolean
   autoRotate?: boolean
@@ -543,6 +545,7 @@ export default function Asset3DViewer({
   color,
   make,
   model,
+  year,
   customModelUrl,
   autoRotate = false,
   onLoad,
@@ -557,13 +560,32 @@ export default function Asset3DViewer({
 }: Asset3DViewerProps) {
   const controlsRef = useRef<any>()
 
-  // Determine which model to load
-  const modelUrl = useMemo(() => {
+  // Determine which placeholder/fallback model to use
+  const placeholderUrl = useMemo(() => {
     if (customModelUrl) return customModelUrl
     return getModelUrl(assetCategory, assetType, make, model)
   }, [customModelUrl, assetCategory, assetType, make, model])
 
-  // Fallback if no model found
+  // Use AI-generated photorealistic model (with fallback to placeholder)
+  const {
+    url: aiModelUrl,
+    isGenerating,
+    progress,
+    error: aiError,
+    usingPlaceholder
+  } = usePhotorealisticModel({
+    make,
+    model,
+    year,
+    color,
+    placeholderUrl,
+    enableAI: import.meta.env.VITE_MESHY_API_KEY ? true : false, // Only enable if API key present
+  })
+
+  // Use AI model if available, otherwise fallback to placeholder
+  const modelUrl = aiModelUrl || placeholderUrl
+
+  // Fallback if no model found at all
   if (!modelUrl) {
     return (
       <div className="w-full h-full flex items-center justify-center text-muted-foreground">
@@ -573,6 +595,50 @@ export default function Asset3DViewer({
   }
 
   return (
+    <div className="w-full h-full relative">
+      {/* AI Generation Progress Overlay */}
+      {isGenerating && (
+        <div className="absolute inset-0 z-10 flex items-center justify-center bg-black/50 backdrop-blur-sm">
+          <div className="bg-slate-800 p-6 rounded-lg shadow-2xl max-w-md">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin" />
+              <div>
+                <h3 className="text-lg font-semibold text-white">
+                  Generating Photorealistic Model
+                </h3>
+                <p className="text-sm text-slate-400">
+                  {make} {model} {year}
+                </p>
+              </div>
+            </div>
+            <div className="w-full bg-slate-700 rounded-full h-2 mb-2">
+              <div
+                className="bg-primary h-2 rounded-full transition-all duration-300"
+                style={{ width: `${progress}%` }}
+              />
+            </div>
+            <p className="text-xs text-slate-400 text-center">
+              {progress.toFixed(0)}% complete • First time only, then cached
+            </p>
+          </div>
+        </div>
+      )}
+
+      {/* Model Quality Badge */}
+      {!isGenerating && (
+        <div className="absolute top-2 right-2 z-10">
+          {usingPlaceholder ? (
+            <div className="bg-yellow-500/20 border border-yellow-500/50 text-yellow-200 px-3 py-1 rounded-full text-xs font-medium backdrop-blur-sm">
+              ⚠️ Placeholder Model
+            </div>
+          ) : (
+            <div className="bg-green-500/20 border border-green-500/50 text-green-200 px-3 py-1 rounded-full text-xs font-medium backdrop-blur-sm">
+              ✨ AI Photorealistic
+            </div>
+          )}
+        </div>
+      )}
+
     <Canvas
       style={{ width: '100%', height: '100%' }}
       camera={{ position: [5, 5, 5], fov: 60 }}
@@ -663,6 +729,7 @@ export default function Asset3DViewer({
         <ToneMapping adaptive />
       </EffectComposer>
     </Canvas>
+    </div>
   )
 }
 
