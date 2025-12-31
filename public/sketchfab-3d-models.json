@@ -1,0 +1,312 @@
+{
+  "metadata": {
+    "source": "Sketchfab",
+    "lastUpdated": "2025-12-31",
+    "license": "Various - See individual model licenses",
+    "notes": "All models are either free to download or require attribution. Check individual Sketchfab pages for specific license requirements."
+  },
+  "models": {
+    "trucks": [
+      {
+        "id": "ford_f_150",
+        "make": "Ford",
+        "model": "F-150",
+        "sketchfabUrl": "https://sketchfab.com/3d-models/ford-f-150-c205cde66b1d4f14b1820b89de7b8d23",
+        "sketchfabId": "c205cde66b1d4f14b1820b89de7b8d23",
+        "author": "Mona x Supercars",
+        "license": "CC Attribution",
+        "format": "glTF",
+        "polyCount": "medium",
+        "textures": true,
+        "rigged": false,
+        "animated": false,
+        "localPath": "/models/vehicles/trucks/ford_f_150.glb"
+      },
+      {
+        "id": "ford_f150_raptor",
+        "make": "Ford",
+        "model": "F-150 Raptor",
+        "sketchfabUrl": "https://sketchfab.com/3d-models/ford-f150-raptor-c640e4e7c68545e09a9348494c2c13a1",
+        "sketchfabId": "c640e4e7c68545e09a9348494c2c13a1",
+        "author": "David_Holiday",
+        "license": "CC Attribution",
+        "format": "glTF",
+        "polyCount": "medium",
+        "textures": true,
+        "rigged": false,
+        "animated": false,
+        "localPath": "/models/vehicles/trucks/ford_f150_raptor.glb"
+      },
+      {
+        "id": "ford_f150_raptor_2024",
+        "make": "Ford",
+        "model": "F-150 Raptor R 2024",
+        "sketchfabUrl": "https://sketchfab.com/3d-models/2024-ford-f-150-raptor-r-91aedf1119724f3396dcfe87686545c1",
+        "sketchfabId": "91aedf1119724f3396dcfe87686545c1",
+        "author": "Ddiaz Design",
+        "license": "CC Attribution",
+        "format": "glTF",
+        "polyCount": "high",
+        "textures": true,
+        "rigged": false,
+        "animated": false,
+        "localPath": "/models/vehicles/trucks/ford_f150_raptor_2024.glb"
+      },
+      {
+        "id": "chevrolet_silverado",
+        "make": "Chevrolet",
+        "model": "Silverado 1500",
+        "sketchfabUrl": "https://sketchfab.com/3d-models/chevy-silverado-4a4395890a904cb8a1c8deba2cec3d14",
+        "sketchfabId": "4a4395890a904cb8a1c8deba2cec3d14",
+        "author": "David_Holiday",
+        "license": "CC Attribution",
+        "format": "glTF",
+        "polyCount": "medium",
+        "textures": true,
+        "rigged": false,
+        "animated": false,
+        "localPath": "/models/vehicles/trucks/chevrolet_silverado.glb"
+      },
+      {
+        "id": "chevrolet_silverado_trail_boss",
+        "make": "Chevrolet",
+        "model": "Silverado Trail Boss Z71 2019",
+        "sketchfabUrl": "https://sketchfab.com/3d-models/2019-chevrolet-silverado-trail-boss-z71-652324cc8a974d3a9869ce2b0f3beaaa",
+        "sketchfabId": "652324cc8a974d3a9869ce2b0f3beaaa",
+        "author": "Ddiaz Design",
+        "license": "CC Attribution",
+        "format": "glTF",
+        "polyCount": "high",
+        "textures": true,
+        "rigged": false,
+        "animated": false,
+        "localPath": "/models/vehicles/trucks/chevrolet_silverado_trail_boss.glb"
+      }
+    ],
+    "sedans": [
+      {
+        "id": "toyota_camry",
+        "make": "Toyota",
+        "model": "Camry",
+        "sketchfabUrl": "https://sketchfab.com/3d-models/toyota-camry-fd9b89c8c12b48f98915fac1392e3b67",
+        "sketchfabId": "fd9b89c8c12b48f98915fac1392e3b67",
+        "author": "Recon-3D",
+        "license": "CC Attribution",
+        "format": "glTF",
+        "polyCount": "medium",
+        "textures": true,
+        "rigged": false,
+        "animated": false,
+        "localPath": "/models/vehicles/sedans/toyota_camry.glb"
+      },
+      {
+        "id": "toyota_camry_40",
+        "make": "Toyota",
+        "model": "Camry 40",
+        "sketchfabUrl": "https://sketchfab.com/3d-models/toyota-camry-40-560c174d073f4a10bb153ded41ada8c9",
+        "sketchfabId": "560c174d073f4a10bb153ded41ada8c9",
+        "author": "mamont nikita",
+        "license": "CC Attribution",
+        "format": "glTF",
+        "polyCount": "medium",
+        "textures": true,
+        "rigged": false,
+        "animated": false,
+        "localPath": "/models/vehicles/sedans/toyota_camry_40.glb"
+      },
+      {
+        "id": "honda_accord_2021",
+        "make": "Honda",
+        "model": "Accord 2021",
+        "sketchfabUrl": "https://sketchfab.com/3d-models/2021-honda-accord-e742636e46814de5af1568542e7c9bdb",
+        "sketchfabId": "e742636e46814de5af1568542e7c9bdb",
+        "author": "Ddiaz Design",
+        "license": "CC Attribution",
+        "format": "glTF",
+        "polyCount": "high",
+        "textures": true,
+        "rigged": false,
+        "animated": false,
+        "localPath": "/models/vehicles/sedans/honda_accord.glb"
+      },
+      {
+        "id": "honda_accord_2019",
+        "make": "Honda",
+        "model": "Accord 2019",
+        "sketchfabUrl": "https://sketchfab.com/3d-models/2019-honda-accord-aad70ad7eae3467e99c71ef0c7150138",
+        "sketchfabId": "aad70ad7eae3467e99c71ef0c7150138",
+        "author": "David_Holiday",
+        "license": "CC Attribution",
+        "format": "glTF",
+        "polyCount": "medium",
+        "textures": true,
+        "rigged": false,
+        "animated": false,
+        "localPath": "/models/vehicles/sedans/honda_accord_2019.glb"
+      },
+      {
+        "id": "honda_accord_2008",
+        "make": "Honda",
+        "model": "Accord 2008",
+        "sketchfabUrl": "https://sketchfab.com/3d-models/honda-accord-2008-1e3be91c28104f6489b42248884327fe",
+        "sketchfabId": "1e3be91c28104f6489b42248884327fe",
+        "author": "David_Holiday",
+        "license": "CC Attribution",
+        "format": "glTF",
+        "polyCount": "medium",
+        "textures": true,
+        "rigged": false,
+        "animated": false,
+        "localPath": "/models/vehicles/sedans/honda_accord_2008.glb"
+      }
+    ],
+    "electric": [
+      {
+        "id": "tesla_model_3",
+        "make": "Tesla",
+        "model": "Model 3",
+        "sketchfabUrl": "https://sketchfab.com/3d-models/tesla-2018-model-3-5ef9b845aaf44203b6d04e2c677e444f",
+        "sketchfabId": "5ef9b845aaf44203b6d04e2c677e444f",
+        "author": "Ameer Studio",
+        "license": "CC Attribution",
+        "format": "glTF",
+        "polyCount": "medium",
+        "textures": true,
+        "rigged": false,
+        "animated": false,
+        "localPath": "/models/vehicles/electric_sedans/tesla_model_3.glb"
+      },
+      {
+        "id": "tesla_cybertruck",
+        "make": "Tesla",
+        "model": "Cybertruck",
+        "sketchfabUrl": "https://sketchfab.com/3d-models/tesla-cybertruck-electric-vehicle-game-ready-c80b9083ae8e4a3e8cbeea592f1a9c3a",
+        "sketchfabId": "c80b9083ae8e4a3e8cbeea592f1a9c3a",
+        "author": "dimenxioner.com",
+        "license": "CC Attribution",
+        "format": "glTF",
+        "polyCount": "high",
+        "textures": true,
+        "rigged": false,
+        "animated": false,
+        "localPath": "/models/vehicles/electric_trucks/tesla_cybertruck.glb",
+        "notes": "Game-ready asset with PBR materials"
+      }
+    ],
+    "vans": [
+      {
+        "id": "mercedes_sprinter",
+        "make": "Mercedes-Benz",
+        "model": "Sprinter",
+        "sketchfabUrl": "https://sketchfab.com/3d-models/mercedes-benz-sprinter-152f62800be34652af0545487129ca2e",
+        "sketchfabId": "152f62800be34652af0545487129ca2e",
+        "author": "Savelliy 07",
+        "license": "CC Attribution",
+        "format": "glTF",
+        "polyCount": "medium",
+        "textures": true,
+        "rigged": false,
+        "animated": false,
+        "localPath": "/models/vehicles/vans/mercedes_benz_sprinter.glb"
+      },
+      {
+        "id": "mercedes_sprinter_2006",
+        "make": "Mercedes-Benz",
+        "model": "Sprinter 2006",
+        "sketchfabUrl": "https://sketchfab.com/3d-models/mercedes-benz-sprinter-2006-f69de1315bb049c8946d57f6006acd73",
+        "sketchfabId": "f69de1315bb049c8946d57f6006acd73",
+        "author": "Max",
+        "license": "Restricted - Contact author",
+        "format": "glTF",
+        "polyCount": "medium",
+        "textures": true,
+        "rigged": false,
+        "animated": false,
+        "localPath": "/models/vehicles/vans/mercedes_sprinter_2006.glb",
+        "notes": "4K Textures, Medium Poly, Made in Cinema 4D"
+      },
+      {
+        "id": "mercedes_sprinter_model",
+        "make": "Mercedes-Benz",
+        "model": "Sprinter 3D Model",
+        "sketchfabUrl": "https://sketchfab.com/3d-models/mercedes-sprinter-3d-model-293137469ef24741a79ca0be758e24fa",
+        "sketchfabId": "293137469ef24741a79ca0be758e24fa",
+        "author": "biryoldahavar",
+        "license": "CC Attribution",
+        "format": "glTF",
+        "polyCount": "medium",
+        "textures": true,
+        "rigged": false,
+        "animated": false,
+        "localPath": "/models/vehicles/vans/mercedes_sprinter_alt.glb"
+      },
+      {
+        "id": "ford_transit",
+        "make": "Ford",
+        "model": "Transit Custom Double Cargo Van",
+        "sketchfabUrl": "https://sketchfab.com/3d-models/ford-transit-custom-double-cargo-van-8d2529f41c7d4404881f6c4014d4f04c",
+        "sketchfabId": "8d2529f41c7d4404881f6c4014d4f04c",
+        "author": "dimenxioner.com",
+        "license": "CC Attribution",
+        "format": "glTF",
+        "polyCount": "high",
+        "textures": true,
+        "rigged": false,
+        "animated": false,
+        "localPath": "/models/vehicles/vans/ford_transit.glb",
+        "notes": "High-detail design with realistic textures"
+      }
+    ],
+    "suvs": [
+      {
+        "id": "honda_cr_v",
+        "make": "Honda",
+        "model": "CR-V",
+        "sketchfabUrl": "https://sketchfab.com/tags/honda-cr-v",
+        "sketchfabId": "tag-search",
+        "author": "Various",
+        "license": "Various",
+        "format": "glTF",
+        "polyCount": "medium",
+        "textures": true,
+        "rigged": false,
+        "animated": false,
+        "localPath": "/models/vehicles/suvs/honda_cr_v.glb"
+      },
+      {
+        "id": "ford_explorer",
+        "make": "Ford",
+        "model": "Explorer",
+        "sketchfabUrl": "https://sketchfab.com/tags/ford-explorer",
+        "sketchfabId": "tag-search",
+        "author": "Various",
+        "license": "Various",
+        "format": "glTF",
+        "polyCount": "medium",
+        "textures": true,
+        "rigged": false,
+        "animated": false,
+        "localPath": "/models/vehicles/suvs/ford_explorer.glb"
+      }
+    ]
+  },
+  "downloadInstructions": {
+    "steps": [
+      "1. Visit the Sketchfab URL for the desired model",
+      "2. Click the 'Download 3D Model' button (requires free Sketchfab account)",
+      "3. Select 'Original format' or 'glTF' format if available",
+      "4. Download and extract the files",
+      "5. Place the .glb file in the appropriate /public/models/vehicles/[category]/ folder",
+      "6. If only .gltf is available, use a converter like glTF Pipeline to convert to .glb"
+    ],
+    "tools": {
+      "gltfPipeline": "https://github.com/CesiumGS/gltf-pipeline",
+      "blender": "Can export to .glb format after importing other 3D formats",
+      "onlineConverter": "https://products.aspose.app/3d/conversion/gltf-to-glb"
+    }
+  },
+  "attributionTemplate": {
+    "format": "[Model Name] by [Author] on Sketchfab, licensed under [License Type]",
+    "example": "Ford F-150 by Mona x Supercars on Sketchfab, licensed under CC Attribution"
+  }
+}
