@@ -25,6 +25,7 @@ import { InspectProvider } from "./services/inspect/InspectContext"
 import { DrilldownProvider } from "./contexts/DrilldownContext"
 import { NavigationProvider } from "./contexts/NavigationContext"
 import { SentryErrorBoundary } from "./components/errors/SentryErrorBoundary"
+import { GlobalCommandPalette } from "./components/common/GlobalCommandPalette"
 import App from "./App"
 import "./index.css"
 import "./styles/design-tokens-responsive.css"
@@ -56,6 +57,7 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
               <DrilldownProvider>
                 <InspectProvider>
                   <BrowserRouter>
+                    <GlobalCommandPalette />
                     <SentryRoutes>
                       <Route
                         path="/*"
