@@ -171,8 +171,7 @@ export default defineConfig({
       'react-dom',
       'react-router-dom',
       '@tanstack/react-query',
-    ],
-    exclude: [
+      'react-reconciler',
       '@react-three/fiber',
       '@react-three/drei',
       'three',
