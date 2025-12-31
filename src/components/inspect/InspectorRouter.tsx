@@ -41,7 +41,7 @@ export const InspectorRouter: React.FC<Props> = ({ target }) => {
     case "alert":
     case "task":
     case "dispatch":
-      return renderPlaceholder();
+      return renderInspector(type, id);
     default:
       return (
         <div className="p-4 bg-destructive/10 rounded-md">
