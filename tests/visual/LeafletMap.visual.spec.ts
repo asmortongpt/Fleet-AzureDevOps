@@ -8,15 +8,7 @@
  * - Popup styles
  */
 
-import { test } from '@playwright/test';
-
-import {
-  SINGLE_VEHICLE,
-  MULTIPLE_VEHICLES,
-  MULTIPLE_FACILITIES,
-  MULTIPLE_CAMERAS,
-  ALL_MARKERS,
-} from './fixtures/map-test-data';
+import { test, expect } from '@playwright/test';
 import {
   waitForMapLoad,
   waitForMarkers,
@@ -25,6 +17,13 @@ import {
   disableAnimations,
   VIEWPORTS,
 } from './helpers/visual-test-helpers';
+import {
+  SINGLE_VEHICLE,
+  MULTIPLE_VEHICLES,
+  MULTIPLE_FACILITIES,
+  MULTIPLE_CAMERAS,
+  ALL_MARKERS,
+} from './fixtures/map-test-data';
 
 test.describe('LeafletMap - Visual Regression Tests', () => {
   test.beforeEach(async ({ page }) => {

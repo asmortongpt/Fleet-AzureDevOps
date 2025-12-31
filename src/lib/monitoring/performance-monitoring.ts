@@ -5,7 +5,7 @@
  * @module monitoring/performance-monitoring
  */
 
-import { onCLS, onFID, onLCP, onFCP, onTTFB, onINP, Metric } from 'web-vitals';
+import { onCLS, onLCP, onFCP, onTTFB, onINP, type MetricType } from 'web-vitals';
 import { captureMessage, setContext } from './sentry';
 import { metrics, telemetry } from './telemetry';
 
@@ -109,10 +109,7 @@ class PerformanceMonitorService {
     // Cumulative Layout Shift
     onCLS(this.handleWebVital.bind(this), { reportAllChanges: false });
 
-    // First Input Delay
-    onFID(this.handleWebVital.bind(this), { reportAllChanges: false });
-
-    // Interaction to Next Paint
+    // Interaction to Next Paint (replaced FID as Core Web Vital in 2024)
     onINP(this.handleWebVital.bind(this), { reportAllChanges: false });
 
     // Largest Contentful Paint
@@ -128,7 +125,7 @@ class PerformanceMonitorService {
   /**
    * Handle Web Vital metric
    */
-  private handleWebVital(metric: Metric): void {
+  private handleWebVital(metric: MetricType): void {
     const rating = this.getRating(metric.name, metric.value);
 
     const performanceMetric: PerformanceMetric = {
@@ -196,7 +193,7 @@ class PerformanceMonitorService {
                 : 0,
               'request-time': navEntry.responseStart - navEntry.requestStart,
               'response-time': navEntry.responseEnd - navEntry.responseStart,
-              'dom-processing': navEntry.domComplete - navEntry.domLoading,
+              'dom-processing': navEntry.domComplete - navEntry.domContentLoadedEventStart,
               'dom-interactive': navEntry.domInteractive - navEntry.fetchStart,
               'dom-content-loaded':
                 navEntry.domContentLoadedEventEnd - navEntry.domContentLoadedEventStart,
