@@ -156,7 +156,7 @@ export function exportToCSV(
 
 /**
  * Export data to Excel file (XLSX)
- * Note: Requires SheetJS (xlsx) library to be installed
+ * Note: Requires exceljs library to be installed
  */
 export async function exportToExcel(
   data: any[],
@@ -164,8 +164,8 @@ export async function exportToExcel(
   options: ExportOptions = {}
 ): Promise<void> {
   try {
-    // Dynamically import xlsx to reduce bundle size
-    const XLSX = await import('xlsx')
+    // Dynamically import exceljs to reduce bundle size
+    const ExcelJS = await import('exceljs')
 
     const {
       columns,
@@ -173,27 +173,39 @@ export async function exportToExcel(
       sheetName = 'Sheet1'
     } = options
 
-    // Prepare data with custom headers
-    const exportData = data.map((row) => {
-      const newRow: any = {}
-      const keys = columns || Object.keys(row)
+    // Create workbook and worksheet
+    const workbook = new ExcelJS.Workbook()
+    const worksheet = workbook.addWorksheet(sheetName)
 
+    // Determine columns
+    const keys = columns || (data.length > 0 ? Object.keys(data[0]) : [])
+
+    // Set up worksheet columns with headers
+    worksheet.columns = keys.map((key) => ({
+      header: columnHeaders[key] || key,
+      key: key,
+      width: 15
+    }))
+
+    // Add data rows
+    data.forEach((row) => {
+      const rowData: any = {}
       keys.forEach((key) => {
-        const headerName = columnHeaders[key] || key
-        newRow[headerName] = row[key]
+        rowData[key] = row[key]
       })
-
-      return newRow
+      worksheet.addRow(rowData)
     })
 
-    // Create workbook and worksheet
-    const worksheet = XLSX.utils.json_to_sheet(exportData)
-    const workbook = XLSX.utils.book_new()
-    XLSX.utils.book_append_sheet(workbook, worksheet, sheetName)
+    // Style the header row
+    worksheet.getRow(1).font = { bold: true }
 
     // Generate Excel file
     const filename = options.filename || `${baseFilename}-${getTimestamp()}.xlsx`
-    XLSX.writeFile(workbook, filename)
+    const buffer = await workbook.xlsx.writeBuffer()
+    const blob = new Blob([buffer], {
+      type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+    })
+    downloadFile(blob, filename, 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
   } catch (error) {
     logger.error('Failed to export to Excel:', error)
     // Fallback to CSV if Excel export fails
@@ -370,29 +382,49 @@ export async function importFromCSV(
 
 /**
  * Import data from Excel file
- * Note: Requires SheetJS (xlsx) library to be installed
+ * Note: Requires exceljs library to be installed
  */
 export async function importFromExcel(
   file: File,
   options: ImportOptions & { sheetName?: string } = {}
 ): Promise<any[]> {
   try {
-    const XLSX = await import('xlsx')
+    const ExcelJS = await import('exceljs')
 
     const buffer = await file.arrayBuffer()
-    const workbook = XLSX.read(buffer, { type: 'array' })
+    const workbook = new ExcelJS.Workbook()
+    await workbook.xlsx.load(buffer)
 
-    // Get sheet name
-    const sheetName =
-      options.sheetName || workbook.SheetNames[0]
+    // Get worksheet
+    const worksheet = options.sheetName
+      ? workbook.getWorksheet(options.sheetName)
+      : workbook.worksheets[0]
 
-    if (!sheetName || !workbook.Sheets[sheetName]) {
+    if (!worksheet) {
       throw new Error('Sheet not found')
     }
 
-    // Convert sheet to JSON
-    const worksheet = workbook.Sheets[sheetName]
-    let data = XLSX.utils.sheet_to_json(worksheet)
+    // Convert worksheet to JSON
+    let data: any[] = []
+    const headers: string[] = []
+
+    // Get headers from first row
+    const firstRow = worksheet.getRow(1)
+    firstRow.eachCell((cell, colNumber) => {
+      headers[colNumber - 1] = cell.value?.toString() || `Column${colNumber}`
+    })
+
+    // Get data rows
+    worksheet.eachRow((row, rowNumber) => {
+      if (rowNumber === 1) return // Skip header row
+
+      const rowData: any = {}
+      row.eachCell((cell, colNumber) => {
+        const header = headers[colNumber - 1]
+        rowData[header] = cell.value
+      })
+      data.push(rowData)
+    })
 
     // Apply column mapping if provided
     if (options.columnMapping) {
