@@ -9,6 +9,8 @@ import {
 import { useState } from "react"
 import { toast } from "sonner"
 
+import { ScannerModal, ScannerType } from "./ScannerModal"
+
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import {
@@ -58,6 +60,8 @@ export function VehicleIdentification({
   const [plateInput, setPlateInput] = useState("")
   const [searchInput, setSearchInput] = useState("")
   const [searchResults, setSearchResults] = useState<VehicleInfo[]>([])
+  const [scannerOpen, setScannerOpen] = useState(false)
+  const [scannerType, setScannerType] = useState<ScannerType>('qr')
 
   const handleVINLookup = async () => {
     if (!vinInput.trim()) {
@@ -136,24 +140,37 @@ export function VehicleIdentification({
   }
 
   const handleQRScan = () => {
-    toast.info("QR code scanner integration coming soon", {
-      description: "Use browser camera API or dedicated QR scanner app"
-    })
-    logger.info("QR Scan feature requested - requires hardware camera integration")
+    setScannerType('qr')
+    setScannerOpen(true)
+    logger.info("Opening QR code scanner")
   }
 
   const handleVINScan = () => {
-    toast.info("VIN barcode scanner coming soon", {
-      description: "Use barcode scanner hardware or mobile app"
-    })
-    logger.info("VIN Scan feature requested - requires hardware barcode scanner")
+    setScannerType('vin')
+    setScannerOpen(true)
+    logger.info("Opening VIN barcode scanner")
   }
 
   const handlePlateScan = () => {
-    toast.info("License plate OCR coming soon", {
-      description: "Azure Computer Vision integration required for OCR"
-    })
-    logger.info("Plate Scan feature requested - requires Azure OCR integration")
+    setScannerType('plate')
+    setScannerOpen(true)
+    logger.info("Opening license plate scanner")
+  }
+
+  const handleScanResult = async (result: string) => {
+    logger.info(`Scan result received: ${result}`)
+
+    if (scannerType === 'qr') {
+      // QR code might contain vehicle ID or search query
+      setSearchInput(result)
+      await handleSearch()
+    } else if (scannerType === 'vin') {
+      setVinInput(result)
+      await handleVINLookup()
+    } else if (scannerType === 'plate') {
+      setPlateInput(result)
+      await handleLicensePlateLookup()
+    }
   }
 
   return (
@@ -399,6 +416,14 @@ export function VehicleIdentification({
           </DialogContent>
         </Dialog>
       )}
+
+      {/* Scanner Modal */}
+      <ScannerModal
+        open={scannerOpen}
+        onOpenChange={setScannerOpen}
+        type={scannerType}
+        onScan={handleScanResult}
+      />
     </div>
   )
 }
