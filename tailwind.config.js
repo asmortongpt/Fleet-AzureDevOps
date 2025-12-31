@@ -23,6 +23,41 @@ const defaultTheme = {
       fine: { raw: "(pointer: fine)" },
       pwa: { raw: "(display-mode: standalone)" },
     },
+    // Glassmorphism utility classes
+    backgroundImage: {
+      'glass-gradient': 'linear-gradient(135deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.05))',
+      'glass-gradient-dark': 'linear-gradient(135deg, rgba(0, 0, 0, 0.1), rgba(0, 0, 0, 0.05))',
+    },
+    backdropBlur: {
+      'glass': '10px',
+      'glass-sm': '6px',
+      'glass-lg': '16px',
+    },
+    // Animation utilities
+    keyframes: {
+      'fade-in': {
+        '0%': { opacity: '0' },
+        '100%': { opacity: '1' },
+      },
+      'slide-up': {
+        '0%': { transform: 'translateY(10px)', opacity: '0' },
+        '100%': { transform: 'translateY(0)', opacity: '1' },
+      },
+      'slide-down': {
+        '0%': { transform: 'translateY(-10px)', opacity: '0' },
+        '100%': { transform: 'translateY(0)', opacity: '1' },
+      },
+      'scale-in': {
+        '0%': { transform: 'scale(0.95)', opacity: '0' },
+        '100%': { transform: 'scale(1)', opacity: '1' },
+      },
+    },
+    animation: {
+      'fade-in': 'fade-in 0.3s ease-out',
+      'slide-up': 'slide-up 0.3s ease-out',
+      'slide-down': 'slide-down 0.3s ease-out',
+      'scale-in': 'scale-in 0.3s ease-out',
+    },
     colors: {
       neutral: {
         1: "var(--color-neutral-1)",

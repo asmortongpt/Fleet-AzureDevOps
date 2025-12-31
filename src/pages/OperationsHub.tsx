@@ -148,9 +148,25 @@ function CalendarContent() {
         <div className="p-6 space-y-6 bg-gradient-to-b from-slate-900/50 to-transparent">
             <h2 className="text-2xl font-bold text-white">Operations Calendar</h2>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <StatCard title="Scheduled Today" value="24" variant="primary" icon={<CalendarDots className="w-6 h-6" />} />
-                <StatCard title="This Week" value="156" variant="default" />
-                <StatCard title="Driver Shifts" value="42" variant="success" />
+                <StatCard
+                    title="Scheduled Today"
+                    value="24"
+                    variant="primary"
+                    icon={<CalendarDots className="w-6 h-6" />}
+                    onClick={() => push({ type: 'scheduled-today', data: { title: 'Scheduled Today' } } as Omit<DrilldownLevel, "timestamp">)}
+                />
+                <StatCard
+                    title="This Week"
+                    value="156"
+                    variant="default"
+                    onClick={() => push({ type: 'scheduled-week', data: { title: 'This Week' } } as Omit<DrilldownLevel, "timestamp">)}
+                />
+                <StatCard
+                    title="Driver Shifts"
+                    value="42"
+                    variant="success"
+                    onClick={() => push({ type: 'driver-shifts', data: { title: 'Driver Shifts' } } as Omit<DrilldownLevel, "timestamp">)}
+                />
             </div>
         </div>
     )
