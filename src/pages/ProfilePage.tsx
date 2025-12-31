@@ -6,11 +6,12 @@
 import { zodResolver } from '@hookform/resolvers/zod'
 import { User, Check, X, Upload, LinkedinLogo, GithubLogo, TwitterLogo } from '@phosphor-icons/react'
 import { useAtom } from 'jotai'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useForm } from 'react-hook-form'
 import { toast } from 'react-hot-toast'
 import { z } from 'zod'
 
+import { fetchCurrentUser } from '@/services/userService'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -39,10 +40,33 @@ const profileSchema = z.object({
 type ProfileFormData = z.infer<typeof profileSchema>
 
 export default function ProfilePage() {
-  const [currentUser, setCurrentUser] = useAtom(currentUserAtom)
+  const [storedUser, setCurrentUser] = useAtom(currentUserAtom)
   const [isEditing, setIsEditing] = useState(false)
   const [avatarFile, setAvatarFile] = useState<File | null>(null)
   const [avatarPreview, setAvatarPreview] = useState<string | null>(null)
+  const [isLoading, setIsLoading] = useState(!storedUser)
+  const [loadError, setLoadError] = useState<string | null>(null)
+
+  // Fetch user from service if not already loaded
+  useEffect(() => {
+    if (!storedUser) {
+      setIsLoading(true)
+      setLoadError(null)
+      fetchCurrentUser()
+        .then((user) => {
+          setCurrentUser(user)
+          setIsLoading(false)
+        })
+        .catch((error) => {
+          logger.error('Failed to fetch current user:', error)
+          setLoadError('Unable to load profile. Please ensure you are logged in and the server is available.')
+          setIsLoading(false)
+        })
+    }
+  }, [storedUser, setCurrentUser])
+
+  const currentUser = storedUser
+
 
   const {
     register,
@@ -65,6 +89,7 @@ export default function ProfilePage() {
       twitter: currentUser?.socialLinks?.twitter || '',
     },
   })
+
 
   const onSubmit = async (data: ProfileFormData) => {
     try {
@@ -134,15 +159,32 @@ export default function ProfilePage() {
     return currentUser?.displayName?.slice(0, 2).toUpperCase() || 'U'
   }
 
-  if (!currentUser) {
+  // Show loading state while fetching user
+  if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
-        <p className="text-muted-foreground">Please log in to view your profile</p>
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
       </div>
     )
   }
 
+  // Show message if no user after fetch attempt
+  if (!currentUser) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[400px] gap-4">
+        <p className="text-muted-foreground text-center max-w-md">
+          {loadError || 'Unable to load user profile. Please ensure you are logged in.'}
+        </p>
+        <Button variant="outline" onClick={() => window.location.reload()}>
+          Try Again
+        </Button>
+      </div>
+    )
+  }
+
+
   return (
+
     <div className="container mx-auto p-6 max-w-4xl">
       <div className="flex items-center justify-between mb-6">
         <div>
