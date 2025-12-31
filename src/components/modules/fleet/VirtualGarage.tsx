@@ -27,6 +27,11 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { useGarageFilters, GarageAsset } from './VirtualGarage/hooks/use-garage-filters';
 import { AssetCategory } from '@/types/asset.types';
+import {
+  DamageSummaryPanel,
+  generateDemoDamagePoints,
+  DamagePoint
+} from '@/components/garage/DamageOverlay';
 
 // Demo assets used only in development as a fallback
 const DEMO_ASSETS: GarageAsset[] = [
@@ -125,6 +130,11 @@ interface AssetDisplayProps {
 }
 
 const AssetDisplay: React.FC<AssetDisplayProps> = ({ asset }) => {
+  const [selectedDamageId, setSelectedDamageId] = useState<string | undefined>();
+
+  // Generate demo damage points for demonstration
+  const damagePoints = React.useMemo(() => generateDemoDamagePoints(), []);
+
   if (!asset) {
     return (
       <div className="flex items-center justify-center h-full text-muted-foreground">
@@ -132,27 +142,48 @@ const AssetDisplay: React.FC<AssetDisplayProps> = ({ asset }) => {
       </div>
     );
   }
+
   return (
-    <div className="w-full h-full relative">
-      <ViewerErrorBoundary>
-        <Suspense fallback={<Viewer3DFallback />}>
-          <Asset3DViewer
-            assetCategory={asset.asset_category}
-            color={asset.color ?? 'white'}
-            customModelUrl={asset.damage_model_url}
-          />
-        </Suspense>
-      </ViewerErrorBoundary>
-      <div className="absolute bottom-2 left-2 flex flex-wrap gap-2">
-        {asset.license_plate && <Badge>{asset.license_plate}</Badge>}
-        {asset.asset_tag && <Badge>{asset.asset_tag}</Badge>}
-        {asset.vin && <Badge>VIN: {asset.vin}</Badge>}
-        {typeof asset.odometer === 'number' && (
-          <Badge>ODO: {asset.odometer.toLocaleString()} mi</Badge>
-        )}
-        {typeof asset.engine_hours === 'number' && (
-          <Badge>Hours: {asset.engine_hours}</Badge>
-        )}
+    <div className="w-full h-full flex">
+      {/* 3D Viewer */}
+      <div className="flex-1 relative">
+        <ViewerErrorBoundary>
+          <Suspense fallback={<Viewer3DFallback />}>
+            <Asset3DViewer
+              assetCategory={asset.asset_category}
+              color={asset.color ?? '#3B82F6'}
+              customModelUrl={asset.damage_model_url}
+              damagePoints={damagePoints}
+              selectedDamageId={selectedDamageId}
+              onSelectDamage={(point) => setSelectedDamageId(point.id)}
+              showDamage={true}
+            />
+          </Suspense>
+        </ViewerErrorBoundary>
+        <div className="absolute bottom-2 left-2 flex flex-wrap gap-2">
+          {asset.license_plate && <Badge>{asset.license_plate}</Badge>}
+          {asset.asset_tag && <Badge>{asset.asset_tag}</Badge>}
+          {asset.vin && <Badge>VIN: {asset.vin}</Badge>}
+          {typeof asset.odometer === 'number' && (
+            <Badge>ODO: {asset.odometer.toLocaleString()} mi</Badge>
+          )}
+          {typeof asset.engine_hours === 'number' && (
+            <Badge>Hours: {asset.engine_hours}</Badge>
+          )}
+        </div>
+      </div>
+
+      {/* Damage Summary Panel */}
+      <div className="w-72 border-l bg-slate-900/50 overflow-y-auto">
+        <div className="p-3 border-b bg-slate-800/50">
+          <h3 className="text-sm font-semibold text-white">Damage Report</h3>
+          <p className="text-xs text-slate-400">{asset.asset_name || `${asset.make} ${asset.model}`}</p>
+        </div>
+        <DamageSummaryPanel
+          damagePoints={damagePoints}
+          onSelectDamage={(point) => setSelectedDamageId(point.id)}
+          selectedDamageId={selectedDamageId}
+        />
       </div>
     </div>
   );

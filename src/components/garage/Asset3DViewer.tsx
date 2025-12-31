@@ -31,6 +31,7 @@ import { Suspense, useRef, useState } from 'react'
 import * as THREE from 'three'
 
 import { AssetCategory, AssetType } from '@/types/asset.types'
+import { DamageOverlay, DamagePoint, DamageSeverity } from './DamageOverlay'
 
 // ============================================================================
 // TYPES
@@ -46,7 +47,17 @@ interface Asset3DViewerProps {
   showStats?: boolean
   autoRotate?: boolean
   onLoad?: () => void
+  // Damage visualization props
+  damagePoints?: DamagePoint[]
+  selectedDamageId?: string
+  onSelectDamage?: (point: DamagePoint) => void
+  onAddDamage?: (point: Omit<DamagePoint, 'id' | 'createdAt'>) => void
+  onRemoveDamage?: (id: string) => void
+  isEditMode?: boolean
+  showDamage?: boolean
 }
+
+export type { DamagePoint, DamageSeverity }
 
 interface VehicleModelProps {
   category?: AssetCategory
@@ -544,9 +555,16 @@ export default function Asset3DViewer({
   assetType,
   color,
   customModelUrl,
-  
   autoRotate = false,
-  onLoad
+  onLoad,
+  // Damage props
+  damagePoints = [],
+  selectedDamageId,
+  onSelectDamage,
+  onAddDamage,
+  onRemoveDamage,
+  isEditMode = false,
+  showDamage = true
 }: Asset3DViewerProps) {
   const controlsRef = useRef<any>();
 
@@ -555,16 +573,36 @@ export default function Asset3DViewer({
       style={{ width: '100%', height: '100%' }}
       camera={{ position: [5, 5, 5], fov: 60 }}
       onCreated={() => onLoad?.()}
+      shadows
     >
-      <color attach="background" args={['#f3f4f6']} />
-      <ambientLight intensity={0.5} />
-      <pointLight position={[10, 10, 10]} intensity={1} />
-      <directionalLight
-        position={[0, 10, 5]}
+      {/* Background gradient */}
+      <color attach="background" args={['#1a1a2e']} />
+
+      {/* Enhanced lighting for photorealistic rendering */}
+      <ambientLight intensity={0.4} />
+      <spotLight
+        position={[10, 15, 10]}
+        angle={0.3}
+        penumbra={1}
         intensity={1.5}
         castShadow
-        shadow-mapSize={[1024, 1024]}
+        shadow-mapSize={[2048, 2048]}
       />
+      <spotLight
+        position={[-10, 10, -10]}
+        angle={0.3}
+        penumbra={1}
+        intensity={0.5}
+        color="#4a9eff"
+      />
+      <directionalLight
+        position={[0, 10, 5]}
+        intensity={1}
+        castShadow
+        shadow-mapSize={[2048, 2048]}
+      />
+
+      {/* Vehicle Model */}
       <Suspense fallback={<LoadingScreen />}>
         {customModelUrl ? (
           <CustomModel url={customModelUrl} color={color} />
@@ -572,22 +610,56 @@ export default function Asset3DViewer({
           <VehicleModel category={assetCategory} type={assetType} color={color} />
         )}
       </Suspense>
-      <Environment preset="studio" />
-      <ContactShadows position={[0, 0, 0]} opacity={0.5} scale={10} blur={1} far={10} />
+
+      {/* Damage Overlay */}
+      {showDamage && damagePoints.length > 0 && (
+        <DamageOverlay
+          damagePoints={damagePoints}
+          selectedDamageId={selectedDamageId}
+          onSelectDamage={onSelectDamage}
+          onAddDamage={onAddDamage}
+          onRemoveDamage={onRemoveDamage}
+          isEditMode={isEditMode}
+        />
+      )}
+
+      {/* HDRI Environment for photorealistic reflections */}
+      <Environment preset="city" background={false} />
+
+      {/* Ground shadows */}
+      <ContactShadows
+        position={[0, 0, 0]}
+        opacity={0.6}
+        scale={15}
+        blur={2}
+        far={10}
+        color="#000033"
+      />
+
+      {/* Controls */}
       <OrbitControls
         ref={controlsRef}
         enableZoom={true}
-        enablePan={false}
+        enablePan={true}
         enableRotate={true}
         autoRotate={autoRotate}
-        autoRotateSpeed={2}
-        minDistance={3}
-        maxDistance={10}
-        target={[0, 1, 0]}
+        autoRotateSpeed={1}
+        minDistance={2}
+        maxDistance={12}
+        target={[0, 0.8, 0]}
+        maxPolarAngle={Math.PI / 2 + 0.3}
       />
-      <PerspectiveCamera makeDefault position={[5, 5, 5]} fov={60} />
+
+      <PerspectiveCamera makeDefault position={[5, 3, 5]} fov={50} />
+
+      {/* Post-processing for photorealistic quality */}
       <EffectComposer>
-        <Bloom luminanceThreshold={0.2} luminanceSmoothing={0.9} height={300} />
+        <Bloom
+          luminanceThreshold={0.3}
+          luminanceSmoothing={0.9}
+          intensity={0.3}
+          height={400}
+        />
         <ToneMapping adaptive />
       </EffectComposer>
     </Canvas>
