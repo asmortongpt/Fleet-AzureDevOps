@@ -578,7 +578,7 @@ export default function Asset3DViewer({
     model,
     year,
     color,
-    placeholderUrl,
+    placeholderUrl: placeholderUrl ?? undefined,
     enableAI: import.meta.env.VITE_MESHY_API_KEY ? true : false, // Only enable if API key present
   })
 
@@ -639,96 +639,96 @@ export default function Asset3DViewer({
         </div>
       )}
 
-    <Canvas
-      style={{ width: '100%', height: '100%' }}
-      camera={{ position: [5, 5, 5], fov: 60 }}
-      onCreated={() => onLoad?.()}
-      shadows
-    >
-      {/* Background gradient */}
-      <color attach="background" args={['#1a1a2e']} />
+      <Canvas
+        style={{ width: '100%', height: '100%' }}
+        camera={{ position: [5, 5, 5], fov: 60 }}
+        onCreated={() => onLoad?.()}
+        shadows
+      >
+        {/* Background gradient */}
+        <color attach="background" args={['#1a1a2e']} />
 
-      {/* Enhanced lighting for photorealistic rendering */}
-      <ambientLight intensity={0.4} />
-      <spotLight
-        position={[10, 15, 10]}
-        angle={0.3}
-        penumbra={1}
-        intensity={1.5}
-        castShadow
-        shadow-mapSize={[2048, 2048]}
-      />
-      <spotLight
-        position={[-10, 10, -10]}
-        angle={0.3}
-        penumbra={1}
-        intensity={0.5}
-        color="#4a9eff"
-      />
-      <directionalLight
-        position={[0, 10, 5]}
-        intensity={1}
-        castShadow
-        shadow-mapSize={[2048, 2048]}
-      />
-
-      {/* Vehicle Model */}
-      <Suspense fallback={<LoadingScreen />}>
-        <PhotorealisticModel url={modelUrl} color={color} />
-      </Suspense>
-
-      {/* Damage Overlay */}
-      {showDamage && damagePoints.length > 0 && (
-        <DamageOverlay
-          damagePoints={damagePoints}
-          selectedDamageId={selectedDamageId}
-          onSelectDamage={onSelectDamage}
-          onAddDamage={onAddDamage}
-          onRemoveDamage={onRemoveDamage}
-          isEditMode={isEditMode}
+        {/* Enhanced lighting for photorealistic rendering */}
+        <ambientLight intensity={0.4} />
+        <spotLight
+          position={[10, 15, 10]}
+          angle={0.3}
+          penumbra={1}
+          intensity={1.5}
+          castShadow
+          shadow-mapSize={[2048, 2048]}
         />
-      )}
-
-      {/* HDRI Environment for photorealistic reflections */}
-      <Environment preset="city" background={false} />
-
-      {/* Ground shadows */}
-      <ContactShadows
-        position={[0, 0, 0]}
-        opacity={0.6}
-        scale={15}
-        blur={2}
-        far={10}
-        color="#000033"
-      />
-
-      {/* Controls */}
-      <OrbitControls
-        ref={controlsRef}
-        enableZoom={true}
-        enablePan={true}
-        enableRotate={true}
-        autoRotate={autoRotate}
-        autoRotateSpeed={1}
-        minDistance={2}
-        maxDistance={12}
-        target={[0, 0.8, 0]}
-        maxPolarAngle={Math.PI / 2 + 0.3}
-      />
-
-      <PerspectiveCamera makeDefault position={[5, 3, 5]} fov={50} />
-
-      {/* Post-processing for photorealistic quality */}
-      <EffectComposer>
-        <Bloom
-          luminanceThreshold={0.3}
-          luminanceSmoothing={0.9}
-          intensity={0.3}
-          height={400}
+        <spotLight
+          position={[-10, 10, -10]}
+          angle={0.3}
+          penumbra={1}
+          intensity={0.5}
+          color="#4a9eff"
         />
-        <ToneMapping adaptive />
-      </EffectComposer>
-    </Canvas>
+        <directionalLight
+          position={[0, 10, 5]}
+          intensity={1}
+          castShadow
+          shadow-mapSize={[2048, 2048]}
+        />
+
+        {/* Vehicle Model */}
+        <Suspense fallback={<LoadingScreen />}>
+          <PhotorealisticModel url={modelUrl} color={color} />
+        </Suspense>
+
+        {/* Damage Overlay */}
+        {showDamage && damagePoints.length > 0 && (
+          <DamageOverlay
+            damagePoints={damagePoints}
+            selectedDamageId={selectedDamageId}
+            onSelectDamage={onSelectDamage}
+            onAddDamage={onAddDamage}
+            onRemoveDamage={onRemoveDamage}
+            isEditMode={isEditMode}
+          />
+        )}
+
+        {/* HDRI Environment for photorealistic reflections */}
+        <Environment preset="city" background={false} />
+
+        {/* Ground shadows */}
+        <ContactShadows
+          position={[0, 0, 0]}
+          opacity={0.6}
+          scale={15}
+          blur={2}
+          far={10}
+          color="#000033"
+        />
+
+        {/* Controls */}
+        <OrbitControls
+          ref={controlsRef}
+          enableZoom={true}
+          enablePan={true}
+          enableRotate={true}
+          autoRotate={autoRotate}
+          autoRotateSpeed={1}
+          minDistance={2}
+          maxDistance={12}
+          target={[0, 0.8, 0]}
+          maxPolarAngle={Math.PI / 2 + 0.3}
+        />
+
+        <PerspectiveCamera makeDefault position={[5, 3, 5]} fov={50} />
+
+        {/* Post-processing for photorealistic quality */}
+        <EffectComposer>
+          <Bloom
+            luminanceThreshold={0.3}
+            luminanceSmoothing={0.9}
+            intensity={0.3}
+            height={400}
+          />
+          <ToneMapping adaptive />
+        </EffectComposer>
+      </Canvas>
     </div>
   )
 }
