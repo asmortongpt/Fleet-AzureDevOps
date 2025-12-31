@@ -1,7 +1,7 @@
 /**
  * ScannerModal - Camera-based scanner for QR codes, VIN barcodes, and license plates
  * Uses @yudiel/react-qr-scanner for QR/barcode detection
- * Uses Tesseract.js for license plate OCR
+ * Uses Tesseract.js for license plate OCR with adaptive thresholding preprocessing
  */
 
 import {
@@ -11,10 +11,11 @@ import {
   Keyboard,
   CheckCircle,
   Warning,
-  CircleNotch
+  CircleNotch,
+  Lightning
 } from "@phosphor-icons/react"
 import { Scanner, IDetectedBarcode } from '@yudiel/react-qr-scanner'
-import { createWorker, Worker } from 'tesseract.js'
+import { createWorker, Worker, OEM, PSM } from 'tesseract.js'
 import { useState, useRef, useEffect, useCallback } from "react"
 
 import { Button } from "@/components/ui/button"
@@ -29,6 +30,82 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Progress } from "@/components/ui/progress"
 import logger from '@/utils/logger'
+
+// Adaptive Sauvola thresholding for better plate detection
+function adaptiveThreshold(imageData: ImageData): ImageData {
+  const data = imageData.data
+  const width = imageData.width
+  const height = imageData.height
+
+  // Convert to grayscale
+  const gray = new Uint8ClampedArray(width * height)
+  for (let i = 0; i < data.length; i += 4) {
+    gray[i / 4] = Math.round(data[i] * 0.299 + data[i + 1] * 0.587 + data[i + 2] * 0.114)
+  }
+
+  // Build integral images
+  const windowSize = Math.max(15, Math.floor(Math.min(width, height) / 15))
+  const k = 0.15
+  const R = 128
+
+  const integral = new Float64Array(width * height)
+  const integralSq = new Float64Array(width * height)
+
+  for (let y = 0; y < height; y++) {
+    let rowSum = 0
+    let rowSumSq = 0
+    for (let x = 0; x < width; x++) {
+      const idx = y * width + x
+      const val = gray[idx]
+      rowSum += val
+      rowSumSq += val * val
+      integral[idx] = rowSum + (y > 0 ? integral[(y - 1) * width + x] : 0)
+      integralSq[idx] = rowSumSq + (y > 0 ? integralSq[(y - 1) * width + x] : 0)
+    }
+  }
+
+  // Apply Sauvola threshold
+  const halfWindow = Math.floor(windowSize / 2)
+  for (let y = 0; y < height; y++) {
+    for (let x = 0; x < width; x++) {
+      const idx = y * width + x
+      const x1 = Math.max(0, x - halfWindow)
+      const y1 = Math.max(0, y - halfWindow)
+      const x2 = Math.min(width - 1, x + halfWindow)
+      const y2 = Math.min(height - 1, y + halfWindow)
+      const count = (x2 - x1 + 1) * (y2 - y1 + 1)
+
+      let sum = integral[y2 * width + x2]
+      let sumSq = integralSq[y2 * width + x2]
+      if (x1 > 0) { sum -= integral[y2 * width + (x1 - 1)]; sumSq -= integralSq[y2 * width + (x1 - 1)] }
+      if (y1 > 0) { sum -= integral[(y1 - 1) * width + x2]; sumSq -= integralSq[(y1 - 1) * width + x2] }
+      if (x1 > 0 && y1 > 0) { sum += integral[(y1 - 1) * width + (x1 - 1)]; sumSq += integralSq[(y1 - 1) * width + (x1 - 1)] }
+
+      const mean = sum / count
+      const stddev = Math.sqrt(Math.max(0, (sumSq / count) - (mean * mean)))
+      const threshold = mean * (1 + k * (stddev / R - 1))
+
+      const newVal = gray[idx] > threshold ? 255 : 0
+      data[idx * 4] = newVal
+      data[idx * 4 + 1] = newVal
+      data[idx * 4 + 2] = newVal
+    }
+  }
+
+  return imageData
+}
+
+// Calculate image hash for motion detection
+function calculateImageHash(imageData: ImageData): number {
+  const data = imageData.data
+  let hash = 0
+  // Sample every 100th pixel for speed
+  for (let i = 0; i < data.length; i += 400) {
+    hash = ((hash << 5) - hash) + data[i]
+    hash |= 0
+  }
+  return hash
+}
 
 export type ScannerType = 'qr' | 'vin' | 'plate'
 
@@ -122,6 +199,8 @@ export function ScannerModal({ open, onOpenChange, type, onScan }: ScannerModalP
   const workerRef = useRef<Worker | null>(null)
   const streamRef = useRef<MediaStream | null>(null)
   const ocrIntervalRef = useRef<NodeJS.Timeout | null>(null)
+  const lastImageHashRef = useRef<number>(0)
+  const consecutiveFailsRef = useRef<number>(0)
 
   const [facingMode, setFacingMode] = useState<'user' | 'environment'>('environment')
   const [manualInput, setManualInput] = useState('')
@@ -132,6 +211,7 @@ export function ScannerModal({ open, onOpenChange, type, onScan }: ScannerModalP
   const [ocrProgress, setOcrProgress] = useState(0)
   const [ocrStatus, setOcrStatus] = useState<string>('')
   const [isProcessingOCR, setIsProcessingOCR] = useState(false)
+  const [useAdaptiveThreshold, setUseAdaptiveThreshold] = useState(true)
 
   const getScannerTitle = () => {
     switch (type) {
@@ -149,13 +229,13 @@ export function ScannerModal({ open, onOpenChange, type, onScan }: ScannerModalP
     }
   }
 
-  // Initialize Tesseract worker for plate OCR
+  // Initialize Tesseract worker for plate OCR with optimized settings
   const initOCRWorker = useCallback(async () => {
     if (workerRef.current) return
 
     try {
-      setOcrStatus('Initializing OCR...')
-      const worker = await createWorker('eng', 1, {
+      setOcrStatus('Initializing OCR engine...')
+      const worker = await createWorker('eng', OEM.LSTM_ONLY, {
         logger: (m) => {
           if (m.status === 'recognizing text') {
             setOcrProgress(Math.round(m.progress * 100))
@@ -163,15 +243,16 @@ export function ScannerModal({ open, onOpenChange, type, onScan }: ScannerModalP
         }
       })
 
-      // Configure for license plates: alphanumeric only
+      // Optimized settings for license plate recognition
       await worker.setParameters({
-        tessedit_char_whitelist: 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789',
-        tessedit_pageseg_mode: '7', // Single text line
+        tessedit_char_whitelist: 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-',
+        tessedit_pageseg_mode: PSM.SINGLE_LINE, // Treat as single line
+        preserve_interword_spaces: '0',
       })
 
       workerRef.current = worker
-      setOcrStatus('OCR ready')
-      logger.info('Tesseract OCR worker initialized')
+      setOcrStatus('OCR ready - position plate')
+      logger.info('Tesseract OCR worker initialized with optimized settings')
     } catch (err) {
       logger.error('Failed to initialize OCR:', err)
       setError('Failed to initialize OCR engine')
@@ -196,7 +277,7 @@ export function ScannerModal({ open, onOpenChange, type, onScan }: ScannerModalP
     }
   }, [facingMode])
 
-  // Capture frame and run OCR
+  // Capture frame and run OCR with motion detection and adaptive preprocessing
   const captureAndOCR = useCallback(async () => {
     if (!videoRef.current || !canvasRef.current || !workerRef.current || isProcessingOCR || paused) {
       return
@@ -207,41 +288,72 @@ export function ScannerModal({ open, onOpenChange, type, onScan }: ScannerModalP
     const ctx = canvas.getContext('2d')
     if (!ctx || video.videoWidth === 0) return
 
-    setIsProcessingOCR(true)
-
     // Capture center region (where plate should be)
-    const cropWidth = video.videoWidth * 0.7
-    const cropHeight = video.videoHeight * 0.3
-    const cropX = (video.videoWidth - cropWidth) / 2
-    const cropY = (video.videoHeight - cropHeight) / 2
+    const cropWidth = Math.floor(video.videoWidth * 0.75)
+    const cropHeight = Math.floor(video.videoHeight * 0.35)
+    const cropX = Math.floor((video.videoWidth - cropWidth) / 2)
+    const cropY = Math.floor((video.videoHeight - cropHeight) / 2)
 
     canvas.width = cropWidth
     canvas.height = cropHeight
 
-    // Draw cropped region with contrast enhancement
-    ctx.filter = 'contrast(1.5) grayscale(1)'
+    // Draw cropped region
     ctx.drawImage(video, cropX, cropY, cropWidth, cropHeight, 0, 0, cropWidth, cropHeight)
-    ctx.filter = 'none'
+
+    // Get image data for processing
+    const imageData = ctx.getImageData(0, 0, cropWidth, cropHeight)
+
+    // Motion detection - skip if image hasn't changed significantly
+    const currentHash = calculateImageHash(imageData)
+    if (Math.abs(currentHash - lastImageHashRef.current) < 1000) {
+      return // Skip OCR if image hasn't changed much
+    }
+    lastImageHashRef.current = currentHash
+
+    setIsProcessingOCR(true)
+    setOcrStatus('Analyzing...')
 
     try {
+      // Apply adaptive thresholding for better text extraction
+      if (useAdaptiveThreshold) {
+        const processedData = adaptiveThreshold(imageData)
+        ctx.putImageData(processedData, 0, 0)
+      } else {
+        // Fallback: simple contrast enhancement
+        ctx.filter = 'contrast(1.8) grayscale(1)'
+        ctx.drawImage(canvas, 0, 0)
+        ctx.filter = 'none'
+      }
+
       const { data } = await workerRef.current.recognize(canvas)
       const plateText = extractPlateFromText(data.text)
 
-      if (plateText && data.confidence > 50) {
-        logger.info(`OCR detected plate: ${plateText} (confidence: ${data.confidence})`)
+      if (plateText && data.confidence > 45) {
+        consecutiveFailsRef.current = 0
+        logger.info(`OCR detected plate: ${plateText} (confidence: ${data.confidence}%)`)
         setPaused(true)
         setScanResult({
           value: plateText,
           confidence: Math.round(data.confidence),
           type: 'plate'
         })
+        setOcrStatus(`Found: ${plateText}`)
+      } else {
+        consecutiveFailsRef.current++
+        // After 5 consecutive fails, suggest manual entry
+        if (consecutiveFailsRef.current > 5) {
+          setOcrStatus('Having trouble? Try manual entry')
+        } else {
+          setOcrStatus('Scanning... hold steady')
+        }
       }
     } catch (err) {
       logger.error('OCR error:', err)
+      setOcrStatus('OCR error - retrying...')
     } finally {
       setIsProcessingOCR(false)
     }
-  }, [isProcessingOCR, paused])
+  }, [isProcessingOCR, paused, useAdaptiveThreshold])
 
   // Start OCR interval for plate mode
   useEffect(() => {
@@ -368,6 +480,8 @@ export function ScannerModal({ open, onOpenChange, type, onScan }: ScannerModalP
     setError(null)
     setOcrProgress(0)
     setIsProcessingOCR(false)
+    lastImageHashRef.current = 0
+    consecutiveFailsRef.current = 0
 
     if (type === 'plate') {
       startPlateCamera()
@@ -439,6 +553,18 @@ export function ScannerModal({ open, onOpenChange, type, onScan }: ScannerModalP
         >
           <FlipHorizontal className="w-4 h-4 mr-1" />
           Flip
+        </Button>
+        <Button
+          size="sm"
+          variant={useAdaptiveThreshold ? "default" : "secondary"}
+          className={useAdaptiveThreshold
+            ? "bg-yellow-500 hover:bg-yellow-600 text-black"
+            : "bg-black/60 hover:bg-black/80 text-white"}
+          onClick={() => setUseAdaptiveThreshold(!useAdaptiveThreshold)}
+          title="Toggle adaptive image enhancement for difficult lighting"
+        >
+          <Lightning className="w-4 h-4 mr-1" weight={useAdaptiveThreshold ? "fill" : "regular"} />
+          Enhance
         </Button>
         <Button
           size="sm"
