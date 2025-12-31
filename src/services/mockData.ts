@@ -346,7 +346,7 @@ export function generateMockAlerts(count: number = 8): Alert[] {
 
   for (let i = 0; i < Math.min(count, alertTemplates.length); i++) {
     const template = alertTemplates[i]
-    const {id: _templateId, ...templateRest} = template
+    const { id: _templateId, ...templateRest } = template
     alerts.push({
       id: `ALT-${String(i + 1).padStart(5, "0")}`,
       ...templateRest,
