@@ -1,392 +1,421 @@
 /**
- * Input Validation Library - Security Fix CRIT-SEC-002
- * Comprehensive validation for all user inputs before API calls
- * Uses Zod for schema validation with XSS/injection protection
+ * Production Validation Schemas using Zod
+ *
+ * Provides runtime type validation for all data models.
+ * Used for:
+ * - API request/response validation
+ * - Form input validation
+ * - Environment variable validation
+ * - User input sanitization
  */
 
-import { z } from 'zod'
+import { z } from 'zod';
 
 // ============================================================================
-// Common Validation Patterns
+// User Schemas
 // ============================================================================
 
-// Email validation with strict RFC compliance
-export const emailSchema = z.string()
-  .email('Invalid email format')
-  .max(254, 'Email too long')
-  .transform(val => val.toLowerCase().trim())
+export const userRoleSchema = z.enum(['admin', 'manager', 'operator', 'viewer']);
 
-// Password validation with security requirements
-export const passwordSchema = z.string()
-  .min(8, 'Password must be at least 8 characters')
-  .max(128, 'Password too long')
-  .regex(/[A-Z]/, 'Password must contain uppercase letter')
-  .regex(/[a-z]/, 'Password must contain lowercase letter')
-  .regex(/[0-9]/, 'Password must contain number')
-  .regex(/[^A-Za-z0-9]/, 'Password must contain special character')
+export const userSchema = z.object({
+  id: z.string().optional(),
+  name: z.string()
+    .min(2, 'Name must be at least 2 characters')
+    .max(100, 'Name must be less than 100 characters')
+    .regex(/^[a-zA-Z\s'-]+$/, 'Name can only contain letters, spaces, hyphens, and apostrophes'),
+  email: z.string()
+    .email('Invalid email address')
+    .toLowerCase()
+    .transform(val => val.trim()),
+  role: userRoleSchema,
+  department: z.string()
+    .min(2, 'Department must be at least 2 characters')
+    .max(50, 'Department must be less than 50 characters')
+    .optional(),
+  status: z.enum(['active', 'inactive']).default('active'),
+  createdAt: z.date().optional(),
+  updatedAt: z.date().optional(),
+});
 
-// Phone number validation (E.164 format)
-export const phoneSchema = z.string()
-  .regex(/^\+?[1-9]\d{1,14}$/, 'Invalid phone number format')
-  .optional()
-
-// Safe string validation (no SQL injection, XSS)
-export const safeStringSchema = z.string()
-  .max(255, 'Text too long')
-  .transform(val => {
-    // Remove potential XSS vectors
-    return val
-      .trim()
-      .replace(/<script[^>]*>.*?<\/script>/gi, '')
-      .replace(/<iframe[^>]*>.*?<\/iframe>/gi, '')
-      .replace(/javascript:/gi, '')
-      .replace(/on\w+\s*=/gi, '')
-  })
-
-// Text area validation (longer text with XSS protection)
-export const textAreaSchema = z.string()
-  .max(5000, 'Text too long')
-  .transform(val => {
-    return val
-      .trim()
-      .replace(/<script[^>]*>.*?<\/script>/gi, '')
-      .replace(/<iframe[^>]*>.*?<\/iframe>/gi, '')
-      .replace(/javascript:/gi, '')
-      .replace(/on\w+\s*=/gi, '')
-  })
-
-// UUID validation
-export const uuidSchema = z.string()
-  .uuid('Invalid ID format')
-
-// Positive integer validation
-export const positiveIntSchema = z.number()
-  .int('Must be an integer')
-  .positive('Must be positive')
-
-// Non-negative number validation
-export const nonNegativeNumberSchema = z.number()
-  .nonnegative('Must be non-negative')
-
-// Date validation
-export const dateSchema = z.string()
-  .datetime('Invalid date format')
-  .or(z.date())
-
-// URL validation
-export const urlSchema = z.string()
-  .url('Invalid URL format')
-  .max(2048, 'URL too long')
-
-// Status validation (common statuses)
-export const statusSchema = z.enum([
-  'active',
-  'inactive',
-  'pending',
-  'completed',
-  'cancelled',
-  'in_progress',
-  'maintenance',
-  'available',
-  'unavailable'
-])
-
-// ============================================================================
-// Authentication Schemas
-// ============================================================================
-
-export const loginSchema = z.object({
-  email: emailSchema,
-  password: z.string().min(1, 'Password required').max(128)
-})
-
-export const registerSchema = z.object({
-  email: emailSchema,
-  password: passwordSchema,
-  first_name: z.string().min(1, 'First name required').transform(val => safeStringSchema.parse(val)),
-  last_name: z.string().min(1, 'Last name required').transform(val => safeStringSchema.parse(val)),
-  phone: phoneSchema,
-  role: z.enum(['driver', 'admin', 'manager', 'technician']).optional()
-})
+export const createUserSchema = userSchema.omit({ id: true, createdAt: true, updatedAt: true });
+export const updateUserSchema = userSchema.partial().required({ id: true });
 
 // ============================================================================
 // Vehicle Schemas
 // ============================================================================
 
-export const vehicleCreateSchema = z.object({
-  vin: z.string()
-    .length(17, 'VIN must be 17 characters')
-    .regex(/^[A-HJ-NPR-Z0-9]{17}$/, 'Invalid VIN format'),
-  make: z.string().min(1, 'Make required').transform(val => safeStringSchema.parse(val)),
-  model: z.string().min(1, 'Model required').transform(val => safeStringSchema.parse(val)),
+export const vehicleStatusSchema = z.enum(['active', 'maintenance', 'out_of_service', 'retired']);
+export const vehicleTypeSchema = z.enum(['sedan', 'suv', 'truck', 'van']);
+
+export const vinSchema = z.string()
+  .length(17, 'VIN must be exactly 17 characters')
+  .regex(/^[A-HJ-NPR-Z0-9]{17}$/, 'Invalid VIN format (excludes I, O, Q)');
+
+export const vehicleSchema = z.object({
+  id: z.string().optional(),
+  vin: vinSchema,
+  make: z.string()
+    .min(2, 'Make must be at least 2 characters')
+    .max(50, 'Make must be less than 50 characters'),
+  model: z.string()
+    .min(1, 'Model is required')
+    .max(50, 'Model must be less than 50 characters'),
   year: z.number()
-    .int()
-    .min(1900, 'Invalid year')
-    .max(new Date().getFullYear() + 2, 'Invalid year'),
-  license_plate: safeStringSchema.optional(),
-  status: statusSchema.optional(),
-  odometer: nonNegativeNumberSchema.optional(),
-  fuel_type: z.enum(['gasoline', 'diesel', 'electric', 'hybrid', 'cng']).optional(),
-  color: safeStringSchema.optional(),
-  department: safeStringSchema.optional()
-})
+    .int('Year must be a whole number')
+    .min(1900, 'Year must be 1900 or later')
+    .max(new Date().getFullYear() + 1, 'Year cannot be more than 1 year in the future'),
+  licensePlate: z.string()
+    .min(2, 'License plate must be at least 2 characters')
+    .max(20, 'License plate must be less than 20 characters')
+    .optional(),
+  vehicleType: vehicleTypeSchema,
+  status: vehicleStatusSchema.default('active'),
+  mileage: z.number()
+    .int('Mileage must be a whole number')
+    .min(0, 'Mileage cannot be negative')
+    .optional(),
+  fuelLevel: z.number()
+    .min(0, 'Fuel level cannot be negative')
+    .max(100, 'Fuel level cannot exceed 100%')
+    .optional(),
+  assignedDriverId: z.string().optional(),
+  createdAt: z.date().optional(),
+  updatedAt: z.date().optional(),
+});
 
-export const vehicleUpdateSchema = vehicleCreateSchema.partial()
-
-export const vehicleTelemetrySchema = z.object({
-  latitude: z.number().min(-90).max(90),
-  longitude: z.number().min(-180).max(180),
-  speed: nonNegativeNumberSchema,
-  heading: z.number().min(0).max(360).optional(),
-  odometer: nonNegativeNumberSchema.optional(),
-  fuel_level: z.number().min(0).max(100).optional(),
-  engine_hours: nonNegativeNumberSchema.optional(),
-  battery_voltage: nonNegativeNumberSchema.optional(),
-  timestamp: dateSchema.optional()
-})
-
-// ============================================================================
-// Driver Schemas
-// ============================================================================
-
-export const driverCreateSchema = z.object({
-  first_name: z.string().min(1, 'First name required').transform(val => safeStringSchema.parse(val)),
-  last_name: z.string().min(1, 'Last name required').transform(val => safeStringSchema.parse(val)),
-  email: emailSchema,
-  phone: phoneSchema,
-  license_number: z.string().min(1, 'License number required').transform(val => safeStringSchema.parse(val)),
-  license_expiry: dateSchema,
-  status: statusSchema.optional(),
-  role: z.enum(['driver', 'technician', 'fleet_manager']).optional()
-})
-
-export const driverUpdateSchema = driverCreateSchema.partial()
+export const createVehicleSchema = vehicleSchema.omit({ id: true, createdAt: true, updatedAt: true });
+export const updateVehicleSchema = vehicleSchema.partial().required({ id: true });
 
 // ============================================================================
-// Work Order Schemas
+// Maintenance Schemas
 // ============================================================================
 
-export const workOrderCreateSchema = z.object({
-  vehicle_id: uuidSchema,
-  title: z.string().min(1, 'Title required').transform(val => safeStringSchema.parse(val)),
-  description: textAreaSchema,
-  priority: z.enum(['low', 'medium', 'high', 'critical']),
-  status: z.enum(['pending', 'in_progress', 'completed', 'cancelled']).optional(),
-  assigned_to: uuidSchema.optional(),
-  due_date: dateSchema.optional(),
-  estimated_cost: nonNegativeNumberSchema.optional()
-})
+export const maintenanceTypeSchema = z.enum([
+  'oil_change',
+  'tire_rotation',
+  'brake_service',
+  'engine_repair',
+  'transmission',
+  'inspection',
+  'general_service',
+  'emergency_repair',
+]);
 
-export const workOrderUpdateSchema = workOrderCreateSchema.partial()
+export const maintenanceStatusSchema = z.enum([
+  'pending',
+  'scheduled',
+  'in_progress',
+  'completed',
+  'cancelled',
+]);
 
-// ============================================================================
-// Fuel Transaction Schemas
-// ============================================================================
+export const maintenanceRecordSchema = z.object({
+  id: z.string().optional(),
+  vehicleId: z.string().min(1, 'Vehicle ID is required'),
+  maintenanceType: maintenanceTypeSchema,
+  scheduledDate: z.date(),
+  completedDate: z.date().optional(),
+  cost: z.number()
+    .min(0, 'Cost cannot be negative')
+    .optional(),
+  vendor: z.string()
+    .max(100, 'Vendor name must be less than 100 characters')
+    .optional(),
+  notes: z.string()
+    .max(1000, 'Notes must be less than 1000 characters')
+    .optional(),
+  status: maintenanceStatusSchema.default('pending'),
+  createdAt: z.date().optional(),
+});
 
-export const fuelTransactionSchema = z.object({
-  vehicle_id: uuidSchema,
-  driver_id: uuidSchema.optional(),
-  date: dateSchema,
-  gallons: positiveIntSchema,
-  cost_per_gallon: positiveIntSchema,
-  total_cost: positiveIntSchema,
-  odometer: nonNegativeNumberSchema,
-  location: safeStringSchema.optional(),
-  fuel_type: z.enum(['gasoline', 'diesel', 'electric', 'cng']),
-  receipt_url: urlSchema.optional()
-})
-
-// ============================================================================
-// Facility Schemas
-// ============================================================================
-
-export const facilityCreateSchema = z.object({
-  name: z.string().min(1, 'Facility name required').transform(val => safeStringSchema.parse(val)),
-  type: z.enum(['garage', 'depot', 'charging_station', 'warehouse']),
-  address: safeStringSchema,
-  city: safeStringSchema,
-  state: z.string().length(2, 'State must be 2 characters'),
-  zip: z.string().regex(/^\d{5}(-\d{4})?$/, 'Invalid ZIP code'),
-  latitude: z.number().min(-90).max(90).optional(),
-  longitude: z.number().min(-180).max(180).optional(),
-  capacity: positiveIntSchema.optional(),
-  status: statusSchema.optional()
-})
-
-export const facilityUpdateSchema = facilityCreateSchema.partial()
+export const createMaintenanceRecordSchema = maintenanceRecordSchema.omit({ id: true, createdAt: true });
+export const updateMaintenanceRecordSchema = maintenanceRecordSchema.partial().required({ id: true });
 
 // ============================================================================
-// Maintenance Schedule Schemas
+// AI Chat Schemas
 // ============================================================================
 
-export const maintenanceScheduleSchema = z.object({
-  vehicle_id: uuidSchema,
-  service_type: z.string().min(1, 'Service type required').transform(val => safeStringSchema.parse(val)),
-  interval_miles: positiveIntSchema.optional(),
-  interval_days: positiveIntSchema.optional(),
-  last_service_date: dateSchema.optional(),
-  last_service_odometer: nonNegativeNumberSchema.optional(),
-  next_service_date: dateSchema.optional(),
-  next_service_odometer: nonNegativeNumberSchema.optional(),
-  description: textAreaSchema.optional()
-})
+export const chatMessageRoleSchema = z.enum(['user', 'assistant', 'system']);
+
+export const chatMessageSchema = z.object({
+  id: z.string(),
+  role: chatMessageRoleSchema,
+  content: z.string()
+    .min(1, 'Message content cannot be empty')
+    .max(10000, 'Message content is too long'),
+  timestamp: z.date(),
+  tokenCount: z.number().int().min(0).optional(),
+});
+
+export const chatCompletionOptionsSchema = z.object({
+  model: z.enum(['gpt-4', 'gpt-3.5-turbo', 'claude-3-opus', 'claude-3-sonnet']).optional(),
+  temperature: z.number().min(0).max(2).optional(),
+  maxTokens: z.number().int().min(1).max(32000).optional(),
+  stream: z.boolean().optional(),
+});
 
 // ============================================================================
-// Route Schemas
+// Environment & Configuration Schemas
 // ============================================================================
 
-export const routeCreateSchema = z.object({
-  name: z.string().min(1, 'Route name required').transform(val => safeStringSchema.parse(val)),
-  description: textAreaSchema.optional(),
-  start_location: safeStringSchema,
-  end_location: safeStringSchema,
-  waypoints: z.array(z.object({
-    latitude: z.number().min(-90).max(90),
-    longitude: z.number().min(-180).max(180),
-    address: safeStringSchema.optional()
-  })).optional(),
-  estimated_distance: positiveIntSchema.optional(),
-  estimated_duration: positiveIntSchema.optional(),
-  assigned_vehicle_id: uuidSchema.optional(),
-  assigned_driver_id: uuidSchema.optional(),
-  status: statusSchema.optional()
-})
+export const environmentVariableSchema = z.object({
+  name: z.string()
+    .min(1, 'Variable name is required')
+    .regex(/^[A-Z][A-Z0-9_]*$/, 'Variable name must be uppercase with underscores'),
+  value: z.string(),
+  sensitive: z.boolean().default(false),
+  description: z.string().optional(),
+});
 
-export const routeUpdateSchema = routeCreateSchema.partial()
+export const featureFlagSchema = z.object({
+  name: z.string().min(1, 'Feature name is required'),
+  enabled: z.boolean(),
+  description: z.string().optional(),
+});
 
-// ============================================================================
-// Purchase Order Schemas
-// ============================================================================
+export const systemHealthStatusSchema = z.enum(['healthy', 'degraded', 'down']);
 
-export const purchaseOrderSchema = z.object({
-  vendor_id: uuidSchema,
-  order_number: z.string().min(1, 'Order number required').transform(val => safeStringSchema.parse(val)),
-  order_date: dateSchema,
-  expected_delivery: dateSchema.optional(),
-  status: z.enum(['draft', 'submitted', 'approved', 'received', 'cancelled']).optional(),
-  items: z.array(z.object({
-    part_number: safeStringSchema,
-    description: safeStringSchema,
-    quantity: positiveIntSchema,
-    unit_price: positiveIntSchema,
-    total_price: positiveIntSchema
-  })),
-  subtotal: positiveIntSchema,
-  tax: nonNegativeNumberSchema.optional(),
-  shipping: nonNegativeNumberSchema.optional(),
-  total: positiveIntSchema,
-  notes: textAreaSchema.optional()
-})
+export const systemHealthComponentSchema = z.object({
+  name: z.string().min(1, 'Component name is required'),
+  status: systemHealthStatusSchema,
+  lastChecked: z.date(),
+  responseTime: z.number().min(0).optional(),
+  errorMessage: z.string().optional(),
+});
 
 // ============================================================================
-// Vendor Schemas
+// Security & Compliance Schemas
 // ============================================================================
 
-export const vendorCreateSchema = z.object({
-  name: z.string().min(1, 'Vendor name required').transform(val => safeStringSchema.parse(val)),
-  contact_name: safeStringSchema.optional(),
-  email: emailSchema.optional(),
-  phone: phoneSchema,
-  address: safeStringSchema.optional(),
-  city: safeStringSchema.optional(),
-  state: z.string().length(2).optional(),
-  zip: z.string().regex(/^\d{5}(-\d{4})?$/).optional(),
-  status: statusSchema.optional(),
-  payment_terms: safeStringSchema.optional(),
-  notes: textAreaSchema.optional()
-})
+export const securityCheckSchema = z.object({
+  id: z.string(),
+  name: z.string().min(1, 'Check name is required'),
+  description: z.string(),
+  status: z.enum(['passing', 'failing', 'warning']),
+  lastChecked: z.date(),
+});
 
-export const vendorUpdateSchema = vendorCreateSchema.partial()
+export const securityAlertSeveritySchema = z.enum(['critical', 'high', 'medium', 'low']);
+
+export const securityAlertSchema = z.object({
+  id: z.string(),
+  title: z.string().min(1, 'Alert title is required'),
+  description: z.string(),
+  severity: securityAlertSeveritySchema,
+  timestamp: z.date(),
+  resolved: z.boolean().default(false),
+  resolvedAt: z.date().optional(),
+});
+
+export const accessLogSchema = z.object({
+  id: z.string(),
+  userId: z.string(),
+  userName: z.string(),
+  action: z.string().min(1, 'Action is required'),
+  resource: z.string(),
+  timestamp: z.date(),
+  ipAddress: z.string().ip().optional(),
+  userAgent: z.string().optional(),
+  success: z.boolean(),
+});
 
 // ============================================================================
-// Query Parameter Validation
+// Pagination & Filtering Schemas
 // ============================================================================
 
 export const paginationSchema = z.object({
-  page: z.number().int().positive().optional(),
-  limit: z.number().int().positive().max(100).optional(),
-  sort: safeStringSchema.optional(),
-  order: z.enum(['asc', 'desc']).optional()
-})
+  page: z.number().int().min(1).default(1),
+  limit: z.number().int().min(1).max(100).default(20),
+  sortBy: z.string().optional(),
+  sortOrder: z.enum(['asc', 'desc']).default('asc'),
+});
 
-export const filterSchema = z.object({
-  status: statusSchema.optional(),
-  search: safeStringSchema.optional(),
-  start_date: dateSchema.optional(),
-  end_date: dateSchema.optional()
-}).merge(paginationSchema)
+export const dateRangeFilterSchema = z.object({
+  startDate: z.date().optional(),
+  endDate: z.date().optional(),
+}).refine(
+  (data) => !data.startDate || !data.endDate || data.startDate <= data.endDate,
+  { message: 'Start date must be before or equal to end date' }
+);
+
+export const vehicleFilterSchema = z.object({
+  status: vehicleStatusSchema.optional(),
+  vehicleType: vehicleTypeSchema.optional(),
+  make: z.string().optional(),
+  assignedDriverId: z.string().optional(),
+  minMileage: z.number().int().min(0).optional(),
+  maxMileage: z.number().int().min(0).optional(),
+}).merge(paginationSchema);
+
+export const maintenanceFilterSchema = z.object({
+  vehicleId: z.string().optional(),
+  status: maintenanceStatusSchema.optional(),
+  maintenanceType: maintenanceTypeSchema.optional(),
+}).merge(dateRangeFilterSchema).merge(paginationSchema);
 
 // ============================================================================
-// Validation Helpers
+// API Response Schemas
+// ============================================================================
+
+export const apiErrorSchema = z.object({
+  error: z.string(),
+  message: z.string(),
+  statusCode: z.number().int().min(400).max(599),
+  details: z.record(z.any()).optional(),
+});
+
+export const apiSuccessSchema = z.object({
+  success: z.boolean(),
+  message: z.string().optional(),
+  data: z.any().optional(),
+});
+
+export const paginatedResponseSchema = <T extends z.ZodTypeAny>(itemSchema: T) =>
+  z.object({
+    data: z.array(itemSchema),
+    pagination: z.object({
+      total: z.number().int().min(0),
+      page: z.number().int().min(1),
+      limit: z.number().int().min(1),
+      totalPages: z.number().int().min(0),
+    }),
+  });
+
+// ============================================================================
+// Type Exports (inferred from Zod schemas)
+// ============================================================================
+
+export type User = z.infer<typeof userSchema>;
+export type CreateUser = z.infer<typeof createUserSchema>;
+export type UpdateUser = z.infer<typeof updateUserSchema>;
+export type UserRole = z.infer<typeof userRoleSchema>;
+
+export type Vehicle = z.infer<typeof vehicleSchema>;
+export type CreateVehicle = z.infer<typeof createVehicleSchema>;
+export type UpdateVehicle = z.infer<typeof updateVehicleSchema>;
+export type VehicleStatus = z.infer<typeof vehicleStatusSchema>;
+export type VehicleType = z.infer<typeof vehicleTypeSchema>;
+
+export type MaintenanceRecord = z.infer<typeof maintenanceRecordSchema>;
+export type CreateMaintenanceRecord = z.infer<typeof createMaintenanceRecordSchema>;
+export type UpdateMaintenanceRecord = z.infer<typeof updateMaintenanceRecordSchema>;
+export type MaintenanceType = z.infer<typeof maintenanceTypeSchema>;
+export type MaintenanceStatus = z.infer<typeof maintenanceStatusSchema>;
+
+export type ChatMessage = z.infer<typeof chatMessageSchema>;
+export type ChatMessageRole = z.infer<typeof chatMessageRoleSchema>;
+export type ChatCompletionOptions = z.infer<typeof chatCompletionOptionsSchema>;
+
+export type EnvironmentVariable = z.infer<typeof environmentVariableSchema>;
+export type FeatureFlag = z.infer<typeof featureFlagSchema>;
+export type SystemHealthComponent = z.infer<typeof systemHealthComponentSchema>;
+export type SystemHealthStatus = z.infer<typeof systemHealthStatusSchema>;
+
+export type SecurityCheck = z.infer<typeof securityCheckSchema>;
+export type SecurityAlert = z.infer<typeof securityAlertSchema>;
+export type SecurityAlertSeverity = z.infer<typeof securityAlertSeveritySchema>;
+export type AccessLog = z.infer<typeof accessLogSchema>;
+
+export type Pagination = z.infer<typeof paginationSchema>;
+export type DateRangeFilter = z.infer<typeof dateRangeFilterSchema>;
+export type VehicleFilter = z.infer<typeof vehicleFilterSchema>;
+export type MaintenanceFilter = z.infer<typeof maintenanceFilterSchema>;
+
+export type ApiError = z.infer<typeof apiErrorSchema>;
+export type ApiSuccess = z.infer<typeof apiSuccessSchema>;
+
+// ============================================================================
+// Validation Helper Functions
 // ============================================================================
 
 /**
- * Validates data against a schema and returns validated data
- * Throws error with detailed messages on validation failure
+ * Validate data against a schema and return typed result
  */
-export function validateInput<T>(schema: z.ZodSchema<T>, data: unknown): T {
-  try {
-    return schema.parse(data)
-  } catch (error) {
-    if (error instanceof z.ZodError) {
-      const messages = error.errors.map(e => `${e.path.join('.')}: ${e.message}`)
-      throw new Error(`Validation failed: ${messages.join(', ')}`)
-    }
-    throw error
-  }
-}
-
-/**
- * Validates data and returns result with success flag
- * Does not throw - useful for form validation
- */
-export function validateInputSafe<T>(
-  schema: z.ZodSchema<T>,
+export function validate<T extends z.ZodTypeAny>(
+  schema: T,
   data: unknown
-): { success: true; data: T } | { success: false; errors: string[] } {
-  const result = schema.safeParse(data)
+): { success: true; data: z.infer<T> } | { success: false; errors: z.ZodError } {
+  const result = schema.safeParse(data);
 
   if (result.success) {
-    return { success: true, data: result.data }
+    return { success: true, data: result.data };
   } else {
-    const errors = result.error.errors.map(e => `${e.path.join('.')}: ${e.message}`)
-    return { success: false, errors }
+    return { success: false, errors: result.error };
   }
 }
 
 /**
- * Sanitizes HTML input to prevent XSS
+ * Validate and throw if invalid
  */
-export function sanitizeHtml(input: string): string {
+export function validateOrThrow<T extends z.ZodTypeAny>(
+  schema: T,
+  data: unknown,
+  errorMessage?: string
+): z.infer<T> {
+  try {
+    return schema.parse(data);
+  } catch (error) {
+    if (error instanceof z.ZodError) {
+      const formattedErrors = error.errors.map(e => `${e.path.join('.')}: ${e.message}`).join(', ');
+      throw new Error(errorMessage || `Validation failed: ${formattedErrors}`);
+    }
+    throw error;
+  }
+}
+
+/**
+ * Format Zod errors for user-friendly display
+ */
+export function formatZodErrors(error: z.ZodError): Record<string, string> {
+  const formatted: Record<string, string> = {};
+
+  error.errors.forEach((err) => {
+    const path = err.path.join('.');
+    formatted[path] = err.message;
+  });
+
+  return formatted;
+}
+
+/**
+ * Sanitize user input (strip HTML, trim whitespace)
+ */
+export function sanitizeInput(input: string): string {
   return input
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&#x27;')
-    .replace(/\//g, '&#x2F;')
+    .replace(/<[^>]*>/g, '') // Remove HTML tags
+    .trim(); // Remove leading/trailing whitespace
 }
 
 /**
- * Validates and sanitizes query parameters
+ * Validate email format (additional to Zod validation)
  */
-export function sanitizeQueryParams(params: Record<string, any>): Record<string, string> {
-  const sanitized: Record<string, string> = {}
+export function isValidEmail(email: string): boolean {
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  return emailRegex.test(email);
+}
 
-  for (const [key, value] of Object.entries(params)) {
-    if (value === null || value === undefined) continue
+/**
+ * Validate VIN checksum (Luhn algorithm for VINs)
+ */
+export function isValidVINChecksum(vin: string): boolean {
+  if (vin.length !== 17) return false;
 
-    // Validate key
-    const safeKey = key.replace(/[^a-zA-Z0-9_]/g, '')
+  const weights = [8, 7, 6, 5, 4, 3, 2, 10, 0, 9, 8, 7, 6, 5, 4, 3, 2];
+  const transliteration: Record<string, number> = {
+    A: 1, B: 2, C: 3, D: 4, E: 5, F: 6, G: 7, H: 8,
+    J: 1, K: 2, L: 3, M: 4, N: 5, P: 7, R: 9,
+    S: 2, T: 3, U: 4, V: 5, W: 6, X: 7, Y: 8, Z: 9,
+  };
 
-    // Validate value
-    const stringValue = String(value)
-    const safeValue = stringValue
-      .replace(/[<>'"]/g, '')
-      .substring(0, 255)
-
-    sanitized[safeKey] = safeValue
+  let sum = 0;
+  for (let i = 0; i < 17; i++) {
+    const char = vin[i];
+    const value = /\d/.test(char) ? parseInt(char) : transliteration[char] || 0;
+    sum += value * weights[i];
   }
 
-  return sanitized
+  const checkDigit = sum % 11;
+  const expectedCheckDigit = vin[8] === 'X' ? 10 : parseInt(vin[8]);
+
+  return checkDigit === expectedCheckDigit;
 }
