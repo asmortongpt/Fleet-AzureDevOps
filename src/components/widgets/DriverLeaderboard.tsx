@@ -14,7 +14,7 @@ import {
     User,
     Shield,
     Timer,
-    Fuel
+    GasPump
 } from '@phosphor-icons/react'
 
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
@@ -275,7 +275,7 @@ export function DriverLeaderboard({
                         <span>On-Time</span>
                     </div>
                     <div className="flex items-center gap-1.5">
-                        <Fuel className="w-3.5 h-3.5" />
+                        <GasPump className="w-3.5 h-3.5" />
                         <span>Efficiency</span>
                     </div>
                 </div>
