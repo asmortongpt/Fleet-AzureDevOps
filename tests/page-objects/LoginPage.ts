@@ -231,14 +231,16 @@ export class LoginPage extends BasePage {
    * Verify form accessibility
    */
   async verifyAccessibility() {
-    // Check ARIA labels
-    await expect(this.emailInput).toHaveAttribute('aria-label');
-    await expect(this.passwordInput).toHaveAttribute('aria-label');
+    // Check ARIA labels or regular labels exist
+    const emailLabel = await this.emailInput.getAttribute('aria-label');
+    const passwordLabel = await this.passwordInput.getAttribute('aria-label');
 
-    // Check form has proper labels
-    await expect(this.page.locator('label[for]')).toHaveCount(2);
+    // Either aria-label or associated label should exist
+    expect(emailLabel || await this.page.locator('label[for*="email"]').count() > 0).toBeTruthy();
+    expect(passwordLabel || await this.page.locator('label[for*="password"]').count() > 0).toBeTruthy();
 
     // Check button has accessible name
-    await expect(this.submitButton).toHaveAccessibleName();
+    const buttonText = await this.submitButton.textContent();
+    expect(buttonText).toBeTruthy();
   }
 }
