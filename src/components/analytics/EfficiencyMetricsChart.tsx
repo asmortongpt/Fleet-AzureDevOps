@@ -20,7 +20,7 @@ import {
     PolarRadiusAxis,
     Radar,
 } from 'recharts'
-import { Gauge, Lightning, Clock, Activity } from '@phosphor-icons/react'
+import { Gauge, Lightning, Clock, Pulse } from '@phosphor-icons/react'
 
 export interface EfficiencyDataPoint {
     date: string
@@ -200,7 +200,7 @@ export const EfficiencyMetricsChart = memo<EfficiencyMetricsChartProps>(({
                     </div>
                     <div className="bg-slate-800/40 rounded-lg p-4">
                         <div className="flex items-center gap-2 text-slate-400 text-sm mb-1">
-                            <Activity className="w-4 h-4" />
+                            <Pulse className="w-4 h-4" />
                             <span>Utilization</span>
                         </div>
                         <p className="text-2xl font-bold text-white">
