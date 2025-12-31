@@ -145,7 +145,7 @@ const ProfilePage = lazy(() => import("@/pages/ProfilePage"))
 // NEW FEATURE PAGES (Route Fixes)
 const AnalyticsPage = lazy(() => import("@/pages/AnalyticsPage"))
 const SafetyAlertsPage = lazy(() => import("@/pages/SafetyAlertsPage"))
-const HeavyEquipmentPage = lazy(() => import("@/pages/HeavyEquipmentPage"))
+// const HeavyEquipmentPage = lazy(() => import("@/pages/HeavyEquipmentPage"))
 
 // Loading spinner component for Suspense fallback
 const LoadingSpinner = () => (
@@ -356,7 +356,7 @@ function App() {
       case "safety-alerts":
         return <SafetyAlertsPage />
       case "heavy-equipment":
-        return <HeavyEquipmentPage />
+        return <EquipmentDashboard /> // TODO: Replace with HeavyEquipmentPage when implemented
       case "assets-hub":
         return <AssetsHub />
       case "settings":
