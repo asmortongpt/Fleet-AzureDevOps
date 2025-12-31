@@ -1,18 +1,20 @@
 /**
  * ScannerModal - Camera-based scanner for QR codes, VIN barcodes, and license plates
  * Uses @yudiel/react-qr-scanner for QR/barcode detection
+ * Uses Tesseract.js for license plate OCR
  */
 
 import {
   Camera,
   X,
   FlipHorizontal,
-  Flashlight,
   Keyboard,
   CheckCircle,
-  Warning
+  Warning,
+  CircleNotch
 } from "@phosphor-icons/react"
 import { Scanner, IDetectedBarcode } from '@yudiel/react-qr-scanner'
+import { createWorker, Worker } from 'tesseract.js'
 import { useState, useRef, useEffect, useCallback } from "react"
 
 import { Button } from "@/components/ui/button"
@@ -25,6 +27,7 @@ import {
 } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import { Progress } from "@/components/ui/progress"
 import logger from '@/utils/logger'
 
 export type ScannerType = 'qr' | 'vin' | 'plate'
@@ -45,8 +48,6 @@ interface ScanResult {
 // VIN checksum validation (ISO 3779)
 function validateVIN(vin: string): boolean {
   if (vin.length !== 17) return false
-
-  // VIN cannot contain I, O, Q
   if (/[IOQ]/i.test(vin)) return false
 
   const transliteration: Record<string, number> = {
@@ -68,43 +69,69 @@ function validateVIN(vin: string): boolean {
 
   const remainder = sum % 11
   const checkDigit = remainder === 10 ? 'X' : remainder.toString()
-
   return vin[8].toUpperCase() === checkDigit
 }
 
-// Parse VIN from barcode (Code 39 format commonly used)
+// Parse VIN from barcode
 function parseVINFromBarcode(rawValue: string): string | null {
-  // Clean up the value - remove any start/stop characters
   let cleaned = rawValue.replace(/[^A-HJ-NPR-Z0-9]/gi, '').toUpperCase()
-
-  // VIN is exactly 17 characters
-  if (cleaned.length === 17) {
-    return cleaned
-  }
-
-  // Sometimes VIN barcodes include extra characters
+  if (cleaned.length === 17) return cleaned
   if (cleaned.length > 17) {
-    // Try to find a 17-character VIN substring
     for (let i = 0; i <= cleaned.length - 17; i++) {
       const candidate = cleaned.substring(i, i + 17)
-      if (validateVIN(candidate)) {
-        return candidate
-      }
+      if (validateVIN(candidate)) return candidate
     }
-    // Fall back to first 17 characters
     return cleaned.substring(0, 17)
+  }
+  return null
+}
+
+// Extract license plate from OCR text
+function extractPlateFromText(text: string): string | null {
+  // Remove whitespace and normalize
+  const cleaned = text.replace(/\s+/g, '').toUpperCase()
+
+  // Common US plate patterns: ABC1234, ABC123, 1ABC234, 123ABC, etc.
+  const patterns = [
+    /\b([A-Z]{2,3}[0-9]{3,4})\b/,      // ABC1234, AB1234
+    /\b([0-9]{1,3}[A-Z]{2,3}[0-9]{2,4})\b/, // 1ABC234, 123AB12
+    /\b([A-Z]{1,3}[0-9]{1,2}[A-Z]{1,3})\b/, // A1B, AB1CD
+    /\b([0-9]{3,4}[A-Z]{2,3})\b/,      // 1234ABC
+    /\b([A-Z0-9]{5,8})\b/,             // Generic 5-8 char alphanumeric
+  ]
+
+  for (const pattern of patterns) {
+    const match = cleaned.match(pattern)
+    if (match && match[1].length >= 4 && match[1].length <= 8) {
+      return match[1]
+    }
+  }
+
+  // Fallback: extract longest alphanumeric sequence
+  const alphanumeric = cleaned.replace(/[^A-Z0-9]/g, '')
+  if (alphanumeric.length >= 4 && alphanumeric.length <= 8) {
+    return alphanumeric
   }
 
   return null
 }
 
 export function ScannerModal({ open, onOpenChange, type, onScan }: ScannerModalProps) {
+  const videoRef = useRef<HTMLVideoElement>(null)
+  const canvasRef = useRef<HTMLCanvasElement>(null)
+  const workerRef = useRef<Worker | null>(null)
+  const streamRef = useRef<MediaStream | null>(null)
+  const ocrIntervalRef = useRef<NodeJS.Timeout | null>(null)
+
   const [facingMode, setFacingMode] = useState<'user' | 'environment'>('environment')
   const [manualInput, setManualInput] = useState('')
   const [showManualInput, setShowManualInput] = useState(false)
   const [scanResult, setScanResult] = useState<ScanResult | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [paused, setPaused] = useState(false)
+  const [ocrProgress, setOcrProgress] = useState(0)
+  const [ocrStatus, setOcrStatus] = useState<string>('')
+  const [isProcessingOCR, setIsProcessingOCR] = useState(false)
 
   const getScannerTitle = () => {
     switch (type) {
@@ -117,16 +144,150 @@ export function ScannerModal({ open, onOpenChange, type, onScan }: ScannerModalP
   const getScannerDescription = () => {
     switch (type) {
       case 'qr': return 'Position the QR code within the frame'
-      case 'vin': return 'Align the VIN barcode (door jamb or dashboard) within the frame'
-      case 'plate': return 'Center the license plate in the frame'
+      case 'vin': return 'Align the VIN barcode (door jamb or dashboard)'
+      case 'plate': return 'Center the license plate - hold steady for OCR'
     }
   }
 
+  // Initialize Tesseract worker for plate OCR
+  const initOCRWorker = useCallback(async () => {
+    if (workerRef.current) return
+
+    try {
+      setOcrStatus('Initializing OCR...')
+      const worker = await createWorker('eng', 1, {
+        logger: (m) => {
+          if (m.status === 'recognizing text') {
+            setOcrProgress(Math.round(m.progress * 100))
+          }
+        }
+      })
+
+      // Configure for license plates: alphanumeric only
+      await worker.setParameters({
+        tessedit_char_whitelist: 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789',
+        tessedit_pageseg_mode: '7', // Single text line
+      })
+
+      workerRef.current = worker
+      setOcrStatus('OCR ready')
+      logger.info('Tesseract OCR worker initialized')
+    } catch (err) {
+      logger.error('Failed to initialize OCR:', err)
+      setError('Failed to initialize OCR engine')
+    }
+  }, [])
+
+  // Start camera for plate OCR
+  const startPlateCamera = useCallback(async () => {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({
+        video: { facingMode, width: { ideal: 1280 }, height: { ideal: 720 } }
+      })
+      streamRef.current = stream
+
+      if (videoRef.current) {
+        videoRef.current.srcObject = stream
+        await videoRef.current.play()
+      }
+    } catch (err) {
+      logger.error('Camera error:', err)
+      setError('Camera access denied')
+    }
+  }, [facingMode])
+
+  // Capture frame and run OCR
+  const captureAndOCR = useCallback(async () => {
+    if (!videoRef.current || !canvasRef.current || !workerRef.current || isProcessingOCR || paused) {
+      return
+    }
+
+    const video = videoRef.current
+    const canvas = canvasRef.current
+    const ctx = canvas.getContext('2d')
+    if (!ctx || video.videoWidth === 0) return
+
+    setIsProcessingOCR(true)
+
+    // Capture center region (where plate should be)
+    const cropWidth = video.videoWidth * 0.7
+    const cropHeight = video.videoHeight * 0.3
+    const cropX = (video.videoWidth - cropWidth) / 2
+    const cropY = (video.videoHeight - cropHeight) / 2
+
+    canvas.width = cropWidth
+    canvas.height = cropHeight
+
+    // Draw cropped region with contrast enhancement
+    ctx.filter = 'contrast(1.5) grayscale(1)'
+    ctx.drawImage(video, cropX, cropY, cropWidth, cropHeight, 0, 0, cropWidth, cropHeight)
+    ctx.filter = 'none'
+
+    try {
+      const { data } = await workerRef.current.recognize(canvas)
+      const plateText = extractPlateFromText(data.text)
+
+      if (plateText && data.confidence > 50) {
+        logger.info(`OCR detected plate: ${plateText} (confidence: ${data.confidence})`)
+        setPaused(true)
+        setScanResult({
+          value: plateText,
+          confidence: Math.round(data.confidence),
+          type: 'plate'
+        })
+      }
+    } catch (err) {
+      logger.error('OCR error:', err)
+    } finally {
+      setIsProcessingOCR(false)
+    }
+  }, [isProcessingOCR, paused])
+
+  // Start OCR interval for plate mode
+  useEffect(() => {
+    if (type === 'plate' && open && !scanResult && !showManualInput) {
+      initOCRWorker()
+      startPlateCamera()
+
+      // Run OCR every 1.5 seconds
+      ocrIntervalRef.current = setInterval(captureAndOCR, 1500)
+
+      return () => {
+        if (ocrIntervalRef.current) {
+          clearInterval(ocrIntervalRef.current)
+        }
+      }
+    }
+  }, [type, open, scanResult, showManualInput, initOCRWorker, startPlateCamera, captureAndOCR])
+
+  // Cleanup
+  useEffect(() => {
+    return () => {
+      if (streamRef.current) {
+        streamRef.current.getTracks().forEach(t => t.stop())
+      }
+      if (ocrIntervalRef.current) {
+        clearInterval(ocrIntervalRef.current)
+      }
+    }
+  }, [])
+
+  // Terminate worker on close
+  useEffect(() => {
+    if (!open && workerRef.current) {
+      workerRef.current.terminate()
+      workerRef.current = null
+    }
+  }, [open])
+
   const toggleCamera = () => {
+    if (streamRef.current) {
+      streamRef.current.getTracks().forEach(t => t.stop())
+    }
     setFacingMode(prev => prev === 'user' ? 'environment' : 'user')
   }
 
-  const handleScan = useCallback((detectedCodes: IDetectedBarcode[]) => {
+  const handleBarcodeScan = useCallback((detectedCodes: IDetectedBarcode[]) => {
     if (detectedCodes.length === 0 || paused) return
 
     const code = detectedCodes[0]
@@ -138,26 +299,17 @@ export function ScannerModal({ open, onOpenChange, type, onScan }: ScannerModalP
     let isValid = true
 
     if (type === 'vin') {
-      // Try to parse VIN from the barcode
       const parsedVIN = parseVINFromBarcode(rawValue)
       if (parsedVIN) {
         processedValue = parsedVIN
         isValid = validateVIN(processedValue)
       } else {
-        // Not a valid VIN barcode
         return
       }
-    } else if (type === 'plate') {
-      // License plates: alphanumeric, 2-8 characters
-      processedValue = processedValue.replace(/[^A-Z0-9]/g, '')
-      isValid = processedValue.length >= 2 && processedValue.length <= 8
-      if (!isValid) return
     } else if (type === 'qr') {
-      // QR codes can contain any data
       isValid = processedValue.length > 0
     }
 
-    // Pause scanning and show result
     setPaused(true)
     setScanResult({
       value: processedValue,
@@ -214,30 +366,148 @@ export function ScannerModal({ open, onOpenChange, type, onScan }: ScannerModalP
     setManualInput('')
     setShowManualInput(false)
     setError(null)
+    setOcrProgress(0)
+    setIsProcessingOCR(false)
+
+    if (type === 'plate') {
+      startPlateCamera()
+    }
   }
 
-  // Reset state when modal opens/closes or type changes
   useEffect(() => {
     if (open) {
       resetScanner()
     }
   }, [open, type])
 
-  // Determine which barcode formats to scan based on type
   const getFormats = (): string[] => {
     switch (type) {
-      case 'qr':
-        return ['qr_code']
-      case 'vin':
-        // VIN barcodes are typically Code 39 or Code 128
-        return ['code_39', 'code_128', 'code_93', 'ean_13', 'ean_8']
-      case 'plate':
-        // For plates, scan any format that might encode text
-        return ['qr_code', 'code_39', 'code_128', 'data_matrix']
-      default:
-        return ['qr_code', 'code_39', 'code_128']
+      case 'qr': return ['qr_code']
+      case 'vin': return ['code_39', 'code_128', 'code_93', 'ean_13', 'ean_8']
+      default: return ['qr_code', 'code_39', 'code_128']
     }
   }
+
+  // Render plate scanner with OCR
+  const renderPlateScanner = () => (
+    <div className="relative">
+      <video
+        ref={videoRef}
+        className="w-full aspect-[4/3] object-cover bg-black"
+        playsInline
+        muted
+      />
+      <canvas ref={canvasRef} className="hidden" />
+
+      {/* Plate frame overlay */}
+      <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+        <div className="w-[70%] h-[25%] border-2 border-yellow-400 rounded-lg relative">
+          <div className="absolute -top-1 -left-1 w-4 h-4 border-t-2 border-l-2 border-yellow-400" />
+          <div className="absolute -top-1 -right-1 w-4 h-4 border-t-2 border-r-2 border-yellow-400" />
+          <div className="absolute -bottom-1 -left-1 w-4 h-4 border-b-2 border-l-2 border-yellow-400" />
+          <div className="absolute -bottom-1 -right-1 w-4 h-4 border-b-2 border-r-2 border-yellow-400" />
+        </div>
+      </div>
+
+      {/* OCR status */}
+      <div className="absolute top-3 left-3 right-3">
+        <div className="flex items-center gap-2 bg-black/70 px-3 py-2 rounded-lg">
+          {isProcessingOCR ? (
+            <>
+              <CircleNotch className="w-4 h-4 text-yellow-400 animate-spin" />
+              <span className="text-white text-xs">Reading plate...</span>
+              <div className="flex-1">
+                <Progress value={ocrProgress} className="h-1" />
+              </div>
+            </>
+          ) : (
+            <>
+              <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
+              <span className="text-white text-xs">{ocrStatus || 'Position plate in frame'}</span>
+            </>
+          )}
+        </div>
+      </div>
+
+      {/* Controls */}
+      <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-2">
+        <Button
+          size="sm"
+          variant="secondary"
+          className="bg-black/60 hover:bg-black/80 text-white"
+          onClick={toggleCamera}
+        >
+          <FlipHorizontal className="w-4 h-4 mr-1" />
+          Flip
+        </Button>
+        <Button
+          size="sm"
+          variant="secondary"
+          className="bg-black/60 hover:bg-black/80 text-white"
+          onClick={() => setShowManualInput(true)}
+        >
+          <Keyboard className="w-4 h-4 mr-1" />
+          Manual
+        </Button>
+        <Button
+          size="sm"
+          variant="secondary"
+          className="bg-black/60 hover:bg-black/80 text-white"
+          onClick={captureAndOCR}
+          disabled={isProcessingOCR}
+        >
+          <Camera className="w-4 h-4 mr-1" />
+          Capture
+        </Button>
+      </div>
+    </div>
+  )
+
+  // Render barcode scanner (QR/VIN)
+  const renderBarcodeScanner = () => (
+    <div className="relative">
+      <Scanner
+        onScan={handleBarcodeScan}
+        onError={handleError}
+        formats={getFormats()}
+        paused={paused || showManualInput}
+        components={{ audio: false, torch: true, finder: true }}
+        constraints={{ facingMode }}
+        styles={{
+          container: { width: '100%', aspectRatio: '4/3' },
+          video: { width: '100%', height: '100%', objectFit: 'cover' },
+        }}
+      />
+
+      <div className="absolute top-3 left-3 flex items-center gap-2 bg-black/60 px-3 py-1.5 rounded-full">
+        <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse" />
+        <span className="text-white text-xs font-medium">
+          {type === 'qr' ? 'QR Mode' : 'VIN Mode'}
+        </span>
+      </div>
+
+      <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-2">
+        <Button
+          size="sm"
+          variant="secondary"
+          className="bg-black/60 hover:bg-black/80 text-white"
+          onClick={toggleCamera}
+        >
+          <FlipHorizontal className="w-4 h-4 mr-1" />
+          Flip
+        </Button>
+        <Button
+          size="sm"
+          variant="secondary"
+          className="bg-black/60 hover:bg-black/80 text-white"
+          onClick={() => setShowManualInput(true)}
+        >
+          <Keyboard className="w-4 h-4 mr-1" />
+          Manual
+        </Button>
+      </div>
+    </div>
+  )
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -253,69 +523,11 @@ export function ScannerModal({ open, onOpenChange, type, onScan }: ScannerModalP
         </DialogHeader>
 
         <div className="relative bg-black">
-          {/* Scanner or Result View */}
           {!scanResult ? (
             <>
               {!error ? (
-                <div className="relative">
-                  <Scanner
-                    onScan={handleScan}
-                    onError={handleError}
-                    formats={getFormats()}
-                    paused={paused || showManualInput}
-                    components={{
-                      audio: false,
-                      torch: true,
-                      finder: true,
-                    }}
-                    constraints={{
-                      facingMode: facingMode,
-                    }}
-                    styles={{
-                      container: {
-                        width: '100%',
-                        aspectRatio: '4/3',
-                      },
-                      video: {
-                        width: '100%',
-                        height: '100%',
-                        objectFit: 'cover',
-                      },
-                    }}
-                  />
-
-                  {/* Scan type indicator */}
-                  <div className="absolute top-3 left-3 flex items-center gap-2 bg-black/60 px-3 py-1.5 rounded-full">
-                    <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse" />
-                    <span className="text-white text-xs font-medium">
-                      {type === 'qr' ? 'QR Mode' : type === 'vin' ? 'VIN Mode' : 'Plate Mode'}
-                    </span>
-                  </div>
-
-                  {/* Camera controls */}
-                  <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-2">
-                    <Button
-                      size="sm"
-                      variant="secondary"
-                      className="bg-black/60 hover:bg-black/80 text-white"
-                      onClick={toggleCamera}
-                    >
-                      <FlipHorizontal className="w-4 h-4 mr-1" />
-                      Flip
-                    </Button>
-                    <Button
-                      size="sm"
-                      variant="secondary"
-                      className="bg-black/60 hover:bg-black/80 text-white"
-                      onClick={() => setShowManualInput(true)}
-                    >
-                      <Keyboard className="w-4 h-4 mr-1" />
-                      Manual
-                    </Button>
-                  </div>
-                </div>
+                type === 'plate' ? renderPlateScanner() : renderBarcodeScanner()
               ) : (
-                /* Error state */
                 <div className="aspect-[4/3] flex items-center justify-center bg-background">
                   <div className="text-center p-6 space-y-4">
                     <Camera className="w-16 h-16 text-muted-foreground mx-auto" />
@@ -333,10 +545,9 @@ export function ScannerModal({ open, onOpenChange, type, onScan }: ScannerModalP
               )}
             </>
           ) : (
-            /* Scan Result */
             <div className="p-6 bg-background">
               <div className="text-center space-y-4">
-                {scanResult.confidence > 80 ? (
+                {scanResult.confidence > 70 ? (
                   <CheckCircle className="w-16 h-16 text-green-500 mx-auto" weight="fill" />
                 ) : (
                   <Warning className="w-16 h-16 text-yellow-500 mx-auto" weight="fill" />
@@ -346,18 +557,14 @@ export function ScannerModal({ open, onOpenChange, type, onScan }: ScannerModalP
                   <p className="text-sm text-muted-foreground mb-1">
                     {type === 'qr' && 'QR Code Detected'}
                     {type === 'vin' && 'VIN Detected'}
-                    {type === 'plate' && 'License Plate Detected'}
+                    {type === 'plate' && `License Plate Detected (${scanResult.confidence}% confidence)`}
                   </p>
                   <p className="text-2xl font-mono font-bold tracking-wide">{scanResult.value}</p>
                   {type === 'vin' && !validateVIN(scanResult.value) && (
-                    <p className="text-xs text-yellow-600 mt-2">
-                      VIN checksum validation failed - please verify
-                    </p>
+                    <p className="text-xs text-yellow-600 mt-2">VIN checksum validation failed</p>
                   )}
                   {type === 'vin' && validateVIN(scanResult.value) && (
-                    <p className="text-xs text-green-600 mt-2">
-                      VIN checksum valid
-                    </p>
+                    <p className="text-xs text-green-600 mt-2">VIN checksum valid</p>
                   )}
                 </div>
 
@@ -374,7 +581,6 @@ export function ScannerModal({ open, onOpenChange, type, onScan }: ScannerModalP
           )}
         </div>
 
-        {/* Manual Input Section */}
         {showManualInput && !scanResult && (
           <div className="p-4 border-t bg-muted/50">
             <div className="space-y-3">
@@ -417,7 +623,6 @@ export function ScannerModal({ open, onOpenChange, type, onScan }: ScannerModalP
           </div>
         )}
 
-        {/* Close button */}
         <Button
           variant="ghost"
           size="icon"
