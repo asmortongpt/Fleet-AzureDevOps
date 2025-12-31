@@ -102,8 +102,12 @@ const SettingsPage = lazy(() => import("@/pages/SettingsPage"));
 const ProfilePage = lazy(() => import("@/pages/ProfilePage"));
 const SafetyAlertsPage = lazy(() => import("@/pages/SafetyAlertsPage"));
 
+// HUB PAGES
+const FleetHub = lazy(() => import("@/pages/FleetHub"));
+
 const routes = [
   { path: "dashboard", element: <FleetDashboard /> },
+  { path: "fleet-hub", element: <FleetHub /> },
   { path: "executive-dashboard", element: <ExecutiveDashboard /> },
   { path: "admin-dashboard", element: <AdminDashboard /> },
   { path: "dispatch-console", element: <DispatchConsole /> },
