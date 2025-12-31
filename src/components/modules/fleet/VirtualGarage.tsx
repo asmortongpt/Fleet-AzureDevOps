@@ -32,6 +32,7 @@ import {
   generateDemoDamagePoints,
   DamagePoint
 } from '@/components/garage/DamageOverlay';
+import { VirtualGarageControls } from '@/components/garage/controls/VirtualGarageControls';
 
 // Demo assets used only in development as a fallback - Updated with real fleet vehicles
 const DEMO_ASSETS: GarageAsset[] = [
@@ -235,9 +236,24 @@ interface AssetDisplayProps {
 
 const AssetDisplay: React.FC<AssetDisplayProps> = ({ asset }) => {
   const [selectedDamageId, setSelectedDamageId] = useState<string | undefined>();
+  const [currentCamera, setCurrentCamera] = useState<string>('hero');
+  const [currentQuality, setCurrentQuality] = useState<'low' | 'medium' | 'high' | 'ultra'>('high');
+  const [showcaseMode, setShowcaseMode] = useState<boolean>(false);
 
   // Generate demo damage points for demonstration
   const damagePoints = React.useMemo(() => generateDemoDamagePoints(), []);
+
+  const handleCameraChange = (preset: string) => {
+    setCurrentCamera(preset);
+  };
+
+  const handleQualityChange = (quality: 'low' | 'medium' | 'high' | 'ultra') => {
+    setCurrentQuality(quality);
+  };
+
+  const handleToggleShowcase = () => {
+    setShowcaseMode(!showcaseMode);
+  };
 
   if (!asset) {
     return (
@@ -267,6 +283,16 @@ const AssetDisplay: React.FC<AssetDisplayProps> = ({ asset }) => {
             />
           </Suspense>
         </ViewerErrorBoundary>
+
+        {/* Virtual Garage Camera & Quality Controls */}
+        <VirtualGarageControls
+          onCameraChange={handleCameraChange}
+          onQualityChange={handleQualityChange}
+          onToggleShowcase={handleToggleShowcase}
+          currentCamera={currentCamera}
+          currentQuality={currentQuality}
+        />
+
         <div className="absolute bottom-2 left-2 flex flex-wrap gap-2">
           {asset.license_plate && <Badge>{asset.license_plate}</Badge>}
           {asset.asset_tag && <Badge>{asset.asset_tag}</Badge>}
