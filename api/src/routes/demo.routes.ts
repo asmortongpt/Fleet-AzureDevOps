@@ -63,6 +63,39 @@ if (process.env.NODE_ENV !== 'production') {
         });
     });
 
+    // Personal Use - IRS Compliant Mileage Tracking
+    router.get('/personal-use/summary', (_req: Request, res: Response) => {
+        res.json({
+            total_miles_this_month: 1247,
+            personal_miles: 312,
+            business_miles: 935,
+            personal_percentage: 25.0,
+            irs_rate: 0.67, // 2024 IRS standard mileage rate
+            estimated_reimbursement: 209.04,
+            pending_classifications: 3
+        });
+    });
+
+    router.get('/personal-use/trips', (_req: Request, res: Response) => {
+        res.json({
+            data: [
+                { id: '1', trip_date: '2024-12-28', vehicle_id: 1, vehicle_name: 'Ford F-150 #101', driver_name: 'Marcus Johnson', miles_total: 47.2, usage_type: 'business', business_purpose: 'Client site visit - Thomasville Rd', approval_status: 'approved', odometer_start: 42303, odometer_end: 42350 },
+                { id: '2', trip_date: '2024-12-29', vehicle_id: 1, vehicle_name: 'Ford F-150 #101', driver_name: 'Marcus Johnson', miles_total: 23.6, usage_type: 'personal', business_purpose: null, approval_status: 'pending', odometer_start: 42350, odometer_end: 42374 },
+                { id: '3', trip_date: '2024-12-30', vehicle_id: 3, vehicle_name: 'RAM 2500 #103', driver_name: 'David Chen', miles_total: 89.4, usage_type: 'business', business_purpose: 'Equipment delivery - Wakulla County', approval_status: 'approved', odometer_start: 38411, odometer_end: 38500 },
+                { id: '4', trip_date: '2024-12-30', vehicle_id: 2, vehicle_name: 'Chevy Silverado #102', driver_name: 'Sarah Williams', miles_total: 15.8, usage_type: 'pending', business_purpose: null, approval_status: 'pending', odometer_start: 67874, odometer_end: 67890 },
+            ], total: 4
+        });
+    });
+
+    router.get('/personal-use/team-summary', (_req: Request, res: Response) => {
+        res.json({
+            total_members: 5,
+            pending_approvals: 2,
+            drivers_near_limit: 1,
+            total_charges_this_month: 156.78
+        });
+    });
+
     console.log('[DEMO] Demo API routes enabled at /api/demo/*');
 }
 
