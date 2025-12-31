@@ -246,66 +246,80 @@ export class RealisticGPSEmulator extends EventEmitter {
   }
 
   /**
-   * Select a random route (for testing)
+   * Select a random route with realistic road-like paths
    */
   private selectRandomRoute(): void {
-    // Generate a simple loop route around starting position
     const center = this.vehicle.startingLocation
-    const radius = 0.02 + Math.random() * 0.03 // ~2-5km radius
+    const radius = 0.015 + Math.random() * 0.025 // ~1.5-4km radius
 
+    // Generate main destination points
+    const numDestinations = 4 + Math.floor(Math.random() * 4) // 4-7 destinations
+    const destinations: { lat: number; lng: number; name: string; stopDuration: number }[] = []
+
+    for (let i = 0; i < numDestinations; i++) {
+      const angle = (i / numDestinations) * 2 * Math.PI + (Math.random() - 0.5) * 0.5
+      const dist = radius * (0.5 + Math.random() * 0.5)
+      destinations.push({
+        lat: center.lat + dist * Math.cos(angle),
+        lng: center.lng + dist * Math.sin(angle),
+        name: `Stop ${i + 1}`,
+        stopDuration: i === Math.floor(numDestinations / 2) ? 10 + Math.random() * 10 : 3 + Math.random() * 7
+      })
+    }
+
+    // Generate road-like path between all destinations
     const waypoints: Waypoint[] = [
-      { ...center, name: 'Start', type: 'depot', stopDuration: 0 },
-      {
-        lat: center.lat + radius,
-        lng: center.lng,
-        name: 'North Point',
-        type: 'delivery',
-        stopDuration: 5 + Math.random() * 10
-      },
-      {
-        lat: center.lat + radius * 0.7,
-        lng: center.lng + radius * 0.7,
-        name: 'Northeast',
-        type: 'delivery',
-        stopDuration: 5 + Math.random() * 10
-      },
-      {
-        lat: center.lat,
-        lng: center.lng + radius,
-        name: 'East Point',
-        type: 'delivery',
-        stopDuration: 5 + Math.random() * 10
-      },
-      {
-        lat: center.lat - radius * 0.5,
-        lng: center.lng + radius * 0.5,
-        name: 'Southeast',
-        type: 'break',
-        stopDuration: 10 + Math.random() * 10
-      },
-      {
-        lat: center.lat - radius,
-        lng: center.lng,
-        name: 'South Point',
-        type: 'delivery',
-        stopDuration: 5 + Math.random() * 10
-      },
-      {
-        lat: center.lat - radius * 0.5,
-        lng: center.lng - radius * 0.5,
-        name: 'Southwest',
-        type: 'delivery',
-        stopDuration: 5 + Math.random() * 10
-      },
-      {
-        lat: center.lat,
-        lng: center.lng - radius,
-        name: 'West Point',
-        type: 'delivery',
-        stopDuration: 5 + Math.random() * 10
-      },
-      { ...center, name: 'Return to Base', type: 'depot', stopDuration: 0 }
+      { ...center, name: 'Start - Depot', type: 'depot', stopDuration: 0 }
     ]
+
+    let prevPoint = center
+    const roadTypes: string[] = []
+
+    for (let i = 0; i < destinations.length; i++) {
+      const dest = destinations[i]
+
+      // Generate road segments between prevPoint and dest
+      const segmentWaypoints = this.generateRoadSegment(prevPoint, dest)
+
+      // Add intermediate waypoints (no stop)
+      for (const wp of segmentWaypoints) {
+        waypoints.push({
+          lat: wp.lat,
+          lng: wp.lng,
+          name: '',
+          type: 'waypoint',
+          stopDuration: 0
+        })
+        roadTypes.push(wp.roadType || 'city')
+      }
+
+      // Add destination with stop
+      waypoints.push({
+        lat: dest.lat,
+        lng: dest.lng,
+        name: dest.name,
+        type: i === Math.floor(numDestinations / 2) ? 'break' : 'delivery',
+        stopDuration: dest.stopDuration
+      })
+      roadTypes.push('city')
+
+      prevPoint = dest
+    }
+
+    // Return path to depot
+    const returnSegment = this.generateRoadSegment(prevPoint, center)
+    for (const wp of returnSegment) {
+      waypoints.push({
+        lat: wp.lat,
+        lng: wp.lng,
+        name: '',
+        type: 'waypoint',
+        stopDuration: 0
+      })
+      roadTypes.push(wp.roadType || 'city')
+    }
+    waypoints.push({ ...center, name: 'Return to Depot', type: 'depot', stopDuration: 0 })
+    roadTypes.push('city')
 
     this.currentRoute = {
       id: `AUTO-${this.vehicle.id}`,
@@ -315,13 +329,109 @@ export class RealisticGPSEmulator extends EventEmitter {
       estimatedDuration: 120,
       estimatedDistance: 15,
       waypoints,
-      roadTypes: ['city', 'residential', 'city', 'highway', 'city', 'residential', 'city', 'city'],
+      roadTypes,
       trafficPatterns: {}
     }
 
     this.currentWaypointIndex = 0
     this.targetWaypoint = waypoints[0]
     this.calculateDistanceToTarget()
+  }
+
+  /**
+   * Generate road-like path segment between two points
+   * Simulates realistic street navigation with turns and curves
+   */
+  private generateRoadSegment(
+    from: { lat: number; lng: number },
+    to: { lat: number; lng: number }
+  ): Array<{ lat: number; lng: number; roadType: string }> {
+    const waypoints: Array<{ lat: number; lng: number; roadType: string }> = []
+
+    const dx = to.lng - from.lng
+    const dy = to.lat - from.lat
+    const distance = Math.sqrt(dx * dx + dy * dy)
+
+    // More waypoints for longer distances
+    const numSegments = Math.max(3, Math.floor(distance / 0.003)) // ~every 300m
+
+    // Choose road pattern type randomly
+    const patternType = Math.floor(Math.random() * 4)
+
+    for (let i = 1; i < numSegments; i++) {
+      const t = i / numSegments
+      let lat: number, lng: number
+      let roadType = 'city'
+
+      switch (patternType) {
+        case 0:
+          // Grid-like: go horizontal then vertical (with some variation)
+          if (t < 0.45) {
+            const segT = t / 0.45
+            lat = from.lat + dy * 0.1 * segT + (Math.random() - 0.5) * 0.0005
+            lng = from.lng + dx * segT + (Math.random() - 0.5) * 0.0003
+            roadType = 'city'
+          } else if (t < 0.55) {
+            // Turn
+            const segT = (t - 0.45) / 0.1
+            lat = from.lat + dy * 0.1 + dy * 0.3 * segT
+            lng = from.lng + dx * (0.45 + 0.1 * segT)
+            roadType = 'residential'
+          } else {
+            const segT = (t - 0.55) / 0.45
+            lat = from.lat + dy * 0.4 + dy * 0.6 * segT + (Math.random() - 0.5) * 0.0005
+            lng = from.lng + dx * 0.55 + dx * 0.45 * segT + (Math.random() - 0.5) * 0.0003
+            roadType = i > numSegments * 0.7 ? 'residential' : 'city'
+          }
+          break
+
+        case 1:
+          // Curved path using quadratic bezier
+          const controlOffset = 0.3 + Math.random() * 0.4
+          const controlLat = from.lat + dy * 0.5 + dx * controlOffset * (Math.random() > 0.5 ? 1 : -1)
+          const controlLng = from.lng + dx * 0.5 + dy * controlOffset * (Math.random() > 0.5 ? 1 : -1)
+
+          const t1 = 1 - t
+          lat = t1 * t1 * from.lat + 2 * t1 * t * controlLat + t * t * to.lat
+          lng = t1 * t1 * from.lng + 2 * t1 * t * controlLng + t * t * to.lng
+          // Add small road noise
+          lat += (Math.random() - 0.5) * 0.0003
+          lng += (Math.random() - 0.5) * 0.0003
+          roadType = t > 0.3 && t < 0.7 ? 'highway' : 'city'
+          break
+
+        case 2:
+          // Zigzag pattern (simulating city blocks)
+          const zigzagFreq = 3 + Math.floor(Math.random() * 2)
+          const zigzagPhase = (Math.floor(t * zigzagFreq) % 2 === 0)
+          const localT = (t * zigzagFreq) % 1
+
+          if (zigzagPhase) {
+            lat = from.lat + dy * t + (Math.random() - 0.5) * 0.0002
+            lng = from.lng + dx * (Math.floor(t * zigzagFreq) / zigzagFreq + localT * (1 / zigzagFreq))
+          } else {
+            lat = from.lat + dy * (Math.floor(t * zigzagFreq) / zigzagFreq + localT * (1 / zigzagFreq))
+            lng = from.lng + dx * t + (Math.random() - 0.5) * 0.0002
+          }
+          roadType = 'residential'
+          break
+
+        case 3:
+        default:
+          // S-curve pattern
+          const curveAmplitude = 0.15 + Math.random() * 0.1
+          const curveOffset = Math.sin(t * Math.PI * 2) * curveAmplitude
+
+          lat = from.lat + dy * t + dx * curveOffset + (Math.random() - 0.5) * 0.0002
+          lng = from.lng + dx * t - dy * curveOffset + (Math.random() - 0.5) * 0.0002
+          roadType = t > 0.2 && t < 0.8 ? 'city' : 'residential'
+          break
+      }
+
+      waypoints.push({ lat, lng, roadType })
+    }
+
+    return waypoints
   }
 
   /**
