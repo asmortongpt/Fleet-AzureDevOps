@@ -1,19 +1,33 @@
-import { ComponentProps } from "react"
+import { ComponentProps, forwardRef } from "react"
+import { motion, HTMLMotionProps } from "framer-motion"
 
 import { cn } from "@/lib/utils"
 
-function Card({ className, ...props }: ComponentProps<"div">) {
+// Separate the motion props from HTML props
+type CardProps = Omit<ComponentProps<"div">, keyof HTMLMotionProps<"div">> & {
+  className?: string
+}
+
+const Card = forwardRef<HTMLDivElement, CardProps>(({ className, ...props }, ref) => {
   return (
-    <div
+    <motion.div
+      ref={ref}
+      initial={{ opacity: 0, y: 10 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.3 }}
       data-slot="card"
       className={cn(
-        "bg-card text-card-foreground flex flex-col gap-6 rounded-xl border py-6 shadow-sm",
+        "bg-card/80 text-card-foreground flex flex-col gap-6 rounded-xl border py-6",
+        "backdrop-blur-md shadow-lg",
+        "hover:shadow-xl transition-shadow duration-200",
         className
       )}
       {...props}
     />
   )
-}
+})
+
+Card.displayName = "Card"
 
 function CardHeader({ className, ...props }: ComponentProps<"div">) {
   return (
