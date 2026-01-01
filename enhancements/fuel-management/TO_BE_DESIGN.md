@@ -1,4814 +1,4364 @@
-# **TO_BE_DESIGN.md**
-**Fuel Management System - Next-Generation Architecture**
+# TO-BE Design: Fuel Management Module
 
+## 1. Executive Architecture Summary (150+ lines)
+
+### Strategic Vision and Modernization Goals
+
+The Fuel Management Module represents a critical component of our Fleet Management System, addressing the enterprise's need for comprehensive fuel tracking, cost optimization, and sustainability reporting. Our strategic vision focuses on:
+
+1. **Operational Excellence**: Achieving 99.95% system availability with sub-500ms response times for 95% of requests
+2. **Cost Optimization**: Reducing fuel costs by 15% through better monitoring and predictive analytics
+3. **Sustainability**: Enabling carbon footprint reporting to meet ESG (Environmental, Social, Governance) targets
+4. **Regulatory Compliance**: Ensuring adherence to IFTA (International Fuel Tax Agreement) and EPA (Environmental Protection Agency) standards
+5. **Data-Driven Decisions**: Providing actionable insights through advanced analytics and machine learning
+
+The modernization initiative aligns with our digital transformation roadmap, moving from monolithic architecture to cloud-native microservices. This transition will:
+
+- Reduce technical debt by 40% through architecture modernization
+- Improve deployment frequency from monthly to multiple daily deployments
+- Enhance scalability to support 10x growth in fleet size
+- Enable real-time fuel monitoring and fraud detection
+
+### Alignment with Enterprise Architecture Principles
+
+Our design adheres to the following enterprise architecture principles:
+
+1. **Cloud-First Strategy**: Leveraging Azure as our primary cloud provider with multi-region deployment for global availability
+2. **API-Centric Design**: Following RESTful principles with OpenAPI 3.0 specifications for all public interfaces
+3. **Event-Driven Architecture**: Implementing CQRS and Event Sourcing patterns for critical business processes
+4. **Security by Design**: Incorporating zero-trust security model with defense-in-depth approach
+5. **Observability-First**: Building comprehensive monitoring and tracing from day one
+6. **Infrastructure as Code**: Managing all infrastructure through Terraform and Kubernetes manifests
+7. **Domain-Driven Design**: Aligning technical architecture with business domains and bounded contexts
+
+### Technology Stack Evolution and Rationale
+
+**Current State (AS-IS):**
+- Monolithic .NET application running on VMs
+- SQL Server database with stored procedures
+- Limited API exposure (SOAP)
+- Manual deployment processes
+- Minimal monitoring and observability
+
+**Target State (TO-BE):**
+| Category | Technology | Rationale |
+|----------|------------|-----------|
+| **Runtime** | Node.js 18+ | High performance, non-blocking I/O, rich ecosystem |
+| **Language** | TypeScript | Type safety, better developer experience, enterprise adoption |
+| **Framework** | NestJS | Modular architecture, DI, built-in best practices |
+| **API Gateway** | Azure API Management | Enterprise-grade API management with security and analytics |
+| **Service Mesh** | Istio | Advanced traffic management, security, and observability |
+| **Database** | Azure PostgreSQL Flexible Server | Fully managed, high availability, cost-effective |
+| **Cache** | Azure Cache for Redis | High performance, distributed caching |
+| **Message Broker** | Azure Service Bus | Reliable messaging with pub/sub capabilities |
+| **Event Streaming** | Azure Event Hubs | High-throughput event ingestion |
+| **Search** | Azure Cognitive Search | Advanced search capabilities with AI enrichment |
+| **Containerization** | Docker | Consistent runtime environment |
+| **Orchestration** | Azure Kubernetes Service (AKS) | Managed Kubernetes with enterprise features |
+| **Infrastructure** | Terraform | Infrastructure as Code with multi-cloud support |
+| **CI/CD** | Azure DevOps | Integrated pipeline with testing and security scanning |
+| **Monitoring** | Azure Monitor + Application Insights | Comprehensive observability platform |
+| **Logging** | ELK Stack (Azure Elastic) | Scalable log aggregation and analysis |
+| **Tracing** | OpenTelemetry + Jaeger | Distributed tracing for microservices |
+| **Security** | Azure Key Vault | Secrets management with HSM support |
+| **Authentication** | Azure AD + OAuth 2.0 | Enterprise identity management |
+
+### Migration Strategy and Risk Mitigation
+
+**Migration Approach:**
+1. **Strangler Pattern**: Gradually replace functionality from the monolith with new microservices
+2. **Parallel Run**: Maintain both systems during transition with data synchronization
+3. **Feature Flags**: Enable gradual rollout of new functionality
+4. **Data Migration**: Phased approach with validation at each stage
+
+**Risk Mitigation Plan:**
+
+| Risk | Mitigation Strategy | Owner |
+|------|---------------------|-------|
+| Data consistency issues | Dual-write pattern with reconciliation processes | Data Team |
+| Performance degradation | Load testing at each phase, gradual traffic shift | Performance Team |
+| Security vulnerabilities | Automated security scanning in CI/CD, regular audits | Security Team |
+| User adoption resistance | Comprehensive training program, change management | Product Team |
+| Integration failures | Contract testing, circuit breakers, fallback mechanisms | Integration Team |
+| Cost overruns | Cloud cost monitoring, budget alerts, FinOps practices | Finance Team |
+
+**Rollback Plan:**
+1. **Phase 1-2**: Revert to monolith with minimal impact
+2. **Phase 3**: Switch back to old APIs with data synchronization
+3. **Phase 4**: Full rollback to previous version with database restore
+
+### Success Criteria and KPIs
+
+**Technical KPIs:**
+- System availability: ≥99.95%
+- API response time (95th percentile): ≤500ms
+- Deployment frequency: ≥4/day
+- Mean time to recovery (MTTR): ≤15 minutes
+- Test coverage: ≥80% (unit + integration)
+- Security vulnerabilities: 0 critical, ≤2 high per quarter
+
+**Business KPIs:**
+- Fuel cost savings: ≥15% reduction
+- Fraud detection rate: ≥95% accuracy
+- IFTA reporting accuracy: 100%
+- Carbon footprint reporting: 100% compliance
+- User satisfaction: ≥90% positive feedback
+
+**Operational KPIs:**
+- Incident rate: ≤2/month
+- Mean time between failures (MTBF): ≥720 hours
+- Deployment success rate: ≥99%
+- Infrastructure cost: ≤$0.50 per vehicle/month
+
+### Stakeholder Value Proposition
+
+**Fleet Managers:**
+- Real-time fuel monitoring dashboard with anomaly detection
+- Predictive maintenance alerts based on fuel consumption patterns
+- Route optimization recommendations to reduce fuel usage
+- Automated IFTA reporting with 100% accuracy
+
+**Finance Team:**
+- Granular fuel cost tracking by vehicle, driver, route, and time period
+- Fraud detection with automated alerts for suspicious transactions
+- Budget forecasting based on historical and predictive data
+- Integration with ERP systems for seamless financial reporting
+
+**Operations Team:**
+- Automated fuel purchase reconciliation
+- Integration with fuel card providers for real-time transaction validation
+- Idle time tracking with alerts for excessive engine idling
+- Maintenance scheduling based on fuel efficiency trends
+
+**Sustainability Team:**
+- Carbon footprint reporting aligned with GHG Protocol
+- Sustainability metrics dashboard with trend analysis
+- Integration with carbon offset programs
+- Reporting for ESG compliance and certifications
+
+**Drivers:**
+- Mobile app for fuel transaction verification
+- Personal fuel efficiency metrics and coaching
+- Automated expense reporting
+- Alerts for fuel theft or unauthorized usage
+
+**Executive Leadership:**
+- Strategic dashboard with fleet-wide fuel efficiency metrics
+- Cost savings tracking against targets
+- Sustainability impact reporting
+- Competitive benchmarking against industry standards
+
+**ROI Analysis:**
+
+| Benefit | Annual Value | Calculation |
+|---------|-------------|-------------|
+| Fuel cost savings | $2.4M | 15% of $16M annual fuel spend |
+| Fraud reduction | $800K | 5% of fuel spend recovered |
+| Productivity gains | $600K | 10 FTEs × $60K/year |
+| IFTA penalty avoidance | $200K | 100% compliance |
+| Carbon credit revenue | $150K | 5,000 tons CO2e × $30/ton |
+| **Total Annual Benefit** | **$4.15M** | |
+| **Implementation Cost** | $1.8M | Development + Infrastructure |
+| **Net First Year ROI** | **131%** | ($4.15M - $1.8M) / $1.8M |
+| **3-Year ROI** | **420%** | Cumulative benefit over 3 years |
+
+## 2. Target Architecture (400+ lines)
+
+### 2.1 System Architecture
+
+```mermaid
+graph TD
+    subgraph Client Layer
+        A[Web Dashboard] -->|HTTPS| B[API Gateway]
+        C[Mobile App] -->|HTTPS| B
+        D[Third-Party Integrations] -->|HTTPS| B
+    end
+
+    subgraph API Layer
+        B -->|gRPC| E[Fuel Service]
+        B -->|gRPC| F[Vehicle Service]
+        B -->|gRPC| G[Driver Service]
+        B -->|gRPC| H[Reporting Service]
+        B -->|gRPC| I[Notification Service]
+    end
+
+    subgraph Service Mesh
+        E -->|Istio| J[Service Discovery]
+        F -->|Istio| J
+        G -->|Istio| J
+        H -->|Istio| J
+        I -->|Istio| J
+    end
+
+    subgraph Data Layer
+        E -->|TypeORM| K[(PostgreSQL)]
+        F -->|TypeORM| K
+        G -->|TypeORM| K
+        H -->|TypeORM| K
+        I -->|Redis| L[Cache]
+        E -->|Event Hubs| M[Event Streaming]
+        F -->|Event Hubs| M
+        M -->|Azure Functions| N[Analytics]
+    end
+
+    subgraph Integration Layer
+        O[Fuel Card Providers] -->|Webhooks| P[Integration Service]
+        Q[Telematics Devices] -->|MQTT| P
+        R[ERP System] -->|REST| P
+        P -->|Service Bus| E
+        P -->|Service Bus| F
+    end
+
+    subgraph Monitoring
+        S[Azure Monitor] -->|Metrics| T[Grafana]
+        U[Application Insights] -->|Traces| V[Jaeger]
+        W[ELK Stack] -->|Logs| X[Kibana]
+    end
+```
+
+**Architecture Principles:**
+1. **Microservices Decomposition**: Domain-driven design with bounded contexts
+2. **API Gateway**: Single entry point for all client requests with:
+   - Request/response transformation
+   - Rate limiting
+   - Authentication/authorization
+   - Request/response logging
+3. **Service Mesh**: Istio for:
+   - Service-to-service authentication
+   - Traffic management
+   - Circuit breaking
+   - Observability
+4. **Event-Driven Architecture**:
+   - Event Hubs for high-throughput event streaming
+   - Service Bus for reliable messaging
+   - Event sourcing for critical business processes
+5. **Polyglot Persistence**:
+   - PostgreSQL for relational data
+   - Redis for caching
+   - Blob Storage for documents
+   - Cosmos DB for unstructured data
+
+**Scalability Targets:**
+- Horizontal scaling for all stateless services
+- Auto-scaling based on CPU/memory metrics and custom business metrics
+- Database read replicas for reporting workloads
+- Caching layer for high-read scenarios
+
+**Performance Targets:**
+- 95% of API requests < 500ms
+- Database queries < 100ms for 90% of operations
+- Event processing throughput: 10,000 events/second
+- Reporting queries: < 2 seconds for standard reports
+
+### 2.2 Component Design
+
+#### 2.2.1 Fuel Service
+
+**Responsibilities:**
+- Fuel transaction management
+- Fuel consumption tracking
+- Fuel efficiency calculations
+- Fraud detection
+- Fuel inventory management
+
+**Interface Contracts (OpenAPI):**
+
+```yaml
+openapi: 3.0.1
+info:
+  title: Fuel Service API
+  version: 1.0.0
+paths:
+  /api/fuel/transactions:
+    post:
+      summary: Record a fuel transaction
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FuelTransactionCreate'
+      responses:
+        '201':
+          description: Transaction created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FuelTransaction'
+        '400':
+          description: Invalid input
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+    get:
+      summary: List fuel transactions
+      parameters:
+        - $ref: '#/components/parameters/vehicleId'
+        - $ref: '#/components/parameters/driverId'
+        - $ref: '#/components/parameters/startDate'
+        - $ref: '#/components/parameters/endDate'
+        - $ref: '#/components/parameters/page'
+        - $ref: '#/components/parameters/limit'
+      responses:
+        '200':
+          description: List of transactions
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedFuelTransactions'
+  /api/fuel/efficiency:
+    get:
+      summary: Get fuel efficiency metrics
+      parameters:
+        - $ref: '#/components/parameters/vehicleId'
+        - $ref: '#/components/parameters/period'
+      responses:
+        '200':
+          description: Fuel efficiency metrics
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FuelEfficiency'
+components:
+  schemas:
+    FuelTransactionCreate:
+      type: object
+      required:
+        - vehicleId
+        - driverId
+        - transactionDate
+        - gallons
+        - totalAmount
+        - odometerReading
+        - location
+      properties:
+        vehicleId:
+          type: string
+          format: uuid
+        driverId:
+          type: string
+          format: uuid
+        transactionDate:
+          type: string
+          format: date-time
+        gallons:
+          type: number
+          minimum: 0.1
+        totalAmount:
+          type: number
+          minimum: 0.01
+        odometerReading:
+          type: number
+          minimum: 0
+        location:
+          $ref: '#/components/schemas/Location'
+        fuelType:
+          type: string
+          enum: [DIESEL, GASOLINE, ELECTRIC, HYBRID, CNG, PROPANE]
+          default: DIESEL
+        fuelCardNumber:
+          type: string
+        transactionId:
+          type: string
+        notes:
+          type: string
+    FuelTransaction:
+      allOf:
+        - $ref: '#/components/schemas/FuelTransactionCreate'
+        - type: object
+          properties:
+            id:
+              type: string
+              format: uuid
+            createdAt:
+              type: string
+              format: date-time
+            updatedAt:
+              type: string
+              format: date-time
+            status:
+              type: string
+              enum: [PENDING, VERIFIED, FLAGGED, REJECTED]
+              default: PENDING
+            verificationMethod:
+              type: string
+              enum: [AUTOMATIC, MANUAL, TELEMATICS]
+            fraudScore:
+              type: number
+              minimum: 0
+              maximum: 100
+    Location:
+      type: object
+      required:
+        - latitude
+        - longitude
+      properties:
+        latitude:
+          type: number
+          minimum: -90
+          maximum: 90
+        longitude:
+          type: number
+          minimum: -180
+          maximum: 180
+        address:
+          type: string
+        city:
+          type: string
+        state:
+          type: string
+        zipCode:
+          type: string
+        country:
+          type: string
+          default: US
+    PaginatedFuelTransactions:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/FuelTransaction'
+        pagination:
+          $ref: '#/components/schemas/Pagination'
+    Pagination:
+      type: object
+      properties:
+        total:
+          type: integer
+        page:
+          type: integer
+        limit:
+          type: integer
+        totalPages:
+          type: integer
+    FuelEfficiency:
+      type: object
+      properties:
+        vehicleId:
+          type: string
+          format: uuid
+        period:
+          type: string
+          enum: [DAILY, WEEKLY, MONTHLY, QUARTERLY, YEARLY]
+        startDate:
+          type: string
+          format: date
+        endDate:
+          type: string
+          format: date
+        averageMpg:
+          type: number
+        totalMiles:
+          type: number
+        totalGallons:
+          type: number
+        totalCost:
+          type: number
+        efficiencyTrend:
+          type: number
+        comparisonToFleet:
+          type: number
+        comparisonToManufacturer:
+          type: number
+        anomalies:
+          type: array
+          items:
+            $ref: '#/components/schemas/FuelAnomaly'
+    FuelAnomaly:
+      type: object
+      properties:
+        date:
+          type: string
+          format: date
+        actualMpg:
+          type: number
+        expectedMpg:
+          type: number
+        deviation:
+          type: number
+        reason:
+          type: string
+  parameters:
+    vehicleId:
+      name: vehicleId
+      in: query
+      schema:
+        type: string
+        format: uuid
+    driverId:
+      name: driverId
+      in: query
+      schema:
+        type: string
+        format: uuid
+    startDate:
+      name: startDate
+      in: query
+      schema:
+        type: string
+        format: date
+    endDate:
+      name: endDate
+      in: query
+      schema:
+        type: string
+        format: date
+    page:
+      name: page
+      in: query
+      schema:
+        type: integer
+        default: 1
+    limit:
+      name: limit
+      in: query
+      schema:
+        type: integer
+        default: 20
+        maximum: 100
+    period:
+      name: period
+      in: query
+      schema:
+        type: string
+        enum: [DAILY, WEEKLY, MONTHLY, QUARTERLY, YEARLY]
+        default: MONTHLY
+```
+
+**Data Models:**
+
+```typescript
+// src/fuel/models/fuel-transaction.model.ts
+import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, ManyToOne, Index } from 'typeorm';
+import { Vehicle } from '../../vehicle/models/vehicle.model';
+import { Driver } from '../../driver/models/driver.model';
+
+export enum FuelType {
+  DIESEL = 'DIESEL',
+  GASOLINE = 'GASOLINE',
+  ELECTRIC = 'ELECTRIC',
+  HYBRID = 'HYBRID',
+  CNG = 'CNG',
+  PROPANE = 'PROPANE'
+}
+
+export enum TransactionStatus {
+  PENDING = 'PENDING',
+  VERIFIED = 'VERIFIED',
+  FLAGGED = 'FLAGGED',
+  REJECTED = 'REJECTED'
+}
+
+export enum VerificationMethod {
+  AUTOMATIC = 'AUTOMATIC',
+  MANUAL = 'MANUAL',
+  TELEMATICS = 'TELEMATICS'
+}
+
+@Entity('fuel_transactions')
+@Index(['vehicleId', 'transactionDate'])
+@Index(['driverId', 'transactionDate'])
+@Index(['transactionDate'])
+export class FuelTransaction {
+  @PrimaryGeneratedColumn('uuid')
+  id: string;
+
+  @Column({ type: 'uuid' })
+  vehicleId: string;
+
+  @ManyToOne(() => Vehicle, { onDelete: 'CASCADE' })
+  vehicle: Vehicle;
+
+  @Column({ type: 'uuid' })
+  driverId: string;
+
+  @ManyToOne(() => Driver, { onDelete: 'SET NULL' })
+  driver: Driver;
+
+  @Column({ type: 'timestamptz' })
+  transactionDate: Date;
+
+  @Column({ type: 'decimal', precision: 10, scale: 3 })
+  gallons: number;
+
+  @Column({ type: 'decimal', precision: 10, scale: 2 })
+  totalAmount: number;
+
+  @Column({ type: 'decimal', precision: 10, scale: 1 })
+  odometerReading: number;
+
+  @Column({ type: 'jsonb' })
+  location: {
+    latitude: number;
+    longitude: number;
+    address?: string;
+    city?: string;
+    state?: string;
+    zipCode?: string;
+    country?: string;
+  };
+
+  @Column({
+    type: 'enum',
+    enum: FuelType,
+    default: FuelType.DIESEL
+  })
+  fuelType: FuelType;
+
+  @Column({ type: 'varchar', length: 50, nullable: true })
+  fuelCardNumber: string;
+
+  @Column({ type: 'varchar', length: 100, nullable: true })
+  transactionId: string;
+
+  @Column({ type: 'text', nullable: true })
+  notes: string;
+
+  @Column({
+    type: 'enum',
+    enum: TransactionStatus,
+    default: TransactionStatus.PENDING
+  })
+  status: TransactionStatus;
+
+  @Column({
+    type: 'enum',
+    enum: VerificationMethod,
+    nullable: true
+  })
+  verificationMethod: VerificationMethod;
+
+  @Column({ type: 'decimal', precision: 5, scale: 2, nullable: true })
+  fraudScore: number;
+
+  @CreateDateColumn({ type: 'timestamptz' })
+  createdAt: Date;
+
+  @UpdateDateColumn({ type: 'timestamptz' })
+  updatedAt: Date;
+
+  // Virtual property for efficiency calculation
+  get mpg(): number {
+    if (this.odometerReading <= 0 || this.gallons <= 0) return 0;
+    return this.odometerReading / this.gallons;
+  }
+}
+```
+
+**State Management:**
+- **Optimistic Concurrency Control**: Using version numbers for conflict detection
+- **Event Sourcing**: For audit trail and historical state reconstruction
+- **Saga Pattern**: For distributed transactions across services
+
+**Error Handling:**
+- **Domain Errors**: Specific error classes for business rule violations
+- **Validation Errors**: Input validation with detailed error messages
+- **Infrastructure Errors**: Retry policies for transient failures
+- **Circuit Breakers**: For external service dependencies
+
+#### 2.2.2 Vehicle Service
+
+**Responsibilities:**
+- Vehicle master data management
+- Odometer reading tracking
+- Vehicle maintenance history
+- Fuel efficiency baselines
+- Vehicle assignment to drivers
+
+**Interface Contracts:**
+
+```yaml
+openapi: 3.0.1
+info:
+  title: Vehicle Service API
+  version: 1.0.0
+paths:
+  /api/vehicles:
+    post:
+      summary: Create a new vehicle
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/VehicleCreate'
+      responses:
+        '201':
+          description: Vehicle created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Vehicle'
+    get:
+      summary: List vehicles
+      parameters:
+        - $ref: '#/components/parameters/fleetId'
+        - $ref: '#/components/parameters/vehicleType'
+        - $ref: '#/components/parameters/status'
+        - $ref: '#/components/parameters/page'
+        - $ref: '#/components/parameters/limit'
+      responses:
+        '200':
+          description: List of vehicles
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedVehicles'
+  /api/vehicles/{id}:
+    get:
+      summary: Get vehicle by ID
+      parameters:
+        - $ref: '#/components/parameters/id'
+      responses:
+        '200':
+          description: Vehicle details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Vehicle'
+    put:
+      summary: Update vehicle
+      parameters:
+        - $ref: '#/components/parameters/id'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/VehicleUpdate'
+      responses:
+        '200':
+          description: Vehicle updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Vehicle'
+    delete:
+      summary: Delete vehicle
+      parameters:
+        - $ref: '#/components/parameters/id'
+      responses:
+        '204':
+          description: Vehicle deleted
+  /api/vehicles/{id}/odometer:
+    post:
+      summary: Record odometer reading
+      parameters:
+        - $ref: '#/components/parameters/id'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OdometerReadingCreate'
+      responses:
+        '201':
+          description: Odometer reading recorded
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OdometerReading'
+components:
+  schemas:
+    VehicleCreate:
+      type: object
+      required:
+        - vin
+        - licensePlate
+        - make
+        - model
+        - year
+        - vehicleType
+        - fuelType
+        - fleetId
+      properties:
+        vin:
+          type: string
+          minLength: 17
+          maxLength: 17
+        licensePlate:
+          type: string
+          minLength: 1
+          maxLength: 20
+        make:
+          type: string
+          minLength: 1
+          maxLength: 50
+        model:
+          type: string
+          minLength: 1
+          maxLength: 50
+        year:
+          type: integer
+          minimum: 1900
+          maximum: 2100
+        vehicleType:
+          type: string
+          enum: [TRUCK, VAN, CAR, TRAILER, EQUIPMENT]
+        fuelType:
+          $ref: '#/components/schemas/FuelType'
+        fleetId:
+          type: string
+          format: uuid
+        color:
+          type: string
+          minLength: 1
+          maxLength: 30
+        purchaseDate:
+          type: string
+          format: date
+        inServiceDate:
+          type: string
+          format: date
+        outOfServiceDate:
+          type: string
+          format: date
+        notes:
+          type: string
+    Vehicle:
+      allOf:
+        - $ref: '#/components/schemas/VehicleCreate'
+        - type: object
+          properties:
+            id:
+              type: string
+              format: uuid
+            status:
+              type: string
+              enum: [ACTIVE, INACTIVE, MAINTENANCE, RETIRED]
+              default: ACTIVE
+            currentOdometer:
+              type: number
+              minimum: 0
+            fuelEfficiencyBaseline:
+              type: number
+              minimum: 0
+            createdAt:
+              type: string
+              format: date-time
+            updatedAt:
+              type: string
+              format: date-time
+    VehicleUpdate:
+      type: object
+      properties:
+        licensePlate:
+          type: string
+          minLength: 1
+          maxLength: 20
+        status:
+          type: string
+          enum: [ACTIVE, INACTIVE, MAINTENANCE, RETIRED]
+        color:
+          type: string
+          minLength: 1
+          maxLength: 30
+        outOfServiceDate:
+          type: string
+          format: date
+        notes:
+          type: string
+    OdometerReadingCreate:
+      type: object
+      required:
+        - reading
+        - readingDate
+        - source
+      properties:
+        reading:
+          type: number
+          minimum: 0
+        readingDate:
+          type: string
+          format: date-time
+        source:
+          type: string
+          enum: [MANUAL, TELEMATICS, FUEL_TRANSACTION]
+        notes:
+          type: string
+    OdometerReading:
+      allOf:
+        - $ref: '#/components/schemas/OdometerReadingCreate'
+        - type: object
+          properties:
+            id:
+              type: string
+              format: uuid
+            vehicleId:
+              type: string
+              format: uuid
+            createdAt:
+              type: string
+              format: date-time
+    FuelType:
+      type: string
+      enum: [DIESEL, GASOLINE, ELECTRIC, HYBRID, CNG, PROPANE]
+    PaginatedVehicles:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Vehicle'
+        pagination:
+          $ref: '#/components/schemas/Pagination'
+  parameters:
+    id:
+      name: id
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+    fleetId:
+      name: fleetId
+      in: query
+      schema:
+        type: string
+        format: uuid
+    vehicleType:
+      name: vehicleType
+      in: query
+      schema:
+        type: string
+        enum: [TRUCK, VAN, CAR, TRAILER, EQUIPMENT]
+    status:
+      name: status
+      in: query
+      schema:
+        type: string
+        enum: [ACTIVE, INACTIVE, MAINTENANCE, RETIRED]
+```
+
+**Data Models:**
+
+```typescript
+// src/vehicle/models/vehicle.model.ts
+import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, OneToMany, Index } from 'typeorm';
+import { OdometerReading } from './odometer-reading.model';
+import { VehicleAssignment } from './vehicle-assignment.model';
+
+export enum VehicleType {
+  TRUCK = 'TRUCK',
+  VAN = 'VAN',
+  CAR = 'CAR',
+  TRAILER = 'TRAILER',
+  EQUIPMENT = 'EQUIPMENT'
+}
+
+export enum VehicleStatus {
+  ACTIVE = 'ACTIVE',
+  INACTIVE = 'INACTIVE',
+  MAINTENANCE = 'MAINTENANCE',
+  RETIRED = 'RETIRED'
+}
+
+@Entity('vehicles')
+@Index(['vin'], { unique: true })
+@Index(['licensePlate'], { unique: true })
+@Index(['fleetId'])
+export class Vehicle {
+  @PrimaryGeneratedColumn('uuid')
+  id: string;
+
+  @Column({ type: 'varchar', length: 17 })
+  vin: string;
+
+  @Column({ type: 'varchar', length: 20 })
+  licensePlate: string;
+
+  @Column({ type: 'varchar', length: 50 })
+  make: string;
+
+  @Column({ type: 'varchar', length: 50 })
+  model: string;
+
+  @Column({ type: 'int' })
+  year: number;
+
+  @Column({
+    type: 'enum',
+    enum: VehicleType
+  })
+  vehicleType: VehicleType;
+
+  @Column({
+    type: 'enum',
+    enum: FuelType
+  })
+  fuelType: FuelType;
+
+  @Column({ type: 'uuid' })
+  fleetId: string;
+
+  @Column({ type: 'varchar', length: 30, nullable: true })
+  color: string;
+
+  @Column({ type: 'date', nullable: true })
+  purchaseDate: Date;
+
+  @Column({ type: 'date', nullable: true })
+  inServiceDate: Date;
+
+  @Column({ type: 'date', nullable: true })
+  outOfServiceDate: Date;
+
+  @Column({
+    type: 'enum',
+    enum: VehicleStatus,
+    default: VehicleStatus.ACTIVE
+  })
+  status: VehicleStatus;
+
+  @Column({ type: 'decimal', precision: 10, scale: 1, nullable: true })
+  currentOdometer: number;
+
+  @Column({ type: 'decimal', precision: 5, scale: 2, nullable: true })
+  fuelEfficiencyBaseline: number;
+
+  @Column({ type: 'text', nullable: true })
+  notes: string;
+
+  @CreateDateColumn({ type: 'timestamptz' })
+  createdAt: Date;
+
+  @UpdateDateColumn({ type: 'timestamptz' })
+  updatedAt: Date;
+
+  @OneToMany(() => OdometerReading, reading => reading.vehicle)
+  odometerReadings: OdometerReading[];
+
+  @OneToMany(() => VehicleAssignment, assignment => assignment.vehicle)
+  assignments: VehicleAssignment[];
+}
+
+// src/vehicle/models/odometer-reading.model.ts
+import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, ManyToOne, Index } from 'typeorm';
+import { Vehicle } from './vehicle.model';
+
+export enum OdometerSource {
+  MANUAL = 'MANUAL',
+  TELEMATICS = 'TELEMATICS',
+  FUEL_TRANSACTION = 'FUEL_TRANSACTION'
+}
+
+@Entity('odometer_readings')
+@Index(['vehicleId', 'readingDate'], { unique: true })
+export class OdometerReading {
+  @PrimaryGeneratedColumn('uuid')
+  id: string;
+
+  @Column({ type: 'uuid' })
+  vehicleId: string;
+
+  @ManyToOne(() => Vehicle, { onDelete: 'CASCADE' })
+  vehicle: Vehicle;
+
+  @Column({ type: 'decimal', precision: 10, scale: 1 })
+  reading: number;
+
+  @Column({ type: 'timestamptz' })
+  readingDate: Date;
+
+  @Column({
+    type: 'enum',
+    enum: OdometerSource
+  })
+  source: OdometerSource;
+
+  @Column({ type: 'text', nullable: true })
+  notes: string;
+
+  @CreateDateColumn({ type: 'timestamptz' })
+  createdAt: Date;
+}
+```
+
+#### 2.2.3 Driver Service
+
+**Responsibilities:**
+- Driver master data management
+- Driver assignment to vehicles
+- Driver performance metrics
+- Fuel efficiency coaching
+- Safety score tracking
+
+**Interface Contracts:**
+
+```yaml
+openapi: 3.0.1
+info:
+  title: Driver Service API
+  version: 1.0.0
+paths:
+  /api/drivers:
+    post:
+      summary: Create a new driver
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DriverCreate'
+      responses:
+        '201':
+          description: Driver created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Driver'
+    get:
+      summary: List drivers
+      parameters:
+        - $ref: '#/components/parameters/fleetId'
+        - $ref: '#/components/parameters/status'
+        - $ref: '#/components/parameters/licenseType'
+        - $ref: '#/components/parameters/page'
+        - $ref: '#/components/parameters/limit'
+      responses:
+        '200':
+          description: List of drivers
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedDrivers'
+  /api/drivers/{id}:
+    get:
+      summary: Get driver by ID
+      parameters:
+        - $ref: '#/components/parameters/id'
+      responses:
+        '200':
+          description: Driver details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Driver'
+    put:
+      summary: Update driver
+      parameters:
+        - $ref: '#/components/parameters/id'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DriverUpdate'
+      responses:
+        '200':
+          description: Driver updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Driver'
+    delete:
+      summary: Delete driver
+      parameters:
+        - $ref: '#/components/parameters/id'
+      responses:
+        '204':
+          description: Driver deleted
+  /api/drivers/{id}/performance:
+    get:
+      summary: Get driver performance metrics
+      parameters:
+        - $ref: '#/components/parameters/id'
+        - $ref: '#/components/parameters/period'
+      responses:
+        '200':
+          description: Driver performance metrics
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DriverPerformance'
+components:
+  schemas:
+    DriverCreate:
+      type: object
+      required:
+        - firstName
+        - lastName
+        - licenseNumber
+        - licenseType
+        - fleetId
+      properties:
+        firstName:
+          type: string
+          minLength: 1
+          maxLength: 50
+        lastName:
+          type: string
+          minLength: 1
+          maxLength: 50
+        licenseNumber:
+          type: string
+          minLength: 1
+          maxLength: 50
+        licenseType:
+          type: string
+          enum: [CLASS_A, CLASS_B, CLASS_C, CHAUFFEUR, OTHER]
+        fleetId:
+          type: string
+          format: uuid
+        dateOfBirth:
+          type: string
+          format: date
+        hireDate:
+          type: string
+          format: date
+        terminationDate:
+          type: string
+          format: date
+        email:
+          type: string
+          format: email
+        phone:
+          type: string
+        address:
+          $ref: '#/components/schemas/Address'
+        notes:
+          type: string
+    Driver:
+      allOf:
+        - $ref: '#/components/schemas/DriverCreate'
+        - type: object
+          properties:
+            id:
+              type: string
+              format: uuid
+            status:
+              type: string
+              enum: [ACTIVE, INACTIVE, ON_LEAVE, TERMINATED]
+              default: ACTIVE
+            fuelEfficiencyScore:
+              type: number
+              minimum: 0
+              maximum: 100
+            safetyScore:
+              type: number
+              minimum: 0
+              maximum: 100
+            createdAt:
+              type: string
+              format: date-time
+            updatedAt:
+              type: string
+              format: date-time
+    DriverUpdate:
+      type: object
+      properties:
+        firstName:
+          type: string
+          minLength: 1
+          maxLength: 50
+        lastName:
+          type: string
+          minLength: 1
+          maxLength: 50
+        licenseNumber:
+          type: string
+          minLength: 1
+          maxLength: 50
+        licenseType:
+          type: string
+          enum: [CLASS_A, CLASS_B, CLASS_C, CHAUFFEUR, OTHER]
+        status:
+          type: string
+          enum: [ACTIVE, INACTIVE, ON_LEAVE, TERMINATED]
+        terminationDate:
+          type: string
+          format: date
+        email:
+          type: string
+          format: email
+        phone:
+          type: string
+        address:
+          $ref: '#/components/schemas/Address'
+        notes:
+          type: string
+    Address:
+      type: object
+      properties:
+        street:
+          type: string
+        city:
+          type: string
+        state:
+          type: string
+        zipCode:
+          type: string
+        country:
+          type: string
+          default: US
+    DriverPerformance:
+      type: object
+      properties:
+        driverId:
+          type: string
+          format: uuid
+        period:
+          type: string
+          enum: [DAILY, WEEKLY, MONTHLY, QUARTERLY, YEARLY]
+        startDate:
+          type: string
+          format: date
+        endDate:
+          type: string
+          format: date
+        averageMpg:
+          type: number
+        totalMiles:
+          type: number
+        totalGallons:
+          type: number
+        totalCost:
+          type: number
+        efficiencyScore:
+          type: number
+          minimum: 0
+          maximum: 100
+        safetyScore:
+          type: number
+          minimum: 0
+          maximum: 100
+        idlingTime:
+          type: number
+        hardBrakingEvents:
+          type: integer
+        speedingEvents:
+          type: integer
+        comparisonToFleet:
+          type: number
+        coachingOpportunities:
+          type: array
+          items:
+            $ref: '#/components/schemas/CoachingOpportunity'
+    CoachingOpportunity:
+      type: object
+      properties:
+        type:
+          type: string
+          enum: [IDLING, SPEEDING, HARD_BRAKING, ROUTE_EFFICIENCY]
+        description:
+          type: string
+        impact:
+          type: string
+        recommendation:
+          type: string
+        severity:
+          type: string
+          enum: [LOW, MEDIUM, HIGH]
+    PaginatedDrivers:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Driver'
+        pagination:
+          $ref: '#/components/schemas/Pagination'
+```
+
+**Data Models:**
+
+```typescript
+// src/driver/models/driver.model.ts
+import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, Index } from 'typeorm';
+
+export enum LicenseType {
+  CLASS_A = 'CLASS_A',
+  CLASS_B = 'CLASS_B',
+  CLASS_C = 'CLASS_C',
+  CHAUFFEUR = 'CHAUFFEUR',
+  OTHER = 'OTHER'
+}
+
+export enum DriverStatus {
+  ACTIVE = 'ACTIVE',
+  INACTIVE = 'INACTIVE',
+  ON_LEAVE = 'ON_LEAVE',
+  TERMINATED = 'TERMINATED'
+}
+
+@Entity('drivers')
+@Index(['licenseNumber'], { unique: true })
+@Index(['fleetId'])
+export class Driver {
+  @PrimaryGeneratedColumn('uuid')
+  id: string;
+
+  @Column({ type: 'varchar', length: 50 })
+  firstName: string;
+
+  @Column({ type: 'varchar', length: 50 })
+  lastName: string;
+
+  @Column({ type: 'varchar', length: 50 })
+  licenseNumber: string;
+
+  @Column({
+    type: 'enum',
+    enum: LicenseType
+  })
+  licenseType: LicenseType;
+
+  @Column({ type: 'uuid' })
+  fleetId: string;
+
+  @Column({ type: 'date', nullable: true })
+  dateOfBirth: Date;
+
+  @Column({ type: 'date', nullable: true })
+  hireDate: Date;
+
+  @Column({ type: 'date', nullable: true })
+  terminationDate: Date;
+
+  @Column({ type: 'varchar', length: 255, nullable: true })
+  email: string;
+
+  @Column({ type: 'varchar', length: 20, nullable: true })
+  phone: string;
+
+  @Column({ type: 'jsonb', nullable: true })
+  address: {
+    street: string;
+    city: string;
+    state: string;
+    zipCode: string;
+    country: string;
+  };
+
+  @Column({
+    type: 'enum',
+    enum: DriverStatus,
+    default: DriverStatus.ACTIVE
+  })
+  status: DriverStatus;
+
+  @Column({ type: 'decimal', precision: 5, scale: 2, nullable: true })
+  fuelEfficiencyScore: number;
+
+  @Column({ type: 'decimal', precision: 5, scale: 2, nullable: true })
+  safetyScore: number;
+
+  @Column({ type: 'text', nullable: true })
+  notes: string;
+
+  @CreateDateColumn({ type: 'timestamptz' })
+  createdAt: Date;
+
+  @UpdateDateColumn({ type: 'timestamptz' })
+  updatedAt: Date;
+}
+```
+
+### 2.3 Infrastructure Architecture
+
+**Container Orchestration (Kubernetes):**
+
+```yaml
+# fuel-service-deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: fuel-service
+  labels:
+    app: fuel-service
+    tier: backend
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: fuel-service
+  strategy:
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        app: fuel-service
+        version: v1
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "3000"
+    spec:
+      serviceAccountName: fuel-service
+      containers:
+      - name: fuel-service
+        image: acrfleetregistry.azurecr.io/fuel-service:v1.2.3
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 3000
+          name: http
+          protocol: TCP
+        envFrom:
+        - configMapRef:
+            name: fuel-service-config
+        - secretRef:
+            name: fuel-service-secrets
+        resources:
+          requests:
+            cpu: "100m"
+            memory: "256Mi"
+          limits:
+            cpu: "500m"
+            memory: "512Mi"
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 3000
+          initialDelaySeconds: 30
+          periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 3
+        readinessProbe:
+          httpGet:
+            path: /ready
+            port: 3000
+          initialDelaySeconds: 5
+          periodSeconds: 5
+          timeoutSeconds: 3
+          failureThreshold: 1
+        securityContext:
+          runAsNonRoot: true
+          runAsUser: 1000
+          readOnlyRootFilesystem: true
+          capabilities:
+            drop: ["ALL"]
+          allowPrivilegeEscalation: false
+      nodeSelector:
+        agentpool: backend
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 100
+            podAffinityTerm:
+              labelSelector:
+                matchExpressions:
+                - key: app
+                  operator: In
+                  values:
+                  - fuel-service
+              topologyKey: "kubernetes.io/hostname"
 ---
-
-## **Table of Contents**
-1. [Executive Vision](#executive-vision)
-2. [Performance Enhancements](#performance-enhancements)
-3. [Real-Time Features](#real-time-features)
-4. [AI/ML Capabilities](#aiml-capabilities)
-5. [Progressive Web App (PWA) Features](#progressive-web-app-pwa-features)
-6. [WCAG 2.1 AAA Accessibility](#wcag-21-aaa-accessibility)
-7. [Advanced Search and Filtering](#advanced-search-and-filtering)
-8. [Third-Party Integrations](#third-party-integrations)
-9. [Gamification System](#gamification-system)
-10. [Analytics Dashboards](#analytics-dashboards)
-11. [Security Hardening](#security-hardening)
-12. [Comprehensive Testing](#comprehensive-testing)
-13. [Kubernetes Deployment](#kubernetes-deployment)
-14. [Database Migration Strategy](#database-migration-strategy)
-15. [Key Performance Indicators (KPIs)](#key-performance-indicators-kpis)
-16. [Risk Mitigation](#risk-mitigation)
-
+apiVersion: v1
+kind: Service
+metadata:
+  name: fuel-service
+  labels:
+    app: fuel-service
+spec:
+  selector:
+    app: fuel-service
+  ports:
+  - name: http
+    port: 80
+    targetPort: 3000
+  type: ClusterIP
 ---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: fuel-service-hpa
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: fuel-service
+  minReplicas: 3
+  maxReplicas: 10
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: 70
+  - type: Resource
+    resource:
+      name: memory
+      target:
+        type: Utilization
+        averageUtilization: 80
+  - type: External
+    external:
+      metric:
+        name: requests_per_second
+        selector:
+          matchLabels:
+            app: fuel-service
+      target:
+        type: AverageValue
+        averageValue: 1000
+```
 
-## **Executive Vision**
-*(100+ lines minimum)*
+**Cloud Services Utilization (Azure):**
 
-### **1. Strategic Vision**
-The **next-generation Fuel Management System (FMS)** will revolutionize fleet operations by integrating **real-time analytics, AI-driven predictions, and seamless third-party integrations** to optimize fuel efficiency, reduce costs, and enhance operational transparency. This system will serve as the **cornerstone of digital transformation** for logistics, aviation, and maritime industries, ensuring **scalability, security, and compliance** with global fuel regulations.
-
-### **2. Business Transformation Goals**
-- **Cost Reduction:** Achieve **15-20% fuel savings** through AI-driven route optimization and anomaly detection.
-- **Operational Efficiency:** Reduce manual fuel tracking by **90%** via automated IoT sensor integration.
-- **Regulatory Compliance:** Ensure **100% adherence** to EPA, IMO, and EU fuel emission standards.
-- **Customer Experience:** Provide **real-time fuel tracking dashboards** for fleet managers and drivers.
-- **Sustainability:** Reduce carbon footprint by **25%** through predictive maintenance and fuel-efficient routing.
-
-### **3. User Experience Improvements**
-- **Mobile-First Design:** Progressive Web App (PWA) with **offline capabilities** for remote operations.
-- **Voice-Activated Commands:** Integration with **Amazon Alexa and Google Assistant** for hands-free fuel logging.
-- **Augmented Reality (AR) Overlays:** Real-time fuel level visualization via **AR glasses** for maintenance crews.
-- **Personalized Dashboards:** Role-based UIs for **drivers, fleet managers, and executives** with customizable widgets.
-- **Multi-Language Support:** **12+ languages** with dynamic localization.
-
-### **4. Competitive Advantages**
-| **Feature**               | **Competitor A** | **Competitor B** | **Our FMS** |
-|---------------------------|------------------|------------------|-------------|
-| Real-Time Fuel Monitoring | ❌ No            | ✅ Yes           | ✅ **AI-Powered** |
-| Predictive Maintenance    | ❌ No            | ❌ No            | ✅ **ML-Driven** |
-| PWA Offline Mode          | ❌ No            | ❌ No            | ✅ **Full Offline Support** |
-| Third-Party Integrations  | Limited (2)      | Basic (3)        | ✅ **10+ Integrations** |
-| WCAG 2.1 AAA Compliance   | ❌ No            | ❌ No            | ✅ **Fully Compliant** |
-
-### **5. Long-Term Roadmap**
-| **Phase** | **Timeline** | **Key Deliverables** |
-|-----------|-------------|----------------------|
-| **Phase 1 (Q1 2024)** | 3 months | Core FMS, PWA, Basic AI Analytics |
-| **Phase 2 (Q3 2024)** | 6 months | Advanced ML, AR Integration, Blockchain for Fuel Tracking |
-| **Phase 3 (Q1 2025)** | 9 months | Autonomous Fuel Optimization, Carbon Credit Trading |
-| **Phase 4 (Q3 2025)** | 12 months | Global Expansion, Multi-Cloud Deployment |
-
----
-
-## **Performance Enhancements**
-*(250+ lines minimum)*
-
-### **1. Redis Caching Layer**
-```typescript
-// src/cache/redisCache.ts
-import { createClient, RedisClientType } from 'redis';
-import { logger } from '../utils/logger';
-
-class RedisCache {
-  private client: RedisClientType;
-  private readonly DEFAULT_TTL = 3600; // 1 hour
-
-  constructor() {
-    this.client = createClient({
-      url: process.env.REDIS_URL || 'redis://localhost:6379',
-    });
-
-    this.client.on('error', (err) => {
-      logger.error('Redis Client Error:', err);
-    });
-
-    this.client.connect().catch((err) => {
-      logger.error('Redis Connection Error:', err);
-    });
-  }
-
-  async set(key: string, value: any, ttl?: number): Promise<void> {
-    try {
-      const stringValue = JSON.stringify(value);
-      await this.client.set(key, stringValue, {
-        EX: ttl || this.DEFAULT_TTL,
-      });
-      logger.info(`Cached key: ${key}`);
-    } catch (err) {
-      logger.error(`Failed to cache key ${key}:`, err);
-      throw new Error('Redis set operation failed');
+```terraform
+# main.tf
+terraform {
+  required_version = ">= 1.0.0"
+  required_providers {
+    azurerm = {
+      source  = "hashicorp/azurerm"
+      version = "~> 3.0"
     }
-  }
-
-  async get<T>(key: string): Promise<T | null> {
-    try {
-      const value = await this.client.get(key);
-      if (!value) return null;
-      return JSON.parse(value) as T;
-    } catch (err) {
-      logger.error(`Failed to retrieve key ${key}:`, err);
-      return null;
-    }
-  }
-
-  async delete(key: string): Promise<void> {
-    try {
-      await this.client.del(key);
-      logger.info(`Deleted key: ${key}`);
-    } catch (err) {
-      logger.error(`Failed to delete key ${key}:`, err);
-      throw new Error('Redis delete operation failed');
-    }
-  }
-
-  async clearCache(pattern: string = '*'): Promise<void> {
-    try {
-      const keys = await this.client.keys(pattern);
-      if (keys.length > 0) {
-        await this.client.del(keys);
-        logger.info(`Cleared ${keys.length} keys matching pattern: ${pattern}`);
-      }
-    } catch (err) {
-      logger.error('Failed to clear cache:', err);
-      throw new Error('Redis clear operation failed');
+    azuread = {
+      source  = "hashicorp/azuread"
+      version = "~> 2.0"
     }
   }
 }
 
-export const redisCache = new RedisCache();
-```
+provider "azurerm" {
+  features {}
+}
 
-### **2. Database Query Optimization**
-```typescript
-// src/database/queryOptimizer.ts
-import { PrismaClient } from '@prisma/client';
-import { logger } from '../utils/logger';
-
-const prisma = new PrismaClient();
-
-class QueryOptimizer {
-  async getFuelConsumptionReport(vehicleId: string, startDate: Date, endDate: Date) {
-    try {
-      // Optimized query with indexing on vehicleId and timestamp
-      const report = await prisma.fuelTransaction.findMany({
-        where: {
-          vehicleId,
-          timestamp: {
-            gte: startDate,
-            lte: endDate,
-          },
-        },
-        select: {
-          id: true,
-          amount: true,
-          timestamp: true,
-          odometerReading: true,
-          location: true,
-        },
-        orderBy: {
-          timestamp: 'asc',
-        },
-      });
-
-      // Calculate fuel efficiency (km/l)
-      const efficiencyData = report.map((entry, index) => {
-        if (index === 0) return null;
-        const distance = entry.odometerReading - report[index - 1].odometerReading;
-        const fuelUsed = report[index - 1].amount;
-        return {
-          timestamp: entry.timestamp,
-          efficiency: distance / fuelUsed,
-        };
-      }).filter(Boolean);
-
-      return {
-        transactions: report,
-        efficiency: efficiencyData,
-      };
-    } catch (err) {
-      logger.error('Failed to fetch fuel consumption report:', err);
-      throw new Error('Database query failed');
-    }
-  }
-
-  async batchInsertFuelTransactions(transactions: Array<{
-    vehicleId: string;
-    amount: number;
-    timestamp: Date;
-    odometerReading: number;
-    location: string;
-  }>) {
-    try {
-      // Use Prisma's $transaction for batch inserts
-      await prisma.$transaction(
-        transactions.map((tx) =>
-          prisma.fuelTransaction.create({
-            data: tx,
-          })
-        )
-      );
-      logger.info(`Inserted ${transactions.length} fuel transactions in batch`);
-    } catch (err) {
-      logger.error('Batch insert failed:', err);
-      throw new Error('Database batch insert failed');
-    }
+# Resource Group
+resource "azurerm_resource_group" "fleet" {
+  name     = "rg-fleet-management-${var.environment}"
+  location = var.location
+  tags = {
+    Environment = var.environment
+    Application = "FleetManagement"
   }
 }
 
-export const queryOptimizer = new QueryOptimizer();
-```
+# AKS Cluster
+resource "azurerm_kubernetes_cluster" "fleet" {
+  name                = "aks-fleet-${var.environment}"
+  location            = azurerm_resource_group.fleet.location
+  resource_group_name = azurerm_resource_group.fleet.name
+  dns_prefix          = "fleet-${var.environment}"
 
-### **3. API Response Compression**
-```typescript
-// src/middleware/compressionMiddleware.ts
-import { Request, Response, NextFunction } from 'express';
-import compression from 'compression';
-import { logger } from '../utils/logger';
-
-export const compressionMiddleware = compression({
-  level: 6, // Optimal balance between speed and compression
-  threshold: 0, // Compress all responses
-  filter: (req: Request, res: Response) => {
-    if (req.headers['x-no-compression']) {
-      return false;
-    }
-    return compression.filter(req, res);
-  },
-});
-
-export const customCompression = (req: Request, res: Response, next: NextFunction) => {
-  try {
-    const originalSend = res.send;
-    res.send = function (body: any) {
-      if (typeof body === 'string' || Buffer.isBuffer(body)) {
-        res.setHeader('Content-Encoding', 'gzip');
-      }
-      return originalSend.call(this, body);
-    };
-    next();
-  } catch (err) {
-    logger.error('Compression middleware error:', err);
-    next(err);
-  }
-};
-```
-
-### **4. Lazy Loading Implementation**
-```typescript
-// src/utils/lazyLoader.ts
-import { logger } from './logger';
-
-type LazyLoadable<T> = () => Promise<T>;
-
-class LazyLoader {
-  private cache: Map<string, any> = new Map();
-  private loadingPromises: Map<string, Promise<any>> = new Map();
-
-  async load<T>(key: string, loader: LazyLoadable<T>): Promise<T> {
-    if (this.cache.has(key)) {
-      logger.info(`Returning cached value for key: ${key}`);
-      return this.cache.get(key);
-    }
-
-    if (this.loadingPromises.has(key)) {
-      logger.info(`Waiting for existing load of key: ${key}`);
-      return this.loadingPromises.get(key);
-    }
-
-    const loadPromise = loader()
-      .then((value) => {
-        this.cache.set(key, value);
-        this.loadingPromises.delete(key);
-        return value;
-      })
-      .catch((err) => {
-        this.loadingPromises.delete(key);
-        logger.error(`Failed to load key ${key}:`, err);
-        throw err;
-      });
-
-    this.loadingPromises.set(key, loadPromise);
-    return loadPromise;
+  default_node_pool {
+    name                = "default"
+    node_count          = 3
+    vm_size             = "Standard_D2_v2"
+    os_disk_size_gb     = 128
+    type                = "VirtualMachineScaleSets"
+    enable_auto_scaling = true
+    min_count           = 3
+    max_count           = 10
+    vnet_subnet_id      = azurerm_subnet.aks.id
   }
 
-  clear(key: string): void {
-    this.cache.delete(key);
-    this.loadingPromises.delete(key);
-    logger.info(`Cleared lazy-loaded key: ${key}`);
+  identity {
+    type = "SystemAssigned"
+  }
+
+  network_profile {
+    network_plugin     = "azure"
+    network_policy     = "azure"
+    load_balancer_sku  = "standard"
+    service_cidr       = "10.0.0.0/16"
+    dns_service_ip     = "10.0.0.10"
+    docker_bridge_cidr = "172.17.0.1/16"
+  }
+
+  addon_profile {
+    http_application_routing {
+      enabled = false
+    }
+    oms_agent {
+      enabled                    = true
+      log_analytics_workspace_id = azurerm_log_analytics_workspace.fleet.id
+    }
+    kube_dashboard {
+      enabled = false
+    }
+  }
+
+  tags = {
+    Environment = var.environment
   }
 }
 
-export const lazyLoader = new LazyLoader();
-```
+# PostgreSQL Flexible Server
+resource "azurerm_postgresql_flexible_server" "fleet" {
+  name                   = "psql-fleet-${var.environment}"
+  resource_group_name    = azurerm_resource_group.fleet.name
+  location               = azurerm_resource_group.fleet.location
+  version                = "14"
+  administrator_login    = var.db_admin_user
+  administrator_password = var.db_admin_password
+  zone                   = "1"
+  storage_mb             = 131072
+  sku_name               = "GP_Standard_D4s_v3"
+  backup_retention_days  = 7
 
-### **5. Request Debouncing**
-```typescript
-// src/utils/debouncer.ts
-import { logger } from './logger';
-
-class Debouncer {
-  private timers: Map<string, NodeJS.Timeout> = new Map();
-
-  debounce(key: string, callback: () => void, delay: number = 300): void {
-    if (this.timers.has(key)) {
-      clearTimeout(this.timers.get(key));
-    }
-
-    this.timers.set(
-      key,
-      setTimeout(() => {
-        try {
-          callback();
-          this.timers.delete(key);
-        } catch (err) {
-          logger.error(`Debounced function failed for key ${key}:`, err);
-        }
-      }, delay)
-    );
+  maintenance_window {
+    day_of_week  = 0
+    start_hour   = 2
+    start_minute = 0
   }
 
-  cancel(key: string): void {
-    if (this.timers.has(key)) {
-      clearTimeout(this.timers.get(key));
-      this.timers.delete(key);
-      logger.info(`Cancelled debounced key: ${key}`);
-    }
+  tags = {
+    Environment = var.environment
   }
 }
 
-export const debouncer = new Debouncer();
-```
+resource "azurerm_postgresql_flexible_server_database" "fleet" {
+  name      = "fleetdb"
+  server_id = azurerm_postgresql_flexible_server.fleet.id
+  collation = "en_US.utf8"
+  charset   = "utf8"
+}
 
-### **6. Connection Pooling**
-```typescript
-// src/database/connectionPool.ts
-import { Pool } from 'pg';
-import { logger } from '../utils/logger';
+resource "azurerm_postgresql_flexible_server_firewall_rule" "aks" {
+  name             = "aks-access"
+  server_id        = azurerm_postgresql_flexible_server.fleet.id
+  start_ip_address = "0.0.0.0"
+  end_ip_address   = "0.0.0.0"
+}
 
-class ConnectionPool {
-  private pool: Pool;
-  private readonly MAX_CONNECTIONS = 20;
-  private readonly IDLE_TIMEOUT = 30000; // 30 seconds
+# Redis Cache
+resource "azurerm_redis_cache" "fleet" {
+  name                = "redis-fleet-${var.environment}"
+  location            = azurerm_resource_group.fleet.location
+  resource_group_name = azurerm_resource_group.fleet.name
+  capacity            = 2
+  family              = "P"
+  sku_name            = "Premium"
+  enable_non_ssl_port = false
+  minimum_tls_version = "1.2"
 
-  constructor() {
-    this.pool = new Pool({
-      user: process.env.DB_USER,
-      host: process.env.DB_HOST,
-      database: process.env.DB_NAME,
-      password: process.env.DB_PASSWORD,
-      port: parseInt(process.env.DB_PORT || '5432'),
-      max: this.MAX_CONNECTIONS,
-      idleTimeoutMillis: this.IDLE_TIMEOUT,
-    });
-
-    this.pool.on('error', (err) => {
-      logger.error('PostgreSQL connection pool error:', err);
-    });
+  redis_configuration {
+    maxmemory_reserved = 2
+    maxmemory_delta    = 2
+    maxmemory_policy   = "allkeys-lru"
   }
 
-  async query(text: string, params?: any[]) {
-    const client = await this.pool.connect();
-    try {
-      const start = Date.now();
-      const result = await client.query(text, params);
-      const duration = Date.now() - start;
-      logger.info(`Executed query: ${text} (${duration}ms)`);
-      return result;
-    } catch (err) {
-      logger.error(`Query failed: ${text}`, err);
-      throw err;
-    } finally {
-      client.release();
-    }
-  }
-
-  async getClient() {
-    return this.pool.connect();
-  }
-
-  async end() {
-    await this.pool.end();
-    logger.info('PostgreSQL connection pool closed');
+  tags = {
+    Environment = var.environment
   }
 }
 
-export const connectionPool = new ConnectionPool();
-```
+# Event Hubs
+resource "azurerm_eventhub_namespace" "fleet" {
+  name                = "evhns-fleet-${var.environment}"
+  location            = azurerm_resource_group.fleet.location
+  resource_group_name = azurerm_resource_group.fleet.name
+  sku                 = "Standard"
+  capacity            = 1
 
----
-
-## **Real-Time Features**
-*(300+ lines minimum)*
-
-### **1. WebSocket Server Setup**
-```typescript
-// src/websocket/server.ts
-import { WebSocketServer } from 'ws';
-import { IncomingMessage } from 'http';
-import { logger } from '../utils/logger';
-import { authenticateWebSocket } from './auth';
-import { handleFuelUpdate } from './handlers/fuelUpdate';
-import { handleVehicleStatus } from './handlers/vehicleStatus';
-
-class WebSocketManager {
-  private wss: WebSocketServer;
-  private clients: Map<string, Set<WebSocket>> = new Map();
-
-  constructor(server: any) {
-    this.wss = new WebSocketServer({ server });
-
-    this.wss.on('connection', (ws: WebSocket, req: IncomingMessage) => {
-      this.handleConnection(ws, req);
-    });
-
-    logger.info('WebSocket server initialized');
-  }
-
-  private async handleConnection(ws: WebSocket, req: IncomingMessage) {
-    try {
-      const user = await authenticateWebSocket(req);
-      if (!user) {
-        ws.close(1008, 'Unauthorized');
-        return;
-      }
-
-      const vehicleId = req.url?.split('=')[1];
-      if (!vehicleId) {
-        ws.close(1003, 'Vehicle ID required');
-        return;
-      }
-
-      if (!this.clients.has(vehicleId)) {
-        this.clients.set(vehicleId, new Set());
-      }
-      this.clients.get(vehicleId)?.add(ws);
-
-      ws.on('message', (message) => {
-        this.handleMessage(ws, message, vehicleId);
-      });
-
-      ws.on('close', () => {
-        this.clients.get(vehicleId)?.delete(ws);
-        logger.info(`Client disconnected from vehicle ${vehicleId}`);
-      });
-
-      logger.info(`Client connected to vehicle ${vehicleId}`);
-    } catch (err) {
-      logger.error('WebSocket connection error:', err);
-      ws.close(1011, 'Internal server error');
-    }
-  }
-
-  private handleMessage(ws: WebSocket, message: any, vehicleId: string) {
-    try {
-      const data = JSON.parse(message.toString());
-      switch (data.type) {
-        case 'FUEL_UPDATE':
-          handleFuelUpdate(vehicleId, data.payload);
-          break;
-        case 'VEHICLE_STATUS':
-          handleVehicleStatus(vehicleId, data.payload);
-          break;
-        default:
-          logger.warn(`Unknown message type: ${data.type}`);
-      }
-    } catch (err) {
-      logger.error('Failed to parse WebSocket message:', err);
-    }
-  }
-
-  broadcast(vehicleId: string, message: any) {
-    const clients = this.clients.get(vehicleId);
-    if (!clients) return;
-
-    const payload = JSON.stringify(message);
-    clients.forEach((client) => {
-      if (client.readyState === WebSocket.OPEN) {
-        client.send(payload);
-      }
-    });
+  tags = {
+    Environment = var.environment
   }
 }
 
-export const webSocketManager = (server: any) => new WebSocketManager(server);
+resource "azurerm_eventhub" "fuel_transactions" {
+  name                = "fuel-transactions"
+  namespace_name      = azurerm_eventhub_namespace.fleet.name
+  resource_group_name = azurerm_resource_group.fleet.name
+  partition_count     = 4
+  message_retention   = 7
+}
+
+resource "azurerm_eventhub_authorization_rule" "fuel_service" {
+  name                = "fuel-service"
+  namespace_name      = azurerm_eventhub_namespace.fleet.name
+  eventhub_name       = azurerm_eventhub.fuel_transactions.name
+  resource_group_name = azurerm_resource_group.fleet.name
+  listen              = true
+  send                = true
+  manage              = false
+}
+
+# Service Bus
+resource "azurerm_servicebus_namespace" "fleet" {
+  name                = "sb-fleet-${var.environment}"
+  location            = azurerm_resource_group.fleet.location
+  resource_group_name = azurerm_resource_group.fleet.name
+  sku                 = "Standard"
+
+  tags = {
+    Environment = var.environment
+  }
+}
+
+resource "azurerm_servicebus_queue" "fuel_verification" {
+  name         = "fuel-verification"
+  namespace_id = azurerm_servicebus_namespace.fleet.id
+}
+
+resource "azurerm_servicebus_queue_authorization_rule" "fuel_service" {
+  name     = "fuel-service"
+  queue_id = azurerm_servicebus_queue.fuel_verification.id
+  listen   = true
+  send     = true
+  manage   = false
+}
+
+# API Management
+resource "azurerm_api_management" "fleet" {
+  name                = "apim-fleet-${var.environment}"
+  location            = azurerm_resource_group.fleet.location
+  resource_group_name = azurerm_resource_group.fleet.name
+  publisher_name      = "Fleet Management"
+  publisher_email     = "admin@fleetmanagement.com"
+  sku_name            = "Premium_1"
+
+  identity {
+    type = "SystemAssigned"
+  }
+
+  policy {
+    xml_content = <<XML
+    <policies>
+      <inbound>
+        <base />
+        <set-variable name="backendUrl" value="@(context.Request.OriginalUrl)" />
+        <rate-limit-by-key calls="1000" renewal-period="60" counter-key="@(context.Request.IpAddress)" />
+        <cors>
+          <allowed-origins>
+            <origin>*</origin>
+          </allowed-origins>
+          <allowed-methods>
+            <method>GET</method>
+            <method>POST</method>
+            <method>PUT</method>
+            <method>DELETE</method>
+          </allowed-methods>
+        </cors>
+      </inbound>
+      <backend>
+        <base />
+      </backend>
+      <outbound>
+        <base />
+        <set-header name="X-Request-ID" exists-action="override">
+          <value>@(context.RequestId)</value>
+        </set-header>
+      </outbound>
+      <on-error>
+        <base />
+      </on-error>
+    </policies>
+    XML
+  }
+
+  tags = {
+    Environment = var.environment
+  }
+}
+
+# Log Analytics
+resource "azurerm_log_analytics_workspace" "fleet" {
+  name                = "log-fleet-${var.environment}"
+  location            = azurerm_resource_group.fleet.location
+  resource_group_name = azurerm_resource_group.fleet.name
+  sku                 = "PerGB2018"
+  retention_in_days   = 30
+
+  tags = {
+    Environment = var.environment
+  }
+}
+
+# Application Insights
+resource "azurerm_application_insights" "fleet" {
+  name                = "appi-fleet-${var.environment}"
+  location            = azurerm_resource_group.fleet.location
+  resource_group_name = azurerm_resource_group.fleet.name
+  application_type    = "web"
+
+  tags = {
+    Environment = var.environment
+  }
+}
+
+# Key Vault
+resource "azurerm_key_vault" "fleet" {
+  name                        = "kv-fleet-${var.environment}"
+  location                    = azurerm_resource_group.fleet.location
+  resource_group_name         = azurerm_resource_group.fleet.name
+  enabled_for_disk_encryption = true
+  tenant_id                   = data.azurerm_client_config.current.tenant_id
+  sku_name                    = "premium"
+
+  access_policy {
+    tenant_id = data.azurerm_client_config.current.tenant_id
+    object_id = data.azurerm_client_config.current.object_id
+
+    key_permissions = [
+      "Get", "List", "Create", "Import", "Delete", "Recover", "Backup", "Restore"
+    ]
+
+    secret_permissions = [
+      "Get", "List", "Set", "Delete", "Recover", "Backup", "Restore"
+    ]
+
+    certificate_permissions = [
+      "Get", "List", "Create", "Import", "Delete", "Recover", "Backup", "Restore"
+    ]
+  }
+
+  network_acls {
+    default_action = "Deny"
+    bypass         = "AzureServices"
+    ip_rules       = var.allowed_ips
+  }
+
+  tags = {
+    Environment = var.environment
+  }
+}
+
+# Storage Account
+resource "azurerm_storage_account" "fleet" {
+  name                     = "stfleet${var.environment}"
+  resource_group_name      = azurerm_resource_group.fleet.name
+  location                 = azurerm_resource_group.fleet.location
+  account_tier             = "Standard"
+  account_replication_type = "GRS"
+
+  tags = {
+    Environment = var.environment
+  }
+}
+
+# Network
+resource "azurerm_virtual_network" "fleet" {
+  name                = "vnet-fleet-${var.environment}"
+  address_space       = ["10.1.0.0/16"]
+  location            = azurerm_resource_group.fleet.location
+  resource_group_name = azurerm_resource_group.fleet.name
+}
+
+resource "azurerm_subnet" "aks" {
+  name                 = "snet-aks"
+  resource_group_name  = azurerm_resource_group.fleet.name
+  virtual_network_name = azurerm_virtual_network.fleet.name
+  address_prefixes     = ["10.1.0.0/22"]
+}
+
+resource "azurerm_subnet" "postgres" {
+  name                 = "snet-postgres"
+  resource_group_name  = azurerm_resource_group.fleet.name
+  virtual_network_name = azurerm_virtual_network.fleet.name
+  address_prefixes     = ["10.1.4.0/24"]
+  service_endpoints    = ["Microsoft.Sql"]
+}
+
+resource "azurerm_subnet" "private_endpoints" {
+  name                 = "snet-private-endpoints"
+  resource_group_name  = azurerm_resource_group.fleet.name
+  virtual_network_name = azurerm_virtual_network.fleet.name
+  address_prefixes     = ["10.1.5.0/24"]
+}
+
+# Private Endpoints
+resource "azurerm_private_endpoint" "postgres" {
+  name                = "pe-postgres-${var.environment}"
+  location            = azurerm_resource_group.fleet.location
+  resource_group_name = azurerm_resource_group.fleet.name
+  subnet_id           = azurerm_subnet.private_endpoints.id
+
+  private_service_connection {
+    name                           = "psc-postgres-${var.environment}"
+    private_connection_resource_id = azurerm_postgresql_flexible_server.fleet.id
+    is_manual_connection           = false
+    subresource_names              = ["postgresqlServer"]
+  }
+}
+
+resource "azurerm_private_dns_zone" "postgres" {
+  name                = "privatelink.postgres.database.azure.com"
+  resource_group_name = azurerm_resource_group.fleet.name
+}
+
+resource "azurerm_private_dns_zone_virtual_network_link" "postgres" {
+  name                  = "pdzvnl-postgres-${var.environment}"
+  resource_group_name   = azurerm_resource_group.fleet.name
+  private_dns_zone_name = azurerm_private_dns_zone.postgres.name
+  virtual_network_id    = azurerm_virtual_network.fleet.id
+}
 ```
 
-### **2. Real-Time Event Handlers**
+**Network Topology and Security Zones:**
+
+```mermaid
+graph TD
+    subgraph Internet
+        A[Clients] -->|HTTPS| B[Azure Front Door]
+    end
+
+    subgraph Azure Front Door
+        B -->|HTTPS| C[API Management]
+        B -->|HTTPS| D[Web Application Firewall]
+    end
+
+    subgraph DMZ
+        C -->|gRPC| E[API Gateway]
+        D -->|HTTPS| F[Web Dashboard]
+    end
+
+    subgraph Internal Network
+        E -->|gRPC| G[Service Mesh]
+        G -->|gRPC| H[Fuel Service]
+        G -->|gRPC| I[Vehicle Service]
+        G -->|gRPC| J[Driver Service]
+        G -->|gRPC| K[Reporting Service]
+        G -->|gRPC| L[Notification Service]
+    end
+
+    subgraph Data Layer
+        H -->|PostgreSQL| M[PostgreSQL Flexible Server]
+        I -->|PostgreSQL| M
+        J -->|PostgreSQL| M
+        K -->|PostgreSQL| M
+        L -->|Redis| N[Azure Cache for Redis]
+        H -->|Event Hubs| O[Event Streaming]
+        I -->|Event Hubs| O
+        O -->|Azure Functions| P[Analytics]
+    end
+
+    subgraph Integration Layer
+        Q[Fuel Card Providers] -->|Webhooks| R[Integration Service]
+        S[Telematics Devices] -->|MQTT| R
+        T[ERP System] -->|REST| R
+        R -->|Service Bus| H
+        R -->|Service Bus| I
+    end
+
+    subgraph Security
+        U[Azure AD] -->|OAuth 2.0| C
+        V[Azure Key Vault] -->|Secrets| H
+        V -->|Secrets| I
+        V -->|Secrets| J
+        W[Network Security Groups] -->|Firewall Rules| M
+        X[Private Endpoints] -->|Private Link| M
+        X -->|Private Link| N
+    end
+```
+
+**Load Balancing and Auto-Scaling:**
+
+1. **API Gateway**:
+   - Azure API Management with multi-region deployment
+   - Rate limiting and request throttling
+   - Circuit breakers for backend services
+
+2. **Service Mesh**:
+   - Istio for traffic management
+   - Canary deployments for new versions
+   - Circuit breaking and retry policies
+
+3. **Kubernetes Auto-Scaling**:
+   - Horizontal Pod Autoscaler (HPA) based on CPU/memory and custom metrics
+   - Cluster Autoscaler for node scaling
+   - KEDA for event-driven scaling
+
+4. **Database**:
+   - Read replicas for reporting workloads
+   - Connection pooling with PgBouncer
+   - Query optimization and indexing
+
+**Disaster Recovery and Backup Strategy:**
+
+1. **Backup Strategy**:
+   - **PostgreSQL**: Automated backups with 7-day retention, geo-redundant storage
+   - **Redis**: Persistence enabled with RDB snapshots every 15 minutes
+   - **Blob Storage**: Geo-redundant storage (GRS) with versioning
+   - **Kubernetes**: Cluster state backed up with Velero
+
+2. **Disaster Recovery**:
+   - **RTO**: 2 hours for critical services, 4 hours for non-critical
+   - **RPO**: 15 minutes for transactional data, 1 hour for configuration
+   - **Multi-Region Deployment**: Active-active configuration for critical services
+   - **Failover Testing**: Quarterly disaster recovery drills
+
+3. **Data Replication**:
+   - PostgreSQL: Read replicas in secondary region
+   - Redis: Geo-replication with active-passive configuration
+   - Blob Storage: Geo-redundant storage with read-access (RA-GRS)
+
+## 3. TypeScript Implementation (800+ lines)
+
+### 3.1 Core Backend Services
+
 ```typescript
-// src/websocket/handlers/fuelUpdate.ts
-import { webSocketManager } from '../server';
-import { logger } from '../../utils/logger';
-import { prisma } from '../../database/prisma';
+// src/fuel/fuel.module.ts
+import { Module } from '@nestjs/common';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { ConfigModule, ConfigService } from '@nestjs/config';
+import { EventEmitterModule } from '@nestjs/event-emitter';
+import { HttpModule } from '@nestjs/axios';
+import { TerminusModule } from '@nestjs/terminus';
+import { APP_FILTER, APP_INTERCEPTOR } from '@nestjs/core';
 
-export const handleFuelUpdate = async (vehicleId: string, payload: any) => {
-  try {
-    const { amount, odometer, location } = payload;
+import { FuelTransaction } from './models/fuel-transaction.model';
+import { FuelService } from './services/fuel.service';
+import { FuelController } from './controllers/fuel.controller';
+import { FuelRepository } from './repositories/fuel.repository';
+import { FuelVerificationService } from './services/fuel-verification.service';
+import { FuelEfficiencyService } from './services/fuel-efficiency.service';
+import { FraudDetectionService } from './services/fraud-detection.service';
+import { VehicleClient } from '../vehicle/clients/vehicle.client';
+import { DriverClient } from '../driver/clients/driver.client';
+import { NotificationClient } from '../notification/clients/notification.client';
+import { AllExceptionsFilter } from '../common/filters/all-exceptions.filter';
+import { LoggingInterceptor } from '../common/interceptors/logging.interceptor';
+import { ResponseInterceptor } from '../common/interceptors/response.interceptor';
+import { HealthController } from './controllers/health.controller';
+import { FuelEventPublisher } from './events/fuel-event.publisher';
+import { FuelEventSubscriber } from './events/fuel-event.subscriber';
 
-    // Validate payload
-    if (!amount || !odometer || !location) {
-      throw new Error('Invalid fuel update payload');
+@Module({
+  imports: [
+    TypeOrmModule.forFeature([FuelTransaction]),
+    ConfigModule,
+    EventEmitterModule.forRoot({
+      wildcard: false,
+      delimiter: '.',
+      newListener: false,
+      removeListener: false,
+      maxListeners: 10,
+      verboseMemoryLeak: true,
+    }),
+    HttpModule,
+    TerminusModule,
+  ],
+  controllers: [FuelController, HealthController],
+  providers: [
+    FuelService,
+    FuelRepository,
+    FuelVerificationService,
+    FuelEfficiencyService,
+    FraudDetectionService,
+    VehicleClient,
+    DriverClient,
+    NotificationClient,
+    FuelEventPublisher,
+    FuelEventSubscriber,
+    {
+      provide: APP_FILTER,
+      useClass: AllExceptionsFilter,
+    },
+    {
+      provide: APP_INTERCEPTOR,
+      useClass: LoggingInterceptor,
+    },
+    {
+      provide: APP_INTERCEPTOR,
+      useClass: ResponseInterceptor,
+    },
+  ],
+  exports: [FuelService],
+})
+export class FuelModule {}
+```
+
+```typescript
+// src/fuel/services/fuel.service.ts
+import { Injectable, Logger, NotFoundException, BadRequestException } from '@nestjs/common';
+import { EventEmitter2 } from '@nestjs/event-emitter';
+import { ConfigService } from '@nestjs/config';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository, Between, FindManyOptions, FindOneOptions, In } from 'typeorm';
+import { plainToClass } from 'class-transformer';
+import { validate } from 'class-validator';
+
+import { FuelTransaction } from '../models/fuel-transaction.model';
+import { FuelTransactionCreateDto } from '../dto/fuel-transaction-create.dto';
+import { FuelTransactionUpdateDto } from '../dto/fuel-transaction-update.dto';
+import { FuelTransactionResponseDto } from '../dto/fuel-transaction-response.dto';
+import { PaginatedResponseDto } from '../../common/dto/paginated-response.dto';
+import { FuelVerificationService } from './fuel-verification.service';
+import { FuelEfficiencyService } from './fuel-efficiency.service';
+import { FraudDetectionService } from './fraud-detection.service';
+import { VehicleClient } from '../../vehicle/clients/vehicle.client';
+import { DriverClient } from '../../driver/clients/driver.client';
+import { NotificationClient } from '../../notification/clients/notification.client';
+import { FuelEventPublisher } from '../events/fuel-event.publisher';
+import { FuelTransactionStatus, VerificationMethod } from '../models/fuel-transaction.model';
+import { TransactionVerifiedEvent } from '../events/transaction-verified.event';
+import { TransactionFlaggedEvent } from '../events/transaction-flagged.event';
+import { TransactionRejectedEvent } from '../events/transaction-rejected.event';
+import { PaginationDto } from '../../common/dto/pagination.dto';
+
+@Injectable()
+export class FuelService {
+  private readonly logger = new Logger(FuelService.name);
+  private readonly maxFraudScore: number;
+
+  constructor(
+    @InjectRepository(FuelTransaction)
+    private readonly fuelTransactionRepository: Repository<FuelTransaction>,
+    private readonly fuelVerificationService: FuelVerificationService,
+    private readonly fuelEfficiencyService: FuelEfficiencyService,
+    private readonly fraudDetectionService: FraudDetectionService,
+    private readonly vehicleClient: VehicleClient,
+    private readonly driverClient: DriverClient,
+    private readonly notificationClient: NotificationClient,
+    private readonly eventEmitter: EventEmitter2,
+    private readonly fuelEventPublisher: FuelEventPublisher,
+    private readonly configService: ConfigService,
+  ) {
+    this.maxFraudScore = this.configService.get<number>('FUEL_MAX_FRAUD_SCORE', 80);
+  }
+
+  async createTransaction(
+    transactionData: FuelTransactionCreateDto,
+  ): Promise<FuelTransactionResponseDto> {
+    this.logger.log(`Creating fuel transaction for vehicle ${transactionData.vehicleId}`);
+
+    // Validate input
+    const errors = await validate(plainToClass(FuelTransactionCreateDto, transactionData));
+    if (errors.length > 0) {
+      throw new BadRequestException(errors);
     }
 
-    // Store in database
-    await prisma.fuelTransaction.create({
-      data: {
-        vehicleId,
-        amount,
-        odometerReading: odometer,
-        location,
-        timestamp: new Date(),
-      },
+    // Verify vehicle exists
+    const vehicle = await this.vehicleClient.getVehicle(transactionData.vehicleId);
+    if (!vehicle) {
+      throw new BadRequestException('Vehicle not found');
+    }
+
+    // Verify driver exists
+    const driver = await this.driverClient.getDriver(transactionData.driverId);
+    if (!driver) {
+      throw new BadRequestException('Driver not found');
+    }
+
+    // Create transaction
+    const transaction = this.fuelTransactionRepository.create({
+      ...transactionData,
+      status: FuelTransactionStatus.PENDING,
     });
 
-    // Broadcast to all connected clients
-    webSocketManager.broadcast(vehicleId, {
-      type: 'FUEL_UPDATE_CONFIRMED',
-      payload: { amount, odometer, location },
+    // Save transaction
+    const savedTransaction = await this.fuelTransactionRepository.save(transaction);
+
+    // Publish event
+    await this.fuelEventPublisher.publishTransactionCreated(savedTransaction);
+
+    // Start verification process
+    this.verifyTransaction(savedTransaction.id).catch((error) => {
+      this.logger.error(`Error verifying transaction ${savedTransaction.id}: ${error.message}`);
     });
 
-    logger.info(`Fuel update processed for vehicle ${vehicleId}`);
-  } catch (err) {
-    logger.error('Failed to handle fuel update:', err);
-    webSocketManager.broadcast(vehicleId, {
-      type: 'ERROR',
-      payload: { message: 'Fuel update failed' },
+    return plainToClass(FuelTransactionResponseDto, savedTransaction);
+  }
+
+  async verifyTransaction(transactionId: string): Promise<void> {
+    this.logger.log(`Verifying transaction ${transactionId}`);
+
+    const transaction = await this.fuelTransactionRepository.findOne({
+      where: { id: transactionId },
     });
-  }
-};
-```
 
-### **3. Client-Side WebSocket Integration**
-```typescript
-// src/frontend/websocket/client.ts
-import { logger } from '../utils/logger';
+    if (!transaction) {
+      throw new NotFoundException('Transaction not found');
+    }
 
-class WebSocketClient {
-  private socket: WebSocket | null = null;
-  private reconnectAttempts = 0;
-  private readonly MAX_RECONNECT_ATTEMPTS = 5;
-  private readonly RECONNECT_DELAY = 3000;
-
-  constructor(private vehicleId: string, private onMessage: (data: any) => void) {
-    this.connect();
-  }
-
-  private connect() {
-    const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-    const host = window.location.host;
-    this.socket = new WebSocket(`${protocol}//${host}/ws?vehicleId=${this.vehicleId}`);
-
-    this.socket.onopen = () => {
-      this.reconnectAttempts = 0;
-      logger.info(`WebSocket connected to vehicle ${this.vehicleId}`);
-    };
-
-    this.socket.onmessage = (event) => {
-      try {
-        const data = JSON.parse(event.data);
-        this.onMessage(data);
-      } catch (err) {
-        logger.error('Failed to parse WebSocket message:', err);
-      }
-    };
-
-    this.socket.onclose = () => {
-      logger.warn(`WebSocket disconnected from vehicle ${this.vehicleId}`);
-      this.reconnect();
-    };
-
-    this.socket.onerror = (err) => {
-      logger.error('WebSocket error:', err);
-    };
-  }
-
-  private reconnect() {
-    if (this.reconnectAttempts >= this.MAX_RECONNECT_ATTEMPTS) {
-      logger.error('Max reconnection attempts reached');
+    // Check if already verified
+    if (transaction.status !== FuelTransactionStatus.PENDING) {
+      this.logger.warn(`Transaction ${transactionId} is already ${transaction.status}`);
       return;
     }
 
-    this.reconnectAttempts++;
-    setTimeout(() => {
-      this.connect();
-    }, this.RECONNECT_DELAY * this.reconnectAttempts);
-  }
-
-  send(message: any) {
-    if (this.socket?.readyState === WebSocket.OPEN) {
-      this.socket.send(JSON.stringify(message));
-    } else {
-      logger.warn('WebSocket not connected, message not sent');
-    }
-  }
-
-  close() {
-    this.socket?.close();
-  }
-}
-
-export const createWebSocketClient = (vehicleId: string, onMessage: (data: any) => void) =>
-  new WebSocketClient(vehicleId, onMessage);
-```
-
-### **4. Room/Channel Management**
-```typescript
-// src/websocket/rooms.ts
-import { webSocketManager } from './server';
-import { logger } from '../utils/logger';
-
-class RoomManager {
-  private rooms: Map<string, Set<string>> = new Map(); // roomId -> Set<vehicleIds>
-
-  joinRoom(roomId: string, vehicleId: string) {
-    if (!this.rooms.has(roomId)) {
-      this.rooms.set(roomId, new Set());
-    }
-    this.rooms.get(roomId)?.add(vehicleId);
-    logger.info(`Vehicle ${vehicleId} joined room ${roomId}`);
-  }
-
-  leaveRoom(roomId: string, vehicleId: string) {
-    this.rooms.get(roomId)?.delete(vehicleId);
-    logger.info(`Vehicle ${vehicleId} left room ${roomId}`);
-  }
-
-  broadcastToRoom(roomId: string, message: any) {
-    const vehicleIds = this.rooms.get(roomId);
-    if (!vehicleIds) return;
-
-    vehicleIds.forEach((vehicleId) => {
-      webSocketManager.broadcast(vehicleId, message);
-    });
-  }
-}
-
-export const roomManager = new RoomManager();
-```
-
-### **5. Reconnection Logic**
-```typescript
-// src/websocket/reconnect.ts
-import { logger } from '../utils/logger';
-
-class ReconnectionManager {
-  private reconnectTimers: Map<string, NodeJS.Timeout> = new Map();
-  private readonly BASE_DELAY = 1000;
-  private readonly MAX_DELAY = 30000;
-
-  scheduleReconnect(vehicleId: string, callback: () => void) {
-    if (this.reconnectTimers.has(vehicleId)) {
-      clearTimeout(this.reconnectTimers.get(vehicleId));
-    }
-
-    const delay = Math.min(
-      this.BASE_DELAY * Math.pow(2, this.reconnectTimers.size),
-      this.MAX_DELAY
-    );
-
-    this.reconnectTimers.set(
-      vehicleId,
-      setTimeout(() => {
-        callback();
-        this.reconnectTimers.delete(vehicleId);
-      }, delay)
-    );
-
-    logger.info(`Scheduled reconnect for vehicle ${vehicleId} in ${delay}ms`);
-  }
-
-  cancelReconnect(vehicleId: string) {
-    if (this.reconnectTimers.has(vehicleId)) {
-      clearTimeout(this.reconnectTimers.get(vehicleId));
-      this.reconnectTimers.delete(vehicleId);
-      logger.info(`Cancelled reconnect for vehicle ${vehicleId}`);
-    }
-  }
-}
-
-export const reconnectionManager = new ReconnectionManager();
-```
-
----
-
-## **AI/ML Capabilities**
-*(250+ lines minimum)*
-
-### **1. Predictive Model Training**
-```python
-# src/ml/train_fuel_efficiency.py
-import pandas as pd
-import numpy as np
-from sklearn.ensemble import RandomForestRegressor
-from sklearn.model_selection import train_test_split
-from sklearn.metrics import mean_absolute_error
-from sklearn.preprocessing import StandardScaler
-import joblib
-import logging
-from datetime import datetime
-
-# Configure logging
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
-
-class FuelEfficiencyModel:
-    def __init__(self):
-        self.model = RandomForestRegressor(
-            n_estimators=100,
-            max_depth=10,
-            random_state=42
-        )
-        self.scaler = StandardScaler()
-        self.model_path = "models/fuel_efficiency_model.pkl"
-        self.scaler_path = "models/scaler.pkl"
-
-    def load_data(self, file_path):
-        """Load and preprocess fuel transaction data"""
-        try:
-            df = pd.read_csv(file_path)
-            df['timestamp'] = pd.to_datetime(df['timestamp'])
-            df['hour'] = df['timestamp'].dt.hour
-            df['day_of_week'] = df['timestamp'].dt.dayofweek
-            df['month'] = df['timestamp'].dt.month
-
-            # Calculate fuel efficiency (km/l)
-            df['distance'] = df.groupby('vehicle_id')['odometer_reading'].diff()
-            df['fuel_efficiency'] = df['distance'] / df['amount']
-
-            # Drop rows with missing values
-            df = df.dropna(subset=['fuel_efficiency'])
-
-            return df
-        except Exception as e:
-            logger.error(f"Failed to load data: {e}")
-            raise
-
-    def train(self, data):
-        """Train the predictive model"""
-        try:
-            # Feature engineering
-            features = ['amount', 'odometer_reading', 'hour', 'day_of_week', 'month']
-            X = data[features]
-            y = data['fuel_efficiency']
-
-            # Split data
-            X_train, X_test, y_train, y_test = train_test_split(
-                X, y, test_size=0.2, random_state=42
-            )
-
-            # Scale features
-            X_train_scaled = self.scaler.fit_transform(X_train)
-            X_test_scaled = self.scaler.transform(X_test)
-
-            # Train model
-            self.model.fit(X_train_scaled, y_train)
-
-            # Evaluate
-            predictions = self.model.predict(X_test_scaled)
-            mae = mean_absolute_error(y_test, predictions)
-            logger.info(f"Model trained with MAE: {mae:.2f}")
-
-            return mae
-        except Exception as e:
-            logger.error(f"Training failed: {e}")
-            raise
-
-    def save_model(self):
-        """Save model and scaler to disk"""
-        try:
-            joblib.dump(self.model, self.model_path)
-            joblib.dump(self.scaler, self.scaler_path)
-            logger.info("Model and scaler saved successfully")
-        except Exception as e:
-            logger.error(f"Failed to save model: {e}")
-            raise
-
-    def load_model(self):
-        """Load model and scaler from disk"""
-        try:
-            self.model = joblib.load(self.model_path)
-            self.scaler = joblib.load(self.scaler_path)
-            logger.info("Model and scaler loaded successfully")
-        except Exception as e:
-            logger.error(f"Failed to load model: {e}")
-            raise
-
-    def predict(self, input_data):
-        """Make predictions on new data"""
-        try:
-            input_scaled = self.scaler.transform([input_data])
-            prediction = self.model.predict(input_scaled)
-            return prediction[0]
-        except Exception as e:
-            logger.error(f"Prediction failed: {e}")
-            raise
-
-if __name__ == "__main__":
-    model = FuelEfficiencyModel()
-
-    # Load and preprocess data
-    data = model.load_data("data/fuel_transactions.csv")
-
-    # Train model
-    mae = model.train(data)
-
-    # Save model
-    model.save_model()
-
-    logger.info("Training completed successfully")
-```
-
-### **2. Real-Time Inference API**
-```python
-# src/ml/inference_api.py
-from fastapi import FastAPI, HTTPException
-from pydantic import BaseModel
-import joblib
-import logging
-from typing import List
-
-# Configure logging
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
-
-app = FastAPI()
-
-class FuelPredictionRequest(BaseModel):
-    amount: float
-    odometer_reading: float
-    hour: int
-    day_of_week: int
-    month: int
-
-class FuelPredictionResponse(BaseModel):
-    predicted_efficiency: float
-    confidence: float
-
-# Load model and scaler
-try:
-    model = joblib.load("models/fuel_efficiency_model.pkl")
-    scaler = joblib.load("models/scaler.pkl")
-    logger.info("Model and scaler loaded successfully")
-except Exception as e:
-    logger.error(f"Failed to load model: {e}")
-    raise
-
-@app.post("/predict", response_model=FuelPredictionResponse)
-async def predict_fuel_efficiency(request: FuelPredictionRequest):
-    try:
-        # Prepare input data
-        input_data = [
-            request.amount,
-            request.odometer_reading,
-            request.hour,
-            request.day_of_week,
-            request.month
-        ]
-
-        # Scale input
-        input_scaled = scaler.transform([input_data])
-
-        # Make prediction
-        prediction = model.predict(input_scaled)[0]
-
-        # Calculate confidence (simplified)
-        confidence = 0.95 if prediction > 0 else 0.85
-
-        return {
-            "predicted_efficiency": float(prediction),
-            "confidence": confidence
-        }
-    except Exception as e:
-        logger.error(f"Prediction failed: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
-
-@app.get("/health")
-async def health_check():
-    return {"status": "healthy"}
-
-if __name__ == "__main__":
-    import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=8000)
-```
-
-### **3. Feature Engineering Pipeline**
-```python
-# src/ml/feature_engineering.py
-import pandas as pd
-from datetime import datetime
-import logging
-
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
-
-class FeatureEngineer:
-    @staticmethod
-    def engineer_features(df: pd.DataFrame) -> pd.DataFrame:
-        """Engineer features for fuel efficiency prediction"""
-        try:
-            # Convert timestamp
-            df['timestamp'] = pd.to_datetime(df['timestamp'])
-
-            # Extract temporal features
-            df['hour'] = df['timestamp'].dt.hour
-            df['day_of_week'] = df['timestamp'].dt.dayofweek
-            df['month'] = df['timestamp'].dt.month
-
-            # Calculate distance traveled
-            df['distance'] = df.groupby('vehicle_id')['odometer_reading'].diff()
-
-            # Calculate fuel efficiency (km/l)
-            df['fuel_efficiency'] = df['distance'] / df['amount']
-
-            # Handle missing values
-            df['fuel_efficiency'] = df['fuel_efficiency'].fillna(0)
-
-            # Add rolling averages
-            df['rolling_avg_efficiency'] = df.groupby('vehicle_id')['fuel_efficiency'].transform(
-                lambda x: x.rolling(5, min_periods=1).mean()
-            )
-
-            # Add fuel consumption rate (l/km)
-            df['consumption_rate'] = df['amount'] / df['distance'].replace(0, 1)
-
-            return df
-        except Exception as e:
-            logger.error(f"Feature engineering failed: {e}")
-            raise
-
-    @staticmethod
-    def prepare_inference_data(row: dict) -> list:
-        """Prepare single row for model inference"""
-        try:
-            return [
-                row['amount'],
-                row['odometer_reading'],
-                row['hour'],
-                row['day_of_week'],
-                row['month']
-            ]
-        except Exception as e:
-            logger.error(f"Failed to prepare inference data: {e}")
-            raise
-
-if __name__ == "__main__":
-    # Example usage
-    data = pd.DataFrame({
-        'vehicle_id': [1, 1, 2, 2],
-        'timestamp': ['2023-01-01 08:00', '2023-01-01 12:00', '2023-01-01 09:00', '2023-01-01 13:00'],
-        'amount': [50, 45, 60, 55],
-        'odometer_reading': [1000, 1050, 2000, 2060]
-    })
-
-    engineered_data = FeatureEngineer.engineer_features(data)
-    print(engineered_data[['hour', 'day_of_week', 'fuel_efficiency']])
-```
-
-### **4. Model Monitoring and Retraining**
-```python
-# src/ml/model_monitor.py
-import pandas as pd
-import numpy as np
-from sklearn.metrics import mean_absolute_error
-import joblib
-import logging
-from datetime import datetime, timedelta
-import smtplib
-from email.mime.text import MIMEText
-
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
-
-class ModelMonitor:
-    def __init__(self):
-        self.model = joblib.load("models/fuel_efficiency_model.pkl")
-        self.scaler = joblib.load("models/scaler.pkl")
-        self.performance_threshold = 0.5  # MAE threshold for retraining
-        self.last_retrain_date = datetime.now()
-
-    def evaluate_model(self, new_data: pd.DataFrame) -> float:
-        """Evaluate model performance on new data"""
-        try:
-            # Prepare features
-            features = ['amount', 'odometer_reading', 'hour', 'day_of_week', 'month']
-            X = new_data[features]
-            y = new_data['fuel_efficiency']
-
-            # Scale features
-            X_scaled = self.scaler.transform(X)
-
-            # Make predictions
-            predictions = self.model.predict(X_scaled)
-
-            # Calculate MAE
-            mae = mean_absolute_error(y, predictions)
-            logger.info(f"Model evaluation MAE: {mae:.2f}")
-
-            return mae
-        except Exception as e:
-            logger.error(f"Model evaluation failed: {e}")
-            raise
-
-    def check_retraining_needed(self, mae: float) -> bool:
-        """Check if model needs retraining"""
-        if mae > self.performance_threshold:
-            logger.warning(f"Model performance degraded (MAE: {mae:.2f})")
-            return True
-        return False
-
-    def retrain_model(self, new_data: pd.DataFrame):
-        """Retrain the model with new data"""
-        try:
-            from train_fuel_efficiency import FuelEfficiencyModel
-
-            # Combine old and new data
-            old_data = pd.read_csv("data/fuel_transactions.csv")
-            combined_data = pd.concat([old_data, new_data], ignore_index=True)
-
-            # Retrain
-            model = FuelEfficiencyModel()
-            model.load_data("data/combined_transactions.csv")  # Save combined data
-            model.train(combined_data)
-            model.save_model()
-
-            self.last_retrain_date = datetime.now()
-            logger.info("Model retrained successfully")
-
-            # Send notification
-            self.send_retrain_notification()
-        except Exception as e:
-            logger.error(f"Retraining failed: {e}")
-            raise
-
-    def send_retrain_notification(self):
-        """Send email notification about model retraining"""
-        try:
-            msg = MIMEText(f"Fuel efficiency model was retrained on {datetime.now()}")
-            msg['Subject'] = 'Model Retraining Notification'
-            msg['From'] = 'monitoring@fuelmanagement.com'
-            msg['To'] = 'data-team@fuelmanagement.com'
-
-            with smtplib.SMTP('smtp.gmail.com', 587) as server:
-                server.starttls()
-                server.login('user', 'password')
-                server.send_message(msg)
-
-            logger.info("Retraining notification sent")
-        except Exception as e:
-            logger.error(f"Failed to send notification: {e}")
-
-    def monitor(self):
-        """Run monitoring checks"""
-        try:
-            # Load recent data (last 7 days)
-            end_date = datetime.now()
-            start_date = end_date - timedelta(days=7)
-            new_data = pd.read_csv("data/recent_transactions.csv")
-            new_data = new_data[
-                (new_data['timestamp'] >= start_date) &
-                (new_data['timestamp'] <= end_date)
-            ]
-
-            if len(new_data) < 10:
-                logger.info("Not enough new data for evaluation")
-                return
-
-            # Evaluate model
-            mae = self.evaluate_model(new_data)
-
-            # Check if retraining is needed
-            if self.check_retraining_needed(mae):
-                self.retrain_model(new_data)
-        except Exception as e:
-            logger.error(f"Monitoring failed: {e}")
-
-if __name__ == "__main__":
-    monitor = ModelMonitor()
-    monitor.monitor()
-```
-
----
-
-## **Progressive Web App (PWA) Features**
-*(200+ lines minimum)*
-
-### **1. Service Worker Registration**
-```typescript
-// src/frontend/service-worker/register.ts
-import { logger } from '../utils/logger';
-
-class ServiceWorkerManager {
-  private readonly SERVICE_WORKER_PATH = '/sw.js';
-  private registration: ServiceWorkerRegistration | null = null;
-
-  async register() {
-    if (!('serviceWorker' in navigator)) {
-      logger.warn('Service Worker not supported in this browser');
-      return;
-    }
-
     try {
-      this.registration = await navigator.serviceWorker.register(
-        this.SERVICE_WORKER_PATH,
-        { scope: '/' }
-      );
+      // Perform verification
+      const verificationResult = await this.fuelVerificationService.verifyTransaction(transaction);
 
-      logger.info('Service Worker registered successfully');
+      // Update transaction status
+      transaction.status = verificationResult.status;
+      transaction.verificationMethod = verificationResult.method;
+      transaction.fraudScore = verificationResult.fraudScore;
 
-      // Handle updates
-      this.registration.addEventListener('updatefound', () => {
-        const newWorker = this.registration?.installing;
-        if (newWorker) {
-          newWorker.addEventListener('statechange', () => {
-            if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-              logger.info('New Service Worker available, prompting for update');
-              this.showUpdatePrompt();
-            }
-          });
-        }
-      });
+      // Save changes
+      await this.fuelTransactionRepository.save(transaction);
 
-      // Check for updates periodically
-      setInterval(() => {
-        this.checkForUpdates();
-      }, 60 * 60 * 1000); // Every hour
-    } catch (err) {
-      logger.error('Service Worker registration failed:', err);
-    }
-  }
-
-  private async checkForUpdates() {
-    try {
-      if (this.registration) {
-        await this.registration.update();
-      }
-    } catch (err) {
-      logger.error('Failed to check for Service Worker updates:', err);
-    }
-  }
-
-  private showUpdatePrompt() {
-    const updatePrompt = document.createElement('div');
-    updatePrompt.innerHTML = `
-      <div style="position: fixed; bottom: 20px; right: 20px; background: #333; color: white; padding: 15px; border-radius: 5px; z-index: 1000;">
-        <p>A new version of the app is available.</p>
-        <button id="reload-btn" style="margin-top: 10px; padding: 8px 15px; background: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer;">
-          Reload
-        </button>
-      </div>
-    `;
-
-    document.body.appendChild(updatePrompt);
-
-    const reloadBtn = document.getElementById('reload-btn');
-    reloadBtn?.addEventListener('click', () => {
-      window.location.reload();
-    });
-  }
-
-  async unregister() {
-    if (this.registration) {
-      await this.registration.unregister();
-      logger.info('Service Worker unregistered');
-    }
-  }
-}
-
-export const serviceWorkerManager = new ServiceWorkerManager();
-```
-
-### **2. Caching Strategies**
-```typescript
-// src/frontend/service-worker/sw.ts
-const CACHE_NAME = 'fuel-management-v1';
-const ASSETS_TO_CACHE = [
-  '/',
-  '/index.html',
-  '/manifest.json',
-  '/assets/css/main.css',
-  '/assets/js/app.js',
-  '/assets/images/logo.png',
-  '/offline.html',
-];
-
-// Install event - cache core assets
-self.addEventListener('install', (event: ExtendableEvent) => {
-  event.waitUntil(
-    caches.open(CACHE_NAME)
-      .then((cache) => {
-        return cache.addAll(ASSETS_TO_CACHE);
-      })
-      .catch((err) => {
-        console.error('Failed to cache assets:', err);
-      })
-  );
-});
-
-// Fetch event - serve cached assets or fetch from network
-self.addEventListener('fetch', (event: FetchEvent) => {
-  event.respondWith(
-    caches.match(event.request)
-      .then((cachedResponse) => {
-        // Return cached response if available
-        if (cachedResponse) {
-          return cachedResponse;
-        }
-
-        // Clone the request
-        const fetchRequest = event.request.clone();
-
-        // Fetch from network
-        return fetch(fetchRequest)
-          .then((response) => {
-            // Check if we received a valid response
-            if (!response || response.status !== 200 || response.type !== 'basic') {
-              return response;
-            }
-
-            // Clone the response
-            const responseToCache = response.clone();
-
-            // Cache the response
-            caches.open(CACHE_NAME)
-              .then((cache) => {
-                cache.put(event.request, responseToCache);
-              });
-
-            return response;
-          })
-          .catch(() => {
-            // If network fails, return offline page
-            if (event.request.mode === 'navigate') {
-              return caches.match('/offline.html');
-            }
-            return new Response('Network error', { status: 503 });
-          });
-      })
-  );
-});
-
-// Activate event - clean up old caches
-self.addEventListener('activate', (event: ExtendableEvent) => {
-  event.waitUntil(
-    caches.keys()
-      .then((cacheNames) => {
-        return Promise.all(
-          cacheNames.map((cacheName) => {
-            if (cacheName !== CACHE_NAME) {
-              return caches.delete(cacheName);
-            }
-          })
+      // Handle verification result
+      if (verificationResult.status === FuelTransactionStatus.VERIFIED) {
+        this.eventEmitter.emit(
+          'transaction.verified',
+          new TransactionVerifiedEvent(transaction),
         );
-      })
-  );
-});
-```
-
-### **3. Offline Functionality**
-```typescript
-// src/frontend/offline/offlineManager.ts
-import { logger } from '../utils/logger';
-import { FuelTransaction } from '../types';
-
-class OfflineManager {
-  private readonly OFFLINE_STORAGE_KEY = 'offline_fuel_transactions';
-  private readonly MAX_OFFLINE_TRANSACTIONS = 50;
-
-  constructor() {
-    window.addEventListener('online', () => this.syncOfflineTransactions());
-  }
-
-  async storeOfflineTransaction(transaction: FuelTransaction) {
-    try {
-      const offlineTransactions = this.getOfflineTransactions();
-      offlineTransactions.push(transaction);
-
-      // Limit the number of stored transactions
-      if (offlineTransactions.length > this.MAX_OFFLINE_TRANSACTIONS) {
-        offlineTransactions.shift();
+      } else if (verificationResult.status === FuelTransactionStatus.FLAGGED) {
+        this.eventEmitter.emit(
+          'transaction.flagged',
+          new TransactionFlaggedEvent(transaction),
+        );
+        await this.notificationClient.sendFraudAlert(transaction);
+      } else if (verificationResult.status === FuelTransactionStatus.REJECTED) {
+        this.eventEmitter.emit(
+          'transaction.rejected',
+          new TransactionRejectedEvent(transaction),
+        );
+        await this.notificationClient.sendRejectionNotification(transaction);
       }
 
-      localStorage.setItem(
-        this.OFFLINE_STORAGE_KEY,
-        JSON.stringify(offlineTransactions)
-      );
-
-      logger.info('Stored fuel transaction offline');
-    } catch (err) {
-      logger.error('Failed to store offline transaction:', err);
+      this.logger.log(`Transaction ${transactionId} verified as ${verificationResult.status}`);
+    } catch (error) {
+      this.logger.error(`Error verifying transaction ${transactionId}: ${error.message}`);
+      throw error;
     }
   }
 
-  getOfflineTransactions(): FuelTransaction[] {
-    try {
-      const data = localStorage.getItem(this.OFFLINE_STORAGE_KEY);
-      return data ? JSON.parse(data) : [];
-    } catch (err) {
-      logger.error('Failed to retrieve offline transactions:', err);
-      return [];
-    }
-  }
+  async getTransaction(transactionId: string): Promise<FuelTransactionResponseDto> {
+    this.logger.log(`Retrieving transaction ${transactionId}`);
 
-  async syncOfflineTransactions() {
-    if (!navigator.onLine) {
-      logger.info('Device is offline, skipping sync');
-      return;
-    }
-
-    try {
-      const offlineTransactions = this.getOfflineTransactions();
-      if (offlineTransactions.length === 0) return;
-
-      const response = await fetch('/api/fuel-transactions/batch', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(offlineTransactions),
-      });
-
-      if (response.ok) {
-        localStorage.removeItem(this.OFFLINE_STORAGE_KEY);
-        logger.info(`Synced ${offlineTransactions.length} offline transactions`);
-      } else {
-        logger.error('Failed to sync offline transactions');
-      }
-    } catch (err) {
-      logger.error('Sync failed:', err);
-    }
-  }
-
-  clearOfflineTransactions() {
-    localStorage.removeItem(this.OFFLINE_STORAGE_KEY);
-    logger.info('Cleared offline transactions');
-  }
-}
-
-export const offlineManager = new OfflineManager();
-```
-
-### **4. Background Sync**
-```typescript
-// src/frontend/background-sync/syncManager.ts
-import { logger } from '../utils/logger';
-
-class BackgroundSyncManager {
-  private readonly SYNC_TAG = 'fuel-transaction-sync';
-
-  async registerSync() {
-    if (!('serviceWorker' in navigator) || !('SyncManager' in window)) {
-      logger.warn('Background Sync not supported in this browser');
-      return;
-    }
-
-    try {
-      const registration = await navigator.serviceWorker.ready;
-      await registration.sync.register(this.SYNC_TAG);
-      logger.info('Background sync registered');
-    } catch (err) {
-      logger.error('Failed to register background sync:', err);
-    }
-  }
-
-  async handleSyncEvent() {
-    const registration = await navigator.serviceWorker.ready;
-    registration.addEventListener('sync', (event) => {
-      if (event.tag === this.SYNC_TAG) {
-        event.waitUntil(this.syncOfflineTransactions());
-      }
-    });
-  }
-
-  private async syncOfflineTransactions(): Promise<void> {
-    try {
-      const offlineTransactions = this.getOfflineTransactions();
-      if (offlineTransactions.length === 0) return;
-
-      const response = await fetch('/api/fuel-transactions/batch', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(offlineTransactions),
-      });
-
-      if (response.ok) {
-        this.clearOfflineTransactions();
-        logger.info(`Synced ${offlineTransactions.length} transactions via background sync`);
-      } else {
-        throw new Error('Sync failed');
-      }
-    } catch (err) {
-      logger.error('Background sync failed:', err);
-      throw err; // Let the browser retry later
-    }
-  }
-
-  private getOfflineTransactions(): any[] {
-    const data = localStorage.getItem('offline_fuel_transactions');
-    return data ? JSON.parse(data) : [];
-  }
-
-  private clearOfflineTransactions() {
-    localStorage.removeItem('offline_fuel_transactions');
-  }
-}
-
-export const backgroundSyncManager = new BackgroundSyncManager();
-```
-
----
-
-## **WCAG 2.1 AAA Accessibility**
-*(200+ lines minimum)*
-
-### **1. ARIA Implementation**
-```typescript
-// src/frontend/accessibility/aria.ts
-import { logger } from '../utils/logger';
-
-class ARIAManager {
-  setAriaAttributes(element: HTMLElement, attributes: Record<string, string>) {
-    try {
-      Object.entries(attributes).forEach(([key, value]) => {
-        element.setAttribute(key, value);
-      });
-      logger.info('ARIA attributes set successfully');
-    } catch (err) {
-      logger.error('Failed to set ARIA attributes:', err);
-    }
-  }
-
-  createAccessibleButton(
-    text: string,
-    onClick: () => void,
-    ariaLabel?: string,
-    ariaPressed?: boolean
-  ): HTMLButtonElement {
-    const button = document.createElement('button');
-    button.textContent = text;
-    button.addEventListener('click', onClick);
-
-    this.setAriaAttributes(button, {
-      'aria-label': ariaLabel || text,
-      'aria-pressed': ariaPressed ? 'true' : 'false',
-      'role': 'button',
+    const transaction = await this.fuelTransactionRepository.findOne({
+      where: { id: transactionId },
     });
 
-    return button;
+    if (!transaction) {
+      throw new NotFoundException('Transaction not found');
+    }
+
+    return plainToClass(FuelTransactionResponseDto, transaction);
   }
 
-  createAccessibleModal(
-    title: string,
-    content: string,
-    onClose: () => void
-  ): HTMLElement {
-    const modal = document.createElement('div');
-    modal.setAttribute('role', 'dialog');
-    modal.setAttribute('aria-modal', 'true');
-    modal.setAttribute('aria-labelledby', 'modal-title');
+  async getTransactions(
+    pagination: PaginationDto,
+    filters: {
+      vehicleId?: string;
+      driverId?: string;
+      startDate?: Date;
+      endDate?: Date;
+      status?: FuelTransactionStatus[];
+    } = {},
+  ): Promise<PaginatedResponseDto<FuelTransactionResponseDto>> {
+    this.logger.log('Retrieving fuel transactions');
 
-    const modalTitle = document.createElement('h2');
-    modalTitle.id = 'modal-title';
-    modalTitle.textContent = title;
+    const { page = 1, limit = 20 } = pagination;
+    const { vehicleId, driverId, startDate, endDate, status } = filters;
 
-    const modalContent = document.createElement('div');
-    modalContent.textContent = content;
+    const where: FindManyOptions<FuelTransaction>['where'] = {};
 
-    const closeButton = this.createAccessibleButton(
-      'Close',
-      onClose,
-      'Close modal'
-    );
+    if (vehicleId) {
+      where.vehicleId = vehicleId;
+    }
 
-    modal.appendChild(modalTitle);
-    modal.appendChild(modalContent);
-    modal.appendChild(closeButton);
+    if (driverId) {
+      where.driverId = driverId;
+    }
 
-    return modal;
-  }
+    if (startDate && endDate) {
+      where.transactionDate = Between(startDate, endDate);
+    } else if (startDate) {
+      where.transactionDate = Between(startDate, new Date());
+    } else if (endDate) {
+      where.transactionDate = Between(new Date(0), endDate);
+    }
 
-  createAccessibleFormField(
-    label: string,
-    inputType: string,
-    inputId: string,
-    required: boolean = false
-  ): HTMLElement {
-    const formGroup = document.createElement('div');
-    formGroup.className = 'form-group';
+    if (status && status.length > 0) {
+      where.status = In(status);
+    }
 
-    const formLabel = document.createElement('label');
-    formLabel.htmlFor = inputId;
-    formLabel.textContent = label;
-
-    const input = document.createElement('input');
-    input.type = inputType;
-    input.id = inputId;
-    input.required = required;
-
-    this.setAriaAttributes(input, {
-      'aria-labelledby': `${inputId}-label`,
-      'aria-required': required ? 'true' : 'false',
+    const [transactions, total] = await this.fuelTransactionRepository.findAndCount({
+      where,
+      order: { transactionDate: 'DESC' },
+      skip: (page - 1) * limit,
+      take: limit,
     });
 
-    formGroup.appendChild(formLabel);
-    formGroup.appendChild(input);
-
-    return formGroup;
-  }
-}
-
-export const ariaManager = new ARIAManager();
-```
-
-### **2. Keyboard Navigation**
-```typescript
-// src/frontend/accessibility/keyboardNavigation.ts
-import { logger } from '../utils/logger';
-
-class KeyboardNavigation {
-  private focusableElements: NodeListOf<HTMLElement>;
-  private currentFocusIndex = 0;
-
-  constructor() {
-    this.focusableElements = document.querySelectorAll(
-      'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
-    );
-    this.setupKeyboardNavigation();
-  }
-
-  private setupKeyboardNavigation() {
-    document.addEventListener('keydown', (e) => {
-      if (e.key === 'Tab') {
-        this.handleTabNavigation(e);
-      } else if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
-        this.handleArrowNavigation(e);
-      }
-    });
-  }
-
-  private handleTabNavigation(e: KeyboardEvent) {
-    if (e.shiftKey) {
-      // Shift+Tab - move focus backward
-      this.currentFocusIndex =
-        (this.currentFocusIndex - 1 + this.focusableElements.length) %
-        this.focusableElements.length;
-    } else {
-      // Tab - move focus forward
-      this.currentFocusIndex = (this.currentFocusIndex + 1) % this.focusableElements.length;
-    }
-
-    this.focusableElements[this.currentFocusIndex].focus();
-    e.preventDefault();
-  }
-
-  private handleArrowNavigation(e: KeyboardEvent) {
-    const currentElement = document.activeElement as HTMLElement;
-    const isVertical = e.key === 'ArrowDown' || e.key === 'ArrowUp';
-
-    if (isVertical) {
-      const nextIndex = e.key === 'ArrowDown'
-        ? this.currentFocusIndex + 1
-        : this.currentFocusIndex - 1;
-
-      if (nextIndex >= 0 && nextIndex < this.focusableElements.length) {
-        this.currentFocusIndex = nextIndex;
-        this.focusableElements[this.currentFocusIndex].focus();
-        e.preventDefault();
-      }
-    }
-  }
-
-  focusFirstElement() {
-    if (this.focusableElements.length > 0) {
-      this.currentFocusIndex = 0;
-      this.focusableElements[0].focus();
-    }
-  }
-
-  trapFocus(container: HTMLElement) {
-    container.addEventListener('keydown', (e) => {
-      if (e.key === 'Tab') {
-        const focusable = Array.from(
-          container.querySelectorAll(
-            'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
-          )
-        ) as HTMLElement[];
-
-        if (focusable.length === 0) return;
-
-        const firstElement = focusable[0];
-        const lastElement = focusable[focusable.length - 1];
-
-        if (e.shiftKey && document.activeElement === firstElement) {
-          lastElement.focus();
-          e.preventDefault();
-        } else if (!e.shiftKey && document.activeElement === lastElement) {
-          firstElement.focus();
-          e.preventDefault();
-        }
-      }
-    });
-  }
-}
-
-export const keyboardNavigation = new KeyboardNavigation();
-```
-
-### **3. Screen Reader Optimization**
-```typescript
-// src/frontend/accessibility/screenReader.ts
-import { logger } from '../utils/logger';
-
-class ScreenReader {
-  private liveRegion: HTMLElement;
-
-  constructor() {
-    this.liveRegion = document.createElement('div');
-    this.liveRegion.setAttribute('aria-live', 'polite');
-    this.liveRegion.setAttribute('aria-atomic', 'true');
-    this.liveRegion.style.position = 'absolute';
-    this.liveRegion.style.width = '1px';
-    this.liveRegion.style.height = '1px';
-    this.liveRegion.style.margin = '-1px';
-    this.liveRegion.style.padding = '0';
-    this.liveRegion.style.overflow = 'hidden';
-    this.liveRegion.style.clip = 'rect(0, 0, 0, 0)';
-    this.liveRegion.style.border = '0';
-
-    document.body.appendChild(this.liveRegion);
-  }
-
-  announce(message: string) {
-    try {
-      this.liveRegion.textContent = message;
-      logger.info(`Screen reader announcement: ${message}`);
-    } catch (err) {
-      logger.error('Failed to announce message:', err);
-    }
-  }
-
-  createAccessibleTable(data: any[], headers: string[]): HTMLElement {
-    const table = document.createElement('table');
-    table.setAttribute('role', 'grid');
-    table.setAttribute('aria-label', 'Data table');
-
-    // Create header
-    const thead = document.createElement('thead');
-    const headerRow = document.createElement('tr');
-    headerRow.setAttribute('role', 'row');
-
-    headers.forEach((header) => {
-      const th = document.createElement('th');
-      th.setAttribute('role', 'columnheader');
-      th.setAttribute('scope', 'col');
-      th.textContent = header;
-      headerRow.appendChild(th);
-    });
-
-    thead.appendChild(headerRow);
-    table.appendChild(thead);
-
-    // Create body
-    const tbody = document.createElement('tbody');
-    data.forEach((row, rowIndex) => {
-      const tr = document.createElement('tr');
-      tr.setAttribute('role', 'row');
-
-      headers.forEach((header, colIndex) => {
-        const td = document.createElement('td');
-        td.setAttribute('role', 'gridcell');
-        td.textContent = row[header];
-        tr.appendChild(td);
-      });
-
-      tbody.appendChild(tr);
-    });
-
-    table.appendChild(tbody);
-    return table;
-  }
-
-  createAccessibleList(items: string[]): HTMLElement {
-    const list = document.createElement('ul');
-    list.setAttribute('role', 'list');
-
-    items.forEach((item) => {
-      const li = document.createElement('li');
-      li.setAttribute('role', 'listitem');
-      li.textContent = item;
-      list.appendChild(li);
-    });
-
-    return list;
-  }
-}
-
-export const screenReader = new ScreenReader();
-```
-
-### **4. Focus Management**
-```typescript
-// src/frontend/accessibility/focusManager.ts
-import { logger } from '../utils/logger';
-
-class FocusManager {
-  private previousFocus: HTMLElement | null = null;
-
-  saveCurrentFocus() {
-    this.previousFocus = document.activeElement as HTMLElement;
-    logger.info('Saved current focus');
-  }
-
-  restoreFocus() {
-    if (this.previousFocus) {
-      this.previousFocus.focus();
-      logger.info('Restored focus');
-    }
-  }
-
-  focusFirstInteractiveElement(container: HTMLElement) {
-    const focusableElements = container.querySelectorAll(
-      'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
-    );
-
-    if (focusableElements.length > 0) {
-      (focusableElements[0] as HTMLElement).focus();
-      logger.info('Focused first interactive element');
-    }
-  }
-
-  moveFocusToNextElement() {
-    const focusableElements = Array.from(
-      document.querySelectorAll(
-        'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
-      )
-    ) as HTMLElement[];
-
-    const currentIndex = focusableElements.indexOf(document.activeElement as HTMLElement);
-    if (currentIndex < focusableElements.length - 1) {
-      focusableElements[currentIndex + 1].focus();
-    }
-  }
-
-  moveFocusToPreviousElement() {
-    const focusableElements = Array.from(
-      document.querySelectorAll(
-        'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
-      )
-    ) as HTMLElement[];
-
-    const currentIndex = focusableElements.indexOf(document.activeElement as HTMLElement);
-    if (currentIndex > 0) {
-      focusableElements[currentIndex - 1].focus();
-    }
-  }
-
-  trapFocusInModal(modal: HTMLElement) {
-    modal.addEventListener('keydown', (e) => {
-      if (e.key === 'Tab') {
-        const focusable = Array.from(
-          modal.querySelectorAll(
-            'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
-          )
-        ) as HTMLElement[];
-
-        if (focusable.length === 0) return;
-
-        const firstElement = focusable[0];
-        const lastElement = focusable[focusable.length - 1];
-
-        if (e.shiftKey && document.activeElement === firstElement) {
-          lastElement.focus();
-          e.preventDefault();
-        } else if (!e.shiftKey && document.activeElement === lastElement) {
-          firstElement.focus();
-          e.preventDefault();
-        }
-      }
-    });
-  }
-}
-
-export const focusManager = new FocusManager();
-```
-
----
-
-## **Advanced Search and Filtering**
-*(180+ lines minimum)*
-
-### **1. ElasticSearch Client Setup**
-```typescript
-// src/search/elasticsearchClient.ts
-import { Client } from '@elastic/elasticsearch';
-import { logger } from '../utils/logger';
-
-class ElasticSearchClient {
-  private client: Client;
-  private readonly INDEX_NAME = 'fuel_transactions';
-
-  constructor() {
-    this.client = new Client({
-      node: process.env.ELASTICSEARCH_URL || 'http://localhost:9200',
-      auth: {
-        username: process.env.ELASTICSEARCH_USERNAME || 'elastic',
-        password: process.env.ELASTICSEARCH_PASSWORD || 'changeme',
-      },
-    });
-  }
-
-  async initialize() {
-    try {
-      const indexExists = await this.client.indices.exists({
-        index: this.INDEX_NAME,
-      });
-
-      if (!indexExists.body) {
-        await this.client.indices.create({
-          index: this.INDEX_NAME,
-          body: {
-            mappings: {
-              properties: {
-                vehicleId: { type: 'keyword' },
-                amount: { type: 'float' },
-                timestamp: { type: 'date' },
-                odometerReading: { type: 'float' },
-                location: { type: 'geo_point' },
-                driverId: { type: 'keyword' },
-                fuelType: { type: 'keyword' },
-              },
-            },
-          },
-        });
-        logger.info(`Created ElasticSearch index: ${this.INDEX_NAME}`);
-      }
-    } catch (err) {
-      logger.error('Failed to initialize ElasticSearch:', err);
-      throw err;
-    }
-  }
-
-  async indexDocument(document: any) {
-    try {
-      const response = await this.client.index({
-        index: this.INDEX_NAME,
-        body: document,
-      });
-      logger.info(`Indexed document: ${response.body._id}`);
-      return response.body;
-    } catch (err) {
-      logger.error('Failed to index document:', err);
-      throw err;
-    }
-  }
-
-  async bulkIndex(documents: any[]) {
-    try {
-      const body = documents.flatMap((doc) => [
-        { index: { _index: this.INDEX_NAME } },
-        doc,
-      ]);
-
-      const response = await this.client.bulk({ body });
-      if (response.body.errors) {
-        logger.error('Bulk indexing errors:', response.body.items);
-      }
-      logger.info(`Bulk indexed ${documents.length} documents`);
-      return response.body;
-    } catch (err) {
-      logger.error('Failed to bulk index documents:', err);
-      throw err;
-    }
-  }
-
-  async search(query: any) {
-    try {
-      const response = await this.client.search({
-        index: this.INDEX_NAME,
-        body: query,
-      });
-      return response.body.hits.hits.map((hit: any) => ({
-        id: hit._id,
-        score: hit._score,
-        ...hit._source,
-      }));
-    } catch (err) {
-      logger.error('Search failed:', err);
-      throw err;
-    }
-  }
-}
-
-export const elasticSearchClient = new ElasticSearchClient();
-```
-
-### **2. Index Configuration**
-```typescript
-// src/search/indexConfig.ts
-import { elasticSearchClient } from './elasticsearchClient';
-import { logger } from '../utils/logger';
-
-class IndexConfigurator {
-  async configureIndex() {
-    try {
-      // Define index settings
-      const settings = {
-        analysis: {
-          analyzer: {
-            autocomplete: {
-              tokenizer: 'autocomplete',
-              filter: ['lowercase'],
-            },
-            autocomplete_search: {
-              tokenizer: 'lowercase',
-            },
-          },
-          tokenizer: {
-            autocomplete: {
-              type: 'edge_ngram',
-              min_gram: 2,
-              max_gram: 10,
-              token_chars: ['letter', 'digit'],
-            },
-          },
-        },
-      };
-
-      // Define index mappings
-      const mappings = {
-        properties: {
-          vehicleId: {
-            type: 'keyword',
-            fields: {
-              autocomplete: {
-                type: 'text',
-                analyzer: 'autocomplete',
-                search_analyzer: 'autocomplete_search',
-              },
-            },
-          },
-          amount: { type: 'float' },
-          timestamp: { type: 'date' },
-          odometerReading: { type: 'float' },
-          location: {
-            type: 'geo_point',
-            fields: {
-              keyword: {
-                type: 'keyword',
-                ignore_above: 256,
-              },
-            },
-          },
-          driverId: {
-            type: 'keyword',
-            fields: {
-              autocomplete: {
-                type: 'text',
-                analyzer: 'autocomplete',
-                search_analyzer: 'autocomplete_search',
-              },
-            },
-          },
-          fuelType: { type: 'keyword' },
-        },
-      };
-
-      // Update index settings and mappings
-      await elasticSearchClient.client.indices.close({
-        index: 'fuel_transactions',
-      });
-
-      await elasticSearchClient.client.indices.putSettings({
-        index: 'fuel_transactions',
-        body: settings,
-      });
-
-      await elasticSearchClient.client.indices.putMapping({
-        index: 'fuel_transactions',
-        body: mappings,
-      });
-
-      await elasticSearchClient.client.indices.open({
-        index: 'fuel_transactions',
-      });
-
-      logger.info('ElasticSearch index configured successfully');
-    } catch (err) {
-      logger.error('Failed to configure index:', err);
-      throw err;
-    }
-  }
-
-  async createAlias() {
-    try {
-      const aliasExists = await elasticSearchClient.client.indices.existsAlias({
-        name: 'fuel_transactions_alias',
-      });
-
-      if (!aliasExists.body) {
-        await elasticSearchClient.client.indices.putAlias({
-          index: 'fuel_transactions',
-          name: 'fuel_transactions_alias',
-        });
-        logger.info('Created ElasticSearch alias');
-      }
-    } catch (err) {
-      logger.error('Failed to create alias:', err);
-      throw err;
-    }
-  }
-}
-
-export const indexConfigurator = new IndexConfigurator();
-```
-
-### **3. Advanced Query Builder**
-```typescript
-// src/search/queryBuilder.ts
-import { logger } from '../utils/logger';
-
-class QueryBuilder {
-  private query: any = {
-    bool: {
-      must: [],
-      filter: [],
-      should: [],
-      must_not: [],
-    },
-  };
-
-  addMustCondition(field: string, value: any, operator: string = 'term') {
-    this.query.bool.must.push({ [operator]: { [field]: value } });
-    return this;
-  }
-
-  addFilterCondition(field: string, value: any, operator: string = 'term') {
-    this.query.bool.filter.push({ [operator]: { [field]: value } });
-    return this;
-  }
-
-  addShouldCondition(field: string, value: any, operator: string = 'term') {
-    this.query.bool.should.push({ [operator]: { [field]: value } });
-    return this;
-  }
-
-  addMustNotCondition(field: string, value: any, operator: string = 'term') {
-    this.query.bool.must_not.push({ [operator]: { [field]: value } });
-    return this;
-  }
-
-  addRangeFilter(field: string, gte?: any, lte?: any) {
-    const range: any = {};
-    if (gte !== undefined) range.gte = gte;
-    if (lte !== undefined) range.lte = lte;
-    this.query.bool.filter.push({ range: { [field]: range } });
-    return this;
-  }
-
-  addGeoDistanceFilter(field: string, lat: number, lon: number, distance: string) {
-    this.query.bool.filter.push({
-      geo_distance: {
-        distance,
-        [field]: { lat, lon },
-      },
-    });
-    return this;
-  }
-
-  addAggregation(name: string, field: string, size: number = 10) {
-    if (!this.query.aggs) {
-      this.query.aggs = {};
-    }
-    this.query.aggs[name] = {
-      terms: {
-        field,
-        size,
-      },
-    };
-    return this;
-  }
-
-  setSize(size: number) {
-    this.query.size = size;
-    return this;
-  }
-
-  setFrom(from: number) {
-    this.query.from = from;
-    return this;
-  }
-
-  addSort(field: string, order: 'asc' | 'desc' = 'asc') {
-    if (!this.query.sort) {
-      this.query.sort = [];
-    }
-    this.query.sort.push({ [field]: { order } });
-    return this;
-  }
-
-  build() {
-    return this.query;
-  }
-
-  reset() {
-    this.query = {
-      bool: {
-        must: [],
-        filter: [],
-        should: [],
-        must_not: [],
-      },
-    };
-    return this;
-  }
-}
-
-export const queryBuilder = new QueryBuilder();
-```
-
-### **4. Faceted Search Implementation**
-```typescript
-// src/search/facetedSearch.ts
-import { elasticSearchClient } from './elasticsearchClient';
-import { queryBuilder } from './queryBuilder';
-import { logger } from '../utils/logger';
-
-class FacetedSearch {
-  async searchWithFacets(
-    query: string,
-    filters: Record<string, any>,
-    page: number = 1,
-    pageSize: number = 10
-  ) {
-    try {
-      // Build main query
-      const mainQuery = queryBuilder.reset();
-
-      // Add full-text search if query is provided
-      if (query) {
-        mainQuery.addMustCondition('vehicleId.autocomplete', query, 'match');
-      }
-
-      // Add filters
-      Object.entries(filters).forEach(([field, value]) => {
-        if (Array.isArray(value)) {
-          value.forEach((v) => {
-            mainQuery.addFilterCondition(field, v);
-          });
-        } else if (typeof value === 'object' && value !== null) {
-          // Handle range filters
-          if (value.gte !== undefined || value.lte !== undefined) {
-            mainQuery.addRangeFilter(field, value.gte, value.lte);
-          }
-        } else {
-          mainQuery.addFilterCondition(field, value);
-        }
-      });
-
-      // Add pagination
-      mainQuery.setFrom((page - 1) * pageSize);
-      mainQuery.setSize(pageSize);
-
-      // Add sorting
-      mainQuery.addSort('timestamp', 'desc');
-
-      // Add aggregations for facets
-      mainQuery.addAggregation('vehicle_facet', 'vehicleId');
-      mainQuery.addAggregation('fuel_type_facet', 'fuelType');
-      mainQuery.addAggregation('driver_facet', 'driverId');
-      mainQuery.addAggregation('amount_range', 'amount', 5);
-
-      // Execute search
-      const results = await elasticSearchClient.search(mainQuery.build());
-
-      // Process facets
-      const facets: Record<string, any> = {};
-      if (results.aggregations) {
-        Object.entries(results.aggregations).forEach(([name, agg]) => {
-          facets[name] = agg.buckets.map((bucket: any) => ({
-            key: bucket.key,
-            count: bucket.doc_count,
-          }));
-        });
-      }
-
-      return {
-        results: results.hits,
-        facets,
-        total: results.total.value,
+    const totalPages = Math.ceil(total / limit);
+
+    return {
+      data: plainToClass(FuelTransactionResponseDto, transactions),
+      pagination: {
+        total,
         page,
-        pageSize,
-      };
-    } catch (err) {
-      logger.error('Faceted search failed:', err);
-      throw err;
-    }
-  }
-
-  async getFacetOptions(field: string, query?: string) {
-    try {
-      const facetQuery = queryBuilder.reset();
-      if (query) {
-        facetQuery.addMustCondition(`${field}.autocomplete`, query, 'match');
-      }
-      facetQuery.addAggregation('facet', field);
-
-      const results = await elasticSearchClient.search(facetQuery.build());
-      return results.aggregations?.facet.buckets.map((bucket: any) => ({
-        key: bucket.key,
-        count: bucket.doc_count,
-      })) || [];
-    } catch (err) {
-      logger.error('Failed to get facet options:', err);
-      throw err;
-    }
-  }
-}
-
-export const facetedSearch = new FacetedSearch();
-```
-
----
-
-## **Third-Party Integrations**
-*(250+ lines minimum)*
-
-### **1. Salesforce Integration**
-```typescript
-// src/integrations/salesforce.ts
-import axios from 'axios';
-import { logger } from '../utils/logger';
-
-class SalesforceIntegration {
-  private client: axios.AxiosInstance;
-  private readonly BASE_URL = 'https://yourinstance.salesforce.com/services/data/v56.0';
-
-  constructor() {
-    this.client = axios.create({
-      baseURL: this.BASE_URL,
-      headers: {
-        'Content-Type': 'application/json',
+        limit,
+        totalPages,
       },
+    };
+  }
+
+  async updateTransaction(
+    transactionId: string,
+    updateData: FuelTransactionUpdateDto,
+  ): Promise<FuelTransactionResponseDto> {
+    this.logger.log(`Updating transaction ${transactionId}`);
+
+    const transaction = await this.fuelTransactionRepository.findOne({
+      where: { id: transactionId },
     });
-  }
 
-  async authenticate() {
-    try {
-      const response = await axios.post(
-        'https://login.salesforce.com/services/oauth2/token',
-        new URLSearchParams({
-          grant_type: 'password',
-          client_id: process.env.SALESFORCE_CLIENT_ID!,
-          client_secret: process.env.SALESFORCE_CLIENT_SECRET!,
-          username: process.env.SALESFORCE_USERNAME!,
-          password: process.env.SALESFORCE_PASSWORD!,
-        }),
-        {
-          headers: {
-            'Content-Type': 'application/x-www-form-urlencoded',
-          },
-        }
-      );
-
-      this.client.defaults.headers.common['Authorization'] =
-        `Bearer ${response.data.access_token}`;
-      logger.info('Salesforce authentication successful');
-      return response.data;
-    } catch (err) {
-      logger.error('Salesforce authentication failed:', err);
-      throw err;
+    if (!transaction) {
+      throw new NotFoundException('Transaction not found');
     }
-  }
 
-  async createAccount(accountData: {
-    Name: string;
-    Industry: string;
-    BillingCity: string;
-    BillingCountry: string;
-  }) {
-    try {
-      const response = await this.client.post('/sobjects/Account', accountData);
-      logger.info(`Created Salesforce account: ${response.data.id}`);
-      return response.data;
-    } catch (err) {
-      logger.error('Failed to create Salesforce account:', err);
-      throw err;
-    }
-  }
-
-  async createFuelTransaction(transaction: {
-    Vehicle__c: string;
-    Amount__c: number;
-    Odometer_Reading__c: number;
-    Transaction_Date__c: string;
-    Location__Latitude__s: number;
-    Location__Longitude__s: number;
-  }) {
-    try {
-      const response = await this.client.post('/sobjects/Fuel_Transaction__c', transaction);
-      logger.info(`Created Salesforce fuel transaction: ${response.data.id}`);
-      return response.data;
-    } catch (err) {
-      logger.error('Failed to create Salesforce fuel transaction:', err);
-      throw err;
-    }
-  }
-
-  async getVehicleDetails(vehicleId: string) {
-    try {
-      const response = await this.client.get(`/sobjects/Vehicle__c/${vehicleId}`);
-      return response.data;
-    } catch (err) {
-      logger.error('Failed to get Salesforce vehicle details:', err);
-      throw err;
-    }
-  }
-
-  async updateVehicleStatus(vehicleId: string, status: string) {
-    try {
-      await this.client.patch(`/sobjects/Vehicle__c/${vehicleId}`, {
-        Status__c: status,
-      });
-      logger.info(`Updated vehicle ${vehicleId} status to ${status}`);
-    } catch (err) {
-      logger.error('Failed to update vehicle status:', err);
-      throw err;
-    }
-  }
-}
-
-export const salesforceIntegration = new SalesforceIntegration();
-```
-
-### **2. Stripe Payment Processing**
-```typescript
-// src/integrations/stripe.ts
-import Stripe from 'stripe';
-import { logger } from '../utils/logger';
-
-class StripeIntegration {
-  private stripe: Stripe;
-
-  constructor() {
-    this.stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-      apiVersion: '2023-08-16',
-    });
-  }
-
-  async createCustomer(name: string, email: string) {
-    try {
-      const customer = await this.stripe.customers.create({
-        name,
-        email,
-      });
-      logger.info(`Created Stripe customer: ${customer.id}`);
-      return customer;
-    } catch (err) {
-      logger.error('Failed to create Stripe customer:', err);
-      throw err;
-    }
-  }
-
-  async createPaymentIntent(
-    customerId: string,
-    amount: number,
-    currency: string = 'usd',
-    metadata?: Record<string, string>
-  ) {
-    try {
-      const paymentIntent = await this.stripe.paymentIntents.create({
-        amount,
-        currency,
-        customer: customerId,
-        metadata,
-        automatic_payment_methods: {
-          enabled: true,
-        },
-      });
-      logger.info(`Created payment intent: ${paymentIntent.id}`);
-      return paymentIntent;
-    } catch (err) {
-      logger.error('Failed to create payment intent:', err);
-      throw err;
-    }
-  }
-
-  async confirmPayment(paymentIntentId: string) {
-    try {
-      const paymentIntent = await this.stripe.paymentIntents.confirm(
-        paymentIntentId
-      );
-      logger.info(`Confirmed payment: ${paymentIntent.id}`);
-      return paymentIntent;
-    } catch (err) {
-      logger.error('Failed to confirm payment:', err);
-      throw err;
-    }
-  }
-
-  async createSubscription(
-    customerId: string,
-    priceId: string,
-    trialDays?: number
-  ) {
-    try {
-      const subscription = await this.stripe.subscriptions.create({
-        customer: customerId,
-        items: [{ price: priceId }],
-        trial_period_days: trialDays,
-        payment_behavior: 'default_incomplete',
-        expand: ['latest_invoice.payment_intent'],
-      });
-      logger.info(`Created subscription: ${subscription.id}`);
-      return subscription;
-    } catch (err) {
-      logger.error('Failed to create subscription:', err);
-      throw err;
-    }
-  }
-
-  async handleWebhook(signature: string, payload: Buffer) {
-    try {
-      const event = this.stripe.webhooks.constructEvent(
-        payload,
-        signature,
-        process.env.STRIPE_WEBHOOK_SECRET!
-      );
-
-      switch (event.type) {
-        case 'payment_intent.succeeded':
-          const paymentIntent = event.data.object as Stripe.PaymentIntent;
-          logger.info(`Payment succeeded: ${paymentIntent.id}`);
-          break;
-        case 'invoice.payment_succeeded':
-          const invoice = event.data.object as Stripe.Invoice;
-          logger.info(`Invoice payment succeeded: ${invoice.id}`);
-          break;
-        case 'customer.subscription.deleted':
-          const subscription = event.data.object as Stripe.Subscription;
-          logger.info(`Subscription deleted: ${subscription.id}`);
-          break;
-        default:
-          logger.info(`Unhandled event type: ${event.type}`);
-      }
-
-      return { received: true };
-    } catch (err) {
-      logger.error('Webhook error:', err);
-      throw err;
-    }
-  }
-}
-
-export const stripeIntegration = new StripeIntegration();
-```
-
-### **3. SendGrid Email Service**
-```typescript
-// src/integrations/sendgrid.ts
-import sgMail from '@sendgrid/mail';
-import { logger } from '../utils/logger';
-
-class SendGridIntegration {
-  constructor() {
-    sgMail.setApiKey(process.env.SENDGRID_API_KEY!);
-  }
-
-  async sendEmail(
-    to: string | string[],
-    subject: string,
-    html: string,
-    from: string = 'noreply@fuelmanagement.com'
-  ) {
-    try {
-      const msg = {
-        to,
-        from,
-        subject,
-        html,
-      };
-
-      await sgMail.send(msg);
-      logger.info(`Email sent to ${Array.isArray(to) ? to.join(', ') : to}`);
-    } catch (err) {
-      logger.error('Failed to send email:', err);
-      throw err;
-    }
-  }
-
-  async sendFuelReportEmail(
-    to: string,
-    reportData: {
-      vehicleId: string;
-      period: string;
-      totalFuel: number;
-      totalDistance: number;
-      efficiency: number;
-    }
-  ) {
-    try {
-      const html = `
-        <h1>Fuel Consumption Report</h1>
-        <p><strong>Vehicle ID:</strong> ${reportData.vehicleId}</p>
-        <p><strong>Period:</strong> ${reportData.period}</p>
-        <p><strong>Total Fuel Consumed:</strong> ${reportData.totalFuel} liters</p>
-        <p><strong>Total Distance:</strong> ${reportData.totalDistance} km</p>
-        <p><strong>Fuel Efficiency:</strong> ${reportData.efficiency.toFixed(2)} km/l</p>
-      `;
-
-      await this.sendEmail(to, 'Fuel Consumption Report', html);
-    } catch (err) {
-      logger.error('Failed to send fuel report email:', err);
-      throw err;
-    }
-  }
-
-  async sendAlertEmail(
-    to: string,
-    alertType: string,
-    vehicleId: string,
-    details: string
-  ) {
-    try {
-      const html = `
-        <h1>Alert: ${alertType}</h1>
-        <p><strong>Vehicle ID:</strong> ${vehicleId}</p>
-        <p><strong>Details:</strong> ${details}</p>
-        <p>Please take appropriate action.</p>
-      `;
-
-      await this.sendEmail(to, `Alert: ${alertType}`, html);
-    } catch (err) {
-      logger.error('Failed to send alert email:', err);
-      throw err;
-    }
-  }
-
-  async sendBulkEmails(
-    emails: Array<{
-      to: string;
-      subject: string;
-      html: string;
-    }>
-  ) {
-    try {
-      const messages = emails.map((email) => ({
-        to: email.to,
-        from: 'noreply@fuelmanagement.com',
-        subject: email.subject,
-        html: email.html,
-      }));
-
-      await sgMail.send(messages);
-      logger.info(`Sent ${emails.length} bulk emails`);
-    } catch (err) {
-      logger.error('Failed to send bulk emails:', err);
-      throw err;
-    }
-  }
-}
-
-export const sendGridIntegration = new SendGridIntegration();
-```
-
-### **4. Twilio SMS Notifications**
-```typescript
-// src/integrations/twilio.ts
-import twilio from 'twilio';
-import { logger } from '../utils/logger';
-
-class TwilioIntegration {
-  private client: twilio.Twilio;
-
-  constructor() {
-    this.client = twilio(
-      process.env.TWILIO_ACCOUNT_SID!,
-      process.env.TWILIO_AUTH_TOKEN!
+    // Only allow updates to certain fields
+    const allowedUpdates = ['notes', 'status'];
+    const updates = Object.keys(updateData).filter((key) =>
+      allowedUpdates.includes(key),
     );
-  }
 
-  async sendSMS(to: string, body: string) {
-    try {
-      const message = await this.client.messages.create({
-        body,
-        from: process.env.TWILIO_PHONE_NUMBER!,
-        to,
-      });
-      logger.info(`SMS sent to ${to}: ${message.sid}`);
-      return message;
-    } catch (err) {
-      logger.error('Failed to send SMS:', err);
-      throw err;
+    if (updates.length === 0) {
+      throw new BadRequestException('No valid fields to update');
     }
+
+    // Apply updates
+    updates.forEach((key) => {
+      transaction[key] = updateData[key];
+    });
+
+    // Save changes
+    const updatedTransaction = await this.fuelTransactionRepository.save(transaction);
+
+    // Publish event if status changed
+    if (updates.includes('status')) {
+      await this.fuelEventPublisher.publishTransactionUpdated(updatedTransaction);
+    }
+
+    return plainToClass(FuelTransactionResponseDto, updatedTransaction);
   }
 
-  async sendFuelAlertSMS(
-    phoneNumber: string,
+  async getFuelEfficiency(
     vehicleId: string,
-    fuelLevel: number,
-    threshold: number
-  ) {
-    try {
-      const message = `ALERT: Vehicle ${vehicleId} fuel level is ${fuelLevel}% (below threshold of ${threshold}%). Please refuel.`;
-      await this.sendSMS(phoneNumber, message);
-    } catch (err) {
-      logger.error('Failed to send fuel alert SMS:', err);
-      throw err;
-    }
+    period: 'DAILY' | 'WEEKLY' | 'MONTHLY' | 'QUARTERLY' | 'YEARLY',
+  ): Promise<any> {
+    this.logger.log(`Calculating fuel efficiency for vehicle ${vehicleId}`);
+
+    return this.fuelEfficiencyService.calculateEfficiency(vehicleId, period);
   }
 
-  async sendMaintenanceReminderSMS(
-    phoneNumber: string,
-    vehicleId: string,
-    nextMaintenanceDate: string
-  ) {
-    try {
-      const message = `REMINDER: Vehicle ${vehicleId} requires maintenance on ${nextMaintenanceDate}. Please schedule.`;
-      await this.sendSMS(phoneNumber, message);
-    } catch (err) {
-      logger.error('Failed to send maintenance reminder SMS:', err);
-      throw err;
+  async detectFraud(transactionId: string): Promise<number> {
+    this.logger.log(`Detecting fraud for transaction ${transactionId}`);
+
+    const transaction = await this.fuelTransactionRepository.findOne({
+      where: { id: transactionId },
+    });
+
+    if (!transaction) {
+      throw new NotFoundException('Transaction not found');
     }
+
+    return this.fraudDetectionService.calculateFraudScore(transaction);
   }
 
-  async sendBulkSMS(phoneNumbers: string[], body: string) {
-    try {
-      const messages = await Promise.all(
-        phoneNumbers.map((number) => this.sendSMS(number, body))
-      );
-      logger.info(`Sent ${messages.length} bulk SMS messages`);
-      return messages;
-    } catch (err) {
-      logger.error('Failed to send bulk SMS:', err);
-      throw err;
-    }
+  async getFraudulentTransactions(
+    pagination: PaginationDto,
+  ): Promise<PaginatedResponseDto<FuelTransactionResponseDto>> {
+    this.logger.log('Retrieving fraudulent transactions');
+
+    const { page = 1, limit = 20 } = pagination;
+
+    const [transactions, total] = await this.fuelTransactionRepository.findAndCount({
+      where: {
+        fraudScore: Between(this.maxFraudScore, 100),
+      },
+      order: { fraudScore: 'DESC' },
+      skip: (page - 1) * limit,
+      take: limit,
+    });
+
+    const totalPages = Math.ceil(total / limit);
+
+    return {
+      data: plainToClass(FuelTransactionResponseDto, transactions),
+      pagination: {
+        total,
+        page,
+        limit,
+        totalPages,
+      },
+    };
   }
 }
-
-export const twilioIntegration = new TwilioIntegration();
 ```
 
-### **5. Google Analytics 4**
 ```typescript
-// src/integrations/googleAnalytics.ts
-import { logger } from '../utils/logger';
+// src/fuel/services/fuel-verification.service.ts
+import { Injectable, Logger } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
+import { FuelTransaction, FuelTransactionStatus, VerificationMethod } from '../models/fuel-transaction.model';
+import { VehicleClient } from '../../vehicle/clients/vehicle.client';
+import { DriverClient } from '../../driver/clients/driver.client';
+import { TelematicsClient } from '../../integration/clients/telematics.client';
+import { FuelCardClient } from '../../integration/clients/fuel-card.client';
 
-declare global {
-  interface Window {
-    gtag: any;
+@Injectable()
+export class FuelVerificationService {
+  private readonly logger = new Logger(FuelVerificationService.name);
+  private readonly verificationTimeout: number;
+  private readonly maxOdometerDeviation: number;
+  private readonly maxLocationDeviation: number;
+
+  constructor(
+    private readonly vehicleClient: VehicleClient,
+    private readonly driverClient: DriverClient,
+    private readonly telematicsClient: TelematicsClient,
+    private readonly fuelCardClient: FuelCardClient,
+    private readonly configService: ConfigService,
+  ) {
+    this.verificationTimeout = this.configService.get<number>('VERIFICATION_TIMEOUT', 30000);
+    this.maxOdometerDeviation = this.configService.get<number>('MAX_ODOMETER_DEVIATION', 5);
+    this.maxLocationDeviation = this.configService.get<number>('MAX_LOCATION_DEVIATION', 0.5); // miles
   }
-}
 
-class GoogleAnalytics {
-  private readonly TRACKING_ID = process.env.GA4_TRACKING_ID!;
+  async verifyTransaction(
+    transaction: FuelTransaction,
+  ): Promise<{
+    status: FuelTransactionStatus;
+    method: VerificationMethod;
+    fraudScore: number;
+  }> {
+    this.logger.log(`Verifying transaction ${transaction.id}`);
 
-  initialize() {
     try {
-      // Load GA4 script
-      const script = document.createElement('script');
-      script.async = true;
-      script.src = `https://www.googletagmanager.com/gtag/js?id=${this.TRACKING_ID}`;
-      document.head.appendChild(script);
+      // Check for telematics data first (most reliable)
+      const telematicsResult = await this.verifyWithTelematics(transaction);
+      if (telematicsResult) {
+        return {
+          status: FuelTransactionStatus.VERIFIED,
+          method: VerificationMethod.TELEMATICS,
+          fraudScore: 0,
+        };
+      }
 
-      // Initialize GA4
-      window.dataLayer = window.dataLayer || [];
-      window.gtag = function () {
-        window.dataLayer.push(arguments);
+      // Check with fuel card provider
+      const fuelCardResult = await this.verifyWithFuelCard(transaction);
+      if (fuelCardResult) {
+        return {
+          status: fuelCardResult.isValid
+            ? FuelTransactionStatus.VERIFIED
+            : FuelTransactionStatus.REJECTED,
+          method: VerificationMethod.AUTOMATIC,
+          fraudScore: fuelCardResult.fraudScore,
+        };
+      }
+
+      // Fall back to manual verification
+      return {
+        status: FuelTransactionStatus.PENDING,
+        method: VerificationMethod.MANUAL,
+        fraudScore: 0,
       };
-
-      window.gtag('js', new Date());
-      window.gtag('config', this.TRACKING_ID, {
-        send_page_view: true,
-      });
-
-      logger.info('Google Analytics initialized');
-    } catch (err) {
-      logger.error('Failed to initialize Google Analytics:', err);
+    } catch (error) {
+      this.logger.error(`Error verifying transaction ${transaction.id}: ${error.message}`);
+      // If verification fails, flag for manual review
+      return {
+        status: FuelTransactionStatus.FLAGGED,
+        method: VerificationMethod.MANUAL,
+        fraudScore: 50,
+      };
     }
   }
 
-  trackPageView(pagePath: string, pageTitle: string) {
+  private async verifyWithTelematics(
+    transaction: FuelTransaction,
+  ): Promise<boolean> {
     try {
-      window.gtag('config', this.TRACKING_ID, {
-        page_path: pagePath,
-        page_title: pageTitle,
-      });
-      logger.info(`Tracked page view: ${pagePath}`);
-    } catch (err) {
-      logger.error('Failed to track page view:', err);
-    }
-  }
+      this.logger.log(`Verifying transaction ${transaction.id} with telematics`);
 
-  trackEvent(
-    eventName: string,
-    eventParams: Record<string, any> = {},
-    eventCategory?: string
-  ) {
-    try {
-      const params: Record<string, any> = { ...eventParams };
-      if (eventCategory) {
-        params.event_category = eventCategory;
+      // Get telematics data for the transaction time window
+      const startTime = new Date(transaction.transactionDate.getTime() - this.verificationTimeout);
+      const endTime = new Date(transaction.transactionDate.getTime() + this.verificationTimeout);
+
+      const telematicsData = await this.telematicsClient.getVehicleData(
+        transaction.vehicleId,
+        startTime,
+        endTime,
+      );
+
+      if (!telematicsData || telematicsData.length === 0) {
+        this.logger.log(`No telematics data found for transaction ${transaction.id}`);
+        return false;
       }
 
-      window.gtag('event', eventName, params);
-      logger.info(`Tracked event: ${eventName}`);
-    } catch (err) {
-      logger.error('Failed to track event:', err);
-    }
-  }
+      // Find the closest telematics record to the transaction time
+      const closestRecord = telematicsData.reduce((prev, current) =>
+        Math.abs(current.timestamp.getTime() - transaction.transactionDate.getTime()) <
+        Math.abs(prev.timestamp.getTime() - transaction.transactionDate.getTime())
+          ? current
+          : prev,
+      );
 
-  trackFuelTransaction(transaction: {
-    vehicleId: string;
-    amount: number;
-    odometerReading: number;
-    fuelType: string;
-  }) {
-    try {
-      this.trackEvent('fuel_transaction', {
-        vehicle_id: transaction.vehicleId,
-        amount: transaction.amount,
-        odometer: transaction.odometerReading,
-        fuel_type: transaction.fuelType,
-        value: transaction.amount,
-      }, 'fuel');
-    } catch (err) {
-      logger.error('Failed to track fuel transaction:', err);
-    }
-  }
-
-  trackLogin(userId: string, method: string) {
-    try {
-      this.trackEvent('login', {
-        method,
-        user_id: userId,
-      }, 'authentication');
-    } catch (err) {
-      logger.error('Failed to track login:', err);
-    }
-  }
-
-  trackError(error: Error) {
-    try {
-      this.trackEvent('exception', {
-        description: error.message,
-        fatal: false,
-      }, 'errors');
-    } catch (err) {
-      logger.error('Failed to track error:', err);
-    }
-  }
-}
-
-export const googleAnalytics = new GoogleAnalytics();
-```
-
----
-
-## **Gamification System**
-*(150+ lines minimum)*
-
-### **1. Points Calculation Engine**
-```typescript
-// src/gamification/pointsEngine.ts
-import { prisma } from '../database/prisma';
-import { logger } from '../utils/logger';
-
-class PointsEngine {
-  private readonly POINTS_CONFIG = {
-    fuel_transaction: 10,
-    efficient_refuel: 20,
-    maintenance_scheduled: 15,
-    daily_login: 5,
-    report_generated: 5,
-    feedback_submitted: 10,
-  };
-
-  async calculatePoints(userId: string, action: string, metadata?: any) {
-    try {
-      // Validate action
-      if (!this.POINTS_CONFIG[action as keyof typeof this.POINTS_CONFIG]) {
-        throw new Error(`Invalid action: ${action}`);
+      // Verify odometer reading
+      const odometerDeviation = Math.abs(
+        closestRecord.odometer - transaction.odometerReading,
+      );
+      if (odometerDeviation > this.maxOdometerDeviation) {
+        this.logger.warn(
+          `Odometer deviation too high for transaction ${transaction.id}: ${odometerDeviation} miles`,
+        );
+        return false;
       }
 
-      // Check for existing points for this action (prevent duplicates)
-      const existingPoints = await prisma.userPoints.findFirst({
-        where: {
-          userId,
-          action,
-          createdAt: {
-            gte: new Date(Date.now() - 24 * 60 * 60 * 1000), // Last 24 hours
-          },
-        },
-      });
-
-      if (existingPoints) {
-        logger.info(`Points already awarded for action ${action} by user ${userId}`);
-        return existingPoints;
+      // Verify location
+      const locationDeviation = this.calculateDistance(
+        closestRecord.location.latitude,
+        closestRecord.location.longitude,
+        transaction.location.latitude,
+        transaction.location.longitude,
+      );
+      if (locationDeviation > this.maxLocationDeviation) {
+        this.logger.warn(
+          `Location deviation too high for transaction ${transaction.id}: ${locationDeviation} miles`,
+        );
+        return false;
       }
 
-      // Calculate points
-      let points = this.POINTS_CONFIG[action as keyof typeof this.POINTS_CONFIG];
-
-      // Apply multipliers based on metadata
-      if (action === 'fuel_transaction' && metadata?.efficiency > 15) {
-        points += 5; // Bonus for efficient refueling
-      }
-
-      if (action === 'maintenance_scheduled' && metadata?.isPreventive) {
-        points += 10; // Bonus for preventive maintenance
-      }
-
-      // Create points record
-      const userPoints = await prisma.userPoints.create({
-        data: {
-          userId,
-          action,
-          points,
-          metadata: metadata || {},
-        },
-      });
-
-      // Update user's total points
-      await prisma.user.update({
-        where: { id: userId },
-        data: {
-          totalPoints: {
-            increment: points,
-          },
-        },
-      });
-
-      logger.info(`Awarded ${points} points to user ${userId} for action ${action}`);
-      return userPoints;
-    } catch (err) {
-      logger.error('Failed to calculate points:', err);
-      throw err;
-    }
-  }
-
-  async getUserPoints(userId: string) {
-    try {
-      const user = await prisma.user.findUnique({
-        where: { id: userId },
-        select: { totalPoints: true },
-      });
-
-      if (!user) {
-        throw new Error('User not found');
-      }
-
-      return user.totalPoints;
-    } catch (err) {
-      logger.error('Failed to get user points:', err);
-      throw err;
-    }
-  }
-
-  async getPointsHistory(userId: string, limit: number = 10) {
-    try {
-      const pointsHistory = await prisma.userPoints.findMany({
-        where: { userId },
-        orderBy: { createdAt: 'desc' },
-        take: limit,
-      });
-
-      return pointsHistory;
-    } catch (err) {
-      logger.error('Failed to get points history:', err);
-      throw err;
-    }
-  }
-
-  async redeemPoints(userId: string, points: number, rewardId: string) {
-    try {
-      // Check if user has enough points
-      const user = await prisma.user.findUnique({
-        where: { id: userId },
-      });
-
-      if (!user || user.totalPoints < points) {
-        throw new Error('Insufficient points');
-      }
-
-      // Create redemption record
-      const redemption = await prisma.pointsRedemption.create({
-        data: {
-          userId,
-          points,
-          rewardId,
-          status: 'PENDING',
-        },
-      });
-
-      // Deduct points
-      await prisma.user.update({
-        where: { id: userId },
-        data: {
-          totalPoints: {
-            decrement: points,
-          },
-        },
-      });
-
-      logger.info(`User ${userId} redeemed ${points} points for reward ${rewardId}`);
-      return redemption;
-    } catch (err) {
-      logger.error('Failed to redeem points:', err);
-      throw err;
-    }
-  }
-}
-
-export const pointsEngine = new PointsEngine();
-```
-
-### **2. Badge/Achievement System**
-```typescript
-// src/gamification/badgeSystem.ts
-import { prisma } from '../database/prisma';
-import { logger } from '../utils/logger';
-
-class BadgeSystem {
-  private readonly BADGES = {
-    fuel_saver: {
-      name: 'Fuel Saver',
-      description: 'Achieve 15 km/l fuel efficiency for 30 consecutive days',
-      points: 100,
-      condition: (userId: string) => this.checkFuelSaver(userId),
-    },
-    maintenance_master: {
-      name: 'Maintenance Master',
-      description: 'Schedule 10 preventive maintenance sessions',
-      points: 80,
-      condition: (userId: string) => this.checkMaintenanceMaster(userId),
-    },
-    early_bird: {
-      name: 'Early Bird',
-      description: 'Log fuel transactions before 8 AM for 7 consecutive days',
-      points: 50,
-      condition: (userId: string) => this.checkEarlyBird(userId),
-    },
-    feedback_champion: {
-      name: 'Feedback Champion',
-      description: 'Submit 5 feedback reports with positive ratings',
-      points: 60,
-      condition: (userId: string) => this.checkFeedbackChampion(userId),
-    },
-  };
-
-  async checkAndAwardBadges(userId: string) {
-    try {
-      const awardedBadges = await prisma.userBadge.findMany({
-        where: { userId },
-        select: { badgeId: true },
-      });
-
-      const awardedBadgeIds = awardedBadges.map((b) => b.badgeId);
-      const newBadges = [];
-
-      for (const [badgeId, badge] of Object.entries(this.BADGES)) {
-        if (!awardedBadgeIds.includes(badgeId)) {
-          const isEligible = await badge.condition(userId);
-          if (isEligible) {
-            const userBadge = await prisma.userBadge.create({
-              data: {
-                userId,
-                badgeId,
-                awardedAt: new Date(),
-              },
-            });
-
-            // Award points for the badge
-            await prisma.userPoints.create({
-              data: {
-                userId,
-                action: `badge_${badgeId}`,
-                points: badge.points,
-                metadata: { badgeId },
-              },
-            });
-
-            // Update user's total points
-            await prisma.user.update({
-              where: { id: userId },
-              data: {
-                totalPoints: {
-                  increment: badge.points,
-                },
-              },
-            });
-
-            newBadges.push(userBadge);
-            logger.info(`Awarded badge ${badgeId} to user ${userId}`);
-          }
-        }
-      }
-
-      return newBadges;
-    } catch (err) {
-      logger.error('Failed to check and award badges:', err);
-      throw err;
-    }
-  }
-
-  private async checkFuelSaver(userId: string) {
-    try {
-      const thirtyDaysAgo = new Date();
-      thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
-
-      const transactions = await prisma.fuelTransaction.findMany({
-        where: {
-          userId,
-          timestamp: {
-            gte: thirtyDaysAgo,
-          },
-        },
-        orderBy: { timestamp: 'asc' },
-      });
-
-      if (transactions.length < 30) return false;
-
-      let consecutiveDays = 0;
-      let previousDate = new Date(0);
-
-      for (const tx of transactions) {
-        const currentDate = new Date(tx.timestamp);
-        currentDate.setHours(0, 0, 0, 0);
-
-        if (previousDate.getTime() === 0) {
-          previousDate = currentDate;
-          continue;
-        }
-
-        if (currentDate.getTime() === previousDate.getTime() + 86400000) {
-          // Same day as previous (shouldn't happen)
-          continue;
-        }
-
-        if (currentDate.getTime() === previousDate.getTime() + 86400000 * 2) {
-          // One day gap
-          consecutiveDays = 1;
-        } else if (currentDate.getTime() === previousDate.getTime() + 86400000) {
-          // Consecutive day
-          consecutiveDays++;
-        } else {
-          // Non-consecutive
-          consecutiveDays = 1;
-        }
-
-        previousDate = currentDate;
-
-        // Calculate efficiency (km/l)
-        const prevTx = await prisma.fuelTransaction.findFirst({
-          where: {
-            userId,
-            timestamp: {
-              lt: tx.timestamp,
-            },
-          },
-          orderBy: { timestamp: 'desc' },
-        });
-
-        if (prevTx) {
-          const distance = tx.odometerReading - prevTx.odometerReading;
-          const efficiency = distance / tx.amount;
-          if (efficiency < 15) {
-            return false;
-          }
-        }
-      }
-
-      return consecutiveDays >= 30;
-    } catch (err) {
-      logger.error('Failed to check Fuel Saver badge:', err);
-      return false;
-    }
-  }
-
-  private async checkMaintenanceMaster(userId: string) {
-    try {
-      const maintenanceSessions = await prisma.maintenanceSession.count({
-        where: {
-          userId,
-          type: 'PREVENTIVE',
-        },
-      });
-
-      return maintenanceSessions >= 10;
-    } catch (err) {
-      logger.error('Failed to check Maintenance Master badge:', err);
-      return false;
-    }
-  }
-
-  private async checkEarlyBird(userId: string) {
-    try {
-      const sevenDaysAgo = new Date();
-      sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
-
-      const transactions = await prisma.fuelTransaction.findMany({
-        where: {
-          userId,
-          timestamp: {
-            gte: sevenDaysAgo,
-          },
-        },
-        orderBy: { timestamp: 'asc' },
-      });
-
-      if (transactions.length < 7) return false;
-
-      let consecutiveDays = 0;
-      let previousDate = new Date(0);
-
-      for (const tx of transactions) {
-        const currentDate = new Date(tx.timestamp);
-        currentDate.setHours(0, 0, 0, 0);
-
-        if (previousDate.getTime() === 0) {
-          previousDate = currentDate;
-          continue;
-        }
-
-        if (currentDate.getTime() === previousDate.getTime() + 86400000) {
-          consecutiveDays++;
-        } else {
-          consecutiveDays = 1;
-        }
-
-        previousDate = currentDate;
-
-        // Check if transaction was before 8 AM
-        const txDate = new Date(tx.timestamp);
-        if (txDate.getHours() >= 8) {
+      // Verify fuel level (if available)
+      if (closestRecord.fuelLevel !== undefined) {
+        const expectedFuelLevel = closestRecord.fuelLevel + transaction.gallons;
+        if (expectedFuelLevel > closestRecord.tankCapacity) {
+          this.logger.warn(
+            `Fuel level exceeds tank capacity for transaction ${transaction.id}`,
+          );
           return false;
         }
       }
 
-      return consecutiveDays >= 7;
-    } catch (err) {
-      logger.error('Failed to check Early Bird badge:', err);
+      this.logger.log(`Transaction ${transaction.id} verified with telematics`);
+      return true;
+    } catch (error) {
+      this.logger.error(
+        `Error verifying transaction ${transaction.id} with telematics: ${error.message}`,
+      );
       return false;
     }
   }
 
-  private async checkFeedbackChampion(userId: string) {
+  private async verifyWithFuelCard(
+    transaction: FuelTransaction,
+  ): Promise<{ isValid: boolean; fraudScore: number }> {
     try {
-      const feedbacks = await prisma.feedback.count({
-        where: {
-          userId,
-          rating: {
-            gte: 4, // 4 or 5 stars
-          },
-        },
-      });
+      this.logger.log(`Verifying transaction ${transaction.id} with fuel card`);
 
-      return feedbacks >= 5;
-    } catch (err) {
-      logger.error('Failed to check Feedback Champion badge:', err);
-      return false;
-    }
-  }
-
-  async getUserBadges(userId: string) {
-    try {
-      const badges = await prisma.userBadge.findMany({
-        where: { userId },
-        include: {
-          badge: {
-            select: {
-              id: true,
-              name: true,
-              description: true,
-            },
-          },
-        },
-      });
-
-      return badges.map((b) => ({
-        id: b.badgeId,
-        name: b.badge.name,
-        description: b.badge.description,
-        awardedAt: b.awardedAt,
-      }));
-    } catch (err) {
-      logger.error('Failed to get user badges:', err);
-      throw err;
-    }
-  }
-}
-
-export const badgeSystem = new BadgeSystem();
-```
-
-### **3. Leaderboard Implementation**
-```typescript
-// src/gamification/leaderboard.ts
-import { prisma } from '../database/prisma';
-import { logger } from '../utils/logger';
-
-class Leaderboard {
-  async getLeaderboard(
-    timePeriod: 'daily' | 'weekly' | 'monthly' | 'all_time' = 'all_time',
-    limit: number = 10
-  ) {
-    try {
-      const whereClause: any = {};
-
-      // Apply time period filter
-      if (timePeriod !== 'all_time') {
-        const now = new Date();
-        let startDate: Date;
-
-        switch (timePeriod) {
-          case 'daily':
-            startDate = new Date(now.setHours(0, 0, 0, 0));
-            break;
-          case 'weekly':
-            startDate = new Date(now.setDate(now.getDate() - 7));
-            break;
-          case 'monthly':
-            startDate = new Date(now.setMonth(now.getMonth() - 1));
-            break;
-        }
-
-        whereClause.createdAt = {
-          gte: startDate,
-        };
+      if (!transaction.fuelCardNumber) {
+        this.logger.log(`No fuel card number for transaction ${transaction.id}`);
+        return { isValid: false, fraudScore: 0 };
       }
 
-      const leaderboard = await prisma.userPoints.groupBy({
-        by: ['userId'],
-        where: whereClause,
-        _sum: {
-          points: true,
-        },
-        orderBy: {
-          _sum: {
-            points: 'desc',
-          },
-        },
-        take: limit,
-      });
-
-      // Get user details
-      const userIds = leaderboard.map((entry) => entry.userId);
-      const users = await prisma.user.findMany({
-        where: {
-          id: { in: userIds },
-        },
-        select: {
-          id: true,
-          name: true,
-          email: true,
-        },
-      });
-
-      // Combine results
-      const result = leaderboard.map((entry) => {
-        const user = users.find((u) => u.id === entry.userId);
-        return {
-          userId: entry.userId,
-          name: user?.name || 'Unknown',
-          email: user?.email || '',
-          points: entry._sum.points || 0,
-        };
-      });
-
-      return result;
-    } catch (err) {
-      logger.error('Failed to get leaderboard:', err);
-      throw err;
-    }
-  }
-
-  async getUserRank(userId: string, timePeriod: 'daily' | 'weekly' | 'monthly' | 'all_time' = 'all_time') {
-    try {
-      const leaderboard = await this.getLeaderboard(timePeriod);
-      const userIndex = leaderboard.findIndex((entry) => entry.userId === userId);
-
-      if (userIndex === -1) {
-        return {
-          rank: null,
-          points: 0,
-          totalUsers: leaderboard.length,
-        };
-      }
-
-      return {
-        rank: userIndex + 1,
-        points: leaderboard[userIndex].points,
-        totalUsers: leaderboard.length,
-      };
-    } catch (err) {
-      logger.error('Failed to get user rank:', err);
-      throw err;
-    }
-  }
-
-  async getLeaderboardWithBadges(timePeriod: 'daily' | 'weekly' | 'monthly' | 'all_time' = 'all_time') {
-    try {
-      const leaderboard = await this.getLeaderboard(timePeriod);
-
-      // Get badges for each user
-      const usersWithBadges = await Promise.all(
-        leaderboard.map(async (entry) => {
-          const badges = await prisma.userBadge.count({
-            where: { userId: entry.userId },
-          });
-
-          return {
-            ...entry,
-            badges,
-          };
-        })
+      // Get fuel card transaction
+      const fuelCardTransaction = await this.fuelCardClient.getTransaction(
+        transaction.fuelCardNumber,
+        transaction.transactionId,
       );
 
-      return usersWithBadges;
-    } catch (err) {
-      logger.error('Failed to get leaderboard with badges:', err);
-      throw err;
+      if (!fuelCardTransaction) {
+        this.logger.warn(`Fuel card transaction not found for ${transaction.id}`);
+        return { isValid: false, fraudScore: 70 };
+      }
+
+      // Verify transaction details
+      const amountMatch = Math.abs(
+        fuelCardTransaction.totalAmount - transaction.totalAmount,
+      ) < 0.01;
+
+      const gallonsMatch = Math.abs(
+        fuelCardTransaction.gallons - transaction.gallons,
+      ) < 0.1;
+
+      const locationMatch = this.calculateDistance(
+        fuelCardTransaction.location.latitude,
+        fuelCardTransaction.location.longitude,
+        transaction.location.latitude,
+        transaction.location.longitude,
+      ) < this.maxLocationDeviation;
+
+      // Calculate fraud score
+      let fraudScore = 0;
+      if (!amountMatch) fraudScore += 30;
+      if (!gallonsMatch) fraudScore += 30;
+      if (!locationMatch) fraudScore += 40;
+
+      const isValid = amountMatch && gallonsMatch && locationMatch;
+
+      this.logger.log(
+        `Fuel card verification for ${transaction.id}: ${isValid ? 'VALID' : 'INVALID'}`,
+      );
+
+      return { isValid, fraudScore };
+    } catch (error) {
+      this.logger.error(
+        `Error verifying transaction ${transaction.id} with fuel card: ${error.message}`,
+      );
+      return { isValid: false, fraudScore: 50 };
     }
+  }
+
+  private calculateDistance(
+    lat1: number,
+    lon1: number,
+    lat2: number,
+    lon2: number,
+  ): number {
+    // Haversine formula to calculate distance between two points in miles
+    const R = 3958.8; // Earth radius in miles
+    const dLat = this.toRadians(lat2 - lat1);
+    const dLon = this.toRadians(lon2 - lon1);
+    const a =
+      Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+      Math.cos(this.toRadians(lat1)) *
+        Math.cos(this.toRadians(lat2)) *
+        Math.sin(dLon / 2) *
+        Math.sin(dLon / 2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    return R * c;
+  }
+
+  private toRadians(degrees: number): number {
+    return degrees * (Math.PI / 180);
   }
 }
-
-export const leaderboard = new Leaderboard();
 ```
 
-### **4. Reward Notification System**
 ```typescript
-// src/gamification/rewardNotifications.ts
-import { prisma } from '../database/prisma';
-import { logger } from '../utils/logger';
-import { sendGridIntegration } from '../integrations/sendgrid';
-import { twilioIntegration } from '../integrations/twilio';
+// src/fuel/services/fuel-efficiency.service.ts
+import { Injectable, Logger } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository, Between } from 'typeorm';
+import { FuelTransaction } from '../models/fuel-transaction.model';
+import { VehicleClient } from '../../vehicle/clients/vehicle.client';
+import { DriverClient } from '../../driver/clients/driver.client';
 
-class RewardNotificationSystem {
-  async notifyNewPoints(userId: string, points: number, action: string) {
-    try {
-      const user = await prisma.user.findUnique({
-        where: { id: userId },
-        select: { name: true, email: true, phoneNumber: true },
-      });
+@Injectable()
+export class FuelEfficiencyService {
+  private readonly logger = new Logger(FuelEfficiencyService.name);
 
-      if (!user) {
-        throw new Error('User not found');
-      }
+  constructor(
+    @InjectRepository(FuelTransaction)
+    private readonly fuelTransactionRepository: Repository<FuelTransaction>,
+    private readonly vehicleClient: VehicleClient,
+    private readonly driverClient: DriverClient,
+  ) {}
 
-      // Send email
-      if (user.email) {
-        const subject = `You earned ${points} points!`;
-        const html = `
-          <h1>Congratulations, ${user.name}!</h1>
-          <p>You earned ${points} points for ${action}.</p>
-          <p>Keep up the great work!</p>
-        `;
-
-        await sendGridIntegration.sendEmail(user.email, subject, html);
-      }
-
-      // Send SMS
-      if (user.phoneNumber) {
-        const message = `Congrats! You earned ${points} points for ${action}. Keep it up!`;
-        await twilioIntegration.sendSMS(user.phoneNumber, message);
-      }
-
-      logger.info(`Notified user ${userId} about ${points} new points`);
-    } catch (err) {
-      logger.error('Failed to notify about new points:', err);
-      throw err;
-    }
-  }
-
-  async notifyNewBadge(userId: string, badgeId: string) {
-    try {
-      const user = await prisma.user.findUnique({
-        where: { id: userId },
-        select: { name: true, email: true, phoneNumber: true },
-      });
-
-      if (!user) {
-        throw new Error('User not found');
-      }
-
-      const badge = await prisma.badge.findUnique({
-        where: { id: badgeId },
-      });
-
-      if (!badge) {
-        throw new Error('Badge not found');
-      }
-
-      // Send email
-      if (user.email) {
-        const subject = `New Badge: ${badge.name}`;
-        const html = `
-          <h1>Congratulations, ${user.name}!</h1>
-          <p>You've earned the <strong>${badge.name}</strong> badge!</p>
-          <p>${badge.description}</p>
-          <p>Keep up the great work!</p>
-        `;
-
-        await sendGridIntegration.sendEmail(user.email, subject, html);
-      }
-
-      // Send SMS
-      if (user.phoneNumber) {
-        const message = `Congrats! You earned the ${badge.name} badge! ${badge.description}`;
-        await twilioIntegration.sendSMS(user.phoneNumber, message);
-      }
-
-      logger.info(`Notified user ${userId} about new badge ${badgeId}`);
-    } catch (err) {
-      logger.error('Failed to notify about new badge:', err);
-      throw err;
-    }
-  }
-
-  async notifyRewardRedemption(userId: string, points: number, rewardId: string) {
-    try {
-      const user = await prisma.user.findUnique({
-        where: { id: userId },
-        select: { name: true, email: true, phoneNumber: true },
-      });
-
-      if (!user) {
-        throw new Error('User not found');
-      }
-
-      const reward = await prisma.reward.findUnique({
-        where: { id: rewardId },
-      });
-
-      if (!reward) {
-        throw new Error('Reward not found');
-      }
-
-      // Send email
-      if (user.email) {
-        const subject = `Reward Redemption: ${reward.name}`;
-        const html = `
-          <h1>Reward Redemption Successful!</h1>
-          <p>You've redeemed ${points} points for:</p>
-          <h2>${reward.name}</h2>
-          <p>${reward.description}</p>
-          <p>Your reward will be processed shortly.</p>
-        `;
-
-        await sendGridIntegration.sendEmail(user.email, subject, html);
-      }
-
-      // Send SMS
-      if (user.phoneNumber) {
-        const message = `Reward redemption successful! ${points} points for ${reward.name}. Your reward will be processed shortly.`;
-        await twilioIntegration.sendSMS(user.phoneNumber, message);
-      }
-
-      logger.info(`Notified user ${userId} about reward redemption ${rewardId}`);
-    } catch (err) {
-      logger.error('Failed to notify about reward redemption:', err);
-      throw err;
-    }
-  }
-
-  async notifyLeaderboardPosition(
-    userId: string,
-    rank: number,
-    timePeriod: 'daily' | 'weekly' | 'monthly' | 'all_time'
-  ) {
-    try {
-      const user = await prisma.user.findUnique({
-        where: { id: userId },
-        select: { name: true, email: true, phoneNumber: true },
-      });
-
-      if (!user) {
-        throw new Error('User not found');
-      }
-
-      const periodText = timePeriod.replace('_', ' ');
-
-      // Send email
-      if (user.email) {
-        const subject = `You're #${rank} on the ${periodText} leaderboard!`;
-        const html = `
-          <h1>Leaderboard Update</h1>
-          <p>Congratulations, ${user.name}!</p>
-          <p>You're currently ranked <strong>#${rank}</strong> on the ${periodText} leaderboard.</p>
-          <p>Keep up the great work to maintain or improve your position!</p>
-        `;
-
-        await sendGridIntegration.sendEmail(user.email, subject, html);
-      }
-
-      // Send SMS
-      if (user.phoneNumber) {
-        const message = `Leaderboard update: You're #${rank} on the ${periodText} leaderboard! Keep it up!`;
-        await twilioIntegration.sendSMS(user.phoneNumber, message);
-      }
-
-      logger.info(`Notified user ${userId} about leaderboard position #${rank}`);
-    } catch (err) {
-      logger.error('Failed to notify about leaderboard position:', err);
-      throw err;
-    }
-  }
-}
-
-export const rewardNotificationSystem = new RewardNotificationSystem();
-```
-
----
-
-## **Analytics Dashboards**
-*(200+ lines minimum)*
-
-### **1. Dashboard Data Aggregation**
-```typescript
-// src/analytics/dashboardData.ts
-import { prisma } from '../database/prisma';
-import { logger } from '../utils/logger';
-
-class DashboardData {
-  async getFuelConsumptionData(
+  async calculateEfficiency(
     vehicleId: string,
-    startDate: Date,
-    endDate: Date,
-    groupBy: 'daily' | 'weekly' | 'monthly' = 'daily'
-  ) {
-    try {
-      // Base query
-      const whereClause = {
+    period: 'DAILY' | 'WEEKLY' | 'MONTHLY' | 'QUARTERLY' | 'YEARLY',
+  ): Promise<any> {
+    this.logger.log(`Calculating fuel efficiency for vehicle ${vehicleId} (${period})`);
+
+    // Get date range for the period
+    const { startDate, endDate } = this.getDateRange(period);
+
+    // Get vehicle details
+    const vehicle = await this.vehicleClient.getVehicle(vehicleId);
+    if (!vehicle) {
+      throw new Error('Vehicle not found');
+    }
+
+    // Get all fuel transactions for the vehicle in the period
+    const transactions = await this.fuelTransactionRepository.find({
+      where: {
         vehicleId,
-        timestamp: {
-          gte: startDate,
-          lte: endDate,
-        },
-      };
-
-      // Group by time period
-      let groupByClause: any;
-      switch (groupBy) {
-        case 'daily':
-          groupByClause = {
-            year: { date: 'timestamp' },
-            month: { date: 'timestamp' },
-            day: { date: 'timestamp' },
-          };
-          break;
-        case 'weekly':
-          groupByClause = {
-            year: { date: 'timestamp' },
-            week: { date: 'timestamp' },
-          };
-          break;
-        case 'monthly':
-          groupByClause = {
-            year: { date: 'timestamp' },
-            month: { date: 'timestamp' },
-          };
-          break;
-      }
-
-      const data = await prisma.fuelTransaction.groupBy({
-        by: Object.keys(groupByClause),
-        where: whereClause,
-        _sum: {
-          amount: true,
-        },
-        _count: {
-          _all: true,
-        },
-        orderBy: {
-          ...groupByClause,
-        },
-      });
-
-      // Calculate average fuel consumption
-      const result = data.map((entry) => {
-        const date = new Date(
-          entry.year,
-          groupBy === 'monthly' ? entry.month - 1 : 0,
-          groupBy === 'daily' ? entry.day : 1
-        );
-
-        return {
-          date: date.toISOString(),
-          totalFuel: entry._sum.amount || 0,
-          transactionCount: entry._count._all,
-          averageFuel: entry._sum.amount
-            ? entry._sum.amount / entry._count._all
-            : 0,
-        };
-      });
-
-      return result;
-    } catch (err) {
-      logger.error('Failed to get fuel consumption data:', err);
-      throw err;
-    }
-  }
-
-  async getFuelEfficiencyData(
-    vehicleId: string,
-    startDate: Date,
-    endDate: Date
-  ) {
-    try {
-      const transactions = await prisma.fuelTransaction.findMany({
-        where: {
-          vehicleId,
-          timestamp: {
-            gte: startDate,
-            lte: endDate,
-          },
-        },
-        orderBy: {
-          timestamp: 'asc',
-        },
-      });
-
-      if (transactions.length < 2) {
-        return [];
-      }
-
-      const efficiencyData = [];
-      for (let i = 1; i < transactions.length; i++) {
-        const prevTx = transactions[i - 1];
-        const currentTx = transactions[i];
-
-        const distance = currentTx.odometerReading - prevTx.odometerReading;
-        const fuelUsed = prevTx.amount;
-        const efficiency = distance / fuelUsed;
-
-        efficiencyData.push({
-          date: currentTx.timestamp.toISOString(),
-          efficiency,
-          distance,
-          fuelUsed,
-        });
-      }
-
-      return efficiencyData;
-    } catch (err) {
-      logger.error('Failed to get fuel efficiency data:', err);
-      throw err;
-    }
-  }
-
-  async getVehicleComparisonData(
-    vehicleIds: string[],
-    startDate: Date,
-    endDate: Date
-  ) {
-    try {
-      const comparisonData = await Promise.all(
-        vehicleIds.map(async (vehicleId) => {
-          const transactions = await prisma.fuelTransaction.findMany({
-            where: {
-              vehicleId,
-              timestamp: {
-                gte: startDate,
-                lte: endDate,
-              },
-            },
-          });
-
-          const totalFuel = transactions.reduce(
-            (sum, tx) => sum + tx.amount,
-            0
-          );
-
-          const totalDistance = transactions.length > 0
-            ? transactions[transactions.length - 1].odometerReading -
-              transactions[0].odometerReading
-            : 0;
-
-          const averageEfficiency = totalDistance / totalFuel || 0;
-
-          return {
-            vehicleId,
-            totalFuel,
-            totalDistance,
-            averageEfficiency,
-            transactionCount: transactions.length,
-          };
-        })
-      );
-
-      return comparisonData;
-    } catch (err) {
-      logger.error('Failed to get vehicle comparison data:', err);
-      throw err;
-    }
-  }
-
-  async getCostAnalysisData(
-    vehicleId: string,
-    startDate: Date,
-    endDate: Date,
-    fuelPrice: number
-  ) {
-    try {
-      const transactions = await prisma.fuelTransaction.findMany({
-        where: {
-          vehicleId,
-          timestamp: {
-            gte: startDate,
-            lte: endDate,
-          },
-        },
-      });
-
-      const totalFuel = transactions.reduce(
-        (sum, tx) => sum + tx.amount,
-        0
-      );
-
-      const totalCost = totalFuel * fuelPrice;
-
-      const distance = transactions.length > 0
-        ? transactions[transactions.length - 1].odometerReading -
-          transactions[0].odometerReading
-        : 0;
-
-      const costPerKm = distance > 0 ? totalCost / distance : 0;
-
-      return {
-        totalFuel,
-        totalCost,
-        distance,
-        costPerKm,
-        fuelPrice,
-        period: {
-          startDate: startDate.toISOString(),
-          endDate: endDate.toISOString(),
-        },
-      };
-    } catch (err) {
-      logger.error('Failed to get cost analysis data:', err);
-      throw err;
-    }
-  }
-
-  async getMaintenanceAlerts(vehicleId: string, thresholdKm: number = 5000) {
-    try {
-      const lastMaintenance = await prisma.maintenanceSession.findFirst({
-        where: { vehicleId },
-        orderBy: { odometerReading: 'desc' },
-      });
-
-      const currentOdometer = await prisma.fuelTransaction.findFirst({
-        where: { vehicleId },
-        orderBy: { odometerReading: 'desc' },
-        select: { odometerReading: true },
-      });
-
-      if (!currentOdometer) {
-        return {
-          needsMaintenance: false,
-          distanceSinceLast: 0,
-          threshold: thresholdKm,
-        };
-      }
-
-      const distanceSinceLast = lastMaintenance
-        ? currentOdometer.odometerReading - lastMaintenance.odometerReading
-        : currentOdometer.odometerReading;
-
-      return {
-        needsMaintenance: distanceSinceLast >= thresholdKm,
-        distanceSinceLast,
-        threshold: thresholdKm,
-      };
-    } catch (err) {
-      logger.error('Failed to get maintenance alerts:', err);
-      throw err;
-    }
-  }
-}
-
-export const dashboardData = new DashboardData();
-```
-
-### **2. Chart Configuration**
-```typescript
-// src/analytics/chartConfig.ts
-import { ChartConfiguration } from 'chart.js';
-import { logger } from '../utils/logger';
-
-class ChartConfigurator {
-  createFuelConsumptionChart(data: any[]): ChartConfiguration {
-    try {
-      return {
-        type: 'bar',
-        data: {
-          labels: data.map((entry) => new Date(entry.date).toLocaleDateString()),
-          datasets: [
-            {
-              label: 'Total Fuel (L)',
-              data: data.map((entry) => entry.totalFuel),
-              backgroundColor: 'rgba(54, 162, 235, 0.7)',
-              borderColor: 'rgba(54, 162, 235, 1)',
-              borderWidth: 1,
-            },
-            {
-              label: 'Average Fuel per Transaction (L)',
-              data: data.map((entry) => entry.averageFuel),
-              type: 'line',
-              borderColor: 'rgba(255, 99, 132, 1)',
-              backgroundColor: 'rgba(255, 99, 132, 0.2)',
-              borderWidth: 2,
-              fill: false,
-            },
-          ],
-        },
-        options: {
-          responsive: true,
-          scales: {
-            y: {
-              beginAtZero: true,
-              title: {
-                display: true,
-                text: 'Fuel (Liters)',
-              },
-            },
-            x: {
-              title: {
-                display: true,
-                text: 'Date',
-              },
-            },
-          },
-          plugins: {
-            tooltip: {
-              callbacks: {
-                label: (context) => {
-                  const label = context.dataset.label || '';
-                  const value = context.raw;
-                  if (context.datasetIndex === 0) {
-                    return `${label}: ${value} L`;
-                  } else {
-                    return `${label}: ${value.toFixed(2)} L`;
-                  }
-                },
-              },
-            },
-            legend: {
-              position: 'top',
-            },
-          },
-        },
-      };
-    } catch (err) {
-      logger.error('Failed to create fuel consumption chart:', err);
-      throw err;
-    }
-  }
-
-  createFuelEfficiencyChart(data: any[]): ChartConfiguration {
-    try {
-      return {
-        type: 'line',
-        data: {
-          labels: data.map((entry) => new Date(entry.date).toLocaleDateString()),
-          datasets: [
-            {
-              label: 'Fuel Efficiency (km/L)',
-              data: data.map((entry) => entry.efficiency),
-              borderColor: 'rgba(75, 192, 192, 1)',
-              backgroundColor: 'rgba(75, 192, 192, 0.2)',
-              borderWidth: 2,
-              tension: 0.1,
-              fill: true,
-            },
-          ],
-        },
-        options: {
-          responsive: true,
-          scales: {
-            y: {
-              beginAtZero: false,
-              title: {
-                display: true,
-                text: 'Efficiency (km/L)',
-              },
-            },
-            x: {
-              title: {
-                display: true,
-                text: 'Date',
-              },
-            },
-          },
-          plugins: {
-            tooltip: {
-              callbacks: {
-                label: (context) => {
-                  const label = context.dataset.label || '';
-                  const value = context.raw;
-                  return `${label}: ${value.toFixed(2)} km/L`;
-                },
-                afterLabel: (context) => {
-                  const entry = data[context.dataIndex];
-                  return [
-                    `Distance: ${entry.distance} km`,
-                    `Fuel Used: ${entry.fuelUsed} L`,
-                  ];
-                },
-              },
-            },
-            legend: {
-              position: 'top',
-            },
-          },
-        },
-      };
-    } catch (err) {
-      logger.error('Failed to create fuel efficiency chart:', err);
-      throw err;
-    }
-  }
-
-  createVehicleComparisonChart(data: any[]): ChartConfiguration {
-    try {
-      return {
-        type: 'bar',
-        data: {
-          labels: data.map((entry) => entry.vehicleId),
-          datasets: [
-            {
-              label: 'Total Fuel (L)',
-              data: data.map((entry) => entry.totalFuel),
-              backgroundColor: 'rgba(54, 162, 235, 0.7)',
-              borderColor: 'rgba(54, 162, 235, 1)',
-              borderWidth: 1,
-            },
-            {
-              label: 'Average Efficiency (km/L)',
-              data: data.map((entry) => entry.averageEfficiency),
-              backgroundColor: 'rgba(75, 192, 192, 0.7)',
-              borderColor: 'rgba(75, 192, 192, 1)',
-              borderWidth: 1,
-            },
-          ],
-        },
-        options: {
-          responsive: true,
-          scales: {
-            y: {
-              beginAtZero: true,
-              title: {
-                display: true,
-                text: 'Value',
-              },
-            },
-            x: {
-              title: {
-                display: true,
-                text: 'Vehicle ID',
-              },
-            },
-          },
-          plugins: {
-            tooltip: {
-              callbacks: {
-                label: (context) => {
-                  const label = context.dataset.label || '';
-                  const value = context.raw;
-                  if (context.datasetIndex === 0) {
-                    return `${label}: ${value} L`;
-                  } else {
-                    return `${label}: ${value.toFixed(2)} km/L`;
-                  }
-                },
-                afterLabel: (context) => {
-                  const entry = data[context.dataIndex];
-                  return [
-                    `Total Distance: ${entry.totalDistance} km`,
-                    `Transactions: ${entry.transactionCount}`,
-                  ];
-                },
-              },
-            },
-            legend: {
-              position: 'top',
-            },
-          },
-        },
-      };
-    } catch (err) {
-      logger.error('Failed to create vehicle comparison chart:', err);
-      throw err;
-    }
-  }
-
-  createCostAnalysisChart(data: any): ChartConfiguration {
-    try {
-      return {
-        type: 'doughnut',
-        data: {
-          labels: ['Fuel Cost', 'Distance Cost'],
-          datasets: [
-            {
-              data: [data.totalCost, data.costPerKm * data.distance],
-              backgroundColor: [
-                'rgba(255, 99, 132, 0.7)',
-                'rgba(54, 162, 235, 0.7)',
-              ],
-              borderColor: [
-                'rgba(255, 99, 132, 1)',
-                'rgba(54, 162, 235, 1)',
-              ],
-              borderWidth: 1,
-            },
-          ],
-        },
-        options: {
-          responsive: true,
-          plugins: {
-            tooltip: {
-              callbacks: {
-                label: (context) => {
-                  const label = context.label || '';
-                  const value = context.raw;
-                  return `${label}: $${value.toFixed(2)}`;
-                },
-              },
-            },
-            legend: {
-              position: 'right',
-            },
-            title: {
-              display: true,
-              text: `Cost Analysis (${new Date(data.period.startDate).toLocaleDateString()} - ${new Date(data.period.endDate).toLocaleDateString()})`,
-            },
-          },
-        },
-      };
-    } catch (err) {
-      logger.error('Failed to create cost analysis chart:', err);
-      throw err;
-    }
-  }
-
-  createMaintenanceAlertChart(data: any): ChartConfiguration {
-    try {
-      const remaining = data.threshold - data.distanceSinceLast;
-      const percentage = (data.distanceSinceLast / data.threshold) * 100;
-
-      return {
-        type: 'doughnut',
-        data: {
-          labels: ['Distance Since Last Maintenance', 'Remaining Distance'],
-          datasets: [
-            {
-              data: [data.distanceSinceLast, remaining > 0 ? remaining : 0],
-              backgroundColor: [
-                percentage >= 100 ? 'rgba(255, 99, 132, 0.7)' : 'rgba(54, 162, 235, 0.7)',
-                'rgba(75, 192, 192, 0.7)',
-              ],
-              borderColor: [
-                percentage >= 100 ? 'rgba(255, 99, 132, 1)' : 'rgba(54, 162, 235, 1)',
-                'rgba(75, 192, 192, 1)',
-              ],
-              borderWidth: 1,
-            },
-          ],
-        },
-        options: {
-          responsive: true,
-          plugins: {
-            tooltip: {
-              callbacks: {
-                label: (context) => {
-                  const label = context.label || '';
-                  const value = context.raw;
-                  return `${label}: ${value} km`;
-                },
-              },
-            },
-            legend: {
-              position: 'right',
-            },
-            title: {
-              display: true,
-              text: `Maintenance Alert (${data.needsMaintenance ? 'Needs Maintenance' : 'OK'})`,
-            },
-          },
-        },
-      };
-    } catch (err) {
-      logger.error('Failed to create maintenance alert chart:', err);
-      throw err;
-    }
-  }
-}
-
-export const chartConfigurator = new ChartConfigurator();
-```
-
-### **3. Real-Time Data Updates**
-```typescript
-// src/analytics/realTimeUpdates.ts
-import { webSocketManager } from '../websocket/server';
-import { logger } from '../utils/logger';
-import { dashboardData } from './dashboardData';
-
-class RealTimeDashboardUpdates {
-  private readonly UPDATE_INTERVAL = 30000; // 30 seconds
-  private updateInterval: NodeJS.Timeout | null = null;
-
-  startRealTimeUpdates(vehicleId: string, callback: (data: any) => void) {
-    try {
-      // Initial data load
-      this.loadInitialData(vehicleId, callback);
-
-      // Set up WebSocket listener
-      webSocketManager.on('fuelUpdate', (data) => {
-        if (data.vehicleId === vehicleId) {
-          this.loadInitialData(vehicleId, callback);
-        }
-      });
-
-      // Set up periodic updates
-      this.updateInterval = setInterval(() => {
-        this.loadInitialData(vehicleId, callback);
-      }, this.UPDATE_INTERVAL);
-
-      logger.info(`Started real-time updates for vehicle ${vehicleId}`);
-    } catch (err) {
-      logger.error('Failed to start real-time updates:', err);
-      throw err;
-    }
-  }
-
-  stopRealTimeUpdates() {
-    if (this.updateInterval) {
-      clearInterval(this.updateInterval);
-      this.updateInterval = null;
-      logger.info('Stopped real-time updates');
-    }
-  }
-
-  private async loadInitialData(vehicleId: string, callback: (data: any) => void) {
-    try {
-      const now = new Date();
-      const thirtyDaysAgo = new Date(now.setDate(now.getDate() - 30));
-
-      // Get fuel consumption data
-      const consumptionData = await dashboardData.getFuelConsumptionData(
-        vehicleId,
-        thirtyDaysAgo,
-        new Date(),
-        'daily'
-      );
-
-      // Get fuel efficiency data
-      const efficiencyData = await dashboardData.getFuelEfficiencyData(
-        vehicleId,
-        thirtyDaysAgo,
-        new Date()
-      );
-
-      // Get maintenance alerts
-      const maintenanceAlerts = await dashboardData.getMaintenanceAlerts(vehicleId);
-
-      callback({
-        consumptionData,
-        efficiencyData,
-        maintenanceAlerts,
-        lastUpdated: new Date().toISOString(),
-      });
-    } catch (err) {
-      logger.error('Failed to load initial dashboard data:', err);
-    }
-  }
-}
-
-export const realTimeDashboardUpdates = new RealTimeDashboardUpdates();
-```
-
-### **4. Export to PDF/Excel**
-```typescript
-// src/analytics/export.ts
-import { jsPDF } from 'jspdf';
-import * as XLSX from 'xlsx';
-import { logger } from '../utils/logger';
-import { dashboardData } from './dashboardData';
-
-class DashboardExporter {
-  async exportToPDF(
-    vehicleId: string,
-    startDate: Date,
-    endDate: Date,
-    title: string = 'Fuel Management Report'
-  ) {
-    try {
-      const doc = new jsPDF();
-
-      // Add title
-      doc.setFontSize(20);
-      doc.text(title, 15, 20);
-
-      // Add date range
-      doc.setFontSize(12);
-      doc.text(
-        `Period: ${startDate.toLocaleDateString()} - ${endDate.toLocaleDateString()}`,
-        15,
-        30
-      );
-
-      // Add vehicle ID
-      doc.text(`Vehicle ID: ${vehicleId}`, 15, 40);
-
-      // Get data
-      const consumptionData = await dashboardData.getFuelConsumptionData(
-        vehicleId,
-        startDate,
-        endDate,
-        'daily'
-      );
-
-      const efficiencyData = await dashboardData.getFuelEfficiencyData(
-        vehicleId,
-        startDate,
-        endDate
-      );
-
-      const costData = await dashboardData.getCostAnalysisData(
-        vehicleId,
-        startDate,
-        endDate,
-        1.5 // Example fuel price
-      );
-
-      // Add fuel consumption table
-      doc.setFontSize(14);
-      doc.text('Fuel Consumption', 15, 60);
-
-      const consumptionHeaders = ['Date', 'Total Fuel (L)', 'Avg per Tx (L)', 'Tx Count'];
-      const consumptionRows = consumptionData.map((entry) => [
-        new Date(entry.date).toLocaleDateString(),
-        entry.totalFuel.toFixed(2),
-        entry.averageFuel.toFixed(2),
-        entry.transactionCount,
-      ]);
-
-      this.addTableToPDF(doc, consumptionHeaders, consumptionRows, 70);
-
-      // Add fuel efficiency chart (placeholder)
-      doc.addPage();
-      doc.setFontSize(14);
-      doc.text('Fuel Efficiency', 15, 20);
-
-      // In a real implementation, you would generate an image of the chart
-      doc.text('Fuel efficiency trend over time', 15, 30);
-
-      // Add cost analysis
-      doc.setFontSize(14);
-      doc.text('Cost Analysis', 15, 50);
-
-      const costInfo = [
-        ['Total Fuel', `${costData.totalFuel.toFixed(2)} L`],
-        ['Total Cost', `$${costData.totalCost.toFixed(2)}`],
-        ['Total Distance', `${costData.distance.toFixed(2)} km`],
-        ['Cost per km', `$${costData.costPerKm.toFixed(4)}`],
-        ['Fuel Price', `$${costData.fuelPrice.toFixed(2)}/L`],
-      ];
-
-      this.addTableToPDF(doc, ['Metric', 'Value'], costInfo, 60);
-
-      // Save PDF
-      const fileName = `fuel_report_${vehicleId}_${startDate.toISOString().split('T')[0]}_${endDate.toISOString().split('T')[0]}.pdf`;
-      doc.save(fileName);
-
-      logger.info(`Exported PDF report for vehicle ${vehicleId}`);
-      return fileName;
-    } catch (err) {
-      logger.error('Failed to export to PDF:', err);
-      throw err;
-    }
-  }
-
-  private addTableToPDF(
-    doc: jsPDF,
-    headers: string[],
-    rows: any[][],
-    startY: number
-  ) {
-    const columnWidths = [40, 30, 30, 30];
-    const rowHeight = 10;
-    const pageHeight = doc.internal.pageSize.height;
-    let currentY = startY;
-
-    // Add headers
-    doc.setFontStyle('bold');
-    headers.forEach((header, i) => {
-      doc.text(header, 15 + columnWidths.slice(0, i).reduce((a, b) => a + b, 0), currentY);
-    });
-    doc.setFontStyle('normal');
-    currentY += rowHeight;
-
-    // Add rows
-    rows.forEach((row) => {
-      if (currentY + rowHeight > pageHeight - 20) {
-        doc.addPage();
-        currentY = 20;
-      }
-
-      row.forEach((cell, i) => {
-        doc.text(
-          cell.toString(),
-          15 + columnWidths.slice(0, i).reduce((a, b) => a + b, 0),
-          currentY
-        );
-      });
-
-      currentY += rowHeight;
-    });
-  }
-
-  async exportToExcel(
-    vehicleId: string,
-    startDate: Date,
-    endDate: Date,
-    fileName: string = 'fuel_report.xlsx'
-  ) {
-    try {
-      // Get data
-      const consumptionData = await dashboardData.getFuelConsumptionData(
-        vehicleId,
-        startDate,
-        endDate,
-        'daily'
-      );
-
-      const efficiencyData = await dashboardData.getFuelEfficiencyData(
-        vehicleId,
-        startDate,
-        endDate
-      );
-
-      const costData = await dashboardData.getCostAnalysisData(
-        vehicleId,
-        startDate,
-        endDate,
-        1.5 // Example fuel price
-      );
-
-      // Create workbook
-      const wb = XLSX.utils.book_new();
-
-      // Add fuel consumption sheet
-      const consumptionWS = XLSX.utils.json_to_sheet(
-        consumptionData.map((entry) => ({
-          Date: new Date(entry.date).toLocaleDateString(),
-          'Total Fuel (L)': entry.totalFuel,
-          'Avg per Tx (L)': entry.averageFuel,
-          'Tx Count': entry.transactionCount,
-        }))
-      );
-      XLSX.utils.book_append_sheet(wb, consumptionWS, 'Fuel Consumption');
-
-      // Add fuel efficiency sheet
-      const efficiencyWS = XLSX.utils.json_to_sheet(
-        efficiencyData.map((entry) => ({
-          Date: new Date(entry.date).toLocaleDateString(),
-          'Efficiency (km/L)': entry.efficiency,
-          'Distance (km)': entry.distance,
-          'Fuel Used (L)': entry.fuelUsed,
-        }))
-      );
-      XLSX.utils.book_append_sheet(wb, efficiencyWS, 'Fuel Efficiency');
-
-      // Add cost analysis sheet
-      const costWS = XLSX.utils.json_to_sheet([
-        {
-          'Total Fuel (L)': costData.totalFuel,
-          'Total Cost ($)': costData.totalCost,
-          'Total Distance (km)': costData.distance,
-          'Cost per km ($)': costData.costPerKm,
-          'Fuel Price ($/L)': costData.fuelPrice,
-          'Period Start': new Date(costData.period.startDate).toLocaleDateString(),
-          'Period End': new Date(costData.period.endDate).toLocaleDateString(),
-        },
-      ]);
-      XLSX.utils.book_append_sheet(wb, costWS, 'Cost Analysis');
-
-      // Write file
-      XLSX.writeFile(wb, fileName);
-
-      logger.info(`Exported Excel report for vehicle ${vehicleId}`);
-      return fileName;
-    } catch (err) {
-      logger.error('Failed to export to Excel:', err);
-      throw err;
-    }
-  }
-}
-
-export const dashboardExporter = new DashboardExporter();
-```
-
----
-
-## **Security Hardening**
-*(250+ lines minimum)*
-
-### **1. JWT Authentication Middleware**
-```typescript
-// src/middleware/authMiddleware.ts
-import { Request, Response, NextFunction } from 'express';
-import jwt from 'jsonwebtoken';
-import { logger } from '../utils/logger';
-import { prisma } from '../database/prisma';
-
-interface JwtPayload {
-  userId: string;
-  role: string;
-}
-
-export const authenticateJWT = async (
-  req: Request,
-  res: Response,
-  next: NextFunction
-) => {
-  try {
-    const authHeader = req.headers.authorization;
-
-    if (!authHeader) {
-      return res.status(401).json({ error: 'Authorization header missing' });
-    }
-
-    const token = authHeader.split(' ')[1];
-    if (!token) {
-      return res.status(401).json({ error: 'Bearer token missing' });
-    }
-
-    // Verify token
-    const payload = jwt.verify(
-      token,
-      process.env.JWT_SECRET!,
-      { algorithms: ['HS256'] }
-    ) as JwtPayload;
-
-    // Check if user exists
-    const user = await prisma.user.findUnique({
-      where: { id: payload.userId },
+        transactionDate: Between(startDate, endDate),
+        status: 'VERIFIED',
+      },
+      order: { transactionDate: 'ASC' },
     });
 
-    if (!user) {
-      return res.status(401).json({ error: 'User not found' });
+    if (transactions.length < 2) {
+      this.logger.warn(`Not enough transactions to calculate efficiency for vehicle ${vehicleId}`);
+      return this.getEmptyEfficiencyResult(vehicleId, period, startDate, endDate);
     }
 
-    // Check if token is blacklisted
-    const blacklistedToken = await prisma.blacklistedToken.findUnique({
-      where: { token },
-    });
+    // Calculate total miles and gallons
+    let totalMiles = 0;
+    let totalGallons = 0;
+    let totalCost = 0;
+    const efficiencyData = [];
 
-    if (blacklistedToken) {
-      return res.status(401).json({ error: 'Token has been revoked' });
+    for (let i = 1; i < transactions.length; i++) {
+      const prevTransaction = transactions[i - 1];
+      const currentTransaction = transactions[i];
+
+      const miles = currentTransaction.odometerReading - prevTransaction.odometerReading;
+      const gallons = currentTransaction.gallons;
+      const mpg = miles / gallons;
+
+      totalMiles += miles;
+      totalGallons += gallons;
+      totalCost += currentTransaction.totalAmount;
+
+      efficiencyData.push({
+        date: currentTransaction.transactionDate,
+        miles,
+        gallons,
+        mpg,
+        cost: currentTransaction.totalAmount,
+        odometer: currentTransaction.odometerReading,
+      });
     }
 
-    // Attach user to request
-    req.user = {
-      id: user.id,
-      role: user.role,
-      email: user.email,
-    };
+    // Calculate average MPG
+    const averageMpg = totalMiles / totalGallons;
 
-    next();
-  } catch (err) {
-    logger.error('JWT authentication failed:', err);
-    if (err instanceof jwt.TokenExpiredError) {
-      return res.status(401).json({ error: 'Token expired' });
-    }
-    if (err instanceof jwt.JsonWebTokenError) {
-      return res.status(401).json({ error: 'Invalid token' });
-    }
-    return res.status(500).json({ error: 'Internal server error' });
-  }
-};
-
-export const authorizeRoles = (roles: string[]) => {
-  return (req: Request, res: Response, next: NextFunction) => {
-    try {
-      if (!req.user) {
-        return res.status(401).json({ error: 'Unauthorized' });
-      }
-
-      if (!roles.includes(req.user.role)) {
-        return res.status(403).json({ error: 'Forbidden' });
-      }
-
-      next();
-    } catch (err) {
-      logger.error('Authorization failed:', err);
-      return res.status(500).json({ error: 'Internal server error' });
-    }
-  };
-};
-
-export const generateToken = (userId: string, role: string) => {
-  try {
-    return jwt.sign(
-      { userId, role },
-      process.env.JWT_SECRET!,
-      { expiresIn: '1h' }
-    );
-  } catch (err) {
-    logger.error('Failed to generate token:', err);
-    throw err;
-  }
-};
-
-export const refreshToken = async (refreshToken: string) => {
-  try {
-    // Verify refresh token
-    const payload = jwt.verify(
-      refreshToken,
-      process.env.JWT_REFRESH_SECRET!,
-      { algorithms: ['HS256'] }
-    ) as JwtPayload;
-
-    // Check if user exists
-    const user = await prisma.user.findUnique({
-      where: { id: payload.userId },
-    });
-
-    if (!user) {
-      throw new Error('User not found');
-    }
-
-    // Check if refresh token is valid
-    const validRefreshToken = await prisma.refreshToken.findUnique({
-      where: { token: refreshToken },
-    });
-
-    if (!validRefreshToken) {
-      throw new Error('Invalid refresh token');
-    }
-
-    // Generate new access token
-    const newAccessToken = generateToken(user.id, user.role);
-
-    // Generate new refresh token (optional)
-    const newRefreshToken = jwt.sign(
-      { userId: user.id, role: user.role },
-      process.env.JWT_REFRESH_SECRET!,
-      { expiresIn: '7d' }
+    // Get driver information for the period
+    const driverAssignments = await this.driverClient.getDriverAssignments(
+      vehicleId,
+      startDate,
+      endDate,
     );
 
-    // Update refresh token in database
-    await prisma.refreshToken.update({
-      where: { token: refreshToken },
-      data: { token: newRefreshToken },
-    });
+    // Calculate efficiency trend
+    const efficiencyTrend = this.calculateTrend(efficiencyData);
+
+    // Get comparison data
+    const comparisonToFleet = await this.getFleetComparison(vehicle.fuelType, startDate, endDate);
+    const comparisonToManufacturer = this.getManufacturerComparison(vehicle.make, vehicle.model, vehicle.year);
+
+    // Get anomalies
+    const anomalies = this.detectAnomalies(efficiencyData, averageMpg);
 
     return {
-      accessToken: newAccessToken,
-      refreshToken: newRefreshToken,
+      vehicleId,
+      period,
+      startDate,
+      endDate,
+      averageMpg,
+      totalMiles,
+      totalGallons,
+      totalCost,
+      efficiencyTrend,
+      comparisonToFleet,
+      comparisonToManufacturer,
+      anomalies,
+      drivers: driverAssignments.map(a => ({
+        driverId: a.driverId,
+        name: `${a.driver.firstName} ${a.driver.lastName}`,
+        assignmentStart: a.startDate,
+        assignmentEnd: a.endDate,
+      })),
+      efficiencyData,
     };
-  } catch (err) {
-    logger.error('Failed to refresh token:', err);
-    throw err;
   }
-};
 
-export const revokeToken = async (token: string) => {
-  try {
-    // Add token to blacklist
-    await prisma.blacklistedToken.create({
-      data: {
-        token,
-        expiresAt: new Date(Date.now() + 3600000), // 1 hour
-      },
-    });
+  private getDateRange(period: 'DAILY' | 'WEEKLY' | 'MONTHLY' | 'QUARTERLY' | 'YEARLY'): {
+    startDate: Date;
+    endDate: Date;
+  } {
+    const endDate = new Date();
+    let startDate: Date;
 
-    logger.info(`Token revoked: ${token}`);
-  } catch (err) {
-    logger.error('Failed to revoke token:', err);
-    throw err;
+    switch (period) {
+      case 'DAILY':
+        startDate = new Date(endDate);
+        startDate.setDate(endDate.getDate() - 1);
+        break;
+      case 'WEEKLY':
+        startDate = new Date(endDate);
+        startDate.setDate(endDate.getDate() - 7);
+        break;
+      case 'MONTHLY':
+        startDate = new Date(endDate);
+        startDate.setMonth(endDate.getMonth() - 1);
+        break;
+      case 'QUARTERLY':
+        startDate = new Date(endDate);
+        startDate.setMonth(endDate.getMonth() - 3);
+        break;
+      case 'YEARLY':
+        startDate = new Date(endDate);
+        startDate.setFullYear(endDate.getFullYear() - 1);
+        break;
+    }
+
+    // Set to start/end of day
+    startDate.setHours(0, 0, 0, 0);
+    endDate.setHours(23, 59, 59, 999);
+
+    return { startDate, endDate };
   }
-};
-```
 
-### **2. Rate Limiting**
-```typescript
-// src/middleware/rateLimiter.ts
-import rateLimit from 'express-rate-limit';
-import { Request, Response } from 'express';
-import { logger } from '../utils/logger';
+  private getEmptyEfficiencyResult(
+    vehicleId: string,
+    period: string,
+    startDate: Date,
+    endDate: Date,
+  ): any {
+    return {
+      vehicleId,
+      period,
+      startDate,
+      endDate,
+      averageMpg: 0,
+      totalMiles: 0,
+      totalGallons: 0,
+      totalCost: 0,
+      efficiencyTrend: 0,
+      comparisonToFleet: 0,
+      comparisonToManufacturer: 0,
+      anomalies: [],
+      drivers: [],
+      efficiencyData: [],
+    };
+  }
 
-const apiLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100, // limit each IP to 100 requests per windowMs
-  message: {
-    error: 'Too many requests, please try again later.',
-  },
-  standardHeaders: true,
-  legacyHeaders: false,
-  keyGenerator: (req: Request) => {
-    return req.ip; // Use IP address as key
-  },
-  handler: (req: Request, res: Response) => {
-    logger.warn(`Rate limit exceeded for IP: ${req.ip}`);
-    res.status(429).json({
-      error: 'Too many requests, please try again later.',
+  private calculateTrend(efficiencyData: any[]): number {
+    if (efficiencyData.length < 2) return 0;
+
+    // Simple linear regression to calculate trend
+    const n = efficiencyData.length;
+    let sumX = 0;
+    let sumY = 0;
+    let sumXY = 0;
+    let sumX2 = 0;
+
+    efficiencyData.forEach((data, index) => {
+      sumX += index;
+      sumY += data.mpg;
+      sumXY += index * data.mpg;
+      sumX2 += index * index;
     });
-  },
-  skip: (req: Request) => {
-    // Skip rate limiting for certain paths
-    return req.path === '/health' || req.path === '/auth/login';
-  },
-});
 
-const authLimiter = rateLimit({
-  windowMs: 60 * 60 * 1000, // 1 hour
-  max: 5, // limit each IP to 5 login attempts per windowMs
-  message: {
-    error: 'Too many login attempts, please try again later.',
-  },
-  standardHeaders: true,
-  legacyHeaders: false,
-  keyGenerator: (req: Request) => {
-    return req.ip;
-  },
-  handler: (req: Request, res: Response) => {
-    logger.warn(`Login rate limit exceeded for IP: ${req.ip}`);
-    res.status(429).json({
-      error: 'Too many login attempts, please try again later.',
-    });
-  },
-});
+    const slope = (n * sumXY - sumX * sumY) / (n * sumX2 - sumX * sumX);
+    return slope;
+  }
 
-const wsLimiter = rateLimit({
-  windowMs: 60 * 1000, // 1 minute
-  max: 30, // limit each IP to 30 WebSocket messages per windowMs
-  message: 'Too many WebSocket messages, please slow down.',
-  keyGenerator: (req: Request) => {
-    return req.ip;
-  },
-  skip: (req: Request) => {
-    // Skip rate limiting for certain WebSocket events
-    return req.body?.type === 'HEARTBEAT';
-  },
-});
-
-export { apiLimiter, authLimiter, wsLimiter };
-```
-
-### **3. Input Validation and Sanitization**
-```typescript
-// src/middleware/validationMiddleware.ts
-import { Request, Response, NextFunction } from 'express';
-import { body, validationResult, param, query } from 'express-validator';
-import { logger } from '../utils/logger';
-import sanitizeHtml from 'sanitize-html';
-
-export const validateRequest = (validations: any[]) => {
-  return async (req: Request, res: Response, next: NextFunction) => {
+  private async getFleetComparison(
+    fuelType: string,
+    startDate: Date,
+    endDate: Date,
+  ): Promise<number> {
     try {
-      await Promise.all(validations.map((validation) => validation.run(req)));
+      // Get average MPG for all vehicles of the same fuel type
+      const result = await this.fuelTransactionRepository
+        .createQueryBuilder('transaction')
+        .select('AVG((transaction.odometerReading - LAG(transaction.odometerReading) OVER (PARTITION BY transaction.vehicleId ORDER BY transaction.transactionDate)) / transaction.gallons)', 'avgMpg')
+        .where('transaction.fuelType = :fuelType', { fuelType })
+        .andWhere('transaction.transactionDate BETWEEN :startDate AND :endDate', { startDate, endDate })
+        .andWhere('transaction.status = :status', { status: 'VERIFIED' })
+        .getRawOne();
 
-      const errors = validationResult(req);
-      if (!errors.isEmpty()) {
-        return res.status(400).json({
-          errors: errors.array().map((err) => ({
-            field: err.path,
-            message: err.msg,
-          })),
-        });
+      return result.avgMpg || 0;
+    } catch (error) {
+      this.logger.error(`Error calculating fleet comparison: ${error.message}`);
+      return 0;
+    }
+  }
+
+  private getManufacturerComparison(make: string, model: string, year: number): number {
+    // In a real implementation, this would come from a database or external service
+    // with manufacturer-specified fuel efficiency values
+    const manufacturerData = {
+      FORD: {
+        F150: {
+          2020: 20,
+          2021: 21,
+          2022: 22,
+        },
+        TRANSIT: {
+          2020: 15,
+          2021: 16,
+          2022: 17,
+        },
+      },
+      CHEVROLET: {
+        SILVERADO: {
+          2020: 19,
+          2021: 20,
+          2022: 21,
+        },
+      },
+      // Add more makes, models, and years as needed
+    };
+
+    try {
+      return manufacturerData[make.toUpperCase()]?.[model.toUpperCase()]?.[year] || 0;
+    } catch {
+      return 0;
+    }
+  }
+
+  private detectAnomalies(efficiencyData: any[], averageMpg: number): any[] {
+    if (efficiencyData.length === 0) return [];
+
+    // Calculate standard deviation
+    const sum = efficiencyData.reduce((acc, data) => acc + data.mpg, 0);
+    const mean = sum / efficiencyData.length;
+    const squaredDiffs = efficiencyData.map(data => Math.pow(data.mpg - mean, 2));
+    const variance = squaredDiffs.reduce((acc, val) => acc + val, 0) / efficiencyData.length;
+    const stdDev = Math.sqrt(variance);
+
+    // Detect anomalies (2 standard deviations from mean)
+    return efficiencyData
+      .filter(data => Math.abs(data.mpg - mean) > 2 * stdDev)
+      .map(data => ({
+        date: data.date,
+        actualMpg: data.mpg,
+        expectedMpg: mean,
+        deviation: data.mpg - mean,
+        reason: this.getAnomalyReason(data.mpg, mean, stdDev),
+      }));
+  }
+
+  private getAnomalyReason(actualMpg: number, expectedMpg: number, stdDev: number): string {
+    const deviation = actualMpg - expectedMpg;
+    const deviationPct = (Math.abs(deviation) / expectedMpg) * 100;
+
+    if (deviation > 0) {
+      if (deviationPct > 30) {
+        return 'EXTREMELY_HIGH_EFFICIENCY';
+      } else if (deviationPct > 15) {
+        return 'HIGH_EFFICIENCY';
+      } else {
+        return 'SLIGHTLY_HIGH_EFFICIENCY';
+      }
+    } else {
+      if (deviationPct > 30) {
+        return 'EXTREMELY_LOW_EFFICIENCY';
+      } else if (deviationPct > 15) {
+        return 'LOW_EFFICIENCY';
+      } else {
+        return 'SLIGHTLY_LOW_EFFICIENCY';
+      }
+    }
+  }
+}
+```
+
+```typescript
+// src/fuel/services/fraud-detection.service.ts
+import { Injectable, Logger } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository, Between } from 'typeorm';
+import { FuelTransaction } from '../models/fuel-transaction.model';
+import { VehicleClient } from '../../vehicle/clients/vehicle.client';
+import { DriverClient } from '../../driver/clients/driver.client';
+import { ConfigService } from '@nestjs/config';
+
+@Injectable()
+export class FraudDetectionService {
+  private readonly logger = new Logger(FraudDetectionService.name);
+  private readonly maxTransactionsPerDay: number;
+  private readonly maxTransactionsPerWeek: number;
+  private readonly maxGallonsPerTransaction: number;
+  private readonly maxAmountPerTransaction: number;
+  private readonly minTimeBetweenTransactions: number; // minutes
+  private readonly maxOdometerDeviation: number; // miles
+  private readonly maxLocationDeviation: number; // miles
+
+  constructor(
+    @InjectRepository(FuelTransaction)
+    private readonly fuelTransactionRepository: Repository<FuelTransaction>,
+    private readonly vehicleClient: VehicleClient,
+    private readonly driverClient: DriverClient,
+    private readonly configService: ConfigService,
+  ) {
+    this.maxTransactionsPerDay = this.configService.get<number>('MAX_TRANSACTIONS_PER_DAY', 3);
+    this.maxTransactionsPerWeek = this.configService.get<number>('MAX_TRANSACTIONS_PER_WEEK', 10);
+    this.maxGallonsPerTransaction = this.configService.get<number>('MAX_GALLONS_PER_TRANSACTION', 100);
+    this.maxAmountPerTransaction = this.configService.get<number>('MAX_AMOUNT_PER_TRANSACTION', 500);
+    this.minTimeBetweenTransactions = this.configService.get<number>('MIN_TIME_BETWEEN_TRANSACTIONS', 30);
+    this.maxOdometerDeviation = this.configService.get<number>('MAX_ODOMETER_DEVIATION', 5);
+    this.maxLocationDeviation = this.configService.get<number>('MAX_LOCATION_DEVIATION', 0.5);
+  }
+
+  async calculateFraudScore(transaction: FuelTransaction): Promise<number> {
+    this.logger.log(`Calculating fraud score for transaction ${transaction.id}`);
+
+    let fraudScore = 0;
+
+    // Check transaction amount
+    if (transaction.totalAmount > this.maxAmountPerTransaction) {
+      fraudScore += 30;
+      this.logger.warn(`Transaction amount exceeds limit: $${transaction.totalAmount}`);
+    }
+
+    // Check gallons
+    if (transaction.gallons > this.maxGallonsPerTransaction) {
+      fraudScore += 30;
+      this.logger.warn(`Transaction gallons exceed limit: ${transaction.gallons} gallons`);
+    }
+
+    // Check transaction frequency
+    const frequencyScore = await this.checkTransactionFrequency(transaction);
+    fraudScore += frequencyScore;
+
+    // Check odometer progression
+    const odometerScore = await this.checkOdometerProgression(transaction);
+    fraudScore += odometerScore;
+
+    // Check location consistency
+    const locationScore = await this.checkLocationConsistency(transaction);
+    fraudScore += locationScore;
+
+    // Check vehicle assignment
+    const assignmentScore = await this.checkVehicleAssignment(transaction);
+    fraudScore += assignmentScore;
+
+    // Check driver assignment
+    const driverScore = await this.checkDriverAssignment(transaction);
+    fraudScore += driverScore;
+
+    // Cap the fraud score at 100
+    fraudScore = Math.min(fraudScore, 100);
+
+    this.logger.log(`Fraud score for transaction ${transaction.id}: ${fraudScore}`);
+    return fraudScore;
+  }
+
+  private async checkTransactionFrequency(transaction: FuelTransaction): Promise<number> {
+    try {
+      // Check transactions for the same vehicle in the last 24 hours
+      const startOfDay = new Date(transaction.transactionDate);
+      startOfDay.setHours(0, 0, 0, 0);
+
+      const endOfDay = new Date(transaction.transactionDate);
+      endOfDay.setHours(23, 59, 59, 999);
+
+      const dailyTransactions = await this.fuelTransactionRepository.count({
+        where: {
+          vehicleId: transaction.vehicleId,
+          transactionDate: Between(startOfDay, endOfDay),
+          id: Not(transaction.id),
+        },
+      });
+
+      if (dailyTransactions >= this.maxTransactionsPerDay) {
+        this.logger.warn(
+          `Daily transaction limit exceeded for vehicle ${transaction.vehicleId}: ${dailyTransactions + 1} transactions`,
+        );
+        return 20;
+      }
+
+      // Check transactions for the same vehicle in the last 7 days
+      const startOfWeek = new Date(transaction.transactionDate);
+      startOfWeek.setDate(transaction.transactionDate.getDate() - 7);
+
+      const weeklyTransactions = await this.fuelTransactionRepository.count({
+        where: {
+          vehicleId: transaction.vehicleId,
+          transactionDate: Between(startOfWeek, endOfDay),
+          id: Not(transaction.id),
+        },
+      });
+
+      if (weeklyTransactions >= this.maxTransactionsPerWeek) {
+        this.logger.warn(
+          `Weekly transaction limit exceeded for vehicle ${transaction.vehicleId}: ${weeklyTransactions + 1} transactions`,
+        );
+        return 15;
+      }
+
+      // Check time since last transaction for the same vehicle
+      const lastTransaction = await this.fuelTransactionRepository.findOne({
+        where: {
+          vehicleId: transaction.vehicleId,
+          transactionDate: LessThan(transaction.transactionDate),
+        },
+        order: { transactionDate: 'DESC' },
+      });
+
+      if (lastTransaction) {
+        const timeDiff = (transaction.transactionDate.getTime() - lastTransaction.transactionDate.getTime()) / (1000 * 60); // minutes
+        if (timeDiff < this.minTimeBetweenTransactions) {
+          this.logger.warn(
+            `Time between transactions too short for vehicle ${transaction.vehicleId}: ${timeDiff} minutes`,
+          );
+          return 25;
+        }
+      }
+
+      return 0;
+    } catch (error) {
+      this.logger.error(`Error checking transaction frequency: ${error.message}`);
+      return 0;
+    }
+  }
+
+  private async checkOdometerProgression(transaction: FuelTransaction): Promise<number> {
+    try {
+      // Get previous transaction for the same vehicle
+      const previousTransaction = await this.fuelTransactionRepository.findOne({
+        where: {
+          vehicleId: transaction.vehicleId,
+          transactionDate: LessThan(transaction.transactionDate),
+        },
+        order: { transactionDate: 'DESC' },
+      });
+
+      if (!previousTransaction) {
+        return 0; // No previous transaction to compare with
+      }
+
+      // Calculate expected odometer reading based on fuel efficiency
+      const vehicle = await this.vehicleClient.getVehicle(transaction.vehicleId);
+      if (!vehicle || !vehicle.fuelEfficiencyBaseline) {
+        return 0; // No baseline efficiency available
+      }
+
+      const expectedMiles = previousTransaction.odometerReading + (transaction.gallons * vehicle.fuelEfficiencyBaseline);
+      const odometerDeviation = Math.abs(transaction.odometerReading - expectedMiles);
+
+      if (odometerDeviation > this.maxOdometerDeviation) {
+        this.logger.warn(
+          `Odometer deviation too high for vehicle ${transaction.vehicleId}: ${odometerDeviation} miles`,
+        );
+        return 30;
+      }
+
+      return 0;
+    } catch (error) {
+      this.logger.error(`Error checking odometer progression: ${error.message}`);
+      return 0;
+    }
+  }
+
+  private async checkLocationConsistency(transaction: FuelTransaction): Promise<number> {
+    try {
+      // Get previous transaction for the same vehicle
+      const previousTransaction = await this.fuelTransactionRepository.findOne({
+        where: {
+          vehicleId: transaction.vehicleId,
+          transactionDate: LessThan(transaction.transactionDate),
+        },
+        order: { transactionDate: 'DESC' },
+      });
+
+      if (!previousTransaction) {
+        return 0; // No previous transaction to compare with
+      }
+
+      // Calculate distance between current and previous location
+      const distance = this.calculateDistance(
+        previousTransaction.location.latitude,
+        previousTransaction.location.longitude,
+        transaction.location.latitude,
+        transaction.location.longitude,
+      );
+
+      // Calculate time difference in hours
+      const timeDiff = (transaction.transactionDate.getTime() - previousTransaction.transactionDate.getTime()) / (1000 * 60 * 60);
+
+      // Calculate expected distance based on average speed (50 mph)
+      const expectedDistance = timeDiff * 50;
+
+      if (distance > expectedDistance + this.maxLocationDeviation) {
+        this.logger.warn(
+          `Location inconsistency for vehicle ${transaction.vehicleId}: traveled ${distance} miles in ${timeDiff} hours`,
+        );
+        return 20;
+      }
+
+      return 0;
+    } catch (error) {
+      this.logger.error(`Error checking location consistency: ${error.message}`);
+      return 0;
+    }
+  }
+
+  private async checkVehicleAssignment(transaction: FuelTransaction): Promise<number> {
+    try {
+      // Check if vehicle is assigned to the driver at the transaction time
+      const isAssigned = await this.driverClient.isVehicleAssignedToDriver(
+        transaction.vehicleId,
+        transaction.driverId,
+        transaction.transactionDate,
+      );
+
+      if (!isAssigned) {
+        this.logger.warn(
+          `Vehicle ${transaction.vehicleId} not assigned to driver ${transaction.driverId} at transaction time`,
+        );
+        return 15;
+      }
+
+      return 0;
+    } catch (error) {
+      this.logger.error(`Error checking vehicle assignment: ${error.message}`);
+      return 0;
+    }
+  }
+
+  private async checkDriverAssignment(transaction: FuelTransaction): Promise<number> {
+    try {
+      // Check if driver is active at the transaction time
+      const driver = await this.driverClient.getDriver(transaction.driverId);
+      if (!driver || driver.status !== 'ACTIVE') {
+        this.logger.warn(
+          `Driver ${transaction.driverId} is not active at transaction time`,
+        );
+        return 20;
+      }
+
+      // Check if driver has multiple transactions at the same time
+      const conflictingTransactions = await this.fuelTransactionRepository.count({
+        where: {
+          driverId: transaction.driverId,
+          transactionDate: Between(
+            new Date(transaction.transactionDate.getTime() - 30 * 60 * 1000), // 30 minutes before
+            new Date(transaction.transactionDate.getTime() + 30 * 60 * 1000), // 30 minutes after
+          ),
+          id: Not(transaction.id),
+        },
+      });
+
+      if (conflictingTransactions > 0) {
+        this.logger.warn(
+          `Driver ${transaction.driverId} has ${conflictingTransactions} conflicting transactions`,
+        );
+        return 25;
+      }
+
+      return 0;
+    } catch (error) {
+      this.logger.error(`Error checking driver assignment: ${error.message}`);
+      return 0;
+    }
+  }
+
+  private calculateDistance(
+    lat1: number,
+    lon1: number,
+    lat2: number,
+    lon2: number,
+  ): number {
+    // Haversine formula to calculate distance between two points in miles
+    const R = 3958.8; // Earth radius in miles
+    const dLat = this.toRadians(lat2 - lat1);
+    const dLon = this.toRadians(lon2 - lon1);
+    const a =
+      Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+      Math.cos(this.toRadians(lat1)) *
+        Math.cos(this.toRadians(lat2)) *
+        Math.sin(dLon / 2) *
+        Math.sin(dLon / 2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    return R * c;
+  }
+
+  private toRadians(degrees: number): number {
+    return degrees * (Math.PI / 180);
+  }
+}
+```
+
+### 3.2 API Layer
+
+```typescript
+// src/fuel/controllers/fuel.controller.ts
+import {
+  Controller,
+  Get,
+  Post,
+  Put,
+  Param,
+  Body,
+  Query,
+  UsePipes,
+  ValidationPipe,
+  ParseUUIDPipe,
+  HttpCode,
+  HttpStatus,
+} from '@nestjs/common';
+import {
+  ApiTags,
+  ApiOperation,
+  ApiResponse,
+  ApiParam,
+  ApiQuery,
+  ApiBody,
+  ApiBearerAuth,
+} from '@nestjs/swagger';
+import { FuelService } from '../services/fuel.service';
+import { FuelTransactionCreateDto } from '../dto/fuel-transaction-create.dto';
+import { FuelTransactionUpdateDto } from '../dto/fuel-transaction-update.dto';
+import { FuelTransactionResponseDto } from '../dto/fuel-transaction-response.dto';
+import { PaginatedResponseDto } from '../../common/dto/paginated-response.dto';
+import { PaginationDto } from '../../common/dto/pagination.dto';
+import { FuelTransactionStatus } from '../models/fuel-transaction.model';
+import { Roles } from '../../common/decorators/roles.decorator';
+import { Role } from '../../common/enums/role.enum';
+
+@ApiTags('Fuel')
+@ApiBearerAuth()
+@Controller('api/fuel')
+export class FuelController {
+  constructor(private readonly fuelService: FuelService) {}
+
+  @Post('transactions')
+  @HttpCode(HttpStatus.CREATED)
+  @ApiOperation({ summary: 'Record a fuel transaction' })
+  @ApiResponse({
+    status: 201,
+    description: 'Transaction created',
+    type: FuelTransactionResponseDto,
+  })
+  @ApiResponse({ status: 400, description: 'Invalid input' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 403, description: 'Forbidden' })
+  @ApiBody({ type: FuelTransactionCreateDto })
+  @Roles(Role.FLEET_MANAGER, Role.DRIVER, Role.ADMIN)
+  @UsePipes(new ValidationPipe({ transform: true }))
+  async createTransaction(
+    @Body() transactionData: FuelTransactionCreateDto,
+  ): Promise<FuelTransactionResponseDto> {
+    return this.fuelService.createTransaction(transactionData);
+  }
+
+  @Get('transactions')
+  @ApiOperation({ summary: 'List fuel transactions' })
+  @ApiResponse({
+    status: 200,
+    description: 'List of transactions',
+    type: PaginatedResponseDto<FuelTransactionResponseDto>,
+  })
+  @ApiQuery({ name: 'vehicleId', type: String, required: false })
+  @ApiQuery({ name: 'driverId', type: String, required: false })
+  @ApiQuery({ name: 'startDate', type: Date, required: false })
+  @ApiQuery({ name: 'endDate', type: Date, required: false })
+  @ApiQuery({ name: 'status', type: String, required: false, isArray: true })
+  @ApiQuery({ name: 'page', type: Number, required: false })
+  @ApiQuery({ name: 'limit', type: Number, required: false })
+  @Roles(Role.FLEET_MANAGER, Role.ADMIN, Role.AUDITOR)
+  async getTransactions(
+    @Query() pagination: PaginationDto,
+    @Query('vehicleId') vehicleId?: string,
+    @Query('driverId') driverId?: string,
+    @Query('startDate') startDate?: Date,
+    @Query('endDate') endDate?: Date,
+    @Query('status') status?: FuelTransactionStatus[],
+  ): Promise<PaginatedResponseDto<FuelTransactionResponseDto>> {
+    return this.fuelService.getTransactions(pagination, {
+      vehicleId,
+      driverId,
+      startDate,
+      endDate,
+      status,
+    });
+  }
+
+  @Get('transactions/:id')
+  @ApiOperation({ summary: 'Get fuel transaction by ID' })
+  @ApiResponse({
+    status: 200,
+    description: 'Transaction details',
+    type: FuelTransactionResponseDto,
+  })
+  @ApiResponse({ status: 404, description: 'Transaction not found' })
+  @ApiParam({ name: 'id', type: String })
+  @Roles(Role.FLEET_MANAGER, Role.ADMIN, Role.AUDITOR, Role.DRIVER)
+  async getTransaction(
+    @Param('id', ParseUUIDPipe) id: string,
+  ): Promise<FuelTransactionResponseDto> {
+    return this.fuelService.getTransaction(id);
+  }
+
+  @Put('transactions/:id')
+  @ApiOperation({ summary: 'Update fuel transaction' })
+  @ApiResponse({
+    status: 200,
+    description: 'Transaction updated',
+    type: FuelTransactionResponseDto,
+  })
+  @ApiResponse({ status: 400, description: 'Invalid input' })
+  @ApiResponse({ status: 404, description: 'Transaction not found' })
+  @ApiParam({ name: 'id', type: String })
+  @ApiBody({ type: FuelTransactionUpdateDto })
+  @Roles(Role.FLEET_MANAGER, Role.ADMIN)
+  @UsePipes(new ValidationPipe({ transform: true }))
+  async updateTransaction(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body() updateData: FuelTransactionUpdateDto,
+  ): Promise<FuelTransactionResponseDto> {
+    return this.fuelService.updateTransaction(id, updateData);
+  }
+
+  @Get('efficiency')
+  @ApiOperation({ summary: 'Get fuel efficiency metrics' })
+  @ApiResponse({
+    status: 200,
+    description: 'Fuel efficiency metrics',
+    type: Object,
+  })
+  @ApiQuery({ name: 'vehicleId', type: String, required: true })
+  @ApiQuery({
+    name: 'period',
+    enum: ['DAILY', 'WEEKLY', 'MONTHLY', 'QUARTERLY', 'YEARLY'],
+    required: false,
+  })
+  @Roles(Role.FLEET_MANAGER, Role.ADMIN, Role.AUDITOR)
+  async getFuelEfficiency(
+    @Query('vehicleId', ParseUUIDPipe) vehicleId: string,
+    @Query('period') period: 'DAILY' | 'WEEKLY' | 'MONTHLY' | 'QUARTERLY' | 'YEARLY' = 'MONTHLY',
+  ): Promise<any> {
+    return this.fuelService.getFuelEfficiency(vehicleId, period);
+  }
+
+  @Get('fraud')
+  @ApiOperation({ summary: 'List potentially fraudulent transactions' })
+  @ApiResponse({
+    status: 200,
+    description: 'List of fraudulent transactions',
+    type: PaginatedResponseDto<FuelTransactionResponseDto>,
+  })
+  @ApiQuery({ name: 'page', type: Number, required: false })
+  @ApiQuery({ name: 'limit', type: Number, required: false })
+  @Roles(Role.FLEET_MANAGER, Role.ADMIN, Role.AUDITOR)
+  async getFraudulentTransactions(
+    @Query() pagination: PaginationDto,
+  ): Promise<PaginatedResponseDto<FuelTransactionResponseDto>> {
+    return this.fuelService.getFraudulentTransactions(pagination);
+  }
+
+  @Post('transactions/:id/verify')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Manually verify a fuel transaction' })
+  @ApiResponse({ status: 200, description: 'Transaction verified' })
+  @ApiResponse({ status: 404, description: 'Transaction not found' })
+  @ApiParam({ name: 'id', type: String })
+  @Roles(Role.FLEET_MANAGER, Role.ADMIN)
+  async verifyTransaction(
+    @Param('id', ParseUUIDPipe) id: string,
+  ): Promise<void> {
+    return this.fuelService.verifyTransaction(id);
+  }
+
+  @Get('transactions/:id/fraud-score')
+  @ApiOperation({ summary: 'Get fraud score for a transaction' })
+  @ApiResponse({
+    status: 200,
+    description: 'Fraud score',
+    type: Number,
+  })
+  @ApiResponse({ status: 404, description: 'Transaction not found' })
+  @ApiParam({ name: 'id', type: String })
+  @Roles(Role.FLEET_MANAGER, Role.ADMIN, Role.AUDITOR)
+  async getFraudScore(
+    @Param('id', ParseUUIDPipe) id: string,
+  ): Promise<number> {
+    return this.fuelService.detectFraud(id);
+  }
+}
+```
+
+```typescript
+// src/fuel/dto/fuel-transaction-create.dto.ts
+import { ApiProperty } from '@nestjs/swagger';
+import {
+  IsUUID,
+  IsDateString,
+  IsNumber,
+  IsPositive,
+  IsOptional,
+  IsString,
+  IsEnum,
+  Min,
+  Max,
+  ValidateNested,
+} from 'class-validator';
+import { Type } from 'class-transformer';
+import { FuelType } from '../models/fuel-transaction.model';
+
+class LocationDto {
+  @ApiProperty({ example: 42.3601, description: 'Latitude' })
+  @IsNumber()
+  @Min(-90)
+  @Max(90)
+  latitude: number;
+
+  @ApiProperty({ example: -71.0589, description: 'Longitude' })
+  @IsNumber()
+  @Min(-180)
+  @Max(180)
+  longitude: number;
+
+  @ApiProperty({ example: '123 Main St', description: 'Address', required: false })
+  @IsString()
+  @IsOptional()
+  address?: string;
+
+  @ApiProperty({ example: 'Boston', description: 'City', required: false })
+  @IsString()
+  @IsOptional()
+  city?: string;
+
+  @ApiProperty({ example: 'MA', description: 'State', required: false })
+  @IsString()
+  @IsOptional()
+  state?: string;
+
+  @ApiProperty({ example: '02108', description: 'Zip code', required: false })
+  @IsString()
+  @IsOptional()
+  zipCode?: string;
+
+  @ApiProperty({ example: 'US', description: 'Country', default: 'US', required: false })
+  @IsString()
+  @IsOptional()
+  country?: string = 'US';
+}
+
+export class FuelTransactionCreateDto {
+  @ApiProperty({ example: '123e4567-e89b-12d3-a456-426614174000', description: 'Vehicle ID' })
+  @IsUUID()
+  vehicleId: string;
+
+  @ApiProperty({ example: '123e4567-e89b-12d3-a456-426614174001', description: 'Driver ID' })
+  @IsUUID()
+  driverId: string;
+
+  @ApiProperty({ example: '2023-01-01T12:00:00Z', description: 'Transaction date and time' })
+  @IsDateString()
+  transactionDate: Date;
+
+  @ApiProperty({ example: 25.5, description: 'Gallons of fuel purchased', minimum: 0.1 })
+  @IsNumber({ maxDecimalPlaces: 3 })
+  @IsPositive()
+  @Min(0.1)
+  gallons: number;
+
+  @ApiProperty({ example: 100.25, description: 'Total amount of transaction', minimum: 0.01 })
+  @IsNumber({ maxDecimalPlaces: 2 })
+  @IsPositive()
+  @Min(0.01)
+  totalAmount: number;
+
+  @ApiProperty({ example: 50000.5, description: 'Odometer reading at time of transaction', minimum: 0 })
+  @IsNumber({ maxDecimalPlaces: 1 })
+  @Min(0)
+  odometerReading: number;
+
+  @ApiProperty({ type: LocationDto, description: 'Location of fuel transaction' })
+  @ValidateNested()
+  @Type(() => LocationDto)
+  location: LocationDto;
+
+  @ApiProperty({
+    enum: FuelType,
+    example: FuelType.DIESEL,
+    description: 'Type of fuel',
+    default: FuelType.DIESEL,
+  })
+  @IsEnum(FuelType)
+  @IsOptional()
+  fuelType?: FuelType = FuelType.DIESEL;
+
+  @ApiProperty({
+    example: '1234567890123456',
+    description: 'Fuel card number',
+    required: false,
+  })
+  @IsString()
+  @IsOptional()
+  fuelCardNumber?: string;
+
+  @ApiProperty({
+    example: 'TXN123456789',
+    description: 'Transaction ID from fuel card provider',
+    required: false,
+  })
+  @IsString()
+  @IsOptional()
+  transactionId?: string;
+
+  @ApiProperty({
+    example: 'Regular fill-up',
+    description: 'Additional notes',
+    required: false,
+  })
+  @IsString()
+  @IsOptional()
+  notes?: string;
+}
+```
+
+```typescript
+// src/fuel/dto/fuel-transaction-response.dto.ts
+import { ApiProperty } from '@nestjs/swagger';
+import { Expose, Type } from 'class-transformer';
+import { FuelType, TransactionStatus, VerificationMethod } from '../models/fuel-transaction.model';
+
+class LocationResponseDto {
+  @ApiProperty({ example: 42.3601, description: 'Latitude' })
+  @Expose()
+  latitude: number;
+
+  @ApiProperty({ example: -71.0589, description: 'Longitude' })
+  @Expose()
+  longitude: number;
+
+  @ApiProperty({ example: '123 Main St', description: 'Address', required: false })
+  @Expose()
+  address?: string;
+
+  @ApiProperty({ example: 'Boston', description: 'City', required: false })
+  @Expose()
+  city?: string;
+
+  @ApiProperty({ example: 'MA', description: 'State', required: false })
+  @Expose()
+  state?: string;
+
+  @ApiProperty({ example: '02108', description: 'Zip code', required: false })
+  @Expose()
+  zipCode?: string;
+
+  @ApiProperty({ example: 'US', description: 'Country', required: false })
+  @Expose()
+  country?: string;
+}
+
+export class FuelTransactionResponseDto {
+  @ApiProperty({ example: '123e4567-e89b-12d3-a456-426614174000', description: 'Transaction ID' })
+  @Expose()
+  id: string;
+
+  @ApiProperty({ example: '123e4567-e89b-12d3-a456-426614174000', description: 'Vehicle ID' })
+  @Expose()
+  vehicleId: string;
+
+  @ApiProperty({ example: '123e4567-e89b-12d3-a456-426614174001', description: 'Driver ID' })
+  @Expose()
+  driverId: string;
+
+  @ApiProperty({ example: '2023-01-01T12:00:00Z', description: 'Transaction date and time' })
+  @Expose()
+  transactionDate: Date;
+
+  @ApiProperty({ example: 25.5, description: 'Gallons of fuel purchased' })
+  @Expose()
+  gallons: number;
+
+  @ApiProperty({ example: 100.25, description: 'Total amount of transaction' })
+  @Expose()
+  totalAmount: number;
+
+  @ApiProperty({ example: 50000.5, description: 'Odometer reading at time of transaction' })
+  @Expose()
+  odometerReading: number;
+
+  @ApiProperty({ type: LocationResponseDto, description: 'Location of fuel transaction' })
+  @Expose()
+  @Type(() => LocationResponseDto)
+  location: LocationResponseDto;
+
+  @ApiProperty({
+    enum: FuelType,
+    example: FuelType.DIESEL,
+    description: 'Type of fuel',
+  })
+  @Expose()
+  fuelType: FuelType;
+
+  @ApiProperty({
+    example: '1234567890123456',
+    description: 'Fuel card number',
+    required: false,
+  })
+  @Expose()
+  fuelCardNumber?: string;
+
+  @ApiProperty({
+    example: 'TXN123456789',
+    description: 'Transaction ID from fuel card provider',
+    required: false,
+  })
+  @Expose()
+  transactionId?: string;
+
+  @ApiProperty({
+    enum: TransactionStatus,
+    example: TransactionStatus.PENDING,
+    description: 'Transaction status',
+  })
+  @Expose()
+  status: TransactionStatus;
+
+  @ApiProperty({
+    enum: VerificationMethod,
+    example: VerificationMethod.AUTOMATIC,
+    description: 'Verification method',
+    required: false,
+  })
+  @Expose()
+  verificationMethod?: VerificationMethod;
+
+  @ApiProperty({
+    example: 0,
+    description: 'Fraud score (0-100)',
+    required: false,
+  })
+  @Expose()
+  fraudScore?: number;
+
+  @ApiProperty({ example: '2023-01-01T12:00:00Z', description: 'Creation timestamp' })
+  @Expose()
+  createdAt: Date;
+
+  @ApiProperty({ example: '2023-01-01T12:00:00Z', description: 'Last update timestamp' })
+  @Expose()
+  updatedAt: Date;
+
+  @ApiProperty({
+    example: 1960.78,
+    description: 'Miles per gallon for this transaction',
+    required: false,
+  })
+  @Expose()
+  mpg?: number;
+}
+```
+
+```typescript
+// src/common/middleware/auth.middleware.ts
+import { Injectable, NestMiddleware, UnauthorizedException, ForbiddenException } from '@nestjs/common';
+import { Request, Response, NextFunction } from 'express';
+import { JwtService } from '@nestjs/jwt';
+import { ConfigService } from '@nestjs/config';
+import { Reflector } from '@nestjs/core';
+import { Role } from '../enums/role.enum';
+import { ROLES_KEY } from '../decorators/roles.decorator';
+
+@Injectable()
+export class AuthMiddleware implements NestMiddleware {
+  constructor(
+    private readonly jwtService: JwtService,
+    private readonly configService: ConfigService,
+    private readonly reflector: Reflector,
+  ) {}
+
+  async use(req: Request, res: Response, next: NextFunction) {
+    try {
+      // Get token from header
+      const authHeader = req.headers.authorization;
+      if (!authHeader || !authHeader.startsWith('Bearer ')) {
+        throw new UnauthorizedException('Authorization token missing');
+      }
+
+      const token = authHeader.split(' ')[1];
+
+      // Verify token
+      const payload = await this.jwtService.verifyAsync(token, {
+        secret: this.configService.get<string>('JWT_SECRET'),
+      });
+
+      // Check if token is expired
+      if (payload.exp * 1000 < Date.now()) {
+        throw new UnauthorizedException('Token expired');
+      }
+
+      // Attach user to request
+      req.user = {
+        id: payload.sub,
+        email: payload.email,
+        roles: payload.roles || [],
+        fleetId: payload.fleetId,
+      };
+
+      // Check route permissions
+      const requiredRoles = this.reflector.getAllAndOverride<Role[]>(ROLES_KEY, [
+        req.route?.stack?.[0]?.method,
+        req.route?.stack?.[0]?.handle,
+      ]);
+
+      if (requiredRoles && requiredRoles.length > 0) {
+        const hasRequiredRole = requiredRoles.some(role =>
+          req.user.roles.includes(role),
+        );
+
+        if (!hasRequiredRole) {
+          throw new ForbiddenException('Insufficient permissions');
+        }
       }
 
       next();
-    } catch (err) {
-      logger.error('Validation middleware error:', err);
-      return res.status(500).json({ error: 'Internal server error' });
-    }
-  };
-};
-
-export const sanitizeInput = (req: Request, res: Response, next: NextFunction) => {
-  try {
-    // Sanitize body
-    if (req.body) {
-      for (const key in req.body) {
-        if (typeof req.body[key] === 'string') {
-          req.body[key] = sanitizeHtml(req.body[key], {
-            allowedTags: [],
-            allowedAttributes: {},
-          });
-        }
+    } catch (error) {
+      if (error.name === 'JsonWebTokenError') {
+        throw new UnauthorizedException('Invalid token');
       }
-    }
-
-    // Sanitize query params
-    if (req.query) {
-      for (const key in req.query) {
-        if (typeof req.query[key] === 'string') {
-          req.query[key] = sanitizeHtml(req.query[key] as string, {
-            allowedTags: [],
-            allowedAttributes: {},
-          });
-        }
+      if (error.name === 'TokenExpiredError') {
+        throw new UnauthorizedException('Token expired');
       }
+      throw error;
     }
-
-    // Sanitize route params
-    if (req.params) {
-      for (const key in req.params) {
-        if (typeof req.params[key] === 'string') {
-          req.params[key] = sanitizeHtml(req.params[key], {
-            allowedTags: [],
-            allowedAttributes: {},
-          });
-        }
-      }
-    }
-
-    next();
-  } catch (err) {
-    logger.error('Sanitization middleware error:', err);
-    return res.status(500).json({ error: 'Internal server error' });
   }
-};
-
-// Example validation rules
-export const fuelTransactionValidation = [
-  body('vehicleId').isString().trim().notEmpty().withMessage('Vehicle ID is required'),
-  body('amount').isFloat({ min: 0.1 }).withMessage('Amount must be a positive number'),
-  body('odometerReading')
-    .isFloat({ min: 0 })
-    .withMessage('Odometer reading must be a non-negative number'),
-  body('location').isString().trim().notEmpty().withMessage('Location is required'),
-  body('timestamp')
-    .optional()
-    .isISO8601()
-    .toDate()
-    .withMessage('Timestamp must be a valid date'),
-];
-
-export const userValidation = [
-  body('name').isString().trim().notEmpty().withMessage('Name is required'),
-  body('email').isEmail().normalizeEmail().withMessage('Invalid email address'),
-  body('password')
-    .isLength({ min: 8 })
-    .withMessage('Password must be at least 8 characters long')
-    .matches(/[A-Z]/)
-    .withMessage('Password must contain at least one uppercase letter')
-    .matches(/[0-9]/)
-    .withMessage('Password must contain at least one number'),
-  body('role').isIn(['DRIVER', 'MANAGER', 'ADMIN']).withMessage('Invalid role'),
-];
-
-export const idParamValidation = [
-  param('id').isString().trim().notEmpty().withMessage('ID is required'),
-];
+}
 ```
 
-### **4. CSRF Protection**
 ```typescript
-// src/middleware/csrfMiddleware.ts
-import { Request, Response, NextFunction } from 'express';
-import csrf from 'csurf';
-import { logger } from '../utils/logger';
+// src/common/guards/roles.guard.ts
+import { Injectable, CanActivate, ExecutionContext } from '@nestjs/common';
+import { Reflector } from '@nestjs/core';
+import { Role } from '../enums/role.enum';
+import { ROLES_KEY } from '../decorators/roles.decorator';
 
-const csrfProtection = csrf({
-  cookie: {
-    key: '_csrf',
-    path: '/',
-    httpOnly: true,
-    secure: process.env.NODE_ENV === 'production',
-    sameSite: 'strict',
-  },
-});
+@Injectable()
+export class RolesGuard implements CanActivate {
+  constructor(private reflector: Reflector) {}
 
-export const csrfMiddleware = (req: Request, res: Response, next: NextFunction) => {
-  try {
-    // Skip CSRF for certain routes
-    if (req.path === '/health' || req.path === '/auth/login') {
-      return next();
+  canActivate(context: ExecutionContext): boolean {
+    const requiredRoles = this.reflector.getAllAndOverride<Role[]>(ROLES_KEY, [
+      context.getHandler(),
+      context.getClass(),
+    ]);
+
+    if (!requiredRoles) {
+      return true;
     }
 
-    // Skip CSRF for GET requests
-    if (req.method === 'GET') {
-      return next();
-    }
-
-    // Apply CSRF protection
-    csrfProtection(req, res, next);
-  } catch (err) {
-    logger.error('CSRF middleware error:', err);
-    return res.status(403).json({ error: 'CSRF token invalid or missing' });
+    const { user } = context.switchToHttp().getRequest();
+    return requiredRoles.some(role => user.roles?.includes(role));
   }
-};
+}
+```
 
-export const getCsrfToken = (req: Request, res: Response) => {
-  try {
-    res.json({ csrfToken: req.csrfToken() });
-  } catch (err) {
-    logger.error('
+```typescript
+// src/common/interceptors/logging.interceptor.ts
+import { Injectable, NestInterceptor, ExecutionContext, CallHandler, Logger } from '@nestjs/common';
+import { Observable } from 'rxjs';
+import { tap } from 'rxjs/operators';
+import { Request } from 'express';
+
+@Injectable()
+export class LoggingInterceptor implements NestInterceptor {
+  private readonly logger = new Logger(LoggingInterceptor.name);
+
+  intercept(context: ExecutionContext, next: CallHandler): Observable<any> {
+    const now = Date.now();
+    const request = context.switchToHttp().getRequest<Request>();
+    const method = request.method;
+    const url = request.url;
+    const userAgent = request.get('user-agent') || '';
+    const ip = request.ip;
+
+    this.logger.log(
+      `Incoming Request: ${method} ${url} - ${userAgent} ${ip}`,
+    );
+
+    return next.handle().pipe(
+      tap(() => {
+        const response = context.switchToHttp().getResponse();
+        const statusCode = response.statusCode;
+        const delay = Date.now() - now;
+
+        this.logger.log(
+          `Outgoing Response: ${method} ${url} ${statusCode} - ${delay}ms`,
+        );
+      }),
+    );
+  }
+}
+```
+
+```typescript
+// src/common/interceptors/response.interceptor.ts
+import { Injectable, NestInterceptor, ExecutionContext, CallHandler } from '@nestjs/common';
+import { Observable } from 'rxjs';
+import { map } from 'rxjs/operators';
+import { Response } from 'express';
+
+export interface ResponseFormat<T> {
+  success: boolean;
+  data?: T;
+  error?: {
+    message: string;
+    code: string;
+    details?: any;
+  };
+  timestamp: string;
+}
+
+@Injectable()
+export class ResponseInterceptor<T> implements NestInterceptor<T, ResponseFormat<T>> {
+  intercept(context: ExecutionContext, next: CallHandler): Observable<ResponseFormat<T>> {
+    return next.handle().pipe(
+      map((data) => ({
+        success: true,
+        data,
+        timestamp: new Date().toISOString(),
+      })),
+    );
+  }
+}
+```
+
+```typescript
+// src/common/filters/all-exceptions.filter.ts
+import {
+  ExceptionFilter,
+  Catch,
+  ArgumentsHost,
+  HttpException,
+  HttpStatus,
+  Logger,
+} from '@nestjs/common';
+import { Request, Response } from 'express';
+import { QueryFailedError } from 'typeorm';
+
+@Catch()
+export class AllExceptionsFilter implements ExceptionFilter {
+  private readonly logger = new Logger(AllExceptionsFilter.name);
+
+  catch(exception: unknown, host: ArgumentsHost) {
+    const ctx = host.switchToHttp();
+    const response = ctx.getResponse<Response>();
+    const request = ctx.getRequest<Request>();
+
+    let status = HttpStatus.INTERNAL_SERVER_ERROR;
+    let message = 'Internal server error';
+    let code = 'INTERNAL_ERROR';
+    let details: any = null;
+
+    if (exception instanceof HttpException) {
+      status = exception.getStatus();
+      const errorResponse = exception.getResponse();
+
+      if (typeof errorResponse === 'string') {
+        message = errorResponse;
+      } else {
+        message = (errorResponse as any).message || message;
+        code = (errorResponse as any).error || code;
+        details = (errorResponse as any).details;
+      }
+    } else if (exception instanceof QueryFailedError) {
+      status = HttpStatus.BAD_REQUEST;
+      message = 'Database operation failed';
+      code = 'DATABASE_ERROR';
+      details = {
+        error: exception.message,
+        driverError: exception.driverError,
+      };
+
+      // Handle unique constraint violations
+      if (exception.driverError?.code === '23505') {
+        message = 'Duplicate key violation';
+        code = 'DUPLICATE_KEY';
+        details = {
+          constraint: exception.driverError.detail.match(/Key \((.*?)\)/)?.[1],
+        };
+      }
+    } else if (exception instanceof Error) {
+      message = exception.message;
+      code = 'RUNTIME_ERROR';
+      details = {
+        stack: process.env.NODE_ENV === 'development' ? exception.stack : undefined,
+      };
+    }
+
+    this.logger.error(
+      `Exception: ${message} - ${code} - ${request.method} ${request.url}`,
+      details?.stack || '',
+    );
+
+    response.status(status).json({
+      success: false,
+      error: {
+        message,
+        code,
+        details: process.env.NODE_ENV === 'development' ? details : undefined,
+      },
+      timestamp: new Date().toISOString(),
+    });
+  }
+}
+```
+
+### 3.3 Data Access Layer
+
+```typescript
+// src/fuel/repositories/fuel.repository.ts
+import { Injectable, Logger } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository, FindManyOptions, FindOneOptions, Between, In, Not, LessThan, MoreThan } from 'typeorm';
+import { FuelTransaction } from '../models/fuel-transaction.model';
+import { FuelTransactionStatus } from '../models/fuel-transaction.model';
+import { PaginationDto } from '../../common/dto/pagination.dto';
+
+@Injectable()
+export class FuelRepository {
+  private readonly logger = new Logger(FuelRepository.name);
+
+  constructor(
+    @InjectRepository(FuelTransaction)
+    private readonly repository: Repository<FuelTransaction>,
+  ) {}
+
+  async create(transaction: Partial<FuelTransaction>): Promise<FuelTransaction> {
+    this.logger.log(`Creating fuel transaction for vehicle ${transaction.vehicleId}`);
+    const entity = this.repository.create(transaction);
+    return this.repository.save(entity);
+  }
+
+  async findOne(options: FindOneOptions<FuelTransaction>): Promise<FuelTransaction | null> {
+    return this.repository.findOne(options);
+  }
+
+  async find(options: FindManyOptions<FuelTransaction>): Promise<FuelTransaction[]> {
+    return this.repository.find(options);
+  }
+
+  async findAndCount(options: FindManyOptions<FuelTransaction>): Promise<[FuelTransaction[], number]> {
+    return this.repository.findAndCount(options);
+  }
+
+  async update(id: string, updateData: Partial<FuelTransaction>): Promise<FuelTransaction> {
+    this.logger.log(`Updating fuel transaction ${id}`);
+    await this.repository.update(id, updateData);
+    return this.repository.findOne({ where: { id } });
+  }
+
+  async delete(id: string): Promise<void> {
+    this.logger.log(`Deleting fuel transaction ${id}`);
+    await this.repository.delete(id);
+  }
+
+  async getTransactionsByVehicle(
+    vehicleId: string,
+    pagination: PaginationDto,
+    filters: {
+      startDate?: Date;
+      endDate?: Date;
+      status?: FuelTransactionStatus[];
+    } = {},
+  ): Promise<[FuelTransaction[], number]> {
+    const { page = 1, limit = 20 } = pagination;
+    const { startDate, endDate, status } = filters;
+
+    const where: FindManyOptions<FuelTransaction>['where'] = { vehicleId };
+
+    if (startDate && endDate) {
+      where.transactionDate = Between(startDate, endDate);
+    } else if (startDate) {
+      where.transactionDate = MoreThan(startDate);
+    } else if (endDate) {
+      where.transactionDate = LessThan(endDate);
+    }
+
+    if (status && status.length > 0) {
+      where.status = In(status);
+    }
+
+    return this.repository.findAndCount({
+      where,
+      order: { transactionDate: 'DESC' },
+      skip: (page - 1) * limit,
+      take: limit,
+    });
+  }
+
+  async getTransactionsByDriver(
+    driverId: string,
+    pagination: PaginationDto,
+    filters: {
+      startDate?: Date;
+      endDate?: Date;
+      status?: FuelTransactionStatus[];
+    } = {},
+  ): Promise<[FuelTransaction[], number]> {
+    const { page = 1, limit = 20 } = pagination;
+    const { startDate, endDate, status } = filters;
+
+    const where: FindManyOptions<FuelTransaction>['where'] = { driverId };
+
+    if (startDate && endDate) {
+      where.transactionDate = Between(startDate, endDate);
+    } else if (startDate) {
+      where.transactionDate = MoreThan(startDate);
+    } else if (endDate) {
+      where.transactionDate = LessThan(endDate);
+    }
+
+    if (status && status.length > 0) {
+      where.status = In(status);
+    }
+
+    return this.repository.findAndCount({
+      where,
+      order: { transactionDate: 'DESC' },
+      skip: (page - 1) * limit,
+      take: limit,
+    });
+  }
+
+  async getTransactionsForPeriod(
+    startDate: Date,
+    endDate: Date,
+    pagination: PaginationDto,
+    filters: {
+      vehicleId?: string;
+      driverId?: string;
+      status?: FuelTransactionStatus[];
+    } = {},
+  ): Promise<[FuelTransaction[], number]> {
+    const { page = 1, limit = 20 } = pagination;
+    const { vehicleId, driverId, status } = filters;
+
+    const where: FindManyOptions<FuelTransaction>['where'] = {
+      transactionDate: Between(startDate, endDate),
+    };
+
+    if (vehicleId) {
+      where.vehicleId = vehicleId;
+    }
+
+    if (driverId) {
+      where.driverId = driverId;
+    }
+
+    if (status && status.length > 0) {
+      where.status = In(status);
+    }
+
+    return this.repository.findAndCount({
+      where,
+      order: { transactionDate: 'DESC' },
+      skip: (page - 1) * limit,
+      take: limit,
+    });
+  }
+
+  async getFraudulentTransactions(
+    pagination: PaginationDto,
+    minFraudScore: number = 80,
+  ): Promise<[FuelTransaction[], number]> {
+    const { page = 1, limit = 20 } = pagination;
+
+    return this.repository.findAndCount({
+      where: {
+        fraudScore: Between(minFraudScore, 100),
+      },
+      order: { fraudScore: 'DESC' },
+      skip: (page - 1) * limit,
+      take: limit,
+    });
+  }
+
+  async getLastTransactionForVehicle(vehicleId: string): Promise<FuelTransaction | null> {
+    return this.repository.findOne({
+      where: { vehicleId },
+      order: { transactionDate: 'DESC' },
+    });
+  }
+
+  async getLastTransactionForDriver(driverId: string): Promise<FuelTransaction | null> {
+    return this.repository.findOne({
+      where: { driverId },
+      order: { transactionDate: 'DESC' },
+    });
+  }
+
+  async getTransactionsForFraudDetection(
+    vehicleId: string,
+    transactionDate: Date,
+  ): Promise<FuelTransaction[]> {
+    const startOfDay = new Date(transactionDate);
+    startOfDay.setHours(0, 0, 0, 0);
+
+    const endOfDay = new Date(transactionDate);
+    endOfDay.setHours(23, 59, 59, 999);
+
+    return this.repository.find({
+      where: {
+        vehicleId,
+        transactionDate: Between(startOfDay, endOfDay),
+      },
+      order: { transactionDate: 'ASC' },
+    });
+  }
+
+  async getEfficiencyData(
+    vehicleId: string,
+    startDate: Date,
+    endDate: Date,
+  ): Promise<FuelTransaction[]> {
+    return this.repository.find({
+      where: {
+        vehicleId,
+        transactionDate: Between(startDate, endDate),
+        status: FuelTransactionStatus.VERIFIED,
+      },
+      order: { transactionDate: 'ASC' },
+    });
+  }
+
+  async getFleetEfficiencyData(
+    fuelType: string,
+    startDate: Date,
+    endDate: Date,
+  ): Promise<any> {
+    return this.repository
+      .createQueryBuilder('transaction')
+      .select('AVG((transaction.odometerReading - LAG(transaction.odometerReading) OVER (PARTITION BY transaction.vehicleId ORDER BY transaction.transactionDate)) / transaction.gallons)', 'avgMpg')
+      .where('transaction.fuelType = :fuelType', { fuelType })
+      .andWhere('transaction.transactionDate BETWEEN :startDate AND :endDate', { startDate, endDate })
+      .andWhere('transaction.status = :status', { status: FuelTransactionStatus.VERIFIED })
+      .getRawOne();
+  }
+
+  async getTransactionCountForVehicle(
+    vehicleId: string,
+    startDate: Date,
+    endDate: Date,
+  ): Promise<number> {
+    return this.repository.count({
+      where: {
+        vehicleId,
+        transactionDate: Between(startDate, endDate),
+      },
+    });
+  }
+
+  async getTransactionCountForDriver(
+    driverId: string,
+    startDate: Date,
+    endDate: Date,
+  ): Promise<number> {
+    return this.repository.count({
+      where: {
+        driverId,
+        transactionDate: Between(startDate, endDate),
+      },
+    });
+  }
+
+  async getConflictingTransactions(
+    driverId: string,
+    transactionDate: Date,
+    windowMinutes: number = 30,
+  ): Promise<number> {
+    const startTime = new Date(transactionDate.getTime() - windowMinutes * 60 * 1000);
+    const endTime = new Date(transactionDate.getTime() + windowMinutes * 60 * 1000);
+
+    return this.repository.count({
+      where: {
+        driverId,
+        transactionDate: Between(startTime, endTime),
+        id: Not('id'),
+      },
+    });
+  }
+}
+```
+
+```typescript
+// src/database/database.module.ts
+import { Module } from '@nestjs/common';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { ConfigModule, ConfigService } from '@nestjs/config';
+import { FuelTransaction } from '../fuel/models/fuel-transaction.model';
+import { Vehicle } from '../vehicle/models/vehicle.model';
+import { Driver } from '../driver/models/driver.model';
+import { OdometerReading } from '../vehicle/models/odometer-reading.model';
+import { VehicleAssignment } from '../vehicle/models/vehicle-assignment.model';
+
+@Module({
+  imports: [
+    TypeOrmModule.forRootAsync({
+      imports: [ConfigModule],
+      useFactory: (configService: ConfigService) => ({
+        type: 'postgres',
+        host: configService.get<string>('DB_HOST'),
+        port: configService.get<number>('DB_PORT'),
+        username: configService.get<string>('DB_USERNAME'),
+        password: configService.get<string>('DB_PASSWORD'),
+        database: configService.get<string>('DB_NAME'),
+        entities: [FuelTransaction, Vehicle, Driver, OdometerReading, VehicleAssignment],
+        synchronize: configService.get<boolean>('DB_SYNCHRONIZE', false),
+        logging: configService.get<string>('DB_LOGGING', 'error').split(','),
+        ssl: configService.get<boolean>('DB_SSL', false)
+          ? {
+              rejectUnauthorized: configService.get<boolean>('DB_SSL_REJECT_UNAUTHORIZED', true),
+              ca: configService.get<string>('DB_SSL_CA'),
+            }
+          : false,
+        extra: {
+          max: configService.get<number>('DB_POOL_MAX', 20),
+          connectionTimeoutMillis: configService.get<number>('DB_CONNECTION_TIMEOUT', 5000),
+          idleTimeoutMillis: configService.get<number>
