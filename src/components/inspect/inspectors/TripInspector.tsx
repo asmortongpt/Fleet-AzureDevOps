@@ -10,6 +10,7 @@
 
 import { Loader2, AlertCircle, MapPin, Clock, Fuel, DollarSign } from 'lucide-react';
 import React, { useState, useEffect } from 'react';
+import { SkeletonLoader } from '@/components/shared';
 
 import { Badge } from '@/components/ui/badge';
 import { Card } from '@/components/ui/card';

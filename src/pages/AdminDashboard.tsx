@@ -1,6 +1,7 @@
 import { Dashboard, Security, Settings, People, Analytics, ArrowBack } from '@mui/icons-material';
 import { Container, Box, Typography, Alert, Button, Tabs, Tab, Paper, IconButton } from '@mui/material';
 import React, { useEffect, useState } from 'react';
+import { SkeletonLoader } from '@/components/shared';
 import { useNavigate } from 'react-router-dom';
 
 import MonitoringDashboard from '../components/admin/MonitoringDashboard';

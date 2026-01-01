@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { SkeletonLoader } from '@/components/shared';
 
 import { AppError } from '../errors/AppError';
 import { fetchUserProfile } from '../services/userService';

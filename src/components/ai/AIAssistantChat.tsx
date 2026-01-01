@@ -15,6 +15,7 @@
  */
 
 import React, { useState, useRef, useEffect } from 'react';
+import { SkeletonLoader } from '@/components/shared';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
