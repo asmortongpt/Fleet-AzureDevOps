@@ -1,5 +1,6 @@
 import { Table, Button } from 'antd';
 import React, { useEffect, useState } from 'react';
+import { SkeletonLoader } from '@/components/shared';
 import Helmet from 'react-helmet';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from 'recharts';
 

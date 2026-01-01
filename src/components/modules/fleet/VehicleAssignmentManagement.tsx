@@ -21,6 +21,7 @@ import {
   Search,
 } from 'lucide-react';
 import React, { useState, useEffect } from 'react';
+import { SkeletonLoader } from '@/components/shared';
 
 import logger from '@/utils/logger';
 

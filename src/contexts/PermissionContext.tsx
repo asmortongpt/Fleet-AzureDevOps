@@ -4,6 +4,7 @@
  */
 
 import React, { createContext, useContext, ReactNode } from 'react';
+import { SkeletonLoader } from '@/components/shared';
 
 import { usePermissions, UserPermissions, UserRole } from '../hooks/usePermissions';
 

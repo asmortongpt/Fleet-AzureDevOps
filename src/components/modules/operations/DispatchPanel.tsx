@@ -6,6 +6,7 @@ import {
     SpeakerSlash
 } from "@phosphor-icons/react";
 import React, { useState, useEffect } from "react";
+import { SkeletonLoader } from '@/components/shared';
 
 import { Badge } from "../../ui/badge";
 import { Button } from "../../ui/button";

@@ -1,6 +1,7 @@
 import { Refresh, Assessment, Error, Warning, CheckCircle } from '@mui/icons-material';
 import { Grid, Card, CardContent, Typography, Box, Paper, Alert, CircularProgress } from '@mui/material';
 import React, { useState, useEffect, useCallback } from 'react';
+import { SkeletonLoader } from '@/components/shared';
 
 import apiClient from '../../lib/api-client';
 

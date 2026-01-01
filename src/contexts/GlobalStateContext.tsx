@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { SkeletonLoader } from '@/components/shared';
 
 // TenantContext
 interface Tenant {

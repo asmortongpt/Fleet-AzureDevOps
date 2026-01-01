@@ -47,6 +47,7 @@ import Grid from '@mui/material/Grid'
 import { useQuery } from '@tanstack/react-query'
 import axios from 'axios'
 import React, { useState, useEffect, useRef, useCallback } from 'react'
+import { SkeletonLoader } from '@/components/shared';
 
 interface Message {
   id: string

@@ -9,6 +9,7 @@ import {
   Info
 } from 'lucide-react';
 import React, { useState, useRef, useCallback } from 'react';
+import { SkeletonLoader } from '@/components/shared';
 
 import { Alert, AlertDescription } from '../ui/alert';
 import { Button } from '../ui/button';
