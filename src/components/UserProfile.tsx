@@ -42,7 +42,7 @@ const UserProfile: React.FC<{ userId: string }> = ({ userId }) => {
   }
 
   if (!user) {
-    return <div>Loading...</div>;
+    return <SkeletonLoader />;
   }
 
   return (
