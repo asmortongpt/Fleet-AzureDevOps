@@ -13,6 +13,7 @@
  */
 
 import React, { useState, Suspense, lazy } from 'react';
+import { SkeletonLoader } from '@/components/shared';
 import { useQuery } from '@tanstack/react-query';
 import { Input } from '@/components/ui/input';
 import {

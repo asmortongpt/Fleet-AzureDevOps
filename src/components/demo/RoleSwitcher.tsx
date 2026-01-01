@@ -3,6 +3,7 @@
 
 import { motion, AnimatePresence } from 'framer-motion';
 import React, { useState, useEffect } from 'react';
+import { SkeletonLoader } from '@/components/shared';
 
 import { useDemoMode } from '../../hooks/useDemoMode';
 import { trackEvent } from '../../utils/analytics';

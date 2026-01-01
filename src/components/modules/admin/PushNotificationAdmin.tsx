@@ -17,6 +17,7 @@ import {
   Eye
 } from 'lucide-react';
 import React, { useState } from 'react';
+import { SkeletonLoader } from '@/components/shared';
 
 import logger from '@/utils/logger';
 

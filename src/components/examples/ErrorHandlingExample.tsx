@@ -11,6 +11,7 @@
 
 import { CheckCircle2, Loader2, AlertCircle, Info } from 'lucide-react';
 import React, { useState } from 'react';
+import { SkeletonLoader } from '@/components/shared';
 
 import { QueryErrorBoundary, QueryErrorDisplay } from '@/components/errors/QueryErrorBoundary';
 import {

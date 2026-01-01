@@ -17,6 +17,7 @@ import {
   Check,
 } from 'lucide-react';
 import React, { useState, useEffect, useMemo } from 'react';
+import { SkeletonLoader } from '@/components/shared';
 
 import { LoadingSpinner } from '@/components/LoadingSpinner';
 import { Badge } from '@/components/ui/badge';

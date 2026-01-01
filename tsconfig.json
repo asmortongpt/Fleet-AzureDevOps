@@ -56,6 +56,8 @@
     "**/*.spec.tsx",
     "src/**/__tests__/**",
     "tests/**",
-    "server/**"
+    "server/**",
+    "**/*.bak/**",
+    "**/**.bak"
   ]
 }

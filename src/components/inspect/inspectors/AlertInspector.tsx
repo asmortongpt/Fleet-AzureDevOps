@@ -9,6 +9,7 @@
 
 import { Loader2, AlertCircle, AlertTriangle, CheckCircle, XCircle } from 'lucide-react';
 import React, { useState, useEffect } from 'react';
+import { SkeletonLoader } from '@/components/shared';
 
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
