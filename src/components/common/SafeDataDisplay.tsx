@@ -6,6 +6,7 @@
  */
 
 import React from 'react'
+import { SkeletonLoader } from '@/components/shared';
 
 import { Badge } from '@/components/ui/badge'
 import { Skeleton } from '@/components/ui/skeleton'

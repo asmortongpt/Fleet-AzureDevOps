@@ -1,6 +1,7 @@
 import { TrendingUp, TrendingDown, TrendingFlat } from '@mui/icons-material';
 import { Box, ToggleButton, ToggleButtonGroup, Typography, Chip, Grid, Select, MenuItem, FormControl, InputLabel } from '@mui/material';
 import React, { useMemo, useState } from 'react';
+import { SkeletonLoader } from '@/components/shared';
 import {
   LineChart,
   Line,

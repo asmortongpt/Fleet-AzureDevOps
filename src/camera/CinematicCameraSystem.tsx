@@ -5,6 +5,7 @@
  */
 
 import React, { useRef, useEffect, useMemo, useState } from 'react'
+import { SkeletonLoader } from '@/components/shared';
 import { useFrame, useThree } from '@react-three/fiber'
 import { PerspectiveCamera, OrbitControls } from '@react-three/drei'
 import { useSpring, animated, config } from '@react-spring/three'

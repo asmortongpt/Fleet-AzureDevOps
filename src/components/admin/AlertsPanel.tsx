@@ -37,6 +37,7 @@ import {
   Divider
 } from '@mui/material';
 import React, { useState, useMemo } from 'react';
+import { SkeletonLoader } from '@/components/shared';
 
 import logger from '@/utils/logger';
 

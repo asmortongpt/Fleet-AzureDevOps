@@ -1,5 +1,6 @@
 import { AlertCircle, Truck, Wrench, MapPin, Gauge, Fuel, Video, Users } from 'lucide-react';
 import React, { useState, useEffect } from 'react';
+import { SkeletonLoader } from '@/components/shared';
 import { useSearchParams } from 'react-router-dom';
 
 import { MapFirstLayout } from '../layout/MapFirstLayout';
