@@ -1,4500 +1,4725 @@
-# TO_BE_DESIGN.md: Showroom-Sales Module Enhancement
-**Version:** 2.0.0
-**Last Updated:** 2023-11-15
-**Author:** Enterprise Architecture Team
-**Status:** APPROVED
+# TO-BE Design: Showroom Sales Module for Fleet Management System
 
----
+## 1. Executive Architecture Summary (120 lines)
 
-## Executive Vision (100+ lines)
+### Strategic Vision and Modernization Goals
 
-### Strategic Vision Statement
-The enhanced Showroom-Sales module represents a paradigm shift in automotive retail digital transformation, fundamentally reimagining how customers interact with dealerships in both physical and digital spaces. This initiative aligns with our corporate vision of becoming the industry leader in omnichannel automotive retail by 2025, with measurable targets including:
+The Fleet Management System's Showroom Sales Module is undergoing a comprehensive modernization to address current limitations in scalability, performance, and user experience while positioning the platform for future growth. The strategic vision centers on five key pillars:
 
-1. **30% increase in digital-to-showroom conversion rates** within 12 months of deployment
-2. **25% reduction in average sales cycle duration** through AI-driven personalization
-3. **40% improvement in customer satisfaction scores** (CSAT) for digital interactions
-4. **50% decrease in abandoned cart rates** through real-time engagement features
-5. **20% increase in average transaction value** via upsell/cross-sell recommendations
+1. **Customer-Centric Experience**: Transform the showroom sales process from a transactional system to an immersive, consultative experience that leverages digital tools to enhance customer engagement throughout the sales lifecycle.
 
-### Business Transformation Goals
+2. **Operational Excellence**: Automate manual processes, eliminate data silos, and provide real-time visibility into inventory, pricing, and customer interactions to drive operational efficiency.
 
-#### 1. Omnichannel Experience Unification
-The current system suffers from fragmented customer journeys where digital interactions (website, mobile app) exist in silos separate from showroom experiences. The enhanced module will:
+3. **Data-Driven Decision Making**: Implement advanced analytics and AI-driven insights to optimize inventory allocation, pricing strategies, and sales forecasting.
 
-- **Implement a unified customer profile** that synchronizes across all touchpoints (web, mobile, in-store kiosks, sales rep tablets)
-- **Enable seamless handoffs** between digital and physical channels with context preservation
-- **Create a single source of truth** for customer preferences, history, and interactions
-- **Support "endless aisle" capabilities** where customers can explore entire inventory regardless of physical location
+4. **Omnichannel Integration**: Create a seamless experience across physical showrooms, digital platforms, and mobile applications with consistent data and functionality.
+
+5. **Future-Proof Architecture**: Adopt a modular, cloud-native architecture that enables rapid innovation, easy integration with emerging technologies, and the flexibility to adapt to changing business requirements.
+
+Key modernization goals include:
+- Reduce sales cycle time by 40% through process automation and guided selling
+- Increase conversion rates by 25% through personalized recommendations and digital engagement tools
+- Improve inventory turnover by 30% through real-time visibility and demand forecasting
+- Enhance customer satisfaction scores by 35% through improved transparency and self-service capabilities
+- Reduce operational costs by 20% through automation and process optimization
+
+### Alignment with Enterprise Architecture Principles
+
+The design aligns with the following enterprise architecture principles:
+
+1. **Cloud-First Strategy**: The solution will be deployed on Azure cloud platform, leveraging native cloud services to achieve scalability, resilience, and cost efficiency. This aligns with the enterprise's cloud migration initiative.
+
+2. **API-Led Connectivity**: The architecture follows an API-first approach, enabling seamless integration with existing enterprise systems (ERP, CRM, Finance) and future-proofing the platform for new integrations.
+
+3. **Domain-Driven Design**: The system is decomposed into bounded contexts following DDD principles, ensuring clear separation of concerns and alignment with business capabilities.
+
+4. **Security by Design**: Security is embedded throughout the architecture, from infrastructure to application layers, with zero-trust principles guiding all design decisions.
+
+5. **Observability and Resilience**: The system is designed with comprehensive observability and built-in resilience patterns to ensure high availability and rapid incident response.
+
+6. **Data as an Asset**: Customer, vehicle, and sales data are treated as strategic assets, with robust governance, quality controls, and analytics capabilities.
+
+7. **Sustainability**: The architecture incorporates green computing principles, optimizing resource utilization and minimizing environmental impact.
+
+### Technology Stack Evolution and Rationale
+
+**Current State Challenges:**
+- Monolithic architecture limiting scalability and agility
+- Outdated frontend framework with poor mobile experience
+- Batch-oriented processing causing data latency
+- Limited integration capabilities with modern systems
+- Inadequate observability and monitoring
+
+**Target Technology Stack:**
+
+| Layer | Technology | Rationale |
+|-------|------------|-----------|
+| **Frontend** | React 18 + TypeScript + Next.js | Modern component-based architecture with server-side rendering for SEO and performance |
+| **Backend** | Node.js + NestJS | Enterprise-grade framework with built-in support for microservices, dependency injection, and TypeScript |
+| **API Gateway** | Azure API Management | Centralized API management with security, throttling, and analytics |
+| **Service Mesh** | Istio on AKS | Advanced traffic management, security, and observability for microservices |
+| **Database** | Azure PostgreSQL Hyperscale | Scalable, fully managed relational database with high availability |
+| **Cache** | Azure Cache for Redis | High-performance caching for session management and frequent queries |
+| **Message Broker** | Azure Service Bus + Event Hubs | Reliable messaging for inter-service communication and event streaming |
+| **Search** | Azure Cognitive Search | Advanced search capabilities with AI enrichment |
+| **Analytics** | Azure Synapse Analytics | Unified analytics platform for big data and machine learning |
+| **AI/ML** | Azure Machine Learning | Predictive analytics for demand forecasting and recommendation engines |
+| **Infrastructure** | Azure Kubernetes Service (AKS) | Managed Kubernetes for container orchestration |
+| **CI/CD** | Azure DevOps + GitHub Actions | End-to-end pipeline for automated testing and deployment |
+| **Monitoring** | Azure Monitor + Application Insights | Comprehensive observability with custom dashboards and alerts |
+| **Security** | Azure Active Directory + Key Vault | Enterprise-grade identity and secrets management |
+
+**Key Technology Decisions:**
+
+1. **Microservices Architecture**: Adopted to enable independent scaling, faster deployments, and technology flexibility. Each business capability (Inventory, Pricing, Customer Management, etc.) will be a separate service.
+
+2. **Event-Driven Architecture**: Implemented to decouple services, enable real-time processing, and support eventual consistency where appropriate.
+
+3. **TypeScript Everywhere**: Standardized on TypeScript for both frontend and backend to improve code quality, maintainability, and developer productivity.
+
+4. **Cloud-Native Design**: Leveraging Azure managed services to reduce operational overhead and improve reliability.
+
+5. **Open Standards**: Using OpenAPI for API contracts, OpenTelemetry for observability, and CNCF standards for cloud-native components.
+
+### Migration Strategy and Risk Mitigation
+
+**Phased Migration Approach:**
+
+1. **Foundation Phase (Weeks 1-4)**
+   - Establish infrastructure as code (Terraform)
+   - Set up CI/CD pipelines
+   - Implement core security controls
+   - Build base microservices (Identity, Configuration)
+
+2. **Core Services Phase (Weeks 5-12)**
+   - Migrate Vehicle Inventory service
+   - Implement Pricing Engine
+   - Build Customer Management service
+   - Develop Sales Workflow service
+
+3. **Integration Phase (Weeks 13-16)**
+   - Connect to ERP system
+   - Integrate with CRM
+   - Implement event streaming
+   - Develop reporting capabilities
+
+4. **Cutover Phase (Weeks 17-20)**
+   - Data migration
+   - User acceptance testing
+   - Parallel run
+   - Go-live and monitoring
+
+**Risk Mitigation Strategies:**
+
+| Risk | Mitigation Strategy |
+|------|---------------------|
+| **Data Migration Issues** | Implement dual-write pattern during transition, validate data integrity with checksums, and maintain rollback capability |
+| **Performance Degradation** | Conduct load testing early, implement auto-scaling, and use feature flags for gradual rollout |
+| **Integration Failures** | Implement circuit breakers, retry policies, and comprehensive monitoring for all integrations |
+| **User Adoption Resistance** | Develop comprehensive training materials, conduct user workshops, and provide change management support |
+| **Security Vulnerabilities** | Perform regular penetration testing, implement automated security scanning in CI/CD, and conduct security reviews |
+| **Cost Overruns** | Implement cost monitoring and alerts, use reserved instances for predictable workloads, and optimize resource utilization |
+
+**Data Migration Strategy:**
+- **Extract**: Use Azure Data Factory to extract data from source systems with validation checks
+- **Transform**: Cleanse and transform data using Databricks notebooks with data quality rules
+- **Load**: Incremental loading to target PostgreSQL database with change data capture
+- **Validate**: Automated validation scripts comparing record counts, checksums, and sample data
+- **Cutover**: Final sync during low-traffic period with rollback capability
+
+### Success Criteria and KPIs
+
+**Business KPIs:**
+1. **Sales Performance**
+   - Increase in conversion rate from 18% to 25%
+   - Reduction in sales cycle time from 45 to 27 days
+   - 30% increase in upsell/cross-sell revenue
+
+2. **Operational Efficiency**
+   - 40% reduction in manual data entry
+   - 50% decrease in order processing errors
+   - 25% improvement in inventory turnover
+
+3. **Customer Experience**
+   - 35% increase in customer satisfaction (CSAT) scores
+   - 50% reduction in customer complaints related to sales process
+   - 40% increase in digital engagement metrics
+
+4. **Financial Impact**
+   - 20% reduction in operational costs
+   - 15% increase in revenue per sales representative
+   - 10% improvement in gross margin
+
+**Technical KPIs:**
+1. **System Performance**
+   - API response time < 500ms for 95th percentile
+   - System availability of 99.95%
+   - Database query performance < 200ms for 90% of queries
+
+2. **Reliability**
+   - Mean time between failures (MTBF) > 720 hours
+   - Mean time to recovery (MTTR) < 30 minutes
+   - 99.9% success rate for critical transactions
+
+3. **Scalability**
+   - Support 10,000 concurrent users with < 1s response time
+   - Auto-scale to handle 3x peak load
+   - Database throughput of 50,000 transactions per minute
+
+4. **Security**
+   - Zero critical vulnerabilities in production
+   - 100% compliance with security policies
+   - < 1% false positive rate in security alerts
+
+**Measurement Approach:**
+- Implement comprehensive monitoring with Azure Application Insights
+- Develop custom dashboards for business and technical KPIs
+- Establish baseline measurements before migration
+- Continuous measurement and reporting post-go-live
+- Regular review meetings to assess progress against targets
+
+### Stakeholder Value Proposition and ROI
+
+**Value Proposition by Stakeholder:**
+
+1. **Sales Representatives**
+   - Mobile-first application with offline capabilities
+   - AI-powered recommendations for upselling/cross-selling
+   - Real-time inventory and pricing information
+   - Automated follow-ups and task management
+   - Reduced paperwork and manual data entry
+
+2. **Showroom Managers**
+   - Real-time visibility into sales performance
+   - Predictive analytics for demand forecasting
+   - Automated reporting and dashboards
+   - Improved team productivity tracking
+   - Better inventory management tools
+
+3. **Customers**
+   - Personalized digital showroom experience
+   - Transparent pricing and availability
+   - Self-service options for quotes and configurations
+   - Digital test drive scheduling
+   - Seamless transition between online and in-person experiences
+
+4. **Finance Team**
+   - Real-time financial reporting
+   - Automated revenue recognition
+   - Improved cash flow management
+   - Reduced revenue leakage
+
+5. **IT Organization**
+   - Reduced technical debt
+   - Improved system reliability
+   - Faster time-to-market for new features
+   - Better security posture
+   - Reduced operational overhead
+
+**ROI Analysis:**
+
+| Category | Current Annual Cost | Target Annual Cost | Annual Savings | Notes |
+|----------|---------------------|--------------------|----------------|-------|
+| **Operational Costs** | $2,500,000 | $1,800,000 | $700,000 | Reduced manual processes, lower error rates |
+| **IT Maintenance** | $1,200,000 | $800,000 | $400,000 | Cloud migration, automation, reduced incidents |
+| **Revenue Impact** | $50,000,000 | $57,500,000 | $7,500,000 | 15% revenue increase from improved sales |
+| **Inventory Costs** | $3,000,000 | $2,100,000 | $900,000 | 30% improvement in inventory turnover |
+| **Total** | $56,700,000 | $62,200,000 | $9,500,000 | Net benefit of $9.5M annually |
+
+**Implementation Costs:**
+- Development: $2,500,000
+- Infrastructure: $800,000
+- Migration: $500,000
+- Training: $200,000
+- Contingency: $500,000
+- **Total**: $4,500,000
+
+**ROI Calculation:**
+- Payback Period: 6 months
+- 1-Year ROI: 111%
+- 3-Year ROI: 533%
+- Net Present Value (NPV): $18,200,000 (5-year horizon, 10% discount rate)
+
+**Strategic Benefits:**
+- Enables digital transformation of sales process
+- Positions company for future AI and automation initiatives
+- Improves competitive positioning in the market
+- Enhances data-driven decision making
+- Creates foundation for omnichannel customer experience
+
+## 2. Target Architecture (350+ lines)
+
+### 2.1 System Architecture
+
+**High-Level Architecture Diagram (Mermaid):**
+
+```mermaid
+flowchart TD
+    subgraph Client Layer
+        A[Web Application] -->|HTTPS| B[API Gateway]
+        C[Mobile Application] -->|HTTPS| B
+        D[Showroom Kiosks] -->|HTTPS| B
+    end
+
+    subgraph API Layer
+        B -->|Routes| E[API Management]
+        E -->|Auth| F[Identity Service]
+        E -->|Rate Limiting| G[Rate Limiting Service]
+        E -->|Caching| H[Redis Cache]
+    end
+
+    subgraph Service Mesh
+        I[Istio Ingress] --> J[Vehicle Service]
+        I --> K[Customer Service]
+        I --> L[Pricing Service]
+        I --> M[Sales Workflow Service]
+        I --> N[Inventory Service]
+        I --> O[Reporting Service]
+        I --> P[Notification Service]
+    end
+
+    subgraph Data Layer
+        J --> Q[(PostgreSQL)]
+        K --> Q
+        L --> Q
+        M --> Q
+        N --> Q
+        O --> R[(Azure Synapse)]
+        P --> S[(Service Bus)]
+        P --> T[(Event Hubs)]
+    end
+
+    subgraph Integration Layer
+        U[ERP Integration] -->|SAP| V[Integration Service]
+        W[CRM Integration] -->|Salesforce| V
+        X[Finance System] -->|Oracle| V
+        V --> S
+    end
+
+    subgraph Observability
+        Y[Application Insights] --> Z[Azure Monitor]
+        AA[Prometheus] --> Z
+        AB[OpenTelemetry] --> Z
+    end
+
+    style A fill:#f9f,stroke:#333
+    style C fill:#bbf,stroke:#333
+    style D fill:#f96,stroke:#333
+    style B fill:#6f6,stroke:#333
+    style E fill:#6f6,stroke:#333
+    style Q fill:#66f,stroke:#333
+    style R fill:#66f,stroke:#333
+    style S fill:#66f,stroke:#333
+    style T fill:#66f,stroke:#333
+```
+
+**Architecture Principles:**
+
+1. **Separation of Concerns**: Clear division between presentation, business logic, and data layers
+2. **Loose Coupling**: Services communicate through well-defined interfaces and events
+3. **High Cohesion**: Related functionality grouped within bounded contexts
+4. **Resilience**: Built-in fault tolerance and graceful degradation
+5. **Observability**: Comprehensive monitoring and tracing
+6. **Security**: Defense in depth with zero-trust principles
+7. **Scalability**: Horizontal scaling for all components
+8. **Extensibility**: Designed for future growth and new features
+
+**Microservices Decomposition Strategy:**
+
+The system is decomposed into the following bounded contexts following Domain-Driven Design principles:
+
+1. **Vehicle Service**
+   - Responsible for vehicle catalog, specifications, and configurations
+   - Manages vehicle images, videos, and 3D models
+   - Handles vehicle comparison functionality
+
+2. **Customer Service**
+   - Manages customer profiles and preferences
+   - Handles customer segmentation and targeting
+   - Provides customer 360° view
+
+3. **Pricing Service**
+   - Calculates base prices, discounts, and promotions
+   - Manages pricing rules and approval workflows
+   - Handles special pricing for fleet customers
+
+4. **Inventory Service**
+   - Tracks vehicle inventory across locations
+   - Manages test drive vehicles
+   - Handles vehicle transfers between showrooms
+
+5. **Sales Workflow Service**
+   - Manages the sales process from lead to delivery
+   - Handles quotes, orders, and contracts
+   - Coordinates with finance and logistics
+
+6. **Notification Service**
+   - Sends emails, SMS, and push notifications
+   - Manages notification templates and preferences
+   - Handles event-driven notifications
+
+7. **Reporting Service**
+   - Generates sales reports and dashboards
+   - Provides real-time analytics
+   - Handles data exports and scheduled reports
+
+8. **Integration Service**
+   - Manages all external integrations
+   - Handles data transformation and mapping
+   - Implements retry and circuit breaker patterns
+
+**API Gateway and Service Mesh Design:**
+
+**API Gateway (Azure API Management):**
+- **Routing**: Routes requests to appropriate microservices based on path and headers
+- **Authentication**: Validates JWT tokens and enforces RBAC
+- **Rate Limiting**: Implements per-client rate limits
+- **Caching**: Caches frequent responses (e.g., vehicle catalog)
+- **Request/Response Transformation**: Modifies requests/responses as needed
+- **Analytics**: Collects usage metrics and performance data
+- **Security**: Implements WAF rules and DDoS protection
+
+**Service Mesh (Istio):**
+- **Traffic Management**: Canary deployments, blue-green deployments
+- **Security**: mTLS between services, fine-grained access control
+- **Observability**: Distributed tracing, metrics collection
+- **Resilience**: Circuit breaking, retries, timeouts
+- **Policy Enforcement**: Rate limiting, quotas, access control
+
+**Event-Driven Architecture Patterns:**
+
+1. **Event Sourcing**: For critical entities like orders and contracts
+2. **CQRS**: Separate read and write models for high-traffic services
+3. **Saga Pattern**: For long-running business processes (e.g., order fulfillment)
+4. **Pub/Sub**: For decoupled communication between services
+5. **Event Streaming**: For real-time analytics and monitoring
+
+**Event Flow Example (Vehicle Purchase):**
+1. Customer creates quote (Sales Workflow Service)
+2. QuoteCreated event published to Event Hub
+3. Pricing Service calculates final price
+4. Inventory Service reserves vehicle
+5. Customer Service updates customer profile
+6. Notification Service sends confirmation email
+7. Reporting Service updates dashboards
+
+**Scalability and Performance Targets:**
+
+| Component | Scaling Strategy | Performance Target | Monitoring Metric |
+|-----------|------------------|--------------------|-------------------|
+| API Gateway | Horizontal pod autoscaling | < 200ms response time | Request latency, error rate |
+| Vehicle Service | Horizontal pod autoscaling | < 150ms for 95% of requests | Response time, throughput |
+| Customer Service | Horizontal pod autoscaling | < 200ms for 95% of requests | Response time, database queries |
+| Pricing Service | Horizontal pod autoscaling | < 100ms for 95% of requests | Calculation time, cache hit ratio |
+| Inventory Service | Horizontal pod autoscaling | < 150ms for 95% of requests | Response time, database load |
+| Sales Workflow Service | Horizontal pod autoscaling | < 300ms for 95% of requests | Workflow duration, error rate |
+| PostgreSQL | Read replicas, connection pooling | < 100ms for 90% of queries | Query duration, CPU utilization |
+| Redis Cache | Cluster mode, sharding | < 5ms for 99% of requests | Cache hit ratio, latency |
+| Event Hubs | Throughput units | < 100ms end-to-end latency | Event processing time, backlog |
+
+### 2.2 Component Design
+
+#### Vehicle Service
+
+**Responsibilities:**
+- Manage vehicle catalog and specifications
+- Handle vehicle configurations and options
+- Provide vehicle comparison functionality
+- Manage vehicle media (images, videos, 3D models)
+- Support vehicle search and filtering
+
+**Interface Contracts (OpenAPI):**
+
+```yaml
+openapi: 3.0.0
+info:
+  title: Vehicle Service API
+  version: 1.0.0
+  description: API for managing vehicle catalog and configurations
+
+servers:
+  - url: https://api.fleetmanagement.com/vehicle/v1
+    description: Production server
+
+paths:
+  /vehicles:
+    get:
+      summary: Search vehicles
+      description: Search vehicles with optional filters
+      parameters:
+        - $ref: '#/components/parameters/PageNumber'
+        - $ref: '#/components/parameters/PageSize'
+        - $ref: '#/components/parameters/SortBy'
+        - $ref: '#/components/parameters/SortOrder'
+        - name: make
+          in: query
+          description: Vehicle make
+          schema:
+            type: string
+        - name: model
+          in: query
+          description: Vehicle model
+          schema:
+            type: string
+        - name: year
+          in: query
+          description: Model year
+          schema:
+            type: integer
+        - name: minPrice
+          in: query
+          description: Minimum price
+          schema:
+            type: number
+        - name: maxPrice
+          in: query
+          description: Maximum price
+          schema:
+            type: number
+        - name: bodyStyle
+          in: query
+          description: Body style
+          schema:
+            type: string
+            enum: [SEDAN, SUV, TRUCK, VAN, COUPE, HATCHBACK, WAGON]
+        - name: fuelType
+          in: query
+          description: Fuel type
+          schema:
+            type: string
+            enum: [GASOLINE, DIESEL, ELECTRIC, HYBRID, PLUGIN_HYBRID, HYDROGEN]
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VehicleSearchResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /vehicles/{id}:
+    get:
+      summary: Get vehicle details
+      description: Get detailed information for a specific vehicle
+      parameters:
+        - $ref: '#/components/parameters/VehicleId'
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VehicleDetails'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /vehicles/{id}/configurations:
+    get:
+      summary: Get available configurations
+      description: Get available configurations for a vehicle
+      parameters:
+        - $ref: '#/components/parameters/VehicleId'
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VehicleConfigurations'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /vehicles/compare:
+    post:
+      summary: Compare vehicles
+      description: Compare multiple vehicles
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/VehicleComparisonRequest'
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VehicleComparisonResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+components:
+  schemas:
+    VehicleSearchResponse:
+      type: object
+      properties:
+        total:
+          type: integer
+          description: Total number of vehicles matching criteria
+        page:
+          type: integer
+          description: Current page number
+        pageSize:
+          type: integer
+          description: Number of items per page
+        vehicles:
+          type: array
+          items:
+            $ref: '#/components/schemas/VehicleSummary'
+      required:
+        - total
+        - page
+        - pageSize
+        - vehicles
+
+    VehicleSummary:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Vehicle ID
+        make:
+          type: string
+          description: Vehicle make
+        model:
+          type: string
+          description: Vehicle model
+        year:
+          type: integer
+          description: Model year
+        trim:
+          type: string
+          description: Vehicle trim
+        bodyStyle:
+          $ref: '#/components/schemas/BodyStyle'
+        fuelType:
+          $ref: '#/components/schemas/FuelType'
+        msrp:
+          type: number
+          format: float
+          description: Manufacturer's suggested retail price
+        imageUrl:
+          type: string
+          format: uri
+          description: URL to vehicle image
+        rating:
+          type: number
+          format: float
+          description: Average customer rating
+      required:
+        - id
+        - make
+        - model
+        - year
+        - msrp
+
+    VehicleDetails:
+      allOf:
+        - $ref: '#/components/schemas/VehicleSummary'
+        - type: object
+          properties:
+            description:
+              type: string
+              description: Vehicle description
+            specifications:
+              $ref: '#/components/schemas/VehicleSpecifications'
+            features:
+              type: array
+              items:
+                $ref: '#/components/schemas/VehicleFeature'
+            media:
+              type: array
+              items:
+                $ref: '#/components/schemas/VehicleMedia'
+            availableColors:
+              type: array
+              items:
+                $ref: '#/components/schemas/VehicleColor'
+            dealerLocations:
+              type: array
+              items:
+                $ref: '#/components/schemas/DealerLocation'
+          required:
+            - specifications
+            - features
+            - media
+
+    VehicleConfigurations:
+      type: object
+      properties:
+        vehicleId:
+          type: string
+          format: uuid
+        defaultConfiguration:
+          $ref: '#/components/schemas/VehicleConfiguration'
+        availableOptions:
+          type: array
+          items:
+            $ref: '#/components/schemas/OptionGroup'
+      required:
+        - vehicleId
+        - defaultConfiguration
+        - availableOptions
+
+    VehicleConfiguration:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        description:
+          type: string
+        price:
+          type: number
+          format: float
+        options:
+          type: array
+          items:
+            $ref: '#/components/schemas/OptionSelection'
+      required:
+        - id
+        - name
+        - price
+        - options
+
+    OptionGroup:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        description:
+          type: string
+        minSelections:
+          type: integer
+        maxSelections:
+          type: integer
+        options:
+          type: array
+          items:
+            $ref: '#/components/schemas/Option'
+      required:
+        - id
+        - name
+        - minSelections
+        - maxSelections
+        - options
+
+    Option:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        description:
+          type: string
+        price:
+          type: number
+          format: float
+        requires:
+          type: array
+          items:
+            type: string
+            format: uuid
+        conflictsWith:
+          type: array
+          items:
+            type: string
+            format: uuid
+      required:
+        - id
+        - name
+        - price
+
+    OptionSelection:
+      type: object
+      properties:
+        optionId:
+          type: string
+          format: uuid
+        groupId:
+          type: string
+          format: uuid
+      required:
+        - optionId
+        - groupId
+
+    VehicleComparisonRequest:
+      type: object
+      properties:
+        vehicleIds:
+          type: array
+          items:
+            type: string
+            format: uuid
+          minItems: 2
+          maxItems: 4
+      required:
+        - vehicleIds
+
+    VehicleComparisonResponse:
+      type: object
+      properties:
+        vehicles:
+          type: array
+          items:
+            $ref: '#/components/schemas/VehicleComparison'
+      required:
+        - vehicles
+
+    VehicleComparison:
+      allOf:
+        - $ref: '#/components/schemas/VehicleSummary'
+        - type: object
+          properties:
+            specifications:
+              $ref: '#/components/schemas/VehicleSpecifications'
+            features:
+              type: array
+              items:
+                $ref: '#/components/schemas/VehicleFeatureComparison'
+          required:
+            - specifications
+
+    VehicleSpecifications:
+      type: object
+      properties:
+        engine:
+          $ref: '#/components/schemas/EngineSpecification'
+        transmission:
+          $ref: '#/components/schemas/TransmissionSpecification'
+        drivetrain:
+          $ref: '#/components/schemas/Drivetrain'
+        dimensions:
+          $ref: '#/components/schemas/Dimensions'
+        capacity:
+          $ref: '#/components/schemas/Capacity'
+        performance:
+          $ref: '#/components/schemas/Performance'
+        fuelEconomy:
+          $ref: '#/components/schemas/FuelEconomy'
+        safety:
+          $ref: '#/components/schemas/Safety'
+
+    EngineSpecification:
+      type: object
+      properties:
+        type:
+          type: string
+        displacement:
+          type: number
+          format: float
+          description: Engine displacement in liters
+        cylinders:
+          type: integer
+        horsepower:
+          type: integer
+        torque:
+          type: integer
+        fuelSystem:
+          type: string
+      required:
+        - type
+        - displacement
+        - cylinders
+        - horsepower
+        - torque
+
+    TransmissionSpecification:
+      type: object
+      properties:
+        type:
+          type: string
+          enum: [AUTOMATIC, MANUAL, CVT, SEMI_AUTOMATIC]
+        gears:
+          type: integer
+        driveType:
+          type: string
+      required:
+        - type
+        - gears
+
+    Drivetrain:
+      type: string
+      enum: [FWD, RWD, AWD, 4WD]
+
+    Dimensions:
+      type: object
+      properties:
+        length:
+          type: number
+          format: float
+          description: Length in inches
+        width:
+          type: number
+          format: float
+          description: Width in inches
+        height:
+          type: number
+          format: float
+          description: Height in inches
+        wheelbase:
+          type: number
+          format: float
+          description: Wheelbase in inches
+        groundClearance:
+          type: number
+          format: float
+          description: Ground clearance in inches
+      required:
+        - length
+        - width
+        - height
+        - wheelbase
+
+    Capacity:
+      type: object
+      properties:
+        seating:
+          type: integer
+        cargoVolume:
+          type: number
+          format: float
+          description: Cargo volume in cubic feet
+        towingCapacity:
+          type: integer
+          description: Towing capacity in pounds
+      required:
+        - seating
+        - cargoVolume
+
+    Performance:
+      type: object
+      properties:
+        zeroToSixty:
+          type: number
+          format: float
+          description: 0-60 mph time in seconds
+        topSpeed:
+          type: integer
+          description: Top speed in mph
+      required:
+        - zeroToSixty
+
+    FuelEconomy:
+      type: object
+      properties:
+        city:
+          type: number
+          format: float
+          description: City MPG
+        highway:
+          type: number
+          format: float
+          description: Highway MPG
+        combined:
+          type: number
+          format: float
+          description: Combined MPG
+        range:
+          type: integer
+          description: Estimated range in miles
+      required:
+        - city
+        - highway
+        - combined
+
+    Safety:
+      type: object
+      properties:
+        nhtsaRating:
+          type: integer
+          minimum: 1
+          maximum: 5
+        iihsRating:
+          type: string
+          enum: [GOOD, ACCEPTABLE, MARGINAL, POOR]
+        airbags:
+          type: integer
+        safetyFeatures:
+          type: array
+          items:
+            type: string
+      required:
+        - nhtsaRating
+        - iihsRating
+
+    VehicleFeature:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        category:
+          type: string
+        description:
+          type: string
+        isStandard:
+          type: boolean
+      required:
+        - id
+        - name
+        - category
+        - isStandard
+
+    VehicleFeatureComparison:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        category:
+          type: string
+        isStandard:
+          type: array
+          items:
+            type: boolean
+      required:
+        - id
+        - name
+        - category
+        - isStandard
+
+    VehicleMedia:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        type:
+          type: string
+          enum: [IMAGE, VIDEO, THREE_D_MODEL]
+        url:
+          type: string
+          format: uri
+        thumbnailUrl:
+          type: string
+          format: uri
+        description:
+          type: string
+        isPrimary:
+          type: boolean
+      required:
+        - id
+        - type
+        - url
+
+    VehicleColor:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        hexCode:
+          type: string
+        imageUrl:
+          type: string
+          format: uri
+        isExterior:
+          type: boolean
+        isInterior:
+          type: boolean
+      required:
+        - id
+        - name
+        - hexCode
+
+    DealerLocation:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        address:
+          $ref: '#/components/schemas/Address'
+        phone:
+          type: string
+        email:
+          type: string
+          format: email
+        distance:
+          type: number
+          format: float
+          description: Distance in miles
+        inventoryCount:
+          type: integer
+      required:
+        - id
+        - name
+        - address
+        - phone
+
+    BodyStyle:
+      type: string
+      enum: [SEDAN, SUV, TRUCK, VAN, COUPE, HATCHBACK, WAGON]
+
+    FuelType:
+      type: string
+      enum: [GASOLINE, DIESEL, ELECTRIC, HYBRID, PLUGIN_HYBRID, HYDROGEN]
+
+    Address:
+      type: object
+      properties:
+        street1:
+          type: string
+        street2:
+          type: string
+        city:
+          type: string
+        state:
+          type: string
+        postalCode:
+          type: string
+        country:
+          type: string
+      required:
+        - street1
+        - city
+        - state
+        - postalCode
+        - country
+
+    Error:
+      type: object
+      properties:
+        code:
+          type: string
+        message:
+          type: string
+        details:
+          type: array
+          items:
+            type: string
+      required:
+        - code
+        - message
+
+  parameters:
+    PageNumber:
+      name: page
+      in: query
+      description: Page number
+      schema:
+        type: integer
+        default: 1
+        minimum: 1
+
+    PageSize:
+      name: pageSize
+      in: query
+      description: Number of items per page
+      schema:
+        type: integer
+        default: 20
+        minimum: 1
+        maximum: 100
+
+    SortBy:
+      name: sortBy
+      in: query
+      description: Field to sort by
+      schema:
+        type: string
+        enum: [make, model, year, price, rating]
+        default: make
+
+    SortOrder:
+      name: sortOrder
+      in: query
+      description: Sort order
+      schema:
+        type: string
+        enum: [asc, desc]
+        default: asc
+
+    VehicleId:
+      name: id
+      in: path
+      description: Vehicle ID
+      required: true
+      schema:
+        type: string
+        format: uuid
+
+  responses:
+    BadRequest:
+      description: Bad request
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+
+    Unauthorized:
+      description: Unauthorized
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+
+    Forbidden:
+      description: Forbidden
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+
+    NotFound:
+      description: Not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+
+    InternalServerError:
+      description: Internal server error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+```
+
+**Data Models:**
 
 ```typescript
-// Unified Customer Profile Service (Core Implementation)
-class UnifiedCustomerProfile {
-  private readonly redisClient: RedisClient;
-  private readonly dbClient: PoolClient;
-  private readonly eventEmitter: EventEmitter;
+// Vehicle.ts
+export interface Vehicle {
+  id: string;
+  makeId: string;
+  modelId: string;
+  year: number;
+  trim: string;
+  bodyStyle: BodyStyle;
+  fuelType: FuelType;
+  msrp: number;
+  basePrice: number;
+  description: string;
+  createdAt: Date;
+  updatedAt: Date;
+  deletedAt?: Date;
+}
 
-  constructor() {
-    this.redisClient = createRedisClient({
-      host: process.env.REDIS_HOST,
-      port: parseInt(process.env.REDIS_PORT || '6379'),
-      password: process.env.REDIS_PASSWORD
-    });
+export interface VehicleSpecification {
+  id: string;
+  vehicleId: string;
+  engineType: string;
+  engineDisplacement: number;
+  cylinders: number;
+  horsepower: number;
+  torque: number;
+  transmissionType: TransmissionType;
+  transmissionGears: number;
+  drivetrain: Drivetrain;
+  length: number;
+  width: number;
+  height: number;
+  wheelbase: number;
+  groundClearance: number;
+  seatingCapacity: number;
+  cargoVolume: number;
+  towingCapacity?: number;
+  zeroToSixty?: number;
+  topSpeed?: number;
+  cityMpg: number;
+  highwayMpg: number;
+  combinedMpg: number;
+  range?: number;
+  nhtsaRating: number;
+  iihsRating: IihsRating;
+  airbags: number;
+}
 
-    this.dbClient = new Pool({
-      connectionString: process.env.DATABASE_URL,
-      ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false
-    });
+export interface VehicleFeature {
+  id: string;
+  vehicleId: string;
+  featureId: string;
+  isStandard: boolean;
+}
 
-    this.eventEmitter = new EventEmitter();
-    this.setupEventListeners();
-  }
+export interface VehicleColor {
+  id: string;
+  vehicleId: string;
+  name: string;
+  hexCode: string;
+  isExterior: boolean;
+  isInterior: boolean;
+  imageUrl: string;
+}
 
-  private setupEventListeners(): void {
-    this.eventEmitter.on('profileUpdate', (customerId: string) => {
-      this.syncToAllChannels(customerId).catch(err => {
-        logger.error(`Profile sync failed for ${customerId}: ${err.message}`);
-      });
-    });
+export interface VehicleMedia {
+  id: string;
+  vehicleId: string;
+  type: MediaType;
+  url: string;
+  thumbnailUrl: string;
+  description: string;
+  isPrimary: boolean;
+  order: number;
+}
 
-    this.eventEmitter.on('channelActivity', (channelData: ChannelActivity) => {
-      this.updateLastActiveChannel(channelData).catch(err => {
-        logger.error(`Channel activity update failed: ${err.message}`);
-      });
-    });
-  }
+export interface VehicleOption {
+  id: string;
+  vehicleId: string;
+  optionGroupId: string;
+  name: string;
+  description: string;
+  price: number;
+  requires: string[];
+  conflictsWith: string[];
+}
 
-  public async getUnifiedProfile(customerId: string): Promise<UnifiedProfile> {
-    try {
-      // Check cache first
-      const cachedProfile = await this.redisClient.get(`profile:${customerId}`);
-      if (cachedProfile) {
-        return JSON.parse(cachedProfile) as UnifiedProfile;
-      }
+export interface OptionGroup {
+  id: string;
+  vehicleId: string;
+  name: string;
+  description: string;
+  minSelections: number;
+  maxSelections: number;
+}
 
-      // Fall back to database
-      const dbProfile = await this.dbClient.query(
-        `SELECT * FROM unified_profiles WHERE customer_id = $1`,
-        [customerId]
-      );
+export interface VehicleConfiguration {
+  id: string;
+  vehicleId: string;
+  name: string;
+  description: string;
+  price: number;
+  isDefault: boolean;
+}
 
-      if (dbProfile.rows.length === 0) {
-        throw new Error('Customer profile not found');
-      }
+export interface ConfigurationOption {
+  id: string;
+  configurationId: string;
+  optionId: string;
+  groupId: string;
+}
 
-      const profile = this.transformDbToUnified(dbProfile.rows[0]);
+export enum BodyStyle {
+  SEDAN = 'SEDAN',
+  SUV = 'SUV',
+  TRUCK = 'TRUCK',
+  VAN = 'VAN',
+  COUPE = 'COUPE',
+  HATCHBACK = 'HATCHBACK',
+  WAGON = 'WAGON'
+}
 
-      // Cache for 5 minutes
-      await this.redisClient.setex(
-        `profile:${customerId}`,
-        300,
-        JSON.stringify(profile)
-      );
+export enum FuelType {
+  GASOLINE = 'GASOLINE',
+  DIESEL = 'DIESEL',
+  ELECTRIC = 'ELECTRIC',
+  HYBRID = 'HYBRID',
+  PLUGIN_HYBRID = 'PLUGIN_HYBRID',
+  HYDROGEN = 'HYDROGEN'
+}
 
-      return profile;
-    } catch (error) {
-      logger.error(`Failed to retrieve unified profile: ${error.message}`);
-      throw new Error('Unable to retrieve customer profile');
-    }
-  }
+export enum TransmissionType {
+  AUTOMATIC = 'AUTOMATIC',
+  MANUAL = 'MANUAL',
+  CVT = 'CVT',
+  SEMI_AUTOMATIC = 'SEMI_AUTOMATIC'
+}
 
-  private async syncToAllChannels(customerId: string): Promise<void> {
-    const profile = await this.getUnifiedProfile(customerId);
+export enum Drivetrain {
+  FWD = 'FWD',
+  RWD = 'RWD',
+  AWD = 'AWD',
+  FOUR_WD = '4WD'
+}
 
-    // Sync to all active channels
-    const channels = await this.getActiveChannels(customerId);
+export enum IihsRating {
+  GOOD = 'GOOD',
+  ACCEPTABLE = 'ACCEPTABLE',
+  MARGINAL = 'MARGINAL',
+  POOR = 'POOR'
+}
 
-    await Promise.all(channels.map(channel => {
-      switch (channel.type) {
-        case 'web':
-          return this.syncToWebChannel(customerId, profile);
-        case 'mobile':
-          return this.syncToMobileChannel(customerId, profile);
-        case 'kiosk':
-          return this.syncToKioskChannel(customerId, profile);
-        case 'tablet':
-          return this.syncToTabletChannel(customerId, profile);
-        default:
-          logger.warn(`Unknown channel type: ${channel.type}`);
-          return Promise.resolve();
-      }
-    }));
-  }
-
-  // Additional methods would include:
-  // - updateProfile()
-  // - mergeProfiles()
-  // - getChannelSpecificData()
-  // - handleDataConflict()
-  // - generateActivityTimeline()
+export enum MediaType {
+  IMAGE = 'IMAGE',
+  VIDEO = 'VIDEO',
+  THREE_D_MODEL = 'THREE_D_MODEL'
 }
 ```
 
-#### 2. AI-Powered Personalization
-Leveraging machine learning to transform the sales process from reactive to predictive:
+**State Management Approach:**
 
-- **Real-time product recommendations** based on browsing history, demographics, and behavioral patterns
-- **Dynamic pricing suggestions** that balance conversion probability with margin optimization
-- **Predictive lead scoring** to prioritize high-intent customers
-- **Automated follow-up sequences** with personalized content
-- **Virtual assistant integration** for 24/7 customer engagement
+1. **Database State**: Primary source of truth for all vehicle data
+2. **Cache State**: Redis cache for frequently accessed data (vehicle catalog, configurations)
+3. **Search Index**: Azure Cognitive Search for fast vehicle search and filtering
+4. **Event Sourcing**: For configuration changes and pricing updates
+5. **Materialized Views**: For performance-critical queries (vehicle comparisons)
 
-```python
-# Predictive Lead Scoring Model (Core Implementation)
-class LeadScoringModel:
-    def __init__(self, model_path=None):
-        self.model = None
-        self.feature_scaler = StandardScaler()
-        self.target_encoder = TargetEncoder()
-        self.model_path = model_path or 'models/lead_scoring_model.pkl'
-        self.feature_importance = None
-        self.load_or_train_model()
+**Error Handling and Resilience Patterns:**
 
-    def load_or_train_model(self):
-        """Load existing model or train new one if not available"""
-        try:
-            if os.path.exists(self.model_path):
-                self.load_model()
-                logger.info("Loaded existing lead scoring model")
-            else:
-                self.train_model()
-                self.save_model()
-                logger.info("Trained and saved new lead scoring model")
-        except Exception as e:
-            logger.error(f"Model initialization failed: {str(e)}")
-            raise
+1. **Circuit Breaker**: For database and external service calls
+2. **Retry Policies**: With exponential backoff for transient failures
+3. **Fallback Mechanisms**: Return cached data when primary service fails
+4. **Bulkhead Pattern**: Isolate failures to prevent cascading outages
+5. **Timeouts**: Prevent hanging requests
+6. **Validation**: Comprehensive input validation
+7. **Dead Letter Queue**: For failed events
 
-    def train_model(self):
-        """Train the lead scoring model with historical data"""
-        try:
-            # Load training data
-            data = self._load_training_data()
+#### Customer Service
 
-            # Feature engineering
-            X = self._feature_engineering(data)
-            y = data['converted'].astype(int)
+**Responsibilities:**
+- Manage customer profiles and preferences
+- Handle customer segmentation and targeting
+- Provide customer 360° view
+- Manage customer interactions and history
+- Support customer authentication and authorization
 
-            # Train-test split
-            X_train, X_test, y_train, y_test = train_test_split(
-                X, y, test_size=0.2, random_state=42
-            )
+**Interface Contracts (OpenAPI):**
 
-            # Preprocessing
-            X_train = self._preprocess_features(X_train, fit=True)
-            X_test = self._preprocess_features(X_test, fit=False)
+```yaml
+openapi: 3.0.0
+info:
+  title: Customer Service API
+  version: 1.0.0
+  description: API for managing customer data and interactions
 
-            # Model training
-            self.model = XGBClassifier(
-                objective='binary:logistic',
-                n_estimators=500,
-                max_depth=8,
-                learning_rate=0.05,
-                subsample=0.8,
-                colsample_bytree=0.8,
-                random_state=42,
-                scale_pos_weight=len(y_train[y_train==0])/len(y_train[y_train==1])
-            )
+servers:
+  - url: https://api.fleetmanagement.com/customer/v1
+    description: Production server
 
-            self.model.fit(X_train, y_train)
+paths:
+  /customers:
+    post:
+      summary: Create customer
+      description: Create a new customer record
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CustomerCreateRequest'
+      responses:
+        '201':
+          description: Customer created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CustomerResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
 
-            # Evaluate model
-            self._evaluate_model(X_test, y_test)
+    get:
+      summary: Search customers
+      description: Search customers with optional filters
+      parameters:
+        - $ref: '#/components/parameters/PageNumber'
+        - $ref: '#/components/parameters/PageSize'
+        - $ref: '#/components/parameters/SortBy'
+        - $ref: '#/components/parameters/SortOrder'
+        - name: firstName
+          in: query
+          description: Customer first name
+          schema:
+            type: string
+        - name: lastName
+          in: query
+          description: Customer last name
+          schema:
+            type: string
+        - name: email
+          in: query
+          description: Customer email
+          schema:
+            type: string
+        - name: phone
+          in: query
+          description: Customer phone number
+          schema:
+            type: string
+        - name: customerType
+          in: query
+          description: Customer type
+          schema:
+            $ref: '#/components/schemas/CustomerType'
+        - name: status
+          in: query
+          description: Customer status
+          schema:
+            $ref: '#/components/schemas/CustomerStatus'
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CustomerSearchResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
 
-            # Store feature importance
-            self.feature_importance = pd.DataFrame({
-                'feature': X.columns,
-                'importance': self.model.feature_importances_
-            }).sort_values('importance', ascending=False)
+  /customers/{id}:
+    get:
+      summary: Get customer details
+      description: Get detailed information for a specific customer
+      parameters:
+        - $ref: '#/components/parameters/CustomerId'
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CustomerResponse'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
 
-        except Exception as e:
-            logger.error(f"Model training failed: {str(e)}")
-            raise
+    put:
+      summary: Update customer
+      description: Update an existing customer record
+      parameters:
+        - $ref: '#/components/parameters/CustomerId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CustomerUpdateRequest'
+      responses:
+        '200':
+          description: Customer updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CustomerResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
 
-    def _load_training_data(self):
-        """Load historical lead data from database"""
-        query = """
-        SELECT
-            l.lead_id,
-            l.source,
-            l.vehicle_interest,
-            l.budget_min,
-            l.budget_max,
-            l.timeframe,
-            l.contact_method,
-            l.created_at,
-            l.updated_at,
-            c.age,
-            c.income_bracket,
-            c.family_size,
-            c.credit_score_range,
-            c.previous_purchases,
-            c.loyalty_points,
-            CASE WHEN s.sale_id IS NOT NULL THEN 1 ELSE 0 END as converted,
-            EXTRACT(EPOCH FROM (s.sale_date - l.created_at)) as days_to_convert
-        FROM leads l
-        LEFT JOIN customers c ON l.customer_id = c.customer_id
-        LEFT JOIN sales s ON l.lead_id = s.lead_id
-        WHERE l.created_at > NOW() - INTERVAL '2 years'
-        AND l.status != 'invalid'
-        """
-        return pd.read_sql(query, db_engine)
+    delete:
+      summary: Delete customer
+      description: Soft delete a customer record
+      parameters:
+        - $ref: '#/components/parameters/CustomerId'
+      responses:
+        '204':
+          description: Customer deleted
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
 
-    def _feature_engineering(self, data):
-        """Create features from raw data"""
-        # Time-based features
-        data['lead_age_hours'] = (data['updated_at'] - data['created_at']).dt.total_seconds() / 3600
-        data['is_weekend'] = data['created_at'].dt.weekday >= 5
+  /customers/{id}/preferences:
+    get:
+      summary: Get customer preferences
+      description: Get preferences for a specific customer
+      parameters:
+        - $ref: '#/components/parameters/CustomerId'
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CustomerPreferencesResponse'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
 
-        # Behavioral features
-        data['budget_range'] = data['budget_max'] - data['budget_min']
-        data['budget_to_income_ratio'] = data['budget_max'] / (data['income_bracket'] * 1000)
+    put:
+      summary: Update customer preferences
+      description: Update preferences for a specific customer
+      parameters:
+        - $ref: '#/components/parameters/CustomerId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CustomerPreferencesUpdateRequest'
+      responses:
+        '200':
+          description: Preferences updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CustomerPreferencesResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
 
-        # Interaction features
-        data['contact_method_count'] = data['contact_method'].str.count(',') + 1
-        data['vehicle_interest_count'] = data['vehicle_interest'].str.count(',') + 1
+  /customers/{id}/interactions:
+    get:
+      summary: Get customer interactions
+      description: Get interaction history for a specific customer
+      parameters:
+        - $ref: '#/components/parameters/CustomerId'
+        - $ref: '#/components/parameters/PageNumber'
+        - $ref: '#/components/parameters/PageSize'
+        - name: type
+          in: query
+          description: Interaction type
+          schema:
+            $ref: '#/components/schemas/InteractionType'
+        - name: fromDate
+          in: query
+          description: Start date for interactions
+          schema:
+            type: string
+            format: date
+        - name: toDate
+          in: query
+          description: End date for interactions
+          schema:
+            type: string
+            format: date
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CustomerInteractionsResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
 
-        # Recency features
-        data['hours_since_last_update'] = (pd.Timestamp.now() - data['updated_at']).dt.total_seconds() / 3600
+    post:
+      summary: Create customer interaction
+      description: Record a new interaction with a customer
+      parameters:
+        - $ref: '#/components/parameters/CustomerId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/InteractionCreateRequest'
+      responses:
+        '201':
+          description: Interaction created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InteractionResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
 
-        # Drop original columns
-        drop_cols = ['lead_id', 'created_at', 'updated_at', 'sale_date', 'customer_id']
-        data = data.drop(columns=[col for col in drop_cols if col in data.columns])
+  /customers/{id}/segments:
+    get:
+      summary: Get customer segments
+      description: Get segments for a specific customer
+      parameters:
+        - $ref: '#/components/parameters/CustomerId'
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CustomerSegmentsResponse'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
 
-        return data
+components:
+  schemas:
+    CustomerCreateRequest:
+      type: object
+      properties:
+        firstName:
+          type: string
+          minLength: 1
+          maxLength: 50
+        lastName:
+          type: string
+          minLength: 1
+          maxLength: 50
+        email:
+          type: string
+          format: email
+        phone:
+          type: string
+        address:
+          $ref: '#/components/schemas/Address'
+        dateOfBirth:
+          type: string
+          format: date
+        customerType:
+          $ref: '#/components/schemas/CustomerType'
+        companyName:
+          type: string
+        taxId:
+          type: string
+        notes:
+          type: string
+      required:
+        - firstName
+        - lastName
+        - email
+        - customerType
 
-    def _preprocess_features(self, X, fit=False):
-        """Preprocess features before prediction"""
-        # Handle categorical features
-        cat_cols = X.select_dtypes(include=['object']).columns
-        if fit:
-            self.target_encoder.fit(X[cat_cols], X['converted'])
-        X[cat_cols] = self.target_encoder.transform(X[cat_cols])
+    CustomerUpdateRequest:
+      type: object
+      properties:
+        firstName:
+          type: string
+          minLength: 1
+          maxLength: 50
+        lastName:
+          type: string
+          minLength: 1
+          maxLength: 50
+        email:
+          type: string
+          format: email
+        phone:
+          type: string
+        address:
+          $ref: '#/components/schemas/Address'
+        dateOfBirth:
+          type: string
+          format: date
+        status:
+          $ref: '#/components/schemas/CustomerStatus'
+        companyName:
+          type: string
+        taxId:
+          type: string
+        notes:
+          type: string
 
-        # Scale numerical features
-        num_cols = X.select_dtypes(include=['int64', 'float64']).columns
-        if fit:
-            self.feature_scaler.fit(X[num_cols])
-        X[num_cols] = self.feature_scaler.transform(X[num_cols])
+    CustomerResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        firstName:
+          type: string
+        lastName:
+          type: string
+        email:
+          type: string
+          format: email
+        phone:
+          type: string
+        address:
+          $ref: '#/components/schemas/Address'
+        dateOfBirth:
+          type: string
+          format: date
+        customerType:
+          $ref: '#/components/schemas/CustomerType'
+        status:
+          $ref: '#/components/schemas/CustomerStatus'
+        companyName:
+          type: string
+        taxId:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        lastInteractionDate:
+          type: string
+          format: date-time
+        interactionCount:
+          type: integer
+        totalSpent:
+          type: number
+          format: float
+        preferredDealerId:
+          type: string
+          format: uuid
+        notes:
+          type: string
+      required:
+        - id
+        - firstName
+        - lastName
+        - email
+        - customerType
+        - status
+        - createdAt
+        - updatedAt
 
-        return X
+    CustomerSearchResponse:
+      type: object
+      properties:
+        total:
+          type: integer
+        page:
+          type: integer
+        pageSize:
+          type: integer
+        customers:
+          type: array
+          items:
+            $ref: '#/components/schemas/CustomerSummary'
+      required:
+        - total
+        - page
+        - pageSize
+        - customers
 
-    def predict_lead_score(self, lead_data):
-        """Predict conversion probability for a lead"""
-        try:
-            # Convert input to DataFrame
-            if not isinstance(lead_data, pd.DataFrame):
-                lead_data = pd.DataFrame([lead_data])
+    CustomerSummary:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        firstName:
+          type: string
+        lastName:
+          type: string
+        email:
+          type: string
+          format: email
+        phone:
+          type: string
+        customerType:
+          $ref: '#/components/schemas/CustomerType'
+        status:
+          $ref: '#/components/schemas/CustomerStatus'
+        lastInteractionDate:
+          type: string
+          format: date-time
+        interactionCount:
+          type: integer
+        totalSpent:
+          type: number
+          format: float
+      required:
+        - id
+        - firstName
+        - lastName
+        - email
+        - customerType
+        - status
 
-            # Feature engineering
-            lead_data = self._feature_engineering(lead_data)
+    CustomerPreferencesResponse:
+      type: object
+      properties:
+        customerId:
+          type: string
+          format: uuid
+        communicationPreferences:
+          $ref: '#/components/schemas/CommunicationPreferences'
+        vehiclePreferences:
+          $ref: '#/components/schemas/VehiclePreferences'
+        notificationPreferences:
+          $ref: '#/components/schemas/NotificationPreferences'
+        marketingPreferences:
+          $ref: '#/components/schemas/MarketingPreferences'
+      required:
+        - customerId
+        - communicationPreferences
+        - vehiclePreferences
+        - notificationPreferences
+        - marketingPreferences
 
-            # Preprocessing
-            lead_data = self._preprocess_features(lead_data, fit=False)
+    CustomerPreferencesUpdateRequest:
+      type: object
+      properties:
+        communicationPreferences:
+          $ref: '#/components/schemas/CommunicationPreferences'
+        vehiclePreferences:
+          $ref: '#/components/schemas/VehiclePreferences'
+        notificationPreferences:
+          $ref: '#/components/schemas/NotificationPreferences'
+        marketingPreferences:
+          $ref: '#/components/schemas/MarketingPreferences'
 
-            # Prediction
-            proba = self.model.predict_proba(lead_data)
-            return proba[0][1]  # Probability of conversion
+    CommunicationPreferences:
+      type: object
+      properties:
+        preferredMethod:
+          $ref: '#/components/schemas/CommunicationMethod'
+        preferredLanguage:
+          type: string
+        preferredContactTime:
+          type: string
+          format: time
+        doNotContact:
+          type: boolean
 
-        except Exception as e:
-            logger.error(f"Prediction failed: {str(e)}")
-            raise
+    VehiclePreferences:
+      type: object
+      properties:
+        preferredMakes:
+          type: array
+          items:
+            type: string
+        preferredModels:
+          type: array
+          items:
+            type: string
+        preferredBodyStyles:
+          type: array
+          items:
+            $ref: '#/components/schemas/BodyStyle'
+        preferredFuelTypes:
+          type: array
+          items:
+            $ref: '#/components/schemas/FuelType'
+        priceRange:
+          $ref: '#/components/schemas/PriceRange'
 
-    def get_feature_importance(self):
-        """Return feature importance for explainability"""
-        if self.feature_importance is None:
-            raise ValueError("Model not trained yet")
-        return self.feature_importance
+    NotificationPreferences:
+      type: object
+      properties:
+        quoteUpdates:
+          type: boolean
+        orderStatus:
+          type: boolean
+        maintenanceReminders:
+          type: boolean
+        promotionalOffers:
+          type: boolean
+        surveyRequests:
+          type: boolean
+
+    MarketingPreferences:
+      type: object
+      properties:
+        email:
+          type: boolean
+        sms:
+          type: boolean
+        pushNotifications:
+          type: boolean
+        directMail:
+          type: boolean
+
+    CustomerInteractionsResponse:
+      type: object
+      properties:
+        total:
+          type: integer
+        page:
+          type: integer
+        pageSize:
+          type: integer
+        interactions:
+          type: array
+          items:
+            $ref: '#/components/schemas/InteractionSummary'
+      required:
+        - total
+        - page
+        - pageSize
+        - interactions
+
+    InteractionSummary:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        type:
+          $ref: '#/components/schemas/InteractionType'
+        subject:
+          type: string
+        date:
+          type: string
+          format: date-time
+        duration:
+          type: integer
+          description: Duration in minutes
+        channel:
+          $ref: '#/components/schemas/InteractionChannel'
+        status:
+          $ref: '#/components/schemas/InteractionStatus'
+        assignedTo:
+          type: string
+          format: uuid
+      required:
+        - id
+        - type
+        - date
+        - channel
+        - status
+
+    InteractionResponse:
+      allOf:
+        - $ref: '#/components/schemas/InteractionSummary'
+        - type: object
+          properties:
+            description:
+              type: string
+            notes:
+              type: string
+            relatedEntities:
+              type: array
+              items:
+                $ref: '#/components/schemas/RelatedEntity'
+            attachments:
+              type: array
+              items:
+                $ref: '#/components/schemas/Attachment'
+            followUpDate:
+              type: string
+              format: date-time
+            createdAt:
+              type: string
+              format: date-time
+            updatedAt:
+              type: string
+              format: date-time
+          required:
+            - description
+            - createdAt
+            - updatedAt
+
+    InteractionCreateRequest:
+      type: object
+      properties:
+        type:
+          $ref: '#/components/schemas/InteractionType'
+        subject:
+          type: string
+        description:
+          type: string
+        date:
+          type: string
+          format: date-time
+        duration:
+          type: integer
+          description: Duration in minutes
+        channel:
+          $ref: '#/components/schemas/InteractionChannel'
+        status:
+          $ref: '#/components/schemas/InteractionStatus'
+        assignedTo:
+          type: string
+          format: uuid
+        notes:
+          type: string
+        relatedEntities:
+          type: array
+          items:
+            $ref: '#/components/schemas/RelatedEntity'
+        followUpDate:
+          type: string
+          format: date-time
+      required:
+        - type
+        - subject
+        - description
+        - date
+        - channel
+
+    CustomerSegmentsResponse:
+      type: object
+      properties:
+        customerId:
+          type: string
+          format: uuid
+        segments:
+          type: array
+          items:
+            $ref: '#/components/schemas/CustomerSegment'
+      required:
+        - customerId
+        - segments
+
+    CustomerSegment:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        description:
+          type: string
+        criteria:
+          type: string
+        isActive:
+          type: boolean
+      required:
+        - id
+        - name
+        - isActive
+
+    RelatedEntity:
+      type: object
+      properties:
+        type:
+          $ref: '#/components/schemas/RelatedEntityType'
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+      required:
+        - type
+        - id
+
+    Attachment:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        type:
+          type: string
+        size:
+          type: integer
+        url:
+          type: string
+          format: uri
+      required:
+        - id
+        - name
+        - type
+        - size
+        - url
+
+    PriceRange:
+      type: object
+      properties:
+        min:
+          type: number
+          format: float
+        max:
+          type: number
+          format: float
+
+    CustomerType:
+      type: string
+      enum: [INDIVIDUAL, BUSINESS, FLEET, GOVERNMENT]
+
+    CustomerStatus:
+      type: string
+      enum: [ACTIVE, INACTIVE, PROSPECT, BLACKLISTED]
+
+    InteractionType:
+      type: string
+      enum: [CALL, EMAIL, MEETING, CHAT, VISIT, TEST_DRIVE, SERVICE, COMPLAINT, FEEDBACK]
+
+    InteractionChannel:
+      type: string
+      enum: [PHONE, EMAIL, IN_PERSON, VIDEO, CHAT, SOCIAL_MEDIA, WEBSITE]
+
+    InteractionStatus:
+      type: string
+      enum: [OPEN, IN_PROGRESS, COMPLETED, CANCELLED, FOLLOW_UP_REQUIRED]
+
+    CommunicationMethod:
+      type: string
+      enum: [EMAIL, PHONE, SMS, MAIL, IN_APP]
+
+    RelatedEntityType:
+      type: string
+      enum: [VEHICLE, QUOTE, ORDER, SERVICE_REQUEST, COMPLAINT, OPPORTUNITY]
+
+  parameters:
+    CustomerId:
+      name: id
+      in: path
+      description: Customer ID
+      required: true
+      schema:
+        type: string
+        format: uuid
+
+  responses:
+    BadRequest:
+      description: Bad request
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+
+    Unauthorized:
+      description: Unauthorized
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+
+    Forbidden:
+      description: Forbidden
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+
+    NotFound:
+      description: Not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+
+    Conflict:
+      description: Conflict
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+
+    InternalServerError:
+      description: Internal server error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
 ```
 
-#### 3. Real-Time Engagement Engine
-Transforming the sales process from batch-based to real-time:
-
-- **Live showroom activity tracking** with customer movement patterns
-- **Instant notifications** for sales reps when high-value customers enter the showroom
-- **Real-time inventory synchronization** across all locations
-- **Dynamic pricing updates** based on local demand and inventory levels
-- **Live chat and video consultation** integration
+**Data Models:**
 
 ```typescript
-// Real-Time Showroom Activity Tracker (Core Implementation)
-class ShowroomActivityTracker {
-  private readonly websocketServer: WebSocket.Server;
-  private readonly redisSubscriber: RedisClient;
-  private readonly activityStreams: Map<string, Set<WebSocket>>;
-  private readonly customerLocations: Map<string, CustomerLocation>;
-  private readonly heatmapGenerator: HeatmapGenerator;
-
-  constructor(server: http.Server) {
-    this.websocketServer = new WebSocket.Server({ server });
-    this.redisSubscriber = createRedisClient({
-      host: process.env.REDIS_HOST,
-      port: parseInt(process.env.REDIS_PORT || '6379')
-    });
-    this.activityStreams = new Map();
-    this.customerLocations = new Map();
-    this.heatmapGenerator = new HeatmapGenerator();
-
-    this.initialize();
-  }
-
-  private initialize(): void {
-    // Set up WebSocket server
-    this.websocketServer.on('connection', (ws: WebSocket, req: http.IncomingMessage) => {
-      this.handleNewConnection(ws, req);
-    });
-
-    // Set up Redis subscription
-    this.redisSubscriber.subscribe('showroom:activity');
-    this.redisSubscriber.on('message', (channel: string, message: string) => {
-      this.handleActivityMessage(JSON.parse(message));
-    });
-
-    // Set up cleanup intervals
-    setInterval(() => this.cleanupInactiveConnections(), 300000); // 5 minutes
-    setInterval(() => this.updateHeatmaps(), 60000); // 1 minute
-  }
-
-  private handleNewConnection(ws: WebSocket, req: http.IncomingMessage): void {
-    try {
-      const urlParams = new URL(req.url || '', `http://${req.headers.host}`).searchParams;
-      const showroomId = urlParams.get('showroomId');
-      const userId = urlParams.get('userId');
-
-      if (!showroomId || !userId) {
-        ws.close(1008, 'Missing showroomId or userId');
-        return;
-      }
-
-      // Authenticate connection
-      this.authenticateConnection(ws, showroomId, userId)
-        .then(authenticated => {
-          if (!authenticated) {
-            ws.close(1008, 'Authentication failed');
-            return;
-          }
-
-          // Register connection
-          if (!this.activityStreams.has(showroomId)) {
-            this.activityStreams.set(showroomId, new Set());
-          }
-          this.activityStreams.get(showroomId)?.add(ws);
-
-          // Send initial state
-          this.sendInitialState(ws, showroomId);
-
-          // Set up message handler
-          ws.on('message', (message: string) => {
-            this.handleClientMessage(ws, showroomId, message);
-          });
-
-          // Set up close handler
-          ws.on('close', () => {
-            this.activityStreams.get(showroomId)?.delete(ws);
-          });
-        })
-        .catch(err => {
-          logger.error(`Connection authentication failed: ${err.message}`);
-          ws.close(1011, 'Internal server error');
-        });
-    } catch (err) {
-      logger.error(`Connection handling failed: ${err.message}`);
-      ws.close(1011, 'Internal server error');
-    }
-  }
-
-  private async authenticateConnection(ws: WebSocket, showroomId: string, userId: string): Promise<boolean> {
-    try {
-      // Verify user has access to this showroom
-      const accessCheck = await db.query(
-        `SELECT 1 FROM showroom_access
-         WHERE showroom_id = $1 AND user_id = $2`,
-        [showroomId, userId]
-      );
-
-      if (accessCheck.rows.length === 0) {
-        return false;
-      }
-
-      // Verify user is active
-      const userCheck = await db.query(
-        `SELECT is_active FROM users WHERE user_id = $1`,
-        [userId]
-      );
-
-      return userCheck.rows.length > 0 && userCheck.rows[0].is_active;
-    } catch (err) {
-      logger.error(`Authentication error: ${err.message}`);
-      return false;
-    }
-  }
-
-  private sendInitialState(ws: WebSocket, showroomId: string): void {
-    try {
-      // Send current customer locations
-      const locations = Array.from(this.customerLocations.entries())
-        .filter(([_, loc]) => loc.showroomId === showroomId)
-        .map(([customerId, loc]) => ({
-          customerId,
-          ...loc
-        }));
-
-      ws.send(JSON.stringify({
-        type: 'INITIAL_STATE',
-        payload: {
-          customers: locations,
-          heatmap: this.heatmapGenerator.getHeatmap(showroomId)
-        }
-      }));
-
-      // Send recent activity
-      this.getRecentActivity(showroomId).then(activity => {
-        ws.send(JSON.stringify({
-          type: 'RECENT_ACTIVITY',
-          payload: activity
-        }));
-      });
-    } catch (err) {
-      logger.error(`Failed to send initial state: ${err.message}`);
-    }
-  }
-
-  private handleActivityMessage(message: ShowroomActivity): void {
-    try {
-      switch (message.type) {
-        case 'CUSTOMER_ENTERED':
-          this.handleCustomerEntered(message);
-          break;
-        case 'CUSTOMER_MOVED':
-          this.handleCustomerMoved(message);
-          break;
-        case 'CUSTOMER_INTEREST':
-          this.handleCustomerInterest(message);
-          break;
-        case 'CUSTOMER_ENGAGED':
-          this.handleCustomerEngaged(message);
-          break;
-        case 'CUSTOMER_EXITED':
-          this.handleCustomerExited(message);
-          break;
-        default:
-          logger.warn(`Unknown activity type: ${message.type}`);
-      }
-
-      // Broadcast to all connected clients for this showroom
-      this.broadcastToShowroom(message.showroomId, message);
-    } catch (err) {
-      logger.error(`Activity message handling failed: ${err.message}`);
-    }
-  }
-
-  private handleCustomerEntered(message: CustomerEnteredMessage): void {
-    this.customerLocations.set(message.customerId, {
-      showroomId: message.showroomId,
-      location: message.location,
-      enteredAt: new Date(),
-      lastUpdated: new Date(),
-      interests: [],
-      engagedWith: null,
-      leadScore: message.leadScore || 0
-    });
-
-    // Notify sales reps about high-value customers
-    if (message.leadScore && message.leadScore > 0.7) {
-      this.notifyHighValueCustomer(message);
-    }
-  }
-
-  private handleCustomerMoved(message: CustomerMovedMessage): void {
-    const customer = this.customerLocations.get(message.customerId);
-    if (customer) {
-      customer.location = message.newLocation;
-      customer.lastUpdated = new Date();
-      this.customerLocations.set(message.customerId, customer);
-    }
-  }
-
-  private async notifyHighValueCustomer(message: CustomerEnteredMessage): Promise<void> {
-    try {
-      // Get available sales reps for this showroom
-      const reps = await db.query(
-        `SELECT user_id FROM showroom_staff
-         WHERE showroom_id = $1 AND is_available = true
-         ORDER BY last_assigned ASC
-         LIMIT 3`,
-        [message.showroomId]
-      );
-
-      if (reps.rows.length === 0) {
-        logger.warn(`No available reps for high-value customer ${message.customerId}`);
-        return;
-      }
-
-      // Assign to the first rep
-      const assignedRep = reps.rows[0].user_id;
-
-      // Update database
-      await db.query(
-        `UPDATE showroom_staff
-         SET last_assigned = NOW(), is_available = false
-         WHERE user_id = $1`,
-        [assignedRep]
-      );
-
-      // Send notification
-      const notification = {
-        type: 'HIGH_VALUE_CUSTOMER',
-        customerId: message.customerId,
-        customerName: message.customerName,
-        leadScore: message.leadScore,
-        location: message.location,
-        assignedTo: assignedRep
-      };
-
-      this.broadcastToShowroom(message.showroomId, notification);
-
-      // Send SMS to rep if configured
-      await this.sendSmsNotification(assignedRep, notification);
-    } catch (err) {
-      logger.error(`High-value customer notification failed: ${err.message}`);
-    }
-  }
-
-  private async sendSmsNotification(repId: string, notification: any): Promise<void> {
-    try {
-      const rep = await db.query(
-        `SELECT phone_number FROM users WHERE user_id = $1`,
-        [repId]
-      );
-
-      if (rep.rows.length === 0 || !rep.rows[0].phone_number) {
-        return;
-      }
-
-      const message = `High-value customer ${notification.customerName} entered showroom.
-Location: ${notification.location}
-Lead score: ${Math.round(notification.leadScore * 100)}%`;
-
-      await twilioClient.messages.create({
-        body: message,
-        from: process.env.TWILIO_PHONE_NUMBER,
-        to: rep.rows[0].phone_number
-      });
-    } catch (err) {
-      logger.error(`SMS notification failed: ${err.message}`);
-    }
-  }
-
-  private broadcastToShowroom(showroomId: string, message: any): void {
-    const clients = this.activityStreams.get(showroomId);
-    if (clients) {
-      clients.forEach(client => {
-        if (client.readyState === WebSocket.OPEN) {
-          try {
-            client.send(JSON.stringify(message));
-          } catch (err) {
-            logger.error(`Failed to send message to client: ${err.message}`);
-          }
-        }
-      });
-    }
-  }
-
-  // Additional methods would include:
-  // - handleCustomerInterest()
-  // - handleCustomerEngaged()
-  // - handleCustomerExited()
-  // - getRecentActivity()
-  // - cleanupInactiveConnections()
-  // - updateHeatmaps()
-}
-```
-
-### Competitive Advantages
-
-1. **First-Mover Advantage in AI-Driven Sales**
-   - While competitors are experimenting with basic chatbots, our system will deliver:
-     - **Predictive lead scoring** with 85%+ accuracy
-     - **Dynamic pricing optimization** that adjusts in real-time based on 50+ factors
-     - **Automated objection handling** with natural language processing
-
-2. **Omnichannel Patent Portfolio**
-   - We've filed patents for:
-     - **Context-aware handoff technology** between digital and physical channels
-     - **Predictive showroom routing** that guides customers to optimal vehicles
-     - **Unified customer timeline** that spans all touchpoints
-
-3. **Superior Data Architecture**
-   - **Event-sourced customer profiles** that maintain complete history of all interactions
-   - **Graph database integration** for relationship mapping between customers, vehicles, and sales reps
-   - **Real-time analytics pipeline** with sub-second latency
-
-4. **Regulatory Compliance Leadership**
-   - **GDPR-compliant data handling** with right-to-be-forgotten implementation
-   - **CCPA-ready architecture** with opt-out management
-   - **ADA-compliant interfaces** with WCAG 2.1 AAA certification
-
-### Long-Term Roadmap
-
-#### Phase 1: Foundation (0-6 months)
-- **Core platform migration** to microservices architecture
-- **Unified customer profile** implementation
-- **Basic real-time features** (inventory sync, notifications)
-- **AI recommendation engine** v1.0
-- **PWA implementation** for mobile users
-
-#### Phase 2: Differentiation (6-18 months)
-- **Advanced predictive analytics** with deep learning models
-- **Augmented reality showroom** integration
-- **Voice interface** for hands-free interaction
-- **Blockchain-based** vehicle history verification
-- **Autonomous test drive** scheduling
-
-#### Phase 3: Transformation (18-36 months)
-- **Fully autonomous sales assistant** with emotional intelligence
-- **Predictive maintenance** integration with vehicle telematics
-- **Subscription-based ownership** models
-- **Global inventory marketplace** with dynamic pricing
-- **AI-powered negotiation** engine
-
-#### Phase 4: Industry Leadership (36+ months)
-- **Self-optimizing sales process** that continuously improves
-- **Neural interface** for vehicle customization
-- **Decentralized sales network** with blockchain smart contracts
-- **Predictive manufacturing** based on sales data
-- **Autonomous delivery** integration
-
----
-
-## Performance Enhancements (250+ lines)
-
-### Redis Caching Layer (50+ lines)
-
-```typescript
-// Redis Caching Service with Multi-Layer Strategy
-class RedisCacheService {
-  private readonly client: RedisClient;
-  private readonly localCache: NodeCache;
-  private readonly circuitBreaker: CircuitBreaker;
-  private readonly cacheMetrics: CacheMetrics;
-
-  constructor() {
-    // Initialize Redis client with connection pooling
-    this.client = createRedisClient({
-      host: process.env.REDIS_HOST,
-      port: parseInt(process.env.REDIS_PORT || '6379'),
-      password: process.env.REDIS_PASSWORD,
-      enable_offline_queue: false,
-      retry_strategy: (options) => {
-        if (options.error && options.error.code === 'ECONNREFUSED') {
-          return new Error('Redis server refused the connection');
-        }
-        if (options.total_retry_time > 1000 * 60 * 60) {
-          return new Error('Retry time exhausted');
-        }
-        if (options.attempt > 10) {
-          return undefined;
-        }
-        return Math.min(options.attempt * 100, 5000);
-      }
-    });
-
-    // Initialize local cache for hot data
-    this.localCache = new NodeCache({
-      stdTTL: 30, // 30 seconds
-      checkperiod: 60, // 60 seconds
-      useClones: false
-    });
-
-    // Initialize circuit breaker
-    this.circuitBreaker = new CircuitBreaker({
-      windowDuration: 60000, // 1 minute
-      numBuckets: 10,
-      threshold: 0.5, // 50% failure rate
-      minimumNumberOfCalls: 10,
-      timeoutDuration: 5000 // 5 seconds
-    });
-
-    // Initialize metrics
-    this.cacheMetrics = new CacheMetrics();
-
-    // Set up event listeners
-    this.setupEventListeners();
-  }
-
-  private setupEventListeners(): void {
-    this.client.on('error', (err) => {
-      logger.error(`Redis error: ${err.message}`);
-      this.cacheMetrics.recordError('redis');
-    });
-
-    this.client.on('connect', () => {
-      logger.info('Connected to Redis');
-      this.cacheMetrics.recordConnection('redis');
-    });
-
-    this.client.on('reconnecting', () => {
-      logger.info('Reconnecting to Redis');
-    });
-
-    this.localCache.on('expired', (key) => {
-      this.cacheMetrics.recordLocalCacheEviction();
-    });
-  }
-
-  public async get<T>(key: string, options?: CacheOptions): Promise<T | null> {
-    const startTime = Date.now();
-    const cacheKey = this.generateCacheKey(key);
-
-    try {
-      // Check local cache first
-      const localValue = this.localCache.get<T>(cacheKey);
-      if (localValue !== undefined) {
-        this.cacheMetrics.recordHit('local', Date.now() - startTime);
-        return localValue;
-      }
-
-      // Check Redis with circuit breaker
-      const redisValue = await this.circuitBreaker.execute(async () => {
-        return new Promise<T | null>((resolve, reject) => {
-          this.client.get(cacheKey, (err, reply) => {
-            if (err) {
-              reject(err);
-            } else {
-              resolve(reply ? JSON.parse(reply) : null);
-            }
-          });
-        });
-      });
-
-      if (redisValue !== null) {
-        // Store in local cache
-        this.localCache.set(cacheKey, redisValue, options?.localTTL || 30);
-        this.cacheMetrics.recordHit('redis', Date.now() - startTime);
-        return redisValue;
-      }
-
-      this.cacheMetrics.recordMiss(Date.now() - startTime);
-      return null;
-    } catch (err) {
-      logger.error(`Cache get failed for ${key}: ${err.message}`);
-      this.cacheMetrics.recordError('get');
-      return null;
-    }
-  }
-
-  public async set<T>(key: string, value: T, options?: CacheOptions): Promise<boolean> {
-    const cacheKey = this.generateCacheKey(key);
-    const ttl = options?.ttl || 300; // Default 5 minutes
-
-    try {
-      // Store in local cache
-      this.localCache.set(cacheKey, value, options?.localTTL || 30);
-
-      // Store in Redis with circuit breaker
-      const success = await this.circuitBreaker.execute(async () => {
-        return new Promise<boolean>((resolve) => {
-          this.client.setex(
-            cacheKey,
-            ttl,
-            JSON.stringify(value),
-            (err) => {
-              if (err) {
-                logger.error(`Redis set failed for ${key}: ${err.message}`);
-                resolve(false);
-              } else {
-                resolve(true);
-              }
-            }
-          );
-        });
-      });
-
-      if (success) {
-        this.cacheMetrics.recordSet();
-      }
-
-      return success;
-    } catch (err) {
-      logger.error(`Cache set failed for ${key}: ${err.message}`);
-      this.cacheMetrics.recordError('set');
-      return false;
-    }
-  }
-
-  public async del(key: string): Promise<boolean> {
-    const cacheKey = this.generateCacheKey(key);
-
-    try {
-      // Delete from local cache
-      this.localCache.del(cacheKey);
-
-      // Delete from Redis with circuit breaker
-      const success = await this.circuitBreaker.execute(async () => {
-        return new Promise<boolean>((resolve) => {
-          this.client.del(cacheKey, (err) => {
-            if (err) {
-              logger.error(`Redis delete failed for ${key}: ${err.message}`);
-              resolve(false);
-            } else {
-              resolve(true);
-            }
-          });
-        });
-      });
-
-      if (success) {
-        this.cacheMetrics.recordDelete();
-      }
-
-      return success;
-    } catch (err) {
-      logger.error(`Cache delete failed for ${key}: ${err.message}`);
-      this.cacheMetrics.recordError('delete');
-      return false;
-    }
-  }
-
-  public async getMulti<T>(keys: string[]): Promise<Record<string, T | null>> {
-    const startTime = Date.now();
-    const cacheKeys = keys.map(key => this.generateCacheKey(key));
-    const result: Record<string, T | null> = {};
-
-    try {
-      // Check local cache first
-      const localResults = this.localCache.mget<T>(cacheKeys);
-      const localKeys = Object.keys(localResults);
-      const missingKeys = cacheKeys.filter(key => !localKeys.includes(key));
-
-      // Record hits for local cache
-      localKeys.forEach(key => {
-        result[key] = localResults[key];
-        this.cacheMetrics.recordHit('local', Date.now() - startTime);
-      });
-
-      if (missingKeys.length === 0) {
-        return result;
-      }
-
-      // Check Redis for missing keys with circuit breaker
-      const redisResults = await this.circuitBreaker.execute(async () => {
-        return new Promise<Record<string, string | null>>((resolve, reject) => {
-          this.client.mget(missingKeys, (err, replies) => {
-            if (err) {
-              reject(err);
-            } else {
-              const results: Record<string, string | null> = {};
-              replies.forEach((reply, index) => {
-                results[missingKeys[index]] = reply;
-              });
-              resolve(results);
-            }
-          });
-        });
-      });
-
-      // Process Redis results
-      for (const [key, value] of Object.entries(redisResults)) {
-        if (value !== null) {
-          const parsedValue = JSON.parse(value) as T;
-          result[key] = parsedValue;
-          this.localCache.set(key, parsedValue);
-          this.cacheMetrics.recordHit('redis', Date.now() - startTime);
-        } else {
-          result[key] = null;
-          this.cacheMetrics.recordMiss(Date.now() - startTime);
-        }
-      }
-
-      return result;
-    } catch (err) {
-      logger.error(`Multi-get failed: ${err.message}`);
-      this.cacheMetrics.recordError('getMulti');
-      // Return whatever we have
-      return result;
-    }
-  }
-
-  public async cachePipeline<T>(operations: CacheOperation<T>[]): Promise<boolean[]> {
-    try {
-      // Group operations by type
-      const sets: { key: string; value: T; ttl: number }[] = [];
-      const gets: string[] = [];
-      const dels: string[] = [];
-
-      operations.forEach(op => {
-        const cacheKey = this.generateCacheKey(op.key);
-        switch (op.type) {
-          case 'set':
-            sets.push({
-              key: cacheKey,
-              value: op.value as T,
-              ttl: op.ttl || 300
-            });
-            break;
-          case 'get':
-            gets.push(cacheKey);
-            break;
-          case 'del':
-            dels.push(cacheKey);
-            break;
-        }
-      });
-
-      // Execute in pipeline
-      const pipeline = this.client.pipeline();
-
-      // Add set operations
-      sets.forEach(set => {
-        pipeline.setex(set.key, set.ttl, JSON.stringify(set.value));
-        // Also update local cache
-        this.localCache.set(set.key, set.value);
-      });
-
-      // Add delete operations
-      dels.forEach(key => {
-        pipeline.del(key);
-        // Also delete from local cache
-        this.localCache.del(key);
-      });
-
-      // Execute pipeline
-      const results = await new Promise<boolean[]>((resolve, reject) => {
-        pipeline.exec((err, replies) => {
-          if (err) {
-            reject(err);
-          } else {
-            // For gets, we need to handle separately
-            if (gets.length > 0) {
-              this.client.mget(gets, (mgetErr, mgetReplies) => {
-                if (mgetErr) {
-                  reject(mgetErr);
-                } else {
-                  const finalResults: boolean[] = [];
-
-                  // Process set results
-                  for (let i = 0; i < sets.length; i++) {
-                    finalResults.push(replies[i][0] === null);
-                  }
-
-                  // Process get results
-                  for (let i = 0; i < gets.length; i++) {
-                    if (mgetReplies[i] !== null) {
-                      this.localCache.set(gets[i], JSON.parse(mgetReplies[i] as string));
-                    }
-                    finalResults.push(mgetReplies[i] !== null);
-                  }
-
-                  // Process delete results
-                  for (let i = sets.length + gets.length; i < replies.length; i++) {
-                    finalResults.push(replies[i][0] === null);
-                  }
-
-                  resolve(finalResults);
-                }
-              });
-            } else {
-              resolve(replies.map(reply => reply[0] === null));
-            }
-          }
-        });
-      });
-
-      this.cacheMetrics.recordPipeline(operations.length);
-      return results;
-    } catch (err) {
-      logger.error(`Pipeline execution failed: ${err.message}`);
-      this.cacheMetrics.recordError('pipeline');
-      return operations.map(() => false);
-    }
-  }
-
-  private generateCacheKey(key: string): string {
-    // Add environment prefix to avoid collisions
-    return `${process.env.NODE_ENV || 'development'}:${key}`;
-  }
-
-  public getMetrics(): CacheMetricsSnapshot {
-    return this.cacheMetrics.getSnapshot();
-  }
-
-  public async flush(): Promise<void> {
-    try {
-      await new Promise<void>((resolve, reject) => {
-        this.client.flushdb((err) => {
-          if (err) {
-            reject(err);
-          } else {
-            this.localCache.flushAll();
-            resolve();
-          }
-        });
-      });
-    } catch (err) {
-      logger.error(`Cache flush failed: ${err.message}`);
-      throw err;
-    }
-  }
+// Customer.ts
+export interface Customer {
+  id: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  phone?: string;
+  address?: Address;
+  dateOfBirth?: Date;
+  customerType: CustomerType;
+  status: CustomerStatus;
+  companyName?: string;
+  taxId?: string;
+  createdAt: Date;
+  updatedAt: Date;
+  deletedAt?: Date;
+  lastInteractionDate?: Date;
+  preferredDealerId?: string;
+  notes?: string;
 }
 
-// Cache Metrics Tracking
-class CacheMetrics {
-  private readonly metrics: {
-    hits: { local: number; redis: number };
-    misses: number;
-    sets: number;
-    deletes: number;
-    errors: Record<string, number>;
-    evictions: number;
-    pipelines: number;
-    connections: number;
-    timestamps: number[];
-  };
-
-  constructor() {
-    this.metrics = {
-      hits: { local: 0, redis: 0 },
-      misses: 0,
-      sets: 0,
-      deletes: 0,
-      errors: {},
-      evictions: 0,
-      pipelines: 0,
-      connections: 0,
-      timestamps: []
-    };
-  }
-
-  public recordHit(type: 'local' | 'redis', duration?: number): void {
-    this.metrics.hits[type]++;
-    if (duration !== undefined) {
-      this.recordDuration(duration);
-    }
-  }
-
-  public recordMiss(duration?: number): void {
-    this.metrics.misses++;
-    if (duration !== undefined) {
-      this.recordDuration(duration);
-    }
-  }
-
-  public recordSet(): void {
-    this.metrics.sets++;
-  }
-
-  public recordDelete(): void {
-    this.metrics.deletes++;
-  }
-
-  public recordError(type: string): void {
-    this.metrics.errors[type] = (this.metrics.errors[type] || 0) + 1;
-  }
-
-  public recordLocalCacheEviction(): void {
-    this.metrics.evictions++;
-  }
-
-  public recordPipeline(count: number): void {
-    this.metrics.pipelines += count;
-  }
-
-  public recordConnection(type: string): void {
-    this.metrics.connections++;
-  }
-
-  private recordDuration(duration: number): void {
-    this.metrics.timestamps.push(Date.now());
-    // Keep only last 1000 timestamps
-    if (this.metrics.timestamps.length > 1000) {
-      this.metrics.timestamps.shift();
-    }
-  }
-
-  public getSnapshot(): CacheMetricsSnapshot {
-    const now = Date.now();
-    const timeWindow = 5 * 60 * 1000; // 5 minutes
-    const recentTimestamps = this.metrics.timestamps.filter(ts => now - ts <= timeWindow);
-
-    return {
-      hits: this.metrics.hits,
-      misses: this.metrics.misses,
-      hitRate: this.metrics.misses + this.metrics.hits.local + this.metrics.hits.redis > 0
-        ? (this.metrics.hits.local + this.metrics.hits.redis) /
-          (this.metrics.misses + this.metrics.hits.local + this.metrics.hits.redis)
-        : 0,
-      sets: this.metrics.sets,
-      deletes: this.metrics.deletes,
-      errors: this.metrics.errors,
-      evictions: this.metrics.evictions,
-      pipelines: this.metrics.pipelines,
-      connections: this.metrics.connections,
-      recentRequestsPerSecond: recentTimestamps.length / (timeWindow / 1000)
-    };
-  }
-}
-```
-
-### Database Query Optimization (50+ lines)
-
-```typescript
-// Database Query Optimizer with Query Plan Analysis
-class DatabaseQueryOptimizer {
-  private readonly pool: Pool;
-  private readonly queryCache: LRUCache<string, QueryPlan>;
-  private readonly slowQueryLogger: SlowQueryLogger;
-  private readonly connectionMetrics: ConnectionMetrics;
-
-  constructor() {
-    this.pool = new Pool({
-      connectionString: process.env.DATABASE_URL,
-      ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false,
-      max: 50, // Maximum number of clients in the pool
-      idleTimeoutMillis: 30000,
-      connectionTimeoutMillis: 2000
-    });
-
-    this.queryCache = new LRUCache<string, QueryPlan>({
-      max: 1000,
-      maxAge: 1000 * 60 * 30 // 30 minutes
-    });
-
-    this.slowQueryLogger = new SlowQueryLogger();
-    this.connectionMetrics = new ConnectionMetrics();
-
-    this.setupPoolListeners();
-  }
-
-  private setupPoolListeners(): void {
-    this.pool.on('connect', () => {
-      this.connectionMetrics.recordConnection();
-    });
-
-    this.pool.on('acquire', () => {
-      this.connectionMetrics.recordAcquire();
-    });
-
-    this.pool.on('remove', () => {
-      this.connectionMetrics.recordRelease();
-    });
-
-    this.pool.on('error', (err) => {
-      logger.error(`Database pool error: ${err.message}`);
-      this.connectionMetrics.recordError();
-    });
-  }
-
-  public async query<T>(text: string, params?: any[], options?: QueryOptions): Promise<QueryResult<T>> {
-    const startTime = Date.now();
-    const cacheKey = this.generateCacheKey(text, params);
-    const queryId = uuidv4();
-
-    try {
-      // Check cache for query plan
-      const cachedPlan = this.queryCache.get(cacheKey);
-      if (cachedPlan) {
-        logger.debug(`Using cached query plan for ${queryId}`);
-        return this.executeWithPlan(text, params, cachedPlan, queryId);
-      }
-
-      // Get query plan
-      const plan = await this.getQueryPlan(text, params);
-      this.queryCache.set(cacheKey, plan);
-
-      // Analyze plan for potential issues
-      this.analyzeQueryPlan(plan, text, params);
-
-      // Execute query
-      const result = await this.executeWithPlan(text, params, plan, queryId);
-
-      // Log slow queries
-      const duration = Date.now() - startTime;
-      if (duration > (options?.slowQueryThreshold || 1000)) {
-        this.slowQueryLogger.log({
-          queryId,
-          text,
-          params,
-          duration,
-          plan,
-          timestamp: new Date()
-        });
-      }
-
-      return result;
-    } catch (err) {
-      logger.error(`Query ${queryId} failed: ${err.message}`);
-      throw this.enhanceError(err, text, params);
-    }
-  }
-
-  private async getQueryPlan(text: string, params?: any[]): Promise<QueryPlan> {
-    try {
-      const explainQuery = `EXPLAIN (ANALYZE, FORMAT JSON) ${text}`;
-      const result = await this.pool.query(explainQuery, params);
-      return JSON.parse(result.rows[0].QUERY_PLAN) as QueryPlan;
-    } catch (err) {
-      logger.error(`Failed to get query plan: ${err.message}`);
-      throw err;
-    }
-  }
-
-  private analyzeQueryPlan(plan: QueryPlan, text: string, params?: any[]): void {
-    try {
-      // Check for sequential scans
-      const sequentialScans = this.findPlanNodes(plan, node => node['Node Type'] === 'Seq Scan');
-      if (sequentialScans.length > 0) {
-        logger.warn(`Query may benefit from index optimization (${sequentialScans.length} sequential scans)`);
-        sequentialScans.forEach(scan => {
-          logger.debug(`Sequential scan on ${scan['Relation Name']}`);
-        });
-      }
-
-      // Check for high cost operations
-      const highCostNodes = this.findPlanNodes(plan, node => {
-        return node['Total Cost'] && node['Total Cost'] > 1000;
-      });
-
-      if (highCostNodes.length > 0) {
-        logger.warn(`Query contains high-cost operations (${highCostNodes.length} nodes > 1000 cost)`);
-        highCostNodes.forEach(node => {
-          logger.debug(`High cost node: ${node['Node Type']} with cost ${node['Total Cost']}`);
-        });
-      }
-
-      // Check for missing indexes
-      const missingIndexes = this.findPlanNodes(plan, node => {
-        return node['Index Cond'] === undefined &&
-               node['Node Type'] === 'Index Scan' &&
-               node['Relation Name'] !== undefined;
-      });
-
-      if (missingIndexes.length > 0) {
-        logger.warn(`Query may benefit from additional indexes (${missingIndexes.length} missing)`);
-        missingIndexes.forEach(node => {
-          logger.debug(`Missing index on ${node['Relation Name']}`);
-        });
-      }
-
-      // Check for large result sets
-      if (plan['Plan']['Actual Rows'] && plan['Plan']['Actual Rows'] > 10000) {
-        logger.warn(`Query returns large result set (${plan['Plan']['Actual Rows']} rows)`);
-      }
-    } catch (err) {
-      logger.error(`Query plan analysis failed: ${err.message}`);
-    }
-  }
-
-  private findPlanNodes(plan: any, predicate: (node: any) => boolean): any[] {
-    const nodes: any[] = [];
-
-    const traverse = (node: any) => {
-      if (predicate(node)) {
-        nodes.push(node);
-      }
-
-      if (node['Plans']) {
-        node['Plans'].forEach(traverse);
-      }
-
-      if (node['Plan']) {
-        traverse(node['Plan']);
-      }
-    };
-
-    traverse(plan);
-    return nodes;
-  }
-
-  private async executeWithPlan<T>(text: string, params: any[] | undefined, plan: QueryPlan, queryId: string): Promise<QueryResult<T>> {
-    try {
-      // Apply query hints based on plan analysis
-      const hintedQuery = this.applyQueryHints(text, plan);
-
-      // Execute with connection from pool
-      const client = await this.pool.connect();
-      try {
-        // Set statement timeout based on query cost
-        const timeout = this.calculateTimeout(plan);
-        await client.query(`SET LOCAL statement_timeout = ${timeout}`);
-
-        // Execute query
-        const startTime = Date.now();
-        const result = await client.query(hintedQuery, params);
-        const duration = Date.now() - startTime;
-
-        // Log successful execution
-        logger.debug(`Query ${queryId} executed in ${duration}ms`);
-
-        return result;
-      } finally {
-        client.release();
-      }
-    } catch (err) {
-      logger.error(`Query execution failed for ${queryId}: ${err.message}`);
-      throw err;
-    }
-  }
-
-  private applyQueryHints(text: string, plan: QueryPlan): string {
-    // This is a simplified version - in production you might use pg_hint_plan
-    // or other PostgreSQL hint mechanisms
-
-    // Check if we should force index usage
-    const seqScans = this.findPlanNodes(plan, node => node['Node Type'] === 'Seq Scan');
-    if (seqScans.length > 0) {
-      // For each sequential scan, we might want to force an index
-      // This is database-specific and would require pg_hint_plan
-      logger.debug('Consider adding /*+ IndexScan(table_name index_name) */ hints');
-    }
-
-    return text;
-  }
-
-  private calculateTimeout(plan: QueryPlan): number {
-    // Base timeout
-    let timeout = 5000; // 5 seconds
-
-    // Adjust based on query cost
-    if (plan['Plan']['Total Cost']) {
-      const cost = plan['Plan']['Total Cost'];
-      if (cost > 10000) {
-        timeout = 30000; // 30 seconds for expensive queries
-      } else if (cost > 1000) {
-        timeout = 15000; // 15 seconds for moderately expensive queries
-      }
-    }
-
-    return timeout;
-  }
-
-  private enhanceError(err: Error, text: string, params?: any[]): Error {
-    const enhancedError = new Error(`Database query failed: ${err.message}`);
-    (enhancedError as any).originalError = err;
-    (enhancedError as any).query = {
-      text,
-      params,
-      timestamp: new Date()
-    };
-
-    return enhancedError;
-  }
-
-  public async batchQuery<T>(queries: QueryBatchItem[]): Promise<QueryResult<T>[]> {
-    const client = await this.pool.connect();
-    try {
-      await client.query('BEGIN');
-
-      const results: QueryResult<T>[] = [];
-      for (const query of queries) {
-        const result = await client.query(query.text, query.params);
-        results.push(result);
-      }
-
-      await client.query('COMMIT');
-      return results;
-    } catch (err) {
-      await client.query('ROLLBACK');
-      logger.error(`Batch query failed: ${err.message}`);
-      throw err;
-    } finally {
-      client.release();
-    }
-  }
-
-  public async getConnectionStats(): Promise<ConnectionStats> {
-    return this.connectionMetrics.getStats();
-  }
-
-  private generateCacheKey(text: string, params?: any[]): string {
-    // Create a consistent cache key
-    const paramString = params ? params.map(p => {
-      if (p === null || p === undefined) return 'null';
-      if (typeof p === 'object') return JSON.stringify(p);
-      return p.toString();
-    }).join(',') : '';
-
-    return `${text}:${paramString}`;
-  }
-
-  public async close(): Promise<void> {
-    await this.pool.end();
-  }
+export interface CustomerPreferences {
+  id: string;
+  customerId: string;
+  communicationPreferences: CommunicationPreferences;
+  vehiclePreferences: VehiclePreferences;
+  notificationPreferences: NotificationPreferences;
+  marketingPreferences: MarketingPreferences;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
-// Slow Query Logger with Analysis
-class SlowQueryLogger {
-  private readonly logFile: string;
-  private readonly analysisInterval: NodeJS.Timeout;
+export interface CommunicationPreferences {
+  preferredMethod: CommunicationMethod;
+  preferredLanguage: string;
+  preferredContactTime?: string;
+  doNotContact: boolean;
+}
 
-  constructor() {
-    this.logFile = path.join(__dirname, '..', 'logs', 'slow-queries.log');
-    this.ensureLogFileExists();
+export interface VehiclePreferences {
+  preferredMakes: string[];
+  preferredModels: string[];
+  preferredBodyStyles: BodyStyle[];
+  preferredFuelTypes: FuelType[];
+  priceRange?: PriceRange;
+}
 
-    // Set up periodic analysis
-    this.analysisInterval = setInterval(() => {
-      this.analyzeSlowQueries().catch(err => {
-        logger.error(`Slow query analysis failed: ${err.message}`);
-      });
-    }, 3600000); // Every hour
-  }
+export interface NotificationPreferences {
+  quoteUpdates: boolean;
+  orderStatus: boolean;
+  maintenanceReminders: boolean;
+  promotionalOffers: boolean;
+  surveyRequests: boolean;
+}
 
-  private ensureLogFileExists(): void {
-    if (!fs.existsSync(this.logFile)) {
-      fs.writeFileSync(this.logFile, '');
-    }
-  }
+export interface MarketingPreferences {
+  email: boolean;
+  sms: boolean;
+  pushNotifications: boolean;
+  directMail: boolean;
+}
 
-  public log(query: SlowQuery): void {
-    const logEntry = {
-      ...query,
-      timestamp: query.timestamp.toISOString(),
-      metadata: {
-        environment: process.env.NODE_ENV,
-        host: os.hostname()
-      }
-    };
+export interface CustomerInteraction {
+  id: string;
+  customerId: string;
+  type: InteractionType;
+  subject: string;
+  description: string;
+  date: Date;
+  duration?: number;
+  channel: InteractionChannel;
+  status: InteractionStatus;
+  assignedTo?: string;
+  notes?: string;
+  followUpDate?: Date;
+  createdAt: Date;
+  updatedAt: Date;
+}
 
-    fs.appendFile(this.logFile, JSON.stringify(logEntry) + '\n', (err) => {
-      if (err) {
-        logger.error(`Failed to log slow query: ${err.message}`);
-      }
-    });
-  }
+export interface CustomerSegment {
+  id: string;
+  name: string;
+  description: string;
+  criteria: string;
+  isActive: boolean;
+  createdAt: Date;
+  updatedAt: Date;
+}
 
-  private async analyzeSlowQueries(): Promise<void> {
-    try {
-      const data = await fs.promises.readFile(this.logFile, 'utf8');
-      const lines = data.split('\n').filter(line => line.trim() !== '');
-      const queries: SlowQuery[] = lines.map(line => JSON.parse(line));
+export interface CustomerSegmentAssignment {
+  id: string;
+  customerId: string;
+  segmentId: string;
+  createdAt: Date;
+}
 
-      if (queries.length === 0) return;
+export interface RelatedEntity {
+  id: string;
+  interactionId: string;
+  type: RelatedEntityType;
+  entityId: string;
+  name: string;
+}
 
-      // Group by query pattern
-      const queryPatterns = this.groupByPattern(queries);
+export interface Attachment {
+  id: string;
+  interactionId: string;
+  name: string;
+  type: string;
+  size: number;
+  url: string;
+  createdAt: Date;
+}
 
-      // Find most common slow queries
-      const sortedPatterns = Object.entries(queryPatterns)
-        .sort((a, b) => b[1].count - a[1].count)
-        .slice(0, 5);
+export interface PriceRange {
+  min: number;
+  max: number;
+}
 
-      // Log analysis results
-      logger.info('Top 5 slow query patterns:');
-      sortedPatterns.forEach(([pattern, stats]) => {
-        logger.info(`- ${pattern}: ${stats.count} occurrences, avg ${stats.avgDuration}ms`);
-      });
+export enum CustomerType {
+  INDIVIDUAL = 'INDIVIDUAL',
+  BUSINESS = 'BUSINESS',
+  FLEET = 'FLEET',
+  GOVERNMENT = 'GOVERNMENT'
+}
 
-      // Find queries with highest impact
-      const highestImpact = queries
-        .sort((a, b) => b.duration - a.duration)
-        .slice(0, 3);
+export enum CustomerStatus {
+  ACTIVE = 'ACTIVE',
+  INACTIVE = 'INACTIVE',
+  PROSPECT = 'PROSPECT',
+  BLACKLISTED = 'BLACKLISTED'
+}
 
-      logger.info('Highest impact slow queries:');
-      highestImpact.forEach(query => {
-        logger.info(`- ${query.queryId}: ${query.duration}ms, ${query.text.substring(0, 50)}...`);
-      });
+export enum InteractionType {
+  CALL = 'CALL',
+  EMAIL = 'EMAIL',
+  MEETING = 'MEETING',
+  CHAT = 'CHAT',
+  VISIT = 'VISIT',
+  TEST_DRIVE = 'TEST_DRIVE',
+  SERVICE = 'SERVICE',
+  COMPLAINT = 'COMPLAINT',
+  FEEDBACK = 'FEEDBACK'
+}
 
-    } catch (err) {
-      logger.error(`Slow query analysis failed: ${err.message}`);
-    }
-  }
+export enum InteractionChannel {
+  PHONE = 'PHONE',
+  EMAIL = 'EMAIL',
+  IN_PERSON = 'IN_PERSON',
+  VIDEO = 'VIDEO',
+  CHAT = 'CHAT',
+  SOCIAL_MEDIA = 'SOCIAL_MEDIA',
+  WEBSITE = 'WEBSITE'
+}
 
-  private groupByPattern(queries: SlowQuery[]): Record<string, { count: number; avgDuration: number }> {
-    const patterns: Record<string, { count: number; totalDuration: number }> = {};
+export enum InteractionStatus {
+  OPEN = 'OPEN',
+  IN_PROGRESS = 'IN_PROGRESS',
+  COMPLETED = 'COMPLETED',
+  CANCELLED = 'CANCELLED',
+  FOLLOW_UP_REQUIRED = 'FOLLOW_UP_REQUIRED'
+}
 
-    queries.forEach(query => {
-      // Normalize query text
-      const normalized = query.text
-        .replace(/\s+/g, ' ')
-        .replace(/\$\d+/g, '?')
-        .replace(/IN \(\?\)/g, 'IN (...)');
+export enum CommunicationMethod {
+  EMAIL = 'EMAIL',
+  PHONE = 'PHONE',
+  SMS = 'SMS',
+  MAIL = 'MAIL',
+  IN_APP = 'IN_APP'
+}
 
-      if (!patterns[normalized]) {
-        patterns[normalized] = { count: 0, totalDuration: 0 };
-      }
-
-      patterns[normalized].count++;
-      patterns[normalized].totalDuration += query.duration;
-    });
-
-    // Convert to average duration
-    const result: Record<string, { count: number; avgDuration: number }> = {};
-    for (const [pattern, stats] of Object.entries(patterns)) {
-      result[pattern] = {
-        count: stats.count,
-        avgDuration: Math.round(stats.totalDuration / stats.count)
-      };
-    }
-
-    return result;
-  }
-
-  public async getSlowQueries(limit: number = 100): Promise<SlowQuery[]> {
-    try {
-      const data = await fs.promises.readFile(this.logFile, 'utf8');
-      const lines = data.split('\n').filter(line => line.trim() !== '');
-      return lines
-        .map(line => JSON.parse(line))
-        .sort((a, b) => b.duration - a.duration)
-        .slice(0, limit);
-    } catch (err) {
-      logger.error(`Failed to read slow queries: ${err.message}`);
-      return [];
-    }
-  }
+export enum RelatedEntityType {
+  VEHICLE = 'VEHICLE',
+  QUOTE = 'QUOTE',
+  ORDER = 'ORDER',
+  SERVICE_REQUEST = 'SERVICE_REQUEST',
+  COMPLAINT = 'COMPLAINT',
+  OPPORTUNITY = 'OPPORTUNITY'
 }
 ```
 
-### API Response Compression (30+ lines)
+**State Management Approach:**
 
-```typescript
-// Advanced API Response Compression Middleware
-class ResponseCompressionMiddleware {
-  private readonly compression: Compression;
-  private readonly brotliOptions: BrotliOptions;
-  private readonly gzipOptions: ZlibOptions;
-  private readonly metrics: CompressionMetrics;
-  private readonly contentTypePatterns: RegExp[];
+1. **Database State**: Primary source of truth for all customer data
+2. **Cache State**: Redis cache for frequently accessed customer profiles
+3. **Search Index**: Azure Cognitive Search for customer search and segmentation
+4. **Event Sourcing**: For customer profile changes and interaction history
+5. **Materialized Views**: For performance-critical queries (customer 360 view)
 
-  constructor() {
-    // Initialize metrics
-    this.metrics = new CompressionMetrics();
+**Error Handling and Resilience Patterns:**
 
-    // Configure Brotli
-    this.brotliOptions = {
-      [zlib.constants.BROTLI_PARAM_QUALITY]: 6, // Balance between speed and compression
-      [zlib.constants.BROTLI_PARAM_SIZE_HINT]: 0,
-      [zlib.constants.BROTLI_PARAM_MODE]: zlib.constants.BROTLI_MODE_TEXT
-    };
+1. **Circuit Breaker**: For database and external service calls
+2. **Retry Policies**: With exponential backoff for transient failures
+3. **Fallback Mechanisms**: Return cached data when primary service fails
+4. **Bulkhead Pattern**: Isolate failures to prevent cascading outages
+5. **Timeouts**: Prevent hanging requests
+6. **Validation**: Comprehensive input validation
+7. **Dead Letter Queue**: For failed events
 
-    // Configure Gzip
-    this.gzipOptions = {
-      level: zlib.constants.Z_BEST_COMPRESSION,
-      memLevel: 9,
-      strategy: zlib.constants.Z_DEFAULT_STRATEGY,
-      windowBits: 15
-    };
+### 2.3 Infrastructure Architecture
 
-    // Initialize compression middleware
-    this.compression = compression({
-      filter: this.shouldCompress.bind(this),
-      threshold: 1024, // 1KB
-      brotli: this.brotliOptions,
-      gzip: this.gzipOptions,
-      deflate: false // We'll only use Brotli and Gzip
-    });
+**Container Orchestration (Kubernetes Manifests):**
 
-    // Content types that should be compressed
-    this.contentTypePatterns = [
-      /^application\/json$/i,
-      /^application\/javascript$/i,
-      /^text\//i,
-      /^application\/xml$/i,
-      /^application\/vnd\.api\+json$/i,
-      /^image\/svg\+xml$/i
-    ];
-  }
-
-  public middleware(): (req: Request, res: Response, next: NextFunction) => void {
-    return (req: Request, res: Response, next: NextFunction) => {
-      // Wrap the response to track compression
-      const originalWrite = res.write;
-      const originalEnd = res.end;
-      const originalSetHeader = res.setHeader;
-
-      let compressionUsed: 'brotli' | 'gzip' | null = null;
-      let originalSize = 0;
-      let compressedSize = 0;
-      const startTime = Date.now();
-
-      // Track response size
-      res.write = function(chunk: any, ...args: any[]): boolean {
-        if (chunk) {
-          originalSize += chunk.length;
-        }
-        return originalWrite.apply(res, [chunk, ...args]);
-      };
-
-      // Track when response ends
-      res.end = function(chunk: any, ...args: any[]): void {
-        if (chunk) {
-          originalSize += chunk.length;
-        }
-
-        // Get compression type from headers
-        const contentEncoding = res.getHeader('Content-Encoding');
-        if (contentEncoding === 'br') {
-          compressionUsed = 'brotli';
-        } else if (contentEncoding === 'gzip') {
-          compressionUsed = 'gzip';
-        }
-
-        // Calculate compression ratio
-        if (compressionUsed && originalSize > 0) {
-          compressedSize = res.getHeader('Content-Length') as number || 0;
-          const ratio = compressedSize / originalSize;
-
-          this.metrics.recordCompression({
-            type: compressionUsed,
-            originalSize,
-            compressedSize,
-            ratio,
-            duration: Date.now() - startTime,
-            contentType: res.getHeader('Content-Type') as string,
-            statusCode: res.statusCode
-          });
-        }
-
-        originalEnd.apply(res, [chunk, ...args]);
-      }.bind(this);
-
-      // Track header changes
-      res.setHeader = function(name: string, value: any): void {
-        if (name.toLowerCase() === 'content-encoding') {
-          if (value === 'br') {
-            compressionUsed = 'brotli';
-          } else if (value === 'gzip') {
-            compressionUsed = 'gzip';
-          }
-        }
-        originalSetHeader.apply(res, [name, value]);
-      };
-
-      // Apply compression middleware
-      this.compression(req, res, next);
-    };
-  }
-
-  private shouldCompress(req: Request, res: Response): boolean {
-    // Don't compress if already compressed
-    if (req.headers['x-no-compression']) {
-      return false;
-    }
-
-    // Don't compress if client doesn't accept compression
-    const acceptEncoding = req.headers['accept-encoding'] || '';
-    if (!acceptEncoding.includes('br') && !acceptEncoding.includes('gzip')) {
-      return false;
-    }
-
-    // Check content type
-    const contentType = res.getHeader('Content-Type') as string;
-    if (!contentType) {
-      return false;
-    }
-
-    // Check if content type matches our patterns
-    const shouldCompress = this.contentTypePatterns.some(pattern =>
-      pattern.test(contentType)
-    );
-
-    if (!shouldCompress) {
-      return false;
-    }
-
-    // Check if response is already small
-    const contentLength = res.getHeader('Content-Length');
-    if (contentLength && Number(contentLength) < 1024) {
-      return false;
-    }
-
-    return true;
-  }
-
-  public getMetrics(): CompressionMetricsSnapshot {
-    return this.metrics.getSnapshot();
-  }
-}
-
-// Compression Metrics Tracking
-class CompressionMetrics {
-  private readonly metrics: {
-    brotli: CompressionStats;
-    gzip: CompressionStats;
-    uncompressed: number;
-    timestamps: number[];
-  };
-
-  constructor() {
-    this.metrics = {
-      brotli: {
-        count: 0,
-        totalOriginalSize: 0,
-        totalCompressedSize: 0,
-        totalDuration: 0
-      },
-      gzip: {
-        count: 0,
-        totalOriginalSize: 0,
-        totalCompressedSize: 0,
-        totalDuration: 0
-      },
-      uncompressed: 0,
-      timestamps: []
-    };
-  }
-
-  public recordCompression(compression: CompressionRecord): void {
-    if (compression.type === 'brotli') {
-      this.metrics.brotli.count++;
-      this.metrics.brotli.totalOriginalSize += compression.originalSize;
-      this.metrics.brotli.totalCompressedSize += compression.compressedSize;
-      this.metrics.brotli.totalDuration += compression.duration;
-    } else if (compression.type === 'gzip') {
-      this.metrics.gzip.count++;
-      this.metrics.gzip.totalOriginalSize += compression.originalSize;
-      this.metrics.gzip.totalCompressedSize += compression.compressedSize;
-      this.metrics.gzip.totalDuration += compression.duration;
-    } else {
-      this.metrics.uncompressed++;
-    }
-
-    this.metrics.timestamps.push(Date.now());
-    // Keep only last 1000 timestamps
-    if (this.metrics.timestamps.length > 1000) {
-      this.metrics.timestamps.shift();
-    }
-  }
-
-  public getSnapshot(): CompressionMetricsSnapshot {
-    const now = Date.now();
-    const timeWindow = 5 * 60 * 1000; // 5 minutes
-    const recentTimestamps = this.metrics.timestamps.filter(ts => now - ts <= timeWindow);
-
-    return {
-      brotli: this.calculateStats(this.metrics.brotli),
-      gzip: this.calculateStats(this.metrics.gzip),
-      uncompressed: this.metrics.uncompressed,
-      recentRequestsPerSecond: recentTimestamps.length / (timeWindow / 1000)
-    };
-  }
-
-  private calculateStats(stats: CompressionStats): CompressionStatsSnapshot {
-    if (stats.count === 0) {
-      return {
-        count: 0,
-        avgOriginalSize: 0,
-        avgCompressedSize: 0,
-        avgRatio: 0,
-        avgDuration: 0
-      };
-    }
-
-    return {
-      count: stats.count,
-      avgOriginalSize: Math.round(stats.totalOriginalSize / stats.count),
-      avgCompressedSize: Math.round(stats.totalCompressedSize / stats.count),
-      avgRatio: stats.totalCompressedSize / stats.totalOriginalSize,
-      avgDuration: Math.round(stats.totalDuration / stats.count)
-    };
-  }
-}
+```yaml
+# namespace.yaml
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: showroom-sales
+  labels:
+    name: showroom-sales
+    istio-injection: enabled
 ```
 
-### Lazy Loading Implementation (40+ lines)
-
-```typescript
-// Advanced Lazy Loading Service with Intersection Observer
-class LazyLoadingService {
-  private readonly observer: IntersectionObserver;
-  private readonly observedElements: Map<Element, LazyLoadConfig>;
-  private readonly preloadQueue: PriorityQueue<LazyLoadItem>;
-  private readonly metrics: LazyLoadMetrics;
-  private readonly preloadCache: Map<string, Promise<any>>;
-  private readonly preloadStrategies: Record<string, PreloadStrategy>;
-
-  constructor() {
-    // Initialize metrics
-    this.metrics = new LazyLoadMetrics();
-
-    // Initialize preload queue with priority
-    this.preloadQueue = new PriorityQueue<LazyLoadItem>({
-      comparator: (a, b) => b.priority - a.priority
-    });
-
-    // Initialize cache for preloaded resources
-    this.preloadCache = new Map();
-
-    // Configure preload strategies
-    this.preloadStrategies = {
-      image: this.preloadImage.bind(this),
-      component: this.preloadComponent.bind(this),
-      data: this.preloadData.bind(this),
-      iframe: this.preloadIframe.bind(this)
-    };
-
-    // Configure Intersection Observer
-    this.observer = new IntersectionObserver(
-      this.handleIntersection.bind(this),
-      {
-        root: null,
-        rootMargin: '200px',
-        threshold: [0, 0.25, 0.5, 0.75, 1.0]
-      }
-    );
-
-    // Set up periodic processing of preload queue
-    setInterval(() => this.processPreloadQueue(), 100);
-  }
-
-  public observe(element: Element, config: LazyLoadConfig): void {
-    if (this.observedElements.has(element)) {
-      return;
-    }
-
-    // Store element with its config
-    this.observedElements.set(element, config);
-
-    // Start observing
-    this.observer.observe(element);
-
-    // Record observation
-    this.metrics.recordObservation(config.type);
-  }
-
-  public unobserve(element: Element): void {
-    if (!this.observedElements.has(element)) {
-      return;
-    }
-
-    // Stop observing
-    this.observer.unobserve(element);
-
-    // Remove from observed elements
-    this.observedElements.delete(element);
-  }
-
-  private handleIntersection(entries: IntersectionObserverEntry[]): void {
-    entries.forEach(entry => {
-      const element = entry.target;
-      const config = this.observedElements.get(element);
-
-      if (!config) {
-        this.unobserve(element);
-        return;
-      }
-
-      // Calculate visibility percentage
-      const visibility = this.calculateVisibility(entry);
-
-      // Update metrics
-      this.metrics.recordVisibility(config.type, visibility);
-
-      // Check if we should load
-      if (this.shouldLoad(entry, config)) {
-        // Load the resource
-        this.loadResource(element, config);
-
-        // Unobserve after loading
-        this.unobserve(element);
-      } else if (visibility > 0.1 && config.preload) {
-        // Add to preload queue if not already there
-        this.addToPreloadQueue(element, config, visibility);
-      }
-    });
-  }
-
-  private calculateVisibility(entry: IntersectionObserverEntry): number {
-    const { intersectionRatio, intersectionRect, boundingClientRect } = entry;
-
-    // If fully visible, use intersectionRatio
-    if (intersectionRatio === 1) {
-      return 1;
-    }
-
-    // Calculate area-based visibility
-    const visibleArea = intersectionRect.width * intersectionRect.height;
-    const totalArea = boundingClientRect.width * boundingClientRect.height;
-
-    return visibleArea / totalArea;
-  }
-
-  private shouldLoad(entry: IntersectionObserverEntry, config: LazyLoadConfig): boolean {
-    // Always load if fully visible
-    if (entry.isIntersecting && entry.intersectionRatio === 1) {
-      return true;
-    }
-
-    // Check if we've crossed the threshold
-    if (entry.isIntersecting && entry.intersectionRatio >= (config.threshold || 0.5)) {
-      return true;
-    }
-
-    // Check if we're close enough and moving toward the viewport
-    if (entry.isIntersecting && entry.intersectionRatio > 0.1) {
-      // Check if we're moving toward the viewport
-      const previousEntry = this.getPreviousEntry(entry.target);
-      if (previousEntry) {
-        const currentRatio = entry.intersectionRatio;
-        const previousRatio = previousEntry.intersectionRatio;
-
-        // If we're getting closer to full visibility, load
-        if (currentRatio > previousRatio) {
-          return true;
-        }
-      }
-    }
-
-    return false;
-  }
-
-  private getPreviousEntry(target: Element): IntersectionObserverEntry | null {
-    // This would be implemented with a map tracking previous entries
-    // For simplicity, we'll return null here
-    return null;
-  }
-
-  private async loadResource(element: Element, config: LazyLoadConfig): Promise<void> {
-    const startTime = Date.now();
-    this.metrics.recordLoadStart(config.type);
-
-    try {
-      switch (config.type) {
-        case 'image':
-          await this.loadImage(element as HTMLImageElement, config);
-          break;
-        case 'component':
-          await this.loadComponent(element, config);
-          break;
-        case 'data':
-          await this.loadData(element, config);
-          break;
-        case 'iframe':
-          await this.loadIframe(element as HTMLIFrameElement, config);
-          break;
-        default:
-          logger.warn(`Unknown lazy load type: ${config.type}`);
-      }
-
-      this.metrics.recordLoadSuccess(config.type, Date.now() - startTime);
-    } catch (err) {
-      logger.error(`Failed to load ${config.type}: ${err.message}`);
-      this.metrics.recordLoadError(config.type, Date.now() - startTime);
-
-      // Apply fallback if available
-      if (config.fallback) {
-        this.applyFallback(element, config);
-      }
-    }
-  }
-
-  private async loadImage(element: HTMLImageElement, config: LazyLoadConfig): Promise<void> {
-    return new Promise((resolve, reject) => {
-      // Check if already loaded
-      if (element.complete) {
-        resolve();
-        return;
-      }
-
-      // Set up event listeners
-      const onLoad = () => {
-        element.removeEventListener('load', onLoad);
-        element.removeEventListener('error', onError);
-        resolve();
-      };
-
-      const onError = (err: ErrorEvent) => {
-        element.removeEventListener('load', onLoad);
-        element.removeEventListener('error', onError);
-        reject(new Error(`Image load failed: ${err.message}`));
-      };
-
-      element.addEventListener('load', onLoad);
-      element.addEventListener('error', onError);
-
-      // Set src if not already set
-      if (!element.src && config.src) {
-        element.src = config.src;
-      }
-
-      // Set srcset if available
-      if (config.srcset && !element.srcset) {
-        element.srcset = config.srcset;
-      }
-
-      // Set sizes if available
-      if (config.sizes && !element.sizes) {
-        element.sizes = config.sizes;
-      }
-    });
-  }
-
-  private async loadComponent(element: Element, config: LazyLoadConfig): Promise<void> {
-    if (!config.componentName) {
-      throw new Error('Component name is required for component lazy loading');
-    }
-
-    // Check cache first
-    const cacheKey = `component:${config.componentName}`;
-    if (this.preloadCache.has(cacheKey)) {
-      const component = await this.preloadCache.get(cacheKey);
-      this.renderComponent(element, component);
-      return;
-    }
-
-    // Load component
-    const component = await this.loadComponentModule(config.componentName);
-    this.renderComponent(element, component);
-
-    // Cache for future use
-    this.preloadCache.set(cacheKey, Promise.resolve(component));
-  }
-
-  private async loadComponentModule(componentName: string): Promise<any> {
-    try {
-      // In a real implementation, this would use dynamic imports
-      // For example: return import(`./components/${componentName}.js`);
-      return Promise.resolve({});
-    } catch (err) {
-      logger.error(`Failed to load component ${componentName}: ${err.message}`);
-      throw err;
-    }
-  }
-
-  private renderComponent(element: Element, component: any): void {
-    // In a real implementation, this would render the component
-    // into the element
-    element.innerHTML = `<div>Component ${component.name} loaded</div>`;
-  }
-
-  private async loadData(element: Element, config: LazyLoadConfig): Promise<void> {
-    if (!config.dataUrl) {
-      throw new Error('Data URL is required for data lazy loading');
-    }
-
-    // Check cache first
-    const cacheKey = `data:${config.dataUrl}`;
-    if (this.preloadCache.has(cacheKey)) {
-      const data = await this.preloadCache.get(cacheKey);
-      this.renderData(element, data);
-      return;
-    }
-
-    // Load data
-    const data = await this.fetchData(config.dataUrl);
-    this.renderData(element, data);
-
-    // Cache for future use
-    this.preloadCache.set(cacheKey, Promise.resolve(data));
-  }
-
-  private async fetchData(url: string): Promise<any> {
-    try {
-      const response = await fetch(url);
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      return await response.json();
-    } catch (err) {
-      logger.error(`Failed to fetch data from ${url}: ${err.message}`);
-      throw err;
-    }
-  }
-
-  private renderData(element: Element, data: any): void {
-    // In a real implementation, this would render the data
-    // into the element
-    element.innerHTML = `<pre>${JSON.stringify(data, null, 2)}</pre>`;
-  }
-
-  private async loadIframe(element: HTMLIFrameElement, config: LazyLoadConfig): Promise<void> {
-    return new Promise((resolve, reject) => {
-      // Check if already loaded
-      if (element.contentDocument?.readyState === 'complete') {
-        resolve();
-        return;
-      }
-
-      // Set up event listeners
-      const onLoad = () => {
-        element.removeEventListener('load', onLoad);
-        element.removeEventListener('error', onError);
-        resolve();
-      };
-
-      const onError = (err: ErrorEvent) => {
-        element.removeEventListener('load', onLoad);
-        element.removeEventListener('error', onError);
-        reject(new Error(`Iframe load failed: ${err.message}`));
-      };
-
-      element.addEventListener('load', onLoad);
-      element.addEventListener('error', onError);
-
-      // Set src if not already set
-      if (!element.src && config.src) {
-        element.src = config.src;
-      }
-    });
-  }
-
-  private addToPreloadQueue(element: Element, config: LazyLoadConfig, visibility: number): void {
-    // Calculate priority based on visibility and type
-    const priority = this.calculatePreloadPriority(config, visibility);
-
-    // Check if already in queue
-    const existingItem = Array.from(this.preloadQueue.heap).find(
-      item => item.element === element
-    );
-
-    if (existingItem) {
-      // Update priority if higher
-      if (priority > existingItem.priority) {
-        existingItem.priority = priority;
-        this.preloadQueue.heapify();
-      }
-      return;
-    }
-
-    // Add to queue
-    this.preloadQueue.queue({
-      element,
-      config,
-      priority,
-      addedAt: Date.now()
-    });
-
-    this.metrics.recordPreloadQueued(config.type);
-  }
-
-  private calculatePreloadPriority(config: LazyLoadConfig, visibility: number): number {
-    // Base priority based on type
-    let priority = 0;
-    switch (config.type) {
-      case 'image':
-        priority = 3;
-        break;
-      case 'component':
-        priority = 4;
-        break;
-      case 'data':
-        priority = 2;
-        break;
-      case 'iframe':
-        priority = 1;
-        break;
-    }
-
-    // Adjust based on visibility
-    priority *= (1 + visibility);
-
-    // Adjust based on preload setting
-    if (config.preload === 'high') {
-      priority *= 2;
-    } else if (config.preload === 'low') {
-      priority *= 0.5;
-    }
-
-    return priority;
-  }
-
-  private async processPreloadQueue(): Promise<void> {
-    if (this.preloadQueue.length === 0) {
-      return;
-    }
-
-    // Process up to 3 items at a time
-    const batchSize = 3;
-    const itemsToProcess: LazyLoadItem[] = [];
-
-    for (let i = 0; i < batchSize && this.preloadQueue.length > 0; i++) {
-      const item = this.preloadQueue.dequeue();
-      if (item) {
-        itemsToProcess.push(item);
-      }
-    }
-
-    // Process each item
-    await Promise.all(itemsToProcess.map(async item => {
-      try {
-        // Check if element is still in DOM
-        if (!document.contains(item.element)) {
-          this.metrics.recordPreloadAbandoned(item.config.type);
-          return;
-        }
-
-        // Check if already loaded
-        if (this.isLoaded(item.element, item.config)) {
-          this.metrics.recordPreloadUnnecessary(item.config.type);
-          return;
-        }
-
-        // Preload based on type
-        const strategy = this.preloadStrategies[item.config.type];
-        if (strategy) {
-          await strategy(item.element, item.config);
-          this.metrics.recordPreloadSuccess(item.config.type);
-        }
-      } catch (err) {
-        logger.error(`Preload failed for ${item.config.type}: ${err.message}`);
-        this.metrics.recordPreloadError(item.config.type);
-      }
-    }));
-  }
-
-  private isLoaded(element: Element, config: LazyLoadConfig): boolean {
-    switch (config.type) {
-      case 'image':
-        return (element as HTMLImageElement).complete;
-      case 'component':
-        return element.innerHTML.includes(`Component ${config.componentName} loaded`);
-      case 'data':
-        return element.innerHTML.includes('pre>');
-      case 'iframe':
-        return (element as HTMLIFrameElement).contentDocument?.readyState === 'complete';
-      default:
-        return false;
-    }
-  }
-
-  private async preloadImage(element: HTMLImageElement, config: LazyLoadConfig): Promise<void> {
-    if (!config.src) {
-      return;
-    }
-
-    // Create a new Image object to preload
-    const img = new Image();
-    img.src = config.src;
-
-    // Set srcset if available
-    if (config.srcset) {
-      img.srcset = config.srcset;
-    }
-
-    // Set sizes if available
-    if (config.sizes) {
-      img.sizes = config.sizes;
-    }
-
-    // Wait for load or error
-    await new Promise<void>((resolve, reject) => {
-      img.onload = () => resolve();
-      img.onerror = () => reject(new Error('Image preload failed'));
-    });
-  }
-
-  private async preloadComponent(element: Element, config: LazyLoadConfig): Promise<void> {
-    if (!config.componentName) {
-      return;
-    }
-
-    // Check cache first
-    const cacheKey = `component:${config.componentName}`;
-    if (this.preloadCache.has(cacheKey)) {
-      return;
-    }
-
-    // Preload component
-    const component = await this.loadComponentModule(config.componentName);
-
-    // Cache for future use
-    this.preloadCache.set(cacheKey, Promise.resolve(component));
-  }
-
-  private async preloadData(element: Element, config: LazyLoadConfig): Promise<void> {
-    if (!config.dataUrl) {
-      return;
-    }
-
-    // Check cache first
-    const cacheKey = `data:${config.dataUrl}`;
-    if (this.preloadCache.has(cacheKey)) {
-      return;
-    }
-
-    // Preload data
-    const data = await this.fetchData(config.dataUrl);
-
-    // Cache for future use
-    this.preloadCache.set(cacheKey, Promise.resolve(data));
-  }
-
-  private async preloadIframe(element: HTMLIFrameElement, config: LazyLoadConfig): Promise<void> {
-    if (!config.src) {
-      return;
-    }
-
-    // Create a new iframe to preload
-    const iframe = document.createElement('iframe');
-    iframe.src = config.src;
-
-    // Add to DOM temporarily
-    iframe.style.display = 'none';
-    document.body.appendChild(iframe);
-
-    // Wait for load or error
-    await new Promise<void>((resolve, reject) => {
-      iframe.onload = () => {
-        document.body.removeChild(iframe);
-        resolve();
-      };
-      iframe.onerror = () => {
-        document.body.removeChild(iframe);
-        reject(new Error('Iframe preload failed'));
-      };
-    });
-  }
-
-  private applyFallback(element: Element, config: LazyLoadConfig): void {
-    if (!config.fallback) {
-      return;
-    }
-
-    switch (config.type) {
-      case 'image':
-        (element as HTMLImageElement).src = config.fallback;
-        break;
-      case 'component':
-        element.innerHTML = config.fallback;
-        break;
-      case 'data':
-        element.innerHTML = config.fallback;
-        break;
-      case 'iframe':
-        (element as HTMLIFrameElement).src = config.fallback;
-        break;
-    }
-  }
-
-  public getMetrics(): LazyLoadMetricsSnapshot {
-    return this.metrics.getSnapshot();
-  }
-
-  public disconnect(): void {
-    this.observer.disconnect();
-    clearInterval(this.processPreloadQueue as any);
-  }
-}
-
-// Priority Queue Implementation
-class PriorityQueue<T> {
-  public heap: T[];
-  private comparator: (a: T, b: T) => number;
-
-  constructor({ comparator }: { comparator: (a: T, b: T) => number }) {
-    this.heap = [];
-    this.comparator = comparator;
-  }
-
-  public queue(value: T): void {
-    this.heap.push(value);
-    this.heapifyUp();
-  }
-
-  public dequeue(): T | undefined {
-    if (this.length === 0) {
-      return undefined;
-    }
-
-    const root = this.heap[0];
-    const last = this.heap.pop();
-
-    if (this.length > 0 && last !== undefined) {
-      this.heap[0] = last;
-      this.heapifyDown();
-    }
-
-    return root;
-  }
-
-  public peek(): T | undefined {
-    return this.heap[0];
-  }
-
-  public get length(): number {
-    return this.heap.length;
-  }
-
-  private heapifyUp(): void {
-    let index = this.length - 1;
-
-    while (index > 0) {
-      const parentIndex = Math.floor((index - 1) / 2);
-
-      if (this.comparator(this.heap[index], this.heap[parentIndex]) >= 0) {
-        break;
-      }
-
-      [this.heap[index], this.heap[parentIndex]] = [this.heap[parentIndex], this.heap[index]];
-      index = parentIndex;
-    }
-  }
-
-  private heapifyDown(): void {
-    let index = 0;
-
-    while (true) {
-      const leftChildIndex = 2 * index + 1;
-      const rightChildIndex = 2 * index + 2;
-      let smallestChildIndex = index;
-
-      if (
-        leftChildIndex < this.length &&
-        this.comparator(this.heap[leftChildIndex], this.heap[smallestChildIndex]) < 0
-      ) {
-        smallestChildIndex = leftChildIndex;
-      }
-
-      if (
-        rightChildIndex < this.length &&
-        this.comparator(this.heap[rightChildIndex], this.heap[smallestChildIndex]) < 0
-      ) {
-        smallestChildIndex = rightChildIndex;
-      }
-
-      if (smallestChildIndex === index) {
-        break;
-      }
-
-      [this.heap[index], this.heap[smallestChildIndex]] = [this.heap[smallestChildIndex], this.heap[index]];
-      index = smallestChildIndex;
-    }
-  }
-}
+```yaml
+# vehicle-service/deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: vehicle-service
+  namespace: showroom-sales
+  labels:
+    app: vehicle-service
+    version: v1
+spec:
+  replicas: 3
+  strategy:
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+    type: RollingUpdate
+  selector:
+    matchLabels:
+      app: vehicle-service
+      version: v1
+  template:
+    metadata:
+      labels:
+        app: vehicle-service
+        version: v1
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "3000"
+    spec:
+      serviceAccountName: vehicle-service
+      containers:
+      - name: vehicle-service
+        image: fleetmanagement.azurecr.io/vehicle-service:v1.2.3
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 3000
+          name: http
+          protocol: TCP
+        env:
+        - name: NODE_ENV
+          value: production
+        - name: PORT
+          value: "3000"
+        - name: DATABASE_URL
+          valueFrom:
+            secretKeyRef:
+              name: vehicle-service-secrets
+              key: database-url
+        - name: REDIS_URL
+          valueFrom:
+            secretKeyRef:
+              name: vehicle-service-secrets
+              key: redis-url
+        - name: SEARCH_SERVICE_URL
+          value: http://search-service.showroom-sales.svc.cluster.local
+        - name: EVENT_HUB_CONNECTION_STRING
+          valueFrom:
+            secretKeyRef:
+              name: vehicle-service-secrets
+              key: event-hub-connection-string
+        - name: APPLICATIONINSIGHTS_CONNECTION_STRING
+          valueFrom:
+            secretKeyRef:
+              name: vehicle-service-secrets
+              key: appinsights-connection-string
+        resources:
+          requests:
+            cpu: "100m"
+            memory: "256Mi"
+          limits:
+            cpu: "500m"
+            memory: "512Mi"
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 3000
+          initialDelaySeconds: 30
+          periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 3
+        readinessProbe:
+          httpGet:
+            path: /ready
+            port: 3000
+          initialDelaySeconds: 5
+          periodSeconds: 5
+          timeoutSeconds: 3
+          failureThreshold: 3
+        securityContext:
+          runAsNonRoot: true
+          runAsUser: 1000
+          readOnlyRootFilesystem: true
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop: ["ALL"]
+      nodeSelector:
+        agentpool: application
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 100
+            podAffinityTerm:
+              labelSelector:
+                matchExpressions:
+                - key: app
+                  operator: In
+                  values:
+                  - vehicle-service
+              topologyKey: "kubernetes.io/hostname"
 ```
 
-### Request Debouncing (30+ lines)
-
-```typescript
-// Advanced Request Debouncer with Adaptive Throttling
-class RequestDebouncer {
-  private readonly debounceTimers: Map<string, NodeJS.Timeout>;
-  private readonly throttleTimers: Map<string, NodeJS.Timeout>;
-  private readonly adaptiveDelays: Map<string, AdaptiveDelay>;
-  private readonly metrics: DebounceMetrics;
-  private readonly defaultDebounceTime: number;
-  private readonly defaultThrottleTime: number;
-  private readonly maxQueueSize: number;
-
-  constructor(options: DebouncerOptions = {}) {
-    this.debounceTimers = new Map();
-    this.throttleTimers = new Map();
-    this.adaptiveDelays = new Map();
-    this.metrics = new DebounceMetrics();
-    this.defaultDebounceTime = options.defaultDebounceTime || 300;
-    this.defaultThrottleTime = options.defaultThrottleTime || 1000;
-    this.maxQueueSize = options.maxQueueSize || 100;
-  }
-
-  public debounce<T extends any[]>(
-    key: string,
-    fn: (...args: T) => void,
-    options?: DebounceOptions
-  ): (...args: T) => void {
-    return (...args: T) => {
-      // Clear any existing timer
-      if (this.debounceTimers.has(key)) {
-        clearTimeout(this.debounceTimers.get(key));
-      }
-
-      // Get debounce time
-      const debounceTime = this.getAdaptiveDelay(key, options?.time || this.defaultDebounceTime);
-
-      // Set new timer
-      const timer = setTimeout(() => {
-        try {
-          fn(...args);
-          this.metrics.recordDebounceSuccess(key);
-          this.adjustAdaptiveDelay(key, true);
-        } catch (err) {
-          logger.error(`Debounced function failed for ${key}: ${err.message}`);
-          this.metrics.recordDebounceError(key);
-          this.adjustAdaptiveDelay(key, false);
-        } finally {
-          this.debounceTimers.delete(key);
-        }
-      }, debounceTime);
-
-      this.debounceTimers.set(key, timer);
-      this.metrics.recordDebounceCall(key);
-    };
-  }
-
-  public throttle<T extends any[]>(
-    key: string,
-    fn: (...args: T) => void,
-    options?: ThrottleOptions
-  ): (...args: T) => void {
-    return (...args: T) => {
-      // Check if we're currently throttled
-      if (this.throttleTimers.has(key)) {
-        this.metrics.recordThrottleRejected(key);
-        return;
-      }
-
-      // Get throttle time
-      const throttleTime = this.getAdaptiveDelay(key, options?.time || this.defaultThrottleTime);
-
-      // Execute immediately
-      try {
-        fn(...args);
-        this.metrics.recordThrottleSuccess(key);
-        this.adjustAdaptiveDelay(key, true);
-      } catch (err) {
-        logger.error(`Throttled function failed for ${key}: ${err.message}`);
-        this.metrics.recordThrottleError(key);
-        this.adjustAdaptiveDelay(key, false);
-      }
-
-      // Set timer to clear throttle
-      const timer = setTimeout(() => {
-        this.throttleTimers.delete(key);
-      }, throttleTime);
-
-      this.throttleTimers.set(key, timer);
-      this.metrics.recordThrottleCall(key);
-    };
-  }
-
-  public async debounceAsync<T extends any[], R>(
-    key: string,
-    fn: (...args: T) => Promise<R>,
-    options?: DebounceOptions
-  ): Promise<R | undefined> {
-    return new Promise((resolve, reject) => {
-      // Clear any existing timer
-      if (this.debounceTimers.has(key)) {
-        clearTimeout(this.debounceTimers.get(key));
-      }
-
-      // Get debounce time
-      const debounceTime = this.getAdaptiveDelay(key, options?.time || this.defaultDebounceTime);
-
-      // Set new timer
-      const timer = setTimeout(async () => {
-        try {
-          const result = await fn(...(options?.args as T));
-          this.metrics.recordDebounceSuccess(key);
-          this.adjustAdaptiveDelay(key, true);
-          resolve(result);
-        } catch (err) {
-          logger.error(`Debounced async function failed for ${key}: ${err.message}`);
-          this.metrics.recordDebounceError(key);
-          this.adjustAdaptiveDelay(key, false);
-          reject(err);
-        } finally {
-          this.debounceTimers.delete(key);
-        }
-      }, debounceTime);
-
-      this.debounceTimers.set(key, timer);
-      this.metrics.recordDebounceCall(key);
-    });
-  }
-
-  public queue<T extends any[], R>(
-    key: string,
-    fn: (...args: T) => Promise<R>,
-    options?: QueueOptions
-  ): Promise<R> {
-    return new Promise((resolve, reject) => {
-      // Check if we have a queue for this key
-      if (!this.adaptiveDelays.has(key)) {
-        this.adaptiveDelays.set(key, {
-          currentDelay: options?.initialDelay || 100,
-          successCount: 0,
-          errorCount: 0,
-          lastCallTime: 0,
-          queue: []
-        });
-      }
-
-      const adaptiveDelay = this.adaptiveDelays.get(key)!;
-
-      // Check queue size
-      if (adaptiveDelay.queue.length >= this.maxQueueSize) {
-        this.metrics.recordQueueRejected(key);
-        reject(new Error(`Queue for ${key} is full`));
-        return;
-      }
-
-      // Add to queue
-      adaptiveDelay.queue.push({
-        fn,
-        args: options?.args as T,
-        resolve,
-        reject,
-        enqueuedAt: Date.now()
-      });
-
-      this.metrics.recordQueueCall(key);
-
-      // Process queue if not already processing
-      if (adaptiveDelay.queue.length === 1) {
-        this.processQueue(key);
-      }
-    });
-  }
-
-  private async processQueue(key: string): Promise<void> {
-    const adaptiveDelay = this.adaptiveDelays.get(key);
-    if (!adaptiveDelay || adaptiveDelay.queue.length === 0) {
-      return;
-    }
-
-    const queueItem = adaptiveDelay.queue[0];
-
-    try {
-      // Calculate delay since last call
-      const now = Date.now();
-      const timeSinceLastCall = now - adaptiveDelay.lastCallTime;
-      const delay = Math.max(0, adaptiveDelay.currentDelay - timeSinceLastCall);
-
-      // Wait for the delay
-      if (delay > 0) {
-        await new Promise(resolve => setTimeout(resolve, delay));
-      }
-
-      // Execute the function
-      const result = await queueItem.fn(...queueItem.args);
-      queueItem.resolve(result);
-
-      this.metrics.recordQueueSuccess(key);
-      this.adjustAdaptiveDelay(key, true);
-    } catch (err) {
-      queueItem.reject(err);
-      this.metrics.recordQueueError(key);
-      this.adjustAdaptiveDelay(key, false);
-    } finally {
-      // Remove from queue
-      adaptiveDelay.queue.shift();
-      adaptiveDelay.lastCallTime = Date.now();
-
-      // Process next item
-      if (adaptiveDelay.queue.length > 0) {
-        this.processQueue(key);
-      }
-    }
-  }
-
-  private getAdaptiveDelay(key: string, defaultTime: number): number {
-    if (!this.adaptiveDelays.has(key)) {
-      return defaultTime;
-    }
-
-    const adaptiveDelay = this.adaptiveDelays.get(key)!;
-    return Math.min(
-      Math.max(adaptiveDelay.currentDelay, 50), // Minimum 50ms
-      defaultTime * 2 // Maximum 2x default
-    );
-  }
-
-  private adjustAdaptiveDelay(key: string, success: boolean): void {
-    if (!this.adaptiveDelays.has(key)) {
-      this.adaptiveDelays.set(key, {
-        currentDelay: this.defaultDebounceTime,
-        successCount: 0,
-        errorCount: 0,
-        lastCallTime: 0,
-        queue: []
-      });
-    }
-
-    const adaptiveDelay = this.adaptiveDelays.get(key)!;
-
-    if (success) {
-      adaptiveDelay.successCount++;
-      adaptiveDelay.errorCount = Math.max(0, adaptiveDelay.errorCount - 1);
-
-      // Decrease delay on success
-      if (adaptiveDelay.successCount >= 3) {
-        adaptiveDelay.currentDelay = Math.max(
-          50, // Minimum 50ms
-          adaptiveDelay.currentDelay * 0.8
-        );
-        adaptiveDelay.successCount = 0;
-      }
-    } else {
-      adaptiveDelay.errorCount++;
-      adaptiveDelay.successCount = Math.max(0, adaptiveDelay.successCount - 1);
-
-      // Increase delay on error
-      if (adaptiveDelay.errorCount >= 2) {
-        adaptiveDelay.currentDelay = Math.min(
-          this.defaultDebounceTime * 2, // Maximum 2x default
-          adaptiveDelay.currentDelay * 1.5
-        );
-        adaptiveDelay.errorCount = 0;
-      }
-    }
-  }
-
-  public getMetrics(): DebounceMetricsSnapshot {
-    return this.metrics.getSnapshot();
-  }
-
-  public clear(key: string): void {
-    if (this.debounceTimers.has(key)) {
-      clearTimeout(this.debounceTimers.get(key));
-      this.debounceTimers.delete(key);
-    }
-
-    if (this.throttleTimers.has(key)) {
-      clearTimeout(this.throttleTimers.get(key));
-      this.throttleTimers.delete(key);
-    }
-
-    if (this.adaptiveDelays.has(key)) {
-      const adaptiveDelay = this.adaptiveDelays.get(key)!;
-      adaptiveDelay.queue.forEach(item => item.reject(new Error('Debouncer cleared')));
-      this.adaptiveDelays.delete(key);
-    }
-  }
-
-  public clearAll(): void {
-    // Clear debounce timers
-    this.debounceTimers.forEach(timer => clearTimeout(timer));
-    this.debounceTimers.clear();
-
-    // Clear throttle timers
-    this.throttleTimers.forEach(timer => clearTimeout(timer));
-    this.throttleTimers.clear();
-
-    // Clear queues
-    this.adaptiveDelays.forEach(adaptiveDelay => {
-      adaptiveDelay.queue.forEach(item => item.reject(new Error('Debouncer cleared')));
-    });
-    this.adaptiveDelays.clear();
-  }
-}
-
-// Debounce Metrics Tracking
-class DebounceMetrics {
-  private readonly metrics: Record<string, {
-    debounce: {
-      calls: number;
-      successes: number;
-      errors: number;
-      rejections: number;
-    };
-    throttle: {
-      calls: number;
-      successes: number;
-      errors: number;
-      rejections: number;
-    };
-    queue: {
-      calls: number;
-      successes: number;
-      errors: number;
-      rejections: number;
-    };
-    timestamps: number[];
-  }>;
-
-  constructor() {
-    this.metrics = {};
-  }
-
-  public recordDebounceCall(key: string): void {
-    this.ensureKeyExists(key);
-    this.metrics[key].debounce.calls++;
-    this.recordTimestamp(key);
-  }
-
-  public recordDebounceSuccess(key: string): void {
-    this.ensureKeyExists(key);
-    this.metrics[key].debounce.successes++;
-  }
-
-  public recordDebounceError(key: string): void {
-    this.ensureKeyExists(key);
-    this.metrics[key].debounce.errors++;
-  }
-
-  public recordThrottleCall(key: string): void {
-    this.ensureKeyExists(key);
-    this.metrics[key].throttle.calls++;
-    this.recordTimestamp(key);
-  }
-
-  public recordThrottleSuccess(key: string): void {
-    this.ensureKeyExists(key);
-    this.metrics[key].throttle.successes++;
-  }
-
-  public recordThrottleError(key: string): void {
-    this.ensureKeyExists(key);
-    this.metrics[key].throttle.errors++;
-  }
-
-  public recordThrottleRejected(key: string): void {
-    this.ensureKeyExists(key);
-    this.metrics[key].throttle.rejections++;
-  }
-
-  public recordQueueCall(key: string): void {
-    this.ensureKeyExists(key);
-    this.metrics[key].queue.calls++;
-    this.recordTimestamp(key);
-  }
-
-  public recordQueueSuccess(key: string): void {
-    this.ensureKeyExists(key);
-    this.metrics[key].queue.successes++;
-  }
-
-  public recordQueueError(key: string): void {
-    this.ensureKeyExists(key);
-    this.metrics[key].queue.errors++;
-  }
-
-  public recordQueueRejected(key: string): void {
-    this.ensureKeyExists(key);
-    this.metrics[key].queue.rejections++;
-  }
-
-  private ensureKeyExists(key: string): void {
-    if (!this.metrics[key]) {
-      this.metrics[key] = {
-        debounce: { calls: 0, successes: 0, errors: 0, rejections: 0 },
-        throttle: { calls: 0, successes: 0, errors: 0, rejections: 0 },
-        queue: { calls: 0, successes: 0, errors: 0, rejections: 0 },
-        timestamps: []
-      };
-    }
-  }
-
-  private recordTimestamp(key: string): void {
-    this.metrics[key].timestamps.push(Date.now());
-    // Keep only last 1000 timestamps
-    if (this.metrics[key].timestamps.length > 1000) {
-      this.metrics[key].timestamps.shift();
-    }
-  }
-
-  public getSnapshot(): DebounceMetricsSnapshot {
-    const now = Date.now();
-    const timeWindow = 5 * 60 * 1000; // 5 minutes
-    const result: DebounceMetricsSnapshot = {};
-
-    for (const [key, metrics] of Object.entries(this.metrics)) {
-      const recentTimestamps = metrics.timestamps.filter(ts => now - ts <= timeWindow);
-
-      result[key] = {
-        debounce: {
-          calls: metrics.debounce.calls,
-          successRate: metrics.debounce.calls > 0
-            ? metrics.debounce.successes / metrics.debounce.calls
-            : 0,
-          errorRate: metrics.debounce.calls > 0
-            ? metrics.debounce.errors / metrics.debounce.calls
-            : 0
-        },
-        throttle: {
-          calls: metrics.throttle.calls,
-          successRate: metrics.throttle.calls > 0
-            ? metrics.throttle.successes / metrics.throttle.calls
-            : 0,
-          errorRate: metrics.throttle.calls > 0
-            ? metrics.throttle.errors / metrics.throttle.calls
-            : 0,
-          rejectionRate: metrics.throttle.calls > 0
-            ? metrics.throttle.rejections / metrics.throttle.calls
-            : 0
-        },
-        queue: {
-          calls: metrics.queue.calls,
-          successRate: metrics.queue.calls > 0
-            ? metrics.queue.successes / metrics.queue.calls
-            : 0,
-          errorRate: metrics.queue.calls > 0
-            ? metrics.queue.errors / metrics.queue.calls
-            : 0,
-          rejectionRate: metrics.queue.calls > 0
-            ? metrics.queue.rejections / metrics.queue.calls
-            : 0
-        },
-        recentCallsPerSecond: recentTimestamps.length / (timeWindow / 1000)
-      };
-    }
-
-    return result;
-  }
-}
+```yaml
+# vehicle-service/service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: vehicle-service
+  namespace: showroom-sales
+  labels:
+    app: vehicle-service
+    service: vehicle-service
+spec:
+  selector:
+    app: vehicle-service
+  ports:
+  - name: http
+    port: 80
+    targetPort: 3000
+  type: ClusterIP
 ```
 
-### Connection Pooling (30+ lines)
-
-```typescript
-// Advanced Database Connection Pool with Adaptive Scaling
-class AdaptiveConnectionPool {
-  private readonly pools: Map<string, Pool>;
-  private readonly poolMetrics: PoolMetrics;
-  private readonly adaptiveScaler: AdaptiveScaler;
-  private readonly connectionStrategies: Record<string, ConnectionStrategy>;
-  private readonly defaultPoolConfig: PoolConfig;
-
-  constructor() {
-    this.pools = new Map();
-    this.poolMetrics = new PoolMetrics();
-    this.adaptiveScaler = new AdaptiveScaler();
-
-    // Default pool configuration
-    this.defaultPoolConfig = {
-      max: 20,
-      min: 2,
-      idleTimeoutMillis: 30000,
-      connectionTimeoutMillis: 2000,
-      maxUses: 1000,
-      reapIntervalMillis: 1000,
-      log: (msg: string, level: string) => {
-        switch (level) {
-          case 'error':
-            logger.error(msg);
-            break;
-          case 'warn':
-            logger.warn(msg);
-            break;
-          case 'info':
-            logger.info(msg);
-            break;
-          case 'debug':
-            logger.debug(msg);
-            break;
-        }
-      }
-    };
-
-    // Connection strategies
-    this.connectionStrategies = {
-      postgres: this.createPostgresPool.bind(this),
-      mysql: this.createMysqlPool.bind(this),
-      mongodb: this.createMongodbPool.bind(this),
-      redis: this.createRedisPool.bind(this)
-    };
-  }
-
-  public async getConnection(dbKey: string): Promise<PooledConnection> {
-    const startTime = Date.now();
-    this.poolMetrics.recordConnectionRequest(dbKey);
-
-    try {
-      // Get or create pool
-      const pool = await this.getPool(dbKey);
-
-      // Get connection from pool
-      const connection = await pool.connect();
-
-      // Wrap connection with metrics
-      const wrappedConnection = this.wrapConnection(connection, dbKey);
-
-      this.poolMetrics.recordConnectionAcquire(dbKey, Date.now() - startTime);
-      return wrappedConnection;
-    } catch (err) {
-      this.poolMetrics.recordConnectionError(dbKey, Date.now() - startTime);
-      logger.error(`Failed to get connection for ${dbKey}: ${err.message}`);
-      throw err;
-    }
-  }
-
-  private async getPool(dbKey: string): Promise<Pool> {
-    // Check if pool exists
-    if (this.pools.has(dbKey)) {
-      return this.pools.get(dbKey)!;
-    }
-
-    // Get database configuration
-    const dbConfig = await this.getDatabaseConfig(dbKey);
-    if (!dbConfig) {
-      throw new Error(`Database configuration not found for ${dbKey}`);
-    }
-
-    // Create new pool
-    const pool = await this.createPool(dbKey, dbConfig);
-    this.pools.set(dbKey, pool);
-
-    // Set up event listeners
-    this.setupPoolListeners(pool, dbKey);
-
-    return pool;
-  }
-
-  private async getDatabaseConfig(dbKey: string): Promise<DatabaseConfig | null> {
-    try {
-      // In a real implementation, this would fetch from config service
-      // For this example, we'll return a mock config
-      const configs: Record<string, DatabaseConfig> = {
-        'primary': {
-          type: 'postgres',
-          connectionString: process.env.DATABASE_URL,
-          ssl: process.env.NODE_ENV === 'production'
-        },
-        'analytics': {
-          type: 'mongodb',
-          connectionString: process.env.MONGODB_URL,
-          database: 'analytics'
-        },
-        'cache': {
-          type: 'redis',
-          connectionString: process.env.REDIS_URL
-        }
-      };
-
-      return configs[dbKey] || null;
-    } catch (err) {
-      logger.error(`Failed to get database config for ${dbKey}: ${err.message}`);
-      return null;
-    }
-  }
-
-  private async createPool(dbKey: string, config: DatabaseConfig): Promise<Pool> {
-    // Get strategy based on database type
-    const strategy = this.connectionStrategies[config.type];
-    if (!strategy) {
-      throw new Error(`Unsupported database type: ${config.type}`);
-    }
-
-    // Create pool with adaptive configuration
-    const adaptiveConfig = this.adaptiveScaler.getPoolConfig(dbKey, this.defaultPoolConfig);
-    return strategy(config, adaptiveConfig);
-  }
-
-  private createPostgresPool(config: DatabaseConfig, poolConfig: PoolConfig): Pool {
-    return new Pool({
-      ...poolConfig,
-      connectionString: config.connectionString,
-      ssl: config.ssl ? { rejectUnauthorized: false } : false
-    });
-  }
-
-  private createMysqlPool(config: DatabaseConfig, poolConfig: PoolConfig): Pool {
-    const mysql = require('mysql2/promise');
-    return mysql.createPool({
-      ...poolConfig,
-      uri: config.connectionString,
-      ssl: config.ssl ? { rejectUnauthorized: false } : undefined
-    });
-  }
-
-  private createMongodbPool(config: DatabaseConfig, poolConfig: PoolConfig): Pool {
-    const { MongoClient } = require('mongodb');
-    const client = new MongoClient(config.connectionString, {
-      maxPoolSize: poolConfig.max,
-      minPoolSize: poolConfig.min,
-      maxIdleTimeMS: poolConfig.idleTimeoutMillis,
-      connectTimeoutMS: poolConfig.connectionTimeoutMillis
-    });
-
-    return {
-      connect: async () => {
-        await client.connect();
-        return client.db(config.database);
-      },
-      end: async () => {
-        await client.close();
-      }
-    } as Pool;
-  }
-
-  private createRedisPool(config: DatabaseConfig, poolConfig: PoolConfig): Pool {
-    const redis = require('redis');
-    const { promisify } = require('util');
-
-    return {
-      connect: async () => {
-        const client = redis.createClient({
-          url: config.connectionString,
-          socket: {
-            tls: config.ssl,
-            rejectUnauthorized: false
-          }
-        });
-
-        client.on('error', (err: Error) => {
-          logger.error(`Redis connection error: ${err.message}`);
-        });
-
-        await client.connect();
-        return {
-          query: promisify(client.sendCommand).bind(client),
-          release: () => client.quit(),
-          end: () => client.quit()
-        };
-      },
-      end: async () => {
-        // Redis client is ended when connection is released
-      }
-    } as Pool;
-  }
-
-  private setupPoolListeners(pool: Pool, dbKey: string): void {
-    pool.on('connect', () => {
-      this.poolMetrics.recordConnectionCreated(dbKey);
-    });
-
-    pool.on('acquire', () => {
-      this.poolMetrics.recordConnectionAcquired(dbKey);
-    });
-
-    pool.on('release', () => {
-      this.poolMetrics.recordConnectionReleased(dbKey);
-    });
-
-    pool.on('remove', () => {
-      this.poolMetrics.recordConnectionRemoved(dbKey);
-    });
-
-    pool.on('error', (err: Error) => {
-      logger.error(`Pool error for ${dbKey}: ${err.message}`);
-      this.poolMetrics.recordPoolError(dbKey);
-    });
-  }
-
-  private wrapConnection(connection: any, dbKey: string): PooledConnection {
-    const startTime = Date.now();
-    let queryCount = 0;
-    let released = false;
-
-    return {
-      query: async (text: string, params?: any[]) => {
-        if (released) {
-          throw new Error('Connection already released');
-        }
-
-        queryCount++;
-        const queryStart = Date.now();
-
-        try {
-          const result = await connection.query(text, params);
-          this.poolMetrics.recordQuerySuccess(dbKey, Date.now() - queryStart, text);
-          return result;
-        } catch (err) {
-          this.poolMetrics.recordQueryError(dbKey, Date.now() - queryStart, text);
-          throw err;
-        }
-      },
-      release: () => {
-        if (released) {
-          return;
-        }
-
-        released = true;
-        const duration = Date.now() - startTime;
-        this.poolMetrics.recordConnectionUsage(dbKey, duration, queryCount);
-        connection.release();
-      },
-      end: () => {
-        if (released) {
-          return;
-        }
-
-        released = true;
-        connection.end();
-      }
-    };
-  }
-
-  public async executeQuery<T>(
-    dbKey: string,
-    query: string,
-    params?: any[],
-    options?: QueryOptions
-  ): Promise<QueryResult<T>> {
-    const connection = await this.getConnection(dbKey);
-    try {
-      return await connection.query(query, params);
-    } finally {
-      connection.release();
-    }
-  }
-
-  public async executeTransaction<T>(
-    dbKey: string,
-    queries: QueryBatchItem[]
-  ): Promise<QueryResult<T>[]> {
-    const connection = await this.getConnection(dbKey);
-    try {
-      await connection.query('BEGIN');
-
-      const results: QueryResult<T>[] = [];
-      for (const query of queries) {
-        const result = await connection.query(query.text, query.params);
-        results.push(result);
-      }
-
-      await connection.query('COMMIT');
-      return results;
-    } catch (err) {
-      await connection.query('ROLLBACK');
-      throw err;
-    } finally {
-      connection.release();
-    }
-  }
-
-  public getPoolStats(dbKey: string): PoolStats | null {
-    if (!this.pools.has(dbKey)) {
-      return null;
-    }
-
-    const pool = this.pools.get(dbKey)!;
-    return this.poolMetrics.getPoolStats(dbKey, pool);
-  }
-
-  public getMetrics(): PoolMetricsSnapshot {
-    return this.poolMetrics.getSnapshot();
-  }
-
-  public async endAll(): Promise<void> {
-    const promises = Array.from(this.pools.values()).map(pool => pool.end());
-    await Promise.all(promises);
-    this.pools.clear();
-  }
-}
-
-// Adaptive Scaler for Connection Pools
-class AdaptiveScaler {
-  private readonly poolConfigs: Map<string, AdaptivePoolConfig>;
-  private readonly metricsWindow: number;
-  private readonly scaleUpThreshold: number;
-  private readonly scaleDownThreshold: number;
-
-  constructor() {
-    this.poolConfigs = new Map();
-    this.metricsWindow = 5 * 60 * 1000; // 5 minutes
-    this.scaleUpThreshold = 0.8; // 80% utilization
-    this.scaleDownThreshold = 0.4; // 40% utilization
-  }
-
-  public getPoolConfig(dbKey: string, defaultConfig: PoolConfig): PoolConfig {
-    // Get or create adaptive config
-    if (!this.poolConfigs.has(dbKey)) {
-      this.poolConfigs.set(dbKey, {
-        currentMax: defaultConfig.max,
-        currentMin: defaultConfig.min,
-        lastScaleTime: 0,
-        metrics: []
-      });
-    }
-
-    const adaptiveConfig = this.poolConfigs.get(dbKey)!;
-
-    // Check if we should scale
-    const now = Date.now();
-    if (now - adaptiveConfig.lastScaleTime > 60000) { // 1 minute cooldown
-      this.checkForScaling(dbKey, adaptiveConfig);
-      adaptiveConfig.lastScaleTime = now;
-    }
-
-    return {
-      ...defaultConfig,
-      max: adaptiveConfig.currentMax,
-      min: adaptiveConfig.currentMin
-    };
-  }
-
-  private checkForScaling(dbKey: string, adaptiveConfig: AdaptivePoolConfig): void {
-    // Get recent metrics
-    const recentMetrics = adaptiveConfig.metrics.filter(
-      m => Date.now() - m.timestamp <= this.metricsWindow
-    );
-
-    if (recentMetrics.length === 0) {
-      return;
-    }
-
-    // Calculate average utilization
-    const totalUtilization = recentMetrics.reduce(
-      (sum, m) => sum + m.utilization, 0
-    );
-    const avgUtilization = totalUtilization / recentMetrics.length;
-
-    // Check for scale up
-    if (avgUtilization > this.scaleUpThreshold && adaptiveConfig.currentMax < 100) {
-      const newMax = Math.min(
-        adaptiveConfig.currentMax * 2,
-        100 // Maximum 100 connections
-      );
-      logger.info(`Scaling up pool ${dbKey} from ${adaptiveConfig.currentMax} to ${newMax}`);
-      adaptiveConfig.currentMax = newMax;
-
-      // Also increase min to reduce churn
-      adaptiveConfig.currentMin = Math.min(
-        adaptiveConfig.currentMin * 2,
-        Math.floor(newMax / 2)
-      );
-    }
-
-    // Check for scale down
-    else if (avgUtilization < this.scaleDownThreshold && adaptiveConfig.currentMax > 10) {
-      const newMax = Math.max(
-        Math.floor(adaptiveConfig.currentMax * 0.7),
-        10 // Minimum 10 connections
-      );
-      logger.info(`Scaling down pool ${dbKey} from ${adaptiveConfig.currentMax} to ${newMax}`);
-      adaptiveConfig.currentMax = newMax;
-
-      // Also decrease min
-      adaptiveConfig.currentMin = Math.max(
-        Math.floor(adaptiveConfig.currentMin * 0.7),
-        2 // Minimum 2 connections
-      );
-    }
-  }
-
-  public recordPoolMetrics(dbKey: string, metrics: PoolMetricsRecord): void {
-    if (!this.poolConfigs.has(dbKey)) {
-      return;
-    }
-
-    const adaptiveConfig = this.poolConfigs.get(dbKey)!;
-
-    // Add new metrics
-    adaptiveConfig.metrics.push(metrics);
-
-    // Keep only recent metrics
-    adaptiveConfig.metrics = adaptiveConfig.metrics.filter(
-      m => Date.now() - m.timestamp <= this.metricsWindow
-    );
-  }
-}
-
-// Pool Metrics Tracking
-class PoolMetrics {
-  private readonly metrics: Map<string, {
-    connectionRequests: number;
-    connectionAcquires: number;
-    connectionReleases: number;
-    connectionErrors: number;
-    connectionCreates: number;
-    connectionRemoves: number;
-    poolErrors: number;
-    querySuccesses: number;
-    queryErrors: number;
-    queryDurations: number[];
-    connectionDurations: number[];
-    queryCounts: number[];
-    timestamps: number[];
-  }>;
-
-  constructor() {
-    this.metrics = new Map();
-  }
-
-  public recordConnectionRequest(dbKey: string): void {
-    this.ensureMetricsExist(dbKey);
-    this.metrics.get(dbKey)!.connectionRequests++;
-    this.recordTimestamp(dbKey);
-  }
-
-  public recordConnectionAcquire(dbKey: string, duration: number): void {
-    this.ensureMetricsExist(dbKey);
-    const metrics = this.metrics.get(dbKey)!;
-    metrics.connectionAcquires++;
-    metrics.connectionDurations.push(duration);
-  }
-
-  public recordConnectionRelease(dbKey: string): void {
-    this.ensureMetricsExist(dbKey);
-    this.metrics.get(dbKey)!.connectionReleases++;
-  }
-
-  public recordConnectionError(dbKey: string, duration: number): void {
-    this.ensureMetricsExist(dbKey);
-    const metrics = this.metrics.get(dbKey)!;
-    metrics.connectionErrors++;
-    metrics.connectionDurations.push(duration);
-  }
-
-  public recordConnectionCreated(dbKey: string): void {
-    this.ensureMetricsExist(dbKey);
-    this.metrics.get(dbKey)!.connectionCreates++;
-  }
-
-  public recordConnectionAcquired(dbKey: string): void {
-    this.ensureMetricsExist(dbKey);
-    this.metrics.get(dbKey)!.connectionAcquires++;
-  }
-
-  public recordConnectionReleased(dbKey: string): void {
-    this.ensureMetricsExist(dbKey);
-    this.metrics.get(dbKey)!.connectionReleases++;
-  }
-
-  public recordConnectionRemoved(dbKey: string): void {
-    this.ensureMetricsExist(dbKey);
-    this.metrics.get(dbKey)!.connectionRemoves++;
-  }
-
-  public recordPoolError(dbKey: string): void {
-    this.ensureMetricsExist(dbKey);
-    this.metrics.get(dbKey)!.poolErrors++;
-  }
-
-  public recordQuerySuccess(dbKey: string, duration: number, query: string): void {
-    this.ensureMetricsExist(dbKey);
-    const metrics = this.metrics.get(dbKey)!;
-    metrics.querySuccesses++;
-    metrics.queryDurations.push(duration);
-
-    // Record query pattern (simplified)
-    const pattern = this.extractQueryPattern(query);
-    if (pattern) {
-      // In a real implementation, we would track patterns separately
-    }
-  }
-
-  public recordQueryError(dbKey: string, duration: number, query: string): void {
-    this.ensureMetricsExist(dbKey);
-    const metrics = this.metrics.get(dbKey)!;
-    metrics.queryErrors++;
-    metrics.queryDurations.push(duration);
-  }
-
-  public recordConnectionUsage(dbKey: string, duration: number, queryCount: number): void {
-    this.ensureMetricsExist(dbKey);
-    const metrics = this.metrics.get(dbKey)!;
-    metrics.connectionDurations.push(duration);
-    metrics.queryCounts.push(queryCount);
-  }
-
-  private ensureMetricsExist(dbKey: string): void {
-    if (!this.metrics.has(dbKey)) {
-      this.metrics.set(dbKey, {
-        connectionRequests: 0,
-        connectionAcquires: 0,
-        connectionReleases: 0,
-        connectionErrors: 0,
-        connectionCreates: 0,
-        connectionRemoves: 0,
-        poolErrors: 0,
-        querySuccesses: 0,
-        queryErrors: 0,
-        queryDurations: [],
-        connectionDurations: [],
-        queryCounts: [],
-        timestamps: []
-      });
-    }
-  }
-
-  private recordTimestamp(dbKey: string): void {
-    this.metrics.get(dbKey)!.timestamps.push(Date.now());
-  }
-
-  private extractQueryPattern(query: string): string | null {
-    // Simplified pattern extraction
-    const patterns = [
-      { regex: /^SELECT.*FROM\s+(\w+)/i, name: 'select_from_$1' },
-      { regex: /^INSERT INTO\s+(\w+)/i, name: 'insert_into_$1' },
-      { regex: /^UPDATE\s+(\w+)/i, name: 'update_$1' },
-      { regex: /^DELETE FROM\s+(\w+)/i, name: 'delete_from_$1' }
-    ];
-
-    for (const pattern of patterns) {
-      const match = query.match(pattern.regex);
-      if (match) {
-        return pattern.name.replace('$1', match[1]);
-      }
-    }
-
-    return null;
-  }
-
-  public getPoolStats(dbKey: string, pool: Pool): PoolStats {
-    const metrics = this.metrics.get(dbKey) || {
-      connectionRequests: 0,
-      connectionAcquires: 0,
-      connectionReleases: 0,
-      connectionErrors: 0,
-      connectionCreates: 0,
-      connectionRemoves: 0,
-      poolErrors: 0,
-      querySuccesses: 0,
-      queryErrors: 0,
-      queryDurations: [],
-      connectionDurations: [],
-      queryCounts: [],
-      timestamps: []
-    };
-
-    // Get pool status
-    const poolStatus = (pool as any)._clients ? {
-      totalConnections: (pool as any)._clients.length,
-      idleConnections: (pool as any)._idle.length,
-      waitingClients: (pool as any)._waiting.length
-    } : {
-      totalConnections: 0,
-      idleConnections: 0,
-      waitingClients: 0
-    };
-
-    // Calculate averages
-    const avgQueryDuration = metrics.queryDurations.length > 0
-      ? metrics.queryDurations.reduce((a, b) => a + b, 0) / metrics.queryDurations.length
-      : 0;
-
-    const avgConnectionDuration = metrics.connectionDurations.length > 0
-      ? metrics.connectionDurations.reduce((a, b) => a + b, 0) / metrics.connectionDurations.length
-      : 0;
-
-    const avgQueryCount = metrics.queryCounts.length > 0
-      ? metrics.queryCounts.reduce((a, b) => a + b, 0) / metrics.queryCounts.length
-      : 0;
-
-    // Calculate recent metrics
-    const now = Date.now();
-    const timeWindow = 5 * 60 * 1000; // 5 minutes
-    const recentTimestamps = metrics.timestamps.filter(ts => now - ts <= timeWindow);
-
-    return {
-      ...poolStatus,
-      connectionRequests: metrics.connectionRequests,
-      connectionAcquires: metrics.connectionAcquires,
-      connectionReleases: metrics.connectionReleases,
-      connectionErrors: metrics.connectionErrors,
-      connectionCreates: metrics.connectionCreates,
-      connectionRemoves: metrics.connectionRemoves,
-      poolErrors: metrics.poolErrors,
-      querySuccesses: metrics.querySuccesses,
-      queryErrors: metrics.queryErrors,
-      avgQueryDuration,
-      avgConnectionDuration,
-      avgQueryCount,
-      querySuccessRate: metrics.querySuccesses + metrics.queryErrors > 0
-        ? metrics.querySuccesses / (metrics.querySuccesses + metrics.queryErrors)
-        : 0,
-      connectionSuccessRate: metrics.connectionRequests > 0
-        ? metrics.connectionAcquires / metrics.connectionRequests
-        : 0,
-      recentRequestsPerSecond: recentTimestamps.length / (timeWindow / 1000),
-      utilization: poolStatus.totalConnections > 0
-        ? (poolStatus.totalConnections - poolStatus.idleConnections) / poolStatus.totalConnections
-        : 0
-    };
-  }
-
-  public getSnapshot(): PoolMetricsSnapshot {
-    const now = Date.now();
-    const timeWindow = 5 * 60 * 1000; // 5 minutes
-    const snapshot: PoolMetricsSnapshot = {};
-
-    for (const [dbKey, metrics] of this.metrics) {
-      const recentTimestamps = metrics.timestamps.filter(ts => now - ts <= timeWindow);
-
-      snapshot[dbKey] = {
-        connectionRequests: metrics.connectionRequests,
-        connectionAcquires: metrics.connectionAcquires,
-        connectionReleases: metrics.connectionReleases,
-        connectionErrors: metrics.connectionErrors,
-        connectionCreates: metrics.connectionCreates,
-        connectionRemoves: metrics.connectionRemoves,
-        poolErrors: metrics.poolErrors,
-        querySuccesses: metrics.querySuccesses,
-        queryErrors: metrics.queryErrors,
-        avgQueryDuration: metrics.queryDurations.length > 0
-          ? metrics.queryDurations.reduce((a, b) => a + b, 0) / metrics.queryDurations.length
-          : 0,
-        avgConnectionDuration: metrics.connectionDurations.length > 0
-          ? metrics.connectionDurations.reduce((a, b) => a + b, 0) / metrics.connectionDurations.length
-          : 0,
-        querySuccessRate: metrics.querySuccesses + metrics.queryErrors > 0
-          ? metrics.querySuccesses / (metrics.querySuccesses + metrics.queryErrors)
-          : 0,
-        connectionSuccessRate: metrics.connectionRequests > 0
-          ? metrics.connectionAcquires / metrics.connectionRequests
-          : 0,
-        recentRequestsPerSecond: recentTimestamps.length / (timeWindow / 1000)
-      };
-    }
-
-    return snapshot;
-  }
-}
+```yaml
+# vehicle-service/hpa.yaml
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: vehicle-service
+  namespace: showroom-sales
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: vehicle-service
+  minReplicas: 3
+  maxReplicas: 10
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: 70
+  - type: Resource
+    resource:
+      name: memory
+      target:
+        type: Utilization
+        averageUtilization: 80
+  - type: External
+    external:
+      metric:
+        name: requests_per_second
+        selector:
+          matchLabels:
+            app: vehicle-service
+      target:
+        type: AverageValue
+        averageValue: 1000
 ```
 
----
-
-## Real-Time Features (300+ lines)
-
-### WebSocket Server Setup (60+ lines)
-
-```typescript
-// Advanced WebSocket Server with Cluster Support
-class WebSocketServer {
-  private readonly server: http.Server | https.Server;
-  private readonly wss: WebSocket.Server;
-  private readonly redisSubscriber: RedisClient;
-  private readonly redisPublisher: RedisClient;
-  private readonly connectionManager: ConnectionManager;
-  private readonly messageRouter: MessageRouter;
-  private readonly rateLimiter: RateLimiter;
-  private readonly authentication: AuthenticationService;
-  private readonly metrics: WebSocketMetrics;
-  private readonly clusterMode: boolean;
-
-  constructor(server: http.Server | https.Server, options: WebSocketServerOptions = {}) {
-    this.server = server;
-    this.clusterMode = options.clusterMode || false;
-
-    // Initialize metrics
-    this.metrics = new WebSocketMetrics();
-
-    // Initialize authentication
-    this.authentication = new AuthenticationService();
-
-    // Initialize rate limiter
-    this.rateLimiter = new RateLimiter({
-      points: 100, // 100 requests
-      duration: 60, // per 60 seconds
-      blockDuration: 300 // block for 5 minutes if exceeded
-    });
-
-    // Initialize connection manager
-    this.connectionManager = new ConnectionManager(this.metrics);
-
-    // Initialize message router
-    this.messageRouter = new MessageRouter(this.connectionManager, this.metrics);
-
-    // Initialize WebSocket server
-    this.wss = new WebSocket.Server({
-      server: this.server,
-      clientTracking: false, // We'll handle this ourselves
-      maxPayload: options.maxPayload || 1024 * 1024, // 1MB
-      perMessageDeflate: {
-        zlibDeflateOptions: {
-          chunkSize: 1024,
-          memLevel: 7,
-          level: 3
-        },
-        zlibInflateOptions: {
-          chunkSize: 10 * 1024
-        },
-        threshold: 1024 // Only compress messages > 1KB
-      }
-    });
-
-    // Set up Redis for cluster mode
-    if (this.clusterMode) {
-      this.redisSubscriber = createRedisClient({
-        host: process.env.REDIS_HOST,
-        port: parseInt(process.env.REDIS_PORT || '6379')
-      });
-
-      this.redisPublisher = createRedisClient({
-        host: process.env.REDIS_HOST,
-        port: parseInt(process.env.REDIS_PORT || '6379')
-      });
-
-      this.setupRedisListeners();
-    }
-
-    // Set up WebSocket server listeners
-    this.setupWebSocketListeners();
-
-    // Set up periodic tasks
-    this.setupPeriodicTasks();
-  }
-
-  private setupRedisListeners(): void {
-    // Subscribe to WebSocket channels
-    this.redisSubscriber.subscribe('ws:broadcast');
-    this.redisSubscriber.subscribe('ws:rooms');
-
-    this.redisSubscriber.on('message', (channel: string, message: string) => {
-      try {
-        const parsed = JSON.parse(message);
-
-        switch (channel) {
-          case 'ws:broadcast':
-            this.handleBroadcastMessage(parsed);
-            break;
-          case 'ws:rooms':
-            this.handleRoomMessage(parsed);
-            break;
-        }
-      } catch (err) {
-        logger.error(`Failed to process Redis message: ${err.message}`);
-      }
-    });
-  }
-
-  private setupWebSocketListeners(): void {
-    this.wss.on('connection', (ws: WebSocket, req: http.IncomingMessage) => {
-      this.handleNewConnection(ws, req);
-    });
-
-    this.wss.on('error', (error: Error) => {
-      logger.error(`WebSocket server error: ${error.message}`);
-      this.metrics.recordServerError();
-    });
-
-    this.wss.on('headers', (headers: string[], req: http.IncomingMessage) => {
-      this.metrics.recordConnectionAttempt();
-    });
-  }
-
-  private setupPeriodicTasks(): void {
-    // Clean up stale connections
-    setInterval(() => {
-      this.connectionManager.cleanupStaleConnections();
-    }, 300000); // 5 minutes
-
-    // Log metrics
-    setInterval(() => {
-      const metrics = this.metrics.getSnapshot();
-      logger.info(`WebSocket Metrics: ${JSON.stringify(metrics)}`);
-    }, 60000); // 1 minute
-  }
-
-  private async handleNewConnection(ws: WebSocket, req: http.IncomingMessage): Promise<void> {
-    const connectionId = uuidv4();
-    const ip = this.getClientIp(req);
-    const startTime = Date.now();
-
-    try {
-      // Rate limiting
-      const rateLimitResult = await this.rateLimiter.consume(ip);
-      if (rateLimitResult.remainingPoints <= 0) {
-        ws.close(1008, 'Rate limit exceeded');
-        this.metrics.recordConnectionRejected('rate_limit');
-        return;
-      }
-
-      // Parse connection URL
-      const url = new URL(req.url || '', `http://${req.headers.host}`);
-      const token = url.searchParams.get('token');
-      const room = url.searchParams.get('room');
-
-      if (!token) {
-        ws.close(1008, 'Authentication token required');
-        this.metrics.recordConnectionRejected('no_token');
-        return;
-      }
-
-      // Authenticate connection
-      const authResult = await this.authentication.authenticate(token);
-      if (!authResult.authenticated) {
-        ws.close(1008, 'Authentication failed');
-        this.metrics.recordConnectionRejected('auth_failed');
-        return;
-      }
-
-      // Create connection context
-      const context: ConnectionContext = {
-        connectionId,
-        userId: authResult.userId,
-        userRoles: authResult.roles,
-        ip,
-        userAgent: req.headers['user-agent'] || '',
-        rooms: new Set(room ? [room] : []),
-        metadata: authResult.metadata || {},
-        connectedAt: new Date(),
-        lastActivity: new Date()
-      };
-
-      // Register connection
-      this.connectionManager.registerConnection(ws, context);
-
-      // Set up WebSocket event listeners
-      this.setupConnectionListeners(ws, context);
-
-      // Send welcome message
-      ws.send(JSON.stringify({
-        type: 'WELCOME',
-        payload: {
-          connectionId,
-          userId: authResult.userId,
-          serverTime: new Date().toISOString(),
-          rooms: Array.from(context.rooms)
-        }
-      }));
-
-      this.metrics.recordConnectionSuccess(Date.now() - startTime);
-      logger.info(`New WebSocket connection: ${connectionId} (User: ${authResult.userId})`);
-
-    } catch (err) {
-      logger.error(`Connection handling failed: ${err.message}`);
-      ws.close(1011, 'Internal server error');
-      this.metrics.recordConnectionError(Date.now() - startTime);
-    }
-  }
-
-  private setupConnectionListeners(ws: WebSocket, context: ConnectionContext): void {
-    // Message handler
-    ws.on('message', (message: WebSocket.Data) => {
-      this.handleMessage(ws, context, message).catch(err => {
-        logger.error(`Message handling failed: ${err.message}`);
-        this.metrics.recordMessageError();
-      });
-    });
-
-    // Close handler
-    ws.on('close', (code: number, reason: string) => {
-      this.handleClose(ws, context, code, reason);
-    });
-
-    // Error handler
-    ws.on('error', (error: Error) => {
-      logger.error(`WebSocket error for ${context.connectionId}: ${error.message}`);
-      this.metrics.recordConnectionError();
-    });
-
-    // Ping handler
-    ws.on('pong', () => {
-      context.lastActivity = new Date();
-      this.metrics.recordPong();
-    });
-  }
-
-  private async handleMessage(ws: WebSocket, context: ConnectionContext, message: WebSocket.Data): Promise<void> {
-    context.lastActivity = new Date();
-    this.metrics.recordMessageReceived();
-
-    try {
-      // Parse message
-      let parsedMessage: WebSocketMessage;
-      if (typeof message === 'string') {
-        parsedMessage = JSON.parse(message);
-      } else if (message instanceof Buffer) {
-        parsedMessage = JSON.parse(message.toString());
-      } else {
-        throw new Error('Unsupported message format');
-      }
-
-      // Validate message
-      if (!this.isValidMessage(parsedMessage)) {
-        ws.send(JSON.stringify({
-          type: 'ERROR',
-          payload: {
-            code: 'INVALID_MESSAGE',
-            message: 'Invalid message format'
-          }
-        }));
-        this.metrics.recordInvalidMessage();
-        return;
-      }
-
-      // Route message
-      await this.messageRouter.routeMessage(ws, context, parsedMessage);
-
-    } catch (err) {
-      logger.error(`Message processing failed: ${err.message}`);
-      ws.send(JSON.stringify({
-        type: 'ERROR',
-        payload: {
-          code: 'PROCESSING_ERROR',
-          message: 'Failed to process message'
-        }
-      }));
-      this.metrics.recordMessageError();
-    }
-  }
-
-  private isValidMessage(message: any): message is WebSocketMessage {
-    return message &&
-           typeof message.type === 'string' &&
-           message.type.length > 0 &&
-           (message.payload === undefined || typeof message.payload === 'object');
-  }
-
-  private handleClose(ws: WebSocket, context: ConnectionContext, code: number, reason: string): void {
-    try {
-      // Unregister connection
-      this.connectionManager.unregisterConnection(ws, context);
-
-      // Log close reason
-      logger.info(`WebSocket closed: ${context.connectionId} (Code: ${code}, Reason: ${reason})`);
-      this.metrics.recordConnectionClosed(code);
-
-    } catch (err) {
-      logger.error(`Close handling failed: ${err.message}`);
-    }
-  }
-
-  private handleBroadcastMessage(message: BroadcastMessage): void {
-    try {
-      // Broadcast to all connections
-      this.connectionManager.broadcast(message);
-
-      this.metrics.recordBroadcastMessage(message.type);
-    } catch (err) {
-      logger.error(`Broadcast failed: ${err.message}`);
-    }
-  }
-
-  private handleRoomMessage(message: RoomMessage): void {
-    try {
-      // Send to specific room
-      this.connectionManager.sendToRoom(message.room, message.message);
-
-      this.metrics.recordRoomMessage(message.room, message.message.type);
-    } catch (err) {
-      logger.error(`Room message failed: ${err.message}`);
-    }
-  }
-
-  private getClientIp(req: http.IncomingMessage): string {
-    // Try to get real IP from headers
-    const xForwardedFor = req.headers['x-forwarded-for'] as string;
-    if (xForwardedFor) {
-      return xForwardedFor.split(',')[0].trim();
-    }
-
-    // Fall back to connection remote address
-    const connection = (req as any).connection;
-    if (connection) {
-      return connection.remoteAddress;
-    }
-
-    return 'unknown';
-  }
-
-  public broadcast(message: WebSocketMessage): void {
-    if (this.clusterMode) {
-      // Publish to Redis for other nodes
-      this.redisPublisher.publish('ws:broadcast', JSON.stringify(message));
-    } else {
-      // Direct broadcast
-      this.connectionManager.broadcast(message);
-    }
-  }
-
-  public sendToRoom(room: string, message: WebSocketMessage): void {
-    if (this.clusterMode) {
-      // Publish to Redis for other nodes
-      this.redisPublisher.publish('ws:rooms', JSON.stringify({
-        room,
-        message
-      }));
-    } else {
-      // Direct room message
-      this.connectionManager.sendToRoom(room, message);
-    }
-  }
-
-  public getConnectionCount(): number {
-    return this.connectionManager.getConnectionCount();
-  }
-
-  public getRoomCount(room: string): number {
-    return this.connectionManager.getRoomCount(room);
-  }
-
-  public getMetrics(): WebSocketMetricsSnapshot {
-    return this.metrics.getSnapshot();
-  }
-
-  public async close(): Promise<void> {
-    // Close all connections
-    this.connectionManager.closeAllConnections();
-
-    // Close WebSocket server
-    this.wss.close();
-
-    // Close Redis connections if in cluster mode
-    if (this.clusterMode) {
-      this.redisSubscriber.quit();
-      this.redisPublisher.quit();
-    }
-  }
-}
-
-// Connection Manager for WebSocket Server
-class ConnectionManager {
-  private readonly connections: Map<string, WebSocketConnection>;
-  private readonly rooms: Map<string, Set<string>>;
-  private readonly metrics: WebSocketMetrics;
-
-  constructor(metrics: WebSocketMetrics) {
-    this.connections = new Map();
-    this.rooms = new Map();
-    this.metrics = metrics;
-  }
-
-  public registerConnection(ws: WebSocket, context: ConnectionContext): void {
-    // Create connection wrapper
-    const connection: WebSocketConnection = {
-      ws,
-      context,
-      isAlive: true
-    };
-
-    // Add to connections map
-    this.connections.set(context.connectionId, connection);
-
-    // Add to rooms
-    context.rooms.forEach(room => {
-      this.addToRoom(room, context.connectionId);
-    });
-
-    this.metrics.recordConnectionRegistered();
-  }
-
-  public unregisterConnection(ws: WebSocket, context: ConnectionContext): void {
-    // Remove from connections map
-    this.connections.delete(context.connectionId);
-
-    // Remove from all rooms
-    context.rooms.forEach(room => {
-      this.removeFromRoom(room, context.connectionId);
-    });
-
-    this.metrics.recordConnectionUnregistered();
-  }
-
-  public addToRoom(room: string, connectionId: string): void {
-    if (!this.rooms.has(room)) {
-      this.rooms.set(room, new Set());
-    }
-
-    this.rooms.get(room)?.add(connectionId);
-    this.metrics.recordRoomJoin(room);
-  }
-
-  public removeFromRoom(room: string, connectionId: string): void {
-    if (this.rooms.has(room)) {
-      this.rooms.get(room)?.delete(connectionId);
-      this.metrics.recordRoomLeave(room);
-
-      // Clean up empty rooms
-      if (this.rooms.get(room)?.size === 0) {
-        this.rooms.delete(room);
-      }
-    }
-  }
-
-  public broadcast(message: WebSocketMessage): void {
-    const serialized = JSON.stringify(message);
-
-    this.connections.forEach(connection => {
-      if (connection.ws.readyState === WebSocket.OPEN) {
-        try {
-          connection.ws.send(serialized);
-          this.metrics.recordMessageSent();
-        } catch (err) {
-          logger.error(`Failed to send broadcast message: ${err.message}`);
-          this.metrics.recordMessageError();
-        }
-      }
-    });
-  }
-
-  public sendToRoom(room: string, message: WebSocketMessage): void {
-    if (!this.rooms.has(room)) {
-      return;
-    }
-
-    const serialized = JSON.stringify(message);
-    const connectionIds = this.rooms.get(room);
-
-    connectionIds?.forEach(connectionId => {
-      const connection = this.connections.get(connectionId);
-      if (connection && connection.ws.readyState === WebSocket.OPEN) {
-        try {
-          connection.ws.send(serialized);
-          this.metrics.recordMessageSent();
-        } catch (err) {
-          logger.error(`Failed to send room message: ${err.message}`);
-          this.metrics.recordMessageError();
-        }
-      }
-    });
-  }
-
-  public sendToConnection(connectionId: string, message: WebSocketMessage): boolean {
-    const connection = this.connections.get(connectionId);
-    if (!connection || connection.ws.readyState !== WebSocket.OPEN) {
-      return false;
-    }
-
-    try {
-      connection.ws.send(JSON.stringify(message));
-      this.metrics.recordMessageSent();
-      return true;
-    } catch (err) {
-      logger.error(`Failed to send message to connection ${connectionId}: ${err.message}`);
-      this.metrics.recordMessageError();
-      return false;
-    }
-  }
-
-  public getConnectionCount(): number {
-    return this.connections.size;
-  }
-
-  public getRoomCount(room: string): number {
-    return this.rooms.get(room)?.size || 0;
-  }
-
-  public cleanupStaleConnections(): void {
-    const now = Date.now();
-    let cleanedUp = 0;
-
-    this.connections.forEach((connection, connectionId) => {
-      // Check if connection is alive
-      if (!connection.isAlive) {
-        connection.ws.terminate();
-        this.unregisterConnection(connection.ws, connection.context);
-        cleanedUp++;
-        return;
-      }
-
-      // Check last activity
-      const lastActivity = connection.context.lastActivity.getTime();
-      if (now - lastActivity > 300000) { // 5 minutes
-        connection.ws.close(1001, 'Idle timeout');
-        this.unregisterConnection(connection.ws, connection.context);
-        cleanedUp++;
-        return;
-      }
-
-      // Send ping to check if connection is alive
-      connection.isAlive = false;
-      connection.ws.ping();
-    });
-
-    if (cleanedUp > 0) {
-      logger.info(`Cleaned up ${cleanedUp} stale connections`);
-    }
-  }
-
-  public closeAllConnections(): void {
-    this.connections.forEach(connection => {
-      connection.ws.close(1001, 'Server shutting down');
-    });
-    this.connections.clear();
-    this.rooms.clear();
-  }
-}
+```yaml
+# vehicle-service/virtual-service.yaml
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: vehicle-service
+  namespace: showroom-sales
+spec:
+  hosts:
+  - vehicle-service.showroom-sales.svc.cluster.local
+  http:
+  - route:
+    - destination:
+        host: vehicle-service.showroom-sales.svc.cluster.local
+        subset: v1
+    retries:
+      attempts: 3
+      perTryTimeout: 2s
+      retryOn: gateway-error,connect-failure,refused-stream
+    timeout: 10s
+    fault:
+      abort:
+        percentage:
+          value: 0.1
+        httpStatus: 500
 ```
 
-### Real-Time Event Handlers (80+ lines)
+```yaml
+# vehicle-service/destination-rule.yaml
+apiVersion: networking.istio.io/v1alpha3
+kind: DestinationRule
+metadata:
+  name: vehicle-service
+  namespace: showroom-sales
+spec:
+  host: vehicle-service.showroom-sales.svc.cluster.local
+  trafficPolicy:
+    loadBalancer:
+      simple: LEAST_CONN
+    outlierDetection:
+      consecutiveErrors: 5
+      interval: 10s
+      baseEjectionTime: 30s
+      maxEjectionPercent: 50
+  subsets:
+  - name: v1
+    labels:
+      version: v1
+```
+
+**Cloud Services Utilization (Azure):**
+
+1. **Compute:**
+   - Azure Kubernetes Service (AKS) for container orchestration
+   - Virtual Machine Scale Sets for supporting services
+   - Azure Container Instances for burst workloads
+
+2. **Database:**
+   - Azure Database for PostgreSQL Hyperscale for relational data
+   - Azure Cache for Redis for caching
+   - Azure Cosmos DB for global distribution needs
+
+3. **Messaging:**
+   - Azure Service Bus for reliable messaging
+   - Azure Event Hubs for event streaming
+   - Azure Notification Hubs for push notifications
+
+4. **Storage:**
+   - Azure Blob Storage for media files
+   - Azure Files for shared configuration
+   - Azure Disk Storage for persistent volumes
+
+5. **Networking:**
+   - Azure Application Gateway for ingress
+   - Azure Front Door for global load balancing
+   - Azure Virtual Network with private endpoints
+   - Azure DNS for domain management
+
+6. **Security:**
+   - Azure Active Directory for identity management
+   - Azure Key Vault for secrets management
+   - Azure Private Link for secure service access
+   - Azure DDoS Protection for network security
+
+7. **Monitoring:**
+   - Azure Monitor for metrics and logs
+   - Application Insights for application performance
+   - Azure Sentinel for security monitoring
+
+8. **AI/ML:**
+   - Azure Machine Learning for predictive analytics
+   - Azure Cognitive Services for AI capabilities
+
+9. **Integration:**
+   - Azure Logic Apps for workflow automation
+   - Azure API Management for API gateway
+   - Azure Event Grid for event routing
+
+**Network Topology and Security Zones:**
+
+```mermaid
+graph TD
+    subgraph Internet
+        A[Client Devices] -->|HTTPS| B[Azure Front Door]
+    end
+
+    subgraph Azure Network
+        B -->|HTTPS| C[Application Gateway]
+        C -->|HTTPS| D[AKS Ingress]
+        D -->|Internal| E[API Management]
+
+        subgraph AKS Cluster
+            E --> F[Service Mesh - Istio]
+            F --> G[Microservices]
+            G --> H[PostgreSQL Hyperscale]
+            G --> I[Redis Cache]
+            G --> J[Service Bus]
+            G --> K[Event Hubs]
+        end
+
+        subgraph Private Network
+            L[Azure Bastion] --> M[Jumpbox VM]
+            M --> H
+            M --> I
+            M --> J
+            M --> K
+        end
+
+        subgraph Integration
+            N[ERP System] -->|Private Link| O[Integration Service]
+            P[CRM System] -->|Private Link| O
+            Q[Finance System] -->|Private Link| O
+        end
+    end
+
+    style A fill:#f9f,stroke:#333
+    style B fill:#6f6,stroke:#333
+    style C fill:#6f6,stroke:#333
+    style D fill:#6f6,stroke:#333
+    style E fill:#6f6,stroke:#333
+    style F fill:#6f6,stroke:#333
+    style G fill:#bbf,stroke:#333
+    style H fill:#66f,stroke:#333
+    style I fill:#66f,stroke:#333
+    style J fill:#66f,stroke:#333
+    style K fill:#66f,stroke:#333
+    style L fill:#f96,stroke:#333
+    style M fill:#f96,stroke:#333
+    style N fill:#ff6,stroke:#333
+    style O fill:#ff6,stroke:#333
+    style P fill:#ff6,stroke:#333
+    style Q fill:#ff6,stroke:#333
+```
+
+**Security Zones:**
+
+1. **Internet Zone**:
+   - Public-facing endpoints
+   - Protected by Azure Front Door and DDoS Protection
+   - Rate limiting and WAF rules
+
+2. **DMZ Zone**:
+   - Application Gateway
+   - API Management
+   - Web Application Firewall
+   - Reverse proxy functionality
+
+3. **Application Zone**:
+   - AKS cluster with microservices
+   - Istio service mesh
+   - Internal load balancers
+   - Network policies for pod-to-pod communication
+
+4. **Data Zone**:
+   - Managed databases (PostgreSQL, Redis)
+   - Private endpoints
+   - Encryption at rest
+   - Database firewalls
+
+5. **Management Zone**:
+   - Azure Bastion for secure access
+   - Jumpbox VM for administration
+   - Privileged Identity Management
+   - Just-in-time access
+
+6. **Integration Zone**:
+   - Private Link connections to external systems
+   - Integration service for data transformation
+   - Message queues for decoupled communication
+
+**Load Balancing and Auto-Scaling:**
+
+**Load Balancing Strategy:**
+1. **Global Load Balancing**: Azure Front Door for geographic distribution
+2. **Regional Load Balancing**: Application Gateway for regional traffic
+3. **Service Load Balancing**: Istio for service-to-service communication
+4. **Database Load Balancing**: Read replicas for PostgreSQL Hyperscale
+
+**Auto-Scaling Configuration:**
+
+1. **AKS Cluster Auto-Scaling**:
+   - Cluster autoscaler enabled
+   - Node pools for different workload types
+   - Horizontal pod autoscaler for microservices
+   - Vertical pod autoscaler for memory-intensive services
+
+2. **Database Auto-Scaling**:
+   - PostgreSQL Hyperscale with auto-grow
+   - Read replicas for read-heavy workloads
+   - Connection pooling with PgBouncer
+
+3. **Cache Auto-Scaling**:
+   - Redis cluster mode enabled
+   - Sharding for horizontal scaling
+   - Auto-scaling based on memory usage
+
+4. **Message Queue Auto-Scaling**:
+   - Service Bus with auto-inflate
+   - Event Hubs with throughput units auto-scaling
+
+**Disaster Recovery and Backup Strategy:**
+
+**Recovery Objectives:**
+- **RTO (Recovery Time Objective)**: 2 hours for critical services, 4 hours for non-critical
+- **RPO (Recovery Point Objective)**: 15 minutes for transactional data, 1 hour for reference data
+
+**Disaster Recovery Architecture:**
+
+```mermaid
+graph TD
+    subgraph Primary Region
+        A[AKS Cluster] --> B[PostgreSQL Hyperscale]
+        A --> C[Redis Cache]
+        A --> D[Service Bus]
+        A --> E[Event Hubs]
+    end
+
+    subgraph Secondary Region
+        F[AKS Cluster] --> G[PostgreSQL Hyperscale]
+        F --> H[Redis Cache]
+        F --> I[Service Bus]
+        F --> J[Event Hubs]
+    end
+
+    B -->|Geo-Replication| G
+    C -->|Geo-Replication| H
+    D -->|Geo-Replication| I
+    E -->|Geo-Replication| J
+
+    K[Azure Front Door] --> A
+    K --> F
+
+    L[Traffic Manager] --> K
+
+    style A fill:#bbf,stroke:#333
+    style B fill:#66f,stroke:#333
+    style C fill:#66f,stroke:#333
+    style D fill:#66f,stroke:#333
+    style E fill:#66f,stroke:#333
+    style F fill:#bbf,stroke:#333,stroke-dasharray: 5,5
+    style G fill:#66f,stroke:#333,stroke-dasharray: 5,5
+    style H fill:#66f,stroke:#333,stroke-dasharray: 5,5
+    style I fill:#66f,stroke:#333,stroke-dasharray: 5,5
+    style J fill:#66f,stroke:#333,stroke-dasharray: 5,5
+    style K fill:#6f6,stroke:#333
+    style L fill:#6f6,stroke:#333
+```
+
+**Backup Strategy:**
+
+1. **Database Backups**:
+   - Automated daily full backups
+   - Transaction log backups every 15 minutes
+   - Point-in-time restore capability
+   - Geo-redundant storage for backups
+
+2. **Application Backups**:
+   - Container images stored in Azure Container Registry with geo-replication
+   - Kubernetes manifests stored in Git with version control
+   - Configuration stored in Azure Key Vault with backup
+
+3. **Data Backups**:
+   - Blob storage with geo-redundant replication
+   - File shares with daily snapshots
+   - Backup validation with test restores
+
+4. **Disaster Recovery Plan**:
+   - **Detection**: Automated alerts for regional outages
+   - **Activation**: Runbook for failover to secondary region
+   - **Recovery**: Automated deployment to secondary region
+   - **Validation**: Automated health checks and manual validation
+   - **Failback**: Planned failback to primary region
+
+5. **Testing**:
+   - Quarterly disaster recovery drills
+   - Annual full failover test
+   - Automated chaos engineering tests
+
+## 3. TypeScript Implementation (600+ lines)
+
+### 3.1 Core Backend Services
+
+**Vehicle Service Implementation:**
 
 ```typescript
-// Real-Time Event Handlers for Showroom Sales
-class ShowroomEventHandlers {
-  private readonly connectionManager: ConnectionManager;
-  private readonly redisPublisher: RedisClient;
-  private readonly eventBus: EventEmitter;
-  private readonly inventoryService: InventoryService;
-  private readonly customerService: CustomerService;
-  private readonly salesService: SalesService;
-  private readonly notificationService: NotificationService;
-  private readonly metrics: EventMetrics;
+// src/vehicle/vehicle.module.ts
+import { Module } from '@nestjs/common';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { VehicleController } from './vehicle.controller';
+import { VehicleService } from './vehicle.service';
+import { VehicleRepository } from './repositories/vehicle.repository';
+import { VehicleSpecificationRepository } from './repositories/vehicle-specification.repository';
+import { VehicleFeatureRepository } from './repositories/vehicle-feature.repository';
+import { VehicleColorRepository } from './repositories/vehicle-color.repository';
+import { VehicleMediaRepository } from './repositories/vehicle-media.repository';
+import { VehicleOptionRepository } from './repositories/vehicle-option.repository';
+import { OptionGroupRepository } from './repositories/option-group.repository';
+import { VehicleConfigurationRepository } from './repositories/vehicle-configuration.repository';
+import { ConfigurationOptionRepository } from './repositories/configuration-option.repository';
+import { SearchModule } from '../search/search.module';
+import { EventModule } from '../event/event.module';
+import { CacheModule } from '../cache/cache.module';
+import { Vehicle } from './entities/vehicle.entity';
+import { VehicleSpecification } from './entities/vehicle-specification.entity';
+import { VehicleFeature } from './entities/vehicle-feature.entity';
+import { VehicleColor } from './entities/vehicle-color.entity';
+import { VehicleMedia } from './entities/vehicle-media.entity';
+import { VehicleOption } from './entities/vehicle-option.entity';
+import { OptionGroup } from './entities/option-group.entity';
+import { VehicleConfiguration } from './entities/vehicle-configuration.entity';
+import { ConfigurationOption } from './entities/configuration-option.entity';
+
+@Module({
+  imports: [
+    TypeOrmModule.forFeature([
+      Vehicle,
+      VehicleSpecification,
+      VehicleFeature,
+      VehicleColor,
+      VehicleMedia,
+      VehicleOption,
+      OptionGroup,
+      VehicleConfiguration,
+      ConfigurationOption,
+    ]),
+    SearchModule,
+    EventModule,
+    CacheModule,
+  ],
+  controllers: [VehicleController],
+  providers: [
+    VehicleService,
+    VehicleRepository,
+    VehicleSpecificationRepository,
+    VehicleFeatureRepository,
+    VehicleColorRepository,
+    VehicleMediaRepository,
+    VehicleOptionRepository,
+    OptionGroupRepository,
+    VehicleConfigurationRepository,
+    ConfigurationOptionRepository,
+  ],
+  exports: [VehicleService],
+})
+export class VehicleModule {}
+```
+
+```typescript
+// src/vehicle/vehicle.service.ts
+import { Injectable, Logger, NotFoundException } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository, SelectQueryBuilder } from 'typeorm';
+import { VehicleRepository } from './repositories/vehicle.repository';
+import { VehicleSpecificationRepository } from './repositories/vehicle-specification.repository';
+import { VehicleFeatureRepository } from './repositories/vehicle-feature.repository';
+import { VehicleColorRepository } from './repositories/vehicle-color.repository';
+import { VehicleMediaRepository } from './repositories/vehicle-media.repository';
+import { VehicleOptionRepository } from './repositories/vehicle-option.repository';
+import { OptionGroupRepository } from './repositories/option-group.repository';
+import { VehicleConfigurationRepository } from './repositories/vehicle-configuration.repository';
+import { ConfigurationOptionRepository } from './repositories/configuration-option.repository';
+import { VehicleSearchDto } from './dto/vehicle-search.dto';
+import { VehicleDetailsDto } from './dto/vehicle-details.dto';
+import { VehicleConfigurationsDto } from './dto/vehicle-configurations.dto';
+import { VehicleComparisonRequestDto } from './dto/vehicle-comparison-request.dto';
+import { VehicleComparisonResponseDto } from './dto/vehicle-comparison-response.dto';
+import { Vehicle } from './entities/vehicle.entity';
+import { VehicleSpecification } from './entities/vehicle-specification.entity';
+import { VehicleFeature } from './entities/vehicle-feature.entity';
+import { VehicleColor } from './entities/vehicle-color.entity';
+import { VehicleMedia } from './entities/vehicle-media.entity';
+import { VehicleOption } from './entities/vehicle-option.entity';
+import { OptionGroup } from './entities/option-group.entity';
+import { VehicleConfiguration } from './entities/vehicle-configuration.entity';
+import { ConfigurationOption } from './entities/configuration-option.entity';
+import { SearchService } from '../search/search.service';
+import { EventService } from '../event/event.service';
+import { CacheService } from '../cache/cache.service';
+import { VehicleCreatedEvent } from './events/vehicle-created.event';
+import { VehicleUpdatedEvent } from './events/vehicle-updated.event';
+import { VehicleDeletedEvent } from './events/vehicle-deleted.event';
+import { PaginatedResponse } from '../common/dto/paginated-response.dto';
+import { plainToClass } from 'class-transformer';
+import { validate } from 'class-validator';
+import { ConfigService } from '@nestjs/config';
+import { CircuitBreaker } from '../common/decorators/circuit-breaker.decorator';
+import { Retry } from '../common/decorators/retry.decorator';
+
+@Injectable()
+export class VehicleService {
+  private readonly logger = new Logger(VehicleService.name);
+  private readonly CACHE_TTL = 3600; // 1 hour
 
   constructor(
-    connectionManager: ConnectionManager,
-    redisPublisher: RedisClient,
-    eventBus: EventEmitter
+    private readonly vehicleRepository: VehicleRepository,
+    private readonly vehicleSpecificationRepository: VehicleSpecificationRepository,
+    private readonly vehicleFeatureRepository: VehicleFeatureRepository,
+    private readonly vehicleColorRepository: VehicleColorRepository,
+    private readonly vehicleMediaRepository: VehicleMediaRepository,
+    private readonly vehicleOptionRepository: VehicleOptionRepository,
+    private readonly optionGroupRepository: OptionGroupRepository,
+    private readonly vehicleConfigurationRepository: VehicleConfigurationRepository,
+    private readonly configurationOptionRepository: ConfigurationOptionRepository,
+    private readonly searchService: SearchService,
+    private readonly eventService: EventService,
+    private readonly cacheService: CacheService,
+    private readonly configService: ConfigService,
+  ) {}
+
+  @CircuitBreaker({ timeout: 5000 })
+  @Retry({ maxAttempts: 3, delay: 100 })
+  async searchVehicles(
+    searchDto: VehicleSearchDto,
+  ): Promise<PaginatedResponse<VehicleDetailsDto>> {
+    this.logger.log(`Searching vehicles with criteria: ${JSON.stringify(searchDto)}`);
+
+    const cacheKey = this.generateCacheKey('search', searchDto);
+    const cachedResult = await this.cacheService.get<PaginatedResponse<VehicleDetailsDto>>(cacheKey);
+
+    if (cachedResult) {
+      this.logger.log('Returning cached search results');
+      return cachedResult;
+    }
+
+    try {
+      const { page = 1, pageSize = 20, ...filters } = searchDto;
+
+      // Use search service for complex queries
+      const searchResults = await this.searchService.searchVehicles(filters, page, pageSize);
+      const vehicleIds = searchResults.results.map((v) => v.id);
+
+      if (vehicleIds.length === 0) {
+        return {
+          total: 0,
+          page,
+          pageSize,
+          results: [],
+        };
+      }
+
+      // Get full details for the vehicles
+      const queryBuilder = this.createVehicleQueryBuilder('vehicle')
+        .where('vehicle.id IN (:...ids)', { ids: vehicleIds })
+        .orderBy(this.getOrderByClause(searchDto.sortBy, searchDto.sortOrder));
+
+      const [vehicles, total] = await queryBuilder
+        .skip((page - 1) * pageSize)
+        .take(pageSize)
+        .getManyAndCount();
+
+      const results = vehicles.map((vehicle) =>
+        this.mapVehicleToDetailsDto(vehicle),
+      );
+
+      const response = {
+        total,
+        page,
+        pageSize,
+        results,
+      };
+
+      // Cache the results
+      await this.cacheService.set(cacheKey, response, this.CACHE_TTL);
+
+      return response;
+    } catch (error) {
+      this.logger.error(`Error searching vehicles: ${error.message}`, error.stack);
+      throw error;
+    }
+  }
+
+  @CircuitBreaker({ timeout: 3000 })
+  async getVehicleDetails(id: string): Promise<VehicleDetailsDto> {
+    this.logger.log(`Getting details for vehicle ${id}`);
+
+    const cacheKey = this.generateCacheKey('details', { id });
+    const cachedResult = await this.cacheService.get<VehicleDetailsDto>(cacheKey);
+
+    if (cachedResult) {
+      this.logger.log('Returning cached vehicle details');
+      return cachedResult;
+    }
+
+    try {
+      const vehicle = await this.createVehicleQueryBuilder('vehicle')
+        .where('vehicle.id = :id', { id })
+        .getOne();
+
+      if (!vehicle) {
+        throw new NotFoundException(`Vehicle with ID ${id} not found`);
+      }
+
+      const detailsDto = this.mapVehicleToDetailsDto(vehicle);
+
+      // Cache the result
+      await this.cacheService.set(cacheKey, detailsDto, this.CACHE_TTL);
+
+      return detailsDto;
+    } catch (error) {
+      this.logger.error(`Error getting vehicle details: ${error.message}`, error.stack);
+      throw error;
+    }
+  }
+
+  @CircuitBreaker({ timeout: 3000 })
+  async getVehicleConfigurations(id: string): Promise<VehicleConfigurationsDto> {
+    this.logger.log(`Getting configurations for vehicle ${id}`);
+
+    const cacheKey = this.generateCacheKey('configurations', { id });
+    const cachedResult = await this.cacheService.get<VehicleConfigurationsDto>(cacheKey);
+
+    if (cachedResult) {
+      this.logger.log('Returning cached vehicle configurations');
+      return cachedResult;
+    }
+
+    try {
+      const vehicle = await this.vehicleRepository.findOne({
+        where: { id },
+        relations: ['configurations'],
+      });
+
+      if (!vehicle) {
+        throw new NotFoundException(`Vehicle with ID ${id} not found`);
+      }
+
+      const configurations = await this.vehicleConfigurationRepository.find({
+        where: { vehicleId: id },
+        relations: ['options', 'options.option'],
+      });
+
+      const defaultConfiguration = configurations.find((c) => c.isDefault) || configurations[0];
+
+      const availableOptions = await this.getAvailableOptions(id);
+
+      const response: VehicleConfigurationsDto = {
+        vehicleId: id,
+        defaultConfiguration: this.mapConfigurationToDto(defaultConfiguration),
+        availableOptions,
+      };
+
+      // Cache the result
+      await this.cacheService.set(cacheKey, response, this.CACHE_TTL);
+
+      return response;
+    } catch (error) {
+      this.logger.error(`Error getting vehicle configurations: ${error.message}`, error.stack);
+      throw error;
+    }
+  }
+
+  @CircuitBreaker({ timeout: 5000 })
+  async compareVehicles(
+    comparisonRequest: VehicleComparisonRequestDto,
+  ): Promise<VehicleComparisonResponseDto> {
+    this.logger.log(`Comparing vehicles: ${comparisonRequest.vehicleIds.join(', ')}`);
+
+    if (comparisonRequest.vehicleIds.length < 2 || comparisonRequest.vehicleIds.length > 4) {
+      throw new Error('Comparison requires between 2 and 4 vehicles');
+    }
+
+    try {
+      const vehicles = await this.vehicleRepository.findByIds(comparisonRequest.vehicleIds, {
+        relations: [
+          'specification',
+          'features',
+          'features.feature',
+          'colors',
+          'media',
+        ],
+      });
+
+      if (vehicles.length !== comparisonRequest.vehicleIds.length) {
+        const foundIds = vehicles.map((v) => v.id);
+        const missingIds = comparisonRequest.vehicleIds.filter(
+          (id) => !foundIds.includes(id),
+        );
+        throw new NotFoundException(
+          `Vehicles with IDs ${missingIds.join(', ')} not found`,
+        );
+      }
+
+      const comparison = vehicles.map((vehicle) => {
+        const features = vehicle.features.map((vf) => ({
+          id: vf.feature.id,
+          name: vf.feature.name,
+          category: vf.feature.category,
+          isStandard: [vf.isStandard],
+        }));
+
+        return {
+          ...this.mapVehicleToSummaryDto(vehicle),
+          specifications: vehicle.specification,
+          features,
+        };
+      });
+
+      return { vehicles: comparison };
+    } catch (error) {
+      this.logger.error(`Error comparing vehicles: ${error.message}`, error.stack);
+      throw error;
+    }
+  }
+
+  async createVehicle(createDto: any): Promise<VehicleDetailsDto> {
+    this.logger.log('Creating new vehicle');
+
+    try {
+      // Validate DTO
+      const dto = plainToClass(VehicleDetailsDto, createDto);
+      const errors = await validate(dto);
+      if (errors.length > 0) {
+        throw new Error(`Validation failed: ${errors.join(', ')}`);
+      }
+
+      // Start transaction
+      return await this.vehicleRepository.manager.transaction(async (manager) => {
+        const vehicleRepository = manager.getCustomRepository(VehicleRepository);
+        const specificationRepository = manager.getCustomRepository(VehicleSpecificationRepository);
+        const featureRepository = manager.getCustomRepository(VehicleFeatureRepository);
+        const colorRepository = manager.getCustomRepository(VehicleColorRepository);
+        const mediaRepository = manager.getCustomRepository(VehicleMediaRepository);
+
+        // Create vehicle
+        const vehicle = vehicleRepository.create({
+          makeId: createDto.makeId,
+          modelId: createDto.modelId,
+          year: createDto.year,
+          trim: createDto.trim,
+          bodyStyle: createDto.bodyStyle,
+          fuelType: createDto.fuelType,
+          msrp: createDto.msrp,
+          basePrice: createDto.basePrice,
+          description: createDto.description,
+        });
+
+        const savedVehicle = await vehicleRepository.save(vehicle);
+
+        // Create specification
+        const specification = specificationRepository.create({
+          vehicleId: savedVehicle.id,
+          ...createDto.specifications,
+        });
+
+        await specificationRepository.save(specification);
+
+        // Create features
+        if (createDto.features && createDto.features.length > 0) {
+          const features = createDto.features.map((feature) =>
+            featureRepository.create({
+              vehicleId: savedVehicle.id,
+              featureId: feature.featureId,
+              isStandard: feature.isStandard,
+            }),
+          );
+
+          await featureRepository.save(features);
+        }
+
+        // Create colors
+        if (createDto.availableColors && createDto.availableColors.length > 0) {
+          const colors = createDto.availableColors.map((color) =>
+            colorRepository.create({
+              vehicleId: savedVehicle.id,
+              ...color,
+            }),
+          );
+
+          await colorRepository.save(colors);
+        }
+
+        // Create media
+        if (createDto.media && createDto.media.length > 0) {
+          const media = createDto.media.map((mediaItem, index) =>
+            mediaRepository.create({
+              vehicleId: savedVehicle.id,
+              ...mediaItem,
+              order: index,
+            }),
+          );
+
+          await mediaRepository.save(media);
+        }
+
+        // Publish event
+        await this.eventService.publish(
+          new VehicleCreatedEvent(savedVehicle.id, savedVehicle.makeId, savedVehicle.modelId),
+        );
+
+        // Return the created vehicle
+        return this.getVehicleDetails(savedVehicle.id);
+      });
+    } catch (error) {
+      this.logger.error(`Error creating vehicle: ${error.message}`, error.stack);
+      throw error;
+    }
+  }
+
+  async updateVehicle(id: string, updateDto: any): Promise<VehicleDetailsDto> {
+    this.logger.log(`Updating vehicle ${id}`);
+
+    try {
+      // Start transaction
+      return await this.vehicleRepository.manager.transaction(async (manager) => {
+        const vehicleRepository = manager.getCustomRepository(VehicleRepository);
+        const specificationRepository = manager.getCustomRepository(VehicleSpecificationRepository);
+        const featureRepository = manager.getCustomRepository(VehicleFeatureRepository);
+        const colorRepository = manager.getCustomRepository(VehicleColorRepository);
+        const mediaRepository = manager.getCustomRepository(VehicleMediaRepository);
+
+        // Get existing vehicle
+        const existingVehicle = await vehicleRepository.findOne({
+          where: { id },
+          relations: ['specification', 'features', 'colors', 'media'],
+        });
+
+        if (!existingVehicle) {
+          throw new NotFoundException(`Vehicle with ID ${id} not found`);
+        }
+
+        // Update vehicle
+        const vehicle = vehicleRepository.merge(existingVehicle, {
+          makeId: updateDto.makeId,
+          modelId: updateDto.modelId,
+          year: updateDto.year,
+          trim: updateDto.trim,
+          bodyStyle: updateDto.bodyStyle,
+          fuelType: updateDto.fuelType,
+          msrp: updateDto.msrp,
+          basePrice: updateDto.basePrice,
+          description: updateDto.description,
+        });
+
+        const savedVehicle = await vehicleRepository.save(vehicle);
+
+        // Update specification
+        if (updateDto.specifications) {
+          const specification = specificationRepository.merge(existingVehicle.specification, {
+            ...updateDto.specifications,
+          });
+
+          await specificationRepository.save(specification);
+        }
+
+        // Update features
+        if (updateDto.features) {
+          // Delete existing features
+          await featureRepository.delete({ vehicleId: id });
+
+          // Create new features
+          const features = updateDto.features.map((feature) =>
+            featureRepository.create({
+              vehicleId: id,
+              featureId: feature.featureId,
+              isStandard: feature.isStandard,
+            }),
+          );
+
+          await featureRepository.save(features);
+        }
+
+        // Update colors
+        if (updateDto.availableColors) {
+          // Delete existing colors
+          await colorRepository.delete({ vehicleId: id });
+
+          // Create new colors
+          const colors = updateDto.availableColors.map((color) =>
+            colorRepository.create({
+              vehicleId: id,
+              ...color,
+            }),
+          );
+
+          await colorRepository.save(colors);
+        }
+
+        // Update media
+        if (updateDto.media) {
+          // Delete existing media
+          await mediaRepository.delete({ vehicleId: id });
+
+          // Create new media
+          const media = updateDto.media.map((mediaItem, index) =>
+            mediaRepository.create({
+              vehicleId: id,
+              ...mediaItem,
+              order: index,
+            }),
+          );
+
+          await mediaRepository.save(media);
+        }
+
+        // Publish event
+        await this.eventService.publish(
+          new VehicleUpdatedEvent(id, savedVehicle.makeId, savedVehicle.modelId),
+        );
+
+        // Invalidate cache
+        await this.invalidateCache(id);
+
+        // Return the updated vehicle
+        return this.getVehicleDetails(id);
+      });
+    } catch (error) {
+      this.logger.error(`Error updating vehicle: ${error.message}`, error.stack);
+      throw error;
+    }
+  }
+
+  async deleteVehicle(id: string): Promise<void> {
+    this.logger.log(`Deleting vehicle ${id}`);
+
+    try {
+      // Start transaction
+      await this.vehicleRepository.manager.transaction(async (manager) => {
+        const vehicleRepository = manager.getCustomRepository(VehicleRepository);
+        const specificationRepository = manager.getCustomRepository(VehicleSpecificationRepository);
+        const featureRepository = manager.getCustomRepository(VehicleFeatureRepository);
+        const colorRepository = manager.getCustomRepository(VehicleColorRepository);
+        const mediaRepository = manager.getCustomRepository(VehicleMediaRepository);
+        const optionRepository = manager.getCustomRepository(VehicleOptionRepository);
+        const optionGroupRepository = manager.getCustomRepository(OptionGroupRepository);
+        const configurationRepository = manager.getCustomRepository(VehicleConfigurationRepository);
+        const configurationOptionRepository = manager.getCustomRepository(ConfigurationOptionRepository);
+
+        // Get vehicle to get make and model for event
+        const vehicle = await vehicleRepository.findOne({ where: { id } });
+        if (!vehicle) {
+          throw new NotFoundException(`Vehicle with ID ${id} not found`);
+        }
+
+        // Delete related entities
+        await specificationRepository.delete({ vehicleId: id });
+        await featureRepository.delete({ vehicleId: id });
+        await colorRepository.delete({ vehicleId: id });
+        await mediaRepository.delete({ vehicleId: id });
+
+        // Delete options and configurations
+        const options = await optionRepository.find({ where: { vehicleId: id } });
+        const optionIds = options.map((o) => o.id);
+
+        await configurationOptionRepository.delete({ optionId: In(optionIds) });
+        await optionRepository.delete({ vehicleId: id });
+        await optionGroupRepository.delete({ vehicleId: id });
+        await configurationRepository.delete({ vehicleId: id });
+
+        // Soft delete vehicle
+        await vehicleRepository.softDelete(id);
+
+        // Publish event
+        await this.eventService.publish(
+          new VehicleDeletedEvent(id, vehicle.makeId, vehicle.modelId),
+        );
+
+        // Invalidate cache
+        await this.invalidateCache(id);
+      });
+    } catch (error) {
+      this.logger.error(`Error deleting vehicle: ${error.message}`, error.stack);
+      throw error;
+    }
+  }
+
+  private createVehicleQueryBuilder(alias: string): SelectQueryBuilder<Vehicle> {
+    return this.vehicleRepository
+      .createQueryBuilder(alias)
+      .leftJoinAndSelect(`${alias}.specification`, 'specification')
+      .leftJoinAndSelect(`${alias}.features`, 'features')
+      .leftJoinAndSelect('features.feature', 'feature')
+      .leftJoinAndSelect(`${alias}.colors`, 'colors')
+      .leftJoinAndSelect(`${alias}.media`, 'media')
+      .where(`${alias}.deletedAt IS NULL`);
+  }
+
+  private getOrderByClause(sortBy?: string, sortOrder?: string): string {
+    const order = sortOrder === 'desc' ? 'DESC' : 'ASC';
+
+    switch (sortBy) {
+      case 'model':
+        return `vehicle.model ${order}, vehicle.make ${order}`;
+      case 'year':
+        return `vehicle.year ${order}, vehicle.model ${order}`;
+      case 'price':
+        return `vehicle.msrp ${order}, vehicle.model ${order}`;
+      case 'rating':
+        return `vehicle.rating ${order}, vehicle.model ${order}`;
+      default:
+        return `vehicle.make ${order}, vehicle.model ${order}`;
+    }
+  }
+
+  private mapVehicleToSummaryDto(vehicle: Vehicle): any {
+    return {
+      id: vehicle.id,
+      make: vehicle.makeId,
+      model: vehicle.modelId,
+      year: vehicle.year,
+      trim: vehicle.trim,
+      bodyStyle: vehicle.bodyStyle,
+      fuelType: vehicle.fuelType,
+      msrp: vehicle.msrp,
+      imageUrl: vehicle.media?.find((m) => m.isPrimary)?.url || vehicle.media?.[0]?.url,
+      rating: vehicle.rating,
+    };
+  }
+
+  private mapVehicleToDetailsDto(vehicle: Vehicle): VehicleDetailsDto {
+    return {
+      ...this.mapVehicleToSummaryDto(vehicle),
+      description: vehicle.description,
+      specifications: vehicle.specification,
+      features: vehicle.features.map((vf) => ({
+        id: vf.feature.id,
+        name: vf.feature.name,
+        category: vf.feature.category,
+        description: vf.feature.description,
+        isStandard: vf.isStandard,
+      })),
+      media: vehicle.media.map((m) => ({
+        id: m.id,
+        type: m.type,
+        url: m.url,
+        thumbnailUrl: m.thumbnailUrl,
+        description: m.description,
+        isPrimary: m.isPrimary,
+      })),
+      availableColors: vehicle.colors.map((c) => ({
+        id: c.id,
+        name: c.name,
+        hexCode: c.hexCode,
+        imageUrl: c.imageUrl,
+        isExterior: c.isExterior,
+        isInterior: c.isInterior,
+      })),
+      dealerLocations: [], // Will be populated by another service
+    };
+  }
+
+  private async getAvailableOptions(vehicleId: string): Promise<any[]> {
+    const optionGroups = await this.optionGroupRepository.find({
+      where: { vehicleId },
+      relations: ['options'],
+      order: { name: 'ASC' },
+    });
+
+    return optionGroups.map((group) => ({
+      id: group.id,
+      name: group.name,
+      description: group.description,
+      minSelections: group.minSelections,
+      maxSelections: group.maxSelections,
+      options: group.options.map((option) => ({
+        id: option.id,
+        name: option.name,
+        description: option.description,
+        price: option.price,
+        requires: option.requires,
+        conflictsWith: option.conflictsWith,
+      })),
+    }));
+  }
+
+  private mapConfigurationToDto(configuration: VehicleConfiguration): any {
+    return {
+      id: configuration.id,
+      name: configuration.name,
+      description: configuration.description,
+      price: configuration.price,
+      options: configuration.options.map((co) => ({
+        optionId: co.optionId,
+        groupId: co.option.groupId,
+      })),
+    };
+  }
+
+  private generateCacheKey(prefix: string, params: any): string {
+    const sortedParams = Object.keys(params)
+      .sort()
+      .map((key) => `${key}=${params[key]}`)
+      .join('&');
+
+    return `${prefix}:${sortedParams}`;
+  }
+
+  private async invalidateCache(vehicleId: string): Promise<void> {
+    const keys = await this.cacheService.keys(`*:*vehicleId=${vehicleId}*`);
+    for (const key of keys) {
+      await this.cacheService.del(key);
+    }
+  }
+}
+```
+
+```typescript
+// src/vehicle/vehicle.controller.ts
+import {
+  Controller,
+  Get,
+  Post,
+  Put,
+  Delete,
+  Param,
+  Query,
+  Body,
+  UsePipes,
+  ValidationPipe,
+  ParseUUIDPipe,
+  HttpCode,
+  HttpStatus,
+} from '@nestjs/common';
+import { VehicleService } from './vehicle.service';
+import { VehicleSearchDto } from './dto/vehicle-search.dto';
+import { VehicleComparisonRequestDto } from './dto/vehicle-comparison-request.dto';
+import { VehicleDetailsDto } from './dto/vehicle-details.dto';
+import { VehicleConfigurationsDto } from './dto/vehicle-configurations.dto';
+import { VehicleComparisonResponseDto } from './dto/vehicle-comparison-response.dto';
+import { PaginatedResponse } from '../common/dto/paginated-response.dto';
+import { ApiTags, ApiOperation, ApiResponse, ApiQuery, ApiParam, ApiBody } from '@nestjs/swagger';
+import { Roles } from '../auth/decorators/roles.decorator';
+import { Role } from '../auth/enums/role.enum';
+import { RateLimit } from '../common/decorators/rate-limit.decorator';
+
+@ApiTags('vehicles')
+@Controller('vehicles')
+export class VehicleController {
+  constructor(private readonly vehicleService: VehicleService) {}
+
+  @Get()
+  @ApiOperation({ summary: 'Search vehicles' })
+  @ApiQuery({ name: 'page', required: false, type: Number })
+  @ApiQuery({ name: 'pageSize', required: false, type: Number })
+  @ApiQuery({ name: 'make', required: false, type: String })
+  @ApiQuery({ name: 'model', required: false, type: String })
+  @ApiQuery({ name: 'year', required: false, type: Number })
+  @ApiQuery({ name: 'minPrice', required: false, type: Number })
+  @ApiQuery({ name: 'maxPrice', required: false, type: Number })
+  @ApiQuery({ name: 'bodyStyle', required: false, enum: ['SEDAN', 'SUV', 'TRUCK', 'VAN', 'COUPE', 'HATCHBACK', 'WAGON'] })
+  @ApiQuery({ name: 'fuelType', required: false, enum: ['GASOLINE', 'DIESEL', 'ELECTRIC', 'HYBRID', 'PLUGIN_HYBRID', 'HYDROGEN'] })
+  @ApiResponse({ status: 200, description: 'Successful response', type: PaginatedResponse<VehicleDetailsDto> })
+  @ApiResponse({ status: 400, description: 'Bad request' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 403, description: 'Forbidden' })
+  @ApiResponse({ status: 500, description: 'Internal server error' })
+  @RateLimit({ points: 100, duration: 60 })
+  @UsePipes(new ValidationPipe({ transform: true }))
+  async searchVehicles(
+    @Query() searchDto: VehicleSearchDto,
+  ): Promise<PaginatedResponse<VehicleDetailsDto>> {
+    return this.vehicleService.searchVehicles(searchDto);
+  }
+
+  @Get(':id')
+  @ApiOperation({ summary: 'Get vehicle details' })
+  @ApiParam({ name: 'id', type: String, description: 'Vehicle ID' })
+  @ApiResponse({ status: 200, description: 'Successful response', type: VehicleDetailsDto })
+  @ApiResponse({ status: 404, description: 'Not found' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 403, description: 'Forbidden' })
+  @ApiResponse({ status: 500, description: 'Internal server error' })
+  @RateLimit({ points: 50, duration: 60 })
+  async getVehicleDetails(
+    @Param('id', ParseUUIDPipe) id: string,
+  ): Promise<VehicleDetailsDto> {
+    return this.vehicleService.getVehicleDetails(id);
+  }
+
+  @Get(':id/configurations')
+  @ApiOperation({ summary: 'Get available configurations' })
+  @ApiParam({ name: 'id', type: String, description: 'Vehicle ID' })
+  @ApiResponse({ status: 200, description: 'Successful response', type: VehicleConfigurationsDto })
+  @ApiResponse({ status: 404, description: 'Not found' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 403, description: 'Forbidden' })
+  @ApiResponse({ status: 500, description: 'Internal server error' })
+  @RateLimit({ points: 30, duration: 60 })
+  async getVehicleConfigurations(
+    @Param('id', ParseUUIDPipe) id: string,
+  ): Promise<VehicleConfigurationsDto> {
+    return this.vehicleService.getVehicleConfigurations(id);
+  }
+
+  @Post('compare')
+  @ApiOperation({ summary: 'Compare vehicles' })
+  @ApiBody({ type: VehicleComparisonRequestDto })
+  @ApiResponse({ status: 200, description: 'Successful response', type: VehicleComparisonResponseDto })
+  @ApiResponse({ status: 400, description: 'Bad request' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 403, description: 'Forbidden' })
+  @ApiResponse({ status: 500, description: 'Internal server error' })
+  @RateLimit({ points: 20, duration: 60 })
+  @UsePipes(new ValidationPipe({ transform: true }))
+  async compareVehicles(
+    @Body() comparisonRequest: VehicleComparisonRequestDto,
+  ): Promise<VehicleComparisonResponseDto> {
+    return this.vehicleService.compareVehicles(comparisonRequest);
+  }
+
+  @Post()
+  @ApiOperation({ summary: 'Create vehicle' })
+  @ApiBody({ type: VehicleDetailsDto })
+  @ApiResponse({ status: 201, description: 'Vehicle created', type: VehicleDetailsDto })
+  @ApiResponse({ status: 400, description: 'Bad request' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 403, description: 'Forbidden' })
+  @ApiResponse({ status: 409, description: 'Conflict' })
+  @ApiResponse({ status: 500, description: 'Internal server error' })
+  @Roles(Role.ADMIN, Role.SHOWROOM_MANAGER)
+  @RateLimit({ points: 10, duration: 60 })
+  @UsePipes(new ValidationPipe({ transform: true, whitelist: true }))
+  async createVehicle(
+    @Body() createDto: VehicleDetailsDto,
+  ): Promise<VehicleDetailsDto> {
+    return this.vehicleService.createVehicle(createDto);
+  }
+
+  @Put(':id')
+  @ApiOperation({ summary: 'Update vehicle' })
+  @ApiParam({ name: 'id', type: String, description: 'Vehicle ID' })
+  @ApiBody({ type: VehicleDetailsDto })
+  @ApiResponse({ status: 200, description: 'Vehicle updated', type: VehicleDetailsDto })
+  @ApiResponse({ status: 400, description: 'Bad request' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 403, description: 'Forbidden' })
+  @ApiResponse({ status: 404, description: 'Not found' })
+  @ApiResponse({ status: 500, description: 'Internal server error' })
+  @Roles(Role.ADMIN, Role.SHOWROOM_MANAGER)
+  @RateLimit({ points: 10, duration: 60 })
+  @UsePipes(new ValidationPipe({ transform: true, whitelist: true }))
+  async updateVehicle(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body() updateDto: VehicleDetailsDto,
+  ): Promise<VehicleDetailsDto> {
+    return this.vehicleService.updateVehicle(id, updateDto);
+  }
+
+  @Delete(':id')
+  @ApiOperation({ summary: 'Delete vehicle' })
+  @ApiParam({ name: 'id', type: String, description: 'Vehicle ID' })
+  @ApiResponse({ status: 204, description: 'Vehicle deleted' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 403, description: 'Forbidden' })
+  @ApiResponse({ status: 404, description: 'Not found' })
+  @ApiResponse({ status: 500, description: 'Internal server error' })
+  @Roles(Role.ADMIN)
+  @HttpCode(HttpStatus.NO_CONTENT)
+  async deleteVehicle(
+    @Param('id', ParseUUIDPipe) id: string,
+  ): Promise<void> {
+    return this.vehicleService.deleteVehicle(id);
+  }
+}
+```
+
+```typescript
+// src/vehicle/entities/vehicle.entity.ts
+import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, DeleteDateColumn, OneToOne, OneToMany, JoinColumn } from 'typeorm';
+import { VehicleSpecification } from './vehicle-specification.entity';
+import { VehicleFeature } from './vehicle-feature.entity';
+import { VehicleColor } from './vehicle-color.entity';
+import { VehicleMedia } from './vehicle-media.entity';
+import { VehicleOption } from './vehicle-option.entity';
+import { OptionGroup } from './option-group.entity';
+import { VehicleConfiguration } from './vehicle-configuration.entity';
+
+@Entity('vehicles')
+export class Vehicle {
+  @PrimaryGeneratedColumn('uuid')
+  id: string;
+
+  @Column({ name: 'make_id' })
+  makeId: string;
+
+  @Column({ name: 'model_id' })
+  modelId: string;
+
+  @Column()
+  year: number;
+
+  @Column()
+  trim: string;
+
+  @Column({ name: 'body_style' })
+  bodyStyle: string;
+
+  @Column({ name: 'fuel_type' })
+  fuelType: string;
+
+  @Column({ type: 'decimal', precision: 10, scale: 2 })
+  msrp: number;
+
+  @Column({ name: 'base_price', type: 'decimal', precision: 10, scale: 2 })
+  basePrice: number;
+
+  @Column({ type: 'text', nullable: true })
+  description: string;
+
+  @Column({ type: 'decimal', precision: 3, scale: 1, nullable: true })
+  rating: number;
+
+  @CreateDateColumn({ name: 'created_at' })
+  createdAt: Date;
+
+  @UpdateDateColumn({ name: 'updated_at' })
+  updatedAt: Date;
+
+  @DeleteDateColumn({ name: 'deleted_at', nullable: true })
+  deletedAt?: Date;
+
+  @OneToOne(() => VehicleSpecification, (specification) => specification.vehicle, {
+    cascade: true,
+    eager: true,
+  })
+  @JoinColumn({ name: 'id', referencedColumnName: 'vehicleId' })
+  specification: VehicleSpecification;
+
+  @OneToMany(() => VehicleFeature, (feature) => feature.vehicle, {
+    cascade: true,
+    eager: true,
+  })
+  features: VehicleFeature[];
+
+  @OneToMany(() => VehicleColor, (color) => color.vehicle, {
+    cascade: true,
+    eager: true,
+  })
+  colors: VehicleColor[];
+
+  @OneToMany(() => VehicleMedia, (media) => media.vehicle, {
+    cascade: true,
+    eager: true,
+  })
+  media: VehicleMedia[];
+
+  @OneToMany(() => VehicleOption, (option) => option.vehicle)
+  options: VehicleOption[];
+
+  @OneToMany(() => OptionGroup, (optionGroup) => optionGroup.vehicle)
+  optionGroups: OptionGroup[];
+
+  @OneToMany(() => VehicleConfiguration, (configuration) => configuration.vehicle)
+  configurations: VehicleConfiguration[];
+}
+```
+
+```typescript
+// src/vehicle/repositories/vehicle.repository.ts
+import { EntityRepository, Repository, SelectQueryBuilder } from 'typeorm';
+import { Vehicle } from '../entities/vehicle.entity';
+import { VehicleSearchDto } from '../dto/vehicle-search.dto';
+import { NotFoundException } from '@nestjs/common';
+
+@EntityRepository(Vehicle)
+export class VehicleRepository extends Repository<Vehicle> {
+  async findById(id: string): Promise<Vehicle> {
+    const vehicle = await this.findOne({
+      where: { id },
+      relations: [
+        'specification',
+        'features',
+        'features.feature',
+        'colors',
+        'media',
+        'options',
+        'optionGroups',
+        'configurations',
+      ],
+    });
+
+    if (!vehicle) {
+      throw new NotFoundException(`Vehicle with ID ${id} not found`);
+    }
+
+    return vehicle;
+  }
+
+  async search(
+    searchDto: VehicleSearchDto,
+    page: number,
+    pageSize: number,
+  ): Promise<[Vehicle[], number]> {
+    const queryBuilder = this.createSearchQueryBuilder(searchDto)
+      .skip((page - 1) * pageSize)
+      .take(pageSize);
+
+    return queryBuilder.getManyAndCount();
+  }
+
+  createSearchQueryBuilder(searchDto: VehicleSearchDto): SelectQueryBuilder<Vehicle> {
+    const queryBuilder = this.createQueryBuilder('vehicle')
+      .leftJoinAndSelect('vehicle.specification', 'specification')
+      .leftJoinAndSelect('vehicle.features', 'features')
+      .leftJoinAndSelect('features.feature', 'feature')
+      .leftJoinAndSelect('vehicle.colors', 'colors')
+      .leftJoinAndSelect('vehicle.media', 'media')
+      .where('vehicle.deletedAt IS NULL');
+
+    if (searchDto.make) {
+      queryBuilder.andWhere('vehicle.makeId = :make', { make: searchDto.make });
+    }
+
+    if (searchDto.model) {
+      queryBuilder.andWhere('vehicle.modelId = :model', { model: searchDto.model });
+    }
+
+    if (searchDto.year) {
+      queryBuilder.andWhere('vehicle.year = :year', { year: searchDto.year });
+    }
+
+    if (searchDto.minPrice) {
+      queryBuilder.andWhere('vehicle.msrp >= :minPrice', { minPrice: searchDto.minPrice });
+    }
+
+    if (searchDto.maxPrice) {
+      queryBuilder.andWhere('vehicle.msrp <= :maxPrice', { maxPrice: searchDto.maxPrice });
+    }
+
+    if (searchDto.bodyStyle) {
+      queryBuilder.andWhere('vehicle.bodyStyle = :bodyStyle', { bodyStyle: searchDto.bodyStyle });
+    }
+
+    if (searchDto.fuelType) {
+      queryBuilder.andWhere('vehicle.fuelType = :fuelType', { fuelType: searchDto.fuelType });
+    }
+
+    return queryBuilder;
+  }
+}
+```
+
+### 3.2 API Layer
+
+```typescript
+// src/main.ts
+import { NestFactory } from '@nestjs/core';
+import { AppModule } from './app.module';
+import { ValidationPipe } from '@nestjs/common';
+import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import { HttpExceptionFilter } from './common/filters/http-exception.filter';
+import { ResponseInterceptor } from './common/interceptors/response.interceptor';
+import { Logger } from 'nestjs-pino';
+import { ConfigService } from '@nestjs/config';
+import helmet from 'helmet';
+import rateLimit from 'express-rate-limit';
+import { json, urlencoded } from 'express';
+
+async function bootstrap() {
+  const app = await NestFactory.create(AppModule, {
+    bufferLogs: true,
+  });
+
+  const configService = app.get(ConfigService);
+  const logger = app.get(Logger);
+
+  app.useLogger(logger);
+  app.use(helmet());
+  app.use(json({ limit: '10mb' }));
+  app.use(urlencoded({ extended: true, limit: '10mb' }));
+
+  // Rate limiting
+  app.use(
+    rateLimit({
+      windowMs: 15 * 60 * 1000, // 15 minutes
+      max: 1000, // limit each IP to 1000 requests per windowMs
+      message: 'Too many requests from this IP, please try again later',
+      standardHeaders: true,
+      legacyHeaders: false,
+    }),
+  );
+
+  // Global validation pipe
+  app.useGlobalPipes(
+    new ValidationPipe({
+      transform: true,
+      whitelist: true,
+      forbidNonWhitelisted: true,
+      disableErrorMessages: configService.get('NODE_ENV') === 'production',
+    }),
+  );
+
+  // Global exception filter
+  app.useGlobalFilters(new HttpExceptionFilter());
+
+  // Global response interceptor
+  app.useGlobalInterceptors(new ResponseInterceptor());
+
+  // Enable CORS
+  app.enableCors({
+    origin: configService.get('CORS_ORIGINS')?.split(',') || [],
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+    preflightContinue: false,
+    optionsSuccessStatus: 204,
+    credentials: true,
+    allowedHeaders: 'Content-Type, Accept, Authorization',
+  });
+
+  // Swagger configuration
+  if (configService.get('NODE_ENV') !== 'production') {
+    const config = new DocumentBuilder()
+      .setTitle('Fleet Management System - Showroom Sales API')
+      .setDescription('API for the Showroom Sales module of the Fleet Management System')
+      .setVersion('1.0')
+      .addBearerAuth()
+      .addServer(configService.get('API_BASE_URL') || '/')
+      .build();
+
+    const document = SwaggerModule.createDocument(app, config);
+    SwaggerModule.setup('api', app, document, {
+      swaggerOptions: {
+        persistAuthorization: true,
+        tagsSorter: 'alpha',
+        operationsSorter: 'alpha',
+      },
+    });
+  }
+
+  // Start application
+  const port = configService.get('PORT') || 3000;
+  await app.listen(port);
+  logger.log(`Application is running on: ${await app.getUrl()}`);
+}
+
+bootstrap().catch((err) => {
+  console.error('Failed to start application:', err);
+  process.exit(1);
+});
+```
+
+```typescript
+// src/common/decorators/rate-limit.decorator.ts
+import { SetMetadata } from '@nestjs/common';
+import { RATE_LIMIT_OPTIONS } from '../constants';
+
+export interface RateLimitOptions {
+  points: number;
+  duration: number;
+  blockDuration?: number;
+}
+
+export const RateLimit = (options: RateLimitOptions) => {
+  return SetMetadata(RATE_LIMIT_OPTIONS, options);
+};
+```
+
+```typescript
+// src/common/guards/rate-limit.guard.ts
+import { Injectable, CanActivate, ExecutionContext, Inject } from '@nestjs/common';
+import { Reflector } from '@nestjs/core';
+import { RATE_LIMIT_OPTIONS } from '../constants';
+import { RateLimiterMemory } from 'rate-limiter-flexible';
+import { Request } from 'express';
+import { RateLimitOptions } from '../decorators/rate-limit.decorator';
+
+@Injectable()
+export class RateLimitGuard implements CanActivate {
+  private rateLimiter: RateLimiterMemory;
+
+  constructor(
+    private reflector: Reflector,
+    @Inject('RATE_LIMITER') rateLimiter: RateLimiterMemory,
   ) {
-    this.connectionManager = connectionManager;
-    this.redisPublisher = redisPublisher;
-    this.eventBus = eventBus;
-    this.inventoryService = new InventoryService();
-    this.customerService = new CustomerService();
-    this.salesService = new SalesService();
-    this.notificationService = new NotificationService();
-    this.metrics = new EventMetrics();
-
-    // Set up event listeners
-    this.setupEventListeners();
+    this.rateLimiter = rateLimiter;
   }
 
-  private setupEventListeners(): void {
-    // Customer events
-    this.eventBus.on('customer:entered', this.handleCustomerEntered.bind(this));
-    this.eventBus.on('customer:moved', this.handleCustomerMoved.bind(this));
-    this.eventBus.on('customer:interested', this.handleCustomerInterested.bind(this));
-    this.eventBus.on('customer:engaged', this.handleCustomerEngaged.bind(this));
-    this.eventBus.on('customer:exited', this.handleCustomerExited.bind(this));
+  async canActivate(context: ExecutionContext): Promise<boolean> {
+    const options = this.reflector.get<RateLimitOptions>(
+      RATE_LIMIT_OPTIONS,
+      context.getHandler(),
+    );
 
-    // Inventory events
-    this.eventBus.on('inventory:updated', this.handleInventoryUpdated.bind(this));
-    this.eventBus.on('inventory:reserved', this.handleInventoryReserved.bind(this));
-    this.eventBus.on('inventory:released', this.handleInventoryReleased.bind(this));
+    if (!options) {
+      return true;
+    }
 
-    // Sales events
-    this.eventBus.on('sale:started', this.handleSaleStarted.bind(this));
-    this.eventBus.on('sale:updated', this.handleSaleUpdated.bind(this));
-    this.eventBus.on('sale:completed', this.handleSaleCompleted.bind(this));
-    this.eventBus.on('sale:cancelled', this.handleSaleCancelled.bind(this));
+    const request = context.switchToHttp().getRequest<Request>();
+    const key = this.getKey(request);
 
-    // Test drive events
-    this.eventBus.on('testdrive:scheduled', this.handleTestDriveScheduled.bind(this));
-    this.eventBus.on('testdrive:started', this.handleTestDriveStarted.bind(this));
-    this.eventBus.on('testdrive:completed', this.handleTestDriveCompleted.bind(this));
-
-    // Notification events
-    this.eventBus.on('notification:sent', this.handleNotificationSent.bind(this));
-  }
-
-  private async handleCustomerEntered(event: CustomerEnteredEvent): Promise<void> {
     try {
-      this.metrics.recordEvent('customer:entered');
-
-      // Get customer details
-      const customer = await this.customerService.getCustomer(event.customerId);
-
-      // Get showroom details
-      const showroom = await this.inventoryService.getShowroom(event.showroomId);
-
-      // Create real-time message
-      const message: WebSocketMessage = {
-        type: 'CUSTOMER_ENTERED',
-        payload: {
-          customerId: event.customerId,
-          customerName: customer.name,
-          showroomId: event.showroomId,
-          showroomName: showroom.name,
-          location: event.location,
-          timestamp: event.timestamp,
-          leadScore: event.leadScore,
-          interests: event.interests || []
-        }
-      };
-
-      // Broadcast to showroom staff
-      this.connectionManager.sendToRoom(`showroom:${event.showroomId}`, message);
-
-      // Notify high-value customers
-      if (event.leadScore && event.leadScore > 0.7) {
-        await this.notificationService.notifyHighValueCustomer(
-          event.showroomId,
-          event.customerId,
-          event.leadScore
-        );
-      }
-
-      // Update customer location tracking
-      await this.customerService.updateCustomerLocation(
-        event.customerId,
-        event.showroomId,
-        event.location
-      );
-
-    } catch (err) {
-      logger.error(`Failed to handle customer entered event: ${err.message}`);
-      this.metrics.recordEventError('customer:entered');
+      await this.rateLimiter.consume(key, options.points);
+      return true;
+    } catch (error) {
+      throw new Error('Too Many Requests');
     }
   }
 
-  private async handleCustomerMoved(event: CustomerMovedEvent): Promise<void> {
-    try {
-      this.metrics.recordEvent('customer:moved');
+  private getKey(request: Request): string {
+    // Use IP address for rate limiting
+    let key = request.ip;
 
-      // Get customer details
-      const customer = await this.customerService.getCustomer(event.customerId);
+    // If behind a proxy, use X-Forwarded-For header
+    if (request.headers['x-forwarded-for']) {
+      key = request.headers['x-forwarded-for'] as string;
+    }
 
-      // Create real-time message
-      const message: WebSocketMessage = {
-        type: 'CUSTOMER_MOVED',
-        payload: {
-          customerId: event.customerId,
-          customerName: customer.name,
-          showroomId: event.showroomId,
-          newLocation: event.newLocation,
-          timestamp: event.timestamp
-        }
-      };
+    // Add user ID if authenticated
+    if (request.user) {
+      key += `:${request.user.id}`;
+    }
 
-      // Broadcast to showroom staff
-      this.connectionManager.sendToRoom(`showroom:${event.showroomId}`, message);
+    return key;
+  }
+}
+```
 
-      // Update customer location tracking
-      await this.customerService.updateCustomerLocation(
-        event.customerId,
-        event.showroomId,
-        event.newLocation
+```typescript
+// src/common/middleware/logger.middleware.ts
+import { Injectable, NestMiddleware, Logger } from '@nestjs/common';
+import { Request, Response, NextFunction } from 'express';
+import { v4 as uuidv4 } from 'uuid';
+
+@Injectable()
+export class LoggerMiddleware implements NestMiddleware {
+  private readonly logger = new Logger('HTTP');
+
+  use(request: Request, response: Response, next: NextFunction): void {
+    const { ip, method, originalUrl } = request;
+    const userAgent = request.get('user-agent') || '';
+    const correlationId = request.headers['x-correlation-id'] || uuidv4();
+
+    // Set correlation ID in response headers
+    response.setHeader('X-Correlation-ID', correlationId);
+
+    // Log request
+    this.logger.log(
+      `[${correlationId}] ${method} ${originalUrl} - ${userAgent} ${ip}`,
+    );
+
+    const start = Date.now();
+
+    response.on('finish', () => {
+      const { statusCode } = response;
+      const contentLength = response.get('content-length');
+      const duration = Date.now() - start;
+
+      this.logger.log(
+        `[${correlationId}] ${method} ${originalUrl} ${statusCode} ${contentLength} - ${duration}ms`,
       );
+    });
 
-      // Check if customer is near a vehicle of interest
-      const nearbyVehicles = await this.inventoryService.getNearbyVehicles(
-        event.showroomId,
-        event.newLocation,
-        5 // 5 meters radius
-      );
+    next();
+  }
+}
+```
 
-      if (nearbyVehicles.length > 0) {
-        // Get customer interests
-        const interests = await this.customerService.getCustomerInterests(event.customerId);
+```typescript
+// src/common/filters/http-exception.filter.ts
+import {
+  ExceptionFilter,
+  Catch,
+  ArgumentsHost,
+  HttpException,
+  HttpStatus,
+  Logger,
+} from '@nestjs/common';
+import { Request, Response } from 'express';
+import { QueryFailedError } from 'typeorm';
 
-        // Find matching vehicles
-        const matchingVehicles = nearbyVehicles.filter(vehicle =>
-          interests.includes(vehicle.model) ||
-          interests.includes(vehicle.make) ||
-          interests.includes(vehicle.type)
-        );
+@Catch()
+export class HttpExceptionFilter implements ExceptionFilter {
+  private readonly logger = new Logger(HttpExceptionFilter.name);
 
-        if (matchingVehicles.length > 0) {
-          // Notify sales reps about potential match
-          const notification: WebSocketMessage = {
-            type: 'CUSTOMER_NEAR_INTEREST',
-            payload: {
-              customerId: event.customerId,
-              customerName: customer.name,
-              vehicles: matchingVehicles.map(v => ({
-                vehicleId: v.vehicleId,
-                make: v.make,
-                model: v.model,
-                year: v.year,
-                location: v.location
-              })),
-              timestamp: new Date().toISOString()
-            }
+  catch(exception: unknown, host: ArgumentsHost) {
+    const ctx = host.switchToHttp();
+    const response = ctx.getResponse<Response>();
+    const request = ctx.getRequest<Request>();
+
+    let status = HttpStatus.INTERNAL_SERVER_ERROR;
+    let message = 'Internal server error';
+    let details: string[] = [];
+    let code = 'INTERNAL_SERVER_ERROR';
+
+    if (exception instanceof HttpException) {
+      status = exception.getStatus();
+      const exceptionResponse = exception.getResponse();
+
+      if (typeof exceptionResponse === 'string') {
+        message = exceptionResponse;
+      } else {
+        const responseObj = exceptionResponse as any;
+        message = responseObj.message || message;
+        details = responseObj.details || details;
+        code = responseObj.code || code;
+      }
+    } else if (exception instanceof QueryFailedError) {
+      status = HttpStatus.BAD_REQUEST;
+      message = 'Database query failed';
+      code = 'DATABASE_ERROR';
+      details = [exception.message];
+
+      this.logger.error(`Database error: ${exception.message}`, exception.stack);
+    } else if (exception instanceof Error) {
+      message = exception.message;
+      details = [exception.stack || ''];
+
+      this.logger.error(`Unhandled error: ${exception.message}`, exception.stack);
+    }
+
+    // Log the error
+    this.logger.error(
+      `[${request.method}] ${request.url} - ${status} - ${message}`,
+      exception instanceof Error ? exception.stack : '',
+    );
+
+    // Format response
+    const errorResponse = {
+      code,
+      message,
+      details,
+      timestamp: new Date().toISOString(),
+      path: request.url,
+    };
+
+    response.status(status).json(errorResponse);
+  }
+}
+```
+
+```typescript
+// src/common/interceptors/response.interceptor.ts
+import {
+  Injectable,
+  NestInterceptor,
+  ExecutionContext,
+  CallHandler,
+} from '@nestjs/common';
+import { Observable } from 'rxjs';
+import { map } from 'rxjs/operators';
+import { Response } from 'express';
+
+export interface ResponseFormat<T> {
+  data: T;
+  meta?: any;
+  success: boolean;
+}
+
+@Injectable()
+export class ResponseInterceptor<T> implements NestInterceptor<T, ResponseFormat<T>> {
+  intercept(context: ExecutionContext, next: CallHandler): Observable<ResponseFormat<T>> {
+    const response = context.switchToHttp().getResponse<Response>();
+    const statusCode = response.statusCode;
+
+    return next.handle().pipe(
+      map((data) => {
+        // Handle pagination responses
+        if (data && data.total !== undefined && data.page !== undefined) {
+          return {
+            success: true,
+            data: data.results || data.items || data.data,
+            meta: {
+              total: data.total,
+              page: data.page,
+              pageSize: data.pageSize,
+              totalPages: Math.ceil(data.total / data.pageSize),
+            },
           };
-
-          this.connectionManager.sendToRoom(`showroom:${event.showroomId}`, notification);
         }
-      }
 
-    } catch (err) {
-      logger.error(`Failed to handle customer moved event: ${err.message}`);
-      this.metrics.recordEventError('customer:moved');
-    }
-  }
-
-  private async handleCustomerInterested(event: CustomerInterestedEvent): Promise<void> {
-    try {
-      this.metrics.recordEvent('customer:interested');
-
-      // Get customer details
-      const customer = await this.customerService.getCustomer(event.customerId);
-
-      // Get vehicle details
-      const vehicle = await this.inventoryService.getVehicle(event.vehicleId);
-
-      // Create real-time message
-      const message: WebSocketMessage = {
-        type: 'CUSTOMER_INTERESTED',
-        payload: {
-          customerId: event.customerId,
-          customerName: customer.name,
-          showroomId: event.showroomId,
-          vehicleId: event.vehicleId,
-          make: vehicle.make,
-          model: vehicle.model,
-          year: vehicle.year,
-          timestamp: event.timestamp,
-          interestLevel: event.interestLevel
-        }
-      };
-
-      // Broadcast to showroom staff
-      this.connectionManager.sendToRoom(`showroom:${event.showroomId}`, message);
-
-      // Update customer interests
-      await this.customerService.addCustomerInterest(
-        event.customerId,
-        event.vehicleId,
-        event.interestLevel
-      );
-
-      // Notify sales reps if high interest
-      if (event.interestLevel >= 0.7) {
-        const notification: WebSocketMessage = {
-          type: 'HIGH_INTEREST_ALERT',
-          payload: {
-            customerId: event.customerId,
-            customerName: customer.name,
-            vehicleId: event.vehicleId,
-            make: vehicle.make,
-            model: vehicle.model,
-            year: vehicle.year,
-            interestLevel: event.interestLevel,
-            timestamp: new Date().toISOString()
-          }
+        // Handle standard responses
+        return {
+          success: statusCode >= 200 && statusCode < 300,
+          data,
         };
-
-        this.connectionManager.sendToRoom(`showroom:${event.showroomId}`, notification);
-      }
-
-    } catch (err) {
-      logger.error(`Failed to handle customer interested event: ${err.message}`);
-      this.metrics.recordEventError('customer:interested');
-    }
+      }),
+    );
   }
+}
+```
 
-  private async handleCustomerEngaged(event: CustomerEngagedEvent): Promise<void> {
-    try {
-      this.metrics.recordEvent('customer:engaged');
+### 3.3 Data Access Layer
 
-      // Get customer details
-      const customer = await this.customerService.getCustomer(event.customerId);
+```typescript
+// src/database/database.module.ts
+import { Module } from '@nestjs/common';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { ConfigModule, ConfigService } from '@nestjs/config';
+import { Vehicle } from '../vehicle/entities/vehicle.entity';
+import { VehicleSpecification } from '../vehicle/entities/vehicle-specification.entity';
+import { VehicleFeature } from '../vehicle/entities/vehicle-feature.entity';
+import { VehicleColor } from '../vehicle/entities/vehicle-color.entity';
+import { VehicleMedia } from '../vehicle/entities/vehicle-media.entity';
+import { VehicleOption } from '../vehicle/entities/vehicle-option.entity';
+import { OptionGroup } from '../vehicle/entities/option-group.entity';
+import { VehicleConfiguration } from '../vehicle/entities/vehicle-configuration.entity';
+import { ConfigurationOption } from '../vehicle/entities/configuration-option.entity';
+import { Customer } from '../customer/entities/customer.entity';
+import { CustomerPreferences } from '../customer/entities/customer-preferences.entity';
+import { CustomerInteraction } from '../customer/entities/customer-interaction.entity';
+import { CustomerSegment } from '../customer/entities/customer-segment.entity';
+import { CustomerSegmentAssignment } from '../customer/entities/customer-segment-assignment.entity';
+import { RelatedEntity } from '../customer/entities/related-entity.entity';
+import { Attachment } from '../customer/entities/attachment.entity';
 
-      // Get sales rep details
-      const salesRep = await this.salesService.getSalesRep(event.salesRepId);
+@Module({
+  imports: [
+    TypeOrmModule.forRootAsync({
+      imports: [ConfigModule],
+      inject: [ConfigService],
+      useFactory: (configService: ConfigService) => ({
+        type: 'postgres',
+        host: configService.get('DATABASE_HOST'),
+        port: configService.get('DATABASE_PORT'),
+        username: configService.get('DATABASE_USERNAME'),
+        password: configService.get('DATABASE_PASSWORD'),
+        database: configService.get('DATABASE_NAME'),
+        entities: [
+          Vehicle,
+          VehicleSpecification,
+          VehicleFeature,
+          VehicleColor,
+          VehicleMedia,
+          VehicleOption,
+          OptionGroup,
+          VehicleConfiguration,
+          ConfigurationOption,
+          Customer,
+          CustomerPreferences,
+          CustomerInteraction,
+          CustomerSegment,
+          CustomerSegmentAssignment,
+          RelatedEntity,
+          Attachment,
+        ],
+        synchronize: false, // Use migrations instead
+        logging: configService.get('DATABASE_LOGGING') === 'true',
+        maxQueryExecutionTime: 1000, // Log slow queries
+        ssl: configService.get('DATABASE_SSL') === 'true' ? {
+          rejectUnauthorized: false,
+        } : false,
+        extra: {
+          max: 20, // Maximum number of connections in the pool
+          connectionTimeoutMillis: 5000,
+          idleTimeoutMillis: 30000,
+          ssl: configService.get('DATABASE_SSL') === 'true' ? {
+            rejectUnauthorized: false,
+          } : false,
+        },
+      }),
+    }),
+  ],
+})
+export class DatabaseModule {}
+```
 
-      // Create real-time message
-      const message: WebSocketMessage = {
-        type: 'CUSTOMER_ENGAGED',
-        payload: {
-          customerId: event.customerId,
-          customerName: customer.name,
-          salesRepId: event.salesRepId,
-          salesRepName: salesRep.name,
-          showroomId: event.showroomId,
-          timestamp: event.timestamp,
-          engagementType: event.engagementType
-        }
-      };
+```typescript
+// src/database/migrations/1651234567890-CreateVehicleTables.ts
+import { MigrationInterface, QueryRunner, Table, TableForeignKey, TableIndex } from 'typeorm';
 
-      // Broadcast to showroom staff
-      this.connectionManager.sendToRoom(`showroom:${event.showroomId}`, message);
+export class CreateVehicleTables1651234567890 implements MigrationInterface {
+  public async up(queryRunner: QueryRunner): Promise<void> {
+    // Create vehicles table
+    await queryRunner.createTable(
+      new Table({
+        name: 'vehicles',
+        columns: [
+          {
+            name: 'id',
+            type: 'uuid',
+            isPrimary: true,
+            generationStrategy: 'uuid',
+            default: 'uuid_generate_v4()',
+          },
+          {
+            name: 'make_id',
+            type: 'varchar',
+            length: '50',
+            isNullable: false,
+          },
+          {
+            name: 'model_id',
+            type: 'varchar',
+            length: '50',
+            isNullable: false,
+          },
+          {
+            name: 'year',
+            type: 'integer',
+            isNullable: false,
+          },
+          {
+            name: 'trim',
+            type: 'varchar',
+            length: '50',
+            isNullable: false,
+          },
+          {
+            name: 'body_style',
+            type: 'varchar',
+            length: '20',
+            isNullable: false,
+          },
+          {
+            name: 'fuel_type',
+            type: 'varchar',
+            length: '20',
+            isNullable: false,
+          },
+          {
+            name: 'msrp',
+            type: 'decimal',
+            precision: 10,
+            scale: 2,
+            isNullable: false,
+          },
+          {
+            name: 'base_price',
+            type: 'decimal',
+            precision: 10,
+            scale: 2,
+            isNullable: false,
+          },
+          {
+            name: 'description',
+            type: 'text',
+            isNullable: true,
+          },
+          {
+            name: 'rating',
+            type: 'decimal',
+            precision: 3,
+            scale: 1,
+            isNullable: true,
+          },
+          {
+            name: 'created_at',
+            type: 'timestamp',
+            default: 'now()',
+          },
+          {
+            name: 'updated_at',
+            type: 'timestamp',
+            default: 'now()',
+            onUpdate: 'now()',
+          },
+          {
+            name: 'deleted_at',
+            type: 'timestamp',
+            isNullable: true,
+          },
+        ],
+      }),
+      true,
+    );
 
-      // Update customer engagement tracking
-      await this.customerService.recordEngagement(
-        event.customerId,
-        event.salesRepId,
-        event.engagementType,
-        event.timestamp
-      );
+    // Create indexes for vehicles table
+    await queryRunner.createIndex(
+      'vehicles',
+      new TableIndex({
+        name: 'IDX_VEHICLES_MAKE_MODEL_YEAR',
+        columnNames: ['make_id', 'model_id', 'year'],
+      }),
+    );
 
-      // If this is a test drive request, schedule it
-      if (event.engagementType === 'test_drive_request') {
-        const testDrive = await this.salesService.scheduleTestDrive(
-          event.customerId,
-          event.salesRepId,
-          event.vehicleId,
-          event.timestamp
-        );
+    await queryRunner.createIndex(
+      'vehicles',
+      new TableIndex({
+        name: 'IDX_VEHICLES_BODY_STYLE',
+        columnNames: ['body_style'],
+      }),
+    );
 
-        // Notify about scheduled test drive
-        const testDriveMessage: WebSocketMessage = {
-          type: 'TEST_DRIVE_SCHEDULED',
-          payload: {
-            testDriveId: testDrive.testDriveId,
-            customerId: event.customerId,
-            customerName: customer.name,
-            salesRepId: event.salesRepId,
-            salesRepName: salesRep.name,
-            vehicleId: event.vehicleId,
-            showroomId: event.showroomId,
-            scheduledTime: testDrive.scheduledTime,
-            timestamp: new Date().toISOString()
-          }
-        };
+    await queryRunner.createIndex(
+      'vehicles',
+      new TableIndex({
+        name: 'IDX_VEHICLES_FUEL_TYPE',
+        columnNames: ['fuel_type'],
+      }),
+    );
 
-        this.connectionManager.sendToRoom(`showroom:${event.showroomId}`, testDriveMessage);
-      }
+    await queryRunner.createIndex(
+      'vehicles',
+      new TableIndex({
+        name: 'IDX_VEHICLES_PRICE_RANGE',
+        columnNames: ['msrp'],
+      }),
+    );
 
-    } catch (err) {
-      logger.error(`Failed to handle customer engaged event: ${err.message}`);
-      this.metrics.recordEventError('customer:engaged');
-    }
-  }
-
-  private async handleCustomerExited(event: CustomerExitedEvent): Promise<void> {
-    try {
-      this.metrics.recordEvent('customer:exited');
-
-      // Get customer details
-      const customer = await this.customerService.getCustomer(event.customerId);
-
-      // Create real-time message
-      const message: WebSocketMessage = {
-        type: 'CUSTOMER_EXITED',
-        payload: {
-          customerId: event.customerId,
-          customerName: customer.name,
-          showroomId: event.showroomId,
-          timestamp: event.timestamp,
-          duration: event.duration
-        }
-      };
-
-      // Broadcast to showroom staff
-      this.connectionManager.sendToRoom(`showroom:${event.showroomId}`, message);
-
-      // Update customer status
-      await this.customerService.updateCustomerStatus(
-        event.customerId
+    // Create vehicle_specifications table
+    await queryRunner.createTable(
+      new Table({
+        name: 'vehicle_specifications',
+        columns: [
+          {
+            name: 'id',
+            type: 'uuid',
+            isPrimary: true,
+            generationStrategy: 'uuid',
+            default: 'uuid_generate_v4()',
+          },
+          {
+            name: 'vehicle_id',
+            type: 'uuid',
+            isNullable: false,
+          },
+          {
+            name: 'engine_type',
+            type: 'varchar',
+            length: '50',
+            isNullable: false,
+          },
+          {
+            name: 'engine_displacement',
+            type: 'decimal',
+            precision: 5,
+            scale: 2,
+            isNullable: false,
+          },
+          {
+            name: 'cylinders',
+            type: 'integer',
+            isNullable: false,
+          },
+          {
+            name: 'horsepower',
+            type: 'integer',
+            isNullable: false,
+          },
+          {
+            name: 'torque',
+            type: 'integer',
+            isNullable: false,
+          },
+          {
+            name: 'transmission_type',
+            type: 'varchar',
+            length: '20',
+            isNullable: false,
+          },
+          {
+            name: 'transmission_gears',
+            type: 'integer',
+            isNullable: false,
+          },
+          {
+            name: 'drivetrain',
+            type: 'varchar',
+            length: '10',
+            isNullable: false,
+          },
+          {
+            name: 'length',
+            type: 'decimal',
+            precision: 5,
+            scale: 2,
+            isNullable: false,
+          },
+          {
+            name: 'width',
+            type: 'decimal',
+            precision: 5,
+            scale: 2,
+            isNullable: false,
+          },
+          {
+            name: 'height',
+            type: 'decimal',
+            precision: 5,
+            scale: 2,
+            isNullable: false,
+          },
+          {
+            name: 'wheelbase',
+            type: 'decimal',
+            precision: 5,
+            scale: 2,
+            isNullable: false,
+          },
+          {
+            name: 'ground_clearance',
+            type: 'decimal',
+            precision: 5,
+            scale: 2,
+            isNullable: true,
+          },
+          {
+            name: 'seating_capacity',
+            type: 'integer',
+            isNullable: false,
+          },
+          {
+            name: 'cargo_volume',
+            type: 'decimal',
+            precision: 5,
+            scale: 2,
+            isNullable: false,
+          },
+          {
+            name: 'towing_capacity',
+            type: 'integer',
+            isNullable: true,
+          },
+          {
+            name: 'zero_to_sixty',
+            type: 'decimal',
+            precision: 4,
+            scale: 2,
+            isNullable: true,
+          },
+          {
+            name: 'top_speed',
+            type: 'integer',
+            isNullable: true,
+          },
+          {
+            name: 'city_mpg',
+            type: 'decimal',
+            precision: 4,
+            scale: 1,
+            isNullable: false,
+          },
+          {
+            name: 'highway_mpg',
+            type: 'decimal',
+            precision: 4,
+            scale: 1,
+            isNullable: false,
+          },
+          {
+            name: 'combined_mpg',
+            type: 'decimal',
+            precision: 4,
+            scale: 1,
+            isNullable: false,
+          },
+          {
+            name: 'range',
+            type: 'integer',
+            isNullable: true,
+          },
+          {
+            name: 'nhtsa_rating',
+            type: 'integer',
+            isNullable: false,
+          },
+          {
+            name: 'iihs_rating',
+            type: 'varchar',
+            length: '20',
+            isNullable: false,
+          },
+          {
+            name: 'airbags',
+            type: 'integer',
+            isNullable: false,
+          },
+         
