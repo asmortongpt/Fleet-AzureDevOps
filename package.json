@@ -254,7 +254,7 @@
     "vite": "^6.3.5",
     "vite-plugin-cjs-interop": "^2.3.0",
     "vite-plugin-compression": "^0.5.1",
-    "vitest": "^4.0.8"
+    "vitest": "^4.0.16"
   },
   "workspaces": {
     "packages": [
