@@ -1,4 +1,5 @@
 /**
+import { SkeletonLoader } from '@/components/shared';
  * Virtual List Component
  *
  * High-performance virtualized list for rendering thousands of items
