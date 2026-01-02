@@ -1,19 +1,29 @@
 import { Moon, Sun } from "@phosphor-icons/react"
 
 import { Button } from "@/components/ui/button"
-import { useTheme } from "@/hooks/use-theme"
+import { useThemeContext } from "@/components/providers/ThemeProvider"
 
 export function ThemeToggle() {
-  const { theme, toggleTheme } = useTheme()
+  const { resolvedTheme, setTheme, theme } = useThemeContext()
+
+  const toggleTheme = () => {
+    // If currently system, switch to explicit light/dark based on resolved
+    // Otherwise toggle between light and dark
+    if (theme === 'system') {
+      setTheme(resolvedTheme === 'dark' ? 'light' : 'dark')
+    } else {
+      setTheme(theme === 'light' ? 'dark' : 'light')
+    }
+  }
 
   return (
     <Button
       variant="ghost"
       size="icon"
       onClick={toggleTheme}
-      title={theme === 'light' ? 'Switch to dark mode' : 'Switch to light mode'}
+      title={resolvedTheme === 'light' ? 'Switch to dark mode' : 'Switch to light mode'}
     >
-      {theme === 'light' ? (
+      {resolvedTheme === 'light' ? (
         <Moon className="w-5 h-5" />
       ) : (
         <Sun className="w-5 h-5" />

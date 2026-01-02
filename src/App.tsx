@@ -108,6 +108,7 @@ const EquipmentDashboard = lazy(() => import("@/components/modules/assets/Equipm
 
 // PAGES
 const AnalyticsPage = lazy(() => import("@/pages/AnalyticsPage"))
+const GoogleMapsTestPage = lazy(() => import("@/pages/GoogleMapsTest"))
 
 // DRIVER MODULES
 const DriverPerformance = lazy(() => import("@/components/modules/drivers/DriverPerformance").then(m => ({ default: m.DriverPerformance })))
@@ -257,6 +258,8 @@ function App() {
         return <RouteManagement />
       case "gis-map":
         return <GISCommandCenter />
+      case "google-maps-test":
+        return <GoogleMapsTestPage />
       case "traffic-cameras":
         // Map-First Consolidation: Redirect to Dashboard with layer active
         return <LiveFleetDashboard initialLayer="traffic-cameras" />

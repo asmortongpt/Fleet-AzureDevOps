@@ -139,6 +139,69 @@ export function getPresetConfig(quality: QualityPreset): PostProcessingConfig {
 }
 
 // =============================================================================
+// EFFECT WRAPPER COMPONENTS (avoid null children type issues)
+// =============================================================================
+
+function AOEffect({ config }: { config: PostProcessingConfig }) {
+    if (!config.aoEnabled) return null
+    return (
+        <N8AO
+            aoRadius={config.aoRadius}
+            intensity={config.aoIntensity}
+            distanceFalloff={1}
+            color="black"
+            quality="high"
+        />
+    )
+}
+
+function DOFEffect({ config, focusDistance }: { config: PostProcessingConfig; focusDistance: number }) {
+    if (!config.dofEnabled) return null
+    return (
+        <DepthOfField
+            focusDistance={focusDistance}
+            focalLength={config.dofFocalLength}
+            bokehScale={config.dofBokehScale}
+        />
+    )
+}
+
+function BloomEffect({ config }: { config: PostProcessingConfig }) {
+    if (!config.bloomEnabled) return null
+    return (
+        <Bloom
+            intensity={config.bloomIntensity}
+            luminanceThreshold={config.bloomThreshold}
+            luminanceSmoothing={0.9}
+            kernelSize={KernelSize.LARGE}
+        />
+    )
+}
+
+function ChromaticEffect({ config }: { config: PostProcessingConfig }) {
+    if (!config.chromaticEnabled) return null
+    return (
+        <ChromaticAberration
+            offset={new THREE.Vector2(config.chromaticOffset, config.chromaticOffset)}
+            blendFunction={BlendFunction.NORMAL}
+            radialModulation={false}
+            modulationOffset={0}
+        />
+    )
+}
+
+function VignetteEffect({ config }: { config: PostProcessingConfig }) {
+    if (!config.vignetteEnabled) return null
+    return (
+        <Vignette
+            offset={0.3}
+            darkness={config.vignetteIntensity}
+            blendFunction={BlendFunction.NORMAL}
+        />
+    )
+}
+
+// =============================================================================
 // ADVANCED POST-PROCESSING COMPONENT
 // =============================================================================
 
@@ -171,57 +234,12 @@ export function AdvancedPostProcessing({
 
     return (
         <EffectComposer multisampling={config.quality === 'ultra' ? 8 : 4}>
-            {/* Anti-aliasing */}
             <SMAA />
-
-            {/* Screen-Space Ambient Occlusion */}
-            {config.aoEnabled && (
-                <N8AO
-                    aoRadius={config.aoRadius}
-                    intensity={config.aoIntensity}
-                    distanceFalloff={1}
-                    color="black"
-                    quality="high"
-                />
-            )}
-
-            {/* Depth of Field */}
-            {config.dofEnabled && (
-                <DepthOfField
-                    focusDistance={focusDistance}
-                    focalLength={config.dofFocalLength}
-                    bokehScale={config.dofBokehScale}
-                />
-            )}
-
-            {/* Bloom */}
-            {config.bloomEnabled && (
-                <Bloom
-                    intensity={config.bloomIntensity}
-                    luminanceThreshold={config.bloomThreshold}
-                    luminanceSmoothing={0.9}
-                    kernelSize={KernelSize.LARGE}
-                />
-            )}
-
-            {/* Chromatic Aberration */}
-            {config.chromaticEnabled && (
-                <ChromaticAberration
-                    offset={new THREE.Vector2(config.chromaticOffset, config.chromaticOffset)}
-                    blendFunction={BlendFunction.NORMAL}
-                />
-            )}
-
-            {/* Vignette */}
-            {config.vignetteEnabled && (
-                <Vignette
-                    offset={0.3}
-                    darkness={config.vignetteIntensity}
-                    blendFunction={BlendFunction.NORMAL}
-                />
-            )}
-
-            {/* Tone Mapping */}
+            <AOEffect config={config} />
+            <DOFEffect config={config} focusDistance={focusDistance} />
+            <BloomEffect config={config} />
+            <ChromaticEffect config={config} />
+            <VignetteEffect config={config} />
             <ToneMapping mode={toneMappingMode} />
         </EffectComposer>
     )
@@ -272,8 +290,8 @@ export function QualityControlPanel({
                                 key={preset}
                                 onClick={() => onChange(getPresetConfig(preset))}
                                 className={`px-2 py-1 rounded text-xs font-medium transition-colors ${config.quality === preset
-                                        ? 'bg-blue-600 text-white'
-                                        : 'bg-slate-800 text-slate-400 hover:bg-slate-700'
+                                    ? 'bg-blue-600 text-white'
+                                    : 'bg-slate-800 text-slate-400 hover:bg-slate-700'
                                     }`}
                             >
                                 {preset.toUpperCase()}

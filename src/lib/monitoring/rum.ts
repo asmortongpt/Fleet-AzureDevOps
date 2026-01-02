@@ -204,7 +204,7 @@ class RUMService {
         scrollTimeout = setTimeout(() => {
           const scrollPercentage = Math.round(
             (window.scrollY / (document.documentElement.scrollHeight - window.innerHeight)) *
-              100
+            100
           );
 
           if (scrollPercentage > maxScroll) {
@@ -417,6 +417,14 @@ class RUMService {
       return;
     }
 
+    // Skip sending events in development - no endpoint available
+    if (import.meta.env.DEV) {
+      if (import.meta.env.DEV) {
+        console.debug('[RUM] Skipping event flush in development mode');
+      }
+      return;
+    }
+
     const eventsToSend = [...this.events];
     this.events = [];
 
@@ -434,12 +442,16 @@ class RUMService {
         keepalive: true,
       });
     } catch (error) {
-      console.error('[RUM] Failed to send events:', error);
-
-      // Put events back if request failed
-      this.events = [...eventsToSend, ...this.events];
+      // Only log error once, not repeatedly
+      if (!this.flushErrorLogged) {
+        console.warn('[RUM] Event endpoint unavailable, events will be discarded');
+        this.flushErrorLogged = true;
+      }
+      // Don't put events back - they'll accumulate forever if endpoint is down
     }
   }
+
+  private flushErrorLogged = false;
 
   /**
    * End session
