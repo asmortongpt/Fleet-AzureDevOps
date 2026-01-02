@@ -159,12 +159,40 @@ export class WorkerPool extends EventEmitter {
     })
 
     worker.on(`exit`, (code) => {
-      console.log(`[Worker ${workerId}] Exited with code ${code}`)
+      const exitType = code === 0 ? 'normally' : 'unexpectedly'
+      console.log(`[Worker ${workerId}] Exited ${exitType} with code ${code}`)
+
+      // Handle any task that was running when worker exited
+      const task = workerInfo.currentTask
+      if (task) {
+        // Clear task timeout if it exists
+        if (workerInfo.taskTimer) {
+          clearTimeout(workerInfo.taskTimer)
+          workerInfo.taskTimer = null
+        }
+
+        // Reject the task with appropriate error
+        const errorMessage = code === 0
+          ? `Worker exited normally while processing task`
+          : `Worker exited unexpectedly with code ${code} while processing task`
+        task.reject(new Error(errorMessage))
+        workerInfo.errors++
+        this.totalErrors++
+        this.emit('taskError', { taskId: task.id, workerId, error: new Error(errorMessage) })
+      }
+
+      // Remove worker from pool
       this.workers.delete(workerId)
 
-      // If we`re below minimum workers, create a new one
+      // If we're below minimum workers, create a replacement
       if (this.workers.size < this.config.minWorkers) {
+        console.log(`[Worker Pool] Creating replacement worker (${this.workers.size}/${this.config.minWorkers} minimum)`)
         this.createWorker()
+      }
+
+      // Process next task if queue has items
+      if (this.taskQueue.length > 0) {
+        this.processNextTask()
       }
     })
 
