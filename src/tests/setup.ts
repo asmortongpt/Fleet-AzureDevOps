@@ -1,6 +1,7 @@
 import { cleanup } from '@testing-library/react';
-import { expect, afterEach, vi, beforeAll } from 'vitest';
+import { expect, afterEach, vi, beforeAll, afterAll } from 'vitest';
 import '@testing-library/jest-dom';
+import { startMockWebSocketServer, stopMockWebSocketServer } from './mocks/websocket-server';
 
 // ============================================================================
 // Global Test Setup
@@ -18,7 +19,9 @@ afterEach(() => {
 });
 
 // Setup global mocks before all tests
-beforeAll(() => {
+beforeAll(async () => {
+  // Start WebSocket server for tests
+  startMockWebSocketServer();
   // Mock window.matchMedia (required for responsive components)
   Object.defineProperty(window, 'matchMedia', {
     writable: true,
@@ -62,6 +65,11 @@ beforeAll(() => {
   // Suppress console errors in tests (optional - remove if you want to see errors)
   // console.error = vi.fn();
   // console.warn = vi.fn();
+});
+
+// Cleanup after all tests
+afterAll(async () => {
+  await stopMockWebSocketServer();
 });
 
 // ============================================================================
