@@ -43,7 +43,6 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { useDrilldown } from '@/contexts/DrilldownContext'
 
 interface KPIData {
   totalVehicles: number
@@ -251,7 +250,6 @@ const fetchDashboardTrends = async () => {
 
 export function ExecutiveDashboard() {
   const queryClient = useQueryClient()
-  const { push } = useDrilldown()
 
   // TanStack Query hooks with 60-second refetch interval
   const { data: kpis, isLoading: kpisLoading } = useQuery<KPIData>({
@@ -424,19 +422,7 @@ export function ExecutiveDashboard() {
         <CardContent>
           <div className="grid grid-cols-4 gap-4">
             {fleetHealth.breakdown.map((item) => (
-              <Card
-                key={item.category}
-                className="cursor-pointer hover:border-primary/50 hover:shadow-md transition-all"
-                onClick={() => push({
-                  id: `health-${item.category.toLowerCase()}`,
-                  type: item.category === 'Safety' ? 'safety-score' :
-                        item.category === 'Mechanical' ? 'maintenance-stats' :
-                        item.category === 'Compliance' ? 'regulations' :
-                        'utilization',
-                  label: `${item.category} Health`,
-                  data: { category: item.category, score: item.score, weight: item.weight }
-                })}
-              >
+              <Card key={item.category}>
                 <CardContent className="pt-6">
                   <div className="text-center">
                     <p className="text-sm text-muted-foreground mb-2">{item.category}</p>
@@ -457,17 +443,9 @@ export function ExecutiveDashboard() {
         </CardContent>
       </Card>
 
-      {/* Key Performance Indicators - All clickable with deep drilldown */}
+      {/* Key Performance Indicators */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        <Card
-          className="cursor-pointer hover:border-primary/50 hover:shadow-md transition-all"
-          onClick={() => push({
-            id: 'total-vehicles',
-            type: 'fleet-overview',
-            label: 'Total Vehicles',
-            data: { filter: 'all', totalVehicles: kpis.totalVehicles }
-          })}
-        >
+        <Card>
           <CardContent className="pt-6">
             <div className="flex items-center justify-between">
               <div>
@@ -482,15 +460,7 @@ export function ExecutiveDashboard() {
           </CardContent>
         </Card>
 
-        <Card
-          className="cursor-pointer hover:border-primary/50 hover:shadow-md transition-all"
-          onClick={() => push({
-            id: 'fleet-utilization',
-            type: 'utilization',
-            label: 'Fleet Utilization',
-            data: { rate: kpis.fleetUtilizationRate, assetRate: kpis.assetUtilizationPercentage }
-          })}
-        >
+        <Card>
           <CardContent className="pt-6">
             <div className="flex items-center justify-between">
               <div>
@@ -505,15 +475,7 @@ export function ExecutiveDashboard() {
           </CardContent>
         </Card>
 
-        <Card
-          className="cursor-pointer hover:border-primary/50 hover:shadow-md transition-all"
-          onClick={() => push({
-            id: 'mileage-stats',
-            type: 'performance-metrics',
-            label: 'Monthly Mileage',
-            data: { thisMonth: kpis.totalMileageThisMonth, lastMonth: kpis.totalMileageLastMonth, change: kpis.mileageChange }
-          })}
-        >
+        <Card>
           <CardContent className="pt-6">
             <div className="flex items-center justify-between">
               <div>
@@ -535,15 +497,7 @@ export function ExecutiveDashboard() {
           </CardContent>
         </Card>
 
-        <Card
-          className="cursor-pointer hover:border-primary/50 hover:shadow-md transition-all"
-          onClick={() => push({
-            id: 'fuel-efficiency',
-            type: 'fuel-stats',
-            label: 'Fuel Efficiency',
-            data: { avgEfficiency: kpis.avgFuelEfficiency }
-          })}
-        >
+        <Card>
           <CardContent className="pt-6">
             <div className="flex items-center justify-between">
               <div>
@@ -570,35 +524,7 @@ export function ExecutiveDashboard() {
           <ScrollArea className="h-72">
             <div className="space-y-4">
               {insights?.map((insight) => (
-                <div
-                  key={insight.id}
-                  className="border rounded-md p-4 bg-muted/50 cursor-pointer hover:bg-muted/80 transition-colors"
-                  onClick={() => {
-                    // Drill to related record if available, otherwise show insight detail
-                    if (insight.relatedVehicle) {
-                      push({
-                        id: `vehicle-${insight.relatedVehicle}`,
-                        type: 'vehicle',
-                        label: `Vehicle ${insight.relatedVehicle}`,
-                        data: { vehicleId: insight.relatedVehicle }
-                      })
-                    } else if (insight.type === 'critical' || insight.type === 'warning') {
-                      push({
-                        id: `incident-${insight.id}`,
-                        type: 'incidents',
-                        label: insight.title,
-                        data: { insightId: insight.id, ...insight }
-                      })
-                    } else {
-                      push({
-                        id: `insight-${insight.id}`,
-                        type: 'fleet-optimizer',
-                        label: insight.title,
-                        data: { insight }
-                      })
-                    }
-                  }}
-                >
+                <div key={insight.id} className="border rounded-md p-4 bg-muted/50">
                   <div className="flex items-start justify-between">
                     <div className="flex items-center gap-2">
                       <div className={`text-${getInsightColor(insight.type)}-foreground`}>
@@ -612,18 +538,13 @@ export function ExecutiveDashboard() {
                       </div>
                     </div>
                     {insight.actionable && (
-                      <Button variant="outline" size="sm" onClick={(e) => e.stopPropagation()}>
-                        Take Action
-                      </Button>
+                      <Button variant="outline" size="sm">Take Action</Button>
                     )}
                   </div>
                   <p className="mt-2 text-sm">{insight.message}</p>
-                  <div className="flex items-center justify-between mt-2">
-                    <p className="text-xs text-muted-foreground">
-                      {new Date(insight.timestamp).toLocaleTimeString()}
-                    </p>
-                    <span className="text-xs text-primary">Click to view details →</span>
-                  </div>
+                  <p className="mt-1 text-xs text-muted-foreground">
+                    {new Date(insight.timestamp).toLocaleTimeString()}
+                  </p>
                 </div>
               ))}
             </div>

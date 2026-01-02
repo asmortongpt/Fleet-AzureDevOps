@@ -97,7 +97,7 @@ describe('WebSocket Integration', () => {
         ws = new WebSocket(`${WS_URL}/api/ws`)
 
         ws.on('open', () => {
-          ws.close(1000, 'Normal close')
+          ws.close()
         })
 
         ws.on('close', (code, reason) => {

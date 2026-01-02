@@ -1,7 +1,6 @@
 import axios from 'axios';
 import type { LatLngExpression } from 'leaflet';
 import React, { useEffect, useState, useCallback } from 'react';
-import { SkeletonLoader } from '@/components/shared';
 import { Helmet } from 'react-helmet-async';
 import { MapContainer, TileLayer, Marker, Popup, Circle, Polygon } from 'react-leaflet';
 import { toast } from 'react-toastify';

@@ -32,7 +32,7 @@ wss.on('connection', (ws: ExtendedWebSocket, req) => {
     const decoded = jwt.verify(token, process.env.JWT_SECRET!);
     ws.vehicleId = (decoded as any).vehicleId;
   } catch (err) {
-    ws.close(1008, 'Policy violation: Invalid JWT');
+    ws.terminate();
     return;
   }
 
@@ -69,7 +69,7 @@ wss.on('connection', (ws: ExtendedWebSocket, req) => {
 
 setInterval(() => {
   wss.clients.forEach((ws: ExtendedWebSocket) => {
-    if (!ws.isAlive) return ws.close(1000, 'Heartbeat timeout');
+    if (!ws.isAlive) return ws.terminate();
     ws.isAlive = false;
     ws.ping();
   });

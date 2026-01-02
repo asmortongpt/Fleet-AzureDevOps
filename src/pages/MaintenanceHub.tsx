@@ -97,16 +97,16 @@ function CalendarContent() {
 }
 
 function RequestsContent() {
-    const { push } = useDrilldown()
+    const { push: _push } = useDrilldown()
 
     return (
         <div className="p-6 space-y-6 bg-gradient-to-b from-slate-900/50 to-transparent">
             <h2 className="text-2xl font-bold text-white">Maintenance Requests</h2>
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                <StatCard title="New Requests" value="6" variant="primary" onClick={() => push({ type: 'maintenance-requests', data: { title: 'New Requests', filter: 'new' }, id: 'new-requests' } as Omit<DrilldownLevel, "timestamp">)} />
-                <StatCard title="In Review" value="4" variant="warning" onClick={() => push({ type: 'maintenance-requests', data: { title: 'In Review', filter: 'review' }, id: 'in-review' } as Omit<DrilldownLevel, "timestamp">)} />
-                <StatCard title="Approved" value="8" variant="success" onClick={() => push({ type: 'maintenance-requests', data: { title: 'Approved', filter: 'approved' }, id: 'approved' } as Omit<DrilldownLevel, "timestamp">)} />
-                <StatCard title="Completed" value="45" variant="default" onClick={() => push({ type: 'maintenance-requests', data: { title: 'Completed', filter: 'completed' }, id: 'completed' } as Omit<DrilldownLevel, "timestamp">)} />
+                <StatCard title="New Requests" value="6" variant="primary" />
+                <StatCard title="In Review" value="4" variant="warning" />
+                <StatCard title="Approved" value="8" variant="success" />
+                <StatCard title="Completed" value="45" variant="default" />
             </div>
         </div>
     )

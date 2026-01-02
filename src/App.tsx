@@ -11,7 +11,6 @@ import { QueryErrorBoundary } from "@/components/errors/QueryErrorBoundary"
 import { CommandCenterLayout } from "@/components/layout/CommandCenterLayout"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { WebSocketProvider } from "@/contexts/WebSocketContext"
 import { useFleetData } from "@/hooks/use-fleet-data"
 import { navigationItems } from "@/lib/navigation"
 import telemetryService from '@/lib/telemetry'
@@ -395,39 +394,37 @@ function App() {
 
 
   return (
-    <WebSocketProvider autoConnect={true} debug={import.meta.env.DEV}>
-      <DrilldownManager>
-        {/* Skip to main content link for accessibility */}
-        <a
-          href="#main-content"
-          className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-50 focus:px-4 focus:py-2 focus:bg-primary focus:text-primary-foreground focus:rounded-md focus:shadow-lg"
+    <DrilldownManager>
+      {/* Skip to main content link for accessibility */}
+      <a
+        href="#main-content"
+        className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-50 focus:px-4 focus:py-2 focus:bg-primary focus:text-primary-foreground focus:rounded-md focus:shadow-lg"
+      >
+        Skip to main content
+      </a>
+
+      <CommandCenterLayout>
+        <EnhancedErrorBoundary
+          showDetails={import.meta.env.DEV}
+          onError={(error, errorInfo) => {
+            console.error('App Error Boundary:', error, errorInfo);
+          }}
         >
-          Skip to main content
-        </a>
+          <QueryErrorBoundary>
+            <Suspense fallback={<div className="h-full w-full flex items-center justify-center"><LoadingSpinner /></div>}>
+              {renderModule()}
+            </Suspense>
+          </QueryErrorBoundary>
+        </EnhancedErrorBoundary>
+      </CommandCenterLayout>
 
-        <CommandCenterLayout>
-          <EnhancedErrorBoundary
-            showDetails={import.meta.env.DEV}
-            onError={(error, errorInfo) => {
-              console.error('App Error Boundary:', error, errorInfo);
-            }}
-          >
-            <QueryErrorBoundary>
-              <Suspense fallback={<div className="h-full w-full flex items-center justify-center"><LoadingSpinner /></div>}>
-                {renderModule()}
-              </Suspense>
-            </QueryErrorBoundary>
-          </EnhancedErrorBoundary>
-        </CommandCenterLayout>
+      {/* Role Switcher FAB button */}
+      <RoleSwitcher />
 
-        {/* Role Switcher FAB button */}
-        <RoleSwitcher />
+      {/* Toast notifications */}
+      <ToastContainer />
 
-        {/* Toast notifications */}
-        <ToastContainer />
-
-      </DrilldownManager >
-    </WebSocketProvider>
+    </DrilldownManager >
   )
 }
 

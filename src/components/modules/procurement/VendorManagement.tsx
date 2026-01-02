@@ -32,22 +32,12 @@ import {
   TableRow
 } from "@/components/ui/table"
 import { Textarea } from "@/components/ui/textarea"
-import { useDrilldown } from "@/contexts/DrilldownContext"
 import { Vendor } from "@/lib/types"
 
 
 export function VendorManagement() {
-  const { push } = useDrilldown()
   const [vendors, setVendors] = useState<Vendor[]>([])
   const [searchTerm, setSearchTerm] = useState("")
-
-  const handleVendorClick = (vendor: Vendor) => {
-    push({
-      type: 'vendor',
-      label: vendor.name,
-      data: { vendorId: vendor.id, vendorName: vendor.name, vendorType: vendor.type }
-    })
-  }
   const [filterType, setFilterType] = useState<string>("all")
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false)
   const [selectedVendor, setSelectedVendor] = useState<Vendor | null>(null)
@@ -349,14 +339,7 @@ export function VendorManagement() {
                 </TableRow>
               ) : (
                 filteredVendors.map(vendor => (
-                  <TableRow
-                    key={vendor.id}
-                    className="cursor-pointer hover:bg-muted/50"
-                    onClick={() => handleVendorClick(vendor)}
-                    role="button"
-                    tabIndex={0}
-                    onKeyDown={(e) => e.key === 'Enter' && handleVendorClick(vendor)}
-                  >
+                  <TableRow key={vendor.id}>
                     <TableCell>
                       <div>
                         <div className="font-medium">{vendor.name}</div>

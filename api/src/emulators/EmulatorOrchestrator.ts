@@ -1,6 +1,7 @@
 /**
  * EmulatorOrchestrator - Central control system for all fleet emulators
  * Coordinates GPS, OBD-II, Fuel, Maintenance, Driver, Route, Cost, and IoT emulators
+ * Now integrated with TelemetryService for database persistence
  */
 
 import { EventEmitter } from 'events'
@@ -16,10 +17,12 @@ import { DriverBehaviorEmulator } from './driver/DriverBehaviorEmulator'
 import { EVChargingEmulator } from './evcharging/EVChargingEmulator'
 import { FuelEmulator } from './fuel/FuelEmulator'
 import { GPSEmulator } from './gps/GPSEmulator'
+import { RealisticGPSEmulator } from './gps/RealisticGPSEmulator'
 import { VehicleInventoryEmulator } from './inventory/VehicleInventoryEmulator'
 import { IoTEmulator } from './iot/IoTEmulator'
 import { MaintenanceEmulator } from './maintenance/MaintenanceEmulator'
 import { OBD2Emulator } from './obd2/OBD2Emulator'
+import { RealisticOBD2Emulator } from './obd2/RealisticOBD2Emulator'
 import { RadioEmulator } from './radio/RadioEmulator'
 import { RouteEmulator } from './route/RouteEmulator'
 import {
@@ -30,9 +33,15 @@ import {
   Vehicle,
   Route,
   Scenario,
-  Geofence
+  Geofence,
+  GPSTelemetry,
+  OBD2Data,
+  RadioTransmission,
+  DriverBehaviorEvent,
+  IoTSensorData
 } from './types'
 import { VideoTelematicsEmulator } from './video/VideoTelematicsEmulator'
+import { telemetryService, TelemetryVehicle } from '../services/TelemetryService'
 
 export class EmulatorOrchestrator extends EventEmitter {
   private config: EmulatorConfig
@@ -81,6 +90,7 @@ export class EmulatorOrchestrator extends EventEmitter {
 
   private eventQueue: EmulatorEvent[] = []
   private statsInterval: NodeJS.Timeout | null = null
+  private telemetryServiceInitialized: boolean = false
 
   constructor(configPath?: string) {
     super()
@@ -90,10 +100,21 @@ export class EmulatorOrchestrator extends EventEmitter {
     const configFile = configPath || defaultConfigPath
     this.config = JSON.parse(fs.readFileSync(configFile, `utf-8`))
 
-    // Load vehicles, routes, scenarios
-    this.loadVehicles()
-    this.loadRoutes()
-    this.loadScenarios()
+    // Initialize TelemetryService first, then load data
+    this.initializeTelemetryService().then(() => {
+      // Load vehicles, routes, scenarios from database via TelemetryService
+      this.loadVehiclesFromService()
+      this.loadRoutesFromService()
+      this.loadScenarios() // Scenarios can stay as config for now
+
+      console.log(`EmulatorOrchestrator initialized with ${this.vehicles.size} vehicles from database`)
+    }).catch((err) => {
+      console.warn('TelemetryService initialization failed, falling back to JSON files:', err)
+      // Fallback to JSON files
+      this.loadVehicles()
+      this.loadRoutes()
+      this.loadScenarios()
+    })
 
     // Initialize WebSocket if enabled
     if (this.config.realtime?.websocket?.enabled) {
@@ -110,6 +131,74 @@ export class EmulatorOrchestrator extends EventEmitter {
     this.initializeInventoryEmulator()
 
     console.log(`EmulatorOrchestrator initialized with ${this.vehicles.size} vehicles`)
+  }
+
+  /**
+   * Initialize the TelemetryService for database integration
+   */
+  private async initializeTelemetryService(): Promise<void> {
+    if (this.telemetryServiceInitialized) return
+
+    await telemetryService.initialize()
+    this.telemetryServiceInitialized = true
+    console.log('TelemetryService initialized for EmulatorOrchestrator')
+  }
+
+  /**
+   * Load vehicles from TelemetryService (database-backed)
+   */
+  private loadVehiclesFromService(): void {
+    const dbVehicles = telemetryService.getVehicles()
+
+    for (const dbVehicle of dbVehicles) {
+      const vehicle = this.mapTelemetryVehicle(dbVehicle)
+      this.vehicles.set(vehicle.id, vehicle)
+    }
+
+    this.stats.totalVehicles = this.vehicles.size
+    console.log(`Loaded ${this.vehicles.size} vehicles from TelemetryService`)
+  }
+
+  /**
+   * Map TelemetryVehicle to internal Vehicle type
+   */
+  private mapTelemetryVehicle(tv: TelemetryVehicle): Vehicle {
+    return {
+      id: tv.id,
+      make: tv.make,
+      model: tv.model,
+      year: tv.year,
+      type: tv.type as any,
+      vin: tv.vin,
+      licensePlate: tv.licensePlate,
+      tankSize: tv.tankSize,
+      fuelEfficiency: tv.fuelEfficiency,
+      batteryCapacity: tv.batteryCapacity,
+      electricRange: tv.electricRange,
+      startingLocation: tv.startingLocation,
+      homeBase: tv.homeBase,
+      driverBehavior: tv.driverBehavior,
+      features: tv.features
+    }
+  }
+
+  /**
+   * Load routes from TelemetryService (database-backed)
+   */
+  private loadRoutesFromService(): void {
+    const routeMap = telemetryService.getRoutesMap()
+
+    for (const [id, route] of routeMap) {
+      this.routes.set(id, route)
+    }
+
+    // Load geofences from TelemetryService
+    const geofenceMap = telemetryService.getGeofencesMap()
+    for (const [id, geofence] of geofenceMap) {
+      this.geofences.set(id, geofence)
+    }
+
+    console.log(`Loaded ${this.routes.size} routes and ${this.geofences.size} geofences from TelemetryService`)
   }
 
   /**
@@ -300,11 +389,52 @@ export class EmulatorOrchestrator extends EventEmitter {
   }
 
   /**
-   * Persist event to database
+   * Persist event to database via TelemetryService
    */
   private async persistEvent(event: EmulatorEvent): Promise<void> {
-    // TODO: Implement database persistence
-    // This would write to PostgreSQL/Redis based on config
+    if (!this.telemetryServiceInitialized) {
+      return // Skip if TelemetryService not ready
+    }
+
+    try {
+      switch (event.type) {
+        case 'gps':
+          await telemetryService.saveGPSTelemetry(event.data as GPSTelemetry)
+          break
+
+        case 'obd2':
+          await telemetryService.saveOBD2Telemetry(event.data as OBD2Data)
+          break
+
+        case 'radio':
+          if (event.data.id) {
+            await telemetryService.saveRadioTransmission(event.data as RadioTransmission)
+          }
+          break
+
+        case 'driver':
+          await telemetryService.saveDriverBehaviorEvent(event.data as DriverBehaviorEvent)
+          break
+
+        case 'iot':
+          await telemetryService.saveIoTSensorData(event.data as IoTSensorData)
+          break
+
+        // Other event types can be added here as needed
+        case 'fuel':
+        case 'maintenance':
+        case 'cost':
+        case 'dispatch':
+          // These can be persisted to their respective tables
+          break
+
+        default:
+          // Unknown event type - log but don't fail
+          break
+      }
+    } catch (error) {
+      console.error(`Failed to persist ${event.type} event:`, error)
+    }
   }
 
   /**
@@ -371,29 +501,29 @@ export class EmulatorOrchestrator extends EventEmitter {
   private async startVehicleEmulators(vehicle: Vehicle): Promise<void> {
     const vehicleId = vehicle.id
 
-    // GPS Emulator
+    // GPS Emulator - Use production-grade RealisticGPSEmulator
     if (vehicle.features.includes('gps')) {
-      const gpsEmulator = new GPSEmulator(vehicle, this.config, this.geofences)
+      const gpsEmulator = new RealisticGPSEmulator(vehicle, this.config, this.geofences)
       gpsEmulator.on('data', (data) => this.emit('gps', {
         type: 'gps',
         vehicleId,
         timestamp: new Date(),
         data
       }))
-      this.gpsEmulators.set(vehicleId, gpsEmulator)
+      this.gpsEmulators.set(vehicleId, gpsEmulator as unknown as GPSEmulator)
       await gpsEmulator.start()
     }
 
-    // OBD-II Emulator
+    // OBD-II Emulator - Use production-grade RealisticOBD2Emulator
     if (vehicle.features.includes('obd2')) {
-      const obd2Emulator = new OBD2Emulator(vehicle, this.config)
+      const obd2Emulator = new RealisticOBD2Emulator(vehicle, this.config)
       obd2Emulator.on('data', (data) => this.emit('obd2', {
         type: 'obd2',
         vehicleId,
         timestamp: new Date(),
         data
       }))
-      this.obd2Emulators.set(vehicleId, obd2Emulator)
+      this.obd2Emulators.set(vehicleId, obd2Emulator as unknown as OBD2Emulator)
       await obd2Emulator.start()
     }
 

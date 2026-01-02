@@ -29,7 +29,6 @@ import {
 } from "@phosphor-icons/react"
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
 import React, { useState, useCallback, useMemo, useRef, useEffect } from "react"
-import { SkeletonLoader } from '@/components/shared';
 import { toast } from "sonner"
 
 import { UniversalMap, UniversalMapProps } from "@/components/UniversalMap"
