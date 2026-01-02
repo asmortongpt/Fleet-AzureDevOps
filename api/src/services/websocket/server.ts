@@ -32,7 +32,7 @@ wss.on('connection', (ws: ExtendedWebSocket, req) => {
     const decoded = jwt.verify(token, process.env.JWT_SECRET!);
     ws.vehicleId = (decoded as any).vehicleId;
   } catch (err) {
-    ws.terminate();
+    ws.close(1008, 'Policy violation: Invalid JWT');
     return;
   }
 
