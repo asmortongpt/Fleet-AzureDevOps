@@ -387,11 +387,17 @@ const ReportBuilder = () => {
 }
 // Main AnalyticsWorkspace component
 export function AnalyticsWorkspace() {
-  const { data: vehicles } = useVehicles()
-  const { data: workOrders } = useWorkOrders()
-  const { data: facilities } = useFacilities()
-  const { data: drivers } = useDrivers()
+  const { data: vehiclesData } = useVehicles()
+  const { data: workOrdersData } = useWorkOrders()
+  const { data: facilitiesData } = useFacilities()
+  const { data: driversData } = useDrivers()
   const [activeView, setActiveView] = useState<'executive' | 'analysis'>('executive')
+
+  // Extract arrays from API response structure {data: [], meta: {}}
+  const vehicles = (Array.isArray(vehiclesData) ? vehiclesData : ((vehiclesData as any)?.data || [])) as unknown as Vehicle[]
+  const workOrders = (Array.isArray(workOrdersData) ? workOrdersData : ((workOrdersData as any)?.data || [])) as unknown as WorkOrder[]
+  const facilities = Array.isArray(facilitiesData) ? facilitiesData : ((facilitiesData as any)?.data || [])
+  const drivers = Array.isArray(driversData) ? driversData : ((driversData as any)?.data || [])
 
   return (
     <div className="h-screen flex flex-col">
@@ -405,10 +411,10 @@ export function AnalyticsWorkspace() {
       </div>
       <div className="flex-1 overflow-hidden">
         {activeView === 'executive' && (
-          <ExecutiveDashboard vehicles={(vehicles || []) as unknown as Vehicle[]} workOrders={(workOrders || []) as unknown as WorkOrder[]} _drivers={drivers} />
+          <ExecutiveDashboard vehicles={vehicles} workOrders={workOrders} _drivers={drivers} />
         )}
         {activeView === 'analysis' && (
-          <DataAnalysis vehicles={(vehicles || []) as unknown as Vehicle[]} _workOrders={workOrders} _facilities={facilities} />
+          <DataAnalysis vehicles={vehicles} _workOrders={workOrders} _facilities={facilities} />
         )}
       </div>
     </div>
