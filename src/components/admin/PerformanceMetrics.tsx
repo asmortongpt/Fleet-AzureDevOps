@@ -15,7 +15,6 @@ import {
   CircularProgress
 } from '@mui/material';
 import React, { useMemo } from 'react';
-import { SkeletonLoader } from '@/components/shared';
 
 interface Metrics {
   endpoints: {

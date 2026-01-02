@@ -21,7 +21,6 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
-import { useDrilldown } from '@/contexts/DrilldownContext';
 import { useVehicles, useDrivers, useWorkOrders } from '@/hooks/use-api';
 
 interface Vehicle {
@@ -47,33 +46,11 @@ interface Driver {
 }
 
 export function OperationsHub() {
-  const { push } = useDrilldown();
   const { data: vehicles = [], isLoading: vehiclesLoading } = useVehicles();
   const { data: drivers = [] } = useDrivers();
   const { data: workOrders = [] } = useWorkOrders();
 
   const [selectedVehicleId, setSelectedVehicleId] = useState<string | null>(null);
-
-  const handleMetricClick = (type: string, filter: string, label: string) => {
-    push({ type: type as any, label, data: { filter } });
-  };
-
-  const handleVehicleClick = (vehicle: Vehicle) => {
-    setSelectedVehicleId(vehicle.id);
-    push({
-      type: 'vehicle',
-      label: vehicle.vehicleNumber,
-      data: { vehicleId: vehicle.id, vehicleNumber: vehicle.vehicleNumber }
-    });
-  };
-
-  const handleAlertClick = (alert: { id: string; type: string; message: string }) => {
-    push({
-      type: 'alert',
-      label: `Alert: ${alert.type}`,
-      data: { alertId: alert.id, alertType: alert.type, message: alert.message }
-    });
-  };
   const [showDispatchOverlay, setShowDispatchOverlay] = useState(true);
   const [showRouteOptimization, setShowRouteOptimization] = useState(false);
   const [showGeofences, setShowGeofences] = useState(false);
@@ -95,34 +72,29 @@ export function OperationsHub() {
     };
   }, [vehicles, drivers, workOrders]);
 
-  // Generate alerts from work orders and vehicles
+  // Critical alerts
   const alerts = useMemo(() => {
-    const generatedAlerts: { id: string; type: string; message: string; timestamp: string }[] = [];
-
-    // Generate alerts from urgent work orders
-    const urgentOrders = (workOrders as unknown as WorkOrder[]).filter(wo => wo.priority === 'urgent' || wo.priority === 'critical');
-    urgentOrders.slice(0, 2).forEach((wo, i) => {
-      generatedAlerts.push({
-        id: `wo-${wo.id}`,
-        type: wo.priority === 'critical' ? 'critical' : 'warning',
-        message: `Work order ${wo.id} requires immediate attention`,
-        timestamp: new Date(Date.now() - (i + 1) * 5 * 60000).toLocaleTimeString()
-      });
-    });
-
-    // Generate alerts from maintenance vehicles
-    const maintenanceVehicles = (vehicles as unknown as Vehicle[]).filter(v => v.status === 'maintenance');
-    maintenanceVehicles.slice(0, 1).forEach((v, i) => {
-      generatedAlerts.push({
-        id: `maint-${v.id}`,
+    return [
+      {
+        id: '1',
+        type: 'warning',
+        message: 'Vehicle V-042 delayed 15 minutes - traffic incident on I-4',
+        timestamp: new Date(Date.now() - 5 * 60000).toLocaleTimeString()
+      },
+      {
+        id: '2',
         type: 'info',
-        message: `${v.vehicleNumber} is in maintenance - ${v.make} ${v.model}`,
-        timestamp: new Date(Date.now() - (i + 3) * 10 * 60000).toLocaleTimeString()
-      });
-    });
-
-    return generatedAlerts.length > 0 ? generatedAlerts : [];
-  }, [workOrders, vehicles]);
+        message: 'Route optimization available for 3 vehicles - potential savings: $45',
+        timestamp: new Date(Date.now() - 12 * 60000).toLocaleTimeString()
+      },
+      {
+        id: '3',
+        type: 'critical',
+        message: 'Geofence breach: Vehicle V-088 entered restricted zone',
+        timestamp: new Date(Date.now() - 23 * 60000).toLocaleTimeString()
+      }
+    ];
+  }, []);
 
   const selectedVehicle = (vehicles as unknown as Vehicle[]).find((v: Vehicle) => v.id === selectedVehicleId);
 

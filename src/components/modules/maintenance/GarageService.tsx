@@ -12,7 +12,6 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
-import { useDrilldown } from "@/contexts/DrilldownContext"
 import { useFleetData } from "@/hooks/use-fleet-data"
 import { WorkOrder, ServiceBay, Technician } from "@/lib/types"
 
@@ -53,7 +52,6 @@ function isTechnician(item: any): item is Technician {
 
 export function GarageService() {
   const data = useFleetData()
-  const { push } = useDrilldown()
 
   // Filter and type-check data with safety
   const serviceBays = (data.serviceBays || []).filter(isServiceBay)
@@ -61,30 +59,6 @@ export function GarageService() {
   const technicians = (data.technicians || []).filter(isTechnician)
 
   const [activeTab, setActiveTab] = useState<string>("dashboard")
-
-  const handleWorkOrderClick = (order: WorkOrder) => {
-    push({
-      type: 'workOrder',
-      label: `WO #${order.id}`,
-      data: { workOrderId: order.id, vehicleNumber: order.vehicleNumber, serviceType: order.serviceType }
-    })
-  }
-
-  const handleTechnicianClick = (tech: Technician) => {
-    push({
-      type: 'technician',
-      label: tech.name,
-      data: { technicianId: tech.id, technicianName: tech.name }
-    })
-  }
-
-  const handleServiceBayClick = (bay: ServiceBay) => {
-    push({
-      type: 'service-bay',
-      label: bay.number,
-      data: { bayId: bay.id, bayNumber: bay.number, status: bay.status }
-    })
-  }
 
   const metrics = {
     availableBays: serviceBays.filter(b => b.status === "operational").length,
@@ -172,14 +146,7 @@ export function GarageService() {
               <CardContent>
                 <div className="space-y-3">
                   {serviceBays.map(bay => (
-                    <div
-                      key={bay.id}
-                      className="flex items-center justify-between p-3 border rounded-lg cursor-pointer hover:bg-muted/50 transition-colors"
-                      onClick={() => handleServiceBayClick(bay)}
-                      role="button"
-                      tabIndex={0}
-                      onKeyDown={(e) => e.key === 'Enter' && handleServiceBayClick(bay)}
-                    >
+                    <div key={bay.id} className="flex items-center justify-between p-3 border rounded-lg">
                       <div>
                         <p className="font-medium">{bay.number}</p>
                         {bay.vehicle && (
@@ -211,14 +178,7 @@ export function GarageService() {
               <CardContent>
                 <div className="space-y-3">
                   {workOrders.slice(0, 6).map(order => (
-                    <div
-                      key={order.id}
-                      className="flex items-center justify-between p-3 border rounded-lg cursor-pointer hover:bg-muted/50 transition-colors"
-                      onClick={() => handleWorkOrderClick(order)}
-                      role="button"
-                      tabIndex={0}
-                      onKeyDown={(e) => e.key === 'Enter' && handleWorkOrderClick(order)}
-                    >
+                    <div key={order.id} className="flex items-center justify-between p-3 border rounded-lg">
                       <div>
                         <p className="font-medium">{order.vehicleNumber}</p>
                         <p className="text-sm text-muted-foreground">{order.serviceType}</p>
@@ -333,10 +293,6 @@ export function GarageService() {
                     <tr
                       key={order.id}
                       className="hover:bg-muted/30 transition-colors cursor-pointer"
-                      onClick={() => handleWorkOrderClick(order)}
-                      role="button"
-                      tabIndex={0}
-                      onKeyDown={(e) => e.key === 'Enter' && handleWorkOrderClick(order)}
                     >
                       <td className="px-4 py-3 text-sm font-medium">#{order.id}</td>
                       <td className="px-4 py-3 text-sm font-medium">{order.vehicleNumber}</td>
@@ -379,14 +335,7 @@ export function GarageService() {
             <CardContent>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 {technicians.map(tech => (
-                  <Card
-                    key={tech.id}
-                    className="cursor-pointer hover:bg-muted/30 transition-colors"
-                    onClick={() => handleTechnicianClick(tech)}
-                    role="button"
-                    tabIndex={0}
-                    onKeyDown={(e) => e.key === 'Enter' && handleTechnicianClick(tech)}
-                  >
+                  <Card key={tech.id}>
                     <CardContent className="p-6">
                       <div className="flex items-start justify-between mb-4">
                         <div>

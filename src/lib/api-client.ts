@@ -116,25 +116,10 @@ class APIClient {
     await this.initializeCsrfToken()
   }
 
-  /**
-   * FEAT-007: Enhanced request method with exponential backoff retry logic
-   *
-   * Features:
-   * - Exponential backoff with jitter for retries
-   * - Automatic retry on network errors and 5xx errors
-   * - CSRF token refresh on 403 errors
-   * - Request timeout with configurable duration
-   * - Request cancellation support
-   * - Detailed error transformation
-   */
   private async request<T>(
     endpoint: string,
-    options: RequestInit = {},
-    retryCount: number = 0
+    options: RequestInit = {}
   ): Promise<T> {
-    const maxRetries = 3
-    const baseDelay = 1000 // 1 second
-
     // Ensure CSRF token is initialized for state-changing requests
     const isStateChanging = ['POST', 'PUT', 'PATCH', 'DELETE'].includes(
       options.method?.toUpperCase() || 'GET'
@@ -201,14 +186,6 @@ class APIClient {
           }
         }
 
-        // Retry on 5xx server errors (with exponential backoff)
-        if (response.status >= 500 && retryCount < maxRetries) {
-          const delay = baseDelay * Math.pow(2, retryCount) + Math.random() * 1000
-          logger.warn(`Server error ${response.status}, retrying in ${delay}ms (attempt ${retryCount + 1}/${maxRetries})`)
-          await new Promise(resolve => setTimeout(resolve, delay))
-          return this.request<T>(endpoint, options, retryCount + 1)
-        }
-
         throw new APIError(
           error.error || `HTTP ${response.status}`,
           response.status,
@@ -236,34 +213,18 @@ class APIClient {
 
       // SECURITY FIX P2 MED-SEC-010: Handle timeout errors with user-friendly message
       if (error instanceof Error && error.name === 'AbortError') {
-        // Retry on timeout if we haven't exceeded max retries
-        if (retryCount < maxRetries) {
-          const delay = baseDelay * Math.pow(2, retryCount) + Math.random() * 1000
-          logger.warn(`Request timeout, retrying in ${delay}ms (attempt ${retryCount + 1}/${maxRetries})`)
-          await new Promise(resolve => setTimeout(resolve, delay))
-          return this.request<T>(endpoint, options, retryCount + 1)
-        }
-
         throw new APIError(
           'Request timeout - please try again. The server took too long to respond.',
           408, // HTTP 408 Request Timeout
-          { reason: 'timeout', timeoutMs, retriesExhausted: true }
+          { reason: 'timeout', timeoutMs }
         )
-      }
-
-      // Network errors - retry with exponential backoff
-      if (retryCount < maxRetries) {
-        const delay = baseDelay * Math.pow(2, retryCount) + Math.random() * 1000
-        logger.warn(`Network error, retrying in ${delay}ms (attempt ${retryCount + 1}/${maxRetries})`)
-        await new Promise(resolve => setTimeout(resolve, delay))
-        return this.request<T>(endpoint, options, retryCount + 1)
       }
 
       // Network or other errors
       throw new APIError(
         error instanceof Error ? error.message : 'Network error',
         0,
-        { originalError: error, retriesExhausted: true }
+        error
       )
     }
   }

@@ -1,6 +1,5 @@
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent } from "@/components/ui/card"
-import { useDrilldown } from "@/contexts/DrilldownContext"
 import { Vehicle } from "@/lib/types"
 
 interface FleetTableProps {
@@ -9,27 +8,6 @@ interface FleetTableProps {
 }
 
 export function FleetTable({ vehicles, onVehicleClick }: FleetTableProps) {
-  const { push } = useDrilldown()
-
-  const handleDriverClick = (e: React.MouseEvent, driverName: string, driverId?: string) => {
-    e.stopPropagation()
-    if (!driverName || driverName === "Unassigned") return
-    push({
-      type: 'driver',
-      label: driverName,
-      data: { driverId: driverId || driverName, driverName }
-    })
-  }
-
-  const handleVehicleAlertClick = (e: React.MouseEvent, vehicle: Vehicle) => {
-    e.stopPropagation()
-    if (!vehicle.alerts || vehicle.alerts.length === 0) return
-    push({
-      type: 'vehicle-alerts',
-      label: `${vehicle.number} Alerts`,
-      data: { vehicleId: vehicle.id, vehicleNumber: vehicle.number, alerts: vehicle.alerts }
-    })
-  }
   return (
     <Card>
       <CardContent className="p-0">
@@ -99,20 +77,11 @@ export function FleetTable({ vehicles, onVehicleClick }: FleetTableProps) {
                     <span className="text-sm">{vehicle.region}</span>
                   </td>
                   <td className="p-4">
-                    <span
-                      className={`text-sm ${vehicle.assignedDriver ? 'text-primary hover:underline cursor-pointer' : 'text-muted-foreground'}`}
-                      onClick={(e) => handleDriverClick(e, vehicle.assignedDriver || '', vehicle.assignedDriverId)}
-                    >
-                      {vehicle.assignedDriver || "Unassigned"}
-                    </span>
+                    <span className="text-sm">{vehicle.assignedDriver || "Unassigned"}</span>
                   </td>
                   <td className="p-4">
                     {vehicle.alerts && vehicle.alerts.length > 0 ? (
-                      <Badge
-                        variant="outline"
-                        className="bg-warning/10 text-warning border-warning/20 cursor-pointer hover:bg-warning/20"
-                        onClick={(e) => handleVehicleAlertClick(e, vehicle)}
-                      >
+                      <Badge variant="outline" className="bg-warning/10 text-warning border-warning/20">
                         {vehicle.alerts.length}
                       </Badge>
                     ) : (

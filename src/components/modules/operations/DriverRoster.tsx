@@ -18,7 +18,6 @@ import {
     SheetDescription,
 } from "../../ui/sheet";
 
-import { useDrilldown } from "@/contexts/DrilldownContext";
 import { useFleetData } from "@/hooks/use-fleet-data";
 
 interface DriverRosterProps {
@@ -28,17 +27,8 @@ interface DriverRosterProps {
 
 export const DriverRoster: React.FC<DriverRosterProps> = ({ open, onOpenChange }) => {
     const { drivers = [], staff = [] } = useFleetData();
-    const { push } = useDrilldown();
     const [searchQuery, setSearchQuery] = useState("");
     const [activeTab, setActiveTab] = useState<"drivers" | "staff">("drivers");
-
-    const handleDriverClick = (driver: typeof drivers[0]) => {
-        push({
-            type: 'driver',
-            label: driver.name || `Driver ${driver.id}`,
-            data: { driverId: driver.id, driverName: driver.name }
-        });
-    };
 
     const filteredDrivers = drivers.filter(d =>
         !searchQuery ||
@@ -112,11 +102,7 @@ export const DriverRoster: React.FC<DriverRosterProps> = ({ open, onOpenChange }
                             filteredDrivers.map((driver) => (
                                 <div
                                     key={driver.id}
-                                    className="flex items-center justify-between p-3 rounded-lg border bg-card hover:bg-accent/50 transition-colors group cursor-pointer"
-                                    onClick={() => handleDriverClick(driver)}
-                                    role="button"
-                                    tabIndex={0}
-                                    onKeyDown={(e) => e.key === 'Enter' && handleDriverClick(driver)}
+                                    className="flex items-center justify-between p-3 rounded-lg border bg-card hover:bg-accent/50 transition-colors group"
                                 >
                                     <div className="flex items-start gap-3">
                                         <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary font-semibold text-sm">

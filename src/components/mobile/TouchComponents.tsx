@@ -5,7 +5,6 @@
 
 import { motion, PanInfo, useMotionValue, useTransform, AnimatePresence } from 'framer-motion'
 import React, { useState, useRef, useEffect, ReactNode } from 'react'
-import { SkeletonLoader } from '@/components/shared';
 
 /* ============================================================
    SWIPEABLE CARD

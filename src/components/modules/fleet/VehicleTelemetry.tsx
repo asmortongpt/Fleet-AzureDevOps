@@ -42,7 +42,6 @@ import {
   TableHeader,
   TableRow
 } from "@/components/ui/table"
-import { useDrilldown } from "@/contexts/DrilldownContext"
 import { useFleetData } from "@/hooks/use-fleet-data"
 import { useInspect } from "@/services/inspect/InspectContext"
 
@@ -109,7 +108,6 @@ export function VehicleTelemetry() {
   const fleetVehicles = fleetData.vehicles || []
   const facilities = fleetData.facilities || []
   const { openInspect } = useInspect()
-  const { push } = useDrilldown()
 
   const [vehicles, setVehicles] = useState<VehicleTelemetry[]>([])
   const [searchTerm, setSearchTerm] = useState("")
@@ -490,14 +488,7 @@ export function VehicleTelemetry() {
                 </TableRow>
               ) : (
                 filteredVehicles.map(vehicle => (
-                  <TableRow
-                    key={vehicle.id}
-                    className="cursor-pointer hover:bg-muted/50"
-                    onClick={() => push({ type: 'vehicle', label: vehicle.vehicleNumber, data: { vehicleId: vehicle.vehicleId, vehicleNumber: vehicle.vehicleNumber } })}
-                    role="button"
-                    tabIndex={0}
-                    onKeyDown={(e) => e.key === 'Enter' && push({ type: 'vehicle', label: vehicle.vehicleNumber, data: { vehicleId: vehicle.vehicleId, vehicleNumber: vehicle.vehicleNumber } })}
-                  >
+                  <TableRow key={vehicle.id}>
                     <TableCell>
                       <div className="font-medium">{vehicle.vehicleNumber}</div>
                       <div className="text-sm text-muted-foreground">

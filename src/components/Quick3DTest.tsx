@@ -1,5 +1,4 @@
 import React from 'react';
-import { SkeletonLoader } from '@/components/shared';
 import { OrbitControls, useGLTF, Environment } from '@react-three/drei';
 import { Canvas } from '@react-three/fiber';
 

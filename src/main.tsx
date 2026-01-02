@@ -5,36 +5,11 @@ if (typeof window !== 'undefined' && !localStorage.getItem('demo_mode')) {
   console.log('[Fleet] Demo mode enabled by default');
 }
 
-// =============================================================================
-// SECURITY & MONITORING INITIALIZATION
-// Initialize security and monitoring features before application code
-// =============================================================================
+// Initialize Sentry before all other imports for proper error tracking
+import { initSentry } from "./lib/sentry"
+initSentry()
 
-// Security Features
-import { initCSPReporting } from "./lib/security/csp"
-import { initSRI } from "./lib/security/sri"
-import { initSecurityHeaders } from "./lib/security/headers"
-import { initSanitization } from "./lib/security/sanitize"
-
-// Monitoring Features
-import { initSentry } from "./lib/monitoring/sentry"
-import { initTelemetry } from "./lib/monitoring/telemetry"
-import { initPerformanceMonitoring } from "./lib/monitoring/performance-monitoring"
-import { initRUM } from "./lib/monitoring/rum"
-
-// Initialize security features (order matters)
-initCSPReporting()
-initSRI()
-initSecurityHeaders()
-initSanitization()
-
-// Initialize monitoring features (order matters)
-initSentry() // Error tracking first
-initTelemetry() // Distributed tracing
-initPerformanceMonitoring() // Web Vitals
-initRUM() // Real User Monitoring
-
-// Legacy telemetry (keeping for backwards compatibility)
+// Initialize Application Insights for production telemetry
 import telemetryService from "./lib/telemetry"
 const reactPlugin = telemetryService.initialize()
 
@@ -42,9 +17,6 @@ import React from "react"
 import ReactDOM from "react-dom/client"
 import { BrowserRouter, Routes, Route } from "react-router-dom"
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
-
-// i18n Internationalization
-import './i18n/config'
 
 import { AuthProvider } from "./contexts/AuthContext"
 import { TenantProvider } from "./contexts/TenantContext"

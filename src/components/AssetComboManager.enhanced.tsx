@@ -22,7 +22,6 @@ import {
   User
 } from '@phosphor-icons/react'
 import React, { useState, useEffect } from 'react'
-import { SkeletonLoader } from '@/components/shared';
 import { toast } from 'sonner'
 
 import {
