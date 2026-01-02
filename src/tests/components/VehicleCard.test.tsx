@@ -4,8 +4,9 @@
  */
 
 import { render, screen } from '@testing-library/react';import userEvent from '@testing-library/user-event';
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, it, expect, beforeEach } from 'vitest';
 import '@testing-library/jest-dom';
+import { createMockVehicle, createMockHandlers } from '../fixtures';
 
 // Mock VehicleCard component (would import actual component in real implementation)
 const VehicleCard = ({ vehicle, onEdit, onDelete, onViewDetails }: any) => {
@@ -41,23 +42,8 @@ const VehicleCard = ({ vehicle, onEdit, onDelete, onViewDetails }: any) => {
 };
 
 describe('VehicleCard Component', () => {
-  const mockVehicle = {
-    id: 'test-vehicle-1',
-    vehicle_number: 'V-123',
-    make: 'Ford',
-    model: 'F-150',
-    year: 2023,
-    vin: '1FTFW1E50KFA12345',
-    status: 'active',
-    odometer: 15000,
-    color: 'White',
-  };
-
-  const mockHandlers = {
-    onEdit: vi.fn(),
-    onDelete: vi.fn(),
-    onViewDetails: vi.fn(),
-  };
+  const mockVehicle = createMockVehicle();
+  const mockHandlers = createMockHandlers();
 
   beforeEach(() => {
     vi.clearAllMocks();
