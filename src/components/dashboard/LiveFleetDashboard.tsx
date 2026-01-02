@@ -59,7 +59,11 @@ export const LiveFleetDashboard = React.memo(function LiveFleetDashboard({ initi
   // -- Data Sync --
   useEffect(() => {
     if (driversData) {
-      setDrivers(driversData as unknown as Driver[]);
+      // Extract array from API response structure {data: [], meta: {}}
+      const driversArray = Array.isArray(driversData)
+        ? driversData
+        : ((driversData as any)?.data || []);
+      setDrivers(driversArray as unknown as Driver[]);
     }
   }, [driversData]);
 
@@ -296,9 +300,9 @@ export const LiveFleetDashboard = React.memo(function LiveFleetDashboard({ initi
                 <MapPin className="h-4 w-4 text-slate-500 dark:text-slate-400" />
               </div>
               <span className="font-mono text-slate-600 dark:text-slate-300">
-                {selectedVehicle.location?.lat?.toFixed(4) || selectedVehicle.latitude?.toFixed(4) || '0.0000'},
+                {Number(selectedVehicle.location?.lat ?? selectedVehicle.latitude ?? 0).toFixed(4)},
                 {' '}
-                {selectedVehicle.location?.lng?.toFixed(4) || selectedVehicle.longitude?.toFixed(4) || '0.0000'}
+                {Number(selectedVehicle.location?.lng ?? selectedVehicle.longitude ?? 0).toFixed(4)}
               </span>
             </div>
           </CardContent>
@@ -307,7 +311,7 @@ export const LiveFleetDashboard = React.memo(function LiveFleetDashboard({ initi
 
       {/* Quick Actions - Mobile Optimized */}
       <div className="space-y-2">
-        <h3 className="text-sm font-semibold text-slate-700">Quick Actions</h3>
+        <h3 className="text-sm font-semibold text-slate-700 dark:text-slate-300">Quick Actions</h3>
         {/* Mobile: Horizontal scroll, Desktop: Grid */}
         <div className="md:hidden">
           <MobileQuickActions
@@ -357,9 +361,9 @@ export const LiveFleetDashboard = React.memo(function LiveFleetDashboard({ initi
 
       {/* Vehicle List - Mobile uses MobileVehicleCard, Desktop uses custom */}
       <div>
-        <h3 className="text-sm font-semibold text-slate-700 mb-2">Recent Activity</h3>
+        <h3 className="text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">Recent Activity</h3>
         {/* Mobile: List variant */}
-        <div className="md:hidden space-y-0 max-h-64 overflow-y-auto border-t border-slate-200">
+        <div className="md:hidden space-y-0 max-h-64 overflow-y-auto border-t border-slate-200 dark:border-slate-700">
           {vehicles.slice(0, 10).map((vehicle: any) => (
             <MobileVehicleCard
               key={vehicle.id}
@@ -375,8 +379,8 @@ export const LiveFleetDashboard = React.memo(function LiveFleetDashboard({ initi
             <div
               key={vehicle.id}
               className={`p-3 rounded-lg border cursor-pointer transition-colors ${selectedVehicleId === vehicle.id
-                ? 'border-blue-500 bg-blue-50'
-                : 'border-slate-200 hover:border-slate-300'
+                ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/30 dark:border-blue-400'
+                : 'border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 bg-card'
                 }`}
               onClick={() => setSelectedVehicleId(vehicle.id)}
               data-testid={`vehicle-list-item-${vehicle.id}`}
