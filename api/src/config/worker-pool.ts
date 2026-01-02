@@ -36,6 +36,7 @@ interface WorkerInfo {
   tasksCompleted: number
   errors: number
   createdAt: Date
+  taskTimer: NodeJS.Timeout | null
 }
 
 export interface WorkerPoolConfig {
@@ -94,17 +95,33 @@ export class WorkerPool extends EventEmitter {
       currentTask: null,
       tasksCompleted: 0,
       errors: 0,
-      createdAt: new Date()
+      createdAt: new Date(),
+      taskTimer: null
     }
 
     // Setup worker event handlers
     worker.on(`message`, (result) => {
       const task = workerInfo.currentTask
       if (task) {
-        task.resolve(result)
+        // Clear task timeout if it exists
+        if (workerInfo.taskTimer) {
+          clearTimeout(workerInfo.taskTimer)
+          workerInfo.taskTimer = null
+        }
+
+        // Unwrap result - worker sends {taskId, success, result} or {taskId, success, error}
+        if (result && result.success === true && result.result !== undefined) {
+          task.resolve(result.result)
+        } else if (result && result.success === false && result.error) {
+          task.reject(new Error(result.error.message || 'Worker task failed'))
+        } else {
+          // Fallback for unexpected result format
+          task.resolve(result)
+        }
+
         workerInfo.tasksCompleted++
         this.totalTasksProcessed++
-        this.emit('taskComplete', { taskId: task.id, workerId, result })
+        this.emit('taskComplete', { taskId: task.id, workerId, result: result.result || result })
       }
 
       // Mark worker as available
@@ -118,6 +135,12 @@ export class WorkerPool extends EventEmitter {
     worker.on('error', (error) => {
       const task = workerInfo.currentTask
       if (task) {
+        // Clear task timeout if it exists
+        if (workerInfo.taskTimer) {
+          clearTimeout(workerInfo.taskTimer)
+          workerInfo.taskTimer = null
+        }
+
         task.reject(error)
         workerInfo.errors++
         this.totalErrors++
@@ -231,6 +254,31 @@ export class WorkerPool extends EventEmitter {
     // Assign task to worker
     workerInfo.busy = true
     workerInfo.currentTask = task
+
+    // Setup running task timeout
+    if (task.timeout) {
+      workerInfo.taskTimer = setTimeout(() => {
+        if (workerInfo.currentTask && workerInfo.currentTask.id === task.id) {
+          // Task is still running - timeout!
+          const timeoutError = new Error(`Worker task timeout after ${task.timeout}ms`)
+          task.reject(timeoutError)
+
+          // Terminate and recreate the hung worker
+          console.error(`[Worker ${workerId}] Task timeout - terminating worker`)
+          workerInfo.worker.terminate()
+
+          workerInfo.busy = false
+          workerInfo.currentTask = null
+          workerInfo.taskTimer = null
+
+          // Create replacement worker
+          this.createWorker()
+
+          // Process next task
+          this.processNextTask()
+        }
+      }, task.timeout)
+    }
 
     // Send task to worker
     workerInfo.worker.postMessage({
