@@ -17,6 +17,8 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { useDrilldown } from '@/contexts/DrilldownContext';
+import { useFleetData } from '@/hooks/use-fleet-data';
 
 interface WorkOrderItem {
   id: string;
@@ -48,113 +50,72 @@ interface VehicleMaintenanceHistory {
 }
 
 export function MaintenanceHub() {
+  const { push } = useDrilldown();
+  const fleetData = useFleetData();
   const [selectedTab, setSelectedTab] = useState<'queue' | 'history' | 'schedule'>('queue');
   const [selectedWorkOrder, setSelectedWorkOrder] = useState<WorkOrderItem | null>(null);
 
-  // Sample work order queue
-  const workOrders: WorkOrderItem[] = useMemo(() => [
-    {
-      id: 'WO-2025-001',
-      vehicleUnit: 'Unit 45',
-      vehicleId: 'V-45',
-      type: 'active',
-      description: 'Oil change and tire rotation',
-      priority: 'medium',
-      assignedTo: 'Mike Johnson',
-      estimatedCost: 125.00,
-      estimatedTime: '2 hours',
-      scheduledDate: '2025-12-16 10:00 AM',
-      location: {
+  // Transform work orders from fleet data
+  const workOrders: WorkOrderItem[] = useMemo(() => {
+    const rawWorkOrders = fleetData.workOrders || [];
+    return rawWorkOrders.map((wo: any) => ({
+      id: wo.id || `WO-${wo.id}`,
+      vehicleUnit: wo.vehicleNumber || `Unit ${wo.vehicleId}`,
+      vehicleId: wo.vehicleId || wo.id,
+      type: wo.status === 'in-progress' ? 'active' : wo.priority === 'urgent' ? 'urgent' : wo.status === 'completed' ? 'completed' : 'scheduled',
+      description: wo.description || wo.serviceType || 'Maintenance',
+      priority: wo.priority || 'medium',
+      assignedTo: wo.assignedTo || wo.technician,
+      estimatedCost: wo.estimatedCost || 0,
+      estimatedTime: wo.estimatedHours ? `${wo.estimatedHours} hours` : '2 hours',
+      scheduledDate: wo.scheduledDate || wo.createdAt || new Date().toISOString(),
+      location: wo.location || {
         lat: 28.5383,
         lng: -81.3792,
-        address: '123 Service Way, Orlando, FL'
+        address: wo.facilityAddress || 'Service Center'
       }
-    },
-    {
-      id: 'WO-2025-002',
-      vehicleUnit: 'Unit 23',
-      vehicleId: 'V-23',
-      type: 'urgent',
-      description: 'Brake system repair - Safety critical',
-      priority: 'critical',
-      assignedTo: 'Sarah Williams',
-      estimatedCost: 850.00,
-      estimatedTime: '4 hours',
-      scheduledDate: '2025-12-16 08:00 AM',
-      location: {
-        lat: 28.5500,
-        lng: -81.3700,
-        address: '456 Repair Blvd, Orlando, FL'
-      }
-    },
-    {
-      id: 'WO-2025-003',
-      vehicleUnit: 'Unit 67',
-      vehicleId: 'V-67',
-      type: 'scheduled',
-      description: 'Preventive maintenance inspection (PMI)',
-      priority: 'medium',
-      assignedTo: 'John Smith',
-      estimatedCost: 200.00,
-      estimatedTime: '3 hours',
-      scheduledDate: '2025-12-17 09:00 AM',
-      location: {
-        lat: 28.5200,
-        lng: -81.3900,
-        address: '789 Fleet St, Orlando, FL'
-      }
-    },
-    {
-      id: 'WO-2025-004',
-      vehicleUnit: 'Unit 89',
-      vehicleId: 'V-89',
-      type: 'scheduled',
-      description: 'AC system service',
-      priority: 'low',
-      estimatedCost: 175.00,
-      estimatedTime: '2.5 hours',
-      scheduledDate: '2025-12-18 11:00 AM',
-      location: {
-        lat: 28.5383,
-        lng: -81.3792,
-        address: '123 Service Way, Orlando, FL'
-      }
-    }
-  ], []);
+    }));
+  }, [fleetData.workOrders]);
 
-  // Sample vehicle maintenance history
-  const vehicleHistory: VehicleMaintenanceHistory[] = useMemo(() => [
-    {
-      vehicleId: 'V-45',
-      vehicleUnit: 'Unit 45',
-      totalWorkOrders: 24,
-      completedThisMonth: 3,
-      totalCostYTD: 4250.00,
-      lastService: '2025-12-01',
-      nextScheduled: '2025-12-16',
-      status: 'good'
-    },
-    {
-      vehicleId: 'V-23',
-      vehicleUnit: 'Unit 23',
-      totalWorkOrders: 31,
-      completedThisMonth: 2,
-      totalCostYTD: 6890.00,
-      lastService: '2025-11-28',
-      nextScheduled: '2025-12-16',
-      status: 'attention'
-    },
-    {
-      vehicleId: 'V-67',
-      vehicleUnit: 'Unit 67',
-      totalWorkOrders: 18,
-      completedThisMonth: 1,
-      totalCostYTD: 3120.00,
-      lastService: '2025-12-05',
-      nextScheduled: '2025-12-17',
-      status: 'good'
-    }
-  ], []);
+  // Transform vehicle maintenance history from fleet data
+  const vehicleHistory: VehicleMaintenanceHistory[] = useMemo(() => {
+    const vehicles = fleetData.vehicles || [];
+    return vehicles.slice(0, 10).map((v: any) => ({
+      vehicleId: v.id,
+      vehicleUnit: v.name || v.vehicleNumber || `Unit ${v.id}`,
+      totalWorkOrders: v.maintenanceCount || 0,
+      completedThisMonth: v.completedThisMonth || 0,
+      totalCostYTD: v.maintenanceCostYTD || 0,
+      lastService: v.lastServiceDate || '',
+      nextScheduled: v.nextServiceDate || '',
+      status: v.maintenanceStatus || 'good' as 'good' | 'attention' | 'critical'
+    }));
+  }, [fleetData.vehicles]);
+
+  const handleWorkOrderClick = (wo: WorkOrderItem) => {
+    setSelectedWorkOrder(wo);
+    push({
+      type: 'workOrder',
+      label: `WO #${wo.id}`,
+      data: { workOrderId: wo.id, vehicleId: wo.vehicleId, description: wo.description }
+    });
+  };
+
+  const handleVehicleHistoryClick = (vh: VehicleMaintenanceHistory) => {
+    push({
+      type: 'vehicle',
+      label: vh.vehicleUnit,
+      data: { vehicleId: vh.vehicleId, vehicleName: vh.vehicleUnit }
+    });
+  };
+
+  const handleMetricClick = (metricType: string, filter: string) => {
+    push({
+      type: metricType as any,
+      label: `${filter} Work Orders`,
+      data: { filter }
+    });
+  };
 
   // Calculate metrics
   const metrics = useMemo(() => {
@@ -235,7 +196,7 @@ export function MaintenanceHub() {
 
       {/* Metrics Cards */}
       <div className="grid grid-cols-2 gap-3">
-        <Card>
+        <Card className="cursor-pointer hover:bg-muted/50 transition-colors" onClick={() => handleMetricClick('workOrder', 'active')}>
           <CardContent className="p-4">
             <div className="flex items-center gap-2">
               <Wrench className="w-5 h-5 text-blue-500" />
@@ -247,7 +208,7 @@ export function MaintenanceHub() {
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="cursor-pointer hover:bg-muted/50 transition-colors" onClick={() => handleMetricClick('workOrder', 'urgent')}>
           <CardContent className="p-4">
             <div className="flex items-center gap-2">
               <Warning className="w-5 h-5 text-red-500" />
@@ -259,7 +220,7 @@ export function MaintenanceHub() {
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="cursor-pointer hover:bg-muted/50 transition-colors" onClick={() => handleMetricClick('workOrder', 'scheduled')}>
           <CardContent className="p-4">
             <div className="flex items-center gap-2">
               <CalendarDots className="w-5 h-5 text-amber-500" />
@@ -271,7 +232,7 @@ export function MaintenanceHub() {
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="cursor-pointer hover:bg-muted/50 transition-colors" onClick={() => handleMetricClick('maintenance-costs', 'all')}>
           <CardContent className="p-4">
             <div className="flex items-center gap-2">
               <CurrencyDollar className="w-5 h-5 text-green-500" />
@@ -299,7 +260,10 @@ export function MaintenanceHub() {
                 <div
                   key={wo.id}
                   className="p-3 border rounded-lg hover:bg-accent cursor-pointer transition-colors"
-                  onClick={() => setSelectedWorkOrder(wo)}
+                  onClick={() => handleWorkOrderClick(wo)}
+                  role="button"
+                  tabIndex={0}
+                  onKeyDown={(e) => e.key === 'Enter' && handleWorkOrderClick(wo)}
                 >
                   <div className="flex items-start justify-between gap-2">
                     <div className="flex-1 min-w-0">
@@ -403,7 +367,14 @@ export function MaintenanceHub() {
         {/* Vehicle History Tab */}
         <TabsContent value="history" className="space-y-3 mt-4">
           {vehicleHistory.map((vh) => (
-            <Card key={vh.vehicleId}>
+            <Card
+              key={vh.vehicleId}
+              className="cursor-pointer hover:bg-muted/30 transition-colors"
+              onClick={() => handleVehicleHistoryClick(vh)}
+              role="button"
+              tabIndex={0}
+              onKeyDown={(e) => e.key === 'Enter' && handleVehicleHistoryClick(vh)}
+            >
               <CardContent className="p-4">
                 <div className="space-y-3">
                   <div className="flex items-start justify-between">
