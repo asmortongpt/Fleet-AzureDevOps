@@ -120,11 +120,28 @@ export function AnalyticsPage() {
   const [timeRange, setTimeRange] = useState<'24h' | '7d' | '30d' | '90d'>('7d');
 
   // Fetch data from API endpoints
-  const { data: vehicles = [], isLoading: vehiclesLoading, isError: vehiclesError } = useVehicles();
-  const { data: drivers = [], isLoading: driversLoading, isError: driversError } = useDrivers();
-  const { data: maintenance = [], isLoading: maintenanceLoading, isError: maintenanceError } = useMaintenance();
-  const { data: fuelTransactions = [], isLoading: fuelLoading, isError: fuelError } = useFuelTransactions();
-  const { data: workOrders = [], isLoading: workOrdersLoading, isError: workOrdersError } = useWorkOrders();
+  const { data: vehiclesData, isLoading: vehiclesLoading, isError: vehiclesError } = useVehicles();
+  const { data: driversData, isLoading: driversLoading, isError: driversError } = useDrivers();
+  const { data: maintenanceData, isLoading: maintenanceLoading, isError: maintenanceError } = useMaintenance();
+  const { data: fuelTransactionsData, isLoading: fuelLoading, isError: fuelError } = useFuelTransactions();
+  const { data: workOrdersData, isLoading: workOrdersLoading, isError: workOrdersError } = useWorkOrders();
+
+  // Extract arrays from API response structure {data: [], meta: {}}
+  const vehicles = Array.isArray(vehiclesData)
+    ? vehiclesData
+    : ((vehiclesData as any)?.data || []);
+  const drivers = Array.isArray(driversData)
+    ? driversData
+    : ((driversData as any)?.data || []);
+  const maintenance = Array.isArray(maintenanceData)
+    ? maintenanceData
+    : ((maintenanceData as any)?.data || []);
+  const fuelTransactions = Array.isArray(fuelTransactionsData)
+    ? fuelTransactionsData
+    : ((fuelTransactionsData as any)?.data || []);
+  const workOrders = Array.isArray(workOrdersData)
+    ? workOrdersData
+    : ((workOrdersData as any)?.data || []);
 
   // Calculate analytics from real data
   const analytics = useMemo(() => {
