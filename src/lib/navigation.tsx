@@ -139,6 +139,16 @@ export const navigationItems: NavigationItem[] = [
     category: "Communication",
     roles: ['Admin', 'FleetAdmin', 'Manager', 'FleetManager', 'Supervisor', 'Dispatcher', 'SafetyOfficer']
   },
+
+  // ==================== TESTING & DEBUG ====================
+  {
+    id: "google-maps-test",
+    label: "Google Maps Test",
+    icon: <MapTrifold className="w-5 h-5" />,
+    section: "tools",
+    category: "Admin",
+    roles: ['SuperAdmin', 'Admin', 'FleetAdmin']
+  },
 ]
 
 

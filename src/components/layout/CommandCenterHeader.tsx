@@ -24,7 +24,7 @@ export function CommandCenterHeader() {
     };
 
     return (
-        <header className="h-16 border-b border-white/5 bg-[#0d1221]/80 backdrop-blur-sm flex items-center justify-between px-6 shrink-0">
+        <header className="h-16 border-b border-border bg-card/80 backdrop-blur-sm flex items-center justify-between px-6 shrink-0">
             {/* Search Bar */}
             <div className="flex-1 max-w-xl">
                 <div className="relative group">
@@ -32,7 +32,7 @@ export function CommandCenterHeader() {
                     <input
                         type="text"
                         placeholder="Search fleet, drivers, or assets..."
-                        className="w-full bg-[#151b2d] border border-white/5 rounded-full pl-10 pr-4 py-2 text-sm text-white focus:outline-none focus:ring-1 focus:ring-blue-500/50 focus:border-blue-500/50 transition-all shadow-inner"
+                        className="w-full bg-secondary border border-border rounded-full pl-10 pr-4 py-2 text-sm text-foreground focus:outline-none focus:ring-1 focus:ring-primary/50 focus:border-primary/50 transition-all shadow-inner"
                     />
                 </div>
             </div>
@@ -61,7 +61,7 @@ export function CommandCenterHeader() {
                             </Avatar>
                         </Button>
                     </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end" className="w-56 bg-[#1a2030] border-white/10 text-slate-200">
+                    <DropdownMenuContent align="end" className="w-56 bg-popover border-border text-popover-foreground">
                         <DropdownMenuLabel>My Account</DropdownMenuLabel>
                         <DropdownMenuSeparator className="bg-white/5" />
                         <DropdownMenuItem

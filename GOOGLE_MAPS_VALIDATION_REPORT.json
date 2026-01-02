@@ -1,0 +1,297 @@
+{
+  "timestamp": "2026-01-02T17:50:51.142Z",
+  "url": "http://localhost:5175/#google-maps-test",
+  "screenshot": "/Users/andrewmorton/Documents/GitHub/Fleet/GOOGLE_MAPS_VALIDATION.png",
+  "console_messages": [
+    {
+      "type": "error",
+      "text": "X-Frame-Options may only be set via an HTTP header sent along with a document. It may not be set inside <meta>."
+    },
+    {
+      "type": "error",
+      "text": "The Content Security Policy directive 'frame-ancestors' is ignored when delivered via a <meta> element."
+    },
+    {
+      "type": "debug",
+      "text": "[vite] connecting..."
+    },
+    {
+      "type": "info",
+      "text": "%cDownload the React DevTools for a better development experience: https://reactjs.org/link/react-devtools font-weight:bold"
+    },
+    {
+      "type": "warning",
+      "text": "i18next::languageUtils: rejecting language code not found in supportedLngs: en"
+    },
+    {
+      "type": "warning",
+      "text": "i18next::languageUtils: rejecting language code not found in supportedLngs: en-US"
+    },
+    {
+      "type": "warning",
+      "text": "i18next::languageUtils: rejecting language code not found in supportedLngs: en"
+    },
+    {
+      "type": "warning",
+      "text": "i18next::languageUtils: rejecting language code not found in supportedLngs: en-US"
+    },
+    {
+      "type": "log",
+      "text": "i18next: languageChanged en-US"
+    },
+    {
+      "type": "log",
+      "text": "i18next: initialized {debug: true, initAsync: true, ns: Array(1), defaultNS: Array(1), fallbackLng: Array(1)}"
+    },
+    {
+      "type": "log",
+      "text": "[Fleet] Demo mode enabled by default"
+    },
+    {
+      "type": "warning",
+      "text": "[SRI] 2 external resources loaded without integrity checks [Object, Object]"
+    },
+    {
+      "type": "log",
+      "text": "[SRI] Initialized with config: {enabled: true, algorithm: SHA-384, crossOrigin: anonymous, enforceForCDN: true, monitorViolations: true}"
+    },
+    {
+      "type": "log",
+      "text": "[SRI] Audit result: {total: 2, withSRI: 0, withoutSRI: 2, violations: Array(2)}"
+    },
+    {
+      "type": "log",
+      "text": "[Security Headers] Initialized"
+    },
+    {
+      "type": "log",
+      "text": "[Security Headers] Configuration: {X-Frame-Options: SAMEORIGIN, X-Content-Type-Options: nosniff, X-XSS-Protection: 1; mode=block, Referrer-Policy: no-referrer-when-downgrade, Permissions-Policy: camera=(), microphone=(), geolocation=(self)}"
+    },
+    {
+      "type": "log",
+      "text": "[Sanitization] Initialized with config: {enabled: true, strictMode: false, logViolations: true}"
+    },
+    {
+      "type": "log",
+      "text": "[Sentry] Not initialized - disabled or missing DSN"
+    },
+    {
+      "type": "log",
+      "text": "[Telemetry] Not initialized - disabled or missing endpoint"
+    },
+    {
+      "type": "log",
+      "text": "[Performance Monitor] Initialized successfully"
+    },
+    {
+      "type": "log",
+      "text": "[RUM] Initialized successfully"
+    },
+    {
+      "type": "log",
+      "text": "[RUM] Session ID: 1767376244382-nb5xqbhzpe8"
+    },
+    {
+      "type": "warning",
+      "text": "[2026-01-02T17:50:44.385Z] [WARN] ⚠️ Application Insights connection string not found. Frontend telemetry disabled."
+    },
+    {
+      "type": "warning",
+      "text": "[2026-01-02T17:50:44.385Z] [WARN] Set VITE_APPLICATION_INSIGHTS_CONNECTION_STRING in your .env file"
+    },
+    {
+      "type": "error",
+      "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+      "type": "warning",
+      "text": "[2026-01-02T17:50:44.388Z] [WARN] [CSRF] Primary endpoint failed, trying fallback /api/csrf"
+    },
+    {
+      "type": "warning",
+      "text": "[Performance] Long task detected: 88 ms"
+    },
+    {
+      "type": "warning",
+      "text": "[2026-01-02T17:50:44.399Z] [WARN] ⚠️ Application Insights connection string not found. Frontend telemetry disabled."
+    },
+    {
+      "type": "warning",
+      "text": "[2026-01-02T17:50:44.399Z] [WARN] Set VITE_APPLICATION_INSIGHTS_CONNECTION_STRING in your .env file"
+    },
+    {
+      "type": "warning",
+      "text": "[2026-01-02T17:50:44.401Z] [WARN] ⚠️ Application Insights connection string not found. Frontend telemetry disabled."
+    },
+    {
+      "type": "warning",
+      "text": "[2026-01-02T17:50:44.402Z] [WARN] Set VITE_APPLICATION_INSIGHTS_CONNECTION_STRING in your .env file"
+    },
+    {
+      "type": "log",
+      "text": "[2026-01-02T17:50:44.418Z] [INFO] [WebSocketContext] Initializing WebSocket client {url: ws://localhost:5175/ws, autoConnect: true, debug: true}"
+    },
+    {
+      "type": "log",
+      "text": "[2026-01-02T17:50:44.418Z] [DEBUG] [WebSocket] Connecting to ws://localhost:5175/ws"
+    },
+    {
+      "type": "warning",
+      "text": "⚠️ React Router Future Flag Warning: React Router will begin wrapping state updates in `React.startTransition` in v7. You can use the `v7_startTransition` future flag to opt-in early. For more information, see https://reactrouter.com/v6/upgrading/future#v7_starttransition."
+    },
+    {
+      "type": "warning",
+      "text": "⚠️ React Router Future Flag Warning: Relative route resolution within Splat routes is changing in v7. You can use the `v7_relativeSplatPath` future flag to opt-in early. For more information, see https://reactrouter.com/v6/upgrading/future#v7_relativesplatpath."
+    },
+    {
+      "type": "log",
+      "text": "[2026-01-02T17:50:44.421Z] [INFO] [WebSocketContext] Cleaning up"
+    },
+    {
+      "type": "log",
+      "text": "[2026-01-02T17:50:44.422Z] [DEBUG] [WebSocket] Disconnecting"
+    },
+    {
+      "type": "warning",
+      "text": "WebSocket connection to 'ws://localhost:5175/ws' failed: WebSocket is closed before the connection is established."
+    },
+    {
+      "type": "log",
+      "text": "[2026-01-02T17:50:44.422Z] [INFO] [WebSocketContext] Initializing WebSocket client {url: ws://localhost:5175/ws, autoConnect: true, debug: true}"
+    },
+    {
+      "type": "log",
+      "text": "[2026-01-02T17:50:44.422Z] [DEBUG] [WebSocket] Connecting to ws://localhost:5175/ws"
+    },
+    {
+      "type": "error",
+      "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+      "type": "warning",
+      "text": "[2026-01-02T17:50:44.427Z] [WARN] [CSRF] Failed to fetch token: 404"
+    },
+    {
+      "type": "log",
+      "text": "[2026-01-02T17:50:44.483Z] [DEBUG] [WebSocket] WebSocket error: Event"
+    },
+    {
+      "type": "log",
+      "text": "[2026-01-02T17:50:44.483Z] [DEBUG] [WebSocket] Disconnected"
+    },
+    {
+      "type": "error",
+      "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+      "type": "error",
+      "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+      "type": "debug",
+      "text": "[vite] connected."
+    },
+    {
+      "type": "warning",
+      "text": "[Performance] Long task detected: 54 ms"
+    },
+    {
+      "type": "error",
+      "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+      "type": "warning",
+      "text": "[2026-01-02T17:50:44.497Z] [WARN] Notifications unavailable, running in offline mode"
+    },
+    {
+      "type": "warning",
+      "text": "[2026-01-02T17:50:44.497Z] [WARN] Notifications unavailable, running in offline mode"
+    },
+    {
+      "type": "log",
+      "text": "[Performance] first-paint: 572 ms"
+    },
+    {
+      "type": "error",
+      "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+      "type": "log",
+      "text": "[Performance] FCP: 700.00 good"
+    },
+    {
+      "type": "log",
+      "text": "[Performance] first-contentful-paint: 700 ms"
+    },
+    {
+      "type": "log",
+      "text": "[2026-01-02T17:50:44.556Z] [INFO] [LiveFleetDashboard] API data loaded successfully: 7 vehicles"
+    },
+    {
+      "type": "log",
+      "text": "[2026-01-02T17:50:44.557Z] [INFO] [LiveFleetDashboard] API data loaded successfully: 7 vehicles"
+    },
+    {
+      "type": "error",
+      "text": "Warning: Function components cannot be given refs. Attempts to access this ref will fail. Did you mean to use React.forwardRef()?%s%s \n\nCheck the render method of `Primitive.button.SlotClone`. \n    at Badge (http://localhost:5175/src/components/ui/badge.tsx:38:3)\n    at http://localhost:5175/node_modules/.vite/deps/chunk-YFG6QEEP.js?v=99593eb1:140:13\n    at http://localhost:5175/node_modules/.vite/deps/chunk-YFG6QEEP.js?v=99593eb1:117:13\n    at http://localhost:5175/node_modules/.vite/deps/chunk-YFG6QEEP.js?v=99593eb1:230:13\n    at http://localhost:5175/node_modules/.vite/deps/chunk-YFG6QEEP.js?v=99593eb1:140:13\n    at http://localhost:5175/node_modules/.vite/deps/chunk-YFG6QEEP.js?v=99593eb1:117:13\n    at http://localhost:5175/node_modules/.vite/deps/chunk-YFG6QEEP.js?v=99593eb1:230:13\n    at http://localhost:5175/node_modules/.vite/deps/chunk-LQFGHMJV.js?v=99593eb1:1961:13\n    at http://localhost:5175/node_modules/.vite/deps/@radix-ui_react-dropdown-menu.js?v=99593eb1:238:13\n    at http://localhost:5175/node_modules/.vite/deps/@radix-ui_react-dropdown-menu.js?v=99593eb1:1040:13\n    at _c3 (http://localhost:5175/src/components/ui/dropdown-menu.tsx:44:15)\n    at Provider (http://localhost:5175/node_modules/.vite/deps/chunk-YFG6QEEP.js?v=99593eb1:44:15)\n    at Provider (http://localhost:5175/node_modules/.vite/deps/chunk-YFG6QEEP.js?v=99593eb1:44:15)\n    at Provider (http://localhost:5175/node_modules/.vite/deps/chunk-YFG6QEEP.js?v=99593eb1:44:15)\n    at Popper (http://localhost:5175/node_modules/.vite/deps/chunk-LQFGHMJV.js?v=99593eb1:1953:11)\n    at Menu (http://localhost:5175/node_modules/.vite/deps/@radix-ui_react-dropdown-menu.js?v=99593eb1:192:11)\n    at Provider (http://localhost:5175/node_modules/.vite/deps/chunk-YFG6QEEP.js?v=99593eb1:44:15)\n    at DropdownMenu (http://localhost:5175/node_modules/.vite/deps/@radix-ui_react-dropdown-menu.js?v=99593eb1:1005:5)\n    at DropdownMenu (http://localhost:5175/src/components/ui/dropdown-menu.tsx:24:6)\n    at WebSocketStatus (http://localhost:5175/src/components/common/WebSocketStatus.tsx:34:3)\n    at div\n    at div\n    at div\n    at div\n    at div\n    at div\n    at MapFirstLayout (http://localhost:5175/src/components/layout/MapFirstLayout.tsx:25:3)\n    at div\n    at LiveFleetDashboard2 (http://localhost:5175/src/components/dashboard/LiveFleetDashboard.tsx:52:74)\n    at Suspense\n    at EnhancedErrorBoundary (http://localhost:5175/src/components/EnhancedErrorBoundary.tsx:13:5)\n    at QueryErrorResetBoundary (http://localhost:5175/node_modules/.vite/deps/@tanstack_react-query.js?v=99593eb1:3131:3)\n    at QueryErrorBoundary (http://localhost:5175/src/components/errors/QueryErrorBoundary.tsx:205:3)\n    at EnhancedErrorBoundary (http://localhost:5175/src/components/EnhancedErrorBoundary.tsx:13:5)\n    at div\n    at div\n    at main\n    at div\n    at CommandCenterLayout (http://localhost:5175/src/components/layout/CommandCenterLayout.tsx?t=1767374889326:25:39)\n    at div\n    at DrilldownProvider (http://localhost:5175/src/contexts/DrilldownContext.tsx:21:37)\n    at DrilldownManager (http://localhost:5175/src/components/DrilldownManager.tsx:626:36)\n    at WebSocketProvider (http://localhost:5175/src/contexts/WebSocketContext.tsx:24:3)\n    at App (http://localhost:5175/src/App.tsx?t=1767375064211:225:25)\n    at NavigationProvider (http://localhost:5175/src/contexts/NavigationContext.tsx?t=1767374889326:24:38)\n    at SentryErrorBoundary (http://localhost:5175/src/components/errors/SentryErrorBoundary.tsx:15:5)\n    at RenderedRoute (http://localhost:5175/node_modules/.vite/deps/react-router-dom.js?v=99593eb1:4108:5)\n    at Routes (http://localhost:5175/node_modules/.vite/deps/react-router-dom.js?v=99593eb1:4578:5)\n    at Router (http://localhost:5175/node_modules/.vite/deps/react-router-dom.js?v=99593eb1:4521:15)\n    at BrowserRouter (http://localhost:5175/node_modules/.vite/deps/react-router-dom.js?v=99593eb1:5267:5)\n    at InspectProvider (http://localhost:5175/src/services/inspect/InspectContext.tsx:21:35)\n    at DrilldownProvider (http://localhost:5175/src/contexts/DrilldownContext.tsx:21:37)\n    at FeatureFlagProvider (http://localhost:5175/src/contexts/FeatureFlagContext.tsx:33:39)\n    at TenantProvider (http://localhost:5175/src/contexts/TenantContext.tsx:32:34)\n    at AuthProvider (http://localhost:5175/src/contexts/AuthContext.tsx:33:32)\n    at SentryErrorBoundary (http://localhost:5175/src/components/errors/SentryErrorBoundary.tsx:15:5)\n    at ThemeProvider (http://localhost:5175/src/components/providers/ThemeProvider.tsx:22:3)\n    at QueryClientProvider (http://localhost:5175/node_modules/.vite/deps/@tanstack_react-query.js?v=99593eb1:3093:3)"
+    },
+    {
+      "type": "log",
+      "text": "[RUM] error {message: Uncaught TypeError: drivers.filter is not a function, filename: http://localhost:5175/src/components/panels/DriverControlPanel.tsx, lineno: 57, colno: 28, stack: TypeError: drivers.filter is not a function\n    at…/.vite/deps/chunk-JE3XPTTU.js?v=99593eb1:3705:24)}"
+    },
+    {
+      "type": "log",
+      "text": "[RUM] error {message: Uncaught TypeError: drivers.filter is not a function, filename: http://localhost:5175/src/components/panels/DriverControlPanel.tsx, lineno: 57, colno: 28, stack: TypeError: drivers.filter is not a function\n    at…/.vite/deps/chunk-JE3XPTTU.js?v=99593eb1:3705:24)}"
+    },
+    {
+      "type": "error",
+      "text": "The above error occurred in the <DriverControlPanel> component:\n\n    at DriverControlPanel (http://localhost:5175/src/components/panels/DriverControlPanel.tsx:45:3)\n    at div\n    at LiveFleetDashboard2 (http://localhost:5175/src/components/dashboard/LiveFleetDashboard.tsx:52:74)\n    at Suspense\n    at EnhancedErrorBoundary (http://localhost:5175/src/components/EnhancedErrorBoundary.tsx:13:5)\n    at QueryErrorResetBoundary (http://localhost:5175/node_modules/.vite/deps/@tanstack_react-query.js?v=99593eb1:3131:3)\n    at QueryErrorBoundary (http://localhost:5175/src/components/errors/QueryErrorBoundary.tsx:205:3)\n    at EnhancedErrorBoundary (http://localhost:5175/src/components/EnhancedErrorBoundary.tsx:13:5)\n    at div\n    at div\n    at main\n    at div\n    at CommandCenterLayout (http://localhost:5175/src/components/layout/CommandCenterLayout.tsx?t=1767374889326:25:39)\n    at div\n    at DrilldownProvider (http://localhost:5175/src/contexts/DrilldownContext.tsx:21:37)\n    at DrilldownManager (http://localhost:5175/src/components/DrilldownManager.tsx:626:36)\n    at WebSocketProvider (http://localhost:5175/src/contexts/WebSocketContext.tsx:24:3)\n    at App (http://localhost:5175/src/App.tsx?t=1767375064211:225:25)\n    at NavigationProvider (http://localhost:5175/src/contexts/NavigationContext.tsx?t=1767374889326:24:38)\n    at SentryErrorBoundary (http://localhost:5175/src/components/errors/SentryErrorBoundary.tsx:15:5)\n    at RenderedRoute (http://localhost:5175/node_modules/.vite/deps/react-router-dom.js?v=99593eb1:4108:5)\n    at Routes (http://localhost:5175/node_modules/.vite/deps/react-router-dom.js?v=99593eb1:4578:5)\n    at Router (http://localhost:5175/node_modules/.vite/deps/react-router-dom.js?v=99593eb1:4521:15)\n    at BrowserRouter (http://localhost:5175/node_modules/.vite/deps/react-router-dom.js?v=99593eb1:5267:5)\n    at InspectProvider (http://localhost:5175/src/services/inspect/InspectContext.tsx:21:35)\n    at DrilldownProvider (http://localhost:5175/src/contexts/DrilldownContext.tsx:21:37)\n    at FeatureFlagProvider (http://localhost:5175/src/contexts/FeatureFlagContext.tsx:33:39)\n    at TenantProvider (http://localhost:5175/src/contexts/TenantContext.tsx:32:34)\n    at AuthProvider (http://localhost:5175/src/contexts/AuthContext.tsx:33:32)\n    at SentryErrorBoundary (http://localhost:5175/src/components/errors/SentryErrorBoundary.tsx:15:5)\n    at ThemeProvider (http://localhost:5175/src/components/providers/ThemeProvider.tsx:22:3)\n    at QueryClientProvider (http://localhost:5175/node_modules/.vite/deps/@tanstack_react-query.js?v=99593eb1:3093:3)\n\nReact will try to recreate this component tree from scratch using the error boundary you provided, EnhancedErrorBoundary."
+    },
+    {
+      "type": "error",
+      "text": "[2026-01-02T17:50:44.603Z] [ERROR] EnhancedErrorBoundary caught error: {message: drivers.filter is not a function, name: TypeError, stack: TypeError: drivers.filter is not a function\n    at….vite/deps/chunk-JE3XPTTU.js?v=99593eb1:19251:20)} {componentStack: \n    at DriverControlPanel (http://localhost:5175/…/deps/@tanstack_react-query.js?v=99593eb1:3093:3)}"
+    },
+    {
+      "type": "error",
+      "text": "[2026-01-02T17:50:44.603Z] [ERROR] Query Error Boundary caught: {message: drivers.filter is not a function, name: TypeError, stack: TypeError: drivers.filter is not a function\n    at….vite/deps/chunk-JE3XPTTU.js?v=99593eb1:19251:20)} {componentStack: \n    at DriverControlPanel (http://localhost:5175/…/deps/@tanstack_react-query.js?v=99593eb1:3093:3)}"
+    },
+    {
+      "type": "error",
+      "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+      "type": "warning",
+      "text": "Google Maps JavaScript API has been loaded directly without loading=async. This can result in suboptimal performance. For best-practice loading patterns please see https://goo.gle/js-api-loading"
+    },
+    {
+      "type": "log",
+      "text": "[Performance] TTFB: 13.80 good"
+    },
+    {
+      "type": "log",
+      "text": "[Performance] Time to Interactive: 20 ms"
+    },
+    {
+      "type": "error",
+      "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+      "type": "warning",
+      "text": "[SRI] Script loaded without integrity check: https://maps.googleapis.com/maps-api-v3/api/js/63/5d/common.js"
+    },
+    {
+      "type": "warning",
+      "text": "[SRI] Script loaded without integrity check: https://maps.googleapis.com/maps-api-v3/api/js/63/5d/util.js"
+    }
+  ],
+  "page_errors": [
+    "drivers.filter is not a function",
+    "drivers.filter is not a function"
+  ],
+  "summary": {
+    "total_console_messages": 70,
+    "console_errors": 14,
+    "console_warnings": 23,
+    "page_errors": 2
+  }
+}
