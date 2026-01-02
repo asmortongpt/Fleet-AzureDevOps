@@ -15,6 +15,7 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
+import { useDrilldown } from "@/contexts/DrilldownContext"
 import { useFleetData } from "@/hooks/use-fleet-data"
 
 interface FuelManagementProps {
@@ -23,8 +24,25 @@ interface FuelManagementProps {
 
 export function FuelManagement() {
   const data = useFleetData()
+  const { push } = useDrilldown()
   const transactions = data?.fuelTransactions || []
   const [activeTab, setActiveTab] = useState<string>("records")
+
+  const handleTransactionClick = (transaction: typeof transactions[0]) => {
+    push({
+      type: 'fuel-transaction',
+      label: `${transaction?.vehicleNumber || 'Unknown'} - ${transaction?.date ? new Date(transaction.date).toLocaleDateString() : 'N/A'}`,
+      data: { transactionId: transaction?.id, vehicleNumber: transaction?.vehicleNumber, totalCost: transaction?.totalCost }
+    })
+  }
+
+  const handleVehicleClick = (vehicleNumber: string) => {
+    push({
+      type: 'vehicle',
+      label: vehicleNumber,
+      data: { vehicleNumber }
+    })
+  }
 
   const metrics = useMemo(() => {
     const totalCost = transactions.reduce((sum, t) => sum + (t?.totalCost ?? 0), 0)
@@ -144,11 +162,18 @@ export function FuelManagement() {
                     <tr
                       key={transaction?.id}
                       className="hover:bg-muted/30 transition-colors cursor-pointer"
+                      onClick={() => handleTransactionClick(transaction)}
+                      role="button"
+                      tabIndex={0}
+                      onKeyDown={(e) => e.key === 'Enter' && handleTransactionClick(transaction)}
                     >
                       <td className="px-4 py-3 text-sm text-muted-foreground">
                         {transaction?.date ? new Date(transaction.date).toLocaleDateString() : 'N/A'}
                       </td>
-                      <td className="px-4 py-3 text-sm font-medium">
+                      <td
+                        className="px-4 py-3 text-sm font-medium text-primary hover:underline"
+                        onClick={(e) => { e.stopPropagation(); handleVehicleClick(transaction?.vehicleNumber ?? '') }}
+                      >
                         {transaction?.vehicleNumber ?? 'N/A'}
                       </td>
                       <td className="px-4 py-3 text-sm text-muted-foreground">
