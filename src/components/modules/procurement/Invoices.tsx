@@ -13,11 +13,30 @@ import {
   TableHeader,
   TableRow
 } from "@/components/ui/table"
+import { useDrilldown } from "@/contexts/DrilldownContext"
 import { Invoice } from "@/lib/types"
 
 export function Invoices() {
+  const { push } = useDrilldown()
   const [invoices, _setInvoices] = useState<Invoice[]>([])
   const [searchTerm, setSearchTerm] = useState<string>("")
+
+  const handleInvoiceClick = (invoice: Invoice) => {
+    push({
+      type: 'invoice',
+      label: invoice.invoiceNumber,
+      data: { invoiceId: invoice.id, invoiceNumber: invoice.invoiceNumber, vendorName: invoice.vendorName, total: invoice.total }
+    })
+  }
+
+  const handleVendorClick = (e: React.MouseEvent, vendorName: string) => {
+    e.stopPropagation()
+    push({
+      type: 'vendor',
+      label: vendorName,
+      data: { vendorName }
+    })
+  }
   const [_filterStatus, setFilterStatus] = useState<string>("all")
 
   const filteredInvoices = (invoices || []).filter(invoice => {
@@ -157,9 +176,21 @@ export function Invoices() {
                 </TableRow>
               ) : (
                 filteredInvoices.map(invoice => (
-                  <TableRow key={invoice?.id}>
+                  <TableRow
+                    key={invoice?.id}
+                    className="cursor-pointer hover:bg-muted/50"
+                    onClick={() => invoice && handleInvoiceClick(invoice)}
+                    role="button"
+                    tabIndex={0}
+                    onKeyDown={(e) => e.key === 'Enter' && invoice && handleInvoiceClick(invoice)}
+                  >
                     <TableCell className="font-mono font-medium">{invoice?.invoiceNumber}</TableCell>
-                    <TableCell>{invoice?.vendorName}</TableCell>
+                    <TableCell
+                      className="text-primary hover:underline cursor-pointer"
+                      onClick={(e) => invoice?.vendorName && handleVendorClick(e, invoice.vendorName)}
+                    >
+                      {invoice?.vendorName}
+                    </TableCell>
                     <TableCell>{new Date(invoice?.date ?? "").toLocaleDateString()}</TableCell>
                     <TableCell>
                       <span className={new Date(invoice?.dueDate ?? "") < new Date() && invoice?.status !== "paid" ? "text-red-600 font-medium" : ""}>
