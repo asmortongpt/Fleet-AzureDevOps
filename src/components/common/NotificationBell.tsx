@@ -45,16 +45,31 @@ export function NotificationBell({ onNavigate }: { onNavigate: (module: string, 
   const [notifications, setNotifications] = useState<Notification[]>([])
   const [unreadCount, setUnreadCount] = useState(0)
   const [isLoading, setIsLoading] = useState(false)
+  const [isOffline, setIsOffline] = useState(false)
+  const [retryCount, setRetryCount] = useState(0)
+  const MAX_RETRIES = 3
 
   const fetchNotifications = async () => {
+    // Stop polling if we've exceeded max retries
+    if (retryCount >= MAX_RETRIES) {
+      return
+    }
+
     try {
       setIsLoading(true)
       const response = await apiClient.get<NotificationResponse>('/api/alerts/notifications?limit=10')
 
       setNotifications(response.notifications || [])
       setUnreadCount(response.notifications?.filter((n: Notification) => !n.is_read).length || 0)
+      setIsOffline(false)
+      setRetryCount(0) // Reset on success
     } catch (error) {
-      logger.error('Error fetching notifications:', error)
+      // Only log on first failure, not every retry
+      if (retryCount === 0) {
+        logger.warn('Notifications unavailable, running in offline mode')
+      }
+      setIsOffline(true)
+      setRetryCount(prev => prev + 1)
     } finally {
       setIsLoading(false)
     }
@@ -63,13 +78,15 @@ export function NotificationBell({ onNavigate }: { onNavigate: (module: string, 
   useEffect(() => {
     fetchNotifications()
 
-    // Auto-refresh every 30 seconds
+    // Auto-refresh every 30 seconds, but stop if offline after max retries
     const interval = setInterval(() => {
-      fetchNotifications()
+      if (retryCount < MAX_RETRIES) {
+        fetchNotifications()
+      }
     }, 30000)
 
     return () => clearInterval(interval)
-  }, [])
+  }, [retryCount])
 
   const markAsRead = async (notificationId: string) => {
     try {

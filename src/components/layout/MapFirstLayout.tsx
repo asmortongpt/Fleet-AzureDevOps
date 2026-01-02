@@ -27,13 +27,13 @@ export function MapFirstLayout({
 
   return (
     <div
-      className="flex flex-col md:flex-row h-screen w-full overflow-hidden bg-slate-50"
+      className="flex flex-col md:flex-row h-screen w-full overflow-hidden bg-background"
       data-testid="map-first-layout"
     >
       {/* Map Section - Responsive breakpoints */}
       <div
         className={cn(
-          'relative bg-slate-100',
+          'relative bg-muted',
           // Mobile (320px-767px): Split screen or fullscreen
           isMapFullscreen
             ? 'fixed inset-0 z-50 w-full h-full'
@@ -67,7 +67,7 @@ export function MapFirstLayout({
             variant="default"
             size="icon"
             onClick={() => setIsMapFullscreen(!isMapFullscreen)}
-            className="h-10 w-10 rounded-full shadow-lg bg-white text-slate-900 hover:bg-slate-100"
+            className="h-10 w-10 rounded-full shadow-lg bg-card text-foreground hover:bg-muted"
             data-testid="map-fullscreen-toggle"
           >
             <Maximize2 className="h-5 w-5" />
@@ -94,7 +94,7 @@ export function MapFirstLayout({
       {/* Side Panel - Desktop/Tablet */}
       <div
         className={cn(
-          'bg-white shadow-lg overflow-hidden',
+          'bg-card shadow-lg overflow-hidden',
           // Mobile: Hidden (drawer instead)
           'hidden md:flex md:flex-col',
           // Tablet: 40% width
@@ -117,7 +117,7 @@ export function MapFirstLayout({
 
         {/* Extended Details - Desktop Only */}
         {drawerContent && (
-          <div className="hidden lg:block border-t border-slate-200 p-4 bg-slate-50">
+          <div className="hidden lg:block border-t border-border p-4 bg-muted">
             <details className="group">
               <summary className="flex items-center justify-between cursor-pointer list-none font-semibold text-sm">
                 <span>Extended Details</span>
@@ -143,7 +143,7 @@ export function MapFirstLayout({
           {sidePanel}
           {drawerContent && (
             <>
-              <div className="border-t border-slate-200 my-4" />
+              <div className="border-t border-border my-4" />
               <div className="space-y-3">
                 <h3 className="font-semibold text-sm">Additional Details</h3>
                 {drawerContent}
