@@ -330,7 +330,7 @@ export const createBrakeDiscMaterial = () => {
   return material
 }
 
-// Export all materials as a named object
+// Export all materials
 export const PhotorealisticMaterials = {
   createCarPaintMaterial,
   createAutomotiveGlass,
@@ -341,3 +341,5 @@ export const PhotorealisticMaterials = {
   createAluminumMaterial,
   createBrakeDiscMaterial
 }
+
+export default PhotorealisticMaterials

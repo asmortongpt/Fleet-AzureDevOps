@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react'
-import { SkeletonLoader } from '@/components/shared';
 
 import {
   OBD2Service,

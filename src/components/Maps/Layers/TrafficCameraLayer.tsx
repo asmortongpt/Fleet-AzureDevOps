@@ -1,7 +1,6 @@
 import { divIcon } from 'leaflet';
 import { Camera, ExternalLink } from 'lucide-react';
 import React, { useState } from 'react';
-import { SkeletonLoader } from '@/components/shared';
 import { Marker, Popup } from 'react-leaflet';
 
 import { useTrafficCameras } from '../../../hooks/useTrafficCameras';

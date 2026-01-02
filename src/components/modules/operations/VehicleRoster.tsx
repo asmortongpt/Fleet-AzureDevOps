@@ -19,7 +19,6 @@ import {
     SheetDescription,
 } from "../../ui/sheet";
 
-import { useDrilldown } from "@/contexts/DrilldownContext";
 import { useFleetData } from "@/hooks/use-fleet-data";
 import { Vehicle } from "@/lib/types";
 
@@ -35,20 +34,8 @@ export const VehicleRoster: React.FC<VehicleRosterProps> = ({
     onVehicleSelect
 }) => {
     const { vehicles = [], addVehicle } = useFleetData();
-    const { push } = useDrilldown();
     const [searchQuery, setSearchQuery] = useState("");
     const [statusFilter, setStatusFilter] = useState<string>("all");
-
-    const handleVehicleClick = (vehicle: Vehicle) => {
-        // Call the legacy callback if provided
-        onVehicleSelect?.(vehicle);
-        // Also trigger drilldown
-        push({
-            type: 'vehicle',
-            label: vehicle.name || vehicle.id,
-            data: { vehicleId: vehicle.id, vehicleName: vehicle.name }
-        });
-    };
 
     const filteredVehicles = vehicles.filter((v) => {
         const matchesSearch = !searchQuery ||
@@ -136,10 +123,7 @@ export const VehicleRoster: React.FC<VehicleRosterProps> = ({
                             <div
                                 key={vehicle.id}
                                 className="flex flex-col p-4 rounded-xl border bg-card hover:bg-accent/50 transition-all cursor-pointer group"
-                                onClick={() => handleVehicleClick(vehicle)}
-                                role="button"
-                                tabIndex={0}
-                                onKeyDown={(e) => e.key === 'Enter' && handleVehicleClick(vehicle)}
+                                onClick={() => onVehicleSelect?.(vehicle)}
                             >
                                 <div className="flex justify-between items-start mb-2">
                                     <div className="flex items-center gap-3">

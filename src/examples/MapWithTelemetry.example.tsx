@@ -15,7 +15,6 @@
  */
 
 import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { SkeletonLoader } from '@/components/shared';
 
 import { useMapTelemetry, MapInteractionType } from '../hooks/useTelemetry';
 import { captureException, addBreadcrumb, ErrorSeverity , withErrorBoundary } from '../services/errorReporting';

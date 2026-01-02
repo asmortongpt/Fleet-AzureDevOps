@@ -35,7 +35,6 @@ import {
   CircularProgress
 } from '@mui/material';
 import React, { useState, useEffect } from 'react';
-import { SkeletonLoader } from '@/components/shared';
 
 import { useAudioVisualization, useFrequencyBars } from '@/hooks/useAudioVisualization';
 import { useAuth } from '@/hooks/useAuth';

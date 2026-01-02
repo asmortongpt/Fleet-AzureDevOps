@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import { SkeletonLoader } from '@/components/shared';
 
 import { AppError } from '../errors/AppError';
 import { fetchUserProfile } from '../services/userService';
@@ -42,7 +41,7 @@ const UserProfile: React.FC<{ userId: string }> = ({ userId }) => {
   }
 
   if (!user) {
-    return <SkeletonLoader />;
+    return <div>Loading...</div>;
   }
 
   return (

@@ -6,7 +6,6 @@
 import { motion, AnimatePresence } from 'framer-motion'
 import { useAtom, useAtomValue } from 'jotai'
 import React, { useMemo, useEffect, useState } from 'react'
-import { SkeletonLoader } from '@/components/shared';
 
 import {
   Vehicle,

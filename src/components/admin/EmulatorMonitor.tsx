@@ -38,7 +38,6 @@ import {
 } from '@mui/material';
 import Grid from '@mui/material/Grid';
 import React, { useState, useMemo } from 'react';
-import { SkeletonLoader } from '@/components/shared';
 
 import logger from '@/utils/logger';
 

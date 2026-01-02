@@ -26,7 +26,6 @@ import {
   TableRow
 } from "@/components/ui/table"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { useDrilldown } from "@/contexts/DrilldownContext"
 import apiClient from "@/lib/api-client"
 
 interface LeaderboardEntry {
@@ -68,26 +67,6 @@ export function DriverScorecard() {
   const [scoreHistory, setScoreHistory] = useState<ScoreHistory[]>([])
   const [loading, setLoading] = useState(true)
   const [activeTab, setActiveTab] = useState("leaderboard")
-  const { push } = useDrilldown()
-
-  // Open driver in drilldown panel for deep navigation
-  const handleDriverDrilldown = (driver: LeaderboardEntry) => {
-    push({
-      id: `driver-${driver.driverId}`,
-      type: 'driver',
-      label: driver.driverName,
-      data: {
-        driverId: driver.driverId,
-        driverName: driver.driverName,
-        overallScore: driver.overallScore,
-        safetyScore: driver.safetyScore,
-        efficiencyScore: driver.efficiencyScore,
-        complianceScore: driver.complianceScore,
-        trend: driver.trend,
-        rank: driver.rank
-      }
-    })
-  }
 
   useEffect(() => {
     fetchLeaderboard()
@@ -195,10 +174,7 @@ export function DriverScorecard() {
           {leaderboard.length >= 3 && (
             <div className="grid grid-cols-3 gap-4 mb-6">
               {/* 2nd Place */}
-              <Card
-                className="border-2 border-gray-300 cursor-pointer hover:shadow-md transition-all"
-                onClick={() => leaderboard[1] && handleDriverDrilldown(leaderboard[1])}
-              >
+              <Card className="border-2 border-gray-300">
                 <CardHeader className="text-center pb-3">
                   <div className="flex justify-center mb-2">
                     <Medal className="h-12 w-12 text-gray-400" weight="fill" />
@@ -214,18 +190,15 @@ export function DriverScorecard() {
                     variant="outline"
                     size="sm"
                     className="mt-3"
-                    onClick={(e) => { e.stopPropagation(); leaderboard[1] && fetchDriverDetails(leaderboard[1]) }}
+                    onClick={() => leaderboard[1] && fetchDriverDetails(leaderboard[1])}
                   >
-                    View in Tab
+                    View Details
                   </Button>
                 </CardContent>
               </Card>
 
               {/* 1st Place */}
-              <Card
-                className="border-2 border-yellow-400 transform scale-105 shadow-lg cursor-pointer hover:shadow-xl transition-all"
-                onClick={() => leaderboard[0] && handleDriverDrilldown(leaderboard[0])}
-              >
+              <Card className="border-2 border-yellow-400 transform scale-105 shadow-lg">
                 <CardHeader className="text-center pb-3 bg-gradient-to-b from-yellow-50 to-transparent">
                   <div className="flex justify-center mb-2">
                     <Trophy className="h-16 w-16 text-yellow-500" weight="fill" />
@@ -242,18 +215,15 @@ export function DriverScorecard() {
                     variant="default"
                     size="sm"
                     className="mt-3 w-full"
-                    onClick={(e) => { e.stopPropagation(); leaderboard[0] && fetchDriverDetails(leaderboard[0]) }}
+                    onClick={() => leaderboard[0] && fetchDriverDetails(leaderboard[0])}
                   >
-                    View in Tab
+                    View Details
                   </Button>
                 </CardContent>
               </Card>
 
               {/* 3rd Place */}
-              <Card
-                className="border-2 border-orange-300 cursor-pointer hover:shadow-md transition-all"
-                onClick={() => leaderboard[2] && handleDriverDrilldown(leaderboard[2])}
-              >
+              <Card className="border-2 border-orange-300">
                 <CardHeader className="text-center pb-3">
                   <div className="flex justify-center mb-2">
                     <Medal className="h-12 w-12 text-orange-600" weight="fill" />
@@ -269,9 +239,9 @@ export function DriverScorecard() {
                     variant="outline"
                     size="sm"
                     className="mt-3"
-                    onClick={(e) => { e.stopPropagation(); leaderboard[2] && fetchDriverDetails(leaderboard[2]) }}
+                    onClick={() => leaderboard[2] && fetchDriverDetails(leaderboard[2])}
                   >
-                    View in Tab
+                    View Details
                   </Button>
                 </CardContent>
               </Card>
@@ -301,13 +271,9 @@ export function DriverScorecard() {
                 </TableHeader>
                 <TableBody>
                   {leaderboard.map((driver) => (
-                    <TableRow
-                      key={driver.driverId}
-                      className="cursor-pointer hover:bg-muted/50 transition-colors"
-                      onClick={() => handleDriverDrilldown(driver)}
-                    >
+                    <TableRow key={driver.driverId}>
                       <TableCell className="font-bold">#{driver.rank}</TableCell>
-                      <TableCell className="font-medium text-primary hover:underline">{driver.driverName}</TableCell>
+                      <TableCell className="font-medium">{driver.driverName}</TableCell>
                       <TableCell>
                         <Badge className={getScoreBgColor(driver.overallScore)}>
                           <span className={getScoreColor(driver.overallScore)}>
