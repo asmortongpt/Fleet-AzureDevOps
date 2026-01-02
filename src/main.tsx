@@ -52,6 +52,7 @@ import { FeatureFlagProvider } from "./contexts/FeatureFlagContext"
 import { InspectProvider } from "./services/inspect/InspectContext"
 import { DrilldownProvider } from "./contexts/DrilldownContext"
 import { NavigationProvider } from "./contexts/NavigationContext"
+import { ThemeProvider } from "./components/providers/ThemeProvider"
 import { SentryErrorBoundary } from "./components/errors/SentryErrorBoundary"
 import { GlobalCommandPalette } from "./components/common/GlobalCommandPalette"
 import App from "./App"
@@ -78,33 +79,35 @@ const SentryRoutes = Routes
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
     <QueryClientProvider client={queryClient}>
-      <SentryErrorBoundary level="page">
-        <AuthProvider>
-          <TenantProvider>
-            <FeatureFlagProvider>
-              <DrilldownProvider>
-                <InspectProvider>
-                  <BrowserRouter>
-                    <GlobalCommandPalette />
-                    <SentryRoutes>
-                      <Route
-                        path="/*"
-                        element={
-                          <SentryErrorBoundary level="section">
-                            <NavigationProvider>
-                              <App />
-                            </NavigationProvider>
-                          </SentryErrorBoundary>
-                        }
-                      />
-                    </SentryRoutes>
-                  </BrowserRouter>
-                </InspectProvider>
-              </DrilldownProvider>
-            </FeatureFlagProvider>
-          </TenantProvider>
-        </AuthProvider>
-      </SentryErrorBoundary>
+      <ThemeProvider defaultTheme="system" storageKey="ctafleet-theme">
+        <SentryErrorBoundary level="page">
+          <AuthProvider>
+            <TenantProvider>
+              <FeatureFlagProvider>
+                <DrilldownProvider>
+                  <InspectProvider>
+                    <BrowserRouter>
+                      <GlobalCommandPalette />
+                      <SentryRoutes>
+                        <Route
+                          path="/*"
+                          element={
+                            <SentryErrorBoundary level="section">
+                              <NavigationProvider>
+                                <App />
+                              </NavigationProvider>
+                            </SentryErrorBoundary>
+                          }
+                        />
+                      </SentryRoutes>
+                    </BrowserRouter>
+                  </InspectProvider>
+                </DrilldownProvider>
+              </FeatureFlagProvider>
+            </TenantProvider>
+          </AuthProvider>
+        </SentryErrorBoundary>
+      </ThemeProvider>
     </QueryClientProvider>
   </React.StrictMode>
 )
