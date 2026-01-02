@@ -59,8 +59,9 @@ export function DriverControlPanel({
     // -- Filter Logic --
     const filteredDrivers = useMemo(() => {
         return drivers.filter(d => {
-            const matchesSearch = d.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                d.email.toLowerCase().includes(searchQuery.toLowerCase())
+            // Safe access with optional chaining to handle undefined/null properties
+            const matchesSearch = d.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                d.email?.toLowerCase().includes(searchQuery.toLowerCase())
             // Cast d.status to any because the Driver type definition might not perfectly align with our filter set
             const matchesStatus = statusFilter === 'all' || (d.status as any) === statusFilter
             return matchesSearch && matchesStatus
