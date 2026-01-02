@@ -33,12 +33,22 @@ import {
   TableRow
 } from "@/components/ui/table"
 import { Textarea } from "@/components/ui/textarea"
+import { useDrilldown } from "@/contexts/DrilldownContext"
 import { Part } from "@/lib/types"
 
 
 export function PartsInventory() {
+  const { push } = useDrilldown()
   const [parts, setParts] = useState<Part[]>([])
   const [searchTerm, setSearchTerm] = useState("")
+
+  const handlePartClick = (part: Part) => {
+    push({
+      type: 'part',
+      label: `${part.partNumber} - ${part.name}`,
+      data: { partId: part.id, partNumber: part.partNumber, partName: part.name }
+    })
+  }
   const [filterCategory, setFilterCategory] = useState<string>("all")
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false)
 
@@ -403,7 +413,14 @@ export function PartsInventory() {
                 filteredParts.map(part => {
                   const status = getStockStatus(part)
                   return (
-                    <TableRow key={part.id}>
+                    <TableRow
+                      key={part.id}
+                      className="cursor-pointer hover:bg-muted/50"
+                      onClick={() => handlePartClick(part)}
+                      role="button"
+                      tabIndex={0}
+                      onKeyDown={(e) => e.key === 'Enter' && handlePartClick(part)}
+                    >
                       <TableCell className="font-mono text-sm">{part.partNumber}</TableCell>
                       <TableCell>
                         <div>
