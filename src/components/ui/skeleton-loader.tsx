@@ -1,5 +1,4 @@
 import React from 'react';
-import { SkeletonLoader } from '@/components/shared';
 
 import { cn } from '@/lib/utils';
 

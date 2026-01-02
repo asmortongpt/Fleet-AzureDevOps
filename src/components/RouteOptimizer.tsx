@@ -34,7 +34,6 @@ import {
   Zap
 } from 'lucide-react'
 import React, { useState, useEffect, useCallback, useRef, useMemo } from 'react'
-import { SkeletonLoader } from '@/components/shared';
 import { toast } from 'sonner'
 
 import { UniversalMap } from './UniversalMap'

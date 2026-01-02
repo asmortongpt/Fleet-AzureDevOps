@@ -24,7 +24,6 @@ import {
   TableRow
 } from "@/components/ui/table"
 import { Textarea } from "@/components/ui/textarea"
-import { useDrilldown } from "@/contexts/DrilldownContext"
 import { PurchaseOrder } from "@/lib/types"
 
 interface POItem {
@@ -43,31 +42,10 @@ interface NewPOForm {
 }
 
 export function PurchaseOrders() {
-  const { push } = useDrilldown()
   const [orders, setOrders] = useState<PurchaseOrder[]>([])
   const [searchTerm, setSearchTerm] = useState("")
   const [_filterStatus, _setFilterStatus] = useState<string>("all")
   const [selectedOrder, setSelectedOrder] = useState<PurchaseOrder | null>(null)
-
-  const handlePOClick = (order: PurchaseOrder) => {
-    push({
-      type: 'purchase-order',
-      label: order.poNumber,
-      data: { poId: order.id, poNumber: order.poNumber, vendorName: order.vendorName, total: order.total }
-    })
-    // Also open the details dialog for legacy UI
-    setSelectedOrder(order)
-    setIsDetailsDialogOpen(true)
-  }
-
-  const handleVendorClick = (e: React.MouseEvent, vendorName: string) => {
-    e.stopPropagation()
-    push({
-      type: 'vendor',
-      label: vendorName,
-      data: { vendorName }
-    })
-  }
   const [isDetailsDialogOpen, setIsDetailsDialogOpen] = useState(false)
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false)
   const [isRejectDialogOpen, setIsRejectDialogOpen] = useState(false)
@@ -328,21 +306,9 @@ export function PurchaseOrders() {
                 </TableRow>
               ) : (
                 filteredOrders.map(order => (
-                  <TableRow
-                    key={order.id}
-                    className="cursor-pointer hover:bg-muted/50"
-                    onClick={() => handlePOClick(order)}
-                    role="button"
-                    tabIndex={0}
-                    onKeyDown={(e) => e.key === 'Enter' && handlePOClick(order)}
-                  >
+                  <TableRow key={order.id}>
                     <TableCell className="font-mono font-medium">{order.poNumber}</TableCell>
-                    <TableCell
-                      className="text-primary hover:underline cursor-pointer"
-                      onClick={(e) => handleVendorClick(e, order.vendorName)}
-                    >
-                      {order.vendorName}
-                    </TableCell>
+                    <TableCell>{order.vendorName}</TableCell>
                     <TableCell>{new Date(order.date).toLocaleDateString()}</TableCell>
                     <TableCell>{new Date(order.expectedDelivery).toLocaleDateString()}</TableCell>
                     <TableCell>{order.items.length} items</TableCell>
@@ -356,8 +322,7 @@ export function PurchaseOrders() {
                       <Button
                         variant="ghost"
                         size="sm"
-                        onClick={(e) => {
-                          e.stopPropagation()
+                        onClick={() => {
                           setSelectedOrder(order)
                           setIsDetailsDialogOpen(true)
                         }}

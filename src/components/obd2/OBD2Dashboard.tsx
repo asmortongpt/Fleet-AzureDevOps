@@ -6,7 +6,6 @@
  */
 
 import React, { useState, useEffect, useCallback, useRef } from 'react'
-import { SkeletonLoader } from '@/components/shared';
 
 import logger from '@/utils/logger';
 // Types

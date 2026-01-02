@@ -1,5 +1,4 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { SkeletonLoader } from '@/components/shared';
 
 import BrandingService from '../services/branding.service';
 import { BrandingConfig } from '../types/branding.d';

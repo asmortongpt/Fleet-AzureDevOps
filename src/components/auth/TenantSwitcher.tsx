@@ -1,5 +1,4 @@
 /**
-import { SkeletonLoader } from '@/components/shared';
  * Tenant Switcher Component
  * Allows SuperAdmins to switch between tenants
  * SECURITY (CRIT-F-004): Only available to SuperAdmin users

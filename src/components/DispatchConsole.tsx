@@ -27,7 +27,6 @@ import {
   Activity
 } from 'lucide-react'
 import React, { useState, useEffect, useRef, useCallback } from 'react'
-import { SkeletonLoader } from '@/components/shared';
 
 import { Alert, AlertDescription } from './ui/alert'
 import { Badge } from './ui/badge'

@@ -11,7 +11,6 @@
 
 import { Loader2, AlertCircle } from 'lucide-react';
 import React, { useState, useEffect } from 'react';
-import { SkeletonLoader } from '@/components/shared';
 
 import { OBD2Dashboard } from '@/components/obd2/OBD2Dashboard';
 import { Badge } from '@/components/ui/badge';

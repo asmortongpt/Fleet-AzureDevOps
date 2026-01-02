@@ -8,7 +8,6 @@
 import { QueryErrorResetBoundary } from '@tanstack/react-query';
 import { AlertCircle, RefreshCw, WifiOff, ServerCrash } from 'lucide-react';
 import React from 'react';
-import { SkeletonLoader } from '@/components/shared';
 
 import { EnhancedErrorBoundary } from '@/components/EnhancedErrorBoundary';
 import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert';

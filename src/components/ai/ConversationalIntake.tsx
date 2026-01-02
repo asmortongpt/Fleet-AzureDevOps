@@ -6,7 +6,6 @@
 
 import { Send, Loader2, AlertCircle, Sparkles } from 'lucide-react'
 import React, { useState, useRef, useEffect } from 'react'
-import { SkeletonLoader } from '@/components/shared';
 
 import { apiClient } from '../../lib/api'
 import { Badge } from '../ui/badge'

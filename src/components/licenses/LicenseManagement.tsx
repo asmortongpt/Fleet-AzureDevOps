@@ -1,6 +1,5 @@
 import axios from 'axios';
 import React, { useEffect, useState } from 'react';
-import { SkeletonLoader } from '@/components/shared';
 import { Helmet } from 'react-helmet-async';
 
 import { useTenantId } from '../../hooks/useTenantId';

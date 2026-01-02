@@ -1,5 +1,4 @@
 import React, { createContext, useContext, useEffect, useState, ReactNode } from 'react';
-import { SkeletonLoader } from '@/components/shared';
 
 import { useAuth } from './AuthContext';
 
