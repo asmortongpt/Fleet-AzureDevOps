@@ -97,7 +97,7 @@ export class WebSocketClient {
     this.stopReconnect()
 
     if (this.ws) {
-      this.ws.close()
+      this.ws.close(1000, 'Normal close')
       this.ws = null
     }
 
