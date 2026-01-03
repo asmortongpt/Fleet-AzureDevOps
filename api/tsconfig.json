@@ -23,30 +23,12 @@
     "emitDecoratorMetadata": true
   },
   "include": [
-    "src/index.ts"
+    "src/**/*"
   ],
   "exclude": [
     "node_modules",
     "dist",
     "src/**/*.test.ts",
-    "src/**/__tests__/**",
-    "src/**/*.example.ts",
-    "src/**/*-example.ts",
-    "src/**/*.selectbak",
-    "src/**/examples/**",
-    "src/examples/**",
-    "src/scripts/**",
-    "src/emulators/**",
-    "src/monitoring/**",
-    "src/routes/**",
-    "src/services/**",
-    "src/repositories/**",
-    "src/modules/**",
-    "src/middleware/**",
-    "src/config/**",
-    "src/jobs/**",
-    "src/utils/**",
-    "src/types/**",
-    "src/errors/**"
+    "src/**/__tests__/**"
   ]
 }

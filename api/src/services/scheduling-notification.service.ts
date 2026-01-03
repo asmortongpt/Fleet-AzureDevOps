@@ -12,7 +12,7 @@
 
 import { Pool } from 'pg'
 
-import { logger } from '../config/logger'
+import logger from '../config/logger'
 
 import outlookService from './outlook.service'
 import teamsService from './teams.service'
