@@ -181,6 +181,7 @@ export function SystemStatusPanel({
                         size="sm"
                         className="h-6 w-6 p-0"
                         onClick={() => onStopEmulator(emulator.id)}
+                        aria-label={`Stop ${emulator.name} emulator`}
                       >
                         <StopCircle className="w-3.5 h-3.5 text-red-600" />
                       </Button>
@@ -190,6 +191,7 @@ export function SystemStatusPanel({
                         size="sm"
                         className="h-6 w-6 p-0"
                         onClick={() => onStartEmulator(emulator.id)}
+                        aria-label={`Start ${emulator.name} emulator`}
                       >
                         <PlayCircle className="w-3.5 h-3.5 text-green-600" />
                       </Button>

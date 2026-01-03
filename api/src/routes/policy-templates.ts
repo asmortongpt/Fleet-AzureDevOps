@@ -452,6 +452,294 @@ router.post(
   }
 )
 
+// DELETE /policy-templates/:id
+router.delete(
+  '/:id',
+  csrfProtection,
+  requirePermission('policy:delete:global'),
+  auditLog({ action: 'DELETE', resourceType: 'policy_templates' }),
+  async (req: AuthRequest, res: Response) => {
+    try {
+      // Check if policy has acknowledgments or violations
+      const usageCheck = await pool.query(
+        `SELECT
+          (SELECT COUNT(*) FROM policy_acknowledgments WHERE policy_id = $1) as acknowledgment_count,
+          (SELECT COUNT(*) FROM policy_violations WHERE policy_id = $1) as violation_count`,
+        [req.params.id]
+      )
+
+      const { acknowledgment_count, violation_count } = usageCheck.rows[0]
+
+      // If policy is in use, archive it instead of deleting
+      if (parseInt(acknowledgment_count) > 0 || parseInt(violation_count) > 0) {
+        const result = await pool.query(
+          `UPDATE policy_templates
+           SET status = 'Archived', updated_at = NOW(), updated_by = $2
+           WHERE id = $1
+           RETURNING *`,
+          [req.params.id, req.user!.id]
+        )
+
+        if (result.rows.length === 0) {
+          return res.status(404).json({ error: 'Policy template not found' })
+        }
+
+        return res.json({
+          message: 'Policy archived (cannot delete due to existing acknowledgments or violations)',
+          policy: result.rows[0]
+        })
+      }
+
+      // Safe to delete
+      const result = await pool.query(
+        `DELETE FROM policy_templates WHERE id = $1 RETURNING *`,
+        [req.params.id]
+      )
+
+      if (result.rows.length === 0) {
+        return res.status(404).json({ error: 'Policy template not found' })
+      }
+
+      res.json({ message: 'Policy template deleted successfully', policy: result.rows[0] })
+    } catch (error) {
+      console.error('Delete policy template error:', error)
+      res.status(500).json({ error: 'Internal server error' })
+    }
+  }
+)
+
+// POST /policy-templates/:id/activate
+router.post(
+  '/:id/activate',
+  csrfProtection,
+  requirePermission('policy:update:global'),
+  auditLog({ action: 'UPDATE', resourceType: 'policy_templates' }),
+  async (req: AuthRequest, res: Response) => {
+    try {
+      const result = await pool.query(
+        `UPDATE policy_templates
+         SET status = 'Active',
+             effective_date = COALESCE(effective_date, CURRENT_DATE),
+             next_review_date = COALESCE(next_review_date, CURRENT_DATE + INTERVAL '1 year' * review_cycle_months / 12),
+             updated_at = NOW(),
+             updated_by = $2,
+             approved_at = NOW(),
+             approved_by = $2
+         WHERE id = $1
+         RETURNING *`,
+        [req.params.id, req.user!.id]
+      )
+
+      if (result.rows.length === 0) {
+        return res.status(404).json({ error: 'Policy template not found' })
+      }
+
+      res.json({
+        message: 'Policy template activated successfully',
+        policy: result.rows[0]
+      })
+    } catch (error) {
+      console.error('Activate policy template error:', error)
+      res.status(500).json({ error: 'Internal server error' })
+    }
+  }
+)
+
+// POST /policy-templates/:id/deactivate
+router.post(
+  '/:id/deactivate',
+  csrfProtection,
+  requirePermission('policy:update:global'),
+  auditLog({ action: 'UPDATE', resourceType: 'policy_templates' }),
+  async (req: AuthRequest, res: Response) => {
+    try {
+      const result = await pool.query(
+        `UPDATE policy_templates
+         SET status = 'Archived',
+             updated_at = NOW(),
+             updated_by = $2
+         WHERE id = $1
+         RETURNING *`,
+        [req.params.id, req.user!.id]
+      )
+
+      if (result.rows.length === 0) {
+        return res.status(404).json({ error: 'Policy template not found' })
+      }
+
+      res.json({
+        message: 'Policy template deactivated successfully',
+        policy: result.rows[0]
+      })
+    } catch (error) {
+      console.error('Deactivate policy template error:', error)
+      res.status(500).json({ error: 'Internal server error' })
+    }
+  }
+)
+
+// GET /policy-templates/:id/violations
+router.get(
+  '/:id/violations',
+  requirePermission('policy:view:global'),
+  auditLog({ action: 'READ', resourceType: 'policy_violations' }),
+  async (req: AuthRequest, res: Response) => {
+    try {
+      const { page = 1, limit = 50 } = req.query
+      const offset = (Number(page) - 1) * Number(limit)
+
+      const result = await pool.query(
+        `SELECT pv.*,
+                d.first_name || ' ' || d.last_name as employee_name,
+                d.employee_id as employee_number
+         FROM policy_violations pv
+         JOIN drivers d ON pv.employee_id = d.id
+         WHERE pv.policy_id = $1 AND d.tenant_id = $2
+         ORDER BY pv.violation_date DESC
+         LIMIT $3 OFFSET $4`,
+        [req.params.id, req.user!.tenant_id, limit, offset]
+      )
+
+      const countResult = await pool.query(
+        `SELECT COUNT(*)
+         FROM policy_violations pv
+         JOIN drivers d ON pv.employee_id = d.id
+         WHERE pv.policy_id = $1 AND d.tenant_id = $2`,
+        [req.params.id, req.user!.tenant_id]
+      )
+
+      res.json({
+        data: result.rows,
+        pagination: {
+          page: Number(page),
+          limit: Number(limit),
+          total: parseInt(countResult.rows[0].count),
+          pages: Math.ceil(countResult.rows[0].count / Number(limit))
+        }
+      })
+    } catch (error) {
+      console.error('Get policy violations error:', error)
+      res.status(500).json({ error: 'Internal server error' })
+    }
+  }
+)
+
+// POST /policy-templates/:id/execute
+router.post(
+  '/:id/execute',
+  csrfProtection,
+  requirePermission('policy:view:global'),
+  auditLog({ action: 'EXECUTE', resourceType: 'policy_templates' }),
+  async (req: AuthRequest, res: Response) => {
+    try {
+      const { context = {} } = req.body
+
+      // Get the policy template
+      const policyResult = await pool.query(
+        `SELECT * FROM policy_templates WHERE id = $1`,
+        [req.params.id]
+      )
+
+      if (policyResult.rows.length === 0) {
+        return res.status(404).json({ error: 'Policy template not found' })
+      }
+
+      const policy = policyResult.rows[0]
+
+      // Evaluate policy against provided context
+      const evaluationResult = {
+        policy_id: policy.id,
+        policy_code: policy.policy_code,
+        policy_name: policy.policy_name,
+        evaluated_at: new Date().toISOString(),
+        context,
+        checks: [] as any[],
+        compliant: true,
+        violations: [] as any[]
+      }
+
+      // Example policy checks (customize based on your needs)
+
+      // Check 1: Is policy active?
+      evaluationResult.checks.push({
+        check: 'policy_active',
+        passed: policy.status === 'Active',
+        message: policy.status === 'Active' ? 'Policy is active' : `Policy status is ${policy.status}`
+      })
+
+      // Check 2: Has employee acknowledged policy?
+      if (context.employee_id) {
+        const ackResult = await pool.query(
+          `SELECT * FROM policy_acknowledgments
+           WHERE policy_id = $1 AND employee_id = $2 AND is_current = TRUE`,
+          [req.params.id, context.employee_id]
+        )
+
+        const hasAcknowledged = ackResult.rows.length > 0
+        evaluationResult.checks.push({
+          check: 'employee_acknowledged',
+          passed: hasAcknowledged,
+          message: hasAcknowledged
+            ? `Employee acknowledged policy on ${ackResult.rows[0].acknowledged_at}`
+            : 'Employee has not acknowledged policy',
+          data: hasAcknowledged ? ackResult.rows[0] : null
+        })
+
+        if (!hasAcknowledged && policy.is_mandatory) {
+          evaluationResult.compliant = false
+          evaluationResult.violations.push({
+            violation_type: 'missing_acknowledgment',
+            severity: 'Moderate',
+            message: 'Mandatory policy not acknowledged by employee'
+          })
+        }
+      }
+
+      // Check 3: Policy not expired
+      if (policy.expiration_date) {
+        const expired = new Date(policy.expiration_date) < new Date()
+        evaluationResult.checks.push({
+          check: 'policy_not_expired',
+          passed: !expired,
+          message: expired
+            ? `Policy expired on ${policy.expiration_date}`
+            : `Policy valid until ${policy.expiration_date}`
+        })
+
+        if (expired) {
+          evaluationResult.compliant = false
+          evaluationResult.violations.push({
+            violation_type: 'expired_policy',
+            severity: 'Serious',
+            message: 'Policy has expired'
+          })
+        }
+      }
+
+      // Check 4: Role applicability
+      if (policy.applies_to_roles && context.employee_role) {
+        const roleApplies = policy.applies_to_roles.includes(context.employee_role)
+        evaluationResult.checks.push({
+          check: 'role_applicability',
+          passed: true,
+          message: roleApplies
+            ? `Policy applies to role: ${context.employee_role}`
+            : `Policy does not apply to role: ${context.employee_role}`,
+          applies: roleApplies
+        })
+      }
+
+      res.json({
+        message: 'Policy evaluation completed',
+        evaluation: evaluationResult
+      })
+    } catch (error) {
+      console.error('Execute policy template error:', error)
+      res.status(500).json({ error: 'Internal server error' })
+    }
+  }
+)
+
 // ============================================================================
 // Policy Compliance Audits
 // ============================================================================

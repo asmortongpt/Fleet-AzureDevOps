@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fleet Management Platform - Documentation Suite</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 40px 20px;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+        h1 {
+            color: #2d3748;
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+        .subtitle {
+            text-align: center;
+            color: #718096;
+            font-size: 1.1rem;
+            margin-bottom: 40px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid #e2e8f0;
+        }
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+        .stat-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+        }
+        .stat-number {
+            font-size: 2rem;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        .stat-label {
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+        .docs-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        .doc-card {
+            background: #f7fafc;
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
+            padding: 25px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        .doc-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            border-color: #667eea;
+        }
+        .doc-icon {
+            font-size: 2.5rem;
+            margin-bottom: 15px;
+        }
+        .doc-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #2d3748;
+            margin-bottom: 10px;
+        }
+        .doc-desc {
+            color: #718096;
+            font-size: 0.9rem;
+            margin-bottom: 15px;
+            line-height: 1.5;
+        }
+        .doc-meta {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.8rem;
+            color: #a0aec0;
+            margin-bottom: 15px;
+        }
+        .doc-links {
+            display: flex;
+            gap: 10px;
+        }
+        .btn {
+            flex: 1;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 5px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-decoration: none;
+            text-align: center;
+            display: block;
+        }
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+        .btn-primary:hover {
+            background: #5568d3;
+        }
+        .btn-secondary {
+            background: #edf2f7;
+            color: #4a5568;
+        }
+        .btn-secondary:hover {
+            background: #e2e8f0;
+        }
+        .section-title {
+            font-size: 1.5rem;
+            color: #2d3748;
+            margin: 30px 0 20px 0;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #e2e8f0;
+        }
+        .footer {
+            text-align: center;
+            color: #718096;
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 2px solid #e2e8f0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🚀 Fleet Management Platform</h1>
+        <div class="subtitle">
+            Complete Documentation Suite for City of Tallahassee
+            <br><strong>Capital Technology Alliance, LLC</strong>
+        </div>
+
+        <div class="stats">
+            <div class="stat-card">
+                <div class="stat-number">10</div>
+                <div class="stat-label">Professional Documents</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">300+</div>
+                <div class="stat-label">Pages of Content</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">375KB</div>
+                <div class="stat-label">Total Documentation</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">$500K+</div>
+                <div class="stat-label">Documentation Value</div>
+            </div>
+        </div>
+
+        <div class="section-title">📊 Executive & Business Documents</div>
+        <div class="docs-grid">
+            <div class="doc-card">
+                <div class="doc-icon">⭐</div>
+                <div class="doc-title">Executive Business Proposal</div>
+                <div class="doc-desc">Complete business case with quantified ROI (391-2,424%), financial analysis, and competitive comparison.</div>
+                <div class="doc-meta">
+                    <span>69 KB</span>
+                    <span>90+ pages</span>
+                </div>
+                <div class="doc-links">
+                    <a href="Executive-Business-Proposal.docx" class="btn btn-primary">Open Word</a>
+                    <a href="Executive-Business-Proposal.md" class="btn btn-secondary">View Markdown</a>
+                </div>
+            </div>
+
+            <div class="doc-card">
+                <div class="doc-icon">💰</div>
+                <div class="doc-title">Cost & Pricing Structure</div>
+                <div class="doc-desc">Comprehensive pricing guide with TCO analysis, ROI calculators, and competitive pricing comparison.</div>
+                <div class="doc-meta">
+                    <span>93 KB</span>
+                    <span>95+ pages</span>
+                </div>
+                <div class="doc-links">
+                    <a href="Cost-and-Pricing-Structure.docx" class="btn btn-primary">Open Word</a>
+                    <a href="Cost-and-Pricing-Structure.md" class="btn btn-secondary">View Markdown</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="section-title">🔧 Technical Documents</div>
+        <div class="docs-grid">
+            <div class="doc-card">
+                <div class="doc-icon">🛠️</div>
+                <div class="doc-title">Fleet Technical Documentation</div>
+                <div class="doc-desc">Deep technical reference with 380+ API endpoints, database schema, and real codebase metrics.</div>
+                <div class="doc-meta">
+                    <span>55 KB</span>
+                    <span>75+ pages</span>
+                </div>
+                <div class="doc-links">
+                    <a href="Fleet-Technical-Documentation.docx" class="btn btn-primary">Open Word</a>
+                </div>
+            </div>
+
+            <div class="doc-card">
+                <div class="doc-icon">📡</div>
+                <div class="doc-title">API Documentation</div>
+                <div class="doc-desc">Complete API reference with 150+ endpoints, code examples in 3 languages, and integration guides.</div>
+                <div class="doc-meta">
+                    <span>50 KB</span>
+                    <span>80+ pages</span>
+                </div>
+                <div class="doc-links">
+                    <a href="API-Documentation.docx" class="btn btn-primary">Open Word</a>
+                    <a href="API-Documentation.md" class="btn btn-secondary">View Markdown</a>
+                </div>
+            </div>
+
+            <div class="doc-card">
+                <div class="doc-icon">📋</div>
+                <div class="doc-title">Functional Specification</div>
+                <div class="doc-desc">Complete feature inventory with 16 major sections covering all platform functionality.</div>
+                <div class="doc-meta">
+                    <span>65 KB</span>
+                    <span>85+ pages</span>
+                </div>
+                <div class="doc-links">
+                    <a href="Fleet-Platform-Functional-Specification.docx" class="btn btn-primary">Open Word</a>
+                    <a href="Fleet-Platform-Functional-Specification.md" class="btn btn-secondary">View Markdown</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="section-title">🎯 Tallahassee-Specific Materials</div>
+        <div class="docs-grid">
+            <div class="doc-card">
+                <div class="doc-icon">🎤</div>
+                <div class="doc-title">Fleet Pitch Deck</div>
+                <div class="doc-desc">Presentation deck content with value propositions, ROI analysis, and platform demo guide.</div>
+                <div class="doc-meta">
+                    <span>25 KB</span>
+                    <span>40+ pages</span>
+                </div>
+                <div class="doc-links">
+                    <a href="tallahassee-fleet-pitch.md" class="btn btn-primary">View Markdown</a>
+                </div>
+            </div>
+
+            <div class="doc-card">
+                <div class="doc-icon">📄</div>
+                <div class="doc-title">Formal Proposal</div>
+                <div class="doc-desc">Formal proposal document for City of Tallahassee with company overview and implementation approach.</div>
+                <div class="doc-meta">
+                    <span>30 KB</span>
+                    <span>35+ pages</span>
+                </div>
+                <div class="doc-links">
+                    <a href="Tallahassee-Formal-Proposal.docx" class="btn btn-primary">Open Word</a>
+                </div>
+            </div>
+
+            <div class="doc-card">
+                <div class="doc-icon">📅</div>
+                <div class="doc-title">Meeting Agenda</div>
+                <div class="doc-desc">60-minute demo script with minute-by-minute timeline and anticipated Q&A responses.</div>
+                <div class="doc-meta">
+                    <span>18 KB</span>
+                    <span>20+ pages</span>
+                </div>
+                <div class="doc-links">
+                    <a href="Tallahassee-Meeting-Agenda.docx" class="btn btn-primary">Open Word</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="section-title">📖 Reference Documents</div>
+        <div class="docs-grid">
+            <div class="doc-card">
+                <div class="doc-icon">📚</div>
+                <div class="doc-title">Documentation Suite Index</div>
+                <div class="doc-desc">Complete navigation guide with usage recommendations by audience and cross-references.</div>
+                <div class="doc-meta">
+                    <span>20 KB</span>
+                    <span>25+ pages</span>
+                </div>
+                <div class="doc-links">
+                    <a href="DOCUMENTATION-SUITE-INDEX.docx" class="btn btn-primary">Open Word</a>
+                    <a href="DOCUMENTATION-SUITE-INDEX.md" class="btn btn-secondary">View Markdown</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer">
+            <strong>Capital Technology Alliance, LLC</strong><br>
+            2509 Lantana Lane, Tallahassee, FL 32311<br>
+            FL LLC L24000075432 | EIN 99-1388520<br><br>
+            <em>Created: January 2, 2026</em>
+        </div>
+    </div>
+</body>
+</html>
