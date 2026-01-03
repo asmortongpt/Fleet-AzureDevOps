@@ -557,11 +557,17 @@ export class OcrService {
     const path = await import('path');
 
     return new Promise((resolve, reject) => {
-      // Create worker thread for CPU-intensive OCR processing
+      let scriptPath = path.join(__dirname, '../workers/tesseract.worker.ts');
+
+      // In production, prefer transpiled .js file
+      if (process.env.NODE_ENV === 'production') {
+        scriptPath = scriptPath.replace('/src/', '/dist/').replace('.ts', '.js');
+      }
+
       const worker = new Worker(
-        path.join(__dirname, '../workers/tesseract.worker.ts'),
+        scriptPath,
         {
-          execArgv: ['--import', 'tsx', '--no-warnings'],
+          execArgv: scriptPath.endsWith('.ts') ? ['--import', 'tsx', '--no-warnings'] : ['--no-warnings'],
           workerData: {
             imageBuffer,
             languages: options.languages || ['eng'],
@@ -571,6 +577,7 @@ export class OcrService {
             }
           }
         });
+
 
       // Timeout after 2 minutes
       const timeout = setTimeout(() => {
