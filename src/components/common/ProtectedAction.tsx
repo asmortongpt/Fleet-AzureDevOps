@@ -5,6 +5,7 @@
  */
 
 import React from 'react';
+
 import { useRBAC } from '@/hooks/useRBAC';
 import { Permission, Resource } from '@/lib/rbac';
 

@@ -1,6 +1,4 @@
 import { ComponentProps, ComponentType, createContext, CSSProperties, ReactNode, useContext, useId, useMemo } from "react"
-import { sanitizeHtml } from '@/utils/xss-sanitizer'
-
 import { ResponsiveContainer, Tooltip, Legend, LegendProps } from "recharts"
 
 import { cn } from "@/lib/utils"

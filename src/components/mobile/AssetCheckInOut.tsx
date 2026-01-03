@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { z } from 'zod';
 
 import { checkInAsset, checkOutAsset } from '../api/assets';
+
 import photoStorageService from '@/services/photo-storage.service';
 import { compressToWebP } from '@/utils/compressToWebP';
 

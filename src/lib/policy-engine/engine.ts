@@ -5,7 +5,8 @@
  * and enforces rules across the fleet management system.
  */
 
-import { Policy, PolicyType, PolicyMode } from './types';
+import { Policy, PolicyType } from './types';
+
 import logger from '@/utils/logger';
 
 export interface PolicyEvaluationContext {

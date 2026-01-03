@@ -5,25 +5,20 @@
 
 import {
   Truck,
-  User,
   Clock,
   TrendingUp,
   AlertCircle,
-  CheckCircle,
-  Calendar,
   Activity,
-  Zap,
-  Phone,
-  Mail
+  Zap
 } from 'lucide-react'
 import { useMemo } from 'react'
 import useSWR from 'swr'
 
+import { DrilldownDataTable, DrilldownColumn } from '@/components/drilldown/DrilldownDataTable'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Progress } from '@/components/ui/progress'
-import { DrilldownDataTable, DrilldownColumn } from '@/components/drilldown/DrilldownDataTable'
 import { useDrilldown } from '@/contexts/DrilldownContext'
 
 const fetcher = (url: string) => fetch(url).then((r) => r.json())

@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode, useCallback } from 'react';
 import { toast } from 'sonner';
 
-import { Policy, PolicyType, PolicyMode, PolicyStatus } from '@/lib/policy-engine/types';
+import { Policy, PolicyType } from '@/lib/policy-engine/types';
 import logger from '@/utils/logger';
 
 interface PolicyContextValue {

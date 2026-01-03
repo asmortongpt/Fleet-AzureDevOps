@@ -1,13 +1,7 @@
 import {
   GasPump,
   MapPin,
-  TrendUp,
-  TrendDown,
-  CurrencyDollar,
   Lightbulb,
-  ChartLine,
-  Bell,
-  FileText,
   Target,
   CheckCircle,
   Warning

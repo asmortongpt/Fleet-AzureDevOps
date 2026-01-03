@@ -10,7 +10,6 @@ import {
   Lightning,
   Eye,
   ShieldCheck,
-  ArrowsClockwise,
   FlowArrow,
   Database as DatabaseIcon,
   GitBranch
@@ -18,6 +17,9 @@ import {
 import { useState } from "react"
 import { toast } from "sonner"
 
+import { DataFlowDiagram } from "@/components/diagrams/DataFlowDiagram"
+import { DatabaseRelationshipDiagram } from "@/components/diagrams/DatabaseRelationshipDiagram"
+import { PolicyFlowDiagram } from "@/components/diagrams/PolicyFlowDiagram"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
@@ -40,7 +42,6 @@ import {
   SelectValue
 } from "@/components/ui/select"
 import { Switch } from "@/components/ui/switch"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import {
   Table,
   TableBody,
@@ -49,12 +50,10 @@ import {
   TableHeader,
   TableRow
 } from "@/components/ui/table"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Textarea } from "@/components/ui/textarea"
 import { usePolicies } from "@/contexts/PolicyContext"
 import type { Policy, PolicyType, PolicyMode, PolicyStatus } from "@/lib/policy-engine/types"
-import { PolicyFlowDiagram } from "@/components/diagrams/PolicyFlowDiagram"
-import { DatabaseRelationshipDiagram } from "@/components/diagrams/DatabaseRelationshipDiagram"
-import { DataFlowDiagram } from "@/components/diagrams/DataFlowDiagram"
 
 export function PolicyEngineWorkbench() {
   // Use PolicyContext for backend integration

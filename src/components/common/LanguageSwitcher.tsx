@@ -1,5 +1,7 @@
+import { Globe, Check } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
+
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
@@ -9,7 +11,6 @@ import {
   DropdownMenuSeparator,
   DropdownMenuLabel,
 } from '@/components/ui/dropdown-menu';
-import { Globe, Check } from 'lucide-react';
 import { languages, type LanguageCode } from '@/i18n/config';
 import { cn } from '@/lib/utils';
 

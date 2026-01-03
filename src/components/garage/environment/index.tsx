@@ -8,6 +8,7 @@ export * from './types'
 export * from './configs'
 
 import React from 'react'
+
 import { TimeOfDay, WeatherType } from './types'
 
 export function DynamicLighting({ timeOfDay, weatherIntensity = 1.0 }: { timeOfDay: TimeOfDay; weatherIntensity?: number }) {

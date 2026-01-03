@@ -2,7 +2,7 @@ import { Car, Plus, PencilSimple, Trash, MapPin } from "@phosphor-icons/react"
 import { ColumnDef } from "@tanstack/react-table"
 import { useMemo } from "react"
 
-import { DataGrid, DataGridProps } from "@/components/common/DataGrid"
+import { DataGrid } from "@/components/common/DataGrid"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"

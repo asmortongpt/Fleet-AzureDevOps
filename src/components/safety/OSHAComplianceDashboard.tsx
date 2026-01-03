@@ -3,7 +3,6 @@
  * Tracks recordable incidents, DART rate, TRIR, and regulatory compliance
  */
 
-import { useState, useMemo } from 'react'
 import {
     ShieldCheck,
     Warning,
@@ -15,9 +14,11 @@ import {
     ClipboardText,
     Download
 } from '@phosphor-icons/react'
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
+import { useState, useMemo } from 'react'
+
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
 import { Progress } from '@/components/ui/progress'
 import {
     Table,

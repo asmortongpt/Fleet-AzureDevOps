@@ -12,13 +12,11 @@
  * - Disposal management
  */
 
-import { container } from '../container'
-import { asyncHandler } from '../middleware/errorHandler'
-import { NotFoundError, ValidationError } from '../errors/app-error'
-import logger from '../config/logger'; // Wave 28: Add Winston logger
 import { Router } from 'express'
 
+import logger from '../config/logger'; // Wave 28: Add Winston logger
 import { pool } from '../db/connection';
+import { NotFoundError } from '../errors/app-error'
 import type { AuthRequest } from '../middleware/auth'
 import { authenticateJWT } from '../middleware/auth'
 import { csrfProtection } from '../middleware/csrf'

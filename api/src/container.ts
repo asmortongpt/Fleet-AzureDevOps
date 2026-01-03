@@ -1,10 +1,6 @@
 import "reflect-metadata";
 import { Container } from "inversify";
 
-import { TYPES } from "./types";
-import { InspectionController } from "./modules/inspections/controllers/inspection.controller";
-import { BreakGlassRepository } from "./repositories/BreakGlassRepository";
-import { PersonalUsePoliciesRepository } from "./repositories/PersonalUsePoliciesRepository";
 import { connectionManager } from "./config/connection-manager";
 import { DriverController } from "./modules/drivers/controllers/driver.controller";
 import { DriverRepository } from "./modules/drivers/repositories/driver.repository";
@@ -18,6 +14,7 @@ import { VehicleService } from "./modules/fleet/services/vehicle.service";
 import { IncidentController } from "./modules/incidents/controllers/incident.controller";
 import { IncidentRepository } from "./modules/incidents/repositories/incident.repository";
 import { IncidentService } from "./modules/incidents/services/incident.service";
+import { InspectionController } from "./modules/inspections/controllers/inspection.controller";
 import { InspectionRepository } from "./modules/inspections/repositories/inspection.repository";
 import { InspectionService } from "./modules/inspections/services/inspection.service";
 import { MaintenanceController } from "./modules/maintenance/controllers/maintenance.controller";
@@ -26,16 +23,19 @@ import { MaintenanceService } from "./modules/maintenance/services/maintenance.s
 import { WorkOrderController } from "./modules/work-orders/controllers/work-order.controller";
 import { WorkOrderRepository } from "./modules/work-orders/repositories/work-order.repository";
 import { WorkOrderService } from "./modules/work-orders/services/work-order.service";
+import { BreakGlassRepository } from "./repositories/BreakGlassRepository";
 import { PermissionsRepository } from "./repositories/PermissionsRepository";
+import { PersonalUsePoliciesRepository } from "./repositories/PersonalUsePoliciesRepository";
 import { AttachmentRepository } from "./repositories/attachments.repository";
-import { VehicleAssignmentsRepository } from "./repositories/vehicle-assignments.repository";
-import { AssignmentNotificationService } from "./services/assignment-notification.service";
 
 // Fuel Transaction Service
-import { FueltransactionService } from "./services/FuelTransactionService";
 
 // Push Notification Repository (Agent 57 - B3 Refactoring)
 import { PushNotificationRepository } from './repositories/push-notification.repository';
+import { VehicleAssignmentsRepository } from "./repositories/vehicle-assignments.repository";
+import { FueltransactionService } from "./services/FuelTransactionService";
+import { AssignmentNotificationService } from "./services/assignment-notification.service";
+import { TYPES } from "./types";
 
 const container = new Container();
 

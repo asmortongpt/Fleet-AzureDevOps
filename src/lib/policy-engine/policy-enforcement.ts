@@ -7,8 +7,9 @@
 
 import { toast } from 'sonner';
 
-import { Policy, PolicyType } from './types';
 import { checkPolicyCompliance, PolicyEvaluationContext } from './engine';
+import { Policy, PolicyType } from './types';
+
 import logger from '@/utils/logger';
 
 export interface PolicyEnforcementResult {

@@ -1,6 +1,7 @@
 import express, { Response } from 'express';
 import { z } from 'zod';
 
+import { securityLogger as logger } from '../config/logger'
 import { pool } from '../db'
 import { ValidationError, NotFoundError } from '../errors/app-error'
 import { auditLog } from '../middleware/audit';
@@ -10,7 +11,6 @@ import { requirePermission, rateLimit } from '../middleware/permissions';
 import DriverSafetyAIService from '../services/driver-safety-ai.service';
 import VideoTelematicsService from '../services/video-telematics.service';
 import { getErrorMessage } from '../utils/error-handler'
-import { securityLogger as logger } from '../config/logger'
 
 
 const router = express.Router();

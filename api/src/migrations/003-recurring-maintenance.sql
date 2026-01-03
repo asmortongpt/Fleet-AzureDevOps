@@ -59,10 +59,10 @@ CREATE TABLE IF NOT EXISTS maintenance_notifications (
 );
 
 -- Create indexes for performance
-CREATE INDEX IF NOT EXISTS idx_maintenance_schedules_recurring ON maintenance_schedules(tenant_id, is_recurring, next_due)
+CREATE INDEX IF NOT EXISTS idx_maintenance_schedules_recurring ON maintenance_schedules(tenant_id, is_recurring, next_service_date)
   WHERE is_recurring = TRUE;
 
-CREATE INDEX IF NOT EXISTS idx_maintenance_schedules_auto_create ON maintenance_schedules(tenant_id, auto_create_work_order, next_due)
+CREATE INDEX IF NOT EXISTS idx_maintenance_schedules_auto_create ON maintenance_schedules(tenant_id, auto_create_work_order, next_service_date)
   WHERE auto_create_work_order = TRUE;
 
 CREATE INDEX IF NOT EXISTS idx_maintenance_schedule_history_schedule ON maintenance_schedule_history(schedule_id, created_at DESC);
@@ -146,7 +146,7 @@ BEGIN
   LIMIT 1;
 
   -- Check time-based due
-  IF v_schedule.next_due <= p_current_date THEN
+  IF v_schedule.next_service_date <= p_current_date THEN
     v_time_due := TRUE;
   END IF;
 

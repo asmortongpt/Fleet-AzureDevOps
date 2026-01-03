@@ -3,7 +3,6 @@
  * Push notifications for critical safety events, compliance deadlines, and incidents
  */
 
-import { useState, useEffect } from 'react'
 import {
     Bell,
     Warning,
@@ -11,13 +10,14 @@ import {
     CheckCircle,
     X,
     Eye,
-    EyeSlash,
     Clock,
     Siren
 } from '@phosphor-icons/react'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { useState, useEffect } from 'react'
+
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import {
     Select,

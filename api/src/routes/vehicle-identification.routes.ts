@@ -8,13 +8,9 @@
  * - Vehicle search
  */
 
-import { container } from '../container'
-import { csrfProtection } from '../middleware/csrf'
-import { asyncHandler } from '../middleware/errorHandler'
-import { NotFoundError, ValidationError } from '../errors/app-error'
-import logger from '../config/logger'; // Wave 30: Add Winston logger
 import { Router } from 'express'
 
+import logger from '../config/logger'; // Wave 30: Add Winston logger
 import logger from '../config/logger'
 import { NotFoundError, ValidationError } from '../errors/app-error'
 import type { AuthRequest } from '../middleware/auth'

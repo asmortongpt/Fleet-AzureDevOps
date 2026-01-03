@@ -24,7 +24,6 @@ import {
   MapPin,
   PenTool,
   AlertOctagon,
-  TrendingUp,
   BookOpen,
 } from 'lucide-react'
 import { useState } from 'react'

@@ -12,11 +12,10 @@
  * All routes require authentication
  */
 
-import { container } from '../container'
-import { asyncHandler } from '../middleware/errorHandler'
-import { NotFoundError, ValidationError } from '../errors/app-error'
+
 import { Router, Response } from 'express'
 
+import logger from '../config/logger'
 import { authenticateJWT, AuthRequest } from '../middleware/auth'
 import { csrfProtection } from '../middleware/csrf'
 import teamsService from '../services/teams.service'
@@ -28,7 +27,6 @@ import {
   UpdateMessageRequest
 } from '../types/teams.types'
 import { getErrorMessage } from '../utils/error-handler'
-import logger from '../config/logger'
 
 const router = Router()
 

@@ -26,14 +26,10 @@ import { GoogleMap, LoadScript, Marker, Circle } from "@react-google-maps/api"
 import { useState, useMemo } from "react"
 import { toast } from "sonner"
 
+import { DrilldownCard } from "@/components/drilldown/DrilldownCard"
+import { DrilldownDataTable, DrilldownColumn } from "@/components/drilldown/DrilldownDataTable"
 import { Badge } from "@/components/ui/badge"
-import { usePolicies } from "@/contexts/PolicyContext"
 import { Button } from "@/components/ui/button"
-import {
-  enforceSafetyIncidentPolicy,
-  shouldBlockAction,
-  getApprovalRequirements
-} from "@/lib/policy-engine/policy-enforcement"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import {
   Select,
@@ -51,9 +47,13 @@ import {
   TableRow,
 } from "@/components/ui/table"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { DrilldownCard } from "@/components/drilldown/DrilldownCard"
-import { DrilldownDataTable, DrilldownColumn } from "@/components/drilldown/DrilldownDataTable"
 import { useDrilldown } from "@/contexts/DrilldownContext"
+import { usePolicies } from "@/contexts/PolicyContext"
+import {
+  enforceSafetyIncidentPolicy,
+  shouldBlockAction,
+  getApprovalRequirements
+} from "@/lib/policy-engine/policy-enforcement"
 
 // Safety incident severity levels
 type IncidentSeverity = "critical" | "high" | "medium" | "low"

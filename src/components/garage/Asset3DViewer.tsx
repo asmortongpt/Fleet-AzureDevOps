@@ -1,11 +1,10 @@
-import React, { useEffect, useRef, useState, Suspense } from 'react';
-import { Canvas } from '@react-three/fiber';
 import { OrbitControls, PerspectiveCamera, Environment, useGLTF } from '@react-three/drei';
+import { Canvas } from '@react-three/fiber';
+import React, { useEffect, useRef, useState, Suspense } from 'react';
+
 import { PhotorealisticMaterials } from '../../materials/PhotorealisticMaterials';
-import { CinematicCameraSystem } from '../../camera/CinematicCameraSystem';
 import { detectWebGLCapabilities } from '../../utils/WebGLCompatibilityManager';
-import { PBRMaterialSystem } from '../../materials/PBRMaterialSystem';
-import * as THREE from 'three';
+
 
 interface Asset3DViewerProps {
   modelUrl: string;

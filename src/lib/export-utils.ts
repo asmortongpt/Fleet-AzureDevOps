@@ -38,7 +38,6 @@
  */
 
 import logger from '@/utils/logger'
-import XLSX from 'xlsx'
 
 export interface ExportOptions {
   filename?: string

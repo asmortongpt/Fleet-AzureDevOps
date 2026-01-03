@@ -4,6 +4,7 @@
  */
 
 import express, { Response } from 'express'
+
 import logger from '../config/logger'
 import { pool } from '../db/connection'
 import { NotFoundError } from '../errors/app-error'

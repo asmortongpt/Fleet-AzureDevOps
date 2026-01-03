@@ -1,10 +1,9 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import { format, subDays, parseISO } from 'date-fns';
 import {
   AlertTriangle,
   CheckCircle,
   Clock,
   Download,
-  Filter,
   TrendingUp,
   XCircle,
   Eye,
@@ -17,13 +16,37 @@ import {
   Car,
   AlertOctagon,
   BarChart3,
-  PieChart,
   Activity,
   Search
 } from 'lucide-react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
+import React, { useState, useEffect, useMemo } from 'react';
+import {
+  LineChart,
+  Line,
+  BarChart,
+  Bar,
+  PieChart as RechartsPieChart,
+  Pie,
+  Cell,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
+  ResponsiveContainer,
+} from 'recharts';
+
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import {
   Select,
@@ -40,14 +63,6 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Textarea } from '@/components/ui/textarea';
 import {
@@ -59,22 +74,7 @@ import {
   ViolationFilter,
   ViolationComment,
 } from '@/lib/types';
-import {
-  LineChart,
-  Line,
-  BarChart,
-  Bar,
-  PieChart as RechartsPieChart,
-  Pie,
-  Cell,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  Legend,
-  ResponsiveContainer,
-} from 'recharts';
-import { format, subDays, parseISO } from 'date-fns';
+
 
 // Color schemes
 const SEVERITY_COLORS = {

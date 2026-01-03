@@ -3,7 +3,7 @@
  */
 import {
     User, Star, Trophy, Clock, Shield, ChartLine, Wrench,
-    CheckCircle, Warning, ArrowRight, TrendUp, TrendDown, CalendarDots,
+    CheckCircle, Warning, ArrowRight, CalendarDots,
     CurrencyDollar, Gauge
 } from '@phosphor-icons/react'
 
@@ -11,7 +11,7 @@ import { Badge } from '@/components/ui/badge'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Progress } from '@/components/ui/progress'
 import { useDrilldown, DrilldownLevel } from '@/contexts/DrilldownContext'
-import { generateDemoDrivers, generateDemoWorkOrders, generateDemoVehicles } from '@/lib/demo-data'
+import { generateDemoDrivers, generateDemoWorkOrders } from '@/lib/demo-data'
 
 // Define interfaces for data structures
 interface Driver {
@@ -47,7 +47,7 @@ export function DriversRosterDrilldown() {
     return (
         <div className="space-y-6">
             {/* Summary Cards */}
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                 <Card className="bg-slate-800/50 border-slate-700">
                     <CardContent className="p-4 text-center">
                         <div className="text-3xl font-bold text-white">{drivers.length}</div>
@@ -88,10 +88,10 @@ export function DriversRosterDrilldown() {
                         >
                             <div className="flex items-center gap-3">
                                 <div className={`p-2 rounded-full ${driver.status === 'active' ? 'bg-emerald-500/20' :
-                                        driver.status === 'off-duty' ? 'bg-amber-500/20' : 'bg-slate-500/20'
+                                    driver.status === 'off-duty' ? 'bg-amber-500/20' : 'bg-slate-500/20'
                                     }`}>
                                     <User className={`w-4 h-4 ${driver.status === 'active' ? 'text-emerald-400' :
-                                            driver.status === 'off-duty' ? 'text-amber-400' : 'text-slate-400'
+                                        driver.status === 'off-duty' ? 'text-amber-400' : 'text-slate-400'
                                         }`} weight="fill" />
                                 </div>
                                 <div>
@@ -101,7 +101,7 @@ export function DriversRosterDrilldown() {
                             </div>
                             <div className="flex items-center gap-2">
                                 <Badge variant="outline" className={`${driver.status === 'active' ? 'border-emerald-500 text-emerald-400' :
-                                        driver.status === 'off-duty' ? 'border-amber-500 text-amber-400' : 'border-slate-500 text-slate-400'
+                                    driver.status === 'off-duty' ? 'border-amber-500 text-amber-400' : 'border-slate-500 text-slate-400'
                                     }`}>
                                     {driver.status}
                                 </Badge>
@@ -216,7 +216,7 @@ export function DriverScorecardDrilldown() {
     return (
         <div className="space-y-6">
             {/* Key Metrics */}
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-2 md:grid-cols-2 gap-3">
                 <Card className="bg-blue-900/30 border-blue-700/50">
                     <CardContent className="p-4 text-center">
                         <Trophy className="w-6 h-6 text-blue-400 mx-auto mb-2" />
@@ -276,7 +276,7 @@ export function GarageDrilldown() {
     return (
         <div className="space-y-6">
             {/* Bay Status */}
-            <div className="grid grid-cols-4 gap-2">
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
                 {[1, 2, 3, 4, 5, 6, 7, 8].map(bay => {
                     const isOccupied = bay <= 5
                     return (
@@ -291,7 +291,7 @@ export function GarageDrilldown() {
             </div>
 
             {/* Work Order Summary */}
-            <div className="grid grid-cols-3 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                 <Card className="bg-amber-900/30 border-amber-700/50">
                     <CardContent className="p-4 text-center">
                         <Wrench className="w-6 h-6 text-amber-400 mx-auto mb-2" />
@@ -329,10 +329,10 @@ export function GarageDrilldown() {
                         >
                             <div className="flex items-center gap-3">
                                 <div className={`p-2 rounded-full ${wo.status === 'in-progress' ? 'bg-amber-500/20' :
-                                        wo.status === 'pending' ? 'bg-slate-500/20' : 'bg-emerald-500/20'
+                                    wo.status === 'pending' ? 'bg-slate-500/20' : 'bg-emerald-500/20'
                                     }`}>
                                     <Wrench className={`w-4 h-4 ${wo.status === 'in-progress' ? 'text-amber-400' :
-                                            wo.status === 'pending' ? 'text-slate-400' : 'text-emerald-400'
+                                        wo.status === 'pending' ? 'text-slate-400' : 'text-emerald-400'
                                         }`} weight="fill" />
                                 </div>
                                 <div>

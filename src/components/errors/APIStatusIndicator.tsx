@@ -9,8 +9,9 @@
  * - Tooltip with details
  */
 
-import { useEffect, useState } from 'react'
 import { CheckCircle, AlertCircle, WifiOff, RefreshCw } from 'lucide-react'
+import { useEffect, useState } from 'react'
+
 import {
   Tooltip,
   TooltipContent,

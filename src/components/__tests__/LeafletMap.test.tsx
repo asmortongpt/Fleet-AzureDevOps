@@ -15,7 +15,7 @@
 import { render, screen, waitFor } from '@testing-library/react'
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
 
-import { LeafletMap, isValidCoordinate, calculateDistance } from '../LeafletMap'
+import { LeafletMap } from '../LeafletMap'
 
 import {
   createMockVehicles,

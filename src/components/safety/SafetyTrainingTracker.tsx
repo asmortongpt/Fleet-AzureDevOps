@@ -3,7 +3,6 @@
  * Supports OSHA-required training, expiration alerts, and completion tracking
  */
 
-import { useState, useMemo } from 'react'
 import {
     GraduationCap,
     Certificate,
@@ -14,10 +13,19 @@ import {
     TrendUp,
     Download
 } from '@phosphor-icons/react'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { useState, useMemo } from 'react'
+
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Progress } from '@/components/ui/progress'
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from '@/components/ui/select'
 import {
     Table,
     TableBody,
@@ -26,13 +34,6 @@ import {
     TableHeader,
     TableRow,
 } from '@/components/ui/table'
-import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
-} from '@/components/ui/select'
 
 interface TrainingRecord {
     id: string

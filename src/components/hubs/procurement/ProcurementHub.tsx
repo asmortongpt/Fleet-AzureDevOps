@@ -7,27 +7,26 @@ import {
   AlertCircle,
   CheckCircle2,
   Clock,
-  DollarSign,
-  BarChart3
+  DollarSign
 } from "lucide-react"
 import { useState, useMemo, useCallback } from "react"
 import { toast } from "sonner"
 
 import { ProfessionalFleetMap, GISFacility } from "@/components/Maps/ProfessionalFleetMap"
 import { Badge } from "@/components/ui/badge"
-import { usePolicies } from "@/contexts/PolicyContext"
 import { Button } from "@/components/ui/button"
-import {
-  enforcePaymentPolicy,
-  shouldBlockAction,
-  getApprovalRequirements
-} from "@/lib/policy-engine/policy-enforcement"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { useDrilldown } from "@/contexts/DrilldownContext"
+import { usePolicies } from "@/contexts/PolicyContext"
+import {
+  enforcePaymentPolicy,
+  shouldBlockAction,
+  getApprovalRequirements
+} from "@/lib/policy-engine/policy-enforcement"
 import { cn } from "@/lib/utils"
 
 // Mock procurement data

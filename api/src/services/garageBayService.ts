@@ -6,6 +6,7 @@
  */
 
 import { Pool, PoolClient } from 'pg'
+
 import logger from '../config/logger'
 
 export interface GarageBay {

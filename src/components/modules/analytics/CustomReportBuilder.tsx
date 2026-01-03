@@ -1,14 +1,9 @@
 import {
   Plus,
-  Trash,
   Play,
-  Download,
-  FloppyDisk,
-  Calendar,
   FolderOpen,
   MagicWand,
   ChartBar,
-  X,
   Clock
 } from "@phosphor-icons/react"
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
@@ -35,15 +30,6 @@ import {
   SelectTrigger,
   SelectValue
 } from "@/components/ui/select"
-import { Switch } from "@/components/ui/switch"
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow
-} from "@/components/ui/table"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Textarea } from "@/components/ui/textarea"
 import apiClient from "@/lib/api-client"

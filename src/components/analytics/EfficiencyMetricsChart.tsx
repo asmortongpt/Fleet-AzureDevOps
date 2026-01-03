@@ -3,6 +3,7 @@
  * Features: MPG trends, utilization rates, idle time, efficiency scores
  */
 
+import { Gauge, Lightning, Clock, Pulse } from '@phosphor-icons/react'
 import { memo, useMemo } from 'react'
 import {
     ComposedChart,
@@ -20,7 +21,6 @@ import {
     PolarRadiusAxis,
     Radar,
 } from 'recharts'
-import { Gauge, Lightning, Clock, Pulse } from '@phosphor-icons/react'
 
 export interface EfficiencyDataPoint {
     date: string

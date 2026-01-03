@@ -13,10 +13,15 @@ import {
     Package,
     Warning
 } from '@phosphor-icons/react'
+import React, { Suspense, lazy } from 'react'
 
 import { HubPage, HubTab } from '@/components/ui/hub-page'
 import { StatCard, ProgressRing, StatusDot, QuickStat } from '@/components/ui/stat-card'
+import { Skeleton } from '@/components/ui/skeleton'
 import { useDrilldown, DrilldownLevel } from '@/contexts/DrilldownContext'
+
+// Lazy load map component
+const RouteMap = lazy(() => import('@/components/Maps/RouteMap').then(m => ({ default: m.RouteMap })))
 
 /**
  * Premium Dispatch Tab Content
@@ -114,12 +119,22 @@ function RoutesContent() {
     const { push } = useDrilldown()
 
     return (
-        <div className="p-6 space-y-6 bg-gradient-to-b from-slate-900/50 to-transparent">
-            <h2 className="text-2xl font-bold text-white">Route Management</h2>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <StatCard title="Active Routes" value="45" variant="primary" icon={<MapTrifold className="w-6 h-6" />} onClick={() => push({ type: 'active-routes', label: 'Active Routes', data: { title: 'Active Routes' } } as Omit<DrilldownLevel, "timestamp">)} />
-                <StatCard title="Optimized Today" value="12" variant="success" trend="up" trendValue="28% savings" onClick={() => push({ type: 'optimized-today', label: 'Optimized Routes', data: { title: 'Optimized Routes' } } as Omit<DrilldownLevel, "timestamp">)} />
-                <StatCard title="Avg Duration" value="2.4 hrs" variant="default" onClick={() => push({ type: 'routes', label: 'Route Duration', data: { title: 'Route Duration' } } as Omit<DrilldownLevel, "timestamp">)} />
+        <div className="h-full flex flex-col bg-gradient-to-b from-slate-900/50 to-transparent">
+            {/* Stats Header */}
+            <div className="p-4 space-y-4">
+                <h2 className="text-2xl font-bold text-white">Route Management</h2>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <StatCard title="Active Routes" value="45" variant="primary" icon={<MapTrifold className="w-6 h-6" />} onClick={() => push({ type: 'active-routes', label: 'Active Routes', data: { title: 'Active Routes' } } as Omit<DrilldownLevel, "timestamp">)} />
+                    <StatCard title="Optimized Today" value="12" variant="success" trend="up" trendValue="28% savings" onClick={() => push({ type: 'optimized-today', label: 'Optimized Routes', data: { title: 'Optimized Routes' } } as Omit<DrilldownLevel, "timestamp">)} />
+                    <StatCard title="Avg Duration" value="2.4 hrs" variant="default" onClick={() => push({ type: 'routes', label: 'Route Duration', data: { title: 'Route Duration' } } as Omit<DrilldownLevel, "timestamp">)} />
+                </div>
+            </div>
+
+            {/* Route Map */}
+            <div className="flex-1 min-h-0">
+                <Suspense fallback={<div className="h-full flex items-center justify-center"><Skeleton className="h-full w-full" /></div>}>
+                    <RouteMap />
+                </Suspense>
             </div>
         </div>
     )

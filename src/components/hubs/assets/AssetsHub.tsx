@@ -14,9 +14,7 @@
 import {
   Barcode,
   TrendUp,
-  CurrencyDollar,
-  ChartLine,
-  Calendar
+  ChartLine
 } from "@phosphor-icons/react"
 import { GoogleMap, LoadScript, Marker, HeatmapLayer } from "@react-google-maps/api"
 import { useState, useMemo } from "react"

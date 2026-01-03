@@ -19,14 +19,12 @@
  * @module ai-task-prioritization-routes
  */
 
-import { container } from '../container'
-import { asyncHandler } from '../middleware/errorHandler'
-import { NotFoundError, ValidationError } from '../errors/app-error'
-import logger from '../config/logger'; // Wave 32: Add Winston logger
+
 import { Router } from 'express'
 import rateLimit from 'express-rate-limit'
 import { z } from 'zod'
 
+import logger from '../config/logger'; // Wave 32: Add Winston logger
 import { pool } from '../db'
 import type { AuthRequest } from '../middleware/auth'
 import { authenticateJWT } from '../middleware/auth'

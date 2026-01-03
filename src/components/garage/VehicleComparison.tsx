@@ -3,17 +3,14 @@
  * Side-by-side comparison of two vehicles in the 3D Garage
  */
 
-import { useState, useMemo } from 'react'
 import {
     Car,
     ArrowsLeftRight,
     X,
     Check,
-    Warning,
-    GasPump,
-    Gauge,
-    Calendar
+    Gauge
 } from '@phosphor-icons/react'
+import { useState, useMemo } from 'react'
 
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'

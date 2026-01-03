@@ -12,13 +12,11 @@
 import { Router } from "express";
 import { z } from "zod";
 
-import { container } from "../container";
 import { authenticateJWT } from "../middleware/auth";
 import { csrfProtection } from "../middleware/csrf";
 import { asyncHandler } from "../middleware/errorHandler";
 import { requireRBAC, Role, PERMISSIONS } from "../middleware/rbac";
 import { validateBody, validateParams, validateQuery } from "../middleware/validate";
-import { TYPES } from "../types";
 
 const router = Router();
 

@@ -4,13 +4,12 @@
  * Unified API endpoints for mobile app integration with all features
  */
 
-import { container } from '../container'
-import { asyncHandler } from '../middleware/errorHandler'
-import { NotFoundError, ValidationError } from '../errors/app-error'
-import logger from '../config/logger'; // Wave 28: Add Winston logger
+
 import express, { Request, Response } from 'express'
 import { z } from 'zod'
 
+import logger from '../config/logger'; // Wave 28: Add Winston logger
+import { NotFoundError, ValidationError } from '../errors/app-error'
 import { auditLog } from '../middleware/audit'
 import { authenticateJWT } from '../middleware/auth'
 import { csrfProtection } from '../middleware/csrf'

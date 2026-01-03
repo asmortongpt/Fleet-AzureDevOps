@@ -14,7 +14,6 @@ import {
   TrendingUp,
   Users,
   Car,
-  Clock,
   Target,
   BarChart3,
 } from 'lucide-react'

@@ -3,11 +3,12 @@
  * Features: Multi-level drilling, breadcrumb navigation, detail views
  */
 
-import { memo, useState, useCallback } from 'react'
 import { X, CaretRight, ArrowLeft, Download, Share } from '@phosphor-icons/react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { CostAnalyticsChart, type CostDataPoint } from './CostAnalyticsChart'
-import { EfficiencyMetricsChart, type EfficiencyDataPoint } from './EfficiencyMetricsChart'
+import { memo, useState, useCallback } from 'react'
+
+import { CostAnalyticsChart } from './CostAnalyticsChart'
+import { EfficiencyMetricsChart } from './EfficiencyMetricsChart'
 
 export type DrilldownLevel = 'overview' | 'category' | 'vehicle' | 'detail'
 

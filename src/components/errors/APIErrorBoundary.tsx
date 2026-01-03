@@ -10,11 +10,12 @@
  * - Session expiry handling
  */
 
-import { Component, ReactNode } from 'react'
 import { AlertCircle, RefreshCw, WifiOff } from 'lucide-react'
+import { Component, ReactNode } from 'react'
+
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 
 interface Props {
   children: ReactNode
