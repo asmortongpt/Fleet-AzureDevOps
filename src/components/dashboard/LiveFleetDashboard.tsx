@@ -172,26 +172,26 @@ export const LiveFleetDashboard = React.memo(function LiveFleetDashboard({ initi
     {
       id: 'dispatch',
       label: 'Dispatch',
-      icon: <Truck className="h-5 w-5" />,
+      icon: <Truck className="h-5 w-5" aria-hidden="true" />,
       onClick: () => console.log('Dispatch clicked')
     },
     {
       id: 'maintenance',
       label: 'Maintenance',
-      icon: <Wrench className="h-5 w-5" />,
+      icon: <Wrench className="h-5 w-5" aria-hidden="true" />,
       onClick: () => console.log('Maintenance clicked')
     },
     {
       id: 'alerts',
       label: 'Alerts',
-      icon: <AlertCircle className="h-5 w-5" />,
+      icon: <AlertCircle className="h-5 w-5" aria-hidden="true" />,
       onClick: () => console.log('Alerts clicked'),
       badge: maintenanceCount
     },
     {
       id: 'fuel',
       label: 'Fuel',
-      icon: <Fuel className="h-5 w-5" />,
+      icon: <Fuel className="h-5 w-5" aria-hidden="true" />,
       onClick: () => console.log('Fuel clicked')
     }
   ];
@@ -212,7 +212,7 @@ export const LiveFleetDashboard = React.memo(function LiveFleetDashboard({ initi
           drilldownType="active-vehicles"
           drilldownLabel={`Active Vehicles (${activeCount})`}
           drilldownData={{ status: 'active', vehicles }}
-          icon={<Truck className="h-4 w-4" />}
+          icon={<Truck className="h-4 w-4" aria-hidden="true" />}
           color="success"
           variant="compact"
           className="bg-white/50 dark:bg-slate-900/50 backdrop-blur-md border-slate-200 dark:border-slate-800"
@@ -223,7 +223,7 @@ export const LiveFleetDashboard = React.memo(function LiveFleetDashboard({ initi
           drilldownType="maintenance-vehicles"
           drilldownLabel={`Maintenance Vehicles (${maintenanceCount})`}
           drilldownData={{ status: 'maintenance', vehicles }}
-          icon={<Wrench className="h-4 w-4" />}
+          icon={<Wrench className="h-4 w-4" aria-hidden="true" />}
           color="warning"
           variant="compact"
           className="bg-white/50 dark:bg-slate-900/50 backdrop-blur-md border-slate-200 dark:border-slate-800"
@@ -234,7 +234,7 @@ export const LiveFleetDashboard = React.memo(function LiveFleetDashboard({ initi
           drilldownType="all-vehicles"
           drilldownLabel={`All Vehicles (${totalVehicles})`}
           drilldownData={{ vehicles }}
-          icon={<Gauge className="h-4 w-4" />}
+          icon={<Gauge className="h-4 w-4" aria-hidden="true" />}
           color="default"
           variant="compact"
           className="bg-white/50 dark:bg-slate-900/50 backdrop-blur-md border-slate-200 dark:border-slate-800"
@@ -256,7 +256,7 @@ export const LiveFleetDashboard = React.memo(function LiveFleetDashboard({ initi
           </CardHeader>
           <CardContent className="space-y-3 pt-3">
             <div className="flex items-center text-sm">
-              <div className="p-1.5 rounded-md bg-slate-100 dark:bg-slate-800 mr-3">
+              <div className="p-1.5 rounded-md bg-slate-100 dark:bg-slate-800 mr-3" aria-hidden="true">
                 <Truck className="h-4 w-4 text-slate-500 dark:text-slate-400" />
               </div>
               <span className="font-medium text-slate-700 dark:text-slate-200">
@@ -266,7 +266,7 @@ export const LiveFleetDashboard = React.memo(function LiveFleetDashboard({ initi
               </span>
             </div>
             <div className="flex items-center text-sm">
-              <div className="p-1.5 rounded-md bg-slate-100 dark:bg-slate-800 mr-3">
+              <div className="p-1.5 rounded-md bg-slate-100 dark:bg-slate-800 mr-3" aria-hidden="true">
                 <MapPin className="h-4 w-4 text-slate-500 dark:text-slate-400" />
               </div>
               <span className="font-mono text-slate-600 dark:text-slate-300">
@@ -295,8 +295,9 @@ export const LiveFleetDashboard = React.memo(function LiveFleetDashboard({ initi
             size="sm"
             className="w-full"
             data-testid="dispatch-action"
+            aria-label="Dispatch vehicle"
           >
-            <Truck className="h-4 w-4 mr-1" />
+            <Truck className="h-4 w-4 mr-1" aria-hidden="true" />
             Dispatch
           </Button>
           <Button
@@ -304,8 +305,9 @@ export const LiveFleetDashboard = React.memo(function LiveFleetDashboard({ initi
             size="sm"
             className="w-full"
             data-testid="maintenance-action"
+            aria-label="Schedule maintenance"
           >
-            <Wrench className="h-4 w-4 mr-1" />
+            <Wrench className="h-4 w-4 mr-1" aria-hidden="true" />
             Maintenance
           </Button>
           <Button
@@ -313,8 +315,9 @@ export const LiveFleetDashboard = React.memo(function LiveFleetDashboard({ initi
             size="sm"
             className="w-full"
             data-testid="alerts-action"
+            aria-label={`View alerts (${maintenanceCount} active)`}
           >
-            <AlertCircle className="h-4 w-4 mr-1" />
+            <AlertCircle className="h-4 w-4 mr-1" aria-hidden="true" />
             Alerts
           </Button>
           <Button
@@ -322,8 +325,9 @@ export const LiveFleetDashboard = React.memo(function LiveFleetDashboard({ initi
             size="sm"
             className="w-full"
             data-testid="fuel-action"
+            aria-label="Fuel management"
           >
-            <Fuel className="h-4 w-4 mr-1" />
+            <Fuel className="h-4 w-4 mr-1" aria-hidden="true" />
             Fuel
           </Button>
         </div>
