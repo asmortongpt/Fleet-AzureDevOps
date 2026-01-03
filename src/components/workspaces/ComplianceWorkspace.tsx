@@ -437,10 +437,14 @@ const SafetyCompliance = ({ vehicles, drivers }: { vehicles?: unknown[]; drivers
 }
 // Main ComplianceWorkspace component
 export function ComplianceWorkspace() {
-  const { data: vehicles } = useVehicles()
-  const { data: drivers } = useDrivers()
+  const { data: vehiclesData } = useVehicles()
+  const { data: driversData } = useDrivers()
   const { data: workOrders } = useWorkOrders()
   const [activeView, setActiveView] = useState<'documents' | 'safety'>('documents')
+
+  // Extract arrays from API response structure {data: [], meta: {}}
+  const vehicles = Array.isArray(vehiclesData) ? vehiclesData : ((vehiclesData as any)?.data || [])
+  const drivers = Array.isArray(driversData) ? driversData : ((driversData as any)?.data || [])
 
   return (
     <div className="h-screen flex flex-col">

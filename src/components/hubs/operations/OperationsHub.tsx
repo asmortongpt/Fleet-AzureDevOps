@@ -12,8 +12,15 @@ import {
   Zap
 } from 'lucide-react';
 import { useState, useMemo } from 'react';
+import { toast } from 'sonner';
 
 import { OperationsHubMap } from './OperationsHubMap';
+import {
+  enforceDispatchPolicy,
+  shouldBlockAction,
+  getApprovalRequirements
+} from '@/lib/policy-engine/policy-enforcement';
+import { usePolicies } from '@/contexts/PolicyContext';
 
 import { MapFirstLayout } from '@/components/layout/MapFirstLayout';
 import { Badge } from '@/components/ui/badge';
@@ -46,6 +53,7 @@ interface Driver {
 }
 
 export function OperationsHub() {
+  const { policies } = usePolicies();
   const { data: vehicles = [], isLoading: vehiclesLoading } = useVehicles();
   const { data: drivers = [] } = useDrivers();
   const { data: workOrders = [] } = useWorkOrders();
@@ -54,6 +62,7 @@ export function OperationsHub() {
   const [showDispatchOverlay, setShowDispatchOverlay] = useState(true);
   const [showRouteOptimization, setShowRouteOptimization] = useState(false);
   const [showGeofences, setShowGeofences] = useState(false);
+  const [isDispatching, setIsDispatching] = useState(false);
 
   // Calculate operational metrics
   const metrics = useMemo(() => {
@@ -97,6 +106,58 @@ export function OperationsHub() {
   }, []);
 
   const selectedVehicle = (vehicles as unknown as Vehicle[]).find((v: Vehicle) => v.id === selectedVehicleId);
+
+  // Handler for dispatching vehicles with policy enforcement
+  const handleDispatchVehicle = async (vehicleId: string) => {
+    setIsDispatching(true);
+
+    try {
+      // Sample dispatch data - in real implementation, this would come from a form
+      const dispatchData = {
+        vehicleId: vehicleId,
+        driverId: 'drv-001', // Would be selected from available drivers
+        routeDistance: 45.5, // km
+        estimatedDuration: 90 // minutes
+      };
+
+      // Enforce dispatch policy before allowing vehicle dispatch
+      const result = await enforceDispatchPolicy(policies, dispatchData);
+
+      // Check if action should be blocked
+      if (shouldBlockAction(result)) {
+        toast.error("Policy Violation", {
+          description: "This vehicle cannot be dispatched without resolving policy violations"
+        });
+        setIsDispatching(false);
+        return;
+      }
+
+      // Check if approval is required
+      const approvalReq = getApprovalRequirements(result);
+      if (approvalReq.required) {
+        toast.warning(`${approvalReq.level?.toUpperCase()} Approval Required`, {
+          description: approvalReq.reason
+        });
+        // In real implementation, route to approval workflow
+      }
+
+      // If we reach here, either policy allows it or requires approval
+      if (result.allowed) {
+        toast.success("Vehicle Dispatched", {
+          description: approvalReq.required
+            ? "Dispatch submitted for approval"
+            : "Vehicle dispatched successfully"
+        });
+        // Proceed with vehicle dispatch
+      }
+    } catch (error) {
+      toast.error("Error", {
+        description: "Failed to validate dispatch against policies"
+      });
+    } finally {
+      setIsDispatching(false);
+    }
+  };
 
   // Side Panel Content - Operations Control
   const sidePanel = (
@@ -308,8 +369,14 @@ export function OperationsHub() {
               <Button size="sm" className="flex-1 text-xs">
                 View Details
               </Button>
-              <Button size="sm" variant="outline" className="flex-1 text-xs">
-                Dispatch
+              <Button
+                size="sm"
+                variant="outline"
+                className="flex-1 text-xs"
+                onClick={() => handleDispatchVehicle(selectedVehicle.id)}
+                disabled={isDispatching}
+              >
+                {isDispatching ? "Checking..." : "Dispatch"}
               </Button>
             </div>
           </CardContent>
