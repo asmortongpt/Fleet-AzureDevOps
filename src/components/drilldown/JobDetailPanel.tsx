@@ -1,6 +1,11 @@
 /**
- * JobDetailPanel - Comprehensive job/dispatch detail view for Operations Hub
- * Shows complete job information with WHO, WHAT, WHEN, and HOW TO CONTACT
+ * JobDetailPanel - Excel-style matrix view for all active jobs/work orders
+ *
+ * Comprehensive spreadsheet showing:
+ * - All jobs/work orders with full operational data
+ * - Excel-like grid with filtering, sorting, and export
+ * - Real-time status updates
+ * - Click any row to drill into job details
  */
 
 import {
@@ -19,669 +24,494 @@ import {
   Building2,
   FileText,
   TrendingUp,
-  Route
+  Route,
+  Download
 } from 'lucide-react'
+import { useState, useMemo } from 'react'
 import useSWR from 'swr'
 
 import { DrilldownContent } from '@/components/DrilldownPanel'
+import { DrilldownMatrix, MatrixColumn } from '@/components/drilldown/DrilldownMatrix'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Input } from '@/components/ui/input'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Progress } from '@/components/ui/progress'
-import { Separator } from '@/components/ui/separator'
-import { useDrilldown } from '@/contexts/DrilldownContext'
 
-interface JobDetailPanelProps {
-  jobId: string
-}
-
-interface JobData {
+interface JobMatrixData {
   id: string
   number: string
-  title: string
-  description?: string
-  status: 'active' | 'pending' | 'completed' | 'delayed' | 'cancelled'
+  customer: string
+  address: string
   priority: 'high' | 'medium' | 'low'
-
-  // Vehicle assignment
-  vehicleId?: string
-  vehicleName?: string
-  vehicleNumber?: string
-
-  // Driver assignment
+  status: 'active' | 'pending' | 'completed' | 'delayed' | 'cancelled'
   driverId?: string
   driverName?: string
-  driverPhone?: string
-  driverEmail?: string
-
-  // Customer information
-  customerName?: string
-  customerPhone?: string
-  customerEmail?: string
-  customerAddress?: string
-
-  // Location details
-  origin?: string
-  destination?: string
-  currentLocation?: string
-
-  // Timing
-  scheduledStart?: string
-  scheduledEnd?: string
-  actualStart?: string
-  actualEnd?: string
-  estimatedCompletion?: string
+  vehicleId?: string
+  vehicleName?: string
+  startTime: string
+  eta: string
+  duration: number
+  progress: number
   delayMinutes?: number
-
-  // Progress
-  completionPercent?: number
-  stopsTotal?: number
-  stopsCompleted?: number
-
-  // Route information
-  routeId?: string
-  routeName?: string
-  distance?: number
-  estimatedDuration?: number
-
-  // Additional details
-  notes?: string
-  specialInstructions?: string
-  cargo?: string
-  weight?: number
-  hazmat?: boolean
-
-  // History
-  createdAt?: string
-  createdBy?: string
-  updatedAt?: string
 }
 
 const fetcher = (url: string) => fetch(url).then((r) => r.json())
 
 // Demo data for fallback
-const demoJobData: Record<string, JobData> = {
-  'job-001': {
+const demoJobs: JobMatrixData[] = [
+  {
     id: 'job-001',
     number: 'JOB-1001',
-    title: 'Downtown Delivery Route',
-    description: 'Multi-stop delivery route covering downtown Tallahassee area',
-    status: 'active',
+    customer: 'Acme Corporation',
+    address: '456 Oak Ave, Tallahassee, FL 32301',
     priority: 'high',
-    vehicleId: 'veh-demo-1001',
-    vehicleName: 'Ford F-150 #1001',
-    vehicleNumber: 'V-1001',
+    status: 'active',
     driverId: 'drv-001',
     driverName: 'John Smith',
-    driverPhone: '(850) 555-0101',
-    driverEmail: 'john.smith@fleet.com',
-    customerName: 'Acme Corporation',
-    customerPhone: '(850) 555-0200',
-    customerEmail: 'dispatch@acmecorp.com',
-    customerAddress: '456 Oak Ave, Tallahassee, FL 32301',
-    origin: '123 Main St, Tallahassee, FL 32301',
-    destination: '456 Oak Ave, Tallahassee, FL 32301',
-    currentLocation: '234 Commerce Blvd, Tallahassee, FL 32301',
-    scheduledStart: '2026-01-03T08:00:00',
-    scheduledEnd: '2026-01-03T16:00:00',
-    actualStart: '2026-01-03T08:15:00',
-    estimatedCompletion: '2026-01-03T15:45:00',
-    completionPercent: 65,
-    stopsTotal: 12,
-    stopsCompleted: 8,
-    routeId: 'route-001',
-    routeName: 'Downtown Morning Circuit',
-    distance: 45.5,
-    estimatedDuration: 480,
-    cargo: 'Office supplies and electronics',
-    weight: 850,
-    hazmat: false,
-    specialInstructions: 'Deliver to loading dock B. Contact security upon arrival.',
-    notes: 'Customer requested morning delivery window',
-    createdAt: '2026-01-02T18:00:00',
-    createdBy: 'Operations Manager',
-    updatedAt: '2026-01-03T08:15:00'
+    vehicleId: 'veh-demo-1001',
+    vehicleName: 'Ford F-150 #1001',
+    startTime: '2026-01-03T08:00:00',
+    eta: '2026-01-03T15:45:00',
+    duration: 480,
+    progress: 65
   },
-  'job-002': {
+  {
     id: 'job-002',
     number: 'JOB-1002',
-    title: 'Airport Cargo Pickup',
-    description: 'Urgent cargo pickup from Tallahassee Airport',
-    status: 'delayed',
+    customer: 'FastShip Logistics',
+    address: 'Tallahassee Airport, Cargo Terminal',
     priority: 'high',
-    vehicleId: 'veh-demo-1002',
-    vehicleName: 'Chevrolet Silverado #1002',
-    vehicleNumber: 'V-1002',
+    status: 'delayed',
     driverId: 'drv-002',
     driverName: 'Sarah Johnson',
-    driverPhone: '(850) 555-0102',
-    driverEmail: 'sarah.johnson@fleet.com',
-    customerName: 'FastShip Logistics',
-    customerPhone: '(850) 555-0201',
-    customerEmail: 'ops@fastship.com',
-    customerAddress: 'Tallahassee Airport, Cargo Terminal',
-    origin: 'Tallahassee Airport',
-    destination: 'Distribution Center, 789 Industrial Pkwy',
-    currentLocation: 'I-10 Exit 203 (delayed due to traffic)',
-    scheduledStart: '2026-01-03T10:00:00',
-    scheduledEnd: '2026-01-03T12:00:00',
-    actualStart: '2026-01-03T10:25:00',
-    estimatedCompletion: '2026-01-03T12:30:00',
-    delayMinutes: 25,
-    completionPercent: 40,
-    stopsTotal: 2,
-    stopsCompleted: 1,
-    distance: 28.0,
-    estimatedDuration: 120,
-    cargo: 'Time-sensitive medical supplies',
-    weight: 320,
-    hazmat: false,
-    specialInstructions: 'URGENT: Temperature-controlled cargo. Do not leave unattended.',
-    notes: 'Traffic incident on I-4 causing delay',
-    createdAt: '2026-01-03T09:00:00',
-    createdBy: 'Dispatch Supervisor',
-    updatedAt: '2026-01-03T10:45:00'
+    vehicleId: 'veh-demo-1002',
+    vehicleName: 'Chevrolet Silverado #1002',
+    startTime: '2026-01-03T10:00:00',
+    eta: '2026-01-03T12:30:00',
+    duration: 120,
+    progress: 40,
+    delayMinutes: 25
+  },
+  {
+    id: 'job-003',
+    number: 'JOB-1003',
+    customer: 'State Building Services',
+    address: '890 Capitol Circle, Tallahassee, FL 32301',
+    priority: 'medium',
+    status: 'active',
+    driverId: 'drv-003',
+    driverName: 'Mike Davis',
+    vehicleId: 'veh-demo-1003',
+    vehicleName: 'Mercedes Sprinter #1003',
+    startTime: '2026-01-03T09:00:00',
+    eta: '2026-01-03T14:00:00',
+    duration: 300,
+    progress: 55
+  },
+  {
+    id: 'job-004',
+    number: 'JOB-1004',
+    customer: 'University Admin',
+    address: '321 College Ave, Tallahassee, FL 32306',
+    priority: 'low',
+    status: 'pending',
+    startTime: '2026-01-03T14:00:00',
+    eta: '2026-01-03T17:00:00',
+    duration: 180,
+    progress: 0
+  },
+  {
+    id: 'job-005',
+    number: 'JOB-1005',
+    customer: 'Medical Center',
+    address: '234 Health Dr, Tallahassee, FL 32301',
+    priority: 'high',
+    status: 'active',
+    driverId: 'drv-004',
+    driverName: 'Lisa Chen',
+    vehicleId: 'veh-demo-1005',
+    vehicleName: 'Ford Transit #1005',
+    startTime: '2026-01-03T11:00:00',
+    eta: '2026-01-03T12:00:00',
+    duration: 60,
+    progress: 85
+  },
+  {
+    id: 'job-006',
+    number: 'JOB-1006',
+    customer: 'Tech Solutions Inc',
+    address: '789 Commerce Blvd, Tallahassee, FL 32301',
+    priority: 'medium',
+    status: 'completed',
+    driverId: 'drv-001',
+    driverName: 'John Smith',
+    vehicleId: 'veh-demo-1001',
+    vehicleName: 'Ford F-150 #1001',
+    startTime: '2026-01-03T06:00:00',
+    eta: '2026-01-03T08:00:00',
+    duration: 120,
+    progress: 100
   }
-}
+]
 
-export function JobDetailPanel({ jobId }: JobDetailPanelProps) {
-  const { push } = useDrilldown()
+export function JobDetailPanel({ jobId }: { jobId?: string }) {
+  const [statusFilter, setStatusFilter] = useState<string>('all')
+  const [priorityFilter, setPriorityFilter] = useState<string>('all')
+  const [searchQuery, setSearchQuery] = useState<string>('')
 
-  const { data: job, error, isLoading, mutate } = useSWR<JobData>(
-    `/api/jobs/${jobId}`,
+  const { data: jobs, error, isLoading, mutate } = useSWR<JobMatrixData[]>(
+    '/api/jobs',
     fetcher,
     {
-      fallbackData: demoJobData[jobId],
-      shouldRetryOnError: false
+      fallbackData: demoJobs,
+      shouldRetryOnError: false,
+      refreshInterval: 30000 // Real-time updates every 30 seconds
     }
   )
 
-  const handleViewDriver = () => {
-    if (job?.driverId) {
-      push({
-        id: `driver-${job.driverId}`,
-        type: 'driver',
-        label: job.driverName || `Driver ${job.driverId}`,
-        data: { driverId: job.driverId }
-      })
-    }
-  }
+  // Filter and search
+  const filteredJobs = useMemo(() => {
+    if (!jobs) return []
 
-  const handleViewVehicle = () => {
-    if (job?.vehicleId) {
-      push({
-        id: `vehicle-${job.vehicleId}`,
-        type: 'vehicle',
-        label: job.vehicleName || `Vehicle ${job.vehicleId}`,
-        data: { vehicleId: job.vehicleId }
-      })
-    }
-  }
+    return jobs.filter(job => {
+      // Status filter
+      if (statusFilter !== 'all' && job.status !== statusFilter) return false
 
-  const handleViewRoute = () => {
-    if (job?.routeId) {
-      push({
-        id: `route-${job.routeId}`,
-        type: 'route',
-        label: job.routeName || `Route ${job.routeId}`,
-        data: { routeId: job.routeId }
-      })
-    }
-  }
+      // Priority filter
+      if (priorityFilter !== 'all' && job.priority !== priorityFilter) return false
 
-  const handleCallDriver = () => {
-    if (job?.driverPhone) {
-      window.location.href = `tel:${job.driverPhone}`
-    }
-  }
+      // Search filter
+      if (searchQuery) {
+        const query = searchQuery.toLowerCase()
+        return (
+          job.number.toLowerCase().includes(query) ||
+          job.customer.toLowerCase().includes(query) ||
+          job.driverName?.toLowerCase().includes(query) ||
+          job.address.toLowerCase().includes(query)
+        )
+      }
 
-  const handleEmailDriver = () => {
-    if (job?.driverEmail) {
-      window.location.href = `mailto:${job.driverEmail}`
-    }
-  }
+      return true
+    })
+  }, [jobs, statusFilter, priorityFilter, searchQuery])
 
-  const handleCallCustomer = () => {
-    if (job?.customerPhone) {
-      window.location.href = `tel:${job.customerPhone}`
-    }
-  }
+  // Summary metrics
+  const metrics = useMemo(() => {
+    const active = jobs?.filter(j => j.status === 'active').length || 0
+    const delayed = jobs?.filter(j => j.status === 'delayed').length || 0
+    const completed = jobs?.filter(j => j.status === 'completed').length || 0
+    const pending = jobs?.filter(j => j.status === 'pending').length || 0
 
-  const handleEmailCustomer = () => {
-    if (job?.customerEmail) {
-      window.location.href = `mailto:${job.customerEmail}`
-    }
-  }
+    return { active, delayed, completed, pending, total: jobs?.length || 0 }
+  }, [jobs])
 
-  const getStatusColor = (status: string): 'default' | 'secondary' | 'outline' | 'destructive' => {
-    switch (status) {
-      case 'active': return 'default'
-      case 'completed': return 'secondary'
-      case 'delayed': return 'destructive'
-      case 'pending': return 'outline'
-      default: return 'outline'
-    }
-  }
-
-  const getPriorityColor = (priority: string): 'destructive' | 'default' | 'secondary' => {
-    switch (priority) {
-      case 'high': return 'destructive'
-      case 'medium': return 'default'
-      case 'low': return 'secondary'
-      default: return 'secondary'
-    }
-  }
-
-  const formatDateTime = (dateString?: string) => {
-    if (!dateString) return 'N/A'
-    return new Date(dateString).toLocaleString('en-US', {
-      month: 'short',
-      day: 'numeric',
-      year: 'numeric',
+  const formatTime = (dateString: string) => {
+    return new Date(dateString).toLocaleTimeString('en-US', {
       hour: 'numeric',
       minute: '2-digit',
       hour12: true
     })
   }
 
+  const getStatusBadge = (status: string) => {
+    const variants = {
+      active: 'default',
+      pending: 'outline',
+      completed: 'secondary',
+      delayed: 'destructive',
+      cancelled: 'outline'
+    } as const
+    return <Badge variant={variants[status as keyof typeof variants] || 'outline'}>{status}</Badge>
+  }
+
+  const getPriorityBadge = (priority: string) => {
+    const variants = {
+      high: 'destructive',
+      medium: 'default',
+      low: 'secondary'
+    } as const
+    return <Badge variant={variants[priority as keyof typeof variants] || 'secondary'}>{priority}</Badge>
+  }
+
+  // Excel-style column definitions
+  const columns: MatrixColumn<JobMatrixData>[] = [
+    {
+      key: 'number',
+      header: 'Job #',
+      sticky: true,
+      width: '120px',
+      render: (job) => <span className="font-mono font-semibold">{job.number}</span>
+    },
+    {
+      key: 'customer',
+      header: 'Customer',
+      width: '200px',
+      render: (job) => (
+        <div>
+          <p className="font-medium">{job.customer}</p>
+        </div>
+      )
+    },
+    {
+      key: 'address',
+      header: 'Address',
+      width: '250px',
+      render: (job) => (
+        <div className="flex items-center gap-2">
+          <MapPin className="h-3 w-3 text-muted-foreground flex-shrink-0" />
+          <span className="text-sm truncate">{job.address}</span>
+        </div>
+      )
+    },
+    {
+      key: 'priority',
+      header: 'Priority',
+      width: '100px',
+      align: 'center',
+      render: (job) => getPriorityBadge(job.priority)
+    },
+    {
+      key: 'status',
+      header: 'Status',
+      width: '110px',
+      align: 'center',
+      render: (job) => getStatusBadge(job.status)
+    },
+    {
+      key: 'driver',
+      header: 'Assigned Driver',
+      width: '150px',
+      drilldown: {
+        recordType: 'driver',
+        getRecordId: (job) => job.driverId,
+        getRecordLabel: (job) => job.driverName || 'Unassigned'
+      },
+      render: (job) => (
+        <div className="flex items-center gap-2">
+          <User className="h-3 w-3 text-muted-foreground" />
+          <span className="text-sm">{job.driverName || '-'}</span>
+        </div>
+      )
+    },
+    {
+      key: 'vehicle',
+      header: 'Vehicle',
+      width: '150px',
+      drilldown: {
+        recordType: 'vehicle',
+        getRecordId: (job) => job.vehicleId,
+        getRecordLabel: (job) => job.vehicleName || 'Unassigned'
+      },
+      render: (job) => (
+        <div className="flex items-center gap-2">
+          <Truck className="h-3 w-3 text-muted-foreground" />
+          <span className="text-sm">{job.vehicleName || '-'}</span>
+        </div>
+      )
+    },
+    {
+      key: 'startTime',
+      header: 'Start Time',
+      width: '100px',
+      align: 'center',
+      render: (job) => (
+        <div className="flex items-center gap-1 justify-center">
+          <Clock className="h-3 w-3 text-muted-foreground" />
+          <span className="text-sm">{formatTime(job.startTime)}</span>
+        </div>
+      )
+    },
+    {
+      key: 'eta',
+      header: 'ETA',
+      width: '100px',
+      align: 'center',
+      render: (job) => (
+        <div className="flex items-center gap-1 justify-center">
+          <Navigation className="h-3 w-3 text-muted-foreground" />
+          <span className="text-sm">{formatTime(job.eta)}</span>
+        </div>
+      )
+    },
+    {
+      key: 'duration',
+      header: 'Duration',
+      width: '100px',
+      align: 'right',
+      render: (job) => `${Math.floor(job.duration / 60)}h ${job.duration % 60}m`
+    },
+    {
+      key: 'progress',
+      header: 'Progress %',
+      width: '140px',
+      align: 'center',
+      render: (job) => (
+        <div className="flex items-center gap-2">
+          <Progress value={job.progress} className="w-16 h-2" />
+          <span className="text-xs font-medium w-8 text-right">{job.progress}%</span>
+        </div>
+      )
+    }
+  ]
+
+  const handleExport = () => {
+    // Export to CSV
+    const headers = columns.map(c => c.header).join(',')
+    const rows = filteredJobs.map(job => [
+      job.number,
+      `"${job.customer}"`,
+      `"${job.address}"`,
+      job.priority,
+      job.status,
+      job.driverName || '',
+      job.vehicleName || '',
+      formatTime(job.startTime),
+      formatTime(job.eta),
+      job.duration,
+      job.progress
+    ].join(','))
+
+    const csv = [headers, ...rows].join('\n')
+    const blob = new Blob([csv], { type: 'text/csv' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = `jobs-${new Date().toISOString().split('T')[0]}.csv`
+    a.click()
+  }
+
   return (
     <DrilldownContent loading={isLoading} error={error} onRetry={() => mutate()}>
-      {job && (
-        <div className="space-y-6">
-          {/* Header */}
-          <div className="flex items-start justify-between">
-            <div className="space-y-2">
-              <div className="flex items-center gap-3">
-                <Package className="h-8 w-8 text-blue-500" />
-                <div>
-                  <h3 className="text-2xl font-bold">{job.title}</h3>
-                  <p className="text-sm text-muted-foreground">Job #{job.number}</p>
-                </div>
-              </div>
-              <div className="flex items-center gap-2">
-                <Badge variant={getStatusColor(job.status)}>
-                  {job.status}
-                </Badge>
-                <Badge variant={getPriorityColor(job.priority)}>
-                  {job.priority} priority
-                </Badge>
-                {job.hazmat && (
-                  <Badge variant="destructive">
-                    <AlertTriangle className="h-3 w-3 mr-1" />
-                    HAZMAT
-                  </Badge>
-                )}
-              </div>
-            </div>
-            {job.status === 'active' && (
-              <div className="text-right">
-                <div className="text-3xl font-bold text-blue-600">{job.completionPercent}%</div>
-                <div className="text-sm text-muted-foreground">Complete</div>
-              </div>
-            )}
+      <div className="space-y-6">
+        {/* Header with Metrics */}
+        <div className="flex items-start justify-between">
+          <div>
+            <h3 className="text-2xl font-bold flex items-center gap-2">
+              <Package className="h-7 w-7 text-blue-500" />
+              Active Jobs Matrix
+            </h3>
+            <p className="text-sm text-muted-foreground mt-1">
+              Real-time operational visibility across all jobs and work orders
+            </p>
           </div>
+          <Button onClick={handleExport} variant="outline" size="sm">
+            <Download className="h-4 w-4 mr-2" />
+            Export to Excel
+          </Button>
+        </div>
 
-          {job.description && (
-            <Card>
-              <CardContent className="pt-6">
-                <p className="text-sm text-muted-foreground">{job.description}</p>
-              </CardContent>
-            </Card>
-          )}
-
-          {/* Progress */}
-          {job.status === 'active' && (
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <TrendingUp className="h-5 w-5" />
-                  Progress
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div>
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="text-sm font-medium">Overall Completion</span>
-                    <span className="text-sm text-muted-foreground">{job.completionPercent}%</span>
-                  </div>
-                  <Progress value={job.completionPercent} className="h-3" />
-                </div>
-
-                {job.stopsTotal && (
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <p className="text-sm text-muted-foreground">Stops Completed</p>
-                      <p className="text-xl font-bold">{job.stopsCompleted} / {job.stopsTotal}</p>
-                    </div>
-                    <div>
-                      <p className="text-sm text-muted-foreground">Current Location</p>
-                      <p className="text-sm font-medium">{job.currentLocation || 'Unknown'}</p>
-                    </div>
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-          )}
-
-          {/* WHO: Driver Assignment */}
-          <Card className="border-l-4 border-l-blue-500">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <User className="h-5 w-5" />
-                WHO: Assigned Driver
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              {job.driverId ? (
-                <>
-                  <div className="space-y-3">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <p className="font-semibold text-lg">{job.driverName}</p>
-                        <p className="text-sm text-muted-foreground">Driver ID: {job.driverId}</p>
-                      </div>
-                      <Button size="sm" variant="outline" onClick={handleViewDriver}>
-                        View Profile
-                      </Button>
-                    </div>
-
-                    <Separator />
-
-                    <div className="space-y-2">
-                      <div className="flex items-center gap-2">
-                        <Phone className="h-4 w-4 text-muted-foreground" />
-                        <a
-                          href={`tel:${job.driverPhone}`}
-                          className="text-sm text-blue-600 hover:underline font-medium"
-                          onClick={(e) => {
-                            e.preventDefault()
-                            handleCallDriver()
-                          }}
-                        >
-                          {job.driverPhone || 'N/A'}
-                        </a>
-                        {job.driverPhone && (
-                          <Button size="sm" variant="ghost" onClick={handleCallDriver}>
-                            Call
-                          </Button>
-                        )}
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <Mail className="h-4 w-4 text-muted-foreground" />
-                        <a
-                          href={`mailto:${job.driverEmail}`}
-                          className="text-sm text-blue-600 hover:underline"
-                          onClick={(e) => {
-                            e.preventDefault()
-                            handleEmailDriver()
-                          }}
-                        >
-                          {job.driverEmail || 'N/A'}
-                        </a>
-                        {job.driverEmail && (
-                          <Button size="sm" variant="ghost" onClick={handleEmailDriver}>
-                            Email
-                          </Button>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                </>
-              ) : (
-                <div className="text-center py-4 text-muted-foreground">
-                  <p>No driver assigned</p>
-                </div>
-              )}
+        {/* Summary Cards */}
+        <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
+          <Card>
+            <CardContent className="p-4 text-center">
+              <div className="text-2xl font-bold text-blue-600">{metrics.active}</div>
+              <div className="text-xs text-muted-foreground">Active</div>
             </CardContent>
           </Card>
-
-          {/* WHAT: Vehicle Assignment */}
-          <Card className="border-l-4 border-l-green-500">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Truck className="h-5 w-5" />
-                WHAT: Assigned Vehicle
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              {job.vehicleId ? (
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="font-semibold text-lg">{job.vehicleName}</p>
-                    <p className="text-sm text-muted-foreground">Vehicle #{job.vehicleNumber}</p>
-                    {job.cargo && (
-                      <div className="mt-2">
-                        <p className="text-sm text-muted-foreground">Cargo</p>
-                        <p className="text-sm font-medium">{job.cargo}</p>
-                        {job.weight && (
-                          <p className="text-xs text-muted-foreground mt-1">{job.weight} lbs</p>
-                        )}
-                      </div>
-                    )}
-                  </div>
-                  <Button size="sm" variant="outline" onClick={handleViewVehicle}>
-                    View Details
-                  </Button>
-                </div>
-              ) : (
-                <div className="text-center py-4 text-muted-foreground">
-                  <p>No vehicle assigned</p>
-                </div>
-              )}
+          <Card>
+            <CardContent className="p-4 text-center">
+              <div className="text-2xl font-bold text-red-600">{metrics.delayed}</div>
+              <div className="text-xs text-muted-foreground">Delayed</div>
             </CardContent>
           </Card>
-
-          {/* WHEN: Schedule & Timing */}
-          <Card className="border-l-4 border-l-amber-500">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Clock className="h-5 w-5" />
-                WHEN: Schedule
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <p className="text-sm text-muted-foreground">Scheduled Start</p>
-                  <p className="font-medium">{formatDateTime(job.scheduledStart)}</p>
-                </div>
-                <div>
-                  <p className="text-sm text-muted-foreground">Scheduled End</p>
-                  <p className="font-medium">{formatDateTime(job.scheduledEnd)}</p>
-                </div>
-                {job.actualStart && (
-                  <div>
-                    <p className="text-sm text-muted-foreground">Actual Start</p>
-                    <p className="font-medium">{formatDateTime(job.actualStart)}</p>
-                  </div>
-                )}
-                {job.estimatedCompletion && job.status === 'active' && (
-                  <div>
-                    <p className="text-sm text-muted-foreground">Est. Completion</p>
-                    <p className="font-medium">{formatDateTime(job.estimatedCompletion)}</p>
-                  </div>
-                )}
-                {job.actualEnd && (
-                  <div>
-                    <p className="text-sm text-muted-foreground">Actual End</p>
-                    <p className="font-medium">{formatDateTime(job.actualEnd)}</p>
-                  </div>
-                )}
-                {job.delayMinutes && job.delayMinutes > 0 && (
-                  <div className="col-span-2">
-                    <Badge variant="destructive" className="gap-1">
-                      <AlertTriangle className="h-3 w-3" />
-                      Delayed by {job.delayMinutes} minutes
-                    </Badge>
-                  </div>
-                )}
-              </div>
+          <Card>
+            <CardContent className="p-4 text-center">
+              <div className="text-2xl font-bold text-green-600">{metrics.completed}</div>
+              <div className="text-xs text-muted-foreground">Completed</div>
             </CardContent>
           </Card>
-
-          {/* WHERE: Location & Route */}
-          <Card className="border-l-4 border-l-purple-500">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <MapPin className="h-5 w-5" />
-                WHERE: Locations
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              <div>
-                <p className="text-sm text-muted-foreground">Origin</p>
-                <p className="font-medium">{job.origin || 'N/A'}</p>
-              </div>
-              <div>
-                <p className="text-sm text-muted-foreground">Destination</p>
-                <p className="font-medium">{job.destination || 'N/A'}</p>
-              </div>
-              {job.currentLocation && job.status === 'active' && (
-                <div>
-                  <p className="text-sm text-muted-foreground">Current Location</p>
-                  <p className="font-medium text-blue-600">{job.currentLocation}</p>
-                </div>
-              )}
-              {job.routeId && (
-                <>
-                  <Separator />
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-sm text-muted-foreground">Route</p>
-                      <p className="font-medium">{job.routeName || `Route ${job.routeId}`}</p>
-                      {job.distance && (
-                        <p className="text-xs text-muted-foreground">{job.distance} miles</p>
-                      )}
-                    </div>
-                    <Button size="sm" variant="outline" onClick={handleViewRoute}>
-                      <Navigation className="h-4 w-4 mr-2" />
-                      View Route
-                    </Button>
-                  </div>
-                </>
-              )}
+          <Card>
+            <CardContent className="p-4 text-center">
+              <div className="text-2xl font-bold text-amber-600">{metrics.pending}</div>
+              <div className="text-xs text-muted-foreground">Pending</div>
             </CardContent>
           </Card>
-
-          {/* HOW TO CONTACT: Customer Information */}
-          <Card className="border-l-4 border-l-orange-500">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Building2 className="h-5 w-5" />
-                HOW TO CONTACT: Customer
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              {job.customerName ? (
-                <>
-                  <div>
-                    <p className="font-semibold text-lg">{job.customerName}</p>
-                    {job.customerAddress && (
-                      <p className="text-sm text-muted-foreground">{job.customerAddress}</p>
-                    )}
-                  </div>
-
-                  <Separator />
-
-                  <div className="space-y-2">
-                    <div className="flex items-center gap-2">
-                      <Phone className="h-4 w-4 text-muted-foreground" />
-                      <a
-                        href={`tel:${job.customerPhone}`}
-                        className="text-sm text-blue-600 hover:underline font-medium"
-                        onClick={(e) => {
-                          e.preventDefault()
-                          handleCallCustomer()
-                        }}
-                      >
-                        {job.customerPhone || 'N/A'}
-                      </a>
-                      {job.customerPhone && (
-                        <Button size="sm" variant="ghost" onClick={handleCallCustomer}>
-                          Call
-                        </Button>
-                      )}
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <Mail className="h-4 w-4 text-muted-foreground" />
-                      <a
-                        href={`mailto:${job.customerEmail}`}
-                        className="text-sm text-blue-600 hover:underline"
-                        onClick={(e) => {
-                          e.preventDefault()
-                          handleEmailCustomer()
-                        }}
-                      >
-                        {job.customerEmail || 'N/A'}
-                      </a>
-                      {job.customerEmail && (
-                        <Button size="sm" variant="ghost" onClick={handleEmailCustomer}>
-                          Email
-                        </Button>
-                      )}
-                    </div>
-                  </div>
-                </>
-              ) : (
-                <div className="text-center py-4 text-muted-foreground">
-                  <p>No customer information available</p>
-                </div>
-              )}
-            </CardContent>
-          </Card>
-
-          {/* Special Instructions */}
-          {job.specialInstructions && (
-            <Card className="border-amber-500 bg-amber-50 dark:bg-amber-950">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2 text-amber-700 dark:text-amber-300">
-                  <AlertTriangle className="h-5 w-5" />
-                  Special Instructions
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-sm font-medium">{job.specialInstructions}</p>
-              </CardContent>
-            </Card>
-          )}
-
-          {/* Notes */}
-          {job.notes && (
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <FileText className="h-5 w-5" />
-                  Notes
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-sm text-muted-foreground">{job.notes}</p>
-              </CardContent>
-            </Card>
-          )}
-
-          {/* Metadata */}
-          <Card className="bg-muted/50">
-            <CardContent className="pt-6">
-              <div className="grid grid-cols-2 gap-4 text-xs">
-                {job.createdAt && (
-                  <div>
-                    <p className="text-muted-foreground">Created</p>
-                    <p>{formatDateTime(job.createdAt)}</p>
-                    {job.createdBy && <p className="text-muted-foreground">by {job.createdBy}</p>}
-                  </div>
-                )}
-                {job.updatedAt && (
-                  <div>
-                    <p className="text-muted-foreground">Last Updated</p>
-                    <p>{formatDateTime(job.updatedAt)}</p>
-                  </div>
-                )}
-              </div>
+          <Card>
+            <CardContent className="p-4 text-center">
+              <div className="text-2xl font-bold">{metrics.total}</div>
+              <div className="text-xs text-muted-foreground">Total Jobs</div>
             </CardContent>
           </Card>
         </div>
-      )}
+
+        {/* Filters */}
+        <Card>
+          <CardHeader className="pb-3">
+            <CardTitle className="text-base">Filters & Search</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div>
+                <label className="text-sm font-medium mb-2 block">Search</label>
+                <Input
+                  placeholder="Job #, customer, driver, address..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                />
+              </div>
+              <div>
+                <label className="text-sm font-medium mb-2 block">Status</label>
+                <Select value={statusFilter} onValueChange={setStatusFilter}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Filter by status" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All Status</SelectItem>
+                    <SelectItem value="active">Active</SelectItem>
+                    <SelectItem value="pending">Pending</SelectItem>
+                    <SelectItem value="completed">Completed</SelectItem>
+                    <SelectItem value="delayed">Delayed</SelectItem>
+                    <SelectItem value="cancelled">Cancelled</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
+                <label className="text-sm font-medium mb-2 block">Priority</label>
+                <Select value={priorityFilter} onValueChange={setPriorityFilter}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Filter by priority" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All Priorities</SelectItem>
+                    <SelectItem value="high">High</SelectItem>
+                    <SelectItem value="medium">Medium</SelectItem>
+                    <SelectItem value="low">Low</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Excel-Style Matrix */}
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-base flex items-center justify-between">
+              <span>Jobs List ({filteredJobs.length})</span>
+              <span className="text-sm text-muted-foreground font-normal">
+                Click any row to view full job details
+              </span>
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <DrilldownMatrix
+              data={filteredJobs}
+              columns={columns}
+              recordType="job"
+              getRecordId={(job) => job.id}
+              getRecordLabel={(job) => `${job.number} - ${job.customer}`}
+              getRecordData={(job) => ({ jobId: job.id })}
+              emptyMessage="No jobs found matching filters"
+              rowHeight="compact"
+              maxHeight="600px"
+              striped
+              showGridLines
+            />
+          </CardContent>
+        </Card>
+      </div>
     </DrilldownContent>
   )
 }

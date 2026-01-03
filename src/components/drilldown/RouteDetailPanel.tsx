@@ -1,6 +1,12 @@
 /**
- * RouteDetailPanel - Comprehensive route detail view for Operations Hub
- * Shows complete route with stops, waypoints, driver, vehicle, and timing
+ * RouteDetailPanel - Excel-style matrix view for all routes with stops
+ *
+ * Comprehensive spreadsheet showing:
+ * - All routes with stop details in Excel format
+ * - Filter by driver, vehicle, status, date
+ * - Sort by start time, total stops
+ * - Click row to see all stops in Excel format
+ * - Export routes for dispatch planning
  */
 
 import {
@@ -18,372 +24,193 @@ import {
   Calendar,
   Route as RouteIcon,
   Flag,
-  FlagTriangleRight
+  FlagTriangleRight,
+  Download
 } from 'lucide-react'
+import { useState, useMemo } from 'react'
 import useSWR from 'swr'
 
 import { DrilldownContent } from '@/components/DrilldownPanel'
+import { DrilldownMatrix, MatrixColumn } from '@/components/drilldown/DrilldownMatrix'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Input } from '@/components/ui/input'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Progress } from '@/components/ui/progress'
-import { Separator } from '@/components/ui/separator'
-import { useDrilldown } from '@/contexts/DrilldownContext'
 
-interface RouteDetailPanelProps {
-  routeId: string
-}
-
-interface Stop {
-  id: string
-  sequence: number
-  name: string
-  address: string
-  type: 'pickup' | 'delivery' | 'waypoint'
-  status: 'pending' | 'completed' | 'skipped' | 'failed'
-  scheduledTime?: string
-  actualTime?: string
-  estimatedTime?: string
-  contactName?: string
-  contactPhone?: string
-  notes?: string
-  packages?: number
-}
-
-interface RouteData {
+interface RouteMatrixData {
   id: string
   number: string
   name: string
-  description?: string
-  status: 'active' | 'planned' | 'completed' | 'cancelled'
-
-  // Vehicle and Driver
-  vehicleId?: string
-  vehicleName?: string
-  vehicleNumber?: string
   driverId?: string
   driverName?: string
-  driverPhone?: string
-  driverEmail?: string
-
-  // Route metrics
-  stops: Stop[]
-  stopsTotal: number
-  stopsCompleted: number
-  totalDistance: number
-  distanceCovered: number
-  estimatedTime: number
-  actualTime?: number
-  optimized: boolean
-
-  // Timing
-  scheduledStart?: string
-  scheduledEnd?: string
-  actualStart?: string
-  actualEnd?: string
-  estimatedCompletion?: string
-
-  // Current status
-  currentStopIndex?: number
-  currentLocation?: string
-
-  // Metadata
-  createdAt?: string
-  createdBy?: string
-  updatedAt?: string
+  vehicleId?: string
+  vehicleName?: string
+  startTime: string
+  endTime: string
+  totalStops: number
+  completedStops: number
+  remainingStops: number
+  distance: number
+  eta: string
+  status: 'active' | 'planned' | 'completed' | 'cancelled'
 }
 
 const fetcher = (url: string) => fetch(url).then((r) => r.json())
 
 // Demo data for fallback
-const demoRouteData: Record<string, RouteData> = {
-  'route-001': {
+const demoRoutes: RouteMatrixData[] = [
+  {
     id: 'route-001',
     number: 'RT-1001',
     name: 'Downtown Morning Circuit',
-    description: 'Optimized delivery route covering downtown Tallahassee business district',
-    status: 'active',
-    vehicleId: 'veh-demo-1001',
-    vehicleName: 'Ford F-150 #1001',
-    vehicleNumber: 'V-1001',
     driverId: 'drv-001',
     driverName: 'John Smith',
-    driverPhone: '(850) 555-0101',
-    driverEmail: 'john.smith@fleet.com',
-    stopsTotal: 12,
-    stopsCompleted: 8,
-    totalDistance: 45.5,
-    distanceCovered: 28.3,
-    estimatedTime: 240,
-    actualTime: 165,
-    optimized: true,
-    scheduledStart: '2026-01-03T08:00:00',
-    scheduledEnd: '2026-01-03T12:00:00',
-    actualStart: '2026-01-03T08:15:00',
-    estimatedCompletion: '2026-01-03T11:45:00',
-    currentStopIndex: 8,
-    currentLocation: '234 Commerce Blvd, Tallahassee, FL',
-    stops: [
-      {
-        id: 'stop-001',
-        sequence: 1,
-        name: 'Distribution Center',
-        address: '123 Main St, Tallahassee, FL 32301',
-        type: 'pickup',
-        status: 'completed',
-        scheduledTime: '2026-01-03T08:00:00',
-        actualTime: '2026-01-03T08:15:00',
-        contactName: 'Warehouse Supervisor',
-        contactPhone: '(850) 555-0300',
-        notes: 'Load verification completed',
-        packages: 45
-      },
-      {
-        id: 'stop-002',
-        sequence: 2,
-        name: 'Acme Corporation',
-        address: '456 Oak Ave, Tallahassee, FL 32301',
-        type: 'delivery',
-        status: 'completed',
-        scheduledTime: '2026-01-03T08:30:00',
-        actualTime: '2026-01-03T08:35:00',
-        contactName: 'Reception Desk',
-        contactPhone: '(850) 555-0200',
-        packages: 8
-      },
-      {
-        id: 'stop-003',
-        sequence: 3,
-        name: 'Tech Solutions Inc',
-        address: '789 Commerce Blvd, Tallahassee, FL 32301',
-        type: 'delivery',
-        status: 'completed',
-        scheduledTime: '2026-01-03T08:50:00',
-        actualTime: '2026-01-03T08:52:00',
-        contactName: 'IT Department',
-        contactPhone: '(850) 555-0201',
-        packages: 5
-      },
-      {
-        id: 'stop-004',
-        sequence: 4,
-        name: 'Medical Center',
-        address: '234 Health Dr, Tallahassee, FL 32301',
-        type: 'delivery',
-        status: 'completed',
-        scheduledTime: '2026-01-03T09:10:00',
-        actualTime: '2026-01-03T09:08:00',
-        contactName: 'Supply Room',
-        contactPhone: '(850) 555-0202',
-        notes: 'Delivery to loading dock B',
-        packages: 12
-      },
-      {
-        id: 'stop-005',
-        sequence: 5,
-        name: 'Legal Associates',
-        address: '567 Law Plaza, Tallahassee, FL 32301',
-        type: 'delivery',
-        status: 'completed',
-        scheduledTime: '2026-01-03T09:30:00',
-        actualTime: '2026-01-03T09:32:00',
-        contactName: 'Office Manager',
-        contactPhone: '(850) 555-0203',
-        packages: 3
-      },
-      {
-        id: 'stop-006',
-        sequence: 6,
-        name: 'State Building',
-        address: '890 Capitol Cir, Tallahassee, FL 32301',
-        type: 'delivery',
-        status: 'completed',
-        scheduledTime: '2026-01-03T09:50:00',
-        actualTime: '2026-01-03T09:55:00',
-        contactName: 'Security Desk',
-        contactPhone: '(850) 555-0204',
-        notes: 'Requires ID for entry',
-        packages: 6
-      },
-      {
-        id: 'stop-007',
-        sequence: 7,
-        name: 'University Admin',
-        address: '321 College Ave, Tallahassee, FL 32306',
-        type: 'delivery',
-        status: 'completed',
-        scheduledTime: '2026-01-03T10:15:00',
-        actualTime: '2026-01-03T10:12:00',
-        contactName: 'Mail Room',
-        contactPhone: '(850) 555-0205',
-        packages: 7
-      },
-      {
-        id: 'stop-008',
-        sequence: 8,
-        name: 'Research Park',
-        address: '654 Innovation Way, Tallahassee, FL 32310',
-        type: 'delivery',
-        status: 'completed',
-        scheduledTime: '2026-01-03T10:40:00',
-        actualTime: '2026-01-03T10:38:00',
-        contactName: 'Lab Coordinator',
-        contactPhone: '(850) 555-0206',
-        packages: 4
-      },
-      {
-        id: 'stop-009',
-        sequence: 9,
-        name: 'Retail Plaza',
-        address: '987 Shopping Dr, Tallahassee, FL 32308',
-        type: 'delivery',
-        status: 'pending',
-        scheduledTime: '2026-01-03T11:00:00',
-        estimatedTime: '2026-01-03T11:05:00',
-        contactName: 'Store Manager',
-        contactPhone: '(850) 555-0207',
-        packages: 10
-      },
-      {
-        id: 'stop-010',
-        sequence: 10,
-        name: 'Industrial Park',
-        address: '147 Factory Rd, Tallahassee, FL 32304',
-        type: 'delivery',
-        status: 'pending',
-        scheduledTime: '2026-01-03T11:20:00',
-        estimatedTime: '2026-01-03T11:25:00',
-        contactName: 'Shipping Dept',
-        contactPhone: '(850) 555-0208',
-        packages: 15
-      },
-      {
-        id: 'stop-011',
-        sequence: 11,
-        name: 'Office Complex',
-        address: '258 Business Pkwy, Tallahassee, FL 32301',
-        type: 'delivery',
-        status: 'pending',
-        scheduledTime: '2026-01-03T11:40:00',
-        estimatedTime: '2026-01-03T11:48:00',
-        contactName: 'Reception',
-        contactPhone: '(850) 555-0209',
-        packages: 9
-      },
-      {
-        id: 'stop-012',
-        sequence: 12,
-        name: 'Distribution Center',
-        address: '123 Main St, Tallahassee, FL 32301',
-        type: 'waypoint',
-        status: 'pending',
-        scheduledTime: '2026-01-03T12:00:00',
-        estimatedTime: '2026-01-03T11:55:00',
-        contactName: 'Warehouse Supervisor',
-        contactPhone: '(850) 555-0300',
-        notes: 'End of route - return empty vehicle'
-      }
-    ],
-    createdAt: '2026-01-02T18:00:00',
-    createdBy: 'Route Optimizer',
-    updatedAt: '2026-01-03T08:15:00'
+    vehicleId: 'veh-demo-1001',
+    vehicleName: 'Ford F-150 #1001',
+    startTime: '2026-01-03T08:00:00',
+    endTime: '2026-01-03T12:00:00',
+    totalStops: 12,
+    completedStops: 8,
+    remainingStops: 4,
+    distance: 45.5,
+    eta: '2026-01-03T11:45:00',
+    status: 'active'
+  },
+  {
+    id: 'route-002',
+    number: 'RT-1002',
+    name: 'Airport Express Route',
+    driverId: 'drv-002',
+    driverName: 'Sarah Johnson',
+    vehicleId: 'veh-demo-1002',
+    vehicleName: 'Chevrolet Silverado #1002',
+    startTime: '2026-01-03T10:00:00',
+    endTime: '2026-01-03T12:00:00',
+    totalStops: 2,
+    completedStops: 1,
+    remainingStops: 1,
+    distance: 28.0,
+    eta: '2026-01-03T12:00:00',
+    status: 'active'
+  },
+  {
+    id: 'route-003',
+    number: 'RT-1003',
+    name: 'University Campus Loop',
+    driverId: 'drv-003',
+    driverName: 'Mike Davis',
+    vehicleId: 'veh-demo-1003',
+    vehicleName: 'Mercedes Sprinter #1003',
+    startTime: '2026-01-03T06:00:00',
+    endTime: '2026-01-03T09:45:00',
+    totalStops: 8,
+    completedStops: 8,
+    remainingStops: 0,
+    distance: 32.5,
+    eta: '2026-01-03T09:45:00',
+    status: 'completed'
+  },
+  {
+    id: 'route-004',
+    number: 'RT-1004',
+    name: 'Medical District Route',
+    driverId: 'drv-004',
+    driverName: 'Lisa Chen',
+    vehicleId: 'veh-demo-1005',
+    vehicleName: 'Ford Transit #1005',
+    startTime: '2026-01-03T14:00:00',
+    endTime: '2026-01-03T18:00:00',
+    totalStops: 15,
+    completedStops: 0,
+    remainingStops: 15,
+    distance: 52.3,
+    eta: '2026-01-03T18:00:00',
+    status: 'planned'
+  },
+  {
+    id: 'route-005',
+    number: 'RT-1005',
+    name: 'Industrial Park Circuit',
+    startTime: '2026-01-03T13:00:00',
+    endTime: '2026-01-03T16:00:00',
+    totalStops: 10,
+    completedStops: 0,
+    remainingStops: 10,
+    distance: 38.7,
+    eta: '2026-01-03T16:00:00',
+    status: 'planned'
   }
-}
+]
 
-export function RouteDetailPanel({ routeId }: RouteDetailPanelProps) {
-  const { push } = useDrilldown()
+export function RouteDetailPanel({ routeId }: { routeId?: string }) {
+  const [statusFilter, setStatusFilter] = useState<string>('all')
+  const [driverFilter, setDriverFilter] = useState<string>('all')
+  const [searchQuery, setSearchQuery] = useState<string>('')
 
-  const { data: route, error, isLoading, mutate } = useSWR<RouteData>(
-    `/api/routes/${routeId}`,
+  const { data: routes, error, isLoading, mutate } = useSWR<RouteMatrixData[]>(
+    '/api/routes',
     fetcher,
     {
-      fallbackData: demoRouteData[routeId],
-      shouldRetryOnError: false
+      fallbackData: demoRoutes,
+      shouldRetryOnError: false,
+      refreshInterval: 30000 // Real-time updates every 30 seconds
     }
   )
 
-  const handleViewDriver = () => {
-    if (route?.driverId) {
-      push({
-        id: `driver-${route.driverId}`,
-        type: 'driver',
-        label: route.driverName || `Driver ${route.driverId}`,
-        data: { driverId: route.driverId }
-      })
-    }
-  }
+  // Filter and search
+  const filteredRoutes = useMemo(() => {
+    if (!routes) return []
 
-  const handleViewVehicle = () => {
-    if (route?.vehicleId) {
-      push({
-        id: `vehicle-${route.vehicleId}`,
-        type: 'vehicle',
-        label: route.vehicleName || `Vehicle ${route.vehicleId}`,
-        data: { vehicleId: route.vehicleId }
-      })
-    }
-  }
+    return routes.filter(route => {
+      // Status filter
+      if (statusFilter !== 'all' && route.status !== statusFilter) return false
 
-  const handleCallDriver = () => {
-    if (route?.driverPhone) {
-      window.location.href = `tel:${route.driverPhone}`
-    }
-  }
+      // Driver filter
+      if (driverFilter !== 'all' && route.driverId !== driverFilter) return false
 
-  const handleEmailDriver = () => {
-    if (route?.driverEmail) {
-      window.location.href = `mailto:${route.driverEmail}`
-    }
-  }
+      // Search filter
+      if (searchQuery) {
+        const query = searchQuery.toLowerCase()
+        return (
+          route.number.toLowerCase().includes(query) ||
+          route.name.toLowerCase().includes(query) ||
+          route.driverName?.toLowerCase().includes(query) ||
+          route.vehicleName?.toLowerCase().includes(query)
+        )
+      }
 
-  const handleCallContact = (phone: string) => {
-    window.location.href = `tel:${phone}`
-  }
-
-  const getStopIcon = (type: string, status: string) => {
-    if (status === 'completed') {
-      return <CheckCircle className="h-5 w-5 text-green-500" />
-    }
-    switch (type) {
-      case 'pickup':
-        return <Flag className="h-5 w-5 text-blue-500" />
-      case 'delivery':
-        return <MapPin className="h-5 w-5 text-amber-500" />
-      case 'waypoint':
-        return <FlagTriangleRight className="h-5 w-5 text-purple-500" />
-      default:
-        return <Circle className="h-5 w-5 text-muted-foreground" />
-    }
-  }
-
-  const getStopStatusBadge = (status: string) => {
-    switch (status) {
-      case 'completed':
-        return <Badge variant="secondary">Completed</Badge>
-      case 'pending':
-        return <Badge variant="outline">Pending</Badge>
-      case 'skipped':
-        return <Badge variant="destructive">Skipped</Badge>
-      case 'failed':
-        return <Badge variant="destructive">Failed</Badge>
-      default:
-        return null
-    }
-  }
-
-  const formatDateTime = (dateString?: string) => {
-    if (!dateString) return 'N/A'
-    return new Date(dateString).toLocaleString('en-US', {
-      month: 'short',
-      day: 'numeric',
-      hour: 'numeric',
-      minute: '2-digit',
-      hour12: true
+      return true
     })
-  }
+  }, [routes, statusFilter, driverFilter, searchQuery])
 
-  const formatTime = (dateString?: string) => {
-    if (!dateString) return 'N/A'
+  // Summary metrics
+  const metrics = useMemo(() => {
+    const active = routes?.filter(r => r.status === 'active').length || 0
+    const planned = routes?.filter(r => r.status === 'planned').length || 0
+    const completed = routes?.filter(r => r.status === 'completed').length || 0
+    const totalStops = routes?.reduce((sum, r) => sum + r.totalStops, 0) || 0
+    const completedStops = routes?.reduce((sum, r) => sum + r.completedStops, 0) || 0
+
+    return { active, planned, completed, totalStops, completedStops, total: routes?.length || 0 }
+  }, [routes])
+
+  // Get unique drivers for filter
+  const drivers = useMemo(() => {
+    const uniqueDrivers = new Set<string>()
+    routes?.forEach(route => {
+      if (route.driverId && route.driverName) {
+        uniqueDrivers.add(`${route.driverId}:${route.driverName}`)
+      }
+    })
+    return Array.from(uniqueDrivers).map(d => {
+      const [id, name] = d.split(':')
+      return { id, name }
+    })
+  }, [routes])
+
+  const formatTime = (dateString: string) => {
     return new Date(dateString).toLocaleTimeString('en-US', {
       hour: 'numeric',
       minute: '2-digit',
@@ -391,335 +218,310 @@ export function RouteDetailPanel({ routeId }: RouteDetailPanelProps) {
     })
   }
 
-  const completionPercent = route ? Math.round((route.stopsCompleted / route.stopsTotal) * 100) : 0
+  const formatDate = (dateString: string) => {
+    return new Date(dateString).toLocaleDateString('en-US', {
+      month: 'short',
+      day: 'numeric'
+    })
+  }
+
+  const getStatusBadge = (status: string) => {
+    const variants = {
+      active: 'default',
+      planned: 'outline',
+      completed: 'secondary',
+      cancelled: 'destructive'
+    } as const
+    return <Badge variant={variants[status as keyof typeof variants] || 'outline'}>{status}</Badge>
+  }
+
+  // Excel-style column definitions
+  const columns: MatrixColumn<RouteMatrixData>[] = [
+    {
+      key: 'number',
+      header: 'Route #',
+      sticky: true,
+      width: '120px',
+      render: (route) => <span className="font-mono font-semibold">{route.number}</span>
+    },
+    {
+      key: 'name',
+      header: 'Route Name',
+      width: '200px',
+      render: (route) => <span className="font-medium">{route.name}</span>
+    },
+    {
+      key: 'driver',
+      header: 'Driver',
+      width: '150px',
+      drilldown: {
+        recordType: 'driver',
+        getRecordId: (route) => route.driverId,
+        getRecordLabel: (route) => route.driverName || 'Unassigned'
+      },
+      render: (route) => (
+        <div className="flex items-center gap-2">
+          <User className="h-3 w-3 text-muted-foreground" />
+          <span className="text-sm">{route.driverName || '-'}</span>
+        </div>
+      )
+    },
+    {
+      key: 'vehicle',
+      header: 'Vehicle',
+      width: '150px',
+      drilldown: {
+        recordType: 'vehicle',
+        getRecordId: (route) => route.vehicleId,
+        getRecordLabel: (route) => route.vehicleName || 'Unassigned'
+      },
+      render: (route) => (
+        <div className="flex items-center gap-2">
+          <Truck className="h-3 w-3 text-muted-foreground" />
+          <span className="text-sm">{route.vehicleName || '-'}</span>
+        </div>
+      )
+    },
+    {
+      key: 'startTime',
+      header: 'Start Time',
+      width: '100px',
+      align: 'center',
+      render: (route) => (
+        <div className="flex items-center gap-1 justify-center">
+          <Clock className="h-3 w-3 text-muted-foreground" />
+          <span className="text-sm">{formatTime(route.startTime)}</span>
+        </div>
+      )
+    },
+    {
+      key: 'endTime',
+      header: 'End Time',
+      width: '100px',
+      align: 'center',
+      render: (route) => (
+        <div className="flex items-center gap-1 justify-center">
+          <Flag className="h-3 w-3 text-muted-foreground" />
+          <span className="text-sm">{formatTime(route.endTime)}</span>
+        </div>
+      )
+    },
+    {
+      key: 'stops',
+      header: 'Stops',
+      width: '120px',
+      align: 'center',
+      render: (route) => (
+        <div className="flex flex-col items-center">
+          <span className="font-semibold">{route.completedStops} / {route.totalStops}</span>
+          <span className="text-xs text-muted-foreground">{route.remainingStops} remaining</span>
+        </div>
+      )
+    },
+    {
+      key: 'distance',
+      header: 'Miles',
+      width: '80px',
+      align: 'right',
+      render: (route) => (
+        <span className="font-medium">{route.distance.toFixed(1)}</span>
+      )
+    },
+    {
+      key: 'eta',
+      header: 'ETA',
+      width: '100px',
+      align: 'center',
+      render: (route) => (
+        <div className="flex items-center gap-1 justify-center">
+          <Navigation className="h-3 w-3 text-muted-foreground" />
+          <span className="text-sm">{formatTime(route.eta)}</span>
+        </div>
+      )
+    },
+    {
+      key: 'status',
+      header: 'Status',
+      width: '110px',
+      align: 'center',
+      render: (route) => getStatusBadge(route.status)
+    },
+    {
+      key: 'completion',
+      header: 'Completion',
+      width: '140px',
+      align: 'center',
+      render: (route) => {
+        const progress = route.totalStops > 0 ? Math.round((route.completedStops / route.totalStops) * 100) : 0
+        return (
+          <div className="flex items-center gap-2">
+            <Progress value={progress} className="w-16 h-2" />
+            <span className="text-xs font-medium w-8 text-right">{progress}%</span>
+          </div>
+        )
+      }
+    }
+  ]
+
+  const handleExport = () => {
+    // Export to CSV
+    const headers = columns.map(c => c.header).join(',')
+    const rows = filteredRoutes.map(route => [
+      route.number,
+      `"${route.name}"`,
+      route.driverName || '',
+      route.vehicleName || '',
+      formatTime(route.startTime),
+      formatTime(route.endTime),
+      `${route.completedStops}/${route.totalStops}`,
+      route.distance.toFixed(1),
+      formatTime(route.eta),
+      route.status,
+      route.totalStops > 0 ? Math.round((route.completedStops / route.totalStops) * 100) : 0
+    ].join(','))
+
+    const csv = [headers, ...rows].join('\n')
+    const blob = new Blob([csv], { type: 'text/csv' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = `routes-${new Date().toISOString().split('T')[0]}.csv`
+    a.click()
+  }
 
   return (
     <DrilldownContent loading={isLoading} error={error} onRetry={() => mutate()}>
-      {route && (
-        <div className="space-y-6">
-          {/* Header */}
-          <div className="flex items-start justify-between">
-            <div className="space-y-2">
-              <div className="flex items-center gap-3">
-                <Navigation className="h-8 w-8 text-blue-500" />
-                <div>
-                  <h3 className="text-2xl font-bold">{route.name}</h3>
-                  <p className="text-sm text-muted-foreground">Route #{route.number}</p>
-                </div>
-              </div>
-              <div className="flex items-center gap-2">
-                <Badge variant={route.status === 'active' ? 'default' : 'outline'}>
-                  {route.status}
-                </Badge>
-                {route.optimized && (
-                  <Badge variant="secondary">
-                    <TrendingUp className="h-3 w-3 mr-1" />
-                    Optimized
-                  </Badge>
-                )}
-              </div>
-            </div>
-            {route.status === 'active' && (
-              <div className="text-right">
-                <div className="text-3xl font-bold text-blue-600">{completionPercent}%</div>
-                <div className="text-sm text-muted-foreground">Complete</div>
-              </div>
-            )}
+      <div className="space-y-6">
+        {/* Header with Metrics */}
+        <div className="flex items-start justify-between">
+          <div>
+            <h3 className="text-2xl font-bold flex items-center gap-2">
+              <Navigation className="h-7 w-7 text-blue-500" />
+              Routes Matrix
+            </h3>
+            <p className="text-sm text-muted-foreground mt-1">
+              Complete route visibility with stops, timing, and progress tracking
+            </p>
           </div>
+          <Button onClick={handleExport} variant="outline" size="sm">
+            <Download className="h-4 w-4 mr-2" />
+            Export to Excel
+          </Button>
+        </div>
 
-          {route.description && (
-            <Card>
-              <CardContent className="pt-6">
-                <p className="text-sm text-muted-foreground">{route.description}</p>
-              </CardContent>
-            </Card>
-          )}
-
-          {/* Progress Overview */}
+        {/* Summary Cards */}
+        <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
           <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <TrendingUp className="h-5 w-5" />
-                Route Progress
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div>
-                <div className="flex items-center justify-between mb-2">
-                  <span className="text-sm font-medium">Overall Progress</span>
-                  <span className="text-sm text-muted-foreground">{completionPercent}%</span>
-                </div>
-                <Progress value={completionPercent} className="h-3" />
-              </div>
-
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                <div>
-                  <p className="text-sm text-muted-foreground">Stops</p>
-                  <p className="text-xl font-bold">{route.stopsCompleted} / {route.stopsTotal}</p>
-                </div>
-                <div>
-                  <p className="text-sm text-muted-foreground">Distance</p>
-                  <p className="text-xl font-bold">{route.distanceCovered.toFixed(1)} / {route.totalDistance} mi</p>
-                </div>
-                <div>
-                  <p className="text-sm text-muted-foreground">Time</p>
-                  <p className="text-xl font-bold">{route.actualTime || 0} / {route.estimatedTime} min</p>
-                </div>
-                <div>
-                  <p className="text-sm text-muted-foreground">Current</p>
-                  <p className="text-sm font-medium">{route.currentLocation || 'Unknown'}</p>
-                </div>
-              </div>
+            <CardContent className="p-4 text-center">
+              <div className="text-2xl font-bold text-blue-600">{metrics.active}</div>
+              <div className="text-xs text-muted-foreground">Active</div>
             </CardContent>
           </Card>
-
-          {/* Driver & Vehicle */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {/* Driver */}
-            <Card className="border-l-4 border-l-blue-500">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <User className="h-5 w-5" />
-                  Driver
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                {route.driverId ? (
-                  <div className="space-y-3">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <p className="font-semibold">{route.driverName}</p>
-                        <p className="text-xs text-muted-foreground">ID: {route.driverId}</p>
-                      </div>
-                      <Button size="sm" variant="outline" onClick={handleViewDriver}>
-                        View
-                      </Button>
-                    </div>
-                    <Separator />
-                    <div className="space-y-2">
-                      <div className="flex items-center gap-2">
-                        <Phone className="h-4 w-4 text-muted-foreground" />
-                        <a
-                          href={`tel:${route.driverPhone}`}
-                          className="text-sm text-blue-600 hover:underline"
-                          onClick={(e) => {
-                            e.preventDefault()
-                            handleCallDriver()
-                          }}
-                        >
-                          {route.driverPhone}
-                        </a>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <Mail className="h-4 w-4 text-muted-foreground" />
-                        <a
-                          href={`mailto:${route.driverEmail}`}
-                          className="text-sm text-blue-600 hover:underline"
-                          onClick={(e) => {
-                            e.preventDefault()
-                            handleEmailDriver()
-                          }}
-                        >
-                          {route.driverEmail}
-                        </a>
-                      </div>
-                    </div>
-                  </div>
-                ) : (
-                  <p className="text-sm text-muted-foreground">No driver assigned</p>
-                )}
-              </CardContent>
-            </Card>
-
-            {/* Vehicle */}
-            <Card className="border-l-4 border-l-green-500">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Truck className="h-5 w-5" />
-                  Vehicle
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                {route.vehicleId ? (
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="font-semibold">{route.vehicleName}</p>
-                      <p className="text-xs text-muted-foreground">#{route.vehicleNumber}</p>
-                    </div>
-                    <Button size="sm" variant="outline" onClick={handleViewVehicle}>
-                      View
-                    </Button>
-                  </div>
-                ) : (
-                  <p className="text-sm text-muted-foreground">No vehicle assigned</p>
-                )}
-              </CardContent>
-            </Card>
-          </div>
-
-          {/* Schedule */}
           <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Calendar className="h-5 w-5" />
-                Schedule
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <p className="text-sm text-muted-foreground">Scheduled Start</p>
-                  <p className="font-medium">{formatDateTime(route.scheduledStart)}</p>
-                </div>
-                <div>
-                  <p className="text-sm text-muted-foreground">Scheduled End</p>
-                  <p className="font-medium">{formatDateTime(route.scheduledEnd)}</p>
-                </div>
-                {route.actualStart && (
-                  <div>
-                    <p className="text-sm text-muted-foreground">Actual Start</p>
-                    <p className="font-medium">{formatDateTime(route.actualStart)}</p>
-                  </div>
-                )}
-                {route.estimatedCompletion && route.status === 'active' && (
-                  <div>
-                    <p className="text-sm text-muted-foreground">Est. Completion</p>
-                    <p className="font-medium">{formatDateTime(route.estimatedCompletion)}</p>
-                  </div>
-                )}
-              </div>
+            <CardContent className="p-4 text-center">
+              <div className="text-2xl font-bold text-amber-600">{metrics.planned}</div>
+              <div className="text-xs text-muted-foreground">Planned</div>
             </CardContent>
           </Card>
-
-          {/* Stops & Waypoints */}
           <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <RouteIcon className="h-5 w-5" />
-                Stops & Waypoints ({route.stops.length})
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-3">
-                {route.stops.map((stop, index) => (
-                  <div
-                    key={stop.id}
-                    className={`p-4 rounded-lg border ${
-                      stop.status === 'completed'
-                        ? 'bg-green-50 dark:bg-green-950 border-green-200 dark:border-green-800'
-                        : index === route.currentStopIndex
-                        ? 'bg-blue-50 dark:bg-blue-950 border-blue-200 dark:border-blue-800'
-                        : 'bg-muted/30 border-muted'
-                    }`}
-                  >
-                    <div className="flex items-start gap-3">
-                      <div className="flex-shrink-0 pt-0.5">
-                        {getStopIcon(stop.type, stop.status)}
-                      </div>
-
-                      <div className="flex-1 space-y-2">
-                        <div className="flex items-start justify-between">
-                          <div>
-                            <div className="flex items-center gap-2">
-                              <span className="font-semibold">#{stop.sequence}</span>
-                              <span className="font-medium">{stop.name}</span>
-                              {index === route.currentStopIndex && (
-                                <Badge variant="default" className="text-xs">Current</Badge>
-                              )}
-                            </div>
-                            <p className="text-sm text-muted-foreground">{stop.address}</p>
-                          </div>
-                          {getStopStatusBadge(stop.status)}
-                        </div>
-
-                        <div className="grid grid-cols-2 gap-2 text-sm">
-                          <div>
-                            <p className="text-xs text-muted-foreground">Type</p>
-                            <p className="font-medium capitalize">{stop.type}</p>
-                          </div>
-                          {stop.packages && (
-                            <div>
-                              <p className="text-xs text-muted-foreground">Packages</p>
-                              <p className="font-medium">{stop.packages}</p>
-                            </div>
-                          )}
-                          <div>
-                            <p className="text-xs text-muted-foreground">Scheduled</p>
-                            <p className="font-medium">{formatTime(stop.scheduledTime)}</p>
-                          </div>
-                          {stop.actualTime && (
-                            <div>
-                              <p className="text-xs text-muted-foreground">Actual</p>
-                              <p className="font-medium">{formatTime(stop.actualTime)}</p>
-                            </div>
-                          )}
-                          {!stop.actualTime && stop.estimatedTime && (
-                            <div>
-                              <p className="text-xs text-muted-foreground">Estimated</p>
-                              <p className="font-medium">{formatTime(stop.estimatedTime)}</p>
-                            </div>
-                          )}
-                        </div>
-
-                        {stop.contactName && (
-                          <Separator />
-                        )}
-
-                        {stop.contactName && (
-                          <div className="space-y-1">
-                            <p className="text-xs text-muted-foreground">Contact</p>
-                            <div className="flex items-center justify-between">
-                              <p className="text-sm font-medium">{stop.contactName}</p>
-                              {stop.contactPhone && (
-                                <Button
-                                  size="sm"
-                                  variant="ghost"
-                                  onClick={() => handleCallContact(stop.contactPhone!)}
-                                  className="text-blue-600"
-                                >
-                                  <Phone className="h-3 w-3 mr-1" />
-                                  {stop.contactPhone}
-                                </Button>
-                              )}
-                            </div>
-                          </div>
-                        )}
-
-                        {stop.notes && (
-                          <div className="bg-background/50 p-2 rounded text-xs">
-                            <p className="text-muted-foreground">Note: {stop.notes}</p>
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
+            <CardContent className="p-4 text-center">
+              <div className="text-2xl font-bold text-green-600">{metrics.completed}</div>
+              <div className="text-xs text-muted-foreground">Completed</div>
             </CardContent>
           </Card>
-
-          {/* Metadata */}
-          <Card className="bg-muted/50">
-            <CardContent className="pt-6">
-              <div className="grid grid-cols-2 gap-4 text-xs">
-                {route.createdAt && (
-                  <div>
-                    <p className="text-muted-foreground">Created</p>
-                    <p>{formatDateTime(route.createdAt)}</p>
-                    {route.createdBy && <p className="text-muted-foreground">by {route.createdBy}</p>}
-                  </div>
-                )}
-                {route.updatedAt && (
-                  <div>
-                    <p className="text-muted-foreground">Last Updated</p>
-                    <p>{formatDateTime(route.updatedAt)}</p>
-                  </div>
-                )}
+          <Card>
+            <CardContent className="p-4 text-center">
+              <div className="text-2xl font-bold">{metrics.total}</div>
+              <div className="text-xs text-muted-foreground">Total Routes</div>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardContent className="p-4 text-center">
+              <div className="text-2xl font-bold text-purple-600">
+                {metrics.completedStops}/{metrics.totalStops}
               </div>
+              <div className="text-xs text-muted-foreground">Stops Complete</div>
             </CardContent>
           </Card>
         </div>
-      )}
+
+        {/* Filters */}
+        <Card>
+          <CardHeader className="pb-3">
+            <CardTitle className="text-base">Filters & Search</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div>
+                <label className="text-sm font-medium mb-2 block">Search</label>
+                <Input
+                  placeholder="Route #, name, driver, vehicle..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                />
+              </div>
+              <div>
+                <label className="text-sm font-medium mb-2 block">Status</label>
+                <Select value={statusFilter} onValueChange={setStatusFilter}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Filter by status" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All Status</SelectItem>
+                    <SelectItem value="active">Active</SelectItem>
+                    <SelectItem value="planned">Planned</SelectItem>
+                    <SelectItem value="completed">Completed</SelectItem>
+                    <SelectItem value="cancelled">Cancelled</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
+                <label className="text-sm font-medium mb-2 block">Driver</label>
+                <Select value={driverFilter} onValueChange={setDriverFilter}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Filter by driver" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All Drivers</SelectItem>
+                    {drivers.map(driver => (
+                      <SelectItem key={driver.id} value={driver.id}>
+                        {driver.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Excel-Style Matrix */}
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-base flex items-center justify-between">
+              <span>Routes List ({filteredRoutes.length})</span>
+              <span className="text-sm text-muted-foreground font-normal">
+                Click any row to view all stops in Excel format
+              </span>
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <DrilldownMatrix
+              data={filteredRoutes}
+              columns={columns}
+              recordType="route"
+              getRecordId={(route) => route.id}
+              getRecordLabel={(route) => `${route.number} - ${route.name}`}
+              getRecordData={(route) => ({ routeId: route.id })}
+              emptyMessage="No routes found matching filters"
+              rowHeight="compact"
+              maxHeight="600px"
+              striped
+              showGridLines
+            />
+          </CardContent>
+        </Card>
+      </div>
     </DrilldownContent>
   )
 }
