@@ -112,12 +112,12 @@ export function DrilldownCard({
   }
 
   const colorClasses = {
-    default: '',
-    primary: 'border-primary/30 bg-primary/5',
-    success: 'border-green-500/30 bg-green-500/5',
-    warning: 'border-yellow-500/30 bg-yellow-500/5',
-    danger: 'border-red-500/30 bg-red-500/5',
-    info: 'border-blue-500/30 bg-blue-500/5',
+    default: 'border-slate-800 bg-slate-900/40 backdrop-blur-md',
+    primary: 'border-primary/30 bg-primary/10 backdrop-blur-md',
+    success: 'border-green-500/30 bg-green-500/10 backdrop-blur-md',
+    warning: 'border-yellow-500/30 bg-yellow-500/10 backdrop-blur-md',
+    danger: 'border-red-500/30 bg-red-500/10 backdrop-blur-md',
+    info: 'border-blue-500/30 bg-blue-500/10 backdrop-blur-md',
   }
 
   const iconColorClasses = {
@@ -133,7 +133,7 @@ export function DrilldownCard({
     default: '',
     compact: 'p-3',
     outlined: 'border-2',
-    filled: 'bg-muted/50',
+    filled: 'bg-slate-900/60 border-slate-800',
   }
 
   return (
@@ -145,8 +145,8 @@ export function DrilldownCard({
       aria-label={`View ${drilldownLabel || title}`}
       aria-disabled={disabled}
       className={cn(
-        'group cursor-pointer transition-all duration-200',
-        'hover:shadow-md hover:border-primary/50',
+        'group cursor-pointer transition-all duration-300',
+        'hover:shadow-lg hover:shadow-primary/5 hover:border-primary/50 hover:bg-slate-800/60',
         'focus:outline-none focus:ring-2 focus:ring-primary/50 focus:ring-offset-2',
         colorClasses[color],
         variantClasses[variant],
@@ -331,10 +331,10 @@ export function MetricCardDrilldown({
       trend={
         change !== undefined
           ? {
-              value: change,
-              direction: change > 0 ? 'up' : change < 0 ? 'down' : 'neutral',
-              label: changeLabel,
-            }
+            value: change,
+            direction: change > 0 ? 'up' : change < 0 ? 'down' : 'neutral',
+            label: changeLabel,
+          }
           : undefined
       }
       className={className}
