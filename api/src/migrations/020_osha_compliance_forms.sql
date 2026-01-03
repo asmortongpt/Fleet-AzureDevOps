@@ -6,7 +6,7 @@
 -- ============================================================================
 
 CREATE TABLE IF NOT EXISTS osha_form_templates (
-    id SERIAL PRIMARY KEY,
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     form_number VARCHAR(50) UNIQUE NOT NULL, -- e.g., 'OSHA-300', 'OSHA-301', 'OSHA-300A'
     form_name VARCHAR(255) NOT NULL,
     form_category VARCHAR(100) NOT NULL, -- 'Injury/Illness', 'Inspection', 'Training', 'Safety Data'
@@ -27,15 +27,15 @@ CREATE TABLE IF NOT EXISTS osha_form_templates (
 -- ============================================================================
 
 CREATE TABLE IF NOT EXISTS osha_300_log (
-    id SERIAL PRIMARY KEY,
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     case_number VARCHAR(50) UNIQUE NOT NULL,
-    employee_id INTEGER REFERENCES drivers(id),
+    employee_id UUID REFERENCES drivers(id),
     employee_name VARCHAR(255) NOT NULL,
     job_title VARCHAR(255),
     date_of_injury DATE NOT NULL,
     time_of_injury TIME,
     location_of_incident VARCHAR(500),
-    vehicle_id INTEGER REFERENCES vehicles(id),
+    vehicle_id UUID REFERENCES vehicles(id),
 
     -- Injury Classification
     injury_type VARCHAR(100) NOT NULL, -- 'Injury', 'Skin Disorder', 'Respiratory', 'Poisoning', 'Hearing Loss', 'Other'
@@ -78,8 +78,8 @@ CREATE TABLE IF NOT EXISTS osha_300_log (
 -- ============================================================================
 
 CREATE TABLE IF NOT EXISTS osha_301_reports (
-    id SERIAL PRIMARY KEY,
-    osha_300_log_id INTEGER REFERENCES osha_300_log(id),
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    osha_300_log_id UUID REFERENCES osha_300_log(id),
 
     -- Employee Information
     employee_name VARCHAR(255) NOT NULL,
@@ -118,9 +118,9 @@ CREATE TABLE IF NOT EXISTS osha_301_reports (
 -- ============================================================================
 
 CREATE TABLE IF NOT EXISTS vehicle_safety_inspections (
-    id SERIAL PRIMARY KEY,
-    vehicle_id INTEGER REFERENCES vehicles(id) NOT NULL,
-    driver_id INTEGER REFERENCES drivers(id) NOT NULL,
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    vehicle_id UUID REFERENCES vehicles(id) NOT NULL,
+    driver_id UUID REFERENCES drivers(id) NOT NULL,
     inspection_date DATE NOT NULL,
     inspection_time TIME NOT NULL,
     inspection_type VARCHAR(50) NOT NULL, -- 'Pre-Trip', 'Post-Trip', 'Monthly', 'Annual'
@@ -186,8 +186,8 @@ CREATE TABLE IF NOT EXISTS vehicle_safety_inspections (
 -- ============================================================================
 
 CREATE TABLE IF NOT EXISTS safety_training_records (
-    id SERIAL PRIMARY KEY,
-    employee_id INTEGER REFERENCES drivers(id) NOT NULL,
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    employee_id UUID REFERENCES drivers(id) NOT NULL,
     training_type VARCHAR(100) NOT NULL,
     training_topic VARCHAR(255) NOT NULL,
     training_date DATE NOT NULL,
@@ -229,8 +229,8 @@ CREATE TABLE IF NOT EXISTS safety_training_records (
 -- ============================================================================
 
 CREATE TABLE IF NOT EXISTS hazmat_inventory (
-    id SERIAL PRIMARY KEY,
-    vehicle_id INTEGER REFERENCES vehicles(id),
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    vehicle_id UUID REFERENCES vehicles(id),
 
     -- Material Identification
     material_name VARCHAR(255) NOT NULL,
@@ -277,7 +277,7 @@ CREATE TABLE IF NOT EXISTS hazmat_inventory (
 -- ============================================================================
 
 CREATE TABLE IF NOT EXISTS safety_data_sheets (
-    id SERIAL PRIMARY KEY,
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     product_name VARCHAR(255) NOT NULL,
     manufacturer VARCHAR(255) NOT NULL,
     product_code VARCHAR(100),
@@ -327,12 +327,12 @@ CREATE TABLE IF NOT EXISTS safety_data_sheets (
 -- ============================================================================
 
 CREATE TABLE IF NOT EXISTS accident_investigations (
-    id SERIAL PRIMARY KEY,
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     accident_date DATE NOT NULL,
     accident_time TIME NOT NULL,
     location TEXT NOT NULL,
-    vehicle_id INTEGER REFERENCES vehicles(id),
-    driver_id INTEGER REFERENCES drivers(id),
+    vehicle_id UUID REFERENCES vehicles(id),
+    driver_id UUID REFERENCES drivers(id),
 
     -- Investigation Details
     investigation_date DATE NOT NULL,
@@ -383,8 +383,8 @@ CREATE TABLE IF NOT EXISTS accident_investigations (
 -- ============================================================================
 
 CREATE TABLE IF NOT EXISTS ppe_assignments (
-    id SERIAL PRIMARY KEY,
-    employee_id INTEGER REFERENCES drivers(id) NOT NULL,
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    employee_id UUID REFERENCES drivers(id) NOT NULL,
 
     -- Equipment Details
     equipment_type VARCHAR(100) NOT NULL, -- 'Hard Hat', 'Safety Vest', 'Gloves', 'Safety Shoes', etc.

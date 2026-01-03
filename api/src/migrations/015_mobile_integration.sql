@@ -7,8 +7,8 @@
 -- =====================================================
 
 CREATE TABLE IF NOT EXISTS mobile_devices (
-    id SERIAL PRIMARY KEY,
-    user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
     device_type VARCHAR(20) NOT NULL CHECK (device_type IN ('ios', 'android')),
     device_id VARCHAR(255) NOT NULL UNIQUE,
     device_name VARCHAR(255) NOT NULL,
@@ -29,9 +29,9 @@ CREATE INDEX idx_mobile_devices_last_sync ON mobile_devices(last_sync_at);
 -- =====================================================
 
 CREATE TABLE IF NOT EXISTS vehicle_inspections (
-    id SERIAL PRIMARY KEY,
-    tenant_id INTEGER NOT NULL,
-    vehicle_id INTEGER NOT NULL REFERENCES vehicles(id) ON DELETE CASCADE,
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    tenant_id UUID NOT NULL,
+    vehicle_id UUID NOT NULL REFERENCES vehicles(id) ON DELETE CASCADE,
     inspector_id INTEGER NOT NULL REFERENCES users(id),
     mobile_id VARCHAR(255) UNIQUE, -- For offline sync
     inspection_type VARCHAR(50) NOT NULL CHECK (inspection_type IN ('pre-trip', 'post-trip', 'daily', 'weekly', 'monthly')),
@@ -53,9 +53,9 @@ CREATE INDEX idx_vehicle_inspections_inspected_at ON vehicle_inspections(inspect
 -- =====================================================
 
 CREATE TABLE IF NOT EXISTS driver_reports (
-    id SERIAL PRIMARY KEY,
-    tenant_id INTEGER NOT NULL,
-    driver_id INTEGER NOT NULL REFERENCES users(id),
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    tenant_id UUID NOT NULL,
+    driver_id UUID NOT NULL REFERENCES users(id),
     mobile_id VARCHAR(255) UNIQUE, -- For offline sync
     report_type VARCHAR(50) NOT NULL CHECK (report_type IN ('fuel', 'expense', 'incident', 'maintenance', 'other')),
     data JSONB NOT NULL, -- Flexible report data
@@ -74,9 +74,9 @@ CREATE INDEX idx_driver_reports_type ON driver_reports(report_type);
 -- =====================================================
 
 CREATE TABLE IF NOT EXISTS mobile_photos (
-    id SERIAL PRIMARY KEY,
-    tenant_id INTEGER NOT NULL,
-    user_id INTEGER NOT NULL REFERENCES users(id),
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    tenant_id UUID NOT NULL,
+    user_id UUID NOT NULL REFERENCES users(id),
     mobile_id VARCHAR(255) UNIQUE, -- For offline sync
     photo_url TEXT NOT NULL,
     metadata JSONB, -- EXIF, location, etc.
@@ -93,9 +93,9 @@ CREATE INDEX idx_mobile_photos_mobile_id ON mobile_photos(mobile_id);
 -- =====================================================
 
 CREATE TABLE IF NOT EXISTS hos_logs (
-    id SERIAL PRIMARY KEY,
-    tenant_id INTEGER NOT NULL,
-    driver_id INTEGER NOT NULL REFERENCES users(id),
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    tenant_id UUID NOT NULL,
+    driver_id UUID NOT NULL REFERENCES users(id),
     mobile_id VARCHAR(255) UNIQUE, -- For offline sync
     duty_status VARCHAR(20) NOT NULL CHECK (duty_status IN ('off_duty', 'sleeper', 'driving', 'on_duty')),
     start_time TIMESTAMP NOT NULL,
@@ -116,10 +116,10 @@ CREATE INDEX idx_hos_logs_start_time ON hos_logs(start_time);
 -- =====================================================
 
 CREATE TABLE IF NOT EXISTS keyless_entry_logs (
-    id SERIAL PRIMARY KEY,
-    tenant_id INTEGER NOT NULL,
-    vehicle_id INTEGER NOT NULL REFERENCES vehicles(id),
-    user_id INTEGER NOT NULL REFERENCES users(id),
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    tenant_id UUID NOT NULL,
+    vehicle_id UUID NOT NULL REFERENCES vehicles(id),
+    user_id UUID NOT NULL REFERENCES users(id),
     device_id VARCHAR(255) NOT NULL,
     command VARCHAR(20) NOT NULL CHECK (command IN ('lock', 'unlock', 'start', 'stop')),
     location JSONB, -- { latitude, longitude }
@@ -138,9 +138,9 @@ CREATE INDEX idx_keyless_entry_executed_at ON keyless_entry_logs(executed_at);
 -- =====================================================
 
 CREATE TABLE IF NOT EXISTS damage_detections (
-    id SERIAL PRIMARY KEY,
-    tenant_id INTEGER NOT NULL,
-    vehicle_id INTEGER NOT NULL REFERENCES vehicles(id),
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    tenant_id UUID NOT NULL,
+    vehicle_id UUID NOT NULL REFERENCES vehicles(id),
     reported_by INTEGER NOT NULL REFERENCES users(id),
     photo_url TEXT NOT NULL,
     ai_detections JSONB NOT NULL, -- Array of detected damages with coordinates
@@ -162,9 +162,9 @@ CREATE INDEX idx_damage_detections_severity ON damage_detections(severity);
 -- =====================================================
 
 CREATE TABLE IF NOT EXISTS sync_conflicts (
-    id SERIAL PRIMARY KEY,
-    tenant_id INTEGER NOT NULL,
-    user_id INTEGER NOT NULL REFERENCES users(id),
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    tenant_id UUID NOT NULL,
+    user_id UUID NOT NULL REFERENCES users(id),
     device_id VARCHAR(255) NOT NULL,
     conflict_type VARCHAR(50) NOT NULL, -- 'inspection', 'report', 'hos_log', etc.
     mobile_id VARCHAR(255) NOT NULL,
@@ -186,9 +186,9 @@ CREATE INDEX idx_sync_conflicts_resolution ON sync_conflicts(resolution);
 -- =====================================================
 
 CREATE TABLE IF NOT EXISTS mobile_analytics (
-    id SERIAL PRIMARY KEY,
-    tenant_id INTEGER NOT NULL,
-    user_id INTEGER NOT NULL REFERENCES users(id),
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    tenant_id UUID NOT NULL,
+    user_id UUID NOT NULL REFERENCES users(id),
     device_id VARCHAR(255) NOT NULL,
     event_type VARCHAR(100) NOT NULL, -- 'app_open', 'feature_used', 'sync', 'crash', etc.
     event_data JSONB,
@@ -210,7 +210,7 @@ CREATE OR REPLACE VIEW active_mobile_devices AS
 SELECT
     u.tenant_id,
     u.id as user_id,
-    u.name as user_name,
+    concat(u.first_name, ' ', u.last_name) as user_name,
     u.email,
     md.device_type,
     md.device_name,
@@ -351,8 +351,8 @@ ON CONFLICT (mobile_id) DO NOTHING;
 -- Grant Permissions
 -- =====================================================
 
-GRANT SELECT, INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA public TO fleetapp;
-GRANT USAGE, SELECT ON ALL SEQUENCES IN SCHEMA public TO fleetapp;
+GRANT SELECT, INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA public TO fleet_user;
+GRANT USAGE, SELECT ON ALL SEQUENCES IN SCHEMA public TO fleet_user;
 
 -- =====================================================
 -- Completion
