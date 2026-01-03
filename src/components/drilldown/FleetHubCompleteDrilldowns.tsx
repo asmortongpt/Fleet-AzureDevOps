@@ -1237,6 +1237,347 @@ export function CostDetailsDrilldown() {
 }
 
 // ============================================================================
+// EXCEL-STYLE DRILLDOWNS - NEW COMPREHENSIVE DATA VIEWS
+// ============================================================================
+
+import { ExcelStyleTable, ExcelColumn } from '@/components/ui/excel-style-table'
+
+// Active Vehicles Excel Drilldown
+export function ActiveVehiclesExcelDrilldown() {
+  const { push } = useDrilldown()
+
+  // Generate comprehensive vehicle data
+  const vehiclesData = Array.from({ length: 245 }, (_, i) => ({
+    id: `V-${1001 + i}`,
+    vin: `1FTFW1E84PFA${String(12345 + i).padStart(5, '0')}`,
+    unitNumber: `FLEET-${1001 + i}`,
+    make: ['Ford', 'Chevrolet', 'RAM', 'GMC', 'Toyota'][i % 5],
+    model: ['F-150', 'Silverado', '1500', 'Sierra', 'Tundra'][i % 5],
+    year: 2020 + (i % 5),
+    mileage: 25000 + (i * 183),
+    driver: ['Michael Rodriguez', 'Jennifer Smith', 'David Chen', 'Sarah Wilson', 'Robert Lee'][i % 5],
+    department: ['Logistics', 'Operations', 'Maintenance', 'Sales', 'Field Service'][i % 5],
+    location: ['Chicago, IL', 'Detroit, MI', 'Houston, TX', 'Phoenix, AZ', 'Seattle, WA'][i % 5],
+    status: i % 20 === 0 ? 'maintenance' : i % 50 === 0 ? 'inactive' : 'active',
+    lastService: new Date(2025, 0, 3 - (i % 30)).toISOString().split('T')[0],
+    nextService: new Date(2025, 3, 3 + (i % 30)).toISOString().split('T')[0],
+    fuelLevel: 50 + (i % 50),
+    mpg: 15 + (i % 10) * 0.5,
+    utilization: 70 + (i % 30),
+    licensePlate: `ABC-${String(1000 + i).slice(-4)}`,
+    insurance: 'Active',
+    registration: 'Valid',
+    odometer: 25000 + (i * 183),
+    engineHours: 1200 + (i * 8)
+  }))
+
+  const columns: ExcelColumn[] = [
+    { key: 'unitNumber', label: 'Unit #', width: 120 },
+    { key: 'vin', label: 'VIN', width: 180 },
+    { key: 'make', label: 'Make', width: 100 },
+    { key: 'model', label: 'Model', width: 120 },
+    { key: 'year', label: 'Year', width: 80 },
+    {
+      key: 'mileage',
+      label: 'Mileage',
+      width: 100,
+      render: (val) => val.toLocaleString() + ' mi'
+    },
+    { key: 'driver', label: 'Driver', width: 150 },
+    { key: 'department', label: 'Department', width: 130 },
+    { key: 'location', label: 'Location', width: 150 },
+    {
+      key: 'status',
+      label: 'Status',
+      width: 100,
+      render: (val) => (
+        <Badge
+          variant={val === 'active' ? 'default' : val === 'maintenance' ? 'secondary' : 'destructive'}
+          className={val === 'active' ? 'bg-emerald-500' : ''}
+        >
+          {val.toUpperCase()}
+        </Badge>
+      )
+    },
+    { key: 'lastService', label: 'Last Service', width: 120 },
+    { key: 'nextService', label: 'Next Service', width: 120 },
+    { key: 'fuelLevel', label: 'Fuel %', width: 80, render: (val) => `${val}%` },
+    { key: 'mpg', label: 'MPG', width: 80, render: (val) => val.toFixed(1) },
+    { key: 'utilization', label: 'Utilization %', width: 110, render: (val) => `${val}%` },
+    { key: 'licensePlate', label: 'License Plate', width: 130 },
+    { key: 'insurance', label: 'Insurance', width: 100 },
+    { key: 'registration', label: 'Registration', width: 110 }
+  ]
+
+  const handleRowClick = (row: any) => {
+    push({
+      id: `vehicle-${row.id}`,
+      type: 'vehicle-details',
+      label: `Vehicle Details: ${row.unitNumber}`,
+      data: { vehicleId: row.id, number: row.unitNumber, vin: row.vin }
+    })
+  }
+
+  return (
+    <div className="p-6 space-y-4">
+      <div className="flex items-center justify-between">
+        <div>
+          <h2 className="text-3xl font-bold text-white">Active Vehicles</h2>
+          <p className="text-slate-400 mt-1">Full fleet vehicle matrix • Click row for details</p>
+        </div>
+        <Badge variant="default" className="bg-emerald-500 text-lg px-4 py-2">
+          245 Vehicles
+        </Badge>
+      </div>
+
+      <ExcelStyleTable
+        data={vehiclesData}
+        columns={columns}
+        onRowClick={handleRowClick}
+        searchPlaceholder="Search vehicles by VIN, unit, driver, location..."
+        exportFilename="active-vehicles"
+        pageSize={25}
+        height="calc(100vh - 280px)"
+      />
+    </div>
+  )
+}
+
+// Maintenance Records Excel Drilldown
+export function MaintenanceRecordsExcelDrilldown() {
+  const maintenanceData = Array.from({ length: 150 }, (_, i) => ({
+    id: `MNT-${String(1001 + i).padStart(4, '0')}`,
+    date: new Date(2025, 0, 15 - (i % 90)).toISOString().split('T')[0],
+    type: ['Oil Change', 'Tire Rotation', 'Brake Service', 'Inspection', 'Engine Repair', 'Transmission Service'][i % 6],
+    description: [
+      'Full synthetic oil change, oil filter replacement',
+      'All four tires rotated, pressure adjusted',
+      'Front brake pads replaced, rotors resurfaced',
+      'Annual safety inspection completed',
+      'Engine diagnostic and repair',
+      'Transmission fluid flush and filter change'
+    ][i % 6],
+    mileage: 45000 - (i * 200),
+    cost: [89.99, 45.00, 345.50, 125.00, 850.00, 425.00][i % 6],
+    technician: ['Robert Martinez', 'Lisa Thompson', 'David Lee', 'Amanda Chen', 'Mike Johnson'][i % 5],
+    status: i % 10 === 0 ? 'scheduled' : i % 15 === 0 ? 'in-progress' : 'completed',
+    nextDue: new Date(2025, 3, 15 + (i % 90)).toISOString().split('T')[0],
+    vehicle: `FLEET-${1001 + (i % 245)}`,
+    workOrder: `WO-${String(5000 + i).padStart(5, '0')}`,
+    vendor: ['In-House', 'Quick Lube', 'Brake Masters', 'State Inspection', 'Engine Pro', 'Transmission Plus'][i % 6],
+    laborHours: [0.5, 0.3, 2.5, 1.0, 4.5, 3.0][i % 6]
+  }))
+
+  const columns: ExcelColumn[] = [
+    { key: 'id', label: 'Record ID', width: 110 },
+    { key: 'date', label: 'Date', width: 110 },
+    { key: 'vehicle', label: 'Vehicle', width: 120 },
+    { key: 'type', label: 'Service Type', width: 150 },
+    { key: 'description', label: 'Description', width: 300 },
+    { key: 'mileage', label: 'Mileage', width: 100, render: (val) => val.toLocaleString() },
+    { key: 'cost', label: 'Cost', width: 100, render: (val) => `$${val.toFixed(2)}` },
+    { key: 'technician', label: 'Technician', width: 150 },
+    {
+      key: 'status',
+      label: 'Status',
+      width: 120,
+      render: (val) => (
+        <Badge variant={val === 'completed' ? 'default' : val === 'in-progress' ? 'secondary' : 'outline'}>
+          {val.toUpperCase()}
+        </Badge>
+      )
+    },
+    { key: 'nextDue', label: 'Next Due', width: 110 },
+    { key: 'workOrder', label: 'Work Order', width: 120 },
+    { key: 'vendor', label: 'Vendor', width: 150 },
+    { key: 'laborHours', label: 'Labor Hrs', width: 90, render: (val) => `${val} hrs` }
+  ]
+
+  return (
+    <div className="p-6 space-y-4">
+      <div className="flex items-center justify-between">
+        <div>
+          <h2 className="text-3xl font-bold text-white">Maintenance Records</h2>
+          <p className="text-slate-400 mt-1">Complete service history • Filter by date, type, or status</p>
+        </div>
+        <Wrench className="w-16 h-16 text-orange-400" />
+      </div>
+
+      <ExcelStyleTable
+        data={maintenanceData}
+        columns={columns}
+        searchPlaceholder="Search maintenance records..."
+        exportFilename="maintenance-records"
+        pageSize={25}
+        height="calc(100vh - 280px)"
+      />
+    </div>
+  )
+}
+
+// Cost Analysis Excel Drilldown
+export function CostAnalysisExcelDrilldown() {
+  const costData = Array.from({ length: 200 }, (_, i) => ({
+    id: `COST-${String(2001 + i).padStart(5, '0')}`,
+    date: new Date(2025, 0, 20 - (i % 60)).toISOString().split('T')[0],
+    category: ['Fuel', 'Maintenance', 'Insurance', 'Registration', 'Depreciation', 'Repairs'][i % 6],
+    description: [
+      'Diesel fuel purchase - 45 gallons',
+      'Scheduled maintenance service',
+      'Monthly insurance premium',
+      'Annual vehicle registration',
+      'Monthly depreciation expense',
+      'Unscheduled repair work'
+    ][i % 6],
+    amount: [245.50, 345.00, 450.00, 125.00, 380.00, 680.00][i % 6],
+    vendor: ['Shell', 'In-House', 'State Farm', 'Illinois DMV', 'Internal', 'AutoCare Plus'][i % 6],
+    vehicle: `FLEET-${1001 + (i % 245)}`,
+    approvalStatus: i % 10 === 0 ? 'pending' : i % 20 === 0 ? 'rejected' : 'approved',
+    invoiceNumber: `INV-${String(10000 + i).padStart(6, '0')}`,
+    paymentMethod: ['Credit Card', 'Check', 'ACH', 'Wire'][i % 4],
+    approvedBy: ['Sarah Chen', 'Amanda Roberts', 'James Wilson', 'Patricia Martinez'][i % 4],
+    department: ['Logistics', 'Operations', 'Maintenance', 'Fleet Management'][i % 4]
+  }))
+
+  const columns: ExcelColumn[] = [
+    { key: 'id', label: 'Cost ID', width: 110 },
+    { key: 'date', label: 'Date', width: 110 },
+    { key: 'category', label: 'Category', width: 130 },
+    { key: 'description', label: 'Description', width: 280 },
+    {
+      key: 'amount',
+      label: 'Amount',
+      width: 110,
+      render: (val) => `$${val.toFixed(2)}`,
+      accessor: (row) => row.amount
+    },
+    { key: 'vendor', label: 'Vendor', width: 150 },
+    { key: 'vehicle', label: 'Vehicle', width: 120 },
+    {
+      key: 'approvalStatus',
+      label: 'Status',
+      width: 110,
+      render: (val) => (
+        <Badge variant={val === 'approved' ? 'default' : val === 'pending' ? 'secondary' : 'destructive'}>
+          {val.toUpperCase()}
+        </Badge>
+      )
+    },
+    { key: 'invoiceNumber', label: 'Invoice', width: 130 },
+    { key: 'paymentMethod', label: 'Payment', width: 120 },
+    { key: 'approvedBy', label: 'Approved By', width: 150 },
+    { key: 'department', label: 'Department', width: 140 }
+  ]
+
+  // Calculate totals by category
+  const categoryTotals = costData.reduce((acc, item) => {
+    acc[item.category] = (acc[item.category] || 0) + item.amount
+    return acc
+  }, {} as Record<string, number>)
+
+  const totalAmount = Object.values(categoryTotals).reduce((sum, val) => sum + val, 0)
+
+  return (
+    <div className="p-6 space-y-4">
+      <div className="flex items-center justify-between">
+        <div>
+          <h2 className="text-3xl font-bold text-white">Cost Analysis</h2>
+          <p className="text-slate-400 mt-1">Full cost breakdown • Filter by category, vendor, or date range</p>
+        </div>
+        <DollarSign className="w-16 h-16 text-emerald-400" />
+      </div>
+
+      {/* Summary Cards */}
+      <div className="grid grid-cols-6 gap-3">
+        {Object.entries(categoryTotals).map(([category, total]) => (
+          <Card key={category} className="bg-slate-800/50 border-slate-700">
+            <CardContent className="pt-4">
+              <p className="text-xs text-slate-400">{category}</p>
+              <p className="text-xl font-bold text-white">${total.toFixed(2)}</p>
+              <p className="text-xs text-slate-500">{((total / totalAmount) * 100).toFixed(1)}%</p>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+
+      <ExcelStyleTable
+        data={costData}
+        columns={columns}
+        searchPlaceholder="Search costs by category, vendor, vehicle..."
+        exportFilename="cost-analysis"
+        pageSize={25}
+        height="calc(100vh - 450px)"
+      />
+    </div>
+  )
+}
+
+// Utilization Data Excel Drilldown
+export function UtilizationDataExcelDrilldown() {
+  const utilizationData = Array.from({ length: 180 }, (_, i) => {
+    const date = new Date(2025, 0, 20 - (i % 60))
+    return {
+      id: `UTIL-${String(3001 + i).padStart(5, '0')}`,
+      date: date.toISOString().split('T')[0],
+      vehicle: `FLEET-${1001 + (i % 245)}`,
+      hours: 6 + (i % 12) * 0.5,
+      miles: 150 + (i % 200),
+      idleTime: 0.5 + (i % 5) * 0.2,
+      driver: ['Michael Rodriguez', 'Jennifer Smith', 'David Chen', 'Sarah Wilson', 'Robert Lee'][i % 5],
+      tripCount: 8 + (i % 15),
+      fuelUsed: 12 + (i % 20),
+      avgSpeed: 45 + (i % 25),
+      utilizationRate: 70 + (i % 30),
+      department: ['Logistics', 'Operations', 'Field Service', 'Sales', 'Maintenance'][i % 5],
+      startLocation: ['Chicago, IL', 'Detroit, MI', 'Houston, TX', 'Phoenix, AZ', 'Seattle, WA'][i % 5],
+      endLocation: ['Chicago, IL', 'Detroit, MI', 'Houston, TX', 'Phoenix, AZ', 'Seattle, WA'][(i + 1) % 5],
+      engineOnTime: 7 + (i % 10),
+      maxSpeed: 65 + (i % 15)
+    }
+  })
+
+  const columns: ExcelColumn[] = [
+    { key: 'id', label: 'Record ID', width: 110 },
+    { key: 'date', label: 'Date', width: 110 },
+    { key: 'vehicle', label: 'Vehicle', width: 120 },
+    { key: 'hours', label: 'Hours', width: 90, render: (val) => `${val.toFixed(1)} hrs` },
+    { key: 'miles', label: 'Miles', width: 100, render: (val) => val.toLocaleString() },
+    { key: 'idleTime', label: 'Idle Time', width: 100, render: (val) => `${val.toFixed(1)} hrs` },
+    { key: 'driver', label: 'Driver', width: 150 },
+    { key: 'tripCount', label: 'Trips', width: 80 },
+    { key: 'fuelUsed', label: 'Fuel (gal)', width: 100, render: (val) => `${val.toFixed(1)} gal` },
+    { key: 'avgSpeed', label: 'Avg Speed', width: 100, render: (val) => `${val} mph` },
+    { key: 'utilizationRate', label: 'Utilization %', width: 120, render: (val) => `${val}%` },
+    { key: 'department', label: 'Department', width: 130 },
+    { key: 'startLocation', label: 'Start Location', width: 150 },
+    { key: 'endLocation', label: 'End Location', width: 150 },
+    { key: 'engineOnTime', label: 'Engine On', width: 110, render: (val) => `${val.toFixed(1)} hrs` },
+    { key: 'maxSpeed', label: 'Max Speed', width: 100, render: (val) => `${val} mph` }
+  ]
+
+  return (
+    <div className="p-6 space-y-4">
+      <div className="flex items-center justify-between">
+        <div>
+          <h2 className="text-3xl font-bold text-white">Utilization Data</h2>
+          <p className="text-slate-400 mt-1">Daily usage matrix • Filter by vehicle, driver, or date</p>
+        </div>
+        <Activity className="w-16 h-16 text-blue-400" />
+      </div>
+
+      <ExcelStyleTable
+        data={utilizationData}
+        columns={columns}
+        searchPlaceholder="Search utilization records..."
+        exportFilename="utilization-data"
+        pageSize={25}
+        height="calc(100vh - 280px)"
+      />
+    </div>
+  )
+}
+
+// ============================================================================
 // COMPLIANCE DRILLDOWN
 // ============================================================================
 
