@@ -104,7 +104,6 @@ export const EfficiencyMetricsChart = memo<EfficiencyMetricsChartProps>(({
     const renderTrendChart = () => (
         <ComposedChart
             data={data}
-            onClick={onDataPointClick}
             margin={{ top: 10, right: 30, left: 0, bottom: 0 }}
         >
             <CartesianGrid strokeDasharray="3 3" stroke="#334155" opacity={0.3} />

@@ -19,7 +19,7 @@ import {
     ResponsiveContainer,
     ComposedChart,
 } from 'recharts'
-import { TrendDown, TrendUp, DollarSign } from '@phosphor-icons/react'
+import { TrendDown, TrendUp, CurrencyDollar } from '@phosphor-icons/react'
 
 export interface CostDataPoint {
     date: string
@@ -106,11 +106,6 @@ export const CostAnalyticsChart = memo<CostAnalyticsChartProps>(({
     }
 
     const renderChart = () => {
-        const commonProps = {
-            data,
-            onClick: onDataPointClick,
-        }
-
         const chartConfig = {
             margin: { top: 10, right: 30, left: 0, bottom: 0 },
         }
@@ -118,7 +113,7 @@ export const CostAnalyticsChart = memo<CostAnalyticsChartProps>(({
         switch (type) {
             case 'line':
                 return (
-                    <LineChart {...commonProps} {...chartConfig}>
+                    <LineChart data={data} {...chartConfig}>
                         <CartesianGrid strokeDasharray="3 3" stroke="#334155" opacity={0.3} />
                         <XAxis dataKey="date" stroke="#94a3b8" fontSize={12} />
                         <YAxis stroke="#94a3b8" fontSize={12} tickFormatter={formatCurrency} />
@@ -173,7 +168,7 @@ export const CostAnalyticsChart = memo<CostAnalyticsChartProps>(({
 
             case 'area':
                 return (
-                    <AreaChart {...commonProps} {...chartConfig}>
+                    <AreaChart data={data} {...chartConfig}>
                         <CartesianGrid strokeDasharray="3 3" stroke="#334155" opacity={0.3} />
                         <XAxis dataKey="date" stroke="#94a3b8" fontSize={12} />
                         <YAxis stroke="#94a3b8" fontSize={12} tickFormatter={formatCurrency} />
@@ -220,7 +215,7 @@ export const CostAnalyticsChart = memo<CostAnalyticsChartProps>(({
 
             case 'bar':
                 return (
-                    <BarChart {...commonProps} {...chartConfig}>
+                    <BarChart data={data} {...chartConfig}>
                         <CartesianGrid strokeDasharray="3 3" stroke="#334155" opacity={0.3} />
                         <XAxis dataKey="date" stroke="#94a3b8" fontSize={12} />
                         <YAxis stroke="#94a3b8" fontSize={12} tickFormatter={formatCurrency} />
@@ -236,7 +231,7 @@ export const CostAnalyticsChart = memo<CostAnalyticsChartProps>(({
             case 'composed':
             default:
                 return (
-                    <ComposedChart {...commonProps} {...chartConfig}>
+                    <ComposedChart data={data} {...chartConfig}>
                         <CartesianGrid strokeDasharray="3 3" stroke="#334155" opacity={0.3} />
                         <XAxis dataKey="date" stroke="#94a3b8" fontSize={12} />
                         <YAxis stroke="#94a3b8" fontSize={12} tickFormatter={formatCurrency} />
@@ -284,7 +279,7 @@ export const CostAnalyticsChart = memo<CostAnalyticsChartProps>(({
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                     <div className="bg-slate-800/40 rounded-lg p-4">
                         <div className="flex items-center gap-2 text-slate-400 text-sm mb-1">
-                            <DollarSign className="w-4 h-4" />
+                            <CurrencyDollar className="w-4 h-4" />
                             <span>Total Cost</span>
                         </div>
                         <p className="text-2xl font-bold text-white">
