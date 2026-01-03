@@ -135,12 +135,24 @@ router.patch('/events/:eventId',csrfProtection, authenticateJWT, async (req: Req
     }
 
     const updates: any = {}
-    if (subject) updates.subject = subject
-    if (start) updates.start = new Date(start)
-    if (end) updates.end = new Date(end)
-    if (attendees) updates.attendees = attendees
-    if (location) updates.location = location
-    if (body) updates.body = body
+    if (subject) {
+updates.subject = subject
+}
+    if (start) {
+updates.start = new Date(start)
+}
+    if (end) {
+updates.end = new Date(end)
+}
+    if (attendees) {
+updates.attendees = attendees
+}
+    if (location) {
+updates.location = location
+}
+    if (body) {
+updates.body = body
+}
 
     const event = await updateEvent(userId, eventId, updates)
 
@@ -277,9 +289,15 @@ router.post('/find-times',csrfProtection, authenticateJWT, async (req: Request, 
     }
 
     const timeConstraints: any = {}
-    if (startTime) timeConstraints.startTime = new Date(startTime)
-    if (endTime) timeConstraints.endTime = new Date(endTime)
-    if (maxCandidates) timeConstraints.maxCandidates = maxCandidates
+    if (startTime) {
+timeConstraints.startTime = new Date(startTime)
+}
+    if (endTime) {
+timeConstraints.endTime = new Date(endTime)
+}
+    if (maxCandidates) {
+timeConstraints.maxCandidates = maxCandidates
+}
 
     const suggestions = await findMeetingTimes(
       organizerEmail,

@@ -72,6 +72,7 @@ export function CommandCenterLayout({ children }: CommandCenterLayoutProps): JSX
                             e.stopPropagation();
                             setMobileMenuOpen(false);
                         }}
+                        aria-label="Close mobile menu"
                     >
                         <X className="w-5 h-5" />
                     </Button>
@@ -79,7 +80,7 @@ export function CommandCenterLayout({ children }: CommandCenterLayoutProps): JSX
             </div>
 
             {/* MAIN CONTENT AREA */}
-            <main className="flex-1 flex flex-col relative z-10 overflow-hidden bg-background">
+            <main id="main-content" className="flex-1 flex flex-col relative z-10 overflow-hidden bg-background">
                 {/* Header with mobile menu button */}
                 <div className="relative">
                     {isMobile && (
@@ -91,6 +92,7 @@ export function CommandCenterLayout({ children }: CommandCenterLayoutProps): JSX
                                 e.stopPropagation();
                                 setMobileMenuOpen(true);
                             }}
+                            aria-label="Open mobile menu"
                         >
                             <Menu className="w-5 h-5" />
                         </Button>

@@ -143,7 +143,9 @@ export class VehicleEmulator {
 
   update(id: number, data: Partial<EmulatedVehicle>): EmulatedVehicle | null {
     const vehicle = this.vehicles.get(id)
-    if (!vehicle) return null
+    if (!vehicle) {
+return null
+}
 
     const updated = { ...vehicle, ...data, id }
     this.vehicles.set(id, updated)

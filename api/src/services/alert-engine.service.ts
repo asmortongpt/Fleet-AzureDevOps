@@ -209,7 +209,9 @@ export class AlertEngineService {
 
       const emails = result.rows.map(r => r.email)
 
-      if (emails.length === 0) return
+      if (emails.length === 0) {
+return
+}
 
       const severityColor = {
         info: '#3B82F6',
@@ -411,7 +413,9 @@ export class AlertEngineService {
   private generateAlertLink(alert: any): string {
     const baseUrl = process.env.FRONTEND_URL || 'http://localhost:5173'
 
-    if (!alert.entity_type) return baseUrl
+    if (!alert.entity_type) {
+return baseUrl
+}
 
     const moduleMap: Record<string, string> = {
       vehicle: 'gps-tracking',

@@ -230,10 +230,15 @@ export async function createDriverPerformanceCard(driver: any, metrics: any): Pr
 
   // Determine score color based on safety score
   let scoreColor = 'default'
-  if (metrics.safetyScore >= 90) scoreColor = 'good'
-  else if (metrics.safetyScore >= 75) scoreColor = 'accent'
-  else if (metrics.safetyScore >= 60) scoreColor = 'warning'
-  else scoreColor = `attention`
+  if (metrics.safetyScore >= 90) {
+scoreColor = 'good'
+} else if (metrics.safetyScore >= 75) {
+scoreColor = 'accent'
+} else if (metrics.safetyScore >= 60) {
+scoreColor = 'warning'
+} else {
+scoreColor = `attention`
+}
 
   // Calculate trend
   const trend = metrics.safetyScore - (metrics.previousScore || metrics.safetyScore)

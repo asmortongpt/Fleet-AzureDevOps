@@ -80,7 +80,9 @@ export class InspectionRepository extends BaseRepository<any> {
       .map((key, index) => `${key} = $${index + 3}`)
       .join(', ');
 
-    if (!setClause) return null;
+    if (!setClause) {
+return null;
+}
 
     const query = `UPDATE inspections SET ${setClause}, updated_at = NOW() WHERE id = $1 AND tenant_id = $2 RETURNING *`;
     const values = [id, tenantId, ...Object.values(data)];

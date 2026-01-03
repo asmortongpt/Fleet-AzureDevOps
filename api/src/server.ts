@@ -1,9 +1,3 @@
-console.log('--- SERVER STARTING DEBUG ---')
-// Initialize Datadog APM FIRST (must be before ALL other imports)
-// DISABLED: Datadog APM initialization disabled for now
-// TODO: Re-enable when dd-trace package is properly installed
-console.log('Datadog APM disabled')
-
 // Initialize monitoring services FIRST (before other imports)
 import cors from 'cors'
 import express from 'express'
@@ -17,7 +11,6 @@ import { getCorsConfig, validateCorsConfiguration } from './middleware/corsConfi
 import { errorHandler } from './middleware/errorHandler'
 import { initializeProcessErrorHandlers } from './middleware/processErrorHandlers'
 import telemetryService from './monitoring/applicationInsights'
-telemetryService.initialize()
 
 import { sentryService } from './monitoring/sentry'
 import {
@@ -26,11 +19,6 @@ import {
   sentryErrorHandler,
   notFoundHandler
 } from './middleware/sentryErrorHandler'
-
-// ARCHITECTURE FIX: Import new error handling infrastructure
-
-// Initialize Sentry
-sentryService.init()
 
 
 // Security middleware
@@ -185,6 +173,18 @@ import { telemetryMiddleware, errorTelemetryMiddleware, performanceMiddleware } 
 
 // Job Processing Infrastructure
 import logger from './utils/logger'
+
+console.log('--- SERVER STARTING DEBUG ---')
+// Initialize Datadog APM FIRST (must be before ALL other imports)
+// DISABLED: Datadog APM initialization disabled for now
+// TODO: Re-enable when dd-trace package is properly installed
+console.log('Datadog APM disabled')
+telemetryService.initialize()
+
+// ARCHITECTURE FIX: Import new error handling infrastructure
+
+// Initialize Sentry
+sentryService.init()
 
 console.log('--- IMPORTS COMPLETED, CREATING APP ---');
 const app = express()

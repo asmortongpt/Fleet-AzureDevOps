@@ -122,7 +122,9 @@ export async function generateDemoData(options: DemoDataOptions = {}): Promise<v
     console.log(`  • ${count} Outlook emails`);
     console.log(`  • ${Math.floor(count / 5)} Calendar events`);
     console.log(`  • ${count} Communication logs`);
-    if (webhooks) console.log(`  • ${Math.floor(count / 10)} Webhook events`);
+    if (webhooks) {
+console.log(`  • ${Math.floor(count / 10)} Webhook events`);
+}
 
   } catch (error) {
     console.error(`❌ Error generating demo data:`, error);

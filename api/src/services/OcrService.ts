@@ -42,8 +42,7 @@ async function loadOptionalProviders() {
   try {
     const visionModule = await import('@google-cloud/vision');
     vision = visionModule.default;
-  }
-  catch (err) {
+  } catch (err) {
     console.warn('Google Cloud Vision not available - install @google-cloud/vision for premium OCR');
   }
 
@@ -52,8 +51,7 @@ async function loadOptionalProviders() {
     TextractClient = textractModule.TextractClient;
     AnalyzeDocumentCommand = textractModule.AnalyzeDocumentCommand;
     DetectDocumentTextCommand = textractModule.DetectDocumentTextCommand;
-  }
-  catch (err) {
+  } catch (err) {
     console.warn('AWS Textract not available - install @aws-sdk/client-textract for premium OCR');
   }
 
@@ -62,8 +60,7 @@ async function loadOptionalProviders() {
     const msRestModule = await import('@azure/ms-rest-js');
     ComputerVisionClient = azureModule.ComputerVisionClient;
     ApiKeyCredentials = msRestModule.ApiKeyCredentials;
-  }
-  catch (err) {
+  } catch (err) {
     console.warn('Azure Computer Vision not available - install @azure/cognitiveservices-computervision for premium OCR');
   }
 
@@ -71,24 +68,21 @@ async function loadOptionalProviders() {
   try {
     const pdfParseModule = await import('pdf-parse');
     pdfParse = pdfParseModule.default;
-  }
-  catch (err) {
+  } catch (err) {
     console.warn('pdf-parse not available - install pdf-parse for PDF document OCR');
   }
 
   try {
     const mammothModule = await import('mammoth');
     mammoth = mammothModule.default;
-  }
-  catch (err) {
+  } catch (err) {
     console.warn('mammoth not available - install mammoth for DOCX document OCR');
   }
 
   try {
     const excelModule = await import('exceljs');
     ExcelJS = excelModule;
-  }
-  catch (err) {
+  } catch (err) {
     console.warn('exceljs not available - install exceljs for Excel spreadsheet OCR');
   }
 
@@ -234,7 +228,9 @@ export class OcrService {
    * Initialize OCR provider clients (called lazily on first use)
    */
   private initializeProviders(): void {
-    if (this.initialized) return;
+    if (this.initialized) {
+return;
+}
     try {
       // Initialize Google Cloud Vision
       if (process.env.GOOGLE_CLOUD_PROJECT && process.env.GOOGLE_APPLICATION_CREDENTIALS) {
@@ -269,8 +265,7 @@ export class OcrService {
 
       // Tesseract is always available (no initialization needed)
       console.log('✅ Tesseract.js available');
-    }
-    catch (error) {
+    } catch (error) {
       console.error('Error initializing OCR providers:', error);
     }
 
@@ -331,8 +326,7 @@ export class OcrService {
       await this.saveOcrResult(result);
 
       return result;
-    }
-    catch (error) {
+    } catch (error) {
       console.error('OCR processing error:', error);
       throw error;
     }
@@ -354,8 +348,7 @@ export class OcrService {
     let pdfData;
     try {
       pdfData = await pdfParse(fileBuffer);
-    }
-    catch (error) {
+    } catch (error) {
       console.error('PDF parse error:', error);
     }
 
@@ -363,8 +356,7 @@ export class OcrService {
     if (pdfData && pdfData.text && pdfData.text.trim().length > 50) {
       // PDF has extractable text
       return this.createResultFromPDFText(documentId, pdfData, stats.size);
-    }
-    else {
+    } else {
       // PDF needs OCR (scanned document)
       // Convert PDF to images and process with OCR
       // For now, use the selected provider for OCR
@@ -816,7 +808,7 @@ export class OcrService {
     let result;
     let retries = 0;
     while (retries < 30) {
-      result = await this.azureVisionClient.getReadResult(operationId!);
+      result = await this.azureVisionClient.getReadResult(operationId);
       if (result.status === 'succeeded') {
         break;
       }
@@ -914,17 +906,25 @@ export class OcrService {
     // Auto-select based on requirements
     if (options.detectTables || options.detectForms) {
       // AWS Textract is best for tables and forms
-      if (this.textractClient) return OcrProvider.AWS_TEXTRACT;
+      if (this.textractClient) {
+return OcrProvider.AWS_TEXTRACT;
+}
     }
 
     if (options.detectHandwriting) {
       // Azure or AWS are best for handwriting
-      if (this.azureVisionClient) return OcrProvider.AZURE_VISION;
-      if (this.textractClient) return OcrProvider.AWS_TEXTRACT;
+      if (this.azureVisionClient) {
+return OcrProvider.AZURE_VISION;
+}
+      if (this.textractClient) {
+return OcrProvider.AWS_TEXTRACT;
+}
     }
 
     // For general OCR, prefer Google Vision if available
-    if (this.googleVisionClient) return OcrProvider.GOOGLE_VISION;
+    if (this.googleVisionClient) {
+return OcrProvider.GOOGLE_VISION;
+}
 
     // Default to Tesseract (always available, free)
     return OcrProvider.TESSERACT;
@@ -1067,8 +1067,7 @@ export class OcrService {
           JSON.stringify(result.metadata)
         ]
       );
-    }
-    catch (error) {
+    } catch (error) {
       console.error('Error saving OCR result:', error);
       throw error;
     }
@@ -1106,8 +1105,7 @@ export class OcrService {
         processingTime: row.processing_time,
         metadata: JSON.parse(row.metadata)
       };
-    }
-    catch (error) {
+    } catch (error) {
       console.error('Error getting OCR result:', error);
       throw error;
     }
@@ -1138,8 +1136,7 @@ export class OcrService {
       );
 
       return result.rows;
-    }
-    catch (error) {
+    } catch (error) {
       console.error('Error searching OCR results:', error);
       throw error;
     }
@@ -1147,7 +1144,7 @@ export class OcrService {
 
 
   // Export function to get singleton instance (lazy initialization)
-  ;
+  
 
 
 

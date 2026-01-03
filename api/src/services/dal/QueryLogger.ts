@@ -36,7 +36,9 @@ export class QueryLogger {
    * Log a query execution
    */
   logQuery(query: string, params?: any[]): void {
-    if (!this.enabled) return
+    if (!this.enabled) {
+return
+}
 
     const log: QueryLog = {
       query: this.sanitizeQuery(query),
@@ -60,7 +62,9 @@ export class QueryLogger {
    * Log a successful query execution
    */
   logSuccess(query: string, params: any[] | undefined, duration: number, rowCount: number): void {
-    if (!this.enabled) return
+    if (!this.enabled) {
+return
+}
 
     const log: QueryLog = {
       query: this.sanitizeQuery(query),
@@ -141,7 +145,9 @@ export class QueryLogger {
    * Sanitize params for logging (hide sensitive data)
    */
   private sanitizeParams(params?: any[]): any[] | undefined {
-    if (!params) return undefined
+    if (!params) {
+return undefined
+}
 
     return params.map(param => {
       if (typeof param === `string`) {

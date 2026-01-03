@@ -50,7 +50,9 @@ export class OBD2Emulator extends EventEmitter {
    * Start OBD-II emulation
    */
   public async start(): Promise<void> {
-    if (this.isRunning) return
+    if (this.isRunning) {
+return
+}
 
     this.isRunning = true
     this.isPaused = false
@@ -70,7 +72,9 @@ export class OBD2Emulator extends EventEmitter {
    * Stop OBD-II emulation
    */
   public async stop(): Promise<void> {
-    if (!this.isRunning) return
+    if (!this.isRunning) {
+return
+}
 
     if (this.updateInterval) {
       clearInterval(this.updateInterval)

@@ -417,7 +417,7 @@ router.post(
 
       if (validatedData.type === `fuel-receipt`) {
         try {
-          FuelReceiptOCRSchema.shape.ocrData!.parse(validatedData.data);
+          FuelReceiptOCRSchema.shape.ocrData.parse(validatedData.data);
           validationResult = {
             valid: true,
             data: validatedData.data,
@@ -446,7 +446,7 @@ router.post(
         }
       } else if (validatedData.type === `odometer`) {
         try {
-          OdometerOCRSchema.shape.ocrData!.parse(validatedData.data);
+          OdometerOCRSchema.shape.ocrData.parse(validatedData.data);
           validationResult = {
             valid: true,
             data: validatedData.data,

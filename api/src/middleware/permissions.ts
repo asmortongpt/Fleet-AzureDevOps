@@ -213,13 +213,21 @@ export async function validateResourceScope(
     // Check resource-specific scope
     switch (resourceType) {
       case 'vehicle':
-        if (user.scope_level === 'own' && user.vehicle_id === resourceId) return true
-        if (user.scope_level === 'team' && user.team_vehicle_ids && user.team_vehicle_ids.includes(resourceId)) return true
+        if (user.scope_level === 'own' && user.vehicle_id === resourceId) {
+return true
+}
+        if (user.scope_level === 'team' && user.team_vehicle_ids && user.team_vehicle_ids.includes(resourceId)) {
+return true
+}
         break
 
       case 'driver':
-        if (user.scope_level === 'own' && user.driver_id === resourceId) return true
-        if (user.scope_level === 'team' && user.team_driver_ids && user.team_driver_ids.includes(resourceId)) return true
+        if (user.scope_level === 'own' && user.driver_id === resourceId) {
+return true
+}
+        if (user.scope_level === 'team' && user.team_driver_ids && user.team_driver_ids.includes(resourceId)) {
+return true
+}
         break
 
       case 'work_order':
@@ -231,10 +239,14 @@ export async function validateResourceScope(
           const { facility_id, assigned_technician_id } = woResult.rows[0]
 
           // Own scope: can only see work orders assigned to them
-          if (user.scope_level === 'own' && assigned_technician_id === userId) return true
+          if (user.scope_level === 'own' && assigned_technician_id === userId) {
+return true
+}
 
           // Team scope: can see work orders in their facilities
-          if (user.scope_level === 'team' && user.facility_ids && facility_id && user.facility_ids.includes(facility_id)) return true
+          if (user.scope_level === 'team' && user.facility_ids && facility_id && user.facility_ids.includes(facility_id)) {
+return true
+}
         }
         break
 
@@ -247,10 +259,14 @@ export async function validateResourceScope(
           const driverId = routeResult.rows[0].driver_id
 
           // Own scope: can only see their own routes
-          if (user.scope_level === 'own' && user.driver_id === driverId) return true
+          if (user.scope_level === 'own' && user.driver_id === driverId) {
+return true
+}
 
           // Team scope: can see routes for drivers in their team
-          if (user.scope_level === 'team' && user.team_driver_ids && user.team_driver_ids.includes(driverId)) return true
+          if (user.scope_level === 'team' && user.team_driver_ids && user.team_driver_ids.includes(driverId)) {
+return true
+}
         }
         break
 
@@ -263,10 +279,14 @@ export async function validateResourceScope(
           const uploadedBy = docResult.rows[0].uploaded_by
 
           // Own scope: can only see documents they uploaded
-          if (user.scope_level === 'own' && uploadedBy === userId) return true
+          if (user.scope_level === 'own' && uploadedBy === userId) {
+return true
+}
 
           // Team scope: can see all documents in their tenant (documents don't have facility association)
-          if (user.scope_level === 'team') return true
+          if (user.scope_level === 'team') {
+return true
+}
         }
         break
 
@@ -279,10 +299,14 @@ export async function validateResourceScope(
           const driverId = fuelResult.rows[0].driver_id
 
           // Own scope: can only see their own fuel transactions
-          if (user.scope_level === 'own' && user.driver_id === driverId) return true
+          if (user.scope_level === 'own' && user.driver_id === driverId) {
+return true
+}
 
           // Team scope: can see fuel transactions for drivers in their team
-          if (user.scope_level === 'team' && user.team_driver_ids && user.team_driver_ids.includes(driverId)) return true
+          if (user.scope_level === 'team' && user.team_driver_ids && user.team_driver_ids.includes(driverId)) {
+return true
+}
         }
         break
     }
@@ -358,10 +382,13 @@ export function preventSelfApproval(createdByField: string = 'created_by') {
 
       // Determine table based on URL path
       let table: SelfApprovalTable | '' = ''
-      if (req.path.includes('work-orders')) table = 'work_orders'
-      else if (req.path.includes('purchase-orders')) table = 'purchase_orders'
-      else if (req.path.includes('safety-incidents')) table = `safety_incidents`
-      else {
+      if (req.path.includes('work-orders')) {
+table = 'work_orders'
+} else if (req.path.includes('purchase-orders')) {
+table = 'purchase_orders'
+} else if (req.path.includes('safety-incidents')) {
+table = `safety_incidents`
+} else {
         return next() // Skip check if table not recognized
       }
 

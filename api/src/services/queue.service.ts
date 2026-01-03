@@ -106,7 +106,9 @@ class QueueService {
    * Set up event handlers for job lifecycle
    */
   private setupEventHandlers(): void {
-    if (!this.boss) return;
+    if (!this.boss) {
+return;
+}
 
     this.boss.on('error', (error: any) => {
       console.error('❌ Queue error:', error);
@@ -471,9 +473,15 @@ class QueueService {
    * Get rate limiter key for queue
    */
   private getRateLimiterKey(queueName: string): string {
-    if (queueName.includes('teams')) return 'teams';
-    if (queueName.includes('outlook')) return 'outlook';
-    if (queueName.includes('attachment')) return 'attachments';
+    if (queueName.includes('teams')) {
+return 'teams';
+}
+    if (queueName.includes('outlook')) {
+return 'outlook';
+}
+    if (queueName.includes('attachment')) {
+return 'attachments';
+}
     return 'default';
   }
 

@@ -16,7 +16,9 @@ let StdioClientTransport: any = null
 
 // Lazy load MCP SDK
 async function loadMcpSdk() {
-  if (Client && StdioClientTransport) return true
+  if (Client && StdioClientTransport) {
+return true
+}
 
   try {
     const clientModule = await import('@modelcontextprotocol/sdk/client/index.js')

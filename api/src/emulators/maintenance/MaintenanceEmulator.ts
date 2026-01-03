@@ -25,7 +25,9 @@ export class MaintenanceEmulator extends EventEmitter {
   }
 
   public async start(): Promise<void> {
-    if (this.isRunning) return this.isRunning = true
+    if (this.isRunning) {
+return this.isRunning = true
+}
     this.isPaused = false
 
     this.updateInterval = setInterval(() => {
@@ -46,8 +48,12 @@ export class MaintenanceEmulator extends EventEmitter {
     console.log(`Maintenance Emulator stopped for vehicle ${this.vehicle.id}`)
   }
 
-  public async pause(): Promise<void> { this.isPaused = true }
-  public async resume(): Promise<void> { this.isPaused = false }
+  public async pause(): Promise<void> {
+ this.isPaused = true 
+}
+  public async resume(): Promise<void> {
+ this.isPaused = false 
+}
 
   public updateOdometer(miles: number): void {
     this.odometer = miles

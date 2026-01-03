@@ -21,10 +21,10 @@ import { csrfProtection } from '../middleware/csrf'
 import { requirePermission } from '../middleware/permissions';
 import { getErrorMessage } from '../utils/error-handler'
 
+import { pool } from '../db';
+
 
 const router = express.Router();
-
-import { pool } from '../db';
 // let pool: Pool;
 // export function setDatabasePool(dbPool: Pool) {
 //   pool = dbPool;

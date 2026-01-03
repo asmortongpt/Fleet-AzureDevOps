@@ -316,7 +316,9 @@ export abstract class GenericRepository<T extends { id?: string | number }> {
 
       return result.rows[0]
     } catch (error) {
-      if (error instanceof NotFoundError) throw error
+      if (error instanceof NotFoundError) {
+throw error
+}
       throw new DatabaseError(`Failed to update ${this.tableName}`, {
         id,
         data,
@@ -364,7 +366,9 @@ export abstract class GenericRepository<T extends { id?: string | number }> {
         return true
       }
     } catch (error) {
-      if (error instanceof NotFoundError) throw error
+      if (error instanceof NotFoundError) {
+throw error
+}
       throw new DatabaseError(`Failed to delete ${this.tableName}`, {
         id,
         tenantId,

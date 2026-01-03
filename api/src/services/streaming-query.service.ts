@@ -19,7 +19,9 @@ export class StreamingQueryService {
     query: string | QueryConfig,
     options: StreamingOptions = {}
   ): Promise<Readable> {
-    return new Readable({ read() { this.push(null); } });
+    return new Readable({ read() {
+ this.push(null); 
+} });
   }
 
   async streamToJSONArray(

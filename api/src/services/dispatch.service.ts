@@ -89,7 +89,9 @@ export default class DispatchService {
    * Initialize Azure services for dispatch system (called lazily)
    */
   private initializeAzureServices() {
-    if (this.initialized) return
+    if (this.initialized) {
+return
+}
 
     try {
       // Azure Blob Storage for audio archival
@@ -572,12 +574,16 @@ export default class DispatchService {
    */
   private broadcastToChannel(channelId: number, message: any, excludeConnectionId?: string) {
     const listeners = this.channelListeners.get(channelId)
-    if (!listeners) return
+    if (!listeners) {
+return
+}
 
     const messageStr = JSON.stringify(message)
 
     listeners.forEach(connectionId => {
-      if (connectionId === excludeConnectionId) return
+      if (connectionId === excludeConnectionId) {
+return
+}
 
       const ws = this.activeConnections.get(connectionId)
       if (ws && ws.readyState === WebSocket.OPEN) {

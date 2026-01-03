@@ -2,6 +2,7 @@ import { Router } from "express"
 
 import { csrfProtection } from '../middleware/csrf'
 import { asyncHandler } from '../middleware/errorHandler'
+
 const router = Router()
 
 router.get("/", asyncHandler(async (req, res) => {

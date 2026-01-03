@@ -53,7 +53,9 @@ export function getMetrics(): RequestMetrics[] {
 }
 
 export function getAverageResponseTime(): number {
-  if (metrics.length === 0) return 0;
+  if (metrics.length === 0) {
+return 0;
+}
   const sum = metrics.reduce((acc, m) => acc + m.duration, 0);
   return sum / metrics.length;
 }

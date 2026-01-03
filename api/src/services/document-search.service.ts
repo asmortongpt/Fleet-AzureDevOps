@@ -114,7 +114,7 @@ export class DocumentSearchService {
         documents: result.rows,
         total,
         query,
-        filters: filters || { tenantId: filters!.tenantId },
+        filters: filters || { tenantId: filters.tenantId },
         execution_time_ms: executionTime
       }
     } catch (error) {
@@ -220,7 +220,8 @@ export class DocumentSearchService {
    */
   async batchIndexDocuments(documentIds: string[]): Promise<void> {
     if (!documentIds || documentIds.length === 0) {
-      return }
+      return 
+}
 
     const client = await this.db.connect()
 

@@ -507,7 +507,9 @@ export class AnalyticsService {
   // ========== Helper Methods ==========
 
   private buildDateFilter(startDate?: Date, endDate?: Date): string {
-    if (!startDate && !endDate) return ''
+    if (!startDate && !endDate) {
+return ''
+}
 
     const filters: string[] = []
 
