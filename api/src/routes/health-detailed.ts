@@ -435,15 +435,22 @@ router.get(`/`, requireAdmin, async (req: Request, res: Response) => {
     };
 
     Object.values(components).forEach(component => {
-      if (component.status === 'healthy') summary.healthy++;
-      else if (component.status === 'degraded') summary.degraded++;
-      else if (component.status === 'critical') summary.critical++;
+      if (component.status === 'healthy') {
+summary.healthy++;
+} else if (component.status === 'degraded') {
+summary.degraded++;
+} else if (component.status === 'critical') {
+summary.critical++;
+}
     });
 
     // Determine overall status
     let overallStatus: 'healthy' | 'degraded' | 'critical' = 'healthy';
-    if (summary.critical > 0) overallStatus = 'critical';
-    else if (summary.degraded > 0) overallStatus = 'degraded';
+    if (summary.critical > 0) {
+overallStatus = 'critical';
+} else if (summary.degraded > 0) {
+overallStatus = 'degraded';
+}
 
     const response: SystemHealth = {
       status: overallStatus,

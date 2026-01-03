@@ -453,9 +453,15 @@ router.get(
         offset: parseInt(offset as string),
       };
 
-      if (status) filters.status = status;
-      if (startDate) filters.startDate = new Date(startDate as string);
-      if (endDate) filters.endDate = new Date(endDate as string);
+      if (status) {
+filters.status = status;
+}
+      if (startDate) {
+filters.startDate = new Date(startDate as string);
+}
+      if (endDate) {
+filters.endDate = new Date(endDate as string);
+}
 
       const history = await smsService.getSMSHistory(req.user.tenantId, filters);
 

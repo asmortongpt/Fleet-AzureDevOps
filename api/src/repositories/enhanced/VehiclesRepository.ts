@@ -420,7 +420,9 @@ export class VehiclesRepository extends GenericRepository<Vehicle> {
     tenantId: string,
     userId: string
   ): Promise<number> {
-    if (vehicleIds.length === 0) return 0
+    if (vehicleIds.length === 0) {
+return 0
+}
 
     // Create placeholders for vehicle IDs
     const placeholders = vehicleIds.map((_, i) => `$${i + 3}`).join(', ')

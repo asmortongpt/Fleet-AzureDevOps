@@ -141,12 +141,24 @@ function generateReport(report: MigrationReport): string {
   const top20 = report.routes.slice(0, 20);
   top20.forEach((route) => {
     const patterns = [];
-    if (route.hasCRUDPattern) patterns.push('CRUD');
-    if (route.hasAuthentication) patterns.push('Auth');
-    if (route.hasValidation) patterns.push('Valid');
-    if (route.hasCaching) patterns.push('Cache');
-    if (route.hasPagination) patterns.push('Page');
-    if (route.hasFiltering) patterns.push('Filter');
+    if (route.hasCRUDPattern) {
+patterns.push('CRUD');
+}
+    if (route.hasAuthentication) {
+patterns.push('Auth');
+}
+    if (route.hasValidation) {
+patterns.push('Valid');
+}
+    if (route.hasCaching) {
+patterns.push('Cache');
+}
+    if (route.hasPagination) {
+patterns.push('Page');
+}
+    if (route.hasFiltering) {
+patterns.push('Filter');
+}
 
     output += `| ${route.fileName} | ${route.linesOfCode} | -${route.estimatedReduction} | ${patterns.join(', ')} |\n`;
   });

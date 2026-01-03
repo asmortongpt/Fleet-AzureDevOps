@@ -142,7 +142,9 @@ export class MobileIntegrationService {
       for (const inspection of request.data.inspections) {
         try {
           const conflict = await this.syncInspection(tenantId, userId, inspection)
-          if (conflict) conflicts.push(conflict)
+          if (conflict) {
+conflicts.push(conflict)
+}
         } catch (error: any) {
           console.error('Error syncing inspection:', error)
         }
@@ -154,7 +156,9 @@ export class MobileIntegrationService {
       for (const report of request.data.reports) {
         try {
           const conflict = await this.syncReport(tenantId, userId, report)
-          if (conflict) conflicts.push(conflict)
+          if (conflict) {
+conflicts.push(conflict)
+}
         } catch (error: any) {
           console.error('Error syncing report:', error)
         }

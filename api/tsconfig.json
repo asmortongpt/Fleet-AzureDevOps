@@ -23,12 +23,15 @@
     "emitDecoratorMetadata": true
   },
   "include": [
-    "src/**/*"
+    "src/**/*.ts",
+    "src/**/*.d.ts"
   ],
   "exclude": [
     "node_modules",
     "dist",
     "src/**/*.test.ts",
-    "src/**/__tests__/**"
+    "src/**/*.spec.ts",
+    "src/**/__tests__/**",
+    "src/tests/**"
   ]
 }

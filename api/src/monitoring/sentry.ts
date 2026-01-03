@@ -20,7 +20,9 @@ export interface SentryConfig {
  * Filter sensitive data from request objects
  */
 const filterSensitiveData = (data: any): any => {
-  if (!data) return data;
+  if (!data) {
+return data;
+}
 
   const sensitiveKeys = [
     'password', 'token', 'secret', 'api_key', 'apikey',
@@ -142,7 +144,7 @@ class SentryService implements SentryConfig {
 
           // Add additional context
           if (event.request) {
-            event.request = filterSensitiveData(event.request) as any;
+            event.request = filterSensitiveData(event.request);
           }
 
           // Add custom tags
@@ -262,7 +264,9 @@ class SentryService implements SentryConfig {
    * Set the current user context
    */
   setUser(userId: string, email?: string): void {
-    if (!this.initialized) return;
+    if (!this.initialized) {
+return;
+}
 
     Sentry.setUser({
       id: userId,
@@ -275,7 +279,9 @@ class SentryService implements SentryConfig {
    * Add a breadcrumb for tracking user actions
    */
   addBreadcrumb(message: string, category: string, data?: any): void {
-    if (!this.initialized) return;
+    if (!this.initialized) {
+return;
+}
 
     Sentry.addBreadcrumb({
       message,
@@ -290,7 +296,9 @@ class SentryService implements SentryConfig {
    * Start a new transaction for performance monitoring
    */
   startTransaction(name: string, op: string) {
-    if (!this.initialized) return null;
+    if (!this.initialized) {
+return null;
+}
 
     return Sentry.startTransaction({
       op,
@@ -303,7 +311,9 @@ class SentryService implements SentryConfig {
    * Create a span within a transaction
    */
   startSpan(transaction: any, description: string) {
-    if (!transaction) return null;
+    if (!transaction) {
+return null;
+}
 
     return transaction.startChild({
       op: 'function',
@@ -324,7 +334,9 @@ class SentryService implements SentryConfig {
    * Flush all pending events (useful for serverless)
    */
   async flush(timeout = 2000): Promise<boolean> {
-    if (!this.initialized) return true;
+    if (!this.initialized) {
+return true;
+}
 
     try {
       return await Sentry.flush(timeout);
@@ -338,7 +350,9 @@ class SentryService implements SentryConfig {
    * Close Sentry client
    */
   async close(timeout = 2000): Promise<boolean> {
-    if (!this.initialized) return true;
+    if (!this.initialized) {
+return true;
+}
 
     try {
       return await Sentry.close(timeout);

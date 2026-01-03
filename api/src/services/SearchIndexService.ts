@@ -621,7 +621,9 @@ export class SearchIndexService {
       // Sort by score and frequency
       return results
         .sort((a, b) => {
-          if (a.score !== b.score) return b.score - a.score
+          if (a.score !== b.score) {
+return b.score - a.score
+}
           return b.frequency - a.frequency
         })
         .slice(0, limit)

@@ -167,14 +167,18 @@ export class FuelPurchasingService {
     try {
       const stations = await this.getNearbyStations(tenantId, lat, lng, radiusMiles, fuelType)
 
-      if (stations.length === 0) return null
+      if (stations.length === 0) {
+return null
+}
 
       // Calculate average price
       const prices = stations
         .map(s => s.currentPrices?.[fuelType])
         .filter((p): p is number => p !== undefined)
 
-      if (prices.length === 0) return null
+      if (prices.length === 0) {
+return null
+}
 
       const avgPrice = prices.reduce((sum, p) => sum + p, 0) / prices.length
 
@@ -190,7 +194,9 @@ export class FuelPurchasingService {
         }
       }
 
-      if (!cheapestStation) return null
+      if (!cheapestStation) {
+return null
+}
 
       return {
         station: cheapestStation,
@@ -228,7 +234,9 @@ export class FuelPurchasingService {
 
       const stations = await this.getNearbyStations(tenantId, midLat, midLng, 50, fuelType)
 
-      if (stations.length === 0) return null
+      if (stations.length === 0) {
+return null
+}
 
       // Find best station considering price and route deviation
       let bestStation: FuelStation | null = null
@@ -241,7 +249,9 @@ export class FuelPurchasingService {
 
       for (const station of stations) {
         const price = station.currentPrices?.[fuelType]
-        if (!price) continue
+        if (!price) {
+continue
+}
 
         // Score based on price savings and distance
         const priceSavings = avgPrice - price
@@ -254,7 +264,9 @@ export class FuelPurchasingService {
         }
       }
 
-      if (!bestStation || !bestStation.currentPrices) return null
+      if (!bestStation || !bestStation.currentPrices) {
+return null
+}
 
       const stationPrice = bestStation.currentPrices[fuelType]
       const gallonsNeeded = tankCapacity * (1 - currentFuelLevel / 100)

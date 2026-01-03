@@ -73,8 +73,12 @@ export abstract class BaseRepository<T = any> {
     const limitClause = limit ? `LIMIT $${paramCount++}` : ``
     const offsetClause = offset ? `OFFSET $${paramCount}` : ``
 
-    if (limit) values.push(limit)
-    if (offset) values.push(offset)
+    if (limit) {
+values.push(limit)
+}
+    if (offset) {
+values.push(offset)
+}
 
     const query = `
       SELECT ${columnList} FROM ${this.tableName}

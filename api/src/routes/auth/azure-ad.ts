@@ -76,7 +76,9 @@ app.get(
 
 app.get('/api/auth/azure/logout', function (req: Request, res: Response) {
   req.logout((err) => {
-    if (err) { return next(err); }
+    if (err) {
+ return next(err); 
+}
     res.redirect('/');
   });
 });

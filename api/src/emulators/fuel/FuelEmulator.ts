@@ -23,7 +23,9 @@ export class FuelEmulator extends EventEmitter {
   }
 
   public async start(): Promise<void> {
-    if (this.isRunning) return this.isRunning = true
+    if (this.isRunning) {
+return this.isRunning = true
+}
     this.isPaused = false
 
     this.updateInterval = setInterval(() => {
@@ -44,8 +46,12 @@ export class FuelEmulator extends EventEmitter {
     console.log(`Fuel Emulator stopped for vehicle ${this.vehicle.id}`)
   }
 
-  public async pause(): Promise<void> { this.isPaused = true }
-  public async resume(): Promise<void> { this.isPaused = false }
+  public async pause(): Promise<void> {
+ this.isPaused = true 
+}
+  public async resume(): Promise<void> {
+ this.isPaused = false 
+}
 
   public updateFuelLevel(level: number): void {
     this.fuelLevel = level

@@ -12,9 +12,15 @@ export class FacilityService extends BaseService {
   }
 
   async validate(data: any): Promise<void> {
-    if (!data.name) throw new Error("Facility name is required");
-    if (!data.facility_type) throw new Error("Facility type is required");
-    if (!data.address) throw new Error("Address is required");
+    if (!data.name) {
+throw new Error("Facility name is required");
+}
+    if (!data.facility_type) {
+throw new Error("Facility type is required");
+}
+    if (!data.address) {
+throw new Error("Address is required");
+}
   }
 
   async getAllFacilities(tenantId: number): Promise<Facility[]> {

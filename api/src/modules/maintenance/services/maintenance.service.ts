@@ -12,8 +12,12 @@ export class MaintenanceService extends BaseService {
   }
 
   async validate(data: any): Promise<void> {
-    if (!data.vehicle_id) throw new Error("Vehicle ID is required");
-    if (!data.service_type) throw new Error("Service type is required");
+    if (!data.vehicle_id) {
+throw new Error("Vehicle ID is required");
+}
+    if (!data.service_type) {
+throw new Error("Service type is required");
+}
   }
 
   async getAllMaintenance(tenantId: number): Promise<MaintenanceRecord[]> {

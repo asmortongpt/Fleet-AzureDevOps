@@ -108,7 +108,9 @@ export class GoogleCloudStorageAdapter extends BaseStorageAdapter {
 
   async upload(key: string, data: Buffer | Readable, options?: UploadOptions): Promise<UploadResult> {
     this.ensureInitialized();
-    if (!this.bucket) throw new Error(`Bucket not initialized`);
+    if (!this.bucket) {
+throw new Error(`Bucket not initialized`);
+}
 
     const normalizedKey = this.normalizeKey(key);
     const file = this.bucket.file(normalizedKey);
@@ -188,7 +190,9 @@ export class GoogleCloudStorageAdapter extends BaseStorageAdapter {
 
   async download(key: string, options?: DownloadOptions): Promise<DownloadResult> {
     this.ensureInitialized();
-    if (!this.bucket) throw new Error('Bucket not initialized');
+    if (!this.bucket) {
+throw new Error('Bucket not initialized');
+}
 
     const normalizedKey = this.normalizeKey(key);
     const file = this.bucket.file(normalizedKey);
@@ -241,7 +245,9 @@ export class GoogleCloudStorageAdapter extends BaseStorageAdapter {
 
   async delete(key: string): Promise<void> {
     this.ensureInitialized();
-    if (!this.bucket) throw new Error('Bucket not initialized');
+    if (!this.bucket) {
+throw new Error('Bucket not initialized');
+}
 
     const normalizedKey = this.normalizeKey(key);
     const file = this.bucket.file(normalizedKey);
@@ -258,7 +264,9 @@ export class GoogleCloudStorageAdapter extends BaseStorageAdapter {
 
   async list(options?: ListOptions): Promise<ListResult> {
     this.ensureInitialized();
-    if (!this.bucket) throw new Error('Bucket not initialized');
+    if (!this.bucket) {
+throw new Error('Bucket not initialized');
+}
 
     const prefix = options?.prefix ? this.normalizeKey(options.prefix) : undefined;
 
@@ -300,7 +308,9 @@ export class GoogleCloudStorageAdapter extends BaseStorageAdapter {
 
   async copy(sourceKey: string, destinationKey: string, options?: CopyOptions): Promise<UploadResult> {
     this.ensureInitialized();
-    if (!this.bucket) throw new Error(`Bucket not initialized`);
+    if (!this.bucket) {
+throw new Error(`Bucket not initialized`);
+}
 
     const normalizedSource = this.normalizeKey(sourceKey);
     const normalizedDest = this.normalizeKey(destinationKey);
@@ -336,7 +346,9 @@ export class GoogleCloudStorageAdapter extends BaseStorageAdapter {
 
   async getMetadata(key: string): Promise<FileMetadata> {
     this.ensureInitialized();
-    if (!this.bucket) throw new Error('Bucket not initialized');
+    if (!this.bucket) {
+throw new Error('Bucket not initialized');
+}
 
     const normalizedKey = this.normalizeKey(key);
     const file = this.bucket.file(normalizedKey);
@@ -362,7 +374,9 @@ export class GoogleCloudStorageAdapter extends BaseStorageAdapter {
 
   async updateMetadata(key: string, metadata: Partial<FileMetadata>): Promise<void> {
     this.ensureInitialized();
-    if (!this.bucket) throw new Error('Bucket not initialized');
+    if (!this.bucket) {
+throw new Error('Bucket not initialized');
+}
 
     const normalizedKey = this.normalizeKey(key);
     const file = this.bucket.file(normalizedKey);
@@ -374,7 +388,9 @@ export class GoogleCloudStorageAdapter extends BaseStorageAdapter {
 
   async getUrl(key: string, options?: GetUrlOptions): Promise<string> {
     this.ensureInitialized();
-    if (!this.bucket) throw new Error('Bucket not initialized');
+    if (!this.bucket) {
+throw new Error('Bucket not initialized');
+}
 
     const normalizedKey = this.normalizeKey(key);
     const file = this.bucket.file(normalizedKey);
@@ -395,7 +411,9 @@ export class GoogleCloudStorageAdapter extends BaseStorageAdapter {
   }
 
   getPublicUrl(key: string): string {
-    if (!this.bucket) throw new Error('Bucket not initialized');
+    if (!this.bucket) {
+throw new Error('Bucket not initialized');
+}
     const normalizedKey = this.normalizeKey(key);
     const file = this.bucket.file(normalizedKey);
     return file.publicUrl();
@@ -403,7 +421,9 @@ export class GoogleCloudStorageAdapter extends BaseStorageAdapter {
 
   async getStats(): Promise<StorageStats> {
     this.ensureInitialized();
-    if (!this.bucket) throw new Error('Bucket not initialized');
+    if (!this.bucket) {
+throw new Error('Bucket not initialized');
+}
 
     let totalFiles = 0;
     let totalSize = 0;

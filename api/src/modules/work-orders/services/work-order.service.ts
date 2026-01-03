@@ -12,10 +12,18 @@ export class WorkOrderService extends BaseService {
   }
 
   async validate(data: any): Promise<void> {
-    if (!data.work_order_number) throw new Error("Work order number is required");
-    if (!data.vehicle_id) throw new Error("Vehicle ID is required");
-    if (!data.type) throw new Error("Work order type is required");
-    if (!data.description) throw new Error("Description is required");
+    if (!data.work_order_number) {
+throw new Error("Work order number is required");
+}
+    if (!data.vehicle_id) {
+throw new Error("Vehicle ID is required");
+}
+    if (!data.type) {
+throw new Error("Work order type is required");
+}
+    if (!data.description) {
+throw new Error("Description is required");
+}
 
     // Validate type enum
     const validTypes = ['preventive', 'corrective', 'inspection'];

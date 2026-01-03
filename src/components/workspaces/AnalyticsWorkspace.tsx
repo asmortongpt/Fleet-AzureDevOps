@@ -209,7 +209,7 @@ const DataAnalysis = ({ vehicles, _workOrders, _facilities }: { vehicles: Vehicl
                 <SelectItem value="ytd">Year to date</SelectItem>
               </SelectContent>
             </Select>
-            <Button variant="outline" size="icon">
+            <Button variant="outline" size="icon" aria-label="Refresh analytics data">
               <RefreshCw className="h-4 w-4" />
             </Button>
           </div>

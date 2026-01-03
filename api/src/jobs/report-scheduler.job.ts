@@ -57,7 +57,8 @@ async function runReportScheduler(): Promise<void> {
 
     if (dueSchedules.length === 0) {
       logger.info(`No reports due for execution`)
-      return }
+      return 
+}
 
     logger.info(`Found ${dueSchedules.length} reports due for execution`)
 
