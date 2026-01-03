@@ -35,9 +35,12 @@ import {
   OperationalStatus
 } from '@/types/asset.types'
 
+import { useDrilldown } from '@/contexts/DrilldownContext'
+
 // Lazy load components
 const Asset3DViewer = lazy(() => import('@/components/garage/Asset3DViewer'))
 import logger from '@/utils/logger';
+
 // ============================================================================
 // TYPES
 // ============================================================================
@@ -58,6 +61,7 @@ interface GarageVehicle {
   status?: OperationalStatus
   mileage?: number
   engineHours?: number
+  bayId?: string // Added for drilldowns
   // Health stats
   oilLife?: number
   brakeLife?: number
@@ -102,7 +106,8 @@ const DEMO_VEHICLES: GarageVehicle[] = [
     oilLife: 72,
     brakeLife: 65,
     tireHealth: 80,
-    batteryHealth: 95
+    batteryHealth: 95,
+    bayId: 'bay-1'
   },
   {
     id: 'demo-2',
@@ -122,7 +127,8 @@ const DEMO_VEHICLES: GarageVehicle[] = [
     oilLife: 100, // EV
     brakeLife: 90,
     tireHealth: 75,
-    batteryHealth: 98
+    batteryHealth: 98,
+    bayId: 'bay-2'
   },
   {
     id: 'demo-3',
@@ -142,7 +148,8 @@ const DEMO_VEHICLES: GarageVehicle[] = [
     oilLife: 45,
     brakeLife: 55,
     tireHealth: 60,
-    batteryHealth: 85
+    batteryHealth: 85,
+    bayId: 'bay-3'
   }
 ]
 
@@ -275,6 +282,7 @@ function Viewer3DFallback() {
 // ============================================================================
 
 export function VirtualGarage3D({ data: _data }: { data?: any }) {
+  const { push } = useDrilldown()
   // State
   const [selectedVehicle, setSelectedVehicle] = useState<GarageVehicle | null>(null)
   const [isTimelineOpen, setIsTimelineOpen] = useState(false)
@@ -405,8 +413,51 @@ export function VirtualGarage3D({ data: _data }: { data?: any }) {
       {/* Vehicle HUD (Left Panel) */}
       {vehicleStats && (
         <div className="absolute left-4 top-32 bottom-20 w-72 z-10">
-          <ScrollArea className="h-full">
-            <VehicleHUD stats={vehicleStats} />
+          <ScrollArea className="h-full pr-4">
+            <div className="space-y-4">
+              <VehicleHUD stats={vehicleStats} />
+
+              {/* Deep Drilldowns Integration */}
+              <div className="space-y-3 pt-4 border-t border-slate-700/50">
+                <h4 className="text-[10px] font-bold text-slate-500 uppercase tracking-[0.2em] px-1">Deep Intel</h4>
+                <div className="grid grid-cols-2 gap-2">
+                  <Button
+                    variant="outline"
+                    className="h-14 bg-slate-900/60 border-slate-700 hover:bg-slate-800 flex flex-col items-center justify-center gap-1 group"
+                    onClick={() => {
+                      if (selectedVehicle?.bayId) {
+                        push({
+                          id: `bay-${selectedVehicle.bayId}`,
+                          type: 'garage-bay',
+                          label: `Bay ${selectedVehicle.bayId.split('-')[1] || selectedVehicle.bayId}`,
+                          data: { bayId: selectedVehicle.bayId }
+                        })
+                      }
+                    }}
+                  >
+                    <ArrowsClockwise className="w-4 h-4 text-blue-400 group-hover:scale-110 transition-transform" />
+                    <span className="text-[10px] font-bold uppercase tracking-wider">Bay Intel</span>
+                  </Button>
+                  <Button
+                    variant="outline"
+                    className="h-14 bg-slate-900/60 border-slate-700 hover:bg-slate-800 flex flex-col items-center justify-center gap-1 group"
+                    onClick={() => {
+                      if (selectedVehicle?.id) {
+                        push({
+                          id: `vehicle-${selectedVehicle.id}`,
+                          type: 'vehicle',
+                          label: selectedVehicle.name,
+                          data: { vehicleId: selectedVehicle.id }
+                        })
+                      }
+                    }}
+                  >
+                    <Car className="w-4 h-4 text-purple-400 group-hover:scale-110 transition-transform" />
+                    <span className="text-[10px] font-bold uppercase tracking-wider">Asset Data</span>
+                  </Button>
+                </div>
+              </div>
+            </div>
           </ScrollArea>
         </div>
       )}
