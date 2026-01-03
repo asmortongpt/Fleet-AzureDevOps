@@ -69,13 +69,13 @@ CREATE TABLE IF NOT EXISTS vendor_parts_catalog (
     CONSTRAINT unique_vendor_part UNIQUE (vendor_id, part_number)
 );
 
-CREATE INDEX idx_vendor_parts_vendor ON vendor_parts_catalog(vendor_id);
-CREATE INDEX idx_vendor_parts_number ON vendor_parts_catalog(part_number);
-CREATE INDEX idx_vendor_parts_universal ON vendor_parts_catalog(universal_part_number) WHERE universal_part_number IS NOT NULL;
-CREATE INDEX idx_vendor_parts_manufacturer_number ON vendor_parts_catalog(manufacturer_part_number) WHERE manufacturer_part_number IS NOT NULL;
-CREATE INDEX idx_vendor_parts_category ON vendor_parts_catalog(part_category);
-CREATE INDEX idx_vendor_parts_in_stock ON vendor_parts_catalog(in_stock) WHERE in_stock = true;
-CREATE INDEX idx_vendor_parts_compatibility ON vendor_parts_catalog USING GIN (compatible_makes, compatible_models);
+CREATE INDEX IF NOT EXISTS idx_vendor_parts_vendor ON vendor_parts_catalog(vendor_id);
+CREATE INDEX IF NOT EXISTS idx_vendor_parts_number ON vendor_parts_catalog(part_number);
+CREATE INDEX IF NOT EXISTS idx_vendor_parts_universal ON vendor_parts_catalog(universal_part_number) WHERE universal_part_number IS NOT NULL;
+CREATE INDEX IF NOT EXISTS idx_vendor_parts_manufacturer_number ON vendor_parts_catalog(manufacturer_part_number) WHERE manufacturer_part_number IS NOT NULL;
+CREATE INDEX IF NOT EXISTS idx_vendor_parts_category ON vendor_parts_catalog(part_category);
+CREATE INDEX IF NOT EXISTS idx_vendor_parts_in_stock ON vendor_parts_catalog(in_stock) WHERE in_stock = true;
+CREATE INDEX IF NOT EXISTS idx_vendor_parts_compatibility ON vendor_parts_catalog USING GIN (compatible_makes, compatible_models);
 
 -- =======================
 -- PRICE QUOTES
@@ -108,10 +108,10 @@ CREATE TABLE IF NOT EXISTS parts_price_quotes (
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
-CREATE INDEX idx_price_quotes_tenant ON parts_price_quotes(tenant_id);
-CREATE INDEX idx_price_quotes_number ON parts_price_quotes(quote_number);
-CREATE INDEX idx_price_quotes_status ON parts_price_quotes(status);
-CREATE INDEX idx_price_quotes_vehicle ON parts_price_quotes(vehicle_id);
+CREATE INDEX IF NOT EXISTS idx_price_quotes_tenant ON parts_price_quotes(tenant_id);
+CREATE INDEX IF NOT EXISTS idx_price_quotes_number ON parts_price_quotes(quote_number);
+CREATE INDEX IF NOT EXISTS idx_price_quotes_status ON parts_price_quotes(status);
+CREATE INDEX IF NOT EXISTS idx_price_quotes_vehicle ON parts_price_quotes(vehicle_id);
 
 -- =======================
 -- VENDOR QUOTE RESPONSES
@@ -155,9 +155,9 @@ CREATE TABLE IF NOT EXISTS vendor_quote_responses (
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
-CREATE INDEX idx_vendor_responses_quote ON vendor_quote_responses(quote_request_id);
-CREATE INDEX idx_vendor_responses_vendor ON vendor_quote_responses(vendor_id);
-CREATE INDEX idx_vendor_responses_date ON vendor_quote_responses(response_date DESC);
+CREATE INDEX IF NOT EXISTS idx_vendor_responses_quote ON vendor_quote_responses(quote_request_id);
+CREATE INDEX IF NOT EXISTS idx_vendor_responses_vendor ON vendor_quote_responses(vendor_id);
+CREATE INDEX IF NOT EXISTS idx_vendor_responses_date ON vendor_quote_responses(response_date DESC);
 
 -- =======================
 -- VENDOR API CONFIGURATIONS
@@ -218,8 +218,8 @@ CREATE TABLE IF NOT EXISTS vendor_api_configs (
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
-CREATE INDEX idx_vendor_api_configs_vendor ON vendor_api_configs(vendor_id);
-CREATE INDEX idx_vendor_api_configs_active ON vendor_api_configs(is_active) WHERE is_active = true;
+CREATE INDEX IF NOT EXISTS idx_vendor_api_configs_vendor ON vendor_api_configs(vendor_id);
+CREATE INDEX IF NOT EXISTS idx_vendor_api_configs_active ON vendor_api_configs(is_active) WHERE is_active = true;
 
 -- =======================
 -- PARTS PRICING HISTORY (for trend analysis)
@@ -242,9 +242,9 @@ CREATE TABLE IF NOT EXISTS parts_pricing_history (
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
-CREATE INDEX idx_pricing_history_catalog ON parts_pricing_history(catalog_item_id, price_date DESC);
-CREATE INDEX idx_pricing_history_vendor ON parts_pricing_history(vendor_id);
-CREATE INDEX idx_pricing_history_date ON parts_pricing_history(price_date DESC);
+CREATE INDEX IF NOT EXISTS idx_pricing_history_catalog ON parts_pricing_history(catalog_item_id, price_date DESC);
+CREATE INDEX IF NOT EXISTS idx_pricing_history_vendor ON parts_pricing_history(vendor_id);
+CREATE INDEX IF NOT EXISTS idx_pricing_history_date ON parts_pricing_history(price_date DESC);
 
 -- =======================
 -- VENDOR PERFORMANCE TRACKING
@@ -296,8 +296,8 @@ CREATE TABLE IF NOT EXISTS vendor_performance_metrics (
     CONSTRAINT unique_vendor_period UNIQUE (vendor_id, period_start, period_end)
 );
 
-CREATE INDEX idx_vendor_performance_vendor ON vendor_performance_metrics(vendor_id);
-CREATE INDEX idx_vendor_performance_period ON vendor_performance_metrics(period_start, period_end);
+CREATE INDEX IF NOT EXISTS idx_vendor_performance_vendor ON vendor_performance_metrics(vendor_id);
+CREATE INDEX IF NOT EXISTS idx_vendor_performance_period ON vendor_performance_metrics(period_start, period_end);
 
 -- =======================
 -- VIEWS FOR PARTS COMPARISON
@@ -379,9 +379,9 @@ WHERE v.is_active = true
 GROUP BY v.id, v.vendor_name, v.vendor_type;
 
 -- Grant permissions
-GRANT SELECT ON v_parts_price_comparison TO PUBLIC;
-GRANT SELECT ON v_best_value_parts TO PUBLIC;
-GRANT SELECT ON v_vendor_performance_summary TO PUBLIC;
+-- GRANT SELECT ON v_parts_price_comparison TO PUBLIC;
+-- GRANT SELECT ON v_best_value_parts TO PUBLIC;
+-- GRANT SELECT ON v_vendor_performance_summary TO PUBLIC;
 
 -- =======================
 -- TRIGGERS

@@ -188,19 +188,14 @@ CREATE INDEX IF NOT EXISTS idx_language_detections_ocr_result_id ON ocr_language
 CREATE INDEX IF NOT EXISTS idx_language_detections_language_code ON ocr_language_detections(language_code);
 
 -- Update documents table with OCR status if not exists
-DO $$
-BEGIN
-  IF NOT EXISTS (
-    SELECT 1 FROM information_schema.columns
-    WHERE table_name = 'documents' AND column_name = 'ocr_status'
-  ) THEN
-    ALTER TABLE documents
-      ADD COLUMN ocr_status VARCHAR(20) DEFAULT 'not_needed',
-      ADD COLUMN ocr_completed_at TIMESTAMP,
-      ADD COLUMN ocr_provider VARCHAR(50),
-      ADD CONSTRAINT chk_ocr_status
-        CHECK (ocr_status IN ('pending', 'processing', 'completed', 'failed', 'not_needed'));
-  END IF;
+ALTER TABLE documents ADD COLUMN IF NOT EXISTS ocr_status VARCHAR(20) DEFAULT 'not_needed';
+ALTER TABLE documents ADD COLUMN IF NOT EXISTS ocr_completed_at TIMESTAMP;
+ALTER TABLE documents ADD COLUMN IF NOT EXISTS ocr_provider VARCHAR(50);
+
+DO $$ BEGIN
+    ALTER TABLE documents ADD CONSTRAINT chk_ocr_status CHECK (ocr_status IN ('pending', 'processing', 'completed', 'failed', 'not_needed'));
+EXCEPTION
+    WHEN duplicate_object THEN null;
 END $$;
 
 -- Function to update OCR provider statistics
@@ -281,11 +276,11 @@ END;
 $$ LANGUAGE plpgsql;
 
 -- Grant permissions
-GRANT SELECT, INSERT, UPDATE, DELETE ON ocr_results TO fleetadmin;
-GRANT SELECT, INSERT, UPDATE, DELETE ON ocr_jobs TO fleetadmin;
-GRANT SELECT, INSERT, UPDATE, DELETE ON ocr_batch_jobs TO fleetadmin;
-GRANT SELECT, INSERT, UPDATE, DELETE ON ocr_provider_stats TO fleetadmin;
-GRANT SELECT, INSERT, UPDATE, DELETE ON ocr_language_detections TO fleetadmin;
+-- GRANT SELECT, INSERT, UPDATE, DELETE ON ocr_results TO fleetadmin;
+-- GRANT SELECT, INSERT, UPDATE, DELETE ON ocr_jobs TO fleetadmin;
+-- GRANT SELECT, INSERT, UPDATE, DELETE ON ocr_batch_jobs TO fleetadmin;
+-- GRANT SELECT, INSERT, UPDATE, DELETE ON ocr_provider_stats TO fleetadmin;
+-- GRANT SELECT, INSERT, UPDATE, DELETE ON ocr_language_detections TO fleetadmin;
 
 -- Comments for documentation
 COMMENT ON TABLE ocr_results IS 'Stores OCR processing results with full text, pages, tables, and forms';

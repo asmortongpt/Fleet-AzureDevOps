@@ -20,9 +20,9 @@ CREATE TABLE IF NOT EXISTS mobile_devices (
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE INDEX idx_mobile_devices_user ON mobile_devices(user_id);
-CREATE INDEX idx_mobile_devices_device_id ON mobile_devices(device_id);
-CREATE INDEX idx_mobile_devices_last_sync ON mobile_devices(last_sync_at);
+CREATE INDEX IF NOT EXISTS idx_mobile_devices_user ON mobile_devices(user_id);
+CREATE INDEX IF NOT EXISTS idx_mobile_devices_device_id ON mobile_devices(device_id);
+CREATE INDEX IF NOT EXISTS idx_mobile_devices_last_sync ON mobile_devices(last_sync_at);
 
 -- =====================================================
 -- Vehicle Inspections (from mobile)
@@ -43,10 +43,10 @@ CREATE TABLE IF NOT EXISTS vehicle_inspections (
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE INDEX idx_vehicle_inspections_tenant ON vehicle_inspections(tenant_id);
-CREATE INDEX idx_vehicle_inspections_vehicle ON vehicle_inspections(vehicle_id);
-CREATE INDEX idx_vehicle_inspections_mobile_id ON vehicle_inspections(mobile_id);
-CREATE INDEX idx_vehicle_inspections_inspected_at ON vehicle_inspections(inspected_at);
+CREATE INDEX IF NOT EXISTS idx_vehicle_inspections_tenant ON vehicle_inspections(tenant_id);
+CREATE INDEX IF NOT EXISTS idx_vehicle_inspections_vehicle ON vehicle_inspections(vehicle_id);
+CREATE INDEX IF NOT EXISTS idx_vehicle_inspections_mobile_id ON vehicle_inspections(mobile_id);
+CREATE INDEX IF NOT EXISTS idx_vehicle_inspections_inspected_at ON vehicle_inspections(inspected_at);
 
 -- =====================================================
 -- Driver Reports (from mobile)
@@ -64,10 +64,10 @@ CREATE TABLE IF NOT EXISTS driver_reports (
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE INDEX idx_driver_reports_tenant ON driver_reports(tenant_id);
-CREATE INDEX idx_driver_reports_driver ON driver_reports(driver_id);
-CREATE INDEX idx_driver_reports_mobile_id ON driver_reports(mobile_id);
-CREATE INDEX idx_driver_reports_type ON driver_reports(report_type);
+CREATE INDEX IF NOT EXISTS idx_driver_reports_tenant ON driver_reports(tenant_id);
+CREATE INDEX IF NOT EXISTS idx_driver_reports_driver ON driver_reports(driver_id);
+CREATE INDEX IF NOT EXISTS idx_driver_reports_mobile_id ON driver_reports(mobile_id);
+CREATE INDEX IF NOT EXISTS idx_driver_reports_type ON driver_reports(report_type);
 
 -- =====================================================
 -- Mobile Photos (from mobile)
@@ -84,9 +84,9 @@ CREATE TABLE IF NOT EXISTS mobile_photos (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE INDEX idx_mobile_photos_tenant ON mobile_photos(tenant_id);
-CREATE INDEX idx_mobile_photos_user ON mobile_photos(user_id);
-CREATE INDEX idx_mobile_photos_mobile_id ON mobile_photos(mobile_id);
+CREATE INDEX IF NOT EXISTS idx_mobile_photos_tenant ON mobile_photos(tenant_id);
+CREATE INDEX IF NOT EXISTS idx_mobile_photos_user ON mobile_photos(user_id);
+CREATE INDEX IF NOT EXISTS idx_mobile_photos_mobile_id ON mobile_photos(mobile_id);
 
 -- =====================================================
 -- Hours of Service (HOS) Logs
@@ -106,10 +106,10 @@ CREATE TABLE IF NOT EXISTS hos_logs (
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE INDEX idx_hos_logs_tenant ON hos_logs(tenant_id);
-CREATE INDEX idx_hos_logs_driver ON hos_logs(driver_id);
-CREATE INDEX idx_hos_logs_mobile_id ON hos_logs(mobile_id);
-CREATE INDEX idx_hos_logs_start_time ON hos_logs(start_time);
+CREATE INDEX IF NOT EXISTS idx_hos_logs_tenant ON hos_logs(tenant_id);
+CREATE INDEX IF NOT EXISTS idx_hos_logs_driver ON hos_logs(driver_id);
+CREATE INDEX IF NOT EXISTS idx_hos_logs_mobile_id ON hos_logs(mobile_id);
+CREATE INDEX IF NOT EXISTS idx_hos_logs_start_time ON hos_logs(start_time);
 
 -- =====================================================
 -- Keyless Entry Logs
@@ -128,10 +128,10 @@ CREATE TABLE IF NOT EXISTS keyless_entry_logs (
     executed_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE INDEX idx_keyless_entry_tenant ON keyless_entry_logs(tenant_id);
-CREATE INDEX idx_keyless_entry_vehicle ON keyless_entry_logs(vehicle_id);
-CREATE INDEX idx_keyless_entry_user ON keyless_entry_logs(user_id);
-CREATE INDEX idx_keyless_entry_executed_at ON keyless_entry_logs(executed_at);
+CREATE INDEX IF NOT EXISTS idx_keyless_entry_tenant ON keyless_entry_logs(tenant_id);
+CREATE INDEX IF NOT EXISTS idx_keyless_entry_vehicle ON keyless_entry_logs(vehicle_id);
+CREATE INDEX IF NOT EXISTS idx_keyless_entry_user ON keyless_entry_logs(user_id);
+CREATE INDEX IF NOT EXISTS idx_keyless_entry_executed_at ON keyless_entry_logs(executed_at);
 
 -- =====================================================
 -- Damage Detections (AI from mobile)
@@ -152,10 +152,10 @@ CREATE TABLE IF NOT EXISTS damage_detections (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE INDEX idx_damage_detections_tenant ON damage_detections(tenant_id);
-CREATE INDEX idx_damage_detections_vehicle ON damage_detections(vehicle_id);
-CREATE INDEX idx_damage_detections_status ON damage_detections(status);
-CREATE INDEX idx_damage_detections_severity ON damage_detections(severity);
+CREATE INDEX IF NOT EXISTS idx_damage_detections_tenant ON damage_detections(tenant_id);
+CREATE INDEX IF NOT EXISTS idx_damage_detections_vehicle ON damage_detections(vehicle_id);
+CREATE INDEX IF NOT EXISTS idx_damage_detections_status ON damage_detections(status);
+CREATE INDEX IF NOT EXISTS idx_damage_detections_severity ON damage_detections(severity);
 
 -- =====================================================
 -- Sync Conflicts (for manual resolution)
@@ -176,10 +176,10 @@ CREATE TABLE IF NOT EXISTS sync_conflicts (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE INDEX idx_sync_conflicts_tenant ON sync_conflicts(tenant_id);
-CREATE INDEX idx_sync_conflicts_user ON sync_conflicts(user_id);
-CREATE INDEX idx_sync_conflicts_device ON sync_conflicts(device_id);
-CREATE INDEX idx_sync_conflicts_resolution ON sync_conflicts(resolution);
+CREATE INDEX IF NOT EXISTS idx_sync_conflicts_tenant ON sync_conflicts(tenant_id);
+CREATE INDEX IF NOT EXISTS idx_sync_conflicts_user ON sync_conflicts(user_id);
+CREATE INDEX IF NOT EXISTS idx_sync_conflicts_device ON sync_conflicts(device_id);
+CREATE INDEX IF NOT EXISTS idx_sync_conflicts_resolution ON sync_conflicts(resolution);
 
 -- =====================================================
 -- Mobile Analytics
@@ -195,11 +195,11 @@ CREATE TABLE IF NOT EXISTS mobile_analytics (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE INDEX idx_mobile_analytics_tenant ON mobile_analytics(tenant_id);
-CREATE INDEX idx_mobile_analytics_user ON mobile_analytics(user_id);
-CREATE INDEX idx_mobile_analytics_device ON mobile_analytics(device_id);
-CREATE INDEX idx_mobile_analytics_event_type ON mobile_analytics(event_type);
-CREATE INDEX idx_mobile_analytics_created_at ON mobile_analytics(created_at);
+CREATE INDEX IF NOT EXISTS idx_mobile_analytics_tenant ON mobile_analytics(tenant_id);
+CREATE INDEX IF NOT EXISTS idx_mobile_analytics_user ON mobile_analytics(user_id);
+CREATE INDEX IF NOT EXISTS idx_mobile_analytics_device ON mobile_analytics(device_id);
+CREATE INDEX IF NOT EXISTS idx_mobile_analytics_event_type ON mobile_analytics(event_type);
+CREATE INDEX IF NOT EXISTS idx_mobile_analytics_created_at ON mobile_analytics(created_at);
 
 -- =====================================================
 -- Views for Reporting

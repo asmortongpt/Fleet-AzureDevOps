@@ -17,14 +17,14 @@
 
 -- Foreign key indexes
 CREATE INDEX IF NOT EXISTS idx_users_tenant_id ON users(tenant_id);
-CREATE INDEX IF NOT EXISTS idx_users_driver_id ON users(driver_id) WHERE driver_id IS NOT NULL;
-CREATE INDEX IF NOT EXISTS idx_users_vehicle_id ON users(vehicle_id) WHERE vehicle_id IS NOT NULL;
+-- CREATE INDEX IF NOT EXISTS idx_users_assigned_driver_id ON users(assigned_driver_id) WHERE assigned_driver_id IS NOT NULL;
+-- CREATE INDEX IF NOT EXISTS idx_users_assigned_vehicle_id ON users(assigned_vehicle_id) WHERE assigned_vehicle_id IS NOT NULL;
 
 -- Filter indexes (frequently used in WHERE clauses)
 CREATE INDEX IF NOT EXISTS idx_users_email ON users(email);
 CREATE INDEX IF NOT EXISTS idx_users_role ON users(role);
 CREATE INDEX IF NOT EXISTS idx_users_is_active ON users(is_active) WHERE is_active = true;
-CREATE INDEX IF NOT EXISTS idx_users_scope_level ON users(scope_level);
+-- CREATE INDEX IF NOT EXISTS idx_users_scope_level ON users(scope_level);
 
 -- Composite indexes for common query patterns
 CREATE INDEX IF NOT EXISTS idx_users_tenant_role ON users(tenant_id, role);
@@ -36,10 +36,10 @@ CREATE INDEX IF NOT EXISTS idx_users_tenant_active ON users(tenant_id, is_active
 
 -- Foreign key indexes
 CREATE INDEX IF NOT EXISTS idx_vehicles_tenant_id ON vehicles(tenant_id);
-CREATE INDEX IF NOT EXISTS idx_vehicles_driver_id ON vehicles(driver_id) WHERE driver_id IS NOT NULL;
-CREATE INDEX IF NOT EXISTS idx_vehicles_location_id ON vehicles(location_id) WHERE location_id IS NOT NULL;
-CREATE INDEX IF NOT EXISTS idx_vehicles_group_id ON vehicles(group_id) WHERE group_id IS NOT NULL;
-CREATE INDEX IF NOT EXISTS idx_vehicles_fleet_id ON vehicles(fleet_id) WHERE fleet_id IS NOT NULL;
+CREATE INDEX IF NOT EXISTS idx_vehicles_assigned_driver_id ON vehicles(assigned_driver_id) WHERE assigned_driver_id IS NOT NULL;
+-- CREATE INDEX IF NOT EXISTS idx_vehicles_location_id ON vehicles(location_id) WHERE location_id IS NOT NULL;
+-- CREATE INDEX IF NOT EXISTS idx_vehicles_group_id ON vehicles(group_id) WHERE group_id IS NOT NULL;
+-- CREATE INDEX IF NOT EXISTS idx_vehicles_fleet_id ON vehicles(fleet_id) WHERE fleet_id IS NOT NULL;
 
 -- Filter indexes for vehicle status and categories
 CREATE INDEX IF NOT EXISTS idx_vehicles_status ON vehicles(status);
@@ -62,26 +62,26 @@ CREATE INDEX IF NOT EXISTS idx_vehicles_tenant_created ON vehicles(tenant_id, cr
 -- Foreign key indexes
 CREATE INDEX IF NOT EXISTS idx_work_orders_tenant_id ON work_orders(tenant_id);
 CREATE INDEX IF NOT EXISTS idx_work_orders_vehicle_id ON work_orders(vehicle_id);
-CREATE INDEX IF NOT EXISTS idx_work_orders_facility_id ON work_orders(facility_id) WHERE facility_id IS NOT NULL;
-CREATE INDEX IF NOT EXISTS idx_work_orders_assigned_technician_id ON work_orders(assigned_technician_id) WHERE assigned_technician_id IS NOT NULL;
-CREATE INDEX IF NOT EXISTS idx_work_orders_created_by ON work_orders(created_by) WHERE created_by IS NOT NULL;
+-- CREATE INDEX IF NOT EXISTS idx_work_orders_facility_id ON work_orders(facility_id) WHERE facility_id IS NOT NULL;
+-- CREATE INDEX IF NOT EXISTS idx_work_orders_assigned_to_id ON work_orders(assigned_to_id) WHERE assigned_to_id IS NOT NULL;
+-- CREATE INDEX IF NOT EXISTS idx_work_orders_created_by ON work_orders(created_by) WHERE created_by IS NOT NULL;
 
 -- Filter indexes
 CREATE INDEX IF NOT EXISTS idx_work_orders_status ON work_orders(status);
 CREATE INDEX IF NOT EXISTS idx_work_orders_priority ON work_orders(priority);
 CREATE INDEX IF NOT EXISTS idx_work_orders_type ON work_orders(type);
-CREATE INDEX IF NOT EXISTS idx_work_orders_work_order_number ON work_orders(work_order_number);
+-- CREATE INDEX IF NOT EXISTS idx_work_orders_work_order_number ON work_orders(work_order_number);
 
 -- Composite indexes for common queries
 CREATE INDEX IF NOT EXISTS idx_work_orders_tenant_status ON work_orders(tenant_id, status);
 CREATE INDEX IF NOT EXISTS idx_work_orders_tenant_priority ON work_orders(tenant_id, priority);
 CREATE INDEX IF NOT EXISTS idx_work_orders_vehicle_status ON work_orders(vehicle_id, status);
-CREATE INDEX IF NOT EXISTS idx_work_orders_facility_status ON work_orders(facility_id, status) WHERE facility_id IS NOT NULL;
+-- CREATE INDEX IF NOT EXISTS idx_work_orders_facility_status ON work_orders(facility_id, status) WHERE facility_id IS NOT NULL;
 
 -- Timestamp indexes for reporting
 CREATE INDEX IF NOT EXISTS idx_work_orders_created_at ON work_orders(created_at DESC);
-CREATE INDEX IF NOT EXISTS idx_work_orders_scheduled_start ON work_orders(scheduled_start) WHERE scheduled_start IS NOT NULL;
-CREATE INDEX IF NOT EXISTS idx_work_orders_actual_end ON work_orders(actual_end) WHERE actual_end IS NOT NULL;
+-- CREATE INDEX IF NOT EXISTS idx_work_orders_scheduled_start_date ON work_orders(scheduled_start_date) WHERE scheduled_start_date IS NOT NULL;
+-- CREATE INDEX IF NOT EXISTS idx_work_orders_actual_end_date ON work_orders(actual_end_date) WHERE actual_end_date IS NOT NULL;
 
 -- ============================================================================
 -- MAINTENANCE SCHEDULES INDEXES
@@ -94,9 +94,9 @@ CREATE INDEX IF NOT EXISTS idx_maintenance_schedules_vehicle_id ON maintenance_s
 -- Filter indexes
 CREATE INDEX IF NOT EXISTS idx_maintenance_schedules_status ON maintenance_schedules(status);
 CREATE INDEX IF NOT EXISTS idx_maintenance_schedules_priority ON maintenance_schedules(priority);
-CREATE INDEX IF NOT EXISTS idx_maintenance_schedules_service_type ON maintenance_schedules(service_type);
-CREATE INDEX IF NOT EXISTS idx_maintenance_schedules_trigger_metric ON maintenance_schedules(trigger_metric) WHERE trigger_metric IS NOT NULL;
-CREATE INDEX IF NOT EXISTS idx_maintenance_schedules_is_recurring ON maintenance_schedules(is_recurring) WHERE is_recurring = true;
+-- CREATE INDEX IF NOT EXISTS idx_maintenance_schedules_service_type ON maintenance_schedules(service_type);
+-- CREATE INDEX IF NOT EXISTS idx_maintenance_schedules_trigger_metric ON maintenance_schedules(trigger_metric) WHERE trigger_metric IS NOT NULL;
+-- CREATE INDEX IF NOT EXISTS idx_maintenance_schedules_is_recurring ON maintenance_schedules(is_recurring) WHERE is_recurring = true;
 
 -- Composite indexes for recurring maintenance
 CREATE INDEX IF NOT EXISTS idx_maintenance_schedules_tenant_recurring ON maintenance_schedules(tenant_id, is_recurring) WHERE is_recurring = true;
@@ -111,8 +111,8 @@ CREATE INDEX IF NOT EXISTS idx_maintenance_schedules_next_due ON maintenance_sch
 
 -- Foreign key indexes
 CREATE INDEX IF NOT EXISTS idx_inspections_tenant_id ON inspections(tenant_id);
-CREATE INDEX IF NOT EXISTS idx_inspections_vehicle_id ON inspections(vehicle_id);
-CREATE INDEX IF NOT EXISTS idx_inspections_driver_id ON inspections(driver_id) WHERE driver_id IS NOT NULL;
+CREATE INDEX IF NOT EXISTS idx_inspections_assigned_vehicle_id ON inspections(assigned_vehicle_id);
+CREATE INDEX IF NOT EXISTS idx_inspections_assigned_driver_id ON inspections(assigned_driver_id) WHERE assigned_driver_id IS NOT NULL;
 
 -- Filter indexes
 CREATE INDEX IF NOT EXISTS idx_inspections_status ON inspections(status);
@@ -120,7 +120,7 @@ CREATE INDEX IF NOT EXISTS idx_inspections_type ON inspections(type) WHERE type 
 
 -- Composite indexes
 CREATE INDEX IF NOT EXISTS idx_inspections_tenant_status ON inspections(tenant_id, status);
-CREATE INDEX IF NOT EXISTS idx_inspections_vehicle_created ON inspections(vehicle_id, created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_inspections_vehicle_created ON inspections(assigned_vehicle_id, created_at DESC);
 
 -- Timestamp indexes
 CREATE INDEX IF NOT EXISTS idx_inspections_created_at ON inspections(created_at DESC);
@@ -131,14 +131,14 @@ CREATE INDEX IF NOT EXISTS idx_inspections_created_at ON inspections(created_at 
 
 -- Foreign key indexes
 CREATE INDEX IF NOT EXISTS idx_fuel_transactions_tenant_id ON fuel_transactions(tenant_id);
-CREATE INDEX IF NOT EXISTS idx_fuel_transactions_vehicle_id ON fuel_transactions(vehicle_id);
-CREATE INDEX IF NOT EXISTS idx_fuel_transactions_driver_id ON fuel_transactions(driver_id) WHERE driver_id IS NOT NULL;
+CREATE INDEX IF NOT EXISTS idx_fuel_transactions_assigned_vehicle_id ON fuel_transactions(assigned_vehicle_id);
+CREATE INDEX IF NOT EXISTS idx_fuel_transactions_assigned_driver_id ON fuel_transactions(assigned_driver_id) WHERE assigned_driver_id IS NOT NULL;
 
 -- Filter indexes
 CREATE INDEX IF NOT EXISTS idx_fuel_transactions_transaction_type ON fuel_transactions(transaction_type) WHERE transaction_type IS NOT NULL;
 
 -- Composite indexes for reporting
-CREATE INDEX IF NOT EXISTS idx_fuel_transactions_vehicle_date ON fuel_transactions(vehicle_id, transaction_date DESC);
+CREATE INDEX IF NOT EXISTS idx_fuel_transactions_vehicle_date ON fuel_transactions(assigned_vehicle_id, transaction_date DESC);
 CREATE INDEX IF NOT EXISTS idx_fuel_transactions_tenant_date ON fuel_transactions(tenant_id, transaction_date DESC);
 
 -- Timestamp indexes
@@ -150,8 +150,8 @@ CREATE INDEX IF NOT EXISTS idx_fuel_transactions_transaction_date ON fuel_transa
 
 -- Foreign key indexes
 CREATE INDEX IF NOT EXISTS idx_safety_incidents_tenant_id ON safety_incidents(tenant_id);
-CREATE INDEX IF NOT EXISTS idx_safety_incidents_vehicle_id ON safety_incidents(vehicle_id) WHERE vehicle_id IS NOT NULL;
-CREATE INDEX IF NOT EXISTS idx_safety_incidents_driver_id ON safety_incidents(driver_id) WHERE driver_id IS NOT NULL;
+CREATE INDEX IF NOT EXISTS idx_safety_incidents_assigned_vehicle_id ON safety_incidents(assigned_vehicle_id) WHERE assigned_vehicle_id IS NOT NULL;
+CREATE INDEX IF NOT EXISTS idx_safety_incidents_assigned_driver_id ON safety_incidents(assigned_driver_id) WHERE assigned_driver_id IS NOT NULL;
 
 -- Filter indexes
 CREATE INDEX IF NOT EXISTS idx_safety_incidents_severity ON safety_incidents(severity);
@@ -196,8 +196,8 @@ CREATE INDEX IF NOT EXISTS idx_facilities_type ON facilities(type) WHERE type IS
 
 -- Foreign key indexes
 CREATE INDEX IF NOT EXISTS idx_damage_reports_tenant_id ON damage_reports(tenant_id);
-CREATE INDEX IF NOT EXISTS idx_damage_reports_vehicle_id ON damage_reports(vehicle_id);
-CREATE INDEX IF NOT EXISTS idx_damage_reports_driver_id ON damage_reports(driver_id) WHERE driver_id IS NOT NULL;
+CREATE INDEX IF NOT EXISTS idx_damage_reports_assigned_vehicle_id ON damage_reports(assigned_vehicle_id);
+CREATE INDEX IF NOT EXISTS idx_damage_reports_assigned_driver_id ON damage_reports(assigned_driver_id) WHERE assigned_driver_id IS NOT NULL;
 
 -- Filter indexes
 CREATE INDEX IF NOT EXISTS idx_damage_reports_severity ON damage_reports(severity);
@@ -211,15 +211,15 @@ CREATE INDEX IF NOT EXISTS idx_damage_reports_reported_at ON damage_reports(repo
 -- ============================================================================
 
 -- Foreign key indexes
-CREATE INDEX IF NOT EXISTS idx_geofence_events_vehicle_id ON geofence_events(vehicle_id);
+CREATE INDEX IF NOT EXISTS idx_geofence_events_assigned_vehicle_id ON geofence_events(assigned_vehicle_id);
 CREATE INDEX IF NOT EXISTS idx_geofence_events_geofence_id ON geofence_events(geofence_id);
-CREATE INDEX IF NOT EXISTS idx_geofence_events_driver_id ON geofence_events(driver_id) WHERE driver_id IS NOT NULL;
+CREATE INDEX IF NOT EXISTS idx_geofence_events_assigned_driver_id ON geofence_events(assigned_driver_id) WHERE assigned_driver_id IS NOT NULL;
 
 -- Filter indexes
 CREATE INDEX IF NOT EXISTS idx_geofence_events_event_type ON geofence_events(event_type);
 
 -- Composite indexes
-CREATE INDEX IF NOT EXISTS idx_geofence_events_vehicle_timestamp ON geofence_events(vehicle_id, timestamp DESC);
+CREATE INDEX IF NOT EXISTS idx_geofence_events_vehicle_timestamp ON geofence_events(assigned_vehicle_id, timestamp DESC);
 CREATE INDEX IF NOT EXISTS idx_geofence_events_geofence_timestamp ON geofence_events(geofence_id, timestamp DESC);
 
 -- ============================================================================
@@ -240,7 +240,7 @@ CREATE INDEX IF NOT EXISTS idx_driver_safety_events_severity ON driver_safety_ev
 -- Foreign key indexes
 CREATE INDEX IF NOT EXISTS idx_charging_stations_tenant_id ON charging_stations(tenant_id);
 CREATE INDEX IF NOT EXISTS idx_charging_sessions_tenant_id ON charging_sessions(tenant_id);
-CREATE INDEX IF NOT EXISTS idx_charging_sessions_vehicle_id ON charging_sessions(vehicle_id);
+CREATE INDEX IF NOT EXISTS idx_charging_sessions_assigned_vehicle_id ON charging_sessions(assigned_vehicle_id);
 CREATE INDEX IF NOT EXISTS idx_charging_sessions_station_id ON charging_sessions(station_id);
 
 -- Filter indexes
@@ -248,7 +248,7 @@ CREATE INDEX IF NOT EXISTS idx_charging_stations_status ON charging_stations(sta
 CREATE INDEX IF NOT EXISTS idx_charging_sessions_status ON charging_sessions(status);
 
 -- Composite indexes
-CREATE INDEX IF NOT EXISTS idx_charging_sessions_vehicle_started ON charging_sessions(vehicle_id, started_at DESC);
+CREATE INDEX IF NOT EXISTS idx_charging_sessions_vehicle_started ON charging_sessions(assigned_vehicle_id, started_at DESC);
 
 -- ============================================================================
 -- DOCUMENTS & ATTACHMENTS INDEXES
@@ -288,8 +288,8 @@ CREATE INDEX IF NOT EXISTS idx_audit_logs_user_created ON audit_logs(user_id, cr
 
 -- Foreign key indexes
 CREATE INDEX IF NOT EXISTS idx_routes_tenant_id ON routes(tenant_id);
-CREATE INDEX IF NOT EXISTS idx_routes_vehicle_id ON routes(vehicle_id) WHERE vehicle_id IS NOT NULL;
-CREATE INDEX IF NOT EXISTS idx_routes_driver_id ON routes(driver_id) WHERE driver_id IS NOT NULL;
+CREATE INDEX IF NOT EXISTS idx_routes_assigned_assigned_vehicle_id ON routes(assigned_assigned_vehicle_id) WHERE assigned_vehicle_id IS NOT NULL;
+CREATE INDEX IF NOT EXISTS idx_routes_assigned_assigned_driver_id ON routes(assigned_assigned_driver_id) WHERE assigned_driver_id IS NOT NULL;
 
 -- Filter indexes
 CREATE INDEX IF NOT EXISTS idx_routes_status ON routes(status);

@@ -28,7 +28,7 @@ SELECT
     (ARRAY['Admin', 'Manager', 'Mechanic', 'Dispatcher', 'Viewer'])[((n-1) % 5) + 1]::user_role,
     '850-' || LPAD((200 + n)::TEXT, 3, '0') || '-' || LPAD((1000 + n * 13)::TEXT, 4, '0'),
     true
-FROM generate_series(1, 25) AS n
+FROM generate_series((SELECT id FROM tenants LIMIT 1), 25) AS n
 ON CONFLICT (tenant_id, email) DO NOTHING;
 
 -- Create 150 drivers
@@ -51,7 +51,7 @@ SELECT
     (ARRAY['active', 'active', 'active', 'on_leave', 'inactive'])[((n-1) % 5) + 1]::driver_status,
     'Emergency Contact ' || n,
     '850-999-' || LPAD(n::TEXT, 4, '0')
-FROM generate_series(1, 150) AS n
+FROM generate_series((SELECT id FROM tenants LIMIT 1), 150) AS n
 ON CONFLICT (tenant_id, license_number) DO NOTHING;
 
 -- Create 250 vehicles
@@ -72,7 +72,7 @@ SELECT
     (ARRAY['gasoline', 'diesel', 'hybrid', 'electric'])[((n-1) % 4) + 1]::fuel_type,
     25 + (n * 7) % 75,
     25000 + (n * 1234) % 150000
-FROM generate_series(1, 250) AS n
+FROM generate_series((SELECT id FROM tenants LIMIT 1), 250) AS n
 ON CONFLICT (tenant_id, vin) DO NOTHING;
 
 -- Create 500 work orders
@@ -89,7 +89,7 @@ SELECT
     (ARRAY['pending', 'in_progress', 'completed'])[((n-1) % 3) + 1]::status,
     NOW() + ((n % 30) || ' days')::INTERVAL,
     NOW() - ((n * 0.5) || ' days')::INTERVAL
-FROM generate_series(1, 500) AS n;
+FROM generate_series((SELECT id FROM tenants LIMIT 1), 500) AS n;
 
 -- Create 300 inspections
 INSERT INTO inspections (tenant_id, vehicle_id, inspector_id, type, status, started_at, notes, created_at)
@@ -102,7 +102,7 @@ SELECT
     NOW() - ((n * 1.5) || ' days')::INTERVAL,
     'Inspection completed successfully.',
     NOW() - ((n * 1.5) || ' days')::INTERVAL
-FROM generate_series(1, 300) AS n;
+FROM generate_series((SELECT id FROM tenants LIMIT 1), 300) AS n;
 
 -- Create 150 incidents
 INSERT INTO incidents (tenant_id, vehicle_id, driver_id, number, type, severity, description,
@@ -118,7 +118,7 @@ SELECT
     NOW() - ((n * 2) || ' days')::INTERVAL,
     (ARRAY['Monroe St, Tallahassee, FL', 'Capital Circle, Tallahassee, FL', 'Apalachee Pkwy, Tallahassee, FL'])[((n-1) % 3) + 1],
     (ARRAY['pending', 'in_progress', 'completed'])[((n-1) % 3) + 1]::status
-FROM generate_series(1, 150) AS n;
+FROM generate_series((SELECT id FROM tenants LIMIT 1), 150) AS n;
 
 -- Create 200 routes
 INSERT INTO routes (tenant_id, name, description, estimated_distance, estimated_duration, status)
@@ -129,7 +129,7 @@ SELECT
     (10 + (n * 2) % 40)::NUMERIC,
     30 + (n * 5) % 90,
     (ARRAY['pending', 'in_progress', 'completed'])[((n-1) % 3) + 1]::status
-FROM generate_series(1, 200) AS n;
+FROM generate_series((SELECT id FROM tenants LIMIT 1), 200) AS n;
 
 -- Create 100 maintenance schedules
 INSERT INTO maintenance_schedules (tenant_id, vehicle_id, name, description, type, interval_miles,
@@ -156,7 +156,7 @@ SELECT
     END,
     NOW() + ((30 + (n * 7) % 90) || ' days')::INTERVAL,
     true
-FROM generate_series(1, 100) AS n;
+FROM generate_series((SELECT id FROM tenants LIMIT 1), 100) AS n;
 
 -- Create 50 notifications
 INSERT INTO notifications (tenant_id, user_id, type, title, message, priority, is_read)
@@ -168,7 +168,7 @@ SELECT
     'Important fleet management notification requiring attention.',
     (ARRAY['low', 'medium', 'high'])[((n-1) % 3) + 1]::priority,
     CASE WHEN n % 3 = 0 THEN true ELSE false END
-FROM generate_series(1, 50) AS n;
+FROM generate_series((SELECT id FROM tenants LIMIT 1), 50) AS n;
 
 -- Summary
 DO $$

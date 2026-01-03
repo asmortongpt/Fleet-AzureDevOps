@@ -20,7 +20,7 @@ ALTER TABLE vehicle_telemetry
 ADD COLUMN tenant_id UUID;
 
 -- Create index for performance (tenant_id will be in WHERE clauses)
-CREATE INDEX idx_vehicle_telemetry_tenant_id ON vehicle_telemetry(tenant_id);
+CREATE INDEX IF NOT EXISTS idx_vehicle_telemetry_tenant_id ON vehicle_telemetry(tenant_id);
 
 -- Backfill tenant_id from vehicles table
 UPDATE vehicle_telemetry vt
@@ -57,10 +57,10 @@ REFERENCES tenants(id)
 ON DELETE CASCADE;
 
 -- Add composite index for common query patterns
-CREATE INDEX idx_vehicle_telemetry_tenant_vehicle
+CREATE INDEX IF NOT EXISTS idx_vehicle_telemetry_tenant_vehicle
 ON vehicle_telemetry(tenant_id, vehicle_id);
 
-CREATE INDEX idx_vehicle_telemetry_tenant_timestamp
+CREATE INDEX IF NOT EXISTS idx_vehicle_telemetry_tenant_timestamp
 ON vehicle_telemetry(tenant_id, timestamp DESC);
 
 -- ============================================================================
@@ -72,7 +72,7 @@ ALTER TABLE communications
 ADD COLUMN tenant_id UUID;
 
 -- Create index for performance
-CREATE INDEX idx_communications_tenant_id ON communications(tenant_id);
+CREATE INDEX IF NOT EXISTS idx_communications_tenant_id ON communications(tenant_id);
 
 -- Backfill tenant_id from drivers table (from_user_id is FK to drivers)
 UPDATE communications c
@@ -114,10 +114,10 @@ REFERENCES tenants(id)
 ON DELETE CASCADE;
 
 -- Add composite index for common query patterns
-CREATE INDEX idx_communications_tenant_type
+CREATE INDEX IF NOT EXISTS idx_communications_tenant_type
 ON communications(tenant_id, communication_type);
 
-CREATE INDEX idx_communications_tenant_created
+CREATE INDEX IF NOT EXISTS idx_communications_tenant_created
 ON communications(tenant_id, created_at DESC);
 
 -- ============================================================================

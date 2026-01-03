@@ -363,7 +363,6 @@ CREATE TABLE IF NOT EXISTS policy_violations (
 
     -- Related Entities
     vehicle_id UUID REFERENCES vehicles(id),
-    related_[a-z_]*_id UUID,
 
     -- Witness Information
     witnesses VARCHAR(255)[],
@@ -466,12 +465,13 @@ SELECT
     COUNT(DISTINCT CASE WHEN pv.severity IN ('Serious', 'Critical') THEN pv.id END) AS serious_violations,
     MAX(pa.acknowledged_at) AS last_acknowledgment_date
 FROM drivers d
+JOIN users u ON d.user_id = u.id
 CROSS JOIN policy_templates pt
 LEFT JOIN policy_acknowledgments pa ON d.id = pa.employee_number AND pt.id = pa.policy_id AND pa.is_current = TRUE
 LEFT JOIN policy_violations pv ON d.id = pv.employee_number
 WHERE pt.status = 'Active'
-    AND (pt.applies_to_roles IS NULL OR d.role = ANY(pt.applies_to_roles))
-GROUP BY d.id, d.first_name, d.last_name;
+    AND (pt.applies_to_roles IS NULL OR u.role::VARCHAR = ANY(pt.applies_to_roles))
+GROUP BY d.id, d.first_name, d.last_name, u.role;
 
 COMMENT ON TABLE policy_templates IS 'Master library of company policies and procedures with version control';
 COMMENT ON TABLE policy_acknowledgments IS 'Employee acknowledgments and training completion for policies';

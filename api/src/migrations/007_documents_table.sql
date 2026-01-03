@@ -138,7 +138,7 @@ SELECT
     d.file_name,
     d.expires_at,
     d.vehicle_id,
-    v.make || ' ' || v.model || ' (' || v.number || ')' AS vehicle_info,
+    v.make || ' ' || v.model || ' (' || v."number" || ')' AS vehicle_info,
     d.driver_id,
     dr.first_name || ' ' || dr.last_name AS driver_name,
     d.tenant_id,
