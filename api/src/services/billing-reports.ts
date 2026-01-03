@@ -1,7 +1,7 @@
 import { Pool } from 'pg'
 
 import { appInsightsService } from '../config/app-insights'
-import { logger } from '../config/logger'
+import logger from '../config/logger'
 
 interface DriverBillingRecord {
   driver_id: string
