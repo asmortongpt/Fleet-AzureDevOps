@@ -536,8 +536,7 @@ function DrilldownContent() {
     case 'attention-zones':
       return <GeofenceComplianceDrilldown />
 
-    case 'inspections':
-    case 'inspections-due':
+    case 'compliance-inspections':
     case 'hos-violations':
     case 'eld-status':
       return <InspectionsDrilldown />
