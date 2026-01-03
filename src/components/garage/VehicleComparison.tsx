@@ -126,7 +126,7 @@ export function VehicleComparison({ vehicles, onClose }: VehicleComparisonProps)
                         <CardTitle className="text-lg">Vehicle Comparison</CardTitle>
                     </div>
                     {onClose && (
-                        <Button variant="ghost" size="icon" onClick={onClose}>
+                        <Button variant="ghost" size="icon" onClick={onClose} aria-label="Close vehicle comparison">
                             <X className="w-4 h-4" />
                         </Button>
                     )}
