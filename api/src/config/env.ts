@@ -1,10 +1,10 @@
 import { z } from 'zod';
 
 export const envSchema = z.object({
-  PORT: z.string().transform(Number).default('3000'),
+  PORT: z.string().default('3000').transform(Number),
   NODE_ENV: z.enum(['development', 'staging', 'production']).default('development'),
-  DB_POOL_MIN: z.string().transform(Number).default('2'),
-  DB_POOL_MAX: z.string().transform(Number).default('10'),
+  DB_POOL_MIN: z.string().default('2').transform(Number),
+  DB_POOL_MAX: z.string().default('10').transform(Number),
   JWT_SECRET: z.string().min(32),
   CSRF_SECRET: z.string().min(32),
   DATABASE_URL: z.string().url(),
