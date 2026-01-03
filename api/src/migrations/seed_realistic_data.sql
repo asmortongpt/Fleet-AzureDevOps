@@ -58,7 +58,7 @@ SELECT
     '(' || (200 + n) || ') ' || LPAD((1000000 + (n * 12345) % 1000000)::TEXT, 7, '0'),
     true,
     NOW() - (n || ' days')::INTERVAL
-FROM generate_series(1, 25) AS n
+FROM generate_series((SELECT id FROM tenants LIMIT 1), 25) AS n
 ON CONFLICT (tenant_id, email) DO NOTHING;
 
 -- ============================================================================
@@ -86,7 +86,7 @@ SELECT
     (ARRAY['Emergency', 'Contact', 'Family', 'Spouse', 'Parent', 'Friend'])[((n-1) % 6) + 1],
     '(850) ' || LPAD((3000000 + (n * 9247) % 1000000)::TEXT, 7, '0'),
     NOW() - (n * 3 || ' days')::INTERVAL
-FROM generate_series(1, 150) AS n
+FROM generate_series((SELECT id FROM tenants LIMIT 1), 150) AS n
 ON CONFLICT (tenant_id, license_number) DO NOTHING;
 
 -- ============================================================================
@@ -119,14 +119,14 @@ SELECT
     (ARRAY['Transit', 'Fleet Services', 'Administration', 'Maintenance'])[((n-1) % 4) + 1],
     (ARRAY['North Depot', 'South Depot', 'East Depot', 'West Depot', 'Main Garage'])[((n-1) % 5) + 1],
     NOW() - (n * 2 || ' days')::INTERVAL
-FROM generate_series(1, 250) AS n
+FROM generate_series((SELECT id FROM tenants LIMIT 1), 250) AS n
 ON CONFLICT DO NOTHING;
 
 -- ============================================================================
 -- 5. WORK ORDERS (500 work orders)
 -- ============================================================================
 INSERT INTO work_orders (id, tenant_id, vehicle_id, work_order_number, title, description, type, priority,
-                         status, estimated_cost, actual_cost, assigned_technician_id, scheduled_date,
+                         status, estimated_cost, actual_cost, assigned_technician_id, scheduled_start_date,
                          completed_date, created_at)
 SELECT
     gen_random_uuid(),
@@ -157,13 +157,13 @@ SELECT
     random_date('2024-01-01'::DATE, CURRENT_DATE + 30),
     CASE WHEN n % 3 = 0 THEN random_timestamp('2024-01-01'::DATE, CURRENT_DATE) ELSE NULL END,
     NOW() - (n * 1.5 || ' days')::INTERVAL
-FROM generate_series(1, 500) AS n
+FROM generate_series((SELECT id FROM tenants LIMIT 1), 500) AS n
 ON CONFLICT DO NOTHING;
 
 -- ============================================================================
 -- 6. INSPECTIONS (300 inspections)
 -- ============================================================================
-INSERT INTO inspections (id, tenant_id, vehicle_id, inspector_id, inspection_type, inspection_date,
+INSERT INTO inspections (id, tenant_id, vehicle_id, inspector_id, inspection_type, inspected_at,
                          status, result, score, violations, notes, created_at)
 SELECT
     gen_random_uuid(),
@@ -188,7 +188,7 @@ SELECT
         ELSE 'Passed with flying colors.'
     END,
     NOW() - (n * 2 || ' days')::INTERVAL
-FROM generate_series(1, 300) AS n
+FROM generate_series((SELECT id FROM tenants LIMIT 1), 300) AS n
 ON CONFLICT DO NOTHING;
 
 -- ============================================================================
@@ -220,7 +220,7 @@ SELECT
     END,
     (ARRAY['reported', 'under_investigation', 'resolved', 'closed'])[((n-1) % 4) + 1],
     NOW() - (n * 1.7 || ' days')::INTERVAL
-FROM generate_series(1, 150) AS n
+FROM generate_series((SELECT id FROM tenants LIMIT 1), 150) AS n
 ON CONFLICT DO NOTHING;
 
 -- ============================================================================
@@ -242,7 +242,7 @@ SELECT
     '[{"name": "Stop A", "lat": 30.4383, "lng": -84.2807}, {"name": "Stop B", "lat": 30.4518, "lng": -84.2739}]'::JSONB,
     (ARRAY['active', 'active', 'active', 'inactive', 'seasonal'])[((n-1) % 5) + 1],
     NOW() - (n * 3 || ' days')::INTERVAL
-FROM generate_series(1, 200) AS n
+FROM generate_series((SELECT id FROM tenants LIMIT 1), 200) AS n
 ON CONFLICT DO NOTHING;
 
 -- ============================================================================
@@ -265,7 +265,7 @@ SELECT
     (ARRAY['1234 N Monroe St', '567 Capital Circle', '890 Apalachee Pkwy', '432 Thomasville Rd',
            '765 Mahan Dr', '321 Tennessee St', '654 Centerville Rd'])[((n-1) % 7) + 1] || ', Tallahassee, FL',
     NOW() - (n * 0.8 || ' days')::INTERVAL
-FROM generate_series(1, 400) AS n
+FROM generate_series((SELECT id FROM tenants LIMIT 1), 400) AS n
 ON CONFLICT DO NOTHING;
 
 -- ============================================================================
@@ -323,7 +323,7 @@ SELECT
     END,
     true,
     NOW() - (n * 4 || ' days')::INTERVAL
-FROM generate_series(1, 100) AS n
+FROM generate_series((SELECT id FROM tenants LIMIT 1), 100) AS n
 ON CONFLICT DO NOTHING;
 
 -- ============================================================================
@@ -347,7 +347,7 @@ SELECT
     8.50 + (n * 2.75) % 150,
     (ARRAY['Shelf A1', 'Shelf A2', 'Shelf B1', 'Shelf B2', 'Shelf C1', 'Shelf C2', 'Bay 1', 'Bay 2'])[((n-1) % 8) + 1],
     NOW() - (n * 5 || ' days')::INTERVAL
-FROM generate_series(1, 80) AS n
+FROM generate_series((SELECT id FROM tenants LIMIT 1), 80) AS n
 ON CONFLICT DO NOTHING;
 
 -- ============================================================================
@@ -383,7 +383,7 @@ SELECT
     (ARRAY['low', 'normal', 'high', 'critical'])[((n-1) % 4) + 1],
     CASE WHEN n % 3 = 0 THEN true ELSE false END,
     NOW() - (n * 0.5 || ' days')::INTERVAL
-FROM generate_series(1, 50) AS n
+FROM generate_series((SELECT id FROM tenants LIMIT 1), 50) AS n
 ON CONFLICT DO NOTHING;
 
 -- ============================================================================

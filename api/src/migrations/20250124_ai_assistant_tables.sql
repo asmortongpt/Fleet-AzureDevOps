@@ -25,13 +25,13 @@ CREATE TABLE IF NOT EXISTS ai_requests (
   CONSTRAINT valid_priority CHECK (priority BETWEEN 1 AND 10)
 );
 
-CREATE INDEX idx_ai_requests_tenant_user ON ai_requests(tenant_id, user_id);
-CREATE INDEX idx_ai_requests_status ON ai_requests(status);
-CREATE INDEX idx_ai_requests_created_at ON ai_requests(created_at DESC);
-CREATE INDEX idx_ai_requests_priority ON ai_requests(priority DESC, created_at ASC);
+CREATE INDEX IF NOT EXISTS idx_ai_requests_tenant_user ON ai_requests(tenant_id, user_id);
+CREATE INDEX IF NOT EXISTS idx_ai_requests_status ON ai_requests(status);
+CREATE INDEX IF NOT EXISTS idx_ai_requests_created_at ON ai_requests(created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_ai_requests_priority ON ai_requests(priority DESC, created_at ASC);
 
 -- OCR Results Table
-CREATE TABLE IF NOT EXISTS ocr_results (
+CREATE TABLE IF NOT EXISTS ai_ocr_results (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   tenant_id UUID NOT NULL REFERENCES tenants(id) ON DELETE CASCADE,
   user_id UUID REFERENCES users(id) ON DELETE SET NULL,
@@ -45,8 +45,8 @@ CREATE TABLE IF NOT EXISTS ocr_results (
   created_at TIMESTAMP NOT NULL DEFAULT NOW()
 );
 
-CREATE INDEX idx_ocr_results_tenant ON ocr_results(tenant_id);
-CREATE INDEX idx_ocr_results_created_at ON ocr_results(created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_ai_ocr_results_tenant ON ai_ocr_results(tenant_id);
+CREATE INDEX IF NOT EXISTS idx_ai_ocr_results_created_at ON ai_ocr_results(created_at DESC);
 
 -- AI Usage Logs Table
 CREATE TABLE IF NOT EXISTS ai_usage_logs (
@@ -59,8 +59,8 @@ CREATE TABLE IF NOT EXISTS ai_usage_logs (
   created_at TIMESTAMP NOT NULL DEFAULT NOW()
 );
 
-CREATE INDEX idx_ai_usage_tenant_user ON ai_usage_logs(tenant_id, user_id);
-CREATE INDEX idx_ai_usage_created_at ON ai_usage_logs(created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_ai_usage_tenant_user ON ai_usage_logs(tenant_id, user_id);
+CREATE INDEX IF NOT EXISTS idx_ai_usage_created_at ON ai_usage_logs(created_at DESC);
 
 -- AI Audit Logs Table
 CREATE TABLE IF NOT EXISTS ai_audit_logs (
@@ -76,10 +76,10 @@ CREATE TABLE IF NOT EXISTS ai_audit_logs (
   created_at TIMESTAMP NOT NULL DEFAULT NOW()
 );
 
-CREATE INDEX idx_ai_audit_tenant ON ai_audit_logs(tenant_id);
-CREATE INDEX idx_ai_audit_user ON ai_audit_logs(user_id);
-CREATE INDEX idx_ai_audit_created_at ON ai_audit_logs(created_at DESC);
-CREATE INDEX idx_ai_audit_action ON ai_audit_logs(action);
+CREATE INDEX IF NOT EXISTS idx_ai_audit_tenant ON ai_audit_logs(tenant_id);
+CREATE INDEX IF NOT EXISTS idx_ai_audit_user ON ai_audit_logs(user_id);
+CREATE INDEX IF NOT EXISTS idx_ai_audit_created_at ON ai_audit_logs(created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_ai_audit_action ON ai_audit_logs(action);
 
 -- AI Validation Failures Table
 CREATE TABLE IF NOT EXISTS ai_validation_failures (
@@ -91,8 +91,8 @@ CREATE TABLE IF NOT EXISTS ai_validation_failures (
   created_at TIMESTAMP NOT NULL DEFAULT NOW()
 );
 
-CREATE INDEX idx_ai_validation_failures_tenant ON ai_validation_failures(tenant_id);
-CREATE INDEX idx_ai_validation_failures_created_at ON ai_validation_failures(created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_ai_validation_failures_tenant ON ai_validation_failures(tenant_id);
+CREATE INDEX IF NOT EXISTS idx_ai_validation_failures_created_at ON ai_validation_failures(created_at DESC);
 
 -- Add subscription_tier to users table if not exists
 DO $$
@@ -117,9 +117,9 @@ CREATE TABLE IF NOT EXISTS user_permissions (
   UNIQUE(user_id, tenant_id, permission_name)
 );
 
-CREATE INDEX idx_user_permissions_user ON user_permissions(user_id);
-CREATE INDEX idx_user_permissions_tenant ON user_permissions(tenant_id);
-CREATE INDEX idx_user_permissions_name ON user_permissions(permission_name);
+CREATE INDEX IF NOT EXISTS idx_user_permissions_user ON user_permissions(user_id);
+CREATE INDEX IF NOT EXISTS idx_user_permissions_tenant ON user_permissions(tenant_id);
+CREATE INDEX IF NOT EXISTS idx_user_permissions_name ON user_permissions(permission_name);
 
 -- Insert default AI permissions for existing users
 INSERT INTO user_permissions (user_id, tenant_id, permission_name, is_granted)
@@ -184,17 +184,17 @@ WHERE created_at > NOW() - INTERVAL '30 days'
 GROUP BY tenant_id, request_type, status;
 
 -- Grant permissions
-GRANT SELECT, INSERT, UPDATE, DELETE ON ai_requests TO fleet_api;
-GRANT SELECT, INSERT, UPDATE, DELETE ON ocr_results TO fleet_api;
-GRANT SELECT, INSERT, UPDATE, DELETE ON ai_usage_logs TO fleet_api;
-GRANT SELECT, INSERT, UPDATE, DELETE ON ai_audit_logs TO fleet_api;
-GRANT SELECT, INSERT, UPDATE, DELETE ON ai_validation_failures TO fleet_api;
-GRANT SELECT, INSERT, UPDATE, DELETE ON user_permissions TO fleet_api;
-GRANT SELECT ON ai_usage_summary TO fleet_api;
-GRANT SELECT ON ai_request_stats TO fleet_api;
+-- GRANT SELECT, INSERT, UPDATE, DELETE ON ai_requests TO fleet_api;
+-- GRANT SELECT, INSERT, UPDATE, DELETE ON ai_ocr_results TO fleet_api;
+-- GRANT SELECT, INSERT, UPDATE, DELETE ON ai_usage_logs TO fleet_api;
+-- GRANT SELECT, INSERT, UPDATE, DELETE ON ai_audit_logs TO fleet_api;
+-- GRANT SELECT, INSERT, UPDATE, DELETE ON ai_validation_failures TO fleet_api;
+-- GRANT SELECT, INSERT, UPDATE, DELETE ON user_permissions TO fleet_api;
+-- GRANT SELECT ON ai_usage_summary TO fleet_api;
+-- GRANT SELECT ON ai_request_stats TO fleet_api;
 
 COMMENT ON TABLE ai_requests IS 'AI processing request queue with status tracking';
-COMMENT ON TABLE ocr_results IS 'OCR processing results from Azure Computer Vision';
+COMMENT ON TABLE ai_ocr_results IS 'OCR processing results from Azure Computer Vision';
 COMMENT ON TABLE ai_usage_logs IS 'AI usage tracking for rate limiting and billing';
 COMMENT ON TABLE ai_audit_logs IS 'Audit trail for all AI operations';
 COMMENT ON TABLE ai_validation_failures IS 'Log of failed validation attempts for security monitoring';

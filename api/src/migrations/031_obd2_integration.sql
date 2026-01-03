@@ -49,12 +49,12 @@ CREATE TABLE IF NOT EXISTS obd2_adapters (
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE INDEX idx_obd2_adapters_tenant ON obd2_adapters(tenant_id);
-CREATE INDEX idx_obd2_adapters_user ON obd2_adapters(user_id);
-CREATE INDEX idx_obd2_adapters_vehicle ON obd2_adapters(vehicle_id);
-CREATE INDEX idx_obd2_adapters_device_id ON obd2_adapters(device_id);
-CREATE INDEX idx_obd2_adapters_vin ON obd2_adapters(vin);
-CREATE INDEX idx_obd2_adapters_active ON obd2_adapters(is_active, is_paired);
+CREATE INDEX IF NOT EXISTS idx_obd2_adapters_tenant ON obd2_adapters(tenant_id);
+CREATE INDEX IF NOT EXISTS idx_obd2_adapters_user ON obd2_adapters(user_id);
+CREATE INDEX IF NOT EXISTS idx_obd2_adapters_vehicle ON obd2_adapters(vehicle_id);
+CREATE INDEX IF NOT EXISTS idx_obd2_adapters_device_id ON obd2_adapters(device_id);
+CREATE INDEX IF NOT EXISTS idx_obd2_adapters_vin ON obd2_adapters(vin);
+CREATE INDEX IF NOT EXISTS idx_obd2_adapters_active ON obd2_adapters(is_active, is_paired);
 
 -- =====================================================
 -- OBD2 Diagnostic Trouble Codes (DTCs)
@@ -97,13 +97,13 @@ CREATE TABLE IF NOT EXISTS obd2_diagnostic_codes (
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE INDEX idx_obd2_dtc_tenant ON obd2_diagnostic_codes(tenant_id);
-CREATE INDEX idx_obd2_dtc_vehicle ON obd2_diagnostic_codes(vehicle_id);
-CREATE INDEX idx_obd2_dtc_adapter ON obd2_diagnostic_codes(adapter_id);
-CREATE INDEX idx_obd2_dtc_code ON obd2_diagnostic_codes(dtc_code);
-CREATE INDEX idx_obd2_dtc_status ON obd2_diagnostic_codes(status);
-CREATE INDEX idx_obd2_dtc_severity ON obd2_diagnostic_codes(severity);
-CREATE INDEX idx_obd2_dtc_detected_at ON obd2_diagnostic_codes(detected_at);
+CREATE INDEX IF NOT EXISTS idx_obd2_dtc_tenant ON obd2_diagnostic_codes(tenant_id);
+CREATE INDEX IF NOT EXISTS idx_obd2_dtc_vehicle ON obd2_diagnostic_codes(vehicle_id);
+CREATE INDEX IF NOT EXISTS idx_obd2_dtc_adapter ON obd2_diagnostic_codes(adapter_id);
+CREATE INDEX IF NOT EXISTS idx_obd2_dtc_code ON obd2_diagnostic_codes(dtc_code);
+CREATE INDEX IF NOT EXISTS idx_obd2_dtc_status ON obd2_diagnostic_codes(status);
+CREATE INDEX IF NOT EXISTS idx_obd2_dtc_severity ON obd2_diagnostic_codes(severity);
+CREATE INDEX IF NOT EXISTS idx_obd2_dtc_detected_at ON obd2_diagnostic_codes(detected_at);
 
 -- =====================================================
 -- OBD2 Live Data Streams
@@ -159,11 +159,11 @@ CREATE TABLE IF NOT EXISTS obd2_live_data (
 );
 
 -- Partition by time for performance (monthly partitions)
-CREATE INDEX idx_obd2_live_data_tenant ON obd2_live_data(tenant_id);
-CREATE INDEX idx_obd2_live_data_vehicle ON obd2_live_data(vehicle_id);
-CREATE INDEX idx_obd2_live_data_session ON obd2_live_data(session_id);
-CREATE INDEX idx_obd2_live_data_recorded_at ON obd2_live_data(recorded_at);
-CREATE INDEX idx_obd2_live_data_vehicle_time ON obd2_live_data(vehicle_id, recorded_at DESC);
+CREATE INDEX IF NOT EXISTS idx_obd2_live_data_tenant ON obd2_live_data(tenant_id);
+CREATE INDEX IF NOT EXISTS idx_obd2_live_data_vehicle ON obd2_live_data(vehicle_id);
+CREATE INDEX IF NOT EXISTS idx_obd2_live_data_session ON obd2_live_data(session_id);
+CREATE INDEX IF NOT EXISTS idx_obd2_live_data_recorded_at ON obd2_live_data(recorded_at);
+CREATE INDEX IF NOT EXISTS idx_obd2_live_data_vehicle_time ON obd2_live_data(vehicle_id, recorded_at DESC);
 
 -- =====================================================
 -- OBD2 Connection Logs
@@ -198,11 +198,11 @@ CREATE TABLE IF NOT EXISTS obd2_connection_logs (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE INDEX idx_obd2_conn_logs_tenant ON obd2_connection_logs(tenant_id);
-CREATE INDEX idx_obd2_conn_logs_adapter ON obd2_connection_logs(adapter_id);
-CREATE INDEX idx_obd2_conn_logs_vehicle ON obd2_connection_logs(vehicle_id);
-CREATE INDEX idx_obd2_conn_logs_status ON obd2_connection_logs(connection_status);
-CREATE INDEX idx_obd2_conn_logs_created_at ON obd2_connection_logs(created_at);
+CREATE INDEX IF NOT EXISTS idx_obd2_conn_logs_tenant ON obd2_connection_logs(tenant_id);
+CREATE INDEX IF NOT EXISTS idx_obd2_conn_logs_adapter ON obd2_connection_logs(adapter_id);
+CREATE INDEX IF NOT EXISTS idx_obd2_conn_logs_vehicle ON obd2_connection_logs(vehicle_id);
+CREATE INDEX IF NOT EXISTS idx_obd2_conn_logs_status ON obd2_connection_logs(connection_status);
+CREATE INDEX IF NOT EXISTS idx_obd2_conn_logs_created_at ON obd2_connection_logs(created_at);
 
 -- =====================================================
 -- OBD2 DTC Library (Reference table)
@@ -223,8 +223,8 @@ CREATE TABLE IF NOT EXISTS obd2_dtc_library (
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE INDEX idx_obd2_dtc_library_code ON obd2_dtc_library(dtc_code);
-CREATE INDEX idx_obd2_dtc_library_type ON obd2_dtc_library(dtc_type);
+CREATE INDEX IF NOT EXISTS idx_obd2_dtc_library_code ON obd2_dtc_library(dtc_code);
+CREATE INDEX IF NOT EXISTS idx_obd2_dtc_library_type ON obd2_dtc_library(dtc_type);
 
 -- =====================================================
 -- Views for Reporting
@@ -414,8 +414,8 @@ COMMENT ON TABLE obd2_dtc_library IS 'Reference library of all known OBD2 diagno
 -- Grant Permissions
 -- =====================================================
 
-GRANT SELECT, INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA public TO fleet_user;
-GRANT USAGE, SELECT ON ALL SEQUENCES IN SCHEMA public TO fleet_user;
+-- GRANT SELECT, INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA public TO fleet_user;
+-- GRANT USAGE, SELECT ON ALL SEQUENCES IN SCHEMA public TO fleet_user;
 
 -- =====================================================
 -- Completion

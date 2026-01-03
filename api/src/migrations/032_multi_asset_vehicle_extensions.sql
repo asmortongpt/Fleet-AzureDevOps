@@ -129,10 +129,10 @@ CREATE TABLE IF NOT EXISTS asset_relationships (
   CONSTRAINT chk_different_assets CHECK (parent_asset_id != child_asset_id)
 );
 
-CREATE INDEX idx_asset_relationships_parent ON asset_relationships(parent_asset_id);
-CREATE INDEX idx_asset_relationships_child ON asset_relationships(child_asset_id);
-CREATE INDEX idx_asset_relationships_type ON asset_relationships(relationship_type);
-CREATE INDEX idx_asset_relationships_effective ON asset_relationships(effective_from, effective_to);
+CREATE INDEX IF NOT EXISTS idx_asset_relationships_parent ON asset_relationships(parent_asset_id);
+CREATE INDEX IF NOT EXISTS idx_asset_relationships_child ON asset_relationships(child_asset_id);
+CREATE INDEX IF NOT EXISTS idx_asset_relationships_type ON asset_relationships(relationship_type);
+CREATE INDEX IF NOT EXISTS idx_asset_relationships_effective ON asset_relationships(effective_from, effective_to);
 
 COMMENT ON TABLE asset_relationships IS 'Asset relationships for combos like tractor-trailer, machine-attachments';
 COMMENT ON COLUMN asset_relationships.relationship_type IS 'TOWS: tractor-trailer, ATTACHED: excavator-bucket, CARRIES: truck-container, POWERS: truck-generator, CONTAINS: vehicle-cargo';
@@ -173,9 +173,9 @@ CREATE TABLE IF NOT EXISTS telemetry_equipment_events (
   created_at TIMESTAMP NOT NULL DEFAULT NOW()
 );
 
-CREATE INDEX idx_telemetry_equipment_vehicle ON telemetry_equipment_events(vehicle_id);
-CREATE INDEX idx_telemetry_equipment_time ON telemetry_equipment_events(event_time DESC);
-CREATE INDEX idx_telemetry_equipment_operator ON telemetry_equipment_events(operator_id);
+CREATE INDEX IF NOT EXISTS idx_telemetry_equipment_vehicle ON telemetry_equipment_events(vehicle_id);
+CREATE INDEX IF NOT EXISTS idx_telemetry_equipment_time ON telemetry_equipment_events(event_time DESC);
+CREATE INDEX IF NOT EXISTS idx_telemetry_equipment_operator ON telemetry_equipment_events(operator_id);
 
 COMMENT ON TABLE telemetry_equipment_events IS 'Equipment-specific telemetry events for heavy equipment, trailers, and specialty assets';
 

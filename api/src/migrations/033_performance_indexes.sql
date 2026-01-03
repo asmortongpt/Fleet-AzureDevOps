@@ -181,7 +181,7 @@ ON vehicle_inspections(status);
 -- WHERE passed = false;
 
 -- Index for recent vehicle_inspections
-CREATE INDEX IF NOT EXISTS idx_vehicle_inspections_date
+CREATE INDEX IF NOT EXISTS idx_vehicle_inspections_inspected_at
 ON vehicle_inspections(created_at DESC);
 
 -- ============================================================================

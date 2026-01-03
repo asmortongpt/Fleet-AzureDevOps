@@ -25,11 +25,11 @@ END $$;
 DROP INDEX IF EXISTS idx_documents_search_vector;
 
 -- Create GIN index on search_vector for optimal full-text search performance
-CREATE INDEX idx_documents_search_vector ON documents USING GIN(search_vector);
+CREATE INDEX IF NOT EXISTS idx_documents_search_vector ON documents USING GIN(search_vector);
 
 -- Additional index on ocr_text for fallback searches
 DROP INDEX IF EXISTS idx_documents_ocr_fulltext;
-CREATE INDEX idx_documents_ocr_fulltext ON documents USING GIN(
+CREATE INDEX IF NOT EXISTS idx_documents_ocr_fulltext ON documents USING GIN(
   to_tsvector('english', COALESCE(ocr_raw_text, ''))
 ) WHERE ocr_raw_text IS NOT NULL;
 
@@ -201,6 +201,9 @@ GROUP BY tenant_id;
 -- ============================================================================
 -- INDEXES FOR RELATED FIELDS
 -- ============================================================================
+
+-- Ensure columns exist
+ALTER TABLE documents ADD COLUMN IF NOT EXISTS related_maintenance_id UUID;
 
 -- Ensure we have proper indexes for common search filters
 CREATE INDEX IF NOT EXISTS idx_documents_related_vehicle

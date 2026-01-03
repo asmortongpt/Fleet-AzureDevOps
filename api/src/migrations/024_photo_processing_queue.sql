@@ -25,15 +25,15 @@ CREATE TABLE IF NOT EXISTS photo_processing_queue (
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE INDEX idx_photo_processing_queue_tenant ON photo_processing_queue(tenant_id);
-CREATE INDEX idx_photo_processing_queue_user ON photo_processing_queue(user_id);
-CREATE INDEX idx_photo_processing_queue_photo ON photo_processing_queue(photo_id);
-CREATE INDEX idx_photo_processing_queue_status ON photo_processing_queue(status);
-CREATE INDEX idx_photo_processing_queue_priority ON photo_processing_queue(priority);
-CREATE INDEX idx_photo_processing_queue_created_at ON photo_processing_queue(created_at);
+CREATE INDEX IF NOT EXISTS idx_photo_processing_queue_tenant ON photo_processing_queue(tenant_id);
+CREATE INDEX IF NOT EXISTS idx_photo_processing_queue_user ON photo_processing_queue(user_id);
+CREATE INDEX IF NOT EXISTS idx_photo_processing_queue_photo ON photo_processing_queue(photo_id);
+CREATE INDEX IF NOT EXISTS idx_photo_processing_queue_status ON photo_processing_queue(status);
+CREATE INDEX IF NOT EXISTS idx_photo_processing_queue_priority ON photo_processing_queue(priority);
+CREATE INDEX IF NOT EXISTS idx_photo_processing_queue_created_at ON photo_processing_queue(created_at);
 
 -- Composite index for queue processing
-CREATE INDEX idx_photo_processing_queue_processing ON photo_processing_queue(status, priority, created_at)
+CREATE INDEX IF NOT EXISTS idx_photo_processing_queue_processing ON photo_processing_queue(status, priority, created_at)
 WHERE status = 'pending';
 
 COMMENT ON TABLE photo_processing_queue IS 'Queue for asynchronous photo processing (thumbnails, compression, EXIF, OCR)';
@@ -283,11 +283,11 @@ $$;
 -- Permissions
 -- =====================================================
 
-GRANT SELECT, INSERT, UPDATE, DELETE ON photo_processing_queue TO fleet_user;
-GRANT USAGE, SELECT ON ALL SEQUENCES IN SCHEMA public TO fleet_user;
-GRANT SELECT ON photo_processing_stats TO fleet_user;
-GRANT SELECT ON photo_queue_health TO fleet_user;
-GRANT SELECT ON user_photo_activity TO fleet_user;
+-- GRANT SELECT, INSERT, UPDATE, DELETE ON photo_processing_queue TO fleet_user;
+-- GRANT USAGE, SELECT ON ALL SEQUENCES IN SCHEMA public TO fleet_user;
+-- GRANT SELECT ON photo_processing_stats TO fleet_user;
+-- GRANT SELECT ON photo_queue_health TO fleet_user;
+-- GRANT SELECT ON user_photo_activity TO fleet_user;
 
 -- =====================================================
 -- Performance Optimizations
@@ -306,8 +306,8 @@ BEGIN
         ON mobile_photos USING GIST(
             ST_SetSRID(
                 ST_MakePoint(
-                    (exif_data->>''gps''->>''longitude'')::float,
-                    (exif_data->>''gps''->>''latitude'')::float
+                    (exif_data->>''gps''->>''longitude'')::numeric,
+                    (exif_data->>''gps''->>''latitude'')::numeric
                 ),
                 4326
             )::geography

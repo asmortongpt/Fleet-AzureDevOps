@@ -21,12 +21,12 @@ ADD COLUMN IF NOT EXISTS next_execution_at TIMESTAMP;
 -- ==============================================================================
 
 -- Index for finding policies that should be executed
-CREATE INDEX idx_policy_templates_execution_enabled ON policy_templates(execution_enabled) WHERE execution_enabled = TRUE;
-CREATE INDEX idx_policy_templates_next_execution ON policy_templates(next_execution_at) WHERE next_execution_at IS NOT NULL;
+CREATE INDEX IF NOT EXISTS idx_policy_templates_execution_enabled ON policy_templates(execution_enabled) WHERE execution_enabled = TRUE;
+CREATE INDEX IF NOT EXISTS idx_policy_templates_next_execution ON policy_templates(next_execution_at) WHERE next_execution_at IS NOT NULL;
 
 -- GIN index for JSONB condition queries
-CREATE INDEX idx_policy_templates_conditions ON policy_templates USING GIN (conditions);
-CREATE INDEX idx_policy_templates_actions ON policy_templates USING GIN (actions);
+CREATE INDEX IF NOT EXISTS idx_policy_templates_conditions ON policy_templates USING GIN (conditions);
+CREATE INDEX IF NOT EXISTS idx_policy_templates_actions ON policy_templates USING GIN (actions);
 
 -- ==============================================================================
 -- VALIDATION FUNCTIONS

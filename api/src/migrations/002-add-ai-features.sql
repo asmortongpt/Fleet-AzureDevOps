@@ -112,39 +112,39 @@ CREATE TABLE IF NOT EXISTS ai_evidence (
 );
 
 -- Create indexes for performance
-CREATE INDEX idx_ai_conversations_tenant ON ai_conversations(tenant_id);
-CREATE INDEX idx_ai_conversations_user ON ai_conversations(user_id);
-CREATE INDEX idx_ai_conversations_conversation_id ON ai_conversations(conversation_id);
-CREATE INDEX idx_ai_conversations_status ON ai_conversations(status);
-CREATE INDEX idx_ai_conversations_created_at ON ai_conversations(created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_ai_conversations_tenant ON ai_conversations(tenant_id);
+CREATE INDEX IF NOT EXISTS idx_ai_conversations_user ON ai_conversations(user_id);
+CREATE INDEX IF NOT EXISTS idx_ai_conversations_conversation_id ON ai_conversations(conversation_id);
+CREATE INDEX IF NOT EXISTS idx_ai_conversations_status ON ai_conversations(status);
+CREATE INDEX IF NOT EXISTS idx_ai_conversations_created_at ON ai_conversations(created_at DESC);
 
-CREATE INDEX idx_ai_validations_tenant ON ai_validations(tenant_id);
-CREATE INDEX idx_ai_validations_entity ON ai_validations(entity_type, entity_id);
-CREATE INDEX idx_ai_validations_created_at ON ai_validations(created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_ai_validations_tenant ON ai_validations(tenant_id);
+CREATE INDEX IF NOT EXISTS idx_ai_validations_entity ON ai_validations(entity_type, entity_id);
+CREATE INDEX IF NOT EXISTS idx_ai_validations_created_at ON ai_validations(created_at DESC);
 
-CREATE INDEX idx_document_analyses_tenant ON document_analyses(tenant_id);
-CREATE INDEX idx_document_analyses_user ON document_analyses(user_id);
-CREATE INDEX idx_document_analyses_type ON document_analyses(document_type);
-CREATE INDEX idx_document_analyses_needs_review ON document_analyses(needs_review) WHERE needs_review = true;
-CREATE INDEX idx_document_analyses_created_at ON document_analyses(created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_document_analyses_tenant ON document_analyses(tenant_id);
+CREATE INDEX IF NOT EXISTS idx_document_analyses_user ON document_analyses(user_id);
+CREATE INDEX IF NOT EXISTS idx_document_analyses_type ON document_analyses(document_type);
+CREATE INDEX IF NOT EXISTS idx_document_analyses_needs_review ON document_analyses(needs_review) WHERE needs_review = true;
+CREATE INDEX IF NOT EXISTS idx_document_analyses_created_at ON document_analyses(created_at DESC);
 
-CREATE INDEX idx_ai_control_checks_tenant ON ai_control_checks(tenant_id);
-CREATE INDEX idx_ai_control_checks_transaction ON ai_control_checks(transaction_type, transaction_id);
-CREATE INDEX idx_ai_control_checks_severity ON ai_control_checks(severity);
-CREATE INDEX idx_ai_control_checks_passed ON ai_control_checks(passed);
-CREATE INDEX idx_ai_control_checks_created_at ON ai_control_checks(created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_ai_control_checks_tenant ON ai_control_checks(tenant_id);
+CREATE INDEX IF NOT EXISTS idx_ai_control_checks_transaction ON ai_control_checks(transaction_type, transaction_id);
+CREATE INDEX IF NOT EXISTS idx_ai_control_checks_severity ON ai_control_checks(severity);
+CREATE INDEX IF NOT EXISTS idx_ai_control_checks_passed ON ai_control_checks(passed);
+CREATE INDEX IF NOT EXISTS idx_ai_control_checks_created_at ON ai_control_checks(created_at DESC);
 
-CREATE INDEX idx_ai_suggestions_tenant ON ai_suggestions(tenant_id);
-CREATE INDEX idx_ai_suggestions_field ON ai_suggestions(field_name);
-CREATE INDEX idx_ai_suggestions_context ON ai_suggestions(context_hash);
-CREATE INDEX idx_ai_suggestions_expires ON ai_suggestions(expires_at);
+CREATE INDEX IF NOT EXISTS idx_ai_suggestions_tenant ON ai_suggestions(tenant_id);
+CREATE INDEX IF NOT EXISTS idx_ai_suggestions_field ON ai_suggestions(field_name);
+CREATE INDEX IF NOT EXISTS idx_ai_suggestions_context ON ai_suggestions(context_hash);
+CREATE INDEX IF NOT EXISTS idx_ai_suggestions_expires ON ai_suggestions(expires_at);
 
-CREATE INDEX idx_ai_anomaly_baselines_tenant ON ai_anomaly_baselines(tenant_id);
-CREATE INDEX idx_ai_anomaly_baselines_metric ON ai_anomaly_baselines(metric_name);
+CREATE INDEX IF NOT EXISTS idx_ai_anomaly_baselines_tenant ON ai_anomaly_baselines(tenant_id);
+CREATE INDEX IF NOT EXISTS idx_ai_anomaly_baselines_metric ON ai_anomaly_baselines(metric_name);
 
-CREATE INDEX idx_ai_evidence_tenant ON ai_evidence(tenant_id);
-CREATE INDEX idx_ai_evidence_related ON ai_evidence(related_table, related_id);
-CREATE INDEX idx_ai_evidence_created_at ON ai_evidence(created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_ai_evidence_tenant ON ai_evidence(tenant_id);
+CREATE INDEX IF NOT EXISTS idx_ai_evidence_related ON ai_evidence(related_table, related_id);
+CREATE INDEX IF NOT EXISTS idx_ai_evidence_created_at ON ai_evidence(created_at DESC);
 
 -- Function to automatically update updated_at timestamp
 CREATE OR REPLACE FUNCTION update_ai_conversation_timestamp()

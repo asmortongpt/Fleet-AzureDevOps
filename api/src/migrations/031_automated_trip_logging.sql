@@ -68,13 +68,13 @@ CREATE TABLE IF NOT EXISTS trips (
     CONSTRAINT trips_distance_valid CHECK (distance_miles IS NULL OR distance_miles >= 0)
 );
 
-CREATE INDEX idx_trips_tenant ON trips(tenant_id);
-CREATE INDEX idx_trips_vehicle ON trips(vehicle_id);
-CREATE INDEX idx_trips_driver ON trips(driver_id);
-CREATE INDEX idx_trips_status ON trips(status);
-CREATE INDEX idx_trips_start_time ON trips(start_time);
-CREATE INDEX idx_trips_classification ON trips(classification_status);
-CREATE INDEX idx_trips_usage_type ON trips(usage_type);
+CREATE INDEX IF NOT EXISTS idx_trips_tenant ON trips(tenant_id);
+CREATE INDEX IF NOT EXISTS idx_trips_vehicle ON trips(vehicle_id);
+CREATE INDEX IF NOT EXISTS idx_trips_driver ON trips(driver_id);
+CREATE INDEX IF NOT EXISTS idx_trips_status ON trips(status);
+CREATE INDEX IF NOT EXISTS idx_trips_start_time ON trips(start_time);
+CREATE INDEX IF NOT EXISTS idx_trips_classification ON trips(classification_status);
+CREATE INDEX IF NOT EXISTS idx_trips_usage_type ON trips(usage_type);
 
 -- =====================================================
 -- Trip GPS Breadcrumbs (Location History)
@@ -85,7 +85,7 @@ CREATE TABLE IF NOT EXISTS trip_gps_breadcrumbs (
     trip_id UUID NOT NULL REFERENCES trips(id) ON DELETE CASCADE,
 
     -- GPS Data
-    timestamp TIMESTAMP NOT NULL,
+    "timestamp" TIMESTAMP NOT NULL,
     latitude DECIMAL(10, 7) NOT NULL,
     longitude DECIMAL(11, 7) NOT NULL,
     accuracy_meters DECIMAL(6, 2),
@@ -107,10 +107,10 @@ CREATE TABLE IF NOT EXISTS trip_gps_breadcrumbs (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE INDEX idx_trip_breadcrumbs_trip ON trip_gps_breadcrumbs(trip_id);
-CREATE INDEX idx_trip_breadcrumbs_timestamp ON trip_gps_breadcrumbs(trip_id, timestamp);
-CREATE INDEX idx_trip_breadcrumbs_location ON trip_gps_breadcrumbs USING GIST (
-    ll_to_earth(latitude::float8, longitude::float8)
+CREATE INDEX IF NOT EXISTS idx_trip_breadcrumbs_trip ON trip_gps_breadcrumbs(trip_id);
+CREATE INDEX IF NOT EXISTS idx_trip_breadcrumbs_timestamp ON trip_gps_breadcrumbs(trip_id, timestamp);
+CREATE INDEX IF NOT EXISTS idx_trip_breadcrumbs_location ON trip_gps_breadcrumbs USING GIST (
+    ll_to_earth(latitude::numeric, longitude::numeric)
 );
 
 -- =====================================================
@@ -121,7 +121,7 @@ CREATE TABLE IF NOT EXISTS trip_obd2_metrics (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     trip_id UUID NOT NULL REFERENCES trips(id) ON DELETE CASCADE,
 
-    timestamp TIMESTAMP NOT NULL,
+    "timestamp" TIMESTAMP NOT NULL,
 
     -- Engine Data
     engine_rpm INTEGER,
@@ -162,8 +162,8 @@ CREATE TABLE IF NOT EXISTS trip_obd2_metrics (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE INDEX idx_trip_obd2_trip ON trip_obd2_metrics(trip_id);
-CREATE INDEX idx_trip_obd2_timestamp ON trip_obd2_metrics(trip_id, timestamp);
+CREATE INDEX IF NOT EXISTS idx_trip_obd2_trip ON trip_obd2_metrics(trip_id);
+CREATE INDEX IF NOT EXISTS idx_trip_obd2_timestamp ON trip_obd2_metrics(trip_id, timestamp);
 
 -- =====================================================
 -- Trip Events (Harsh driving, speeding, etc.)
@@ -192,7 +192,7 @@ CREATE TABLE IF NOT EXISTS trip_events (
     severity VARCHAR(20) NOT NULL CHECK (severity IN ('low', 'medium', 'high', 'critical')),
 
     -- Location
-    timestamp TIMESTAMP NOT NULL,
+    "timestamp" TIMESTAMP NOT NULL,
     latitude DECIMAL(10, 7),
     longitude DECIMAL(11, 7),
     address TEXT,
@@ -209,10 +209,10 @@ CREATE TABLE IF NOT EXISTS trip_events (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE INDEX idx_trip_events_trip ON trip_events(trip_id);
-CREATE INDEX idx_trip_events_type ON trip_events(event_type);
-CREATE INDEX idx_trip_events_severity ON trip_events(severity);
-CREATE INDEX idx_trip_events_timestamp ON trip_events(timestamp);
+CREATE INDEX IF NOT EXISTS idx_trip_events_trip ON trip_events(trip_id);
+CREATE INDEX IF NOT EXISTS idx_trip_events_type ON trip_events(event_type);
+CREATE INDEX IF NOT EXISTS idx_trip_events_severity ON trip_events(severity);
+CREATE INDEX IF NOT EXISTS idx_trip_events_timestamp ON trip_events(timestamp);
 
 -- =====================================================
 -- Trip Segments (For multi-stop trips)
@@ -245,8 +245,8 @@ CREATE TABLE IF NOT EXISTS trip_segments (
     CONSTRAINT trip_segments_unique UNIQUE (trip_id, segment_number)
 );
 
-CREATE INDEX idx_trip_segments_trip ON trip_segments(trip_id);
-CREATE INDEX idx_trip_segments_start_time ON trip_segments(start_time);
+CREATE INDEX IF NOT EXISTS idx_trip_segments_trip ON trip_segments(trip_id);
+CREATE INDEX IF NOT EXISTS idx_trip_segments_start_time ON trip_segments(start_time);
 
 -- =====================================================
 -- Driver Scores (Historical tracking)
@@ -284,9 +284,9 @@ CREATE TABLE IF NOT EXISTS driver_scores_history (
     CONSTRAINT driver_scores_unique UNIQUE (driver_id, date)
 );
 
-CREATE INDEX idx_driver_scores_driver ON driver_scores_history(driver_id);
-CREATE INDEX idx_driver_scores_date ON driver_scores_history(date);
-CREATE INDEX idx_driver_scores_overall ON driver_scores_history(overall_score);
+CREATE INDEX IF NOT EXISTS idx_driver_scores_driver ON driver_scores_history(driver_id);
+CREATE INDEX IF NOT EXISTS idx_driver_scores_date ON driver_scores_history(date);
+CREATE INDEX IF NOT EXISTS idx_driver_scores_overall ON driver_scores_history(overall_score);
 
 -- =====================================================
 -- Views for Reporting
@@ -550,8 +550,8 @@ COMMENT ON TABLE driver_scores_history IS 'Historical driver safety scores for t
 -- Grant Permissions
 -- =====================================================
 
-GRANT SELECT, INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA public TO fleet_user;
-GRANT USAGE, SELECT ON ALL SEQUENCES IN SCHEMA public TO fleet_user;
+-- GRANT SELECT, INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA public TO fleet_user;
+-- GRANT USAGE, SELECT ON ALL SEQUENCES IN SCHEMA public TO fleet_user;
 
 -- =====================================================
 -- Completion

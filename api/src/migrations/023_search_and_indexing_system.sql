@@ -14,6 +14,7 @@ CREATE EXTENSION IF NOT EXISTS btree_gin; -- For better indexing performance
 
 -- Add search columns to documents table
 ALTER TABLE documents
+ADD COLUMN IF NOT EXISTS tenant_id UUID REFERENCES tenants(id),
 ADD COLUMN IF NOT EXISTS search_vector tsvector,
 ADD COLUMN IF NOT EXISTS indexed_at TIMESTAMP,
 ADD COLUMN IF NOT EXISTS index_status VARCHAR(20) DEFAULT 'pending',
@@ -25,13 +26,13 @@ ON documents USING GIN (search_vector);
 
 -- Create indexes for common search filters
 CREATE INDEX IF NOT EXISTS idx_documents_category_status
-ON documents(category_id, status);
+ON documents(document_category_id, status);
 
 CREATE INDEX IF NOT EXISTS idx_documents_tenant_status
 ON documents(tenant_id, status);
 
-CREATE INDEX IF NOT EXISTS idx_documents_file_type
-ON documents(file_type);
+CREATE INDEX IF NOT EXISTS idx_documents_document_type
+ON documents(document_type);
 
 CREATE INDEX IF NOT EXISTS idx_documents_created_at
 ON documents(created_at DESC);
@@ -40,8 +41,8 @@ CREATE INDEX IF NOT EXISTS idx_documents_tags
 ON documents USING GIN (tags);
 
 -- Trigram indexes for fuzzy matching
-CREATE INDEX IF NOT EXISTS idx_documents_file_name_trgm
-ON documents USING GIN (file_name gin_trgm_ops);
+CREATE INDEX IF NOT EXISTS idx_documents_document_name_trgm
+ON documents USING GIN (document_name gin_trgm_ops);
 
 CREATE INDEX IF NOT EXISTS idx_documents_description_trgm
 ON documents USING GIN (description gin_trgm_ops);
@@ -218,6 +219,9 @@ ON search_click_tracking(created_at DESC);
 -- Document Categories (Enhanced for Search)
 -- ============================================================================
 
+-- Add tenant_id to document_categories if not exists
+ALTER TABLE document_categories ADD COLUMN IF NOT EXISTS tenant_id UUID REFERENCES tenants(id);
+
 -- Add indexes to document_categories if not exists
 CREATE INDEX IF NOT EXISTS idx_document_categories_tenant
 ON document_categories(tenant_id);
@@ -239,9 +243,9 @@ RETURNS TRIGGER AS $$
 BEGIN
   -- Build search vector from multiple fields with different weights
   NEW.search_vector :=
-    setweight(to_tsvector('english', COALESCE(NEW.file_name, '')), 'A') ||
+    setweight(to_tsvector('english', COALESCE(NEW.document_name, '')), 'A') ||
     setweight(to_tsvector('english', COALESCE(NEW.description, '')), 'B') ||
-    setweight(to_tsvector('english', COALESCE(NEW.extracted_text, '')), 'C') ||
+    setweight(to_tsvector('english', COALESCE(NEW.ocr_raw_text, '')), 'C') ||
     setweight(to_tsvector('english', COALESCE(array_to_string(NEW.tags, ' '), '')), 'A');
 
   -- Update indexed timestamp
@@ -255,7 +259,7 @@ $$ LANGUAGE plpgsql;
 -- Create trigger for automatic search vector updates
 DROP TRIGGER IF EXISTS trigger_update_document_search_vector ON documents;
 CREATE TRIGGER trigger_update_document_search_vector
-  BEFORE INSERT OR UPDATE OF file_name, description, extracted_text, tags
+  BEFORE INSERT OR UPDATE OF document_name, description, ocr_raw_text, tags
   ON documents
   FOR EACH ROW
   EXECUTE FUNCTION update_document_search_vector();
@@ -348,8 +352,8 @@ ON mv_no_result_queries(query_text);
 CREATE MATERIALIZED VIEW IF NOT EXISTS mv_document_popularity AS
 SELECT
   d.id,
-  d.file_name,
-  d.category_id,
+  d.document_name,
+  d.document_category_id,
   d.tenant_id,
   COUNT(sct.id) as click_count,
   d.view_count,
@@ -358,7 +362,7 @@ FROM documents d
 LEFT JOIN search_click_tracking sct ON d.id = sct.document_id
   AND sct.created_at > NOW() - INTERVAL '30 days'
 WHERE d.status = 'active'
-GROUP BY d.id, d.file_name, d.category_id, d.tenant_id, d.view_count
+GROUP BY d.id, d.document_name, d.document_category_id, d.tenant_id, d.view_count
 HAVING COUNT(sct.id) > 0
 ORDER BY click_count DESC;
 

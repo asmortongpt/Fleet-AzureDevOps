@@ -121,7 +121,7 @@ CREATE TABLE IF NOT EXISTS vehicle_safety_inspections (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     vehicle_id UUID REFERENCES vehicles(id) NOT NULL,
     driver_id UUID REFERENCES drivers(id) NOT NULL,
-    inspection_date DATE NOT NULL,
+    inspected_at DATE NOT NULL,
     inspection_time TIME NOT NULL,
     inspection_type VARCHAR(50) NOT NULL, -- 'Pre-Trip', 'Post-Trip', 'Monthly', 'Annual'
     odometer_reading INTEGER,
@@ -400,8 +400,8 @@ CREATE TABLE IF NOT EXISTS ppe_assignments (
 
     -- Condition
     condition_status VARCHAR(50) DEFAULT 'Good', -- 'New', 'Good', 'Fair', 'Needs Replacement'
-    last_inspection_date DATE,
-    next_inspection_date DATE,
+    last_inspected_at DATE,
+    next_inspected_at DATE,
 
     -- Compliance
     osha_required BOOLEAN DEFAULT FALSE,
@@ -429,7 +429,7 @@ CREATE INDEX IF NOT EXISTS idx_osha_300_status ON osha_300_log(case_status);
 
 CREATE INDEX IF NOT EXISTS idx_inspections_vehicle ON vehicle_safety_inspections(vehicle_id);
 CREATE INDEX IF NOT EXISTS idx_inspections_driver ON vehicle_safety_inspections(driver_id);
-CREATE INDEX IF NOT EXISTS idx_inspections_date ON vehicle_safety_inspections(inspection_date);
+CREATE INDEX IF NOT EXISTS idx_inspections_date ON vehicle_safety_inspections(inspected_at);
 CREATE INDEX IF NOT EXISTS idx_inspections_status ON vehicle_safety_inspections(overall_status);
 
 CREATE INDEX IF NOT EXISTS idx_training_employee ON safety_training_records(employee_number);
