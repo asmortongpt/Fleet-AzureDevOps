@@ -133,33 +133,35 @@ async function checkRedis(): Promise<HealthCheck> {
  * Check memory usage
  */
 function checkMemory(): HealthCheck {
+  const v8 = require('v8')
   const usage = process.memoryUsage()
+  const heapStats = v8.getHeapStatistics()
   const totalMemory = os.totalmem()
   const freeMemory = os.freemem()
 
   // Convert to MB for readability
   const heapUsedMB = Math.round(usage.heapUsed / 1024 / 1024)
-  const heapTotalMB = Math.round(usage.heapTotal / 1024 / 1024)
+  const heapLimitMB = Math.round(heapStats.heap_size_limit / 1024 / 1024)
   const rssMB = Math.round(usage.rss / 1024 / 1024)
   const totalMemoryMB = Math.round(totalMemory / 1024 / 1024)
   const freeMemoryMB = Math.round(freeMemory / 1024 / 1024)
 
-  // Calculate percentages
-  const heapPercentage = Math.round((heapUsedMB / heapTotalMB) * 100)
+  // Calculate percentages based on limit, not current allocated heap
+  const heapPercentage = Math.round((heapUsedMB / heapLimitMB) * 100)
   const systemMemoryPercentage = Math.round(((totalMemory - freeMemory) / totalMemory) * 100)
 
   // Determine status based on memory usage
   let status: 'healthy' | 'warning' | 'unhealthy' = 'healthy'
-  if (heapPercentage > 90 || systemMemoryPercentage > 90) {
+  if (heapPercentage > 90 || systemMemoryPercentage > 95) {
     status = 'unhealthy'
-  } else if (heapPercentage > 75 || systemMemoryPercentage > 75) {
+  } else if (heapPercentage > 75 || systemMemoryPercentage > 85) {
     status = 'warning'
   }
 
   return {
     status,
     heapUsedMB,
-    heapTotalMB,
+    heapLimitMB,
     heapPercentage,
     rssMB,
     systemMemoryUsedMB: totalMemoryMB - freeMemoryMB,
@@ -277,7 +279,7 @@ router.get('/', async (req: Request, res: Response) => {
 
   // Set appropriate HTTP status code
   const statusCode = health.status === 'healthy' ? 200 :
-                     health.status === 'degraded' ? 200 : 503
+    health.status === 'degraded' ? 200 : 503
 
   // Track health check in telemetry
   const duration = Date.now() - startTime
