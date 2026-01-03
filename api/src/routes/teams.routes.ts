@@ -28,7 +28,7 @@ import {
   UpdateMessageRequest
 } from '../types/teams.types'
 import { getErrorMessage } from '../utils/error-handler'
-import { logger } from '../config/logger'
+import logger from '../config/logger'
 
 const router = Router()
 

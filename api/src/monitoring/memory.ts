@@ -1,4 +1,4 @@
-import { logger } from '../middleware/logger';
+import logger from '../middleware/logger';
 
 // Memory monitoring configuration
 const MEMORY_CHECK_INTERVAL = 5 * 60 * 1000; // 5 minutes
