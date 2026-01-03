@@ -556,7 +556,7 @@ export function VehicleListDrilldown() {
                                 'secondary'
                     }
                     className={
-                        vehicle.status === 'active' ? 'bg-emerald-500 hover:bg-emerald-600' :
+                        vehicle.status === 'active' ? 'bg-emerald-600 hover:bg-emerald-700' :
                             vehicle.status === 'maintenance' || vehicle.status === 'service' ? 'bg-amber-500 hover:bg-amber-600' :
                                 ''
                     }
