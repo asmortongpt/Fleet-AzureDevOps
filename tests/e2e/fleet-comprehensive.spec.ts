@@ -157,11 +157,17 @@ test.describe('Fleet Management - Comprehensive Test Suite', () => {
       .withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa'])
       .analyze();
 
-    // Log violations
+    // Log violations with details
     if (accessibilityScanResults.violations.length > 0) {
       console.log('Accessibility violations found:', accessibilityScanResults.violations.length);
-      accessibilityScanResults.violations.forEach(violation => {
-        console.log(`- ${violation.id}: ${violation.description}`);
+      accessibilityScanResults.violations.forEach((violation, i) => {
+        console.log(`\n${i + 1}. ${violation.id}: ${violation.description}`);
+        console.log(`   Impact: ${violation.impact}`);
+        console.log(`   Affected elements (${violation.nodes.length}):`);
+        violation.nodes.forEach((node, j) => {
+          console.log(`     ${j + 1}. HTML: ${node.html.substring(0, 120)}...`);
+          console.log(`        Target: ${node.target.join(' > ')}`);
+        });
       });
     }
 
