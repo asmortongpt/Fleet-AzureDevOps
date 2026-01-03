@@ -68,6 +68,7 @@ import vehicleIdlingRouter from './routes/vehicle-idling.routes'
 
 // Maintenance & Inspection Routes
 import maintenanceSchedulesRouter from './routes/maintenance-schedules'
+import maintenanceDrilldownsRouter from './routes/maintenance-drilldowns'
 import inspectionsRouter from './routes/inspections'
 import videoEventsRouter from './routes/video-events'
 import videoTelematicsRouter from './routes/video-telematics.routes'
@@ -327,6 +328,7 @@ app.use('/api/vehicle-idling', vehicleIdlingRouter)
 
 // Maintenance & Inspection Routes
 app.use('/api/maintenance-schedules', maintenanceSchedulesRouter)
+app.use('/api/maintenance/drilldowns', maintenanceDrilldownsRouter)
 app.use('/api/inspections', inspectionsRouter)
 app.use('/api/work-orders', workOrdersRouter)
 
