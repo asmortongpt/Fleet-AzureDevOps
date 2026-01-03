@@ -82,6 +82,17 @@ export interface Vehicle {
   fleet_id?: string
   location_id?: string
 
+  // Financial
+  purchasePrice?: number | string
+  currentValue?: number | string
+  acquisitionDate?: string
+
+  // Metadata
+  metadata?: {
+    image_url?: string
+    [key: string]: any
+  }
+
   // Timestamps
   createdAt?: string
   updatedAt?: string

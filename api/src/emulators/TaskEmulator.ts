@@ -241,7 +241,7 @@ priority = 'urgent'
       startDate = faker.date.between({ from: new Date(now.getTime() - 14 * 24 * 60 * 60 * 1000), to: now })
       completionPercentage = faker.number.int({ min: 10, max: 90 })
       const maxActual = Math.max(template.estimatedHours * 0.8, 0.5)
-      actualHours = faker.number.float({ min: 0.25, max: maxActual, precision: 0.25 })
+      actualHours = faker.number.float({ min: 0.25, max: maxActual, fractionDigits: 2 })
     } else if (status === 'COMPLETED') {
       startDate = faker.date.between({ from: new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000), to: new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000) })
       completedDate = new Date(startDate)
@@ -249,7 +249,7 @@ priority = 'urgent'
       const additionalHours = Math.max(template.estimatedHours + faker.number.float({ min: -1, max: 4 }), 0.5)
       completedDate.setHours(completedDate.getHours() + additionalHours)
       completionPercentage = 100
-      actualHours = faker.number.float({ min: template.estimatedHours * 0.7, max: template.estimatedHours * 1.3, precision: 0.25 })
+      actualHours = faker.number.float({ min: template.estimatedHours * 0.7, max: template.estimatedHours * 1.3, fractionDigits: 2 })
     }
 
     const blockedReason = status === 'BLOCKED' ? this.generateBlockedReason() : undefined
@@ -317,12 +317,12 @@ priority = 'urgent'
 
     if (type === 'procurement') {
       metadata.vendor = VENDORS[faker.number.int({ min: 0, max: VENDORS.length - 1 })]
-      metadata.cost = faker.number.float({ min: 50, max: 5000, precision: 0.01 })
+      metadata.cost = faker.number.float({ min: 50, max: 5000, fractionDigits: 2 })
     }
 
     if (type === 'maintenance') {
       metadata.parts = this.generatePartsList()
-      metadata.cost = faker.number.float({ min: 100, max: 2000, precision: 0.01 })
+      metadata.cost = faker.number.float({ min: 100, max: 2000, fractionDigits: 2 })
     }
 
     if (Math.random() > 0.6) {
