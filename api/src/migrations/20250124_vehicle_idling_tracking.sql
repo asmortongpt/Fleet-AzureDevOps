@@ -167,7 +167,7 @@ CREATE INDEX idx_idling_summary_date ON vehicle_idling_daily_summary(summary_dat
 -- ============================================================================
 CREATE TABLE IF NOT EXISTS vehicle_idling_alerts (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    idling_event_id INTEGER NOT NULL REFERENCES vehicle_idling_events(id) ON DELETE CASCADE,
+    idling_event_id UUID NOT NULL REFERENCES vehicle_idling_events(id) ON DELETE CASCADE,
     vehicle_id UUID NOT NULL REFERENCES vehicles(id) ON DELETE CASCADE,
     driver_id UUID REFERENCES users(id) ON DELETE SET NULL,
 

@@ -3,7 +3,7 @@
 
 -- Odometer readings table
 CREATE TABLE IF NOT EXISTS odometer_readings (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     tenant_id UUID NOT NULL REFERENCES tenants(id) ON DELETE CASCADE,
     vehicle_id UUID NOT NULL REFERENCES vehicles(id) ON DELETE CASCADE,
     odometer_reading DECIMAL(10, 2) NOT NULL,
@@ -27,7 +27,7 @@ CREATE INDEX idx_odometer_readings_trip ON odometer_readings(trip_id);
 
 -- Mobile OCR captures table (metadata for all OCR captures)
 CREATE TABLE IF NOT EXISTS mobile_ocr_captures (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     tenant_id UUID NOT NULL REFERENCES tenants(id) ON DELETE CASCADE,
     user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
     capture_type VARCHAR(50) NOT NULL CHECK (capture_type IN ('fuel_receipt', 'odometer', 'damage', 'inspection')),

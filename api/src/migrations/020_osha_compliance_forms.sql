@@ -29,7 +29,7 @@ CREATE TABLE IF NOT EXISTS osha_form_templates (
 CREATE TABLE IF NOT EXISTS osha_300_log (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     case_number VARCHAR(50) UNIQUE NOT NULL,
-    employee_id UUID REFERENCES drivers(id),
+    employee_number UUID REFERENCES drivers(id),
     employee_name VARCHAR(255) NOT NULL,
     job_title VARCHAR(255),
     date_of_injury DATE NOT NULL,
@@ -69,7 +69,7 @@ CREATE TABLE IF NOT EXISTS osha_300_log (
 
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    created_by INTEGER,
+    created_by UUID,
     updated_by INTEGER
 );
 
@@ -187,7 +187,7 @@ CREATE TABLE IF NOT EXISTS vehicle_safety_inspections (
 
 CREATE TABLE IF NOT EXISTS safety_training_records (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    employee_id UUID REFERENCES drivers(id) NOT NULL,
+    employee_number UUID REFERENCES drivers(id) NOT NULL,
     training_type VARCHAR(100) NOT NULL,
     training_topic VARCHAR(255) NOT NULL,
     training_date DATE NOT NULL,
@@ -384,7 +384,7 @@ CREATE TABLE IF NOT EXISTS accident_investigations (
 
 CREATE TABLE IF NOT EXISTS ppe_assignments (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    employee_id UUID REFERENCES drivers(id) NOT NULL,
+    employee_number UUID REFERENCES drivers(id) NOT NULL,
 
     -- Equipment Details
     equipment_type VARCHAR(100) NOT NULL, -- 'Hard Hat', 'Safety Vest', 'Gloves', 'Safety Shoes', etc.
@@ -422,7 +422,7 @@ CREATE TABLE IF NOT EXISTS ppe_assignments (
 -- Indexes for Performance
 -- ============================================================================
 
-CREATE INDEX IF NOT EXISTS idx_osha_300_employee ON osha_300_log(employee_id);
+CREATE INDEX IF NOT EXISTS idx_osha_300_employee ON osha_300_log(employee_number);
 CREATE INDEX IF NOT EXISTS idx_osha_300_vehicle ON osha_300_log(vehicle_id);
 CREATE INDEX IF NOT EXISTS idx_osha_300_date ON osha_300_log(date_of_injury);
 CREATE INDEX IF NOT EXISTS idx_osha_300_status ON osha_300_log(case_status);
@@ -432,7 +432,7 @@ CREATE INDEX IF NOT EXISTS idx_inspections_driver ON vehicle_safety_inspections(
 CREATE INDEX IF NOT EXISTS idx_inspections_date ON vehicle_safety_inspections(inspection_date);
 CREATE INDEX IF NOT EXISTS idx_inspections_status ON vehicle_safety_inspections(overall_status);
 
-CREATE INDEX IF NOT EXISTS idx_training_employee ON safety_training_records(employee_id);
+CREATE INDEX IF NOT EXISTS idx_training_employee ON safety_training_records(employee_number);
 CREATE INDEX IF NOT EXISTS idx_training_date ON safety_training_records(training_date);
 CREATE INDEX IF NOT EXISTS idx_training_expiry ON safety_training_records(certification_expiry_date);
 
@@ -443,7 +443,7 @@ CREATE INDEX IF NOT EXISTS idx_accidents_vehicle ON accident_investigations(vehi
 CREATE INDEX IF NOT EXISTS idx_accidents_driver ON accident_investigations(driver_id);
 CREATE INDEX IF NOT EXISTS idx_accidents_date ON accident_investigations(accident_date);
 
-CREATE INDEX IF NOT EXISTS idx_ppe_employee ON ppe_assignments(employee_id);
+CREATE INDEX IF NOT EXISTS idx_ppe_employee ON ppe_assignments(employee_number);
 CREATE INDEX IF NOT EXISTS idx_ppe_active ON ppe_assignments(is_active);
 
 -- ============================================================================

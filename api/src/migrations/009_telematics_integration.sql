@@ -33,8 +33,8 @@ ON CONFLICT (name) DO NOTHING;
 
 CREATE TABLE IF NOT EXISTS vehicle_telematics_connections (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  vehicle_id INT NOT NULL REFERENCES vehicles(id) ON DELETE CASCADE,
-  provider_id INT NOT NULL REFERENCES telematics_providers(id),
+  vehicle_id UUID NOT NULL REFERENCES vehicles(id) ON DELETE CASCADE,
+  provider_id UUID NOT NULL REFERENCES telematics_providers(id),
   external_vehicle_id VARCHAR(255) NOT NULL, -- Provider's vehicle ID
   access_token TEXT,
   refresh_token TEXT,
@@ -59,8 +59,8 @@ CREATE INDEX idx_vehicle_telematics_status ON vehicle_telematics_connections(syn
 
 CREATE TABLE IF NOT EXISTS vehicle_telemetry (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  vehicle_id INT NOT NULL REFERENCES vehicles(id) ON DELETE CASCADE,
-  provider_id INT REFERENCES telematics_providers(id),
+  vehicle_id UUID NOT NULL REFERENCES vehicles(id) ON DELETE CASCADE,
+  provider_id UUID REFERENCES telematics_providers(id),
   timestamp TIMESTAMP NOT NULL,
 
   -- Location data
@@ -119,9 +119,9 @@ CREATE INDEX idx_telemetry_provider ON vehicle_telemetry(provider_id, timestamp 
 CREATE TABLE IF NOT EXISTS driver_safety_events (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   external_event_id VARCHAR(255) UNIQUE, -- Provider's event ID
-  vehicle_id INT NOT NULL REFERENCES vehicles(id) ON DELETE CASCADE,
-  driver_id INT REFERENCES drivers(id) ON DELETE SET NULL,
-  provider_id INT REFERENCES telematics_providers(id),
+  vehicle_id UUID NOT NULL REFERENCES vehicles(id) ON DELETE CASCADE,
+  driver_id UUID REFERENCES drivers(id) ON DELETE SET NULL,
+  provider_id UUID REFERENCES telematics_providers(id),
 
   -- Event details
   event_type VARCHAR(50) NOT NULL, -- 'harsh_braking', 'harsh_acceleration', 'harsh_turning', 'speeding', 'distracted_driving', 'following_too_close'
@@ -161,8 +161,8 @@ CREATE INDEX idx_safety_events_severity ON driver_safety_events(severity);
 CREATE TABLE IF NOT EXISTS driver_hos_logs (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   external_log_id VARCHAR(255) UNIQUE,
-  driver_id INT NOT NULL REFERENCES drivers(id) ON DELETE CASCADE,
-  provider_id INT REFERENCES telematics_providers(id),
+  driver_id UUID NOT NULL REFERENCES drivers(id) ON DELETE CASCADE,
+  provider_id UUID REFERENCES telematics_providers(id),
 
   -- HOS details
   log_date DATE NOT NULL,
@@ -195,8 +195,8 @@ CREATE INDEX idx_hos_violations ON driver_hos_logs(has_violations) WHERE has_vio
 
 CREATE TABLE IF NOT EXISTS vehicle_diagnostic_codes (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  vehicle_id INT NOT NULL REFERENCES vehicles(id) ON DELETE CASCADE,
-  provider_id INT REFERENCES telematics_providers(id),
+  vehicle_id UUID NOT NULL REFERENCES vehicles(id) ON DELETE CASCADE,
+  provider_id UUID REFERENCES telematics_providers(id),
 
   -- Diagnostic code
   dtc_code VARCHAR(10) NOT NULL, -- e.g., 'P0420', 'C0035'
@@ -224,28 +224,22 @@ CREATE INDEX idx_diagnostic_codes_active ON vehicle_diagnostic_codes(vehicle_id)
 CREATE TABLE IF NOT EXISTS geofences (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   name VARCHAR(255) NOT NULL,
-  description TEXT,
-  geofence_type VARCHAR(50), -- 'circle', 'polygon', 'route'
-
-  -- Circle geofence
-  center_latitude DECIMAL(10, 8),
-  center_longitude DECIMAL(11, 8),
-  radius_meters INT,
-
-  -- Polygon geofence
-  polygon_coordinates JSONB, -- Array of [lat, lng] pairs
-
-  -- Alerts
-  alert_on_entry BOOLEAN DEFAULT true,
-  alert_on_exit BOOLEAN DEFAULT true,
-  alert_on_dwell BOOLEAN DEFAULT false,
-  dwell_threshold_minutes INT,
-
-  -- Metadata
-  created_by INT REFERENCES users(id),
-  created_at TIMESTAMP DEFAULT NOW(),
-  updated_at TIMESTAMP DEFAULT NOW()
+  created_at TIMESTAMP DEFAULT NOW()
 );
+
+-- Ensure columns exist if table was already created
+ALTER TABLE geofences ADD COLUMN IF NOT EXISTS description TEXT;
+ALTER TABLE geofences ADD COLUMN IF NOT EXISTS geofence_type VARCHAR(50);
+ALTER TABLE geofences ADD COLUMN IF NOT EXISTS center_latitude DECIMAL(10, 8);
+ALTER TABLE geofences ADD COLUMN IF NOT EXISTS center_longitude DECIMAL(11, 8);
+ALTER TABLE geofences ADD COLUMN IF NOT EXISTS radius_meters INT;
+ALTER TABLE geofences ADD COLUMN IF NOT EXISTS polygon_coordinates JSONB;
+ALTER TABLE geofences ADD COLUMN IF NOT EXISTS alert_on_entry BOOLEAN DEFAULT true;
+ALTER TABLE geofences ADD COLUMN IF NOT EXISTS alert_on_exit BOOLEAN DEFAULT true;
+ALTER TABLE geofences ADD COLUMN IF NOT EXISTS alert_on_dwell BOOLEAN DEFAULT false;
+ALTER TABLE geofences ADD COLUMN IF NOT EXISTS dwell_threshold_minutes INT;
+ALTER TABLE geofences ADD COLUMN IF NOT EXISTS created_by UUID REFERENCES users(id);
+ALTER TABLE geofences ADD COLUMN IF NOT EXISTS updated_at TIMESTAMP DEFAULT NOW();
 
 CREATE INDEX idx_geofences_type ON geofences(geofence_type);
 
@@ -255,10 +249,10 @@ CREATE INDEX idx_geofences_type ON geofences(geofence_type);
 
 CREATE TABLE IF NOT EXISTS geofence_events (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  vehicle_id INT NOT NULL REFERENCES vehicles(id) ON DELETE CASCADE,
-  geofence_id INT NOT NULL REFERENCES geofences(id) ON DELETE CASCADE,
-  driver_id INT REFERENCES drivers(id) ON DELETE SET NULL,
-  provider_id INT REFERENCES telematics_providers(id),
+  vehicle_id UUID NOT NULL REFERENCES vehicles(id) ON DELETE CASCADE,
+  geofence_id UUID NOT NULL REFERENCES geofences(id) ON DELETE CASCADE,
+  driver_id UUID REFERENCES drivers(id) ON DELETE SET NULL,
+  provider_id UUID REFERENCES telematics_providers(id),
 
   -- Event details
   event_type VARCHAR(20) NOT NULL, -- 'entry', 'exit', 'dwell'
@@ -283,8 +277,8 @@ CREATE INDEX idx_geofence_events_geofence ON geofence_events(geofence_id, timest
 
 CREATE TABLE IF NOT EXISTS driver_behavior_scores (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  driver_id INT NOT NULL REFERENCES drivers(id) ON DELETE CASCADE,
-  provider_id INT REFERENCES telematics_providers(id),
+  driver_id UUID NOT NULL REFERENCES drivers(id) ON DELETE CASCADE,
+  provider_id UUID REFERENCES telematics_providers(id),
 
   -- Score period
   score_date DATE NOT NULL,
@@ -324,7 +318,7 @@ CREATE INDEX idx_behavior_scores_driver_date ON driver_behavior_scores(driver_id
 
 CREATE TABLE IF NOT EXISTS telematics_webhook_events (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  provider_id INT REFERENCES telematics_providers(id),
+  provider_id UUID REFERENCES telematics_providers(id),
   event_type VARCHAR(100) NOT NULL,
   external_id VARCHAR(255),
   payload JSONB NOT NULL,

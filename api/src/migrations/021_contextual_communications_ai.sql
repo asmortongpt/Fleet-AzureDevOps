@@ -67,7 +67,7 @@ CREATE TABLE IF NOT EXISTS communications (
 
     -- Audit
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    created_by INTEGER,
+    created_by UUID,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_by INTEGER
 );
@@ -83,7 +83,7 @@ CREATE TABLE IF NOT EXISTS communication_entity_links (
 
     -- Polymorphic Entity Reference
     entity_type VARCHAR(100) NOT NULL, -- 'vehicle', 'driver', 'maintenance', 'incident', 'osha_case', 'purchase_order', 'invoice', etc.
-    entity_id INTEGER NOT NULL,
+    entity_id UUID NOT NULL,
 
     -- Link Context
     link_type VARCHAR(100), -- 'Primary Subject', 'Related', 'Referenced', 'Affected'
@@ -126,7 +126,7 @@ CREATE TABLE IF NOT EXISTS communication_templates (
     is_active BOOLEAN DEFAULT TRUE,
 
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    created_by INTEGER,
+    created_by UUID,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
@@ -199,7 +199,7 @@ CREATE TABLE IF NOT EXISTS communication_automation_rules (
     trigger_count INTEGER DEFAULT 0,
 
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    created_by INTEGER,
+    created_by UUID,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
@@ -358,7 +358,7 @@ FOR EACH ROW EXECUTE FUNCTION update_communication_fulltext();
 -- ============================================================================
 
 CREATE OR REPLACE FUNCTION link_communication_to_entities(
-    p_communication_id INTEGER,
+    p_communication_id UUID,
     p_detected_links JSONB -- [{entity_type, entity_id, relevance_score}, ...]
 )
 RETURNS INTEGER AS $$
@@ -398,7 +398,7 @@ $$ LANGUAGE plpgsql;
 CREATE OR REPLACE VIEW v_vehicle_communications AS
 SELECT
     c.*,
-    v.unit_number,
+    v.number,
     v.make,
     v.model,
     cel.link_type,
@@ -414,7 +414,7 @@ CREATE OR REPLACE VIEW v_driver_communications AS
 SELECT
     c.*,
     d.first_name || ' ' || d.last_name AS driver_name,
-    d.employee_id,
+    d.employee_number,
     cel.link_type,
     cel.relevance_score
 FROM communications c

@@ -21,7 +21,7 @@ CREATE TABLE IF NOT EXISTS dispatch_transmissions (
     location_lat DECIMAL(10, 8),
     location_lng DECIMAL(11, 8),
     location_address TEXT,
-    unit_number VARCHAR(50),
+    number VARCHAR(50),
     incident_number VARCHAR(50),
     response_required BOOLEAN DEFAULT false,
     acknowledged BOOLEAN DEFAULT false,
@@ -108,7 +108,7 @@ CREATE TABLE IF NOT EXISTS dispatch_channel_assignments (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     vehicle_id UUID NOT NULL REFERENCES vehicles(id) ON DELETE CASCADE,
     channel_id VARCHAR(50) NOT NULL,
-    unit_number VARCHAR(50) NOT NULL,
+    number VARCHAR(50) NOT NULL,
     assigned_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
     is_active BOOLEAN DEFAULT true,
 
@@ -127,7 +127,7 @@ CREATE TABLE IF NOT EXISTS dispatch_channel_assignments (
 CREATE INDEX idx_channel_assignments_vehicle ON dispatch_channel_assignments(vehicle_id);
 CREATE INDEX idx_channel_assignments_channel ON dispatch_channel_assignments(channel_id);
 CREATE INDEX idx_channel_assignments_active ON dispatch_channel_assignments(is_active) WHERE is_active = true;
-CREATE INDEX idx_channel_assignments_unit ON dispatch_channel_assignments(unit_number);
+CREATE INDEX idx_channel_assignments_unit ON dispatch_channel_assignments(number);
 
 -- ============================================================================
 -- INCIDENT REPORTS TABLE
@@ -295,7 +295,7 @@ RETURNS TABLE (
     id UUID,
     transmission_id VARCHAR,
     vehicle_id UUID,
-    unit_number VARCHAR,
+    number VARCHAR,
     channel VARCHAR,
     message TEXT,
     timestamp TIMESTAMP WITH TIME ZONE,
@@ -307,7 +307,7 @@ BEGIN
         dt.id,
         dt.transmission_id,
         dt.vehicle_id,
-        dt.unit_number,
+        dt.number,
         dt.channel,
         dt.message,
         dt.timestamp,
@@ -447,7 +447,7 @@ SELECT
     dt.duration,
     dt.acknowledged,
     dt.response_required,
-    dt.unit_number,
+    dt.number,
     v.id AS vehicle_id,
     v.make || ' ' || v.model AS vehicle_name,
     v.license_plate,

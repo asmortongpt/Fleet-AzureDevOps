@@ -5,7 +5,7 @@
 -- VENDOR PARTS CATALOG
 -- =======================
 CREATE TABLE IF NOT EXISTS vendor_parts_catalog (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     vendor_id UUID NOT NULL REFERENCES vendors(id) ON DELETE CASCADE,
 
     -- Part identification
@@ -81,7 +81,7 @@ CREATE INDEX idx_vendor_parts_compatibility ON vendor_parts_catalog USING GIN (c
 -- PRICE QUOTES
 -- =======================
 CREATE TABLE IF NOT EXISTS parts_price_quotes (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     tenant_id UUID REFERENCES tenants(id) ON DELETE CASCADE,
 
     -- Request details
@@ -117,7 +117,7 @@ CREATE INDEX idx_price_quotes_vehicle ON parts_price_quotes(vehicle_id);
 -- VENDOR QUOTE RESPONSES
 -- =======================
 CREATE TABLE IF NOT EXISTS vendor_quote_responses (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     quote_request_id UUID NOT NULL REFERENCES parts_price_quotes(id) ON DELETE CASCADE,
     vendor_id UUID NOT NULL REFERENCES vendors(id),
 
@@ -163,14 +163,14 @@ CREATE INDEX idx_vendor_responses_date ON vendor_quote_responses(response_date D
 -- VENDOR API CONFIGURATIONS
 -- =======================
 CREATE TABLE IF NOT EXISTS vendor_api_configs (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     vendor_id UUID NOT NULL UNIQUE REFERENCES vendors(id) ON DELETE CASCADE,
 
     -- API Configuration
     api_type VARCHAR(50) NOT NULL CHECK (api_type IN ('rest', 'soap', 'graphql', 'ftp', 'email')),
     api_base_url TEXT,
     api_key_encrypted TEXT, -- encrypted API key
-    api_username_encrypted TEXT,
+    api_email_encrypted TEXT,
     api_password_encrypted TEXT,
     oauth_token TEXT,
     oauth_refresh_token TEXT,
@@ -225,7 +225,7 @@ CREATE INDEX idx_vendor_api_configs_active ON vendor_api_configs(is_active) WHER
 -- PARTS PRICING HISTORY (for trend analysis)
 -- =======================
 CREATE TABLE IF NOT EXISTS parts_pricing_history (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     catalog_item_id UUID NOT NULL REFERENCES vendor_parts_catalog(id) ON DELETE CASCADE,
     vendor_id UUID NOT NULL REFERENCES vendors(id),
 
@@ -250,7 +250,7 @@ CREATE INDEX idx_pricing_history_date ON parts_pricing_history(price_date DESC);
 -- VENDOR PERFORMANCE TRACKING
 -- =======================
 CREATE TABLE IF NOT EXISTS vendor_performance_metrics (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     vendor_id UUID NOT NULL REFERENCES vendors(id) ON DELETE CASCADE,
 
     -- Time period for metrics

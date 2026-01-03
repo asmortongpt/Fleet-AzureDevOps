@@ -116,7 +116,7 @@ SELECT
     pe.trigger_type,
     pe.error_message,
     pe.retry_count,
-    v.unit_number AS vehicle,
+    v.number AS vehicle,
     d.first_name || ' ' || d.last_name AS driver
 FROM policy_executions pe
 JOIN policy_templates pt ON pe.policy_id = pt.id

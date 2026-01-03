@@ -13,7 +13,7 @@ CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
 CREATE TABLE IF NOT EXISTS vehicle_damage (
     -- Primary Key
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
 
     -- Foreign Key to vehicles table
     vehicle_id UUID NOT NULL,
@@ -58,7 +58,7 @@ CREATE TABLE IF NOT EXISTS vehicle_damage (
 
     -- Photo Documentation
     -- Array of URLs pointing to Azure Blob Storage or similar
-    photo_urls TEXT[] DEFAULT ARRAY[]::TEXT[],
+    photo_urls TEXT[] DEFAULT ARRAY[]::TEXT[]::TEXT[],
 
     -- Cost Information
     cost_estimate DECIMAL(10, 2),
@@ -278,7 +278,7 @@ INSERT INTO vehicle_damage (
 -- GRANT SELECT ON v_damage_heat_map TO fleet_viewer;
 
 -- Grant full access to application users
--- GRANT ALL ON vehicle_damage TO fleet_app;
+-- -- GRANT ALL ON vehicle_damage TO fleet_app;
 
 -- =====================================================
 -- Rollback Script (for development)
