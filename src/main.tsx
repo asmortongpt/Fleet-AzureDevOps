@@ -1,3 +1,8 @@
+// FIX: Import React FIRST to prevent TDZ errors with @microsoft/applicationinsights-react-js
+// ApplicationInsights ReactPlugin requires React to be available before initialization
+import React from "react"
+import ReactDOM from "react-dom/client"
+
 // Initialize demo mode FIRST to prevent API errors
 if (typeof window !== 'undefined' && !localStorage.getItem('demo_mode')) {
   localStorage.setItem('demo_mode', 'true');
@@ -12,9 +17,6 @@ initSentry()
 // Initialize Application Insights for production telemetry
 import telemetryService from "./lib/telemetry"
 const reactPlugin = telemetryService.initialize()
-
-import React from "react"
-import ReactDOM from "react-dom/client"
 import { BrowserRouter, Routes, Route } from "react-router-dom"
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
 
