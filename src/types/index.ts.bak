@@ -88,7 +88,6 @@ export interface Vehicle {
 }
 
 export interface Driver {
-  status?: "active" | "inactive" | "on-leave";
   id: string
   name: string
   licenseNumber: string
