@@ -20,6 +20,14 @@ import {
   FuelPurchasingDrilldown
 } from '@/components/drilldown/AdditionalHubDrilldowns'
 import {
+  IncidentListView,
+  LostTimeIncidentsView,
+  OSHAComplianceView,
+  DaysIncidentFreeView
+} from '@/components/drilldown/SafetyHubDrilldowns'
+import { IncidentDetailPanel } from '@/components/drilldown/IncidentDetailPanel'
+import { HazardZoneDetailPanel } from '@/components/drilldown/HazardZoneDetailPanel'
+import {
   SystemHealthDrilldown,
   AlertsDrilldown,
   FilesDrilldown
@@ -113,6 +121,11 @@ function DrilldownContent() {
     case 'active-vehicles':
       return <ActiveVehiclesDrilldown />
 
+    case 'maintenance-vehicles':
+    case 'all-vehicles':
+    case 'vehicle-list':
+      return <VehicleListDrilldown />
+
     case 'maintenance-stats':
     case 'maintenance':
       return <MaintenanceDrilldown />
@@ -138,9 +151,6 @@ function DrilldownContent() {
     case 'safety-score':
     case 'safety':
       return <SafetyScoreDrilldown />
-
-    case 'vehicle-list':
-      return <VehicleListDrilldown />
 
     // ============================================
     // Vehicle drilldown hierarchy
@@ -272,15 +282,33 @@ function DrilldownContent() {
     // ============================================
     // Safety Hub Drilldowns
     // ============================================
+    // Incident views
     case 'incidents':
     case 'open-incidents':
     case 'under-review':
-      return <IncidentsDrilldown />
+      return <IncidentListView filter={currentLevel.data?.filter} />
+
+    case 'incident':
+      return <IncidentDetailPanel incidentId={currentLevel.data?.incidentId} />
+
+    // OSHA and compliance
+    case 'lost-time-incidents':
+      return <LostTimeIncidentsView />
+
+    case 'osha-compliance':
+      return <OSHAComplianceView />
+
+    case 'days-incident-free':
+      return <DaysIncidentFreeView />
 
     case 'safety-score-detail':
-    case 'days-incident-free':
       return <SafetyScoreDetailDrilldown />
 
+    // Hazard zones
+    case 'hazard-zone':
+      return <HazardZoneDetailPanel hazardZoneId={currentLevel.data?.hazardZoneId} />
+
+    // Video telematics
     case 'video-telematics':
     case 'cameras-online':
     case 'events-today':
