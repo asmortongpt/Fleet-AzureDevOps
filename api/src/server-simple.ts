@@ -40,15 +40,30 @@ app.get('/api/vehicles', async (req, res) => {
     const vehicles = await db
       .select()
       .from(schema.vehicles)
+      .orderBy(schema.vehicles.number)
       .limit(Number(limit))
       .offset((Number(page) - 1) * Number(limit));
 
+    // Transform coordinates to numbers and create location object for Google Maps compatibility
+    const transformedVehicles = vehicles.map(v => ({
+      ...v,
+      latitude: v.latitude ? parseFloat(v.latitude as any) : null,
+      longitude: v.longitude ? parseFloat(v.longitude as any) : null,
+      location: {
+        lat: v.latitude ? parseFloat(v.latitude as any) : 0,
+        lng: v.longitude ? parseFloat(v.longitude as any) : 0,
+        latitude: v.latitude ? parseFloat(v.latitude as any) : 0,
+        longitude: v.longitude ? parseFloat(v.longitude as any) : 0,
+        address: v.locationAddress || ''
+      }
+    }));
+
     res.json({
-      data: vehicles,
+      data: transformedVehicles,
       meta: {
         page: Number(page),
         limit: Number(limit),
-        total: vehicles.length,
+        total: transformedVehicles.length,
       },
     });
   } catch (error) {
@@ -83,6 +98,7 @@ app.get('/api/drivers', async (req, res) => {
     const drivers = await db
       .select()
       .from(schema.drivers)
+      .orderBy(schema.drivers.createdAt)
       .limit(Number(limit))
       .offset((Number(page) - 1) * Number(limit));
 
