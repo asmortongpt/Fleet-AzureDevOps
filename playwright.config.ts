@@ -208,7 +208,7 @@ export default defineConfig({
   // Web server configuration for local development
   webServer: process.env.CI ? undefined : {
     command: 'npm run dev',
-    url: 'http://localhost:5173',
+    url: 'http://localhost:5174',
     reuseExistingServer: !process.env.CI,
     timeout: 120000
   }
