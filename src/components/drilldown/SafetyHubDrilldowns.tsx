@@ -6,7 +6,6 @@ import {
   Warning,
   ShieldCheck,
   Calendar,
-  Warning,
   CheckCircle,
   XCircle
 } from '@phosphor-icons/react'
