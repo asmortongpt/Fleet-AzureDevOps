@@ -135,37 +135,9 @@ export default defineConfig({
         }),
       ],
     },
-    minify: 'terser',
-    terserOptions: {
-      compress: {
-        drop_console: process.env.NODE_ENV === 'production',
-        drop_debugger: true,
-        passes: 2,
-        pure_funcs: ['console.log', 'console.info', 'console.debug', 'console.trace'],
-        // Gemini AI: Disabled unsafe optimizations to prevent runtime errors
-        unsafe_arrows: false,
-        unsafe_methods: false,
-        unsafe_comps: false,
-        hoist_funs: false,
-        dead_code: true,
-        // FIX: Disabled reduce_vars and collapse_vars to prevent TDZ errors in chart-vendor bundle
-        // Error: "Cannot access 'n' before initialization" in recharts/d3 bundle
-        reduce_vars: false,
-        collapse_vars: false,
-        warnings: false,
-      },
-      mangle: {
-        safari10: true,
-        // Gemini AI: Disabled toplevel to prevent scope issues
-        toplevel: false,
-        // FIX: Preserve variable names in chart libraries to prevent circular reference issues
-        reserved: ['recharts', 'd3', 'Chart'],
-      },
-      format: {
-        comments: false,
-        ecma: 2020,
-      },
-    },
+    // DIAGNOSTIC: Disable minification to identify if the issue is in source code or minifier
+    // TDZ errors persist with both Terser and esbuild - investigating source code issue
+    minify: false,
     assetsInlineLimit: 4096,
     chunkSizeWarningLimit: 1000,
   },
