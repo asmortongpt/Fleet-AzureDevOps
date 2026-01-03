@@ -34,14 +34,11 @@ import {
   CaretDown,
   CaretUpDown,
   MagnifyingGlass,
-  DownloadSimple,
   Columns,
-  Funnel,
-  SortAscending,
   X,
 } from '@phosphor-icons/react'
 import { Download } from 'lucide-react'
-import { useState, useMemo, ReactNode } from 'react'
+import { useState, useMemo, useCallback, ReactNode } from 'react'
 
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -64,6 +61,8 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { Skeleton } from '@/components/ui/skeleton'
+import { useDebounce } from '@/hooks/useDebounce'
+import { useBreakpoints } from '@/hooks/useMediaQuery'
 import { cn } from '@/lib/utils'
 
 // ============================================================================
@@ -257,6 +256,9 @@ export function ExcelStyleTable<T extends Record<string, any>>({
   pageSize = 50,
   initialSort = [],
 }: ExcelStyleTableProps<T>) {
+  // Responsive breakpoints
+  const { isMobile, isTablet, isDesktop } = useBreakpoints()
+
   // State
   const [sorting, setSorting] = useState<SortConfig[]>(initialSort)
   const [filters, setFilters] = useState<Record<string, string>>({})
@@ -264,20 +266,35 @@ export function ExcelStyleTable<T extends Record<string, any>>({
   const [columnVisibility, setColumnVisibility] = useState<Record<string, boolean>>({})
   const [selectedRows, setSelectedRows] = useState<Set<string | number>>(new Set())
   const [currentPage, setCurrentPage] = useState(1)
+  const [expandedMobileRow, setExpandedMobileRow] = useState<string | number | null>(null)
 
-  // Get visible columns
-  const visibleColumns = useMemo(
-    () => columns.filter((col) => !col.hidden && columnVisibility[col.key] !== false),
-    [columns, columnVisibility]
-  )
+  // Debounced search for performance
+  const debouncedGlobalFilter = useDebounce(globalFilter, 300)
 
-  // Filter data
+  // Get visible columns (responsive: limit on mobile/tablet)
+  const visibleColumns = useMemo(() => {
+    const cols = columns.filter((col) => !col.hidden && columnVisibility[col.key] !== false)
+
+    // On mobile, show only first 2-3 essential columns
+    if (isMobile && cols.length > 3) {
+      return cols.slice(0, 3)
+    }
+
+    // On tablet, show up to 5 columns
+    if (isTablet && cols.length > 5) {
+      return cols.slice(0, 5)
+    }
+
+    return cols
+  }, [columns, columnVisibility, isMobile, isTablet])
+
+  // Filter data (use debounced search for performance)
   const filteredData = useMemo(() => {
     let result = [...data]
 
-    // Apply global filter
-    if (globalFilter) {
-      const search = globalFilter.toLowerCase()
+    // Apply global filter with debounced value
+    if (debouncedGlobalFilter) {
+      const search = debouncedGlobalFilter.toLowerCase()
       result = result.filter((row) =>
         visibleColumns.some((col) => {
           const value = col.accessor ? col.accessor(row) : row[col.key]
@@ -298,7 +315,7 @@ export function ExcelStyleTable<T extends Record<string, any>>({
     })
 
     return result
-  }, [data, globalFilter, filters, visibleColumns, columns])
+  }, [data, debouncedGlobalFilter, filters, visibleColumns, columns])
 
   // Sort data
   const sortedData = useMemo(() => {
@@ -329,8 +346,8 @@ export function ExcelStyleTable<T extends Record<string, any>>({
 
   const totalPages = Math.ceil(sortedData.length / pageSize)
 
-  // Handle sort
-  const handleSort = (key: string) => {
+  // Handle sort (memoized for performance)
+  const handleSort = useCallback((key: string) => {
     setSorting((prev) => {
       const existing = prev.find((s) => s.key === key)
       if (!existing) {
@@ -341,10 +358,10 @@ export function ExcelStyleTable<T extends Record<string, any>>({
       }
       return prev.filter((s) => s.key !== key)
     })
-  }
+  }, [])
 
-  // Handle row selection
-  const handleRowSelect = (rowId: string | number) => {
+  // Handle row selection (memoized for performance)
+  const handleRowSelect = useCallback((rowId: string | number) => {
     setSelectedRows((prev) => {
       const newSet = new Set(prev)
       if (newSet.has(rowId)) {
@@ -360,10 +377,10 @@ export function ExcelStyleTable<T extends Record<string, any>>({
 
       return newSet
     })
-  }
+  }, [data, onSelectionChange, rowKey])
 
-  // Handle select all
-  const handleSelectAll = () => {
+  // Handle select all (memoized for performance)
+  const handleSelectAll = useCallback(() => {
     if (selectedRows.size === paginatedData.length) {
       setSelectedRows(new Set())
       onSelectionChange?.([])
@@ -375,7 +392,12 @@ export function ExcelStyleTable<T extends Record<string, any>>({
         onSelectionChange(selected)
       }
     }
-  }
+  }, [selectedRows.size, paginatedData, onSelectionChange, data, rowKey])
+
+  // Handle mobile row expansion (memoized for performance)
+  const handleMobileRowToggle = useCallback((rowId: string | number) => {
+    setExpandedMobileRow((prev) => (prev === rowId ? null : rowId))
+  }, [])
 
   // Get cell className
   const getCellClassName = (value: any, row: T, column: ExcelColumn<T>) => {
@@ -472,23 +494,23 @@ export function ExcelStyleTable<T extends Record<string, any>>({
 
       <CardContent className="space-y-4">
         {/* Toolbar */}
-        <div className="flex items-center justify-between gap-4 flex-wrap">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           {/* Global Search */}
           {enableFiltering && (
-            <div className="flex items-center gap-2 flex-1 max-w-sm">
-              <MagnifyingGlass className="w-4 h-4 text-muted-foreground" />
+            <div className="flex items-center gap-2 w-full sm:flex-1 sm:max-w-sm">
+              <MagnifyingGlass className="w-4 h-4 text-muted-foreground shrink-0" />
               <Input
-                placeholder="Search all columns..."
+                placeholder={isMobile ? "Search..." : "Search all columns..."}
                 value={globalFilter}
                 onChange={(e) => setGlobalFilter(e.target.value)}
-                className="h-9"
+                className="h-9 text-base sm:text-sm"
               />
               {globalFilter && (
                 <Button
                   variant="ghost"
                   size="sm"
                   onClick={() => setGlobalFilter('')}
-                  className="h-9 px-2"
+                  className="h-9 px-2 shrink-0"
                 >
                   <X className="w-4 h-4" />
                 </Button>
@@ -496,14 +518,14 @@ export function ExcelStyleTable<T extends Record<string, any>>({
             </div>
           )}
 
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 w-full sm:w-auto justify-end flex-wrap">
             {/* Column Visibility */}
             {enableColumnVisibility && (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="outline" size="sm">
+                  <Button variant="outline" size="sm" className="min-h-[44px] sm:min-h-0">
                     <Columns className="w-4 h-4 mr-2" />
-                    Columns
+                    {!isMobile && "Columns"}
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" className="w-48">
@@ -533,9 +555,10 @@ export function ExcelStyleTable<T extends Record<string, any>>({
                   setFilters({})
                   setSorting([])
                 }}
+                className="min-h-[44px] sm:min-h-0"
               >
                 <X className="w-4 h-4 mr-2" />
-                Clear Filters
+                {!isMobile && "Clear Filters"}
               </Button>
             )}
 
@@ -543,9 +566,9 @@ export function ExcelStyleTable<T extends Record<string, any>>({
             {enableExport && sortedData.length > 0 && (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="outline" size="sm">
+                  <Button variant="outline" size="sm" className="min-h-[44px] sm:min-h-0">
                     <Download className="w-4 h-4 mr-2" />
-                    Export
+                    {!isMobile && "Export"}
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end">
@@ -566,20 +589,26 @@ export function ExcelStyleTable<T extends Record<string, any>>({
         </div>
 
         {/* Results count */}
-        <div className="flex items-center justify-between text-sm text-muted-foreground">
-          <div>
-            Showing {paginatedData.length === 0 ? 0 : (currentPage - 1) * pageSize + 1} to{' '}
-            {Math.min(currentPage * pageSize, sortedData.length)} of {sortedData.length} results
-            {data.length !== sortedData.length && ` (filtered from ${data.length})`}
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 text-sm text-muted-foreground">
+          <div className="text-xs sm:text-sm">
+            {isMobile ? (
+              <>{sortedData.length} results {data.length !== sortedData.length && `(${data.length} total)`}</>
+            ) : (
+              <>
+                Showing {paginatedData.length === 0 ? 0 : (currentPage - 1) * pageSize + 1} to{' '}
+                {Math.min(currentPage * pageSize, sortedData.length)} of {sortedData.length} results
+                {data.length !== sortedData.length && ` (filtered from ${data.length})`}
+              </>
+            )}
           </div>
           {selectedRows.size > 0 && (
-            <div className="font-medium">{selectedRows.size} row(s) selected</div>
+            <div className="font-medium text-xs sm:text-sm">{selectedRows.size} row(s) selected</div>
           )}
         </div>
 
         {/* Table Container */}
         <div className="border rounded-lg overflow-hidden">
-          <div className="overflow-x-auto max-h-[600px] overflow-y-auto">
+          <div className="overflow-x-auto max-h-[400px] sm:max-h-[600px] overflow-y-auto">
             <table className="w-full border-collapse">
               {/* Header */}
               <thead
@@ -609,17 +638,17 @@ export function ExcelStyleTable<T extends Record<string, any>>({
                     <th
                       key={column.key}
                       className={cn(
-                        'p-3 text-left font-semibold text-sm',
-                        compact && 'p-2 text-xs',
+                        'p-2 sm:p-3 text-left font-semibold text-xs sm:text-sm',
+                        compact && 'p-1 sm:p-2 text-xs',
                         showGridlines && 'border-r border-border',
-                        column.sortable && 'cursor-pointer select-none hover:bg-muted/60',
+                        column.sortable && 'cursor-pointer select-none hover:bg-muted/60 active:bg-muted/80',
                         column.headerClassName
                       )}
                       style={{ width: column.width }}
                       onClick={() => column.sortable && handleSort(column.key)}
                     >
-                      <div className="flex items-center gap-2">
-                        <span>{column.header}</span>
+                      <div className="flex items-center gap-1 sm:gap-2">
+                        <span className="truncate">{column.header}</span>
                         {enableSorting && column.sortable && (
                           <span className="text-muted-foreground">
                             {sorting.find((s) => s.key === column.key)?.direction === 'asc' ? (
@@ -719,11 +748,12 @@ export function ExcelStyleTable<T extends Record<string, any>>({
                             <td
                               key={column.key}
                               className={cn(
-                                'p-3',
-                                compact && 'p-2 text-sm',
+                                'p-2 sm:p-3 text-xs sm:text-sm',
+                                compact && 'p-1 sm:p-2 text-xs',
                                 showGridlines && 'border-r border-border',
                                 column.className,
-                                getCellClassName(value, row, column)
+                                getCellClassName(value, row, column),
+                                'truncate max-w-[150px] sm:max-w-none'
                               )}
                               onClick={(e) => {
                                 if (onCellClick) {
@@ -731,6 +761,7 @@ export function ExcelStyleTable<T extends Record<string, any>>({
                                   onCellClick(value, row, column)
                                 }
                               }}
+                              title={typeof value === 'string' ? value : undefined}
                             >
                               {renderCell(row, column, index)}
                             </td>
@@ -774,23 +805,25 @@ export function ExcelStyleTable<T extends Record<string, any>>({
 
         {/* Pagination */}
         {totalPages > 1 && (
-          <div className="flex items-center justify-between">
+          <div className="flex items-center justify-between gap-2">
             <Button
               variant="outline"
               size="sm"
               onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
               disabled={currentPage === 1}
+              className="min-h-[44px] sm:min-h-0"
             >
-              Previous
+              {isMobile ? "Prev" : "Previous"}
             </Button>
-            <div className="text-sm text-muted-foreground">
-              Page {currentPage} of {totalPages}
+            <div className="text-xs sm:text-sm text-muted-foreground">
+              {isMobile ? `${currentPage}/${totalPages}` : `Page ${currentPage} of ${totalPages}`}
             </div>
             <Button
               variant="outline"
               size="sm"
               onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
               disabled={currentPage === totalPages}
+              className="min-h-[44px] sm:min-h-0"
             >
               Next
             </Button>
