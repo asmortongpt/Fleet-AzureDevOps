@@ -14,7 +14,7 @@ import {
   Navigation,
   CheckCircle,
   Clock,
-  AlertTriangle,
+  Warning,
   MapPin,
   User,
   Truck,
@@ -426,7 +426,7 @@ export function JobListView({ filter }: { filter?: string }) {
         </Card>
         <Card className="bg-red-900/30 border-red-700/50">
           <CardContent className="p-4 text-center">
-            <AlertTriangle className="w-6 h-6 text-red-400 mx-auto mb-1" />
+            <Warning className="w-6 h-6 text-red-400 mx-auto mb-1" />
             <div className="text-2xl font-bold text-red-400">
               {filteredJobs.filter(j => j.status === 'delayed').length}
             </div>
@@ -723,7 +723,7 @@ export function TaskListView({ filter }: { filter?: string }) {
         </Card>
         <Card className="bg-red-900/30 border-red-700/50">
           <CardContent className="p-4 text-center">
-            <AlertTriangle className="w-6 h-6 text-red-400 mx-auto mb-1" />
+            <Warning className="w-6 h-6 text-red-400 mx-auto mb-1" />
             <div className="text-2xl font-bold text-red-400">
               {filteredTasks.filter(t => t.status === 'blocked').length}
             </div>
