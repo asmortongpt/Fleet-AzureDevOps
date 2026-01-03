@@ -9,6 +9,7 @@
   gap: 0.5rem;
   pointer-events: none;
   max-width: 400px;
+  min-height: 1px; /* Ensure container has dimensions even when empty for accessibility testing */
 }
 
 .toast {
