@@ -1,6 +1,6 @@
 /**
- * SafetyInspectionDrilldowns - Complete inspection drilldown views
- * Includes inspection results, violations, follow-up actions, and inspector info
+ * SafetyInspectionDrilldowns - Excel-style inspection matrices with full data visibility
+ * Provides comprehensive inspection tracking with advanced filtering and export capabilities
  */
 
 import {
@@ -13,22 +13,27 @@ import {
   Phone,
   Mail,
   FileText,
-  Tool,
-  Clock,
-  Car,
-  TrendingUp,
-  TrendingDown
+  Download,
+  Filter,
 } from 'lucide-react'
-import { useMemo } from 'react'
+import { useMemo, useState } from 'react'
 import useSWR from 'swr'
+import { ColumnDef } from '@tanstack/react-table'
 
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { DrilldownDataTable, DrilldownColumn } from '@/components/drilldown/DrilldownDataTable'
-import { Progress } from '@/components/ui/progress'
+import { DataGrid } from '@/components/common/DataGrid'
 import { DrilldownContent } from '@/components/DrilldownPanel'
 import { useDrilldown } from '@/contexts/DrilldownContext'
 import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
 
 const fetcher = (url: string) => fetch(url).then((r) => r.json())
 
@@ -37,24 +42,24 @@ const fetcher = (url: string) => fetch(url).then((r) => r.json())
 interface InspectionData {
   id: string
   inspection_number: string
+  date: string
+  time?: string
   vehicle_id?: string
   vehicle_name?: string
   inspector_id: string
   inspector_name: string
   inspector_phone?: string
   inspector_email?: string
-  date: string
-  time?: string
-  type: 'safety' | 'pre-trip' | 'annual' | 'roadside' | 'periodic'
-  status: 'passed' | 'failed' | 'conditional' | 'pending'
-  overall_score?: number
+  result: 'passed' | 'failed' | 'conditional' | 'pending'
+  score?: number
   violations: number
-  critical_violations: number
-  non_critical_violations: number
-  notes?: string
-  next_inspection_date?: string
-  certification_number?: string
+  critical_items: number
+  status: string
+  next_due?: string
+  type: 'safety' | 'pre-trip' | 'annual' | 'roadside' | 'periodic'
   location?: string
+  certification_number?: string
+  notes?: string
 }
 
 interface InspectionViolation {
@@ -73,125 +78,116 @@ interface InspectionViolation {
   cost_to_fix?: number
 }
 
-interface InspectionItem {
-  id: string
-  inspection_id: string
-  component: string
-  result: 'pass' | 'fail' | 'na'
-  notes?: string
-  photo_url?: string
-}
-
 // ============ DEMO DATA ============
 
 const demoInspections: InspectionData[] = [
   {
     id: 'insp-001',
     inspection_number: 'SI-2025-001',
+    date: '2025-12-14',
+    time: '09:30 AM',
     vehicle_id: 'veh-demo-1001',
     vehicle_name: 'Ford F-150 #1001',
     inspector_id: 'emp-101',
     inspector_name: 'Sarah Johnson',
     inspector_phone: '(850) 555-0101',
     inspector_email: 'sjohnson@ctafleet.com',
-    date: '2025-12-14',
-    time: '09:30 AM',
-    type: 'safety',
-    status: 'passed',
-    overall_score: 98,
+    result: 'passed',
+    score: 98,
     violations: 0,
-    critical_violations: 0,
-    non_critical_violations: 0,
-    notes: 'All safety systems operational. Excellent condition.',
-    next_inspection_date: '2026-01-14',
+    critical_items: 0,
+    status: 'Complete',
+    next_due: '2026-01-14',
+    type: 'safety',
+    location: 'North Service Center',
     certification_number: 'CERT-2025-001-FL',
-    location: 'North Service Center'
+    notes: 'All safety systems operational. Excellent condition.',
   },
   {
     id: 'insp-002',
     inspection_number: 'SI-2025-002',
+    date: '2025-12-13',
+    time: '02:15 PM',
     vehicle_id: 'veh-demo-1002',
     vehicle_name: 'Chevrolet Silverado #1002',
     inspector_id: 'emp-101',
     inspector_name: 'Sarah Johnson',
     inspector_phone: '(850) 555-0101',
     inspector_email: 'sjohnson@ctafleet.com',
-    date: '2025-12-13',
-    time: '02:15 PM',
-    type: 'annual',
-    status: 'failed',
-    overall_score: 72,
+    result: 'failed',
+    score: 72,
     violations: 3,
-    critical_violations: 2,
-    non_critical_violations: 1,
+    critical_items: 2,
+    status: 'Action Required',
+    next_due: '2025-12-20',
+    type: 'annual',
+    location: 'North Service Center',
     notes: 'Multiple safety violations found. Immediate repair required.',
-    next_inspection_date: '2025-12-20',
-    location: 'North Service Center'
   },
   {
     id: 'insp-003',
     inspection_number: 'SI-2025-003',
+    date: '2025-12-12',
+    time: '11:00 AM',
     vehicle_id: 'veh-demo-1015',
     vehicle_name: 'Mercedes Sprinter #1015',
     inspector_id: 'emp-102',
     inspector_name: 'Michael Davis',
     inspector_phone: '(850) 555-0102',
     inspector_email: 'mdavis@ctafleet.com',
-    date: '2025-12-12',
-    time: '11:00 AM',
-    type: 'pre-trip',
-    status: 'conditional',
-    overall_score: 85,
+    result: 'conditional',
+    score: 85,
     violations: 1,
-    critical_violations: 0,
-    non_critical_violations: 1,
+    critical_items: 0,
+    status: 'Conditional',
+    next_due: '2025-12-26',
+    type: 'pre-trip',
+    location: 'South Depot',
     notes: 'Minor wiper blade wear. Can operate with restriction.',
-    next_inspection_date: '2025-12-26',
-    location: 'South Depot'
   },
   {
     id: 'insp-004',
     inspection_number: 'SI-2025-004',
+    date: '2025-12-11',
+    time: '08:45 AM',
     vehicle_id: 'veh-demo-1008',
     vehicle_name: 'Ford Transit #1008',
     inspector_id: 'emp-102',
     inspector_name: 'Michael Davis',
     inspector_phone: '(850) 555-0102',
     inspector_email: 'mdavis@ctafleet.com',
-    date: '2025-12-11',
-    time: '08:45 AM',
-    type: 'roadside',
-    status: 'passed',
-    overall_score: 95,
+    result: 'passed',
+    score: 95,
     violations: 0,
-    critical_violations: 0,
-    non_critical_violations: 0,
-    notes: 'DOT roadside inspection - passed all checks.',
-    next_inspection_date: '2026-06-11',
+    critical_items: 0,
+    status: 'Complete',
+    next_due: '2026-06-11',
+    type: 'roadside',
+    location: 'I-10 East Mile Marker 192',
     certification_number: 'DOT-RS-2025-FL-0441',
-    location: 'I-10 East Mile Marker 192'
+    notes: 'DOT roadside inspection - passed all checks.',
   },
   {
     id: 'insp-005',
     inspection_number: 'SI-2025-005',
+    date: '2025-12-10',
+    time: '03:30 PM',
     vehicle_id: 'veh-demo-1003',
     vehicle_name: 'Ram 1500 #1003',
     inspector_id: 'emp-103',
     inspector_name: 'Lisa Chen',
     inspector_phone: '(850) 555-0103',
     inspector_email: 'lchen@ctafleet.com',
-    date: '2025-12-10',
-    time: '03:30 PM',
-    type: 'periodic',
-    status: 'passed',
-    overall_score: 92,
+    result: 'passed',
+    score: 92,
     violations: 0,
-    critical_violations: 0,
-    non_critical_violations: 0,
+    critical_items: 0,
+    status: 'Complete',
+    next_due: '2026-01-10',
+    type: 'periodic',
+    location: 'East Facility',
     notes: '30-day periodic inspection completed successfully.',
-    next_inspection_date: '2026-01-10',
-    location: 'East Facility'
-  }
+  },
 ]
 
 const demoViolations: InspectionViolation[] = [
@@ -206,7 +202,7 @@ const demoViolations: InspectionViolation[] = [
     corrective_action: 'Replace front brake pads and rotors',
     due_date: '2025-12-15',
     resolved: false,
-    cost_to_fix: 450.00
+    cost_to_fix: 450.00,
   },
   {
     id: 'viol-002',
@@ -219,7 +215,7 @@ const demoViolations: InspectionViolation[] = [
     corrective_action: 'Replace tail light assembly and check wiring harness',
     due_date: '2025-12-15',
     resolved: false,
-    cost_to_fix: 125.00
+    cost_to_fix: 125.00,
   },
   {
     id: 'viol-003',
@@ -232,7 +228,7 @@ const demoViolations: InspectionViolation[] = [
     corrective_action: 'Replace wiper blade',
     due_date: '2025-12-20',
     resolved: false,
-    cost_to_fix: 25.00
+    cost_to_fix: 25.00,
   },
   {
     id: 'viol-004',
@@ -245,140 +241,219 @@ const demoViolations: InspectionViolation[] = [
     corrective_action: 'Replace during next scheduled maintenance',
     due_date: '2025-12-26',
     resolved: false,
-    cost_to_fix: 30.00
-  }
+    cost_to_fix: 30.00,
+  },
 ]
 
-// ============ INSPECTION LIST VIEW ============
+// ============ EXCEL-STYLE INSPECTION MATRIX ============
 
-export function InspectionListView({ filter }: { filter?: string }) {
+export function InspectionsMatrixView() {
+  const [resultFilter, setResultFilter] = useState<string>('all')
+  const [typeFilter, setTypeFilter] = useState<string>('all')
+  const [searchQuery, setSearchQuery] = useState('')
+
   const { data: inspections } = useSWR<InspectionData[]>(
-    filter ? `/api/inspections?filter=${filter}` : '/api/inspections',
+    '/api/inspections',
     fetcher,
     {
       fallbackData: demoInspections,
-      shouldRetryOnError: false
+      shouldRetryOnError: false,
     }
   )
 
-  const filteredInspections = useMemo(() => {
-    if (!filter || !inspections) return inspections || []
+  const filteredData = useMemo(() => {
+    if (!inspections) return []
 
-    switch (filter) {
-      case 'failed':
-        return inspections.filter(i => i.status === 'failed')
-      case 'due':
-        return inspections.filter(i => {
-          if (!i.next_inspection_date) return false
-          const dueDate = new Date(i.next_inspection_date)
-          const today = new Date()
-          const daysUntilDue = Math.floor((dueDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24))
-          return daysUntilDue <= 7 && daysUntilDue >= 0
-        })
-      case 'overdue':
-        return inspections.filter(i => {
-          if (!i.next_inspection_date) return false
-          return new Date(i.next_inspection_date) < new Date()
-        })
-      case 'violations':
-        return inspections.filter(i => i.violations > 0)
-      default:
-        return inspections
-    }
-  }, [inspections, filter])
+    return inspections.filter((inspection) => {
+      const matchesResult = resultFilter === 'all' || inspection.result === resultFilter
+      const matchesType = typeFilter === 'all' || inspection.type === typeFilter
+      const matchesSearch =
+        !searchQuery ||
+        inspection.inspection_number.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        inspection.vehicle_name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        inspection.inspector_name.toLowerCase().includes(searchQuery.toLowerCase())
 
-  const getStatusColor = (status: string): 'destructive' | 'default' | 'secondary' | 'outline' => {
-    switch (status) {
-      case 'failed': return 'destructive'
-      case 'conditional': return 'default'
-      case 'passed': return 'secondary'
-      default: return 'outline'
-    }
-  }
+      return matchesResult && matchesType && matchesSearch
+    })
+  }, [inspections, resultFilter, typeFilter, searchQuery])
 
-  const columns: DrilldownColumn<InspectionData>[] = [
+  const columns: ColumnDef<InspectionData>[] = [
     {
-      key: 'date',
-      header: 'Date',
-      sortable: true,
-      render: (inspection) => (
-        <div>
-          <div className="font-medium">{new Date(inspection.date).toLocaleDateString()}</div>
-          {inspection.time && <div className="text-xs text-muted-foreground">{inspection.time}</div>}
-        </div>
-      ),
-    },
-    {
-      key: 'inspection_number',
+      accessorKey: 'inspection_number',
       header: 'Inspection #',
-      sortable: true,
-    },
-    {
-      key: 'vehicle_name',
-      header: 'Vehicle',
-      drilldown: {
-        recordType: 'vehicle',
-        getRecordId: (inspection) => inspection.vehicle_id,
-        getRecordLabel: (inspection) => inspection.vehicle_name || 'Vehicle',
-      },
-      render: (inspection) => inspection.vehicle_name || '-',
-    },
-    {
-      key: 'type',
-      header: 'Type',
-      sortable: true,
-      render: (inspection) => (
-        <Badge variant="outline" className="capitalize">
-          {inspection.type.replace('-', ' ')}
-        </Badge>
+      cell: ({ row }) => (
+        <div className="font-medium">{row.original.inspection_number}</div>
       ),
     },
     {
-      key: 'status',
-      header: 'Status',
-      sortable: true,
-      render: (inspection) => (
-        <div className="flex items-center gap-2">
-          {inspection.status === 'passed' && <CheckCircle className="w-4 h-4 text-green-500" />}
-          {inspection.status === 'failed' && <XCircle className="w-4 h-4 text-red-500" />}
-          {inspection.status === 'conditional' && <AlertTriangle className="w-4 h-4 text-yellow-500" />}
-          <Badge variant={getStatusColor(inspection.status)}>
-            {inspection.status}
-          </Badge>
-        </div>
-      ),
-    },
-    {
-      key: 'violations',
-      header: 'Violations',
-      sortable: true,
-      render: (inspection) => (
-        <div className="text-center">
-          {inspection.violations === 0 ? (
-            <span className="text-muted-foreground">0</span>
-          ) : (
-            <div className="font-bold text-red-500">
-              {inspection.violations}
-              {inspection.critical_violations > 0 && (
-                <span className="ml-1 text-xs">({inspection.critical_violations} critical)</span>
-              )}
-            </div>
+      accessorKey: 'date',
+      header: 'Date',
+      cell: ({ row }) => (
+        <div>
+          <div>{new Date(row.original.date).toLocaleDateString()}</div>
+          {row.original.time && (
+            <div className="text-xs text-muted-foreground">{row.original.time}</div>
           )}
         </div>
       ),
     },
     {
-      key: 'inspector_name',
+      accessorKey: 'vehicle_name',
+      header: 'Vehicle',
+      cell: ({ row }) => row.original.vehicle_name || '-',
+    },
+    {
+      accessorKey: 'inspector_name',
       header: 'Inspector',
-      sortable: true,
+      cell: ({ row }) => row.original.inspector_name,
+    },
+    {
+      accessorKey: 'result',
+      header: 'Result',
+      cell: ({ row }) => {
+        const result = row.original.result
+        const variant =
+          result === 'passed' ? 'default' : result === 'failed' ? 'destructive' : 'secondary'
+        return (
+          <div className="flex items-center gap-2">
+            {result === 'passed' && <CheckCircle className="w-4 h-4 text-green-500" />}
+            {result === 'failed' && <XCircle className="w-4 h-4 text-red-500" />}
+            {result === 'conditional' && <AlertTriangle className="w-4 h-4 text-yellow-500" />}
+            <Badge variant={variant} className="capitalize">
+              {result}
+            </Badge>
+          </div>
+        )
+      },
+    },
+    {
+      accessorKey: 'score',
+      header: 'Score %',
+      cell: ({ row }) =>
+        row.original.score !== undefined ? (
+          <div
+            className={`font-bold ${
+              row.original.score >= 90
+                ? 'text-green-500'
+                : row.original.score >= 75
+                ? 'text-yellow-500'
+                : 'text-red-500'
+            }`}
+          >
+            {row.original.score}%
+          </div>
+        ) : (
+          '-'
+        ),
+    },
+    {
+      accessorKey: 'violations',
+      header: 'Violations',
+      cell: ({ row }) => (
+        <div className="text-center">
+          {row.original.violations === 0 ? (
+            <span className="text-muted-foreground">0</span>
+          ) : (
+            <span className="font-bold text-red-500">{row.original.violations}</span>
+          )}
+        </div>
+      ),
+    },
+    {
+      accessorKey: 'critical_items',
+      header: 'Critical Items',
+      cell: ({ row }) => (
+        <div className="text-center">
+          {row.original.critical_items === 0 ? (
+            <span className="text-muted-foreground">0</span>
+          ) : (
+            <span className="font-bold text-red-500">{row.original.critical_items}</span>
+          )}
+        </div>
+      ),
+    },
+    {
+      accessorKey: 'status',
+      header: 'Status',
+      cell: ({ row }) => row.original.status,
+    },
+    {
+      accessorKey: 'next_due',
+      header: 'Next Due',
+      cell: ({ row }) => {
+        if (!row.original.next_due) return '-'
+        const dueDate = new Date(row.original.next_due)
+        const today = new Date()
+        const daysUntil = Math.floor(
+          (dueDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24)
+        )
+
+        return (
+          <div>
+            <div>{dueDate.toLocaleDateString()}</div>
+            {daysUntil <= 7 && daysUntil > 0 && (
+              <div className="text-xs text-amber-500 flex items-center gap-1">
+                <AlertTriangle className="w-3 h-3" />
+                {daysUntil} days
+              </div>
+            )}
+            {daysUntil <= 0 && (
+              <div className="text-xs text-red-500 flex items-center gap-1">
+                <XCircle className="w-3 h-3" />
+                Overdue
+              </div>
+            )}
+          </div>
+        )
+      },
     },
   ]
 
+  const handleExportToExcel = () => {
+    // Prepare CSV data
+    const headers = [
+      'Inspection #',
+      'Date',
+      'Time',
+      'Vehicle',
+      'Inspector',
+      'Result',
+      'Score %',
+      'Violations',
+      'Critical Items',
+      'Status',
+      'Next Due',
+    ]
+
+    const csvData = filteredData.map((inspection) => [
+      inspection.inspection_number,
+      new Date(inspection.date).toLocaleDateString(),
+      inspection.time || '',
+      inspection.vehicle_name || '',
+      inspection.inspector_name,
+      inspection.result,
+      inspection.score !== undefined ? `${inspection.score}%` : '',
+      inspection.violations.toString(),
+      inspection.critical_items.toString(),
+      inspection.status,
+      inspection.next_due ? new Date(inspection.next_due).toLocaleDateString() : '',
+    ])
+
+    const csv = [headers, ...csvData].map((row) => row.join(',')).join('\n')
+    const blob = new Blob([csv], { type: 'text/csv' })
+    const url = window.URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = `inspections-matrix-${new Date().toISOString().split('T')[0]}.csv`
+    a.click()
+    window.URL.revokeObjectURL(url)
+  }
+
   // Calculate summary stats
-  const totalInspections = filteredInspections.length
-  const passedCount = filteredInspections.filter(i => i.status === 'passed').length
-  const failedCount = filteredInspections.filter(i => i.status === 'failed').length
-  const violationsCount = filteredInspections.reduce((sum, i) => sum + i.violations, 0)
+  const totalInspections = filteredData.length
+  const passedCount = filteredData.filter((i) => i.result === 'passed').length
+  const failedCount = filteredData.filter((i) => i.result === 'failed').length
+  const violationsCount = filteredData.reduce((sum, i) => sum + i.violations, 0)
   const passRate = totalInspections > 0 ? Math.round((passedCount / totalInspections) * 100) : 0
 
   return (
@@ -397,7 +472,7 @@ export function InspectionListView({ filter }: { filter?: string }) {
               <CheckCircle className="w-5 h-5 text-green-400" />
               <div className="text-2xl font-bold text-green-400">{passedCount}</div>
             </div>
-            <div className="text-xs text-slate-400">Passed</div>
+            <div className="text-xs text-slate-400">Passed ({passRate}%)</div>
           </CardContent>
         </Card>
         <Card className="bg-red-900/30 border-red-700/50">
@@ -415,46 +490,72 @@ export function InspectionListView({ filter }: { filter?: string }) {
               <AlertTriangle className="w-5 h-5 text-amber-400" />
               <div className="text-2xl font-bold text-amber-400">{violationsCount}</div>
             </div>
-            <div className="text-xs text-slate-400">Violations</div>
+            <div className="text-xs text-slate-400">Total Violations</div>
           </CardContent>
         </Card>
       </div>
 
-      {/* Pass Rate */}
+      {/* Filter and Export Controls */}
       <Card className="bg-slate-800/50 border-slate-700">
-        <CardHeader className="pb-2">
-          <CardTitle className="text-white text-sm flex items-center justify-between">
-            <span>Inspection Pass Rate</span>
-            <span className="text-2xl font-bold">{passRate}%</span>
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <Progress value={passRate} className="h-3" />
-          <div className="flex justify-between text-xs text-slate-400 mt-2">
-            <span>{passedCount} passed</span>
-            <span>{failedCount} failed</span>
+        <CardContent className="p-4">
+          <div className="flex items-center gap-3">
+            <div className="flex-1">
+              <Input
+                placeholder="Search inspections..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="max-w-sm"
+              />
+            </div>
+            <Select value={resultFilter} onValueChange={setResultFilter}>
+              <SelectTrigger className="w-[150px]">
+                <SelectValue placeholder="Result" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Results</SelectItem>
+                <SelectItem value="passed">Passed</SelectItem>
+                <SelectItem value="failed">Failed</SelectItem>
+                <SelectItem value="conditional">Conditional</SelectItem>
+              </SelectContent>
+            </Select>
+            <Select value={typeFilter} onValueChange={setTypeFilter}>
+              <SelectTrigger className="w-[150px]">
+                <SelectValue placeholder="Type" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Types</SelectItem>
+                <SelectItem value="safety">Safety</SelectItem>
+                <SelectItem value="pre-trip">Pre-Trip</SelectItem>
+                <SelectItem value="annual">Annual</SelectItem>
+                <SelectItem value="roadside">Roadside</SelectItem>
+                <SelectItem value="periodic">Periodic</SelectItem>
+              </SelectContent>
+            </Select>
+            <Button onClick={handleExportToExcel} variant="outline">
+              <Download className="w-4 h-4 mr-2" />
+              Export to Excel
+            </Button>
           </div>
         </CardContent>
       </Card>
 
-      {/* Inspection Table */}
+      {/* Excel-Style Inspection Matrix */}
       <Card className="bg-slate-800/50 border-slate-700">
         <CardHeader className="pb-2">
           <CardTitle className="text-white text-lg flex items-center gap-2">
             <ClipboardCheck className="w-5 h-5 text-blue-400" />
-            {filter ? `Filtered Inspections (${filteredInspections.length})` : `All Inspections (${filteredInspections.length})`}
+            All Safety Inspections - Excel View ({filteredData.length} records)
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <DrilldownDataTable
-            data={filteredInspections}
+          <DataGrid
+            data={filteredData}
             columns={columns}
-            recordType="safety-inspection"
-            getRecordId={(inspection) => inspection.id}
-            getRecordLabel={(inspection) => `Inspection ${inspection.inspection_number}`}
-            getRecordData={(inspection) => ({ inspectionId: inspection.id })}
-            emptyMessage="No inspections found"
-            compact
+            pageSize={20}
+            enableInspector={true}
+            inspectorType="safety-inspection"
+            compactMode={true}
+            stickyHeader={true}
           />
         </CardContent>
       </Card>
@@ -475,8 +576,8 @@ export function SafetyInspectionDetailPanel({ inspectionId }: InspectionDetailPa
     `/api/inspections/${inspectionId}`,
     fetcher,
     {
-      fallbackData: demoInspections.find(i => i.id === inspectionId),
-      shouldRetryOnError: false
+      fallbackData: demoInspections.find((i) => i.id === inspectionId),
+      shouldRetryOnError: false,
     }
   )
 
@@ -484,8 +585,8 @@ export function SafetyInspectionDetailPanel({ inspectionId }: InspectionDetailPa
     inspectionId ? `/api/inspections/${inspectionId}/violations` : null,
     fetcher,
     {
-      fallbackData: demoViolations.filter(v => v.inspection_id === inspectionId),
-      shouldRetryOnError: false
+      fallbackData: demoViolations.filter((v) => v.inspection_id === inspectionId),
+      shouldRetryOnError: false,
     }
   )
 
@@ -508,21 +609,33 @@ export function SafetyInspectionDetailPanel({ inspectionId }: InspectionDetailPa
     }
   }
 
-  const getStatusColor = (status: string): 'destructive' | 'default' | 'secondary' | 'outline' => {
+  const getStatusColor = (
+    status: string
+  ): 'destructive' | 'default' | 'secondary' | 'outline' => {
     switch (status) {
-      case 'failed': return 'destructive'
-      case 'conditional': return 'default'
-      case 'passed': return 'secondary'
-      default: return 'outline'
+      case 'failed':
+        return 'destructive'
+      case 'conditional':
+        return 'default'
+      case 'passed':
+        return 'secondary'
+      default:
+        return 'outline'
     }
   }
 
-  const getSeverityColor = (severity: string): 'destructive' | 'default' | 'secondary' | 'outline' => {
+  const getSeverityColor = (
+    severity: string
+  ): 'destructive' | 'default' | 'secondary' | 'outline' => {
     switch (severity) {
-      case 'critical': return 'destructive'
-      case 'major': return 'default'
-      case 'minor': return 'secondary'
-      default: return 'outline'
+      case 'critical':
+        return 'destructive'
+      case 'major':
+        return 'default'
+      case 'minor':
+        return 'secondary'
+      default:
+        return 'outline'
     }
   }
 
@@ -535,18 +648,19 @@ export function SafetyInspectionDetailPanel({ inspectionId }: InspectionDetailPa
             <div className="space-y-1">
               <h3 className="text-2xl font-bold">Inspection #{inspection.inspection_number}</h3>
               <p className="text-sm text-muted-foreground">
-                {new Date(inspection.date).toLocaleDateString()} {inspection.time && `at ${inspection.time}`}
+                {new Date(inspection.date).toLocaleDateString()}{' '}
+                {inspection.time && `at ${inspection.time}`}
               </p>
               <div className="flex items-center gap-2 mt-2">
-                <Badge variant={getStatusColor(inspection.status)} className="capitalize">
-                  {inspection.status}
+                <Badge variant={getStatusColor(inspection.result)} className="capitalize">
+                  {inspection.result}
                 </Badge>
                 <Badge variant="outline" className="capitalize">
                   {inspection.type.replace('-', ' ')}
                 </Badge>
-                {inspection.overall_score && (
-                  <Badge variant={inspection.overall_score >= 90 ? 'secondary' : 'default'}>
-                    Score: {inspection.overall_score}%
+                {inspection.score && (
+                  <Badge variant={inspection.score >= 90 ? 'secondary' : 'default'}>
+                    Score: {inspection.score}%
                   </Badge>
                 )}
               </div>
@@ -564,12 +678,10 @@ export function SafetyInspectionDetailPanel({ inspectionId }: InspectionDetailPa
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">
-                  {inspection.violations}
-                </div>
-                {inspection.critical_violations > 0 && (
+                <div className="text-2xl font-bold">{inspection.violations}</div>
+                {inspection.critical_items > 0 && (
                   <p className="text-xs text-destructive mt-1">
-                    {inspection.critical_violations} critical
+                    {inspection.critical_items} critical
                   </p>
                 )}
               </CardContent>
@@ -584,14 +696,17 @@ export function SafetyInspectionDetailPanel({ inspectionId }: InspectionDetailPa
               </CardHeader>
               <CardContent>
                 <div className="text-sm font-bold">
-                  {inspection.next_inspection_date
-                    ? new Date(inspection.next_inspection_date).toLocaleDateString()
-                    : 'Not scheduled'
-                  }
+                  {inspection.next_due
+                    ? new Date(inspection.next_due).toLocaleDateString()
+                    : 'Not scheduled'}
                 </div>
-                {inspection.next_inspection_date && (
+                {inspection.next_due && (
                   <p className="text-xs text-muted-foreground mt-1">
-                    {Math.floor((new Date(inspection.next_inspection_date).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24))} days away
+                    {Math.floor(
+                      (new Date(inspection.next_due).getTime() - new Date().getTime()) /
+                        (1000 * 60 * 60 * 24)
+                    )}{' '}
+                    days away
                   </p>
                 )}
               </CardContent>
@@ -605,16 +720,16 @@ export function SafetyInspectionDetailPanel({ inspectionId }: InspectionDetailPa
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="text-sm font-bold">
-                  {inspection.inspector_name}
-                </div>
+                <div className="text-sm font-bold">{inspection.inspector_name}</div>
                 <div className="flex gap-2 mt-2">
                   {inspection.inspector_phone && (
                     <Button
                       variant="ghost"
                       size="sm"
                       className="h-6 px-2"
-                      onClick={() => handleContactInspector(undefined, inspection.inspector_phone)}
+                      onClick={() =>
+                        handleContactInspector(undefined, inspection.inspector_phone)
+                      }
                     >
                       <Phone className="h-3 w-3" />
                     </Button>
@@ -643,11 +758,7 @@ export function SafetyInspectionDetailPanel({ inspectionId }: InspectionDetailPa
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <p className="text-sm text-muted-foreground">Vehicle</p>
-                  <Button
-                    variant="link"
-                    className="p-0 h-auto font-medium"
-                    onClick={handleViewVehicle}
-                  >
+                  <Button variant="link" className="p-0 h-auto font-medium" onClick={handleViewVehicle}>
                     {inspection.vehicle_name || 'View Vehicle'}
                   </Button>
                 </div>
@@ -680,9 +791,18 @@ export function SafetyInspectionDetailPanel({ inspectionId }: InspectionDetailPa
               </CardHeader>
               <CardContent className="space-y-3">
                 {violations.map((violation) => (
-                  <Card key={violation.id} className="border-l-4" style={{
-                    borderLeftColor: violation.severity === 'critical' ? '#dc2626' : violation.severity === 'major' ? '#f59e0b' : '#6b7280'
-                  }}>
+                  <Card
+                    key={violation.id}
+                    className="border-l-4"
+                    style={{
+                      borderLeftColor:
+                        violation.severity === 'critical'
+                          ? '#dc2626'
+                          : violation.severity === 'major'
+                          ? '#f59e0b'
+                          : '#6b7280',
+                    }}
+                  >
                     <CardContent className="p-4">
                       <div className="space-y-2">
                         <div className="flex items-start justify-between">
@@ -710,12 +830,16 @@ export function SafetyInspectionDetailPanel({ inspectionId }: InspectionDetailPa
                         {violation.corrective_action && (
                           <div className="pt-2 border-t">
                             <p className="text-sm font-medium">Corrective Action:</p>
-                            <p className="text-sm text-muted-foreground">{violation.corrective_action}</p>
+                            <p className="text-sm text-muted-foreground">
+                              {violation.corrective_action}
+                            </p>
                             <div className="flex items-center gap-4 mt-2 text-xs">
                               {violation.due_date && (
                                 <div className="flex items-center gap-1">
-                                  <Clock className="h-3 w-3" />
-                                  <span>Due: {new Date(violation.due_date).toLocaleDateString()}</span>
+                                  <Calendar className="h-3 w-3" />
+                                  <span>
+                                    Due: {new Date(violation.due_date).toLocaleDateString()}
+                                  </span>
                                 </div>
                               )}
                               {violation.cost_to_fix && (
@@ -730,7 +854,9 @@ export function SafetyInspectionDetailPanel({ inspectionId }: InspectionDetailPa
                         {violation.resolved && violation.resolved_date && (
                           <div className="pt-2 border-t text-sm">
                             <span className="text-muted-foreground">Resolved on </span>
-                            <span className="font-medium">{new Date(violation.resolved_date).toLocaleDateString()}</span>
+                            <span className="font-medium">
+                              {new Date(violation.resolved_date).toLocaleDateString()}
+                            </span>
                             {violation.resolved_by && (
                               <span className="text-muted-foreground"> by {violation.resolved_by}</span>
                             )}
@@ -774,7 +900,9 @@ export function SafetyInspectionDetailPanel({ inspectionId }: InspectionDetailPa
                   {inspection.inspector_phone && (
                     <Button
                       variant="outline"
-                      onClick={() => handleContactInspector(undefined, inspection.inspector_phone)}
+                      onClick={() =>
+                        handleContactInspector(undefined, inspection.inspector_phone)
+                      }
                     >
                       <Phone className="h-4 w-4 mr-2" />
                       {inspection.inspector_phone}
@@ -793,14 +921,6 @@ export function SafetyInspectionDetailPanel({ inspectionId }: InspectionDetailPa
               </div>
             </CardContent>
           </Card>
-
-          {/* Actions */}
-          {inspection.vehicle_id && (
-            <Button onClick={handleViewVehicle} className="w-full">
-              <Car className="h-4 w-4 mr-2" />
-              View Vehicle Details
-            </Button>
-          )}
         </div>
       )}
     </DrilldownContent>
