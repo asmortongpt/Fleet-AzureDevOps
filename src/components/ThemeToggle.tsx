@@ -21,12 +21,13 @@ export function ThemeToggle() {
       variant="ghost"
       size="icon"
       onClick={toggleTheme}
+      aria-label={resolvedTheme === 'light' ? 'Switch to dark mode' : 'Switch to light mode'}
       title={resolvedTheme === 'light' ? 'Switch to dark mode' : 'Switch to light mode'}
     >
       {resolvedTheme === 'light' ? (
-        <Moon className="w-5 h-5" />
+        <Moon className="w-5 h-5" aria-hidden="true" />
       ) : (
-        <Sun className="w-5 h-5" />
+        <Sun className="w-5 h-5" aria-hidden="true" />
       )}
     </Button>
   )
