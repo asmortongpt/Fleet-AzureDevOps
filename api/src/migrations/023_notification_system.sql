@@ -68,7 +68,7 @@ CREATE INDEX idx_push_notifications_type ON push_notifications(notification_type
 
 CREATE TABLE IF NOT EXISTS push_notification_recipients (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    push_notification_id INTEGER NOT NULL REFERENCES push_notifications(id) ON DELETE CASCADE,
+    push_notification_id UUID NOT NULL REFERENCES push_notifications(id) ON DELETE CASCADE,
     user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
     device_id UUID REFERENCES mobile_devices(id) ON DELETE CASCADE,
     device_token TEXT NOT NULL,

@@ -56,11 +56,11 @@ CREATE TABLE IF NOT EXISTS policy_templates (
 
     -- Audit
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    created_by INTEGER,
+    created_by UUID,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_by INTEGER,
     approved_at TIMESTAMP,
-    approved_by INTEGER
+    approved_by UUID
 );
 
 -- ============================================================================
@@ -70,7 +70,7 @@ CREATE TABLE IF NOT EXISTS policy_templates (
 CREATE TABLE IF NOT EXISTS policy_acknowledgments (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     policy_id UUID REFERENCES policy_templates(id) NOT NULL,
-    employee_id UUID REFERENCES drivers(id) NOT NULL,
+    employee_number UUID REFERENCES drivers(id) NOT NULL,
 
     -- Acknowledgment Details
     acknowledged_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -95,7 +95,7 @@ CREATE TABLE IF NOT EXISTS policy_acknowledgments (
     is_current BOOLEAN DEFAULT TRUE, -- False when policy is updated
     superseded_by_acknowledgment_id UUID REFERENCES policy_acknowledgments(id),
 
-    UNIQUE(policy_id, employee_id, acknowledged_at)
+    UNIQUE(policy_id, employee_number, acknowledged_at)
 );
 
 -- ============================================================================
@@ -340,7 +340,7 @@ CREATE TABLE IF NOT EXISTS policy_compliance_audits (
     photos_urls TEXT[],
 
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    created_by INTEGER
+    created_by UUID
 );
 
 -- ============================================================================
@@ -350,7 +350,7 @@ CREATE TABLE IF NOT EXISTS policy_compliance_audits (
 CREATE TABLE IF NOT EXISTS policy_violations (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     policy_id UUID REFERENCES policy_templates(id) NOT NULL,
-    employee_id UUID REFERENCES drivers(id) NOT NULL,
+    employee_number UUID REFERENCES drivers(id) NOT NULL,
 
     -- Violation Details
     violation_date DATE NOT NULL,
@@ -363,7 +363,7 @@ CREATE TABLE IF NOT EXISTS policy_violations (
 
     -- Related Entities
     vehicle_id UUID REFERENCES vehicles(id),
-    related_incident_id INTEGER,
+    related_[a-z_]*_id UUID,
 
     -- Witness Information
     witnesses VARCHAR(255)[],
@@ -406,7 +406,7 @@ CREATE TABLE IF NOT EXISTS policy_violations (
     case_status VARCHAR(50) DEFAULT 'Open', -- 'Open', 'Under Investigation', 'Action Taken', 'Closed', 'Under Appeal'
 
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    created_by INTEGER,
+    created_by UUID,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
@@ -420,11 +420,11 @@ CREATE INDEX IF NOT EXISTS idx_policies_effective_date ON policy_templates(effec
 CREATE INDEX IF NOT EXISTS idx_policies_review_date ON policy_templates(next_review_date);
 
 CREATE INDEX IF NOT EXISTS idx_acknowledgments_policy ON policy_acknowledgments(policy_id);
-CREATE INDEX IF NOT EXISTS idx_acknowledgments_employee ON policy_acknowledgments(employee_id);
+CREATE INDEX IF NOT EXISTS idx_acknowledgments_employee ON policy_acknowledgments(employee_number);
 CREATE INDEX IF NOT EXISTS idx_acknowledgments_current ON policy_acknowledgments(is_current);
 
 CREATE INDEX IF NOT EXISTS idx_violations_policy ON policy_violations(policy_id);
-CREATE INDEX IF NOT EXISTS idx_violations_employee ON policy_violations(employee_id);
+CREATE INDEX IF NOT EXISTS idx_violations_employee ON policy_violations(employee_number);
 CREATE INDEX IF NOT EXISTS idx_violations_date ON policy_violations(violation_date);
 CREATE INDEX IF NOT EXISTS idx_violations_severity ON policy_violations(severity);
 
@@ -458,7 +458,7 @@ ORDER BY next_review_date;
 -- Employee Compliance Dashboard
 CREATE OR REPLACE VIEW v_employee_compliance AS
 SELECT
-    d.id AS employee_id,
+    d.id AS employee_number,
     d.first_name || ' ' || d.last_name AS employee_name,
     COUNT(DISTINCT pt.id) AS total_policies,
     COUNT(DISTINCT pa.policy_id) AS acknowledged_policies,
@@ -467,8 +467,8 @@ SELECT
     MAX(pa.acknowledged_at) AS last_acknowledgment_date
 FROM drivers d
 CROSS JOIN policy_templates pt
-LEFT JOIN policy_acknowledgments pa ON d.id = pa.employee_id AND pt.id = pa.policy_id AND pa.is_current = TRUE
-LEFT JOIN policy_violations pv ON d.id = pv.employee_id
+LEFT JOIN policy_acknowledgments pa ON d.id = pa.employee_number AND pt.id = pa.policy_id AND pa.is_current = TRUE
+LEFT JOIN policy_violations pv ON d.id = pv.employee_number
 WHERE pt.status = 'Active'
     AND (pt.applies_to_roles IS NULL OR d.role = ANY(pt.applies_to_roles))
 GROUP BY d.id, d.first_name, d.last_name;

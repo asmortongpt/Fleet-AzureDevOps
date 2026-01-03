@@ -82,11 +82,11 @@ CREATE TABLE IF NOT EXISTS documents (
     -- Entity Linking (Polymorphic)
     related_vehicle_id UUID REFERENCES vehicles(id),
     related_driver_id UUID REFERENCES drivers(id),
-    related_maintenance_id INTEGER,
-    related_purchase_order_id INTEGER,
-    related_incident_id INTEGER,
-    related_osha_case_id INTEGER,
-    related_communication_id INTEGER,
+    related_[a-z_]*_id UUID,
+    related_[a-z_]*_id UUID,
+    related_[a-z_]*_id UUID,
+    related_[a-z_]*_id UUID,
+    related_[a-z_]*_id UUID,
 
     -- Manual Metadata
     manual_tags TEXT[],
@@ -111,7 +111,7 @@ CREATE TABLE IF NOT EXISTS documents (
     is_confidential BOOLEAN DEFAULT FALSE,
     access_restricted_to_roles VARCHAR(100)[],
     requires_approval BOOLEAN DEFAULT FALSE,
-    approved_by INTEGER,
+    approved_by UUID,
     approved_at TIMESTAMP,
 
     -- Version Control
@@ -193,7 +193,7 @@ CREATE TABLE IF NOT EXISTS receipt_line_items (
 
     -- Approval & Coding
     is_approved BOOLEAN DEFAULT FALSE,
-    approved_by INTEGER,
+    approved_by UUID,
     approved_at TIMESTAMP,
     gl_account_code VARCHAR(50), -- General ledger account code
     cost_center VARCHAR(50),
@@ -317,7 +317,7 @@ CREATE TABLE IF NOT EXISTS document_shares (
 
     -- Lifecycle
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    created_by INTEGER,
+    created_by UUID,
     revoked_at TIMESTAMP,
     revoked_by INTEGER,
     is_active BOOLEAN DEFAULT TRUE
@@ -473,7 +473,7 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
-CREATE OR REPLACE FUNCTION retention_until_date(category_id INTEGER, doc_date DATE)
+CREATE OR REPLACE FUNCTION retention_until_date(category_id UUID, doc_date DATE)
 RETURNS DATE AS $$
 DECLARE
     retention_years INTEGER;
@@ -562,7 +562,7 @@ SELECT
     d.uploaded_at,
     d.ocr_processed,
     d.ai_detected_type,
-    v.unit_number AS related_vehicle,
+    v.number AS related_vehicle,
     d2.first_name || ' ' || d2.last_name AS related_driver
 FROM documents d
 JOIN document_categories dc ON d.document_category_id = dc.id

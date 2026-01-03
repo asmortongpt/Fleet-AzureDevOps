@@ -23,7 +23,7 @@ CREATE TABLE IF NOT EXISTS dispatch_channels (
 -- Audio transmissions storage (for archival and playback)
 CREATE TABLE IF NOT EXISTS dispatch_transmissions (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    channel_id INTEGER NOT NULL REFERENCES dispatch_channels(id) ON DELETE CASCADE,
+    channel_id UUID NOT NULL REFERENCES dispatch_channels(id) ON DELETE CASCADE,
     user_id UUID NOT NULL REFERENCES users(id),
     transmission_start TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     transmission_end TIMESTAMP,
@@ -42,7 +42,7 @@ CREATE TABLE IF NOT EXISTS dispatch_transmissions (
 -- Real-time transcriptions with AI tagging
 CREATE TABLE IF NOT EXISTS dispatch_transcriptions (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    transmission_id INTEGER NOT NULL REFERENCES dispatch_transmissions(id) ON DELETE CASCADE,
+    transmission_id UUID NOT NULL REFERENCES dispatch_transmissions(id) ON DELETE CASCADE,
     transcription_text TEXT NOT NULL,
     confidence_score DECIMAL(5,4), -- 0.0000 to 1.0000
     language_code VARCHAR(10) DEFAULT 'en-US',
@@ -55,7 +55,7 @@ CREATE TABLE IF NOT EXISTS dispatch_transcriptions (
 -- AI-powered incident tagging and classification
 CREATE TABLE IF NOT EXISTS dispatch_incident_tags (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    transmission_id INTEGER NOT NULL REFERENCES dispatch_transmissions(id) ON DELETE CASCADE,
+    transmission_id UUID NOT NULL REFERENCES dispatch_transmissions(id) ON DELETE CASCADE,
     tag_type VARCHAR(100) NOT NULL, -- emergency, maintenance, routine, accident, traffic, fuel, breakdown, medical
     confidence_score DECIMAL(5,4),
     detected_by VARCHAR(50) DEFAULT 'azure-openai', -- azure-openai, claude, manual
@@ -69,7 +69,7 @@ CREATE TABLE IF NOT EXISTS dispatch_incident_tags (
 -- Active listeners (who is currently listening to each channel)
 CREATE TABLE IF NOT EXISTS dispatch_active_listeners (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    channel_id INTEGER NOT NULL REFERENCES dispatch_channels(id) ON DELETE CASCADE,
+    channel_id UUID NOT NULL REFERENCES dispatch_channels(id) ON DELETE CASCADE,
     user_id UUID NOT NULL REFERENCES users(id),
     connection_id VARCHAR(255) NOT NULL, -- SignalR connection ID
     connected_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -82,7 +82,7 @@ CREATE TABLE IF NOT EXISTS dispatch_active_listeners (
 -- Channel subscriptions (who has access to which channels)
 CREATE TABLE IF NOT EXISTS dispatch_channel_subscriptions (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    channel_id INTEGER NOT NULL REFERENCES dispatch_channels(id) ON DELETE CASCADE,
+    channel_id UUID NOT NULL REFERENCES dispatch_channels(id) ON DELETE CASCADE,
     user_id UUID REFERENCES users(id),
     role_name VARCHAR(100), -- or subscribe entire role
     can_transmit BOOLEAN DEFAULT true,
@@ -181,16 +181,16 @@ VALUES
 ON CONFLICT (name) DO NOTHING;
 
 -- Grant permissions
-GRANT SELECT, INSERT, UPDATE ON dispatch_channels TO fleet_app;
-GRANT SELECT, INSERT, UPDATE ON dispatch_transmissions TO fleet_app;
-GRANT SELECT, INSERT, UPDATE ON dispatch_transcriptions TO fleet_app;
-GRANT SELECT, INSERT, UPDATE ON dispatch_incident_tags TO fleet_app;
-GRANT SELECT, INSERT, UPDATE, DELETE ON dispatch_active_listeners TO fleet_app;
-GRANT SELECT, INSERT, UPDATE, DELETE ON dispatch_channel_subscriptions TO fleet_app;
-GRANT SELECT, INSERT, UPDATE ON dispatch_emergency_alerts TO fleet_app;
-GRANT SELECT, INSERT, UPDATE ON dispatch_metrics TO fleet_app;
+-- GRANT SELECT, INSERT, UPDATE ON dispatch_channels TO fleet_app;
+-- GRANT SELECT, INSERT, UPDATE ON dispatch_transmissions TO fleet_app;
+-- GRANT SELECT, INSERT, UPDATE ON dispatch_transcriptions TO fleet_app;
+-- GRANT SELECT, INSERT, UPDATE ON dispatch_incident_tags TO fleet_app;
+-- GRANT SELECT, INSERT, UPDATE, DELETE ON dispatch_active_listeners TO fleet_app;
+-- GRANT SELECT, INSERT, UPDATE, DELETE ON dispatch_channel_subscriptions TO fleet_app;
+-- GRANT SELECT, INSERT, UPDATE ON dispatch_emergency_alerts TO fleet_app;
+-- GRANT SELECT, INSERT, UPDATE ON dispatch_metrics TO fleet_app;
 
-GRANT USAGE, SELECT ON ALL SEQUENCES IN SCHEMA public TO fleet_app;
+-- GRANT USAGE, SELECT ON ALL SEQUENCES IN SCHEMA public TO fleet_app;
 
 -- Comments for documentation
 COMMENT ON TABLE dispatch_channels IS 'Radio dispatch channels for organizing communications';

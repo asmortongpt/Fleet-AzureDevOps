@@ -758,7 +758,7 @@ CREATE INDEX "documents_type_idx" ON "documents" USING btree ("type");--> statem
 CREATE INDEX "documents_related_entity_idx" ON "documents" USING btree ("related_entity_type","related_entity_id");--> statement-breakpoint
 CREATE INDEX "documents_uploaded_by_idx" ON "documents" USING btree ("uploaded_by_id");--> statement-breakpoint
 CREATE UNIQUE INDEX "drivers_tenant_license_idx" ON "drivers" USING btree ("tenant_id","license_number");--> statement-breakpoint
-CREATE INDEX "drivers_tenant_employee_idx" ON "drivers" USING btree ("tenant_id","employee_number");--> statement-breakpoint
+CREATE INDEX "drivers_tenant_employee_numberx" ON "drivers" USING btree ("tenant_id","employee_number");--> statement-breakpoint
 CREATE INDEX "drivers_status_idx" ON "drivers" USING btree ("status");--> statement-breakpoint
 CREATE UNIQUE INDEX "facilities_tenant_code_idx" ON "facilities" USING btree ("tenant_id","code");--> statement-breakpoint
 CREATE INDEX "facilities_location_idx" ON "facilities" USING btree ("latitude","longitude");--> statement-breakpoint

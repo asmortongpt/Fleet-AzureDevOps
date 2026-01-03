@@ -8,7 +8,7 @@
 
 CREATE TABLE IF NOT EXISTS ev_specifications (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  vehicle_id INT NOT NULL REFERENCES vehicles(id) ON DELETE CASCADE,
+  vehicle_id UUID NOT NULL REFERENCES vehicles(id) ON DELETE CASCADE,
 
   -- Battery specs
   battery_capacity_kwh DECIMAL(8, 2) NOT NULL, -- Total battery capacity in kWh
@@ -53,70 +53,51 @@ CREATE INDEX idx_ev_specs_vehicle ON ev_specifications(vehicle_id);
 
 CREATE TABLE IF NOT EXISTS charging_stations (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-
-  -- Station identification
-  station_id VARCHAR(100) NOT NULL UNIQUE, -- OCPP Charge Point ID
+  station_id VARCHAR(100) NOT NULL UNIQUE,
   name VARCHAR(255) NOT NULL,
-  location_name VARCHAR(255), -- e.g., "HQ Parking Lot A"
-
-  -- Physical location
-  latitude DECIMAL(10, 8),
-  longitude DECIMAL(11, 8),
-  address TEXT,
-  facility_id INT, -- Optional reference to facilities table
-  parking_space VARCHAR(50), -- e.g., "A-12"
-
-  -- Station specs
-  manufacturer VARCHAR(100), -- 'ChargePoint', 'EVBox', 'ABB', 'Tesla', etc.
-  model VARCHAR(100),
-  firmware_version VARCHAR(50),
-  serial_number VARCHAR(100),
-
-  -- Charging capabilities
-  power_type VARCHAR(20) NOT NULL, -- 'AC' or 'DC'
-  max_power_kw DECIMAL(7, 2) NOT NULL, -- Maximum output power
-  voltage_v INT, -- Voltage (e.g., 240V, 480V)
-  current_amp INT, -- Maximum current in amps
-  num_connectors INT DEFAULT 1,
-
-  -- Network & Protocol
-  ocpp_version VARCHAR(20) DEFAULT '2.0.1', -- OCPP protocol version
-  ws_url TEXT, -- WebSocket connection URL
-  api_endpoint TEXT, -- REST API endpoint (if supported)
-  network_provider VARCHAR(100), -- 'ChargePoint Network', 'EVBox', etc.
-
-  -- Status
-  status VARCHAR(50) DEFAULT 'Available', -- OCPP: Available, Preparing, Charging, SuspendedEVSE, SuspendedEV, Finishing, Reserved, Unavailable, Faulted
-  is_online BOOLEAN DEFAULT false,
-  is_enabled BOOLEAN DEFAULT true,
-  last_heartbeat TIMESTAMP,
-  last_status_update TIMESTAMP,
-
-  -- Access control
-  requires_authentication BOOLEAN DEFAULT true,
-  rfid_enabled BOOLEAN DEFAULT true,
-  mobile_app_enabled BOOLEAN DEFAULT true,
-  public_access BOOLEAN DEFAULT false,
-
-  -- Pricing (per kWh)
-  price_per_kwh_off_peak DECIMAL(6, 4), -- e.g., $0.15/kWh
-  price_per_kwh_on_peak DECIMAL(6, 4), -- e.g., $0.30/kWh
-  price_per_minute_idle DECIMAL(6, 4), -- Idle fee
-
-  -- Smart charging
-  supports_smart_charging BOOLEAN DEFAULT false,
-  load_management_enabled BOOLEAN DEFAULT false,
-  solar_integrated BOOLEAN DEFAULT false,
-
-  -- Metadata
-  notes TEXT,
-  installation_date DATE,
-  warranty_expiry_date DATE,
-  last_maintenance_date DATE,
-
   created_at TIMESTAMP DEFAULT NOW(),
   updated_at TIMESTAMP DEFAULT NOW()
 );
+
+-- Ensure columns exist
+ALTER TABLE charging_stations ADD COLUMN IF NOT EXISTS location_name VARCHAR(255);
+ALTER TABLE charging_stations ADD COLUMN IF NOT EXISTS latitude DECIMAL(10, 8);
+ALTER TABLE charging_stations ADD COLUMN IF NOT EXISTS longitude DECIMAL(11, 8);
+ALTER TABLE charging_stations ADD COLUMN IF NOT EXISTS address TEXT;
+ALTER TABLE charging_stations ADD COLUMN IF NOT EXISTS facility_id UUID; -- Changed to UUID for consistency
+ALTER TABLE charging_stations ADD COLUMN IF NOT EXISTS parking_space VARCHAR(50);
+ALTER TABLE charging_stations ADD COLUMN IF NOT EXISTS manufacturer VARCHAR(100);
+ALTER TABLE charging_stations ADD COLUMN IF NOT EXISTS model VARCHAR(100);
+ALTER TABLE charging_stations ADD COLUMN IF NOT EXISTS firmware_version VARCHAR(50);
+ALTER TABLE charging_stations ADD COLUMN IF NOT EXISTS serial_number VARCHAR(100);
+ALTER TABLE charging_stations ADD COLUMN IF NOT EXISTS power_type VARCHAR(20);
+ALTER TABLE charging_stations ADD COLUMN IF NOT EXISTS max_power_kw DECIMAL(7, 2);
+ALTER TABLE charging_stations ADD COLUMN IF NOT EXISTS voltage_v INT;
+ALTER TABLE charging_stations ADD COLUMN IF NOT EXISTS current_amp INT;
+ALTER TABLE charging_stations ADD COLUMN IF NOT EXISTS num_connectors INT DEFAULT 1;
+ALTER TABLE charging_stations ADD COLUMN IF NOT EXISTS ocpp_version VARCHAR(20) DEFAULT '2.0.1';
+ALTER TABLE charging_stations ADD COLUMN IF NOT EXISTS ws_url TEXT;
+ALTER TABLE charging_stations ADD COLUMN IF NOT EXISTS api_endpoint TEXT;
+ALTER TABLE charging_stations ADD COLUMN IF NOT EXISTS network_provider VARCHAR(100);
+ALTER TABLE charging_stations ADD COLUMN IF NOT EXISTS status VARCHAR(50) DEFAULT 'Available';
+ALTER TABLE charging_stations ADD COLUMN IF NOT EXISTS is_online BOOLEAN DEFAULT false;
+ALTER TABLE charging_stations ADD COLUMN IF NOT EXISTS is_enabled BOOLEAN DEFAULT true;
+ALTER TABLE charging_stations ADD COLUMN IF NOT EXISTS last_heartbeat TIMESTAMP;
+ALTER TABLE charging_stations ADD COLUMN IF NOT EXISTS last_status_update TIMESTAMP;
+ALTER TABLE charging_stations ADD COLUMN IF NOT EXISTS requires_authentication BOOLEAN DEFAULT true;
+ALTER TABLE charging_stations ADD COLUMN IF NOT EXISTS rfid_enabled BOOLEAN DEFAULT true;
+ALTER TABLE charging_stations ADD COLUMN IF NOT EXISTS mobile_app_enabled BOOLEAN DEFAULT true;
+ALTER TABLE charging_stations ADD COLUMN IF NOT EXISTS public_access BOOLEAN DEFAULT false;
+ALTER TABLE charging_stations ADD COLUMN IF NOT EXISTS price_per_kwh_off_peak DECIMAL(6, 4);
+ALTER TABLE charging_stations ADD COLUMN IF NOT EXISTS price_per_kwh_on_peak DECIMAL(6, 4);
+ALTER TABLE charging_stations ADD COLUMN IF NOT EXISTS price_per_minute_idle DECIMAL(6, 4);
+ALTER TABLE charging_stations ADD COLUMN IF NOT EXISTS supports_smart_charging BOOLEAN DEFAULT false;
+ALTER TABLE charging_stations ADD COLUMN IF NOT EXISTS load_management_enabled BOOLEAN DEFAULT false;
+ALTER TABLE charging_stations ADD COLUMN IF NOT EXISTS solar_integrated BOOLEAN DEFAULT false;
+ALTER TABLE charging_stations ADD COLUMN IF NOT EXISTS notes TEXT;
+ALTER TABLE charging_stations ADD COLUMN IF NOT EXISTS installation_date DATE;
+ALTER TABLE charging_stations ADD COLUMN IF NOT EXISTS warranty_expiry_date DATE;
+ALTER TABLE charging_stations ADD COLUMN IF NOT EXISTS last_maintenance_date DATE;
 
 CREATE INDEX idx_charging_stations_status ON charging_stations(status);
 CREATE INDEX idx_charging_stations_online ON charging_stations(is_online);
@@ -128,10 +109,10 @@ CREATE INDEX idx_charging_stations_facility ON charging_stations(facility_id);
 
 CREATE TABLE IF NOT EXISTS charging_connectors (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  station_id INT NOT NULL REFERENCES charging_stations(id) ON DELETE CASCADE,
+  station_id UUID NOT NULL REFERENCES charging_stations(id) ON DELETE CASCADE,
 
   -- Connector identification
-  connector_id INT NOT NULL, -- 1, 2, 3, etc. (per station)
+  connector_id UUID NOT NULL, -- 1, 2, 3, etc. (per station)
   evse_id VARCHAR(100), -- External EVSE identifier
 
   -- Connector specs
@@ -147,8 +128,8 @@ CREATE TABLE IF NOT EXISTS charging_connectors (
   error_code VARCHAR(100), -- OCPP error code
 
   -- Current session
-  current_transaction_id INT, -- Reference to active charging session
-  current_vehicle_id INT REFERENCES vehicles(id) ON DELETE SET NULL,
+  current_transaction_id UUID, -- Reference to active charging session
+  current_vehicle_id UUID REFERENCES vehicles(id) ON DELETE SET NULL,
 
   created_at TIMESTAMP DEFAULT NOW(),
   updated_at TIMESTAMP DEFAULT NOW(),
@@ -166,57 +147,47 @@ CREATE INDEX idx_connectors_vehicle ON charging_connectors(current_vehicle_id);
 
 CREATE TABLE IF NOT EXISTS charging_sessions (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-
-  -- OCPP transaction
-  transaction_id VARCHAR(100) UNIQUE, -- OCPP transaction identifier
-  station_id INT NOT NULL REFERENCES charging_stations(id),
-  connector_id INT NOT NULL REFERENCES charging_connectors(id),
-
-  -- Vehicle & driver
-  vehicle_id INT NOT NULL REFERENCES vehicles(id) ON DELETE CASCADE,
-  driver_id INT REFERENCES users(id) ON DELETE SET NULL,
-
-  -- Session timing
-  start_time TIMESTAMP NOT NULL DEFAULT NOW(),
-  end_time TIMESTAMP,
-  duration_minutes INT,
-
-  -- Energy metrics
-  start_soc_percent DECIMAL(5, 2), -- State of Charge at start
-  end_soc_percent DECIMAL(5, 2), -- State of Charge at end
-  energy_delivered_kwh DECIMAL(10, 4) DEFAULT 0, -- Total energy delivered
-  max_power_kw DECIMAL(7, 2), -- Peak power during session
-  avg_power_kw DECIMAL(7, 2), -- Average power
-
-  -- Costs
-  energy_cost DECIMAL(10, 2) DEFAULT 0, -- Total cost of energy
-  idle_fee DECIMAL(10, 2) DEFAULT 0, -- Idle time fees
-  total_cost DECIMAL(10, 2) DEFAULT 0,
-
-  -- Status
-  session_status VARCHAR(50) DEFAULT 'Active', -- 'Active', 'Completed', 'Stopped', 'Error'
-  stop_reason VARCHAR(100), -- 'EVDisconnected', 'Remote', 'Local', 'EmergencyStop', etc.
-
-  -- Smart charging
-  scheduled_start_time TIMESTAMP, -- For delayed charging
-  scheduled_end_time TIMESTAMP, -- Target completion time
-  charging_profile VARCHAR(50), -- 'Fast', 'Balanced', 'Economy', 'Solar'
-  is_smart_charging BOOLEAN DEFAULT false,
-  target_soc_percent INT, -- Target State of Charge
-
-  -- Reservation
-  reservation_id INT, -- Link to reservation (if applicable)
-
-  -- Metadata
-  rfid_tag VARCHAR(100), -- RFID card used for authentication
-  authorization_method VARCHAR(50), -- 'RFID', 'Mobile', 'RemoteStart', 'AutoCharge'
-  meter_start INT, -- Starting meter value (Wh)
-  meter_stop INT, -- Ending meter value (Wh)
-  raw_ocpp_data JSONB, -- Full OCPP transaction data
-
+  station_id UUID NOT NULL REFERENCES charging_stations(id),
+  vehicle_id UUID NOT NULL REFERENCES vehicles(id) ON DELETE CASCADE,
   created_at TIMESTAMP DEFAULT NOW(),
   updated_at TIMESTAMP DEFAULT NOW()
 );
+
+-- Ensure columns exist
+ALTER TABLE charging_sessions ADD COLUMN IF NOT EXISTS transaction_id VARCHAR(100);
+ALTER TABLE charging_sessions ADD COLUMN IF NOT EXISTS connector_id UUID REFERENCES charging_connectors(id);
+ALTER TABLE charging_sessions ADD COLUMN IF NOT EXISTS driver_id UUID REFERENCES users(id) ON DELETE SET NULL;
+ALTER TABLE charging_sessions ADD COLUMN IF NOT EXISTS start_time TIMESTAMP NOT NULL DEFAULT NOW();
+ALTER TABLE charging_sessions ADD COLUMN IF NOT EXISTS end_time TIMESTAMP;
+ALTER TABLE charging_sessions ADD COLUMN IF NOT EXISTS duration_minutes INT;
+ALTER TABLE charging_sessions ADD COLUMN IF NOT EXISTS start_soc_percent DECIMAL(5, 2);
+ALTER TABLE charging_sessions ADD COLUMN IF NOT EXISTS end_soc_percent DECIMAL(5, 2);
+ALTER TABLE charging_sessions ADD COLUMN IF NOT EXISTS energy_delivered_kwh DECIMAL(10, 4) DEFAULT 0;
+ALTER TABLE charging_sessions ADD COLUMN IF NOT EXISTS max_power_kw DECIMAL(7, 2);
+ALTER TABLE charging_sessions ADD COLUMN IF NOT EXISTS avg_power_kw DECIMAL(7, 2);
+ALTER TABLE charging_sessions ADD COLUMN IF NOT EXISTS energy_cost DECIMAL(10, 2) DEFAULT 0;
+ALTER TABLE charging_sessions ADD COLUMN IF NOT EXISTS idle_fee DECIMAL(10, 2) DEFAULT 0;
+ALTER TABLE charging_sessions ADD COLUMN IF NOT EXISTS total_cost DECIMAL(10, 2) DEFAULT 0;
+ALTER TABLE charging_sessions ADD COLUMN IF NOT EXISTS session_status VARCHAR(50) DEFAULT 'Active';
+ALTER TABLE charging_sessions ADD COLUMN IF NOT EXISTS stop_reason VARCHAR(100);
+ALTER TABLE charging_sessions ADD COLUMN IF NOT EXISTS scheduled_start_time TIMESTAMP;
+ALTER TABLE charging_sessions ADD COLUMN IF NOT EXISTS scheduled_end_time TIMESTAMP;
+ALTER TABLE charging_sessions ADD COLUMN IF NOT EXISTS charging_profile VARCHAR(50);
+ALTER TABLE charging_sessions ADD COLUMN IF NOT EXISTS is_smart_charging BOOLEAN DEFAULT false;
+ALTER TABLE charging_sessions ADD COLUMN IF NOT EXISTS target_soc_percent INT;
+ALTER TABLE charging_sessions ADD COLUMN IF NOT EXISTS reservation_id UUID;
+ALTER TABLE charging_sessions ADD COLUMN IF NOT EXISTS rfid_tag VARCHAR(100);
+ALTER TABLE charging_sessions ADD COLUMN IF NOT EXISTS authorization_method VARCHAR(50);
+ALTER TABLE charging_sessions ADD COLUMN IF NOT EXISTS meter_start INT;
+ALTER TABLE charging_sessions ADD COLUMN IF NOT EXISTS meter_stop INT;
+ALTER TABLE charging_sessions ADD COLUMN IF NOT EXISTS raw_ocpp_data JSONB;
+
+-- Add unique constraint if missing
+DO $$ BEGIN
+    ALTER TABLE charging_sessions ADD CONSTRAINT charging_sessions_transaction_id_key UNIQUE (transaction_id);
+EXCEPTION
+    WHEN duplicate_table OR others THEN null;
+END $$;
 
 CREATE INDEX idx_charging_sessions_vehicle ON charging_sessions(vehicle_id, start_time DESC);
 CREATE INDEX idx_charging_sessions_driver ON charging_sessions(driver_id, start_time DESC);
@@ -230,7 +201,7 @@ CREATE INDEX idx_charging_sessions_active ON charging_sessions(session_status) W
 
 CREATE TABLE IF NOT EXISTS charging_session_metrics (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  session_id INT NOT NULL REFERENCES charging_sessions(id) ON DELETE CASCADE,
+  session_id UUID NOT NULL REFERENCES charging_sessions(id) ON DELETE CASCADE,
 
   timestamp TIMESTAMP NOT NULL,
 
@@ -263,10 +234,10 @@ CREATE INDEX idx_session_metrics_session_time ON charging_session_metrics(sessio
 CREATE TABLE IF NOT EXISTS charging_reservations (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
 
-  station_id INT NOT NULL REFERENCES charging_stations(id) ON DELETE CASCADE,
-  connector_id INT REFERENCES charging_connectors(id) ON DELETE CASCADE,
-  vehicle_id INT NOT NULL REFERENCES vehicles(id) ON DELETE CASCADE,
-  driver_id INT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  station_id UUID NOT NULL REFERENCES charging_stations(id) ON DELETE CASCADE,
+  connector_id UUID REFERENCES charging_connectors(id) ON DELETE CASCADE,
+  vehicle_id UUID NOT NULL REFERENCES vehicles(id) ON DELETE CASCADE,
+  driver_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
 
   -- Reservation timing
   reservation_start TIMESTAMP NOT NULL,
@@ -274,13 +245,13 @@ CREATE TABLE IF NOT EXISTS charging_reservations (
   duration_minutes INT NOT NULL,
 
   -- OCPP reservation
-  ocpp_reservation_id INT, -- OCPP reservation identifier
+  ocpp_reservation_id UUID, -- OCPP reservation identifier
 
   -- Status
   status VARCHAR(50) DEFAULT 'Active', -- 'Active', 'InUse', 'Completed', 'Cancelled', 'Expired'
 
   -- Session link
-  charging_session_id INT REFERENCES charging_sessions(id),
+  charging_session_id UUID REFERENCES charging_sessions(id),
 
   -- Notifications
   reminder_sent BOOLEAN DEFAULT false,
@@ -302,8 +273,8 @@ CREATE INDEX idx_reservations_status ON charging_reservations(status);
 CREATE TABLE IF NOT EXISTS charging_schedules (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
 
-  vehicle_id INT NOT NULL REFERENCES vehicles(id) ON DELETE CASCADE,
-  driver_id INT REFERENCES users(id) ON DELETE SET NULL,
+  vehicle_id UUID NOT NULL REFERENCES vehicles(id) ON DELETE CASCADE,
+  driver_id UUID REFERENCES users(id) ON DELETE SET NULL,
 
   -- Schedule details
   schedule_name VARCHAR(255),
@@ -347,7 +318,7 @@ CREATE INDEX idx_charging_schedules_active ON charging_schedules(is_active) WHER
 CREATE TABLE IF NOT EXISTS carbon_footprint_log (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
 
-  vehicle_id INT NOT NULL REFERENCES vehicles(id) ON DELETE CASCADE,
+  vehicle_id UUID NOT NULL REFERENCES vehicles(id) ON DELETE CASCADE,
   log_date DATE NOT NULL,
 
   -- Energy consumption
@@ -425,7 +396,7 @@ CREATE TABLE IF NOT EXISTS esg_reports (
   esg_notes TEXT,
 
   generated_at TIMESTAMP DEFAULT NOW(),
-  generated_by INT REFERENCES users(id),
+  generated_by UUID REFERENCES users(id),
 
   UNIQUE(report_period, report_year, report_month, report_quarter)
 );
@@ -439,7 +410,7 @@ CREATE INDEX idx_esg_reports_period ON esg_reports(report_year DESC, report_mont
 CREATE TABLE IF NOT EXISTS battery_health_logs (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
 
-  vehicle_id INT NOT NULL REFERENCES vehicles(id) ON DELETE CASCADE,
+  vehicle_id UUID NOT NULL REFERENCES vehicles(id) ON DELETE CASCADE,
   timestamp TIMESTAMP NOT NULL DEFAULT NOW(),
 
   -- Battery health metrics
@@ -483,7 +454,7 @@ CREATE INDEX idx_battery_health_alerts ON battery_health_logs(requires_attention
 CREATE TABLE IF NOT EXISTS ocpp_message_log (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
 
-  station_id INT REFERENCES charging_stations(id) ON DELETE CASCADE,
+  station_id UUID REFERENCES charging_stations(id) ON DELETE CASCADE,
 
   -- Message details
   message_id VARCHAR(100), -- OCPP message ID
@@ -512,7 +483,7 @@ CREATE INDEX idx_ocpp_log_action ON ocpp_message_log(action, timestamp DESC);
 CREATE TABLE IF NOT EXISTS charging_load_management (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
 
-  facility_id INT, -- Optional facility reference
+  facility_id UUID, -- Optional facility reference
 
   -- Load limits
   max_facility_power_kw DECIMAL(8, 2) NOT NULL, -- Total facility power limit

@@ -8,7 +8,7 @@
 
 CREATE TABLE IF NOT EXISTS route_optimization_jobs (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  tenant_id INT NOT NULL,
+  tenant_id UUID NOT NULL,
   job_name VARCHAR(255) NOT NULL,
   job_type VARCHAR(50) DEFAULT 'standard', -- 'standard', 'recurring', 'emergency'
 
@@ -48,7 +48,7 @@ CREATE TABLE IF NOT EXISTS route_optimization_jobs (
   optimization_score DECIMAL(8, 4), -- 0-1, how optimal the solution is
 
   -- Metadata
-  created_by INT REFERENCES users(id),
+  created_by UUID REFERENCES users(id),
   created_at TIMESTAMP DEFAULT NOW(),
   started_at TIMESTAMP,
   completed_at TIMESTAMP,
@@ -67,8 +67,8 @@ CREATE INDEX idx_route_jobs_scheduled ON route_optimization_jobs(scheduled_date,
 
 CREATE TABLE IF NOT EXISTS route_stops (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  job_id INT NOT NULL REFERENCES route_optimization_jobs(id) ON DELETE CASCADE,
-  tenant_id INT NOT NULL,
+  job_id UUID NOT NULL REFERENCES route_optimization_jobs(id) ON DELETE CASCADE,
+  tenant_id UUID NOT NULL,
 
   -- Stop details
   stop_name VARCHAR(255) NOT NULL,
@@ -102,7 +102,7 @@ CREATE TABLE IF NOT EXISTS route_stops (
   customer_email VARCHAR(255),
 
   -- Assignment results
-  assigned_route_id INT,
+  assigned_route_id UUID,
   assigned_sequence INT, -- Stop number in route
   estimated_arrival_time TIMESTAMP,
   actual_arrival_time TIMESTAMP,
@@ -129,16 +129,16 @@ CREATE INDEX idx_route_stops_location ON route_stops(latitude, longitude);
 
 CREATE TABLE IF NOT EXISTS optimized_routes (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  job_id INT NOT NULL REFERENCES route_optimization_jobs(id) ON DELETE CASCADE,
-  tenant_id INT NOT NULL,
+  job_id UUID NOT NULL REFERENCES route_optimization_jobs(id) ON DELETE CASCADE,
+  tenant_id UUID NOT NULL,
 
   -- Route identification
   route_number INT NOT NULL,
   route_name VARCHAR(255),
 
   -- Vehicle assignment
-  vehicle_id INT REFERENCES vehicles(id) ON DELETE SET NULL,
-  driver_id INT REFERENCES drivers(id) ON DELETE SET NULL,
+  vehicle_id UUID REFERENCES vehicles(id) ON DELETE SET NULL,
+  driver_id UUID REFERENCES drivers(id) ON DELETE SET NULL,
 
   -- Route stats
   total_stops INT DEFAULT 0,
@@ -193,7 +193,7 @@ CREATE INDEX idx_optimized_routes_status ON optimized_routes(status);
 
 CREATE TABLE IF NOT EXISTS route_waypoints (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  route_id INT NOT NULL REFERENCES optimized_routes(id) ON DELETE CASCADE,
+  route_id UUID NOT NULL REFERENCES optimized_routes(id) ON DELETE CASCADE,
 
   -- Waypoint details
   sequence INT NOT NULL,
@@ -204,7 +204,7 @@ CREATE TABLE IF NOT EXISTS route_waypoints (
   longitude DECIMAL(11, 8) NOT NULL,
 
   -- Associated stop (if applicable)
-  stop_id INT REFERENCES route_stops(id) ON DELETE SET NULL,
+  stop_id UUID REFERENCES route_stops(id) ON DELETE SET NULL,
 
   -- Navigation
   distance_from_previous_miles DECIMAL(8, 2),
@@ -226,7 +226,7 @@ CREATE INDEX idx_waypoints_route ON route_waypoints(route_id, sequence);
 
 CREATE TABLE IF NOT EXISTS vehicle_optimization_profiles (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  vehicle_id INT NOT NULL REFERENCES vehicles(id) ON DELETE CASCADE,
+  vehicle_id UUID NOT NULL REFERENCES vehicles(id) ON DELETE CASCADE,
 
   -- Capacity
   max_weight_lbs DECIMAL(10, 2),
@@ -268,7 +268,7 @@ CREATE TABLE IF NOT EXISTS vehicle_optimization_profiles (
 
 CREATE TABLE IF NOT EXISTS driver_optimization_profiles (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  driver_id INT NOT NULL REFERENCES drivers(id) ON DELETE CASCADE,
+  driver_id UUID NOT NULL REFERENCES drivers(id) ON DELETE CASCADE,
 
   -- Shift details
   shift_start_time TIME,
@@ -334,7 +334,7 @@ CREATE INDEX idx_optimization_cache_expires ON route_optimization_cache(expires_
 
 CREATE TABLE IF NOT EXISTS route_performance_metrics (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  route_id INT NOT NULL REFERENCES optimized_routes(id) ON DELETE CASCADE,
+  route_id UUID NOT NULL REFERENCES optimized_routes(id) ON DELETE CASCADE,
 
   -- Planned vs Actual
   planned_distance_miles DECIMAL(10, 2),
@@ -416,7 +416,7 @@ SELECT
   r.route_name,
   r.route_number,
   v.name as vehicle_name,
-  v.unit_number,
+  v.number,
   d.first_name || ' ' || d.last_name as driver_name,
   r.total_stops,
   r.total_distance_miles,
@@ -430,7 +430,7 @@ LEFT JOIN vehicles v ON r.vehicle_id = v.id
 LEFT JOIN drivers d ON r.driver_id = d.id
 LEFT JOIN route_stops s ON s.assigned_route_id = r.id
 WHERE r.status IN ('planned', 'active')
-GROUP BY r.id, v.name, v.unit_number, d.first_name, d.last_name;
+GROUP BY r.id, v.name, v.number, d.first_name, d.last_name;
 
 -- Optimization job statistics
 CREATE OR REPLACE VIEW optimization_job_stats AS

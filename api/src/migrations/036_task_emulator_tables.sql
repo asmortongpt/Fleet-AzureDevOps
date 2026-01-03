@@ -78,7 +78,7 @@ CREATE INDEX idx_tasks_driver_status ON tasks(assigned_to_driver, status) WHERE 
 
 CREATE TABLE IF NOT EXISTS task_comments (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  task_id INTEGER NOT NULL REFERENCES tasks(id) ON DELETE CASCADE,
+  task_id UUID NOT NULL REFERENCES tasks(id) ON DELETE CASCADE,
   comment_text TEXT NOT NULL,
   created_by VARCHAR(255) NOT NULL,
   created_at TIMESTAMP DEFAULT NOW(),
@@ -94,7 +94,7 @@ CREATE INDEX idx_task_comments_created_at ON task_comments(created_at);
 
 CREATE TABLE IF NOT EXISTS task_attachments (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  task_id INTEGER NOT NULL REFERENCES tasks(id) ON DELETE CASCADE,
+  task_id UUID NOT NULL REFERENCES tasks(id) ON DELETE CASCADE,
   file_name VARCHAR(255) NOT NULL,
   file_url TEXT NOT NULL,
   file_type VARCHAR(100),
@@ -111,7 +111,7 @@ CREATE INDEX idx_task_attachments_task_id ON task_attachments(task_id);
 
 CREATE TABLE IF NOT EXISTS task_history (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  task_id INTEGER NOT NULL REFERENCES tasks(id) ON DELETE CASCADE,
+  task_id UUID NOT NULL REFERENCES tasks(id) ON DELETE CASCADE,
   field_changed VARCHAR(100) NOT NULL,
   old_value TEXT,
   new_value TEXT,

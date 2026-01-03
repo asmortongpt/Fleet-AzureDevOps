@@ -114,8 +114,8 @@ ON CONFLICT (name) DO NOTHING;
 -- Maps which permissions are granted to which roles
 CREATE TABLE IF NOT EXISTS role_permissions (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  role_id INTEGER NOT NULL REFERENCES roles(id) ON DELETE CASCADE,
-  permission_id INTEGER NOT NULL REFERENCES permissions(id) ON DELETE CASCADE,
+  role_id UUID NOT NULL REFERENCES roles(id) ON DELETE CASCADE,
+  permission_id UUID NOT NULL REFERENCES permissions(id) ON DELETE CASCADE,
   created_at TIMESTAMP DEFAULT NOW(),
   UNIQUE(role_id, permission_id)
 );
@@ -164,7 +164,7 @@ ON CONFLICT (role_id, permission_id) DO NOTHING;
 CREATE TABLE IF NOT EXISTS user_roles (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-  role_id INTEGER NOT NULL REFERENCES roles(id) ON DELETE CASCADE,
+  role_id UUID NOT NULL REFERENCES roles(id) ON DELETE CASCADE,
   is_active BOOLEAN DEFAULT true,
   expires_at TIMESTAMP, -- Optional expiration for temporary role assignments
   assigned_by UUID REFERENCES users(id),
