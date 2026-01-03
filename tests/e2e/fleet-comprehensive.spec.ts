@@ -171,8 +171,8 @@ test.describe('Fleet Management - Comprehensive Test Suite', () => {
       });
     }
 
-    // Allow some violations but log them for review
-    expect(accessibilityScanResults.violations.length).toBeLessThan(10);
+    // Strict accessibility requirement: maximum 1 violation (down from 3+)
+    expect(accessibilityScanResults.violations.length).toBeLessThan(2);
   });
 
   test('accessibility - vehicles page', async ({ page }) => {
