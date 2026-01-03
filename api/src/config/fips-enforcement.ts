@@ -166,7 +166,7 @@ export class FIPSEnforcement {
   public static attemptEnableFIPS(): boolean {
     try {
       if (crypto.getFips() === 0) {
-        crypto.setFips(1)
+        crypto.setFips(true)
         console.log('✅ Successfully enabled FIPS mode at runtime')
         return true
       }

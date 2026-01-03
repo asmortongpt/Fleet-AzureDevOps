@@ -110,7 +110,7 @@ SELECT
     2015 + ((n-1) % 10),
     '1HGBH41JXMN' || LPAD(n::TEXT, 6, '0'),
     'FL-' || LPAD((10000 + n)::TEXT, 6, '0'),
-    (ARRAY['active', 'active', 'active', 'preventive', 'retired'])[((n-1) % 5) + 1]::vehicle_status,
+    (ARRAY['active', 'active', 'active', 'maintenance', 'retired'])[((n-1) % 5) + 1]::vehicle_status,
     25000 + (n * 1234) % 150000,
     25 + (n * 7) % 75,
     (ARRAY['gasoline', 'diesel', 'gasoline', 'diesel', 'electric'])[((n-1) % 5) + 1]::fuel_type,
@@ -141,7 +141,7 @@ SELECT
         ELSE 'Safety compliance requirement.'
     END,
     (ARRAY['preventive', 'corrective', 'inspection', 'corrective', 'preventive'])[((n-1) % 5) + 1]::maintenance_type,
-    (ARRAY['low', 'normal', 'high', 'critical'])[((n-1) % 4) + 1]::priority,
+    (ARRAY['low', 'medium', 'high', 'critical'])[((n-1) % 4) + 1]::priority,
     CASE
         WHEN n % 3 = 0 THEN 'completed'
         WHEN n % 3 = 1 THEN 'in_progress'
@@ -156,26 +156,20 @@ FROM generate_series(1, 500) AS n
 ON CONFLICT DO NOTHING;
 
 -- ============================================================================
--- 6. INSPECTIONS (300 inspections)
+-- 6. VEHICLE INSPECTIONS (300 inspections)
 -- ============================================================================
-INSERT INTO inspections (id, tenant_id, vehicle_id, inspector_id, type, date,
-                         status, result, created_at)
+INSERT INTO vehicle_inspections (id, tenant_id, vehicle_id, inspector_id, inspection_type, checklist_data, inspected_at,
+                         status, overall_status, created_at)
 SELECT
     gen_random_uuid(),
     (SELECT id FROM tenants LIMIT 1),
     (SELECT id FROM vehicles ORDER BY RANDOM() LIMIT 1),
-    (SELECT id FROM drivers ORDER BY RANDOM() LIMIT 1),
-    (ARRAY['pre_trip', 'post_trip', 'annual', 'dot', 'safety'])[((n-1) % 5) + 1]::inspection_type,
+    (SELECT id FROM users ORDER BY RANDOM() LIMIT 1),
+    (ARRAY['pre-trip', 'post-trip', 'daily', 'weekly', 'monthly'])[((n-1) % 5) + 1],
+    '{}'::JSONB,
     random_timestamp('2024-01-01'::DATE, CURRENT_DATE),
     'completed'::status,
-    (ARRAY['pass', 'pass', 'pass', 'pass', 'fail', 'conditional'])[((n-1) % 6) + 1]::inspection_result,
-    'Inspection completed. ' ||
-    CASE ((n-1) % 4)
-        WHEN 0 THEN 'All systems functioning normally.'
-        WHEN 1 THEN 'Minor issues noted for follow-up.'
-        WHEN 2 THEN 'Requires immediate attention.'
-        ELSE 'Passed with flying colors.'
-    END,
+    (ARRAY['pass', 'pass', 'pass', 'pass', 'fail', 'conditional'])[((n-1) % 6) + 1],
     NOW() - (n * 2 || ' days')::INTERVAL
 FROM generate_series(1, 300) AS n
 ON CONFLICT DO NOTHING;
@@ -183,18 +177,19 @@ ON CONFLICT DO NOTHING;
 -- ============================================================================
 -- 7. INCIDENTS (150 incidents)
 -- ============================================================================
-INSERT INTO incidents (id, tenant_id, vehicle_id, driver_id, type, date, location,
+INSERT INTO incidents (id, tenant_id, number, vehicle_id, driver_id, type, incident_date, location,
                        severity, description, status, created_at)
 SELECT
     gen_random_uuid(),
     (SELECT id FROM tenants LIMIT 1),
+    'INC-' || TO_CHAR(NOW() - (n || ' days')::INTERVAL, 'YYYYMMDD') || '-' || LPAD(n::TEXT, 4, '0'),
     (SELECT id FROM vehicles ORDER BY RANDOM() LIMIT 1),
     (SELECT id FROM drivers ORDER BY RANDOM() LIMIT 1),
-    (ARRAY['accident', 'near_miss', 'property_damage', 'injury', 'vehicle_damage', 'theft'])[((n-1) % 6) + 1]::incident_type,
+    (ARRAY['accident', 'near_miss', 'property_damage', 'injury', 'vehicle_damage', 'theft'])[((n-1) % 6) + 1],
     random_timestamp('2024-01-01'::DATE, CURRENT_DATE),
     (ARRAY['Monroe St & Adams St', 'Tennessee St & Gaines St', 'Capital Circle NE', 'Apalachee Pkwy',
            'Thomasville Rd', 'Mahan Dr', 'Miccosukee Rd', 'Centerville Rd'])[((n-1) % 8) + 1] || ', Tallahassee, FL',
-    (ARRAY['minor', 'moderate', 'major', 'critical'])[((n-1) % 4) + 1]::severity,
+    (ARRAY['minor', 'moderate', 'major', 'critical'])[((n-1) % 4) + 1]::incident_severity,
     CASE ((n-1) % 6)
         WHEN 0 THEN 'Vehicle was involved in a minor fender bender at intersection. No injuries reported.'
         WHEN 1 THEN 'Near collision event. Driver took evasive action successfully.'
@@ -203,7 +198,7 @@ SELECT
         WHEN 4 THEN 'Vehicle sustained damage to front bumper in parking lot incident.'
         ELSE 'Suspicious activity reported. Item(s) reported missing from vehicle.'
     END,
-    (ARRAY['reported', 'under_investigation', 'resolved', 'closed'])[((n-1) % 4) + 1]::status,
+    (ARRAY['pending', 'in_progress', 'completed', 'cancelled'])[((n-1) % 4) + 1]::status,
     NOW() - (n * 1.7 || ' days')::INTERVAL
 FROM generate_series(1, 150) AS n
 ON CONFLICT DO NOTHING;
@@ -211,7 +206,7 @@ ON CONFLICT DO NOTHING;
 -- ============================================================================
 -- 8. ROUTES (200 routes)
 -- ============================================================================
-INSERT INTO routes (id, tenant_id, name, description, distance_miles,
+INSERT INTO routes (id, tenant_id, name, description, estimated_distance,
                     status, created_at)
 SELECT
     gen_random_uuid(),
@@ -223,7 +218,7 @@ SELECT
     (ARRAY['residential areas', 'commercial districts', 'educational facilities', 'medical centers',
            'government buildings', 'shopping centers', 'transportation hubs'])[((n-1) % 7) + 1],
     5.0 + (n * 1.3) % 25,
-    (ARRAY['active', 'active', 'active', 'inactive', 'seasonal'])[((n-1) % 5) + 1]::status,
+    (ARRAY['pending', 'in_progress', 'completed', 'cancelled', 'on_hold'])[((n-1) % 5) + 1]::status,
     NOW() - (n * 3 || ' days')::INTERVAL
 FROM generate_series(1, 200) AS n
 ON CONFLICT DO NOTHING;
@@ -232,7 +227,7 @@ ON CONFLICT DO NOTHING;
 -- 9. FUEL TRANSACTIONS (400 transactions)
 -- ============================================================================
 INSERT INTO fuel_transactions (id, tenant_id, vehicle_id, driver_id, transaction_date, gallons,
-                                cost_per_gallon, total_cost, odometer, fuel_type, vendor_name, location_address, created_at)
+                                cost_per_gallon, total_cost, odometer, fuel_type, vendor_name, address, created_at)
 SELECT
     gen_random_uuid(),
     (SELECT id FROM tenants LIMIT 1),
@@ -265,7 +260,7 @@ SELECT
     'Scheduled maintenance interval for ' ||
     (ARRAY['engine oil', 'tires', 'brakes', 'air filtration', 'transmission', 'cooling system',
            'ignition system', 'electrical system', 'suspension', 'drive belt'])[((n-1) % 10) + 1],
-    (ARRAY['oil_change', 'tire_rotation', 'inspection', 'fluid_service', 'component_replacement'])[((n-1) % 5) + 1],
+    (ARRAY['preventive', 'preventive', 'inspection', 'preventive', 'preventive'])[((n-1) % 5) + 1]::maintenance_type,
     CASE ((n-1) % 10)
         WHEN 0 THEN 3000  -- Oil change
         WHEN 1 THEN 6000  -- Tire rotation
@@ -313,7 +308,7 @@ ON CONFLICT DO NOTHING;
 -- 11. PARTS INVENTORY (80 common parts)
 -- ============================================================================
 INSERT INTO parts_inventory (id, tenant_id, part_number, name, description, category, quantity_on_hand,
-                              minimum_quantity, unit_cost, created_at)
+                              reorder_point, unit_cost, location_in_warehouse, created_at)
 SELECT
     gen_random_uuid(),
     (SELECT id FROM tenants LIMIT 1),
@@ -341,8 +336,8 @@ SELECT
     gen_random_uuid(),
     (SELECT id FROM tenants LIMIT 1),
     (SELECT id FROM users ORDER BY RANDOM() LIMIT 1),
-    (ARRAY['maintenance_due', 'inspection_overdue', 'license_expiring', 'work_order_completed',
-           'vehicle_alert', 'driver_alert', 'fuel_threshold', 'mileage_milestone'])[((n-1) % 8) + 1],
+    (ARRAY['reminder', 'reminder', 'reminder', 'success',
+           'alert', 'alert', 'warning', 'info'])[((n-1) % 8) + 1]::notification_type,
     CASE ((n-1) % 8)
         WHEN 0 THEN 'Maintenance Due'
         WHEN 1 THEN 'Inspection Overdue'
@@ -363,7 +358,7 @@ SELECT
         WHEN 6 THEN 'Vehicle UNIT-' || LPAD((n % 250)::TEXT, 4, '0') || ' fuel level below 25%.'
         ELSE 'Vehicle UNIT-' || LPAD((n % 250)::TEXT, 4, '0') || ' has reached 100,000 miles.'
     END,
-    (ARRAY['low', 'normal', 'high', 'critical'])[((n-1) % 4) + 1],
+    (ARRAY['low', 'medium', 'high', 'critical'])[((n-1) % 4) + 1]::priority,
     CASE WHEN n % 3 = 0 THEN true ELSE false END,
     NOW() - (n * 0.5 || ' days')::INTERVAL
 FROM generate_series(1, 50) AS n
@@ -393,7 +388,7 @@ BEGIN
     SELECT COUNT(*) INTO driver_count FROM drivers;
     SELECT COUNT(*) INTO vehicle_count FROM vehicles;
     SELECT COUNT(*) INTO work_order_count FROM work_orders;
-    SELECT COUNT(*) INTO inspection_count FROM inspections;
+    SELECT COUNT(*) INTO inspection_count FROM vehicle_inspections;
     SELECT COUNT(*) INTO incident_count FROM incidents;
     SELECT COUNT(*) INTO route_count FROM routes;
     SELECT COUNT(*) INTO fuel_count FROM fuel_transactions;

@@ -46,7 +46,7 @@ tracer.init({
   plugins: true,
 
   // Distributed tracing
-  propagationStyle: 'datadog,tracecontext',
+  propagationStyle: ['datadog', 'tracecontext'],
 });
 
 // Export tracer for custom instrumentation
