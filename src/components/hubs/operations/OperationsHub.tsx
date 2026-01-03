@@ -29,6 +29,8 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { useVehicles, useDrivers, useWorkOrders } from '@/hooks/use-api';
+import { DrilldownCard } from '@/components/drilldown/DrilldownCard';
+import { useDrilldown } from '@/contexts/DrilldownContext';
 
 interface Vehicle {
   id: string;
@@ -54,6 +56,7 @@ interface Driver {
 
 export function OperationsHub() {
   const { policies } = usePolicies();
+  const { push } = useDrilldown();
   const { data: vehicles = [], isLoading: vehiclesLoading } = useVehicles();
   const { data: drivers = [] } = useDrivers();
   const { data: workOrders = [] } = useWorkOrders();
@@ -85,22 +88,29 @@ export function OperationsHub() {
   const alerts = useMemo(() => {
     return [
       {
-        id: '1',
+        id: 'alert-001',
         type: 'warning',
+        severity: 'medium',
         message: 'Vehicle V-042 delayed 15 minutes - traffic incident on I-4',
-        timestamp: new Date(Date.now() - 5 * 60000).toLocaleTimeString()
+        timestamp: new Date(Date.now() - 5 * 60000).toLocaleTimeString(),
+        vehicleId: 'veh-demo-1002',
+        vehicleName: 'Chevrolet Silverado #1002'
       },
       {
-        id: '2',
+        id: 'alert-002',
         type: 'info',
+        severity: 'low',
         message: 'Route optimization available for 3 vehicles - potential savings: $45',
         timestamp: new Date(Date.now() - 12 * 60000).toLocaleTimeString()
       },
       {
-        id: '3',
+        id: 'alert-003',
         type: 'critical',
+        severity: 'high',
         message: 'Geofence breach: Vehicle V-088 entered restricted zone',
-        timestamp: new Date(Date.now() - 23 * 60000).toLocaleTimeString()
+        timestamp: new Date(Date.now() - 23 * 60000).toLocaleTimeString(),
+        vehicleId: 'veh-demo-1015',
+        vehicleName: 'Ford Transit #1015'
       }
     ];
   }, []);
@@ -168,55 +178,51 @@ export function OperationsHub() {
         <p className="text-sm text-slate-500 mt-1">Real-time fleet operations control center</p>
       </div>
 
-      {/* Real-time Metrics Cards */}
+      {/* Real-time Metrics Cards - NOW WITH DRILLDOWN */}
       <div className="grid grid-cols-2 gap-3">
-        <Card className="border-l-4 border-l-blue-500">
-          <CardContent className="pt-4 pb-3 px-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <div className="text-2xl font-bold text-blue-600">{metrics.activeJobs}</div>
-                <div className="text-xs text-slate-600 mt-1">Active Jobs</div>
-              </div>
-              <Package className="h-8 w-8 text-blue-500 opacity-20" />
-            </div>
-          </CardContent>
-        </Card>
+        <DrilldownCard
+          title="Active Jobs"
+          value={metrics.activeJobs}
+          drilldownType="active-jobs"
+          drilldownLabel="Active Jobs"
+          drilldownData={{ filter: 'active' }}
+          icon={<Package className="h-5 w-5" />}
+          color="primary"
+          variant="compact"
+        />
 
-        <Card className="border-l-4 border-l-amber-500">
-          <CardContent className="pt-4 pb-3 px-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <div className="text-2xl font-bold text-amber-600">{metrics.pendingDispatch}</div>
-                <div className="text-xs text-slate-600 mt-1">Pending Dispatch</div>
-              </div>
-              <Clock className="h-8 w-8 text-amber-500 opacity-20" />
-            </div>
-          </CardContent>
-        </Card>
+        <DrilldownCard
+          title="In Transit"
+          value={metrics.enRoute}
+          drilldownType="in-transit"
+          drilldownLabel="Vehicles In Transit"
+          drilldownData={{ filter: 'active' }}
+          icon={<Navigation className="h-5 w-5" />}
+          color="success"
+          variant="compact"
+        />
 
-        <Card className="border-l-4 border-l-green-500">
-          <CardContent className="pt-4 pb-3 px-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <div className="text-2xl font-bold text-green-600">{metrics.enRoute}</div>
-                <div className="text-xs text-slate-600 mt-1">En Route</div>
-              </div>
-              <Navigation className="h-8 w-8 text-green-500 opacity-20" />
-            </div>
-          </CardContent>
-        </Card>
+        <DrilldownCard
+          title="Delayed"
+          value={Math.floor(metrics.activeJobs * 0.15)}
+          drilldownType="delayed"
+          drilldownLabel="Delayed Jobs"
+          drilldownData={{ filter: 'delayed' }}
+          icon={<Clock className="h-5 w-5" />}
+          color="warning"
+          variant="compact"
+        />
 
-        <Card className="border-l-4 border-l-purple-500">
-          <CardContent className="pt-4 pb-3 px-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <div className="text-2xl font-bold text-purple-600">{metrics.completed}</div>
-                <div className="text-xs text-slate-600 mt-1">Completed Today</div>
-              </div>
-              <CheckCircle className="h-8 w-8 text-purple-500 opacity-20" />
-            </div>
-          </CardContent>
-        </Card>
+        <DrilldownCard
+          title="Completed Today"
+          value={metrics.completed}
+          drilldownType="completed-jobs"
+          drilldownLabel="Completed Jobs Today"
+          drilldownData={{ filter: 'completed' }}
+          icon={<CheckCircle className="h-5 w-5" />}
+          color="success"
+          variant="compact"
+        />
       </div>
 
       {/* Map Controls */}
@@ -261,7 +267,7 @@ export function OperationsHub() {
         </CardContent>
       </Card>
 
-      {/* Critical Alerts Panel */}
+      {/* Critical Alerts Panel - WITH DRILLDOWN */}
       <Card className="border-l-4 border-l-red-500">
         <CardHeader className="pb-3">
           <CardTitle className="text-sm flex items-center gap-2">
@@ -274,12 +280,21 @@ export function OperationsHub() {
             {alerts.map(alert => (
               <div
                 key={alert.id}
-                className={`p-3 rounded-lg border text-xs ${
+                onClick={() => push({
+                  id: `alert-${alert.id}`,
+                  type: 'alert',
+                  label: `Alert: ${alert.message.substring(0, 30)}...`,
+                  data: {
+                    alertId: alert.id,
+                    ...alert
+                  }
+                })}
+                className={`p-3 rounded-lg border text-xs cursor-pointer transition-all hover:shadow-md ${
                   alert.type === 'critical'
-                    ? 'bg-red-50 border-red-200'
+                    ? 'bg-red-50 border-red-200 hover:bg-red-100'
                     : alert.type === 'warning'
-                    ? 'bg-amber-50 border-amber-200'
-                    : 'bg-blue-50 border-blue-200'
+                    ? 'bg-amber-50 border-amber-200 hover:bg-amber-100'
+                    : 'bg-blue-50 border-blue-200 hover:bg-blue-100'
                 }`}
               >
                 <div className="flex items-start gap-2">
@@ -303,7 +318,7 @@ export function OperationsHub() {
         </CardContent>
       </Card>
 
-      {/* Fleet Status Summary */}
+      {/* Fleet Status Summary - WITH DRILLDOWN */}
       <Card>
         <CardHeader className="pb-3">
           <CardTitle className="text-sm flex items-center gap-2">
@@ -312,7 +327,15 @@ export function OperationsHub() {
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-3">
-          <div className="flex items-center justify-between text-sm">
+          <div
+            className="flex items-center justify-between text-sm cursor-pointer hover:bg-slate-50 p-2 rounded transition-colors"
+            onClick={() => push({
+              id: 'active-vehicles-ops',
+              type: 'active-vehicles',
+              label: 'Active Vehicles',
+              data: { filter: 'active' }
+            })}
+          >
             <span className="text-slate-600 flex items-center gap-2">
               <Truck className="h-4 w-4" />
               Active Vehicles
@@ -321,14 +344,45 @@ export function OperationsHub() {
               {metrics.activeVehicles} / {metrics.totalVehicles}
             </span>
           </div>
-          <div className="flex items-center justify-between text-sm">
+          <div
+            className="flex items-center justify-between text-sm cursor-pointer hover:bg-slate-50 p-2 rounded transition-colors"
+            onClick={() => push({
+              id: 'available-drivers-ops',
+              type: 'drivers-roster',
+              label: 'Available Drivers',
+              data: { filter: 'available' }
+            })}
+          >
             <span className="text-slate-600 flex items-center gap-2">
               <Users className="h-4 w-4" />
               Available Drivers
             </span>
             <span className="font-semibold text-slate-900">{metrics.availableDrivers}</span>
           </div>
-          <div className="flex items-center justify-between text-sm">
+          <div
+            className="flex items-center justify-between text-sm cursor-pointer hover:bg-slate-50 p-2 rounded transition-colors"
+            onClick={() => push({
+              id: 'active-routes-ops',
+              type: 'active-routes',
+              label: 'Active Routes',
+              data: { filter: 'active' }
+            })}
+          >
+            <span className="text-slate-600 flex items-center gap-2">
+              <Navigation className="h-4 w-4" />
+              Active Routes
+            </span>
+            <span className="font-semibold text-slate-900">{metrics.enRoute}</span>
+          </div>
+          <div
+            className="flex items-center justify-between text-sm cursor-pointer hover:bg-slate-50 p-2 rounded transition-colors"
+            onClick={() => push({
+              id: 'efficiency-score-ops',
+              type: 'performance-metrics',
+              label: 'Efficiency Metrics',
+              data: {}
+            })}
+          >
             <span className="text-slate-600 flex items-center gap-2">
               <Zap className="h-4 w-4" />
               Efficiency Score
