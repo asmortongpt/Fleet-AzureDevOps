@@ -60,20 +60,29 @@ export const strictRateLimit = rateLimit({
   },
 });
 
+// Type for values that can be sanitized
+type SanitizableValue = string | number | boolean | null | undefined | SanitizableObject | SanitizableValue[];
+interface SanitizableObject {
+  [key: string]: SanitizableValue;
+}
+
 // Input sanitization
 export const sanitizeInput = (req: Request, res: Response, next: NextFunction) => {
-  const sanitize = (obj: any): any => {
+  const sanitize = (obj: SanitizableValue): SanitizableValue => {
     if (typeof obj === 'string') {
       return obj
         .replace(/[<>]/g, '') // Remove potential XSS vectors
         .trim()
         .slice(0, 10000); // Limit string length
     }
+    if (Array.isArray(obj)) {
+      return obj.map(item => sanitize(item));
+    }
     if (typeof obj === 'object' && obj !== null) {
-      const sanitized: any = {};
+      const sanitized: SanitizableObject = {};
       Object.keys(obj).forEach(key => {
         if (key.length <= 50) { // Limit key length
-          sanitized[key] = sanitize(obj[key]);
+          sanitized[key] = sanitize((obj as SanitizableObject)[key]);
         }
       });
       return sanitized;
@@ -177,13 +186,24 @@ export const authenticateToken = async (req: AuthenticatedRequest, res: Response
     return res.status(401).json({ error: 'Access token required' });
   }
 
+  // Define JWT payload interface
+  interface JWTPayload {
+    id: string;
+    email: string;
+    role: string;
+    permissions?: string[];
+    iat?: number;
+    exp?: number;
+    sessionId?: string;
+  }
+
   try {
     const jwtSecret = process.env.JWT_SECRET;
     if (!jwtSecret) {
       throw new Error('JWT_SECRET not configured');
     }
 
-    const decoded = jwt.verify(token, jwtSecret) as any;
+    const decoded = jwt.verify(token, jwtSecret) as JWTPayload;
 
     // Validate token structure
     if (!decoded.id || !decoded.email || !decoded.role) {
@@ -248,7 +268,28 @@ export const validateApiKey = (req: Request, res: Response, next: NextFunction) 
   const validApiKeys = process.env.VALID_API_KEYS?.split(',') || [];
   const hashedKey = createHash('sha256').update(apiKey).digest('hex');
 
-  if (!validApiKeys.includes(hashedKey)) {
+  // Use timing-safe comparison to prevent timing attacks
+  let isValid = false;
+  for (const validKey of validApiKeys) {
+    try {
+      // timingSafeEqual requires buffers of equal length
+      if (hashedKey.length === validKey.length) {
+        const isMatch = timingSafeEqual(
+          Buffer.from(hashedKey, 'hex'),
+          Buffer.from(validKey, 'hex')
+        );
+        if (isMatch) {
+          isValid = true;
+          break;
+        }
+      }
+    } catch (error) {
+      // If comparison fails, continue to next key
+      continue;
+    }
+  }
+
+  if (!isValid) {
     return res.status(403).json({ error: 'Invalid API key' });
   }
 
