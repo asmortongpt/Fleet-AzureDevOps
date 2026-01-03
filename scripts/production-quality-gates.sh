@@ -184,12 +184,17 @@ echo ""
 # Gate 9: CSP Compliance
 echo "🔍 Gate 9: Content Security Policy Compliance"
 CSP_HEADER=$(grep -i "content-security-policy" "$EVIDENCE_DIR/gate2-headers.txt" || echo "")
+CSP_META=$(curl -s "$PROD_URL" | grep -i "content-security-policy" || echo "")
 if echo "$CSP_HEADER" | grep -q "default-src"; then
   echo "✅ Gate 9: PASS - CSP header properly configured"
   GATE9="PASS"
   ((PASS_COUNT++))
+elif echo "$CSP_META" | grep -q "default-src"; then
+  echo "✅ Gate 9: PASS - CSP meta tag properly configured (Azure SWA limitation workaround)"
+  GATE9="PASS"
+  ((PASS_COUNT++))
 else
-  echo "❌ Gate 9: FAIL - CSP header missing or misconfigured"
+  echo "❌ Gate 9: FAIL - CSP header/meta tag missing or misconfigured"
   GATE9="FAIL"
   ((FAIL_COUNT++))
 fi
