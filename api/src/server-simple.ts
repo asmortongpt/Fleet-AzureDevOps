@@ -327,6 +327,30 @@ app.get('/api/geofences', async (req, res) => {
   }
 });
 
+// Maintenance Records (Work Orders)
+app.get('/api/maintenance-records', async (req, res) => {
+  try {
+    const { page = 1, limit = 50 } = req.query;
+    const records = await db
+      .select()
+      .from(schema.workOrders)
+      .limit(Number(limit))
+      .offset((Number(page) - 1) * Number(limit));
+
+    res.json({
+      data: records,
+      meta: {
+        page: Number(page),
+        limit: Number(limit),
+        total: records.length,
+      },
+    });
+  } catch (error) {
+    console.error('Error fetching maintenance records:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
 // Maintenance Schedules
 app.get('/api/maintenance-schedules', async (req, res) => {
   try {
@@ -622,6 +646,7 @@ async function startServer() {
       console.log('   GET  /api/vehicles');
       console.log('   GET  /api/drivers');
       console.log('   GET  /api/work-orders');
+      console.log('   GET  /api/maintenance-records');
       console.log('   GET  /api/fuel-transactions');
       console.log('   GET  /api/routes');
       console.log('   GET  /api/facilities');
