@@ -18,7 +18,7 @@ import {
   Calendar,
   Route as RouteIcon,
   Flag,
-  FlagCheckered
+  FlagTriangleRight
 } from 'lucide-react'
 import useSWR from 'swr'
 
@@ -350,7 +350,7 @@ export function RouteDetailPanel({ routeId }: RouteDetailPanelProps) {
       case 'delivery':
         return <MapPin className="h-5 w-5 text-amber-500" />
       case 'waypoint':
-        return <FlagCheckered className="h-5 w-5 text-purple-500" />
+        return <FlagTriangleRight className="h-5 w-5 text-purple-500" />
       default:
         return <Circle className="h-5 w-5 text-muted-foreground" />
     }
