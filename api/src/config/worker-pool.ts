@@ -57,13 +57,19 @@ export class WorkerPool extends EventEmitter {
   constructor(config: WorkerPoolConfig = {}) {
     super()
 
+    // Determine correct worker script extension based on execution context
+    // When running from dist folder, use .js; otherwise use .ts with tsx
+    const isRunningFromDist = __dirname.includes('/dist/') || __dirname.includes('\\dist\\')
+    const workerExt = isRunningFromDist ? '.js' : '.ts'
+    const defaultWorkerScript = path.join(__dirname, `../workers/task-worker${workerExt}`)
+
     // Default configuration
     this.config = {
       minWorkers: config.minWorkers || 2,
       maxWorkers: config.maxWorkers || Math.max(4, os.cpus().length - 1),
       idleTimeout: config.idleTimeout || 300000, // 5 minutes
       taskTimeout: config.taskTimeout || 120000, // 2 minutes
-      workerScript: config.workerScript || path.join(__dirname, `../workers/task-worker.ts`)
+      workerScript: config.workerScript || defaultWorkerScript
     }
 
     // Initialize minimum workers
