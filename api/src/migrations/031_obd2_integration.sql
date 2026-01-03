@@ -1,3 +1,8 @@
+DROP TABLE IF EXISTS obd2_dtc_library CASCADE;
+DROP TABLE IF EXISTS obd2_connection_logs CASCADE;
+DROP TABLE IF EXISTS obd2_live_data CASCADE;
+DROP TABLE IF EXISTS obd2_diagnostic_codes CASCADE;
+DROP TABLE IF EXISTS obd2_adapters CASCADE;
 -- Migration: OBD2 Integration Tables
 -- Description: OBD2 adapter management, diagnostic codes, and live data streaming
 -- Business Value: $800,000/year (vehicle diagnostics, predictive maintenance, real-time monitoring)
@@ -7,10 +12,10 @@
 -- =====================================================
 
 CREATE TABLE IF NOT EXISTS obd2_adapters (
-    id SERIAL PRIMARY KEY,
-    tenant_id INTEGER NOT NULL,
-    user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-    vehicle_id INTEGER REFERENCES vehicles(id) ON DELETE SET NULL,
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    tenant_id UUID NOT NULL,
+    user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    vehicle_id UUID REFERENCES vehicles(id) ON DELETE SET NULL,
 
     -- Adapter identification
     adapter_type VARCHAR(50) NOT NULL CHECK (adapter_type IN ('ELM327', 'Vgate', 'OBDLink', 'BlueDriver', 'Generic')),
@@ -56,11 +61,11 @@ CREATE INDEX idx_obd2_adapters_active ON obd2_adapters(is_active, is_paired);
 -- =====================================================
 
 CREATE TABLE IF NOT EXISTS obd2_diagnostic_codes (
-    id SERIAL PRIMARY KEY,
-    tenant_id INTEGER NOT NULL,
-    vehicle_id INTEGER NOT NULL REFERENCES vehicles(id) ON DELETE CASCADE,
-    adapter_id INTEGER REFERENCES obd2_adapters(id) ON DELETE SET NULL,
-    user_id INTEGER REFERENCES users(id), -- Who read the code
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    tenant_id UUID NOT NULL,
+    vehicle_id UUID NOT NULL REFERENCES vehicles(id) ON DELETE CASCADE,
+    adapter_id UUID REFERENCES obd2_adapters(id) ON DELETE SET NULL,
+    user_id UUID REFERENCES users(id), -- Who read the code
 
     -- DTC Information
     dtc_code VARCHAR(10) NOT NULL, -- P0301, P0420, etc.
@@ -79,11 +84,11 @@ CREATE TABLE IF NOT EXISTS obd2_diagnostic_codes (
     detected_at TIMESTAMP NOT NULL,
     reported_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     cleared_at TIMESTAMP,
-    cleared_by INTEGER REFERENCES users(id),
+    cleared_by UUID REFERENCES users(id),
 
     -- Resolution
     resolution_notes TEXT,
-    work_order_id INTEGER, -- Reference to work order if created
+    work_order_id UUID, -- Reference to work order if created
 
     -- Metadata
     raw_data TEXT, -- Raw OBD2 response
@@ -105,11 +110,11 @@ CREATE INDEX idx_obd2_dtc_detected_at ON obd2_diagnostic_codes(detected_at);
 -- =====================================================
 
 CREATE TABLE IF NOT EXISTS obd2_live_data (
-    id SERIAL PRIMARY KEY,
-    tenant_id INTEGER NOT NULL,
-    vehicle_id INTEGER NOT NULL REFERENCES vehicles(id) ON DELETE CASCADE,
-    adapter_id INTEGER NOT NULL REFERENCES obd2_adapters(id) ON DELETE CASCADE,
-    user_id INTEGER REFERENCES users(id),
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    tenant_id UUID NOT NULL,
+    vehicle_id UUID NOT NULL REFERENCES vehicles(id) ON DELETE CASCADE,
+    adapter_id UUID NOT NULL REFERENCES obd2_adapters(id) ON DELETE CASCADE,
+    user_id UUID REFERENCES users(id),
 
     -- Session info
     session_id VARCHAR(255) NOT NULL, -- Unique session identifier
@@ -165,11 +170,11 @@ CREATE INDEX idx_obd2_live_data_vehicle_time ON obd2_live_data(vehicle_id, recor
 -- =====================================================
 
 CREATE TABLE IF NOT EXISTS obd2_connection_logs (
-    id SERIAL PRIMARY KEY,
-    tenant_id INTEGER NOT NULL,
-    adapter_id INTEGER NOT NULL REFERENCES obd2_adapters(id) ON DELETE CASCADE,
-    user_id INTEGER REFERENCES users(id),
-    vehicle_id INTEGER REFERENCES vehicles(id),
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    tenant_id UUID NOT NULL,
+    adapter_id UUID NOT NULL REFERENCES obd2_adapters(id) ON DELETE CASCADE,
+    user_id UUID REFERENCES users(id),
+    vehicle_id UUID REFERENCES vehicles(id),
 
     -- Connection details
     connection_type VARCHAR(20) NOT NULL, -- bluetooth, wifi
@@ -204,7 +209,7 @@ CREATE INDEX idx_obd2_conn_logs_created_at ON obd2_connection_logs(created_at);
 -- =====================================================
 
 CREATE TABLE IF NOT EXISTS obd2_dtc_library (
-    id SERIAL PRIMARY KEY,
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     dtc_code VARCHAR(10) NOT NULL UNIQUE,
     dtc_type VARCHAR(20) NOT NULL,
     description TEXT NOT NULL,
@@ -409,8 +414,8 @@ COMMENT ON TABLE obd2_dtc_library IS 'Reference library of all known OBD2 diagno
 -- Grant Permissions
 -- =====================================================
 
-GRANT SELECT, INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA public TO fleetapp;
-GRANT USAGE, SELECT ON ALL SEQUENCES IN SCHEMA public TO fleetapp;
+GRANT SELECT, INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA public TO fleet_user;
+GRANT USAGE, SELECT ON ALL SEQUENCES IN SCHEMA public TO fleet_user;
 
 -- =====================================================
 -- Completion

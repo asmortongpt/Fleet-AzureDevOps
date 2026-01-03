@@ -8,7 +8,7 @@
 
 -- Add new columns to existing mobile_devices table for push notifications
 ALTER TABLE mobile_devices
-  ADD COLUMN IF NOT EXISTS tenant_id INTEGER,
+  ADD COLUMN IF NOT EXISTS tenant_id UUID,
   ADD COLUMN IF NOT EXISTS device_token TEXT,
   ADD COLUMN IF NOT EXISTS platform VARCHAR(20),
   ADD COLUMN IF NOT EXISTS device_model VARCHAR(255),
@@ -29,8 +29,8 @@ UPDATE mobile_devices SET platform = device_type WHERE platform IS NULL;
 -- =====================================================
 
 CREATE TABLE IF NOT EXISTS push_notifications (
-    id SERIAL PRIMARY KEY,
-    tenant_id INTEGER NOT NULL,
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    tenant_id UUID NOT NULL,
     notification_type VARCHAR(100) NOT NULL,
     category VARCHAR(50) NOT NULL CHECK (category IN ('critical_alert', 'maintenance_reminder', 'task_assignment', 'driver_alert', 'administrative', 'performance')),
     priority VARCHAR(20) NOT NULL CHECK (priority IN ('low', 'normal', 'high', 'critical')) DEFAULT 'normal',
@@ -49,7 +49,7 @@ CREATE TABLE IF NOT EXISTS push_notifications (
     delivery_status VARCHAR(20) DEFAULT 'pending' CHECK (delivery_status IN ('pending', 'scheduled', 'sending', 'sent', 'failed')),
     scheduled_for TIMESTAMP,
     sent_at TIMESTAMP,
-    created_by INTEGER REFERENCES users(id),
+    created_by UUID REFERENCES users(id),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
@@ -67,10 +67,10 @@ CREATE INDEX idx_push_notifications_type ON push_notifications(notification_type
 -- =====================================================
 
 CREATE TABLE IF NOT EXISTS push_notification_recipients (
-    id SERIAL PRIMARY KEY,
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     push_notification_id INTEGER NOT NULL REFERENCES push_notifications(id) ON DELETE CASCADE,
-    user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-    device_id INTEGER REFERENCES mobile_devices(id) ON DELETE CASCADE,
+    user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    device_id UUID REFERENCES mobile_devices(id) ON DELETE CASCADE,
     device_token TEXT NOT NULL,
     delivery_status VARCHAR(20) DEFAULT 'pending' CHECK (delivery_status IN ('pending', 'delivered', 'failed')),
     delivered_at TIMESTAMP,
@@ -92,8 +92,8 @@ CREATE INDEX idx_push_recipients_delivered_at ON push_notification_recipients(de
 -- =====================================================
 
 CREATE TABLE IF NOT EXISTS push_notification_templates (
-    id SERIAL PRIMARY KEY,
-    tenant_id INTEGER NOT NULL,
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    tenant_id UUID NOT NULL,
     template_name VARCHAR(100) NOT NULL,
     category VARCHAR(50) NOT NULL,
     title_template VARCHAR(255) NOT NULL,
@@ -117,8 +117,8 @@ CREATE INDEX idx_push_templates_active ON push_notification_templates(is_active)
 -- =====================================================
 
 CREATE TABLE IF NOT EXISTS sms_logs (
-    id SERIAL PRIMARY KEY,
-    tenant_id INTEGER NOT NULL,
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    tenant_id UUID NOT NULL,
     to_number VARCHAR(20) NOT NULL,
     from_number VARCHAR(20) NOT NULL,
     body TEXT NOT NULL,
@@ -128,7 +128,7 @@ CREATE TABLE IF NOT EXISTS sms_logs (
     error_message TEXT,
     sent_at TIMESTAMP,
     delivered_at TIMESTAMP,
-    created_by INTEGER REFERENCES users(id),
+    created_by UUID REFERENCES users(id),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
@@ -144,8 +144,8 @@ CREATE INDEX idx_sms_logs_created_at ON sms_logs(created_at);
 -- =====================================================
 
 CREATE TABLE IF NOT EXISTS sms_templates (
-    id SERIAL PRIMARY KEY,
-    tenant_id INTEGER NOT NULL,
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    tenant_id UUID NOT NULL,
     name VARCHAR(100) NOT NULL,
     body TEXT NOT NULL,
     category VARCHAR(50) NOT NULL,
@@ -165,9 +165,9 @@ CREATE INDEX idx_sms_templates_active ON sms_templates(is_active);
 -- =====================================================
 
 CREATE TABLE IF NOT EXISTS notification_preferences (
-    id SERIAL PRIMARY KEY,
-    user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-    tenant_id INTEGER NOT NULL,
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    tenant_id UUID NOT NULL,
     push_enabled BOOLEAN DEFAULT true,
     sms_enabled BOOLEAN DEFAULT true,
     email_enabled BOOLEAN DEFAULT true,
@@ -318,8 +318,8 @@ COMMENT ON TABLE notification_preferences IS 'User notification preferences and 
 -- Grant Permissions
 -- =====================================================
 
-GRANT SELECT, INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA public TO fleetapp;
-GRANT USAGE, SELECT ON ALL SEQUENCES IN SCHEMA public TO fleetapp;
+GRANT SELECT, INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA public TO fleet_user;
+GRANT USAGE, SELECT ON ALL SEQUENCES IN SCHEMA public TO fleet_user;
 
 -- =====================================================
 -- Completion

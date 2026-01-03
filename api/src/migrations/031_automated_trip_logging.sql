@@ -1,3 +1,9 @@
+DROP TABLE IF EXISTS driver_scores_history CASCADE;
+DROP TABLE IF EXISTS trip_segments CASCADE;
+DROP TABLE IF EXISTS trip_events CASCADE;
+DROP TABLE IF EXISTS trip_obd2_metrics CASCADE;
+DROP TABLE IF EXISTS trip_gps_breadcrumbs CASCADE;
+DROP TABLE IF EXISTS trips CASCADE;
 -- Migration: Automated Trip Logging with OBD2 Integration
 -- Description: Comprehensive trip tracking with OBD2 data, GPS breadcrumbs, and driver scoring
 -- Business Value: Automated mileage tracking, driver safety scoring, fuel efficiency monitoring
@@ -8,9 +14,9 @@
 
 CREATE TABLE IF NOT EXISTS trips (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    tenant_id INTEGER NOT NULL,
-    vehicle_id INTEGER REFERENCES vehicles(id) ON DELETE CASCADE,
-    driver_id INTEGER REFERENCES users(id) ON DELETE SET NULL,
+    tenant_id UUID NOT NULL,
+    vehicle_id UUID REFERENCES vehicles(id) ON DELETE CASCADE,
+    driver_id UUID REFERENCES users(id) ON DELETE SET NULL,
 
     -- Trip Status
     status VARCHAR(20) NOT NULL DEFAULT 'in_progress' CHECK (status IN ('in_progress', 'completed', 'cancelled')),
@@ -75,7 +81,7 @@ CREATE INDEX idx_trips_usage_type ON trips(usage_type);
 -- =====================================================
 
 CREATE TABLE IF NOT EXISTS trip_gps_breadcrumbs (
-    id BIGSERIAL PRIMARY KEY,
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     trip_id UUID NOT NULL REFERENCES trips(id) ON DELETE CASCADE,
 
     -- GPS Data
@@ -112,7 +118,7 @@ CREATE INDEX idx_trip_breadcrumbs_location ON trip_gps_breadcrumbs USING GIST (
 -- =====================================================
 
 CREATE TABLE IF NOT EXISTS trip_obd2_metrics (
-    id BIGSERIAL PRIMARY KEY,
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     trip_id UUID NOT NULL REFERENCES trips(id) ON DELETE CASCADE,
 
     timestamp TIMESTAMP NOT NULL,
@@ -164,7 +170,7 @@ CREATE INDEX idx_trip_obd2_timestamp ON trip_obd2_metrics(trip_id, timestamp);
 -- =====================================================
 
 CREATE TABLE IF NOT EXISTS trip_events (
-    id BIGSERIAL PRIMARY KEY,
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     trip_id UUID NOT NULL REFERENCES trips(id) ON DELETE CASCADE,
 
     -- Event Type
@@ -247,9 +253,9 @@ CREATE INDEX idx_trip_segments_start_time ON trip_segments(start_time);
 -- =====================================================
 
 CREATE TABLE IF NOT EXISTS driver_scores_history (
-    id BIGSERIAL PRIMARY KEY,
-    tenant_id INTEGER NOT NULL,
-    driver_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    tenant_id UUID NOT NULL,
+    driver_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
 
     -- Score Period
     date DATE NOT NULL,
@@ -295,7 +301,7 @@ SELECT
     t.driver_id,
     v.name as vehicle_name,
     v.license_plate,
-    u.name as driver_name,
+    concat(u.first_name, ' ', u.last_name) as driver_name,
     t.start_time,
     t.start_location,
     EXTRACT(EPOCH FROM (CURRENT_TIMESTAMP - t.start_time)) / 60 as duration_minutes,
@@ -349,7 +355,7 @@ SELECT
     t.vehicle_id,
     t.driver_id,
     v.name as vehicle_name,
-    u.name as driver_name,
+    concat(u.first_name, ' ', u.last_name) as driver_name,
     t.start_time,
     t.end_time,
     t.distance_miles,
@@ -367,9 +373,9 @@ ORDER BY t.end_time DESC;
 -- Driver safety ranking
 CREATE OR REPLACE VIEW driver_safety_ranking AS
 SELECT
-    tenant_id,
-    driver_id,
-    u.name as driver_name,
+    t.tenant_id,
+    t.driver_id,
+    concat(u.first_name, ' ', u.last_name) as driver_name,
     COUNT(*) as trips_count,
     SUM(distance_miles) as total_miles,
     AVG(driver_score) as avg_driver_score,
@@ -377,12 +383,12 @@ SELECT
     ROUND((SUM(harsh_acceleration_count + harsh_braking_count + harsh_cornering_count + speeding_count)::numeric /
            NULLIF(SUM(distance_miles), 0) * 100)::numeric, 2) as events_per_100_miles,
     AVG(fuel_efficiency_mpg) as avg_mpg,
-    RANK() OVER (PARTITION BY tenant_id ORDER BY AVG(driver_score) DESC) as safety_rank
+    RANK() OVER (PARTITION BY t.tenant_id ORDER BY AVG(driver_score) DESC) as safety_rank
 FROM trips t
 LEFT JOIN users u ON t.driver_id = u.id
 WHERE t.status = 'completed'
   AND t.end_time >= CURRENT_TIMESTAMP - INTERVAL '30 days'
-GROUP BY tenant_id, driver_id, u.name
+GROUP BY t.tenant_id, t.driver_id, concat(u.first_name, ' ', u.last_name)
 HAVING COUNT(*) >= 5; -- Minimum 5 trips for ranking
 
 -- =====================================================
@@ -544,8 +550,8 @@ COMMENT ON TABLE driver_scores_history IS 'Historical driver safety scores for t
 -- Grant Permissions
 -- =====================================================
 
-GRANT SELECT, INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA public TO fleetapp;
-GRANT USAGE, SELECT ON ALL SEQUENCES IN SCHEMA public TO fleetapp;
+GRANT SELECT, INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA public TO fleet_user;
+GRANT USAGE, SELECT ON ALL SEQUENCES IN SCHEMA public TO fleet_user;
 
 -- =====================================================
 -- Completion

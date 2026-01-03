@@ -1,3 +1,4 @@
+DROP TABLE IF EXISTS scheduling_notification_preferences CASCADE;
 -- Scheduling Notifications System Migration
 -- Tables for managing scheduling notification preferences and reminder tracking
 
@@ -7,8 +8,8 @@
 -- ============================================================================
 
 CREATE TABLE IF NOT EXISTS scheduling_notification_preferences (
-    id SERIAL PRIMARY KEY,
-    user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
 
     -- Channel Preferences
     email_enabled BOOLEAN DEFAULT TRUE,
@@ -39,10 +40,10 @@ COMMENT ON COLUMN scheduling_notification_preferences.quiet_hours_start IS 'Star
 -- ============================================================================
 
 CREATE TABLE IF NOT EXISTS scheduling_reminders_sent (
-    id SERIAL PRIMARY KEY,
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     entity_id VARCHAR(100) NOT NULL, -- ID of reservation or maintenance appointment
     entity_type VARCHAR(50) NOT NULL, -- 'reservation' or 'maintenance'
-    hours_before INTEGER NOT NULL, -- How many hours before the event this was sent
+    hours_before UUID NOT NULL, -- How many hours before the event this was sent
     sent_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 
     -- Prevent duplicate reminders
@@ -60,8 +61,8 @@ COMMENT ON COLUMN scheduling_reminders_sent.hours_before IS 'Number of hours bef
 -- ============================================================================
 
 CREATE TABLE IF NOT EXISTS tenant_teams_config (
-    id SERIAL PRIMARY KEY,
-    tenant_id INTEGER NOT NULL REFERENCES tenants(id) ON DELETE CASCADE,
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    tenant_id UUID NOT NULL REFERENCES tenants(id) ON DELETE CASCADE,
     team_id VARCHAR(255) NOT NULL,
     channel_id VARCHAR(255) NOT NULL,
     channel_name VARCHAR(255),
@@ -82,7 +83,7 @@ COMMENT ON COLUMN tenant_teams_config.notification_types IS 'Array of notificati
 -- ============================================================================
 
 CREATE TABLE IF NOT EXISTS notification_templates (
-    id SERIAL PRIMARY KEY,
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     template_key VARCHAR(100) NOT NULL UNIQUE,
     template_name VARCHAR(255) NOT NULL,
     template_category VARCHAR(100) NOT NULL, -- 'scheduling', 'maintenance', 'safety', etc.
@@ -103,9 +104,9 @@ CREATE TABLE IF NOT EXISTS notification_templates (
     last_used_at TIMESTAMP,
 
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    created_by INTEGER REFERENCES users(id),
+    created_by UUID REFERENCES users(id),
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_by INTEGER REFERENCES users(id)
+    updated_by UUID REFERENCES users(id)
 );
 
 COMMENT ON TABLE notification_templates IS 'Reusable notification templates with variable substitution';
@@ -116,8 +117,8 @@ COMMENT ON COLUMN notification_templates.template_key IS 'Unique key to referenc
 -- ============================================================================
 
 CREATE TABLE IF NOT EXISTS notification_preferences (
-    id SERIAL PRIMARY KEY,
-    user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE UNIQUE,
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE UNIQUE,
 
     -- Global Preferences
     email_notifications BOOLEAN DEFAULT TRUE,
@@ -142,9 +143,9 @@ CREATE TABLE IF NOT EXISTS notification_preferences (
 -- ============================================================================
 
 CREATE TABLE IF NOT EXISTS scheduled_notifications (
-    id SERIAL PRIMARY KEY,
-    tenant_id INTEGER REFERENCES tenants(id),
-    user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    tenant_id UUID REFERENCES tenants(id),
+    user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
 
     -- Notification Details
     type VARCHAR(100) NOT NULL,
@@ -306,6 +307,6 @@ SELECT
     snp.quiet_hours_end
 FROM users u
 LEFT JOIN scheduling_notification_preferences snp ON u.id = snp.user_id
-WHERE u.active = TRUE;
+WHERE u.is_active = TRUE;
 
 COMMENT ON VIEW v_user_notification_settings IS 'Complete notification settings for all active users';

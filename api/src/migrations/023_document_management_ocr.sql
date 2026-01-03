@@ -6,9 +6,9 @@
 -- ============================================================================
 
 CREATE TABLE IF NOT EXISTS document_categories (
-    id SERIAL PRIMARY KEY,
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     category_name VARCHAR(100) NOT NULL UNIQUE,
-    parent_category_id INTEGER REFERENCES document_categories(id),
+    parent_category_id UUID REFERENCES document_categories(id),
     description TEXT,
     icon VARCHAR(50), -- Icon name for UI
     color VARCHAR(20), -- Color code for UI
@@ -36,12 +36,12 @@ ON CONFLICT (category_name) DO NOTHING;
 -- ============================================================================
 
 CREATE TABLE IF NOT EXISTS documents (
-    id SERIAL PRIMARY KEY,
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
 
     -- Document Identification
     document_number VARCHAR(100) UNIQUE, -- Auto-generated or manual
     document_name VARCHAR(500) NOT NULL,
-    document_category_id INTEGER REFERENCES document_categories(id) NOT NULL,
+    document_category_id UUID REFERENCES document_categories(id) NOT NULL,
     document_type VARCHAR(100), -- 'Receipt', 'Invoice', 'Form', 'Photo', 'PDF', 'Scan', etc.
 
     -- File Information
@@ -58,7 +58,7 @@ CREATE TABLE IF NOT EXISTS documents (
 
     -- Upload Information
     upload_method VARCHAR(50) NOT NULL, -- 'Web Upload', 'Mobile Camera', 'Mobile Gallery', 'Email', 'Scanner', 'API'
-    uploaded_by INTEGER REFERENCES drivers(id),
+    uploaded_by UUID REFERENCES drivers(id),
     uploaded_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     upload_device_info JSONB, -- {device_type, os, browser, location}
 
@@ -80,8 +80,8 @@ CREATE TABLE IF NOT EXISTS documents (
     ai_summary TEXT, -- AI-generated summary
 
     -- Entity Linking (Polymorphic)
-    related_vehicle_id INTEGER REFERENCES vehicles(id),
-    related_driver_id INTEGER REFERENCES drivers(id),
+    related_vehicle_id UUID REFERENCES vehicles(id),
+    related_driver_id UUID REFERENCES drivers(id),
     related_maintenance_id INTEGER,
     related_purchase_order_id INTEGER,
     related_incident_id INTEGER,
@@ -116,7 +116,7 @@ CREATE TABLE IF NOT EXISTS documents (
 
     -- Version Control
     version INTEGER DEFAULT 1,
-    parent_document_id INTEGER REFERENCES documents(id), -- For versioning
+    parent_document_id UUID REFERENCES documents(id), -- For versioning
     is_latest_version BOOLEAN DEFAULT TRUE,
 
     -- Status & Lifecycle
@@ -145,8 +145,8 @@ CREATE TABLE IF NOT EXISTS documents (
 -- ============================================================================
 
 CREATE TABLE IF NOT EXISTS document_pages (
-    id SERIAL PRIMARY KEY,
-    document_id INTEGER REFERENCES documents(id) NOT NULL,
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    document_id UUID REFERENCES documents(id) NOT NULL,
     page_number INTEGER NOT NULL,
 
     -- Page File
@@ -173,8 +173,8 @@ CREATE TABLE IF NOT EXISTS document_pages (
 -- ============================================================================
 
 CREATE TABLE IF NOT EXISTS receipt_line_items (
-    id SERIAL PRIMARY KEY,
-    document_id INTEGER REFERENCES documents(id) NOT NULL,
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    document_id UUID REFERENCES documents(id) NOT NULL,
 
     line_number INTEGER NOT NULL,
     item_description VARCHAR(500),
@@ -206,8 +206,8 @@ CREATE TABLE IF NOT EXISTS receipt_line_items (
 -- ============================================================================
 
 CREATE TABLE IF NOT EXISTS camera_capture_metadata (
-    id SERIAL PRIMARY KEY,
-    document_id INTEGER REFERENCES documents(id) UNIQUE NOT NULL,
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    document_id UUID REFERENCES documents(id) UNIQUE NOT NULL,
 
     -- Camera & Device
     device_manufacturer VARCHAR(100),
@@ -256,8 +256,8 @@ CREATE TABLE IF NOT EXISTS camera_capture_metadata (
 -- ============================================================================
 
 CREATE TABLE IF NOT EXISTS document_processing_queue (
-    id SERIAL PRIMARY KEY,
-    document_id INTEGER REFERENCES documents(id) NOT NULL,
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    document_id UUID REFERENCES documents(id) NOT NULL,
 
     -- Processing Job
     job_type VARCHAR(100) NOT NULL, -- 'OCR', 'AI_Classification', 'Thumbnail', 'Virus_Scan', 'Entity_Extraction'
@@ -290,11 +290,11 @@ CREATE TABLE IF NOT EXISTS document_processing_queue (
 -- ============================================================================
 
 CREATE TABLE IF NOT EXISTS document_shares (
-    id SERIAL PRIMARY KEY,
-    document_id INTEGER REFERENCES documents(id) NOT NULL,
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    document_id UUID REFERENCES documents(id) NOT NULL,
 
     -- Share Target
-    shared_with_user_id INTEGER REFERENCES drivers(id),
+    shared_with_user_id UUID REFERENCES drivers(id),
     shared_with_role VARCHAR(100),
     shared_with_email VARCHAR(255),
 
@@ -328,8 +328,8 @@ CREATE TABLE IF NOT EXISTS document_shares (
 -- ============================================================================
 
 CREATE TABLE IF NOT EXISTS document_comments (
-    id SERIAL PRIMARY KEY,
-    document_id INTEGER REFERENCES documents(id) NOT NULL,
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    document_id UUID REFERENCES documents(id) NOT NULL,
     page_number INTEGER, -- NULL for document-level comments
 
     -- Comment
@@ -340,11 +340,11 @@ CREATE TABLE IF NOT EXISTS document_comments (
     annotation_data JSONB, -- {type: 'highlight|rectangle|arrow', coordinates: {...}, color: '#ff0000'}
 
     -- Author
-    created_by INTEGER REFERENCES drivers(id) NOT NULL,
+    created_by UUID REFERENCES drivers(id) NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 
     -- Thread
-    parent_comment_id INTEGER REFERENCES document_comments(id),
+    parent_comment_id UUID REFERENCES document_comments(id),
     is_resolved BOOLEAN DEFAULT FALSE,
     resolved_by INTEGER,
     resolved_at TIMESTAMP,
@@ -359,15 +359,15 @@ CREATE TABLE IF NOT EXISTS document_comments (
 -- ============================================================================
 
 CREATE TABLE IF NOT EXISTS document_audit_log (
-    id SERIAL PRIMARY KEY,
-    document_id INTEGER REFERENCES documents(id) NOT NULL,
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    document_id UUID REFERENCES documents(id) NOT NULL,
 
     -- Action
     action_type VARCHAR(100) NOT NULL, -- 'Uploaded', 'Viewed', 'Downloaded', 'Updated', 'Deleted', 'Shared', 'Approved', 'Rejected'
     action_description TEXT,
 
     -- Actor
-    performed_by INTEGER REFERENCES drivers(id),
+    performed_by UUID REFERENCES drivers(id),
     performed_by_ip VARCHAR(50),
     performed_by_device JSONB,
 
@@ -384,8 +384,8 @@ CREATE TABLE IF NOT EXISTS document_audit_log (
 -- ============================================================================
 
 CREATE TABLE IF NOT EXISTS ocr_corrections (
-    id SERIAL PRIMARY KEY,
-    document_id INTEGER REFERENCES documents(id) NOT NULL,
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    document_id UUID REFERENCES documents(id) NOT NULL,
 
     -- Original OCR
     ocr_text_original TEXT NOT NULL,
@@ -396,7 +396,7 @@ CREATE TABLE IF NOT EXISTS ocr_corrections (
     correction_type VARCHAR(50), -- 'Manual', 'AI_Assisted', 'Spell_Check'
 
     -- Corrected By
-    corrected_by INTEGER REFERENCES drivers(id) NOT NULL,
+    corrected_by UUID REFERENCES drivers(id) NOT NULL,
     corrected_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 
     -- Feedback Loop (for ML training)

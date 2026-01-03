@@ -7,7 +7,7 @@
 -- ============================================================================
 
 CREATE TABLE IF NOT EXISTS communications (
-    id SERIAL PRIMARY KEY,
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
 
     -- Communication Metadata
     communication_type VARCHAR(100) NOT NULL, -- 'Email', 'Phone Call', 'SMS', 'In-Person', 'Video Call', 'Chat', 'System Generated'
@@ -16,7 +16,7 @@ CREATE TABLE IF NOT EXISTS communications (
     body TEXT NOT NULL,
 
     -- Participants
-    from_user_id INTEGER REFERENCES drivers(id), -- Can be employee/driver
+    from_user_id UUID REFERENCES drivers(id), -- Can be employee/driver
     from_contact_name VARCHAR(255),
     from_contact_email VARCHAR(255),
     from_contact_phone VARCHAR(50),
@@ -58,7 +58,7 @@ CREATE TABLE IF NOT EXISTS communications (
     attachments JSONB, -- Array of {filename, url, size, type}
 
     -- Thread Management
-    parent_communication_id INTEGER REFERENCES communications(id), -- For reply threads
+    parent_communication_id UUID REFERENCES communications(id), -- For reply threads
     thread_id VARCHAR(100), -- Group related communications
     is_thread_start BOOLEAN DEFAULT TRUE,
 
@@ -78,8 +78,8 @@ CREATE TABLE IF NOT EXISTS communications (
 -- ============================================================================
 
 CREATE TABLE IF NOT EXISTS communication_entity_links (
-    id SERIAL PRIMARY KEY,
-    communication_id INTEGER REFERENCES communications(id) NOT NULL,
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    communication_id UUID REFERENCES communications(id) NOT NULL,
 
     -- Polymorphic Entity Reference
     entity_type VARCHAR(100) NOT NULL, -- 'vehicle', 'driver', 'maintenance', 'incident', 'osha_case', 'purchase_order', 'invoice', etc.
@@ -103,7 +103,7 @@ CREATE TABLE IF NOT EXISTS communication_entity_links (
 -- ============================================================================
 
 CREATE TABLE IF NOT EXISTS communication_templates (
-    id SERIAL PRIMARY KEY,
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     template_name VARCHAR(255) NOT NULL,
     template_category VARCHAR(100) NOT NULL,
 
@@ -135,7 +135,7 @@ CREATE TABLE IF NOT EXISTS communication_templates (
 -- ============================================================================
 
 CREATE TABLE IF NOT EXISTS communication_insights (
-    id SERIAL PRIMARY KEY,
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
 
     -- Time Period
     period_start DATE NOT NULL,
@@ -171,7 +171,7 @@ CREATE TABLE IF NOT EXISTS communication_insights (
 -- ============================================================================
 
 CREATE TABLE IF NOT EXISTS communication_automation_rules (
-    id SERIAL PRIMARY KEY,
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     rule_name VARCHAR(255) NOT NULL,
     rule_description TEXT,
 
@@ -181,7 +181,7 @@ CREATE TABLE IF NOT EXISTS communication_automation_rules (
 
     -- Action to Take
     action_type VARCHAR(100) NOT NULL, -- 'send_email', 'send_sms', 'create_notification', 'create_task'
-    template_id INTEGER REFERENCES communication_templates(id),
+    template_id UUID REFERENCES communication_templates(id),
 
     -- Recipients
     recipient_roles VARCHAR(100)[], -- 'driver', 'manager', 'safety_officer', etc.
@@ -208,8 +208,8 @@ CREATE TABLE IF NOT EXISTS communication_automation_rules (
 -- ============================================================================
 
 CREATE TABLE IF NOT EXISTS communication_attachments (
-    id SERIAL PRIMARY KEY,
-    communication_id INTEGER REFERENCES communications(id) NOT NULL,
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    communication_id UUID REFERENCES communications(id) NOT NULL,
 
     -- File Details
     filename VARCHAR(500) NOT NULL,
@@ -243,8 +243,8 @@ CREATE TABLE IF NOT EXISTS communication_attachments (
 -- ============================================================================
 
 CREATE TABLE IF NOT EXISTS communication_preferences (
-    id SERIAL PRIMARY KEY,
-    user_id INTEGER REFERENCES drivers(id) NOT NULL UNIQUE,
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    user_id UUID REFERENCES drivers(id) NOT NULL UNIQUE,
 
     -- Channel Preferences
     prefer_email BOOLEAN DEFAULT TRUE,
@@ -279,8 +279,8 @@ CREATE TABLE IF NOT EXISTS communication_preferences (
 -- ============================================================================
 
 CREATE TABLE IF NOT EXISTS call_recordings (
-    id SERIAL PRIMARY KEY,
-    communication_id INTEGER REFERENCES communications(id) UNIQUE,
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    communication_id UUID REFERENCES communications(id) UNIQUE,
 
     -- Recording Details
     recording_url VARCHAR(1000) NOT NULL,

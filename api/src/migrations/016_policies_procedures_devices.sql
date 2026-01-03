@@ -7,8 +7,8 @@
 
 -- Safety Policies
 CREATE TABLE IF NOT EXISTS safety_policies (
-    id SERIAL PRIMARY KEY,
-    tenant_id INTEGER NOT NULL REFERENCES tenants(id) ON DELETE CASCADE,
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    tenant_id UUID NOT NULL REFERENCES tenants(id) ON DELETE CASCADE,
     policy_number VARCHAR(50) NOT NULL,
     policy_name VARCHAR(255) NOT NULL,
     policy_category VARCHAR(100), -- 'driver_safety', 'vehicle_maintenance', 'environmental', 'compliance'
@@ -17,8 +17,8 @@ CREATE TABLE IF NOT EXISTS safety_policies (
     review_date DATE,
     status VARCHAR(50) DEFAULT 'active', -- 'active', 'under_review', 'archived'
     document_url TEXT,
-    created_by INTEGER REFERENCES users(id),
-    approved_by INTEGER REFERENCES users(id),
+    created_by UUID REFERENCES users(id),
+    approved_by UUID REFERENCES users(id),
     approval_date TIMESTAMP,
     version VARCHAR(20),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -28,14 +28,14 @@ CREATE TABLE IF NOT EXISTS safety_policies (
 
 -- Standard Operating Procedures (SOPs)
 CREATE TABLE IF NOT EXISTS procedures (
-    id SERIAL PRIMARY KEY,
-    tenant_id INTEGER NOT NULL REFERENCES tenants(id) ON DELETE CASCADE,
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    tenant_id UUID NOT NULL REFERENCES tenants(id) ON DELETE CASCADE,
     procedure_code VARCHAR(50) NOT NULL,
     procedure_name VARCHAR(255) NOT NULL,
     procedure_type VARCHAR(100), -- 'maintenance', 'safety_inspection', 'incident_response', 'driver_training'
     description TEXT,
     steps JSONB, -- Array of procedure steps with details
-    related_policy_id INTEGER REFERENCES safety_policies(id),
+    related_policy_id UUID REFERENCES safety_policies(id),
     frequency VARCHAR(50), -- 'daily', 'weekly', 'monthly', 'annual', 'as_needed'
     estimated_duration_minutes INTEGER,
     requires_certification BOOLEAN DEFAULT FALSE,
@@ -49,11 +49,11 @@ CREATE TABLE IF NOT EXISTS procedures (
 
 -- Procedure Compliance Tracking
 CREATE TABLE IF NOT EXISTS procedure_completions (
-    id SERIAL PRIMARY KEY,
-    tenant_id INTEGER NOT NULL REFERENCES tenants(id) ON DELETE CASCADE,
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    tenant_id UUID NOT NULL REFERENCES tenants(id) ON DELETE CASCADE,
     procedure_id INTEGER NOT NULL REFERENCES procedures(id) ON DELETE CASCADE,
-    vehicle_id INTEGER REFERENCES vehicles(id) ON DELETE CASCADE,
-    driver_id INTEGER REFERENCES drivers(id) ON DELETE CASCADE,
+    vehicle_id UUID REFERENCES vehicles(id) ON DELETE CASCADE,
+    driver_id UUID REFERENCES drivers(id) ON DELETE CASCADE,
     completed_by INTEGER NOT NULL REFERENCES users(id),
     completion_date TIMESTAMP NOT NULL,
     duration_minutes INTEGER,
@@ -70,8 +70,8 @@ CREATE TABLE IF NOT EXISTS procedure_completions (
 
 -- Device Types and Inventory
 CREATE TABLE IF NOT EXISTS tracking_devices (
-    id SERIAL PRIMARY KEY,
-    tenant_id INTEGER NOT NULL REFERENCES tenants(id) ON DELETE CASCADE,
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    tenant_id UUID NOT NULL REFERENCES tenants(id) ON DELETE CASCADE,
     device_type VARCHAR(100) NOT NULL, -- 'obd2', 'gps_tracker', 'dashcam', 'eld', 'temperature_sensor', 'fuel_sensor', 'tire_pressure'
     manufacturer VARCHAR(100),
     model_number VARCHAR(100),
@@ -89,19 +89,19 @@ CREATE TABLE IF NOT EXISTS tracking_devices (
 
 -- Vehicle-Device Assignments
 CREATE TABLE IF NOT EXISTS vehicle_devices (
-    id SERIAL PRIMARY KEY,
-    tenant_id INTEGER NOT NULL REFERENCES tenants(id) ON DELETE CASCADE,
-    vehicle_id INTEGER NOT NULL REFERENCES vehicles(id) ON DELETE CASCADE,
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    tenant_id UUID NOT NULL REFERENCES tenants(id) ON DELETE CASCADE,
+    vehicle_id UUID NOT NULL REFERENCES vehicles(id) ON DELETE CASCADE,
     device_id INTEGER NOT NULL REFERENCES tracking_devices(id) ON DELETE CASCADE,
     installation_date TIMESTAMP NOT NULL,
-    installed_by INTEGER REFERENCES users(id),
+    installed_by UUID REFERENCES users(id),
     installation_location VARCHAR(255), -- 'OBD-II port', 'dashboard', 'under_seat', 'rear_window'
     device_identifier VARCHAR(100), -- IMEI, Device ID, MAC address
     sim_card_number VARCHAR(50),
     data_plan_provider VARCHAR(100),
     monthly_cost DECIMAL(10, 2),
     removal_date TIMESTAMP,
-    removed_by INTEGER REFERENCES users(id),
+    removed_by UUID REFERENCES users(id),
     removal_reason TEXT,
     is_active BOOLEAN DEFAULT TRUE,
     last_communication TIMESTAMP,
@@ -115,7 +115,7 @@ CREATE TABLE IF NOT EXISTS vehicle_devices (
 
 -- Device Data/Telemetry
 CREATE TABLE IF NOT EXISTS device_telemetry (
-    id BIGSERIAL PRIMARY KEY,
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     vehicle_device_id INTEGER NOT NULL REFERENCES vehicle_devices(id) ON DELETE CASCADE,
     timestamp TIMESTAMP NOT NULL,
     data_type VARCHAR(100), -- 'location', 'diagnostics', 'fuel', 'temperature', 'tire_pressure'
@@ -144,8 +144,8 @@ CREATE INDEX IF NOT EXISTS idx_device_telemetry_location
 
 -- Compliance Requirements
 CREATE TABLE IF NOT EXISTS compliance_requirements (
-    id SERIAL PRIMARY KEY,
-    tenant_id INTEGER NOT NULL REFERENCES tenants(id) ON DELETE CASCADE,
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    tenant_id UUID NOT NULL REFERENCES tenants(id) ON DELETE CASCADE,
     requirement_code VARCHAR(100) NOT NULL,
     requirement_name VARCHAR(255) NOT NULL,
     regulatory_body VARCHAR(255), -- 'FMCSA', 'DOT', 'EPA', 'OSHA', 'State DMV'
@@ -164,14 +164,14 @@ CREATE TABLE IF NOT EXISTS compliance_requirements (
 
 -- Compliance Status Tracking
 CREATE TABLE IF NOT EXISTS compliance_records (
-    id SERIAL PRIMARY KEY,
-    tenant_id INTEGER NOT NULL REFERENCES tenants(id) ON DELETE CASCADE,
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    tenant_id UUID NOT NULL REFERENCES tenants(id) ON DELETE CASCADE,
     requirement_id INTEGER NOT NULL REFERENCES compliance_requirements(id) ON DELETE CASCADE,
-    vehicle_id INTEGER REFERENCES vehicles(id) ON DELETE CASCADE,
-    driver_id INTEGER REFERENCES drivers(id) ON DELETE CASCADE,
+    vehicle_id UUID REFERENCES vehicles(id) ON DELETE CASCADE,
+    driver_id UUID REFERENCES drivers(id) ON DELETE CASCADE,
     due_date DATE NOT NULL,
     completion_date DATE,
-    completed_by INTEGER REFERENCES users(id),
+    completed_by UUID REFERENCES users(id),
     status VARCHAR(50) DEFAULT 'pending', -- 'pending', 'completed', 'overdue', 'waived'
     compliance_percentage INTEGER, -- 0-100
     notes TEXT,
@@ -187,8 +187,8 @@ CREATE TABLE IF NOT EXISTS compliance_records (
 
 -- Training Programs
 CREATE TABLE IF NOT EXISTS training_programs (
-    id SERIAL PRIMARY KEY,
-    tenant_id INTEGER NOT NULL REFERENCES tenants(id) ON DELETE CASCADE,
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    tenant_id UUID NOT NULL REFERENCES tenants(id) ON DELETE CASCADE,
     program_code VARCHAR(100) NOT NULL,
     program_name VARCHAR(255) NOT NULL,
     program_type VARCHAR(100), -- 'safety', 'defensive_driving', 'hazmat', 'equipment_operation'
@@ -208,11 +208,11 @@ CREATE TABLE IF NOT EXISTS training_programs (
 
 -- Training Completions
 CREATE TABLE IF NOT EXISTS training_completions (
-    id SERIAL PRIMARY KEY,
-    tenant_id INTEGER NOT NULL REFERENCES tenants(id) ON DELETE CASCADE,
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    tenant_id UUID NOT NULL REFERENCES tenants(id) ON DELETE CASCADE,
     program_id INTEGER NOT NULL REFERENCES training_programs(id) ON DELETE CASCADE,
-    user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-    driver_id INTEGER REFERENCES drivers(id),
+    user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    driver_id UUID REFERENCES drivers(id),
     completion_date DATE NOT NULL,
     expiration_date DATE,
     score DECIMAL(5, 2), -- Percentage score if applicable
