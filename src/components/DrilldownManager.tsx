@@ -70,6 +70,26 @@ import { TripTelemetryView } from '@/components/drilldown/TripTelemetryView'
 import { VehicleDetailPanel } from '@/components/drilldown/VehicleDetailPanel'
 import { VehicleTripsList } from '@/components/drilldown/VehicleTripsList'
 import { WorkOrderDetailPanel } from '@/components/drilldown/WorkOrderDetailPanel'
+import {
+  AssetDetailPanel,
+  EquipmentDetailPanel,
+  InventoryItemDetailPanel,
+  AssetListView,
+  EquipmentListView,
+  InventoryListView
+} from '@/components/drilldown/AssetHubDrilldowns'
+import {
+  MaintenanceRequestDetailPanel,
+  MaintenanceRequestListView
+} from '@/components/drilldown/MaintenanceRequestDrilldowns'
+import {
+  ScheduledItemDetailPanel,
+  CalendarListView
+} from '@/components/drilldown/ScheduleDrilldowns'
+import {
+  AlertDetailPanel,
+  AlertListView
+} from '@/components/drilldown/AlertDrilldowns'
 import { DrilldownProvider, useDrilldown } from '@/contexts/DrilldownContext'
 
 interface DrilldownManagerProps {
@@ -395,6 +415,75 @@ function DrilldownContent() {
         <FacilityVehiclesView
           facilityId={currentLevel.data?.facilityId}
           facilityName={currentLevel.data?.facilityName}
+        />
+      )
+
+    // ============================================
+    // Asset drilldown hierarchy
+    // ============================================
+    case 'asset':
+    case 'asset-detail':
+      return <AssetDetailPanel assetId={currentLevel.data?.assetId} />
+
+    case 'asset-list':
+      return <AssetListView filter={currentLevel.data?.filter} />
+
+    // ============================================
+    // Equipment drilldown hierarchy
+    // ============================================
+    case 'equipment':
+    case 'equipment-detail':
+      return <EquipmentDetailPanel equipmentId={currentLevel.data?.equipmentId} />
+
+    case 'equipment-list':
+      return <EquipmentListView category={currentLevel.data?.category} />
+
+    // ============================================
+    // Inventory drilldown hierarchy
+    // ============================================
+    case 'inventory-item':
+    case 'inventory-item-detail':
+      return <InventoryItemDetailPanel itemId={currentLevel.data?.itemId} />
+
+    case 'inventory-list':
+      return <InventoryListView filter={currentLevel.data?.filter} />
+
+    // ============================================
+    // Maintenance Request drilldown hierarchy
+    // ============================================
+    case 'maintenance-request':
+    case 'maintenance-request-detail':
+      return <MaintenanceRequestDetailPanel requestId={currentLevel.data?.requestId} />
+
+    case 'maintenance-requests-list':
+      return <MaintenanceRequestListView status={currentLevel.data?.status} />
+
+    // ============================================
+    // Schedule drilldown hierarchy
+    // ============================================
+    case 'scheduled-item':
+      return <ScheduledItemDetailPanel itemId={currentLevel.data?.itemId} />
+
+    case 'calendar-list':
+      return (
+        <CalendarListView
+          timeframe={currentLevel.data?.timeframe}
+          type={currentLevel.data?.type}
+        />
+      )
+
+    // ============================================
+    // Alert drilldown hierarchy
+    // ============================================
+    case 'alert':
+    case 'alert-detail':
+      return <AlertDetailPanel alertId={currentLevel.data?.alertId} />
+
+    case 'alerts-list':
+      return (
+        <AlertListView
+          status={currentLevel.data?.status}
+          severity={currentLevel.data?.severity}
         />
       )
 
