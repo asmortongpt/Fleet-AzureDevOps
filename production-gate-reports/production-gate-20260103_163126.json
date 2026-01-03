@@ -1,0 +1,24 @@
+{
+  "timestamp": "2026-01-03T21:32:55Z",
+  "run_id": "20260103_163126",
+  "environment": "production",
+  "production_url": "https://proud-bay-0fdc8040f.3.azurestaticapps.net",
+  "score": "9/10",
+  "pass_count": 9,
+  "fail_count": 1,
+  "evidence_dir": "./production-gate-reports/evidence-20260103_163126",
+  "manifest_hash": "5fbc7a87427b6e1bf3823738f81113fa00e7b8b1afe1ac995c1cf20ce476413e",
+  "gates": {
+    "gate1_site_availability": "PASS",
+    "gate2_security_headers": "PASS",
+    "gate3_api_health": "PASS",
+    "gate4_secrets_scan": "PASS",
+    "gate5_https_tls": "PASS",
+    "gate6_performance": "PASS",
+    "gate7_content_integrity": "PASS",
+    "gate8_database_connectivity": "PASS",
+    "gate9_csp_compliance": "FAIL",
+    "gate10_console_errors": "PASS"
+  },
+  "deployment_ready": false
+}
