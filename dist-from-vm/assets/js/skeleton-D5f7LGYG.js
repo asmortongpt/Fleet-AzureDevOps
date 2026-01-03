@@ -1,1 +1,0 @@
-function a({className:a,...t}){return e.jsx("div",{"data-slot":"skeleton",className:s("bg-accent animate-pulse rounded-md",a),...t})}import{j as e}from"./react-core-hQu9tqS1.js";import{q as s}from"./index-BDwglPMF.js";export{a as S};
