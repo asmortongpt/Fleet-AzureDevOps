@@ -11,6 +11,7 @@ import React, { ReactNode } from 'react'
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { cn } from '@/lib/utils'
+import { DrilldownBreadcrumbs } from '@/components/drilldown/DrilldownBreadcrumbs'
 
 export interface HubTab {
     id: string
@@ -104,6 +105,9 @@ export function HubPage({
                     </div>
                 )}
             </header>
+
+            {/* Breadcrumb Navigation */}
+            <DrilldownBreadcrumbs />
 
             {/* Tab Navigation */}
             <Tabs
