@@ -1,6 +1,6 @@
 import OpenAI from 'openai';
 
-import { logger } from '../config/logger';
+import logger from '../config/logger';
 
 export interface DamageDetectionResult {
   vehicleDetected: boolean;
