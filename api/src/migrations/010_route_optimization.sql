@@ -7,7 +7,7 @@
 -- ============================================================================
 
 CREATE TABLE IF NOT EXISTS route_optimization_jobs (
-  id SERIAL PRIMARY KEY,
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   tenant_id INT NOT NULL,
   job_name VARCHAR(255) NOT NULL,
   job_type VARCHAR(50) DEFAULT 'standard', -- 'standard', 'recurring', 'emergency'
@@ -66,7 +66,7 @@ CREATE INDEX idx_route_jobs_scheduled ON route_optimization_jobs(scheduled_date,
 -- ============================================================================
 
 CREATE TABLE IF NOT EXISTS route_stops (
-  id SERIAL PRIMARY KEY,
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   job_id INT NOT NULL REFERENCES route_optimization_jobs(id) ON DELETE CASCADE,
   tenant_id INT NOT NULL,
 
@@ -128,7 +128,7 @@ CREATE INDEX idx_route_stops_location ON route_stops(latitude, longitude);
 -- ============================================================================
 
 CREATE TABLE IF NOT EXISTS optimized_routes (
-  id SERIAL PRIMARY KEY,
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   job_id INT NOT NULL REFERENCES route_optimization_jobs(id) ON DELETE CASCADE,
   tenant_id INT NOT NULL,
 
@@ -192,7 +192,7 @@ CREATE INDEX idx_optimized_routes_status ON optimized_routes(status);
 -- ============================================================================
 
 CREATE TABLE IF NOT EXISTS route_waypoints (
-  id SERIAL PRIMARY KEY,
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   route_id INT NOT NULL REFERENCES optimized_routes(id) ON DELETE CASCADE,
 
   -- Waypoint details
@@ -225,7 +225,7 @@ CREATE INDEX idx_waypoints_route ON route_waypoints(route_id, sequence);
 -- ============================================================================
 
 CREATE TABLE IF NOT EXISTS vehicle_optimization_profiles (
-  id SERIAL PRIMARY KEY,
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   vehicle_id INT NOT NULL REFERENCES vehicles(id) ON DELETE CASCADE,
 
   -- Capacity
@@ -267,7 +267,7 @@ CREATE TABLE IF NOT EXISTS vehicle_optimization_profiles (
 -- ============================================================================
 
 CREATE TABLE IF NOT EXISTS driver_optimization_profiles (
-  id SERIAL PRIMARY KEY,
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   driver_id INT NOT NULL REFERENCES drivers(id) ON DELETE CASCADE,
 
   -- Shift details
@@ -304,7 +304,7 @@ CREATE TABLE IF NOT EXISTS driver_optimization_profiles (
 -- ============================================================================
 
 CREATE TABLE IF NOT EXISTS route_optimization_cache (
-  id SERIAL PRIMARY KEY,
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   cache_key VARCHAR(255) NOT NULL UNIQUE,
 
   -- Request parameters (hashed)
@@ -333,7 +333,7 @@ CREATE INDEX idx_optimization_cache_expires ON route_optimization_cache(expires_
 -- ============================================================================
 
 CREATE TABLE IF NOT EXISTS route_performance_metrics (
-  id SERIAL PRIMARY KEY,
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   route_id INT NOT NULL REFERENCES optimized_routes(id) ON DELETE CASCADE,
 
   -- Planned vs Actual

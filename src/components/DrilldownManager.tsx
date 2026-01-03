@@ -38,17 +38,16 @@ import {
 import { IncidentDetailPanel } from '@/components/drilldown/IncidentDetailPanel'
 import { HazardZoneDetailPanel } from '@/components/drilldown/HazardZoneDetailPanel'
 import {
-  InspectionListView,
+  InspectionsMatrixView,
   SafetyInspectionDetailPanel
 } from '@/components/drilldown/SafetyInspectionDrilldowns'
 import {
-  TrainingRecordsView,
-  CertificationsView,
-  TrainingScheduleView
+  TrainingRecordsMatrixView,
+  CertificationsMatrixView
 } from '@/components/drilldown/SafetyTrainingDrilldowns'
 import {
-  ViolationsListView,
-  ComplianceViolationDetailPanel
+  ViolationsMatrixView,
+  IncidentsMatrixView
 } from '@/components/drilldown/SafetyComplianceDrilldowns'
 import {
   SystemHealthDrilldown,
@@ -391,7 +390,7 @@ function DrilldownContent() {
     case 'inspections-due':
     case 'inspections-overdue':
     case 'inspections-violations':
-      return <InspectionListView filter={currentLevel.data?.filter} />
+      return <InspectionsMatrixView filter={currentLevel.data?.filter} />
 
     case 'safety-inspection':
     case 'safety-inspection-detail':
@@ -403,17 +402,17 @@ function DrilldownContent() {
     case 'training-in-progress':
     case 'training-scheduled':
     case 'training-expired':
-      return <TrainingRecordsView filter={currentLevel.data?.filter} />
+      return <TrainingRecordsMatrixView filter={currentLevel.data?.filter} />
 
     case 'certifications':
     case 'certifications-active':
     case 'certifications-expiring':
     case 'certifications-expired':
     case 'certifications-renewal':
-      return <CertificationsView filter={currentLevel.data?.filter} />
+      return <CertificationsMatrixView filter={currentLevel.data?.filter} />
 
     case 'training-schedule':
-      return <TrainingScheduleView />
+      return <TrainingRecordsMatrixView filter={{ status: 'scheduled' }} />
 
     // Compliance Violations
     case 'compliance-violations':
@@ -421,11 +420,11 @@ function DrilldownContent() {
     case 'violations-critical':
     case 'violations-unpaid':
     case 'violations-overdue':
-      return <ViolationsListView filter={currentLevel.data?.filter} />
+      return <ViolationsMatrixView filter={currentLevel.data?.filter} />
 
     case 'compliance-violation':
     case 'compliance-violation-detail':
-      return <ComplianceViolationDetailPanel violationId={currentLevel.data?.violationId} />
+      return <ViolationsMatrixView filter={{ violationId: currentLevel.data?.violationId }} />
 
     // Video telematics
     case 'video-telematics':

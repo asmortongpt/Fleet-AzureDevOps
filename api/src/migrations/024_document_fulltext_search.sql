@@ -33,11 +33,7 @@ CREATE INDEX idx_documents_ocr_fulltext ON documents USING GIN(
   to_tsvector('english', COALESCE(ocr_raw_text, ''))
 ) WHERE ocr_raw_text IS NOT NULL;
 
--- Index on extracted_text for the new schema
-DROP INDEX IF EXISTS idx_documents_extracted_text_fulltext;
-CREATE INDEX idx_documents_extracted_text_fulltext ON documents USING GIN(
-  to_tsvector('english', COALESCE(extracted_text, ''))
-) WHERE extracted_text IS NOT NULL;
+-- Index on extracted_text removed
 
 -- ============================================================================
 -- CREATE UPDATE TRIGGER FUNCTION
@@ -75,7 +71,7 @@ BEGIN
     ) ||
     -- OCR/extracted text gets lower weight (more content, less relevance)
     setweight(
-      to_tsvector('english', COALESCE(NEW.extracted_text, COALESCE(NEW.ocr_raw_text, ''))),
+      to_tsvector('english', COALESCE(NEW.ocr_raw_text, '')),
       'C'
     ) ||
     -- Document type and category for filtering
@@ -127,7 +123,7 @@ BEGIN
       FOR UPDATE SKIP LOCKED
     )
     UPDATE documents d
-    SET search_vector = documents_search_vector_update.search_vector
+    SET search_vector = NULL -- Trigger will populate this
     FROM batch
     WHERE d.id = batch.id;
 
@@ -194,9 +190,9 @@ SELECT
   tenant_id,
   COUNT(*) as total_documents,
   COUNT(*) FILTER (WHERE search_vector IS NOT NULL) as searchable_documents,
-  COUNT(*) FILTER (WHERE ocr_status = 'completed' OR embedding_status = 'completed') as processed_documents,
+  COUNT(*) FILTER (WHERE ocr_status = 'completed') as processed_documents,
   COUNT(*) FILTER (WHERE ocr_status IN ('pending', 'processing')) as pending_ocr,
-  ROUND(AVG(LENGTH(COALESCE(extracted_text, COALESCE(ocr_raw_text, ''))))::numeric, 2) as avg_text_length,
+  ROUND(AVG(LENGTH(COALESCE(ocr_raw_text, '')))::numeric, 2) as avg_text_length,
   SUM(file_size_bytes) FILTER (WHERE search_vector IS NOT NULL) as total_searchable_size_bytes
 FROM documents
 WHERE status = 'active'

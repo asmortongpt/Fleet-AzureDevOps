@@ -16,12 +16,12 @@ WHERE status IS NOT NULL;
 
 -- Index for vehicle type and status combination (common filter)
 CREATE INDEX IF NOT EXISTS idx_vehicles_type_status
-ON vehicles(vehicle_type, status);
+ON vehicles(type, status);
 
 -- Index for organization queries
 CREATE INDEX IF NOT EXISTS idx_vehicles_organization
-ON vehicles(organization_id)
-WHERE organization_id IS NOT NULL;
+ON vehicles(tenant_id)
+WHERE tenant_id IS NOT NULL;
 
 -- Index for vehicle search by VIN
 CREATE INDEX IF NOT EXISTS idx_vehicles_vin
@@ -42,25 +42,25 @@ ON vehicles(created_at DESC);
 
 -- Index for vehicle maintenance history
 CREATE INDEX IF NOT EXISTS idx_maintenance_vehicle
-ON maintenance_records(vehicle_id, scheduled_date DESC);
+ON maintenance_schedules(vehicle_id, next_service_date DESC);
 
 -- Index for maintenance status
 CREATE INDEX IF NOT EXISTS idx_maintenance_status
-ON maintenance_records(status);
+ON maintenance_schedules(is_active);
 
--- Index for upcoming maintenance (common dashboard query)
+-- Index for upcoming maintenance
 CREATE INDEX IF NOT EXISTS idx_maintenance_upcoming
-ON maintenance_records(scheduled_date)
-WHERE status IN ('pending', 'scheduled');
+ON maintenance_schedules(next_service_date)
+WHERE is_active = true;
 
 -- Index for maintenance type queries
-CREATE INDEX IF NOT EXISTS idx_maintenance_type
-ON maintenance_records(maintenance_type);
+CREATE INDEX IF NOT EXISTS idx_type
+ON maintenance_schedules(type);
 
 -- Composite index for organization maintenance queries
 CREATE INDEX IF NOT EXISTS idx_maintenance_org_date
-ON maintenance_records(organization_id, scheduled_date DESC)
-WHERE organization_id IS NOT NULL;
+ON maintenance_schedules(tenant_id, next_service_date DESC)
+WHERE tenant_id IS NOT NULL;
 
 -- ============================================================================
 -- FUEL RECORDS TABLE INDEXES
@@ -68,20 +68,20 @@ WHERE organization_id IS NOT NULL;
 
 -- Index for vehicle fuel history
 CREATE INDEX IF NOT EXISTS idx_fuel_vehicle_date
-ON fuel_records(vehicle_id, fuel_date DESC);
+ON fuel_transactions(vehicle_id, created_at DESC);
 
 -- Index for fuel date range queries
-CREATE INDEX IF NOT EXISTS idx_fuel_date_range
-ON fuel_records(fuel_date);
+CREATE INDEX IF NOT EXISTS idx_date_range
+ON fuel_transactions(created_at);
 
 -- Index for organization fuel reports
 CREATE INDEX IF NOT EXISTS idx_fuel_org_date
-ON fuel_records(organization_id, fuel_date DESC)
-WHERE organization_id IS NOT NULL;
+ON fuel_transactions(tenant_id, created_at DESC)
+WHERE tenant_id IS NOT NULL;
 
 -- Index for fuel cost analysis
 CREATE INDEX IF NOT EXISTS idx_fuel_cost
-ON fuel_records(total_cost)
+ON fuel_transactions(total_cost)
 WHERE total_cost IS NOT NULL;
 
 -- ============================================================================
@@ -94,8 +94,8 @@ ON drivers(status);
 
 -- Index for organization drivers
 CREATE INDEX IF NOT EXISTS idx_drivers_organization
-ON drivers(organization_id)
-WHERE organization_id IS NOT NULL;
+ON drivers(tenant_id)
+WHERE tenant_id IS NOT NULL;
 
 -- Index for driver license lookup
 CREATE INDEX IF NOT EXISTS idx_drivers_license
@@ -111,22 +111,8 @@ WHERE status = 'active';
 -- DRIVER ASSIGNMENTS TABLE INDEXES
 -- ============================================================================
 
--- Index for vehicle assignments
-CREATE INDEX IF NOT EXISTS idx_assignments_vehicle
-ON driver_assignments(vehicle_id, start_date DESC);
-
--- Index for driver history
-CREATE INDEX IF NOT EXISTS idx_assignments_driver
-ON driver_assignments(driver_id, start_date DESC);
-
--- Index for current assignments (no end_date)
-CREATE INDEX IF NOT EXISTS idx_assignments_current
-ON driver_assignments(vehicle_id, driver_id)
-WHERE end_date IS NULL;
-
--- Index for assignment date ranges
-CREATE INDEX IF NOT EXISTS idx_assignments_dates
-ON driver_assignments(start_date, end_date);
+-- Index for vehicle assignments (Table does not exist, skipped)
+-- CREATE INDEX IF NOT EXISTS idx_assignments_vehicle ...
 
 -- ============================================================================
 -- WORK ORDERS TABLE INDEXES
@@ -151,8 +137,8 @@ WHERE status IN ('pending', 'in_progress');
 
 -- Index for organization work orders
 CREATE INDEX IF NOT EXISTS idx_work_orders_org
-ON work_orders(organization_id, created_at DESC)
-WHERE organization_id IS NOT NULL;
+ON work_orders(tenant_id, created_at DESC)
+WHERE tenant_id IS NOT NULL;
 
 -- ============================================================================
 -- TELEMATICS DATA TABLE INDEXES
@@ -160,42 +146,42 @@ WHERE organization_id IS NOT NULL;
 
 -- Index for vehicle telematics time series
 CREATE INDEX IF NOT EXISTS idx_telematics_vehicle_time
-ON telematics_data(vehicle_id, timestamp DESC);
+ON telemetry_data(vehicle_id, timestamp DESC);
 
 -- Index for timestamp range queries
 CREATE INDEX IF NOT EXISTS idx_telematics_timestamp
-ON telematics_data(timestamp DESC);
+ON telemetry_data(timestamp DESC);
 
 -- Index for location-based queries
 CREATE INDEX IF NOT EXISTS idx_telematics_location
-ON telematics_data(latitude, longitude)
+ON telemetry_data(latitude, longitude)
 WHERE latitude IS NOT NULL AND longitude IS NOT NULL;
 
--- Index for speed alerts
+-- Index for speed notifications
 CREATE INDEX IF NOT EXISTS idx_telematics_speed
-ON telematics_data(speed)
+ON telemetry_data(speed)
 WHERE speed > 0;
 
 -- ============================================================================
 -- INSPECTIONS TABLE INDEXES
 -- ============================================================================
 
--- Index for vehicle inspections
-CREATE INDEX IF NOT EXISTS idx_inspections_vehicle
-ON inspections(vehicle_id, inspection_date DESC);
+-- Index for vehicle vehicle_inspections
+CREATE INDEX IF NOT EXISTS idx_vehicle_inspections_vehicle
+ON vehicle_inspections(vehicle_id, created_at DESC);
 
 -- Index for inspection status
-CREATE INDEX IF NOT EXISTS idx_inspections_status
-ON inspections(status);
+CREATE INDEX IF NOT EXISTS idx_vehicle_inspections_status
+ON vehicle_inspections(status);
 
--- Index for failed inspections
-CREATE INDEX IF NOT EXISTS idx_inspections_failed
-ON inspections(passed)
+-- Index for failed vehicle_inspections
+CREATE INDEX IF NOT EXISTS idx_vehicle_inspections_failed
+ON vehicle_inspections(passed)
 WHERE passed = false;
 
--- Index for recent inspections
-CREATE INDEX IF NOT EXISTS idx_inspections_date
-ON inspections(inspection_date DESC);
+-- Index for recent vehicle_inspections
+CREATE INDEX IF NOT EXISTS idx_vehicle_inspections_date
+ON vehicle_inspections(created_at DESC);
 
 -- ============================================================================
 -- DOCUMENTS TABLE INDEXES
@@ -211,8 +197,8 @@ ON documents(document_type);
 
 -- Index for organization documents
 CREATE INDEX IF NOT EXISTS idx_documents_org
-ON documents(organization_id)
-WHERE organization_id IS NOT NULL;
+ON documents(tenant_id)
+WHERE tenant_id IS NOT NULL;
 
 -- Index for document status
 CREATE INDEX IF NOT EXISTS idx_documents_status
@@ -223,23 +209,23 @@ WHERE status IS NOT NULL;
 -- ALERTS TABLE INDEXES
 -- ============================================================================
 
--- Index for vehicle alerts
-CREATE INDEX IF NOT EXISTS idx_alerts_vehicle
-ON alerts(vehicle_id, created_at DESC)
+-- Index for vehicle notifications
+CREATE INDEX IF NOT EXISTS idx_notifications_vehicle
+ON notifications(vehicle_id, created_at DESC)
 WHERE vehicle_id IS NOT NULL;
 
 -- Index for alert severity
-CREATE INDEX IF NOT EXISTS idx_alerts_severity
-ON alerts(severity, created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_notifications_severity
+ON notifications(severity, created_at DESC);
 
--- Index for unread alerts
-CREATE INDEX IF NOT EXISTS idx_alerts_unread
-ON alerts(is_read, created_at DESC)
+-- Index for unread notifications
+CREATE INDEX IF NOT EXISTS idx_notifications_unread
+ON notifications(is_read, created_at DESC)
 WHERE is_read = false;
 
 -- Index for alert type
-CREATE INDEX IF NOT EXISTS idx_alerts_type
-ON alerts(alert_type);
+CREATE INDEX IF NOT EXISTS idx_notifications_type
+ON notifications(type);
 
 -- ============================================================================
 -- USERS TABLE INDEXES
@@ -252,13 +238,13 @@ WHERE email IS NOT NULL;
 
 -- Index for organization users
 CREATE INDEX IF NOT EXISTS idx_users_organization
-ON users(organization_id)
-WHERE organization_id IS NOT NULL;
+ON users(tenant_id)
+WHERE tenant_id IS NOT NULL;
 
 -- Index for active users
 CREATE INDEX IF NOT EXISTS idx_users_active
-ON users(status)
-WHERE status = 'active';
+ON users(is_active)
+WHERE is_active = true;
 
 -- Index for user role queries
 CREATE INDEX IF NOT EXISTS idx_users_role
@@ -292,15 +278,15 @@ ON audit_logs(created_at DESC);
 
 -- Analyze tables to update statistics for query planner
 ANALYZE vehicles;
-ANALYZE maintenance_records;
-ANALYZE fuel_records;
+ANALYZE maintenance_schedules;
+ANALYZE fuel_transactions;
 ANALYZE drivers;
-ANALYZE driver_assignments;
+ANALYZE vehicle_assignments;
 ANALYZE work_orders;
-ANALYZE telematics_data;
-ANALYZE inspections;
+ANALYZE telemetry_data;
+ANALYZE vehicle_inspections;
 ANALYZE documents;
-ANALYZE alerts;
+ANALYZE notifications;
 ANALYZE users;
 ANALYZE audit_logs;
 
@@ -310,7 +296,7 @@ ANALYZE audit_logs;
 
 -- Create a table to store index usage statistics (for monitoring)
 CREATE TABLE IF NOT EXISTS index_usage_stats (
-    id SERIAL PRIMARY KEY,
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     index_name VARCHAR(255) NOT NULL,
     table_name VARCHAR(255) NOT NULL,
     scans BIGINT DEFAULT 0,

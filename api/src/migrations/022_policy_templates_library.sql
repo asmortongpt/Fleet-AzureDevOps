@@ -6,7 +6,7 @@
 -- ============================================================================
 
 CREATE TABLE IF NOT EXISTS policy_templates (
-    id SERIAL PRIMARY KEY,
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
 
     -- Template Identification
     policy_code VARCHAR(50) UNIQUE NOT NULL, -- e.g., 'FLT-SAF-001', 'HR-DRG-001'
@@ -34,7 +34,7 @@ CREATE TABLE IF NOT EXISTS policy_templates (
     review_cycle_months INTEGER DEFAULT 12,
     next_review_date DATE,
     expiration_date DATE,
-    supersedes_policy_id INTEGER REFERENCES policy_templates(id),
+    supersedes_policy_id UUID REFERENCES policy_templates(id),
 
     -- Status
     status VARCHAR(50) DEFAULT 'Draft', -- 'Draft', 'Pending Approval', 'Active', 'Archived', 'Superseded'
@@ -68,9 +68,9 @@ CREATE TABLE IF NOT EXISTS policy_templates (
 -- ============================================================================
 
 CREATE TABLE IF NOT EXISTS policy_acknowledgments (
-    id SERIAL PRIMARY KEY,
-    policy_id INTEGER REFERENCES policy_templates(id) NOT NULL,
-    employee_id INTEGER REFERENCES drivers(id) NOT NULL,
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    policy_id UUID REFERENCES policy_templates(id) NOT NULL,
+    employee_id UUID REFERENCES drivers(id) NOT NULL,
 
     -- Acknowledgment Details
     acknowledged_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -93,7 +93,7 @@ CREATE TABLE IF NOT EXISTS policy_acknowledgments (
 
     -- Status
     is_current BOOLEAN DEFAULT TRUE, -- False when policy is updated
-    superseded_by_acknowledgment_id INTEGER REFERENCES policy_acknowledgments(id),
+    superseded_by_acknowledgment_id UUID REFERENCES policy_acknowledgments(id),
 
     UNIQUE(policy_id, employee_id, acknowledged_at)
 );
@@ -103,7 +103,7 @@ CREATE TABLE IF NOT EXISTS policy_acknowledgments (
 -- ============================================================================
 
 CREATE TABLE IF NOT EXISTS prebuilt_safety_policies (
-    id SERIAL PRIMARY KEY,
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     template_name VARCHAR(255) NOT NULL UNIQUE,
     template_content TEXT NOT NULL,
     customization_fields JSONB, -- Placeholders that need org-specific values
@@ -302,8 +302,8 @@ Policy Owner: {SAFETY_MANAGER_NAME}',
 -- ============================================================================
 
 CREATE TABLE IF NOT EXISTS policy_compliance_audits (
-    id SERIAL PRIMARY KEY,
-    policy_id INTEGER REFERENCES policy_templates(id) NOT NULL,
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    policy_id UUID REFERENCES policy_templates(id) NOT NULL,
 
     -- Audit Details
     audit_date DATE NOT NULL,
@@ -348,9 +348,9 @@ CREATE TABLE IF NOT EXISTS policy_compliance_audits (
 -- ============================================================================
 
 CREATE TABLE IF NOT EXISTS policy_violations (
-    id SERIAL PRIMARY KEY,
-    policy_id INTEGER REFERENCES policy_templates(id) NOT NULL,
-    employee_id INTEGER REFERENCES drivers(id) NOT NULL,
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    policy_id UUID REFERENCES policy_templates(id) NOT NULL,
+    employee_id UUID REFERENCES drivers(id) NOT NULL,
 
     -- Violation Details
     violation_date DATE NOT NULL,
@@ -362,7 +362,7 @@ CREATE TABLE IF NOT EXISTS policy_violations (
     severity VARCHAR(50) NOT NULL, -- 'Minor', 'Moderate', 'Serious', 'Critical'
 
     -- Related Entities
-    vehicle_id INTEGER REFERENCES vehicles(id),
+    vehicle_id UUID REFERENCES vehicles(id),
     related_incident_id INTEGER,
 
     -- Witness Information

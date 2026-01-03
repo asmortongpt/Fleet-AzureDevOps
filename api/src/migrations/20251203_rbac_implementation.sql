@@ -22,7 +22,7 @@ BEGIN;
 -- ============================================================================
 -- Defines available roles in the system
 CREATE TABLE IF NOT EXISTS roles (
-  id SERIAL PRIMARY KEY,
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   name VARCHAR(50) NOT NULL UNIQUE,
   description TEXT,
   level INTEGER NOT NULL, -- Higher number = higher privilege (admin=4, manager=3, user=2, guest=1)
@@ -44,7 +44,7 @@ ON CONFLICT (name) DO NOTHING;
 -- ============================================================================
 -- Defines granular permissions for specific actions
 CREATE TABLE IF NOT EXISTS permissions (
-  id SERIAL PRIMARY KEY,
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   name VARCHAR(100) NOT NULL UNIQUE,
   resource VARCHAR(50) NOT NULL, -- e.g., 'vehicle', 'driver', 'maintenance'
   action VARCHAR(50) NOT NULL,   -- e.g., 'create', 'read', 'update', 'delete'
@@ -113,7 +113,7 @@ ON CONFLICT (name) DO NOTHING;
 -- ============================================================================
 -- Maps which permissions are granted to which roles
 CREATE TABLE IF NOT EXISTS role_permissions (
-  id SERIAL PRIMARY KEY,
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   role_id INTEGER NOT NULL REFERENCES roles(id) ON DELETE CASCADE,
   permission_id INTEGER NOT NULL REFERENCES permissions(id) ON DELETE CASCADE,
   created_at TIMESTAMP DEFAULT NOW(),
@@ -162,12 +162,12 @@ ON CONFLICT (role_id, permission_id) DO NOTHING;
 -- ============================================================================
 -- Tracks role assignments for users (supports multiple roles per user)
 CREATE TABLE IF NOT EXISTS user_roles (
-  id SERIAL PRIMARY KEY,
-  user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
   role_id INTEGER NOT NULL REFERENCES roles(id) ON DELETE CASCADE,
   is_active BOOLEAN DEFAULT true,
   expires_at TIMESTAMP, -- Optional expiration for temporary role assignments
-  assigned_by INTEGER REFERENCES users(id),
+  assigned_by UUID REFERENCES users(id),
   assigned_at TIMESTAMP DEFAULT NOW(),
   UNIQUE(user_id, role_id)
 );
@@ -181,8 +181,8 @@ CREATE INDEX IF NOT EXISTS idx_user_roles_active ON user_roles(user_id, is_activ
 -- ============================================================================
 -- Logs all authorization failures for security monitoring
 CREATE TABLE IF NOT EXISTS authorization_audit_log (
-  id SERIAL PRIMARY KEY,
-  user_id INTEGER NOT NULL,
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id UUID NOT NULL,
   tenant_id VARCHAR(255),
   action VARCHAR(255) NOT NULL,
   reason VARCHAR(255) NOT NULL,
@@ -249,7 +249,7 @@ CREATE INDEX IF NOT EXISTS idx_documents_tenant ON documents(tenant_id);
 -- ============================================================================
 
 -- Function to check if user has permission
-CREATE OR REPLACE FUNCTION user_has_permission(p_user_id INTEGER, p_permission_name VARCHAR)
+CREATE OR REPLACE FUNCTION user_has_permission(p_user_id UUID, p_permission_name VARCHAR)
 RETURNS BOOLEAN AS $$
 BEGIN
   RETURN EXISTS (
@@ -267,7 +267,7 @@ END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
 -- Function to get user's effective role (highest level)
-CREATE OR REPLACE FUNCTION get_user_effective_role(p_user_id INTEGER)
+CREATE OR REPLACE FUNCTION get_user_effective_role(p_user_id UUID)
 RETURNS VARCHAR AS $$
 DECLARE
   v_role VARCHAR;
@@ -286,7 +286,7 @@ END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
 -- Function to get all user permissions
-CREATE OR REPLACE FUNCTION get_user_permissions(p_user_id INTEGER)
+CREATE OR REPLACE FUNCTION get_user_permissions(p_user_id UUID)
 RETURNS TABLE(permission_name VARCHAR, resource VARCHAR, action VARCHAR) AS $$
 BEGIN
   RETURN QUERY

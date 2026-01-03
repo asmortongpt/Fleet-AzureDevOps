@@ -7,7 +7,7 @@
 -- ============================================================================
 
 CREATE TABLE IF NOT EXISTS vehicle_3d_models (
-  id SERIAL PRIMARY KEY,
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
 
   -- Model identification
   make VARCHAR(100) NOT NULL,
@@ -75,7 +75,7 @@ CREATE INDEX idx_3d_models_ar ON vehicle_3d_models(supports_ar) WHERE supports_a
 -- ============================================================================
 
 CREATE TABLE IF NOT EXISTS vehicle_3d_instances (
-  id SERIAL PRIMARY KEY,
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
 
   vehicle_id INT NOT NULL REFERENCES vehicles(id) ON DELETE CASCADE,
   model_3d_id INT NOT NULL REFERENCES vehicle_3d_models(id),
@@ -118,7 +118,7 @@ CREATE INDEX idx_3d_instances_model ON vehicle_3d_instances(model_3d_id);
 -- ============================================================================
 
 CREATE TABLE IF NOT EXISTS vehicle_3d_customization_catalog (
-  id SERIAL PRIMARY KEY,
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
 
   -- Applicability
   model_3d_id INT REFERENCES vehicle_3d_models(id), -- NULL = applies to all
@@ -165,7 +165,7 @@ CREATE INDEX idx_customization_model ON vehicle_3d_customization_catalog(model_3
 -- ============================================================================
 
 CREATE TABLE IF NOT EXISTS ar_sessions (
-  id SERIAL PRIMARY KEY,
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
 
   vehicle_id INT NOT NULL REFERENCES vehicles(id) ON DELETE CASCADE,
   user_id INT REFERENCES users(id) ON DELETE SET NULL,
@@ -216,7 +216,7 @@ CREATE INDEX idx_ar_sessions_platform ON ar_sessions(platform);
 -- ============================================================================
 
 CREATE TABLE IF NOT EXISTS vehicle_3d_renders (
-  id SERIAL PRIMARY KEY,
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
 
   vehicle_id INT NOT NULL REFERENCES vehicles(id) ON DELETE CASCADE,
   instance_3d_id INT REFERENCES vehicle_3d_instances(id),
@@ -263,7 +263,7 @@ CREATE INDEX idx_3d_renders_listing ON vehicle_3d_renders(used_in_listing) WHERE
 -- ============================================================================
 
 CREATE TABLE IF NOT EXISTS vehicle_3d_animations (
-  id SERIAL PRIMARY KEY,
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
 
   model_3d_id INT NOT NULL REFERENCES vehicle_3d_models(id) ON DELETE CASCADE,
 
@@ -293,7 +293,7 @@ CREATE INDEX idx_3d_animations_model ON vehicle_3d_animations(model_3d_id, is_ac
 -- ============================================================================
 
 CREATE TABLE IF NOT EXISTS vehicle_3d_performance_metrics (
-  id SERIAL PRIMARY KEY,
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
 
   -- Session identification
   session_id VARCHAR(100), -- Unique session identifier

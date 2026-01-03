@@ -7,7 +7,7 @@
 
 -- Dispatch channels for organizing communications
 CREATE TABLE IF NOT EXISTS dispatch_channels (
-    id SERIAL PRIMARY KEY,
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     name VARCHAR(100) NOT NULL UNIQUE,
     description TEXT,
     channel_type VARCHAR(50) NOT NULL DEFAULT 'general', -- general, emergency, maintenance, operations
@@ -16,15 +16,15 @@ CREATE TABLE IF NOT EXISTS dispatch_channels (
     color_code VARCHAR(20), -- UI display color
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    created_by INTEGER REFERENCES users(id),
+    created_by UUID REFERENCES users(id),
     CONSTRAINT valid_priority CHECK (priority_level BETWEEN 1 AND 10)
 );
 
 -- Audio transmissions storage (for archival and playback)
 CREATE TABLE IF NOT EXISTS dispatch_transmissions (
-    id SERIAL PRIMARY KEY,
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     channel_id INTEGER NOT NULL REFERENCES dispatch_channels(id) ON DELETE CASCADE,
-    user_id INTEGER NOT NULL REFERENCES users(id),
+    user_id UUID NOT NULL REFERENCES users(id),
     transmission_start TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     transmission_end TIMESTAMP,
     duration_seconds DECIMAL(10,2),
@@ -41,7 +41,7 @@ CREATE TABLE IF NOT EXISTS dispatch_transmissions (
 
 -- Real-time transcriptions with AI tagging
 CREATE TABLE IF NOT EXISTS dispatch_transcriptions (
-    id SERIAL PRIMARY KEY,
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     transmission_id INTEGER NOT NULL REFERENCES dispatch_transmissions(id) ON DELETE CASCADE,
     transcription_text TEXT NOT NULL,
     confidence_score DECIMAL(5,4), -- 0.0000 to 1.0000
@@ -54,7 +54,7 @@ CREATE TABLE IF NOT EXISTS dispatch_transcriptions (
 
 -- AI-powered incident tagging and classification
 CREATE TABLE IF NOT EXISTS dispatch_incident_tags (
-    id SERIAL PRIMARY KEY,
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     transmission_id INTEGER NOT NULL REFERENCES dispatch_transmissions(id) ON DELETE CASCADE,
     tag_type VARCHAR(100) NOT NULL, -- emergency, maintenance, routine, accident, traffic, fuel, breakdown, medical
     confidence_score DECIMAL(5,4),
@@ -62,15 +62,15 @@ CREATE TABLE IF NOT EXISTS dispatch_incident_tags (
     detected_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     entities JSONB, -- extracted entities: vehicle_id, location, driver_name, etc.
     sentiment VARCHAR(20), -- urgent, normal, low-priority
-    auto_created_work_order INTEGER REFERENCES work_orders(id), -- auto-create work orders from incidents
+    auto_created_work_order UUID REFERENCES work_orders(id), -- auto-create work orders from incidents
     CONSTRAINT valid_tag_confidence CHECK (confidence_score BETWEEN 0 AND 1)
 );
 
 -- Active listeners (who is currently listening to each channel)
 CREATE TABLE IF NOT EXISTS dispatch_active_listeners (
-    id SERIAL PRIMARY KEY,
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     channel_id INTEGER NOT NULL REFERENCES dispatch_channels(id) ON DELETE CASCADE,
-    user_id INTEGER NOT NULL REFERENCES users(id),
+    user_id UUID NOT NULL REFERENCES users(id),
     connection_id VARCHAR(255) NOT NULL, -- SignalR connection ID
     connected_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     last_heartbeat TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -81,32 +81,32 @@ CREATE TABLE IF NOT EXISTS dispatch_active_listeners (
 
 -- Channel subscriptions (who has access to which channels)
 CREATE TABLE IF NOT EXISTS dispatch_channel_subscriptions (
-    id SERIAL PRIMARY KEY,
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     channel_id INTEGER NOT NULL REFERENCES dispatch_channels(id) ON DELETE CASCADE,
-    user_id INTEGER REFERENCES users(id),
+    user_id UUID REFERENCES users(id),
     role_name VARCHAR(100), -- or subscribe entire role
     can_transmit BOOLEAN DEFAULT true,
     can_listen BOOLEAN DEFAULT true,
     can_moderate BOOLEAN DEFAULT false, -- can mute users, manage channel
     subscribed_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    subscribed_by INTEGER REFERENCES users(id),
+    subscribed_by UUID REFERENCES users(id),
     CONSTRAINT subscription_target CHECK (user_id IS NOT NULL OR role_name IS NOT NULL)
 );
 
 -- Emergency alerts and panic button
 CREATE TABLE IF NOT EXISTS dispatch_emergency_alerts (
-    id SERIAL PRIMARY KEY,
-    user_id INTEGER NOT NULL REFERENCES users(id),
-    vehicle_id INTEGER REFERENCES vehicles(id),
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    user_id UUID NOT NULL REFERENCES users(id),
+    vehicle_id UUID REFERENCES vehicles(id),
     alert_type VARCHAR(50) NOT NULL, -- panic, accident, medical, fire, security
     alert_status VARCHAR(50) DEFAULT 'active', -- active, acknowledged, resolved, false_alarm
     location_lat DECIMAL(10,8),
     location_lng DECIMAL(11,8),
     location_address TEXT,
     description TEXT,
-    acknowledged_by INTEGER REFERENCES users(id),
+    acknowledged_by UUID REFERENCES users(id),
     acknowledged_at TIMESTAMP,
-    resolved_by INTEGER REFERENCES users(id),
+    resolved_by UUID REFERENCES users(id),
     resolved_at TIMESTAMP,
     response_time_seconds INTEGER,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -115,9 +115,9 @@ CREATE TABLE IF NOT EXISTS dispatch_emergency_alerts (
 
 -- Dispatch performance metrics
 CREATE TABLE IF NOT EXISTS dispatch_metrics (
-    id SERIAL PRIMARY KEY,
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     metric_date DATE NOT NULL DEFAULT CURRENT_DATE,
-    channel_id INTEGER REFERENCES dispatch_channels(id),
+    channel_id UUID REFERENCES dispatch_channels(id),
     total_transmissions INTEGER DEFAULT 0,
     total_duration_seconds INTEGER DEFAULT 0,
     emergency_transmissions INTEGER DEFAULT 0,

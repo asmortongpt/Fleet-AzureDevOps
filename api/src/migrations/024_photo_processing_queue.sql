@@ -5,12 +5,14 @@
 -- =====================================================
 -- Photo Processing Queue Table
 -- =====================================================
+DROP TABLE IF EXISTS photo_processing_queue CASCADE;
+
 
 CREATE TABLE IF NOT EXISTS photo_processing_queue (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    tenant_id INTEGER NOT NULL,
-    user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-    photo_id INTEGER NOT NULL REFERENCES mobile_photos(id) ON DELETE CASCADE,
+    tenant_id UUID NOT NULL,
+    user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    photo_id UUID NOT NULL REFERENCES mobile_photos(id) ON DELETE CASCADE,
     blob_url TEXT NOT NULL,
     status VARCHAR(20) NOT NULL DEFAULT 'pending' CHECK (status IN ('pending', 'processing', 'completed', 'failed')),
     priority VARCHAR(10) NOT NULL DEFAULT 'normal' CHECK (priority IN ('high', 'normal', 'low')),
@@ -172,7 +174,7 @@ CREATE OR REPLACE VIEW user_photo_activity AS
 SELECT
     u.tenant_id,
     u.id as user_id,
-    u.name as user_name,
+    concat(u.first_name, ' ', u.last_name) as user_name,
     u.email,
     COUNT(mp.id) as total_photos,
     COUNT(mp.id) FILTER (WHERE mp.created_at >= CURRENT_DATE - INTERVAL '7 days') as photos_last_7_days,
@@ -182,7 +184,7 @@ SELECT
     COUNT(DISTINCT DATE(mp.created_at)) as active_days
 FROM users u
 LEFT JOIN mobile_photos mp ON mp.user_id = u.id
-GROUP BY u.tenant_id, u.id, u.name, u.email;
+GROUP BY u.tenant_id, u.id, concat(u.first_name, ' ', u.last_name), u.email;
 
 COMMENT ON VIEW user_photo_activity IS 'Photo upload activity by user';
 
@@ -256,7 +258,7 @@ FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 -- Sample processing queue entries
 DO $$
 DECLARE
-    sample_photo_id INTEGER;
+    sample_photo_id UUID;
 BEGIN
     -- Get a sample photo
     SELECT id INTO sample_photo_id FROM mobile_photos LIMIT 1;
@@ -281,11 +283,11 @@ $$;
 -- Permissions
 -- =====================================================
 
-GRANT SELECT, INSERT, UPDATE, DELETE ON photo_processing_queue TO fleetapp;
-GRANT USAGE, SELECT ON ALL SEQUENCES IN SCHEMA public TO fleetapp;
-GRANT SELECT ON photo_processing_stats TO fleetapp;
-GRANT SELECT ON photo_queue_health TO fleetapp;
-GRANT SELECT ON user_photo_activity TO fleetapp;
+GRANT SELECT, INSERT, UPDATE, DELETE ON photo_processing_queue TO fleet_user;
+GRANT USAGE, SELECT ON ALL SEQUENCES IN SCHEMA public TO fleet_user;
+GRANT SELECT ON photo_processing_stats TO fleet_user;
+GRANT SELECT ON photo_queue_health TO fleet_user;
+GRANT SELECT ON user_photo_activity TO fleet_user;
 
 -- =====================================================
 -- Performance Optimizations
@@ -300,17 +302,17 @@ WHERE processed_at IS NULL;
 DO $$
 BEGIN
     IF EXISTS (SELECT 1 FROM pg_extension WHERE extname = 'postgis') THEN
-        CREATE INDEX IF NOT EXISTS idx_mobile_photos_gps
+        EXECUTE 'CREATE INDEX IF NOT EXISTS idx_mobile_photos_gps
         ON mobile_photos USING GIST(
             ST_SetSRID(
                 ST_MakePoint(
-                    (exif_data->>'gps'->>'longitude')::float,
-                    (exif_data->>'gps'->>'latitude')::float
+                    (exif_data->>''gps''->>''longitude'')::float,
+                    (exif_data->>''gps''->>''latitude'')::float
                 ),
                 4326
             )::geography
         )
-        WHERE exif_data ? 'gps';
+        WHERE exif_data ? ''gps''';
     END IF;
 END
 $$;
@@ -324,7 +326,7 @@ CREATE OR REPLACE VIEW stuck_processing_jobs AS
 SELECT
     ppq.*,
     mp.file_name,
-    u.name as user_name,
+    concat(u.first_name, ' ', u.last_name) as user_name,
     EXTRACT(EPOCH FROM (NOW() - ppq.processing_started_at))/60 as processing_minutes
 FROM photo_processing_queue ppq
 JOIN mobile_photos mp ON mp.id = ppq.photo_id

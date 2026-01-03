@@ -14,9 +14,9 @@
 -- Idling Events Table
 -- Stores individual idling events with duration and location
 CREATE TABLE IF NOT EXISTS vehicle_idling_events (
-    id SERIAL PRIMARY KEY,
-    vehicle_id INTEGER NOT NULL REFERENCES vehicles(id) ON DELETE CASCADE,
-    driver_id INTEGER REFERENCES users(id) ON DELETE SET NULL,
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    vehicle_id UUID NOT NULL REFERENCES vehicles(id) ON DELETE CASCADE,
+    driver_id UUID REFERENCES users(id) ON DELETE SET NULL,
 
     -- Event timing
     start_time TIMESTAMP NOT NULL,
@@ -27,7 +27,7 @@ CREATE TABLE IF NOT EXISTS vehicle_idling_events (
     latitude DECIMAL(10, 8),
     longitude DECIMAL(11, 8),
     location_name VARCHAR(255), -- Reverse geocoded address
-    geofence_id INTEGER REFERENCES geofences(id) ON DELETE SET NULL,
+    geofence_id UUID REFERENCES geofences(id) ON DELETE SET NULL,
 
     -- Vehicle state during idling
     engine_rpm INTEGER, -- RPM during idle (typically 600-900)
@@ -74,10 +74,10 @@ CREATE INDEX idx_idling_alerts ON vehicle_idling_events(alert_triggered, alert_s
 -- Allows customization per vehicle type or specific vehicle
 -- ============================================================================
 CREATE TABLE IF NOT EXISTS vehicle_idling_thresholds (
-    id SERIAL PRIMARY KEY,
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
 
     -- Applies to specific vehicle or vehicle type
-    vehicle_id INTEGER REFERENCES vehicles(id) ON DELETE CASCADE,
+    vehicle_id UUID REFERENCES vehicles(id) ON DELETE CASCADE,
     vehicle_type VARCHAR(50), -- 'sedan', 'truck', 'van', etc.
 
     -- Threshold settings (seconds)
@@ -121,9 +121,9 @@ ON CONFLICT DO NOTHING;
 -- Pre-aggregated data for faster reporting
 -- ============================================================================
 CREATE TABLE IF NOT EXISTS vehicle_idling_daily_summary (
-    id SERIAL PRIMARY KEY,
-    vehicle_id INTEGER NOT NULL REFERENCES vehicles(id) ON DELETE CASCADE,
-    driver_id INTEGER REFERENCES users(id) ON DELETE SET NULL,
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    vehicle_id UUID NOT NULL REFERENCES vehicles(id) ON DELETE CASCADE,
+    driver_id UUID REFERENCES users(id) ON DELETE SET NULL,
     summary_date DATE NOT NULL,
 
     -- Aggregate metrics
@@ -166,10 +166,10 @@ CREATE INDEX idx_idling_summary_date ON vehicle_idling_daily_summary(summary_dat
 -- Track all alerts sent for idling events
 -- ============================================================================
 CREATE TABLE IF NOT EXISTS vehicle_idling_alerts (
-    id SERIAL PRIMARY KEY,
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     idling_event_id INTEGER NOT NULL REFERENCES vehicle_idling_events(id) ON DELETE CASCADE,
-    vehicle_id INTEGER NOT NULL REFERENCES vehicles(id) ON DELETE CASCADE,
-    driver_id INTEGER REFERENCES users(id) ON DELETE SET NULL,
+    vehicle_id UUID NOT NULL REFERENCES vehicles(id) ON DELETE CASCADE,
+    driver_id UUID REFERENCES users(id) ON DELETE SET NULL,
 
     alert_level VARCHAR(20) CHECK (alert_level IN ('warning', 'alert', 'critical')),
     alert_type VARCHAR(50) CHECK (alert_type IN ('duration', 'cost', 'location', 'unauthorized')),
@@ -187,7 +187,7 @@ CREATE TABLE IF NOT EXISTS vehicle_idling_alerts (
     recipient_emails TEXT[],
 
     acknowledged BOOLEAN DEFAULT false,
-    acknowledged_by INTEGER REFERENCES users(id) ON DELETE SET NULL,
+    acknowledged_by UUID REFERENCES users(id) ON DELETE SET NULL,
     acknowledged_at TIMESTAMP,
 
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
@@ -209,7 +209,7 @@ SELECT
     v.name AS vehicle_name,
     v.vin,
     e.driver_id,
-    u.name AS driver_name,
+    concat(u.first_name, ' ', u.last_name) AS driver_name,
     e.start_time,
     EXTRACT(EPOCH FROM (NOW() - e.start_time))::INTEGER AS current_duration_seconds,
     ROUND((EXTRACT(EPOCH FROM (NOW() - e.start_time)) / 60)::NUMERIC, 2) AS current_duration_minutes,
@@ -257,7 +257,7 @@ ORDER BY total_idle_seconds DESC;
 CREATE OR REPLACE VIEW driver_idling_performance_30d AS
 SELECT
     u.id AS driver_id,
-    u.name AS driver_name,
+    concat(u.first_name, ' ', u.last_name) AS driver_name,
     u.email AS driver_email,
     COUNT(e.id) AS total_idle_events,
     SUM(e.duration_seconds) AS total_idle_seconds,
@@ -269,7 +269,7 @@ FROM users u
 INNER JOIN vehicle_idling_events e ON u.id = e.driver_id
 WHERE e.start_time >= CURRENT_DATE - INTERVAL '30 days'
     AND e.duration_seconds IS NOT NULL
-GROUP BY u.id, u.name, u.email
+GROUP BY u.id, concat(u.first_name, ' ', u.last_name), u.email
 ORDER BY total_idle_seconds DESC;
 
 -- Fleet-Wide Idling Costs (Monthly)
@@ -296,7 +296,7 @@ ORDER BY month DESC;
 -- Function to calculate idling costs
 CREATE OR REPLACE FUNCTION calculate_idling_costs(
     p_duration_seconds INTEGER,
-    p_vehicle_id INTEGER
+    p_vehicle_id UUID
 )
 RETURNS TABLE (
     fuel_wasted_gallons DECIMAL(8,4),
