@@ -24,10 +24,63 @@ RUN echo 'proxy_temp_path /var/cache/nginx/proxy_temp; \
     root /usr/share/nginx/html; \
     index index.html; \
     \
+    # ================================================================ \
+    # Security Headers \
+    # ================================================================ \
+    \
+    # Prevent clickjacking attacks - only allow same origin iframes \
+    add_header X-Frame-Options "DENY" always; \
+    \
+    # Prevent MIME type sniffing \
+    add_header X-Content-Type-Options "nosniff" always; \
+    \
+    # Enable XSS protection (legacy browsers) \
+    add_header X-XSS-Protection "1; mode=block" always; \
+    \
+    # Control referrer information sent with requests \
+    add_header Referrer-Policy "strict-origin-when-cross-origin" always; \
+    \
+    # Control which browser features and APIs can be used \
+    add_header Permissions-Policy "geolocation=(self), microphone=(), camera=(), payment=(), usb=(), magnetometer=(), gyroscope=(), speaker=(self)" always; \
+    \
+    # Content Security Policy - Comprehensive protection against XSS and injection attacks \
+    # Allows: \
+    #   - Self-hosted assets \
+    #   - Google Maps API (maps.googleapis.com, maps.gstatic.com) \
+    #   - DiceBear avatars API (api.dicebear.com) \
+    #   - Google Fonts (fonts.googleapis.com, fonts.gstatic.com) \
+    #   - CDN resources (cdn.jsdelivr.net, unpkg.com) \
+    #   - WebSocket connections for real-time features \
+    #   - Data URLs for inline images and fonts \
+    #   - Blob URLs for dynamic content \
+    add_header Content-Security-Policy "default-src '\''self'\''; script-src '\''self'\'' '\''unsafe-inline'\'' '\''unsafe-eval'\'' https://maps.googleapis.com https://cdn.jsdelivr.net https://unpkg.com; style-src '\''self'\'' '\''unsafe-inline'\'' https://fonts.googleapis.com; font-src '\''self'\'' https://fonts.gstatic.com data:; img-src '\''self'\'' data: https: blob: https://api.dicebear.com https://maps.googleapis.com https://maps.gstatic.com; connect-src '\''self'\'' wss: ws: https://maps.googleapis.com https://api.dicebear.com https://*.azure.com https://*.windows.net; frame-src '\''self'\'' https://login.microsoftonline.com; worker-src '\''self'\'' blob:; object-src '\''none'\''; base-uri '\''self'\''; form-action '\''self'\''; frame-ancestors '\''none'\'';" always; \
+    \
+    # Enable HSTS for production (uncomment when serving over HTTPS) \
+    # add_header Strict-Transport-Security "max-age=31536000; includeSubDomains; preload" always; \
+    \
+    # ================================================================ \
+    # Application Routes \
+    # ================================================================ \
+    \
     location / { \
     try_files $uri $uri/ /index.html; \
+    \
+    # Cache control for HTML files - never cache \
+    location = /index.html { \
+    add_header Cache-Control "no-cache, no-store, must-revalidate" always; \
+    add_header Pragma "no-cache" always; \
+    add_header Expires "0" always; \
+    } \
     } \
     \
+    # Static assets caching \
+    location ~* \.(js|css|png|jpg|jpeg|gif|ico|svg|woff|woff2|ttf|eot)$ { \
+    expires 1y; \
+    add_header Cache-Control "public, immutable" always; \
+    access_log off; \
+    } \
+    \
+    # API proxy with WebSocket support \
     location /api/ { \
     proxy_pass http://fleet-api-service.fleet-management.svc.cluster.local/api/; \
     proxy_ssl_verify off; \
@@ -46,12 +99,31 @@ RUN echo 'proxy_temp_path /var/cache/nginx/proxy_temp; \
     proxy_connect_timeout 60s; \
     proxy_send_timeout 60s; \
     proxy_read_timeout 60s; \
+    \
+    # Hide backend server information \
+    proxy_hide_header X-Powered-By; \
+    proxy_hide_header Server; \
     } \
     \
+    # Health check endpoint \
     location /ready { \
     access_log off; \
     return 200 "OK"; \
     add_header Content-Type text/plain; \
+    } \
+    \
+    # Deny access to hidden files (security) \
+    location ~ /\. { \
+    deny all; \
+    access_log off; \
+    log_not_found off; \
+    } \
+    \
+    # Deny access to backup and sensitive files \
+    location ~* \.(env|log|git|sql|md|sh|yml|yaml|bak|swp|~)$ { \
+    deny all; \
+    access_log off; \
+    log_not_found off; \
     } \
     }' > /etc/nginx/conf.d/default.conf && \
     # Create proxy temp directories
