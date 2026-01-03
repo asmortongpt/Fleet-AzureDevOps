@@ -1,60 +1,63 @@
 // Type declarations for packages without @types
+import * as React from 'react';
+
+type AntdComponent = React.ComponentType<Record<string, unknown>>;
 
 declare module 'antd' {
-    export const Table: any;
-    export const Select: any;
-    export const DatePicker: any;
-    export const Card: any;
-    export const Row: any;
-    export const Col: any;
-    export const Statistic: any;
-    export const Tag: any;
-    export const Button: any;
-    export const Typography: any;
-    export const Spin: any;
-    export const Alert: any;
-    export const Empty: any;
-    export const Progress: any;
-    export const Tooltip: any;
-    export const Space: any;
-    export const Form: any;
-    export const Input: any;
-    export const Modal: any;
-    export const Upload: any;
-    export const message: any;
-    export const notification: any;
-    export const Tabs: any;
-    export const Radio: any;
-    export const Checkbox: any;
-    export const RangePicker: any;
+    export const Table: AntdComponent;
+    export const Select: AntdComponent;
+    export const DatePicker: AntdComponent;
+    export const Card: AntdComponent;
+    export const Row: AntdComponent;
+    export const Col: AntdComponent;
+    export const Statistic: AntdComponent;
+    export const Tag: AntdComponent;
+    export const Button: AntdComponent;
+    export const Typography: AntdComponent;
+    export const Spin: AntdComponent;
+    export const Alert: AntdComponent;
+    export const Empty: AntdComponent;
+    export const Progress: AntdComponent;
+    export const Tooltip: AntdComponent;
+    export const Space: AntdComponent;
+    export const Form: AntdComponent;
+    export const Input: AntdComponent;
+    export const Modal: AntdComponent;
+    export const Upload: AntdComponent;
+    export const message: Record<string, unknown>;
+    export const notification: Record<string, unknown>;
+    export const Tabs: AntdComponent;
+    export const Radio: AntdComponent;
+    export const Checkbox: AntdComponent;
+    export const RangePicker: AntdComponent;
 }
 
 declare module 'react-toastify' {
-    export const toast: any;
-    export const ToastContainer: any;
-    export const Slide: any;
-    export const Zoom: any;
-    export const Flip: any;
-    export const Bounce: any;
+    export const toast: Record<string, unknown>;
+    export const ToastContainer: AntdComponent;
+    export const Slide: Record<string, unknown>;
+    export const Zoom: Record<string, unknown>;
+    export const Flip: Record<string, unknown>;
+    export const Bounce: Record<string, unknown>;
 }
 
 declare module 'react-bootstrap' {
-    export const Modal: any;
-    export const Button: any;
-    export const Form: any;
-    export const Container: any;
-    export const Row: any;
-    export const Col: any;
-    export const Card: any;
-    export const Alert: any;
-    export const Spinner: any;
-    export const Table: any;
-    export const Badge: any;
-    export const Nav: any;
-    export const Navbar: any;
-    export const Dropdown: any;
-    export const Tab: any;
-    export const Tabs: any;
+    export const Modal: AntdComponent;
+    export const Button: AntdComponent;
+    export const Form: AntdComponent;
+    export const Container: AntdComponent;
+    export const Row: AntdComponent;
+    export const Col: AntdComponent;
+    export const Card: AntdComponent;
+    export const Alert: AntdComponent;
+    export const Spinner: AntdComponent;
+    export const Table: AntdComponent;
+    export const Badge: AntdComponent;
+    export const Nav: AntdComponent;
+    export const Navbar: AntdComponent;
+    export const Dropdown: AntdComponent;
+    export const Tab: AntdComponent;
+    export const Tabs: AntdComponent;
 }
 
 declare module '@zxing/library' {
@@ -75,7 +78,7 @@ declare module '@zxing/library' {
 }
 
 declare module 'react-webcam' {
-    const Webcam: any;
+    const Webcam: AntdComponent;
     export default Webcam;
 }
 
@@ -89,67 +92,139 @@ declare module 'bcryptjs' {
 }
 
 declare module '@tanstack/react-virtual' {
-    export const useVirtualizer: any;
-    export const VirtualItem: any;
+    export function useVirtualizer(options: Record<string, unknown>): Record<string, unknown>;
+    export interface VirtualItem {
+        index: number;
+        start: number;
+        end: number;
+        size: number;
+        key: string | number;
+    }
 }
 
 declare module 'awilix' {
-    export const createContainer: any;
-    export const asClass: any;
-    export const asFunction: any;
-    export const asValue: any;
-    export const InjectionMode: any;
-    export type AwilixContainer = any;
+    export function createContainer(options?: Record<string, unknown>): AwilixContainer;
+    export function asClass(ctor: unknown, options?: Record<string, unknown>): unknown;
+    export function asFunction(fn: unknown, options?: Record<string, unknown>): unknown;
+    export function asValue(value: unknown): unknown;
+    export const InjectionMode: Record<string, unknown>;
+    export interface AwilixContainer {
+        register(registrations: Record<string, unknown>): AwilixContainer;
+        resolve<T>(name: string): T;
+        createScope(): AwilixContainer;
+    }
 }
 
 declare module 'web-vitals' {
-    export const onCLS: any;
-    export const onFID: any;
-    export const onFCP: any;
-    export const onLCP: any;
-    export const onTTFB: any;
+    type MetricCallback = (metric: Record<string, unknown>) => void;
+    export function onCLS(callback: MetricCallback): void;
+    export function onFID(callback: MetricCallback): void;
+    export function onFCP(callback: MetricCallback): void;
+    export function onLCP(callback: MetricCallback): void;
+    export function onTTFB(callback: MetricCallback): void;
 }
 
 declare module '@auth0/auth0-spa-js' {
+    export interface Auth0ClientOptions extends Record<string, unknown> {
+        domain: string;
+        client_id: string;
+        redirect_uri?: string;
+        audience?: string;
+        scope?: string;
+    }
+    export interface Auth0User extends Record<string, unknown> {
+        sub?: string;
+        name?: string;
+        email?: string;
+    }
     export default class Auth0Client {
-        constructor(options: any);
-        loginWithRedirect(options?: any): Promise<void>;
-        handleRedirectCallback(): Promise<any>;
-        getTokenSilently(options?: any): Promise<string>;
-        getUser(): Promise<any>;
-        logout(options?: any): void;
+        constructor(options: Auth0ClientOptions);
+        loginWithRedirect(options?: Record<string, unknown>): Promise<void>;
+        handleRedirectCallback(): Promise<{ appState?: Record<string, unknown> }>;
+        getTokenSilently(options?: Record<string, unknown>): Promise<string>;
+        getUser(): Promise<Auth0User | undefined>;
+        logout(options?: Record<string, unknown>): void;
         isAuthenticated(): Promise<boolean>;
     }
 }
 
 declare module 'winston' {
-    export const createLogger: any;
-    export const format: any;
-    export const transports: any;
-    export const Logger: any;
+    export interface LogEntry extends Record<string, unknown> {
+        level: string;
+        message: string;
+        timestamp?: string;
+    }
+    export interface LoggerOptions extends Record<string, unknown> {
+        level?: string;
+        format?: unknown;
+        transports?: unknown[];
+    }
+    export function createLogger(options?: LoggerOptions): Logger;
+    export const format: Record<string, unknown>;
+    export const transports: Record<string, unknown>;
+    export interface Logger {
+        debug(message: string, meta?: Record<string, unknown>): Logger;
+        info(message: string, meta?: Record<string, unknown>): Logger;
+        warn(message: string, meta?: Record<string, unknown>): Logger;
+        error(message: string, meta?: Record<string, unknown>): Logger;
+    }
 }
 
 declare module 'expo-camera' {
-    export const Camera: any;
-    export const CameraType: any;
-    export const BarCodeScanner: any;
+    export const Camera: React.ComponentType<Record<string, unknown>>;
+    export const CameraType: Record<string, unknown>;
+    export const BarCodeScanner: React.ComponentType<Record<string, unknown>>;
 }
 
 declare module 'expo-location' {
-    export const requestForegroundPermissionsAsync: any;
-    export const getCurrentPositionAsync: any;
-    export const watchPositionAsync: any;
+    export interface PermissionStatus {
+        status: string;
+        expires?: string;
+    }
+    export interface Location {
+        coords: {
+            latitude: number;
+            longitude: number;
+            altitude?: number;
+            accuracy?: number;
+            altitudeAccuracy?: number;
+            heading?: number;
+            speed?: number;
+        };
+        timestamp: number;
+    }
+    export function requestForegroundPermissionsAsync(): Promise<PermissionStatus>;
+    export function getCurrentPositionAsync(options?: Record<string, unknown>): Promise<Location>;
+    export function watchPositionAsync(
+        options: Record<string, unknown>,
+        callback: (location: Location) => void
+    ): Promise<() => void>;
 }
 
 declare module 'react-native' {
-    export const View: any;
-    export const Text: any;
-    export const StyleSheet: any;
-    export const TouchableOpacity: any;
-    export const ActivityIndicator: any;
-    export const Platform: any;
-    export const Dimensions: any;
-    export const Alert: any;
+    export const View: React.ComponentType<Record<string, unknown>>;
+    export const Text: React.ComponentType<Record<string, unknown>>;
+    export const StyleSheet: {
+        create(styles: Record<string, Record<string, unknown>>): Record<string, number>;
+    };
+    export const TouchableOpacity: React.ComponentType<Record<string, unknown>>;
+    export const ActivityIndicator: React.ComponentType<Record<string, unknown>>;
+    export const Platform: {
+        OS: string;
+        Version?: number;
+        select<T>(specifiers: Record<string, T>): T;
+    };
+    export const Dimensions: {
+        get(dim: 'window' | 'screen'): { width: number; height: number };
+    };
+    export const Alert: {
+        alert(
+            title: string,
+            message?: string,
+            buttons?: Array<{ text: string; onPress?: () => void }>,
+            options?: Record<string, unknown>
+        ): void;
+    };
 }
 
 declare module '@react-native-async-storage/async-storage' {
