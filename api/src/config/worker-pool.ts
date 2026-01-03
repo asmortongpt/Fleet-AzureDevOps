@@ -63,7 +63,7 @@ export class WorkerPool extends EventEmitter {
       maxWorkers: config.maxWorkers || Math.max(4, os.cpus().length - 1),
       idleTimeout: config.idleTimeout || 300000, // 5 minutes
       taskTimeout: config.taskTimeout || 120000, // 2 minutes
-      workerScript: config.workerScript || path.join(__dirname, `../workers/task-worker.js`)
+      workerScript: config.workerScript || path.join(__dirname, `../workers/task-worker.ts`)
     }
 
     // Initialize minimum workers
@@ -86,7 +86,12 @@ export class WorkerPool extends EventEmitter {
    */
   private createWorker(): Worker {
     const workerId = this.nextWorkerId++
-    const worker = new Worker(this.config.workerScript)
+    // Ensure we use tsx to run the worker if it's a TS file
+    const workerOptions = this.config.workerScript.endsWith('.ts')
+      ? { execArgv: ['--import', 'tsx/esm', '--no-warnings'] }
+      : {};
+
+    const worker = new Worker(this.config.workerScript, workerOptions)
 
     const workerInfo: WorkerInfo = {
       worker,
