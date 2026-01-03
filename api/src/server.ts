@@ -339,7 +339,7 @@ app.use('/api/charging-stations', chargingStationsRouter)
 app.use('/api/documents', documentsRouter)
 app.use('/api/fleet-documents', fleetDocumentsRouter)
 // DISABLED: app.use('/api/attachments', attachmentsRouter)
-app.use('/api/ocr', ocrRouter)
+// DISABLED: app.use('/api/ocr', ocrRouter)
 
 // Financial & Cost Management Routes
 app.use('/api/costs', costsRouter)
@@ -503,8 +503,12 @@ let server: any;
 const startServer = async () => {
   try {
     // Initialize database connection manager FIRST
-    await initializeConnectionManager();
-    console.log('Database connection manager initialized');
+    try {
+      await initializeConnectionManager();
+      console.log('Database connection manager initialized');
+    } catch (error) {
+      console.error('Failed to initialize Connection Manager (Running in Degraded Mode):', error);
+    }
 
     server = app.listen(PORT, () => {
       console.log(`Server running on http://localhost:${PORT}`)

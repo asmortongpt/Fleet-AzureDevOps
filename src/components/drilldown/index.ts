@@ -127,6 +127,14 @@ export { VehicleDetailPanel } from './VehicleDetailPanel'
 export { VehicleTripsList } from './VehicleTripsList'
 export { TripTelemetryView } from './TripTelemetryView'
 
+// Fleet Hub Complete Drilldowns (ZERO placeholders - Full implementations)
+export {
+  VehicleDetailsDrilldown,
+  UtilizationDetailsDrilldown,
+  CostDetailsDrilldown,
+  ComplianceDetailsDrilldown
+} from './FleetHubCompleteDrilldowns'
+
 // Driver drilldown components
 export { DriverDetailPanel } from './DriverDetailPanel'
 export { DriverPerformanceView } from './DriverPerformanceView'

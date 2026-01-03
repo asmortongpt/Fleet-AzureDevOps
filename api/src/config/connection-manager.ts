@@ -68,8 +68,8 @@ export class ConnectionManager {
    */
   private createPools(): void {
     if (this.pools.size > 0) {
-return;
-}
+      return;
+    }
 
     for (const [poolType, config] of this.poolConfigs.entries()) {
       try {
@@ -220,7 +220,7 @@ return;
    */
   private async testConnection(pool: Pool, poolType: PoolType): Promise<void> {
     try {
-      // const client = await pool.connect()
+      const client = await pool.connect()
       const result = await client.query(`SELECT NOW() as now, current_user, version()`)
       console.log(`[${poolType}] Connection test successful:`, {
         user: result.rows[0].current_user,
@@ -299,11 +299,11 @@ return;
     const healthCheckInterval = setInterval(async () => {
       const pool = this.pools.get(poolType)
       if (!pool) {
-return
-}
+        return
+      }
 
       try {
-        // const client = await pool.connect()
+        const client = await pool.connect()
         await client.query(`SELECT 1`)
         client.release()
       } catch (error) {
@@ -322,7 +322,7 @@ return
 
     for (const [poolType, pool] of this.pools.entries()) {
       try {
-        // const client = await pool.connect()
+        const client = await pool.connect()
         const result = await client.query(`SELECT NOW() as timestamp, current_user`)
         client.release()
 
@@ -355,8 +355,8 @@ return
   } | null {
     const pool = this.pools.get(poolType)
     if (!pool) {
-return null
-}
+      return null
+    }
 
     return {
       totalCount: pool.totalCount,
@@ -389,7 +389,7 @@ return null
     }
 
     try {
-      // const client = await replicaPool.connect()
+      const client = await replicaPool.connect()
 
       // PostgreSQL-specific replica lag check
       const result = await client.query(`
