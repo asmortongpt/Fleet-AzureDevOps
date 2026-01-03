@@ -1,0 +1,126 @@
+{
+  "url": "https://fleet.capitaltechalliance.com",
+  "timestamp": "2026-01-03T19:10:04.290Z",
+  "reactRoot": {
+    "exists": true,
+    "innerHTML": "",
+    "childElementCount": 0,
+    "classList": []
+  },
+  "hasReact": false,
+  "hasViteClient": false,
+  "scripts": [
+    {
+      "src": "https://fleet.capitaltechalliance.com/assets/js/index-4gv5fctX.js",
+      "type": "module",
+      "async": false,
+      "defer": false
+    }
+  ],
+  "metaTags": [
+    {
+      "name": "",
+      "content": ""
+    },
+    {
+      "name": "viewport",
+      "content": "width=device-width, initial-scale=1.0, viewport-fit=cover"
+    },
+    {
+      "name": "",
+      "content": "no-cache, no-store, must-revalidate"
+    },
+    {
+      "name": "",
+      "content": "no-cache"
+    },
+    {
+      "name": "",
+      "content": "0"
+    },
+    {
+      "name": "",
+      "content": "nosniff"
+    },
+    {
+      "name": "",
+      "content": "DENY"
+    },
+    {
+      "name": "",
+      "content": "1; mode=block"
+    },
+    {
+      "name": "referrer",
+      "content": "strict-origin-when-cross-origin"
+    },
+    {
+      "name": "",
+      "content": "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.jsdelivr.net https://unpkg.com https://maps.googleapis.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: blob: https:; connect-src 'self' ws://localhost:* wss://localhost:* http://localhost:* https://localhost:* https://api.fleet-management.com https://*.azure.com https://*.microsoft.com https://maps.googleapis.com; media-src 'self' blob:; object-src 'none'; frame-src 'self' https://login.microsoftonline.com; frame-ancestors 'none'; base-uri 'self'; form-action 'self'; manifest-src 'self'; worker-src 'self' blob:;"
+    },
+    {
+      "name": "description",
+      "content": "Comprehensive multi-tenant fleet management system with real-time tracking, predictive maintenance, and advanced analytics"
+    },
+    {
+      "name": "theme-color",
+      "content": "#1e40af"
+    },
+    {
+      "name": "mobile-web-app-capable",
+      "content": "yes"
+    },
+    {
+      "name": "apple-mobile-web-app-capable",
+      "content": "yes"
+    },
+    {
+      "name": "apple-mobile-web-app-status-bar-style",
+      "content": "black-translucent"
+    },
+    {
+      "name": "apple-mobile-web-app-title",
+      "content": "Fleet"
+    },
+    {
+      "name": "application-name",
+      "content": "Fleet"
+    },
+    {
+      "name": "msapplication-TileColor",
+      "content": "#1e40af"
+    },
+    {
+      "name": "msapplication-tap-highlight",
+      "content": "no"
+    }
+  ],
+  "consoleMessages": [
+    {
+      "type": "error",
+      "text": "X-Frame-Options may only be set via an HTTP header sent along with a document. It may not be set inside <meta>.",
+      "location": {
+        "url": "https://fleet.capitaltechalliance.com/",
+        "lineNumber": 17,
+        "columnNumber": 0
+      }
+    },
+    {
+      "type": "error",
+      "text": "The Content Security Policy directive 'frame-ancestors' is ignored when delivered via a <meta> element.",
+      "location": {
+        "url": "https://fleet.capitaltechalliance.com/",
+        "lineNumber": 23,
+        "columnNumber": 0
+      }
+    }
+  ],
+  "jsErrors": [
+    {
+      "message": "Cannot access 'n' before initialization",
+      "stack": "ReferenceError: Cannot access 'n' before initialization\n    at https://fleet.capitaltechalliance.com/assets/js/chart-vendor-oJ6H3020.js:1:26869",
+      "name": "ReferenceError"
+    }
+  ],
+  "networkErrors": []
+}
