@@ -109,7 +109,7 @@ export function CommandCenterLayout({ children }: CommandCenterLayoutProps): JSX
                 </div>
 
                 {/* Content Wrapper - responsive padding */}
-                <div className="flex-1 overflow-auto relative p-4 lg:p-6">
+                <div className="flex-1 overflow-auto relative p-4 lg:p-6" tabIndex={0} role="region" aria-label="Main content area">
                     <div className="absolute inset-0 z-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:24px_24px]"></div>
                     <div className="relative z-10 h-full">
                         {children}

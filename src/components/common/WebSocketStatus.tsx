@@ -54,7 +54,7 @@ export function WebSocketStatus({
     switch (connectionStatus) {
       case 'connected':
         return {
-          color: 'bg-emerald-500 hover:bg-emerald-600',
+          color: 'bg-emerald-600 hover:bg-emerald-700',
           textColor: 'text-emerald-600',
           label: 'Live',
           icon: <Wifi className="h-3 w-3" />,
