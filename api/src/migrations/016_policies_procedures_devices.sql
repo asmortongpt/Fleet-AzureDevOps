@@ -51,10 +51,10 @@ CREATE TABLE IF NOT EXISTS procedures (
 CREATE TABLE IF NOT EXISTS procedure_completions (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     tenant_id UUID NOT NULL REFERENCES tenants(id) ON DELETE CASCADE,
-    procedure_id INTEGER NOT NULL REFERENCES procedures(id) ON DELETE CASCADE,
+    procedure_id UUID NOT NULL REFERENCES procedures(id) ON DELETE CASCADE,
     vehicle_id UUID REFERENCES vehicles(id) ON DELETE CASCADE,
     driver_id UUID REFERENCES drivers(id) ON DELETE CASCADE,
-    completed_by INTEGER NOT NULL REFERENCES users(id),
+    completed_by UUID NOT NULL REFERENCES users(id),
     completion_date TIMESTAMP NOT NULL,
     duration_minutes INTEGER,
     notes TEXT,
@@ -92,7 +92,7 @@ CREATE TABLE IF NOT EXISTS vehicle_devices (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     tenant_id UUID NOT NULL REFERENCES tenants(id) ON DELETE CASCADE,
     vehicle_id UUID NOT NULL REFERENCES vehicles(id) ON DELETE CASCADE,
-    device_id INTEGER NOT NULL REFERENCES tracking_devices(id) ON DELETE CASCADE,
+    device_id UUID NOT NULL REFERENCES tracking_devices(id) ON DELETE CASCADE,
     installation_date TIMESTAMP NOT NULL,
     installed_by UUID REFERENCES users(id),
     installation_location VARCHAR(255), -- 'OBD-II port', 'dashboard', 'under_seat', 'rear_window'
@@ -116,7 +116,7 @@ CREATE TABLE IF NOT EXISTS vehicle_devices (
 -- Device Data/Telemetry
 CREATE TABLE IF NOT EXISTS device_telemetry (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    vehicle_device_id INTEGER NOT NULL REFERENCES vehicle_devices(id) ON DELETE CASCADE,
+    vehicle_device_id UUID NOT NULL REFERENCES vehicle_devices(id) ON DELETE CASCADE,
     timestamp TIMESTAMP NOT NULL,
     data_type VARCHAR(100), -- 'location', 'diagnostics', 'fuel', 'temperature', 'tire_pressure'
     raw_data JSONB NOT NULL,
@@ -166,7 +166,7 @@ CREATE TABLE IF NOT EXISTS compliance_requirements (
 CREATE TABLE IF NOT EXISTS compliance_records (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     tenant_id UUID NOT NULL REFERENCES tenants(id) ON DELETE CASCADE,
-    requirement_id INTEGER NOT NULL REFERENCES compliance_requirements(id) ON DELETE CASCADE,
+    requirement_id UUID NOT NULL REFERENCES compliance_requirements(id) ON DELETE CASCADE,
     vehicle_id UUID REFERENCES vehicles(id) ON DELETE CASCADE,
     driver_id UUID REFERENCES drivers(id) ON DELETE CASCADE,
     due_date DATE NOT NULL,
@@ -210,7 +210,7 @@ CREATE TABLE IF NOT EXISTS training_programs (
 CREATE TABLE IF NOT EXISTS training_completions (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     tenant_id UUID NOT NULL REFERENCES tenants(id) ON DELETE CASCADE,
-    program_id INTEGER NOT NULL REFERENCES training_programs(id) ON DELETE CASCADE,
+    program_id UUID NOT NULL REFERENCES training_programs(id) ON DELETE CASCADE,
     user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
     driver_id UUID REFERENCES drivers(id),
     completion_date DATE NOT NULL,
@@ -254,7 +254,7 @@ CREATE OR REPLACE VIEW v_active_vehicle_devices AS
 SELECT
     vd.id,
     vd.tenant_id,
-    v.unit_number,
+    v.number,
     v.make,
     v.model,
     td.device_type,

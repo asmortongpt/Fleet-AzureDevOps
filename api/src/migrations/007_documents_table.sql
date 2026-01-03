@@ -25,56 +25,41 @@ END $$;
 -- ============================================================================
 
 CREATE TABLE IF NOT EXISTS documents (
-    -- Primary Key
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-
-    -- Foreign Keys (at least one must be set)
-    vehicle_id UUID REFERENCES vehicles(id) ON DELETE CASCADE,
-    driver_id UUID REFERENCES drivers(id) ON DELETE CASCADE,
-    work_order_id UUID REFERENCES work_orders(id) ON DELETE CASCADE,
-
-    -- Document Classification
-    document_type document_type_enum NOT NULL,
-    title VARCHAR(255) NOT NULL,
-    description TEXT,
-
-    -- File Information
-    file_name VARCHAR(255) NOT NULL,
-    file_size BIGINT NOT NULL CHECK (file_size > 0),
-    mime_type VARCHAR(100) NOT NULL,
-    storage_path TEXT NOT NULL,
-
-    -- OCR Data
-    ocr_text TEXT,
-
-    -- Flexible Metadata
-    metadata JSONB DEFAULT '{}',
-
-    -- Upload Information
-    uploaded_by UUID REFERENCES users(id) ON DELETE SET NULL,
-    uploaded_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-
-    -- Document Expiration (for time-sensitive documents like insurance)
-    expires_at TIMESTAMP WITH TIME ZONE,
-
-    -- Archive and Soft Delete
-    is_archived BOOLEAN DEFAULT false,
-    archived_at TIMESTAMP WITH TIME ZONE,
-
-    -- Multi-tenancy
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     tenant_id UUID NOT NULL REFERENCES tenants(id) ON DELETE CASCADE,
-
-    -- Timestamps
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-    updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
 
-    -- Constraints
-    CONSTRAINT documents_entity_check CHECK (
+-- Ensure columns exist if table was already created by another migration
+ALTER TABLE documents ADD COLUMN IF NOT EXISTS vehicle_id UUID REFERENCES vehicles(id) ON DELETE CASCADE;
+ALTER TABLE documents ADD COLUMN IF NOT EXISTS driver_id UUID REFERENCES drivers(id) ON DELETE CASCADE;
+ALTER TABLE documents ADD COLUMN IF NOT EXISTS work_order_id UUID REFERENCES work_orders(id) ON DELETE CASCADE;
+ALTER TABLE documents ADD COLUMN IF NOT EXISTS document_type document_type_enum;
+ALTER TABLE documents ADD COLUMN IF NOT EXISTS title VARCHAR(255);
+ALTER TABLE documents ADD COLUMN IF NOT EXISTS description TEXT;
+ALTER TABLE documents ADD COLUMN IF NOT EXISTS file_name VARCHAR(255);
+ALTER TABLE documents ADD COLUMN IF NOT EXISTS file_size BIGINT;
+ALTER TABLE documents ADD COLUMN IF NOT EXISTS mime_type VARCHAR(100);
+ALTER TABLE documents ADD COLUMN IF NOT EXISTS storage_path TEXT;
+ALTER TABLE documents ADD COLUMN IF NOT EXISTS ocr_text TEXT;
+ALTER TABLE documents ADD COLUMN IF NOT EXISTS metadata JSONB DEFAULT '{}';
+ALTER TABLE documents ADD COLUMN IF NOT EXISTS uploaded_by UUID REFERENCES users(id) ON DELETE SET NULL;
+ALTER TABLE documents ADD COLUMN IF NOT EXISTS uploaded_at TIMESTAMP WITH TIME ZONE DEFAULT NOW();
+ALTER TABLE documents ADD COLUMN IF NOT EXISTS expires_at TIMESTAMP WITH TIME ZONE;
+ALTER TABLE documents ADD COLUMN IF NOT EXISTS is_archived BOOLEAN DEFAULT false;
+ALTER TABLE documents ADD COLUMN IF NOT EXISTS archived_at TIMESTAMP WITH TIME ZONE;
+
+-- Add constraints if missing
+DO $$ BEGIN
+    ALTER TABLE documents ADD CONSTRAINT documents_entity_check CHECK (
         vehicle_id IS NOT NULL OR
         driver_id IS NOT NULL OR
         work_order_id IS NOT NULL
-    )
-);
+    );
+EXCEPTION
+    WHEN duplicate_object OR duplicate_table OR others THEN null;
+END $$;
 
 -- ============================================================================
 -- Indexes for Performance
@@ -153,7 +138,7 @@ SELECT
     d.file_name,
     d.expires_at,
     d.vehicle_id,
-    v.make || ' ' || v.model || ' (' || v.unit_number || ')' AS vehicle_info,
+    v.make || ' ' || v.model || ' (' || v.number || ')' AS vehicle_info,
     d.driver_id,
     dr.first_name || ' ' || dr.last_name AS driver_name,
     d.tenant_id,

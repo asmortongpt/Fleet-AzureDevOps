@@ -97,6 +97,7 @@ async function runMigration(filename: string): Promise<void> {
     // Start transaction
     await client.query('BEGIN');
 
+    console.log(`⏳ Applying migration: ${filename}...`);
     // Run the migration SQL
     await client.query(sql);
 

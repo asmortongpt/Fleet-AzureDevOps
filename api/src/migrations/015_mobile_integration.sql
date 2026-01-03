@@ -32,7 +32,7 @@ CREATE TABLE IF NOT EXISTS vehicle_inspections (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     tenant_id UUID NOT NULL,
     vehicle_id UUID NOT NULL REFERENCES vehicles(id) ON DELETE CASCADE,
-    inspector_id INTEGER NOT NULL REFERENCES users(id),
+    inspector_id UUID NOT NULL REFERENCES users(id),
     mobile_id VARCHAR(255) UNIQUE, -- For offline sync
     inspection_type VARCHAR(50) NOT NULL CHECK (inspection_type IN ('pre-trip', 'post-trip', 'daily', 'weekly', 'monthly')),
     checklist_data JSONB NOT NULL, -- Flexible checklist structure
@@ -141,7 +141,7 @@ CREATE TABLE IF NOT EXISTS damage_detections (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     tenant_id UUID NOT NULL,
     vehicle_id UUID NOT NULL REFERENCES vehicles(id),
-    reported_by INTEGER NOT NULL REFERENCES users(id),
+    reported_by UUID NOT NULL REFERENCES users(id),
     photo_url TEXT NOT NULL,
     ai_detections JSONB NOT NULL, -- Array of detected damages with coordinates
     severity VARCHAR(20) NOT NULL CHECK (severity IN ('minor', 'moderate', 'major', 'severe')),
@@ -168,7 +168,7 @@ CREATE TABLE IF NOT EXISTS sync_conflicts (
     device_id VARCHAR(255) NOT NULL,
     conflict_type VARCHAR(50) NOT NULL, -- 'inspection', 'report', 'hos_log', etc.
     mobile_id VARCHAR(255) NOT NULL,
-    server_id INTEGER,
+    server_id UUID,
     mobile_data JSONB NOT NULL,
     server_data JSONB NOT NULL,
     resolution VARCHAR(20), -- 'server_wins', 'mobile_wins', 'manual'
@@ -312,10 +312,10 @@ COMMENT ON TABLE sync_conflicts IS 'Offline sync conflicts requiring resolution'
 COMMENT ON TABLE mobile_analytics IS 'Mobile app usage analytics';
 
 -- =====================================================
--- Seed Data (optional - for testing)
+-- Seed Data (commented out due to UUID type mismatch)
 -- =====================================================
 
--- Sample inspection checklist structure
+/*
 INSERT INTO vehicle_inspections (
     tenant_id,
     vehicle_id,
@@ -327,7 +327,7 @@ INSERT INTO vehicle_inspections (
     inspected_at
 )
 SELECT
-    1, -- tenant_id
+    (SELECT id FROM tenants LIMIT 1), -- tenant_id
     v.id,
     u.id,
     'SAMPLE_MOBILE_' || v.id,
@@ -343,16 +343,17 @@ SELECT
     CURRENT_TIMESTAMP - INTERVAL '1 day'
 FROM vehicles v
 CROSS JOIN users u
-WHERE v.id <= 3 AND u.id = 1
+WHERE v.id IN (SELECT id FROM vehicles LIMIT 3) AND u.id IN (SELECT id FROM users LIMIT 1)
 LIMIT 3
 ON CONFLICT (mobile_id) DO NOTHING;
+*/
 
 -- =====================================================
--- Grant Permissions
+-- Grant Permissions (commented out for local development)
 -- =====================================================
 
-GRANT SELECT, INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA public TO fleet_user;
-GRANT USAGE, SELECT ON ALL SEQUENCES IN SCHEMA public TO fleet_user;
+-- GRANT SELECT, INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA public TO fleet_user;
+-- GRANT USAGE, SELECT ON ALL SEQUENCES IN SCHEMA public TO fleet_user;
 
 -- =====================================================
 -- Completion

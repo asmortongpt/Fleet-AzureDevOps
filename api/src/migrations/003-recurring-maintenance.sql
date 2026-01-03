@@ -198,6 +198,7 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
+DROP TRIGGER IF EXISTS update_maintenance_schedules_timestamp ON maintenance_schedules;
 CREATE TRIGGER update_maintenance_schedules_timestamp
 BEFORE UPDATE ON maintenance_schedules
 FOR EACH ROW

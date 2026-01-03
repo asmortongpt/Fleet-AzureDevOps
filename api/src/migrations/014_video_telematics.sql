@@ -8,7 +8,7 @@
 
 CREATE TABLE IF NOT EXISTS vehicle_cameras (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  vehicle_id INT NOT NULL REFERENCES vehicles(id) ON DELETE CASCADE,
+  vehicle_id UUID NOT NULL REFERENCES vehicles(id) ON DELETE CASCADE,
   external_camera_id VARCHAR(255), -- Provider's camera ID
   camera_type VARCHAR(50) NOT NULL, -- 'forward', 'driver_facing', 'rear', 'side_left', 'side_right', 'cargo'
   camera_name VARCHAR(100),
@@ -53,10 +53,10 @@ CREATE TABLE IF NOT EXISTS video_safety_events (
   external_event_id VARCHAR(255) UNIQUE,
 
   -- Relationships
-  vehicle_id INT NOT NULL REFERENCES vehicles(id) ON DELETE CASCADE,
-  driver_id INT REFERENCES drivers(id) ON DELETE SET NULL,
-  camera_id INT REFERENCES vehicle_cameras(id) ON DELETE SET NULL,
-  provider_id INT REFERENCES telematics_providers(id),
+  vehicle_id UUID NOT NULL REFERENCES vehicles(id) ON DELETE CASCADE,
+  driver_id UUID REFERENCES drivers(id) ON DELETE SET NULL,
+  camera_id UUID REFERENCES vehicle_cameras(id) ON DELETE SET NULL,
+  provider_id UUID REFERENCES telematics_providers(id),
 
   -- Event classification
   event_type VARCHAR(50) NOT NULL, -- 'harsh_braking', 'harsh_acceleration', 'harsh_turning', 'speeding', 'distracted_driving', 'drowsiness', 'phone_use', 'smoking', 'no_seatbelt', 'following_too_close', 'lane_departure', 'collision'
@@ -101,14 +101,14 @@ CREATE TABLE IF NOT EXISTS video_safety_events (
 
   -- Evidence & retention
   marked_as_evidence BOOLEAN DEFAULT false,
-  evidence_locker_id INT,
+  evidence_locker_id UUID,
   retention_policy VARCHAR(30) DEFAULT 'standard', -- 'standard', 'extended', 'permanent', 'legal_hold'
   retention_expires_at TIMESTAMP,
   delete_after_days INT DEFAULT 90,
 
   -- Review & coaching
   reviewed BOOLEAN DEFAULT false,
-  reviewed_by INT REFERENCES users(id),
+  reviewed_by UUID REFERENCES users(id),
   reviewed_at TIMESTAMP,
   review_notes TEXT,
   coaching_required BOOLEAN DEFAULT false,
@@ -160,8 +160,8 @@ CREATE TABLE IF NOT EXISTS evidence_locker (
   legal_hold_released_at TIMESTAMP,
 
   -- Ownership & access
-  created_by INT NOT NULL REFERENCES users(id),
-  assigned_to INT REFERENCES users(id),
+  created_by UUID NOT NULL REFERENCES users(id),
+  assigned_to UUID REFERENCES users(id),
   department VARCHAR(100),
 
   -- Status
@@ -221,7 +221,7 @@ INSERT INTO ai_detection_models (model_name, model_type, supported_events, confi
   ('azure-computer-vision-4.0', 'object_detection', ARRAY['phone_use', 'smoking', 'no_seatbelt'], 0.80),
   ('yolo-v8-driver-monitoring', 'face_analysis', ARRAY['drowsiness', 'distracted_driving', 'looking_away'], 0.75),
   ('azure-face-api', 'face_analysis', ARRAY['drowsiness', 'distracted_driving'], 0.85),
-  ('azure-license-plate-ocr', 'plate_recognition', ARRAY[], 0.90)
+  ('azure-license-plate-ocr', 'plate_recognition', ARRAY[]::TEXT[], 0.90)
 ON CONFLICT (model_name) DO NOTHING;
 
 -- ============================================================================
@@ -230,7 +230,7 @@ ON CONFLICT (model_name) DO NOTHING;
 
 CREATE TABLE IF NOT EXISTS video_processing_queue (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  video_event_id INT NOT NULL REFERENCES video_safety_events(id) ON DELETE CASCADE,
+  video_event_id UUID NOT NULL REFERENCES video_safety_events(id) ON DELETE CASCADE,
 
   -- Processing tasks
   task_type VARCHAR(50) NOT NULL, -- 'ai_analysis', 'privacy_blur', 'transcoding', 'archival', 'download'
@@ -263,15 +263,15 @@ CREATE INDEX idx_video_queue_event ON video_processing_queue(video_event_id);
 
 CREATE TABLE IF NOT EXISTS driver_coaching_sessions (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  driver_id INT NOT NULL REFERENCES drivers(id) ON DELETE CASCADE,
-  video_event_id INT REFERENCES video_safety_events(id) ON DELETE SET NULL,
+  driver_id UUID NOT NULL REFERENCES drivers(id) ON DELETE CASCADE,
+  video_event_id UUID REFERENCES video_safety_events(id) ON DELETE SET NULL,
 
   -- Session details
   session_type VARCHAR(50), -- 'video_review', 'behavior_correction', 'positive_reinforcement', 'training'
   coaching_topic VARCHAR(100),
 
   -- Participants
-  coach_id INT REFERENCES users(id),
+  coach_id UUID REFERENCES users(id),
   coach_notes TEXT,
   driver_acknowledgment TEXT,
   driver_signature TEXT, -- Base64 encoded signature
@@ -308,8 +308,8 @@ CREATE TABLE IF NOT EXISTS video_analytics_summary (
   period_end DATE NOT NULL,
 
   -- Scope
-  vehicle_id INT REFERENCES vehicles(id) ON DELETE CASCADE,
-  driver_id INT REFERENCES drivers(id) ON DELETE CASCADE,
+  vehicle_id UUID REFERENCES vehicles(id) ON DELETE CASCADE,
+  driver_id UUID REFERENCES drivers(id) ON DELETE CASCADE,
 
   -- Event counts by type
   total_events INT DEFAULT 0,
@@ -356,10 +356,10 @@ CREATE INDEX idx_analytics_driver ON video_analytics_summary(driver_id, period_s
 
 CREATE TABLE IF NOT EXISTS video_privacy_audit (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  video_event_id INT NOT NULL REFERENCES video_safety_events(id) ON DELETE CASCADE,
+  video_event_id UUID NOT NULL REFERENCES video_safety_events(id) ON DELETE CASCADE,
 
   -- Access tracking
-  accessed_by INT NOT NULL REFERENCES users(id),
+  accessed_by UUID NOT NULL REFERENCES users(id),
   access_type VARCHAR(30), -- 'view', 'download', 'share', 'export', 'delete'
   access_reason TEXT,
 
@@ -441,14 +441,14 @@ CREATE OR REPLACE VIEW active_evidence_cases AS
 SELECT
   el.*,
   COUNT(vse.id) as video_count,
-  u.username as created_by_name,
-  u2.username as assigned_to_name
+  u.email as created_by_name,
+  u2.email as assigned_to_name
 FROM evidence_locker el
 LEFT JOIN video_safety_events vse ON vse.evidence_locker_id = el.id
 LEFT JOIN users u ON el.created_by = u.id
 LEFT JOIN users u2 ON el.assigned_to = u2.id
 WHERE el.status IN ('open', 'under_review')
-GROUP BY el.id, u.username, u2.username
+GROUP BY el.id, u.email, u2.email
 ORDER BY el.created_at DESC;
 
 -- Events requiring coaching
@@ -458,7 +458,7 @@ SELECT
   v.name as vehicle_name,
   v.vin,
   d.first_name || ' ' || d.last_name as driver_name,
-  d.employee_id
+  d.employee_number
 FROM video_safety_events vse
 JOIN vehicles v ON vse.vehicle_id = v.id
 LEFT JOIN drivers d ON vse.driver_id = d.id
@@ -471,7 +471,7 @@ CREATE OR REPLACE VIEW driver_video_scorecard AS
 SELECT
   d.id as driver_id,
   d.first_name || ' ' || d.last_name as driver_name,
-  d.employee_id,
+  d.employee_number,
   COUNT(vse.id) as total_events_30d,
   SUM(CASE WHEN vse.severity = 'critical' THEN 1 ELSE 0 END) as critical_events,
   SUM(CASE WHEN vse.severity = 'severe' THEN 1 ELSE 0 END) as severe_events,
@@ -483,7 +483,7 @@ FROM drivers d
 LEFT JOIN video_safety_events vse ON vse.driver_id = d.id
   AND vse.event_timestamp >= CURRENT_DATE - INTERVAL '30 days'
   AND vse.false_positive = false
-GROUP BY d.id, d.first_name, d.last_name, d.employee_id
+GROUP BY d.id, d.first_name, d.last_name, d.employee_number
 ORDER BY total_events_30d DESC;
 
 -- Camera health status

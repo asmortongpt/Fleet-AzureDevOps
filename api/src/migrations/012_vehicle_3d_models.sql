@@ -55,10 +55,10 @@ CREATE TABLE IF NOT EXISTS vehicle_3d_models (
 
   -- Version control
   version INT DEFAULT 1,
-  replaced_by_id INT REFERENCES vehicle_3d_models(id),
+  replaced_by_id UUID REFERENCES vehicle_3d_models(id),
 
   -- Metadata
-  created_by INT REFERENCES users(id),
+  created_by UUID REFERENCES users(id),
   notes TEXT,
   created_at TIMESTAMP DEFAULT NOW(),
   updated_at TIMESTAMP DEFAULT NOW(),
@@ -77,8 +77,8 @@ CREATE INDEX idx_3d_models_ar ON vehicle_3d_models(supports_ar) WHERE supports_a
 CREATE TABLE IF NOT EXISTS vehicle_3d_instances (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
 
-  vehicle_id INT NOT NULL REFERENCES vehicles(id) ON DELETE CASCADE,
-  model_3d_id INT NOT NULL REFERENCES vehicle_3d_models(id),
+  vehicle_id UUID NOT NULL REFERENCES vehicles(id) ON DELETE CASCADE,
+  model_3d_id UUID NOT NULL REFERENCES vehicle_3d_models(id),
 
   -- Current customization state
   exterior_color_hex VARCHAR(7), -- #RRGGBB
@@ -121,7 +121,7 @@ CREATE TABLE IF NOT EXISTS vehicle_3d_customization_catalog (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
 
   -- Applicability
-  model_3d_id INT REFERENCES vehicle_3d_models(id), -- NULL = applies to all
+  model_3d_id UUID REFERENCES vehicle_3d_models(id), -- NULL = applies to all
   make VARCHAR(100), -- Filter by make
   model VARCHAR(100), -- Filter by model
 
@@ -167,8 +167,8 @@ CREATE INDEX idx_customization_model ON vehicle_3d_customization_catalog(model_3
 CREATE TABLE IF NOT EXISTS ar_sessions (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
 
-  vehicle_id INT NOT NULL REFERENCES vehicles(id) ON DELETE CASCADE,
-  user_id INT REFERENCES users(id) ON DELETE SET NULL,
+  vehicle_id UUID NOT NULL REFERENCES vehicles(id) ON DELETE CASCADE,
+  user_id UUID REFERENCES users(id) ON DELETE SET NULL,
 
   -- Session details
   platform VARCHAR(20) NOT NULL, -- 'iOS', 'Android', 'WebXR'
@@ -218,8 +218,8 @@ CREATE INDEX idx_ar_sessions_platform ON ar_sessions(platform);
 CREATE TABLE IF NOT EXISTS vehicle_3d_renders (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
 
-  vehicle_id INT NOT NULL REFERENCES vehicles(id) ON DELETE CASCADE,
-  instance_3d_id INT REFERENCES vehicle_3d_instances(id),
+  vehicle_id UUID NOT NULL REFERENCES vehicles(id) ON DELETE CASCADE,
+  instance_3d_id UUID REFERENCES vehicle_3d_instances(id),
 
   -- Render details
   render_name VARCHAR(255) NOT NULL, -- 'hero_shot', 'front_3quarter', 'interior'
@@ -249,7 +249,7 @@ CREATE TABLE IF NOT EXISTS vehicle_3d_renders (
   render_time_seconds INT,
   file_size_kb INT,
 
-  rendered_by INT REFERENCES users(id),
+  rendered_by UUID REFERENCES users(id),
   rendered_at TIMESTAMP DEFAULT NOW(),
 
   created_at TIMESTAMP DEFAULT NOW()
@@ -265,7 +265,7 @@ CREATE INDEX idx_3d_renders_listing ON vehicle_3d_renders(used_in_listing) WHERE
 CREATE TABLE IF NOT EXISTS vehicle_3d_animations (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
 
-  model_3d_id INT NOT NULL REFERENCES vehicle_3d_models(id) ON DELETE CASCADE,
+  model_3d_id UUID NOT NULL REFERENCES vehicle_3d_models(id) ON DELETE CASCADE,
 
   -- Animation details
   animation_name VARCHAR(100) NOT NULL, -- 'door_open_driver', 'trunk_open', 'wheel_spin'
@@ -297,8 +297,8 @@ CREATE TABLE IF NOT EXISTS vehicle_3d_performance_metrics (
 
   -- Session identification
   session_id VARCHAR(100), -- Unique session identifier
-  vehicle_id INT REFERENCES vehicles(id),
-  model_3d_id INT REFERENCES vehicle_3d_models(id),
+  vehicle_id UUID REFERENCES vehicles(id),
+  model_3d_id UUID REFERENCES vehicle_3d_models(id),
 
   -- Device/platform
   platform VARCHAR(20), -- 'web', 'ios', 'android'
