@@ -9,11 +9,11 @@
 -- ============================================================================
 
 CREATE TABLE IF NOT EXISTS crash_incidents (
-  id SERIAL PRIMARY KEY,
-  tenant_id INTEGER NOT NULL REFERENCES tenants(id) ON DELETE CASCADE,
-  user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-  driver_id INTEGER REFERENCES drivers(id) ON DELETE SET NULL,
-  vehicle_id INTEGER REFERENCES vehicles(id) ON DELETE SET NULL,
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  tenant_id UUID NOT NULL REFERENCES tenants(id) ON DELETE CASCADE,
+  user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  driver_id UUID REFERENCES drivers(id) ON DELETE SET NULL,
+  vehicle_id UUID REFERENCES vehicles(id) ON DELETE SET NULL,
 
   -- Crash details
   timestamp TIMESTAMP WITH TIME ZONE NOT NULL,
@@ -54,9 +54,9 @@ CREATE INDEX idx_crash_incidents_location ON crash_incidents
 -- ============================================================================
 
 CREATE TABLE IF NOT EXISTS emergency_contacts (
-  id SERIAL PRIMARY KEY,
-  tenant_id INTEGER NOT NULL REFERENCES tenants(id) ON DELETE CASCADE,
-  user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  tenant_id UUID NOT NULL REFERENCES tenants(id) ON DELETE CASCADE,
+  user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
 
   -- Contact details
   name VARCHAR(255) NOT NULL,
@@ -83,9 +83,9 @@ CREATE INDEX idx_emergency_contacts_user ON emergency_contacts(user_id, is_activ
 -- ============================================================================
 
 CREATE TABLE IF NOT EXISTS crash_detection_settings (
-  id SERIAL PRIMARY KEY,
-  tenant_id INTEGER NOT NULL REFERENCES tenants(id) ON DELETE CASCADE,
-  user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  tenant_id UUID NOT NULL REFERENCES tenants(id) ON DELETE CASCADE,
+  user_id UUID REFERENCES users(id) ON DELETE CASCADE,
 
   -- Settings (user-level or fleet-level)
   enabled BOOLEAN DEFAULT TRUE,

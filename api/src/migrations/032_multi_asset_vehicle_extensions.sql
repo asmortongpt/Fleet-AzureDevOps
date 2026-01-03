@@ -47,6 +47,7 @@ ALTER TABLE vehicles
 
 -- Add multi-metric tracking fields (extend existing engine_hours)
 ALTER TABLE vehicles
+  ADD COLUMN IF NOT EXISTS engine_hours DECIMAL(10,2) DEFAULT 0,
   ADD COLUMN IF NOT EXISTS primary_metric VARCHAR(20) DEFAULT 'ODOMETER'
     CHECK (primary_metric IN ('ODOMETER', 'ENGINE_HOURS', 'PTO_HOURS', 'AUX_HOURS', 'CYCLES', 'CALENDAR')),
   ADD COLUMN IF NOT EXISTS pto_hours DECIMAL(10,2) DEFAULT 0,
@@ -193,7 +194,9 @@ ALTER TABLE maintenance_schedules
   ADD COLUMN IF NOT EXISTS last_service_cycles INTEGER,
   ADD COLUMN IF NOT EXISTS next_service_due_pto_hours DECIMAL(10,2),
   ADD COLUMN IF NOT EXISTS next_service_due_aux_hours DECIMAL(10,2),
-  ADD COLUMN IF NOT EXISTS next_service_due_cycles INTEGER;
+  ADD COLUMN IF NOT EXISTS next_service_due_engine_hours DECIMAL(10,2),
+  ADD COLUMN IF NOT EXISTS next_service_due_cycles INTEGER,
+  ADD COLUMN IF NOT EXISTS interval_type VARCHAR(20) DEFAULT 'days';
 
 -- Create function to check if maintenance is overdue based on multiple metrics
 CREATE OR REPLACE FUNCTION is_maintenance_overdue_multi_metric(
@@ -223,14 +226,14 @@ BEGIN
   END IF;
 
   -- Check calendar-based
-  IF v_schedule.interval_type = 'days' AND v_schedule.next_service_due_date < CURRENT_DATE THEN
+  IF v_schedule.interval_type = 'days' AND v_schedule.next_service_date < CURRENT_DATE THEN
     RETURN TRUE;
   END IF;
 
   -- Check based on trigger_metric
   CASE v_schedule.trigger_metric
     WHEN 'ODOMETER' THEN
-      IF v_schedule.next_service_due_odometer IS NOT NULL AND v_vehicle.odometer >= v_schedule.next_service_due_odometer THEN
+      IF v_schedule.next_service_mileage IS NOT NULL AND v_vehicle.odometer >= v_schedule.next_service_mileage THEN
         v_overdue := TRUE;
       END IF;
 
@@ -362,7 +365,8 @@ SELECT
   v.model,
   v.asset_type,
   v.primary_metric,
-  ms.service_type,
+
+  ms.type as service_type,
   ms.trigger_metric,
   ms.interval_type,
 
@@ -374,8 +378,8 @@ SELECT
   v.cycle_count as current_cycle_count,
 
   -- Next due values
-  ms.next_service_due_date,
-  ms.next_service_due_odometer,
+  ms.next_service_date,
+  ms.next_service_mileage,
   ms.next_service_due_engine_hours,
   ms.next_service_due_pto_hours,
   ms.next_service_due_aux_hours,
@@ -383,8 +387,8 @@ SELECT
 
   -- Calculations
   CASE
-    WHEN ms.trigger_metric = 'ODOMETER' AND ms.next_service_due_odometer IS NOT NULL
-    THEN ms.next_service_due_odometer - v.odometer
+    WHEN ms.trigger_metric = 'ODOMETER' AND ms.next_service_mileage IS NOT NULL
+    THEN ms.next_service_mileage - v.odometer
     WHEN ms.trigger_metric = 'ENGINE_HOURS' AND ms.next_service_due_engine_hours IS NOT NULL
     THEN ms.next_service_due_engine_hours - v.engine_hours
     WHEN ms.trigger_metric = 'PTO_HOURS' AND ms.next_service_due_pto_hours IS NOT NULL

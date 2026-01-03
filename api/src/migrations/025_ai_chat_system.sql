@@ -6,9 +6,9 @@
 
 -- Chat Sessions
 CREATE TABLE IF NOT EXISTS chat_sessions (
-    id SERIAL PRIMARY KEY,
-    tenant_id VARCHAR(100) NOT NULL,
-    user_id VARCHAR(255) NOT NULL,
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    tenant_id UUID NOT NULL,
+    user_id UUID NOT NULL,
 
     -- Session metadata
     title VARCHAR(500) DEFAULT 'New Chat',
@@ -40,8 +40,8 @@ CREATE TABLE IF NOT EXISTS chat_sessions (
 
 -- Chat Messages
 CREATE TABLE IF NOT EXISTS chat_messages (
-    id SERIAL PRIMARY KEY,
-    session_id INTEGER REFERENCES chat_sessions(id) ON DELETE CASCADE NOT NULL,
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    session_id UUID REFERENCES chat_sessions(id) ON DELETE CASCADE NOT NULL,
 
     -- Message content
     role VARCHAR(20) NOT NULL, -- 'user', 'assistant', 'system'
@@ -71,10 +71,10 @@ CREATE TABLE IF NOT EXISTS chat_messages (
 
 -- Chat session sharing (for team collaboration)
 CREATE TABLE IF NOT EXISTS chat_session_shares (
-    id SERIAL PRIMARY KEY,
-    session_id INTEGER REFERENCES chat_sessions(id) ON DELETE CASCADE NOT NULL,
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    session_id UUID REFERENCES chat_sessions(id) ON DELETE CASCADE NOT NULL,
 
-    shared_with_user_id VARCHAR(255),
+    shared_with_user_id UUID,
     shared_with_role VARCHAR(100),
 
     can_view BOOLEAN DEFAULT TRUE,
@@ -184,7 +184,7 @@ GROUP BY tenant_id;
 
 -- Insert default system prompts
 CREATE TABLE IF NOT EXISTS chat_system_prompts (
-    id SERIAL PRIMARY KEY,
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     prompt_name VARCHAR(100) UNIQUE NOT NULL,
     prompt_text TEXT NOT NULL,
     description TEXT,

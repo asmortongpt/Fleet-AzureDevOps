@@ -7,7 +7,7 @@
 -- ============================================================================
 
 CREATE TABLE IF NOT EXISTS ev_specifications (
-  id SERIAL PRIMARY KEY,
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   vehicle_id INT NOT NULL REFERENCES vehicles(id) ON DELETE CASCADE,
 
   -- Battery specs
@@ -52,7 +52,7 @@ CREATE INDEX idx_ev_specs_vehicle ON ev_specifications(vehicle_id);
 -- ============================================================================
 
 CREATE TABLE IF NOT EXISTS charging_stations (
-  id SERIAL PRIMARY KEY,
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
 
   -- Station identification
   station_id VARCHAR(100) NOT NULL UNIQUE, -- OCPP Charge Point ID
@@ -127,7 +127,7 @@ CREATE INDEX idx_charging_stations_facility ON charging_stations(facility_id);
 -- ============================================================================
 
 CREATE TABLE IF NOT EXISTS charging_connectors (
-  id SERIAL PRIMARY KEY,
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   station_id INT NOT NULL REFERENCES charging_stations(id) ON DELETE CASCADE,
 
   -- Connector identification
@@ -165,7 +165,7 @@ CREATE INDEX idx_connectors_vehicle ON charging_connectors(current_vehicle_id);
 -- ============================================================================
 
 CREATE TABLE IF NOT EXISTS charging_sessions (
-  id SERIAL PRIMARY KEY,
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
 
   -- OCPP transaction
   transaction_id VARCHAR(100) UNIQUE, -- OCPP transaction identifier
@@ -229,7 +229,7 @@ CREATE INDEX idx_charging_sessions_active ON charging_sessions(session_status) W
 -- ============================================================================
 
 CREATE TABLE IF NOT EXISTS charging_session_metrics (
-  id SERIAL PRIMARY KEY,
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   session_id INT NOT NULL REFERENCES charging_sessions(id) ON DELETE CASCADE,
 
   timestamp TIMESTAMP NOT NULL,
@@ -261,7 +261,7 @@ CREATE INDEX idx_session_metrics_session_time ON charging_session_metrics(sessio
 -- ============================================================================
 
 CREATE TABLE IF NOT EXISTS charging_reservations (
-  id SERIAL PRIMARY KEY,
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
 
   station_id INT NOT NULL REFERENCES charging_stations(id) ON DELETE CASCADE,
   connector_id INT REFERENCES charging_connectors(id) ON DELETE CASCADE,
@@ -300,7 +300,7 @@ CREATE INDEX idx_reservations_status ON charging_reservations(status);
 -- ============================================================================
 
 CREATE TABLE IF NOT EXISTS charging_schedules (
-  id SERIAL PRIMARY KEY,
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
 
   vehicle_id INT NOT NULL REFERENCES vehicles(id) ON DELETE CASCADE,
   driver_id INT REFERENCES users(id) ON DELETE SET NULL,
@@ -345,7 +345,7 @@ CREATE INDEX idx_charging_schedules_active ON charging_schedules(is_active) WHER
 -- ============================================================================
 
 CREATE TABLE IF NOT EXISTS carbon_footprint_log (
-  id SERIAL PRIMARY KEY,
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
 
   vehicle_id INT NOT NULL REFERENCES vehicles(id) ON DELETE CASCADE,
   log_date DATE NOT NULL,
@@ -382,7 +382,7 @@ CREATE INDEX idx_carbon_log_date ON carbon_footprint_log(log_date DESC);
 -- ============================================================================
 
 CREATE TABLE IF NOT EXISTS esg_reports (
-  id SERIAL PRIMARY KEY,
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
 
   -- Report period
   report_period VARCHAR(20) NOT NULL, -- 'monthly', 'quarterly', 'annual'
@@ -437,7 +437,7 @@ CREATE INDEX idx_esg_reports_period ON esg_reports(report_year DESC, report_mont
 -- ============================================================================
 
 CREATE TABLE IF NOT EXISTS battery_health_logs (
-  id SERIAL PRIMARY KEY,
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
 
   vehicle_id INT NOT NULL REFERENCES vehicles(id) ON DELETE CASCADE,
   timestamp TIMESTAMP NOT NULL DEFAULT NOW(),
@@ -481,7 +481,7 @@ CREATE INDEX idx_battery_health_alerts ON battery_health_logs(requires_attention
 -- ============================================================================
 
 CREATE TABLE IF NOT EXISTS ocpp_message_log (
-  id SERIAL PRIMARY KEY,
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
 
   station_id INT REFERENCES charging_stations(id) ON DELETE CASCADE,
 
@@ -510,7 +510,7 @@ CREATE INDEX idx_ocpp_log_action ON ocpp_message_log(action, timestamp DESC);
 -- ============================================================================
 
 CREATE TABLE IF NOT EXISTS charging_load_management (
-  id SERIAL PRIMARY KEY,
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
 
   facility_id INT, -- Optional facility reference
 

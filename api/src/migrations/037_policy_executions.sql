@@ -11,7 +11,7 @@
 CREATE TABLE IF NOT EXISTS policy_executions (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     tenant_id UUID NOT NULL,
-    policy_id INTEGER REFERENCES policy_templates(id) ON DELETE CASCADE NOT NULL,
+    policy_id UUID REFERENCES policy_templates(id) ON DELETE CASCADE NOT NULL,
 
     -- Trigger Information
     trigger_type VARCHAR(50) NOT NULL, -- 'scheduled', 'event', 'manual', 'violation'

@@ -7,7 +7,7 @@
 -- ============================================================================
 
 CREATE TABLE IF NOT EXISTS vehicle_cameras (
-  id SERIAL PRIMARY KEY,
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   vehicle_id INT NOT NULL REFERENCES vehicles(id) ON DELETE CASCADE,
   external_camera_id VARCHAR(255), -- Provider's camera ID
   camera_type VARCHAR(50) NOT NULL, -- 'forward', 'driver_facing', 'rear', 'side_left', 'side_right', 'cargo'
@@ -49,7 +49,7 @@ CREATE INDEX idx_vehicle_cameras_status ON vehicle_cameras(status);
 -- ============================================================================
 
 CREATE TABLE IF NOT EXISTS video_safety_events (
-  id SERIAL PRIMARY KEY,
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   external_event_id VARCHAR(255) UNIQUE,
 
   -- Relationships
@@ -144,7 +144,7 @@ CREATE INDEX idx_video_events_retention ON video_safety_events(retention_expires
 -- ============================================================================
 
 CREATE TABLE IF NOT EXISTS evidence_locker (
-  id SERIAL PRIMARY KEY,
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   locker_name VARCHAR(255) NOT NULL,
   locker_type VARCHAR(50), -- 'incident', 'accident', 'litigation', 'insurance_claim', 'training', 'compliance'
 
@@ -192,7 +192,7 @@ ALTER TABLE video_safety_events ADD CONSTRAINT fk_evidence_locker
 -- ============================================================================
 
 CREATE TABLE IF NOT EXISTS ai_detection_models (
-  id SERIAL PRIMARY KEY,
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   model_name VARCHAR(100) NOT NULL UNIQUE,
   model_type VARCHAR(50) NOT NULL, -- 'object_detection', 'face_analysis', 'behavior_classification', 'plate_recognition'
   model_version VARCHAR(50),
@@ -229,7 +229,7 @@ ON CONFLICT (model_name) DO NOTHING;
 -- ============================================================================
 
 CREATE TABLE IF NOT EXISTS video_processing_queue (
-  id SERIAL PRIMARY KEY,
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   video_event_id INT NOT NULL REFERENCES video_safety_events(id) ON DELETE CASCADE,
 
   -- Processing tasks
@@ -262,7 +262,7 @@ CREATE INDEX idx_video_queue_event ON video_processing_queue(video_event_id);
 -- ============================================================================
 
 CREATE TABLE IF NOT EXISTS driver_coaching_sessions (
-  id SERIAL PRIMARY KEY,
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   driver_id INT NOT NULL REFERENCES drivers(id) ON DELETE CASCADE,
   video_event_id INT REFERENCES video_safety_events(id) ON DELETE SET NULL,
 
@@ -300,7 +300,7 @@ CREATE INDEX idx_coaching_follow_up ON driver_coaching_sessions(follow_up_requir
 -- ============================================================================
 
 CREATE TABLE IF NOT EXISTS video_analytics_summary (
-  id SERIAL PRIMARY KEY,
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
 
   -- Time period
   period_type VARCHAR(20) NOT NULL, -- 'daily', 'weekly', 'monthly'
@@ -355,7 +355,7 @@ CREATE INDEX idx_analytics_driver ON video_analytics_summary(driver_id, period_s
 -- ============================================================================
 
 CREATE TABLE IF NOT EXISTS video_privacy_audit (
-  id SERIAL PRIMARY KEY,
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   video_event_id INT NOT NULL REFERENCES video_safety_events(id) ON DELETE CASCADE,
 
   -- Access tracking
