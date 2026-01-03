@@ -88,14 +88,16 @@ export class WorkerPool extends EventEmitter {
     const workerId = this.nextWorkerId++
     // Ensure we use tsx to run the worker if it's a TS file
     // For Node 20+, we use --import tsx. For older versions, --loader tsx.
+    console.log(`[WorkerPool] process.execArgv:`, JSON.stringify(process.execArgv));
     const workerOptions = this.config.workerScript.endsWith('.ts')
       ? {
         execArgv: [
-          '--loader', 'tsx',
+          '--import', 'tsx',
           '--no-warnings'
         ]
       }
       : {};
+    console.log(`[WorkerPool] Creating worker with options:`, JSON.stringify(workerOptions));
 
     const worker = new Worker(this.config.workerScript, workerOptions)
 
