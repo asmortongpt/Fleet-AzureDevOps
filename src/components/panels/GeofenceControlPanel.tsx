@@ -284,13 +284,13 @@ export function GeofenceControlPanel({
                                             )}
                                         </div>
                                         <div className="flex opacity-0 group-hover:opacity-100 transition-opacity">
-                                            <Button variant="ghost" size="sm" className="h-6 w-6 p-0" onClick={() => handleEdit(geofence)}>
+                                            <Button variant="ghost" size="sm" className="h-6 w-6 p-0" onClick={() => handleEdit(geofence)} aria-label={`Edit ${geofence.name} geofence`}>
                                                 <Pencil className="w-3 h-3" />
                                             </Button>
-                                            <Button variant="ghost" size="sm" className="h-6 w-6 p-0" onClick={() => handleDuplicate(geofence)}>
+                                            <Button variant="ghost" size="sm" className="h-6 w-6 p-0" onClick={() => handleDuplicate(geofence)} aria-label={`Duplicate ${geofence.name} geofence`}>
                                                 <Copy className="w-3 h-3" />
                                             </Button>
-                                            <Button variant="ghost" size="sm" className="h-6 w-6 p-0 hover:text-red-500" onClick={() => handleDelete(geofence.id)}>
+                                            <Button variant="ghost" size="sm" className="h-6 w-6 p-0 hover:text-red-500" onClick={() => handleDelete(geofence.id)} aria-label={`Delete ${geofence.name} geofence`}>
                                                 <Trash className="w-3 h-3" />
                                             </Button>
                                         </div>
