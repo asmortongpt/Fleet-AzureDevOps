@@ -16,7 +16,7 @@ export default defineConfig({
   ],
 
   use: {
-    baseURL: process.env.APP_URL || 'http://localhost:5173',
+    baseURL: process.env.APP_URL || 'http://localhost:5174',
     trace: 'retain-on-failure',
     screenshot: 'only-on-failure',
     video: 'retain-on-failure',
@@ -206,10 +206,11 @@ export default defineConfig({
   ],
 
   // Web server configuration for local development
-  webServer: process.env.CI ? undefined : {
-    command: 'npm run dev',
-    url: 'http://localhost:5173',
-    reuseExistingServer: !process.env.CI,
-    timeout: 120000
-  }
+  // Disabled - using already running servers
+  // webServer: process.env.CI ? undefined : {
+  //   command: 'npm run dev',
+  //   url: 'http://localhost:5174',
+  //   reuseExistingServer: true,
+  //   timeout: 120000
+  // }
 })
