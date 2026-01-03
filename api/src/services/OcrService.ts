@@ -229,8 +229,8 @@ export class OcrService {
    */
   private initializeProviders(): void {
     if (this.initialized) {
-return;
-}
+      return;
+    }
     try {
       // Initialize Google Cloud Vision
       if (process.env.GOOGLE_CLOUD_PROJECT && process.env.GOOGLE_APPLICATION_CREDENTIALS) {
@@ -559,8 +559,9 @@ return;
     return new Promise((resolve, reject) => {
       // Create worker thread for CPU-intensive OCR processing
       const worker = new Worker(
-        path.join(__dirname, '../workers/tesseract.worker.js'),
+        path.join(__dirname, '../workers/tesseract.worker.ts'),
         {
+          execArgv: ['--import', 'tsx', '--no-warnings'],
           workerData: {
             imageBuffer,
             languages: options.languages || ['eng'],
@@ -569,7 +570,6 @@ return;
               preserve_interword_spaces: '1'
             }
           }
-
         });
 
       // Timeout after 2 minutes
@@ -907,24 +907,24 @@ return;
     if (options.detectTables || options.detectForms) {
       // AWS Textract is best for tables and forms
       if (this.textractClient) {
-return OcrProvider.AWS_TEXTRACT;
-}
+        return OcrProvider.AWS_TEXTRACT;
+      }
     }
 
     if (options.detectHandwriting) {
       // Azure or AWS are best for handwriting
       if (this.azureVisionClient) {
-return OcrProvider.AZURE_VISION;
-}
+        return OcrProvider.AZURE_VISION;
+      }
       if (this.textractClient) {
-return OcrProvider.AWS_TEXTRACT;
-}
+        return OcrProvider.AWS_TEXTRACT;
+      }
     }
 
     // For general OCR, prefer Google Vision if available
     if (this.googleVisionClient) {
-return OcrProvider.GOOGLE_VISION;
-}
+      return OcrProvider.GOOGLE_VISION;
+    }
 
     // Default to Tesseract (always available, free)
     return OcrProvider.TESSERACT;
@@ -1144,7 +1144,7 @@ return OcrProvider.GOOGLE_VISION;
 
 
   // Export function to get singleton instance (lazy initialization)
-  
+
 
 
 
