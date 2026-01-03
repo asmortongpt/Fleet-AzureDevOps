@@ -6,6 +6,9 @@
 import pool from '../config/database'
 import { AuthRequest } from '../middleware/auth'
 
+// Type guard for Express Response
+import { Response, NextFunction } from 'express'
+
 export type FieldClassification = 'Internal' | 'Confidential' | 'Restricted' | 'Sensitive'
 
 interface MaskingRule {
@@ -378,6 +381,3 @@ export async function shouldMaskField(
 
   return !userRoles.some(role => rule.allowedRoles.includes(role))
 }
-
-// Type guard for Express Response
-import { Response, NextFunction } from 'express'

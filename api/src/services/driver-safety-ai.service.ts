@@ -268,7 +268,9 @@ class DriverSafetyAIService {
    * Calculate overall risk score from detected behaviors
    */
   private calculateRiskScore(behaviors: DetectedBehavior[]): number {
-    if (behaviors.length === 0) return 0;
+    if (behaviors.length === 0) {
+return 0;
+}
 
     const severityWeights = {
       minor: 1,

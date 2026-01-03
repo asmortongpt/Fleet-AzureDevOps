@@ -272,8 +272,11 @@ export class CostForecastingModel {
 
           if (prevAmount > 0) {
             const change = ((amount - prevAmount) / prevAmount) * 100
-            if (change > 10) trend = 'increasing'
-            else if (change < -10) trend = 'decreasing'
+            if (change > 10) {
+trend = 'increasing'
+} else if (change < -10) {
+trend = 'decreasing'
+}
           } else if (amount > 0) {
             trend = 'increasing'
           }
@@ -335,7 +338,9 @@ export class CostForecastingModel {
       const totalCost = parseFloat(costResult.rows[0]?.total_cost || '0')
       const totalMiles = parseFloat(milesResult.rows[0]?.total_miles || '0')
 
-      if (totalMiles === 0) return 0
+      if (totalMiles === 0) {
+return 0
+}
 
       return Math.round((totalCost / totalMiles) * 100) / 100
     } catch (error) {

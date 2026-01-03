@@ -412,7 +412,9 @@ export class DriversRepository extends GenericRepository<Driver> {
     tenantId: string,
     userId: string
   ): Promise<number> {
-    if (driverIds.length === 0) return 0
+    if (driverIds.length === 0) {
+return 0
+}
 
     const placeholders = driverIds.map((_, i) => `$${i + 3}`).join(', ')
 

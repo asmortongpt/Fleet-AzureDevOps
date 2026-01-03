@@ -343,7 +343,7 @@ router.post(
       }[] = []
 
       // Upload each file to Azure Blob Storage
-      for (const file of req.files as Express.Multer.File[]) {
+      for (const file of req.files) {
         try {
           // Determine media type based on MIME type and extension
           let mediaType: 'photo' | 'video' | 'lidar' = 'photo'

@@ -56,7 +56,9 @@ const getMigrationFiles = (): Migration[] => {
   const migrations: Migration[] = [];
 
   for (const dir of migrationDirs) {
-    if (!fs.existsSync(dir)) continue;
+    if (!fs.existsSync(dir)) {
+continue;
+}
 
     const files = fs.readdirSync(dir)
       .filter(f => f.endsWith('.sql'))

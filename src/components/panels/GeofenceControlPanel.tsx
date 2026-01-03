@@ -206,10 +206,10 @@ export function GeofenceControlPanel({
                         <Button variant="ghost" size="icon" className="h-8 w-8 hover:bg-black/5 rounded-full" onClick={() => {
                             resetForm();
                             setIsAddDialogOpen(true);
-                        }}>
+                        }} aria-label="Add new geofence">
                             <Plus className="w-4 h-4 text-slate-700" />
                         </Button>
-                        <Button variant="ghost" size="icon" className="h-8 w-8 hover:bg-black/5 rounded-full" onClick={onClose}>
+                        <Button variant="ghost" size="icon" className="h-8 w-8 hover:bg-black/5 rounded-full" onClick={onClose} aria-label="Close geofence panel">
                             <X className="w-4 h-4 text-slate-500" />
                         </Button>
                     </div>
@@ -226,6 +226,7 @@ export function GeofenceControlPanel({
                                     value={searchTerm}
                                     onChange={(e) => setSearchTerm(e.target.value)}
                                     className="pl-8 h-8 text-sm"
+                                    aria-label="Search geofences"
                                 />
                             </div>
                             <Select value={filterType} onValueChange={setFilterType}>
@@ -284,13 +285,13 @@ export function GeofenceControlPanel({
                                             )}
                                         </div>
                                         <div className="flex opacity-0 group-hover:opacity-100 transition-opacity">
-                                            <Button variant="ghost" size="sm" className="h-6 w-6 p-0" onClick={() => handleEdit(geofence)}>
+                                            <Button variant="ghost" size="sm" className="h-6 w-6 p-0" onClick={() => handleEdit(geofence)} aria-label={`Edit ${geofence.name}`}>
                                                 <Pencil className="w-3 h-3" />
                                             </Button>
-                                            <Button variant="ghost" size="sm" className="h-6 w-6 p-0" onClick={() => handleDuplicate(geofence)}>
+                                            <Button variant="ghost" size="sm" className="h-6 w-6 p-0" onClick={() => handleDuplicate(geofence)} aria-label={`Duplicate ${geofence.name}`}>
                                                 <Copy className="w-3 h-3" />
                                             </Button>
-                                            <Button variant="ghost" size="sm" className="h-6 w-6 p-0 hover:text-red-500" onClick={() => handleDelete(geofence.id)}>
+                                            <Button variant="ghost" size="sm" className="h-6 w-6 p-0 hover:text-red-500" onClick={() => handleDelete(geofence.id)} aria-label={`Delete ${geofence.name}`}>
                                                 <Trash className="w-3 h-3" />
                                             </Button>
                                         </div>

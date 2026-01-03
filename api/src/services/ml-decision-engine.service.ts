@@ -356,13 +356,20 @@ class MLDecisionEngineService {
     let daysUntilFailure = 180
 
     // High mileage increases risk
-    if (mileage > 100000) riskScore += 30
-    else if (mileage > 75000) riskScore += 20
-    else if (mileage > 50000) riskScore += 10
+    if (mileage > 100000) {
+riskScore += 30
+} else if (mileage > 75000) {
+riskScore += 20
+} else if (mileage > 50000) {
+riskScore += 10
+}
 
     // Age increases risk
-    if (vehicleAge > 8) riskScore += 30
-    else if (vehicleAge > 5) riskScore += 15
+    if (vehicleAge > 8) {
+riskScore += 30
+} else if (vehicleAge > 5) {
+riskScore += 15
+}
 
     // Recent work orders indicate potential issues
     if (recentWorkOrders > 3) {
@@ -454,15 +461,25 @@ class MLDecisionEngineService {
 
     // Determine risk level
     let riskLevel: 'low' | 'medium' | 'high'
-    if (overallScore >= 80) riskLevel = 'low'
-    else if (overallScore >= 60) riskLevel = 'medium'
-    else riskLevel = 'high'
+    if (overallScore >= 80) {
+riskLevel = 'low'
+} else if (overallScore >= 60) {
+riskLevel = 'medium'
+} else {
+riskLevel = 'high'
+}
 
     // Identify improvement areas
     const improvementAreas: string[] = []
-    if (accelerationScore < 70) improvementAreas.push('Smooth acceleration')
-    if (brakingScore < 70) improvementAreas.push('Gradual braking')
-    if (speedingScore < 70) improvementAreas.push('Speed limit adherence')
+    if (accelerationScore < 70) {
+improvementAreas.push('Smooth acceleration')
+}
+    if (brakingScore < 70) {
+improvementAreas.push('Gradual braking')
+}
+    if (speedingScore < 70) {
+improvementAreas.push('Speed limit adherence')
+}
 
     return {
       driver_id: driverData.driver_id,
@@ -579,9 +596,13 @@ class MLDecisionEngineService {
     const secondAvg = secondHalf.reduce((sum, d) => sum + (parseFloat(d.total_cost) || 0), 0) / secondHalf.length
 
     let trend: 'increasing' | 'stable' | 'decreasing'
-    if (secondAvg > firstAvg * 1.1) trend = 'increasing'
-    else if (secondAvg < firstAvg * 0.9) trend = 'decreasing'
-    else trend = 'stable'
+    if (secondAvg > firstAvg * 1.1) {
+trend = 'increasing'
+} else if (secondAvg < firstAvg * 0.9) {
+trend = 'decreasing'
+} else {
+trend = 'stable'
+}
 
     return {
       forecast_period: period,

@@ -113,7 +113,7 @@ export const setTenantContext = async (
       // Release the client back to the pool after the response is sent
       res.on('finish', () => {
         if ((req as any).dbClient) {
-          ;(req as any).dbClient.release()
+          (req as any).dbClient.release()
           ;(req as any).dbClient = null
         }
       })
@@ -121,7 +121,7 @@ export const setTenantContext = async (
       // Release on error as well
       res.on('close', () => {
         if ((req as any).dbClient) {
-          ;(req as any).dbClient.release()
+          (req as any).dbClient.release()
           ;(req as any).dbClient = null
         }
       })

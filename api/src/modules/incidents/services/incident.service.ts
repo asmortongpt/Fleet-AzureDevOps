@@ -12,11 +12,21 @@ export class IncidentService extends BaseService {
   }
 
   async validate(data: any): Promise<void> {
-    if (!data.incident_number) throw new Error("Incident number is required");
-    if (!data.incident_type) throw new Error("Incident type is required");
-    if (!data.incident_date) throw new Error("Incident date is required");
-    if (!data.description) throw new Error("Description is required");
-    if (!data.reported_by) throw new Error("Reported by is required");
+    if (!data.incident_number) {
+throw new Error("Incident number is required");
+}
+    if (!data.incident_type) {
+throw new Error("Incident type is required");
+}
+    if (!data.incident_date) {
+throw new Error("Incident date is required");
+}
+    if (!data.description) {
+throw new Error("Description is required");
+}
+    if (!data.reported_by) {
+throw new Error("Reported by is required");
+}
 
     // Validate incident_type enum
     const validTypes = ['accident', 'damage', 'theft', 'breakdown', 'safety', 'other'];

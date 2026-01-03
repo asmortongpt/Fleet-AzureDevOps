@@ -630,7 +630,9 @@ class OCPPService extends EventEmitter {
    */
   private sendCallResult(stationId: string, messageId: string, payload: any) {
     const ws = this.connections.get(stationId);
-    if (!ws || ws.readyState !== WebSocket.OPEN) return;
+    if (!ws || ws.readyState !== WebSocket.OPEN) {
+return;
+}
 
     const message = [MessageType.CALLRESULT, messageId, payload];
     ws.send(JSON.stringify(message));
@@ -643,7 +645,9 @@ class OCPPService extends EventEmitter {
    */
   private sendCallError(stationId: string, messageId: string, errorCode: string, errorDescription: string) {
     const ws = this.connections.get(stationId);
-    if (!ws || ws.readyState !== WebSocket.OPEN) return;
+    if (!ws || ws.readyState !== WebSocket.OPEN) {
+return;
+}
 
     const message = [MessageType.CALLERROR, messageId, errorCode, errorDescription, {}];
     ws.send(JSON.stringify(message));

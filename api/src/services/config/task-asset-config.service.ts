@@ -277,7 +277,9 @@ export class TaskAssetConfigManager {
    * Evaluate conditions for a rule
    */
   private evaluateConditions(conditions: RuleCondition[], data: Record<string, any>): boolean {
-    if (!conditions || conditions.length === 0) return true
+    if (!conditions || conditions.length === 0) {
+return true
+}
 
     let result = true
     let currentOperator: 'AND' | 'OR' = 'AND'

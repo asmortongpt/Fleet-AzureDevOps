@@ -299,9 +299,13 @@ Return ONLY valid JSON:
       const daysUntilDue = Math.ceil(
         (new Date(taskData.due_date).getTime() - Date.now()) / (1000 * 60 * 60 * 24)
       )
-      if (daysUntilDue <= 1) urgencyBonus = 30
-      else if (daysUntilDue <= 3) urgencyBonus = 20
-      else if (daysUntilDue <= 7) urgencyBonus = 10
+      if (daysUntilDue <= 1) {
+urgencyBonus = 30
+} else if (daysUntilDue <= 3) {
+urgencyBonus = 20
+} else if (daysUntilDue <= 7) {
+urgencyBonus = 10
+}
     }
 
     const finalScore = Math.min(100, baseScore + urgencyBonus)
@@ -595,7 +599,9 @@ Return ONLY valid JSON array:
 
       // Start with tasks that have no dependencies
       inDegree.forEach((degree, taskId) => {
-        if (degree === 0) queue.push(taskId)
+        if (degree === 0) {
+queue.push(taskId)
+}
       })
 
       while (queue.length > 0) {

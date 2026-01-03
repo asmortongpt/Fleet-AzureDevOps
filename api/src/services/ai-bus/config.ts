@@ -182,7 +182,9 @@ export function validateAIBusConfig(config: AIBusConfig): { valid: boolean; erro
 
   // Check provider-specific requirements
   for (const [name, providerConfig] of Object.entries(config.providers)) {
-    if (!providerConfig) continue
+    if (!providerConfig) {
+continue
+}
 
     switch (providerConfig.provider) {
       case 'openai':

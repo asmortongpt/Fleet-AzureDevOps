@@ -127,7 +127,9 @@ class ApplicationInsightsService implements CustomMetrics {
    * Track API call metrics
    */
   trackAPICall(endpoint: string, duration: number, statusCode: number): void {
-    if (!this.isInitialized) return
+    if (!this.isInitialized) {
+return
+}
 
     const success = statusCode >= 200 && statusCode < 400
 
@@ -164,7 +166,9 @@ class ApplicationInsightsService implements CustomMetrics {
    * Track emulator update metrics
    */
   trackEmulatorUpdate(emulatorName: string, recordCount: number): void {
-    if (!this.isInitialized) return
+    if (!this.isInitialized) {
+return
+}
 
     this.client?.defaultClient.trackEvent({
       name: 'EmulatorUpdate',
@@ -185,7 +189,9 @@ class ApplicationInsightsService implements CustomMetrics {
    * Track errors with context
    */
   trackError(error: Error, context?: any): void {
-    if (!this.isInitialized) return
+    if (!this.isInitialized) {
+return
+}
 
     const telemetryError = {
       exception: error,
@@ -214,7 +220,9 @@ class ApplicationInsightsService implements CustomMetrics {
    * Track custom events
    */
   trackEvent(name: string, properties?: any): void {
-    if (!this.isInitialized) return
+    if (!this.isInitialized) {
+return
+}
 
     this.client?.defaultClient.trackEvent({
       name,
@@ -230,7 +238,9 @@ class ApplicationInsightsService implements CustomMetrics {
    * Track dependencies (external service calls)
    */
   trackDependency(name: string, data: string, duration: number, success: boolean, resultCode?: number): void {
-    if (!this.isInitialized) return
+    if (!this.isInitialized) {
+return
+}
 
     this.client?.defaultClient.trackDependency({
       target: name,
@@ -247,7 +257,9 @@ class ApplicationInsightsService implements CustomMetrics {
    * Track page views (for server-side rendered pages if any)
    */
   trackPageView(name: string, url: string, properties?: any): void {
-    if (!this.isInitialized) return
+    if (!this.isInitialized) {
+return
+}
 
     this.client?.defaultClient.trackPageView({
       name,
@@ -263,7 +275,9 @@ class ApplicationInsightsService implements CustomMetrics {
    * Flush telemetry data
    */
   async flush(): Promise<void> {
-    if (!this.isInitialized) return
+    if (!this.isInitialized) {
+return
+}
 
     return new Promise((resolve) => {
       this.client?.defaultClient.flush({

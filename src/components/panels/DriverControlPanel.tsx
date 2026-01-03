@@ -111,7 +111,7 @@ export function DriverControlPanel({
                                 {drivers.length} total • {stats.active} on duty
                             </p>
                         </div>
-                        <Button variant="ghost" size="icon" onClick={onClose} className="h-8 w-8 -mt-1 -mr-1">
+                        <Button variant="ghost" size="icon" onClick={onClose} className="h-8 w-8 -mt-1 -mr-1" aria-label="Close driver panel">
                             <X className="w-4 h-4" />
                         </Button>
                     </div>
@@ -146,11 +146,12 @@ export function DriverControlPanel({
                                     className="pl-9 h-9 text-sm"
                                     value={searchQuery}
                                     onChange={(e) => setSearchQuery(e.target.value)}
+                                    aria-label="Search drivers by name or ID"
                                 />
                             </div>
                             <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
                                 <DialogTrigger asChild>
-                                    <Button size="icon" className="h-9 w-9 shrink-0">
+                                    <Button size="icon" className="h-9 w-9 shrink-0" aria-label="Add new driver">
                                         <Plus className="h-4 w-4" />
                                     </Button>
                                 </DialogTrigger>
@@ -240,7 +241,7 @@ export function DriverControlPanel({
                                         </div>
                                         <DropdownMenu>
                                             <DropdownMenuTrigger asChild>
-                                                <Button variant="ghost" size="icon" className="h-7 w-7 opacity-0 group-hover:opacity-100 transition-opacity">
+                                                <Button variant="ghost" size="icon" className="h-7 w-7 opacity-0 group-hover:opacity-100 transition-opacity" aria-label="Driver actions menu">
                                                     <MoreVertical className="h-4 w-4 text-slate-400" />
                                                 </Button>
                                             </DropdownMenuTrigger>

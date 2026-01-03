@@ -54,8 +54,11 @@ export class FIPSCryptoService {
         this.PBKDF2_KEY_LENGTH,
         this.PBKDF2_DIGEST,
         (err, derivedKey) => {
-          if (err) reject(err)
-          else resolve(derivedKey)
+          if (err) {
+reject(err)
+} else {
+resolve(derivedKey)
+}
         }
       )
     })
@@ -95,8 +98,11 @@ export class FIPSCryptoService {
           storedHashBuffer.length,
           this.PBKDF2_DIGEST,
           (err, key) => {
-            if (err) reject(err)
-            else resolve(key)
+            if (err) {
+reject(err)
+} else {
+resolve(key)
+}
           }
         )
       })

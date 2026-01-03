@@ -316,7 +316,9 @@ export class TelemetryRepository extends GenericRepository<TelemetryData> {
     tenantId: string,
     client?: PoolClient
   ): Promise<number> {
-    if (records.length === 0) return 0
+    if (records.length === 0) {
+return 0
+}
 
     const pool = this.getPool(client)
 
