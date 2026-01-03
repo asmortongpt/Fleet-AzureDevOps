@@ -67,14 +67,37 @@ function VideoContent() {
 }
 
 function AlertsContent() {
+    const { push } = useDrilldown()
+
     return (
         <div className="p-6 space-y-6 bg-gradient-to-b from-slate-900/50 to-transparent">
             <h2 className="text-2xl font-bold text-white">Safety Alerts</h2>
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                <StatCard title="Active Alerts" value="6" variant="warning" icon={<Bell className="w-6 h-6" />} />
-                <StatCard title="Critical" value="1" variant="danger" />
-                <StatCard title="Acknowledged" value="4" variant="success" />
-                <StatCard title="Auto-Resolved" value="12" variant="default" />
+                <StatCard
+                    title="Active Alerts"
+                    value="6"
+                    variant="warning"
+                    icon={<Bell className="w-6 h-6" />}
+                    onClick={() => push({ type: 'alerts-list', id: 'active-alerts', data: { status: 'active' } })}
+                />
+                <StatCard
+                    title="Critical"
+                    value="1"
+                    variant="danger"
+                    onClick={() => push({ type: 'alerts-list', id: 'critical-alerts', data: { severity: 'critical' } })}
+                />
+                <StatCard
+                    title="Acknowledged"
+                    value="4"
+                    variant="success"
+                    onClick={() => push({ type: 'alerts-list', id: 'acknowledged-alerts', data: { status: 'acknowledged' } })}
+                />
+                <StatCard
+                    title="Auto-Resolved"
+                    value="12"
+                    variant="default"
+                    onClick={() => push({ type: 'alerts-list', id: 'auto-resolved-alerts', data: { status: 'auto-resolved' } })}
+                />
             </div>
         </div>
     )
