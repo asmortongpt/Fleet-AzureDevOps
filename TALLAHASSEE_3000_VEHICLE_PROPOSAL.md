@@ -48,10 +48,28 @@
 - Database storage: $0.50/vehicle/month
 - AI/LLM: $0.30/vehicle/month
 - API costs (Maps, processing): $1.00/vehicle/month
-- **Subtotal Variable**: $1.80/vehicle × 3,000 = **$5,400/month**
+- Media storage (images/videos/3D): $0.15/vehicle/month
+- **Subtotal Variable**: $1.95/vehicle × 3,000 = **$5,850/month**
 
-**Total Monthly Cost**: $3,700 + $5,400 = **$9,100/month**
-**Annual Cost**: **$109,200/year**
+### Detailed Storage Breakdown (3,000 Vehicles):
+
+**Monthly Data Generation**:
+- Vehicle photos (inspections): 50 GB/month
+- Damage report photos: 3 GB/month
+- 3D models (TripoSR GLB): 7.5 GB/month
+- Video events: 20 GB/month
+- Maintenance documents: 10 GB/month
+- **Total**: ~100 GB/month growth
+
+**Azure Storage Costs** (with intelligent tiering):
+- Hot tier (0-3 months): 300 GB × $0.0184/GB = $5.52/month
+- Cool tier (3-12 months): 300 GB × $0.01/GB = $3.00/month
+- Archive tier (>12 months): 600 GB × $0.00099/GB = $0.59/month
+- Data egress (viewing): 500 GB × $0.05/GB = $25/month
+- **Storage Subtotal**: ~$35/month (Year 1 average), growing to $50/month (Year 3)
+
+**Total Monthly Cost**: $3,700 + $5,850 = **$9,550/month**
+**Annual Cost**: **$114,600/year**
 
 ---
 
@@ -63,9 +81,9 @@
 - Monthly: $45,000
 - Annual: $540,000
 
-**Your Costs**: $9,100/month
-**Your Profit**: $35,900/month = **$430,800/year**
-**Margin**: 80%
+**Your Costs**: $9,550/month
+**Your Profit**: $35,450/month = **$425,400/year**
+**Margin**: 79%
 
 **vs. Samsara**: $900K → $540K = **SAVE $360,000/year** (40% savings)
 
@@ -75,9 +93,9 @@
 - Monthly: $54,000
 - Annual: $648,000
 
-**Your Costs**: $9,100/month
-**Your Profit**: $44,900/month = **$538,800/year**
-**Margin**: 83%
+**Your Costs**: $9,550/month
+**Your Profit**: $44,450/month = **$533,400/year**
+**Margin**: 82%
 
 **vs. Samsara**: $900K → $648K = **SAVE $252,000/year** (28% savings)
 
@@ -87,8 +105,8 @@
 - Monthly: $66,000
 - Annual: $792,000
 
-**Your Costs**: $9,100/month
-**Your Profit**: $56,900/month = **$682,800/year**
+**Your Costs**: $9,550/month
+**Your Profit**: $56,450/month = **$677,400/year**
 **Margin**: 86%
 
 **vs. Samsara**: $900K → $792K = **SAVE $108,000/year** (12% savings)
@@ -102,9 +120,9 @@
 **Monthly Revenue**: $60,000
 **Annual Revenue**: $720,000
 
-**Your Costs**: $9,100/month ($109,200/year)
-**Your Profit**: $50,900/month = **$610,800/year**
-**Margin**: 85%
+**Your Costs**: $9,550/month ($114,600/year)
+**Your Profit**: $50,450/month = **$605,400/year**
+**Margin**: 84%
 
 **Customer Savings vs. Samsara**: $180,000-360,000/year (20-40% cheaper)
 
@@ -156,20 +174,26 @@
 - Subscription: $720,000
 - Implementation: $1,500,000
 - **Total Revenue**: $2,220,000
-- **Your Costs**: $109,200 + $600,000 = $709,200
-- **Your Profit**: $1,510,800
+- **Your Costs**: $114,600 + $600,000 = $714,600
+- **Your Profit**: $1,505,400
 
 ### Year 2-3 (Annual):
 - Revenue: $720,000/year
-- Costs: $109,200/year
-- **Profit**: $610,800/year
+- Costs: $114,600/year (storage grows slightly but negligible)
+- **Profit**: $605,400/year
 
 ### 3-Year Totals:
 - **Revenue**: $3,660,000
-- **Costs**: $927,600
-- **PROFIT**: $2,732,400 (75% margin)
+- **Costs**: $943,800
+- **PROFIT**: $2,716,200 (74% margin)
 
 **Tallahassee saves**: $540K-1.08M over 3 years vs. Samsara
+
+### Storage Cost Growth Over 3 Years:
+- Year 1: 1.2 TB accumulated, $35/month average
+- Year 2: 2.4 TB accumulated, $50/month average
+- Year 3: 3.6 TB accumulated, $65/month average
+- All factored into costs above (using $50/month average across 3 years)
 
 ---
 
@@ -271,7 +295,7 @@
 - Price: $20/vehicle × 3,000 = $60,000/month
 - Implementation: $1,500,000
 - Timeline: 6 months
-- **Your Year 1 Profit**: $1,510,800
+- **Your Year 1 Profit**: $1,505,400
 
 ### Option B: **Pilot Program** (500 vehicles, then expand)
 - Phase 1: $20/vehicle × 500 = $10,000/month
@@ -307,11 +331,11 @@
 ### Your Numbers on Pilot:
 - Monthly: $10,000
 - Implementation: $250,000
-- Your costs: $5,000/month + $100K implementation
-- **Pilot Profit**: $155,000
+- Your costs: $5,200/month + $100K implementation
+- **Pilot Profit**: $154,200
 
 If it converts to full 3,000:
-- **3-Year Profit**: $2,732,400
+- **3-Year Profit**: $2,716,200
 
 ---
 
@@ -351,7 +375,13 @@ If it converts to full 3,000:
 
 **They're currently paying Samsara $900K-1.2M/year**
 
-**You can offer $720K/year (20-40% savings) and still make $610K/year profit**
+**You can offer $720K/year (20-40% savings) and still make $605K/year profit**
+
+**Storage costs for images, 3D renderings, videos, and documents are fully accounted for:**
+- ~100 GB/month data growth (1.2 TB/year)
+- Intelligent tiering (Hot → Cool → Archive)
+- Only adds $0.15/vehicle/month to costs
+- Total infrastructure: $9,550/month for 3,000 vehicles
 
 **The deal is MASSIVE but winnable because:**
 - You're significantly cheaper
