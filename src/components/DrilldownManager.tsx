@@ -24,6 +24,11 @@ import {
   RouteListView,
   TaskListView
 } from '@/components/drilldown/OperationsHubDrilldowns'
+import { JobDetailPanel } from '@/components/drilldown/JobDetailPanel'
+import { RouteDetailPanel } from '@/components/drilldown/RouteDetailPanel'
+import { TaskDetailPanel } from '@/components/drilldown/TaskDetailPanel'
+import { VehicleAssignmentDrilldown } from '@/components/drilldown/VehicleAssignmentDrilldown'
+import { OperationsPerformanceDrilldown } from '@/components/drilldown/OperationsPerformanceDrilldown'
 import {
   IncidentListView,
   LostTimeIncidentsView,
@@ -32,6 +37,19 @@ import {
 } from '@/components/drilldown/SafetyHubDrilldowns'
 import { IncidentDetailPanel } from '@/components/drilldown/IncidentDetailPanel'
 import { HazardZoneDetailPanel } from '@/components/drilldown/HazardZoneDetailPanel'
+import {
+  InspectionListView,
+  SafetyInspectionDetailPanel
+} from '@/components/drilldown/SafetyInspectionDrilldowns'
+import {
+  TrainingRecordsView,
+  CertificationsView,
+  TrainingScheduleView
+} from '@/components/drilldown/SafetyTrainingDrilldowns'
+import {
+  ViolationsListView,
+  ComplianceViolationDetailPanel
+} from '@/components/drilldown/SafetyComplianceDrilldowns'
 import {
   SystemHealthDrilldown,
   AlertsDrilldown,
@@ -101,6 +119,13 @@ import {
   MaintenanceRequestDetailPanel,
   MaintenanceRequestListView
 } from '@/components/drilldown/MaintenanceRequestDrilldowns'
+import {
+  PMScheduleDetailPanel,
+  RepairDetailPanel,
+  InspectionDetailPanel,
+  ServiceRecordDetailPanel,
+  ServiceVendorDetailPanel
+} from '@/components/drilldown/MaintenanceHubDrilldowns'
 import {
   ScheduledItemDetailPanel,
   CalendarListView
@@ -339,6 +364,48 @@ function DrilldownContent() {
     case 'hazard-zone':
       return <HazardZoneDetailPanel hazardZoneId={currentLevel.data?.hazardZoneId} />
 
+    // Safety Inspections
+    case 'safety-inspections':
+    case 'inspections-failed':
+    case 'inspections-due':
+    case 'inspections-overdue':
+    case 'inspections-violations':
+      return <InspectionListView filter={currentLevel.data?.filter} />
+
+    case 'safety-inspection':
+    case 'safety-inspection-detail':
+      return <SafetyInspectionDetailPanel inspectionId={currentLevel.data?.inspectionId} />
+
+    // Training and Certifications
+    case 'training-records':
+    case 'training-completed':
+    case 'training-in-progress':
+    case 'training-scheduled':
+    case 'training-expired':
+      return <TrainingRecordsView filter={currentLevel.data?.filter} />
+
+    case 'certifications':
+    case 'certifications-active':
+    case 'certifications-expiring':
+    case 'certifications-expired':
+    case 'certifications-renewal':
+      return <CertificationsView filter={currentLevel.data?.filter} />
+
+    case 'training-schedule':
+      return <TrainingScheduleView />
+
+    // Compliance Violations
+    case 'compliance-violations':
+    case 'violations-open':
+    case 'violations-critical':
+    case 'violations-unpaid':
+    case 'violations-overdue':
+      return <ViolationsListView filter={currentLevel.data?.filter} />
+
+    case 'compliance-violation':
+    case 'compliance-violation-detail':
+      return <ComplianceViolationDetailPanel violationId={currentLevel.data?.violationId} />
+
     // Video telematics
     case 'video-telematics':
     case 'cameras-online':
@@ -360,8 +427,7 @@ function DrilldownContent() {
 
     case 'job':
     case 'job-detail':
-      // Job detail panel would go here - for now showing job list
-      return <JobListView />
+      return <JobDetailPanel jobId={currentLevel.data?.jobId} />
 
     // Routes
     case 'routes':
@@ -371,8 +437,7 @@ function DrilldownContent() {
 
     case 'route':
     case 'route-detail':
-      // Route detail panel would go here - for now showing route list
-      return <RouteListView />
+      return <RouteDetailPanel routeId={currentLevel.data?.routeId} />
 
     // Tasks
     case 'tasks':
@@ -382,8 +447,19 @@ function DrilldownContent() {
 
     case 'task':
     case 'task-detail':
-      // Task detail panel would go here - for now showing task list
-      return <TaskListView />
+      return <TaskDetailPanel taskId={currentLevel.data?.taskId} />
+
+    // Vehicle Assignments
+    case 'vehicle-assignments':
+    case 'current-assignments':
+    case 'assignment-history':
+      return <VehicleAssignmentDrilldown filter={currentLevel.data?.filter} />
+
+    // Operations Performance
+    case 'ops-performance':
+    case 'efficiency-metrics':
+    case 'operations-metrics':
+      return <OperationsPerformanceDrilldown />
 
     // ============================================
     // Procurement Hub Drilldowns
@@ -537,6 +613,24 @@ function DrilldownContent() {
 
     case 'maintenance-requests-list':
       return <MaintenanceRequestListView status={currentLevel.data?.status} />
+
+    // ============================================
+    // Maintenance Hub drilldown hierarchy
+    // ============================================
+    case 'pm-schedule-detail':
+      return <PMScheduleDetailPanel scheduleId={currentLevel.data?.scheduleId} />
+
+    case 'repair-detail':
+      return <RepairDetailPanel repairId={currentLevel.data?.repairId} />
+
+    case 'inspection-detail':
+      return <InspectionDetailPanel inspectionId={currentLevel.data?.inspectionId} />
+
+    case 'service-record-detail':
+      return <ServiceRecordDetailPanel serviceRecordId={currentLevel.data?.serviceRecordId} />
+
+    case 'service-vendor-detail':
+      return <ServiceVendorDetailPanel vendorId={currentLevel.data?.vendorId} />
 
     // ============================================
     // Schedule drilldown hierarchy
