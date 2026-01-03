@@ -28,7 +28,7 @@ async function convertToPDF() {
 
   await page.pdf({
     path: pdfPath,
-    format: 'Letter',
+    format: 'Legal',
     printBackground: true,
     preferCSSPageSize: true,
     displayHeaderFooter: false,
