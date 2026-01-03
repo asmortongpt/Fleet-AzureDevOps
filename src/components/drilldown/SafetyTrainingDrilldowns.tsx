@@ -5,7 +5,7 @@
 
 import {
   GraduationCap,
-  Certificate,
+  Award,
   Calendar,
   User,
   Phone,
@@ -15,8 +15,7 @@ import {
   CheckCircle,
   XCircle,
   FileText,
-  TrendingUp,
-  Award
+  TrendingUp
 } from 'lucide-react'
 import { useMemo } from 'react'
 import useSWR from 'swr'
@@ -731,7 +730,7 @@ export function CertificationsView({ filter }: { filter?: string }) {
       <Card className="bg-slate-800/50 border-slate-700">
         <CardHeader className="pb-2">
           <CardTitle className="text-white text-lg flex items-center gap-2">
-            <Certificate className="w-5 h-5 text-amber-400" />
+            <Award className="w-5 h-5 text-amber-400" />
             Certifications ({filteredCerts.length})
           </CardTitle>
         </CardHeader>
