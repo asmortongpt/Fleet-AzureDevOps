@@ -11,7 +11,7 @@
 
 import {
   Package,
-  Navigation,
+  NavigationArrow,
   CheckCircle,
   Clock,
   Warning,
@@ -19,7 +19,7 @@ import {
   User,
   Truck,
   XCircle,
-  TrendingUp,
+  TrendUp,
   ListChecks
 } from '@phosphor-icons/react'
 import { useMemo } from 'react'
@@ -557,7 +557,7 @@ export function RouteListView({ filter }: { filter?: string }) {
       <div className="grid grid-cols-3 gap-3">
         <Card className="bg-blue-900/30 border-blue-700/50">
           <CardContent className="p-4 text-center">
-            <Navigation className="w-6 h-6 text-blue-400 mx-auto mb-1" />
+            <NavigationArrow className="w-6 h-6 text-blue-400 mx-auto mb-1" />
             <div className="text-2xl font-bold text-blue-400">
               {filteredRoutes.filter(r => r.status === 'active').length}
             </div>
@@ -566,7 +566,7 @@ export function RouteListView({ filter }: { filter?: string }) {
         </Card>
         <Card className="bg-green-900/30 border-green-700/50">
           <CardContent className="p-4 text-center">
-            <TrendingUp className="w-6 h-6 text-green-400 mx-auto mb-1" />
+            <TrendUp className="w-6 h-6 text-green-400 mx-auto mb-1" />
             <div className="text-2xl font-bold text-green-400">
               {filteredRoutes.filter(r => r.optimized).length}
             </div>
@@ -588,7 +588,7 @@ export function RouteListView({ filter }: { filter?: string }) {
       <Card className="bg-slate-800/50 border-slate-700">
         <CardHeader className="pb-2">
           <CardTitle className="text-white text-lg flex items-center gap-2">
-            <Navigation className="w-5 h-5 text-blue-400" />
+            <NavigationArrow className="w-5 h-5 text-blue-400" />
             Routes ({filteredRoutes.length})
           </CardTitle>
         </CardHeader>
