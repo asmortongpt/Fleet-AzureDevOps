@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+  <meta http-equiv="Pragma" content="no-cache" />
+  <meta http-equiv="Expires" content="0" />
+  <title>Clear Cache - CTAFleet</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+      background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .container {
+      background: white;
+      border-radius: 16px;
+      padding: 48px;
+      max-width: 600px;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    }
+
+    .header {
+      text-align: center;
+      margin-bottom: 32px;
+    }
+
+    .icon {
+      width: 80px;
+      height: 80px;
+      margin: 0 auto 24px;
+      background: #eff6ff;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 40px;
+    }
+
+    h1 {
+      color: #1f2937;
+      font-size: 28px;
+      font-weight: 700;
+      margin-bottom: 16px;
+    }
+
+    .subtitle {
+      color: #6b7280;
+      font-size: 16px;
+      line-height: 1.6;
+    }
+
+    .info-box {
+      background: #fef3c7;
+      border-left: 4px solid #f59e0b;
+      padding: 16px;
+      border-radius: 8px;
+      margin-bottom: 24px;
+    }
+
+    .info-box.success {
+      background: #d1fae5;
+      border-left-color: #10b981;
+    }
+
+    .info-box.error {
+      background: #fee2e2;
+      border-left-color: #ef4444;
+    }
+
+    .info-box p {
+      color: #1f2937;
+      font-size: 14px;
+      line-height: 1.6;
+      margin-bottom: 8px;
+    }
+
+    .info-box p:last-child {
+      margin-bottom: 0;
+    }
+
+    .info-box strong {
+      color: #92400e;
+    }
+
+    .info-box.success strong {
+      color: #065f46;
+    }
+
+    .info-box.error strong {
+      color: #991b1b;
+    }
+
+    .button-group {
+      display: flex;
+      gap: 12px;
+      margin-top: 24px;
+    }
+
+    .button {
+      flex: 1;
+      background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%);
+      color: white;
+      border: none;
+      padding: 14px 24px;
+      border-radius: 8px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: transform 0.2s, box-shadow 0.2s;
+      box-shadow: 0 4px 12px rgba(30, 64, 175, 0.4);
+    }
+
+    .button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 16px rgba(30, 64, 175, 0.5);
+    }
+
+    .button:active {
+      transform: translateY(0);
+    }
+
+    .button.secondary {
+      background: white;
+      color: #1e40af;
+      border: 2px solid #1e40af;
+      box-shadow: none;
+    }
+
+    .button.secondary:hover {
+      background: #eff6ff;
+      box-shadow: 0 2px 8px rgba(30, 64, 175, 0.2);
+    }
+
+    .button:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .status {
+      margin-top: 24px;
+      padding: 16px;
+      background: #f9fafb;
+      border-radius: 8px;
+      font-family: 'Courier New', monospace;
+      font-size: 13px;
+      color: #374151;
+      max-height: 200px;
+      overflow-y: auto;
+    }
+
+    .status-line {
+      padding: 4px 0;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .status-line::before {
+      content: ">";
+      color: #1e40af;
+      font-weight: bold;
+    }
+
+    .spinner {
+      border: 3px solid #f3f4f6;
+      border-top: 3px solid #1e40af;
+      border-radius: 50%;
+      width: 20px;
+      height: 20px;
+      animation: spin 1s linear infinite;
+      display: inline-block;
+      margin-right: 8px;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    .cache-info {
+      margin-top: 24px;
+      padding: 16px;
+      background: #f9fafb;
+      border-radius: 8px;
+      font-size: 14px;
+    }
+
+    .cache-info h3 {
+      color: #1f2937;
+      font-size: 16px;
+      font-weight: 600;
+      margin-bottom: 12px;
+    }
+
+    .cache-list {
+      list-style: none;
+      padding: 0;
+    }
+
+    .cache-list li {
+      padding: 8px;
+      background: white;
+      margin-bottom: 4px;
+      border-radius: 4px;
+      font-family: 'Courier New', monospace;
+      font-size: 13px;
+      color: #374151;
+    }
+
+    @media (max-width: 600px) {
+      .container {
+        padding: 32px 24px;
+      }
+
+      h1 {
+        font-size: 24px;
+      }
+
+      .button-group {
+        flex-direction: column;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <div class="icon">🧹</div>
+      <h1>Clear Cache & Fix White Screen</h1>
+      <p class="subtitle">
+        If you're experiencing a white screen or the app won't load, this tool will clear all cached data and reload the latest version.
+      </p>
+    </div>
+
+    <div id="warning-box" class="info-box">
+      <p><strong>Why you might need this:</strong></p>
+      <p>After a deployment, your browser may have cached old files that no longer exist. This causes the app to fail loading.</p>
+      <p style="margin-top: 12px;"><strong>What this will do:</strong></p>
+      <p>1. Unregister the service worker<br>
+         2. Clear all application caches<br>
+         3. Clear browser storage<br>
+         4. Reload the page with fresh content</p>
+    </div>
+
+    <div id="cache-info" class="cache-info hidden">
+      <h3>Current Caches:</h3>
+      <ul id="cache-list" class="cache-list"></ul>
+    </div>
+
+    <div class="button-group">
+      <button id="clear-btn" class="button" onclick="clearAllCaches()">
+        Clear Cache & Reload
+      </button>
+      <button class="button secondary" onclick="showCacheInfo()">
+        Show Cache Info
+      </button>
+    </div>
+
+    <div id="status" class="status hidden"></div>
+  </div>
+
+  <script>
+    let statusElement;
+    let cacheInfoElement;
+    let cacheListElement;
+
+    function log(message) {
+      if (!statusElement) {
+        statusElement = document.getElementById('status');
+      }
+      statusElement.classList.remove('hidden');
+      const line = document.createElement('div');
+      line.className = 'status-line';
+      line.textContent = message;
+      statusElement.appendChild(line);
+      console.log(message);
+    }
+
+    async function showCacheInfo() {
+      cacheInfoElement = document.getElementById('cache-info');
+      cacheListElement = document.getElementById('cache-list');
+      cacheListElement.innerHTML = '';
+
+      try {
+        const cacheNames = await caches.keys();
+
+        if (cacheNames.length === 0) {
+          cacheListElement.innerHTML = '<li>No caches found</li>';
+        } else {
+          cacheNames.forEach(name => {
+            const li = document.createElement('li');
+            li.textContent = name;
+            cacheListElement.appendChild(li);
+          });
+        }
+
+        cacheInfoElement.classList.remove('hidden');
+      } catch (error) {
+        log('Error getting cache info: ' + error.message);
+      }
+    }
+
+    async function clearAllCaches() {
+      const button = document.getElementById('clearBtn');
+      const warningBox = document.getElementById('warning-box');
+
+      // Disable button
+      if (button) button.disabled = true;
+
+      // Update warning box
+      warningBox.className = 'info-box';
+      warningBox.innerHTML = '<div class="spinner"></div><p><strong>Clearing cache...</strong></p>';
+
+      log('Starting cache clear process...');
+
+      try {
+        // Step 1: Unregister all service workers
+        if ('serviceWorker' in navigator) {
+          log('Unregistering service workers...');
+          const registrations = await navigator.serviceWorker.getRegistrations();
+
+          for (const registration of registrations) {
+            await registration.unregister();
+            log(`Unregistered service worker: ${registration.scope}`);
+          }
+        }
+
+        // Step 2: Clear all caches
+        log('Clearing all caches...');
+        const cacheNames = await caches.keys();
+        log(`Found ${cacheNames.length} cache(s) to delete`);
+
+        for (const cacheName of cacheNames) {
+          await caches.delete(cacheName);
+          log(`Deleted cache: ${cacheName}`);
+        }
+
+        // Step 3: Clear local storage
+        log('Clearing localStorage...');
+        localStorage.clear();
+
+        // Step 4: Clear session storage
+        log('Clearing sessionStorage...');
+        sessionStorage.clear();
+
+        // Step 5: Clear IndexedDB (if used)
+        if (window.indexedDB) {
+          log('Clearing IndexedDB...');
+          const databases = await indexedDB.databases();
+          for (const db of databases) {
+            if (db.name && db.name.startsWith('ctafleet-')) {
+              indexedDB.deleteDatabase(db.name);
+              log(`Deleted database: ${db.name}`);
+            }
+          }
+        }
+
+        // Success!
+        log('Cache cleared successfully!');
+        warningBox.className = 'info-box success';
+        warningBox.innerHTML = '<p><strong>Success!</strong></p><p>All caches cleared. Reloading in 2 seconds...</p>';
+
+        // Reload the page with cache-busting
+        setTimeout(() => {
+          log('Reloading page...');
+          window.location.href = '/?nocache=' + Date.now();
+        }, 2000);
+
+      } catch (error) {
+        log('Error: ' + error.message);
+        warningBox.className = 'info-box error';
+        warningBox.innerHTML = '<p><strong>Error!</strong></p><p>' + error.message + '</p><p style="margin-top: 12px;">Try closing this tab and opening a new one, then visit the app directly.</p>';
+        if (button) button.disabled = false;
+      }
+    }
+
+    // Auto-clear on load if ?autoclear=1 is in URL
+    window.addEventListener('load', () => {
+      const urlParams = new URLSearchParams(window.location.search);
+      if (urlParams.get('autoclear') === '1') {
+        log('Auto-clear triggered from URL parameter');
+        clearAllCaches();
+      }
+    });
+  </script>
+</body>
+</html>
