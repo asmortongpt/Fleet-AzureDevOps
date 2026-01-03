@@ -11,6 +11,7 @@ import { Badge } from '../ui/badge';
 import { Button } from '../ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
 
+import { DrilldownCard } from '@/components/drilldown/DrilldownCard';
 import { GeofenceLayer } from '@/components/layers/GeofenceLayer';
 import { TrafficCameraLayer } from '@/components/layers/TrafficCameraLayer';
 import { MapLayerControl } from '@/components/map/MapLayerControl';
@@ -19,6 +20,7 @@ import { DriverDetailPanel } from '@/components/panels/DriverDetailPanel';
 import { GeofenceControlPanel } from '@/components/panels/GeofenceControlPanel';
 import { GeofenceIntelligencePanel } from '@/components/panels/GeofenceIntelligencePanel';
 import { TrafficCameraControlPanel } from '@/components/panels/TrafficCameraControlPanel';
+import { useDrilldown } from '@/contexts/DrilldownContext';
 import { useVehicles, useDrivers } from '@/hooks/use-api';
 import { useGeofenceBreachDetector } from '@/hooks/use-geofence-breach';
 import { generateDemoVehicles } from '@/lib/demo-data';
@@ -36,6 +38,7 @@ interface LiveFleetDashboardProps {
 
 export const LiveFleetDashboard = React.memo(function LiveFleetDashboard({ initialLayer }: LiveFleetDashboardProps = {}) {
 
+  const { push } = useDrilldown();
   const { data: vehiclesData, isLoading: apiLoading, error: apiError } = useVehicles();
   const { data: driversData } = useDrivers();
   const [vehicles, setVehicles] = useState<any[]>([]);
@@ -201,26 +204,41 @@ export const LiveFleetDashboard = React.memo(function LiveFleetDashboard({ initi
         <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-1">Real-time vehicle monitoring</p>
       </div>
 
-      {/* Quick Stats - Responsive Grid */}
+      {/* Quick Stats - Responsive Grid with Drilldown */}
       <div className="grid grid-cols-3 gap-2 sm:gap-3">
-        <Card className="bg-white/50 dark:bg-slate-900/50 backdrop-blur-md border-slate-200 dark:border-slate-800">
-          <CardContent className="pt-3 pb-2 px-2 sm:pt-4 sm:pb-3 sm:px-3">
-            <div className="text-xl sm:text-2xl font-bold text-emerald-600 dark:text-emerald-400">{activeCount}</div>
-            <div className="text-[10px] sm:text-xs text-slate-500 dark:text-slate-400 font-medium uppercase tracking-wide">Active</div>
-          </CardContent>
-        </Card>
-        <Card className="bg-white/50 dark:bg-slate-900/50 backdrop-blur-md border-slate-200 dark:border-slate-800">
-          <CardContent className="pt-3 pb-2 px-2 sm:pt-4 sm:pb-3 sm:px-3">
-            <div className="text-xl sm:text-2xl font-bold text-amber-600 dark:text-amber-400">{maintenanceCount}</div>
-            <div className="text-[10px] sm:text-xs text-slate-500 dark:text-slate-400 font-medium uppercase tracking-wide">Maint.</div>
-          </CardContent>
-        </Card>
-        <Card className="bg-white/50 dark:bg-slate-900/50 backdrop-blur-md border-slate-200 dark:border-slate-800">
-          <CardContent className="pt-3 pb-2 px-2 sm:pt-4 sm:pb-3 sm:px-3">
-            <div className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-slate-100">{totalVehicles}</div>
-            <div className="text-[10px] sm:text-xs text-slate-500 dark:text-slate-400 font-medium uppercase tracking-wide">Total</div>
-          </CardContent>
-        </Card>
+        <DrilldownCard
+          title="Active"
+          value={activeCount}
+          drilldownType="active-vehicles"
+          drilldownLabel={`Active Vehicles (${activeCount})`}
+          drilldownData={{ status: 'active', vehicles }}
+          icon={<Truck className="h-4 w-4" />}
+          color="success"
+          variant="compact"
+          className="bg-white/50 dark:bg-slate-900/50 backdrop-blur-md border-slate-200 dark:border-slate-800"
+        />
+        <DrilldownCard
+          title="Maint."
+          value={maintenanceCount}
+          drilldownType="maintenance-vehicles"
+          drilldownLabel={`Maintenance Vehicles (${maintenanceCount})`}
+          drilldownData={{ status: 'maintenance', vehicles }}
+          icon={<Wrench className="h-4 w-4" />}
+          color="warning"
+          variant="compact"
+          className="bg-white/50 dark:bg-slate-900/50 backdrop-blur-md border-slate-200 dark:border-slate-800"
+        />
+        <DrilldownCard
+          title="Total"
+          value={totalVehicles}
+          drilldownType="all-vehicles"
+          drilldownLabel={`All Vehicles (${totalVehicles})`}
+          drilldownData={{ vehicles }}
+          icon={<Gauge className="h-4 w-4" />}
+          color="default"
+          variant="compact"
+          className="bg-white/50 dark:bg-slate-900/50 backdrop-blur-md border-slate-200 dark:border-slate-800"
+        />
       </div>
 
       {/* Selected Vehicle Info */}
@@ -314,18 +332,26 @@ export const LiveFleetDashboard = React.memo(function LiveFleetDashboard({ initi
       {/* Vehicle List - Mobile uses MobileVehicleCard, Desktop uses custom */}
       <div>
         <h3 className="text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">Recent Activity</h3>
-        {/* Mobile: List variant */}
+        {/* Mobile: List variant with drill-down */}
         <div className="md:hidden space-y-0 max-h-64 overflow-y-auto border-t border-slate-200 dark:border-slate-700">
           {vehicles.slice(0, 10).map((vehicle: any) => (
             <MobileVehicleCard
               key={vehicle.id}
               vehicle={vehicle}
-              onClick={(v) => setSelectedVehicleId(v.id)}
+              onClick={(v) => {
+                setSelectedVehicleId(v.id);
+                push({
+                  id: `vehicle-${v.id}`,
+                  type: 'vehicle',
+                  label: v.vehicleNumber || v.number || v.name || `Vehicle ${v.id}`,
+                  data: { vehicleId: v.id, ...v }
+                });
+              }}
               variant="list"
             />
           ))}
         </div>
-        {/* Desktop: Original design */}
+        {/* Desktop: Original design with drill-down */}
         <div className="hidden md:block space-y-2 max-h-64 overflow-y-auto">
           {vehicles.slice(0, 10).map((vehicle: any) => (
             <div
@@ -334,7 +360,15 @@ export const LiveFleetDashboard = React.memo(function LiveFleetDashboard({ initi
                 ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/30 dark:border-blue-400'
                 : 'border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 bg-card'
                 }`}
-              onClick={() => setSelectedVehicleId(vehicle.id)}
+              onClick={() => {
+                setSelectedVehicleId(vehicle.id);
+                push({
+                  id: `vehicle-${vehicle.id}`,
+                  type: 'vehicle',
+                  label: vehicle.vehicleNumber || vehicle.number || vehicle.name || `Vehicle ${vehicle.id}`,
+                  data: { vehicleId: vehicle.id, ...vehicle }
+                });
+              }}
               data-testid={`vehicle-list-item-${vehicle.id}`}
             >
               <div className="flex items-center justify-between">
@@ -408,11 +442,25 @@ export const LiveFleetDashboard = React.memo(function LiveFleetDashboard({ initi
     />
   );
 
+  // Handler for vehicle selection with drill-down
+  const handleVehicleSelect = (vehicleId: string) => {
+    setSelectedVehicleId(vehicleId);
+    const vehicle = vehicles.find(v => v.id === vehicleId);
+    if (vehicle) {
+      push({
+        id: `vehicle-${vehicleId}`,
+        type: 'vehicle',
+        label: vehicle.vehicleNumber || vehicle.number || vehicle.name || `Vehicle ${vehicleId}`,
+        data: { vehicleId, ...vehicle }
+      });
+    }
+  };
+
   return (
     <div className="relative h-full w-full">
       <MapFirstLayout
         mapComponent={
-          <ProfessionalFleetMap onVehicleSelect={setSelectedVehicleId}>
+          <ProfessionalFleetMap onVehicleSelect={handleVehicleSelect}>
             <TrafficCameraLayer
               visible={showTrafficCameras}
               filters={trafficCameraFilters}
