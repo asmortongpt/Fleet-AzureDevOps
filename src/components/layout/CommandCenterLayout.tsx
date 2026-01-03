@@ -41,7 +41,7 @@ export function CommandCenterLayout({ children }: CommandCenterLayoutProps): JSX
     }, [mobileMenuOpen]);
 
     return (
-        <div className="flex h-screen w-full bg-[#0a0f1c] text-slate-100 overflow-hidden font-sans">
+        <div className="flex h-screen w-full bg-background text-foreground overflow-hidden font-sans">
             {/* MOBILE OVERLAY */}
             {isMobile && mobileMenuOpen && (
                 <div
@@ -79,7 +79,7 @@ export function CommandCenterLayout({ children }: CommandCenterLayoutProps): JSX
             </div>
 
             {/* MAIN CONTENT AREA */}
-            <main className="flex-1 flex flex-col relative z-10 overflow-hidden bg-[#0a0f1c]">
+            <main className="flex-1 flex flex-col relative z-10 overflow-hidden bg-background">
                 {/* Header with mobile menu button */}
                 <div className="relative">
                     {isMobile && (
