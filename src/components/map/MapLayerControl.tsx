@@ -70,6 +70,8 @@ export function MapLayerControl({ layers }: MapLayerControlProps) {
                 onClick={() => setIsOpen(!isOpen)}
                 className={`h-12 w-12 rounded-full shadow-lg transition-all duration-300 ${isOpen ? 'bg-slate-900 rotate-90' : 'bg-white hover:bg-slate-50 text-slate-700'
                     }`}
+                aria-label={isOpen ? 'Close layer controls' : 'Open layer controls'}
+                aria-expanded={isOpen}
             >
                 {isOpen ? <ChevronRight className="h-5 w-5 text-white" /> : <Layers className="h-5 w-5" />}
             </Button>

@@ -5,14 +5,22 @@ import {
   CurrencyDollar,
   CalendarDots,
   CarProfile,
-  ListChecks
+  ListChecks,
+  ShieldCheck
 } from '@phosphor-icons/react';
 import React, { useState, useMemo } from 'react';
+import { toast } from 'sonner';
 
 import { MaintenanceHubMap } from './MaintenanceHubMap';
+import {
+  enforceMaintenancePolicy,
+  shouldBlockAction,
+  getApprovalRequirements
+} from '@/lib/policy-engine/policy-enforcement';
 
 import { MapFirstLayout } from '@/components/layout/MapFirstLayout';
 import { Badge } from '@/components/ui/badge';
+import { usePolicies } from '@/contexts/PolicyContext';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -48,8 +56,13 @@ interface VehicleMaintenanceHistory {
 }
 
 export function MaintenanceHub() {
+  const { getPoliciesByType, policies } = usePolicies()
+  const maintenancePolicies = getPoliciesByType('maintenance')
+  const activeMaintenancePolicies = maintenancePolicies.filter(p => p.status === 'active')
+
   const [selectedTab, setSelectedTab] = useState<'queue' | 'history' | 'schedule'>('queue');
   const [selectedWorkOrder, setSelectedWorkOrder] = useState<WorkOrderItem | null>(null);
+  const [isCreatingWorkOrder, setIsCreatingWorkOrder] = useState(false);
 
   // Sample work order queue
   const workOrders: WorkOrderItem[] = useMemo(() => [
@@ -200,6 +213,56 @@ export function MaintenanceHub() {
     }
   };
 
+  // Handler for creating new work orders with policy enforcement
+  const handleCreateWorkOrder = async (workOrder: WorkOrderItem) => {
+    setIsCreatingWorkOrder(true);
+
+    try {
+      // Enforce maintenance policy before allowing work order creation
+      const result = await enforceMaintenancePolicy(policies, {
+        vehicleId: workOrder.vehicleId,
+        type: workOrder.type,
+        estimatedCost: workOrder.estimatedCost,
+        priority: workOrder.priority,
+        scheduledDate: workOrder.scheduledDate
+      });
+
+      // Check if action should be blocked
+      if (shouldBlockAction(result)) {
+        toast.error("Policy Violation", {
+          description: "This work order cannot be created without resolving policy violations"
+        });
+        setIsCreatingWorkOrder(false);
+        return;
+      }
+
+      // Check if approval is required
+      const approvalReq = getApprovalRequirements(result);
+      if (approvalReq.required) {
+        toast.warning(`${approvalReq.level?.toUpperCase()} Approval Required`, {
+          description: approvalReq.reason
+        });
+        // In real implementation, route to approval workflow
+      }
+
+      // If we reach here, either policy allows it or requires approval
+      if (result.allowed) {
+        toast.success("Work Order Created", {
+          description: approvalReq.required
+            ? "Work order submitted for approval"
+            : "Work order created successfully"
+        });
+        // Proceed with work order creation
+      }
+    } catch (error) {
+      toast.error("Error", {
+        description: "Failed to validate work order against policies"
+      });
+    } finally {
+      setIsCreatingWorkOrder(false);
+    }
+  };
+
   // Map component
   const mapComponent = (
     <MaintenanceHubMap
@@ -227,9 +290,18 @@ export function MaintenanceHub() {
   const sidePanel = (
     <div className="space-y-4">
       <div>
-        <h2 className="text-2xl font-bold">Maintenance Hub</h2>
+        <div className="flex items-center gap-2">
+          <h2 className="text-2xl font-bold">Maintenance Hub</h2>
+          {activeMaintenancePolicies.length > 0 && (
+            <Badge variant="outline" className="gap-1">
+              <ShieldCheck className="w-3 h-3" />
+              {activeMaintenancePolicies.length} Active {activeMaintenancePolicies.length === 1 ? 'Policy' : 'Policies'}
+            </Badge>
+          )}
+        </div>
         <p className="text-sm text-muted-foreground mt-1">
           Service locations, work orders, and maintenance tracking
+          {activeMaintenancePolicies.length > 0 && ` · Policy Engine: Active`}
         </p>
       </div>
 
@@ -390,8 +462,13 @@ export function MaintenanceHub() {
                       <p className="text-xs">{wo.location.address}</p>
                     </div>
 
-                    <Button className="w-full" size="sm">
-                      View Full Details
+                    <Button
+                      className="w-full"
+                      size="sm"
+                      onClick={() => handleCreateWorkOrder(wo)}
+                      disabled={isCreatingWorkOrder}
+                    >
+                      {isCreatingWorkOrder ? "Checking Policy..." : "Create Similar Order"}
                     </Button>
                   </div>
                 </CardContent>
