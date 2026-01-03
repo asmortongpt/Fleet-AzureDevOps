@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Fleet - Simple Test</title>
+    <style>
+        body { font-family: Arial; padding: 40px; background: #1a1a1a; color: #fff; }
+        .card { background: #2a2a2a; padding: 20px; border-radius: 8px; margin: 20px 0; }
+        .success { color: #4ade80; }
+        .error { color: #f87171; }
+        button { padding: 10px 20px; background: #3b82f6; color: white; border: none; border-radius: 4px; cursor: pointer; margin: 5px; }
+        button:hover { background: #2563eb; }
+    </style>
+</head>
+<body>
+    <h1>🚗 Fleet Management - Basic Test</h1>
+    
+    <div class="card">
+        <h2 class="success">✅ Server is Running!</h2>
+        <p>If you can see this page, the server is working correctly.</p>
+        <p>Build Date: Fri Jan  2 14:30:47 EST 2026</p>
+        <p>Server: Python HTTP Server on port 8080</p>
+    </div>
+
+    <div class="card">
+        <h2>🧪 Quick Tests</h2>
+        <div id="tests"></div>
+        <button onclick="runTests()">Run All Tests</button>
+    </div>
+
+    <div class="card">
+        <h2>📦 Main App Status</h2>
+        <p id="status">Click button to check...</p>
+        <button onclick="checkMainApp()">Check Main React App</button>
+        <button onclick="window.location.href='test-3d-garage.html'">Open 3D Garage</button>
+        <button onclick="window.location.href='stats.html'">Open Stats</button>
+    </div>
+
+    <script>
+        function runTests() {
+            const tests = document.getElementById('tests');
+            tests.innerHTML = '<p>Running tests...</p>';
+            
+            const results = [];
+            results.push('✅ HTML loaded');
+            results.push('✅ JavaScript executing');
+            results.push('✅ DOM manipulation working');
+            
+            fetch('/assets/js/index-BDwglPMF.js', { method: 'HEAD' })
+                .then(() => results.push('✅ Main JS bundle accessible'))
+                .catch(() => results.push('❌ Main JS bundle failed'));
+            
+            fetch('/assets/css/index-Bc55fxkl.css', { method: 'HEAD' })
+                .then(() => results.push('✅ CSS accessible'))
+                .catch(() => results.push('❌ CSS failed'));
+            
+            setTimeout(() => {
+                tests.innerHTML = results.join('<br>');
+            }, 1000);
+        }
+
+        function checkMainApp() {
+            const status = document.getElementById('status');
+            status.innerHTML = 'Checking main app...';
+            
+            fetch('/')
+                .then(r => r.text())
+                .then(html => {
+                    if (html.includes('id="root"')) {
+                        status.innerHTML = '<span class="success">✅ Main app HTML is correct</span><br>' +
+                                         '<span class="error">⚠️ If you see blank screen, check browser console for JavaScript errors</span><br>' +
+                                         '<button onclick="window.location.href=\'/\'">Try Loading Main App</button>';
+                    } else {
+                        status.innerHTML = '<span class="error">❌ Main app HTML structure problem</span>';
+                    }
+                })
+                .catch(e => {
+                    status.innerHTML = '<span class="error">❌ Failed: ' + e.message + '</span>';
+                });
+        }
+    </script>
+</body>
+</html>
