@@ -110,7 +110,7 @@ export function DriverControlPanel({
                                 {drivers.length} total • {stats.active} on duty
                             </p>
                         </div>
-                        <Button variant="ghost" size="icon" onClick={onClose} className="h-8 w-8 -mt-1 -mr-1">
+                        <Button variant="ghost" size="icon" onClick={onClose} className="h-8 w-8 -mt-1 -mr-1" aria-label="Close driver roster">
                             <X className="w-4 h-4" />
                         </Button>
                     </div>
