@@ -266,14 +266,19 @@ app.get('/api/gps-tracks', async (req, res) => {
 // Start server
 async function startServer() {
   try {
-    // Check database connection
-    const dbHealthy = await checkDatabaseConnection();
-    if (!dbHealthy) {
-      console.error('❌ Database connection failed. Please check your DATABASE_URL in .env');
-      process.exit(1);
-    }
+    // Check database connection (skip if using mock data)
+    const useMockData = process.env.USE_MOCK_DATA === 'true';
 
-    console.log('✅ Database connection successful');
+    if (!useMockData) {
+      const dbHealthy = await checkDatabaseConnection();
+      if (!dbHealthy) {
+        console.error('❌ Database connection failed. Please check your DATABASE_URL in .env');
+        process.exit(1);
+      }
+      console.log('✅ Database connection successful');
+    } else {
+      console.log('⚠️  Running in MOCK DATA mode - Database connection skipped');
+    }
 
     app.listen(PORT, () => {
       console.log('');
