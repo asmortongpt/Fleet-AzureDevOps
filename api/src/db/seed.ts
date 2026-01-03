@@ -13,7 +13,9 @@ async function seed() {
   ]
 
   for (const vehicle of vehicles) {
-    await db.insert("vehicles").values(vehicle)
+    // TODO: Fix drizzle table import
+    // await db.insert("vehicles").values(vehicle)
+    console.log("Vehicle seed disabled - needs table schema")
   }
 
   // Seed drivers
@@ -24,7 +26,9 @@ async function seed() {
   ]
 
   for (const driver of drivers) {
-    await db.insert("drivers").values(driver)
+    // TODO: Fix drizzle table import
+    // await db.insert("drivers").values(driver)
+    console.log("Driver seed disabled - needs table schema")
   }
 
   // Seed fuel transactions (1000+ records)

@@ -25,6 +25,10 @@ declare global {
         name?: string
         tenantId?: string  // Deprecated: use tenant_id
         permissions?: string[]
+        // AuthService fields
+        username?: string
+        roles?: string[]
+        sessionId?: string
       }
 
       // CSRF token
@@ -73,6 +77,10 @@ declare module 'express-serve-static-core' {
       name?: string
       tenantId?: string  // Deprecated: use tenant_id
       permissions?: string[]
+      // AuthService fields
+      username?: string
+      roles?: string[]
+      sessionId?: string
     }
     csrfToken?: () => string
     tenant?: {

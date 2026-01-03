@@ -196,8 +196,9 @@ return
    * Track quality gates and deployments
    */
   trackQualityGate(gateType: string, status: string, executionTime: number) {
-    if (!this.isConfigured || !this.client) {
-return this.client.trackEvent({
+    if (!this.isConfigured || !this.client) return
+
+    return this.client.trackEvent({
       name: 'QualityGateExecuted',
       properties: {
         gateType,
