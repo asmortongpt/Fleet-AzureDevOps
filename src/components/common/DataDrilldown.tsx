@@ -175,7 +175,7 @@ export function DataDrilldown({
             <div>
               <CardTitle className="flex items-center gap-2">
                 {breadcrumbs.length > 0 && (
-                  <Button variant="ghost" size="sm" onClick={handleBack}>
+                  <Button variant="ghost" size="sm" onClick={handleBack} aria-label="Go back">
                     <ArrowLeft className="h-4 w-4" />
                   </Button>
                 )}
@@ -296,7 +296,7 @@ export function DataDrilldown({
           <CardHeader>
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-4">
-                <Button variant="ghost" size="sm" onClick={handleBack}>
+                <Button variant="ghost" size="sm" onClick={handleBack} aria-label="Go back">
                   <ArrowLeft className="h-4 w-4" />
                 </Button>
                 <div>
@@ -414,7 +414,7 @@ export function DataDrilldown({
         <CardHeader>
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
-              <Button variant="ghost" size="sm" onClick={() => setViewMode('detail')}>
+              <Button variant="ghost" size="sm" onClick={() => setViewMode('detail')} aria-label="Cancel editing and go back">
                 <ArrowLeft className="h-4 w-4" />
               </Button>
               <CardTitle>Edit {currentRecord.title}</CardTitle>
