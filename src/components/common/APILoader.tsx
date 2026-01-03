@@ -5,6 +5,7 @@
  */
 
 import React from 'react';
+import { SkeletonLoader } from '@/components/shared';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Loader2, AlertCircle } from 'lucide-react';
 

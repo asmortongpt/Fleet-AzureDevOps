@@ -18,25 +18,15 @@ export function VirtualGarageControls({
 }: VirtualGarageControlsProps) {
   const [expanded, setExpanded] = useState(true);
   
-  // All 17 camera presets as per requirements
   const cameraPresets = [
-    { id: 'hero', label: 'Hero Shot', icon: '🎬', description: 'Dramatic 3/4 front view' },
-    { id: 'frontQuarter', label: 'Front Quarter', icon: '📐', description: '45° front angle' },
-    { id: 'rearQuarter', label: 'Rear Quarter', icon: '📐', description: '45° rear angle' },
-    { id: 'profile', label: 'Side Profile', icon: '➡️', description: 'Pure side view' },
-    { id: 'front', label: 'Front View', icon: '⬆️', description: 'Head-on front' },
-    { id: 'rear', label: 'Rear View', icon: '⬇️', description: 'Straight back' },
-    { id: 'topDown', label: 'Top Down', icon: '🔽', description: 'Bird\'s eye view' },
-    { id: 'lowAngle', label: 'Low Angle', icon: '📸', description: 'Ground-level dramatic' },
-    { id: 'interior', label: 'Interior', icon: '🪑', description: 'Cabin overview' },
-    { id: 'dashboard', label: 'Dashboard', icon: '🎛️', description: 'Driver perspective' },
-    { id: 'backSeat', label: 'Back Seat', icon: '💺', description: 'Rear passenger view' },
-    { id: 'engineBay', label: 'Engine Bay', icon: '⚙️', description: 'Under the hood' },
-    { id: 'wheelDetail', label: 'Wheel Detail', icon: '⭕', description: 'Close-up wheel/tire' },
-    { id: 'undercarriage', label: 'Undercarriage', icon: '🔧', description: 'Bottom chassis view' },
-    { id: 'trunk', label: 'Trunk/Bed', icon: '📦', description: 'Cargo area' },
-    { id: 'closeup', label: 'Detail Shot', icon: '🔍', description: 'Brand/badge closeup' },
-    { id: 'cinematic', label: 'Cinematic', icon: '🎥', description: 'Dynamic tracking shot' },
+    { id: 'hero', label: 'Hero Shot', icon: '🎬' },
+    { id: 'frontQuarter', label: 'Front Quarter', icon: '📐' },
+    { id: 'rearQuarter', label: 'Rear Quarter', icon: '📐' },
+    { id: 'profile', label: 'Side Profile', icon: '➡️' },
+    { id: 'topDown', label: 'Top Down', icon: '⬇️' },
+    { id: 'interior', label: 'Interior', icon: '🪑' },
+    { id: 'engineBay', label: 'Engine Bay', icon: '⚙️' },
+    { id: 'wheelDetail', label: 'Wheel Detail', icon: '⭕' },
   ];
   
   const qualityLevels = [
@@ -71,12 +61,11 @@ export function VirtualGarageControls({
                 <Camera size={16} />
                 Camera Angles
               </h3>
-              <div className="grid grid-cols-2 gap-2 max-h-96 overflow-y-auto">
+              <div className="grid grid-cols-2 gap-2">
                 {cameraPresets.map(preset => (
                   <button
                     key={preset.id}
                     onClick={() => onCameraChange(preset.id)}
-                    title={preset.description}
                     className={`px-3 py-2 rounded-lg text-sm transition-all ${
                       currentCamera === preset.id
                         ? 'bg-blue-600 text-white shadow-md'
