@@ -50,7 +50,7 @@ tests/
 e2e/
 
 # Build artifacts (dist will be copied from builder stage)
-dist/
+# dist/ - COMMENTED OUT FOR PRODUCTION DEPLOYMENT
 build/
 out/
 .next/
