@@ -1,12 +1,12 @@
 /**
- * Premium Statistics Card Component
- * 
+ * Professional Statistics Card Component
+ *
  * Features:
- * - Glassmorphism effect
- * - Gradient accents
+ * - Clean corporate design
+ * - Subtle shadows and borders
  * - Trend indicators (up/down)
- * - Animated counters
- * - Hover effects
+ * - Professional color variants
+ * - Accessible and keyboard-navigable
  */
 
 import { ArrowUp, ArrowDown, Minus } from '@phosphor-icons/react'
@@ -28,42 +28,47 @@ interface StatCardProps {
     drilldownLabel?: string
 }
 
-// Liquid Glass UI - Solid colors with frosted glass effect
+// Professional Corporate UI - Clean design with subtle accents
 const variantStyles = {
     default: {
-        bg: 'bg-slate-900/95',
-        border: 'border-slate-700/60',
-        accent: 'from-slate-300 to-slate-400',
-        iconBg: 'bg-slate-800/80',
-        iconColor: 'text-slate-300'
+        bg: 'bg-card',
+        border: 'border-border',
+        accent: 'from-slate-600 to-slate-700',
+        iconBg: 'bg-secondary/50',
+        iconColor: 'text-muted-foreground',
+        valueColor: 'text-foreground'
     },
     primary: {
-        bg: 'bg-blue-950/95',
-        border: 'border-blue-400/40',
-        accent: 'from-blue-300 to-blue-400',
-        iconBg: 'bg-blue-900/80',
-        iconColor: 'text-blue-300'
+        bg: 'bg-card',
+        border: 'border-primary/20',
+        accent: 'from-blue-600 to-blue-700',
+        iconBg: 'bg-primary/10',
+        iconColor: 'text-primary',
+        valueColor: 'text-foreground'
     },
     success: {
-        bg: 'bg-emerald-950/95',
-        border: 'border-emerald-400/40',
-        accent: 'from-emerald-300 to-emerald-400',
-        iconBg: 'bg-emerald-900/80',
-        iconColor: 'text-emerald-300'
+        bg: 'bg-card',
+        border: 'border-success/20',
+        accent: 'from-emerald-600 to-emerald-700',
+        iconBg: 'bg-success/10',
+        iconColor: 'text-success',
+        valueColor: 'text-foreground'
     },
     warning: {
-        bg: 'bg-amber-950/95',
-        border: 'border-amber-400/40',
-        accent: 'from-amber-300 to-amber-400',
-        iconBg: 'bg-amber-900/80',
-        iconColor: 'text-amber-300'
+        bg: 'bg-card',
+        border: 'border-warning/20',
+        accent: 'from-amber-600 to-amber-700',
+        iconBg: 'bg-warning/10',
+        iconColor: 'text-warning',
+        valueColor: 'text-foreground'
     },
     danger: {
-        bg: 'bg-red-950/95',
-        border: 'border-red-400/40',
-        accent: 'from-red-300 to-red-400',
-        iconBg: 'bg-red-900/80',
-        iconColor: 'text-red-300'
+        bg: 'bg-card',
+        border: 'border-destructive/20',
+        accent: 'from-red-600 to-red-700',
+        iconBg: 'bg-destructive/10',
+        iconColor: 'text-destructive',
+        valueColor: 'text-foreground'
     }
 }
 
@@ -83,7 +88,7 @@ export function StatCard({
     const styles = variantStyles[variant]
 
     const TrendIcon = trend === 'up' ? ArrowUp : trend === 'down' ? ArrowDown : Minus
-    const trendColor = trend === 'up' ? 'text-emerald-400' : trend === 'down' ? 'text-red-400' : 'text-slate-400'
+    const trendColor = trend === 'up' ? 'text-success' : trend === 'down' ? 'text-destructive' : 'text-muted-foreground'
 
     return (
         <div
@@ -98,44 +103,41 @@ export function StatCard({
             }}
             aria-label={isClickable ? `${title}: ${value}. ${drilldownLabel}` : undefined}
             className={cn(
-                // Base - compact padding
-                'relative overflow-hidden rounded-lg border p-3',
-                // Glassmorphism
-                'backdrop-blur-xl shadow-lg',
-                // Hover effects
-                'transition-all duration-200 hover:shadow-xl',
-                // Clickable styling
-                isClickable && 'cursor-pointer hover:scale-[1.02] hover:border-opacity-80 active:scale-[0.99] focus:outline-none focus:ring-2 focus:ring-blue-500/50',
+                // Base - professional padding and rounded corners
+                'relative overflow-hidden rounded-lg border p-4',
+                // Professional shadow
+                'shadow-sm',
+                // Subtle hover effects
+                'transition-all duration-200 hover:shadow-md',
+                // Clickable styling - subtle interaction
+                isClickable && 'cursor-pointer hover:border-primary/30 active:scale-[0.99] focus:outline-none focus:ring-2 focus:ring-primary/20',
                 // Variant styles
                 styles.bg,
                 styles.border,
                 className
             )}
         >
-            {/* Gradient accent line at top */}
+            {/* Subtle accent line at top - professional touch */}
             <div className={cn(
-                'absolute top-0 left-0 right-0 h-0.5 bg-gradient-to-r',
+                'absolute top-0 left-0 right-0 h-1 bg-gradient-to-r opacity-60',
                 styles.accent
             )} />
 
-            {/* Glow effect */}
-            <div className="absolute -top-16 -right-16 w-32 h-32 bg-gradient-to-br from-white/5 to-transparent rounded-full blur-xl" />
-
-            <div className="relative flex items-start justify-between gap-2">
-                <div className="space-y-0.5 min-w-0">
-                    <p className="text-[10px] font-medium text-slate-400 uppercase tracking-wide truncate">{title}</p>
+            <div className="relative flex items-start justify-between gap-3">
+                <div className="space-y-1 min-w-0 flex-1">
+                    <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide truncate">{title}</p>
                     <p className={cn(
-                        'text-xl font-bold tracking-tight bg-gradient-to-r bg-clip-text text-transparent',
-                        styles.accent
+                        'text-2xl font-bold tracking-tight',
+                        styles.valueColor
                     )}>
                         {value}
                     </p>
                     {subtitle && (
-                        <p className="text-[10px] text-slate-500 truncate">{subtitle}</p>
+                        <p className="text-xs text-muted-foreground truncate">{subtitle}</p>
                     )}
                     {trend && (
-                        <div className={cn('flex items-center gap-0.5 text-xs font-medium', trendColor)}>
-                            <TrendIcon className="w-3 h-3" weight="bold" />
+                        <div className={cn('flex items-center gap-1 text-xs font-medium', trendColor)}>
+                            <TrendIcon className="w-3.5 h-3.5" weight="bold" />
                             <span>{trendValue}</span>
                         </div>
                     )}
@@ -143,7 +145,7 @@ export function StatCard({
 
                 {icon && (
                     <div className={cn(
-                        'p-2 rounded-lg shrink-0',
+                        'p-2.5 rounded-lg shrink-0',
                         styles.iconBg,
                         styles.iconColor
                     )}>
@@ -152,10 +154,12 @@ export function StatCard({
                 )}
             </div>
 
-            {/* Drilldown indicator - visual only, no text */}
+            {/* Drilldown indicator - subtle chevron */}
             {isClickable && (
-                <div className="absolute bottom-1.5 right-1.5 opacity-0 hover:opacity-100 transition-opacity">
-                    <div className="w-1.5 h-1.5 rounded-full bg-blue-400/60 animate-pulse" />
+                <div className="absolute bottom-2 right-2 opacity-40 group-hover:opacity-80 transition-opacity">
+                    <svg className="w-3 h-3 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                    </svg>
                 </div>
             )}
         </div>
@@ -175,10 +179,10 @@ interface ProgressRingProps {
 }
 
 const ringColors = {
-    blue: 'stroke-blue-500',
-    green: 'stroke-emerald-500',
-    yellow: 'stroke-amber-500',
-    red: 'stroke-red-500'
+    blue: 'stroke-primary',
+    green: 'stroke-success',
+    yellow: 'stroke-warning',
+    red: 'stroke-destructive'
 }
 
 export function ProgressRing({
@@ -203,7 +207,7 @@ export function ProgressRing({
                     fill="none"
                     stroke="currentColor"
                     strokeWidth={strokeWidth}
-                    className="text-slate-700/50"
+                    className="text-muted/20"
                 />
                 <circle
                     cx={size / 2}
@@ -218,9 +222,9 @@ export function ProgressRing({
                 />
             </svg>
             <div className="absolute inset-0 flex flex-col items-center justify-center">
-                <span className="text-lg font-bold text-white">{progress}%</span>
-                {label && <span className="text-[10px] text-slate-400">{label}</span>}
-                {sublabel && <span className="text-[8px] text-slate-500">{sublabel}</span>}
+                <span className="text-lg font-bold text-foreground">{progress}%</span>
+                {label && <span className="text-[10px] text-muted-foreground">{label}</span>}
+                {sublabel && <span className="text-[8px] text-muted-foreground/80">{sublabel}</span>}
             </div>
         </div>
     )
@@ -235,28 +239,28 @@ interface StatusDotProps {
 }
 
 const statusColors = {
-    online: 'bg-emerald-500',
-    offline: 'bg-slate-500',
-    warning: 'bg-amber-500',
-    error: 'bg-red-500'
+    online: 'bg-success',
+    offline: 'bg-muted-foreground',
+    warning: 'bg-warning',
+    error: 'bg-destructive'
 }
 
 export function StatusDot({ status, label }: StatusDotProps) {
     return (
         <div className="flex items-center gap-2">
-            <span className="relative flex h-3 w-3">
+            <span className="relative flex h-2.5 w-2.5">
                 {status === 'online' && (
                     <span className={cn(
-                        'animate-ping absolute inline-flex h-full w-full rounded-full opacity-75',
+                        'animate-ping absolute inline-flex h-full w-full rounded-full opacity-50',
                         statusColors[status]
                     )} />
                 )}
                 <span className={cn(
-                    'relative inline-flex rounded-full h-3 w-3',
+                    'relative inline-flex rounded-full h-2.5 w-2.5',
                     statusColors[status]
                 )} />
             </span>
-            {label && <span className="text-sm text-slate-400">{label}</span>}
+            {label && <span className="text-sm text-muted-foreground font-medium">{label}</span>}
         </div>
     )
 }
@@ -286,19 +290,19 @@ export function QuickStat({ label, value, trend, onClick }: QuickStatProps) {
                 }
             }}
             className={cn(
-                'flex items-center justify-between py-1 border-b border-slate-700/50 last:border-0',
-                isClickable && 'cursor-pointer hover:bg-white/5 rounded px-1 -mx-1 transition-colors'
+                'flex items-center justify-between py-2 border-b border-border last:border-0',
+                isClickable && 'cursor-pointer hover:bg-muted/30 rounded px-2 -mx-2 transition-colors'
             )}
         >
-            <span className="text-xs text-slate-400">{label}</span>
-            <div className="flex items-center gap-1">
-                <span className="text-sm font-semibold text-white">{value}</span>
+            <span className="text-xs text-muted-foreground">{label}</span>
+            <div className="flex items-center gap-1.5">
+                <span className="text-sm font-semibold text-foreground">{value}</span>
                 {trend && (
-                    <span className={trend === 'up' ? 'text-emerald-400' : 'text-red-400'}>
-                        {trend === 'up' ? <ArrowUp className="w-2.5 h-2.5" /> : <ArrowDown className="w-2.5 h-2.5" />}
+                    <span className={trend === 'up' ? 'text-success' : 'text-destructive'}>
+                        {trend === 'up' ? <ArrowUp className="w-3 h-3" /> : <ArrowDown className="w-3 h-3" />}
                     </span>
                 )}
-                {isClickable && <span className="text-slate-600 text-xs">→</span>}
+                {isClickable && <span className="text-muted-foreground text-xs">→</span>}
             </div>
         </div>
     )
