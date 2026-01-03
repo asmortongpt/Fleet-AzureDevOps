@@ -60,20 +60,27 @@ export const strictRateLimit = rateLimit({
   },
 });
 
+// Initialize DOMPurify with JSDOM
+const window = new JSDOM('').window;
+const purify = DOMPurify(window as unknown as Window);
+
 // Type for values that can be sanitized
 type SanitizableValue = string | number | boolean | null | undefined | SanitizableObject | SanitizableValue[];
 interface SanitizableObject {
   [key: string]: SanitizableValue;
 }
 
-// Input sanitization
+// Input sanitization with DOMPurify
 export const sanitizeInput = (req: Request, res: Response, next: NextFunction) => {
   const sanitize = (obj: SanitizableValue): SanitizableValue => {
     if (typeof obj === 'string') {
-      return obj
-        .replace(/[<>]/g, '') // Remove potential XSS vectors
-        .trim()
-        .slice(0, 10000); // Limit string length
+      // Use DOMPurify for comprehensive XSS protection
+      const cleaned = purify.sanitize(obj, {
+        ALLOWED_TAGS: [], // No HTML tags allowed
+        ALLOWED_ATTR: [], // No attributes allowed
+        KEEP_CONTENT: true, // Keep text content
+      });
+      return cleaned.trim().slice(0, 10000); // Limit string length
     }
     if (Array.isArray(obj)) {
       return obj.map(item => sanitize(item));

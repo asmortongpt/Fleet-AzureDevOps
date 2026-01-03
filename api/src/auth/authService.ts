@@ -221,8 +221,9 @@ export class AuthService {
   public validatePasswordStrength(password: string): { isValid: boolean; errors: string[] } {
     const errors: string[] = []
 
-    if (password.length < 8) {
-      errors.push('Password must be at least 8 characters long')
+    // Increased minimum length from 8 to 12 characters
+    if (password.length < 12) {
+      errors.push('Password must be at least 12 characters long')
     }
 
     if (password.length > 128) {
