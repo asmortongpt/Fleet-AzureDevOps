@@ -4,16 +4,14 @@
  * Endpoints for OCR processing and management
  */
 
-import { container } from '../container'
-import { asyncHandler } from '../middleware/errorHandler'
-import { NotFoundError, ValidationError } from '../errors/app-error'
-import logger from '../config/logger'; // Wave 25: Add Winston logger
+
 import fs from 'fs/promises'
 
 import express, { Request, Response } from 'express'
 import multer from 'multer'
 
-
+import logger from '../config/logger'; // Wave 25: Add Winston logger
+import { NotFoundError, ValidationError } from '../errors/app-error'
 import { csrfProtection } from '../middleware/csrf'
 import ocrQueueService from '../services/OcrQueueService'
 import ocrService, { OcrOptions, OcrProvider } from '../services/OcrService'

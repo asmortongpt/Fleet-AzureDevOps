@@ -7,8 +7,8 @@
 
 import Bull, { Queue, Job, JobOptions } from 'bull'
 
-import redisClient from '../config/redis'
 import logger from '../config/logger'
+import redisClient from '../config/redis'
 
 /**
  * Queue configuration with retry logic and error handling

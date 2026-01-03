@@ -15,22 +15,22 @@ import { useState, useMemo } from 'react';
 import { toast } from 'sonner';
 
 import { OperationsHubMap } from './OperationsHubMap';
-import {
-  enforceDispatchPolicy,
-  shouldBlockAction,
-  getApprovalRequirements
-} from '@/lib/policy-engine/policy-enforcement';
-import { usePolicies } from '@/contexts/PolicyContext';
 
+import { DrilldownCard } from '@/components/drilldown/DrilldownCard';
 import { MapFirstLayout } from '@/components/layout/MapFirstLayout';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
-import { useVehicles, useDrivers, useWorkOrders } from '@/hooks/use-api';
-import { DrilldownCard } from '@/components/drilldown/DrilldownCard';
 import { useDrilldown } from '@/contexts/DrilldownContext';
+import { usePolicies } from '@/contexts/PolicyContext';
+import { useVehicles, useDrivers, useWorkOrders } from '@/hooks/use-api';
+import {
+  enforceDispatchPolicy,
+  shouldBlockAction,
+  getApprovalRequirements
+} from '@/lib/policy-engine/policy-enforcement';
 
 interface Vehicle {
   id: string;
@@ -533,6 +533,7 @@ export function OperationsHub() {
       }
       sidePanel={sidePanel}
       drawerContent={drawerContent}
+      hubType="operations"
     />
   );
 }

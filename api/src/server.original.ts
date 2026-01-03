@@ -1,7 +1,8 @@
 // Initialize monitoring services FIRST (before other imports)
-import telemetryService from './monitoring/applicationInsights'
+import cors from 'cors'
+import express from 'express'
+import helmet from 'helmet'
 
-import { sentryService } from './monitoring/sentry'
 import {
   sentryRequestHandler,
   sentryTracingHandler,
@@ -11,11 +12,9 @@ import {
   handleUncaughtException,
   handleGracefulShutdown
 } from './middleware/sentryErrorHandler'
-
-import express from 'express'
-import cors from 'cors'
-import helmet from 'helmet'
-
+import { telemetryMiddleware, errorTelemetryMiddleware, performanceMiddleware } from './middleware/telemetry'
+import telemetryService from './monitoring/applicationInsights'
+import { sentryService } from './monitoring/sentry'
 import driversRouter from './routes/drivers'
 import fuelRouter from './routes/fuel-transactions'
 import incidentsRouter from './routes/incidents'
@@ -27,7 +26,6 @@ import purchaseOrdersRouter from './routes/purchase-orders'
 import tasksRouter from './routes/tasks'
 import vehiclesRouter from './routes/vehicles'
 import vendorsRouter from './routes/vendors'
-import { telemetryMiddleware, errorTelemetryMiddleware, performanceMiddleware } from './middleware/telemetry'
 
 telemetryService.initialize()
 

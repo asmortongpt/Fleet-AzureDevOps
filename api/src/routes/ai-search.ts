@@ -9,9 +9,6 @@
  * - Search analytics and personalization
  */
 
-import { container } from '../container'
-import { asyncHandler } from '../middleware/errorHandler'
-import { NotFoundError, ValidationError } from '../errors/app-error'
 import express, { Response } from 'express'
 import { z } from 'zod'
 

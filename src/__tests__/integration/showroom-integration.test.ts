@@ -1,9 +1,10 @@
-import { describe, it, expect, beforeAll } from 'vitest';
-import { PhotorealisticMaterials } from '../../materials/PhotorealisticMaterials';
-import { CinematicCameraSystem } from '../../camera/CinematicCameraSystem';
-import { WebGLCompatibilityManager } from '../../utils/WebGLCompatibilityManager';
-import { PBRMaterialSystem } from '../../materials/PBRMaterialSystem';
 import * as THREE from 'three';
+import { describe, it, expect } from 'vitest';
+
+import { CinematicCameraSystem } from '../../camera/CinematicCameraSystem';
+import { PBRMaterialSystem } from '../../materials/PBRMaterialSystem';
+import { PhotorealisticMaterials } from '../../materials/PhotorealisticMaterials';
+import { WebGLCompatibilityManager } from '../../utils/WebGLCompatibilityManager';
 
 describe('Fleet Showroom Integration', () => {
   describe('PhotorealisticMaterials', () => {

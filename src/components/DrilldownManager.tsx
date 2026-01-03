@@ -8,52 +8,30 @@ import React from 'react'
 import { DrilldownBreadcrumbs } from '@/components/DrilldownBreadcrumbs'
 import { DrilldownPanel } from '@/components/DrilldownPanel'
 import {
-  IncidentsDrilldown,
   SafetyScoreDetailDrilldown,
   VideoTelematicsDrilldown,
-  DispatchDrilldown,
-  RoutesDrilldown,
-  TasksDrilldown,
   VendorsDrilldown,
   PartsInventoryDrilldown,
   PurchaseOrdersDrilldown,
   FuelPurchasingDrilldown
 } from '@/components/drilldown/AdditionalHubDrilldowns'
 import {
-  JobListView,
-  RouteListView,
-  TaskListView
-} from '@/components/drilldown/OperationsHubDrilldowns'
-import { JobDetailPanel } from '@/components/drilldown/JobDetailPanel'
-import { RouteDetailPanel } from '@/components/drilldown/RouteDetailPanel'
-import { TaskDetailPanel } from '@/components/drilldown/TaskDetailPanel'
-import { VehicleAssignmentDrilldown } from '@/components/drilldown/VehicleAssignmentDrilldown'
-import { OperationsPerformanceDrilldown } from '@/components/drilldown/OperationsPerformanceDrilldown'
-import {
-  IncidentListView,
-  LostTimeIncidentsView,
-  OSHAComplianceView,
-  DaysIncidentFreeView
-} from '@/components/drilldown/SafetyHubDrilldowns'
-import { IncidentDetailPanel } from '@/components/drilldown/IncidentDetailPanel'
-import { HazardZoneDetailPanel } from '@/components/drilldown/HazardZoneDetailPanel'
-import {
-  InspectionsMatrixView,
-  SafetyInspectionDetailPanel
-} from '@/components/drilldown/SafetyInspectionDrilldowns'
-import {
-  TrainingRecordsMatrixView,
-  CertificationsMatrixView
-} from '@/components/drilldown/SafetyTrainingDrilldowns'
-import {
-  ViolationsMatrixView,
-  IncidentsMatrixView
-} from '@/components/drilldown/SafetyComplianceDrilldowns'
-import {
   SystemHealthDrilldown,
   AlertsDrilldown,
   FilesDrilldown
 } from '@/components/drilldown/AdminHubDrilldowns'
+import {
+  AlertDetailPanel,
+  AlertListView
+} from '@/components/drilldown/AlertDrilldowns'
+import {
+  AssetDetailPanel,
+  EquipmentDetailPanel,
+  InventoryItemDetailPanel,
+  AssetListView,
+  EquipmentListView,
+  InventoryListView
+} from '@/components/drilldown/AssetHubDrilldowns'
 import {
   AiAgentDrilldown,
   MessagesDrilldown,
@@ -69,6 +47,35 @@ import {
 } from '@/components/drilldown/ComplianceHubDrilldowns'
 import { DriverDetailPanel } from '@/components/drilldown/DriverDetailPanel'
 import { DriverPerformanceView } from '@/components/drilldown/DriverPerformanceView'
+import { HazardZoneDetailPanel } from '@/components/drilldown/HazardZoneDetailPanel'
+import { IncidentDetailPanel } from '@/components/drilldown/IncidentDetailPanel'
+import { JobDetailPanel } from '@/components/drilldown/JobDetailPanel'
+import {
+  JobListView,
+  RouteListView,
+  TaskListView
+} from '@/components/drilldown/OperationsHubDrilldowns'
+import { RouteDetailPanel } from '@/components/drilldown/RouteDetailPanel'
+import {
+  IncidentListView,
+  LostTimeIncidentsView,
+  OSHAComplianceView,
+  DaysIncidentFreeView
+} from '@/components/drilldown/SafetyHubDrilldowns'
+import { TaskDetailPanel } from '@/components/drilldown/TaskDetailPanel'
+import { VehicleAssignmentDrilldown } from '@/components/drilldown/VehicleAssignmentDrilldown'
+import { OperationsPerformanceDrilldown } from '@/components/drilldown/OperationsPerformanceDrilldown'
+import {
+  InspectionsMatrixView,
+  SafetyInspectionDetailPanel
+} from '@/components/drilldown/SafetyInspectionDrilldowns'
+import {
+  TrainingRecordsMatrixView,
+  CertificationsMatrixView
+} from '@/components/drilldown/SafetyTrainingDrilldowns'
+import {
+  ViolationsMatrixView
+} from '@/components/drilldown/SafetyComplianceDrilldowns'
 import { DriverTripsView } from '@/components/drilldown/DriverTripsView'
 import { FacilityDetailPanel } from '@/components/drilldown/FacilityDetailPanel'
 import { FacilityVehiclesView } from '@/components/drilldown/FacilityVehiclesView'
@@ -109,15 +116,8 @@ import { PartsBreakdownView } from '@/components/drilldown/PartsBreakdownView'
 import { TripTelemetryView } from '@/components/drilldown/TripTelemetryView'
 import { VehicleDetailPanel } from '@/components/drilldown/VehicleDetailPanel'
 import { VehicleTripsList } from '@/components/drilldown/VehicleTripsList'
+import { ViolationDetailPanel } from '@/components/drilldown/ViolationDetailPanel'
 import { WorkOrderDetailPanel } from '@/components/drilldown/WorkOrderDetailPanel'
-import {
-  AssetDetailPanel,
-  EquipmentDetailPanel,
-  InventoryItemDetailPanel,
-  AssetListView,
-  EquipmentListView,
-  InventoryListView
-} from '@/components/drilldown/AssetHubDrilldowns'
 import {
   MaintenanceRequestDetailPanel,
   MaintenanceRequestListView
@@ -133,12 +133,7 @@ import {
   ScheduledItemDetailPanel,
   CalendarListView
 } from '@/components/drilldown/ScheduleDrilldowns'
-import {
-  AlertDetailPanel,
-  AlertListView
-} from '@/components/drilldown/AlertDrilldowns'
 import { PolicyDetailPanel } from '@/components/drilldown/PolicyDetailPanel'
-import { ViolationDetailPanel } from '@/components/drilldown/ViolationDetailPanel'
 import { PolicyTemplateDetailPanel } from '@/components/drilldown/PolicyTemplateDetailPanel'
 import { PolicyExecutionView } from '@/components/drilldown/PolicyExecutionView'
 import { DrilldownProvider, useDrilldown } from '@/contexts/DrilldownContext'

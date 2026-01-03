@@ -8,7 +8,8 @@
  * - Auto-populate rules engine with intelligent policies
  */
 
-import { Policy, PolicyType, PolicyMode, PolicyStatus } from './types';
+import { Policy } from './types';
+
 import logger from '@/utils/logger';
 
 export interface OrganizationProfile {

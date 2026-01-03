@@ -6,13 +6,13 @@
 
 import express, { Request, Response } from 'express'
 
+import logger from '../config/logger'
 import { pool } from '../db/connection';
+import { NotFoundError, ValidationError } from '../errors/app-error'
 import { csrfProtection } from '../middleware/csrf'
 import * as googleCalendar from '../services/google-calendar.service'
 import schedulingNotificationService from '../services/scheduling-notification.service'
 import * as schedulingService from '../services/scheduling.service'
-import { NotFoundError, ValidationError } from '../errors/app-error'
-import logger from '../config/logger'
 
 const router = express.Router()
 

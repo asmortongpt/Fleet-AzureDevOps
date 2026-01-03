@@ -10,9 +10,7 @@
  * 3. Add authentication middleware as needed
  */
 
-import { container } from '../container'
-import { asyncHandler } from '../middleware/errorHandler'
-import { NotFoundError, ValidationError } from '../errors/app-error'
+
 import { Router, Request, Response } from 'express'
 
 import documentSearchService from '../services/document-search.service'

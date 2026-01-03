@@ -1,14 +1,14 @@
 import i18n from 'i18next';
-import { initReactI18next } from 'react-i18next';
 import LanguageDetector from 'i18next-browser-languagedetector';
 import Backend from 'i18next-http-backend';
+import { initReactI18next } from 'react-i18next';
 
 // Import translations
+import arSA from './locales/ar-SA.json';
+import deDE from './locales/de-DE.json';
 import enUS from './locales/en-US.json';
 import esES from './locales/es-ES.json';
 import frFR from './locales/fr-FR.json';
-import deDE from './locales/de-DE.json';
-import arSA from './locales/ar-SA.json';
 import heIL from './locales/he-IL.json';
 
 export const languages = {

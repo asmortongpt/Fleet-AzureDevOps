@@ -1,9 +1,7 @@
 import {
   Brain,
   CheckCircle,
-  ChevronRight,
   AlertTriangle,
-  TrendingUp,
   Shield,
   Wrench,
   Truck,
@@ -12,16 +10,14 @@ import {
   FileText,
   Sparkles,
   Target,
-  BarChart3,
   ArrowRight,
-  Download,
   Play,
   Lightbulb,
   Clock,
   DollarSign,
   Zap
 } from "lucide-react"
-import { useState, useEffect } from "react"
+import { useState } from "react"
 import { toast } from "sonner"
 
 import { Badge } from "@/components/ui/badge"
@@ -32,7 +28,7 @@ import { Label } from "@/components/ui/label"
 import { Progress } from "@/components/ui/progress"
 import { Separator } from "@/components/ui/separator"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Textarea } from "@/components/ui/textarea"
+import { usePolicies } from "@/contexts/PolicyContext"
 import {
   createAIPolicyGenerator,
   type OrganizationProfile,
@@ -40,7 +36,6 @@ import {
   type GapAnalysis,
   type BottleneckAnalysis
 } from "@/lib/policy-engine/ai-policy-generator"
-import { usePolicies } from "@/contexts/PolicyContext"
 import { cn } from "@/lib/utils"
 
 type OnboardingStep = 'profile' | 'analysis' | 'recommendations' | 'implementation'

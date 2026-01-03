@@ -16,14 +16,13 @@
 
 import {
   MagnifyingGlass, Car, User, Wrench, Package,
-  Truck, MapPin, FileText, ArrowRight,
+  Truck, MapPin, FileText,
   Keyboard, CaretRight, Spinner
 } from '@phosphor-icons/react'
 import { motion } from 'framer-motion'
 import React, { useState, useCallback, useMemo, useEffect } from 'react'
 
 import { Badge } from '@/components/ui/badge'
-import { Button } from '@/components/ui/button'
 import {
   Dialog,
   DialogContent,
@@ -36,8 +35,8 @@ import { useDrilldown } from '@/contexts/DrilldownContext'
 import { EntityType } from '@/contexts/EntityLinkingContext'
 import { useFleetData } from '@/hooks/use-fleet-data'
 import { useDebounce } from '@/hooks/useDebounce'
-import { cn } from '@/lib/utils'
 import { Vehicle, Driver, WorkOrder } from '@/lib/types'
+import { cn } from '@/lib/utils'
 
 // ============================================================================
 // TYPES

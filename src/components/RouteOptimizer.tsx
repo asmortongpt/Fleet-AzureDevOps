@@ -19,26 +19,15 @@
  */
 
 import {
-  Loader2,
-  Plus,
-  Trash2,
   Route,
-  TrendingDown,
-  Clock,
-  DollarSign,
-  MapPin,
   Download,
   AlertCircle,
-  CheckCircle,
-  Navigation,
-  Zap
+  Navigation
 } from 'lucide-react'
 import React, { useState, useEffect, useCallback, useRef, useMemo } from 'react'
 import { toast } from 'sonner'
 
-import { UniversalMap } from './UniversalMap'
 import { Alert, AlertDescription } from './ui/alert'
-import { Badge } from './ui/badge'
 import { Button } from './ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card'
 import { Input } from './ui/input'

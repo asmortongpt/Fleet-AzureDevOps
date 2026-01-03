@@ -3,8 +3,9 @@
  * Tests for WCAG AAA compliance helpers
  */
 
-import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { renderHook, act } from '@testing-library/react';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
+
 import {
   KeyboardKeys,
   handleKeyboardNavigation,

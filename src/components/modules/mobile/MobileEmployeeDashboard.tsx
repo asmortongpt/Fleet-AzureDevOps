@@ -25,7 +25,6 @@ import {
 import React, { useState, useEffect } from 'react';
 
 import { useAuth } from '@/hooks/useAuth';
-
 import logger from '@/utils/logger';
 interface Assignment {
   id: string;

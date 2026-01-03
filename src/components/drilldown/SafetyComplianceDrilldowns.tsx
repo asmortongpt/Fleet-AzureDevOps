@@ -3,31 +3,25 @@
  * Complete regulatory compliance tracking with advanced filtering and export capabilities
  */
 
+import { ColumnDef } from '@tanstack/react-table'
 import {
   Shield,
   AlertTriangle,
   AlertOctagon,
   Scale,
   Download,
-  DollarSign,
   CheckCircle,
   XCircle,
-  Calendar,
-  User,
-  Phone,
-  Mail,
 } from 'lucide-react'
 import { useMemo, useState } from 'react'
 import useSWR from 'swr'
-import { ColumnDef } from '@tanstack/react-table'
 
-import { Badge } from '@/components/ui/badge'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { DataGrid } from '@/components/common/DataGrid'
-import { DrilldownContent } from '@/components/DrilldownPanel'
-import { useDrilldown } from '@/contexts/DrilldownContext'
+import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
+import { Progress } from '@/components/ui/progress'
 import {
   Select,
   SelectContent,
@@ -35,7 +29,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
-import { Progress } from '@/components/ui/progress'
 
 const fetcher = (url: string) => fetch(url).then((r) => r.json())
 

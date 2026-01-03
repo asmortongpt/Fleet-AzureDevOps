@@ -20,6 +20,7 @@ import {
   MagnifyingGlass,
   Funnel
 } from '@phosphor-icons/react'
+import { AxiosResponse } from 'axios'
 import { useState, useEffect } from 'react'
 
 import { Badge } from '@/components/ui/badge'
@@ -45,7 +46,6 @@ import {
 import { Textarea } from '@/components/ui/textarea'
 import { apiClient } from '@/lib/api-client'
 import { useInspect } from '@/services/inspect/InspectContext'
-import { AxiosResponse } from 'axios'
 
 interface Alert {
   id: string

@@ -1,5 +1,5 @@
-import React, { createContext, useContext, useEffect, useState } from 'react';
 import { Canvas } from '@react-three/fiber';
+import React, { createContext, useContext, useEffect, useState } from 'react';
 
 export interface WebGLCapabilities {
   webgl: boolean;

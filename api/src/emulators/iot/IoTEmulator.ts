@@ -3,6 +3,7 @@
  */
 
 import { EventEmitter } from 'events'
+
 import { Vehicle, IoTSensorData, EmulatorConfig } from '../types'
 
 export class IoTEmulator extends EventEmitter {

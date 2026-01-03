@@ -1,6 +1,5 @@
 import {
   Plus,
-  CheckCircle,
   Clock,
   Wrench,
   Car

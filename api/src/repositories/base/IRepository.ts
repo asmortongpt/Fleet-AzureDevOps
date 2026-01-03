@@ -4,6 +4,7 @@
  */
 
 import { PoolClient } from 'pg'
+
 import { PaginatedResult, PaginationOptions } from './types'
 
 export interface IRepository<T, CreateDTO = Partial<T>, UpdateDTO = Partial<T>> {

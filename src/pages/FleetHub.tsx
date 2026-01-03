@@ -28,6 +28,7 @@ import { StatCard, ProgressRing, StatusDot, QuickStat } from '@/components/ui/st
 
 // Lazy load heavy components for performance
 const LiveFleetDashboard = lazy(() => import('@/components/dashboard/LiveFleetDashboard').then(m => ({ default: m.LiveFleetDashboard })))
+const LiveFleetMap = lazy(() => import('@/components/Maps/LiveFleetMap').then(m => ({ default: m.LiveFleetMap })))
 const VehicleTelemetry = lazy(() => import('@/components/modules/fleet/VehicleTelemetry').then(m => ({ default: m.VehicleTelemetry })))
 const VirtualGarage = lazy(() => import('@/components/modules/fleet/VirtualGarage').then(m => ({ default: m.VirtualGarage })))
 const EVChargingManagement = lazy(() => import('@/components/modules/charging/EVChargingManagement').then(m => ({ default: m.EVChargingManagement })))
@@ -398,11 +399,23 @@ function VideoContent() {
 export function FleetHub() {
     const tabs: HubTab[] = [
         {
+            id: 'google-maps',
+            label: 'Live Tracking',
+            icon: <MapPin className="w-4 h-4" />,
+            content: (
+                <TabErrorBoundary tabName="Live Tracking">
+                    <Suspense fallback={<TabLoadingFallback />}>
+                        <LiveFleetMap />
+                    </Suspense>
+                </TabErrorBoundary>
+            ),
+        },
+        {
             id: 'map',
-            label: 'Live Map',
+            label: 'Advanced Map',
             icon: <MapTrifold className="w-4 h-4" />,
             content: (
-                <TabErrorBoundary tabName="Live Map">
+                <TabErrorBoundary tabName="Advanced Map">
                     <Suspense fallback={<TabLoadingFallback />}>
                         <LiveFleetDashboard />
                     </Suspense>
@@ -465,7 +478,7 @@ export function FleetHub() {
             icon={<FleetIcon className="w-6 h-6" />}
             description="Fleet vehicles, tracking, and telemetry"
             tabs={tabs}
-            defaultTab="map"
+            defaultTab="google-maps"
         />
     )
 }

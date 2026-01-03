@@ -1,12 +1,12 @@
 import express, { Response } from 'express'
 import { z } from 'zod'
 
+import logger from '../config/logger'
 import { pool } from '../db/connection';
 import { AuthRequest, authenticateJWT } from '../middleware/auth'
 import { csrfProtection } from '../middleware/csrf'
 import { requirePermission } from '../middleware/permissions'
 import { getErrorMessage } from '../utils/error-handler'
-import logger from '../config/logger'
 
 
 

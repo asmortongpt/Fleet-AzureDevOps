@@ -3,8 +3,9 @@
  * Provides consistent header, close button, back navigation, and keyboard handling
  */
 
-import React, { useEffect } from 'react'
 import { X, ArrowLeft } from '@phosphor-icons/react'
+import React, { useEffect } from 'react'
+
 import { useDrilldown } from '@/contexts/DrilldownContext'
 import { cn } from '@/lib/utils'
 

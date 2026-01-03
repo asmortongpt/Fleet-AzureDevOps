@@ -4,12 +4,13 @@
  * Created: 2025-12-31 (Agent 7)
  */
 
+import { Shield } from 'lucide-react';
 import React from 'react';
 import { Navigate } from 'react-router-dom';
+
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { useRBAC } from '@/hooks/useRBAC';
 import { Resource } from '@/lib/rbac';
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { Shield } from 'lucide-react';
 
 interface ProtectedRouteProps {
   children: React.ReactNode;

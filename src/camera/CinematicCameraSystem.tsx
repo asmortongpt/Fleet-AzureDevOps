@@ -4,10 +4,10 @@
  * 360° showcase mode, and depth of field effects for automotive cinematography
  */
 
-import React, { useRef, useEffect, useMemo, useState } from 'react'
-import { useFrame, useThree } from '@react-three/fiber'
+import { useSpring, animated } from '@react-spring/three'
 import { PerspectiveCamera, OrbitControls } from '@react-three/drei'
-import { useSpring, animated, config } from '@react-spring/three'
+import { useFrame, useThree } from '@react-three/fiber'
+import React, { useRef, useEffect, useMemo, useState } from 'react'
 import * as THREE from 'three'
 
 export type CameraView = 

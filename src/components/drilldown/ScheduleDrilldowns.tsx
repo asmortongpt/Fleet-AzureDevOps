@@ -11,7 +11,6 @@ import {
   Truck,
   CheckCircle,
   AlertCircle,
-  Info,
 } from 'lucide-react'
 import useSWR from 'swr'
 
@@ -127,7 +126,7 @@ export function ScheduledItemDetailPanel({ itemId }: ScheduledItemDetailPanelPro
 
           {/* Tabs */}
           <Tabs defaultValue="details" className="w-full">
-            <TabsList className="grid w-full grid-cols-4">
+            <TabsList className="grid w-full h-auto grid-cols-2 md:grid-cols-4">
               <TabsTrigger value="details">Details</TabsTrigger>
               <TabsTrigger value="assignments">Assignments</TabsTrigger>
               <TabsTrigger value="location">Location</TabsTrigger>

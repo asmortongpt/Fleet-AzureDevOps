@@ -16,6 +16,7 @@
 import { Client } from '@microsoft/microsoft-graph-client'
 import axios, { AxiosError, AxiosRequestConfig } from 'axios'
 
+import logger from '../config/logger'
 import {
   getGraphServiceConfig,
   DEFAULT_RETRY_POLICY,
@@ -40,7 +41,6 @@ import {
   BatchRequestItem,
   BatchResponseItem,
 } from '../types/microsoft-graph.types'
-import logger from '../config/logger'
 import { validateOutboundUrl } from '../utils/ssrf-protection'
 
 /**

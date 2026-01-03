@@ -1,5 +1,4 @@
 import {
-  ChartBar,
   Warning,
   Clock,
   Engine

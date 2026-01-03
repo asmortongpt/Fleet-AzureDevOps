@@ -11,13 +11,7 @@ import { useState } from "react"
 import { toast } from "sonner"
 
 import { Badge } from "@/components/ui/badge"
-import { usePolicies } from "@/contexts/PolicyContext"
 import { Button } from "@/components/ui/button"
-import {
-  enforceEVChargingPolicy,
-  shouldBlockAction,
-  getApprovalRequirements
-} from "@/lib/policy-engine/policy-enforcement"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import {
   Dialog,
@@ -46,6 +40,12 @@ import {
   TableHeader,
   TableRow
 } from "@/components/ui/table"
+import { usePolicies } from "@/contexts/PolicyContext"
+import {
+  enforceEVChargingPolicy,
+  shouldBlockAction,
+  getApprovalRequirements
+} from "@/lib/policy-engine/policy-enforcement"
 
 
 interface ChargingStation {

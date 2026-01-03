@@ -9,13 +9,11 @@
  * - Change history/audit trail
  */
 
-import { container } from '../container'
-import { asyncHandler } from '../middleware/errorHandler'
-import { NotFoundError, ValidationError } from '../errors/app-error'
-import logger from '../config/logger'; // Wave 30: Add Winston logger
+
 import express, { Response } from 'express';
 import { Pool } from 'pg';
 
+import logger from '../config/logger'; // Wave 30: Add Winston logger
 import { pool } from '../db/connection';
 import { authenticateJWT, AuthRequest } from '../middleware/auth';
 import { csrfProtection } from '../middleware/csrf'

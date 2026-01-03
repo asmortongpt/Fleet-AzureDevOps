@@ -23,12 +23,13 @@ import {
   ListChecks
 } from '@phosphor-icons/react'
 import { useMemo } from 'react'
+import useSWR from 'swr'
 
+import { DrilldownDataTable, DrilldownColumn } from '@/components/drilldown/DrilldownDataTable'
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { DrilldownDataTable, DrilldownColumn } from '@/components/drilldown/DrilldownDataTable'
 import { Progress } from '@/components/ui/progress'
-import useSWR from 'swr'
+
 
 // Note: Button component removed as it's not used in this file
 

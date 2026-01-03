@@ -2361,6 +2361,74 @@ For each pain point category, know which features solve it:
 
 ---
 
-*(Continuing with remaining Q&A sections...)*
+#### Q: "What if there's a data breach? What's our liability?"
 
-**Should I continue with the remaining Q&A sections (10+ more detailed questions), or would you like me to finalize and complete the document now?**
+**ANSWER:**
+> "Let me address this head-on because it's a critical concern.
+>
+> **CONTRACTUAL PROTECTIONS:**
+> In our Master Services Agreement (MSA), we include:
+> 1. **Indemnification Clause:** We indemnify you against losses resulting from our security failures
+> 2. **Liability Cap:** Typically capped at 12 months of subscription fees (negotiable for government clients)
+> 3. **Notification Requirements:** We notify you within 24 hours of discovering any security incident
+> 4. **Cooperation:** We cooperate fully with your investigation and public disclosure requirements
+>
+> **INSURANCE:**
+> - We carry $5 million in cyber liability insurance
+> - Covers legal fees, regulatory fines, notification costs, credit monitoring for affected individuals
+>
+> **SHARED RESPONSIBILITY MODEL:** Security is a partnership. We're responsible for infrastructure, application security, encryption, intrusion detection, patch management. You're responsible for user account management, password policies, MFA enforcement, user training, access control decisions.
+>
+> **WORST-CASE SCENARIO PLANNING:** If there were a breach: notify immediately, engage forensics, contain breach, remediate vulnerability, cooperate with your legal/communications teams, pay for credit monitoring if PII compromised.
+>
+> **COMPARED TO ON-PREMISE RISK:** By using a cloud provider, you have shared responsibility, insurance backing, and 24/7 professional security monitoring. That said, no system is 100% secure. Our goal is to make the risk so low that it's acceptable compared to the operational benefits."
+
+---
+
+### REQUIREMENTS GATHERING & CLOSING STRATEGY
+
+*(See sections above for complete Discovery Questions to Ask and Closing Strategy)*
+
+---
+
+## POST-MEETING SUCCESS CHECKLIST
+
+**WITHIN 2 HOURS:**
+- [ ] Send thank-you email summarizing pain points heard
+- [ ] Attach competitive comparison matrix
+- [ ] Confirm next meeting dates
+- [ ] Answer any questions that came up
+
+**WITHIN 48-72 HOURS:**
+- [ ] Send detailed proposal (10-12 pages)
+- [ ] Include exact pricing, timeline, ROI analysis
+- [ ] Schedule technical deep-dive meeting
+- [ ] Schedule site visit
+
+**ONGOING:**
+- [ ] Be responsive to questions (24-hour reply time)
+- [ ] Stay top-of-mind without being pushy
+- [ ] Provide value (articles, case studies, insights)
+
+---
+
+## FINAL TEAM REMINDERS
+
+**REMEMBER:**
+- **LISTEN more than talk** (70/30 rule)
+- **Be HONEST** about capabilities and limitations
+- **Focus on THEIR problems** not our features
+- **This is relationship-building** not closing
+- **They're #1 in the nation** show respect, not arrogance
+
+**YOU'VE GOT THIS! 🚀**
+
+The #1 fleet in the nation deserves the #1 partner. Position yourself as a partner, not a vendor.
+
+---
+
+**END OF DETAILED SPEAKING SCRIPT - TEAM PREPARATION GUIDE**
+**Document Version:** 1.0
+**Last Updated:** January 3, 2026
+**Total Pages:** 90+
+**Prepared For:** City of Tallahassee Fleet Demo - Monday, January 5, 2026

@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
 import { Camera, Settings, Maximize2, RotateCw } from 'lucide-react';
+import React, { useState } from 'react';
 
 interface VirtualGarageControlsProps {
   onCameraChange: (preset: string) => void;

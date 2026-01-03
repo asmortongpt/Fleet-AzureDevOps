@@ -4,7 +4,6 @@ import type { DependencyList } from "react"
 import { useAccessibility } from "@/hooks/useAccessibility"
 import { usePerformanceMonitor } from "@/hooks/usePerformanceMonitor"
 import type { Vehicle, GISFacility, TrafficCamera } from "@/lib/types"
-import { screenReaderOnly } from "@/utils/accessibility"
 import logger from '@/utils/logger';
 // ============================================================================
 // Dependency Validation & Dynamic Imports

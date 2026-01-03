@@ -13,6 +13,7 @@
  */
 
 import { useState, useEffect } from 'react'
+
 import { generateVehicleModel, getCacheStats } from '@/services/meshyAI'
 
 export interface PhotorealisticModelState {

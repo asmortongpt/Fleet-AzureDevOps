@@ -1,9 +1,9 @@
-import { Search, LogOut, User, CreditCard, Users } from 'lucide-react';
+import { LogOut, User, CreditCard, Users } from 'lucide-react';
 import { useState } from 'react';
 
+import { ThemeToggle } from '@/components/ThemeToggle';
 import { NotificationBell } from '@/components/common/NotificationBell';
 import { SearchInput } from '@/components/shared/SearchInput';
-import { ThemeToggle } from '@/components/ThemeToggle';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import {

@@ -1,20 +1,10 @@
 import {
-  Plus,
-  MagnifyingGlass,
-  Warning,
-  CheckCircle,
-  Clock,
-  FileText,
-  Download,
-  Cube
+  Plus
 } from "@phosphor-icons/react"
 import { useState } from "react"
 import { toast } from "sonner"
 
-import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Checkbox } from "@/components/ui/checkbox"
 import {
   Dialog,
   DialogContent,
@@ -33,14 +23,6 @@ import {
   SelectTrigger,
   SelectValue
 } from "@/components/ui/select"
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow
-} from "@/components/ui/table"
 import { Textarea } from "@/components/ui/textarea"
 
 

@@ -11,15 +11,14 @@
  * - Offline data sync (BR-11.6)
  */
 
-import { container } from '../container'
-import { asyncHandler } from '../middleware/errorHandler'
-import { NotFoundError, ValidationError } from '../errors/app-error'
-import logger from '../config/logger'; // Wave 31: Add Winston logger
+
 import express, { Response } from 'express';
 import { Pool } from 'pg';
 import { z } from 'zod';
 
+import logger from '../config/logger'; // Wave 31: Add Winston logger
 import { pool } from '../db/connection';
+import { NotFoundError } from '../errors/app-error'
 import { authenticateJWT, AuthRequest } from '../middleware/auth';
 import { csrfProtection } from '../middleware/csrf'
 import { requirePermission } from '../middleware/permissions';

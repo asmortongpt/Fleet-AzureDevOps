@@ -13,13 +13,11 @@
  * - Search analytics
  */
 
-import { container } from '../container'
-import { asyncHandler } from '../middleware/errorHandler'
-import { NotFoundError, ValidationError } from '../errors/app-error'
-import logger from '../config/logger'; // Wave 20: Add Winston logger
+
 import express, { Response } from 'express'
 import { z } from 'zod'
 
+import logger from '../config/logger'; // Wave 20: Add Winston logger
 import { auditLog } from '../middleware/audit'
 import { AuthRequest, authenticateJWT, authorize } from '../middleware/auth'
 import { csrfProtection } from '../middleware/csrf'

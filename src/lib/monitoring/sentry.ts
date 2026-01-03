@@ -7,6 +7,7 @@
 
 import * as Sentry from '@sentry/react';
 import { BrowserTracing } from '@sentry/tracing';
+
 import type { User } from '@/types';
 
 /**

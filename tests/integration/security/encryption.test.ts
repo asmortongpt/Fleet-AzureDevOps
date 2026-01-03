@@ -16,7 +16,8 @@
  */
 
 import { describe, it, expect, beforeAll, afterEach, vi } from 'vitest';
-import type { EncryptedData, DataClassification } from '@/lib/security/encryption';
+
+import type { EncryptedData } from '@/lib/security/encryption';
 import {
   encryptionService,
   encryptField,

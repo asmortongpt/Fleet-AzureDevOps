@@ -1,6 +1,7 @@
 import { test, expect } from '@playwright/test';
-import { LoginPage } from '../page-objects/LoginPage';
+
 import { DashboardPage } from '../page-objects/DashboardPage';
+import { LoginPage } from '../page-objects/LoginPage';
 
 test.describe('Comprehensive Authentication Tests', () => {
   let loginPage: LoginPage;

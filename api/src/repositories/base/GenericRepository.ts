@@ -26,7 +26,6 @@ import { Pool, PoolClient } from 'pg'
 import { NotFoundError, DatabaseError } from '../../errors/AppError'
 import { isValidIdentifier } from '../../utils/sql-safety'
 
-import { IRepository } from './IRepository'
 import { PaginationOptions, PaginatedResult, isValidSortOrder } from './types'
 
 export abstract class GenericRepository<T extends { id?: string | number }> {

@@ -25,7 +25,6 @@ import {
   MapPin,
   CheckCircle2,
   XCircle,
-  AlertTriangle,
   Car,
   Gauge,
   FileText,
@@ -35,12 +34,12 @@ import { useState } from 'react'
 import useSWR from 'swr'
 
 import { DrilldownContent } from '@/components/DrilldownPanel'
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Progress } from '@/components/ui/progress'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { useDrilldown } from '@/contexts/DrilldownContext'
 
 interface GarageBayDrilldownProps {

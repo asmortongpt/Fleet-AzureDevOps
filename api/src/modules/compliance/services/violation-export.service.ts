@@ -1,8 +1,9 @@
-import { pool } from '../../../config/database';
-import logger from '../../../utils/logger';
 import { Parser } from 'json2csv';
 import PDFDocument from 'pdfkit';
-import { Readable } from 'stream';
+
+import { pool } from '../../../config/database';
+import logger from '../../../utils/logger';
+
 
 /**
  * Violation Export Service

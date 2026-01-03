@@ -7,6 +7,7 @@
 import { Pool } from 'pg'
 
 import { pool } from '../config/database'
+import logger from '../config/logger'
 import {
   Email,
   EmailMessage,
@@ -27,7 +28,6 @@ import {
   EmailFilter,
   EmailToCommunicationLog
 } from '../types/outlook.types'
-import logger from '../config/logger'
 
 import { microsoftGraphService } from './microsoft-graph.service'
 

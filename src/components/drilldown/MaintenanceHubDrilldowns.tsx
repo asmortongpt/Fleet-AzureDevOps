@@ -32,26 +32,23 @@ import {
   History,
   MapPin,
   Shield,
-  Tool,
-  Settings,
   AlertCircle,
   Users,
   Building,
-  CreditCard,
 } from 'lucide-react'
 import { useState } from 'react'
 import useSWR from 'swr'
 
 import { DrilldownContent } from '@/components/DrilldownPanel'
+import { DrilldownCard, DrilldownCardGrid } from '@/components/drilldown/DrilldownCard'
+import { ExcelStyleTable, ExcelColumn } from '@/components/shared/ExcelStyleTable'
+import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Progress } from '@/components/ui/progress'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 import { useDrilldown } from '@/contexts/DrilldownContext'
-import { DrilldownDataTable, DrilldownColumn } from '@/components/drilldown/DrilldownDataTable'
-import { DrilldownCard, DrilldownCardGrid } from '@/components/drilldown/DrilldownCard'
 
 const fetcher = (url: string) => fetch(url).then((r) => r.json())
 
@@ -302,7 +299,7 @@ export function PMScheduleDetailPanel({ scheduleId }: PMScheduleDetailPanelProps
 
           {/* Tabs */}
           <Tabs value={activeTab} onValueChange={setActiveTab}>
-            <TabsList className="grid w-full grid-cols-4">
+            <TabsList className="grid w-full h-auto grid-cols-2 md:grid-cols-4">
               <TabsTrigger value="overview">Overview</TabsTrigger>
               <TabsTrigger value="history">History</TabsTrigger>
               <TabsTrigger value="provider">Provider</TabsTrigger>
@@ -697,7 +694,7 @@ export function RepairDetailPanel({ repairId }: RepairDetailPanelProps) {
 
           {/* Tabs */}
           <Tabs value={activeTab} onValueChange={setActiveTab}>
-            <TabsList className="grid w-full grid-cols-4">
+            <TabsList className="grid w-full h-auto grid-cols-2 md:grid-cols-4">
               <TabsTrigger value="overview">Overview</TabsTrigger>
               <TabsTrigger value="parts">Parts ({repair.partsUsed.length})</TabsTrigger>
               <TabsTrigger value="labor">Labor ({repair.laborEntries.length})</TabsTrigger>
@@ -1911,7 +1908,6 @@ export function ServiceVendorDetailPanel({ vendorId }: ServiceVendorDetailPanelP
 // EXCEL-STYLE DRILLDOWN VIEWS
 // ============================================
 
-import { ExcelStyleTable, ExcelColumn } from '@/components/shared/ExcelStyleTable'
 
 // ============================================
 // GARAGE BAYS MATRIX VIEW

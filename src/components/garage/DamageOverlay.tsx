@@ -12,7 +12,6 @@
  */
 
 import { Html, Sphere } from '@react-three/drei'
-import { ThreeEvent } from '@react-three/fiber'
 import { useState, useRef } from 'react'
 import * as THREE from 'three'
 

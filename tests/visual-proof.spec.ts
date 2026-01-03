@@ -1,6 +1,7 @@
-import { test, expect } from '@playwright/test';
-import * as fs from 'fs';
 import * as crypto from 'crypto';
+import * as fs from 'fs';
+
+import { test, expect } from '@playwright/test';
 
 test.describe('Visual Cryptographic Proof - Google Maps', () => {
   test('Screenshot proof: Real Google Maps with vehicle markers', async ({ page }) => {

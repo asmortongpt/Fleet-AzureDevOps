@@ -3,11 +3,10 @@
  * Complete employee training records and certification tracking with advanced filtering and export
  */
 
+import { ColumnDef } from '@tanstack/react-table'
 import {
   GraduationCap,
-  Award,
-  Calendar,
-  User,
+  Medal,
   Download,
   AlertTriangle,
   CheckCircle,
@@ -15,12 +14,11 @@ import {
 } from 'lucide-react'
 import { useMemo, useState } from 'react'
 import useSWR from 'swr'
-import { ColumnDef } from '@tanstack/react-table'
 
-import { Badge } from '@/components/ui/badge'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { DataGrid } from '@/components/common/DataGrid'
+import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import {
   Select,
@@ -791,7 +789,7 @@ export function CertificationsMatrixView() {
       <Card className="bg-slate-800/50 border-slate-700">
         <CardHeader className="pb-2">
           <CardTitle className="text-white text-lg flex items-center gap-2">
-            <Award className="w-5 h-5 text-amber-400" />
+            <Medal className="w-5 h-5 text-amber-400" />
             All Driver Certifications - Excel View ({filteredData.length} records)
           </CardTitle>
         </CardHeader>

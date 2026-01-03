@@ -9,19 +9,16 @@
  * - Electronic submission to Fleet Management
  */
 
-import { container } from '../container'
-import { asyncHandler } from '../middleware/errorHandler'
-import { NotFoundError, ValidationError } from '../errors/app-error'
-import logger from '../config/logger'; // Wave 33: Add Winston logger (FINAL WAVE!)
 import express, { Response } from 'express';
 import { z } from 'zod';
 
+import logger from '../config/logger'; // Wave 33: Add Winston logger (FINAL WAVE!)
+import { pool } from '../db';
+import { NotFoundError } from '../errors/app-error'
 import { authenticateJWT, AuthRequest } from '../middleware/auth';
 import { csrfProtection } from '../middleware/csrf'
 import { requirePermission } from '../middleware/permissions';
 import { getErrorMessage } from '../utils/error-handler'
-
-import { pool } from '../db';
 
 
 const router = express.Router();

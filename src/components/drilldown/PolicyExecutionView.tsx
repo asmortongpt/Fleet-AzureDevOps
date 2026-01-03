@@ -16,7 +16,6 @@ import {
   AlertTriangle,
   Clock,
   Filter,
-  Calendar,
   Shield,
   Car,
   User,
@@ -25,10 +24,9 @@ import {
 import { useState } from 'react'
 import useSWR from 'swr'
 
-import { DrilldownDataTable, DrilldownColumn } from '@/components/drilldown/DrilldownDataTable'
 import { DrilldownContent } from '@/components/DrilldownPanel'
+import { DrilldownDataTable, DrilldownColumn } from '@/components/drilldown/DrilldownDataTable'
 import { Badge } from '@/components/ui/badge'
-import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import {
@@ -38,7 +36,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
-import { Separator } from '@/components/ui/separator'
 import { useDrilldown } from '@/contexts/DrilldownContext'
 import { cn } from '@/lib/utils'
 

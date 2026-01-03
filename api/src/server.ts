@@ -8,23 +8,23 @@ import { processNotificationJob } from './jobs/processors/notification.processor
 import { processReportJob } from './jobs/processors/report.processor'
 import { emailQueue, notificationQueue, reportQueue, closeAllQueues } from './jobs/queue'
 import { getCorsConfig, validateCorsConfiguration } from './middleware/corsConfig'
+import { csrfProtection, getCsrfToken } from './middleware/csrf'
 import { errorHandler } from './middleware/errorHandler'
 import { initializeProcessErrorHandlers } from './middleware/processErrorHandlers'
-import telemetryService from './monitoring/applicationInsights'
-
-import { sentryService } from './monitoring/sentry'
+import { globalLimiter } from './middleware/rateLimiter'
+import { securityHeaders } from './middleware/security-headers'
 import {
   sentryRequestHandler,
   sentryTracingHandler,
   sentryErrorHandler,
   notFoundHandler
 } from './middleware/sentryErrorHandler'
+import { telemetryMiddleware, errorTelemetryMiddleware, performanceMiddleware } from './middleware/telemetry'
+import telemetryService from './monitoring/applicationInsights'
+import { sentryService } from './monitoring/sentry'
 
 
 // Security middleware
-import { securityHeaders } from './middleware/security-headers'
-import { globalLimiter } from './middleware/rateLimiter'
-import { csrfProtection, getCsrfToken } from './middleware/csrf'
 
 // Core Fleet Management Routes
 import adminJobsRouter from './routes/admin-jobs.routes'
@@ -39,15 +39,14 @@ import assetManagementRouter from './routes/asset-management.routes'
 import assetsMobileRouter from './routes/assets-mobile.routes'
 import assignmentReportingRouter from './routes/assignment-reporting.routes'
 // DISABLED: import attachmentsRouter from './routes/attachments.routes'
+import authRouter from './routes/auth'
 import batchRouter from './routes/batch'
 import billingReportsRouter from './routes/billing-reports'
+import breakGlassRouter from './routes/break-glass'
+import calendarRouter from './routes/calendar.routes'
 import chargingSessionsRouter from './routes/charging-sessions'
+import chargingStationsRouter from './routes/charging-stations'
 import communicationLogsRouter from './routes/communication-logs'
-import driversRouter from './routes/drivers'
-import vehiclesRouter from './routes/vehicles'
-import fuelRouter from './routes/fuel-transactions'
-import maintenanceRouter from './routes/maintenance'
-import incidentsRouter from './routes/incidents'
 import partsRouter from './routes/parts'
 import vendorsRouter from './routes/vendors'
 import invoicesRouter from './routes/invoices'
@@ -76,7 +75,6 @@ import workOrdersRouter from './routes/work-orders'
 
 // EV Management Routes
 import evManagementRouter from './routes/ev-management.routes'
-import chargingStationsRouter from './routes/charging-stations'
 
 // Document Management Routes
 import documentsRouter from './routes/documents'
@@ -103,7 +101,6 @@ import driverScorecardRouter from './routes/driver-scorecard.routes'
 
 // Task & Schedule Management Routes
 import schedulingRouter from './routes/scheduling.routes'
-import calendarRouter from './routes/calendar.routes'
 import onCallManagementRouter from './routes/on-call-management.routes'
 
 // Mobile & Integration Routes
@@ -141,10 +138,8 @@ import policyTemplatesRouter from './routes/policy-templates'
 import permissionsRouter from './routes/permissions'
 
 // Authentication & User Management Routes
-import authRouter from './routes/auth'
 import microsoftAuthRouter from './routes/microsoft-auth'
 import sessionRevocationRouter from './routes/session-revocation'
-import breakGlassRouter from './routes/break-glass'
 
 // External Integrations Routes
 import smartcarRouter from './routes/smartcar.routes'
@@ -164,14 +159,18 @@ import performanceRouter from './routes/performance.routes'
 import telemetryRouter from './routes/telemetry'
 import queueRouter from './routes/queue.routes'
 import deploymentsRouter from './routes/deployments'
+import driversRouter from './routes/drivers'
 import facilitiesRouter from './routes/facilities'
-import searchRouter from './routes/search'
+import fuelRouter from './routes/fuel-transactions'
+import incidentsRouter from './routes/incidents'
+import maintenanceRouter from './routes/maintenance'
 import presenceRouter from './routes/presence.routes'
-import storageAdminRouter from './routes/storage-admin'
-import syncRouter from './routes/sync.routes'
 import qualityGatesRouter from './routes/quality-gates'
 import reservationsRouter from './routes/reservations.routes'
-import { telemetryMiddleware, errorTelemetryMiddleware, performanceMiddleware } from './middleware/telemetry'
+import searchRouter from './routes/search'
+import storageAdminRouter from './routes/storage-admin'
+import syncRouter from './routes/sync.routes'
+import vehiclesRouter from './routes/vehicles'
 
 // Job Processing Infrastructure
 import logger from './utils/logger'
