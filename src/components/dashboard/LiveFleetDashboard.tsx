@@ -248,7 +248,7 @@ export const LiveFleetDashboard = React.memo(function LiveFleetDashboard({ initi
             <CardTitle className="text-lg flex items-center justify-between">
               <span className="font-mono text-slate-900 dark:text-slate-100">{selectedVehicle.vehicleNumber || selectedVehicle.number || 'N/A'}</span>
               <Badge
-                className={selectedVehicle.status === 'active' ? 'bg-emerald-500 hover:bg-emerald-600' : 'bg-slate-500'}
+                className={selectedVehicle.status === 'active' ? 'bg-emerald-600 hover:bg-emerald-700 text-white' : 'bg-slate-500'}
               >
                 {selectedVehicle.status}
               </Badge>
@@ -337,7 +337,7 @@ export const LiveFleetDashboard = React.memo(function LiveFleetDashboard({ initi
       <div>
         <h3 className="text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">Recent Activity</h3>
         {/* Mobile: List variant with drill-down */}
-        <div className="md:hidden space-y-0 max-h-64 overflow-y-auto border-t border-slate-200 dark:border-slate-700">
+        <div className="md:hidden space-y-0 max-h-64 overflow-y-auto border-t border-slate-200 dark:border-slate-700" tabIndex={0} role="region" aria-label="Vehicle list mobile">
           {vehicles.slice(0, 10).map((vehicle: any) => (
             <MobileVehicleCard
               key={vehicle.id}
@@ -356,7 +356,7 @@ export const LiveFleetDashboard = React.memo(function LiveFleetDashboard({ initi
           ))}
         </div>
         {/* Desktop: Original design with drill-down */}
-        <div className="hidden md:block space-y-2 max-h-64 overflow-y-auto">
+        <div className="hidden md:block space-y-2 max-h-64 overflow-y-auto" tabIndex={0} role="region" aria-label="Vehicle list">
           {vehicles.slice(0, 10).map((vehicle: any) => (
             <div
               key={vehicle.id}

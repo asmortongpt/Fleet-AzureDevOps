@@ -44,7 +44,7 @@ export function CommandCenterSidebar({ isSidebarOpen, setIsSidebarOpen }: Comman
                 aria-label={item.label}
                 aria-current={activeModule === item.id ? "page" : undefined}
             >
-                <div className={cn("w-5 h-5 flex items-center justify-center", activeModule === item.id ? "text-blue-400" : "text-slate-500")}>
+                <div className={cn("w-5 h-5 flex items-center justify-center", activeModule === item.id ? "text-blue-300" : "text-slate-400")}>
                     {item.icon}
                 </div>
                 {isSidebarOpen && <span className="ml-3 font-medium text-sm truncate">{item.label}</span>}
@@ -74,12 +74,12 @@ export function CommandCenterSidebar({ isSidebarOpen, setIsSidebarOpen }: Comman
             </div>
 
             {/* Nav Links */}
-            <nav className="flex-1 py-4 px-3 space-y-6 overflow-y-auto no-scrollbar" aria-label="Main navigation">
+            <nav className="flex-1 py-4 px-3 space-y-6 overflow-y-auto no-scrollbar" aria-label="Main navigation" tabIndex={0}>
 
                 {/* Hubs Section - Consolidated Navigation */}
                 {hubItems.length > 0 && (
                     <div>
-                        {isSidebarOpen && <div className="px-2 text-[10px] font-bold text-blue-400 uppercase tracking-wider mb-2">Hubs</div>}
+                        {isSidebarOpen && <div className="px-2 text-[10px] font-bold text-blue-700 dark:text-blue-400 uppercase tracking-wider mb-2">Hubs</div>}
                         <ul className="space-y-1">
                             {hubItems.map(item => <NavButton key={item.id} item={item} />)}
                         </ul>

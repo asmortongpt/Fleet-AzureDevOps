@@ -10,7 +10,7 @@ export function BuildVersion() {
 
   return (
     <div
-      className="fixed bottom-2 left-2 z-[100] text-[10px] text-slate-400 dark:text-slate-600 font-mono pointer-events-none select-none"
+      className="fixed bottom-2 left-2 z-[100] text-[10px] text-slate-600 dark:text-slate-400 font-mono pointer-events-none select-none"
       aria-label={`Build version ${version} built on ${buildDate}`}
     >
       v{version} | {buildDate}

@@ -380,7 +380,7 @@ export function VehicleDetailsDrilldown() {
                       {vehicle.assignedDriver.phone}
                     </a>
                     <a href={`mailto:${vehicle.assignedDriver.email}`}
-                      className="flex items-center gap-2 px-4 py-2 bg-emerald-500 hover:bg-emerald-600 rounded-lg text-white transition-colors">
+                      className="flex items-center gap-2 px-4 py-2 bg-emerald-600 hover:bg-emerald-700 rounded-lg text-white transition-colors">
                       <Mail className="w-4 h-4" />
                       Email
                     </a>
@@ -432,7 +432,7 @@ export function VehicleDetailsDrilldown() {
                     {vehicle.fleetManager.phone}
                   </a>
                   <a href={`mailto:${vehicle.fleetManager.email}`}
-                    className="flex items-center gap-2 px-4 py-2 bg-emerald-500 hover:bg-emerald-600 rounded-lg text-white transition-colors">
+                    className="flex items-center gap-2 px-4 py-2 bg-emerald-600 hover:bg-emerald-700 rounded-lg text-white transition-colors">
                     <Mail className="w-4 h-4" />
                     {vehicle.fleetManager.email}
                   </a>
@@ -462,7 +462,7 @@ export function VehicleDetailsDrilldown() {
                     {vehicle.maintenanceSupervisor.phone}
                   </a>
                   <a href={`mailto:${vehicle.maintenanceSupervisor.email}`}
-                    className="flex items-center gap-2 px-4 py-2 bg-emerald-500 hover:bg-emerald-600 rounded-lg text-white transition-colors">
+                    className="flex items-center gap-2 px-4 py-2 bg-emerald-600 hover:bg-emerald-700 rounded-lg text-white transition-colors">
                     <Mail className="w-4 h-4" />
                     {vehicle.maintenanceSupervisor.email}
                   </a>
@@ -492,7 +492,7 @@ export function VehicleDetailsDrilldown() {
                     {vehicle.assignedDriver.phone}
                   </a>
                   <a href={`mailto:${vehicle.assignedDriver.email}`}
-                    className="flex items-center gap-2 px-4 py-2 bg-emerald-500 hover:bg-emerald-600 rounded-lg text-white transition-colors">
+                    className="flex items-center gap-2 px-4 py-2 bg-emerald-600 hover:bg-emerald-700 rounded-lg text-white transition-colors">
                     <Mail className="w-4 h-4" />
                     {vehicle.assignedDriver.email}
                   </a>
@@ -619,7 +619,7 @@ export function VehicleDetailsDrilldown() {
                           {doc.contactPerson.phone}
                         </a>
                         <a href={`mailto:${doc.contactPerson.email}`}
-                          className="flex items-center gap-2 px-3 py-2 bg-emerald-500 hover:bg-emerald-600 rounded-lg text-white text-sm transition-colors">
+                          className="flex items-center gap-2 px-3 py-2 bg-emerald-600 hover:bg-emerald-700 rounded-lg text-white text-sm transition-colors">
                           <Mail className="w-4 h-4" />
                           Email
                         </a>
@@ -928,7 +928,7 @@ export function UtilizationDetailsDrilldown() {
                 {utilizationData.fleetManager.phone}
               </a>
               <a href={`mailto:${utilizationData.fleetManager.email}`}
-                className="flex items-center gap-2 px-4 py-2 bg-emerald-500 hover:bg-emerald-600 rounded-lg text-white transition-colors">
+                className="flex items-center gap-2 px-4 py-2 bg-emerald-600 hover:bg-emerald-700 rounded-lg text-white transition-colors">
                 <Mail className="w-4 w-4" />
                 Email
               </a>
@@ -1192,7 +1192,7 @@ export function CostDetailsDrilldown() {
                   Call
                 </a>
                 <a href={`mailto:${costData.financeManager.email}`}
-                  className="flex items-center gap-1 px-3 py-2 bg-emerald-500 hover:bg-emerald-600 rounded text-white text-sm transition-colors flex-1 justify-center">
+                  className="flex items-center gap-1 px-3 py-2 bg-emerald-600 hover:bg-emerald-700 rounded text-white text-sm transition-colors flex-1 justify-center">
                   <Mail className="w-4 h-4" />
                   Email
                 </a>
@@ -1218,7 +1218,7 @@ export function CostDetailsDrilldown() {
                   Call
                 </a>
                 <a href={`mailto:${costData.fleetManager.email}`}
-                  className="flex items-center gap-1 px-3 py-2 bg-emerald-500 hover:bg-emerald-600 rounded text-white text-sm transition-colors flex-1 justify-center">
+                  className="flex items-center gap-1 px-3 py-2 bg-emerald-600 hover:bg-emerald-700 rounded text-white text-sm transition-colors flex-1 justify-center">
                   <Mail className="w-4 h-4" />
                   Email
                 </a>
@@ -1789,7 +1789,7 @@ export function ComplianceDetailsDrilldown() {
                             {item.inspector.phone}
                           </a>
                           <a href={`mailto:${item.inspector.email}`}
-                            className="flex items-center gap-2 px-3 py-2 bg-emerald-500 hover:bg-emerald-600 rounded-lg text-white text-sm transition-colors">
+                            className="flex items-center gap-2 px-3 py-2 bg-emerald-600 hover:bg-emerald-700 rounded-lg text-white text-sm transition-colors">
                             <Mail className="w-4 h-4" />
                             Email
                           </a>
@@ -1826,7 +1826,7 @@ export function ComplianceDetailsDrilldown() {
                   {complianceData.complianceManager.phone}
                 </a>
                 <a href={`mailto:${complianceData.complianceManager.email}`}
-                  className="flex items-center gap-2 px-4 py-2 bg-emerald-500 hover:bg-emerald-600 rounded-lg text-white transition-colors">
+                  className="flex items-center gap-2 px-4 py-2 bg-emerald-600 hover:bg-emerald-700 rounded-lg text-white transition-colors">
                   <Mail className="w-4 h-4" />
                   Email
                 </a>
@@ -1845,7 +1845,7 @@ export function ComplianceDetailsDrilldown() {
                   {complianceData.fleetManager.phone}
                 </a>
                 <a href={`mailto:${complianceData.fleetManager.email}`}
-                  className="flex items-center gap-2 px-4 py-2 bg-emerald-500 hover:bg-emerald-600 rounded-lg text-white transition-colors">
+                  className="flex items-center gap-2 px-4 py-2 bg-emerald-600 hover:bg-emerald-700 rounded-lg text-white transition-colors">
                   <Mail className="w-4 h-4" />
                   Email
                 </a>
