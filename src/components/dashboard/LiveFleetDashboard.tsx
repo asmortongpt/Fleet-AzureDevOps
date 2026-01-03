@@ -427,9 +427,9 @@ export const LiveFleetDashboard = React.memo(function LiveFleetDashboard({ initi
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center h-screen">
+      <div className="flex items-center justify-center h-screen" role="status" aria-live="polite">
         <div className="text-center">
-          <Gauge className="h-12 w-12 animate-spin mx-auto text-blue-500" />
+          <Gauge className="h-12 w-12 animate-spin mx-auto text-blue-500" aria-hidden="true" />
           <p className="mt-4 text-slate-600">Loading fleet data...</p>
         </div>
       </div>
@@ -527,7 +527,7 @@ export const LiveFleetDashboard = React.memo(function LiveFleetDashboard({ initi
           {
             id: 'traffic-cameras',
             label: 'Traffic Cameras',
-            icon: <Video className="w-4 h-4" />,
+            icon: <Video className="w-4 h-4" aria-hidden="true" />,
             active: showTrafficCameras,
             count: 12, // Demo count
             onToggle: setShowTrafficCameras
@@ -535,7 +535,7 @@ export const LiveFleetDashboard = React.memo(function LiveFleetDashboard({ initi
           {
             id: 'geofences',
             label: 'Geofences',
-            icon: <MapPin className="w-4 h-4" />,
+            icon: <MapPin className="w-4 h-4" aria-hidden="true" />,
             active: showGeofences,
             // Show active breach count if any (critical info), otherwise total active count
             count: activeBreachCount > 0 ? activeBreachCount : geofences.filter(g => g.active).length,
@@ -544,7 +544,7 @@ export const LiveFleetDashboard = React.memo(function LiveFleetDashboard({ initi
           {
             id: 'drivers',
             label: 'Drivers',
-            icon: <Users className="w-4 h-4" />,
+            icon: <Users className="w-4 h-4" aria-hidden="true" />,
             active: showDrivers,
             count: drivers.length,
             onToggle: setShowDrivers
