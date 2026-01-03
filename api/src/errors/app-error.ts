@@ -39,3 +39,9 @@ export class ConflictError extends AppError {
     super(message, 409);
   }
 }
+
+export class DatabaseError extends AppError {
+  constructor(message: string, public metadata?: any) {
+    super(message, 500, true);
+  }
+}
