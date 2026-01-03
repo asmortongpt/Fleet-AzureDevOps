@@ -343,7 +343,7 @@ export const LiveFleetDashboard = React.memo(function LiveFleetDashboard({ initi
                 push({
                   id: `vehicle-${v.id}`,
                   type: 'vehicle',
-                  label: v.vehicleNumber || v.number || v.name || `Vehicle ${v.id}`,
+                  label: (v as any).vehicleNumber || v.number || v.name || `Vehicle ${v.id}`,
                   data: { vehicleId: v.id, ...v }
                 });
               }}
