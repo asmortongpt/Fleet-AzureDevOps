@@ -62,20 +62,19 @@ export function FleetOverviewDrilldown() {
 
     return (
         <div className="space-y-6">
-            {/* Summary Cards */}
             <div className="grid grid-cols-2 gap-4">
-                <Card className="bg-gradient-to-br from-blue-50 to-blue-100 border-blue-200">
+                <Card className="bg-gradient-to-br from-blue-900/20 to-blue-800/10 border-blue-800/50 backdrop-blur-sm">
                     <CardContent className="pt-4">
-                        <div className="text-3xl font-bold text-blue-700">{vehicles.length}</div>
-                        <div className="text-sm text-blue-600">Total Fleet Size</div>
+                        <div className="text-3xl font-bold text-blue-500">{vehicles.length}</div>
+                        <div className="text-sm text-blue-400">Total Fleet Size</div>
                     </CardContent>
                 </Card>
-                <Card className="bg-gradient-to-br from-emerald-50 to-emerald-100 border-emerald-200">
+                <Card className="bg-gradient-to-br from-emerald-900/20 to-emerald-800/10 border-emerald-800/50 backdrop-blur-sm">
                     <CardContent className="pt-4">
-                        <div className="text-3xl font-bold text-emerald-700">
+                        <div className="text-3xl font-bold text-emerald-500">
                             {Math.round((byStatus.active.length / vehicles.length) * 100)}%
                         </div>
-                        <div className="text-sm text-emerald-600">Utilization Rate</div>
+                        <div className="text-sm text-emerald-400">Utilization Rate</div>
                     </CardContent>
                 </Card>
             </div>
@@ -164,7 +163,7 @@ export function ActiveVehiclesDrilldown() {
     return (
         <div className="space-y-4">
             <div className="flex items-center justify-between">
-                <Badge variant="secondary" className="bg-emerald-100 text-emerald-700">
+                <Badge variant="secondary" className="bg-emerald-500/10 text-emerald-400 border-emerald-500/20">
                     {vehicles.length} Active Vehicles
                 </Badge>
                 <span className="text-sm text-muted-foreground">Real-time status</span>
@@ -174,7 +173,7 @@ export function ActiveVehiclesDrilldown() {
                 {vehicles.slice(0, 20).map(vehicle => (
                     <Card
                         key={vehicle.id}
-                        className="cursor-pointer hover:bg-accent transition-colors"
+                        className="cursor-pointer bg-slate-800/40 hover:bg-slate-700/60 border-slate-700/50 transition-colors"
                         onClick={() => push({
                             id: vehicle.id,
                             type: 'vehicle',
@@ -185,8 +184,8 @@ export function ActiveVehiclesDrilldown() {
                         <CardContent className="p-4">
                             <div className="flex items-center justify-between">
                                 <div className="flex items-center gap-3">
-                                    <div className="w-10 h-10 rounded-full bg-emerald-100 flex items-center justify-center">
-                                        <Truck className="h-5 w-5 text-emerald-600" />
+                                    <div className="w-10 h-10 rounded-full bg-emerald-500/10 flex items-center justify-center">
+                                        <Truck className="h-5 w-5 text-emerald-400" />
                                     </div>
                                     <div>
                                         <div className="font-semibold">{vehicle.number}</div>
@@ -243,7 +242,7 @@ export function MaintenanceDrilldown() {
         <div className="space-y-6">
             {/* Status Summary */}
             <div className="grid grid-cols-2 gap-3">
-                <Card className="border-red-200 bg-red-50">
+                <Card className="border-red-500/30 bg-red-500/10">
                     <CardContent className="pt-4 pb-3">
                         <div className="flex items-center gap-2">
                             <AlertCircle className="h-5 w-5 text-red-500" />
@@ -254,7 +253,7 @@ export function MaintenanceDrilldown() {
                         </div>
                     </CardContent>
                 </Card>
-                <Card className="border-amber-200 bg-amber-50">
+                <Card className="border-amber-500/30 bg-amber-500/10">
                     <CardContent className="pt-4 pb-3">
                         <div className="flex items-center gap-2">
                             <Wrench className="h-5 w-5 text-amber-500" />
@@ -265,7 +264,7 @@ export function MaintenanceDrilldown() {
                         </div>
                     </CardContent>
                 </Card>
-                <Card className="border-blue-200 bg-blue-50">
+                <Card className="border-blue-500/30 bg-blue-500/10">
                     <CardContent className="pt-4 pb-3">
                         <div className="flex items-center gap-2">
                             <Calendar className="h-5 w-5 text-blue-500" />
@@ -276,7 +275,7 @@ export function MaintenanceDrilldown() {
                         </div>
                     </CardContent>
                 </Card>
-                <Card className="border-emerald-200 bg-emerald-50">
+                <Card className="border-emerald-500/30 bg-emerald-500/10">
                     <CardContent className="pt-4 pb-3">
                         <div className="flex items-center gap-2">
                             <CheckCircle className="h-5 w-5 text-emerald-500" />
@@ -353,35 +352,35 @@ export function FuelManagementDrilldown() {
         <div className="space-y-6">
             {/* Summary Cards */}
             <div className="grid grid-cols-3 gap-3">
-                <Card className="bg-gradient-to-br from-blue-50 to-blue-100 border-blue-200">
+                <Card className="bg-gradient-to-br from-blue-900/20 to-blue-800/10 border-blue-800/50 backdrop-blur-sm">
                     <CardContent className="pt-4 pb-3">
                         <div className="flex items-center gap-2">
                             <Fuel className="h-5 w-5 text-blue-500" />
                             <div>
-                                <div className="text-2xl font-bold text-blue-700">{transactions.length}</div>
-                                <div className="text-xs text-blue-600">Total Transactions</div>
+                                <div className="text-2xl font-bold text-blue-500">{transactions.length}</div>
+                                <div className="text-xs text-blue-400">Total Transactions</div>
                             </div>
                         </div>
                     </CardContent>
                 </Card>
-                <Card className="bg-gradient-to-br from-emerald-50 to-emerald-100 border-emerald-200">
+                <Card className="bg-gradient-to-br from-emerald-900/20 to-emerald-800/10 border-emerald-800/50 backdrop-blur-sm">
                     <CardContent className="pt-4 pb-3">
                         <div className="flex items-center gap-2">
                             <Fuel className="h-5 w-5 text-emerald-500" />
                             <div>
-                                <div className="text-2xl font-bold text-emerald-700">${totalCost.toFixed(2)}</div>
-                                <div className="text-xs text-emerald-600">Total Cost</div>
+                                <div className="text-2xl font-bold text-emerald-500">${totalCost.toFixed(2)}</div>
+                                <div className="text-xs text-emerald-400">Total Cost</div>
                             </div>
                         </div>
                     </CardContent>
                 </Card>
-                <Card className="bg-gradient-to-br from-amber-50 to-amber-100 border-amber-200">
+                <Card className="bg-gradient-to-br from-amber-900/20 to-amber-800/10 border-amber-800/50 backdrop-blur-sm">
                     <CardContent className="pt-4 pb-3">
                         <div className="flex items-center gap-2">
                             <Fuel className="h-5 w-5 text-amber-500" />
                             <div>
-                                <div className="text-2xl font-bold text-amber-700">${avgCostPerGallon}</div>
-                                <div className="text-xs text-amber-600">Avg. Cost/Gallon</div>
+                                <div className="text-2xl font-bold text-amber-500">${avgCostPerGallon}</div>
+                                <div className="text-xs text-amber-400">Avg. Cost/Gallon</div>
                             </div>
                         </div>
                     </CardContent>
@@ -524,7 +523,7 @@ export function VehicleListDrilldown() {
         ? vehicles.filter((v: any) =>
             v.status === filter ||
             (filter === 'maintenance' && (v.status === 'maintenance' || v.status === 'service'))
-          )
+        )
         : vehicles
 
     // Define columns for the data table
@@ -553,13 +552,13 @@ export function VehicleListDrilldown() {
                 <Badge
                     variant={
                         vehicle.status === 'active' ? 'default' :
-                        vehicle.status === 'maintenance' || vehicle.status === 'service' ? 'destructive' :
-                        'secondary'
+                            vehicle.status === 'maintenance' || vehicle.status === 'service' ? 'destructive' :
+                                'secondary'
                     }
                     className={
                         vehicle.status === 'active' ? 'bg-emerald-500 hover:bg-emerald-600' :
-                        vehicle.status === 'maintenance' || vehicle.status === 'service' ? 'bg-amber-500 hover:bg-amber-600' :
-                        ''
+                            vehicle.status === 'maintenance' || vehicle.status === 'service' ? 'bg-amber-500 hover:bg-amber-600' :
+                                ''
                     }
                 >
                     {vehicle.status}
@@ -585,11 +584,10 @@ export function VehicleListDrilldown() {
                 <div className="flex items-center gap-2">
                     <div className="w-16 h-2 bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden">
                         <div
-                            className={`h-full transition-all ${
-                                vehicle.fuelLevel > 50 ? 'bg-emerald-500' :
+                            className={`h-full transition-all ${vehicle.fuelLevel > 50 ? 'bg-emerald-500' :
                                 vehicle.fuelLevel > 25 ? 'bg-amber-500' :
-                                'bg-red-500'
-                            }`}
+                                    'bg-red-500'
+                                }`}
                             style={{ width: `${vehicle.fuelLevel}%` }}
                         />
                     </div>
@@ -693,16 +691,14 @@ export function VehicleListDrilldown() {
                             >
                                 <div className="flex items-center justify-between">
                                     <div className="flex items-center gap-3 flex-1">
-                                        <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
-                                            vehicle.status === 'active' ? 'bg-emerald-100 dark:bg-emerald-900/30' :
+                                        <div className={`w-10 h-10 rounded-full flex items-center justify-center ${vehicle.status === 'active' ? 'bg-emerald-100 dark:bg-emerald-900/30' :
                                             vehicle.status === 'maintenance' || vehicle.status === 'service' ? 'bg-amber-100 dark:bg-amber-900/30' :
-                                            'bg-slate-100 dark:bg-slate-800'
-                                        }`}>
-                                            <Truck className={`h-5 w-5 ${
-                                                vehicle.status === 'active' ? 'text-emerald-600 dark:text-emerald-400' :
+                                                'bg-slate-100 dark:bg-slate-800'
+                                            }`}>
+                                            <Truck className={`h-5 w-5 ${vehicle.status === 'active' ? 'text-emerald-600 dark:text-emerald-400' :
                                                 vehicle.status === 'maintenance' || vehicle.status === 'service' ? 'text-amber-600 dark:text-amber-400' :
-                                                'text-slate-500'
-                                            }`} />
+                                                    'text-slate-500'
+                                                }`} />
                                         </div>
                                         <div className="flex-1 min-w-0">
                                             <div className="font-semibold truncate">

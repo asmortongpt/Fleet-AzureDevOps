@@ -1,6 +1,8 @@
 import { Search, LogOut, User, CreditCard, Users } from 'lucide-react';
+import { useState } from 'react';
 
 import { NotificationBell } from '@/components/common/NotificationBell';
+import { SearchInput } from '@/components/shared/SearchInput';
 import { ThemeToggle } from '@/components/ThemeToggle';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
@@ -16,6 +18,7 @@ import { useNavigation } from '@/contexts/NavigationContext';
 
 export function CommandCenterHeader() {
     const { setActiveModule } = useNavigation();
+    const [searchQuery, setSearchQuery] = useState('');
 
     const handleLogout = () => {
         // Clear any auth state and redirect to login
@@ -23,18 +26,23 @@ export function CommandCenterHeader() {
         window.location.href = '/login';
     };
 
+    const handleSearch = (query: string) => {
+        // TODO: Implement global search functionality
+        console.log('Global search:', query);
+    };
+
     return (
         <header className="h-16 border-b border-border bg-card/80 backdrop-blur-sm flex items-center justify-between px-6 shrink-0">
             {/* Search Bar */}
             <div className="flex-1 max-w-xl">
-                <div className="relative group">
-                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500 group-focus-within:text-blue-400 transition-colors" />
-                    <input
-                        type="text"
-                        placeholder="Search fleet, drivers, or assets..."
-                        className="w-full bg-secondary border border-border rounded-full pl-10 pr-4 py-2 text-sm text-foreground focus:outline-none focus:ring-1 focus:ring-primary/50 focus:border-primary/50 transition-all shadow-inner"
-                    />
-                </div>
+                <SearchInput
+                    value={searchQuery}
+                    onChange={setSearchQuery}
+                    onDebouncedChange={handleSearch}
+                    placeholder="Search fleet, drivers, or assets..."
+                    ariaLabel="Search fleet, drivers, or assets"
+                    className="[&_input]:rounded-full [&_input]:bg-secondary [&_input]:shadow-inner"
+                />
             </div>
 
             {/* Right Actions */}

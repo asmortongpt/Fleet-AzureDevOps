@@ -45,7 +45,7 @@ function DispatchContent() {
                     trendValue="+4"
                     variant="primary"
                     icon={<Package className="w-6 h-6" />}
-                    onClick={() => push({ type: 'active-jobs', data: { title: 'Active Jobs' } } as Omit<DrilldownLevel, "timestamp">)}
+                    onClick={() => push({ type: 'active-jobs', label: 'Active Jobs', data: { title: 'Active Jobs' } } as Omit<DrilldownLevel, "timestamp">)}
                 />
                 <StatCard
                     title="In Transit"
@@ -53,7 +53,7 @@ function DispatchContent() {
                     subtitle="On schedule"
                     variant="success"
                     icon={<Truck className="w-6 h-6" />}
-                    onClick={() => push({ type: 'in-transit', data: { title: 'In Transit' } } as Omit<DrilldownLevel, "timestamp">)}
+                    onClick={() => push({ type: 'in-transit', label: 'In Transit', data: { title: 'In Transit' } } as Omit<DrilldownLevel, "timestamp">)}
                 />
                 <StatCard
                     title="Completed Today"
@@ -63,7 +63,7 @@ function DispatchContent() {
                     trendValue="+12%"
                     variant="success"
                     icon={<CheckSquare className="w-6 h-6" />}
-                    onClick={() => push({ type: 'dispatch', data: { title: 'Completed Today' } } as Omit<DrilldownLevel, "timestamp">)}
+                    onClick={() => push({ type: 'dispatch', label: 'Completed Today', data: { title: 'Completed Today' } } as Omit<DrilldownLevel, "timestamp">)}
                 />
                 <StatCard
                     title="Delayed"
@@ -73,14 +73,14 @@ function DispatchContent() {
                     trendValue="-2"
                     variant="danger"
                     icon={<Warning className="w-6 h-6" />}
-                    onClick={() => push({ type: 'delayed', data: { title: 'Delayed Jobs' } } as Omit<DrilldownLevel, "timestamp">)}
+                    onClick={() => push({ type: 'delayed', label: 'Delayed Jobs', data: { title: 'Delayed Jobs' } } as Omit<DrilldownLevel, "timestamp">)}
                 />
             </div>
 
             {/* Secondary Row */}
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 {/* On-Time Rate */}
-                <div className="bg-gradient-to-br from-slate-800/60 to-slate-900/60 backdrop-blur-xl rounded-xl border border-slate-700/50 p-6 cursor-pointer hover:border-slate-600/50 transition-colors" onClick={() => push({ type: 'dispatch', data: { title: 'On-Time Performance' } } as Omit<DrilldownLevel, "timestamp">)}>
+                <div className="bg-gradient-to-br from-slate-800/60 to-slate-900/60 backdrop-blur-xl rounded-xl border border-slate-700/50 p-6 cursor-pointer hover:border-slate-600/50 transition-colors" onClick={() => push({ type: 'dispatch', label: 'On-Time Performance', data: { title: 'On-Time Performance' } } as Omit<DrilldownLevel, "timestamp">)}>
                     <h3 className="text-sm font-medium text-slate-400 uppercase tracking-wide mb-4">On-Time Rate</h3>
                     <div className="flex items-center justify-center">
                         <ProgressRing progress={94} color="green" label="Today" sublabel="vs 91% yesterday" />
@@ -88,7 +88,7 @@ function DispatchContent() {
                 </div>
 
                 {/* Quick Stats */}
-                <div className="bg-gradient-to-br from-slate-800/60 to-slate-900/60 backdrop-blur-xl rounded-xl border border-slate-700/50 p-6 cursor-pointer hover:border-slate-600/50 transition-colors" onClick={() => push({ type: 'dispatch', data: { title: 'Metrics' } } as Omit<DrilldownLevel, "timestamp">)}>
+                <div className="bg-gradient-to-br from-slate-800/60 to-slate-900/60 backdrop-blur-xl rounded-xl border border-slate-700/50 p-6 cursor-pointer hover:border-slate-600/50 transition-colors" onClick={() => push({ type: 'dispatch', label: 'Metrics', data: { title: 'Metrics' } } as Omit<DrilldownLevel, "timestamp">)}>
                     <h3 className="text-sm font-medium text-slate-400 uppercase tracking-wide mb-4">Today's Metrics</h3>
                     <div className="space-y-1">
                         <QuickStat label="Avg Delivery Time" value="42 min" trend="down" />
@@ -99,7 +99,7 @@ function DispatchContent() {
                 </div>
 
                 {/* Capacity */}
-                <div className="bg-gradient-to-br from-slate-800/60 to-slate-900/60 backdrop-blur-xl rounded-xl border border-slate-700/50 p-6 cursor-pointer hover:border-slate-600/50 transition-colors" onClick={() => push({ type: 'dispatch', data: { title: 'Driver Capacity' } } as Omit<DrilldownLevel, "timestamp">)}>
+                <div className="bg-gradient-to-br from-slate-800/60 to-slate-900/60 backdrop-blur-xl rounded-xl border border-slate-700/50 p-6 cursor-pointer hover:border-slate-600/50 transition-colors" onClick={() => push({ type: 'dispatch', label: 'Driver Capacity', data: { title: 'Driver Capacity' } } as Omit<DrilldownLevel, "timestamp">)}>
                     <h3 className="text-sm font-medium text-slate-400 uppercase tracking-wide mb-4">Driver Capacity</h3>
                     <div className="flex items-center justify-center">
                         <ProgressRing progress={78} color="blue" label="Utilized" sublabel="17 drivers available" />
@@ -117,9 +117,9 @@ function RoutesContent() {
         <div className="p-6 space-y-6 bg-gradient-to-b from-slate-900/50 to-transparent">
             <h2 className="text-2xl font-bold text-white">Route Management</h2>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <StatCard title="Active Routes" value="45" variant="primary" icon={<MapTrifold className="w-6 h-6" />} onClick={() => push({ type: 'active-routes', data: { title: 'Active Routes' } } as Omit<DrilldownLevel, "timestamp">)} />
-                <StatCard title="Optimized Today" value="12" variant="success" trend="up" trendValue="28% savings" onClick={() => push({ type: 'optimized-today', data: { title: 'Optimized Routes' } } as Omit<DrilldownLevel, "timestamp">)} />
-                <StatCard title="Avg Duration" value="2.4 hrs" variant="default" onClick={() => push({ type: 'routes', data: { title: 'Route Duration' } } as Omit<DrilldownLevel, "timestamp">)} />
+                <StatCard title="Active Routes" value="45" variant="primary" icon={<MapTrifold className="w-6 h-6" />} onClick={() => push({ type: 'active-routes', label: 'Active Routes', data: { title: 'Active Routes' } } as Omit<DrilldownLevel, "timestamp">)} />
+                <StatCard title="Optimized Today" value="12" variant="success" trend="up" trendValue="28% savings" onClick={() => push({ type: 'optimized-today', label: 'Optimized Routes', data: { title: 'Optimized Routes' } } as Omit<DrilldownLevel, "timestamp">)} />
+                <StatCard title="Avg Duration" value="2.4 hrs" variant="default" onClick={() => push({ type: 'routes', label: 'Route Duration', data: { title: 'Route Duration' } } as Omit<DrilldownLevel, "timestamp">)} />
             </div>
         </div>
     )
@@ -132,10 +132,10 @@ function TasksContent() {
         <div className="p-6 space-y-6 bg-gradient-to-b from-slate-900/50 to-transparent">
             <h2 className="text-2xl font-bold text-white">Task Management</h2>
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                <StatCard title="Open Tasks" value="34" variant="primary" onClick={() => push({ type: 'open-tasks', data: { title: 'Open Tasks' } } as Omit<DrilldownLevel, "timestamp">)} />
-                <StatCard title="In Progress" value="12" variant="warning" onClick={() => push({ type: 'tasks', data: { title: 'In Progress' } } as Omit<DrilldownLevel, "timestamp">)} />
-                <StatCard title="Completed" value="89" variant="success" onClick={() => push({ type: 'tasks', data: { title: 'Completed Tasks' } } as Omit<DrilldownLevel, "timestamp">)} />
-                <StatCard title="Overdue" value="2" variant="danger" onClick={() => push({ type: 'overdue-tasks', data: { title: 'Overdue Tasks' } } as Omit<DrilldownLevel, "timestamp">)} />
+                <StatCard title="Open Tasks" value="34" variant="primary" onClick={() => push({ type: 'open-tasks', label: 'Open Tasks', data: { title: 'Open Tasks' } } as Omit<DrilldownLevel, "timestamp">)} />
+                <StatCard title="In Progress" value="12" variant="warning" onClick={() => push({ type: 'tasks', label: 'In Progress', data: { title: 'In Progress' } } as Omit<DrilldownLevel, "timestamp">)} />
+                <StatCard title="Completed" value="89" variant="success" onClick={() => push({ type: 'tasks', label: 'Completed Tasks', data: { title: 'Completed Tasks' } } as Omit<DrilldownLevel, "timestamp">)} />
+                <StatCard title="Overdue" value="2" variant="danger" onClick={() => push({ type: 'overdue-tasks', label: 'Overdue Tasks', data: { title: 'Overdue Tasks' } } as Omit<DrilldownLevel, "timestamp">)} />
             </div>
         </div>
     )
@@ -153,19 +153,19 @@ function CalendarContent() {
                     value="24"
                     variant="primary"
                     icon={<CalendarDots className="w-6 h-6" />}
-                    onClick={() => push({ type: 'calendar-list', id: 'scheduled-today', data: { timeframe: 'today' } })}
+                    onClick={() => push({ type: 'calendar-list', label: 'Scheduled Today', id: 'scheduled-today', data: { timeframe: 'today' } })}
                 />
                 <StatCard
                     title="This Week"
                     value="156"
                     variant="default"
-                    onClick={() => push({ type: 'calendar-list', id: 'scheduled-week', data: { timeframe: 'week' } })}
+                    onClick={() => push({ type: 'calendar-list', label: 'Weekly Schedule', id: 'scheduled-week', data: { timeframe: 'week' } })}
                 />
                 <StatCard
                     title="Driver Shifts"
                     value="42"
                     variant="success"
-                    onClick={() => push({ type: 'calendar-list', id: 'driver-shifts', data: { type: 'shifts' } })}
+                    onClick={() => push({ type: 'calendar-list', label: 'Driver Shifts', id: 'driver-shifts', data: { type: 'shifts' } })}
                 />
             </div>
         </div>
