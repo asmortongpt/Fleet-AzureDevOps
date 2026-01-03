@@ -6,7 +6,7 @@ import {
   Warning,
   ShieldCheck,
   Calendar,
-  AlertTriangle,
+  Warning,
   CheckCircle,
   XCircle
 } from '@phosphor-icons/react'
@@ -317,7 +317,7 @@ export function LostTimeIncidentsView() {
       {/* Summary */}
       <Card className="bg-red-900/30 border-red-700/50">
         <CardContent className="p-6 text-center">
-          <AlertTriangle className="w-10 h-10 text-red-400 mx-auto mb-2" />
+          <Warning className="w-10 h-10 text-red-400 mx-auto mb-2" />
           <div className="text-4xl font-bold text-white">{totalDaysLost}</div>
           <div className="text-sm text-slate-400">Total Work Days Lost</div>
           <div className="text-xs text-slate-500 mt-1">
