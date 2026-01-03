@@ -1,7 +1,7 @@
 import React from 'react';
 import { ColumnDef } from '@tanstack/react-table';
 import { ExcelDataTable } from '../shared/ExcelDataTable';
-import { Vehicle } from '@/types/types';
+import { Vehicle } from '@/types';
 import { Truck, Calendar, Gauge, DollarSign, Wrench } from 'lucide-react';
 
 interface VehicleDrilldownViewProps {
@@ -138,7 +138,7 @@ export function VehicleDrilldownView({ vehicles, onVehicleClick, title = 'Active
         if (!date) return 'N/A';
         const daysUntil = Math.ceil((new Date(date).getTime() - Date.now()) / (1000 * 60 * 60 * 24));
         const isOverdue = daysUntil < 0;
-        const isDueSoon = daysUntil < 7 && days Until >= 0;
+        const isDueSoon = daysUntil < 7 && daysUntil >= 0;
         return (
           <div className="flex items-center gap-2">
             <Wrench className={`w-4 h-4 ${isOverdue ? 'text-red-400' : isDueSoon ? 'text-amber-400' : 'text-slate-400'}`} />
