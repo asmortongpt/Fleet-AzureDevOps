@@ -11,7 +11,6 @@ import { Badge } from '../ui/badge';
 import { Button } from '../ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
 
-import { WebSocketStatus } from '@/components/common/WebSocketStatus';
 import { GeofenceLayer } from '@/components/layers/GeofenceLayer';
 import { TrafficCameraLayer } from '@/components/layers/TrafficCameraLayer';
 import { MapLayerControl } from '@/components/map/MapLayerControl';
@@ -22,12 +21,6 @@ import { GeofenceIntelligencePanel } from '@/components/panels/GeofenceIntellige
 import { TrafficCameraControlPanel } from '@/components/panels/TrafficCameraControlPanel';
 import { useVehicles, useDrivers } from '@/hooks/use-api';
 import { useGeofenceBreachDetector } from '@/hooks/use-geofence-breach';
-import {
-  useAllVehicleLocations,
-  useFleetStatus,
-  useMaintenanceAlerts,
-  useGeofenceBreaches,
-} from '@/hooks/useWebSocketSubscriptions';
 import { generateDemoVehicles } from '@/lib/demo-data';
 import { Geofence, Driver } from '@/lib/types';
 import logger from '@/utils/logger';
@@ -50,16 +43,14 @@ export const LiveFleetDashboard = React.memo(function LiveFleetDashboard({ initi
   const [isLoading, setIsLoading] = useState(true);
   const [selectedVehicleId, setSelectedVehicleId] = useState<string | null>(null);
 
-  // Real-time WebSocket subscriptions
-  const { locations: vehicleLocations } = useAllVehicleLocations();
-  const { status: fleetStatus } = useFleetStatus();
-  const { alerts: maintenanceAlerts } = useMaintenanceAlerts({ maxAlerts: 50 });
-  const { breaches: geofenceBreaches } = useGeofenceBreaches({ maxBreaches: 50 });
-
   // -- Data Sync --
   useEffect(() => {
     if (driversData) {
-      setDrivers(driversData as unknown as Driver[]);
+      // Extract array from API response structure {data: [], meta: {}}
+      const driversArray = Array.isArray(driversData)
+        ? driversData
+        : ((driversData as any)?.data || []);
+      setDrivers(driversArray as unknown as Driver[]);
     }
   }, [driversData]);
 
@@ -164,46 +155,14 @@ export const LiveFleetDashboard = React.memo(function LiveFleetDashboard({ initi
     }
   }, [apiLoading, apiError, vehiclesData]);
 
-  // Update vehicle locations from WebSocket
-  useEffect(() => {
-    if (vehicleLocations.size === 0) return;
-
-    setVehicles(prev => {
-      return prev.map(vehicle => {
-        const wsLocation = vehicleLocations.get(vehicle.id);
-        if (wsLocation) {
-          return {
-            ...vehicle,
-            location: {
-              lat: wsLocation.latitude,
-              lng: wsLocation.longitude,
-            },
-            latitude: wsLocation.latitude,
-            longitude: wsLocation.longitude,
-            speed: wsLocation.speed,
-            heading: wsLocation.heading,
-            lastUpdate: wsLocation.timestamp,
-          };
-        }
-        return vehicle;
-      });
-    });
-  }, [vehicleLocations]);
-
   const selectedVehicle = vehicles.find((v: any) => v.id === selectedVehicleId) || vehicles[0];
 
   // Quick stats - handle both 'active' and 'service' status
-  // Use WebSocket fleet status if available, otherwise calculate from vehicles
-  const activeCount = fleetStatus?.active ?? vehicles.filter((v: any) => v.status === 'active').length;
-  const maintenanceCount = fleetStatus?.maintenance ?? vehicles.filter((v: any) =>
+  const activeCount = vehicles.filter((v: any) => v.status === 'active').length;
+  const maintenanceCount = vehicles.filter((v: any) =>
     v.status === 'maintenance' || v.status === 'service'
   ).length;
-  const totalVehicles = fleetStatus?.totalVehicles ?? vehicles.length;
-
-  // Real-time maintenance alert count
-  const maintenanceAlertCount = maintenanceAlerts.filter(alert =>
-    alert.priority === 'high' || alert.priority === 'critical'
-  ).length;
+  const totalVehicles = vehicles.length;
 
   // Quick actions for mobile
   const quickActions = [
@@ -224,7 +183,7 @@ export const LiveFleetDashboard = React.memo(function LiveFleetDashboard({ initi
       label: 'Alerts',
       icon: <AlertCircle className="h-5 w-5" />,
       onClick: () => console.log('Alerts clicked'),
-      badge: maintenanceAlertCount > 0 ? maintenanceAlertCount : maintenanceCount
+      badge: maintenanceCount
     },
     {
       id: 'fuel',
@@ -237,12 +196,9 @@ export const LiveFleetDashboard = React.memo(function LiveFleetDashboard({ initi
   // Side Panel Content
   const sidePanel = (
     <div className="space-y-4">
-      <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-slate-100">Fleet Overview</h2>
-          <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-1">Real-time vehicle monitoring</p>
-        </div>
-        <WebSocketStatus variant="badge" showDetails={true} />
+      <div>
+        <h2 className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-slate-100">Fleet Overview</h2>
+        <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-1">Real-time vehicle monitoring</p>
       </div>
 
       {/* Quick Stats - Responsive Grid */}
@@ -296,9 +252,9 @@ export const LiveFleetDashboard = React.memo(function LiveFleetDashboard({ initi
                 <MapPin className="h-4 w-4 text-slate-500 dark:text-slate-400" />
               </div>
               <span className="font-mono text-slate-600 dark:text-slate-300">
-                {selectedVehicle.location?.lat?.toFixed(4) || selectedVehicle.latitude?.toFixed(4) || '0.0000'},
+                {Number(selectedVehicle.location?.lat ?? selectedVehicle.latitude ?? 0).toFixed(4)},
                 {' '}
-                {selectedVehicle.location?.lng?.toFixed(4) || selectedVehicle.longitude?.toFixed(4) || '0.0000'}
+                {Number(selectedVehicle.location?.lng ?? selectedVehicle.longitude ?? 0).toFixed(4)}
               </span>
             </div>
           </CardContent>
@@ -307,7 +263,7 @@ export const LiveFleetDashboard = React.memo(function LiveFleetDashboard({ initi
 
       {/* Quick Actions - Mobile Optimized */}
       <div className="space-y-2">
-        <h3 className="text-sm font-semibold text-slate-700">Quick Actions</h3>
+        <h3 className="text-sm font-semibold text-slate-700 dark:text-slate-300">Quick Actions</h3>
         {/* Mobile: Horizontal scroll, Desktop: Grid */}
         <div className="md:hidden">
           <MobileQuickActions
@@ -357,9 +313,9 @@ export const LiveFleetDashboard = React.memo(function LiveFleetDashboard({ initi
 
       {/* Vehicle List - Mobile uses MobileVehicleCard, Desktop uses custom */}
       <div>
-        <h3 className="text-sm font-semibold text-slate-700 mb-2">Recent Activity</h3>
+        <h3 className="text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">Recent Activity</h3>
         {/* Mobile: List variant */}
-        <div className="md:hidden space-y-0 max-h-64 overflow-y-auto border-t border-slate-200">
+        <div className="md:hidden space-y-0 max-h-64 overflow-y-auto border-t border-slate-200 dark:border-slate-700">
           {vehicles.slice(0, 10).map((vehicle: any) => (
             <MobileVehicleCard
               key={vehicle.id}
@@ -375,8 +331,8 @@ export const LiveFleetDashboard = React.memo(function LiveFleetDashboard({ initi
             <div
               key={vehicle.id}
               className={`p-3 rounded-lg border cursor-pointer transition-colors ${selectedVehicleId === vehicle.id
-                ? 'border-blue-500 bg-blue-50'
-                : 'border-slate-200 hover:border-slate-300'
+                ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/30 dark:border-blue-400'
+                : 'border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 bg-card'
                 }`}
               onClick={() => setSelectedVehicleId(vehicle.id)}
               data-testid={`vehicle-list-item-${vehicle.id}`}

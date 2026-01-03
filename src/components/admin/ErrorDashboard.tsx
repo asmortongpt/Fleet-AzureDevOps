@@ -6,6 +6,7 @@
  */
 
 import React, { useState, useEffect } from 'react';
+import { SkeletonLoader } from '@/components/shared';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
