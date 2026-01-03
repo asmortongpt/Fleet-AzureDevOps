@@ -17,10 +17,10 @@
 // CORE DRILLDOWN INFRASTRUCTURE
 // ============================================================================
 
-export { DrilldownPanel, DrilldownContent } from '../DrilldownPanel'
-export { DrilldownBreadcrumbs } from '../DrilldownBreadcrumbs'
-export { DrilldownManager, useDrilldown } from '../DrilldownManager'
+export { DrilldownPanel } from './DrilldownPanel'
+export { DrilldownBreadcrumbs } from './DrilldownBreadcrumbs'
 export { DrilldownProvider } from '@/contexts/DrilldownContext'
+export { useDrilldown } from '@/contexts/DrilldownContext'
 export type { DrilldownLevel, DrilldownContextType } from '@/contexts/DrilldownContext'
 
 // ============================================================================
