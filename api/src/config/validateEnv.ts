@@ -4,7 +4,7 @@ const envSchema = z.object({
   NODE_ENV: z.enum(['development', 'staging', 'production'], {
     message: 'NODE_ENV must be development, staging, or production'
   }),
-  PORT: z.string().transform(Number).default('3000'),
+  PORT: z.string().default('3000').transform(Number),
   DATABASE_URL: z.string({
     message: 'DATABASE_URL is required'
   }).url(),

@@ -1,10 +1,11 @@
 import { config } from 'dotenv';
 import { Pool } from 'pg';
 
-import { maintenanceSeed } from './maintenance.seed';
-import { partsSeed } from './parts.seed';
-import { usersSeed } from './users.seed';
-import { vehiclesSeed } from './vehicles.seed';
+// TODO: Create missing seed files
+// import { maintenanceSeed } from './maintenance.seed';
+// import { partsSeed } from './parts.seed';
+// import { usersSeed } from './users.seed';
+// import { vehiclesSeed } from './vehicles.seed';
 
 config();
 
@@ -19,10 +20,11 @@ const pool = new Pool({
 type SeedFunction = (pool: Pool) => Promise<void>;
 
 const seeds: SeedFunction[] = [
-  usersSeed,
-  vehiclesSeed,
-  maintenanceSeed,
-  partsSeed,
+  // TODO: Add seed functions when files are created
+  // usersSeed,
+  // vehiclesSeed,
+  // maintenanceSeed,
+  // partsSeed,
 ];
 
 async function seed(): Promise<void> {

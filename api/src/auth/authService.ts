@@ -6,7 +6,7 @@
 
 import crypto from 'crypto'
 
-import bcrypt from 'bcryptjs'
+import bcrypt from 'bcrypt'
 import { Request, Response, NextFunction } from 'express'
 import jwt from 'jsonwebtoken'
 
@@ -274,7 +274,7 @@ export class AuthService {
       aud: 'fleet-showroom-client'
     }
 
-    const token = jwt.sign(payload, JWT_SECRET, {
+    const token = jwt.sign(payload, JWT_SECRET!, {
       expiresIn: ACCESS_TOKEN_EXPIRY,
       algorithm: 'HS256'
     })
@@ -297,7 +297,7 @@ export class AuthService {
       exp: Math.floor(Date.now() / 1000) + (7 * 24 * 60 * 60) // 7 days
     }
 
-    return jwt.sign(payload, JWT_REFRESH_SECRET, {
+    return jwt.sign(payload, JWT_REFRESH_SECRET!, {
       expiresIn: REFRESH_TOKEN_EXPIRY,
       algorithm: 'HS256'
     })
@@ -305,7 +305,7 @@ export class AuthService {
 
   public verifyAccessToken(token: string): JWTPayload | null {
     try {
-      const payload = jwt.verify(token, JWT_SECRET) as JWTPayload
+      const payload = jwt.verify(token, JWT_SECRET!) as JWTPayload
 
       // Check if session is still active
       const session = this.activeSessions.get(payload.sessionId)
@@ -322,7 +322,7 @@ export class AuthService {
 
   public verifyRefreshToken(token: string): { userId: string; sessionId: string } | null {
     try {
-      const payload = jwt.verify(token, JWT_REFRESH_SECRET) as any
+      const payload = jwt.verify(token, JWT_REFRESH_SECRET!) as any
       return {
         userId: payload.userId,
         sessionId: payload.sessionId
