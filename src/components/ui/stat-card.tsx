@@ -28,41 +28,42 @@ interface StatCardProps {
     drilldownLabel?: string
 }
 
+// Liquid Glass UI - Solid colors with frosted glass effect
 const variantStyles = {
     default: {
-        bg: 'bg-gradient-to-br from-slate-800/80 to-slate-900/80',
-        border: 'border-slate-700/50',
-        accent: 'from-slate-400 to-slate-500',
-        iconBg: 'bg-slate-700/50',
-        iconColor: 'text-slate-400'
+        bg: 'bg-slate-900/95',
+        border: 'border-slate-700/60',
+        accent: 'from-slate-300 to-slate-400',
+        iconBg: 'bg-slate-800/80',
+        iconColor: 'text-slate-300'
     },
     primary: {
-        bg: 'bg-gradient-to-br from-blue-900/40 to-blue-950/60',
-        border: 'border-blue-500/30',
-        accent: 'from-blue-400 to-blue-500',
-        iconBg: 'bg-blue-500/20',
-        iconColor: 'text-blue-400'
+        bg: 'bg-blue-950/95',
+        border: 'border-blue-400/40',
+        accent: 'from-blue-300 to-blue-400',
+        iconBg: 'bg-blue-900/80',
+        iconColor: 'text-blue-300'
     },
     success: {
-        bg: 'bg-gradient-to-br from-emerald-900/40 to-emerald-950/60',
-        border: 'border-emerald-500/30',
-        accent: 'from-emerald-400 to-emerald-500',
-        iconBg: 'bg-emerald-500/20',
-        iconColor: 'text-emerald-400'
+        bg: 'bg-emerald-950/95',
+        border: 'border-emerald-400/40',
+        accent: 'from-emerald-300 to-emerald-400',
+        iconBg: 'bg-emerald-900/80',
+        iconColor: 'text-emerald-300'
     },
     warning: {
-        bg: 'bg-gradient-to-br from-amber-900/40 to-amber-950/60',
-        border: 'border-amber-500/30',
-        accent: 'from-amber-400 to-amber-500',
-        iconBg: 'bg-amber-500/20',
-        iconColor: 'text-amber-400'
+        bg: 'bg-amber-950/95',
+        border: 'border-amber-400/40',
+        accent: 'from-amber-300 to-amber-400',
+        iconBg: 'bg-amber-900/80',
+        iconColor: 'text-amber-300'
     },
     danger: {
-        bg: 'bg-gradient-to-br from-red-900/40 to-red-950/60',
-        border: 'border-red-500/30',
-        accent: 'from-red-400 to-red-500',
-        iconBg: 'bg-red-500/20',
-        iconColor: 'text-red-400'
+        bg: 'bg-red-950/95',
+        border: 'border-red-400/40',
+        accent: 'from-red-300 to-red-400',
+        iconBg: 'bg-red-900/80',
+        iconColor: 'text-red-300'
     }
 }
 
@@ -151,10 +152,10 @@ export function StatCard({
                 )}
             </div>
 
-            {/* Drilldown indicator for clickable cards */}
+            {/* Drilldown indicator - visual only, no text */}
             {isClickable && (
-                <div className="absolute bottom-2 right-2 opacity-50 group-hover:opacity-100 transition-opacity">
-                    <span className="text-[9px] text-slate-500 uppercase tracking-wider">Click to drill down →</span>
+                <div className="absolute bottom-1.5 right-1.5 opacity-0 hover:opacity-100 transition-opacity">
+                    <div className="w-1.5 h-1.5 rounded-full bg-blue-400/60 animate-pulse" />
                 </div>
             )}
         </div>

@@ -302,12 +302,20 @@ export class ConnectionManager {
         return
       }
 
+      let client;
       try {
-        const client = await pool.connect()
+        client = await pool.connect()
         await client.query(`SELECT 1`)
-        client.release()
       } catch (error) {
         console.error(`[${poolType}] Health check failed:`, error)
+      } finally {
+        if (client) {
+          try {
+            client.release()
+          } catch (releaseError) {
+            console.error(`[${poolType}] Error releasing client:`, releaseError)
+          }
+        }
       }
     }, interval)
 
