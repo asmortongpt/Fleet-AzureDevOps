@@ -121,3 +121,5 @@ deployment-info-*.txt
 diagnose-whitescreen.js
 Fleet/
 Fleet-1/
+dist-from-vm/
+dist-from-vm/

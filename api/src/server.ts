@@ -136,6 +136,7 @@ import oshaComplianceRouter from './routes/osha-compliance'
 
 // Policy & Permission Routes
 import policiesRouter from './routes/policies'
+import policyTemplatesRouter from './routes/policy-templates'
 import permissionsRouter from './routes/permissions'
 
 // Authentication & User Management Routes
@@ -401,6 +402,7 @@ app.use('/api/annual-reauthorization', annualReauthorizationRouter)
 
 // Policy & Permission Routes
 app.use('/api/policies', policiesRouter)
+app.use('/api/policy-templates', policyTemplatesRouter)
 app.use('/api/permissions', permissionsRouter)
 
 // Authentication & User Management Routes
