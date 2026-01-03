@@ -158,7 +158,7 @@ ON telemetry_data(timestamp DESC);
 -- ON telemetry_data(latitude, longitude)
 -- WHERE latitude IS NOT NULL AND longitude IS NOT NULL;
 
--- Index for speed notifications
+-- Index for speed maintenance_notifications
 -- CREATE INDEX IF NOT EXISTS idx_telematics_speed
 -- ON telemetry_data(speed)
 -- WHERE speed > 0;
@@ -175,10 +175,10 @@ ON vehicle_inspections(vehicle_id, created_at DESC);
 CREATE INDEX IF NOT EXISTS idx_vehicle_inspections_status
 ON vehicle_inspections(status);
 
--- Index for failed vehicle_inspections
-CREATE INDEX IF NOT EXISTS idx_vehicle_inspections_failed
-ON vehicle_inspections(passed)
-WHERE passed = false;
+-- Index for failed vehicle_inspections (Column passed missing)
+-- CREATE INDEX IF NOT EXISTS idx_vehicle_inspections_failed
+-- ON vehicle_inspections(passed)
+-- WHERE passed = false;
 
 -- Index for recent vehicle_inspections
 CREATE INDEX IF NOT EXISTS idx_vehicle_inspections_date
@@ -188,9 +188,9 @@ ON vehicle_inspections(created_at DESC);
 -- DOCUMENTS TABLE INDEXES
 -- ============================================================================
 
--- Index for entity documents (vehicle, driver, etc.)
-CREATE INDEX IF NOT EXISTS idx_documents_entity
-ON documents(entity_type, entity_id, created_at DESC);
+-- Index for entity documents (Columns missing)
+-- CREATE INDEX IF NOT EXISTS idx_documents_entity
+-- ON documents(entity_type, entity_id, created_at DESC);
 
 -- Index for document type
 CREATE INDEX IF NOT EXISTS idx_documents_type
@@ -202,31 +202,31 @@ ON documents(tenant_id)
 WHERE tenant_id IS NOT NULL;
 
 -- Index for document status
-CREATE INDEX IF NOT EXISTS idx_documents_status
-ON documents(status)
-WHERE status IS NOT NULL;
+-- CREATE INDEX IF NOT EXISTS idx_documents_status
+-- ON documents(status)
+-- WHERE status IS NOT NULL;
 
 -- ============================================================================
 -- ALERTS TABLE INDEXES
 -- ============================================================================
 
--- Index for vehicle notifications
-CREATE INDEX IF NOT EXISTS idx_notifications_vehicle
-ON notifications(vehicle_id, created_at DESC)
-WHERE vehicle_id IS NOT NULL;
+-- Index for vehicle maintenance_notifications (Column missing)
+-- CREATE INDEX IF NOT EXISTS idx_maintenance_notifications_vehicle
+-- ON maintenance_notifications(vehicle_id, created_at DESC)
+-- WHERE vehicle_id IS NOT NULL;
 
--- Index for alert severity
-CREATE INDEX IF NOT EXISTS idx_notifications_severity
-ON notifications(severity, created_at DESC);
+-- Index for notification severity (Column missing)
+-- CREATE INDEX IF NOT EXISTS idx_maintenance_notifications_severity
+-- ON maintenance_notifications(severity, created_at DESC);
 
--- Index for unread notifications
-CREATE INDEX IF NOT EXISTS idx_notifications_unread
-ON notifications(is_read, created_at DESC)
-WHERE is_read = false;
+-- Index for unread maintenance_notifications
+CREATE INDEX IF NOT EXISTS idx_maintenance_notifications_unread
+ON maintenance_notifications(read, created_at DESC)
+WHERE read = false;
 
--- Index for alert type
-CREATE INDEX IF NOT EXISTS idx_notifications_type
-ON notifications(type);
+-- Index for notification type
+CREATE INDEX IF NOT EXISTS idx_maintenance_notifications_type
+ON maintenance_notifications(notification_type);
 
 -- ============================================================================
 -- USERS TABLE INDEXES
@@ -282,12 +282,12 @@ ANALYZE vehicles;
 ANALYZE maintenance_schedules;
 ANALYZE fuel_transactions;
 ANALYZE drivers;
-ANALYZE vehicle_assignments;
+-- ANALYZE vehicle_assignments;
 ANALYZE work_orders;
 ANALYZE telemetry_data;
 ANALYZE vehicle_inspections;
 ANALYZE documents;
-ANALYZE notifications;
+ANALYZE maintenance_notifications;
 ANALYZE users;
 ANALYZE audit_logs;
 
