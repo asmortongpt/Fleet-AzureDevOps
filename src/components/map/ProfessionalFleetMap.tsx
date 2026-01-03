@@ -122,29 +122,31 @@ export function ProfessionalFleetMap({ onVehicleSelect, children }: Professional
           const pos = normalizePosition(vehicle, index);
           const isSelected = selectedId === vehicle.id;
           return (
-            <div
+            <button
               key={vehicle.id}
-              className={`absolute cursor-pointer transition-all duration-300 ${isSelected ? 'z-20 scale-125' : 'z-10 hover:scale-110 hover:z-15'}`}
+              className={`absolute cursor-pointer transition-all duration-300 ${isSelected ? 'z-20 scale-125' : 'z-10 hover:scale-110 hover:z-15'} bg-transparent border-0 p-0`}
               style={{ left: `${pos.left}%`, top: `${pos.top}%`, transform: 'translate(-50%, -50%)' }}
               onClick={() => handleVehicleClick(vehicle)}
               data-testid={`map-marker-${vehicle.id}`}
+              aria-label={`Vehicle ${vehicle.vehicleNumber || vehicle.id.slice(0, 6)} - Status: ${vehicle.status}`}
+              role="button"
             >
               {/* Marker with pulse effect for active vehicles */}
               <div className="relative">
                 {vehicle.status === 'active' && (
-                  <div className={`absolute inset-0 rounded-full ${getMarkerColor(vehicle.status)} animate-ping opacity-40`} />
+                  <div className={`absolute inset-0 rounded-full ${getMarkerColor(vehicle.status)} animate-ping opacity-40`} aria-hidden="true" />
                 )}
                 <div className={`relative p-2 rounded-full shadow-lg ${getMarkerColor(vehicle.status)} ${isSelected ? 'ring-2 ring-white ring-offset-2 ring-offset-slate-900' : ''}`}>
-                  <Navigation className="h-4 w-4 text-white" style={{ transform: `rotate(${(index * 45) % 360}deg)` }} />
+                  <Navigation className="h-4 w-4 text-white" style={{ transform: `rotate(${(index * 45) % 360}deg)` }} aria-hidden="true" />
                 </div>
               </div>
               {/* Vehicle label on hover/select */}
               {isSelected && (
-                <div className="absolute top-full left-1/2 -translate-x-1/2 mt-2 px-2 py-1 bg-white rounded shadow-lg text-xs font-medium text-slate-800 whitespace-nowrap">
+                <div className="absolute top-full left-1/2 -translate-x-1/2 mt-2 px-2 py-1 bg-white rounded shadow-lg text-xs font-medium text-slate-800 whitespace-nowrap" aria-live="polite">
                   {vehicle.vehicleNumber || `Vehicle ${vehicle.id.slice(0, 6)}`}
                 </div>
               )}
-            </div>
+            </button>
           );
         })}
 
