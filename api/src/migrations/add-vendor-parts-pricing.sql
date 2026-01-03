@@ -310,7 +310,7 @@ SELECT
     vp.part_name,
     vp.part_category,
     v.id as vendor_id,
-    v.vendor_name,
+    v.name,
     vp.part_number as vendor_part_number,
     vp.list_price,
     vp.cost_price,
@@ -336,7 +336,7 @@ WITH ranked_parts AS (
         vp.part_name,
         vp.part_category,
         v.id as vendor_id,
-        v.vendor_name,
+        v.name,
         vp.part_number,
         vp.cost_price,
         vp.in_stock,
@@ -358,25 +358,25 @@ WHERE value_rank = 1;
 CREATE OR REPLACE VIEW v_vendor_performance_summary AS
 SELECT
     v.id as vendor_id,
-    v.vendor_name,
-    v.vendor_type,
+    v.name,
+    v.type,
     COUNT(DISTINCT vp.id) as total_parts_offered,
     COUNT(DISTINCT vp.id) FILTER (WHERE vp.in_stock = true) as parts_in_stock,
     AVG(vp.list_price) as avg_part_price,
     AVG(vp.quality_rating) as avg_quality_rating,
     AVG(vp.lead_time_days) as avg_lead_time_days,
-    SUM(wo.total_cost) as total_business_ytd,
+    SUM(wo.actual_cost) as total_business_ytd,
     COUNT(wo.id) as work_orders_ytd,
     AVG(vpm.overall_performance_score) as avg_performance_score
 FROM vendors v
 LEFT JOIN vendor_parts_catalog vp ON v.id = vp.vendor_id AND vp.is_active = true
 LEFT JOIN work_orders wo ON v.id = wo.assigned_vendor_id
     AND wo.status = 'completed'
-    AND wo.completed_at >= DATE_TRUNC('year', CURRENT_DATE)
+    AND wo.actual_end_date >= DATE_TRUNC('year', CURRENT_DATE)
 LEFT JOIN vendor_performance_metrics vpm ON v.id = vpm.vendor_id
     AND vpm.period_start >= DATE_TRUNC('year', CURRENT_DATE)
 WHERE v.is_active = true
-GROUP BY v.id, v.vendor_name, v.vendor_type;
+GROUP BY v.id, v.name, v.type;
 
 -- Grant permissions
 -- GRANT SELECT ON v_parts_price_comparison TO PUBLIC;
@@ -456,22 +456,27 @@ FOR EACH ROW
 EXECUTE FUNCTION auto_expire_quotes();
 
 -- Update triggers for all new tables
+DROP TRIGGER IF EXISTS update_vendor_parts_catalog_updated_at ON vendor_parts_catalog;
 CREATE TRIGGER update_vendor_parts_catalog_updated_at
 BEFORE UPDATE ON vendor_parts_catalog
 FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
+DROP TRIGGER IF EXISTS update_parts_price_quotes_updated_at ON parts_price_quotes;
 CREATE TRIGGER update_parts_price_quotes_updated_at
 BEFORE UPDATE ON parts_price_quotes
 FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
+DROP TRIGGER IF EXISTS update_vendor_quote_responses_updated_at ON vendor_quote_responses;
 CREATE TRIGGER update_vendor_quote_responses_updated_at
 BEFORE UPDATE ON vendor_quote_responses
 FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
+DROP TRIGGER IF EXISTS update_vendor_api_configs_updated_at ON vendor_api_configs;
 CREATE TRIGGER update_vendor_api_configs_updated_at
 BEFORE UPDATE ON vendor_api_configs
 FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
+DROP TRIGGER IF EXISTS update_vendor_performance_metrics_updated_at ON vendor_performance_metrics;
 CREATE TRIGGER update_vendor_performance_metrics_updated_at
 BEFORE UPDATE ON vendor_performance_metrics
 FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
