@@ -6,7 +6,7 @@ import type { Vehicle } from "../../../types/vehicle";
 @injectable()
 export class VehicleRepository extends BaseRepository<Vehicle> {
   constructor() {
-    super("fleet_vehicles");
+    super("vehicles");
   }
 
   async findByNumber(number: string, tenantId: number): Promise<Vehicle | null> {

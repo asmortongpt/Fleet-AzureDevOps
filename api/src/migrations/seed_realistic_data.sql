@@ -58,14 +58,14 @@ SELECT
     '(' || (200 + n) || ') ' || LPAD((1000000 + (n * 12345) % 1000000)::TEXT, 7, '0'),
     true,
     NOW() - (n || ' days')::INTERVAL
-FROM generate_series((SELECT id FROM tenants LIMIT 1), 25) AS n
+FROM generate_series(1, 25) AS n
 ON CONFLICT (tenant_id, email) DO NOTHING;
 
 -- ============================================================================
 -- 3. DRIVERS (150 drivers)
 -- ============================================================================
 INSERT INTO drivers (id, tenant_id, first_name, last_name, email, phone, license_number, license_state,
-                     license_expiry_date, hire_date, status, emergency_contact_name, emergency_contact_phone, created_at)
+                     license_expiry_date, hire_date, status, created_at)
 SELECT
     gen_random_uuid(),
     (SELECT id FROM tenants LIMIT 1),
@@ -82,22 +82,20 @@ SELECT
     (CURRENT_DATE + (365 + (n * 17) % 730) * INTERVAL '1 day')::TIMESTAMP,
     random_timestamp('2015-01-01'::DATE, '2024-12-31'::DATE),
     (ARRAY['active', 'active', 'active', 'active', 'on_leave', 'inactive'])[((n-1) % 6) + 1]::driver_status,
-    (ARRAY['Jane', 'John', 'Alice', 'Bob', 'Carol', 'Dave'])[((n-1) % 6) + 1] || ' ' ||
-    (ARRAY['Emergency', 'Contact', 'Family', 'Spouse', 'Parent', 'Friend'])[((n-1) % 6) + 1],
-    '(850) ' || LPAD((3000000 + (n * 9247) % 1000000)::TEXT, 7, '0'),
     NOW() - (n * 3 || ' days')::INTERVAL
-FROM generate_series((SELECT id FROM tenants LIMIT 1), 150) AS n
+FROM generate_series(1, 150) AS n
 ON CONFLICT (tenant_id, license_number) DO NOTHING;
 
 -- ============================================================================
 -- 4. VEHICLES (250 vehicles - various makes and models)
 -- ============================================================================
-INSERT INTO vehicles (id, tenant_id, number, make, model, year, vin, license_plate,
-                      status, mileage, fuel_level, fuel_type, department, location, created_at)
+INSERT INTO vehicles (id, tenant_id, number, type, name, make, model, year, vin, license_plate,
+                      status, odometer, fuel_level, fuel_type, created_at)
 SELECT
     gen_random_uuid(),
     (SELECT id FROM tenants LIMIT 1),
-    'UNIT-' || LPAD(n::TEXT, 4, '0'),
+    'UNIT-' || LPAD(n::TEXT, 4, '0'), (ARRAY['truck', 'truck', 'van', 'van', 'sedan', 'truck', 'sedan', 'van'])[((n-1) % 8) + 1]::vehicle_type,
+    'Vehicle ' || n,
     (ARRAY['Ford', 'Chevrolet', 'RAM', 'GMC', 'Toyota', 'Ford', 'Chevrolet', 'GMC'])[((n-1) % 8) + 1],
     CASE ((n-1) % 8) + 1
         WHEN 1 THEN (ARRAY['F-150', 'F-250', 'F-350', 'Transit', 'E-Series'])[((n-1) % 5) + 1]
@@ -112,22 +110,20 @@ SELECT
     2015 + ((n-1) % 10),
     '1HGBH41JXMN' || LPAD(n::TEXT, 6, '0'),
     'FL-' || LPAD((10000 + n)::TEXT, 6, '0'),
-    (ARRAY['active', 'active', 'active', 'maintenance', 'out_of_service'])[((n-1) % 5) + 1],
+    (ARRAY['active', 'active', 'active', 'preventive', 'retired'])[((n-1) % 5) + 1]::vehicle_status,
     25000 + (n * 1234) % 150000,
     25 + (n * 7) % 75,
-    (ARRAY['gasoline', 'diesel', 'gasoline', 'diesel', 'hybrid'])[((n-1) % 5) + 1],
-    (ARRAY['Transit', 'Fleet Services', 'Administration', 'Maintenance'])[((n-1) % 4) + 1],
-    (ARRAY['North Depot', 'South Depot', 'East Depot', 'West Depot', 'Main Garage'])[((n-1) % 5) + 1],
+    (ARRAY['gasoline', 'diesel', 'gasoline', 'diesel', 'electric'])[((n-1) % 5) + 1]::fuel_type,
     NOW() - (n * 2 || ' days')::INTERVAL
-FROM generate_series((SELECT id FROM tenants LIMIT 1), 250) AS n
+FROM generate_series(1, 250) AS n
 ON CONFLICT DO NOTHING;
 
 -- ============================================================================
 -- 5. WORK ORDERS (500 work orders)
 -- ============================================================================
-INSERT INTO work_orders (id, tenant_id, vehicle_id, work_order_number, title, description, type, priority,
-                         status, estimated_cost, actual_cost, assigned_technician_id, scheduled_start_date,
-                         completed_date, created_at)
+INSERT INTO work_orders (id, tenant_id, vehicle_id, number, title, description, type, priority,
+                         status, actual_cost, assigned_to_id, scheduled_start_date,
+                         actual_end_date, created_at)
 SELECT
     gen_random_uuid(),
     (SELECT id FROM tenants LIMIT 1),
@@ -144,42 +140,35 @@ SELECT
         WHEN 3 THEN 'Follow-up from previous inspection.'
         ELSE 'Safety compliance requirement.'
     END,
-    (ARRAY['maintenance', 'repair', 'inspection', 'recall', 'upgrade'])[((n-1) % 5) + 1],
-    (ARRAY['low', 'normal', 'high', 'critical'])[((n-1) % 4) + 1],
+    (ARRAY['preventive', 'corrective', 'inspection', 'corrective', 'preventive'])[((n-1) % 5) + 1]::maintenance_type,
+    (ARRAY['low', 'normal', 'high', 'critical'])[((n-1) % 4) + 1]::priority,
     CASE
         WHEN n % 3 = 0 THEN 'completed'
         WHEN n % 3 = 1 THEN 'in_progress'
         ELSE 'pending'
-    END,
-    125.00 + (n * 23.5) % 500,
+    END::status,
     CASE WHEN n % 3 = 0 THEN 115.00 + (n * 19.7) % 450 ELSE NULL END,
     (SELECT id FROM users WHERE role = 'Mechanic' ORDER BY RANDOM() LIMIT 1),
-    random_date('2024-01-01'::DATE, CURRENT_DATE + 30),
+    random_timestamp('2024-01-01'::DATE, CURRENT_DATE + 30),
     CASE WHEN n % 3 = 0 THEN random_timestamp('2024-01-01'::DATE, CURRENT_DATE) ELSE NULL END,
     NOW() - (n * 1.5 || ' days')::INTERVAL
-FROM generate_series((SELECT id FROM tenants LIMIT 1), 500) AS n
+FROM generate_series(1, 500) AS n
 ON CONFLICT DO NOTHING;
 
 -- ============================================================================
 -- 6. INSPECTIONS (300 inspections)
 -- ============================================================================
-INSERT INTO inspections (id, tenant_id, vehicle_id, inspector_id, inspection_type, inspected_at,
-                         status, result, score, violations, notes, created_at)
+INSERT INTO inspections (id, tenant_id, vehicle_id, inspector_id, type, date,
+                         status, result, created_at)
 SELECT
     gen_random_uuid(),
     (SELECT id FROM tenants LIMIT 1),
     (SELECT id FROM vehicles ORDER BY RANDOM() LIMIT 1),
     (SELECT id FROM drivers ORDER BY RANDOM() LIMIT 1),
-    (ARRAY['pre_trip', 'post_trip', 'annual', 'dot', 'safety'])[((n-1) % 5) + 1],
+    (ARRAY['pre_trip', 'post_trip', 'annual', 'dot', 'safety'])[((n-1) % 5) + 1]::inspection_type,
     random_timestamp('2024-01-01'::DATE, CURRENT_DATE),
-    'completed',
-    (ARRAY['pass', 'pass', 'pass', 'pass', 'fail', 'conditional'])[((n-1) % 6) + 1],
-    75 + (n * 3) % 25,
-    CASE
-        WHEN n % 6 = 5 THEN '{"lights": "Headlight out", "tires": "Low tread depth"}'::JSONB
-        WHEN n % 6 = 0 THEN '{"brakes": "Slight wear noted"}'::JSONB
-        ELSE '{}'::JSONB
-    END,
+    'completed'::status,
+    (ARRAY['pass', 'pass', 'pass', 'pass', 'fail', 'conditional'])[((n-1) % 6) + 1]::inspection_result,
     'Inspection completed. ' ||
     CASE ((n-1) % 4)
         WHEN 0 THEN 'All systems functioning normally.'
@@ -188,24 +177,24 @@ SELECT
         ELSE 'Passed with flying colors.'
     END,
     NOW() - (n * 2 || ' days')::INTERVAL
-FROM generate_series((SELECT id FROM tenants LIMIT 1), 300) AS n
+FROM generate_series(1, 300) AS n
 ON CONFLICT DO NOTHING;
 
 -- ============================================================================
 -- 7. INCIDENTS (150 incidents)
 -- ============================================================================
-INSERT INTO incidents (id, tenant_id, vehicle_id, driver_id, incident_type, incident_date, location,
-                       severity, description, cost, status, created_at)
+INSERT INTO incidents (id, tenant_id, vehicle_id, driver_id, type, date, location,
+                       severity, description, status, created_at)
 SELECT
     gen_random_uuid(),
     (SELECT id FROM tenants LIMIT 1),
     (SELECT id FROM vehicles ORDER BY RANDOM() LIMIT 1),
     (SELECT id FROM drivers ORDER BY RANDOM() LIMIT 1),
-    (ARRAY['accident', 'near_miss', 'property_damage', 'injury', 'vehicle_damage', 'theft'])[((n-1) % 6) + 1],
+    (ARRAY['accident', 'near_miss', 'property_damage', 'injury', 'vehicle_damage', 'theft'])[((n-1) % 6) + 1]::incident_type,
     random_timestamp('2024-01-01'::DATE, CURRENT_DATE),
     (ARRAY['Monroe St & Adams St', 'Tennessee St & Gaines St', 'Capital Circle NE', 'Apalachee Pkwy',
            'Thomasville Rd', 'Mahan Dr', 'Miccosukee Rd', 'Centerville Rd'])[((n-1) % 8) + 1] || ', Tallahassee, FL',
-    (ARRAY['minor', 'moderate', 'major', 'critical'])[((n-1) % 4) + 1],
+    (ARRAY['minor', 'moderate', 'major', 'critical'])[((n-1) % 4) + 1]::severity,
     CASE ((n-1) % 6)
         WHEN 0 THEN 'Vehicle was involved in a minor fender bender at intersection. No injuries reported.'
         WHEN 1 THEN 'Near collision event. Driver took evasive action successfully.'
@@ -214,20 +203,16 @@ SELECT
         WHEN 4 THEN 'Vehicle sustained damage to front bumper in parking lot incident.'
         ELSE 'Suspicious activity reported. Item(s) reported missing from vehicle.'
     END,
-    CASE
-        WHEN ((n-1) % 6) IN (0, 2, 4) THEN 350.00 + (n * 47.3) % 2500
-        ELSE NULL
-    END,
-    (ARRAY['reported', 'under_investigation', 'resolved', 'closed'])[((n-1) % 4) + 1],
+    (ARRAY['reported', 'under_investigation', 'resolved', 'closed'])[((n-1) % 4) + 1]::status,
     NOW() - (n * 1.7 || ' days')::INTERVAL
-FROM generate_series((SELECT id FROM tenants LIMIT 1), 150) AS n
+FROM generate_series(1, 150) AS n
 ON CONFLICT DO NOTHING;
 
 -- ============================================================================
 -- 8. ROUTES (200 routes)
 -- ============================================================================
-INSERT INTO routes (id, tenant_id, route_name, description, distance_miles, estimated_duration_minutes,
-                    stops, status, created_at)
+INSERT INTO routes (id, tenant_id, name, description, distance_miles,
+                    status, created_at)
 SELECT
     gen_random_uuid(),
     (SELECT id FROM tenants LIMIT 1),
@@ -238,18 +223,16 @@ SELECT
     (ARRAY['residential areas', 'commercial districts', 'educational facilities', 'medical centers',
            'government buildings', 'shopping centers', 'transportation hubs'])[((n-1) % 7) + 1],
     5.0 + (n * 1.3) % 25,
-    30 + (n * 5) % 90,
-    '[{"name": "Stop A", "lat": 30.4383, "lng": -84.2807}, {"name": "Stop B", "lat": 30.4518, "lng": -84.2739}]'::JSONB,
-    (ARRAY['active', 'active', 'active', 'inactive', 'seasonal'])[((n-1) % 5) + 1],
+    (ARRAY['active', 'active', 'active', 'inactive', 'seasonal'])[((n-1) % 5) + 1]::status,
     NOW() - (n * 3 || ' days')::INTERVAL
-FROM generate_series((SELECT id FROM tenants LIMIT 1), 200) AS n
+FROM generate_series(1, 200) AS n
 ON CONFLICT DO NOTHING;
 
 -- ============================================================================
 -- 9. FUEL TRANSACTIONS (400 transactions)
 -- ============================================================================
 INSERT INTO fuel_transactions (id, tenant_id, vehicle_id, driver_id, transaction_date, gallons,
-                                price_per_gallon, total_cost, odometer_reading, fuel_type, vendor, location, created_at)
+                                cost_per_gallon, total_cost, odometer, fuel_type, vendor_name, location_address, created_at)
 SELECT
     gen_random_uuid(),
     (SELECT id FROM tenants LIMIT 1),
@@ -260,12 +243,12 @@ SELECT
     2.50 + (n * 0.07) % 1.5,
     (10.0 + (n * 2.3) % 30) * (2.50 + (n * 0.07) % 1.5),
     25000 + (n * 1547) % 120000,
-    (ARRAY['gasoline', 'diesel', 'gasoline', 'diesel'])[((n-1) % 4) + 1],
+    (ARRAY['gasoline', 'diesel', 'gasoline', 'diesel'])[((n-1) % 4) + 1]::fuel_type,
     (ARRAY['Shell', 'BP', 'Chevron', 'Exxon', 'Mobil', 'Circle K', 'RaceTrac', '7-Eleven'])[((n-1) % 8) + 1],
     (ARRAY['1234 N Monroe St', '567 Capital Circle', '890 Apalachee Pkwy', '432 Thomasville Rd',
            '765 Mahan Dr', '321 Tennessee St', '654 Centerville Rd'])[((n-1) % 7) + 1] || ', Tallahassee, FL',
     NOW() - (n * 0.8 || ' days')::INTERVAL
-FROM generate_series((SELECT id FROM tenants LIMIT 1), 400) AS n
+FROM generate_series(1, 400) AS n
 ON CONFLICT DO NOTHING;
 
 -- ============================================================================
@@ -323,14 +306,14 @@ SELECT
     END,
     true,
     NOW() - (n * 4 || ' days')::INTERVAL
-FROM generate_series((SELECT id FROM tenants LIMIT 1), 100) AS n
+FROM generate_series(1, 100) AS n
 ON CONFLICT DO NOTHING;
 
 -- ============================================================================
 -- 11. PARTS INVENTORY (80 common parts)
 -- ============================================================================
 INSERT INTO parts_inventory (id, tenant_id, part_number, name, description, category, quantity_on_hand,
-                              minimum_quantity, unit_cost, location, created_at)
+                              minimum_quantity, unit_cost, created_at)
 SELECT
     gen_random_uuid(),
     (SELECT id FROM tenants LIMIT 1),
@@ -347,7 +330,7 @@ SELECT
     8.50 + (n * 2.75) % 150,
     (ARRAY['Shelf A1', 'Shelf A2', 'Shelf B1', 'Shelf B2', 'Shelf C1', 'Shelf C2', 'Bay 1', 'Bay 2'])[((n-1) % 8) + 1],
     NOW() - (n * 5 || ' days')::INTERVAL
-FROM generate_series((SELECT id FROM tenants LIMIT 1), 80) AS n
+FROM generate_series(1, 80) AS n
 ON CONFLICT DO NOTHING;
 
 -- ============================================================================
@@ -383,7 +366,7 @@ SELECT
     (ARRAY['low', 'normal', 'high', 'critical'])[((n-1) % 4) + 1],
     CASE WHEN n % 3 = 0 THEN true ELSE false END,
     NOW() - (n * 0.5 || ' days')::INTERVAL
-FROM generate_series((SELECT id FROM tenants LIMIT 1), 50) AS n
+FROM generate_series(1, 50) AS n
 ON CONFLICT DO NOTHING;
 
 -- ============================================================================
