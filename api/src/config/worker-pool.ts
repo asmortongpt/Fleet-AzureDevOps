@@ -85,21 +85,37 @@ export class WorkerPool extends EventEmitter {
    * Create a new worker
    */
   private createWorker(): Worker {
-    const workerId = this.nextWorkerId++
-    // Ensure we use tsx to run the worker if it's a TS file
-    // For Node 20+, we use --import tsx. For older versions, --loader tsx.
-    console.log(`[WorkerPool] process.execArgv:`, JSON.stringify(process.execArgv));
-    const workerOptions = this.config.workerScript.endsWith('.ts')
+    const workerId = this.nextWorkerId++;
+    let scriptPath = this.config.workerScript;
+    const isProduction = process.env.NODE_ENV === 'production';
+
+    // In production, prefer the transpiled .js file if it exists
+    if (isProduction && scriptPath.endsWith('.ts')) {
+      const jsPath = scriptPath.replace('/src/', '/dist/').replace('.ts', '.js');
+      try {
+        if (require('fs').existsSync(jsPath)) {
+          scriptPath = jsPath;
+          console.log(`[WorkerPool] Using transpiled worker script: ${scriptPath}`);
+        }
+      } catch (err) {
+        // Fallback to original path
+      }
+    }
+
+    const workerOptions = scriptPath.endsWith('.ts')
       ? {
         execArgv: [
           '--import', 'tsx',
           '--no-warnings'
         ]
       }
-      : {};
-    console.log(`[WorkerPool] Creating worker with options:`, JSON.stringify(workerOptions));
+      : {
+        execArgv: ['--no-warnings']
+      };
 
-    const worker = new Worker(this.config.workerScript, workerOptions)
+    console.log(`[WorkerPool] Creating worker from ${scriptPath} with options:`, JSON.stringify(workerOptions));
+    const worker = new Worker(scriptPath, workerOptions)
+
 
     const workerInfo: WorkerInfo = {
       worker,
