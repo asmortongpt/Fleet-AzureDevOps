@@ -29,7 +29,6 @@
  * ```
  */
 
-import React, { useState, useMemo, useCallback, useRef, useEffect } from 'react'
 import {
   useReactTable,
   getCoreRowModel,
@@ -45,7 +44,7 @@ import {
   FilterFn,
 } from '@tanstack/react-table'
 import { useVirtualizer } from '@tanstack/react-virtual'
-import { format, parseISO, isValid } from 'date-fns'
+import { format, isValid } from 'date-fns'
 import {
   ArrowUp,
   ArrowDown,
@@ -53,27 +52,18 @@ import {
   Search,
   Download,
   Eye,
-  EyeOff,
   X,
   ChevronLeft,
   ChevronRight,
   ChevronsLeft,
   ChevronsRight,
   Filter,
-  Check,
 } from 'lucide-react'
+import React, { useState, useMemo, useCallback, useRef, useEffect } from 'react'
 import * as XLSX from 'xlsx'
 
 import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
 import { Checkbox } from '@/components/ui/checkbox'
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select'
 import {
   DropdownMenu,
   DropdownMenuCheckboxItem,
@@ -82,11 +72,21 @@ import {
   DropdownMenuSeparator,
   DropdownMenuLabel,
 } from '@/components/ui/dropdown-menu'
+import { Input } from '@/components/ui/input'
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
 } from '@/components/ui/popover'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
+import { useDebounce } from '@/hooks/useDebounce'
+import { useBreakpoints } from '@/hooks/useMediaQuery'
 import { cn } from '@/lib/utils'
 
 // ============================================================================
@@ -276,6 +276,12 @@ export function ExcelStyleTable<T extends Record<string, any>>({
   compact = false,
 }: ExcelStyleTableProps<T>) {
   // ============================================================================
+  // RESPONSIVE BREAKPOINTS
+  // ============================================================================
+
+  const { isMobile, isTablet, isDesktop } = useBreakpoints()
+
+  // ============================================================================
   // STATE
   // ============================================================================
 
@@ -293,6 +299,9 @@ export function ExcelStyleTable<T extends Record<string, any>>({
   const [activeFilters, setActiveFilters] = useState<Record<string, FilterConfig>>({})
 
   const tableContainerRef = useRef<HTMLDivElement>(null)
+
+  // Debounced search for performance
+  const debouncedGlobalFilter = useDebounce(globalFilter, 300)
 
   // ============================================================================
   // COLUMN CONFIGURATION
@@ -385,7 +394,7 @@ export function ExcelStyleTable<T extends Record<string, any>>({
     state: {
       sorting,
       columnFilters,
-      globalFilter,
+      globalFilter: debouncedGlobalFilter,
       columnVisibility,
       rowSelection,
     },
@@ -711,17 +720,17 @@ export function ExcelStyleTable<T extends Record<string, any>>({
   return (
     <div className={cn('w-full space-y-4', className)}>
       {/* TOOLBAR */}
-      <div className="flex items-center justify-between gap-4">
-        <div className="flex items-center gap-2 flex-1">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 w-full sm:flex-1">
           {/* Global Search */}
           {enableSearch && (
-            <div className="relative max-w-sm">
-              <Search className="absolute left-2 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <div className="relative w-full sm:max-w-sm">
+              <Search className="absolute left-2 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground shrink-0" />
               <Input
-                placeholder="Search all columns..."
+                placeholder={isMobile ? "Search..." : "Search all columns..."}
                 value={globalFilter}
                 onChange={(e) => setGlobalFilter(e.target.value)}
-                className="pl-8 h-9"
+                className="pl-8 h-9 text-base sm:text-sm"
               />
               {globalFilter && (
                 <button
@@ -740,28 +749,28 @@ export function ExcelStyleTable<T extends Record<string, any>>({
               variant="outline"
               size="sm"
               onClick={handleClearAllFilters}
-              className="h-9"
+              className="h-9 min-h-[44px] sm:min-h-0 w-full sm:w-auto"
             >
               <X className="h-4 w-4 mr-1" />
-              Clear Filters
+              {!isMobile && "Clear Filters"}
             </Button>
           )}
 
           {/* Selection Info */}
           {enableSelection && selectedCount > 0 && (
-            <div className="text-sm text-muted-foreground">
+            <div className="text-xs sm:text-sm text-muted-foreground">
               {selectedCount} row{selectedCount !== 1 ? 's' : ''} selected
             </div>
           )}
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 w-full sm:w-auto justify-end flex-wrap">
           {/* Column Visibility */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="outline" size="sm" className="h-9">
+              <Button variant="outline" size="sm" className="h-9 min-h-[44px] sm:min-h-0">
                 <Eye className="h-4 w-4 mr-1" />
-                Columns
+                {!isMobile && "Columns"}
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-[200px]">
@@ -786,9 +795,9 @@ export function ExcelStyleTable<T extends Record<string, any>>({
           {enableExport && (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="outline" size="sm" className="h-9">
+                <Button variant="outline" size="sm" className="h-9 min-h-[44px] sm:min-h-0">
                   <Download className="h-4 w-4 mr-1" />
-                  Export
+                  {!isMobile && "Export"}
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
@@ -813,7 +822,7 @@ export function ExcelStyleTable<T extends Record<string, any>>({
           'rounded-md border bg-card',
           virtualized && !enablePagination && 'overflow-auto'
         )}
-        style={virtualized && !enablePagination ? { maxHeight } : undefined}
+        style={virtualized && !enablePagination ? { maxHeight: isMobile ? '400px' : maxHeight } : undefined}
       >
         <table className="w-full border-collapse">
           <thead className="bg-muted/50 sticky top-0 z-10">
@@ -830,10 +839,10 @@ export function ExcelStyleTable<T extends Record<string, any>>({
                     <th
                       key={header.id}
                       className={cn(
-                        'text-left font-medium text-sm',
-                        compact ? 'px-2 py-2' : 'px-4 py-3',
+                        'text-left font-medium text-xs sm:text-sm',
+                        compact ? 'px-1 py-1 sm:px-2 sm:py-2' : 'px-2 py-2 sm:px-4 sm:py-3',
                         'border-r last:border-r-0',
-                        isSortable && 'cursor-pointer select-none hover:bg-muted/80'
+                        isSortable && 'cursor-pointer select-none hover:bg-muted/80 active:bg-muted'
                       )}
                       style={{
                         width: columnDef?.width,
@@ -841,8 +850,8 @@ export function ExcelStyleTable<T extends Record<string, any>>({
                       }}
                       onClick={() => isSortable && header.column.toggleSorting()}
                     >
-                      <div className="flex items-center justify-between gap-2">
-                        <div className="flex items-center gap-1">
+                      <div className="flex items-center justify-between gap-1 sm:gap-2">
+                        <div className="flex items-center gap-1 truncate">
                           {flexRender(header.column.columnDef.header, header.getContext())}
                           {isSortable && (
                             <span className="text-muted-foreground">
@@ -897,7 +906,8 @@ export function ExcelStyleTable<T extends Record<string, any>>({
                           key={cell.id}
                           className={cn(
                             'border-r last:border-r-0',
-                            compact ? 'px-2 py-1 text-sm' : 'px-4 py-2'
+                            compact ? 'px-1 py-1 text-xs sm:px-2 sm:text-sm' : 'px-2 py-1 text-xs sm:px-4 sm:py-2 sm:text-sm',
+                            'truncate max-w-[150px] sm:max-w-none'
                           )}
                           onClick={(e) => handleCellClick(row.original, cell.column.id, e)}
                         >
@@ -926,7 +936,8 @@ export function ExcelStyleTable<T extends Record<string, any>>({
                         key={cell.id}
                         className={cn(
                           'border-r last:border-r-0',
-                          compact ? 'px-2 py-1 text-sm' : 'px-4 py-2'
+                          compact ? 'px-1 py-1 text-xs sm:px-2 sm:text-sm' : 'px-2 py-1 text-xs sm:px-4 sm:py-2 sm:text-sm',
+                          'truncate max-w-[150px] sm:max-w-none'
                         )}
                         onClick={(e) => handleCellClick(row.original, cell.column.id, e)}
                       >
@@ -953,15 +964,21 @@ export function ExcelStyleTable<T extends Record<string, any>>({
 
       {/* PAGINATION */}
       {enablePagination && (
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <div className="text-sm text-muted-foreground">
-              Showing {table.getState().pagination.pageIndex * table.getState().pagination.pageSize + 1} to{' '}
-              {Math.min(
-                (table.getState().pagination.pageIndex + 1) * table.getState().pagination.pageSize,
-                table.getFilteredRowModel().rows.length
-              )}{' '}
-              of {table.getFilteredRowModel().rows.length} rows
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 w-full sm:w-auto">
+            <div className="text-xs sm:text-sm text-muted-foreground">
+              {isMobile ? (
+                <>{table.getFilteredRowModel().rows.length} rows</>
+              ) : (
+                <>
+                  Showing {table.getState().pagination.pageIndex * table.getState().pagination.pageSize + 1} to{' '}
+                  {Math.min(
+                    (table.getState().pagination.pageIndex + 1) * table.getState().pagination.pageSize,
+                    table.getFilteredRowModel().rows.length
+                  )}{' '}
+                  of {table.getFilteredRowModel().rows.length} rows
+                </>
+              )}
             </div>
             <Select
               value={table.getState().pagination.pageSize.toString()}
@@ -980,42 +997,55 @@ export function ExcelStyleTable<T extends Record<string, any>>({
             </Select>
           </div>
 
-          <div className="flex items-center gap-1">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => table.setPageIndex(0)}
-              disabled={!table.getCanPreviousPage()}
-            >
-              <ChevronsLeft className="h-4 w-4" />
-            </Button>
+          <div className="flex items-center gap-1 w-full sm:w-auto justify-center">
+            {!isMobile && (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => table.setPageIndex(0)}
+                disabled={!table.getCanPreviousPage()}
+                className="min-h-[44px] sm:min-h-0"
+              >
+                <ChevronsLeft className="h-4 w-4" />
+              </Button>
+            )}
             <Button
               variant="outline"
               size="sm"
               onClick={() => table.previousPage()}
               disabled={!table.getCanPreviousPage()}
+              className="min-h-[44px] sm:min-h-0"
             >
               <ChevronLeft className="h-4 w-4" />
+              {isMobile && <span className="ml-1">Prev</span>}
             </Button>
-            <div className="text-sm text-muted-foreground px-2">
-              Page {table.getState().pagination.pageIndex + 1} of {table.getPageCount()}
+            <div className="text-xs sm:text-sm text-muted-foreground px-2">
+              {isMobile
+                ? `${table.getState().pagination.pageIndex + 1}/${table.getPageCount()}`
+                : `Page ${table.getState().pagination.pageIndex + 1} of ${table.getPageCount()}`
+              }
             </div>
             <Button
               variant="outline"
               size="sm"
               onClick={() => table.nextPage()}
               disabled={!table.getCanNextPage()}
+              className="min-h-[44px] sm:min-h-0"
             >
+              {isMobile && <span className="mr-1">Next</span>}
               <ChevronRight className="h-4 w-4" />
             </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => table.setPageIndex(table.getPageCount() - 1)}
-              disabled={!table.getCanNextPage()}
-            >
-              <ChevronsRight className="h-4 w-4" />
-            </Button>
+            {!isMobile && (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => table.setPageIndex(table.getPageCount() - 1)}
+                disabled={!table.getCanNextPage()}
+                className="min-h-[44px] sm:min-h-0"
+              >
+                <ChevronsRight className="h-4 w-4" />
+              </Button>
+            )}
           </div>
         </div>
       )}
