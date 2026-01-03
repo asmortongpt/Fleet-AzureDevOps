@@ -5,8 +5,6 @@ import { useNavigate } from 'react-router-dom';
 
 import MonitoringDashboard from '../components/admin/MonitoringDashboard';
 import { UserManagement } from '../components/admin/UserManagement';
-import { SecurityCompliance } from '../components/admin/SecurityCompliance';
-import { SystemConfiguration } from '../components/admin/SystemConfiguration';
 import { useAuth } from '../hooks/useAuth';
 
 interface TabPanelProps {
@@ -180,11 +178,49 @@ const AdminDashboard: React.FC = () => {
       </TabPanel>
 
       <TabPanel value={currentTab} index={2}>
-        <SecurityCompliance />
+        <Paper sx={{ p: 3 }}>
+          <Typography variant="h5" gutterBottom>
+            Security & Compliance
+          </Typography>
+          <Typography color="text.secondary">
+            Security and compliance features will be available in the next release.
+          </Typography>
+          <Box sx={{ mt: 3 }}>
+            <Typography variant="body2" color="text.secondary">
+              Planned features:
+            </Typography>
+            <ul>
+              <li>Security audit logs</li>
+              <li>Compliance reporting</li>
+              <li>Data encryption settings</li>
+              <li>API key management</li>
+              <li>IP whitelisting</li>
+            </ul>
+          </Box>
+        </Paper>
       </TabPanel>
 
       <TabPanel value={currentTab} index={3}>
-        <SystemConfiguration />
+        <Paper sx={{ p: 3 }}>
+          <Typography variant="h5" gutterBottom>
+            System Configuration
+          </Typography>
+          <Typography color="text.secondary">
+            System configuration features will be available in the next release.
+          </Typography>
+          <Box sx={{ mt: 3 }}>
+            <Typography variant="body2" color="text.secondary">
+              Planned features:
+            </Typography>
+            <ul>
+              <li>Environment variables management</li>
+              <li>Database configuration</li>
+              <li>Email settings</li>
+              <li>Integration configurations</li>
+              <li>Backup and restore</li>
+            </ul>
+          </Box>
+        </Paper>
       </TabPanel>
 
       {/* Quick Stats Footer */}

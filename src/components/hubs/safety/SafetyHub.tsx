@@ -18,13 +18,21 @@ import {
   CheckCircle,
   XCircle,
   FileText,
-  Calendar
+  Calendar,
+  ShieldCheck
 } from "@phosphor-icons/react"
 import { GoogleMap, LoadScript, Marker, Circle } from "@react-google-maps/api"
 import { useState, useMemo } from "react"
+import { toast } from "sonner"
 
 import { Badge } from "@/components/ui/badge"
+import { usePolicies } from "@/contexts/PolicyContext"
 import { Button } from "@/components/ui/button"
+import {
+  enforceSafetyIncidentPolicy,
+  shouldBlockAction,
+  getApprovalRequirements
+} from "@/lib/policy-engine/policy-enforcement"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import {
   Select,
@@ -308,10 +316,15 @@ const getHazardColor = (severity: string): string => {
 }
 
 export function SafetyHub() {
+  const { getPoliciesByType, policies } = usePolicies()
+  const safetyPolicies = getPoliciesByType('safety')
+  const activeSafetyPolicies = safetyPolicies.filter(p => p.status === 'active')
+
   const [activeTab, setActiveTab] = useState("incidents")
   const [severityFilter, setSeverityFilter] = useState<string>("all")
   const [statusFilter, setStatusFilter] = useState<string>("all")
   const [mapLoaded, setMapLoaded] = useState(false)
+  const [isReportingIncident, setIsReportingIncident] = useState(false)
 
   const filteredIncidents = useMemo(() => {
     return demoIncidents.filter(incident => {
@@ -327,6 +340,60 @@ export function SafetyHub() {
     ).slice(0, 5)
   }, [])
 
+  // Handler for reporting new incidents with policy enforcement
+  const handleReportIncident = async () => {
+    setIsReportingIncident(true)
+
+    // Sample incident data - in real implementation, this would come from a form
+    const incidentData = {
+      severity: "medium" as const,
+      type: "Near Miss",
+      vehicleId: "veh-demo-1001",
+      driverId: "drv-001",
+      injuries: 0,
+      oshaRecordable: false
+    }
+
+    try {
+      // Enforce safety incident policy before allowing submission
+      const result = await enforceSafetyIncidentPolicy(policies, incidentData)
+
+      // Check if action should be blocked
+      if (shouldBlockAction(result)) {
+        toast.error("Policy Violation", {
+          description: "This incident cannot be reported without resolving policy violations"
+        })
+        setIsReportingIncident(false)
+        return
+      }
+
+      // Check if approval is required
+      const approvalReq = getApprovalRequirements(result)
+      if (approvalReq.required) {
+        toast.warning(`${approvalReq.level?.toUpperCase()} Approval Required`, {
+          description: approvalReq.reason
+        })
+        // In real implementation, route to approval workflow
+      }
+
+      // If we reach here, either policy allows it or requires approval
+      if (result.allowed) {
+        toast.success("Incident Report Initiated", {
+          description: approvalReq.required
+            ? "Report submitted for approval"
+            : "Report submitted successfully"
+        })
+        // Proceed with incident creation
+      }
+    } catch (error) {
+      toast.error("Error", {
+        description: "Failed to validate incident against policies"
+      })
+    } finally {
+      setIsReportingIncident(false)
+    }
+  }
+
   const apiKey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY || ""
 
   return (
@@ -338,9 +405,16 @@ export function SafetyHub() {
             <h1 className="text-2xl font-bold flex items-center gap-2">
               <FirstAid className="w-6 h-6 text-red-500" />
               Safety Hub
+              {activeSafetyPolicies.length > 0 && (
+                <Badge variant="outline" className="ml-2 gap-1">
+                  <ShieldCheck className="w-3 h-3" />
+                  {activeSafetyPolicies.length} Active {activeSafetyPolicies.length === 1 ? 'Policy' : 'Policies'}
+                </Badge>
+              )}
             </h1>
             <p className="text-sm text-muted-foreground mt-1">
               Incident tracking, hazard zones, and OSHA compliance monitoring
+              {activeSafetyPolicies.length > 0 && ` · Policy Engine: Active`}
             </p>
           </div>
           <div className="flex gap-2">
@@ -348,9 +422,9 @@ export function SafetyHub() {
               <FileText className="w-4 h-4 mr-2" />
               Export Report
             </Button>
-            <Button>
+            <Button onClick={handleReportIncident} disabled={isReportingIncident}>
               <Warning className="w-4 h-4 mr-2" />
-              Report Incident
+              {isReportingIncident ? "Checking Policy..." : "Report Incident"}
             </Button>
           </div>
         </div>
