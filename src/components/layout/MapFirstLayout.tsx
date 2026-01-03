@@ -115,7 +115,7 @@ export function MapFirstLayout({
         data-testid="side-panel-desktop"
       >
         {/* Scrollable Content */}
-        <div className="flex-1 overflow-y-auto">
+        <div className="flex-1 overflow-y-auto" tabIndex={0} role="region" aria-label="Side panel content">
           <div className="p-4 md:p-5 lg:p-6">
             {sidePanel}
           </div>

@@ -296,7 +296,7 @@ export function DamageSummaryPanel({
             </div>
 
             {/* Damage Point List */}
-            <div className="space-y-2 max-h-64 overflow-y-auto">
+            <div className="space-y-2 max-h-64 overflow-y-auto" tabIndex={0} role="region" aria-label="Damage points list">
                 <p className="text-xs text-slate-400 uppercase tracking-wider">Damage Points</p>
                 {damagePoints.map((point) => (
                     <button

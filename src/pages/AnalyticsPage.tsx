@@ -101,7 +101,7 @@ function ChartCard({ title, value, subtitle, icon, children }: ChartCardProps) {
             {icon}
             {title}
           </CardTitle>
-          <Badge variant="outline" className="text-slate-300 border-slate-600">
+          <Badge variant="outline" className="text-slate-200 border-slate-600">
             <Activity className="w-3 h-3 mr-1" />
             Live
           </Badge>
@@ -458,7 +458,7 @@ export function AnalyticsPage() {
                 </div>
                 <div className="border-t border-slate-700/50 pt-2 flex items-center justify-between">
                   <span className="text-sm font-medium text-white">Cost per Mile</span>
-                  <span className="text-lg font-bold text-blue-400">${analytics.costs.costPerMile}</span>
+                  <span className="text-lg font-bold text-blue-300">${analytics.costs.costPerMile}</span>
                 </div>
               </div>
             </ChartCard>
