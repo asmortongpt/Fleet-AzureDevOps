@@ -91,7 +91,7 @@ export class WorkerPool extends EventEmitter {
     const workerOptions = this.config.workerScript.endsWith('.ts')
       ? {
         execArgv: [
-          '--import', 'tsx',
+          '--loader', 'tsx',
           '--no-warnings'
         ]
       }
