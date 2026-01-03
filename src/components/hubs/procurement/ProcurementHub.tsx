@@ -11,10 +11,17 @@ import {
   BarChart3
 } from "lucide-react"
 import { useState, useMemo, useCallback } from "react"
+import { toast } from "sonner"
 
 import { ProfessionalFleetMap, GISFacility } from "@/components/Maps/ProfessionalFleetMap"
 import { Badge } from "@/components/ui/badge"
+import { usePolicies } from "@/contexts/PolicyContext"
 import { Button } from "@/components/ui/button"
+import {
+  enforcePaymentPolicy,
+  shouldBlockAction,
+  getApprovalRequirements
+} from "@/lib/policy-engine/policy-enforcement"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { ScrollArea } from "@/components/ui/scroll-area"
@@ -47,7 +54,7 @@ const mockInventory = [
 ]
 
 // Supplier Panel Component
-const SupplierPanel = ({ supplier }: { supplier: any; _onClose: () => void }) => {
+const SupplierPanel = ({ supplier, onCreatePO, isCreatingPO }: { supplier: any; _onClose: () => void; onCreatePO: (supplier: any) => void; isCreatingPO: boolean }) => {
   useDrilldown()
 
   if (!supplier) {
@@ -91,9 +98,13 @@ const SupplierPanel = ({ supplier }: { supplier: any; _onClose: () => void }) =>
         </div>
 
         <div className="space-y-2">
-          <Button className="w-full">
+          <Button
+            className="w-full"
+            onClick={() => onCreatePO(supplier)}
+            disabled={isCreatingPO}
+          >
             <Package className="h-4 w-4 mr-2" />
-            Create Purchase Order
+            {isCreatingPO ? "Checking Policy..." : "Create Purchase Order"}
           </Button>
           <Button variant="outline" className="w-full">
             View Order History
@@ -282,10 +293,12 @@ const DashboardPanel = () => {
 
 // Main Procurement Hub Component
 export function ProcurementHub() {
+  const { policies } = usePolicies()
   const [selectedEntity, setSelectedEntity] = useState<{ type: string; data: any } | null>(null)
   const [activePanel, setActivePanel] = useState('dashboard')
   const [searchQuery, setSearchQuery] = useState('')
   const [categoryFilter, setCategoryFilter] = useState('all')
+  const [isCreatingPO, setIsCreatingPO] = useState(false)
 
   // Convert suppliers to map markers
   const supplierMarkers = useMemo(() => {
@@ -326,6 +339,58 @@ export function ProcurementHub() {
       setActivePanel('supplier')
     }
   }, [])
+
+  // Handler for creating purchase orders with policy enforcement
+  const handleCreatePurchaseOrder = async (supplier: any) => {
+    setIsCreatingPO(true)
+
+    try {
+      // Sample payment data - in real implementation, this would come from a form
+      const paymentData = {
+        amount: 5000, // Sample amount
+        category: supplier.category || 'Equipment',
+        vendorId: supplier.id,
+        approvalRequired: true
+      }
+
+      // Enforce payment policy before allowing PO creation
+      const result = await enforcePaymentPolicy(policies, paymentData)
+
+      // Check if action should be blocked
+      if (shouldBlockAction(result)) {
+        toast.error("Policy Violation", {
+          description: "This purchase order cannot be created without resolving policy violations"
+        })
+        setIsCreatingPO(false)
+        return
+      }
+
+      // Check if approval is required
+      const approvalReq = getApprovalRequirements(result)
+      if (approvalReq.required) {
+        toast.warning(`${approvalReq.level?.toUpperCase()} Approval Required`, {
+          description: approvalReq.reason
+        })
+        // In real implementation, route to approval workflow
+      }
+
+      // If we reach here, either policy allows it or requires approval
+      if (result.allowed) {
+        toast.success("Purchase Order Created", {
+          description: approvalReq.required
+            ? "PO submitted for approval"
+            : "Purchase order created successfully"
+        })
+        // Proceed with PO creation
+      }
+    } catch (error) {
+      toast.error("Error", {
+        description: "Failed to validate purchase order against policies"
+      })
+    } finally {
+      setIsCreatingPO(false)
+    }
+  }
 
   const categories = useMemo(() => {
     return Array.from(new Set(mockSuppliers.map(s => s.category)))
@@ -383,7 +448,12 @@ export function ProcurementHub() {
             <DashboardPanel />
           </TabsContent>
           <TabsContent value="supplier" className="h-[calc(100vh-48px)] mt-0">
-            <SupplierPanel supplier={selectedEntity?.type === 'supplier' ? selectedEntity.data : null} _onClose={() => {}} />
+            <SupplierPanel
+              supplier={selectedEntity?.type === 'supplier' ? selectedEntity.data : null}
+              _onClose={() => {}}
+              onCreatePO={handleCreatePurchaseOrder}
+              isCreatingPO={isCreatingPO}
+            />
           </TabsContent>
           <TabsContent value="orders" className="h-[calc(100vh-48px)] mt-0">
             <PurchaseOrdersPanel orders={mockPurchaseOrders} onOrderSelect={(order) => setSelectedEntity({ type: 'order', data: order })} />
