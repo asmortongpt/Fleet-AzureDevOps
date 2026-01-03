@@ -111,9 +111,27 @@ export interface RegisterData {
   acceptTerms: boolean
 }
 
-// Constants
-const JWT_SECRET = process.env.JWT_SECRET || 'your-super-secret-jwt-key'
-const JWT_REFRESH_SECRET = process.env.JWT_REFRESH_SECRET || 'your-refresh-secret-key'
+// Constants - Validate secrets on startup
+const JWT_SECRET = process.env.JWT_SECRET
+const JWT_REFRESH_SECRET = process.env.JWT_REFRESH_SECRET
+
+// Fail fast if secrets are not configured
+if (!JWT_SECRET || !JWT_REFRESH_SECRET) {
+  throw new Error(
+    'FATAL: JWT_SECRET and JWT_REFRESH_SECRET must be set in environment variables. ' +
+    'Generate secure secrets with: node -e "console.log(require(\'crypto\').randomBytes(32).toString(\'hex\'))"'
+  )
+}
+
+// Validate secret strength
+if (JWT_SECRET.length < 32) {
+  throw new Error('FATAL: JWT_SECRET must be at least 32 characters long')
+}
+
+if (JWT_REFRESH_SECRET.length < 32) {
+  throw new Error('FATAL: JWT_REFRESH_SECRET must be at least 32 characters long')
+}
+
 const ACCESS_TOKEN_EXPIRY = '15m'
 const REFRESH_TOKEN_EXPIRY = '7d'
 const PASSWORD_SALT_ROUNDS = 12
@@ -162,8 +180,26 @@ export class AuthService {
   private rateLimitMap: Map<string, { count: number; resetTime: number }> = new Map()
 
   private constructor() {
-    // Initialize rate limit cleanup
+    // Initialize cleanup intervals
     setInterval(() => this.cleanupRateLimit(), 5 * 60 * 1000) // Every 5 minutes
+    setInterval(() => this.cleanupExpiredSessions(), 5 * 60 * 1000) // Every 5 minutes
+  }
+
+  // Clean up expired sessions to prevent memory leak
+  private cleanupExpiredSessions(): void {
+    const now = new Date()
+    let cleanedCount = 0
+
+    for (const [sessionId, session] of this.activeSessions.entries()) {
+      if (session.expiresAt < now) {
+        this.activeSessions.delete(sessionId)
+        cleanedCount++
+      }
+    }
+
+    if (cleanedCount > 0) {
+      console.log(`[AuthService] Cleaned up ${cleanedCount} expired sessions`)
+    }
   }
 
   public static getInstance(): AuthService {
