@@ -185,6 +185,7 @@ export function AllEndpointsMonitor({ className }: AllEndpointsMonitorProps) {
             onClick={() => testAllEndpoints()}
             disabled={isLoading}
             className="h-7 text-xs px-2"
+            aria-label="Refresh all endpoints"
           >
             <ArrowClockwise className={cn('w-3 h-3', isLoading && 'animate-spin')} />
           </Button>
@@ -333,6 +334,7 @@ export function AllEndpointsMonitor({ className }: AllEndpointsMonitorProps) {
                                   className="h-6 w-6 p-0 opacity-0 group-hover:opacity-100 transition-opacity"
                                   onClick={() => testEndpoint(endpoint.id)}
                                   disabled={isLoading}
+                                  aria-label={`Test ${endpoint.path} endpoint`}
                                 >
                                   <Play className="w-3 h-3" />
                                 </Button>

@@ -95,7 +95,7 @@ export function DocumentProperties({ document, onUpdate, onClose }: DocumentProp
                 <Edit className="mr-2 h-4 w-4" />
                 Edit
               </Button>
-              <Button variant="ghost" size="icon" onClick={onClose}>
+              <Button variant="ghost" size="icon" onClick={onClose} aria-label="Close properties panel">
                 <X className="h-4 w-4" />
               </Button>
             </>

@@ -101,7 +101,7 @@ function QRScannerView({
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <h4 className="font-semibold">Camera Scanner</h4>
-        <Button variant="ghost" size="sm" onClick={onClose}>
+        <Button variant="ghost" size="sm" onClick={onClose} aria-label="Close camera scanner">
           <X className="w-4 h-4" />
         </Button>
       </div>
