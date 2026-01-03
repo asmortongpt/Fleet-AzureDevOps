@@ -643,6 +643,115 @@ export class PolicyViolationsController {
       });
     }
   }
+
+  /**
+   * POST /api/policy-violations/export
+   * Export violations to CSV, PDF, or Excel
+   */
+  static async exportViolations(req: Request, res: Response): Promise<void> {
+    try {
+      const { format, tenantId, filters, includeResolved, includeComments, groupBy } = req.body;
+
+      if (!tenantId) {
+        res.status(400).json({ success: false, error: 'Tenant ID is required' });
+        return;
+      }
+
+      const ViolationExportService = (await import('../services/violation-export.service')).default;
+
+      const options = {
+        format,
+        tenantId,
+        filters,
+        includeResolved,
+        includeComments,
+        groupBy,
+      };
+
+      let result: Buffer | string;
+      let contentType: string;
+      let fileName: string;
+
+      switch (format) {
+        case 'csv':
+          result = await ViolationExportService.exportToCSV(options);
+          contentType = 'text/csv';
+          fileName = `violations-${new Date().toISOString().split('T')[0]}.csv`;
+          break;
+
+        case 'pdf':
+          result = await ViolationExportService.exportToPDF(options);
+          contentType = 'application/pdf';
+          fileName = `violations-${new Date().toISOString().split('T')[0]}.pdf`;
+          break;
+
+        case 'excel':
+          result = await ViolationExportService.exportToExcel(options);
+          contentType = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
+          fileName = `violations-${new Date().toISOString().split('T')[0]}.xlsx`;
+          break;
+
+        default:
+          res.status(400).json({ success: false, error: 'Invalid format. Use csv, pdf, or excel.' });
+          return;
+      }
+
+      res.setHeader('Content-Type', contentType);
+      res.setHeader('Content-Disposition', `attachment; filename="${fileName}"`);
+      res.send(result);
+
+      logger.info('Violations exported', { format, tenantId });
+    } catch (error) {
+      logger.error('Error exporting violations:', error);
+      res.status(500).json({
+        success: false,
+        error: 'Failed to export violations',
+        message: error instanceof Error ? error.message : 'Unknown error',
+      });
+    }
+  }
+
+  /**
+   * POST /api/policy-violations/compliance-report
+   * Generate comprehensive compliance report
+   */
+  static async generateComplianceReport(req: Request, res: Response): Promise<void> {
+    try {
+      const { tenantId, reportType, startDate, endDate } = req.body;
+
+      if (!tenantId || !reportType || !startDate || !endDate) {
+        res.status(400).json({
+          success: false,
+          error: 'Missing required parameters: tenantId, reportType, startDate, endDate',
+        });
+        return;
+      }
+
+      const ViolationExportService = (await import('../services/violation-export.service')).default;
+
+      const report = await ViolationExportService.generateComplianceReport({
+        tenantId,
+        reportType,
+        startDate,
+        endDate,
+      });
+
+      const fileName = `compliance-report-${reportType}-${new Date().toISOString().split('T')[0]}.pdf`;
+
+      res.setHeader('Content-Type', 'application/pdf');
+      res.setHeader('Content-Disposition', `attachment; filename="${fileName}"`);
+      res.send(report);
+
+      logger.info('Compliance report generated', { tenantId, reportType });
+    } catch (error) {
+      logger.error('Error generating compliance report:', error);
+      res.status(500).json({
+        success: false,
+        error: 'Failed to generate compliance report',
+        message: error instanceof Error ? error.message : 'Unknown error',
+      });
+    }
+  }
 }
 
 export default PolicyViolationsController;
