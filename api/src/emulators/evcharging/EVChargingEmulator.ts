@@ -130,7 +130,7 @@ return;
 
       // Calculate charge added this interval (in seconds)
       const intervalSeconds = this.config.updateIntervalMs / 1000;
-      const chargeRateKwh = station.powerKw * (vehicle.chargingEfficiency || 0.90);
+      const chargeRateKwh = (station.powerKw || station.maxPower) * (vehicle.chargingEfficiency || 0.90);
       const chargeAddedKwh = (chargeRateKwh / 3600) * intervalSeconds;
       const chargeAddedPercent = (chargeAddedKwh / vehicle.batteryCapacity) * 100;
 
@@ -152,7 +152,7 @@ return;
       });
 
       // Check if charging complete
-      if (vehicle.currentCharge >= 95 || vehicle.currentCharge >= session.targetCharge) {
+      if (vehicle.currentCharge >= 95 || vehicle.currentCharge >= (session.targetCharge || 100)) {
         this.endChargingSession(session.id, 'complete');
       }
     });
@@ -210,16 +210,15 @@ return;
       id: sessionId,
       vehicleId: vehicleId,
       stationId: station.id,
-      stationName: station.name,
-      stationType: station.type,
       startTime: new Date(),
       startCharge: vehicle.currentCharge,
       currentCharge: vehicle.currentCharge,
       targetCharge: this.selectTargetCharge(vehicle.currentCharge),
       energyDelivered: 0,
       cost: 0,
-      powerKw: station.powerKw,
-      pricePerKwh: station.pricePerKwh,
+      powerKw: station.powerKw || station.maxPower,
+      powerLevel: station.type,
+      maxPower: station.maxPower,
       status: 'charging'
     };
 
@@ -314,7 +313,7 @@ return;
    */
   private isVehicleFastCharging(vehicleId: string): boolean {
     for (const session of this.activeSessions.values()) {
-      if (session.vehicleId === vehicleId && session.powerKw > 50) {
+      if (session.vehicleId === vehicleId && (session.powerKw || session.maxPower) > 50) {
         return true;
       }
     }
@@ -333,7 +332,7 @@ return;
    */
   private selectFastestStation(stations: ChargingStation[]): ChargingStation {
     return stations.reduce((fastest, station) =>
-      station.powerKw > fastest.powerKw ? station : fastest
+      (station.powerKw || station.maxPower) > (fastest.powerKw || fastest.maxPower) ? station : fastest
     );
   }
 
@@ -365,7 +364,7 @@ return 80;
   private estimateTimeRemaining(vehicle: Vehicle, station: ChargingStation): number {
     const chargeNeeded = 100 - vehicle.currentCharge;
     const energyNeeded = (chargeNeeded / 100) * vehicle.batteryCapacity;
-    const chargeRateKwh = station.powerKw * (vehicle.chargingEfficiency || 0.90);
+    const chargeRateKwh = (station.powerKw || station.maxPower) * (vehicle.chargingEfficiency || 0.90);
     return Math.ceil((energyNeeded / chargeRateKwh) * 60); // minutes
   }
 

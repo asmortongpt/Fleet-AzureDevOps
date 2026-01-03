@@ -25,8 +25,9 @@ export class FuelEmulator extends EventEmitter {
 
   public async start(): Promise<void> {
     if (this.isRunning) {
-return this.isRunning = true
-}
+      return
+    }
+    this.isRunning = true
     this.isPaused = false
 
     this.updateInterval = setInterval(() => {
