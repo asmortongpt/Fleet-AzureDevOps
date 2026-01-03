@@ -182,6 +182,7 @@ export function ProfessionalFleetMap({ onVehicleSelect, children }: Professional
           className="bg-slate-900/80 border-slate-700 hover:bg-slate-800"
           onClick={() => setZoom(Math.min(zoom + 2, 24))}
           data-testid="map-zoom-in"
+          aria-label="Zoom in"
         >
           <ZoomIn className="h-4 w-4 text-slate-300" />
         </Button>
@@ -191,6 +192,7 @@ export function ProfessionalFleetMap({ onVehicleSelect, children }: Professional
           className="bg-slate-900/80 border-slate-700 hover:bg-slate-800"
           onClick={() => setZoom(Math.max(zoom - 2, 4))}
           data-testid="map-zoom-out"
+          aria-label="Zoom out"
         >
           <ZoomOut className="h-4 w-4 text-slate-300" />
         </Button>
@@ -199,6 +201,7 @@ export function ProfessionalFleetMap({ onVehicleSelect, children }: Professional
           variant="secondary"
           className="bg-slate-900/80 border-slate-700 hover:bg-slate-800"
           data-testid="map-locate"
+          aria-label="Locate me"
         >
           <Locate className="h-4 w-4 text-slate-300" />
         </Button>
