@@ -9,7 +9,11 @@ import {
   Brain,
   Lightning,
   Eye,
-  ShieldCheck
+  ShieldCheck,
+  ArrowsClockwise,
+  FlowArrow,
+  Database as DatabaseIcon,
+  GitBranch
 } from "@phosphor-icons/react"
 import { useState } from "react"
 import { toast } from "sonner"
@@ -36,6 +40,7 @@ import {
   SelectValue
 } from "@/components/ui/select"
 import { Switch } from "@/components/ui/switch"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import {
   Table,
   TableBody,
@@ -45,10 +50,25 @@ import {
   TableRow
 } from "@/components/ui/table"
 import { Textarea } from "@/components/ui/textarea"
+import { usePolicies } from "@/contexts/PolicyContext"
 import type { Policy, PolicyType, PolicyMode, PolicyStatus } from "@/lib/policy-engine/types"
+import { PolicyFlowDiagram } from "@/components/diagrams/PolicyFlowDiagram"
+import { DatabaseRelationshipDiagram } from "@/components/diagrams/DatabaseRelationshipDiagram"
+import { DataFlowDiagram } from "@/components/diagrams/DataFlowDiagram"
 
 export function PolicyEngineWorkbench() {
-  const [policies, setPolicies] = useState<Policy[]>([])
+  // Use PolicyContext for backend integration
+  const {
+    policies,
+    loading,
+    error,
+    createPolicy,
+    updatePolicy,
+    deletePolicy,
+    activatePolicy,
+    deactivatePolicy,
+    fetchPolicies
+  } = usePolicies()
   const [searchTerm, setSearchTerm] = useState("")
   const [filterType, setFilterType] = useState<string>("all")
   const [filterStatus, setFilterStatus] = useState<string>("all")
@@ -81,78 +101,75 @@ export function PolicyEngineWorkbench() {
     return matchesSearch && matchesType && matchesStatus
   })
 
-  const handleSavePolicy = () => {
+  const handleSavePolicy = async () => {
     if (!newPolicy.name || !newPolicy.description) {
       toast.error("Please fill in required fields")
       return
     }
 
-    const policy: Policy = {
-      id: selectedPolicy?.id || `policy-${Date.now()}`,
-      tenantId: "tenant-demo",
-      name: newPolicy.name,
-      description: newPolicy.description,
-      type: newPolicy.type as PolicyType,
-      version: selectedPolicy?.version || "1.0.0",
-      status: newPolicy.status as PolicyStatus,
-      mode: newPolicy.mode as PolicyMode,
-      conditions: newPolicy.conditions || [],
-      actions: newPolicy.actions || [],
-      scope: newPolicy.scope || {},
-      confidenceScore: newPolicy.confidenceScore || 0.85,
-      requiresDualControl: newPolicy.requiresDualControl || false,
-      requiresMFAForExecution: newPolicy.requiresMFAForExecution || false,
-      createdBy: "Current User",
-      createdAt: selectedPolicy?.createdAt || new Date().toISOString(),
-      lastModifiedBy: "Current User",
-      lastModifiedAt: new Date().toISOString(),
-      tags: newPolicy.tags || [],
-      category: newPolicy.category || "general",
-      relatedPolicies: newPolicy.relatedPolicies || [],
-      executionCount: selectedPolicy?.executionCount || 0,
-      violationCount: selectedPolicy?.violationCount || 0
+    try {
+      const policyData = {
+        tenantId: "tenant-demo",
+        name: newPolicy.name,
+        description: newPolicy.description,
+        type: newPolicy.type as PolicyType,
+        version: selectedPolicy?.version || "1.0.0",
+        status: newPolicy.status as PolicyStatus,
+        mode: newPolicy.mode as PolicyMode,
+        conditions: newPolicy.conditions || [],
+        actions: newPolicy.actions || [],
+        scope: newPolicy.scope || {},
+        confidenceScore: newPolicy.confidenceScore || 0.85,
+        requiresDualControl: newPolicy.requiresDualControl || false,
+        requiresMFAForExecution: newPolicy.requiresMFAForExecution || false,
+        createdBy: "Current User",
+        tags: newPolicy.tags || [],
+        category: newPolicy.category || "general",
+        relatedPolicies: newPolicy.relatedPolicies || [],
+        lastModifiedBy: "Current User",
+        lastModifiedAt: new Date().toISOString()
+      }
+
+      if (selectedPolicy) {
+        await updatePolicy(selectedPolicy.id, policyData)
+      } else {
+        await createPolicy(policyData)
+      }
+
+      setIsAddDialogOpen(false)
+      resetForm()
+    } catch (error) {
+      console.error('Error saving policy:', error)
     }
+  }
 
-    if (selectedPolicy) {
-      setPolicies(current => (current || []).map(p => (p.id === policy.id ? policy : p)))
-      toast.success("Policy updated successfully")
-    } else {
-      setPolicies(current => [...(current || []), policy])
-      toast.success("Policy created successfully")
+  const handleActivate = async (policyId: string) => {
+    try {
+      await activatePolicy(policyId)
+    } catch (error) {
+      console.error('Error activating policy:', error)
     }
-
-    setIsAddDialogOpen(false)
-    resetForm()
   }
 
-  const handleActivate = (policyId: string) => {
-    setPolicies(current =>
-      (current || []).map(p =>
-        p.id === policyId ? { ...p, status: "active" as const } : p
-      )
-    )
-    toast.success("Policy activated")
+  const handleDeactivate = async (policyId: string) => {
+    try {
+      await deactivatePolicy(policyId)
+    } catch (error) {
+      console.error('Error deactivating policy:', error)
+    }
   }
 
-  const handleDeactivate = (policyId: string) => {
-    setPolicies(current =>
-      (current || []).map(p =>
-        p.id === policyId ? { ...p, status: "draft" as const } : p
-      )
-    )
-    toast.success("Policy deactivated")
-  }
-
-  const handleTest = (policyId: string) => {
+  const handleTest = async (policyId: string) => {
     toast.info("Starting policy simulation in sandbox environment...")
     // Simulate testing
-    setTimeout(() => {
-      setPolicies(current =>
-        (current || []).map(p =>
-          p.id === policyId ? { ...p, status: "testing" as const } : p
-        )
-      )
-      toast.success("Policy test completed successfully")
+    setTimeout(async () => {
+      try {
+        await updatePolicy(policyId, { status: "testing" as PolicyStatus })
+        toast.success("Policy test completed successfully")
+      } catch (error) {
+        console.error('Error testing policy:', error)
+        toast.error("Policy test failed")
+      }
     }, 2000)
   }
 
@@ -547,128 +564,163 @@ export function PolicyEngineWorkbench() {
         </Select>
       </div>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Policies ({filteredPolicies.length})</CardTitle>
-          <CardDescription>
-            AI-powered compliance automation with configurable execution modes
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Policy Name</TableHead>
-                <TableHead>Type</TableHead>
-                <TableHead>Mode</TableHead>
-                <TableHead>Confidence</TableHead>
-                <TableHead>Executions</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead>Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {filteredPolicies.length === 0 ? (
-                <TableRow>
-                  <TableCell colSpan={7} className="text-center text-muted-foreground py-8">
-                    No policies found. Create your first policy to start automated compliance monitoring.
-                  </TableCell>
-                </TableRow>
-              ) : (
-                filteredPolicies.map(policy => (
-                  <TableRow key={policy.id}>
-                    <TableCell>
-                      <div>
-                        <div className="font-medium">{policy.name}</div>
-                        <div className="text-xs text-muted-foreground">v{policy.version}</div>
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      <Badge variant="outline">{getPolicyTypeLabel(policy.type)}</Badge>
-                    </TableCell>
-                    <TableCell>
-                      <Badge className={getModeColor(policy.mode)} variant="secondary">
-                        <span className="flex items-center gap-1">
-                          {getModeIcon(policy.mode)}
-                          {policy.mode}
-                        </span>
-                      </Badge>
-                    </TableCell>
-                    <TableCell>
-                      <div className="flex items-center gap-2">
-                        <div className="text-sm font-medium">
-                          {Math.round(policy.confidenceScore * 100)}%
-                        </div>
-                        {policy.requiresDualControl && (
-                          <Badge variant="outline" className="text-xs">
-                            Dual
-                          </Badge>
-                        )}
-                        {policy.requiresMFAForExecution && (
-                          <Badge variant="outline" className="text-xs">
-                            MFA
-                          </Badge>
-                        )}
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      <div className="text-sm">
-                        <div>{policy.executionCount} runs</div>
-                        {policy.violationCount > 0 && (
-                          <div className="text-xs text-orange-600">
-                            {policy.violationCount} violations
-                          </div>
-                        )}
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      <Badge className={getStatusColor(policy.status)} variant="secondary">
-                        {policy.status}
-                      </Badge>
-                    </TableCell>
-                    <TableCell>
-                      <div className="flex gap-1">
-                        {policy.status === "draft" && (
-                          <>
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => handleTest(policy.id)}
-                            >
-                              <Play className="w-4 h-4" />
-                            </Button>
-                            <Button variant="ghost" size="sm" onClick={() => handleEdit(policy)}>
-                              Edit
-                            </Button>
-                          </>
-                        )}
-                        {policy.status === "approved" && (
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => handleActivate(policy.id)}
-                          >
-                            Activate
-                          </Button>
-                        )}
-                        {policy.status === "active" && (
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => handleDeactivate(policy.id)}
-                          >
-                            <Pause className="w-4 h-4" />
-                          </Button>
-                        )}
-                      </div>
-                    </TableCell>
+      <Tabs defaultValue="policies" className="space-y-6">
+        <TabsList className="grid w-full grid-cols-4">
+          <TabsTrigger value="policies">
+            <Robot className="w-4 h-4 mr-2" />
+            Policies
+          </TabsTrigger>
+          <TabsTrigger value="flow">
+            <FlowArrow className="w-4 h-4 mr-2" />
+            Policy Flow
+          </TabsTrigger>
+          <TabsTrigger value="database">
+            <DatabaseIcon className="w-4 h-4 mr-2" />
+            Database Schema
+          </TabsTrigger>
+          <TabsTrigger value="dataflow">
+            <GitBranch className="w-4 h-4 mr-2" />
+            Data Flow
+          </TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="policies" className="space-y-0">
+          <Card>
+            <CardHeader>
+              <CardTitle>Policies ({filteredPolicies.length})</CardTitle>
+              <CardDescription>
+                AI-powered compliance automation with configurable execution modes
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Policy Name</TableHead>
+                    <TableHead>Type</TableHead>
+                    <TableHead>Mode</TableHead>
+                    <TableHead>Confidence</TableHead>
+                    <TableHead>Executions</TableHead>
+                    <TableHead>Status</TableHead>
+                    <TableHead>Actions</TableHead>
                   </TableRow>
-                ))
-              )}
-            </TableBody>
-          </Table>
-        </CardContent>
-      </Card>
+                </TableHeader>
+                <TableBody>
+                  {filteredPolicies.length === 0 ? (
+                    <TableRow>
+                      <TableCell colSpan={7} className="text-center text-muted-foreground py-8">
+                        No policies found. Create your first policy to start automated compliance monitoring.
+                      </TableCell>
+                    </TableRow>
+                  ) : (
+                    filteredPolicies.map(policy => (
+                      <TableRow key={policy.id}>
+                        <TableCell>
+                          <div>
+                            <div className="font-medium">{policy.name}</div>
+                            <div className="text-xs text-muted-foreground">v{policy.version}</div>
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          <Badge variant="outline">{getPolicyTypeLabel(policy.type)}</Badge>
+                        </TableCell>
+                        <TableCell>
+                          <Badge className={getModeColor(policy.mode)} variant="secondary">
+                            <span className="flex items-center gap-1">
+                              {getModeIcon(policy.mode)}
+                              {policy.mode}
+                            </span>
+                          </Badge>
+                        </TableCell>
+                        <TableCell>
+                          <div className="flex items-center gap-2">
+                            <div className="text-sm font-medium">
+                              {Math.round(policy.confidenceScore * 100)}%
+                            </div>
+                            {policy.requiresDualControl && (
+                              <Badge variant="outline" className="text-xs">
+                                Dual
+                              </Badge>
+                            )}
+                            {policy.requiresMFAForExecution && (
+                              <Badge variant="outline" className="text-xs">
+                                MFA
+                              </Badge>
+                            )}
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          <div className="text-sm">
+                            <div>{policy.executionCount} runs</div>
+                            {policy.violationCount > 0 && (
+                              <div className="text-xs text-orange-600">
+                                {policy.violationCount} violations
+                              </div>
+                            )}
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          <Badge className={getStatusColor(policy.status)} variant="secondary">
+                            {policy.status}
+                          </Badge>
+                        </TableCell>
+                        <TableCell>
+                          <div className="flex gap-1">
+                            {policy.status === "draft" && (
+                              <>
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  onClick={() => handleTest(policy.id)}
+                                >
+                                  <Play className="w-4 h-4" />
+                                </Button>
+                                <Button variant="ghost" size="sm" onClick={() => handleEdit(policy)}>
+                                  Edit
+                                </Button>
+                              </>
+                            )}
+                            {policy.status === "approved" && (
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => handleActivate(policy.id)}
+                              >
+                                Activate
+                              </Button>
+                            )}
+                            {policy.status === "active" && (
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => handleDeactivate(policy.id)}
+                              >
+                                <Pause className="w-4 h-4" />
+                              </Button>
+                            )}
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    ))
+                  )}
+                </TableBody>
+              </Table>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="flow" className="space-y-0">
+          <PolicyFlowDiagram />
+        </TabsContent>
+
+        <TabsContent value="database" className="space-y-0">
+          <DatabaseRelationshipDiagram />
+        </TabsContent>
+
+        <TabsContent value="dataflow" className="space-y-0">
+          <DataFlowDiagram />
+        </TabsContent>
+      </Tabs>
     </div>
   )
 }
