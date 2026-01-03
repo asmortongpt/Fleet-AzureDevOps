@@ -29,7 +29,7 @@ Successfully identified and resolved **4 critical errors** affecting the Fleet M
 **Fix Applied:**
 ```html
 <!-- BEFORE (LINE 51) -->
-<script async defer src="https://maps.googleapis.com/maps/api/js?key=<your-google-maps-api-key>&libraries=places,geometry,drawing"></script>
+<script async defer src="https://maps.googleapis.com/maps/api/js?key=[REDACTED - See .env]&libraries=places,geometry,drawing"></script>
 
 <!-- AFTER (LINE 50-51) -->
 <!-- Google Maps API loaded dynamically by GoogleMap component - do not load here -->
@@ -172,7 +172,7 @@ const matchesSearch = d.name?.toLowerCase().includes(searchQuery.toLowerCase()) 
 
 ### External Services
 ```
-✅ Google Maps API: ACCESSIBLE (Key: <your-google-maps-api-key>)
+✅ Google Maps API: ACCESSIBLE (Key: [REDACTED - See .env])
 ⚠️  Azure AD: Requires authentication (expected)
 ```
 

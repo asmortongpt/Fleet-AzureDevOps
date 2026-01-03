@@ -53,7 +53,7 @@
 
 #### Google Maps API
 - **Status**: ✅ CONFIGURED
-- **API Key**: <your-google-maps-api-key>
+- **API Key**: [REDACTED - See .env]
 - **Project ID**: fleet-maps-app
 - **Project Number**: 288383806520
 - **Enabled APIs**:

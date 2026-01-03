@@ -39,7 +39,7 @@ The Google Maps Test Page includes:
 - `src/App.tsx` - Routing configured for both pages
 
 ### Google Maps API Configuration:
-- API Key: <your-google-maps-api-key>
+- API Key: Configured via `VITE_GOOGLE_MAPS_API_KEY` environment variable
 - Project: fleet-maps-app
 - Enabled APIs: Maps JavaScript, Places, Geocoding, Directions
 
