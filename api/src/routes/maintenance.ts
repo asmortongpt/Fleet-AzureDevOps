@@ -5,6 +5,7 @@ import { container } from '../container'
 import { authenticateJWT } from '../middleware/auth'
 import { csrfProtection } from '../middleware/csrf'
 import { asyncHandler } from '../middleware/errorHandler'
+import { policyEnforcement } from '../middleware/policy-enforcement'
 import { requireRBAC, Role, PERMISSIONS } from '../middleware/rbac'
 import { validateBody, validateParams } from '../middleware/validate'
 import { MaintenanceController } from '../modules/maintenance/controllers/maintenance.controller'
@@ -63,7 +64,9 @@ router.get("/vehicle/:vehicleId",
 
 // POST create maintenance record
 router.post("/",
- csrfProtection, requireRBAC({
+  csrfProtection,
+  policyEnforcement(['FLT-SAF-001'], { mode: 'warn', includeInResponse: true }),
+  requireRBAC({
     roles: [Role.ADMIN, Role.MANAGER],
     permissions: [PERMISSIONS.MAINTENANCE_CREATE],
     enforceTenantIsolation: true,
