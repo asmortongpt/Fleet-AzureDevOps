@@ -1,0 +1,243 @@
+version: '3.8'
+
+services:
+  # PostgreSQL with pgvector for RAG
+  postgres:
+    image: pgvector/pgvector:pg16
+    container_name: autodev-postgres
+    environment:
+      POSTGRES_DB: autodev
+      POSTGRES_USER: autodev
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-autodev_secure_pass}
+      POSTGRES_INITDB_ARGS: "-E UTF8"
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./scripts/init-db.sql:/docker-entrypoint-initdb.d/init-db.sql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U autodev"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - autodev
+
+  # Redis for Celery broker and caching
+  redis:
+    image: redis:7-alpine
+    container_name: autodev-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - autodev
+
+  # MCP Server: Repository Tools
+  mcp-repo-tools:
+    build:
+      context: ./mcp/repo_tools
+      dockerfile: Dockerfile
+    container_name: mcp-repo-tools
+    environment:
+      - PORT=8001
+      - POSTGRES_URL=postgresql://autodev:${POSTGRES_PASSWORD:-autodev_secure_pass}@postgres:5432/autodev
+    ports:
+      - "8001:8001"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - workspace_data:/workspace
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - autodev
+    restart: unless-stopped
+
+  # MCP Server: Test Tools
+  mcp-test-tools:
+    build:
+      context: ./mcp/test_tools
+      dockerfile: Dockerfile
+    container_name: mcp-test-tools
+    environment:
+      - PORT=8002
+      - POSTGRES_URL=postgresql://autodev:${POSTGRES_PASSWORD:-autodev_secure_pass}@postgres:5432/autodev
+    ports:
+      - "8002:8002"
+    volumes:
+      - workspace_data:/workspace
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - autodev
+    restart: unless-stopped
+
+  # MCP Server: Browser Tools (Playwright)
+  mcp-browser-tools:
+    build:
+      context: ./mcp/browser_tools
+      dockerfile: Dockerfile
+    container_name: mcp-browser-tools
+    environment:
+      - PORT=8003
+      - POSTGRES_URL=postgresql://autodev:${POSTGRES_PASSWORD:-autodev_secure_pass}@postgres:5432/autodev
+    ports:
+      - "8003:8003"
+    volumes:
+      - workspace_data:/workspace
+      - playwright_reports:/reports
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - autodev
+    restart: unless-stopped
+    shm_size: 2gb
+
+  # MCP Server: Security Tools
+  mcp-security-tools:
+    build:
+      context: ./mcp/security_tools
+      dockerfile: Dockerfile
+    container_name: mcp-security-tools
+    environment:
+      - PORT=8004
+      - POSTGRES_URL=postgresql://autodev:${POSTGRES_PASSWORD:-autodev_secure_pass}@postgres:5432/autodev
+    ports:
+      - "8004:8004"
+    volumes:
+      - workspace_data:/workspace
+      - security_reports:/reports
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - autodev
+    restart: unless-stopped
+
+  # MCP Server: DevOps Tools
+  mcp-devops-tools:
+    build:
+      context: ./mcp/devops_tools
+      dockerfile: Dockerfile
+    container_name: mcp-devops-tools
+    environment:
+      - PORT=8005
+      - POSTGRES_URL=postgresql://autodev:${POSTGRES_PASSWORD:-autodev_secure_pass}@postgres:5432/autodev
+      - AZURE_DEVOPS_PAT=${AZURE_DEVOPS_PAT}
+    ports:
+      - "8005:8005"
+    volumes:
+      - workspace_data:/workspace
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - autodev
+    restart: unless-stopped
+
+  # Celery Worker for async tasks
+  celery-worker:
+    build:
+      context: ./orchestrator
+      dockerfile: Dockerfile
+    container_name: autodev-celery-worker
+    command: celery -A tasks worker --loglevel=info --concurrency=4
+    environment:
+      - POSTGRES_URL=postgresql://autodev:${POSTGRES_PASSWORD:-autodev_secure_pass}@postgres:5432/autodev
+      - REDIS_URL=redis://redis:6379/0
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+    volumes:
+      - workspace_data:/workspace
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - autodev
+    restart: unless-stopped
+
+  # Orchestrator API
+  orchestrator:
+    build:
+      context: ./orchestrator
+      dockerfile: Dockerfile
+    container_name: autodev-orchestrator
+    command: python main.py
+    environment:
+      - PORT=8000
+      - POSTGRES_URL=postgresql://autodev:${POSTGRES_PASSWORD:-autodev_secure_pass}@postgres:5432/autodev
+      - REDIS_URL=redis://redis:6379/0
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - MCP_REPO_TOOLS_URL=http://mcp-repo-tools:8001
+      - MCP_TEST_TOOLS_URL=http://mcp-test-tools:8002
+      - MCP_BROWSER_TOOLS_URL=http://mcp-browser-tools:8003
+      - MCP_SECURITY_TOOLS_URL=http://mcp-security-tools:8004
+      - MCP_DEVOPS_TOOLS_URL=http://mcp-devops-tools:8005
+    ports:
+      - "8000:8000"
+    volumes:
+      - workspace_data:/workspace
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      mcp-repo-tools:
+        condition: service_started
+      mcp-test-tools:
+        condition: service_started
+      mcp-browser-tools:
+        condition: service_started
+      mcp-security-tools:
+        condition: service_started
+      mcp-devops-tools:
+        condition: service_started
+    networks:
+      - autodev
+    restart: unless-stopped
+
+  # Flower - Celery monitoring
+  flower:
+    build:
+      context: ./orchestrator
+      dockerfile: Dockerfile
+    container_name: autodev-flower
+    command: celery -A tasks flower --port=5555
+    environment:
+      - REDIS_URL=redis://redis:6379/0
+    ports:
+      - "5555:5555"
+    depends_on:
+      - redis
+      - celery-worker
+    networks:
+      - autodev
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
+    driver: local
+  redis_data:
+    driver: local
+  workspace_data:
+    driver: local
+  playwright_reports:
+    driver: local
+  security_reports:
+    driver: local
+
+networks:
+  autodev:
+    driver: bridge
