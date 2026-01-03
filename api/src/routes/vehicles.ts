@@ -7,6 +7,7 @@ import { NotFoundError, ValidationError } from '../errors/app-error'
 import { authenticateJWT } from '../middleware/auth';
 import { doubleCsrfProtection as csrfProtection } from '../middleware/csrf'
 import { asyncHandler } from '../middleware/errorHandler'
+import { policyEnforcement } from '../middleware/policy-enforcement';
 import { requireRBAC, Role, PERMISSIONS } from '../middleware/rbac';
 import { validateBody, validateQuery, validateParams, validateAll } from '../middleware/validate';
 import { VehicleService } from '../modules/fleet/services/vehicle.service'
@@ -131,7 +132,9 @@ router.get("/:id",
 // POST create vehicle - Requires admin or manager role
 // CRIT-B-003: Comprehensive input validation with sanitization
 router.post("/",
-  csrfProtection, requireRBAC({
+  csrfProtection,
+  policyEnforcement(['FLT-SAF-001'], { mode: 'warn', includeInResponse: true }),
+  requireRBAC({
     roles: [Role.ADMIN, Role.MANAGER],
     permissions: [PERMISSIONS.VEHICLE_CREATE],
     enforceTenantIsolation: true,
@@ -166,7 +169,9 @@ router.post("/",
 // PUT update vehicle - Requires admin or manager role + tenant isolation
 // CRIT-B-003: Validates both URL params and request body
 router.put("/:id",
-  csrfProtection, requireRBAC({
+  csrfProtection,
+  policyEnforcement(['FLT-SAF-001'], { mode: 'warn', includeInResponse: true }),
+  requireRBAC({
     roles: [Role.ADMIN, Role.MANAGER],
     permissions: [PERMISSIONS.VEHICLE_UPDATE],
     enforceTenantIsolation: true,
@@ -206,7 +211,9 @@ router.put("/:id",
 // DELETE vehicle
 // CRIT-B-003: Added URL parameter validation
 router.delete("/:id",
-  csrfProtection, requireRBAC({
+  csrfProtection,
+  policyEnforcement(['FLT-SAF-001'], { mode: 'warn', includeInResponse: true }),
+  requireRBAC({
     roles: [Role.ADMIN, Role.MANAGER],
     permissions: [PERMISSIONS.VEHICLE_DELETE],
     enforceTenantIsolation: true,
