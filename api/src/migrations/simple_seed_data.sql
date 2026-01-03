@@ -105,12 +105,13 @@ SELECT
 FROM generate_series(1, 300) AS n;
 
 -- Create 150 incidents
-INSERT INTO incidents (tenant_id, vehicle_id, driver_id, type, severity, description,
+INSERT INTO incidents (tenant_id, vehicle_id, driver_id, number, type, severity, description,
                        incident_date, location, status)
 SELECT
     (SELECT id FROM tenants LIMIT 1),
     (SELECT id FROM vehicles ORDER BY RANDOM() LIMIT 1),
     (SELECT id FROM drivers ORDER BY RANDOM() LIMIT 1),
+    'INC-' || TO_CHAR(NOW(), 'YYYYMMDD') || '-' || LPAD(n::TEXT, 4, '0'),
     'accident',
     (ARRAY['minor', 'moderate', 'major'])[((n-1) % 3) + 1]::incident_severity,
     'Incident report filed. Details documented.',
@@ -120,7 +121,7 @@ SELECT
 FROM generate_series(1, 150) AS n;
 
 -- Create 200 routes
-INSERT INTO routes (tenant_id, route_name, description, distance_km, estimated_duration_minutes, status)
+INSERT INTO routes (tenant_id, name, description, estimated_distance, estimated_duration, status)
 SELECT
     (SELECT id FROM tenants LIMIT 1),
     'Route ' || LPAD(n::TEXT, 3, '0'),
@@ -136,9 +137,9 @@ INSERT INTO maintenance_schedules (tenant_id, vehicle_id, name, description, typ
 SELECT
     (SELECT id FROM tenants LIMIT 1),
     (SELECT id FROM vehicles ORDER BY RANDOM() LIMIT 1),
-    (ARRAY['Oil Change', 'Tire Rotation', 'Brake Inspection', 'Air Filter', 'Transmission'])[((n-1) % 5) + 1] || ' Schedule',
+    (ARRAY['Preventive Maintenance', 'Corrective Maintenance', 'Inspection', 'Recall Service', 'Upgrade'])[((n-1) % 5) + 1] || ' Schedule',
     'Scheduled maintenance for fleet vehicle.',
-    (ARRAY['oil_change', 'tire_rotation', 'inspection', 'fluid_service'])[((n-1) % 4) + 1]::maintenance_type,
+    (ARRAY['preventive', 'corrective', 'inspection', 'recall', 'upgrade'])[((n-1) % 5) + 1]::maintenance_type,
     CASE ((n-1) % 5)
         WHEN 0 THEN 3000
         WHEN 1 THEN 6000
