@@ -123,3 +123,5 @@ Fleet/
 Fleet-1/
 dist-from-vm/
 dist-from-vm/
+dist-from-vm/
+node_modules/.cache/
