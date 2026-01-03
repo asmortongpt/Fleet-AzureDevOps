@@ -60,7 +60,7 @@ export class DriverEmulator {
       id,
       name: `${firstName} ${lastName}`,
       email: faker.internet.email({ firstName, lastName }).toLowerCase(),
-      phone: faker.phone.number('###-###-####'),
+      phone: faker.phone.number(),
       licenseNumber: this.generateLicenseNumber(),
       licenseExpiry: faker.date.future({ years: 5 }),
       licenseClass: LICENSE_CLASSES[Math.floor(Math.random() * LICENSE_CLASSES.length)],

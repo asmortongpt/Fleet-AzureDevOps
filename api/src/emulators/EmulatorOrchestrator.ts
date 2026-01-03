@@ -442,7 +442,7 @@ export class EmulatorOrchestrator extends EventEmitter {
     await routeEmulator.start()
 
     // Cost Emulator
-    const costEmulator = new CostEmulator(vehicle, this.config)
+    const costEmulator = new CostEmulator()
     costEmulator.on('data', (data) => this.emit('cost', {
       type: 'cost',
       vehicleId,
@@ -466,7 +466,7 @@ export class EmulatorOrchestrator extends EventEmitter {
     }
 
     // EV Charging Emulator
-    if (vehicle.isElectric || vehicle.features?.includes('evcharging')) {
+    if (vehicle.type === 'ev' || vehicle.features?.includes('evcharging')) {
       const evChargingEmulator = new EVChargingEmulator({
         updateIntervalMs: this.config.emulators?.gps?.updateIntervalMs || 5000,
         maxConcurrentSessions: 10,
@@ -524,8 +524,8 @@ export class EmulatorOrchestrator extends EventEmitter {
         id: vehicleId,
         currentSpeed: 0,
         speedLimit: 55,
-        location: vehicle.location || { lat: 0, lng: 0 },
-        driverId: vehicle.driverId || vehicle.driver_id || ''
+        location: vehicle.startingLocation || { lat: 0, lng: 0 },
+        driverId: '' // Driver ID not stored in vehicle, must be assigned separately
       })
       videoTelematicsEmulator.on('video-event-detected', (data) => this.emit('video-telematics', {
         type: 'video-telematics',

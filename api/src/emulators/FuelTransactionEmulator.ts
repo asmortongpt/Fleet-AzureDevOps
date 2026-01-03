@@ -147,7 +147,7 @@ export class FuelTransactionEmulator {
     if (driverId) {
       const driver = driverEmulator.getById(driverId)
       if (driver) {
-        driverName = `${driver.firstName} ${driver.lastName}`
+        driverName = driver.name
       }
     }
 
