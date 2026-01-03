@@ -9,7 +9,8 @@ import {
   Brain,
   Lightning,
   Eye,
-  ShieldCheck
+  ShieldCheck,
+  ArrowsClockwise
 } from "@phosphor-icons/react"
 import { useState } from "react"
 import { toast } from "sonner"
@@ -45,10 +46,22 @@ import {
   TableRow
 } from "@/components/ui/table"
 import { Textarea } from "@/components/ui/textarea"
+import { usePolicies } from "@/contexts/PolicyContext"
 import type { Policy, PolicyType, PolicyMode, PolicyStatus } from "@/lib/policy-engine/types"
 
 export function PolicyEngineWorkbench() {
-  const [policies, setPolicies] = useState<Policy[]>([])
+  // Use PolicyContext for backend integration
+  const {
+    policies,
+    loading,
+    error,
+    createPolicy,
+    updatePolicy,
+    deletePolicy,
+    activatePolicy,
+    deactivatePolicy,
+    fetchPolicies
+  } = usePolicies()
   const [searchTerm, setSearchTerm] = useState("")
   const [filterType, setFilterType] = useState<string>("all")
   const [filterStatus, setFilterStatus] = useState<string>("all")
@@ -81,66 +94,62 @@ export function PolicyEngineWorkbench() {
     return matchesSearch && matchesType && matchesStatus
   })
 
-  const handleSavePolicy = () => {
+  const handleSavePolicy = async () => {
     if (!newPolicy.name || !newPolicy.description) {
       toast.error("Please fill in required fields")
       return
     }
 
-    const policy: Policy = {
-      id: selectedPolicy?.id || `policy-${Date.now()}`,
-      tenantId: "tenant-demo",
-      name: newPolicy.name,
-      description: newPolicy.description,
-      type: newPolicy.type as PolicyType,
-      version: selectedPolicy?.version || "1.0.0",
-      status: newPolicy.status as PolicyStatus,
-      mode: newPolicy.mode as PolicyMode,
-      conditions: newPolicy.conditions || [],
-      actions: newPolicy.actions || [],
-      scope: newPolicy.scope || {},
-      confidenceScore: newPolicy.confidenceScore || 0.85,
-      requiresDualControl: newPolicy.requiresDualControl || false,
-      requiresMFAForExecution: newPolicy.requiresMFAForExecution || false,
-      createdBy: "Current User",
-      createdAt: selectedPolicy?.createdAt || new Date().toISOString(),
-      lastModifiedBy: "Current User",
-      lastModifiedAt: new Date().toISOString(),
-      tags: newPolicy.tags || [],
-      category: newPolicy.category || "general",
-      relatedPolicies: newPolicy.relatedPolicies || [],
-      executionCount: selectedPolicy?.executionCount || 0,
-      violationCount: selectedPolicy?.violationCount || 0
-    }
+    try {
+      const policyData = {
+        tenantId: "tenant-demo",
+        name: newPolicy.name,
+        description: newPolicy.description,
+        type: newPolicy.type as PolicyType,
+        version: selectedPolicy?.version || "1.0.0",
+        status: newPolicy.status as PolicyStatus,
+        mode: newPolicy.mode as PolicyMode,
+        conditions: newPolicy.conditions || [],
+        actions: newPolicy.actions || [],
+        scope: newPolicy.scope || {},
+        confidenceScore: newPolicy.confidenceScore || 0.85,
+        requiresDualControl: newPolicy.requiresDualControl || false,
+        requiresMFAForExecution: newPolicy.requiresMFAForExecution || false,
+        createdBy: "Current User",
+        tags: newPolicy.tags || [],
+        category: newPolicy.category || "general",
+        relatedPolicies: newPolicy.relatedPolicies || [],
+        lastModifiedBy: "Current User",
+        lastModifiedAt: new Date().toISOString()
+      }
 
-    if (selectedPolicy) {
-      setPolicies(current => (current || []).map(p => (p.id === policy.id ? policy : p)))
-      toast.success("Policy updated successfully")
-    } else {
-      setPolicies(current => [...(current || []), policy])
-      toast.success("Policy created successfully")
-    }
+      if (selectedPolicy) {
+        await updatePolicy(selectedPolicy.id, policyData)
+      } else {
+        await createPolicy(policyData)
+      }
 
-    setIsAddDialogOpen(false)
-    resetForm()
+      setIsAddDialogOpen(false)
+      resetForm()
+    } catch (error) {
+      console.error('Error saving policy:', error)
+    }
   }
 
-  const handleActivate = (policyId: string) => {
-    setPolicies(current =>
-      (current || []).map(p =>
-        p.id === policyId ? { ...p, status: "active" as const } : p
-      )
-    )
-    toast.success("Policy activated")
+  const handleActivate = async (policyId: string) => {
+    try {
+      await activatePolicy(policyId)
+    } catch (error) {
+      console.error('Error activating policy:', error)
+    }
   }
 
-  const handleDeactivate = (policyId: string) => {
-    setPolicies(current =>
-      (current || []).map(p =>
-        p.id === policyId ? { ...p, status: "draft" as const } : p
-      )
-    )
-    toast.success("Policy deactivated")
+  const handleDeactivate = async (policyId: string) => {
+    try {
+      await deactivatePolicy(policyId)
+    } catch (error) {
+      console.error('Error deactivating policy:', error)
+    }
   }
 
   const handleTest = (policyId: string) => {
