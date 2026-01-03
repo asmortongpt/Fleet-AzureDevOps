@@ -67,6 +67,12 @@ import {
   VehicleListDrilldown
 } from '@/components/drilldown/FleetStatsDrilldowns'
 import {
+  VehicleDetailsDrilldown,
+  UtilizationDetailsDrilldown,
+  CostDetailsDrilldown,
+  ComplianceDetailsDrilldown
+} from '@/components/drilldown/FleetHubCompleteDrilldowns'
+import {
   DriversRosterDrilldown,
   DriverPerformanceDrilldown,
   DriverScorecardDrilldown,
@@ -169,6 +175,22 @@ function DrilldownContent() {
 
     case 'vehicle-detail':
       return <VehicleDetailPanel vehicleId={currentLevel.data?.vehicleId} />
+
+    case 'vehicle-details-complete':
+      return <VehicleDetailsDrilldown />
+
+    case 'vehicle-utilization':
+    case 'utilization-details':
+      return <UtilizationDetailsDrilldown />
+
+    case 'vehicle-cost':
+    case 'cost-details':
+    case 'tco-analysis':
+      return <CostDetailsDrilldown />
+
+    case 'vehicle-compliance':
+    case 'compliance-details':
+      return <ComplianceDetailsDrilldown />
 
     case 'vehicle-trips':
       return (

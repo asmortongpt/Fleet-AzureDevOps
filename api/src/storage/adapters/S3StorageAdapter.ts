@@ -10,15 +10,16 @@
 
 import { Readable } from 'stream';
 
-import { S3Client } from '@aws-sdk/client-s3';
-// Deep imports to bypass missing exports in main index
-import { CopyObjectCommand } from '@aws-sdk/client-s3/dist-types/commands/CopyObjectCommand';
-import { DeleteObjectCommand } from '@aws-sdk/client-s3/dist-types/commands/DeleteObjectCommand';
-import { DeleteObjectsCommand } from '@aws-sdk/client-s3/dist-types/commands/DeleteObjectsCommand';
-import { GetObjectCommand } from '@aws-sdk/client-s3/dist-types/commands/GetObjectCommand';
-import { HeadObjectCommand } from '@aws-sdk/client-s3/dist-types/commands/HeadObjectCommand';
-import { ListObjectsV2Command } from '@aws-sdk/client-s3/dist-types/commands/ListObjectsV2Command';
-import { PutObjectCommand } from '@aws-sdk/client-s3/dist-types/commands/PutObjectCommand';
+import {
+  S3Client,
+  CopyObjectCommand,
+  DeleteObjectCommand,
+  DeleteObjectsCommand,
+  GetObjectCommand,
+  HeadObjectCommand,
+  ListObjectsV2Command,
+  PutObjectCommand
+} from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 
 import {
@@ -53,8 +54,8 @@ export class S3StorageAdapter extends BaseStorageAdapter {
 
   async initialize(): Promise<void> {
     if (this.initialized) {
-return;
-}
+      return;
+    }
 
     if (!this.config.s3) {
       throw new Error('S3 configuration is missing');
@@ -162,8 +163,8 @@ return;
   async deleteMany(keys: string[]): Promise<void> {
     this.ensureInitialized();
     if (keys.length === 0) {
-return;
-}
+      return;
+    }
 
     try {
       await this.client.send(new DeleteObjectsCommand({
@@ -295,8 +296,8 @@ return;
   getPublicUrl(key: string): string {
     const normalizedKey = this.normalizeKey(key);
     if (!this.config.s3) {
-return '';
-}
+      return '';
+    }
     const { bucket, region } = this.config.s3;
     return `https://${bucket}.s3.${region}.amazonaws.com/${normalizedKey}`;
   }
