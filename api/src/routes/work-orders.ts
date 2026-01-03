@@ -24,6 +24,7 @@ import express, { Response } from 'express'
 import { z } from 'zod'
 
 import logger from '../config/logger'
+import { NotFoundError, ValidationError } from '../errors/app-error'
 import { auditLog } from '../middleware/audit'
 import { AuthRequest, authenticateJWT } from '../middleware/auth'
 import { csrfProtection } from '../middleware/csrf'
