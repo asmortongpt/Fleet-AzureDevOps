@@ -29,9 +29,9 @@ CREATE TABLE IF NOT EXISTS manufacturer_maintenance_schedules (
     CONSTRAINT valid_intervals CHECK (interval_miles > 0 OR interval_months > 0 OR interval_engine_hours > 0)
 );
 
-CREATE INDEX idx_manufacturer_schedules_make_model ON manufacturer_maintenance_schedules(make, model);
-CREATE INDEX idx_manufacturer_schedules_service_type ON manufacturer_maintenance_schedules(service_type);
-CREATE INDEX idx_manufacturer_schedules_category ON manufacturer_maintenance_schedules(service_category);
+CREATE INDEX IF NOT EXISTS idx_manufacturer_schedules_make_model ON manufacturer_maintenance_schedules(make, model);
+CREATE INDEX IF NOT EXISTS idx_manufacturer_schedules_service_type ON manufacturer_maintenance_schedules(service_type);
+CREATE INDEX IF NOT EXISTS idx_manufacturer_schedules_category ON manufacturer_maintenance_schedules(service_category);
 
 -- =======================
 -- MAINTENANCE SCHEDULES (Vehicle-specific)
@@ -81,10 +81,10 @@ CREATE TABLE IF NOT EXISTS maintenance_schedules (
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
-CREATE INDEX idx_maintenance_schedules_vehicle ON maintenance_schedules(vehicle_id);
-CREATE INDEX idx_maintenance_schedules_service_type ON maintenance_schedules(service_type);
-CREATE INDEX idx_maintenance_schedules_due_date ON maintenance_schedules(next_service_due_date) WHERE is_active = true;
-CREATE INDEX idx_maintenance_schedules_overdue ON maintenance_schedules(is_overdue) WHERE is_overdue = true;
+CREATE INDEX IF NOT EXISTS idx_maintenance_schedules_vehicle ON maintenance_schedules(vehicle_id);
+CREATE INDEX IF NOT EXISTS idx_maintenance_schedules_service_type ON maintenance_schedules(service_type);
+CREATE INDEX IF NOT EXISTS idx_maintenance_schedules_due_date ON maintenance_schedules(next_service_due_date) WHERE is_active = true;
+CREATE INDEX IF NOT EXISTS idx_maintenance_schedules_overdue ON maintenance_schedules(is_overdue) WHERE is_overdue = true;
 
 -- =======================
 -- WORK ORDERS
@@ -104,7 +104,7 @@ CREATE TABLE IF NOT EXISTS work_orders (
     status VARCHAR(50) DEFAULT 'draft' CHECK (status IN ('draft', 'pending', 'scheduled', 'in_progress', 'on_hold', 'completed', 'cancelled')),
 
     -- Scheduling
-    scheduled_date DATE,
+    scheduled_start_date DATE,
     scheduled_start_time TIME,
     scheduled_end_time TIME,
     actual_start_time TIMESTAMP WITH TIME ZONE,
@@ -165,12 +165,12 @@ CREATE TABLE IF NOT EXISTS work_orders (
     cancellation_reason TEXT
 );
 
-CREATE INDEX idx_work_orders_vehicle ON work_orders(vehicle_id);
-CREATE INDEX idx_work_orders_tenant ON work_orders(tenant_id);
-CREATE INDEX idx_work_orders_status ON work_orders(status);
-CREATE INDEX idx_work_orders_scheduled_date ON work_orders(scheduled_date) WHERE status IN ('scheduled', 'pending');
-CREATE INDEX idx_work_orders_vendor ON work_orders(assigned_vendor_id);
-CREATE INDEX idx_work_orders_number ON work_orders(work_order_number);
+CREATE INDEX IF NOT EXISTS idx_work_orders_vehicle ON work_orders(vehicle_id);
+CREATE INDEX IF NOT EXISTS idx_work_orders_tenant ON work_orders(tenant_id);
+CREATE INDEX IF NOT EXISTS idx_work_orders_status ON work_orders(status);
+CREATE INDEX IF NOT EXISTS idx_work_orders_scheduled_start_date ON work_orders(scheduled_start_date) WHERE status IN ('scheduled', 'pending');
+CREATE INDEX IF NOT EXISTS idx_work_orders_vendor ON work_orders(assigned_vendor_id);
+CREATE INDEX IF NOT EXISTS idx_work_orders_number ON work_orders(work_order_number);
 
 -- =======================
 -- FUEL TRANSACTIONS
@@ -234,12 +234,12 @@ CREATE TABLE IF NOT EXISTS fuel_transactions (
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
-CREATE INDEX idx_fuel_transactions_vehicle ON fuel_transactions(vehicle_id);
-CREATE INDEX idx_fuel_transactions_tenant ON fuel_transactions(tenant_id);
-CREATE INDEX idx_fuel_transactions_date ON fuel_transactions(transaction_date DESC);
-CREATE INDEX idx_fuel_transactions_driver ON fuel_transactions(driver_id);
-CREATE INDEX idx_fuel_transactions_vendor ON fuel_transactions(vendor_id);
-CREATE INDEX idx_fuel_transactions_anomaly ON fuel_transactions(is_anomaly) WHERE is_anomaly = true;
+CREATE INDEX IF NOT EXISTS idx_fuel_transactions_vehicle ON fuel_transactions(vehicle_id);
+CREATE INDEX IF NOT EXISTS idx_fuel_transactions_tenant ON fuel_transactions(tenant_id);
+CREATE INDEX IF NOT EXISTS idx_fuel_transactions_date ON fuel_transactions(transaction_date DESC);
+CREATE INDEX IF NOT EXISTS idx_fuel_transactions_driver ON fuel_transactions(driver_id);
+CREATE INDEX IF NOT EXISTS idx_fuel_transactions_vendor ON fuel_transactions(vendor_id);
+CREATE INDEX IF NOT EXISTS idx_fuel_transactions_anomaly ON fuel_transactions(is_anomaly) WHERE is_anomaly = true;
 
 -- =======================
 -- VEHICLE ASSIGNMENTS
@@ -271,10 +271,10 @@ CREATE TABLE IF NOT EXISTS vehicle_assignments (
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
-CREATE INDEX idx_vehicle_assignments_vehicle ON vehicle_assignments(vehicle_id);
-CREATE INDEX idx_vehicle_assignments_driver ON vehicle_assignments(driver_id);
-CREATE INDEX idx_vehicle_assignments_active ON vehicle_assignments(is_active) WHERE is_active = true;
-CREATE INDEX idx_vehicle_assignments_dates ON vehicle_assignments(assignment_start, assignment_end);
+CREATE INDEX IF NOT EXISTS idx_vehicle_assignments_vehicle ON vehicle_assignments(vehicle_id);
+CREATE INDEX IF NOT EXISTS idx_vehicle_assignments_driver ON vehicle_assignments(driver_id);
+CREATE INDEX IF NOT EXISTS idx_vehicle_assignments_active ON vehicle_assignments(is_active) WHERE is_active = true;
+CREATE INDEX IF NOT EXISTS idx_vehicle_assignments_dates ON vehicle_assignments(assignment_start, assignment_end);
 
 -- =======================
 -- VEHICLE INSPECTIONS
@@ -287,7 +287,7 @@ CREATE TABLE IF NOT EXISTS vehicle_inspections (
     inspector_id UUID REFERENCES users(id),
 
     inspection_type VARCHAR(50) NOT NULL CHECK (inspection_type IN ('pre_trip', 'post_trip', 'annual', 'dot', 'safety', 'damage')),
-    inspection_date TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
+    inspected_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
 
     -- Vehicle state
     odometer DECIMAL(10,2),
@@ -318,11 +318,11 @@ CREATE TABLE IF NOT EXISTS vehicle_inspections (
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
-CREATE INDEX idx_vehicle_inspections_vehicle ON vehicle_inspections(vehicle_id);
-CREATE INDEX idx_vehicle_inspections_tenant ON vehicle_inspections(tenant_id);
-CREATE INDEX idx_vehicle_inspections_date ON vehicle_inspections(inspection_date DESC);
-CREATE INDEX idx_vehicle_inspections_status ON vehicle_inspections(overall_status);
-CREATE INDEX idx_vehicle_inspections_type ON vehicle_inspections(inspection_type);
+CREATE INDEX IF NOT EXISTS idx_vehicle_inspections_vehicle ON vehicle_inspections(vehicle_id);
+CREATE INDEX IF NOT EXISTS idx_vehicle_inspections_tenant ON vehicle_inspections(tenant_id);
+CREATE INDEX IF NOT EXISTS idx_vehicle_inspections_inspected_at ON vehicle_inspections(inspected_at DESC);
+CREATE INDEX IF NOT EXISTS idx_vehicle_inspections_status ON vehicle_inspections(overall_status);
+CREATE INDEX IF NOT EXISTS idx_vehicle_inspections_type ON vehicle_inspections(inspection_type);
 
 -- =======================
 -- TRIGGERS FOR AUTO-CALCULATION
@@ -477,9 +477,9 @@ WHERE ft.mpg IS NOT NULL
 GROUP BY ft.vehicle_id, v.vin, v.make, v.model, v.year, DATE_TRUNC('month', ft.transaction_date);
 
 -- Grant permissions
-GRANT SELECT ON v_upcoming_maintenance TO PUBLIC;
-GRANT SELECT ON v_vehicle_maintenance_summary TO PUBLIC;
-GRANT SELECT ON v_fuel_efficiency_trends TO PUBLIC;
+-- GRANT SELECT ON v_upcoming_maintenance TO PUBLIC;
+-- GRANT SELECT ON v_vehicle_maintenance_summary TO PUBLIC;
+-- GRANT SELECT ON v_fuel_efficiency_trends TO PUBLIC;
 
 -- Insert updated_at triggers
 CREATE TRIGGER update_manufacturer_maintenance_schedules_updated_at

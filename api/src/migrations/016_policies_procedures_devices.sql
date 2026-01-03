@@ -117,7 +117,7 @@ CREATE TABLE IF NOT EXISTS vehicle_devices (
 CREATE TABLE IF NOT EXISTS device_telemetry (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     vehicle_device_id UUID NOT NULL REFERENCES vehicle_devices(id) ON DELETE CASCADE,
-    timestamp TIMESTAMP NOT NULL,
+    "timestamp" TIMESTAMP NOT NULL,
     data_type VARCHAR(100), -- 'location', 'diagnostics', 'fuel', 'temperature', 'tire_pressure'
     raw_data JSONB NOT NULL,
     processed_data JSONB,
@@ -254,7 +254,7 @@ CREATE OR REPLACE VIEW v_active_vehicle_devices AS
 SELECT
     vd.id,
     vd.tenant_id,
-    v.number,
+    v."number",
     v.make,
     v.model,
     td.device_type,

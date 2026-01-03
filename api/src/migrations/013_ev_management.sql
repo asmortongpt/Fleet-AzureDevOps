@@ -45,7 +45,7 @@ CREATE TABLE IF NOT EXISTS ev_specifications (
   UNIQUE(vehicle_id)
 );
 
-CREATE INDEX idx_ev_specs_vehicle ON ev_specifications(vehicle_id);
+CREATE INDEX IF NOT EXISTS idx_ev_specs_vehicle ON ev_specifications(vehicle_id);
 
 -- ============================================================================
 -- Charging Stations (OCPP-compliant)
@@ -99,9 +99,9 @@ ALTER TABLE charging_stations ADD COLUMN IF NOT EXISTS installation_date DATE;
 ALTER TABLE charging_stations ADD COLUMN IF NOT EXISTS warranty_expiry_date DATE;
 ALTER TABLE charging_stations ADD COLUMN IF NOT EXISTS last_maintenance_date DATE;
 
-CREATE INDEX idx_charging_stations_status ON charging_stations(status);
-CREATE INDEX idx_charging_stations_online ON charging_stations(is_online);
-CREATE INDEX idx_charging_stations_facility ON charging_stations(facility_id);
+CREATE INDEX IF NOT EXISTS idx_charging_stations_status ON charging_stations(status);
+CREATE INDEX IF NOT EXISTS idx_charging_stations_online ON charging_stations(is_online);
+CREATE INDEX IF NOT EXISTS idx_charging_stations_facility ON charging_stations(facility_id);
 
 -- ============================================================================
 -- Charging Connectors (EVSE - Electric Vehicle Supply Equipment)
@@ -137,9 +137,9 @@ CREATE TABLE IF NOT EXISTS charging_connectors (
   UNIQUE(station_id, connector_id)
 );
 
-CREATE INDEX idx_connectors_station ON charging_connectors(station_id);
-CREATE INDEX idx_connectors_status ON charging_connectors(status);
-CREATE INDEX idx_connectors_vehicle ON charging_connectors(current_vehicle_id);
+CREATE INDEX IF NOT EXISTS idx_connectors_station ON charging_connectors(station_id);
+CREATE INDEX IF NOT EXISTS idx_connectors_status ON charging_connectors(status);
+CREATE INDEX IF NOT EXISTS idx_connectors_vehicle ON charging_connectors(current_vehicle_id);
 
 -- ============================================================================
 -- Charging Sessions (Transactions)
@@ -189,11 +189,11 @@ EXCEPTION
     WHEN duplicate_table OR others THEN null;
 END $$;
 
-CREATE INDEX idx_charging_sessions_vehicle ON charging_sessions(vehicle_id, start_time DESC);
-CREATE INDEX idx_charging_sessions_driver ON charging_sessions(driver_id, start_time DESC);
-CREATE INDEX idx_charging_sessions_station ON charging_sessions(station_id, start_time DESC);
-CREATE INDEX idx_charging_sessions_status ON charging_sessions(session_status);
-CREATE INDEX idx_charging_sessions_active ON charging_sessions(session_status) WHERE session_status = 'Active';
+CREATE INDEX IF NOT EXISTS idx_charging_sessions_vehicle ON charging_sessions(vehicle_id, start_time DESC);
+CREATE INDEX IF NOT EXISTS idx_charging_sessions_driver ON charging_sessions(driver_id, start_time DESC);
+CREATE INDEX IF NOT EXISTS idx_charging_sessions_station ON charging_sessions(station_id, start_time DESC);
+CREATE INDEX IF NOT EXISTS idx_charging_sessions_status ON charging_sessions(session_status);
+CREATE INDEX IF NOT EXISTS idx_charging_sessions_active ON charging_sessions(session_status) WHERE session_status = 'Active';
 
 -- ============================================================================
 -- Charging Session Meter Values (Time-series data)
@@ -203,7 +203,7 @@ CREATE TABLE IF NOT EXISTS charging_session_metrics (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   session_id UUID NOT NULL REFERENCES charging_sessions(id) ON DELETE CASCADE,
 
-  timestamp TIMESTAMP NOT NULL,
+  "timestamp" TIMESTAMP NOT NULL,
 
   -- Meter values (OCPP MeterValues)
   energy_active_import_wh INT, -- Total energy imported
@@ -222,7 +222,7 @@ CREATE TABLE IF NOT EXISTS charging_session_metrics (
   created_at TIMESTAMP DEFAULT NOW()
 );
 
-CREATE INDEX idx_session_metrics_session_time ON charging_session_metrics(session_id, timestamp DESC);
+CREATE INDEX IF NOT EXISTS idx_session_metrics_session_time ON charging_session_metrics(session_id, timestamp DESC);
 
 -- Hypertable for TimescaleDB (optional)
 -- SELECT create_hypertable('charging_session_metrics', 'timestamp', if_not_exists => TRUE);
@@ -261,10 +261,10 @@ CREATE TABLE IF NOT EXISTS charging_reservations (
   updated_at TIMESTAMP DEFAULT NOW()
 );
 
-CREATE INDEX idx_reservations_station ON charging_reservations(station_id, reservation_start);
-CREATE INDEX idx_reservations_vehicle ON charging_reservations(vehicle_id, reservation_start DESC);
-CREATE INDEX idx_reservations_driver ON charging_reservations(driver_id, reservation_start DESC);
-CREATE INDEX idx_reservations_status ON charging_reservations(status);
+CREATE INDEX IF NOT EXISTS idx_reservations_station ON charging_reservations(station_id, reservation_start);
+CREATE INDEX IF NOT EXISTS idx_reservations_vehicle ON charging_reservations(vehicle_id, reservation_start DESC);
+CREATE INDEX IF NOT EXISTS idx_reservations_driver ON charging_reservations(driver_id, reservation_start DESC);
+CREATE INDEX IF NOT EXISTS idx_reservations_status ON charging_reservations(status);
 
 -- ============================================================================
 -- Charging Schedules (Smart Charging Profiles)
@@ -308,8 +308,8 @@ CREATE TABLE IF NOT EXISTS charging_schedules (
   updated_at TIMESTAMP DEFAULT NOW()
 );
 
-CREATE INDEX idx_charging_schedules_vehicle ON charging_schedules(vehicle_id);
-CREATE INDEX idx_charging_schedules_active ON charging_schedules(is_active) WHERE is_active = true;
+CREATE INDEX IF NOT EXISTS idx_charging_schedules_vehicle ON charging_schedules(vehicle_id);
+CREATE INDEX IF NOT EXISTS idx_charging_schedules_active ON charging_schedules(is_active) WHERE is_active = true;
 
 -- ============================================================================
 -- Carbon Footprint Tracking
@@ -345,8 +345,8 @@ CREATE TABLE IF NOT EXISTS carbon_footprint_log (
   UNIQUE(vehicle_id, log_date)
 );
 
-CREATE INDEX idx_carbon_log_vehicle_date ON carbon_footprint_log(vehicle_id, log_date DESC);
-CREATE INDEX idx_carbon_log_date ON carbon_footprint_log(log_date DESC);
+CREATE INDEX IF NOT EXISTS idx_carbon_log_vehicle_date ON carbon_footprint_log(vehicle_id, log_date DESC);
+CREATE INDEX IF NOT EXISTS idx_carbon_log_date ON carbon_footprint_log(log_date DESC);
 
 -- ============================================================================
 -- ESG Reporting Data
@@ -401,7 +401,7 @@ CREATE TABLE IF NOT EXISTS esg_reports (
   UNIQUE(report_period, report_year, report_month, report_quarter)
 );
 
-CREATE INDEX idx_esg_reports_period ON esg_reports(report_year DESC, report_month DESC);
+CREATE INDEX IF NOT EXISTS idx_esg_reports_period ON esg_reports(report_year DESC, report_month DESC);
 
 -- ============================================================================
 -- Battery Health Monitoring
@@ -411,7 +411,7 @@ CREATE TABLE IF NOT EXISTS battery_health_logs (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
 
   vehicle_id UUID NOT NULL REFERENCES vehicles(id) ON DELETE CASCADE,
-  timestamp TIMESTAMP NOT NULL DEFAULT NOW(),
+  "timestamp" TIMESTAMP NOT NULL DEFAULT NOW(),
 
   -- Battery health metrics
   state_of_health_percent DECIMAL(5, 2), -- Overall battery health (0-100%)
@@ -444,8 +444,8 @@ CREATE TABLE IF NOT EXISTS battery_health_logs (
   created_at TIMESTAMP DEFAULT NOW()
 );
 
-CREATE INDEX idx_battery_health_vehicle_time ON battery_health_logs(vehicle_id, timestamp DESC);
-CREATE INDEX idx_battery_health_alerts ON battery_health_logs(requires_attention) WHERE requires_attention = true;
+CREATE INDEX IF NOT EXISTS idx_battery_health_vehicle_time ON battery_health_logs(vehicle_id, timestamp DESC);
+CREATE INDEX IF NOT EXISTS idx_battery_health_alerts ON battery_health_logs(requires_attention) WHERE requires_attention = true;
 
 -- ============================================================================
 -- OCPP Message Log (For debugging and compliance)
@@ -470,11 +470,11 @@ CREATE TABLE IF NOT EXISTS ocpp_message_log (
   error_code VARCHAR(100),
   error_description TEXT,
 
-  timestamp TIMESTAMP DEFAULT NOW()
+  "timestamp" TIMESTAMP DEFAULT NOW()
 );
 
-CREATE INDEX idx_ocpp_log_station_time ON ocpp_message_log(station_id, timestamp DESC);
-CREATE INDEX idx_ocpp_log_action ON ocpp_message_log(action, timestamp DESC);
+CREATE INDEX IF NOT EXISTS idx_ocpp_log_station_time ON ocpp_message_log(station_id, timestamp DESC);
+CREATE INDEX IF NOT EXISTS idx_ocpp_log_action ON ocpp_message_log(action, timestamp DESC);
 
 -- ============================================================================
 -- Load Management (Grid & Facility Power Management)
@@ -502,10 +502,10 @@ CREATE TABLE IF NOT EXISTS charging_load_management (
   current_electricity_rate DECIMAL(6, 4), -- Current $/kWh
   is_peak_period BOOLEAN DEFAULT false,
 
-  timestamp TIMESTAMP DEFAULT NOW()
+  "timestamp" TIMESTAMP DEFAULT NOW()
 );
 
-CREATE INDEX idx_load_mgmt_timestamp ON charging_load_management(timestamp DESC);
+CREATE INDEX IF NOT EXISTS idx_load_mgmt_timestamp ON charging_load_management(timestamp DESC);
 
 -- ============================================================================
 -- Functions & Triggers

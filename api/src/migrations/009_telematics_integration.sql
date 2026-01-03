@@ -49,9 +49,9 @@ CREATE TABLE IF NOT EXISTS vehicle_telematics_connections (
   UNIQUE(provider_id, external_vehicle_id)
 );
 
-CREATE INDEX idx_vehicle_telematics_vehicle ON vehicle_telematics_connections(vehicle_id);
-CREATE INDEX idx_vehicle_telematics_provider ON vehicle_telematics_connections(provider_id);
-CREATE INDEX idx_vehicle_telematics_status ON vehicle_telematics_connections(sync_status);
+CREATE INDEX IF NOT EXISTS idx_vehicle_telematics_vehicle ON vehicle_telematics_connections(vehicle_id);
+CREATE INDEX IF NOT EXISTS idx_vehicle_telematics_provider ON vehicle_telematics_connections(provider_id);
+CREATE INDEX IF NOT EXISTS idx_vehicle_telematics_status ON vehicle_telematics_connections(sync_status);
 
 -- ============================================================================
 -- Real-Time Vehicle Telemetry
@@ -61,7 +61,7 @@ CREATE TABLE IF NOT EXISTS vehicle_telemetry (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   vehicle_id UUID NOT NULL REFERENCES vehicles(id) ON DELETE CASCADE,
   provider_id UUID REFERENCES telematics_providers(id),
-  timestamp TIMESTAMP NOT NULL,
+  "timestamp" TIMESTAMP NOT NULL,
 
   -- Location data
   latitude DECIMAL(10, 8),
@@ -105,9 +105,9 @@ CREATE TABLE IF NOT EXISTS vehicle_telemetry (
   created_at TIMESTAMP DEFAULT NOW()
 );
 
-CREATE INDEX idx_telemetry_vehicle_time ON vehicle_telemetry(vehicle_id, timestamp DESC);
-CREATE INDEX idx_telemetry_timestamp ON vehicle_telemetry(timestamp DESC);
-CREATE INDEX idx_telemetry_provider ON vehicle_telemetry(provider_id, timestamp DESC);
+CREATE INDEX IF NOT EXISTS idx_telemetry_vehicle_time ON vehicle_telemetry(vehicle_id, timestamp DESC);
+CREATE INDEX IF NOT EXISTS idx_telemetry_timestamp ON vehicle_telemetry(timestamp DESC);
+CREATE INDEX IF NOT EXISTS idx_telemetry_provider ON vehicle_telemetry(provider_id, timestamp DESC);
 
 -- Hypertable for TimescaleDB (if using)
 -- SELECT create_hypertable('vehicle_telemetry', 'timestamp', if_not_exists => TRUE);
@@ -144,15 +144,15 @@ CREATE TABLE IF NOT EXISTS driver_safety_events (
   video_expires_at TIMESTAMP,
 
   -- Additional data
-  timestamp TIMESTAMP NOT NULL,
+  "timestamp" TIMESTAMP NOT NULL,
   raw_data JSONB,
   created_at TIMESTAMP DEFAULT NOW()
 );
 
-CREATE INDEX idx_safety_events_vehicle ON driver_safety_events(vehicle_id, timestamp DESC);
-CREATE INDEX idx_safety_events_driver ON driver_safety_events(driver_id, timestamp DESC);
-CREATE INDEX idx_safety_events_type ON driver_safety_events(event_type);
-CREATE INDEX idx_safety_events_severity ON driver_safety_events(severity);
+CREATE INDEX IF NOT EXISTS idx_safety_events_vehicle ON driver_safety_events(vehicle_id, timestamp DESC);
+CREATE INDEX IF NOT EXISTS idx_safety_events_driver ON driver_safety_events(driver_id, timestamp DESC);
+CREATE INDEX IF NOT EXISTS idx_safety_events_type ON driver_safety_events(event_type);
+CREATE INDEX IF NOT EXISTS idx_safety_events_severity ON driver_safety_events(severity);
 
 -- ============================================================================
 -- Hours of Service (HOS) Logs
@@ -186,8 +186,8 @@ CREATE TABLE IF NOT EXISTS driver_hos_logs (
   created_at TIMESTAMP DEFAULT NOW()
 );
 
-CREATE INDEX idx_hos_driver_date ON driver_hos_logs(driver_id, log_date DESC);
-CREATE INDEX idx_hos_violations ON driver_hos_logs(has_violations) WHERE has_violations = true;
+CREATE INDEX IF NOT EXISTS idx_hos_driver_date ON driver_hos_logs(driver_id, log_date DESC);
+CREATE INDEX IF NOT EXISTS idx_hos_violations ON driver_hos_logs(has_violations) WHERE has_violations = true;
 
 -- ============================================================================
 -- Vehicle Diagnostics & Maintenance
@@ -214,8 +214,8 @@ CREATE TABLE IF NOT EXISTS vehicle_diagnostic_codes (
   created_at TIMESTAMP DEFAULT NOW()
 );
 
-CREATE INDEX idx_diagnostic_codes_vehicle ON vehicle_diagnostic_codes(vehicle_id, last_detected_at DESC);
-CREATE INDEX idx_diagnostic_codes_active ON vehicle_diagnostic_codes(vehicle_id) WHERE cleared_at IS NULL;
+CREATE INDEX IF NOT EXISTS idx_diagnostic_codes_vehicle ON vehicle_diagnostic_codes(vehicle_id, last_detected_at DESC);
+CREATE INDEX IF NOT EXISTS idx_diagnostic_codes_active ON vehicle_diagnostic_codes(vehicle_id) WHERE cleared_at IS NULL;
 
 -- ============================================================================
 -- Geofences
@@ -241,7 +241,7 @@ ALTER TABLE geofences ADD COLUMN IF NOT EXISTS dwell_threshold_minutes INT;
 ALTER TABLE geofences ADD COLUMN IF NOT EXISTS created_by UUID REFERENCES users(id);
 ALTER TABLE geofences ADD COLUMN IF NOT EXISTS updated_at TIMESTAMP DEFAULT NOW();
 
-CREATE INDEX idx_geofences_type ON geofences(geofence_type);
+CREATE INDEX IF NOT EXISTS idx_geofences_type ON geofences(geofence_type);
 
 -- ============================================================================
 -- Geofence Events
@@ -262,14 +262,14 @@ CREATE TABLE IF NOT EXISTS geofence_events (
   longitude DECIMAL(11, 8),
 
   -- Timestamps
-  timestamp TIMESTAMP NOT NULL,
+  "timestamp" TIMESTAMP NOT NULL,
   dwell_duration_minutes INT,
 
   created_at TIMESTAMP DEFAULT NOW()
 );
 
-CREATE INDEX idx_geofence_events_vehicle ON geofence_events(vehicle_id, timestamp DESC);
-CREATE INDEX idx_geofence_events_geofence ON geofence_events(geofence_id, timestamp DESC);
+CREATE INDEX IF NOT EXISTS idx_geofence_events_vehicle ON geofence_events(vehicle_id, timestamp DESC);
+CREATE INDEX IF NOT EXISTS idx_geofence_events_geofence ON geofence_events(geofence_id, timestamp DESC);
 
 -- ============================================================================
 -- Driver Behavior Scores
@@ -310,7 +310,7 @@ CREATE TABLE IF NOT EXISTS driver_behavior_scores (
   UNIQUE(driver_id, score_date, score_type)
 );
 
-CREATE INDEX idx_behavior_scores_driver_date ON driver_behavior_scores(driver_id, score_date DESC);
+CREATE INDEX IF NOT EXISTS idx_behavior_scores_driver_date ON driver_behavior_scores(driver_id, score_date DESC);
 
 -- ============================================================================
 -- Webhook Event Log
@@ -328,8 +328,8 @@ CREATE TABLE IF NOT EXISTS telematics_webhook_events (
   created_at TIMESTAMP DEFAULT NOW()
 );
 
-CREATE INDEX idx_webhook_events_processed ON telematics_webhook_events(processed, created_at);
-CREATE INDEX idx_webhook_events_provider_type ON telematics_webhook_events(provider_id, event_type);
+CREATE INDEX IF NOT EXISTS idx_webhook_events_processed ON telematics_webhook_events(processed, created_at);
+CREATE INDEX IF NOT EXISTS idx_webhook_events_provider_type ON telematics_webhook_events(provider_id, event_type);
 
 -- ============================================================================
 -- Functions & Triggers

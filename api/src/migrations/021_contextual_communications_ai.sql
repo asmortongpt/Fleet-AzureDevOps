@@ -302,7 +302,7 @@ CREATE TABLE IF NOT EXISTS call_recordings (
 
     -- Compliance
     consent_obtained BOOLEAN DEFAULT FALSE,
-    consent_timestamp TIMESTAMP,
+    consent_"timestamp" TIMESTAMP,
     retention_until DATE,
 
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
@@ -398,7 +398,7 @@ $$ LANGUAGE plpgsql;
 CREATE OR REPLACE VIEW v_vehicle_communications AS
 SELECT
     c.*,
-    v.number,
+    v."number",
     v.make,
     v.model,
     cel.link_type,

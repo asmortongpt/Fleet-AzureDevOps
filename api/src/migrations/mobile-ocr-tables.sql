@@ -20,10 +20,10 @@ CREATE TABLE IF NOT EXISTS odometer_readings (
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
-CREATE INDEX idx_odometer_readings_tenant ON odometer_readings(tenant_id);
-CREATE INDEX idx_odometer_readings_vehicle ON odometer_readings(vehicle_id);
-CREATE INDEX idx_odometer_readings_date ON odometer_readings(reading_date DESC);
-CREATE INDEX idx_odometer_readings_trip ON odometer_readings(trip_id);
+CREATE INDEX IF NOT EXISTS idx_odometer_readings_tenant ON odometer_readings(tenant_id);
+CREATE INDEX IF NOT EXISTS idx_odometer_readings_vehicle ON odometer_readings(vehicle_id);
+CREATE INDEX IF NOT EXISTS idx_odometer_readings_date ON odometer_readings(reading_date DESC);
+CREATE INDEX IF NOT EXISTS idx_odometer_readings_trip ON odometer_readings(trip_id);
 
 -- Mobile OCR captures table (metadata for all OCR captures)
 CREATE TABLE IF NOT EXISTS mobile_ocr_captures (
@@ -41,11 +41,11 @@ CREATE TABLE IF NOT EXISTS mobile_ocr_captures (
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
-CREATE INDEX idx_mobile_ocr_tenant ON mobile_ocr_captures(tenant_id);
-CREATE INDEX idx_mobile_ocr_user ON mobile_ocr_captures(user_id);
-CREATE INDEX idx_mobile_ocr_type ON mobile_ocr_captures(capture_type);
-CREATE INDEX idx_mobile_ocr_document ON mobile_ocr_captures(document_id);
-CREATE INDEX idx_mobile_ocr_created ON mobile_ocr_captures(created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_mobile_ocr_tenant ON mobile_ocr_captures(tenant_id);
+CREATE INDEX IF NOT EXISTS idx_mobile_ocr_user ON mobile_ocr_captures(user_id);
+CREATE INDEX IF NOT EXISTS idx_mobile_ocr_type ON mobile_ocr_captures(capture_type);
+CREATE INDEX IF NOT EXISTS idx_mobile_ocr_document ON mobile_ocr_captures(document_id);
+CREATE INDEX IF NOT EXISTS idx_mobile_ocr_created ON mobile_ocr_captures(created_at DESC);
 
 -- Add columns to vehicles table if not exists
 DO $$
@@ -89,8 +89,8 @@ CREATE TRIGGER trigger_update_mobile_ocr_timestamp
     EXECUTE FUNCTION update_mobile_ocr_timestamp();
 
 -- Grants for mobile app users (adjust roles as needed)
-GRANT SELECT, INSERT, UPDATE ON odometer_readings TO authenticated_users;
-GRANT SELECT, INSERT ON mobile_ocr_captures TO authenticated_users;
+-- GRANT SELECT, INSERT, UPDATE ON odometer_readings TO authenticated_users;
+-- GRANT SELECT, INSERT ON mobile_ocr_captures TO authenticated_users;
 
 -- Comments
 COMMENT ON TABLE odometer_readings IS 'Stores all odometer readings from various sources including OCR captures';

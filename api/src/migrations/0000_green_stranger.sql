@@ -517,10 +517,10 @@ CREATE TABLE "telemetry_data" (
 	"engine_temperature" numeric(5, 2),
 	"battery_voltage" numeric(4, 2),
 	"fuel_consumption_rate" numeric(6, 2),
-	"tire_pressure_front_left" numeric(4, 1),
-	"tire_pressure_front_right" numeric(4, 1),
-	"tire_pressure_rear_left" numeric(4, 1),
-	"tire_pressure_rear_right" numeric(4, 1),
+	"tire_pressure_front_left" numeric(4, (SELECT id FROM tenants LIMIT 1)),
+	"tire_pressure_front_right" numeric(4, (SELECT id FROM tenants LIMIT 1)),
+	"tire_pressure_rear_left" numeric(4, (SELECT id FROM tenants LIMIT 1)),
+	"tire_pressure_rear_right" numeric(4, (SELECT id FROM tenants LIMIT 1)),
 	"oil_pressure" numeric(5, 2),
 	"transmission_temperature" numeric(5, 2),
 	"diagnostic_codes" jsonb,
@@ -731,93 +731,93 @@ ALTER TABLE "vehicles" ADD CONSTRAINT "vehicles_tenant_id_tenants_id_fk" FOREIGN
 ALTER TABLE "vendors" ADD CONSTRAINT "vendors_tenant_id_tenants_id_fk" FOREIGN KEY ("tenant_id") REFERENCES "public"."tenants"("id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "work_orders" ADD CONSTRAINT "work_orders_tenant_id_tenants_id_fk" FOREIGN KEY ("tenant_id") REFERENCES "public"."tenants"("id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "work_orders" ADD CONSTRAINT "work_orders_vehicle_id_vehicles_id_fk" FOREIGN KEY ("vehicle_id") REFERENCES "public"."vehicles"("id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
-CREATE INDEX "announcements_published_at_idx" ON "announcements" USING btree ("published_at");--> statement-breakpoint
-CREATE INDEX "announcements_expires_at_idx" ON "announcements" USING btree ("expires_at");--> statement-breakpoint
-CREATE UNIQUE INDEX "assets_tenant_asset_number_idx" ON "assets" USING btree ("tenant_id","asset_number");--> statement-breakpoint
-CREATE INDEX "assets_type_idx" ON "assets" USING btree ("type");--> statement-breakpoint
-CREATE INDEX "assets_status_idx" ON "assets" USING btree ("status");--> statement-breakpoint
-CREATE INDEX "assets_facility_idx" ON "assets" USING btree ("assigned_facility_id");--> statement-breakpoint
-CREATE INDEX "audit_logs_tenant_idx" ON "audit_logs" USING btree ("tenant_id");--> statement-breakpoint
-CREATE INDEX "audit_logs_user_idx" ON "audit_logs" USING btree ("user_id");--> statement-breakpoint
-CREATE INDEX "audit_logs_entity_idx" ON "audit_logs" USING btree ("entity_type","entity_id");--> statement-breakpoint
-CREATE INDEX "audit_logs_created_at_idx" ON "audit_logs" USING btree ("created_at");--> statement-breakpoint
-CREATE INDEX "certifications_driver_idx" ON "certifications" USING btree ("driver_id");--> statement-breakpoint
-CREATE INDEX "certifications_type_idx" ON "certifications" USING btree ("type");--> statement-breakpoint
-CREATE INDEX "certifications_expiry_idx" ON "certifications" USING btree ("expiry_date");--> statement-breakpoint
-CREATE INDEX "charging_sessions_vehicle_idx" ON "charging_sessions" USING btree ("vehicle_id");--> statement-breakpoint
-CREATE INDEX "charging_sessions_station_idx" ON "charging_sessions" USING btree ("station_id");--> statement-breakpoint
-CREATE INDEX "charging_sessions_start_time_idx" ON "charging_sessions" USING btree ("start_time");--> statement-breakpoint
-CREATE INDEX "charging_stations_facility_idx" ON "charging_stations" USING btree ("facility_id");--> statement-breakpoint
-CREATE INDEX "charging_stations_location_idx" ON "charging_stations" USING btree ("latitude","longitude");--> statement-breakpoint
-CREATE INDEX "dispatches_route_idx" ON "dispatches" USING btree ("route_id");--> statement-breakpoint
-CREATE INDEX "dispatches_vehicle_idx" ON "dispatches" USING btree ("vehicle_id");--> statement-breakpoint
-CREATE INDEX "dispatches_driver_idx" ON "dispatches" USING btree ("driver_id");--> statement-breakpoint
-CREATE INDEX "dispatches_status_idx" ON "dispatches" USING btree ("status");--> statement-breakpoint
-CREATE INDEX "dispatches_dispatched_at_idx" ON "dispatches" USING btree ("dispatched_at");--> statement-breakpoint
-CREATE INDEX "documents_type_idx" ON "documents" USING btree ("type");--> statement-breakpoint
-CREATE INDEX "documents_related_entity_idx" ON "documents" USING btree ("related_entity_type","related_entity_id");--> statement-breakpoint
-CREATE INDEX "documents_uploaded_by_idx" ON "documents" USING btree ("uploaded_by_id");--> statement-breakpoint
-CREATE UNIQUE INDEX "drivers_tenant_license_idx" ON "drivers" USING btree ("tenant_id","license_number");--> statement-breakpoint
-CREATE INDEX "drivers_tenant_employee_numberx" ON "drivers" USING btree ("tenant_id","employee_number");--> statement-breakpoint
-CREATE INDEX "drivers_status_idx" ON "drivers" USING btree ("status");--> statement-breakpoint
-CREATE UNIQUE INDEX "facilities_tenant_code_idx" ON "facilities" USING btree ("tenant_id","code");--> statement-breakpoint
-CREATE INDEX "facilities_location_idx" ON "facilities" USING btree ("latitude","longitude");--> statement-breakpoint
-CREATE INDEX "fuel_transactions_vehicle_idx" ON "fuel_transactions" USING btree ("vehicle_id");--> statement-breakpoint
-CREATE INDEX "fuel_transactions_driver_idx" ON "fuel_transactions" USING btree ("driver_id");--> statement-breakpoint
-CREATE INDEX "fuel_transactions_date_idx" ON "fuel_transactions" USING btree ("transaction_date");--> statement-breakpoint
-CREATE INDEX "geofences_facility_idx" ON "geofences" USING btree ("facility_id");--> statement-breakpoint
-CREATE INDEX "geofences_location_idx" ON "geofences" USING btree ("center_lat","center_lng");--> statement-breakpoint
-CREATE INDEX "gps_tracks_vehicle_idx" ON "gps_tracks" USING btree ("vehicle_id");--> statement-breakpoint
-CREATE INDEX "gps_tracks_timestamp_idx" ON "gps_tracks" USING btree ("timestamp");--> statement-breakpoint
-CREATE INDEX "gps_tracks_location_idx" ON "gps_tracks" USING btree ("latitude","longitude");--> statement-breakpoint
-CREATE UNIQUE INDEX "incidents_tenant_number_idx" ON "incidents" USING btree ("tenant_id","number");--> statement-breakpoint
-CREATE INDEX "incidents_vehicle_idx" ON "incidents" USING btree ("vehicle_id");--> statement-breakpoint
-CREATE INDEX "incidents_driver_idx" ON "incidents" USING btree ("driver_id");--> statement-breakpoint
-CREATE INDEX "incidents_date_idx" ON "incidents" USING btree ("incident_date");--> statement-breakpoint
-CREATE INDEX "incidents_severity_idx" ON "incidents" USING btree ("severity");--> statement-breakpoint
-CREATE INDEX "inspections_vehicle_idx" ON "inspections" USING btree ("vehicle_id");--> statement-breakpoint
-CREATE INDEX "inspections_driver_idx" ON "inspections" USING btree ("driver_id");--> statement-breakpoint
-CREATE INDEX "inspections_type_idx" ON "inspections" USING btree ("type");--> statement-breakpoint
-CREATE INDEX "inspections_started_at_idx" ON "inspections" USING btree ("started_at");--> statement-breakpoint
-CREATE UNIQUE INDEX "invoices_tenant_number_idx" ON "invoices" USING btree ("tenant_id","number");--> statement-breakpoint
-CREATE INDEX "invoices_vendor_idx" ON "invoices" USING btree ("vendor_id");--> statement-breakpoint
-CREATE INDEX "invoices_status_idx" ON "invoices" USING btree ("status");--> statement-breakpoint
-CREATE INDEX "invoices_invoice_date_idx" ON "invoices" USING btree ("invoice_date");--> statement-breakpoint
-CREATE INDEX "maintenance_schedules_vehicle_idx" ON "maintenance_schedules" USING btree ("vehicle_id");--> statement-breakpoint
-CREATE INDEX "maintenance_schedules_next_service_idx" ON "maintenance_schedules" USING btree ("next_service_date");--> statement-breakpoint
-CREATE INDEX "notifications_user_idx" ON "notifications" USING btree ("user_id");--> statement-breakpoint
-CREATE INDEX "notifications_is_read_idx" ON "notifications" USING btree ("is_read");--> statement-breakpoint
-CREATE INDEX "notifications_sent_at_idx" ON "notifications" USING btree ("sent_at");--> statement-breakpoint
-CREATE UNIQUE INDEX "parts_inventory_tenant_part_number_idx" ON "parts_inventory" USING btree ("tenant_id","part_number");--> statement-breakpoint
-CREATE INDEX "parts_inventory_category_idx" ON "parts_inventory" USING btree ("category");--> statement-breakpoint
-CREATE INDEX "parts_inventory_facility_idx" ON "parts_inventory" USING btree ("facility_id");--> statement-breakpoint
-CREATE UNIQUE INDEX "purchase_orders_tenant_number_idx" ON "purchase_orders" USING btree ("tenant_id","number");--> statement-breakpoint
-CREATE INDEX "purchase_orders_vendor_idx" ON "purchase_orders" USING btree ("vendor_id");--> statement-breakpoint
-CREATE INDEX "purchase_orders_status_idx" ON "purchase_orders" USING btree ("status");--> statement-breakpoint
-CREATE INDEX "purchase_orders_order_date_idx" ON "purchase_orders" USING btree ("order_date");--> statement-breakpoint
-CREATE INDEX "routes_tenant_number_idx" ON "routes" USING btree ("tenant_id","number");--> statement-breakpoint
-CREATE INDEX "routes_vehicle_idx" ON "routes" USING btree ("assigned_vehicle_id");--> statement-breakpoint
-CREATE INDEX "routes_driver_idx" ON "routes" USING btree ("assigned_driver_id");--> statement-breakpoint
-CREATE INDEX "routes_status_idx" ON "routes" USING btree ("status");--> statement-breakpoint
-CREATE INDEX "tasks_assigned_to_idx" ON "tasks" USING btree ("assigned_to_id");--> statement-breakpoint
-CREATE INDEX "tasks_status_idx" ON "tasks" USING btree ("status");--> statement-breakpoint
-CREATE INDEX "tasks_due_date_idx" ON "tasks" USING btree ("due_date");--> statement-breakpoint
-CREATE INDEX "telemetry_data_vehicle_idx" ON "telemetry_data" USING btree ("vehicle_id");--> statement-breakpoint
-CREATE INDEX "telemetry_data_timestamp_idx" ON "telemetry_data" USING btree ("timestamp");--> statement-breakpoint
-CREATE UNIQUE INDEX "tenants_slug_idx" ON "tenants" USING btree ("slug");--> statement-breakpoint
-CREATE INDEX "tenants_domain_idx" ON "tenants" USING btree ("domain");--> statement-breakpoint
-CREATE INDEX "training_records_driver_idx" ON "training_records" USING btree ("driver_id");--> statement-breakpoint
-CREATE INDEX "training_records_type_idx" ON "training_records" USING btree ("training_type");--> statement-breakpoint
-CREATE INDEX "training_records_date_idx" ON "training_records" USING btree ("start_date");--> statement-breakpoint
-CREATE UNIQUE INDEX "users_tenant_email_idx" ON "users" USING btree ("tenant_id","email");--> statement-breakpoint
-CREATE INDEX "users_azure_ad_idx" ON "users" USING btree ("azure_ad_object_id");--> statement-breakpoint
-CREATE UNIQUE INDEX "vehicles_tenant_vin_idx" ON "vehicles" USING btree ("tenant_id","vin");--> statement-breakpoint
-CREATE UNIQUE INDEX "vehicles_tenant_number_idx" ON "vehicles" USING btree ("tenant_id","number");--> statement-breakpoint
-CREATE INDEX "vehicles_status_idx" ON "vehicles" USING btree ("status");--> statement-breakpoint
-CREATE INDEX "vehicles_location_idx" ON "vehicles" USING btree ("latitude","longitude");--> statement-breakpoint
-CREATE INDEX "vendors_tenant_code_idx" ON "vendors" USING btree ("tenant_id","code");--> statement-breakpoint
-CREATE INDEX "vendors_type_idx" ON "vendors" USING btree ("type");--> statement-breakpoint
-CREATE UNIQUE INDEX "work_orders_tenant_number_idx" ON "work_orders" USING btree ("tenant_id","number");--> statement-breakpoint
-CREATE INDEX "work_orders_vehicle_idx" ON "work_orders" USING btree ("vehicle_id");--> statement-breakpoint
-CREATE INDEX "work_orders_status_idx" ON "work_orders" USING btree ("status");--> statement-breakpoint
-CREATE INDEX "work_orders_priority_idx" ON "work_orders" USING btree ("priority");
+CREATE INDEX IF NOT EXISTS "announcements_published_at_idx" ON "announcements" USING btree ("published_at");--> statement-breakpoint
+CREATE INDEX IF NOT EXISTS "announcements_expires_at_idx" ON "announcements" USING btree ("expires_at");--> statement-breakpoint
+CREATE UNIQUE INDEX IF NOT EXISTS "assets_tenant_asset_number_idx" ON "assets" USING btree ("tenant_id","asset_number");--> statement-breakpoint
+CREATE INDEX IF NOT EXISTS "assets_type_idx" ON "assets" USING btree ("type");--> statement-breakpoint
+CREATE INDEX IF NOT EXISTS "assets_status_idx" ON "assets" USING btree ("status");--> statement-breakpoint
+CREATE INDEX IF NOT EXISTS "assets_facility_idx" ON "assets" USING btree ("assigned_facility_id");--> statement-breakpoint
+CREATE INDEX IF NOT EXISTS "audit_logs_tenant_idx" ON "audit_logs" USING btree ("tenant_id");--> statement-breakpoint
+CREATE INDEX IF NOT EXISTS "audit_logs_user_idx" ON "audit_logs" USING btree ("user_id");--> statement-breakpoint
+CREATE INDEX IF NOT EXISTS "audit_logs_entity_idx" ON "audit_logs" USING btree ("entity_type","entity_id");--> statement-breakpoint
+CREATE INDEX IF NOT EXISTS "audit_logs_created_at_idx" ON "audit_logs" USING btree ("created_at");--> statement-breakpoint
+CREATE INDEX IF NOT EXISTS "certifications_driver_idx" ON "certifications" USING btree ("driver_id");--> statement-breakpoint
+CREATE INDEX IF NOT EXISTS "certifications_type_idx" ON "certifications" USING btree ("type");--> statement-breakpoint
+CREATE INDEX IF NOT EXISTS "certifications_expiry_idx" ON "certifications" USING btree ("expiry_date");--> statement-breakpoint
+CREATE INDEX IF NOT EXISTS "charging_sessions_vehicle_idx" ON "charging_sessions" USING btree ("vehicle_id");--> statement-breakpoint
+CREATE INDEX IF NOT EXISTS "charging_sessions_station_idx" ON "charging_sessions" USING btree ("station_id");--> statement-breakpoint
+CREATE INDEX IF NOT EXISTS "charging_sessions_start_time_idx" ON "charging_sessions" USING btree ("start_time");--> statement-breakpoint
+CREATE INDEX IF NOT EXISTS "charging_stations_facility_idx" ON "charging_stations" USING btree ("facility_id");--> statement-breakpoint
+CREATE INDEX IF NOT EXISTS "charging_stations_location_idx" ON "charging_stations" USING btree ("latitude","longitude");--> statement-breakpoint
+CREATE INDEX IF NOT EXISTS "dispatches_route_idx" ON "dispatches" USING btree ("route_id");--> statement-breakpoint
+CREATE INDEX IF NOT EXISTS "dispatches_vehicle_idx" ON "dispatches" USING btree ("vehicle_id");--> statement-breakpoint
+CREATE INDEX IF NOT EXISTS "dispatches_driver_idx" ON "dispatches" USING btree ("driver_id");--> statement-breakpoint
+CREATE INDEX IF NOT EXISTS "dispatches_status_idx" ON "dispatches" USING btree ("status");--> statement-breakpoint
+CREATE INDEX IF NOT EXISTS "dispatches_dispatched_at_idx" ON "dispatches" USING btree ("dispatched_at");--> statement-breakpoint
+CREATE INDEX IF NOT EXISTS "documents_type_idx" ON "documents" USING btree ("type");--> statement-breakpoint
+CREATE INDEX IF NOT EXISTS "documents_related_entity_idx" ON "documents" USING btree ("related_entity_type","related_entity_id");--> statement-breakpoint
+CREATE INDEX IF NOT EXISTS "documents_uploaded_by_idx" ON "documents" USING btree ("uploaded_by_id");--> statement-breakpoint
+CREATE UNIQUE INDEX IF NOT EXISTS "drivers_tenant_license_idx" ON "drivers" USING btree ("tenant_id","license_number");--> statement-breakpoint
+CREATE INDEX IF NOT EXISTS "drivers_tenant_employee_numberx" ON "drivers" USING btree ("tenant_id","employee_number");--> statement-breakpoint
+CREATE INDEX IF NOT EXISTS "drivers_status_idx" ON "drivers" USING btree ("status");--> statement-breakpoint
+CREATE UNIQUE INDEX IF NOT EXISTS "facilities_tenant_code_idx" ON "facilities" USING btree ("tenant_id","code");--> statement-breakpoint
+CREATE INDEX IF NOT EXISTS "facilities_location_idx" ON "facilities" USING btree ("latitude","longitude");--> statement-breakpoint
+CREATE INDEX IF NOT EXISTS "fuel_transactions_vehicle_idx" ON "fuel_transactions" USING btree ("vehicle_id");--> statement-breakpoint
+CREATE INDEX IF NOT EXISTS "fuel_transactions_driver_idx" ON "fuel_transactions" USING btree ("driver_id");--> statement-breakpoint
+CREATE INDEX IF NOT EXISTS "fuel_transactions_date_idx" ON "fuel_transactions" USING btree ("transaction_date");--> statement-breakpoint
+CREATE INDEX IF NOT EXISTS "geofences_facility_idx" ON "geofences" USING btree ("facility_id");--> statement-breakpoint
+CREATE INDEX IF NOT EXISTS "geofences_location_idx" ON "geofences" USING btree ("center_lat","center_lng");--> statement-breakpoint
+CREATE INDEX IF NOT EXISTS "gps_tracks_vehicle_idx" ON "gps_tracks" USING btree ("vehicle_id");--> statement-breakpoint
+CREATE INDEX IF NOT EXISTS "gps_tracks_timestamp_idx" ON "gps_tracks" USING btree ("timestamp");--> statement-breakpoint
+CREATE INDEX IF NOT EXISTS "gps_tracks_location_idx" ON "gps_tracks" USING btree ("latitude","longitude");--> statement-breakpoint
+CREATE UNIQUE INDEX IF NOT EXISTS "incidents_tenant_number_idx" ON "incidents" USING btree ("tenant_id","number");--> statement-breakpoint
+CREATE INDEX IF NOT EXISTS "incidents_vehicle_idx" ON "incidents" USING btree ("vehicle_id");--> statement-breakpoint
+CREATE INDEX IF NOT EXISTS "incidents_driver_idx" ON "incidents" USING btree ("driver_id");--> statement-breakpoint
+CREATE INDEX IF NOT EXISTS "incidents_date_idx" ON "incidents" USING btree ("incident_date");--> statement-breakpoint
+CREATE INDEX IF NOT EXISTS "incidents_severity_idx" ON "incidents" USING btree ("severity");--> statement-breakpoint
+CREATE INDEX IF NOT EXISTS "inspections_vehicle_idx" ON "inspections" USING btree ("vehicle_id");--> statement-breakpoint
+CREATE INDEX IF NOT EXISTS "inspections_driver_idx" ON "inspections" USING btree ("driver_id");--> statement-breakpoint
+CREATE INDEX IF NOT EXISTS "inspections_type_idx" ON "inspections" USING btree ("type");--> statement-breakpoint
+CREATE INDEX IF NOT EXISTS "inspections_started_at_idx" ON "inspections" USING btree ("started_at");--> statement-breakpoint
+CREATE UNIQUE INDEX IF NOT EXISTS "invoices_tenant_number_idx" ON "invoices" USING btree ("tenant_id","number");--> statement-breakpoint
+CREATE INDEX IF NOT EXISTS "invoices_vendor_idx" ON "invoices" USING btree ("vendor_id");--> statement-breakpoint
+CREATE INDEX IF NOT EXISTS "invoices_status_idx" ON "invoices" USING btree ("status");--> statement-breakpoint
+CREATE INDEX IF NOT EXISTS "invoices_invoice_date_idx" ON "invoices" USING btree ("invoice_date");--> statement-breakpoint
+CREATE INDEX IF NOT EXISTS "maintenance_schedules_vehicle_idx" ON "maintenance_schedules" USING btree ("vehicle_id");--> statement-breakpoint
+CREATE INDEX IF NOT EXISTS "maintenance_schedules_next_service_idx" ON "maintenance_schedules" USING btree ("next_service_date");--> statement-breakpoint
+CREATE INDEX IF NOT EXISTS "notifications_user_idx" ON "notifications" USING btree ("user_id");--> statement-breakpoint
+CREATE INDEX IF NOT EXISTS "notifications_is_read_idx" ON "notifications" USING btree ("is_read");--> statement-breakpoint
+CREATE INDEX IF NOT EXISTS "notifications_sent_at_idx" ON "notifications" USING btree ("sent_at");--> statement-breakpoint
+CREATE UNIQUE INDEX IF NOT EXISTS "parts_inventory_tenant_part_number_idx" ON "parts_inventory" USING btree ("tenant_id","part_number");--> statement-breakpoint
+CREATE INDEX IF NOT EXISTS "parts_inventory_category_idx" ON "parts_inventory" USING btree ("category");--> statement-breakpoint
+CREATE INDEX IF NOT EXISTS "parts_inventory_facility_idx" ON "parts_inventory" USING btree ("facility_id");--> statement-breakpoint
+CREATE UNIQUE INDEX IF NOT EXISTS "purchase_orders_tenant_number_idx" ON "purchase_orders" USING btree ("tenant_id","number");--> statement-breakpoint
+CREATE INDEX IF NOT EXISTS "purchase_orders_vendor_idx" ON "purchase_orders" USING btree ("vendor_id");--> statement-breakpoint
+CREATE INDEX IF NOT EXISTS "purchase_orders_status_idx" ON "purchase_orders" USING btree ("status");--> statement-breakpoint
+CREATE INDEX IF NOT EXISTS "purchase_orders_order_date_idx" ON "purchase_orders" USING btree ("order_date");--> statement-breakpoint
+CREATE INDEX IF NOT EXISTS "routes_tenant_number_idx" ON "routes" USING btree ("tenant_id","number");--> statement-breakpoint
+CREATE INDEX IF NOT EXISTS "routes_vehicle_idx" ON "routes" USING btree ("assigned_vehicle_id");--> statement-breakpoint
+CREATE INDEX IF NOT EXISTS "routes_driver_idx" ON "routes" USING btree ("assigned_driver_id");--> statement-breakpoint
+CREATE INDEX IF NOT EXISTS "routes_status_idx" ON "routes" USING btree ("status");--> statement-breakpoint
+CREATE INDEX IF NOT EXISTS "tasks_assigned_to_idx" ON "tasks" USING btree ("assigned_to_id");--> statement-breakpoint
+CREATE INDEX IF NOT EXISTS "tasks_status_idx" ON "tasks" USING btree ("status");--> statement-breakpoint
+CREATE INDEX IF NOT EXISTS "tasks_due_date_idx" ON "tasks" USING btree ("due_date");--> statement-breakpoint
+CREATE INDEX IF NOT EXISTS "telemetry_data_vehicle_idx" ON "telemetry_data" USING btree ("vehicle_id");--> statement-breakpoint
+CREATE INDEX IF NOT EXISTS "telemetry_data_timestamp_idx" ON "telemetry_data" USING btree ("timestamp");--> statement-breakpoint
+CREATE UNIQUE INDEX IF NOT EXISTS "tenants_slug_idx" ON "tenants" USING btree ("slug");--> statement-breakpoint
+CREATE INDEX IF NOT EXISTS "tenants_domain_idx" ON "tenants" USING btree ("domain");--> statement-breakpoint
+CREATE INDEX IF NOT EXISTS "training_records_driver_idx" ON "training_records" USING btree ("driver_id");--> statement-breakpoint
+CREATE INDEX IF NOT EXISTS "training_records_type_idx" ON "training_records" USING btree ("training_type");--> statement-breakpoint
+CREATE INDEX IF NOT EXISTS "training_records_date_idx" ON "training_records" USING btree ("start_date");--> statement-breakpoint
+CREATE UNIQUE INDEX IF NOT EXISTS "users_tenant_email_idx" ON "users" USING btree ("tenant_id","email");--> statement-breakpoint
+CREATE INDEX IF NOT EXISTS "users_azure_ad_idx" ON "users" USING btree ("azure_ad_object_id");--> statement-breakpoint
+CREATE UNIQUE INDEX IF NOT EXISTS "vehicles_tenant_vin_idx" ON "vehicles" USING btree ("tenant_id","vin");--> statement-breakpoint
+CREATE UNIQUE INDEX IF NOT EXISTS "vehicles_tenant_number_idx" ON "vehicles" USING btree ("tenant_id","number");--> statement-breakpoint
+CREATE INDEX IF NOT EXISTS "vehicles_status_idx" ON "vehicles" USING btree ("status");--> statement-breakpoint
+CREATE INDEX IF NOT EXISTS "vehicles_location_idx" ON "vehicles" USING btree ("latitude","longitude");--> statement-breakpoint
+CREATE INDEX IF NOT EXISTS "vendors_tenant_code_idx" ON "vendors" USING btree ("tenant_id","code");--> statement-breakpoint
+CREATE INDEX IF NOT EXISTS "vendors_type_idx" ON "vendors" USING btree ("type");--> statement-breakpoint
+CREATE UNIQUE INDEX IF NOT EXISTS "work_orders_tenant_number_idx" ON "work_orders" USING btree ("tenant_id","number");--> statement-breakpoint
+CREATE INDEX IF NOT EXISTS "work_orders_vehicle_idx" ON "work_orders" USING btree ("vehicle_id");--> statement-breakpoint
+CREATE INDEX IF NOT EXISTS "work_orders_status_idx" ON "work_orders" USING btree ("status");--> statement-breakpoint
+CREATE INDEX IF NOT EXISTS "work_orders_priority_idx" ON "work_orders" USING btree ("priority");

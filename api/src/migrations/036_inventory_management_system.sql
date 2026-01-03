@@ -85,21 +85,21 @@ CREATE TABLE IF NOT EXISTS inventory_items (
 );
 
 -- Indexes for performance
-CREATE INDEX idx_inventory_items_tenant ON inventory_items(tenant_id);
-CREATE INDEX idx_inventory_items_sku ON inventory_items(sku);
-CREATE INDEX idx_inventory_items_part_number ON inventory_items(part_number);
-CREATE INDEX idx_inventory_items_category ON inventory_items(category);
-CREATE INDEX idx_inventory_items_manufacturer ON inventory_items(manufacturer);
-CREATE INDEX idx_inventory_items_supplier ON inventory_items(primary_supplier_id);
-CREATE INDEX idx_inventory_items_active ON inventory_items(is_active) WHERE is_active = true;
-CREATE INDEX idx_inventory_items_low_stock ON inventory_items(quantity_on_hand, reorder_point)
+CREATE INDEX IF NOT EXISTS idx_inventory_items_tenant ON inventory_items(tenant_id);
+CREATE INDEX IF NOT EXISTS idx_inventory_items_sku ON inventory_items(sku);
+CREATE INDEX IF NOT EXISTS idx_inventory_items_part_number ON inventory_items(part_number);
+CREATE INDEX IF NOT EXISTS idx_inventory_items_category ON inventory_items(category);
+CREATE INDEX IF NOT EXISTS idx_inventory_items_manufacturer ON inventory_items(manufacturer);
+CREATE INDEX IF NOT EXISTS idx_inventory_items_supplier ON inventory_items(primary_supplier_id);
+CREATE INDEX IF NOT EXISTS idx_inventory_items_active ON inventory_items(is_active) WHERE is_active = true;
+CREATE INDEX IF NOT EXISTS idx_inventory_items_low_stock ON inventory_items(quantity_on_hand, reorder_point)
     WHERE quantity_on_hand <= reorder_point AND is_active = true;
-CREATE INDEX idx_inventory_items_compatibility ON inventory_items USING GIN (compatible_makes, compatible_models);
-CREATE INDEX idx_inventory_items_universal_part ON inventory_items(universal_part_number)
+CREATE INDEX IF NOT EXISTS idx_inventory_items_compatibility ON inventory_items USING GIN (compatible_makes, compatible_models);
+CREATE INDEX IF NOT EXISTS idx_inventory_items_universal_part ON inventory_items(universal_part_number)
     WHERE universal_part_number IS NOT NULL;
 
 -- Full text search
-CREATE INDEX idx_inventory_items_search ON inventory_items
+CREATE INDEX IF NOT EXISTS idx_inventory_items_search ON inventory_items
     USING gin(to_tsvector('english', name || ' ' || COALESCE(description, '')));
 
 -- ============================================================================
@@ -140,7 +140,7 @@ CREATE TABLE IF NOT EXISTS inventory_transactions (
     bin_location VARCHAR(50),
 
     -- Audit
-    timestamp TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    "timestamp" TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
 
     -- Prevent modification of historical records
     CONSTRAINT prevent_negative_stock CHECK (
@@ -150,16 +150,16 @@ CREATE TABLE IF NOT EXISTS inventory_transactions (
 );
 
 -- Indexes
-CREATE INDEX idx_inventory_transactions_tenant ON inventory_transactions(tenant_id);
-CREATE INDEX idx_inventory_transactions_item ON inventory_transactions(item_id);
-CREATE INDEX idx_inventory_transactions_type ON inventory_transactions(transaction_type);
-CREATE INDEX idx_inventory_transactions_timestamp ON inventory_transactions(timestamp DESC);
-CREATE INDEX idx_inventory_transactions_vehicle ON inventory_transactions(vehicle_id)
+CREATE INDEX IF NOT EXISTS idx_inventory_transactions_tenant ON inventory_transactions(tenant_id);
+CREATE INDEX IF NOT EXISTS idx_inventory_transactions_item ON inventory_transactions(item_id);
+CREATE INDEX IF NOT EXISTS idx_inventory_transactions_type ON inventory_transactions(transaction_type);
+CREATE INDEX IF NOT EXISTS idx_inventory_transactions_timestamp ON inventory_transactions(timestamp DESC);
+CREATE INDEX IF NOT EXISTS idx_inventory_transactions_vehicle ON inventory_transactions(vehicle_id)
     WHERE vehicle_id IS NOT NULL;
-CREATE INDEX idx_inventory_transactions_work_order ON inventory_transactions(work_order_id)
+CREATE INDEX IF NOT EXISTS idx_inventory_transactions_work_order ON inventory_transactions(work_order_id)
     WHERE work_order_id IS NOT NULL;
-CREATE INDEX idx_inventory_transactions_user ON inventory_transactions(user_id);
-CREATE INDEX idx_inventory_transactions_reference ON inventory_transactions(reference_number)
+CREATE INDEX IF NOT EXISTS idx_inventory_transactions_user ON inventory_transactions(user_id);
+CREATE INDEX IF NOT EXISTS idx_inventory_transactions_reference ON inventory_transactions(reference_number)
     WHERE reference_number IS NOT NULL;
 
 -- ============================================================================
@@ -208,12 +208,12 @@ CREATE TABLE IF NOT EXISTS inventory_low_stock_alerts (
 );
 
 -- Indexes
-CREATE INDEX idx_low_stock_alerts_tenant ON inventory_low_stock_alerts(tenant_id);
-CREATE INDEX idx_low_stock_alerts_item ON inventory_low_stock_alerts(item_id);
-CREATE INDEX idx_low_stock_alerts_severity ON inventory_low_stock_alerts(severity);
-CREATE INDEX idx_low_stock_alerts_unresolved ON inventory_low_stock_alerts(resolved, alert_date DESC)
+CREATE INDEX IF NOT EXISTS idx_low_stock_alerts_tenant ON inventory_low_stock_alerts(tenant_id);
+CREATE INDEX IF NOT EXISTS idx_low_stock_alerts_item ON inventory_low_stock_alerts(item_id);
+CREATE INDEX IF NOT EXISTS idx_low_stock_alerts_severity ON inventory_low_stock_alerts(severity);
+CREATE INDEX IF NOT EXISTS idx_low_stock_alerts_unresolved ON inventory_low_stock_alerts(resolved, alert_date DESC)
     WHERE resolved = false;
-CREATE INDEX idx_low_stock_alerts_supplier ON inventory_low_stock_alerts(supplier_id)
+CREATE INDEX IF NOT EXISTS idx_low_stock_alerts_supplier ON inventory_low_stock_alerts(supplier_id)
     WHERE supplier_id IS NOT NULL;
 
 -- ============================================================================
@@ -251,14 +251,14 @@ CREATE TABLE IF NOT EXISTS inventory_reservations (
 );
 
 -- Indexes
-CREATE INDEX idx_inventory_reservations_tenant ON inventory_reservations(tenant_id);
-CREATE INDEX idx_inventory_reservations_item ON inventory_reservations(item_id);
-CREATE INDEX idx_inventory_reservations_status ON inventory_reservations(status);
-CREATE INDEX idx_inventory_reservations_active ON inventory_reservations(item_id, status)
+CREATE INDEX IF NOT EXISTS idx_inventory_reservations_tenant ON inventory_reservations(tenant_id);
+CREATE INDEX IF NOT EXISTS idx_inventory_reservations_item ON inventory_reservations(item_id);
+CREATE INDEX IF NOT EXISTS idx_inventory_reservations_status ON inventory_reservations(status);
+CREATE INDEX IF NOT EXISTS idx_inventory_reservations_active ON inventory_reservations(item_id, status)
     WHERE status = 'active';
-CREATE INDEX idx_inventory_reservations_work_order ON inventory_reservations(work_order_id)
+CREATE INDEX IF NOT EXISTS idx_inventory_reservations_work_order ON inventory_reservations(work_order_id)
     WHERE work_order_id IS NOT NULL;
-CREATE INDEX idx_inventory_reservations_expires ON inventory_reservations(expires_at)
+CREATE INDEX IF NOT EXISTS idx_inventory_reservations_expires ON inventory_reservations(expires_at)
     WHERE expires_at IS NOT NULL AND status = 'active';
 
 -- ============================================================================
@@ -284,7 +284,7 @@ CREATE TABLE IF NOT EXISTS inventory_audit_log (
     ip_address INET,
     user_agent TEXT,
 
-    timestamp TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    "timestamp" TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
 
     -- Additional context
     reason TEXT,
@@ -292,11 +292,11 @@ CREATE TABLE IF NOT EXISTS inventory_audit_log (
 );
 
 -- Indexes
-CREATE INDEX idx_inventory_audit_log_tenant ON inventory_audit_log(tenant_id);
-CREATE INDEX idx_inventory_audit_log_table ON inventory_audit_log(table_name);
-CREATE INDEX idx_inventory_audit_log_record ON inventory_audit_log(record_id);
-CREATE INDEX idx_inventory_audit_log_timestamp ON inventory_audit_log(timestamp DESC);
-CREATE INDEX idx_inventory_audit_log_user ON inventory_audit_log(user_id) WHERE user_id IS NOT NULL;
+CREATE INDEX IF NOT EXISTS idx_inventory_audit_log_tenant ON inventory_audit_log(tenant_id);
+CREATE INDEX IF NOT EXISTS idx_inventory_audit_log_table ON inventory_audit_log(table_name);
+CREATE INDEX IF NOT EXISTS idx_inventory_audit_log_record ON inventory_audit_log(record_id);
+CREATE INDEX IF NOT EXISTS idx_inventory_audit_log_timestamp ON inventory_audit_log(timestamp DESC);
+CREATE INDEX IF NOT EXISTS idx_inventory_audit_log_user ON inventory_audit_log(user_id) WHERE user_id IS NOT NULL;
 
 -- ============================================================================
 -- VIEWS
@@ -393,10 +393,10 @@ JOIN inventory_items i ON t.item_id = i.id
 GROUP BY t.tenant_id, i.category, t.transaction_type, DATE_TRUNC('day', t.timestamp);
 
 -- Grant permissions
-GRANT SELECT ON v_inventory_summary_by_category TO PUBLIC;
-GRANT SELECT ON v_inventory_low_stock_items TO PUBLIC;
-GRANT SELECT ON v_inventory_valuation TO PUBLIC;
-GRANT SELECT ON v_inventory_transaction_summary TO PUBLIC;
+-- GRANT SELECT ON v_inventory_summary_by_category TO PUBLIC;
+-- GRANT SELECT ON v_inventory_low_stock_items TO PUBLIC;
+-- GRANT SELECT ON v_inventory_valuation TO PUBLIC;
+-- GRANT SELECT ON v_inventory_transaction_summary TO PUBLIC;
 
 -- ============================================================================
 -- FUNCTIONS

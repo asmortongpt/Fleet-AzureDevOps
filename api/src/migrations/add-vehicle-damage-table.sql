@@ -69,7 +69,7 @@ CREATE TABLE IF NOT EXISTS vehicle_damage (
     repair_status VARCHAR(20) DEFAULT 'pending' CHECK (
         repair_status IN ('pending', 'scheduled', 'in_progress', 'completed', 'deferred', 'not_repairable')
     ),
-    repair_scheduled_date TIMESTAMP,
+    repair_scheduled_start_date TIMESTAMP,
     repair_completed_date TIMESTAMP,
     repair_shop_name VARCHAR(255),
     repair_order_number VARCHAR(100),
@@ -105,8 +105,8 @@ CREATE TABLE IF NOT EXISTS vehicle_damage (
     ),
     CONSTRAINT valid_repair_dates CHECK (
         repair_completed_date IS NULL OR
-        repair_scheduled_date IS NULL OR
-        repair_completed_date >= repair_scheduled_date
+        repair_scheduled_start_date IS NULL OR
+        repair_completed_date >= repair_scheduled_start_date
     )
 );
 

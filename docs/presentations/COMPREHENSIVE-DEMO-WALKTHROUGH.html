@@ -185,6 +185,60 @@
             font-size: 0.95rem;
         }
 
+        /* Section Header */
+        .section-header {
+            background: linear-gradient(135deg, #1e40af 0%, #2563eb 100%);
+            padding: 25px 35px;
+            border-radius: 12px;
+            margin: 35px 0 30px 0;
+            box-shadow: 0 8px 20px rgba(37, 99, 235, 0.2);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .section-header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(45deg, rgba(255,255,255,0.1) 25%, transparent 25%, transparent 50%, rgba(255,255,255,0.1) 50%, rgba(255,255,255,0.1) 75%, transparent 75%, transparent);
+            background-size: 20px 20px;
+            opacity: 0.3;
+        }
+
+        .section-header h1 {
+            color: white;
+            margin: 0;
+            position: relative;
+            z-index: 1;
+            font-size: 2rem;
+        }
+
+        .section-number {
+            color: rgba(255,255,255,0.8);
+            font-size: 0.85rem;
+            font-weight: 600;
+            letter-spacing: 2px;
+            margin-bottom: 8px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .time-badge {
+            display: inline-block;
+            background: rgba(255,255,255,0.2);
+            color: white;
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            margin-top: 10px;
+            position: relative;
+            z-index: 1;
+        }
+
         /* Feature Showcase */
         .feature-showcase {
             background: white;
@@ -439,39 +493,63 @@
             color: var(--gray);
         }
 
-        /* Screenshot Placeholder */
+        /* Screenshot Styling */
         .screenshot {
+            width: 85%;
+            margin: 25px auto;
+            text-align: center;
+        }
+
+        .screenshot img {
             width: 100%;
-            height: 500px;
-            background: linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%);
-            border-radius: 12px;
-            border: 3px dashed var(--border);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            margin: 30px 0;
-            position: relative;
+            border-radius: 8px;
+            border: 2px solid #cbd5e1;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
         }
 
-        .screenshot-icon {
-            font-size: 4rem;
-            margin-bottom: 20px;
-            opacity: 0.3;
-        }
-
-        .screenshot-text {
-            font-size: 1.3rem;
-            font-weight: 600;
-            color: var(--gray);
-            margin-bottom: 10px;
+        .screenshot img:hover {
+            transform: scale(1.02);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.2);
         }
 
         .screenshot-caption {
-            font-size: 0.95rem;
-            color: var(--gray);
+            margin-top: 12px;
+            font-size: 0.9rem;
+            color: #64748b;
+            font-style: italic;
+            line-height: 1.5;
             text-align: center;
-            max-width: 500px;
+        }
+
+        /* Two-column screenshot layout */
+        .screenshot-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 25px;
+            margin: 25px 0;
+        }
+
+        .screenshot-grid .screenshot {
+            width: 100%;
+            margin: 0;
+        }
+
+        .screenshot-grid .screenshot img {
+            width: 100%;
+        }
+
+        /* Full-width screenshot for important sections */
+        .screenshot-full {
+            width: 95%;
+            margin: 30px auto;
+        }
+
+        .screenshot-full img {
+            width: 100%;
+            border-radius: 10px;
+            border: 3px solid #2563eb;
+            box-shadow: 0 15px 40px rgba(37, 99, 235, 0.2);
         }
 
         /* Page Break */
@@ -1002,9 +1080,9 @@
             </div>
         </div>
 
-        <div class="screenshot">
-            <img src="screenshots/01-fleet-hub-dashboard.png" alt="Fleet Dashboard Screenshot" style="width: 100%; border-radius: 8px; border: 2px solid #cbd5e1; box-shadow: 0 4px 6px rgba(0,0,0,0.3);">
-            <div class="screenshot-caption" style="margin-top: 15px;">Full dashboard with stat cards, live map showing vehicle locations, status indicators (Active: green, Idle: yellow, Alert: red)</div>
+        <div class="screenshot-full">
+            <img src="screenshots/01-fleet-hub-dashboard.png" alt="Fleet Dashboard Screenshot">
+            <div class="screenshot-caption">Fleet Hub Dashboard - Real-time vehicle tracking with stat cards, live map, and status indicators</div>
         </div>
 
         <h2>Opening Statement</h2>
@@ -1065,9 +1143,9 @@
 
         <h2>3D Virtual Garage - WOW MOMENT</h2>
 
-        <div class="screenshot">
-            <img src="screenshots/02-fleet-hub-virtual-garage.png" alt="3D Virtual Garage Screenshot" style="width: 100%; border-radius: 8px; border: 2px solid #cbd5e1; box-shadow: 0 4px 6px rgba(0,0,0,0.3);">
-            <div class="screenshot-caption" style="margin-top: 15px;">3D vehicle model with visible damage markers, HUD panel on left showing telemetry, timeline drawer on right with maintenance history</div>
+        <div class="screenshot-full">
+            <img src="screenshots/02-fleet-hub-virtual-garage.png" alt="3D Virtual Garage Screenshot">
+            <div class="screenshot-caption">3D Virtual Garage - AI-powered damage visualization with interactive 3D model, telemetry HUD, and maintenance timeline</div>
         </div>
 
         <div class="callout callout-success">
@@ -1205,8 +1283,8 @@
         </div>
 
         <div class="screenshot">
-            <img src="screenshots/03-operations-hub-dispatch.png" alt="Operations Hub Screenshot" style="width: 100%; border-radius: 8px; border: 2px solid #cbd5e1; box-shadow: 0 4px 6px rgba(0,0,0,0.3);">
-            <div class="screenshot-caption" style="margin-top: 15px;">Operations Hub with 4 tabs visible (Dispatch | Routes | Tasks | Calendar), Dispatch Console with active jobs map, real-time driver locations, job cards</div>
+            <img src="screenshots/03-operations-hub-dispatch.png" alt="Operations Hub Screenshot">
+            <div class="screenshot-caption">Operations Hub - Dispatch Console with real-time job tracking and driver locations</div>
         </div>
 
         <h2>How to Access Operations Hub</h2>
@@ -1361,9 +1439,9 @@
             <div class="time-badge">0:22-0:28 (6 minutes)</div>
         </div>
 
-        <div class="screenshot">
-            <img src="screenshots/05-maintenance-hub-predictive.png" alt="Maintenance Hub Screenshot" style="width: 100%; border-radius: 8px; border: 2px solid #cbd5e1; box-shadow: 0 4px 6px rgba(0,0,0,0.3);">
-            <div class="screenshot-caption" style="margin-top: 15px;">Maintenance Hub with Predictive Maintenance tab active, showing "Prevented Failures: 12 this month", "Savings: $28K", prediction cards with failure probabilities</div>
+        <div class="screenshot-full">
+            <img src="screenshots/05-maintenance-hub-predictive.png" alt="Maintenance Hub Screenshot">
+            <div class="screenshot-caption">Maintenance Hub - Predictive Maintenance AI showing 12 prevented failures and $28K savings this month</div>
         </div>
 
         <div class="callout callout-danger" style="background: linear-gradient(135deg, #dc2626 0%, #991b1b 100%); border: none; color: white;">
@@ -1545,8 +1623,8 @@
         </div>
 
         <div class="screenshot">
-            <img src="screenshots/07-compliance-hub-dot.png" alt="Compliance Hub Screenshot" style="width: 100%; border-radius: 8px; border: 2px solid #cbd5e1; box-shadow: 0 4px 6px rgba(0,0,0,0.3);">
-            <div class="screenshot-caption" style="margin-top: 15px;">Compliance Hub with 3 tabs (DOT | IFTA | OSHA), DOT Compliance tab showing compliance score 96%, upcoming inspections, driver HOS violations</div>
+            <img src="screenshots/07-compliance-hub-dot.png" alt="Compliance Hub Screenshot">
+            <div class="screenshot-caption">Compliance Hub - DOT Compliance tracking with 96% score and automated violation alerts</div>
         </div>
 
         <div class="quote">
@@ -1693,8 +1771,8 @@
         </div>
 
         <div class="screenshot">
-            <img src="screenshots/09-safety-hub-incidents.png" alt="Safety Hub Screenshot" style="width: 100%; border-radius: 8px; border: 2px solid #cbd5e1; box-shadow: 0 4px 6px rgba(0,0,0,0.3);">
-            <div class="screenshot-caption" style="margin-top: 15px;">Safety Hub with Incidents tab showing accident summary cards, video telematics integration, AI-detected risky driving events</div>
+            <img src="screenshots/09-safety-hub-incidents.png" alt="Safety Hub Screenshot">
+            <div class="screenshot-caption">Safety Hub - Incident tracking with video telematics and AI-detected driving events</div>
         </div>
 
         <div class="quote">

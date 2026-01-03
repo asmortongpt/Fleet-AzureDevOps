@@ -26,7 +26,7 @@ CREATE TABLE IF NOT EXISTS route_optimization_jobs (
   consider_ev_range BOOLEAN DEFAULT true,
 
   -- Scheduling
-  scheduled_date DATE,
+  scheduled_start_date DATE,
   scheduled_time TIME,
   time_zone VARCHAR(50) DEFAULT 'America/New_York',
 
@@ -57,9 +57,9 @@ CREATE TABLE IF NOT EXISTS route_optimization_jobs (
   CONSTRAINT fk_tenant FOREIGN KEY (tenant_id) REFERENCES tenants(id) ON DELETE CASCADE
 );
 
-CREATE INDEX idx_route_jobs_tenant ON route_optimization_jobs(tenant_id, created_at DESC);
-CREATE INDEX idx_route_jobs_status ON route_optimization_jobs(status, created_at DESC);
-CREATE INDEX idx_route_jobs_scheduled ON route_optimization_jobs(scheduled_date, scheduled_time) WHERE status = 'pending';
+CREATE INDEX IF NOT EXISTS idx_route_jobs_tenant ON route_optimization_jobs(tenant_id, created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_route_jobs_status ON route_optimization_jobs(status, created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_route_jobs_scheduled ON route_optimization_jobs(scheduled_start_date, scheduled_time) WHERE status = 'pending';
 
 -- ============================================================================
 -- Route Stops (Deliveries/Pickups/Service Locations)
@@ -118,10 +118,10 @@ CREATE TABLE IF NOT EXISTS route_stops (
   updated_at TIMESTAMP DEFAULT NOW()
 );
 
-CREATE INDEX idx_route_stops_job ON route_stops(job_id);
-CREATE INDEX idx_route_stops_route ON route_stops(assigned_route_id, assigned_sequence);
-CREATE INDEX idx_route_stops_status ON route_stops(status);
-CREATE INDEX idx_route_stops_location ON route_stops(latitude, longitude);
+CREATE INDEX IF NOT EXISTS idx_route_stops_job ON route_stops(job_id);
+CREATE INDEX IF NOT EXISTS idx_route_stops_route ON route_stops(assigned_route_id, assigned_sequence);
+CREATE INDEX IF NOT EXISTS idx_route_stops_status ON route_stops(status);
+CREATE INDEX IF NOT EXISTS idx_route_stops_location ON route_stops(latitude, longitude);
 
 -- ============================================================================
 -- Optimized Routes
@@ -182,10 +182,10 @@ CREATE TABLE IF NOT EXISTS optimized_routes (
   updated_at TIMESTAMP DEFAULT NOW()
 );
 
-CREATE INDEX idx_optimized_routes_job ON optimized_routes(job_id, route_number);
-CREATE INDEX idx_optimized_routes_vehicle ON optimized_routes(vehicle_id, planned_start_time);
-CREATE INDEX idx_optimized_routes_driver ON optimized_routes(driver_id, planned_start_time);
-CREATE INDEX idx_optimized_routes_status ON optimized_routes(status);
+CREATE INDEX IF NOT EXISTS idx_optimized_routes_job ON optimized_routes(job_id, route_number);
+CREATE INDEX IF NOT EXISTS idx_optimized_routes_vehicle ON optimized_routes(vehicle_id, planned_start_time);
+CREATE INDEX IF NOT EXISTS idx_optimized_routes_driver ON optimized_routes(driver_id, planned_start_time);
+CREATE INDEX IF NOT EXISTS idx_optimized_routes_status ON optimized_routes(status);
 
 -- ============================================================================
 -- Route Waypoints (Turn-by-turn)
@@ -218,7 +218,7 @@ CREATE TABLE IF NOT EXISTS route_waypoints (
   created_at TIMESTAMP DEFAULT NOW()
 );
 
-CREATE INDEX idx_waypoints_route ON route_waypoints(route_id, sequence);
+CREATE INDEX IF NOT EXISTS idx_waypoints_route ON route_waypoints(route_id, sequence);
 
 -- ============================================================================
 -- Vehicle Capabilities (for optimization)
@@ -325,8 +325,8 @@ CREATE TABLE IF NOT EXISTS route_optimization_cache (
   expires_at TIMESTAMP DEFAULT NOW() + INTERVAL '24 hours'
 );
 
-CREATE INDEX idx_optimization_cache_key ON route_optimization_cache(cache_key);
-CREATE INDEX idx_optimization_cache_expires ON route_optimization_cache(expires_at);
+CREATE INDEX IF NOT EXISTS idx_optimization_cache_key ON route_optimization_cache(cache_key);
+CREATE INDEX IF NOT EXISTS idx_optimization_cache_expires ON route_optimization_cache(expires_at);
 
 -- ============================================================================
 -- Route Performance Metrics
@@ -370,7 +370,7 @@ CREATE TABLE IF NOT EXISTS route_performance_metrics (
   created_at TIMESTAMP DEFAULT NOW()
 );
 
-CREATE INDEX idx_route_metrics_route ON route_performance_metrics(route_id);
+CREATE INDEX IF NOT EXISTS idx_route_metrics_route ON route_performance_metrics(route_id);
 
 -- ============================================================================
 -- Functions & Triggers
@@ -416,7 +416,7 @@ SELECT
   r.route_name,
   r.route_number,
   v.name as vehicle_name,
-  v.number,
+  v."number",
   d.first_name || ' ' || d.last_name as driver_name,
   r.total_stops,
   r.total_distance_miles,
@@ -430,7 +430,7 @@ LEFT JOIN vehicles v ON r.vehicle_id = v.id
 LEFT JOIN drivers d ON r.driver_id = d.id
 LEFT JOIN route_stops s ON s.assigned_route_id = r.id
 WHERE r.status IN ('planned', 'active')
-GROUP BY r.id, v.name, v.number, d.first_name, d.last_name;
+GROUP BY r.id, v.name, v."number", d.first_name, d.last_name;
 
 -- Optimization job statistics
 CREATE OR REPLACE VIEW optimization_job_stats AS

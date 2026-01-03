@@ -54,13 +54,13 @@ CREATE TABLE IF NOT EXISTS push_notifications (
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE INDEX idx_push_notifications_tenant ON push_notifications(tenant_id);
-CREATE INDEX idx_push_notifications_category ON push_notifications(category);
-CREATE INDEX idx_push_notifications_priority ON push_notifications(priority);
-CREATE INDEX idx_push_notifications_status ON push_notifications(delivery_status);
-CREATE INDEX idx_push_notifications_scheduled ON push_notifications(scheduled_for);
-CREATE INDEX idx_push_notifications_created_at ON push_notifications(created_at);
-CREATE INDEX idx_push_notifications_type ON push_notifications(notification_type);
+CREATE INDEX IF NOT EXISTS idx_push_notifications_tenant ON push_notifications(tenant_id);
+CREATE INDEX IF NOT EXISTS idx_push_notifications_category ON push_notifications(category);
+CREATE INDEX IF NOT EXISTS idx_push_notifications_priority ON push_notifications(priority);
+CREATE INDEX IF NOT EXISTS idx_push_notifications_status ON push_notifications(delivery_status);
+CREATE INDEX IF NOT EXISTS idx_push_notifications_scheduled ON push_notifications(scheduled_for);
+CREATE INDEX IF NOT EXISTS idx_push_notifications_created_at ON push_notifications(created_at);
+CREATE INDEX IF NOT EXISTS idx_push_notifications_type ON push_notifications(notification_type);
 
 -- =====================================================
 -- Push Notification Recipients Table
@@ -81,11 +81,11 @@ CREATE TABLE IF NOT EXISTS push_notification_recipients (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE INDEX idx_push_recipients_notification ON push_notification_recipients(push_notification_id);
-CREATE INDEX idx_push_recipients_user ON push_notification_recipients(user_id);
-CREATE INDEX idx_push_recipients_device ON push_notification_recipients(device_id);
-CREATE INDEX idx_push_recipients_status ON push_notification_recipients(delivery_status);
-CREATE INDEX idx_push_recipients_delivered_at ON push_notification_recipients(delivered_at);
+CREATE INDEX IF NOT EXISTS idx_push_recipients_notification ON push_notification_recipients(push_notification_id);
+CREATE INDEX IF NOT EXISTS idx_push_recipients_user ON push_notification_recipients(user_id);
+CREATE INDEX IF NOT EXISTS idx_push_recipients_device ON push_notification_recipients(device_id);
+CREATE INDEX IF NOT EXISTS idx_push_recipients_status ON push_notification_recipients(delivery_status);
+CREATE INDEX IF NOT EXISTS idx_push_recipients_delivered_at ON push_notification_recipients(delivered_at);
 
 -- =====================================================
 -- Push Notification Templates Table
@@ -108,9 +108,9 @@ CREATE TABLE IF NOT EXISTS push_notification_templates (
     UNIQUE(tenant_id, template_name)
 );
 
-CREATE INDEX idx_push_templates_tenant ON push_notification_templates(tenant_id);
-CREATE INDEX idx_push_templates_category ON push_notification_templates(category);
-CREATE INDEX idx_push_templates_active ON push_notification_templates(is_active);
+CREATE INDEX IF NOT EXISTS idx_push_templates_tenant ON push_notification_templates(tenant_id);
+CREATE INDEX IF NOT EXISTS idx_push_templates_category ON push_notification_templates(category);
+CREATE INDEX IF NOT EXISTS idx_push_templates_active ON push_notification_templates(is_active);
 
 -- =====================================================
 -- SMS Logs Table
@@ -133,11 +133,11 @@ CREATE TABLE IF NOT EXISTS sms_logs (
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE INDEX idx_sms_logs_tenant ON sms_logs(tenant_id);
-CREATE INDEX idx_sms_logs_to_number ON sms_logs(to_number);
-CREATE INDEX idx_sms_logs_message_sid ON sms_logs(message_sid);
-CREATE INDEX idx_sms_logs_status ON sms_logs(status);
-CREATE INDEX idx_sms_logs_created_at ON sms_logs(created_at);
+CREATE INDEX IF NOT EXISTS idx_sms_logs_tenant ON sms_logs(tenant_id);
+CREATE INDEX IF NOT EXISTS idx_sms_logs_to_number ON sms_logs(to_number);
+CREATE INDEX IF NOT EXISTS idx_sms_logs_message_sid ON sms_logs(message_sid);
+CREATE INDEX IF NOT EXISTS idx_sms_logs_status ON sms_logs(status);
+CREATE INDEX IF NOT EXISTS idx_sms_logs_created_at ON sms_logs(created_at);
 
 -- =====================================================
 -- SMS Templates Table
@@ -156,9 +156,9 @@ CREATE TABLE IF NOT EXISTS sms_templates (
     UNIQUE(tenant_id, name)
 );
 
-CREATE INDEX idx_sms_templates_tenant ON sms_templates(tenant_id);
-CREATE INDEX idx_sms_templates_category ON sms_templates(category);
-CREATE INDEX idx_sms_templates_active ON sms_templates(is_active);
+CREATE INDEX IF NOT EXISTS idx_sms_templates_tenant ON sms_templates(tenant_id);
+CREATE INDEX IF NOT EXISTS idx_sms_templates_category ON sms_templates(category);
+CREATE INDEX IF NOT EXISTS idx_sms_templates_active ON sms_templates(is_active);
 
 -- =====================================================
 -- Notification Preferences Table
@@ -180,8 +180,8 @@ CREATE TABLE IF NOT EXISTS notification_preferences (
     UNIQUE(user_id, tenant_id)
 );
 
-CREATE INDEX idx_notification_preferences_user ON notification_preferences(user_id);
-CREATE INDEX idx_notification_preferences_tenant ON notification_preferences(tenant_id);
+CREATE INDEX IF NOT EXISTS idx_notification_preferences_user ON notification_preferences(user_id);
+CREATE INDEX IF NOT EXISTS idx_notification_preferences_tenant ON notification_preferences(tenant_id);
 
 -- =====================================================
 -- Views for Reporting
@@ -200,9 +200,9 @@ SELECT
     SUM(pn.opened_count) as opened,
     SUM(pn.clicked_count) as clicked,
     SUM(pn.failed_count) as failed,
-    ROUND(AVG(CASE WHEN pn.total_recipients > 0 THEN (pn.delivered_count::float / pn.total_recipients * 100) ELSE 0 END), 2) as delivery_rate,
-    ROUND(AVG(CASE WHEN pn.delivered_count > 0 THEN (pn.opened_count::float / pn.delivered_count * 100) ELSE 0 END), 2) as open_rate,
-    ROUND(AVG(CASE WHEN pn.opened_count > 0 THEN (pn.clicked_count::float / pn.opened_count * 100) ELSE 0 END), 2) as click_rate
+    ROUND(AVG(CASE WHEN pn.total_recipients > 0 THEN (pn.delivered_count::numeric / pn.total_recipients * 100) ELSE 0 END), 2) as delivery_rate,
+    ROUND(AVG(CASE WHEN pn.delivered_count > 0 THEN (pn.opened_count::numeric / pn.delivered_count * 100) ELSE 0 END), 2) as open_rate,
+    ROUND(AVG(CASE WHEN pn.opened_count > 0 THEN (pn.clicked_count::numeric / pn.opened_count * 100) ELSE 0 END), 2) as click_rate
 FROM push_notifications pn
 GROUP BY pn.tenant_id, pn.category, pn.priority, DATE(pn.created_at);
 
@@ -286,21 +286,21 @@ END $$;
 -- Push notification templates
 INSERT INTO push_notification_templates (tenant_id, template_name, category, title_template, message_template, data_payload_template, action_buttons, priority, sound)
 VALUES
-    (1, 'maintenance_due', 'maintenance_reminder', 'Maintenance Due: {{vehicleName}}', '{{maintenanceType}} is due on {{dueDate}}', '{"screen": "MaintenanceDetail", "maintenanceId": "{{maintenanceId}}", "vehicleId": "{{vehicleId}}"}'::jsonb, '[{"id": "view", "title": "View Details"}, {"id": "snooze", "title": "Remind Later"}]'::jsonb, 'normal', 'default'),
-    (1, 'task_assigned', 'task_assignment', 'New Task Assigned', 'You have been assigned: {{taskTitle}}', '{"screen": "TaskDetail", "taskId": "{{taskId}}"}'::jsonb, '[{"id": "accept", "title": "Accept"}, {"id": "view", "title": "View"}]'::jsonb, 'high', 'default'),
-    (1, 'vehicle_alert', 'critical_alert', 'Vehicle Alert: {{vehicleName}}', '{{alertMessage}}', '{"screen": "VehicleDetail", "vehicleId": "{{vehicleId}}"}'::jsonb, '[{"id": "view", "title": "View Details"}, {"id": "acknowledge", "title": "Acknowledge"}]'::jsonb, 'critical', 'urgent'),
-    (1, 'inspection_required', 'maintenance_reminder', 'Inspection Required', 'Pre-trip inspection needed for {{vehicleName}}', '{"screen": "InspectionForm", "vehicleId": "{{vehicleId}}"}'::jsonb, '[{"id": "start_inspection", "title": "Start Inspection"}]'::jsonb, 'normal', 'default'),
-    (1, 'shift_reminder', 'task_assignment', 'Shift Starting Soon', 'Your shift starts in {{minutesBefore}} minutes', '{"screen": "Schedule"}'::jsonb, '[{"id": "acknowledge", "title": "Got It"}]'::jsonb, 'normal', 'default')
+    ((SELECT id FROM tenants LIMIT 1), 'maintenance_due', 'maintenance_reminder', 'Maintenance Due: {{vehicleName}}', '{{maintenanceType}} is due on {{dueDate}}', '{"screen": "MaintenanceDetail", "maintenanceId": "{{maintenanceId}}", "vehicleId": "{{vehicleId}}"}'::jsonb, '[{"id": "view", "title": "View Details"}, {"id": "snooze", "title": "Remind Later"}]'::jsonb, 'normal', 'default'),
+    ((SELECT id FROM tenants LIMIT 1), 'task_assigned', 'task_assignment', 'New Task Assigned', 'You have been assigned: {{taskTitle}}', '{"screen": "TaskDetail", "taskId": "{{taskId}}"}'::jsonb, '[{"id": "accept", "title": "Accept"}, {"id": "view", "title": "View"}]'::jsonb, 'high', 'default'),
+    ((SELECT id FROM tenants LIMIT 1), 'vehicle_alert', 'critical_alert', 'Vehicle Alert: {{vehicleName}}', '{{alertMessage}}', '{"screen": "VehicleDetail", "vehicleId": "{{vehicleId}}"}'::jsonb, '[{"id": "view", "title": "View Details"}, {"id": "acknowledge", "title": "Acknowledge"}]'::jsonb, 'critical', 'urgent'),
+    ((SELECT id FROM tenants LIMIT 1), 'inspection_required', 'maintenance_reminder', 'Inspection Required', 'Pre-trip inspection needed for {{vehicleName}}', '{"screen": "InspectionForm", "vehicleId": "{{vehicleId}}"}'::jsonb, '[{"id": "start_inspection", "title": "Start Inspection"}]'::jsonb, 'normal', 'default'),
+    ((SELECT id FROM tenants LIMIT 1), 'shift_reminder', 'task_assignment', 'Shift Starting Soon', 'Your shift starts in {{minutesBefore}} minutes', '{"screen": "Schedule"}'::jsonb, '[{"id": "acknowledge", "title": "Got It"}]'::jsonb, 'normal', 'default')
 ON CONFLICT (tenant_id, template_name) DO NOTHING;
 
 -- SMS templates
 INSERT INTO sms_templates (tenant_id, name, body, category, variables)
 VALUES
-    (1, 'maintenance_reminder', 'FLEET ALERT: Maintenance due for {{vehicleName}}. {{maintenanceType}} scheduled for {{dueDate}}. Contact dispatch for details.', 'maintenance', '["vehicleName", "maintenanceType", "dueDate"]'::jsonb),
-    (1, 'task_assignment', 'FLEET: New task assigned - {{taskTitle}}. Due: {{dueDate}}. Check app for details.', 'task', '["taskTitle", "dueDate"]'::jsonb),
-    (1, 'vehicle_alert', 'URGENT: {{vehicleName}} - {{alertMessage}}. Contact dispatch immediately.', 'alert', '["vehicleName", "alertMessage"]'::jsonb),
-    (1, 'shift_reminder', 'FLEET: Your shift starts at {{shiftTime}}. Report to {{location}}.', 'schedule', '["shiftTime", "location"]'::jsonb),
-    (1, 'inspection_overdue', 'FLEET: Vehicle inspection overdue for {{vehicleName}}. Complete before next trip.', 'compliance', '["vehicleName"]'::jsonb)
+    ((SELECT id FROM tenants LIMIT 1), 'maintenance_reminder', 'FLEET ALERT: Maintenance due for {{vehicleName}}. {{maintenanceType}} scheduled for {{dueDate}}. Contact dispatch for details.', 'maintenance', '["vehicleName", "maintenanceType", "dueDate"]'::jsonb),
+    ((SELECT id FROM tenants LIMIT 1), 'task_assignment', 'FLEET: New task assigned - {{taskTitle}}. Due: {{dueDate}}. Check app for details.', 'task', '["taskTitle", "dueDate"]'::jsonb),
+    ((SELECT id FROM tenants LIMIT 1), 'vehicle_alert', 'URGENT: {{vehicleName}} - {{alertMessage}}. Contact dispatch immediately.', 'alert', '["vehicleName", "alertMessage"]'::jsonb),
+    ((SELECT id FROM tenants LIMIT 1), 'shift_reminder', 'FLEET: Your shift starts at {{shiftTime}}. Report to {{location}}.', 'schedule', '["shiftTime", "location"]'::jsonb),
+    ((SELECT id FROM tenants LIMIT 1), 'inspection_overdue', 'FLEET: Vehicle inspection overdue for {{vehicleName}}. Complete before next trip.', 'compliance', '["vehicleName"]'::jsonb)
 ON CONFLICT (tenant_id, name) DO NOTHING;
 
 -- =====================================================
@@ -318,8 +318,8 @@ COMMENT ON TABLE notification_preferences IS 'User notification preferences and 
 -- Grant Permissions
 -- =====================================================
 
-GRANT SELECT, INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA public TO fleet_user;
-GRANT USAGE, SELECT ON ALL SEQUENCES IN SCHEMA public TO fleet_user;
+-- GRANT SELECT, INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA public TO fleet_user;
+-- GRANT USAGE, SELECT ON ALL SEQUENCES IN SCHEMA public TO fleet_user;
 
 -- =====================================================
 -- Completion

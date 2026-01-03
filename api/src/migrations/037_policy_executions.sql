@@ -55,15 +55,15 @@ CREATE TABLE IF NOT EXISTS policy_executions (
 -- INDEXES
 -- ==============================================================================
 
-CREATE INDEX idx_policy_executions_tenant ON policy_executions(tenant_id);
-CREATE INDEX idx_policy_executions_policy ON policy_executions(policy_id);
-CREATE INDEX idx_policy_executions_trigger ON policy_executions(trigger_type);
-CREATE INDEX idx_policy_executions_status ON policy_executions(execution_status);
-CREATE INDEX idx_policy_executions_vehicle ON policy_executions(vehicle_id) WHERE vehicle_id IS NOT NULL;
-CREATE INDEX idx_policy_executions_driver ON policy_executions(driver_id) WHERE driver_id IS NOT NULL;
-CREATE INDEX idx_policy_executions_work_order ON policy_executions(work_order_id) WHERE work_order_id IS NOT NULL;
-CREATE INDEX idx_policy_executions_started ON policy_executions(started_at);
-CREATE INDEX idx_policy_executions_conditions_met ON policy_executions(conditions_met);
+CREATE INDEX IF NOT EXISTS idx_policy_executions_tenant ON policy_executions(tenant_id);
+CREATE INDEX IF NOT EXISTS idx_policy_executions_policy ON policy_executions(policy_id);
+CREATE INDEX IF NOT EXISTS idx_policy_executions_trigger ON policy_executions(trigger_type);
+CREATE INDEX IF NOT EXISTS idx_policy_executions_status ON policy_executions(execution_status);
+CREATE INDEX IF NOT EXISTS idx_policy_executions_vehicle ON policy_executions(vehicle_id) WHERE vehicle_id IS NOT NULL;
+CREATE INDEX IF NOT EXISTS idx_policy_executions_driver ON policy_executions(driver_id) WHERE driver_id IS NOT NULL;
+CREATE INDEX IF NOT EXISTS idx_policy_executions_work_order ON policy_executions(work_order_id) WHERE work_order_id IS NOT NULL;
+CREATE INDEX IF NOT EXISTS idx_policy_executions_started ON policy_executions(started_at);
+CREATE INDEX IF NOT EXISTS idx_policy_executions_conditions_met ON policy_executions(conditions_met);
 
 -- ==============================================================================
 -- ROW-LEVEL SECURITY
@@ -116,7 +116,7 @@ SELECT
     pe.trigger_type,
     pe.error_message,
     pe.retry_count,
-    v.number AS vehicle,
+    v."number" AS vehicle,
     d.first_name || ' ' || d.last_name AS driver
 FROM policy_executions pe
 JOIN policy_templates pt ON pe.policy_id = pt.id
@@ -174,7 +174,7 @@ Example trigger_data:
     "vehicle_id": "uuid-123",
     "days_overdue": 5,
     "inspection_type": "annual",
-    "last_inspection_date": "2025-12-01"
+    "last_inspected_at": "2025-12-01"
 }
 
 Example conditions_evaluated:

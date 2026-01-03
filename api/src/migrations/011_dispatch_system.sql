@@ -130,26 +130,26 @@ CREATE TABLE IF NOT EXISTS dispatch_metrics (
 );
 
 -- Indexes for performance
-CREATE INDEX idx_dispatch_transmissions_channel ON dispatch_transmissions(channel_id);
-CREATE INDEX idx_dispatch_transmissions_user ON dispatch_transmissions(user_id);
-CREATE INDEX idx_dispatch_transmissions_timestamp ON dispatch_transmissions(transmission_start DESC);
-CREATE INDEX idx_dispatch_transmissions_emergency ON dispatch_transmissions(is_emergency) WHERE is_emergency = true;
+CREATE INDEX IF NOT EXISTS idx_dispatch_transmissions_channel ON dispatch_transmissions(channel_id);
+CREATE INDEX IF NOT EXISTS idx_dispatch_transmissions_user ON dispatch_transmissions(user_id);
+CREATE INDEX IF NOT EXISTS idx_dispatch_transmissions_timestamp ON dispatch_transmissions(transmission_start DESC);
+CREATE INDEX IF NOT EXISTS idx_dispatch_transmissions_emergency ON dispatch_transmissions(is_emergency) WHERE is_emergency = true;
 
-CREATE INDEX idx_dispatch_transcriptions_transmission ON dispatch_transcriptions(transmission_id);
-CREATE INDEX idx_dispatch_transcriptions_text_search ON dispatch_transcriptions USING gin(to_tsvector('english', transcription_text));
+CREATE INDEX IF NOT EXISTS idx_dispatch_transcriptions_transmission ON dispatch_transcriptions(transmission_id);
+CREATE INDEX IF NOT EXISTS idx_dispatch_transcriptions_text_search ON dispatch_transcriptions USING gin(to_tsvector('english', transcription_text));
 
-CREATE INDEX idx_dispatch_incident_tags_transmission ON dispatch_incident_tags(transmission_id);
-CREATE INDEX idx_dispatch_incident_tags_type ON dispatch_incident_tags(tag_type);
-CREATE INDEX idx_dispatch_incident_tags_entities ON dispatch_incident_tags USING gin(entities);
+CREATE INDEX IF NOT EXISTS idx_dispatch_incident_tags_transmission ON dispatch_incident_tags(transmission_id);
+CREATE INDEX IF NOT EXISTS idx_dispatch_incident_tags_type ON dispatch_incident_tags(tag_type);
+CREATE INDEX IF NOT EXISTS idx_dispatch_incident_tags_entities ON dispatch_incident_tags USING gin(entities);
 
-CREATE INDEX idx_dispatch_active_listeners_channel ON dispatch_active_listeners(channel_id);
-CREATE INDEX idx_dispatch_active_listeners_user ON dispatch_active_listeners(user_id);
-CREATE INDEX idx_dispatch_active_listeners_connection ON dispatch_active_listeners(connection_id);
+CREATE INDEX IF NOT EXISTS idx_dispatch_active_listeners_channel ON dispatch_active_listeners(channel_id);
+CREATE INDEX IF NOT EXISTS idx_dispatch_active_listeners_user ON dispatch_active_listeners(user_id);
+CREATE INDEX IF NOT EXISTS idx_dispatch_active_listeners_connection ON dispatch_active_listeners(connection_id);
 
-CREATE INDEX idx_dispatch_emergency_alerts_status ON dispatch_emergency_alerts(alert_status);
-CREATE INDEX idx_dispatch_emergency_alerts_timestamp ON dispatch_emergency_alerts(created_at DESC);
-CREATE INDEX idx_dispatch_emergency_alerts_user ON dispatch_emergency_alerts(user_id);
-CREATE INDEX idx_dispatch_emergency_alerts_vehicle ON dispatch_emergency_alerts(vehicle_id);
+CREATE INDEX IF NOT EXISTS idx_dispatch_emergency_alerts_status ON dispatch_emergency_alerts(alert_status);
+CREATE INDEX IF NOT EXISTS idx_dispatch_emergency_alerts_timestamp ON dispatch_emergency_alerts(created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_dispatch_emergency_alerts_user ON dispatch_emergency_alerts(user_id);
+CREATE INDEX IF NOT EXISTS idx_dispatch_emergency_alerts_vehicle ON dispatch_emergency_alerts(vehicle_id);
 
 -- Triggers for updated_at
 CREATE OR REPLACE FUNCTION update_dispatch_updated_at()
