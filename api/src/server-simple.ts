@@ -279,6 +279,319 @@ app.get('/api/gps-tracks', async (req, res) => {
   }
 });
 
+// GPS
+app.get('/api/gps', async (req, res) => {
+  try {
+    const { vehicleId, limit = 100 } = req.query;
+    let query = db.select().from(schema.gpsTracks);
+
+    if (vehicleId) {
+      query = query.where(eq(schema.gpsTracks.vehicleId, vehicleId as string));
+    }
+
+    const tracks = await query.limit(Number(limit));
+
+    res.json({
+      data: tracks,
+      meta: {
+        total: tracks.length,
+      },
+    });
+  } catch (error) {
+    console.error('Error fetching GPS data:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// Geofences
+app.get('/api/geofences', async (req, res) => {
+  try {
+    const { page = 1, limit = 50 } = req.query;
+    const geofences = await db
+      .select()
+      .from(schema.geofences)
+      .limit(Number(limit))
+      .offset((Number(page) - 1) * Number(limit));
+
+    res.json({
+      data: geofences,
+      meta: {
+        page: Number(page),
+        limit: Number(limit),
+        total: geofences.length,
+      },
+    });
+  } catch (error) {
+    console.error('Error fetching geofences:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// Maintenance Schedules
+app.get('/api/maintenance-schedules', async (req, res) => {
+  try {
+    const { page = 1, limit = 50 } = req.query;
+    const schedules = await db
+      .select()
+      .from(schema.maintenanceSchedules)
+      .limit(Number(limit))
+      .offset((Number(page) - 1) * Number(limit));
+
+    res.json({
+      data: schedules,
+      meta: {
+        page: Number(page),
+        limit: Number(limit),
+        total: schedules.length,
+      },
+    });
+  } catch (error) {
+    console.error('Error fetching maintenance schedules:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// Parts
+app.get('/api/parts', async (req, res) => {
+  try {
+    const { page = 1, limit = 50 } = req.query;
+    const parts = await db
+      .select()
+      .from(schema.partsInventory)
+      .limit(Number(limit))
+      .offset((Number(page) - 1) * Number(limit));
+
+    res.json({
+      data: parts,
+      meta: {
+        page: Number(page),
+        limit: Number(limit),
+        total: parts.length,
+      },
+    });
+  } catch (error) {
+    console.error('Error fetching parts:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// Vendors
+app.get('/api/vendors', async (req, res) => {
+  try {
+    const { page = 1, limit = 50 } = req.query;
+    const vendors = await db
+      .select()
+      .from(schema.vendors)
+      .limit(Number(limit))
+      .offset((Number(page) - 1) * Number(limit));
+
+    res.json({
+      data: vendors,
+      meta: {
+        page: Number(page),
+        limit: Number(limit),
+        total: vendors.length,
+      },
+    });
+  } catch (error) {
+    console.error('Error fetching vendors:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// Invoices
+app.get('/api/invoices', async (req, res) => {
+  try {
+    const { page = 1, limit = 50 } = req.query;
+    const invoices = await db
+      .select()
+      .from(schema.invoices)
+      .limit(Number(limit))
+      .offset((Number(page) - 1) * Number(limit));
+
+    res.json({
+      data: invoices,
+      meta: {
+        page: Number(page),
+        limit: Number(limit),
+        total: invoices.length,
+      },
+    });
+  } catch (error) {
+    console.error('Error fetching invoices:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// Purchase Orders
+app.get('/api/purchase-orders', async (req, res) => {
+  try {
+    const { page = 1, limit = 50 } = req.query;
+    const orders = await db
+      .select()
+      .from(schema.purchaseOrders)
+      .limit(Number(limit))
+      .offset((Number(page) - 1) * Number(limit));
+
+    res.json({
+      data: orders,
+      meta: {
+        page: Number(page),
+        limit: Number(limit),
+        total: orders.length,
+      },
+    });
+  } catch (error) {
+    console.error('Error fetching purchase orders:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// Tasks
+app.get('/api/tasks', async (req, res) => {
+  try {
+    const { page = 1, limit = 50 } = req.query;
+    const tasks = await db
+      .select()
+      .from(schema.tasks)
+      .limit(Number(limit))
+      .offset((Number(page) - 1) * Number(limit));
+
+    res.json({
+      data: tasks,
+      meta: {
+        page: Number(page),
+        limit: Number(limit),
+        total: tasks.length,
+      },
+    });
+  } catch (error) {
+    console.error('Error fetching tasks:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// Costs (using invoices table)
+app.get('/api/costs', async (req, res) => {
+  try {
+    const { page = 1, limit = 50 } = req.query;
+    const costs = await db
+      .select()
+      .from(schema.invoices)
+      .limit(Number(limit))
+      .offset((Number(page) - 1) * Number(limit));
+
+    res.json({
+      data: costs,
+      meta: {
+        page: Number(page),
+        limit: Number(limit),
+        total: costs.length,
+      },
+    });
+  } catch (error) {
+    console.error('Error fetching costs:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// EV Chargers
+app.get('/api/ev/chargers', async (req, res) => {
+  try {
+    const { page = 1, limit = 50 } = req.query;
+    const chargers = await db
+      .select()
+      .from(schema.chargingStations)
+      .limit(Number(limit))
+      .offset((Number(page) - 1) * Number(limit));
+
+    res.json({
+      data: chargers,
+      meta: {
+        page: Number(page),
+        limit: Number(limit),
+        total: chargers.length,
+      },
+    });
+  } catch (error) {
+    console.error('Error fetching EV chargers:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// Damage endpoint (placeholder - requires implementation)
+app.get('/api/damage', async (req, res) => {
+  try {
+    // Placeholder - damage data would need a dedicated table
+    res.json({
+      data: [],
+      meta: {
+        total: 0,
+        message: 'Damage tracking endpoint - requires database schema',
+      },
+    });
+  } catch (error) {
+    console.error('Error fetching damage data:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// Config endpoint
+app.get('/api/config', async (req, res) => {
+  try {
+    // Return basic configuration
+    res.json({
+      data: {
+        apiVersion: '1.0.0',
+        features: {
+          gps: true,
+          maintenance: true,
+          fuel: true,
+          ev: true,
+        },
+        environment: process.env.NODE_ENV || 'development',
+      },
+    });
+  } catch (error) {
+    console.error('Error fetching config:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// Feature Flags endpoint
+app.get('/api/feature-flags', async (req, res) => {
+  try {
+    // Return feature flags
+    res.json({
+      data: {
+        enableGPS: true,
+        enableMaintenance: true,
+        enableFuel: true,
+        enableEV: true,
+        enableDamageTracking: false,
+        enableAuth: false,
+      },
+    });
+  } catch (error) {
+    console.error('Error fetching feature flags:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// Auth Me endpoint (placeholder)
+app.get('/api/auth/me', async (req, res) => {
+  try {
+    // Placeholder - authentication requires implementation
+    res.status(401).json({
+      error: 'Authentication not configured',
+      message: 'This endpoint requires authentication setup',
+    });
+  } catch (error) {
+    console.error('Error in auth endpoint:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
 // Start server
 async function startServer() {
   try {

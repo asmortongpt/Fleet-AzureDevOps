@@ -144,8 +144,9 @@ export class VehicleIdlingService extends EventEmitter {
    * Start a new idling event
    */
   private async startIdlingEvent(state: VehicleState): Promise<number> {
-    const client = await this.pool.connect();
+    let client;
     try {
+      client = await this.pool.connect();
       const result = await client.query(
         `INSERT INTO vehicle_idling_events (
           vehicle_id, driver_id, start_time,
@@ -187,7 +188,7 @@ export class VehicleIdlingService extends EventEmitter {
 
       return eventId;
     } finally {
-      client.release();
+      if (client) client.release();
     }
   }
 
@@ -230,7 +231,7 @@ export class VehicleIdlingService extends EventEmitter {
         await this.updateDailySummary(event.vehicle_id, event.driver_id, endTime);
       }
     } finally {
-      client.release();
+      if (client) client.release();
     }
   }
 
@@ -250,7 +251,7 @@ export class VehicleIdlingService extends EventEmitter {
         [state.engine_rpm, state.speed_mph, state.latitude, state.longitude, eventId]
       );
     } finally {
-      client.release();
+      if (client) client.release();
     }
   }
 
@@ -289,8 +290,8 @@ export class VehicleIdlingService extends EventEmitter {
 
         // Skip if no thresholds configured
         if (!warning_threshold_seconds) {
-continue;
-}
+          continue;
+        }
 
         // Determine severity level
         let severityLevel: 'warning' | 'alert' | 'critical' | null = null;
@@ -308,7 +309,7 @@ continue;
         }
       }
     } finally {
-      client.release();
+      if (client) client.release();
     }
   }
 
@@ -367,7 +368,7 @@ continue;
         message
       });
     } finally {
-      client.release();
+      if (client) client.release();
     }
   }
 
@@ -409,7 +410,7 @@ continue;
         [vehicleId, driverId, date]
       );
     } finally {
-      client.release();
+      if (client) client.release();
     }
   }
 
@@ -451,20 +452,20 @@ continue;
             const addressParts: string[] = [];
 
             if (address.streetNumber) {
-addressParts.push(address.streetNumber);
-}
+              addressParts.push(address.streetNumber);
+            }
             if (address.streetName) {
-addressParts.push(address.streetName);
-}
+              addressParts.push(address.streetName);
+            }
             if (address.municipality) {
-addressParts.push(address.municipality);
-}
+              addressParts.push(address.municipality);
+            }
             if (address.countrySubdivision) {
-addressParts.push(address.countrySubdivision);
-}
+              addressParts.push(address.countrySubdivision);
+            }
             if (address.postalCode) {
-addressParts.push(address.postalCode);
-}
+              addressParts.push(address.postalCode);
+            }
 
             locationName = addressParts.length > 0
               ? addressParts.join(', ')
@@ -488,7 +489,7 @@ addressParts.push(address.postalCode);
         [locationName, eventId]
       );
     } finally {
-      client.release();
+      if (client) client.release();
     }
   }
 
@@ -501,7 +502,7 @@ addressParts.push(address.postalCode);
       const result = await client.query(`SELECT * FROM active_idling_events`);
       return result.rows;
     } finally {
-      client.release();
+      if (client) client.release();
     }
   }
 
@@ -531,7 +532,7 @@ addressParts.push(address.postalCode);
       );
       return result.rows[0] || null;
     } finally {
-      client.release();
+      if (client) client.release();
     }
   }
 
@@ -559,7 +560,7 @@ addressParts.push(address.postalCode);
       );
       return result.rows[0] || null;
     } finally {
-      client.release();
+      if (client) client.release();
     }
   }
 
@@ -575,7 +576,7 @@ addressParts.push(address.postalCode);
       );
       return result.rows;
     } finally {
-      client.release();
+      if (client) client.release();
     }
   }
 
@@ -591,7 +592,7 @@ addressParts.push(address.postalCode);
       );
       return result.rows;
     } finally {
-      client.release();
+      if (client) client.release();
     }
   }
 
@@ -629,7 +630,7 @@ addressParts.push(address.postalCode);
 
       return eventId;
     } finally {
-      client.release();
+      if (client) client.release();
     }
   }
 
@@ -645,7 +646,7 @@ addressParts.push(address.postalCode);
       );
       return result.rows[0] || null;
     } finally {
-      client.release();
+      if (client) client.release();
     }
   }
 
@@ -670,7 +671,7 @@ addressParts.push(address.postalCode);
       );
       return result.rows;
     } finally {
-      client.release();
+      if (client) client.release();
     }
   }
 
@@ -695,7 +696,7 @@ addressParts.push(address.postalCode);
       );
       return result.rows;
     } finally {
-      client.release();
+      if (client) client.release();
     }
   }
 
@@ -758,7 +759,7 @@ addressParts.push(address.postalCode);
         send_manager_alert: true
       };
     } finally {
-      client.release();
+      if (client) client.release();
     }
   }
 
@@ -816,7 +817,7 @@ addressParts.push(address.postalCode);
 
       console.log(`[IdlingService] Updated thresholds for vehicle ${vehicleId}`);
     } finally {
-      client.release();
+      if (client) client.release();
     }
   }
 
@@ -835,7 +836,7 @@ addressParts.push(address.postalCode);
       const result = await client.query(query, [limit]);
       return result.rows;
     } finally {
-      client.release();
+      if (client) client.release();
     }
   }
 
@@ -856,7 +857,7 @@ addressParts.push(address.postalCode);
 
       console.log(`[IdlingService] Alert ${alertId} acknowledged by user ${userId}`);
     } finally {
-      client.release();
+      if (client) client.release();
     }
   }
 
@@ -874,7 +875,7 @@ addressParts.push(address.postalCode);
       );
       return result.rows;
     } finally {
-      client.release();
+      if (client) client.release();
     }
   }
 }
