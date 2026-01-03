@@ -13,75 +13,82 @@
   }
 }
 
-/* 
-  COMMAND CENTER THEME - DARK MODE FIRST 
-  Using OKLCH color space for vibrant, perception-based colors.
+/*
+  PROFESSIONAL CORPORATE THEME
+  Fleet Management Platform - Enterprise Design System
+  Clean, professional blue/gray palette for business applications
 */
 :root {
-  /* Default to Dark Mode values for specific "Command Center" feel */
-  --background: oklch(0.12 0.02 245); /* Deep Blue-Black */
-  --foreground: oklch(0.98 0.00 0);   /* Pure White */
+  /* Professional Dark Mode - Corporate Navy Theme */
+  --background: #0f172a;           /* Dark navy base - slate-900 */
+  --foreground: #f1f5f9;           /* Clean white text - slate-100 */
 
-  --card: oklch(0.14 0.02 245);       /* Slightly lighter blue-black */
-  --card-foreground: oklch(0.98 0.00 0);
+  --card: #1e293b;                 /* Elevated surface - slate-800 */
+  --card-foreground: #f1f5f9;      /* Card text - slate-100 */
 
-  --popover: oklch(0.14 0.02 245);
-  --popover-foreground: oklch(0.98 0.00 0);
+  --popover: #1e293b;              /* Popover surface - slate-800 */
+  --popover-foreground: #f1f5f9;   /* Popover text - slate-100 */
 
-  --primary: oklch(0.55 0.20 250);    /* Electric Blue */
-  --primary-foreground: oklch(1 0 0);
+  --primary: #2563eb;              /* Corporate blue - blue-600 */
+  --primary-foreground: #ffffff;   /* White text on primary */
 
-  --secondary: oklch(0.20 0.03 245);  /* Surface Blue */
-  --secondary-foreground: oklch(0.98 0.00 0);
+  --secondary: #475569;            /* Professional gray - slate-600 */
+  --secondary-foreground: #f1f5f9; /* Light text on secondary */
 
-  --muted: oklch(0.20 0.03 245);
-  --muted-foreground: oklch(0.70 0.05 245); /* Blue-Grey text */
+  --muted: #1e293b;                /* Muted background - slate-800 */
+  --muted-foreground: #94a3b8;     /* Muted text - slate-400 */
 
-  --accent: oklch(0.55 0.20 250);     /* Same as primary for consistency */
-  --accent-foreground: oklch(1 0 0);
+  --accent: #3b82f6;               /* Accent blue - blue-500 */
+  --accent-foreground: #ffffff;    /* White text on accent */
 
-  --destructive: oklch(0.60 0.18 20);  /* Vibrant Red */
-  --destructive-foreground: oklch(1 0 0);
+  --destructive: #dc2626;          /* Professional red - red-600 */
+  --destructive-foreground: #ffffff;
 
-  --success: oklch(0.65 0.18 150);     /* Matrix Green */
-  --warning: oklch(0.75 0.16 75);      /* Amber */
+  --success: #059669;              /* Professional green - emerald-600 */
+  --warning: #d97706;              /* Professional amber - amber-600 */
 
-  --border: oklch(0.25 0.04 245);      /* Subtle blue border */
-  --input: oklch(0.25 0.04 245);
-  --ring: oklch(0.55 0.20 250);
+  --border: rgba(148, 163, 184, 0.2);  /* Subtle borders - slate-400/20 */
+  --input: #1e293b;                /* Input background - slate-800 */
+  --ring: #3b82f6;                 /* Focus ring - blue-500 */
 
-  --radius: 0.75rem; /* Modern rounded corners */
+  --radius: 0.5rem;                /* Professional 8px corners */
 }
 
 /*
-  LIGHT MODE OVERRIDES
-  WCAG AA compliant - high contrast for readability
+  LIGHT MODE - Professional Corporate Theme
+  Clean, high-contrast design for business applications
 */
 .light {
-  --background: oklch(0.98 0.01 245);
-  --foreground: oklch(0.20 0.05 245); /* Darker for better contrast */
+  --background: #f8fafc;           /* Clean white background - slate-50 */
+  --foreground: #0f172a;           /* Dark text - slate-900 */
 
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.20 0.05 245);
+  --card: #ffffff;                 /* Pure white cards */
+  --card-foreground: #0f172a;      /* Dark text on cards */
 
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.20 0.05 245);
+  --popover: #ffffff;              /* White popovers */
+  --popover-foreground: #0f172a;   /* Dark text on popovers */
 
-  --primary: oklch(0.45 0.20 250); /* Darker, vibrant blue */
-  --primary-foreground: oklch(1 0 0);
+  --primary: #2563eb;              /* Corporate blue - blue-600 */
+  --primary-foreground: #ffffff;   /* White text on primary */
 
-  --secondary: oklch(0.88 0.03 245); /* Medium grey, not pastel */
-  --secondary-foreground: oklch(0.20 0.08 245); /* Dark blue-grey */
+  --secondary: #e2e8f0;            /* Light professional gray - slate-200 */
+  --secondary-foreground: #0f172a; /* Dark text on secondary */
 
-  --muted: oklch(0.92 0.02 245); /* Light grey background */
-  --muted-foreground: oklch(0.40 0.08 245); /* Dark blue-grey text - 7:1 contrast */
+  --muted: #f1f5f9;                /* Muted background - slate-100 */
+  --muted-foreground: #64748b;     /* Muted text - slate-500 */
 
-  --accent: oklch(0.88 0.04 245); /* Medium grey, subtle */
-  --accent-foreground: oklch(0.20 0.08 245); /* Dark blue-grey */
+  --accent: #3b82f6;               /* Accent blue - blue-500 */
+  --accent-foreground: #ffffff;    /* White text on accent */
 
-  --border: oklch(0.80 0.03 245); /* Visible borders */
-  --input: oklch(0.85 0.02 245); /* Clearly defined inputs */
-  --ring: oklch(0.45 0.20 250); /* Match primary */
+  --destructive: #dc2626;          /* Professional red - red-600 */
+  --destructive-foreground: #ffffff;
+
+  --success: #059669;              /* Professional green - emerald-600 */
+  --warning: #d97706;              /* Professional amber - amber-600 */
+
+  --border: rgba(100, 116, 139, 0.15);  /* Subtle professional borders */
+  --input: #ffffff;                /* White input background */
+  --ring: #3b82f6;                 /* Focus ring - blue-500 */
 }
 
 @theme {
@@ -104,7 +111,7 @@
   --color-border: var(--border);
   --color-input: var(--input);
   --color-ring: var(--ring);
-  
+
   --color-success: var(--success);
   --color-warning: var(--warning);
 
@@ -117,37 +124,39 @@
 }
 
 @layer utilities {
-  /* GLASSMORPHISM - The core of the design */
+  /* PROFESSIONAL CARD STYLES - Clean & Corporate */
   .glass {
-    @apply bg-background/70 backdrop-blur-xl border border-white/5 shadow-xl;
+    @apply bg-card/95 backdrop-blur-sm border border-border shadow-sm;
   }
-  
+
   .glass-panel {
-    @apply bg-card/60 backdrop-blur-2xl border border-white/5 shadow-2xl;
+    @apply bg-card/95 backdrop-blur-sm border border-border shadow-md;
   }
 
   .glass-card {
-    @apply bg-card/40 backdrop-blur-lg border border-white/5 hover:bg-card/50 transition-all duration-300;
-  }
-  
-  .glass-button {
-    @apply bg-primary/20 hover:bg-primary/30 text-primary-foreground border border-primary/20 backdrop-blur-md hover:shadow-[0_0_15px_var(--primary)];
+    @apply bg-card border border-border hover:border-primary/30 hover:shadow-md transition-all duration-200;
   }
 
-  /* HUD / TECH EFFECTS */
-  .tech-border {
-    @apply relative border border-white/10 overflow-hidden;
+  .glass-button {
+    @apply bg-primary hover:bg-primary/90 text-primary-foreground border border-primary/20 shadow-sm;
   }
-  
+
+  /* PROFESSIONAL BORDERS - Subtle & Clean */
+  .tech-border {
+    @apply relative border border-border overflow-hidden;
+  }
+
   .tech-border::after {
     content: '';
-    @apply absolute top-0 left-0 w-1 h-1 bg-primary box-content border-r-2 border-primary;
+    @apply absolute top-0 left-0 w-0.5 h-full bg-primary;
   }
 
+  /* PROFESSIONAL TEXT - Clean and readable */
   .neon-text {
-    text-shadow: 0 0 5px var(--primary), 0 0 10px var(--primary);
+    @apply text-primary font-semibold;
   }
 
+  /* SCROLLBAR UTILITIES */
   .no-scrollbar::-webkit-scrollbar {
     display: none;
   }
@@ -156,13 +165,13 @@
     scrollbar-width: none;
   }
 
-  /* MICRO-ANIMATIONS */
+  /* PROFESSIONAL ANIMATIONS - Subtle and smooth */
   .animate-fade-in {
-    animation: fadeIn 0.3s ease-out forwards;
+    animation: fadeIn 0.25s ease-out forwards;
   }
 
   .animate-slide-up {
-    animation: slideUp 0.3s ease-out forwards;
+    animation: slideUp 0.25s ease-out forwards;
   }
 
   .animate-scale-in {
@@ -170,13 +179,9 @@
   }
 
   .animate-shimmer {
-    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+    background: linear-gradient(90deg, transparent, rgba(37, 99, 235, 0.04), transparent);
     background-size: 200% 100%;
-    animation: shimmer 1.5s infinite;
-  }
-
-  .animate-pulse-glow {
-    animation: pulseGlow 2s ease-in-out infinite;
+    animation: shimmer 2.5s ease-in-out infinite;
   }
 }
 
@@ -187,24 +192,24 @@
 }
 
 @keyframes slideUp {
-  from { 
-    opacity: 0; 
-    transform: translateY(10px); 
+  from {
+    opacity: 0;
+    transform: translateY(10px);
   }
-  to { 
-    opacity: 1; 
-    transform: translateY(0); 
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
 }
 
 @keyframes scaleIn {
-  from { 
-    opacity: 0; 
-    transform: scale(0.95); 
+  from {
+    opacity: 0;
+    transform: scale(0.95);
   }
-  to { 
-    opacity: 1; 
-    transform: scale(1); 
+  to {
+    opacity: 1;
+    transform: scale(1);
   }
 }
 
@@ -213,11 +218,17 @@
   100% { background-position: 200% 0; }
 }
 
-@keyframes pulseGlow {
-  0%, 100% { 
-    box-shadow: 0 0 5px var(--primary), 0 0 10px transparent; 
+/* Professional shadow utilities for cards and elevated elements */
+@layer utilities {
+  .shadow-professional {
+    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
   }
-  50% { 
-    box-shadow: 0 0 10px var(--primary), 0 0 20px var(--primary); 
+
+  .shadow-professional-md {
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  }
+
+  .shadow-professional-lg {
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
   }
 }
