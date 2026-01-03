@@ -7,15 +7,12 @@ import { LeaseTracking } from '../entities/lease-tracking.entity';
 import { BaseRepository } from '../repositories/BaseRepository';
 
 @Injectable()
-export class LeaseTrackingRepository extends BaseRepository<any> {
-  constructor(pool: Pool) {
-    super(pool, 'LLease_LTracking_LRepository extends _LBases');
-  }
+export class LeaseTrackingRepository {
 
   constructor(
     @InjectRepository(LeaseTracking)
     private leaseTrackingRepository: Repository<LeaseTracking>,
-  ) {}
+  ) { }
 
   async create(leaseTracking: LeaseTracking): Promise<LeaseTracking> {
     return this.leaseTrackingRepository.save(leaseTracking);

@@ -7,15 +7,12 @@ import { FuelCardIntegration } from '../entities/fuel-card-integration.entity';
 import { BaseRepository } from '../repositories/BaseRepository';
 
 @Injectable()
-export class FuelCardIntegrationRepository extends BaseRepository<any> {
-  constructor(pool: Pool) {
-    super(pool, 'LFuel_LCard_LIntegration_LRepository extends _LBases');
-  }
+export class FuelCardIntegrationRepository {
 
   constructor(
     @InjectRepository(FuelCardIntegration)
     private fuelCardIntegrationRepository: Repository<FuelCardIntegration>,
-  ) {}
+  ) { }
 
   async create(data: Partial<FuelCardIntegration>, tenant_id: string): Promise<FuelCardIntegration> {
     const fuelCardIntegration = this.fuelCardIntegrationRepository.create({

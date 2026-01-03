@@ -96,15 +96,16 @@ export interface AssetAnalytics {
 }
 
 export class AssetManagementRepository extends BaseRepository<any> {
-  constructor(pool: Pool) {
-    super(pool, 'LAsset_LManagement_LRepository extends _LBases');
-  }
-
   private pool: Pool
 
   constructor() {
-    this.pool = connectionManager.getPool()
+    const pool = connectionManager.getPool();
+    super('assets', pool);
+    this.pool = pool;
   }
+
+
+
 
   /**
    * Get connection pool (supports transactions)
