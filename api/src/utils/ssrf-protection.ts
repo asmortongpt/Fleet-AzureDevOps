@@ -17,7 +17,7 @@ import { URL } from 'url';
 
 import axios, { AxiosRequestConfig, AxiosResponse } from 'axios';
 
-import { logger } from './logger';
+import logger from './logger';
 
 // =============================================================================
 // CONFIGURATION

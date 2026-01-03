@@ -9,7 +9,7 @@
 
 import { Pool } from 'pg';
 
-import { logger } from './logger';
+import logger from './logger';
 
 // Column cache to avoid repeated introspection
 const columnCache = new Map<string, string[]>();
