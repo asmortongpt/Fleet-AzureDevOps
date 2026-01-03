@@ -92,13 +92,14 @@ SELECT
 FROM generate_series(1, 500) AS n;
 
 -- Create 300 inspections
-INSERT INTO inspections (tenant_id, vehicle_id, inspector_id, type, status, notes, created_at)
+INSERT INTO inspections (tenant_id, vehicle_id, inspector_id, type, status, started_at, notes, created_at)
 SELECT
     (SELECT id FROM tenants LIMIT 1),
     (SELECT id FROM vehicles ORDER BY RANDOM() LIMIT 1),
     (SELECT id FROM drivers ORDER BY RANDOM() LIMIT 1),
     (ARRAY['pre_trip', 'post_trip', 'annual', 'dot'])[((n-1) % 4) + 1]::inspection_type,
     (ARRAY['pending', 'in_progress', 'completed'])[((n-1) % 3) + 1]::status,
+    NOW() - ((n * 1.5) || ' days')::INTERVAL,
     'Inspection completed successfully.',
     NOW() - ((n * 1.5) || ' days')::INTERVAL
 FROM generate_series(1, 300) AS n;
