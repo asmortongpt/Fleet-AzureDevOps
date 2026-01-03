@@ -1906,3 +1906,788 @@ export function ServiceVendorDetailPanel({ vendorId }: ServiceVendorDetailPanelP
     </DrilldownContent>
   )
 }
+
+// ============================================
+// EXCEL-STYLE DRILLDOWN VIEWS
+// ============================================
+
+import { ExcelStyleTable, ExcelColumn } from '@/components/shared/ExcelStyleTable'
+
+// ============================================
+// GARAGE BAYS MATRIX VIEW
+// ============================================
+
+interface GarageBayMatrixRow {
+  id: string
+  bayNumber: string
+  status: 'occupied' | 'available' | 'maintenance' | 'reserved'
+  vehicleNumber?: string
+  workOrderNumber?: string
+  priority?: 'low' | 'medium' | 'high' | 'critical'
+  startTime?: string
+  estimatedCompletion?: string
+  progressPercentage?: number
+  technicianName?: string
+  partsStatus?: 'ready' | 'partial' | 'pending' | 'backordered'
+}
+
+export function GarageBaysMatrixPanel() {
+  const { data: baysData, error, isLoading } = useSWR<{ data: GarageBayMatrixRow[] }>(
+    '/api/maintenance/drilldowns/garage-bays/matrix',
+    fetcher
+  )
+
+  const columns: ExcelColumn<GarageBayMatrixRow>[] = [
+    {
+      key: 'bayNumber',
+      header: 'Bay #',
+      sortable: true,
+      filterable: true,
+      width: '80px',
+      className: 'font-mono font-bold',
+    },
+    {
+      key: 'status',
+      header: 'Status',
+      sortable: true,
+      filterable: true,
+      type: 'badge',
+      filterOptions: [
+        { label: 'Occupied', value: 'occupied' },
+        { label: 'Available', value: 'available' },
+        { label: 'Maintenance', value: 'maintenance' },
+        { label: 'Reserved', value: 'reserved' },
+      ],
+      colorRules: [
+        { condition: (v) => v === 'occupied', className: 'bg-blue-50 dark:bg-blue-950' },
+        { condition: (v) => v === 'available', className: 'bg-green-50 dark:bg-green-950' },
+        { condition: (v) => v === 'maintenance', className: 'bg-orange-50 dark:bg-orange-950' },
+        { condition: (v) => v === 'reserved', className: 'bg-yellow-50 dark:bg-yellow-950' },
+      ],
+    },
+    {
+      key: 'vehicleNumber',
+      header: 'Vehicle',
+      sortable: true,
+      filterable: true,
+      render: (value) => value || '-',
+    },
+    {
+      key: 'workOrderNumber',
+      header: 'Work Order',
+      sortable: true,
+      filterable: true,
+      render: (value) => value || '-',
+      className: 'font-mono',
+    },
+    {
+      key: 'priority',
+      header: 'Priority',
+      sortable: true,
+      filterable: true,
+      type: 'badge',
+      filterOptions: [
+        { label: 'Critical', value: 'critical' },
+        { label: 'High', value: 'high' },
+        { label: 'Medium', value: 'medium' },
+        { label: 'Low', value: 'low' },
+      ],
+      colorRules: [
+        { condition: (v) => v === 'critical', className: 'bg-red-100 dark:bg-red-950', textClassName: 'text-red-800 dark:text-red-200' },
+        { condition: (v) => v === 'high', className: 'bg-orange-100 dark:bg-orange-950', textClassName: 'text-orange-800 dark:text-orange-200' },
+        { condition: (v) => v === 'medium', className: 'bg-yellow-100 dark:bg-yellow-950', textClassName: 'text-yellow-800 dark:text-yellow-200' },
+        { condition: (v) => v === 'low', className: 'bg-green-100 dark:bg-green-950', textClassName: 'text-green-800 dark:text-green-200' },
+      ],
+    },
+    {
+      key: 'startTime',
+      header: 'Start',
+      sortable: true,
+      type: 'date',
+      width: '140px',
+    },
+    {
+      key: 'estimatedCompletion',
+      header: 'ETA',
+      sortable: true,
+      type: 'date',
+      width: '140px',
+    },
+    {
+      key: 'progressPercentage',
+      header: 'Progress %',
+      sortable: true,
+      type: 'percentage',
+      width: '110px',
+      cellClassName: 'font-semibold',
+      colorRules: [
+        { condition: (v) => v >= 75, className: 'text-green-600 dark:text-green-400' },
+        { condition: (v) => v >= 50 && v < 75, className: 'text-blue-600 dark:text-blue-400' },
+        { condition: (v) => v >= 25 && v < 50, className: 'text-yellow-600 dark:text-yellow-400' },
+        { condition: (v) => v < 25, className: 'text-orange-600 dark:text-orange-400' },
+      ],
+    },
+    {
+      key: 'technicianName',
+      header: 'Technician',
+      sortable: true,
+      filterable: true,
+    },
+    {
+      key: 'partsStatus',
+      header: 'Parts Status',
+      sortable: true,
+      filterable: true,
+      type: 'badge',
+      filterOptions: [
+        { label: 'Ready', value: 'ready' },
+        { label: 'Partial', value: 'partial' },
+        { label: 'Pending', value: 'pending' },
+        { label: 'Backordered', value: 'backordered' },
+      ],
+      colorRules: [
+        { condition: (v) => v === 'ready', className: 'bg-green-100 dark:bg-green-950', textClassName: 'text-green-800 dark:text-green-200' },
+        { condition: (v) => v === 'partial', className: 'bg-yellow-100 dark:bg-yellow-950', textClassName: 'text-yellow-800 dark:text-yellow-200' },
+        { condition: (v) => v === 'pending', className: 'bg-orange-100 dark:bg-orange-950', textClassName: 'text-orange-800 dark:text-orange-200' },
+        { condition: (v) => v === 'backordered', className: 'bg-red-100 dark:bg-red-950', textClassName: 'text-red-800 dark:text-red-200' },
+      ],
+    },
+  ]
+
+  return (
+    <DrilldownContent loading={isLoading} error={error}>
+      <ExcelStyleTable
+        data={baysData?.data || []}
+        columns={columns}
+        title="Garage Bays - Full Matrix View"
+        subtitle="All garage bays with current work orders and status"
+        enableSorting
+        enableFiltering
+        enableExport
+        enableColumnVisibility
+        exportFilename="garage-bays-matrix"
+        pageSize={50}
+        compact={false}
+        stickyHeader
+        striped
+        highlightOnHover
+      />
+    </DrilldownContent>
+  )
+}
+
+// ============================================
+// WORK ORDERS LIST VIEW
+// ============================================
+
+interface WorkOrderListRow {
+  id: string
+  woNumber: string
+  vehicleNumber: string
+  type: 'preventive' | 'corrective' | 'inspection' | 'emergency'
+  priority: 'low' | 'medium' | 'high' | 'critical'
+  status: 'open' | 'in-progress' | 'on-hold' | 'completed' | 'cancelled'
+  createdDate: string
+  dueDate: string
+  assignedTo: string
+  estimatedCost: number
+  actualCost?: number
+  partsStatus: 'ready' | 'partial' | 'pending' | 'backordered'
+}
+
+export function WorkOrdersListPanel() {
+  const { data: workOrdersData, error, isLoading } = useSWR<{ data: WorkOrderListRow[] }>(
+    '/api/maintenance/drilldowns/work-orders/list',
+    fetcher
+  )
+
+  const columns: ExcelColumn<WorkOrderListRow>[] = [
+    {
+      key: 'woNumber',
+      header: 'WO #',
+      sortable: true,
+      filterable: true,
+      width: '100px',
+      className: 'font-mono font-semibold',
+    },
+    {
+      key: 'vehicleNumber',
+      header: 'Vehicle',
+      sortable: true,
+      filterable: true,
+      width: '100px',
+    },
+    {
+      key: 'type',
+      header: 'Type',
+      sortable: true,
+      filterable: true,
+      type: 'badge',
+      filterOptions: [
+        { label: 'Preventive', value: 'preventive' },
+        { label: 'Corrective', value: 'corrective' },
+        { label: 'Inspection', value: 'inspection' },
+        { label: 'Emergency', value: 'emergency' },
+      ],
+    },
+    {
+      key: 'priority',
+      header: 'Priority',
+      sortable: true,
+      filterable: true,
+      type: 'badge',
+      filterOptions: [
+        { label: 'Critical', value: 'critical' },
+        { label: 'High', value: 'high' },
+        { label: 'Medium', value: 'medium' },
+        { label: 'Low', value: 'low' },
+      ],
+      colorRules: [
+        { condition: (v) => v === 'critical', className: 'bg-red-100 dark:bg-red-950', textClassName: 'text-red-800 dark:text-red-200 font-bold' },
+        { condition: (v) => v === 'high', className: 'bg-orange-100 dark:bg-orange-950', textClassName: 'text-orange-800 dark:text-orange-200' },
+        { condition: (v) => v === 'medium', className: 'bg-yellow-100 dark:bg-yellow-950', textClassName: 'text-yellow-800 dark:text-yellow-200' },
+        { condition: (v) => v === 'low', className: 'bg-green-100 dark:bg-green-950', textClassName: 'text-green-800 dark:text-green-200' },
+      ],
+    },
+    {
+      key: 'status',
+      header: 'Status',
+      sortable: true,
+      filterable: true,
+      type: 'badge',
+      filterOptions: [
+        { label: 'Open', value: 'open' },
+        { label: 'In Progress', value: 'in-progress' },
+        { label: 'On Hold', value: 'on-hold' },
+        { label: 'Completed', value: 'completed' },
+        { label: 'Cancelled', value: 'cancelled' },
+      ],
+      colorRules: [
+        { condition: (v) => v === 'completed', className: 'bg-green-100 dark:bg-green-950', textClassName: 'text-green-800 dark:text-green-200' },
+        { condition: (v) => v === 'in-progress', className: 'bg-blue-100 dark:bg-blue-950', textClassName: 'text-blue-800 dark:text-blue-200' },
+        { condition: (v) => v === 'on-hold', className: 'bg-yellow-100 dark:bg-yellow-950', textClassName: 'text-yellow-800 dark:text-yellow-200' },
+        { condition: (v) => v === 'cancelled', className: 'bg-red-100 dark:bg-red-950', textClassName: 'text-red-800 dark:text-red-200' },
+      ],
+    },
+    {
+      key: 'createdDate',
+      header: 'Created',
+      sortable: true,
+      type: 'date',
+      width: '140px',
+    },
+    {
+      key: 'dueDate',
+      header: 'Due Date',
+      sortable: true,
+      type: 'date',
+      width: '140px',
+      colorRules: [
+        {
+          condition: (v) => new Date(v) < new Date(),
+          className: 'bg-red-50 dark:bg-red-950',
+          textClassName: 'text-red-800 dark:text-red-200 font-semibold',
+        },
+        {
+          condition: (v) => {
+            const daysUntil = Math.ceil((new Date(v).getTime() - Date.now()) / (1000 * 60 * 60 * 24))
+            return daysUntil <= 7 && daysUntil >= 0
+          },
+          className: 'bg-yellow-50 dark:bg-yellow-950',
+          textClassName: 'text-yellow-800 dark:text-yellow-200',
+        },
+      ],
+    },
+    {
+      key: 'assignedTo',
+      header: 'Assigned To',
+      sortable: true,
+      filterable: true,
+      width: '140px',
+    },
+    {
+      key: 'estimatedCost',
+      header: 'Est. Cost',
+      sortable: true,
+      type: 'currency',
+      width: '110px',
+      aggregate: 'sum',
+    },
+    {
+      key: 'actualCost',
+      header: 'Actual Cost',
+      sortable: true,
+      type: 'currency',
+      width: '110px',
+      aggregate: 'sum',
+      render: (value) => value != null ? `$${Number(value).toFixed(2)}` : '-',
+    },
+    {
+      key: 'partsStatus',
+      header: 'Parts Status',
+      sortable: true,
+      filterable: true,
+      type: 'badge',
+      filterOptions: [
+        { label: 'Ready', value: 'ready' },
+        { label: 'Partial', value: 'partial' },
+        { label: 'Pending', value: 'pending' },
+        { label: 'Backordered', value: 'backordered' },
+      ],
+      colorRules: [
+        { condition: (v) => v === 'ready', className: 'bg-green-100 dark:bg-green-950', textClassName: 'text-green-800 dark:text-green-200' },
+        { condition: (v) => v === 'partial', className: 'bg-yellow-100 dark:bg-yellow-950', textClassName: 'text-yellow-800 dark:text-yellow-200' },
+        { condition: (v) => v === 'pending', className: 'bg-orange-100 dark:bg-orange-950', textClassName: 'text-orange-800 dark:text-orange-200' },
+        { condition: (v) => v === 'backordered', className: 'bg-red-100 dark:bg-red-950', textClassName: 'text-red-800 dark:text-red-200' },
+      ],
+    },
+  ]
+
+  return (
+    <DrilldownContent loading={isLoading} error={error}>
+      <ExcelStyleTable
+        data={workOrdersData?.data || []}
+        columns={columns}
+        title="Work Orders - Complete List"
+        subtitle="All maintenance work orders with full details"
+        enableSorting
+        enableFiltering
+        enableExport
+        enableColumnVisibility
+        enableAggregates
+        exportFilename="work-orders-complete"
+        pageSize={50}
+        compact={false}
+        stickyHeader
+        striped
+        highlightOnHover
+      />
+    </DrilldownContent>
+  )
+}
+
+// ============================================
+// PM SCHEDULES MATRIX VIEW
+// ============================================
+
+interface PMScheduleMatrixRow {
+  id: string
+  vehicleNumber: string
+  vehicleMake: string
+  vehicleModel: string
+  serviceType: string
+  lastServiceDate?: string
+  lastServiceMileage?: number
+  currentMileage: number
+  milesSinceService?: number
+  dueDate: string
+  daysUntilDue: number
+  status: 'upcoming' | 'due-soon' | 'overdue' | 'completed'
+  assignedShop: string
+}
+
+export function PMSchedulesMatrixPanel() {
+  const { data: pmData, error, isLoading } = useSWR<{ data: PMScheduleMatrixRow[] }>(
+    '/api/maintenance/drilldowns/pm-schedules/matrix',
+    fetcher
+  )
+
+  const columns: ExcelColumn<PMScheduleMatrixRow>[] = [
+    {
+      key: 'vehicleNumber',
+      header: 'Vehicle',
+      sortable: true,
+      filterable: true,
+      width: '100px',
+      className: 'font-mono',
+    },
+    {
+      key: 'vehicleMake',
+      header: 'Make/Model',
+      sortable: true,
+      filterable: true,
+      render: (value, row) => `${row.vehicleMake} ${row.vehicleModel}`,
+    },
+    {
+      key: 'serviceType',
+      header: 'Service Type',
+      sortable: true,
+      filterable: true,
+    },
+    {
+      key: 'lastServiceDate',
+      header: 'Last Service',
+      sortable: true,
+      type: 'date',
+      width: '140px',
+      render: (value) => value ? formatCellValue(value, 'date') : 'N/A',
+    },
+    {
+      key: 'milesSinceService',
+      header: 'Miles Since',
+      sortable: true,
+      type: 'number',
+      width: '110px',
+      render: (value) => value != null ? `${Number(value).toLocaleString()} mi` : '-',
+    },
+    {
+      key: 'dueDate',
+      header: 'Due Date',
+      sortable: true,
+      type: 'date',
+      width: '140px',
+    },
+    {
+      key: 'daysUntilDue',
+      header: 'Days Until Due',
+      sortable: true,
+      type: 'number',
+      width: '130px',
+      colorRules: [
+        { condition: (v) => v < 0, className: 'bg-red-100 dark:bg-red-950', textClassName: 'text-red-800 dark:text-red-200 font-bold' },
+        { condition: (v) => v >= 0 && v <= 7, className: 'bg-orange-100 dark:bg-orange-950', textClassName: 'text-orange-800 dark:text-orange-200 font-semibold' },
+        { condition: (v) => v > 7 && v <= 30, className: 'bg-yellow-100 dark:bg-yellow-950', textClassName: 'text-yellow-800 dark:text-yellow-200' },
+        { condition: (v) => v > 30, className: 'bg-green-100 dark:bg-green-950', textClassName: 'text-green-800 dark:text-green-200' },
+      ],
+      render: (value) => {
+        if (value < 0) return `${Math.abs(value)} days overdue`
+        return `${value} days`
+      },
+    },
+    {
+      key: 'status',
+      header: 'Status',
+      sortable: true,
+      filterable: true,
+      type: 'badge',
+      filterOptions: [
+        { label: 'Overdue', value: 'overdue' },
+        { label: 'Due Soon', value: 'due-soon' },
+        { label: 'Upcoming', value: 'upcoming' },
+        { label: 'Completed', value: 'completed' },
+      ],
+      colorRules: [
+        { condition: (v) => v === 'overdue', className: 'bg-red-100 dark:bg-red-950', textClassName: 'text-red-800 dark:text-red-200 font-bold' },
+        { condition: (v) => v === 'due-soon', className: 'bg-orange-100 dark:bg-orange-950', textClassName: 'text-orange-800 dark:text-orange-200 font-semibold' },
+        { condition: (v) => v === 'upcoming', className: 'bg-green-100 dark:bg-green-950', textClassName: 'text-green-800 dark:text-green-200' },
+        { condition: (v) => v === 'completed', className: 'bg-blue-100 dark:bg-blue-950', textClassName: 'text-blue-800 dark:text-blue-200' },
+      ],
+    },
+    {
+      key: 'assignedShop',
+      header: 'Assigned Shop',
+      sortable: true,
+      filterable: true,
+    },
+  ]
+
+  return (
+    <DrilldownContent loading={isLoading} error={error}>
+      <ExcelStyleTable
+        data={pmData?.data || []}
+        columns={columns}
+        title="PM Schedules - Full Matrix"
+        subtitle="All preventive maintenance schedules with due dates and status"
+        enableSorting
+        enableFiltering
+        enableExport
+        enableColumnVisibility
+        exportFilename="pm-schedules-matrix"
+        pageSize={50}
+        compact={false}
+        stickyHeader
+        striped
+        highlightOnHover
+        initialSort={[{ key: 'daysUntilDue', direction: 'asc' }]}
+      />
+    </DrilldownContent>
+  )
+}
+
+// ============================================
+// PARTS INVENTORY VIEW
+// ============================================
+
+interface PartsInventoryRow {
+  id: string
+  partNumber: string
+  description: string
+  quantity: number
+  minStock: number
+  maxStock: number
+  location: string
+  unitCost: number
+  totalValue: number
+  supplier: string
+  lastOrderDate?: string
+}
+
+export function PartsInventoryPanel() {
+  const { data: partsData, error, isLoading } = useSWR<{ data: PartsInventoryRow[] }>(
+    '/api/maintenance/drilldowns/parts/inventory',
+    fetcher
+  )
+
+  const columns: ExcelColumn<PartsInventoryRow>[] = [
+    {
+      key: 'partNumber',
+      header: 'Part #',
+      sortable: true,
+      filterable: true,
+      width: '120px',
+      className: 'font-mono font-semibold',
+    },
+    {
+      key: 'description',
+      header: 'Description',
+      sortable: true,
+      filterable: true,
+    },
+    {
+      key: 'quantity',
+      header: 'Qty',
+      sortable: true,
+      type: 'number',
+      width: '80px',
+      cellClassName: (row) => {
+        if (row.quantity <= row.minStock) return 'bg-red-100 dark:bg-red-950 text-red-800 dark:text-red-200 font-bold'
+        if (row.quantity <= row.minStock * 1.5) return 'bg-yellow-100 dark:bg-yellow-950 text-yellow-800 dark:text-yellow-200 font-semibold'
+        return 'font-semibold'
+      },
+    },
+    {
+      key: 'minStock',
+      header: 'Min',
+      sortable: true,
+      type: 'number',
+      width: '70px',
+      className: 'text-muted-foreground',
+    },
+    {
+      key: 'maxStock',
+      header: 'Max',
+      sortable: true,
+      type: 'number',
+      width: '70px',
+      className: 'text-muted-foreground',
+    },
+    {
+      key: 'location',
+      header: 'Location',
+      sortable: true,
+      filterable: true,
+      width: '120px',
+    },
+    {
+      key: 'unitCost',
+      header: 'Unit Cost',
+      sortable: true,
+      type: 'currency',
+      width: '100px',
+    },
+    {
+      key: 'totalValue',
+      header: 'Total Value',
+      sortable: true,
+      type: 'currency',
+      width: '120px',
+      aggregate: 'sum',
+      className: 'font-semibold',
+      accessor: (row) => row.quantity * row.unitCost,
+    },
+    {
+      key: 'supplier',
+      header: 'Supplier',
+      sortable: true,
+      filterable: true,
+    },
+    {
+      key: 'lastOrderDate',
+      header: 'Last Order',
+      sortable: true,
+      type: 'date',
+      width: '140px',
+      render: (value) => value ? formatCellValue(value, 'date') : 'Never',
+    },
+  ]
+
+  return (
+    <DrilldownContent loading={isLoading} error={error}>
+      <ExcelStyleTable
+        data={partsData?.data || []}
+        columns={columns}
+        title="Parts Inventory - Full Database"
+        subtitle="Complete parts inventory with stock levels and values"
+        enableSorting
+        enableFiltering
+        enableExport
+        enableColumnVisibility
+        enableAggregates
+        exportFilename="parts-inventory"
+        pageSize={50}
+        compact={false}
+        stickyHeader
+        striped
+        highlightOnHover
+      />
+    </DrilldownContent>
+  )
+}
+
+// ============================================
+// SERVICE HISTORY VIEW
+// ============================================
+
+interface ServiceHistoryRow {
+  id: string
+  date: string
+  vehicleNumber: string
+  vehicleMake: string
+  vehicleModel: string
+  serviceType: string
+  mileage: number
+  technician: string
+  partsUsed: string
+  laborHours: number
+  partsCost: number
+  laborCost: number
+  totalCost: number
+  notes?: string
+}
+
+export function ServiceHistoryPanel() {
+  const { data: historyData, error, isLoading } = useSWR<{ data: ServiceHistoryRow[] }>(
+    '/api/maintenance/drilldowns/service-history',
+    fetcher
+  )
+
+  const columns: ExcelColumn<ServiceHistoryRow>[] = [
+    {
+      key: 'date',
+      header: 'Date',
+      sortable: true,
+      type: 'date',
+      width: '140px',
+    },
+    {
+      key: 'vehicleNumber',
+      header: 'Vehicle',
+      sortable: true,
+      filterable: true,
+      width: '100px',
+      className: 'font-mono',
+    },
+    {
+      key: 'vehicleMake',
+      header: 'Make/Model',
+      sortable: true,
+      filterable: true,
+      render: (value, row) => `${row.vehicleMake} ${row.vehicleModel}`,
+    },
+    {
+      key: 'serviceType',
+      header: 'Service Type',
+      sortable: true,
+      filterable: true,
+    },
+    {
+      key: 'mileage',
+      header: 'Mileage',
+      sortable: true,
+      type: 'number',
+      width: '100px',
+      render: (value) => `${Number(value).toLocaleString()} mi`,
+    },
+    {
+      key: 'technician',
+      header: 'Technician',
+      sortable: true,
+      filterable: true,
+    },
+    {
+      key: 'partsUsed',
+      header: 'Parts Used',
+      sortable: false,
+      filterable: true,
+    },
+    {
+      key: 'laborHours',
+      header: 'Labor Hrs',
+      sortable: true,
+      type: 'number',
+      width: '100px',
+      aggregate: 'sum',
+      render: (value) => `${Number(value).toFixed(1)} hrs`,
+    },
+    {
+      key: 'partsCost',
+      header: 'Parts Cost',
+      sortable: true,
+      type: 'currency',
+      width: '110px',
+      aggregate: 'sum',
+    },
+    {
+      key: 'laborCost',
+      header: 'Labor Cost',
+      sortable: true,
+      type: 'currency',
+      width: '110px',
+      aggregate: 'sum',
+    },
+    {
+      key: 'totalCost',
+      header: 'Total Cost',
+      sortable: true,
+      type: 'currency',
+      width: '120px',
+      aggregate: 'sum',
+      className: 'font-semibold bg-blue-50 dark:bg-blue-950',
+    },
+  ]
+
+  return (
+    <DrilldownContent loading={isLoading} error={error}>
+      <ExcelStyleTable
+        data={historyData?.data || []}
+        columns={columns}
+        title="Service History - Complete Records"
+        subtitle="Full maintenance history with costs and details"
+        enableSorting
+        enableFiltering
+        enableExport
+        enableColumnVisibility
+        enableAggregates
+        exportFilename="service-history"
+        pageSize={50}
+        compact={false}
+        stickyHeader
+        striped
+        highlightOnHover
+        initialSort={[{ key: 'date', direction: 'desc' }]}
+      />
+    </DrilldownContent>
+  )
+}
+
+// Helper function for formatting (reused from ExcelStyleTable)
+function formatCellValue(value: any, type?: string): React.ReactNode {
+  if (value == null || value === '') return '-'
+
+  switch (type) {
+    case 'currency':
+      return `$${Number(value).toFixed(2)}`
+    case 'percentage':
+      return `${Number(value).toFixed(1)}%`
+    case 'date':
+      return new Date(value).toLocaleDateString('en-US', {
+        month: 'short',
+        day: 'numeric',
+        year: 'numeric',
+      })
+    case 'number':
+      return Number(value).toLocaleString()
+    default:
+      return String(value)
+  }
+}
