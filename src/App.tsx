@@ -3,6 +3,7 @@ import { Shield } from "lucide-react"
 import { useState, useMemo, lazy, Suspense } from "react"
 
 import { AIAssistantChat } from "@/components/ai/AIAssistantChat"
+import { BuildVersion } from "@/components/BuildVersion"
 import { DrilldownManager } from "@/components/DrilldownManager"
 import { EnhancedErrorBoundary } from "@/components/EnhancedErrorBoundary"
 import { ToastContainer } from "@/components/common/ToastContainer"
@@ -425,6 +426,9 @@ function App() {
 
         {/* Toast notifications */}
         <ToastContainer />
+
+        {/* Build version indicator - shows latest build confirmation */}
+        <BuildVersion />
 
       </DrilldownManager >
     </WebSocketProvider>
