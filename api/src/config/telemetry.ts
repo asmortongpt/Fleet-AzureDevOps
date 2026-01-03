@@ -11,6 +11,12 @@ import { defaultResource, resourceFromAttributes } from '@opentelemetry/resource
 import { NodeSDK } from '@opentelemetry/sdk-node';
 import { ATTR_SERVICE_NAME, ATTR_SERVICE_VERSION } from '@opentelemetry/semantic-conventions';
 
+/**
+ * Custom span creation helper
+ * Use this to create manual spans for business logic
+ */
+import { trace, SpanStatusCode } from '@opentelemetry/api';
+
 // Configuration
 const serviceName = process.env.OTEL_SERVICE_NAME || 'fleet-management-api';
 const serviceVersion = process.env.API_VERSION || '1.0.0';
@@ -107,12 +113,6 @@ process.on('SIGTERM', () => {
 });
 
 export default sdk;
-
-/**
- * Custom span creation helper
- * Use this to create manual spans for business logic
- */
-import { trace, SpanStatusCode } from '@opentelemetry/api';
 
 export const tracer = trace.getTracer(serviceName, serviceVersion);
 

@@ -384,10 +384,14 @@ export class IncidentResponderService extends BaseService {
    * Calculate average resolution time
    */
   private calculateAverageResolution(incidents: Incident[]): number {
-    if (incidents.length === 0) return 0;
+    if (incidents.length === 0) {
+return 0;
+}
 
     const resolvedIncidents = incidents.filter(i => i.status === 'resolved' || i.status === 'closed');
-    if (resolvedIncidents.length === 0) return 0;
+    if (resolvedIncidents.length === 0) {
+return 0;
+}
 
     const totalTime = resolvedIncidents.reduce((sum, incident) => {
       const startTime = new Date(incident.incident_date).getTime();

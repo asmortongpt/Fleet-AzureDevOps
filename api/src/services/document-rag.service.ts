@@ -154,7 +154,9 @@ export class DocumentRAGService {
 
       // Move start position with overlap
       start = end - this.chunkOverlap
-      if (start >= text.length) break
+      if (start >= text.length) {
+break
+}
     }
 
     return chunks

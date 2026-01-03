@@ -38,7 +38,9 @@ export async function hashPassword(password: string): Promise<string> {
   return new Promise((resolve, reject) => {
     const salt = crypto.randomBytes(16).toString('hex')
     crypto.pbkdf2(password, salt, 10000, 64, 'sha512', (err, derivedKey) => {
-      if (err) reject(err)
+      if (err) {
+reject(err)
+}
       resolve(salt + ':' + derivedKey.toString('hex'))
     })
   })
@@ -54,7 +56,9 @@ export async function verifyPassword(
   return new Promise((resolve, reject) => {
     const [salt, key] = hash.split(':')
     crypto.pbkdf2(password, salt, 10000, 64, 'sha512', (err, derivedKey) => {
-      if (err) reject(err)
+      if (err) {
+reject(err)
+}
       resolve(key === derivedKey.toString('hex'))
     })
   })
@@ -228,7 +232,9 @@ export function isAudioFile(mimeType: string): boolean {
  * Format bytes to human-readable string
  */
 export function formatBytes(bytes: number, decimals: number = 2): string {
-  if (bytes === 0) return '0 Bytes'
+  if (bytes === 0) {
+return '0 Bytes'
+}
 
   const k = 1024
   const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB', 'PB']
@@ -241,8 +247,12 @@ export function formatBytes(bytes: number, decimals: number = 2): string {
  * Format file count
  */
 export function formatFileCount(count: number): string {
-  if (count === 0) return 'No files'
-  if (count === 1) return `1 file`
+  if (count === 0) {
+return 'No files'
+}
+  if (count === 1) {
+return `1 file`
+}
   return `${count.toLocaleString()} files`
 }
 
@@ -250,9 +260,15 @@ export function formatFileCount(count: number): string {
  * Get file icon based on mime type
  */
 export function getFileIcon(mimeType: string): string {
-  if (isImageFile(mimeType)) return `Image`
-  if (isVideoFile(mimeType)) return 'Video'
-  if (isAudioFile(mimeType)) return 'Music'
+  if (isImageFile(mimeType)) {
+return `Image`
+}
+  if (isVideoFile(mimeType)) {
+return 'Video'
+}
+  if (isAudioFile(mimeType)) {
+return 'Music'
+}
 
   const iconMap: Record<string, string> = {
     'application/pdf': 'FileText',
@@ -412,12 +428,22 @@ export function isTextIndexable(mimeType: string): boolean {
  * Get content category from mime type
  */
 export function getContentCategory(mimeType: string): string {
-  if (isImageFile(mimeType)) return 'Images'
-  if (isVideoFile(mimeType)) return 'Videos'
-  if (isAudioFile(mimeType)) return 'Audio'
-  if (isDocumentFile(mimeType)) return 'Documents'
+  if (isImageFile(mimeType)) {
+return 'Images'
+}
+  if (isVideoFile(mimeType)) {
+return 'Videos'
+}
+  if (isAudioFile(mimeType)) {
+return 'Audio'
+}
+  if (isDocumentFile(mimeType)) {
+return 'Documents'
+}
 
-  if (mimeType.startsWith('text/')) return 'Text Files'
+  if (mimeType.startsWith('text/')) {
+return 'Text Files'
+}
   if (mimeType.includes('zip') || mimeType.includes('rar') || mimeType.includes('tar')) {
     return 'Archives'
   }
@@ -433,7 +459,9 @@ export function getContentCategory(mimeType: string): string {
  * Check if timestamp is expired
  */
 export function isExpired(expiresAt?: Date): boolean {
-  if (!expiresAt) return false
+  if (!expiresAt) {
+return false
+}
   return new Date() > new Date(expiresAt)
 }
 
@@ -441,13 +469,17 @@ export function isExpired(expiresAt?: Date): boolean {
  * Get expiration in hours
  */
 export function getExpirationHours(expiresAt?: Date): number | null {
-  if (!expiresAt) return null
+  if (!expiresAt) {
+return null
+}
 
   const now = new Date()
   const expires = new Date(expiresAt)
   const diffMs = expires.getTime() - now.getTime()
 
-  if (diffMs <= 0) return 0
+  if (diffMs <= 0) {
+return 0
+}
 
   return Math.ceil(diffMs / (1000 * 60 * 60))
 }

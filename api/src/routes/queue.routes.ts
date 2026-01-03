@@ -75,11 +75,11 @@ router.get(`/stats`, requireAdmin, async (req: Request, res: Response) => {
       data: {
         queues: validStats,
         summary: {
-          totalPending: validStats.reduce((sum, s) => sum + s!.pending, 0),
-          totalActive: validStats.reduce((sum, s) => sum + s!.active, 0),
-          totalCompleted: validStats.reduce((sum, s) => sum + s!.completed, 0),
-          totalFailed: validStats.reduce((sum, s) => sum + s!.failed, 0),
-          avgProcessingTime: validStats.reduce((sum, s) => sum + s!.avgProcessingTimeMs, 0) / validStats.length || 0
+          totalPending: validStats.reduce((sum, s) => sum + s.pending, 0),
+          totalActive: validStats.reduce((sum, s) => sum + s.active, 0),
+          totalCompleted: validStats.reduce((sum, s) => sum + s.completed, 0),
+          totalFailed: validStats.reduce((sum, s) => sum + s.failed, 0),
+          avgProcessingTime: validStats.reduce((sum, s) => sum + s.avgProcessingTimeMs, 0) / validStats.length || 0
         },
         timestamp: new Date()
       }

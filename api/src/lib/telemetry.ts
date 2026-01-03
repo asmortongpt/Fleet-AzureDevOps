@@ -169,7 +169,9 @@ function enrichTelemetry(envelope: appInsights.Contracts.Envelope): boolean {
  * Mask sensitive parts of URLs
  */
 function maskSensitiveUrl(url: string): string {
-  if (!url) return url
+  if (!url) {
+return url
+}
 
   // Mask JWT tokens
   url = url.replace(/token=([^&]+)/gi, 'token=***')
@@ -207,7 +209,9 @@ export function isTelemetryActive(): boolean {
  * Flush telemetry data (useful for graceful shutdown)
  */
 export async function flushTelemetry(): Promise<void> {
-  if (!isInitialized) return
+  if (!isInitialized) {
+return
+}
 
   return new Promise((resolve) => {
     appInsights.defaultClient.flush({
@@ -223,7 +227,9 @@ export async function flushTelemetry(): Promise<void> {
  * Track a custom event
  */
 export function trackEvent(name: string, properties?: Record<string, any>): void {
-  if (!isInitialized) return
+  if (!isInitialized) {
+return
+}
 
   appInsights.defaultClient.trackEvent({
     name,
@@ -238,7 +244,9 @@ export function trackEvent(name: string, properties?: Record<string, any>): void
  * Track a custom metric
  */
 export function trackMetric(name: string, value: number, properties?: Record<string, any>): void {
-  if (!isInitialized) return
+  if (!isInitialized) {
+return
+}
 
   appInsights.defaultClient.trackMetric({
     name,
@@ -275,7 +283,9 @@ export function trackDependency(
   success: boolean,
   resultCode?: number
 ): void {
-  if (!isInitialized) return
+  if (!isInitialized) {
+return
+}
 
   appInsights.defaultClient.trackDependency({
     target: name,

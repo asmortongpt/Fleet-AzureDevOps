@@ -288,7 +288,9 @@ export class VehicleIdlingService extends EventEmitter {
         const { warning_threshold_seconds, alert_threshold_seconds, critical_threshold_seconds } = event;
 
         // Skip if no thresholds configured
-        if (!warning_threshold_seconds) continue;
+        if (!warning_threshold_seconds) {
+continue;
+}
 
         // Determine severity level
         let severityLevel: 'warning' | 'alert' | 'critical' | null = null;
@@ -448,11 +450,21 @@ export class VehicleIdlingService extends EventEmitter {
             // Format address from Azure Maps response
             const addressParts: string[] = [];
 
-            if (address.streetNumber) addressParts.push(address.streetNumber);
-            if (address.streetName) addressParts.push(address.streetName);
-            if (address.municipality) addressParts.push(address.municipality);
-            if (address.countrySubdivision) addressParts.push(address.countrySubdivision);
-            if (address.postalCode) addressParts.push(address.postalCode);
+            if (address.streetNumber) {
+addressParts.push(address.streetNumber);
+}
+            if (address.streetName) {
+addressParts.push(address.streetName);
+}
+            if (address.municipality) {
+addressParts.push(address.municipality);
+}
+            if (address.countrySubdivision) {
+addressParts.push(address.countrySubdivision);
+}
+            if (address.postalCode) {
+addressParts.push(address.postalCode);
+}
 
             locationName = addressParts.length > 0
               ? addressParts.join(', ')

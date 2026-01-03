@@ -156,7 +156,9 @@ export class MaintenanceRepository extends BaseRepository<any> {
     const keys = Object.keys(data).filter(k => k !== 'id' && k !== 'tenant_id');
     const setClause = keys.map((key, i) => `${key} = $${i + 3}`).join(', ');
 
-    if (!setClause) return null; // or fetch
+    if (!setClause) {
+return null;
+} // or fetch
 
     const query = `
       UPDATE maintenance_schedules

@@ -153,7 +153,9 @@ export class GPSEmulator extends EventEmitter {
    * Update vehicle movement along route
    */
   private updateMovement(): void {
-    if (!this.targetWaypoint) return
+    if (!this.targetWaypoint) {
+return
+}
 
     // Calculate speed based on road type and traffic
     const roadType = this.getCurrentRoadType()
@@ -221,7 +223,9 @@ export class GPSEmulator extends EventEmitter {
    * Move to next waypoint in route
    */
   private moveToNextWaypoint(): void {
-    if (!this.currentRoute) return
+    if (!this.currentRoute) {
+return
+}
 
     this.currentWaypointIndex++
 
@@ -331,7 +335,9 @@ export class GPSEmulator extends EventEmitter {
    * Get current road type
    */
   private getCurrentRoadType(): 'city' | 'highway' | 'residential' {
-    if (!this.currentRoute) return 'city'
+    if (!this.currentRoute) {
+return 'city'
+}
 
     const roadTypes = this.currentRoute.roadTypes || []
     const index = Math.min(this.currentWaypointIndex, roadTypes.length - 1)

@@ -210,7 +210,9 @@ export class GPSEmulator extends EventEmitter {
    * Start GPS emulation
    */
   public start(): void {
-    if (this.isRunning) return
+    if (this.isRunning) {
+return
+}
 
     this.isRunning = true
 
@@ -229,7 +231,9 @@ export class GPSEmulator extends EventEmitter {
    * Stop GPS emulation
    */
   public stop(): void {
-    if (!this.isRunning) return
+    if (!this.isRunning) {
+return
+}
 
     this.isRunning = false
 

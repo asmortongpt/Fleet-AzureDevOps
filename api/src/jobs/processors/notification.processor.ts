@@ -17,7 +17,9 @@ import logger from '../../config/logger'
 let firebaseInitialized = false
 
 function initializeFirebase() {
-  if (firebaseInitialized) return
+  if (firebaseInitialized) {
+return
+}
 
   try {
     // Initialize Firebase Admin with service account credentials

@@ -23,7 +23,9 @@ let ExifParser: any = null
 
 // Lazy load optional EXIF parser
 async function loadExifParser() {
-  if (ExifParser) return
+  if (ExifParser) {
+return
+}
   try {
     const exifModule = await import('exif-parser')
     ExifParser = exifModule.default
@@ -565,7 +567,9 @@ export class DocumentGeoService {
   private parseMapboxContext(context: any[]): GeocodingResult['address_components'] {
     const result: any = {}
 
-    if (!context) return result
+    if (!context) {
+return result
+}
 
     for (const ctx of context) {
       if (ctx.id.startsWith('place')) {

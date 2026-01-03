@@ -142,7 +142,7 @@ export function createCRUDRoutes(config: CRUDRouteConfig): Router {
           {
             resource: config.resource,
             serviceName: config.serviceName,
-            serviceMethod: serviceMethods.getAll!,
+            serviceMethod: serviceMethods.getAll,
             searchFields: config.searchFields,
             statusField: config.statusField,
             cacheTTL: config.cacheTTL,
@@ -172,7 +172,7 @@ export function createCRUDRoutes(config: CRUDRouteConfig): Router {
           {
             resource: config.resource,
             serviceName: config.serviceName,
-            serviceMethod: serviceMethods.getById!,
+            serviceMethod: serviceMethods.getById,
             cacheTTL: config.cacheTTL,
             logResource: config.logResourceName,
           },
@@ -201,7 +201,7 @@ export function createCRUDRoutes(config: CRUDRouteConfig): Router {
           {
             resource: config.resource,
             serviceName: config.serviceName,
-            serviceMethod: serviceMethods.create!,
+            serviceMethod: serviceMethods.create,
             logResource: config.logResourceName,
           },
           container
@@ -229,7 +229,7 @@ export function createCRUDRoutes(config: CRUDRouteConfig): Router {
           {
             resource: config.resource,
             serviceName: config.serviceName,
-            serviceMethod: serviceMethods.update!,
+            serviceMethod: serviceMethods.update,
             logResource: config.logResourceName,
           },
           container
@@ -256,7 +256,7 @@ export function createCRUDRoutes(config: CRUDRouteConfig): Router {
           {
             resource: config.resource,
             serviceName: config.serviceName,
-            serviceMethod: serviceMethods.delete!,
+            serviceMethod: serviceMethods.delete,
             logResource: config.logResourceName,
           },
           container

@@ -338,9 +338,15 @@ router.get('/audit/permissions', requireRole('Admin', 'Auditor'), async (req: Re
       offset: parseInt(offset as string)
     };
 
-    if (startDate) options.startDate = new Date(startDate as string);
-    if (endDate) options.endDate = new Date(endDate as string);
-    if (allowed !== undefined) options.allowed = allowed === 'true';
+    if (startDate) {
+options.startDate = new Date(startDate as string);
+}
+    if (endDate) {
+options.endDate = new Date(endDate as string);
+}
+    if (allowed !== undefined) {
+options.allowed = allowed === 'true';
+}
 
     const logs = userId
       ? await auditService.getUserAuditLogs(userId as string, options)

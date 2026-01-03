@@ -67,7 +67,9 @@ export class ConnectionManager {
    * Create pool instances synchronously
    */
   private createPools(): void {
-    if (this.pools.size > 0) return;
+    if (this.pools.size > 0) {
+return;
+}
 
     for (const [poolType, config] of this.poolConfigs.entries()) {
       try {
@@ -296,7 +298,9 @@ export class ConnectionManager {
 
     const healthCheckInterval = setInterval(async () => {
       const pool = this.pools.get(poolType)
-      if (!pool) return
+      if (!pool) {
+return
+}
 
       try {
         // const client = await pool.connect()
@@ -350,7 +354,9 @@ export class ConnectionManager {
     waitingCount: number
   } | null {
     const pool = this.pools.get(poolType)
-    if (!pool) return null
+    if (!pool) {
+return null
+}
 
     return {
       totalCount: pool.totalCount,

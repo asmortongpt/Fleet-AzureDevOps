@@ -24,7 +24,9 @@ export class RouteEmulator extends EventEmitter {
   }
 
   public async start(): Promise<void> {
-    if (this.isRunning) return
+    if (this.isRunning) {
+return
+}
     this.isRunning = true
     this.isPaused = false
 
@@ -39,8 +41,12 @@ export class RouteEmulator extends EventEmitter {
     this.isRunning = false
   }
 
-  public async pause(): Promise<void> { this.isPaused = true }
-  public async resume(): Promise<void> { this.isPaused = false }
+  public async pause(): Promise<void> {
+ this.isPaused = true 
+}
+  public async resume(): Promise<void> {
+ this.isPaused = false 
+}
 
   public assignRoute(routeId: string): void {
     const route = this.routes.get(routeId)

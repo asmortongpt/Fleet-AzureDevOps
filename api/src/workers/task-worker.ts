@@ -231,7 +231,9 @@ function performTrendAnalysis(dataset: any[]): any {
 
 function calculateCorrelation(dataset: any[]): number {
   const n = dataset.length
-  if (n < 2) return 0
+  if (n < 2) {
+return 0
+}
 
   const values = dataset.map(item => typeof item === 'number' ? item : item.value || 0)
   const indices = Array.from({ length: n }, (_, i) => i)
