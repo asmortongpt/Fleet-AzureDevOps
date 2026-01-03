@@ -4,49 +4,42 @@
 -- ============================================================================
 
 -- Main audit logs table
+-- Add missing columns to existing audit_logs table
+DO $$
+BEGIN
+    ALTER TABLE audit_logs ADD COLUMN IF NOT EXISTS correlation_id UUID;
+    ALTER TABLE audit_logs ADD COLUMN IF NOT EXISTS event_timestamp TIMESTAMP WITH TIME ZONE DEFAULT NOW();
+    ALTER TABLE audit_logs ADD COLUMN IF NOT EXISTS action_display_name VARCHAR(255);
+    ALTER TABLE audit_logs ADD COLUMN IF NOT EXISTS resource_type VARCHAR(100);
+    ALTER TABLE audit_logs ADD COLUMN IF NOT EXISTS resource_id VARCHAR(255);
+    ALTER TABLE audit_logs ADD COLUMN IF NOT EXISTS resource_name VARCHAR(500);
+    ALTER TABLE audit_logs ADD COLUMN IF NOT EXISTS result_status VARCHAR(20) DEFAULT 'success';
+    ALTER TABLE audit_logs ADD COLUMN IF NOT EXISTS result_code INTEGER;
+    ALTER TABLE audit_logs ADD COLUMN IF NOT EXISTS result_message TEXT;
+    ALTER TABLE audit_logs ADD COLUMN IF NOT EXISTS severity VARCHAR(20) DEFAULT 'INFO';
+    ALTER TABLE audit_logs ADD COLUMN IF NOT EXISTS method VARCHAR(20);
+    ALTER TABLE audit_logs ADD COLUMN IF NOT EXISTS endpoint VARCHAR(500);
+    ALTER TABLE audit_logs ADD COLUMN IF NOT EXISTS session_id VARCHAR(255);
+    ALTER TABLE audit_logs ADD COLUMN IF NOT EXISTS encrypted_data JSONB DEFAULT '{}';
+    ALTER TABLE audit_logs ADD COLUMN IF NOT EXISTS checksum VARCHAR(64) DEFAULT '';
+    ALTER TABLE audit_logs ADD COLUMN IF NOT EXISTS tier VARCHAR(20) DEFAULT 'HOT';
+    ALTER TABLE audit_logs ADD COLUMN IF NOT EXISTS archived_at TIMESTAMP WITH TIME ZONE;
+
+    -- Migrate created_at to event_timestamp if needed
+    UPDATE audit_logs SET event_timestamp = created_at WHERE event_timestamp IS NULL;
+EXCEPTION
+    WHEN OTHERS THEN
+        RAISE NOTICE 'Handled exception in audit_logs columns: %', SQLERRM;
+END $$;
+
+-- Ensure the table exists
 CREATE TABLE IF NOT EXISTS audit_logs (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  correlation_id UUID NOT NULL,
-  "timestamp" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
-  user_id VARCHAR(255) NOT NULL,
-  action VARCHAR(100) NOT NULL,
-  action_display_name VARCHAR(255),
-
-  -- Resource information
-  resource_type VARCHAR(100),
-  resource_id VARCHAR(255),
-  resource_name VARCHAR(500),
-
-  -- Result tracking
-  result_status VARCHAR(20) NOT NULL, -- 'success' or 'failure'
-  result_code INTEGER,
-  result_message TEXT,
-
-  -- Context
-  severity VARCHAR(20) NOT NULL, -- 'INFO', 'WARNING', 'ERROR', 'CRITICAL'
-  ip_address INET,
-  user_agent TEXT,
-  method VARCHAR(20), -- HTTP method
-  endpoint VARCHAR(500),
-  session_id VARCHAR(255),
-
-  -- Encryption
-  encrypted_data JSONB NOT NULL,
-  checksum VARCHAR(64) NOT NULL,
-
-  -- Storage management
-  tier VARCHAR(20) DEFAULT 'HOT', -- 'HOT', 'WARM', 'COLD'
-  archived_at TIMESTAMP WITH TIME ZONE,
-  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-
-  -- Indexes for common queries
-  CONSTRAINT audit_logs_user_id_idx UNIQUE NULLS NOT DISTINCT (user_id, timestamp),
-  CONSTRAINT audit_logs_correlation_idx UNIQUE NULLS NOT DISTINCT (correlation_id, timestamp),
-  CONSTRAINT audit_logs_resource_idx UNIQUE NULLS NOT DISTINCT (resource_type, resource_id, timestamp)
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    event_timestamp TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
 -- Create indexes for audit logs
-CREATE INDEX IF NOT EXISTS idx_audit_logs_timestamp ON audit_logs(timestamp DESC);
+CREATE INDEX IF NOT EXISTS idx_audit_logs_timestamp ON audit_logs(event_timestamp DESC);
 CREATE INDEX IF NOT EXISTS idx_audit_logs_user_id ON audit_logs(user_id);
 CREATE INDEX IF NOT EXISTS idx_audit_logs_action ON audit_logs(action);
 CREATE INDEX IF NOT EXISTS idx_audit_logs_correlation_id ON audit_logs(correlation_id);
@@ -130,7 +123,7 @@ CREATE INDEX IF NOT EXISTS idx_audit_log_verification_verified_at ON audit_log_v
 -- Security alerts table
 CREATE TABLE IF NOT EXISTS security_alerts (
   id VARCHAR(255) PRIMARY KEY,
-  "timestamp" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
+  event_timestamp TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
   severity VARCHAR(20) NOT NULL, -- 'INFO', 'WARNING', 'ERROR', 'CRITICAL'
   alert_type VARCHAR(100) NOT NULL,
   description TEXT NOT NULL,
@@ -143,7 +136,7 @@ CREATE TABLE IF NOT EXISTS security_alerts (
 );
 
 -- Create indexes for security alerts
-CREATE INDEX IF NOT EXISTS idx_security_alerts_timestamp ON security_alerts(timestamp DESC);
+CREATE INDEX IF NOT EXISTS idx_security_alerts_timestamp ON security_alerts(event_timestamp DESC);
 CREATE INDEX IF NOT EXISTS idx_security_alerts_severity ON security_alerts(severity);
 CREATE INDEX IF NOT EXISTS idx_security_alerts_resolved ON security_alerts(resolved);
 
@@ -152,7 +145,7 @@ CREATE OR REPLACE VIEW recent_audit_activity AS
 SELECT
   id,
   correlation_id,
-  timestamp,
+  event_timestamp,
   user_id,
   action,
   action_display_name,
@@ -164,14 +157,14 @@ SELECT
   ip_address,
   endpoint
 FROM audit_logs
-WHERE timestamp > NOW() - INTERVAL '24 hours'
-ORDER BY timestamp DESC;
+WHERE event_timestamp > NOW() - INTERVAL '24 hours'
+ORDER BY event_timestamp DESC;
 
 -- Create view for failed operations
 CREATE OR REPLACE VIEW failed_operations AS
 SELECT
   id,
-  timestamp,
+  event_timestamp,
   user_id,
   action,
   resource_type,
@@ -181,8 +174,8 @@ SELECT
   ip_address
 FROM audit_logs
 WHERE result_status = 'failure'
-  AND timestamp > NOW() - INTERVAL '7 days'
-ORDER BY timestamp DESC;
+  AND event_timestamp > NOW() - INTERVAL '7 days'
+ORDER BY event_timestamp DESC;
 
 -- Create view for user activity summary
 CREATE OR REPLACE VIEW user_activity_summary AS
@@ -192,10 +185,10 @@ SELECT
   COUNT(*) FILTER (WHERE result_status = 'success') as successful_events,
   COUNT(*) FILTER (WHERE result_status = 'failure') as failed_events,
   COUNT(DISTINCT resource_type) as resource_types_accessed,
-  MAX(timestamp) as last_activity,
+  MAX(event_timestamp) as last_activity,
   ARRAY_AGG(DISTINCT action ORDER BY action) as actions_performed
 FROM audit_logs
-WHERE timestamp > NOW() - INTERVAL '30 days'
+WHERE event_timestamp > NOW() - INTERVAL '30 days'
 GROUP BY user_id;
 
 -- Create view for resource access summary
@@ -206,10 +199,10 @@ SELECT
   COUNT(*) as total_accesses,
   COUNT(DISTINCT user_id) as unique_users,
   COUNT(*) FILTER (WHERE result_status = 'failure') as failed_accesses,
-  MAX(timestamp) as last_accessed,
+  MAX(event_timestamp) as last_accessed,
   ARRAY_AGG(DISTINCT user_id ORDER BY user_id) as accessed_by_users
 FROM audit_logs
-WHERE timestamp > NOW() - INTERVAL '90 days'
+WHERE event_timestamp > NOW() - INTERVAL '90 days'
   AND resource_type IS NOT NULL
   AND resource_id IS NOT NULL
 GROUP BY resource_type, resource_id;

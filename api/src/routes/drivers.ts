@@ -60,13 +60,13 @@ router.get(
       // fleet/global scope sees all
 
       const result = await tenantSafeQuery(
-        'SELECT id, tenant_id, email, first_name, last_name, role, is_active, phone, created_at, updated_at FROM users WHERE tenant_id = $1 ' + scopeFilter + ' ORDER BY created_at DESC LIMIT $2 OFFSET $3',
+        'SELECT id, tenant_id, email, first_name, last_name, phone, license_number, cdl, status, metadata, created_at, updated_at FROM drivers WHERE tenant_id = $1 ' + scopeFilter + ' ORDER BY created_at DESC LIMIT $2 OFFSET $3',
         [...scopeParams, limit, offset],
         req.user!.tenant_id
       )
 
       const countResult = await tenantSafeQuery(
-        'SELECT COUNT(*) FROM users WHERE tenant_id = $1 ' + scopeFilter,
+        'SELECT COUNT(*) FROM drivers WHERE tenant_id = $1 ' + scopeFilter,
         scopeParams,
         req.user!.tenant_id
       )
@@ -96,7 +96,7 @@ router.get(
   async (req: AuthRequest, res: Response) => {
     try {
       const result = await tenantSafeQuery(
-        'SELECT id, tenant_id, email, first_name, last_name, role, is_active, phone, created_at, updated_at FROM users WHERE id = $1 AND tenant_id = $2',
+        'SELECT id, tenant_id, email, first_name, last_name, phone, license_number, cdl, status, metadata, created_at, updated_at FROM drivers WHERE id = $1 AND tenant_id = $2',
         [req.params.id, req.user!.tenant_id],
         req.user!.tenant_id
       )

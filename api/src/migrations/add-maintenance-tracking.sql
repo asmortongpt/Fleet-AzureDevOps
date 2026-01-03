@@ -1,5 +1,14 @@
--- Maintenance Tracking System with Predictive Capabilities
--- Supports manufacturer maintenance schedules and automatic predictions
+-- =======================
+-- VEHICLES PATCH
+-- =======================
+DO $$
+BEGIN
+    ALTER TABLE vehicles ADD COLUMN IF NOT EXISTS engine_hours DECIMAL(10,2) DEFAULT 0;
+    ALTER TABLE vehicles ADD COLUMN IF NOT EXISTS current_driver_id UUID REFERENCES drivers(id);
+EXCEPTION
+    WHEN OTHERS THEN
+        RAISE NOTICE 'Handled exception in vehicles columns: %', SQLERRM;
+END $$;
 
 -- =======================
 -- MANUFACTURER MAINTENANCE SCHEDULES
@@ -36,49 +45,39 @@ CREATE INDEX IF NOT EXISTS idx_manufacturer_schedules_category ON manufacturer_m
 -- =======================
 -- MAINTENANCE SCHEDULES (Vehicle-specific)
 -- =======================
+-- =======================
+-- MAINTENANCE SCHEDULES (Vehicle-specific)
+-- =======================
+DO $$
+BEGIN
+    -- Add columns to existing maintenance_schedules table if it exists
+    ALTER TABLE maintenance_schedules ADD COLUMN IF NOT EXISTS schedule_id UUID REFERENCES manufacturer_maintenance_schedules(id);
+    ALTER TABLE maintenance_schedules ADD COLUMN IF NOT EXISTS service_type VARCHAR(100);
+    ALTER TABLE maintenance_schedules ADD COLUMN IF NOT EXISTS service_category VARCHAR(50);
+    ALTER TABLE maintenance_schedules ADD COLUMN IF NOT EXISTS interval_months INTEGER;
+    ALTER TABLE maintenance_schedules ADD COLUMN IF NOT EXISTS interval_engine_hours INTEGER;
+    ALTER TABLE maintenance_schedules ADD COLUMN IF NOT EXISTS last_service_odometer DECIMAL(10,2);
+    ALTER TABLE maintenance_schedules ADD COLUMN IF NOT EXISTS last_service_engine_hours DECIMAL(10,2);
+    ALTER TABLE maintenance_schedules ADD COLUMN IF NOT EXISTS next_service_due_date DATE;
+    ALTER TABLE maintenance_schedules ADD COLUMN IF NOT EXISTS next_service_due_odometer DECIMAL(10,2);
+    ALTER TABLE maintenance_schedules ADD COLUMN IF NOT EXISTS next_service_due_engine_hours DECIMAL(10,2);
+    ALTER TABLE maintenance_schedules ADD COLUMN IF NOT EXISTS predicted_next_service_date DATE;
+    ALTER TABLE maintenance_schedules ADD COLUMN IF NOT EXISTS confidence_score DECIMAL(5,2);
+    ALTER TABLE maintenance_schedules ADD COLUMN IF NOT EXISTS days_until_due INTEGER;
+    ALTER TABLE maintenance_schedules ADD COLUMN IF NOT EXISTS miles_until_due DECIMAL(10,2);
+    ALTER TABLE maintenance_schedules ADD COLUMN IF NOT EXISTS reminder_days_before INTEGER DEFAULT 7;
+    ALTER TABLE maintenance_schedules ADD COLUMN IF NOT EXISTS estimated_duration_minutes INTEGER; ALTER TABLE maintenance_schedules ADD COLUMN IF NOT EXISTS reminder_miles_before INTEGER DEFAULT 500;
+    ALTER TABLE maintenance_schedules ADD COLUMN IF NOT EXISTS last_reminder_sent_at TIMESTAMP WITH TIME ZONE;
+    ALTER TABLE maintenance_schedules ADD COLUMN IF NOT EXISTS is_overdue BOOLEAN DEFAULT false;
+EXCEPTION
+    WHEN OTHERS THEN
+        RAISE NOTICE 'Handled exception in maintenance_schedules columns: %', SQLERRM;
+END $$;
+
+-- Ensure the table exists even if skipped above (though it should exist from 0000)
 CREATE TABLE IF NOT EXISTS maintenance_schedules (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    vehicle_id UUID NOT NULL REFERENCES vehicles(id) ON DELETE CASCADE,
-    schedule_id UUID REFERENCES manufacturer_maintenance_schedules(id),
-    service_type VARCHAR(100) NOT NULL,
-    service_category VARCHAR(50) NOT NULL,
-    description TEXT,
-
-    -- Trigger conditions
-    interval_miles INTEGER,
-    interval_months INTEGER,
-    interval_engine_hours INTEGER,
-
-    -- Last service tracking
-    last_service_date DATE,
-    last_service_odometer DECIMAL(10,2),
-    last_service_engine_hours DECIMAL(10,2),
-
-    -- Next service predictions
-    next_service_due_date DATE,
-    next_service_due_odometer DECIMAL(10,2),
-    next_service_due_engine_hours DECIMAL(10,2),
-    predicted_next_service_date DATE, -- ML prediction based on usage patterns
-    confidence_score DECIMAL(5,2), -- 0-100 confidence in prediction
-
-    -- Cost estimation
-    estimated_cost DECIMAL(10,2),
-    estimated_duration_minutes INTEGER,
-
-    -- Status
-    is_active BOOLEAN DEFAULT true,
-    is_overdue BOOLEAN DEFAULT false,
-    days_until_due INTEGER,
-    miles_until_due DECIMAL(10,2),
-
-    -- Notifications
-    reminder_days_before INTEGER DEFAULT 7,
-    reminder_miles_before INTEGER DEFAULT 500,
-    last_reminder_sent_at TIMESTAMP WITH TIME ZONE,
-
-    notes TEXT,
-    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-    updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+    vehicle_id UUID NOT NULL REFERENCES vehicles(id) ON DELETE CASCADE
 );
 
 CREATE INDEX IF NOT EXISTS idx_maintenance_schedules_vehicle ON maintenance_schedules(vehicle_id);
@@ -89,149 +88,110 @@ CREATE INDEX IF NOT EXISTS idx_maintenance_schedules_overdue ON maintenance_sche
 -- =======================
 -- WORK ORDERS
 -- =======================
+DO $$
+BEGIN
+    -- Add columns to existing work_orders table
+    ALTER TABLE work_orders ADD COLUMN IF NOT EXISTS schedule_id UUID REFERENCES maintenance_schedules(id);
+    ALTER TABLE work_orders ADD COLUMN IF NOT EXISTS number VARCHAR(50);
+    ALTER TABLE work_orders ADD COLUMN IF NOT EXISTS work_type VARCHAR(50);
+    ALTER TABLE work_orders ADD COLUMN IF NOT EXISTS scheduled_start_time TIME;
+    ALTER TABLE work_orders ADD COLUMN IF NOT EXISTS scheduled_end_time TIME;
+    ALTER TABLE work_orders ADD COLUMN IF NOT EXISTS actual_start_time TIMESTAMP WITH TIME ZONE;
+    ALTER TABLE work_orders ADD COLUMN IF NOT EXISTS actual_end_date TIMESTAMP WITH TIME ZONE;
+    ALTER TABLE work_orders ADD COLUMN IF NOT EXISTS assigned_vendor_id UUID REFERENCES vendors(id);
+    ALTER TABLE work_orders ADD COLUMN IF NOT EXISTS assigned_technician VARCHAR(255);
+    ALTER TABLE work_orders ADD COLUMN IF NOT EXISTS odometer_in DECIMAL(10,2);
+    ALTER TABLE work_orders ADD COLUMN IF NOT EXISTS odometer_out DECIMAL(10,2);
+    ALTER TABLE work_orders ADD COLUMN IF NOT EXISTS engine_hours_in DECIMAL(10,2);
+    ALTER TABLE work_orders ADD COLUMN IF NOT EXISTS engine_hours_out DECIMAL(10,2);
+    ALTER TABLE work_orders ADD COLUMN IF NOT EXISTS fuel_level_in DECIMAL(5,2);
+    ALTER TABLE work_orders ADD COLUMN IF NOT EXISTS fuel_level_out DECIMAL(5,2);
+    ALTER TABLE work_orders ADD COLUMN IF NOT EXISTS services_performed JSONB DEFAULT '[]';
+    ALTER TABLE work_orders ADD COLUMN IF NOT EXISTS parts_used JSONB DEFAULT '[]';
+    ALTER TABLE work_orders ADD COLUMN IF NOT EXISTS labor_hours DECIMAL(5,2);
+    ALTER TABLE work_orders ADD COLUMN IF NOT EXISTS parts_cost DECIMAL(10,2) DEFAULT 0;
+    ALTER TABLE work_orders ADD COLUMN IF NOT EXISTS labor_cost DECIMAL(10,2) DEFAULT 0;
+    ALTER TABLE work_orders ADD COLUMN IF NOT EXISTS tax DECIMAL(10,2) DEFAULT 0;
+    ALTER TABLE work_orders ADD COLUMN IF NOT EXISTS purchase_order_id UUID REFERENCES purchase_orders(id);
+    ALTER TABLE work_orders ADD COLUMN IF NOT EXISTS invoice_number VARCHAR(100);
+    ALTER TABLE work_orders ADD COLUMN IF NOT EXISTS invoice_date DATE;
+    ALTER TABLE work_orders ADD COLUMN IF NOT EXISTS payment_status VARCHAR(50) DEFAULT 'unpaid';
+    ALTER TABLE work_orders ADD COLUMN IF NOT EXISTS inspection_results JSONB;
+    ALTER TABLE work_orders ADD COLUMN IF NOT EXISTS issues_found TEXT[];
+    ALTER TABLE work_orders ADD COLUMN IF NOT EXISTS recommendations TEXT[];
+    ALTER TABLE work_orders ADD COLUMN IF NOT EXISTS photos TEXT[];
+    ALTER TABLE work_orders ADD COLUMN IF NOT EXISTS documents TEXT[];
+    ALTER TABLE work_orders ADD COLUMN IF NOT EXISTS requires_approval BOOLEAN DEFAULT false;
+    ALTER TABLE work_orders ADD COLUMN IF NOT EXISTS approved_by UUID REFERENCES users(id);
+    ALTER TABLE work_orders ADD COLUMN IF NOT EXISTS approved_at TIMESTAMP WITH TIME ZONE;
+    ALTER TABLE work_orders ADD COLUMN IF NOT EXISTS approval_notes TEXT;
+    ALTER TABLE work_orders ADD COLUMN IF NOT EXISTS created_by UUID REFERENCES users(id);
+    ALTER TABLE work_orders ADD COLUMN IF NOT EXISTS cancelled_at TIMESTAMP WITH TIME ZONE;
+    ALTER TABLE work_orders ADD COLUMN IF NOT EXISTS cancellation_reason TEXT;
+EXCEPTION
+    WHEN OTHERS THEN
+        RAISE NOTICE 'Handled exception in work_orders columns: %', SQLERRM;
+END $$;
+
+-- Ensure the table exists
 CREATE TABLE IF NOT EXISTS work_orders (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    tenant_id UUID REFERENCES tenants(id) ON DELETE CASCADE,
-    work_order_number VARCHAR(50) UNIQUE NOT NULL,
     vehicle_id UUID NOT NULL REFERENCES vehicles(id) ON DELETE CASCADE,
-    schedule_id UUID REFERENCES maintenance_schedules(id),
-
-    -- Work order details
-    title VARCHAR(255) NOT NULL,
-    description TEXT,
-    work_type VARCHAR(50) NOT NULL CHECK (work_type IN ('preventive', 'repair', 'inspection', 'recall', 'upgrade', 'accident_repair')),
-    priority VARCHAR(20) DEFAULT 'normal' CHECK (priority IN ('low', 'normal', 'high', 'critical')),
-    status VARCHAR(50) DEFAULT 'draft' CHECK (status IN ('draft', 'pending', 'scheduled', 'in_progress', 'on_hold', 'completed', 'cancelled')),
-
-    -- Scheduling
-    scheduled_start_date DATE,
-    scheduled_start_time TIME,
-    scheduled_end_time TIME,
-    actual_start_time TIMESTAMP WITH TIME ZONE,
-    actual_end_time TIMESTAMP WITH TIME ZONE,
-
-    -- Assignment
-    assigned_vendor_id UUID REFERENCES vendors(id),
-    assigned_technician VARCHAR(255),
-    assigned_by UUID REFERENCES users(id),
-
-    -- Vehicle state at time of service
-    odometer_in DECIMAL(10,2),
-    odometer_out DECIMAL(10,2),
-    engine_hours_in DECIMAL(10,2),
-    engine_hours_out DECIMAL(10,2),
-    fuel_level_in DECIMAL(5,2), -- percentage
-    fuel_level_out DECIMAL(5,2),
-
-    -- Services performed
-    services_performed JSONB DEFAULT '[]', -- [{service_type, description, labor_hours, parts_used}]
-    parts_used JSONB DEFAULT '[]', -- [{part_name, part_number, quantity, unit_cost, total_cost}]
-    labor_hours DECIMAL(5,2),
-
-    -- Cost tracking
-    estimated_cost DECIMAL(10,2),
-    parts_cost DECIMAL(10,2) DEFAULT 0,
-    labor_cost DECIMAL(10,2) DEFAULT 0,
-    tax DECIMAL(10,2) DEFAULT 0,
-    total_cost DECIMAL(10,2) GENERATED ALWAYS AS (parts_cost + labor_cost + tax) STORED,
-
-    -- Purchase order integration
-    purchase_order_id UUID REFERENCES purchase_orders(id),
-    invoice_number VARCHAR(100),
-    invoice_date DATE,
-    payment_status VARCHAR(50) DEFAULT 'unpaid' CHECK (payment_status IN ('unpaid', 'partial', 'paid', 'refunded')),
-
-    -- Inspection results
-    inspection_results JSONB,
-    issues_found TEXT[],
-    recommendations TEXT[],
-
-    -- Photos and documents
-    photos TEXT[],
-    documents TEXT[],
-
-    -- Approval workflow
-    requires_approval BOOLEAN DEFAULT false,
-    approved_by UUID REFERENCES users(id),
-    approved_at TIMESTAMP WITH TIME ZONE,
-    approval_notes TEXT,
-
-    -- Tracking
-    created_by UUID REFERENCES users(id),
-    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-    updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-    completed_at TIMESTAMP WITH TIME ZONE,
-    cancelled_at TIMESTAMP WITH TIME ZONE,
-    cancellation_reason TEXT
+    title VARCHAR(255) NOT NULL
 );
 
 CREATE INDEX IF NOT EXISTS idx_work_orders_vehicle ON work_orders(vehicle_id);
 CREATE INDEX IF NOT EXISTS idx_work_orders_tenant ON work_orders(tenant_id);
 CREATE INDEX IF NOT EXISTS idx_work_orders_status ON work_orders(status);
-CREATE INDEX IF NOT EXISTS idx_work_orders_scheduled_start_date ON work_orders(scheduled_start_date) WHERE status IN ('scheduled', 'pending');
+CREATE INDEX IF NOT EXISTS idx_work_orders_scheduled_start_date ON work_orders(scheduled_start_date) WHERE status IN ('pending', 'pending');
 CREATE INDEX IF NOT EXISTS idx_work_orders_vendor ON work_orders(assigned_vendor_id);
-CREATE INDEX IF NOT EXISTS idx_work_orders_number ON work_orders(work_order_number);
+CREATE INDEX IF NOT EXISTS idx_work_orders_number ON work_orders(number);
 
 -- =======================
 -- FUEL TRANSACTIONS
 -- =======================
+-- =======================
+-- FUEL TRANSACTIONS
+-- =======================
+DO $$
+BEGIN
+    -- Add columns to existing fuel_transactions table
+    ALTER TABLE fuel_transactions ADD COLUMN IF NOT EXISTS vendor_id UUID REFERENCES vendors(id);
+    ALTER TABLE fuel_transactions ADD COLUMN IF NOT EXISTS quantity_gallons DECIMAL(8,3);
+    ALTER TABLE fuel_transactions ADD COLUMN IF NOT EXISTS price_per_gallon DECIMAL(6,3);
+    ALTER TABLE fuel_transactions ADD COLUMN IF NOT EXISTS location_name VARCHAR(255);
+    ALTER TABLE fuel_transactions ADD COLUMN IF NOT EXISTS address TEXT;
+    ALTER TABLE fuel_transactions ADD COLUMN IF NOT EXISTS city VARCHAR(100);
+    ALTER TABLE fuel_transactions ADD COLUMN IF NOT EXISTS state VARCHAR(2);
+    ALTER TABLE fuel_transactions ADD COLUMN IF NOT EXISTS zip_code VARCHAR(10);
+    ALTER TABLE fuel_transactions ADD COLUMN IF NOT EXISTS currency VARCHAR(3) DEFAULT 'USD';
+    ALTER TABLE fuel_transactions ADD COLUMN IF NOT EXISTS engine_hours DECIMAL(10,2);
+    ALTER TABLE fuel_transactions ADD COLUMN IF NOT EXISTS fuel_level_before DECIMAL(5,2);
+    ALTER TABLE fuel_transactions ADD COLUMN IF NOT EXISTS fuel_level_after DECIMAL(5,2);
+    ALTER TABLE fuel_transactions ADD COLUMN IF NOT EXISTS miles_since_last_fill DECIMAL(10,2);
+    ALTER TABLE fuel_transactions ADD COLUMN IF NOT EXISTS mpg DECIMAL(5,2);
+    ALTER TABLE fuel_transactions ADD COLUMN IF NOT EXISTS cost_per_mile DECIMAL(6,4);
+    ALTER TABLE fuel_transactions ADD COLUMN IF NOT EXISTS card_last_four VARCHAR(4);
+    ALTER TABLE fuel_transactions ADD COLUMN IF NOT EXISTS is_verified BOOLEAN DEFAULT false;
+    ALTER TABLE fuel_transactions ADD COLUMN IF NOT EXISTS verified_by UUID REFERENCES users(id);
+    ALTER TABLE fuel_transactions ADD COLUMN IF NOT EXISTS verified_at TIMESTAMP WITH TIME ZONE;
+    ALTER TABLE fuel_transactions ADD COLUMN IF NOT EXISTS is_anomaly BOOLEAN DEFAULT false;
+    ALTER TABLE fuel_transactions ADD COLUMN IF NOT EXISTS anomaly_reason TEXT;
+    ALTER TABLE fuel_transactions ADD COLUMN IF NOT EXISTS anomaly_score DECIMAL(5,2);
+
+    -- Copy existing data if columns match
+    UPDATE fuel_transactions SET quantity_gallons = gallons WHERE quantity_gallons IS NULL AND gallons IS NOT NULL;
+    UPDATE fuel_transactions SET price_per_gallon = cost_per_gallon WHERE price_per_gallon IS NULL AND cost_per_gallon IS NOT NULL;
+EXCEPTION
+    WHEN OTHERS THEN
+        RAISE NOTICE 'Handled exception in fuel_transactions columns: %', SQLERRM;
+END $$;
+
+-- Ensure the table exists
 CREATE TABLE IF NOT EXISTS fuel_transactions (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    tenant_id UUID REFERENCES tenants(id) ON DELETE CASCADE,
     vehicle_id UUID NOT NULL REFERENCES vehicles(id) ON DELETE CASCADE,
-    driver_id UUID REFERENCES drivers(id),
-
-    -- Transaction details
-    transaction_date TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
-    vendor_name VARCHAR(255),
-    vendor_id UUID REFERENCES vendors(id),
-
-    -- Location
-    location_name VARCHAR(255),
-    address TEXT,
-    latitude DECIMAL(10,8),
-    longitude DECIMAL(11,8),
-    city VARCHAR(100),
-    state VARCHAR(2),
-    zip_code VARCHAR(10),
-
-    -- Fuel details
-    fuel_type VARCHAR(50) NOT NULL,
-    quantity_gallons DECIMAL(8,3) NOT NULL,
-    price_per_gallon DECIMAL(6,3) NOT NULL,
-    total_cost DECIMAL(10,2) NOT NULL,
-    currency VARCHAR(3) DEFAULT 'USD',
-
-    -- Vehicle state
-    odometer DECIMAL(10,2) NOT NULL,
-    engine_hours DECIMAL(10,2),
-    fuel_level_before DECIMAL(5,2), -- percentage
-    fuel_level_after DECIMAL(5,2),
-
-    -- Efficiency metrics
-    miles_since_last_fill DECIMAL(10,2),
-    mpg DECIMAL(5,2), -- calculated miles per gallon
-    cost_per_mile DECIMAL(6,4),
-
-    -- Payment
-    payment_method VARCHAR(50) CHECK (payment_method IN ('fleet_card', 'credit_card', 'cash', 'invoice')),
-    card_last_four VARCHAR(4),
-    receipt_number VARCHAR(100),
-    invoice_number VARCHAR(100),
-
-    -- Validation
-    is_verified BOOLEAN DEFAULT false,
-    verified_by UUID REFERENCES users(id),
-    verified_at TIMESTAMP WITH TIME ZONE,
-
-    -- Anomaly detection
-    is_anomaly BOOLEAN DEFAULT false,
-    anomaly_reason TEXT,
-    anomaly_score DECIMAL(5,2), -- 0-100 likelihood of being fraudulent/error
-
-    notes TEXT,
-    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-    updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+    transaction_date TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW()
 );
 
 CREATE INDEX IF NOT EXISTS idx_fuel_transactions_vehicle ON fuel_transactions(vehicle_id);
@@ -279,43 +239,34 @@ CREATE INDEX IF NOT EXISTS idx_vehicle_assignments_dates ON vehicle_assignments(
 -- =======================
 -- VEHICLE INSPECTIONS
 -- =======================
+DO $$
+BEGIN
+    -- Add columns to existing vehicle_inspections table
+    ALTER TABLE vehicle_inspections ADD COLUMN IF NOT EXISTS inspector_id UUID REFERENCES users(id);
+    ALTER TABLE vehicle_inspections ADD COLUMN IF NOT EXISTS overall_status VARCHAR(20);
+    ALTER TABLE vehicle_inspections ADD COLUMN IF NOT EXISTS inspection_items JSONB;
+    ALTER TABLE vehicle_inspections ADD COLUMN IF NOT EXISTS defects_found TEXT[];
+    ALTER TABLE vehicle_inspections ADD COLUMN IF NOT EXISTS defects_critical BOOLEAN DEFAULT false;
+    ALTER TABLE vehicle_inspections ADD COLUMN IF NOT EXISTS requires_maintenance BOOLEAN DEFAULT false;
+    ALTER TABLE vehicle_inspections ADD COLUMN IF NOT EXISTS work_order_created UUID REFERENCES work_orders(id);
+    ALTER TABLE vehicle_inspections ADD COLUMN IF NOT EXISTS dot_compliant BOOLEAN;
+    ALTER TABLE vehicle_inspections ADD COLUMN IF NOT EXISTS safety_compliant BOOLEAN;
+    ALTER TABLE vehicle_inspections ADD COLUMN IF NOT EXISTS emissions_compliant BOOLEAN;
+    ALTER TABLE vehicle_inspections ADD COLUMN IF NOT EXISTS signature_data TEXT;
+    ALTER TABLE vehicle_inspections ADD COLUMN IF NOT EXISTS form_template_id UUID;
+    
+    -- Handle renaming status to overall_status or copying data if needed
+    -- (Keeping it simple: just ensure overall_status exists)
+EXCEPTION
+    WHEN OTHERS THEN
+        RAISE NOTICE 'Handled exception in vehicle_inspections columns: %', SQLERRM;
+END $$;
+
+-- Ensure the table exists
 CREATE TABLE IF NOT EXISTS vehicle_inspections (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    tenant_id UUID REFERENCES tenants(id) ON DELETE CASCADE,
     vehicle_id UUID NOT NULL REFERENCES vehicles(id) ON DELETE CASCADE,
-    driver_id UUID REFERENCES drivers(id),
-    inspector_id UUID REFERENCES users(id),
-
-    inspection_type VARCHAR(50) NOT NULL CHECK (inspection_type IN ('pre_trip', 'post_trip', 'annual', 'dot', 'safety', 'damage')),
-    inspected_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
-
-    -- Vehicle state
-    odometer DECIMAL(10,2),
-    engine_hours DECIMAL(10,2),
-
-    -- Inspection results
-    overall_status VARCHAR(20) NOT NULL CHECK (overall_status IN ('pass', 'pass_with_defects', 'fail')),
-    inspection_items JSONB NOT NULL, -- [{item, status, notes, photos}]
-    defects_found TEXT[],
-    defects_critical BOOLEAN DEFAULT false,
-
-    -- Follow-up
-    requires_maintenance BOOLEAN DEFAULT false,
-    work_order_created UUID REFERENCES work_orders(id),
-
-    -- Compliance
-    dot_compliant BOOLEAN,
-    safety_compliant BOOLEAN,
-    emissions_compliant BOOLEAN,
-
-    -- Documentation
-    signature_data TEXT, -- base64 encoded signature
-    photos TEXT[],
-    form_template_id UUID REFERENCES inspection_forms(id),
-
-    notes TEXT,
-    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-    updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+    inspected_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW()
 );
 
 CREATE INDEX IF NOT EXISTS idx_vehicle_inspections_vehicle ON vehicle_inspections(vehicle_id);
@@ -362,6 +313,7 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
+DROP TRIGGER IF EXISTS trigger_update_maintenance_predictions ON vehicles;
 CREATE TRIGGER trigger_update_maintenance_predictions
 AFTER UPDATE OF odometer, engine_hours ON vehicles
 FOR EACH ROW
@@ -388,7 +340,7 @@ BEGIN
         -- Calculate MPG if we have miles and gallons
         IF NEW.miles_since_last_fill > 0 AND NEW.quantity_gallons > 0 THEN
             NEW.mpg := NEW.miles_since_last_fill / NEW.quantity_gallons;
-            NEW.cost_per_mile := NEW.total_cost / NEW.miles_since_last_fill;
+            NEW.cost_per_mile := NEW.actual_cost / NEW.miles_since_last_fill;
         END IF;
     END IF;
 
@@ -396,7 +348,7 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
-CREATE TRIGGER trigger_calculate_fuel_efficiency
+DROP TRIGGER IF EXISTS trigger_calculate_fuel_efficiency ON fuel_transactions; CREATE TRIGGER trigger_calculate_fuel_efficiency
 BEFORE INSERT ON fuel_transactions
 FOR EACH ROW
 EXECUTE FUNCTION calculate_fuel_efficiency();
@@ -445,10 +397,10 @@ SELECT
     v.year,
     COUNT(wo.id) as total_work_orders,
     COUNT(wo.id) FILTER (WHERE wo.status = 'completed') as completed_work_orders,
-    COUNT(wo.id) FILTER (WHERE wo.status IN ('pending', 'scheduled', 'in_progress')) as active_work_orders,
-    SUM(wo.total_cost) FILTER (WHERE wo.status = 'completed') as total_maintenance_cost,
-    AVG(wo.total_cost) FILTER (WHERE wo.status = 'completed') as avg_maintenance_cost,
-    MAX(wo.completed_at) as last_service_date,
+    COUNT(wo.id) FILTER (WHERE wo.status IN ('pending', 'pending', 'in_progress')) as active_work_orders,
+    SUM(wo.actual_cost) FILTER (WHERE wo.status = 'completed') as total_maintenance_cost,
+    AVG(wo.actual_cost) FILTER (WHERE wo.status = 'completed') as avg_maintenance_cost,
+    MAX(wo.actual_end_date) as last_service_date,
     COUNT(ms.id) FILTER (WHERE ms.is_overdue = true) as overdue_services
 FROM vehicles v
 LEFT JOIN work_orders wo ON v.id = wo.vehicle_id
@@ -482,26 +434,32 @@ GROUP BY ft.vehicle_id, v.vin, v.make, v.model, v.year, DATE_TRUNC('month', ft.t
 -- GRANT SELECT ON v_fuel_efficiency_trends TO PUBLIC;
 
 -- Insert updated_at triggers
+DROP TRIGGER IF EXISTS update_manufacturer_maintenance_schedules_updated_at ON manufacturer_maintenance_schedules;
 CREATE TRIGGER update_manufacturer_maintenance_schedules_updated_at
 BEFORE UPDATE ON manufacturer_maintenance_schedules
 FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
+DROP TRIGGER IF EXISTS update_maintenance_schedules_updated_at ON maintenance_schedules;
 CREATE TRIGGER update_maintenance_schedules_updated_at
 BEFORE UPDATE ON maintenance_schedules
 FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
+DROP TRIGGER IF EXISTS update_work_orders_updated_at ON work_orders;
 CREATE TRIGGER update_work_orders_updated_at
 BEFORE UPDATE ON work_orders
 FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
+DROP TRIGGER IF EXISTS update_fuel_transactions_updated_at ON fuel_transactions;
 CREATE TRIGGER update_fuel_transactions_updated_at
 BEFORE UPDATE ON fuel_transactions
 FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
+DROP TRIGGER IF EXISTS update_vehicle_assignments_updated_at ON vehicle_assignments;
 CREATE TRIGGER update_vehicle_assignments_updated_at
 BEFORE UPDATE ON vehicle_assignments
 FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
+DROP TRIGGER IF EXISTS update_vehicle_inspections_updated_at ON vehicle_inspections;
 CREATE TRIGGER update_vehicle_inspections_updated_at
 BEFORE UPDATE ON vehicle_inspections
 FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
