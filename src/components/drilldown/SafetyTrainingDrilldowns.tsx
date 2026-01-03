@@ -1,6 +1,6 @@
 /**
- * SafetyTrainingDrilldowns - Complete training and certification tracking
- * Includes training records, certifications, expiry tracking, and instructor contact info
+ * SafetyTrainingDrilldowns - Excel-style training and certification matrices
+ * Complete employee training records and certification tracking with advanced filtering and export
  */
 
 import {
@@ -8,25 +8,27 @@ import {
   Award,
   Calendar,
   User,
-  Phone,
-  Mail,
-  Clock,
+  Download,
   AlertTriangle,
   CheckCircle,
   XCircle,
-  FileText,
-  TrendingUp
 } from 'lucide-react'
-import { useMemo } from 'react'
+import { useMemo, useState } from 'react'
 import useSWR from 'swr'
+import { ColumnDef } from '@tanstack/react-table'
 
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { DrilldownDataTable, DrilldownColumn } from '@/components/drilldown/DrilldownDataTable'
-import { Progress } from '@/components/ui/progress'
-import { DrilldownContent } from '@/components/DrilldownPanel'
-import { useDrilldown } from '@/contexts/DrilldownContext'
+import { DataGrid } from '@/components/common/DataGrid'
 import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
 
 const fetcher = (url: string) => fetch(url).then((r) => r.json())
 
@@ -39,10 +41,7 @@ interface TrainingRecord {
   course_name: string
   course_code: string
   category: 'safety' | 'compliance' | 'technical' | 'leadership' | 'operational'
-  instructor_id?: string
   instructor_name?: string
-  instructor_phone?: string
-  instructor_email?: string
   date_completed: string
   date_expires?: string
   score?: number
@@ -50,7 +49,6 @@ interface TrainingRecord {
   certification_number?: string
   hours: number
   location?: string
-  notes?: string
 }
 
 interface Certification {
@@ -65,26 +63,8 @@ interface Certification {
   certification_number: string
   status: 'active' | 'expiring-soon' | 'expired' | 'suspended'
   renewal_required: boolean
-  renewal_course?: string
   renewal_cost?: number
-  contact_name?: string
-  contact_phone?: string
-  contact_email?: string
-}
-
-interface TrainingSchedule {
-  id: string
-  course_name: string
-  course_code: string
-  scheduled_date: string
-  scheduled_time?: string
-  instructor_name: string
-  location: string
-  max_capacity: number
-  enrolled: number
-  duration_hours: number
-  category: string
-  required_for?: string[]
+  days_until_expiry?: number
 }
 
 // ============ DEMO DATA ============
@@ -97,10 +77,7 @@ const demoTrainingRecords: TrainingRecord[] = [
     course_name: 'Defensive Driving Certification',
     course_code: 'DDC-101',
     category: 'safety',
-    instructor_id: 'inst-001',
     instructor_name: 'Robert Martinez',
-    instructor_phone: '(850) 555-0201',
-    instructor_email: 'rmartinez@ctafleet.com',
     date_completed: '2025-11-15',
     date_expires: '2028-11-15',
     score: 95,
@@ -108,7 +85,6 @@ const demoTrainingRecords: TrainingRecord[] = [
     certification_number: 'DDC-2025-FL-1542',
     hours: 8,
     location: 'North Training Center',
-    notes: 'Excellent performance, scored 95% on final exam'
   },
   {
     id: 'train-002',
@@ -117,17 +93,14 @@ const demoTrainingRecords: TrainingRecord[] = [
     course_name: 'Hazmat Transportation Safety',
     course_code: 'HAZMAT-201',
     category: 'compliance',
-    instructor_id: 'inst-002',
     instructor_name: 'Dr. Emily Chen',
-    instructor_phone: '(850) 555-0202',
-    instructor_email: 'echen@ctafleet.com',
     date_completed: '2025-10-22',
     date_expires: '2026-10-22',
     score: 88,
     status: 'completed',
     certification_number: 'HAZMAT-2025-3821',
     hours: 16,
-    location: 'South Training Facility'
+    location: 'South Training Facility',
   },
   {
     id: 'train-003',
@@ -136,17 +109,14 @@ const demoTrainingRecords: TrainingRecord[] = [
     course_name: 'First Aid & CPR',
     course_code: 'FA-CPR-101',
     category: 'safety',
-    instructor_id: 'inst-003',
     instructor_name: 'Jennifer Lopez, RN',
-    instructor_phone: '(850) 555-0203',
-    instructor_email: 'jlopez@ctafleet.com',
     date_completed: '2024-06-10',
     date_expires: '2026-06-10',
     score: 100,
     status: 'completed',
     certification_number: 'CPR-2024-FL-9821',
     hours: 4,
-    location: 'Medical Training Room'
+    location: 'Medical Training Room',
   },
   {
     id: 'train-004',
@@ -155,17 +125,14 @@ const demoTrainingRecords: TrainingRecord[] = [
     course_name: 'Forklift Operation Certification',
     course_code: 'FORK-101',
     category: 'operational',
-    instructor_id: 'inst-004',
     instructor_name: 'David Wilson',
-    instructor_phone: '(850) 555-0204',
-    instructor_email: 'dwilson@ctafleet.com',
     date_completed: '2025-12-01',
     date_expires: '2028-12-01',
     score: 92,
     status: 'completed',
     certification_number: 'FORK-2025-5623',
     hours: 8,
-    location: 'Warehouse Training Area'
+    location: 'Warehouse Training Area',
   },
   {
     id: 'train-005',
@@ -174,18 +141,15 @@ const demoTrainingRecords: TrainingRecord[] = [
     course_name: 'DOT Hours of Service Compliance',
     course_code: 'DOT-HOS-301',
     category: 'compliance',
-    instructor_id: 'inst-001',
     instructor_name: 'Robert Martinez',
-    instructor_phone: '(850) 555-0201',
-    instructor_email: 'rmartinez@ctafleet.com',
     date_completed: '2025-01-15',
     date_expires: '2026-01-15',
     score: 85,
     status: 'completed',
     certification_number: 'HOS-2025-1129',
     hours: 4,
-    location: 'Online Virtual Classroom'
-  }
+    location: 'Online Virtual Classroom',
+  },
 ]
 
 const demoCertifications: Certification[] = [
@@ -201,9 +165,7 @@ const demoCertifications: Certification[] = [
     certification_number: 'FL-CDL-A-8821455',
     status: 'active',
     renewal_required: false,
-    contact_name: 'Florida DMV Customer Service',
-    contact_phone: '(850) 617-2000',
-    contact_email: 'flhsmv@flhsmv.gov'
+    days_until_expiry: 456,
   },
   {
     id: 'cert-002',
@@ -217,11 +179,8 @@ const demoCertifications: Certification[] = [
     certification_number: 'TSA-H-2024-FL-9923',
     status: 'expiring-soon',
     renewal_required: true,
-    renewal_course: 'Hazmat Recertification - HAZMAT-301',
     renewal_cost: 450.00,
-    contact_name: 'TSA Background Check Office',
-    contact_phone: '(866) 289-9673',
-    contact_email: 'hazmat@tsa.dhs.gov'
+    days_until_expiry: 37,
   },
   {
     id: 'cert-003',
@@ -235,9 +194,7 @@ const demoCertifications: Certification[] = [
     certification_number: 'ARC-CPR-2024-88214',
     status: 'active',
     renewal_required: false,
-    contact_name: 'Red Cross Training Center',
-    contact_phone: '(850) 878-6080',
-    contact_email: 'training@redcross.org'
+    days_until_expiry: 188,
   },
   {
     id: 'cert-004',
@@ -251,9 +208,7 @@ const demoCertifications: Certification[] = [
     certification_number: 'OSHA-FORK-2025-3421',
     status: 'active',
     renewal_required: false,
-    contact_name: 'OSHA Training',
-    contact_phone: '(800) 321-6742',
-    contact_email: 'training@osha.gov'
+    days_until_expiry: 1095,
   },
   {
     id: 'cert-005',
@@ -268,156 +223,114 @@ const demoCertifications: Certification[] = [
     status: 'expiring-soon',
     renewal_required: true,
     renewal_cost: 125.00,
-    contact_name: 'Dr. Amanda Rodriguez',
-    contact_phone: '(850) 555-7700',
-    contact_email: 'arodriguez@dotmedical.com'
-  }
+    days_until_expiry: 16,
+  },
 ]
 
-const demoTrainingSchedule: TrainingSchedule[] = [
-  {
-    id: 'sched-001',
-    course_name: 'Defensive Driving Refresher',
-    course_code: 'DDC-102',
-    scheduled_date: '2026-01-10',
-    scheduled_time: '9:00 AM - 5:00 PM',
-    instructor_name: 'Robert Martinez',
-    location: 'North Training Center',
-    max_capacity: 20,
-    enrolled: 15,
-    duration_hours: 8,
-    category: 'safety',
-    required_for: ['All Drivers']
-  },
-  {
-    id: 'sched-002',
-    course_name: 'Winter Driving Safety',
-    course_code: 'WDS-101',
-    scheduled_date: '2026-01-15',
-    scheduled_time: '1:00 PM - 5:00 PM',
-    instructor_name: 'Robert Martinez',
-    location: 'Online Virtual Classroom',
-    max_capacity: 50,
-    enrolled: 32,
-    duration_hours: 4,
-    category: 'safety',
-    required_for: ['Northern Routes Drivers']
-  },
-  {
-    id: 'sched-003',
-    course_name: 'Emergency Response Procedures',
-    course_code: 'ERP-201',
-    scheduled_date: '2026-01-20',
-    scheduled_time: '8:00 AM - 12:00 PM',
-    instructor_name: 'Jennifer Lopez, RN',
-    location: 'South Training Facility',
-    max_capacity: 25,
-    enrolled: 18,
-    duration_hours: 4,
-    category: 'safety',
-    required_for: ['Hazmat Drivers', 'Fleet Supervisors']
-  }
-]
+// ============ TRAINING RECORDS MATRIX ============
 
-// ============ TRAINING RECORDS VIEW ============
+export function TrainingRecordsMatrixView() {
+  const [statusFilter, setStatusFilter] = useState<string>('all')
+  const [categoryFilter, setCategoryFilter] = useState<string>('all')
+  const [searchQuery, setSearchQuery] = useState('')
 
-export function TrainingRecordsView({ filter }: { filter?: string }) {
   const { data: trainingRecords } = useSWR<TrainingRecord[]>(
-    filter ? `/api/training/records?filter=${filter}` : '/api/training/records',
+    '/api/training/records',
     fetcher,
     {
       fallbackData: demoTrainingRecords,
-      shouldRetryOnError: false
+      shouldRetryOnError: false,
     }
   )
 
-  const filteredRecords = useMemo(() => {
-    if (!filter || !trainingRecords) return trainingRecords || []
+  const filteredData = useMemo(() => {
+    if (!trainingRecords) return []
 
-    switch (filter) {
-      case 'completed':
-        return trainingRecords.filter(r => r.status === 'completed')
-      case 'in-progress':
-        return trainingRecords.filter(r => r.status === 'in-progress')
-      case 'scheduled':
-        return trainingRecords.filter(r => r.status === 'scheduled')
-      case 'expired':
-        return trainingRecords.filter(r => r.status === 'expired' || (r.date_expires && new Date(r.date_expires) < new Date()))
-      default:
-        return trainingRecords
-    }
-  }, [trainingRecords, filter])
+    return trainingRecords.filter((record) => {
+      const matchesStatus = statusFilter === 'all' || record.status === statusFilter
+      const matchesCategory = categoryFilter === 'all' || record.category === categoryFilter
+      const matchesSearch =
+        !searchQuery ||
+        record.employee_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        record.course_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        record.course_code.toLowerCase().includes(searchQuery.toLowerCase())
 
-  const getStatusColor = (status: string): 'destructive' | 'default' | 'secondary' | 'outline' => {
-    switch (status) {
-      case 'completed': return 'secondary'
-      case 'in-progress': return 'default'
-      case 'scheduled': return 'outline'
-      case 'expired': return 'destructive'
-      case 'failed': return 'destructive'
-      default: return 'outline'
-    }
-  }
+      return matchesStatus && matchesCategory && matchesSearch
+    })
+  }, [trainingRecords, statusFilter, categoryFilter, searchQuery])
 
-  const columns: DrilldownColumn<TrainingRecord>[] = [
+  const columns: ColumnDef<TrainingRecord>[] = [
     {
-      key: 'employee_name',
+      accessorKey: 'employee_name',
       header: 'Employee',
-      sortable: true,
-      drilldown: {
-        recordType: 'driver',
-        getRecordId: (record) => record.employee_id,
-        getRecordLabel: (record) => record.employee_name,
-      },
+      cell: ({ row }) => <div className="font-medium">{row.original.employee_name}</div>,
     },
     {
-      key: 'course_name',
+      accessorKey: 'course_name',
       header: 'Course',
-      sortable: true,
-      render: (record) => (
+      cell: ({ row }) => (
         <div>
-          <div className="font-medium">{record.course_name}</div>
-          <div className="text-xs text-muted-foreground">{record.course_code}</div>
+          <div className="font-medium">{row.original.course_name}</div>
+          <div className="text-xs text-muted-foreground">{row.original.course_code}</div>
         </div>
       ),
     },
     {
-      key: 'category',
-      header: 'Category',
-      sortable: true,
-      render: (record) => (
-        <Badge variant="outline" className="capitalize">
-          {record.category}
-        </Badge>
-      ),
+      accessorKey: 'date_completed',
+      header: 'Date Completed',
+      cell: ({ row }) => new Date(row.original.date_completed).toLocaleDateString(),
     },
     {
-      key: 'date_completed',
-      header: 'Completed',
-      sortable: true,
-      render: (record) => new Date(record.date_completed).toLocaleDateString(),
+      accessorKey: 'score',
+      header: 'Score',
+      cell: ({ row }) =>
+        row.original.score !== undefined ? (
+          <div
+            className={`font-bold ${
+              row.original.score >= 90
+                ? 'text-green-500'
+                : row.original.score >= 75
+                ? 'text-yellow-500'
+                : 'text-red-500'
+            }`}
+          >
+            {row.original.score}%
+          </div>
+        ) : (
+          '-'
+        ),
     },
     {
-      key: 'date_expires',
-      header: 'Expires',
-      sortable: true,
-      render: (record) => {
-        if (!record.date_expires) return '-'
-        const expiryDate = new Date(record.date_expires)
-        const today = new Date()
-        const daysUntilExpiry = Math.floor((expiryDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24))
+      accessorKey: 'instructor_name',
+      header: 'Instructor',
+      cell: ({ row }) => row.original.instructor_name || '-',
+    },
+    {
+      accessorKey: 'certification_number',
+      header: 'Certification #',
+      cell: ({ row }) => row.original.certification_number || '-',
+    },
+    {
+      accessorKey: 'date_expires',
+      header: 'Expiry Date',
+      cell: ({ row }) => {
+        if (!row.original.date_expires) return '-'
+        const expiryDate = new Date(row.original.date_expires)
+        const daysUntil = Math.floor(
+          (expiryDate.getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24)
+        )
 
         return (
           <div>
             <div>{expiryDate.toLocaleDateString()}</div>
-            {daysUntilExpiry < 30 && daysUntilExpiry > 0 && (
-              <div className="text-xs text-amber-500 flex items-center gap-1 mt-1">
+            {daysUntil <= 30 && daysUntil > 0 && (
+              <div className="text-xs text-amber-500 flex items-center gap-1">
                 <AlertTriangle className="w-3 h-3" />
-                {daysUntilExpiry} days
+                {daysUntil} days
               </div>
             )}
-            {daysUntilExpiry <= 0 && (
-              <div className="text-xs text-red-500 flex items-center gap-1 mt-1">
+            {daysUntil <= 0 && (
+              <div className="text-xs text-red-500 flex items-center gap-1">
                 <XCircle className="w-3 h-3" />
                 Expired
               </div>
@@ -427,36 +340,84 @@ export function TrainingRecordsView({ filter }: { filter?: string }) {
       },
     },
     {
-      key: 'status',
+      accessorKey: 'status',
       header: 'Status',
-      sortable: true,
-      render: (record) => (
-        <Badge variant={getStatusColor(record.status)} className="capitalize">
-          {record.status}
-        </Badge>
-      ),
+      cell: ({ row }) => {
+        const status = row.original.status
+        const variant =
+          status === 'completed'
+            ? 'default'
+            : status === 'expired'
+            ? 'destructive'
+            : 'secondary'
+        return (
+          <Badge variant={variant} className="capitalize">
+            {status}
+          </Badge>
+        )
+      },
     },
     {
-      key: 'instructor_name',
-      header: 'Instructor',
-      sortable: true,
-      render: (record) => record.instructor_name || '-',
+      accessorKey: 'hours',
+      header: 'Hours',
+      cell: ({ row }) => `${row.original.hours}h`,
     },
   ]
 
+  const handleExportToExcel = () => {
+    const headers = [
+      'Employee',
+      'Course',
+      'Course Code',
+      'Date Completed',
+      'Score',
+      'Instructor',
+      'Certification #',
+      'Expiry Date',
+      'Status',
+      'Hours',
+    ]
+
+    const csvData = filteredData.map((record) => [
+      record.employee_name,
+      record.course_name,
+      record.course_code,
+      new Date(record.date_completed).toLocaleDateString(),
+      record.score !== undefined ? `${record.score}%` : '',
+      record.instructor_name || '',
+      record.certification_number || '',
+      record.date_expires ? new Date(record.date_expires).toLocaleDateString() : '',
+      record.status,
+      record.hours.toString(),
+    ])
+
+    const csv = [headers, ...csvData].map((row) => row.join(',')).join('\n')
+    const blob = new Blob([csv], { type: 'text/csv' })
+    const url = window.URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = `training-records-${new Date().toISOString().split('T')[0]}.csv`
+    a.click()
+    window.URL.revokeObjectURL(url)
+  }
+
   // Calculate summary stats
-  const totalRecords = filteredRecords.length
-  const completedCount = filteredRecords.filter(r => r.status === 'completed').length
-  const expiringCount = filteredRecords.filter(r => {
+  const totalRecords = filteredData.length
+  const completedCount = filteredData.filter((r) => r.status === 'completed').length
+  const expiringCount = filteredData.filter((r) => {
     if (!r.date_expires) return false
-    const daysUntilExpiry = Math.floor((new Date(r.date_expires).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24))
-    return daysUntilExpiry > 0 && daysUntilExpiry <= 30
+    const daysUntil = Math.floor(
+      (new Date(r.date_expires).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24)
+    )
+    return daysUntil > 0 && daysUntil <= 30
   }).length
-  const expiredCount = filteredRecords.filter(r => {
+  const expiredCount = filteredData.filter((r) => {
     if (!r.date_expires) return false
     return new Date(r.date_expires) < new Date()
   }).length
-  const avgScore = filteredRecords.filter(r => r.score).reduce((sum, r) => sum + (r.score || 0), 0) / filteredRecords.filter(r => r.score).length || 0
+  const avgScore =
+    filteredData.filter((r) => r.score).reduce((sum, r) => sum + (r.score || 0), 0) /
+      filteredData.filter((r) => r.score).length || 0
 
   return (
     <div className="space-y-6">
@@ -486,48 +447,74 @@ export function TrainingRecordsView({ filter }: { filter?: string }) {
             <div className="text-xs text-slate-400">Expiring Soon</div>
           </CardContent>
         </Card>
-        <Card className="bg-red-900/30 border-red-700/50">
+        <Card className="bg-blue-900/30 border-blue-700/50">
           <CardContent className="p-4 text-center">
-            <div className="flex items-center justify-center gap-1">
-              <XCircle className="w-5 h-5 text-red-400" />
-              <div className="text-2xl font-bold text-red-400">{expiredCount}</div>
-            </div>
-            <div className="text-xs text-slate-400">Expired</div>
+            <div className="text-2xl font-bold text-blue-400">{avgScore.toFixed(1)}%</div>
+            <div className="text-xs text-slate-400">Average Score</div>
           </CardContent>
         </Card>
       </div>
 
-      {/* Average Score */}
+      {/* Filter and Export Controls */}
       <Card className="bg-slate-800/50 border-slate-700">
-        <CardHeader className="pb-2">
-          <CardTitle className="text-white text-sm flex items-center justify-between">
-            <span>Average Training Score</span>
-            <span className="text-2xl font-bold">{avgScore.toFixed(1)}%</span>
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <Progress value={avgScore} className="h-3" />
+        <CardContent className="p-4">
+          <div className="flex items-center gap-3">
+            <div className="flex-1">
+              <Input
+                placeholder="Search training records..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="max-w-sm"
+              />
+            </div>
+            <Select value={statusFilter} onValueChange={setStatusFilter}>
+              <SelectTrigger className="w-[150px]">
+                <SelectValue placeholder="Status" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Status</SelectItem>
+                <SelectItem value="completed">Completed</SelectItem>
+                <SelectItem value="in-progress">In Progress</SelectItem>
+                <SelectItem value="expired">Expired</SelectItem>
+              </SelectContent>
+            </Select>
+            <Select value={categoryFilter} onValueChange={setCategoryFilter}>
+              <SelectTrigger className="w-[150px]">
+                <SelectValue placeholder="Category" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Categories</SelectItem>
+                <SelectItem value="safety">Safety</SelectItem>
+                <SelectItem value="compliance">Compliance</SelectItem>
+                <SelectItem value="technical">Technical</SelectItem>
+                <SelectItem value="operational">Operational</SelectItem>
+              </SelectContent>
+            </Select>
+            <Button onClick={handleExportToExcel} variant="outline">
+              <Download className="w-4 h-4 mr-2" />
+              Export to Excel
+            </Button>
+          </div>
         </CardContent>
       </Card>
 
-      {/* Training Records Table */}
+      {/* Excel-Style Training Records Matrix */}
       <Card className="bg-slate-800/50 border-slate-700">
         <CardHeader className="pb-2">
           <CardTitle className="text-white text-lg flex items-center gap-2">
             <GraduationCap className="w-5 h-5 text-blue-400" />
-            Training Records ({filteredRecords.length})
+            All Training Records - Excel View ({filteredData.length} records)
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <DrilldownDataTable
-            data={filteredRecords}
+          <DataGrid
+            data={filteredData}
             columns={columns}
-            recordType="training-record"
-            getRecordId={(record) => record.id}
-            getRecordLabel={(record) => `${record.course_name} - ${record.employee_name}`}
-            getRecordData={(record) => ({ trainingId: record.id })}
-            emptyMessage="No training records found"
-            compact
+            pageSize={20}
+            enableInspector={true}
+            inspectorType="training-record"
+            compactMode={true}
+            stickyHeader={true}
           />
         </CardContent>
       </Card>
@@ -535,97 +522,79 @@ export function TrainingRecordsView({ filter }: { filter?: string }) {
   )
 }
 
-// ============ CERTIFICATIONS VIEW ============
+// ============ CERTIFICATIONS MATRIX ============
 
-export function CertificationsView({ filter }: { filter?: string }) {
+export function CertificationsMatrixView() {
+  const [statusFilter, setStatusFilter] = useState<string>('all')
+  const [typeFilter, setTypeFilter] = useState<string>('all')
+  const [searchQuery, setSearchQuery] = useState('')
+
   const { data: certifications } = useSWR<Certification[]>(
-    filter ? `/api/certifications?filter=${filter}` : '/api/certifications',
+    '/api/certifications',
     fetcher,
     {
       fallbackData: demoCertifications,
-      shouldRetryOnError: false
+      shouldRetryOnError: false,
     }
   )
 
-  const filteredCerts = useMemo(() => {
-    if (!filter || !certifications) return certifications || []
+  const filteredData = useMemo(() => {
+    if (!certifications) return []
 
-    switch (filter) {
-      case 'active':
-        return certifications.filter(c => c.status === 'active')
-      case 'expiring-soon':
-        return certifications.filter(c => c.status === 'expiring-soon')
-      case 'expired':
-        return certifications.filter(c => c.status === 'expired')
-      case 'renewal-required':
-        return certifications.filter(c => c.renewal_required)
-      default:
-        return certifications
-    }
-  }, [certifications, filter])
+    return certifications.filter((cert) => {
+      const matchesStatus = statusFilter === 'all' || cert.status === statusFilter
+      const matchesType = typeFilter === 'all' || cert.certification_type === typeFilter
+      const matchesSearch =
+        !searchQuery ||
+        cert.employee_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        cert.certification_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        cert.certification_number.toLowerCase().includes(searchQuery.toLowerCase())
 
-  const getStatusColor = (status: string): 'destructive' | 'default' | 'secondary' | 'outline' => {
-    switch (status) {
-      case 'active': return 'secondary'
-      case 'expiring-soon': return 'default'
-      case 'expired': return 'destructive'
-      case 'suspended': return 'destructive'
-      default: return 'outline'
-    }
-  }
+      return matchesStatus && matchesType && matchesSearch
+    })
+  }, [certifications, statusFilter, typeFilter, searchQuery])
 
-  const columns: DrilldownColumn<Certification>[] = [
+  const columns: ColumnDef<Certification>[] = [
     {
-      key: 'employee_name',
-      header: 'Employee',
-      sortable: true,
-      drilldown: {
-        recordType: 'driver',
-        getRecordId: (cert) => cert.employee_id,
-        getRecordLabel: (cert) => cert.employee_name,
-      },
+      accessorKey: 'employee_name',
+      header: 'Driver',
+      cell: ({ row }) => <div className="font-medium">{row.original.employee_name}</div>,
     },
     {
-      key: 'certification_name',
-      header: 'Certification',
-      sortable: true,
-      render: (cert) => (
+      accessorKey: 'certification_name',
+      header: 'Certification Type',
+      cell: ({ row }) => (
         <div>
-          <div className="font-medium">{cert.certification_name}</div>
-          <div className="text-xs text-muted-foreground">{cert.certification_number}</div>
+          <div className="font-medium">{row.original.certification_name}</div>
+          <div className="text-xs text-muted-foreground">{row.original.certification_number}</div>
         </div>
       ),
     },
     {
-      key: 'certification_type',
-      header: 'Type',
-      sortable: true,
-      render: (cert) => (
-        <Badge variant="outline" className="capitalize">
-          {cert.certification_type.replace('-', ' ')}
-        </Badge>
-      ),
+      accessorKey: 'issue_date',
+      header: 'Issue Date',
+      cell: ({ row }) => new Date(row.original.issue_date).toLocaleDateString(),
     },
     {
-      key: 'expiry_date',
-      header: 'Expires',
-      sortable: true,
-      render: (cert) => {
-        const expiryDate = new Date(cert.expiry_date)
-        const today = new Date()
-        const daysUntilExpiry = Math.floor((expiryDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24))
+      accessorKey: 'expiry_date',
+      header: 'Expiry Date',
+      cell: ({ row }) => {
+        const expiryDate = new Date(row.original.expiry_date)
+        const daysUntil = Math.floor(
+          (expiryDate.getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24)
+        )
 
         return (
           <div>
-            <div>{expiryDate.toLocaleDateString()}</div>
-            {daysUntilExpiry < 60 && daysUntilExpiry > 0 && (
-              <div className="text-xs text-amber-500 flex items-center gap-1 mt-1">
+            <div className="font-medium">{expiryDate.toLocaleDateString()}</div>
+            {daysUntil <= 60 && daysUntil > 0 && (
+              <div className="text-xs text-amber-500 flex items-center gap-1">
                 <AlertTriangle className="w-3 h-3" />
-                {daysUntilExpiry} days
+                {daysUntil} days left
               </div>
             )}
-            {daysUntilExpiry <= 0 && (
-              <div className="text-xs text-red-500 flex items-center gap-1 mt-1">
+            {daysUntil <= 0 && (
+              <div className="text-xs text-red-500 flex items-center gap-1">
                 <XCircle className="w-3 h-3" />
                 Expired
               </div>
@@ -635,40 +604,108 @@ export function CertificationsView({ filter }: { filter?: string }) {
       },
     },
     {
-      key: 'status',
-      header: 'Status',
-      sortable: true,
-      render: (cert) => (
-        <div className="flex items-center gap-2">
-          {cert.status === 'active' && <CheckCircle className="w-4 h-4 text-green-500" />}
-          {cert.status === 'expiring-soon' && <AlertTriangle className="w-4 h-4 text-amber-500" />}
-          {cert.status === 'expired' && <XCircle className="w-4 h-4 text-red-500" />}
-          <Badge variant={getStatusColor(cert.status)} className="capitalize">
-            {cert.status.replace('-', ' ')}
-          </Badge>
-        </div>
-      ),
+      accessorKey: 'days_until_expiry',
+      header: 'Days Until Expiry',
+      cell: ({ row }) => {
+        const days = row.original.days_until_expiry || 0
+        return (
+          <div
+            className={`font-bold text-center ${
+              days <= 30
+                ? 'text-red-500'
+                : days <= 60
+                ? 'text-amber-500'
+                : 'text-green-500'
+            }`}
+          >
+            {days}
+          </div>
+        )
+      },
     },
     {
-      key: 'renewal_required',
-      header: 'Renewal',
-      render: (cert) => cert.renewal_required ? (
-        <div className="text-xs">
-          <div className="font-medium text-amber-500">Required</div>
-          {cert.renewal_cost && <div className="text-muted-foreground">${cert.renewal_cost}</div>}
-        </div>
-      ) : (
-        <span className="text-muted-foreground text-xs">Not required</span>
-      ),
+      accessorKey: 'issuing_authority',
+      header: 'Issuing Authority',
+      cell: ({ row }) => row.original.issuing_authority,
+    },
+    {
+      accessorKey: 'status',
+      header: 'Status',
+      cell: ({ row }) => {
+        const status = row.original.status
+        const variant =
+          status === 'active'
+            ? 'default'
+            : status === 'expiring-soon'
+            ? 'secondary'
+            : 'destructive'
+        return (
+          <div className="flex items-center gap-2">
+            {status === 'active' && <CheckCircle className="w-4 h-4 text-green-500" />}
+            {status === 'expiring-soon' && <AlertTriangle className="w-4 h-4 text-amber-500" />}
+            {status === 'expired' && <XCircle className="w-4 h-4 text-red-500" />}
+            <Badge variant={variant} className="capitalize">
+              {status.replace('-', ' ')}
+            </Badge>
+          </div>
+        )
+      },
+    },
+    {
+      accessorKey: 'renewal_cost',
+      header: 'Renewal Cost',
+      cell: ({ row }) =>
+        row.original.renewal_cost ? (
+          <div className="text-right font-medium">${row.original.renewal_cost.toFixed(2)}</div>
+        ) : (
+          <div className="text-center text-muted-foreground">-</div>
+        ),
     },
   ]
 
+  const handleExportToExcel = () => {
+    const headers = [
+      'Driver',
+      'Certification Type',
+      'Issue Date',
+      'Expiry Date',
+      'Days Until Expiry',
+      'Issuing Authority',
+      'Certification Number',
+      'Status',
+      'Renewal Cost',
+    ]
+
+    const csvData = filteredData.map((cert) => [
+      cert.employee_name,
+      cert.certification_name,
+      new Date(cert.issue_date).toLocaleDateString(),
+      new Date(cert.expiry_date).toLocaleDateString(),
+      (cert.days_until_expiry || 0).toString(),
+      cert.issuing_authority,
+      cert.certification_number,
+      cert.status,
+      cert.renewal_cost ? `$${cert.renewal_cost.toFixed(2)}` : '',
+    ])
+
+    const csv = [headers, ...csvData].map((row) => row.join(',')).join('\n')
+    const blob = new Blob([csv], { type: 'text/csv' })
+    const url = window.URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = `certifications-matrix-${new Date().toISOString().split('T')[0]}.csv`
+    a.click()
+    window.URL.revokeObjectURL(url)
+  }
+
   // Calculate summary stats
-  const totalCerts = filteredCerts.length
-  const activeCount = filteredCerts.filter(c => c.status === 'active').length
-  const expiringCount = filteredCerts.filter(c => c.status === 'expiring-soon').length
-  const expiredCount = filteredCerts.filter(c => c.status === 'expired').length
-  const renewalCost = filteredCerts.filter(c => c.renewal_required).reduce((sum, c) => sum + (c.renewal_cost || 0), 0)
+  const totalCerts = filteredData.length
+  const activeCount = filteredData.filter((c) => c.status === 'active').length
+  const expiringCount = filteredData.filter((c) => c.status === 'expiring-soon').length
+  const expiredCount = filteredData.filter((c) => c.status === 'expired').length
+  const renewalCost = filteredData
+    .filter((c) => c.renewal_required)
+    .reduce((sum, c) => sum + (c.renewal_cost || 0), 0)
 
   return (
     <div className="space-y-6">
@@ -698,150 +735,75 @@ export function CertificationsView({ filter }: { filter?: string }) {
             <div className="text-xs text-slate-400">Expiring Soon</div>
           </CardContent>
         </Card>
-        <Card className="bg-red-900/30 border-red-700/50">
+        <Card className="bg-blue-900/30 border-blue-700/50">
           <CardContent className="p-4 text-center">
-            <div className="flex items-center justify-center gap-1">
-              <XCircle className="w-5 h-5 text-red-400" />
-              <div className="text-2xl font-bold text-red-400">{expiredCount}</div>
-            </div>
-            <div className="text-xs text-slate-400">Expired</div>
+            <div className="text-2xl font-bold text-blue-400">${renewalCost.toFixed(0)}</div>
+            <div className="text-xs text-slate-400">Renewal Cost</div>
           </CardContent>
         </Card>
       </div>
 
-      {/* Renewal Cost */}
-      {renewalCost > 0 && (
-        <Card className="bg-slate-800/50 border-slate-700">
-          <CardHeader className="pb-2">
-            <CardTitle className="text-white text-sm flex items-center justify-between">
-              <span>Estimated Renewal Cost</span>
-              <span className="text-2xl font-bold text-amber-400">${renewalCost.toFixed(2)}</span>
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-xs text-slate-400">
-              {filteredCerts.filter(c => c.renewal_required).length} certifications require renewal
-            </p>
-          </CardContent>
-        </Card>
-      )}
+      {/* Filter and Export Controls */}
+      <Card className="bg-slate-800/50 border-slate-700">
+        <CardContent className="p-4">
+          <div className="flex items-center gap-3">
+            <div className="flex-1">
+              <Input
+                placeholder="Search certifications..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="max-w-sm"
+              />
+            </div>
+            <Select value={statusFilter} onValueChange={setStatusFilter}>
+              <SelectTrigger className="w-[150px]">
+                <SelectValue placeholder="Status" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Status</SelectItem>
+                <SelectItem value="active">Active</SelectItem>
+                <SelectItem value="expiring-soon">Expiring Soon</SelectItem>
+                <SelectItem value="expired">Expired</SelectItem>
+              </SelectContent>
+            </Select>
+            <Select value={typeFilter} onValueChange={setTypeFilter}>
+              <SelectTrigger className="w-[150px]">
+                <SelectValue placeholder="Type" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Types</SelectItem>
+                <SelectItem value="cdl">CDL</SelectItem>
+                <SelectItem value="hazmat">Hazmat</SelectItem>
+                <SelectItem value="first-aid">First Aid</SelectItem>
+                <SelectItem value="forklift">Forklift</SelectItem>
+                <SelectItem value="safety">Safety</SelectItem>
+              </SelectContent>
+            </Select>
+            <Button onClick={handleExportToExcel} variant="outline">
+              <Download className="w-4 h-4 mr-2" />
+              Export to Excel
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
 
-      {/* Certifications Table */}
+      {/* Excel-Style Certifications Matrix */}
       <Card className="bg-slate-800/50 border-slate-700">
         <CardHeader className="pb-2">
           <CardTitle className="text-white text-lg flex items-center gap-2">
             <Award className="w-5 h-5 text-amber-400" />
-            Certifications ({filteredCerts.length})
+            All Driver Certifications - Excel View ({filteredData.length} records)
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <DrilldownDataTable
-            data={filteredCerts}
+          <DataGrid
+            data={filteredData}
             columns={columns}
-            recordType="certification"
-            getRecordId={(cert) => cert.id}
-            getRecordLabel={(cert) => `${cert.certification_name} - ${cert.employee_name}`}
-            getRecordData={(cert) => ({ certificationId: cert.id })}
-            emptyMessage="No certifications found"
-            compact
-          />
-        </CardContent>
-      </Card>
-    </div>
-  )
-}
-
-// ============ TRAINING SCHEDULE VIEW ============
-
-export function TrainingScheduleView() {
-  const { data: schedule } = useSWR<TrainingSchedule[]>(
-    '/api/training/schedule',
-    fetcher,
-    {
-      fallbackData: demoTrainingSchedule,
-      shouldRetryOnError: false
-    }
-  )
-
-  const columns: DrilldownColumn<TrainingSchedule>[] = [
-    {
-      key: 'scheduled_date',
-      header: 'Date',
-      sortable: true,
-      render: (item) => (
-        <div>
-          <div className="font-medium">{new Date(item.scheduled_date).toLocaleDateString()}</div>
-          {item.scheduled_time && <div className="text-xs text-muted-foreground">{item.scheduled_time}</div>}
-        </div>
-      ),
-    },
-    {
-      key: 'course_name',
-      header: 'Course',
-      sortable: true,
-      render: (item) => (
-        <div>
-          <div className="font-medium">{item.course_name}</div>
-          <div className="text-xs text-muted-foreground">{item.course_code}</div>
-        </div>
-      ),
-    },
-    {
-      key: 'instructor_name',
-      header: 'Instructor',
-      sortable: true,
-    },
-    {
-      key: 'location',
-      header: 'Location',
-      sortable: true,
-    },
-    {
-      key: 'enrolled',
-      header: 'Enrollment',
-      render: (item) => (
-        <div className="text-center">
-          <div className="font-medium">{item.enrolled} / {item.max_capacity}</div>
-          <Progress value={(item.enrolled / item.max_capacity) * 100} className="h-2 mt-1" />
-        </div>
-      ),
-    },
-    {
-      key: 'duration_hours',
-      header: 'Duration',
-      render: (item) => `${item.duration_hours} hours`,
-    },
-  ]
-
-  return (
-    <div className="space-y-6">
-      {/* Summary */}
-      <Card className="bg-gradient-to-br from-blue-900/30 to-blue-800/20 border-blue-700/50">
-        <CardContent className="p-6 text-center">
-          <Award className="w-12 h-12 text-blue-400 mx-auto mb-4" />
-          <div className="text-4xl font-bold text-white">{schedule?.length || 0}</div>
-          <div className="text-sm text-slate-400">Upcoming Training Sessions</div>
-        </CardContent>
-      </Card>
-
-      {/* Schedule Table */}
-      <Card className="bg-slate-800/50 border-slate-700">
-        <CardHeader className="pb-2">
-          <CardTitle className="text-white text-lg flex items-center gap-2">
-            <Calendar className="w-5 h-5 text-blue-400" />
-            Training Schedule
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <DrilldownDataTable
-            data={schedule || []}
-            columns={columns}
-            recordType="training-schedule"
-            getRecordId={(item) => item.id}
-            getRecordLabel={(item) => item.course_name}
-            getRecordData={(item) => ({ scheduleId: item.id })}
-            emptyMessage="No upcoming training sessions"
-            compact
+            pageSize={20}
+            enableInspector={true}
+            inspectorType="certification"
+            compactMode={true}
+            stickyHeader={true}
           />
         </CardContent>
       </Card>
