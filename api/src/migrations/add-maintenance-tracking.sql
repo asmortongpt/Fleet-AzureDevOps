@@ -5,7 +5,7 @@
 -- MANUFACTURER MAINTENANCE SCHEDULES
 -- =======================
 CREATE TABLE IF NOT EXISTS manufacturer_maintenance_schedules (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     make VARCHAR(100) NOT NULL,
     model VARCHAR(100),
     year_from INTEGER,
@@ -37,7 +37,7 @@ CREATE INDEX idx_manufacturer_schedules_category ON manufacturer_maintenance_sch
 -- MAINTENANCE SCHEDULES (Vehicle-specific)
 -- =======================
 CREATE TABLE IF NOT EXISTS maintenance_schedules (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     vehicle_id UUID NOT NULL REFERENCES vehicles(id) ON DELETE CASCADE,
     schedule_id UUID REFERENCES manufacturer_maintenance_schedules(id),
     service_type VARCHAR(100) NOT NULL,
@@ -90,7 +90,7 @@ CREATE INDEX idx_maintenance_schedules_overdue ON maintenance_schedules(is_overd
 -- WORK ORDERS
 -- =======================
 CREATE TABLE IF NOT EXISTS work_orders (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     tenant_id UUID REFERENCES tenants(id) ON DELETE CASCADE,
     work_order_number VARCHAR(50) UNIQUE NOT NULL,
     vehicle_id UUID NOT NULL REFERENCES vehicles(id) ON DELETE CASCADE,
@@ -176,7 +176,7 @@ CREATE INDEX idx_work_orders_number ON work_orders(work_order_number);
 -- FUEL TRANSACTIONS
 -- =======================
 CREATE TABLE IF NOT EXISTS fuel_transactions (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     tenant_id UUID REFERENCES tenants(id) ON DELETE CASCADE,
     vehicle_id UUID NOT NULL REFERENCES vehicles(id) ON DELETE CASCADE,
     driver_id UUID REFERENCES drivers(id),
@@ -245,7 +245,7 @@ CREATE INDEX idx_fuel_transactions_anomaly ON fuel_transactions(is_anomaly) WHER
 -- VEHICLE ASSIGNMENTS
 -- =======================
 CREATE TABLE IF NOT EXISTS vehicle_assignments (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     vehicle_id UUID NOT NULL REFERENCES vehicles(id) ON DELETE CASCADE,
     driver_id UUID NOT NULL REFERENCES drivers(id) ON DELETE CASCADE,
 
@@ -280,7 +280,7 @@ CREATE INDEX idx_vehicle_assignments_dates ON vehicle_assignments(assignment_sta
 -- VEHICLE INSPECTIONS
 -- =======================
 CREATE TABLE IF NOT EXISTS vehicle_inspections (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     tenant_id UUID REFERENCES tenants(id) ON DELETE CASCADE,
     vehicle_id UUID NOT NULL REFERENCES vehicles(id) ON DELETE CASCADE,
     driver_id UUID REFERENCES drivers(id),

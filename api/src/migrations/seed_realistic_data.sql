@@ -92,7 +92,7 @@ ON CONFLICT (tenant_id, license_number) DO NOTHING;
 -- ============================================================================
 -- 4. VEHICLES (250 vehicles - various makes and models)
 -- ============================================================================
-INSERT INTO vehicles (id, tenant_id, unit_number, make, model, year, vin, license_plate,
+INSERT INTO vehicles (id, tenant_id, number, make, model, year, vin, license_plate,
                       status, mileage, fuel_level, fuel_type, department, location, created_at)
 SELECT
     gen_random_uuid(),

@@ -414,16 +414,16 @@ ON CONFLICT (tenant_id) DO NOTHING;
 -- ============================================================================
 
 -- Grant appropriate permissions
--- GRANT SELECT, INSERT, UPDATE ON search_query_log TO fleet_app_user;
--- GRANT SELECT, INSERT, UPDATE ON search_history TO fleet_app_user;
--- GRANT SELECT, INSERT, UPDATE ON saved_searches TO fleet_app_user;
--- GRANT SELECT, INSERT, UPDATE ON search_click_tracking TO fleet_app_user;
--- GRANT SELECT, INSERT, UPDATE ON indexing_jobs TO fleet_app_user;
--- GRANT SELECT, INSERT, UPDATE ON document_indexing_log TO fleet_app_user;
--- GRANT SELECT, UPDATE ON tenant_index_stats TO fleet_app_user;
--- GRANT SELECT ON mv_popular_search_terms TO fleet_app_user;
--- GRANT SELECT ON mv_no_result_queries TO fleet_app_user;
--- GRANT SELECT ON mv_document_popularity TO fleet_app_user;
+-- -- GRANT SELECT, INSERT, UPDATE ON search_query_log TO fleet_app_user;
+-- -- GRANT SELECT, INSERT, UPDATE ON search_history TO fleet_app_user;
+-- -- GRANT SELECT, INSERT, UPDATE ON saved_searches TO fleet_app_user;
+-- -- GRANT SELECT, INSERT, UPDATE ON search_click_tracking TO fleet_app_user;
+-- -- GRANT SELECT, INSERT, UPDATE ON indexing_jobs TO fleet_app_user;
+-- -- GRANT SELECT, INSERT, UPDATE ON document_indexing_log TO fleet_app_user;
+-- -- GRANT SELECT, UPDATE ON tenant_index_stats TO fleet_app_user;
+-- -- GRANT SELECT ON mv_popular_search_terms TO fleet_app_user;
+-- -- GRANT SELECT ON mv_no_result_queries TO fleet_app_user;
+-- -- GRANT SELECT ON mv_document_popularity TO fleet_app_user;
 
 -- ============================================================================
 -- Comments

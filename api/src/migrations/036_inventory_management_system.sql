@@ -11,7 +11,7 @@ CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 -- INVENTORY ITEMS
 -- ============================================================================
 CREATE TABLE IF NOT EXISTS inventory_items (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     tenant_id UUID REFERENCES tenants(id) ON DELETE CASCADE,
 
     -- Identification
@@ -106,7 +106,7 @@ CREATE INDEX idx_inventory_items_search ON inventory_items
 -- INVENTORY TRANSACTIONS
 -- ============================================================================
 CREATE TABLE IF NOT EXISTS inventory_transactions (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     tenant_id UUID REFERENCES tenants(id) ON DELETE CASCADE,
 
     -- Item reference
@@ -166,7 +166,7 @@ CREATE INDEX idx_inventory_transactions_reference ON inventory_transactions(refe
 -- LOW STOCK ALERTS
 -- ============================================================================
 CREATE TABLE IF NOT EXISTS inventory_low_stock_alerts (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     tenant_id UUID REFERENCES tenants(id) ON DELETE CASCADE,
 
     -- Item reference
@@ -220,7 +220,7 @@ CREATE INDEX idx_low_stock_alerts_supplier ON inventory_low_stock_alerts(supplie
 -- INVENTORY RESERVATIONS
 -- ============================================================================
 CREATE TABLE IF NOT EXISTS inventory_reservations (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     tenant_id UUID REFERENCES tenants(id) ON DELETE CASCADE,
 
     -- Item reference
@@ -265,7 +265,7 @@ CREATE INDEX idx_inventory_reservations_expires ON inventory_reservations(expire
 -- INVENTORY AUDIT LOG
 -- ============================================================================
 CREATE TABLE IF NOT EXISTS inventory_audit_log (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     tenant_id UUID REFERENCES tenants(id) ON DELETE CASCADE,
 
     -- What changed
