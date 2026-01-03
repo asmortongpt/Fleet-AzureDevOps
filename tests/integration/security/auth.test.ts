@@ -9,6 +9,7 @@
  */
 
 import { describe, it, expect, beforeAll, afterAll } from 'vitest';
+
 import { encryptionService } from '../../../src/lib/security/encryption';
 
 describe('Authentication Flow', () => {

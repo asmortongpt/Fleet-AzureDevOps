@@ -19,7 +19,6 @@
 import {
   MagnifyingGlass,
   VideoCamera,
-  MapPin,
   ArrowsClockwise,
   CheckCircle,
   WarningCircle,
@@ -31,7 +30,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
 import React, { useState, useCallback, useMemo, useRef, useEffect } from "react"
 import { toast } from "sonner"
 
-import { UniversalMap, UniversalMapProps } from "@/components/UniversalMap"
+import { UniversalMap } from "@/components/UniversalMap"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"

@@ -3,13 +3,12 @@
  * API endpoints for mobile app email, SMS, and Teams messaging
  */
 
-import { container } from '../container'
-import { asyncHandler } from '../middleware/errorHandler'
-import { NotFoundError, ValidationError } from '../errors/app-error'
+
 import express, { Response } from 'express';
 import twilio from 'twilio';
 import { z } from 'zod';
 
+import logger from '../config/logger';
 import { pool } from '../db/connection';
 import { auditLog } from '../middleware/audit';
 import { AuthRequest, authenticateJWT } from '../middleware/auth';
@@ -18,7 +17,6 @@ import { requirePermission } from '../middleware/permissions';
 import { outlookService } from '../services/outlook.service';
 import teamsService from '../services/teams.service';
 import { getErrorMessage } from '../utils/error-handler'
-import logger from '../config/logger';
 
 
 

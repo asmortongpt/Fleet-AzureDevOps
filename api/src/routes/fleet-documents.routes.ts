@@ -9,16 +9,15 @@
  * - Download URL generation
  */
 
-import { container } from '../container'
-import { asyncHandler } from '../middleware/errorHandler'
-import { NotFoundError, ValidationError } from '../errors/app-error'
-import logger from '../config/logger'; // Wave 31: Add Winston logger
+
 import path from 'path'
 
 import { Router, Response } from 'express'
 import multer from 'multer'
 
+import logger from '../config/logger'; // Wave 31: Add Winston logger
 import { pool } from '../db/connection';
+import { ValidationError } from '../errors/app-error'
 import { auditLog } from '../middleware/audit'
 import { AuthRequest, authenticateJWT, authorize } from '../middleware/auth'
 import { csrfProtection } from '../middleware/csrf'

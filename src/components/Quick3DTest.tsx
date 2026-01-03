@@ -1,6 +1,6 @@
-import React from 'react';
 import { OrbitControls, useGLTF, Environment } from '@react-three/drei';
 import { Canvas } from '@react-three/fiber';
+import React from 'react';
 
 function VehicleModel({ path }: { path: string }) {
   const { scene } = useGLTF(path || '/models/default-vehicle.glb');

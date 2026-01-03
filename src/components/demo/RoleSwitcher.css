@@ -39,7 +39,8 @@
 
 .role-label {
   font-size: 14px;
-  color: #111827; /* gray-900 for WCAG AAA contrast (17.9:1 ratio on white bg) */
+  color: #111827;
+  /* gray-900 for WCAG AAA contrast (17.9:1 ratio on white bg) */
   font-weight: 600;
 }
 
@@ -61,9 +62,12 @@
 }
 
 @keyframes pulse {
-  0%, 100% {
+
+  0%,
+  100% {
     opacity: 1;
   }
+
   50% {
     opacity: 0.8;
   }
@@ -512,6 +516,29 @@
 @media (max-width: 768px) {
   .role-switcher-panel {
     width: 100vw;
+  }
+
+  .role-switcher-fab {
+    bottom: 16px;
+    right: 16px;
+  }
+
+  .role-fab-button {
+    padding: 10px;
+    gap: 0;
+  }
+
+  .role-label {
+    display: none;
+  }
+
+  .expand-icon {
+    display: none;
+  }
+
+  .demo-badge {
+    font-size: 9px;
+    padding: 2px 8px;
   }
 
   .current-role-bar {

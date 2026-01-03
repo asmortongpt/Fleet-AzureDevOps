@@ -3,11 +3,12 @@
  * Implements role-based field-level access control
  */
 
+import { Response, NextFunction } from 'express'
+
 import pool from '../config/database'
 import { AuthRequest } from '../middleware/auth'
 
 // Type guard for Express Response
-import { Response, NextFunction } from 'express'
 
 export type FieldClassification = 'Internal' | 'Confidential' | 'Restricted' | 'Sensitive'
 

@@ -12,8 +12,9 @@
  * - Overscan for smoother experience
  */
 
-import { useRef, forwardRef } from 'react';
 import { useVirtualizer } from '@tanstack/react-virtual';
+import { useRef, forwardRef } from 'react';
+
 import { cn } from '@/lib/utils';
 
 // ============================================================================

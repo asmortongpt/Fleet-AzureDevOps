@@ -9,7 +9,6 @@ import {
   RefreshCw,
   FileText,
   Share2,
-  Settings,
   Gauge,
   DollarSign,
   Fuel,

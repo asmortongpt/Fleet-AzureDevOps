@@ -3,6 +3,7 @@ import { z } from 'zod'
 
 import { appInsightsService } from '../config/app-insights'
 import logger from '../config/logger'; // Wave 19: Add Winston logger
+import logger from '../config/logger'
 import { pool } from '../db/connection';
 import { NotFoundError, ValidationError } from '../errors/app-error'
 import { auditLog } from '../middleware/audit'
@@ -15,7 +16,6 @@ import {
   ApprovalStatus
 } from '../types/trip-usage'
 import { getErrorMessage } from '../utils/error-handler'
-import logger from '../config/logger'
 
 
 const router = express.Router()

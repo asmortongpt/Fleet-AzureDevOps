@@ -21,6 +21,7 @@
  */
 
 import { pool } from '../config/database'
+import logger from '../config/logger'
 import {
   Team,
   Channel,
@@ -36,7 +37,6 @@ import {
   CommunicationEntityLink,
   GraphApiResponse
 } from '../types/teams.types'
-import logger from '../config/logger'
 
 import microsoftGraphService from './microsoft-graph.service'
 

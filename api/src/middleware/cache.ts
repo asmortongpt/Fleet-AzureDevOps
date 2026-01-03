@@ -16,8 +16,8 @@ import crypto from 'crypto'
 
 import { Request, Response, NextFunction } from 'express'
 
-import redisClient from '../config/redis'
 import logger from '../config/logger'
+import redisClient from '../config/redis'
 
 /**
  * Cache entry

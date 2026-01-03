@@ -7,11 +7,11 @@ import {
   Package,
   Truck,
   Building2,
-  Settings,
   AlertCircle,
   Grid
 } from "lucide-react"
 import { useState, useMemo, useCallback } from "react"
+import { toast, ToastOptions } from "react-hot-toast"
 
 import { ProfessionalFleetMap } from "@/components/Maps/ProfessionalFleetMap"
 import { Badge } from "@/components/ui/badge"
@@ -25,7 +25,6 @@ import { useVehicles, useFacilities, useWorkOrders, useMaintenanceSchedules } fr
 import { useVehicleTelemetry } from "@/hooks/useVehicleTelemetry"
 import { Vehicle, Facility, WorkOrder } from "@/lib/types"
 import { cn } from "@/lib/utils"
-import { toast, ToastOptions } from "react-hot-toast"
 
 // Facility Panel Component
 const FacilityPanel = ({ facilities, onFacilitySelect }: { facilities: Facility[]; onFacilitySelect: (facility: Facility) => void }) => {

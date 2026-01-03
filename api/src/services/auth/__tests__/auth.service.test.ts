@@ -2,8 +2,9 @@
  * Comprehensive Test Suite for Authentication Service
  * Tests JWT generation, refresh token rotation, token validation, and security features
  */
-import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import jwt from 'jsonwebtoken';
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
+
 import { AuthService } from '../auth.service';
 
 describe('AuthService', () => {

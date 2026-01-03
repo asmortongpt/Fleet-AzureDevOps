@@ -2,18 +2,19 @@ import { withAITracking } from '@microsoft/applicationinsights-react-js'
 import { Shield } from "lucide-react"
 import { useState, useMemo, lazy, Suspense } from "react"
 
-import { AIAssistantChat } from "@/components/ai/AIAssistantChat"
 import { BuildVersion } from "@/components/BuildVersion"
 import { DrilldownManager } from "@/components/DrilldownManager"
 import { EnhancedErrorBoundary } from "@/components/EnhancedErrorBoundary"
+import { AIAssistantChat } from "@/components/ai/AIAssistantChat"
 import { ToastContainer } from "@/components/common/ToastContainer"
 import { RoleSwitcher } from "@/components/demo/RoleSwitcher"
 import { QueryErrorBoundary } from "@/components/errors/QueryErrorBoundary"
 import { CommandCenterLayout } from "@/components/layout/CommandCenterLayout"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { WebSocketProvider } from "@/contexts/WebSocketContext"
+import { useAuth } from "@/contexts/AuthContext"
+import { useNavigation } from "@/contexts/NavigationContext"
 import { PolicyProvider } from "@/contexts/PolicyContext"
+import { WebSocketProvider } from "@/contexts/WebSocketContext"
 import { useFleetData } from "@/hooks/use-fleet-data"
 import { navigationItems } from "@/lib/navigation"
 import telemetryService from '@/lib/telemetry'
@@ -162,8 +163,6 @@ const LoadingSpinner = () => (
   </div>
 )
 
-import { useAuth } from "@/contexts/AuthContext"
-import { useNavigation } from "@/contexts/NavigationContext"
 
 // ... existing imports
 

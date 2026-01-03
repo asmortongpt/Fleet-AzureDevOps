@@ -15,25 +15,11 @@
  */
 
 import {
-  Radio,
-  Mic,
-  MicOff,
-  AlertTriangle,
-  Users,
-  Volume2,
-  VolumeX,
-  Play,
-  PhoneCall,
-  Activity
+  Radio
 } from 'lucide-react'
 import React, { useState, useEffect, useRef, useCallback } from 'react'
 
-import { Alert, AlertDescription } from './ui/alert'
 import { Badge } from './ui/badge'
-import { Button } from './ui/button'
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from './ui/card'
-import { ScrollArea } from './ui/scroll-area'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs'
 
 import { useAuth } from '@/hooks/useAuth'
 import { useInspect } from '@/services/inspect/InspectContext'

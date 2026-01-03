@@ -16,8 +16,8 @@
  * OWASP: A03:2021 – Injection (XSS)
  */
 
-import { describe, it, expect, beforeAll, afterEach, vi } from 'vitest';
 import DOMPurify from 'dompurify';
+import { describe, it, expect, beforeAll, afterEach, vi } from 'vitest';
 
 // Re-implement XSS prevention functions for testing
 function sanitizeHtml(dirty: string, config: DOMPurify.Config = {}): string {

@@ -28,7 +28,7 @@ import { csrfProtection } from '../middleware/csrf'
 import { requirePermission } from '../middleware/permissions'
 import { setTenantContext } from '../middleware/tenant-context'
 import { applyFieldMasking } from '../utils/fieldMasking'
-import { preventTenantIdOverride, validateTenantReferences, injectTenantId } from '../utils/tenant-validator'
+import { preventTenantIdOverride } from '../utils/tenant-validator'
 
 const router = express.Router()
 

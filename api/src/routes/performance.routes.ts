@@ -5,13 +5,11 @@
  * worker threads, and query performance.
  */
 
-import { container } from '../container'
-import { asyncHandler } from '../middleware/errorHandler'
-import { NotFoundError, ValidationError } from '../errors/app-error'
-import logger from '../config/logger'; // Wave 22: Add Winston logger
+
 import { Router, Request, Response } from 'express'
 
 import { connectionManager } from '../config/connection-manager'
+import logger from '../config/logger'; // Wave 22: Add Winston logger
 import { workerPool } from '../config/worker-pool'
 import { authenticateJWT } from '../middleware/auth'
 import { csrfProtection } from '../middleware/csrf'

@@ -8,10 +8,7 @@
  * - Integration with existing fuel transactions and vehicle tracking
  */
 
-import { container } from '../container'
-import { asyncHandler } from '../middleware/errorHandler'
-import { NotFoundError, ValidationError } from '../errors/app-error'
-import logger from '../config/logger'; // Wave 33: Add Winston logger (FINAL WAVE!)
+
 import fs from 'fs/promises';
 import path from 'path';
 
@@ -19,6 +16,7 @@ import express, { Response } from 'express';
 import multer from 'multer';
 import { z } from 'zod';
 
+import logger from '../config/logger'; // Wave 33: Add Winston logger (FINAL WAVE!)
 import { pool } from '../db/connection';
 import { auditLog } from '../middleware/audit';
 import { authenticateJWT, AuthRequest } from '../middleware/auth';

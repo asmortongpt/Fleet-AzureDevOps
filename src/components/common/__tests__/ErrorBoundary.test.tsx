@@ -4,10 +4,12 @@
  * Tests error boundary component behavior
  */
 
-import { describe, it, expect, vi } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
-import { ErrorBoundary, withErrorBoundary } from '../ErrorBoundary';
 import React from 'react';
+import { describe, it, expect, vi } from 'vitest';
+
+import { ErrorBoundary, withErrorBoundary } from '../ErrorBoundary';
+
 
 // Component that throws an error
 const ThrowError = ({ shouldThrow = true }: { shouldThrow?: boolean }) => {
@@ -315,7 +317,7 @@ describe('Error Boundary - Edge Cases', () => {
 
   it('should handle non-Error objects thrown', () => {
     const ThrowString = () => {
-      throw 'String error'; // eslint-disable-line no-throw-literal
+      throw 'String error';  
     };
     
     // This might not be caught by ErrorBoundary (only Error objects are caught)

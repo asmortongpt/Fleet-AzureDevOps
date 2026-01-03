@@ -21,6 +21,7 @@ import {
   Info,
 } from 'lucide-react'
 import { useState } from 'react'
+import { toast } from 'sonner'
 
 import { DrilldownContent } from '@/components/DrilldownPanel'
 import { Badge } from '@/components/ui/badge'
@@ -29,7 +30,6 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Separator } from '@/components/ui/separator'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { useDrilldown } from '@/contexts/DrilldownContext'
-import { toast } from 'sonner'
 
 interface PolicyTemplateDetailPanelProps {
   templateId: string

@@ -5,6 +5,7 @@
  * Exports traces to Azure Application Insights or any OTLP-compatible backend
  */
 
+import { trace, SpanStatusCode } from '@opentelemetry/api';
 import { getNodeAutoInstrumentations } from '@opentelemetry/auto-instrumentations-node';
 import { OTLPTraceExporter } from '@opentelemetry/exporter-trace-otlp-http';
 import { defaultResource, resourceFromAttributes } from '@opentelemetry/resources';
@@ -15,7 +16,6 @@ import { ATTR_SERVICE_NAME, ATTR_SERVICE_VERSION } from '@opentelemetry/semantic
  * Custom span creation helper
  * Use this to create manual spans for business logic
  */
-import { trace, SpanStatusCode } from '@opentelemetry/api';
 
 // Configuration
 const serviceName = process.env.OTEL_SERVICE_NAME || 'fleet-management-api';

@@ -3,6 +3,7 @@
  * Features: Time-series cost trends, category breakdown, YoY comparison
  */
 
+import { TrendDown, TrendUp, CurrencyDollar } from '@phosphor-icons/react'
 import { memo, useMemo } from 'react'
 import {
     LineChart,
@@ -19,7 +20,6 @@ import {
     ResponsiveContainer,
     ComposedChart,
 } from 'recharts'
-import { TrendDown, TrendUp, CurrencyDollar } from '@phosphor-icons/react'
 
 export interface CostDataPoint {
     date: string

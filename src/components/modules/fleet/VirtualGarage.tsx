@@ -12,9 +12,20 @@
  * Created: 2025-11-24
  */
 
-import React, { useState, Suspense, lazy } from 'react';
 import { useQuery } from '@tanstack/react-query';
+import React, { useState, Suspense, lazy } from 'react';
+
+import { useGarageFilters, GarageAsset } from './VirtualGarage/hooks/use-garage-filters';
+
+import {
+  DamageSummaryPanel,
+  generateDemoDamagePoints
+} from '@/components/garage/DamageOverlay';
+import { VirtualGarageControls } from '@/components/garage/controls/VirtualGarageControls';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { ScrollArea } from '@/components/ui/scroll-area';
 import {
   Select,
   SelectTrigger,
@@ -22,17 +33,7 @@ import {
   SelectContent,
   SelectItem,
 } from '@/components/ui/select';
-import { ScrollArea } from '@/components/ui/scroll-area';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import { useGarageFilters, GarageAsset } from './VirtualGarage/hooks/use-garage-filters';
 import { AssetCategory } from '@/types/asset.types';
-import {
-  DamageSummaryPanel,
-  generateDemoDamagePoints,
-  DamagePoint
-} from '@/components/garage/DamageOverlay';
-import { VirtualGarageControls } from '@/components/garage/controls/VirtualGarageControls';
 
 // Demo assets used only in development as a fallback - Updated with real fleet vehicles
 const DEMO_ASSETS: GarageAsset[] = [

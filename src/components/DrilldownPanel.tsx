@@ -117,7 +117,7 @@ export function DrilldownPanel({ children, className }: DrilldownPanelProps) {
 
             {/* Content */}
             <ScrollArea className="flex-1">
-              <div className="p-6">
+              <div className="p-4 md:p-6 pb-24 md:pb-6">
                 {children}
               </div>
             </ScrollArea>

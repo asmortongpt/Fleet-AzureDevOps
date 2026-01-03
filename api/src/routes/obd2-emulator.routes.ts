@@ -5,14 +5,13 @@
  * Used for development, testing, and demo purposes.
  */
 
-import { container } from '../container'
-import { asyncHandler } from '../middleware/errorHandler'
-import { NotFoundError, ValidationError } from '../errors/app-error'
-import logger from '../config/logger'; // Wave 29: Add Winston logger
+
 import express, { Request, Response } from 'express'
 import { v4 as uuidv4 } from 'uuid'
 import { WebSocket, WebSocketServer } from 'ws'
 
+import logger from '../config/logger'; // Wave 29: Add Winston logger
+import { NotFoundError } from '../errors/app-error'
 import { csrfProtection } from '../middleware/csrf'
 import obd2Emulator, { VehicleProfile } from '../services/obd2-emulator.service'
 

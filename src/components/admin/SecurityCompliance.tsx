@@ -11,10 +11,19 @@
  * Created: 2025-12-31 (Agent 3)
  */
 
+import {
+  Shield,
+  CheckCircle2,
+  AlertTriangle,
+  XCircle,
+  Activity,
+  Clock
+} from 'lucide-react';
 import React, { useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
+
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import {
   Table,
@@ -24,17 +33,6 @@ import {
   TableHeader,
   TableRow
 } from '@/components/ui/table';
-import {
-  Shield,
-  CheckCircle2,
-  AlertTriangle,
-  XCircle,
-  Eye,
-  Lock,
-  FileText,
-  Activity,
-  Clock
-} from 'lucide-react';
 
 interface ComplianceItem {
   id: string;

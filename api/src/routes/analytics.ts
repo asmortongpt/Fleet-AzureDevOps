@@ -5,6 +5,7 @@
 
 import { Router, type Request, type Response } from 'express'
 import { createClient } from 'redis'
+
 import { query } from '../db'
 
 const router = Router()

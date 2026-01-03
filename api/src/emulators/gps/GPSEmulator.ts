@@ -9,6 +9,7 @@
  */
 
 import { EventEmitter } from 'events'
+
 import {
   Vehicle,
   Location,

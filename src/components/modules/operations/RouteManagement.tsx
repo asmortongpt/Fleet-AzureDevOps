@@ -10,7 +10,7 @@ import { useState, useMemo } from "react"
 import { toast } from "sonner"
 
 import { MetricCard } from "@/components/MetricCard"
-import { UniversalMap, UniversalMapProps } from "@/components/UniversalMap"
+import { UniversalMap } from "@/components/UniversalMap"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"

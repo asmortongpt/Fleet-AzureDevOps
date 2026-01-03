@@ -1,17 +1,17 @@
-import { useEffect, useRef, useState } from "react"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
 import {
   Play,
   Pause,
   ArrowsClockwise,
   Info,
   CheckCircle,
-  Warning,
   Clock
 } from "@phosphor-icons/react"
 import mermaid from "mermaid"
+import { useEffect, useRef, useState } from "react"
+
+import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 
 interface PolicyFlowNode {
   id: string

@@ -12,19 +12,9 @@ import {
   Package,
   User,
   Truck,
-  Phone,
-  Mail,
   Clock,
   MapPin,
   Navigation,
-  Calendar,
-  AlertTriangle,
-  CheckCircle,
-  XCircle,
-  Building2,
-  FileText,
-  TrendingUp,
-  Route,
   Download
 } from 'lucide-react'
 import { useState, useMemo } from 'react'
@@ -36,8 +26,8 @@ import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Progress } from '@/components/ui/progress'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 
 interface JobMatrixData {
   id: string

@@ -3,7 +3,6 @@
  * ZERO placeholders - all functionality fully implemented with contact info
  */
 
-import React, { useState } from 'react'
 import {
   Truck,
   User,
@@ -24,18 +23,16 @@ import {
   Calendar,
   Shield,
   BarChart3,
-  Package,
-  Settings,
   AlertTriangle,
   Target,
   Award,
-  Flag,
-  Zap,
   Database
 } from 'lucide-react'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import React, { useState } from 'react'
+
 import { Badge } from '@/components/ui/badge'
-import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { ExcelStyleTable, ExcelColumn } from '@/components/ui/excel-style-table'
 import { Progress } from '@/components/ui/progress'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { useDrilldown } from '@/contexts/DrilldownContext'
@@ -254,7 +251,7 @@ export function VehicleDetailsDrilldown() {
   const [activeTab, setActiveTab] = useState('overview')
 
   return (
-    <div className="space-y-6 p-6">
+    <div className="space-y-6">
       {/* Header */}
       <div className="flex items-start justify-between">
         <div>
@@ -271,7 +268,7 @@ export function VehicleDetailsDrilldown() {
       </div>
 
       {/* Key Metrics */}
-      <div className="grid grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         <Card className="bg-slate-800/50 border-slate-700">
           <CardContent className="pt-6">
             <div className="flex items-center gap-3">
@@ -323,7 +320,7 @@ export function VehicleDetailsDrilldown() {
 
       {/* Tabbed Content */}
       <Tabs value={activeTab} onValueChange={setActiveTab}>
-        <TabsList className="grid grid-cols-4 bg-slate-800/50">
+        <TabsList className="grid grid-cols-2 md:grid-cols-4 bg-slate-800/50 h-auto">
           <TabsTrigger value="overview">Overview</TabsTrigger>
           <TabsTrigger value="contacts">Contacts</TabsTrigger>
           <TabsTrigger value="maintenance">Maintenance</TabsTrigger>
@@ -378,12 +375,12 @@ export function VehicleDetailsDrilldown() {
                   </div>
                   <div className="flex gap-3">
                     <a href={`tel:${vehicle.assignedDriver.phone}`}
-                       className="flex items-center gap-2 px-4 py-2 bg-blue-500 hover:bg-blue-600 rounded-lg text-white transition-colors">
+                      className="flex items-center gap-2 px-4 py-2 bg-blue-500 hover:bg-blue-600 rounded-lg text-white transition-colors">
                       <Phone className="w-4 h-4" />
                       {vehicle.assignedDriver.phone}
                     </a>
                     <a href={`mailto:${vehicle.assignedDriver.email}`}
-                       className="flex items-center gap-2 px-4 py-2 bg-emerald-500 hover:bg-emerald-600 rounded-lg text-white transition-colors">
+                      className="flex items-center gap-2 px-4 py-2 bg-emerald-500 hover:bg-emerald-600 rounded-lg text-white transition-colors">
                       <Mail className="w-4 h-4" />
                       Email
                     </a>
@@ -430,12 +427,12 @@ export function VehicleDetailsDrilldown() {
                 </div>
                 <div className="flex gap-3">
                   <a href={`tel:${vehicle.fleetManager.phone}`}
-                     className="flex items-center gap-2 px-4 py-2 bg-blue-500 hover:bg-blue-600 rounded-lg text-white transition-colors">
+                    className="flex items-center gap-2 px-4 py-2 bg-blue-500 hover:bg-blue-600 rounded-lg text-white transition-colors">
                     <Phone className="w-4 h-4" />
                     {vehicle.fleetManager.phone}
                   </a>
                   <a href={`mailto:${vehicle.fleetManager.email}`}
-                     className="flex items-center gap-2 px-4 py-2 bg-emerald-500 hover:bg-emerald-600 rounded-lg text-white transition-colors">
+                    className="flex items-center gap-2 px-4 py-2 bg-emerald-500 hover:bg-emerald-600 rounded-lg text-white transition-colors">
                     <Mail className="w-4 h-4" />
                     {vehicle.fleetManager.email}
                   </a>
@@ -460,12 +457,12 @@ export function VehicleDetailsDrilldown() {
                 </div>
                 <div className="flex gap-3">
                   <a href={`tel:${vehicle.maintenanceSupervisor.phone}`}
-                     className="flex items-center gap-2 px-4 py-2 bg-blue-500 hover:bg-blue-600 rounded-lg text-white transition-colors">
+                    className="flex items-center gap-2 px-4 py-2 bg-blue-500 hover:bg-blue-600 rounded-lg text-white transition-colors">
                     <Phone className="w-4 h-4" />
                     {vehicle.maintenanceSupervisor.phone}
                   </a>
                   <a href={`mailto:${vehicle.maintenanceSupervisor.email}`}
-                     className="flex items-center gap-2 px-4 py-2 bg-emerald-500 hover:bg-emerald-600 rounded-lg text-white transition-colors">
+                    className="flex items-center gap-2 px-4 py-2 bg-emerald-500 hover:bg-emerald-600 rounded-lg text-white transition-colors">
                     <Mail className="w-4 h-4" />
                     {vehicle.maintenanceSupervisor.email}
                   </a>
@@ -490,12 +487,12 @@ export function VehicleDetailsDrilldown() {
                 </div>
                 <div className="flex gap-3">
                   <a href={`tel:${vehicle.assignedDriver.phone}`}
-                     className="flex items-center gap-2 px-4 py-2 bg-blue-500 hover:bg-blue-600 rounded-lg text-white transition-colors">
+                    className="flex items-center gap-2 px-4 py-2 bg-blue-500 hover:bg-blue-600 rounded-lg text-white transition-colors">
                     <Phone className="w-4 h-4" />
                     {vehicle.assignedDriver.phone}
                   </a>
                   <a href={`mailto:${vehicle.assignedDriver.email}`}
-                     className="flex items-center gap-2 px-4 py-2 bg-emerald-500 hover:bg-emerald-600 rounded-lg text-white transition-colors">
+                    className="flex items-center gap-2 px-4 py-2 bg-emerald-500 hover:bg-emerald-600 rounded-lg text-white transition-colors">
                     <Mail className="w-4 h-4" />
                     {vehicle.assignedDriver.email}
                   </a>
@@ -564,12 +561,12 @@ export function VehicleDetailsDrilldown() {
                       </div>
                       <div className="flex gap-2">
                         <a href={`tel:${record.technician.phone}`}
-                           className="flex items-center gap-1 px-3 py-1 bg-blue-500/20 hover:bg-blue-500/30 rounded text-blue-400 text-sm transition-colors">
+                          className="flex items-center gap-1 px-3 py-1 bg-blue-500/20 hover:bg-blue-500/30 rounded text-blue-400 text-sm transition-colors">
                           <Phone className="w-3 h-3" />
                           {record.technician.phone}
                         </a>
                         <a href={`mailto:${record.technician.email}`}
-                           className="flex items-center gap-1 px-3 py-1 bg-emerald-500/20 hover:bg-emerald-500/30 rounded text-emerald-400 text-sm transition-colors">
+                          className="flex items-center gap-1 px-3 py-1 bg-emerald-500/20 hover:bg-emerald-500/30 rounded text-emerald-400 text-sm transition-colors">
                           <Mail className="w-3 h-3" />
                           Email
                         </a>
@@ -617,12 +614,12 @@ export function VehicleDetailsDrilldown() {
                       </div>
                       <div className="flex gap-2">
                         <a href={`tel:${doc.contactPerson.phone}`}
-                           className="flex items-center gap-2 px-3 py-2 bg-blue-500 hover:bg-blue-600 rounded-lg text-white text-sm transition-colors">
+                          className="flex items-center gap-2 px-3 py-2 bg-blue-500 hover:bg-blue-600 rounded-lg text-white text-sm transition-colors">
                           <Phone className="w-4 h-4" />
                           {doc.contactPerson.phone}
                         </a>
                         <a href={`mailto:${doc.contactPerson.email}`}
-                           className="flex items-center gap-2 px-3 py-2 bg-emerald-500 hover:bg-emerald-600 rounded-lg text-white text-sm transition-colors">
+                          className="flex items-center gap-2 px-3 py-2 bg-emerald-500 hover:bg-emerald-600 rounded-lg text-white text-sm transition-colors">
                           <Mail className="w-4 h-4" />
                           Email
                         </a>
@@ -726,10 +723,10 @@ export function UtilizationDetailsDrilldown() {
   }
 
   const totalTime = utilizationData.activeTime + utilizationData.idleTime +
-                    utilizationData.maintenanceTime + utilizationData.offlineTime
+    utilizationData.maintenanceTime + utilizationData.offlineTime
 
   return (
-    <div className="space-y-6 p-6">
+    <div className="space-y-6">
       <div className="flex items-start justify-between">
         <div>
           <h2 className="text-3xl font-bold text-white">Fleet Utilization Analysis</h2>
@@ -739,7 +736,7 @@ export function UtilizationDetailsDrilldown() {
       </div>
 
       {/* Utilization Overview */}
-      <div className="grid grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         <Card className="bg-slate-800/50 border-slate-700">
           <CardContent className="pt-6">
             <div className="text-center">
@@ -794,30 +791,30 @@ export function UtilizationDetailsDrilldown() {
             <div>
               <div className="flex justify-between mb-2">
                 <span className="text-white font-medium">Active Time</span>
-                <span className="text-emerald-400 font-bold">{utilizationData.activeTime} hrs ({Math.round((utilizationData.activeTime/totalTime)*100)}%)</span>
+                <span className="text-emerald-400 font-bold">{utilizationData.activeTime} hrs ({Math.round((utilizationData.activeTime / totalTime) * 100)}%)</span>
               </div>
-              <Progress value={(utilizationData.activeTime/totalTime)*100} className="h-3" />
+              <Progress value={(utilizationData.activeTime / totalTime) * 100} className="h-3" />
             </div>
             <div>
               <div className="flex justify-between mb-2">
                 <span className="text-white font-medium">Idle Time</span>
-                <span className="text-amber-400 font-bold">{utilizationData.idleTime} hrs ({Math.round((utilizationData.idleTime/totalTime)*100)}%)</span>
+                <span className="text-amber-400 font-bold">{utilizationData.idleTime} hrs ({Math.round((utilizationData.idleTime / totalTime) * 100)}%)</span>
               </div>
-              <Progress value={(utilizationData.idleTime/totalTime)*100} className="h-3 bg-amber-200" />
+              <Progress value={(utilizationData.idleTime / totalTime) * 100} className="h-3 bg-amber-200" />
             </div>
             <div>
               <div className="flex justify-between mb-2">
                 <span className="text-white font-medium">Maintenance Time</span>
-                <span className="text-blue-400 font-bold">{utilizationData.maintenanceTime} hrs ({Math.round((utilizationData.maintenanceTime/totalTime)*100)}%)</span>
+                <span className="text-blue-400 font-bold">{utilizationData.maintenanceTime} hrs ({Math.round((utilizationData.maintenanceTime / totalTime) * 100)}%)</span>
               </div>
-              <Progress value={(utilizationData.maintenanceTime/totalTime)*100} className="h-3 bg-blue-200" />
+              <Progress value={(utilizationData.maintenanceTime / totalTime) * 100} className="h-3 bg-blue-200" />
             </div>
             <div>
               <div className="flex justify-between mb-2">
                 <span className="text-white font-medium">Offline Time</span>
-                <span className="text-slate-400 font-bold">{utilizationData.offlineTime} hrs ({Math.round((utilizationData.offlineTime/totalTime)*100)}%)</span>
+                <span className="text-slate-400 font-bold">{utilizationData.offlineTime} hrs ({Math.round((utilizationData.offlineTime / totalTime) * 100)}%)</span>
               </div>
-              <Progress value={(utilizationData.offlineTime/totalTime)*100} className="h-3 bg-slate-600" />
+              <Progress value={(utilizationData.offlineTime / totalTime) * 100} className="h-3 bg-slate-600" />
             </div>
           </div>
         </CardContent>
@@ -859,12 +856,12 @@ export function UtilizationDetailsDrilldown() {
                 </div>
                 <div className="flex gap-2 pt-3 border-t border-slate-700">
                   <a href={`tel:${assignment.phone}`}
-                     className="flex items-center gap-1 px-3 py-1 bg-blue-500/20 hover:bg-blue-500/30 rounded text-blue-400 text-sm transition-colors">
+                    className="flex items-center gap-1 px-3 py-1 bg-blue-500/20 hover:bg-blue-500/30 rounded text-blue-400 text-sm transition-colors">
                     <Phone className="w-3 h-3" />
                     {assignment.phone}
                   </a>
                   <a href={`mailto:${assignment.email}`}
-                     className="flex items-center gap-1 px-3 py-1 bg-emerald-500/20 hover:bg-emerald-500/30 rounded text-emerald-400 text-sm transition-colors">
+                    className="flex items-center gap-1 px-3 py-1 bg-emerald-500/20 hover:bg-emerald-500/30 rounded text-emerald-400 text-sm transition-colors">
                     <Mail className="w-3 h-3" />
                     {assignment.email}
                   </a>
@@ -888,17 +885,15 @@ export function UtilizationDetailsDrilldown() {
             {utilizationData.recommendations.map((rec, idx) => {
               const Icon = rec.icon
               return (
-                <div key={idx} className={`p-4 rounded-lg border ${
-                  rec.priority === 'high' ? 'bg-emerald-500/10 border-emerald-500/30' :
-                  rec.priority === 'medium' ? 'bg-amber-500/10 border-amber-500/30' :
-                  'bg-blue-500/10 border-blue-500/30'
-                }`}>
+                <div key={idx} className={`p-4 rounded-lg border ${rec.priority === 'high' ? 'bg-emerald-500/10 border-emerald-500/30' :
+                    rec.priority === 'medium' ? 'bg-amber-500/10 border-amber-500/30' :
+                      'bg-blue-500/10 border-blue-500/30'
+                  }`}>
                   <div className="flex items-start gap-3">
-                    <Icon className={`w-6 h-6 ${
-                      rec.priority === 'high' ? 'text-emerald-400' :
-                      rec.priority === 'medium' ? 'text-amber-400' :
-                      'text-blue-400'
-                    }`} />
+                    <Icon className={`w-6 h-6 ${rec.priority === 'high' ? 'text-emerald-400' :
+                        rec.priority === 'medium' ? 'text-amber-400' :
+                          'text-blue-400'
+                      }`} />
                     <div className="flex-1">
                       <div className="flex items-center gap-2 mb-1">
                         <p className="font-semibold text-white">{rec.title}</p>
@@ -928,12 +923,12 @@ export function UtilizationDetailsDrilldown() {
             </div>
             <div className="flex gap-3">
               <a href={`tel:${utilizationData.fleetManager.phone}`}
-                 className="flex items-center gap-2 px-4 py-2 bg-blue-500 hover:bg-blue-600 rounded-lg text-white transition-colors">
+                className="flex items-center gap-2 px-4 py-2 bg-blue-500 hover:bg-blue-600 rounded-lg text-white transition-colors">
                 <Phone className="w-4 h-4" />
                 {utilizationData.fleetManager.phone}
               </a>
               <a href={`mailto:${utilizationData.fleetManager.email}`}
-                 className="flex items-center gap-2 px-4 py-2 bg-emerald-500 hover:bg-emerald-600 rounded-lg text-white transition-colors">
+                className="flex items-center gap-2 px-4 py-2 bg-emerald-500 hover:bg-emerald-600 rounded-lg text-white transition-colors">
                 <Mail className="w-4 w-4" />
                 Email
               </a>
@@ -1192,12 +1187,12 @@ export function CostDetailsDrilldown() {
               </div>
               <div className="flex gap-2">
                 <a href={`tel:${costData.financeManager.phone}`}
-                   className="flex items-center gap-1 px-3 py-2 bg-blue-500 hover:bg-blue-600 rounded text-white text-sm transition-colors flex-1 justify-center">
+                  className="flex items-center gap-1 px-3 py-2 bg-blue-500 hover:bg-blue-600 rounded text-white text-sm transition-colors flex-1 justify-center">
                   <Phone className="w-4 h-4" />
                   Call
                 </a>
                 <a href={`mailto:${costData.financeManager.email}`}
-                   className="flex items-center gap-1 px-3 py-2 bg-emerald-500 hover:bg-emerald-600 rounded text-white text-sm transition-colors flex-1 justify-center">
+                  className="flex items-center gap-1 px-3 py-2 bg-emerald-500 hover:bg-emerald-600 rounded text-white text-sm transition-colors flex-1 justify-center">
                   <Mail className="w-4 h-4" />
                   Email
                 </a>
@@ -1218,12 +1213,12 @@ export function CostDetailsDrilldown() {
               </div>
               <div className="flex gap-2">
                 <a href={`tel:${costData.fleetManager.phone}`}
-                   className="flex items-center gap-1 px-3 py-2 bg-blue-500 hover:bg-blue-600 rounded text-white text-sm transition-colors flex-1 justify-center">
+                  className="flex items-center gap-1 px-3 py-2 bg-blue-500 hover:bg-blue-600 rounded text-white text-sm transition-colors flex-1 justify-center">
                   <Phone className="w-4 h-4" />
                   Call
                 </a>
                 <a href={`mailto:${costData.fleetManager.email}`}
-                   className="flex items-center gap-1 px-3 py-2 bg-emerald-500 hover:bg-emerald-600 rounded text-white text-sm transition-colors flex-1 justify-center">
+                  className="flex items-center gap-1 px-3 py-2 bg-emerald-500 hover:bg-emerald-600 rounded text-white text-sm transition-colors flex-1 justify-center">
                   <Mail className="w-4 h-4" />
                   Email
                 </a>
@@ -1240,7 +1235,6 @@ export function CostDetailsDrilldown() {
 // EXCEL-STYLE DRILLDOWNS - NEW COMPREHENSIVE DATA VIEWS
 // ============================================================================
 
-import { ExcelStyleTable, ExcelColumn } from '@/components/ui/excel-style-table'
 
 // Active Vehicles Excel Drilldown
 export function ActiveVehiclesExcelDrilldown() {
@@ -1743,7 +1737,7 @@ export function ComplianceDetailsDrilldown() {
                         <p className="text-xl font-bold text-white">{item.category}</p>
                         <div className="flex gap-2 mt-2">
                           <Badge variant={item.status === 'compliant' ? 'default' : item.status === 'warning' ? 'secondary' : 'destructive'}
-                                 className={item.status === 'compliant' ? `bg-${color}-500` : ''}>
+                            className={item.status === 'compliant' ? `bg-${color}-500` : ''}>
                             {item.status.toUpperCase()}
                           </Badge>
                           <Badge variant="outline">
@@ -1790,12 +1784,12 @@ export function ComplianceDetailsDrilldown() {
                         </div>
                         <div className="flex gap-2">
                           <a href={`tel:${item.inspector.phone}`}
-                             className="flex items-center gap-2 px-3 py-2 bg-blue-500 hover:bg-blue-600 rounded-lg text-white text-sm transition-colors">
+                            className="flex items-center gap-2 px-3 py-2 bg-blue-500 hover:bg-blue-600 rounded-lg text-white text-sm transition-colors">
                             <Phone className="w-4 h-4" />
                             {item.inspector.phone}
                           </a>
                           <a href={`mailto:${item.inspector.email}`}
-                             className="flex items-center gap-2 px-3 py-2 bg-emerald-500 hover:bg-emerald-600 rounded-lg text-white text-sm transition-colors">
+                            className="flex items-center gap-2 px-3 py-2 bg-emerald-500 hover:bg-emerald-600 rounded-lg text-white text-sm transition-colors">
                             <Mail className="w-4 h-4" />
                             Email
                           </a>
@@ -1827,12 +1821,12 @@ export function ComplianceDetailsDrilldown() {
               </div>
               <div className="flex gap-2">
                 <a href={`tel:${complianceData.complianceManager.phone}`}
-                   className="flex items-center gap-2 px-4 py-2 bg-blue-500 hover:bg-blue-600 rounded-lg text-white transition-colors">
+                  className="flex items-center gap-2 px-4 py-2 bg-blue-500 hover:bg-blue-600 rounded-lg text-white transition-colors">
                   <Phone className="w-4 h-4" />
                   {complianceData.complianceManager.phone}
                 </a>
                 <a href={`mailto:${complianceData.complianceManager.email}`}
-                   className="flex items-center gap-2 px-4 py-2 bg-emerald-500 hover:bg-emerald-600 rounded-lg text-white transition-colors">
+                  className="flex items-center gap-2 px-4 py-2 bg-emerald-500 hover:bg-emerald-600 rounded-lg text-white transition-colors">
                   <Mail className="w-4 h-4" />
                   Email
                 </a>
@@ -1846,12 +1840,12 @@ export function ComplianceDetailsDrilldown() {
               </div>
               <div className="flex gap-2">
                 <a href={`tel:${complianceData.fleetManager.phone}`}
-                   className="flex items-center gap-2 px-4 py-2 bg-blue-500 hover:bg-blue-600 rounded-lg text-white transition-colors">
+                  className="flex items-center gap-2 px-4 py-2 bg-blue-500 hover:bg-blue-600 rounded-lg text-white transition-colors">
                   <Phone className="w-4 h-4" />
                   {complianceData.fleetManager.phone}
                 </a>
                 <a href={`mailto:${complianceData.fleetManager.email}`}
-                   className="flex items-center gap-2 px-4 py-2 bg-emerald-500 hover:bg-emerald-600 rounded-lg text-white transition-colors">
+                  className="flex items-center gap-2 px-4 py-2 bg-emerald-500 hover:bg-emerald-600 rounded-lg text-white transition-colors">
                   <Mail className="w-4 h-4" />
                   Email
                 </a>

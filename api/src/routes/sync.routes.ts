@@ -14,12 +14,9 @@
  * - GET /api/sync/health - Get sync service health status
  */
 
-import { container } from '../container'
-import { asyncHandler } from '../middleware/errorHandler'
-import { NotFoundError, ValidationError } from '../errors/app-error'
-import logger from '../config/logger'; // Wave 26: Add Winston logger
 import { Router, Request, Response } from 'express'
 
+import logger from '../config/logger'; // Wave 26: Add Winston logger
 import { pool } from '../db/connection';
 import outlookSync from '../jobs/outlook-sync.job'
 import teamsSync from '../jobs/teams-sync.job'

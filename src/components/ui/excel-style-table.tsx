@@ -13,11 +13,11 @@
  * - Sticky header
  */
 
-import React, { useState, useMemo, useCallback } from 'react'
 import { ArrowUp, ArrowDown, Search, Download, Filter, X } from 'lucide-react'
+import React, { useState, useMemo, useCallback } from 'react'
+
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { Badge } from '@/components/ui/badge'
 import { cn } from '@/lib/utils'
 
 export interface ExcelColumn<T = any> {

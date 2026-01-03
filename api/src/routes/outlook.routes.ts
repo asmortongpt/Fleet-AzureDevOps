@@ -3,12 +3,11 @@
  * REST API endpoints for full email management via Microsoft Graph API
  */
 
-import { container } from '../container'
-import { asyncHandler } from '../middleware/errorHandler'
-import { NotFoundError, ValidationError } from '../errors/app-error'
+
 import express, { Response } from 'express'
 import { z } from 'zod'
 
+import logger from '../config/logger'
 import { auditLog } from '../middleware/audit'
 import { AuthRequest, authenticateJWT, authorize } from '../middleware/auth'
 import { csrfProtection } from '../middleware/csrf'
@@ -22,7 +21,6 @@ import {
   CategorizeEmailRequest
 } from '../types/outlook.types'
 import { getErrorMessage } from '../utils/error-handler'
-import logger from '../config/logger'
 
 const router = express.Router()
 

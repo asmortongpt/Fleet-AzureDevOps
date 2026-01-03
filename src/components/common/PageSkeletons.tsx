@@ -3,8 +3,8 @@
  * Loading state placeholders for better UX
  */
 
-import { cn } from '@/lib/utils'
 import { Skeleton } from '@/components/ui/skeleton'
+import { cn } from '@/lib/utils'
 
 // Hub page skeleton with cards
 export function HubPageSkeleton() {

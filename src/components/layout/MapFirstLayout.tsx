@@ -1,6 +1,7 @@
 import { ChevronRight, ChevronUp, Maximize2 } from "lucide-react";
 import { ReactNode, useState } from 'react';
 
+import { AIAssistantFloatingButton } from '@/components/ai';
 import { MobileDrawerSystem } from '@/components/mobile/MobileDrawerSystem';
 import { Button } from "@/components/ui/button";
 import { cn } from '@/lib/utils';
@@ -11,6 +12,7 @@ interface MapFirstLayoutProps {
   drawerContent?: ReactNode;
   mapControls?: ReactNode;
   mapRatio?: number; // Percentage of width for map on desktop (default 70)
+  hubType?: string; // Hub type for context-aware AI assistant
 }
 
 export function MapFirstLayout({
@@ -19,6 +21,7 @@ export function MapFirstLayout({
   drawerContent,
   mapControls,
   mapRatio = 70,
+  hubType = 'general',
 }: MapFirstLayoutProps) {
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [isMapFullscreen, setIsMapFullscreen] = useState(false);
@@ -30,6 +33,8 @@ export function MapFirstLayout({
       className="flex flex-col md:flex-row h-screen w-full overflow-hidden bg-background"
       data-testid="map-first-layout"
     >
+      {/* AI Assistant Floating Button */}
+      <AIAssistantFloatingButton hubType={hubType} />
       {/* Map Section - Responsive breakpoints */}
       <div
         className={cn(

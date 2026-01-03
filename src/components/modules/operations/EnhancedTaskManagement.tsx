@@ -15,67 +15,26 @@
 
 import {
   Plus,
-  MagnifyingGlass,
   CheckCircle,
-  Clock,
-  User,
-  CalendarDots,
-  ListChecks,
-  DotsThree,
-  Download,
-  Funnel,
   Lightning,
   Sparkle,
-  Brain,
-  CaretDown,
-  Calendar,
-  List,
-  Kanban as KanbanIcon,
-  ChartBar,
-  Rows
+  Brain
 } from "@phosphor-icons/react"
 import { useState, useEffect, useMemo } from "react"
 import { toast } from "sonner"
 
-import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import {
   Dialog,
   DialogContent,
   DialogDescription,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
-  DialogFooter
+  DialogTrigger
 } from "@/components/ui/dialog"
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger
-} from "@/components/ui/dropdown-menu"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Progress } from "@/components/ui/progress"
-import { ScrollArea } from "@/components/ui/scroll-area"
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue
-} from "@/components/ui/select"
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow
-} from "@/components/ui/table"
 import { Textarea } from "@/components/ui/textarea"
 import {
   Tooltip,

@@ -5,12 +5,12 @@
 
 import express from 'express';
 
+import logger from '../config/logger';
 import { authenticateJWT } from '../middleware/auth';
 import { csrfProtection } from '../middleware/csrf'
 import { requirePermission } from '../middleware/permissions';
 import { pushNotificationService } from '../services/push-notification.service';
 import { smsService } from '../services/sms.service'
-import logger from '../config/logger';
 
 const router = express.Router();
 

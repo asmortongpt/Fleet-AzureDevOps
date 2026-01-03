@@ -668,6 +668,7 @@ export function MaintenanceHub() {
       mapComponent={mapComponent}
       sidePanel={sidePanel}
       drawerContent={drawerContent}
+      hubType="maintenance"
     />
   );
 }

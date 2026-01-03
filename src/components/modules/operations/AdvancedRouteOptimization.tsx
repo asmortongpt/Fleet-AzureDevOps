@@ -18,31 +18,19 @@
  * @module AdvancedRouteOptimization
  */
 
-import { ArrowsClockwise } from "@phosphor-icons/react"
 import {
   MapPin,
   Navigation,
-  Clock,
   TrendingDown,
   Zap,
-  AlertCircle,
-  Battery,
-  CloudRain,
-  TrafficCone
+  AlertCircle
 } from "lucide-react"
 import { useState, useEffect, useMemo, useCallback, useRef } from "react"
 import { toast } from "sonner"
 
-import { UniversalMap } from "@/components/UniversalMap"
 import { Alert, AlertDescription } from "@/components/ui/alert"
-import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Switch } from "@/components/ui/switch"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { useFleetData } from "@/hooks/use-fleet-data"
 import type { Vehicle, GISFacility } from "@/lib/types"
 import logger from '@/utils/logger';

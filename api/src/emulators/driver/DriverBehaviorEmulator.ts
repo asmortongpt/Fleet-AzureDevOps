@@ -3,6 +3,7 @@
  */
 
 import { EventEmitter } from 'events'
+
 import { Vehicle, DriverBehaviorEvent, EmulatorConfig, Location } from '../types'
 
 export class DriverBehaviorEmulator extends EventEmitter {

@@ -10,13 +10,9 @@ import {
   Car,
   Calendar,
   Clock,
-  FileText,
   CheckCircle,
   AlertTriangle,
-  TrendingUp,
-  MapPin,
   BarChart,
-  Download,
   Plus,
   Search,
 } from 'lucide-react';

@@ -15,11 +15,9 @@ import {
   LinkBreak,
   Clock,
   Plus,
-  X,
   Warning,
   CheckCircle,
-  CalendarBlank,
-  User
+  CalendarBlank
 } from '@phosphor-icons/react'
 import React, { useState, useEffect } from 'react'
 import { toast } from 'sonner'
@@ -36,13 +34,6 @@ import {
   AlertDialogTrigger
 } from '@/components/ui/alert-dialog'
 import { Button } from '@/components/ui/button'
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue
-} from '@/components/ui/select'
 import type {
   ActiveAssetCombination,
   RelationshipHistoryEntry,

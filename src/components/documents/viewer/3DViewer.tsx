@@ -3,14 +3,14 @@
  * Supports GLTF/GLB, OBJ, STL formats
  */
 
-import { Suspense, useState } from 'react';
-import { Download, Box, RotateCcw, Grid3X3, Sun } from 'lucide-react';
-import { Canvas } from '@react-three/fiber';
 import { OrbitControls, useGLTF, Environment, Stage, Center, Grid } from '@react-three/drei';
+import { Canvas } from '@react-three/fiber';
+import { Download, Box, RotateCcw, Grid3X3, Sun } from 'lucide-react';
+import { Suspense, useState } from 'react';
 
 import { Button } from '@/components/ui/button';
-import { DocumentMetadata } from '@/lib/documents/types';
 import { Slider } from '@/components/ui/slider';
+import { DocumentMetadata } from '@/lib/documents/types';
 
 interface ThreeDViewerProps {
   document: DocumentMetadata;

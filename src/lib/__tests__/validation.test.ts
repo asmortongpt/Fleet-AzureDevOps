@@ -5,13 +5,11 @@
  */
 
 import { describe, it, expect } from 'vitest';
+
 import {
   userSchema,
   createUserSchema,
-  updateUserSchema,
   vehicleSchema,
-  vinSchema,
-  createVehicleSchema,
   maintenanceRecordSchema,
   chatMessageSchema,
   validate,

@@ -26,8 +26,8 @@
 import { Response, NextFunction } from 'express'
 import { PoolClient } from 'pg'
 
-import { AuthRequest } from '../middleware/auth'
 import logger from '../config/logger'
+import { AuthRequest } from '../middleware/auth'
 
 /**
  * Configuration for tenant validation

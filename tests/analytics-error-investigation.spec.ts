@@ -1,4 +1,4 @@
-import { test, expect } from '@playwright/test';
+import { test } from '@playwright/test';
 
 test.describe('Analytics Route Error Investigation', () => {
   test('should capture error on /analytics route', async ({ page }) => {

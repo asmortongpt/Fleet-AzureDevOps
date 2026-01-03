@@ -4,7 +4,7 @@
  */
 
 import {
-    Truck, AlertCircle, Wrench, Fuel, Activity, Clock,
+    Truck, AlertCircle, Wrench, Fuel, Activity,
     TrendingUp, TrendingDown, MapPin, Calendar, BarChart3,
     CheckCircle, XCircle, AlertTriangle, Zap, Users, Gauge
 } from 'lucide-react'
@@ -15,7 +15,7 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Progress } from '@/components/ui/progress'
 import { useDrilldown } from '@/contexts/DrilldownContext'
-import { generateDemoVehicles, generateDemoDrivers, generateDemoFuelTransactions, generateDemoWorkOrders } from '@/lib/demo-data'
+import { generateDemoVehicles, generateDemoFuelTransactions, generateDemoWorkOrders } from '@/lib/demo-data'
 
 // Reusable stat row component
 function StatRow({ label, value, trend, icon: Icon }: {
