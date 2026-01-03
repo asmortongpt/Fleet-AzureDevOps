@@ -1,9 +1,9 @@
 /**
  * Script to automatically fix common ESLint issues
  */
-import * as fs from 'fs';
 import * as path from 'path';
-import { Project, SyntaxKind, Node } from 'ts-morph';
+
+import { Project, SyntaxKind } from 'ts-morph';
 
 const project = new Project({
   tsConfigFilePath: path.join(__dirname, 'tsconfig.json'),

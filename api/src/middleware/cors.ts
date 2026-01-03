@@ -19,8 +19,9 @@
  * - CWE-942 (Overly Permissive CORS Policy)
  */
 
-import { Request, Response, NextFunction } from 'express';
 import cors from 'cors';
+import { Request, Response, NextFunction } from 'express';
+
 import { getCorsConfig } from './corsConfig';
 
 /**

@@ -3,8 +3,9 @@
  * Shows current location in navigation hierarchy and enables quick navigation back
  */
 
-import { useDrilldown } from '@/contexts/DrilldownContext'
 import { CaretRight, House } from '@phosphor-icons/react'
+
+import { useDrilldown } from '@/contexts/DrilldownContext'
 import { cn } from '@/lib/utils'
 
 export function DrilldownBreadcrumbs() {

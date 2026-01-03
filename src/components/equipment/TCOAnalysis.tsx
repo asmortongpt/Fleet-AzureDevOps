@@ -9,7 +9,6 @@
  * - Rent vs buy analysis
  */
 
-import { useState, useEffect } from 'react'
 import {
   DollarSign,
   TrendingDown,
@@ -18,15 +17,18 @@ import {
   PieChart,
   BarChart3
 } from 'lucide-react'
+import { useState, useEffect } from 'react'
+import { toast } from 'sonner'
+
+import { Badge } from '@/components/ui/badge'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Progress } from '@/components/ui/progress'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { Badge } from '@/components/ui/badge'
 import { apiClient } from '@/lib/api-client'
 import { isSuccessResponse } from '@/lib/schemas/responses'
 import type { ApiResponse } from '@/lib/schemas/responses'
 import logger from '@/utils/logger'
-import { toast } from 'sonner'
+
 
 interface CostAnalysis {
   equipment_id: string

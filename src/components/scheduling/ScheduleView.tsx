@@ -4,18 +4,14 @@
  */
 
 import { format, isWithinInterval, isSameDay } from 'date-fns'
-import { AlertCircle, Calendar, CheckCircle, Clock, MoreVertical, Search, Truck, User, Wrench, XCircle } from 'lucide-react'
+import { Calendar, CheckCircle, Clock, MoreVertical, Truck, User, Wrench, XCircle } from 'lucide-react'
 import { useState, useMemo } from 'react'
 
-import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import {
   Card,
   CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
 } from '@/components/ui/card'
 import {
   DropdownMenu,
@@ -25,17 +21,6 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
-import { Input } from '@/components/ui/input'
-import { ScrollArea } from '@/components/ui/scroll-area'
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select'
-import { Skeleton } from '@/components/ui/skeleton'
-import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Vehicle, Driver, Technician } from '@/lib/types'
 import { cn } from '@/lib/utils'
 import { VehicleReservation, MaintenanceAppointment } from '@/types/scheduling'

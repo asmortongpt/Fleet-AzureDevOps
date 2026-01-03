@@ -4,6 +4,7 @@
  */
 
 import React from 'react';
+
 import { DataDrilldown, DrilldownRecord, DrilldownPermissions } from '@/components/common/DataDrilldown';
 
 const DEMO_VEHICLES: DrilldownRecord[] = [

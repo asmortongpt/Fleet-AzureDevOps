@@ -1,10 +1,10 @@
 import { lazy, Suspense, useState, useEffect, useRef, ComponentType } from 'react';
 import { ErrorBoundary } from 'react-error-boundary';
 
-import type { UniversalMapProps } from './UniversalMap';
-import type { MapboxMapProps } from './MapboxMap';
-import type { LeafletMapProps } from './LeafletMap';
 import type { GoogleMapProps } from './GoogleMap';
+import type { LeafletMapProps } from './LeafletMap';
+import type { MapboxMapProps } from './MapboxMap';
+import type { UniversalMapProps } from './UniversalMap';
 
 import logger from '@/utils/logger';
 

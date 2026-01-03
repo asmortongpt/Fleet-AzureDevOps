@@ -7,8 +7,8 @@
  * Designed to be run as a Kubernetes CronJob.
  */
 
-import { cameraSyncService } from '../services/camera-sync'
 import logger from '../config/logger'
+import { cameraSyncService } from '../services/camera-sync'
 
 async function main() {
   logger.info('Camera sync job starting')

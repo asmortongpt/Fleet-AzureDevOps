@@ -3,46 +3,24 @@ import {
   TrendUp,
   TrendDown,
   Warning,
-  CheckCircle,
-  Clock,
   CurrencyDollar,
   Gauge,
   Truck,
-  Wrench,
   Fire,
-  Users,
-  Target,
   Download,
   ArrowsClockwise,
   Brain,
-  ShieldCheck,
   Lightning
 } from '@phosphor-icons/react'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { useMemo } from 'react'
-import {
-  LineChart,
-  Line,
-  BarChart,
-  Bar,
-  PieChart,
-  Pie,
-  Cell,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  Legend,
-  ResponsiveContainer,
-  Area,
-  AreaChart
-} from 'recharts'
+
+
 
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { ScrollArea } from '@/components/ui/scroll-area'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 
 interface KPIData {
   totalVehicles: number

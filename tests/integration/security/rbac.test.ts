@@ -15,8 +15,8 @@
  */
 
 import { describe, it, expect, beforeAll, afterEach, vi } from 'vitest';
-import type { Role, Permission } from '@/lib/security/rbac';
-import {
+
+import type { Role, Permission ,
   ROLE_DEFINITIONS,
   hasPermission,
   getRolePermissions,

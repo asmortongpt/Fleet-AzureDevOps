@@ -1,5 +1,6 @@
-import { test, expect } from '@playwright/test';
 import * as fs from 'fs';
+
+import { test, expect } from '@playwright/test';
 
 test.describe('Google Maps Integration Validation', () => {
   const BASE_URL = 'http://localhost:5175';

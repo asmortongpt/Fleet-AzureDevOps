@@ -1,4 +1,4 @@
-import { Plus, GripVertical, X, FileText, Eye, Save } from "lucide-react"
+import { Plus, GripVertical, X, FileText, Save } from "lucide-react"
 import { useState } from "react"
 
 import { Badge } from "@/components/ui/badge"

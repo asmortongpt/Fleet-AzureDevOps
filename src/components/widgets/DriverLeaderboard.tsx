@@ -3,23 +3,20 @@
  * Gamified driver performance ranking with scores and achievements
  */
 
-import { useState } from 'react'
 import {
     Trophy,
     Medal,
-    Star,
     TrendUp,
     TrendDown,
     Minus,
-    User,
     Shield,
     Timer,
     GasPump
 } from '@phosphor-icons/react'
+import { useState } from 'react'
 
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
-import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'

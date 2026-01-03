@@ -6,27 +6,12 @@ import {
   Html,
   Sky,
   Grid,
-  Stats,
-  useProgress
+  Stats
 } from '@react-three/drei';
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
-import { EffectComposer, Bloom, SSAO, ToneMapping, DepthOfField, Vignette } from '@react-three/postprocessing';
-import {
-  Maximize2,
-  Minimize2,
-  Camera,
-  Eye,
-  EyeOff,
-  Scan
-} from 'lucide-react';
-import { ToneMappingMode, BlendFunction } from 'postprocessing';
 import { Suspense, useRef, useState, useEffect } from 'react';
 import * as THREE from 'three';
 
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import { Card } from '@/components/ui/card';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 interface Vehicle3DViewerProps {
   vehicleId: number;

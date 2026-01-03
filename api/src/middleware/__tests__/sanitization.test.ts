@@ -2,8 +2,9 @@
  * Comprehensive Test Suite for Sanitization Middleware
  * Tests XSS, SQL injection, NoSQL injection, path traversal, command injection protection
  */
-import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { Request, Response, NextFunction } from 'express';
+import { describe, it, expect, beforeEach, vi } from 'vitest';
+
 import {
   sanitizeRequest,
   strictSanitization,

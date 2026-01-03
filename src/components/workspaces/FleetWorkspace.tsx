@@ -1,20 +1,16 @@
 import {
-  Truck,
   Battery,
   Fuel,
-  Wrench,
   Activity,
   MapPin,
   User,
   Calendar,
   AlertCircle,
-  Box,
   Gauge,
   ThermometerSun
 } from "lucide-react"
 import { useState, useMemo, useCallback } from "react"
 
-import { ProfessionalFleetMap } from "@/components/Maps/ProfessionalFleetMap"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -28,12 +24,12 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { Separator } from "@/components/ui/separator"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { useDrilldown } from "@/contexts/DrilldownContext"
 import { useVehicles, useFacilities, useDrivers, useVehicleMutations } from "@/hooks/use-api"
 import { useVehicleTelemetry } from "@/hooks/useVehicleTelemetry"
-import { Vehicle } from "@/types"
 import { cn } from "@/lib/utils"
+import { Vehicle } from "@/types"
 
 interface FleetVehicle {
   id: string;

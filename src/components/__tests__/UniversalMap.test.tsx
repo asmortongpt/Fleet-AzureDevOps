@@ -17,9 +17,6 @@ import {
   UniversalMap,
   getMapProvider,
   setMapProvider,
-  isMapProviderAvailable,
-  getAvailableProviders,
-  resetMapProvider,
   type MapProvider
 } from '../UniversalMap'
 

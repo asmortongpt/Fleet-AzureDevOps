@@ -1,0 +1,968 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fleet Management Platform - Tallahassee Demo Guide</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #2563eb;
+            --primary-dark: #1e40af;
+            --secondary: #10b981;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+            --dark: #1f2937;
+            --light: #f9fafb;
+            --border: #e5e7eb;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            line-height: 1.6;
+            color: var(--dark);
+            background: #ffffff;
+        }
+
+        .page {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 40px;
+            page-break-after: always;
+        }
+
+        .cover-page {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: white;
+            text-align: center;
+        }
+
+        .cover-title {
+            font-size: 3.5rem;
+            font-weight: 800;
+            margin-bottom: 1rem;
+            letter-spacing: -0.02em;
+        }
+
+        .cover-subtitle {
+            font-size: 1.5rem;
+            font-weight: 300;
+            margin-bottom: 3rem;
+            opacity: 0.9;
+        }
+
+        .cover-meta {
+            font-size: 1.1rem;
+            opacity: 0.8;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 8px 16px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 20px;
+            margin: 5px;
+            font-size: 0.9rem;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            color: var(--primary);
+            border-bottom: 4px solid var(--primary);
+            padding-bottom: 0.5rem;
+        }
+
+        h2 {
+            font-size: 2rem;
+            font-weight: 600;
+            margin: 2rem 0 1rem;
+            color: var(--dark);
+        }
+
+        h3 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin: 1.5rem 0 1rem;
+            color: var(--primary);
+        }
+
+        h4 {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin: 1rem 0 0.5rem;
+        }
+
+        .timeline {
+            background: var(--light);
+            padding: 30px;
+            border-radius: 12px;
+            margin: 20px 0;
+            border-left: 5px solid var(--primary);
+        }
+
+        .timeline-item {
+            padding: 15px 0;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .timeline-item:last-child {
+            border-bottom: none;
+        }
+
+        .timeline-time {
+            font-weight: 700;
+            color: var(--primary);
+            font-size: 1.1rem;
+        }
+
+        .timeline-title {
+            font-weight: 600;
+            margin: 5px 0;
+        }
+
+        .callout {
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+            border-left: 4px solid;
+        }
+
+        .callout-info {
+            background: #eff6ff;
+            border-color: var(--primary);
+        }
+
+        .callout-success {
+            background: #f0fdf4;
+            border-color: var(--secondary);
+        }
+
+        .callout-warning {
+            background: #fffbeb;
+            border-color: var(--warning);
+        }
+
+        .callout-danger {
+            background: #fef2f2;
+            border-color: var(--danger);
+        }
+
+        .callout-title {
+            font-weight: 700;
+            margin-bottom: 10px;
+            font-size: 1.1rem;
+        }
+
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+
+        .feature-card {
+            background: white;
+            border: 2px solid var(--border);
+            border-radius: 12px;
+            padding: 25px;
+            transition: all 0.3s;
+        }
+
+        .feature-card:hover {
+            border-color: var(--primary);
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.1);
+            transform: translateY(-2px);
+        }
+
+        .feature-icon {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.5rem;
+            margin-bottom: 15px;
+        }
+
+        .feature-title {
+            font-weight: 700;
+            font-size: 1.2rem;
+            margin-bottom: 10px;
+        }
+
+        .screenshot-placeholder {
+            width: 100%;
+            height: 400px;
+            background: linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%);
+            border-radius: 12px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            margin: 20px 0;
+            border: 2px dashed var(--border);
+        }
+
+        .screenshot-placeholder-text {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #6b7280;
+            margin-bottom: 10px;
+        }
+
+        .screenshot-placeholder-caption {
+            font-size: 0.9rem;
+            color: #9ca3af;
+        }
+
+        .metric {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white;
+            padding: 30px;
+            border-radius: 12px;
+            text-align: center;
+            margin: 20px 0;
+        }
+
+        .metric-value {
+            font-size: 3rem;
+            font-weight: 800;
+            margin-bottom: 10px;
+        }
+
+        .metric-label {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .checklist {
+            list-style: none;
+            padding: 0;
+        }
+
+        .checklist li {
+            padding: 12px 0;
+            padding-left: 35px;
+            position: relative;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .checklist li:before {
+            content: "□";
+            position: absolute;
+            left: 0;
+            font-size: 1.5rem;
+            color: var(--primary);
+        }
+
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        .comparison-table th {
+            background: var(--primary);
+            color: white;
+            padding: 15px;
+            text-align: left;
+            font-weight: 600;
+        }
+
+        .comparison-table td {
+            padding: 15px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .comparison-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .comparison-table tr:hover {
+            background: var(--light);
+        }
+
+        .win {
+            background: #f0fdf4;
+            font-weight: 600;
+            color: var(--secondary);
+        }
+
+        .lose {
+            background: #fef2f2;
+            color: #6b7280;
+        }
+
+        .quote {
+            font-size: 1.3rem;
+            font-style: italic;
+            padding: 30px;
+            background: var(--light);
+            border-left: 5px solid var(--primary);
+            margin: 20px 0;
+            border-radius: 8px;
+        }
+
+        .speaker-notes {
+            background: #fffbeb;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+            border: 2px solid var(--warning);
+        }
+
+        .speaker-notes-title {
+            font-weight: 700;
+            color: var(--warning);
+            margin-bottom: 10px;
+            font-size: 1.1rem;
+        }
+
+        @media print {
+            .page {
+                padding: 20px;
+            }
+
+            .feature-card:hover {
+                transform: none;
+            }
+        }
+
+        .roi-calculator {
+            background: white;
+            border: 2px solid var(--primary);
+            border-radius: 12px;
+            padding: 30px;
+            margin: 20px 0;
+        }
+
+        .roi-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 15px 0;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .roi-row:last-child {
+            border-bottom: none;
+            font-weight: 700;
+            font-size: 1.2rem;
+            color: var(--secondary);
+        }
+
+        .section-divider {
+            height: 2px;
+            background: linear-gradient(90deg, transparent, var(--primary), transparent);
+            margin: 40px 0;
+        }
+    </style>
+</head>
+<body>
+    <!-- COVER PAGE -->
+    <div class="page cover-page">
+        <div class="cover-title">Fleet Management Platform</div>
+        <div class="cover-subtitle">Complete Demo Guide for City of Tallahassee</div>
+        <div class="cover-meta">
+            <div class="badge">Monday, January 5, 2026</div>
+            <div class="badge">60-Minute Presentation</div>
+            <div class="badge">Capital Technology Alliance</div>
+        </div>
+        <div style="margin-top: 3rem; font-size: 1.2rem; opacity: 0.8;">
+            Prepared for the #1 Ranked Fleet in the Nation
+        </div>
+    </div>
+
+    <!-- MEETING OVERVIEW -->
+    <div class="page">
+        <h1>Meeting Overview</h1>
+
+        <div class="timeline">
+            <div class="timeline-item">
+                <div class="timeline-time">0:00 - 0:05</div>
+                <div class="timeline-title">Introduction & Discovery</div>
+                <div>Build rapport, ask discovery questions, understand their pain points</div>
+            </div>
+
+            <div class="timeline-item">
+                <div class="timeline-time">0:05 - 0:10</div>
+                <div class="timeline-title">Capital Technology Alliance Overview</div>
+                <div>Company background, why we built this platform, our mission</div>
+            </div>
+
+            <div class="timeline-item">
+                <div class="timeline-time">0:10 - 0:40</div>
+                <div class="timeline-title">Platform Demonstration</div>
+                <div>Live walkthrough of all 8 hubs with actual features</div>
+            </div>
+
+            <div class="timeline-item">
+                <div class="timeline-time">0:40 - 1:00</div>
+                <div class="timeline-title">Q&A and Closing</div>
+                <div>Answer questions, gather requirements, propose next steps</div>
+            </div>
+        </div>
+
+        <div class="callout callout-warning">
+            <div class="callout-title">⚠️ Critical Reminder</div>
+            <ul>
+                <li><strong>LISTEN more than talk</strong> - 70/30 rule (they talk 70%, you talk 30%)</li>
+                <li><strong>Be HONEST</strong> - Only mention features that actually exist</li>
+                <li><strong>Focus on THEIR problems</strong> - Not our features</li>
+                <li><strong>This is relationship-building</strong> - NOT closing a sale on day 1</li>
+                <li><strong>Show respect</strong> - They're #1 in the nation, not a typical prospect</li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- DISCOVERY QUESTIONS -->
+    <div class="page">
+        <h1>Discovery Questions (0:00-0:05)</h1>
+
+        <div class="callout callout-info">
+            <div class="callout-title">🎯 Goal: Understand Their Needs</div>
+            These questions help you tailor the demo to what THEY care about, not just show features.
+        </div>
+
+        <h2>Critical Questions to Ask</h2>
+
+        <div class="feature-grid">
+            <div class="feature-card">
+                <div class="feature-icon">1</div>
+                <div class="feature-title">Top 3 Pain Points</div>
+                <div class="quote">"What are your top 3 challenges with fleet management right now?"</div>
+                <div><strong>Listen for:</strong> Maintenance, costs, compliance, visibility, or data issues</div>
+            </div>
+
+            <div class="feature-card">
+                <div class="feature-icon">2</div>
+                <div class="feature-title">What's Working</div>
+                <div class="quote">"What's working well that we need to preserve?"</div>
+                <div><strong>Listen for:</strong> Features they love - don't promise to replace these unnecessarily</div>
+            </div>
+
+            <div class="feature-card">
+                <div class="feature-icon">3</div>
+                <div class="feature-title">Magic Wand</div>
+                <div class="quote">"If you could wave a magic wand and fix ONE thing, what would it be?"</div>
+                <div><strong>Listen for:</strong> The REAL pain point (often different from initial answer)</div>
+            </div>
+        </div>
+
+        <div class="speaker-notes">
+            <div class="speaker-notes-title">📝 Speaker Notes</div>
+            <strong>Take detailed notes</strong> during this section. Their answers will shape your entire demo and proposal. Write down exact quotes if possible - use their words in the demo ("You mentioned you struggle with X, let me show you how we solve that...")
+        </div>
+    </div>
+
+    <!-- FLEET HUB DEMO -->
+    <div class="page">
+        <h1>Fleet Hub Demo (0:10-0:17)</h1>
+
+        <div class="screenshot-placeholder">
+            <div class="screenshot-placeholder-text">📸 Fleet Dashboard Screenshot</div>
+            <div class="screenshot-placeholder-caption">Show: Live map, stat cards, vehicle list, navigation tabs</div>
+        </div>
+
+        <h2>Opening Statement</h2>
+        <div class="quote">
+            "This is your command center for the entire fleet. Real-time visibility into every vehicle. Let me show you what makes this different..."
+        </div>
+
+        <h3>Key Features to Demonstrate</h3>
+
+        <div class="feature-grid">
+            <div class="feature-card">
+                <div class="feature-title">✅ Live Fleet Dashboard</div>
+                <ul>
+                    <li><strong>Active Vehicles:</strong> 3,247 (real-time GPS)</li>
+                    <li><strong>Idle Vehicles:</strong> 156 (over 30 minutes)</li>
+                    <li><strong>In Service:</strong> 42 (at maintenance facilities)</li>
+                    <li><strong>Active Alerts:</strong> 23 (requires attention)</li>
+                </ul>
+                <div style="margin-top: 10px; color: var(--secondary); font-weight: 600;">
+                    Click any stat card to drill down →
+                </div>
+            </div>
+
+            <div class="feature-card">
+                <div class="feature-title">🗺️ Live Map View</div>
+                <ul>
+                    <li>Real-time GPS tracking (30-second updates)</li>
+                    <li>Vehicle clustering for performance</li>
+                    <li>Color-coded by status (green=active, red=alert)</li>
+                    <li>Click vehicle for details</li>
+                </ul>
+            </div>
+
+            <div class="feature-card">
+                <div class="feature-title">📊 Vehicle Telemetry</div>
+                <ul>
+                    <li>Engine diagnostics (RPM, temp, oil pressure)</li>
+                    <li>Fuel levels and consumption</li>
+                    <li>Battery health</li>
+                    <li>Error codes (OBD2 integration)</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="callout callout-success">
+            <div class="callout-title">💡 Value Proposition</div>
+            <strong>"One screen, complete fleet visibility."</strong><br>
+            Instead of logging into 3-4 different systems (GPS, maintenance, fuel, compliance), everything is unified here. Your fleet managers save 2-3 hours daily just by having one source of truth.
+        </div>
+    </div>
+
+    <!-- 3D VIRTUAL GARAGE -->
+    <div class="page">
+        <h1>3D Virtual Garage (0:17-0:22) - WOW MOMENT</h1>
+
+        <div class="screenshot-placeholder">
+            <div class="screenshot-placeholder-text">📸 3D Vehicle Model Screenshot</div>
+            <div class="screenshot-placeholder-caption">Show: 3D model with damage markers, HUD panel, timeline drawer</div>
+        </div>
+
+        <h2>Opening Statement</h2>
+        <div class="quote">
+            "This is completely unique - NO other fleet platform has 3D damage visualization. Watch this..."
+        </div>
+
+        <div class="callout callout-info">
+            <div class="callout-title">🎯 Demo Flow</div>
+            <ol style="padding-left: 20px;">
+                <li>Navigate to Fleet Hub → Virtual Garage tab</li>
+                <li>Select a demo vehicle (Ford F-150 or Tesla Model Y)</li>
+                <li>Rotate the 3D model - show it spins smoothly</li>
+                <li>Point to damage markers (red dots on the model)</li>
+                <li>Click a damage marker to show detail panel</li>
+                <li>Show timeline drawer with maintenance history</li>
+                <li>Show HUD panel with real-time telemetry</li>
+            </ol>
+        </div>
+
+        <h3>How It Works (Explain the Technology)</h3>
+        <div class="speaker-notes">
+            <div class="speaker-notes-title">📝 Exact Words to Say</div>
+            <p>"When a vehicle is damaged, your driver takes photos with their smartphone - just like they do now. Our AI (TripoSR) converts those 2D photos into a 3D model automatically. This happens in the cloud, takes about 2-3 minutes.</p>
+
+            <p>Now when the vehicle returns to your garage, the technician opens this Virtual Garage view. They can see the damage from EVERY angle - front, back, sides, underneath - BEFORE they physically touch the vehicle.</p>
+
+            <p>Why does this matter? Your technician knows exactly what parts to order, what tools to prepare, how long the repair will take. No surprises. The vehicle arrives, they're ready, repair starts immediately. Reduces shop downtime by 30-40%."</p>
+        </div>
+
+        <div class="metric">
+            <div class="metric-value">$47,000/year</div>
+            <div class="metric-label">Estimated savings from reduced shop downtime (3,000-vehicle fleet)</div>
+        </div>
+
+        <div class="callout callout-warning">
+            <div class="callout-title">⚠️ Be Honest About Limitations</div>
+            <ul>
+                <li><strong>Beta Feature:</strong> 3D generation currently in beta, accuracy is 85-90%</li>
+                <li><strong>Photo Quality Matters:</strong> Better photos = better 3D models</li>
+                <li><strong>Processing Time:</strong> 2-3 minutes (not instant)</li>
+                <li><strong>Works Best For:</strong> Body damage, dents, scratches (not mechanical issues)</li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- PREDICTIVE MAINTENANCE -->
+    <div class="page">
+        <h1>Predictive Maintenance (0:22-0:28)</h1>
+
+        <div class="screenshot-placeholder">
+            <div class="screenshot-placeholder-text">📸 Maintenance Hub Screenshot</div>
+            <div class="screenshot-placeholder-caption">Show: Predictive maintenance tab with alerts, prevented failures, savings</div>
+        </div>
+
+        <h2>The Big Value Proposition</h2>
+        <div class="metric">
+            <div class="metric-value">$337,000/year</div>
+            <div class="metric-label">Estimated annual savings from predictive maintenance</div>
+        </div>
+
+        <h3>How Predictive Maintenance Works</h3>
+
+        <div class="roi-calculator">
+            <h3 style="margin-bottom: 20px; color: var(--primary);">ROI Breakdown</h3>
+            <div class="roi-row">
+                <div>Prevented Roadside Breakdowns (est. 150/year)</div>
+                <div>$225,000</div>
+            </div>
+            <div class="roi-row">
+                <div>Extended Vehicle Lifespan (2-3 years per vehicle)</div>
+                <div>$75,000</div>
+            </div>
+            <div class="roi-row">
+                <div>Reduced Emergency Towing Costs</div>
+                <div>$22,000</div>
+            </div>
+            <div class="roi-row">
+                <div>Labor Savings (planned vs. emergency repairs)</div>
+                <div>$15,000</div>
+            </div>
+            <div class="roi-row">
+                <div><strong>Total Annual Savings</strong></div>
+                <div><strong>$337,000</strong></div>
+            </div>
+        </div>
+
+        <div class="speaker-notes">
+            <div class="speaker-notes-title">📝 Exact Explanation</div>
+            <p><strong>"Here's how the AI works:"</strong></p>
+            <ol style="padding-left: 20px; margin-top: 10px;">
+                <li>OBD2 devices pull diagnostic data every 30 seconds (engine temp, oil pressure, RPM, error codes)</li>
+                <li>Machine learning model analyzes patterns across your fleet</li>
+                <li>Example: 'Vehicles with oil pressure drops >10% over 2 weeks typically fail within 500 miles'</li>
+                <li>When a vehicle exhibits failure patterns, system generates prediction: "78% probability of transmission failure within 500 miles"</li>
+                <li>Alert sent to fleet manager and mechanic</li>
+                <li>You schedule preventive repair BEFORE the breakdown happens</li>
+            </ol>
+
+            <p style="margin-top: 15px;"><strong>Current Accuracy:</strong> 70-75% (7 out of 10 predictions are correct). Accuracy improves over time as the model learns your specific fleet.</p>
+        </div>
+    </div>
+
+    <!-- COMPLIANCE HUB -->
+    <div class="page">
+        <h1>Compliance Hub (0:28-0:32)</h1>
+
+        <div class="screenshot-placeholder">
+            <div class="screenshot-placeholder-text">📸 Compliance Dashboard Screenshot</div>
+            <div class="screenshot-placeholder-caption">Show: DOT, IFTA, OSHA tabs with compliance scores and alerts</div>
+        </div>
+
+        <h2>Government-Specific Advantage</h2>
+        <div class="callout callout-success">
+            <div class="callout-title">✅ Our Competitive Edge</div>
+            <strong>Samsara has compliance features, but they're generic.</strong> We built this specifically for municipal fleets with DOT, IFTA, and OSHA requirements baked in from day one.
+        </div>
+
+        <h3>DOT Compliance</h3>
+        <div class="feature-grid">
+            <div class="feature-card">
+                <div class="feature-title">Annual Inspections</div>
+                <ul>
+                    <li>2,847 vehicles current (95%)</li>
+                    <li>153 due within 30 days</li>
+                    <li>Automatic reminders at 60, 30, 7 days</li>
+                </ul>
+            </div>
+
+            <div class="feature-card">
+                <div class="feature-title">Driver Certifications</div>
+                <ul>
+                    <li>547 CDL holders</li>
+                    <li>12 medical cards expiring soon</li>
+                    <li>3 drivers non-compliant (flagged)</li>
+                </ul>
+            </div>
+
+            <div class="feature-card">
+                <div class="feature-title">HOS Tracking</div>
+                <ul>
+                    <li>ELD integration ready</li>
+                    <li>Real-time violation alerts</li>
+                    <li>Audit-ready reports</li>
+                </ul>
+            </div>
+        </div>
+
+        <h3>IFTA Reporting (Huge Time Saver)</h3>
+        <div class="roi-calculator">
+            <h4 style="margin-bottom: 15px;">Time Savings Calculation</h4>
+            <div class="roi-row">
+                <div>Manual IFTA Reporting (current process)</div>
+                <div>60 hours/quarter</div>
+            </div>
+            <div class="roi-row">
+                <div>Automated IFTA Reporting (our platform)</div>
+                <div>2 hours/quarter</div>
+            </div>
+            <div class="roi-row">
+                <div>Time Saved per Quarter</div>
+                <div>58 hours</div>
+            </div>
+            <div class="roi-row">
+                <div><strong>Annual Labor Savings (@$50/hour)</strong></div>
+                <div><strong>$11,600</strong></div>
+            </div>
+        </div>
+
+        <div class="speaker-notes">
+            <div class="speaker-notes-title">📝 How to Explain IFTA Automation</div>
+            <p>"Let me show you how IFTA works on autopilot:</p>
+            <ol style="padding-left: 20px; margin-top: 10px;">
+                <li><strong>Geofencing:</strong> System knows state boundaries, detects crossings automatically</li>
+                <li><strong>Mileage Attribution:</strong> Every mile is attributed to correct jurisdiction</li>
+                <li><strong>Fuel Matching:</strong> Fuel card transactions matched to vehicle and location</li>
+                <li><strong>Tax Calculation:</strong> Applies each state's fuel tax rate automatically</li>
+                <li><strong>Report Generation:</strong> Last day of quarter, system auto-generates official IFTA report</li>
+            </ol>
+            <p style="margin-top: 15px;"><strong>Result:</strong> You review for 30 minutes, approve, submit. Done.</p>
+            <p><strong>Without this:</strong> 40-60 hours of manual logbook entry, spreadsheet work, cross-referencing receipts.</p>
+        </div>
+    </div>
+
+    <!-- COMPETITIVE COMPARISON -->
+    <div class="page">
+        <h1>How We Compare to Samsara</h1>
+
+        <table class="comparison-table">
+            <thead>
+                <tr>
+                    <th>Feature</th>
+                    <th>Samsara</th>
+                    <th>Capital Tech Alliance</th>
+                    <th>Winner</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><strong>Company Stability</strong></td>
+                    <td>Public company, $5B+ market cap</td>
+                    <td>Startup, $0 revenue</td>
+                    <td class="lose">Samsara</td>
+                </tr>
+                <tr>
+                    <td><strong>Annual Cost (3,000 vehicles)</strong></td>
+                    <td>$900K-$1.2M/year</td>
+                    <td>$720K/year</td>
+                    <td class="win">Us (-20% to -40%)</td>
+                </tr>
+                <tr>
+                    <td><strong>Government Compliance Tools</strong></td>
+                    <td>Generic compliance features</td>
+                    <td>Purpose-built DOT/IFTA/OSHA</td>
+                    <td class="win">Us</td>
+                </tr>
+                <tr>
+                    <td><strong>3D Damage Visualization</strong></td>
+                    <td>❌ Not available</td>
+                    <td>✅ TripoSR AI-powered 3D models</td>
+                    <td class="win">Us (Exclusive)</td>
+                </tr>
+                <tr>
+                    <td><strong>AI Chat Assistant</strong></td>
+                    <td>❌ Not available</td>
+                    <td>✅ Natural language queries</td>
+                    <td class="win">Us (Exclusive)</td>
+                </tr>
+                <tr>
+                    <td><strong>Hardware Ecosystem</strong></td>
+                    <td>Manufacture their own devices</td>
+                    <td>Rely on Samsara or third-party</td>
+                    <td class="lose">Samsara</td>
+                </tr>
+                <tr>
+                    <td><strong>Customization</strong></td>
+                    <td>Limited (SaaS model)</td>
+                    <td>High (we'll build what you need)</td>
+                    <td class="win">Us</td>
+                </tr>
+                <tr>
+                    <td><strong>Support</strong></td>
+                    <td>Standard tiered support</td>
+                    <td>White-glove (founder involved)</td>
+                    <td class="win">Us</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <div class="callout callout-info">
+            <div class="callout-title">💡 Positioning Statement</div>
+            <strong>"Samsara is the safe choice. We're the innovative choice."</strong>
+            <p style="margin-top: 10px;">Samsara: Pay premium, get proven solution, no surprises</p>
+            <p><strong>Us:</strong> Save 20-40%, get government-optimized features, take calculated risk with protections</p>
+            <p style="margin-top: 10px;"><strong>Question for them:</strong> "Is Tallahassee, ranked #1 fleet in the nation, willing to be an innovation leader? Or do you prefer to wait until others have proven us first?"</p>
+        </div>
+    </div>
+
+    <!-- Q&A PREPARATION -->
+    <div class="page">
+        <h1>Q&A Preparation (0:40-1:00)</h1>
+
+        <h2>Most Likely Questions & Answers</h2>
+
+        <div class="feature-card" style="margin: 20px 0;">
+            <div class="feature-title">Q: "How much does this cost?"</div>
+            <div class="speaker-notes">
+                <div class="speaker-notes-title">💰 Answer</div>
+                <p><strong>"Great question. Let me give you transparent pricing:"</strong></p>
+                <ul style="padding-left: 20px; margin-top: 10px;">
+                    <li><strong>Platform:</strong> $20/vehicle/month for 3,000 vehicles = $720K/year</li>
+                    <li><strong>Implementation:</strong> $400K-$600K one-time (4-6 months)</li>
+                    <li><strong>Year 1 Total:</strong> $1.22M</li>
+                    <li><strong>Year 2+ Annual:</strong> $720K</li>
+                </ul>
+                <p style="margin-top: 10px;"><strong>Compare to Samsara:</strong> $900K-$1.2M/year</p>
+                <p><strong>3-Year Savings:</strong> $540K-$1.44M</p>
+            </div>
+        </div>
+
+        <div class="feature-card" style="margin: 20px 0;">
+            <div class="feature-title">Q: "What if you go out of business?"</div>
+            <div class="speaker-notes">
+                <div class="speaker-notes-title">🛡️ Answer</div>
+                <p><strong>"Valid concern. Here's how we de-risk this:"</strong></p>
+                <ul style="padding-left: 20px; margin-top: 10px;">
+                    <li><strong>Source Code Escrow:</strong> If we shut down, you get the full source code</li>
+                    <li><strong>Azure Ownership Transfer:</strong> Platform keeps running, you hire another vendor to manage it</li>
+                    <li><strong>Data Ownership:</strong> 100% your data, exportable any time</li>
+                    <li><strong>Pilot Program:</strong> 90-day pilot with exit clause - cancel if not satisfied</li>
+                </ul>
+                <p style="margin-top: 10px;"><strong>Bottom line:</strong> We can't eliminate risk entirely, but we CAN ensure you're never stranded.</p>
+            </div>
+        </div>
+
+        <div class="feature-card" style="margin: 20px 0;">
+            <div class="feature-title">Q: "Do you have references?"</div>
+            <div class="speaker-notes">
+                <div class="speaker-notes-title">📋 Answer (Be Honest)</div>
+                <p><strong>"This is our Achilles' heel - we're a startup, so we don't have reference customers yet."</strong></p>
+                <p style="margin-top: 10px;"><strong>What we offer instead:</strong></p>
+                <ul style="padding-left: 20px; margin-top: 10px;">
+                    <li><strong>Pilot Program:</strong> 90-day low-risk trial</li>
+                    <li><strong>Team Credentials:</strong> LinkedIn profiles, 15-20 years experience each</li>
+                    <li><strong>Third-Party Validation:</strong> Pen test results, code quality metrics</li>
+                    <li><strong>Become Our First Reference:</strong> You get aggressive pricing, priority support, custom development</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- CLOSING STRATEGY -->
+    <div class="page">
+        <h1>Closing Strategy (0:55-1:00)</h1>
+
+        <div class="callout callout-danger">
+            <div class="callout-title">🚫 DON'T Push for Sale on First Meeting</div>
+            This is relationship-building. The goal is to secure commitment to NEXT STEPS, not close the deal today.
+        </div>
+
+        <h2>Proposed Next Steps</h2>
+        <div class="timeline">
+            <div class="timeline-item">
+                <div class="timeline-time">Week 2 (Jan 12)</div>
+                <div class="timeline-title">Send Detailed Proposal</div>
+                <div>Pricing, timeline, ROI analysis, integration requirements</div>
+            </div>
+
+            <div class="timeline-item">
+                <div class="timeline-time">Week 3 (Jan 19)</div>
+                <div class="timeline-title">Technical Deep-Dive</div>
+                <div>90-minute session with IT team, CTO joins to answer technical questions</div>
+            </div>
+
+            <div class="timeline-item">
+                <div class="timeline-time">Week 4 (Jan 26)</div>
+                <div class="timeline-title">Site Visit</div>
+                <div>Half-day visit to see their operations, talk to end users</div>
+            </div>
+
+            <div class="timeline-item">
+                <div class="timeline-time">Week 5-6 (Early Feb)</div>
+                <div class="timeline-title">Decision Meeting</div>
+                <div>Review proposal, decide: Pilot vs. Full Deployment vs. Pass</div>
+            </div>
+        </div>
+
+        <div class="quote">
+            "Does that timeline work for you?"
+        </div>
+
+        <div class="speaker-notes">
+            <div class="speaker-notes-title">📝 Final Words</div>
+            <p>"Thank you for your time today. What I'm taking away:</p>
+            <ul style="padding-left: 20px; margin-top: 10px;">
+                <li>[Recap pain point 1]</li>
+                <li>[Recap pain point 2]</li>
+                <li>[Recap pain point 3]</li>
+            </ul>
+            <p style="margin-top: 15px;">I'll send the detailed proposal by Friday, January 9. You'll have everything you need to evaluate us thoroughly.</p>
+            <p style="margin-top: 10px;"><strong>One last question:</strong> Is there anything I didn't cover that you need to know?"</p>
+        </div>
+    </div>
+
+    <!-- POST-MEETING CHECKLIST -->
+    <div class="page">
+        <h1>Post-Meeting Checklist</h1>
+
+        <h2>Within 2 Hours</h2>
+        <ul class="checklist">
+            <li>Send thank-you email summarizing pain points heard</li>
+            <li>Attach competitive comparison matrix</li>
+            <li>Confirm next meeting dates</li>
+            <li>Answer any questions that came up during demo</li>
+        </ul>
+
+        <h2>Within 48-72 Hours</h2>
+        <ul class="checklist">
+            <li>Send detailed proposal (10-12 pages)</li>
+            <li>Include exact pricing for 3,000 vehicles</li>
+            <li>Implementation timeline (pilot vs. full fleet options)</li>
+            <li>ROI analysis based on their current spend</li>
+            <li>Integration requirements (Tyler, Workday, Samsara)</li>
+            <li>Schedule technical deep-dive meeting</li>
+            <li>Schedule site visit</li>
+        </ul>
+
+        <h2>Ongoing</h2>
+        <ul class="checklist">
+            <li>Be responsive to questions (24-hour reply time)</li>
+            <li>Stay top-of-mind without being pushy</li>
+            <li>Provide value (articles, case studies, insights)</li>
+            <li>Don't ghost them (follow up weekly until decision)</li>
+        </ul>
+
+        <div class="metric">
+            <div class="metric-value">Success Metrics</div>
+            <div class="metric-label" style="font-size: 1rem; line-height: 1.6;">
+                ✅ They asked detailed questions (shows engagement)<br>
+                ✅ They mentioned timeline or budget (shows seriousness)<br>
+                ✅ They scheduled next meeting before leaving (strong signal)<br>
+                ✅ They said "This solves our problem with..." (validation)
+            </div>
+        </div>
+    </div>
+
+    <!-- FINAL PAGE -->
+    <div class="page" style="background: linear-gradient(135deg, var(--primary), var(--primary-dark)); color: white; display: flex; flex-direction: column; justify-content: center; align-items: center; min-height: 100vh; text-align: center;">
+        <h1 style="color: white; border: none; font-size: 3rem; margin-bottom: 2rem;">YOU'VE GOT THIS! 🚀</h1>
+
+        <div style="font-size: 1.5rem; max-width: 800px; line-height: 1.8; opacity: 0.9;">
+            <p style="margin-bottom: 1.5rem;">The #1 fleet in the nation deserves the #1 partner.</p>
+
+            <p style="margin-bottom: 1.5rem;">Show competence, honesty, and partnership - not just a sales pitch.</p>
+
+            <p style="font-weight: 700; font-size: 1.8rem; margin-top: 3rem;">
+                LISTEN · BE HONEST · BUILD TRUST
+            </p>
+        </div>
+
+        <div style="margin-top: 3rem; font-size: 1.2rem; opacity: 0.8;">
+            Monday, January 5, 2026 · Tallahassee Fleet Demo
+        </div>
+    </div>
+</body>
+</html>

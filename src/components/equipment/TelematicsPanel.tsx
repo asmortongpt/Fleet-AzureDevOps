@@ -8,7 +8,6 @@
  * - Alert notifications
  */
 
-import { useState, useEffect } from 'react'
 import {
   GaugeIcon,
   MapPin,
@@ -17,8 +16,10 @@ import {
   Activity,
   TrendingUp
 } from 'lucide-react'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { useState, useEffect } from 'react'
+
 import { Badge } from '@/components/ui/badge'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Progress } from '@/components/ui/progress'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { apiClient } from '@/lib/api-client'

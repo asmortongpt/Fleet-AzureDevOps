@@ -5,10 +5,8 @@
 
 import {
   Car,
-  Calendar,
   Gauge,
   Fuel,
-  MapPin,
   Activity,
   Clock,
   Route,
@@ -17,18 +15,12 @@ import {
   Timer,
   RotateCw,
   Settings,
-  Link2,
-  History,
-  Play,
   Wrench,
   FileText,
-  TrendingUp,
-  DollarSign,
 } from 'lucide-react'
 import { useState } from 'react'
 import useSWR from 'swr'
 
-import { AssetRelationshipsList } from './AssetRelationshipsList'
 import { MetricCard } from './MetricCard'
 
 import { DrilldownContent } from '@/components/DrilldownPanel'
@@ -37,17 +29,14 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Progress } from '@/components/ui/progress'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { TripPlayback } from '@/components/vehicle/TripPlayback'
-import { VehicleHistoryTrail } from '@/components/vehicle/VehicleHistoryTrail'
 import { useDrilldown } from '@/contexts/DrilldownContext'
 import {
   ASSET_CATEGORY_LABELS,
   ASSET_TYPE_LABELS,
   POWER_TYPE_LABELS,
   OPERATIONAL_STATUS_LABELS,
+  AssetCategory, AssetType, PowerType, OperationalStatus
 } from '@/types/asset.types'
-import logger from '@/utils/logger'
-import { AssetCategory, AssetType, PowerType, OperationalStatus } from '@/types/asset.types'
 
 interface VehicleDetailPanelProps {
   vehicleId: string
@@ -300,7 +289,7 @@ export function VehicleDetailPanel({ vehicleId }: VehicleDetailPanelProps) {
 
           {/* Tabbed Content */}
           <Tabs value={activeTab} onValueChange={setActiveTab}>
-            <TabsList className="grid w-full grid-cols-6">
+            <TabsList className="grid w-full h-auto grid-cols-2 md:grid-cols-3 lg:grid-cols-6">
               <TabsTrigger value="overview">Overview</TabsTrigger>
               <TabsTrigger value="maintenance">Maintenance ({maintenanceHistory?.length || 0})</TabsTrigger>
               <TabsTrigger value="incidents">Incidents ({incidents?.length || 0})</TabsTrigger>
@@ -382,10 +371,10 @@ export function VehicleDetailPanel({ vehicleId }: VehicleDetailPanelProps) {
                                 vehicle.operational_status === 'AVAILABLE'
                                   ? 'default'
                                   : vehicle.operational_status === 'IN_USE'
-                                  ? 'secondary'
-                                  : vehicle.operational_status === 'MAINTENANCE'
-                                  ? 'destructive'
-                                  : 'outline'
+                                    ? 'secondary'
+                                    : vehicle.operational_status === 'MAINTENANCE'
+                                      ? 'destructive'
+                                      : 'outline'
                               }
                             >
                               {OPERATIONAL_STATUS_LABELS[vehicle.operational_status as OperationalStatus] ||
@@ -405,80 +394,80 @@ export function VehicleDetailPanel({ vehicleId }: VehicleDetailPanelProps) {
                 vehicle.pto_hours ||
                 vehicle.aux_hours ||
                 vehicle.cycle_count) && (
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="flex items-center gap-2">
-                      <Activity className="h-5 w-5" />
-                      Usage Metrics
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-                      {/* Odometer (from existing mileage field) */}
-                      {(vehicle.odometer || vehicle.mileage) && (
-                        <MetricCard
-                          label="Odometer"
-                          value={vehicle.odometer || vehicle.mileage}
-                          unit="mi"
-                          isPrimary={vehicle.primary_metric === 'ODOMETER'}
-                          icon={<Gauge className="h-4 w-4" />}
-                        />
-                      )}
+                  <Card>
+                    <CardHeader>
+                      <CardTitle className="flex items-center gap-2">
+                        <Activity className="h-5 w-5" />
+                        Usage Metrics
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                        {/* Odometer (from existing mileage field) */}
+                        {(vehicle.odometer || vehicle.mileage) && (
+                          <MetricCard
+                            label="Odometer"
+                            value={vehicle.odometer || vehicle.mileage}
+                            unit="mi"
+                            isPrimary={vehicle.primary_metric === 'ODOMETER'}
+                            icon={<Gauge className="h-4 w-4" />}
+                          />
+                        )}
 
-                      {/* Engine Hours */}
-                      {vehicle.engine_hours !== undefined && vehicle.engine_hours > 0 && (
-                        <MetricCard
-                          label="Engine Hours"
-                          value={vehicle.engine_hours}
-                          unit="hrs"
-                          isPrimary={vehicle.primary_metric === 'ENGINE_HOURS'}
-                          icon={<Timer className="h-4 w-4" />}
-                        />
-                      )}
+                        {/* Engine Hours */}
+                        {vehicle.engine_hours !== undefined && vehicle.engine_hours > 0 && (
+                          <MetricCard
+                            label="Engine Hours"
+                            value={vehicle.engine_hours}
+                            unit="hrs"
+                            isPrimary={vehicle.primary_metric === 'ENGINE_HOURS'}
+                            icon={<Timer className="h-4 w-4" />}
+                          />
+                        )}
 
-                      {/* PTO Hours */}
-                      {vehicle.pto_hours !== undefined && vehicle.pto_hours > 0 && (
-                        <MetricCard
-                          label="PTO Hours"
-                          value={vehicle.pto_hours}
-                          unit="hrs"
-                          isPrimary={vehicle.primary_metric === 'PTO_HOURS'}
-                          icon={<Zap className="h-4 w-4" />}
-                        />
-                      )}
+                        {/* PTO Hours */}
+                        {vehicle.pto_hours !== undefined && vehicle.pto_hours > 0 && (
+                          <MetricCard
+                            label="PTO Hours"
+                            value={vehicle.pto_hours}
+                            unit="hrs"
+                            isPrimary={vehicle.primary_metric === 'PTO_HOURS'}
+                            icon={<Zap className="h-4 w-4" />}
+                          />
+                        )}
 
-                      {/* Auxiliary Hours */}
-                      {vehicle.aux_hours !== undefined && vehicle.aux_hours > 0 && (
-                        <MetricCard
-                          label="Aux Hours"
-                          value={vehicle.aux_hours}
-                          unit="hrs"
-                          isPrimary={vehicle.primary_metric === 'AUX_HOURS'}
-                          icon={<Clock className="h-4 w-4" />}
-                        />
-                      )}
+                        {/* Auxiliary Hours */}
+                        {vehicle.aux_hours !== undefined && vehicle.aux_hours > 0 && (
+                          <MetricCard
+                            label="Aux Hours"
+                            value={vehicle.aux_hours}
+                            unit="hrs"
+                            isPrimary={vehicle.primary_metric === 'AUX_HOURS'}
+                            icon={<Clock className="h-4 w-4" />}
+                          />
+                        )}
 
-                      {/* Cycle Count */}
-                      {vehicle.cycle_count !== undefined && vehicle.cycle_count > 0 && (
-                        <MetricCard
-                          label="Cycles"
-                          value={vehicle.cycle_count}
-                          unit="cycles"
-                          isPrimary={vehicle.primary_metric === 'CYCLES'}
-                          icon={<RotateCw className="h-4 w-4" />}
-                        />
-                      )}
-                    </div>
+                        {/* Cycle Count */}
+                        {vehicle.cycle_count !== undefined && vehicle.cycle_count > 0 && (
+                          <MetricCard
+                            label="Cycles"
+                            value={vehicle.cycle_count}
+                            unit="cycles"
+                            isPrimary={vehicle.primary_metric === 'CYCLES'}
+                            icon={<RotateCw className="h-4 w-4" />}
+                          />
+                        )}
+                      </div>
 
-                    {vehicle.last_metric_update && (
-                      <p className="text-xs text-muted-foreground mt-4">
-                        Last updated:{' '}
-                        {new Date(vehicle.last_metric_update).toLocaleString()}
-                      </p>
-                    )}
-                  </CardContent>
-                </Card>
-              )}
+                      {vehicle.last_metric_update && (
+                        <p className="text-xs text-muted-foreground mt-4">
+                          Last updated:{' '}
+                          {new Date(vehicle.last_metric_update).toLocaleString()}
+                        </p>
+                      )}
+                    </CardContent>
+                  </Card>
+                )}
 
               {/* Equipment Specifications (for HEAVY_EQUIPMENT) */}
               {vehicle.asset_category === 'HEAVY_EQUIPMENT' &&
@@ -600,8 +589,8 @@ export function VehicleDetailPanel({ vehicleId }: VehicleDetailPanelProps) {
                                   record.status === 'completed'
                                     ? 'default'
                                     : record.status === 'in_progress'
-                                    ? 'secondary'
-                                    : 'outline'
+                                      ? 'secondary'
+                                      : 'outline'
                                 }
                               >
                                 {record.status}
@@ -655,8 +644,8 @@ export function VehicleDetailPanel({ vehicleId }: VehicleDetailPanelProps) {
                                   incident.severity === 'critical' || incident.severity === 'high'
                                     ? 'destructive'
                                     : incident.severity === 'medium'
-                                    ? 'default'
-                                    : 'secondary'
+                                      ? 'default'
+                                      : 'secondary'
                                 }
                               >
                                 {incident.severity}
@@ -778,8 +767,8 @@ export function VehicleDetailPanel({ vehicleId }: VehicleDetailPanelProps) {
                                   inspection.result === 'passed'
                                     ? 'default'
                                     : inspection.result === 'failed'
-                                    ? 'destructive'
-                                    : 'secondary'
+                                      ? 'destructive'
+                                      : 'secondary'
                                 }
                               >
                                 {inspection.result}

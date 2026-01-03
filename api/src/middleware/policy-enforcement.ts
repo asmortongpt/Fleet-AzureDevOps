@@ -1,7 +1,9 @@
 import { Response, NextFunction } from 'express'
+
 import { pool } from '../config/database'
-import { AuthRequest } from './auth'
 import logger from '../utils/logger'
+
+import { AuthRequest } from './auth'
 
 /**
  * Policy Enforcement Middleware

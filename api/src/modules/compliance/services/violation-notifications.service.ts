@@ -1,6 +1,7 @@
+import nodemailer from 'nodemailer';
+
 import { pool } from '../../../config/database';
 import logger from '../../../utils/logger';
-import nodemailer from 'nodemailer';
 
 /**
  * Violation Notifications Service

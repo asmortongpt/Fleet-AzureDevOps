@@ -4,14 +4,13 @@
  * Endpoints for 3D vehicle visualization, AR, and customization
  */
 
-import { container } from '../container'
-import { asyncHandler } from '../middleware/errorHandler'
-import { NotFoundError, ValidationError } from '../errors/app-error'
-import logger from '../config/logger'; // Wave 21: Add Winston logger
+
 import express, { Response } from 'express'
 import { z } from 'zod'
 
+import logger from '../config/logger'; // Wave 21: Add Winston logger
 import { pool } from '../db/connection';
+import { NotFoundError } from '../errors/app-error'
 import { auditLog } from '../middleware/audit'
 import { AuthRequest, authenticateJWT } from '../middleware/auth'
 import { csrfProtection } from '../middleware/csrf'

@@ -3,8 +3,6 @@
  * Spotlight-style command palette triggered by ⌘K (Mac) or Ctrl+K (Windows)
  */
 
-import { useEffect, useState, useCallback } from 'react'
-import { useNavigate } from 'react-router-dom'
 import {
     Truck,
     Users,
@@ -22,6 +20,8 @@ import {
     Fuel,
     Radio
 } from 'lucide-react'
+import { useEffect, useState, useCallback } from 'react'
+import { useNavigate } from 'react-router-dom'
 
 import {
     CommandDialog,

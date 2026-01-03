@@ -2,8 +2,9 @@
  * Comprehensive Test Suite for Security Headers Middleware
  * Tests CSP, HSTS, frame options, and other security headers
  */
-import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { Request, Response, NextFunction } from 'express';
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
+
 import {
   securityHeaders,
   strictSecurityHeaders,

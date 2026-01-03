@@ -11,7 +11,6 @@ import { useForm } from 'react-hook-form'
 import { toast } from 'react-hot-toast'
 import { z } from 'zod'
 
-import { fetchCurrentUser } from '@/services/userService'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -21,6 +20,7 @@ import { Label } from '@/components/ui/label'
 import { Separator } from '@/components/ui/separator'
 import { Textarea } from '@/components/ui/textarea'
 import { currentUserAtom } from '@/lib/reactive-state'
+import { fetchCurrentUser } from '@/services/userService'
 import logger from '@/utils/logger';
 // Form validation schema
 const profileSchema = z.object({

@@ -12,6 +12,7 @@
  */
 
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
+
 import { apiClient, APIError } from '../api-client'
 
 // Mock fetch globally

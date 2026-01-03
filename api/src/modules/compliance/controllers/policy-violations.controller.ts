@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
-import { pool } from '../../../config/database';
 import { v4 as uuidv4 } from 'uuid';
+
+import { pool } from '../../../config/database';
 import logger from '../../../utils/logger';
 
 /**

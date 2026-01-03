@@ -4,7 +4,6 @@ import {
   Calendar,
   Download,
   FileText,
-  CreditCard,
   Clock,
   CheckCircle,
   Warning,
@@ -15,7 +14,6 @@ import { format } from 'date-fns'
 import { useState, useEffect } from 'react'
 import { toast } from 'sonner'
 
-import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'

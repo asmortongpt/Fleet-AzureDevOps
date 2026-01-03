@@ -5,9 +5,7 @@
  * @module monitoring/rum
  */
 
-import { captureMessage } from './sentry';
-import { telemetry } from './telemetry';
-import { metrics } from './telemetry';
+import { telemetry , metrics } from './telemetry';
 
 /**
  * RUM Event Types

@@ -6,14 +6,13 @@
  * Security: JWT authentication required, RBAC permissions enforced, multi-tenant isolation
  */
 
-import { container } from '../container'
-import { asyncHandler } from '../middleware/errorHandler'
-import { NotFoundError, ValidationError } from '../errors/app-error'
-import logger from '../config/logger'; // Wave 33: Add Winston logger (FINAL WAVE!)
+
 import express, { Response } from 'express'
 import { z } from 'zod'
 
+import logger from '../config/logger'; // Wave 33: Add Winston logger (FINAL WAVE!)
 import { pool } from '../db/connection';
+import { NotFoundError } from '../errors/app-error'
 import { auditLog } from '../middleware/audit'
 import { AuthRequest, authenticateJWT } from '../middleware/auth'
 import { requirePermission, rateLimit } from '../middleware/permissions'

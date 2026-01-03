@@ -11,20 +11,10 @@
 
 import {
   Navigation,
-  MapPin,
   User,
   Truck,
-  Phone,
-  Mail,
   Clock,
-  CheckCircle,
-  Circle,
-  TrendingUp,
-  AlertTriangle,
-  Calendar,
-  Route as RouteIcon,
   Flag,
-  FlagTriangleRight,
   Download
 } from 'lucide-react'
 import { useState, useMemo } from 'react'
@@ -36,8 +26,8 @@ import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Progress } from '@/components/ui/progress'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 
 interface RouteMatrixData {
   id: string

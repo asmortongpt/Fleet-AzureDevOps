@@ -18,11 +18,11 @@ import { Router, Request, Response } from 'express'
 import { body, query, validationResult } from 'express-validator'
 
 import { pool } from '../config/database';
+import logger from '../config/logger'
 import { authenticateJWT } from '../middleware/auth'
 import { csrfProtection } from '../middleware/csrf'
 import { requirePermission } from '../middleware/permissions'
 import aiDispatchService from '../services/ai-dispatch'
-import logger from '../config/logger'
 
 
 

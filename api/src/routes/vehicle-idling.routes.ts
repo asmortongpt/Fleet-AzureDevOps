@@ -12,13 +12,11 @@
  * - Threshold configuration
  */
 
-import { container } from '../container'
-import { asyncHandler } from '../middleware/errorHandler'
-import { NotFoundError, ValidationError } from '../errors/app-error'
-import logger from '../config/logger'; // Wave 22: Add Winston logger
+
 import { Router, Request, Response } from 'express'
 import { body, param, query } from 'express-validator'
 
+import logger from '../config/logger'; // Wave 22: Add Winston logger
 import { authenticateJWT } from '../middleware/auth'
 import { csrfProtection } from '../middleware/csrf'
 import { validateRequest } from '../middleware/validate-request'

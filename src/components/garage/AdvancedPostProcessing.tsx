@@ -11,6 +11,7 @@
  * Created: 2025-12-30
  */
 
+import { useThree } from '@react-three/fiber'
 import {
     EffectComposer,
     Bloom,
@@ -22,7 +23,6 @@ import {
     N8AO // High-quality ambient occlusion
 } from '@react-three/postprocessing'
 import { BlendFunction, ToneMappingMode, KernelSize } from 'postprocessing'
-import { useThree } from '@react-three/fiber'
 import { useRef, useMemo } from 'react'
 import * as THREE from 'three'
 

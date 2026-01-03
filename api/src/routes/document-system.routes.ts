@@ -3,9 +3,7 @@
  * Registers all document-related routes in the Express app
  */
 
-import { container } from '../container'
-import { asyncHandler } from '../middleware/errorHandler'
-import { NotFoundError, ValidationError } from '../errors/app-error'
+
 import { Express } from 'express'
 
 import { documentSystemConfig } from '../config/document-system.config'
