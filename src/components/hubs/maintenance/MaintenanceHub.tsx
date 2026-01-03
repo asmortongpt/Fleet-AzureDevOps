@@ -12,19 +12,21 @@ import React, { useState, useMemo } from 'react';
 import { toast } from 'sonner';
 
 import { MaintenanceHubMap } from './MaintenanceHubMap';
+
+import { DrilldownCard, DrilldownCardGrid } from '@/components/drilldown/DrilldownCard';
+import { DrilldownDataTable, DrilldownColumn } from '@/components/drilldown/DrilldownDataTable';
+import { MapFirstLayout } from '@/components/layout/MapFirstLayout';
+import { Badge } from '@/components/ui/badge';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { ScrollArea } from '@/components/ui/scroll-area';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { useDrilldown } from '@/contexts/DrilldownContext';
+import { usePolicies } from '@/contexts/PolicyContext';
 import {
   enforceMaintenancePolicy,
   shouldBlockAction,
   getApprovalRequirements
 } from '@/lib/policy-engine/policy-enforcement';
-
-import { MapFirstLayout } from '@/components/layout/MapFirstLayout';
-import { Badge } from '@/components/ui/badge';
-import { usePolicies } from '@/contexts/PolicyContext';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { ScrollArea } from '@/components/ui/scroll-area';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 interface WorkOrderItem {
   id: string;
@@ -59,10 +61,9 @@ export function MaintenanceHub() {
   const { getPoliciesByType, policies } = usePolicies()
   const maintenancePolicies = getPoliciesByType('maintenance')
   const activeMaintenancePolicies = maintenancePolicies.filter(p => p.status === 'active')
+  const { push } = useDrilldown()
 
   const [selectedTab, setSelectedTab] = useState<'queue' | 'history' | 'schedule'>('queue');
-  const [selectedWorkOrder, setSelectedWorkOrder] = useState<WorkOrderItem | null>(null);
-  const [isCreatingWorkOrder, setIsCreatingWorkOrder] = useState(false);
 
   // Sample work order queue
   const workOrders: WorkOrderItem[] = useMemo(() => [
@@ -214,9 +215,8 @@ export function MaintenanceHub() {
   };
 
   // Handler for creating new work orders with policy enforcement
+  // Note: This is currently unused but kept for future policy enforcement integration
   const handleCreateWorkOrder = async (workOrder: WorkOrderItem) => {
-    setIsCreatingWorkOrder(true);
-
     try {
       // Enforce maintenance policy before allowing work order creation
       const result = await enforceMaintenancePolicy(policies, {
@@ -232,7 +232,6 @@ export function MaintenanceHub() {
         toast.error("Policy Violation", {
           description: "This work order cannot be created without resolving policy violations"
         });
-        setIsCreatingWorkOrder(false);
         return;
       }
 
@@ -254,14 +253,15 @@ export function MaintenanceHub() {
         });
         // Proceed with work order creation
       }
-    } catch (error) {
+    } catch {
       toast.error("Error", {
         description: "Failed to validate work order against policies"
       });
-    } finally {
-      setIsCreatingWorkOrder(false);
     }
   };
+
+  // Suppress unused warning - this function is kept for future policy enforcement
+  void handleCreateWorkOrder;
 
   // Map component
   const mapComponent = (
@@ -279,7 +279,21 @@ export function MaintenanceHub() {
       onWorkOrderClick={(workOrder) => {
         const fullWorkOrder = workOrders.find(wo => wo.id === workOrder.id);
         if (fullWorkOrder) {
-          setSelectedWorkOrder(fullWorkOrder);
+          // Trigger work order detail drilldown
+          push({
+            id: `work-order-detail-${fullWorkOrder.id}`,
+            type: 'work-order-detail',
+            label: `WO #${fullWorkOrder.id}`,
+            data: {
+              workOrderId: fullWorkOrder.id,
+              workOrderNumber: fullWorkOrder.id,
+              vehicleId: fullWorkOrder.vehicleId,
+              vehicleUnit: fullWorkOrder.vehicleUnit,
+              description: fullWorkOrder.description,
+              priority: fullWorkOrder.priority,
+              estimatedCost: fullWorkOrder.estimatedCost,
+            },
+          });
         }
       }}
       height="100%"
@@ -305,56 +319,52 @@ export function MaintenanceHub() {
         </p>
       </div>
 
-      {/* Metrics Cards */}
-      <div className="grid grid-cols-2 gap-3">
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center gap-2">
-              <Wrench className="w-5 h-5 text-blue-500" />
-              <div>
-                <p className="text-xs text-muted-foreground">Active</p>
-                <p className="text-2xl font-bold">{metrics.activeCount}</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+      {/* Metrics Cards with Drilldown */}
+      <DrilldownCardGrid columns={2} gap="sm">
+        <DrilldownCard
+          title="Active"
+          value={metrics.activeCount}
+          icon={<Wrench className="w-5 h-5" />}
+          drilldownType="work-orders"
+          drilldownLabel="Active Work Orders"
+          drilldownData={{ status: 'in_progress' }}
+          color="primary"
+          variant="compact"
+        />
 
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center gap-2">
-              <Warning className="w-5 h-5 text-red-500" />
-              <div>
-                <p className="text-xs text-muted-foreground">Urgent</p>
-                <p className="text-2xl font-bold">{metrics.urgentCount}</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+        <DrilldownCard
+          title="Urgent"
+          value={metrics.urgentCount}
+          icon={<Warning className="w-5 h-5" />}
+          drilldownType="work-orders"
+          drilldownLabel="Urgent Work Orders"
+          drilldownData={{ priority: 'urgent' }}
+          color="danger"
+          variant="compact"
+        />
 
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center gap-2">
-              <CalendarDots className="w-5 h-5 text-amber-500" />
-              <div>
-                <p className="text-xs text-muted-foreground">Scheduled</p>
-                <p className="text-2xl font-bold">{metrics.scheduledCount}</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+        <DrilldownCard
+          title="Scheduled"
+          value={metrics.scheduledCount}
+          icon={<CalendarDots className="w-5 h-5" />}
+          drilldownType="work-orders"
+          drilldownLabel="Scheduled Work Orders"
+          drilldownData={{ status: 'scheduled' }}
+          color="warning"
+          variant="compact"
+        />
 
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center gap-2">
-              <CurrencyDollar className="w-5 h-5 text-green-500" />
-              <div>
-                <p className="text-xs text-muted-foreground">Est. Cost</p>
-                <p className="text-lg font-bold">${metrics.totalCost.toFixed(0)}</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
+        <DrilldownCard
+          title="Est. Cost"
+          value={`$${metrics.totalCost.toFixed(0)}`}
+          icon={<CurrencyDollar className="w-5 h-5" />}
+          drilldownType="garage-overview"
+          drilldownLabel="Cost Overview"
+          drilldownData={{ totalCost: metrics.totalCost }}
+          color="success"
+          variant="compact"
+        />
+      </DrilldownCardGrid>
 
       {/* Work Order Queue Preview */}
       <Card>
@@ -370,8 +380,45 @@ export function MaintenanceHub() {
               {workOrders.slice(0, 5).map((wo) => (
                 <div
                   key={wo.id}
-                  className="p-3 border rounded-lg hover:bg-accent cursor-pointer transition-colors"
-                  onClick={() => setSelectedWorkOrder(wo)}
+                  role="button"
+                  tabIndex={0}
+                  className="p-3 border rounded-lg hover:bg-accent cursor-pointer transition-colors focus:outline-none focus:ring-2 focus:ring-primary/50"
+                  onClick={() => {
+                    push({
+                      id: `work-order-detail-${wo.id}`,
+                      type: 'work-order-detail',
+                      label: `WO #${wo.id}`,
+                      data: {
+                        workOrderId: wo.id,
+                        workOrderNumber: wo.id,
+                        vehicleId: wo.vehicleId,
+                        vehicleUnit: wo.vehicleUnit,
+                        description: wo.description,
+                        priority: wo.priority,
+                        estimatedCost: wo.estimatedCost,
+                      },
+                    });
+                  }}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                      e.preventDefault();
+                      push({
+                        id: `work-order-detail-${wo.id}`,
+                        type: 'work-order-detail',
+                        label: `WO #${wo.id}`,
+                        data: {
+                          workOrderId: wo.id,
+                          workOrderNumber: wo.id,
+                          vehicleId: wo.vehicleId,
+                          vehicleUnit: wo.vehicleUnit,
+                          description: wo.description,
+                          priority: wo.priority,
+                          estimatedCost: wo.estimatedCost,
+                        },
+                      });
+                    }
+                  }}
+                  aria-label={`View work order ${wo.id}`}
                 >
                   <div className="flex items-start justify-between gap-2">
                     <div className="flex-1 min-w-0">
@@ -407,7 +454,7 @@ export function MaintenanceHub() {
   // Drawer content with detailed tabs
   const drawerContent = (
     <div className="space-y-4">
-      <Tabs value={selectedTab} onValueChange={(value) => setSelectedTab(value as any)}>
+      <Tabs value={selectedTab} onValueChange={(value) => setSelectedTab(value as 'queue' | 'history' | 'schedule')}>
         <TabsList className="grid w-full grid-cols-3">
           <TabsTrigger value="queue">Queue</TabsTrigger>
           <TabsTrigger value="history">History</TabsTrigger>
@@ -416,113 +463,172 @@ export function MaintenanceHub() {
 
         {/* Work Order Queue Tab */}
         <TabsContent value="queue" className="space-y-3 mt-4">
-          <div className="space-y-3">
-            {workOrders.map((wo) => (
-              <Card key={wo.id} className={selectedWorkOrder?.id === wo.id ? 'border-blue-500' : ''}>
-                <CardContent className="p-4">
-                  <div className="space-y-3">
-                    <div className="flex items-start justify-between">
-                      <div>
-                        <div className="flex items-center gap-2 mb-1">
-                          <span className="text-sm font-mono font-semibold">{wo.id}</span>
-                          <Badge variant={getWorkOrderBadgeVariant(wo.type)}>
-                            {wo.type}
-                          </Badge>
-                          <Badge variant={getPriorityBadgeVariant(wo.priority)}>
-                            {wo.priority}
-                          </Badge>
-                        </div>
-                        <p className="text-sm font-medium">{wo.vehicleUnit}</p>
-                      </div>
-                    </div>
-
-                    <p className="text-sm">{wo.description}</p>
-
-                    <div className="grid grid-cols-2 gap-3 text-sm">
-                      <div>
-                        <p className="text-xs text-muted-foreground mb-1">Scheduled</p>
-                        <p className="font-medium">{wo.scheduledDate}</p>
-                      </div>
-                      <div>
-                        <p className="text-xs text-muted-foreground mb-1">Assigned To</p>
-                        <p className="font-medium">{wo.assignedTo || 'Unassigned'}</p>
-                      </div>
-                      <div>
-                        <p className="text-xs text-muted-foreground mb-1">Est. Time</p>
-                        <p className="font-medium">{wo.estimatedTime}</p>
-                      </div>
-                      <div>
-                        <p className="text-xs text-muted-foreground mb-1">Est. Cost</p>
-                        <p className="font-medium">${wo.estimatedCost.toFixed(2)}</p>
-                      </div>
-                    </div>
-
-                    <div className="pt-2 border-t">
-                      <p className="text-xs text-muted-foreground mb-1">Location</p>
-                      <p className="text-xs">{wo.location.address}</p>
-                    </div>
-
-                    <Button
-                      className="w-full"
-                      size="sm"
-                      onClick={() => handleCreateWorkOrder(wo)}
-                      disabled={isCreatingWorkOrder}
-                    >
-                      {isCreatingWorkOrder ? "Checking Policy..." : "Create Similar Order"}
-                    </Button>
+          <DrilldownDataTable
+            data={workOrders}
+            columns={[
+              {
+                key: 'id',
+                header: 'WO #',
+                sortable: true,
+                render: (wo) => (
+                  <div className="flex items-center gap-2">
+                    <span className="font-mono text-sm">{wo.id}</span>
+                    <Badge variant={getWorkOrderBadgeVariant(wo.type)} className="text-xs">
+                      {wo.type}
+                    </Badge>
                   </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
+                ),
+              },
+              {
+                key: 'vehicleUnit',
+                header: 'Vehicle',
+                sortable: true,
+                drilldown: {
+                  recordType: 'vehicle',
+                  getRecordId: (wo) => wo.vehicleId,
+                  getRecordLabel: (wo) => wo.vehicleUnit,
+                },
+              },
+              {
+                key: 'description',
+                header: 'Description',
+                className: 'max-w-xs',
+                render: (wo) => (
+                  <div className="truncate" title={wo.description}>
+                    {wo.description}
+                  </div>
+                ),
+              },
+              {
+                key: 'priority',
+                header: 'Priority',
+                sortable: true,
+                render: (wo) => (
+                  <Badge variant={getPriorityBadgeVariant(wo.priority)} className="text-xs">
+                    {wo.priority}
+                  </Badge>
+                ),
+              },
+              {
+                key: 'estimatedTime',
+                header: 'Est. Time',
+                render: (wo) => (
+                  <span className="text-sm text-muted-foreground">{wo.estimatedTime}</span>
+                ),
+              },
+              {
+                key: 'estimatedCost',
+                header: 'Est. Cost',
+                sortable: true,
+                render: (wo) => (
+                  <span className="font-medium">${wo.estimatedCost.toFixed(2)}</span>
+                ),
+              },
+            ] as DrilldownColumn<WorkOrderItem>[]}
+            recordType="work-order-detail"
+            getRecordId={(wo) => wo.id}
+            getRecordLabel={(wo) => `WO #${wo.id}`}
+            getRecordData={(wo) => ({
+              workOrderId: wo.id,
+              workOrderNumber: wo.id,
+              vehicleId: wo.vehicleId,
+              vehicleUnit: wo.vehicleUnit,
+              description: wo.description,
+              priority: wo.priority,
+              estimatedCost: wo.estimatedCost,
+            })}
+            compact
+            striped
+            emptyMessage="No work orders in queue"
+          />
         </TabsContent>
 
         {/* Vehicle History Tab */}
         <TabsContent value="history" className="space-y-3 mt-4">
-          {vehicleHistory.map((vh) => (
-            <Card key={vh.vehicleId}>
-              <CardContent className="p-4">
-                <div className="space-y-3">
-                  <div className="flex items-start justify-between">
-                    <div className="flex items-center gap-2">
-                      <CarProfile className="w-5 h-5" />
-                      <div>
-                        <p className="font-semibold">{vh.vehicleUnit}</p>
-                        <p className="text-xs text-muted-foreground">{vh.vehicleId}</p>
-                      </div>
-                    </div>
-                    <Badge variant={getStatusBadgeVariant(vh.status)}>
-                      {vh.status}
-                    </Badge>
+          <DrilldownDataTable
+            data={vehicleHistory}
+            columns={[
+              {
+                key: 'vehicleUnit',
+                header: 'Vehicle',
+                sortable: true,
+                drilldown: {
+                  recordType: 'vehicle-detail',
+                  getRecordId: (vh) => vh.vehicleId,
+                  getRecordLabel: (vh) => vh.vehicleUnit,
+                },
+                render: (vh) => (
+                  <div className="flex items-center gap-2">
+                    <CarProfile className="w-4 h-4" />
+                    <span>{vh.vehicleUnit}</span>
                   </div>
-
-                  <div className="grid grid-cols-2 gap-3 text-sm">
-                    <div>
-                      <p className="text-xs text-muted-foreground mb-1">Total Work Orders</p>
-                      <p className="font-bold">{vh.totalWorkOrders}</p>
-                    </div>
-                    <div>
-                      <p className="text-xs text-muted-foreground mb-1">This Month</p>
-                      <p className="font-bold">{vh.completedThisMonth}</p>
-                    </div>
-                    <div>
-                      <p className="text-xs text-muted-foreground mb-1">Cost YTD</p>
-                      <p className="font-bold">${vh.totalCostYTD.toLocaleString()}</p>
-                    </div>
-                    <div>
-                      <p className="text-xs text-muted-foreground mb-1">Last Service</p>
-                      <p className="font-medium">{vh.lastService}</p>
-                    </div>
-                  </div>
-
-                  <div className="pt-2 border-t">
-                    <p className="text-xs text-muted-foreground mb-1">Next Scheduled</p>
-                    <p className="text-sm font-medium">{vh.nextScheduled}</p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
+                ),
+              },
+              {
+                key: 'status',
+                header: 'Status',
+                sortable: true,
+                render: (vh) => (
+                  <Badge variant={getStatusBadgeVariant(vh.status)} className="text-xs">
+                    {vh.status}
+                  </Badge>
+                ),
+              },
+              {
+                key: 'totalWorkOrders',
+                header: 'Total WOs',
+                sortable: true,
+                render: (vh) => (
+                  <span className="font-medium">{vh.totalWorkOrders}</span>
+                ),
+              },
+              {
+                key: 'completedThisMonth',
+                header: 'This Month',
+                sortable: true,
+                render: (vh) => (
+                  <span className="text-muted-foreground">{vh.completedThisMonth}</span>
+                ),
+              },
+              {
+                key: 'totalCostYTD',
+                header: 'Cost YTD',
+                sortable: true,
+                render: (vh) => (
+                  <span className="font-medium">${vh.totalCostYTD.toLocaleString()}</span>
+                ),
+              },
+              {
+                key: 'lastService',
+                header: 'Last Service',
+                sortable: true,
+                render: (vh) => (
+                  <span className="text-sm">{vh.lastService}</span>
+                ),
+              },
+              {
+                key: 'nextScheduled',
+                header: 'Next Scheduled',
+                sortable: true,
+                render: (vh) => (
+                  <span className="text-sm font-medium">{vh.nextScheduled}</span>
+                ),
+              },
+            ] as DrilldownColumn<VehicleMaintenanceHistory>[]}
+            recordType="vehicle-detail"
+            getRecordId={(vh) => vh.vehicleId}
+            getRecordLabel={(vh) => vh.vehicleUnit}
+            getRecordData={(vh) => ({
+              vehicleId: vh.vehicleId,
+              vehicleUnit: vh.vehicleUnit,
+              maintenanceStatus: vh.status,
+              totalWorkOrders: vh.totalWorkOrders,
+              totalCostYTD: vh.totalCostYTD,
+            })}
+            compact
+            striped
+            emptyMessage="No vehicle maintenance history available"
+          />
         </TabsContent>
 
         {/* Maintenance Schedule Tab */}
