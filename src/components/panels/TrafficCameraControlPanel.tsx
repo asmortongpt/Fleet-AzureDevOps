@@ -75,7 +75,7 @@ export function TrafficCameraControlPanel({
                         <span className="text-[10px] uppercase tracking-wider text-slate-500 font-semibold">Live Monitoring</span>
                     </div>
                 </div>
-                <Button variant="ghost" size="icon" className="h-8 w-8 hover:bg-black/5 rounded-full" onClick={onClose}>
+                <Button variant="ghost" size="icon" className="h-8 w-8 hover:bg-black/5 rounded-full" onClick={onClose} aria-label="Close traffic camera panel">
                     <X className="w-4 h-4 text-slate-500" />
                 </Button>
             </CardHeader>

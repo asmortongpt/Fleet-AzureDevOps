@@ -628,7 +628,9 @@ export class InventoryEmulator extends EventEmitter {
 
   private simulatePartUsage(): void {
     const items = Array.from(this.items.values()).filter(i => i.quantityAvailable > 0)
-    if (items.length === 0) return
+    if (items.length === 0) {
+return
+}
 
     const item = items[Math.floor(Math.random() * items.length)]
     const quantity = faker.number.int({ min: 1, max: Math.min(5, item.quantityAvailable) })
@@ -692,7 +694,9 @@ export class InventoryEmulator extends EventEmitter {
     const items = Array.from(this.items.values()).filter(
       i => i.quantityOnHand <= i.reorderPoint
     )
-    if (items.length === 0) return
+    if (items.length === 0) {
+return
+}
 
     const item = items[Math.floor(Math.random() * items.length)]
     const quantity = item.reorderQuantity

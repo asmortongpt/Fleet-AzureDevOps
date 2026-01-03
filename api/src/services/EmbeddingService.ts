@@ -99,7 +99,9 @@ export class EmbeddingService {
    * Initialize embedding providers based on available API keys (called lazily)
    */
   private async initializeProviders(): Promise<void> {
-    if (this.initialized) return
+    if (this.initialized) {
+return
+}
     // OpenAI initialization
     if (process.env.OPENAI_API_KEY) {
       this.openai = new OpenAI({
@@ -169,13 +171,13 @@ export class EmbeddingService {
 
     switch (provider) {
       case 'openai':
-        ;({ embedding, tokens } = await this.generateOpenAIEmbedding(text, model))
+        ({ embedding, tokens } = await this.generateOpenAIEmbedding(text, model))
         break
       case 'cohere':
-        ;({ embedding, tokens } = await this.generateCohereEmbedding(text, model))
+        ({ embedding, tokens } = await this.generateCohereEmbedding(text, model))
         break
       case 'local':
-        ;({ embedding, tokens } = await this.generateLocalEmbedding(text, model))
+        ({ embedding, tokens } = await this.generateLocalEmbedding(text, model))
         break
       default:
         throw new Error(`Unsupported provider: ${provider}`)
@@ -398,7 +400,9 @@ export class EmbeddingService {
       while (i + 1 < sentences.length && tokens < chunkSize) {
         chunkText += sentences[i + 1]
         tokens = this.estimateTokenCount(chunkText)
-        if (tokens <= chunkSize) i++
+        if (tokens <= chunkSize) {
+i++
+}
       }
 
       chunks.push({
@@ -432,7 +436,9 @@ export class EmbeddingService {
       while (i + 1 < paragraphs.length && tokens < chunkSize) {
         chunkText += '\n\n' + paragraphs[i + 1]
         tokens = this.estimateTokenCount(chunkText)
-        if (tokens <= chunkSize) i++
+        if (tokens <= chunkSize) {
+i++
+}
       }
 
       chunks.push({
@@ -486,7 +492,9 @@ export class EmbeddingService {
       }
 
       start = end - overlapChars
-      if (start >= text.length) break
+      if (start >= text.length) {
+break
+}
     }
 
     return chunks
@@ -522,8 +530,12 @@ export class EmbeddingService {
    * Select best available provider
    */
   private selectBestProvider(): 'openai' | 'cohere' | 'local' {
-    if (this.openai) return 'openai'
-    if (this.cohere) return 'cohere'
+    if (this.openai) {
+return 'openai'
+}
+    if (this.cohere) {
+return 'cohere'
+}
     return 'local'
   }
 
@@ -546,7 +558,9 @@ export class EmbeddingService {
    */
   private calculateCost(provider: string, model: string, tokens: number): number {
     const config = (this.providerConfigs as any)[provider]?.[model]
-    if (!config) return 0
+    if (!config) {
+return 0
+}
 
     return (tokens / 1_000_000) * config.costPer1M
   }

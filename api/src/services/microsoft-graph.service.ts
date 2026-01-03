@@ -494,9 +494,15 @@ export class MicrosoftGraphService {
   getConfigStatus(): { configured: boolean; missing: string[] } {
     const missing: string[] = []
 
-    if (!this.config.clientId) missing.push('MICROSOFT_CLIENT_ID or AZURE_AD_CLIENT_ID')
-    if (!this.config.clientSecret) missing.push('MICROSOFT_CLIENT_SECRET or AZURE_AD_CLIENT_SECRET')
-    if (!this.config.tenantId) missing.push('MICROSOFT_TENANT_ID or AZURE_AD_TENANT_ID')
+    if (!this.config.clientId) {
+missing.push('MICROSOFT_CLIENT_ID or AZURE_AD_CLIENT_ID')
+}
+    if (!this.config.clientSecret) {
+missing.push('MICROSOFT_CLIENT_SECRET or AZURE_AD_CLIENT_SECRET')
+}
+    if (!this.config.tenantId) {
+missing.push('MICROSOFT_TENANT_ID or AZURE_AD_TENANT_ID')
+}
 
     return {
       configured: missing.length === 0,

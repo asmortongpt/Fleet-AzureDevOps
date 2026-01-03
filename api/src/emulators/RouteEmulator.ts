@@ -222,7 +222,7 @@ export class RouteEmulator {
       optimized.forEach((stop, index) => {
         stop.status = 'completed';
         stop.actualArrivalTime = new Date(stop.scheduledTime.getTime() + Math.random() * 10 * 60000 - 5 * 60000);
-        stop.actualDepartureTime = new Date(stop.actualArrivalTime!.getTime() + stop.duration * 60000);
+        stop.actualDepartureTime = new Date(stop.actualArrivalTime.getTime() + stop.duration * 60000);
       });
     } else if (status === 'active') {
       const completedStops = Math.floor(Math.random() * optimized.length);
@@ -230,7 +230,7 @@ export class RouteEmulator {
         if (index < completedStops) {
           stop.status = 'completed';
           stop.actualArrivalTime = new Date(stop.scheduledTime.getTime() + Math.random() * 10 * 60000 - 5 * 60000);
-          stop.actualDepartureTime = new Date(stop.actualArrivalTime!.getTime() + stop.duration * 60000);
+          stop.actualDepartureTime = new Date(stop.actualArrivalTime.getTime() + stop.duration * 60000);
         } else if (index === completedStops) {
           stop.status = 'in-progress';
           stop.actualArrivalTime = new Date();
@@ -418,7 +418,9 @@ export class RouteEmulator {
    */
   public updateRoute(id: number, updates: Partial<OptimizedRoute>): OptimizedRoute | undefined {
     const route = this.routes.find(r => r.id === id);
-    if (!route) return undefined;
+    if (!route) {
+return undefined;
+}
 
     // Update route properties
     Object.assign(route, updates);
@@ -484,10 +486,14 @@ export class RouteEmulator {
    */
   public updateStopStatus(routeId: number, stopId: number, status: 'pending' | 'in-progress' | 'completed' | 'skipped'): boolean {
     const route = this.routes.find(r => r.id === routeId);
-    if (!route) return false;
+    if (!route) {
+return false;
+}
 
     const stop = route.stops.find(s => s.id === stopId);
-    if (!stop) return false;
+    if (!stop) {
+return false;
+}
 
     stop.status = status;
 

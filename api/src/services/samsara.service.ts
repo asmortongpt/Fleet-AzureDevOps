@@ -290,7 +290,9 @@ class SamsaraService {
     for (const conn of connections.rows) {
       try {
         const location = locationMap.get(conn.external_vehicle_id);
-        if (!location) continue;
+        if (!location) {
+continue;
+}
 
         // Get vehicle stats
         const stats = await this.getVehicleStats(conn.external_vehicle_id);
@@ -371,7 +373,9 @@ class SamsaraService {
           [event.vehicleId]
         );
 
-        if (vehicleResult.rows.length === 0) continue;
+        if (vehicleResult.rows.length === 0) {
+continue;
+}
 
         const vehicleId = vehicleResult.rows[0].vehicle_id;
 

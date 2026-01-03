@@ -194,7 +194,9 @@ export class CalendarService {
 
     const eventUpdate: any = {}
 
-    if (updates.subject) eventUpdate.subject = updates.subject
+    if (updates.subject) {
+eventUpdate.subject = updates.subject
+}
     if (updates.body) {
       eventUpdate.body = {
         contentType: 'HTML',
@@ -561,7 +563,9 @@ export class CalendarService {
     const location = `Training Room`
 
     const attendees = [driver.email]
-    if (trainerEmail) attendees.push(trainerEmail)
+    if (trainerEmail) {
+attendees.push(trainerEmail)
+}
 
     // Create calendar event
     const event = await createEvent(

@@ -754,7 +754,9 @@ export class PhotoProcessingService {
    * Ensure blob containers exist
    */
   private async ensureContainersExist(): Promise<void> {
-    if (!this.blobServiceClient) return;
+    if (!this.blobServiceClient) {
+return;
+}
 
     try {
       const containers = [

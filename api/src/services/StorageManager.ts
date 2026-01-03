@@ -579,7 +579,9 @@ export class StorageManager {
   }
 
   private async enforceQuota(additionalSize: number): Promise<void> {
-    if (!this.quotaConfig) return;
+    if (!this.quotaConfig) {
+return;
+}
 
     const stats = await this.getUsageStats();
 
@@ -698,9 +700,15 @@ export class StorageManager {
       (Date.now() - new Date(file.last_accessed_at).getTime()) / (1000 * 60 * 60 * 24)
     );
 
-    if (daysSinceAccess < 7) return 'hot';
-    if (daysSinceAccess < 30) return 'warm';
-    if (daysSinceAccess < 90) return 'cold';
+    if (daysSinceAccess < 7) {
+return 'hot';
+}
+    if (daysSinceAccess < 30) {
+return 'warm';
+}
+    if (daysSinceAccess < 90) {
+return 'cold';
+}
     return 'archive';
   }
 

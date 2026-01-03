@@ -307,7 +307,9 @@ export class OBD2EmulatorService extends EventEmitter {
    */
   broadcastToSubscribers(sessionId: string, data: EmulatedOBD2Data): void {
     const session = this.sessions.get(sessionId)
-    if (!session) return
+    if (!session) {
+return
+}
 
     const subscribers = session.getSubscribers()
     const message = JSON.stringify({
@@ -664,7 +666,9 @@ class EmulationSession {
   }
 
   private updateLocation(speed: number): void {
-    if (speed <= 0) return
+    if (speed <= 0) {
+return
+}
 
     // Convert speed (mph) to lat/long change per second
     const speedMs = speed * 0.44704 // mph to m/s

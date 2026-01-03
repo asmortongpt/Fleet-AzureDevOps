@@ -59,7 +59,9 @@ export class EVChargingEmulator extends EventEmitter {
    * Start the emulator
    */
   start(): void {
-    if (this.isRunning) return;
+    if (this.isRunning) {
+return;
+}
 
     this.isRunning = true;
     this.emit('started', { timestamp: new Date() });
@@ -74,7 +76,9 @@ export class EVChargingEmulator extends EventEmitter {
    * Stop the emulator
    */
   stop(): void {
-    if (!this.isRunning) return;
+    if (!this.isRunning) {
+return;
+}
 
     this.isRunning = false;
     if (this.intervalId) {
@@ -185,7 +189,9 @@ export class EVChargingEmulator extends EventEmitter {
    */
   private startChargingSession(vehicleId: string): void {
     const vehicle = this.vehicles.get(vehicleId);
-    if (!vehicle) return;
+    if (!vehicle) {
+return;
+}
 
     // Find available station
     const availableStations = this.getAvailableStations();
@@ -233,7 +239,9 @@ export class EVChargingEmulator extends EventEmitter {
    */
   private endChargingSession(sessionId: string, reason: 'complete' | 'error' | 'user_stopped' | 'emulator_stopped'): void {
     const session = this.activeSessions.get(sessionId);
-    if (!session) return;
+    if (!session) {
+return;
+}
 
     const station = this.stations.get(session.stationId);
     if (station) {
@@ -342,8 +350,12 @@ export class EVChargingEmulator extends EventEmitter {
    * Helper: Select target charge percentage
    */
   private selectTargetCharge(currentCharge: number): number {
-    if (currentCharge < 20) return 90; // Low battery: charge to 90%
-    if (currentCharge < 50) return 80; // Medium battery: charge to 80%
+    if (currentCharge < 20) {
+return 90;
+} // Low battery: charge to 90%
+    if (currentCharge < 50) {
+return 80;
+} // Medium battery: charge to 80%
     return 70; // High battery: top up to 70%
   }
 

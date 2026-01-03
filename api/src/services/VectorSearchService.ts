@@ -75,7 +75,9 @@ export class VectorSearchService {
    * Initialize vector store backend (called lazily)
    */
   private async initializeBackend(): Promise<void> {
-    if (this.initialized) return
+    if (this.initialized) {
+return
+}
     switch (this.backend) {
       case 'pgvector':
         await this.initializePgVector()
@@ -694,8 +696,12 @@ export class VectorSearchService {
    * Select best available backend
    */
   private selectBestBackend(): 'pgvector' | 'pinecone' | 'qdrant' {
-    if (process.env.PINECONE_API_KEY) return 'pinecone'
-    if (process.env.QDRANT_URL) return 'qdrant'
+    if (process.env.PINECONE_API_KEY) {
+return 'pinecone'
+}
+    if (process.env.QDRANT_URL) {
+return 'qdrant'
+}
     return 'pgvector'
   }
 

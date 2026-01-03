@@ -379,7 +379,9 @@ export const sanitizationUtils = {
    * Check if value contains dangerous patterns
    */
   isDangerous: (value: string): boolean => {
-    if (typeof value !== 'string') return false
+    if (typeof value !== 'string') {
+return false
+}
 
     return Object.values(DANGEROUS_PATTERNS).some(pattern =>
       pattern.test(value)
@@ -390,7 +392,9 @@ export const sanitizationUtils = {
    * Get list of dangerous patterns found
    */
   findDangerousPatterns: (value: string): string[] => {
-    if (typeof value !== 'string') return []
+    if (typeof value !== 'string') {
+return []
+}
 
     const found: string[] = []
 

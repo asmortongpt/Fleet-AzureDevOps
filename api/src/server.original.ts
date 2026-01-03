@@ -1,6 +1,5 @@
 // Initialize monitoring services FIRST (before other imports)
 import telemetryService from './monitoring/applicationInsights'
-telemetryService.initialize()
 
 import { sentryService } from './monitoring/sentry'
 import {
@@ -12,14 +11,6 @@ import {
   handleUncaughtException,
   handleGracefulShutdown
 } from './middleware/sentryErrorHandler'
-
-// Initialize Sentry
-sentryService.init()
-
-// Set up process error handlers
-handleUnhandledRejection()
-handleUncaughtException()
-handleGracefulShutdown()
 
 import express from 'express'
 import cors from 'cors'
@@ -37,6 +28,16 @@ import tasksRouter from './routes/tasks'
 import vehiclesRouter from './routes/vehicles'
 import vendorsRouter from './routes/vendors'
 import { telemetryMiddleware, errorTelemetryMiddleware, performanceMiddleware } from './middleware/telemetry'
+
+telemetryService.initialize()
+
+// Initialize Sentry
+sentryService.init()
+
+// Set up process error handlers
+handleUnhandledRejection()
+handleUncaughtException()
+handleGracefulShutdown()
 
 const app = express()
 const PORT = process.env.PORT || 3001

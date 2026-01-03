@@ -411,8 +411,12 @@ export function requireRBAC(config: {
     let index = 0
 
     const runNext = (err?: any) => {
-      if (err) return next(err)
-      if (index >= middlewares.length) return next()
+      if (err) {
+return next(err)
+}
+      if (index >= middlewares.length) {
+return next()
+}
 
       const middleware = middlewares[index++]
       middleware(req, res, runNext)

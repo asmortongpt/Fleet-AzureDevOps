@@ -487,7 +487,9 @@ export class LocalStorageAdapter extends BaseStorageAdapter {
 
         if (entry.isDirectory()) {
           // Skip metadata directory
-          if (fullPath === this.metadataPath) continue;
+          if (fullPath === this.metadataPath) {
+continue;
+}
 
           const subStats = await this.calculateDirectorySize(fullPath);
           totalSize += subStats.totalSize;
@@ -517,7 +519,9 @@ export class LocalStorageAdapter extends BaseStorageAdapter {
 
   private async cleanupEmptyDirectories(dirPath: string): Promise<void> {
     // Don't clean up root storage path
-    if (dirPath === this.storagePath) return;
+    if (dirPath === this.storagePath) {
+return;
+}
 
     try {
       const entries = await fs.readdir(dirPath);

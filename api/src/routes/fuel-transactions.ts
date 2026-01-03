@@ -33,7 +33,9 @@ router.get("/", validate(getFuelTransactionsQuerySchema, 'query'), asyncHandler(
   } = req.query
 
   const tenantId = (req as any).user?.tenant_id
-  if (!tenantId) throw new Error('Tenant ID is required')
+  if (!tenantId) {
+throw new Error('Tenant ID is required')
+}
 
   const service = container.get<FueltransactionService>(TYPES.FuelTransactionService)
 
@@ -55,7 +57,9 @@ router.get("/:id", asyncHandler(async (req: Request, res: Response) => {
   const tenantId = (req as any).user?.tenant_id
   const transaction = await service.getById(Number(req.params.id), tenantId)
 
-  if (!transaction) throw new NotFoundError("Fuel transaction not found")
+  if (!transaction) {
+throw new NotFoundError("Fuel transaction not found")
+}
   res.json({ data: transaction })
 }))
 
@@ -74,7 +78,9 @@ router.put("/:id", csrfProtection, validate(updateFuelTransactionSchema, 'body')
   const tenantId = (req as any).user?.tenant_id
 
   const transaction = await service.update(Number(req.params.id), req.body, tenantId)
-  if (!transaction) throw new NotFoundError("Fuel transaction not found")
+  if (!transaction) {
+throw new NotFoundError("Fuel transaction not found")
+}
   res.json({ data: transaction })
 }))
 
@@ -84,7 +90,9 @@ router.delete("/:id", csrfProtection, asyncHandler(async (req: Request, res: Res
   const tenantId = (req as any).user?.tenant_id
   const deleted = await service.delete(Number(req.params.id), tenantId)
 
-  if (!deleted) throw new NotFoundError("Fuel transaction not found")
+  if (!deleted) {
+throw new NotFoundError("Fuel transaction not found")
+}
   res.json({ message: "Fuel transaction deleted successfully" })
 }))
 

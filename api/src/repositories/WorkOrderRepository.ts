@@ -82,13 +82,27 @@ export class WorkOrderRepository extends BaseRepository<WorkOrder> {
     const where: Record<string, any> = { tenant_id: tenantId };
 
     // Add simple filters
-    if (filters.vehicle_id) where.vehicle_id = filters.vehicle_id;
-    if (filters.status) where.status = filters.status;
-    if (filters.priority) where.priority = filters.priority;
-    if (filters.work_order_type) where.work_order_type = filters.work_order_type;
-    if (filters.assigned_vendor_id) where.assigned_vendor_id = filters.assigned_vendor_id;
-    if (filters.assigned_to) where.assigned_to = filters.assigned_to;
-    if (filters.warranty_covered !== undefined) where.warranty_covered = filters.warranty_covered;
+    if (filters.vehicle_id) {
+where.vehicle_id = filters.vehicle_id;
+}
+    if (filters.status) {
+where.status = filters.status;
+}
+    if (filters.priority) {
+where.priority = filters.priority;
+}
+    if (filters.work_order_type) {
+where.work_order_type = filters.work_order_type;
+}
+    if (filters.assigned_vendor_id) {
+where.assigned_vendor_id = filters.assigned_vendor_id;
+}
+    if (filters.assigned_to) {
+where.assigned_to = filters.assigned_to;
+}
+    if (filters.warranty_covered !== undefined) {
+where.warranty_covered = filters.warranty_covered;
+}
 
     // Date range filtering requires custom query
     if (filters.from_date || filters.to_date) {
@@ -539,7 +553,9 @@ export class WorkOrderRepository extends BaseRepository<WorkOrder> {
     tenantId: string,
     vendorId: string
   ): Promise<number> {
-    if (workOrderIds.length === 0) return 0;
+    if (workOrderIds.length === 0) {
+return 0;
+}
 
     const idPlaceholders = workOrderIds.map((_, idx) => `$${3 + idx}`).join(', ');
 
@@ -563,7 +579,9 @@ export class WorkOrderRepository extends BaseRepository<WorkOrder> {
     tenantId: string,
     status: string
   ): Promise<number> {
-    if (workOrderIds.length === 0) return 0;
+    if (workOrderIds.length === 0) {
+return 0;
+}
 
     const idPlaceholders = workOrderIds.map((_, idx) => `$${3 + idx}`).join(', ');
 

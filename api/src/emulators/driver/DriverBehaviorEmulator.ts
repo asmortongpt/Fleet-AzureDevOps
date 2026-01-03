@@ -23,7 +23,9 @@ export class DriverBehaviorEmulator extends EventEmitter {
   }
 
   public async start(): Promise<void> {
-    if (this.isRunning) return
+    if (this.isRunning) {
+return
+}
     this.isRunning = true
     this.isPaused = false
 
@@ -44,8 +46,12 @@ export class DriverBehaviorEmulator extends EventEmitter {
     this.isRunning = false
   }
 
-  public async pause(): Promise<void> { this.isPaused = true }
-  public async resume(): Promise<void> { this.isPaused = false }
+  public async pause(): Promise<void> {
+ this.isPaused = true 
+}
+  public async resume(): Promise<void> {
+ this.isPaused = false 
+}
 
   public updateSpeed(speed: number): void {
     const previousSpeed = this.currentSpeed
@@ -65,19 +71,35 @@ export class DriverBehaviorEmulator extends EventEmitter {
 
     // Generate events based on driver behavior profile
     if (behavior === 'aggressive') {
-      if (Math.random() < 0.3) this.generateEvent('speeding', 'high')
-      if (Math.random() < 0.2) this.generateEvent('hardBraking', 'medium')
-      if (Math.random() < 0.2) this.generateEvent('hardAcceleration', 'medium')
+      if (Math.random() < 0.3) {
+this.generateEvent('speeding', 'high')
+}
+      if (Math.random() < 0.2) {
+this.generateEvent('hardBraking', 'medium')
+}
+      if (Math.random() < 0.2) {
+this.generateEvent('hardAcceleration', 'medium')
+}
     } else if (behavior === 'normal') {
-      if (Math.random() < 0.05) this.generateEvent('speeding', 'low')
-      if (Math.random() < 0.03) this.generateEvent('idling', 'low')
+      if (Math.random() < 0.05) {
+this.generateEvent('speeding', 'low')
+}
+      if (Math.random() < 0.03) {
+this.generateEvent('idling', 'low')
+}
     } else if (behavior === 'cautious') {
-      if (Math.random() < 0.01) this.generateEvent('idling', 'low')
+      if (Math.random() < 0.01) {
+this.generateEvent('idling', 'low')
+}
     }
 
     // Random seatbelt/distraction events (very rare)
-    if (Math.random() < 0.001) this.generateEvent('seatbeltViolation', 'high')
-    if (Math.random() < 0.005) this.generateEvent('distraction', 'medium')
+    if (Math.random() < 0.001) {
+this.generateEvent('seatbeltViolation', 'high')
+}
+    if (Math.random() < 0.005) {
+this.generateEvent('distraction', 'medium')
+}
   }
 
   private generateEvent(

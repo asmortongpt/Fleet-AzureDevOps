@@ -402,9 +402,15 @@ export class GoogleCalendarService {
     }
 
     // Update fields
-    if (eventData.summary !== undefined) updatedEvent.summary = eventData.summary
-    if (eventData.description !== undefined) updatedEvent.description = eventData.description
-    if (eventData.location !== undefined) updatedEvent.location = eventData.location
+    if (eventData.summary !== undefined) {
+updatedEvent.summary = eventData.summary
+}
+    if (eventData.description !== undefined) {
+updatedEvent.description = eventData.description
+}
+    if (eventData.location !== undefined) {
+updatedEvent.location = eventData.location
+}
 
     if (eventData.start) {
       updatedEvent.start = {
@@ -519,7 +525,9 @@ export class GoogleCalendarService {
             break
           }
         }
-        if (!isAvailable) break
+        if (!isAvailable) {
+break
+}
       }
 
       if (isAvailable) {
