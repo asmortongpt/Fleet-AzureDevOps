@@ -206,10 +206,10 @@ export function GeofenceControlPanel({
                         <Button variant="ghost" size="icon" className="h-8 w-8 hover:bg-black/5 rounded-full" onClick={() => {
                             resetForm();
                             setIsAddDialogOpen(true);
-                        }}>
+                        }} aria-label="Add new geofence">
                             <Plus className="w-4 h-4 text-slate-700" />
                         </Button>
-                        <Button variant="ghost" size="icon" className="h-8 w-8 hover:bg-black/5 rounded-full" onClick={onClose}>
+                        <Button variant="ghost" size="icon" className="h-8 w-8 hover:bg-black/5 rounded-full" onClick={onClose} aria-label="Close geofence panel">
                             <X className="w-4 h-4 text-slate-500" />
                         </Button>
                     </div>
