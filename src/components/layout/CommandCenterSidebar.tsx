@@ -27,26 +27,29 @@ export function CommandCenterSidebar({ isSidebarOpen, setIsSidebarOpen }: Comman
 
     // Helper for rendering nav button
     const NavButton = ({ item }: { item: any }) => (
-        <Button
-            key={item.id}
-            variant="ghost"
-            onClick={() => {
-                setActiveModule(item.id);
-            }}
-            className={cn(
-                "w-full justify-start h-10 mb-1 rounded-lg transition-all duration-200",
-                isSidebarOpen ? "px-3" : "px-0 justify-center",
-                activeModule === item.id
-                    ? "bg-primary/10 text-primary border border-primary/20 shadow-[0_0_10px_rgba(37,99,235,0.1)]"
-                    : "text-muted-foreground hover:text-foreground hover:bg-muted"
-            )}
-            title={!isSidebarOpen ? item.label : undefined}
-        >
-            <div className={cn("w-5 h-5 flex items-center justify-center", activeModule === item.id ? "text-blue-400" : "text-slate-500")}>
-                {item.icon}
-            </div>
-            {isSidebarOpen && <span className="ml-3 font-medium text-sm truncate">{item.label}</span>}
-        </Button>
+        <li key={item.id}>
+            <Button
+                variant="ghost"
+                onClick={() => {
+                    setActiveModule(item.id);
+                }}
+                className={cn(
+                    "w-full justify-start h-10 rounded-lg transition-all duration-200",
+                    isSidebarOpen ? "px-3" : "px-0 justify-center",
+                    activeModule === item.id
+                        ? "bg-primary/10 text-primary border border-primary/20 shadow-[0_0_10px_rgba(37,99,235,0.1)]"
+                        : "text-muted-foreground hover:text-foreground hover:bg-muted"
+                )}
+                title={!isSidebarOpen ? item.label : undefined}
+                aria-label={item.label}
+                aria-current={activeModule === item.id ? "page" : undefined}
+            >
+                <div className={cn("w-5 h-5 flex items-center justify-center", activeModule === item.id ? "text-blue-400" : "text-slate-500")}>
+                    {item.icon}
+                </div>
+                {isSidebarOpen && <span className="ml-3 font-medium text-sm truncate">{item.label}</span>}
+            </Button>
+        </li>
     );
 
     return (
@@ -75,33 +78,41 @@ export function CommandCenterSidebar({ isSidebarOpen, setIsSidebarOpen }: Comman
 
                 {/* Hubs Section - Consolidated Navigation */}
                 {hubItems.length > 0 && (
-                    <div className="space-y-1">
+                    <div>
                         {isSidebarOpen && <div className="px-2 text-[10px] font-bold text-blue-400 uppercase tracking-wider mb-2">Hubs</div>}
-                        {hubItems.map(item => <NavButton key={item.id} item={item} />)}
+                        <ul className="space-y-1">
+                            {hubItems.map(item => <NavButton key={item.id} item={item} />)}
+                        </ul>
                     </div>
                 )}
 
                 {/* Main Section */}
                 {mainItems.length > 0 && (
-                    <div className="space-y-1">
+                    <div>
                         {isSidebarOpen && <div className="px-2 text-[10px] font-bold text-slate-600 uppercase tracking-wider mb-2 mt-4">Command Center</div>}
-                        {mainItems.map(item => <NavButton key={item.id} item={item} />)}
+                        <ul className="space-y-1">
+                            {mainItems.map(item => <NavButton key={item.id} item={item} />)}
+                        </ul>
                     </div>
                 )}
 
                 {/* Management Section */}
                 {managementItems.length > 0 && (
-                    <div className="space-y-1">
+                    <div>
                         {isSidebarOpen && <div className="px-2 text-[10px] font-bold text-slate-600 uppercase tracking-wider mb-2 mt-4">Management</div>}
-                        {managementItems.map(item => <NavButton key={item.id} item={item} />)}
+                        <ul className="space-y-1">
+                            {managementItems.map(item => <NavButton key={item.id} item={item} />)}
+                        </ul>
                     </div>
                 )}
 
                 {/* Tools Section */}
                 {toolItems.length > 0 && (
-                    <div className="space-y-1">
+                    <div>
                         {isSidebarOpen && <div className="px-2 text-[10px] font-bold text-slate-600 uppercase tracking-wider mb-2 mt-4">Tools</div>}
-                        {toolItems.map(item => <NavButton key={item.id} item={item} />)}
+                        <ul className="space-y-1">
+                            {toolItems.map(item => <NavButton key={item.id} item={item} />)}
+                        </ul>
                     </div>
                 )}
 
@@ -116,6 +127,7 @@ export function CommandCenterSidebar({ isSidebarOpen, setIsSidebarOpen }: Comman
                         "w-full justify-start h-11 rounded-xl text-muted-foreground hover:text-foreground hover:bg-muted",
                         isSidebarOpen ? "px-4" : "px-0 justify-center"
                     )}
+                    aria-label="Settings"
                 >
                     <Settings className="w-5 h-5" />
                     {isSidebarOpen && <span className="ml-3 font-medium">Settings</span>}
@@ -126,6 +138,7 @@ export function CommandCenterSidebar({ isSidebarOpen, setIsSidebarOpen }: Comman
                         size="sm"
                         onClick={() => setIsSidebarOpen(!isSidebarOpen)}
                         className="w-full h-8 text-slate-600 hover:text-slate-300 hover:bg-transparent"
+                        aria-label={isSidebarOpen ? "Collapse sidebar" : "Expand sidebar"}
                     >
                         {isSidebarOpen ? <ChevronLeft className="w-4 h-4" /> : <Menu className="w-4 h-4" />}
                     </Button>
