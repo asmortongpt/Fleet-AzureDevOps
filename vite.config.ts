@@ -140,22 +140,22 @@ export default defineConfig({
       compress: {
         drop_console: process.env.NODE_ENV === 'production',
         drop_debugger: true,
-        passes: 3,
+        passes: 2,
         pure_funcs: ['console.log', 'console.info', 'console.debug', 'console.trace'],
-        pure_getters: true,
-        unsafe_arrows: true,
-        unsafe_methods: true,
-        unsafe_comps: true,
-        inline: 2,
+        // Gemini AI: Disabled unsafe optimizations to prevent runtime errors
+        unsafe_arrows: false,
+        unsafe_methods: false,
+        unsafe_comps: false,
+        hoist_funs: false,
+        dead_code: true,
         reduce_vars: true,
         collapse_vars: true,
-        hoist_funs: true,
-        hoist_vars: false,
-        join_vars: true,
+        warnings: false,
       },
       mangle: {
         safari10: true,
-        toplevel: true,
+        // Gemini AI: Disabled toplevel to prevent scope issues
+        toplevel: false,
       },
       format: {
         comments: false,

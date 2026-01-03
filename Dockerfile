@@ -32,10 +32,13 @@ server { \
         proxy_pass https://fleet-api.gentlepond-ec715fc2.eastus2.azurecontainerapps.io/api/; \
         proxy_ssl_verify off; \
         proxy_ssl_server_name on; \
+        proxy_http_version 1.1; \
         proxy_set_header Host fleet-api.gentlepond-ec715fc2.eastus2.azurecontainerapps.io; \
         proxy_set_header X-Real-IP $remote_addr; \
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for; \
         proxy_set_header X-Forwarded-Proto $scheme; \
+        proxy_set_header Upgrade $http_upgrade; \
+        proxy_set_header Connection "upgrade"; \
         proxy_buffering on; \
         proxy_buffer_size 4k; \
         proxy_buffers 8 4k; \
