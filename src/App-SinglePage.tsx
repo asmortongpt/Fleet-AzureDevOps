@@ -47,7 +47,7 @@ export default function App() {
             </h1>
           </div>
           <div className="flex items-center gap-2">
-            <Button variant="ghost" size="icon">
+            <Button variant="ghost" size="icon" aria-label="View notifications">
               <Bell className="w-5 h-5" />
             </Button>
           </div>

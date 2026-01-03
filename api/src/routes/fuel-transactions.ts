@@ -5,6 +5,7 @@ import { NotFoundError } from '../errors/app-error'
 import { authenticateJWT } from '../middleware/auth'
 import { doubleCsrfProtection as csrfProtection } from '../middleware/csrf'
 import { asyncHandler } from '../middleware/errorHandler'
+import { policyEnforcement } from '../middleware/policy-enforcement'
 import { validate } from '../middleware/validation'
 import {
   createFuelTransactionSchema,
@@ -60,12 +61,17 @@ router.get("/:id", asyncHandler(async (req: Request, res: Response) => {
 }))
 
 // POST create fuel transaction
-router.post("/", csrfProtection, validate(createFuelTransactionSchema, 'body'), asyncHandler(async (req: Request, res: Response) => {
-  const service = container.get<FueltransactionService>(TYPES.FuelTransactionService)
-  const tenantId = (req as any).user?.tenant_id
-  const transaction = await service.create(req.body, tenantId)
-  res.status(201).json({ data: transaction })
-}))
+router.post("/",
+  csrfProtection,
+  policyEnforcement(['FLT-SAF-001'], { mode: 'warn', includeInResponse: true }),
+  validate(createFuelTransactionSchema, 'body'),
+  asyncHandler(async (req: Request, res: Response) => {
+    const service = container.get<FueltransactionService>(TYPES.FuelTransactionService)
+    const tenantId = (req as any).user?.tenant_id
+    const transaction = await service.create(req.body, tenantId)
+    res.status(201).json({ data: transaction })
+  })
+)
 
 // PUT update fuel transaction
 // Note: Verification of vehicle/driver ownership should ideally be in Service or Middleware
