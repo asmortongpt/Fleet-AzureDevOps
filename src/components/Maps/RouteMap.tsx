@@ -6,7 +6,7 @@
 import React, { useState } from 'react'
 import { GoogleMapView } from './GoogleMapView'
 import { Vehicle } from '@/types/Vehicle'
-import { useVehicles } from '@/hooks/useVehicles'
+import { useVehicles } from '@/hooks/use-api'
 import { Skeleton } from '@/components/ui/skeleton'
 import { AlertCircle, Route, MapPin } from 'lucide-react'
 import { Button } from '@/components/ui/button'
@@ -49,7 +49,7 @@ export const RouteMap: React.FC<RouteMapProps> = ({ className = '' }) => {
   // Filter to only active vehicles (those in transit)
   const activeVehicles = React.useMemo(() => {
     if (!vehicles) return []
-    return vehicles.filter(v => v.status === 'active' || v.assignedDriver || v.driver)
+    return vehicles.filter(v => v.status === 'active' || v.assignedDriver)
   }, [vehicles])
 
   if (isLoading) {

@@ -243,8 +243,7 @@ const MarkerCluster: React.FC<MarkerClusterProps> = ({ map, children }) => {
     if (!clustererRef.current && markers.length > 0) {
       clustererRef.current = new MarkerClusterer({
         map,
-        markers,
-        algorithm: new MarkerClusterer.GridAlgorithm({ gridSize: 60 })
+        markers
       })
     }
 
@@ -321,14 +320,14 @@ const ErrorComponent: React.FC<{ error: Error }> = ({ error }) => (
 // RENDER FUNCTION
 // ============================================================================
 
-const render = (status: Status) => {
+const render = (status: Status): React.ReactElement => {
   switch (status) {
     case Status.LOADING:
       return <LoadingComponent />
     case Status.FAILURE:
       return <ErrorComponent error={new Error('Failed to load Google Maps')} />
     case Status.SUCCESS:
-      return null
+      return <></>
   }
 }
 
