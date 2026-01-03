@@ -230,12 +230,12 @@ export function PMScheduleDetailPanel({ scheduleId }: PMScheduleDetailPanelProps
   const [activeTab, setActiveTab] = useState('overview')
 
   const { data: schedule, error, isLoading } = useSWR<PreventiveMaintenanceSchedule>(
-    `/api/maintenance/pm-schedules/${scheduleId}`,
+    `/api/maintenance/drilldowns/pm-schedules/${scheduleId}`,
     fetcher
   )
 
   const { data: serviceHistory } = useSWR<ServiceHistoryRecord[]>(
-    schedule?.vehicleId ? `/api/vehicles/${schedule.vehicleId}/service-history?serviceType=${schedule.serviceType}` : null,
+    schedule?.vehicleId ? `/api/maintenance/drilldowns/vehicles/${schedule.vehicleId}/service-history?serviceType=${schedule.serviceType}` : null,
     fetcher
   )
 
@@ -617,7 +617,7 @@ export function RepairDetailPanel({ repairId }: RepairDetailPanelProps) {
   const [activeTab, setActiveTab] = useState('overview')
 
   const { data: repair, error, isLoading } = useSWR<RepairRecord>(
-    `/api/maintenance/repairs/${repairId}`,
+    `/api/maintenance/drilldowns/repairs/${repairId}`,
     fetcher
   )
 
@@ -1035,7 +1035,7 @@ export function InspectionDetailPanel({ inspectionId }: InspectionDetailPanelPro
   const [activeTab, setActiveTab] = useState('overview')
 
   const { data: inspection, error, isLoading } = useSWR<InspectionRecord>(
-    `/api/maintenance/inspections/${inspectionId}`,
+    `/api/maintenance/drilldowns/inspections/${inspectionId}`,
     fetcher
   )
 
@@ -1471,7 +1471,7 @@ export function ServiceRecordDetailPanel({ serviceRecordId }: ServiceRecordDetai
   const [activeTab, setActiveTab] = useState('overview')
 
   const { data: record, error, isLoading } = useSWR<ServiceHistoryRecord>(
-    `/api/maintenance/service-records/${serviceRecordId}`,
+    `/api/maintenance/drilldowns/service-records/${serviceRecordId}`,
     fetcher
   )
 
@@ -1683,7 +1683,7 @@ export function ServiceVendorDetailPanel({ vendorId }: ServiceVendorDetailPanelP
   const [activeTab, setActiveTab] = useState('overview')
 
   const { data: vendor, error, isLoading } = useSWR<ServiceVendor>(
-    `/api/maintenance/vendors/${vendorId}`,
+    `/api/maintenance/drilldowns/vendors/${vendorId}`,
     fetcher
   )
 

@@ -91,20 +91,20 @@ async function main() {
       const firstName = faker.person.firstName();
       const lastName = faker.person.lastName();
       const role = i === 0 ? 'SuperAdmin' :
-                   i < 5 ? 'Admin' :
-                   i < 10 ? 'Manager' :
-                   i < 15 ? 'Supervisor' :
-                   i < 30 ? 'Driver' :
-                   i < 35 ? 'Dispatcher' :
-                   i < 40 ? 'Mechanic' : 'Viewer';
+        i < 5 ? 'Admin' :
+          i < 10 ? 'Manager' :
+            i < 15 ? 'Supervisor' :
+              i < 30 ? 'Driver' :
+                i < 35 ? 'Dispatcher' :
+                  i < 40 ? 'Mechanic' : 'Viewer';
 
       const [user] = await db.insert(schema.users).values({
         tenantId: tenant.id,
-        email: `${firstName.toLowerCase()}.${lastName.toLowerCase()}@capitaltechalliance.com`,
+        email: `${firstName.toLowerCase()}.${lastName.toLowerCase()}@capitaltechalliance.com`.substring(0, 255),
         passwordHash,
-        firstName,
-        lastName,
-        phone: faker.phone.number('###-###-####'),
+        firstName: firstName.substring(0, 50),
+        lastName: lastName.substring(0, 50),
+        phone: faker.phone.number('###-###-####').substring(0, 20),
         role,
         isActive: true,
         lastLoginAt: faker.date.recent({ days: 30 }),
@@ -118,21 +118,21 @@ async function main() {
     for (const facility of FACILITIES_DATA) {
       const [fac] = await db.insert(schema.facilities).values({
         tenantId: tenant.id,
-        name: facility.name,
-        code: facility.name.replace(/\s+/g, '-').toUpperCase(),
+        name: facility.name.substring(0, 100),
+        code: facility.name.replace(/\s+/g, '-').toUpperCase().substring(0, 50),
         type: facility.type,
-        address: faker.location.streetAddress(),
+        address: faker.location.streetAddress().substring(0, 255),
         city: 'Tallahassee',
         state: 'FL',
-        zipCode: faker.location.zipCode('#####'),
+        zipCode: faker.location.zipCode('#####').substring(0, 10),
         country: 'US',
         latitude: String(facility.lat),
         longitude: String(facility.lng),
         capacity: faker.number.int({ min: 20, max: 100 }),
         currentOccupancy: 0,
-        contactName: faker.person.fullName(),
-        contactPhone: faker.phone.number('###-###-####'),
-        contactEmail: faker.internet.email(),
+        contactName: faker.person.fullName().substring(0, 50),
+        contactPhone: faker.phone.number('###-###-####').substring(0, 20),
+        contactEmail: faker.internet.email().substring(0, 255),
         operatingHours: {
           monday: { open: '06:00', close: '18:00' },
           tuesday: { open: '06:00', close: '18:00' },
