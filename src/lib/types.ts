@@ -835,3 +835,177 @@ export interface DocumentHeatmapCell {
   intensity: number
   documentCount: number
 }
+
+// ============================================================================
+// Policy Violation Tracking
+// ============================================================================
+
+export type ViolationType =
+  | 'personal_use_unauthorized'
+  | 'personal_use_exceeds_limit'
+  | 'personal_use_weekend_violation'
+  | 'mileage_limit_exceeded'
+  | 'geofence_breach'
+  | 'speed_violation'
+  | 'after_hours_usage'
+  | 'unauthorized_driver'
+  | 'maintenance_overdue'
+  | 'fuel_card_misuse'
+  | 'safety_violation'
+  | 'documentation_missing'
+  | 'compliance_violation'
+  | 'other'
+
+export type ViolationSeverity = 'low' | 'medium' | 'high' | 'critical'
+
+export type ViolationStatus =
+  | 'open'
+  | 'acknowledged'
+  | 'under_review'
+  | 'approved_override'
+  | 'resolved'
+  | 'dismissed'
+  | 'escalated'
+
+export interface PolicyViolation {
+  id: string
+  tenantId: string
+
+  // Violation Details
+  violationType: ViolationType
+  severity: ViolationSeverity
+  policyName: string
+  policyId?: string
+  description: string
+  violationDetails?: Record<string, any>
+
+  // Context
+  vehicleId?: string
+  vehicleNumber?: string
+  driverId?: string
+  driverName?: string
+  userId?: string
+  userName?: string
+
+  // Metrics
+  thresholdValue?: number
+  actualValue?: number
+  difference?: number
+  unit?: string
+
+  // Location
+  locationLat?: number
+  locationLng?: number
+  locationAddress?: string
+  geofenceId?: string
+  geofenceName?: string
+
+  // Timestamps
+  occurredAt: string
+  detectedAt: string
+
+  // Resolution
+  status: ViolationStatus
+  resolution?: string
+  resolutionNotes?: string
+  resolvedAt?: string
+  resolvedBy?: string
+  resolvedByName?: string
+
+  // Override
+  overrideRequested: boolean
+  overrideApproved?: boolean
+  overrideRequestedBy?: string
+  overrideRequestedAt?: string
+  overrideApprovedBy?: string
+  overrideApprovedAt?: string
+  overrideReason?: string
+
+  // Notifications
+  notificationSent: boolean
+  notificationSentAt?: string
+  notificationRecipients?: string[]
+  escalationSent: boolean
+  escalationSentAt?: string
+
+  // Related Records
+  requestId?: string
+  workOrderId?: string
+  fuelTransactionId?: string
+
+  // Metadata
+  metadata?: Record<string, any>
+  createdAt: string
+  updatedAt: string
+}
+
+export interface ViolationComment {
+  id: string
+  violationId: string
+  userId?: string
+  userName?: string
+  commentText: string
+  isInternal: boolean
+  createdAt: string
+}
+
+export interface ViolationStatistics {
+  totalViolations: number
+  openViolations: number
+  resolvedViolations: number
+  criticalViolations: number
+  avgResolutionHours: number
+  topViolationType?: ViolationType
+  topViolatingVehicle?: string
+  topViolatingDriver?: string
+}
+
+export interface ViolationTrend {
+  violationDate: string
+  violationType: ViolationType
+  severity: ViolationSeverity
+  violationCount: number
+  resolvedCount: number
+  openCount: number
+  avgResolutionHours: number
+  overrideCount: number
+}
+
+export interface PolicyDefinition {
+  id: string
+  tenantId: string
+  policyType: string
+  policyName: string
+  description?: string
+  thresholdValue?: number
+  thresholdUnit?: string
+  severityDefault: ViolationSeverity
+  autoEscalate: boolean
+  escalationHours?: number
+  notificationRules?: Record<string, any>
+  active: boolean
+  createdAt: string
+  updatedAt: string
+}
+
+export interface ViolationFilter {
+  violationType?: ViolationType[]
+  severity?: ViolationSeverity[]
+  status?: ViolationStatus[]
+  vehicleId?: string
+  driverId?: string
+  dateFrom?: string
+  dateTo?: string
+  search?: string
+}
+
+export interface ViolationExportOptions {
+  format: 'csv' | 'pdf' | 'excel'
+  includeResolved: boolean
+  includeComments: boolean
+  dateRange: {
+    start: string
+    end: string
+  }
+  groupBy?: 'type' | 'severity' | 'vehicle' | 'driver' | 'date'
+}

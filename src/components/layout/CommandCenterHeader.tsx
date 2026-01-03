@@ -53,10 +53,10 @@ export function CommandCenterHeader() {
                         <Button variant="ghost" className="pl-2 pr-1 gap-3 h-10 rounded-full hover:bg-white/5 border border-transparent hover:border-white/5">
                             <div className="flex flex-col items-end hidden md:flex">
                                 <span className="text-sm font-medium text-white leading-none">Admin User</span>
-                                <span className="text-[10px] text-slate-400 leading-none mt-1">Fleet Manager</span>
+                                <span className="text-[10px] text-slate-300 leading-none mt-1">Fleet Manager</span>
                             </div>
                             <Avatar className="h-8 w-8 border border-white/10">
-                                <AvatarImage src="https://github.com/shadcn.png" />
+                                <AvatarImage src="https://github.com/shadcn.png" alt="Admin User profile picture" />
                                 <AvatarFallback>AD</AvatarFallback>
                             </Avatar>
                         </Button>
