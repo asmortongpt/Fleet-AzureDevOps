@@ -17,6 +17,12 @@ router.get('/statistics', PolicyViolationsController.getStatistics);
 // Get violation trends
 router.get('/trends', PolicyViolationsController.getTrends);
 
+// Export violations to CSV/PDF/Excel
+router.post('/export', PolicyViolationsController.exportViolations);
+
+// Generate compliance report
+router.post('/compliance-report', PolicyViolationsController.generateComplianceReport);
+
 // Get a single violation by ID
 router.get('/:id', PolicyViolationsController.getViolationById);
 
