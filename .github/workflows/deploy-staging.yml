@@ -1,0 +1,43 @@
+name: Deploy to Staging
+
+on:
+  push:
+    branches: [develop, staging]
+  pull_request:
+    branches: [develop]
+
+env:
+  ENVIRONMENT: staging
+  AZURE_RESOURCE_GROUP: fleet-staging-rg
+  AZURE_CONTAINER_APP: fleet-staging-app
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: staging
+      url: https://fleet-staging.azurewebsites.net
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Login to Azure
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS_STAGING }}
+
+      - name: Build and Deploy
+        run: |
+          az acr build --registry fleetStagingACR \
+            --image fleet-api:${{ github.sha }} \
+            --file api/Dockerfile ./api
+
+          az containerapp update \
+            --name fleet-staging-app \
+            --resource-group fleet-staging-rg \
+            --image fleetStagingACR.azurecr.io/fleet-api:${{ github.sha }}
+
+      - name: Run Integration Tests
+        run: npm run test:integration
+        env:
+          API_URL: https://fleet-staging.azurewebsites.net

@@ -1,0 +1,56 @@
+{
+  "defaults": {
+    "standard": "WCAG2AA",
+    "timeout": 30000,
+    "wait": 2000,
+    "chromeLaunchConfig": {
+      "args": [
+        "--no-sandbox",
+        "--disable-setuid-sandbox",
+        "--disable-dev-shm-usage"
+      ]
+    },
+    "runners": [
+      "axe"
+    ],
+    "ignore": [
+      "notice",
+      "warning"
+    ],
+    "includeWarnings": false,
+    "includeNotices": false,
+    "screenCapture": "./pa11y-screenshots/{{url}}.png",
+    "actions": [
+      "wait for element #root to be visible"
+    ],
+    "hideElements": [
+      ".mapboxgl-ctrl-logo",
+      ".leaflet-control-attribution"
+    ]
+  },
+  "urls": [
+    {
+      "url": "http://localhost:5173/",
+      "screenCapture": "./pa11y-screenshots/home.png",
+      "actions": [
+        "wait for element #root to be visible"
+      ]
+    },
+    {
+      "url": "http://localhost:5173/map",
+      "screenCapture": "./pa11y-screenshots/map.png",
+      "actions": [
+        "wait for element [role=region] to be visible",
+        "wait for 3000"
+      ]
+    },
+    {
+      "url": "http://localhost:5173/vehicles",
+      "screenCapture": "./pa11y-screenshots/vehicles.png"
+    },
+    {
+      "url": "http://localhost:5173/analytics",
+      "screenCapture": "./pa11y-screenshots/analytics.png"
+    }
+  ]
+}

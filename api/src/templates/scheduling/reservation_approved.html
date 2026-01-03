@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+      line-height: 1.6;
+      color: #333;
+      margin: 0;
+      padding: 0;
+      background-color: #f5f5f5;
+    }
+    .container {
+      max-width: 600px;
+      margin: 20px auto;
+      background: white;
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    .header {
+      background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+      color: white;
+      padding: 30px;
+      text-align: center;
+    }
+    .header h1 {
+      margin: 0;
+      font-size: 24px;
+      font-weight: 600;
+    }
+    .header .icon {
+      font-size: 48px;
+      margin-bottom: 10px;
+    }
+    .content {
+      padding: 30px;
+    }
+    .success-message {
+      background: #d1fae5;
+      border-left: 4px solid #10b981;
+      padding: 15px 20px;
+      margin: 20px 0;
+      border-radius: 4px;
+      color: #065f46;
+    }
+    .info-box {
+      background: #f9fafb;
+      border: 1px solid #e5e7eb;
+      padding: 20px;
+      margin: 20px 0;
+      border-radius: 6px;
+    }
+    .info-box .info-item {
+      display: flex;
+      margin: 10px 0;
+      padding: 8px 0;
+      border-bottom: 1px solid #e5e7eb;
+    }
+    .info-box .info-item:last-child {
+      border-bottom: none;
+    }
+    .info-box .label {
+      font-weight: 600;
+      color: #6b7280;
+      min-width: 140px;
+    }
+    .info-box .value {
+      color: #111827;
+      flex: 1;
+    }
+    .button {
+      display: inline-block;
+      padding: 14px 28px;
+      background: #10b981;
+      color: white !important;
+      text-decoration: none;
+      border-radius: 6px;
+      margin: 10px 10px 10px 0;
+      font-weight: 500;
+      transition: background 0.3s;
+    }
+    .button:hover {
+      background: #059669;
+    }
+    .checklist {
+      background: #fef3c7;
+      border-left: 4px solid #f59e0b;
+      padding: 20px;
+      margin: 20px 0;
+      border-radius: 4px;
+    }
+    .checklist h3 {
+      margin: 0 0 15px 0;
+      color: #92400e;
+      font-size: 16px;
+    }
+    .checklist ul {
+      margin: 0;
+      padding-left: 20px;
+      color: #78350f;
+    }
+    .checklist li {
+      margin: 8px 0;
+    }
+    .footer {
+      background: #f9fafb;
+      padding: 20px 30px;
+      text-align: center;
+      color: #6b7280;
+      font-size: 13px;
+    }
+    .footer a {
+      color: #10b981;
+      text-decoration: none;
+    }
+    .badge {
+      display: inline-block;
+      padding: 4px 12px;
+      background: #d1fae5;
+      color: #065f46;
+      border-radius: 12px;
+      font-size: 12px;
+      font-weight: 500;
+      margin-left: 10px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <div class="icon">✅</div>
+      <h1>Reservation Approved!</h1>
+    </div>
+
+    <div class="content">
+      <div class="success-message">
+        <strong>Good news!</strong> Your vehicle reservation has been approved. The vehicle is now reserved for you.
+      </div>
+
+      <div class="info-box">
+        <div class="info-item">
+          <div class="label">Vehicle:</div>
+          <div class="value">
+            <strong>{{make}} {{model}}</strong>
+            <span class="badge">{{license_plate}}</span>
+          </div>
+        </div>
+        <div class="info-item">
+          <div class="label">Pickup Time:</div>
+          <div class="value"><strong>{{start_time}}</strong></div>
+        </div>
+        <div class="info-item">
+          <div class="label">Return Time:</div>
+          <div class="value"><strong>{{end_time}}</strong></div>
+        </div>
+        <div class="info-item">
+          <div class="label">Pickup Location:</div>
+          <div class="value">{{pickup_location}}</div>
+        </div>
+        <div class="info-item">
+          <div class="label">Dropoff Location:</div>
+          <div class="value">{{dropoff_location}}</div>
+        </div>
+      </div>
+
+      <div class="checklist">
+        <h3>📋 Pre-Pickup Checklist:</h3>
+        <ul>
+          <li>Complete pre-trip vehicle inspection</li>
+          <li>Verify your driver's license is valid</li>
+          <li>Arrive on time for pickup</li>
+          <li>Report any vehicle damage immediately</li>
+          <li>Return the vehicle with the same fuel level</li>
+        </ul>
+      </div>
+
+      <p style="margin-top: 30px;">
+        <a href="{{view_url}}" class="button">View Reservation Details</a>
+      </p>
+
+      <p style="color: #6b7280; font-size: 14px; margin-top: 30px;">
+        You will receive reminder notifications before your pickup time. If you need to modify or cancel this reservation, please do so at least 24 hours in advance.
+      </p>
+    </div>
+
+    <div class="footer">
+      <p>This is an automated notification from Fleet Management System.</p>
+      <p>
+        <a href="{{settings_url}}">Manage notification preferences</a> |
+        <a href="{{help_url}}">Help & Support</a>
+      </p>
+    </div>
+  </div>
+</body>
+</html>
