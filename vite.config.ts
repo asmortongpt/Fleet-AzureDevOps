@@ -47,7 +47,10 @@ export default defineConfig({
     reportCompressedSize: true,
     rollupOptions: {
       output: {
-        manualChunks(id) {
+        // Gemini AI FIX: Disabled manualChunks to fix React TDZ in chart-vendor
+        // Let Vite handle chunk ordering automatically to prevent "Cannot access React before initialization"
+        manualChunks: undefined,
+        _manualChunks_DISABLED(id) {
           if (id.includes('node_modules')) {
             if (id.includes('react/') || id.includes('react-dom/')) {
               return 'react-core';
