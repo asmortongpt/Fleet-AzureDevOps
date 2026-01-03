@@ -8,8 +8,7 @@ import { pool } from '../config/database'
 import fleetOptimizationModel, { VehicleUtilizationData } from '../ml-models/fleet-optimization.model'
 // ... exports ...
 
-export class FleetOptimizerService {
-  private db = pool
+export interface UtilizationMetric {
   vehicleId: string
   vehicleNumber: string
   utilizationRate: number
@@ -40,9 +39,26 @@ export interface OptimizationRecommendation {
 }
 
 export class FleetOptimizerService {
+  private db = pool
+  vehicleId?: string
+  vehicleNumber?: string
+  utilizationRate?: number
+  totalHours?: number
+  activeHours?: number
+  idleHours?: number
+  totalMiles?: number
+  tripsCount?: number
+  costPerMile?: number
+  roi?: number
+  recommendation?: string
+  recommendationType?: string
+  potentialSavings?: number
+
   /**
    * Analyze vehicle utilization for a period
    */
+
+
   async analyzeVehicleUtilization(
     vehicleId: string,
     tenantId: string,
