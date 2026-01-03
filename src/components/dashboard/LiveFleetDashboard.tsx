@@ -296,9 +296,9 @@ export const LiveFleetDashboard = React.memo(function LiveFleetDashboard({ initi
                 <MapPin className="h-4 w-4 text-slate-500 dark:text-slate-400" />
               </div>
               <span className="font-mono text-slate-600 dark:text-slate-300">
-                {selectedVehicle.location?.lat?.toFixed(4) || selectedVehicle.latitude?.toFixed(4) || '0.0000'},
+                {Number(selectedVehicle.location?.lat ?? selectedVehicle.latitude ?? 0).toFixed(4)},
                 {' '}
-                {selectedVehicle.location?.lng?.toFixed(4) || selectedVehicle.longitude?.toFixed(4) || '0.0000'}
+                {Number(selectedVehicle.location?.lng ?? selectedVehicle.longitude ?? 0).toFixed(4)}
               </span>
             </div>
           </CardContent>
