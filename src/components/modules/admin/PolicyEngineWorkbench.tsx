@@ -159,16 +159,17 @@ export function PolicyEngineWorkbench() {
     }
   }
 
-  const handleTest = (policyId: string) => {
+  const handleTest = async (policyId: string) => {
     toast.info("Starting policy simulation in sandbox environment...")
     // Simulate testing
-    setTimeout(() => {
-      setPolicies(current =>
-        (current || []).map(p =>
-          p.id === policyId ? { ...p, status: "testing" as const } : p
-        )
-      )
-      toast.success("Policy test completed successfully")
+    setTimeout(async () => {
+      try {
+        await updatePolicy(policyId, { status: "testing" as PolicyStatus })
+        toast.success("Policy test completed successfully")
+      } catch (error) {
+        console.error('Error testing policy:', error)
+        toast.error("Policy test failed")
+      }
     }, 2000)
   }
 
