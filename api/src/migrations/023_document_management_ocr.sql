@@ -37,108 +37,88 @@ ON CONFLICT (category_name) DO NOTHING;
 
 CREATE TABLE IF NOT EXISTS documents (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-
-    -- Document Identification
-    document_number VARCHAR(100) UNIQUE, -- Auto-generated or manual
     document_name VARCHAR(500) NOT NULL,
-    document_category_id UUID REFERENCES document_categories(id) NOT NULL,
-    document_type VARCHAR(100), -- 'Receipt', 'Invoice', 'Form', 'Photo', 'PDF', 'Scan', etc.
-
-    -- File Information
-    original_filename VARCHAR(500) NOT NULL,
-    file_size_bytes BIGINT NOT NULL,
-    mime_type VARCHAR(255) NOT NULL,
-    file_extension VARCHAR(20),
-
-    -- Storage
-    storage_path VARCHAR(1000) NOT NULL,
-    storage_url VARCHAR(1000),
-    thumbnail_url VARCHAR(1000),
-    is_encrypted BOOLEAN DEFAULT FALSE,
-
-    -- Upload Information
-    upload_method VARCHAR(50) NOT NULL, -- 'Web Upload', 'Mobile Camera', 'Mobile Gallery', 'Email', 'Scanner', 'API'
-    uploaded_by UUID REFERENCES drivers(id),
-    uploaded_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    upload_device_info JSONB, -- {device_type, os, browser, location}
-
-    -- OCR & AI Processing
-    ocr_processed BOOLEAN DEFAULT FALSE,
-    ocr_provider VARCHAR(50), -- 'Tesseract', 'Google Vision', 'AWS Textract', 'Azure Computer Vision'
-    ocr_confidence_score DECIMAL(5,4),
-    ocr_language VARCHAR(10) DEFAULT 'en',
-    ocr_raw_text TEXT, -- Complete extracted text
-    ocr_structured_data JSONB, -- Structured extraction: {vendor, date, amount, items: [...]}
-    ocr_processing_time_ms INTEGER,
-    ocr_processed_at TIMESTAMP,
-
-    -- AI Classification & Enhancement
-    ai_detected_type VARCHAR(100), -- Auto-detected: 'Gas Receipt', 'Repair Invoice', 'Insurance Card', etc.
-    ai_confidence DECIMAL(5,4),
-    ai_extracted_entities JSONB, -- {vendor_name, date, total_amount, tax, line_items: [...]}
-    ai_tags TEXT[], -- Auto-generated searchable tags
-    ai_summary TEXT, -- AI-generated summary
-
-    -- Entity Linking (Polymorphic)
-    related_vehicle_id UUID REFERENCES vehicles(id),
-    related_driver_id UUID REFERENCES drivers(id),
-    related_[a-z_]*_id UUID,
-    related_[a-z_]*_id UUID,
-    related_[a-z_]*_id UUID,
-    related_[a-z_]*_id UUID,
-    related_[a-z_]*_id UUID,
-
-    -- Manual Metadata
-    manual_tags TEXT[],
-    description TEXT,
-    notes TEXT,
-
-    -- Date Information
-    document_date DATE, -- Date on the document (not upload date)
-    document_year INTEGER GENERATED ALWAYS AS (EXTRACT(YEAR FROM document_date)) STORED,
-    document_month INTEGER GENERATED ALWAYS AS (EXTRACT(MONTH FROM document_date)) STORED,
-
-    -- Financial Data (for receipts/invoices)
-    currency VARCHAR(10) DEFAULT 'USD',
-    total_amount DECIMAL(12,2),
-    tax_amount DECIMAL(12,2),
-    subtotal_amount DECIMAL(12,2),
-    payment_method VARCHAR(50), -- 'Cash', 'Credit Card', 'Fleet Card', 'Invoice'
-    vendor_name VARCHAR(255),
-    vendor_location VARCHAR(255),
-
-    -- Security & Access
-    is_confidential BOOLEAN DEFAULT FALSE,
-    access_restricted_to_roles VARCHAR(100)[],
-    requires_approval BOOLEAN DEFAULT FALSE,
-    approved_by UUID,
-    approved_at TIMESTAMP,
-
-    -- Version Control
-    version INTEGER DEFAULT 1,
-    parent_document_id UUID REFERENCES documents(id), -- For versioning
-    is_latest_version BOOLEAN DEFAULT TRUE,
-
-    -- Status & Lifecycle
-    status VARCHAR(50) DEFAULT 'Active', -- 'Active', 'Archived', 'Deleted', 'Under Review'
-    is_archived BOOLEAN DEFAULT FALSE,
-    archived_at TIMESTAMP,
-    archived_by INTEGER,
-
-    -- Compliance
-    retention_until DATE, -- Auto-calculated based on category retention policy
-    is_legal_hold BOOLEAN DEFAULT FALSE, -- Prevent deletion for legal reasons
-    legal_hold_reason TEXT,
-
-    -- Search
-    full_text_search TSVECTOR,
-
-    -- Audit Trail
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    deleted_at TIMESTAMP,
-    deleted_by INTEGER
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+
+-- Ensure columns exist
+ALTER TABLE documents ADD COLUMN IF NOT EXISTS tenant_id UUID REFERENCES tenants(id);
+ALTER TABLE documents ADD COLUMN IF NOT EXISTS document_name VARCHAR(500);
+ALTER TABLE documents ADD COLUMN IF NOT EXISTS document_number VARCHAR(100);
+ALTER TABLE documents ADD COLUMN IF NOT EXISTS document_category_id UUID REFERENCES document_categories(id);
+ALTER TABLE documents ADD COLUMN IF NOT EXISTS document_type VARCHAR(100);
+ALTER TABLE documents ADD COLUMN IF NOT EXISTS original_filename VARCHAR(500);
+ALTER TABLE documents ADD COLUMN IF NOT EXISTS file_size_bytes BIGINT;
+ALTER TABLE documents ADD COLUMN IF NOT EXISTS mime_type VARCHAR(255);
+ALTER TABLE documents ADD COLUMN IF NOT EXISTS file_extension VARCHAR(20);
+ALTER TABLE documents ADD COLUMN IF NOT EXISTS storage_path VARCHAR(1000);
+ALTER TABLE documents ADD COLUMN IF NOT EXISTS storage_url VARCHAR(1000);
+ALTER TABLE documents ADD COLUMN IF NOT EXISTS thumbnail_url VARCHAR(1000);
+ALTER TABLE documents ADD COLUMN IF NOT EXISTS is_encrypted BOOLEAN DEFAULT FALSE;
+ALTER TABLE documents ADD COLUMN IF NOT EXISTS upload_method VARCHAR(50);
+ALTER TABLE documents ADD COLUMN IF NOT EXISTS uploaded_by UUID REFERENCES drivers(id);
+ALTER TABLE documents ADD COLUMN IF NOT EXISTS uploaded_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP;
+ALTER TABLE documents ADD COLUMN IF NOT EXISTS upload_device_info JSONB;
+ALTER TABLE documents ADD COLUMN IF NOT EXISTS ocr_processed BOOLEAN DEFAULT FALSE;
+ALTER TABLE documents ADD COLUMN IF NOT EXISTS ocr_provider VARCHAR(50);
+ALTER TABLE documents ADD COLUMN IF NOT EXISTS ocr_confidence_score DECIMAL(5,4);
+ALTER TABLE documents ADD COLUMN IF NOT EXISTS ocr_language VARCHAR(10) DEFAULT 'en';
+ALTER TABLE documents ADD COLUMN IF NOT EXISTS ocr_raw_text TEXT;
+ALTER TABLE documents ADD COLUMN IF NOT EXISTS ocr_structured_data JSONB;
+ALTER TABLE documents ADD COLUMN IF NOT EXISTS ocr_processing_time_ms INTEGER;
+ALTER TABLE documents ADD COLUMN IF NOT EXISTS ocr_processed_at TIMESTAMP;
+ALTER TABLE documents ADD COLUMN IF NOT EXISTS ai_detected_type VARCHAR(100);
+ALTER TABLE documents ADD COLUMN IF NOT EXISTS ai_confidence DECIMAL(5,4);
+ALTER TABLE documents ADD COLUMN IF NOT EXISTS ai_extracted_entities JSONB;
+ALTER TABLE documents ADD COLUMN IF NOT EXISTS ai_tags TEXT[];
+ALTER TABLE documents ADD COLUMN IF NOT EXISTS ai_summary TEXT;
+ALTER TABLE documents ADD COLUMN IF NOT EXISTS related_vehicle_id UUID REFERENCES vehicles(id);
+ALTER TABLE documents ADD COLUMN IF NOT EXISTS related_driver_id UUID REFERENCES drivers(id);
+ALTER TABLE documents ADD COLUMN IF NOT EXISTS manual_tags TEXT[];
+ALTER TABLE documents ADD COLUMN IF NOT EXISTS description TEXT;
+ALTER TABLE documents ADD COLUMN IF NOT EXISTS notes TEXT;
+ALTER TABLE documents ADD COLUMN IF NOT EXISTS document_date DATE;
+ALTER TABLE documents ADD COLUMN IF NOT EXISTS currency VARCHAR(10) DEFAULT 'USD';
+ALTER TABLE documents ADD COLUMN IF NOT EXISTS total_amount DECIMAL(12,2);
+ALTER TABLE documents ADD COLUMN IF NOT EXISTS tax_amount DECIMAL(12,2);
+ALTER TABLE documents ADD COLUMN IF NOT EXISTS subtotal_amount DECIMAL(12,2);
+ALTER TABLE documents ADD COLUMN IF NOT EXISTS payment_method VARCHAR(50);
+ALTER TABLE documents ADD COLUMN IF NOT EXISTS vendor_name VARCHAR(255);
+ALTER TABLE documents ADD COLUMN IF NOT EXISTS vendor_location VARCHAR(255);
+ALTER TABLE documents ADD COLUMN IF NOT EXISTS is_confidential BOOLEAN DEFAULT FALSE;
+ALTER TABLE documents ADD COLUMN IF NOT EXISTS access_restricted_to_roles VARCHAR(100)[];
+ALTER TABLE documents ADD COLUMN IF NOT EXISTS requires_approval BOOLEAN DEFAULT FALSE;
+ALTER TABLE documents ADD COLUMN IF NOT EXISTS approved_by UUID;
+ALTER TABLE documents ADD COLUMN IF NOT EXISTS approved_at TIMESTAMP;
+ALTER TABLE documents ADD COLUMN IF NOT EXISTS version INTEGER DEFAULT 1;
+ALTER TABLE documents ADD COLUMN IF NOT EXISTS parent_document_id UUID REFERENCES documents(id);
+ALTER TABLE documents ADD COLUMN IF NOT EXISTS is_latest_version BOOLEAN DEFAULT TRUE;
+ALTER TABLE documents ADD COLUMN IF NOT EXISTS status VARCHAR(50) DEFAULT 'Active';
+ALTER TABLE documents ADD COLUMN IF NOT EXISTS is_archived BOOLEAN DEFAULT FALSE;
+ALTER TABLE documents ADD COLUMN IF NOT EXISTS archived_at TIMESTAMP;
+ALTER TABLE documents ADD COLUMN IF NOT EXISTS archived_by UUID;
+ALTER TABLE documents ADD COLUMN IF NOT EXISTS retention_until DATE;
+ALTER TABLE documents ADD COLUMN IF NOT EXISTS is_legal_hold BOOLEAN DEFAULT FALSE;
+ALTER TABLE documents ADD COLUMN IF NOT EXISTS legal_hold_reason TEXT;
+ALTER TABLE documents ADD COLUMN IF NOT EXISTS full_text_search TSVECTOR;
+ALTER TABLE documents ADD COLUMN IF NOT EXISTS deleted_at TIMESTAMP;
+ALTER TABLE documents ADD COLUMN IF NOT EXISTS deleted_by UUID;
+
+-- Generated columns (add separately as they might already exist or fail if added via ADD COLUMN IF NOT EXISTS)
+DO $$ BEGIN
+    ALTER TABLE documents ADD COLUMN document_year INTEGER GENERATED ALWAYS AS (EXTRACT(YEAR FROM document_date)) STORED;
+    ALTER TABLE documents ADD COLUMN document_month INTEGER GENERATED ALWAYS AS (EXTRACT(MONTH FROM document_date)) STORED;
+EXCEPTION
+    WHEN duplicate_column THEN null;
+END $$;
+
+-- Constraints
+DO $$ BEGIN
+    ALTER TABLE documents ADD CONSTRAINT documents_document_number_key UNIQUE (document_number);
+EXCEPTION
+    WHEN duplicate_table OR duplicate_object THEN null;
+END $$;
 
 -- ============================================================================
 -- Document Pages (for multi-page documents like PDFs)
@@ -562,7 +542,7 @@ SELECT
     d.uploaded_at,
     d.ocr_processed,
     d.ai_detected_type,
-    v.number AS related_vehicle,
+    v."number" AS related_vehicle,
     d2.first_name || ' ' || d2.last_name AS related_driver
 FROM documents d
 JOIN document_categories dc ON d.document_category_id = dc.id

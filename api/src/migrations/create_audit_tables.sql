@@ -7,7 +7,7 @@
 CREATE TABLE IF NOT EXISTS audit_logs (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   correlation_id UUID NOT NULL,
-  timestamp TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
+  "timestamp" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
   user_id VARCHAR(255) NOT NULL,
   action VARCHAR(100) NOT NULL,
   action_display_name VARCHAR(255),
@@ -130,7 +130,7 @@ CREATE INDEX IF NOT EXISTS idx_audit_log_verification_verified_at ON audit_log_v
 -- Security alerts table
 CREATE TABLE IF NOT EXISTS security_alerts (
   id VARCHAR(255) PRIMARY KEY,
-  timestamp TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
+  "timestamp" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
   severity VARCHAR(20) NOT NULL, -- 'INFO', 'WARNING', 'ERROR', 'CRITICAL'
   alert_type VARCHAR(100) NOT NULL,
   description TEXT NOT NULL,

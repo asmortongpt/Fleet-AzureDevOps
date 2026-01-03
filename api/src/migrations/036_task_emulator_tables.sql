@@ -7,70 +7,101 @@
 -- TASK EMULATOR TABLE
 -- ============================================================================
 
+-- Ensure tasks table exists with base columns
 CREATE TABLE IF NOT EXISTS tasks (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  task_id VARCHAR(50) NOT NULL UNIQUE,
-  title VARCHAR(255) NOT NULL,
-  description TEXT,
-  task_type VARCHAR(50) NOT NULL CHECK (task_type IN ('maintenance', 'compliance', 'inspection', 'procurement', 'safety')),
-  status VARCHAR(50) NOT NULL DEFAULT 'TODO' CHECK (status IN ('TODO', 'IN_PROGRESS', 'COMPLETED', 'BLOCKED')),
-  priority VARCHAR(50) NOT NULL DEFAULT 'medium' CHECK (priority IN ('low', 'medium', 'high', 'urgent')),
-
-  -- Assignments
-  assigned_to_driver INTEGER,
-  assigned_driver_name VARCHAR(255),
-  assigned_to_vehicle INTEGER,
-  vehicle_number VARCHAR(50),
-
-  -- Dependencies
-  dependencies INTEGER[] DEFAULT '{}',
-  dependency_task_ids VARCHAR(50)[] DEFAULT '{}',
-
-  -- Dates and timing
-  due_date TIMESTAMP NOT NULL,
-  start_date TIMESTAMP,
-  completed_date TIMESTAMP,
-  estimated_hours DECIMAL(8,2) NOT NULL,
-  actual_hours DECIMAL(8,2),
-  completion_percentage INTEGER DEFAULT 0 CHECK (completion_percentage >= 0 AND completion_percentage <= 100),
-
-  -- Additional fields
-  blocked_reason TEXT,
-  tags TEXT[] DEFAULT '{}',
-  created_by VARCHAR(255) NOT NULL,
-  created_at TIMESTAMP DEFAULT NOW(),
-  updated_at TIMESTAMP DEFAULT NOW(),
-
-  -- Metadata
-  metadata JSONB DEFAULT '{}'::JSONB,
-
-  -- Indexes
-  CONSTRAINT valid_completion_dates CHECK (
-    (status = 'COMPLETED' AND completed_date IS NOT NULL) OR
-    (status != 'COMPLETED' AND completed_date IS NULL)
-  )
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    tenant_id UUID NOT NULL
 );
+
+-- Add missing columns individually
+DO $$
+BEGIN
+    ALTER TABLE tasks ADD COLUMN IF NOT EXISTS task_id VARCHAR(50);
+    ALTER TABLE tasks ADD COLUMN IF NOT EXISTS title VARCHAR(255);
+    ALTER TABLE tasks ADD COLUMN IF NOT EXISTS description TEXT;
+    ALTER TABLE tasks ADD COLUMN IF NOT EXISTS task_type VARCHAR(50);
+    ALTER TABLE tasks ADD COLUMN IF NOT EXISTS status VARCHAR(50) DEFAULT 'pending';
+    ALTER TABLE tasks ADD COLUMN IF NOT EXISTS priority VARCHAR(50) DEFAULT 'medium';
+    ALTER TABLE tasks ADD COLUMN IF NOT EXISTS assigned_to_driver INTEGER;
+    ALTER TABLE tasks ADD COLUMN IF NOT EXISTS assigned_driver_name VARCHAR(255);
+    ALTER TABLE tasks ADD COLUMN IF NOT EXISTS assigned_to_vehicle INTEGER;
+    ALTER TABLE tasks ADD COLUMN IF NOT EXISTS vehicle_number VARCHAR(50);
+    ALTER TABLE tasks ADD COLUMN IF NOT EXISTS dependencies INTEGER[] DEFAULT '{}';
+    ALTER TABLE tasks ADD COLUMN IF NOT EXISTS dependency_task_ids VARCHAR(50)[] DEFAULT '{}';
+    ALTER TABLE tasks ADD COLUMN IF NOT EXISTS due_date TIMESTAMP;
+    ALTER TABLE tasks ADD COLUMN IF NOT EXISTS start_date TIMESTAMP;
+    ALTER TABLE tasks ADD COLUMN IF NOT EXISTS completed_date TIMESTAMP;
+    ALTER TABLE tasks ADD COLUMN IF NOT EXISTS estimated_hours DECIMAL(8,2) DEFAULT 0;
+    ALTER TABLE tasks ADD COLUMN IF NOT EXISTS actual_hours DECIMAL(8,2);
+    ALTER TABLE tasks ADD COLUMN IF NOT EXISTS completion_percentage INTEGER DEFAULT 0;
+    ALTER TABLE tasks ADD COLUMN IF NOT EXISTS blocked_reason TEXT;
+    ALTER TABLE tasks ADD COLUMN IF NOT EXISTS tags TEXT[] DEFAULT '{}';
+    ALTER TABLE tasks ADD COLUMN IF NOT EXISTS created_by VARCHAR(255);
+    ALTER TABLE tasks ADD COLUMN IF NOT EXISTS created_at TIMESTAMP DEFAULT NOW();
+    ALTER TABLE tasks ADD COLUMN IF NOT EXISTS updated_at TIMESTAMP DEFAULT NOW();
+    ALTER TABLE tasks ADD COLUMN IF NOT EXISTS metadata JSONB DEFAULT '{}'::JSONB;
+END $$;
+
+-- Update constraints robustly
+DO $$
+BEGIN
+    -- unique task_id
+    IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'tasks_task_id_key') THEN
+        ALTER TABLE tasks ADD CONSTRAINT tasks_task_id_key UNIQUE (task_id);
+    END IF;
+
+    -- task_type check
+    IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'tasks_task_type_check') THEN
+        ALTER TABLE tasks ADD CONSTRAINT tasks_task_type_check CHECK (task_type IN ('maintenance', 'compliance', 'inspection', 'procurement', 'safety'));
+    END IF;
+
+    -- status check
+    IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'tasks_status_check') THEN
+        ALTER TABLE tasks ADD CONSTRAINT tasks_status_check CHECK (status IN ('pending', 'in_progress', 'completed', 'cancelled', 'on_hold', 'failed'));
+    END IF;
+
+    -- priority check
+    IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'tasks_priority_check') THEN
+        ALTER TABLE tasks ADD CONSTRAINT tasks_priority_check CHECK (priority IN ('low', 'medium', 'high', 'critical', 'emergency'));
+    END IF;
+
+    -- completion_percentage check
+    IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'tasks_completion_percentage_check') THEN
+        ALTER TABLE tasks ADD CONSTRAINT tasks_completion_percentage_check CHECK (completion_percentage >= 0 AND completion_percentage <= 100);
+    END IF;
+
+    -- completion_dates check
+    IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'valid_completion_dates') THEN
+        ALTER TABLE tasks ADD CONSTRAINT valid_completion_dates CHECK (
+            (status = 'completed' AND completed_date IS NOT NULL) OR
+            (status != 'completed' AND completed_date IS NULL)
+        );
+    END IF;
+EXCEPTION
+    WHEN OTHERS THEN
+        RAISE NOTICE 'Handled exception in tasks table constraints: %', SQLERRM;
+END $$;
 
 -- ============================================================================
 -- INDEXES FOR PERFORMANCE
 -- ============================================================================
 
-CREATE INDEX idx_tasks_task_id ON tasks(task_id);
-CREATE INDEX idx_tasks_status ON tasks(status);
-CREATE INDEX idx_tasks_priority ON tasks(priority);
-CREATE INDEX idx_tasks_task_type ON tasks(task_type);
-CREATE INDEX idx_tasks_assigned_to_vehicle ON tasks(assigned_to_vehicle);
-CREATE INDEX idx_tasks_assigned_to_driver ON tasks(assigned_to_driver);
-CREATE INDEX idx_tasks_due_date ON tasks(due_date);
-CREATE INDEX idx_tasks_created_at ON tasks(created_at);
-CREATE INDEX idx_tasks_tags ON tasks USING GIN(tags);
-CREATE INDEX idx_tasks_metadata ON tasks USING GIN(metadata);
+CREATE INDEX IF NOT EXISTS idx_tasks_task_id ON tasks(task_id);
+CREATE INDEX IF NOT EXISTS idx_tasks_status ON tasks(status);
+CREATE INDEX IF NOT EXISTS idx_tasks_priority ON tasks(priority);
+CREATE INDEX IF NOT EXISTS idx_tasks_task_type ON tasks(task_type);
+CREATE INDEX IF NOT EXISTS idx_tasks_assigned_to_vehicle ON tasks(assigned_to_vehicle);
+CREATE INDEX IF NOT EXISTS idx_tasks_assigned_to_driver ON tasks(assigned_to_driver);
+CREATE INDEX IF NOT EXISTS idx_tasks_due_date ON tasks(due_date);
+CREATE INDEX IF NOT EXISTS idx_tasks_created_at ON tasks(created_at);
+CREATE INDEX IF NOT EXISTS idx_tasks_tags ON tasks USING GIN(tags);
+CREATE INDEX IF NOT EXISTS idx_tasks_metadata ON tasks USING GIN(metadata);
 
 -- Composite indexes for common queries
-CREATE INDEX idx_tasks_status_priority ON tasks(status, priority);
-CREATE INDEX idx_tasks_status_due_date ON tasks(status, due_date);
-CREATE INDEX idx_tasks_vehicle_status ON tasks(assigned_to_vehicle, status) WHERE assigned_to_vehicle IS NOT NULL;
-CREATE INDEX idx_tasks_driver_status ON tasks(assigned_to_driver, status) WHERE assigned_to_driver IS NOT NULL;
+CREATE INDEX IF NOT EXISTS idx_tasks_status_priority ON tasks(status, priority);
+CREATE INDEX IF NOT EXISTS idx_tasks_status_due_date ON tasks(status, due_date);
+CREATE INDEX IF NOT EXISTS idx_tasks_vehicle_status ON tasks(assigned_to_vehicle, status) WHERE assigned_to_vehicle IS NOT NULL;
+CREATE INDEX IF NOT EXISTS idx_tasks_driver_status ON tasks(assigned_to_driver, status) WHERE assigned_to_driver IS NOT NULL;
 
 -- ============================================================================
 -- TASK COMMENTS TABLE
@@ -85,8 +116,8 @@ CREATE TABLE IF NOT EXISTS task_comments (
   updated_at TIMESTAMP DEFAULT NOW()
 );
 
-CREATE INDEX idx_task_comments_task_id ON task_comments(task_id);
-CREATE INDEX idx_task_comments_created_at ON task_comments(created_at);
+CREATE INDEX IF NOT EXISTS idx_task_comments_task_id ON task_comments(task_id);
+CREATE INDEX IF NOT EXISTS idx_task_comments_created_at ON task_comments(created_at);
 
 -- ============================================================================
 -- TASK ATTACHMENTS TABLE
@@ -103,7 +134,7 @@ CREATE TABLE IF NOT EXISTS task_attachments (
   uploaded_at TIMESTAMP DEFAULT NOW()
 );
 
-CREATE INDEX idx_task_attachments_task_id ON task_attachments(task_id);
+CREATE INDEX IF NOT EXISTS idx_task_attachments_task_id ON task_attachments(task_id);
 
 -- ============================================================================
 -- TASK HISTORY TABLE (Audit Trail)
@@ -119,8 +150,8 @@ CREATE TABLE IF NOT EXISTS task_history (
   changed_at TIMESTAMP DEFAULT NOW()
 );
 
-CREATE INDEX idx_task_history_task_id ON task_history(task_id);
-CREATE INDEX idx_task_history_changed_at ON task_history(changed_at);
+CREATE INDEX IF NOT EXISTS idx_task_history_task_id ON task_history(task_id);
+CREATE INDEX IF NOT EXISTS idx_task_history_changed_at ON task_history(changed_at);
 
 -- ============================================================================
 -- TRIGGERS FOR AUTOMATIC TIMESTAMP UPDATES
@@ -204,7 +235,7 @@ SELECT
   t.*,
   EXTRACT(DAY FROM (NOW() - t.due_date)) AS days_overdue
 FROM tasks t
-WHERE t.status IN ('TODO', 'IN_PROGRESS')
+WHERE t.status IN ('pending', 'in_progress')
   AND t.due_date < NOW()
 ORDER BY t.priority DESC, t.due_date ASC;
 
@@ -214,8 +245,8 @@ SELECT
   t.*,
   EXTRACT(DAY FROM (t.due_date - NOW())) AS days_until_due
 FROM tasks t
-WHERE t.status IN ('TODO', 'IN_PROGRESS')
-  AND t.priority IN ('high', 'urgent')
+WHERE t.status IN ('pending', 'in_progress')
+  AND t.priority IN ('high', 'critical')
 ORDER BY t.due_date ASC;
 
 -- View for task completion statistics
@@ -227,7 +258,7 @@ SELECT
   COUNT(*) AS task_count,
   AVG(completion_percentage) AS avg_completion,
   AVG(EXTRACT(EPOCH FROM (completed_date - start_date)) / 3600) AS avg_completion_hours,
-  SUM(CASE WHEN due_date < NOW() AND status IN ('TODO', 'IN_PROGRESS') THEN 1 ELSE 0 END) AS overdue_count
+  SUM(CASE WHEN due_date < NOW() AND status IN ('pending', 'in_progress') THEN 1 ELSE 0 END) AS overdue_count
 FROM tasks
 GROUP BY task_type, status, priority;
 
@@ -237,11 +268,11 @@ SELECT
   assigned_to_vehicle,
   vehicle_number,
   COUNT(*) AS total_tasks,
-  SUM(CASE WHEN status = 'TODO' THEN 1 ELSE 0 END) AS todo_tasks,
-  SUM(CASE WHEN status = 'IN_PROGRESS' THEN 1 ELSE 0 END) AS in_progress_tasks,
-  SUM(CASE WHEN status = 'COMPLETED' THEN 1 ELSE 0 END) AS completed_tasks,
-  SUM(CASE WHEN status = 'BLOCKED' THEN 1 ELSE 0 END) AS blocked_tasks,
-  SUM(CASE WHEN priority = 'urgent' THEN 1 ELSE 0 END) AS urgent_tasks
+  SUM(CASE WHEN status = 'pending' THEN 1 ELSE 0 END) AS todo_tasks,
+  SUM(CASE WHEN status = 'in_progress' THEN 1 ELSE 0 END) AS in_progress_tasks,
+  SUM(CASE WHEN status = 'completed' THEN 1 ELSE 0 END) AS completed_tasks,
+  SUM(CASE WHEN status = 'on_hold' THEN 1 ELSE 0 END) AS blocked_tasks,
+  SUM(CASE WHEN priority = 'critical' THEN 1 ELSE 0 END) AS urgent_tasks
 FROM tasks
 WHERE assigned_to_vehicle IS NOT NULL
 GROUP BY assigned_to_vehicle, vehicle_number;

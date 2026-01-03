@@ -90,17 +90,17 @@ CREATE TABLE IF NOT EXISTS chat_session_shares (
 -- Indexes
 -- ============================================================================
 
-CREATE INDEX idx_chat_sessions_tenant ON chat_sessions(tenant_id);
-CREATE INDEX idx_chat_sessions_user ON chat_sessions(user_id);
-CREATE INDEX idx_chat_sessions_active ON chat_sessions(is_active) WHERE is_active = TRUE;
-CREATE INDEX idx_chat_sessions_updated ON chat_sessions(updated_at DESC);
+CREATE INDEX IF NOT EXISTS idx_chat_sessions_tenant ON chat_sessions(tenant_id);
+CREATE INDEX IF NOT EXISTS idx_chat_sessions_user ON chat_sessions(user_id);
+CREATE INDEX IF NOT EXISTS idx_chat_sessions_active ON chat_sessions(is_active) WHERE is_active = TRUE;
+CREATE INDEX IF NOT EXISTS idx_chat_sessions_updated ON chat_sessions(updated_at DESC);
 
-CREATE INDEX idx_chat_messages_session ON chat_messages(session_id);
-CREATE INDEX idx_chat_messages_role ON chat_messages(role);
-CREATE INDEX idx_chat_messages_created ON chat_messages(created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_chat_messages_session ON chat_messages(session_id);
+CREATE INDEX IF NOT EXISTS idx_chat_messages_role ON chat_messages(role);
+CREATE INDEX IF NOT EXISTS idx_chat_messages_created ON chat_messages(created_at DESC);
 
-CREATE INDEX idx_chat_shares_session ON chat_session_shares(session_id);
-CREATE INDEX idx_chat_shares_user ON chat_session_shares(shared_with_user_id);
+CREATE INDEX IF NOT EXISTS idx_chat_shares_session ON chat_session_shares(session_id);
+CREATE INDEX IF NOT EXISTS idx_chat_shares_user ON chat_session_shares(shared_with_user_id);
 
 -- ============================================================================
 -- Triggers

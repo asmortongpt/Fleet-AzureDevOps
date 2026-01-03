@@ -62,12 +62,12 @@ CREATE TABLE IF NOT EXISTS vehicle_idling_events (
 );
 
 -- Indexes for performance
-CREATE INDEX idx_idling_vehicle_time ON vehicle_idling_events(vehicle_id, start_time DESC);
-CREATE INDEX idx_idling_driver_time ON vehicle_idling_events(driver_id, start_time DESC);
-CREATE INDEX idx_idling_duration ON vehicle_idling_events(duration_seconds DESC) WHERE duration_seconds IS NOT NULL;
-CREATE INDEX idx_idling_location ON vehicle_idling_events(latitude, longitude) WHERE latitude IS NOT NULL;
-CREATE INDEX idx_idling_date ON vehicle_idling_events(DATE(start_time));
-CREATE INDEX idx_idling_alerts ON vehicle_idling_events(alert_triggered, alert_sent_at) WHERE alert_triggered = true;
+CREATE INDEX IF NOT EXISTS idx_idling_vehicle_time ON vehicle_idling_events(vehicle_id, start_time DESC);
+CREATE INDEX IF NOT EXISTS idx_idling_driver_time ON vehicle_idling_events(driver_id, start_time DESC);
+CREATE INDEX IF NOT EXISTS idx_idling_duration ON vehicle_idling_events(duration_seconds DESC) WHERE duration_seconds IS NOT NULL;
+CREATE INDEX IF NOT EXISTS idx_idling_location ON vehicle_idling_events(latitude, longitude) WHERE latitude IS NOT NULL;
+CREATE INDEX IF NOT EXISTS idx_idling_date ON vehicle_idling_events(DATE(start_time));
+CREATE INDEX IF NOT EXISTS idx_idling_alerts ON vehicle_idling_events(alert_triggered, alert_sent_at) WHERE alert_triggered = true;
 
 -- ============================================================================
 -- Idling Thresholds Configuration Table
@@ -157,9 +157,9 @@ CREATE TABLE IF NOT EXISTS vehicle_idling_daily_summary (
     UNIQUE(vehicle_id, driver_id, summary_date)
 );
 
-CREATE INDEX idx_idling_summary_vehicle_date ON vehicle_idling_daily_summary(vehicle_id, summary_date DESC);
-CREATE INDEX idx_idling_summary_driver_date ON vehicle_idling_daily_summary(driver_id, summary_date DESC);
-CREATE INDEX idx_idling_summary_date ON vehicle_idling_daily_summary(summary_date DESC);
+CREATE INDEX IF NOT EXISTS idx_idling_summary_vehicle_date ON vehicle_idling_daily_summary(vehicle_id, summary_date DESC);
+CREATE INDEX IF NOT EXISTS idx_idling_summary_driver_date ON vehicle_idling_daily_summary(driver_id, summary_date DESC);
+CREATE INDEX IF NOT EXISTS idx_idling_summary_date ON vehicle_idling_daily_summary(summary_date DESC);
 
 -- ============================================================================
 -- Idling Alerts Log
@@ -193,9 +193,9 @@ CREATE TABLE IF NOT EXISTS vehicle_idling_alerts (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE INDEX idx_idling_alerts_event ON vehicle_idling_alerts(idling_event_id);
-CREATE INDEX idx_idling_alerts_vehicle ON vehicle_idling_alerts(vehicle_id, created_at DESC);
-CREATE INDEX idx_idling_alerts_unack ON vehicle_idling_alerts(acknowledged) WHERE acknowledged = false;
+CREATE INDEX IF NOT EXISTS idx_idling_alerts_event ON vehicle_idling_alerts(idling_event_id);
+CREATE INDEX IF NOT EXISTS idx_idling_alerts_vehicle ON vehicle_idling_alerts(vehicle_id, created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_idling_alerts_unack ON vehicle_idling_alerts(acknowledged) WHERE acknowledged = false;
 
 -- ============================================================================
 -- Views for Reporting
@@ -229,7 +229,7 @@ SELECT
 FROM vehicle_idling_events e
 LEFT JOIN vehicles v ON e.vehicle_id = v.id
 LEFT JOIN users u ON e.driver_id = u.id
-LEFT JOIN vehicle_idling_thresholds t ON (e.vehicle_id = t.vehicle_id OR v.type = t.vehicle_type)
+LEFT JOIN vehicle_idling_thresholds t ON (e.vehicle_id = t.vehicle_id OR v.type::VARCHAR = t.vehicle_type)
 WHERE e.end_time IS NULL
 ORDER BY e.start_time ASC;
 
@@ -317,7 +317,7 @@ BEGIN
     INTO v_fuel_rate, v_fuel_price, v_co2_rate
     FROM vehicle_idling_thresholds t
     LEFT JOIN vehicles v ON v.id = p_vehicle_id
-    WHERE t.vehicle_id = p_vehicle_id OR t.vehicle_type = v.type
+    WHERE t.vehicle_id = p_vehicle_id OR t.vehicle_type = v.type::VARCHAR
     LIMIT 1;
 
     -- Use defaults if not found
@@ -388,14 +388,14 @@ CREATE TRIGGER trigger_update_idling_summary_timestamp
 -- ============================================================================
 
 -- Grant permissions (adjust based on your role structure)
-GRANT SELECT, INSERT, UPDATE ON vehicle_idling_events TO fleet_user;
-GRANT SELECT, INSERT, UPDATE ON vehicle_idling_thresholds TO fleet_user;
-GRANT SELECT ON vehicle_idling_daily_summary TO fleet_user;
-GRANT SELECT ON vehicle_idling_alerts TO fleet_user;
-GRANT SELECT ON active_idling_events TO fleet_user;
-GRANT SELECT ON top_idling_vehicles_30d TO fleet_user;
-GRANT SELECT ON driver_idling_performance_30d TO fleet_user;
-GRANT SELECT ON fleet_idling_costs_monthly TO fleet_user;
+-- GRANT SELECT, INSERT, UPDATE ON vehicle_idling_events TO fleet_user;
+-- GRANT SELECT, INSERT, UPDATE ON vehicle_idling_thresholds TO fleet_user;
+-- GRANT SELECT ON vehicle_idling_daily_summary TO fleet_user;
+-- GRANT SELECT ON vehicle_idling_alerts TO fleet_user;
+-- GRANT SELECT ON active_idling_events TO fleet_user;
+-- GRANT SELECT ON top_idling_vehicles_30d TO fleet_user;
+-- GRANT SELECT ON driver_idling_performance_30d TO fleet_user;
+-- GRANT SELECT ON fleet_idling_costs_monthly TO fleet_user;
 
 -- ============================================================================
 -- End of Migration

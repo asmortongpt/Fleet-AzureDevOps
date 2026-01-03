@@ -9,56 +9,65 @@
 
 CREATE TABLE IF NOT EXISTS dispatch_transmissions (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    transmission_id VARCHAR(255) UNIQUE NOT NULL,
-    vehicle_id UUID REFERENCES vehicles(id) ON DELETE CASCADE,
-    driver_id UUID REFERENCES drivers(id) ON DELETE SET NULL,
-    channel VARCHAR(50) NOT NULL CHECK (channel IN ('dispatch', 'emergency', 'maintenance', 'operations')),
-    type VARCHAR(50) NOT NULL CHECK (type IN ('emergency', 'routine', 'incident', 'status', 'acknowledgment', 'request')),
-    priority VARCHAR(20) NOT NULL CHECK (priority IN ('low', 'medium', 'high', 'critical')),
-    message TEXT NOT NULL,
-    timestamp TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    duration INTEGER NOT NULL DEFAULT 0, -- Duration in seconds
-    location_lat DECIMAL(10, 8),
-    location_lng DECIMAL(11, 8),
-    location_address TEXT,
-    number VARCHAR(50),
-    incident_number VARCHAR(50),
-    response_required BOOLEAN DEFAULT false,
-    acknowledged BOOLEAN DEFAULT false,
-    acknowledged_at TIMESTAMP WITH TIME ZONE,
-    acknowledged_by UUID REFERENCES users(id) ON DELETE SET NULL,
-    audio_clip_id VARCHAR(255),
-
-    -- Metadata
-    signal_strength INTEGER CHECK (signal_strength >= 0 AND signal_strength <= 100),
-    battery_level INTEGER CHECK (battery_level >= 0 AND battery_level <= 100),
-    background_noise INTEGER CHECK (background_noise >= 0 AND background_noise <= 100),
-    transmission_quality VARCHAR(20) CHECK (transmission_quality IN ('clear', 'static', 'weak', 'broken')),
-
-    -- Audit fields
     created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
-
-    -- Indexes for performance
-    CONSTRAINT valid_location CHECK (
-        (location_lat IS NULL AND location_lng IS NULL) OR
-        (location_lat IS NOT NULL AND location_lng IS NOT NULL)
-    )
+    updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
+-- Ensure columns exist
+ALTER TABLE dispatch_transmissions ADD COLUMN IF NOT EXISTS transmission_id VARCHAR(255);
+ALTER TABLE dispatch_transmissions ADD COLUMN IF NOT EXISTS vehicle_id UUID REFERENCES vehicles(id) ON DELETE CASCADE;
+ALTER TABLE dispatch_transmissions ADD COLUMN IF NOT EXISTS driver_id UUID REFERENCES drivers(id) ON DELETE SET NULL;
+ALTER TABLE dispatch_transmissions ADD COLUMN IF NOT EXISTS channel VARCHAR(50);
+ALTER TABLE dispatch_transmissions ADD COLUMN IF NOT EXISTS type VARCHAR(50);
+ALTER TABLE dispatch_transmissions ADD COLUMN IF NOT EXISTS priority VARCHAR(20);
+ALTER TABLE dispatch_transmissions ADD COLUMN IF NOT EXISTS message TEXT;
+ALTER TABLE dispatch_transmissions ADD COLUMN IF NOT EXISTS "timestamp" TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP;
+ALTER TABLE dispatch_transmissions ADD COLUMN IF NOT EXISTS duration INTEGER DEFAULT 0;
+ALTER TABLE dispatch_transmissions ADD COLUMN IF NOT EXISTS location_lat DECIMAL(10, 8);
+ALTER TABLE dispatch_transmissions ADD COLUMN IF NOT EXISTS location_lng DECIMAL(11, 8);
+ALTER TABLE dispatch_transmissions ADD COLUMN IF NOT EXISTS location_address TEXT;
+ALTER TABLE dispatch_transmissions ADD COLUMN IF NOT EXISTS "number" VARCHAR(50);
+ALTER TABLE dispatch_transmissions ADD COLUMN IF NOT EXISTS incident_number VARCHAR(50);
+ALTER TABLE dispatch_transmissions ADD COLUMN IF NOT EXISTS response_required BOOLEAN DEFAULT false;
+ALTER TABLE dispatch_transmissions ADD COLUMN IF NOT EXISTS acknowledged BOOLEAN DEFAULT false;
+ALTER TABLE dispatch_transmissions ADD COLUMN IF NOT EXISTS acknowledged_at TIMESTAMP WITH TIME ZONE;
+ALTER TABLE dispatch_transmissions ADD COLUMN IF NOT EXISTS acknowledged_by UUID REFERENCES users(id) ON DELETE SET NULL;
+ALTER TABLE dispatch_transmissions ADD COLUMN IF NOT EXISTS audio_clip_id VARCHAR(255);
+ALTER TABLE dispatch_transmissions ADD COLUMN IF NOT EXISTS signal_strength INTEGER;
+ALTER TABLE dispatch_transmissions ADD COLUMN IF NOT EXISTS battery_level INTEGER;
+ALTER TABLE dispatch_transmissions ADD COLUMN IF NOT EXISTS background_noise INTEGER;
+ALTER TABLE dispatch_transmissions ADD COLUMN IF NOT EXISTS transmission_quality VARCHAR(20);
+
+-- Ensure constraints (added in DO block for idempotency)
+DO $$ BEGIN
+    ALTER TABLE dispatch_transmissions ADD CONSTRAINT dispatch_transmissions_channel_check CHECK (channel IN ('dispatch', 'emergency', 'maintenance', 'operations'));
+    ALTER TABLE dispatch_transmissions ADD CONSTRAINT dispatch_transmissions_type_check CHECK (type IN ('emergency', 'routine', 'incident', 'status', 'acknowledgment', 'request'));
+    ALTER TABLE dispatch_transmissions ADD CONSTRAINT dispatch_transmissions_priority_check CHECK (priority IN ('low', 'medium', 'high', 'critical'));
+    ALTER TABLE dispatch_transmissions ADD CONSTRAINT dispatch_transmissions_signal_strength_check CHECK (signal_strength >= 0 AND signal_strength <= 100);
+    ALTER TABLE dispatch_transmissions ADD CONSTRAINT dispatch_transmissions_battery_level_check CHECK (battery_level >= 0 AND battery_level <= 100);
+    ALTER TABLE dispatch_transmissions ADD CONSTRAINT dispatch_transmissions_background_noise_check CHECK (background_noise >= 0 AND background_noise <= 100);
+    ALTER TABLE dispatch_transmissions ADD CONSTRAINT dispatch_transmissions_transmission_quality_check CHECK (transmission_quality IN ('clear', 'static', 'weak', 'broken'));
+    ALTER TABLE dispatch_transmissions ADD CONSTRAINT valid_location CHECK (
+        (location_lat IS NULL AND location_lng IS NULL) OR
+        (location_lat IS NOT NULL AND location_lng IS NOT NULL)
+    );
+EXCEPTION
+    WHEN duplicate_object THEN null;
+END $$;
+
 -- Indexes for dispatch_transmissions
-CREATE INDEX idx_dispatch_transmissions_vehicle_id ON dispatch_transmissions(vehicle_id);
-CREATE INDEX idx_dispatch_transmissions_driver_id ON dispatch_transmissions(driver_id);
-CREATE INDEX idx_dispatch_transmissions_channel ON dispatch_transmissions(channel);
-CREATE INDEX idx_dispatch_transmissions_timestamp ON dispatch_transmissions(timestamp DESC);
-CREATE INDEX idx_dispatch_transmissions_priority ON dispatch_transmissions(priority);
-CREATE INDEX idx_dispatch_transmissions_type ON dispatch_transmissions(type);
-CREATE INDEX idx_dispatch_transmissions_response_required ON dispatch_transmissions(response_required) WHERE response_required = true;
-CREATE INDEX idx_dispatch_transmissions_unacknowledged ON dispatch_transmissions(acknowledged, timestamp DESC) WHERE acknowledged = false;
-CREATE INDEX idx_dispatch_transmissions_incident ON dispatch_transmissions(incident_number) WHERE incident_number IS NOT NULL;
+CREATE INDEX IF NOT EXISTS idx_dispatch_transmissions_vehicle_id ON dispatch_transmissions(vehicle_id);
+CREATE INDEX IF NOT EXISTS idx_dispatch_transmissions_driver_id ON dispatch_transmissions(driver_id);
+CREATE INDEX IF NOT EXISTS idx_dispatch_transmissions_channel ON dispatch_transmissions(channel);
+CREATE INDEX IF NOT EXISTS idx_dispatch_transmissions_timestamp ON dispatch_transmissions(timestamp DESC);
+CREATE INDEX IF NOT EXISTS idx_dispatch_transmissions_priority ON dispatch_transmissions(priority);
+CREATE INDEX IF NOT EXISTS idx_dispatch_transmissions_type ON dispatch_transmissions(type);
+CREATE INDEX IF NOT EXISTS idx_dispatch_transmissions_response_required ON dispatch_transmissions(response_required) WHERE response_required = true;
+CREATE INDEX IF NOT EXISTS idx_dispatch_transmissions_unacknowledged ON dispatch_transmissions(acknowledged, timestamp DESC) WHERE acknowledged = false;
+CREATE INDEX IF NOT EXISTS idx_dispatch_transmissions_incident ON dispatch_transmissions(incident_number) WHERE incident_number IS NOT NULL;
 
 -- GiST index for location-based queries
-CREATE INDEX idx_dispatch_transmissions_location ON dispatch_transmissions
+CREATE INDEX IF NOT EXISTS idx_dispatch_transmissions_location ON dispatch_transmissions
     USING gist (ll_to_earth(location_lat, location_lng)) WHERE location_lat IS NOT NULL AND location_lng IS NOT NULL;
 
 -- ============================================================================
@@ -67,38 +76,58 @@ CREATE INDEX idx_dispatch_transmissions_location ON dispatch_transmissions
 
 CREATE TABLE IF NOT EXISTS dispatch_channels (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    channel_id VARCHAR(50) UNIQUE NOT NULL,
-    name VARCHAR(255) NOT NULL,
-    frequency VARCHAR(50) NOT NULL,
-    status VARCHAR(20) NOT NULL DEFAULT 'active' CHECK (status IN ('active', 'standby', 'emergency', 'offline')),
-    description TEXT,
-    priority_level INTEGER DEFAULT 1,
-    is_encrypted BOOLEAN DEFAULT false,
-
-    -- Configuration
-    max_concurrent_transmissions INTEGER DEFAULT 10,
-    emergency_override BOOLEAN DEFAULT false,
-    recording_enabled BOOLEAN DEFAULT true,
-
-    -- Audit fields
+    name VARCHAR(255) NOT NULL UNIQUE,
     created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    created_by UUID REFERENCES users(id) ON DELETE SET NULL,
-
-    -- Metadata
-    metadata JSONB DEFAULT '{}'::jsonb
+    updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
--- Initial channel data
-INSERT INTO dispatch_channels (channel_id, name, frequency, status, description, priority_level, emergency_override) VALUES
-    ('dispatch', 'Main Dispatch', '154.280', 'active', 'Primary dispatch and coordination channel', 1, false),
-    ('emergency', 'Emergency Operations', '155.475', 'standby', 'Emergency and high-priority communications', 5, true),
-    ('maintenance', 'Maintenance Operations', '154.570', 'active', 'Vehicle maintenance and support', 2, false),
-    ('operations', 'Field Operations', '155.160', 'active', 'General field operations and logistics', 1, false)
-ON CONFLICT (channel_id) DO NOTHING;
+-- Ensure columns exist
+ALTER TABLE dispatch_channels ADD COLUMN IF NOT EXISTS channel_id VARCHAR(50);
+ALTER TABLE dispatch_channels ADD COLUMN IF NOT EXISTS frequency VARCHAR(50);
+ALTER TABLE dispatch_channels ADD COLUMN IF NOT EXISTS status VARCHAR(20) DEFAULT 'active';
+ALTER TABLE dispatch_channels ADD COLUMN IF NOT EXISTS description TEXT;
+ALTER TABLE dispatch_channels ADD COLUMN IF NOT EXISTS priority_level INTEGER DEFAULT 1;
+ALTER TABLE dispatch_channels ADD COLUMN IF NOT EXISTS is_encrypted BOOLEAN DEFAULT false;
+ALTER TABLE dispatch_channels ADD COLUMN IF NOT EXISTS max_concurrent_transmissions INTEGER DEFAULT 10;
+ALTER TABLE dispatch_channels ADD COLUMN IF NOT EXISTS emergency_override BOOLEAN DEFAULT false;
+ALTER TABLE dispatch_channels ADD COLUMN IF NOT EXISTS recording_enabled BOOLEAN DEFAULT true;
+ALTER TABLE dispatch_channels ADD COLUMN IF NOT EXISTS created_by UUID REFERENCES users(id) ON DELETE SET NULL;
+ALTER TABLE dispatch_channels ADD COLUMN IF NOT EXISTS metadata JSONB DEFAULT '{}'::jsonb;
 
-CREATE INDEX idx_dispatch_channels_status ON dispatch_channels(status);
-CREATE INDEX idx_dispatch_channels_priority ON dispatch_channels(priority_level DESC);
+-- Add unique constraint if missing
+DO $$ BEGIN
+    ALTER TABLE dispatch_channels ADD CONSTRAINT dispatch_channels_channel_id_key UNIQUE (channel_id);
+EXCEPTION
+    WHEN duplicate_table OR duplicate_object THEN null;
+END $$;
+
+-- Update channel_id from name if missing
+UPDATE dispatch_channels SET channel_id = LOWER(REPLACE(name, ' ', '_')) WHERE channel_id IS NULL;
+ALTER TABLE dispatch_channels ALTER COLUMN channel_id SET NOT NULL;
+
+-- Initial channel data
+DO $$ BEGIN
+    INSERT INTO dispatch_channels (channel_id, name, frequency, status, description, priority_level, emergency_override)
+    VALUES ('dispatch', 'Main Dispatch', '154.280', 'active', 'Primary dispatch and coordination channel', 1, false)
+    ON CONFLICT DO NOTHING;
+    
+    INSERT INTO dispatch_channels (channel_id, name, frequency, status, description, priority_level, emergency_override)
+    VALUES ('emergency', 'Emergency Operations', '155.475', 'standby', 'Emergency and high-priority communications', 5, true)
+    ON CONFLICT DO NOTHING;
+    
+    INSERT INTO dispatch_channels (channel_id, name, frequency, status, description, priority_level, emergency_override)
+    VALUES ('maintenance', 'Maintenance Operations', '154.570', 'active', 'Vehicle maintenance and support', 2, false)
+    ON CONFLICT DO NOTHING;
+    
+    INSERT INTO dispatch_channels (channel_id, name, frequency, status, description, priority_level, emergency_override)
+    VALUES ('operations', 'Field Operations', '155.160', 'active', 'General field operations and logistics', 1, false)
+    ON CONFLICT DO NOTHING;
+EXCEPTION
+    WHEN others THEN RAISE NOTICE 'Some channels could not be inserted';
+END $$;
+
+CREATE INDEX IF NOT EXISTS idx_dispatch_channels_status ON dispatch_channels(status);
+CREATE INDEX IF NOT EXISTS idx_dispatch_channels_priority ON dispatch_channels(priority_level DESC);
 
 -- ============================================================================
 -- CHANNEL ASSIGNMENTS TABLE
@@ -108,7 +137,7 @@ CREATE TABLE IF NOT EXISTS dispatch_channel_assignments (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     vehicle_id UUID NOT NULL REFERENCES vehicles(id) ON DELETE CASCADE,
     channel_id VARCHAR(50) NOT NULL,
-    number VARCHAR(50) NOT NULL,
+    "number" VARCHAR(50) NOT NULL,
     assigned_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
     is_active BOOLEAN DEFAULT true,
 
@@ -124,10 +153,10 @@ CREATE TABLE IF NOT EXISTS dispatch_channel_assignments (
     UNIQUE(vehicle_id, channel_id)
 );
 
-CREATE INDEX idx_channel_assignments_vehicle ON dispatch_channel_assignments(vehicle_id);
-CREATE INDEX idx_channel_assignments_channel ON dispatch_channel_assignments(channel_id);
-CREATE INDEX idx_channel_assignments_active ON dispatch_channel_assignments(is_active) WHERE is_active = true;
-CREATE INDEX idx_channel_assignments_unit ON dispatch_channel_assignments(number);
+CREATE INDEX IF NOT EXISTS idx_channel_assignments_vehicle ON dispatch_channel_assignments(vehicle_id);
+CREATE INDEX IF NOT EXISTS idx_channel_assignments_channel ON dispatch_channel_assignments(channel_id);
+CREATE INDEX IF NOT EXISTS idx_channel_assignments_active ON dispatch_channel_assignments(is_active) WHERE is_active = true;
+CREATE INDEX IF NOT EXISTS idx_channel_assignments_unit ON dispatch_channel_assignments(number);
 
 -- ============================================================================
 -- INCIDENT REPORTS TABLE
@@ -178,15 +207,15 @@ CREATE TABLE IF NOT EXISTS dispatch_incidents (
     metadata JSONB DEFAULT '{}'::jsonb
 );
 
-CREATE INDEX idx_dispatch_incidents_number ON dispatch_incidents(incident_number);
-CREATE INDEX idx_dispatch_incidents_status ON dispatch_incidents(status);
-CREATE INDEX idx_dispatch_incidents_severity ON dispatch_incidents(severity);
-CREATE INDEX idx_dispatch_incidents_vehicle ON dispatch_incidents(vehicle_id);
-CREATE INDEX idx_dispatch_incidents_reported_at ON dispatch_incidents(reported_at DESC);
-CREATE INDEX idx_dispatch_incidents_type ON dispatch_incidents(type);
+CREATE INDEX IF NOT EXISTS idx_dispatch_incidents_number ON dispatch_incidents(incident_number);
+CREATE INDEX IF NOT EXISTS idx_dispatch_incidents_status ON dispatch_incidents(status);
+CREATE INDEX IF NOT EXISTS idx_dispatch_incidents_severity ON dispatch_incidents(severity);
+CREATE INDEX IF NOT EXISTS idx_dispatch_incidents_vehicle ON dispatch_incidents(vehicle_id);
+CREATE INDEX IF NOT EXISTS idx_dispatch_incidents_reported_at ON dispatch_incidents(reported_at DESC);
+CREATE INDEX IF NOT EXISTS idx_dispatch_incidents_type ON dispatch_incidents(type);
 
 -- GiST index for location-based incident queries
-CREATE INDEX idx_dispatch_incidents_location ON dispatch_incidents
+CREATE INDEX IF NOT EXISTS idx_dispatch_incidents_location ON dispatch_incidents
     USING gist (ll_to_earth(location_lat, location_lng)) WHERE location_lat IS NOT NULL AND location_lng IS NOT NULL;
 
 -- ============================================================================
@@ -204,9 +233,9 @@ CREATE TABLE IF NOT EXISTS dispatch_transmission_acknowledgments (
     created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE INDEX idx_transmission_acks_transmission ON dispatch_transmission_acknowledgments(transmission_id);
-CREATE INDEX idx_transmission_acks_user ON dispatch_transmission_acknowledgments(acknowledged_by);
-CREATE INDEX idx_transmission_acks_time ON dispatch_transmission_acknowledgments(acknowledged_at DESC);
+CREATE INDEX IF NOT EXISTS idx_transmission_acks_transmission ON dispatch_transmission_acknowledgments(transmission_id);
+CREATE INDEX IF NOT EXISTS idx_transmission_acks_user ON dispatch_transmission_acknowledgments(acknowledged_by);
+CREATE INDEX IF NOT EXISTS idx_transmission_acks_time ON dispatch_transmission_acknowledgments(acknowledged_at DESC);
 
 -- ============================================================================
 -- FUNCTIONS
@@ -295,10 +324,10 @@ RETURNS TABLE (
     id UUID,
     transmission_id VARCHAR,
     vehicle_id UUID,
-    number VARCHAR,
+    "number" VARCHAR,
     channel VARCHAR,
     message TEXT,
-    timestamp TIMESTAMP WITH TIME ZONE,
+    "timestamp" TIMESTAMP WITH TIME ZONE,
     age_minutes INTEGER
 ) AS $$
 BEGIN
@@ -307,7 +336,7 @@ BEGIN
         dt.id,
         dt.transmission_id,
         dt.vehicle_id,
-        dt.number,
+        dt."number",
         dt.channel,
         dt.message,
         dt.timestamp,
@@ -447,7 +476,7 @@ SELECT
     dt.duration,
     dt.acknowledged,
     dt.response_required,
-    dt.number,
+    dt."number",
     v.id AS vehicle_id,
     v.make || ' ' || v.model AS vehicle_name,
     v.license_plate,
@@ -482,19 +511,19 @@ ORDER BY di.severity DESC, di.reported_at ASC;
 -- ============================================================================
 
 -- Grant appropriate permissions (adjust based on your role structure)
-GRANT SELECT, INSERT, UPDATE ON dispatch_transmissions TO authenticated;
-GRANT SELECT ON dispatch_channels TO authenticated;
-GRANT SELECT, INSERT, UPDATE ON dispatch_channel_assignments TO authenticated;
-GRANT SELECT, INSERT, UPDATE ON dispatch_incidents TO authenticated;
-GRANT SELECT, INSERT ON dispatch_transmission_acknowledgments TO authenticated;
-GRANT SELECT ON v_recent_dispatch_transmissions TO authenticated;
-GRANT SELECT ON v_active_dispatch_incidents TO authenticated;
+-- GRANT SELECT, INSERT, UPDATE ON dispatch_transmissions -- TO authenticated;
+-- GRANT SELECT ON dispatch_channels -- TO authenticated;
+-- GRANT SELECT, INSERT, UPDATE ON dispatch_channel_assignments -- TO authenticated;
+-- GRANT SELECT, INSERT, UPDATE ON dispatch_incidents -- TO authenticated;
+-- GRANT SELECT, INSERT ON dispatch_transmission_acknowledgments -- TO authenticated;
+-- GRANT SELECT ON v_recent_dispatch_transmissions -- TO authenticated;
+-- GRANT SELECT ON v_active_dispatch_incidents -- TO authenticated;
 
 -- Grant execute on functions
-GRANT EXECUTE ON FUNCTION acknowledge_transmission TO authenticated;
-GRANT EXECUTE ON FUNCTION get_critical_unacknowledged_transmissions TO authenticated;
-GRANT EXECUTE ON FUNCTION get_channel_activity_summary TO authenticated;
-GRANT EXECUTE ON FUNCTION create_incident_from_transmission TO authenticated;
+-- GRANT EXECUTE ON FUNCTION acknowledge_transmission -- TO authenticated;
+-- GRANT EXECUTE ON FUNCTION get_critical_unacknowledged_transmissions -- TO authenticated;
+-- GRANT EXECUTE ON FUNCTION get_channel_activity_summary -- TO authenticated;
+-- GRANT EXECUTE ON FUNCTION create_incident_from_transmission -- TO authenticated;
 
 -- ============================================================================
 -- COMMENTS

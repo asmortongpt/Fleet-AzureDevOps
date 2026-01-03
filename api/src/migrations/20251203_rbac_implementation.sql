@@ -33,10 +33,10 @@ CREATE TABLE IF NOT EXISTS roles (
 
 -- Insert default roles
 INSERT INTO roles (name, description, level) VALUES
-  ('admin', 'Full system access, can manage users and roles', 4),
-  ('manager', 'Can manage fleet operations, vehicles, and drivers', 3),
-  ('user', 'Standard user with read access and limited write access', 2),
-  ('guest', 'Read-only access to public resources', 1)
+  ('Admin', 'Full system access, can manage users and roles', 4),
+  ('Manager', 'Can manage fleet operations, vehicles, and drivers', 3),
+  ('Mechanic', 'Standard user with read access and limited write access', 2),
+  ('Viewer', 'Read-only access to public resources', 1)
 ON CONFLICT (name) DO NOTHING;
 
 -- ============================================================================
@@ -91,7 +91,7 @@ INSERT INTO permissions (name, resource, action, description) VALUES
   ('report:schedule', 'report', 'schedule', 'Schedule automated reports'),
 
   -- Admin permissions
-  ('user:manage', 'user', 'manage', 'Manage user accounts'),
+  ('user:manage', 'Viewer', 'manage', 'Manage user accounts'),
   ('role:manage', 'role', 'manage', 'Manage roles and permissions'),
   ('audit:view', 'audit', 'view', 'View audit logs'),
   ('settings:manage', 'settings', 'manage', 'Manage system settings'),
@@ -129,14 +129,14 @@ CREATE INDEX IF NOT EXISTS idx_role_permissions_permission ON role_permissions(p
 INSERT INTO role_permissions (role_id, permission_id)
 SELECT r.id, p.id
 FROM roles r, permissions p
-WHERE r.name = 'admin'
+WHERE r.name = 'Admin'
 ON CONFLICT (role_id, permission_id) DO NOTHING;
 
 -- Manager: Most permissions except user/role management
 INSERT INTO role_permissions (role_id, permission_id)
 SELECT r.id, p.id
 FROM roles r, permissions p
-WHERE r.name = 'manager'
+WHERE r.name = 'Manager'
   AND p.name NOT IN ('user:manage', 'role:manage', 'settings:manage')
 ON CONFLICT (role_id, permission_id) DO NOTHING;
 
@@ -144,16 +144,16 @@ ON CONFLICT (role_id, permission_id) DO NOTHING;
 INSERT INTO role_permissions (role_id, permission_id)
 SELECT r.id, p.id
 FROM roles r, permissions p
-WHERE r.name = 'user'
+WHERE r.name = 'Viewer'
   AND p.action IN ('read', 'create', 'update')
-  AND p.resource NOT IN ('user', 'role', 'settings')
+  AND p.resource NOT IN ('Viewer', 'role', 'settings')
 ON CONFLICT (role_id, permission_id) DO NOTHING;
 
 -- Guest: Read-only permissions
 INSERT INTO role_permissions (role_id, permission_id)
 SELECT r.id, p.id
 FROM roles r, permissions p
-WHERE r.name = 'guest'
+WHERE r.name = 'Viewer'
   AND p.action = 'read'
 ON CONFLICT (role_id, permission_id) DO NOTHING;
 
@@ -219,7 +219,7 @@ CREATE INDEX IF NOT EXISTS idx_users_tenant ON users(tenant_id);
 INSERT INTO user_roles (user_id, role_id, is_active)
 SELECT u.id, r.id, true
 FROM users u
-JOIN roles r ON r.name = COALESCE(u.role, 'user')
+JOIN roles r ON r.name = COALESCE(u.role::VARCHAR, 'Viewer')
 WHERE NOT EXISTS (
   SELECT 1 FROM user_roles ur WHERE ur.user_id = u.id AND ur.role_id = r.id
 )
@@ -231,7 +231,7 @@ ON CONFLICT (user_id, role_id) DO NOTHING;
 -- Add tenant_id to all major resource tables if not exists
 ALTER TABLE vehicles ADD COLUMN IF NOT EXISTS tenant_id VARCHAR(255) DEFAULT 'default-tenant';
 ALTER TABLE drivers ADD COLUMN IF NOT EXISTS tenant_id VARCHAR(255) DEFAULT 'default-tenant';
-ALTER TABLE maintenance_records ADD COLUMN IF NOT EXISTS tenant_id VARCHAR(255) DEFAULT 'default-tenant';
+ALTER TABLE maintenance_schedules ADD COLUMN IF NOT EXISTS tenant_id VARCHAR(255) DEFAULT 'default-tenant';
 ALTER TABLE work_orders ADD COLUMN IF NOT EXISTS tenant_id VARCHAR(255) DEFAULT 'default-tenant';
 ALTER TABLE fuel_transactions ADD COLUMN IF NOT EXISTS tenant_id VARCHAR(255) DEFAULT 'default-tenant';
 ALTER TABLE documents ADD COLUMN IF NOT EXISTS tenant_id VARCHAR(255) DEFAULT 'default-tenant';
@@ -239,7 +239,7 @@ ALTER TABLE documents ADD COLUMN IF NOT EXISTS tenant_id VARCHAR(255) DEFAULT 'd
 -- Create indexes for tenant isolation queries
 CREATE INDEX IF NOT EXISTS idx_vehicles_tenant ON vehicles(tenant_id);
 CREATE INDEX IF NOT EXISTS idx_drivers_tenant ON drivers(tenant_id);
-CREATE INDEX IF NOT EXISTS idx_maintenance_tenant ON maintenance_records(tenant_id);
+CREATE INDEX IF NOT EXISTS idx_maintenance_schedules_tenant ON maintenance_schedules(tenant_id);
 CREATE INDEX IF NOT EXISTS idx_work_orders_tenant ON work_orders(tenant_id);
 CREATE INDEX IF NOT EXISTS idx_fuel_tenant ON fuel_transactions(tenant_id);
 CREATE INDEX IF NOT EXISTS idx_documents_tenant ON documents(tenant_id);
@@ -281,7 +281,7 @@ BEGIN
   ORDER BY r.level DESC
   LIMIT 1;
 
-  RETURN COALESCE(v_role, 'guest');
+  RETURN COALESCE(v_role, 'Viewer');
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 

@@ -66,9 +66,9 @@ CREATE TABLE IF NOT EXISTS vehicle_3d_models (
   UNIQUE(make, model, year, trim, version)
 );
 
-CREATE INDEX idx_3d_models_make_model ON vehicle_3d_models(make, model, year);
-CREATE INDEX idx_3d_models_published ON vehicle_3d_models(is_published) WHERE is_published = true;
-CREATE INDEX idx_3d_models_ar ON vehicle_3d_models(supports_ar) WHERE supports_ar = true;
+CREATE INDEX IF NOT EXISTS idx_3d_models_make_model ON vehicle_3d_models(make, model, year);
+CREATE INDEX IF NOT EXISTS idx_3d_models_published ON vehicle_3d_models(is_published) WHERE is_published = true;
+CREATE INDEX IF NOT EXISTS idx_3d_models_ar ON vehicle_3d_models(supports_ar) WHERE supports_ar = true;
 
 -- ============================================================================
 -- Vehicle 3D Instances (Link vehicles to their 3D models)
@@ -110,8 +110,8 @@ CREATE TABLE IF NOT EXISTS vehicle_3d_instances (
   UNIQUE(vehicle_id)
 );
 
-CREATE INDEX idx_3d_instances_vehicle ON vehicle_3d_instances(vehicle_id);
-CREATE INDEX idx_3d_instances_model ON vehicle_3d_instances(model_3d_id);
+CREATE INDEX IF NOT EXISTS idx_3d_instances_vehicle ON vehicle_3d_instances(vehicle_id);
+CREATE INDEX IF NOT EXISTS idx_3d_instances_model ON vehicle_3d_instances(model_3d_id);
 
 -- ============================================================================
 -- 3D Customization Options Catalog
@@ -157,8 +157,8 @@ CREATE TABLE IF NOT EXISTS vehicle_3d_customization_catalog (
   updated_at TIMESTAMP DEFAULT NOW()
 );
 
-CREATE INDEX idx_customization_category ON vehicle_3d_customization_catalog(category, is_available);
-CREATE INDEX idx_customization_model ON vehicle_3d_customization_catalog(model_3d_id);
+CREATE INDEX IF NOT EXISTS idx_customization_category ON vehicle_3d_customization_catalog(category, is_available);
+CREATE INDEX IF NOT EXISTS idx_customization_model ON vehicle_3d_customization_catalog(model_3d_id);
 
 -- ============================================================================
 -- AR Session Tracking
@@ -207,9 +207,9 @@ CREATE TABLE IF NOT EXISTS ar_sessions (
   created_at TIMESTAMP DEFAULT NOW()
 );
 
-CREATE INDEX idx_ar_sessions_vehicle ON ar_sessions(vehicle_id, started_at DESC);
-CREATE INDEX idx_ar_sessions_user ON ar_sessions(user_id, started_at DESC);
-CREATE INDEX idx_ar_sessions_platform ON ar_sessions(platform);
+CREATE INDEX IF NOT EXISTS idx_ar_sessions_vehicle ON ar_sessions(vehicle_id, started_at DESC);
+CREATE INDEX IF NOT EXISTS idx_ar_sessions_user ON ar_sessions(user_id, started_at DESC);
+CREATE INDEX IF NOT EXISTS idx_ar_sessions_platform ON ar_sessions(platform);
 
 -- ============================================================================
 -- 3D Render Presets (for marketing/listings)
@@ -255,8 +255,8 @@ CREATE TABLE IF NOT EXISTS vehicle_3d_renders (
   created_at TIMESTAMP DEFAULT NOW()
 );
 
-CREATE INDEX idx_3d_renders_vehicle ON vehicle_3d_renders(vehicle_id, is_featured);
-CREATE INDEX idx_3d_renders_listing ON vehicle_3d_renders(used_in_listing) WHERE used_in_listing = true;
+CREATE INDEX IF NOT EXISTS idx_3d_renders_vehicle ON vehicle_3d_renders(vehicle_id, is_featured);
+CREATE INDEX IF NOT EXISTS idx_3d_renders_listing ON vehicle_3d_renders(used_in_listing) WHERE used_in_listing = true;
 
 -- ============================================================================
 -- 3D Animation Presets
@@ -286,7 +286,7 @@ CREATE TABLE IF NOT EXISTS vehicle_3d_animations (
   updated_at TIMESTAMP DEFAULT NOW()
 );
 
-CREATE INDEX idx_3d_animations_model ON vehicle_3d_animations(model_3d_id, is_active);
+CREATE INDEX IF NOT EXISTS idx_3d_animations_model ON vehicle_3d_animations(model_3d_id, is_active);
 
 -- ============================================================================
 -- Performance Analytics
@@ -324,11 +324,11 @@ CREATE TABLE IF NOT EXISTS vehicle_3d_performance_metrics (
   -- Session duration
   session_duration_seconds INT,
 
-  timestamp TIMESTAMP DEFAULT NOW()
+  "timestamp" TIMESTAMP DEFAULT NOW()
 );
 
-CREATE INDEX idx_3d_performance_vehicle ON vehicle_3d_performance_metrics(vehicle_id, timestamp DESC);
-CREATE INDEX idx_3d_performance_platform ON vehicle_3d_performance_metrics(platform);
+CREATE INDEX IF NOT EXISTS idx_3d_performance_vehicle ON vehicle_3d_performance_metrics(vehicle_id, timestamp DESC);
+CREATE INDEX IF NOT EXISTS idx_3d_performance_platform ON vehicle_3d_performance_metrics(platform);
 
 -- ============================================================================
 -- Functions & Triggers

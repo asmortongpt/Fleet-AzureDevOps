@@ -41,8 +41,8 @@ CREATE TABLE IF NOT EXISTS vehicle_cameras (
   UNIQUE(vehicle_id, camera_type)
 );
 
-CREATE INDEX idx_vehicle_cameras_vehicle ON vehicle_cameras(vehicle_id);
-CREATE INDEX idx_vehicle_cameras_status ON vehicle_cameras(status);
+CREATE INDEX IF NOT EXISTS idx_vehicle_cameras_vehicle ON vehicle_cameras(vehicle_id);
+CREATE INDEX IF NOT EXISTS idx_vehicle_cameras_status ON vehicle_cameras(status);
 
 -- ============================================================================
 -- Video Events
@@ -80,7 +80,7 @@ CREATE TABLE IF NOT EXISTS video_safety_events (
   duration_seconds INT,
 
   -- Timestamps
-  event_timestamp TIMESTAMP NOT NULL,
+  event_"timestamp" TIMESTAMP NOT NULL,
   event_start_time TIMESTAMP,
   event_end_time TIMESTAMP,
 
@@ -131,13 +131,13 @@ CREATE TABLE IF NOT EXISTS video_safety_events (
   updated_at TIMESTAMP DEFAULT NOW()
 );
 
-CREATE INDEX idx_video_events_vehicle_time ON video_safety_events(vehicle_id, event_timestamp DESC);
-CREATE INDEX idx_video_events_driver ON video_safety_events(driver_id, event_timestamp DESC);
-CREATE INDEX idx_video_events_type_severity ON video_safety_events(event_type, severity);
-CREATE INDEX idx_video_events_evidence ON video_safety_events(marked_as_evidence) WHERE marked_as_evidence = true;
-CREATE INDEX idx_video_events_coaching ON video_safety_events(coaching_required) WHERE coaching_required = true AND coaching_completed = false;
-CREATE INDEX idx_video_events_ai_status ON video_safety_events(ai_processing_status) WHERE ai_processing_status IN ('pending', 'processing');
-CREATE INDEX idx_video_events_retention ON video_safety_events(retention_expires_at) WHERE retention_expires_at IS NOT NULL;
+CREATE INDEX IF NOT EXISTS idx_video_events_vehicle_time ON video_safety_events(vehicle_id, event_timestamp DESC);
+CREATE INDEX IF NOT EXISTS idx_video_events_driver ON video_safety_events(driver_id, event_timestamp DESC);
+CREATE INDEX IF NOT EXISTS idx_video_events_type_severity ON video_safety_events(event_type, severity);
+CREATE INDEX IF NOT EXISTS idx_video_events_evidence ON video_safety_events(marked_as_evidence) WHERE marked_as_evidence = true;
+CREATE INDEX IF NOT EXISTS idx_video_events_coaching ON video_safety_events(coaching_required) WHERE coaching_required = true AND coaching_completed = false;
+CREATE INDEX IF NOT EXISTS idx_video_events_ai_status ON video_safety_events(ai_processing_status) WHERE ai_processing_status IN ('pending', 'processing');
+CREATE INDEX IF NOT EXISTS idx_video_events_retention ON video_safety_events(retention_expires_at) WHERE retention_expires_at IS NOT NULL;
 
 -- ============================================================================
 -- Evidence Locker
@@ -179,9 +179,9 @@ CREATE TABLE IF NOT EXISTS evidence_locker (
   updated_at TIMESTAMP DEFAULT NOW()
 );
 
-CREATE INDEX idx_evidence_locker_case_number ON evidence_locker(case_number);
-CREATE INDEX idx_evidence_locker_status ON evidence_locker(status);
-CREATE INDEX idx_evidence_locker_legal_hold ON evidence_locker(legal_hold) WHERE legal_hold = true;
+CREATE INDEX IF NOT EXISTS idx_evidence_locker_case_number ON evidence_locker(case_number);
+CREATE INDEX IF NOT EXISTS idx_evidence_locker_status ON evidence_locker(status);
+CREATE INDEX IF NOT EXISTS idx_evidence_locker_legal_hold ON evidence_locker(legal_hold) WHERE legal_hold = true;
 
 -- Link video events to evidence locker
 ALTER TABLE video_safety_events ADD CONSTRAINT fk_evidence_locker
@@ -254,8 +254,8 @@ CREATE TABLE IF NOT EXISTS video_processing_queue (
   updated_at TIMESTAMP DEFAULT NOW()
 );
 
-CREATE INDEX idx_video_queue_status ON video_processing_queue(status, priority) WHERE status = 'pending';
-CREATE INDEX idx_video_queue_event ON video_processing_queue(video_event_id);
+CREATE INDEX IF NOT EXISTS idx_video_queue_status ON video_processing_queue(status, priority) WHERE status = 'pending';
+CREATE INDEX IF NOT EXISTS idx_video_queue_event ON video_processing_queue(video_event_id);
 
 -- ============================================================================
 -- Driver Safety Coaching
@@ -292,8 +292,8 @@ CREATE TABLE IF NOT EXISTS driver_coaching_sessions (
   updated_at TIMESTAMP DEFAULT NOW()
 );
 
-CREATE INDEX idx_coaching_driver ON driver_coaching_sessions(driver_id, conducted_at DESC);
-CREATE INDEX idx_coaching_follow_up ON driver_coaching_sessions(follow_up_required, follow_up_date) WHERE follow_up_required = true;
+CREATE INDEX IF NOT EXISTS idx_coaching_driver ON driver_coaching_sessions(driver_id, conducted_at DESC);
+CREATE INDEX IF NOT EXISTS idx_coaching_follow_up ON driver_coaching_sessions(follow_up_required, follow_up_date) WHERE follow_up_required = true;
 
 -- ============================================================================
 -- Video Analytics & Reporting
@@ -346,9 +346,9 @@ CREATE TABLE IF NOT EXISTS video_analytics_summary (
   UNIQUE(period_type, period_start, vehicle_id, driver_id)
 );
 
-CREATE INDEX idx_analytics_period ON video_analytics_summary(period_type, period_start DESC);
-CREATE INDEX idx_analytics_vehicle ON video_analytics_summary(vehicle_id, period_start DESC);
-CREATE INDEX idx_analytics_driver ON video_analytics_summary(driver_id, period_start DESC);
+CREATE INDEX IF NOT EXISTS idx_analytics_period ON video_analytics_summary(period_type, period_start DESC);
+CREATE INDEX IF NOT EXISTS idx_analytics_vehicle ON video_analytics_summary(vehicle_id, period_start DESC);
+CREATE INDEX IF NOT EXISTS idx_analytics_driver ON video_analytics_summary(driver_id, period_start DESC);
 
 -- ============================================================================
 -- Privacy Audit Log
@@ -378,8 +378,8 @@ CREATE TABLE IF NOT EXISTS video_privacy_audit (
   created_at TIMESTAMP DEFAULT NOW()
 );
 
-CREATE INDEX idx_privacy_audit_event ON video_privacy_audit(video_event_id, created_at DESC);
-CREATE INDEX idx_privacy_audit_user ON video_privacy_audit(accessed_by, created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_privacy_audit_event ON video_privacy_audit(video_event_id, created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_privacy_audit_user ON video_privacy_audit(accessed_by, created_at DESC);
 
 -- ============================================================================
 -- Functions & Triggers
