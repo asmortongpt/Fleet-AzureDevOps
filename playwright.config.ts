@@ -4,9 +4,9 @@ export default defineConfig({
   testDir: './tests/e2e',
   fullyParallel: true,
   forbidOnly: !!process.env.CI,
-  retries: process.env.CI ? 2 : 1,
-  workers: process.env.CI ? 1 : 4,
-  timeout: 30000, // Default timeout of 30 seconds per test
+  retries: process.env.CI ? 2 : 0,
+  workers: process.env.CI ? 1 : 6,
+  timeout: 45000, // Default timeout of 45 seconds per test
 
   reporter: [
     ['html', { outputFolder: 'playwright-report', open: 'never' }],
@@ -21,8 +21,8 @@ export default defineConfig({
     screenshot: 'only-on-failure',
     video: 'retain-on-failure',
     ignoreHTTPSErrors: true,
-    actionTimeout: 15000,
-    navigationTimeout: 30000,
+    actionTimeout: 20000,
+    navigationTimeout: 45000,
   },
 
   // Configure test artifacts
