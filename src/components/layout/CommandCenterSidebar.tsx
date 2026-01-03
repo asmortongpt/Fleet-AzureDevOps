@@ -71,7 +71,7 @@ export function CommandCenterSidebar({ isSidebarOpen, setIsSidebarOpen }: Comman
             </div>
 
             {/* Nav Links */}
-            <nav className="flex-1 py-4 px-3 space-y-6 overflow-y-auto no-scrollbar">
+            <nav className="flex-1 py-4 px-3 space-y-6 overflow-y-auto no-scrollbar" aria-label="Main navigation">
 
                 {/* Hubs Section - Consolidated Navigation */}
                 {hubItems.length > 0 && (
