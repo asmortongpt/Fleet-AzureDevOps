@@ -306,18 +306,20 @@ export const webhookLimiter = createRateLimiter({
 /**
  * Global API rate limiter
  * Fallback rate limit for all endpoints
- * 30 requests per minute per IP/user (reduced from 100 for security)
+ * 30 requests per minute per IP/user in production
+ * 1000 requests per minute in test/development for testing
  */
 export const globalLimiter = createRateLimiter({
   windowMs: 1 * 60 * 1000, // 1 minute
-  max: 30,
+  max: process.env.NODE_ENV === 'test' || process.env.NODE_ENV === 'development' ? 1000 : 30,
   message: 'Too many requests from this IP. Please try again later.',
   skip: (req) => {
     // Skip rate limiting for health checks
     const path = req.path.toLowerCase()
     return path === '/health' ||
       path === '/api/health' ||
-      path === '/api/status'
+      path === '/api/status' ||
+      path.startsWith('/api/health')
   }
 })
 
