@@ -746,7 +746,9 @@ class MLTrainingService {
   }
 
   private shouldRetrainNow(schedule: string, lastRetrain: Date | null): boolean {
-    if (!lastRetrain) return true
+    if (!lastRetrain) {
+return true
+}
 
     const now = new Date()
     const daysSinceRetrain = (now.getTime() - lastRetrain.getTime()) / (1000 * 60 * 60 * 24)

@@ -378,13 +378,27 @@ export class QueryMonitor {
    */
   private extractOperation(query: string): string {
     const normalized = query.trim().toLowerCase();
-    if (normalized.startsWith('select')) return 'SELECT';
-    if (normalized.startsWith('insert')) return 'INSERT';
-    if (normalized.startsWith('update')) return 'UPDATE';
-    if (normalized.startsWith('delete')) return 'DELETE';
-    if (normalized.startsWith('create')) return 'CREATE';
-    if (normalized.startsWith('alter')) return 'ALTER';
-    if (normalized.startsWith('drop')) return 'DROP';
+    if (normalized.startsWith('select')) {
+return 'SELECT';
+}
+    if (normalized.startsWith('insert')) {
+return 'INSERT';
+}
+    if (normalized.startsWith('update')) {
+return 'UPDATE';
+}
+    if (normalized.startsWith('delete')) {
+return 'DELETE';
+}
+    if (normalized.startsWith('create')) {
+return 'CREATE';
+}
+    if (normalized.startsWith('alter')) {
+return 'ALTER';
+}
+    if (normalized.startsWith('drop')) {
+return 'DROP';
+}
     return 'OTHER';
   }
 
@@ -441,7 +455,9 @@ export class QueryMonitor {
    * Export metrics to Application Insights
    */
   private exportMetrics(): void {
-    if (!appInsights.defaultClient) return;
+    if (!appInsights.defaultClient) {
+return;
+}
 
     const totalQueries = Array.from(this.stats.values()).reduce((sum, s) => sum + s.totalQueries, 0);
     const totalSlowQueries = Array.from(this.stats.values()).reduce((sum, s) => sum + s.slowQueries, 0);

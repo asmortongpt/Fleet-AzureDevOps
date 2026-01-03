@@ -94,7 +94,9 @@ export class FuelOptimizationService {
       const recommendations: OptimalRefuelingLocation[] = []
 
       for (const vehicle of result.rows) {
-        if (!vehicle.lat || !vehicle.lng) continue
+        if (!vehicle.lat || !vehicle.lng) {
+continue
+}
 
         // Get optimal fueling recommendation
         const recommendation = await fuelPurchasingService.getOptimalFuelingRecommendation(
@@ -444,7 +446,9 @@ export class FuelOptimizationService {
    * Calculate forecast volatility
    */
   private calculateForecastVolatility(forecasts: any[]): number {
-    if (forecasts.length < 2) return 0
+    if (forecasts.length < 2) {
+return 0
+}
 
     const prices = forecasts.map(f => f.predictedPrice)
     const mean = prices.reduce((sum, p) => sum + p, 0) / prices.length

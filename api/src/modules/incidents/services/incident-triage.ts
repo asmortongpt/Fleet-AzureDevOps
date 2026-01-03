@@ -281,9 +281,15 @@ export class IncidentTriageService extends BaseService {
    * Determine priority level based on score
    */
   private determinePriority(score: number): PriorityLevel {
-    if (score >= 75) return PriorityLevel.CRITICAL;
-    if (score >= 50) return PriorityLevel.HIGH;
-    if (score >= 25) return PriorityLevel.MEDIUM;
+    if (score >= 75) {
+return PriorityLevel.CRITICAL;
+}
+    if (score >= 50) {
+return PriorityLevel.HIGH;
+}
+    if (score >= 25) {
+return PriorityLevel.MEDIUM;
+}
     return PriorityLevel.LOW;
   }
 

@@ -354,7 +354,9 @@ export class DispatchEmulator extends EventEmitter {
     const vehicleArray = Array.from(this.vehicles.values());
 
     for (const vehicleState of vehicleArray) {
-      if (!vehicleState.isActive) continue;
+      if (!vehicleState.isActive) {
+continue;
+}
 
       // Check if vehicle should transmit
       const shouldTransmit = Math.random() < this.config.transmissionProbability;
@@ -424,7 +426,9 @@ export class DispatchEmulator extends EventEmitter {
     this.emergencyActive = true;
 
     const vehicleArray = Array.from(this.vehicles.values());
-    if (vehicleArray.length === 0) return;
+    if (vehicleArray.length === 0) {
+return;
+}
 
     const emergencyVehicle = vehicleArray[Math.floor(Math.random() * vehicleArray.length)];
 
@@ -562,7 +566,9 @@ export class DispatchEmulator extends EventEmitter {
   private processTransmissionQueue(): void {
     while (this.transmissionQueue.length > 0) {
       const transmission = this.transmissionQueue.shift();
-      if (!transmission) continue;
+      if (!transmission) {
+continue;
+}
 
       this.activeTransmissions.push(transmission);
       this.transmissionHistory.push(transmission);
@@ -643,24 +649,44 @@ export class DispatchEmulator extends EventEmitter {
    */
   private selectTransmissionType(): DispatchTransmission['type'] {
     const rand = Math.random();
-    if (rand < 0.35) return 'routine';
-    if (rand < 0.55) return 'status';
-    if (rand < 0.70) return 'acknowledgment';
-    if (rand < 0.85) return 'request';
+    if (rand < 0.35) {
+return 'routine';
+}
+    if (rand < 0.55) {
+return 'status';
+}
+    if (rand < 0.70) {
+return 'acknowledgment';
+}
+    if (rand < 0.85) {
+return 'request';
+}
     return 'incident';
   }
 
   private selectPriority(type: DispatchTransmission['type']): DispatchTransmission['priority'] {
-    if (type === 'emergency') return 'critical';
-    if (type === 'incident') return Math.random() < 0.3 ? 'high' : 'medium';
-    if (type === 'request') return 'medium';
+    if (type === 'emergency') {
+return 'critical';
+}
+    if (type === 'incident') {
+return Math.random() < 0.3 ? 'high' : 'medium';
+}
+    if (type === 'request') {
+return 'medium';
+}
     return 'low';
   }
 
   private selectChannel(type: DispatchTransmission['type'], priority: DispatchTransmission['priority']): DispatchTransmission['channel'] {
-    if (type === 'emergency' || priority === 'critical') return 'emergency';
-    if (Math.random() < 0.1) return 'maintenance';
-    if (Math.random() < 0.2) return 'operations';
+    if (type === 'emergency' || priority === 'critical') {
+return 'emergency';
+}
+    if (Math.random() < 0.1) {
+return 'maintenance';
+}
+    if (Math.random() < 0.2) {
+return 'operations';
+}
     return 'dispatch';
   }
 
@@ -681,9 +707,15 @@ export class DispatchEmulator extends EventEmitter {
   }
 
   private determineTransmissionQuality(signalStrength: number): 'clear' | 'static' | 'weak' | 'broken' {
-    if (signalStrength >= 80) return 'clear';
-    if (signalStrength >= 60) return 'static';
-    if (signalStrength >= 40) return 'weak';
+    if (signalStrength >= 80) {
+return 'clear';
+}
+    if (signalStrength >= 60) {
+return 'static';
+}
+    if (signalStrength >= 40) {
+return 'weak';
+}
     return 'broken';
   }
 

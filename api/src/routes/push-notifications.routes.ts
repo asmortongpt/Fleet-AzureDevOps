@@ -402,10 +402,18 @@ router.get(
         offset: parseInt(offset as string),
       };
 
-      if (category) filters.category = category;
-      if (status) filters.status = status;
-      if (startDate) filters.startDate = new Date(startDate as string);
-      if (endDate) filters.endDate = new Date(endDate as string);
+      if (category) {
+filters.category = category;
+}
+      if (status) {
+filters.status = status;
+}
+      if (startDate) {
+filters.startDate = new Date(startDate as string);
+}
+      if (endDate) {
+filters.endDate = new Date(endDate as string);
+}
 
       const history = await pushNotificationService.getNotificationHistory(
         (req as any).user.tenantId,

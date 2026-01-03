@@ -67,7 +67,7 @@ async function executeInternalRequest(
 
     // Route to appropriate service based on endpoint
     let data: any;
-    let status = 200;
+    const status = 200;
 
     if (endpoint.startsWith('vehicles')) {
       const vehicleService = container.resolve('vehicleService');

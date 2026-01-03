@@ -120,7 +120,9 @@ export class VideoTelematicsEmulator extends EventEmitter {
    * Start the emulator
    */
   start(): void {
-    if (this.isRunning) return;
+    if (this.isRunning) {
+return;
+}
 
     this.isRunning = true;
     this.emit('started', { timestamp: new Date() });
@@ -135,7 +137,9 @@ export class VideoTelematicsEmulator extends EventEmitter {
    * Stop the emulator
    */
   stop(): void {
-    if (!this.isRunning) return;
+    if (!this.isRunning) {
+return;
+}
 
     this.isRunning = false;
     if (this.intervalId) {
@@ -169,11 +173,15 @@ export class VideoTelematicsEmulator extends EventEmitter {
    */
   private generateEvent(vehicleId: string): void {
     const vehicle = this.vehicles.get(vehicleId);
-    if (!vehicle) return;
+    if (!vehicle) {
+return;
+}
 
     // Determine event type based on vehicle state
     const eventType = this.selectEventType(vehicle);
-    if (!eventType) return;
+    if (!eventType) {
+return;
+}
 
     // Determine severity
     const severity = this.selectSeverity();
@@ -242,13 +250,19 @@ export class VideoTelematicsEmulator extends EventEmitter {
 
     // Speeding if vehicle is over limit
     if (vehicle.speedLimit && vehicle.currentSpeed > vehicle.speedLimit * 1.1) {
-      if (rand < 0.3) return 'speeding';
+      if (rand < 0.3) {
+return 'speeding';
+}
     }
 
     // High speed increases chance of certain events
     if (vehicle.currentSpeed > 70) {
-      if (rand < 0.05) return 'following_distance';
-      if (rand < 0.1) return 'lane_departure';
+      if (rand < 0.05) {
+return 'following_distance';
+}
+      if (rand < 0.1) {
+return 'lane_departure';
+}
     }
 
     // Random event selection
@@ -264,9 +278,15 @@ export class VideoTelematicsEmulator extends EventEmitter {
     ];
 
     // Rare critical events
-    if (rand < 0.001) return 'collision';
-    if (rand < 0.002) return 'red_light_violation';
-    if (rand < 0.005) return 'drowsiness_detected';
+    if (rand < 0.001) {
+return 'collision';
+}
+    if (rand < 0.002) {
+return 'red_light_violation';
+}
+    if (rand < 0.005) {
+return 'drowsiness_detected';
+}
 
     return eventTypes[Math.floor(Math.random() * eventTypes.length)];
   }
@@ -278,9 +298,15 @@ export class VideoTelematicsEmulator extends EventEmitter {
     const rand = Math.random();
     const { low, medium, high, critical } = this.config.severityDistribution;
 
-    if (rand < critical) return 'critical';
-    if (rand < critical + high) return 'high';
-    if (rand < critical + high + medium) return 'medium';
+    if (rand < critical) {
+return 'critical';
+}
+    if (rand < critical + high) {
+return 'high';
+}
+    if (rand < critical + high + medium) {
+return 'medium';
+}
     return 'low';
   }
 
@@ -350,9 +376,15 @@ export class VideoTelematicsEmulator extends EventEmitter {
   private calculateDuration(eventType: VideoEvent['eventType'], severity: VideoEvent['severity']): number {
     let baseDuration = 5; // seconds
 
-    if (eventType === 'collision') baseDuration = 15;
-    if (eventType === 'drowsiness_detected') baseDuration = 30;
-    if (eventType === 'distracted_driving') baseDuration = 10;
+    if (eventType === 'collision') {
+baseDuration = 15;
+}
+    if (eventType === 'drowsiness_detected') {
+baseDuration = 30;
+}
+    if (eventType === 'distracted_driving') {
+baseDuration = 10;
+}
 
     const severityMultiplier = {
       low: 0.8,
@@ -375,11 +407,21 @@ export class VideoTelematicsEmulator extends EventEmitter {
     const objectsDetected: string[] = ['vehicle'];
 
     // Add contextual objects
-    if (Math.random() < 0.7) objectsDetected.push('road_markings');
-    if (Math.random() < 0.5) objectsDetected.push('traffic_signs');
-    if (Math.random() < 0.3) objectsDetected.push('pedestrian');
-    if (Math.random() < 0.2) objectsDetected.push('cyclist');
-    if (Math.random() < 0.4) objectsDetected.push('other_vehicles');
+    if (Math.random() < 0.7) {
+objectsDetected.push('road_markings');
+}
+    if (Math.random() < 0.5) {
+objectsDetected.push('traffic_signs');
+}
+    if (Math.random() < 0.3) {
+objectsDetected.push('pedestrian');
+}
+    if (Math.random() < 0.2) {
+objectsDetected.push('cyclist');
+}
+    if (Math.random() < 0.4) {
+objectsDetected.push('other_vehicles');
+}
 
     // Scenario classification
     const scenarios = [
@@ -413,7 +455,9 @@ export class VideoTelematicsEmulator extends EventEmitter {
    */
   clearEvent(eventId: string, reason: 'reviewed' | 'cleared' | 'violation_confirmed' | 'auto_cleared'): void {
     const event = this.activeEvents.get(eventId);
-    if (!event) return;
+    if (!event) {
+return;
+}
 
     event.status = reason === 'violation_confirmed' ? 'violation_confirmed' : 'cleared';
     if (reason === 'reviewed' || reason === 'violation_confirmed') {
@@ -442,7 +486,9 @@ export class VideoTelematicsEmulator extends EventEmitter {
     severity: VideoEvent[`severity`]
   ): VideoEvent | null {
     const vehicle = this.vehicles.get(vehicleId);
-    if (!vehicle) return null;
+    if (!vehicle) {
+return null;
+}
 
     this.eventCounter++;
     const eventId = `video-manual-${Date.now()}-${vehicleId}-${this.eventCounter}`;

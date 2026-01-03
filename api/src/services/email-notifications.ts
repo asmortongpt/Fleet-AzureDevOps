@@ -78,7 +78,8 @@ class EmailNotificationService {
 
       if (!emailHost || !emailUser || !emailPass) {
         logger.warn('Email configuration missing, notifications will be logged only')
-        return }
+        return 
+}
 
       const config: EmailConfig = {
         host: emailHost,

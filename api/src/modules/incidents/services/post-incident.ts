@@ -534,8 +534,12 @@ Implementation of recommended prevention measures would reduce probability of si
     let score = 50; // Base score
 
     // Adjust based on incident type and severity
-    if (incident.severity === 'critical') score -= 20;
-    if (incident.severity === 'high') score -= 10;
+    if (incident.severity === 'critical') {
+score -= 20;
+}
+    if (incident.severity === 'high') {
+score -= 10;
+}
 
     // Adjust based on prior incidents
     // In production, would query incident history
@@ -550,12 +554,20 @@ Implementation of recommended prevention measures would reduce probability of si
     let score = 75; // Base score
 
     // Penalize slow detection
-    if (timeToDetect > 60) score -= 10;
-    if (timeToDetect > 240) score -= 20;
+    if (timeToDetect > 60) {
+score -= 10;
+}
+    if (timeToDetect > 240) {
+score -= 20;
+}
 
     // Penalize slow containment
-    if (timeToContain > 120) score -= 15;
-    if (timeToContain > 480) score -= 25;
+    if (timeToContain > 120) {
+score -= 15;
+}
+    if (timeToContain > 480) {
+score -= 25;
+}
 
     return Math.max(0, Math.min(100, score));
   }
@@ -564,11 +576,15 @@ Implementation of recommended prevention measures would reduce probability of si
    * Calculate recovery score (0-100)
    */
   private calculateRecoveryScore(remediation?: RemediationPlan): number {
-    if (!remediation) return 50;
+    if (!remediation) {
+return 50;
+}
 
     let score = 50;
     score += remediation.completionPercentage * 0.5;
-    if (remediation.verification_passed) score += 20;
+    if (remediation.verification_passed) {
+score += 20;
+}
 
     return Math.max(0, Math.min(100, score));
   }
@@ -620,9 +636,15 @@ Implementation of recommended prevention measures would reduce probability of si
   private identifyAffectedSystems(incident: Incident): string[] {
     const systems: string[] = [];
 
-    if (incident.vehicle_id) systems.push('Fleet Management');
-    if (incident.driver_id) systems.push('Driver Management');
-    if (incident.facility_id) systems.push('Facility Management');
+    if (incident.vehicle_id) {
+systems.push('Fleet Management');
+}
+    if (incident.driver_id) {
+systems.push('Driver Management');
+}
+    if (incident.facility_id) {
+systems.push('Facility Management');
+}
 
     switch (incident.incident_type) {
       case 'theft':
@@ -645,9 +667,15 @@ Implementation of recommended prevention measures would reduce probability of si
   private estimateImpactedUsers(incident: Incident): number {
     let count = 0;
 
-    if (incident.driver_id) count += 1;
-    if (incident.vehicle_id) count += 1; // Vehicle affects multiple stakeholders
-    if (incident.facility_id) count += 5; // Facility impacts facility staff
+    if (incident.driver_id) {
+count += 1;
+}
+    if (incident.vehicle_id) {
+count += 1;
+} // Vehicle affects multiple stakeholders
+    if (incident.facility_id) {
+count += 5;
+} // Facility impacts facility staff
 
     return count;
   }

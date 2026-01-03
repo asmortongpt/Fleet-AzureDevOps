@@ -12,8 +12,12 @@ export class InspectionService extends BaseService {
   }
 
   async validate(data: any): Promise<void> {
-    if (!data.vehicle_id) throw new Error("Vehicle ID is required");
-    if (!data.inspection_type) throw new Error("Inspection type is required");
+    if (!data.vehicle_id) {
+throw new Error("Vehicle ID is required");
+}
+    if (!data.inspection_type) {
+throw new Error("Inspection type is required");
+}
 
     // Validate inspection_type enum
     const validTypes = ['pre_trip', 'post_trip', 'periodic', 'annual', 'dot', 'safety'];

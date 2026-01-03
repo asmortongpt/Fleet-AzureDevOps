@@ -266,7 +266,9 @@ export class MaintenanceRecordEmulator {
 
   update(id: number, data: Partial<EmulatedMaintenanceRecord>): EmulatedMaintenanceRecord | null {
     const record = this.records.get(id)
-    if (!record) return null
+    if (!record) {
+return null
+}
 
     const updated = { ...record, ...data, id }
     this.records.set(id, updated)
@@ -314,7 +316,9 @@ export class MaintenanceRecordEmulator {
   emulateRealTimeUpdates(): void {
     setInterval(() => {
       const records = this.getAll().filter(r => r.status === 'in-progress')
-      if (records.length === 0) return
+      if (records.length === 0) {
+return
+}
 
       const randomRecord = records[Math.floor(Math.random() * records.length)]
 

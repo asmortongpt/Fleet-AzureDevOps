@@ -164,8 +164,12 @@ export class DriverScoringModel {
       const avgChange = totalChange / (scores.length - 1)
 
       // Determine trend
-      if (avgChange > 2) return 'improving'
-      if (avgChange < -2) return 'declining'
+      if (avgChange > 2) {
+return 'improving'
+}
+      if (avgChange < -2) {
+return 'declining'
+}
       return 'stable'
     } catch (error) {
       console.error('Error calculating trend:', error)
@@ -273,7 +277,9 @@ export class DriverScoringModel {
 
       const { total_drivers, drivers_below } = result.rows[0]
 
-      if (total_drivers === 0) return 50
+      if (total_drivers === 0) {
+return 50
+}
 
       const percentile = (parseFloat(drivers_below) / parseFloat(total_drivers)) * 100
       return Math.round(percentile * 100) / 100

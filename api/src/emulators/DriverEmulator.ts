@@ -101,7 +101,9 @@ export class DriverEmulator {
 
   update(id: number, data: Partial<EmulatedDriver>): EmulatedDriver | null {
     const driver = this.drivers.get(id)
-    if (!driver) return null
+    if (!driver) {
+return null
+}
 
     const updated = { ...driver, ...data, id }
     this.drivers.set(id, updated)
@@ -125,7 +127,9 @@ export class DriverEmulator {
   emulateRealTimeUpdates(): void {
     setInterval(() => {
       const drivers = this.getAll().filter(d => d.status === 'active')
-      if (drivers.length === 0) return
+      if (drivers.length === 0) {
+return
+}
 
       const randomDriver = drivers[Math.floor(Math.random() * drivers.length)]
 

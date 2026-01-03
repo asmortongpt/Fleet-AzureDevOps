@@ -236,12 +236,24 @@ router.post('/validate-trip',csrfProtection, async (req: Request, res: Response)
     const warnings: string[] = []
 
     // Required field validation (federal requirements)
-    if (!origin) validationErrors.push('Origin is required')
-    if (!destination) validationErrors.push('Destination is required')
-    if (!miles || miles <= 0) validationErrors.push('Valid mileage is required')
-    if (!trip_date) validationErrors.push('Trip date is required')
-    if (!purpose) validationErrors.push('Business purpose is required (federal requirement)')
-    if (!driver_id) validationErrors.push('Driver ID is required')
+    if (!origin) {
+validationErrors.push('Origin is required')
+}
+    if (!destination) {
+validationErrors.push('Destination is required')
+}
+    if (!miles || miles <= 0) {
+validationErrors.push('Valid mileage is required')
+}
+    if (!trip_date) {
+validationErrors.push('Trip date is required')
+}
+    if (!purpose) {
+validationErrors.push('Business purpose is required (federal requirement)')
+}
+    if (!driver_id) {
+validationErrors.push('Driver ID is required')
+}
 
     // Federal compliance validations
     if (miles > 500) {

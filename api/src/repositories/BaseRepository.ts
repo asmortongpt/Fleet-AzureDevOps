@@ -44,16 +44,24 @@ export abstract class BaseRepository<T extends { id: string | number }> {
   protected _pool?: Pool | PoolClient;
 
   constructor(tableName?: string, pool?: Pool | PoolClient) {
-    if (tableName) this.tableName = tableName;
-    if (pool) this._pool = pool;
+    if (tableName) {
+this.tableName = tableName;
+}
+    if (pool) {
+this._pool = pool;
+}
   }
 
   /**
    * Get database pool
    */
   protected getPool(context?: QueryContext): Pool | PoolClient {
-    if (this._pool) return this._pool;
-    if (context?.pool) return context.pool;
+    if (this._pool) {
+return this._pool;
+}
+    if (context?.pool) {
+return context.pool;
+}
     return connectionManager.getPool();
   }
 

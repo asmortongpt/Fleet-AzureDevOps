@@ -15,9 +15,15 @@ export class VehicleService extends BaseService {
   }
 
   async validate(data: any): Promise<void> {
-    if (!data.number) throw new Error("Vehicle number is required");
-    if (!data.make) throw new Error("Make is required");
-    if (!data.model) throw new Error("Model is required");
+    if (!data.number) {
+throw new Error("Vehicle number is required");
+}
+    if (!data.make) {
+throw new Error("Make is required");
+}
+    if (!data.model) {
+throw new Error("Model is required");
+}
   }
 
   async getAllVehicles(tenantId: number): Promise<Vehicle[]> {

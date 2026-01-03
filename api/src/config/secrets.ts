@@ -86,7 +86,8 @@ const secretAccessLog = new Map<string, number>() // Track access count for moni
 export async function initializeSecrets(): Promise<void> {
   if (isInitialized) {
     console.log('⚠️  Secret client already initialized')
-    return }
+    return 
+}
 
   console.log(`🔐 Initializing Azure Key Vault secret management...`)
   console.log(`   Vault URI: ${VAULT_URI}`)
@@ -245,7 +246,9 @@ function getLocalSecret(secretName: string, fallbackEnvVar?: string): string {
   // Try explicit fallback first
   if (fallbackEnvVar) {
     const value = process.env[fallbackEnvVar]
-    if (value) return value
+    if (value) {
+return value
+}
   }
 
   // Convert secret-name to SECRET_NAME
@@ -394,7 +397,9 @@ export async function secretExists(secretName: string): Promise<boolean> {
   }
 
   try {
-    if (!secretClient) return false
+    if (!secretClient) {
+return false
+}
     await secretClient.getSecret(secretName)
     return true
   } catch {

@@ -19,7 +19,8 @@ class ApplicationInsightsService {
 
     if (!connectionString) {
       logger.warn('Application Insights connection string not configured')
-      return }
+      return 
+}
 
     try {
       appInsights.setup(connectionString)
@@ -47,7 +48,9 @@ class ApplicationInsightsService {
    * Track custom events for personal use features
    */
   trackTripSubmission(userId: string, usageType: string, miles: number, properties?: CustomProperties) {
-    if (!this.isConfigured || !this.client) return
+    if (!this.isConfigured || !this.client) {
+return
+}
 
     this.client.trackEvent({
       name: 'TripSubmitted',
@@ -61,7 +64,9 @@ class ApplicationInsightsService {
   }
 
   trackTripApproval(managerId: string, tripId: string, decision: 'approved' | 'rejected', properties?: CustomProperties) {
-    if (!this.isConfigured || !this.client) return
+    if (!this.isConfigured || !this.client) {
+return
+}
 
     this.client.trackEvent({
       name: 'TripApprovalDecision',
@@ -75,7 +80,9 @@ class ApplicationInsightsService {
   }
 
   trackPolicyViolation(userId: string, violationType: string, details: string) {
-    if (!this.isConfigured || !this.client) return
+    if (!this.isConfigured || !this.client) {
+return
+}
 
     this.client.trackEvent({
       name: 'PolicyViolation',
@@ -89,7 +96,9 @@ class ApplicationInsightsService {
   }
 
   trackChargeCalculation(driverId: string, period: string, totalCharge: number, miles: number) {
-    if (!this.isConfigured || !this.client) return
+    if (!this.isConfigured || !this.client) {
+return
+}
 
     this.client.trackEvent({
       name: 'PersonalUseChargeCalculated',
@@ -114,7 +123,9 @@ class ApplicationInsightsService {
   }
 
   trackLimitWarning(driverId: string, period: 'month' | 'year', percentageUsed: number) {
-    if (!this.isConfigured || !this.client) return
+    if (!this.isConfigured || !this.client) {
+return
+}
 
     this.client.trackEvent({
       name: 'PersonalUseLimitWarning',
@@ -131,7 +142,9 @@ class ApplicationInsightsService {
    * Track API performance metrics
    */
   trackApiPerformance(endpoint: string, duration: number, statusCode: number) {
-    if (!this.isConfigured || !this.client) return
+    if (!this.isConfigured || !this.client) {
+return
+}
 
     this.client.trackMetric({
       name: `API_${endpoint}_Duration`,
@@ -148,7 +161,9 @@ class ApplicationInsightsService {
    * Track monthly billing metrics
    */
   trackMonthlyBilling(period: string, totalDrivers: number, totalCharges: number, totalMiles: number) {
-    if (!this.isConfigured || !this.client) return
+    if (!this.isConfigured || !this.client) {
+return
+}
 
     this.client.trackEvent({
       name: 'MonthlyBillingGenerated',
@@ -181,7 +196,8 @@ class ApplicationInsightsService {
    * Track quality gates and deployments
    */
   trackQualityGate(gateType: string, status: string, executionTime: number) {
-    if (!this.isConfigured || !this.client) return this.client.trackEvent({
+    if (!this.isConfigured || !this.client) {
+return this.client.trackEvent({
       name: 'QualityGateExecuted',
       properties: {
         gateType,
@@ -189,6 +205,7 @@ class ApplicationInsightsService {
         executionTime: executionTime.toString()
       }
     })
+}
 
     this.client.trackMetric({
       name: `QualityGate_${gateType}_Duration`,
@@ -197,7 +214,9 @@ class ApplicationInsightsService {
   }
 
   trackDeployment(environment: string, version: string, status: string) {
-    if (!this.isConfigured || !this.client) return
+    if (!this.isConfigured || !this.client) {
+return
+}
 
     this.client.trackEvent({
       name: 'DeploymentCompleted',
@@ -213,7 +232,9 @@ class ApplicationInsightsService {
    * Flush telemetry before shutdown
    */
   async flush(): Promise<void> {
-    if (!this.isConfigured || !this.client) return
+    if (!this.isConfigured || !this.client) {
+return
+}
 
     return new Promise((resolve) => {
       this.client!.flush()

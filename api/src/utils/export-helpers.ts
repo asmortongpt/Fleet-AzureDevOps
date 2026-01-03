@@ -81,7 +81,9 @@ export function exportJSON(
  * Convert data to CSV format
  */
 function arrayToCSV(data: Record<string, any>[], includeHeaders = true): string {
-  if (data.length === 0) return '';
+  if (data.length === 0) {
+return '';
+}
 
   const headers = Object.keys(data[0]);
   const rows: string[] = [];
@@ -105,7 +107,9 @@ function arrayToCSV(data: Record<string, any>[], includeHeaders = true): string 
  * Escape CSV value to handle commas, quotes, and newlines
  */
 function escapeCSVValue(value: any): string {
-  if (value === null || value === undefined) return '';
+  if (value === null || value === undefined) {
+return '';
+}
 
   const stringValue = String(value);
 
@@ -180,7 +184,9 @@ export function exportData(
 export function parseExportFormat(
   formatParam?: string
 ): ExportFormat | null {
-  if (!formatParam) return null;
+  if (!formatParam) {
+return null;
+}
 
   const normalized = formatParam.toLowerCase();
   switch (normalized) {
@@ -284,7 +290,7 @@ export function createExportEndpoint(
 
     try {
       // Get data from service
-      const container = (req as any).container || require('../container').container;
+      const container = (req).container || require('../container').container;
       const service = container.resolve(serviceName);
       const methodName = `getAll${resourceName.charAt(0).toUpperCase() + resourceName.slice(1)}`;
       const data = await service[methodName](tenantId);

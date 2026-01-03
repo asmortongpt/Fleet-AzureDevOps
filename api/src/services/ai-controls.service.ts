@@ -152,7 +152,9 @@ class AIControlsService {
       // Try Redis cache first
       if (this.redis) {
         const cached = await this.redis.get(`user:tier:${userId}`)
-        if (cached) return cached
+        if (cached) {
+return cached
+}
       }
 
       // Query database
@@ -192,7 +194,9 @@ class AIControlsService {
       // Try Redis first (faster)
       if (this.redis) {
         const count = await this.redis.get(key)
-        if (count !== null) return parseInt(count)
+        if (count !== null) {
+return parseInt(count)
+}
       }
 
       // Fallback to database
