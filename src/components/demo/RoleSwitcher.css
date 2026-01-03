@@ -39,6 +39,8 @@
 
 .role-label {
   font-size: 14px;
+  color: #111827; /* gray-900 for WCAG AAA contrast (17.9:1 ratio on white bg) */
+  font-weight: 600;
 }
 
 .expand-icon {
