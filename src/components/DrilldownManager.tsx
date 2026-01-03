@@ -88,7 +88,11 @@ import {
   VehicleDetailsDrilldown,
   UtilizationDetailsDrilldown,
   CostDetailsDrilldown,
-  ComplianceDetailsDrilldown
+  ComplianceDetailsDrilldown,
+  ActiveVehiclesExcelDrilldown,
+  MaintenanceRecordsExcelDrilldown,
+  CostAnalysisExcelDrilldown,
+  UtilizationDataExcelDrilldown
 } from '@/components/drilldown/FleetHubCompleteDrilldowns'
 import {
   DriversRosterDrilldown,
@@ -160,6 +164,23 @@ function DrilldownContent() {
 
     case 'active-vehicles':
       return <ActiveVehiclesDrilldown />
+
+    // Excel-style fleet views
+    case 'active-vehicles-excel':
+    case 'vehicle-matrix':
+      return <ActiveVehiclesExcelDrilldown />
+
+    case 'maintenance-records-excel':
+    case 'service-history':
+      return <MaintenanceRecordsExcelDrilldown />
+
+    case 'cost-analysis-excel':
+    case 'cost-matrix':
+      return <CostAnalysisExcelDrilldown />
+
+    case 'utilization-data-excel':
+    case 'utilization-matrix':
+      return <UtilizationDataExcelDrilldown />
 
     case 'maintenance-vehicles':
     case 'all-vehicles':
