@@ -107,7 +107,7 @@ case "google-maps-test":
 
 ### Google Maps API:
 ```
-VITE_GOOGLE_MAPS_API_KEY=<your-google-maps-api-key>
+VITE_GOOGLE_MAPS_API_KEY=[REDACTED - See .env]
 VITE_GOOGLE_MAPS_PROJECT_ID=fleet-maps-app
 VITE_GOOGLE_MAPS_PROJECT_NUMBER=288383806520
 ```
