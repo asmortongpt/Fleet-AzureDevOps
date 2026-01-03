@@ -25,7 +25,9 @@ export interface MobileAssignmentRepository {
 }
 
 export class MobileAssignmentRepositoryImpl extends BaseRepository<any> implements MobileAssignmentRepository {
-  constructor(private pool: Pool) { }
+  constructor(private pool: Pool) {
+    super('vehicle_assignments', pool);
+  }
 
   async findDriverByUserId(userId: string, tenantId: number): Promise<any> {
     const result = await this.pool.query(

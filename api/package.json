@@ -26,7 +26,7 @@
     "setup:webhooks": "tsx src/scripts/setup-webhooks.ts",
     "verify:integration": "tsx src/scripts/verify-integration.ts",
     "webhooks:cleanup": "tsx src/scripts/cleanup-webhooks.ts",
-    "build:prod": "find src -name \"*.ts\" | grep -v \"/tests/\" | grep -v \"/__tests__/\" | xargs npx esbuild --platform=node --target=node20 --format=cjs --outdir=dist --log-level=error",
+    "build:prod": "find src -name \"*.ts\" ! -name \"*.test.ts\" ! -path \"*/__tests__/*\" ! -path \"*/tests/*\" | xargs npx esbuild --platform=node --target=node20 --format=cjs --outdir=dist --log-level=error",
     "migrate": "tsx src/scripts/run-migrations.ts",
     "migrate:generate": "drizzle-kit generate",
     "migrate:push": "drizzle-kit push",
