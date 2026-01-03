@@ -468,7 +468,7 @@ interface InspectionDetailPanelProps {
   inspectionId: string
 }
 
-export function InspectionDetailPanel({ inspectionId }: InspectionDetailPanelProps) {
+export function SafetyInspectionDetailPanel({ inspectionId }: InspectionDetailPanelProps) {
   const { push } = useDrilldown()
 
   const { data: inspection, error, isLoading, mutate } = useSWR<InspectionData>(
