@@ -69,6 +69,7 @@ export function MapFirstLayout({
             onClick={() => setIsMapFullscreen(!isMapFullscreen)}
             className="h-10 w-10 rounded-full shadow-lg bg-card text-foreground hover:bg-muted"
             data-testid="map-fullscreen-toggle"
+            aria-label={isMapFullscreen ? "Exit fullscreen map" : "Enter fullscreen map"}
           >
             <Maximize2 className="h-5 w-5" />
           </Button>
