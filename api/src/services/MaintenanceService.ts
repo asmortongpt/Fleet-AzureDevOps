@@ -188,7 +188,7 @@ export class MaintenanceService {
       RETURNING id
     `;
     const result = await this.db.query(query, [id, tenantId]);
-    return result.rowCount > 0;
+    return (result.rowCount ?? 0) > 0;
   }
 }
 
