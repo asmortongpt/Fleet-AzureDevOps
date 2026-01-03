@@ -492,7 +492,9 @@ export class MobileDamageService {
     width: number;
     height: number;
   } {
-    if (points.length === 0) return { width: 0, height: 0 };
+    if (points.length === 0) {
+return { width: 0, height: 0 };
+}
 
     const xs = points.map((p) => p.x);
     const ys = points.map((p) => p.y);
@@ -507,7 +509,9 @@ export class MobileDamageService {
    * PRIVATE: Calculate dent depth from point cloud
    */
   private calculateDentDepth(points: LiDARScanData['pointCloud']): number {
-    if (points.length === 0) return 0;
+    if (points.length === 0) {
+return 0;
+}
 
     // Simplified: Calculate deviation from expected surface plane
     const zValues = points.map((p) => p.z);
@@ -520,7 +524,9 @@ export class MobileDamageService {
    * PRIVATE: Calculate surface area from point cloud
    */
   private calculateSurfaceArea(points: LiDARScanData['pointCloud']): number {
-    if (points.length < 3) return 0;
+    if (points.length < 3) {
+return 0;
+}
 
     // Simplified: Use convex hull area as approximation
     // In production, use proper surface area calculation from triangulated mesh

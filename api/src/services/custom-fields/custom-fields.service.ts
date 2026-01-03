@@ -501,7 +501,9 @@ export class CustomFieldsService {
    */
   async getFieldStatistics(fieldId: string): Promise<any> {
     const field = await this.getFieldDefinition(fieldId)
-    if (!field) return null
+    if (!field) {
+return null
+}
 
     const result = await this.db.query(
       `SELECT

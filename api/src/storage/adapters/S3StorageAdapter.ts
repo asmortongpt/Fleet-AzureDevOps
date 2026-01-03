@@ -52,7 +52,9 @@ export class S3StorageAdapter extends BaseStorageAdapter {
   }
 
   async initialize(): Promise<void> {
-    if (this.initialized) return;
+    if (this.initialized) {
+return;
+}
 
     if (!this.config.s3) {
       throw new Error('S3 configuration is missing');
@@ -159,7 +161,9 @@ export class S3StorageAdapter extends BaseStorageAdapter {
 
   async deleteMany(keys: string[]): Promise<void> {
     this.ensureInitialized();
-    if (keys.length === 0) return;
+    if (keys.length === 0) {
+return;
+}
 
     try {
       await this.client.send(new DeleteObjectsCommand({
@@ -290,7 +294,9 @@ export class S3StorageAdapter extends BaseStorageAdapter {
 
   getPublicUrl(key: string): string {
     const normalizedKey = this.normalizeKey(key);
-    if (!this.config.s3) return '';
+    if (!this.config.s3) {
+return '';
+}
     const { bucket, region } = this.config.s3;
     return `https://${bucket}.s3.${region}.amazonaws.com/${normalizedKey}`;
   }

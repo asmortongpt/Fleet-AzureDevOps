@@ -105,7 +105,9 @@ const redactString = (str: string): string => {
  */
 const maskEmail = (email: string): string => {
   const [local, domain] = email.split('@');
-  if (!local || !domain) return '[REDACTED EMAIL]';
+  if (!local || !domain) {
+return '[REDACTED EMAIL]';
+}
 
   const maskedLocal = local[0] + '***';
   const [domainName, tld] = domain.split('.');
@@ -119,7 +121,9 @@ const maskEmail = (email: string): string => {
  */
 const maskPhone = (phone: string): string => {
   const digits = phone.replace(/\D/g, '');
-  if (digits.length < 7) return '[REDACTED PHONE]';
+  if (digits.length < 7) {
+return '[REDACTED PHONE]';
+}
 
   const lastFour = digits.slice(-4);
   return `(***) ***-${lastFour}`;
@@ -130,7 +134,9 @@ const maskPhone = (phone: string): string => {
  */
 const maskSSN = (ssn: string): string => {
   const digits = ssn.replace(/\D/g, '');
-  if (digits.length !== 9) return '[REDACTED SSN]';
+  if (digits.length !== 9) {
+return '[REDACTED SSN]';
+}
 
   const lastFour = digits.slice(-4);
   return `***-**-${lastFour}`;
@@ -141,7 +147,9 @@ const maskSSN = (ssn: string): string => {
  */
 const maskCreditCard = (cc: string): string => {
   const digits = cc.replace(/\D/g, '');
-  if (digits.length < 13 || digits.length > 19) return '[REDACTED CC]';
+  if (digits.length < 13 || digits.length > 19) {
+return '[REDACTED CC]';
+}
 
   const lastFour = digits.slice(-4);
   return '*'.repeat(digits.length - 4) + lastFour;

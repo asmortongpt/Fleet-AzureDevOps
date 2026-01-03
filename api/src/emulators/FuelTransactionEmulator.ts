@@ -232,7 +232,9 @@ export class FuelTransactionEmulator {
 
   update(id: number, data: Partial<EmulatedFuelTransaction>): EmulatedFuelTransaction | null {
     const transaction = this.transactions.get(id)
-    if (!transaction) return null
+    if (!transaction) {
+return null
+}
 
     const updated = { ...transaction, ...data, id }
     this.transactions.set(id, updated)

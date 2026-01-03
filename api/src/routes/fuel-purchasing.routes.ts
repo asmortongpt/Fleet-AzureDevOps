@@ -18,7 +18,9 @@ router.use(authenticateJWT)
  * Mask sensitive fuel card data
  */
 function maskFuelCardData(data: any): any {
-  if (!data) return data
+  if (!data) {
+return data
+}
 
   if (Array.isArray(data)) {
     return data.map(maskFuelCardData)

@@ -28,7 +28,9 @@ router.get('/vehicles', (req, res) => {
 
 router.get('/vehicles/:id', (req, res) => {
   const vehicle = mockVehicles.find(v => v.id === req.params.id)
-  if (!vehicle) throw new NotFoundError("Vehicle not found")
+  if (!vehicle) {
+throw new NotFoundError("Vehicle not found")
+}
   res.json(vehicle)
 })
 
@@ -41,7 +43,9 @@ router.get('/drivers', (req, res) => {
 
 router.get('/drivers/:id', (req, res) => {
   const driver = mockDrivers.find(d => d.id === req.params.id)
-  if (!driver) throw new NotFoundError("Driver not found")
+  if (!driver) {
+throw new NotFoundError("Driver not found")
+}
   res.json(driver)
 })
 
@@ -54,7 +58,9 @@ router.get('/work-orders', (req, res) => {
 
 router.get('/work-orders/:id', (req, res) => {
   const workOrder = mockWorkOrders.find(w => w.id === req.params.id)
-  if (!workOrder) throw new NotFoundError("Work order not found")
+  if (!workOrder) {
+throw new NotFoundError("Work order not found")
+}
   res.json(workOrder)
 })
 

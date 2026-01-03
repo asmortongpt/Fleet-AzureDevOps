@@ -491,7 +491,9 @@ class SmartcarService {
     const accessToken = await this.ensureValidToken(vehicleId)
     const connection = await this.getVehicleConnection(vehicleId)
 
-    if (!connection) return
+    if (!connection) {
+return
+}
 
     const smartcarVehicleId = connection.external_vehicle_id
 

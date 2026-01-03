@@ -31,6 +31,12 @@ import { AttachmentRepository } from "./repositories/attachments.repository";
 import { VehicleAssignmentsRepository } from "./repositories/vehicle-assignments.repository";
 import { AssignmentNotificationService } from "./services/assignment-notification.service";
 
+// Fuel Transaction Service
+import { FueltransactionService } from "./services/FuelTransactionService";
+
+// Push Notification Repository (Agent 57 - B3 Refactoring)
+import { PushNotificationRepository } from './repositories/push-notification.repository';
+
 const container = new Container();
 
 // Infrastructure - Database Pool (lazy initialization)
@@ -88,13 +94,7 @@ container.bind(TYPES.VehicleAssignmentsRepository).to(VehicleAssignmentsReposito
 
 // Assignment Notification Service
 container.bind(TYPES.AssignmentNotificationService).to(AssignmentNotificationService);
-
-// Fuel Transaction Service
-import { FueltransactionService } from "./services/FuelTransactionService";
 container.bind(TYPES.FuelTransactionService).to(FueltransactionService);
 
 export { container };
-
-// Push Notification Repository (Agent 57 - B3 Refactoring)
-import { PushNotificationRepository } from './repositories/push-notification.repository';
 container.bind(TYPES.PushNotificationRepository).to(PushNotificationRepository);

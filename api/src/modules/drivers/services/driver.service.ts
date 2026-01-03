@@ -12,9 +12,15 @@ export class DriverService extends BaseService {
   }
 
   async validate(data: any): Promise<void> {
-    if (!data.first_name) throw new Error("Driver first name is required");
-    if (!data.last_name) throw new Error("Driver last name is required");
-    if (!data.email) throw new Error("Driver email is required");
+    if (!data.first_name) {
+throw new Error("Driver first name is required");
+}
+    if (!data.last_name) {
+throw new Error("Driver last name is required");
+}
+    if (!data.email) {
+throw new Error("Driver email is required");
+}
   }
 
   async getAllDrivers(tenantId: number): Promise<Driver[]> {

@@ -19,7 +19,9 @@ export class IoTEmulator extends EventEmitter {
   }
 
   public async start(): Promise<void> {
-    if (this.isRunning) return
+    if (this.isRunning) {
+return
+}
     this.isRunning = true
     this.isPaused = false
 
@@ -40,8 +42,12 @@ export class IoTEmulator extends EventEmitter {
     this.isRunning = false
   }
 
-  public async pause(): Promise<void> { this.isPaused = true }
-  public async resume(): Promise<void> { this.isPaused = false }
+  public async pause(): Promise<void> {
+ this.isPaused = true 
+}
+  public async resume(): Promise<void> {
+ this.isPaused = false 
+}
 
   private update(): void {
     const data: IoTSensorData = {

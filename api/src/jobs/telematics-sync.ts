@@ -40,7 +40,9 @@ let samsaraService: SamsaraService | null = null
  * Initialize Samsara service
  */
 function initializeSamsaraService(): boolean {
-  if (samsaraService) return true
+  if (samsaraService) {
+return true
+}
 
   if (!process.env.SAMSARA_API_TOKEN) {
     logger.warn('SAMSARA_API_TOKEN not configured, Samsara sync disabled')
