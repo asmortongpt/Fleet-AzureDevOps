@@ -16,12 +16,12 @@ export function VehicleDrilldownView({ vehicles, onVehicleClick, title = 'Active
       id: 'image',
       header: 'Photo',
       cell: ({ row }) => {
-        const imageUrl = row.original.image_url || `/api/placeholder-vehicle?unit=${row.original.unit_number}`;
+        const imageUrl = row.original.metadata?.image_url || `/api/placeholder-vehicle?unit=${row.original.number}`;
         return (
           <div className="w-16 h-12 rounded-lg overflow-hidden bg-slate-800 flex items-center justify-center">
             <img
               src={imageUrl}
-              alt={row.original.unit_number}
+              alt={row.original.number}
               className="w-full h-full object-cover"
               onError={(e) => {
                 // Fallback to icon if image fails
@@ -34,12 +34,12 @@ export function VehicleDrilldownView({ vehicles, onVehicleClick, title = 'Active
       },
     },
     {
-      accessorKey: 'unit_number',
+      accessorKey: 'number',
       header: 'Unit #',
       cell: ({ row }) => (
         <div className="flex items-center gap-2">
           <Truck className="w-4 h-4 text-blue-400" />
-          <span className="font-semibold text-blue-300">{row.original.unit_number}</span>
+          <span className="font-semibold text-blue-300">{row.original.number}</span>
         </div>
       ),
     },
@@ -97,7 +97,7 @@ export function VehicleDrilldownView({ vehicles, onVehicleClick, title = 'Active
       ),
     },
     {
-      accessorKey: 'assigned_driver',
+      accessorKey: 'assignedDriver',
       header: 'Driver',
     },
     {
@@ -105,7 +105,7 @@ export function VehicleDrilldownView({ vehicles, onVehicleClick, title = 'Active
       header: 'Facility',
     },
     {
-      accessorKey: 'fuel_type',
+      accessorKey: 'fuelType',
       header: 'Fuel Type',
       cell: ({ getValue }) => {
         const fuel = getValue<string>();
@@ -123,7 +123,7 @@ export function VehicleDrilldownView({ vehicles, onVehicleClick, title = 'Active
       },
     },
     {
-      accessorKey: 'last_service_date',
+      accessorKey: 'lastService',
       header: 'Last Service',
       cell: ({ getValue }) => {
         const date = getValue<string>();
@@ -131,7 +131,7 @@ export function VehicleDrilldownView({ vehicles, onVehicleClick, title = 'Active
       },
     },
     {
-      accessorKey: 'next_service_due',
+      accessorKey: 'nextService',
       header: 'Next Service',
       cell: ({ getValue }) => {
         const date = getValue<string>();
@@ -152,7 +152,7 @@ export function VehicleDrilldownView({ vehicles, onVehicleClick, title = 'Active
       },
     },
     {
-      accessorKey: 'acquisition_cost',
+      accessorKey: 'purchasePrice',
       header: 'Acq. Cost',
       cell: ({ getValue }) => (
         <div className="flex items-center gap-2">
@@ -162,7 +162,7 @@ export function VehicleDrilldownView({ vehicles, onVehicleClick, title = 'Active
       ),
     },
     {
-      accessorKey: 'current_value',
+      accessorKey: 'currentValue',
       header: 'Current Value',
       cell: ({ getValue }) => (
         <span className="font-semibold text-emerald-400">

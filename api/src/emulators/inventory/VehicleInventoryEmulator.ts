@@ -446,7 +446,7 @@ export class VehicleInventoryEmulator extends EventEmitter {
       complianceStatus = ComplianceStatus.WARNING
     }
 
-    const unitCost = faker.number.float({ min: 10, max: 500, precision: 0.01 })
+    const unitCost = faker.number.float({ min: 10, max: 500, fractionDigits: 2 })
     const totalValue = unitCost * template.quantity
 
     const locations = [

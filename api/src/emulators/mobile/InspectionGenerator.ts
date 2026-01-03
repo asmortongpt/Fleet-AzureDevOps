@@ -175,8 +175,10 @@ export class InspectionGenerator extends EventEmitter {
 
         // Generate photo if required or if it's a failed item
         if (template.photoRequired || Math.random() < 0.6) {
+          // Map inspection type to supported photo types
+          const photoType = (inspectionType === 'dot' || inspectionType === 'maintenance' || inspectionType === 'custom') ? 'annual' : inspectionType
           const photo = this.photoGenerator.generateInspectionPhotos(
-            inspectionType,
+            photoType,
             template.item,
             false,
             currentLocation,
@@ -186,8 +188,10 @@ export class InspectionGenerator extends EventEmitter {
         }
       } else if (status === 'pass' && template.photoRequired) {
         // Generate photo for required pass items
+        // Map inspection type to supported photo types
+        const photoType = (inspectionType === 'dot' || inspectionType === 'maintenance' || inspectionType === 'custom') ? 'annual' : inspectionType
         const photo = this.photoGenerator.generateInspectionPhotos(
-          inspectionType,
+          photoType,
           template.item,
           true,
           currentLocation,

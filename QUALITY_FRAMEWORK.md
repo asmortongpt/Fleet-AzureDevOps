@@ -345,14 +345,48 @@ redis-cli KEYS "rag:enterprise:patterns:*" | grep -v "${TENANT_ID}" || echo "OK:
 - Chrome DevTools performance profile
 - Bundle size analysis
 
-**RAG/CAG Validation:**
-- [ ] Search for existing test patterns and test utilities in codebase
-- [ ] Retrieve testing best practices from documentation
-- [ ] Validate code style against ESLint/Prettier configurations
-- [ ] Check performance optimization patterns in similar components
-- [ ] Compare bundle configuration with existing webpack/vite setups
-- [ ] Retrieve established memoization and lazy loading patterns
-- [ ] Validate error boundary implementations against existing patterns
+**RAG/CAG Validation (ACTUAL IMPLEMENTATION)**:
+
+**RAG Queries (Execute These)**:
+```bash
+# Search for test patterns and utilities
+curl -X POST "http://localhost:8080/rag/search" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "query": "test setup jest vitest mock factory test utilities",
+    "filters": {"tenant_id": "$TENANT_ID", "path": "**/__tests__/**", "file_type": ["test.ts", "spec.ts"]},
+    "max_results": 15
+  }'
+
+# Retrieve performance optimization patterns
+curl -X POST "http://localhost:8080/rag/search" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "query": "useMemo useCallback React.memo lazy loading code splitting",
+    "filters": {"file_type": ["tsx", "jsx"]},
+    "max_results": 12
+  }'
+
+# Find ESLint/Prettier configs
+find . -name ".eslintrc*" -o -name ".prettierrc*" -o -name "eslint.config.*"
+```
+
+**CAG Cache Checks**:
+```bash
+# Cached test coverage results
+redis-cli GET "cag:test:coverage:${TENANT_ID}:${COMMIT_SHA}"
+
+# Cached lint results (with TTL check)
+redis-cli GET "cag:lint:results:${TENANT_ID}:${CONTENT_HASH}"
+redis-cli TTL "cag:lint:results:${TENANT_ID}:${CONTENT_HASH}"
+```
+
+**Validation Steps**:
+1. RAG search for test utilities and mock patterns
+2. Compare retrieved test patterns with current test implementation
+3. Verify memoization patterns match codebase conventions
+4. Ensure bundle config aligns with retrieved webpack/vite setups
+5. Check cached coverage/lint results are fresh (TTL > 0)
 
 ### 6. Is it the most accurate?
 **Verification Checklist:**
@@ -382,14 +416,47 @@ redis-cli KEYS "rag:enterprise:patterns:*" | grep -v "${TENANT_ID}" || echo "OK:
 - Business stakeholder sign-off
 - QA validation
 
-**RAG/CAG Validation:**
-- [ ] Retrieve business logic validation patterns from codebase
-- [ ] Search for existing calculation implementations and verify consistency
-- [ ] Validate data type handling against established patterns
-- [ ] Check timezone/currency handling in similar features
-- [ ] Retrieve validation rule patterns from API and database layers
-- [ ] Compare error message formats with existing messages
-- [ ] Validate cache invalidation strategies against existing implementations
+**RAG/CAG Validation (ACTUAL IMPLEMENTATION)**:
+
+**RAG Queries (Execute These)**:
+```bash
+# Search for business logic and calculation patterns
+curl -X POST "http://localhost:8080/rag/search" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "query": "business logic calculation validation edge cases timezone currency",
+    "filters": {"tenant_id": "$TENANT_ID", "category": "business-logic"},
+    "max_results": 15
+  }'
+
+# Retrieve validation rule patterns
+curl -X POST "http://localhost:8080/rag/search" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "query": "input validation schema zod yup joi validation rules",
+    "filters": {"path": "**/validators/**"},
+    "max_results": 10
+  }'
+
+# Find error message formats
+grep -r "throw new.*Error\\|res\\.status.*\\.json" --include="*.ts" --include="*.js" | head -30
+```
+
+**CAG Cache Checks**:
+```bash
+# Cached validation schemas
+redis-cli GET "rag:validation:schemas:${TENANT_ID}:${SCHEMA_NAME}:${CONTENT_HASH}"
+
+# Cached calculation results (for idempotent operations)
+redis-cli GET "cag:calc:${TENANT_ID}:${OPERATION}:${INPUT_HASH}"
+```
+
+**Validation Steps**:
+1. RAG search for similar calculation/validation logic
+2. Compare date/time handling with retrieved implementations
+3. Verify currency/decimal handling matches financial calculation patterns
+4. Ensure validation schemas align with retrieved patterns
+5. Check cached calculation results use proper cache invalidation on input changes
 
 ### 7. Is it knowledge-base validated (RAG/CAG)?
 **Verification Checklist:**
@@ -415,14 +482,111 @@ redis-cli KEYS "rag:enterprise:patterns:*" | grep -v "${TENANT_ID}" || echo "OK:
 - Code similarity analysis
 - Pattern consistency check results
 
-**RAG/CAG Validation:**
-- [ ] Execute RAG search for all major components/patterns being implemented
-- [ ] Retrieve project-specific conventions from documentation
-- [ ] Search git history for related changes and learn from them
-- [ ] Query knowledge base for architectural decisions (ADRs)
-- [ ] Validate against coding standards documents
-- [ ] Check stack overflow/project wiki for established solutions
-- [ ] Ensure MCP (Model Context Protocol) servers are queried for relevant context
+**RAG/CAG Validation (ACTUAL IMPLEMENTATION)**:
+
+**Comprehensive RAG Audit (Execute ALL)**:
+```bash
+# 1. Vector search across ALL categories for this change
+curl -X POST "http://localhost:8080/rag/search" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "query": "<DESCRIBE_YOUR_CHANGE_HERE>",
+    "filters": {"tenant_id": "$TENANT_ID"},
+    "max_results": 30,
+    "hybrid": true
+  }'
+
+# 2. Retrieve project conventions and ADRs
+curl -X POST "http://localhost:8080/rag/search" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "query": "architectural decision record ADR coding standards conventions",
+    "filters": {"source": "docs", "category": "standards"},
+    "max_results": 10
+  }'
+
+# 3. Search git history for similar changes
+git log --all --grep="<FEATURE_NAME>" --oneline | head -20
+git log --all -S"<PATTERN_OR_FUNCTION>" --oneline | head -20
+
+# 4. Query MCP servers for context
+# (MCP server endpoints depend on your setup - example)
+curl -X POST "http://localhost:8081/mcp/context" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "query": "<YOUR_CHANGE>",
+    "sources": ["codebase", "docs", "wiki", "stackoverflow"]
+  }'
+```
+
+**CAG Comprehensive Cache Audit**:
+```bash
+# 1. Check ALL cached retrieval results for this session
+redis-cli KEYS "rag:*:${TENANT_ID}:*" | while read key; do
+  echo "Key: $key"
+  redis-cli TTL "$key"
+  redis-cli GET "$key" | jq -r '.metadata'
+done
+
+# 2. Verify cache isolation (NO cross-tenant leakage)
+redis-cli KEYS "rag:*" | grep -v "${TENANT_ID}" && echo "FAIL: Cache leakage detected!" || echo "PASS: No cache leakage"
+
+# 3. Re-authorization check for all cached content
+redis-cli KEYS "rag:*:${TENANT_ID}:*" | while read key; do
+  # Extract user_id from key and verify permissions
+  echo "Checking auth for $key"
+  # Implementation depends on your auth system
+done
+
+# 4. Cache integrity verification
+redis-cli KEYS "rag:*:${TENANT_ID}:*" | while read key; do
+  stored_hash=$(redis-cli HGET "$key" "integrity_hash")
+  content=$(redis-cli HGET "$key" "content")
+  computed_hash=$(echo -n "$content" | sha256sum | cut -d' ' -f1)
+  [ "$stored_hash" = "$computed_hash" ] || echo "FAIL: Integrity mismatch on $key"
+done
+```
+
+**Security Validation (Critical for Q7)**:
+```bash
+# 1. Prompt injection detection on ALL retrieved docs
+for doc_id in $(redis-cli GET "rag:session:${SESSION_ID}:doc_ids" | jq -r '.[]'); do
+  curl -X POST "http://localhost:8080/rag/injection-detect" \
+    -d "{\"doc_id\": \"$doc_id\"}"
+done
+
+# 2. ACL enforcement verification
+curl -X POST "http://localhost:8080/rag/search" \
+  -H "Content-Type: application/json" \
+  -H "X-Tenant-ID: ${TENANT_ID}" \
+  -H "X-User-ID: ${USER_ID}" \
+  -d '{
+    "query": "test query",
+    "enforce_acl": true,
+    "return_metadata": ["acl", "tenant_id", "owner"]
+  }' | jq -r '.results[] | select(.tenant_id != env.TENANT_ID)' \
+  && echo "FAIL: ACL violation!" || echo "PASS: ACL enforced"
+
+# 3. PII leakage check in cached content
+redis-cli KEYS "rag:*:${TENANT_ID}:*" | while read key; do
+  content=$(redis-cli GET "$key")
+  echo "$content" | grep -E '[0-9]{3}-[0-9]{2}-[0-9]{4}|[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}' \
+    && echo "WARNING: Potential PII in $key"
+done
+```
+
+**Validation Steps (ALL MUST PASS)**:
+1. Execute comprehensive RAG search (30+ results across categories)
+2. Verify retrieved docs match existing patterns (manual comparison)
+3. Check git history shows no "reinventing the wheel"
+4. Confirm MCP servers queried and context included
+5. Validate ALL cache keys include tenant_id + user_id
+6. Verify TTL on all cached items < max allowed
+7. Re-auth check on all cached retrieval results PASSES
+8. Integrity hash verification on all cache PASSES
+9. Prompt injection detection on retrieved docs finds ZERO threats
+10. ACL enforcement test shows ZERO violations
+11. PII leakage check in cache shows ZERO sensitive data
 
 ---
 
