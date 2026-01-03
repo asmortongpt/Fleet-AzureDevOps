@@ -162,7 +162,7 @@ const execAsync = promisify(exec);
     const mapsTest = await page.evaluate(() => {
       return new Promise((resolve) => {
         const script = document.createElement('script');
-        script.src = 'https://maps.googleapis.com/maps/api/js?key=<your-google-maps-api-key>';
+        script.src = `https://maps.googleapis.com/maps/api/js?key=${process.env.GOOGLE_MAPS_API_KEY || 'YOUR_API_KEY_HERE'}`;
         script.onload = () => resolve({ status: 'loaded' });
         script.onerror = () => resolve({ status: 'error' });
         document.head.appendChild(script);

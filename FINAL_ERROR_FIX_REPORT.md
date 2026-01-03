@@ -148,7 +148,7 @@ navigateTo('google-maps-test')
 - 2 routes
 
 ### Google Maps Configuration
-- API Key: <your-google-maps-api-key>
+- API Key: [REDACTED - See .env]
 - Project: fleet-maps-app
 - Enabled APIs: Maps JavaScript, Places, Geocoding, Directions
 

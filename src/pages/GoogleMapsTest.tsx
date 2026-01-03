@@ -37,7 +37,7 @@ export default function GoogleMapsTestPage() {
             </div>
 
             <div className="text-sm text-muted-foreground">
-              <p>Google Maps API Key: <your-google-maps-api-key></p>
+              <p>Google Maps API Key: {import.meta.env.VITE_GOOGLE_MAPS_API_KEY ? '✅ Configured' : '❌ Missing'}</p>
               <p>Center: Tallahassee, FL (30.4383°N, 84.2807°W)</p>
               <p>Vehicles with GPS: {vehicles.filter((v: any) => v.latitude && v.longitude).length}</p>
             </div>
