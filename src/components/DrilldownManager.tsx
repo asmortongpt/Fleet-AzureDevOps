@@ -20,6 +20,11 @@ import {
   FuelPurchasingDrilldown
 } from '@/components/drilldown/AdditionalHubDrilldowns'
 import {
+  JobListView,
+  RouteListView,
+  TaskListView
+} from '@/components/drilldown/OperationsHubDrilldowns'
+import {
   IncidentListView,
   LostTimeIncidentsView,
   OSHAComplianceView,
@@ -98,6 +103,10 @@ import {
   AlertDetailPanel,
   AlertListView
 } from '@/components/drilldown/AlertDrilldowns'
+import { PolicyDetailPanel } from '@/components/drilldown/PolicyDetailPanel'
+import { ViolationDetailPanel } from '@/components/drilldown/ViolationDetailPanel'
+import { PolicyTemplateDetailPanel } from '@/components/drilldown/PolicyTemplateDetailPanel'
+import { PolicyExecutionView } from '@/components/drilldown/PolicyExecutionView'
 import { DrilldownProvider, useDrilldown } from '@/contexts/DrilldownContext'
 
 interface DrilldownManagerProps {
@@ -317,21 +326,42 @@ function DrilldownContent() {
     // ============================================
     // Operations Hub Drilldowns
     // ============================================
+    // Jobs/Dispatch
     case 'dispatch':
     case 'active-jobs':
-    case 'in-transit':
     case 'delayed':
-      return <DispatchDrilldown />
+    case 'completed-jobs':
+      return <JobListView filter={currentLevel.data?.filter} />
 
+    case 'in-transit':
+      return <JobListView filter="active" />
+
+    case 'job':
+    case 'job-detail':
+      // Job detail panel would go here - for now showing job list
+      return <JobListView />
+
+    // Routes
     case 'routes':
     case 'active-routes':
     case 'optimized-today':
-      return <RoutesDrilldown />
+      return <RouteListView filter={currentLevel.data?.filter} />
 
+    case 'route':
+    case 'route-detail':
+      // Route detail panel would go here - for now showing route list
+      return <RouteListView />
+
+    // Tasks
     case 'tasks':
     case 'open-tasks':
     case 'overdue-tasks':
-      return <TasksDrilldown />
+      return <TaskListView filter={currentLevel.data?.filter} />
+
+    case 'task':
+    case 'task-detail':
+      // Task detail panel would go here - for now showing task list
+      return <TaskListView />
 
     // ============================================
     // Procurement Hub Drilldowns
@@ -512,6 +542,45 @@ function DrilldownContent() {
         <AlertListView
           status={currentLevel.data?.status}
           severity={currentLevel.data?.severity}
+        />
+      )
+
+    // ============================================
+    // Policy drilldown hierarchy
+    // ============================================
+    case 'policy':
+    case 'policy-detail':
+      return <PolicyDetailPanel policyId={currentLevel.data?.policyId} />
+
+    case 'violation':
+    case 'violation-detail':
+      return <ViolationDetailPanel violationId={currentLevel.data?.violationId} />
+
+    case 'policy-template':
+    case 'template-detail':
+      return (
+        <PolicyTemplateDetailPanel
+          templateId={currentLevel.data?.templateId}
+          template={currentLevel.data?.template}
+        />
+      )
+
+    case 'policy-executions':
+    case 'execution-history':
+      return (
+        <PolicyExecutionView
+          policyId={currentLevel.data?.policyId}
+          entityType={currentLevel.data?.entityType}
+          entityId={currentLevel.data?.entityId}
+        />
+      )
+
+    case 'execution-detail':
+      return (
+        <PolicyExecutionView
+          policyId={currentLevel.data?.execution?.policy_id}
+          entityType={currentLevel.data?.execution?.entity_type}
+          entityId={currentLevel.data?.execution?.entity_id}
         />
       )
 

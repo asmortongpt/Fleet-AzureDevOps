@@ -513,16 +513,226 @@ export function SafetyScoreDrilldown() {
 }
 
 export function VehicleListDrilldown() {
+    const { currentLevel, push } = useDrilldown()
+
+    // Get vehicles from drilldown data or generate demo vehicles
+    const vehicles = currentLevel?.data?.vehicles || generateDemoVehicles(100)
+    const filter = currentLevel?.data?.filter || currentLevel?.data?.status
+
+    // Apply filter if provided
+    const filteredVehicles = filter
+        ? vehicles.filter((v: any) =>
+            v.status === filter ||
+            (filter === 'maintenance' && (v.status === 'maintenance' || v.status === 'service'))
+          )
+        : vehicles
+
+    // Define columns for the data table
+    const columns = [
+        {
+            key: 'number',
+            header: 'Vehicle #',
+            sortable: true,
+            render: (vehicle: any) => (
+                <span className="font-mono font-medium">
+                    {vehicle.vehicleNumber || vehicle.number || `V-${vehicle.id}`}
+                </span>
+            )
+        },
+        {
+            key: 'name',
+            header: 'Name',
+            sortable: true,
+            render: (vehicle: any) => vehicle.name || '-'
+        },
+        {
+            key: 'status',
+            header: 'Status',
+            sortable: true,
+            render: (vehicle: any) => (
+                <Badge
+                    variant={
+                        vehicle.status === 'active' ? 'default' :
+                        vehicle.status === 'maintenance' || vehicle.status === 'service' ? 'destructive' :
+                        'secondary'
+                    }
+                    className={
+                        vehicle.status === 'active' ? 'bg-emerald-500 hover:bg-emerald-600' :
+                        vehicle.status === 'maintenance' || vehicle.status === 'service' ? 'bg-amber-500 hover:bg-amber-600' :
+                        ''
+                    }
+                >
+                    {vehicle.status}
+                </Badge>
+            )
+        },
+        {
+            key: 'location',
+            header: 'Last Location',
+            render: (vehicle: any) => {
+                const address = vehicle.location?.address || vehicle.lastKnownLocation
+                if (!address) return '-'
+                // Show city and state only
+                const parts = address.split(',')
+                return parts.length > 1 ? `${parts[parts.length - 2]?.trim()}, ${parts[parts.length - 1]?.trim()}` : address
+            }
+        },
+        {
+            key: 'fuelLevel',
+            header: 'Fuel',
+            sortable: true,
+            render: (vehicle: any) => (
+                <div className="flex items-center gap-2">
+                    <div className="w-16 h-2 bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden">
+                        <div
+                            className={`h-full transition-all ${
+                                vehicle.fuelLevel > 50 ? 'bg-emerald-500' :
+                                vehicle.fuelLevel > 25 ? 'bg-amber-500' :
+                                'bg-red-500'
+                            }`}
+                            style={{ width: `${vehicle.fuelLevel}%` }}
+                        />
+                    </div>
+                    <span className="text-sm text-muted-foreground">{vehicle.fuelLevel}%</span>
+                </div>
+            )
+        },
+        {
+            key: 'mileage',
+            header: 'Mileage',
+            sortable: true,
+            render: (vehicle: any) => `${vehicle.mileage?.toLocaleString() || '0'} mi`
+        }
+    ]
+
     return (
-        <Card>
-            <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                    <Truck className="h-5 w-5" /> Vehicle List
-                </CardTitle>
-            </CardHeader>
-            <CardContent className="text-muted-foreground">
-                Vehicle list will be displayed here
-            </CardContent>
-        </Card>
+        <div className="space-y-4">
+            {/* Header with summary */}
+            <div className="flex items-center justify-between">
+                <div>
+                    <h2 className="text-2xl font-bold">
+                        {filter ? `${filter.charAt(0).toUpperCase() + filter.slice(1)} Vehicles` : 'All Vehicles'}
+                    </h2>
+                    <p className="text-sm text-muted-foreground mt-1">
+                        {filteredVehicles.length} vehicle{filteredVehicles.length !== 1 ? 's' : ''} found
+                    </p>
+                </div>
+            </div>
+
+            {/* Summary Cards */}
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                <Card>
+                    <CardContent className="pt-4 pb-3">
+                        <div className="flex items-center gap-2">
+                            <Truck className="h-4 w-4 text-muted-foreground" />
+                            <div>
+                                <div className="text-2xl font-bold">{filteredVehicles.length}</div>
+                                <div className="text-xs text-muted-foreground">Total</div>
+                            </div>
+                        </div>
+                    </CardContent>
+                </Card>
+                <Card>
+                    <CardContent className="pt-4 pb-3">
+                        <div className="flex items-center gap-2">
+                            <CheckCircle className="h-4 w-4 text-emerald-500" />
+                            <div>
+                                <div className="text-2xl font-bold text-emerald-600">
+                                    {filteredVehicles.filter((v: any) => v.status === 'active').length}
+                                </div>
+                                <div className="text-xs text-muted-foreground">Active</div>
+                            </div>
+                        </div>
+                    </CardContent>
+                </Card>
+                <Card>
+                    <CardContent className="pt-4 pb-3">
+                        <div className="flex items-center gap-2">
+                            <AlertTriangle className="h-4 w-4 text-amber-500" />
+                            <div>
+                                <div className="text-2xl font-bold text-amber-600">
+                                    {filteredVehicles.filter((v: any) => v.status === 'maintenance' || v.status === 'service').length}
+                                </div>
+                                <div className="text-xs text-muted-foreground">Maintenance</div>
+                            </div>
+                        </div>
+                    </CardContent>
+                </Card>
+                <Card>
+                    <CardContent className="pt-4 pb-3">
+                        <div className="flex items-center gap-2">
+                            <Gauge className="h-4 w-4 text-muted-foreground" />
+                            <div>
+                                <div className="text-2xl font-bold">
+                                    {Math.round(filteredVehicles.reduce((sum: number, v: any) => sum + (v.fuelLevel || 0), 0) / filteredVehicles.length)}%
+                                </div>
+                                <div className="text-xs text-muted-foreground">Avg Fuel</div>
+                            </div>
+                        </div>
+                    </CardContent>
+                </Card>
+            </div>
+
+            {/* Vehicle Table */}
+            <Card>
+                <CardHeader>
+                    <CardTitle className="text-lg">Vehicle Details</CardTitle>
+                </CardHeader>
+                <CardContent>
+                    <div className="space-y-2">
+                        {filteredVehicles.map((vehicle: any) => (
+                            <div
+                                key={vehicle.id}
+                                className="p-4 border rounded-lg cursor-pointer hover:bg-accent transition-colors"
+                                onClick={() => push({
+                                    id: `vehicle-${vehicle.id}`,
+                                    type: 'vehicle',
+                                    label: vehicle.vehicleNumber || vehicle.number || vehicle.name || `Vehicle ${vehicle.id}`,
+                                    data: { vehicleId: vehicle.id, ...vehicle }
+                                })}
+                            >
+                                <div className="flex items-center justify-between">
+                                    <div className="flex items-center gap-3 flex-1">
+                                        <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
+                                            vehicle.status === 'active' ? 'bg-emerald-100 dark:bg-emerald-900/30' :
+                                            vehicle.status === 'maintenance' || vehicle.status === 'service' ? 'bg-amber-100 dark:bg-amber-900/30' :
+                                            'bg-slate-100 dark:bg-slate-800'
+                                        }`}>
+                                            <Truck className={`h-5 w-5 ${
+                                                vehicle.status === 'active' ? 'text-emerald-600 dark:text-emerald-400' :
+                                                vehicle.status === 'maintenance' || vehicle.status === 'service' ? 'text-amber-600 dark:text-amber-400' :
+                                                'text-slate-500'
+                                            }`} />
+                                        </div>
+                                        <div className="flex-1 min-w-0">
+                                            <div className="font-semibold truncate">
+                                                {vehicle.vehicleNumber || vehicle.number || `V-${vehicle.id}`}
+                                            </div>
+                                            <div className="text-sm text-muted-foreground truncate">
+                                                {vehicle.name || `${vehicle.make || ''} ${vehicle.model || ''}`.trim() || 'Unknown Vehicle'}
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div className="flex items-center gap-4">
+                                        <div className="text-right hidden sm:block">
+                                            <div className="text-sm font-medium">{vehicle.mileage?.toLocaleString() || '0'} mi</div>
+                                            <div className="text-xs text-muted-foreground">Fuel: {vehicle.fuelLevel}%</div>
+                                        </div>
+                                        {columns[2].render && columns[2].render(vehicle, 0)}
+                                    </div>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+
+                    {filteredVehicles.length === 0 && (
+                        <div className="text-center py-12 text-muted-foreground">
+                            <XCircle className="h-12 w-12 mx-auto mb-3 opacity-50" />
+                            <p>No vehicles found matching the filter</p>
+                        </div>
+                    )}
+                </CardContent>
+            </Card>
+        </div>
     )
 }
