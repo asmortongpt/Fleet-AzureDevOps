@@ -1,0 +1,342 @@
+name: E2E Tests
+
+on:
+  pull_request:
+    branches: [main, develop]
+  push:
+    branches: [main, develop]
+  schedule:
+    # Run nightly at 2 AM UTC
+    - cron: '0 2 * * *'
+  workflow_dispatch:
+
+jobs:
+  e2e-chromium:
+    name: E2E Tests (Chromium)
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps chromium
+
+      - name: Build application
+        run: npm run build
+
+      - name: Run E2E tests (Chromium)
+        run: npx playwright test --project=chromium
+        env:
+          CI: true
+          APP_URL: http://localhost:5173
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report-chromium
+          path: playwright-report/
+          retention-days: 30
+
+      - name: Upload test artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results-chromium
+          path: test-results/
+          retention-days: 7
+
+  e2e-firefox:
+    name: E2E Tests (Firefox)
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps firefox
+
+      - name: Build application
+        run: npm run build
+
+      - name: Run E2E tests (Firefox)
+        run: npx playwright test --project=firefox
+        env:
+          CI: true
+          APP_URL: http://localhost:5173
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report-firefox
+          path: playwright-report/
+          retention-days: 30
+
+  e2e-webkit:
+    name: E2E Tests (WebKit)
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps webkit
+
+      - name: Build application
+        run: npm run build
+
+      - name: Run E2E tests (WebKit)
+        run: npx playwright test --project=webkit
+        env:
+          CI: true
+          APP_URL: http://localhost:5173
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report-webkit
+          path: playwright-report/
+          retention-days: 30
+
+  accessibility-tests:
+    name: Accessibility Tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps chromium
+
+      - name: Build application
+        run: npm run build
+
+      - name: Run accessibility tests
+        run: npx playwright test --project=a11y
+        env:
+          CI: true
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: accessibility-report
+          path: playwright-report/
+          retention-days: 30
+
+  performance-tests:
+    name: Performance Tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps chromium
+
+      - name: Build application
+        run: npm run build
+
+      - name: Run performance tests
+        run: npx playwright test --project=performance
+        env:
+          CI: true
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: performance-report
+          path: playwright-report/
+          retention-days: 30
+
+  visual-regression:
+    name: Visual Regression Tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps chromium
+
+      - name: Build application
+        run: npm run build
+
+      - name: Run visual regression tests
+        run: npx playwright test --project=visual-regression
+        env:
+          CI: true
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: visual-regression-report
+          path: playwright-report/
+          retention-days: 30
+
+      - name: Upload screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: visual-regression-screenshots
+          path: test-results/
+          retention-days: 30
+
+  comment-pr:
+    name: Comment Test Results on PR
+    runs-on: ubuntu-latest
+    needs: [e2e-chromium, e2e-firefox, e2e-webkit, accessibility-tests, performance-tests]
+    if: github.event_name == 'pull_request'
+
+    steps:
+      - name: Download all test results
+        uses: actions/download-artifact@v4
+        with:
+          path: test-results-all
+
+      - name: Comment PR with test results
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const path = require('path');
+
+            let comment = '## E2E Test Results\n\n';
+
+            // Check if chromium results exist
+            try {
+              const chromiumResults = fs.readFileSync('test-results-all/test-results-chromium/results.json', 'utf8');
+              const chromiumData = JSON.parse(chromiumResults);
+              const chromiumStats = chromiumData.stats || {};
+              comment += `### Chromium\n`;
+              comment += `- ✅ Passed: ${chromiumStats.expected || 0}\n`;
+              comment += `- ❌ Failed: ${chromiumStats.unexpected || 0}\n`;
+              comment += `- ⏭️ Skipped: ${chromiumStats.skipped || 0}\n\n`;
+            } catch (e) {
+              comment += '### Chromium\n❌ Tests failed to run\n\n';
+            }
+
+            comment += '\n[View full reports in Actions artifacts](' + context.payload.pull_request.html_url + '/checks)';
+
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: comment
+            });
+
+  nightly-full-suite:
+    name: Nightly Full Test Suite
+    runs-on: ubuntu-latest
+    if: github.event_name == 'schedule'
+    timeout-minutes: 60
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install all Playwright browsers
+        run: npx playwright install --with-deps
+
+      - name: Build application
+        run: npm run build
+
+      - name: Run all E2E tests
+        run: npx playwright test
+        env:
+          CI: true
+
+      - name: Upload comprehensive test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: nightly-full-report
+          path: playwright-report/
+          retention-days: 90
+
+      - name: Upload all test artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: nightly-test-results
+          path: test-results/
+          retention-days: 30

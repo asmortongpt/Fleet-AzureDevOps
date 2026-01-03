@@ -1,0 +1,1329 @@
+{
+  "vehicles": [
+    {
+      "id": "VEH-001",
+      "make": "Ford",
+      "model": "F-150",
+      "year": 2022,
+      "type": "truck",
+      "vin": "1FTFW1E50MFC12345",
+      "licensePlate": "ABC-1234",
+      "tankSize": 26,
+      "fuelEfficiency": 18,
+      "startingLocation": {
+        "lat": 30.4383,
+        "lng": -84.2807
+      },
+      "homeBase": {
+        "lat": 30.4383,
+        "lng": -84.2807,
+        "name": "Tallahassee Fleet Center"
+      },
+      "driverBehavior": "normal",
+      "features": [
+        "obd2",
+        "gps",
+        "iot"
+      ]
+    },
+    {
+      "id": "VEH-002",
+      "make": "Chevrolet",
+      "model": "Silverado",
+      "year": 2023,
+      "type": "truck",
+      "vin": "1GCVKREC5FZ123456",
+      "licensePlate": "XYZ-5678",
+      "tankSize": 26,
+      "fuelEfficiency": 19,
+      "startingLocation": {
+        "lat": 30.4415,
+        "lng": -84.2795
+      },
+      "homeBase": {
+        "lat": 30.4383,
+        "lng": -84.2807,
+        "name": "Tallahassee Fleet Center"
+      },
+      "driverBehavior": "cautious",
+      "features": [
+        "obd2",
+        "gps",
+        "iot",
+        "camera"
+      ]
+    },
+    {
+      "id": "VEH-003",
+      "make": "Toyota",
+      "model": "Camry",
+      "year": 2021,
+      "type": "sedan",
+      "vin": "4T1B11HK1MU123456",
+      "licensePlate": "DEF-9012",
+      "tankSize": 15,
+      "fuelEfficiency": 30,
+      "startingLocation": {
+        "lat": 30.4355,
+        "lng": -84.2825
+      },
+      "homeBase": {
+        "lat": 30.4383,
+        "lng": -84.2807,
+        "name": "Tallahassee Fleet Center"
+      },
+      "driverBehavior": "aggressive",
+      "features": [
+        "obd2",
+        "gps"
+      ]
+    },
+    {
+      "id": "VEH-004",
+      "make": "Honda",
+      "model": "CR-V",
+      "year": 2022,
+      "type": "suv",
+      "vin": "2HKRW2H89NH123456",
+      "licensePlate": "GHI-3456",
+      "tankSize": 22,
+      "fuelEfficiency": 28,
+      "startingLocation": {
+        "lat": 30.445,
+        "lng": -84.277
+      },
+      "homeBase": {
+        "lat": 30.4383,
+        "lng": -84.2807,
+        "name": "Tallahassee Fleet Center"
+      },
+      "driverBehavior": "normal",
+      "features": [
+        "obd2",
+        "gps",
+        "iot"
+      ]
+    },
+    {
+      "id": "VEH-005",
+      "make": "Mercedes-Benz",
+      "model": "Sprinter",
+      "year": 2023,
+      "type": "van",
+      "vin": "WD3PE7CD0NP123456",
+      "licensePlate": "JKL-7890",
+      "tankSize": 25,
+      "fuelEfficiency": 20,
+      "startingLocation": {
+        "lat": 30.432,
+        "lng": -84.289
+      },
+      "homeBase": {
+        "lat": 30.4383,
+        "lng": -84.2807,
+        "name": "Tallahassee Fleet Center"
+      },
+      "driverBehavior": "normal",
+      "features": [
+        "obd2",
+        "gps",
+        "iot",
+        "camera",
+        "cargo"
+      ]
+    },
+    {
+      "id": "VEH-006",
+      "make": "Ram",
+      "model": "1500",
+      "year": 2022,
+      "type": "truck",
+      "vin": "1C6SRFFT4NN123456",
+      "licensePlate": "MNO-2468",
+      "tankSize": 26,
+      "fuelEfficiency": 17,
+      "startingLocation": {
+        "lat": 30.44,
+        "lng": -84.285
+      },
+      "homeBase": {
+        "lat": 30.4383,
+        "lng": -84.2807,
+        "name": "Tallahassee Fleet Center"
+      },
+      "driverBehavior": "aggressive",
+      "features": [
+        "obd2",
+        "gps",
+        "iot"
+      ]
+    },
+    {
+      "id": "VEH-007",
+      "make": "Tesla",
+      "model": "Model 3",
+      "year": 2023,
+      "type": "sedan",
+      "vin": "5YJ3E1EA7NF123456",
+      "licensePlate": "PQR-1357",
+      "tankSize": 0,
+      "fuelEfficiency": 0,
+      "batteryCapacity": 75,
+      "electricRange": 310,
+      "startingLocation": {
+        "lat": 30.4385,
+        "lng": -84.2805
+      },
+      "homeBase": {
+        "lat": 30.4383,
+        "lng": -84.2807,
+        "name": "Tallahassee Fleet Center"
+      },
+      "driverBehavior": "normal",
+      "features": [
+        "gps",
+        "iot",
+        "camera",
+        "ev"
+      ]
+    },
+    {
+      "id": "VEH-008",
+      "make": "Ford",
+      "model": "Transit",
+      "year": 2022,
+      "type": "van",
+      "vin": "1FTBR2C88MKA12345",
+      "licensePlate": "STU-9753",
+      "tankSize": 25,
+      "fuelEfficiency": 19,
+      "startingLocation": {
+        "lat": 30.447,
+        "lng": -84.2815
+      },
+      "homeBase": {
+        "lat": 30.4383,
+        "lng": -84.2807,
+        "name": "Tallahassee Fleet Center"
+      },
+      "driverBehavior": "cautious",
+      "features": [
+        "obd2",
+        "gps",
+        "iot",
+        "cargo"
+      ]
+    },
+    {
+      "id": "VEH-009",
+      "make": "Nissan",
+      "model": "Altima",
+      "year": 2021,
+      "type": "sedan",
+      "vin": "1N4BL4BV9MN123456",
+      "licensePlate": "VWX-2580",
+      "tankSize": 16,
+      "fuelEfficiency": 32,
+      "startingLocation": {
+        "lat": 30.434,
+        "lng": -84.275
+      },
+      "homeBase": {
+        "lat": 30.4383,
+        "lng": -84.2807,
+        "name": "Tallahassee Fleet Center"
+      },
+      "driverBehavior": "normal",
+      "features": [
+        "obd2",
+        "gps"
+      ]
+    },
+    {
+      "id": "VEH-010",
+      "make": "GMC",
+      "model": "Sierra",
+      "year": 2023,
+      "type": "truck",
+      "vin": "1GTU9EED0NF123456",
+      "licensePlate": "YZA-3691",
+      "tankSize": 26,
+      "fuelEfficiency": 18,
+      "startingLocation": {
+        "lat": 30.4425,
+        "lng": -84.278
+      },
+      "homeBase": {
+        "lat": 30.4383,
+        "lng": -84.2807,
+        "name": "Tallahassee Fleet Center"
+      },
+      "driverBehavior": "normal",
+      "features": [
+        "obd2",
+        "gps",
+        "iot",
+        "camera"
+      ]
+    },
+    {
+      "id": "VEH-011",
+      "make": "Caterpillar",
+      "model": "320",
+      "year": 2022,
+      "type": "excavator",
+      "vin": "EXC475556",
+      "licensePlate": "EXC-0011",
+      "tankSize": 75,
+      "fuelEfficiency": 4,
+      "startingLocation": {
+        "lat": 30.4368,
+        "lng": -84.2848
+      },
+      "homeBase": {
+        "lat": 30.4383,
+        "lng": -84.2807,
+        "name": "Tallahassee Fleet Center"
+      },
+      "driverBehavior": "cautious",
+      "features": [
+        "obd2",
+        "gps",
+        "iot",
+        "camera"
+      ]
+    },
+    {
+      "id": "VEH-012",
+      "make": "John Deere",
+      "model": "200G",
+      "year": 2023,
+      "type": "excavator",
+      "vin": "EXC657426",
+      "licensePlate": "EXC-0012",
+      "tankSize": 70,
+      "fuelEfficiency": 5,
+      "startingLocation": {
+        "lat": 30.435,
+        "lng": -84.2831
+      },
+      "homeBase": {
+        "lat": 30.4383,
+        "lng": -84.2807,
+        "name": "Tallahassee Fleet Center"
+      },
+      "driverBehavior": "cautious",
+      "features": [
+        "obd2",
+        "gps",
+        "iot",
+        "camera"
+      ]
+    },
+    {
+      "id": "VEH-013",
+      "make": "Komatsu",
+      "model": "PC210",
+      "year": 2021,
+      "type": "excavator",
+      "vin": "EXC653732",
+      "licensePlate": "EXC-0013",
+      "tankSize": 80,
+      "fuelEfficiency": 4,
+      "startingLocation": {
+        "lat": 30.4347,
+        "lng": -84.2891
+      },
+      "homeBase": {
+        "lat": 30.4383,
+        "lng": -84.2807,
+        "name": "Tallahassee Fleet Center"
+      },
+      "driverBehavior": "cautious",
+      "features": [
+        "obd2",
+        "gps",
+        "iot",
+        "camera"
+      ]
+    },
+    {
+      "id": "VEH-014",
+      "make": "Volvo",
+      "model": "EC220",
+      "year": 2022,
+      "type": "excavator",
+      "vin": "EXC553639",
+      "licensePlate": "EXC-0014",
+      "tankSize": 72,
+      "fuelEfficiency": 5,
+      "startingLocation": {
+        "lat": 30.4317,
+        "lng": -84.2761
+      },
+      "homeBase": {
+        "lat": 30.4383,
+        "lng": -84.2807,
+        "name": "Tallahassee Fleet Center"
+      },
+      "driverBehavior": "cautious",
+      "features": [
+        "obd2",
+        "gps",
+        "iot",
+        "camera"
+      ]
+    },
+    {
+      "id": "VEH-015",
+      "make": "Hitachi",
+      "model": "ZX210",
+      "year": 2023,
+      "type": "excavator",
+      "vin": "EXC433228",
+      "licensePlate": "EXC-0015",
+      "tankSize": 75,
+      "fuelEfficiency": 4,
+      "startingLocation": {
+        "lat": 30.4441,
+        "lng": -84.2773
+      },
+      "homeBase": {
+        "lat": 30.4383,
+        "lng": -84.2807,
+        "name": "Tallahassee Fleet Center"
+      },
+      "driverBehavior": "cautious",
+      "features": [
+        "obd2",
+        "gps",
+        "iot",
+        "camera"
+      ]
+    },
+    {
+      "id": "VEH-016",
+      "make": "Mack",
+      "model": "Granite",
+      "year": 2022,
+      "type": "dump_truck",
+      "vin": "DMP788819",
+      "licensePlate": "DMP-0016",
+      "tankSize": 125,
+      "fuelEfficiency": 6,
+      "startingLocation": {
+        "lat": 30.4373,
+        "lng": -84.2754
+      },
+      "homeBase": {
+        "lat": 30.4383,
+        "lng": -84.2807,
+        "name": "Tallahassee Fleet Center"
+      },
+      "driverBehavior": "normal",
+      "features": [
+        "obd2",
+        "gps",
+        "iot",
+        "cargo"
+      ]
+    },
+    {
+      "id": "VEH-017",
+      "make": "Peterbilt",
+      "model": "567",
+      "year": 2023,
+      "type": "dump_truck",
+      "vin": "DMP980874",
+      "licensePlate": "DMP-0017",
+      "tankSize": 150,
+      "fuelEfficiency": 5,
+      "startingLocation": {
+        "lat": 30.4427,
+        "lng": -84.284
+      },
+      "homeBase": {
+        "lat": 30.4383,
+        "lng": -84.2807,
+        "name": "Tallahassee Fleet Center"
+      },
+      "driverBehavior": "normal",
+      "features": [
+        "obd2",
+        "gps",
+        "iot",
+        "cargo"
+      ]
+    },
+    {
+      "id": "VEH-018",
+      "make": "Kenworth",
+      "model": "T880",
+      "year": 2021,
+      "type": "dump_truck",
+      "vin": "DMP150023",
+      "licensePlate": "DMP-0018",
+      "tankSize": 140,
+      "fuelEfficiency": 6,
+      "startingLocation": {
+        "lat": 30.4412,
+        "lng": -84.2787
+      },
+      "homeBase": {
+        "lat": 30.4383,
+        "lng": -84.2807,
+        "name": "Tallahassee Fleet Center"
+      },
+      "driverBehavior": "normal",
+      "features": [
+        "obd2",
+        "gps",
+        "iot",
+        "cargo"
+      ]
+    },
+    {
+      "id": "VEH-019",
+      "make": "Utility",
+      "model": "3000R",
+      "year": 2022,
+      "type": "trailer",
+      "vin": "TRL637776",
+      "licensePlate": "TRL-0019",
+      "tankSize": 15,
+      "fuelEfficiency": 0,
+      "startingLocation": {
+        "lat": 30.4408,
+        "lng": -84.2723
+      },
+      "homeBase": {
+        "lat": 30.4383,
+        "lng": -84.2807,
+        "name": "Tallahassee Fleet Center"
+      },
+      "driverBehavior": "normal",
+      "features": [
+        "gps",
+        "iot",
+        "cargo"
+      ]
+    },
+    {
+      "id": "VEH-020",
+      "make": "Great Dane",
+      "model": "Freedom",
+      "year": 2023,
+      "type": "trailer",
+      "vin": "TRL662858",
+      "licensePlate": "TRL-0020",
+      "tankSize": 12,
+      "fuelEfficiency": 0,
+      "startingLocation": {
+        "lat": 30.4418,
+        "lng": -84.2726
+      },
+      "homeBase": {
+        "lat": 30.4383,
+        "lng": -84.2807,
+        "name": "Tallahassee Fleet Center"
+      },
+      "driverBehavior": "normal",
+      "features": [
+        "gps",
+        "iot",
+        "cargo"
+      ]
+    },
+    {
+      "id": "VEH-021",
+      "make": "Wabash",
+      "model": "DuraPlate",
+      "year": 2021,
+      "type": "trailer",
+      "vin": "TRL135393",
+      "licensePlate": "TRL-0021",
+      "tankSize": 15,
+      "fuelEfficiency": 0,
+      "startingLocation": {
+        "lat": 30.4517,
+        "lng": -84.2769
+      },
+      "homeBase": {
+        "lat": 30.4383,
+        "lng": -84.2807,
+        "name": "Tallahassee Fleet Center"
+      },
+      "driverBehavior": "normal",
+      "features": [
+        "gps",
+        "iot",
+        "cargo"
+      ]
+    },
+    {
+      "id": "VEH-022",
+      "make": "Stoughton",
+      "model": "Composite",
+      "year": 2022,
+      "type": "trailer",
+      "vin": "TRL955303",
+      "licensePlate": "TRL-0022",
+      "tankSize": 10,
+      "fuelEfficiency": 0,
+      "startingLocation": {
+        "lat": 30.4519,
+        "lng": -84.2686
+      },
+      "homeBase": {
+        "lat": 30.4383,
+        "lng": -84.2807,
+        "name": "Tallahassee Fleet Center"
+      },
+      "driverBehavior": "normal",
+      "features": [
+        "gps",
+        "iot",
+        "cargo"
+      ]
+    },
+    {
+      "id": "VEH-023",
+      "make": "Ford",
+      "model": "F-250",
+      "year": 2022,
+      "type": "truck",
+      "vin": "5YJ367956",
+      "licensePlate": "FL5984",
+      "tankSize": 34,
+      "fuelEfficiency": 15,
+      "startingLocation": {
+        "lat": 30.4402,
+        "lng": -84.2772
+      },
+      "homeBase": {
+        "lat": 30.4383,
+        "lng": -84.2807,
+        "name": "Tallahassee Fleet Center"
+      },
+      "driverBehavior": "aggressive",
+      "features": [
+        "obd2",
+        "gps"
+      ]
+    },
+    {
+      "id": "VEH-024",
+      "make": "Ford",
+      "model": "F-250",
+      "year": 2022,
+      "type": "truck",
+      "vin": "5YJ372402",
+      "licensePlate": "FL4185",
+      "tankSize": 34,
+      "fuelEfficiency": 15,
+      "startingLocation": {
+        "lat": 30.4377,
+        "lng": -84.2754
+      },
+      "homeBase": {
+        "lat": 30.4383,
+        "lng": -84.2807,
+        "name": "Tallahassee Fleet Center"
+      },
+      "driverBehavior": "aggressive",
+      "features": [
+        "obd2",
+        "gps"
+      ]
+    },
+    {
+      "id": "VEH-025",
+      "make": "Ford",
+      "model": "F-250",
+      "year": 2022,
+      "type": "truck",
+      "vin": "2HK142103",
+      "licensePlate": "FL7475",
+      "tankSize": 34,
+      "fuelEfficiency": 15,
+      "startingLocation": {
+        "lat": 30.4415,
+        "lng": -84.2777
+      },
+      "homeBase": {
+        "lat": 30.4383,
+        "lng": -84.2807,
+        "name": "Tallahassee Fleet Center"
+      },
+      "driverBehavior": "normal",
+      "features": [
+        "obd2",
+        "gps",
+        "iot",
+        "camera"
+      ]
+    },
+    {
+      "id": "VEH-026",
+      "make": "Chevrolet",
+      "model": "Colorado",
+      "year": 2023,
+      "type": "truck",
+      "vin": "2HK785992",
+      "licensePlate": "FL6681",
+      "tankSize": 21,
+      "fuelEfficiency": 20,
+      "startingLocation": {
+        "lat": 30.438,
+        "lng": -84.2758
+      },
+      "homeBase": {
+        "lat": 30.4383,
+        "lng": -84.2807,
+        "name": "Tallahassee Fleet Center"
+      },
+      "driverBehavior": "normal",
+      "features": [
+        "obd2",
+        "gps",
+        "iot"
+      ]
+    },
+    {
+      "id": "VEH-027",
+      "make": "Chevrolet",
+      "model": "Colorado",
+      "year": 2023,
+      "type": "truck",
+      "vin": "5YJ561189",
+      "licensePlate": "FL9546",
+      "tankSize": 21,
+      "fuelEfficiency": 20,
+      "startingLocation": {
+        "lat": 30.4352,
+        "lng": -84.2731
+      },
+      "homeBase": {
+        "lat": 30.4383,
+        "lng": -84.2807,
+        "name": "Tallahassee Fleet Center"
+      },
+      "driverBehavior": "aggressive",
+      "features": [
+        "obd2",
+        "gps",
+        "iot",
+        "camera"
+      ]
+    },
+    {
+      "id": "VEH-028",
+      "make": "Toyota",
+      "model": "Tacoma",
+      "year": 2022,
+      "type": "truck",
+      "vin": "2HK424418",
+      "licensePlate": "FL3446",
+      "tankSize": 21,
+      "fuelEfficiency": 21,
+      "startingLocation": {
+        "lat": 30.4387,
+        "lng": -84.2761
+      },
+      "homeBase": {
+        "lat": 30.4383,
+        "lng": -84.2807,
+        "name": "Tallahassee Fleet Center"
+      },
+      "driverBehavior": "aggressive",
+      "features": [
+        "obd2",
+        "gps"
+      ]
+    },
+    {
+      "id": "VEH-029",
+      "make": "Toyota",
+      "model": "Tacoma",
+      "year": 2022,
+      "type": "truck",
+      "vin": "1GC972023",
+      "licensePlate": "FL3713",
+      "tankSize": 21,
+      "fuelEfficiency": 21,
+      "startingLocation": {
+        "lat": 30.4399,
+        "lng": -84.2758
+      },
+      "homeBase": {
+        "lat": 30.4383,
+        "lng": -84.2807,
+        "name": "Tallahassee Fleet Center"
+      },
+      "driverBehavior": "cautious",
+      "features": [
+        "obd2",
+        "gps",
+        "iot"
+      ]
+    },
+    {
+      "id": "VEH-030",
+      "make": "Ram",
+      "model": "ProMaster",
+      "year": 2022,
+      "type": "van",
+      "vin": "4T1717012",
+      "licensePlate": "FL9493",
+      "tankSize": 24,
+      "fuelEfficiency": 18,
+      "startingLocation": {
+        "lat": 30.4378,
+        "lng": -84.2733
+      },
+      "homeBase": {
+        "lat": 30.4383,
+        "lng": -84.2807,
+        "name": "Tallahassee Fleet Center"
+      },
+      "driverBehavior": "aggressive",
+      "features": [
+        "obd2",
+        "gps",
+        "iot",
+        "camera"
+      ]
+    },
+    {
+      "id": "VEH-031",
+      "make": "Ram",
+      "model": "ProMaster",
+      "year": 2022,
+      "type": "van",
+      "vin": "2HK418346",
+      "licensePlate": "FL6333",
+      "tankSize": 24,
+      "fuelEfficiency": 18,
+      "startingLocation": {
+        "lat": 30.4436,
+        "lng": -84.2766
+      },
+      "homeBase": {
+        "lat": 30.4383,
+        "lng": -84.2807,
+        "name": "Tallahassee Fleet Center"
+      },
+      "driverBehavior": "normal",
+      "features": [
+        "obd2",
+        "gps",
+        "iot"
+      ]
+    },
+    {
+      "id": "VEH-032",
+      "make": "Ram",
+      "model": "ProMaster",
+      "year": 2022,
+      "type": "van",
+      "vin": "5YJ401081",
+      "licensePlate": "FL6408",
+      "tankSize": 24,
+      "fuelEfficiency": 18,
+      "startingLocation": {
+        "lat": 30.4379,
+        "lng": -84.2737
+      },
+      "homeBase": {
+        "lat": 30.4383,
+        "lng": -84.2807,
+        "name": "Tallahassee Fleet Center"
+      },
+      "driverBehavior": "aggressive",
+      "features": [
+        "obd2",
+        "gps"
+      ]
+    },
+    {
+      "id": "VEH-033",
+      "make": "Nissan",
+      "model": "NV3500",
+      "year": 2021,
+      "type": "van",
+      "vin": "5YJ285501",
+      "licensePlate": "FL9176",
+      "tankSize": 28,
+      "fuelEfficiency": 16,
+      "startingLocation": {
+        "lat": 30.4415,
+        "lng": -84.2777
+      },
+      "homeBase": {
+        "lat": 30.4383,
+        "lng": -84.2807,
+        "name": "Tallahassee Fleet Center"
+      },
+      "driverBehavior": "normal",
+      "features": [
+        "obd2",
+        "gps"
+      ]
+    },
+    {
+      "id": "VEH-034",
+      "make": "Nissan",
+      "model": "NV3500",
+      "year": 2021,
+      "type": "van",
+      "vin": "2HK181869",
+      "licensePlate": "FL9855",
+      "tankSize": 28,
+      "fuelEfficiency": 16,
+      "startingLocation": {
+        "lat": 30.4404,
+        "lng": -84.2739
+      },
+      "homeBase": {
+        "lat": 30.4383,
+        "lng": -84.2807,
+        "name": "Tallahassee Fleet Center"
+      },
+      "driverBehavior": "aggressive",
+      "features": [
+        "obd2",
+        "gps",
+        "iot",
+        "camera"
+      ]
+    },
+    {
+      "id": "VEH-035",
+      "make": "Ford",
+      "model": "Explorer",
+      "year": 2023,
+      "type": "suv",
+      "vin": "1FT748911",
+      "licensePlate": "FL4134",
+      "tankSize": 18,
+      "fuelEfficiency": 24,
+      "startingLocation": {
+        "lat": 30.4397,
+        "lng": -84.276
+      },
+      "homeBase": {
+        "lat": 30.4383,
+        "lng": -84.2807,
+        "name": "Tallahassee Fleet Center"
+      },
+      "driverBehavior": "aggressive",
+      "features": [
+        "obd2",
+        "gps",
+        "iot",
+        "camera"
+      ]
+    },
+    {
+      "id": "VEH-036",
+      "make": "Ford",
+      "model": "Explorer",
+      "year": 2023,
+      "type": "suv",
+      "vin": "2HK753101",
+      "licensePlate": "FL9767",
+      "tankSize": 18,
+      "fuelEfficiency": 24,
+      "startingLocation": {
+        "lat": 30.4447,
+        "lng": -84.276
+      },
+      "homeBase": {
+        "lat": 30.4383,
+        "lng": -84.2807,
+        "name": "Tallahassee Fleet Center"
+      },
+      "driverBehavior": "normal",
+      "features": [
+        "obd2",
+        "gps",
+        "iot",
+        "camera"
+      ]
+    },
+    {
+      "id": "VEH-037",
+      "make": "Ford",
+      "model": "Explorer",
+      "year": 2023,
+      "type": "suv",
+      "vin": "4T1594963",
+      "licensePlate": "FL9940",
+      "tankSize": 18,
+      "fuelEfficiency": 24,
+      "startingLocation": {
+        "lat": 30.4425,
+        "lng": -84.2739
+      },
+      "homeBase": {
+        "lat": 30.4383,
+        "lng": -84.2807,
+        "name": "Tallahassee Fleet Center"
+      },
+      "driverBehavior": "normal",
+      "features": [
+        "obd2",
+        "gps",
+        "iot"
+      ]
+    },
+    {
+      "id": "VEH-038",
+      "make": "Chevrolet",
+      "model": "Tahoe",
+      "year": 2022,
+      "type": "suv",
+      "vin": "1FT129832",
+      "licensePlate": "FL9712",
+      "tankSize": 24,
+      "fuelEfficiency": 20,
+      "startingLocation": {
+        "lat": 30.4388,
+        "lng": -84.2742
+      },
+      "homeBase": {
+        "lat": 30.4383,
+        "lng": -84.2807,
+        "name": "Tallahassee Fleet Center"
+      },
+      "driverBehavior": "cautious",
+      "features": [
+        "obd2",
+        "gps"
+      ]
+    },
+    {
+      "id": "VEH-039",
+      "make": "Chevrolet",
+      "model": "Tahoe",
+      "year": 2022,
+      "type": "suv",
+      "vin": "1GC467499",
+      "licensePlate": "FL6204",
+      "tankSize": 24,
+      "fuelEfficiency": 20,
+      "startingLocation": {
+        "lat": 30.4422,
+        "lng": -84.275
+      },
+      "homeBase": {
+        "lat": 30.4383,
+        "lng": -84.2807,
+        "name": "Tallahassee Fleet Center"
+      },
+      "driverBehavior": "normal",
+      "features": [
+        "obd2",
+        "gps"
+      ]
+    },
+    {
+      "id": "VEH-040",
+      "make": "Jeep",
+      "model": "Wrangler",
+      "year": 2023,
+      "type": "suv",
+      "vin": "5YJ946815",
+      "licensePlate": "FL8019",
+      "tankSize": 21,
+      "fuelEfficiency": 22,
+      "startingLocation": {
+        "lat": 30.4411,
+        "lng": -84.2752
+      },
+      "homeBase": {
+        "lat": 30.4383,
+        "lng": -84.2807,
+        "name": "Tallahassee Fleet Center"
+      },
+      "driverBehavior": "aggressive",
+      "features": [
+        "obd2",
+        "gps"
+      ]
+    },
+    {
+      "id": "VEH-041",
+      "make": "Jeep",
+      "model": "Wrangler",
+      "year": 2023,
+      "type": "suv",
+      "vin": "2HK491529",
+      "licensePlate": "FL1881",
+      "tankSize": 21,
+      "fuelEfficiency": 22,
+      "startingLocation": {
+        "lat": 30.4414,
+        "lng": -84.2778
+      },
+      "homeBase": {
+        "lat": 30.4383,
+        "lng": -84.2807,
+        "name": "Tallahassee Fleet Center"
+      },
+      "driverBehavior": "normal",
+      "features": [
+        "obd2",
+        "gps",
+        "iot",
+        "camera"
+      ]
+    },
+    {
+      "id": "VEH-042",
+      "make": "Honda",
+      "model": "Accord",
+      "year": 2022,
+      "type": "sedan",
+      "vin": "1GC429609",
+      "licensePlate": "FL5649",
+      "tankSize": 14,
+      "fuelEfficiency": 32,
+      "startingLocation": {
+        "lat": 30.443,
+        "lng": -84.2772
+      },
+      "homeBase": {
+        "lat": 30.4383,
+        "lng": -84.2807,
+        "name": "Tallahassee Fleet Center"
+      },
+      "driverBehavior": "normal",
+      "features": [
+        "obd2",
+        "gps",
+        "iot",
+        "camera"
+      ]
+    },
+    {
+      "id": "VEH-043",
+      "make": "Honda",
+      "model": "Accord",
+      "year": 2022,
+      "type": "sedan",
+      "vin": "2HK571661",
+      "licensePlate": "FL8998",
+      "tankSize": 14,
+      "fuelEfficiency": 32,
+      "startingLocation": {
+        "lat": 30.4381,
+        "lng": -84.2768
+      },
+      "homeBase": {
+        "lat": 30.4383,
+        "lng": -84.2807,
+        "name": "Tallahassee Fleet Center"
+      },
+      "driverBehavior": "aggressive",
+      "features": [
+        "obd2",
+        "gps"
+      ]
+    },
+    {
+      "id": "VEH-044",
+      "make": "Honda",
+      "model": "Accord",
+      "year": 2022,
+      "type": "sedan",
+      "vin": "2HK420725",
+      "licensePlate": "FL3508",
+      "tankSize": 14,
+      "fuelEfficiency": 32,
+      "startingLocation": {
+        "lat": 30.4436,
+        "lng": -84.2747
+      },
+      "homeBase": {
+        "lat": 30.4383,
+        "lng": -84.2807,
+        "name": "Tallahassee Fleet Center"
+      },
+      "driverBehavior": "cautious",
+      "features": [
+        "obd2",
+        "gps",
+        "iot"
+      ]
+    },
+    {
+      "id": "VEH-045",
+      "make": "Toyota",
+      "model": "Corolla",
+      "year": 2023,
+      "type": "sedan",
+      "vin": "1GC400294",
+      "licensePlate": "FL7759",
+      "tankSize": 13,
+      "fuelEfficiency": 35,
+      "startingLocation": {
+        "lat": 30.4384,
+        "lng": -84.274
+      },
+      "homeBase": {
+        "lat": 30.4383,
+        "lng": -84.2807,
+        "name": "Tallahassee Fleet Center"
+      },
+      "driverBehavior": "aggressive",
+      "features": [
+        "obd2",
+        "gps",
+        "iot",
+        "camera"
+      ]
+    },
+    {
+      "id": "VEH-046",
+      "make": "Toyota",
+      "model": "Corolla",
+      "year": 2023,
+      "type": "sedan",
+      "vin": "1FT618784",
+      "licensePlate": "FL2512",
+      "tankSize": 13,
+      "fuelEfficiency": 35,
+      "startingLocation": {
+        "lat": 30.4401,
+        "lng": -84.2744
+      },
+      "homeBase": {
+        "lat": 30.4383,
+        "lng": -84.2807,
+        "name": "Tallahassee Fleet Center"
+      },
+      "driverBehavior": "cautious",
+      "features": [
+        "obd2",
+        "gps"
+      ]
+    },
+    {
+      "id": "VEH-047",
+      "make": "Tesla",
+      "model": "Model Y",
+      "year": 2023,
+      "type": "suv",
+      "vin": "5YJ464985",
+      "licensePlate": "FL9425",
+      "tankSize": 0,
+      "fuelEfficiency": 0,
+      "startingLocation": {
+        "lat": 30.4425,
+        "lng": -84.273
+      },
+      "homeBase": {
+        "lat": 30.4383,
+        "lng": -84.2807,
+        "name": "Tallahassee Fleet Center"
+      },
+      "driverBehavior": "normal",
+      "features": [
+        "gps",
+        "iot",
+        "camera",
+        "ev"
+      ],
+      "batteryCapacity": 75,
+      "electricRange": 330
+    },
+    {
+      "id": "VEH-048",
+      "make": "Tesla",
+      "model": "Model Y",
+      "year": 2023,
+      "type": "suv",
+      "vin": "4T1830027",
+      "licensePlate": "FL3650",
+      "tankSize": 0,
+      "fuelEfficiency": 0,
+      "startingLocation": {
+        "lat": 30.437,
+        "lng": -84.2768
+      },
+      "homeBase": {
+        "lat": 30.4383,
+        "lng": -84.2807,
+        "name": "Tallahassee Fleet Center"
+      },
+      "driverBehavior": "aggressive",
+      "features": [
+        "gps",
+        "iot",
+        "camera",
+        "ev"
+      ],
+      "batteryCapacity": 75,
+      "electricRange": 330
+    },
+    {
+      "id": "VEH-049",
+      "make": "Chevrolet",
+      "model": "Bolt EV",
+      "year": 2022,
+      "type": "sedan",
+      "vin": "1FT115937",
+      "licensePlate": "FL3066",
+      "tankSize": 0,
+      "fuelEfficiency": 0,
+      "startingLocation": {
+        "lat": 30.4421,
+        "lng": -84.276
+      },
+      "homeBase": {
+        "lat": 30.4383,
+        "lng": -84.2807,
+        "name": "Tallahassee Fleet Center"
+      },
+      "driverBehavior": "aggressive",
+      "features": [
+        "gps",
+        "iot",
+        "camera",
+        "ev"
+      ],
+      "batteryCapacity": 66,
+      "electricRange": 259
+    },
+    {
+      "id": "VEH-050",
+      "make": "Chevrolet",
+      "model": "Bolt EV",
+      "year": 2022,
+      "type": "sedan",
+      "vin": "5YJ999459",
+      "licensePlate": "FL4462",
+      "tankSize": 0,
+      "fuelEfficiency": 0,
+      "startingLocation": {
+        "lat": 30.4393,
+        "lng": -84.2749
+      },
+      "homeBase": {
+        "lat": 30.4383,
+        "lng": -84.2807,
+        "name": "Tallahassee Fleet Center"
+      },
+      "driverBehavior": "cautious",
+      "features": [
+        "gps",
+        "iot",
+        "camera",
+        "ev"
+      ],
+      "batteryCapacity": 66,
+      "electricRange": 259
+    }
+  ]
+}

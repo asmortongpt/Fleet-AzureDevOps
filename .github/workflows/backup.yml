@@ -1,0 +1,192 @@
+name: Automated Repository Backup
+
+on:
+  schedule:
+    - cron: '0 2 * * 0' # Weekly on Sunday at 2 AM UTC
+  workflow_dispatch: # Allow manual trigger
+
+permissions:
+  contents: read
+
+jobs:
+  backup:
+    name: Create Repository Backup
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # Full history for complete backup
+
+      - name: Configure Git
+        run: |
+          git config --global user.name "GitHub Actions"
+          git config --global user.email "actions@github.com"
+
+      - name: Create backup bundle
+        run: |
+          DATE=$(date +%Y%m%d_%H%M%S)
+          BUNDLE_NAME="fleet-backup-${DATE}.bundle"
+
+          echo "Creating backup bundle: $BUNDLE_NAME"
+          git bundle create "$BUNDLE_NAME" --all
+
+          # Verify bundle integrity
+          git bundle verify "$BUNDLE_NAME"
+
+          # Get bundle size
+          BUNDLE_SIZE=$(du -h "$BUNDLE_NAME" | cut -f1)
+          echo "Bundle size: $BUNDLE_SIZE"
+
+          echo "BUNDLE_NAME=$BUNDLE_NAME" >> $GITHUB_ENV
+          echo "BUNDLE_SIZE=$BUNDLE_SIZE" >> $GITHUB_ENV
+          echo "BACKUP_DATE=$DATE" >> $GITHUB_ENV
+
+      - name: Azure Login
+        uses: azure/login@v2
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Upload to Azure Storage
+        if: env.BUNDLE_NAME != ''
+        run: |
+          # Install Azure CLI if not already available
+          which az || curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash
+
+          # Create container if it doesn't exist
+          az storage container create \
+            --name repository-backups \
+            --account-name ${{ secrets.AZURE_STORAGE_ACCOUNT }} \
+            --auth-mode login \
+            --public-access off \
+            --fail-on-exist false
+
+          # Upload bundle
+          az storage blob upload \
+            --container-name repository-backups \
+            --file "${{ env.BUNDLE_NAME }}" \
+            --name "fleet/${{ env.BUNDLE_NAME }}" \
+            --account-name ${{ secrets.AZURE_STORAGE_ACCOUNT }} \
+            --auth-mode login \
+            --overwrite
+
+          echo "✅ Backup uploaded to Azure Storage"
+
+      - name: Cleanup old backups
+        run: |
+          # List all backups
+          BACKUPS=$(az storage blob list \
+            --container-name repository-backups \
+            --prefix "fleet/fleet-backup-" \
+            --account-name ${{ secrets.AZURE_STORAGE_ACCOUNT }} \
+            --auth-mode login \
+            --query "[].name" -o tsv)
+
+          # Keep only last 8 backups (2 months of weekly backups)
+          BACKUP_COUNT=$(echo "$BACKUPS" | wc -l)
+
+          if [ $BACKUP_COUNT -gt 8 ]; then
+            echo "Found $BACKUP_COUNT backups, cleaning up old ones..."
+            echo "$BACKUPS" | head -n -8 | while read backup; do
+              echo "Deleting: $backup"
+              az storage blob delete \
+                --container-name repository-backups \
+                --name "$backup" \
+                --account-name ${{ secrets.AZURE_STORAGE_ACCOUNT }} \
+                --auth-mode login
+            done
+          else
+            echo "Only $BACKUP_COUNT backups found, no cleanup needed"
+          fi
+
+      - name: Create backup metadata
+        run: |
+          cat > backup-metadata.json <<EOF
+          {
+            "backup_date": "${{ env.BACKUP_DATE }}",
+            "bundle_name": "${{ env.BUNDLE_NAME }}",
+            "bundle_size": "${{ env.BUNDLE_SIZE }}",
+            "repository": "${{ github.repository }}",
+            "branch_count": $(git branch -r | wc -l),
+            "commit_count": $(git rev-list --all --count),
+            "latest_commit": "$(git rev-parse HEAD)",
+            "latest_commit_date": "$(git log -1 --format=%cd --date=iso)"
+          }
+          EOF
+
+          cat backup-metadata.json
+
+      - name: Upload metadata
+        run: |
+          az storage blob upload \
+            --container-name repository-backups \
+            --file backup-metadata.json \
+            --name "fleet/backup-metadata-${{ env.BACKUP_DATE }}.json" \
+            --account-name ${{ secrets.AZURE_STORAGE_ACCOUNT }} \
+            --auth-mode login \
+            --overwrite
+
+      - name: Cleanup local files
+        if: always()
+        run: |
+          rm -f *.bundle
+          rm -f backup-metadata.json
+
+      - name: Generate summary
+        if: always()
+        run: |
+          echo "# Backup Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Date:** $(date -u +'%Y-%m-%d %H:%M:%S UTC')" >> $GITHUB_STEP_SUMMARY
+          echo "**Bundle:** ${{ env.BUNDLE_NAME }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Size:** ${{ env.BUNDLE_SIZE }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "## Repository Stats" >> $GITHUB_STEP_SUMMARY
+          echo "- Branches: $(git branch -r | wc -l)" >> $GITHUB_STEP_SUMMARY
+          echo "- Total Commits: $(git rev-list --all --count)" >> $GITHUB_STEP_SUMMARY
+          echo "- Latest Commit: $(git rev-parse --short HEAD)" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "✅ Backup completed successfully" >> $GITHUB_STEP_SUMMARY
+
+  verify-backup:
+    name: Verify Backup Integrity
+    needs: backup
+    runs-on: ubuntu-latest
+    if: success()
+    steps:
+      - name: Azure Login
+        uses: azure/login@v2
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Download and verify latest backup
+        run: |
+          # Install Azure CLI if not already available
+          which az || curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash
+
+          # Get latest backup
+          LATEST_BACKUP=$(az storage blob list \
+            --container-name repository-backups \
+            --prefix "fleet/fleet-backup-" \
+            --account-name ${{ secrets.AZURE_STORAGE_ACCOUNT }} \
+            --auth-mode login \
+            --query "[-1].name" -o tsv)
+
+          echo "Latest backup: $LATEST_BACKUP"
+
+          # Download backup
+          az storage blob download \
+            --container-name repository-backups \
+            --name "$LATEST_BACKUP" \
+            --file "verify-bundle.bundle" \
+            --account-name ${{ secrets.AZURE_STORAGE_ACCOUNT }} \
+            --auth-mode login
+
+          # Verify bundle
+          git bundle verify verify-bundle.bundle
+
+          echo "✅ Backup verification successful"
+
+      - name: Cleanup
+        if: always()
+        run: rm -f verify-bundle.bundle

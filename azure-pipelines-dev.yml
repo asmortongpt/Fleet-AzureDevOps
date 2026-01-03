@@ -1,0 +1,318 @@
+# Azure DevOps Dev Environment Deployment Pipeline
+# Auto-deploys on every push to develop branch
+# Target: Development Kubernetes environment
+
+trigger:
+  branches:
+    include:
+      - develop
+  paths:
+    exclude:
+      - README.md
+      - docs/**
+      - '*.md'
+
+pr: none
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+variables:
+  - group: fleet-dev-vars  # Variable group in Azure DevOps
+  NODE_VERSION: '20.x'
+  ENVIRONMENT: 'dev'
+  NAMESPACE: 'fleet-management-dev'
+  REGISTRY: fleetappregistry.azurecr.io
+  IMAGE_NAME_FRONTEND: fleet-frontend
+  IMAGE_NAME_API: fleet-api
+  AKS_CLUSTER: 'fleet-aks-cluster'
+  AKS_RESOURCE_GROUP: 'fleet-management-rg'
+
+stages:
+  # ====================================
+  # Stage 1: Pre-Flight Checks
+  # ====================================
+  - stage: PreFlight
+    displayName: 'Pre-Flight Checks'
+    jobs:
+      - job: ValidateEnv
+        displayName: 'Validate Environment Configuration'
+        timeoutInMinutes: 5
+        steps:
+          - task: AzureCLI@2
+            displayName: 'Verify AKS cluster'
+            inputs:
+              azureSubscription: $(AZURE_SERVICE_CONNECTION)
+              scriptType: 'bash'
+              scriptLocation: 'inlineScript'
+              inlineScript: |
+                az aks show --resource-group $(AKS_RESOURCE_GROUP) --name $(AKS_CLUSTER)
+
+          - script: |
+              echo "✅ Environment: $(ENVIRONMENT)"
+              echo "✅ Namespace: $(NAMESPACE)"
+              echo "✅ Registry: $(REGISTRY)"
+              echo "✅ Build ID: $(Build.BuildId)"
+            displayName: 'Display configuration'
+
+  # ====================================
+  # Stage 2: Build Images
+  # ====================================
+  - stage: Build
+    displayName: 'Build & Push Images'
+    dependsOn: PreFlight
+    jobs:
+      - job: BuildAndPush
+        displayName: 'Build Docker Images'
+        timeoutInMinutes: 30
+        steps:
+          - task: Docker@2
+            displayName: 'Login to ACR'
+            inputs:
+              command: login
+              containerRegistry: $(ACR_SERVICE_CONNECTION)
+
+          - task: Docker@2
+            displayName: 'Build Frontend Image'
+            inputs:
+              command: build
+              repository: $(IMAGE_NAME_FRONTEND)
+              dockerfile: Dockerfile
+              tags: |
+                dev-$(Build.BuildId)
+                dev-latest
+              arguments: |
+                --build-arg NODE_ENV=development
+                --build-arg BUILD_DATE=$(Build.BuildId)
+                --build-arg VCS_REF=$(Build.SourceVersion)
+
+          - task: Docker@2
+            displayName: 'Push Frontend Image'
+            inputs:
+              command: push
+              repository: $(IMAGE_NAME_FRONTEND)
+              tags: |
+                dev-$(Build.BuildId)
+                dev-latest
+
+          - task: Docker@2
+            displayName: 'Build API Image'
+            inputs:
+              command: build
+              repository: $(IMAGE_NAME_API)
+              dockerfile: api/Dockerfile
+              context: api
+              tags: |
+                dev-$(Build.BuildId)
+                dev-latest
+              arguments: |
+                --build-arg NODE_ENV=development
+                --build-arg BUILD_DATE=$(Build.BuildId)
+                --build-arg VCS_REF=$(Build.SourceVersion)
+
+          - task: Docker@2
+            displayName: 'Push API Image'
+            inputs:
+              command: push
+              repository: $(IMAGE_NAME_API)
+              tags: |
+                dev-$(Build.BuildId)
+                dev-latest
+
+  # ====================================
+  # Stage 3: Deploy to Kubernetes
+  # ====================================
+  - stage: Deploy
+    displayName: 'Deploy to Dev Environment'
+    dependsOn: Build
+    jobs:
+      - deployment: DeployToK8s
+        displayName: 'Deploy to Kubernetes'
+        timeoutInMinutes: 15
+        environment: 'fleet-dev'
+        strategy:
+          runOnce:
+            deploy:
+              steps:
+                - checkout: self
+
+                - task: AzureCLI@2
+                  displayName: 'Get AKS credentials'
+                  inputs:
+                    azureSubscription: $(AZURE_SERVICE_CONNECTION)
+                    scriptType: 'bash'
+                    scriptLocation: 'inlineScript'
+                    inlineScript: |
+                      az aks get-credentials \
+                        --resource-group $(AKS_RESOURCE_GROUP) \
+                        --name $(AKS_CLUSTER) \
+                        --overwrite-existing
+
+                - task: Kubernetes@1
+                  displayName: 'Create namespace if not exists'
+                  inputs:
+                    connectionType: 'Azure Resource Manager'
+                    azureSubscriptionEndpoint: $(AZURE_SERVICE_CONNECTION)
+                    azureResourceGroup: $(AKS_RESOURCE_GROUP)
+                    kubernetesCluster: $(AKS_CLUSTER)
+                    command: 'apply'
+                    arguments: '-f - <<EOF
+                      apiVersion: v1
+                      kind: Namespace
+                      metadata:
+                        name: $(NAMESPACE)
+                      EOF'
+
+                - task: Kubernetes@1
+                  displayName: 'Create/Update Secrets'
+                  inputs:
+                    connectionType: 'Azure Resource Manager'
+                    azureSubscriptionEndpoint: $(AZURE_SERVICE_CONNECTION)
+                    azureResourceGroup: $(AKS_RESOURCE_GROUP)
+                    kubernetesCluster: $(AKS_CLUSTER)
+                    namespace: $(NAMESPACE)
+                    command: 'create'
+                    arguments: 'secret generic fleet-secrets --from-literal=database-url="$(DEV_DATABASE_URL)" --from-literal=jwt-secret="$(DEV_JWT_SECRET)" --from-literal=azure-maps-key="$(AZURE_MAPS_KEY)" --dry-run=client -o yaml | kubectl apply -f -'
+
+                - task: Kubernetes@1
+                  displayName: 'Deploy API'
+                  inputs:
+                    connectionType: 'Azure Resource Manager'
+                    azureSubscriptionEndpoint: $(AZURE_SERVICE_CONNECTION)
+                    azureResourceGroup: $(AKS_RESOURCE_GROUP)
+                    kubernetesCluster: $(AKS_CLUSTER)
+                    namespace: $(NAMESPACE)
+                    command: 'set'
+                    arguments: 'image deployment/fleet-api fleet-api=$(REGISTRY)/$(IMAGE_NAME_API):dev-$(Build.BuildId)'
+
+                - task: Kubernetes@1
+                  displayName: 'Wait for API rollout'
+                  inputs:
+                    connectionType: 'Azure Resource Manager'
+                    azureSubscriptionEndpoint: $(AZURE_SERVICE_CONNECTION)
+                    azureResourceGroup: $(AKS_RESOURCE_GROUP)
+                    kubernetesCluster: $(AKS_CLUSTER)
+                    namespace: $(NAMESPACE)
+                    command: 'rollout'
+                    arguments: 'status deployment/fleet-api --timeout=10m'
+
+                - task: Kubernetes@1
+                  displayName: 'Deploy Frontend'
+                  inputs:
+                    connectionType: 'Azure Resource Manager'
+                    azureSubscriptionEndpoint: $(AZURE_SERVICE_CONNECTION)
+                    azureResourceGroup: $(AKS_RESOURCE_GROUP)
+                    kubernetesCluster: $(AKS_CLUSTER)
+                    namespace: $(NAMESPACE)
+                    command: 'set'
+                    arguments: 'image deployment/fleet-frontend fleet-frontend=$(REGISTRY)/$(IMAGE_NAME_FRONTEND):dev-$(Build.BuildId)'
+
+                - task: Kubernetes@1
+                  displayName: 'Wait for Frontend rollout'
+                  inputs:
+                    connectionType: 'Azure Resource Manager'
+                    azureSubscriptionEndpoint: $(AZURE_SERVICE_CONNECTION)
+                    azureResourceGroup: $(AKS_RESOURCE_GROUP)
+                    kubernetesCluster: $(AKS_CLUSTER)
+                    namespace: $(NAMESPACE)
+                    command: 'rollout'
+                    arguments: 'status deployment/fleet-frontend --timeout=10m'
+
+                - task: Kubernetes@1
+                  displayName: 'Display deployment status'
+                  inputs:
+                    connectionType: 'Azure Resource Manager'
+                    azureSubscriptionEndpoint: $(AZURE_SERVICE_CONNECTION)
+                    azureResourceGroup: $(AKS_RESOURCE_GROUP)
+                    kubernetesCluster: $(AKS_CLUSTER)
+                    namespace: $(NAMESPACE)
+                    command: 'get'
+                    arguments: 'all'
+
+  # ====================================
+  # Stage 4: Smoke Tests
+  # ====================================
+  - stage: SmokeTests
+    displayName: 'Smoke Tests'
+    dependsOn: Deploy
+    jobs:
+      - job: RunSmokeTests
+        displayName: 'Run Health Checks'
+        timeoutInMinutes: 10
+        steps:
+          - script: |
+              echo "Waiting for services to stabilize..."
+              sleep 30
+            displayName: 'Wait for services'
+
+          - script: |
+              # Health check API
+              for i in {1..30}; do
+                if curl -f https://fleet-dev.capitaltechalliance.com/api/health; then
+                  echo "✅ API health check passed"
+                  break
+                fi
+                if [ $i -eq 30 ]; then
+                  echo "⚠️  API health check failed after 30 attempts"
+                  exit 1
+                fi
+                echo "Attempt $i/30 failed, retrying in 10s..."
+                sleep 10
+              done
+            displayName: 'Health check - API'
+            continueOnError: true
+
+          - script: |
+              # Health check Frontend
+              for i in {1..30}; do
+                if curl -f https://fleet-dev.capitaltechalliance.com/; then
+                  echo "✅ Frontend health check passed"
+                  break
+                fi
+                if [ $i -eq 30 ]; then
+                  echo "⚠️  Frontend health check failed after 30 attempts"
+                  exit 1
+                fi
+                echo "Attempt $i/30 failed, retrying in 10s..."
+                sleep 10
+              done
+            displayName: 'Health check - Frontend'
+            continueOnError: true
+
+  # ====================================
+  # Stage 5: Notification
+  # ====================================
+  - stage: Notify
+    displayName: 'Send Notifications'
+    dependsOn:
+      - Deploy
+      - SmokeTests
+    condition: always()
+    jobs:
+      - job: SendNotifications
+        displayName: 'Notify Team'
+        steps:
+          - script: |
+              if [ "$(Agent.JobStatus)" == "Succeeded" ]; then
+                echo "✅ Dev deployment successful"
+                STATUS="success"
+                MESSAGE="Dev environment deployed successfully"
+              else
+                echo "❌ Dev deployment failed"
+                STATUS="failure"
+                MESSAGE="Dev environment deployment failed"
+              fi
+
+              echo "##vso[task.setvariable variable=DEPLOYMENT_STATUS]$STATUS"
+              echo "##vso[task.setvariable variable=DEPLOYMENT_MESSAGE]$MESSAGE"
+            displayName: 'Determine deployment status'
+
+          - script: |
+              echo "## Fleet Management - Dev Deployment Summary"
+              echo "Status: $(DEPLOYMENT_MESSAGE)"
+              echo "Build ID: $(Build.BuildId)"
+              echo "Commit: $(Build.SourceVersion)"
+              echo "Images:"
+              echo "  - Frontend: $(REGISTRY)/$(IMAGE_NAME_FRONTEND):dev-$(Build.BuildId)"
+              echo "  - API: $(REGISTRY)/$(IMAGE_NAME_API):dev-$(Build.BuildId)"
+            displayName: 'Print summary'

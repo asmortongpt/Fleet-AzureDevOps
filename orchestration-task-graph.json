@@ -1,0 +1,606 @@
+{
+  "project": "Fleet Management System - Phase 2 & 3 Implementation",
+  "deadline": "2025-11-10 03:00 AM",
+  "phases": [
+    {
+      "phase": "2A",
+      "name": "AI Damage Detection",
+      "agent": "AI-ML-Specialist",
+      "llm_model": "gpt-4o",
+      "estimated_hours": 2,
+      "priority": 100,
+      "dependencies": [],
+      "tasks": [
+        {
+          "id": "2A-1",
+          "title": "Set up YOLOv8 damage detection model",
+          "description": "Train/fine-tune YOLOv8 model for vehicle damage detection (dents, scratches, cracks)",
+          "deliverables": ["Trained model weights", "Training metrics", "Inference API"],
+          "dod": "Model achieves >85% mAP on test set, API endpoint returns bounding boxes and confidence scores"
+        },
+        {
+          "id": "2A-2",
+          "title": "Implement ResNet-50 damage classifier",
+          "description": "Build damage severity classifier (minor/moderate/severe)",
+          "deliverables": ["Trained classifier", "API endpoint", "Calibration metrics"],
+          "dod": "Classifier achieves >90% accuracy, properly calibrated confidence scores"
+        },
+        {
+          "id": "2A-3",
+          "title": "Convert models to CoreML for iOS",
+          "description": "Export models to CoreML format for on-device inference",
+          "deliverables": ["CoreML model files", "Swift integration code", "Performance benchmarks"],
+          "dod": "Models run at >10 FPS on iPhone 12, <200MB memory footprint"
+        },
+        {
+          "id": "2A-4",
+          "title": "Convert models to TensorFlow Lite for Android",
+          "description": "Export models to TFLite format for Android",
+          "deliverables": ["TFLite model files", "Kotlin integration code", "Performance benchmarks"],
+          "dod": "Models run at >10 FPS on mid-range Android devices, <200MB memory"
+        },
+        {
+          "id": "2A-5",
+          "title": "Integrate damage detection into mobile apps",
+          "description": "Add camera capture, inference, and results display to iOS/Android apps",
+          "deliverables": ["iOS screens", "Android screens", "Unit tests"],
+          "dod": "Users can capture photo, see bounding boxes, get severity estimates in <3 seconds"
+        },
+        {
+          "id": "2A-6",
+          "title": "Deploy damage detection API to Azure",
+          "description": "Containerize and deploy API to AKS with GPU acceleration",
+          "deliverables": ["Docker image", "K8s manifest", "Load tests"],
+          "dod": "API handles 100 req/min, <2s latency, auto-scales"
+        }
+      ]
+    },
+    {
+      "phase": "2B",
+      "name": "LiDAR 3D Scanning",
+      "agent": "ARKit-3D-Specialist",
+      "llm_model": "claude-3.5-sonnet",
+      "estimated_hours": 2,
+      "priority": 100,
+      "dependencies": [],
+      "tasks": [
+        {
+          "id": "2B-1",
+          "title": "Implement ARKit LiDAR scanning",
+          "description": "Build ARKit-based 3D scanning for vehicle damage",
+          "deliverables": ["Swift ARKit code", "Mesh export functionality", "UI screens"],
+          "dod": "iPhone 12 Pro+ users can scan vehicle, capture detailed mesh, export USDZ"
+        },
+        {
+          "id": "2B-2",
+          "title": "Add mesh processing and volume calculation",
+          "description": "Calculate damage volume from 3D mesh",
+          "deliverables": ["Volume calculation algorithm", "Surface area metrics", "Comparison baseline"],
+          "dod": "Accurately calculate volume of dents/deformations within 5% error"
+        },
+        {
+          "id": "2B-3",
+          "title": "Integrate with damage report workflow",
+          "description": "Attach 3D scans to damage reports and work orders",
+          "deliverables": ["API endpoints", "Database schema", "Report template updates"],
+          "dod": "3D scans stored in Azure Blob, linked to reports, viewable in web app"
+        },
+        {
+          "id": "2B-4",
+          "title": "Build web-based 3D viewer",
+          "description": "Display 3D scans in browser using Three.js",
+          "deliverables": ["React component", "USDZ/GLB loader", "Controls"],
+          "dod": "Users can view, rotate, measure 3D scans in browser with smooth 60fps"
+        }
+      ]
+    },
+    {
+      "phase": "3A",
+      "name": "Real-Time Radio Dispatch",
+      "agent": "WebSocket-Audio-Specialist",
+      "llm_model": "gpt-4o",
+      "estimated_hours": 1,
+      "priority": 90,
+      "dependencies": [],
+      "tasks": [
+        {
+          "id": "3A-1",
+          "title": "Set up Azure SignalR service",
+          "description": "Provision SignalR for real-time dispatch comms",
+          "deliverables": ["SignalR connection string", "Hub configuration", "Connection management"],
+          "dod": "SignalR hub handles 1000+ concurrent connections, <100ms latency"
+        },
+        {
+          "id": "3A-2",
+          "title": "Implement push-to-talk WebRTC audio",
+          "description": "Build PTT audio streaming with Opus codec",
+          "deliverables": ["Audio capture", "Opus encoding", "Streaming", "Playback"],
+          "dod": "Users can press/hold button, transmit audio, hear others with <200ms latency"
+        },
+        {
+          "id": "3A-3",
+          "title": "Add AI transcription via Azure Speech",
+          "description": "Transcribe radio transmissions in real-time",
+          "deliverables": ["Speech-to-text integration", "Live transcription display", "Searchable logs"],
+          "dod": "Transcriptions appear live with >90% accuracy, stored for search"
+        },
+        {
+          "id": "3A-4",
+          "title": "Build dispatch dashboard UI",
+          "description": "Create live dispatch console with channels, users, transcriptions",
+          "deliverables": ["React dashboard", "Channel management", "User presence", "History"],
+          "dod": "Dispatchers see all active channels, who's talking, full transcription history"
+        },
+        {
+          "id": "3A-5",
+          "title": "Add incident tagging and emergency alerts",
+          "description": "Tag transmissions with incident IDs, send emergency alerts",
+          "deliverables": ["Tagging UI", "Alert system", "Notifications"],
+          "dod": "Users can tag transmissions, emergency button sends instant alerts to all"
+        }
+      ]
+    },
+    {
+      "phase": "3B",
+      "name": "High-Fidelity 3D Vehicle Viewer",
+      "agent": "3D-WebGL-Specialist",
+      "llm_model": "claude-3.5-sonnet",
+      "estimated_hours": 1,
+      "priority": 85,
+      "dependencies": [],
+      "tasks": [
+        {
+          "id": "3B-1",
+          "title": "Set up React Three Fiber environment",
+          "description": "Configure R3F with PBR materials, lighting, shadows",
+          "deliverables": ["R3F setup", "HDRI environment", "Post-processing"],
+          "dod": "Photorealistic rendering at 60fps, supports 100k+ poly models"
+        },
+        {
+          "id": "3B-2",
+          "title": "Load vehicle 3D models (GLB/USDZ)",
+          "description": "Load and optimize vehicle models from various sources",
+          "deliverables": ["Model loader", "Compression", "LOD system"],
+          "dod": "Models load in <2s, auto-optimized for web, maintain visual quality"
+        },
+        {
+          "id": "3B-3",
+          "title": "Add interactive controls and AR mode",
+          "description": "Orbit controls, annotations, AR Quick Look for iOS",
+          "deliverables": ["Orbit/pan/zoom controls", "Annotation pins", "AR export"],
+          "dod": "Smooth controls, clickable parts, one-tap AR on iOS"
+        },
+        {
+          "id": "3B-4",
+          "title": "Build vehicle customization UI",
+          "description": "Color picker, wheel selector, accessory toggles",
+          "deliverables": ["Material editor", "Part swapper", "Preset system"],
+          "dod": "Users change colors/wheels/accessories, see updates instantly"
+        },
+        {
+          "id": "3B-5",
+          "title": "Integrate with fleet vehicle catalog",
+          "description": "Load real vehicle data, link to inventory",
+          "deliverables": ["API integration", "Database schema", "Cache layer"],
+          "dod": "3D viewer displays real fleet vehicles with accurate specs"
+        }
+      ]
+    },
+    {
+      "phase": "3C",
+      "name": "AI-Driven Route Optimization",
+      "agent": "Algorithms-OR-Specialist",
+      "llm_model": "gemini-pro",
+      "estimated_hours": 1,
+      "priority": 90,
+      "dependencies": [],
+      "tasks": [
+        {
+          "id": "3C-1",
+          "title": "Set up Google OR-Tools solver",
+          "description": "Configure OR-Tools for vehicle routing problem (VRP)",
+          "deliverables": ["OR-Tools setup", "VRP model", "Constraint definitions"],
+          "dod": "Solver handles 100+ stops, 20+ vehicles, runs in <10s"
+        },
+        {
+          "id": "3C-2",
+          "title": "Integrate Mapbox routing API",
+          "description": "Get real road distances, traffic, turn-by-turn directions",
+          "deliverables": ["Mapbox integration", "Distance matrix", "Traffic layer"],
+          "dod": "Routes use real roads, account for traffic, provide directions"
+        },
+        {
+          "id": "3C-3",
+          "title": "Add EV range and charging constraints",
+          "description": "Factor in EV battery range, charging station locations",
+          "deliverables": ["Range calculation", "Charging stop insertion", "Battery optimization"],
+          "dod": "EVs never run out of charge, optimal charging stops added"
+        },
+        {
+          "id": "3C-4",
+          "title": "Build route optimization dashboard",
+          "description": "UI to input stops, visualize optimized routes, compare options",
+          "deliverables": ["Input form", "Map visualization", "Route comparison", "Export"],
+          "dod": "Users input stops, see optimized routes on map, download directions"
+        },
+        {
+          "id": "3C-5",
+          "title": "Add real-time route adjustments",
+          "description": "Re-optimize routes when stops added/removed or delays occur",
+          "deliverables": ["Dynamic re-optimization", "Notification system", "Driver updates"],
+          "dod": "Routes auto-update when changes occur, drivers notified instantly"
+        }
+      ]
+    },
+    {
+      "phase": "3D",
+      "name": "Enhanced Predictive Maintenance",
+      "agent": "ML-TimeSeries-Specialist",
+      "llm_model": "gpt-4o",
+      "estimated_hours": 1,
+      "priority": 85,
+      "dependencies": [],
+      "tasks": [
+        {
+          "id": "3D-1",
+          "title": "Train Prophet forecasting models",
+          "description": "Forecast component failures based on historical data",
+          "deliverables": ["Trained Prophet models", "Forecast API", "Confidence intervals"],
+          "dod": "Models predict failures 30+ days in advance with >75% accuracy"
+        },
+        {
+          "id": "3D-2",
+          "title": "Build LSTM RUL estimation model",
+          "description": "Estimate remaining useful life (RUL) for vehicle components",
+          "deliverables": ["LSTM model", "RUL API", "Uncertainty quantification"],
+          "dod": "RUL predictions within 10% error, updated as new data arrives"
+        },
+        {
+          "id": "3D-3",
+          "title": "Implement anomaly detection",
+          "description": "Detect unusual sensor patterns indicating imminent failure",
+          "deliverables": ["Anomaly detection algorithm", "Alert system", "Dashboard"],
+          "dod": "Anomalies detected within 1 hour, <5% false positive rate"
+        },
+        {
+          "id": "3D-4",
+          "title": "Auto-generate work orders from predictions",
+          "description": "Automatically create work orders when failure predicted",
+          "deliverables": ["Work order automation", "Scheduling integration", "Notification system"],
+          "dod": "Work orders created 2 weeks before predicted failure, assigned to technicians"
+        },
+        {
+          "id": "3D-5",
+          "title": "Build predictive maintenance dashboard",
+          "description": "Visualize RUL, failure probabilities, upcoming maintenance",
+          "deliverables": ["React dashboard", "Charts", "Filters", "Export"],
+          "dod": "Fleet managers see all vehicles, predicted failures, proactive maintenance schedule"
+        }
+      ]
+    },
+    {
+      "phase": "3E",
+      "name": "Video Telematics & Driver Safety",
+      "agent": "ComputerVision-Specialist",
+      "llm_model": "claude-3.5-sonnet",
+      "estimated_hours": 1.5,
+      "priority": 80,
+      "dependencies": [],
+      "tasks": [
+        {
+          "id": "3E-1",
+          "title": "Integrate dashcam video streams",
+          "description": "Connect to dashcam APIs, stream/store video",
+          "deliverables": ["Dashcam API integration", "Video storage", "Streaming"],
+          "dod": "Videos stream to Azure Blob, accessible via API, retained per policy"
+        },
+        {
+          "id": "3E-2",
+          "title": "Implement distracted driving detection",
+          "description": "Detect phone use, eating, drowsiness via Azure Computer Vision",
+          "deliverables": ["CV model", "Real-time alerts", "Event logging"],
+          "dod": "Distractions detected within 2s, alerts sent to fleet manager"
+        },
+        {
+          "id": "3E-3",
+          "title": "Add collision detection and harsh event alerts",
+          "description": "Detect hard braking, acceleration, cornering, collisions",
+          "deliverables": ["G-force analysis", "Event classification", "Video clipping"],
+          "dod": "Harsh events detected, 30s video clips saved, alerts sent"
+        },
+        {
+          "id": "3E-4",
+          "title": "Build evidence locker for video clips",
+          "description": "Secure storage for incident videos, chain of custody",
+          "deliverables": ["Secure storage", "Access logs", "Tamper detection", "Export"],
+          "dod": "Videos immutable, audit trail of access, exportable for legal purposes"
+        },
+        {
+          "id": "3E-5",
+          "title": "Create driver safety dashboard",
+          "description": "Driver scorecards, safety trends, coaching recommendations",
+          "deliverables": ["Dashboard UI", "Scoring algorithm", "Reports"],
+          "dod": "Managers see driver scores, trends, can review incidents, coach drivers"
+        }
+      ]
+    },
+    {
+      "phase": "3F",
+      "name": "EV Fleet Management",
+      "agent": "IoT-Protocols-Specialist",
+      "llm_model": "gpt-4o",
+      "estimated_hours": 1,
+      "priority": 75,
+      "dependencies": [],
+      "tasks": [
+        {
+          "id": "3F-1",
+          "title": "Implement OCPP 2.0.1 charging station protocol",
+          "description": "Connect to charging stations via OCPP",
+          "deliverables": ["OCPP client", "Message handling", "Status monitoring"],
+          "dod": "Connect to OCPP chargers, monitor status, start/stop charging remotely"
+        },
+        {
+          "id": "3F-2",
+          "title": "Build smart charging scheduler",
+          "description": "Optimize charging times based on electricity rates, vehicle schedules",
+          "deliverables": ["Scheduling algorithm", "Rate optimization", "Calendar integration"],
+          "dod": "Vehicles charge during off-peak hours, ready for scheduled departures"
+        },
+        {
+          "id": "3F-3",
+          "title": "Add charging station reservation system",
+          "description": "Allow drivers to reserve charging spots",
+          "deliverables": ["Reservation API", "Mobile UI", "Availability tracking"],
+          "dod": "Drivers reserve spots via app, no conflicts, reminders sent"
+        },
+        {
+          "id": "3F-4",
+          "title": "Implement carbon tracking",
+          "description": "Calculate carbon savings from EV usage vs. ICE vehicles",
+          "deliverables": ["Carbon calculation", "Baseline comparison", "Reporting"],
+          "dod": "Accurate carbon savings calculated, displayed on dashboard, exportable for ESG"
+        },
+        {
+          "id": "3F-5",
+          "title": "Build EV fleet dashboard",
+          "description": "Battery health, charge levels, range, charging history",
+          "deliverables": ["Dashboard UI", "Battery analytics", "Range prediction"],
+          "dod": "Managers see all EV status, battery health trends, plan charging"
+        }
+      ]
+    },
+    {
+      "phase": "3G",
+      "name": "Mobile App Enhancements",
+      "agent": "Mobile-Offline-Specialist",
+      "llm_model": "claude-3.5-sonnet",
+      "estimated_hours": 1,
+      "priority": 80,
+      "dependencies": ["2A-5"],
+      "tasks": [
+        {
+          "id": "3G-1",
+          "title": "Implement offline-first architecture with SQLite",
+          "description": "Store data locally, sync when online",
+          "deliverables": ["SQLite schema", "Sync engine", "Conflict resolution"],
+          "dod": "Apps work offline, sync automatically when online, no data loss"
+        },
+        {
+          "id": "3G-2",
+          "title": "Add digital toolbox (forms, checklists, manuals)",
+          "description": "Pre-trip inspections, safety checklists, repair manuals",
+          "deliverables": ["Form builder", "Checklist templates", "PDF viewer"],
+          "dod": "Drivers complete inspections offline, data syncs, PDFs cached"
+        },
+        {
+          "id": "3G-3",
+          "title": "Integrate keyless entry via Smartcar API",
+          "description": "Lock/unlock vehicles from app",
+          "deliverables": ["Smartcar integration", "UI controls", "Security validation"],
+          "dod": "Authorized users lock/unlock vehicles via app, audit trail logged"
+        },
+        {
+          "id": "3G-4",
+          "title": "Add push notifications and background sync",
+          "description": "Work order assignments, maintenance alerts, message notifications",
+          "deliverables": ["Push notification service", "Background sync", "Notification preferences"],
+          "dod": "Users receive timely notifications, background sync keeps data fresh"
+        },
+        {
+          "id": "3G-5",
+          "title": "Optimize mobile performance",
+          "description": "Reduce bundle size, improve startup time, smooth animations",
+          "deliverables": ["Code splitting", "Image optimization", "Performance benchmarks"],
+          "dod": "Apps start in <2s, 60fps animations, <50MB download size"
+        }
+      ]
+    },
+    {
+      "phase": "3H",
+      "name": "Globalization & Accessibility",
+      "agent": "i18n-Accessibility-Specialist",
+      "llm_model": "gemini-pro",
+      "estimated_hours": 0.5,
+      "priority": 70,
+      "dependencies": [],
+      "tasks": [
+        {
+          "id": "3H-1",
+          "title": "Set up i18next for multi-language support",
+          "description": "Configure i18n, extract strings, add language switcher",
+          "deliverables": ["i18next config", "Translation files", "Language switcher UI"],
+          "dod": "Support English, Spanish, French initially, easy to add more languages"
+        },
+        {
+          "id": "3H-2",
+          "title": "Implement WCAG 2.1 AA compliance",
+          "description": "Keyboard navigation, screen reader support, color contrast",
+          "deliverables": ["Accessibility fixes", "ARIA labels", "Keyboard shortcuts"],
+          "dod": "Pass automated accessibility tests, manual screen reader testing successful"
+        },
+        {
+          "id": "3H-3",
+          "title": "Add right-to-left (RTL) layout support",
+          "description": "Support RTL languages like Arabic",
+          "deliverables": ["RTL CSS", "Layout mirroring", "Text direction handling"],
+          "dod": "UI flips correctly for RTL languages, no layout breaks"
+        },
+        {
+          "id": "3H-4",
+          "title": "Translate all UI strings",
+          "description": "Professional translations for supported languages",
+          "deliverables": ["Translation files", "Context notes", "QA review"],
+          "dod": "All strings translated, contextually accurate, reviewed by native speakers"
+        }
+      ]
+    },
+    {
+      "phase": "3I",
+      "name": "Expanded Integrations",
+      "agent": "Integration-Specialist",
+      "llm_model": "gpt-4o",
+      "estimated_hours": 1,
+      "priority": 75,
+      "dependencies": [],
+      "tasks": [
+        {
+          "id": "3I-1",
+          "title": "Integrate WEX fuel card API",
+          "description": "Import fuel transactions, reconcile with vehicles",
+          "deliverables": ["WEX API integration", "Transaction import", "Reconciliation"],
+          "dod": "Fuel purchases auto-imported, matched to vehicles, cost tracking updated"
+        },
+        {
+          "id": "3I-2",
+          "title": "Build SAP ERP connector",
+          "description": "Sync fleet data with SAP (work orders, costs, inventory)",
+          "deliverables": ["SAP API integration", "Data mapping", "Bi-directional sync"],
+          "dod": "Data syncs both ways, no duplicates, errors logged and alertable"
+        },
+        {
+          "id": "3I-3",
+          "title": "Integrate toll transponder systems",
+          "description": "Import toll transactions, allocate to vehicles/cost centers",
+          "deliverables": ["Toll API integration", "Transaction import", "Cost allocation"],
+          "dod": "Toll charges auto-imported, allocated correctly, reports available"
+        },
+        {
+          "id": "3I-4",
+          "title": "Build GraphQL API for third-party integrations",
+          "description": "Flexible API for external systems to query/mutate fleet data",
+          "deliverables": ["GraphQL schema", "Resolvers", "Authentication", "Documentation"],
+          "dod": "GraphQL API supports common queries, documented in GraphiQL, rate-limited"
+        },
+        {
+          "id": "3I-5",
+          "title": "Implement webhook system for event notifications",
+          "description": "Send webhooks when events occur (maintenance due, alerts, etc.)",
+          "deliverables": ["Webhook delivery system", "Subscription management", "Retry logic"],
+          "dod": "External systems can subscribe to events, webhooks delivered reliably, retried on failure"
+        }
+      ]
+    }
+  ],
+  "integration_tasks": [
+    {
+      "id": "INT-1",
+      "title": "Integration Testing Across All Features",
+      "description": "End-to-end tests validating all features work together",
+      "dependencies": ["2A-6", "2B-4", "3A-5", "3B-5", "3C-5", "3D-5", "3E-5", "3F-5", "3G-5", "3H-4", "3I-5"],
+      "agent": "QA-Tester-Specialist",
+      "priority": 100
+    },
+    {
+      "id": "INT-2",
+      "title": "Deploy All Services to Production AKS",
+      "description": "Deploy all new services to Azure Kubernetes Service",
+      "dependencies": ["INT-1"],
+      "agent": "DevOps-Specialist",
+      "priority": 100
+    },
+    {
+      "id": "INT-3",
+      "title": "Update All Documentation",
+      "description": "API docs, user guides, deployment playbooks, architecture diagrams",
+      "dependencies": ["INT-2"],
+      "agent": "Documentation-Specialist",
+      "priority": 90
+    },
+    {
+      "id": "INT-4",
+      "title": "Security Audit All New Features",
+      "description": "Penetration testing, OWASP compliance, vulnerability scanning",
+      "dependencies": ["INT-2"],
+      "agent": "Security-Specialist",
+      "priority": 100
+    }
+  ],
+  "quality_gates": {
+    "unit_tests": {
+      "threshold": 80,
+      "description": "80%+ code coverage required"
+    },
+    "integration_tests": {
+      "threshold": 90,
+      "description": "90%+ critical path coverage"
+    },
+    "lint": {
+      "description": "ESLint must pass with 0 errors"
+    },
+    "types": {
+      "description": "TypeScript strict mode, 0 errors"
+    },
+    "security_scan": {
+      "description": "No high/critical vulnerabilities"
+    },
+    "performance": {
+      "web_vitals": {
+        "LCP": "<2.5s",
+        "FID": "<100ms",
+        "CLS": "<0.1"
+      },
+      "api_latency": {
+        "p50": "<200ms",
+        "p95": "<1s",
+        "p99": "<2s"
+      }
+    }
+  },
+  "resources": {
+    "azure": {
+      "openai": "GPT-4o for complex code generation",
+      "ml": "Azure ML for model training",
+      "signalr": "Real-time communications",
+      "blob_storage": "Video, 3D models, images",
+      "computer_vision": "Video analytics",
+      "speech": "Audio transcription",
+      "aks": "Production deployment"
+    },
+    "external_llms": {
+      "claude_3.5_sonnet": "Architecture decisions, complex logic",
+      "gpt_4o": "Rapid code generation",
+      "gemini_pro": "Parallel research, optimization"
+    },
+    "github": {
+      "actions": "CI/CD automation",
+      "branch_strategy": "feature/phase-{X}{Y}-{feature-name}",
+      "pr_requirements": "2 approvals, all checks pass"
+    }
+  },
+  "success_metrics": {
+    "code_deliverables": {
+      "services": 50,
+      "api_endpoints": 100,
+      "ml_models": 20,
+      "mobile_screens": 10,
+      "database_migrations": 30
+    },
+    "business_value": {
+      "phase_1": 600000,
+      "phase_2": 800000,
+      "phase_3": 2000000,
+      "total_annual": 3400000
+    }
+  }
+}
