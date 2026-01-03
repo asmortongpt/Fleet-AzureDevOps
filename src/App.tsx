@@ -3,6 +3,7 @@ import { Shield } from "lucide-react"
 import { useState, useMemo, lazy, Suspense } from "react"
 
 import { AIAssistantChat } from "@/components/ai/AIAssistantChat"
+import { BuildVersion } from "@/components/BuildVersion"
 import { DrilldownManager } from "@/components/DrilldownManager"
 import { EnhancedErrorBoundary } from "@/components/EnhancedErrorBoundary"
 import { ToastContainer } from "@/components/common/ToastContainer"
@@ -12,6 +13,7 @@ import { CommandCenterLayout } from "@/components/layout/CommandCenterLayout"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { WebSocketProvider } from "@/contexts/WebSocketContext"
+import { PolicyProvider } from "@/contexts/PolicyContext"
 import { useFleetData } from "@/hooks/use-fleet-data"
 import { navigationItems } from "@/lib/navigation"
 import telemetryService from '@/lib/telemetry'
@@ -39,6 +41,7 @@ const CommandCenter = lazy(() => import("@/pages/CommandCenter"))
 const AdminDashboard = lazy(() => import("@/pages/AdminDashboard"))
 
 const PolicyEngineWorkbench = lazy(() => import("@/components/modules/admin/PolicyEngineWorkbench").then(m => ({ default: m.PolicyEngineWorkbench })))
+const PolicyOnboarding = lazy(() => import("@/components/modules/admin/PolicyOnboarding").then(m => ({ default: m.PolicyOnboarding })))
 const Notifications = lazy(() => import("@/components/modules/admin/Notifications").then(m => ({ default: m.Notifications })))
 const PushNotificationAdmin = lazy(() => import("@/components/modules/admin/PushNotificationAdmin"))
 
@@ -293,6 +296,8 @@ function App() {
       case "policy-engine":
       case "policy-management":
         return <PolicyEngineWorkbench />
+      case "policy-onboarding":
+        return <PolicyOnboarding />
       case "video-telematics":
         return <VideoTelematics />
       case "ev-charging":
@@ -398,8 +403,9 @@ function App() {
 
 
   return (
-    <WebSocketProvider autoConnect={true} debug={import.meta.env.DEV}>
-      <DrilldownManager>
+    <PolicyProvider>
+      <WebSocketProvider autoConnect={true} debug={import.meta.env.DEV}>
+        <DrilldownManager>
         {/* Skip to main content link for accessibility */}
         <a
           href="#main-content"
@@ -429,8 +435,12 @@ function App() {
         {/* Toast notifications */}
         <ToastContainer />
 
-      </DrilldownManager >
-    </WebSocketProvider>
+        {/* Build version indicator - shows latest build confirmation */}
+        <BuildVersion />
+
+        </DrilldownManager >
+      </WebSocketProvider>
+    </PolicyProvider>
   )
 }
 

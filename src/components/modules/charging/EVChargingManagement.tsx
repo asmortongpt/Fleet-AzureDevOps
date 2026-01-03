@@ -11,7 +11,13 @@ import { useState } from "react"
 import { toast } from "sonner"
 
 import { Badge } from "@/components/ui/badge"
+import { usePolicies } from "@/contexts/PolicyContext"
 import { Button } from "@/components/ui/button"
+import {
+  enforceEVChargingPolicy,
+  shouldBlockAction,
+  getApprovalRequirements
+} from "@/lib/policy-engine/policy-enforcement"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import {
   Dialog,
@@ -89,12 +95,14 @@ interface ChargingSession {
 }
 
 export function EVChargingManagement() {
+  const { policies } = usePolicies()
   const [stations, setStations] = useState<ChargingStation[]>([])
   const [sessions, setSessions] = useState<ChargingSession[]>([])
   const [searchTerm, setSearchTerm] = useState("")
   const [filterStatus, setFilterStatus] = useState<string>("all")
   const [isAddStationOpen, setIsAddStationOpen] = useState(false)
   const [selectedStation, setSelectedStation] = useState<ChargingStation | null>(null)
+  const [isStartingSession, setIsStartingSession] = useState(false)
 
   const [newStation, setNewStation] = useState<Partial<ChargingStation>>({
     name: "",
@@ -150,6 +158,58 @@ export function EVChargingManagement() {
 
     setIsAddStationOpen(false)
     resetForm()
+  }
+
+  // Handler for starting charging sessions with policy enforcement
+  const handleStartChargingSession = async (stationId: string) => {
+    setIsStartingSession(true)
+
+    try {
+      // Sample charging data - in real implementation, this would come from a form
+      const chargingData = {
+        vehicleId: "veh-ev1",
+        batteryLevel: 25,
+        chargingStationId: stationId,
+        requestedPower: 50
+      }
+
+      // Enforce EV charging policy before allowing session start
+      const result = await enforceEVChargingPolicy(policies, chargingData)
+
+      // Check if action should be blocked
+      if (shouldBlockAction(result)) {
+        toast.error("Policy Violation", {
+          description: "This charging session cannot be started without resolving policy violations"
+        })
+        setIsStartingSession(false)
+        return
+      }
+
+      // Check if approval is required
+      const approvalReq = getApprovalRequirements(result)
+      if (approvalReq.required) {
+        toast.warning(`${approvalReq.level?.toUpperCase()} Approval Required`, {
+          description: approvalReq.reason
+        })
+        // In real implementation, route to approval workflow
+      }
+
+      // If we reach here, either policy allows it or requires approval
+      if (result.allowed) {
+        toast.success("Charging Session Started", {
+          description: approvalReq.required
+            ? "Session submitted for approval"
+            : "Charging session started successfully"
+        })
+        // Proceed with charging session creation
+      }
+    } catch (error) {
+      toast.error("Error", {
+        description: "Failed to validate charging session against policies"
+      })
+    } finally {
+      setIsStartingSession(false)
+    }
   }
 
   const handleEndSession = (sessionId: string) => {
@@ -524,13 +584,24 @@ export function EVChargingManagement() {
                       {getChargerTypeLabel(station.chargerType)} • {station.powerOutput} kW
                     </div>
                   </div>
-                  <div className="text-right">
+                  <div className="text-right space-y-2">
                     <Badge className={getStatusColor(station.status)} variant="secondary">
                       {station.status}
                     </Badge>
-                    {station.occupied && (
+                    {station.occupied ? (
                       <div className="text-xs text-muted-foreground mt-1">In use</div>
-                    )}
+                    ) : station.available && station.status === "online" ? (
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        className="w-full text-xs mt-1"
+                        onClick={() => handleStartChargingSession(station.id)}
+                        disabled={isStartingSession}
+                      >
+                        <BatteryCharging className="w-3 h-3 mr-1" />
+                        {isStartingSession ? "Checking..." : "Start Charging"}
+                      </Button>
+                    ) : null}
                   </div>
                 </div>
               ))}
