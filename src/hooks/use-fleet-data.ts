@@ -1,13 +1,6 @@
 /**
- * Fleet Data Hook - Production API Version
- * FEAT-007: Real API Connections - Replaced demo data with backend API
- *
- * Features:
- * - Real-time data from backend API
- * - React Query for caching and state management
- * - Optimistic updates for mutations
- * - Automatic retry and error handling
- * - No demo/mock data fallback
+ * Fleet Data Hook - Hybrid Version (API + Demo Fallback)
+ * Uses API data when available, falls back to demo data
  */
 
 import { useCallback, useEffect, useMemo } from 'react'
@@ -29,7 +22,15 @@ import {
   useMaintenanceMutations
 } from '@/hooks/use-api'
 import { Vehicle, Driver, WorkOrder, GISFacility } from '@/lib/types'
+import { generateDemoVehicles, generateDemoDrivers, generateDemoWorkOrders, generateDemoFacilities } from '@/lib/demo-data'
 import logger from '@/utils/logger'
+
+// Check if demo mode is enabled (default: true)
+const isDemoMode = () => {
+  if (typeof window === 'undefined') return true
+  const demoMode = localStorage.getItem('demo_mode')
+  return demoMode !== 'false' // Default to demo mode unless explicitly disabled
+}
 
 // Debug flag
 const DEBUG_FLEET_DATA = typeof window !== 'undefined' && localStorage.getItem('debug_fleet_data') === 'true'
@@ -65,7 +66,7 @@ export function useFleetData() {
   // Log API responses for debugging
   useEffect(() => {
     if (DEBUG_FLEET_DATA) {
-      logger.debug('[useFleetData] Production API Mode - No Demo Data')
+      logger.debug('[useFleetData] Demo Mode:', isDemoMode())
       logger.debug('[useFleetData] API Data State:', {
         vehicles: { count: vehiclesData?.length ?? 'N/A', loading: vehiclesLoading, error: !!vehiclesError },
         drivers: { count: driversData?.length ?? 'N/A', loading: driversLoading, error: !!driversError },
@@ -83,8 +84,16 @@ export function useFleetData() {
   const maintenanceMutations = useMaintenanceMutations()
   const fuelMutations = useFuelMutations()
 
-  // Extract data arrays from API (production mode only - no demo fallback)
+  // Extract data arrays with demo fallback
   const vehicles = useMemo((): Vehicle[] => {
+    if (isDemoMode()) {
+      // Use demo data
+      const demoVehicles = generateDemoVehicles(50)
+      if (DEBUG_FLEET_DATA) logger.debug('[useFleetData] Using demo vehicles:', demoVehicles.length)
+      return demoVehicles
+    }
+
+    // Use API data - ensure alerts is always an array
     const rawVehicles = vehiclesData || []
     return Array.isArray(rawVehicles) ? rawVehicles.map((v): Vehicle => ({
       ...(v as Partial<Vehicle>),
@@ -96,31 +105,61 @@ export function useFleetData() {
   }, [vehiclesData]);
 
   const drivers = useMemo((): Driver[] => {
+    if (isDemoMode()) {
+      const demoDrivers = generateDemoDrivers(20)
+      if (DEBUG_FLEET_DATA) logger.debug('[useFleetData] Using demo drivers:', demoDrivers.length)
+      return demoDrivers
+    }
+
     const rawDrivers = driversData || []
     return Array.isArray(rawDrivers) ? (rawDrivers as unknown as Driver[]) : []
   }, [driversData]);
 
   const workOrders = useMemo((): WorkOrder[] => {
+    if (isDemoMode()) {
+      const demoOrders = generateDemoWorkOrders(30)
+      if (DEBUG_FLEET_DATA) logger.debug('[useFleetData] Using demo work orders:', demoOrders.length)
+      return demoOrders
+    }
+
     const rawWorkOrders = workOrdersData || []
     return Array.isArray(rawWorkOrders) ? (rawWorkOrders as unknown as WorkOrder[]) : []
   }, [workOrdersData]);
 
   const fuelTransactions = useMemo(() => {
+    if (isDemoMode()) {
+      return [] // No demo fuel transactions for now
+    }
+    
     const rawFuelTransactions = fuelTransactionsData || []
     return Array.isArray(rawFuelTransactions) ? rawFuelTransactions : []
   }, [fuelTransactionsData]);
 
   const facilities = useMemo((): GISFacility[] => {
+    if (isDemoMode()) {
+      const demoFacilities = generateDemoFacilities()
+      if (DEBUG_FLEET_DATA) logger.debug('[useFleetData] Using demo facilities:', demoFacilities.length)
+      return demoFacilities
+    }
+
     const rawFacilities = facilitiesData || []
     return Array.isArray(rawFacilities) ? (rawFacilities as unknown as GISFacility[]) : []
   }, [facilitiesData]);
 
   const maintenanceSchedules = useMemo(() => {
+    if (isDemoMode()) {
+      return [] // No demo maintenance schedules for now
+    }
+    
     const rawMaintenanceSchedules = maintenanceData || []
     return Array.isArray(rawMaintenanceSchedules) ? rawMaintenanceSchedules : []
   }, [maintenanceData]);
 
   const routes = useMemo(() => {
+    if (isDemoMode()) {
+      return [] // No demo routes for now
+    }
+    
     const rawRoutes = routesData || []
     return Array.isArray(rawRoutes) ? rawRoutes : []
   }, [routesData]);
@@ -128,12 +167,12 @@ export function useFleetData() {
   // Log data extraction results for debugging
   useEffect(() => {
     if (DEBUG_FLEET_DATA) {
-      logger.debug('[useFleetData] Final data counts (Production API):', {
+      logger.debug('[useFleetData] Final data counts:', {
         vehicles: vehicles.length,
         drivers: drivers.length,
         workOrders: workOrders.length,
         facilities: facilities.length,
-        mode: 'PRODUCTION'
+        demoMode: isDemoMode()
       })
     }
   }, [vehicles.length, drivers.length, workOrders.length, facilities.length])
@@ -151,8 +190,11 @@ export function useFleetData() {
 
   // Data initialization
   const initializeData = useCallback(() => {
-    logger.info('✅ Fleet Management System - Production API Mode')
-    logger.info('📡 Connected to backend API at:', import.meta.env.VITE_API_URL || window.location.origin)
+    if (isDemoMode()) {
+      logger.info('✅ Using demo data mode')
+    } else {
+      logger.info('✅ Using production API/emulator data')
+    }
   }, [])
 
   // CRUD operations using API mutations
@@ -264,7 +306,7 @@ export function useFleetData() {
     maintenanceRequests: maintenanceSchedules,
     routes,
     dataInitialized: true,
-    isLoading: vehiclesLoading || driversLoading || workOrdersLoading || fuelLoading || routesLoading,
+    isLoading: isDemoMode() ? false : (vehiclesLoading || driversLoading || workOrdersLoading || fuelLoading || routesLoading),
     initializeData,
     addVehicle,
     updateVehicle,

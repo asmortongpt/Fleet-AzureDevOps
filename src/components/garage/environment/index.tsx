@@ -7,16 +7,16 @@
 export * from './types'
 export * from './configs'
 
-import { TimeOfDay, WeatherType } from './types'
 import React from 'react'
+import { TimeOfDay, WeatherType } from './types'
 
 export function DynamicLighting({ timeOfDay, weatherIntensity = 1.0 }: { timeOfDay: TimeOfDay; weatherIntensity?: number }) {
   return (
     <>
       <ambientLight intensity={0.4 * weatherIntensity} />
       <directionalLight
-        position={timeOfDay === 'midday' ? [10, 10, 5] : timeOfDay === 'afternoon' ? [5, 3, 5] : [2, 5, 3]}
-        intensity={timeOfDay === 'midday' ? 1.0 : timeOfDay === 'afternoon' ? 0.6 : 0.3}
+        position={timeOfDay === 'noon' ? [10, 10, 5] : timeOfDay === 'sunset' ? [5, 3, 5] : [2, 5, 3]}
+        intensity={timeOfDay === 'noon' ? 1.0 : timeOfDay === 'sunset' ? 0.6 : 0.3}
         castShadow
       />
     </>
@@ -24,15 +24,14 @@ export function DynamicLighting({ timeOfDay, weatherIntensity = 1.0 }: { timeOfD
 }
 
 export function ProceduralSky({ timeOfDay }: { timeOfDay: TimeOfDay }) {
-  const skyColors: Record<TimeOfDay, string> = {
+  const skyColors = {
     dawn: '#87CEEB',
-    morning: '#87CEEB',
-    midday: '#87CEEB',
-    afternoon: '#FF6B35',
+    noon: '#87CEEB',
+    sunset: '#FF6B35',
     dusk: '#2C3E50',
     night: '#0A1929'
   }
-
+  
   return (
     <mesh>
       <sphereGeometry args={[500, 32, 32]} />
@@ -92,7 +91,7 @@ export function FogEffect({ density = 0.15 }: { density?: number }) {
 
 export function DynamicGround({ weather, size = 100 }: { weather: WeatherType; size?: number }) {
   const groundColor = weather === 'snow' ? '#FFFFFF' : weather === 'rain' ? '#555555' : '#8B7355'
-
+  
   return (
     <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -1, 0]} receiveShadow>
       <planeGeometry args={[size, size]} />
