@@ -148,14 +148,18 @@ export default defineConfig({
         unsafe_comps: false,
         hoist_funs: false,
         dead_code: true,
-        reduce_vars: true,
-        collapse_vars: true,
+        // FIX: Disabled reduce_vars and collapse_vars to prevent TDZ errors in chart-vendor bundle
+        // Error: "Cannot access 'n' before initialization" in recharts/d3 bundle
+        reduce_vars: false,
+        collapse_vars: false,
         warnings: false,
       },
       mangle: {
         safari10: true,
         // Gemini AI: Disabled toplevel to prevent scope issues
         toplevel: false,
+        // FIX: Preserve variable names in chart libraries to prevent circular reference issues
+        reserved: ['recharts', 'd3', 'Chart'],
       },
       format: {
         comments: false,
