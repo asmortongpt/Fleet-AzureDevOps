@@ -53,7 +53,13 @@ export const ToastContainer: React.FC = () => {
   };
 
   return (
-    <div className="toast-container" aria-live="polite" aria-atomic="true" role="status">
+    <div
+      className="toast-container"
+      aria-live="polite"
+      aria-atomic="true"
+      role="status"
+      data-testid="toast-container"
+    >
       <AnimatePresence>
         {toasts.map((toast) => (
           <motion.div
