@@ -153,14 +153,15 @@ CREATE INDEX IF NOT EXISTS idx_telematics_timestamp
 ON telemetry_data(timestamp DESC);
 
 -- Index for location-based queries
-CREATE INDEX IF NOT EXISTS idx_telematics_location
-ON telemetry_data(latitude, longitude)
-WHERE latitude IS NOT NULL AND longitude IS NOT NULL;
+-- Index for location-based queries
+-- CREATE INDEX IF NOT EXISTS idx_telematics_location
+-- ON telemetry_data(latitude, longitude)
+-- WHERE latitude IS NOT NULL AND longitude IS NOT NULL;
 
 -- Index for speed notifications
-CREATE INDEX IF NOT EXISTS idx_telematics_speed
-ON telemetry_data(speed)
-WHERE speed > 0;
+-- CREATE INDEX IF NOT EXISTS idx_telematics_speed
+-- ON telemetry_data(speed)
+-- WHERE speed > 0;
 
 -- ============================================================================
 -- INSPECTIONS TABLE INDEXES
