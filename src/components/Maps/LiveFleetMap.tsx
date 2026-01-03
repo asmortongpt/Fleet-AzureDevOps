@@ -6,7 +6,7 @@
 import React, { useState, useEffect } from 'react'
 import { GoogleMapView } from './GoogleMapView'
 import { Vehicle } from '@/types/Vehicle'
-import { useVehicles } from '@/hooks/useVehicles'
+import { useVehicles } from '@/hooks/use-api'
 import { useDrilldown } from '@/contexts/DrilldownContext'
 import { Skeleton } from '@/components/ui/skeleton'
 import { AlertCircle, Filter, RefreshCw } from 'lucide-react'
