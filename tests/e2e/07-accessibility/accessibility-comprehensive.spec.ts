@@ -6,7 +6,7 @@
 import AxeBuilder from '@axe-core/playwright'
 import { test, expect } from '@playwright/test'
 
-const BASE_URL = process.env.BASE_URL || 'http://localhost:5173'
+const BASE_URL = process.env.BASE_URL || 'http://localhost:5174'
 
 // All routes to test
 const ROUTES_TO_TEST = [
