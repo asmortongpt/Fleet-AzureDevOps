@@ -116,28 +116,31 @@ function FleetOverviewContent() {
     }
 
     const handleActiveDrilldown = () => {
+        // Trigger new Excel-style view
         push({
-            id: 'active-vehicles',
-            type: 'active-vehicles',
-            label: 'Active Vehicles',
+            id: 'active-vehicles-excel',
+            type: 'active-vehicles-excel',
+            label: 'Active Vehicles (Excel View)',
             data: { filter: 'active', status: 'active' }
         })
     }
 
     const handleMaintenanceDrilldown = () => {
+        // Trigger new Excel-style maintenance records view
         push({
-            id: 'maintenance',
-            type: 'maintenance',
-            label: 'Maintenance Overview',
+            id: 'maintenance-records-excel',
+            type: 'maintenance-records-excel',
+            label: 'Maintenance Records (Excel View)',
             data: { filter: 'maintenance' }
         })
     }
 
     const handleFuelDrilldown = () => {
+        // Trigger cost analysis Excel view
         push({
-            id: 'fuel-stats',
-            type: 'fuel-stats',
-            label: 'Fuel Stats',
+            id: 'cost-analysis-excel',
+            type: 'cost-analysis-excel',
+            label: 'Cost Analysis (Excel View)',
             data: { view: 'fuel' }
         })
     }
@@ -204,7 +207,7 @@ function FleetOverviewContent() {
                 {/* Utilization Ring - Clickable */}
                 <div
                     className="bg-gradient-to-br from-slate-800/60 to-slate-900/60 backdrop-blur-xl rounded-lg border border-slate-700/50 p-3 flex items-center gap-4 cursor-pointer hover:border-blue-500/30 hover:scale-[1.01] transition-all"
-                    onClick={() => push({ id: 'utilization', type: 'utilization', label: 'Fleet Utilization Details', data: { view: 'utilization' } })}
+                    onClick={() => push({ id: 'utilization-data-excel', type: 'utilization-data-excel', label: 'Utilization Data (Excel View)', data: { view: 'utilization' } })}
                     role="button"
                     tabIndex={0}
                 >
