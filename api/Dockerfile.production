@@ -38,7 +38,12 @@ RUN addgroup -g 1001 -S nodejs && \
   adduser -S nodejs -u 1001 -G nodejs
 
 # Change ownership of app directory
+# Build the application
+RUN npm run build:prod
+
+# Change ownership of app directory
 RUN chown -R nodejs:nodejs /app
+
 
 # Switch to non-root user
 USER nodejs
@@ -48,8 +53,8 @@ EXPOSE 3000
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
-  CMD node -e "require('http').get('http://localhost:3000/api/health', (res) => { process.exit(res.statusCode === 200 ? 0 : 1); });"
+  CMD node -e "require('http').get('http://localhost:3000/health', (res) => { process.exit(res.statusCode === 200 ? 0 : 1); });"
 
-# TEMPORARY: Run TypeScript source directly with tsx (bypasses compilation)
-# Once TypeScript errors are fixed, change back to: CMD ["node", "dist/server.js"]
-CMD ["node", "--import", "tsx", "src/server.ts"]
+# Run with compiled JavaScript
+CMD ["node", "dist/server.js"]
+
