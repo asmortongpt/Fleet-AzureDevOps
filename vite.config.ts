@@ -50,6 +50,67 @@ export default defineConfig({
         // Gemini AI FIX: Disabled manualChunks to fix React TDZ in chart-vendor
         // Let Vite handle chunk ordering automatically to prevent "Cannot access React before initialization"
         manualChunks: undefined,
+        _manualChunks_DISABLED(id) {
+          if (id.includes('node_modules')) {
+            if (id.includes('react/') || id.includes('react-dom/')) {
+              return 'react-core';
+            }
+            if (id.includes('react-router')) {
+              return 'react-router';
+            }
+            if (id.includes('@radix-ui')) {
+              if (id.includes('dialog') || id.includes('alert-dialog') || id.includes('popover')) {
+                return 'ui-dialogs';
+              }
+              if (id.includes('dropdown') || id.includes('menu') || id.includes('select')) {
+                return 'ui-menus';
+              }
+              return 'ui-radix';
+            }
+            if (id.includes('@mui/')) {
+              if (id.includes('@mui/icons-material')) {
+                return 'mui-icons';
+              }
+              return 'mui-core';
+            }
+            if (id.includes('recharts') || id.includes('d3')) {
+              return 'chart-vendor';
+            }
+            if (id.includes('date-fns') || id.includes('dayjs')) {
+              return 'date-vendor';
+            }
+            if (id.includes('framer-motion')) {
+              return 'animation-vendor';
+            }
+            if (id.includes('three')) {
+              if (id.includes('@react-three/drei')) {
+                return 'three-helpers';
+              }
+              if (id.includes('@react-three/fiber')) {
+                return 'three-react';
+              }
+              return 'three-core';
+            }
+            if (id.includes('react-hook-form') || id.includes('zod')) {
+              return 'form-vendor';
+            }
+            if (id.includes('@tanstack/react-query')) {
+              return 'query-vendor';
+            }
+            if (id.includes('mapbox') || id.includes('maplibre') || id.includes('leaflet')) {
+              return 'maps-vendor';
+            }
+            if (id.includes('@azure')) {
+              return 'azure-vendor';
+            }
+            if (id.includes('lucide-react') || id.includes('clsx') || id.includes('tailwind-merge')) {
+              return 'utils-vendor';
+            }
+          }
+          if (id.includes('lazy')) {
+            return 'lazy-modules';
+          }
+        },
         chunkFileNames: 'assets/js/[name]-[hash].js',
         entryFileNames: 'assets/js/[name]-[hash].js',
         assetFileNames: (assetInfo) => {
