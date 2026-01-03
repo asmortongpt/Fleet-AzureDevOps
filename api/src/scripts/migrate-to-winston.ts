@@ -50,11 +50,21 @@ function migrateFile(filePath: string): boolean {
   const consoleDebugMatches = content.match(/console\.debug\(/g)
   const consoleInfoMatches = content.match(/console\.info\(/g)
 
-  if (consoleLogMatches) stats.consoleLogs += consoleLogMatches.length
-  if (consoleErrorMatches) stats.consoleErrors += consoleErrorMatches.length
-  if (consoleWarnMatches) stats.consoleWarns += consoleWarnMatches.length
-  if (consoleDebugMatches) stats.consoleDebugs += consoleDebugMatches.length
-  if (consoleInfoMatches) stats.consoleInfos += consoleInfoMatches.length
+  if (consoleLogMatches) {
+stats.consoleLogs += consoleLogMatches.length
+}
+  if (consoleErrorMatches) {
+stats.consoleErrors += consoleErrorMatches.length
+}
+  if (consoleWarnMatches) {
+stats.consoleWarns += consoleWarnMatches.length
+}
+  if (consoleDebugMatches) {
+stats.consoleDebugs += consoleDebugMatches.length
+}
+  if (consoleInfoMatches) {
+stats.consoleInfos += consoleInfoMatches.length
+}
 
   // Replace console.error
   if (content.includes('console.error')) {

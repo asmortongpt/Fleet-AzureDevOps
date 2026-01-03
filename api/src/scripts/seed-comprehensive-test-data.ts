@@ -65,17 +65,33 @@ const incidentSeverities = ['minor', 'moderate', 'severe', 'fatal'];
 const inspectionTypes = ['pre_trip', 'post_trip', 'safety', 'dot'];
 const inspectionResults = ['pass', 'fail', 'needs_repair'];
 
-function randomItem<T>(array: T[]): T { return array[Math.floor(Math.random() * array.length)]; }
-function randomInt(min: number, max: number): number { return Math.floor(Math.random() * (max - min + 1)) + min; }
-function randomFloat(min: number, max: number, decimals: number = 2): number { return parseFloat((Math.random() * (max - min) + min).toFixed(decimals)); }
-function daysAgo(days: number): Date { const d = new Date(); d.setDate(d.getDate() - days); return d; }
-function daysFromNow(days: number): Date { const d = new Date(); d.setDate(d.getDate() + days); return d; }
-function monthsAgo(months: number): Date { const d = new Date(); d.setMonth(d.getMonth() - months); return d; }
-function yearsAgo(years: number): Date { const d = new Date(); d.setFullYear(d.getFullYear() - years); return d; }
+function randomItem<T>(array: T[]): T {
+ return array[Math.floor(Math.random() * array.length)]; 
+}
+function randomInt(min: number, max: number): number {
+ return Math.floor(Math.random() * (max - min + 1)) + min; 
+}
+function randomFloat(min: number, max: number, decimals: number = 2): number {
+ return parseFloat((Math.random() * (max - min) + min).toFixed(decimals)); 
+}
+function daysAgo(days: number): Date {
+ const d = new Date(); d.setDate(d.getDate() - days); return d; 
+}
+function daysFromNow(days: number): Date {
+ const d = new Date(); d.setDate(d.getDate() + days); return d; 
+}
+function monthsAgo(months: number): Date {
+ const d = new Date(); d.setMonth(d.getMonth() - months); return d; 
+}
+function yearsAgo(years: number): Date {
+ const d = new Date(); d.setFullYear(d.getFullYear() - years); return d; 
+}
 function generateVIN(): string {
   const chars = 'ABCDEFGHJKLMNPRSTUVWXYZ0123456789';
   let vin = '';
-  for (let i = 0; i < 17; i++) vin += chars[Math.floor(Math.random() * chars.length)];
+  for (let i = 0; i < 17; i++) {
+vin += chars[Math.floor(Math.random() * chars.length)];
+}
   return vin;
 }
 function generateLicensePlate(): string {
@@ -219,7 +235,9 @@ async function seedDatabase() {
 
     // 6. FUEL TRANSACTIONS
     for (const v of vehicles) {
-      if (v.fuel_type === 'Electric') continue;
+      if (v.fuel_type === 'Electric') {
+continue;
+}
       const count = randomInt(5, 15);
       for (let i = 0; i < count; i++) {
         await client.query(

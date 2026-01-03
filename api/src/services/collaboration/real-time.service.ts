@@ -17,6 +17,8 @@ import jwt from 'jsonwebtoken'
 import { Pool } from 'pg'
 import { Server as SocketIOServer } from 'socket.io'
 
+import { pool } from '../../db/connection';
+
 // Allowlist of valid comment tables
 const COMMENT_TABLES = ['task_comments', 'asset_comments'] as const;
 type CommentTable = typeof COMMENT_TABLES[number];
@@ -137,7 +139,9 @@ export class CollaborationService {
    */
   private handleViewEntity(socket: any, data: { type: 'task' | 'asset', id: string }): void {
     const user = this.activeUsers.get(socket.id)
-    if (!user) return
+    if (!user) {
+return
+}
     const entityKey = `${data.type}:${data.id}`
 
     // Update user`s current view
@@ -175,7 +179,9 @@ export class CollaborationService {
    */
   private handleLeaveEntity(socket: any, data: { type: 'task' | 'asset', id: string }): void {
     const user = this.activeUsers.get(socket.id)
-    if (!user) return
+    if (!user) {
+return
+}
 
     const entityKey = `${data.type}:${data.id}`
 
@@ -201,7 +207,9 @@ export class CollaborationService {
    */
   private handleTypingStart(socket: any, data: { entityId: string }): void {
     const user = this.activeUsers.get(socket.id)
-    if (!user) return
+    if (!user) {
+return
+}
 
     user.isTyping = true
 
@@ -220,7 +228,9 @@ export class CollaborationService {
    */
   private handleTypingStop(socket: any, data: { entityId: string }): void {
     const user = this.activeUsers.get(socket.id)
-    if (!user) return
+    if (!user) {
+return
+}
 
     user.isTyping = false
 
@@ -291,7 +301,9 @@ export class CollaborationService {
    */
   private handleCursorMove(socket: any, data: { entityId: string, position: any }): void {
     const user = this.activeUsers.get(socket.id)
-    if (!user || !user.currentView) return
+    if (!user || !user.currentView) {
+return
+}
     const entityKey = `${user.currentView.type}:${user.currentView.id}`
     socket.to(entityKey).emit('cursor:position', {
       userId: user.userId,
@@ -305,7 +317,9 @@ export class CollaborationService {
    */
   private handleDisconnect(socket: any): void {
     const user = this.activeUsers.get(socket.id)
-    if (!user) return
+    if (!user) {
+return
+}
 
     // Remove from all entity viewers
     if (user.currentView) {
@@ -330,7 +344,9 @@ export class CollaborationService {
    * Broadcast entity update to all viewers
    */
   broadcastEntityUpdate(entityType: 'task' | 'asset', entityId: string, update: any, userId: string, userName: string): void {
-    if (!this.io) return
+    if (!this.io) {
+return
+}
 
     const entityKey = `${entityType}:${entityId}`
     this.io.to(entityKey).emit('entity:updated', {
@@ -357,7 +373,9 @@ export class CollaborationService {
    * Broadcast status change
    */
   broadcastStatusChange(entityType: 'task' | 'asset', entityId: string, oldStatus: string, newStatus: string, userId: string, userName: string): void {
-    if (!this.io) return
+    if (!this.io) {
+return
+}
     const entityKey = `${entityType}:${entityId}`
     this.io.to(entityKey).emit('status:changed', {
       entityType,
@@ -384,7 +402,9 @@ export class CollaborationService {
    * Broadcast assignment change
    */
   broadcastAssignmentChange(entityType: 'task' | 'asset', entityId: string, oldAssignee: string | null, newAssignee: string, userId: string, userName: string): void {
-    if (!this.io) return
+    if (!this.io) {
+return
+}
 
     const entityKey = `${entityType}:${entityId}`
     this.io.to(entityKey).emit('assignment:changed', {
@@ -412,7 +432,9 @@ export class CollaborationService {
    * Broadcast to tenant
    */
   broadcastToTenant(tenantId: string, event: string, data: any): void {
-    if (!this.io) return
+    if (!this.io) {
+return
+}
     this.io.to(`tenant:${tenantId}`).emit(event, data)
   }
 
@@ -457,8 +479,6 @@ export class CollaborationService {
     }
   }
 }
-
-import { pool } from '../../db/connection';
 
 // Global instance
 export const collaborationService = new CollaborationService(pool)

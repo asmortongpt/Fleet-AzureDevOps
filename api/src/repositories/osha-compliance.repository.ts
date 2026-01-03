@@ -188,8 +188,12 @@ export class OSHAComplianceRepository extends BaseRepository<any> {
       ${status ? `AND o.case_status = $${year ? '3' : '2'}` : ''}
     `
     const countParams = [tenantId]
-    if (year) countParams.push(year)
-    if (status) countParams.push(status)
+    if (year) {
+countParams.push(year)
+}
+    if (status) {
+countParams.push(status)
+}
 
     const countResult = await pool.query(countQuery, countParams)
 
@@ -318,9 +322,15 @@ export class OSHAComplianceRepository extends BaseRepository<any> {
       ${status ? `AND vsi.overall_status = $${[vehicle_id, driver_id].filter(Boolean).length + 2}` : ''}
     `
     const countParams = [tenantId]
-    if (vehicle_id) countParams.push(vehicle_id)
-    if (driver_id) countParams.push(driver_id)
-    if (status) countParams.push(status)
+    if (vehicle_id) {
+countParams.push(vehicle_id)
+}
+    if (driver_id) {
+countParams.push(driver_id)
+}
+    if (status) {
+countParams.push(status)
+}
 
     const countResult = await pool.query(countQuery, countParams)
 
@@ -402,8 +412,12 @@ export class OSHAComplianceRepository extends BaseRepository<any> {
       ${training_type ? `AND str.training_type = $${employee_id ? '3' : '2'}` : ''}
     `
     const countParams = [tenantId]
-    if (employee_id) countParams.push(employee_id)
-    if (training_type) countParams.push(training_type)
+    if (employee_id) {
+countParams.push(employee_id)
+}
+    if (training_type) {
+countParams.push(training_type)
+}
 
     const countResult = await pool.query(countQuery, countParams)
 
@@ -479,7 +493,9 @@ export class OSHAComplianceRepository extends BaseRepository<any> {
       ${severity ? 'AND ai.severity = $2' : ''}
     `
     const countParams = [tenantId]
-    if (severity) countParams.push(severity)
+    if (severity) {
+countParams.push(severity)
+}
 
     const countResult = await pool.query(countQuery, countParams)
 

@@ -211,8 +211,11 @@ export class FuelPriceForecastingModel {
       const month = parseInt(monthNum)
       let trend: 'low' | 'medium' | 'high' = 'medium'
 
-      if (factor < 0.98) trend = 'low'
-      else if (factor > 1.04) trend = 'high'
+      if (factor < 0.98) {
+trend = 'low'
+} else if (factor > 1.04) {
+trend = 'high'
+}
 
       return {
         month,
@@ -378,7 +381,9 @@ export class FuelPriceForecastingModel {
    * Calculate price volatility (standard deviation)
    */
   private calculateVolatility(data: FuelPriceData[]): number {
-    if (data.length < 2) return 0.05
+    if (data.length < 2) {
+return 0.05
+}
 
     const prices = data.map(d => d.price)
     const mean = prices.reduce((sum, p) => sum + p, 0) / prices.length

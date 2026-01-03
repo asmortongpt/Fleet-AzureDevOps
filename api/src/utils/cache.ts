@@ -3,7 +3,9 @@ let createClient: any = null
 
 // Lazy load optional Redis client
 async function loadRedisClient() {
-  if (createClient) return
+  if (createClient) {
+return
+}
 
   try {
     const redisModule = await import('redis')
@@ -18,7 +20,9 @@ class CacheService {
   private connected: boolean = false;
 
   async connect(): Promise<void> {
-    if (this.connected) return;
+    if (this.connected) {
+return;
+}
 
     // Load Redis client if not already loaded
     await loadRedisClient()
@@ -56,7 +60,9 @@ class CacheService {
   }
 
   async get<T>(key: string): Promise<T | null> {
-    if (!this.connected) return null;
+    if (!this.connected) {
+return null;
+}
 
     try {
       const value = await this.client.get(key);
@@ -68,7 +74,9 @@ class CacheService {
   }
 
   async set(key: string, value: any, ttlSeconds: number = 300): Promise<void> {
-    if (!this.connected) return;
+    if (!this.connected) {
+return;
+}
 
     try {
       await this.client.setEx(key, ttlSeconds, JSON.stringify(value));
@@ -78,7 +86,9 @@ class CacheService {
   }
 
   async del(key: string): Promise<void> {
-    if (!this.connected) return;
+    if (!this.connected) {
+return;
+}
 
     try {
       await this.client.del(key);
@@ -88,7 +98,9 @@ class CacheService {
   }
 
   async delPattern(pattern: string): Promise<void> {
-    if (!this.connected) return;
+    if (!this.connected) {
+return;
+}
 
     try {
       const keys = await this.client.keys(pattern);

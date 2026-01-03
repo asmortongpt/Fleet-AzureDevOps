@@ -265,7 +265,7 @@ export class RadioEmulator extends EventEmitter {
       if (!this.isPaused) {
         this.updateRadioState()
       }
-    }, this.radioConfig.updateIntervalMs!)
+    }, this.radioConfig.updateIntervalMs)
 
     // Start simulated radio traffic
     this.startTrafficSimulation()
@@ -374,7 +374,7 @@ export class RadioEmulator extends EventEmitter {
     // Set PTT timeout
     this.pttTimeout = setTimeout(() => {
       this.releasePTT('timeout')
-    }, this.radioConfig.pttTimeoutMs!)
+    }, this.radioConfig.pttTimeoutMs)
 
     const currentLocation = this.getCurrentLocation()
     const pttEvent: PTTEvent = {

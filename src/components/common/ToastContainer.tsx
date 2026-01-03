@@ -53,7 +53,7 @@ export const ToastContainer: React.FC = () => {
   };
 
   return (
-    <div className="toast-container">
+    <div className="toast-container" aria-live="polite" aria-atomic="true" role="status">
       <AnimatePresence>
         {toasts.map((toast) => (
           <motion.div
@@ -69,7 +69,7 @@ export const ToastContainer: React.FC = () => {
             <button
               className="toast-close"
               onClick={() => removeToast(toast.id)}
-              aria-label="Close"
+              aria-label="Close notification"
             >
               ×
             </button>

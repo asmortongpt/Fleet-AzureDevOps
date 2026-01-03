@@ -80,7 +80,8 @@ export class MobileAppSimulator extends EventEmitter {
   public async start(): Promise<void> {
     if (this.isRunning) {
       console.log('⚠️  MobileAppSimulator already running')
-      return }
+      return 
+}
 
     console.log('🚀 Starting MobileAppSimulator...')
     this.isRunning = true
@@ -125,10 +126,18 @@ export class MobileAppSimulator extends EventEmitter {
     console.log('🛑 Stopping MobileAppSimulator...')
     this.isRunning = false
 
-    if (this.fuelTimer) clearInterval(this.fuelTimer)
-    if (this.damageTimer) clearInterval(this.damageTimer)
-    if (this.inspectionTimer) clearInterval(this.inspectionTimer)
-    if (this.motionTimer) clearInterval(this.motionTimer)
+    if (this.fuelTimer) {
+clearInterval(this.fuelTimer)
+}
+    if (this.damageTimer) {
+clearInterval(this.damageTimer)
+}
+    if (this.inspectionTimer) {
+clearInterval(this.inspectionTimer)
+}
+    if (this.motionTimer) {
+clearInterval(this.motionTimer)
+}
 
     await this.pool.end()
 

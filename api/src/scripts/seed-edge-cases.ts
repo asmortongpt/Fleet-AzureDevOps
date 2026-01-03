@@ -158,7 +158,9 @@ async function seedWorkOrderEdgeCases(tenantId: string) {
   // Get a vehicle
   const vehicleResult = await pool.query('SELECT id FROM vehicles LIMIT 1');
   const vehicleId = vehicleResult.rows[0]?.id;
-  if (!vehicleId) return;
+  if (!vehicleId) {
+return;
+}
 
   const workOrders = [
     // Missing statuses
@@ -217,7 +219,9 @@ async function seedRouteEdgeCases(tenantId: string) {
   const driverResult = await pool.query('SELECT id FROM drivers LIMIT 1');
   const vehicleId = vehicleResult.rows[0]?.id;
   const driverId = driverResult.rows[0]?.id;
-  if (!vehicleId || !driverId) return;
+  if (!vehicleId || !driverId) {
+return;
+}
 
   const routes = [
     // Missing statuses
@@ -264,7 +268,9 @@ async function seedInspectionEdgeCases(tenantId: string) {
   const driverResult = await pool.query('SELECT id FROM drivers LIMIT 1');
   const vehicleId = vehicleResult.rows[0]?.id;
   const inspectorId = driverResult.rows[0]?.id;
-  if (!vehicleId || !inspectorId) return;
+  if (!vehicleId || !inspectorId) {
+return;
+}
 
   const inspections = [
     // All inspection types
@@ -311,7 +317,9 @@ async function seedSafetyIncidentEdgeCases(tenantId: string) {
   const driverResult = await pool.query('SELECT id FROM drivers LIMIT 1');
   const vehicleId = vehicleResult.rows[0]?.id;
   const driverId = driverResult.rows[0]?.id;
-  if (!vehicleId || !driverId) return;
+  if (!vehicleId || !driverId) {
+return;
+}
 
   const incidents = [
     // All incident types with various severities
@@ -390,7 +398,9 @@ async function seedNotificationEdgeCases(tenantId: string) {
 
   const userResult = await pool.query('SELECT id FROM users LIMIT 1');
   const userId = userResult.rows[0]?.id;
-  if (!userId) return;
+  if (!userId) {
+return;
+}
 
   const notifications = [
     // All types and priorities
@@ -431,7 +441,9 @@ async function seedFuelEdgeCases(tenantId: string) {
 
   const vehicleResult = await pool.query('SELECT id FROM vehicles WHERE fuel_type != \'Electric\' LIMIT 1');
   const vehicleId = vehicleResult.rows[0]?.id;
-  if (!vehicleId) return;
+  if (!vehicleId) {
+return;
+}
 
   const transactions = [
     // Missing fuel type
@@ -513,7 +525,9 @@ async function seedMaintenanceEdgeCases(tenantId: string) {
 
   const vehicleResult = await pool.query('SELECT id FROM vehicles LIMIT 1');
   const vehicleId = vehicleResult.rows[0]?.id;
-  if (!vehicleId) return;
+  if (!vehicleId) {
+return;
+}
 
   const schedules = [
     // All recurrence types

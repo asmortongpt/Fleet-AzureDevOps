@@ -26,8 +26,12 @@ const isProduction = process.env.NODE_ENV === 'production'
  * - Production: 1x limits (strict enforcement)
  */
 const environmentMultiplier = (() => {
-  if (isDevelopment) return 100
-  if (process.env.NODE_ENV === 'staging') return 10
+  if (isDevelopment) {
+    return 100
+  }
+  if (process.env.NODE_ENV === 'staging') {
+    return 10
+  }
   return 1
 })()
 

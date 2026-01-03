@@ -674,7 +674,9 @@ export class ActionableMessagesService {
     result: string
   ): Promise<void> {
     try {
-      if (!cardId) return
+      if (!cardId) {
+return
+}
 
       await this.db.query(
         `INSERT INTO adaptive_card_actions (card_id, action_type, action_data, user_id, result, created_at)

@@ -30,7 +30,9 @@ import PhotoProcessingService from '../services/photo-processing.service';
 
 
 const getErrorMessage = (error: unknown): string => {
-  if (error instanceof Error) return error.message;
+  if (error instanceof Error) {
+return error.message;
+}
   return String(error);
 };
 
@@ -297,7 +299,7 @@ router.post(
 
       // Upload each photo
       for (let i = 0; i < req.files.length; i++) {
-        const file = req.files[i] as Express.Multer.File;
+        const file = req.files[i];
         const metadata = metadataArray[i] || {};
 
         try {

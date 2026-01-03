@@ -108,7 +108,9 @@ export class CostEmulator extends EventEmitter {
   }
 
   public async start(): Promise<void> {
-    if (this.isRunning) return
+    if (this.isRunning) {
+return
+}
     this.isRunning = true
 
     // Generate new costs periodically
@@ -244,11 +246,21 @@ export class CostEmulator extends EventEmitter {
   private generateTags(category: string): string[] {
     const tags = []
 
-    if (Math.random() > 0.5) tags.push('tax-deductible')
-    if (Math.random() > 0.7) tags.push('recurring')
-    if (Math.random() > 0.8) tags.push('urgent')
-    if (category === 'maintenance' && Math.random() > 0.6) tags.push('preventive')
-    if (category === 'violations' || category === 'tolls') tags.push('compliance')
+    if (Math.random() > 0.5) {
+tags.push('tax-deductible')
+}
+    if (Math.random() > 0.7) {
+tags.push('recurring')
+}
+    if (Math.random() > 0.8) {
+tags.push('urgent')
+}
+    if (category === 'maintenance' && Math.random() > 0.6) {
+tags.push('preventive')
+}
+    if (category === 'violations' || category === 'tolls') {
+tags.push('compliance')
+}
 
     return tags
   }
@@ -275,7 +287,9 @@ export class CostEmulator extends EventEmitter {
     let random = Math.random() * totalWeight
     for (let i = 0; i < categories.length; i++) {
       random -= weights[i]
-      if (random <= 0) return categories[i]
+      if (random <= 0) {
+return categories[i]
+}
     }
 
     return categories[0]
@@ -283,7 +297,9 @@ export class CostEmulator extends EventEmitter {
 
   private getRandomVendor(category: string): string {
     const vendorList = this.vendors[category as keyof typeof this.vendors]
-    if (!vendorList) return `Vendor-${Math.floor(Math.random() * 100)}`
+    if (!vendorList) {
+return `Vendor-${Math.floor(Math.random() * 100)}`
+}
     return vendorList[Math.floor(Math.random() * vendorList.length)]
   }
 
@@ -295,7 +311,9 @@ export class CostEmulator extends EventEmitter {
     let random = Math.random() * totalWeight
     for (let i = 0; i < methods.length; i++) {
       random -= weights[i]
-      if (random <= 0) return methods[i]
+      if (random <= 0) {
+return methods[i]
+}
     }
 
     return 'fleet_card'
@@ -316,8 +334,12 @@ export class CostEmulator extends EventEmitter {
   }
 
   private getBudgetStatus(variancePercent: number): BudgetTracking['status'] {
-    if (variancePercent < -5) return 'under'
-    if (variancePercent > 10) return 'over'
+    if (variancePercent < -5) {
+return 'under'
+}
+    if (variancePercent > 10) {
+return 'over'
+}
     return 'on-track'
   }
 
@@ -596,7 +618,9 @@ export class CostEmulator extends EventEmitter {
     })
 
     return results.sort((a, b) => {
-      if (a.month !== b.month) return b.month.localeCompare(a.month)
+      if (a.month !== b.month) {
+return b.month.localeCompare(a.month)
+}
       return a.category.localeCompare(b.category)
     })
   }
@@ -721,9 +745,13 @@ export class CostEmulator extends EventEmitter {
 
   private getSeasonalFactor(month: number): number {
     // Winter months (Dec-Feb): higher fuel/maintenance
-    if (month === 11 || month === 0 || month === 1) return 1.15
+    if (month === 11 || month === 0 || month === 1) {
+return 1.15
+}
     // Summer months (Jun-Aug): higher fuel for AC, more trips
-    if (month >= 5 && month <= 7) return 1.10
+    if (month >= 5 && month <= 7) {
+return 1.10
+}
     // Spring/Fall: normal operations
     return 1.0
   }

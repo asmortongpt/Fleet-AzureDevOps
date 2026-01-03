@@ -283,7 +283,7 @@ export async function handleCreate<T>(
 
   logger.info(`Created ${config.logResource || config.resource}`, {
     tenantId,
-    id: (created as any).id,
+    id: (created).id,
   });
 
   res.status(201).json(created);

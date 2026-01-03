@@ -224,9 +224,13 @@ router.get('/microsoft', async (req: Request, res: Response) => {
   // Calculate summary
   results.summary.total = Object.keys(results.services).length;
   Object.values(results.services).forEach(service => {
-    if (service.status === 'up') results.summary.healthy++;
-    else if (service.status === 'degraded') results.summary.degraded++;
-    else results.summary.unhealthy++;
+    if (service.status === 'up') {
+results.summary.healthy++;
+} else if (service.status === 'degraded') {
+results.summary.degraded++;
+} else {
+results.summary.unhealthy++;
+}
   });
 
   // Determine overall status

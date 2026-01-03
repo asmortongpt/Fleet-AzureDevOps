@@ -66,15 +66,33 @@ export class VehicleRepository extends BaseRepository<Vehicle> {
     const where: Record<string, any> = { tenant_id: tenantId }
 
     // Add filters
-    if (filters.asset_category) where.asset_category = filters.asset_category
-    if (filters.asset_type) where.asset_type = filters.asset_type
-    if (filters.power_type) where.power_type = filters.power_type
-    if (filters.operational_status) where.operational_status = filters.operational_status
-    if (filters.primary_metric) where.primary_metric = filters.primary_metric
-    if (filters.is_road_legal !== undefined) where.is_road_legal = filters.is_road_legal
-    if (filters.location_id) where.location_id = filters.location_id
-    if (filters.group_id) where.group_id = filters.group_id
-    if (filters.fleet_id) where.fleet_id = filters.fleet_id
+    if (filters.asset_category) {
+where.asset_category = filters.asset_category
+}
+    if (filters.asset_type) {
+where.asset_type = filters.asset_type
+}
+    if (filters.power_type) {
+where.power_type = filters.power_type
+}
+    if (filters.operational_status) {
+where.operational_status = filters.operational_status
+}
+    if (filters.primary_metric) {
+where.primary_metric = filters.primary_metric
+}
+    if (filters.is_road_legal !== undefined) {
+where.is_road_legal = filters.is_road_legal
+}
+    if (filters.location_id) {
+where.location_id = filters.location_id
+}
+    if (filters.group_id) {
+where.group_id = filters.group_id
+}
+    if (filters.fleet_id) {
+where.fleet_id = filters.fleet_id
+}
 
     return this.paginate({
       where,

@@ -558,11 +558,17 @@ class EVChargingService {
 
     // Determine sustainability rating
     let sustainabilityRating = 'C';
-    if (environmentalScore >= 90) sustainabilityRating = 'A+';
-    else if (environmentalScore >= 80) sustainabilityRating = 'A';
-    else if (environmentalScore >= 70) sustainabilityRating = 'B+';
-    else if (environmentalScore >= 60) sustainabilityRating = 'B';
-    else if (environmentalScore >= 50) sustainabilityRating = 'C+';
+    if (environmentalScore >= 90) {
+sustainabilityRating = 'A+';
+} else if (environmentalScore >= 80) {
+sustainabilityRating = 'A';
+} else if (environmentalScore >= 70) {
+sustainabilityRating = 'B+';
+} else if (environmentalScore >= 60) {
+sustainabilityRating = 'B';
+} else if (environmentalScore >= 50) {
+sustainabilityRating = 'C+';
+}
 
     const reportData = {
       report_period: period,

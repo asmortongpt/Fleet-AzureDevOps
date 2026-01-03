@@ -413,7 +413,9 @@ Respond ONLY with valid JSON in this exact format:
     vehicleCapabilities: string[],
     requiredCapabilities: string[]
   ): number {
-    if (requiredCapabilities.length === 0) return 100
+    if (requiredCapabilities.length === 0) {
+return 100
+}
 
     const matchCount = requiredCapabilities.filter(req =>
       vehicleCapabilities.some(cap => cap.toLowerCase().includes(req.toLowerCase()))
@@ -432,9 +434,15 @@ Respond ONLY with valid JSON in this exact format:
         (Date.now() - new Date(vehicle.lastMaintenanceDate).getTime()) / (1000 * 60 * 60 * 24)
       )
 
-      if (daysSinceMaintenance < 30) return 10
-      if (daysSinceMaintenance < 60) return 8
-      if (daysSinceMaintenance < 90) return 6
+      if (daysSinceMaintenance < 30) {
+return 10
+}
+      if (daysSinceMaintenance < 60) {
+return 8
+}
+      if (daysSinceMaintenance < 90) {
+return 6
+}
       return 4
     }
 

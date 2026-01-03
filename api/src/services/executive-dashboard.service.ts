@@ -506,7 +506,9 @@ export class ExecutiveDashboardService {
       return insights.sort((a, b) => {
         const severityOrder = { critical: 0, warning: 1, recommendation: 2, insight: 3 }
         const severityDiff = severityOrder[a.type] - severityOrder[b.type]
-        if (severityDiff !== 0) return severityDiff
+        if (severityDiff !== 0) {
+return severityDiff
+}
         return b.confidence - a.confidence
       })
 

@@ -609,7 +609,9 @@ export class SchedulingService {
         [reservation.vehicle_id]
       )
 
-      if (vehicle.rows.length === 0) return
+      if (vehicle.rows.length === 0) {
+return
+}
 
       const vehicleInfo = vehicle.rows[0]
       const subject = `Vehicle Reservation: ${vehicleInfo.make} ${vehicleInfo.model} (${vehicleInfo.license_plate})`
@@ -702,7 +704,9 @@ export class SchedulingService {
         [appointment.id]
       )
 
-      if (details.rows.length === 0) return
+      if (details.rows.length === 0) {
+return
+}
       const appt = details.rows[0]
       const subject = `Maintenance: ${appt.appointment_type} - ${appt.make} ${appt.model}`
       const location = appt.bay_name || `Service Center`

@@ -405,7 +405,9 @@ export class InspectionsRepository extends BaseRepository<any> {
     )
 
     const { compliant, total } = result.rows[0]
-    if (total === 0) return 100
+    if (total === 0) {
+return 100
+}
 
     return (parseInt(compliant, 10) / parseInt(total, 10)) * 100
   }

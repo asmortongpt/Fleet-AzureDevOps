@@ -206,18 +206,28 @@ export class TaskEmulator {
     // Status distribution: 40% TODO, 30% IN_PROGRESS, 25% COMPLETED, 5% BLOCKED
     const statusRoll = Math.random()
     let status: EmulatedTask['status']
-    if (statusRoll < 0.40) status = 'TODO'
-    else if (statusRoll < 0.70) status = 'IN_PROGRESS'
-    else if (statusRoll < 0.95) status = 'COMPLETED'
-    else status = 'BLOCKED'
+    if (statusRoll < 0.40) {
+status = 'TODO'
+} else if (statusRoll < 0.70) {
+status = 'IN_PROGRESS'
+} else if (statusRoll < 0.95) {
+status = 'COMPLETED'
+} else {
+status = 'BLOCKED'
+}
 
     // Priority distribution: 30% low, 40% medium, 25% high, 5% urgent
     const priorityRoll = Math.random()
     let priority: EmulatedTask['priority']
-    if (priorityRoll < 0.30) priority = 'low'
-    else if (priorityRoll < 0.70) priority = 'medium'
-    else if (priorityRoll < 0.95) priority = 'high'
-    else priority = 'urgent'
+    if (priorityRoll < 0.30) {
+priority = 'low'
+} else if (priorityRoll < 0.70) {
+priority = 'medium'
+} else if (priorityRoll < 0.95) {
+priority = 'high'
+} else {
+priority = 'urgent'
+}
 
     const hasVehicle = Math.random() > 0.3
     const hasDriver = hasVehicle && Math.random() > 0.4
@@ -442,7 +452,9 @@ export class TaskEmulator {
    * SECURITY: Parameterized query only - $1, $2, $3 placeholders
    */
   async insertTask(task: EmulatedTask): Promise<void> {
-    if (!this.pool) throw new Error('Database not initialized')
+    if (!this.pool) {
+throw new Error('Database not initialized')
+}
 
     const query = `
       INSERT INTO tasks (
@@ -492,7 +504,9 @@ export class TaskEmulator {
    * SECURITY: Uses parameterized queries for each insert
    */
   async bulkInsertTasks(): Promise<{ inserted: number; failed: number }> {
-    if (!this.pool) throw new Error('Database not initialized')
+    if (!this.pool) {
+throw new Error('Database not initialized')
+}
 
     let inserted = 0
     let failed = 0
@@ -515,7 +529,9 @@ export class TaskEmulator {
    * SECURITY: Parameterized query - $1 placeholder
    */
   async getTasksByStatus(status: string): Promise<EmulatedTask[]> {
-    if (!this.pool) throw new Error('Database not initialized')
+    if (!this.pool) {
+throw new Error('Database not initialized')
+}
 
     const query = 'SELECT * FROM tasks WHERE status = $1 ORDER BY due_date ASC'
     const result = await this.pool.query(query, [status])
@@ -528,7 +544,9 @@ export class TaskEmulator {
    * SECURITY: Parameterized query - $1 placeholder
    */
   async getTasksByVehicle(vehicleId: number): Promise<EmulatedTask[]> {
-    if (!this.pool) throw new Error('Database not initialized')
+    if (!this.pool) {
+throw new Error('Database not initialized')
+}
 
     const query = 'SELECT * FROM tasks WHERE assigned_to_vehicle = $1 ORDER BY priority DESC, due_date ASC'
     const result = await this.pool.query(query, [vehicleId])
@@ -541,7 +559,9 @@ export class TaskEmulator {
    * SECURITY: Parameterized query - $1, $2, $3 placeholders
    */
   async updateTaskStatus(taskId: string, newStatus: string, completionPercentage?: number): Promise<void> {
-    if (!this.pool) throw new Error('Database not initialized')
+    if (!this.pool) {
+throw new Error('Database not initialized')
+}
 
     const query = `
       UPDATE tasks
@@ -654,7 +674,9 @@ export class TaskEmulator {
   emulateRealTimeUpdates(): void {
     setInterval(() => {
       const tasks = this.getAll().filter(t => t.status === 'IN_PROGRESS')
-      if (tasks.length === 0) return
+      if (tasks.length === 0) {
+return
+}
 
       const randomTask = tasks[faker.number.int({ min: 0, max: tasks.length - 1 })]
 
