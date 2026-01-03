@@ -138,6 +138,7 @@ export function AIInsightsPanel({ insights, onDismiss }: AIInsightsPanelProps) {
                       size="sm"
                       className="h-5 w-5 p-0 hover:bg-muted"
                       onClick={() => onDismiss(insight.id)}
+                      aria-label="Dismiss insight"
                     >
                       <X className="w-3 h-3" />
                     </Button>
