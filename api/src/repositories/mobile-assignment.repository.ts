@@ -24,8 +24,8 @@ export interface MobileAssignmentRepository {
   findOfflineSecuredParking(driverId: string, tenantId: number): Promise<any[]>;
 }
 
-export class MobileAssignmentRepositoryImpl implements MobileAssignmentRepository extends BaseRepository<any> {
-  constructor(private pool: Pool) {}
+export class MobileAssignmentRepositoryImpl extends BaseRepository<any> implements MobileAssignmentRepository {
+  constructor(private pool: Pool) { }
 
   async findDriverByUserId(userId: string, tenantId: number): Promise<any> {
     const result = await this.pool.query(
