@@ -58,7 +58,7 @@ export function WebSocketStatus({
           textColor: 'text-emerald-600',
           label: 'Live',
           icon: <Wifi className="h-3 w-3" />,
-          variant: 'success' as const,
+          variant: 'default' as const,
         };
       case 'connecting':
         return {
@@ -66,7 +66,7 @@ export function WebSocketStatus({
           textColor: 'text-amber-600',
           label: 'Connecting',
           icon: <Activity className="h-3 w-3 animate-pulse" />,
-          variant: 'warning' as const,
+          variant: 'outline' as const,
         };
       case 'error':
         return {

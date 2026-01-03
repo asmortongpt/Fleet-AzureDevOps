@@ -60,9 +60,9 @@ export function MobileMapControls({
           data-testid="fullscreen-control"
         >
           {isFullscreen ? (
-            <Minimize2 className={iconSize} />
+            <Minimize2 className={iconSize} aria-hidden="true" />
           ) : (
-            <Maximize2 className={iconSize} />
+            <Maximize2 className={iconSize} aria-hidden="true" />
           )}
         </Button>
       )}
@@ -81,7 +81,7 @@ export function MobileMapControls({
           aria-label="Toggle layers"
           data-testid="layers-control"
         >
-          <Layers className={iconSize} />
+          <Layers className={iconSize} aria-hidden="true" />
         </Button>
       )}
 
@@ -99,7 +99,7 @@ export function MobileMapControls({
           aria-label="Locate me"
           data-testid="locate-control"
         >
-          <Locate className={iconSize} />
+          <Locate className={iconSize} aria-hidden="true" />
         </Button>
       )}
 
@@ -118,7 +118,7 @@ export function MobileMapControls({
             aria-label="Zoom in"
             data-testid="zoom-in-control"
           >
-            <ZoomIn className={iconSize} />
+            <ZoomIn className={iconSize} aria-hidden="true" />
           </Button>
         )}
 
@@ -135,7 +135,7 @@ export function MobileMapControls({
             aria-label="Zoom out"
             data-testid="zoom-out-control"
           >
-            <ZoomOut className={iconSize} />
+            <ZoomOut className={iconSize} aria-hidden="true" />
           </Button>
         )}
       </div>

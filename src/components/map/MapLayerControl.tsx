@@ -73,7 +73,7 @@ export function MapLayerControl({ layers }: MapLayerControlProps) {
                 aria-label={isOpen ? 'Close map layers menu' : 'Open map layers menu'}
                 aria-expanded={isOpen}
             >
-                {isOpen ? <ChevronRight className="h-5 w-5 text-white" /> : <Layers className="h-5 w-5" />}
+                {isOpen ? <ChevronRight className="h-5 w-5 text-white" aria-hidden="true" /> : <Layers className="h-5 w-5" aria-hidden="true" />}
             </Button>
         </div>
     );

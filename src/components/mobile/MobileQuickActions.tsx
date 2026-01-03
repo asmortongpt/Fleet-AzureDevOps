@@ -83,13 +83,14 @@ export function MobileQuickActions({
                 'active:scale-95 transition-all touch-manipulation'
               )}
               data-testid={`quick-action-${action.id}`}
+              aria-label={action.badge ? `${action.label} (${action.badge} notifications)` : action.label}
             >
-              <div className="text-slate-600">{action.icon}</div>
-              <span className="text-xs font-medium leading-tight text-center">
+              <div className="text-slate-600" aria-hidden="true">{action.icon}</div>
+              <span className="text-xs font-medium leading-tight text-center" aria-hidden="true">
                 {action.label}
               </span>
               {action.badge && (
-                <div className="absolute top-1 right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                <div className="absolute top-1 right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center" aria-hidden="true">
                   {action.badge}
                 </div>
               )}
@@ -115,7 +116,7 @@ export function MobileQuickActions({
             aria-label="Scroll left"
             data-testid="scroll-left"
           >
-            <ChevronLeft className="h-5 w-5 text-slate-700" />
+            <ChevronLeft className="h-5 w-5 text-slate-700" aria-hidden="true" />
           </button>
         )}
 
@@ -145,13 +146,14 @@ export function MobileQuickActions({
                   disabled={action.disabled}
                   className="w-full h-full p-4 flex flex-col items-center justify-center gap-2 relative active:scale-95 transition-all touch-manipulation"
                   data-testid={`quick-action-${action.id}`}
+                  aria-label={action.badge ? `${action.label} (${action.badge} notifications)` : action.label}
                 >
-                  <div className="text-slate-600">{action.icon}</div>
-                  <span className="text-xs font-medium text-center leading-tight">
+                  <div className="text-slate-600" aria-hidden="true">{action.icon}</div>
+                  <span className="text-xs font-medium text-center leading-tight" aria-hidden="true">
                     {action.label}
                   </span>
                   {action.badge && (
-                    <div className="absolute top-2 right-2 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                    <div className="absolute top-2 right-2 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center" aria-hidden="true">
                       {action.badge}
                     </div>
                   )}
@@ -169,7 +171,7 @@ export function MobileQuickActions({
             aria-label="Scroll right"
             data-testid="scroll-right"
           >
-            <ChevronRight className="h-5 w-5 text-slate-700" />
+            <ChevronRight className="h-5 w-5 text-slate-700" aria-hidden="true" />
           </button>
         )}
       </div>
@@ -256,9 +258,10 @@ export function SwipeableActionCard({
               colorClasses[action.color]
             )}
             data-testid={`swipe-action-${action.id}`}
+            aria-label={action.label}
           >
-            {action.icon && <div>{action.icon}</div>}
-            <span className="text-xs">{action.label}</span>
+            {action.icon && <div aria-hidden="true">{action.icon}</div>}
+            <span className="text-xs" aria-hidden="true">{action.label}</span>
           </button>
         ))}
       </div>
