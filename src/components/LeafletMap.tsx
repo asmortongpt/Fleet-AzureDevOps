@@ -411,10 +411,237 @@ export function LeafletMap({
     }
   }, [])
 
+  // Load Leaflet library on mount
+  useEffect(() => {
+    let cancelled = false
+
+    const loadLibrary = async () => {
+      try {
+        await ensureLeafletLoaded()
+        if (!cancelled && isMountedRef.current) {
+          setLibraryLoaded(true)
+        }
+      } catch (error) {
+        if (!cancelled && isMountedRef.current) {
+          const errorMessage = error instanceof Error ? error.message : 'Failed to load map library'
+          setMapError(errorMessage)
+          setIsLoading(false)
+          onError?.(error instanceof Error ? error : new Error(errorMessage))
+        }
+      }
+    }
+
+    loadLibrary()
+
+    return () => {
+      cancelled = true
+    }
+  }, [onError])
+
+  // Initialize map once library is loaded
   useSafeEffect(() => {
-    if (!mapContainerRef.current) return
-    // Placeholder for map initialization logic
-  }, [libraryLoaded])
+    if (!libraryLoaded || !mapContainerRef.current || !L) return
+
+    // Set loading timeout
+    loadingTimeoutRef.current = setTimeout(() => {
+      if (isMountedRef.current && isLoading) {
+        setMapError('Map loading timed out. Please refresh the page.')
+        setIsLoading(false)
+      }
+    }, MAP_CONFIG.loadingTimeout)
+
+    try {
+      // Initialize the map
+      const map = L.map(mapContainerRef.current, {
+        center: center,
+        zoom: zoom,
+        minZoom: MAP_CONFIG.minZoom,
+        maxZoom: MAP_CONFIG.maxZoom,
+        zoomControl: true,
+        attributionControl: true,
+      })
+
+      mapInstanceRef.current = map
+
+      // Add tile layer
+      const tileLayer = L.tileLayer(tileConfig.url, {
+        attribution: tileConfig.attribution,
+        maxZoom: tileConfig.maxZoom || MAP_CONFIG.maxZoom,
+        subdomains: tileConfig.subdomains || ['a', 'b', 'c'],
+      })
+      tileLayer.addTo(map)
+      tileLayerRef.current = tileLayer
+
+      // Create layer groups for markers
+      vehicleLayerRef.current = L.layerGroup().addTo(map)
+      facilityLayerRef.current = L.layerGroup().addTo(map)
+      cameraLayerRef.current = L.layerGroup().addTo(map)
+
+      // Mark as ready
+      if (loadingTimeoutRef.current) {
+        clearTimeout(loadingTimeoutRef.current)
+      }
+
+      setIsLoading(false)
+      setIsReady(true)
+      onReady?.()
+      announceMapChange('Map loaded successfully')
+
+      perf.markEvent('map_initialized')
+
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Failed to initialize map'
+      setMapError(errorMessage)
+      setIsLoading(false)
+      onError?.(error instanceof Error ? error : new Error(errorMessage))
+    }
+
+    return () => {
+      // Cleanup
+      if (loadingTimeoutRef.current) {
+        clearTimeout(loadingTimeoutRef.current)
+      }
+      if (mapInstanceRef.current) {
+        mapInstanceRef.current.remove()
+        mapInstanceRef.current = null
+      }
+    }
+  }, [libraryLoaded, center, zoom, tileConfig, onReady, onError, announceMapChange, perf])
+
+  // Update markers when data changes
+  const updateMarkers = useDebouncedCallback(() => {
+    if (!isReady || !L || !mapInstanceRef.current) return
+
+    const bounds: [number, number][] = []
+
+    // Clear existing markers
+    vehicleLayerRef.current?.clearLayers()
+    facilityLayerRef.current?.clearLayers()
+    cameraLayerRef.current?.clearLayers()
+
+    // Add vehicle markers
+    if (showVehicles && vehicles.length > 0) {
+      vehicles.forEach((vehicle) => {
+        if (vehicle.location?.latitude && vehicle.location?.longitude) {
+          const lat = vehicle.location.latitude
+          const lng = vehicle.location.longitude
+
+          // Validate coordinates
+          if (lat >= -90 && lat <= 90 && lng >= -180 && lng <= 180) {
+            const color = VEHICLE_STATUS_COLORS[vehicle.status] || VEHICLE_STATUS_COLORS.offline
+            const emoji = VEHICLE_TYPE_EMOJI[vehicle.vehicleType as keyof typeof VEHICLE_TYPE_EMOJI] || '🚗'
+
+            const icon = L.divIcon({
+              className: 'vehicle-marker',
+              html: `<div style="background-color: ${color}; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 2px solid white; box-shadow: 0 2px 4px rgba(0,0,0,0.3);">${emoji}</div>`,
+              iconSize: [32, 32],
+              iconAnchor: [16, 16],
+            })
+
+            const marker = L.marker([lat, lng], { icon })
+              .bindPopup(`<b>${vehicle.name}</b><br/>Status: ${vehicle.status}`)
+              .on('click', () => onMarkerClick?.(vehicle.id, 'vehicle'))
+
+            marker.addTo(vehicleLayerRef.current)
+            bounds.push([lat, lng])
+          }
+        }
+      })
+    }
+
+    // Add facility markers
+    if (showFacilities && facilities.length > 0) {
+      facilities.forEach((facility) => {
+        if (facility.latitude && facility.longitude) {
+          const lat = facility.latitude
+          const lng = facility.longitude
+
+          if (lat >= -90 && lat <= 90 && lng >= -180 && lng <= 180) {
+            const emoji = FACILITY_TYPE_ICONS[facility.type] || '🏢'
+
+            const icon = L.divIcon({
+              className: 'facility-marker',
+              html: `<div style="background-color: #2563eb; width: 36px; height: 36px; border-radius: 8px; display: flex; align-items: center; justify-content: center; border: 2px solid white; box-shadow: 0 2px 4px rgba(0,0,0,0.3); font-size: 18px;">${emoji}</div>`,
+              iconSize: [36, 36],
+              iconAnchor: [18, 18],
+            })
+
+            const marker = L.marker([lat, lng], { icon })
+              .bindPopup(`<b>${facility.name}</b><br/>Type: ${facility.type}`)
+              .on('click', () => onMarkerClick?.(facility.id, 'facility'))
+
+            marker.addTo(facilityLayerRef.current)
+            bounds.push([lat, lng])
+          }
+        }
+      })
+    }
+
+    // Add camera markers
+    if (showCameras && cameras.length > 0) {
+      cameras.forEach((camera) => {
+        if (camera.latitude && camera.longitude) {
+          const lat = camera.latitude
+          const lng = camera.longitude
+
+          if (lat >= -90 && lat <= 90 && lng >= -180 && lng <= 180) {
+            const icon = L.divIcon({
+              className: 'camera-marker',
+              html: `<div style="background-color: #7c3aed; width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 2px solid white; box-shadow: 0 2px 4px rgba(0,0,0,0.3);">📹</div>`,
+              iconSize: [28, 28],
+              iconAnchor: [14, 14],
+            })
+
+            const marker = L.marker([lat, lng], { icon })
+              .bindPopup(`<b>${camera.name || 'Traffic Camera'}</b>`)
+              .on('click', () => onMarkerClick?.(camera.id, 'camera'))
+
+            marker.addTo(cameraLayerRef.current)
+            bounds.push([lat, lng])
+          }
+        }
+      })
+    }
+
+    // Auto-fit bounds
+    if (autoFitBounds && bounds.length > 0 && mapInstanceRef.current) {
+      const latLngBounds = L.latLngBounds(bounds)
+      mapInstanceRef.current.fitBounds(latLngBounds, {
+        padding: MAP_CONFIG.fitBoundsPadding,
+        maxZoom: maxFitBoundsZoom,
+        animate: true,
+        duration: MAP_CONFIG.animationDuration / 1000,
+      })
+    }
+
+    perf.markEvent('markers_updated', { count: bounds.length })
+  }, MAP_CONFIG.markerUpdateDebounce)
+
+  // Trigger marker update when data changes
+  useEffect(() => {
+    if (isReady) {
+      updateMarkers()
+    }
+  }, [isReady, vehicles, facilities, cameras, showVehicles, showFacilities, showCameras, updateMarkers])
+
+  // Update tile layer when style changes
+  useEffect(() => {
+    if (!isReady || !L || !mapInstanceRef.current || !tileLayerRef.current) return
+
+    // Remove old tile layer
+    mapInstanceRef.current.removeLayer(tileLayerRef.current)
+
+    // Add new tile layer
+    const newTileLayer = L.tileLayer(tileConfig.url, {
+      attribution: tileConfig.attribution,
+      maxZoom: tileConfig.maxZoom || MAP_CONFIG.maxZoom,
+      subdomains: tileConfig.subdomains || ['a', 'b', 'c'],
+    })
+    newTileLayer.addTo(mapInstanceRef.current)
+    tileLayerRef.current = newTileLayer
+
+    announceMapChange(`Map style changed to ${mapStyle}`)
+  }, [isReady, mapStyle, tileConfig, announceMapChange])
 
   // Return JSX (placeholder for complete implementation)
   return (
