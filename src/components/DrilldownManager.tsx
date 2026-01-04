@@ -84,7 +84,6 @@ import { VehicleDetailPanel } from '@/components/drilldown/VehicleDetailPanel'
 import { VehicleTripsList } from '@/components/drilldown/VehicleTripsList'
 import { WorkOrderDetailPanel } from '@/components/drilldown/WorkOrderDetailPanel'
 import {
-  AssetDetailPanel,
   EquipmentDetailPanel,
   InventoryItemDetailPanel,
   AssetListView,
