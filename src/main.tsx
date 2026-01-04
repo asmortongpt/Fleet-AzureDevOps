@@ -28,6 +28,9 @@ import { DrilldownProvider } from "./contexts/DrilldownContext"
 import { NavigationProvider } from "./contexts/NavigationContext"
 import { ThemeProvider } from "./components/providers/ThemeProvider"
 import { SentryErrorBoundary } from "./components/errors/SentryErrorBoundary"
+
+// Professional theme with high contrast colors - fixes green-on-green readability
+import "./styles/professional-theme-fix.css"
 import { GlobalCommandPalette } from "./components/common/GlobalCommandPalette"
 import App from "./App"
 import "./index.css"
