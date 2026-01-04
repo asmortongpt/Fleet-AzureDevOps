@@ -46,7 +46,7 @@ function CardTitle({ className, ...props }: ComponentProps<"div">) {
   return (
     <div
       data-slot="card-title"
-      className={cn("leading-none font-semibold", className)}
+      className={cn("leading-tight font-semibold text-lg", className)}
       {...props}
     />
   )
@@ -56,7 +56,7 @@ function CardDescription({ className, ...props }: ComponentProps<"div">) {
   return (
     <div
       data-slot="card-description"
-      className={cn("text-muted-foreground text-sm", className)}
+      className={cn("text-muted-foreground text-sm leading-relaxed", className)}
       {...props}
     />
   )
@@ -95,12 +95,46 @@ function CardFooter({ className, ...props }: ComponentProps<"div">) {
   )
 }
 
+// Card variant for glass/frosted effect
+function CardGlass({ className, ...props }: ComponentProps<"div">) {
+  return (
+    <div
+      data-slot="card"
+      className={cn(
+        "bg-card/80 backdrop-blur-xl text-card-foreground flex flex-col gap-6 rounded-2xl border border-border/30 py-6 shadow-lg",
+        "transition-all duration-300 ease-out",
+        className
+      )}
+      {...props}
+    />
+  )
+}
+
+// Compact card for dashboard stats
+function CardCompact({ className, ...props }: ComponentProps<"div">) {
+  return (
+    <div
+      data-slot="card"
+      className={cn(
+        "bg-card text-card-foreground flex flex-col gap-3 rounded-xl border border-border/50 p-4 shadow-sm",
+        "transition-all duration-200 ease-out",
+        "hover:shadow-md hover:border-border/70",
+        className
+      )}
+      {...props}
+    />
+  )
+}
+
 export {
   Card,
+  CardInteractive,
   CardHeader,
   CardFooter,
   CardTitle,
   CardAction,
   CardDescription,
   CardContent,
+  CardGlass,
+  CardCompact,
 }
