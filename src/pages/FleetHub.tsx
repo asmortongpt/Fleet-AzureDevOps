@@ -86,13 +86,18 @@ class TabErrorBoundary extends Component<{ children: ReactNode; tabName: string 
 // ============================================================================
 function TabLoadingFallback() {
     return (
-        <div className="p-4 space-y-3">
+        <div className="p-4 sm:p-6 space-y-4 animate-pulse">
             <Skeleton className="h-6 w-1/4" />
-            <div className="grid grid-cols-4 gap-3">
-                <Skeleton className="h-20" />
-                <Skeleton className="h-20" />
-                <Skeleton className="h-20" />
-                <Skeleton className="h-20" />
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+                <Skeleton className="h-24 sm:h-28 rounded-xl" />
+                <Skeleton className="h-24 sm:h-28 rounded-xl" />
+                <Skeleton className="h-24 sm:h-28 rounded-xl" />
+                <Skeleton className="h-24 sm:h-28 rounded-xl" />
+            </div>
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-3 sm:gap-4">
+                <Skeleton className="h-32 rounded-xl" />
+                <Skeleton className="h-32 rounded-xl" />
+                <Skeleton className="h-32 rounded-xl" />
             </div>
         </div>
     )
@@ -147,18 +152,18 @@ function FleetOverviewContent() {
     }
 
     return (
-        <div className="p-4 space-y-4 bg-gradient-to-b from-slate-900/50 to-transparent h-full overflow-hidden">
+        <div className="p-4 sm:p-6 space-y-4 sm:space-y-6 bg-gradient-to-b from-background to-background/95 h-full overflow-auto">
             {/* Header Row */}
-            <div className="flex items-center justify-between">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
                 <div>
-                    <h2 className="text-lg font-bold text-white">Fleet Overview</h2>
-                    <p className="text-xs text-slate-400">Real-time fleet status • Click metrics for details</p>
+                    <h2 className="text-lg sm:text-xl font-bold text-foreground">Fleet Overview</h2>
+                    <p className="text-xs sm:text-sm text-muted-foreground">Real-time fleet status • Click metrics for details</p>
                 </div>
                 <StatusDot status="online" label="Live" />
             </div>
 
-            {/* Primary Stats - 4 columns - ALL CLICKABLE */}
-            <div className="grid grid-cols-4 gap-3">
+            {/* Primary Stats - Responsive grid */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
                 <StatCard
                     title="Vehicles"
                     value="156"
@@ -203,64 +208,66 @@ function FleetOverviewContent() {
                 />
             </div>
 
-            {/* Secondary Row - 3 compact widgets */}
-            <div className="grid grid-cols-3 gap-3">
+            {/* Secondary Row - Responsive widgets */}
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-3 sm:gap-4">
                 {/* Utilization Ring - Clickable */}
                 <div
-                    className="bg-gradient-to-br from-slate-800/60 to-slate-900/60 backdrop-blur-xl rounded-lg border border-slate-700/50 p-3 flex items-center gap-4 cursor-pointer hover:border-blue-500/30 hover:scale-[1.01] transition-all"
+                    className="bg-card/80 backdrop-blur-xl rounded-xl border border-border/50 p-4 sm:p-5 flex items-center gap-4 cursor-pointer hover:border-primary/40 hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300"
                     onClick={() => push({ id: 'utilization-data-excel', type: 'utilization-data-excel', label: 'Utilization Data (Excel View)', data: { view: 'utilization' } })}
                     role="button"
                     tabIndex={0}
                 >
                     <ProgressRing progress={87} color="blue" label="Utilized" />
-                    <div>
-                        <h3 className="text-xs font-medium text-slate-400 uppercase">Fleet Utilization</h3>
-                        <p className="text-lg font-bold text-white">87%</p>
-                        <p className="text-[10px] text-slate-500">vs 82% last week • Click for details</p>
+                    <div className="min-w-0">
+                        <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Fleet Utilization</h3>
+                        <p className="text-xl sm:text-2xl font-bold text-foreground">87%</p>
+                        <p className="text-xs text-muted-foreground/70">vs 82% last week</p>
                     </div>
                 </div>
 
                 {/* Quick Stats - ALL CLICKABLE */}
-                <div className="bg-gradient-to-br from-slate-800/60 to-slate-900/60 backdrop-blur-xl rounded-lg border border-slate-700/50 p-3">
-                    <h3 className="text-xs font-medium text-slate-400 uppercase mb-2">Performance</h3>
-                    <QuickStat
-                        label="Miles/Day"
-                        value="245"
-                        trend="up"
-                        onClick={() => push({ id: 'miles-day', type: 'miles-day', label: 'Daily Mileage Analysis', data: { metricType: 'miles-day' } })}
-                    />
-                    <QuickStat
-                        label="On-Time"
-                        value="94.2%"
-                        trend="up"
-                        onClick={() => push({ id: 'on-time', type: 'on-time', label: 'On-Time Performance', data: { metricType: 'on-time' } })}
-                    />
-                    <QuickStat
-                        label="Idle Time"
-                        value="12.3%"
-                        trend="down"
-                        onClick={() => push({ id: 'idle-time', type: 'idle-time', label: 'Idle Time Analysis', data: { metricType: 'idle-time' } })}
-                    />
-                    <QuickStat
-                        label="MPG Avg"
-                        value="18.4"
-                        trend="up"
-                        onClick={() => push({ id: 'mpg', type: 'mpg', label: 'Fuel Efficiency Report', data: { metricType: 'mpg' } })}
-                    />
+                <div className="bg-card/80 backdrop-blur-xl rounded-xl border border-border/50 p-4 sm:p-5">
+                    <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-3">Performance</h3>
+                    <div className="space-y-0.5">
+                        <QuickStat
+                            label="Miles/Day"
+                            value="245"
+                            trend="up"
+                            onClick={() => push({ id: 'miles-day', type: 'miles-day', label: 'Daily Mileage Analysis', data: { metricType: 'miles-day' } })}
+                        />
+                        <QuickStat
+                            label="On-Time"
+                            value="94.2%"
+                            trend="up"
+                            onClick={() => push({ id: 'on-time', type: 'on-time', label: 'On-Time Performance', data: { metricType: 'on-time' } })}
+                        />
+                        <QuickStat
+                            label="Idle Time"
+                            value="12.3%"
+                            trend="down"
+                            onClick={() => push({ id: 'idle-time', type: 'idle-time', label: 'Idle Time Analysis', data: { metricType: 'idle-time' } })}
+                        />
+                        <QuickStat
+                            label="MPG Avg"
+                            value="18.4"
+                            trend="up"
+                            onClick={() => push({ id: 'mpg', type: 'mpg', label: 'Fuel Efficiency Report', data: { metricType: 'mpg' } })}
+                        />
+                    </div>
                 </div>
 
                 {/* Safety Ring - Clickable */}
                 <div
-                    className="bg-gradient-to-br from-slate-800/60 to-slate-900/60 backdrop-blur-xl rounded-lg border border-slate-700/50 p-3 flex items-center gap-4 cursor-pointer hover:border-emerald-500/30 hover:scale-[1.01] transition-all"
+                    className="bg-card/80 backdrop-blur-xl rounded-xl border border-border/50 p-4 sm:p-5 flex items-center gap-4 cursor-pointer hover:border-success/40 hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300"
                     onClick={() => push({ id: 'safety-score', type: 'safety-score', label: 'Safety Score Breakdown', data: { view: 'safety' } })}
                     role="button"
                     tabIndex={0}
                 >
                     <ProgressRing progress={92} color="green" label="Score" />
-                    <div>
-                        <h3 className="text-xs font-medium text-slate-400 uppercase">Safety Score</h3>
-                        <p className="text-lg font-bold text-white">92/100</p>
-                        <p className="text-[10px] text-slate-500">47 days incident-free • Click for details</p>
+                    <div className="min-w-0">
+                        <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Safety Score</h3>
+                        <p className="text-xl sm:text-2xl font-bold text-foreground">92/100</p>
+                        <p className="text-xs text-muted-foreground/70">47 days incident-free</p>
                     </div>
                 </div>
             </div>
@@ -363,30 +370,30 @@ function VideoContent() {
     ]
 
     return (
-        <div className="p-4 space-y-4 bg-gradient-to-b from-slate-900/50 to-transparent h-full">
-            <div className="flex items-center justify-between">
-                <h2 className="text-lg font-bold text-white">Video Telematics</h2>
+        <div className="p-4 sm:p-6 space-y-4 sm:space-y-6 bg-gradient-to-b from-background to-background/95 h-full overflow-auto">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                <h2 className="text-lg sm:text-xl font-bold text-foreground">Video Telematics</h2>
                 <StatusDot status="online" label="Recording" />
             </div>
 
-            <div className="grid grid-cols-3 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
                 <StatCard title="Cameras" value="148" variant="success" icon={<Video className="w-5 h-5" />} />
                 <StatCard title="Events Today" value="23" variant="warning" />
                 <StatCard title="Storage" value="2.4 TB" variant="default" />
             </div>
 
-            <div className="grid grid-cols-2 gap-3 flex-1">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 flex-1">
                 {cameras.map(camera => (
-                    <div key={camera.id} className="bg-slate-900 rounded-lg border border-slate-700 overflow-hidden cursor-pointer hover:border-blue-500/50 transition-colors">
+                    <div key={camera.id} className="bg-card rounded-xl border border-border/50 overflow-hidden cursor-pointer hover:border-primary/40 hover:shadow-lg transition-all duration-300">
                         <VideoPlayer camera={camera} />
-                        <div className="p-2 border-t border-slate-700">
-                            <p className="text-xs font-medium text-white">{camera.location}</p>
+                        <div className="p-3 border-t border-border/50">
+                            <p className="text-sm font-medium text-foreground">{camera.location}</p>
                         </div>
                     </div>
                 ))}
             </div>
 
-            <p className="text-xs text-slate-500 text-center">
+            <p className="text-xs text-muted-foreground text-center">
                 Configure camera stream URLs in the Video Management settings
             </p>
         </div>
