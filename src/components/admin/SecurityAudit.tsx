@@ -5,6 +5,12 @@
  * @module components/admin/SecurityAudit
  */
 
+import React, { useState, useEffect } from 'react';
+import { SkeletonLoader } from '@/components/shared';
+import { Card } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Progress } from '@/components/ui/progress';
 import {
   Shield,
   AlertTriangle,
@@ -12,18 +18,15 @@ import {
   XCircle,
   RefreshCw,
   Info,
+  Lock,
+  Key,
   Eye,
+  Globe,
 } from 'lucide-react';
-import React, { useState, useEffect } from 'react';
-
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import { Card } from '@/components/ui/card';
-import { Progress } from '@/components/ui/progress';
 import { validateCSPConfig } from '@/lib/security/csp';
-import { auditSecurityHeaders } from '@/lib/security/headers';
-import { apiRateLimiter } from '@/lib/security/rate-limiter';
 import { auditResourceSRI } from '@/lib/security/sri';
+import { auditSecurityHeaders } from '@/lib/security/headers';
+import { apiRateLimiter, authRateLimiter } from '@/lib/security/rate-limiter';
 
 interface SecurityCheck {
   name: string;

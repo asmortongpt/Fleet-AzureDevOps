@@ -1,3 +1,4 @@
+import { vi } from 'vitest';
 import { WebSocket, WebSocketServer } from 'ws';
 
 /**

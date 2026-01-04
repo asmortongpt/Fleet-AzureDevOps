@@ -8,6 +8,10 @@ export default defineConfig({
   workers: process.env.CI ? 1 : 4,
   timeout: 30000, // Default timeout of 30 seconds per test
 
+  // Global setup/teardown for database and auth
+  globalSetup: './tests/e2e/setup/global-setup.ts',
+  globalTeardown: './tests/e2e/setup/global-teardown.ts',
+
   reporter: [
     ['html', { outputFolder: 'playwright-report', open: 'never' }],
     ['json', { outputFile: 'test-results/results.json' }],
@@ -16,7 +20,7 @@ export default defineConfig({
   ],
 
   use: {
-    baseURL: process.env.APP_URL || 'http://localhost:5173',
+    baseURL: process.env.APP_URL || 'http://localhost:5174',
     trace: 'retain-on-failure',
     screenshot: 'only-on-failure',
     video: 'retain-on-failure',
