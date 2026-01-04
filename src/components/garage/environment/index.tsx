@@ -8,6 +8,7 @@ export * from './types'
 export * from './configs'
 
 import React from 'react'
+import { TimeOfDay, WeatherType } from './types'
 
 import { TimeOfDay, WeatherType } from './types'
 
