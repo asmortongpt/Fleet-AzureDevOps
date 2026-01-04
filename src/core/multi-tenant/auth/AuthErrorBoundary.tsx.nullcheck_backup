@@ -1,0 +1,188 @@
+/**
+ * Authentication Error Boundary
+ * Catches and handles authentication-related errors gracefully
+ */
+
+import React, { Component, ErrorInfo, ReactNode } from 'react';
+
+interface Props {
+  children: ReactNode;
+  fallback?: ReactNode;
+}
+
+interface State {
+  hasError: boolean;
+  error: Error | null;
+  errorInfo: ErrorInfo | null;
+}
+
+export class AuthErrorBoundary extends Component<Props, State> {
+  constructor(props: Props) {
+    super(props);
+    this.state = {
+      hasError: false,
+      error: null,
+      errorInfo: null
+    };
+  }
+
+  static getDerivedStateFromError(error: Error): State {
+    // Update state so the next render will show the fallback UI
+    return {
+      hasError: true,
+      error,
+      errorInfo: null
+    };
+  }
+
+  componentDidCatch(error: Error, errorInfo: ErrorInfo) {
+    // Log the error to monitoring service
+    console.error('Authentication Error Boundary caught an error:', error, errorInfo);
+    
+    this.setState({
+      error,
+      errorInfo
+    });
+
+    // Log to security monitoring if it's an auth-related error
+    if (this.isAuthError(error)) {
+      this.logSecurityEvent(error);
+    }
+  }
+
+  private isAuthError(error: Error): boolean {
+    const authErrorKeywords = [
+      'authentication',
+      'authorization',
+      'token',
+      'login',
+      'okta',
+      'unauthorized',
+      'forbidden',
+      'session'
+    ];
+
+    const errorMessage = error.message.toLowerCase();
+    return authErrorKeywords.some(keyword => errorMessage.includes(keyword));
+  }
+
+  private logSecurityEvent(error: Error): void {
+    // This would integrate with your security monitoring system
+    const securityEvent = {
+      timestamp: new Date().toISOString(),
+      level: 'ERROR',
+      category: 'AUTHENTICATION_ERROR',
+      message: error.message,
+      stack: error.stack,
+      userAgent: navigator.userAgent,
+      url: window.location.href
+    };
+
+    console.error('Security Event:', securityEvent);
+    
+    // In production, send to security monitoring service
+    // securityMonitoringService.log(securityEvent);
+  }
+
+  private handleRetry = (): void => {
+    this.setState({
+      hasError: false,
+      error: null,
+      errorInfo: null
+    });
+  };
+
+  private handleReload = (): void => {
+    window.location.reload();
+  };
+
+  render() {
+    if (this.state.hasError) {
+      // Custom fallback UI
+      if (this.props.fallback) {
+        return this.props.fallback;
+      }
+
+      // Default error UI
+      return (
+        <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+          <div className="max-w-md w-full space-y-8">
+            <div>
+              <img
+                className="mx-auto h-12 w-auto"
+                src="/dcf-logo.png"
+                alt="Florida DCF"
+              />
+              <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
+                Authentication Error
+              </h2>
+              <p className="mt-2 text-center text-sm text-gray-600">
+                Something went wrong with the authentication system
+              </p>
+            </div>
+
+            <div className="mt-8 space-y-6">
+              <div className="bg-red-50 border border-red-200 rounded-md p-4">
+                <div className="flex">
+                  <div className="flex-shrink-0">
+                    <svg className="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
+                      <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+                    </svg>
+                  </div>
+                  <div className="ml-3">
+                    <h3 className="text-sm font-medium text-red-800">
+                      System Error
+                    </h3>
+                    <div className="mt-2 text-sm text-red-700">
+                      <p>
+                        {this.isAuthError(this.state.error!) 
+                          ? 'Authentication system is temporarily unavailable. Please try again or contact your system administrator.'
+                          : 'An unexpected error occurred. Please refresh the page or contact support if the problem persists.'
+                        }
+                      </p>
+                      {import.meta.env.VITE_NODE_ENV === 'development' && (
+                        <details className="mt-2">
+                          <summary className="cursor-pointer">Technical Details</summary>
+                          <pre className="mt-2 text-xs bg-red-100 p-2 rounded">
+                            {this.state.error?.message}
+                          </pre>
+                        </details>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex space-x-4">
+                <button
+                  onClick={this.handleRetry}
+                  className="flex-1 flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                >
+                  Try Again
+                </button>
+                <button
+                  onClick={this.handleReload}
+                  className="flex-1 flex justify-center py-2 px-4 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                >
+                  Reload Page
+                </button>
+              </div>
+
+              <div className="text-center">
+                <div className="text-sm text-gray-600">
+                  <p>Need help? Contact IT Support</p>
+                  <p className="mt-1">Email: support@dcf.florida.gov</p>
+                  <p>Phone: (850) 123-4567</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    return this.props.children;
+  }
+}
+
+export default AuthErrorBoundary;
