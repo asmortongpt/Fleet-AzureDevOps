@@ -4,7 +4,7 @@ import { format } from "date-fns"
 import { useState, useMemo } from "react"
 import { toast } from "sonner"
 
-import { DataGrid } from "@/components/common/DataGrid"
+import { DataGrid, DataGridProps } from "@/components/common/DataGrid"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Calendar } from "@/components/ui/calendar"
@@ -14,11 +14,46 @@ import {
   DialogContent,
   DialogDescription,
   DialogHeader,
-  DialogTitle
+  DialogTitle,
+  DialogFooter
 } from "@/components/ui/dialog"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger
+} from "@/components/ui/popover"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue
+} from "@/components/ui/select"
+import { Textarea } from "@/components/ui/textarea"
+import { useDrilldown } from "@/contexts/DrilldownContext"
 import { MaintenanceSchedule } from "@/lib/types"
 
 export function MaintenanceScheduling() {
+  const { push } = useDrilldown()
+
+  const handleVehicleClick = (e: React.MouseEvent | null, vehicleNumber: string, vehicleId?: string) => {
+    e?.stopPropagation()
+    push({
+      type: 'vehicle',
+      label: vehicleNumber,
+      data: { vehicleId: vehicleId || vehicleNumber, vehicleNumber }
+    })
+  }
+
+  const handleScheduleClick = (schedule: MaintenanceSchedule) => {
+    push({
+      type: 'maintenance-schedule',
+      label: `${schedule.serviceType} - ${schedule.vehicleNumber}`,
+      data: { scheduleId: schedule.id, vehicleNumber: schedule.vehicleNumber, serviceType: schedule.serviceType }
+    })
+  }
   const [schedules, setSchedules] = useState<MaintenanceSchedule[]>([])
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(new Date())
   const [selectedSchedule, setSelectedSchedule] = useState<MaintenanceSchedule | null>(null)
@@ -113,7 +148,12 @@ export function MaintenanceScheduling() {
         accessorKey: "vehicleNumber",
         header: "Vehicle",
         cell: ({ row }) => (
-          <div className="font-medium">{row.original.vehicleNumber}</div>
+          <div
+            className="font-medium text-primary hover:underline cursor-pointer"
+            onClick={(e) => handleVehicleClick(e, row.original.vehicleNumber, row.original.vehicleId)}
+          >
+            {row.original.vehicleNumber}
+          </div>
         ),
       },
       {
@@ -281,13 +321,23 @@ export function MaintenanceScheduling() {
             ) : (
               <div className="space-y-3">
                 {schedulesForDate.map(schedule => (
-                  <div key={schedule.id} className="border rounded-lg p-4">
+                  <div
+                    key={schedule.id}
+                    className="border rounded-lg p-4 hover:bg-muted/30 cursor-pointer transition-colors"
+                    onClick={() => handleScheduleClick(schedule)}
+                    role="button"
+                    tabIndex={0}
+                    onKeyDown={(e) => e.key === 'Enter' && handleScheduleClick(schedule)}
+                  >
                     <div className="flex items-start justify-between mb-2">
                       <div className="flex items-center gap-2">
                         <Wrench className="w-5 h-5 text-muted-foreground" />
                         <div>
                           <div className="font-medium">{schedule.serviceType}</div>
-                          <div className="text-sm text-muted-foreground">
+                          <div
+                            className="text-sm text-primary hover:underline cursor-pointer"
+                            onClick={(e) => handleVehicleClick(e, schedule.vehicleNumber, schedule.vehicleId)}
+                          >
                             Vehicle {schedule.vehicleNumber}
                           </div>
                         </div>
@@ -351,7 +401,12 @@ export function MaintenanceScheduling() {
                     </div>
                     <div>
                       <span className="text-muted-foreground">Vehicle:</span>
-                      <p className="font-medium">{selectedSchedule.vehicleNumber}</p>
+                      <p
+                        className="font-medium text-primary hover:underline cursor-pointer"
+                        onClick={(e) => handleVehicleClick(e, selectedSchedule.vehicleNumber, selectedSchedule.vehicleId)}
+                      >
+                        {selectedSchedule.vehicleNumber}
+                      </p>
                     </div>
                     <div>
                       <span className="text-muted-foreground">Priority:</span>
