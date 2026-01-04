@@ -51,14 +51,18 @@ echo "✅ Deployment token retrieved"
 echo ""
 echo "⚙️  Configuring environment variables..."
 
-# Google Maps API Key
+# Load secrets from Azure Key Vault
+GOOGLE_MAPS_API_KEY=$(az keyvault secret show --vault-name fleet-keyvault --name google-maps-api-key --query value -o tsv)
+AZURE_AD_CLIENT_ID=$(az keyvault secret show --vault-name fleet-keyvault --name azure-ad-client-id --query value -o tsv)
+AZURE_AD_TENANT_ID=$(az keyvault secret show --vault-name fleet-keyvault --name azure-ad-tenant-id --query value -o tsv)
+
 az staticwebapp appsettings set \
     --name $STATIC_WEB_APP_NAME \
     --resource-group $RESOURCE_GROUP \
     --setting-names \
-        "VITE_GOOGLE_MAPS_API_KEY=<your-google-maps-api-key>" \
-        "VITE_AZURE_AD_CLIENT_ID=baae0851-0c24-4214-8587-e3fabc46bd4a" \
-        "VITE_AZURE_AD_TENANT_ID=0ec14b81-7b82-45ee-8f3d-cbc31ced5347" \
+        "VITE_GOOGLE_MAPS_API_KEY=$GOOGLE_MAPS_API_KEY" \
+        "VITE_AZURE_AD_CLIENT_ID=$AZURE_AD_CLIENT_ID" \
+        "VITE_AZURE_AD_TENANT_ID=$AZURE_AD_TENANT_ID" \
         "VITE_AZURE_AD_REDIRECT_URI=https://gray-flower-03a2a730f.3.azurestaticapps.net/auth/callback" \
         "VITE_API_BASE_URL=https://gray-flower-03a2a730f.3.azurestaticapps.net/api"
 
@@ -67,9 +71,10 @@ echo "✅ Environment variables configured"
 # Build application
 echo ""
 echo "🔨 Building application..."
-export VITE_GOOGLE_MAPS_API_KEY="<your-google-maps-api-key>"
-export VITE_AZURE_AD_CLIENT_ID="baae0851-0c24-4214-8587-e3fabc46bd4a"
-export VITE_AZURE_AD_TENANT_ID="0ec14b81-7b82-45ee-8f3d-cbc31ced5347"
+# Use secrets loaded from Azure Key Vault
+export VITE_GOOGLE_MAPS_API_KEY="$GOOGLE_MAPS_API_KEY"
+export VITE_AZURE_AD_CLIENT_ID="$AZURE_AD_CLIENT_ID"
+export VITE_AZURE_AD_TENANT_ID="$AZURE_AD_TENANT_ID"
 export VITE_AZURE_AD_REDIRECT_URI="https://gray-flower-03a2a730f.3.azurestaticapps.net/auth/callback"
 export VITE_API_BASE_URL="https://gray-flower-03a2a730f.3.azurestaticapps.net/api"
 
