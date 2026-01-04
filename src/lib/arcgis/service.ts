@@ -7,6 +7,32 @@ import { ArcGISServiceCapabilities } from './types'
 
 import logger from '@/utils/logger'
 
+// Default timeout for ArcGIS API requests (30 seconds)
+const DEFAULT_TIMEOUT_MS = 30000
+
+/**
+ * Fetch with timeout protection to prevent hanging requests
+ */
+async function fetchWithTimeout(url: string, options: RequestInit = {}, timeoutMs: number = DEFAULT_TIMEOUT_MS): Promise<Response> {
+  const controller = new AbortController()
+  const timeoutId = setTimeout(() => controller.abort(), timeoutMs)
+
+  try {
+    const response = await fetch(url, {
+      ...options,
+      signal: controller.signal,
+    })
+    return response
+  } catch (error) {
+    if (error instanceof Error && error.name === 'AbortError') {
+      throw new Error(`Request timed out after ${timeoutMs}ms`)
+    }
+    throw error
+  } finally {
+    clearTimeout(timeoutId)
+  }
+}
+
 // GeoJSON type definitions
 declare namespace GeoJSON {
   interface Feature {
@@ -55,7 +81,7 @@ export class ArcGISService {
         url.searchParams.set('token', token)
       }
 
-      const response = await fetch(url.toString())
+      const response = await fetchWithTimeout(url.toString())
       if (!response.ok) {
         throw new Error(`Failed to fetch service capabilities: ${response.statusText}`)
       }
