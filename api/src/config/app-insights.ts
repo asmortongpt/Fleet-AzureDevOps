@@ -198,7 +198,7 @@ return
   trackQualityGate(gateType: string, status: string, executionTime: number) {
     if (!this.isConfigured || !this.client) return
 
-    return this.client.trackEvent({
+    this.client.trackEvent({
       name: 'QualityGateExecuted',
       properties: {
         gateType,
@@ -206,7 +206,6 @@ return
         executionTime: executionTime.toString()
       }
     })
-}
 
     this.client.trackMetric({
       name: `QualityGate_${gateType}_Duration`,
