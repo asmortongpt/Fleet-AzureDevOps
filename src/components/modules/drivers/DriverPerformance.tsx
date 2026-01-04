@@ -17,6 +17,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Progress } from "@/components/ui/progress"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
+import { useDrilldown } from "@/contexts/DrilldownContext"
 import { useFleetData } from "@/hooks/use-fleet-data"
 import { useInspect } from "@/services/inspect/InspectContext"
 
@@ -46,6 +47,7 @@ export function DriverPerformance(_props: DriverPerformanceProps) {
   const data = useFleetData()
   const drivers = data.drivers || []
   const { openInspect } = useInspect()
+  const { push } = useDrilldown()
   const [activeTab, setActiveTab] = useState<string>("overview")
   const [selectedPeriod, setSelectedPeriod] = useState<string>("month")
   const [selectedDriver, setSelectedDriver] = useState<Driver | null>(null)
@@ -189,7 +191,14 @@ export function DriverPerformance(_props: DriverPerformanceProps) {
           <CardContent>
             <div className="space-y-4">
               {topPerformers.map((driver, index: number) => (
-                <div key={driver.id} className="flex items-center gap-3">
+                <div
+                  key={driver.id}
+                  className="flex items-center gap-3 p-2 -mx-2 rounded-lg hover:bg-muted/50 cursor-pointer transition-colors"
+                  onClick={() => push({ type: 'driver', label: driver.name, data: { driverId: driver.id, driverName: driver.name } })}
+                  role="button"
+                  tabIndex={0}
+                  onKeyDown={(e) => e.key === 'Enter' && push({ type: 'driver', label: driver.name, data: { driverId: driver.id, driverName: driver.name } })}
+                >
                   <div className={`w-8 h-8 rounded-full flex items-center justify-center font-semibold text-sm ${
                     index === 0 ? "bg-warning/20 text-warning" :
                     index === 1 ? "bg-muted-foreground/20 text-muted-foreground" :
@@ -225,7 +234,14 @@ export function DriverPerformance(_props: DriverPerformanceProps) {
             {enhancedDrivers.map((driver) => {
               const badge = getScoreBadge(driver.safetyScore)
               return (
-                <Card key={driver.id}>
+                <Card
+                  key={driver.id}
+                  className="cursor-pointer hover:bg-muted/30 transition-colors"
+                  onClick={() => push({ type: 'driver', label: driver.name, data: { driverId: driver.id, driverName: driver.name } })}
+                  role="button"
+                  tabIndex={0}
+                  onKeyDown={(e) => e.key === 'Enter' && push({ type: 'driver', label: driver.name, data: { driverId: driver.id, driverName: driver.name } })}
+                >
                   <CardContent className="p-6">
                     <div className="flex items-start justify-between">
                       <div className="flex gap-4 flex-1">

@@ -29,6 +29,7 @@ import {
   SelectValue
 } from "@/components/ui/select"
 import { Textarea } from "@/components/ui/textarea"
+import { useDrilldown } from "@/contexts/DrilldownContext"
 import { apiClient } from "@/lib/api-client"
 import { isSuccessResponse } from "@/lib/schemas/responses"
 import type { ApiResponse, SuccessResponse } from "@/lib/schemas/responses"
@@ -72,9 +73,18 @@ interface TaskApiResponse<T> {
 }
 
 export function TaskManagement() {
+  const { push } = useDrilldown()
   const [tasks, setTasks] = useState<Task[]>([])
   const [_loading, setLoading] = useState(true)
   const [searchTerm, setSearchTerm] = useState("")
+
+  const handleTaskClick = (task: Task) => {
+    push({
+      type: 'task',
+      label: task.task_title,
+      data: { taskId: task.id, taskTitle: task.task_title, priority: task.priority, status: task.status }
+    })
+  }
   const [filterPriority, setFilterPriority] = useState<string>("all")
   const [filterStatus, setFilterStatus] = useState<string>("all")
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false)

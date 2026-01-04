@@ -5,28 +5,20 @@ import {
   CurrencyDollar,
   CalendarDots,
   CarProfile,
-  ListChecks,
-  ShieldCheck
+  ListChecks
 } from '@phosphor-icons/react';
 import React, { useState, useMemo } from 'react';
-import { toast } from 'sonner';
 
 import { MaintenanceHubMap } from './MaintenanceHubMap';
 
-import { DrilldownCard, DrilldownCardGrid } from '@/components/drilldown/DrilldownCard';
-import { DrilldownDataTable, DrilldownColumn } from '@/components/drilldown/DrilldownDataTable';
 import { MapFirstLayout } from '@/components/layout/MapFirstLayout';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useDrilldown } from '@/contexts/DrilldownContext';
-import { usePolicies } from '@/contexts/PolicyContext';
-import {
-  enforceMaintenancePolicy,
-  shouldBlockAction,
-  getApprovalRequirements
-} from '@/lib/policy-engine/policy-enforcement';
+import { useFleetData } from '@/hooks/use-fleet-data';
 
 interface WorkOrderItem {
   id: string;
@@ -58,117 +50,72 @@ interface VehicleMaintenanceHistory {
 }
 
 export function MaintenanceHub() {
-  const { getPoliciesByType, policies } = usePolicies()
-  const maintenancePolicies = getPoliciesByType('maintenance')
-  const activeMaintenancePolicies = maintenancePolicies.filter(p => p.status === 'active')
-  const { push } = useDrilldown()
-
+  const { push } = useDrilldown();
+  const fleetData = useFleetData();
   const [selectedTab, setSelectedTab] = useState<'queue' | 'history' | 'schedule'>('queue');
+  const [selectedWorkOrder, setSelectedWorkOrder] = useState<WorkOrderItem | null>(null);
 
-  // Sample work order queue
-  const workOrders: WorkOrderItem[] = useMemo(() => [
-    {
-      id: 'WO-2025-001',
-      vehicleUnit: 'Unit 45',
-      vehicleId: 'V-45',
-      type: 'active',
-      description: 'Oil change and tire rotation',
-      priority: 'medium',
-      assignedTo: 'Mike Johnson',
-      estimatedCost: 125.00,
-      estimatedTime: '2 hours',
-      scheduledDate: '2025-12-16 10:00 AM',
-      location: {
+  // Transform work orders from fleet data
+  const workOrders: WorkOrderItem[] = useMemo(() => {
+    const rawWorkOrders = fleetData.workOrders || [];
+    return rawWorkOrders.map((wo: any) => ({
+      id: wo.id || `WO-${wo.id}`,
+      vehicleUnit: wo.vehicleNumber || `Unit ${wo.vehicleId}`,
+      vehicleId: wo.vehicleId || wo.id,
+      type: wo.status === 'in-progress' ? 'active' : wo.priority === 'urgent' ? 'urgent' : wo.status === 'completed' ? 'completed' : 'scheduled',
+      description: wo.description || wo.serviceType || 'Maintenance',
+      priority: wo.priority || 'medium',
+      assignedTo: wo.assignedTo || wo.technician,
+      estimatedCost: wo.estimatedCost || 0,
+      estimatedTime: wo.estimatedHours ? `${wo.estimatedHours} hours` : '2 hours',
+      scheduledDate: wo.scheduledDate || wo.createdAt || new Date().toISOString(),
+      location: wo.location || {
         lat: 28.5383,
         lng: -81.3792,
-        address: '123 Service Way, Orlando, FL'
+        address: wo.facilityAddress || 'Service Center'
       }
-    },
-    {
-      id: 'WO-2025-002',
-      vehicleUnit: 'Unit 23',
-      vehicleId: 'V-23',
-      type: 'urgent',
-      description: 'Brake system repair - Safety critical',
-      priority: 'critical',
-      assignedTo: 'Sarah Williams',
-      estimatedCost: 850.00,
-      estimatedTime: '4 hours',
-      scheduledDate: '2025-12-16 08:00 AM',
-      location: {
-        lat: 28.5500,
-        lng: -81.3700,
-        address: '456 Repair Blvd, Orlando, FL'
-      }
-    },
-    {
-      id: 'WO-2025-003',
-      vehicleUnit: 'Unit 67',
-      vehicleId: 'V-67',
-      type: 'scheduled',
-      description: 'Preventive maintenance inspection (PMI)',
-      priority: 'medium',
-      assignedTo: 'John Smith',
-      estimatedCost: 200.00,
-      estimatedTime: '3 hours',
-      scheduledDate: '2025-12-17 09:00 AM',
-      location: {
-        lat: 28.5200,
-        lng: -81.3900,
-        address: '789 Fleet St, Orlando, FL'
-      }
-    },
-    {
-      id: 'WO-2025-004',
-      vehicleUnit: 'Unit 89',
-      vehicleId: 'V-89',
-      type: 'scheduled',
-      description: 'AC system service',
-      priority: 'low',
-      estimatedCost: 175.00,
-      estimatedTime: '2.5 hours',
-      scheduledDate: '2025-12-18 11:00 AM',
-      location: {
-        lat: 28.5383,
-        lng: -81.3792,
-        address: '123 Service Way, Orlando, FL'
-      }
-    }
-  ], []);
+    }));
+  }, [fleetData.workOrders]);
 
-  // Sample vehicle maintenance history
-  const vehicleHistory: VehicleMaintenanceHistory[] = useMemo(() => [
-    {
-      vehicleId: 'V-45',
-      vehicleUnit: 'Unit 45',
-      totalWorkOrders: 24,
-      completedThisMonth: 3,
-      totalCostYTD: 4250.00,
-      lastService: '2025-12-01',
-      nextScheduled: '2025-12-16',
-      status: 'good'
-    },
-    {
-      vehicleId: 'V-23',
-      vehicleUnit: 'Unit 23',
-      totalWorkOrders: 31,
-      completedThisMonth: 2,
-      totalCostYTD: 6890.00,
-      lastService: '2025-11-28',
-      nextScheduled: '2025-12-16',
-      status: 'attention'
-    },
-    {
-      vehicleId: 'V-67',
-      vehicleUnit: 'Unit 67',
-      totalWorkOrders: 18,
-      completedThisMonth: 1,
-      totalCostYTD: 3120.00,
-      lastService: '2025-12-05',
-      nextScheduled: '2025-12-17',
-      status: 'good'
-    }
-  ], []);
+  // Transform vehicle maintenance history from fleet data
+  const vehicleHistory: VehicleMaintenanceHistory[] = useMemo(() => {
+    const vehicles = fleetData.vehicles || [];
+    return vehicles.slice(0, 10).map((v: any) => ({
+      vehicleId: v.id,
+      vehicleUnit: v.name || v.vehicleNumber || `Unit ${v.id}`,
+      totalWorkOrders: v.maintenanceCount || 0,
+      completedThisMonth: v.completedThisMonth || 0,
+      totalCostYTD: v.maintenanceCostYTD || 0,
+      lastService: v.lastServiceDate || '',
+      nextScheduled: v.nextServiceDate || '',
+      status: v.maintenanceStatus || 'good' as 'good' | 'attention' | 'critical'
+    }));
+  }, [fleetData.vehicles]);
+
+  const handleWorkOrderClick = (wo: WorkOrderItem) => {
+    setSelectedWorkOrder(wo);
+    push({
+      type: 'workOrder',
+      label: `WO #${wo.id}`,
+      data: { workOrderId: wo.id, vehicleId: wo.vehicleId, description: wo.description }
+    });
+  };
+
+  const handleVehicleHistoryClick = (vh: VehicleMaintenanceHistory) => {
+    push({
+      type: 'vehicle',
+      label: vh.vehicleUnit,
+      data: { vehicleId: vh.vehicleId, vehicleName: vh.vehicleUnit }
+    });
+  };
+
+  const handleMetricClick = (metricType: string, filter: string) => {
+    push({
+      type: metricType as any,
+      label: `${filter} Work Orders`,
+      data: { filter }
+    });
+  };
 
   // Calculate metrics
   const metrics = useMemo(() => {
@@ -214,55 +161,6 @@ export function MaintenanceHub() {
     }
   };
 
-  // Handler for creating new work orders with policy enforcement
-  // Note: This is currently unused but kept for future policy enforcement integration
-  const handleCreateWorkOrder = async (workOrder: WorkOrderItem) => {
-    try {
-      // Enforce maintenance policy before allowing work order creation
-      const result = await enforceMaintenancePolicy(policies, {
-        vehicleId: workOrder.vehicleId,
-        type: workOrder.type,
-        estimatedCost: workOrder.estimatedCost,
-        priority: workOrder.priority,
-        scheduledDate: workOrder.scheduledDate
-      });
-
-      // Check if action should be blocked
-      if (shouldBlockAction(result)) {
-        toast.error("Policy Violation", {
-          description: "This work order cannot be created without resolving policy violations"
-        });
-        return;
-      }
-
-      // Check if approval is required
-      const approvalReq = getApprovalRequirements(result);
-      if (approvalReq.required) {
-        toast.warning(`${approvalReq.level?.toUpperCase()} Approval Required`, {
-          description: approvalReq.reason
-        });
-        // In real implementation, route to approval workflow
-      }
-
-      // If we reach here, either policy allows it or requires approval
-      if (result.allowed) {
-        toast.success("Work Order Created", {
-          description: approvalReq.required
-            ? "Work order submitted for approval"
-            : "Work order created successfully"
-        });
-        // Proceed with work order creation
-      }
-    } catch {
-      toast.error("Error", {
-        description: "Failed to validate work order against policies"
-      });
-    }
-  };
-
-  // Suppress unused warning - this function is kept for future policy enforcement
-  void handleCreateWorkOrder;
-
   // Map component
   const mapComponent = (
     <MaintenanceHubMap
@@ -279,21 +177,7 @@ export function MaintenanceHub() {
       onWorkOrderClick={(workOrder) => {
         const fullWorkOrder = workOrders.find(wo => wo.id === workOrder.id);
         if (fullWorkOrder) {
-          // Trigger work order detail drilldown
-          push({
-            id: `work-order-detail-${fullWorkOrder.id}`,
-            type: 'work-order-detail',
-            label: `WO #${fullWorkOrder.id}`,
-            data: {
-              workOrderId: fullWorkOrder.id,
-              workOrderNumber: fullWorkOrder.id,
-              vehicleId: fullWorkOrder.vehicleId,
-              vehicleUnit: fullWorkOrder.vehicleUnit,
-              description: fullWorkOrder.description,
-              priority: fullWorkOrder.priority,
-              estimatedCost: fullWorkOrder.estimatedCost,
-            },
-          });
+          setSelectedWorkOrder(fullWorkOrder);
         }
       }}
       height="100%"
@@ -304,67 +188,62 @@ export function MaintenanceHub() {
   const sidePanel = (
     <div className="space-y-4">
       <div>
-        <div className="flex items-center gap-2">
-          <h2 className="text-2xl font-bold">Maintenance Hub</h2>
-          {activeMaintenancePolicies.length > 0 && (
-            <Badge variant="outline" className="gap-1">
-              <ShieldCheck className="w-3 h-3" />
-              {activeMaintenancePolicies.length} Active {activeMaintenancePolicies.length === 1 ? 'Policy' : 'Policies'}
-            </Badge>
-          )}
-        </div>
+        <h2 className="text-2xl font-bold">Maintenance Hub</h2>
         <p className="text-sm text-muted-foreground mt-1">
           Service locations, work orders, and maintenance tracking
-          {activeMaintenancePolicies.length > 0 && ` · Policy Engine: Active`}
         </p>
       </div>
 
-      {/* Metrics Cards with Drilldown */}
-      <DrilldownCardGrid columns={2} gap="sm">
-        <DrilldownCard
-          title="Active"
-          value={metrics.activeCount}
-          icon={<Wrench className="w-5 h-5" />}
-          drilldownType="work-orders"
-          drilldownLabel="Active Work Orders"
-          drilldownData={{ status: 'in_progress' }}
-          color="primary"
-          variant="compact"
-        />
+      {/* Metrics Cards */}
+      <div className="grid grid-cols-2 gap-3">
+        <Card className="cursor-pointer hover:bg-muted/50 transition-colors" onClick={() => handleMetricClick('workOrder', 'active')}>
+          <CardContent className="p-4">
+            <div className="flex items-center gap-2">
+              <Wrench className="w-5 h-5 text-blue-500" />
+              <div>
+                <p className="text-xs text-muted-foreground">Active</p>
+                <p className="text-2xl font-bold">{metrics.activeCount}</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
 
-        <DrilldownCard
-          title="Urgent"
-          value={metrics.urgentCount}
-          icon={<Warning className="w-5 h-5" />}
-          drilldownType="work-orders"
-          drilldownLabel="Urgent Work Orders"
-          drilldownData={{ priority: 'urgent' }}
-          color="danger"
-          variant="compact"
-        />
+        <Card className="cursor-pointer hover:bg-muted/50 transition-colors" onClick={() => handleMetricClick('workOrder', 'urgent')}>
+          <CardContent className="p-4">
+            <div className="flex items-center gap-2">
+              <Warning className="w-5 h-5 text-red-500" />
+              <div>
+                <p className="text-xs text-muted-foreground">Urgent</p>
+                <p className="text-2xl font-bold">{metrics.urgentCount}</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
 
-        <DrilldownCard
-          title="Scheduled"
-          value={metrics.scheduledCount}
-          icon={<CalendarDots className="w-5 h-5" />}
-          drilldownType="work-orders"
-          drilldownLabel="Scheduled Work Orders"
-          drilldownData={{ status: 'scheduled' }}
-          color="warning"
-          variant="compact"
-        />
+        <Card className="cursor-pointer hover:bg-muted/50 transition-colors" onClick={() => handleMetricClick('workOrder', 'scheduled')}>
+          <CardContent className="p-4">
+            <div className="flex items-center gap-2">
+              <CalendarDots className="w-5 h-5 text-amber-500" />
+              <div>
+                <p className="text-xs text-muted-foreground">Scheduled</p>
+                <p className="text-2xl font-bold">{metrics.scheduledCount}</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
 
-        <DrilldownCard
-          title="Est. Cost"
-          value={`$${metrics.totalCost.toFixed(0)}`}
-          icon={<CurrencyDollar className="w-5 h-5" />}
-          drilldownType="garage-overview"
-          drilldownLabel="Cost Overview"
-          drilldownData={{ totalCost: metrics.totalCost }}
-          color="success"
-          variant="compact"
-        />
-      </DrilldownCardGrid>
+        <Card className="cursor-pointer hover:bg-muted/50 transition-colors" onClick={() => handleMetricClick('maintenance-costs', 'all')}>
+          <CardContent className="p-4">
+            <div className="flex items-center gap-2">
+              <CurrencyDollar className="w-5 h-5 text-green-500" />
+              <div>
+                <p className="text-xs text-muted-foreground">Est. Cost</p>
+                <p className="text-lg font-bold">${metrics.totalCost.toFixed(0)}</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
 
       {/* Work Order Queue Preview */}
       <Card>
@@ -380,45 +259,11 @@ export function MaintenanceHub() {
               {workOrders.slice(0, 5).map((wo) => (
                 <div
                   key={wo.id}
+                  className="p-3 border rounded-lg hover:bg-accent cursor-pointer transition-colors"
+                  onClick={() => handleWorkOrderClick(wo)}
                   role="button"
                   tabIndex={0}
-                  className="p-3 border rounded-lg hover:bg-accent cursor-pointer transition-colors focus:outline-none focus:ring-2 focus:ring-primary/50"
-                  onClick={() => {
-                    push({
-                      id: `work-order-detail-${wo.id}`,
-                      type: 'work-order-detail',
-                      label: `WO #${wo.id}`,
-                      data: {
-                        workOrderId: wo.id,
-                        workOrderNumber: wo.id,
-                        vehicleId: wo.vehicleId,
-                        vehicleUnit: wo.vehicleUnit,
-                        description: wo.description,
-                        priority: wo.priority,
-                        estimatedCost: wo.estimatedCost,
-                      },
-                    });
-                  }}
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter' || e.key === ' ') {
-                      e.preventDefault();
-                      push({
-                        id: `work-order-detail-${wo.id}`,
-                        type: 'work-order-detail',
-                        label: `WO #${wo.id}`,
-                        data: {
-                          workOrderId: wo.id,
-                          workOrderNumber: wo.id,
-                          vehicleId: wo.vehicleId,
-                          vehicleUnit: wo.vehicleUnit,
-                          description: wo.description,
-                          priority: wo.priority,
-                          estimatedCost: wo.estimatedCost,
-                        },
-                      });
-                    }
-                  }}
-                  aria-label={`View work order ${wo.id}`}
+                  onKeyDown={(e) => e.key === 'Enter' && handleWorkOrderClick(wo)}
                 >
                   <div className="flex items-start justify-between gap-2">
                     <div className="flex-1 min-w-0">
@@ -454,7 +299,7 @@ export function MaintenanceHub() {
   // Drawer content with detailed tabs
   const drawerContent = (
     <div className="space-y-4">
-      <Tabs value={selectedTab} onValueChange={(value) => setSelectedTab(value as 'queue' | 'history' | 'schedule')}>
+      <Tabs value={selectedTab} onValueChange={(value) => setSelectedTab(value as any)}>
         <TabsList className="grid w-full grid-cols-3">
           <TabsTrigger value="queue">Queue</TabsTrigger>
           <TabsTrigger value="history">History</TabsTrigger>
@@ -463,172 +308,115 @@ export function MaintenanceHub() {
 
         {/* Work Order Queue Tab */}
         <TabsContent value="queue" className="space-y-3 mt-4">
-          <DrilldownDataTable
-            data={workOrders}
-            columns={[
-              {
-                key: 'id',
-                header: 'WO #',
-                sortable: true,
-                render: (wo) => (
-                  <div className="flex items-center gap-2">
-                    <span className="font-mono text-sm">{wo.id}</span>
-                    <Badge variant={getWorkOrderBadgeVariant(wo.type)} className="text-xs">
-                      {wo.type}
-                    </Badge>
+          <div className="space-y-3">
+            {workOrders.map((wo) => (
+              <Card key={wo.id} className={selectedWorkOrder?.id === wo.id ? 'border-blue-500' : ''}>
+                <CardContent className="p-4">
+                  <div className="space-y-3">
+                    <div className="flex items-start justify-between">
+                      <div>
+                        <div className="flex items-center gap-2 mb-1">
+                          <span className="text-sm font-mono font-semibold">{wo.id}</span>
+                          <Badge variant={getWorkOrderBadgeVariant(wo.type)}>
+                            {wo.type}
+                          </Badge>
+                          <Badge variant={getPriorityBadgeVariant(wo.priority)}>
+                            {wo.priority}
+                          </Badge>
+                        </div>
+                        <p className="text-sm font-medium">{wo.vehicleUnit}</p>
+                      </div>
+                    </div>
+
+                    <p className="text-sm">{wo.description}</p>
+
+                    <div className="grid grid-cols-2 gap-3 text-sm">
+                      <div>
+                        <p className="text-xs text-muted-foreground mb-1">Scheduled</p>
+                        <p className="font-medium">{wo.scheduledDate}</p>
+                      </div>
+                      <div>
+                        <p className="text-xs text-muted-foreground mb-1">Assigned To</p>
+                        <p className="font-medium">{wo.assignedTo || 'Unassigned'}</p>
+                      </div>
+                      <div>
+                        <p className="text-xs text-muted-foreground mb-1">Est. Time</p>
+                        <p className="font-medium">{wo.estimatedTime}</p>
+                      </div>
+                      <div>
+                        <p className="text-xs text-muted-foreground mb-1">Est. Cost</p>
+                        <p className="font-medium">${wo.estimatedCost.toFixed(2)}</p>
+                      </div>
+                    </div>
+
+                    <div className="pt-2 border-t">
+                      <p className="text-xs text-muted-foreground mb-1">Location</p>
+                      <p className="text-xs">{wo.location.address}</p>
+                    </div>
+
+                    <Button className="w-full" size="sm">
+                      View Full Details
+                    </Button>
                   </div>
-                ),
-              },
-              {
-                key: 'vehicleUnit',
-                header: 'Vehicle',
-                sortable: true,
-                drilldown: {
-                  recordType: 'vehicle',
-                  getRecordId: (wo) => wo.vehicleId,
-                  getRecordLabel: (wo) => wo.vehicleUnit,
-                },
-              },
-              {
-                key: 'description',
-                header: 'Description',
-                className: 'max-w-xs',
-                render: (wo) => (
-                  <div className="truncate" title={wo.description}>
-                    {wo.description}
-                  </div>
-                ),
-              },
-              {
-                key: 'priority',
-                header: 'Priority',
-                sortable: true,
-                render: (wo) => (
-                  <Badge variant={getPriorityBadgeVariant(wo.priority)} className="text-xs">
-                    {wo.priority}
-                  </Badge>
-                ),
-              },
-              {
-                key: 'estimatedTime',
-                header: 'Est. Time',
-                render: (wo) => (
-                  <span className="text-sm text-muted-foreground">{wo.estimatedTime}</span>
-                ),
-              },
-              {
-                key: 'estimatedCost',
-                header: 'Est. Cost',
-                sortable: true,
-                render: (wo) => (
-                  <span className="font-medium">${wo.estimatedCost.toFixed(2)}</span>
-                ),
-              },
-            ] as DrilldownColumn<WorkOrderItem>[]}
-            recordType="work-order-detail"
-            getRecordId={(wo) => wo.id}
-            getRecordLabel={(wo) => `WO #${wo.id}`}
-            getRecordData={(wo) => ({
-              workOrderId: wo.id,
-              workOrderNumber: wo.id,
-              vehicleId: wo.vehicleId,
-              vehicleUnit: wo.vehicleUnit,
-              description: wo.description,
-              priority: wo.priority,
-              estimatedCost: wo.estimatedCost,
-            })}
-            compact
-            striped
-            emptyMessage="No work orders in queue"
-          />
+                </CardContent>
+              </Card>
+            ))}
+          </div>
         </TabsContent>
 
         {/* Vehicle History Tab */}
         <TabsContent value="history" className="space-y-3 mt-4">
-          <DrilldownDataTable
-            data={vehicleHistory}
-            columns={[
-              {
-                key: 'vehicleUnit',
-                header: 'Vehicle',
-                sortable: true,
-                drilldown: {
-                  recordType: 'vehicle-detail',
-                  getRecordId: (vh) => vh.vehicleId,
-                  getRecordLabel: (vh) => vh.vehicleUnit,
-                },
-                render: (vh) => (
-                  <div className="flex items-center gap-2">
-                    <CarProfile className="w-4 h-4" />
-                    <span>{vh.vehicleUnit}</span>
+          {vehicleHistory.map((vh) => (
+            <Card
+              key={vh.vehicleId}
+              className="cursor-pointer hover:bg-muted/30 transition-colors"
+              onClick={() => handleVehicleHistoryClick(vh)}
+              role="button"
+              tabIndex={0}
+              onKeyDown={(e) => e.key === 'Enter' && handleVehicleHistoryClick(vh)}
+            >
+              <CardContent className="p-4">
+                <div className="space-y-3">
+                  <div className="flex items-start justify-between">
+                    <div className="flex items-center gap-2">
+                      <CarProfile className="w-5 h-5" />
+                      <div>
+                        <p className="font-semibold">{vh.vehicleUnit}</p>
+                        <p className="text-xs text-muted-foreground">{vh.vehicleId}</p>
+                      </div>
+                    </div>
+                    <Badge variant={getStatusBadgeVariant(vh.status)}>
+                      {vh.status}
+                    </Badge>
                   </div>
-                ),
-              },
-              {
-                key: 'status',
-                header: 'Status',
-                sortable: true,
-                render: (vh) => (
-                  <Badge variant={getStatusBadgeVariant(vh.status)} className="text-xs">
-                    {vh.status}
-                  </Badge>
-                ),
-              },
-              {
-                key: 'totalWorkOrders',
-                header: 'Total WOs',
-                sortable: true,
-                render: (vh) => (
-                  <span className="font-medium">{vh.totalWorkOrders}</span>
-                ),
-              },
-              {
-                key: 'completedThisMonth',
-                header: 'This Month',
-                sortable: true,
-                render: (vh) => (
-                  <span className="text-muted-foreground">{vh.completedThisMonth}</span>
-                ),
-              },
-              {
-                key: 'totalCostYTD',
-                header: 'Cost YTD',
-                sortable: true,
-                render: (vh) => (
-                  <span className="font-medium">${vh.totalCostYTD.toLocaleString()}</span>
-                ),
-              },
-              {
-                key: 'lastService',
-                header: 'Last Service',
-                sortable: true,
-                render: (vh) => (
-                  <span className="text-sm">{vh.lastService}</span>
-                ),
-              },
-              {
-                key: 'nextScheduled',
-                header: 'Next Scheduled',
-                sortable: true,
-                render: (vh) => (
-                  <span className="text-sm font-medium">{vh.nextScheduled}</span>
-                ),
-              },
-            ] as DrilldownColumn<VehicleMaintenanceHistory>[]}
-            recordType="vehicle-detail"
-            getRecordId={(vh) => vh.vehicleId}
-            getRecordLabel={(vh) => vh.vehicleUnit}
-            getRecordData={(vh) => ({
-              vehicleId: vh.vehicleId,
-              vehicleUnit: vh.vehicleUnit,
-              maintenanceStatus: vh.status,
-              totalWorkOrders: vh.totalWorkOrders,
-              totalCostYTD: vh.totalCostYTD,
-            })}
-            compact
-            striped
-            emptyMessage="No vehicle maintenance history available"
-          />
+
+                  <div className="grid grid-cols-2 gap-3 text-sm">
+                    <div>
+                      <p className="text-xs text-muted-foreground mb-1">Total Work Orders</p>
+                      <p className="font-bold">{vh.totalWorkOrders}</p>
+                    </div>
+                    <div>
+                      <p className="text-xs text-muted-foreground mb-1">This Month</p>
+                      <p className="font-bold">{vh.completedThisMonth}</p>
+                    </div>
+                    <div>
+                      <p className="text-xs text-muted-foreground mb-1">Cost YTD</p>
+                      <p className="font-bold">${vh.totalCostYTD.toLocaleString()}</p>
+                    </div>
+                    <div>
+                      <p className="text-xs text-muted-foreground mb-1">Last Service</p>
+                      <p className="font-medium">{vh.lastService}</p>
+                    </div>
+                  </div>
+
+                  <div className="pt-2 border-t">
+                    <p className="text-xs text-muted-foreground mb-1">Next Scheduled</p>
+                    <p className="text-sm font-medium">{vh.nextScheduled}</p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          ))}
         </TabsContent>
 
         {/* Maintenance Schedule Tab */}
@@ -668,7 +456,6 @@ export function MaintenanceHub() {
       mapComponent={mapComponent}
       sidePanel={sidePanel}
       drawerContent={drawerContent}
-      hubType="maintenance"
     />
   );
 }
