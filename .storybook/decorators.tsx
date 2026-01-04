@@ -1,5 +1,5 @@
-import { Decorator } from "@storybook/react"
 import React from "react"
+import { Decorator } from "@storybook/react"
 import { BrowserRouter } from "react-router-dom"
 
 /**
@@ -16,22 +16,18 @@ export const withRouter: Decorator = (Story) => (
  * Theme decorator - applies dark/light theme based on global setting
  */
 export const withTheme: Decorator = (Story, context) => {
-  const ThemeWrapper = () => {
-    const theme = context.globals.theme || "light"
+  const theme = context.globals.theme || "light"
+  
+  React.useEffect(() => {
+    const root = document.documentElement
+    if (theme === "dark") {
+      root.classList.add("dark")
+    } else {
+      root.classList.remove("dark")
+    }
+  }, [theme])
 
-    React.useEffect(() => {
-      const root = document.documentElement
-      if (theme === "dark") {
-        root.classList.add("dark")
-      } else {
-        root.classList.remove("dark")
-      }
-    }, [theme])
-
-    return <Story />
-  }
-
-  return <ThemeWrapper />
+  return <Story />
 }
 
 /**
