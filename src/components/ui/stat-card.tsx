@@ -2,14 +2,15 @@
  * Professional Statistics Card Component
  *
  * Features:
- * - Clean corporate design
+ * - Clean corporate design with responsive layout
  * - Subtle shadows and borders
  * - Trend indicators (up/down)
  * - Professional color variants
  * - Accessible and keyboard-navigable
+ * - Smooth animations and transitions
  */
 
-import { ArrowUp, ArrowDown, Minus } from '@phosphor-icons/react'
+import { ArrowUp, ArrowDown, Minus, CaretRight } from '@phosphor-icons/react'
 
 import { cn } from '@/lib/utils'
 
@@ -21,27 +22,27 @@ interface StatCardProps {
     trendValue?: string
     icon?: React.ReactNode
     variant?: 'default' | 'primary' | 'success' | 'warning' | 'danger'
+    size?: 'sm' | 'default' | 'lg'
     className?: string
-    /** Click handler for drilldown */
     onClick?: () => void
-    /** Label for the drilldown action */
     drilldownLabel?: string
 }
 
-// Professional Corporate UI - Clean design with subtle accents
 const variantStyles = {
     default: {
         bg: 'bg-card',
-        border: 'border-border',
-        accent: 'from-slate-600 to-slate-700',
-        iconBg: 'bg-secondary/50',
+        border: 'border-border/50',
+        hoverBorder: 'hover:border-border',
+        accent: 'from-muted-foreground/50 to-muted-foreground/30',
+        iconBg: 'bg-muted/50',
         iconColor: 'text-muted-foreground',
         valueColor: 'text-foreground'
     },
     primary: {
         bg: 'bg-card',
         border: 'border-primary/20',
-        accent: 'from-blue-600 to-blue-700',
+        hoverBorder: 'hover:border-primary/40',
+        accent: 'from-primary to-primary/70',
         iconBg: 'bg-primary/10',
         iconColor: 'text-primary',
         valueColor: 'text-foreground'
@@ -49,7 +50,8 @@ const variantStyles = {
     success: {
         bg: 'bg-card',
         border: 'border-success/20',
-        accent: 'from-emerald-600 to-emerald-700',
+        hoverBorder: 'hover:border-success/40',
+        accent: 'from-success to-success/70',
         iconBg: 'bg-success/10',
         iconColor: 'text-success',
         valueColor: 'text-foreground'
@@ -57,7 +59,8 @@ const variantStyles = {
     warning: {
         bg: 'bg-card',
         border: 'border-warning/20',
-        accent: 'from-amber-600 to-amber-700',
+        hoverBorder: 'hover:border-warning/40',
+        accent: 'from-warning to-warning/70',
         iconBg: 'bg-warning/10',
         iconColor: 'text-warning',
         valueColor: 'text-foreground'
@@ -65,10 +68,38 @@ const variantStyles = {
     danger: {
         bg: 'bg-card',
         border: 'border-destructive/20',
-        accent: 'from-red-600 to-red-700',
+        hoverBorder: 'hover:border-destructive/40',
+        accent: 'from-destructive to-destructive/70',
         iconBg: 'bg-destructive/10',
         iconColor: 'text-destructive',
         valueColor: 'text-foreground'
+    }
+}
+
+const sizeStyles = {
+    sm: {
+        padding: 'p-3',
+        title: 'text-[10px]',
+        value: 'text-lg sm:text-xl',
+        subtitle: 'text-[10px]',
+        icon: 'p-1.5',
+        iconSize: 'w-4 h-4'
+    },
+    default: {
+        padding: 'p-4',
+        title: 'text-xs',
+        value: 'text-xl sm:text-2xl',
+        subtitle: 'text-xs',
+        icon: 'p-2.5',
+        iconSize: 'w-5 h-5'
+    },
+    lg: {
+        padding: 'p-5 sm:p-6',
+        title: 'text-xs sm:text-sm',
+        value: 'text-2xl sm:text-3xl',
+        subtitle: 'text-xs sm:text-sm',
+        icon: 'p-3',
+        iconSize: 'w-6 h-6'
     }
 }
 
@@ -80,12 +111,14 @@ export function StatCard({
     trendValue,
     icon,
     variant = 'default',
+    size = 'default',
     className,
     onClick,
     drilldownLabel = 'View Details'
 }: StatCardProps) {
     const isClickable = !!onClick
     const styles = variantStyles[variant]
+    const sizes = sizeStyles[size]
 
     const TrendIcon = trend === 'up' ? ArrowUp : trend === 'down' ? ArrowDown : Minus
     const trendColor = trend === 'up' ? 'text-success' : trend === 'down' ? 'text-destructive' : 'text-muted-foreground'
@@ -103,63 +136,84 @@ export function StatCard({
             }}
             aria-label={isClickable ? `${title}: ${value}. ${drilldownLabel}` : undefined}
             className={cn(
-                // Base - professional padding and rounded corners
-                'relative overflow-hidden rounded-lg border p-4',
-                // Professional shadow
-                'shadow-sm',
-                // Subtle hover effects
-                'transition-all duration-200 hover:shadow-md',
-                // Clickable styling - subtle interaction
-                isClickable && 'cursor-pointer hover:border-primary/30 active:scale-[0.99] focus:outline-none focus:ring-2 focus:ring-primary/20',
+                // Base
+                'group relative overflow-hidden rounded-xl border',
+                sizes.padding,
+                // Shadow and transitions
+                'shadow-sm transition-all duration-300 ease-out',
+                // Hover effects
+                'hover:shadow-md',
+                styles.hoverBorder,
+                // Clickable styling
+                isClickable && [
+                    'cursor-pointer',
+                    'hover:-translate-y-0.5',
+                    'active:translate-y-0 active:shadow-sm active:scale-[0.99]',
+                    'focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2'
+                ],
                 // Variant styles
                 styles.bg,
                 styles.border,
                 className
             )}
         >
-            {/* Subtle accent line at top - professional touch */}
+            {/* Accent line at top */}
             <div className={cn(
-                'absolute top-0 left-0 right-0 h-1 bg-gradient-to-r opacity-60',
-                styles.accent
+                'absolute top-0 left-0 right-0 h-0.5 bg-gradient-to-r opacity-80',
+                styles.accent,
+                'transition-opacity duration-300',
+                isClickable && 'group-hover:opacity-100'
             )} />
 
             <div className="relative flex items-start justify-between gap-3">
-                <div className="space-y-1 min-w-0 flex-1">
-                    <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide truncate">{title}</p>
+                <div className="space-y-1.5 min-w-0 flex-1">
                     <p className={cn(
-                        'text-2xl font-bold tracking-tight',
+                        'font-semibold text-muted-foreground uppercase tracking-wider truncate',
+                        sizes.title
+                    )}>
+                        {title}
+                    </p>
+                    <p className={cn(
+                        'font-bold tracking-tight tabular-nums',
+                        sizes.value,
                         styles.valueColor
                     )}>
                         {value}
                     </p>
-                    {subtitle && (
-                        <p className="text-xs text-muted-foreground truncate">{subtitle}</p>
-                    )}
-                    {trend && (
-                        <div className={cn('flex items-center gap-1 text-xs font-medium', trendColor)}>
-                            <TrendIcon className="w-3.5 h-3.5" weight="bold" />
-                            <span>{trendValue}</span>
+                    {(subtitle || trend) && (
+                        <div className="flex items-center gap-2 flex-wrap">
+                            {subtitle && (
+                                <p className={cn('text-muted-foreground truncate', sizes.subtitle)}>{subtitle}</p>
+                            )}
+                            {trend && trendValue && (
+                                <div className={cn('flex items-center gap-0.5 font-medium', trendColor, sizes.subtitle)}>
+                                    <TrendIcon className="w-3 h-3" weight="bold" />
+                                    <span>{trendValue}</span>
+                                </div>
+                            )}
                         </div>
                     )}
                 </div>
 
                 {icon && (
                     <div className={cn(
-                        'p-2.5 rounded-lg shrink-0',
+                        'rounded-xl shrink-0 transition-transform duration-300',
+                        sizes.icon,
                         styles.iconBg,
-                        styles.iconColor
+                        styles.iconColor,
+                        isClickable && 'group-hover:scale-110'
                     )}>
-                        {icon}
+                        <div className={sizes.iconSize}>
+                            {icon}
+                        </div>
                     </div>
                 )}
             </div>
 
-            {/* Drilldown indicator - subtle chevron */}
+            {/* Drilldown indicator */}
             {isClickable && (
-                <div className="absolute bottom-2 right-2 opacity-40 group-hover:opacity-80 transition-opacity">
-                    <svg className="w-3 h-3 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                    </svg>
+                <div className="absolute bottom-3 right-3 opacity-0 translate-x-1 group-hover:opacity-60 group-hover:translate-x-0 transition-all duration-300">
+                    <CaretRight className="w-4 h-4 text-primary" weight="bold" />
                 </div>
             )}
         </div>
@@ -167,7 +221,7 @@ export function StatCard({
 }
 
 /**
- * Progress Ring Component
+ * Progress Ring Component with smooth animations
  */
 interface ProgressRingProps {
     progress: number
@@ -176,6 +230,7 @@ interface ProgressRingProps {
     color?: 'blue' | 'green' | 'yellow' | 'red'
     label?: string
     sublabel?: string
+    animate?: boolean
 }
 
 const ringColors = {
@@ -185,21 +240,30 @@ const ringColors = {
     red: 'stroke-destructive'
 }
 
+const ringBgColors = {
+    blue: 'text-primary/10',
+    green: 'text-success/10',
+    yellow: 'text-warning/10',
+    red: 'text-destructive/10'
+}
+
 export function ProgressRing({
     progress,
     size = 80,
     strokeWidth = 6,
     color = 'blue',
     label,
-    sublabel
+    sublabel,
+    animate = true
 }: ProgressRingProps) {
     const radius = (size - strokeWidth) / 2
     const circumference = radius * 2 * Math.PI
-    const offset = circumference - (progress / 100) * circumference
+    const offset = circumference - (Math.min(100, Math.max(0, progress)) / 100) * circumference
 
     return (
         <div className="relative inline-flex items-center justify-center">
             <svg width={size} height={size} className="transform -rotate-90">
+                {/* Background circle */}
                 <circle
                     cx={size / 2}
                     cy={size / 2}
@@ -207,8 +271,9 @@ export function ProgressRing({
                     fill="none"
                     stroke="currentColor"
                     strokeWidth={strokeWidth}
-                    className="text-muted/20"
+                    className={ringBgColors[color]}
                 />
+                {/* Progress circle */}
                 <circle
                     cx={size / 2}
                     cy={size / 2}
@@ -218,13 +283,16 @@ export function ProgressRing({
                     strokeDasharray={circumference}
                     strokeDashoffset={offset}
                     strokeLinecap="round"
-                    className={cn('transition-all duration-700 ease-out', ringColors[color])}
+                    className={cn(
+                        ringColors[color],
+                        animate && 'transition-all duration-1000 ease-out'
+                    )}
                 />
             </svg>
             <div className="absolute inset-0 flex flex-col items-center justify-center">
-                <span className="text-lg font-bold text-foreground">{progress}%</span>
-                {label && <span className="text-[10px] text-muted-foreground">{label}</span>}
-                {sublabel && <span className="text-[8px] text-muted-foreground/80">{sublabel}</span>}
+                <span className="text-lg sm:text-xl font-bold text-foreground tabular-nums">{progress}%</span>
+                {label && <span className="text-[10px] text-muted-foreground font-medium">{label}</span>}
+                {sublabel && <span className="text-[8px] text-muted-foreground/70">{sublabel}</span>}
             </div>
         </div>
     )
@@ -236,6 +304,7 @@ export function ProgressRing({
 interface StatusDotProps {
     status: 'online' | 'offline' | 'warning' | 'error'
     label?: string
+    size?: 'sm' | 'default' | 'lg'
 }
 
 const statusColors = {
@@ -245,10 +314,16 @@ const statusColors = {
     error: 'bg-destructive'
 }
 
-export function StatusDot({ status, label }: StatusDotProps) {
+const dotSizes = {
+    sm: 'h-1.5 w-1.5',
+    default: 'h-2.5 w-2.5',
+    lg: 'h-3 w-3'
+}
+
+export function StatusDot({ status, label, size = 'default' }: StatusDotProps) {
     return (
         <div className="flex items-center gap-2">
-            <span className="relative flex h-2.5 w-2.5">
+            <span className={cn('relative flex', dotSizes[size])}>
                 {status === 'online' && (
                     <span className={cn(
                         'animate-ping absolute inline-flex h-full w-full rounded-full opacity-50',
@@ -256,7 +331,8 @@ export function StatusDot({ status, label }: StatusDotProps) {
                     )} />
                 )}
                 <span className={cn(
-                    'relative inline-flex rounded-full h-2.5 w-2.5',
+                    'relative inline-flex rounded-full',
+                    dotSizes[size],
                     statusColors[status]
                 )} />
             </span>
@@ -272,7 +348,6 @@ interface QuickStatProps {
     label: string
     value: string | number
     trend?: 'up' | 'down'
-    /** Click handler for drilldown */
     onClick?: () => void
 }
 
@@ -290,20 +365,61 @@ export function QuickStat({ label, value, trend, onClick }: QuickStatProps) {
                 }
             }}
             className={cn(
-                'flex items-center justify-between py-2 border-b border-border last:border-0',
-                isClickable && 'cursor-pointer hover:bg-muted/30 rounded px-2 -mx-2 transition-colors'
+                'flex items-center justify-between py-2.5 border-b border-border/50 last:border-0',
+                'transition-all duration-200',
+                isClickable && [
+                    'cursor-pointer rounded-lg px-2 -mx-2',
+                    'hover:bg-muted/40 active:bg-muted/60',
+                    'focus:outline-none focus-visible:ring-2 focus-visible:ring-ring'
+                ]
             )}
         >
-            <span className="text-xs text-muted-foreground">{label}</span>
+            <span className="text-xs sm:text-sm text-muted-foreground">{label}</span>
             <div className="flex items-center gap-1.5">
-                <span className="text-sm font-semibold text-foreground">{value}</span>
+                <span className="text-sm sm:text-base font-semibold text-foreground tabular-nums">{value}</span>
                 {trend && (
-                    <span className={trend === 'up' ? 'text-success' : 'text-destructive'}>
-                        {trend === 'up' ? <ArrowUp className="w-3 h-3" /> : <ArrowDown className="w-3 h-3" />}
+                    <span className={cn(
+                        'transition-transform duration-200',
+                        trend === 'up' ? 'text-success' : 'text-destructive',
+                        isClickable && 'group-hover:scale-110'
+                    )}>
+                        {trend === 'up' ? <ArrowUp className="w-3.5 h-3.5" weight="bold" /> : <ArrowDown className="w-3.5 h-3.5" weight="bold" />}
                     </span>
                 )}
-                {isClickable && <span className="text-muted-foreground text-xs">→</span>}
+                {isClickable && (
+                    <CaretRight className="w-3.5 h-3.5 text-muted-foreground opacity-50" />
+                )}
             </div>
+        </div>
+    )
+}
+
+/**
+ * Metric Badge for inline stats
+ */
+interface MetricBadgeProps {
+    value: string | number
+    label?: string
+    variant?: 'default' | 'success' | 'warning' | 'danger'
+    className?: string
+}
+
+const badgeVariants = {
+    default: 'bg-muted text-muted-foreground',
+    success: 'bg-success/10 text-success',
+    warning: 'bg-warning/10 text-warning',
+    danger: 'bg-destructive/10 text-destructive'
+}
+
+export function MetricBadge({ value, label, variant = 'default', className }: MetricBadgeProps) {
+    return (
+        <div className={cn(
+            'inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-medium',
+            badgeVariants[variant],
+            className
+        )}>
+            <span className="font-semibold tabular-nums">{value}</span>
+            {label && <span className="opacity-80">{label}</span>}
         </div>
     )
 }
