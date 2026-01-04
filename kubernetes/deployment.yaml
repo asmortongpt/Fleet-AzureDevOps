@@ -53,12 +53,12 @@ spec:
 
       containers:
         - name: frontend
-          image: ghcr.io/asmortongpt/fleet-local:latest
+          image: fleetproductionacr.azurecr.io/fleet-frontend:latest
           imagePullPolicy: Always
 
           ports:
             - name: http
-              containerPort: 8080
+              containerPort: 3000
               protocol: TCP
 
           # Environment variables
@@ -100,8 +100,8 @@ spec:
           # Liveness probe
           livenessProbe:
             httpGet:
-              path: /health.txt
-              port: 8080
+              path: /ready
+              port: 3000
               scheme: HTTP
             initialDelaySeconds: 30
             periodSeconds: 10
@@ -112,8 +112,8 @@ spec:
           # Readiness probe
           readinessProbe:
             httpGet:
-              path: /health.txt
-              port: 8080
+              path: /ready
+              port: 3000
               scheme: HTTP
             initialDelaySeconds: 10
             periodSeconds: 5
@@ -124,8 +124,8 @@ spec:
           # Startup probe (for slow-starting containers)
           startupProbe:
             httpGet:
-              path: /health.txt
-              port: 8080
+              path: /ready
+              port: 3000
               scheme: HTTP
             initialDelaySeconds: 5
             periodSeconds: 5
