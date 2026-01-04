@@ -14,7 +14,7 @@ import {
   Database as DatabaseIcon,
   GitBranch
 } from "@phosphor-icons/react"
-import { useState } from "react"
+import { useState, useMemo } from "react"
 import { toast } from "sonner"
 
 import { DataFlowDiagram } from "@/components/diagrams/DataFlowDiagram"
@@ -54,6 +54,15 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Textarea } from "@/components/ui/textarea"
 import { usePolicies } from "@/contexts/PolicyContext"
 import type { Policy, PolicyType, PolicyMode, PolicyStatus } from "@/lib/policy-engine/types"
+import { usePolicies, usePolicyMutations } from "@/hooks/use-api"
+import { generateDemoPolicies } from "@/lib/demo-data"
+
+// Check if demo mode is enabled (default: true)
+const isDemoMode = () => {
+  if (typeof window === 'undefined') return true
+  const demoMode = localStorage.getItem('demo_mode')
+  return demoMode !== 'false' // Default to demo mode unless explicitly disabled
+}
 
 export function PolicyEngineWorkbench() {
   // Use PolicyContext for backend integration
@@ -73,6 +82,18 @@ export function PolicyEngineWorkbench() {
   const [filterStatus, setFilterStatus] = useState<string>("all")
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false)
   const [selectedPolicy, setSelectedPolicy] = useState<Policy | null>(null)
+
+  // Fetch policies from API or use demo data
+  const { data: apiPolicies, isLoading } = usePolicies({ tenant_id: 'demo-tenant-001' })
+  const { createPolicy, updatePolicy, deletePolicy } = usePolicyMutations()
+
+  // Use demo data in demo mode, API data otherwise
+  const policies = useMemo((): Policy[] => {
+    if (isDemoMode()) {
+      return generateDemoPolicies()
+    }
+    return apiPolicies || []
+  }, [apiPolicies])
 
   const [newPolicy, setNewPolicy] = useState<Partial<Policy>>({
     type: "safety",

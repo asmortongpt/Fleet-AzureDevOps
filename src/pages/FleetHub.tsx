@@ -370,9 +370,43 @@ function VideoContent() {
             </div>
 
             <div className="grid grid-cols-3 gap-3">
-                <StatCard title="Cameras" value="148" variant="success" icon={<Video className="w-5 h-5" />} />
-                <StatCard title="Events Today" value="23" variant="warning" />
-                <StatCard title="Storage" value="2.4 TB" variant="default" />
+                <StatCard
+                    title="Cameras"
+                    value="148"
+                    variant="success"
+                    icon={<Video className="w-5 h-5" />}
+                    onClick={() => push({
+                        id: 'cameras-online',
+                        type: 'cameras-online',
+                        label: 'Cameras Online',
+                        data: { filter: 'online' }
+                    })}
+                    drilldownLabel="View camera status"
+                />
+                <StatCard
+                    title="Events Today"
+                    value="23"
+                    variant="warning"
+                    onClick={() => push({
+                        id: 'video-events',
+                        type: 'video-events',
+                        label: 'Video Events Today',
+                        data: { filter: 'today' }
+                    })}
+                    drilldownLabel="View video events"
+                />
+                <StatCard
+                    title="Storage"
+                    value="2.4 TB"
+                    variant="default"
+                    onClick={() => push({
+                        id: 'video-storage',
+                        type: 'video-storage',
+                        label: 'Video Storage',
+                        data: { view: 'storage' }
+                    })}
+                    drilldownLabel="View storage details"
+                />
             </div>
 
             <div className="grid grid-cols-2 gap-3 flex-1">

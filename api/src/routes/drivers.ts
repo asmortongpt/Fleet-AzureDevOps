@@ -128,4 +128,120 @@ router.get(
   }
 )
 
+// GET /drivers/:id/performance
+router.get(
+  '/:id/performance',
+  requirePermission('driver:view:own'),
+  applyFieldMasking('driver'),
+  auditLog({ action: 'READ', resourceType: 'driver_performance' }),
+  async (req: AuthRequest, res: Response) => {
+    try {
+      const driverId = req.params.id
+      const tenantId = req.user!.tenant_id
+
+      // IDOR protection: Check if user has access to this driver
+      const userResult = await tenantSafeQuery(
+        'SELECT team_driver_ids, driver_id, scope_level FROM users WHERE id = $1 AND tenant_id = $2',
+        [req.user!.id, tenantId],
+        tenantId
+      )
+      const user = userResult.rows[0]
+
+      if (user.scope_level === `own` && user.driver_id !== driverId) {
+        return res.status(403).json({ error: `Forbidden` })
+      } else if (user.scope_level === 'team' && !user.team_driver_ids.includes(driverId)) {
+        return res.status(403).json({ error: `Forbidden` })
+      }
+
+      // TODO: Implement actual performance data fetching from database
+      // For now, return demo data to match frontend expectations
+      const performanceData = {
+        last_updated: new Date().toISOString(),
+        overall_score: 92,
+        safety_score: 95,
+        efficiency_score: 88,
+        fuel_score: 90,
+        punctuality_score: 94,
+        hard_braking: 2,
+        rapid_acceleration: 3,
+        speeding: 1,
+        distracted_driving: 0,
+        seatbelt_violations: 0,
+        avg_mpg: 24.5,
+        idle_time: 3.2,
+        route_adherence: 96,
+        on_time_deliveries: 98,
+        violations: []
+      }
+
+      res.json(performanceData)
+    } catch (error) {
+      console.error(`Get driver performance error:`, error)
+      res.status(500).json({ error: `Internal server error` })
+    }
+  }
+)
+
+// GET /drivers/:id/trips
+router.get(
+  '/:id/trips',
+  requirePermission('driver:view:own'),
+  applyFieldMasking('driver'),
+  auditLog({ action: 'READ', resourceType: 'driver_trips' }),
+  async (req: AuthRequest, res: Response) => {
+    try {
+      const driverId = req.params.id
+      const tenantId = req.user!.tenant_id
+
+      // IDOR protection: Check if user has access to this driver
+      const userResult = await tenantSafeQuery(
+        'SELECT team_driver_ids, driver_id, scope_level FROM users WHERE id = $1 AND tenant_id = $2',
+        [req.user!.id, tenantId],
+        tenantId
+      )
+      const user = userResult.rows[0]
+
+      if (user.scope_level === `own` && user.driver_id !== driverId) {
+        return res.status(403).json({ error: `Forbidden` })
+      } else if (user.scope_level === 'team' && !user.team_driver_ids.includes(driverId)) {
+        return res.status(403).json({ error: `Forbidden` })
+      }
+
+      // TODO: Implement actual trips fetching from database
+      // For now, return demo data to match frontend expectations
+      const trips = [
+        {
+          id: `trip-driver-${driverId}-1`,
+          status: 'completed',
+          vehicle_name: 'Fleet Van #42',
+          start_time: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString(),
+          duration: '3h 15m',
+          start_location: '100 Corporate Dr, City, State',
+          end_location: '500 Industrial Blvd, City, State',
+          distance: 52.3,
+          avg_speed: 38.2,
+          fuel_used: 3.8
+        },
+        {
+          id: `trip-driver-${driverId}-2`,
+          status: 'completed',
+          vehicle_name: 'Fleet Van #42',
+          start_time: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString(),
+          duration: '2h 45m',
+          start_location: '200 Main St, City, State',
+          end_location: '300 Oak Ave, City, State',
+          distance: 41.5,
+          avg_speed: 35.8,
+          fuel_used: 2.9
+        }
+      ]
+
+      res.json(trips)
+    } catch (error) {
+      console.error(`Get driver trips error:`, error)
+      res.status(500).json({ error: `Internal server error` })
+    }
+  }
+)
+
 export default router
