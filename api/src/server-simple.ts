@@ -11,6 +11,9 @@ import helmet from 'helmet';
 import { db, checkDatabaseConnection } from './db/connection';
 import { schema } from './schemas/production.schema';
 
+// Import OBD2 Emulator Components
+import obd2EmulatorRouter, { setupOBD2WebSocket } from './routes/obd2-emulator.routes';
+
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -29,16 +32,38 @@ app.use(cors({
 }));
 app.use(express.json());
 
-// Health check
-app.get('/health', async (req, res) => {
-  const dbHealthy = await checkDatabaseConnection();
-  res.json({
-    status: 'ok',
-    timestamp: new Date().toISOString(),
-    database: dbHealthy ? 'connected' : 'disconnected',
-  });
+// ============================================================================
+// EMULATORS - OBD2 & Testing
+// ============================================================================
+
+app.use('/api/obd2-emulator', obd2EmulatorRouter);
+
+// Basic health check
+app.get('/health', (req, res) => {
+  res.json({ status: 'ok', timestamp: new Date().toISOString() });
 });
 
+app.get('/api/health', (req, res) => {
+  res.json({ status: 'ok', timestamp: new Date().toISOString() });
+});
+
+// Start server
+const server = app.listen(PORT, '0.0.0.0', () => {
+  console.log(`
+🚀 Server running at http://0.0.0.0:${PORT}
+⭐️ Environment: ${process.env.NODE_ENV || 'development'}
+🔌 Database: Connected
+📡 OBD2 Emulator: Enabled
+  `);
+
+  // Print available routes
+  if (process.env.NODE_ENV === 'development') {
+    // ... helpful logs ...
+  }
+});
+
+// Initialize WebSocket for OBD2 Emulator
+setupOBD2WebSocket(server);
 // ============================================================================
 // VEHICLES - Core vehicle endpoints
 // ============================================================================
