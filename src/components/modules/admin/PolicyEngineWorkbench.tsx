@@ -52,9 +52,8 @@ import {
 } from "@/components/ui/table"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Textarea } from "@/components/ui/textarea"
-import { usePolicies } from "@/contexts/PolicyContext"
 import type { Policy, PolicyType, PolicyMode, PolicyStatus } from "@/lib/policy-engine/types"
-import { usePolicies, usePolicyMutations } from "@/hooks/use-api"
+import { usePolicies } from "@/contexts/PolicyContext"
 import { generateDemoPolicies } from "@/lib/demo-data"
 
 // Check if demo mode is enabled (default: true)
@@ -83,17 +82,6 @@ export function PolicyEngineWorkbench() {
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false)
   const [selectedPolicy, setSelectedPolicy] = useState<Policy | null>(null)
 
-  // Fetch policies from API or use demo data
-  const { data: apiPolicies, isLoading } = usePolicies({ tenant_id: 'demo-tenant-001' })
-  const { createPolicy, updatePolicy, deletePolicy } = usePolicyMutations()
-
-  // Use demo data in demo mode, API data otherwise
-  const policies = useMemo((): Policy[] => {
-    if (isDemoMode()) {
-      return generateDemoPolicies()
-    }
-    return apiPolicies || []
-  }, [apiPolicies])
 
   const [newPolicy, setNewPolicy] = useState<Partial<Policy>>({
     type: "safety",
