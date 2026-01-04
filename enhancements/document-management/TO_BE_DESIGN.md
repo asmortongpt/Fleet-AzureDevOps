@@ -1,4265 +1,4342 @@
-# TO_BE_DESIGN.md - Document Management System (DMS) 2.0
-*Comprehensive Next-Generation Enterprise Document Management Platform*
+# TO-BE Design: Document Management Module for Fleet Management System
 
----
+## 1. Executive Architecture Summary (120 lines)
 
-## Executive Vision (150+ lines)
+### Strategic Vision and Modernization Goals
 
-### Strategic Transformation Goals
+The Document Management Module (DMM) represents a critical modernization initiative for our Fleet Management System (FMS), addressing long-standing pain points in document handling, compliance, and operational efficiency. Our strategic vision centers on creating a **next-generation document platform** that:
 
-**1. Digital-First Enterprise Foundation**
-The Document Management System 2.0 represents a paradigm shift from legacy file storage to an intelligent, AI-powered knowledge platform. By 2025, this system will:
-- Reduce document retrieval time by 90% through predictive search and AI categorization
-- Eliminate 95% of manual document processing via intelligent automation
-- Achieve 100% compliance with global data protection regulations
-- Enable seamless collaboration across 50+ enterprise applications
+1. **Eliminates paper-based processes** through comprehensive digital transformation
+2. **Enables real-time document access** across all fleet operations
+3. **Ensures regulatory compliance** with automated retention and audit trails
+4. **Reduces operational costs** by 40% through process automation
+5. **Enhances security** with enterprise-grade protection for sensitive documents
+6. **Improves user experience** with mobile-first, intuitive interfaces
+7. **Enables predictive maintenance** through document analytics
 
-**2. Business Process Revolution**
-The enhanced DMS will transform core business operations:
-- **Procurement:** 70% faster contract lifecycle management with AI-powered clause analysis
-- **HR:** 80% reduction in employee onboarding documentation processing time
-- **Legal:** 60% decrease in compliance audit preparation time
-- **Finance:** 90% faster invoice processing with intelligent OCR and data extraction
+The modernization goals align with our enterprise digital transformation roadmap:
+- **Phase 1 (0-6 months)**: Core document management capabilities
+- **Phase 2 (6-12 months)**: Advanced analytics and AI integration
+- **Phase 3 (12-18 months)**: Predictive document processing and automation
 
-**3. Competitive Differentiation**
-Key advantages over existing solutions:
-- **Real-time collaboration** with WebSocket-powered simultaneous editing (100ms latency)
-- **Predictive document generation** using LLM integration (30% faster document creation)
-- **Automated compliance** with jurisdiction-aware policy enforcement
-- **Enterprise-grade security** with quantum-resistant encryption for sensitive documents
+### Alignment with Enterprise Architecture Principles
 
-### User Experience Transformation
+The DMM design adheres to our enterprise architecture principles:
 
-**1. Unified Interface Paradigm**
-- Single-pane-of-glass experience combining:
-  - Document storage and versioning
-  - Workflow automation
-  - Team collaboration spaces
-  - Advanced search and discovery
-  - Analytics and reporting
+1. **Cloud-First Approach**: Leveraging Azure as our primary cloud provider with multi-region deployment
+2. **Microservices Architecture**: Decomposed services following domain-driven design
+3. **API-Centric Design**: RESTful APIs with OpenAPI 3.0 specifications
+4. **Event-Driven Architecture**: Kafka-based event streaming for real-time processing
+5. **Security by Design**: Zero-trust security model with defense in depth
+6. **Observability**: Comprehensive monitoring and logging from day one
+7. **Infrastructure as Code**: Full automation of deployment pipelines
+8. **Data Sovereignty**: Compliance with regional data residency requirements
 
-**2. Intelligent Assistance Layer**
-- Context-aware AI assistant providing:
-  - Proactive document suggestions based on current work
-  - Automated metadata tagging with 98% accuracy
-  - Smart summarization of lengthy documents
-  - Predictive search with 95% relevance ranking
+### Technology Stack Evolution and Rationale
 
-**3. Progressive Enhancement**
-- **Desktop:** Full-featured native experience with offline capabilities
-- **Web:** Responsive PWA with 99.9% uptime
-- **Mobile:** Native apps with AR document scanning (iOS/Android)
-- **Wearables:** Apple Watch/Google Wear integration for notifications
+**Current State (AS-IS) vs Target State (TO-BE):**
 
-### Long-Term Roadmap (2024-2027)
+| Component          | Current State               | Target State                          | Rationale                                                                 |
+|--------------------|-----------------------------|---------------------------------------|---------------------------------------------------------------------------|
+| **Frontend**       | AngularJS (legacy)          | React 18 + TypeScript                 | Modern component model, better performance, improved developer experience |
+| **Backend**        | Monolithic .NET Framework   | Node.js + NestJS (TypeScript)         | Better microservices support, developer productivity, ecosystem           |
+| **Database**       | SQL Server 2016             | PostgreSQL 15 + Azure Cosmos DB       | Open-source, JSON support, global distribution                            |
+| **Storage**        | On-prem file servers        | Azure Blob Storage + CDN              | Scalability, durability, global access                                    |
+| **Search**         | SQL Server full-text        | Elasticsearch 8.x                     | Advanced search capabilities, better performance                          |
+| **Messaging**      | SQL Service Broker          | Kafka + Azure Event Hubs              | Scalable event streaming, better ecosystem                                |
+| **Orchestration**  | Windows Services            | Kubernetes (AKS)                      | Container orchestration, auto-scaling, resilience                         |
+| **CI/CD**          | TeamCity                    | GitHub Actions + Azure DevOps         | Better integration with source control, cloud-native                      |
+| **Monitoring**     | SCOM                        | Prometheus + Grafana + Application Insights | Modern observability stack, better visualization                     |
 
-**2024 - Foundation Phase**
-- Q1: Core platform migration to Kubernetes (99.99% uptime)
-- Q2: AI/ML integration (document classification, OCR)
-- Q3: Real-time collaboration features
-- Q4: PWA with offline capabilities
+**Key Technology Decisions:**
 
-**2025 - Intelligence Phase**
-- Q1: Predictive document generation (LLM integration)
-- Q2: Automated compliance engine
-- Q3: Blockchain for document verification
-- Q4: Quantum-resistant encryption
+1. **NestJS Framework**:
+   - Provides structured, modular architecture
+   - Built-in support for microservices, GraphQL, WebSockets
+   - Dependency injection and testing capabilities
+   - Strong TypeScript integration
 
-**2026 - Ecosystem Phase**
-- Q1: Marketplace for third-party integrations
-- Q2: Industry-specific templates and workflows
-- Q3: IoT document capture (smart scanners, drones)
-- Q4: Metaverse collaboration spaces
+2. **PostgreSQL**:
+   - ACID compliance for transactional data
+   - JSON/JSONB support for semi-structured data
+   - Advanced indexing and full-text search
+   - Extensible with extensions like PostGIS
 
-**2027 - Autonomous Phase**
-- Q1: Self-optimizing document workflows
-- Q2: Autonomous compliance monitoring
-- Q3: AI-powered contract negotiation
-- Q4: Fully autonomous document lifecycle management
+3. **Azure Blob Storage**:
+   - 99.99% availability SLA
+   - Geo-redundant storage options
+   - Integration with Azure CDN for global delivery
+   - Cost-effective for large document volumes
 
-### Business Impact Metrics
+4. **Kafka**:
+   - High throughput (millions of messages/sec)
+   - Persistent storage of events
+   - Exactly-once processing semantics
+   - Integration with Azure Event Hubs for hybrid scenarios
 
-| KPI | Current State | Target 2025 | Target 2027 |
-|-----|---------------|-------------|-------------|
-| Document retrieval time | 2.5 minutes | <10 seconds | <2 seconds |
-| Manual processing time | 40% of workflows | <5% | <1% |
-| Compliance audit time | 120 hours | 20 hours | <5 hours |
-| User adoption rate | 65% | 95% | 99% |
-| Storage cost per TB | $120/month | $40/month | $15/month |
-| Collaboration efficiency | 3.2 users/doc | 12+ users/doc | 50+ users/doc |
+### Migration Strategy and Risk Mitigation
 
-### Competitive Landscape Analysis
+**Phased Migration Approach:**
 
-**Market Positioning:**
-- **Against SharePoint/Box:** Superior AI capabilities and developer experience
-- **Against Google Drive:** Better enterprise security and compliance features
-- **Against Notion:** More robust document management and versioning
-- **Against OpenText:** Modern architecture and lower TCO
+1. **Phase 0: Foundation (4 weeks)**
+   - Set up AKS cluster and CI/CD pipelines
+   - Implement core infrastructure (monitoring, logging, security)
+   - Build document ingestion pipeline
 
-**Unique Value Propositions:**
-1. **AI-First Architecture:** Native integration of multiple AI models for different document types
-2. **Developer Platform:** Comprehensive API and SDK for custom integrations
-3. **Compliance Engine:** Automated policy enforcement across 120+ jurisdictions
-4. **Real-Time Collaboration:** WebSocket-powered simultaneous editing with conflict resolution
-5. **Progressive Web App:** Full offline capabilities with background sync
+2. **Phase 1: Core Services (8 weeks)**
+   - Develop document metadata service
+   - Implement storage service
+   - Build search service
+   - Create basic document viewer
 
-### Implementation Strategy
+3. **Phase 2: Integration (6 weeks)**
+   - Integrate with existing FMS modules
+   - Implement event-driven workflows
+   - Develop mobile interfaces
+   - Build admin console
 
-**Phased Rollout:**
-1. **Pilot Phase (3 months):** 10% of users, core features only
-2. **Departmental Rollout (6 months):** HR, Legal, Finance departments
-3. **Enterprise-Wide (9 months):** All users with full feature set
-4. **Continuous Improvement:** Quarterly feature updates
+4. **Phase 3: Cutover (4 weeks)**
+   - Data migration from legacy system
+   - Parallel run and validation
+   - User training and documentation
+   - Go-live and hypercare
 
-**Change Management:**
-- **Training:** 20-hour certification program for power users
-- **Adoption:** Gamification system with rewards for early adopters
-- **Feedback:** Real-time sentiment analysis of user feedback
-- **Support:** 24/7 AI-powered chatbot with human escalation
+**Risk Mitigation Strategies:**
 
-**Technical Strategy:**
-- **Cloud-Native:** Kubernetes-based microservices architecture
-- **Polyglot Persistence:** PostgreSQL (relational), MongoDB (documents), ElasticSearch (search)
-- **Event-Driven:** Kafka for real-time event processing
-- **Observability:** OpenTelemetry for comprehensive monitoring
+| Risk Category          | Risk Description                          | Mitigation Strategy                                                                 |
+|------------------------|-------------------------------------------|------------------------------------------------------------------------------------|
+| **Data Migration**     | Data loss or corruption during migration  | - Implement checksum validation<br>- Parallel run with reconciliation<br>- Phased migration |
+| **Performance**        | System unable to handle production load   | - Load testing at each phase<br>- Auto-scaling configuration<br>- Performance tuning |
+| **Integration**        | Issues with existing system integration   | - Contract testing<br>- Circuit breakers<br>- Gradual rollout                     |
+| **Security**           | Vulnerabilities in new implementation     | - Security review at each phase<br>- Penetration testing<br>- Regular scans       |
+| **Adoption**           | Users resistant to new system             | - Change management program<br>- Training sessions<br>- Feedback loops            |
+| **Compliance**         | Non-compliance with regulations           | - Legal review of design<br>- Compliance testing<br>- Audit trails                |
 
-### Financial Projections
+### Success Criteria and KPIs
 
-**Investment:**
-- Development: $8.2M (2024-2025)
-- Infrastructure: $3.5M (2024-2027)
-- Operations: $2.1M/year
+**Quantitative KPIs:**
 
-**ROI:**
-- Year 1: $12.4M (productivity gains)
-- Year 2: $28.7M (process automation)
-- Year 3: $45.2M (new revenue streams)
-- 3-year ROI: 420%
+1. **Operational Efficiency:**
+   - Document processing time reduced from 48h to <2h (95% improvement)
+   - Manual data entry reduced by 80%
+   - Search time reduced from 30s to <1s
 
-**Cost Savings:**
-- Document storage: 65% reduction
-- Compliance costs: 70% reduction
-- Manual processing: 85% reduction
-- Paper usage: 95% reduction
+2. **Cost Reduction:**
+   - Storage costs reduced by 60% through deduplication
+   - Operational costs reduced by 40% through automation
+   - Paper and printing costs eliminated
 
----
+3. **System Performance:**
+   - 99.95% system availability
+   - <500ms response time for 95% of requests
+   - Support for 10,000 concurrent users
 
-## Performance Enhancements (300+ lines)
+4. **Compliance:**
+   - 100% audit trail coverage
+   - 0 compliance violations in first year
+   - Automated retention policy compliance
 
-### Redis Caching Layer Implementation
+5. **User Satisfaction:**
+   - 90% user satisfaction score
+   - 80% reduction in support tickets
+   - 75% mobile adoption rate
+
+**Qualitative Success Criteria:**
+
+1. **Business Process Transformation:**
+   - Elimination of paper-based workflows
+   - Real-time document access across all locations
+   - Automated compliance reporting
+
+2. **Technical Excellence:**
+   - Modern, scalable architecture
+   - Comprehensive observability
+   - Robust security implementation
+
+3. **Innovation Enablement:**
+   - Foundation for AI/ML document processing
+   - Integration with IoT devices for automated document capture
+   - Predictive analytics capabilities
+
+### Stakeholder Value Proposition and ROI
+
+**Stakeholder-Specific Value:**
+
+1. **Fleet Managers:**
+   - Real-time access to vehicle documents
+   - Automated compliance tracking
+   - Reduced administrative burden
+   - Improved decision making with document analytics
+
+2. **Drivers/Technicians:**
+   - Mobile access to required documents
+   - Digital signatures for approvals
+   - Reduced paperwork
+   - Faster document retrieval
+
+3. **Compliance Officers:**
+   - Automated audit trails
+   - Configurable retention policies
+   - Reduced compliance risk
+   - Faster reporting
+
+4. **IT Operations:**
+   - Reduced maintenance overhead
+   - Improved system reliability
+   - Better scalability
+   - Modernized technology stack
+
+5. **Executive Leadership:**
+   - Reduced operational costs
+   - Improved regulatory compliance
+   - Enhanced customer satisfaction
+   - Foundation for digital transformation
+
+**ROI Analysis:**
+
+| Category               | Current Annual Cost | Target Annual Cost | Annual Savings | Notes                                  |
+|------------------------|---------------------|--------------------|----------------|----------------------------------------|
+| Paper/Printing         | $450,000            | $50,000            | $400,000       | 90% reduction                          |
+| Storage                | $320,000            | $120,000           | $200,000       | Cloud storage + deduplication          |
+| Labor (Document Mgmt)  | $1,200,000          | $400,000           | $800,000       | 67% reduction through automation       |
+| Compliance Fines       | $250,000            | $50,000            | $200,000       | 80% reduction through automation       |
+| Downtime Costs         | $180,000            | $20,000            | $160,000       | Improved system reliability            |
+| **Total**              | **$2,400,000**      | **$640,000**       | **$1,760,000** | **73% cost reduction**                 |
+
+**Implementation Costs:**
+- Development: $800,000
+- Infrastructure: $250,000
+- Migration: $150,000
+- Training: $100,000
+- **Total**: $1,300,000
+
+**Payback Period:** 9 months
+**5-Year ROI:** 673%
+
+## 2. Target Architecture (350 lines)
+
+### 2.1 System Architecture
+
+**High-Level Architecture Diagram (Mermaid):**
+
+```mermaid
+%% Document Management Module Architecture
+flowchart TB
+    subgraph Client Layer
+        A[Web Application] -->|REST/GraphQL| B[API Gateway]
+        C[Mobile Application] -->|REST/GraphQL| B
+        D[Desktop Application] -->|REST/GraphQL| B
+    end
+
+    subgraph API Layer
+        B -->|Routes| E[Document Service]
+        B -->|Routes| F[Search Service]
+        B -->|Routes| G[Workflow Service]
+        B -->|Routes| H[Notification Service]
+        B -->|Auth| I[Identity Service]
+    end
+
+    subgraph Service Layer
+        E -->|Events| J[Event Bus]
+        F -->|Events| J
+        G -->|Events| J
+        H -->|Events| J
+
+        E -->|Metadata| K[PostgreSQL]
+        E -->|Documents| L[Azure Blob Storage]
+        F -->|Index| M[Elasticsearch]
+        G -->|State| K
+    end
+
+    subgraph Integration Layer
+        J -->|Events| N[Kafka]
+        N -->|Webhooks| O[External Systems]
+        P[Legacy FMS] -->|Sync| E
+        Q[Telematics] -->|Events| J
+    end
+
+    subgraph Infrastructure
+        R[AKS Cluster] -->|Hosts| B
+        R -->|Hosts| E
+        R -->|Hosts| F
+        R -->|Hosts| G
+        R -->|Hosts| H
+        S[Azure Monitor] -->|Observes| R
+        T[Azure Key Vault] -->|Secrets| R
+    end
+```
+
+**Architecture Principles:**
+
+1. **Separation of Concerns:**
+   - Clear boundaries between document storage, metadata, search, and workflow
+   - Single responsibility principle for each microservice
+
+2. **Event-Driven Architecture:**
+   - Kafka as the central event bus
+   - Event sourcing for critical document operations
+   - CQRS pattern for read/write separation
+
+3. **API Gateway Pattern:**
+   - Single entry point for all clients
+   - Request aggregation
+   - Protocol translation
+   - Rate limiting and caching
+
+4. **Resilience:**
+   - Circuit breakers for external calls
+   - Retry policies with exponential backoff
+   - Bulkhead pattern for resource isolation
+
+5. **Scalability:**
+   - Horizontal scaling for all services
+   - Stateless services where possible
+   - Read replicas for databases
+
+**Microservices Decomposition Strategy:**
+
+| Service Name          | Responsibilities                                                                 | Bounded Context                          | Communication Pattern |
+|-----------------------|---------------------------------------------------------------------------------|------------------------------------------|-----------------------|
+| **Document Service**  | - Document ingestion<br>- Metadata management<br>- Version control<br>- Access control | Document Lifecycle Management            | REST/GraphQL + Events |
+| **Search Service**    | - Document indexing<br>- Full-text search<br>- Faceted search<br>- Search analytics | Document Discovery                       | REST + Events         |
+| **Workflow Service**  | - Document approval workflows<br>- Task management<br>- SLA tracking<br>- Escalations | Document Processing Workflows            | REST + Events         |
+| **Storage Service**   | - Document storage<br>- Deduplication<br>- Encryption<br>- Retention policies    | Document Storage                         | Internal gRPC         |
+| **Notification Service** | - Email notifications<br>- Push notifications<br>- In-app notifications<br>- Digest emails | User Communication                       | Events                |
+| **Identity Service**  | - Authentication<br>- Authorization<br>- User management<br>- Session management  | Access Control                           | REST + Events         |
+
+**API Gateway Design:**
 
 ```typescript
-// src/cache/redis-cache.service.ts
-import { Injectable, Logger } from '@nestjs/common';
-import { Redis } from 'ioredis';
-import { ConfigService } from '@nestjs/config';
-import { promisify } from 'util';
-import { DocumentCacheKeyGenerator } from './document-cache-key-generator';
-import { CacheTTL } from '../enums/cache-ttl.enum';
+// API Gateway Configuration (NestJS)
+import { Module } from '@nestjs/common';
+import { DocumentModule } from './document/document.module';
+import { SearchModule } from './search/search.module';
+import { WorkflowModule } from './workflow/workflow.module';
+import { NotificationModule } from './notification/notification.module';
+import { AuthModule } from './auth/auth.module';
+import { APP_GUARD } from '@nestjs/core';
+import { JwtAuthGuard } from './auth/guards/jwt-auth.guard';
+import { RateLimiterGuard } from './common/guards/rate-limiter.guard';
+import { ThrottlerModule } from '@nestjs/throttler';
+
+@Module({
+  imports: [
+    ThrottlerModule.forRoot({
+      ttl: 60,
+      limit: 100,
+    }),
+    DocumentModule,
+    SearchModule,
+    WorkflowModule,
+    NotificationModule,
+    AuthModule,
+  ],
+  providers: [
+    {
+      provide: APP_GUARD,
+      useClass: JwtAuthGuard,
+    },
+    {
+      provide: APP_GUARD,
+      useClass: RateLimiterGuard,
+    },
+  ],
+})
+export class AppModule {}
+```
+
+**Service Mesh Design:**
+
+```yaml
+# Istio VirtualService for Document Service
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: document-service
+spec:
+  hosts:
+  - "document-service.internal"
+  http:
+  - route:
+    - destination:
+        host: document-service.internal
+        subset: v1
+      weight: 90
+    - destination:
+        host: document-service.internal
+        subset: v2
+      weight: 10
+    retries:
+      attempts: 3
+      perTryTimeout: 2s
+      retryOn: gateway-error,connect-failure,refused-stream
+    timeout: 10s
+    fault:
+      abort:
+        percentage:
+          value: 0.1
+        httpStatus: 500
+```
+
+**Event-Driven Architecture Patterns:**
+
+1. **Event Sourcing:**
+   - All document state changes are stored as immutable events
+   - Current state is derived by replaying events
+   - Enables audit trail and time-travel debugging
+
+2. **CQRS:**
+   - Separate models for read and write operations
+   - Optimized read models for specific use cases
+   - Eventual consistency between models
+
+3. **Saga Pattern:**
+   - Long-running transactions split into local transactions
+   - Compensating transactions for rollback
+   - Used for complex document workflows
+
+**Scalability and Performance Targets:**
+
+| Metric                     | Target Value               | Measurement Method                     |
+|----------------------------|----------------------------|----------------------------------------|
+| Requests per second        | 10,000                     | Load testing with 1000 concurrent users|
+| Average response time      | <200ms                     | APM monitoring                         |
+| 99th percentile response   | <500ms                     | APM monitoring                         |
+| Document upload time       | <2s for 10MB file          | Synthetic monitoring                   |
+| Search latency             | <100ms for 95% of queries  | Synthetic monitoring                   |
+| System availability        | 99.95%                     | Uptime monitoring                      |
+| Data durability            | 99.999999999% (11 9's)     | Storage system SLA                     |
+| Concurrent users           | 10,000                     | Load testing                           |
+
+### 2.2 Component Design
+
+#### Document Service
+
+**Responsibilities:**
+- Document ingestion (upload, scan, email)
+- Metadata management
+- Version control
+- Access control
+- Document lifecycle management
+
+**Interface Contracts (OpenAPI):**
+
+```yaml
+openapi: 3.0.1
+info:
+  title: Document Service API
+  version: 1.0.0
+paths:
+  /documents:
+    post:
+      summary: Upload a new document
+      operationId: uploadDocument
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+                metadata:
+                  $ref: '#/components/schemas/DocumentMetadata'
+      responses:
+        '201':
+          description: Document created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Document'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /documents/{id}:
+    get:
+      summary: Get document by ID
+      operationId: getDocument
+      parameters:
+        - $ref: '#/components/parameters/DocumentId'
+      responses:
+        '200':
+          description: Document found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Document'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /documents/{id}/versions:
+    get:
+      summary: Get document versions
+      operationId: getDocumentVersions
+      parameters:
+        - $ref: '#/components/parameters/DocumentId'
+      responses:
+        '200':
+          description: Document versions
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/DocumentVersion'
+
+components:
+  schemas:
+    Document:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        description:
+          type: string
+        status:
+          $ref: '#/components/schemas/DocumentStatus'
+        metadata:
+          $ref: '#/components/schemas/DocumentMetadata'
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        currentVersion:
+          $ref: '#/components/schemas/DocumentVersion'
+        accessControl:
+          $ref: '#/components/schemas/AccessControlList'
+
+    DocumentVersion:
+      type: object
+      properties:
+        versionId:
+          type: string
+          format: uuid
+        documentId:
+          type: string
+          format: uuid
+        versionNumber:
+          type: integer
+        createdAt:
+          type: string
+          format: date-time
+        createdBy:
+          $ref: '#/components/schemas/UserReference'
+        file:
+          $ref: '#/components/schemas/FileReference'
+        metadata:
+          $ref: '#/components/schemas/DocumentMetadata'
+
+    DocumentMetadata:
+      type: object
+      properties:
+        documentType:
+          type: string
+          enum: [CONTRACT, INVOICE, REPORT, MANUAL, CERTIFICATE, OTHER]
+        vehicleId:
+          type: string
+        driverId:
+          type: string
+        fleetId:
+          type: string
+        tags:
+          type: array
+          items:
+            type: string
+        customFields:
+          type: object
+          additionalProperties:
+            type: string
+        retentionPolicy:
+          $ref: '#/components/schemas/RetentionPolicy'
+
+    AccessControlList:
+      type: object
+      properties:
+        owner:
+          $ref: '#/components/schemas/UserReference'
+        viewers:
+          type: array
+          items:
+            $ref: '#/components/schemas/AccessControlEntry'
+        editors:
+          type: array
+          items:
+            $ref: '#/components/schemas/AccessControlEntry'
+
+    AccessControlEntry:
+      type: object
+      properties:
+        principal:
+          $ref: '#/components/schemas/PrincipalReference'
+        permissions:
+          type: array
+          items:
+            type: string
+            enum: [READ, WRITE, DELETE, SHARE, ADMIN]
+
+  parameters:
+    DocumentId:
+      name: id
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+
+  responses:
+    BadRequest:
+      description: Bad request
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    Unauthorized:
+      description: Unauthorized
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    Forbidden:
+      description: Forbidden
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    NotFound:
+      description: Not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    InternalServerError:
+      description: Internal server error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+```
+
+**Data Model:**
+
+```typescript
+// Document Entity (TypeORM)
+import { Entity, PrimaryGeneratedColumn, Column, VersionColumn, OneToMany, ManyToOne, CreateDateColumn, UpdateDateColumn } from 'typeorm';
+import { DocumentVersion } from './document-version.entity';
+import { User } from '../user/user.entity';
+import { DocumentStatus } from './document-status.enum';
+import { DocumentType } from './document-type.enum';
+
+@Entity()
+export class Document {
+  @PrimaryGeneratedColumn('uuid')
+  id: string;
+
+  @Column({ length: 255 })
+  name: string;
+
+  @Column({ type: 'text', nullable: true })
+  description?: string;
+
+  @Column({
+    type: 'enum',
+    enum: DocumentStatus,
+    default: DocumentStatus.DRAFT
+  })
+  status: DocumentStatus;
+
+  @Column({
+    type: 'enum',
+    enum: DocumentType
+  })
+  documentType: DocumentType;
+
+  @ManyToOne(() => User)
+  owner: User;
+
+  @Column({ type: 'jsonb', nullable: true })
+  metadata?: any;
+
+  @Column({ type: 'jsonb', nullable: true })
+  customFields?: Record<string, string>;
+
+  @Column({ type: 'jsonb' })
+  retentionPolicy: {
+    retentionPeriod: string; // ISO 8601 duration
+    actionAfterRetention: 'DELETE' | 'ARCHIVE' | 'NOTIFY';
+    legalHold?: boolean;
+  };
+
+  @OneToMany(() => DocumentVersion, version => version.document, { cascade: true })
+  versions: DocumentVersion[];
+
+  @Column({ type: 'jsonb' })
+  accessControl: {
+    viewers: Array<{
+      principalId: string;
+      principalType: 'USER' | 'GROUP' | 'ROLE';
+      permissions: string[];
+    }>;
+    editors: Array<{
+      principalId: string;
+      principalType: 'USER' | 'GROUP' | 'ROLE';
+      permissions: string[];
+    }>;
+  };
+
+  @CreateDateColumn()
+  createdAt: Date;
+
+  @UpdateDateColumn()
+  updatedAt: Date;
+
+  @VersionColumn()
+  version: number;
+}
+```
+
+**State Management Approach:**
+
+1. **Document Lifecycle States:**
+   - DRAFT → PENDING_APPROVAL → APPROVED → ARCHIVED → DELETED
+   - Each state transition emits an event
+   - State machine enforces valid transitions
+
+2. **Event Sourcing:**
+   - All state changes stored as immutable events
+   - Current state derived from event stream
+   - Enables audit trail and time-travel
+
+3. **Optimistic Concurrency Control:**
+   - Version column for conflict detection
+   - Retry mechanism for conflicts
+   - 409 Conflict response for client-side resolution
+
+**Error Handling and Resilience Patterns:**
+
+```typescript
+// Document Service Error Handling Middleware
+import { Injectable, NestMiddleware, HttpException, HttpStatus } from '@nestjs/common';
+import { Request, Response, NextFunction } from 'express';
+import { DocumentNotFoundException } from './exceptions/document-not-found.exception';
+import { DocumentVersionConflictException } from './exceptions/document-version-conflict.exception';
+import { AccessDeniedException } from './exceptions/access-denied.exception';
+import { ValidationException } from './exceptions/validation.exception';
+import { Logger } from '@nestjs/common';
 
 @Injectable()
-export class RedisCacheService {
-  private readonly logger = new Logger(RedisCacheService.name);
-  private readonly redisClient: Redis;
-  private readonly getAsync: (key: string) => Promise<string | null>;
-  private readonly setAsync: (key: string, value: string, mode: string, duration: number) => Promise<string>;
-  private readonly delAsync: (key: string) => Promise<number>;
-  private readonly keysAsync: (pattern: string) => Promise<string[]>;
+export class DocumentErrorMiddleware implements NestMiddleware {
+  private readonly logger = new Logger('DocumentErrorMiddleware');
 
-  constructor(
-    private configService: ConfigService,
-    private keyGenerator: DocumentCacheKeyGenerator
-  ) {
-    const redisConfig = {
-      host: this.configService.get<string>('REDIS_HOST'),
-      port: this.configService.get<number>('REDIS_PORT'),
-      password: this.configService.get<string>('REDIS_PASSWORD'),
-      db: this.configService.get<number>('REDIS_DB'),
-      retryStrategy: (times: number) => Math.min(times * 100, 5000),
-      reconnectOnError: (err: Error) => {
-        this.logger.error(`Redis reconnection error: ${err.message}`);
-        return true;
+  use(req: Request, res: Response, next: NextFunction) {
+    try {
+      next();
+    } catch (error) {
+      this.logger.error(`Error processing request: ${error.message}`, error.stack);
+
+      if (error instanceof DocumentNotFoundException) {
+        throw new HttpException({
+          status: HttpStatus.NOT_FOUND,
+          error: 'Document not found',
+          message: error.message,
+          code: 'DOCUMENT_NOT_FOUND'
+        }, HttpStatus.NOT_FOUND);
       }
-    };
 
-    this.redisClient = new Redis(redisConfig);
-
-    // Promisify Redis methods
-    this.getAsync = promisify(this.redisClient.get).bind(this.redisClient);
-    this.setAsync = promisify(this.redisClient.set).bind(this.redisClient);
-    this.delAsync = promisify(this.redisClient.del).bind(this.redisClient);
-    this.keysAsync = promisify(this.redisClient.keys).bind(this.redisClient);
-
-    // Event listeners
-    this.redisClient.on('connect', () => {
-      this.logger.log('Redis client connected');
-    });
-
-    this.redisClient.on('error', (err) => {
-      this.logger.error(`Redis error: ${err.message}`);
-    });
-
-    this.redisClient.on('reconnecting', () => {
-      this.logger.warn('Redis client reconnecting');
-    });
-  }
-
-  /**
-   * Get cached value with automatic type conversion
-   * @param key Cache key
-   * @returns Cached value or null
-   */
-  async get<T>(key: string): Promise<T | null> {
-    try {
-      const result = await this.getAsync(key);
-      if (!result) return null;
-
-      try {
-        return JSON.parse(result) as T;
-      } catch (e) {
-        this.logger.warn(`Failed to parse cached value for key ${key}: ${e.message}`);
-        return null;
+      if (error instanceof DocumentVersionConflictException) {
+        throw new HttpException({
+          status: HttpStatus.CONFLICT,
+          error: 'Document version conflict',
+          message: error.message,
+          code: 'DOCUMENT_VERSION_CONFLICT',
+          currentVersion: error.currentVersion
+        }, HttpStatus.CONFLICT);
       }
-    } catch (err) {
-      this.logger.error(`Redis get error for key ${key}: ${err.message}`);
-      return null;
-    }
-  }
 
-  /**
-   * Set cache value with TTL
-   * @param key Cache key
-   * @param value Value to cache
-   * @param ttl Time to live in seconds
-   */
-  async set<T>(key: string, value: T, ttl: number = CacheTTL.DEFAULT): Promise<void> {
-    try {
-      const stringValue = JSON.stringify(value);
-      await this.setAsync(key, stringValue, 'EX', ttl);
-    } catch (err) {
-      this.logger.error(`Redis set error for key ${key}: ${err.message}`);
-      throw err;
-    }
-  }
-
-  /**
-   * Delete cache entry
-   * @param key Cache key
-   */
-  async del(key: string): Promise<void> {
-    try {
-      await this.delAsync(key);
-    } catch (err) {
-      this.logger.error(`Redis delete error for key ${key}: ${err.message}`);
-      throw err;
-    }
-  }
-
-  /**
-   * Delete all keys matching pattern
-   * @param pattern Key pattern
-   */
-  async delByPattern(pattern: string): Promise<void> {
-    try {
-      const keys = await this.keysAsync(pattern);
-      if (keys.length > 0) {
-        await this.redisClient.del(keys);
+      if (error instanceof AccessDeniedException) {
+        throw new HttpException({
+          status: HttpStatus.FORBIDDEN,
+          error: 'Access denied',
+          message: error.message,
+          code: 'ACCESS_DENIED',
+          requiredPermissions: error.requiredPermissions
+        }, HttpStatus.FORBIDDEN);
       }
-    } catch (err) {
-      this.logger.error(`Redis delete by pattern error for ${pattern}: ${err.message}`);
-      throw err;
-    }
-  }
 
-  /**
-   * Cache document with version awareness
-   * @param documentId Document ID
-   * @param version Document version
-   * @param data Document data
-   */
-  async cacheDocument(documentId: string, version: number, data: any): Promise<void> {
-    const key = this.keyGenerator.generateDocumentKey(documentId, version);
-    await this.set(key, data, CacheTTL.DOCUMENT);
-  }
+      if (error instanceof ValidationException) {
+        throw new HttpException({
+          status: HttpStatus.BAD_REQUEST,
+          error: 'Validation failed',
+          message: error.message,
+          code: 'VALIDATION_ERROR',
+          details: error.details
+        }, HttpStatus.BAD_REQUEST);
+      }
 
-  /**
-   * Get cached document
-   * @param documentId Document ID
-   * @param version Document version
-   * @returns Cached document or null
-   */
-  async getCachedDocument(documentId: string, version: number): Promise<any> {
-    const key = this.keyGenerator.generateDocumentKey(documentId, version);
-    return this.get(key);
-  }
+      // Handle TypeORM errors
+      if (error.name === 'QueryFailedError') {
+        throw new HttpException({
+          status: HttpStatus.INTERNAL_SERVER_ERROR,
+          error: 'Database error',
+          message: 'An error occurred while accessing the database',
+          code: 'DATABASE_ERROR',
+          details: process.env.NODE_ENV === 'development' ? error.message : undefined
+        }, HttpStatus.INTERNAL_SERVER_ERROR);
+      }
 
-  /**
-   * Invalidate document cache
-   * @param documentId Document ID
-   */
-  async invalidateDocumentCache(documentId: string): Promise<void> {
-    const pattern = this.keyGenerator.generateDocumentPattern(documentId);
-    await this.delByPattern(pattern);
-  }
+      // Handle file upload errors
+      if (error.code === 'LIMIT_FILE_SIZE') {
+        throw new HttpException({
+          status: HttpStatus.BAD_REQUEST,
+          error: 'File too large',
+          message: `File size exceeds the maximum limit of ${error.maxFileSize} bytes`,
+          code: 'FILE_TOO_LARGE',
+          maxFileSize: error.maxFileSize
+        }, HttpStatus.BAD_REQUEST);
+      }
 
-  /**
-   * Cache document metadata
-   * @param documentId Document ID
-   * @param metadata Document metadata
-   */
-  async cacheDocumentMetadata(documentId: string, metadata: any): Promise<void> {
-    const key = this.keyGenerator.generateMetadataKey(documentId);
-    await this.set(key, metadata, CacheTTL.METADATA);
-  }
-
-  /**
-   * Get cached document metadata
-   * @param documentId Document ID
-   * @returns Cached metadata or null
-   */
-  async getCachedDocumentMetadata(documentId: string): Promise<any> {
-    const key = this.keyGenerator.generateMetadataKey(documentId);
-    return this.get(key);
-  }
-
-  /**
-   * Cache search results
-   * @param query Search query
-   * @param results Search results
-   * @param ttl Custom TTL
-   */
-  async cacheSearchResults(query: string, results: any[], ttl?: number): Promise<void> {
-    const key = this.keyGenerator.generateSearchKey(query);
-    await this.set(key, results, ttl || CacheTTL.SEARCH);
-  }
-
-  /**
-   * Get cached search results
-   * @param query Search query
-   * @returns Cached results or null
-   */
-  async getCachedSearchResults(query: string): Promise<any[] | null> {
-    const key = this.keyGenerator.generateSearchKey(query);
-    return this.get<any[]>(key);
-  }
-
-  /**
-   * Cache user preferences
-   * @param userId User ID
-   * @param preferences User preferences
-   */
-  async cacheUserPreferences(userId: string, preferences: any): Promise<void> {
-    const key = this.keyGenerator.generateUserPreferencesKey(userId);
-    await this.set(key, preferences, CacheTTL.USER_PREFERENCES);
-  }
-
-  /**
-   * Get cached user preferences
-   * @param userId User ID
-   * @returns Cached preferences or null
-   */
-  async getCachedUserPreferences(userId: string): Promise<any> {
-    const key = this.keyGenerator.generateUserPreferencesKey(userId);
-    return this.get(key);
-  }
-
-  /**
-   * Cache document access control list
-   * @param documentId Document ID
-   * @param acl Access control list
-   */
-  async cacheDocumentACL(documentId: string, acl: any): Promise<void> {
-    const key = this.keyGenerator.generateACLKey(documentId);
-    await this.set(key, acl, CacheTTL.ACL);
-  }
-
-  /**
-   * Get cached document ACL
-   * @param documentId Document ID
-   * @returns Cached ACL or null
-   */
-  async getCachedDocumentACL(documentId: string): Promise<any> {
-    const key = this.keyGenerator.generateACLKey(documentId);
-    return this.get(key);
-  }
-
-  /**
-   * Close Redis connection
-   */
-  async close(): Promise<void> {
-    try {
-      await this.redisClient.quit();
-    } catch (err) {
-      this.logger.error(`Error closing Redis connection: ${err.message}`);
+      // Default error handling
+      throw new HttpException({
+        status: HttpStatus.INTERNAL_SERVER_ERROR,
+        error: 'Internal server error',
+        message: 'An unexpected error occurred',
+        code: 'INTERNAL_SERVER_ERROR',
+        details: process.env.NODE_ENV === 'development' ? error.message : undefined
+      }, HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
 }
 ```
 
-### Database Query Optimization
+#### Search Service
+
+**Responsibilities:**
+- Document indexing
+- Full-text search
+- Faceted search
+- Search analytics
+- Typeahead suggestions
+
+**Interface Contracts (GraphQL):**
+
+```graphql
+type Query {
+  searchDocuments(
+    query: String!
+    filters: DocumentFilters
+    pagination: PaginationInput
+    sort: [DocumentSortInput]
+  ): DocumentSearchResult!
+
+  getDocumentSuggestions(
+    query: String!
+    limit: Int = 5
+  ): [DocumentSuggestion!]!
+
+  getPopularSearches(limit: Int = 10): [PopularSearch!]!
+}
+
+type Mutation {
+  indexDocument(documentId: ID!): Boolean!
+  reindexDocuments: Boolean!
+}
+
+type DocumentSearchResult {
+  results: [DocumentSearchHit!]!
+  totalCount: Int!
+  facets: [FacetResult!]!
+  pageInfo: PageInfo!
+}
+
+type DocumentSearchHit {
+  document: Document!
+  highlights: [Highlight!]!
+  score: Float!
+}
+
+type Document {
+  id: ID!
+  name: String!
+  description: String
+  documentType: DocumentType!
+  status: DocumentStatus!
+  metadata: DocumentMetadata!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+  currentVersion: DocumentVersion!
+  accessControl: AccessControl!
+}
+
+type Highlight {
+  field: String!
+  fragments: [String!]!
+}
+
+type FacetResult {
+  field: String!
+  values: [FacetValue!]!
+}
+
+type FacetValue {
+  value: String!
+  count: Int!
+  selected: Boolean!
+}
+
+type DocumentSuggestion {
+  id: ID!
+  name: String!
+  description: String
+  documentType: DocumentType!
+  score: Float!
+}
+
+type PopularSearch {
+  query: String!
+  count: Int!
+  lastUsed: DateTime!
+}
+
+input DocumentFilters {
+  documentType: [DocumentType!]
+  status: [DocumentStatus!]
+  vehicleId: ID
+  driverId: ID
+  fleetId: ID
+  tags: [String!]
+  dateRange: DateRangeInput
+  customFields: [CustomFieldFilter!]
+}
+
+input DateRangeInput {
+  from: DateTime
+  to: DateTime
+}
+
+input CustomFieldFilter {
+  field: String!
+  value: String!
+  operator: String = "eq"
+}
+
+input PaginationInput {
+  page: Int = 1
+  pageSize: Int = 20
+}
+
+input DocumentSortInput {
+  field: DocumentSortField!
+  direction: SortDirection = ASC
+}
+
+enum DocumentSortField {
+  NAME
+  CREATED_AT
+  UPDATED_AT
+  DOCUMENT_TYPE
+  RELEVANCE
+}
+
+enum SortDirection {
+  ASC
+  DESC
+}
+
+enum DocumentType {
+  CONTRACT
+  INVOICE
+  REPORT
+  MANUAL
+  CERTIFICATE
+  OTHER
+}
+
+enum DocumentStatus {
+  DRAFT
+  PENDING_APPROVAL
+  APPROVED
+  ARCHIVED
+  DELETED
+}
+```
+
+**Data Model (Elasticsearch Mapping):**
+
+```json
+{
+  "settings": {
+    "analysis": {
+      "filter": {
+        "autocomplete_filter": {
+          "type": "edge_ngram",
+          "min_gram": 2,
+          "max_gram": 20
+        },
+        "english_stop": {
+          "type": "stop",
+          "stopwords": "_english_"
+        },
+        "english_stemmer": {
+          "type": "stemmer",
+          "language": "english"
+        },
+        "english_possessive_stemmer": {
+          "type": "stemmer",
+          "language": "possessive_english"
+        }
+      },
+      "analyzer": {
+        "autocomplete": {
+          "type": "custom",
+          "tokenizer": "standard",
+          "filter": [
+            "lowercase",
+            "autocomplete_filter"
+          ]
+        },
+        "english": {
+          "type": "custom",
+          "tokenizer": "standard",
+          "filter": [
+            "english_possessive_stemmer",
+            "lowercase",
+            "english_stop",
+            "english_stemmer"
+          ]
+        }
+      }
+    }
+  },
+  "mappings": {
+    "properties": {
+      "id": {
+        "type": "keyword"
+      },
+      "name": {
+        "type": "text",
+        "analyzer": "english",
+        "fields": {
+          "autocomplete": {
+            "type": "text",
+            "analyzer": "autocomplete",
+            "search_analyzer": "standard"
+          },
+          "keyword": {
+            "type": "keyword",
+            "ignore_above": 256
+          }
+        }
+      },
+      "description": {
+        "type": "text",
+        "analyzer": "english"
+      },
+      "documentType": {
+        "type": "keyword"
+      },
+      "status": {
+        "type": "keyword"
+      },
+      "metadata": {
+        "properties": {
+          "vehicleId": {
+            "type": "keyword"
+          },
+          "driverId": {
+            "type": "keyword"
+          },
+          "fleetId": {
+            "type": "keyword"
+          },
+          "tags": {
+            "type": "keyword"
+          },
+          "customFields": {
+            "type": "nested",
+            "properties": {
+              "key": {
+                "type": "keyword"
+              },
+              "value": {
+                "type": "text",
+                "fields": {
+                  "keyword": {
+                    "type": "keyword",
+                    "ignore_above": 256
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "createdAt": {
+        "type": "date"
+      },
+      "updatedAt": {
+        "type": "date"
+      },
+      "accessControl": {
+        "properties": {
+          "ownerId": {
+            "type": "keyword"
+          },
+          "viewerIds": {
+            "type": "keyword"
+          },
+          "editorIds": {
+            "type": "keyword"
+          }
+        }
+      },
+      "content": {
+        "type": "text",
+        "analyzer": "english"
+      }
+    }
+  }
+}
+```
+
+**State Management Approach:**
+- Event-driven indexing from document service events
+- Near real-time indexing (NRT)
+- Versioned documents with conflict resolution
+- Index aliasing for zero-downtime reindexing
+
+**Error Handling:**
 
 ```typescript
-// src/database/query-optimizer.service.ts
+// Search Service Error Handling
 import { Injectable, Logger } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, SelectQueryBuilder, Brackets, In } from 'typeorm';
-import { Document } from '../entities/document.entity';
-import { DocumentVersion } from '../entities/document-version.entity';
-import { DocumentMetadata } from '../entities/document-metadata.entity';
-import { User } from '../entities/user.entity';
-import { DocumentAccessLog } from '../entities/document-access-log.entity';
-import { QueryOptimizationConfig } from '../config/query-optimization.config';
-import { PaginationOptions } from '../interfaces/pagination-options.interface';
-import { DocumentSearchOptions } from '../interfaces/document-search-options.interface';
+import { ElasticsearchService } from '@nestjs/elasticsearch';
+import { DocumentIndexingException } from './exceptions/document-indexing.exception';
+import { SearchQueryException } from './exceptions/search-query.exception';
 
 @Injectable()
-export class QueryOptimizerService {
-  private readonly logger = new Logger(QueryOptimizerService.name);
+export class SearchService {
+  private readonly logger = new Logger(SearchService.name);
+
+  constructor(private readonly elasticsearchService: ElasticsearchService) {}
+
+  async indexDocument(documentId: string, document: any): Promise<void> {
+    try {
+      const result = await this.elasticsearchService.index({
+        index: 'documents',
+        id: documentId,
+        body: document,
+        refresh: 'wait_for'
+      });
+
+      if (!result.body.result || result.body.result === 'noop') {
+        throw new DocumentIndexingException(
+          `Document ${documentId} was not indexed. Result: ${result.body.result}`
+        );
+      }
+    } catch (error) {
+      this.logger.error(`Failed to index document ${documentId}: ${error.message}`, error.stack);
+      throw new DocumentIndexingException(
+        `Failed to index document: ${error.message}`,
+        error
+      );
+    }
+  }
+
+  async searchDocuments(query: any): Promise<any> {
+    try {
+      const result = await this.elasticsearchService.search({
+        index: 'documents',
+        body: query
+      });
+
+      if (result.body.timed_out) {
+        this.logger.warn('Search query timed out', {
+          query,
+          took: result.body.took
+        });
+        throw new SearchQueryException('Search query timed out');
+      }
+
+      return result.body;
+    } catch (error) {
+      this.logger.error(`Search query failed: ${error.message}`, error.stack);
+      throw new SearchQueryException(
+        `Search query failed: ${error.message}`,
+        error
+      );
+    }
+  }
+
+  async handleDocumentEvent(event: DocumentEvent): Promise<void> {
+    try {
+      switch (event.type) {
+        case 'DocumentCreated':
+          await this.indexDocument(event.documentId, event.document);
+          break;
+        case 'DocumentUpdated':
+          await this.indexDocument(event.documentId, event.document);
+          break;
+        case 'DocumentDeleted':
+          await this.elasticsearchService.delete({
+            index: 'documents',
+            id: event.documentId
+          });
+          break;
+        case 'DocumentVersionCreated':
+          // Reindex the document to update version information
+          await this.indexDocument(event.documentId, event.document);
+          break;
+        default:
+          this.logger.warn(`Unhandled event type: ${event.type}`);
+      }
+    } catch (error) {
+      this.logger.error(`Failed to handle document event ${event.type}: ${error.message}`, error.stack);
+      // Implement dead letter queue for failed events
+      await this.publishToDeadLetterQueue(event, error);
+    }
+  }
+}
+```
+
+#### Workflow Service
+
+**Responsibilities:**
+- Document approval workflows
+- Task management
+- SLA tracking
+- Escalation management
+- Workflow analytics
+
+**Interface Contracts:**
+
+```typescript
+// Workflow Service API (NestJS Controller)
+import { Controller, Get, Post, Body, Param, Put, Delete, Query } from '@nestjs/common';
+import { WorkflowService } from './workflow.service';
+import { CreateWorkflowDto } from './dto/create-workflow.dto';
+import { UpdateWorkflowDto } from './dto/update-workflow.dto';
+import { StartWorkflowDto } from './dto/start-workflow.dto';
+import { CompleteTaskDto } from './dto/complete-task.dto';
+import { ApiTags, ApiOperation, ApiResponse, ApiParam, ApiQuery } from '@nestjs/swagger';
+
+@ApiTags('workflows')
+@Controller('workflows')
+export class WorkflowController {
+  constructor(private readonly workflowService: WorkflowService) {}
+
+  @Post()
+  @ApiOperation({ summary: 'Create a new workflow definition' })
+  @ApiResponse({ status: 201, description: 'Workflow created' })
+  @ApiResponse({ status: 400, description: 'Bad request' })
+  create(@Body() createWorkflowDto: CreateWorkflowDto) {
+    return this.workflowService.createWorkflowDefinition(createWorkflowDto);
+  }
+
+  @Get()
+  @ApiOperation({ summary: 'List workflow definitions' })
+  @ApiQuery({ name: 'type', required: false })
+  @ApiResponse({ status: 200, description: 'List of workflow definitions' })
+  findAll(@Query('type') type?: string) {
+    return this.workflowService.findWorkflowDefinitions(type);
+  }
+
+  @Get(':id')
+  @ApiOperation({ summary: 'Get workflow definition by ID' })
+  @ApiParam({ name: 'id', type: 'string' })
+  @ApiResponse({ status: 200, description: 'Workflow definition' })
+  @ApiResponse({ status: 404, description: 'Workflow not found' })
+  findOne(@Param('id') id: string) {
+    return this.workflowService.findWorkflowDefinition(id);
+  }
+
+  @Post(':id/start')
+  @ApiOperation({ summary: 'Start a workflow instance' })
+  @ApiParam({ name: 'id', type: 'string' })
+  @ApiResponse({ status: 201, description: 'Workflow instance started' })
+  @ApiResponse({ status: 400, description: 'Bad request' })
+  @ApiResponse({ status: 404, description: 'Workflow not found' })
+  startWorkflow(
+    @Param('id') id: string,
+    @Body() startWorkflowDto: StartWorkflowDto
+  ) {
+    return this.workflowService.startWorkflow(id, startWorkflowDto);
+  }
+
+  @Get('instances')
+  @ApiOperation({ summary: 'List workflow instances' })
+  @ApiQuery({ name: 'documentId', required: false })
+  @ApiQuery({ name: 'status', required: false })
+  @ApiQuery({ name: 'assigneeId', required: false })
+  @ApiResponse({ status: 200, description: 'List of workflow instances' })
+  findInstances(
+    @Query('documentId') documentId?: string,
+    @Query('status') status?: string,
+    @Query('assigneeId') assigneeId?: string
+  ) {
+    return this.workflowService.findWorkflowInstances({
+      documentId,
+      status,
+      assigneeId
+    });
+  }
+
+  @Get('instances/:id')
+  @ApiOperation({ summary: 'Get workflow instance by ID' })
+  @ApiParam({ name: 'id', type: 'string' })
+  @ApiResponse({ status: 200, description: 'Workflow instance' })
+  @ApiResponse({ status: 404, description: 'Workflow instance not found' })
+  findInstance(@Param('id') id: string) {
+    return this.workflowService.findWorkflowInstance(id);
+  }
+
+  @Post('instances/:id/tasks/:taskId/complete')
+  @ApiOperation({ summary: 'Complete a task' })
+  @ApiParam({ name: 'id', type: 'string' })
+  @ApiParam({ name: 'taskId', type: 'string' })
+  @ApiResponse({ status: 200, description: 'Task completed' })
+  @ApiResponse({ status: 400, description: 'Bad request' })
+  @ApiResponse({ status: 404, description: 'Task not found' })
+  completeTask(
+    @Param('id') instanceId: string,
+    @Param('taskId') taskId: string,
+    @Body() completeTaskDto: CompleteTaskDto
+  ) {
+    return this.workflowService.completeTask(instanceId, taskId, completeTaskDto);
+  }
+
+  @Post('instances/:id/tasks/:taskId/escalate')
+  @ApiOperation({ summary: 'Escalate a task' })
+  @ApiParam({ name: 'id', type: 'string' })
+  @ApiParam({ name: 'taskId', type: 'string' })
+  @ApiResponse({ status: 200, description: 'Task escalated' })
+  @ApiResponse({ status: 400, description: 'Bad request' })
+  @ApiResponse({ status: 404, description: 'Task not found' })
+  escalateTask(
+    @Param('id') instanceId: string,
+    @Param('taskId') taskId: string
+  ) {
+    return this.workflowService.escalateTask(instanceId, taskId);
+  }
+}
+```
+
+**Data Model:**
+
+```typescript
+// Workflow Definition Entity
+import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, OneToMany } from 'typeorm';
+import { WorkflowInstance } from './workflow-instance.entity';
+import { WorkflowNode } from './workflow-node.entity';
+import { WorkflowTransition } from './workflow-transition.entity';
+
+@Entity()
+export class WorkflowDefinition {
+  @PrimaryGeneratedColumn('uuid')
+  id: string;
+
+  @Column({ length: 255 })
+  name: string;
+
+  @Column({ type: 'text', nullable: true })
+  description?: string;
+
+  @Column()
+  type: string; // e.g., 'DOCUMENT_APPROVAL', 'MAINTENANCE_REQUEST'
+
+  @Column({ type: 'jsonb' })
+  metadata: any;
+
+  @Column({ default: true })
+  isActive: boolean;
+
+  @Column({ type: 'jsonb' })
+  version: {
+    major: number;
+    minor: number;
+    patch: number;
+  };
+
+  @OneToMany(() => WorkflowNode, node => node.workflowDefinition, { cascade: true })
+  nodes: WorkflowNode[];
+
+  @OneToMany(() => WorkflowTransition, transition => transition.workflowDefinition, { cascade: true })
+  transitions: WorkflowTransition[];
+
+  @CreateDateColumn()
+  createdAt: Date;
+
+  @UpdateDateColumn()
+  updatedAt: Date;
+}
+
+// Workflow Node Entity
+@Entity()
+export class WorkflowNode {
+  @PrimaryGeneratedColumn('uuid')
+  id: string;
+
+  @Column({ length: 255 })
+  name: string;
+
+  @Column({ type: 'text', nullable: true })
+  description?: string;
+
+  @Column()
+  type: string; // 'START', 'TASK', 'DECISION', 'END'
+
+  @Column({ type: 'jsonb' })
+  configuration: any;
+
+  @ManyToOne(() => WorkflowDefinition, workflowDefinition => workflowDefinition.nodes)
+  workflowDefinition: WorkflowDefinition;
+
+  @CreateDateColumn()
+  createdAt: Date;
+
+  @UpdateDateColumn()
+  updatedAt: Date;
+}
+
+// Workflow Transition Entity
+@Entity()
+export class WorkflowTransition {
+  @PrimaryGeneratedColumn('uuid')
+  id: string;
+
+  @Column({ length: 255 })
+  name: string;
+
+  @Column()
+  fromNodeId: string;
+
+  @Column()
+  toNodeId: string;
+
+  @Column({ type: 'jsonb' })
+  condition: any;
+
+  @ManyToOne(() => WorkflowDefinition, workflowDefinition => workflowDefinition.transitions)
+  workflowDefinition: WorkflowDefinition;
+
+  @CreateDateColumn()
+  createdAt: Date;
+
+  @UpdateDateColumn()
+  updatedAt: Date;
+}
+```
+
+**State Management Approach:**
+- BPMN 2.0 compliant workflow engine
+- Persistent workflow instances
+- Event-driven state transitions
+- Compensation mechanisms for failed steps
+
+**Error Handling:**
+
+```typescript
+// Workflow Service Error Handling
+import { Injectable, Logger } from '@nestjs/common';
+import { WorkflowInstance } from './entities/workflow-instance.entity';
+import { WorkflowEngine } from './workflow.engine';
+import { WorkflowExecutionException } from './exceptions/workflow-execution.exception';
+import { TaskCompletionException } from './exceptions/task-completion.exception';
+import { WorkflowNotFoundException } from './exceptions/workflow-not-found.exception';
+
+@Injectable()
+export class WorkflowService {
+  private readonly logger = new Logger(WorkflowService.name);
+
+  constructor(private readonly workflowEngine: WorkflowEngine) {}
+
+  async startWorkflow(workflowId: string, context: any): Promise<WorkflowInstance> {
+    try {
+      const workflow = await this.workflowEngine.getWorkflowDefinition(workflowId);
+      if (!workflow) {
+        throw new WorkflowNotFoundException(`Workflow definition ${workflowId} not found`);
+      }
+
+      if (!workflow.isActive) {
+        throw new WorkflowExecutionException(`Workflow ${workflowId} is not active`);
+      }
+
+      const instance = await this.workflowEngine.startWorkflow(workflowId, context);
+      this.logger.log(`Started workflow instance ${instance.id} for workflow ${workflowId}`);
+      return instance;
+    } catch (error) {
+      this.logger.error(`Failed to start workflow ${workflowId}: ${error.message}`, error.stack);
+      if (error instanceof WorkflowNotFoundException) {
+        throw error;
+      }
+      throw new WorkflowExecutionException(
+        `Failed to start workflow: ${error.message}`,
+        error
+      );
+    }
+  }
+
+  async completeTask(instanceId: string, taskId: string, context: any): Promise<WorkflowInstance> {
+    try {
+      const instance = await this.workflowEngine.getWorkflowInstance(instanceId);
+      if (!instance) {
+        throw new WorkflowNotFoundException(`Workflow instance ${instanceId} not found`);
+      }
+
+      if (instance.status !== 'RUNNING') {
+        throw new TaskCompletionException(`Cannot complete task for workflow in status ${instance.status}`);
+      }
+
+      const task = instance.tasks.find(t => t.id === taskId);
+      if (!task) {
+        throw new TaskCompletionException(`Task ${taskId} not found in workflow instance ${instanceId}`);
+      }
+
+      if (task.status !== 'PENDING') {
+        throw new TaskCompletionException(`Task ${taskId} is not pending (current status: ${task.status})`);
+      }
+
+      const updatedInstance = await this.workflowEngine.completeTask(instanceId, taskId, context);
+      this.logger.log(`Completed task ${taskId} in workflow instance ${instanceId}`);
+      return updatedInstance;
+    } catch (error) {
+      this.logger.error(`Failed to complete task ${taskId} in workflow ${instanceId}: ${error.message}`, error.stack);
+      if (error instanceof WorkflowNotFoundException || error instanceof TaskCompletionException) {
+        throw error;
+      }
+      throw new TaskCompletionException(
+        `Failed to complete task: ${error.message}`,
+        error
+      );
+    }
+  }
+
+  async handleWorkflowEvent(event: any): Promise<void> {
+    try {
+      switch (event.type) {
+        case 'DocumentStatusChanged':
+          await this.handleDocumentStatusChange(event);
+          break;
+        case 'UserAssigned':
+          await this.handleUserAssignment(event);
+          break;
+        case 'SLAViolation':
+          await this.handleSLAViolation(event);
+          break;
+        default:
+          this.logger.warn(`Unhandled workflow event type: ${event.type}`);
+      }
+    } catch (error) {
+      this.logger.error(`Failed to handle workflow event ${event.type}: ${error.message}`, error.stack);
+      // Implement dead letter queue for failed events
+      await this.publishToDeadLetterQueue(event, error);
+    }
+  }
+}
+```
+
+### 2.3 Infrastructure Architecture
+
+**Container Orchestration (Kubernetes Manifests):**
+
+```yaml
+# document-service-deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: document-service
+  labels:
+    app: document-service
+    tier: backend
+spec:
+  replicas: 3
+  strategy:
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+    type: RollingUpdate
+  selector:
+    matchLabels:
+      app: document-service
+  template:
+    metadata:
+      labels:
+        app: document-service
+        version: v1.2.0
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "3000"
+        prometheus.io/path: "/metrics"
+    spec:
+      serviceAccountName: document-service
+      containers:
+      - name: document-service
+        image: fleetmanagement.azurecr.io/document-service:v1.2.0
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 3000
+          name: http
+        - containerPort: 9229
+          name: debug
+        envFrom:
+        - configMapRef:
+            name: document-service-config
+        - secretRef:
+            name: document-service-secrets
+        env:
+        - name: NODE_ENV
+          value: "production"
+        - name: POD_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.name
+        - name: POD_NAMESPACE
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.namespace
+        resources:
+          limits:
+            cpu: "1"
+            memory: "1Gi"
+          requests:
+            cpu: "500m"
+            memory: "512Mi"
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 3000
+          initialDelaySeconds: 30
+          periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 3
+        readinessProbe:
+          httpGet:
+            path: /ready
+            port: 3000
+          initialDelaySeconds: 5
+          periodSeconds: 5
+          timeoutSeconds: 3
+          failureThreshold: 3
+        volumeMounts:
+        - name: tmp
+          mountPath: /tmp
+        - name: azure-keyvault
+          mountPath: /mnt/azure-keyvault
+          readOnly: true
+      volumes:
+      - name: tmp
+        emptyDir: {}
+      - name: azure-keyvault
+        csi:
+          driver: secrets-store.csi.k8s.io
+          readOnly: true
+          volumeAttributes:
+            secretProviderClass: "document-service-keyvault"
+      nodeSelector:
+        agentpool: backend
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 100
+            podAffinityTerm:
+              labelSelector:
+                matchExpressions:
+                - key: app
+                  operator: In
+                  values:
+                  - document-service
+              topologyKey: "kubernetes.io/hostname"
+---
+# document-service-service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: document-service
+  labels:
+    app: document-service
+spec:
+  selector:
+    app: document-service
+  ports:
+  - name: http
+    port: 80
+    targetPort: 3000
+  - name: debug
+    port: 9229
+    targetPort: 9229
+  type: ClusterIP
+---
+# document-service-hpa.yaml
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: document-service-hpa
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: document-service
+  minReplicas: 3
+  maxReplicas: 10
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: 70
+  - type: Resource
+    resource:
+      name: memory
+      target:
+        type: Utilization
+        averageUtilization: 80
+  - type: External
+    external:
+      metric:
+        name: requests_per_second
+        selector:
+          matchLabels:
+            app: document-service
+      target:
+        type: AverageValue
+        averageValue: 1000
+```
+
+**Cloud Services Utilization (Azure):**
+
+```bicep
+// main.bicep - Azure Infrastructure as Code
+param location string = resourceGroup().location
+param environment string = 'prod'
+param tags object = {
+  Environment: environment
+  Application: 'FleetManagement'
+  Component: 'DocumentManagement'
+}
+
+resource storageAccount 'Microsoft.Storage/storageAccounts@2022-09-01' = {
+  name: 'fleetmgrdoc${environment}${uniqueString(resourceGroup().id)}'
+  location: location
+  sku: {
+    name: 'Standard_GRS'
+  }
+  kind: 'StorageV2'
+  properties: {
+    accessTier: 'Hot'
+    supportsHttpsTrafficOnly: true
+    encryption: {
+      services: {
+        blob: {
+          enabled: true
+        }
+        file: {
+          enabled: true
+        }
+      }
+      keySource: 'Microsoft.Storage'
+    }
+    networkAcls: {
+      bypass: 'AzureServices'
+      defaultAction: 'Allow'
+      ipRules: []
+      virtualNetworkRules: []
+    }
+  }
+  tags: tags
+}
+
+resource blobContainer 'Microsoft.Storage/storageAccounts/blobServices/containers@2022-09-01' = {
+  name: '${storageAccount.name}/default/documents'
+  properties: {
+    publicAccess: 'None'
+    metadata: {
+      environment: environment
+    }
+  }
+}
+
+resource cosmosDbAccount 'Microsoft.DocumentDB/databaseAccounts@2022-05-15' = {
+  name: 'fleetmgr-doc-${environment}-${uniqueString(resourceGroup().id)}'
+  location: location
+  properties: {
+    databaseAccountOfferType: 'Standard'
+    locations: [
+      {
+        locationName: location
+        failoverPriority: 0
+        isZoneRedundant: true
+      }
+    ]
+    consistencyPolicy: {
+      defaultConsistencyLevel: 'Session'
+    }
+    capabilities: [
+      {
+        name: 'EnableServerless'
+      }
+    ]
+    enableAutomaticFailover: true
+    enableMultipleWriteLocations: false
+  }
+  tags: tags
+}
+
+resource postgresServer 'Microsoft.DBforPostgreSQL/flexibleServers@2022-01-20-preview' = {
+  name: 'fleetmgr-doc-${environment}-${uniqueString(resourceGroup().id)}'
+  location: location
+  sku: {
+    name: 'Standard_D4s_v3'
+    tier: 'GeneralPurpose'
+  }
+  properties: {
+    version: '15'
+    administratorLogin: 'postgresadmin'
+    administratorLoginPassword: '!${uniqueString(resourceGroup().id)}'
+    storage: {
+      storageSizeGB: 1024
+    }
+    backup: {
+      backupRetentionDays: 35
+      geoRedundantBackup: 'Enabled'
+    }
+    highAvailability: {
+      mode: 'ZoneRedundant'
+    }
+    maintenanceWindow: {
+      customWindow: 'enabled'
+      startHour: 2
+      startMinute: 0
+      dayOfWeek: 0
+    }
+  }
+  tags: tags
+}
+
+resource postgresDatabase 'Microsoft.DBforPostgreSQL/flexibleServers/databases@2022-01-20-preview' = {
+  name: '${postgresServer.name}/documentdb'
+  properties: {
+    charset: 'UTF8'
+    collation: 'en_US.utf8'
+  }
+}
+
+resource eventHubNamespace 'Microsoft.EventHub/namespaces@2022-01-01-preview' = {
+  name: 'fleetmgr-doc-${environment}-${uniqueString(resourceGroup().id)}'
+  location: location
+  sku: {
+    name: 'Standard'
+    tier: 'Standard'
+    capacity: 1
+  }
+  properties: {
+    isAutoInflateEnabled: true
+    maximumThroughputUnits: 10
+    zoneRedundant: true
+  }
+  tags: tags
+}
+
+resource eventHub 'Microsoft.EventHub/namespaces/eventhubs@2022-01-01-preview' = {
+  name: '${eventHubNamespace.name}/document-events'
+  properties: {
+    partitionCount: 4
+    retentionDescription: {
+      retentionTimeInHours: 168
+      cleanupPolicy: 'Delete'
+    }
+  }
+}
+
+resource keyVault 'Microsoft.KeyVault/vaults@2022-07-01' = {
+  name: 'fleetmgr-doc-${environment}-${uniqueString(resourceGroup().id)}'
+  location: location
+  properties: {
+    sku: {
+      family: 'A'
+      name: 'premium'
+    }
+    tenantId: subscription().tenantId
+    accessPolicies: [
+      {
+        tenantId: subscription().tenantId
+        objectId: '00000000-0000-0000-0000-000000000000' // Will be replaced by CI/CD
+        permissions: {
+          keys: [
+            'get'
+            'list'
+            'create'
+            'delete'
+            'update'
+            'import'
+            'backup'
+            'restore'
+            'recover'
+            'decrypt'
+            'encrypt'
+            'unwrapKey'
+            'wrapKey'
+            'verify'
+            'sign'
+          ]
+          secrets: [
+            'get'
+            'list'
+            'set'
+            'delete'
+            'backup'
+            'restore'
+            'recover'
+          ]
+          certificates: [
+            'get'
+            'list'
+            'create'
+            'delete'
+            'update'
+            'import'
+            'backup'
+            'restore'
+            'recover'
+            'managecontacts'
+            'manageissuers'
+            'getissuers'
+            'listissuers'
+            'setissuers'
+            'deleteissuers'
+          ]
+        }
+      }
+    ]
+    enabledForDeployment: true
+    enabledForDiskEncryption: true
+    enabledForTemplateDeployment: true
+    enableSoftDelete: true
+    softDeleteRetentionInDays: 90
+    enableRbacAuthorization: true
+    networkAcls: {
+      defaultAction: 'Allow'
+      bypass: 'AzureServices'
+    }
+  }
+  tags: tags
+}
+
+resource aksCluster 'Microsoft.ContainerService/managedClusters@2022-09-01' = {
+  name: 'fleetmgr-doc-${environment}'
+  location: location
+  sku: {
+    name: 'Basic'
+    tier: 'Free'
+  }
+  properties: {
+    kubernetesVersion: '1.25.5'
+    dnsPrefix: 'fleetmgr-doc-${environment}'
+    agentPoolProfiles: [
+      {
+        name: 'systempool'
+        count: 3
+        vmSize: 'Standard_D2s_v3'
+        osType: 'Linux'
+        osDiskSizeGB: 128
+        type: 'VirtualMachineScaleSets'
+        mode: 'System'
+        enableAutoScaling: true
+        minCount: 3
+        maxCount: 5
+        nodeLabels: {
+          agentpool: 'system'
+        }
+        tags: tags
+      }
+      {
+        name: 'backendpool'
+        count: 3
+        vmSize: 'Standard_D4s_v3'
+        osType: 'Linux'
+        osDiskSizeGB: 256
+        type: 'VirtualMachineScaleSets'
+        mode: 'User'
+        enableAutoScaling: true
+        minCount: 3
+        maxCount: 10
+        nodeLabels: {
+          agentpool: 'backend'
+        }
+        tags: tags
+      }
+      {
+        name: 'monitoringpool'
+        count: 2
+        vmSize: 'Standard_D2s_v3'
+        osType: 'Linux'
+        osDiskSizeGB: 128
+        type: 'VirtualMachineScaleSets'
+        mode: 'User'
+        enableAutoScaling: true
+        minCount: 2
+        maxCount: 4
+        nodeLabels: {
+          agentpool: 'monitoring'
+        }
+        nodeTaints: [
+          'monitoring=true:NoSchedule'
+        ]
+        tags: tags
+      }
+    ]
+    networkProfile: {
+      networkPlugin: 'azure'
+      networkPolicy: 'azure'
+      serviceCidr: '10.0.0.0/16'
+      dnsServiceIP: '10.0.0.10'
+      dockerBridgeCidr: '172.17.0.1/16'
+    }
+    addonProfiles: {
+      httpApplicationRouting: {
+        enabled: false
+      }
+      azurePolicy: {
+        enabled: true
+      }
+      omsAgent: {
+        enabled: true
+        config: {
+          logAnalyticsWorkspaceResourceID: logAnalyticsWorkspace.id
+        }
+      }
+      ingressApplicationGateway: {
+        enabled: true
+        config: {
+          applicationGatewayId: applicationGateway.id
+          effectiveGatewayId: applicationGateway.id
+        }
+      }
+    }
+    enableRBAC: true
+    aadProfile: {
+      managed: true
+      enableAzureRBAC: true
+      adminGroupObjectIDs: [
+        '00000000-0000-0000-0000-000000000000' // Will be replaced by CI/CD
+      ]
+    }
+    autoUpgradeProfile: {
+      upgradeChannel: 'stable'
+    }
+    identity: {
+      type: 'SystemAssigned'
+    }
+  }
+  tags: tags
+}
+
+resource logAnalyticsWorkspace 'Microsoft.OperationalInsights/workspaces@2022-10-01' = {
+  name: 'fleetmgr-doc-${environment}-logs'
+  location: location
+  properties: {
+    sku: {
+      name: 'PerGB2018'
+    }
+    retentionInDays: 90
+    features: {
+      searchVersion: 1
+      legacy: 0
+    }
+  }
+  tags: tags
+}
+
+resource applicationGateway 'Microsoft.Network/applicationGateways@2022-07-01' = {
+  name: 'fleetmgr-doc-${environment}-agw'
+  location: location
+  properties: {
+    sku: {
+      name: 'WAF_v2'
+      tier: 'WAF_v2'
+    }
+    gatewayIPConfigurations: [
+      {
+        name: 'appGatewayIpConfig'
+        properties: {
+          subnet: {
+            id: subnet.id
+          }
+        }
+      }
+    ]
+    frontendIPConfigurations: [
+      {
+        name: 'appGatewayFrontendIP'
+        properties: {
+          privateIPAllocationMethod: 'Dynamic'
+          subnet: {
+            id: subnet.id
+          }
+        }
+      }
+    ]
+    frontendPorts: [
+      {
+        name: 'http'
+        properties: {
+          port: 80
+        }
+      }
+      {
+        name: 'https'
+        properties: {
+          port: 443
+        }
+      }
+    ]
+    backendAddressPools: [
+      {
+        name: 'document-service'
+        properties: {
+          backendAddresses: [
+            {
+              fqdn: 'document-service.internal'
+            }
+          ]
+        }
+      }
+    ]
+    backendHttpSettingsCollection: [
+      {
+        name: 'documentServiceHttpSettings'
+        properties: {
+          port: 80
+          protocol: 'Http'
+          cookieBasedAffinity: 'Disabled'
+          requestTimeout: 30
+          probe: {
+            id: resourceId('Microsoft.Network/applicationGateways/probes', 'fleetmgr-doc-${environment}-agw', 'documentServiceProbe')
+          }
+        }
+      }
+    ]
+    httpListeners: [
+      {
+        name: 'httpListener'
+        properties: {
+          frontendIPConfiguration: {
+            id: resourceId('Microsoft.Network/applicationGateways/frontendIPConfigurations', 'fleetmgr-doc-${environment}-agw', 'appGatewayFrontendIP')
+          }
+          frontendPort: {
+            id: resourceId('Microsoft.Network/applicationGateways/frontendPorts', 'fleetmgr-doc-${environment}-agw', 'http')
+          }
+          protocol: 'Http'
+          hostNames: [
+            'documents.fleetmanagement.com'
+          ]
+        }
+      }
+    ]
+    requestRoutingRules: [
+      {
+        name: 'documentServiceRoutingRule'
+        properties: {
+          ruleType: 'Basic'
+          httpListener: {
+            id: resourceId('Microsoft.Network/applicationGateways/httpListeners', 'fleetmgr-doc-${environment}-agw', 'httpListener')
+          }
+          backendAddressPool: {
+            id: resourceId('Microsoft.Network/applicationGateways/backendAddressPools', 'fleetmgr-doc-${environment}-agw', 'document-service')
+          }
+          backendHttpSettings: {
+            id: resourceId('Microsoft.Network/applicationGateways/backendHttpSettingsCollection', 'fleetmgr-doc-${environment}-agw', 'documentServiceHttpSettings')
+          }
+        }
+      }
+    ]
+    probes: [
+      {
+        name: 'documentServiceProbe'
+        properties: {
+          protocol: 'Http'
+          path: '/health'
+          interval: 30
+          timeout: 30
+          unhealthyThreshold: 3
+          pickHostNameFromBackendHttpSettings: true
+        }
+      }
+    ]
+    webApplicationFirewallConfiguration: {
+      enabled: true
+      firewallMode: 'Prevention'
+      ruleSetType: 'OWASP'
+      ruleSetVersion: '3.2'
+      disabledRuleGroups: []
+    }
+  }
+  tags: tags
+}
+```
+
+**Network Topology and Security Zones:**
+
+```mermaid
+%% Network Topology Diagram
+flowchart TB
+    subgraph Internet
+        A[Users] -->|HTTPS| B[Azure Front Door]
+        C[Mobile Apps] -->|HTTPS| B
+    end
+
+    subgraph Azure Front Door
+        B -->|HTTPS| D[Application Gateway]
+    end
+
+    subgraph Azure VNet
+        subgraph DMZ
+            D -->|HTTPS| E[WAF]
+            E -->|HTTP| F[API Gateway]
+        end
+
+        subgraph Application Tier
+            F -->|gRPC| G[Document Service]
+            F -->|gRPC| H[Search Service]
+            F -->|gRPC| I[Workflow Service]
+            F -->|gRPC| J[Notification Service]
+        end
+
+        subgraph Data Tier
+            G -->|PostgreSQL| K[PostgreSQL Cluster]
+            H -->|Elasticsearch| L[Elasticsearch Cluster]
+            G -->|Blob Storage| M[Azure Blob Storage]
+            N[Kafka] --> G
+            N --> H
+            N --> I
+            N --> J
+        end
+
+        subgraph Management Tier
+            O[AKS Cluster] -->|Manages| G
+            O -->|Manages| H
+            O -->|Manages| I
+            O -->|Manages| J
+            P[Azure Monitor] -->|Monitors| O
+            Q[Azure Key Vault] -->|Secrets| O
+        end
+    end
+
+    subgraph On-Premises
+        R[Legacy FMS] -->|API| F
+        S[Active Directory] -->|Sync| T[Azure AD]
+    end
+
+    style Internet fill:#f9f,stroke:#333
+    style Azure VNet fill:#bbf,stroke:#333
+    style DMZ fill:#fbb,stroke:#333
+    style Application Tier fill:#bfb,stroke:#333
+    style Data Tier fill:#bbf,stroke:#333
+    style Management Tier fill:#ffb,stroke:#333
+    style On-Premises fill:#f99,stroke:#333
+```
+
+**Load Balancing and Auto-Scaling:**
+
+```yaml
+# Horizontal Pod Autoscaler for Document Service
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: document-service-hpa
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: document-service
+  minReplicas: 3
+  maxReplicas: 20
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: 70
+  - type: Resource
+    resource:
+      name: memory
+      target:
+        type: Utilization
+        averageUtilization: 80
+  - type: External
+    external:
+      metric:
+        name: requests_per_second
+        selector:
+          matchLabels:
+            app: document-service
+      target:
+        type: AverageValue
+        averageValue: 1000
+  - type: Pods
+    pods:
+      metric:
+        name: document_processing_time
+      target:
+        type: AverageValue
+        averageValue: 2000 # 2 seconds
+  behavior:
+    scaleDown:
+      stabilizationWindowSeconds: 300
+      policies:
+      - type: Percent
+        value: 10
+        periodSeconds: 60
+    scaleUp:
+      stabilizationWindowSeconds: 60
+      policies:
+      - type: Percent
+        value: 20
+        periodSeconds: 60
+      - type: Pods
+        value: 5
+        periodSeconds: 60
+      selectPolicy: Max
+```
+
+**Disaster Recovery and Backup Strategy:**
+
+```yaml
+# Backup Configuration for AKS
+apiVersion: velero.io/v1
+kind: BackupStorageLocation
+metadata:
+  name: azure
+  namespace: velero
+spec:
+  provider: azure
+  objectStorage:
+    bucket: fleetmgr-doc-backups
+    prefix: prod
+  config:
+    resourceGroup: fleetmgr-doc-prod-rg
+    storageAccount: fleetmgrdocprodbackups
+    subscriptionId: 00000000-0000-0000-0000-000000000000
+---
+apiVersion: velero.io/v1
+kind: Schedule
+metadata:
+  name: daily-backup
+  namespace: velero
+spec:
+  schedule: "0 2 * * *" # Daily at 2 AM UTC
+  template:
+    ttl: "720h" # 30 days
+    includedNamespaces:
+    - document-service
+    - search-service
+    - workflow-service
+    - notification-service
+    includedResources:
+    - deployments
+    - services
+    - configmaps
+    - secrets
+    - persistentvolumeclaims
+    - ingresses
+    - statefulsets
+    - daemonsets
+    - cronjobs
+    - jobs
+    - poddisruptionbudgets
+    - networkpolicies
+    - storageclasses
+    - volumeattachments
+    - customresourcedefinitions
+    - clusterroles
+    - clusterrolebindings
+    - roles
+    - rolebindings
+    - serviceaccounts
+    labelSelector:
+      matchLabels:
+        app: document-management
+    snapshotVolumes: true
+    storageLocation: azure
+---
+apiVersion: velero.io/v1
+kind: Schedule
+metadata:
+  name: hourly-backup
+  namespace: velero
+spec:
+  schedule: "0 * * * *" # Hourly
+  template:
+    ttl: "24h" # 1 day
+    includedNamespaces:
+    - document-service
+    - search-service
+    - workflow-service
+    - notification-service
+    includedResources:
+    - deployments
+    - statefulsets
+    snapshotVolumes: false
+    storageLocation: azure
+---
+# Database Backup Configuration
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: postgres-backup
+  namespace: database
+spec:
+  schedule: "0 1 * * *" # Daily at 1 AM UTC
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+          - name: postgres-backup
+            image: postgres:15
+            command: ["/bin/sh", "-c"]
+            args:
+              - pg_dump -h fleetmgr-doc-prod.postgres.database.azure.com -U postgresadmin -d documentdb -F c -f /backups/documentdb-$(date +%Y%m%d).dump &&
+                az storage blob upload --account-name fleetmgrdocprodbackups --container-name postgres-backups --name documentdb-$(date +%Y%m%d).dump --file /backups/documentdb-$(date +%Y%m%d).dump --auth-mode login
+            env:
+            - name: PGPASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-secrets
+                  key: password
+            volumeMounts:
+            - name: backup-volume
+              mountPath: /backups
+          restartPolicy: OnFailure
+          volumes:
+          - name: backup-volume
+            emptyDir: {}
+---
+# Disaster Recovery Plan
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: disaster-recovery-plan
+  namespace: default
+data:
+  DR_PLAN.md: |
+    # Document Management Module Disaster Recovery Plan
+
+    ## 1. Recovery Objectives
+    - **RTO (Recovery Time Objective):** 4 hours
+    - **RPO (Recovery Point Objective):** 1 hour (for critical data), 24 hours (for non-critical data)
+
+    ## 2. Recovery Procedures
+
+    ### 2.1 Database Recovery
+    **PostgreSQL Recovery:**
+    1. Identify the most recent backup from Azure Blob Storage
+    2. Restore the backup to a new PostgreSQL instance in the DR region
+    3. Apply any WAL files since the last backup
+    4. Verify data integrity
+
+    ```bash
+    # Example recovery command
+    az postgres server restore \
+      --name fleetmgr-doc-dr \
+      --resource-group fleetmgr-doc-dr-rg \
+      --restore-point-in-time "2023-01-01T00:00:00Z" \
+      --source-server fleetmgr-doc-prod
+    ```
+
+    **Elasticsearch Recovery:**
+    1. Restore from snapshot stored in Azure Blob Storage
+    2. Verify cluster health
+    3. Reindex any missing documents from PostgreSQL
+
+    ```bash
+    # Example snapshot restore
+    PUT /_snapshot/fleetmgr_doc_prod/snapshot_1/_restore
+    {
+      "indices": "*",
+      "ignore_unavailable": true,
+      "include_global_state": false
+    }
+    ```
+
+    ### 2.2 Application Recovery
+    **Kubernetes Cluster Recovery:**
+    1. Deploy AKS cluster in DR region using Terraform
+    2. Restore Kubernetes resources from Velero backup
+    3. Update DNS records to point to DR cluster
+    4. Verify application functionality
+
+    ```bash
+    # Example Velero restore
+    velero restore create --from-backup daily-backup-20230101
+    ```
+
+    ### 2.3 Storage Recovery
+    **Blob Storage Recovery:**
+    1. Azure Blob Storage is geo-redundant by default
+    2. In case of primary region failure, failover to secondary region
+    3. Verify document accessibility
+
+    ```bash
+    # Example storage account failover
+    az storage account failover \
+      --name fleetmgrdocprod \
+      --resource-group fleetmgr-doc-prod-rg
+    ```
+
+    ## 3. Recovery Validation
+    1. **Data Validation:**
+       - Sample 100 documents and verify integrity
+       - Check critical document metadata
+       - Verify search functionality
+
+    2. **Application Validation:**
+       - Test all critical workflows
+       - Verify API endpoints
+       - Check integration with other systems
+
+    3. **Performance Validation:**
+       - Run load tests to ensure performance meets SLA
+       - Verify auto-scaling behavior
+
+    ## 4. Communication Plan
+    1. **Internal Communication:**
+       - Notify IT leadership within 30 minutes of disaster declaration
+       - Provide status updates every 2 hours
+       - Escalate to executive team if RTO is at risk
+
+    2. **External Communication:**
+       - Notify customers of service disruption via status page
+       - Provide estimated recovery time
+       - Offer alternative document access methods if available
+
+    ## 5. Roles and Responsibilities
+    | Role                     | Responsibilities                                                                 |
+    |--------------------------|---------------------------------------------------------------------------------|
+    | Incident Commander       | Overall coordination of recovery efforts                                        |
+    | Database Team            | Database recovery and validation                                                |
+    | DevOps Team              | Kubernetes cluster recovery and application deployment                          |
+    | Storage Team             | Blob storage recovery and validation                                            |
+    | QA Team                  | Recovery validation and testing                                                 |
+    | Communication Team       | Internal and external communication                                             |
+    | Vendor Coordination      | Coordinate with cloud provider and third-party vendors                          |
+
+    ## 6. Testing Schedule
+    - Quarterly DR drills
+    - Annual full recovery test
+    - After major system changes
+```
+
+## 3. TypeScript Implementation (700 lines)
+
+### 3.1 Core Backend Services
+
+```typescript
+// document.service.ts - Core Document Service
+import { Injectable, Logger, Inject, forwardRef } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository, DataSource, QueryRunner, In } from 'typeorm';
+import { Document } from './entities/document.entity';
+import { DocumentVersion } from './entities/document-version.entity';
+import { DocumentStatus } from './enums/document-status.enum';
+import { DocumentType } from './enums/document-type.enum';
+import { CreateDocumentDto } from './dto/create-document.dto';
+import { UpdateDocumentDto } from './dto/update-document.dto';
+import { DocumentEvent } from './events/document.event';
+import { EventEmitter2 } from '@nestjs/event-emitter';
+import { StorageService } from '../storage/storage.service';
+import { SearchService } from '../search/search.service';
+import { WorkflowService } from '../workflow/workflow.service';
+import { User } from '../user/entities/user.entity';
+import { AccessControlService } from '../auth/access-control.service';
+import { DocumentNotFoundException } from './exceptions/document-not-found.exception';
+import { DocumentVersionConflictException } from './exceptions/document-version-conflict.exception';
+import { AccessDeniedException } from '../auth/exceptions/access-denied.exception';
+import { ValidationException } from '../common/exceptions/validation.exception';
+import { PaginationDto } from '../common/dto/pagination.dto';
+import { DocumentFilterDto } from './dto/document-filter.dto';
+import { DocumentMetadata } from './interfaces/document-metadata.interface';
+import { FileUpload } from './interfaces/file-upload.interface';
+import { v4 as uuidv4 } from 'uuid';
+import { extname } from 'path';
+import { ConfigService } from '@nestjs/config';
+import { RetentionPolicy } from './interfaces/retention-policy.interface';
+import { AuditLogService } from '../audit-log/audit-log.service';
+import { AuditAction } from '../audit-log/enums/audit-action.enum';
+import { Transactional } from 'typeorm-transactional-cls-hooked';
+
+@Injectable()
+export class DocumentService {
+  private readonly logger = new Logger(DocumentService.name);
+  private readonly MAX_FILE_SIZE: number;
+  private readonly ALLOWED_FILE_TYPES: string[];
 
   constructor(
     @InjectRepository(Document)
-    private documentRepository: Repository<Document>,
+    private readonly documentRepository: Repository<Document>,
     @InjectRepository(DocumentVersion)
-    private documentVersionRepository: Repository<DocumentVersion>,
-    @InjectRepository(DocumentMetadata)
-    private documentMetadataRepository: Repository<DocumentMetadata>,
-    @InjectRepository(User)
-    private userRepository: Repository<User>,
-    @InjectRepository(DocumentAccessLog)
-    private documentAccessLogRepository: Repository<DocumentAccessLog>
+    private readonly documentVersionRepository: Repository<DocumentVersion>,
+    private readonly dataSource: DataSource,
+    private readonly eventEmitter: EventEmitter2,
+    private readonly storageService: StorageService,
+    @Inject(forwardRef(() => SearchService))
+    private readonly searchService: SearchService,
+    @Inject(forwardRef(() => WorkflowService))
+    private readonly workflowService: WorkflowService,
+    private readonly accessControlService: AccessControlService,
+    private readonly configService: ConfigService,
+    private readonly auditLogService: AuditLogService,
+  ) {
+    this.MAX_FILE_SIZE = this.configService.get<number>('DOCUMENT_MAX_FILE_SIZE', 50 * 1024 * 1024); // 50MB
+    this.ALLOWED_FILE_TYPES = this.configService.get<string[]>('DOCUMENT_ALLOWED_FILE_TYPES', [
+      '.pdf', '.doc', '.docx', '.xls', '.xlsx', '.ppt', '.pptx',
+      '.jpg', '.jpeg', '.png', '.gif', '.tiff', '.bmp',
+      '.txt', '.csv', '.xml', '.json'
+    ]);
+  }
+
+  @Transactional()
+  async createDocument(
+    createDocumentDto: CreateDocumentDto,
+    file: FileUpload,
+    user: User
+  ): Promise<Document> {
+    this.logger.log(`Creating document for user ${user.id}`);
+
+    // Validate file
+    this.validateFile(file);
+
+    // Validate metadata
+    this.validateMetadata(createDocumentDto.metadata);
+
+    // Check access control
+    await this.accessControlService.verifyUserCanCreateDocument(user);
+
+    // Start transaction
+    const queryRunner = this.dataSource.createQueryRunner();
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
+
+    try {
+      // Create document entity
+      const document = new Document();
+      document.id = uuidv4();
+      document.name = createDocumentDto.name;
+      document.description = createDocumentDto.description;
+      document.documentType = createDocumentDto.documentType;
+      document.owner = user;
+      document.metadata = createDocumentDto.metadata;
+      document.customFields = createDocumentDto.customFields;
+      document.retentionPolicy = this.createDefaultRetentionPolicy(createDocumentDto.documentType);
+      document.accessControl = {
+        viewers: [],
+        editors: []
+      };
+
+      // Save document
+      const savedDocument = await queryRunner.manager.save(document);
+
+      // Upload file to storage
+      const fileExtension = extname(file.originalname);
+      const fileName = `${savedDocument.id}${fileExtension}`;
+      const filePath = `documents/${savedDocument.id}/${fileName}`;
+
+      const storageResult = await this.storageService.uploadFile(
+        filePath,
+        file.buffer,
+        file.mimetype,
+        {
+          documentId: savedDocument.id,
+          version: '1',
+          createdBy: user.id
+        }
+      );
+
+      // Create document version
+      const documentVersion = new DocumentVersion();
+      documentVersion.id = uuidv4();
+      documentVersion.document = savedDocument;
+      documentVersion.versionNumber = 1;
+      documentVersion.createdBy = user;
+      documentVersion.file = {
+        storagePath: filePath,
+        originalName: file.originalname,
+        mimeType: file.mimetype,
+        size: file.size,
+        storageMetadata: storageResult.metadata
+      };
+      documentVersion.metadata = createDocumentDto.metadata;
+
+      // Save document version
+      const savedVersion = await queryRunner.manager.save(documentVersion);
+
+      // Update document with current version
+      savedDocument.currentVersion = savedVersion;
+      savedDocument.status = DocumentStatus.DRAFT;
+      const updatedDocument = await queryRunner.manager.save(savedDocument);
+
+      // Commit transaction
+      await queryRunner.commitTransaction();
+
+      // Emit events
+      this.eventEmitter.emit(
+        'document.created',
+        new DocumentEvent('DocumentCreated', updatedDocument, user)
+      );
+
+      // Index document in search
+      await this.searchService.indexDocument(updatedDocument.id, this.mapDocumentForSearch(updatedDocument));
+
+      // Start workflow if needed
+      if (createDocumentDto.startWorkflow) {
+        await this.workflowService.startWorkflow(
+          createDocumentDto.workflowType || 'DOCUMENT_APPROVAL',
+          {
+            documentId: updatedDocument.id,
+            initiatorId: user.id
+          }
+        );
+      }
+
+      // Log audit event
+      await this.auditLogService.logEvent(
+        AuditAction.CREATE,
+        'Document',
+        updatedDocument.id,
+        user.id,
+        {
+          documentType: updatedDocument.documentType,
+          documentName: updatedDocument.name
+        }
+      );
+
+      return updatedDocument;
+    } catch (error) {
+      // Rollback transaction on error
+      await queryRunner.rollbackTransaction();
+      this.logger.error(`Failed to create document: ${error.message}`, error.stack);
+
+      // Clean up storage if document creation failed
+      if (file) {
+        try {
+          await this.storageService.deleteFile(`documents/${uuidv4()}`);
+        } catch (storageError) {
+          this.logger.error(`Failed to clean up storage: ${storageError.message}`, storageError.stack);
+        }
+      }
+
+      throw error;
+    } finally {
+      await queryRunner.release();
+    }
+  }
+
+  @Transactional()
+  async updateDocument(
+    id: string,
+    updateDocumentDto: UpdateDocumentDto,
+    user: User
+  ): Promise<Document> {
+    this.logger.log(`Updating document ${id} for user ${user.id}`);
+
+    // Validate metadata
+    if (updateDocumentDto.metadata) {
+      this.validateMetadata(updateDocumentDto.metadata);
+    }
+
+    // Get document with version for optimistic concurrency control
+    const document = await this.documentRepository.findOne({
+      where: { id },
+      relations: ['owner', 'currentVersion', 'versions'],
+    });
+
+    if (!document) {
+      throw new DocumentNotFoundException(`Document ${id} not found`);
+    }
+
+    // Check access control
+    await this.accessControlService.verifyUserCanUpdateDocument(user, document);
+
+    // Check if document is in a state that allows updates
+    if (!this.canUpdateDocument(document)) {
+      throw new ValidationException(
+        `Document cannot be updated in its current state (${document.status})`
+      );
+    }
+
+    // Check for version conflict
+    if (updateDocumentDto.version && updateDocumentDto.version !== document.version) {
+      throw new DocumentVersionConflictException(
+        `Document version conflict. Current version: ${document.version}, provided version: ${updateDocumentDto.version}`,
+        document.version
+      );
+    }
+
+    // Start transaction
+    const queryRunner = this.dataSource.createQueryRunner();
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
+
+    try {
+      // Update document metadata
+      if (updateDocumentDto.name) {
+        document.name = updateDocumentDto.name;
+      }
+
+      if (updateDocumentDto.description !== undefined) {
+        document.description = updateDocumentDto.description;
+      }
+
+      if (updateDocumentDto.metadata) {
+        document.metadata = {
+          ...document.metadata,
+          ...updateDocumentDto.metadata
+        };
+      }
+
+      if (updateDocumentDto.customFields) {
+        document.customFields = {
+          ...document.customFields,
+          ...updateDocumentDto.customFields
+        };
+      }
+
+      // Save document
+      const updatedDocument = await queryRunner.manager.save(document);
+
+      // Emit events
+      this.eventEmitter.emit(
+        'document.updated',
+        new DocumentEvent('DocumentUpdated', updatedDocument, user)
+      );
+
+      // Index document in search
+      await this.searchService.indexDocument(updatedDocument.id, this.mapDocumentForSearch(updatedDocument));
+
+      // Commit transaction
+      await queryRunner.commitTransaction();
+
+      // Log audit event
+      await this.auditLogService.logEvent(
+        AuditAction.UPDATE,
+        'Document',
+        updatedDocument.id,
+        user.id,
+        {
+          changes: updateDocumentDto,
+          documentType: updatedDocument.documentType
+        }
+      );
+
+      return updatedDocument;
+    } catch (error) {
+      await queryRunner.rollbackTransaction();
+      this.logger.error(`Failed to update document ${id}: ${error.message}`, error.stack);
+      throw error;
+    } finally {
+      await queryRunner.release();
+    }
+  }
+
+  @Transactional()
+  async uploadDocumentVersion(
+    id: string,
+    file: FileUpload,
+    user: User
+  ): Promise<Document> {
+    this.logger.log(`Uploading new version for document ${id} by user ${user.id}`);
+
+    // Validate file
+    this.validateFile(file);
+
+    // Get document
+    const document = await this.documentRepository.findOne({
+      where: { id },
+      relations: ['owner', 'currentVersion', 'versions'],
+    });
+
+    if (!document) {
+      throw new DocumentNotFoundException(`Document ${id} not found`);
+    }
+
+    // Check access control
+    await this.accessControlService.verifyUserCanUpdateDocument(user, document);
+
+    // Check if document is in a state that allows new versions
+    if (!this.canAddVersion(document)) {
+      throw new ValidationException(
+        `Cannot add new version to document in state ${document.status}`
+      );
+    }
+
+    // Start transaction
+    const queryRunner = this.dataSource.createQueryRunner();
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
+
+    try {
+      // Upload file to storage
+      const fileExtension = extname(file.originalname);
+      const fileName = `${document.id}_v${document.versions.length + 1}${fileExtension}`;
+      const filePath = `documents/${document.id}/${fileName}`;
+
+      const storageResult = await this.storageService.uploadFile(
+        filePath,
+        file.buffer,
+        file.mimetype,
+        {
+          documentId: document.id,
+          version: (document.versions.length + 1).toString(),
+          createdBy: user.id
+        }
+      );
+
+      // Create new document version
+      const newVersion = new DocumentVersion();
+      newVersion.id = uuidv4();
+      newVersion.document = document;
+      newVersion.versionNumber = document.versions.length + 1;
+      newVersion.createdBy = user;
+      newVersion.file = {
+        storagePath: filePath,
+        originalName: file.originalname,
+        mimeType: file.mimetype,
+        size: file.size,
+        storageMetadata: storageResult.metadata
+      };
+      newVersion.metadata = document.metadata;
+
+      // Save new version
+      const savedVersion = await queryRunner.manager.save(newVersion);
+
+      // Update document with new version
+      document.currentVersion = savedVersion;
+      document.updatedAt = new Date();
+      const updatedDocument = await queryRunner.manager.save(document);
+
+      // Commit transaction
+      await queryRunner.commitTransaction();
+
+      // Emit events
+      this.eventEmitter.emit(
+        'document.versionCreated',
+        new DocumentEvent('DocumentVersionCreated', updatedDocument, user)
+      );
+
+      // Index document in search
+      await this.searchService.indexDocument(updatedDocument.id, this.mapDocumentForSearch(updatedDocument));
+
+      // Log audit event
+      await this.auditLogService.logEvent(
+        AuditAction.UPDATE,
+        'Document',
+        updatedDocument.id,
+        user.id,
+        {
+          action: 'version_upload',
+          versionNumber: savedVersion.versionNumber,
+          fileName: file.originalname
+        }
+      );
+
+      return updatedDocument;
+    } catch (error) {
+      await queryRunner.rollbackTransaction();
+      this.logger.error(`Failed to upload new version for document ${id}: ${error.message}`, error.stack);
+
+      // Clean up storage if upload failed
+      if (file) {
+        try {
+          await this.storageService.deleteFile(`documents/${document.id}`);
+        } catch (storageError) {
+          this.logger.error(`Failed to clean up storage: ${storageError.message}`, storageError.stack);
+        }
+      }
+
+      throw error;
+    } finally {
+      await queryRunner.release();
+    }
+  }
+
+  async getDocument(id: string, user: User): Promise<Document> {
+    this.logger.log(`Getting document ${id} for user ${user.id}`);
+
+    const document = await this.documentRepository.findOne({
+      where: { id },
+      relations: ['owner', 'currentVersion', 'currentVersion.createdBy'],
+    });
+
+    if (!document) {
+      throw new DocumentNotFoundException(`Document ${id} not found`);
+    }
+
+    // Check access control
+    await this.accessControlService.verifyUserCanReadDocument(user, document);
+
+    // Log audit event
+    await this.auditLogService.logEvent(
+      AuditAction.READ,
+      'Document',
+      document.id,
+      user.id,
+      {
+        documentType: document.documentType,
+        documentName: document.name
+      }
+    );
+
+    return document;
+  }
+
+  async getDocumentVersion(id: string, versionId: string, user: User): Promise<DocumentVersion> {
+    this.logger.log(`Getting version ${versionId} of document ${id} for user ${user.id}`);
+
+    const document = await this.documentRepository.findOne({
+      where: { id },
+      relations: ['owner'],
+    });
+
+    if (!document) {
+      throw new DocumentNotFoundException(`Document ${id} not found`);
+    }
+
+    // Check access control
+    await this.accessControlService.verifyUserCanReadDocument(user, document);
+
+    const version = await this.documentVersionRepository.findOne({
+      where: {
+        id: versionId,
+        document: { id }
+      },
+      relations: ['createdBy'],
+    });
+
+    if (!version) {
+      throw new DocumentNotFoundException(`Version ${versionId} of document ${id} not found`);
+    }
+
+    // Log audit event
+    await this.auditLogService.logEvent(
+      AuditAction.READ,
+      'DocumentVersion',
+      version.id,
+      user.id,
+      {
+        documentId: document.id,
+        versionNumber: version.versionNumber
+      }
+    );
+
+    return version;
+  }
+
+  async getDocumentFile(id: string, versionId: string | null, user: User): Promise<{ file: Buffer; metadata: any }> {
+    this.logger.log(`Getting file for document ${id}${versionId ? ` version ${versionId}` : ''} for user ${user.id}`);
+
+    const document = await this.documentRepository.findOne({
+      where: { id },
+      relations: ['owner'],
+    });
+
+    if (!document) {
+      throw new DocumentNotFoundException(`Document ${id} not found`);
+    }
+
+    // Check access control
+    await this.accessControlService.verifyUserCanReadDocument(user, document);
+
+    let version: DocumentVersion;
+    if (versionId) {
+      version = await this.documentVersionRepository.findOne({
+        where: {
+          id: versionId,
+          document: { id }
+        }
+      });
+
+      if (!version) {
+        throw new DocumentNotFoundException(`Version ${versionId} of document ${id} not found`);
+      }
+    } else {
+      version = document.currentVersion;
+      if (!version) {
+        throw new DocumentNotFoundException(`No versions available for document ${id}`);
+      }
+    }
+
+    // Get file from storage
+    const file = await this.storageService.getFile(version.file.storagePath);
+
+    // Log audit event
+    await this.auditLogService.logEvent(
+      AuditAction.READ,
+      'DocumentFile',
+      version.id,
+      user.id,
+      {
+        documentId: document.id,
+        versionNumber: version.versionNumber,
+        fileName: version.file.originalName
+      }
+    );
+
+    return {
+      file: file.data,
+      metadata: {
+        contentType: version.file.mimeType,
+        fileName: version.file.originalName,
+        size: version.file.size,
+        lastModified: file.lastModified
+      }
+    };
+  }
+
+  async searchDocuments(
+    filterDto: DocumentFilterDto,
+    paginationDto: PaginationDto,
+    user: User
+  ): Promise<{ data: Document[]; total: number }> {
+    this.logger.log(`Searching documents for user ${user.id} with filters: ${JSON.stringify(filterDto)}`);
+
+    // Get accessible document IDs for the user
+    const accessibleDocumentIds = await this.accessControlService.getAccessibleDocumentIds(user);
+
+    if (accessibleDocumentIds.length === 0) {
+      return { data: [], total: 0 };
+    }
+
+    // Build query
+    const query = this.documentRepository
+      .createQueryBuilder('document')
+      .leftJoinAndSelect('document.owner', 'owner')
+      .leftJoinAndSelect('document.currentVersion', 'currentVersion')
+      .leftJoinAndSelect('currentVersion.createdBy', 'versionCreator')
+      .where('document.id IN (:...ids)', { ids: accessibleDocumentIds });
+
+    // Apply filters
+    if (filterDto.documentType) {
+      query.andWhere('document.documentType = :documentType', { documentType: filterDto.documentType });
+    }
+
+    if (filterDto.status) {
+      query.andWhere('document.status = :status', { status: filterDto.status });
+    }
+
+    if (filterDto.vehicleId) {
+      query.andWhere('document.metadata @> :vehicleId', { vehicleId: { vehicleId: filterDto.vehicleId } });
+    }
+
+    if (filterDto.driverId) {
+      query.andWhere('document.metadata @> :driverId', { driverId: { driverId: filterDto.driverId } });
+    }
+
+    if (filterDto.fleetId) {
+      query.andWhere('document.metadata @> :fleetId', { fleetId: { fleetId: filterDto.fleetId } });
+    }
+
+    if (filterDto.search) {
+      query.andWhere('(document.name ILIKE :search OR document.description ILIKE :search)', {
+        search: `%${filterDto.search}%`
+      });
+    }
+
+    if (filterDto.fromDate) {
+      query.andWhere('document.createdAt >= :fromDate', { fromDate: filterDto.fromDate });
+    }
+
+    if (filterDto.toDate) {
+      query.andWhere('document.createdAt <= :toDate', { toDate: filterDto.toDate });
+    }
+
+    // Apply sorting
+    if (filterDto.sortBy) {
+      const sortField = filterDto.sortBy === 'name' ? 'document.name' :
+                       filterDto.sortBy === 'createdAt' ? 'document.createdAt' :
+                       filterDto.sortBy === 'updatedAt' ? 'document.updatedAt' : 'document.name';
+
+      query.orderBy(sortField, filterDto.sortOrder || 'ASC');
+    } else {
+      query.orderBy('document.name', 'ASC');
+    }
+
+    // Apply pagination
+    query.skip((paginationDto.page - 1) * paginationDto.pageSize);
+    query.take(paginationDto.pageSize);
+
+    // Execute query
+    const [data, total] = await query.getManyAndCount();
+
+    // Log audit event
+    await this.auditLogService.logEvent(
+      AuditAction.SEARCH,
+      'Document',
+      null,
+      user.id,
+      {
+        filters: filterDto,
+        resultCount: data.length
+      }
+    );
+
+    return { data, total };
+  }
+
+  async deleteDocument(id: string, user: User): Promise<void> {
+    this.logger.log(`Deleting document ${id} by user ${user.id}`);
+
+    const document = await this.documentRepository.findOne({
+      where: { id },
+      relations: ['owner', 'versions'],
+    });
+
+    if (!document) {
+      throw new DocumentNotFoundException(`Document ${id} not found`);
+    }
+
+    // Check access control
+    await this.accessControlService.verifyUserCanDeleteDocument(user, document);
+
+    // Check if document can be deleted
+    if (!this.canDeleteDocument(document)) {
+      throw new ValidationException(
+        `Document cannot be deleted in its current state (${document.status})`
+      );
+    }
+
+    // Start transaction
+    const queryRunner = this.dataSource.createQueryRunner();
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
+
+    try {
+      // Delete all versions from storage
+      for (const version of document.versions) {
+        try {
+          await this.storageService.deleteFile(version.file.storagePath);
+        } catch (error) {
+          this.logger.error(`Failed to delete file ${version.file.storagePath}: ${error.message}`, error.stack);
+          // Continue with other versions even if one fails
+        }
+      }
+
+      // Delete document from database
+      await queryRunner.manager.remove(document);
+
+      // Commit transaction
+      await queryRunner.commitTransaction();
+
+      // Emit events
+      this.eventEmitter.emit(
+        'document.deleted',
+        new DocumentEvent('DocumentDeleted', document, user)
+      );
+
+      // Remove from search index
+      await this.searchService.removeDocument(document.id);
+
+      // Log audit event
+      await this.auditLogService.logEvent(
+        AuditAction.DELETE,
+        'Document',
+        document.id,
+        user.id,
+        {
+          documentType: document.documentType,
+          documentName: document.name
+        }
+      );
+    } catch (error) {
+      await queryRunner.rollbackTransaction();
+      this.logger.error(`Failed to delete document ${id}: ${error.message}`, error.stack);
+      throw error;
+    } finally {
+      await queryRunner.release();
+    }
+  }
+
+  async updateDocumentStatus(
+    id: string,
+    status: DocumentStatus,
+    user: User
+  ): Promise<Document> {
+    this.logger.log(`Updating status of document ${id} to ${status} by user ${user.id}`);
+
+    const document = await this.documentRepository.findOne({
+      where: { id },
+      relations: ['owner'],
+    });
+
+    if (!document) {
+      throw new DocumentNotFoundException(`Document ${id} not found`);
+    }
+
+    // Check access control
+    await this.accessControlService.verifyUserCanUpdateDocumentStatus(user, document, status);
+
+    // Validate status transition
+    if (!this.isValidStatusTransition(document.status, status)) {
+      throw new ValidationException(
+        `Invalid status transition from ${document.status} to ${status}`
+      );
+    }
+
+    // Update status
+    document.status = status;
+    document.updatedAt = new Date();
+    const updatedDocument = await this.documentRepository.save(document);
+
+    // Emit events
+    this.eventEmitter.emit(
+      'document.statusChanged',
+      new DocumentEvent('DocumentStatusChanged', updatedDocument, user)
+    );
+
+    // Index document in search
+    await this.searchService.indexDocument(updatedDocument.id, this.mapDocumentForSearch(updatedDocument));
+
+    // Log audit event
+    await this.auditLogService.logEvent(
+      AuditAction.UPDATE,
+      'Document',
+      updatedDocument.id,
+      user.id,
+      {
+        action: 'status_change',
+        fromStatus: document.status,
+        toStatus: status
+      }
+    );
+
+    return updatedDocument;
+  }
+
+  async updateDocumentAccessControl(
+    id: string,
+    updateDto: {
+      viewers?: Array<{ principalId: string; principalType: 'USER' | 'GROUP' | 'ROLE' }>;
+      editors?: Array<{ principalId: string; principalType: 'USER' | 'GROUP' | 'ROLE' }>;
+    },
+    user: User
+  ): Promise<Document> {
+    this.logger.log(`Updating access control for document ${id} by user ${user.id}`);
+
+    const document = await this.documentRepository.findOne({
+      where: { id },
+      relations: ['owner'],
+    });
+
+    if (!document) {
+      throw new DocumentNotFoundException(`Document ${id} not found`);
+    }
+
+    // Check access control
+    await this.accessControlService.verifyUserCanManageAccess(user, document);
+
+    // Update access control
+    if (updateDto.viewers) {
+      document.accessControl.viewers = updateDto.viewers.map(viewer => ({
+        principalId: viewer.principalId,
+        principalType: viewer.principalType,
+        permissions: ['READ'] // Default permissions for viewers
+      }));
+    }
+
+    if (updateDto.editors) {
+      document.accessControl.editors = updateDto.editors.map(editor => ({
+        principalId: editor.principalId,
+        principalType: editor.principalType,
+        permissions: ['READ', 'WRITE'] // Default permissions for editors
+      }));
+    }
+
+    const updatedDocument = await this.documentRepository.save(document);
+
+    // Emit events
+    this.eventEmitter.emit(
+      'document.accessControlUpdated',
+      new DocumentEvent('DocumentAccessControlUpdated', updatedDocument, user)
+    );
+
+    // Index document in search
+    await this.searchService.indexDocument(updatedDocument.id, this.mapDocumentForSearch(updatedDocument));
+
+    // Log audit event
+    await this.auditLogService.logEvent(
+      AuditAction.UPDATE,
+      'Document',
+      updatedDocument.id,
+      user.id,
+      {
+        action: 'access_control_update',
+        viewers: updateDto.viewers?.map(v => v.principalId),
+        editors: updateDto.editors?.map(e => e.principalId)
+      }
+    );
+
+    return updatedDocument;
+  }
+
+  private validateFile(file: FileUpload): void {
+    if (!file) {
+      throw new ValidationException('No file provided');
+    }
+
+    if (file.size > this.MAX_FILE_SIZE) {
+      throw new ValidationException(
+        `File size exceeds the maximum limit of ${this.MAX_FILE_SIZE / (1024 * 1024)}MB`
+      );
+    }
+
+    const fileExtension = extname(file.originalname).toLowerCase();
+    if (!this.ALLOWED_FILE_TYPES.includes(fileExtension)) {
+      throw new ValidationException(
+        `File type ${fileExtension} is not allowed. Allowed types: ${this.ALLOWED_FILE_TYPES.join(', ')}`
+      );
+    }
+  }
+
+  private validateMetadata(metadata: DocumentMetadata): void {
+    if (!metadata) {
+      throw new ValidationException('Metadata is required');
+    }
+
+    // Validate document type specific fields
+    switch (metadata.documentType) {
+      case DocumentType.CONTRACT:
+        if (!metadata.vehicleId && !metadata.driverId) {
+          throw new ValidationException('Contract documents require either vehicleId or driverId');
+        }
+        break;
+      case DocumentType.INVOICE:
+        if (!metadata.vehicleId) {
+          throw new ValidationException('Invoice documents require vehicleId');
+        }
+        break;
+      case DocumentType.REPORT:
+        if (!metadata.fleetId) {
+          throw new ValidationException('Report documents require fleetId');
+        }
+        break;
+      case DocumentType.MANUAL:
+        if (!metadata.vehicleId) {
+          throw new ValidationException('Manual documents require vehicleId');
+        }
+        break;
+      case DocumentType.CERTIFICATE:
+        if (!metadata.vehicleId && !metadata.driverId) {
+          throw new ValidationException('Certificate documents require either vehicleId or driverId');
+        }
+        break;
+    }
+
+    // Validate custom fields if present
+    if (metadata.customFields) {
+      for (const [key, value] of Object.entries(metadata.customFields)) {
+        if (typeof value !== 'string') {
+          throw new ValidationException(`Custom field ${key} must be a string`);
+        }
+      }
+    }
+  }
+
+  private createDefaultRetentionPolicy(documentType: DocumentType): RetentionPolicy {
+    // Default retention policies based on document type
+    const retentionPolicies: Record<DocumentType, RetentionPolicy> = {
+      [DocumentType.CONTRACT]: {
+        retentionPeriod: 'P7Y', // 7 years
+        actionAfterRetention: 'ARCHIVE',
+        legalHold: true
+      },
+      [DocumentType.INVOICE]: {
+        retentionPeriod: 'P7Y', // 7 years
+        actionAfterRetention: 'ARCHIVE'
+      },
+      [DocumentType.REPORT]: {
+        retentionPeriod: 'P5Y', // 5 years
+        actionAfterRetention: 'DELETE'
+      },
+      [DocumentType.MANUAL]: {
+        retentionPeriod: 'P10Y', // 10 years
+        actionAfterRetention: 'ARCHIVE'
+      },
+      [DocumentType.CERTIFICATE]: {
+        retentionPeriod: 'P10Y', // 10 years
+        actionAfterRetention: 'ARCHIVE',
+        legalHold: true
+      },
+      [DocumentType.OTHER]: {
+        retentionPeriod: 'P3Y', // 3 years
+        actionAfterRetention: 'DELETE'
+      }
+    };
+
+    return retentionPolicies[documentType];
+  }
+
+  private canUpdateDocument(document: Document): boolean {
+    // Documents can be updated in these states
+    return [
+      DocumentStatus.DRAFT,
+      DocumentStatus.PENDING_APPROVAL,
+      DocumentStatus.APPROVED
+    ].includes(document.status);
+  }
+
+  private canAddVersion(document: Document): boolean {
+    // New versions can be added in these states
+    return [
+      DocumentStatus.DRAFT,
+      DocumentStatus.PENDING_APPROVAL,
+      DocumentStatus.APPROVED
+    ].includes(document.status);
+  }
+
+  private canDeleteDocument(document: Document): boolean {
+    // Documents can only be deleted in these states
+    return [
+      DocumentStatus.DRAFT,
+      DocumentStatus.DELETED // Allow re-deletion
+    ].includes(document.status);
+  }
+
+  private isValidStatusTransition(from: DocumentStatus, to: DocumentStatus): boolean {
+    const validTransitions: Record<DocumentStatus, DocumentStatus[]> = {
+      [DocumentStatus.DRAFT]: [
+        DocumentStatus.PENDING_APPROVAL,
+        DocumentStatus.APPROVED,
+        DocumentStatus.DELETED
+      ],
+      [DocumentStatus.PENDING_APPROVAL]: [
+        DocumentStatus.APPROVED,
+        DocumentStatus.DRAFT,
+        DocumentStatus.DELETED
+      ],
+      [DocumentStatus.APPROVED]: [
+        DocumentStatus.ARCHIVED,
+        DocumentStatus.DELETED
+      ],
+      [DocumentStatus.ARCHIVED]: [
+        DocumentStatus.APPROVED,
+        DocumentStatus.DELETED
+      ],
+      [DocumentStatus.DELETED]: [] // No transitions from DELETED
+    };
+
+    return validTransitions[from].includes(to);
+  }
+
+  private mapDocumentForSearch(document: Document): any {
+    return {
+      id: document.id,
+      name: document.name,
+      description: document.description,
+      documentType: document.documentType,
+      status: document.status,
+      metadata: {
+        ...document.metadata,
+        tags: document.metadata?.tags || [],
+        customFields: Object.entries(document.customFields || {}).map(([key, value]) => ({
+          key,
+          value
+        }))
+      },
+      createdAt: document.createdAt,
+      updatedAt: document.updatedAt,
+      accessControl: {
+        ownerId: document.owner.id,
+        viewerIds: document.accessControl.viewers.map(v => v.principalId),
+        editorIds: document.accessControl.editors.map(e => e.principalId)
+      },
+      // Add content from current version if available
+      content: document.currentVersion?.file?.originalName || ''
+    };
+  }
+}
+```
+
+### 3.2 API Layer
+
+```typescript
+// document.controller.ts - Document API Controller
+import { Controller, Get, Post, Body, Param, Put, Delete, Query, UseInterceptors, UploadedFile, Header, Res, HttpCode, HttpStatus } from '@nestjs/common';
+import { DocumentService } from './document.service';
+import { CreateDocumentDto } from './dto/create-document.dto';
+import { UpdateDocumentDto } from './dto/update-document.dto';
+import { DocumentFilterDto } from './dto/document-filter.dto';
+import { PaginationDto } from '../common/dto/pagination.dto';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { Response } from 'express';
+import { AuthUser } from '../auth/decorators/auth-user.decorator';
+import { User } from '../user/entities/user.entity';
+import { Document } from './entities/document.entity';
+import { DocumentVersion } from './entities/document-version.entity';
+import { DocumentStatus } from './enums/document-status.enum';
+import { ApiTags, ApiOperation, ApiResponse, ApiParam, ApiQuery, ApiBody, ApiConsumes, ApiBearerAuth } from '@nestjs/swagger';
+import { ValidationPipe } from '../common/pipes/validation.pipe';
+import { DocumentNotFoundException } from './exceptions/document-not-found.exception';
+import { DocumentVersionConflictException } from './exceptions/document-version-conflict.exception';
+import { AccessDeniedException } from '../auth/exceptions/access-denied.exception';
+import { ValidationException } from '../common/exceptions/validation.exception';
+import { FileUpload } from './interfaces/file-upload.interface';
+import { DocumentResponseDto } from './dto/document-response.dto';
+import { DocumentVersionResponseDto } from './dto/document-version-response.dto';
+import { DocumentListResponseDto } from './dto/document-list-response.dto';
+import { plainToClass } from 'class-transformer';
+import { ConfigService } from '@nestjs/config';
+import { CacheInterceptor, CacheTTL } from '@nestjs/cache-manager';
+import { Throttle } from '@nestjs/throttler';
+
+@ApiTags('documents')
+@ApiBearerAuth()
+@Controller('documents')
+@UseInterceptors(CacheInterceptor)
+export class DocumentController {
+  constructor(
+    private readonly documentService: DocumentService,
+    private readonly configService: ConfigService
   ) {}
 
-  /**
-   * Optimized document search with multiple filters
-   */
-  async optimizedDocumentSearch(
-    options: DocumentSearchOptions,
-    pagination: PaginationOptions
+  @Post()
+  @ApiOperation({ summary: 'Upload a new document' })
+  @ApiConsumes('multipart/form-data')
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        file: {
+          type: 'string',
+          format: 'binary',
+        },
+        name: {
+          type: 'string',
+          example: 'Vehicle Maintenance Contract',
+        },
+        description: {
+          type: 'string',
+          example: 'Contract for vehicle maintenance services',
+        },
+        documentType: {
+          type: 'string',
+          enum: Object.values(DocumentStatus),
+          example: 'CONTRACT',
+        },
+        metadata: {
+          type: 'object',
+          example: {
+            vehicleId: 'veh-12345',
+            driverId: 'drv-67890',
+            tags: ['maintenance', 'contract'],
+          },
+        },
+        customFields: {
+          type: 'object',
+          example: {
+            contractNumber: 'CTR-2023-001',
+            renewalDate: '2024-01-01',
+          },
+        },
+        startWorkflow: {
+          type: 'boolean',
+          example: true,
+        },
+        workflowType: {
+          type: 'string',
+          example: 'DOCUMENT_APPROVAL',
+        },
+      },
+      required: ['file', 'name', 'documentType', 'metadata'],
+    },
+  })
+  @ApiResponse({
+    status: 201,
+    description: 'Document created successfully',
+    type: DocumentResponseDto,
+  })
+  @ApiResponse({ status: 400, description: 'Bad request' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 403, description: 'Forbidden' })
+  @ApiResponse({ status: 500, description: 'Internal server error' })
+  @UseInterceptors(FileInterceptor('file'))
+  @HttpCode(HttpStatus.CREATED)
+  async uploadDocument(
+    @UploadedFile() file: FileUpload,
+    @Body(new ValidationPipe()) createDocumentDto: CreateDocumentDto,
+    @AuthUser() user: User,
+  ): Promise<DocumentResponseDto> {
+    const document = await this.documentService.createDocument(createDocumentDto, file, user);
+    return plainToClass(DocumentResponseDto, document);
+  }
+
+  @Get()
+  @ApiOperation({ summary: 'Search documents' })
+  @ApiQuery({ name: 'page', required: false, type: Number, example: 1 })
+  @ApiQuery({ name: 'pageSize', required: false, type: Number, example: 20 })
+  @ApiQuery({ name: 'search', required: false, type: String, example: 'maintenance' })
+  @ApiQuery({ name: 'documentType', required: false, enum: Object.values(DocumentStatus) })
+  @ApiQuery({ name: 'status', required: false, enum: Object.values(DocumentStatus) })
+  @ApiQuery({ name: 'vehicleId', required: false, type: String })
+  @ApiQuery({ name: 'driverId', required: false, type: String })
+  @ApiQuery({ name: 'fleetId', required: false, type: String })
+  @ApiQuery({ name: 'fromDate', required: false, type: String, format: 'date-time' })
+  @ApiQuery({ name: 'toDate', required: false, type: String, format: 'date-time' })
+  @ApiQuery({ name: 'sortBy', required: false, enum: ['name', 'createdAt', 'updatedAt'], example: 'name' })
+  @ApiQuery({ name: 'sortOrder', required: false, enum: ['ASC', 'DESC'], example: 'ASC' })
+  @ApiResponse({
+    status: 200,
+    description: 'List of documents',
+    type: DocumentListResponseDto,
+  })
+  @ApiResponse({ status: 400, description: 'Bad request' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 403, description: 'Forbidden' })
+  @CacheTTL(30) // Cache for 30 seconds
+  async searchDocuments(
+    @Query(new ValidationPipe()) filterDto: DocumentFilterDto,
+    @Query(new ValidationPipe()) paginationDto: PaginationDto,
+    @AuthUser() user: User,
+  ): Promise<DocumentListResponseDto> {
+    const { data, total } = await this.documentService.searchDocuments(filterDto, paginationDto, user);
+    return {
+      data: data.map(doc => plainToClass(DocumentResponseDto, doc)),
+      total,
+      page: paginationDto.page,
+      pageSize: paginationDto.pageSize,
+    };
+  }
+
+  @Get(':id')
+  @ApiOperation({ summary: 'Get document by ID' })
+  @ApiParam({ name: 'id', type: 'string', example: '550e8400-e29b-41d4-a716-446655440000' })
+  @ApiResponse({
+    status: 200,
+    description: 'Document found',
+    type: DocumentResponseDto,
+  })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 403, description: 'Forbidden' })
+  @ApiResponse({ status: 404, description: 'Document not found' })
+  @CacheTTL(60) // Cache for 60 seconds
+  async getDocument(
+    @Param('id') id: string,
+    @AuthUser() user: User,
+  ): Promise<DocumentResponseDto> {
+    const document = await this.documentService.getDocument(id, user);
+    return plainToClass(DocumentResponseDto, document);
+  }
+
+  @Get(':id/versions')
+  @ApiOperation({ summary: 'Get document versions' })
+  @ApiParam({ name: 'id', type: 'string', example: '550e8400-e29b-41d4-a716-446655440000' })
+  @ApiResponse({
+    status: 200,
+    description: 'List of document versions',
+    type: [DocumentVersionResponseDto],
+  })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 403, description: 'Forbidden' })
+  @ApiResponse({ status: 404, description: 'Document not found' })
+  async getDocumentVersions(
+    @Param('id') id: string,
+    @AuthUser() user: User,
+  ): Promise<DocumentVersionResponseDto[]> {
+    const document = await this.documentService.getDocument(id, user);
+    return document.versions.map(version => plainToClass(DocumentVersionResponseDto, version));
+  }
+
+  @Get(':id/versions/:versionId')
+  @ApiOperation({ summary: 'Get specific document version' })
+  @ApiParam({ name: 'id', type: 'string', example: '550e8400-e29b-41d4-a716-446655440000' })
+  @ApiParam({ name: 'versionId', type: 'string', example: '550e8400-e29b-41d4-a716-446655440001' })
+  @ApiResponse({
+    status: 200,
+    description: 'Document version found',
+    type: DocumentVersionResponseDto,
+  })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 403, description: 'Forbidden' })
+  @ApiResponse({ status: 404, description: 'Document or version not found' })
+  async getDocumentVersion(
+    @Param('id') id: string,
+    @Param('versionId') versionId: string,
+    @AuthUser() user: User,
+  ): Promise<DocumentVersionResponseDto> {
+    const version = await this.documentService.getDocumentVersion(id, versionId, user);
+    return plainToClass(DocumentVersionResponseDto, version);
+  }
+
+  @Get(':id/file')
+  @ApiOperation({ summary: 'Download document file (current version)' })
+  @ApiParam({ name: 'id', type: 'string', example: '550e8400-e29b-41d4-a716-446655440000' })
+  @ApiResponse({
+    status: 200,
+    description: 'Document file',
+    content: {
+      'application/octet-stream': {
+        schema: { type: 'string', format: 'binary' },
+      },
+    },
+  })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 403, description: 'Forbidden' })
+  @ApiResponse({ status: 404, description: 'Document not found' })
+  @Header('Content-Type', 'application/octet-stream')
+  async downloadDocumentFile(
+    @Param('id') id: string,
+    @Res() res: Response,
+    @AuthUser() user: User,
+  ): Promise<void> {
+    const { file, metadata } = await this.documentService.getDocumentFile(id, null, user);
+
+    res.setHeader('Content-Type', metadata.contentType);
+    res.setHeader('Content-Disposition', `attachment; filename="${encodeURIComponent(metadata.fileName)}"`);
+    res.setHeader('Content-Length', metadata.size);
+    res.setHeader('Last-Modified', metadata.lastModified.toUTCString());
+
+    res.send(file);
+  }
+
+  @Get(':id/versions/:versionId/file')
+  @ApiOperation({ summary: 'Download specific document version file' })
+  @ApiParam({ name: 'id', type: 'string', example: '550e8400-e29b-41d4-a716-446655440000' })
+  @ApiParam({ name: 'versionId', type: 'string', example: '550e8400-e29b-41d4-a716-446655440001' })
+  @ApiResponse({
+    status: 200,
+    description: 'Document version file',
+    content: {
+      'application/octet-stream': {
+        schema: { type: 'string', format: 'binary' },
+      },
+    },
+  })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 403, description: 'Forbidden' })
+  @ApiResponse({ status: 404, description: 'Document or version not found' })
+  @Header('Content-Type', 'application/octet-stream')
+  async downloadDocumentVersionFile(
+    @Param('id') id: string,
+    @Param('versionId') versionId: string,
+    @Res() res: Response,
+    @AuthUser() user: User,
+  ): Promise<void> {
+    const { file, metadata } = await this.documentService.getDocumentFile(id, versionId, user);
+
+    res.setHeader('Content-Type', metadata.contentType);
+    res.setHeader('Content-Disposition', `attachment; filename="${encodeURIComponent(metadata.fileName)}"`);
+    res.setHeader('Content-Length', metadata.size);
+    res.setHeader('Last-Modified', metadata.lastModified.toUTCString());
+
+    res.send(file);
+  }
+
+  @Put(':id')
+  @ApiOperation({ summary: 'Update document metadata' })
+  @ApiParam({ name: 'id', type: 'string', example: '550e8400-e29b-41d4-a716-446655440000' })
+  @ApiBody({ type: UpdateDocumentDto })
+  @ApiResponse({
+    status: 200,
+    description: 'Document updated successfully',
+    type: DocumentResponseDto,
+  })
+  @ApiResponse({ status: 400, description: 'Bad request' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 403, description: 'Forbidden' })
+  @ApiResponse({ status: 404, description: 'Document not found' })
+  @ApiResponse({ status: 409, description: 'Version conflict' })
+  async updateDocument(
+    @Param('id') id: string,
+    @Body(new ValidationPipe()) updateDocumentDto: UpdateDocumentDto,
+    @AuthUser() user: User,
+  ): Promise<DocumentResponseDto> {
+    const document = await this.documentService.updateDocument(id, updateDocumentDto, user);
+    return plainToClass(DocumentResponseDto, document);
+  }
+
+  @Post(':id/versions')
+  @ApiOperation({ summary: 'Upload new document version' })
+  @ApiParam({ name: 'id', type: 'string', example: '550e8400-e29b-41d4-a716-446655440000' })
+  @ApiConsumes('multipart/form-data')
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        file: {
+          type: 'string',
+          format: 'binary',
+        },
+      },
+      required: ['file'],
+    },
+  })
+  @ApiResponse({
+    status: 201,
+    description: 'Document version uploaded successfully',
+    type: DocumentResponseDto,
+  })
+  @ApiResponse({ status: 400, description: 'Bad request' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 403, description: 'Forbidden' })
+  @ApiResponse({ status: 404, description: 'Document not found' })
+  @UseInterceptors(FileInterceptor('file'))
+  @HttpCode(HttpStatus.CREATED)
+  async uploadDocumentVersion(
+    @Param('id') id: string,
+    @UploadedFile() file: FileUpload,
+    @AuthUser() user: User,
+  ): Promise<DocumentResponseDto> {
+    const document = await this.documentService.uploadDocumentVersion(id, file, user);
+    return plainToClass(DocumentResponseDto, document);
+  }
+
+  @Put(':id/status')
+  @ApiOperation({ summary: 'Update document status' })
+  @ApiParam({ name: 'id', type: 'string', example: '550e8400-e29b-41d4-a716-446655440000' })
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        status: {
+          type: 'string',
+          enum: Object.values(DocumentStatus),
+          example: 'APPROVED',
+        },
+      },
+      required: ['status'],
+    },
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Document status updated successfully',
+    type: DocumentResponseDto,
+  })
+  @ApiResponse({ status: 400, description: 'Bad request' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 403, description: 'Forbidden' })
+  @ApiResponse({ status: 404, description: 'Document not found' })
+  async updateDocumentStatus(
+    @Param('id') id: string,
+    @Body('status') status: DocumentStatus,
+    @AuthUser() user: User,
+  ): Promise<DocumentResponseDto> {
+    const document = await this.documentService.updateDocumentStatus(id, status, user);
+    return plainToClass(DocumentResponseDto, document);
+  }
+
+  @Put(':id/access-control')
+  @ApiOperation({ summary: 'Update document access control' })
+  @ApiParam({ name: 'id', type: 'string', example: '550e8400-e29b-41d4-a716-446655440000' })
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        viewers: {
+          type: 'array',
+          items: {
+            type: 'object',
+            properties: {
+              principalId: { type: 'string' },
+              principalType: { type: 'string', enum: ['USER', 'GROUP', 'ROLE'] },
+            },
+          },
+          example: [{ principalId: 'user-123', principalType: 'USER' }],
+        },
+        editors: {
+          type: 'array',
+          items: {
+            type: 'object',
+            properties: {
+              principalId: { type: 'string' },
+              principalType: { type: 'string', enum: ['USER', 'GROUP', 'ROLE'] },
+            },
+          },
+          example: [{ principalId: 'user-456', principalType: 'USER' }],
+        },
+      },
+    },
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Document access control updated successfully',
+    type: DocumentResponseDto,
+  })
+  @ApiResponse({ status: 400, description: 'Bad request' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 403, description: 'Forbidden' })
+  @ApiResponse({ status: 404, description: 'Document not found' })
+  async updateDocumentAccessControl(
+    @Param('id') id: string,
+    @Body() updateDto: {
+      viewers?: Array<{ principalId: string; principalType: 'USER' | 'GROUP' | 'ROLE' }>;
+      editors?: Array<{ principalId: string; principalType: 'USER' | 'GROUP' | 'ROLE' }>;
+    },
+    @AuthUser() user: User,
+  ): Promise<DocumentResponseDto> {
+    const document = await this.documentService.updateDocumentAccessControl(id, updateDto, user);
+    return plainToClass(DocumentResponseDto, document);
+  }
+
+  @Delete(':id')
+  @ApiOperation({ summary: 'Delete document' })
+  @ApiParam({ name: 'id', type: 'string', example: '550e8400-e29b-41d4-a716-446655440000' })
+  @ApiResponse({ status: 204, description: 'Document deleted successfully' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 403, description: 'Forbidden' })
+  @ApiResponse({ status: 404, description: 'Document not found' })
+  @HttpCode(HttpStatus.NO_CONTENT)
+  async deleteDocument(
+    @Param('id') id: string,
+    @AuthUser() user: User,
+  ): Promise<void> {
+    await this.documentService.deleteDocument(id, user);
+  }
+
+  @Post('batch-upload')
+  @ApiOperation({ summary: 'Batch upload documents' })
+  @ApiConsumes('multipart/form-data')
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        files: {
+          type: 'array',
+          items: {
+            type: 'string',
+            format: 'binary',
+          },
+        },
+        metadata: {
+          type: 'array',
+          items: {
+            type: 'object',
+            properties: {
+              name: { type: 'string' },
+              description: { type: 'string' },
+              documentType: { type: 'string', enum: Object.values(DocumentStatus) },
+              metadata: { type: 'object' },
+              customFields: { type: 'object' },
+            },
+          },
+        },
+      },
+      required: ['files', 'metadata'],
+    },
+  })
+  @ApiResponse({
+    status: 201,
+    description: 'Documents uploaded successfully',
+    type: [DocumentResponseDto],
+  })
+  @ApiResponse({ status: 400, description: 'Bad request' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 403, description: 'Forbidden' })
+  @UseInterceptors(FileInterceptor('files'))
+  @HttpCode(HttpStatus.CREATED)
+  @Throttle({ default: { limit: 5, ttl: 60000 } }) // 5 requests per minute
+  async batchUploadDocuments(
+    @UploadedFile() files: FileUpload[],
+    @Body('metadata') metadataArray: Array<{
+      name: string;
+      description?: string;
+      documentType: DocumentType;
+      metadata: any;
+      customFields?: any;
+    }>,
+    @AuthUser() user: User,
+  ): Promise<DocumentResponseDto[]> {
+    if (!files || files.length === 0) {
+      throw new ValidationException('No files provided');
+    }
+
+    if (!metadataArray || metadataArray.length !== files.length) {
+      throw new ValidationException('Metadata must be provided for each file');
+    }
+
+    const results: Document[] = [];
+
+    for (let i = 0; i < files.length; i++) {
+      const file = files[i];
+      const metadata = metadataArray[i];
+
+      const createDocumentDto: CreateDocumentDto = {
+        name: metadata.name,
+        description: metadata.description,
+        documentType: metadata.documentType,
+        metadata: metadata.metadata,
+        customFields: metadata.customFields,
+        startWorkflow: false, // Disable workflow for batch uploads
+      };
+
+      try {
+        const document = await this.documentService.createDocument(createDocumentDto, file, user);
+        results.push(document);
+      } catch (error) {
+        this.logger.error(`Failed to upload document ${metadata.name}: ${error.message}`, error.stack);
+        // Continue with other files even if one fails
+      }
+    }
+
+    return results.map(doc => plainToClass(DocumentResponseDto, doc));
+  }
+}
+```
+
+### 3.3 Data Access Layer
+
+```typescript
+// document.repository.ts - Custom Repository for Document Entity
+import { Injectable, Logger } from '@nestjs/common';
+import { DataSource, Repository, SelectQueryBuilder, Brackets } from 'typeorm';
+import { Document } from './entities/document.entity';
+import { DocumentFilterDto } from './dto/document-filter.dto';
+import { PaginationDto } from '../common/dto/pagination.dto';
+import { DocumentStatus } from './enums/document-status.enum';
+import { DocumentType } from './enums/document-type.enum';
+import { User } from '../user/entities/user.entity';
+
+@Injectable()
+export class DocumentRepository extends Repository<Document> {
+  private readonly logger = new Logger(DocumentRepository.name);
+
+  constructor(private dataSource: DataSource) {
+    super(Document, dataSource.createEntityManager());
+  }
+
+  async searchDocuments(
+    filterDto: DocumentFilterDto,
+    paginationDto: PaginationDto,
+    accessibleDocumentIds: string[]
   ): Promise<{ data: Document[]; total: number }> {
-    const { page = 1, limit = 20 } = pagination;
-    const { searchTerm, documentTypes, statuses, dateRange, owners, tags, customFields } = options;
+    const { page, pageSize } = paginationDto;
+    const skip = (page - 1) * pageSize;
 
-    const queryBuilder = this.documentRepository
-      .createQueryBuilder('document')
-      .leftJoinAndSelect('document.currentVersion', 'currentVersion')
-      .leftJoinAndSelect('document.metadata', 'metadata')
+    const query = this.createSearchQuery(filterDto, accessibleDocumentIds);
+
+    // Apply sorting
+    this.applySorting(query, filterDto);
+
+    // Apply pagination
+    query.skip(skip).take(pageSize);
+
+    // Execute query
+    const [data, total] = await query.getManyAndCount();
+
+    return { data, total };
+  }
+
+  async findDocumentsByIds(ids: string[]): Promise<Document[]> {
+    if (ids.length === 0) {
+      return [];
+    }
+
+    return this.createQueryBuilder('document')
       .leftJoinAndSelect('document.owner', 'owner')
-      .leftJoinAndSelect('document.tags', 'tags')
-      .leftJoinAndSelect('document.accessLogs', 'accessLogs', 'accessLogs.accessedAt > :minAccessDate', {
-        minAccessDate: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000) // Last 30 days
-      })
-      .where('document.isDeleted = :isDeleted', { isDeleted: false })
-      .andWhere('document.isArchived = :isArchived', { isArchived: false });
+      .leftJoinAndSelect('document.currentVersion', 'currentVersion')
+      .leftJoinAndSelect('currentVersion.createdBy', 'versionCreator')
+      .where('document.id IN (:...ids)', { ids })
+      .getMany();
+  }
 
-    // Apply search term filter
-    if (searchTerm) {
-      queryBuilder.andWhere(
+  async findDocumentsByMetadata(
+    metadataField: string,
+    metadataValue: string,
+    user?: User
+  ): Promise<Document[]> {
+    const query = this.createQueryBuilder('document')
+      .leftJoinAndSelect('document.owner', 'owner')
+      .leftJoinAndSelect('document.currentVersion', 'currentVersion')
+      .where(`document.metadata @> :metadata`, {
+        metadata: { [metadataField]: metadataValue }
+      });
+
+    if (user) {
+      query.andWhere(
         new Brackets(qb => {
-          qb.where('document.title ILIKE :searchTerm', { searchTerm: `%${searchTerm}%` })
-            .orWhere('document.description ILIKE :searchTerm', { searchTerm: `%${searchTerm}%` })
-            .orWhere('currentVersion.content ILIKE :searchTerm', { searchTerm: `%${searchTerm}%` })
-            .orWhere('metadata.keywords ILIKE :searchTerm', { searchTerm: `%${searchTerm}%` });
+          qb.where('document.owner.id = :userId', { userId: user.id })
+            .orWhere('document.accessControl.viewers @> :viewers', {
+              viewers: [{ principalId: user.id, principalType: 'USER' }]
+            })
+            .orWhere('document.accessControl.editors @> :editors', {
+              editors: [{ principalId: user.id, principalType: 'USER' }]
+            });
         })
       );
     }
 
+    return query.getMany();
+  }
+
+  async countDocumentsByStatus(): Promise<Record<DocumentStatus, number>> {
+    const results = await this.createQueryBuilder('document')
+      .select('document.status', 'status')
+      .addSelect('COUNT(*)', 'count')
+      .groupBy('document.status')
+      .getRawMany();
+
+    const statusCounts: Record<DocumentStatus, number> = {
+      [DocumentStatus.DRAFT]: 0,
+      [DocumentStatus.PENDING_APPROVAL]: 0,
+      [DocumentStatus.APPROVED]: 0,
+      [DocumentStatus.ARCHIVED]: 0,
+      [DocumentStatus.DELETED]: 0,
+    };
+
+    results.forEach(result => {
+      statusCounts[result.status as DocumentStatus] = parseInt(result.count, 10);
+    });
+
+    return statusCounts;
+  }
+
+  async countDocumentsByType(): Promise<Record<DocumentType, number>> {
+    const results = await this.createQueryBuilder('document')
+      .select('document.documentType', 'documentType')
+      .addSelect('COUNT(*)', 'count')
+      .groupBy('document.documentType')
+      .getRawMany();
+
+    const typeCounts: Record<DocumentType, number> = {
+      [DocumentType.CONTRACT]: 0,
+      [DocumentType.INVOICE]: 0,
+      [DocumentType.REPORT]: 0,
+      [DocumentType.MANUAL]: 0,
+      [DocumentType.CERTIFICATE]: 0,
+      [DocumentType.OTHER]: 0,
+    };
+
+    results.forEach(result => {
+      typeCounts[result.documentType as DocumentType] = parseInt(result.count, 10);
+    });
+
+    return typeCounts;
+  }
+
+  private createSearchQuery(
+    filterDto: DocumentFilterDto,
+    accessibleDocumentIds: string[]
+  ): SelectQueryBuilder<Document> {
+    const query = this.createQueryBuilder('document')
+      .leftJoinAndSelect('document.owner', 'owner')
+      .leftJoinAndSelect('document.currentVersion', 'currentVersion')
+      .leftJoinAndSelect('currentVersion.createdBy', 'versionCreator')
+      .where('document.id IN (:...ids)', { ids: accessibleDocumentIds });
+
     // Apply document type filter
-    if (documentTypes && documentTypes.length > 0) {
-      queryBuilder.andWhere('document.documentType IN (:...documentTypes)', { documentTypes });
+    if (filterDto.documentType) {
+      query.andWhere('document.documentType = :documentType', {
+        documentType: filterDto.documentType
+      });
     }
 
     // Apply status filter
-    if (statuses && statuses.length > 0) {
-      queryBuilder.andWhere('document.status IN (:...statuses)', { statuses });
+    if (filterDto.status) {
+      query.andWhere('document.status = :status', { status: filterDto.status });
     }
 
-    // Apply date range filter
-    if (dateRange) {
-      if (dateRange.from) {
-        queryBuilder.andWhere('document.createdAt >= :fromDate', { fromDate: dateRange.from });
-      }
-      if (dateRange.to) {
-        queryBuilder.andWhere('document.createdAt <= :toDate', { toDate: dateRange.to });
-      }
-    }
-
-    // Apply owner filter
-    if (owners && owners.length > 0) {
-      queryBuilder.andWhere('document.ownerId IN (:...ownerIds)', { ownerIds: owners });
-    }
-
-    // Apply tag filter
-    if (tags && tags.length > 0) {
-      queryBuilder.andWhere('tags.id IN (:...tagIds)', { tagIds: tags });
-    }
-
-    // Apply custom field filters
-    if (customFields && Object.keys(customFields).length > 0) {
-      Object.entries(customFields).forEach(([field, value], index) => {
-        queryBuilder.andWhere(`metadata.customFields->>:field = :value${index}`, {
-          field,
-          [`value${index}`]: JSON.stringify(value)
-        });
+    // Apply vehicle ID filter
+    if (filterDto.vehicleId) {
+      query.andWhere('document.metadata @> :vehicleId', {
+        vehicleId: { vehicleId: filterDto.vehicleId }
       });
     }
 
-    // Apply query optimization hints
-    this.applyQueryOptimizations(queryBuilder);
+    // Apply driver ID filter
+    if (filterDto.driverId) {
+      query.andWhere('document.metadata @> :driverId', {
+        driverId: { driverId: filterDto.driverId }
+      });
+    }
 
-    // Get total count for pagination
-    const [data, total] = await queryBuilder
-      .skip((page - 1) * limit)
-      .take(limit)
-      .orderBy(this.getSortOptions(options.sortBy, options.sortOrder))
-      .getManyAndCount();
+    // Apply fleet ID filter
+    if (filterDto.fleetId) {
+      query.andWhere('document.metadata @> :fleetId', {
+        fleetId: { fleetId: filterDto.fleetId }
+      });
+    }
 
-    return { data, total };
+    // Apply search term filter
+    if (filterDto.search) {
+      query.andWhere(
+        new Brackets(qb => {
+          qb.where('document.name ILIKE :search', { search: `%${filterDto.search}%` })
+            .orWhere('document.description ILIKE :search', { search: `%${filterDto.search}%` })
+            .orWhere('document.metadata::text ILIKE :search', { search: `%${filterDto.search}%` });
+        })
+      );
+    }
+
+    // Apply date range filters
+    if (filterDto.fromDate) {
+      query.andWhere('document.createdAt >= :fromDate', { fromDate: filterDto.fromDate });
+    }
+
+    if (filterDto.toDate) {
+      query.andWhere('document.createdAt <= :toDate', { toDate: filterDto.toDate });
+    }
+
+    return query;
   }
 
-  /**
-   * Get document with all related data (optimized)
-   */
-  async getDocumentWithRelations(documentId: string): Promise<Document | null> {
-    return this.documentRepository
-      .createQueryBuilder('document')
-      .leftJoinAndSelect('document.currentVersion', 'currentVersion')
-      .leftJoinAndSelect('document.allVersions', 'allVersions')
-      .leftJoinAndSelect('document.metadata', 'metadata')
+  private applySorting(
+    query: SelectQueryBuilder<Document>,
+    filterDto: DocumentFilterDto
+  ): void {
+    if (filterDto.sortBy) {
+      const sortField = filterDto.sortBy === 'name' ? 'document.name' :
+                       filterDto.sortBy === 'createdAt' ? 'document.createdAt' :
+                       filterDto.sortBy === 'updatedAt' ? 'document.updatedAt' : 'document.name';
+
+      query.orderBy(sortField, filterDto.sortOrder || 'ASC');
+    } else {
+      query.orderBy('document.name', 'ASC');
+    }
+  }
+
+  async getDocumentWithVersions(id: string): Promise<Document | null> {
+    return this.createQueryBuilder('document')
+      .leftJoinAndSelect('document.versions', 'versions')
+      .leftJoinAndSelect('versions.createdBy', 'versionCreator')
       .leftJoinAndSelect('document.owner', 'owner')
-      .leftJoinAndSelect('document.collaborators', 'collaborators')
-      .leftJoinAndSelect('document.tags', 'tags')
-      .leftJoinAndSelect('document.comments', 'comments', 'comments.isDeleted = :isDeleted', { isDeleted: false })
-      .leftJoinAndSelect('comments.author', 'commentAuthor')
-      .leftJoinAndSelect('document.accessLogs', 'accessLogs', 'accessLogs.accessedAt > :minAccessDate', {
-        minAccessDate: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000)
-      })
-      .leftJoinAndSelect('document.relatedDocuments', 'relatedDocuments')
-      .where('document.id = :documentId', { documentId })
-      .andWhere('document.isDeleted = :isDeleted', { isDeleted: false })
+      .leftJoinAndSelect('document.currentVersion', 'currentVersion')
+      .where('document.id = :id', { id })
       .getOne();
   }
 
-  /**
-   * Get recent documents for user (optimized)
-   */
-  async getRecentDocuments(userId: string, limit: number = 10): Promise<Document[]> {
-    return this.documentRepository
-      .createQueryBuilder('document')
-      .leftJoinAndSelect('document.currentVersion', 'currentVersion')
-      .leftJoinAndSelect('document.metadata', 'metadata')
-      .leftJoin('document.accessLogs', 'accessLogs', 'accessLogs.userId = :userId', { userId })
-      .where('document.isDeleted = :isDeleted', { isDeleted: false })
-      .andWhere('document.isArchived = :isArchived', { isArchived: false })
-      .orderBy('accessLogs.accessedAt', 'DESC')
-      .distinct(true)
-      .limit(limit)
+  async getDocumentsForRetentionCheck(
+    retentionDate: Date,
+    action: 'DELETE' | 'ARCHIVE'
+  ): Promise<Document[]> {
+    return this.createQueryBuilder('document')
+      .where('document.retentionPolicy->>\'actionAfterRetention\' = :action', { action })
+      .andWhere(
+        `document.createdAt + (document.retentionPolicy->>'retentionPeriod')::interval <= :retentionDate`,
+        { retentionDate }
+      )
+      .andWhere('document.status != :status', { status: DocumentStatus.DELETED })
       .getMany();
   }
 
-  /**
-   * Get documents by multiple IDs (optimized)
-   */
-  async getDocumentsByIds(documentIds: string[]): Promise<Document[]> {
-    if (documentIds.length === 0) return [];
-
-    // Batch processing for large ID sets
-    const batchSize = QueryOptimizationConfig.MAX_IN_CLAUSE_SIZE;
-    const batches = [];
-
-    for (let i = 0; i < documentIds.length; i += batchSize) {
-      batches.push(documentIds.slice(i, i + batchSize));
-    }
-
-    const results = await Promise.all(
-      batches.map(batch =>
-        this.documentRepository
-          .createQueryBuilder('document')
-          .leftJoinAndSelect('document.currentVersion', 'currentVersion')
-          .leftJoinAndSelect('document.metadata', 'metadata')
-          .where('document.id IN (:...ids)', { ids: batch })
-          .andWhere('document.isDeleted = :isDeleted', { isDeleted: false })
-          .getMany()
-      )
-    );
-
-    return results.flat();
-  }
-
-  /**
-   * Get document versions with pagination (optimized)
-   */
-  async getDocumentVersions(
-    documentId: string,
-    pagination: PaginationOptions
-  ): Promise<{ data: DocumentVersion[]; total: number }> {
-    const { page = 1, limit = 20 } = pagination;
-
-    const [data, total] = await this.documentVersionRepository
-      .createQueryBuilder('version')
-      .leftJoinAndSelect('version.createdBy', 'createdBy')
-      .where('version.documentId = :documentId', { documentId })
-      .andWhere('version.isDeleted = :isDeleted', { isDeleted: false })
-      .orderBy('version.createdAt', 'DESC')
-      .skip((page - 1) * limit)
-      .take(limit)
-      .getManyAndCount();
-
-    return { data, total };
-  }
-
-  /**
-   * Get document access logs (optimized)
-   */
-  async getDocumentAccessLogs(
-    documentId: string,
-    pagination: PaginationOptions
-  ): Promise<{ data: DocumentAccessLog[]; total: number }> {
-    const { page = 1, limit = 20 } = pagination;
-
-    const [data, total] = await this.documentAccessLogRepository
-      .createQueryBuilder('log')
-      .leftJoinAndSelect('log.user', 'user')
-      .where('log.documentId = :documentId', { documentId })
-      .orderBy('log.accessedAt', 'DESC')
-      .skip((page - 1) * limit)
-      .take(limit)
-      .getManyAndCount();
-
-    return { data, total };
-  }
-
-  /**
-   * Apply query optimization hints
-   */
-  private applyQueryOptimizations(queryBuilder: SelectQueryBuilder<any>): void {
-    // Add query hints for PostgreSQL
-    queryBuilder.addSelect('document.id', 'document_id');
-
-    // Use materialized path for hierarchical queries
-    if (queryBuilder.expressionMap.mainAlias?.metadata.tableName === 'document') {
-      queryBuilder.addSelect('document.path', 'document_path');
-    }
-
-    // Add join conditions to prevent Cartesian products
-    queryBuilder.expressionMap.joinAttributes.forEach(join => {
-      if (join.condition) {
-        queryBuilder.andWhere(join.condition);
-      }
-    });
-
-    // Add query timeout
-    queryBuilder.setQueryRunnerOptions({
-      queryTimeout: QueryOptimizationConfig.QUERY_TIMEOUT_MS
-    });
-  }
-
-  /**
-   * Get sort options for query
-   */
-  private getSortOptions(sortBy?: string, sortOrder: 'ASC' | 'DESC' = 'DESC'): any {
-    const defaultSort = { 'document.updatedAt': sortOrder };
-
-    if (!sortBy) return defaultSort;
-
-    const sortMap = {
-      title: 'document.title',
-      createdAt: 'document.createdAt',
-      updatedAt: 'document.updatedAt',
-      size: 'currentVersion.size',
-      views: 'document.viewCount',
-      relevance: 'document.relevanceScore'
-    };
-
-    const column = sortMap[sortBy] || sortMap.updatedAt;
-    return { [column]: sortOrder };
-  }
-
-  /**
-   * Get document statistics (optimized)
-   */
-  async getDocumentStatistics(documentId: string): Promise<any> {
-    const document = await this.documentRepository
-      .createQueryBuilder('document')
-      .select([
-        'COUNT(DISTINCT allVersions.id) as versionCount',
-        'SUM(CASE WHEN allVersions.isCurrent = true THEN 1 ELSE 0 END) as currentVersion',
-        'COUNT(DISTINCT collaborators.id) as collaboratorCount',
-        'COUNT(DISTINCT comments.id) as commentCount',
-        'COUNT(DISTINCT accessLogs.id) as accessCount',
-        'MAX(accessLogs.accessedAt) as lastAccessedAt'
-      ])
-      .leftJoin('document.allVersions', 'allVersions')
-      .leftJoin('document.collaborators', 'collaborators')
-      .leftJoin('document.comments', 'comments', 'comments.isDeleted = :isDeleted', { isDeleted: false })
-      .leftJoin('document.accessLogs', 'accessLogs')
-      .where('document.id = :documentId', { documentId })
-      .getRawOne();
-
-    return {
-      versionCount: parseInt(document.versionCount) || 0,
-      currentVersion: parseInt(document.currentVersion) || 0,
-      collaboratorCount: parseInt(document.collaboratorCount) || 0,
-      commentCount: parseInt(document.commentCount) || 0,
-      accessCount: parseInt(document.accessCount) || 0,
-      lastAccessedAt: document.lastAccessedAt
-    };
-  }
-
-  /**
-   * Get user document activity (optimized)
-   */
-  async getUserDocumentActivity(userId: string, days: number = 30): Promise<any> {
-    const minDate = new Date(Date.now() - days * 24 * 60 * 60 * 1000);
-
-    const [created, edited, viewed] = await Promise.all([
-      this.documentRepository
-        .createQueryBuilder('document')
-        .where('document.ownerId = :userId', { userId })
-        .andWhere('document.createdAt >= :minDate', { minDate })
-        .getCount(),
-
-      this.documentVersionRepository
-        .createQueryBuilder('version')
-        .where('version.createdById = :userId', { userId })
-        .andWhere('version.createdAt >= :minDate', { minDate })
-        .getCount(),
-
-      this.documentAccessLogRepository
-        .createQueryBuilder('log')
-        .where('log.userId = :userId', { userId })
-        .andWhere('log.accessedAt >= :minDate', { minDate })
-        .getCount()
-    ]);
-
-    return {
-      documentsCreated: created,
-      documentsEdited: edited,
-      documentsViewed: viewed,
-      activityScore: created * 2 + edited * 1.5 + viewed * 0.5
-    };
-  }
-}
-```
-
-### API Response Compression
-
-```typescript
-// src/middleware/response-compression.middleware.ts
-import { Injectable, NestMiddleware } from '@nestjs/common';
-import { Request, Response, NextFunction } from 'express';
-import * as compression from 'compression';
-import { ConfigService } from '@nestjs/config';
-import { CompressionConfig } from '../config/compression.config';
-import { Logger } from '@nestjs/common';
-
-@Injectable()
-export class ResponseCompressionMiddleware implements NestMiddleware {
-  private readonly logger = new Logger(ResponseCompressionMiddleware.name);
-  private readonly compressionMiddleware: (req: Request, res: Response, next: NextFunction) => void;
-
-  constructor(private configService: ConfigService) {
-    // Configure compression options
-    const compressionOptions: compression.CompressionOptions = {
-      level: this.configService.get<number>('COMPRESSION_LEVEL', CompressionConfig.DEFAULT_LEVEL),
-      threshold: this.configService.get<number>('COMPRESSION_THRESHOLD', CompressionConfig.DEFAULT_THRESHOLD),
-      filter: this.shouldCompress.bind(this),
-      chunkSize: this.configService.get<number>('COMPRESSION_CHUNK_SIZE', CompressionConfig.DEFAULT_CHUNK_SIZE),
-      windowBits: this.configService.get<number>('COMPRESSION_WINDOW_BITS', CompressionConfig.DEFAULT_WINDOW_BITS),
-      memLevel: this.configService.get<number>('COMPRESSION_MEM_LEVEL', CompressionConfig.DEFAULT_MEM_LEVEL),
-      strategy: this.configService.get<number>('COMPRESSION_STRATEGY', CompressionConfig.DEFAULT_STRATEGY)
-    };
-
-    this.compressionMiddleware = compression(compressionOptions);
-
-    this.logger.log('Response compression middleware initialized with options:', compressionOptions);
-  }
-
-  use(req: Request, res: Response, next: NextFunction) {
-    try {
-      // Set compression-related headers
-      this.setCompressionHeaders(req, res);
-
-      // Apply compression middleware
-      this.compressionMiddleware(req, res, next);
-    } catch (err) {
-      this.logger.error(`Error in response compression middleware: ${err.message}`);
-      next(err);
-    }
-  }
-
-  /**
-   * Determine if response should be compressed
-   */
-  private shouldCompress(req: Request, res: Response): boolean {
-    // Never compress responses that are already compressed
-    if (res.getHeader('Content-Encoding')) {
-      return false;
-    }
-
-    // Never compress responses with cache-control: no-transform
-    if (res.getHeader('Cache-Control')?.includes('no-transform')) {
-      return false;
-    }
-
-    // Don't compress small responses
-    const contentLength = res.getHeader('Content-Length');
-    if (contentLength && parseInt(contentLength as string) < CompressionConfig.MIN_COMPRESS_SIZE) {
-      return false;
-    }
-
-    // Don't compress certain content types
-    const contentType = res.getHeader('Content-Type') as string;
-    if (contentType) {
-      const excludedTypes = [
-        'image/',
-        'video/',
-        'audio/',
-        'application/pdf',
-        'application/zip',
-        'application/gzip',
-        'application/x-rar-compressed',
-        'application/x-tar'
-      ];
-
-      if (excludedTypes.some(type => contentType.includes(type))) {
-        return false;
-      }
-    }
-
-    // Compress based on accept-encoding header
-    const acceptEncoding = req.headers['accept-encoding'] as string;
-    if (!acceptEncoding) {
-      return false;
-    }
-
-    // Check for supported compression algorithms
-    const supportedAlgorithms = this.configService.get<string>('COMPRESSION_ALGORITHMS', 'gzip, deflate, br').split(',');
-    return supportedAlgorithms.some(algo => acceptEncoding.includes(algo.trim()));
-  }
-
-  /**
-   * Set compression-related headers
-   */
-  private setCompressionHeaders(req: Request, res: Response): void {
-    // Set Vary header to ensure caches consider Accept-Encoding
-    const vary = res.getHeader('Vary') as string || '';
-    if (!vary.includes('Accept-Encoding')) {
-      res.setHeader('Vary', vary ? `${vary}, Accept-Encoding` : 'Accept-Encoding');
-    }
-
-    // Set compression algorithm preference
-    const acceptEncoding = req.headers['accept-encoding'] as string;
-    if (acceptEncoding) {
-      const algorithms = this.configService.get<string>('COMPRESSION_ALGORITHMS', 'gzip, deflate, br').split(',');
-      const preferredAlgorithm = algorithms.find(algo => acceptEncoding.includes(algo.trim()));
-
-      if (preferredAlgorithm) {
-        res.locals.preferredCompressionAlgorithm = preferredAlgorithm.trim();
-      }
-    }
-  }
-}
-```
-
-### Lazy Loading Implementation
-
-```typescript
-// src/utils/lazy-loader.util.ts
-import { Injectable, Logger } from '@nestjs/common';
-import { Document } from '../entities/document.entity';
-import { DocumentVersion } from '../entities/document-version.entity';
-import { DocumentMetadata } from '../entities/document-metadata.entity';
-import { User } from '../entities/user.entity';
-import { Tag } from '../entities/tag.entity';
-import { Comment } from '../entities/comment.entity';
-import { DocumentAccessLog } from '../entities/document-access-log.entity';
-import { QueryRunner, SelectQueryBuilder } from 'typeorm';
-import { LazyLoadConfig } from '../config/lazy-load.config';
-import { PaginationOptions } from '../interfaces/pagination-options.interface';
-
-@Injectable()
-export class LazyLoaderUtil {
-  private readonly logger = new Logger(LazyLoaderUtil.name);
-
-  /**
-   * Lazy load document versions
-   */
-  async lazyLoadDocumentVersions(
-    documentId: string,
-    queryRunner: QueryRunner,
-    pagination: PaginationOptions = { page: 1, limit: 10 }
-  ): Promise<DocumentVersion[]> {
-    const { page = 1, limit = 10 } = pagination;
-
-    try {
-      return await queryRunner.manager
-        .getRepository(DocumentVersion)
-        .createQueryBuilder('version')
-        .where('version.documentId = :documentId', { documentId })
-        .andWhere('version.isDeleted = :isDeleted', { isDeleted: false })
-        .orderBy('version.createdAt', 'DESC')
-        .skip((page - 1) * limit)
-        .take(limit)
-        .getMany();
-    } catch (err) {
-      this.logger.error(`Error lazy loading document versions: ${err.message}`);
-      throw err;
-    }
-  }
-
-  /**
-   * Lazy load document collaborators
-   */
-  async lazyLoadDocumentCollaborators(
-    documentId: string,
-    queryRunner: QueryRunner,
-    pagination: PaginationOptions = { page: 1, limit: 20 }
-  ): Promise<User[]> {
-    const { page = 1, limit = 20 } = pagination;
-
-    try {
-      return await queryRunner.manager
-        .createQueryBuilder(User, 'user')
-        .innerJoin('user.collaboratingDocuments', 'document', 'document.id = :documentId', { documentId })
-        .where('user.isActive = :isActive', { isActive: true })
-        .orderBy('user.lastName', 'ASC')
-        .addOrderBy('user.firstName', 'ASC')
-        .skip((page - 1) * limit)
-        .take(limit)
-        .getMany();
-    } catch (err) {
-      this.logger.error(`Error lazy loading document collaborators: ${err.message}`);
-      throw err;
-    }
-  }
-
-  /**
-   * Lazy load document comments
-   */
-  async lazyLoadDocumentComments(
-    documentId: string,
-    queryRunner: QueryRunner,
-    pagination: PaginationOptions = { page: 1, limit: 10 }
-  ): Promise<Comment[]> {
-    const { page = 1, limit = 10 } = pagination;
-
-    try {
-      return await queryRunner.manager
-        .getRepository(Comment)
-        .createQueryBuilder('comment')
-        .leftJoinAndSelect('comment.author', 'author')
-        .where('comment.documentId = :documentId', { documentId })
-        .andWhere('comment.isDeleted = :isDeleted', { isDeleted: false })
-        .orderBy('comment.createdAt', 'DESC')
-        .skip((page - 1) * limit)
-        .take(limit)
-        .getMany();
-    } catch (err) {
-      this.logger.error(`Error lazy loading document comments: ${err.message}`);
-      throw err;
-    }
-  }
-
-  /**
-   * Lazy load document access logs
-   */
-  async lazyLoadDocumentAccessLogs(
-    documentId: string,
-    queryRunner: QueryRunner,
-    pagination: PaginationOptions = { page: 1, limit: 20 }
-  ): Promise<DocumentAccessLog[]> {
-    const { page = 1, limit = 20 } = pagination;
-
-    try {
-      return await queryRunner.manager
-        .getRepository(DocumentAccessLog)
-        .createQueryBuilder('log')
-        .leftJoinAndSelect('log.user', 'user')
-        .where('log.documentId = :documentId', { documentId })
-        .orderBy('log.accessedAt', 'DESC')
-        .skip((page - 1) * limit)
-        .take(limit)
-        .getMany();
-    } catch (err) {
-      this.logger.error(`Error lazy loading document access logs: ${err.message}`);
-      throw err;
-    }
-  }
-
-  /**
-   * Lazy load document tags
-   */
-  async lazyLoadDocumentTags(
-    documentId: string,
-    queryRunner: QueryRunner
-  ): Promise<Tag[]> {
-    try {
-      return await queryRunner.manager
-        .getRepository(Tag)
-        .createQueryBuilder('tag')
-        .innerJoin('tag.documents', 'document', 'document.id = :documentId', { documentId })
-        .orderBy('tag.name', 'ASC')
-        .getMany();
-    } catch (err) {
-      this.logger.error(`Error lazy loading document tags: ${err.message}`);
-      throw err;
-    }
-  }
-
-  /**
-   * Lazy load document metadata
-   */
-  async lazyLoadDocumentMetadata(
-    documentId: string,
-    queryRunner: QueryRunner
-  ): Promise<DocumentMetadata | null> {
-    try {
-      return await queryRunner.manager
-        .getRepository(DocumentMetadata)
-        .createQueryBuilder('metadata')
-        .where('metadata.documentId = :documentId', { documentId })
-        .getOne();
-    } catch (err) {
-      this.logger.error(`Error lazy loading document metadata: ${err.message}`);
-      throw err;
-    }
-  }
-
-  /**
-   * Lazy load document with minimal relations
-   */
-  async lazyLoadDocument(
-    documentId: string,
-    queryRunner: QueryRunner
-  ): Promise<Document | null> {
-    try {
-      return await queryRunner.manager
-        .getRepository(Document)
-        .createQueryBuilder('document')
-        .leftJoinAndSelect('document.currentVersion', 'currentVersion')
-        .leftJoinAndSelect('document.owner', 'owner')
-        .where('document.id = :documentId', { documentId })
-        .andWhere('document.isDeleted = :isDeleted', { isDeleted: false })
-        .getOne();
-    } catch (err) {
-      this.logger.error(`Error lazy loading document: ${err.message}`);
-      throw err;
-    }
-  }
-
-  /**
-   * Create a lazy loading proxy for document relations
-   */
-  createLazyLoadingProxy<T>(
-    documentId: string,
-    relationName: string,
-    queryRunner: QueryRunner,
-    pagination: PaginationOptions = { page: 1, limit: LazyLoadConfig.DEFAULT_LIMIT }
-  ): Promise<T[]> {
-    return new Promise((resolve, reject) => {
-      // Create a proxy that loads the data when accessed
-      const proxy = new Proxy([], {
-        get: (target, prop) => {
-          if (prop === 'then') {
-            // If someone tries to await the proxy, load the data
-            return (resolveFn: (value: T[]) => void, rejectFn: (reason: any) => void) => {
-              this.loadLazyRelation(documentId, relationName, queryRunner, pagination)
-                .then(resolveFn)
-                .catch(rejectFn);
-            };
-          }
-
-          // For other properties, return the target's property
-          return Reflect.get(target, prop);
-        }
-      });
-
-      return proxy;
-    });
-  }
-
-  /**
-   * Load lazy relation data
-   */
-  private async loadLazyRelation<T>(
-    documentId: string,
-    relationName: string,
-    queryRunner: QueryRunner,
-    pagination: PaginationOptions
-  ): Promise<T[]> {
-    try {
-      switch (relationName) {
-        case 'versions':
-          return this.lazyLoadDocumentVersions(documentId, queryRunner, pagination) as unknown as T[];
-        case 'collaborators':
-          return this.lazyLoadDocumentCollaborators(documentId, queryRunner, pagination) as unknown as T[];
-        case 'comments':
-          return this.lazyLoadDocumentComments(documentId, queryRunner, pagination) as unknown as T[];
-        case 'accessLogs':
-          return this.lazyLoadDocumentAccessLogs(documentId, queryRunner, pagination) as unknown as T[];
-        case 'tags':
-          return this.lazyLoadDocumentTags(documentId, queryRunner) as unknown as T[];
-        default:
-          throw new Error(`Unsupported relation: ${relationName}`);
-      }
-    } catch (err) {
-      this.logger.error(`Error loading lazy relation ${relationName}: ${err.message}`);
-      throw err;
-    }
-  }
-
-  /**
-   * Create a lazy loading document with all relations
-   */
-  async createLazyDocument(
-    documentId: string,
-    queryRunner: QueryRunner
-  ): Promise<Document> {
-    try {
-      // First load the basic document
-      const basicDocument = await this.lazyLoadDocument(documentId, queryRunner);
-      if (!basicDocument) {
-        throw new Error(`Document with ID ${documentId} not found`);
-      }
-
-      // Create proxies for lazy loading relations
-      const lazyDocument = new Proxy(basicDocument, {
-        get: (target, prop) => {
-          if (prop === 'versions') {
-            return this.createLazyLoadingProxy<DocumentVersion>(documentId, 'versions', queryRunner);
-          } else if (prop === 'collaborators') {
-            return this.createLazyLoadingProxy<User>(documentId, 'collaborators', queryRunner);
-          } else if (prop === 'comments') {
-            return this.createLazyLoadingProxy<Comment>(documentId, 'comments', queryRunner);
-          } else if (prop === 'accessLogs') {
-            return this.createLazyLoadingProxy<DocumentAccessLog>(documentId, 'accessLogs', queryRunner);
-          } else if (prop === 'tags') {
-            return this.createLazyLoadingProxy<Tag>(documentId, 'tags', queryRunner);
-          } else if (prop === 'metadata') {
-            return this.lazyLoadDocumentMetadata(documentId, queryRunner);
-          }
-
-          // For other properties, return the target's property
-          return Reflect.get(target, prop);
-        }
-      });
-
-      return lazyDocument;
-    } catch (err) {
-      this.logger.error(`Error creating lazy document: ${err.message}`);
-      throw err;
-    }
-  }
-
-  /**
-   * Optimized query builder for lazy loading
-   */
-  createLazyQueryBuilder<T>(
-    entity: new () => T,
-    queryRunner: QueryRunner
-  ): SelectQueryBuilder<T> {
-    return queryRunner.manager.getRepository(entity).createQueryBuilder();
-  }
-
-  /**
-   * Batch lazy loading of multiple documents
-   */
-  async batchLazyLoadDocuments(
-    documentIds: string[],
-    queryRunner: QueryRunner
-  ): Promise<Document[]> {
-    if (documentIds.length === 0) return [];
-
-    try {
-      // First load all basic documents
-      const basicDocuments = await queryRunner.manager
-        .getRepository(Document)
-        .createQueryBuilder('document')
-        .leftJoinAndSelect('document.currentVersion', 'currentVersion')
-        .leftJoinAndSelect('document.owner', 'owner')
-        .where('document.id IN (:...documentIds)', { documentIds })
-        .andWhere('document.isDeleted = :isDeleted', { isDeleted: false })
-        .getMany();
-
-      // Create lazy loading proxies for each document
-      return basicDocuments.map(doc => {
-        return new Proxy(doc, {
-          get: (target, prop) => {
-            if (prop === 'versions') {
-              return this.createLazyLoadingProxy<DocumentVersion>(doc.id, 'versions', queryRunner);
-            } else if (prop === 'collaborators') {
-              return this.createLazyLoadingProxy<User>(doc.id, 'collaborators', queryRunner);
-            } else if (prop === 'comments') {
-              return this.createLazyLoadingProxy<Comment>(doc.id, 'comments', queryRunner);
-            } else if (prop === 'accessLogs') {
-              return this.createLazyLoadingProxy<DocumentAccessLog>(doc.id, 'accessLogs', queryRunner);
-            } else if (prop === 'tags') {
-              return this.createLazyLoadingProxy<Tag>(doc.id, 'tags', queryRunner);
-            } else if (prop === 'metadata') {
-              return this.lazyLoadDocumentMetadata(doc.id, queryRunner);
-            }
-
-            return Reflect.get(target, prop);
-          }
-        });
-      });
-    } catch (err) {
-      this.logger.error(`Error batch lazy loading documents: ${err.message}`);
-      throw err;
-    }
-  }
-}
-```
-
-### Request Debouncing
-
-```typescript
-// src/utils/request-debouncer.util.ts
-import { Injectable, Logger } from '@nestjs/common';
-import { Redis } from 'ioredis';
-import { ConfigService } from '@nestjs/config';
-import { DebounceConfig } from '../config/debounce.config';
-import { promisify } from 'util';
-
-@Injectable()
-export class RequestDebouncer {
-  private readonly logger = new Logger(RequestDebouncer.name);
-  private readonly redisClient: Redis;
-  private readonly getAsync: (key: string) => Promise<string | null>;
-  private readonly setexAsync: (key: string, seconds: number, value: string) => Promise<string>;
-  private readonly delAsync: (key: string) => Promise<number>;
-
-  constructor(private configService: ConfigService) {
-    const redisConfig = {
-      host: this.configService.get<string>('REDIS_HOST'),
-      port: this.configService.get<number>('REDIS_PORT'),
-      password: this.configService.get<string>('REDIS_PASSWORD'),
-      db: this.configService.get<number>('REDIS_DB_DEBOUNCE'),
-      retryStrategy: (times: number) => Math.min(times * 100, 5000),
-      reconnectOnError: (err: Error) => {
-        this.logger.error(`Redis debounce reconnection error: ${err.message}`);
-        return true;
-      }
-    };
-
-    this.redisClient = new Redis(redisConfig);
-
-    // Promisify Redis methods
-    this.getAsync = promisify(this.redisClient.get).bind(this.redisClient);
-    this.setexAsync = promisify(this.redisClient.setex).bind(this.redisClient);
-    this.delAsync = promisify(this.redisClient.del).bind(this.redisClient);
-
-    // Event listeners
-    this.redisClient.on('connect', () => {
-      this.logger.log('Debounce Redis client connected');
-    });
-
-    this.redisClient.on('error', (err) => {
-      this.logger.error(`Debounce Redis error: ${err.message}`);
-    });
-  }
-
-  /**
-   * Debounce a request
-   * @param key Unique key for the request
-   * @param ttl Debounce time in milliseconds
-   * @param callback Function to execute if not debounced
-   * @returns Promise that resolves to the callback result or undefined if debounced
-   */
-  async debounce<T>(
-    key: string,
-    ttl: number = DebounceConfig.DEFAULT_TTL,
-    callback: () => Promise<T>
-  ): Promise<T | undefined> {
-    try {
-      // Check if key exists (request is already in progress)
-      const existing = await this.getAsync(key);
-      if (existing) {
-        this.logger.debug(`Request debounced for key: ${key}`);
-        return undefined;
-      }
-
-      // Set key with TTL (convert ms to seconds)
-      await this.setexAsync(key, Math.ceil(ttl / 1000), '1');
-
-      // Execute callback
-      this.logger.debug(`Executing debounced request for key: ${key}`);
-      return await callback();
-    } catch (err) {
-      this.logger.error(`Error in debounce for key ${key}: ${err.message}`);
-      throw err;
-    }
-  }
-
-  /**
-   * Debounce document operations
-   */
-  async debounceDocumentOperation<T>(
-    documentId: string,
-    operation: string,
-    userId: string,
-    callback: () => Promise<T>
-  ): Promise<T | undefined> {
-    const key = this.generateDocumentOperationKey(documentId, operation, userId);
-    const ttl = this.getDocumentOperationTTL(operation);
-
-    return this.debounce(key, ttl, callback);
-  }
-
-  /**
-   * Debounce user operations
-   */
-  async debounceUserOperation<T>(
-    userId: string,
-    operation: string,
-    callback: () => Promise<T>
-  ): Promise<T | undefined> {
-    const key = this.generateUserOperationKey(userId, operation);
-    const ttl = this.getUserOperationTTL(operation);
-
-    return this.debounce(key, ttl, callback);
-  }
-
-  /**
-   * Debounce search operations
-   */
-  async debounceSearch<T>(
-    query: string,
-    userId: string,
-    callback: () => Promise<T>
-  ): Promise<T | undefined> {
-    const key = this.generateSearchKey(query, userId);
-    return this.debounce(key, DebounceConfig.SEARCH_TTL, callback);
-  }
-
-  /**
-   * Cancel debounced request
-   */
-  async cancelDebounce(key: string): Promise<void> {
-    try {
-      await this.delAsync(key);
-      this.logger.debug(`Cancelled debounced request for key: ${key}`);
-    } catch (err) {
-      this.logger.error(`Error cancelling debounce for key ${key}: ${err.message}`);
-      throw err;
-    }
-  }
-
-  /**
-   * Generate document operation key
-   */
-  private generateDocumentOperationKey(documentId: string, operation: string, userId: string): string {
-    return `debounce:doc:${documentId}:${operation}:${userId}`;
-  }
-
-  /**
-   * Generate user operation key
-   */
-  private generateUserOperationKey(userId: string, operation: string): string {
-    return `debounce:user:${userId}:${operation}`;
-  }
-
-  /**
-   * Generate search key
-   */
-  private generateSearchKey(query: string, userId: string): string {
-    const normalizedQuery = query.toLowerCase().trim();
-    return `debounce:search:${normalizedQuery}:${userId}`;
-  }
-
-  /**
-   * Get TTL for document operation
-   */
-  private getDocumentOperationTTL(operation: string): number {
-    const ttlMap = {
-      'save': DebounceConfig.DOCUMENT_SAVE_TTL,
-      'update': DebounceConfig.DOCUMENT_UPDATE_TTL,
-      'delete': DebounceConfig.DOCUMENT_DELETE_TTL,
-      'share': DebounceConfig.DOCUMENT_SHARE_TTL,
-      'comment': DebounceConfig.DOCUMENT_COMMENT_TTL,
-      'download': DebounceConfig.DOCUMENT_DOWNLOAD_TTL
-    };
-
-    return ttlMap[operation] || DebounceConfig.DEFAULT_TTL;
-  }
-
-  /**
-   * Get TTL for user operation
-   */
-  private getUserOperationTTL(operation: string): number {
-    const ttlMap = {
-      'profile-update': DebounceConfig.USER_PROFILE_UPDATE_TTL,
-      'preferences-update': DebounceConfig.USER_PREFERENCES_UPDATE_TTL,
-      'activity-log': DebounceConfig.USER_ACTIVITY_LOG_TTL
-    };
-
-    return ttlMap[operation] || DebounceConfig.DEFAULT_TTL;
-  }
-
-  /**
-   * Check if request is currently debounced
-   */
-  async isDebounced(key: string): Promise<boolean> {
-    try {
-      const result = await this.getAsync(key);
-      return result !== null;
-    } catch (err) {
-      this.logger.error(`Error checking debounce status for key ${key}: ${err.message}`);
-      return false;
-    }
-  }
-
-  /**
-   * Get debounce status for document operation
-   */
-  async isDocumentOperationDebounced(documentId: string, operation: string, userId: string): Promise<boolean> {
-    const key = this.generateDocumentOperationKey(documentId, operation, userId);
-    return this.isDebounced(key);
-  }
-
-  /**
-   * Get debounce status for user operation
-   */
-  async isUserOperationDebounced(userId: string, operation: string): Promise<boolean> {
-    const key = this.generateUserOperationKey(userId, operation);
-    return this.isDebounced(key);
-  }
-
-  /**
-   * Get debounce status for search
-   */
-  async isSearchDebounced(query: string, userId: string): Promise<boolean> {
-    const key = this.generateSearchKey(query, userId);
-    return this.isDebounced(key);
-  }
-
-  /**
-   * Close Redis connection
-   */
-  async close(): Promise<void> {
-    try {
-      await this.redisClient.quit();
-    } catch (err) {
-      this.logger.error(`Error closing debounce Redis connection: ${err.message}`);
-    }
-  }
-}
-```
-
-### Connection Pooling
-
-```typescript
-// src/database/connection-pool.service.ts
-import { Injectable, Logger, OnModuleInit, OnModuleDestroy } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
-import { Pool, PoolClient, PoolConfig } from 'pg';
-import { ConnectionPoolConfig } from '../config/connection-pool.config';
-import { QueryResult } from 'pg';
-import { performance } from 'perf_hooks';
-
-@Injectable()
-export class ConnectionPoolService implements OnModuleInit, OnModuleDestroy {
-  private readonly logger = new Logger(ConnectionPoolService.name);
-  private pool: Pool;
-  private readonly config: PoolConfig;
-  private readonly connectionMetrics: {
-    totalConnections: number;
-    activeConnections: number;
-    idleConnections: number;
-    waitingClients: number;
-    queryCount: number;
-    queryTime: number;
-  };
-
-  constructor(private configService: ConfigService) {
-    this.connectionMetrics = {
-      totalConnections: 0,
-      activeConnections: 0,
-      idleConnections: 0,
-      waitingClients: 0,
-      queryCount: 0,
-      queryTime: 0
-    };
-
-    this.config = {
-      host: this.configService.get<string>('DB_HOST'),
-      port: this.configService.get<number>('DB_PORT'),
-      user: this.configService.get<string>('DB_USER'),
-      password: this.configService.get<string>('DB_PASSWORD'),
-      database: this.configService.get<string>('DB_NAME'),
-      max: this.configService.get<number>('DB_POOL_MAX', ConnectionPoolConfig.DEFAULT_MAX_POOL_SIZE),
-      min: this.configService.get<number>('DB_POOL_MIN', ConnectionPoolConfig.DEFAULT_MIN_POOL_SIZE),
-      idleTimeoutMillis: this.configService.get<number>('DB_POOL_IDLE_TIMEOUT', ConnectionPoolConfig.DEFAULT_IDLE_TIMEOUT),
-      connectionTimeoutMillis: this.configService.get<number>('DB_POOL_CONNECTION_TIMEOUT', ConnectionPoolConfig.DEFAULT_CONNECTION_TIMEOUT),
-      maxUses: this.configService.get<number>('DB_POOL_MAX_USES', ConnectionPoolConfig.DEFAULT_MAX_USES),
-      application_name: 'document-management-system',
-      ssl: this.configService.get<boolean>('DB_SSL', false) ? {
-        rejectUnauthorized: this.configService.get<boolean>('DB_SSL_REJECT_UNAUTHORIZED', true),
-        ca: this.configService.get<string>('DB_SSL_CA'),
-        key: this.configService.get<string>('DB_SSL_KEY'),
-        cert: this.configService.get<string>('DB_SSL_CERT')
-      } : false
-    };
-
-    this.logger.log(`Initializing connection pool with config: ${JSON.stringify({
-      ...this.config,
-      password: '***',
-      ssl: this.config.ssl ? { ...this.config.ssl, ca: '***', key: '***', cert: '***' } : false
-    })}`);
-  }
-
-  async onModuleInit() {
-    try {
-      this.pool = new Pool(this.config);
-
-      // Event listeners
-      this.pool.on('connect', (client) => {
-        this.connectionMetrics.totalConnections++;
-        this.logger.debug(`New connection established. Total connections: ${this.connectionMetrics.totalConnections}`);
-      });
-
-      this.pool.on('acquire', (client) => {
-        this.connectionMetrics.activeConnections++;
-        this.connectionMetrics.idleConnections--;
-        this.logger.debug(`Connection acquired. Active: ${this.connectionMetrics.activeConnections}, Idle: ${this.connectionMetrics.idleConnections}`);
-      });
-
-      this.pool.on('release', (err, client) => {
-        this.connectionMetrics.activeConnections--;
-        this.connectionMetrics.idleConnections++;
-        if (err) {
-          this.logger.error(`Error releasing connection: ${err.message}`);
-        } else {
-          this.logger.debug(`Connection released. Active: ${this.connectionMetrics.activeConnections}, Idle: ${this.connectionMetrics.idleConnections}`);
-        }
-      });
-
-      this.pool.on('error', (err, client) => {
-        this.logger.error(`Connection pool error: ${err.message}`);
-      });
-
-      this.pool.on('remove', (client) => {
-        this.connectionMetrics.totalConnections--;
-        this.logger.debug(`Connection removed. Total connections: ${this.connectionMetrics.totalConnections}`);
-      });
-
-      // Test the connection
-      await this.testConnection();
-
-      this.logger.log('Database connection pool initialized successfully');
-    } catch (err) {
-      this.logger.error(`Failed to initialize connection pool: ${err.message}`);
-      throw err;
-    }
-  }
-
-  async onModuleDestroy() {
-    try {
-      if (this.pool) {
-        await this.pool.end();
-        this.logger.log('Database connection pool closed');
-      }
-    } catch (err) {
-      this.logger.error(`Error closing connection pool: ${err.message}`);
-    }
-  }
-
-  /**
-   * Test database connection
-   */
-  private async testConnection(): Promise<void> {
-    const client = await this.getClient();
-    try {
-      await client.query('SELECT 1');
-      this.logger.log('Database connection test successful');
-    } finally {
-      this.releaseClient(client);
-    }
-  }
-
-  /**
-   * Get a client from the pool
-   */
-  async getClient(): Promise<PoolClient> {
-    try {
-      this.connectionMetrics.waitingClients++;
-      const startTime = performance.now();
-
-      const client = await this.pool.connect();
-
-      const endTime = performance.now();
-      this.connectionMetrics.waitingClients--;
-
-      this.logger.debug(`Acquired client in ${(endTime - startTime).toFixed(2)}ms`);
-
-      return client;
-    } catch (err) {
-      this.connectionMetrics.waitingClients--;
-      this.logger.error(`Error acquiring client from pool: ${err.message}`);
-      throw err;
-    }
-  }
-
-  /**
-   * Release a client back to the pool
-   */
-  releaseClient(client: PoolClient): void {
-    try {
-      client.release();
-    } catch (err) {
-      this.logger.error(`Error releasing client: ${err.message}`);
-    }
-  }
-
-  /**
-   * Execute a query with connection pooling
-   */
-  async query<T = any>(text: string, params?: any[]): Promise<QueryResult<T>> {
-    const client = await this.getClient();
-    const startTime = performance.now();
-
-    try {
-      this.connectionMetrics.queryCount++;
-      const result = await client.query<T>(text, params);
-      return result;
-    } catch (err) {
-      this.logger.error(`Query error: ${err.message}\nQuery: ${text}\nParams: ${JSON.stringify(params)}`);
-      throw err;
-    } finally {
-      const endTime = performance.now();
-      this.connectionMetrics.queryTime += endTime - startTime;
-      this.releaseClient(client);
-
-      this.logger.debug(`Query executed in ${(endTime - startTime).toFixed(2)}ms`);
-    }
-  }
-
-  /**
-   * Execute a transaction
-   */
-  async transaction<T>(callback: (client: PoolClient) => Promise<T>): Promise<T> {
-    const client = await this.getClient();
-    try {
-      await client.query('BEGIN');
-      const result = await callback(client);
-      await client.query('COMMIT');
-      return result;
-    } catch (err) {
-      await client.query('ROLLBACK');
-      this.logger.error(`Transaction error: ${err.message}`);
-      throw err;
-    } finally {
-      this.releaseClient(client);
-    }
-  }
-
-  /**
-   * Get connection pool statistics
-   */
-  getPoolStats(): any {
-    return {
-      totalConnections: this.connectionMetrics.totalConnections,
-      activeConnections: this.connectionMetrics.activeConnections,
-      idleConnections: this.connectionMetrics.idleConnections,
-      waitingClients: this.connectionMetrics.waitingClients,
-      queryCount: this.connectionMetrics.queryCount,
-      avgQueryTime: this.connectionMetrics.queryCount > 0
-        ? this.connectionMetrics.queryTime / this.connectionMetrics.queryCount
-        : 0,
-      poolSize: this.pool ? this.pool.totalCount : 0,
-      poolAvailable: this.pool ? this.pool.idleCount : 0,
-      poolWaiting: this.pool ? this.pool.waitingCount : 0
-    };
-  }
-
-  /**
-   * Get connection pool status
-   */
-  getPoolStatus(): string {
-    const stats = this.getPoolStats();
-    return `Pool: ${stats.poolSize} total, ${stats.poolAvailable} available, ${stats.poolWaiting} waiting | ` +
-           `Connections: ${stats.totalConnections} total, ${stats.activeConnections} active, ${stats.idleConnections} idle | ` +
-           `Queries: ${stats.queryCount} total, ${stats.avgQueryTime.toFixed(2)}ms avg`;
-  }
-
-  /**
-   * Check if pool is healthy
-   */
-  isPoolHealthy(): boolean {
-    const stats = this.getPoolStats();
-    return stats.poolSize > 0 &&
-           stats.poolAvailable >= ConnectionPoolConfig.MIN_AVAILABLE_CONNECTIONS &&
-           stats.poolWaiting <= ConnectionPoolConfig.MAX_WAITING_CLIENTS;
-  }
-
-  /**
-   * Get connection pool metrics for monitoring
-   */
-  getMetrics(): any {
-    const stats = this.getPoolStats();
-    return {
-      db_pool_total_connections: stats.totalConnections,
-      db_pool_active_connections: stats.activeConnections,
-      db_pool_idle_connections: stats.idleConnections,
-      db_pool_waiting_clients: stats.waitingClients,
-      db_pool_size: stats.poolSize,
-      db_pool_available: stats.poolAvailable,
-      db_pool_waiting: stats.poolWaiting,
-      db_queries_total: stats.queryCount,
-      db_query_avg_time_ms: stats.avgQueryTime,
-      db_pool_healthy: this.isPoolHealthy() ? 1 : 0
-    };
-  }
-
-  /**
-   * Execute a batch of queries in a transaction
-   */
-  async batchQuery(queries: { text: string; params?: any[] }[]): Promise<QueryResult[]> {
-    return this.transaction(async (client) => {
-      const results: QueryResult[] = [];
-
-      for (const query of queries) {
-        const result = await client.query(query.text, query.params);
-        results.push(result);
-      }
-
-      return results;
-    });
-  }
-
-  /**
-   * Execute a query with retry logic
-   */
-  async queryWithRetry<T = any>(
-    text: string,
-    params?: any[],
-    maxRetries: number = ConnectionPoolConfig.DEFAULT_MAX_RETRIES,
-    retryDelay: number = ConnectionPoolConfig.DEFAULT_RETRY_DELAY
-  ): Promise<QueryResult<T>> {
-    let lastError: Error;
-
-    for (let i = 0; i < maxRetries; i++) {
-      try {
-        return await this.query<T>(text, params);
-      } catch (err) {
-        lastError = err;
-        this.logger.warn(`Query attempt ${i + 1} failed: ${err.message}. Retrying in ${retryDelay}ms...`);
-        await new Promise(resolve => setTimeout(resolve, retryDelay));
-        retryDelay *= 2; // Exponential backoff
-      }
-    }
-
-    this.logger.error(`Query failed after ${maxRetries} attempts: ${lastError.message}`);
-    throw lastError;
-  }
-
-  /**
-   * Execute a query with timeout
-   */
-  async queryWithTimeout<T = any>(
-    text: string,
-    params?: any[],
-    timeout: number = ConnectionPoolConfig.DEFAULT_QUERY_TIMEOUT
-  ): Promise<QueryResult<T>> {
-    const client = await this.getClient();
-
-    try {
-      // Set statement timeout
-      await client.query(`SET statement_timeout TO ${timeout}`);
-
-      const result = await client.query<T>(text, params);
-      return result;
-    } catch (err) {
-      if (err.message.includes('canceling statement due to statement timeout')) {
-        this.logger.error(`Query timeout after ${timeout}ms: ${text}`);
-        throw new Error(`Query timeout after ${timeout}ms`);
-      }
-      throw err;
-    } finally {
-      // Reset statement timeout
-      await client.query('SET statement_timeout TO 0');
-      this.releaseClient(client);
-    }
-  }
-
-  /**
-   * Get a client with specific settings
-   */
-  async getClientWithSettings(settings: Record<string, any>): Promise<PoolClient> {
-    const client = await this.getClient();
-
-    try {
-      // Apply settings
-      for (const [key, value] of Object.entries(settings)) {
-        await client.query(`SET ${key} TO ${value}`);
-      }
-
-      return client;
-    } catch (err) {
-      this.releaseClient(client);
-      throw err;
-    }
-  }
-}
-```
-
----
-
-## Real-Time Features (350+ lines)
-
-### WebSocket Server Setup
-
-```typescript
-// src/websocket/websocket.gateway.ts
-import {
-  WebSocketGateway,
-  WebSocketServer,
-  OnGatewayInit,
-  OnGatewayConnection,
-  OnGatewayDisconnect,
-  SubscribeMessage,
-  MessageBody,
-  ConnectedSocket
-} from '@nestjs/websockets';
-import { Server, Socket } from 'socket.io';
-import { Injectable, Logger } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
-import { WebSocketConfig } from '../config/websocket.config';
-import { AuthService } from '../auth/auth.service';
-import { UserService } from '../user/user.service';
-import { DocumentService } from '../document/document.service';
-import { WebSocketEvent } from '../enums/websocket-event.enum';
-import { WebSocketMessage } from '../interfaces/websocket-message.interface';
-import { WebSocketRoom } from '../enums/websocket-room.enum';
-import { RateLimiterMemory } from 'rate-limiter-flexible';
-import { WebSocketError } from '../enums/websocket-error.enum';
-import { WebSocketAuthMiddleware } from './websocket-auth.middleware';
-import { WebSocketThrottlerGuard } from './websocket-throttler.guard';
-import { UseGuards } from '@nestjs/common';
-import { DocumentEvent } from '../interfaces/document-event.interface';
-import { UserEvent } from '../interfaces/user-event.interface';
-import { SystemEvent } from '../interfaces/system-event.interface';
-
-@WebSocketGateway({
-  cors: {
-    origin: WebSocketConfig.ALLOWED_ORIGINS,
-    methods: ['GET', 'POST'],
-    credentials: true
-  },
-  transports: ['websocket', 'polling'],
-  pingInterval: WebSocketConfig.PING_INTERVAL,
-  pingTimeout: WebSocketConfig.PING_TIMEOUT,
-  maxHttpBufferSize: WebSocketConfig.MAX_MESSAGE_SIZE,
-  path: WebSocketConfig.PATH
-})
-@Injectable()
-export class WebSocketGatewayService implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect {
-  @WebSocketServer() server: Server;
-  private readonly logger = new Logger(WebSocketGatewayService.name);
-  private readonly rateLimiter: RateLimiterMemory;
-  private readonly authMiddleware: WebSocketAuthMiddleware;
-  private readonly throttlerGuard: WebSocketThrottlerGuard;
-
-  constructor(
-    private configService: ConfigService,
-    private authService: AuthService,
-    private userService: UserService,
-    private documentService: DocumentService
-  ) {
-    // Initialize rate limiter
-    this.rateLimiter = new RateLimiterMemory({
-      points: WebSocketConfig.RATE_LIMIT_POINTS,
-      duration: WebSocketConfig.RATE_LIMIT_DURATION
-    });
-
-    // Initialize middleware and guard
-    this.authMiddleware = new WebSocketAuthMiddleware(authService);
-    this.throttlerGuard = new WebSocketThrottlerGuard(this.rateLimiter);
-  }
-
-  afterInit(server: Server) {
-    this.logger.log('WebSocket Gateway initialized');
-
-    // Apply authentication middleware
-    server.use(this.authMiddleware.use.bind(this.authMiddleware));
-
-    // Set up server event listeners
-    this.setupServerEventListeners();
-  }
-
-  handleConnection(client: Socket, ...args: any[]) {
-    this.logger.log(`Client connected: ${client.id}`);
-    this.logger.debug(`Connection details: ${JSON.stringify({
-      id: client.id,
-      handshake: client.handshake,
-      rooms: Array.from(client.rooms)
-    })}`);
-
-    // Send welcome message
-    this.sendToClient(client, WebSocketEvent.CONNECTED, {
-      message: 'Connected to Document Management System',
-      serverVersion: this.configService.get<string>('APP_VERSION'),
-      timestamp: new Date().toISOString()
-    });
-
-    // Join default rooms
-    this.joinDefaultRooms(client);
-  }
-
-  handleDisconnect(client: Socket) {
-    this.logger.log(`Client disconnected: ${client.id}`);
-
-    // Leave all rooms
-    this.leaveAllRooms(client);
-  }
-
-  /**
-   * Set up server event listeners
-   */
-  private setupServerEventListeners() {
-    this.server.on('error', (error) => {
-      this.logger.error(`WebSocket server error: ${error.message}`);
-    });
-
-    this.server.on('new_namespace', (namespace) => {
-      this.logger.debug(`New namespace created: ${namespace.name}`);
-    });
-
-    // Set up periodic health checks
-    setInterval(() => {
-      this.checkServerHealth();
-    }, WebSocketConfig.HEALTH_CHECK_INTERVAL);
-  }
-
-  /**
-   * Check WebSocket server health
-   */
-  private checkServerHealth() {
-    const stats = this.getServerStats();
-    this.logger.debug(`WebSocket server health: ${JSON.stringify(stats)}`);
-
-    // Check for potential issues
-    if (stats.connectedClients > WebSocketConfig.MAX_CONNECTED_CLIENTS * 0.9) {
-      this.logger.warn(`High client load: ${stats.connectedClients}/${WebSocketConfig.MAX_CONNECTED_CLIENTS}`);
-    }
-
-    if (stats.rooms > WebSocketConfig.MAX_ROOMS * 0.8) {
-      this.logger.warn(`High room count: ${stats.rooms}/${WebSocketConfig.MAX_ROOMS}`);
-    }
-  }
-
-  /**
-   * Join default rooms for new client
-   */
-  private joinDefaultRooms(client: Socket) {
-    // Join user-specific room
-    if (client.data.user) {
-      client.join(this.getUserRoom(client.data.user.id));
-    }
-
-    // Join system notification room
-    client.join(WebSocketRoom.SYSTEM_NOTIFICATIONS);
-
-    // Join global room
-    client.join(WebSocketRoom.GLOBAL);
-  }
-
-  /**
-   * Leave all rooms for client
-   */
-  private leaveAllRooms(client: Socket) {
-    for (const room of client.rooms) {
-      if (room !== client.id) { // Don't leave the default room (client.id)
-        client.leave(room);
-      }
-    }
-  }
-
-  /**
-   * Get room name for user
-   */
-  private getUserRoom(userId: string): string {
-    return `${WebSocketRoom.USER_PREFIX}${userId}`;
-  }
-
-  /**
-   * Get room name for document
-   */
-  private getDocumentRoom(documentId: string): string {
-    return `${WebSocketRoom.DOCUMENT_PREFIX}${documentId}`;
-  }
-
-  /**
-   * Get room name for team
-   */
-  private getTeamRoom(teamId: string): string {
-    return `${WebSocketRoom.TEAM_PREFIX}${teamId}`;
-  }
-
-  /**
-   * Send message to client
-   */
-  private sendToClient(client: Socket, event: WebSocketEvent, data: any): void {
-    try {
-      client.emit(event, this.createMessage(event, data));
-    } catch (err) {
-      this.logger.error(`Error sending message to client ${client.id}: ${err.message}`);
-    }
-  }
-
-  /**
-   * Send message to room
-   */
-  private sendToRoom(room: string, event: WebSocketEvent, data: any, except?: string): void {
-    try {
-      if (except) {
-        this.server.to(room).except(except).emit(event, this.createMessage(event, data));
-      } else {
-        this.server.to(room).emit(event, this.createMessage(event, data));
-      }
-    } catch (err) {
-      this.logger.error(`Error sending message to room ${room}: ${err.message}`);
-    }
-  }
-
-  /**
-   * Send message to all clients
-   */
-  private broadcast(event: WebSocketEvent, data: any, except?: string): void {
-    try {
-      if (except) {
-        this.server.except(except).emit(event, this.createMessage(event, data));
-      } else {
-        this.server.emit(event, this.createMessage(event, data));
-      }
-    } catch (err) {
-      this.logger.error(`Error broadcasting message: ${err.message}`);
-    }
-  }
-
-  /**
-   * Create standardized WebSocket message
-   */
-  private createMessage(event: WebSocketEvent, data: any): WebSocketMessage {
-    return {
-      event,
-      data,
-      timestamp: new Date().toISOString(),
-      serverVersion: this.configService.get<string>('APP_VERSION')
-    };
-  }
-
-  /**
-   * Handle document events
-   */
-  @SubscribeMessage(WebSocketEvent.DOCUMENT_EVENT)
-  @UseGuards(WebSocketThrottlerGuard)
-  async handleDocumentEvent(
-    @MessageBody() event: DocumentEvent,
-    @ConnectedSocket() client: Socket
+  async getDocumentsForLegalHoldCheck(): Promise<Document[]> {
+    return this.createQueryBuilder('document')
+      .where('document.retentionPolicy->>\'legalHold\' = :legalHold', { legalHold: 'true' })
+      .andWhere('document.status != :status', { status: DocumentStatus.DELETED })
+      .getMany();
+  }
+
+  async updateDocumentStatusBulk(
+    ids: string[],
+    status: DocumentStatus
   ): Promise<void> {
-    try {
-      this.logger.debug(`Document event received from ${client.id}: ${JSON.stringify(event)}`);
-
-      // Validate event
-      if (!this.isValidDocumentEvent(event)) {
-        this.sendError(client, WebSocketError.INVALID_EVENT, 'Invalid document event');
-        return;
-      }
-
-      // Process event based on type
-      switch (event.type) {
-        case 'create':
-          await this.handleDocumentCreate(event, client);
-          break;
-        case 'update':
-          await this.handleDocumentUpdate(event, client);
-          break;
-        case 'delete':
-          await this.handleDocumentDelete(event, client);
-          break;
-        case 'share':
-          await this.handleDocumentShare(event, client);
-          break;
-        case 'comment':
-          await this.handleDocumentComment(event, client);
-          break;
-        case 'collaborator_add':
-          await this.handleCollaboratorAdd(event, client);
-          break;
-        case 'collaborator_remove':
-          await this.handleCollaboratorRemove(event, client);
-          break;
-        case 'version_create':
-          await this.handleVersionCreate(event, client);
-          break;
-        case 'lock':
-          await this.handleDocumentLock(event, client);
-          break;
-        case 'unlock':
-          await this.handleDocumentUnlock(event, client);
-          break;
-      }
-    } catch (err) {
-      this.logger.error(`Error handling document event: ${err.message}`);
-      this.sendError(client, WebSocketError.INTERNAL_ERROR, 'Failed to process document event');
-    }
-  }
-
-  /**
-   * Handle document create event
-   */
-  private async handleDocumentCreate(event: DocumentEvent, client: Socket): Promise<void> {
-    // Validate document
-    const document = await this.documentService.getDocumentById(event.documentId);
-    if (!document) {
-      this.sendError(client, WebSocketError.DOCUMENT_NOT_FOUND, 'Document not found');
-      return;
-    }
-
-    // Check permissions
-    if (document.ownerId !== client.data.user.id) {
-      this.sendError(client, WebSocketError.PERMISSION_DENIED, 'Only document owner can create document events');
-      return;
-    }
-
-    // Join document room
-    client.join(this.getDocumentRoom(event.documentId));
-
-    // Broadcast to user's room
-    this.sendToRoom(this.getUserRoom(client.data.user.id), WebSocketEvent.DOCUMENT_CREATED, {
-      documentId: event.documentId,
-      document: this.sanitizeDocument(document),
-      timestamp: new Date().toISOString()
-    }, client.id);
-
-    // Broadcast to global room
-    this.broadcast(WebSocketEvent.DOCUMENT_CREATED, {
-      documentId: event.documentId,
-      ownerId: document.ownerId,
-      documentType: document.documentType,
-      timestamp: new Date().toISOString()
-    }, client.id);
-  }
-
-  /**
-   * Handle document update event
-   */
-  private async handleDocumentUpdate(event: DocumentEvent, client: Socket): Promise<void> {
-    // Check if client is in document room
-    if (!client.rooms.has(this.getDocumentRoom(event.documentId))) {
-      this.sendError(client, WebSocketError.PERMISSION_DENIED, 'Not subscribed to document updates');
-      return;
-    }
-
-    // Get document
-    const document = await this.documentService.getDocumentById(event.documentId);
-    if (!document) {
-      this.sendError(client, WebSocketError.DOCUMENT_NOT_FOUND, 'Document not found');
-      return;
-    }
-
-    // Check permissions
-    const hasPermission = await this.documentService.hasEditPermission(
-      event.documentId,
-      client.data.user.id
-    );
-
-    if (!hasPermission) {
-      this.sendError(client, WebSocketError.PERMISSION_DENIED, 'No edit permission for document');
-      return;
-    }
-
-    // Broadcast to document room
-    this.sendToRoom(this.getDocumentRoom(event.documentId), WebSocketEvent.DOCUMENT_UPDATED, {
-      documentId: event.documentId,
-      changes: event.changes,
-      updatedBy: client.data.user.id,
-      timestamp: new Date().toISOString()
-    }, client.id);
-  }
-
-  /**
-   * Handle document delete event
-   */
-  private async handleDocumentDelete(event: DocumentEvent, client: Socket): Promise<void> {
-    // Get document
-    const document = await this.documentService.getDocumentById(event.documentId);
-    if (!document) {
-      this.sendError(client, WebSocketError.DOCUMENT_NOT_FOUND, 'Document not found');
-      return;
-    }
-
-    // Check permissions
-    if (document.ownerId !== client.data.user.id) {
-      this.sendError(client, WebSocketError.PERMISSION_DENIED, 'Only document owner can delete document');
-      return;
-    }
-
-    // Broadcast to document room
-    this.sendToRoom(this.getDocumentRoom(event.documentId), WebSocketEvent.DOCUMENT_DELETED, {
-      documentId: event.documentId,
-      timestamp: new Date().toISOString()
-    });
-
-    // Broadcast to user's room
-    this.sendToRoom(this.getUserRoom(client.data.user.id), WebSocketEvent.DOCUMENT_DELETED, {
-      documentId: event.documentId,
-      timestamp: new Date().toISOString()
-    });
-
-    // Leave document room
-    client.leave(this.getDocumentRoom(event.documentId));
-  }
-
-  /**
-   * Handle document share event
-   */
-  private async handleDocumentShare(event: DocumentEvent, client: Socket): Promise<void> {
-    // Get document
-    const document = await this.documentService.getDocumentById(event.documentId);
-    if (!document) {
-      this.sendError(client, WebSocketError.DOCUMENT_NOT_FOUND, 'Document not found');
-      return;
-    }
-
-    // Check permissions
-    if (document.ownerId !== client.data.user.id) {
-      this.sendError(client, WebSocketError.PERMISSION_DENIED, 'Only document owner can share document');
-      return;
-    }
-
-    // Get shared users
-    const sharedUsers = await this.documentService.getDocumentCollaborators(event.documentId);
-
-    // Notify shared users
-    for (const user of sharedUsers) {
-      if (user.id !== client.data.user.id) {
-        this.sendToRoom(this.getUserRoom(user.id), WebSocketEvent.DOCUMENT_SHARED, {
-          documentId: event.documentId,
-          documentName: document.title,
-          sharedBy: client.data.user.id,
-          sharedWith: user.id,
-          permissions: event.permissions,
-          timestamp: new Date().toISOString()
-        });
-      }
-    }
-
-    // Broadcast to document room
-    this.sendToRoom(this.getDocumentRoom(event.documentId), WebSocketEvent.DOCUMENT_SHARED, {
-      documentId: event.documentId,
-      sharedBy: client.data.user.id,
-      permissions: event.permissions,
-      timestamp: new Date().toISOString()
-    });
-  }
-
-  /**
-   * Handle document comment event
-   */
-  private async handleDocumentComment(event: DocumentEvent, client: Socket): Promise<void> {
-    // Check if client is in document room
-    if (!client.rooms.has(this.getDocumentRoom(event.documentId))) {
-      this.sendError(client, WebSocketError.PERMISSION_DENIED, 'Not subscribed to document updates');
-      return;
-    }
-
-    // Get document
-    const document = await this.documentService.getDocumentById(event.documentId);
-    if (!document) {
-      this.sendError(client, WebSocketError.DOCUMENT_NOT_FOUND, 'Document not found');
-      return;
-    }
-
-    // Check permissions
-    const hasPermission = await this.documentService.hasCommentPermission(
-      event.documentId,
-      client.data.user.id
-    );
-
-    if (!hasPermission) {
-      this.sendError(client, WebSocketError.PERMISSION_DENIED, 'No comment permission for document');
-      return;
-    }
-
-    // Broadcast to document room
-    this.sendToRoom(this.getDocumentRoom(event.documentId), WebSocketEvent.DOCUMENT_COMMENT, {
-      documentId: event.documentId,
-      commentId: event.commentId,
-      comment: event.comment,
-      commentedBy: client.data.user.id,
-      timestamp: new Date().toISOString()
-    }, client.id);
-  }
-
-  /**
-   * Handle collaborator add event
-   */
-  private async handleCollaboratorAdd(event: DocumentEvent, client: Socket): Promise<void> {
-    // Get document
-    const document = await this.documentService.getDocumentById(event.documentId);
-    if (!document) {
-      this.sendError(client, WebSocketError.DOCUMENT_NOT_FOUND, 'Document not found');
-      return;
-    }
-
-    // Check permissions
-    if (document.ownerId !== client.data.user.id) {
-      this.sendError(client, WebSocketError.PERMISSION_DENIED, 'Only document owner can add collaborators');
-      return;
-    }
-
-    // Notify added collaborator
-    this.sendToRoom(this.getUserRoom(event.collaboratorId), WebSocketEvent.COLLABORATOR_ADDED, {
-      documentId: event.documentId,
-      documentName: document.title,
-      addedBy: client.data.user.id,
-      permissions: event.permissions,
-      timestamp: new Date().toISOString()
-    });
-
-    // Broadcast to document room
-    this.sendToRoom(this.getDocumentRoom(event.documentId), WebSocketEvent.COLLABORATOR_ADDED, {
-      documentId: event.documentId,
-      collaboratorId: event.collaboratorId,
-      addedBy: client.data.user.id,
-      permissions: event.permissions,
-      timestamp: new Date().toISOString()
-    });
-  }
-
-  /**
-   * Handle collaborator remove event
-   */
-  private async handleCollaboratorRemove(event: DocumentEvent, client: Socket): Promise<void> {
-    // Get document
-    const document = await this.documentService.getDocumentById(event.documentId);
-    if (!document) {
-      this.sendError(client, WebSocketError.DOCUMENT_NOT_FOUND, 'Document not found');
-      return;
-    }
-
-    // Check permissions
-    if (document.ownerId !== client.data.user.id) {
-      this.sendError(client, WebSocketError.PERMISSION_DENIED, 'Only document owner can remove collaborators');
-      return;
-    }
-
-    // Notify removed collaborator
-    this.sendToRoom(this.getUserRoom(event.collaboratorId), WebSocketEvent.COLLABORATOR_REMOVED, {
-      documentId: event.documentId,
-      documentName: document.title,
-      removedBy: client.data.user.id,
-      timestamp: new Date().toISOString()
-    });
-
-    // Broadcast to document room
-    this.sendToRoom(this.getDocumentRoom(event.documentId), WebSocketEvent.COLLABORATOR_REMOVED, {
-      documentId: event.documentId,
-      collaboratorId: event.collaboratorId,
-      removedBy: client.data.user.id,
-      timestamp: new Date().toISOString()
-    });
-
-    // Remove collaborator from document room
-    this.server.socketsLeave(this.getDocumentRoom(event.documentId));
-  }
-
-  /**
-   * Handle document version create event
-   */
-  private async handleVersionCreate(event: DocumentEvent, client: Socket): Promise<void> {
-    // Check if client is in document room
-    if (!client.rooms.has(this.getDocumentRoom(event.documentId))) {
-      this.sendError(client, WebSocketError.PERMISSION_DENIED, 'Not subscribed to document updates');
-      return;
-    }
-
-    // Get document
-    const document = await this.documentService.getDocumentById(event.documentId);
-    if (!document) {
-      this.sendError(client, WebSocketError.DOCUMENT_NOT_FOUND, 'Document not found');
-      return;
-    }
-
-    // Check permissions
-    const hasPermission = await this.documentService.hasEditPermission(
-      event.documentId,
-      client.data.user.id
-    );
-
-    if (!hasPermission) {
-      this.sendError(client, WebSocketError.PERMISSION_DENIED, 'No edit permission for document');
-      return;
-    }
-
-    // Broadcast to document room
-    this.sendToRoom(this.getDocumentRoom(event.documentId), WebSocketEvent.DOCUMENT_VERSION_CREATED, {
-      documentId: event.documentId,
-      versionId: event.versionId,
-      createdBy: client.data.user.id,
-      timestamp: new Date().toISOString()
-    });
-  }
-
-  /**
-   * Handle document lock event
-   */
-  private async handleDocumentLock(event: DocumentEvent, client: Socket): Promise<void> {
-    // Check if client is in document room
-    if (!client.rooms.has(this.getDocumentRoom(event.documentId))) {
-      this.sendError(client, WebSocketError.PERMISSION_DENIED, 'Not subscribed to document updates');
-      return;
-    }
-
-    // Get document
-    const document = await this.documentService.getDocumentById(event.documentId);
-    if (!document) {
-      this.sendError(client, WebSocketError.DOCUMENT_NOT_FOUND, 'Document not found');
-      return;
-    }
-
-    // Check permissions
-    const hasPermission = await this.documentService.hasEditPermission(
-      event.documentId,
-      client.data.user.id
-    );
-
-    if (!hasPermission) {
-      this.sendError(client, WebSocketError.PERMISSION_DENIED, 'No edit permission for document');
-      return;
-    }
-
-    // Broadcast to document room
-    this.sendToRoom(this.getDocumentRoom(event.documentId), WebSocketEvent.DOCUMENT_LOCKED, {
-      documentId: event.documentId,
-      lockedBy: client.data.user.id,
-      timestamp: new Date().toISOString()
-    });
-  }
-
-  /**
-   * Handle document unlock event
-   */
-  private async handleDocumentUnlock(event: DocumentEvent, client: Socket): Promise<void> {
-    // Check if client is in document room
-    if (!client.rooms.has(this.getDocumentRoom(event.documentId))) {
-      this.sendError(client, WebSocketError.PERMISSION_DENIED, 'Not subscribed to document updates');
-      return;
-    }
-
-    // Get document
-    const document = await this.documentService.getDocumentById(event.documentId);
-    if (!document) {
-      this.sendError(client, WebSocketError.DOCUMENT_NOT_FOUND, 'Document not found');
-      return;
-    }
-
-    // Check if document is locked by current user
-    const isLockedByUser = await this.documentService.isDocumentLockedByUser(
-      event.documentId,
-      client.data.user.id
-    );
-
-    if (!isLockedByUser) {
-      this.sendError(client, WebSocketError.PERMISSION_DENIED, 'Document is not locked by you');
-      return;
-    }
-
-    // Broadcast to document room
-    this.sendToRoom(this.getDocumentRoom(event.documentId), WebSocketEvent.DOCUMENT_UNLOCKED, {
-      documentId: event.documentId,
-      unlockedBy: client.data.user.id,
-      timestamp: new Date().toISOString()
-    });
-  }
-
-  /**
-   * Handle user events
-   */
-  @SubscribeMessage(WebSocketEvent.USER_EVENT)
-  @UseGuards(WebSocketThrottlerGuard)
-  async handleUserEvent(
-    @MessageBody() event: UserEvent,
-    @ConnectedSocket() client: Socket
-  ): Promise<void> {
-    try {
-      this.logger.debug(`User event received from ${client.id}: ${JSON.stringify(event)}`);
-
-      // Validate event
-      if (!this.isValidUserEvent(event)) {
-        this.sendError(client, WebSocketError.INVALID_EVENT, 'Invalid user event');
-        return;
-      }
-
-      // Process event based on type
-      switch (event.type) {
-        case 'status_update':
-          await this.handleUserStatusUpdate(event, client);
-          break;
-        case 'presence_update':
-          await this.handleUserPresenceUpdate(event, client);
-          break;
-        case 'activity_update':
-          await this.handleUserActivityUpdate(event, client);
-          break;
-      }
-    } catch (err) {
-      this.logger.error(`Error handling user event: ${err.message}`);
-      this.sendError(client, WebSocketError.INTERNAL_ERROR, 'Failed to process user event');
-    }
-  }
-
-  /**
-   * Handle user status update
-   */
-  private async handleUserStatusUpdate(event: UserEvent, client: Socket): Promise<void> {
-    // Update user status
-    await this.userService.updateUserStatus(client.data.user.id, event.status);
-
-    // Broadcast to user's room
-    this.sendToRoom(this.getUserRoom(client.data.user.id), WebSocketEvent.USER_STATUS_UPDATED, {
-      userId: client.data.user.id,
-      status: event.status,
-      timestamp: new Date().toISOString()
-    }, client.id);
-
-    // Broadcast to team rooms if applicable
-    if (event.teamIds && event.teamIds.length > 0) {
-      for (const teamId of event.teamIds) {
-        this.sendToRoom(this.getTeamRoom(teamId), WebSocketEvent.USER_STATUS_UPDATED, {
-          userId: client.data.user.id,
-          status: event.status,
-          teamId,
-          timestamp: new Date().toISOString()
-        });
-      }
-    }
-  }
-
-  /**
-   * Handle user presence update
-   */
-  private async handleUserPresenceUpdate(event: UserEvent, client: Socket): Promise<void> {
-    // Update user presence
-    await this.userService.updateUserPresence(client.data.user.id, event.presence);
-
-    // Broadcast to user's room
-    this.sendToRoom(this.getUserRoom(client.data.user.id), WebSocketEvent.USER_PRESENCE_UPDATED, {
-      userId: client.data.user.id,
-      presence: event.presence,
-      lastActive: new Date().toISOString(),
-      timestamp: new Date().toISOString()
-    }, client.id);
-  }
-
-  /**
-   * Handle user activity update
-   */
-  private async handleUserActivityUpdate(event: UserEvent, client: Socket): Promise<void> {
-    // Record user activity
-    await this.userService.recordUserActivity(client.data.user.id, event.activity);
-
-    // Broadcast to user's room
-    this.sendToRoom(this.getUserRoom(client.data.user.id), WebSocketEvent.USER_ACTIVITY_UPDATED, {
-      userId: client.data.user.id,
-      activity: event.activity,
-      timestamp: new Date().toISOString()
-    }, client.id);
-  }
-
-  /**
-   * Handle system events
-   */
-  @SubscribeMessage(WebSocketEvent.SYSTEM_EVENT)
-  @UseGuards(WebSocketThrottlerGuard)
-  async handleSystemEvent(
-    @MessageBody() event: SystemEvent,
-    @ConnectedSocket() client: Socket
-  ): Promise<void> {
-    try {
-      this.logger.debug(`System event received from ${client.id}: ${JSON.stringify(event)}`);
-
-      // Validate event
-      if (!this.isValidSystemEvent(event)) {
-        this.sendError(client, WebSocketError.INVALID_EVENT, 'Invalid system event');
-        return;
-      }
-
-      // Process event based on type
-      switch (event.type) {
-        case 'maintenance':
-          await this.handleMaintenanceEvent(event, client);
-          break;
-        case 'notification':
-          await this.handleSystemNotification(event, client);
-          break;
-        case 'announcement':
-          await this.handleSystemAnnouncement(event, client);
-          break;
-      }
-    } catch (err) {
-      this.logger.error(`Error handling system event: ${err.message}`);
-      this.sendError(client, WebSocketError.INTERNAL_ERROR, 'Failed to process system event');
-    }
-  }
-
-  /**
-   * Handle maintenance event
-   */
-  private async handleMaintenanceEvent(event: SystemEvent, client: Socket): Promise<void> {
-    // Check if user is admin
-    const isAdmin = await this.userService.isAdmin(client.data.user.id);
-    if (!isAdmin) {
-      this.sendError(client, WebSocketError.PERMISSION_DENIED, 'Only admins can send maintenance events');
-      return;
-    }
-
-    // Broadcast to system notification room
-    this.sendToRoom(WebSocketRoom.SYSTEM_NOTIFICATIONS, WebSocketEvent.SYSTEM_MAINTENANCE, {
-      type: event.maintenanceType,
-      startTime: event.startTime,
-      endTime: event.endTime,
-      message: event.message,
-      timestamp: new Date().toISOString()
-    });
-  }
-
-  /**
-   * Handle system notification
-   */
-  private async handleSystemNotification(event: SystemEvent, client: Socket): Promise<void> {
-    // Check if user is admin
-    const isAdmin = await this.userService.isAdmin(client.data.user.id);
-    if (!isAdmin) {
-      this.sendError(client, WebSocketError.PERMISSION_DENIED, 'Only admins can send system notifications');
-      return;
-    }
-
-    // Broadcast to system notification room
-    this.sendToRoom(WebSocketRoom.SYSTEM_NOTIFICATIONS, WebSocketEvent.SYSTEM_NOTIFICATION, {
-      notificationId: event.notificationId,
-      title: event.title,
-      message: event.message,
-      severity: event.severity,
-      timestamp: new Date().toISOString()
-    });
-  }
-
-  /**
-   * Handle system announcement
-   */
-  private async handleSystemAnnouncement(event: SystemEvent, client: Socket): Promise<void> {
-    // Check if user is admin
-    const isAdmin = await this.userService.isAdmin(client.data.user.id);
-    if (!isAdmin) {
-      this.sendError(client, WebSocketError.PERMISSION_DENIED, 'Only admins can send system announcements');
-      return;
-    }
-
-    // Broadcast to global room
-    this.broadcast(WebSocketEvent.SYSTEM_ANNOUNCEMENT, {
-      announcementId: event.announcementId,
-      title: event.title,
-      message: event.message,
-      author: client.data.user.id,
-      timestamp: new Date().toISOString()
-    });
-  }
-
-  /**
-   * Subscribe to document updates
-   */
-  @SubscribeMessage(WebSocketEvent.SUBSCRIBE_DOCUMENT)
-  async handleSubscribeDocument(
-    @MessageBody() documentId: string,
-    @ConnectedSocket() client: Socket
-  ): Promise<void> {
-    try {
-      this.logger.debug(`Client ${client.id} subscribing to document ${documentId}`);
-
-      // Check if document exists
-      const document = await this.documentService.getDocumentById(documentId);
-      if (!document) {
-        this.sendError(client, WebSocketError.DOCUMENT_NOT_FOUND, 'Document not found');
-        return;
-      }
-
-      // Check permissions
-      const hasPermission = await this.documentService.hasViewPermission(
-        documentId,
-        client.data.user.id
-      );
-
-      if (!hasPermission) {
-        this.sendError(client, WebSocketError.PERMISSION_DENIED, 'No permission to view document');
-        return;
-      }
-
-      // Join document room
-      client.join(this.getDocumentRoom(documentId));
-
-      // Send success response
-      this.sendToClient(client, WebSocketEvent.SUBSCRIBED_DOCUMENT, {
-        documentId,
-        message: 'Successfully subscribed to document updates',
-        timestamp: new Date().toISOString()
-      });
-
-      // Send current document state
-      this.sendToClient(client, WebSocketEvent.DOCUMENT_STATE, {
-        documentId,
-        document: this.sanitizeDocument(document),
-        timestamp: new Date().toISOString()
-      });
-    } catch (err) {
-      this.logger.error(`Error subscribing to document ${documentId}: ${err.message}`);
-      this.sendError(client, WebSocketError.INTERNAL_ERROR, 'Failed to subscribe to document');
-    }
-  }
-
-  /**
-   * Unsubscribe from document updates
-   */
-  @SubscribeMessage(WebSocketEvent.UNSUBSCRIBE_DOCUMENT)
-  async handleUnsubscribeDocument(
-    @MessageBody() documentId: string,
-    @ConnectedSocket() client: Socket
-  ): Promise<void> {
-    try {
-      this.logger.debug(`Client ${client.id} unsubscribing from document ${documentId}`);
-
-      // Leave document room
-      client.leave(this.getDocumentRoom(documentId));
-
-      // Send success response
-      this.sendToClient(client, WebSocketEvent.UNSUBSCRIBED_DOCUMENT, {
-        documentId,
-        message: 'Successfully unsubscribed from document updates',
-        timestamp: new Date().toISOString()
-      });
-    } catch (err) {
-      this.logger.error(`Error unsubscribing from document ${documentId}: ${err.message}`);
-      this.sendError(client, WebSocketError.INTERNAL_ERROR, 'Failed to unsubscribe from document');
-    }
-  }
-
-  /**
-   * Subscribe to user updates
-   */
-  @SubscribeMessage(WebSocketEvent.SUBSCRIBE_USER)
-  async handleSubscribeUser(
-    @MessageBody() userId: string,
-    @ConnectedSocket() client: Socket
-  ): Promise<void> {
-    try {
-      this.logger.debug(`Client ${client.id} subscribing to user ${userId}`);
-
-      // Check if user exists
-      const user = await this.userService.getUserById(userId);
-      if (!user) {
-        this.sendError(client, WebSocketError.USER_NOT_FOUND, 'User not found');
-        return;
-      }
-
-      // Check if requesting user is the same or admin
-      if (client.data.user.id !== userId && !(await this.userService.isAdmin(client.data.user.id))) {
-        this.sendError(client, WebSocketError.PERMISSION_DENIED, 'No permission to subscribe to user updates');
-        return;
-      }
-
-      // Join user room
-      client.join(this.getUserRoom(userId));
-
-      // Send success response
-      this.sendToClient(client, WebSocketEvent.SUBSCRIBED_USER, {
-        userId,
-        message: 'Successfully subscribed to user updates',
-        timestamp: new Date().toISOString()
-      });
-
-      // Send current user state
-      this.sendToClient(client, WebSocketEvent.USER_STATE, {
-        userId,
-        user: this.sanitizeUser(user),
-        timestamp: new Date().toISOString()
-      });
-    } catch (err) {
-      this.logger.error(`Error subscribing to user ${userId}: ${err.message}`);
-      this.sendError(client, WebSocketError.INTERNAL_ERROR, 'Failed to subscribe to user');
-    }
-  }
-
-  /**
-   * Unsubscribe from user updates
-   */
-  @SubscribeMessage(WebSocketEvent.UNSUBSCRIBE_USER)
-  async handleUnsubscribeUser(
-    @MessageBody() userId: string,
-    @ConnectedSocket() client: Socket
-  ): Promise<void> {
-    try {
-      this.logger.debug(`Client ${client.id} unsubscribing from user ${userId}`);
-
-      // Leave user room
-      client.leave(this.getUserRoom(userId));
-
-      // Send success response
-      this.sendToClient(client, WebSocketEvent.UNSUBSCRIBED_USER, {
-        userId,
-        message: 'Successfully unsubscribed from user updates',
-        timestamp: new Date().toISOString()
-      });
-    } catch (err) {
-      this.logger.error(`Error unsubscribing from user ${userId}: ${err.message}`);
-      this.sendError(client, WebSocketError.INTERNAL_ERROR, 'Failed to unsubscribe from user');
-    }
-  }
-
-  /**
-   * Get server statistics
-   */
-  @SubscribeMessage(WebSocketEvent.GET_SERVER_STATS)
-  async handleGetServerStats(@ConnectedSocket() client: Socket): Promise<void> {
-    try {
-      // Check if user is admin
-      const isAdmin = await this.userService.isAdmin(client.data.user.id);
-      if (!isAdmin) {
-        this.sendError(client, WebSocketError.PERMISSION_DENIED, 'Only admins can request server stats');
-        return;
-      }
-
-      const stats = this.getServerStats();
-      this.sendToClient(client, WebSocketEvent.SERVER_STATS, stats);
-    } catch (err) {
-      this.logger.error(`Error getting server stats: ${err.message}`);
-      this.sendError(client, WebSocketError.INTERNAL_ERROR, 'Failed to get server stats');
-    }
-  }
-
-  /**
-   * Send error to client
-   */
-  private sendError(client: Socket, error: WebSocketError, message: string): void {
-    this.sendToClient(client, WebSocketEvent.ERROR, {
-      error,
-      message,
-      timestamp: new Date().toISOString()
-    });
-  }
-
-  /**
-   * Validate document event
-   */
-  private isValidDocumentEvent(event: DocumentEvent): boolean {
-    if (!event || !event.type || !event.documentId) {
-      return false;
-    }
-
-    const requiredFields = {
-      create: ['documentId'],
-      update: ['documentId', 'changes'],
-      delete: ['documentId'],
-      share: ['documentId', 'permissions'],
-      comment: ['documentId', 'commentId', 'comment'],
-      collaborator_add: ['documentId', 'collaboratorId', 'permissions'],
-      collaborator_remove: ['documentId', 'collaboratorId'],
-      version_create: ['documentId', 'versionId'],
-      lock: ['documentId'],
-      unlock: ['documentId']
-    };
-
-    const fields = requiredFields[event.type];
-    if (!fields) return false;
-
-    return fields.every(field => event[field] !== undefined);
-  }
-
-  /**
-   * Validate user event
-   */
-  private isValidUserEvent(event: UserEvent): boolean {
-    if (!event || !event.type) {
-      return false;
-    }
-
-    const requiredFields = {
-      status_update: ['status'],
-      presence_update: ['presence'],
-      activity_update: ['activity']
-    };
-
-    const fields = requiredFields[event.type];
-    if (!fields) return false;
-
-    return fields.every(field => event[field] !== undefined);
-  }
-
-  /**
-   * Validate system event
-   */
-  private isValidSystemEvent(event: SystemEvent): boolean {
-    if (!event || !event.type) {
-      return false;
-    }
-
-    const requiredFields = {
-      maintenance: ['maintenanceType', 'startTime', 'endTime'],
-      notification: ['notificationId', 'title', 'message', 'severity'],
-      announcement: ['announcementId', 'title', 'message']
-    };
-
-    const fields = requiredFields[event.type];
-    if (!fields) return false;
-
-    return fields.every(field => event[field] !== undefined);
-  }
-
-  /**
-   * Sanitize document data for WebSocket transmission
-   */
-  private sanitizeDocument(document: any): any {
-    if (!document) return null;
-
-    return {
-      id: document.id,
-      title: document.title,
-      description: document.description,
-      documentType: document.documentType,
-      status: document.status,
-      createdAt: document.createdAt,
-      updatedAt: document.updatedAt,
-      ownerId: document.ownerId,
-      version: document.currentVersion?.versionNumber,
-      size: document.currentVersion?.size,
-      isLocked: document.isLocked,
-      lockHolder: document.lockHolderId
-    };
-  }
-
-  /**
-   * Sanitize user data for WebSocket transmission
-   */
-  private sanitizeUser(user: any): any {
-    if (!user) return null;
-
-    return {
-      id: user.id,
-      firstName: user.firstName,
-      lastName: user.lastName,
-      email: user.email,
-      status: user.status,
-      presence: user.presence,
-      lastActive: user.lastActive,
-      role: user.role
-    };
-  }
-
-  /**
-   * Get WebSocket server statistics
-   */
-  getServerStats(): any {
-    const sockets = this.server.sockets.sockets;
-    const rooms = this.server.sockets.adapter.rooms;
-
-    return {
-      connectedClients: sockets.size,
-      rooms: rooms.size,
-      activeRooms: Array.from(rooms.entries()).filter(([_, clients]) => clients.size > 0).length,
-      clientsPerRoom: Array.from(rooms.entries()).map(([room, clients]) => ({
-        room,
-        clientCount: clients.size
-      })),
-      clientDetails: Array.from(sockets.entries()).map(([id, socket]) => ({
-        id,
-        userId: socket.data.user?.id,
-        rooms: Array.from(socket.rooms),
-        connectedAt: socket.handshake.time,
-        userAgent: socket.handshake.headers['user-agent']
-      })),
-      uptime: process.uptime(),
-      memoryUsage: process.memoryUsage(),
-      eventCounts: this.getEventCounts()
-    };
-  }
-
-  /**
-   * Get event counts
-   */
-  private getEventCounts(): Record<string, number> {
-    // In a real implementation, you would track event counts
-    return {
-      document_events: 0,
-      user_events: 0,
-      system_events: 0,
-      subscriptions: 0
-    };
-  }
-
-  /**
-   * Broadcast document event to all relevant clients
-   */
-  broadcastDocumentEvent(event: DocumentEvent): void {
-    try {
-      switch (event.type) {
-        case 'create':
-          this.broadcast(WebSocketEvent.DOCUMENT_CREATED, {
-            documentId: event.documentId,
-            timestamp: new Date().toISOString()
-          });
-          break;
-        case 'update':
-          this.sendToRoom(this.getDocumentRoom(event.documentId), WebSocketEvent.DOCUMENT_UPDATED, {
-            documentId: event.documentId,
-            changes: event.changes,
-            timestamp: new Date().toISOString()
-          });
-          break;
-        case 'delete':
-          this.sendToRoom(this.getDocumentRoom(event.documentId), WebSocketEvent.DOCUMENT_DELETED, {
-            documentId: event.documentId,
-            timestamp: new Date().toISOString()
-          });
-          break;
-        case 'share':
-          this.sendToRoom(this.getDocumentRoom(event.documentId), WebSocketEvent.DOCUMENT_SHARED, {
-            documentId: event.documentId,
-            permissions: event.permissions,
-            timestamp: new Date().toISOString()
-          });
-          break;
-        case 'comment':
-          this.sendToRoom(this.getDocumentRoom(event.documentId), WebSocketEvent.DOCUMENT_COMMENT, {
-            documentId: event.documentId,
-            commentId: event.commentId,
-            timestamp: new Date().toISOString()
-          });
-          break;
-        case 'collaborator_add':
-          this.sendToRoom(this.getDocumentRoom(event.documentId), WebSocketEvent.COLLABORATOR_ADDED, {
-            documentId: event.documentId,
-            collaboratorId: event.collaboratorId,
-            timestamp: new Date().toISOString()
-          });
-          break;
-        case 'collaborator_remove':
-          this.sendToRoom(this.getDocumentRoom(event.documentId), WebSocketEvent.COLLABORATOR_REMOVED, {
-            documentId: event.documentId,
-            collaboratorId: event.collaboratorId,
-            timestamp: new Date().toISOString()
-          });
-          break;
-        case 'version_create':
-          this.sendToRoom(this.getDocumentRoom(event.documentId), WebSocketEvent.DOCUMENT_VERSION_CREATED, {
-            documentId: event.documentId,
-            versionId: event.versionId,
-            timestamp: new Date().toISOString()
-          });
-          break;
-        case 'lock':
-          this.sendToRoom(this.getDocumentRoom(event.documentId), WebSocketEvent.DOCUMENT_LOCKED, {
-            documentId: event.documentId,
-            timestamp: new Date().toISOString()
-          });
-          break;
-        case 'unlock':
-          this.sendToRoom(this.getDocumentRoom(event.documentId), WebSocketEvent.DOCUMENT_UNLOCKED, {
-            documentId: event.documentId,
-            timestamp: new Date().toISOString()
-          });
-          break;
-      }
-    } catch (err) {
-      this.logger.error(`Error broadcasting document event: ${err.message}`);
-    }
-  }
-
-  /**
-   * Broadcast user event to all relevant clients
-   */
-  broadcastUserEvent(event: UserEvent): void {
-    try {
-      switch (event.type) {
-        case 'status_update':
-          this.sendToRoom(this.getUserRoom(event.userId), WebSocketEvent.USER_STATUS_UPDATED, {
-            userId: event.userId,
-            status: event.status,
-            timestamp: new Date().toISOString()
-          });
-          break;
-        case 'presence_update':
-          this.sendToRoom(this.getUserRoom(event.userId), WebSocketEvent.USER_PRESENCE_UPDATED, {
-            userId: event.userId,
-            presence: event.presence,
-            timestamp: new Date().toISOString()
-          });
-          break;
-        case 'activity_update':
-          this.sendToRoom(this.getUserRoom(event.userId), WebSocketEvent.USER_ACTIVITY_UPDATED, {
-            userId: event.userId,
-            activity: event.activity,
-            timestamp: new Date().toISOString()
-          });
-          break;
-      }
-    } catch (err) {
-      this.logger.error(`Error broadcasting user event: ${err.message}`);
-    }
-  }
-
-  /**
-   * Broadcast system event to all relevant clients
-   */
-  broadcastSystemEvent(event: SystemEvent): void {
-    try {
-      switch (event.type) {
-        case 'maintenance':
-          this.sendToRoom(WebSocketRoom.SYSTEM_NOTIFICATIONS, WebSocketEvent.SYSTEM_MAINTENANCE, {
-            type: event.maintenanceType,
-            startTime: event.startTime,
-            endTime: event.endTime,
-            message: event.message,
-            timestamp: new Date().toISOString()
-          });
-          break;
-        case 'notification':
-          this.sendToRoom(WebSocketRoom.SYSTEM_NOTIFICATIONS, WebSocketEvent.SYSTEM_NOTIFICATION, {
-            notificationId: event.notificationId,
-            title: event.title,
-            message: event.message,
-            severity: event.severity,
-            timestamp: new Date().toISOString()
-          });
-          break;
-        case 'announcement':
-          this.broadcast(WebSocketEvent.SYSTEM_ANNOUNCEMENT, {
-            announcementId: event.announcementId,
-            title: event.title,
-            message: event.message,
-            timestamp: new Date().toISOString()
-          });
-          break;
-      }
-    } catch (err) {
-      this.logger.error(`Error broadcasting system event: ${err.message}`);
-    }
-  }
-}
-```
-
-### Real-Time Event Handlers
-
-```typescript
-// src/websocket/websocket-event-handler.service.ts
-import { Injectable, Logger } from '@nestjs/common';
-import { WebSocketGatewayService } from './websocket.gateway';
-import { DocumentEvent } from '../interfaces/document-event.interface';
-import { UserEvent } from '../interfaces/user-event.interface';
-import { SystemEvent } from '../interfaces/system-event.interface';
-import { DocumentService } from '../document/document.service';
-import { UserService } from '../user/user.service';
-import { NotificationService } from '../notification/notification.service';
-import { WebSocketEvent } from '../enums/websocket-event.enum';
-import { EventEmitter2 } from '@nestjs/event-emitter';
-import { WebSocketConfig } from '../config/websocket.config';
-import { Document } from '../entities/document.entity';
-import { User } from '../entities/user.entity';
-import { DocumentVersion } from '../entities/document-version.entity';
-import { Comment } from '../entities/comment.entity';
-
-@Injectable()
-export class WebSocketEventHandlerService {
-  private readonly logger = new Logger(WebSocketEventHandlerService.name);
-
-  constructor(
-    private readonly websocketGateway: WebSocketGatewayService,
-    private readonly documentService: DocumentService,
-    private readonly userService: UserService,
-    private readonly notificationService: NotificationService,
-    private readonly eventEmitter: EventEmitter2
-  ) {
-    // Subscribe to internal events
-    this.subscribeToInternalEvents();
-  }
-
-  /**
-   * Subscribe to internal application events
-   */
-  private subscribeToInternalEvents(): void {
-    // Document events
-    this.eventEmitter.on('document.created', (document: Document) => {
-      this.handleDocumentCreated(document);
-    });
-
-    this.eventEmitter.on('document.updated', (document: Document) => {
-      this.handleDocumentUpdated(document);
-    });
-
-    this.eventEmitter.on('document.deleted', (documentId: string) => {
-      this.handleDocumentDeleted(documentId);
-    });
-
-    this.eventEmitter.on('document.shared', (data: { documentId: string; sharedWith: string[] }) => {
-      this.handleDocumentShared(data.documentId, data.sharedWith);
-    });
-
-    this.eventEmitter.on('document.comment_added', (comment: Comment) => {
-      this.handleDocumentCommentAdded(comment);
-    });
-
-    this.eventEmitter.on('document.collaborator_added', (data: { documentId: string; collaboratorId: string }) => {
-      this.handleCollaboratorAdded(data.documentId, data.collaboratorId);
-    });
-
-    this.eventEmitter.on('document.collaborator_removed', (data: { documentId: string; collaboratorId: string }) => {
-      this.handleCollaboratorRemoved(data.documentId, data.collaboratorId);
-    });
-
-    this.eventEmitter.on('document.version_created', (version: DocumentVersion) => {
-      this.handleVersionCreated(version);
-    });
-
-    this.eventEmitter.on('document.locked', (data: { documentId: string; lockedBy: string }) => {
-      this.handleDocumentLocked(data.documentId, data.lockedBy);
-    });
-
-    this.eventEmitter.on('document.unlocked', (documentId: string) => {
-      this.handleDocumentUnlocked(documentId);
-    });
-
-    // User events
-    this.eventEmitter.on('user.status_updated', (data: { userId: string; status: string }) => {
-      this.handleUserStatusUpdated(data.userId, data.status);
-    });
-
-    this.eventEmitter.on('user.presence_updated', (data: { userId: string; presence: string }) => {
-      this.handleUserPresenceUpdated(data.userId, data.presence);
-    });
-
-    this.eventEmitter.on('user.activity_recorded', (data: { userId: string; activity: string }) => {
-      this.handleUserActivityRecorded(data.userId, data.activity);
-    });
-
-    // System events
-    this.eventEmitter.on('system.maintenance', (event: SystemEvent) => {
-      this.handleSystemMaintenance(event);
-    });
-
-    this.eventEmitter.on('system.notification', (event: SystemEvent) => {
-      this.handleSystemNotification(event);
-    });
-
-    this.eventEmitter.on('system.announcement', (event: SystemEvent) => {
-      this.handleSystemAnnouncement(event);
-    });
-  }
-
-  /**
-   * Handle document created event
-   */
-  private async handleDocumentCreated(document: Document): Promise<void> {
-    try {
-      const event: DocumentEvent = {
-        type: 'create',
-        documentId: document.id
-      };
-
-      // Broadcast via WebSocket
-      this.websocketGateway.broadcastDocumentEvent(event);
-
-      // Create notification for owner
-      await this.notificationService.createNotification({
-        userId: document.ownerId,
-        type: 'document_created',
-        title: 'Document Created',
-        message: `Your document "${document.title}" has been created successfully.`,
-        data: {
-          documentId: document.id,
-          documentTitle: document.title
-        },
-        severity: 'info'
-      });
-
-      this.logger.log(`Document created event handled for document ${document.id}`);
-    } catch (err) {
-      this.logger.error(`Error handling document created event: ${err.message}`);
-    }
-  }
-
-  /**
-   * Handle document updated event
-   */
-  private async handleDocumentUpdated(document: Document): Promise<void> {
-    try {
-      const changes = await this.documentService.getDocumentChanges(document.id);
-
-      const event: DocumentEvent = {
-        type: 'update',
-        documentId: document.id,
-        changes
-      };
-
-      // Broadcast via WebSocket
-      this.websocketGateway.broadcastDocumentEvent(event);
-
-      // Create notification for collaborators
-      const collaborators = await this.documentService.getDocumentCollaborators(document.id);
-      for (const collaborator of collaborators) {
-        if (collaborator.id !== document.ownerId) {
-          await this.notificationService.createNotification({
-            userId: collaborator.id,
-            type: 'document_updated',
-            title: 'Document Updated',
-            message: `Document "${document.title}" has been updated by ${document.updatedBy?.firstName || 'someone'}.`,
-            data: {
-              documentId: document.id,
-              documentTitle: document.title,
-              updatedBy: document.updatedBy?.id
-            },
-            severity: 'info'
-          });
-        }
-      }
-
-      this.logger.log(`Document updated event handled for document ${document.id}`);
-    } catch (err) {
-      this.logger.error(`Error handling document updated event: ${err.message}`);
-    }
-  }
-
-  /**
-   * Handle document deleted event
-   */
-  private async handleDocumentDeleted(documentId: string): Promise<void> {
-    try {
-      const event: DocumentEvent = {
-        type: 'delete',
-        documentId
-      };
-
-      // Broadcast via WebSocket
-      this.websocketGateway.broadcastDocumentEvent(event);
-
-      // Get document info before deletion
-      const document = await this.documentService.getDocumentById(documentId);
-      if (document) {
-        // Create notification for owner and collaborators
-        const usersToNotify = [
-          document.ownerId,
-          ...(await this.documentService.getDocumentCollaborators(documentId)).map(c => c.id)
-        ];
-
-        for (const userId of usersToNotify) {
-          await this.notificationService.createNotification({
-            userId,
-            type: 'document_deleted',
-            title: 'Document Deleted',
-            message: `Document "${document.title}" has been deleted.`,
-            data: {
-              documentId,
-              documentTitle: document.title
-            },
-            severity: 'warning'
-          });
-        }
-      }
-
-      this.logger.log(`Document deleted event handled for document ${documentId}`);
-    } catch (err) {
-      this.logger.error(`Error handling document deleted event: ${err.message}`);
-    }
-  }
-
-  /**
-   * Handle document shared event
-   */
-  private async handleDocumentShared(documentId: string, sharedWith: string[]): Promise<void> {
-    try {
-      const document = await this.documentService.getDocumentById(documentId);
-      if (!document) return;
-
-      const permissions = await this.documentService.getDocumentPermissions(documentId);
-
-      const event: DocumentEvent = {
-        type: 'share',
-        documentId,
-        permissions
-      };
-
-      // Broadcast via WebSocket
-      this.websocketGateway.broadcastDocumentEvent(event);
-
-      // Create notifications for shared users
-      for (const userId of sharedWith) {
-        if (userId !== document.ownerId) {
-          await this.notificationService.createNotification({
-            userId,
-            type: 'document_shared',
-            title: 'Document Shared',
-            message: `Document "${document.title}" has been shared with you by ${document.owner?.firstName || 'someone'}.`,
-            data: {
-              documentId,
-              documentTitle: document.title,
-              sharedBy: document.ownerId,
-              permissions
-            },
-            severity: 'info'
-          });
-        }
-      }
-
-      this.logger.log(`Document shared event handled for document ${documentId}`);
-    } catch (err) {
-      this.logger.error(`Error handling document shared event: ${err.message}`);
-    }
-  }
-
-  /**
-   * Handle document comment added event
-   */
-  private async handleDocumentCommentAdded(comment: Comment): Promise<void> {
-    try {
-      const document = await this.documentService.getDocumentById(comment.documentId);
-      if (!document) return;
-
-      const event: DocumentEvent = {
-        type: 'comment',
-        documentId: comment.documentId,
-        commentId: comment.id,
-        comment: comment.content
-      };
-
-      // Broadcast via WebSocket
-      this.websocketGateway.broadcastDocumentEvent(event);
-
-      // Create notification for document owner and collaborators
-      const usersToNotify = [
-        document.ownerId,
-        ...(await this.documentService.getDocumentCollaborators(comment.documentId)).map(c => c.id)
-      ].filter(id => id !== comment.authorId);
-
-      for (const userId of usersToNotify) {
-        await this.notificationService.createNotification({
-          userId,
-          type: 'document_comment',
-          title: 'New Comment',
-          message: `New comment on document "${document.title}" by ${comment.author?.firstName || 'someone'}.`,
-          data: {
-            documentId: comment.documentId,
-            documentTitle: document.title,
-            commentId: comment.id,
-            commentedBy: comment.authorId
-          },
-          severity: 'info'
-        });
-      }
-
-      this.logger.log(`Document comment added event handled for comment ${comment.id}`);
-    } catch (err) {
-      this.logger.error(`Error handling document comment added event: ${err.message}`);
-    }
-  }
-
-  /**
-   * Handle collaborator added event
-   */
-  private async handleCollaboratorAdded(documentId: string, collaboratorId: string): Promise<void> {
-    try {
-      const document = await this.documentService.getDocumentById(documentId);
-      if (!document) return;
-
-      const permissions = await this.documentService.getDocumentPermissionsForUser(
-        documentId,
-        collaboratorId
-      );
-
-      const event: DocumentEvent = {
-        type: 'collaborator_add',
-        documentId,
-        collaboratorId,
-        permissions
-      };
-
-      // Broadcast via WebSocket
-      this.websocketGateway.broadcastDocumentEvent(event);
-
-      // Create notification for added collaborator
-      await this.notificationService.createNotification({
-        userId: collaboratorId,
-        type: 'collaborator_added',
-        title: 'Added as Collaborator',
-        message: `You have been added as a collaborator to document "${document.title}" by ${document.owner?.firstName || 'someone'}.`,
-        data: {
-          documentId,
-          documentTitle: document.title,
-          addedBy: document.ownerId,
-          permissions
-        },
-        severity: 'info'
-      });
-
-      this.logger.log(`Collaborator added event handled for document ${documentId}, collaborator ${collaboratorId}`);
-    } catch (err) {
-      this.logger.error(`Error handling collaborator added event: ${err.message}`);
-    }
-  }
-
-  /**
-   * Handle collaborator removed event
-   */
-  private async handleCollaboratorRemoved(documentId: string, collaboratorId: string): Promise<void> {
-    try {
-      const document = await this.documentService.getDocumentById(documentId);
-      if (!document) return;
-
-      const event: DocumentEvent = {
-        type: 'collaborator_remove',
-        documentId,
-        collaboratorId
-      };
-
-      // Broadcast via WebSocket
-      this.websocketGateway.broadcastDocumentEvent(event);
-
-      // Create notification for removed collaborator
-      await this.notificationService.createNotification({
-        userId: collaboratorId,
-        type: 'collaborator_removed',
-        title: 'Removed as Collaborator',
-        message: `You have been removed as a collaborator from document "${document.title}".`,
-        data: {
-          documentId,
-          documentTitle: document.title,
-          removedBy: document.ownerId
-        },
-        severity: 'warning'
-      });
-
-      this.logger.log(`Collaborator removed event handled for document ${documentId}, collaborator ${collaboratorId}`);
-    } catch (err) {
-      this.logger.error(`Error handling collaborator removed event: ${err.message}`);
-    }
-  }
-
-  /**
-   * Handle document version created event
-   */
-  private async handleVersionCreated(version: DocumentVersion): Promise<void> {
-    try {
-      const event: DocumentEvent = {
-        type: 'version_create',
-        documentId: version.documentId,
-        versionId: version.id
-      };
-
-      // Broadcast via WebSocket
-      this.websocketGateway.broadcastDocumentEvent(event);
-
-      // Create notification for document owner and collaborators
-      const document = await this.documentService.getDocumentById(version.documentId);
-      if (document) {
-        const usersToNotify = [
-          document.ownerId,
-          ...(await this.documentService.getDocumentCollaborators(version.documentId)).map(c => c.id)
-        ].filter(id => id !== version.createdById);
-
-        for (const userId of usersToNotify) {
-          await this.notificationService.createNotification({
-            userId,
-            type: 'document_version',
-            title: 'New Version Created',
-            message: `New version of document "${document.title}" has been created by ${version.createdBy?.firstName || 'someone'}.`,
-            data: {
-              documentId: version.documentId,
-              documentTitle: document.title,
-              versionId: version.id,
-              versionNumber: version.versionNumber,
-              createdBy: version.createdById
-            },
-            severity: 'info'
-          });
-        }
-      }
-
-      this.logger.log(`Document version created event handled for version ${version.id}`);
-    } catch (err) {
-      this.logger.error(`Error handling document version created event: ${err.message}`);
-    }
-  }
-
-  /**
-   * Handle document locked event
-   */
-  private async handleDocumentLocked(documentId: string, lockedBy: string): Promise<void> {
-    try {
-      const event: DocumentEvent = {
-        type: 'lock',
-        documentId
-      };
-
-      // Broadcast via WebSocket
-      this.websocketGateway.broadcastDocumentEvent(event);
-
-      // Create notification for document collaborators
-      const document = await this.documentService.getDocumentById(documentId);
-      if (document) {
-        const collaborators = await this.documentService.getDocumentCollaborators(documentId);
-        for (const collaborator of collaborators) {
-          if (collaborator.id !== lockedBy) {
-            await this.notificationService.createNotification({
-              userId: collaborator.id,
-              type: 'document_locked',
-              title: 'Document Locked',
-              message: `Document "${document.title}" has been locked by ${collaborator.firstName || 'someone'}.`,
-              data: {
-                documentId,
-                documentTitle: document.title,
-                lockedBy
-              },
-              severity: 'warning'
-            });
-          }
-        }
-      }
-
-      this.logger.log(`Document locked event handled for document ${documentId}`);
-    } catch (err) {
-      this.logger.error(`Error handling document locked event: ${err.message}`);
-    }
-  }
-
-  /**
-   * Handle document unlocked event
-   */
-  private async handleDocumentUnlocked(documentId: string): Promise<void> {
-    try {
-      const event: DocumentEvent = {
-        type: 'unlock',
-        documentId
-      };
-
-      // Broadcast via WebSocket
-      this.websocketGateway.broadcastDocumentEvent(event);
-
-      // Create notification for document collaborators
-      const document = await this.documentService.getDocumentById(documentId);
-      if (document) {
-        const collaborators = await this.documentService.getDocumentCollaborators(documentId);
-        for (const collaborator of collaborators) {
-          await this.notificationService.createNotification({
-            userId: collaborator.id,
-            type: 'document_unlocked',
-            title: 'Document Unlocked',
-            message: `Document "${document.title}" has been unlocked.`,
-            data: {
-              documentId,
-              documentTitle: document.title
-            },
-            severity: 'info'
-          });
-        }
-      }
-
-      this.logger.log(`Document unlocked event handled for document ${documentId}`);
-    } catch (err) {
-      this.logger.error(`Error handling document unlocked event: ${err.message}`);
-    }
-  }
-
-  /**
-   * Handle user status updated event
-   */
-  private async handleUserStatusUpdated(userId: string, status: string): Promise<void> {
-    try {
-      const event: UserEvent = {
-        type: 'status_update',
-        userId,
-        status
-      };
-
-      // Broadcast via WebSocket
-      this.websocketGateway.broadcastUserEvent(event);
-
-      this.logger.log(`User status updated event handled for user ${userId}`);
-    } catch (err) {
-      this.logger.error(`Error handling user status updated event: ${err.message}`);
-    }
-  }
-
-  /**
-   * Handle user presence updated event
-   */
-  private async handleUserPresenceUpdated(userId: string, presence: string): Promise<void> {
-    try {
-      const event: UserEvent = {
-        type: 'presence_update',
-        userId,
-        presence
-      };
-
-      // Broadcast via WebSocket
-      this.websocketGateway.broadcastUserEvent(event);
-
-      this.logger.log(`User presence updated event handled for user ${userId}`);
-    } catch (err) {
-      this.logger.error(`Error handling user presence updated event: ${err.message}`);
-    }
-  }
-
-  /**
-   * Handle user activity recorded event
-   */
-  private async handleUserActivityRecorded(userId: string, activity: string): Promise<void> {
-    try {
-      const event: UserEvent = {
-        type: 'activity_update',
-        userId,
-        activity
-      };
-
-      // Broadcast via WebSocket
-      this.websocketGateway.broadcastUserEvent(event);
-
-      this.logger.log(`User activity recorded event handled for user ${userId}`);
-    } catch (err) {
-      this.logger.error(`Error handling user activity recorded event: ${err.message}`);
-    }
-  }
-
-  /**
-   * Handle system maintenance event
-   */
-  private async handleSystemMaintenance(event: SystemEvent): Promise<void> {
-    try {
-      // Broadcast via WebSocket
-      this.websocketGateway.broadcastSystemEvent(event);
-
-      // Create notification for all users
-      const users = await this.userService.getAllUsers();
-      for (const user of users) {
-        await this.notificationService.createNotification({
-          userId: user.id,
-          type: 'system_maintenance',
-          title: 'System Maintenance',
-          message: event.message,
-          data: {
-            type: event.maintenanceType,
-            startTime: event.startTime,
-            endTime: event.endTime
-          },
-          severity: 'warning'
-        });
-      }
-
-      this.logger.log(`System maintenance event handled`);
-    } catch (err) {
-      this.logger.error(`Error handling system maintenance event: ${err.message}`);
-    }
-  }
-
-  /**
-   * Handle system notification event
-   */
-  private async handleSystemNotification(event: SystemEvent): Promise<void> {
-    try {
-      // Broadcast via WebSocket
-      this.websocketGateway.broadcastSystemEvent(event);
-
-      // Create notification for all users
-      const users = await this.userService.getAllUsers();
-      for (const user of users) {
-        await this.notificationService.createNotification({
-          userId: user.id,
-          type: 'system_notification',
-          title: event.title,
-          message: event.message,
-          data: {
-            notificationId: event.notificationId,
-            severity: event.severity
-          },
-          severity: event.severity as any
-        });
-      }
-
-      this.logger.log(`System notification event handled`);
-    } catch (err) {
-      this.logger.error(`Error handling system notification event: ${err.message}`);
-    }
-  }
-
-  /**
-   * Handle system announcement event
-   */
-  private async handleSystemAnnouncement(event: SystemEvent): Promise<void> {
-    try {
-      // Broadcast via WebSocket
-      this.websocketGateway.broadcastSystemEvent(event);
-
-      // Create notification for all users
-      const users = await this.userService.getAllUsers();
-      for (const user of users) {
-        await this.notificationService.createNotification({
-          userId: user.id,
-          type: 'system_announcement',
-          title: event.title,
-          message: event.message,
-          data: {
-            announcementId: event.announcementId,
-            author: event.author
-          },
-          severity: 'info'
-        });
-      }
-
-      this.logger.log(`System announcement event handled`);
-    } catch (err) {
-      this.logger.error(`Error handling system announcement event: ${err.message}`);
-    }
-  }
-
-  /**
-   * Handle document real-time collaboration event
-   */
-  async handleRealTimeCollaboration(
-    documentId: string,
-    userId: string,
-    changes: any,
-    cursorPosition?: { x: number; y: number }
-  ): Promise<void> {
-    try {
-      // Get document to check permissions
-      const document = await this.documentService.getDocumentById(documentId);
-      if (!document) {
-        this.logger.warn(`Document ${documentId} not found for real-time collaboration`);
-        return;
-      }
-
-      // Check if user has edit permission
-      const hasPermission = await this.documentService.hasEditPermission(documentId, userId);
-      if (!hasPermission) {
-        this.logger.warn(`User ${userId} has no edit permission for document ${documentId}`);
-        return;
-      }
-
-      // Create collaboration event
-      const event: DocumentEvent = {
-        type: 'update',
-        documentId,
-        changes,
-        cursorPosition,
-        realTime: true
-      };
-
-      // Broadcast to document room (excluding sender)
-      this.websocketGateway.server.to(this.websocketGateway.getDocumentRoom(documentId))
-        .except(this.websocketGateway.getUserRoom(userId))
-        .emit(WebSocketEvent.DOCUMENT_REALTIME_UPDATE, {
-          documentId,
-          changes,
-          updatedBy: userId,
-          cursorPosition,
-          timestamp: new Date().toISOString()
-        });
-
-      this.logger.debug(`Real-time collaboration event handled for document ${documentId}`);
-    } catch (err) {
-      this.logger.error(`Error handling real-time collaboration event: ${err.message}`);
-    }
-  }
-
-  /**
-   * Handle document selection event (for collaborative editing)
-   */
-  async handleDocumentSelection(
-    documentId: string,
-    userId: string,
-    selection: { start: number; end: number }
-  ): Promise<void> {
-    try {
-      // Get document to check permissions
-      const document = await this.documentService.getDocumentById(documentId);
-      if (!document) {
-        this.logger.warn(`Document ${documentId} not found for selection event`);
-        return;
-      }
-
-      // Check if user has view permission
-      const hasPermission = await this.documentService.hasViewPermission(documentId, userId);
-      if (!hasPermission) {
-        this.logger.warn(`User ${userId} has no view permission for document ${documentId}`);
-        return;
-      }
-
-      // Broadcast selection to document room (excluding sender)
-      this.websocketGateway.server.to(this.websocketGateway.getDocumentRoom(documentId))
-        .except(this.websocketGateway.getUserRoom(userId))
-        .emit(WebSocketEvent.DOCUMENT_SELECTION, {
-          documentId,
-          userId,
-          selection,
-          timestamp: new Date().toISOString()
-        });
-
-      this.logger.debug(`Document selection event handled for document ${documentId}`);
-    } catch (err) {
-      this.logger.error(`Error handling document selection event: ${err.message}`);
-    }
-  }
-
-  /**
-   * Handle document presence event (who is viewing/editing)
-   */
-  async handleDocumentPresence(
-    documentId: string,
-    userId: string,
-    action: 'join' | 'leave'
-  ): Promise<void> {
-    try {
-      // Get document to check permissions
-      const document = await this.documentService.getDocumentById(documentId);
-      if (!document) {
-        this.logger.warn(`Document ${documentId} not found for presence event`);
-        return;
-      }
-
-      // Check if user has view permission
-      const hasPermission = await this.documentService.hasViewPermission(documentId, userId);
-      if (!hasPermission) {
-        this.logger.warn(`User ${userId} has no view permission for document ${documentId}`);
-        return;
-      }
-
-      // Get user info
-      const user = await this.userService.getUserById(userId);
-      if (!user) {
-        this.logger.warn(`User ${userId} not found for presence event`);
-        return;
-      }
-
-      // Broadcast presence to document room
-      this.websocketGateway.server.to(this.websocketGateway.getDocumentRoom(documentId))
-        .emit(WebSocketEvent.DOCUMENT_PRESENCE, {
-          documentId,
-          userId,
-          user: this.sanitizeUserForPresence(user),
-          action,
-          timestamp: new Date().toISOString()
-        });
-
-      this.logger.debug(`Document presence event handled for document ${documentId}, user ${userId}, action ${action}`);
-    } catch (err) {
-      this.logger.error(`Error handling document presence event: ${err.message}`);
-    }
-  }
-
-  /**
-   * Sanitize user data for presence events
-   */
-  private sanitizeUserForPresence(user: User): any {
-    return {
-      id: user.id,
-      firstName: user.firstName,
-      lastName: user.lastName,
-      email: user.email,
-      presence: user.presence,
-      status: user.status
-    };
-  }
-
-  /**
-   * Get active users for document
-   */
-  async getActiveUsersForDocument(documentId: string): Promise<any[]> {
-    try {
-      const roomName = this.websocketGateway.getDocumentRoom(documentId);
-      const room = this.websocketGateway.server.sockets.adapter.rooms.get(roomName);
-
-      if (!room) return [];
-
-      const activeUsers = [];
-      for (const socketId of room) {
-        const socket = this.websocketGateway.server.sockets.sockets.get(socketId);
-        if (socket && socket.data.user) {
-          activeUsers.push(this.sanitizeUserForPresence(socket.data.user));
-        }
-      }
-
-      return activeUsers;
-    } catch (err) {
-      this.logger.error(`Error getting active users for document ${documentId}: ${err.message}`);
-      return [];
-    }
-  }
-
-  /**
-   * Get document presence statistics
-   */
-  async getDocumentPresenceStats(documentId: string): Promise<any> {
-    try {
-      const roomName = this.websocketGateway.getDocumentRoom(documentId);
-      const room = this.websocketGateway.server.sockets.adapter.rooms.get(roomName);
-
-      return {
-        documentId,
-        activeUsers: room ? room.size : 0,
-        lastUpdated: new Date().toISOString()
-      };
-    } catch (err) {
-      this.logger.error(`Error getting document presence stats for ${documentId}: ${err.message}`);
-      return {
-        documentId,
-        activeUsers: 0,
-        lastUpdated: new Date().toISOString()
-      };
-    }
-  }
-}
-```
-
-### Client-Side WebSocket Integration
-
-```typescript
-// src/websocket/websocket-client.service.ts
-import { Injectable, Logger, OnModuleInit, OnModuleDestroy } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
-import { io, Socket } from 'socket.io-client';
-import { WebSocketConfig } from '../config/websocket.config';
-import { WebSocketEvent } from '../enums/websocket-event.enum';
-import { WebSocketMessage } from '../interfaces/websocket-message.interface';
-import { DocumentEvent } from '../interfaces/document-event.interface';
-import { UserEvent } from '../interfaces/user-event.interface';
-import { SystemEvent } from '../interfaces/system-event.interface';
-import { BehaviorSubject, Observable, Subject } from 'rxjs';
-import { filter, map, shareReplay, takeUntil } from 'rxjs/operators';
-import { AuthService } from '../auth/auth.service';
-import { WebSocketError } from '../enums/websocket-error.enum';
-
-@Injectable()
-export class WebSocketClientService implements OnModuleInit, OnModuleDestroy {
-  private readonly logger = new Logger(WebSocketClientService.name);
-  private socket: Socket;
-  private readonly destroy$ = new Subject<void>();
-  private readonly messageSubject = new BehaviorSubject<WebSocketMessage | null>(null);
-  private readonly connectionStatusSubject = new BehaviorSubject<boolean>(false);
-  private readonly reconnectAttempts = new BehaviorSubject<number>(0);
-  private reconnectTimeout: NodeJS.Timeout;
-  private pingInterval: NodeJS.Timeout;
-  private lastPingTime: number = 0;
-  private readonly eventHandlers: Map<string, (data: any) => void> = new Map();
-
-  constructor(
-    private configService: ConfigService,
-    private authService: AuthService
-  ) {}
-
-  async onModuleInit() {
-    await this.initializeSocket();
-  }
-
-  onModuleDestroy() {
-    this.disconnect();
-  }
-
-  /**
-   * Initialize WebSocket connection
-   */
-  private async initializeSocket(): Promise<void> {
-    try {
-      // Get authentication token
-      const token = await this.authService.getAccessToken();
-
-      // Create socket connection
-      this.socket = io(this.configService.get<string>('WEBSOCKET_URL'), {
-        path: WebSocketConfig.PATH,
-        transports: ['websocket'],
-        autoConnect: false,
-        reconnection: true,
-        reconnectionAttempts: WebSocketConfig.MAX_RECONNECT_ATTEMPTS,
-        reconnectionDelay: WebSocketConfig.RECONNECT_DELAY,
-        reconnectionDelayMax: WebSocketConfig.RECONNECT_DELAY_MAX,
-        timeout: WebSocketConfig.CONNECTION_TIMEOUT,
-        query: {
-          token: token || ''
-        },
-        withCredentials: true,
-        extraHeaders: {
-          Authorization: `Bearer ${token}`
-        }
-      });
-
-      // Set up event listeners
-      this.setupEventListeners();
-
-      // Connect to server
-      this.socket.connect();
-
-      this.logger.log('WebSocket client initialized');
-    } catch (err) {
-      this.logger.error(`Error initializing WebSocket client: ${err.message}`);
-      throw err;
-    }
-  }
-
-  /**
-   * Set up WebSocket event listeners
-   */
-  private setupEventListeners(): void {
-    if (!this.socket) return;
-
-    // Connection events
-    this.socket.on('connect', () => {
-      this.logger.log('WebSocket connected');
-      this.connectionStatusSubject.next(true);
-      this.reconnectAttempts.next(0);
-      this.startPing();
-    });
-
-    this.socket.on('disconnect', (reason) => {
-      this.logger.log(`WebSocket disconnected: ${reason}`);
-      this.connectionStatusSubject.next(false);
-      this.stopPing();
-
-      // Attempt reconnection if not manually disconnected
-      if (reason !== 'io client disconnect') {
-        this.scheduleReconnect();
-      }
-    });
-
-    this.socket.on('connect_error', (err) => {
-      this.logger.error(`WebSocket connection error: ${err.message}`);
-      this.connectionStatusSubject.next(false);
-    });
-
-    this.socket.on('reconnect_attempt', (attempt) => {
-      this.logger.log(`WebSocket reconnection attempt ${attempt}`);
-      this.reconnectAttempts.next(attempt);
-    });
-
-    this.socket.on('reconnect_failed', () => {
-      this.logger.error('WebSocket reconnection failed');
-      this.connectionStatusSubject.next(false);
-    });
-
-    // Message events
-    this.socket.onAny((event, data) => {
-      this.logger.debug(`WebSocket message received: ${event}`);
-      this.messageSubject.next({ event, data });
-
-      // Call registered event handlers
-      if (this.eventHandlers.has(event)) {
-        try {
-          this.eventHandlers.get(event)(data);
-        } catch (err) {
-          this.logger.error(`Error in event handler for ${event}: ${err.message}`);
-        }
-      }
-    });
-
-    // Error events
-    this.socket.on(WebSocketEvent.ERROR, (data) => {
-      this.logger.error(`WebSocket error: ${data.message} (${data.error})`);
-    });
-
-    // Ping/pong events
-    this.socket.on('ping', () => {
-      this.lastPingTime = Date.now();
-    });
-
-    this.socket.on('pong', (latency) => {
-      this.logger.debug(`WebSocket pong received with latency ${latency}ms`);
-    });
-  }
-
-  /**
-   * Start ping interval
-   */
-  private startPing(): void {
-    this.stopPing();
-
-    this.pingInterval = setInterval(() => {
-      if (this.socket && this.socket.connected) {
-        this.socket.emit('ping', Date.now());
-      }
-    }, WebSocketConfig.PING_INTERVAL);
-  }
-
-  /**
-   * Stop ping interval
-   */
-  private stopPing(): void {
-    if (this.pingInterval) {
-      clearInterval(this.pingInterval);
-      this.pingInterval = null;
-    }
-  }
-
-  /**
-   * Schedule reconnection
-   */
-  private scheduleReconnect(): void {
-    if (this.reconnectTimeout) {
-      clearTimeout(this.reconnectTimeout);
-    }
-
-    const delay = this.calculateReconnectDelay();
-    this.logger.log(`Scheduling WebSocket reconnection in ${delay}ms`);
-
-    this.reconnectTimeout = setTimeout(() => {
-      if (this.socket && !this.socket.connected) {
-        this.socket.connect();
-      }
-    }, delay);
-  }
-
-  /**
-   * Calculate reconnection delay with exponential backoff
-   */
-  private calculateReconnectDelay(): number {
-    const attempt = this.reconnectAttempts.getValue();
-    const delay = Math.min(
-      WebSocketConfig.RECONNECT_DELAY * Math.pow(2, attempt),
-      WebSocketConfig.RECONNECT_DELAY_MAX
-    );
-
-    // Add jitter to avoid thundering herd problem
-    const jitter = delay * 0.2 * Math.random();
-    return delay + jitter;
-  }
-
-  /**
-   * Disconnect WebSocket
-   */
-  disconnect(): void {
-    this.logger.log('Disconnecting WebSocket');
-
-    if (this.reconnectTimeout) {
-      clearTimeout(this.reconnectTimeout);
-      this.reconnectTimeout = null;
-    }
-
-    this.stopPing();
-
-    if (this.socket) {
-      this.socket.disconnect();
-      this.socket = null;
-    }
-
-    this.destroy$.next();
-    this.destroy$.complete();
-  }
-
-  /**
-   * Get connection status observable
-   */
-  get connectionStatus$(): Observable<boolean> {
-    return this.connectionStatusSubject.asObservable().pipe(
-      takeUntil(this.destroy$),
-      shareReplay(1)
-    );
-  }
-
-  /**
-   * Get reconnect attempts observable
-   */
-  get reconnect
+    await this.createQueryBuilder()
+      .update(Document)
+      .set
