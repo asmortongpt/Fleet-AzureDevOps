@@ -28,52 +28,43 @@ function AssetsContent() {
                     value="256"
                     variant="primary"
                     icon={<Tag className="w-6 h-6" />}
-                    onClick={() => push({ type: 'asset-list', id: 'all-assets', data: { filter: 'all' } })}
+                    onClick={() => push({ type: 'asset', label: 'Total Assets', data: { filter: 'all' } })}
                 />
                 <StatCard
                     title="Active"
                     value="234"
                     variant="success"
-                    onClick={() => push({ type: 'asset-list', id: 'active-assets', data: { filter: 'active' } })}
+                    onClick={() => push({ type: 'asset', label: 'Active Assets', data: { filter: 'active' } })}
                 />
                 <StatCard
                     title="In Maintenance"
                     value="18"
                     variant="warning"
-                    onClick={() => push({ type: 'asset-list', id: 'maintenance-assets', data: { filter: 'maintenance' } })}
+                    onClick={() => push({ type: 'asset', label: 'Assets In Maintenance', data: { filter: 'maintenance' } })}
                 />
                 <StatCard
                     title="Retired"
                     value="4"
                     variant="default"
-                    onClick={() => push({ type: 'asset-list', id: 'retired-assets', data: { filter: 'inactive' } })}
+                    onClick={() => push({ type: 'asset', label: 'Retired Assets', data: { filter: 'retired' } })}
                 />
             </div>
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 <div
                     className="bg-gradient-to-br from-slate-800/60 to-slate-900/60 backdrop-blur-xl rounded-xl border border-slate-700/50 p-6 cursor-pointer hover:border-slate-600/50 transition-colors"
-                    onClick={() => push({ type: 'asset-list', id: 'surplus-assets', data: { filter: 'surplus' } })}
+                    onClick={() => push({ type: 'utilization', label: 'Asset Utilization', data: { activeCount: 234, totalCount: 256, rate: 91 } })}
                 >
                     <h3 className="text-sm font-medium text-slate-400 uppercase tracking-wide mb-4">Utilization</h3>
                     <ProgressRing progress={91} color="green" label="Active" sublabel="234 of 256" />
                 </div>
-                <div className="bg-gradient-to-br from-slate-800/60 to-slate-900/60 backdrop-blur-xl rounded-xl border border-slate-700/50 p-6">
+                <div
+                    className="bg-gradient-to-br from-slate-800/60 to-slate-900/60 backdrop-blur-xl rounded-xl border border-slate-700/50 p-6 cursor-pointer hover:border-slate-600/50 transition-colors"
+                    onClick={() => push({ type: 'asset-value', label: 'Asset Value Analysis', data: { totalValue: 4200000, depreciation: 320000, avgAge: 3.4 } })}
+                >
                     <h3 className="text-sm font-medium text-slate-400 uppercase tracking-wide mb-4">Value</h3>
-                    <QuickStat
-                        label="Total Value"
-                        value="$4.2M"
-                        onClick={() => push({ type: 'asset-list', id: 'high-value-assets', data: { filter: 'high-value' } })}
-                    />
-                    <QuickStat
-                        label="Depreciation"
-                        value="$320K"
-                        onClick={() => push({ type: 'asset-list', id: 'low-value-assets', data: { filter: 'low-value' } })}
-                    />
-                    <QuickStat
-                        label="Avg Age"
-                        value="3.4 yrs"
-                        onClick={() => push({ type: 'asset-list', id: 'critical-assets', data: { filter: 'critical' } })}
-                    />
+                    <QuickStat label="Total Value" value="$4.2M" />
+                    <QuickStat label="Depreciation" value="$320K" />
+                    <QuickStat label="Avg Age" value="3.4 yrs" />
                 </div>
             </div>
         </div>
@@ -92,25 +83,25 @@ function EquipmentContent() {
                     value="24"
                     variant="primary"
                     icon={<Engine className="w-6 h-6" />}
-                    onClick={() => push({ type: 'equipment-list', id: 'heavy-equipment', data: { category: 'heavy' } })}
+                    onClick={() => push({ type: 'equipment', label: 'Heavy Equipment', data: { filter: 'heavy' } })}
                 />
                 <StatCard
                     title="In Use"
                     value="18"
                     variant="success"
-                    onClick={() => push({ type: 'equipment-list', id: 'in-use-equipment', data: { category: 'light' } })}
+                    onClick={() => push({ type: 'equipment', label: 'Equipment In Use', data: { filter: 'in-use' } })}
                 />
                 <StatCard
                     title="Available"
                     value="4"
                     variant="default"
-                    onClick={() => push({ type: 'equipment-list', id: 'available-equipment', data: { category: 'specialized' } })}
+                    onClick={() => push({ type: 'equipment', label: 'Available Equipment', data: { filter: 'available' } })}
                 />
                 <StatCard
                     title="Service Due"
                     value="2"
                     variant="warning"
-                    onClick={() => push({ type: 'equipment-list', id: 'service-due-equipment', data: { category: 'tools' } })}
+                    onClick={() => push({ type: 'equipment', label: 'Equipment Service Due', data: { filter: 'service-due' } })}
                 />
             </div>
         </div>
@@ -129,26 +120,26 @@ function InventoryContent() {
                     value="1,456"
                     variant="primary"
                     icon={<Package className="w-6 h-6" />}
-                    onClick={() => push({ type: 'inventory-list', id: 'all-inventory', data: { filter: 'all' } })}
+                    onClick={() => push({ type: 'parts-inventory', label: 'Total Inventory', data: { filter: 'all' } })}
                 />
                 <StatCard
                     title="Tracked"
                     value="1,420"
                     variant="success"
                     icon={<MapPin className="w-6 h-6" />}
-                    onClick={() => push({ type: 'inventory-list', id: 'high-value-inventory', data: { filter: 'high-value' } })}
+                    onClick={() => push({ type: 'parts-inventory', label: 'Tracked Items', data: { filter: 'tracked' } })}
                 />
                 <StatCard
                     title="Low Stock"
                     value="24"
                     variant="warning"
-                    onClick={() => push({ type: 'inventory-list', id: 'low-stock', data: { filter: 'low-stock' } })}
+                    onClick={() => push({ type: 'low-stock', label: 'Low Stock Items', data: { filter: 'low-stock' } })}
                 />
                 <StatCard
                     title="Reorder Pending"
                     value="8"
                     variant="default"
-                    onClick={() => push({ type: 'inventory-list', id: 'out-of-stock', data: { filter: 'out-of-stock' } })}
+                    onClick={() => push({ type: 'purchase-orders', label: 'Reorder Pending', data: { filter: 'pending' } })}
                 />
             </div>
         </div>
