@@ -2,7 +2,7 @@ import { useQuery } from '@tanstack/react-query';
 
 import type { TrafficCamera } from '../types/traffic-cameras';
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
+const API_BASE_URL = (import.meta.env.VITE_API_URL || 'http://localhost:3000').replace(/\/api$/, '');
 
 interface UseTrafficCamerasOptions {
   /** Filter by county */

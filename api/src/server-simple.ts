@@ -18,7 +18,13 @@ const PORT = process.env.PORT || 3000;
 // Middleware
 app.use(helmet());
 app.use(cors({
-  origin: process.env.CORS_ORIGIN?.split(',') || ['http://localhost:5173', 'http://localhost:5174', 'http://localhost:5175'],
+  origin: process.env.CORS_ORIGIN?.split(',') || [
+    'http://localhost:5173',
+    'http://localhost:5174',
+    'http://localhost:5175',
+    'http://20.161.96.87',
+    'https://fleet.capitaltechalliance.com'
+  ],
   credentials: true,
 }));
 app.use(express.json());

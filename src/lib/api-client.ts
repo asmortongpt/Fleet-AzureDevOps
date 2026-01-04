@@ -8,7 +8,7 @@ const logger = createLogger();
  */
 
 // API base URL - defaults to current origin since endpoints already include /api
-const API_BASE_URL = import.meta.env.VITE_API_URL || window.location.origin
+const API_BASE_URL = (import.meta.env.VITE_API_URL || window.location.origin).replace(/\/api$/, '')
 
 export class APIError extends Error {
   constructor(
