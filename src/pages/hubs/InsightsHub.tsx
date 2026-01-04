@@ -9,13 +9,20 @@ import {
   Lightning,
   Warning,
 } from "@phosphor-icons/react";
-import React, { useState } from "react";
+import React, { Suspense, useState } from "react";
 
 import { HubLayout } from "../../components/layout/HubLayout";
 import { Badge } from "../../components/ui/badge";
 import { Button } from "../../components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "../../components/ui/card";
-import { useFleetData } from "../../hooks/use-fleet-data";
+
+// Import actual analytics module components
+import { CostAnalysisCenter } from "../../components/modules/analytics/CostAnalysisCenter";
+import { CustomReportBuilder } from "../../components/modules/analytics/CustomReportBuilder";
+import { DataWorkbench } from "../../components/modules/analytics/DataWorkbench";
+import { ExecutiveDashboard } from "../../components/modules/analytics/ExecutiveDashboard";
+import { FleetAnalytics } from "../../components/modules/fleet/FleetAnalytics";
+import { PredictiveMaintenance } from "../../components/modules/maintenance/PredictiveMaintenance";
 
 type InsightsModule =
   | "overview"
@@ -350,22 +357,21 @@ const PredictiveMaintenance: React.FC = () => (
 
 const InsightsHub: React.FC = () => {
   const [activeModule, setActiveModule] = useState<InsightsModule>("overview");
-  const fleetData = useFleetData();
 
   const renderModule = () => {
     switch (activeModule) {
       case "executive":
-        return <ExecutiveDashboard />;
+        return <Suspense fallback={<ModuleLoader />}><ExecutiveDashboard /></Suspense>;
       case "analytics":
-        return <FleetAnalytics data={fleetData} />;
+        return <Suspense fallback={<ModuleLoader />}><FleetAnalytics /></Suspense>;
       case "reports":
-        return <CustomReportBuilder />;
+        return <Suspense fallback={<ModuleLoader />}><CustomReportBuilder /></Suspense>;
       case "workbench":
-        return <DataWorkbench />;
+        return <Suspense fallback={<ModuleLoader />}><DataWorkbench /></Suspense>;
       case "cost-analysis":
-        return <CostAnalysisCenter />;
+        return <Suspense fallback={<ModuleLoader />}><CostAnalysisCenter /></Suspense>;
       case "predictive":
-        return <PredictiveMaintenance />;
+        return <Suspense fallback={<ModuleLoader />}><PredictiveMaintenance /></Suspense>;
       case "overview":
       default:
         return (

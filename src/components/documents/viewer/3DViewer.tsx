@@ -11,6 +11,7 @@ import { Suspense, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Slider } from '@/components/ui/slider';
 import { DocumentMetadata } from '@/lib/documents/types';
+import { cn } from '@/lib/utils';
 
 interface ThreeDViewerProps {
   document: DocumentMetadata;

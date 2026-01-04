@@ -262,8 +262,76 @@ const WorkOrdersPanel = ({ workOrders, onWorkOrderSelect }: { workOrders: WorkOr
   )
 }
 
+// Mock parts data
+interface Part {
+  id: string
+  name: string
+  partNumber: string
+  quantity: number
+  reorderPoint: number
+  status: 'in_stock' | 'low_stock' | 'out_of_stock' | 'on_order'
+  location: string
+  lastUsed?: string
+}
+
+interface Technician {
+  id: string
+  name: string
+  status: 'available' | 'busy' | 'break' | 'off'
+  currentTask?: string
+  completedToday: number
+}
+
+const mockParts: Part[] = [
+  { id: 'p1', name: 'Oil Filter', partNumber: 'OF-2024A', quantity: 45, reorderPoint: 20, status: 'in_stock', location: 'Shelf A-1' },
+  { id: 'p2', name: 'Brake Pads (Front)', partNumber: 'BP-F100', quantity: 8, reorderPoint: 15, status: 'low_stock', location: 'Shelf B-3' },
+  { id: 'p3', name: 'Air Filter', partNumber: 'AF-2024B', quantity: 32, reorderPoint: 10, status: 'in_stock', location: 'Shelf A-2' },
+  { id: 'p4', name: 'Spark Plugs (4-pack)', partNumber: 'SP-4PK', quantity: 0, reorderPoint: 12, status: 'on_order', location: 'Shelf C-1' },
+  { id: 'p5', name: 'Transmission Fluid', partNumber: 'TF-ATF4', quantity: 24, reorderPoint: 8, status: 'in_stock', location: 'Shelf D-2' },
+]
+
+const mockTechnicians: Technician[] = [
+  { id: 't1', name: 'Mike Johnson', status: 'busy', currentTask: 'V-1042 Oil Change', completedToday: 3 },
+  { id: 't2', name: 'Sarah Chen', status: 'available', completedToday: 5 },
+  { id: 't3', name: 'James Wilson', status: 'busy', currentTask: 'V-1087 Brake Service', completedToday: 2 },
+  { id: 't4', name: 'Maria Garcia', status: 'break', completedToday: 4 },
+]
+
 // Parts Inventory Panel
 const PartsPanel = ({ _parts }: { _parts: unknown }) => {
+  const getStatusColor = (status: Part['status']) => {
+    switch (status) {
+      case 'in_stock': return 'bg-green-500'
+      case 'low_stock': return 'bg-yellow-500'
+      case 'out_of_stock': return 'bg-red-500'
+      case 'on_order': return 'bg-blue-500'
+    }
+  }
+
+  const getStatusLabel = (status: Part['status']) => {
+    switch (status) {
+      case 'in_stock': return 'In Stock'
+      case 'low_stock': return 'Low Stock'
+      case 'out_of_stock': return 'Out of Stock'
+      case 'on_order': return 'On Order'
+    }
+  }
+
+  const getTechStatusColor = (status: Technician['status']) => {
+    switch (status) {
+      case 'available': return 'bg-green-500'
+      case 'busy': return 'bg-yellow-500'
+      case 'break': return 'bg-orange-500'
+      case 'off': return 'bg-gray-500'
+    }
+  }
+
+  // Calculate stats
+  const openWorkOrders = 12
+  const avgCompletionTime = '2.4h'
+  const partsOnOrder = mockParts.filter(p => p.status === 'on_order').length
+  const lowStockItems = mockParts.filter(p => p.status === 'low_stock').length
+
   return (
     <ScrollArea className="h-full">
       <div className="p-4">
