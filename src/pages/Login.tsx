@@ -1,4 +1,4 @@
-import { CarProfile } from '@phosphor-icons/react'
+import { CarProfile, Sparkle } from '@phosphor-icons/react'
 import { useMutation } from '@tanstack/react-query'
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
@@ -23,6 +23,12 @@ export function Login() {
   // Pre-fill credentials in DEV mode for quick access
   const [email, setEmail] = useState(import.meta.env.DEV ? 'admin@fleet.local' : '')
   const [password, setPassword] = useState(import.meta.env.DEV ? 'demo123' : '')
+  const [isLoaded, setIsLoaded] = useState(false)
+
+  // Animation trigger on mount
+  useEffect(() => {
+    setIsLoaded(true)
+  }, [])
 
   // AUTO-LOGIN in DEV mode (enabled for testing)
   // SECURITY FIX P3 LOW-SEC-001: Use logger instead of console.log
@@ -122,26 +128,58 @@ export function Login() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800 flex items-center justify-center p-4">
-      <Card className="w-full max-w-md shadow-xl">
-        <CardHeader className="space-y-4">
+    <div className="min-h-screen bg-gradient-to-br from-background via-background to-primary/5 flex items-center justify-center p-4 sm:p-6 lg:p-8">
+      {/* Background decorative elements */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute -top-1/2 -right-1/2 w-full h-full bg-gradient-to-bl from-primary/10 via-transparent to-transparent rounded-full blur-3xl" />
+        <div className="absolute -bottom-1/2 -left-1/2 w-full h-full bg-gradient-to-tr from-primary/5 via-transparent to-transparent rounded-full blur-3xl" />
+      </div>
+
+      <Card
+        className={`
+          relative w-full max-w-md
+          bg-card/95 backdrop-blur-xl
+          border border-border/50
+          shadow-2xl shadow-primary/5
+          rounded-2xl
+          transition-all duration-700 ease-out
+          ${isLoaded ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}
+        `}
+      >
+        <CardHeader className="space-y-4 pb-4 sm:pb-6">
           <div className="flex justify-center">
-            <div className="p-4 bg-primary text-primary-foreground rounded-2xl">
-              <CarProfile className="w-12 h-12" weight="bold" />
+            <div
+              className={`
+                relative p-4 sm:p-5
+                bg-gradient-to-br from-primary to-primary/80
+                text-primary-foreground
+                rounded-2xl
+                shadow-lg shadow-primary/25
+                transition-all duration-500 delay-200
+                ${isLoaded ? 'scale-100' : 'scale-90'}
+              `}
+            >
+              <CarProfile className="w-10 h-10 sm:w-12 sm:h-12" weight="bold" />
+              <Sparkle
+                className="absolute -top-1 -right-1 w-4 h-4 text-warning animate-pulse"
+                weight="fill"
+              />
             </div>
           </div>
           <div className="space-y-2 text-center">
-            <CardTitle className="text-2xl font-bold">Fleet Manager</CardTitle>
-            <CardDescription>
+            <CardTitle className="text-xl sm:text-2xl font-bold tracking-tight">
+              Fleet Manager
+            </CardTitle>
+            <CardDescription className="text-sm sm:text-base text-muted-foreground">
               Sign in to access your fleet management dashboard
             </CardDescription>
           </div>
         </CardHeader>
 
-        <CardContent className="space-y-6">
+        <CardContent className="space-y-5 sm:space-y-6">
           {/* Show URL errors */}
           {urlError && (
-            <Alert variant="destructive">
+            <Alert variant="destructive" className="animate-in slide-in-from-top-2">
               <AlertDescription>
                 {urlMessage || 'Authentication failed. Please try again.'}
               </AlertDescription>
@@ -150,7 +188,7 @@ export function Login() {
 
           {/* Show form errors from mutation */}
           {emailLoginMutation.isError && (
-            <Alert variant="destructive">
+            <Alert variant="destructive" className="animate-in slide-in-from-top-2">
               <AlertDescription>
                 {emailLoginMutation.error instanceof Error
                   ? emailLoginMutation.error.message
@@ -163,10 +201,10 @@ export function Login() {
           <Button
             type="button"
             variant="outline"
-            className="w-full h-12 text-base font-medium hover:bg-gray-50 dark:hover:bg-gray-800"
+            className="w-full h-11 sm:h-12 text-sm sm:text-base font-medium hover:bg-muted/50 transition-all duration-200"
             onClick={handleMicrosoftLogin}
           >
-            <svg className="w-5 h-5 mr-3" viewBox="0 0 23 23">
+            <svg className="w-4 h-4 sm:w-5 sm:h-5 mr-2 sm:mr-3" viewBox="0 0 23 23">
               <path fill="#f35325" d="M1 1h10v10H1z" />
               <path fill="#81bc06" d="M12 1h10v10H12z" />
               <path fill="#05a6f0" d="M1 12h10v10H1z" />
@@ -177,10 +215,10 @@ export function Login() {
 
           <div className="relative">
             <div className="absolute inset-0 flex items-center">
-              <Separator />
+              <Separator className="w-full" />
             </div>
             <div className="relative flex justify-center text-xs uppercase">
-              <span className="bg-background px-2 text-muted-foreground">
+              <span className="bg-card px-3 text-muted-foreground">
                 Or continue with email
               </span>
             </div>
@@ -189,7 +227,9 @@ export function Login() {
           {/* Email/Password Form */}
           <form onSubmit={handleEmailLogin} className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
+              <Label htmlFor="email" className="text-sm font-medium">
+                Email
+              </Label>
               <Input
                 id="email"
                 type="email"
@@ -198,38 +238,61 @@ export function Login() {
                 onChange={(e) => setEmail(e.target.value)}
                 required
                 disabled={emailLoginMutation.isPending}
+                className="h-10 sm:h-11 bg-background/50 focus:bg-background transition-colors"
               />
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="password">Password</Label>
+              <Label htmlFor="password" className="text-sm font-medium">
+                Password
+              </Label>
               <Input
                 id="password"
                 type="password"
-                placeholder="demo123"
+                placeholder="Enter your password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
                 disabled={emailLoginMutation.isPending}
+                className="h-10 sm:h-11 bg-background/50 focus:bg-background transition-colors"
               />
             </div>
 
             <Button
               type="submit"
-              className="w-full h-12 text-base font-medium"
+              className="w-full h-11 sm:h-12 text-sm sm:text-base font-semibold shadow-lg shadow-primary/20 hover:shadow-xl hover:shadow-primary/30 transition-all duration-300"
               disabled={emailLoginMutation.isPending}
             >
-              {emailLoginMutation.isPending ? 'Signing in...' : 'Sign in'}
+              {emailLoginMutation.isPending ? (
+                <span className="flex items-center gap-2">
+                  <span className="w-4 h-4 border-2 border-primary-foreground/30 border-t-primary-foreground rounded-full animate-spin" />
+                  Signing in...
+                </span>
+              ) : (
+                'Sign in'
+              )}
             </Button>
           </form>
 
-          <div className="text-center text-sm text-muted-foreground">
+          <div className="text-center text-xs sm:text-sm text-muted-foreground pt-2">
             <p>
               Need help? Contact your system administrator for credentials.
             </p>
           </div>
         </CardContent>
       </Card>
+
+      {/* Footer branding */}
+      <div
+        className={`
+          absolute bottom-4 sm:bottom-6 left-1/2 -translate-x-1/2
+          text-xs text-muted-foreground/60
+          transition-all duration-700 delay-500
+          ${isLoaded ? 'opacity-100' : 'opacity-0'}
+        `}
+      >
+        Fleet Management System v2.0
+      </div>
     </div>
   )
 }
