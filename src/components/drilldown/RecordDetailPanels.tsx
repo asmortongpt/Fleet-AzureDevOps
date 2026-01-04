@@ -14,7 +14,7 @@ import {
   Package,
   FileText,
   Truck,
-  Tool,
+  Wrench,
   AlertTriangle,
   CheckCircle,
   DollarSign,
@@ -148,7 +148,7 @@ export function AssetDetailPanel({ assetId }: AssetDetailPanelProps) {
             <DetailRow label="Asset ID" value={asset.id} icon={<Package className="w-4 h-4" />} />
             <DetailRow label="Serial Number" value={asset.serialNumber} icon={<FileText className="w-4 h-4" />} />
             <DetailRow label="Manufacturer" value={asset.manufacturer} icon={<Building className="w-4 h-4" />} />
-            <DetailRow label="Model" value={asset.model} icon={<Tool className="w-4 h-4" />} />
+            <DetailRow label="Model" value={asset.model} icon={<Wrench className="w-4 h-4" />} />
           </div>
         </DetailSection>
 
