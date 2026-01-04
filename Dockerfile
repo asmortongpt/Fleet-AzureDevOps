@@ -20,7 +20,7 @@ RUN echo 'proxy_temp_path /var/cache/nginx/proxy_temp; \
     scgi_temp_path /var/cache/nginx/scgi_temp; \
     \
     server { \
-    listen 3000; \
+    listen 8080; \
     root /usr/share/nginx/html; \
     index index.html; \
     \
@@ -136,4 +136,4 @@ RUN echo 'proxy_temp_path /var/cache/nginx/proxy_temp; \
     chown nginx-app:nginx-app /var/run/nginx.pid
 
 USER nginx-app
-EXPOSE 3000
+EXPOSE 8080
