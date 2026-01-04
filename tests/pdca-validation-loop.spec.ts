@@ -8,9 +8,8 @@
  * 4. ACT: Generate detailed remediation report for missing features
  */
 
+import { test, expect, Page } from '@playwright/test';
 import { writeFileSync } from 'fs';
-
-import { test } from '@playwright/test';
 
 // ============================================================================
 // PLAN: Define Expected Functionality
