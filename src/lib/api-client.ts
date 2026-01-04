@@ -591,18 +591,33 @@ class APIClient {
 
   // Personal Use tracking endpoints
   personalUse = {
-    list: (params?: Record<string, unknown>) => this.get('/api/personal-use', params),
-    get: (id: string) => this.get(`/api/personal-use/${id}`),
-    create: (data: unknown) => this.post('/api/personal-use', data),
-    update: (id: string, data: unknown) => this.put(`/api/personal-use/${id}`, data),
-    delete: (id: string) => this.delete(`/api/personal-use/${id}`),
-    getPolicies: (params?: Record<string, unknown>) => this.get('/api/personal-use/policies', params),
-    getTripUsages: (params?: Record<string, unknown>) => this.get('/api/personal-use/trip-usages', params),
-    getTripUsage: (id: string) => this.get(`/api/personal-use/trip-usages/${id}`),
-    createTripUsage: (data: unknown) => this.post('/api/personal-use/trip-usages', data),
-    markTrip: (tripId: string, data: unknown) => this.post(`/api/personal-use/trips/${tripId}/mark`, data),
-    updateTripUsage: (id: string, data: unknown) => this.put(`/api/personal-use/trip-usages/${id}`, data),
-    deleteTripUsage: (id: string) => this.delete(`/api/personal-use/trip-usages/${id}`)
+    // Personal use policies
+    getPolicies: (params?: Record<string, unknown>) => this.get('/api/personal-use-policies', params),
+    updatePolicy: (tenantId: string, data: unknown) => this.put(`/api/personal-use-policies/${tenantId}`, data),
+    getDriverLimits: (driverId: string) => this.get(`/api/personal-use-policies/limits/${driverId}`),
+
+    // Trip usage classifications
+    getTripUsages: (params?: Record<string, unknown>) => this.get('/api/trip-usage', params),
+    getTripUsage: (id: string) => this.get(`/api/trip-usage/${id}`),
+    createTripUsage: (data: unknown) => this.post('/api/trip-usage', data),
+    updateTripUsage: (id: string, data: unknown) => this.put(`/api/trip-usage/${id}`, data),
+    deleteTripUsage: (id: string) => this.delete(`/api/trip-usage/${id}`),
+
+    // Trip approvals
+    getPendingApprovals: (params?: Record<string, unknown>) => this.get('/api/trip-usage/pending-approval', params),
+    approveTrip: (id: string, data?: unknown) => this.post(`/api/trip-usage/${id}/approve`, data || {}),
+    rejectTrip: (id: string, data: { rejection_reason: string }) => this.post(`/api/trip-usage/${id}/reject`, data),
+
+    // Personal use charges
+    getCharges: (params?: Record<string, unknown>) => this.get('/api/personal-use-charges', params),
+    getCharge: (id: string) => this.get(`/api/personal-use-charges/${id}`),
+    createCharge: (data: unknown) => this.post('/api/personal-use-charges', data),
+    updateCharge: (id: string, data: unknown) => this.put(`/api/personal-use-charges/${id}`, data),
+    waiveCharge: (id: string, data: { waived_reason: string }) => this.post(`/api/personal-use-charges/${id}/waive`, data),
+    calculateCharges: (data: { driver_id: string; charge_period: string }) => this.post('/api/personal-use-charges/calculate', data),
+
+    // Legacy support
+    markTrip: (tripId: string, data: unknown) => this.post(`/api/trip-usage`, { trip_id: tripId, ...data })
   }
 
   // Adaptive Cards endpoints
