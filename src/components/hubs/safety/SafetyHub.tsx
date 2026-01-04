@@ -8,7 +8,6 @@
  * - Safety inspection routes
  * - Incident report panel
  * - OSHA compliance metrics dashboard
- * - ENHANCED: Full drill-down navigation support
  */
 
 import {
@@ -19,15 +18,11 @@ import {
   CheckCircle,
   XCircle,
   FileText,
-  Calendar,
-  ShieldCheck
+  Calendar
 } from "@phosphor-icons/react"
 import { GoogleMap, LoadScript, Marker, Circle } from "@react-google-maps/api"
 import { useState, useMemo } from "react"
-import { toast } from "sonner"
 
-import { DrilldownCard } from "@/components/drilldown/DrilldownCard"
-import { DrilldownDataTable, DrilldownColumn } from "@/components/drilldown/DrilldownDataTable"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -48,12 +43,7 @@ import {
 } from "@/components/ui/table"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { useDrilldown } from "@/contexts/DrilldownContext"
-import { usePolicies } from "@/contexts/PolicyContext"
-import {
-  enforceSafetyIncidentPolicy,
-  shouldBlockAction,
-  getApprovalRequirements
-} from "@/lib/policy-engine/policy-enforcement"
+import { useFleetData } from "@/hooks/use-fleet-data"
 
 // Safety incident severity levels
 type IncidentSeverity = "critical" | "high" | "medium" | "low"
@@ -71,9 +61,7 @@ interface SafetyIncident {
     address: string
   }
   vehicleId?: string
-  vehicleName?: string
   driverId?: string
-  driverName?: string
   date: string
   description: string
   injuries: number
@@ -122,171 +110,7 @@ interface OSHAMetrics {
   trend: "improving" | "stable" | "declining"
 }
 
-// Demo data for safety incidents
-const demoIncidents: SafetyIncident[] = [
-  {
-    id: "inc-001",
-    type: "Vehicle Collision",
-    severity: "critical",
-    status: "investigating",
-    location: { lat: 30.4383, lng: -84.2807, address: "1500 S Adams St, Tallahassee, FL" },
-    vehicleId: "veh-demo-1001",
-    vehicleName: "Ford F-150 #1001",
-    driverId: "drv-001",
-    driverName: "John Smith",
-    date: "2025-12-15",
-    description: "Rear-end collision at intersection during peak hours",
-    injuries: 2,
-    oshaRecordable: true,
-    workDaysLost: 5,
-    reportedBy: "John Smith"
-  },
-  {
-    id: "inc-002",
-    type: "Slip and Fall",
-    severity: "medium",
-    status: "resolved",
-    location: { lat: 30.4550, lng: -84.2500, address: "North Service Center, Tallahassee, FL" },
-    vehicleId: "veh-demo-1002",
-    vehicleName: "Chevrolet Silverado #1002",
-    date: "2025-12-10",
-    description: "Employee slipped on wet floor in maintenance bay",
-    injuries: 1,
-    oshaRecordable: true,
-    workDaysLost: 2,
-    reportedBy: "Sarah Johnson"
-  },
-  {
-    id: "inc-003",
-    type: "Near Miss",
-    severity: "low",
-    status: "closed",
-    location: { lat: 30.4200, lng: -84.3100, address: "South Warehouse, Tallahassee, FL" },
-    date: "2025-12-08",
-    description: "Forklift nearly collided with pedestrian in warehouse",
-    injuries: 0,
-    oshaRecordable: false,
-    workDaysLost: 0,
-    reportedBy: "Mike Davis"
-  },
-  {
-    id: "inc-004",
-    type: "Equipment Malfunction",
-    severity: "high",
-    status: "open",
-    location: { lat: 30.4400, lng: -84.2600, address: "East Depot, Tallahassee, FL" },
-    vehicleId: "veh-demo-1015",
-    vehicleName: "Mercedes Sprinter #1015",
-    date: "2025-12-14",
-    description: "Brake failure reported during routine operation",
-    injuries: 0,
-    oshaRecordable: false,
-    workDaysLost: 0,
-    reportedBy: "Lisa Chen"
-  },
-  {
-    id: "inc-005",
-    type: "Chemical Exposure",
-    severity: "medium",
-    status: "investigating",
-    location: { lat: 30.4300, lng: -84.3000, address: "West Facility, Tallahassee, FL" },
-    date: "2025-12-12",
-    description: "Minor chemical spill during refueling operation",
-    injuries: 0,
-    oshaRecordable: true,
-    workDaysLost: 1,
-    reportedBy: "Tom Wilson"
-  }
-]
-
-// Demo hazard zones
-const demoHazardZones: HazardZone[] = [
-  {
-    id: "hz-001",
-    name: "Construction Zone - I-10 East",
-    type: "physical",
-    location: { lat: 30.4500, lng: -84.2700 },
-    radius: 500,
-    severity: "high",
-    restrictions: ["Speed limit 35 mph", "No lane changes", "Increased following distance"],
-    activeFrom: "2025-12-01",
-    activeTo: "2026-03-31"
-  },
-  {
-    id: "hz-002",
-    name: "Flood Prone Area - S Monroe St",
-    type: "environmental",
-    location: { lat: 30.4200, lng: -84.2800 },
-    radius: 300,
-    severity: "medium",
-    restrictions: ["Avoid during heavy rain", "Check water levels", "Use alternate route if flooded"],
-    activeFrom: "2025-06-01",
-    activeTo: "2025-11-30"
-  },
-  {
-    id: "hz-003",
-    name: "Chemical Storage Facility",
-    type: "chemical",
-    location: { lat: 30.4600, lng: -84.2900 },
-    radius: 200,
-    severity: "high",
-    restrictions: ["Authorized personnel only", "PPE required", "No smoking"],
-    activeFrom: "2024-01-01"
-  }
-]
-
-// Demo safety inspections
-const demoInspections: SafetyInspection[] = [
-  {
-    id: "insp-001",
-    vehicleId: "veh-demo-1001",
-    vehicleName: "Ford F-150",
-    inspectorId: "emp-001",
-    inspectorName: "Safety Inspector A",
-    date: "2025-12-14",
-    passed: true,
-    violations: 0,
-    notes: "All safety systems operational",
-    nextInspection: "2026-01-14"
-  },
-  {
-    id: "insp-002",
-    vehicleId: "veh-demo-1002",
-    vehicleName: "Chevrolet Silverado",
-    inspectorId: "emp-001",
-    inspectorName: "Safety Inspector A",
-    date: "2025-12-13",
-    passed: false,
-    violations: 2,
-    notes: "Brake pad wear exceeds limits, windshield wiper replacement needed",
-    nextInspection: "2025-12-20"
-  },
-  {
-    id: "insp-003",
-    vehicleId: "veh-demo-1003",
-    vehicleName: "Mercedes Sprinter",
-    inspectorId: "emp-002",
-    inspectorName: "Safety Inspector B",
-    date: "2025-12-12",
-    passed: true,
-    violations: 0,
-    notes: "Excellent condition, no issues found",
-    nextInspection: "2026-01-12"
-  }
-]
-
-// Demo OSHA metrics
-const demoOSHAMetrics: OSHAMetrics = {
-  totalIncidents: 5,
-  recordableIncidents: 3,
-  lostTimeIncidents: 2,
-  totalWorkDaysLost: 8,
-  incidentRate: 2.4, // per 100 employees
-  severityRate: 1.2,
-  daysWithoutIncident: 2,
-  complianceScore: 87,
-  trend: "stable"
-}
+// Data is now loaded from useFleetData hook - no hardcoded demo data
 
 const mapContainerStyle = {
   width: "100%",
@@ -327,174 +151,154 @@ const getHazardColor = (severity: string): string => {
 }
 
 export function SafetyHub() {
-  const { getPoliciesByType, policies } = usePolicies()
   const { push } = useDrilldown()
-  const safetyPolicies = getPoliciesByType('safety')
-  const activeSafetyPolicies = safetyPolicies.filter(p => p.status === 'active')
-
+  const fleetData = useFleetData()
   const [activeTab, setActiveTab] = useState("incidents")
   const [severityFilter, setSeverityFilter] = useState<string>("all")
   const [statusFilter, setStatusFilter] = useState<string>("all")
   const [mapLoaded, setMapLoaded] = useState(false)
-  const [isReportingIncident, setIsReportingIncident] = useState(false)
+
+  // Transform incidents from fleet data
+  const incidents: SafetyIncident[] = useMemo(() => {
+    const rawIncidents = fleetData.incidents || []
+    return rawIncidents.map((inc: any) => ({
+      id: inc.id,
+      type: inc.type || inc.incidentType || 'Incident',
+      severity: inc.severity || 'medium',
+      status: inc.status || 'open',
+      location: inc.location || { lat: 30.4383, lng: -84.2807, address: inc.address || 'Unknown' },
+      vehicleId: inc.vehicleId,
+      driverId: inc.driverId,
+      date: inc.date || inc.createdAt || new Date().toISOString(),
+      description: inc.description || '',
+      injuries: inc.injuries || 0,
+      oshaRecordable: inc.oshaRecordable || false,
+      workDaysLost: inc.workDaysLost || 0,
+      reportedBy: inc.reportedBy || 'Unknown'
+    }))
+  }, [fleetData.incidents])
+
+  // Transform hazard zones from fleet data
+  const hazardZones: HazardZone[] = useMemo(() => {
+    const rawZones = fleetData.hazardZones || []
+    return rawZones.map((zone: any) => ({
+      id: zone.id,
+      name: zone.name || 'Hazard Zone',
+      type: zone.type || 'physical',
+      location: zone.location || { lat: 30.4383, lng: -84.2807 },
+      radius: zone.radius || 200,
+      severity: zone.severity || 'medium',
+      restrictions: zone.restrictions || [],
+      activeFrom: zone.activeFrom || new Date().toISOString(),
+      activeTo: zone.activeTo
+    }))
+  }, [fleetData.hazardZones])
+
+  // Transform inspections from fleet data
+  const inspections: SafetyInspection[] = useMemo(() => {
+    const rawInspections = fleetData.inspections || []
+    return rawInspections.map((insp: any) => ({
+      id: insp.id,
+      vehicleId: insp.vehicleId,
+      vehicleName: insp.vehicleName || insp.vehicleNumber || 'Unknown Vehicle',
+      inspectorId: insp.inspectorId || insp.inspectedBy,
+      inspectorName: insp.inspectorName || 'Inspector',
+      date: insp.date || insp.createdAt || new Date().toISOString(),
+      passed: insp.passed ?? insp.status === 'passed',
+      violations: insp.violations || 0,
+      notes: insp.notes || '',
+      nextInspection: insp.nextInspection || insp.nextDue || ''
+    }))
+  }, [fleetData.inspections])
+
+  // Calculate OSHA metrics from incidents data
+  const oshaMetrics: OSHAMetrics = useMemo(() => {
+    const recordable = incidents.filter(i => i.oshaRecordable)
+    const lostTime = incidents.filter(i => i.workDaysLost > 0)
+    const totalDaysLost = incidents.reduce((sum, i) => sum + i.workDaysLost, 0)
+
+    // Calculate days without incident
+    const sortedIncidents = [...incidents].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
+    const lastIncidentDate = sortedIncidents[0]?.date ? new Date(sortedIncidents[0].date) : new Date()
+    const daysWithout = Math.floor((new Date().getTime() - lastIncidentDate.getTime()) / (1000 * 60 * 60 * 24))
+
+    return {
+      totalIncidents: incidents.length,
+      recordableIncidents: recordable.length,
+      lostTimeIncidents: lostTime.length,
+      totalWorkDaysLost: totalDaysLost,
+      incidentRate: incidents.length > 0 ? parseFloat((incidents.length / 100 * 200000 / 2080).toFixed(2)) : 0,
+      severityRate: incidents.length > 0 ? parseFloat((totalDaysLost / 100 * 200000 / 2080).toFixed(2)) : 0,
+      daysWithoutIncident: daysWithout > 0 ? daysWithout : 0,
+      complianceScore: 100 - (recordable.length * 5),
+      trend: incidents.length === 0 ? 'improving' : recordable.length > 2 ? 'declining' : 'stable'
+    }
+  }, [incidents])
+
+  // Drilldown handlers
+  const handleIncidentClick = (incident: SafetyIncident) => {
+    push({
+      type: 'incident',
+      label: `${incident.type} - ${incident.id}`,
+      data: { incidentId: incident.id, type: incident.type, severity: incident.severity }
+    })
+  }
+
+  const handleVehicleClick = (e: React.MouseEvent, vehicleId: string) => {
+    e.stopPropagation()
+    push({
+      type: 'vehicle',
+      label: vehicleId,
+      data: { vehicleId }
+    })
+  }
+
+  const handleDriverClick = (e: React.MouseEvent, driverId: string) => {
+    e.stopPropagation()
+    push({
+      type: 'driver',
+      label: driverId,
+      data: { driverId }
+    })
+  }
+
+  const handleInspectionClick = (inspection: SafetyInspection) => {
+    push({
+      type: 'inspection',
+      label: `Inspection - ${inspection.vehicleName}`,
+      data: { inspectionId: inspection.id, vehicleId: inspection.vehicleId }
+    })
+  }
+
+  const handleHazardZoneClick = (zone: HazardZone) => {
+    push({
+      type: 'hazard-zone',
+      label: zone.name,
+      data: { zoneId: zone.id, zoneName: zone.name, severity: zone.severity }
+    })
+  }
+
+  const handleMetricClick = (metricType: string, label: string) => {
+    push({
+      type: metricType as any,
+      label,
+      data: { filter: metricType }
+    })
+  }
 
   const filteredIncidents = useMemo(() => {
-    return demoIncidents.filter(incident => {
+    return incidents.filter(incident => {
       if (severityFilter !== "all" && incident.severity !== severityFilter) return false
       if (statusFilter !== "all" && incident.status !== statusFilter) return false
       return true
     })
-  }, [severityFilter, statusFilter])
-
-  const openIncidents = useMemo(() => {
-    return demoIncidents.filter(i => i.status === "open" || i.status === "investigating")
-  }, [])
+  }, [incidents, severityFilter, statusFilter])
 
   const recentInspections = useMemo(() => {
-    return [...demoInspections].sort((a, b) =>
+    return [...inspections].sort((a, b) =>
       new Date(b.date).getTime() - new Date(a.date).getTime()
     ).slice(0, 5)
-  }, [])
-
-  // Handler for reporting new incidents with policy enforcement
-  const handleReportIncident = async () => {
-    setIsReportingIncident(true)
-
-    // Sample incident data - in real implementation, this would come from a form
-    const incidentData = {
-      severity: "medium" as const,
-      type: "Near Miss",
-      vehicleId: "veh-demo-1001",
-      driverId: "drv-001",
-      injuries: 0,
-      oshaRecordable: false
-    }
-
-    try {
-      // Enforce safety incident policy before allowing submission
-      const result = await enforceSafetyIncidentPolicy(policies, incidentData)
-
-      // Check if action should be blocked
-      if (shouldBlockAction(result)) {
-        toast.error("Policy Violation", {
-          description: "This incident cannot be reported without resolving policy violations"
-        })
-        setIsReportingIncident(false)
-        return
-      }
-
-      // Check if approval is required
-      const approvalReq = getApprovalRequirements(result)
-      if (approvalReq.required) {
-        toast.warning(`${approvalReq.level?.toUpperCase()} Approval Required`, {
-          description: approvalReq.reason
-        })
-        // In real implementation, route to approval workflow
-      }
-
-      // If we reach here, either policy allows it or requires approval
-      if (result.allowed) {
-        toast.success("Incident Report Initiated", {
-          description: approvalReq.required
-            ? "Report submitted for approval"
-            : "Report submitted successfully"
-        })
-        // Proceed with incident creation
-      }
-    } catch (error) {
-      toast.error("Error", {
-        description: "Failed to validate incident against policies"
-      })
-    } finally {
-      setIsReportingIncident(false)
-    }
-  }
-
-  // Handle incident marker click
-  const handleIncidentMarkerClick = (incident: SafetyIncident) => {
-    push({
-      id: `incident-${incident.id}`,
-      type: 'incident',
-      label: `Incident: ${incident.type}`,
-      data: {
-        incidentId: incident.id,
-        ...incident
-      }
-    })
-  }
-
-  // Handle hazard zone click
-  const handleHazardZoneClick = (zone: HazardZone) => {
-    push({
-      id: `hazard-zone-${zone.id}`,
-      type: 'hazard-zone',
-      label: zone.name,
-      data: {
-        hazardZoneId: zone.id,
-        ...zone
-      }
-    })
-  }
-
-  // Incident table columns with drilldown
-  const incidentColumns: DrilldownColumn<SafetyIncident>[] = [
-    {
-      key: 'date',
-      header: 'Date',
-      sortable: true,
-      render: (incident) => new Date(incident.date).toLocaleDateString(),
-    },
-    {
-      key: 'type',
-      header: 'Type',
-      sortable: true,
-    },
-    {
-      key: 'severity',
-      header: 'Severity',
-      sortable: true,
-      render: (incident) => (
-        <Badge variant={getSeverityColor(incident.severity)}>
-          {incident.severity}
-        </Badge>
-      ),
-    },
-    {
-      key: 'status',
-      header: 'Status',
-      sortable: true,
-      render: (incident) => (
-        <Badge variant="outline">
-          {incident.status}
-        </Badge>
-      ),
-    },
-    {
-      key: 'vehicleName',
-      header: 'Vehicle',
-      drilldown: {
-        recordType: 'vehicle',
-        getRecordId: (incident) => incident.vehicleId,
-        getRecordLabel: (incident) => incident.vehicleName || `Vehicle ${incident.vehicleId}`,
-      },
-      render: (incident) => incident.vehicleName || '-',
-    },
-    {
-      key: 'oshaRecordable',
-      header: 'OSHA',
-      render: (incident) => incident.oshaRecordable ? (
-        <CheckCircle className="w-4 h-4 text-orange-500" />
-      ) : (
-        <XCircle className="w-4 h-4 text-muted-foreground" />
-      ),
-    },
-    {
-      key: 'workDaysLost',
-      header: 'Days Lost',
-      sortable: true,
-      className: 'text-right',
-    },
-  ]
+  }, [inspections])
 
   const apiKey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY || ""
 
@@ -507,16 +311,9 @@ export function SafetyHub() {
             <h1 className="text-2xl font-bold flex items-center gap-2">
               <FirstAid className="w-6 h-6 text-red-500" />
               Safety Hub
-              {activeSafetyPolicies.length > 0 && (
-                <Badge variant="outline" className="ml-2 gap-1">
-                  <ShieldCheck className="w-3 h-3" />
-                  {activeSafetyPolicies.length} Active {activeSafetyPolicies.length === 1 ? 'Policy' : 'Policies'}
-                </Badge>
-              )}
             </h1>
             <p className="text-sm text-muted-foreground mt-1">
               Incident tracking, hazard zones, and OSHA compliance monitoring
-              {activeSafetyPolicies.length > 0 && ` · Policy Engine: Active`}
             </p>
           </div>
           <div className="flex gap-2">
@@ -524,57 +321,83 @@ export function SafetyHub() {
               <FileText className="w-4 h-4 mr-2" />
               Export Report
             </Button>
-            <Button onClick={handleReportIncident} disabled={isReportingIncident}>
+            <Button>
               <Warning className="w-4 h-4 mr-2" />
-              {isReportingIncident ? "Checking Policy..." : "Report Incident"}
+              Report Incident
             </Button>
           </div>
         </div>
       </div>
 
-      {/* OSHA Metrics Cards - NOW WITH DRILLDOWN */}
+      {/* OSHA Metrics Cards */}
       <div className="px-6 py-4 border-b bg-card">
         <div className="grid grid-cols-4 gap-4">
-          <DrilldownCard
-            title="Days Without Incident"
-            value={demoOSHAMetrics.daysWithoutIncident}
-            subtitle="Target: 30 days"
-            drilldownType="days-incident-free"
-            drilldownLabel="Incident-Free Days History"
-            color="success"
-          />
+          <Card>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm font-medium text-muted-foreground">
+                Days Without Incident
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-3xl font-bold text-green-500">
+                {demoOSHAMetrics.daysWithoutIncident}
+              </div>
+              <p className="text-xs text-muted-foreground mt-1">
+                Target: 30 days
+              </p>
+            </CardContent>
+          </Card>
 
-          <DrilldownCard
-            title="OSHA Compliance Score"
-            value={`${demoOSHAMetrics.complianceScore}%`}
-            subtitle="+3% from last month"
-            drilldownType="osha-compliance"
-            drilldownLabel="OSHA Compliance Details"
-            trend={{
-              value: 3,
-              direction: 'up',
-            }}
-            icon={<TrendUp className="w-5 h-5" />}
-          />
+          <Card>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm font-medium text-muted-foreground">
+                OSHA Compliance Score
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="flex items-center gap-2">
+                <div className="text-3xl font-bold">
+                  {oshaMetrics.complianceScore}%
+                </div>
+                <TrendUp className="w-5 h-5 text-green-500" />
+              </div>
+              <p className="text-xs text-muted-foreground mt-1">
+                +3% from last month
+              </p>
+            </CardContent>
+          </Card>
 
-          <DrilldownCard
-            title="Recordable Incidents"
-            value={demoOSHAMetrics.recordableIncidents}
-            subtitle={`${demoOSHAMetrics.totalIncidents} total incidents`}
-            drilldownType="incidents"
-            drilldownLabel="All Incidents"
-            drilldownData={{ filter: 'recordable' }}
-            color="warning"
-          />
+          <Card>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm font-medium text-muted-foreground">
+                Recordable Incidents
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-3xl font-bold text-orange-500">
+                {oshaMetrics.recordableIncidents}
+              </div>
+              <p className="text-xs text-muted-foreground mt-1">
+                {oshaMetrics.totalIncidents} total incidents
+              </p>
+            </CardContent>
+          </Card>
 
-          <DrilldownCard
-            title="Work Days Lost"
-            value={demoOSHAMetrics.totalWorkDaysLost}
-            subtitle={`Severity Rate: ${demoOSHAMetrics.severityRate}`}
-            drilldownType="lost-time-incidents"
-            drilldownLabel="Lost Time Incidents"
-            color="danger"
-          />
+          <Card>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm font-medium text-muted-foreground">
+                Work Days Lost
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-3xl font-bold text-red-500">
+                {oshaMetrics.totalWorkDaysLost}
+              </div>
+              <p className="text-xs text-muted-foreground mt-1">
+                Severity Rate: {oshaMetrics.severityRate}
+              </p>
+            </CardContent>
+          </Card>
         </div>
       </div>
 
@@ -618,7 +441,6 @@ export function SafetyHub() {
                           strokeWeight: 2
                         }}
                         title={`${incident.type} - ${incident.severity}`}
-                        onClick={() => handleIncidentMarkerClick(incident)}
                       />
                     ))}
                   </GoogleMap>
@@ -640,7 +462,7 @@ export function SafetyHub() {
                       ]
                     }}
                   >
-                    {mapLoaded && demoHazardZones.map(zone => (
+                    {mapLoaded && hazardZones.map(zone => (
                       <Circle
                         key={zone.id}
                         center={{ lat: zone.location.lat, lng: zone.location.lng }}
@@ -726,16 +548,55 @@ export function SafetyHub() {
                       <CardTitle>Recent Incidents</CardTitle>
                     </CardHeader>
                     <CardContent>
-                      <DrilldownDataTable
-                        data={filteredIncidents}
-                        columns={incidentColumns}
-                        recordType="incident"
-                        getRecordId={(incident) => incident.id}
-                        getRecordLabel={(incident) => `${incident.type} - ${new Date(incident.date).toLocaleDateString()}`}
-                        getRecordData={(incident) => ({ incidentId: incident.id })}
-                        emptyMessage="No incidents found"
-                        compact
-                      />
+                      <Table>
+                        <TableHeader>
+                          <TableRow>
+                            <TableHead>Date</TableHead>
+                            <TableHead>Type</TableHead>
+                            <TableHead>Severity</TableHead>
+                            <TableHead>Status</TableHead>
+                            <TableHead>OSHA</TableHead>
+                            <TableHead className="text-right">Days Lost</TableHead>
+                          </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                          {filteredIncidents.map(incident => (
+                            <TableRow
+                              key={incident.id}
+                              className="cursor-pointer hover:bg-muted/50"
+                              onClick={() => handleIncidentClick(incident)}
+                              role="button"
+                              tabIndex={0}
+                              onKeyDown={(e) => e.key === 'Enter' && handleIncidentClick(incident)}
+                            >
+                              <TableCell className="font-medium">
+                                {new Date(incident.date).toLocaleDateString()}
+                              </TableCell>
+                              <TableCell>{incident.type}</TableCell>
+                              <TableCell>
+                                <Badge variant={getSeverityColor(incident.severity)}>
+                                  {incident.severity}
+                                </Badge>
+                              </TableCell>
+                              <TableCell>
+                                <Badge variant="outline">
+                                  {incident.status}
+                                </Badge>
+                              </TableCell>
+                              <TableCell>
+                                {incident.oshaRecordable ? (
+                                  <CheckCircle className="w-4 h-4 text-orange-500" />
+                                ) : (
+                                  <XCircle className="w-4 h-4 text-muted-foreground" />
+                                )}
+                              </TableCell>
+                              <TableCell className="text-right">
+                                {incident.workDaysLost}
+                              </TableCell>
+                            </TableRow>
+                          ))}
+                        </TableBody>
+                      </Table>
                     </CardContent>
                   </Card>
                 </TabsContent>
@@ -758,11 +619,23 @@ export function SafetyHub() {
                         </TableHeader>
                         <TableBody>
                           {recentInspections.map(inspection => (
-                            <TableRow key={inspection.id} className="cursor-pointer hover:bg-muted/50">
+                            <TableRow
+                              key={inspection.id}
+                              className="cursor-pointer hover:bg-muted/50"
+                              onClick={() => handleInspectionClick(inspection)}
+                              role="button"
+                              tabIndex={0}
+                              onKeyDown={(e) => e.key === 'Enter' && handleInspectionClick(inspection)}
+                            >
                               <TableCell className="font-medium">
                                 {new Date(inspection.date).toLocaleDateString()}
                               </TableCell>
-                              <TableCell>{inspection.vehicleName}</TableCell>
+                              <TableCell
+                                className="text-primary hover:underline"
+                                onClick={(e) => handleVehicleClick(e, inspection.vehicleId)}
+                              >
+                                {inspection.vehicleName}
+                              </TableCell>
                               <TableCell>{inspection.inspectorName}</TableCell>
                               <TableCell>
                                 {inspection.passed ? (
@@ -795,11 +668,14 @@ export function SafetyHub() {
                     </CardHeader>
                     <CardContent>
                       <div className="space-y-4">
-                        {demoHazardZones.map(zone => (
+                        {hazardZones.map(zone => (
                           <Card
                             key={zone.id}
-                            className="cursor-pointer hover:shadow-md transition-shadow"
+                            className="cursor-pointer hover:bg-muted/30 transition-colors"
                             onClick={() => handleHazardZoneClick(zone)}
+                            role="button"
+                            tabIndex={0}
+                            onKeyDown={(e) => e.key === 'Enter' && handleHazardZoneClick(zone)}
                           >
                             <CardHeader>
                               <div className="flex items-start justify-between">
