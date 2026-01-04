@@ -1,0 +1,29 @@
+[
+  {
+    "iteration": 1,
+    "timestamp": "2026-01-04T14:54:20-05:00",
+    "security": {
+      "critical": 0,
+      "high": 12,
+      "total": 12
+    },
+    "typescript": {
+      "errors": 1711,
+      "status": "FAIL"
+    },
+    "eslint": {
+      "errors": ,
+      "warnings": ,
+      "status": "FAIL"
+    },
+    "build": {
+      "status": "PASS"
+    },
+    "tests": {
+      "passed": 0,
+      "failed": 0,
+      "status": "RUNNING"
+    },
+    "total_issues": 1723
+  }
+]
