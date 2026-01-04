@@ -62,9 +62,21 @@ function AssetsContent() {
                     onClick={() => push({ type: 'asset-value', label: 'Asset Value Analysis', data: { totalValue: 4200000, depreciation: 320000, avgAge: 3.4 } })}
                 >
                     <h3 className="text-sm font-medium text-slate-400 uppercase tracking-wide mb-4">Value</h3>
-                    <QuickStat label="Total Value" value="$4.2M" />
-                    <QuickStat label="Depreciation" value="$320K" />
-                    <QuickStat label="Avg Age" value="3.4 yrs" />
+                    <QuickStat
+                        label="Total Value"
+                        value="$4.2M"
+                        onClick={() => push({ type: 'asset-list', id: 'high-value-assets', data: { filter: 'high-value' } })}
+                    />
+                    <QuickStat
+                        label="Depreciation"
+                        value="$320K"
+                        onClick={() => push({ type: 'asset-list', id: 'low-value-assets', data: { filter: 'low-value' } })}
+                    />
+                    <QuickStat
+                        label="Avg Age"
+                        value="3.4 yrs"
+                        onClick={() => push({ type: 'asset-list', id: 'critical-assets', data: { filter: 'critical' } })}
+                    />
                 </div>
             </div>
         </div>

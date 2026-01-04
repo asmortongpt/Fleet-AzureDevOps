@@ -83,6 +83,26 @@ import { TripTelemetryView } from '@/components/drilldown/TripTelemetryView'
 import { VehicleDetailPanel } from '@/components/drilldown/VehicleDetailPanel'
 import { VehicleTripsList } from '@/components/drilldown/VehicleTripsList'
 import { WorkOrderDetailPanel } from '@/components/drilldown/WorkOrderDetailPanel'
+import {
+  AssetDetailPanel,
+  EquipmentDetailPanel,
+  InventoryItemDetailPanel,
+  AssetListView,
+  EquipmentListView,
+  InventoryListView
+} from '@/components/drilldown/AssetHubDrilldowns'
+import {
+  MaintenanceRequestDetailPanel,
+  MaintenanceRequestListView
+} from '@/components/drilldown/MaintenanceRequestDrilldowns'
+import {
+  ScheduledItemDetailPanel,
+  CalendarListView
+} from '@/components/drilldown/ScheduleDrilldowns'
+import {
+  AlertDetailPanel,
+  AlertListView
+} from '@/components/drilldown/AlertDrilldowns'
 import { DrilldownProvider, useDrilldown } from '@/contexts/DrilldownContext'
 
 // ============================================================================
