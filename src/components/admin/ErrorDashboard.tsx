@@ -5,6 +5,12 @@
  * @module components/admin/ErrorDashboard
  */
 
+import React, { useState, useEffect } from 'react';
+import { SkeletonLoader } from '@/components/shared';
+import { Card } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Progress } from '@/components/ui/progress';
 import {
   AlertCircle,
   TrendingDown,
@@ -16,14 +22,7 @@ import {
   Filter,
   Download,
 } from 'lucide-react';
-import React, { useState, useEffect } from 'react';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar } from 'recharts';
-
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import { Card } from '@/components/ui/card';
-import { Progress } from '@/components/ui/progress';
-
 
 interface ErrorSummary {
   total: number;

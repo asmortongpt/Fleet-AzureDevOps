@@ -338,7 +338,7 @@ export function DrilldownMatrix<T extends Record<string, any>>({
             )}
             {orderedColumns.map((column, colIndex) => {
               const isStickyCol = column.sticky
-              const leftOffset = stickyOffset
+              let leftOffset = stickyOffset
               if (isStickyCol) {
                 stickyOffset += parseInt(column.width || column.minWidth || '120')
               }
@@ -452,7 +452,7 @@ export function DrilldownMatrix<T extends Record<string, any>>({
         {/* Data cells */}
         {cols.map((column, colIndex) => {
           const isStickyCol = column.sticky
-          const leftOffset = colStickyOffset
+          let leftOffset = colStickyOffset
           if (isStickyCol) {
             colStickyOffset += parseInt(column.width || column.minWidth || '120')
           }
