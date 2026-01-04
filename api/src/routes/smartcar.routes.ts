@@ -18,16 +18,31 @@ import { buildSafeRedirectUrl } from '../utils/redirect-validator'
 
 const router = express.Router()
 
-// Initialize Smartcar service
+// Initialize Smartcar service - only if all required env vars are present
 let smartcarService: SmartcarService | null = null
 try {
-  if (process.env.SMARTCAR_CLIENT_ID && process.env.SMARTCAR_CLIENT_SECRET) {
+  if (process.env.SMARTCAR_CLIENT_ID &&
+      process.env.SMARTCAR_CLIENT_SECRET &&
+      process.env.SMARTCAR_REDIRECT_URI) {
     smartcarService = new SmartcarService(pool)
     console.log('✅ Smartcar service initialized')
+  } else if (process.env.SMARTCAR_CLIENT_ID) {
+    console.warn('⚠️  Smartcar partially configured - missing SMARTCAR_REDIRECT_URI or SMARTCAR_CLIENT_SECRET')
   }
 } catch (error: any) {
   console.warn('⚠️  Smartcar service not initialized:', error.message)
 }
+
+/**
+ * GET /api/smartcar/status
+ * Get Smartcar integration status
+ */
+router.get('/status', (_req, res) => {
+  res.json({
+    configured: smartcarService !== null,
+    message: smartcarService ? 'Smartcar integration is active' : 'Smartcar integration is not configured'
+  })
+})
 
 /**
  * GET /api/smartcar/connect

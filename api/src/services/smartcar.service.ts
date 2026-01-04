@@ -24,9 +24,14 @@ const SMARTCAR_CLIENT_SECRET = process.env.SMARTCAR_CLIENT_SECRET
 const SMARTCAR_REDIRECT_URI = process.env.SMARTCAR_REDIRECT_URI // Required - no default
 const SMARTCAR_MODE = process.env.SMARTCAR_MODE || 'live' // 'test' or 'live'
 
-// Validate required Smartcar configuration
-if (SMARTCAR_CLIENT_ID && !SMARTCAR_REDIRECT_URI) {
-  throw new Error('SMARTCAR_REDIRECT_URI must be set when SMARTCAR_CLIENT_ID is configured')
+// Validate required Smartcar configuration at runtime rather than module load
+// This prevents the server from crashing when SmartCar is not configured
+const isSmartcarConfigured = (): boolean => {
+  if (SMARTCAR_CLIENT_ID && !SMARTCAR_REDIRECT_URI) {
+    console.warn('SMARTCAR_REDIRECT_URI not set - SmartCar integration will be disabled')
+    return false
+  }
+  return !!(SMARTCAR_CLIENT_ID && SMARTCAR_CLIENT_SECRET && SMARTCAR_REDIRECT_URI)
 }
 
 interface SmartcarVehicle {
@@ -68,21 +73,31 @@ interface SmartcarCharge {
 }
 
 class SmartcarService {
-  private api: AxiosInstance
+  private api: AxiosInstance | null = null
   private db: Pool
+  private configured: boolean = false
 
   constructor(db: Pool) {
-    if (!SMARTCAR_CLIENT_ID || !SMARTCAR_CLIENT_SECRET) {
-      throw new Error('SMARTCAR_CLIENT_ID and SMARTCAR_CLIENT_SECRET environment variables are required')
-    }
-
-    // SSRF Protection: Use safe axios instance with domain allowlist
-    this.api = createSafeAxiosInstance('https://api.smartcar.com/v2.0', {
-      timeout: 30000,
-      allowedDomains: SMARTCAR_ALLOWED_DOMAINS,
-    })
-
     this.db = db
+    this.configured = isSmartcarConfigured()
+
+    if (this.configured) {
+      // SSRF Protection: Use safe axios instance with domain allowlist
+      this.api = createSafeAxiosInstance('https://api.smartcar.com/v2.0', {
+        timeout: 30000,
+        allowedDomains: SMARTCAR_ALLOWED_DOMAINS,
+      })
+    }
+  }
+
+  isConfigured(): boolean {
+    return this.configured
+  }
+
+  private ensureConfigured(): void {
+    if (!this.configured || !this.api) {
+      throw new Error('SmartCar is not configured. Please set SMARTCAR_CLIENT_ID, SMARTCAR_CLIENT_SECRET, and SMARTCAR_REDIRECT_URI')
+    }
   }
 
   /**
@@ -174,7 +189,8 @@ class SmartcarService {
    * Get list of vehicle IDs accessible with this access token
    */
   async getVehicles(accessToken: string): Promise<string[]> {
-    const response = await this.api.get(`/vehicles`, {
+    this.ensureConfigured()
+    const response = await this.api!.get(`/vehicles`, {
       headers: {
         Authorization: `Bearer ${accessToken}`
       }
@@ -187,7 +203,8 @@ class SmartcarService {
    * Get vehicle information (make, model, year)
    */
   async getVehicleInfo(vehicleId: string, accessToken: string): Promise<SmartcarVehicle> {
-    const response = await this.api.get(`/vehicles/${vehicleId}`, {
+    this.ensureConfigured()
+    const response = await this.api!.get(`/vehicles/${vehicleId}`, {
       headers: {
         Authorization: `Bearer ${accessToken}`
       }
@@ -200,7 +217,7 @@ class SmartcarService {
    * Get vehicle VIN
    */
   async getVehicleVin(vehicleId: string, accessToken: string): Promise<string> {
-    const response = await this.api.get(`/vehicles/${vehicleId}/vin`, {
+    const response = await this.api!.get(`/vehicles/${vehicleId}/vin`, {
       headers: {
         Authorization: `Bearer ${accessToken}`
       }
@@ -213,7 +230,7 @@ class SmartcarService {
    * Get vehicle location
    */
   async getLocation(vehicleId: string, accessToken: string): Promise<SmartcarLocation> {
-    const response = await this.api.get(`/vehicles/${vehicleId}/location`, {
+    const response = await this.api!.get(`/vehicles/${vehicleId}/location`, {
       headers: {
         Authorization: `Bearer ${accessToken}`
       }
@@ -230,7 +247,7 @@ class SmartcarService {
    * Get vehicle odometer reading
    */
   async getOdometer(vehicleId: string, accessToken: string): Promise<SmartcarOdometer> {
-    const response = await this.api.get(`/vehicles/${vehicleId}/odometer`, {
+    const response = await this.api!.get(`/vehicles/${vehicleId}/odometer`, {
       headers: {
         Authorization: `Bearer ${accessToken}`
       }
@@ -249,7 +266,7 @@ class SmartcarService {
    * Get EV battery level
    */
   async getBattery(vehicleId: string, accessToken: string): Promise<SmartcarBattery> {
-    const response = await this.api.get(`/vehicles/${vehicleId}/battery`, {
+    const response = await this.api!.get(`/vehicles/${vehicleId}/battery`, {
       headers: {
         Authorization: `Bearer ${accessToken}`
       }
@@ -266,7 +283,7 @@ class SmartcarService {
    * Get fuel tank level
    */
   async getFuel(vehicleId: string, accessToken: string): Promise<SmartcarFuel> {
-    const response = await this.api.get(`/vehicles/${vehicleId}/fuel`, {
+    const response = await this.api!.get(`/vehicles/${vehicleId}/fuel`, {
       headers: {
         Authorization: `Bearer ${accessToken}`
       }
@@ -284,7 +301,7 @@ class SmartcarService {
    * Get EV charge status
    */
   async getChargeStatus(vehicleId: string, accessToken: string): Promise<SmartcarCharge> {
-    const response = await this.api.get(`/vehicles/${vehicleId}/charge`, {
+    const response = await this.api!.get(`/vehicles/${vehicleId}/charge`, {
       headers: {
         Authorization: `Bearer ${accessToken}`
       }
@@ -301,7 +318,7 @@ class SmartcarService {
    * Lock vehicle doors
    */
   async lockDoors(vehicleId: string, accessToken: string): Promise<{ status: string; message: string }> {
-    const response = await this.api.post(
+    const response = await this.api!.post(
       `/vehicles/${vehicleId}/security`,
       { action: 'LOCK' },
       {
@@ -322,7 +339,7 @@ class SmartcarService {
    * Unlock vehicle doors
    */
   async unlockDoors(vehicleId: string, accessToken: string): Promise<{ status: string; message: string }> {
-    const response = await this.api.post(
+    const response = await this.api!.post(
       `/vehicles/${vehicleId}/security`,
       { action: 'UNLOCK' },
       {
@@ -343,7 +360,7 @@ class SmartcarService {
    * Start EV charging
    */
   async startCharging(vehicleId: string, accessToken: string): Promise<{ status: string; message: string }> {
-    const response = await this.api.post(
+    const response = await this.api!.post(
       `/vehicles/${vehicleId}/charge`,
       { action: 'START' },
       {
@@ -364,7 +381,7 @@ class SmartcarService {
    * Stop EV charging
    */
   async stopCharging(vehicleId: string, accessToken: string): Promise<{ status: string; message: string }> {
-    const response = await this.api.post(
+    const response = await this.api!.post(
       `/vehicles/${vehicleId}/charge`,
       { action: 'STOP' },
       {
