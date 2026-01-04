@@ -12,18 +12,7 @@
  * - Interactive states
  */
 
-import { test } from '@playwright/test';
-
-import {
-  SINGLE_VEHICLE,
-  MULTIPLE_VEHICLES,
-  VEHICLE_STATUS_EXAMPLES,
-  MULTIPLE_FACILITIES,
-  MULTIPLE_CAMERAS,
-  ALL_MARKERS,
-  EMPTY_MAP,
-  DENSE_MAP,
-} from './fixtures/map-test-data';
+import { test, expect, Page } from '@playwright/test';
 import {
   waitForMapLoad,
   waitForMarkers,
@@ -34,6 +23,16 @@ import {
   disableAnimations,
   VIEWPORTS,
 } from './helpers/visual-test-helpers';
+import {
+  SINGLE_VEHICLE,
+  MULTIPLE_VEHICLES,
+  VEHICLE_STATUS_EXAMPLES,
+  MULTIPLE_FACILITIES,
+  MULTIPLE_CAMERAS,
+  ALL_MARKERS,
+  EMPTY_MAP,
+  DENSE_MAP,
+} from './fixtures/map-test-data';
 
 test.describe('UniversalMap - Visual Regression Tests', () => {
   test.beforeEach(async ({ page }) => {
