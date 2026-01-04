@@ -11,6 +11,8 @@ import { Html5QrcodeScanner, Html5QrcodeScanType } from "html5-qrcode"
 import { useState, useEffect, useRef, useCallback } from "react"
 import { toast } from "sonner"
 
+import { ScannerModal, ScannerType } from "./ScannerModal"
+
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import {
@@ -530,6 +532,14 @@ export function VehicleIdentification({
           </DialogContent>
         </Dialog>
       )}
+
+      {/* Scanner Modal */}
+      <ScannerModal
+        open={scannerOpen}
+        onOpenChange={setScannerOpen}
+        type={scannerType}
+        onScan={handleScanResult}
+      />
     </div>
   )
 }
