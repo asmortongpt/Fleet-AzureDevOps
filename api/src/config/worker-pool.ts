@@ -57,13 +57,19 @@ export class WorkerPool extends EventEmitter {
   constructor(config: WorkerPoolConfig = {}) {
     super()
 
+    // Determine worker script path based on environment
+    const isProduction = process.env.NODE_ENV === 'production'
+    const defaultWorkerScript = isProduction
+      ? path.join(__dirname, '../workers/task-worker.js')  // Compiled .js in production
+      : path.join(__dirname, '../workers/task-worker.ts')  // Source .ts in development
+
     // Default configuration
     this.config = {
       minWorkers: config.minWorkers || 2,
       maxWorkers: config.maxWorkers || Math.max(4, os.cpus().length - 1),
       idleTimeout: config.idleTimeout || 300000, // 5 minutes
       taskTimeout: config.taskTimeout || 120000, // 2 minutes
-      workerScript: config.workerScript || path.join(__dirname, `../workers/task-worker.ts`)
+      workerScript: config.workerScript || defaultWorkerScript
     }
 
     // Initialize minimum workers
@@ -86,22 +92,9 @@ export class WorkerPool extends EventEmitter {
    */
   private createWorker(): Worker {
     const workerId = this.nextWorkerId++;
-    let scriptPath = this.config.workerScript;
-    const isProduction = process.env.NODE_ENV === 'production';
+    const scriptPath = this.config.workerScript;
 
-    // In production, prefer the transpiled .js file if it exists
-    if (isProduction && scriptPath.endsWith('.ts')) {
-      const jsPath = scriptPath.replace('/src/', '/dist/').replace('.ts', '.js');
-      try {
-        if (require('fs').existsSync(jsPath)) {
-          scriptPath = jsPath;
-          console.log(`[WorkerPool] Using transpiled worker script: ${scriptPath}`);
-        }
-      } catch (err) {
-        // Fallback to original path
-      }
-    }
-
+    // Use tsx loader for TypeScript files (development), standard loader for JavaScript (production)
     const workerOptions = scriptPath.endsWith('.ts')
       ? {
         execArgv: [
@@ -113,7 +106,7 @@ export class WorkerPool extends EventEmitter {
         execArgv: ['--no-warnings']
       };
 
-    console.log(`[WorkerPool] Creating worker from ${scriptPath} with options:`, JSON.stringify(workerOptions));
+    console.log(`[WorkerPool] Creating worker ${workerId} from ${scriptPath}`);
     const worker = new Worker(scriptPath, workerOptions)
 
 
