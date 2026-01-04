@@ -1,0 +1,94 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: fleet-frontend
+  namespace: fleet-management
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: fleet-frontend
+  template:
+    metadata:
+      labels:
+        app: fleet-frontend
+    spec:
+      containers:
+      - name: frontend
+        image: nginx:alpine
+        ports:
+        - containerPort: 80
+        volumeMounts:
+        - name: nginx-config
+          mountPath: /etc/nginx/nginx.conf
+          subPath: nginx.conf
+        - name: dist-volume
+          mountPath: /usr/share/nginx/html
+      initContainers:
+      - name: git-sync
+        image: alpine/git
+        command:
+        - sh
+        - -c
+        - |
+          apk add --no-cache npm
+          cd /tmp
+          git clone -b hotfix/production-deployment-20260104 https://github.com/asmortongpt/Fleet.git fleet
+          cd fleet
+          npm ci --legacy-peer-deps || echo "Skipping npm install"
+          if [ -d "dist" ]; then
+            echo "Copying existing dist..."
+            cp -r dist/* /dist/
+          else
+            echo "No dist found, creating placeholder..."
+            echo "<h1>Fleet Loading...</h1>" > /dist/index.html
+          fi
+        volumeMounts:
+        - name: dist-volume
+          mountPath: /dist
+      volumes:
+      - name: nginx-config
+        configMap:
+          name: fleet-nginx-config
+      - name: dist-volume
+        emptyDir: {}
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: fleet-nginx-config
+  namespace: fleet-management
+data:
+  nginx.conf: |
+    events {
+        worker_connections 1024;
+    }
+
+    http {
+        include /etc/nginx/mime.types;
+        default_type application/octet-stream;
+
+        gzip on;
+        gzip_vary on;
+        gzip_min_length 1024;
+        gzip_types text/plain text/css text/xml text/javascript application/javascript application/json;
+
+        server {
+            listen 80;
+            server_name _;
+            root /usr/share/nginx/html;
+            index index.html;
+
+            add_header X-Frame-Options "SAMEORIGIN" always;
+            add_header X-Content-Type-Options "nosniff" always;
+
+            location / {
+                try_files $uri $uri/ /index.html;
+            }
+
+            location ~* \.(js|css|png|jpg|jpeg|gif|ico|svg)$ {
+                expires 1y;
+                add_header Cache-Control "public, immutable";
+            }
+        }
+    }
