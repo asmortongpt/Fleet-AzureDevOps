@@ -21,6 +21,7 @@ export interface HubTab {
     icon?: ReactNode
     content: ReactNode
     disabled?: boolean
+    badge?: string | number
 }
 
 export interface HubPageProps {
@@ -46,20 +47,6 @@ export interface HubPageProps {
 
 /**
  * HubPage provides a consistent layout for all major hub screens.
- * 
- * @example
- * <HubPage
- *   title="Fleet Hub"
- *   icon={<CarIcon />}
- *   description="Manage your fleet vehicles and tracking"
- *   tabs={[
- *     { id: 'map', label: 'Map', content: <FleetMap /> },
- *     { id: 'vehicles', label: 'Vehicles', content: <VehicleList /> },
- *     { id: 'telemetry', label: 'Telemetry', content: <TelemetryView /> },
- *   ]}
- *   defaultTab="map"
- *   headerActions={<Button>Add Vehicle</Button>}
- * />
  */
 export function HubPage({
     title,
@@ -72,12 +59,17 @@ export function HubPage({
     className,
     fullHeight = true,
 }: HubPageProps) {
-    const activeTabId = defaultTab || tabs[0]?.id
+    const [activeTab, setActiveTab] = useState(defaultTab || tabs[0]?.id)
+
+    const handleTabChange = (tabId: string) => {
+        setActiveTab(tabId)
+        onTabChange?.(tabId)
+    }
 
     return (
         <div
             className={cn(
-                'flex flex-col',
+                'flex flex-col bg-gradient-to-b from-background to-background/95',
                 fullHeight && 'h-full',
                 className
             )}
@@ -96,7 +88,7 @@ export function HubPage({
                 )}
                 data-testid="hub-header"
             >
-                <div className="flex items-center gap-3">
+                <div className="flex items-center gap-3 sm:gap-4 min-w-0">
                     {icon && (
                         <motion.div
                             initial={{ scale: 0 }}
@@ -118,7 +110,7 @@ export function HubPage({
                     >
                         <h1 className="text-2xl font-semibold text-foreground">{title}</h1>
                         {description && (
-                            <p className="text-sm text-muted-foreground">{description}</p>
+                            <p className="text-sm text-muted-foreground mt-0.5 truncate">{description}</p>
                         )}
                     </motion.div>
                 </div>
@@ -140,8 +132,8 @@ export function HubPage({
 
             {/* Tab Navigation */}
             <Tabs
-                defaultValue={activeTabId}
-                onValueChange={onTabChange}
+                value={activeTab}
+                onValueChange={handleTabChange}
                 className="flex flex-col flex-1 min-h-0"
             >
                 <motion.div
@@ -189,7 +181,7 @@ export function HubPage({
                     <TabsContent
                         key={tab.id}
                         value={tab.id}
-                        className="flex-1 min-h-0 m-0 outline-none"
+                        className="flex-1 min-h-0 m-0 outline-none animate-fade-in"
                         data-testid={`hub-content-${tab.id}`}
                     >
                         {tab.content}
@@ -210,6 +202,7 @@ export interface HubSectionProps {
     children: ReactNode
     className?: string
     padding?: boolean
+    animate?: boolean
 }
 
 export function HubSection({
@@ -219,31 +212,57 @@ export function HubSection({
     children,
     className,
     padding = true,
+    animate = true,
 }: HubSectionProps) {
     return (
         <section
             className={cn(
                 'flex flex-col',
-                padding && 'p-6',
+                padding && 'p-4 sm:p-6',
+                animate && 'animate-fade-in-up',
                 className
             )}
             data-testid="hub-section"
         >
             {(title || actions) && (
-                <div className="flex items-center justify-between mb-4">
-                    <div>
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-4 sm:mb-6 gap-2">
+                    <div className="min-w-0">
                         {title && (
-                            <h2 className="text-lg font-medium text-foreground">{title}</h2>
+                            <h2 className="text-lg sm:text-xl font-semibold text-foreground">{title}</h2>
                         )}
                         {description && (
-                            <p className="text-sm text-muted-foreground">{description}</p>
+                            <p className="text-sm text-muted-foreground mt-0.5">{description}</p>
                         )}
                     </div>
-                    {actions && <div className="flex items-center gap-2">{actions}</div>}
+                    {actions && <div className="flex items-center gap-2 shrink-0">{actions}</div>}
                 </div>
             )}
             <div className="flex-1 min-h-0">{children}</div>
         </section>
+    )
+}
+
+/**
+ * HubGrid provides responsive grid layout for hub content
+ */
+export interface HubGridProps {
+    children: ReactNode
+    className?: string
+    columns?: 1 | 2 | 3 | 4
+}
+
+export function HubGrid({ children, className, columns = 4 }: HubGridProps) {
+    const gridCols = {
+        1: 'grid-cols-1',
+        2: 'grid-cols-1 sm:grid-cols-2',
+        3: 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3',
+        4: 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4',
+    }
+
+    return (
+        <div className={cn('grid gap-4 sm:gap-6', gridCols[columns], className)}>
+            {children}
+        </div>
     )
 }
 

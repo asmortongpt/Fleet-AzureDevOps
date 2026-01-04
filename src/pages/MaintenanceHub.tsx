@@ -12,7 +12,7 @@ import {
     ClipboardText
 } from '@phosphor-icons/react'
 
-import { HubPage, HubTab } from '@/components/ui/hub-page'
+import { HubPage, HubTab, HubSection, HubGrid } from '@/components/ui/hub-page'
 import { StatCard, ProgressRing, StatusDot, QuickStat } from '@/components/ui/stat-card'
 import { useDrilldown, DrilldownLevel } from '@/contexts/DrilldownContext'
 
@@ -20,11 +20,11 @@ function GarageContent() {
     const { push } = useDrilldown()
 
     return (
-        <div className="p-6 space-y-6 bg-gradient-to-b from-slate-900/50 to-transparent min-h-full">
-            <div className="flex items-center justify-between">
+        <div className="p-4 sm:p-6 space-y-4 sm:space-y-6 bg-gradient-to-b from-background to-background/95 min-h-full overflow-auto">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
                 <div>
-                    <h2 className="text-2xl font-bold text-white">Garage & Service</h2>
-                    <p className="text-slate-400 mt-1">Maintenance bay status and work orders</p>
+                    <h2 className="text-lg sm:text-xl lg:text-2xl font-bold text-foreground">Garage & Service</h2>
+                    <p className="text-sm text-muted-foreground mt-0.5">Maintenance bay status and work orders</p>
                 </div>
                 <StatusDot status="online" label="Shop Open" />
             </div>
