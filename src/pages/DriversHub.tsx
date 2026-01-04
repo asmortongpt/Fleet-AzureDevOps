@@ -23,33 +23,67 @@ function DriversListContent() {
     const { push } = useDrilldown()
 
     return (
-        <div className="p-6 space-y-6 bg-gradient-to-b from-slate-900/50 to-transparent min-h-full">
-            <div className="flex items-center justify-between">
+        <div className="p-4 sm:p-6 space-y-4 sm:space-y-6 bg-gradient-to-b from-background to-background/95 min-h-full overflow-auto">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
                 <div>
-                    <h2 className="text-2xl font-bold text-white">Driver Roster</h2>
-                    <p className="text-slate-400 mt-1">Active driver management and status</p>
+                    <h2 className="text-lg sm:text-xl lg:text-2xl font-bold text-foreground">Driver Roster</h2>
+                    <p className="text-sm text-muted-foreground mt-0.5">Active driver management and status</p>
                 </div>
                 <StatusDot status="online" label="42 Active Now" />
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                <StatCard title="Total Drivers" value="48" subtitle="3 new this month" variant="primary" icon={<Users className="w-6 h-6" />} onClick={() => push({ type: 'total-drivers', data: { title: 'Total Drivers' }, id: 'total-drivers' } as Omit<DrilldownLevel, "timestamp">)} />
-                <StatCard title="On Duty" value="42" trend="up" trendValue="+2" variant="success" onClick={() => push({ type: 'on-duty', data: { title: 'On Duty Drivers' }, id: 'on-duty' } as Omit<DrilldownLevel, "timestamp">)} />
-                <StatCard title="On Leave" value="4" variant="warning" onClick={() => push({ type: 'drivers-roster', data: { title: 'Drivers On Leave', filter: 'leave' }, id: 'drivers-roster-leave' } as Omit<DrilldownLevel, "timestamp">)} />
-                <StatCard title="Training" value="2" variant="default" onClick={() => push({ type: 'drivers-roster', data: { title: 'Drivers In Training', filter: 'training' }, id: 'drivers-roster-training' } as Omit<DrilldownLevel, "timestamp">)} />
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+                <StatCard
+                    title="Total Drivers"
+                    value="48"
+                    subtitle="3 new this month"
+                    variant="primary"
+                    icon={<Users className="w-5 h-5 sm:w-6 sm:h-6" />}
+                    onClick={() => push({ type: 'total-drivers', data: { title: 'Total Drivers' }, id: 'total-drivers' } as Omit<DrilldownLevel, "timestamp">)}
+                />
+                <StatCard
+                    title="On Duty"
+                    value="42"
+                    trend="up"
+                    trendValue="+2"
+                    variant="success"
+                    onClick={() => push({ type: 'on-duty', data: { title: 'On Duty Drivers' }, id: 'on-duty' } as Omit<DrilldownLevel, "timestamp">)}
+                />
+                <StatCard
+                    title="On Leave"
+                    value="4"
+                    variant="warning"
+                    onClick={() => push({ type: 'drivers-roster', data: { title: 'Drivers On Leave', filter: 'leave' }, id: 'drivers-roster-leave' } as Omit<DrilldownLevel, "timestamp">)}
+                />
+                <StatCard
+                    title="Training"
+                    value="2"
+                    variant="default"
+                    onClick={() => push({ type: 'drivers-roster', data: { title: 'Drivers In Training', filter: 'training' }, id: 'drivers-roster-training' } as Omit<DrilldownLevel, "timestamp">)}
+                />
             </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                <div className="bg-gradient-to-br from-slate-800/60 to-slate-900/60 backdrop-blur-xl rounded-xl border border-slate-700/50 p-6 cursor-pointer hover:border-slate-600/50 transition-colors" onClick={() => push({ type: 'driver-scorecard', data: { title: 'Certification Status' }, id: 'driver-scorecard' } as Omit<DrilldownLevel, "timestamp">)}>
-                    <h3 className="text-sm font-medium text-slate-400 uppercase tracking-wide mb-4">Certification Rate</h3>
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-3 sm:gap-4">
+                <div
+                    className="bg-card/80 backdrop-blur-xl rounded-xl border border-border/50 p-4 sm:p-6 cursor-pointer hover:border-success/40 hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300"
+                    onClick={() => push({ type: 'driver-scorecard', data: { title: 'Certification Status' }, id: 'driver-scorecard' } as Omit<DrilldownLevel, "timestamp">)}
+                    role="button"
+                    tabIndex={0}
+                >
+                    <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-4">Certification Rate</h3>
                     <div className="flex items-center justify-center">
                         <ProgressRing progress={96} color="green" label="Certified" sublabel="46 of 48 current" />
                     </div>
                 </div>
 
-                <div className="bg-gradient-to-br from-slate-800/60 to-slate-900/60 backdrop-blur-xl rounded-xl border border-slate-700/50 p-6 cursor-pointer hover:border-slate-600/50 transition-colors" onClick={() => push({ type: 'driver-performance-hub', data: { title: 'Performance Metrics' }, id: 'driver-performance-hub' } as Omit<DrilldownLevel, "timestamp">)}>
-                    <h3 className="text-sm font-medium text-slate-400 uppercase tracking-wide mb-4">Performance</h3>
-                    <div className="space-y-1">
+                <div
+                    className="bg-card/80 backdrop-blur-xl rounded-xl border border-border/50 p-4 sm:p-6 cursor-pointer hover:border-border transition-all duration-300"
+                    onClick={() => push({ type: 'driver-performance-hub', data: { title: 'Performance Metrics' }, id: 'driver-performance-hub' } as Omit<DrilldownLevel, "timestamp">)}
+                    role="button"
+                    tabIndex={0}
+                >
+                    <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-4">Performance</h3>
+                    <div className="space-y-0.5">
                         <QuickStat label="Avg Rating" value="4.7/5" trend="up" />
                         <QuickStat label="On-Time %" value="94.2%" trend="up" />
                         <QuickStat label="Safety Score" value="92" />
@@ -57,8 +91,13 @@ function DriversListContent() {
                     </div>
                 </div>
 
-                <div className="bg-gradient-to-br from-slate-800/60 to-slate-900/60 backdrop-blur-xl rounded-xl border border-slate-700/50 p-6 cursor-pointer hover:border-slate-600/50 transition-colors" onClick={() => push({ type: 'drivers-roster', data: { title: 'Driver Availability' }, id: 'drivers-roster-availability' } as Omit<DrilldownLevel, "timestamp">)}>
-                    <h3 className="text-sm font-medium text-slate-400 uppercase tracking-wide mb-4">Availability</h3>
+                <div
+                    className="bg-card/80 backdrop-blur-xl rounded-xl border border-border/50 p-4 sm:p-6 cursor-pointer hover:border-primary/40 hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300"
+                    onClick={() => push({ type: 'drivers-roster', data: { title: 'Driver Availability' }, id: 'drivers-roster-availability' } as Omit<DrilldownLevel, "timestamp">)}
+                    role="button"
+                    tabIndex={0}
+                >
+                    <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-4">Availability</h3>
                     <div className="flex items-center justify-center">
                         <ProgressRing progress={88} color="blue" label="Available" sublabel="Today" />
                     </div>
@@ -72,21 +111,40 @@ function PerformanceContent() {
     const { push } = useDrilldown()
 
     return (
-        <div className="p-6 space-y-6 bg-gradient-to-b from-slate-900/50 to-transparent">
-            <h2 className="text-2xl font-bold text-white">Driver Performance</h2>
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                <StatCard title="Top Performers" value="12" variant="success" icon={<Star className="w-6 h-6" />} onClick={() => push({ type: 'top-performers', data: { title: 'Top Performers' }, id: 'top-performers' } as Omit<DrilldownLevel, "timestamp">)} />
-                <StatCard title="Meeting Target" value="28" variant="primary" onClick={() => push({ type: 'driver-performance-hub', data: { title: 'Meeting Target' }, id: 'driver-performance-hub-target' } as Omit<DrilldownLevel, "timestamp">)} />
-                <StatCard title="Needs Coaching" value="6" variant="warning" onClick={() => push({ type: 'needs-coaching', data: { title: 'Needs Coaching' }, id: 'needs-coaching' } as Omit<DrilldownLevel, "timestamp">)} />
-                <StatCard title="Improvement" value="2" variant="danger" onClick={() => push({ type: 'driver-performance-hub', data: { title: 'Needs Improvement' }, id: 'driver-performance-hub-improvement' } as Omit<DrilldownLevel, "timestamp">)} />
+        <div className="p-4 sm:p-6 space-y-4 sm:space-y-6 bg-gradient-to-b from-background to-background/95 overflow-auto">
+            <h2 className="text-lg sm:text-xl lg:text-2xl font-bold text-foreground">Driver Performance</h2>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+                <StatCard
+                    title="Top Performers"
+                    value="12"
+                    variant="success"
+                    icon={<Star className="w-5 h-5 sm:w-6 sm:h-6" />}
+                    onClick={() => push({ type: 'top-performers', data: { title: 'Top Performers' }, id: 'top-performers' } as Omit<DrilldownLevel, "timestamp">)}
+                />
+                <StatCard
+                    title="Meeting Target"
+                    value="28"
+                    variant="primary"
+                    onClick={() => push({ type: 'driver-performance-hub', data: { title: 'Meeting Target' }, id: 'driver-performance-hub-target' } as Omit<DrilldownLevel, "timestamp">)}
+                />
+                <StatCard
+                    title="Needs Coaching"
+                    value="6"
+                    variant="warning"
+                    onClick={() => push({ type: 'needs-coaching', data: { title: 'Needs Coaching' }, id: 'needs-coaching' } as Omit<DrilldownLevel, "timestamp">)}
+                />
+                <StatCard
+                    title="Improvement"
+                    value="2"
+                    variant="danger"
+                    onClick={() => push({ type: 'driver-performance-hub', data: { title: 'Needs Improvement' }, id: 'driver-performance-hub-improvement' } as Omit<DrilldownLevel, "timestamp">)}
+                />
             </div>
         </div>
     )
 }
 
 function ScorecardContent() {
-    const { push } = useDrilldown()
-
     return (
         <div className="p-6 space-y-6 bg-gradient-to-b from-slate-900/50 to-transparent">
             <h2 className="text-2xl font-bold text-white">Driver Scorecard</h2>
