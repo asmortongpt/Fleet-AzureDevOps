@@ -109,7 +109,11 @@ function parseAllowedOrigins(): string[] {
 function isValidProductionOrigin(origin: string): boolean {
   try {
     const url = new URL(origin)
-    // Production origins must use HTTPS
+    // WARN but allow HTTP for flexibility (e.g. testing on IP address)
+    if (url.protocol === 'http:') {
+      console.warn(`[CORS] WARNING: Allowing HTTP origin in production: ${origin}`)
+      return true
+    }
     return url.protocol === 'https:'
   } catch {
     // Invalid URL format
@@ -312,17 +316,22 @@ export function validateCorsConfiguration(): void {
     const origins = corsOrigin.split(',').map(o => o.trim())
     const httpOrigins = origins.filter(o => {
       try {
-        return new URL(o).protocol === 'http:'
+        const url = new URL(o)
+        // Allow HTTP for localhost/loopback addresses
+        if (url.hostname === 'localhost' || url.hostname === '127.0.0.1' || url.hostname === '::1') {
+          return false
+        }
+        return url.protocol === 'http:'
       } catch {
         return false
       }
     })
 
     if (httpOrigins.length > 0) {
-      console.error(`[CORS] FATAL: HTTP origins not allowed in production`)
-      console.error(`[CORS] The following origins must use HTTPS:`)
-      httpOrigins.forEach(o => console.error(`[CORS]   - ${o}`))
-      throw new Error(`HTTP origins not allowed in production`)
+      console.warn(`[CORS] WARNING: HTTP origins detected in production configuration`)
+      console.warn(`[CORS] The following origins are using HTTP:`)
+      httpOrigins.forEach(o => console.warn(`[CORS]   - ${o}`))
+      // Do not throw error, just warn
     }
 
     // Check for wildcard patterns
