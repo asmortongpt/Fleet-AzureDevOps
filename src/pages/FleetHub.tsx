@@ -21,7 +21,9 @@ import {
 } from '@phosphor-icons/react'
 import React, { Suspense, lazy, Component, ReactNode, ErrorInfo } from 'react'
 
+import { VideoPlayer, DEMO_STREAMS } from '@/components/common/VideoPlayer'
 import { Button } from '@/components/ui/button'
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { HubPage, HubTab } from '@/components/ui/hub-page'
 import { Skeleton } from '@/components/ui/skeleton'
 import { StatCard, ProgressRing, StatusDot, QuickStat } from '@/components/ui/stat-card'
@@ -363,10 +365,13 @@ function VideoContent() {
     ]
 
     return (
-        <div className="p-4 space-y-4 bg-gradient-to-b from-slate-900/50 to-transparent h-full">
+        <div className="p-4 space-y-4 bg-gradient-to-b from-slate-900/50 to-transparent h-full overflow-hidden flex flex-col">
             <div className="flex items-center justify-between">
-                <h2 className="text-lg font-bold text-white">Video Telematics</h2>
-                <StatusDot status="online" label="Recording" />
+                <div>
+                    <h2 className="text-lg font-bold text-white">Video Telematics</h2>
+                    <p className="text-xs text-slate-400">Live camera feeds from fleet vehicles</p>
+                </div>
+                <StatusDot status="online" label={`${recordingCameras} Recording`} />
             </div>
 
             <div className="grid grid-cols-3 gap-3">
