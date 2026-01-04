@@ -369,6 +369,51 @@ while [ $ALL_PASS = false ]; do
 
     PDCA_SCORE=$(jq -r 'reduce .[] as $item (0; . + $item.overallScore) / length' /tmp/pdca-test-results.json 2>/dev/null || echo "0")
 
+    # VISUAL VALIDATION
+    echo "  [7/7] Visual validation with screenshots..."
+    VISUAL_DIR="$REPORT_DIR/visual-iteration-${ITERATION}"
+    mkdir -p "$VISUAL_DIR"
+
+    # Capture screenshots of all hubs
+    (npm run dev &
+    DEV_PID=$!
+    sleep 10
+
+    for hub in operations fleet work people insights; do
+        npx playwright screenshot "http://localhost:5174/hubs/$hub" \
+            "$VISUAL_DIR/${hub}-hub.png" \
+            --viewport-size=1920,1080 \
+            --full-page >> "/tmp/honesty-visual-${ITERATION}.log" 2>&1 || true
+    done
+
+    # Visual regression check (if baseline exists)
+    if [ -d "$REPORT_DIR/visual-baseline" ]; then
+        VISUAL_DIFF=0
+        for hub in operations fleet work people insights; do
+            if [ -f "$REPORT_DIR/visual-baseline/${hub}-hub.png" ]; then
+                compare -metric RMSE \
+                    "$REPORT_DIR/visual-baseline/${hub}-hub.png" \
+                    "$VISUAL_DIR/${hub}-hub.png" \
+                    "/dev/null" 2>&1 | grep -oP '[\d.]+' > "/tmp/visual-diff-${hub}.txt" || true
+                diff_value=$(cat "/tmp/visual-diff-${hub}.txt" 2>/dev/null || echo "0")
+                if (( $(echo "$diff_value > 0.05" | bc -l) )); then
+                    VISUAL_DIFF=$((VISUAL_DIFF + 1))
+                fi
+            fi
+        done
+        VISUAL_STATUS="PASS"
+        [ $VISUAL_DIFF -eq 0 ] && VISUAL_STATUS="PASS" || VISUAL_STATUS="WARN"
+    else
+        # First iteration - establish baseline
+        cp -r "$VISUAL_DIR" "$REPORT_DIR/visual-baseline"
+        VISUAL_STATUS="BASELINE"
+        VISUAL_DIFF=0
+    fi
+
+    kill $DEV_PID 2>/dev/null || true) || VISUAL_STATUS="FAIL"
+
+    echo "    Visual validation: $VISUAL_STATUS (Differences: ${VISUAL_DIFF:-0})"
+
     TOTAL_ISSUES=$((SEC_TOTAL + TS_ERRORS + LINT_ERRORS + TEST_FAILED))
 
     echo ""
@@ -380,6 +425,7 @@ while [ $ALL_PASS = false ]; do
     echo "Build:         $BUILD_STATUS"
     echo "Tests:         $TEST_STATUS ($TEST_PASSED passed, $TEST_FAILED failed)"
     echo "PDCA UI:       $PDCA_STATUS (Score: ${PDCA_SCORE}%)"
+    echo "Visual:        $VISUAL_STATUS (Differences: ${VISUAL_DIFF:-0})"
     echo "Total Issues:  $TOTAL_ISSUES"
     echo ""
 
@@ -392,6 +438,7 @@ while [ $ALL_PASS = false ]; do
        [ "$BUILD_STATUS" = "PASS" ] && \
        [ "$TEST_STATUS" = "PASS" ] && \
        [ "$PDCA_STATUS" = "PASS" ] && \
+       [ "$VISUAL_STATUS" = "PASS" ] && \
        [ "$(echo "$PDCA_SCORE >= 90" | bc -l)" -eq 1 ]; then
 
         echo "✅ 100% TECHNICAL PASS ACHIEVED!"
