@@ -17,10 +17,10 @@
 // CORE DRILLDOWN INFRASTRUCTURE
 // ============================================================================
 
-export { DrilldownPanel } from './DrilldownPanel'
-export { DrilldownBreadcrumbs } from './DrilldownBreadcrumbs'
+export { DrilldownPanel, DrilldownContent } from '../DrilldownPanel'
+export { DrilldownBreadcrumbs } from '../DrilldownBreadcrumbs'
+export { DrilldownManager, useDrilldown } from '../DrilldownManager'
 export { DrilldownProvider } from '@/contexts/DrilldownContext'
-export { useDrilldown } from '@/contexts/DrilldownContext'
 export type { DrilldownLevel, DrilldownContextType } from '@/contexts/DrilldownContext'
 
 // ============================================================================
@@ -126,14 +126,6 @@ export type {
 export { VehicleDetailPanel } from './VehicleDetailPanel'
 export { VehicleTripsList } from './VehicleTripsList'
 export { TripTelemetryView } from './TripTelemetryView'
-
-// Fleet Hub Complete Drilldowns (ZERO placeholders - Full implementations)
-export {
-  VehicleDetailsDrilldown,
-  UtilizationDetailsDrilldown,
-  CostDetailsDrilldown,
-  ComplianceDetailsDrilldown
-} from './FleetHubCompleteDrilldowns'
 
 // Driver drilldown components
 export { DriverDetailPanel } from './DriverDetailPanel'

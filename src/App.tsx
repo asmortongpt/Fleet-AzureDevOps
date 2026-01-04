@@ -2,19 +2,15 @@ import { withAITracking } from '@microsoft/applicationinsights-react-js'
 import { Shield } from "lucide-react"
 import { useState, useMemo, lazy, Suspense } from "react"
 
-import { BuildVersion } from "@/components/BuildVersion"
+import { AIAssistantChat } from "@/components/ai/AIAssistantChat"
 import { DrilldownManager } from "@/components/DrilldownManager"
 import { EnhancedErrorBoundary } from "@/components/EnhancedErrorBoundary"
-import { AIAssistantChat } from "@/components/ai/AIAssistantChat"
 import { ToastContainer } from "@/components/common/ToastContainer"
 import { RoleSwitcher } from "@/components/demo/RoleSwitcher"
 import { QueryErrorBoundary } from "@/components/errors/QueryErrorBoundary"
 import { CommandCenterLayout } from "@/components/layout/CommandCenterLayout"
 import { Button } from "@/components/ui/button"
-import { useAuth } from "@/contexts/AuthContext"
-import { useNavigation } from "@/contexts/NavigationContext"
-import { PolicyProvider } from "@/contexts/PolicyContext"
-import { WebSocketProvider } from "@/contexts/WebSocketContext"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { useFleetData } from "@/hooks/use-fleet-data"
 import { navigationItems } from "@/lib/navigation"
 import telemetryService from '@/lib/telemetry'
@@ -42,7 +38,6 @@ const CommandCenter = lazy(() => import("@/pages/CommandCenter"))
 const AdminDashboard = lazy(() => import("@/pages/AdminDashboard"))
 
 const PolicyEngineWorkbench = lazy(() => import("@/components/modules/admin/PolicyEngineWorkbench").then(m => ({ default: m.PolicyEngineWorkbench })))
-const PolicyOnboarding = lazy(() => import("@/components/modules/admin/PolicyOnboarding").then(m => ({ default: m.PolicyOnboarding })))
 const Notifications = lazy(() => import("@/components/modules/admin/Notifications").then(m => ({ default: m.Notifications })))
 const PushNotificationAdmin = lazy(() => import("@/components/modules/admin/PushNotificationAdmin"))
 
@@ -163,6 +158,8 @@ const LoadingSpinner = () => (
   </div>
 )
 
+import { useAuth } from "@/contexts/AuthContext"
+import { useNavigation } from "@/contexts/NavigationContext"
 
 // ... existing imports
 
@@ -292,8 +289,6 @@ function App() {
       case "policy-engine":
       case "policy-management":
         return <PolicyEngineWorkbench />
-      case "policy-onboarding":
-        return <PolicyOnboarding />
       case "video-telematics":
         return <VideoTelematics />
       case "ev-charging":
@@ -399,36 +394,37 @@ function App() {
 
 
   return (
-    <PolicyProvider>
-      <WebSocketProvider autoConnect={true} debug={import.meta.env.DEV}>
-        <DrilldownManager>
-        <CommandCenterLayout>
-          <EnhancedErrorBoundary
-            showDetails={import.meta.env.DEV}
-            onError={(error, errorInfo) => {
-              console.error('App Error Boundary:', error, errorInfo);
-            }}
-          >
-            <QueryErrorBoundary>
-              <Suspense fallback={<div className="h-full w-full flex items-center justify-center"><LoadingSpinner /></div>}>
-                {renderModule()}
-              </Suspense>
-            </QueryErrorBoundary>
-          </EnhancedErrorBoundary>
-        </CommandCenterLayout>
+    <DrilldownManager>
+      {/* Skip to main content link for accessibility */}
+      <a
+        href="#main-content"
+        className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-50 focus:px-4 focus:py-2 focus:bg-primary focus:text-primary-foreground focus:rounded-md focus:shadow-lg"
+      >
+        Skip to main content
+      </a>
 
-        {/* Role Switcher FAB button */}
-        <RoleSwitcher />
+      <CommandCenterLayout>
+        <EnhancedErrorBoundary
+          showDetails={import.meta.env.DEV}
+          onError={(error, errorInfo) => {
+            console.error('App Error Boundary:', error, errorInfo);
+          }}
+        >
+          <QueryErrorBoundary>
+            <Suspense fallback={<div className="h-full w-full flex items-center justify-center"><LoadingSpinner /></div>}>
+              {renderModule()}
+            </Suspense>
+          </QueryErrorBoundary>
+        </EnhancedErrorBoundary>
+      </CommandCenterLayout>
 
-        {/* Toast notifications */}
-        <ToastContainer />
+      {/* Role Switcher FAB button */}
+      <RoleSwitcher />
 
-        {/* Build version indicator - shows latest build confirmation */}
-        <BuildVersion />
+      {/* Toast notifications */}
+      <ToastContainer />
 
-        </DrilldownManager >
-      </WebSocketProvider>
-    </PolicyProvider>
+    </DrilldownManager >
   )
 }
 

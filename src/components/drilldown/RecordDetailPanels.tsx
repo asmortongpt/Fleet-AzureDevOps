@@ -6,6 +6,7 @@
  */
 
 import {
+  Car,
   MapPin,
   Calendar,
   Clock,

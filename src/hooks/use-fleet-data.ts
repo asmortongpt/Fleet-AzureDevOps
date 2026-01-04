@@ -23,6 +23,7 @@ import {
 } from '@/hooks/use-api'
 import { generateDemoVehicles, generateDemoDrivers, generateDemoWorkOrders, generateDemoFacilities } from '@/lib/demo-data'
 import { Vehicle, Driver, WorkOrder, GISFacility } from '@/lib/types'
+import { generateDemoVehicles, generateDemoDrivers, generateDemoWorkOrders, generateDemoFacilities } from '@/lib/demo-data'
 import logger from '@/utils/logger'
 
 // Check if demo mode is enabled (default: true)

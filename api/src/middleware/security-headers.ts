@@ -1,322 +1,165 @@
-/**
- * Security Headers Middleware
- *
- * Comprehensive security headers implementation with:
- * - Content Security Policy (CSP)
- * - HTTP Strict Transport Security (HSTS)
- * - X-Frame-Options (Clickjacking protection)
- * - X-Content-Type-Options
- * - X-XSS-Protection
- * - Referrer Policy
- * - Permissions Policy
- * - FedRAMP compliance
- *
- * @module middleware/security-headers
- */
+import { Request, Response, NextFunction } from 'express';
 
-import { Request, Response, NextFunction } from 'express'
+interface HSTSConfig {
+  maxAge: number;
+  includeSubDomains?: boolean;
+  preload?: boolean;
+}
 
-/**
- * Security headers configuration
- */
-export interface SecurityHeadersConfig {
-  /**
-   * Content Security Policy directives
-   */
-  csp?: {
-    directives?: Record<string, string[]>
-    reportOnly?: boolean
-    reportUri?: string
-  }
+interface CSPDirectives {
+  [key: string]: string[];
+}
 
-  /**
-   * HSTS configuration
-   */
-  hsts?: {
-    maxAge?: number
-    includeSubDomains?: boolean
-    preload?: boolean
-  }
+interface CSPConfig {
+  directives: CSPDirectives;
+}
 
-  /**
-   * Enable various security headers
-   */
-  frameOptions?: 'DENY' | 'SAMEORIGIN' | string
-  contentTypeOptions?: boolean
-  xssProtection?: boolean
-  referrerPolicy?: string
-  permissionsPolicy?: Record<string, string[]>
-
-  /**
-   * Custom headers to add
-   */
-  customHeaders?: Record<string, string>
+interface SecurityHeadersConfig {
+  hsts?: HSTSConfig;
+  csp?: CSPConfig;
+  frameOptions?: string;
+  contentTypeOptions?: boolean;
+  xssProtection?: boolean;
+  referrerPolicy?: string;
 }
 
 /**
- * Default CSP directives for a secure API
- */
-const DEFAULT_CSP_DIRECTIVES = {
-  'default-src': ["'self'"],
-  'base-uri': ["'self'"],
-  'font-src': ["'self'", 'https:', 'data:'],
-  'form-action': ["'self'"],
-  'frame-ancestors': ["'none'"],
-  'img-src': ["'self'", 'data:', 'https:'],
-  'object-src': ["'none'"],
-  'script-src': ["'self'"],
-  'script-src-attr': ["'none'"],
-  'style-src': ["'self'", 'https:', "'unsafe-inline'"],
-  'upgrade-insecure-requests': []
-}
-
-/**
- * Default permissions policy (restrictive)
- */
-const DEFAULT_PERMISSIONS_POLICY = {
-  'accelerometer': [],
-  'camera': [],
-  'geolocation': ["'self'"], // Allow geolocation for fleet tracking
-  'gyroscope': [],
-  'magnetometer': [],
-  'microphone': [],
-  'payment': [],
-  'usb': []
-}
-
-/**
- * Build CSP header value from directives
- */
-function buildCSPHeader(directives: Record<string, string[]>): string {
-  return Object.entries(directives)
-    .map(([key, values]) => {
-      if (values.length === 0) {
-        return key
-      }
-      return `${key} ${values.join(' ')}`
-    })
-    .join('; ')
-}
-
-/**
- * Build Permissions-Policy header value
- */
-function buildPermissionsPolicyHeader(policy: Record<string, string[]>): string {
-  return Object.entries(policy)
-    .map(([feature, allowlist]) => {
-      if (allowlist.length === 0) {
-        return `${feature}=()`
-      }
-      return `${feature}=(${allowlist.join(' ')})`
-    })
-    .join(', ')
-}
-
-/**
- * Comprehensive security headers middleware
- *
- * Usage:
- * ```typescript
- * import { securityHeaders } from './middleware/security-headers'
- *
- * // Use default security headers
- * app.use(securityHeaders())
- *
- * // Custom configuration
- * app.use(securityHeaders({
- *   csp: {
- *     directives: {
- *       'default-src': ["'self'"],
- *       'img-src': ["'self'", 'https://cdn.example.com']
- *     }
- *   },
- *   hsts: {
- *     maxAge: 31536000,
- *     includeSubDomains: true,
- *     preload: true
- *   }
- * }))
- * ```
+ * Security Headers Middleware Factory
+ * Returns configured middleware that implements OWASP security headers best practices
  */
 export function securityHeaders(config: SecurityHeadersConfig = {}) {
-  const {
-    csp = {},
-    hsts = {},
-    frameOptions = 'DENY',
-    contentTypeOptions = true,
-    xssProtection = true,
-    referrerPolicy = 'strict-origin-when-cross-origin',
-    permissionsPolicy = DEFAULT_PERMISSIONS_POLICY,
-    customHeaders = {}
-  } = config
+  return (req: Request, res: Response, next: NextFunction): void => {
+    const isProduction = process.env.NODE_ENV === 'production';
 
-  return (req: Request, res: Response, next: NextFunction) => {
     // Content Security Policy
-    const cspDirectives = {
-      ...DEFAULT_CSP_DIRECTIVES,
-      ...(csp.directives || {})
+    if (config.csp && config.csp.directives) {
+      const cspDirectives = Object.entries(config.csp.directives)
+        .map(([key, values]) => `${key} ${values.join(' ')}`)
+        .join('; ');
+      res.setHeader('Content-Security-Policy', cspDirectives);
     }
 
-    const cspHeader = buildCSPHeader(cspDirectives)
-
-    if (csp.reportOnly) {
-      res.setHeader('Content-Security-Policy-Report-Only', cspHeader)
-    } else {
-      res.setHeader('Content-Security-Policy', cspHeader)
-    }
-
-    // CSP Reporting
-    if (csp.reportUri) {
-      res.setHeader('Content-Security-Policy-Report-Only',
-        `${cspHeader}; report-uri ${csp.reportUri}`)
-    }
-
-    // HTTP Strict Transport Security (FedRAMP SC-8)
-    if (process.env.NODE_ENV === 'production') {
-      const hstsMaxAge = hsts.maxAge || 31536000 // 1 year default
-      const hstsIncludeSubDomains = hsts.includeSubDomains !== false
-      const hstsPreload = hsts.preload || false
-
-      let hstsValue = `max-age=${hstsMaxAge}`
-      if (hstsIncludeSubDomains) {
-        hstsValue += '; includeSubDomains'
+    // HTTP Strict Transport Security (only in production or if explicitly configured)
+    if (config.hsts && (isProduction || config.hsts.maxAge)) {
+      let hstsValue = `max-age=${config.hsts.maxAge}`;
+      if (config.hsts.includeSubDomains) {
+        hstsValue += '; includeSubDomains';
       }
-      if (hstsPreload) {
-        hstsValue += '; preload'
+      if (config.hsts.preload) {
+        hstsValue += '; preload';
       }
-
-      res.setHeader('Strict-Transport-Security', hstsValue)
+      res.setHeader('Strict-Transport-Security', hstsValue);
     }
 
-    // X-Frame-Options (Clickjacking protection - FedRAMP SC-7)
-    if (frameOptions) {
-      res.setHeader('X-Frame-Options', frameOptions)
+    // Prevent clickjacking
+    if (config.frameOptions) {
+      res.setHeader('X-Frame-Options', config.frameOptions);
     }
 
-    // X-Content-Type-Options (MIME sniffing protection)
-    if (contentTypeOptions) {
-      res.setHeader('X-Content-Type-Options', 'nosniff')
+    // Prevent MIME type sniffing
+    if (config.contentTypeOptions !== false) {
+      res.setHeader('X-Content-Type-Options', 'nosniff');
     }
 
-    // X-XSS-Protection (Legacy XSS protection)
-    if (xssProtection) {
-      res.setHeader('X-XSS-Protection', '1; mode=block')
+    // XSS Protection (legacy but still useful)
+    if (config.xssProtection !== false) {
+      res.setHeader('X-XSS-Protection', '1; mode=block');
     }
 
-    // Referrer-Policy
-    if (referrerPolicy) {
-      res.setHeader('Referrer-Policy', referrerPolicy)
+    // Referrer Policy
+    if (config.referrerPolicy) {
+      res.setHeader('Referrer-Policy', config.referrerPolicy);
     }
 
-    // Permissions-Policy (formerly Feature-Policy)
-    if (permissionsPolicy) {
-      const permissionsPolicyHeader = buildPermissionsPolicyHeader(permissionsPolicy)
-      res.setHeader('Permissions-Policy', permissionsPolicyHeader)
-    }
+    // Permissions Policy (formerly Feature Policy)
+    const permissions = [
+      'geolocation=(self)',
+      'microphone=()',
+      'camera=()',
+      'payment=()',
+      'usb=()',
+      'magnetometer=()',
+      'gyroscope=()',
+      'accelerometer=()'
+    ];
+    res.setHeader('Permissions-Policy', permissions.join(', '));
 
-    // X-DNS-Prefetch-Control
-    res.setHeader('X-DNS-Prefetch-Control', 'off')
+    // Cross-Origin Policies
+    res.setHeader('Cross-Origin-Embedder-Policy', 'require-corp');
+    res.setHeader('Cross-Origin-Opener-Policy', 'same-origin');
+    res.setHeader('Cross-Origin-Resource-Policy', 'same-origin');
 
-    // X-Download-Options (IE8+ download protection)
-    res.setHeader('X-Download-Options', 'noopen')
+    next();
+  };
+}
 
-    // X-Permitted-Cross-Domain-Policies
-    res.setHeader('X-Permitted-Cross-Domain-Policies', 'none')
+/**
+ * CORS Headers Middleware
+ * Configures Cross-Origin Resource Sharing
+ */
+export function corsHeaders(req: Request, res: Response, next: NextFunction): void {
+  const allowedOrigins = [
+    'http://localhost:5174',
+    'http://localhost:3000',
+    process.env.FRONTEND_URL || '',
+    process.env.AZURE_STATIC_WEB_APP_URL || ''
+  ].filter(Boolean);
 
-    // Cross-Origin-Embedder-Policy
-    res.setHeader('Cross-Origin-Embedder-Policy', 'require-corp')
+  const origin = req.headers.origin;
 
-    // Cross-Origin-Opener-Policy
-    res.setHeader('Cross-Origin-Opener-Policy', 'same-origin')
-
-    // Cross-Origin-Resource-Policy
-    res.setHeader('Cross-Origin-Resource-Policy', 'same-origin')
-
-    // Custom headers
-    Object.entries(customHeaders).forEach(([key, value]) => {
-      res.setHeader(key, value)
-    })
-
-    // Remove potentially dangerous headers
-    res.removeHeader('X-Powered-By')
-
-    next()
+  if (origin && allowedOrigins.includes(origin)) {
+    res.setHeader('Access-Control-Allow-Origin', origin);
   }
-}
 
-/**
- * Strict security headers for high-security endpoints
- */
-export function strictSecurityHeaders() {
-  return securityHeaders({
-    csp: {
-      directives: {
-        'default-src': ["'none'"],
-        'script-src': ["'none'"],
-        'style-src': ["'none'"],
-        'img-src': ["'none'"],
-        'font-src': ["'none'"],
-        'connect-src': ["'none'"],
-        'media-src': ["'none'"],
-        'object-src': ["'none'"],
-        'frame-src': ["'none'"],
-        'worker-src': ["'none'"],
-        'form-action': ["'none'"],
-        'frame-ancestors': ["'none'"],
-        'base-uri': ["'none'"]
-      }
-    },
-    frameOptions: 'DENY',
-    permissionsPolicy: {
-      'accelerometer': [],
-      'camera': [],
-      'geolocation': [],
-      'gyroscope': [],
-      'magnetometer': [],
-      'microphone': [],
-      'payment': [],
-      'usb': []
-    }
-  })
-}
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, PATCH, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Tenant-ID');
+  res.setHeader('Access-Control-Allow-Credentials', 'true');
+  res.setHeader('Access-Control-Max-Age', '86400'); // 24 hours
 
-/**
- * API-specific security headers
- */
-export function apiSecurityHeaders() {
-  return securityHeaders({
-    csp: {
-      directives: {
-        'default-src': ["'none'"],
-        'frame-ancestors': ["'none'"],
-        'base-uri': ["'none'"]
-      }
-    },
-    frameOptions: 'DENY'
-  })
-}
-
-/**
- * Security headers for file download endpoints
- */
-export function downloadSecurityHeaders() {
-  return (req: Request, res: Response, next: NextFunction) => {
-    // Prevent MIME sniffing
-    res.setHeader('X-Content-Type-Options', 'nosniff')
-
-    // Prevent downloads from being embedded
-    res.setHeader('X-Frame-Options', 'DENY')
-
-    // Force download (not inline display)
-    if (!res.getHeader('Content-Disposition')) {
-      res.setHeader('Content-Disposition', 'attachment')
-    }
-
-    next()
+  // Handle preflight requests
+  if (req.method === 'OPTIONS') {
+    res.status(204).end();
+    return;
   }
+
+  next();
 }
 
 /**
- * Export default security headers
+ * Rate Limit Headers
+ * Provides rate limit information to clients
  */
-export default securityHeaders
+export function rateLimitHeaders(req: Request, res: Response, next: NextFunction): void {
+  // These would typically be set by a rate limiting middleware
+  // This is a placeholder for the header structure
+  res.setHeader('X-RateLimit-Limit', '100');
+  res.setHeader('X-RateLimit-Remaining', '99');
+  res.setHeader('X-RateLimit-Reset', String(Date.now() + 3600000));
+
+  next();
+}
+
+/**
+ * Cache Control Headers
+ * Sets appropriate caching headers based on resource type
+ */
+export function cacheControl(req: Request, res: Response, next: NextFunction): void {
+  const path = req.path;
+
+  // API endpoints - no cache
+  if (path.startsWith('/api/')) {
+    res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
+    res.setHeader('Pragma', 'no-cache');
+    res.setHeader('Expires', '0');
+  }
+  // Static assets - aggressive caching
+  else if (path.match(/\.(js|css|png|jpg|jpeg|gif|ico|svg|woff|woff2|ttf|eot)$/)) {
+    res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
+  }
+  // HTML - short cache with revalidation
+  else if (path.match(/\.html$/)) {
+    res.setHeader('Cache-Control', 'no-cache, must-revalidate');
+  }
+
+  next();
+}

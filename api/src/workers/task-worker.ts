@@ -58,11 +58,11 @@ const taskHandlers = {
   async ocr(data: any): Promise<any> {
     const { buffer, language = 'eng' } = data
 
-    const worker = await createWorker(language)
+    let worker: any = null
 
     try {
+      worker = await createWorker(language)
       const result = await worker.recognize(buffer)
-      await worker.terminate()
 
       return {
         text: result.data.text,
@@ -71,8 +71,16 @@ const taskHandlers = {
         lines: result.data.lines
       }
     } catch (error) {
-      await worker.terminate()
       throw error
+    } finally {
+      // Always terminate worker in finally block to prevent memory leaks
+      if (worker) {
+        try {
+          await worker.terminate()
+        } catch (terminateError) {
+          console.error('Error terminating Tesseract worker:', terminateError)
+        }
+      }
     }
   },
 
