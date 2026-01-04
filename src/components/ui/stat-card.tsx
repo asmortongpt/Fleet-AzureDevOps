@@ -10,6 +10,7 @@
  */
 
 import { ArrowUp, ArrowDown, Minus } from '@phosphor-icons/react'
+import { motion } from 'framer-motion'
 
 import { cn } from '@/lib/utils'
 
@@ -91,7 +92,12 @@ export function StatCard({
     const trendColor = trend === 'up' ? 'text-success' : trend === 'down' ? 'text-destructive' : 'text-muted-foreground'
 
     return (
-        <div
+        <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.3, ease: 'easeOut' }}
+            whileHover={isClickable ? { scale: 1.02, transition: { duration: 0.2 } } : {}}
+            whileTap={isClickable ? { scale: 0.99 } : {}}
             role={isClickable ? 'button' : undefined}
             tabIndex={isClickable ? 0 : undefined}
             onClick={onClick}
@@ -162,7 +168,7 @@ export function StatCard({
                     </svg>
                 </div>
             )}
-        </div>
+        </motion.div>
     )
 }
 
@@ -198,7 +204,12 @@ export function ProgressRing({
     const offset = circumference - (progress / 100) * circumference
 
     return (
-        <div className="relative inline-flex items-center justify-center">
+        <motion.div
+            initial={{ opacity: 0, scale: 0.8 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.4, ease: 'easeOut' }}
+            className="relative inline-flex items-center justify-center"
+        >
             <svg width={size} height={size} className="transform -rotate-90">
                 <circle
                     cx={size / 2}
@@ -209,16 +220,18 @@ export function ProgressRing({
                     strokeWidth={strokeWidth}
                     className="text-muted/20"
                 />
-                <circle
+                <motion.circle
                     cx={size / 2}
                     cy={size / 2}
                     r={radius}
                     fill="none"
                     strokeWidth={strokeWidth}
                     strokeDasharray={circumference}
-                    strokeDashoffset={offset}
                     strokeLinecap="round"
                     className={cn('transition-all duration-700 ease-out', ringColors[color])}
+                    initial={{ strokeDashoffset: circumference }}
+                    animate={{ strokeDashoffset: offset }}
+                    transition={{ duration: 1, ease: 'easeOut', delay: 0.2 }}
                 />
             </svg>
             <div className="absolute inset-0 flex flex-col items-center justify-center">
@@ -226,7 +239,7 @@ export function ProgressRing({
                 {label && <span className="text-[10px] text-muted-foreground">{label}</span>}
                 {sublabel && <span className="text-[8px] text-muted-foreground/80">{sublabel}</span>}
             </div>
-        </div>
+        </motion.div>
     )
 }
 
@@ -279,7 +292,10 @@ interface QuickStatProps {
 export function QuickStat({ label, value, trend, onClick }: QuickStatProps) {
     const isClickable = !!onClick
     return (
-        <div
+        <motion.div
+            initial={{ opacity: 0, x: -10 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.2 }}
             role={isClickable ? 'button' : undefined}
             tabIndex={isClickable ? 0 : undefined}
             onClick={onClick}
@@ -304,6 +320,35 @@ export function QuickStat({ label, value, trend, onClick }: QuickStatProps) {
                 )}
                 {isClickable && <span className="text-muted-foreground text-xs">→</span>}
             </div>
-        </div>
+        </motion.div>
+    )
+}
+
+/**
+ * StatGrid Container - Provides stagger animation for child StatCards
+ * Wrap StatCards in this container for coordinated entrance animations
+ */
+interface StatGridProps {
+    children: React.ReactNode
+    className?: string
+    staggerDelay?: number
+}
+
+export function StatGrid({ children, className, staggerDelay = 0.1 }: StatGridProps) {
+    return (
+        <motion.div
+            initial="hidden"
+            animate="visible"
+            variants={{
+                visible: {
+                    transition: {
+                        staggerChildren: staggerDelay,
+                    },
+                },
+            }}
+            className={className}
+        >
+            {children}
+        </motion.div>
     )
 }

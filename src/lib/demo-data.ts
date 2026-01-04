@@ -5,6 +5,7 @@
 
 import { Vehicle, Driver, WorkOrder, FuelTransaction, Route } from "./types"
 import type { GISFacility } from "./types"
+import type { Policy } from "./policy-engine/types"
 
 // Tallahassee, FL area coordinates
 const _tallahasseeFacilities = [
@@ -358,4 +359,299 @@ export function generateDemoRoutes(count: number = 15): Route[] {
   }
 
   return routes
+}
+
+export function generateDemoPolicies(): Policy[] {
+  return [
+    {
+      id: "policy-speed-limit",
+      tenantId: "demo-tenant-001",
+      name: "Speed Limit Policy",
+      description: "Enforce speed limits and generate alerts when vehicles exceed 75 mph on highways or posted speed limits in other areas",
+      type: "safety",
+      version: "1.0.0",
+      status: "active",
+      mode: "monitor",
+      conditions: [
+        { field: "speed", operator: ">", value: 75, unit: "mph" },
+        { field: "location_type", operator: "=", value: "highway" }
+      ],
+      actions: [
+        { type: "alert", target: "driver", message: "Speed limit exceeded" },
+        { type: "notify", target: "fleet_manager", message: "Vehicle {vehicle_id} exceeded speed limit" },
+        { type: "log", severity: "warning" }
+      ],
+      scope: {
+        vehicleTypes: ["truck", "van", "suv"],
+        regions: ["all"],
+        timeOfDay: "all"
+      },
+      confidenceScore: 0.95,
+      requiresDualControl: false,
+      requiresMFAForExecution: false,
+      createdBy: "System Admin",
+      createdAt: new Date(Date.now() - 90 * 24 * 60 * 60 * 1000).toISOString(),
+      lastModifiedBy: "System Admin",
+      lastModifiedAt: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString(),
+      tags: ["safety", "speed", "compliance"],
+      category: "Safety & Compliance",
+      relatedPolicies: ["policy-harsh-braking"],
+      executionCount: 1247,
+      violationCount: 89
+    },
+    {
+      id: "policy-idle-time",
+      tenantId: "demo-tenant-001",
+      name: "Idle Time Policy",
+      description: "Monitor and reduce excessive vehicle idling to improve fuel efficiency and reduce emissions",
+      type: "environmental",
+      version: "1.2.0",
+      status: "active",
+      mode: "human-in-loop",
+      conditions: [
+        { field: "idle_time", operator: ">", value: 5, unit: "minutes" },
+        { field: "engine_running", operator: "=", value: true },
+        { field: "vehicle_speed", operator: "=", value: 0 }
+      ],
+      actions: [
+        { type: "alert", target: "driver", message: "Vehicle has been idling for {idle_time} minutes" },
+        { type: "suggest", target: "driver", message: "Consider turning off engine to save fuel" },
+        { type: "notify", target: "supervisor", message: "Review idle time for vehicle {vehicle_id}" }
+      ],
+      scope: {
+        vehicleTypes: ["all"],
+        excludeConditions: ["temperature < 32F", "temperature > 95F"],
+        regions: ["all"]
+      },
+      confidenceScore: 0.88,
+      requiresDualControl: false,
+      requiresMFAForExecution: false,
+      createdBy: "Environmental Manager",
+      createdAt: new Date(Date.now() - 180 * 24 * 60 * 60 * 1000).toISOString(),
+      lastModifiedBy: "Fleet Manager",
+      lastModifiedAt: new Date(Date.now() - 15 * 24 * 60 * 60 * 1000).toISOString(),
+      tags: ["efficiency", "fuel", "environmental"],
+      category: "Efficiency & Environmental",
+      relatedPolicies: ["policy-fuel-efficiency"],
+      executionCount: 2341,
+      violationCount: 156
+    },
+    {
+      id: "policy-harsh-braking",
+      tenantId: "demo-tenant-001",
+      name: "Harsh Braking Detection",
+      description: "Detect and report harsh braking events to identify unsafe driving behavior and potential mechanical issues",
+      type: "driver-behavior",
+      version: "1.0.0",
+      status: "active",
+      mode: "monitor",
+      conditions: [
+        { field: "deceleration", operator: ">", value: 8, unit: "mph/s" },
+        { field: "vehicle_speed", operator: ">", value: 20, unit: "mph" }
+      ],
+      actions: [
+        { type: "log", severity: "info", message: "Harsh braking detected" },
+        { type: "notify", target: "safety_manager", message: "Driver {driver_id} harsh braking event" },
+        { type: "score_impact", target: "driver_safety_score", delta: -2 }
+      ],
+      scope: {
+        vehicleTypes: ["all"],
+        regions: ["all"],
+        timeOfDay: "all"
+      },
+      confidenceScore: 0.92,
+      requiresDualControl: false,
+      requiresMFAForExecution: false,
+      createdBy: "Safety Manager",
+      createdAt: new Date(Date.now() - 120 * 24 * 60 * 60 * 1000).toISOString(),
+      lastModifiedBy: "Safety Manager",
+      lastModifiedAt: new Date(Date.now() - 120 * 24 * 60 * 60 * 1000).toISOString(),
+      tags: ["safety", "driver-behavior", "braking"],
+      category: "Driver Safety",
+      relatedPolicies: ["policy-speed-limit", "policy-acceleration"],
+      executionCount: 892,
+      violationCount: 234
+    },
+    {
+      id: "policy-maintenance-overdue",
+      tenantId: "demo-tenant-001",
+      name: "Maintenance Overdue",
+      description: "Automatically schedule maintenance when service is overdue and restrict vehicle use if critical",
+      type: "maintenance",
+      version: "2.0.0",
+      status: "active",
+      mode: "autonomous",
+      conditions: [
+        { field: "days_since_last_service", operator: ">", value: 90 },
+        { field: "odometer_since_service", operator: ">", value: 5000, unit: "miles" }
+      ],
+      actions: [
+        { type: "create_work_order", priority: "medium", serviceType: "preventive" },
+        { type: "notify", target: "maintenance_manager", message: "Work order created for {vehicle_id}" },
+        { type: "restrict_vehicle", condition: "days_since_last_service > 120" }
+      ],
+      scope: {
+        vehicleTypes: ["all"],
+        excludeVehicles: ["new_vehicles_under_warranty"],
+        regions: ["all"]
+      },
+      confidenceScore: 0.98,
+      requiresDualControl: true,
+      requiresMFAForExecution: false,
+      createdBy: "Maintenance Director",
+      createdAt: new Date(Date.now() - 365 * 24 * 60 * 60 * 1000).toISOString(),
+      lastModifiedBy: "System Admin",
+      lastModifiedAt: new Date(Date.now() - 60 * 24 * 60 * 60 * 1000).toISOString(),
+      tags: ["maintenance", "preventive", "automated"],
+      category: "Fleet Maintenance",
+      relatedPolicies: ["policy-inspection-due"],
+      executionCount: 3456,
+      violationCount: 412
+    },
+    {
+      id: "policy-ev-charging",
+      tenantId: "demo-tenant-001",
+      name: "EV Charging Optimization",
+      description: "Optimize EV charging times to take advantage of off-peak electricity rates and ensure vehicles are ready for morning dispatch",
+      type: "ev-charging",
+      version: "1.1.0",
+      status: "testing",
+      mode: "autonomous",
+      conditions: [
+        { field: "battery_level", operator: "<", value: 80, unit: "%" },
+        { field: "vehicle_type", operator: "=", value: "electric" },
+        { field: "time_of_day", operator: "between", value: "22:00-06:00" }
+      ],
+      actions: [
+        { type: "start_charging", power_level: "level_2" },
+        { type: "optimize_charging_schedule", target_completion: "06:00", target_soc: 95 },
+        { type: "log", severity: "info", message: "Charging started for {vehicle_id}" }
+      ],
+      scope: {
+        vehicleTypes: ["electric"],
+        facilities: ["depot_with_chargers"],
+        regions: ["all"]
+      },
+      confidenceScore: 0.85,
+      requiresDualControl: false,
+      requiresMFAForExecution: false,
+      createdBy: "EV Fleet Manager",
+      createdAt: new Date(Date.now() - 45 * 24 * 60 * 60 * 1000).toISOString(),
+      lastModifiedBy: "EV Fleet Manager",
+      lastModifiedAt: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString(),
+      tags: ["ev", "charging", "optimization", "cost-savings"],
+      category: "EV Operations",
+      relatedPolicies: [],
+      executionCount: 567,
+      violationCount: 12
+    },
+    {
+      id: "policy-hours-service",
+      tenantId: "demo-tenant-001",
+      name: "Hours of Service Compliance",
+      description: "Monitor driver hours of service to ensure FMCSA compliance and prevent violations",
+      type: "safety",
+      version: "1.0.0",
+      status: "active",
+      mode: "monitor",
+      conditions: [
+        { field: "driving_hours_today", operator: ">", value: 10, unit: "hours" },
+        { field: "on_duty_hours_today", operator: ">", value: 14, unit: "hours" }
+      ],
+      actions: [
+        { type: "alert", target: "driver", message: "Approaching HOS limits - find safe place to rest" },
+        { type: "notify", target: "dispatcher", message: "Driver {driver_id} approaching HOS limits" },
+        { type: "restrict_dispatch", duration: "10_hours" }
+      ],
+      scope: {
+        driverTypes: ["CDL_required"],
+        vehicleTypes: ["truck"],
+        regions: ["all"]
+      },
+      confidenceScore: 0.99,
+      requiresDualControl: false,
+      requiresMFAForExecution: false,
+      createdBy: "Compliance Officer",
+      createdAt: new Date(Date.now() - 200 * 24 * 60 * 60 * 1000).toISOString(),
+      lastModifiedBy: "Compliance Officer",
+      lastModifiedAt: new Date(Date.now() - 100 * 24 * 60 * 60 * 1000).toISOString(),
+      tags: ["compliance", "FMCSA", "HOS", "safety"],
+      category: "Regulatory Compliance",
+      relatedPolicies: ["policy-driver-rest"],
+      executionCount: 1823,
+      violationCount: 45
+    },
+    {
+      id: "policy-geofence-violation",
+      tenantId: "demo-tenant-001",
+      name: "Geofence Violation",
+      description: "Alert when vehicles enter or exit designated geofenced areas without authorization",
+      type: "security",
+      version: "1.0.0",
+      status: "draft",
+      mode: "human-in-loop",
+      conditions: [
+        { field: "location", operator: "outside", value: "authorized_zones" },
+        { field: "authorization_status", operator: "=", value: "unauthorized" }
+      ],
+      actions: [
+        { type: "alert", target: "driver", message: "You are outside authorized area" },
+        { type: "notify", target: "security_team", message: "Vehicle {vehicle_id} geofence violation" },
+        { type: "require_approval", approver: "fleet_manager", action: "continue_operation" }
+      ],
+      scope: {
+        vehicleTypes: ["all"],
+        regions: ["all"],
+        timeOfDay: "all"
+      },
+      confidenceScore: 0.93,
+      requiresDualControl: false,
+      requiresMFAForExecution: true,
+      createdBy: "Security Manager",
+      createdAt: new Date(Date.now() - 10 * 24 * 60 * 60 * 1000).toISOString(),
+      lastModifiedBy: "Security Manager",
+      lastModifiedAt: new Date(Date.now() - 10 * 24 * 60 * 60 * 1000).toISOString(),
+      tags: ["security", "geofence", "tracking"],
+      category: "Fleet Security",
+      relatedPolicies: [],
+      executionCount: 0,
+      violationCount: 0
+    },
+    {
+      id: "policy-fuel-efficiency",
+      tenantId: "demo-tenant-001",
+      name: "Fuel Efficiency Monitoring",
+      description: "Track fuel efficiency metrics and identify vehicles or drivers that fall below acceptable thresholds",
+      type: "vehicle-use",
+      version: "1.3.0",
+      status: "approved",
+      mode: "monitor",
+      conditions: [
+        { field: "mpg", operator: "<", value: 12, unit: "mpg" },
+        { field: "vehicle_type", operator: "in", value: ["truck", "van"] }
+      ],
+      actions: [
+        { type: "log", severity: "warning", message: "Low fuel efficiency detected" },
+        { type: "notify", target: "fleet_manager", message: "Vehicle {vehicle_id} fuel efficiency below threshold" },
+        { type: "schedule_inspection", reason: "fuel_efficiency_check" }
+      ],
+      scope: {
+        vehicleTypes: ["truck", "van"],
+        excludeVehicles: ["heavy_equipment"],
+        regions: ["all"]
+      },
+      confidenceScore: 0.87,
+      requiresDualControl: false,
+      requiresMFAForExecution: false,
+      createdBy: "Operations Manager",
+      createdAt: new Date(Date.now() - 150 * 24 * 60 * 60 * 1000).toISOString(),
+      lastModifiedBy: "Fleet Manager",
+      lastModifiedAt: new Date(Date.now() - 20 * 24 * 60 * 60 * 1000).toISOString(),
+      tags: ["efficiency", "fuel", "cost-savings"],
+      category: "Cost Management",
+      relatedPolicies: ["policy-idle-time"],
+      executionCount: 2145,
+      violationCount: 267
+    }
+  ]
 }
