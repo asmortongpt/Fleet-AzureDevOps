@@ -128,7 +128,6 @@ function CardCompact({ className, ...props }: ComponentProps<"div">) {
 
 export {
   Card,
-  CardInteractive,
   CardHeader,
   CardFooter,
   CardTitle,
