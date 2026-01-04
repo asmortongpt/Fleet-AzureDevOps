@@ -24,7 +24,32 @@ import { getErrorMessage } from '../utils/error-handler'
 
 const router = express.Router()
 
-// All routes require authentication
+// ============================================================================
+// Status Endpoint (No Authentication Required)
+// ============================================================================
+
+/**
+ * GET /status - Check Outlook integration status
+ * This endpoint doesn't require authentication
+ */
+router.get('/status', (_req, res) => {
+  const isConfigured = !!(
+    process.env.AZURE_AD_CLIENT_ID &&
+    process.env.AZURE_AD_CLIENT_SECRET &&
+    process.env.AZURE_AD_TENANT_ID
+  )
+
+  res.json({
+    configured: isConfigured,
+    service: 'outlook',
+    message: isConfigured
+      ? 'Outlook integration is configured'
+      : 'Outlook integration is not configured. Set AZURE_AD_CLIENT_ID, AZURE_AD_CLIENT_SECRET, and AZURE_AD_TENANT_ID',
+    timestamp: new Date().toISOString()
+  })
+})
+
+// All other routes require authentication
 router.use(authenticateJWT)
 
 // ============================================================================
