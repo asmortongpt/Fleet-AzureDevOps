@@ -31,10 +31,100 @@ import {
     Clock,
     ArrowRight
 } from '@phosphor-icons/react'
+import {
+    LineChart,
+    Line,
+    AreaChart,
+    Area,
+    BarChart,
+    Bar,
+    PieChart,
+    Pie,
+    Cell,
+    XAxis,
+    YAxis,
+    CartesianGrid,
+    Tooltip,
+    Legend,
+    ResponsiveContainer
+} from 'recharts'
 
 import { HubPage, HubTab } from '@/components/ui/hub-page'
 import { StatCard, ProgressRing, QuickStat } from '@/components/ui/stat-card'
 import { useDrilldown, DrilldownLevel } from '@/contexts/DrilldownContext'
+
+// Chart color palette
+const CHART_COLORS = {
+    primary: '#3B82F6',
+    secondary: '#06B6D4',
+    success: '#10B981',
+    warning: '#F59E0B',
+    danger: '#EF4444',
+    purple: '#A855F7',
+    teal: '#14B8A6',
+    slate: '#64748B',
+}
+
+// Budget vs Actual trend data
+const budgetTrendData = [
+    { month: 'Jan', budget: 310, actual: 285, variance: 25 },
+    { month: 'Feb', budget: 310, actual: 302, variance: 8 },
+    { month: 'Mar', budget: 310, actual: 289, variance: 21 },
+    { month: 'Apr', budget: 310, actual: 276, variance: 34 },
+    { month: 'May', budget: 310, actual: 318, variance: -8 },
+    { month: 'Jun', budget: 310, actual: 284, variance: 26 },
+    { month: 'Jul', budget: 310, actual: 295, variance: 15 },
+    { month: 'Aug', budget: 310, actual: 308, variance: 2 },
+]
+
+// Department budget allocation (donut chart data)
+const departmentBudgetData = [
+    { name: 'Operations', value: 1500, percentage: 40, color: CHART_COLORS.primary },
+    { name: 'Maintenance', value: 1000, percentage: 27, color: CHART_COLORS.success },
+    { name: 'Fleet Services', value: 800, percentage: 21, color: CHART_COLORS.warning },
+    { name: 'Administration', value: 420, percentage: 11, color: CHART_COLORS.purple },
+]
+
+// Monthly spending trend (area chart data)
+const spendingTrendData = [
+    { month: 'Jan', operations: 120, maintenance: 89, fleet: 72, admin: 40 },
+    { month: 'Feb', operations: 125, maintenance: 92, fleet: 75, admin: 42 },
+    { month: 'Mar', operations: 118, maintenance: 88, fleet: 70, admin: 38 },
+    { month: 'Apr', operations: 115, maintenance: 85, fleet: 68, admin: 36 },
+    { month: 'May', operations: 132, maintenance: 95, fleet: 78, admin: 44 },
+    { month: 'Jun', operations: 122, maintenance: 90, fleet: 72, admin: 41 },
+]
+
+// Department spending comparison (bar chart data)
+const departmentComparisonData = [
+    { department: 'Operations', budgeted: 1500, spent: 1200, remaining: 300 },
+    { department: 'Maintenance', budgeted: 1000, spent: 890, remaining: 110 },
+    { department: 'Fleet Services', budgeted: 800, spent: 720, remaining: 80 },
+    { department: 'Administration', budgeted: 420, spent: 240, remaining: 180 },
+]
+
+// Custom tooltip component for charts
+const CustomTooltip = ({ active, payload, label }: any) => {
+    if (active && payload && payload.length) {
+        return (
+            <div className="bg-slate-800/95 backdrop-blur-sm border border-slate-700/50 rounded-lg p-3 shadow-xl">
+                <p className="text-sm font-medium text-white mb-2">{label}</p>
+                {payload.map((entry: any, index: number) => (
+                    <div key={index} className="flex items-center justify-between gap-4 text-xs">
+                        <span className="flex items-center gap-2">
+                            <div className="w-2 h-2 rounded-full" style={{ backgroundColor: entry.color }} />
+                            <span className="text-slate-300">{entry.name}:</span>
+                        </span>
+                        <span className="font-semibold text-white">
+                            ${typeof entry.value === 'number' ? entry.value.toLocaleString() : entry.value}K
+                        </span>
+                    </div>
+                ))}
+            </div>
+        )
+    }
+    return null
+}
 
 /**
  * Cost Analysis Tab
@@ -336,7 +426,7 @@ function BillingReportsContent() {
 
 /**
  * Budget Tracking Tab
- * Budget allocation, forecasting, and departmental spending
+ * Budget allocation, forecasting, and departmental spending with comprehensive data visualizations
  */
 function BudgetTrackingContent() {
     const { push } = useDrilldown()
@@ -347,7 +437,7 @@ function BudgetTrackingContent() {
             <div className="flex items-center justify-between">
                 <div>
                     <h2 className="text-3xl font-bold text-white mb-2">Budget Tracking & Forecasting</h2>
-                    <p className="text-slate-400">Real-time budget monitoring, variance analysis, and predictive forecasting</p>
+                    <p className="text-slate-400">Real-time budget monitoring, variance analysis, and predictive forecasting with interactive visualizations</p>
                 </div>
                 <div className="flex gap-2">
                     <button className="px-4 py-2 bg-slate-800/60 hover:bg-slate-700/60 text-slate-300 rounded-lg border border-slate-700/50 transition-all text-sm font-medium">
@@ -404,6 +494,165 @@ function BudgetTrackingContent() {
                         id: 'remaining-budget'
                     } as Omit<DrilldownLevel, "timestamp">)}
                 />
+            </div>
+
+            {/* VISUALIZATION 1: Budget vs Actual Line Chart */}
+            <div className="bg-gradient-to-br from-slate-800/70 to-slate-900/70 backdrop-blur-xl rounded-2xl border border-slate-700/50 p-8 hover:border-blue-500/30 transition-all duration-300">
+                <div className="flex items-start justify-between mb-6">
+                    <div>
+                        <h3 className="text-lg font-semibold text-white mb-2">Budget vs Actual Spending</h3>
+                        <p className="text-sm text-slate-400">Monthly comparison showing budget adherence and variance</p>
+                    </div>
+                    <select className="px-3 py-2 bg-slate-900/50 text-slate-300 rounded-lg border border-slate-700/50 text-sm">
+                        <option>Last 8 Months</option>
+                        <option>Last 12 Months</option>
+                        <option>YTD</option>
+                    </select>
+                </div>
+                <ResponsiveContainer width="100%" height={350}>
+                    <LineChart data={budgetTrendData} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
+                        <CartesianGrid strokeDasharray="3 3" stroke="#334155" opacity={0.3} />
+                        <XAxis dataKey="month" stroke="#94a3b8" style={{ fontSize: '12px' }} />
+                        <YAxis stroke="#94a3b8" style={{ fontSize: '12px' }} label={{ value: 'Amount ($K)', angle: -90, position: 'insideLeft', style: { fill: '#94a3b8', fontSize: '12px' } }} />
+                        <Tooltip content={<CustomTooltip />} />
+                        <Legend wrapperStyle={{ paddingTop: '20px', fontSize: '13px', color: '#cbd5e1' }} />
+                        <Line type="monotone" dataKey="budget" stroke={CHART_COLORS.primary} strokeWidth={3} dot={{ fill: CHART_COLORS.primary, r: 4 }} activeDot={{ r: 6 }} name="Budget" />
+                        <Line type="monotone" dataKey="actual" stroke={CHART_COLORS.success} strokeWidth={3} dot={{ fill: CHART_COLORS.success, r: 4 }} activeDot={{ r: 6 }} name="Actual" />
+                    </LineChart>
+                </ResponsiveContainer>
+                <div className="grid grid-cols-3 gap-4 mt-6 pt-6 border-t border-slate-700/50">
+                    <div className="text-center">
+                        <div className="text-sm text-slate-400 mb-1">Avg Budget</div>
+                        <div className="text-xl font-bold text-white">$310K</div>
+                    </div>
+                    <div className="text-center">
+                        <div className="text-sm text-slate-400 mb-1">Avg Actual</div>
+                        <div className="text-xl font-bold text-emerald-400">$294.6K</div>
+                    </div>
+                    <div className="text-center">
+                        <div className="text-sm text-slate-400 mb-1">Avg Variance</div>
+                        <div className="text-xl font-bold text-emerald-400">+$15.4K</div>
+                    </div>
+                </div>
+            </div>
+
+            {/* VISUALIZATION 2 & 3: Donut Chart and Area Chart Side-by-Side */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                {/* VISUALIZATION 2: Department Budget Allocation Donut Chart */}
+                <div className="bg-gradient-to-br from-slate-800/70 to-slate-900/70 backdrop-blur-xl rounded-2xl border border-slate-700/50 p-8 hover:border-purple-500/30 transition-all duration-300">
+                    <div className="flex items-start justify-between mb-6">
+                        <div>
+                            <h3 className="text-lg font-semibold text-white mb-2">Budget Allocation by Department</h3>
+                            <p className="text-sm text-slate-400">Annual budget distribution across departments</p>
+                        </div>
+                    </div>
+                    <ResponsiveContainer width="100%" height={300}>
+                        <PieChart>
+                            <Pie
+                                data={departmentBudgetData}
+                                cx="50%"
+                                cy="50%"
+                                innerRadius={80}
+                                outerRadius={120}
+                                paddingAngle={2}
+                                dataKey="value"
+                                label={({ name, percentage }) => `${name}: ${percentage}%`}
+                                labelLine={{stroke: '#64748b', strokeWidth: 1}}
+                            >
+                                {departmentBudgetData.map((entry, index) => (
+                                    <Cell key={`cell-${index}`} fill={entry.color} />
+                                ))}
+                            </Pie>
+                            <Tooltip content={({ active, payload }) => {
+                                if (active && payload && payload[0]) {
+                                    const data = payload[0].payload
+                                    return (
+                                        <div className="bg-slate-800/95 backdrop-blur-sm border border-slate-700/50 rounded-lg p-3 shadow-xl">
+                                            <p className="text-sm font-medium text-white mb-1">{data.name}</p>
+                                            <p className="text-xs text-slate-300">Budget: ${data.value}K</p>
+                                            <p className="text-xs text-slate-300">Percentage: {data.percentage}%</p>
+                                        </div>
+                                    )
+                                }
+                                return null
+                            }} />
+                        </PieChart>
+                    </ResponsiveContainer>
+                    <div className="grid grid-cols-2 gap-3 mt-4">
+                        {departmentBudgetData.map((dept, idx) => (
+                            <div key={idx} className="flex items-center gap-2 p-2 bg-slate-900/30 rounded-lg">
+                                <div className="w-3 h-3 rounded-full" style={{ backgroundColor: dept.color }} />
+                                <div className="flex-1">
+                                    <div className="text-xs text-white font-medium">{dept.name}</div>
+                                    <div className="text-xs text-slate-400">${dept.value}K</div>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+
+                {/* VISUALIZATION 3: Spending Trends Area Chart */}
+                <div className="bg-gradient-to-br from-slate-800/70 to-slate-900/70 backdrop-blur-xl rounded-2xl border border-slate-700/50 p-8 hover:border-cyan-500/30 transition-all duration-300">
+                    <div className="flex items-start justify-between mb-6">
+                        <div>
+                            <h3 className="text-lg font-semibold text-white mb-2">Spending Trends by Category</h3>
+                            <p className="text-sm text-slate-400">6-month spending pattern across departments</p>
+                        </div>
+                    </div>
+                    <ResponsiveContainer width="100%" height={300}>
+                        <AreaChart data={spendingTrendData} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
+                            <defs>
+                                <linearGradient id="colorOperations" x1="0" y1="0" x2="0" y2="1">
+                                    <stop offset="5%" stopColor={CHART_COLORS.primary} stopOpacity={0.3}/>
+                                    <stop offset="95%" stopColor={CHART_COLORS.primary} stopOpacity={0}/>
+                                </linearGradient>
+                                <linearGradient id="colorMaintenance" x1="0" y1="0" x2="0" y2="1">
+                                    <stop offset="5%" stopColor={CHART_COLORS.success} stopOpacity={0.3}/>
+                                    <stop offset="95%" stopColor={CHART_COLORS.success} stopOpacity={0}/>
+                                </linearGradient>
+                                <linearGradient id="colorFleet" x1="0" y1="0" x2="0" y2="1">
+                                    <stop offset="5%" stopColor={CHART_COLORS.warning} stopOpacity={0.3}/>
+                                    <stop offset="95%" stopColor={CHART_COLORS.warning} stopOpacity={0}/>
+                                </linearGradient>
+                                <linearGradient id="colorAdmin" x1="0" y1="0" x2="0" y2="1">
+                                    <stop offset="5%" stopColor={CHART_COLORS.purple} stopOpacity={0.3}/>
+                                    <stop offset="95%" stopColor={CHART_COLORS.purple} stopOpacity={0}/>
+                                </linearGradient>
+                            </defs>
+                            <CartesianGrid strokeDasharray="3 3" stroke="#334155" opacity={0.3} />
+                            <XAxis dataKey="month" stroke="#94a3b8" style={{ fontSize: '12px' }} />
+                            <YAxis stroke="#94a3b8" style={{ fontSize: '12px' }} />
+                            <Tooltip content={<CustomTooltip />} />
+                            <Legend wrapperStyle={{ fontSize: '11px', paddingTop: '10px' }} />
+                            <Area type="monotone" dataKey="operations" stroke={CHART_COLORS.primary} fillOpacity={1} fill="url(#colorOperations)" name="Operations" />
+                            <Area type="monotone" dataKey="maintenance" stroke={CHART_COLORS.success} fillOpacity={1} fill="url(#colorMaintenance)" name="Maintenance" />
+                            <Area type="monotone" dataKey="fleet" stroke={CHART_COLORS.warning} fillOpacity={1} fill="url(#colorFleet)" name="Fleet" />
+                            <Area type="monotone" dataKey="admin" stroke={CHART_COLORS.purple} fillOpacity={1} fill="url(#colorAdmin)" name="Admin" />
+                        </AreaChart>
+                    </ResponsiveContainer>
+                </div>
+            </div>
+
+            {/* VISUALIZATION 4: Department Comparison Bar Chart */}
+            <div className="bg-gradient-to-br from-slate-800/70 to-slate-900/70 backdrop-blur-xl rounded-2xl border border-slate-700/50 p-8 hover:border-emerald-500/30 transition-all duration-300">
+                <div className="flex items-start justify-between mb-6">
+                    <div>
+                        <h3 className="text-lg font-semibold text-white mb-2">Department Spending Comparison</h3>
+                        <p className="text-sm text-slate-400">Budgeted vs spent vs remaining by department</p>
+                    </div>
+                </div>
+                <ResponsiveContainer width="100%" height={350}>
+                    <BarChart data={departmentComparisonData} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
+                        <CartesianGrid strokeDasharray="3 3" stroke="#334155" opacity={0.3} />
+                        <XAxis dataKey="department" stroke="#94a3b8" style={{ fontSize: '12px' }} />
+                        <YAxis stroke="#94a3b8" style={{ fontSize: '12px' }} label={{ value: 'Amount ($K)', angle: -90, position: 'insideLeft', style: { fill: '#94a3b8', fontSize: '12px' } }} />
+                        <Tooltip content={<CustomTooltip />} />
+                        <Legend wrapperStyle={{ paddingTop: '20px', fontSize: '13px' }} />
+                        <Bar dataKey="budgeted" fill={CHART_COLORS.primary} radius={[8, 8, 0, 0]} name="Budgeted" />
+                        <Bar dataKey="spent" fill={CHART_COLORS.warning} radius={[8, 8, 0, 0]} name="Spent" />
+                        <Bar dataKey="remaining" fill={CHART_COLORS.success} radius={[8, 8, 0, 0]} name="Remaining" />
+                    </BarChart>
+                </ResponsiveContainer>
             </div>
 
             {/* Detailed Department Budget Cards */}
