@@ -38,7 +38,7 @@ interface AssetDetailPanelProps {
   assetId: string
 }
 
-export function AssetDetailPanel({ assetId }: AssetDetailPanelProps) {
+export function AssetHubDetailPanel({ assetId }: AssetDetailPanelProps) {
   const { push } = useDrilldown()
   const { data: asset, error, isLoading, mutate } = useSWR(
     `/api/assets/${assetId}`,
