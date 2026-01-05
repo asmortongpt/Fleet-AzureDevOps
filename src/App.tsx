@@ -391,6 +391,37 @@ function App() {
         return <FinancialHubPage />
       case "integrations-hub-consolidated":
         return <IntegrationsHubPage />
+
+      // SHORT URL HANDLERS - Fix routing mismatch (URLs use /financial but cases were -hub-consolidated)
+      // Issue: Navigation generates /financial, /fleet, etc. but switch only handled -hub-consolidated
+      // Result: All hubs fell through to default (CommandCenter map view) instead of proper hub pages
+      case "financial":
+        return <FinancialHubPage />
+      case "fleet":
+        return <FleetHubPage />
+      case "maintenance":
+        return <MaintenanceHubPage />
+      case "procurement":
+        return <ProcurementHubPage />
+      case "operations":
+        return <OperationsHubPage />
+      case "drivers":
+        return <DriversHubPage />
+      case "safety":
+        return <SafetyHubPage />
+      case "compliance":
+        return <ComplianceHubPage />
+      case "analytics":
+        return <AnalyticsHubPage />
+      case "admin":
+        return <AdminHubPage />
+      case "assets":
+        return <AssetsHubPage />
+      case "communication":
+        return <CommunicationHubPage />
+      case "integrations":
+        return <IntegrationsHubPage />
+
       default:
         return <CommandCenter />
     }
