@@ -99,21 +99,18 @@ export async function createAuditLog(
 
   await pool.query(
     `INSERT INTO audit_logs (
-      tenant_id, user_id, action, resource_type, resource_id,
-      details, ip_address, user_agent, outcome, error_message, hash
-    ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)`,
+      tenant_id, user_id, action, entity_type, entity_id,
+      metadata, ip_address, user_agent
+    ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)`,
     [
       tenantId,
       userId,
       action,
       resourceType,
       resourceId,
-      JSON.stringify(details),
+      JSON.stringify(details || {}),
       ipAddress,
-      userAgent,
-      outcome,
-      errorMessage,
-      hash
+      userAgent
     ]
   )
 }

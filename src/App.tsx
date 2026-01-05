@@ -140,6 +140,8 @@ const AdminHubPage = lazy(() => import("@/pages/AdminHub"))
 const SafetyHubPage = lazy(() => import("@/pages/SafetyHub"))
 const AssetsHubPage = lazy(() => import("@/pages/AssetsHub"))
 const CommunicationHubPage = lazy(() => import("@/pages/CommunicationHub"))
+const FinancialHubPage = lazy(() => import("@/pages/FinancialHub"))
+const IntegrationsHubPage = lazy(() => import("@/pages/IntegrationsHub"))
 
 // PAGES
 const SettingsPage = lazy(() => import("@/pages/SettingsPage"))
@@ -385,6 +387,10 @@ function App() {
         return <AssetsHubPage />
       case "communication-hub-consolidated":
         return <CommunicationHubPage />
+      case "financial-hub-consolidated":
+        return <FinancialHubPage />
+      case "integrations-hub-consolidated":
+        return <IntegrationsHubPage />
       default:
         return <CommandCenter />
     }

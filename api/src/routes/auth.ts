@@ -106,7 +106,7 @@ const registerSchema = z.object({
  */
 // POST /api/auth/login
 // CRIT-F-004: Apply auth rate limiter and brute force protection
-router.post('/login',csrfProtection, authLimiter, checkBruteForce('email'), async (req: Request, res: Response) => {
+router.post('/login', authLimiter, checkBruteForce('email'), async (req: Request, res: Response) => {
   try {
     const { email, password } = loginSchema.parse(req.body)
 
@@ -802,5 +802,31 @@ router.get('/microsoft/callback', async (req: Request, res: Response) => {
     }
   }
 })
+
+// JWT verification endpoint
+router.get('/verify', async (req: Request, res: Response) => {
+  try {
+    const authHeader = req.headers.authorization;
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+      return res.status(401).json({
+        authenticated: false,
+        error: 'No token provided'
+      });
+    }
+
+    const token = authHeader.substring(7);
+    const decoded = await FIPSJWTService.verify(token);
+
+    res.json({
+      authenticated: true,
+      user: decoded
+    });
+  } catch (error) {
+    res.status(401).json({
+      authenticated: false,
+      error: 'Invalid token'
+    });
+  }
+});
 
 export default router
