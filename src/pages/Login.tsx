@@ -30,10 +30,10 @@ export function Login() {
     setIsLoaded(true)
   }, [])
 
-  // AUTO-LOGIN in DEV mode (enabled for testing)
-  // SECURITY FIX P3 LOW-SEC-001: Use logger instead of console.log
+  // AUTO-LOGIN in DEV mode - DISABLED for SSO-first production deployment
+  // Users must authenticate via Microsoft SSO
   useEffect(() => {
-    if (import.meta.env.DEV && true) { // Enabled for testing
+    if (import.meta.env.DEV && false) { // Disabled - SSO required
       logger.debug('[LOGIN] DEV mode detected - auto-logging in with demo user')
 
       // Create a demo JWT token (not validated in DEV mode)
@@ -171,7 +171,7 @@ export function Login() {
               Fleet Manager
             </CardTitle>
             <CardDescription className="text-sm sm:text-base text-muted-foreground">
-              Sign in to access your fleet management dashboard
+              Sign in with your @capitaltechalliance.com account
             </CardDescription>
           </div>
         </CardHeader>
