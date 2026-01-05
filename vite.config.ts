@@ -2,14 +2,22 @@ import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import { VitePWA } from 'vite-plugin-pwa';
 import { visualizer } from 'rollup-plugin-visualizer';
+import path from 'path';
 
 export default defineConfig({
+  resolve: {
+    alias: {
+      '@': path.resolve(__dirname, './src'),
+    },
+  },
   plugins: [
     react(),
     VitePWA({
       registerType: 'autoUpdate',
       workbox: {
         globPatterns: ['**/*.{js,css,html,ico,png,svg}'],
+        globIgnores: ['**/stats.html'],
+        maximumFileSizeToCacheInBytes: 5 * 1024 * 1024, // 5 MB
         runtimeCaching: [
           {
             urlPattern: /^https:\/\/fleet\.capitaltechalliance\.com\/api\/.*/i,
@@ -41,11 +49,6 @@ export default defineConfig({
           'query-vendor': ['@tanstack/react-query'],
           'ag-grid-vendor': ['ag-grid-react', 'ag-grid-community'],
           'icons-vendor': ['lucide-react'],
-          'utils': [
-            './src/services/RedisService',
-            './src/services/CacheStrategies',
-            './src/services/OfflineStorage',
-          ],
         },
       },
     },
