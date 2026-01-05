@@ -12,6 +12,12 @@
  */
 
 import { EventEmitter } from 'events';
+
+import { ContainmentService } from './containment';
+import { IncidentTriage } from './incident-triage';
+import { PlaybookExecutor } from './playbooks';
+import { PostIncidentAnalysis } from './post-incident';
+import { RemediationService } from './remediation';
 import {
   Incident,
   IncidentStatus,
@@ -20,11 +26,6 @@ import {
   ResponseAction,
   ResponseMetrics
 } from './types';
-import { IncidentTriage } from './incident-triage';
-import { PlaybookExecutor } from './playbooks';
-import { ContainmentService } from './containment';
-import { RemediationService } from './remediation';
-import { PostIncidentAnalysis } from './post-incident';
 
 export class IncidentResponder extends EventEmitter {
   private triage: IncidentTriage;

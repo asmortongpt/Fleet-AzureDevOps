@@ -9,10 +9,10 @@ import express from 'express';
 import helmet from 'helmet';
 
 import { db, checkDatabaseConnection } from './db/connection';
+import obd2EmulatorRouter, { setupOBD2WebSocket } from './routes/obd2-emulator.routes';
 import { schema } from './schemas/production.schema';
 
 // Import OBD2 Emulator Components
-import obd2EmulatorRouter, { setupOBD2WebSocket } from './routes/obd2-emulator.routes';
 
 
 const app = express();
@@ -325,7 +325,7 @@ app.get('/api/inventory', async (req, res) => {
     const { filter = 'all', page = 1, limit = 50 } = req.query;
 
     // Query parts inventory table if it exists, otherwise return sample data
-    let query = db.select().from(schema.partsInventory);
+    const query = db.select().from(schema.partsInventory);
 
     switch (filter) {
       case 'low-stock':

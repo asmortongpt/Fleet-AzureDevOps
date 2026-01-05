@@ -28,6 +28,7 @@ import { VehicleHUD, type VehicleStats } from '@/components/garage/VehicleHUD'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { ScrollArea } from '@/components/ui/scroll-area'
+import { useDrilldown } from '@/contexts/DrilldownContext'
 import { cn } from '@/lib/utils'
 import {
   AssetCategory,
@@ -35,7 +36,6 @@ import {
   OperationalStatus
 } from '@/types/asset.types'
 
-import { useDrilldown } from '@/contexts/DrilldownContext'
 
 // Lazy load components
 const Asset3DViewer = lazy(() => import('@/components/garage/Asset3DViewer'))

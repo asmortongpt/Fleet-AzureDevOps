@@ -11,12 +11,14 @@
  * throughout the application.
  */
 
-import { useApiData } from '@/lib/hooks/useApiData';
-import { api, type Incident } from '@/lib/api';
-import { LoadingSpinner } from '@/components/LoadingSpinner';
-import { ErrorPanel } from '@/components/ErrorPanel';
-import { EmptyState, SearchEmptyState } from '@/components/EmptyState';
 import { useState } from 'react';
+
+import { EmptyState, SearchEmptyState } from '@/components/EmptyState';
+import { ErrorPanel } from '@/components/ErrorPanel';
+import { LoadingSpinner } from '@/components/LoadingSpinner';
+import { api, type Incident } from '@/lib/api';
+import { useApiData } from '@/lib/hooks/useApiData';
+
 
 export function IncidentsExample() {
   const [filter, setFilter] = useState<'all' | 'open' | 'closed'>('all');

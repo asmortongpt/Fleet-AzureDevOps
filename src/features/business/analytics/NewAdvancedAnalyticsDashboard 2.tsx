@@ -1,4 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import {
+  Refresh as RefreshIcon,
+  Download as DownloadIcon
+} from '@mui/icons-material';
 import {
   Box,
   Container,
@@ -18,14 +21,10 @@ import {
   FormControlLabel,
   Skeleton
 } from '@mui/material';
-import {
-  Refresh as RefreshIcon,
-  Download as DownloadIcon,
-  FilterList as FilterIcon,
-  TrendingUp as TrendingUpIcon
-} from '@mui/icons-material';
-import FleetMetricsCards from './FleetMetricsCards';
+import React, { useState, useEffect } from 'react';
+
 import CostAnalyticsChart from './CostAnalyticsChart';
+import FleetMetricsCards from './FleetMetricsCards';
 import VehicleUtilizationChart from './VehicleUtilizationChart';
 
 interface DashboardData {

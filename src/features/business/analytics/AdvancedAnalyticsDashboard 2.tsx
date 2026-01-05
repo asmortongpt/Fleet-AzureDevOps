@@ -1,4 +1,20 @@
-import React, { useState, useEffect } from 'react';
+import {
+  TrendingUp as TrendingUpIcon,
+  TrendingDown as TrendingDownIcon,
+  Assessment as AssessmentIcon,
+  PsychologyAlt as AIIcon,
+  Speed as SpeedIcon,
+  AccountBalance as AccountBalanceIcon,
+  Warning as WarningIcon,
+  CheckCircle as CheckCircleIcon,
+  ExpandMore as ExpandMoreIcon,
+  Download as DownloadIcon,
+  Refresh as RefreshIcon,
+  Timeline as TimelineIcon,
+  Lightbulb as LightbulbIcon,
+  Flag as FlagIcon,
+  Star as StarIcon
+} from '@mui/icons-material';
 import {
   Box,
   Card,
@@ -30,38 +46,10 @@ import {
   TableCell,
   TableContainer,
   TableHead,
-  TableRow,
-  FormControl,
-  InputLabel,
-  Select,
-  MenuItem,
-  TextField,
-  IconButton,
-  Tooltip,
-  Avatar
+  TableRow
 } from '@mui/material';
-import {
-  TrendingUp as TrendingUpIcon,
-  TrendingDown as TrendingDownIcon,
-  Assessment as AssessmentIcon,
-  PsychologyAlt as AIIcon,
-  Speed as SpeedIcon,
-  AccountBalance as AccountBalanceIcon,
-  Eco as EcoIcon,
-  Security as SecurityIcon,
-  Warning as WarningIcon,
-  CheckCircle as CheckCircleIcon,
-  Error as ErrorIcon,
-  Info as InfoIcon,
-  ExpandMore as ExpandMoreIcon,
-  Download as DownloadIcon,
-  Refresh as RefreshIcon,
-  FilterList as FilterIcon,
-  Timeline as TimelineIcon,
-  Lightbulb as LightbulbIcon,
-  Flag as FlagIcon,
-  Star as StarIcon
-} from '@mui/icons-material';
+import { format, parseISO } from 'date-fns';
+import React, { useState, useEffect } from 'react';
 import {
   LineChart,
   Line,
@@ -71,22 +59,13 @@ import {
   Tooltip as RechartsTooltip,
   Legend,
   ResponsiveContainer,
-  BarChart,
-  Bar,
   Area,
   AreaChart,
   PieChart,
   Pie,
-  Cell,
-  RadarChart,
-  PolarGrid,
-  PolarAngleAxis,
-  PolarRadiusAxis,
-  Radar,
-  ScatterChart,
-  Scatter
+  Cell
 } from 'recharts';
-import { format, parseISO } from 'date-fns';
+
 import AdvancedAnalyticsService, {
   FleetMetrics,
   PredictiveInsight,
