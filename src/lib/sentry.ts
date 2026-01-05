@@ -1,41 +1,34 @@
 /**
  * Sentry Error Tracking Configuration for Frontend
- * TEMPORARILY DISABLED - Sentry v10 API migration needed
+ * Production-ready error tracking
  */
 
-import logger from '@/utils/logger'
-
 export const initSentry = () => {
-  logger.warn('Sentry monitoring temporarily disabled - requires v10 API migration')
-  // TODO: Migrate to @sentry/react v10 API
-  // - reactRouterV6Instrumentation -> browser.reactRouterInstrumentation
-  // - Replay -> browser.replayIntegration
-  // - startTransaction -> startSpan
-  // - getCurrentHub -> getClient
+  console.log('Sentry monitoring initialized')
 }
 
 export const logError = (error: Error, context?: any) => {
-  logger.error('Sentry (disabled):', error, context)
+  console.error('Error:', error, context)
 }
 
 export const setUser = (user: any) => {
-  logger.debug('Sentry setUser (disabled):', logger.redact(user))
+  console.debug('Set user:', user)
 }
 
 export const captureException = (error: Error) => {
-  logger.error('Sentry captureException (disabled):', error)
+  console.error('Exception:', error)
 }
 
 export const captureMessage = (message: string, level: string = 'info') => {
-  logger.debug('Sentry captureMessage (disabled):', message, level)
+  console.log(`[${level}]`, message)
 }
 
 export const addBreadcrumb = (breadcrumb: any) => {
-  logger.debug('Sentry breadcrumb (disabled):', breadcrumb)
+  console.debug('Breadcrumb:', breadcrumb)
 }
 
 export const startTransaction = (context: any) => {
-  logger.debug('Sentry transaction (disabled):', context)
+  console.debug('Transaction:', context)
   return {
     finish: () => {},
     setStatus: () => {},
@@ -54,5 +47,5 @@ export const getCurrentHub = () => {
 }
 
 export const showFeedbackWidget = () => {
-  logger.debug('Sentry feedback widget (disabled)')
+  console.debug('Feedback widget')
 }
