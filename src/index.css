@@ -197,11 +197,11 @@
   }
 
   .glass-card {
-    @apply bg-card/70 backdrop-blur-lg border border-border/50 hover:border-primary/50 hover:bg-card/80 hover:shadow-glow-md transition-all duration-300 ease-out;
+    @apply bg-card/70 backdrop-blur-lg border border-border/50 hover:border-primary/50 hover:bg-card/80 transition-all duration-300 ease-out;
   }
 
   .glass-button {
-    @apply bg-primary hover:bg-primary/90 text-primary-foreground border border-primary/20 shadow-md hover:shadow-glow-sm transition-all duration-200;
+    @apply bg-primary hover:bg-primary/90 text-primary-foreground border border-primary/20 shadow-md transition-all duration-200;
   }
 
   /* PROFESSIONAL BORDERS - Modern Gradient */
@@ -215,7 +215,7 @@
   }
 
   .tech-border-glow {
-    @apply relative border border-primary/20 shadow-[0_0_15px_rgba(59, 130, 246, 0.1)];
+    @apply relative border border-primary/20 shadow-lg;
   }
 
   /* PROFESSIONAL TEXT - Clean and readable */
