@@ -76,13 +76,12 @@ export class WorkerPool extends EventEmitter {
 
   /**
    * Initialize the minimum number of workers
+   * DISABLED: Worker threads have issues with TypeScript in production
    */
   private initializeWorkers(): void {
-    for (let i = 0; i < this.config.minWorkers; i++) {
-      this.createWorker()
-    }
-
-    console.log(`✅ Worker pool initialized with ${this.config.minWorkers} workers (max: ${this.config.maxWorkers})`)
+    // Temporarily disabled due to Worker thread TypeScript loader issues
+    // Workers will be re-enabled once TypeScript compilation is properly configured
+    console.log(`⚠️  Worker pool disabled (TypeScript loader incompatibility with Worker threads)`)
   }
 
   /**
