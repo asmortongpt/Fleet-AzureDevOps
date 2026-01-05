@@ -1,4 +1,22 @@
-import React, { useState, useEffect } from 'react';
+import {
+  Inventory,
+  ShoppingCart,
+  LocalShipping,
+  Warning,
+  CheckCircle,
+  Assessment,
+  Add,
+  Edit,
+  Delete,
+  Search,
+  Download,
+  QrCode,
+  Store,
+  AttachMoney,
+  Build,
+  ArrowUpward,
+  ArrowDownward
+} from '@mui/icons-material';
 import {
   Box,
   Paper,
@@ -34,43 +52,12 @@ import {
   ListItemText,
   ListItemIcon,
   ListItemSecondaryAction,
-  Stepper,
-  Step,
-  StepLabel,
-  Avatar,
-  Badge,
-  Tooltip,
   Divider,
-  Autocomplete,
   InputAdornment
 } from '@mui/material';
-import {
-  Inventory,
-  ShoppingCart,
-  LocalShipping,
-  Warning,
-  CheckCircle,
-  TrendingUp,
-  TrendingDown,
-  Assessment,
-  Add,
-  Edit,
-  Delete,
-  Search,
-  FilterList,
-  Download,
-  Upload,
-  QrCode,
-  Category,
-  Store,
-  AttachMoney,
-  AccessTime,
-  Build,
-  LocationOn,
-  ArrowUpward,
-  ArrowDownward
-} from '@mui/icons-material';
+import React, { useState, useEffect } from 'react';
 import { BarChart, Bar, LineChart, Line, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip as ChartTooltip, Legend, ResponsiveContainer } from 'recharts';
+
 import { useDatabase } from '../../hooks/useDatabase';
 
 interface TabPanelProps {

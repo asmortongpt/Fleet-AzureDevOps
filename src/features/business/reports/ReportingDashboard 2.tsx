@@ -1,4 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import {
+  Download,
+  Delete,
+  Schedule,
+  Assessment,
+  History,
+  PlayArrow,
+} from '@mui/icons-material';
 import {
   Box,
   Paper,
@@ -30,15 +37,7 @@ import {
   FormControlLabel,
   Alert,
 } from '@mui/material';
-import {
-  Download,
-  Delete,
-  Visibility,
-  Schedule,
-  Assessment,
-  History,
-  PlayArrow,
-} from '@mui/icons-material';
+import React, { useState, useEffect } from 'react';
 
 const API_URL = 'http://localhost:8081';
 

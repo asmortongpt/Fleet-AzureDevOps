@@ -1,4 +1,4 @@
-import { AlertTriangle, Calendar, Clock, Car, Users, ArrowRight, CheckCircle, XCircle, RefreshCw, Info } from 'lucide-react';
+import { AlertTriangle, Calendar, Clock, Car, Users, CheckCircle, XCircle, RefreshCw } from 'lucide-react';
 import React, { useState } from 'react';
 
 interface ConflictResolutionModalProps {

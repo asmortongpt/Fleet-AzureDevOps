@@ -3,9 +3,10 @@
  * This will use real API credits and generate actual 3D models
  */
 
-import FordLightningGenerator from './meshy-ford-lightning-generator';
 import * as fs from 'fs';
 import * as path from 'path';
+
+import FordLightningGenerator from './meshy-ford-lightning-generator';
 
 // Your Meshy API key
 const MESHY_API_KEY = process.env.MESHY_API_KEY || 'msy_aL4JDGCHF76THUL7Ko2WmLMSOG0VfXnLRlw3';

@@ -14,6 +14,7 @@
  */
 
 import { EventEmitter } from 'events'
+
 import { Vehicle, OBD2Data, EmulatorConfig } from '../types'
 
 // Realistic gear ratios for common transmissions

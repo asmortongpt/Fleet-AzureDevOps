@@ -9,12 +9,14 @@
  * - Marker clustering for performance
  */
 
-import React, { useCallback, useEffect, useRef, useState } from 'react'
-import { Wrapper, Status } from '@googlemaps/react-wrapper'
 import { MarkerClusterer } from '@googlemaps/markerclusterer'
-import { Vehicle } from '@/types/Vehicle'
-import { Spinner } from '@/components/ui/spinner'
+import { Wrapper, Status } from '@googlemaps/react-wrapper'
 import { AlertCircle, Navigation } from 'lucide-react'
+import React, { useEffect, useRef, useState } from 'react'
+
+import { Spinner } from '@/components/ui/spinner'
+import { Vehicle } from '@/types/Vehicle'
+
 
 // ============================================================================
 // TYPES

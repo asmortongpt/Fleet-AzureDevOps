@@ -3,7 +3,6 @@
  * Uses HLS.js for adaptive bitrate streaming
  */
 
-import Hls from 'hls.js'
 import {
   Play,
   Pause,
@@ -15,6 +14,7 @@ import {
   Camera,
   Warning
 } from '@phosphor-icons/react'
+import Hls from 'hls.js'
 import { useRef, useState, useEffect, useCallback } from 'react'
 
 import { Button } from '@/components/ui/button'

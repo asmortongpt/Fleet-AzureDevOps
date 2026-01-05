@@ -1,8 +1,10 @@
 // Express Middleware for API Response Caching
 
-import { Request, Response, NextFunction } from 'express';
-import { cacheService } from './RedisService';
 import crypto from 'crypto';
+
+import { Request, Response, NextFunction } from 'express';
+
+import { cacheService } from './RedisService';
 
 interface CacheOptions {
   ttl?: number;
