@@ -1,6 +1,5 @@
 'use client';
 
-import { cn } from '@/lib/utils';
 import {
   Inbox,
   FileX,
@@ -15,6 +14,8 @@ import {
   type LucideIcon,
 } from 'lucide-react';
 import { ReactNode } from 'react';
+
+import { cn } from '@/lib/utils';
 
 export interface EmptyStateProps {
   /**

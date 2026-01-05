@@ -21,9 +21,8 @@ import {
 } from '@phosphor-icons/react'
 import React, { Suspense, lazy, Component, ReactNode, ErrorInfo } from 'react'
 
-import { VideoPlayer, DEMO_STREAMS } from '@/components/common/VideoPlayer'
+import { VideoPlayer } from '@/components/common/VideoPlayer'
 import { Button } from '@/components/ui/button'
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { HubPage, HubTab } from '@/components/ui/hub-page'
 import { Skeleton } from '@/components/ui/skeleton'
 import { StatCard, ProgressRing, StatusDot, QuickStat } from '@/components/ui/stat-card'

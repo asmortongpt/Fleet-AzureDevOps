@@ -3,10 +3,11 @@
  * Tests all API endpoints, database connections, and external integrations
  */
 
-import express, { Express, Request, Response, NextFunction } from 'express';
-import { Pool } from 'pg';
-import Redis from 'ioredis';
 import http from 'http';
+
+import express, { Express } from 'express';
+import Redis from 'ioredis';
+import { Pool } from 'pg';
 
 // Types
 interface EndpointTest {

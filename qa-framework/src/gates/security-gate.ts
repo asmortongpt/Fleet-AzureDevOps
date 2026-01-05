@@ -7,14 +7,15 @@
  * - Missing security headers (MEDIUM - informational only)
  */
 
-import { test, expect, Page } from '@playwright/test';
 import * as fs from 'fs';
 import * as path from 'path';
+
+import { test, expect, Page } from '@playwright/test';
+
 import {
   Severity,
   Finding,
   GateConfig,
-  classifySecurityFinding,
   shouldFailGate,
   calculateGateScore
 } from '../lib/severity.js';

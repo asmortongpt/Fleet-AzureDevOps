@@ -3,7 +3,6 @@
  * Leverages existing TrainingCertificationManagement and KnowledgeManagementTraining services
  */
 
-import React, { useState, useEffect } from 'react';
 import {
   BookOpen,
   Video,
@@ -13,22 +12,17 @@ import {
   Clock,
   CheckCircle2,
   PlayCircle,
-  Download,
   Star,
-  TrendingUp,
-  Calendar,
   Target,
   Brain,
   Shield,
   Truck,
   Wrench,
   Navigation,
-  AlertTriangle,
-  ChevronRight,
-  Search,
-  Filter,
-  BarChart3
+  Search
 } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -36,7 +30,6 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Di
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Progress } from '@/components/ui/progress';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 interface TrainingCourse {
   id: string;

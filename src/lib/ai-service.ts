@@ -15,7 +15,6 @@
  * - Token counting
  */
 
-import { apiClient } from './api-client';
 
 export interface Message {
   id: string;

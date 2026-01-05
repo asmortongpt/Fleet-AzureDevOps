@@ -1,4 +1,4 @@
-import { Menu, X, PanelLeft } from 'lucide-react';
+import { X, PanelLeft } from 'lucide-react';
 import { useState, useEffect, useCallback } from 'react';
 
 import { CommandCenterHeader } from './CommandCenterHeader';

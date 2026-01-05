@@ -11,28 +11,30 @@ if (typeof window !== 'undefined' && !localStorage.getItem('demo_mode')) {
 }
 
 // Initialize Sentry before all other imports for proper error tracking
+import { BrowserRouter, Routes, Route } from "react-router-dom"
+
+import App from "./App"
+import { GlobalCommandPalette } from "./components/common/GlobalCommandPalette"
+import { SentryErrorBoundary } from "./components/errors/SentryErrorBoundary"
+import { ThemeProvider } from "./components/providers/ThemeProvider"
+import { AuthProvider } from "./contexts/AuthContext"
+import { DrilldownProvider } from "./contexts/DrilldownContext"
+import { FeatureFlagProvider } from "./contexts/FeatureFlagContext"
+import { TenantProvider } from "./contexts/TenantContext"
 import { initSentry } from "./lib/sentry"
 initSentry()
 
 // Initialize Application Insights for production telemetry
 import telemetryService from "./lib/telemetry"
+
 const reactPlugin = telemetryService.initialize()
-import { BrowserRouter, Routes, Route } from "react-router-dom"
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
 
-import { AuthProvider } from "./contexts/AuthContext"
-import { TenantProvider } from "./contexts/TenantContext"
-import { FeatureFlagProvider } from "./contexts/FeatureFlagContext"
 import { InspectProvider } from "./services/inspect/InspectContext"
-import { DrilldownProvider } from "./contexts/DrilldownContext"
 import { NavigationProvider } from "./contexts/NavigationContext"
-import { ThemeProvider } from "./components/providers/ThemeProvider"
-import { SentryErrorBoundary } from "./components/errors/SentryErrorBoundary"
 
 // Professional theme with high contrast colors - fixes green-on-green readability
 import "./styles/professional-theme-fix.css"
-import { GlobalCommandPalette } from "./components/common/GlobalCommandPalette"
-import App from "./App"
 import "./index.css"
 import "./styles/design-tokens-responsive.css"
 import "./styles/responsive-utilities.css"

@@ -1,4 +1,3 @@
-import { Metrics } from '../hooks/useWebSocket'
 import {
   CpuChipIcon,
   CheckCircleIcon,
@@ -7,6 +6,8 @@ import {
   ChartBarIcon,
   ExclamationTriangleIcon
 } from '@heroicons/react/24/outline'
+
+import { Metrics } from '../hooks/useWebSocket'
 
 interface MetricsPanelProps {
   metrics: Metrics

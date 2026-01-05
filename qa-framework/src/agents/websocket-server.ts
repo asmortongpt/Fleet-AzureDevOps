@@ -1,6 +1,7 @@
-import { WebSocketServer, WebSocket } from 'ws';
 import { EventEmitter } from 'events';
 import http from 'http';
+
+import { WebSocketServer, WebSocket } from 'ws';
 
 export interface AgentStatusUpdate {
   agentId: string;

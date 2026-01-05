@@ -15,8 +15,8 @@ import {
   Lightning
 } from "@phosphor-icons/react"
 import { Scanner, IDetectedBarcode } from '@yudiel/react-qr-scanner'
-import { createWorker, Worker, OEM, PSM } from 'tesseract.js'
 import { useState, useRef, useEffect, useCallback } from "react"
+import { createWorker, Worker, OEM, PSM } from 'tesseract.js'
 
 import { Button } from "@/components/ui/button"
 import {
@@ -151,7 +151,7 @@ function validateVIN(vin: string): boolean {
 
 // Parse VIN from barcode
 function parseVINFromBarcode(rawValue: string): string | null {
-  let cleaned = rawValue.replace(/[^A-HJ-NPR-Z0-9]/gi, '').toUpperCase()
+  const cleaned = rawValue.replace(/[^A-HJ-NPR-Z0-9]/gi, '').toUpperCase()
   if (cleaned.length === 17) return cleaned
   if (cleaned.length > 17) {
     for (let i = 0; i <= cleaned.length - 17; i++) {

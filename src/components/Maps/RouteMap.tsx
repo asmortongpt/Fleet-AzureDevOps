@@ -3,13 +3,14 @@
  * Displays active routes and driver locations
  */
 
-import React, { useState } from 'react'
-import { GoogleMapView } from './GoogleMapView'
-import { Vehicle } from '@/types/Vehicle'
-import { useVehicles } from '@/hooks/use-api'
-import { Skeleton } from '@/components/ui/skeleton'
 import { AlertCircle, Route, MapPin } from 'lucide-react'
+import React, { useState } from 'react'
+
+import { GoogleMapView } from './GoogleMapView'
+
 import { Button } from '@/components/ui/button'
+import { Skeleton } from '@/components/ui/skeleton'
+import { useVehicles } from '@/hooks/use-api'
 
 export interface RouteMapProps {
   className?: string

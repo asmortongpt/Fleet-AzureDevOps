@@ -1,4 +1,3 @@
-import { logger } from '@/utils/logger';
 
 /**
  * Environment-based Authentication Provider Switcher
@@ -8,6 +7,7 @@ import { logger } from '@/utils/logger';
 
 import type { ReactNode } from 'react';
 import React from "react";
+
 import { MockAuthProvider, useMockAuth, MockAuthLoading, MockLoginPrompt, MockRoleSwitcher } from './MockAuthProvider';
 
 interface AuthProviderSwitcherProps {

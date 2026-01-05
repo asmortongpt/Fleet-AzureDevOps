@@ -1,4 +1,3 @@
-import React, { useState, useMemo } from 'react';
 import {
   flexRender,
   getCoreRowModel,
@@ -12,6 +11,7 @@ import {
   PaginationState
 } from '@tanstack/react-table';
 import { ChevronDown, ChevronUp, Filter, X, Download, Search } from 'lucide-react';
+import React, { useState } from 'react';
 
 interface ExcelDataTableProps<T> {
   data: T[];

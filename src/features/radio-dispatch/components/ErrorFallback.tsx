@@ -1,7 +1,7 @@
 'use client';
 
-import React, { ErrorInfo } from 'react';
 import { AlertCircle, RefreshCw, Home, ChevronDown, ChevronUp } from 'lucide-react';
+import React, { ErrorInfo } from 'react';
 
 interface ErrorFallbackProps {
   error: Error | null;

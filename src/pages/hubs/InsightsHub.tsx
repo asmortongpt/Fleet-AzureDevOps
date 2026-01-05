@@ -12,9 +12,6 @@ import {
 import React, { Suspense, useState } from "react";
 
 import { HubLayout } from "../../components/layout/HubLayout";
-import { Badge } from "../../components/ui/badge";
-import { Button } from "../../components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "../../components/ui/card";
 
 // Import actual analytics module components
 import { CostAnalysisCenter } from "../../components/modules/analytics/CostAnalysisCenter";
@@ -23,6 +20,9 @@ import { DataWorkbench } from "../../components/modules/analytics/DataWorkbench"
 import { ExecutiveDashboard } from "../../components/modules/analytics/ExecutiveDashboard";
 import { FleetAnalytics } from "../../components/modules/fleet/FleetAnalytics";
 import { PredictiveMaintenance } from "../../components/modules/maintenance/PredictiveMaintenance";
+import { Badge } from "../../components/ui/badge";
+import { Button } from "../../components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "../../components/ui/card";
 
 type InsightsModule =
   | "overview"

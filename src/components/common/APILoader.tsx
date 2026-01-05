@@ -4,10 +4,10 @@
  * Created: 2025-12-31 (Agent 8)
  */
 
-import React from 'react';
-import { SkeletonLoader } from '@/components/shared';
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Loader2, AlertCircle } from 'lucide-react';
+import React from 'react';
+
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 
 interface APILoaderProps<T> {
   loading: boolean;

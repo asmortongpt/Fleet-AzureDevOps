@@ -3,12 +3,13 @@
  * Supports images, videos, and LiDAR data
  */
 
+import { exec } from 'child_process';
+import fs from 'fs/promises';
+import path from 'path';
+import { promisify } from 'util';
+
 import express, { Request, Response } from 'express';
 import multer from 'multer';
-import { exec } from 'child_process';
-import { promisify } from 'util';
-import path from 'path';
-import fs from 'fs/promises';
 import { Pool } from 'pg';
 
 const router = express.Router();

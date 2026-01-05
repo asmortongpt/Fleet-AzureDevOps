@@ -13,7 +13,6 @@ import {
   Envelope,
   PaperPlaneTilt,
   Clock,
-  User,
   CheckCircle,
   Warning,
   Star,
@@ -30,11 +29,9 @@ import {
 import { formatDistanceToNow } from 'date-fns'
 
 import { Badge } from '@/components/ui/badge'
-import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Progress } from '@/components/ui/progress'
 import { ScrollArea } from '@/components/ui/scroll-area'
-import { Separator } from '@/components/ui/separator'
 import { useDrilldown } from '@/contexts/DrilldownContext'
 
 // ============================================================================

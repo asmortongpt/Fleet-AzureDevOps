@@ -1,11 +1,12 @@
 import { useState } from 'react'
-import { useWebSocket } from './hooks/useWebSocket'
-import { MetricsPanel } from './components/MetricsPanel'
+
 import { AgentGrid } from './components/AgentGrid'
-import { TaskQueue } from './components/TaskQueue'
 import { AlertPanel } from './components/AlertPanel'
 import { AnalysisReport } from './components/AnalysisReport'
 import { Header } from './components/Header'
+import { MetricsPanel } from './components/MetricsPanel'
+import { TaskQueue } from './components/TaskQueue'
+import { useWebSocket } from './hooks/useWebSocket'
 
 const WS_URL = import.meta.env.VITE_WS_URL || 'ws://localhost:8080'
 

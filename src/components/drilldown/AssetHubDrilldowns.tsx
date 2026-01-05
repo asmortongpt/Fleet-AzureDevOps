@@ -6,18 +6,12 @@
 import {
   Package,
   Wrench,
-  Calendar,
-  TrendingUp,
-  MapPin,
   DollarSign,
   Activity,
   Clock,
-  User,
   AlertCircle,
-  CheckCircle,
   BarChart3,
 } from 'lucide-react'
-import { useState } from 'react'
 import useSWR from 'swr'
 
 import { DrilldownContent } from '@/components/DrilldownPanel'

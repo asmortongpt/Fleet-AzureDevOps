@@ -4,10 +4,12 @@
  * RESTful endpoints for generating and managing vehicle 3D models
  */
 
-import express, { Request, Response } from 'express';
-import FleetModelService from '../../fleet-3d-model-integration';
-import multer from 'multer';
 import path from 'path';
+
+import express, { Request, Response } from 'express';
+import multer from 'multer';
+
+import FleetModelService from '../../fleet-3d-model-integration';
 
 const router = express.Router();
 

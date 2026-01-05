@@ -1,6 +1,6 @@
-import React from 'react';
-import { X, ChevronRight, Home } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { X, ChevronRight, Home } from 'lucide-react';
+import React from 'react';
 
 export interface DrilldownLevel {
   id: string;

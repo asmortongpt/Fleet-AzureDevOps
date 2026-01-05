@@ -1,9 +1,10 @@
 // Reservations Hub - Vehicle Booking & Calendar Management
 // Displays: Reservation calendar, booking form, approval workflow
 
-import React from 'react';
-import { ReservationSystem } from './ReservationSystem';
 import { Calendar, Clock, CheckCircle, AlertCircle } from 'lucide-react';
+import React from 'react';
+
+import { ReservationSystem } from './ReservationSystem';
 
 export const ReservationsHub: React.FC = () => {
   return (

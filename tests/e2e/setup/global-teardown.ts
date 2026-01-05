@@ -1,6 +1,7 @@
+import { unlink } from 'fs/promises';
+
 import { FullConfig } from '@playwright/test';
 import { Pool } from 'pg';
-import { unlink } from 'fs/promises';
 
 async function globalTeardown(config: FullConfig) {
   console.log('\n🧹 E2E Global Teardown Starting...\n');

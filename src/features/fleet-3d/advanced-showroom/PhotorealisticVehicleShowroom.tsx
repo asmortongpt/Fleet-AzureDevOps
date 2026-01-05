@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
+
 import { AccurateVehicleImageService } from '../../services/AccurateVehicleImageService';
-import { obd2VINDecoder } from '../../services/OBD2VINDecoder';
 import { RealDataService } from '../../services/RealDataService';
 
 interface PhotorealisticVehicleShowroomProps {

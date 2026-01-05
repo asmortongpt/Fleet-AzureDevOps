@@ -1,5 +1,5 @@
+import { X, Save, Calendar as CalendarIcon, MapPin, AlertCircle } from 'lucide-react';
 import React, { useState } from 'react';
-import { X, Save, Calendar as CalendarIcon, MapPin, Clock, AlertCircle } from 'lucide-react';
 
 interface EventCreateModalProps {
   isOpen: boolean;

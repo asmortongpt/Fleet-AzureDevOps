@@ -3,7 +3,22 @@
  * Advanced physical inventory management interface for CTAFleet
  */
 
-import React, { useState, useEffect, useRef } from 'react';
+import {
+  QrCode2,
+  QrCodeScanner,
+  Nfc,
+  Inventory,
+  PersonAdd,
+  PersonRemove,
+  CheckCircle,
+  Assignment,
+  Timeline,
+  Camera,
+  Download,
+  Visibility,
+  Settings,
+  RadioButtonChecked
+} from '@mui/icons-material';
 import {
   Box,
   Card,
@@ -23,10 +38,6 @@ import {
   DialogContent,
   DialogActions,
   TextField,
-  Select,
-  MenuItem,
-  FormControl,
-  InputLabel,
   Paper,
   Tabs,
   Tab,
@@ -36,54 +47,15 @@ import {
   ListItemIcon,
   ListItemSecondaryAction,
   IconButton,
-  Avatar,
   LinearProgress,
   Alert,
-  Stepper,
-  Step,
-  StepLabel,
-  StepContent,
-  Divider,
   Badge,
-  Tooltip,
-  Switch,
-  FormControlLabel
+  Tooltip
 } from '@mui/material';
-import {
-  QrCode2,
-  QrCodeScanner,
-  Nfc,
-  Print,
-  Inventory,
-  LocationOn,
-  PersonAdd,
-  PersonRemove,
-  Search,
-  Refresh,
-  CheckCircle,
-  Warning,
-  Error,
-  Assignment,
-  LocalShipping,
-  Build,
-  Timeline,
-  Camera,
-  Download,
-  Upload,
-  Visibility,
-  Add,
-  Settings,
-  Scanner,
-  RadioButtonChecked,
-  TrendingUp
-} from '@mui/icons-material';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   LineChart,
   Line,
-  AreaChart,
-  Area,
-  BarChart,
-  Bar,
   XAxis,
   YAxis,
   CartesianGrid,
@@ -94,12 +66,12 @@ import {
   Pie,
   Cell
 } from 'recharts';
+
 import {
   barcodeRFIDTrackingService,
   InventoryItem,
   ScanEvent,
-  InventoryAudit,
-  CheckoutRecord
+  InventoryAudit
 } from '../../services/inventory/BarcodeRFIDTrackingService';
 
 interface TabPanelProps {

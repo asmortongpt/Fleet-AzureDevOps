@@ -1,8 +1,8 @@
 // Redis Distributed Caching Service
 // Production-grade caching with fallback and health checks
 
-import { createClient, RedisClientType } from 'redis';
 import { LRUCache } from 'lru-cache';
+import { createClient, RedisClientType } from 'redis';
 
 interface CacheConfig {
   redis: {

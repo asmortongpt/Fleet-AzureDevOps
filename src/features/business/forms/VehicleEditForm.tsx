@@ -1,4 +1,12 @@
-import React, { useState, useEffect } from 'react';
+import { Vehicle } from '@contexts/FleetDataContext';
+import {
+  DirectionsCar,
+  LocalGasStation,
+  Build,
+  Speed,
+  Info,
+  Battery4Bar
+} from '@mui/icons-material';
 import {
   Box,
   Grid,
@@ -7,35 +15,19 @@ import {
   InputLabel,
   Select,
   MenuItem,
-  FormControlLabel,
-  Switch,
   Typography,
   Chip,
   Stack,
-  IconButton,
   Autocomplete,
   Slider,
   Card,
   CardContent,
-  Divider,
   Alert,
   LinearProgress,
   useTheme,
   alpha
 } from '@mui/material';
-import {
-  DirectionsCar,
-  LocalGasStation,
-  Build,
-  Calendar,
-  Speed,
-  Delete,
-  Add,
-  Info,
-  Battery4Bar,
-  Eco
-} from '@mui/icons-material';
-import { Vehicle } from '@contexts/FleetDataContext';
+import React, { useState, useEffect } from 'react';
 
 interface VehicleEditFormProps {
   vehicle: Vehicle;

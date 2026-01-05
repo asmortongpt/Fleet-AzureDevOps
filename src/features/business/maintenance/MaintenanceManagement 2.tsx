@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
-import MaintenanceScheduler from './MaintenanceScheduler';
-import MaintenanceHistoryList from './MaintenanceHistoryList';
+
 import { MaintenanceRecord } from '../../services/maintenanceService';
+
+import MaintenanceHistoryList from './MaintenanceHistoryList';
+import MaintenanceScheduler from './MaintenanceScheduler';
 
 interface MaintenanceManagementProps {
   currentTheme: any;

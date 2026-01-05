@@ -3,7 +3,25 @@
  * AI-powered inventory management interface for CTAFleet
  */
 
-import React, { useState, useEffect } from 'react';
+import {
+  Psychology,
+  TrendingUp,
+  TrendingDown,
+  Warning,
+  CheckCircle,
+  Schedule,
+  Analytics,
+  Tune,
+  Info,
+  LocalShipping,
+  AttachMoney,
+  Speed,
+  Build,
+  AutoAwesome,
+  Science,
+  Timeline,
+  PrecisionManufacturing
+} from '@mui/icons-material';
 import {
   Box,
   Card,
@@ -24,14 +42,10 @@ import {
   DialogTitle,
   DialogContent,
   DialogActions,
-  IconButton,
-  Tooltip,
-  Avatar,
   List,
   ListItem,
   ListItemText,
   ListItemIcon,
-  Divider,
   Switch,
   FormControlLabel,
   Tabs,
@@ -39,31 +53,10 @@ import {
   Paper,
   Badge
 } from '@mui/material';
-import {
-  Psychology,
-  TrendingUp,
-  TrendingDown,
-  Warning,
-  CheckCircle,
-  Schedule,
-  ShoppingCart,
-  Analytics,
-  Tune,
-  Info,
-  LocalShipping,
-  AttachMoney,
-  Speed,
-  Build,
-  Notifications,
-  AutoAwesome,
-  Science,
-  Timeline,
-  PrecisionManufacturing
-} from '@mui/icons-material';
+import React, { useState, useEffect } from 'react';
 import {
   BarChart,
   Bar,
-  LineChart,
   Line,
   XAxis,
   YAxis,
@@ -77,6 +70,7 @@ import {
   Area,
   AreaChart
 } from 'recharts';
+
 import {
   predictiveReorderingService,
   ReorderRecommendation,

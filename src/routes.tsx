@@ -3,8 +3,9 @@
 
 import React from 'react';
 import { Routes, Route } from 'react-router-dom';
-import { FleetHub } from '@/components/hubs/fleet/FleetHub';
+
 import { AnalyticsHub } from '@/components/hubs/analytics/AnalyticsHub';
+import { FleetHub } from '@/components/hubs/fleet/FleetHub';
 import { ReservationsHub } from '@/components/hubs/reservations/ReservationsHub';
 
 export const AppRoutes: React.FC = () => {

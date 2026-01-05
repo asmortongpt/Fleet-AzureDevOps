@@ -4,9 +4,10 @@
  * Supports travel, mileage, fuel, maintenance and other fleet-related expenses
  */
 
-import React, { useState, useEffect } from 'react';
-import { flairIntegrationService, FLAIRExpenseEntry, FLAIRBatchSubmission, FLAIRDocument, DCF_ACCOUNT_CODES } from '../../services/FLAIRIntegration';
+import React, { useState } from 'react';
+
 import { useAuth } from '../../contexts/AuthContext';
+import { flairIntegrationService, FLAIRExpenseEntry, FLAIRDocument } from '../../services/FLAIRIntegration';
 
 // Component props interface
 interface FLAIRExpenseSubmissionProps {

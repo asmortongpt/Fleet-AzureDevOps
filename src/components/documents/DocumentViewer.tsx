@@ -20,7 +20,6 @@ import { useState } from 'react';
 
 import { CodeViewer } from './viewer/CodeViewer';
 import { ImageViewer } from './viewer/ImageViewer';
-import { OfficeViewer } from './viewer/OfficeViewer';
 import { PdfViewer } from './viewer/PdfViewer';
 import { VideoViewer } from './viewer/VideoViewer';
 

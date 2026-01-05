@@ -30,7 +30,6 @@ import {
   EmailDrilldown,
   HistoryDrilldown
 } from '@/components/drilldown/CommunicationHubDrilldowns'
-import { EmailDetailPanel } from '@/components/drilldown/EmailDetailPanel'
 import {
   RegulationsDrilldown,
   GeofenceComplianceDrilldown,
@@ -41,6 +40,7 @@ import {
 import { DriverDetailPanel } from '@/components/drilldown/DriverDetailPanel'
 import { DriverPerformanceView } from '@/components/drilldown/DriverPerformanceView'
 import { DriverTripsView } from '@/components/drilldown/DriverTripsView'
+import { EmailDetailPanel } from '@/components/drilldown/EmailDetailPanel'
 import { FacilityDetailPanel } from '@/components/drilldown/FacilityDetailPanel'
 import { FacilityVehiclesView } from '@/components/drilldown/FacilityVehiclesView'
 import {
@@ -83,25 +83,6 @@ import { TripTelemetryView } from '@/components/drilldown/TripTelemetryView'
 import { VehicleDetailPanel } from '@/components/drilldown/VehicleDetailPanel'
 import { VehicleTripsList } from '@/components/drilldown/VehicleTripsList'
 import { WorkOrderDetailPanel } from '@/components/drilldown/WorkOrderDetailPanel'
-import {
-  EquipmentDetailPanel,
-  InventoryItemDetailPanel,
-  AssetListView,
-  EquipmentListView,
-  InventoryListView
-} from '@/components/drilldown/AssetHubDrilldowns'
-import {
-  MaintenanceRequestDetailPanel,
-  MaintenanceRequestListView
-} from '@/components/drilldown/MaintenanceRequestDrilldowns'
-import {
-  ScheduledItemDetailPanel,
-  CalendarListView
-} from '@/components/drilldown/ScheduleDrilldowns'
-import {
-  AlertDetailPanel,
-  AlertListView
-} from '@/components/drilldown/AlertDrilldowns'
 import { DrilldownProvider, useDrilldown } from '@/contexts/DrilldownContext'
 
 // ============================================================================
