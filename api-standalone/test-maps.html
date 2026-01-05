@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Google Maps API Test</title>
+    <style>
+        #map {
+            height: 600px;
+            width: 100%;
+        }
+        body { margin: 0; font-family: Arial, sans-serif; }
+        #info {
+            padding: 20px;
+            background: #f0f0f0;
+            border-bottom: 1px solid #ccc;
+        }
+        .success { color: green; }
+        .error { color: red; }
+    </style>
+</head>
+<body>
+    <div id="info">
+        <h1>Google Maps API Test</h1>
+        <p>API Key: <your-google-maps-api-key></p>
+        <p id="status">Loading map...</p>
+    </div>
+    <div id="map"></div>
+
+    <script>
+        window.initMap = function() {
+            console.log('✅ Google Maps API loaded successfully!');
+            document.getElementById('status').innerHTML = '<span class="success">✅ Google Maps API loaded successfully!</span>';
+
+            // Create map centered on Atlanta
+            const map = new google.maps.Map(document.getElementById('map'), {
+                center: { lat: 33.7490, lng: -84.3880 },
+                zoom: 12
+            });
+
+            // Add a test marker
+            new google.maps.Marker({
+                position: { lat: 33.7490, lng: -84.3880 },
+                map: map,
+                title: 'Test Marker - Atlanta'
+            });
+
+            console.log('✅ Map initialized with marker');
+        };
+
+        window.onerror = function(msg, url, lineNo, columnNo, error) {
+            console.error('❌ JavaScript Error:', msg, error);
+            document.getElementById('status').innerHTML = '<span class="error">❌ Error: ' + msg + '</span>';
+            return false;
+        };
+    </script>
+
+    <script async defer
+        src="https://maps.googleapis.com/maps/api/js?key=<your-google-maps-api-key>&callback=initMap">
+    </script>
+</body>
+</html>
