@@ -21,7 +21,7 @@ import {
 } from '@phosphor-icons/react'
 import React, { Suspense, lazy, Component, ReactNode, ErrorInfo } from 'react'
 
-import { VideoPlayer } from '@/components/common/VideoPlayer'
+// VideoPlayer import removed to avoid conflict with local definition
 import { Button } from '@/components/ui/button'
 import { HubPage, HubTab } from '@/components/ui/hub-page'
 import { Skeleton } from '@/components/ui/skeleton'

@@ -1,4 +1,5 @@
 // Initialize monitoring services FIRST (before other imports)
+import cookieParser from 'cookie-parser'
 import cors from 'cors'
 import express from 'express'
 
@@ -241,6 +242,9 @@ app.options('*', cors(getCorsConfig()))
 app.use(express.json({ limit: '10mb' }))
 app.use(express.urlencoded({ extended: true, limit: '10mb' }))
 
+// 3.5. Cookie Parser - Required for CSRF protection
+app.use(cookieParser())
+
 // 4. Global Rate Limiting - Apply to all routes to prevent DoS attacks
 app.use(globalLimiter)
 
@@ -256,10 +260,10 @@ app.use((req, res, next) => {
   }
 })
 
-// CSRF Token endpoint
-app.get('/api/csrf-token', csrfProtection, getCsrfToken)
-app.get('/api/v1/csrf-token', csrfProtection, getCsrfToken)
-app.get('/api/csrf', csrfProtection, getCsrfToken)
+// CSRF Token endpoint - NO csrfProtection middleware (these endpoints GENERATE tokens)
+app.get('/api/csrf-token', getCsrfToken)
+app.get('/api/v1/csrf-token', getCsrfToken)
+app.get('/api/csrf', getCsrfToken)
 
 // Health check
 app.get('/health', (_req, res) => {
@@ -408,6 +412,7 @@ app.use('/api/permissions', permissionsRouter)
 
 // Authentication & User Management Routes
 app.use('/api/auth', authRouter)
+app.use('/auth', authRouter) // Alias without /api prefix for backward compatibility
 app.use('/api/auth', sessionRevocationRouter) // Session revocation endpoints (/revoke, /revoke/status)
 app.use('/api/microsoft-auth', microsoftAuthRouter)
 app.use('/api/break-glass', breakGlassRouter)

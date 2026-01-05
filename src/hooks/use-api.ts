@@ -11,7 +11,7 @@ import logger from '@/utils/logger';
  * by fetching and including CSRF tokens in all state-changing operations.
  *
  * CSRF Token Lifecycle:
- * 1. Token fetched from /api/v1/csrf-token on app initialization
+ * 1. Token fetched from /api/csrf-token on app initialization
  * 2. Token stored in memory (NOT localStorage to prevent XSS)
  * 3. Token included in X-CSRF-Token header for POST/PUT/DELETE/PATCH requests
  * 4. Token refreshed automatically on 403 CSRF validation errors
@@ -32,7 +32,7 @@ let csrfTokenPromise: Promise<string> | null = null;
  * Fetches a CSRF token from the backend
  * Uses a promise cache to prevent multiple simultaneous requests
  */
-async function getCsrfToken(): Promise<string> {
+export async function getCsrfToken(): Promise<string> {
   // Skip CSRF in development mock mode
   if (import.meta.env.VITE_USE_MOCK_DATA === 'true') {
     return '';
@@ -51,7 +51,7 @@ async function getCsrfToken(): Promise<string> {
   // Fetch new token
   csrfTokenPromise = (async () => {
     try {
-      const response = await fetch('/api/v1/csrf-token', {
+      const response = await fetch('/api/csrf-token', {
         method: 'GET',
         credentials: 'include', // Required for cookies
       });

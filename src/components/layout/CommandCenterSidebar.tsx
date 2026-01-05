@@ -2,7 +2,6 @@ import {
     Settings,
     PanelLeftClose,
     PanelLeft,
-    Hexagon,
     ChevronRight
 } from 'lucide-react';
 import { useMemo } from 'react';
@@ -131,13 +130,18 @@ export function CommandCenterSidebar({ isSidebarOpen, setIsSidebarOpen, onNaviga
                 {/* Logo Area */}
                 <div className="h-16 flex items-center justify-between px-4 border-b border-border/50 shrink-0">
                     <div className="flex items-center gap-3 min-w-0">
-                        <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-primary to-primary/80 flex items-center justify-center shrink-0 shadow-lg shadow-primary/20">
-                            <Hexagon className="w-5 h-5 text-primary-foreground" />
-                        </div>
-                        {isSidebarOpen && (
-                            <span className="font-bold text-lg tracking-tight text-foreground truncate">
-                                Fleet<span className="font-light text-muted-foreground">OPS</span>
-                            </span>
+                        {isSidebarOpen ? (
+                            <img
+                                src="/logos/logo-horizontal.svg"
+                                alt="Fleet Management"
+                                className="h-8 w-auto object-contain"
+                            />
+                        ) : (
+                            <img
+                                src="/logos/logo-horizontal.svg"
+                                alt="Fleet Management"
+                                className="h-9 w-9 object-contain"
+                            />
                         )}
                     </div>
                 </div>
