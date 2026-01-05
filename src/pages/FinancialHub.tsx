@@ -2,13 +2,12 @@
  * FinancialHub - Comprehensive Financial Management Hub
  * Route: /financial
  *
- * Provides unified financial operations including:
- * - Cost Analysis & Tracking
- * - Billing & Revenue Reports
- * - Budget Management & Forecasting
- * - Cost-Benefit Analysis
- * - Invoice Processing & Approval
- * - Payment Tracking & Reconciliation
+ * REDESIGNED: Professional enterprise design following Salesforce Lightning/Microsoft 365 standards
+ * - Clean white cards with subtle shadows
+ * - High contrast typography for readability
+ * - Muted professional color palette
+ * - Larger font sizes for accessibility
+ * - Generous spacing and whitespace
  */
 
 import {
@@ -53,16 +52,16 @@ import { HubPage, HubTab } from '@/components/ui/hub-page'
 import { StatCard, ProgressRing, QuickStat } from '@/components/ui/stat-card'
 import { useDrilldown, DrilldownLevel } from '@/contexts/DrilldownContext'
 
-// Chart color palette
+// Professional muted color palette - NO bright/neon colors
 const CHART_COLORS = {
-    primary: '#3B82F6',
-    secondary: '#06B6D4',
-    success: '#10B981',
-    warning: '#F59E0B',
-    danger: '#EF4444',
-    purple: '#A855F7',
-    teal: '#14B8A6',
-    slate: '#64748B',
+    primary: '#2563EB',      // Blue 600
+    secondary: '#0891B2',    // Cyan 600
+    success: '#059669',      // Emerald 600
+    warning: '#D97706',      // Amber 600
+    danger: '#DC2626',       // Red 600
+    purple: '#9333EA',       // Purple 600
+    teal: '#0D9488',         // Teal 600
+    slate: '#475569',        // Slate 600
 }
 
 // Budget vs Actual trend data
@@ -103,19 +102,19 @@ const departmentComparisonData = [
     { department: 'Administration', budgeted: 420, spent: 240, remaining: 180 },
 ]
 
-// Custom tooltip component for charts
+// PROFESSIONAL TOOLTIP - Clean white card with high contrast
 const CustomTooltip = ({ active, payload, label }: any) => {
     if (active && payload && payload.length) {
         return (
-            <div className="bg-slate-800/95 backdrop-blur-sm border border-slate-700/50 rounded-lg p-3 shadow-xl">
-                <p className="text-sm font-medium text-white mb-2">{label}</p>
+            <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg p-4 shadow-xl">
+                <p className="text-base font-semibold text-slate-900 dark:text-slate-100 mb-3">{label}</p>
                 {payload.map((entry: any, index: number) => (
-                    <div key={index} className="flex items-center justify-between gap-4 text-xs">
+                    <div key={index} className="flex items-center justify-between gap-6 text-sm mb-1">
                         <span className="flex items-center gap-2">
-                            <div className="w-2 h-2 rounded-full" style={{ backgroundColor: entry.color }} />
-                            <span className="text-slate-300">{entry.name}:</span>
+                            <div className="w-3 h-3 rounded-sm" style={{ backgroundColor: entry.color }} />
+                            <span className="text-slate-700 dark:text-slate-300 font-medium">{entry.name}:</span>
                         </span>
-                        <span className="font-semibold text-white">
+                        <span className="font-bold text-slate-900 dark:text-slate-100">
                             ${typeof entry.value === 'number' ? entry.value.toLocaleString() : entry.value}K
                         </span>
                     </div>
@@ -134,18 +133,18 @@ function CostAnalysisContent() {
     const { push } = useDrilldown()
 
     return (
-        <div className="p-8 space-y-8 bg-gradient-to-b from-slate-900/50 via-transparent to-transparent">
-            {/* Header Section */}
+        <div className="p-8 space-y-8 bg-slate-50 dark:bg-slate-900">
+            {/* Header Section - Clean and professional */}
             <div className="flex items-center justify-between">
                 <div>
-                    <h2 className="text-3xl font-bold text-white mb-2">Cost Analysis & Control</h2>
-                    <p className="text-slate-400">Real-time cost tracking and budget variance monitoring</p>
+                    <h2 className="text-3xl font-bold text-slate-900 dark:text-slate-100 mb-2">Cost Analysis & Control</h2>
+                    <p className="text-base text-slate-600 dark:text-slate-400">Real-time cost tracking and budget variance monitoring</p>
                 </div>
-                <div className="flex gap-2">
-                    <button className="px-4 py-2 bg-slate-800/60 hover:bg-slate-700/60 text-slate-300 rounded-lg border border-slate-700/50 transition-all text-sm font-medium">
+                <div className="flex gap-3">
+                    <button className="px-5 py-2.5 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 rounded-lg border border-slate-300 dark:border-slate-600 transition-all text-sm font-medium shadow-sm">
                         Export Report
                     </button>
-                    <button className="px-4 py-2 bg-blue-600/90 hover:bg-blue-500 text-white rounded-lg transition-all text-sm font-medium shadow-lg shadow-blue-500/20">
+                    <button className="px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-all text-sm font-medium shadow-sm">
                         Download CSV
                     </button>
                 </div>
@@ -199,74 +198,76 @@ function CostAnalysisContent() {
                 />
             </div>
 
-            {/* Detailed Analysis Cards */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                <div className="bg-gradient-to-br from-slate-800/70 to-slate-900/70 backdrop-blur-xl rounded-2xl border border-slate-700/50 p-8 cursor-pointer hover:border-blue-500/50 hover:shadow-xl hover:shadow-blue-500/10 transition-all duration-300"
+            {/* Detailed Analysis Cards - CLEAN WHITE CARDS */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                {/* Budget Variance Card */}
+                <div className="bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 p-8 cursor-pointer hover:border-blue-500 hover:shadow-lg transition-all duration-200"
                     onClick={() => push({ type: 'cost-variance', data: { title: 'Budget vs Actual Variance' }, id: 'variance-analysis' } as Omit<DrilldownLevel, "timestamp">)}>
                     <div className="flex items-start justify-between mb-6">
-                        <h3 className="text-lg font-semibold text-white">Budget Variance Analysis</h3>
-                        <span className="px-3 py-1 bg-emerald-500/20 text-emerald-400 rounded-full text-xs font-medium">On Track</span>
+                        <h3 className="text-xl font-semibold text-slate-900 dark:text-slate-100">Budget Variance Analysis</h3>
+                        <span className="px-3 py-1.5 bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400 rounded-lg text-sm font-semibold">On Track</span>
                     </div>
-                    <div className="flex items-center justify-center mb-6">
+                    <div className="flex items-center justify-center mb-8">
                         <ProgressRing progress={92} color="green" label="92%" sublabel="of budget utilized" />
                     </div>
-                    <div className="space-y-3 text-sm">
-                        <div className="flex justify-between items-center p-3 bg-slate-900/50 rounded-lg">
-                            <span className="text-slate-400">Monthly Budget</span>
-                            <span className="font-semibold text-white">$310,000</span>
+                    <div className="space-y-3">
+                        <div className="flex justify-between items-center p-4 bg-slate-50 dark:bg-slate-900/50 rounded-lg">
+                            <span className="text-base text-slate-600 dark:text-slate-400 font-medium">Monthly Budget</span>
+                            <span className="text-lg font-bold text-slate-900 dark:text-slate-100">$310,000</span>
                         </div>
-                        <div className="flex justify-between items-center p-3 bg-slate-900/50 rounded-lg">
-                            <span className="text-slate-400">Spent to Date</span>
-                            <span className="font-semibold text-white">$284,500</span>
+                        <div className="flex justify-between items-center p-4 bg-slate-50 dark:bg-slate-900/50 rounded-lg">
+                            <span className="text-base text-slate-600 dark:text-slate-400 font-medium">Spent to Date</span>
+                            <span className="text-lg font-bold text-slate-900 dark:text-slate-100">$284,500</span>
                         </div>
-                        <div className="flex justify-between items-center p-3 bg-emerald-500/10 rounded-lg border border-emerald-500/20">
-                            <span className="text-emerald-400">Remaining</span>
-                            <span className="font-semibold text-emerald-400">$25,500</span>
+                        <div className="flex justify-between items-center p-4 bg-emerald-50 dark:bg-emerald-900/20 rounded-lg border border-emerald-200 dark:border-emerald-800">
+                            <span className="text-base text-emerald-700 dark:text-emerald-400 font-semibold">Remaining</span>
+                            <span className="text-lg font-bold text-emerald-700 dark:text-emerald-400">$25,500</span>
                         </div>
                     </div>
                 </div>
 
-                <div className="bg-gradient-to-br from-slate-800/70 to-slate-900/70 backdrop-blur-xl rounded-2xl border border-slate-700/50 p-8 cursor-pointer hover:border-blue-500/50 hover:shadow-xl hover:shadow-blue-500/10 transition-all duration-300"
+                {/* Cost Distribution Card */}
+                <div className="bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 p-8 cursor-pointer hover:border-blue-500 hover:shadow-lg transition-all duration-200"
                     onClick={() => push({ type: 'cost-categories', data: { title: 'Cost Category Breakdown' }, id: 'category-breakdown' } as Omit<DrilldownLevel, "timestamp">)}>
                     <div className="flex items-start justify-between mb-6">
-                        <h3 className="text-lg font-semibold text-white">Cost Distribution by Category</h3>
-                        <ChartLine className="w-5 h-5 text-slate-400" />
+                        <h3 className="text-xl font-semibold text-slate-900 dark:text-slate-100">Cost Distribution by Category</h3>
+                        <ChartLine className="w-6 h-6 text-slate-500 dark:text-slate-400" />
                     </div>
-                    <div className="space-y-4">
+                    <div className="space-y-5">
                         <div className="space-y-2">
-                            <div className="flex justify-between text-sm">
-                                <span className="text-slate-300">Fuel</span>
-                                <span className="font-semibold text-white">43.6% <span className="text-amber-400 text-xs">↑</span></span>
+                            <div className="flex justify-between text-base">
+                                <span className="text-slate-700 dark:text-slate-300 font-medium">Fuel</span>
+                                <span className="font-bold text-slate-900 dark:text-slate-100">43.6% <span className="text-amber-600 text-sm">↑</span></span>
                             </div>
-                            <div className="w-full bg-slate-900/50 rounded-full h-2.5">
-                                <div className="bg-gradient-to-r from-amber-500 to-amber-400 h-2.5 rounded-full" style={{ width: '43.6%' }}></div>
+                            <div className="w-full bg-slate-200 dark:bg-slate-700 rounded-full h-3">
+                                <div className="bg-amber-600 h-3 rounded-full transition-all duration-500" style={{ width: '43.6%' }}></div>
                             </div>
                         </div>
                         <div className="space-y-2">
-                            <div className="flex justify-between text-sm">
-                                <span className="text-slate-300">Maintenance</span>
-                                <span className="font-semibold text-white">31.4% <span className="text-emerald-400 text-xs">↓</span></span>
+                            <div className="flex justify-between text-base">
+                                <span className="text-slate-700 dark:text-slate-300 font-medium">Maintenance</span>
+                                <span className="font-bold text-slate-900 dark:text-slate-100">31.4% <span className="text-emerald-600 text-sm">↓</span></span>
                             </div>
-                            <div className="w-full bg-slate-900/50 rounded-full h-2.5">
-                                <div className="bg-gradient-to-r from-blue-500 to-blue-400 h-2.5 rounded-full" style={{ width: '31.4%' }}></div>
-                            </div>
-                        </div>
-                        <div className="space-y-2">
-                            <div className="flex justify-between text-sm">
-                                <span className="text-slate-300">Insurance</span>
-                                <span className="font-semibold text-white">15.2%</span>
-                            </div>
-                            <div className="w-full bg-slate-900/50 rounded-full h-2.5">
-                                <div className="bg-gradient-to-r from-purple-500 to-purple-400 h-2.5 rounded-full" style={{ width: '15.2%' }}></div>
+                            <div className="w-full bg-slate-200 dark:bg-slate-700 rounded-full h-3">
+                                <div className="bg-blue-600 h-3 rounded-full transition-all duration-500" style={{ width: '31.4%' }}></div>
                             </div>
                         </div>
                         <div className="space-y-2">
-                            <div className="flex justify-between text-sm">
-                                <span className="text-slate-300">Other</span>
-                                <span className="font-semibold text-white">9.8%</span>
+                            <div className="flex justify-between text-base">
+                                <span className="text-slate-700 dark:text-slate-300 font-medium">Insurance</span>
+                                <span className="font-bold text-slate-900 dark:text-slate-100">15.2%</span>
                             </div>
-                            <div className="w-full bg-slate-900/50 rounded-full h-2.5">
-                                <div className="bg-gradient-to-r from-slate-500 to-slate-400 h-2.5 rounded-full" style={{ width: '9.8%' }}></div>
+                            <div className="w-full bg-slate-200 dark:bg-slate-700 rounded-full h-3">
+                                <div className="bg-purple-600 h-3 rounded-full transition-all duration-500" style={{ width: '15.2%' }}></div>
+                            </div>
+                        </div>
+                        <div className="space-y-2">
+                            <div className="flex justify-between text-base">
+                                <span className="text-slate-700 dark:text-slate-300 font-medium">Other</span>
+                                <span className="font-bold text-slate-900 dark:text-slate-100">9.8%</span>
+                            </div>
+                            <div className="w-full bg-slate-200 dark:bg-slate-700 rounded-full h-3">
+                                <div className="bg-slate-500 h-3 rounded-full transition-all duration-500" style={{ width: '9.8%' }}></div>
                             </div>
                         </div>
                     </div>
@@ -284,18 +285,18 @@ function BillingReportsContent() {
     const { push } = useDrilldown()
 
     return (
-        <div className="p-8 space-y-8 bg-gradient-to-b from-slate-900/50 via-transparent to-transparent">
+        <div className="p-8 space-y-8 bg-slate-50 dark:bg-slate-900">
             {/* Header Section */}
             <div className="flex items-center justify-between">
                 <div>
-                    <h2 className="text-3xl font-bold text-white mb-2">Billing & Revenue Reports</h2>
-                    <p className="text-slate-400">Accounts receivable, invoice management, and revenue analytics</p>
+                    <h2 className="text-3xl font-bold text-slate-900 dark:text-slate-100 mb-2">Billing & Revenue Reports</h2>
+                    <p className="text-base text-slate-600 dark:text-slate-400">Accounts receivable, invoice management, and revenue analytics</p>
                 </div>
-                <div className="flex gap-2">
-                    <button className="px-4 py-2 bg-slate-800/60 hover:bg-slate-700/60 text-slate-300 rounded-lg border border-slate-700/50 transition-all text-sm font-medium">
+                <div className="flex gap-3">
+                    <button className="px-5 py-2.5 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 rounded-lg border border-slate-300 dark:border-slate-600 transition-all text-sm font-medium shadow-sm">
                         Generate Invoice
                     </button>
-                    <button className="px-4 py-2 bg-emerald-600/90 hover:bg-emerald-500 text-white rounded-lg transition-all text-sm font-medium shadow-lg shadow-emerald-500/20">
+                    <button className="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg transition-all text-sm font-medium shadow-sm">
                         Billing Report
                     </button>
                 </div>
@@ -350,72 +351,75 @@ function BillingReportsContent() {
 
             {/* Detailed Analysis Cards */}
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                <div className="bg-gradient-to-br from-slate-800/70 to-slate-900/70 backdrop-blur-xl rounded-2xl border border-slate-700/50 p-8 cursor-pointer hover:border-blue-500/50 hover:shadow-xl hover:shadow-blue-500/10 transition-all duration-300"
+                {/* Collection Performance */}
+                <div className="bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 p-8 cursor-pointer hover:border-blue-500 hover:shadow-lg transition-all duration-200"
                     onClick={() => push({ type: 'billing-cycle', data: { title: 'Billing Cycle Performance' }, id: 'billing-cycle' } as Omit<DrilldownLevel, "timestamp">)}>
                     <div className="flex items-start justify-between mb-6">
-                        <h3 className="text-lg font-semibold text-white">Collection Performance</h3>
-                        <Receipt className="w-5 h-5 text-slate-400" />
+                        <h3 className="text-xl font-semibold text-slate-900 dark:text-slate-100">Collection Performance</h3>
+                        <Receipt className="w-6 h-6 text-slate-500 dark:text-slate-400" />
                     </div>
                     <div className="flex items-center justify-center mb-6">
                         <ProgressRing progress={87} color="blue" label="87%" sublabel="collected on time" />
                     </div>
-                    <div className="mt-4 p-4 bg-blue-500/10 rounded-lg border border-blue-500/20">
-                        <p className="text-xs text-blue-400 font-medium">Above industry average of 75%</p>
+                    <div className="mt-4 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
+                        <p className="text-sm text-blue-700 dark:text-blue-400 font-semibold">Above industry average of 75%</p>
                     </div>
                 </div>
 
-                <div className="bg-gradient-to-br from-slate-800/70 to-slate-900/70 backdrop-blur-xl rounded-2xl border border-slate-700/50 p-8 cursor-pointer hover:border-blue-500/50 hover:shadow-xl hover:shadow-blue-500/10 transition-all duration-300"
+                {/* Revenue Growth */}
+                <div className="bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 p-8 cursor-pointer hover:border-blue-500 hover:shadow-lg transition-all duration-200"
                     onClick={() => push({ type: 'revenue-trend', data: { title: 'Revenue Trends' }, id: 'revenue-trend' } as Omit<DrilldownLevel, "timestamp">)}>
                     <div className="flex items-start justify-between mb-6">
-                        <h3 className="text-lg font-semibold text-white">Revenue Growth</h3>
-                        <TrendUp className="w-5 h-5 text-emerald-400" />
+                        <h3 className="text-xl font-semibold text-slate-900 dark:text-slate-100">Revenue Growth</h3>
+                        <TrendUp className="w-6 h-6 text-emerald-600" />
                     </div>
                     <div className="space-y-4">
-                        <div className="p-4 bg-slate-900/50 rounded-lg">
+                        <div className="p-4 bg-slate-50 dark:bg-slate-900/50 rounded-lg">
                             <div className="flex justify-between items-center mb-1">
-                                <span className="text-sm text-slate-400">This Quarter</span>
-                                <span className="text-xs text-emerald-400 font-medium">↑ 12%</span>
+                                <span className="text-base text-slate-600 dark:text-slate-400 font-medium">This Quarter</span>
+                                <span className="text-sm text-emerald-600 dark:text-emerald-400 font-bold">↑ 12%</span>
                             </div>
-                            <span className="text-2xl font-bold text-white">$1.32M</span>
+                            <span className="text-3xl font-bold text-slate-900 dark:text-slate-100">$1.32M</span>
                         </div>
-                        <div className="p-4 bg-slate-900/50 rounded-lg">
-                            <span className="text-sm text-slate-400 block mb-1">Last Quarter</span>
-                            <span className="text-2xl font-bold text-slate-300">$1.18M</span>
+                        <div className="p-4 bg-slate-50 dark:bg-slate-900/50 rounded-lg">
+                            <span className="text-base text-slate-600 dark:text-slate-400 font-medium block mb-1">Last Quarter</span>
+                            <span className="text-3xl font-bold text-slate-700 dark:text-slate-300">$1.18M</span>
                         </div>
-                        <div className="p-4 bg-emerald-500/10 rounded-lg border border-emerald-500/20">
-                            <span className="text-sm text-emerald-400 block mb-1">YoY Growth</span>
-                            <span className="text-2xl font-bold text-emerald-400">+15.8%</span>
+                        <div className="p-4 bg-emerald-50 dark:bg-emerald-900/20 rounded-lg border border-emerald-200 dark:border-emerald-800">
+                            <span className="text-base text-emerald-700 dark:text-emerald-400 font-semibold block mb-1">YoY Growth</span>
+                            <span className="text-3xl font-bold text-emerald-600 dark:text-emerald-400">+15.8%</span>
                         </div>
                     </div>
                 </div>
 
-                <div className="bg-gradient-to-br from-slate-800/70 to-slate-900/70 backdrop-blur-xl rounded-2xl border border-slate-700/50 p-8 cursor-pointer hover:border-blue-500/50 hover:shadow-xl hover:shadow-blue-500/10 transition-all duration-300"
+                {/* Top Customers */}
+                <div className="bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 p-8 cursor-pointer hover:border-blue-500 hover:shadow-lg transition-all duration-200"
                     onClick={() => push({ type: 'top-customers', data: { title: 'Top Revenue Customers' }, id: 'top-customers' } as Omit<DrilldownLevel, "timestamp">)}>
                     <div className="flex items-start justify-between mb-6">
-                        <h3 className="text-lg font-semibold text-white">Top Customers</h3>
-                        <Users className="w-5 h-5 text-slate-400" />
+                        <h3 className="text-xl font-semibold text-slate-900 dark:text-slate-100">Top Customers</h3>
+                        <Users className="w-6 h-6 text-slate-500 dark:text-slate-400" />
                     </div>
-                    <div className="space-y-3">
-                        <div className="flex items-center justify-between p-3 bg-gradient-to-r from-amber-500/10 to-transparent rounded-lg border-l-2 border-amber-500">
+                    <div className="space-y-4">
+                        <div className="flex items-center justify-between p-4 bg-amber-50 dark:bg-amber-900/20 rounded-lg border-l-4 border-amber-600">
                             <div>
-                                <div className="text-sm font-medium text-white">Customer A</div>
-                                <div className="text-xs text-slate-400">42 invoices</div>
+                                <div className="text-base font-semibold text-slate-900 dark:text-slate-100">Customer A</div>
+                                <div className="text-sm text-slate-600 dark:text-slate-400">42 invoices</div>
                             </div>
-                            <span className="text-lg font-bold text-amber-400">$89.2K</span>
+                            <span className="text-xl font-bold text-amber-600">$89.2K</span>
                         </div>
-                        <div className="flex items-center justify-between p-3 bg-gradient-to-r from-blue-500/10 to-transparent rounded-lg border-l-2 border-blue-500">
+                        <div className="flex items-center justify-between p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg border-l-4 border-blue-600">
                             <div>
-                                <div className="text-sm font-medium text-white">Customer B</div>
-                                <div className="text-xs text-slate-400">28 invoices</div>
+                                <div className="text-base font-semibold text-slate-900 dark:text-slate-100">Customer B</div>
+                                <div className="text-sm text-slate-600 dark:text-slate-400">28 invoices</div>
                             </div>
-                            <span className="text-lg font-bold text-blue-400">$67.4K</span>
+                            <span className="text-xl font-bold text-blue-600">$67.4K</span>
                         </div>
-                        <div className="flex items-center justify-between p-3 bg-gradient-to-r from-purple-500/10 to-transparent rounded-lg border-l-2 border-purple-500">
+                        <div className="flex items-center justify-between p-4 bg-purple-50 dark:bg-purple-900/20 rounded-lg border-l-4 border-purple-600">
                             <div>
-                                <div className="text-sm font-medium text-white">Customer C</div>
-                                <div className="text-xs text-slate-400">19 invoices</div>
+                                <div className="text-base font-semibold text-slate-900 dark:text-slate-100">Customer C</div>
+                                <div className="text-sm text-slate-600 dark:text-slate-400">19 invoices</div>
                             </div>
-                            <span className="text-lg font-bold text-purple-400">$54.1K</span>
+                            <span className="text-xl font-bold text-purple-600">$54.1K</span>
                         </div>
                     </div>
                 </div>
@@ -425,25 +429,25 @@ function BillingReportsContent() {
 }
 
 /**
- * Budget Tracking Tab
+ * Budget Tracking Tab - PROFESSIONALLY REDESIGNED
  * Budget allocation, forecasting, and departmental spending with comprehensive data visualizations
  */
 function BudgetTrackingContent() {
     const { push } = useDrilldown()
 
     return (
-        <div className="p-8 space-y-8 bg-gradient-to-b from-slate-900/50 via-transparent to-transparent">
+        <div className="p-8 space-y-8 bg-slate-50 dark:bg-slate-900">
             {/* Header Section */}
             <div className="flex items-center justify-between">
                 <div>
-                    <h2 className="text-3xl font-bold text-white mb-2">Budget Tracking & Forecasting</h2>
-                    <p className="text-slate-400">Real-time budget monitoring, variance analysis, and predictive forecasting with interactive visualizations</p>
+                    <h2 className="text-3xl font-bold text-slate-900 dark:text-slate-100 mb-2">Budget Tracking & Forecasting</h2>
+                    <p className="text-base text-slate-600 dark:text-slate-400">Real-time budget monitoring, variance analysis, and predictive forecasting</p>
                 </div>
-                <div className="flex gap-2">
-                    <button className="px-4 py-2 bg-slate-800/60 hover:bg-slate-700/60 text-slate-300 rounded-lg border border-slate-700/50 transition-all text-sm font-medium">
+                <div className="flex gap-3">
+                    <button className="px-5 py-2.5 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 rounded-lg border border-slate-300 dark:border-slate-600 transition-all text-sm font-medium shadow-sm">
                         Adjust Budget
                     </button>
-                    <button className="px-4 py-2 bg-purple-600/90 hover:bg-purple-500 text-white rounded-lg transition-all text-sm font-medium shadow-lg shadow-purple-500/20">
+                    <button className="px-5 py-2.5 bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition-all text-sm font-medium shadow-sm">
                         Forecast Report
                     </button>
                 </div>
@@ -496,334 +500,262 @@ function BudgetTrackingContent() {
                 />
             </div>
 
-            {/* VISUALIZATION 1: Budget vs Actual Line Chart */}
-            <div className="bg-gradient-to-br from-slate-800/70 to-slate-900/70 backdrop-blur-xl rounded-2xl border border-slate-700/50 p-8 hover:border-blue-500/30 transition-all duration-300">
+            {/* CHART 1: Budget vs Actual Line Chart - PROFESSIONAL REDESIGN */}
+            <div className="bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 p-8 hover:border-blue-500 hover:shadow-lg transition-all duration-200">
                 <div className="flex items-start justify-between mb-6">
                     <div>
-                        <h3 className="text-lg font-semibold text-white mb-2">Budget vs Actual Spending</h3>
-                        <p className="text-sm text-slate-400">Monthly comparison showing budget adherence and variance</p>
+                        <h3 className="text-xl font-semibold text-slate-900 dark:text-slate-100 mb-1">Budget vs Actual Spending Trend</h3>
+                        <p className="text-base text-slate-600 dark:text-slate-400">Monthly comparison of budgeted and actual expenditures</p>
                     </div>
-                    <select className="px-3 py-2 bg-slate-900/50 text-slate-300 rounded-lg border border-slate-700/50 text-sm">
-                        <option>Last 8 Months</option>
-                        <option>Last 12 Months</option>
-                        <option>YTD</option>
-                    </select>
+                    <button
+                        className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg transition-colors"
+                        onClick={() => push({ type: 'budget-trend', data: { title: 'Budget Trend Analysis', period: 'ytd' }, id: 'budget-trend-detail' } as Omit<DrilldownLevel, "timestamp">)}
+                    >
+                        View Details
+                    </button>
                 </div>
-                <ResponsiveContainer width="100%" height={350}>
-                    <LineChart data={budgetTrendData} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
-                        <CartesianGrid strokeDasharray="3 3" stroke="#334155" opacity={0.3} />
-                        <XAxis dataKey="month" stroke="#94a3b8" style={{ fontSize: '12px' }} />
-                        <YAxis stroke="#94a3b8" style={{ fontSize: '12px' }} label={{ value: 'Amount ($K)', angle: -90, position: 'insideLeft', style: { fill: '#94a3b8', fontSize: '12px' } }} />
-                        <Tooltip content={<CustomTooltip />} />
-                        <Legend wrapperStyle={{ paddingTop: '20px', fontSize: '13px', color: '#cbd5e1' }} />
-                        <Line type="monotone" dataKey="budget" stroke={CHART_COLORS.primary} strokeWidth={3} dot={{ fill: CHART_COLORS.primary, r: 4 }} activeDot={{ r: 6 }} name="Budget" />
-                        <Line type="monotone" dataKey="actual" stroke={CHART_COLORS.success} strokeWidth={3} dot={{ fill: CHART_COLORS.success, r: 4 }} activeDot={{ r: 6 }} name="Actual" />
-                    </LineChart>
-                </ResponsiveContainer>
-                <div className="grid grid-cols-3 gap-4 mt-6 pt-6 border-t border-slate-700/50">
-                    <div className="text-center">
-                        <div className="text-sm text-slate-400 mb-1">Avg Budget</div>
-                        <div className="text-xl font-bold text-white">$310K</div>
-                    </div>
-                    <div className="text-center">
-                        <div className="text-sm text-slate-400 mb-1">Avg Actual</div>
-                        <div className="text-xl font-bold text-emerald-400">$294.6K</div>
-                    </div>
-                    <div className="text-center">
-                        <div className="text-sm text-slate-400 mb-1">Avg Variance</div>
-                        <div className="text-xl font-bold text-emerald-400">+$15.4K</div>
-                    </div>
+                <div className="h-80">
+                    <ResponsiveContainer width="100%" height="100%">
+                        <LineChart data={budgetTrendData} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
+                            <CartesianGrid strokeDasharray="3 3" stroke="#E2E8F0" className="dark:stroke-slate-700" />
+                            <XAxis
+                                dataKey="month"
+                                tick={{ fill: '#475569', fontSize: 14, fontWeight: 500 }}
+                                className="dark:fill-slate-400"
+                                axisLine={{ stroke: '#CBD5E1' }}
+                            />
+                            <YAxis
+                                tick={{ fill: '#475569', fontSize: 14, fontWeight: 500 }}
+                                className="dark:fill-slate-400"
+                                axisLine={{ stroke: '#CBD5E1' }}
+                                label={{ value: 'Amount ($K)', angle: -90, position: 'insideLeft', fill: '#475569', fontSize: 14, fontWeight: 600 }}
+                            />
+                            <Tooltip content={<CustomTooltip />} />
+                            <Legend
+                                wrapperStyle={{ paddingTop: '20px', fontSize: '14px', fontWeight: 600 }}
+                                iconType="square"
+                            />
+                            <Line
+                                type="monotone"
+                                dataKey="budget"
+                                stroke={CHART_COLORS.primary}
+                                strokeWidth={3}
+                                name="Budget"
+                                dot={{ fill: CHART_COLORS.primary, r: 5 }}
+                                activeDot={{ r: 7 }}
+                            />
+                            <Line
+                                type="monotone"
+                                dataKey="actual"
+                                stroke={CHART_COLORS.success}
+                                strokeWidth={3}
+                                name="Actual"
+                                dot={{ fill: CHART_COLORS.success, r: 5 }}
+                                activeDot={{ r: 7 }}
+                            />
+                        </LineChart>
+                    </ResponsiveContainer>
                 </div>
             </div>
 
-            {/* VISUALIZATION 2 & 3: Donut Chart and Area Chart Side-by-Side */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                {/* VISUALIZATION 2: Department Budget Allocation Donut Chart */}
-                <div className="bg-gradient-to-br from-slate-800/70 to-slate-900/70 backdrop-blur-xl rounded-2xl border border-slate-700/50 p-8 hover:border-purple-500/30 transition-all duration-300">
+            {/* CHART 2 & 3: Department Budget Allocation (Donut) + Monthly Spending (Area) */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                {/* Department Budget Donut Chart */}
+                <div className="bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 p-8">
                     <div className="flex items-start justify-between mb-6">
                         <div>
-                            <h3 className="text-lg font-semibold text-white mb-2">Budget Allocation by Department</h3>
-                            <p className="text-sm text-slate-400">Annual budget distribution across departments</p>
+                            <h3 className="text-xl font-semibold text-slate-900 dark:text-slate-100 mb-1">Department Budget Allocation</h3>
+                            <p className="text-base text-slate-600 dark:text-slate-400">Annual budget distribution by department</p>
                         </div>
                     </div>
-                    <ResponsiveContainer width="100%" height={300}>
-                        <PieChart>
-                            <Pie
-                                data={departmentBudgetData}
-                                cx="50%"
-                                cy="50%"
-                                innerRadius={80}
-                                outerRadius={120}
-                                paddingAngle={2}
-                                dataKey="value"
-                                label={({ name, percentage }) => `${name}: ${percentage}%`}
-                                labelLine={{stroke: '#64748b', strokeWidth: 1}}
-                            >
-                                {departmentBudgetData.map((entry, index) => (
-                                    <Cell key={`cell-${index}`} fill={entry.color} />
-                                ))}
-                            </Pie>
-                            <Tooltip content={({ active, payload }) => {
-                                if (active && payload && payload[0]) {
-                                    const data = payload[0].payload
-                                    return (
-                                        <div className="bg-slate-800/95 backdrop-blur-sm border border-slate-700/50 rounded-lg p-3 shadow-xl">
-                                            <p className="text-sm font-medium text-white mb-1">{data.name}</p>
-                                            <p className="text-xs text-slate-300">Budget: ${data.value}K</p>
-                                            <p className="text-xs text-slate-300">Percentage: {data.percentage}%</p>
-                                        </div>
-                                    )
-                                }
-                                return null
-                            }} />
-                        </PieChart>
-                    </ResponsiveContainer>
-                    <div className="grid grid-cols-2 gap-3 mt-4">
+                    <div className="h-80 flex items-center justify-center">
+                        <ResponsiveContainer width="100%" height="100%">
+                            <PieChart>
+                                <Pie
+                                    data={departmentBudgetData}
+                                    cx="50%"
+                                    cy="50%"
+                                    innerRadius={70}
+                                    outerRadius={110}
+                                    fill="#8884d8"
+                                    paddingAngle={3}
+                                    dataKey="value"
+                                    label={(entry) => `${entry.percentage}%`}
+                                    labelLine={false}
+                                >
+                                    {departmentBudgetData.map((entry, index) => (
+                                        <Cell key={`cell-${index}`} fill={entry.color} />
+                                    ))}
+                                </Pie>
+                                <Tooltip content={<CustomTooltip />} />
+                                <Legend
+                                    verticalAlign="bottom"
+                                    height={36}
+                                    wrapperStyle={{ fontSize: '14px', fontWeight: 600 }}
+                                    iconType="square"
+                                />
+                            </PieChart>
+                        </ResponsiveContainer>
+                    </div>
+                    <div className="mt-6 grid grid-cols-2 gap-4">
                         {departmentBudgetData.map((dept, idx) => (
-                            <div key={idx} className="flex items-center gap-2 p-2 bg-slate-900/30 rounded-lg">
-                                <div className="w-3 h-3 rounded-full" style={{ backgroundColor: dept.color }} />
+                            <div key={idx} className="flex items-center gap-3 p-3 bg-slate-50 dark:bg-slate-900/50 rounded-lg">
+                                <div className="w-4 h-4 rounded" style={{ backgroundColor: dept.color }}></div>
                                 <div className="flex-1">
-                                    <div className="text-xs text-white font-medium">{dept.name}</div>
-                                    <div className="text-xs text-slate-400">${dept.value}K</div>
+                                    <div className="text-sm font-semibold text-slate-900 dark:text-slate-100">{dept.name}</div>
+                                    <div className="text-base font-bold text-slate-700 dark:text-slate-300">${dept.value}K</div>
                                 </div>
                             </div>
                         ))}
                     </div>
                 </div>
 
-                {/* VISUALIZATION 3: Spending Trends Area Chart */}
-                <div className="bg-gradient-to-br from-slate-800/70 to-slate-900/70 backdrop-blur-xl rounded-2xl border border-slate-700/50 p-8 hover:border-cyan-500/30 transition-all duration-300">
+                {/* Monthly Spending Area Chart */}
+                <div className="bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 p-8">
                     <div className="flex items-start justify-between mb-6">
                         <div>
-                            <h3 className="text-lg font-semibold text-white mb-2">Spending Trends by Category</h3>
-                            <p className="text-sm text-slate-400">6-month spending pattern across departments</p>
+                            <h3 className="text-xl font-semibold text-slate-900 dark:text-slate-100 mb-1">Monthly Spending Trends</h3>
+                            <p className="text-base text-slate-600 dark:text-slate-400">Department spending over time</p>
                         </div>
                     </div>
-                    <ResponsiveContainer width="100%" height={300}>
-                        <AreaChart data={spendingTrendData} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
-                            <defs>
-                                <linearGradient id="colorOperations" x1="0" y1="0" x2="0" y2="1">
-                                    <stop offset="5%" stopColor={CHART_COLORS.primary} stopOpacity={0.3}/>
-                                    <stop offset="95%" stopColor={CHART_COLORS.primary} stopOpacity={0}/>
-                                </linearGradient>
-                                <linearGradient id="colorMaintenance" x1="0" y1="0" x2="0" y2="1">
-                                    <stop offset="5%" stopColor={CHART_COLORS.success} stopOpacity={0.3}/>
-                                    <stop offset="95%" stopColor={CHART_COLORS.success} stopOpacity={0}/>
-                                </linearGradient>
-                                <linearGradient id="colorFleet" x1="0" y1="0" x2="0" y2="1">
-                                    <stop offset="5%" stopColor={CHART_COLORS.warning} stopOpacity={0.3}/>
-                                    <stop offset="95%" stopColor={CHART_COLORS.warning} stopOpacity={0}/>
-                                </linearGradient>
-                                <linearGradient id="colorAdmin" x1="0" y1="0" x2="0" y2="1">
-                                    <stop offset="5%" stopColor={CHART_COLORS.purple} stopOpacity={0.3}/>
-                                    <stop offset="95%" stopColor={CHART_COLORS.purple} stopOpacity={0}/>
-                                </linearGradient>
-                            </defs>
-                            <CartesianGrid strokeDasharray="3 3" stroke="#334155" opacity={0.3} />
-                            <XAxis dataKey="month" stroke="#94a3b8" style={{ fontSize: '12px' }} />
-                            <YAxis stroke="#94a3b8" style={{ fontSize: '12px' }} />
+                    <div className="h-80">
+                        <ResponsiveContainer width="100%" height="100%">
+                            <AreaChart data={spendingTrendData} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
+                                <defs>
+                                    <linearGradient id="colorOperations" x1="0" y1="0" x2="0" y2="1">
+                                        <stop offset="5%" stopColor={CHART_COLORS.primary} stopOpacity={0.3}/>
+                                        <stop offset="95%" stopColor={CHART_COLORS.primary} stopOpacity={0}/>
+                                    </linearGradient>
+                                    <linearGradient id="colorMaintenance" x1="0" y1="0" x2="0" y2="1">
+                                        <stop offset="5%" stopColor={CHART_COLORS.success} stopOpacity={0.3}/>
+                                        <stop offset="95%" stopColor={CHART_COLORS.success} stopOpacity={0}/>
+                                    </linearGradient>
+                                    <linearGradient id="colorFleet" x1="0" y1="0" x2="0" y2="1">
+                                        <stop offset="5%" stopColor={CHART_COLORS.warning} stopOpacity={0.3}/>
+                                        <stop offset="95%" stopColor={CHART_COLORS.warning} stopOpacity={0}/>
+                                    </linearGradient>
+                                    <linearGradient id="colorAdmin" x1="0" y1="0" x2="0" y2="1">
+                                        <stop offset="5%" stopColor={CHART_COLORS.purple} stopOpacity={0.3}/>
+                                        <stop offset="95%" stopColor={CHART_COLORS.purple} stopOpacity={0}/>
+                                    </linearGradient>
+                                </defs>
+                                <CartesianGrid strokeDasharray="3 3" stroke="#E2E8F0" className="dark:stroke-slate-700" />
+                                <XAxis
+                                    dataKey="month"
+                                    tick={{ fill: '#475569', fontSize: 14, fontWeight: 500 }}
+                                    className="dark:fill-slate-400"
+                                />
+                                <YAxis
+                                    tick={{ fill: '#475569', fontSize: 14, fontWeight: 500 }}
+                                    className="dark:fill-slate-400"
+                                    label={{ value: 'Spending ($K)', angle: -90, position: 'insideLeft', fill: '#475569', fontSize: 14, fontWeight: 600 }}
+                                />
+                                <Tooltip content={<CustomTooltip />} />
+                                <Legend
+                                    wrapperStyle={{ paddingTop: '10px', fontSize: '14px', fontWeight: 600 }}
+                                    iconType="square"
+                                />
+                                <Area type="monotone" dataKey="operations" stroke={CHART_COLORS.primary} strokeWidth={2} fillOpacity={1} fill="url(#colorOperations)" name="Operations" />
+                                <Area type="monotone" dataKey="maintenance" stroke={CHART_COLORS.success} strokeWidth={2} fillOpacity={1} fill="url(#colorMaintenance)" name="Maintenance" />
+                                <Area type="monotone" dataKey="fleet" stroke={CHART_COLORS.warning} strokeWidth={2} fillOpacity={1} fill="url(#colorFleet)" name="Fleet Services" />
+                                <Area type="monotone" dataKey="admin" stroke={CHART_COLORS.purple} strokeWidth={2} fillOpacity={1} fill="url(#colorAdmin)" name="Administration" />
+                            </AreaChart>
+                        </ResponsiveContainer>
+                    </div>
+                </div>
+            </div>
+
+            {/* CHART 4: Department Comparison Bar Chart */}
+            <div className="bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 p-8">
+                <div className="flex items-start justify-between mb-6">
+                    <div>
+                        <h3 className="text-xl font-semibold text-slate-900 dark:text-slate-100 mb-1">Department Budget Comparison</h3>
+                        <p className="text-base text-slate-600 dark:text-slate-400">Budgeted vs spent amounts by department</p>
+                    </div>
+                    <button
+                        className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg transition-colors"
+                        onClick={() => push({ type: 'department-comparison', data: { title: 'Detailed Department Analysis' }, id: 'dept-comparison' } as Omit<DrilldownLevel, "timestamp">)}
+                    >
+                        View Details
+                    </button>
+                </div>
+                <div className="h-96">
+                    <ResponsiveContainer width="100%" height="100%">
+                        <BarChart data={departmentComparisonData} margin={{ top: 20, right: 30, left: 20, bottom: 60 }}>
+                            <CartesianGrid strokeDasharray="3 3" stroke="#E2E8F0" className="dark:stroke-slate-700" />
+                            <XAxis
+                                dataKey="department"
+                                angle={-15}
+                                textAnchor="end"
+                                height={80}
+                                tick={{ fill: '#475569', fontSize: 14, fontWeight: 500 }}
+                                className="dark:fill-slate-400"
+                            />
+                            <YAxis
+                                tick={{ fill: '#475569', fontSize: 14, fontWeight: 500 }}
+                                className="dark:fill-slate-400"
+                                label={{ value: 'Amount ($K)', angle: -90, position: 'insideLeft', fill: '#475569', fontSize: 14, fontWeight: 600 }}
+                            />
                             <Tooltip content={<CustomTooltip />} />
-                            <Legend wrapperStyle={{ fontSize: '11px', paddingTop: '10px' }} />
-                            <Area type="monotone" dataKey="operations" stroke={CHART_COLORS.primary} fillOpacity={1} fill="url(#colorOperations)" name="Operations" />
-                            <Area type="monotone" dataKey="maintenance" stroke={CHART_COLORS.success} fillOpacity={1} fill="url(#colorMaintenance)" name="Maintenance" />
-                            <Area type="monotone" dataKey="fleet" stroke={CHART_COLORS.warning} fillOpacity={1} fill="url(#colorFleet)" name="Fleet" />
-                            <Area type="monotone" dataKey="admin" stroke={CHART_COLORS.purple} fillOpacity={1} fill="url(#colorAdmin)" name="Admin" />
-                        </AreaChart>
+                            <Legend
+                                wrapperStyle={{ paddingTop: '20px', fontSize: '14px', fontWeight: 600 }}
+                                iconType="square"
+                            />
+                            <Bar dataKey="budgeted" fill={CHART_COLORS.primary} name="Budgeted" radius={[4, 4, 0, 0]} />
+                            <Bar dataKey="spent" fill={CHART_COLORS.success} name="Spent" radius={[4, 4, 0, 0]} />
+                            <Bar dataKey="remaining" fill={CHART_COLORS.slate} name="Remaining" radius={[4, 4, 0, 0]} />
+                        </BarChart>
                     </ResponsiveContainer>
                 </div>
             </div>
 
-            {/* VISUALIZATION 4: Department Comparison Bar Chart */}
-            <div className="bg-gradient-to-br from-slate-800/70 to-slate-900/70 backdrop-blur-xl rounded-2xl border border-slate-700/50 p-8 hover:border-emerald-500/30 transition-all duration-300">
-                <div className="flex items-start justify-between mb-6">
-                    <div>
-                        <h3 className="text-lg font-semibold text-white mb-2">Department Spending Comparison</h3>
-                        <p className="text-sm text-slate-400">Budgeted vs spent vs remaining by department</p>
+            {/* Budget Summary Cards */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div className="bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 p-6">
+                    <div className="flex items-center gap-4 mb-4">
+                        <div className="p-3 bg-blue-100 dark:bg-blue-900/30 rounded-lg">
+                            <Wallet className="w-7 h-7 text-blue-600" />
+                        </div>
+                        <div>
+                            <p className="text-sm text-slate-600 dark:text-slate-400 font-medium">Total Allocated</p>
+                            <p className="text-2xl font-bold text-slate-900 dark:text-slate-100">$3.72M</p>
+                        </div>
                     </div>
-                </div>
-                <ResponsiveContainer width="100%" height={350}>
-                    <BarChart data={departmentComparisonData} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
-                        <CartesianGrid strokeDasharray="3 3" stroke="#334155" opacity={0.3} />
-                        <XAxis dataKey="department" stroke="#94a3b8" style={{ fontSize: '12px' }} />
-                        <YAxis stroke="#94a3b8" style={{ fontSize: '12px' }} label={{ value: 'Amount ($K)', angle: -90, position: 'insideLeft', style: { fill: '#94a3b8', fontSize: '12px' } }} />
-                        <Tooltip content={<CustomTooltip />} />
-                        <Legend wrapperStyle={{ paddingTop: '20px', fontSize: '13px' }} />
-                        <Bar dataKey="budgeted" fill={CHART_COLORS.primary} radius={[8, 8, 0, 0]} name="Budgeted" />
-                        <Bar dataKey="spent" fill={CHART_COLORS.warning} radius={[8, 8, 0, 0]} name="Spent" />
-                        <Bar dataKey="remaining" fill={CHART_COLORS.success} radius={[8, 8, 0, 0]} name="Remaining" />
-                    </BarChart>
-                </ResponsiveContainer>
-            </div>
-
-            {/* Detailed Department Budget Cards */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                <div className="bg-gradient-to-br from-slate-800/70 to-slate-900/70 backdrop-blur-xl rounded-2xl border border-slate-700/50 p-8 cursor-pointer hover:border-blue-500/50 hover:shadow-xl hover:shadow-blue-500/10 transition-all duration-300"
-                    onClick={() => push({ type: 'budget-utilization', data: { title: 'Budget Utilization by Department' }, id: 'dept-budget' } as Omit<DrilldownLevel, "timestamp">)}>
-                    <div className="flex items-start justify-between mb-6">
-                        <h3 className="text-lg font-semibold text-white">Department Budget Utilization</h3>
-                        <ChartBar className="w-5 h-5 text-slate-400" />
-                    </div>
-                    <div className="space-y-5">
-                        {/* Operations */}
-                        <div className="space-y-2">
-                            <div className="flex justify-between items-center">
-                                <div>
-                                    <span className="text-sm font-medium text-white">Operations</span>
-                                    <div className="text-xs text-slate-400 mt-1">$1.2M of $1.5M • 80% utilized</div>
-                                </div>
-                                <span className="text-xs px-2 py-1 bg-blue-500/20 text-blue-400 rounded-full">On Track</span>
-                            </div>
-                            <div className="w-full bg-slate-900/50 rounded-full h-3">
-                                <div className="bg-gradient-to-r from-blue-500 to-blue-400 h-3 rounded-full relative" style={{ width: '80%' }}>
-                                    <div className="absolute right-0 top-0 h-full w-1 bg-blue-300 rounded-r-full"></div>
-                                </div>
-                            </div>
-                            <div className="flex justify-between text-xs text-slate-500">
-                                <span>Remaining: $300K</span>
-                                <span>6 months left</span>
-                            </div>
-                        </div>
-
-                        {/* Maintenance */}
-                        <div className="space-y-2">
-                            <div className="flex justify-between items-center">
-                                <div>
-                                    <span className="text-sm font-medium text-white">Maintenance</span>
-                                    <div className="text-xs text-slate-400 mt-1">$890K of $1.0M • 89% utilized</div>
-                                </div>
-                                <span className="text-xs px-2 py-1 bg-emerald-500/20 text-emerald-400 rounded-full">Under Budget</span>
-                            </div>
-                            <div className="w-full bg-slate-900/50 rounded-full h-3">
-                                <div className="bg-gradient-to-r from-emerald-500 to-emerald-400 h-3 rounded-full relative" style={{ width: '89%' }}>
-                                    <div className="absolute right-0 top-0 h-full w-1 bg-emerald-300 rounded-r-full"></div>
-                                </div>
-                            </div>
-                            <div className="flex justify-between text-xs text-slate-500">
-                                <span>Remaining: $110K</span>
-                                <span>6 months left</span>
-                            </div>
-                        </div>
-
-                        {/* Fleet Services */}
-                        <div className="space-y-2">
-                            <div className="flex justify-between items-center">
-                                <div>
-                                    <span className="text-sm font-medium text-white">Fleet Services</span>
-                                    <div className="text-xs text-slate-400 mt-1">$720K of $800K • 90% utilized</div>
-                                </div>
-                                <span className="text-xs px-2 py-1 bg-amber-500/20 text-amber-400 rounded-full">Watch</span>
-                            </div>
-                            <div className="w-full bg-slate-900/50 rounded-full h-3">
-                                <div className="bg-gradient-to-r from-amber-500 to-amber-400 h-3 rounded-full relative" style={{ width: '90%' }}>
-                                    <div className="absolute right-0 top-0 h-full w-1 bg-amber-300 rounded-r-full"></div>
-                                </div>
-                            </div>
-                            <div className="flex justify-between text-xs text-slate-500">
-                                <span>Remaining: $80K</span>
-                                <span>6 months left</span>
-                            </div>
-                        </div>
-
-                        {/* Administration */}
-                        <div className="space-y-2">
-                            <div className="flex justify-between items-center">
-                                <div>
-                                    <span className="text-sm font-medium text-white">Administration</span>
-                                    <div className="text-xs text-slate-400 mt-1">$240K of $420K • 57% utilized</div>
-                                </div>
-                                <span className="text-xs px-2 py-1 bg-purple-500/20 text-purple-400 rounded-full">Ahead</span>
-                            </div>
-                            <div className="w-full bg-slate-900/50 rounded-full h-3">
-                                <div className="bg-gradient-to-r from-purple-500 to-purple-400 h-3 rounded-full relative" style={{ width: '57%' }}>
-                                    <div className="absolute right-0 top-0 h-full w-1 bg-purple-300 rounded-r-full"></div>
-                                </div>
-                            </div>
-                            <div className="flex justify-between text-xs text-slate-500">
-                                <span>Remaining: $180K</span>
-                                <span>6 months left</span>
-                            </div>
-                        </div>
+                    <div className="h-2 bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden">
+                        <div className="h-full bg-blue-600 rounded-full" style={{ width: '100%' }}></div>
                     </div>
                 </div>
 
-                <div className="bg-gradient-to-br from-slate-800/70 to-slate-900/70 backdrop-blur-xl rounded-2xl border border-slate-700/50 p-8 cursor-pointer hover:border-blue-500/50 hover:shadow-xl hover:shadow-blue-500/10 transition-all duration-300"
-                    onClick={() => push({ type: 'budget-forecast', data: { title: 'Budget Forecast Analysis' }, id: 'budget-forecast' } as Omit<DrilldownLevel, "timestamp">)}>
-                    <div className="flex items-start justify-between mb-6">
-                        <h3 className="text-lg font-semibold text-white">Predictive Forecast Analysis</h3>
-                        <span className="px-3 py-1 bg-emerald-500/20 text-emerald-400 rounded-full text-xs font-medium">94% Accurate</span>
-                    </div>
-                    <div className="flex items-center justify-center mb-6">
-                        <ProgressRing progress={94} color="green" label="94%" sublabel="forecast accuracy" />
-                    </div>
-                    <div className="space-y-3">
-                        <div className="p-4 bg-slate-900/50 rounded-lg">
-                            <div className="flex justify-between items-center mb-2">
-                                <span className="text-sm text-slate-400">Q2 2026 Projected Spend</span>
-                                <TrendUp className="w-4 h-4 text-emerald-400" />
-                            </div>
-                            <div className="text-2xl font-bold text-white mb-1">$932,000</div>
-                            <div className="text-xs text-slate-400">Based on rolling 90-day average</div>
+                <div className="bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 p-6">
+                    <div className="flex items-center gap-4 mb-4">
+                        <div className="p-3 bg-emerald-100 dark:bg-emerald-900/30 rounded-lg">
+                            <ChartBar className="w-7 h-7 text-emerald-600" />
                         </div>
-                        <div className="p-4 bg-slate-900/50 rounded-lg">
-                            <div className="flex justify-between items-center mb-2">
-                                <span className="text-sm text-slate-400">Budgeted Amount</span>
-                            </div>
-                            <div className="text-2xl font-bold text-slate-300 mb-1">$910,000</div>
-                            <div className="text-xs text-slate-400">Q2 allocation</div>
-                        </div>
-                        <div className="p-4 bg-amber-500/10 rounded-lg border border-amber-500/20">
-                            <div className="flex justify-between items-center mb-2">
-                                <span className="text-sm text-amber-400">Projected Variance</span>
-                                <span className="text-xs px-2 py-1 bg-amber-500/20 text-amber-300 rounded-full">+2.4%</span>
-                            </div>
-                            <div className="text-2xl font-bold text-amber-400 mb-1">+$22,000</div>
-                            <div className="text-xs text-amber-400/70">Consider budget reallocation or cost controls</div>
+                        <div>
+                            <p className="text-sm text-slate-600 dark:text-slate-400 font-medium">Utilized</p>
+                            <p className="text-2xl font-bold text-slate-900 dark:text-slate-100">$1.14M</p>
                         </div>
                     </div>
+                    <div className="h-2 bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden">
+                        <div className="h-full bg-emerald-600 rounded-full transition-all duration-500" style={{ width: '30.6%' }}></div>
+                    </div>
+                    <p className="text-sm text-slate-600 dark:text-slate-400 mt-2 font-medium">30.6% of annual budget</p>
                 </div>
-            </div>
 
-            {/* Monthly Trend Card */}
-            <div className="bg-gradient-to-br from-slate-800/70 to-slate-900/70 backdrop-blur-xl rounded-2xl border border-slate-700/50 p-8">
-                <div className="flex items-start justify-between mb-6">
-                    <div>
-                        <h3 className="text-lg font-semibold text-white mb-2">Monthly Spending Trend</h3>
-                        <p className="text-sm text-slate-400">Actual vs Budget comparison across all departments</p>
-                    </div>
-                    <select className="px-3 py-2 bg-slate-900/50 text-slate-300 rounded-lg border border-slate-700/50 text-sm">
-                        <option>Last 6 Months</option>
-                        <option>Last 12 Months</option>
-                        <option>YTD</option>
-                    </select>
-                </div>
-                <div className="grid grid-cols-6 gap-4">
-                    {[
-                        { month: 'Jan', actual: 285, budget: 310, status: 'good' },
-                        { month: 'Feb', actual: 302, budget: 310, status: 'warn' },
-                        { month: 'Mar', actual: 289, budget: 310, status: 'good' },
-                        { month: 'Apr', actual: 276, budget: 310, status: 'good' },
-                        { month: 'May', actual: 318, budget: 310, status: 'over' },
-                        { month: 'Jun', actual: 284, budget: 310, status: 'good' }
-                    ].map((item, idx) => (
-                        <div key={idx} className="space-y-2">
-                            <div className="text-xs font-medium text-slate-400 text-center">{item.month}</div>
-                            <div className="relative h-32 bg-slate-900/50 rounded-lg overflow-hidden">
-                                <div className="absolute bottom-0 w-full bg-gradient-to-t from-slate-700/50 to-slate-600/50"
-                                     style={{ height: `${(item.budget / 310) * 100}%` }}>
-                                    <div className="absolute top-0 right-0 left-0 h-0.5 bg-slate-500"></div>
-                                </div>
-                                <div className={`absolute bottom-0 w-full ${
-                                    item.status === 'good' ? 'bg-gradient-to-t from-emerald-500/70 to-emerald-400/70' :
-                                    item.status === 'warn' ? 'bg-gradient-to-t from-amber-500/70 to-amber-400/70' :
-                                    'bg-gradient-to-t from-red-500/70 to-red-400/70'
-                                }`} style={{ height: `${(item.actual / 310) * 100}%` }}></div>
-                            </div>
-                            <div className="text-center">
-                                <div className="text-xs font-semibold text-white">${item.actual}K</div>
-                                <div className="text-xs text-slate-500">of ${item.budget}K</div>
-                            </div>
+                <div className="bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 p-6">
+                    <div className="flex items-center gap-4 mb-4">
+                        <div className="p-3 bg-slate-100 dark:bg-slate-700 rounded-lg">
+                            <Coins className="w-7 h-7 text-slate-600 dark:text-slate-400" />
                         </div>
-                    ))}
+                        <div>
+                            <p className="text-sm text-slate-600 dark:text-slate-400 font-medium">Remaining</p>
+                            <p className="text-2xl font-bold text-slate-900 dark:text-slate-100">$2.58M</p>
+                        </div>
+                    </div>
+                    <div className="h-2 bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden">
+                        <div className="h-full bg-slate-500 rounded-full transition-all duration-500" style={{ width: '69.4%' }}></div>
+                    </div>
+                    <p className="text-sm text-slate-600 dark:text-slate-400 mt-2 font-medium">69.4% available</p>
                 </div>
             </div>
         </div>
@@ -832,25 +764,25 @@ function BudgetTrackingContent() {
 
 /**
  * Cost-Benefit Analysis Tab
- * ROI calculations, investment analysis, and decision support
+ * ROI calculations and investment analysis
  */
-function CostBenefitAnalysisContent() {
+function CostBenefitContent() {
     const { push } = useDrilldown()
 
     return (
-        <div className="p-8 space-y-8 bg-gradient-to-b from-slate-900/50 via-transparent to-transparent">
+        <div className="p-8 space-y-8 bg-slate-50 dark:bg-slate-900">
             {/* Header Section */}
             <div className="flex items-center justify-between">
                 <div>
-                    <h2 className="text-3xl font-bold text-white mb-2">Cost-Benefit Analysis & ROI</h2>
-                    <p className="text-slate-400">Investment evaluation, return on investment tracking, and capital project analysis</p>
+                    <h2 className="text-3xl font-bold text-slate-900 dark:text-slate-100 mb-2">Cost-Benefit Analysis & ROI</h2>
+                    <p className="text-base text-slate-600 dark:text-slate-400">Investment evaluation, return on investment, and efficiency metrics</p>
                 </div>
-                <div className="flex gap-2">
-                    <button className="px-4 py-2 bg-slate-800/60 hover:bg-slate-700/60 text-slate-300 rounded-lg border border-slate-700/50 transition-all text-sm font-medium">
+                <div className="flex gap-3">
+                    <button className="px-5 py-2.5 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 rounded-lg border border-slate-300 dark:border-slate-600 transition-all text-sm font-medium shadow-sm">
                         New Analysis
                     </button>
-                    <button className="px-4 py-2 bg-emerald-600/90 hover:bg-emerald-500 text-white rounded-lg transition-all text-sm font-medium shadow-lg shadow-emerald-500/20">
-                        ROI Report
+                    <button className="px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-all text-sm font-medium shadow-sm">
+                        Export Report
                     </button>
                 </div>
             </div>
@@ -858,265 +790,142 @@ function CostBenefitAnalysisContent() {
             {/* KPI Cards */}
             <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
                 <StatCard
-                    title="Active Projects"
-                    value="8"
-                    variant="primary"
-                    icon={<ChartLine className="w-6 h-6" />}
-                    onClick={() => push({
-                        type: 'active-projects',
-                        data: { title: 'Active Investment Projects' },
-                        id: 'active-projects'
-                    } as Omit<DrilldownLevel, "timestamp">)}
-                />
-                <StatCard
-                    title="Avg ROI"
-                    value="18.6%"
+                    title="Average ROI"
+                    value="18.4%"
                     variant="success"
                     icon={<TrendUp className="w-6 h-6" />}
                     trend={{ value: "+3.2%", direction: "up" }}
                     onClick={() => push({
                         type: 'roi-analysis',
-                        data: { title: 'ROI Analysis by Project' },
+                        data: { title: 'ROI Performance' },
                         id: 'roi-analysis'
                     } as Omit<DrilldownLevel, "timestamp">)}
                 />
                 <StatCard
-                    title="Avg Payback Period"
-                    value="2.1 yrs"
-                    variant="default"
-                    icon={<Clock className="w-6 h-6" />}
+                    title="Total Investments"
+                    value="$842K"
+                    variant="primary"
                     onClick={() => push({
-                        type: 'payback-analysis',
-                        data: { title: 'Payback Period Analysis' },
-                        id: 'payback-period'
+                        type: 'investments',
+                        data: { title: 'Investment Portfolio' },
+                        id: 'investments'
                     } as Omit<DrilldownLevel, "timestamp">)}
                 />
                 <StatCard
-                    title="Total NPV"
-                    value="$1.24M"
+                    title="Projected Savings"
+                    value="$156K"
                     variant="success"
+                    icon={<Coins className="w-6 h-6" />}
                     onClick={() => push({
-                        type: 'npv-analysis',
-                        data: { title: 'Net Present Value Analysis' },
-                        id: 'npv-analysis'
+                        type: 'projected-savings',
+                        data: { title: 'Projected Savings Analysis' },
+                        id: 'projected-savings'
+                    } as Omit<DrilldownLevel, "timestamp">)}
+                />
+                <StatCard
+                    title="Payback Period"
+                    value="2.4 yrs"
+                    variant="default"
+                    onClick={() => push({
+                        type: 'payback-period',
+                        data: { title: 'Payback Period Analysis' },
+                        id: 'payback'
                     } as Omit<DrilldownLevel, "timestamp">)}
                 />
             </div>
 
-            {/* Project ROI Analysis Cards */}
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                {/* EV Fleet Transition */}
-                <div className="bg-gradient-to-br from-slate-800/70 to-slate-900/70 backdrop-blur-xl rounded-2xl border border-slate-700/50 p-8 cursor-pointer hover:border-emerald-500/50 hover:shadow-xl hover:shadow-emerald-500/10 transition-all duration-300"
-                    onClick={() => push({ type: 'ev-transition', data: { title: 'EV Transition ROI Analysis' }, id: 'ev-roi' } as Omit<DrilldownLevel, "timestamp">)}>
+            {/* Analysis Cards */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                {/* Investment Performance */}
+                <div className="bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 p-8">
                     <div className="flex items-start justify-between mb-6">
-                        <div>
-                            <h3 className="text-lg font-semibold text-white mb-1">EV Fleet Transition</h3>
-                            <p className="text-xs text-slate-400">Capital Project 2026-001</p>
-                        </div>
-                        <span className="px-3 py-1 bg-emerald-500/20 text-emerald-400 rounded-full text-xs font-medium">High ROI</span>
+                        <h3 className="text-xl font-semibold text-slate-900 dark:text-slate-100">Top Performing Investments</h3>
+                        <TrendUp className="w-6 h-6 text-emerald-600" />
                     </div>
                     <div className="space-y-4">
-                        <div className="p-4 bg-slate-900/50 rounded-lg">
-                            <span className="text-sm text-slate-400 block mb-1">Total Investment</span>
-                            <span className="text-2xl font-bold text-white">$2.40M</span>
+                        <div className="p-4 bg-slate-50 dark:bg-slate-900/50 rounded-lg border-l-4 border-emerald-600">
+                            <div className="flex justify-between items-start mb-2">
+                                <div>
+                                    <h4 className="font-semibold text-slate-900 dark:text-slate-100">Fleet Electrification</h4>
+                                    <p className="text-sm text-slate-600 dark:text-slate-400">15 vehicles converted</p>
+                                </div>
+                                <span className="px-3 py-1 bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400 rounded-lg text-sm font-bold">24.3% ROI</span>
+                            </div>
+                            <div className="flex justify-between text-sm">
+                                <span className="text-slate-600 dark:text-slate-400 font-medium">Investment: $450K</span>
+                                <span className="text-emerald-600 dark:text-emerald-400 font-semibold">Annual Savings: $109K</span>
+                            </div>
                         </div>
-                        <div className="grid grid-cols-2 gap-3">
-                            <div className="p-3 bg-emerald-500/10 rounded-lg border border-emerald-500/20">
-                                <span className="text-xs text-emerald-400 block mb-1">Annual Savings</span>
-                                <span className="text-lg font-bold text-emerald-400">$420K</span>
+
+                        <div className="p-4 bg-slate-50 dark:bg-slate-900/50 rounded-lg border-l-4 border-blue-600">
+                            <div className="flex justify-between items-start mb-2">
+                                <div>
+                                    <h4 className="font-semibold text-slate-900 dark:text-slate-100">Telematics System</h4>
+                                    <p className="text-sm text-slate-600 dark:text-slate-400">All vehicles equipped</p>
+                                </div>
+                                <span className="px-3 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 rounded-lg text-sm font-bold">19.8% ROI</span>
                             </div>
-                            <div className="p-3 bg-blue-500/10 rounded-lg border border-blue-500/20">
-                                <span className="text-xs text-blue-400 block mb-1">ROI</span>
-                                <span className="text-lg font-bold text-blue-400">22.3%</span>
+                            <div className="flex justify-between text-sm">
+                                <span className="text-slate-600 dark:text-slate-400 font-medium">Investment: $180K</span>
+                                <span className="text-blue-600 dark:text-blue-400 font-semibold">Annual Savings: $35.6K</span>
                             </div>
                         </div>
-                        <div className="pt-3 border-t border-slate-700/50">
-                            <div className="flex justify-between items-center">
-                                <span className="text-sm text-slate-400">Payback Period</span>
-                                <span className="text-sm font-semibold text-white">5.7 years</span>
+
+                        <div className="p-4 bg-slate-50 dark:bg-slate-900/50 rounded-lg border-l-4 border-amber-600">
+                            <div className="flex justify-between items-start mb-2">
+                                <div>
+                                    <h4 className="font-semibold text-slate-900 dark:text-slate-100">Preventive Maintenance Program</h4>
+                                    <p className="text-sm text-slate-600 dark:text-slate-400">Reduced breakdowns 42%</p>
+                                </div>
+                                <span className="px-3 py-1 bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400 rounded-lg text-sm font-bold">15.2% ROI</span>
                             </div>
-                            <div className="flex justify-between items-center mt-2">
-                                <span className="text-sm text-slate-400">NPV @ 7%</span>
-                                <span className="text-sm font-semibold text-emerald-400">+$890K</span>
+                            <div className="flex justify-between text-sm">
+                                <span className="text-slate-600 dark:text-slate-400 font-medium">Investment: $75K</span>
+                                <span className="text-amber-600 dark:text-amber-400 font-semibold">Annual Savings: $11.4K</span>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                {/* Telematics System */}
-                <div className="bg-gradient-to-br from-slate-800/70 to-slate-900/70 backdrop-blur-xl rounded-2xl border border-slate-700/50 p-8 cursor-pointer hover:border-blue-500/50 hover:shadow-xl hover:shadow-blue-500/10 transition-all duration-300"
-                    onClick={() => push({ type: 'telematics', data: { title: 'Telematics Implementation ROI' }, id: 'telematics-roi' } as Omit<DrilldownLevel, "timestamp">)}>
+                {/* Cost Savings Breakdown */}
+                <div className="bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 p-8">
                     <div className="flex items-start justify-between mb-6">
-                        <div>
-                            <h3 className="text-lg font-semibold text-white mb-1">Telematics System</h3>
-                            <p className="text-xs text-slate-400">Capital Project 2026-005</p>
-                        </div>
-                        <span className="px-3 py-1 bg-blue-500/20 text-blue-400 rounded-full text-xs font-medium flex items-center gap-1">
-                            <Sparkle className="w-3 h-3" />
-                            Excellent
-                        </span>
-                    </div>
-                    <div className="space-y-4">
-                        <div className="p-4 bg-slate-900/50 rounded-lg">
-                            <span className="text-sm text-slate-400 block mb-1">Total Investment</span>
-                            <span className="text-2xl font-bold text-white">$180K</span>
-                        </div>
-                        <div className="grid grid-cols-2 gap-3">
-                            <div className="p-3 bg-emerald-500/10 rounded-lg border border-emerald-500/20">
-                                <span className="text-xs text-emerald-400 block mb-1">Annual Savings</span>
-                                <span className="text-lg font-bold text-emerald-400">$94K</span>
-                            </div>
-                            <div className="p-3 bg-blue-500/10 rounded-lg border border-blue-500/20">
-                                <span className="text-xs text-blue-400 block mb-1">ROI</span>
-                                <span className="text-lg font-bold text-blue-400">52.2%</span>
-                            </div>
-                        </div>
-                        <div className="pt-3 border-t border-slate-700/50">
-                            <div className="flex justify-between items-center">
-                                <span className="text-sm text-slate-400">Payback Period</span>
-                                <span className="text-sm font-semibold text-white">1.9 years</span>
-                            </div>
-                            <div className="flex justify-between items-center mt-2">
-                                <span className="text-sm text-slate-400">NPV @ 7%</span>
-                                <span className="text-sm font-semibold text-emerald-400">+$245K</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                {/* Preventive Maintenance Program */}
-                <div className="bg-gradient-to-br from-slate-800/70 to-slate-900/70 backdrop-blur-xl rounded-2xl border border-slate-700/50 p-8 cursor-pointer hover:border-purple-500/50 hover:shadow-xl hover:shadow-purple-500/10 transition-all duration-300"
-                    onClick={() => push({ type: 'preventive-maintenance', data: { title: 'Preventive Maintenance Program ROI' }, id: 'pm-roi' } as Omit<DrilldownLevel, "timestamp">)}>
-                    <div className="flex items-start justify-between mb-6">
-                        <div>
-                            <h3 className="text-lg font-semibold text-white mb-1">Preventive Maintenance</h3>
-                            <p className="text-xs text-slate-400">Operations Initiative</p>
-                        </div>
-                        <span className="px-3 py-1 bg-purple-500/20 text-purple-400 rounded-full text-xs font-medium">Strong</span>
-                    </div>
-                    <div className="space-y-4">
-                        <div className="p-4 bg-slate-900/50 rounded-lg">
-                            <span className="text-sm text-slate-400 block mb-1">Total Investment</span>
-                            <span className="text-2xl font-bold text-white">$320K</span>
-                        </div>
-                        <div className="grid grid-cols-2 gap-3">
-                            <div className="p-3 bg-emerald-500/10 rounded-lg border border-emerald-500/20">
-                                <span className="text-xs text-emerald-400 block mb-1">Annual Savings</span>
-                                <span className="text-lg font-bold text-emerald-400">$156K</span>
-                            </div>
-                            <div className="p-3 bg-purple-500/10 rounded-lg border border-purple-500/20">
-                                <span className="text-xs text-purple-400 block mb-1">ROI</span>
-                                <span className="text-lg font-bold text-purple-400">48.8%</span>
-                            </div>
-                        </div>
-                        <div className="pt-3 border-t border-slate-700/50">
-                            <div className="flex justify-between items-center">
-                                <span className="text-sm text-slate-400">Payback Period</span>
-                                <span className="text-sm font-semibold text-white">2.1 years</span>
-                            </div>
-                            <div className="flex justify-between items-center mt-2">
-                                <span className="text-sm text-slate-400">NPV @ 7%</span>
-                                <span className="text-sm font-semibold text-emerald-400">+$412K</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            {/* Portfolio Summary */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                <div className="bg-gradient-to-br from-slate-800/70 to-slate-900/70 backdrop-blur-xl rounded-2xl border border-slate-700/50 p-8">
-                    <div className="flex items-start justify-between mb-6">
-                        <h3 className="text-lg font-semibold text-white">Investment Portfolio Summary</h3>
-                        <ChartBar className="w-5 h-5 text-slate-400" />
+                        <h3 className="text-xl font-semibold text-slate-900 dark:text-slate-100">Annual Cost Savings</h3>
+                        <Sparkle className="w-6 h-6 text-blue-600" />
                     </div>
                     <div className="space-y-5">
-                        <div className="space-y-2">
-                            <div className="flex justify-between items-center">
-                                <span className="text-sm text-slate-300">Total Invested Capital</span>
-                                <span className="text-lg font-bold text-white">$3.72M</span>
+                        <div>
+                            <div className="flex justify-between mb-2">
+                                <span className="text-base font-medium text-slate-700 dark:text-slate-300">Fuel Efficiency</span>
+                                <span className="text-lg font-bold text-slate-900 dark:text-slate-100">$89K</span>
                             </div>
-                            <div className="w-full bg-slate-900/50 rounded-full h-2">
-                                <div className="bg-gradient-to-r from-blue-500 to-blue-400 h-2 rounded-full" style={{ width: '100%' }}></div>
-                            </div>
-                        </div>
-                        <div className="space-y-2">
-                            <div className="flex justify-between items-center">
-                                <span className="text-sm text-slate-300">Projected Annual Return</span>
-                                <span className="text-lg font-bold text-emerald-400">$692K</span>
-                            </div>
-                            <div className="w-full bg-slate-900/50 rounded-full h-2">
-                                <div className="bg-gradient-to-r from-emerald-500 to-emerald-400 h-2 rounded-full" style={{ width: '100%' }}></div>
+                            <div className="h-3 bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden">
+                                <div className="h-full bg-emerald-600 rounded-full" style={{ width: '57%' }}></div>
                             </div>
                         </div>
-                        <div className="pt-4 border-t border-slate-700/50">
-                            <div className="grid grid-cols-3 gap-4">
-                                <div className="text-center">
-                                    <div className="text-2xl font-bold text-white mb-1">18.6%</div>
-                                    <div className="text-xs text-slate-400">Avg ROI</div>
-                                </div>
-                                <div className="text-center">
-                                    <div className="text-2xl font-bold text-white mb-1">3.2</div>
-                                    <div className="text-xs text-slate-400">Avg Payback (yrs)</div>
-                                </div>
-                                <div className="text-center">
-                                    <div className="text-2xl font-bold text-emerald-400 mb-1">$1.55M</div>
-                                    <div className="text-xs text-slate-400">Total NPV</div>
-                                </div>
+                        <div>
+                            <div className="flex justify-between mb-2">
+                                <span className="text-base font-medium text-slate-700 dark:text-slate-300">Maintenance Optimization</span>
+                                <span className="text-lg font-bold text-slate-900 dark:text-slate-100">$42K</span>
+                            </div>
+                            <div className="h-3 bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden">
+                                <div className="h-full bg-blue-600 rounded-full" style={{ width: '27%' }}></div>
+                            </div>
+                        </div>
+                        <div>
+                            <div className="flex justify-between mb-2">
+                                <span className="text-base font-medium text-slate-700 dark:text-slate-300">Route Optimization</span>
+                                <span className="text-lg font-bold text-slate-900 dark:text-slate-100">$25K</span>
+                            </div>
+                            <div className="h-3 bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden">
+                                <div className="h-full bg-purple-600 rounded-full" style={{ width: '16%' }}></div>
                             </div>
                         </div>
                     </div>
-                </div>
-
-                <div className="bg-gradient-to-br from-slate-800/70 to-slate-900/70 backdrop-blur-xl rounded-2xl border border-slate-700/50 p-8">
-                    <div className="flex items-start justify-between mb-6">
-                        <h3 className="text-lg font-semibold text-white">Recent Project Approvals</h3>
-                        <span className="text-xs px-2 py-1 bg-blue-500/20 text-blue-400 rounded-full">3 this month</span>
-                    </div>
-                    <div className="space-y-4">
-                        <div className="flex items-start justify-between p-4 bg-gradient-to-r from-emerald-500/10 to-transparent rounded-lg border-l-2 border-emerald-500">
-                            <div className="flex-1">
-                                <div className="flex items-center gap-2 mb-1">
-                                    <CheckCircle className="w-4 h-4 text-emerald-400" weight="fill" />
-                                    <span className="text-sm font-medium text-white">Fleet Modernization</span>
-                                </div>
-                                <div className="text-xs text-slate-400 mb-2">Approved Dec 15, 2025</div>
-                                <div className="flex gap-3 text-xs">
-                                    <span className="text-slate-400">Investment: <span className="text-white font-medium">$2.5M</span></span>
-                                    <span className="text-slate-400">ROI: <span className="text-emerald-400 font-medium">21.4%</span></span>
-                                </div>
-                            </div>
-                            <ArrowRight className="w-4 h-4 text-slate-600" />
-                        </div>
-
-                        <div className="flex items-start justify-between p-4 bg-gradient-to-r from-blue-500/10 to-transparent rounded-lg border-l-2 border-blue-500">
-                            <div className="flex-1">
-                                <div className="flex items-center gap-2 mb-1">
-                                    <CheckCircle className="w-4 h-4 text-blue-400" weight="fill" />
-                                    <span className="text-sm font-medium text-white">Charging Infrastructure</span>
-                                </div>
-                                <div className="text-xs text-slate-400 mb-2">Approved Dec 8, 2025</div>
-                                <div className="flex gap-3 text-xs">
-                                    <span className="text-slate-400">Investment: <span className="text-white font-medium">$850K</span></span>
-                                    <span className="text-slate-400">ROI: <span className="text-emerald-400 font-medium">19.2%</span></span>
-                                </div>
-                            </div>
-                            <ArrowRight className="w-4 h-4 text-slate-600" />
-                        </div>
-
-                        <div className="flex items-start justify-between p-4 bg-gradient-to-r from-purple-500/10 to-transparent rounded-lg border-l-2 border-purple-500">
-                            <div className="flex-1">
-                                <div className="flex items-center gap-2 mb-1">
-                                    <Clock className="w-4 h-4 text-purple-400" weight="fill" />
-                                    <span className="text-sm font-medium text-white">Fuel System Upgrade</span>
-                                </div>
-                                <div className="text-xs text-slate-400 mb-2">Under Review</div>
-                                <div className="flex gap-3 text-xs">
-                                    <span className="text-slate-400">Investment: <span className="text-white font-medium">$450K</span></span>
-                                    <span className="text-slate-400">Est. ROI: <span className="text-purple-400 font-medium">16.8%</span></span>
-                                </div>
-                            </div>
-                            <ArrowRight className="w-4 h-4 text-slate-600" />
+                    <div className="mt-6 p-5 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
+                        <div className="flex justify-between items-center">
+                            <span className="text-base font-semibold text-blue-900 dark:text-blue-100">Total Annual Savings</span>
+                            <span className="text-2xl font-bold text-blue-600">$156K</span>
                         </div>
                     </div>
                 </div>
@@ -1126,26 +935,53 @@ function CostBenefitAnalysisContent() {
 }
 
 /**
- * Invoice Processing Tab
- * AP automation, approval workflows, and vendor payments
+ * Invoices Tab
+ * Invoice processing, approval workflows, and tracking
  */
-function InvoiceProcessingContent() {
+function InvoicesContent() {
     const { push } = useDrilldown()
 
+    const invoices = [
+        { id: 'INV-2026-0142', vendor: 'Fuel Co.', amount: 12450, status: 'paid', date: '2026-01-02', category: 'Fuel' },
+        { id: 'INV-2026-0141', vendor: 'Parts Plus', amount: 8920, status: 'pending', date: '2026-01-01', category: 'Parts' },
+        { id: 'INV-2026-0140', vendor: 'Insurance Corp', amount: 15600, status: 'approved', date: '2025-12-28', category: 'Insurance' },
+        { id: 'INV-2026-0139', vendor: 'Tire World', amount: 4200, status: 'overdue', date: '2025-12-15', category: 'Maintenance' },
+        { id: 'INV-2026-0138', vendor: 'Fleet Services Inc', amount: 22100, status: 'paid', date: '2025-12-10', category: 'Service' },
+    ]
+
+    const getStatusBadge = (status: string) => {
+        const badges = {
+            paid: 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400 border-emerald-200 dark:border-emerald-800',
+            pending: 'bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400 border-amber-200 dark:border-amber-800',
+            approved: 'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 border-blue-200 dark:border-blue-800',
+            overdue: 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400 border-red-200 dark:border-red-800',
+        }
+        return badges[status as keyof typeof badges]
+    }
+
+    const getStatusIcon = (status: string) => {
+        switch (status) {
+            case 'paid': return <CheckCircle className="w-4 h-4" />
+            case 'overdue': return <XCircle className="w-4 h-4" />
+            case 'pending': return <Clock className="w-4 h-4" />
+            default: return <FileText className="w-4 h-4" />
+        }
+    }
+
     return (
-        <div className="p-8 space-y-8 bg-gradient-to-b from-slate-900/50 via-transparent to-transparent">
+        <div className="p-8 space-y-8 bg-slate-50 dark:bg-slate-900">
             {/* Header Section */}
             <div className="flex items-center justify-between">
                 <div>
-                    <h2 className="text-3xl font-bold text-white mb-2">Invoice Processing & Approval</h2>
-                    <p className="text-slate-400">Accounts payable automation, approval workflows, and vendor payment management</p>
+                    <h2 className="text-3xl font-bold text-slate-900 dark:text-slate-100 mb-2">Invoice Management</h2>
+                    <p className="text-base text-slate-600 dark:text-slate-400">Processing, approval workflows, and payment tracking</p>
                 </div>
-                <div className="flex gap-2">
-                    <button className="px-4 py-2 bg-slate-800/60 hover:bg-slate-700/60 text-slate-300 rounded-lg border border-slate-700/50 transition-all text-sm font-medium">
-                        Upload Invoice
+                <div className="flex gap-3">
+                    <button className="px-5 py-2.5 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 rounded-lg border border-slate-300 dark:border-slate-600 transition-all text-sm font-medium shadow-sm">
+                        Filter Invoices
                     </button>
-                    <button className="px-4 py-2 bg-blue-600/90 hover:bg-blue-500 text-white rounded-lg transition-all text-sm font-medium shadow-lg shadow-blue-500/20">
-                        Process Batch
+                    <button className="px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-all text-sm font-medium shadow-sm">
+                        New Invoice
                     </button>
                 </div>
             </div>
@@ -1153,261 +989,251 @@ function InvoiceProcessingContent() {
             {/* KPI Cards */}
             <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
                 <StatCard
-                    title="Pending Approval"
-                    value="42"
-                    variant="warning"
+                    title="Total Invoices"
+                    value="1,247"
+                    variant="primary"
                     icon={<Invoice className="w-6 h-6" />}
                     onClick={() => push({
+                        type: 'all-invoices',
+                        data: { title: 'All Invoices' },
+                        id: 'all-invoices'
+                    } as Omit<DrilldownLevel, "timestamp">)}
+                />
+                <StatCard
+                    title="Pending Approval"
+                    value="23"
+                    variant="warning"
+                    onClick={() => push({
                         type: 'pending-invoices',
-                        data: { title: 'Invoices Awaiting Approval' },
+                        data: { title: 'Pending Approval' },
                         id: 'pending-approval'
                     } as Omit<DrilldownLevel, "timestamp">)}
                 />
                 <StatCard
-                    title="Approved Today"
-                    value="18"
+                    title="Paid This Month"
+                    value="$284.5K"
+                    variant="success"
+                    icon={<CreditCard className="w-6 h-6" />}
+                    trend={{ value: "+12.4%", direction: "up" }}
+                    onClick={() => push({
+                        type: 'paid-month',
+                        data: { title: 'Paid This Month' },
+                        id: 'paid-month'
+                    } as Omit<DrilldownLevel, "timestamp">)}
+                />
+                <StatCard
+                    title="Overdue"
+                    value="$4.2K"
+                    variant="danger"
+                    onClick={() => push({
+                        type: 'overdue',
+                        data: { title: 'Overdue Invoices' },
+                        id: 'overdue'
+                    } as Omit<DrilldownLevel, "timestamp">)}
+                />
+            </div>
+
+            {/* Invoice List Table */}
+            <div className="bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden">
+                <div className="p-6 border-b border-slate-200 dark:border-slate-700">
+                    <h3 className="text-xl font-semibold text-slate-900 dark:text-slate-100">Recent Invoices</h3>
+                </div>
+                <div className="overflow-x-auto">
+                    <table className="w-full">
+                        <thead className="bg-slate-50 dark:bg-slate-900/50 border-b border-slate-200 dark:border-slate-700">
+                            <tr>
+                                <th className="px-6 py-4 text-left text-sm font-semibold text-slate-700 dark:text-slate-300">Invoice ID</th>
+                                <th className="px-6 py-4 text-left text-sm font-semibold text-slate-700 dark:text-slate-300">Vendor</th>
+                                <th className="px-6 py-4 text-left text-sm font-semibold text-slate-700 dark:text-slate-300">Category</th>
+                                <th className="px-6 py-4 text-left text-sm font-semibold text-slate-700 dark:text-slate-300">Amount</th>
+                                <th className="px-6 py-4 text-left text-sm font-semibold text-slate-700 dark:text-slate-300">Date</th>
+                                <th className="px-6 py-4 text-left text-sm font-semibold text-slate-700 dark:text-slate-300">Status</th>
+                                <th className="px-6 py-4 text-left text-sm font-semibold text-slate-700 dark:text-slate-300">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody className="divide-y divide-slate-200 dark:divide-slate-700">
+                            {invoices.map((invoice) => (
+                                <tr key={invoice.id} className="hover:bg-slate-50 dark:hover:bg-slate-900/30 transition-colors">
+                                    <td className="px-6 py-4">
+                                        <span className="text-sm font-semibold text-blue-600 dark:text-blue-400">{invoice.id}</span>
+                                    </td>
+                                    <td className="px-6 py-4">
+                                        <span className="text-base text-slate-900 dark:text-slate-100 font-medium">{invoice.vendor}</span>
+                                    </td>
+                                    <td className="px-6 py-4">
+                                        <span className="text-base text-slate-700 dark:text-slate-300">{invoice.category}</span>
+                                    </td>
+                                    <td className="px-6 py-4">
+                                        <span className="text-base font-bold text-slate-900 dark:text-slate-100">${invoice.amount.toLocaleString()}</span>
+                                    </td>
+                                    <td className="px-6 py-4">
+                                        <span className="text-base text-slate-700 dark:text-slate-300">{invoice.date}</span>
+                                    </td>
+                                    <td className="px-6 py-4">
+                                        <span className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-semibold border ${getStatusBadge(invoice.status)}`}>
+                                            {getStatusIcon(invoice.status)}
+                                            {invoice.status.charAt(0).toUpperCase() + invoice.status.slice(1)}
+                                        </span>
+                                    </td>
+                                    <td className="px-6 py-4">
+                                        <button
+                                            className="text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 font-medium text-sm flex items-center gap-1"
+                                            onClick={() => push({ type: 'invoice-detail', data: { invoice }, id: invoice.id } as Omit<DrilldownLevel, "timestamp">)}
+                                        >
+                                            View Details
+                                            <ArrowRight className="w-4 h-4" />
+                                        </button>
+                                    </td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    )
+}
+
+/**
+ * Payments Tab
+ * Payment processing, reconciliation, and tracking
+ */
+function PaymentsContent() {
+    const { push } = useDrilldown()
+
+    return (
+        <div className="p-8 space-y-8 bg-slate-50 dark:bg-slate-900">
+            {/* Header Section */}
+            <div className="flex items-center justify-between">
+                <div>
+                    <h2 className="text-3xl font-bold text-slate-900 dark:text-slate-100 mb-2">Payment Tracking & Reconciliation</h2>
+                    <p className="text-base text-slate-600 dark:text-slate-400">Payment processing, bank reconciliation, and transaction history</p>
+                </div>
+                <div className="flex gap-3">
+                    <button className="px-5 py-2.5 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 rounded-lg border border-slate-300 dark:border-slate-600 transition-all text-sm font-medium shadow-sm">
+                        Reconcile
+                    </button>
+                    <button className="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg transition-all text-sm font-medium shadow-sm">
+                        Process Payment
+                    </button>
+                </div>
+            </div>
+
+            {/* KPI Cards */}
+            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
+                <StatCard
+                    title="Total Payments"
+                    value="$1.24M"
+                    variant="success"
+                    icon={<Bank className="w-6 h-6" />}
+                    trend={{ value: "+8.1%", direction: "up" }}
+                    onClick={() => push({
+                        type: 'total-payments',
+                        data: { title: 'Total Payments' },
+                        id: 'total-payments'
+                    } as Omit<DrilldownLevel, "timestamp">)}
+                />
+                <StatCard
+                    title="Pending Payments"
+                    value="$64.2K"
+                    variant="warning"
+                    onClick={() => push({
+                        type: 'pending-payments',
+                        data: { title: 'Pending Payments' },
+                        id: 'pending-payments'
+                    } as Omit<DrilldownLevel, "timestamp">)}
+                />
+                <StatCard
+                    title="Cleared"
+                    value="892"
                     variant="success"
                     icon={<CheckCircle className="w-6 h-6" />}
                     onClick={() => push({
-                        type: 'approved-invoices',
-                        data: { title: 'Recently Approved Invoices' },
-                        id: 'approved-today'
+                        type: 'cleared-payments',
+                        data: { title: 'Cleared Payments' },
+                        id: 'cleared-payments'
                     } as Omit<DrilldownLevel, "timestamp">)}
                 />
                 <StatCard
-                    title="Total Value"
-                    value="$156.8K"
-                    variant="primary"
-                    icon={<FileText className="w-6 h-6" />}
+                    title="Unreconciled"
+                    value="14"
+                    variant="danger"
                     onClick={() => push({
-                        type: 'invoice-value',
-                        data: { title: 'Invoice Value Analysis' },
-                        id: 'invoice-value'
-                    } as Omit<DrilldownLevel, "timestamp">)}
-                />
-                <StatCard
-                    title="Avg Processing Time"
-                    value="2.3 days"
-                    variant="success"
-                    icon={<Clock className="w-6 h-6" />}
-                    trend={{ value: "-0.4 days", direction: "down" }}
-                    onClick={() => push({
-                        type: 'processing-time',
-                        data: { title: 'Invoice Processing Metrics' },
-                        id: 'processing-metrics'
+                        type: 'unreconciled',
+                        data: { title: 'Unreconciled Payments' },
+                        id: 'unreconciled'
                     } as Omit<DrilldownLevel, "timestamp">)}
                 />
             </div>
 
-            {/* Approval Workflow and Automation */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                <div className="bg-gradient-to-br from-slate-800/70 to-slate-900/70 backdrop-blur-xl rounded-2xl border border-slate-700/50 p-8 cursor-pointer hover:border-blue-500/50 hover:shadow-xl hover:shadow-blue-500/10 transition-all duration-300"
-                    onClick={() => push({ type: 'approval-workflow', data: { title: 'Approval Workflow Status' }, id: 'workflow-status' } as Omit<DrilldownLevel, "timestamp">)}>
-                    <div className="flex items-start justify-between mb-6">
-                        <h3 className="text-lg font-semibold text-white">Approval Workflow Pipeline</h3>
-                        <span className="text-xs px-2 py-1 bg-blue-500/20 text-blue-400 rounded-full">42 in queue</span>
+            {/* Payment Summary Cards */}
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <div className="bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 p-8">
+                    <div className="flex items-center gap-4 mb-6">
+                        <div className="p-3 bg-emerald-100 dark:bg-emerald-900/30 rounded-lg">
+                            <CreditCard className="w-7 h-7 text-emerald-600" />
+                        </div>
+                        <div>
+                            <p className="text-sm text-slate-600 dark:text-slate-400 font-medium">Payments This Month</p>
+                            <p className="text-3xl font-bold text-slate-900 dark:text-slate-100">$284.5K</p>
+                        </div>
                     </div>
-                    <div className="space-y-5">
-                        {/* Manager Review Stage */}
-                        <div className="space-y-2">
-                            <div className="flex items-center justify-between">
-                                <div className="flex items-center gap-2">
-                                    <div className="w-2 h-2 bg-amber-400 rounded-full"></div>
-                                    <span className="text-sm font-medium text-white">Manager Review</span>
-                                </div>
-                                <span className="text-sm font-bold text-amber-400">24</span>
-                            </div>
-                            <div className="w-full bg-slate-900/50 rounded-full h-2">
-                                <div className="bg-gradient-to-r from-amber-500 to-amber-400 h-2 rounded-full" style={{ width: '57%' }}></div>
-                            </div>
-                            <div className="text-xs text-slate-500">Avg. 1.2 days in stage</div>
+                    <div className="space-y-3">
+                        <div className="flex justify-between p-3 bg-slate-50 dark:bg-slate-900/50 rounded-lg">
+                            <span className="text-base text-slate-700 dark:text-slate-300 font-medium">ACH Transfers</span>
+                            <span className="text-base font-bold text-slate-900 dark:text-slate-100">$124.2K</span>
                         </div>
-
-                        {/* Finance Review Stage */}
-                        <div className="space-y-2">
-                            <div className="flex items-center justify-between">
-                                <div className="flex items-center gap-2">
-                                    <div className="w-2 h-2 bg-blue-400 rounded-full"></div>
-                                    <span className="text-sm font-medium text-white">Finance Review</span>
-                                </div>
-                                <span className="text-sm font-bold text-blue-400">12</span>
-                            </div>
-                            <div className="w-full bg-slate-900/50 rounded-full h-2">
-                                <div className="bg-gradient-to-r from-blue-500 to-blue-400 h-2 rounded-full" style={{ width: '29%' }}></div>
-                            </div>
-                            <div className="text-xs text-slate-500">Avg. 0.8 days in stage</div>
+                        <div className="flex justify-between p-3 bg-slate-50 dark:bg-slate-900/50 rounded-lg">
+                            <span className="text-base text-slate-700 dark:text-slate-300 font-medium">Credit Card</span>
+                            <span className="text-base font-bold text-slate-900 dark:text-slate-100">$89.4K</span>
                         </div>
-
-                        {/* Final Approval Stage */}
-                        <div className="space-y-2">
-                            <div className="flex items-center justify-between">
-                                <div className="flex items-center gap-2">
-                                    <div className="w-2 h-2 bg-purple-400 rounded-full"></div>
-                                    <span className="text-sm font-medium text-white">Final Approval</span>
-                                </div>
-                                <span className="text-sm font-bold text-purple-400">6</span>
-                            </div>
-                            <div className="w-full bg-slate-900/50 rounded-full h-2">
-                                <div className="bg-gradient-to-r from-purple-500 to-purple-400 h-2 rounded-full" style={{ width: '14%' }}></div>
-                            </div>
-                            <div className="text-xs text-slate-500">Avg. 0.3 days in stage</div>
-                        </div>
-
-                        {/* Ready to Pay */}
-                        <div className="p-4 bg-emerald-500/10 rounded-lg border border-emerald-500/20 mt-4">
-                            <div className="flex items-center justify-between">
-                                <div className="flex items-center gap-2">
-                                    <CheckCircle className="w-4 h-4 text-emerald-400" weight="fill" />
-                                    <span className="text-sm font-medium text-emerald-400">Ready to Pay</span>
-                                </div>
-                                <span className="text-lg font-bold text-emerald-400">18</span>
-                            </div>
-                            <div className="text-xs text-emerald-400/70 mt-1">Awaiting payment processing</div>
+                        <div className="flex justify-between p-3 bg-slate-50 dark:bg-slate-900/50 rounded-lg">
+                            <span className="text-base text-slate-700 dark:text-slate-300 font-medium">Checks</span>
+                            <span className="text-base font-bold text-slate-900 dark:text-slate-100">$70.9K</span>
                         </div>
                     </div>
                 </div>
 
-                <div className="bg-gradient-to-br from-slate-800/70 to-slate-900/70 backdrop-blur-xl rounded-2xl border border-slate-700/50 p-8 cursor-pointer hover:border-blue-500/50 hover:shadow-xl hover:shadow-blue-500/10 transition-all duration-300"
-                    onClick={() => push({ type: 'invoice-automation', data: { title: 'Automation Performance' }, id: 'automation-metrics' } as Omit<DrilldownLevel, "timestamp">)}>
-                    <div className="flex items-start justify-between mb-6">
-                        <h3 className="text-lg font-semibold text-white">AI Automation Performance</h3>
-                        <span className="px-3 py-1 bg-blue-500/20 text-blue-400 rounded-full text-xs font-medium flex items-center gap-1">
-                            <Sparkle className="w-3 h-3" />
-                            AI-Powered
-                        </span>
+                <div className="bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 p-8">
+                    <div className="flex items-center gap-4 mb-6">
+                        <div className="p-3 bg-blue-100 dark:bg-blue-900/30 rounded-lg">
+                            <Bank className="w-7 h-7 text-blue-600" />
+                        </div>
+                        <div>
+                            <p className="text-sm text-slate-600 dark:text-slate-400 font-medium">Bank Reconciliation</p>
+                            <p className="text-3xl font-bold text-slate-900 dark:text-slate-100">98.4%</p>
+                        </div>
                     </div>
-                    <div className="flex items-center justify-center mb-6">
-                        <ProgressRing progress={78} color="blue" label="78%" sublabel="automated" />
+                    <div className="flex items-center justify-center mb-4">
+                        <ProgressRing progress={98} color="blue" label="98.4%" sublabel="reconciled" />
                     </div>
-                    <div className="space-y-4">
-                        <div className="p-4 bg-slate-900/50 rounded-lg">
-                            <div className="flex justify-between items-center mb-2">
-                                <span className="text-sm text-slate-400">OCR Accuracy</span>
-                                <span className="text-xs px-2 py-1 bg-emerald-500/20 text-emerald-400 rounded-full">Excellent</span>
-                            </div>
-                            <div className="text-2xl font-bold text-emerald-400 mb-1">96.4%</div>
-                            <div className="w-full bg-slate-900/50 rounded-full h-1.5 mt-2">
-                                <div className="bg-gradient-to-r from-emerald-500 to-emerald-400 h-1.5 rounded-full" style={{ width: '96.4%' }}></div>
-                            </div>
-                        </div>
-                        <div className="p-4 bg-slate-900/50 rounded-lg">
-                            <div className="flex justify-between items-center mb-2">
-                                <span className="text-sm text-slate-400">Auto-Matched Invoices</span>
-                                <span className="text-xs text-slate-500">This month</span>
-                            </div>
-                            <div className="text-2xl font-bold text-white mb-1">234 <span className="text-lg text-slate-400">/ 300</span></div>
-                            <div className="w-full bg-slate-900/50 rounded-full h-1.5 mt-2">
-                                <div className="bg-gradient-to-r from-blue-500 to-blue-400 h-1.5 rounded-full" style={{ width: '78%' }}></div>
-                            </div>
-                        </div>
-                        <div className="p-4 bg-blue-500/10 rounded-lg border border-blue-500/20">
-                            <div className="flex justify-between items-center">
-                                <span className="text-sm text-blue-400">Time Saved This Month</span>
-                                <span className="text-lg font-bold text-blue-400">42.6 hrs</span>
-                            </div>
-                            <div className="text-xs text-blue-400/70 mt-1">$1,278 labor cost savings</div>
-                        </div>
+                    <div className="mt-4 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
+                        <p className="text-sm text-blue-700 dark:text-blue-400 font-semibold">14 items need review</p>
                     </div>
                 </div>
-            </div>
 
-            {/* Recent Invoice Activity */}
-            <div className="bg-gradient-to-br from-slate-800/70 to-slate-900/70 backdrop-blur-xl rounded-2xl border border-slate-700/50 p-8">
-                <div className="flex items-start justify-between mb-6">
-                    <div>
-                        <h3 className="text-lg font-semibold text-white mb-2">Recent Invoice Activity</h3>
-                        <p className="text-sm text-slate-400">Latest invoice processing updates and status changes</p>
-                    </div>
-                    <select className="px-3 py-2 bg-slate-900/50 text-slate-300 rounded-lg border border-slate-700/50 text-sm">
-                        <option>All Invoices</option>
-                        <option>Approved</option>
-                        <option>Pending</option>
-                        <option>Rejected</option>
-                    </select>
-                </div>
-                <div className="space-y-3">
-                    <div className="flex items-center justify-between p-4 bg-slate-900/30 hover:bg-slate-900/50 rounded-lg border border-slate-700/30 transition-colors cursor-pointer">
-                        <div className="flex items-center gap-4">
-                            <CheckCircle className="w-5 h-5 text-emerald-400" weight="fill" />
-                            <div>
-                                <div className="text-sm font-medium text-white">INV-2026-0089</div>
-                                <div className="text-xs text-slate-400">Parts Depot • Service parts</div>
-                            </div>
+                <div className="bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 p-8">
+                    <div className="flex items-center gap-4 mb-6">
+                        <div className="p-3 bg-purple-100 dark:bg-purple-900/30 rounded-lg">
+                            <Receipt className="w-7 h-7 text-purple-600" />
                         </div>
-                        <div className="flex items-center gap-6">
-                            <div className="text-right">
-                                <div className="text-sm font-semibold text-white">$2,845.67</div>
-                                <div className="text-xs text-slate-400">Approved 5 min ago</div>
-                            </div>
-                            <ArrowRight className="w-4 h-4 text-slate-600" />
+                        <div>
+                            <p className="text-sm text-slate-600 dark:text-slate-400 font-medium">Avg Payment Time</p>
+                            <p className="text-3xl font-bold text-slate-900 dark:text-slate-100">3.2 days</p>
                         </div>
                     </div>
-
-                    <div className="flex items-center justify-between p-4 bg-slate-900/30 hover:bg-slate-900/50 rounded-lg border border-slate-700/30 transition-colors cursor-pointer">
-                        <div className="flex items-center gap-4">
-                            <Clock className="w-5 h-5 text-amber-400" weight="fill" />
-                            <div>
-                                <div className="text-sm font-medium text-white">INV-2026-0088</div>
-                                <div className="text-xs text-slate-400">Fuel Master LLC • Diesel fuel</div>
-                            </div>
+                    <div className="space-y-3">
+                        <div className="flex justify-between p-3 bg-slate-50 dark:bg-slate-900/50 rounded-lg">
+                            <span className="text-base text-slate-700 dark:text-slate-300 font-medium">Same Day</span>
+                            <span className="text-base font-bold text-emerald-600 dark:text-emerald-400">42%</span>
                         </div>
-                        <div className="flex items-center gap-6">
-                            <div className="text-right">
-                                <div className="text-sm font-semibold text-white">$12,456.00</div>
-                                <div className="text-xs text-amber-400">Pending manager review</div>
-                            </div>
-                            <ArrowRight className="w-4 h-4 text-slate-600" />
+                        <div className="flex justify-between p-3 bg-slate-50 dark:bg-slate-900/50 rounded-lg">
+                            <span className="text-base text-slate-700 dark:text-slate-300 font-medium">1-5 Days</span>
+                            <span className="text-base font-bold text-blue-600 dark:text-blue-400">48%</span>
                         </div>
-                    </div>
-
-                    <div className="flex items-center justify-between p-4 bg-slate-900/30 hover:bg-slate-900/50 rounded-lg border border-slate-700/30 transition-colors cursor-pointer">
-                        <div className="flex items-center gap-4">
-                            <CheckCircle className="w-5 h-5 text-emerald-400" weight="fill" />
-                            <div>
-                                <div className="text-sm font-medium text-white">INV-2026-0087</div>
-                                <div className="text-xs text-slate-400">Acme Transmission • Sublet repair</div>
-                            </div>
-                        </div>
-                        <div className="flex items-center gap-6">
-                            <div className="text-right">
-                                <div className="text-sm font-semibold text-white">$4,320.15</div>
-                                <div className="text-xs text-slate-400">Approved 1 hour ago</div>
-                            </div>
-                            <ArrowRight className="w-4 h-4 text-slate-600" />
-                        </div>
-                    </div>
-
-                    <div className="flex items-center justify-between p-4 bg-slate-900/30 hover:bg-slate-900/50 rounded-lg border border-slate-700/30 transition-colors cursor-pointer">
-                        <div className="flex items-center gap-4">
-                            <XCircle className="w-5 h-5 text-red-400" weight="fill" />
-                            <div>
-                                <div className="text-sm font-medium text-white">INV-2026-0086</div>
-                                <div className="text-xs text-slate-400">Unknown Vendor • Missing PO</div>
-                            </div>
-                        </div>
-                        <div className="flex items-center gap-6">
-                            <div className="text-right">
-                                <div className="text-sm font-semibold text-white">$892.00</div>
-                                <div className="text-xs text-red-400">Rejected - No PO match</div>
-                            </div>
-                            <ArrowRight className="w-4 h-4 text-slate-600" />
-                        </div>
-                    </div>
-
-                    <div className="flex items-center justify-between p-4 bg-slate-900/30 hover:bg-slate-900/50 rounded-lg border border-slate-700/30 transition-colors cursor-pointer">
-                        <div className="flex items-center gap-4">
-                            <Clock className="w-5 h-5 text-blue-400" weight="fill" />
-                            <div>
-                                <div className="text-sm font-medium text-white">INV-2026-0085</div>
-                                <div className="text-xs text-slate-400">Service Pro • Preventive maintenance</div>
-                            </div>
-                        </div>
-                        <div className="flex items-center gap-6">
-                            <div className="text-right">
-                                <div className="text-sm font-semibold text-white">$6,720.00</div>
-                                <div className="text-xs text-blue-400">In finance review</div>
-                            </div>
-                            <ArrowRight className="w-4 h-4 text-slate-600" />
+                        <div className="flex justify-between p-3 bg-slate-50 dark:bg-slate-900/50 rounded-lg">
+                            <span className="text-base text-slate-700 dark:text-slate-300 font-medium">5+ Days</span>
+                            <span className="text-base font-bold text-amber-600 dark:text-amber-400">10%</span>
                         </div>
                     </div>
                 </div>
@@ -1417,339 +1243,32 @@ function InvoiceProcessingContent() {
 }
 
 /**
- * Payment Tracking Tab
- * Payment status, vendor payments, and reconciliation
+ * Main FinancialHub Component
  */
-function PaymentTrackingContent() {
-    const { push } = useDrilldown()
-
-    return (
-        <div className="p-8 space-y-8 bg-gradient-to-b from-slate-900/50 via-transparent to-transparent">
-            {/* Header Section */}
-            <div className="flex items-center justify-between">
-                <div>
-                    <h2 className="text-3xl font-bold text-white mb-2">Payment Tracking & Reconciliation</h2>
-                    <p className="text-slate-400">Payment scheduling, vendor disbursements, and financial reconciliation</p>
-                </div>
-                <div className="flex gap-2">
-                    <button className="px-4 py-2 bg-slate-800/60 hover:bg-slate-700/60 text-slate-300 rounded-lg border border-slate-700/50 transition-all text-sm font-medium">
-                        Schedule Payment
-                    </button>
-                    <button className="px-4 py-2 bg-emerald-600/90 hover:bg-emerald-500 text-white rounded-lg transition-all text-sm font-medium shadow-lg shadow-emerald-500/20">
-                        Reconcile
-                    </button>
-                </div>
-            </div>
-
-            {/* KPI Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
-                <StatCard
-                    title="Scheduled Payments"
-                    value="$245.6K"
-                    variant="primary"
-                    icon={<CreditCard className="w-6 h-6" />}
-                    onClick={() => push({
-                        type: 'scheduled-payments',
-                        data: { title: 'Upcoming Payment Schedule' },
-                        id: 'payment-schedule'
-                    } as Omit<DrilldownLevel, "timestamp">)}
-                />
-                <StatCard
-                    title="Paid This Month"
-                    value="$312.4K"
-                    variant="success"
-                    icon={<CheckCircle className="w-6 h-6" />}
-                    onClick={() => push({
-                        type: 'paid-this-month',
-                        data: { title: 'Monthly Payment History' },
-                        id: 'monthly-payments'
-                    } as Omit<DrilldownLevel, "timestamp">)}
-                />
-                <StatCard
-                    title="Pending Payments"
-                    value="68"
-                    variant="warning"
-                    icon={<Bank className="w-6 h-6" />}
-                    onClick={() => push({
-                        type: 'pending-payments',
-                        data: { title: 'Payments Awaiting Processing' },
-                        id: 'pending-payments'
-                    } as Omit<DrilldownLevel, "timestamp">)}
-                />
-                <StatCard
-                    title="Failed Payments"
-                    value="3"
-                    variant="danger"
-                    icon={<XCircle className="w-6 h-6" />}
-                    onClick={() => push({
-                        type: 'failed-payments',
-                        data: { title: 'Failed Payment Transactions' },
-                        id: 'failed-payments'
-                    } as Omit<DrilldownLevel, "timestamp">)}
-                />
-            </div>
-
-            {/* Payment Methods and Top Vendors */}
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                <div className="bg-gradient-to-br from-slate-800/70 to-slate-900/70 backdrop-blur-xl rounded-2xl border border-slate-700/50 p-8 cursor-pointer hover:border-blue-500/50 hover:shadow-xl hover:shadow-blue-500/10 transition-all duration-300"
-                    onClick={() => push({ type: 'payment-methods', data: { title: 'Payment Method Breakdown' }, id: 'payment-methods' } as Omit<DrilldownLevel, "timestamp">)}>
-                    <div className="flex items-start justify-between mb-6">
-                        <h3 className="text-lg font-semibold text-white">Payment Methods</h3>
-                        <CreditCard className="w-5 h-5 text-slate-400" />
-                    </div>
-                    <div className="space-y-5">
-                        <div className="space-y-2">
-                            <div className="flex justify-between items-center">
-                                <div>
-                                    <span className="text-sm font-medium text-white">ACH Transfer</span>
-                                    <div className="text-xs text-slate-400 mt-1">61% of payments</div>
-                                </div>
-                                <span className="text-xs px-2 py-1 bg-emerald-500/20 text-emerald-400 rounded-full">↑ 8%</span>
-                            </div>
-                            <div className="w-full bg-slate-900/50 rounded-full h-2.5">
-                                <div className="bg-gradient-to-r from-emerald-500 to-emerald-400 h-2.5 rounded-full" style={{ width: '61%' }}></div>
-                            </div>
-                            <div className="text-sm font-bold text-white">$189.2K</div>
-                        </div>
-
-                        <div className="space-y-2">
-                            <div className="flex justify-between items-center">
-                                <div>
-                                    <span className="text-sm font-medium text-white">Check</span>
-                                    <div className="text-xs text-slate-400 mt-1">25% of payments</div>
-                                </div>
-                                <span className="text-xs px-2 py-1 bg-amber-500/20 text-amber-400 rounded-full">↓ 5%</span>
-                            </div>
-                            <div className="w-full bg-slate-900/50 rounded-full h-2.5">
-                                <div className="bg-gradient-to-r from-blue-500 to-blue-400 h-2.5 rounded-full" style={{ width: '25%' }}></div>
-                            </div>
-                            <div className="text-sm font-bold text-white">$78.4K</div>
-                        </div>
-
-                        <div className="space-y-2">
-                            <div className="flex justify-between items-center">
-                                <div>
-                                    <span className="text-sm font-medium text-white">Wire Transfer</span>
-                                    <div className="text-xs text-slate-400 mt-1">14% of payments</div>
-                                </div>
-                            </div>
-                            <div className="w-full bg-slate-900/50 rounded-full h-2.5">
-                                <div className="bg-gradient-to-r from-purple-500 to-purple-400 h-2.5 rounded-full" style={{ width: '14%' }}></div>
-                            </div>
-                            <div className="text-sm font-bold text-white">$44.8K</div>
-                        </div>
-                    </div>
-                </div>
-
-                <div className="bg-gradient-to-br from-slate-800/70 to-slate-900/70 backdrop-blur-xl rounded-2xl border border-slate-700/50 p-8 cursor-pointer hover:border-blue-500/50 hover:shadow-xl hover:shadow-blue-500/10 transition-all duration-300"
-                    onClick={() => push({ type: 'vendor-payments', data: { title: 'Top Vendor Payments' }, id: 'top-vendors' } as Omit<DrilldownLevel, "timestamp">)}>
-                    <div className="flex items-start justify-between mb-6">
-                        <h3 className="text-lg font-semibold text-white">Top Vendors This Month</h3>
-                        <Users className="w-5 h-5 text-slate-400" />
-                    </div>
-                    <div className="space-y-4">
-                        <div className="flex items-center justify-between p-4 bg-gradient-to-r from-amber-500/10 to-transparent rounded-lg border-l-2 border-amber-500">
-                            <div>
-                                <div className="text-sm font-medium text-white mb-1">Fuel Master LLC</div>
-                                <div className="text-xs text-slate-400">18 payments • Fuel supply</div>
-                            </div>
-                            <div className="text-right">
-                                <div className="text-lg font-bold text-amber-400">$124.2K</div>
-                                <div className="text-xs text-slate-500">40% of total</div>
-                            </div>
-                        </div>
-
-                        <div className="flex items-center justify-between p-4 bg-gradient-to-r from-blue-500/10 to-transparent rounded-lg border-l-2 border-blue-500">
-                            <div>
-                                <div className="text-sm font-medium text-white mb-1">Parts Depot</div>
-                                <div className="text-xs text-slate-400">24 payments • Parts & supplies</div>
-                            </div>
-                            <div className="text-right">
-                                <div className="text-lg font-bold text-blue-400">$67.8K</div>
-                                <div className="text-xs text-slate-500">22% of total</div>
-                            </div>
-                        </div>
-
-                        <div className="flex items-center justify-between p-4 bg-gradient-to-r from-purple-500/10 to-transparent rounded-lg border-l-2 border-purple-500">
-                            <div>
-                                <div className="text-sm font-medium text-white mb-1">Service Pro</div>
-                                <div className="text-xs text-slate-400">12 payments • Sublet repairs</div>
-                            </div>
-                            <div className="text-right">
-                                <div className="text-lg font-bold text-purple-400">$45.3K</div>
-                                <div className="text-xs text-slate-500">15% of total</div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div className="bg-gradient-to-br from-slate-800/70 to-slate-900/70 backdrop-blur-xl rounded-2xl border border-slate-700/50 p-8 cursor-pointer hover:border-blue-500/50 hover:shadow-xl hover:shadow-blue-500/10 transition-all duration-300"
-                    onClick={() => push({ type: 'reconciliation', data: { title: 'Payment Reconciliation Status' }, id: 'reconciliation' } as Omit<DrilldownLevel, "timestamp">)}>
-                    <div className="flex items-start justify-between mb-6">
-                        <h3 className="text-lg font-semibold text-white">Reconciliation Status</h3>
-                        <span className="px-3 py-1 bg-emerald-500/20 text-emerald-400 rounded-full text-xs font-medium">On Track</span>
-                    </div>
-                    <div className="flex items-center justify-center mb-6">
-                        <ProgressRing progress={96} color="green" label="96%" sublabel="reconciled" />
-                    </div>
-                    <div className="space-y-3">
-                        <div className="p-4 bg-emerald-500/10 rounded-lg border border-emerald-500/20">
-                            <div className="flex justify-between items-center mb-1">
-                                <span className="text-sm text-emerald-400">Reconciled</span>
-                                <CheckCircle className="w-4 h-4 text-emerald-400" weight="fill" />
-                            </div>
-                            <div className="text-2xl font-bold text-emerald-400">$299.6K</div>
-                        </div>
-                        <div className="p-4 bg-amber-500/10 rounded-lg border border-amber-500/20">
-                            <div className="flex justify-between items-center mb-1">
-                                <span className="text-sm text-amber-400">Pending Review</span>
-                                <Clock className="w-4 h-4 text-amber-400" weight="fill" />
-                            </div>
-                            <div className="text-2xl font-bold text-amber-400">$12.8K</div>
-                            <div className="text-xs text-amber-400/70 mt-1">4% unreconciled</div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            {/* Payment Schedule */}
-            <div className="bg-gradient-to-br from-slate-800/70 to-slate-900/70 backdrop-blur-xl rounded-2xl border border-slate-700/50 p-8">
-                <div className="flex items-start justify-between mb-6">
-                    <div>
-                        <h3 className="text-lg font-semibold text-white mb-2">Upcoming Payment Schedule</h3>
-                        <p className="text-sm text-slate-400">Next 7 days payment schedule by due date</p>
-                    </div>
-                    <select className="px-3 py-2 bg-slate-900/50 text-slate-300 rounded-lg border border-slate-700/50 text-sm">
-                        <option>Next 7 Days</option>
-                        <option>Next 14 Days</option>
-                        <option>Next 30 Days</option>
-                        <option>All Upcoming</option>
-                    </select>
-                </div>
-
-                <div className="space-y-3">
-                    <div className="flex items-center justify-between p-4 bg-gradient-to-r from-red-500/10 to-transparent rounded-lg border-l-2 border-red-500">
-                        <div className="flex items-center gap-4">
-                            <div className="text-center">
-                                <div className="text-xs text-slate-400">JAN</div>
-                                <div className="text-2xl font-bold text-white">06</div>
-                                <div className="text-xs text-red-400">Tomorrow</div>
-                            </div>
-                            <div className="h-12 w-px bg-slate-700"></div>
-                            <div>
-                                <div className="text-sm font-medium text-white mb-1">3 payments due</div>
-                                <div className="text-xs text-slate-400">Fuel Master LLC, Parts Depot, Service Pro</div>
-                            </div>
-                        </div>
-                        <div className="flex items-center gap-6">
-                            <div className="text-right">
-                                <div className="text-lg font-bold text-white">$42,567.89</div>
-                                <div className="text-xs text-red-400">Due tomorrow</div>
-                            </div>
-                            <ArrowRight className="w-4 h-4 text-slate-600" />
-                        </div>
-                    </div>
-
-                    <div className="flex items-center justify-between p-4 bg-gradient-to-r from-amber-500/10 to-transparent rounded-lg border-l-2 border-amber-500">
-                        <div className="flex items-center gap-4">
-                            <div className="text-center">
-                                <div className="text-xs text-slate-400">JAN</div>
-                                <div className="text-2xl font-bold text-white">08</div>
-                                <div className="text-xs text-amber-400">3 days</div>
-                            </div>
-                            <div className="h-12 w-px bg-slate-700"></div>
-                            <div>
-                                <div className="text-sm font-medium text-white mb-1">5 payments due</div>
-                                <div className="text-xs text-slate-400">Multiple vendors</div>
-                            </div>
-                        </div>
-                        <div className="flex items-center gap-6">
-                            <div className="text-right">
-                                <div className="text-lg font-bold text-white">$68,234.12</div>
-                                <div className="text-xs text-amber-400">Due in 3 days</div>
-                            </div>
-                            <ArrowRight className="w-4 h-4 text-slate-600" />
-                        </div>
-                    </div>
-
-                    <div className="flex items-center justify-between p-4 bg-gradient-to-r from-blue-500/10 to-transparent rounded-lg border-l-2 border-blue-500">
-                        <div className="flex items-center gap-4">
-                            <div className="text-center">
-                                <div className="text-xs text-slate-400">JAN</div>
-                                <div className="text-2xl font-bold text-white">10</div>
-                                <div className="text-xs text-blue-400">5 days</div>
-                            </div>
-                            <div className="h-12 w-px bg-slate-700"></div>
-                            <div>
-                                <div className="text-sm font-medium text-white mb-1">7 payments due</div>
-                                <div className="text-xs text-slate-400">Weekly vendor payments</div>
-                            </div>
-                        </div>
-                        <div className="flex items-center gap-6">
-                            <div className="text-right">
-                                <div className="text-lg font-bold text-white">$89,456.00</div>
-                                <div className="text-xs text-blue-400">Due in 5 days</div>
-                            </div>
-                            <ArrowRight className="w-4 h-4 text-slate-600" />
-                        </div>
-                    </div>
-
-                    <div className="flex items-center justify-between p-4 bg-gradient-to-r from-slate-500/10 to-transparent rounded-lg border-l-2 border-slate-500">
-                        <div className="flex items-center gap-4">
-                            <div className="text-center">
-                                <div className="text-xs text-slate-400">JAN</div>
-                                <div className="text-2xl font-bold text-white">12</div>
-                                <div className="text-xs text-slate-400">7 days</div>
-                            </div>
-                            <div className="h-12 w-px bg-slate-700"></div>
-                            <div>
-                                <div className="text-sm font-medium text-white mb-1">4 payments due</div>
-                                <div className="text-xs text-slate-400">Monthly recurring payments</div>
-                            </div>
-                        </div>
-                        <div className="flex items-center gap-6">
-                            <div className="text-right">
-                                <div className="text-lg font-bold text-white">$45,908.78</div>
-                                <div className="text-xs text-slate-400">Due in 7 days</div>
-                            </div>
-                            <ArrowRight className="w-4 h-4 text-slate-600" />
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    )
-}
-
 export default function FinancialHub() {
     return (
         <HubPage
             title="Financial Management"
-            description="Comprehensive financial operations, cost control, and budgeting"
+            description="Comprehensive financial operations, cost analysis, and budget management"
             icon={<CurrencyDollar className="w-8 h-8" />}
         >
-            <HubTab value="cost-analysis" label="Cost Analysis" icon={<Calculator className="w-5 h-5" />}>
+            <HubTab id="cost-analysis" label="Cost Analysis" icon={<ChartBar />}>
                 <CostAnalysisContent />
             </HubTab>
-
-            <HubTab value="billing" label="Billing Reports" icon={<ChartBar className="w-5 h-5" />}>
+            <HubTab id="billing" label="Billing Reports" icon={<Receipt />}>
                 <BillingReportsContent />
             </HubTab>
-
-            <HubTab value="budget" label="Budget Tracking" icon={<Wallet className="w-5 h-5" />}>
+            <HubTab id="budget" label="Budget Monitoring" icon={<Wallet />}>
                 <BudgetTrackingContent />
             </HubTab>
-
-            <HubTab value="cost-benefit" label="Cost-Benefit" icon={<TrendUp className="w-5 h-5" />}>
-                <CostBenefitAnalysisContent />
+            <HubTab id="cost-benefit" label="Cost-Benefit" icon={<TrendUp />}>
+                <CostBenefitContent />
             </HubTab>
-
-            <HubTab value="invoices" label="Invoice Processing" icon={<Invoice className="w-5 h-5" />}>
-                <InvoiceProcessingContent />
+            <HubTab id="invoices" label="Invoices" icon={<Invoice />}>
+                <InvoicesContent />
             </HubTab>
-
-            <HubTab value="payments" label="Payment Tracking" icon={<CreditCard className="w-5 h-5" />}>
-                <PaymentTrackingContent />
+            <HubTab id="payments" label="Payments" icon={<CreditCard />}>
+                <PaymentsContent />
             </HubTab>
         </HubPage>
     )

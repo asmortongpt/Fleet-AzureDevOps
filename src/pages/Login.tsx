@@ -1,8 +1,7 @@
-import { CarProfile, Sparkle, Truck, Gauge, MapPin, Users } from '@phosphor-icons/react'
+import { CarProfile } from '@phosphor-icons/react'
 import { useMutation } from '@tanstack/react-query'
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { motion, AnimatePresence } from 'framer-motion'
 
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
@@ -24,12 +23,6 @@ export function Login() {
   // Pre-fill credentials in DEV mode for quick access
   const [email, setEmail] = useState(import.meta.env.DEV ? 'admin@fleet.local' : '')
   const [password, setPassword] = useState(import.meta.env.DEV ? 'demo123' : '')
-  const [isLoaded, setIsLoaded] = useState(false)
-
-  // Animation trigger on mount
-  useEffect(() => {
-    setIsLoaded(true)
-  }, [])
 
   // AUTO-LOGIN in DEV mode - DISABLED for SSO-first production deployment
   // Users must authenticate via Microsoft SSO
@@ -129,217 +122,79 @@ export function Login() {
   }
 
   return (
-    <div className="relative min-h-screen bg-gradient-to-br from-blue-600 via-cyan-500 to-teal-400 flex items-center justify-center p-4 sm:p-6 lg:p-8 overflow-hidden">
-      {/* Animated gradient orbs */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <motion.div
-          animate={{
-            x: [0, 100, 0],
-            y: [0, -100, 0],
-            scale: [1, 1.2, 1],
-          }}
-          transition={{
-            duration: 20,
-            repeat: Infinity,
-            ease: "easeInOut"
-          }}
-          className="absolute -top-1/4 -left-1/4 w-96 h-96 bg-gradient-to-br from-blue-400/30 to-cyan-300/30 rounded-full blur-3xl"
-        />
-        <motion.div
-          animate={{
-            x: [0, -100, 0],
-            y: [0, 100, 0],
-            scale: [1, 1.3, 1],
-          }}
-          transition={{
-            duration: 25,
-            repeat: Infinity,
-            ease: "easeInOut"
-          }}
-          className="absolute -bottom-1/4 -right-1/4 w-96 h-96 bg-gradient-to-tl from-teal-400/30 to-cyan-300/30 rounded-full blur-3xl"
-        />
-        <motion.div
-          animate={{
-            x: [0, 50, 0],
-            y: [0, -50, 0],
-            scale: [1, 1.1, 1],
-          }}
-          transition={{
-            duration: 15,
-            repeat: Infinity,
-            ease: "easeInOut"
-          }}
-          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-gradient-to-br from-cyan-300/20 to-blue-400/20 rounded-full blur-3xl"
-        />
-      </div>
-
-      {/* Floating vehicle illustrations */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        {[Truck, Gauge, MapPin, Users].map((Icon, i) => (
-          <motion.div
-            key={i}
-            initial={{ opacity: 0, y: 100 }}
-            animate={{
-              opacity: [0.1, 0.2, 0.1],
-              y: [100, -100],
-              x: [0, (i % 2 === 0 ? 50 : -50), 0],
-              rotate: [0, (i % 2 === 0 ? 10 : -10), 0],
-            }}
-            transition={{
-              duration: 20 + i * 5,
-              repeat: Infinity,
-              ease: "easeInOut",
-              delay: i * 2,
-            }}
-            className="absolute"
-            style={{
-              left: `${10 + i * 20}%`,
-              top: `${20 + i * 15}%`,
-            }}
-          >
-            <Icon className="w-32 h-32 text-white/10" weight="thin" />
-          </motion.div>
-        ))}
-      </div>
-
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.7, ease: "easeOut" }}
-        className="relative w-full max-w-md z-10"
-      >
-        <Card
-          className="relative w-full backdrop-blur-xl bg-white/10 border border-white/20 shadow-2xl shadow-black/20 rounded-2xl overflow-hidden"
-        >
-          {/* Glass effect inner glow */}
-          <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent pointer-events-none" />
-
-          <CardHeader className="space-y-4 pb-4 sm:pb-6 relative">
-            <motion.div
-              initial={{ scale: 0, rotate: -180 }}
-              animate={{ scale: 1, rotate: 0 }}
-              transition={{ type: "spring", stiffness: 200, damping: 15, delay: 0.2 }}
-              className="flex justify-center"
-            >
-              <div className="relative p-5 sm:p-6 bg-gradient-to-br from-white/20 to-white/10 backdrop-blur-md rounded-3xl shadow-lg shadow-black/20 border border-white/30">
-                <CarProfile className="w-12 h-12 sm:w-14 sm:h-14 text-white" weight="bold" />
-                <motion.div
-                  animate={{
-                    scale: [1, 1.2, 1],
-                    rotate: [0, 180, 360],
-                  }}
-                  transition={{
-                    duration: 3,
-                    repeat: Infinity,
-                    ease: "easeInOut"
-                  }}
-                >
-                  <Sparkle
-                    className="absolute -top-2 -right-2 w-5 h-5 text-yellow-300"
-                    weight="fill"
-                  />
-                </motion.div>
+    <div className="min-h-screen bg-slate-50 dark:bg-slate-900 flex items-center justify-center p-4 sm:p-6 lg:p-8">
+      <div className="w-full max-w-md">
+        <Card className="shadow-lg border-slate-200 dark:border-slate-700">
+          <CardHeader className="space-y-4 pb-6">
+            <div className="flex justify-center">
+              <div className="p-3 bg-blue-600 rounded-xl">
+                <CarProfile className="w-10 h-10 text-white" weight="bold" />
               </div>
-            </motion.div>
+            </div>
 
-            <motion.div
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.4, duration: 0.5 }}
-              className="space-y-2 text-center"
-            >
-              <CardTitle className="text-2xl sm:text-3xl font-bold tracking-tight text-white">
+            <div className="space-y-2 text-center">
+              <CardTitle className="text-2xl font-semibold text-slate-900 dark:text-slate-100">
                 Fleet Manager
               </CardTitle>
-              <CardDescription className="text-sm sm:text-base text-white/80">
+              <CardDescription className="text-base text-slate-600 dark:text-slate-400">
                 Sign in with your @capitaltechalliance.com account
               </CardDescription>
-            </motion.div>
+            </div>
           </CardHeader>
 
-          <CardContent className="space-y-5 sm:space-y-6 relative">
+          <CardContent className="space-y-6">
             {/* Show URL errors */}
-            <AnimatePresence>
-              {urlError && (
-                <motion.div
-                  initial={{ opacity: 0, y: -10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -10 }}
-                >
-                  <Alert variant="destructive" className="bg-red-500/20 border-red-400/50 backdrop-blur-sm">
-                    <AlertDescription className="text-white">
-                      {urlMessage || 'Authentication failed. Please try again.'}
-                    </AlertDescription>
-                  </Alert>
-                </motion.div>
-              )}
+            {urlError && (
+              <Alert variant="destructive">
+                <AlertDescription>
+                  {urlMessage || 'Authentication failed. Please try again.'}
+                </AlertDescription>
+              </Alert>
+            )}
 
-              {/* Show form errors from mutation */}
-              {emailLoginMutation.isError && (
-                <motion.div
-                  initial={{ opacity: 0, y: -10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -10 }}
-                >
-                  <Alert variant="destructive" className="bg-red-500/20 border-red-400/50 backdrop-blur-sm">
-                    <AlertDescription className="text-white">
-                      {emailLoginMutation.error instanceof Error
-                        ? emailLoginMutation.error.message
-                        : 'An error occurred during login'}
-                    </AlertDescription>
-                  </Alert>
-                </motion.div>
-              )}
-            </AnimatePresence>
+            {/* Show form errors from mutation */}
+            {emailLoginMutation.isError && (
+              <Alert variant="destructive">
+                <AlertDescription>
+                  {emailLoginMutation.error instanceof Error
+                    ? emailLoginMutation.error.message
+                    : 'An error occurred during login'}
+                </AlertDescription>
+              </Alert>
+            )}
 
             {/* Microsoft Sign-In Button */}
-            <motion.div
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: 0.5, duration: 0.4 }}
+            <Button
+              type="button"
+              variant="outline"
+              size="lg"
+              className="w-full font-medium border-slate-300 dark:border-slate-600 hover:bg-slate-50 dark:hover:bg-slate-800"
+              onClick={handleMicrosoftLogin}
             >
-              <Button
-                type="button"
-                variant="outline"
-                className="w-full h-11 sm:h-12 text-sm sm:text-base font-medium bg-white/20 backdrop-blur-sm border-white/30 text-white hover:bg-white/30 hover:border-white/50 transition-all duration-300 hover:scale-[1.02] active:scale-[0.98] shadow-lg"
-                onClick={handleMicrosoftLogin}
-              >
-                <svg className="w-4 h-4 sm:w-5 sm:h-5 mr-2 sm:mr-3" viewBox="0 0 23 23">
-                  <path fill="#f35325" d="M1 1h10v10H1z" />
-                  <path fill="#81bc06" d="M12 1h10v10H12z" />
-                  <path fill="#05a6f0" d="M1 12h10v10H1z" />
-                  <path fill="#ffba08" d="M12 12h10v10H12z" />
-                </svg>
-                Sign in with Microsoft
-              </Button>
-            </motion.div>
+              <svg className="w-5 h-5 mr-3" viewBox="0 0 23 23">
+                <path fill="#f35325" d="M1 1h10v10H1z" />
+                <path fill="#81bc06" d="M12 1h10v10H12z" />
+                <path fill="#05a6f0" d="M1 12h10v10H1z" />
+                <path fill="#ffba08" d="M12 12h10v10H12z" />
+              </svg>
+              Sign in with Microsoft
+            </Button>
 
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 0.6, duration: 0.4 }}
-              className="relative"
-            >
+            <div className="relative">
               <div className="absolute inset-0 flex items-center">
-                <Separator className="w-full bg-white/20" />
+                <Separator className="w-full" />
               </div>
               <div className="relative flex justify-center text-xs uppercase">
-                <span className="bg-white/10 backdrop-blur-sm px-3 text-white/70 font-medium">
+                <span className="bg-white dark:bg-slate-900 px-3 text-slate-500 dark:text-slate-400 font-medium">
                   Or continue with email
                 </span>
               </div>
-            </motion.div>
+            </div>
 
             {/* Email/Password Form */}
-            <motion.form
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.7, duration: 0.5 }}
-              onSubmit={handleEmailLogin}
-              className="space-y-4"
-            >
+            <form onSubmit={handleEmailLogin} className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="email" className="text-sm font-medium text-white">
+                <Label htmlFor="email" className="text-sm font-medium text-slate-700 dark:text-slate-300">
                   Email
                 </Label>
                 <Input
@@ -350,12 +205,12 @@ export function Login() {
                   onChange={(e) => setEmail(e.target.value)}
                   required
                   disabled={emailLoginMutation.isPending}
-                  className="h-10 sm:h-11 bg-white/10 backdrop-blur-sm border-white/30 text-white placeholder:text-white/50 focus:bg-white/20 focus:border-white/50 transition-all duration-200"
+                  className="h-11 border-slate-300 dark:border-slate-600 focus:border-blue-600 dark:focus:border-blue-500"
                 />
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="password" className="text-sm font-medium text-white">
+                <Label htmlFor="password" className="text-sm font-medium text-slate-700 dark:text-slate-300">
                   Password
                 </Label>
                 <Input
@@ -366,53 +221,37 @@ export function Login() {
                   onChange={(e) => setPassword(e.target.value)}
                   required
                   disabled={emailLoginMutation.isPending}
-                  className="h-10 sm:h-11 bg-white/10 backdrop-blur-sm border-white/30 text-white placeholder:text-white/50 focus:bg-white/20 focus:border-white/50 transition-all duration-200"
+                  className="h-11 border-slate-300 dark:border-slate-600 focus:border-blue-600 dark:focus:border-blue-500"
                 />
               </div>
 
               <Button
                 type="submit"
-                className="w-full h-11 sm:h-12 text-sm sm:text-base font-semibold bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600 text-white border-0 shadow-lg shadow-blue-500/30 hover:shadow-xl hover:shadow-blue-500/40 transition-all duration-300 hover:scale-[1.02] active:scale-[0.98]"
+                size="lg"
+                className="w-full font-semibold bg-blue-600 hover:bg-blue-700 text-white"
                 disabled={emailLoginMutation.isPending}
               >
                 {emailLoginMutation.isPending ? (
                   <span className="flex items-center gap-2">
-                    <motion.span
-                      animate={{ rotate: 360 }}
-                      transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
-                      className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full"
-                    />
+                    <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
                     Signing in...
                   </span>
                 ) : (
                   'Sign in'
                 )}
               </Button>
-            </motion.form>
+            </form>
 
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 0.9, duration: 0.4 }}
-              className="text-center text-xs sm:text-sm text-white/60 pt-2"
-            >
-              <p>
-                Need help? Contact your system administrator for credentials.
-              </p>
-            </motion.div>
+            <p className="text-center text-sm text-slate-500 dark:text-slate-400 pt-2">
+              Need help? Contact your system administrator for credentials.
+            </p>
           </CardContent>
         </Card>
-      </motion.div>
 
-      {/* Footer branding */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 1.2, duration: 0.5 }}
-        className="absolute bottom-4 sm:bottom-6 left-1/2 -translate-x-1/2 text-xs text-white/60 font-medium backdrop-blur-sm bg-white/5 px-4 py-2 rounded-full"
-      >
-        Fleet Management System v2.0
-      </motion.div>
+        <p className="text-center text-xs text-slate-500 dark:text-slate-400 mt-8">
+          Fleet Management System v2.0
+        </p>
+      </div>
     </div>
   )
 }
