@@ -1,0 +1,44 @@
+// Fleet Application - Route Configuration
+// Defines all hub routes and navigation
+
+import React from 'react';
+import { Routes, Route } from 'react-router-dom';
+import { FleetHub } from '@/components/hubs/fleet/FleetHub';
+import { AnalyticsHub } from '@/components/hubs/analytics/AnalyticsHub';
+import { ReservationsHub } from '@/components/hubs/reservations/ReservationsHub';
+
+export const AppRoutes: React.FC = () => {
+  return (
+    <Routes>
+      <Route path="/" element={<FleetHub />} />
+      <Route path="/fleet" element={<FleetHub />} />
+      <Route path="/analytics" element={<AnalyticsHub />} />
+      <Route path="/reservations" element={<ReservationsHub />} />
+    </Routes>
+  );
+};
+
+// Navigation configuration for sidebar/menu
+export const navigationLinks = [
+  {
+    name: 'Fleet',
+    path: '/fleet',
+    icon: 'Car',
+    description: 'Manage vehicles and fleet operations'
+  },
+  {
+    name: 'Analytics',
+    path: '/analytics',
+    icon: 'BarChart3',
+    description: 'Data analysis and reporting'
+  },
+  {
+    name: 'Reservations',
+    path: '/reservations',
+    icon: 'Calendar',
+    description: 'Book vehicles and manage reservations',
+    new: true // Highlight as new feature
+  }
+];
+
+export default AppRoutes;
