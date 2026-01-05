@@ -3,7 +3,7 @@ import { Shield } from "lucide-react"
 import { useState, useMemo, lazy, Suspense } from "react"
 
 import { DrilldownManager } from "@/components/DrilldownManager"
-import { EnhancedErrorBoundary } from "@/components/EnhancedErrorBoundary"
+import { EnhancedErrorBoundary } from "@/components/errors/EnhancedErrorBoundary"
 import { AIAssistantChat } from "@/components/ai/AIAssistantChat"
 import { ToastContainer } from "@/components/common/ToastContainer"
 import { RoleSwitcher } from "@/components/demo/RoleSwitcher"
