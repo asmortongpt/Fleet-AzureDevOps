@@ -116,7 +116,8 @@ export function GoogleMap({
   const [forceFallback, setForceFallback] = useState(false)
 
   // Get and validate Google Maps API key
-  const apiKey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY?.trim() || ""
+  // Try runtime config first (window._env_), then fall back to build-time env
+  const apiKey = ((window as any)._env_?.VITE_GOOGLE_MAPS_API_KEY || import.meta.env.VITE_GOOGLE_MAPS_API_KEY)?.trim() || ""
   const hasValidApiKey = apiKey.length > 0 && !forceFallback && !forceSimulatedView
 
   // Handle global auth failure (Google Maps specific)

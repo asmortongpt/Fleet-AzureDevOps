@@ -1,0 +1,356 @@
+{
+  "fleet_name": "Complete USA Fleet 2022",
+  "year": 2022,
+  "generated_at": "2025-01-04",
+  "total_vehicles": 25,
+  "total_models": 72,
+  "vehicles": {
+    "Ford_F150": {
+      "type": "Full-Size Truck",
+      "manufacturer": "Ford",
+      "colors": {
+        "Oxford White": "output/complete_usa_fleet_2022/Ford_F150_2022_Oxford_White.glb",
+        "Agate Black": "output/complete_usa_fleet_2022/Ford_F150_2022_Agate_Black.glb",
+        "Iconic Silver": "output/complete_usa_fleet_2022/Ford_F150_2022_Iconic_Silver.glb"
+      },
+      "dimensions": {
+        "length": 5.9,
+        "width": 2.0,
+        "height": 1.95
+      }
+    },
+    "Ford_F250_Super_Duty": {
+      "type": "Heavy Duty Truck",
+      "manufacturer": "Ford",
+      "colors": {
+        "Oxford White": "output/complete_usa_fleet_2022/Ford_F250_Super_Duty_2022_Oxford_White.glb",
+        "Agate Black": "output/complete_usa_fleet_2022/Ford_F250_Super_Duty_2022_Agate_Black.glb",
+        "Stone Gray": "output/complete_usa_fleet_2022/Ford_F250_Super_Duty_2022_Stone_Gray.glb"
+      },
+      "dimensions": {
+        "length": 6.2,
+        "width": 2.0,
+        "height": 2.0
+      }
+    },
+    "Ford_Ranger": {
+      "type": "Midsize Truck",
+      "manufacturer": "Ford",
+      "colors": {
+        "Oxford White": "output/complete_usa_fleet_2022/Ford_Ranger_2022_Oxford_White.glb",
+        "Rapid Red": "output/complete_usa_fleet_2022/Ford_Ranger_2022_Rapid_Red.glb",
+        "Cactus Gray": "output/complete_usa_fleet_2022/Ford_Ranger_2022_Cactus_Gray.glb"
+      },
+      "dimensions": {
+        "length": 5.4,
+        "width": 1.85,
+        "height": 1.83
+      }
+    },
+    "Chevrolet_Silverado_1500": {
+      "type": "Full-Size Truck",
+      "manufacturer": "Chevrolet",
+      "colors": {
+        "Summit White": "output/complete_usa_fleet_2022/Chevrolet_Silverado_1500_2022_Summit_White.glb",
+        "Black": "output/complete_usa_fleet_2022/Chevrolet_Silverado_1500_2022_Black.glb",
+        "Silver Ice Metallic": "output/complete_usa_fleet_2022/Chevrolet_Silverado_1500_2022_Silver_Ice_Metallic.glb"
+      },
+      "dimensions": {
+        "length": 5.9,
+        "width": 2.0,
+        "height": 1.95
+      }
+    },
+    "Chevrolet_Silverado_2500HD": {
+      "type": "Heavy Duty Truck",
+      "manufacturer": "Chevrolet",
+      "colors": {
+        "Summit White": "output/complete_usa_fleet_2022/Chevrolet_Silverado_2500HD_2022_Summit_White.glb",
+        "Black": "output/complete_usa_fleet_2022/Chevrolet_Silverado_2500HD_2022_Black.glb",
+        "Red Hot": "output/complete_usa_fleet_2022/Chevrolet_Silverado_2500HD_2022_Red_Hot.glb"
+      },
+      "dimensions": {
+        "length": 6.5,
+        "width": 2.0,
+        "height": 2.0
+      }
+    },
+    "Ram_1500": {
+      "type": "Full-Size Truck",
+      "manufacturer": "Ram",
+      "colors": {
+        "Bright White": "output/complete_usa_fleet_2022/Ram_1500_2022_Bright_White.glb",
+        "Diamond Black": "output/complete_usa_fleet_2022/Ram_1500_2022_Diamond_Black.glb",
+        "Billet Silver": "output/complete_usa_fleet_2022/Ram_1500_2022_Billet_Silver.glb"
+      },
+      "dimensions": {
+        "length": 5.8,
+        "width": 2.0,
+        "height": 1.94
+      }
+    },
+    "Ram_2500": {
+      "type": "Heavy Duty Truck",
+      "manufacturer": "Ram",
+      "colors": {
+        "Bright White": "output/complete_usa_fleet_2022/Ram_2500_2022_Bright_White.glb",
+        "Diamond Black": "output/complete_usa_fleet_2022/Ram_2500_2022_Diamond_Black.glb",
+        "Flame Red": "output/complete_usa_fleet_2022/Ram_2500_2022_Flame_Red.glb"
+      },
+      "dimensions": {
+        "length": 6.3,
+        "width": 2.0,
+        "height": 2.0
+      }
+    },
+    "Toyota_Tundra": {
+      "type": "Full-Size Truck",
+      "manufacturer": "Toyota",
+      "colors": {
+        "Super White": "output/complete_usa_fleet_2022/Toyota_Tundra_2022_Super_White.glb",
+        "Midnight Black": "output/complete_usa_fleet_2022/Toyota_Tundra_2022_Midnight_Black.glb",
+        "Magnetic Gray": "output/complete_usa_fleet_2022/Toyota_Tundra_2022_Magnetic_Gray.glb"
+      },
+      "dimensions": {
+        "length": 5.8,
+        "width": 2.0,
+        "height": 1.95
+      }
+    },
+    "Toyota_Tacoma": {
+      "type": "Midsize Truck",
+      "manufacturer": "Toyota",
+      "colors": {
+        "Super White": "output/complete_usa_fleet_2022/Toyota_Tacoma_2022_Super_White.glb",
+        "Midnight Black": "output/complete_usa_fleet_2022/Toyota_Tacoma_2022_Midnight_Black.glb",
+        "Barcelona Red": "output/complete_usa_fleet_2022/Toyota_Tacoma_2022_Barcelona_Red.glb"
+      },
+      "dimensions": {
+        "length": 5.4,
+        "width": 1.9,
+        "height": 1.8
+      }
+    },
+    "GMC_Sierra_1500": {
+      "type": "Full-Size Truck",
+      "manufacturer": "GMC",
+      "colors": {
+        "Summit White": "output/complete_usa_fleet_2022/GMC_Sierra_1500_2022_Summit_White.glb",
+        "Onyx Black": "output/complete_usa_fleet_2022/GMC_Sierra_1500_2022_Onyx_Black.glb",
+        "Steel Gray": "output/complete_usa_fleet_2022/GMC_Sierra_1500_2022_Steel_Gray.glb"
+      },
+      "dimensions": {
+        "length": 5.9,
+        "width": 2.0,
+        "height": 1.95
+      }
+    },
+    "Ford_Transit_150": {
+      "type": "Full-Size Van",
+      "manufacturer": "Ford",
+      "colors": {
+        "Oxford White": "output/complete_usa_fleet_2022/Ford_Transit_150_2022_Oxford_White.glb",
+        "Agate Black": "output/complete_usa_fleet_2022/Ford_Transit_150_2022_Agate_Black.glb",
+        "Iconic Silver": "output/complete_usa_fleet_2022/Ford_Transit_150_2022_Iconic_Silver.glb"
+      },
+      "dimensions": {
+        "length": 6.0,
+        "width": 2.0,
+        "height": 2.8
+      }
+    },
+    "Chevrolet_Express_2500": {
+      "type": "Full-Size Van",
+      "manufacturer": "Chevrolet",
+      "colors": {
+        "Summit White": "output/complete_usa_fleet_2022/Chevrolet_Express_2500_2022_Summit_White.glb",
+        "Black": "output/complete_usa_fleet_2022/Chevrolet_Express_2500_2022_Black.glb",
+        "Silver Ice": "output/complete_usa_fleet_2022/Chevrolet_Express_2500_2022_Silver_Ice.glb"
+      },
+      "dimensions": {
+        "length": 5.7,
+        "width": 2.0,
+        "height": 2.1
+      }
+    },
+    "Ram_ProMaster_2500": {
+      "type": "Full-Size Van",
+      "manufacturer": "Ram",
+      "colors": {
+        "Bright White": "output/complete_usa_fleet_2022/Ram_ProMaster_2500_2022_Bright_White.glb",
+        "Black": "output/complete_usa_fleet_2022/Ram_ProMaster_2500_2022_Black.glb",
+        "Broom Yellow": "output/complete_usa_fleet_2022/Ram_ProMaster_2500_2022_Broom_Yellow.glb"
+      },
+      "dimensions": {
+        "length": 6.4,
+        "width": 2.0,
+        "height": 2.9
+      }
+    },
+    "Mercedes_Sprinter_2500": {
+      "type": "Full-Size Van",
+      "manufacturer": "Mercedes-Benz",
+      "colors": {
+        "Arctic White": "output/complete_usa_fleet_2022/Mercedes_Sprinter_2500_2022_Arctic_White.glb",
+        "Obsidian Black": "output/complete_usa_fleet_2022/Mercedes_Sprinter_2500_2022_Obsidian_Black.glb",
+        "Graphite Gray": "output/complete_usa_fleet_2022/Mercedes_Sprinter_2500_2022_Graphite_Gray.glb"
+      },
+      "dimensions": {
+        "length": 6.0,
+        "width": 2.0,
+        "height": 2.8
+      }
+    },
+    "Ford_Explorer": {
+      "type": "Midsize SUV",
+      "manufacturer": "Ford",
+      "colors": {
+        "Oxford White": "output/complete_usa_fleet_2022/Ford_Explorer_2022_Oxford_White.glb",
+        "Carbonized Gray": "output/complete_usa_fleet_2022/Ford_Explorer_2022_Carbonized_Gray.glb",
+        "Rapid Red": "output/complete_usa_fleet_2022/Ford_Explorer_2022_Rapid_Red.glb"
+      },
+      "dimensions": {
+        "length": 5.0,
+        "width": 2.0,
+        "height": 1.8
+      }
+    },
+    "Ford_Expedition": {
+      "type": "Full-Size SUV",
+      "manufacturer": "Ford",
+      "colors": {
+        "Oxford White": "output/complete_usa_fleet_2022/Ford_Expedition_2022_Oxford_White.glb",
+        "Agate Black": "output/complete_usa_fleet_2022/Ford_Expedition_2022_Agate_Black.glb",
+        "Stone Blue": "output/complete_usa_fleet_2022/Ford_Expedition_2022_Stone_Blue.glb"
+      },
+      "dimensions": {
+        "length": 5.3,
+        "width": 2.0,
+        "height": 1.9
+      }
+    },
+    "Chevrolet_Tahoe": {
+      "type": "Full-Size SUV",
+      "manufacturer": "Chevrolet",
+      "colors": {
+        "Summit White": "output/complete_usa_fleet_2022/Chevrolet_Tahoe_2022_Summit_White.glb",
+        "Black": "output/complete_usa_fleet_2022/Chevrolet_Tahoe_2022_Black.glb",
+        "Silver Flare": "output/complete_usa_fleet_2022/Chevrolet_Tahoe_2022_Silver_Flare.glb"
+      },
+      "dimensions": {
+        "length": 5.3,
+        "width": 2.0,
+        "height": 1.9
+      }
+    },
+    "Chevrolet_Suburban": {
+      "type": "Full-Size SUV",
+      "manufacturer": "Chevrolet",
+      "colors": {
+        "Summit White": "output/complete_usa_fleet_2022/Chevrolet_Suburban_2022_Summit_White.glb",
+        "Black": "output/complete_usa_fleet_2022/Chevrolet_Suburban_2022_Black.glb",
+        "Satin Steel": "output/complete_usa_fleet_2022/Chevrolet_Suburban_2022_Satin_Steel.glb"
+      },
+      "dimensions": {
+        "length": 5.7,
+        "width": 2.0,
+        "height": 1.9
+      }
+    },
+    "Toyota_4Runner": {
+      "type": "Midsize SUV",
+      "manufacturer": "Toyota",
+      "colors": {
+        "Super White": "output/complete_usa_fleet_2022/Toyota_4Runner_2022_Super_White.glb",
+        "Midnight Black": "output/complete_usa_fleet_2022/Toyota_4Runner_2022_Midnight_Black.glb",
+        "Magnetic Gray": "output/complete_usa_fleet_2022/Toyota_4Runner_2022_Magnetic_Gray.glb"
+      },
+      "dimensions": {
+        "length": 4.8,
+        "width": 1.9,
+        "height": 1.8
+      }
+    },
+    "Honda_Pilot": {
+      "type": "Midsize SUV",
+      "manufacturer": "Honda",
+      "colors": {
+        "Platinum White": "output/complete_usa_fleet_2022/Honda_Pilot_2022_Platinum_White.glb",
+        "Crystal Black": "output/complete_usa_fleet_2022/Honda_Pilot_2022_Crystal_Black.glb",
+        "Modern Steel": "output/complete_usa_fleet_2022/Honda_Pilot_2022_Modern_Steel.glb"
+      },
+      "dimensions": {
+        "length": 4.9,
+        "width": 2.0,
+        "height": 1.8
+      }
+    },
+    "Ford_F150_Lightning": {
+      "type": "Electric Truck",
+      "manufacturer": "Ford",
+      "colors": {
+        "Antimatter Blue": "output/complete_usa_fleet_2022/Ford_F150_Lightning_2022_Antimatter_Blue.glb",
+        "Oxford White": "output/complete_usa_fleet_2022/Ford_F150_Lightning_2022_Oxford_White.glb",
+        "Carbonized Gray": "output/complete_usa_fleet_2022/Ford_F150_Lightning_2022_Carbonized_Gray.glb"
+      },
+      "dimensions": {
+        "length": 5.9,
+        "width": 2.0,
+        "height": 2.0
+      }
+    },
+    "Rivian_R1T": {
+      "type": "Electric Truck",
+      "manufacturer": "Rivian",
+      "colors": {
+        "Rivian Blue": "output/complete_usa_fleet_2022/Rivian_R1T_2022_Rivian_Blue.glb",
+        "Glacier White": "output/complete_usa_fleet_2022/Rivian_R1T_2022_Glacier_White.glb",
+        "Launch Green": "output/complete_usa_fleet_2022/Rivian_R1T_2022_Launch_Green.glb"
+      },
+      "dimensions": {
+        "length": 5.5,
+        "width": 2.0,
+        "height": 1.9
+      }
+    },
+    "Caterpillar_D8_Dozer": {
+      "type": "Heavy Equipment",
+      "manufacturer": "Caterpillar",
+      "colors": {
+        "CAT Yellow": "output/complete_usa_fleet_2022/Caterpillar_D8_Dozer_2022_CAT_Yellow.glb",
+        "Black": "output/complete_usa_fleet_2022/Caterpillar_D8_Dozer_2022_Black.glb"
+      },
+      "dimensions": {
+        "length": 7.5,
+        "width": 3.5,
+        "height": 3.2
+      }
+    },
+    "Caterpillar_320_Excavator": {
+      "type": "Heavy Equipment",
+      "manufacturer": "Caterpillar",
+      "colors": {
+        "CAT Yellow": "output/complete_usa_fleet_2022/Caterpillar_320_Excavator_2022_CAT_Yellow.glb",
+        "Black": "output/complete_usa_fleet_2022/Caterpillar_320_Excavator_2022_Black.glb"
+      },
+      "dimensions": {
+        "length": 9.0,
+        "width": 2.8,
+        "height": 3.0
+      }
+    },
+    "John_Deere_310_Backhoe": {
+      "type": "Heavy Equipment",
+      "manufacturer": "John Deere",
+      "colors": {
+        "John Deere Green": "output/complete_usa_fleet_2022/John_Deere_310_Backhoe_2022_John_Deere_Green.glb",
+        "Yellow": "output/complete_usa_fleet_2022/John_Deere_310_Backhoe_2022_Yellow.glb"
+      },
+      "dimensions": {
+        "length": 6.0,
+        "width": 2.3,
+        "height": 3.5
+      }
+    }
+  }
+}
