@@ -13,19 +13,28 @@
  * Updated: 2025-01-03 - Resolved merge conflicts and enhanced with comprehensive info panels
  */
 
-import React, { useState, Suspense, lazy, useMemo } from 'react';
+import {
+  Car,
+  Clock,
+  Warning,
+  Wrench,
+  User,
+  CalendarCheck,
+  ChartBar,
+  Eye,
+  CaretRight
+} from '@phosphor-icons/react';
 import { useQuery } from '@tanstack/react-query';
+import React, { useState, Suspense, lazy, useMemo } from 'react';
 
 import { useGarageFilters, GarageAsset } from './VirtualGarage/hooks/use-garage-filters';
 
 import {
   DamageSummaryPanel,
-  generateDemoDamagePoints,
-  DamagePoint
+  generateDemoDamagePoints
 } from '@/components/garage/DamageOverlay';
-import { VehicleHUD, type VehicleStats } from '@/components/garage/VehicleHUD';
 import { TimelineDrawer, generateDemoEvents, type TimelineEvent } from '@/components/garage/TimelineDrawer';
-import { VirtualGarageControls } from '@/components/garage/controls/VirtualGarageControls';
+import { VehicleHUD, type VehicleStats } from '@/components/garage/VehicleHUD';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -39,17 +48,7 @@ import {
 } from '@/components/ui/select';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { AssetCategory } from '@/types/asset.types';
-import {
-  Car,
-  Clock,
-  Warning,
-  Wrench,
-  User,
-  CalendarCheck,
-  ChartBar,
-  Eye,
-  CaretRight
-} from '@phosphor-icons/react';
+
 
 // Demo assets used only in development as a fallback - Updated with real fleet vehicles
 const DEMO_ASSETS: GarageAsset[] = [

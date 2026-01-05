@@ -1,4 +1,20 @@
-import React, { useState, useEffect } from 'react';
+import {
+  Security,
+  Warning,
+  CheckCircle,
+  ReportProblem,
+  Assignment,
+  School,
+  Assessment,
+  Gavel,
+  Add,
+  Edit,
+  Delete,
+  Visibility,
+  Download,
+  Upload,
+  VerifiedUser
+} from '@mui/icons-material';
 import {
   Box,
   Paper,
@@ -33,44 +49,14 @@ import {
   ListItem,
   ListItemText,
   ListItemIcon,
-  ListItemSecondaryAction,
-  Stepper,
-  Step,
-  StepLabel,
   Avatar,
-  Badge,
-  Tooltip,
   Divider,
   FormControlLabel,
-  Checkbox,
-  Radio,
-  RadioGroup
+  Checkbox
 } from '@mui/material';
-import {
-  Security,
-  Warning,
-  CheckCircle,
-  ReportProblem,
-  Assignment,
-  School,
-  LocalHospital,
-  Timer,
-  TrendingUp,
-  Assessment,
-  Gavel,
-  Add,
-  Edit,
-  Delete,
-  Visibility,
-  Download,
-  Upload,
-  Schedule,
-  Person,
-  DirectionsCar,
-  VerifiedUser,
-  ErrorOutline
-} from '@mui/icons-material';
-import { PieChart, Pie, Cell, BarChart, Bar, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip as ChartTooltip, Legend, ResponsiveContainer, RadarChart, Radar, PolarGrid, PolarAngleAxis, PolarRadiusAxis } from 'recharts';
+import React, { useState, useEffect } from 'react';
+import { BarChart, Bar, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip as ChartTooltip, Legend, ResponsiveContainer, RadarChart, Radar, PolarGrid, PolarAngleAxis, PolarRadiusAxis } from 'recharts';
+
 import { useDatabase } from '../../hooks/useDatabase';
 
 interface TabPanelProps {

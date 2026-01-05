@@ -1,6 +1,7 @@
-import { chromium, Browser, Page } from '@playwright/test';
 import { exec } from 'child_process';
 import { promisify } from 'util';
+
+import { chromium, Browser } from '@playwright/test';
 
 const execAsync = promisify(exec);
 

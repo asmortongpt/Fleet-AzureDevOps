@@ -1,37 +1,28 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import { Calendar, momentLocalizer, View, Event } from 'react-big-calendar';
 import moment from 'moment';
+import React, { useState, useEffect } from 'react';
+import { Calendar, momentLocalizer, View, Event } from 'react-big-calendar';
 import 'react-big-calendar/lib/css/react-big-calendar.css';
 import {
   CalendarDays,
   CalendarCheck,
   Calendar as CalendarIcon,
   Plus,
-  Filter,
-  Download,
-  Upload,
   RefreshCw,
-  Settings,
   User,
   Truck,
   Wrench,
   MapPin,
   Clock,
-  AlertCircle,
   ChevronLeft,
   ChevronRight,
-  MoreVertical,
   X,
-  Check,
-  Edit,
-  Trash2,
-  Bell,
-  Share2,
-  LogIn,
   LogOut
 } from 'lucide-react';
+
 import { outlookCalendarService, CalendarEvent } from '../../services/outlookCalendarService';
-import { format, parseISO, addMinutes } from 'date-fns';
+
+import { format, addMinutes } from 'date-fns';
+
 import EventCreateModal from './EventCreateModal';
 
 const localizer = momentLocalizer(moment);

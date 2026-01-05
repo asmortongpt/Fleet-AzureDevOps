@@ -1,9 +1,10 @@
 // Analytics Hub - Data Analysis & Reporting Dashboard
 // Displays: Excel-style DataWorkbench, charts, reports
 
-import React from 'react';
-import { DataWorkbench } from './DataWorkbench';
 import { BarChart3, TrendingUp, Database } from 'lucide-react';
+import React from 'react';
+
+import { DataWorkbench } from './DataWorkbench';
 
 export const AnalyticsHub: React.FC = () => {
   return (

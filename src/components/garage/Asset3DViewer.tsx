@@ -12,12 +12,14 @@
  * Updated: 2025-01-03 - Resolved merge conflicts and unified implementations
  */
 
-import React, { useEffect, useRef, useState, Suspense, useMemo, useCallback } from 'react';
-import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import { OrbitControls, PerspectiveCamera, Environment, useGLTF, Html } from '@react-three/drei';
+import { Canvas, useFrame, useThree } from '@react-three/fiber';
+import React, { useEffect, useRef, useState, Suspense, useMemo, useCallback } from 'react';
+import * as THREE from 'three';
+
 import { PhotorealisticMaterials } from '../../materials/PhotorealisticMaterials';
 import { detectWebGLCapabilities } from '../../utils/WebGLCompatibilityManager';
-import * as THREE from 'three';
+
 import type { DamagePoint } from '@/components/garage/DamageOverlay';
 import type { AssetCategory, AssetType } from '@/types/asset.types';
 

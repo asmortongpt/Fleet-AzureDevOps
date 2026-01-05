@@ -5,12 +5,12 @@
  * Supports model rotation, paint color changes, and damage visualization
  */
 
-import React, { useState, useEffect, useRef, Suspense } from 'react';
-import { Canvas, useFrame, useLoader } from '@react-three/fiber';
 import { OrbitControls, Environment, PerspectiveCamera, Html } from '@react-three/drei';
-import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
-import * as THREE from 'three';
+import { Canvas, useFrame, useLoader } from '@react-three/fiber';
 import axios from 'axios';
+import React, { useState, useEffect, useRef, Suspense } from 'react';
+import * as THREE from 'three';
+import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
 
 // ============================================================================
 // Types

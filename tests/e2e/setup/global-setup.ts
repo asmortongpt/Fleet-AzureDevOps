@@ -1,6 +1,6 @@
 import { chromium, FullConfig } from '@playwright/test';
-import { Pool } from 'pg';
 import bcrypt from 'bcrypt';
+import { Pool } from 'pg';
 
 async function globalSetup(config: FullConfig) {
   console.log('\n🔧 E2E Global Setup Starting...\n');

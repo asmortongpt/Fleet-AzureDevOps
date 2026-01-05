@@ -47,22 +47,12 @@ import calendarRouter from './routes/calendar.routes'
 import chargingSessionsRouter from './routes/charging-sessions'
 import chargingStationsRouter from './routes/charging-stations'
 import communicationLogsRouter from './routes/communication-logs'
-import partsRouter from './routes/parts'
-import vendorsRouter from './routes/vendors'
-import invoicesRouter from './routes/invoices'
-import purchaseOrdersRouter from './routes/purchase-orders'
-import tasksRouter from './routes/tasks'
 
 // Asset Management Routes
-import heavyEquipmentRouter from './routes/heavy-equipment.routes'
 
 // Dispatch & Communication Routes
-import teamsRouter from './routes/teams.routes'
 
 // GPS & Tracking Routes
-import gpsRouter from './routes/gps'
-import geofencesRouter from './routes/geofences'
-import telematicsRouter from './routes/telematics.routes'
 import vehicleIdlingRouter from './routes/vehicle-idling.routes'
 
 // Maintenance & Inspection Routes
@@ -162,15 +152,25 @@ import deploymentsRouter from './routes/deployments'
 import driversRouter from './routes/drivers'
 import facilitiesRouter from './routes/facilities'
 import fuelRouter from './routes/fuel-transactions'
+import geofencesRouter from './routes/geofences'
+import gpsRouter from './routes/gps'
+import heavyEquipmentRouter from './routes/heavy-equipment.routes'
 import incidentsRouter from './routes/incidents'
+import invoicesRouter from './routes/invoices'
 import maintenanceRouter from './routes/maintenance'
+import partsRouter from './routes/parts'
 import presenceRouter from './routes/presence.routes'
+import purchaseOrdersRouter from './routes/purchase-orders'
 import qualityGatesRouter from './routes/quality-gates'
 import reservationsRouter from './routes/reservations.routes'
 import searchRouter from './routes/search'
 import storageAdminRouter from './routes/storage-admin'
 import syncRouter from './routes/sync.routes'
+import tasksRouter from './routes/tasks'
+import teamsRouter from './routes/teams.routes'
+import telematicsRouter from './routes/telematics.routes'
 import vehiclesRouter from './routes/vehicles'
+import vendorsRouter from './routes/vendors'
 
 // Job Processing Infrastructure
 import logger from './utils/logger'
