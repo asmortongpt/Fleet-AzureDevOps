@@ -10,7 +10,7 @@
  * Created: 2025-01-03
  */
 
-import { Bot, X } from 'lucide-react';
+import { Bot } from 'lucide-react';
 import React, { useState } from 'react';
 
 import { AIChatPanel } from './AIChatPanel';

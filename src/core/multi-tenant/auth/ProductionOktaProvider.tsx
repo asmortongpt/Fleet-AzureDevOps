@@ -1,4 +1,6 @@
-import { logger } from '@/utils/logger';
+import { OktaAuth, toRelativeUrl } from '@okta/okta-auth-js';
+import { Security, useOktaAuth } from '@okta/okta-react';
+
 
 /**
  * Production Okta Authentication Provider
@@ -6,10 +8,10 @@ import { logger } from '@/utils/logger';
  * Real Okta integration for production environment
  */
 
-import { Security, useOktaAuth } from '@okta/okta-react';
 import type { ReactNode } from 'react';
 import React, { createContext, useContext, useEffect, useState } from 'react';
-import { OktaAuth, toRelativeUrl } from '@okta/okta-auth-js';
+
+import { logger } from '@/utils/logger';
 
 interface MockUserProfile {
   id: string;

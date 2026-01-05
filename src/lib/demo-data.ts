@@ -3,9 +3,9 @@
  * Provides realistic mock data for demo walkthrough mode
  */
 
+import type { Policy } from "./policy-engine/types"
 import { Vehicle, Driver, WorkOrder, FuelTransaction, Route } from "./types"
 import type { GISFacility } from "./types"
-import type { Policy } from "./policy-engine/types"
 
 // Tallahassee, FL area coordinates
 const _tallahasseeFacilities = [

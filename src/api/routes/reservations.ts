@@ -2,9 +2,9 @@
 // Endpoints: CRUD reservations, availability check, Outlook sync
 // Security: Parameterized queries, JWT auth, input validation
 
+import { Client } from '@microsoft/microsoft-graph-client';
 import express, { Request, Response } from 'express';
 import { Pool } from 'pg';
-import { Client } from '@microsoft/microsoft-graph-client';
 
 const router = express.Router();
 

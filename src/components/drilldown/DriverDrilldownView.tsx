@@ -1,7 +1,9 @@
-import React from 'react';
 import { ColumnDef } from '@tanstack/react-table';
+import { Phone, Mail, Calendar, Award, AlertCircle } from 'lucide-react';
+import React from 'react';
+
 import { ExcelDataTable } from '../shared/ExcelDataTable';
-import { User, Phone, Mail, Calendar, Award, AlertCircle } from 'lucide-react';
+
 
 export interface Driver {
   id: string;

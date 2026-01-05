@@ -1,6 +1,7 @@
 import express, { Response } from 'express';
 import { z } from 'zod';
 
+import logger from '../config/logger';
 import { pool } from '../db/connection';
 import { auditLog } from '../middleware/audit';
 import { AuthRequest, authenticateJWT } from '../middleware/auth';
@@ -8,13 +9,9 @@ import { csrfProtection } from '../middleware/csrf';
 import { requirePermission } from '../middleware/permissions';
 import {
   ChargeStatus,
-  CreateChargeRequest,
-  UpdateChargeRequest,
-  CalculateChargesRequest,
   CalculateChargesResponse,
   ChargeBreakdownItem
 } from '../types/trip-usage';
-import logger from '../config/logger';
 
 const router = express.Router();
 router.use(authenticateJWT);

@@ -2,8 +2,9 @@
 // Supports: Slide-out drawers, center modals, full-screen dialogs
 // Keyboard: ESC closes, TAB navigation, focus trap
 
-import React, { useEffect, useCallback } from 'react';
 import { X } from 'lucide-react';
+import React, { useEffect } from 'react';
+
 import { cn } from '@/lib/utils';
 
 interface DialogProps {

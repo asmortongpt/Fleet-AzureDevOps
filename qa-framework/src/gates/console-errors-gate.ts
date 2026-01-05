@@ -6,9 +6,9 @@
  * - Ignores warnings, 404s, and minor issues
  */
 
+
 import { test, expect, Page } from '@playwright/test';
-import * as fs from 'fs';
-import * as path from 'path';
+
 import {
   Severity,
   Finding,

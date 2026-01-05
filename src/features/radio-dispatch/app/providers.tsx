@@ -1,8 +1,9 @@
 'use client';
 
 import { SessionProvider } from 'next-auth/react';
-import { ToastProvider, ToastViewport } from '@/components/common/Toast';
+
 import { ErrorBoundary } from '@/components/ErrorBoundary';
+import { ToastProvider, ToastViewport } from '@/components/common/Toast';
 import { useCSRFProtection } from '@/lib/use-csrf';
 
 export function Providers({ children }: { children: React.ReactNode }) {

@@ -1,4 +1,3 @@
-import { logger } from '@/utils/logger';
 
 /**
  * Okta SSO Integration for Fleet Management System
@@ -12,9 +11,11 @@ import { logger } from '@/utils/logger';
  * - Audit logging for compliance
  */
 
-import { useNavigate, useLocation } from 'react-router-dom';
-import { Security, SecureRoute, LoginCallback, useOktaAuth } from '@okta/okta-react';
+import { Security } from '@okta/okta-react';
 import React, { createContext, useContext, useEffect, useState, useCallback } from 'react';
+import { useNavigate } from 'react-router-dom';
+
+import { logger } from '@/utils/logger';
 
 // Okta configuration interface
 interface OktaConfig {

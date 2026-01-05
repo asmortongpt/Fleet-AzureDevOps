@@ -12,17 +12,14 @@
  */
 
 import { test, expect } from '@playwright/test';
-import {
-  generateVehicles,
-  generateFacilities,
-  generateCameras,
-} from '../../benchmarks/utils/test-data-generator';
+
 import {
   PerformanceMonitor,
-  measureFPS,
   formatBytes,
-  formatDuration,
 } from '../../benchmarks/utils/performance-metrics';
+import {
+  generateVehicles,
+} from '../../benchmarks/utils/test-data-generator';
 
 // ============================================================================
 // Configuration

@@ -1,4 +1,3 @@
-import { logger } from '@/utils/logger';
 
 /**
  * Multi-Factor Authentication (MFA) Provider for DCF Fleet Management
@@ -7,7 +6,10 @@ import { logger } from '@/utils/logger';
  */
 
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react'
+
 import { useAuth } from './AuthProviderFactory'
+
+import { logger } from '@/utils/logger';
 
 // MFA Method Types
 export type MFAMethod = 'sms' | 'email' | 'totp' | 'okta_verify' | 'google_authenticator' | 'microsoft_authenticator'

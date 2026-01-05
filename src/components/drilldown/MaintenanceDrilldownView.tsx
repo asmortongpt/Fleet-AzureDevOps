@@ -1,7 +1,9 @@
-import React from 'react';
 import { ColumnDef } from '@tanstack/react-table';
-import { ExcelDataTable } from '../shared/ExcelDataTable';
 import { Wrench, Calendar, DollarSign, Clock, AlertTriangle, CheckCircle } from 'lucide-react';
+import React from 'react';
+
+import { ExcelDataTable } from '../shared/ExcelDataTable';
+
 
 export interface MaintenanceRecord {
   id: string;

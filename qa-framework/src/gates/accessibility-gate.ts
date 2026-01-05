@@ -6,10 +6,12 @@
  * - Ignores minor/moderate issues in production mode
  */
 
-import { test, expect, Page } from '@playwright/test';
-import AxeBuilder from '@axe-core/playwright';
 import * as fs from 'fs';
 import * as path from 'path';
+
+import AxeBuilder from '@axe-core/playwright';
+import { test, expect, Page } from '@playwright/test';
+
 import {
   Severity,
   Finding,

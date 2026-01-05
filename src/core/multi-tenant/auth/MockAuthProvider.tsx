@@ -1,4 +1,3 @@
-import { logger } from '@/utils/logger';
 
 /**
  * MockAuthProvider - Simple authentication provider for testing and development
@@ -7,6 +6,8 @@ import { logger } from '@/utils/logger';
 
 import { createContext, useContext, useState, useEffect } from 'react'
 import type { ReactNode } from 'react'
+
+import { logger } from '@/utils/logger';
 
 export interface MockUserProfile {
   id: string

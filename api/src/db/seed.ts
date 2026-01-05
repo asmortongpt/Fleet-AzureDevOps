@@ -1,6 +1,5 @@
 // Database seeding script with realistic data
 
-import { db } from "./connection"
 
 async function seed() {
   console.log("Starting database seeding...")

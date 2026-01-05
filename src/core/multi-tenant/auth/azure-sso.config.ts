@@ -1,4 +1,3 @@
-import { logger } from '@/utils/logger';
 
 /**
  * Azure Active Directory Single Sign-On Configuration
@@ -7,6 +6,8 @@ import { logger } from '@/utils/logger';
 
 import { Configuration, PublicClientApplication, LogLevel, AccountInfo } from '@azure/msal-browser';
 import { AuthenticationResult } from '@azure/msal-common';
+
+import { logger } from '@/utils/logger';
 
 // MSAL Configuration
 export const msalConfig: Configuration = {

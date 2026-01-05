@@ -9,7 +9,8 @@
 
 import { exec } from 'child_process';
 import { promisify } from 'util';
-import { chromium, Browser, Page } from 'playwright';
+
+import { chromium, Browser } from 'playwright';
 
 const execAsync = promisify(exec);
 

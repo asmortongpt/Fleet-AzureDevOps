@@ -1,3 +1,7 @@
+import { OktaAuth, AuthState } from '@okta/okta-auth-js';
+import { Security, LoginCallback } from '@okta/okta-react';
+import React, { createContext, useContext, useEffect, useState, ReactNode } from 'react';
+
 import { logger } from '@/utils/logger';
 
 /**
@@ -6,9 +10,6 @@ import { logger } from '@/utils/logger';
  * Compliant with DCF ITB 2425-077 security requirements
  */
 
-import { Security, LoginCallback, SecureRoute } from '@okta/okta-react';
-import React, { createContext, useContext, useEffect, useState, ReactNode } from 'react';
-import { OktaAuth, AuthState } from '@okta/okta-auth-js';
 
 // DCF Fleet Management User Interface
 export interface DCFUser {

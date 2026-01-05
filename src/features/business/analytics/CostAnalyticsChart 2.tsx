@@ -1,4 +1,8 @@
-import React from 'react';
+import {
+  LocalGasStation as FuelIcon,
+  Build as MaintenanceIcon,
+  TrendingUp as TrendingUpIcon
+} from '@mui/icons-material';
 import {
   Box,
   Card,
@@ -9,6 +13,7 @@ import {
   Divider,
   Chip
 } from '@mui/material';
+import React from 'react';
 import {
   BarChart,
   Bar,
@@ -20,15 +25,8 @@ import {
   ResponsiveContainer,
   PieChart,
   Pie,
-  Cell,
-  LineChart,
-  Line
+  Cell
 } from 'recharts';
-import {
-  LocalGasStation as FuelIcon,
-  Build as MaintenanceIcon,
-  TrendingUp as TrendingUpIcon
-} from '@mui/icons-material';
 
 interface CostAnalyticsChartProps {
   fuelCost: number;

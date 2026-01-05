@@ -1,14 +1,3 @@
-import React from 'react';
-import {
-  Box,
-  Card,
-  CardContent,
-  Typography,
-  Grid,
-  LinearProgress,
-  Chip,
-  Stack
-} from '@mui/material';
 import {
   DirectionsCar as VehicleIcon,
   LocalGasStation as FuelIcon,
@@ -19,6 +8,17 @@ import {
   CheckCircle as ActiveIcon,
   Timeline as UtilizationIcon
 } from '@mui/icons-material';
+import {
+  Box,
+  Card,
+  CardContent,
+  Typography,
+  Grid,
+  LinearProgress,
+  Chip,
+  Stack
+} from '@mui/material';
+import React from 'react';
 
 interface DashboardData {
   fleet: {

@@ -1,8 +1,11 @@
-import React from 'react';
 import { ColumnDef } from '@tanstack/react-table';
-import { ExcelDataTable } from '../shared/ExcelDataTable';
-import { Vehicle } from '@/types';
 import { Truck, Calendar, Gauge, DollarSign, Wrench } from 'lucide-react';
+import React from 'react';
+
+import { ExcelDataTable } from '../shared/ExcelDataTable';
+
+import { Vehicle } from '@/types';
+
 
 interface VehicleDrilldownViewProps {
   vehicles: Vehicle[];

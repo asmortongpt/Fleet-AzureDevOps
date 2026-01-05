@@ -14,11 +14,12 @@
  * Output: JSON report with screenshots, metrics, and severity levels
  */
 
-import { test, expect, Page, BrowserContext } from '@playwright/test';
-import AxeBuilder from '@axe-core/playwright';
+import * as crypto from 'crypto';
 import * as fs from 'fs';
 import * as path from 'path';
-import * as crypto from 'crypto';
+
+import AxeBuilder from '@axe-core/playwright';
+import { test, expect, Page } from '@playwright/test';
 
 // Test Configuration
 const PRODUCTION_URLS = [

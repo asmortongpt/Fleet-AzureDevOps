@@ -13,11 +13,12 @@
  * Generates cryptographic evidence bundle for each run.
  */
 
-import { test, expect, Page, BrowserContext } from '@playwright/test';
-import AxeBuilder from '@axe-core/playwright';
+import * as crypto from 'crypto';
 import * as fs from 'fs';
 import * as path from 'path';
-import * as crypto from 'crypto';
+
+import AxeBuilder from '@axe-core/playwright';
+import { test, expect, Page } from '@playwright/test';
 
 // Evidence collection configuration
 const EVIDENCE_DIR = path.join(process.cwd(), 'verification-evidence');

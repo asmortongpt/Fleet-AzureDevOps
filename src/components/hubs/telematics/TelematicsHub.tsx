@@ -1,7 +1,8 @@
 // Telematics Hub - Real-time Fleet Tracking Dashboard
 
-import React, { useState, useEffect } from 'react';
 import { MapPin, Activity, Zap, AlertTriangle } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+
 import { geotabService } from '../services/GeotabService';
 import { samsaraService } from '../services/SamsaraService';
 

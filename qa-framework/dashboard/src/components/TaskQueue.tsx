@@ -1,12 +1,13 @@
-import { TaskUpdate } from '../hooks/useWebSocket'
-import { formatDistanceToNow } from 'date-fns'
-import clsx from 'clsx'
 import {
   CheckCircleIcon,
   XCircleIcon,
   ClockIcon,
   ArrowPathIcon
 } from '@heroicons/react/24/outline'
+import clsx from 'clsx'
+import { formatDistanceToNow } from 'date-fns'
+
+import { TaskUpdate } from '../hooks/useWebSocket'
 
 interface TaskQueueProps {
   tasks: TaskUpdate[]

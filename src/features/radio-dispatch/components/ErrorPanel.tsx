@@ -1,8 +1,9 @@
 'use client';
 
+import { AlertCircle, RefreshCw, WifiOff, Shield, ServerCrash, AlertTriangle } from 'lucide-react';
+
 import { ApiError } from '@/lib/api';
 import { cn } from '@/lib/utils';
-import { AlertCircle, RefreshCw, WifiOff, Shield, ServerCrash, AlertTriangle } from 'lucide-react';
 
 export interface ErrorPanelProps {
   /**

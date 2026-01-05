@@ -2,9 +2,10 @@
 // Displays: 50 vehicles in responsive grid
 // Drilldown: Click card → full vehicle details modal
 
-import React, { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { Car, MapPin, Wrench, Calendar } from 'lucide-react';
+import { Car, MapPin, Wrench } from 'lucide-react';
+import React, { useState } from 'react';
+
 import { Dialog } from './Dialog';
 
 interface Vehicle {

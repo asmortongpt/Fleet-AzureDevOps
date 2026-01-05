@@ -8,8 +8,8 @@
  * Part of Phase 2 UI consolidation: 79 screens → 18 hubs
  */
 
-import React, { ReactNode } from 'react'
 import { motion } from 'framer-motion'
+import React, { ReactNode } from 'react'
 
 import { DrilldownBreadcrumbs } from '@/components/drilldown/DrilldownBreadcrumbs'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'

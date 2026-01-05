@@ -1,16 +1,17 @@
-import { logger } from '@/utils/logger';
 
 /**
  * Authentication Guard Hooks
  * Custom hooks for role-based access control and security
  */
 
-import { useNavigate, useLocation } from 'react-router-dom';
 import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
+
 import { useAuth } from '../../contexts/AuthContext';
 import { AUTH_CONFIG } from '../config';
 import { Permission, GovernmentRole, AuditEventType } from '../types';
-import React from "react";
+
+import { logger } from '@/utils/logger';
 
 // Hook for role-based access control
 export const useRoleGuard = (requiredRoles: GovernmentRole | GovernmentRole[]) => {

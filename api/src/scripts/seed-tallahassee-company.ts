@@ -7,7 +7,6 @@
 
 import { faker } from '@faker-js/faker';
 import * as bcrypt from 'bcrypt';
-import { drizzle } from 'drizzle-orm/node-postgres';
 import { Client } from 'pg';
 
 const DATABASE_URL = process.env.DATABASE_URL || 'postgresql://localhost:5432/fleet_dev';
