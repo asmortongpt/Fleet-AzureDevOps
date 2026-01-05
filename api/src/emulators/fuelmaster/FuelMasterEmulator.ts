@@ -138,133 +138,54 @@ export class FuelMasterEmulator {
   // ==================== SEED DATA ====================
 
   private seedReferenceData(): void {
-    // Seed Sites
-    this.sites.set('SITE01', {
-      site_id: 'SITE01',
-      name: 'Main Fuel Yard',
-      address: '123 Yard Rd',
-      is_active: true
+    // Import Tallahassee fuel seed data
+    const {
+      TALLAHASSEE_FUEL_SITES,
+      TALLAHASSEE_FUEL_PRODUCTS,
+      TALLAHASSEE_FUEL_TANKS,
+      TALLAHASSEE_FUEL_HOSES,
+      TALLAHASSEE_FLEET_VEHICLES,
+      generateSampleTransactions
+    } = require('./tallahassee-fuel-seed-data')
+
+    // Load Sites
+    TALLAHASSEE_FUEL_SITES.forEach((site: FuelSite) => {
+      this.sites.set(site.site_id, site)
     })
 
-    this.sites.set('SITE02', {
-      site_id: 'SITE02',
-      name: 'North Depot',
-      address: '456 North St',
-      is_active: true
+    // Load Products
+    TALLAHASSEE_FUEL_PRODUCTS.forEach((product: FuelProduct) => {
+      this.products.set(product.product_id, product)
     })
 
-    // Seed Products
-    this.products.set(12, {
-      product_id: 12,
-      code: 'ULSD',
-      description: 'Ultra Low Sulfur Diesel',
-      group_code: 'DIESEL',
-      unit: 'GALLON',
-      default_unit_cost: 3.12
+    // Load Tanks
+    TALLAHASSEE_FUEL_TANKS.forEach((tank: FuelTank) => {
+      this.tanks.set(tank.tank_id, tank)
     })
 
-    this.products.set(13, {
-      product_id: 13,
-      code: 'E10',
-      description: 'Unleaded 87 (E10)',
-      group_code: 'GASOLINE',
-      unit: 'GALLON',
-      default_unit_cost: 2.89
+    // Load Hoses
+    TALLAHASSEE_FUEL_HOSES.forEach((hose: FuelHose) => {
+      this.hoses.set(hose.hose_id, hose)
     })
 
-    this.products.set(14, {
-      product_id: 14,
-      code: 'DEF',
-      description: 'Diesel Exhaust Fluid',
-      group_code: 'DEF',
-      unit: 'GALLON',
-      default_unit_cost: 2.45
+    // Load Vehicles
+    TALLAHASSEE_FLEET_VEHICLES.forEach((vehicle: FuelMasterVehicle) => {
+      this.vehicles.set(vehicle.fuelmaster_vehicle_id, vehicle)
     })
 
-    // Seed Tanks
-    this.tanks.set(101, {
-      tank_id: 101,
-      site_id: 'SITE01',
-      product_id: 12,
-      capacity_gallons: 10000,
-      current_gallons: 4250
+    // Generate realistic 30-day transaction history
+    const sampleTransactions = generateSampleTransactions(500)
+    sampleTransactions.forEach((tx: FuelTransaction) => {
+      this.transactions.set(tx.transaction_id, tx)
     })
 
-    this.tanks.set(102, {
-      tank_id: 102,
-      site_id: 'SITE01',
-      product_id: 13,
-      capacity_gallons: 8000,
-      current_gallons: 3100
-    })
-
-    this.tanks.set(103, {
-      tank_id: 103,
-      site_id: 'SITE02',
-      product_id: 12,
-      capacity_gallons: 12000,
-      current_gallons: 5800
-    })
-
-    // Seed Hoses
-    this.hoses.set(1, {
-      site_id: 'SITE01',
-      tank_id: 101,
-      hose_id: 1,
-      hose_code: 'H1',
-      product_id: 12,
-      meter_reading: 118234.4,
-      is_active: true
-    })
-
-    this.hoses.set(2, {
-      site_id: 'SITE01',
-      tank_id: 102,
-      hose_id: 2,
-      hose_code: 'H2',
-      product_id: 13,
-      meter_reading: 92145.8,
-      is_active: true
-    })
-
-    this.hoses.set(3, {
-      site_id: 'SITE02',
-      tank_id: 103,
-      hose_id: 3,
-      hose_code: 'H3',
-      product_id: 12,
-      meter_reading: 155678.2,
-      is_active: true
-    })
-
-    // Seed Vehicles
-    this.vehicles.set('FMV-882991', {
-      fuelmaster_vehicle_id: 'FMV-882991',
-      vehicle_tag: 'E-10012',
-      status: 'ACTIVE',
-      linked_equipment_key: 'E-10012',
-      linked_ams_equipment_id: 12001,
-      last_odometer: 120343
-    })
-
-    this.vehicles.set('FMV-882992', {
-      fuelmaster_vehicle_id: 'FMV-882992',
-      vehicle_tag: 'E-10013',
-      status: 'ACTIVE',
-      linked_equipment_key: 'E-10013',
-      linked_ams_equipment_id: 12002,
-      last_odometer: 89234
-    })
-
-    this.vehicles.set('FMV-000000', {
-      fuelmaster_vehicle_id: 'FMV-000000',
-      vehicle_tag: 'UNMAPPED',
-      status: 'ACTIVE'
-    })
-
-    // Seed Sample Transactions
-    this.createSampleTransaction('FMV-882991', 'SITE01', 101, 1, 12, 18.4, 120343)
-    this.createSampleTransaction('FMV-882992', 'SITE01', 102, 2, 13, 12.2, 89234)
+    console.log(`[FuelMaster Emulator] Loaded City of Tallahassee data:`)
+    console.log(`  - ${this.sites.size} fuel sites`)
+    console.log(`  - ${this.products.size} fuel products`)
+    console.log(`  - ${this.tanks.size} storage tanks`)
+    console.log(`  - ${this.hoses.size} fuel hoses`)
+    console.log(`  - ${this.vehicles.size} fleet vehicles`)
+    console.log(`  - ${this.transactions.size} historical transactions`)
   }
 
   private createSampleTransaction(
