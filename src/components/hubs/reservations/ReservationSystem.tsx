@@ -2,8 +2,7 @@
 // Features: Calendar view, booking form, availability check, approval workflow
 // Integration: Outlook Calendar, Microsoft Graph API
 
-import React, { useState, useEffect } from 'react';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import {
   Calendar as CalendarIcon,
   Clock,
@@ -12,13 +11,13 @@ import {
   CheckCircle,
   XCircle,
   AlertCircle,
-  Mail,
   Plus,
-  Filter,
-  Download
+  Filter
 } from 'lucide-react';
-import { Dialog } from '@/components/shared/Dialog';
+import React, { useState, useEffect } from 'react';
+
 import { OutlookEmailButton, CalendarEventButton } from '@/components/integrations/MicrosoftIntegration';
+import { Dialog } from '@/components/shared/Dialog';
 
 // TypeScript Interfaces
 interface Reservation {

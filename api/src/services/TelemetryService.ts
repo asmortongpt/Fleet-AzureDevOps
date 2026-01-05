@@ -13,10 +13,8 @@ import {
   RadioTransmission,
   DriverBehaviorEvent,
   IoTSensorData,
-  Vehicle,
   Route,
-  Geofence,
-  EmulatorConfig
+  Geofence
 } from '../emulators/types'
 
 // Database connection interface (works with actual DB or mock)

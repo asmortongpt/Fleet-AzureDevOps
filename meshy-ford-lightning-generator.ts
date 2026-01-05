@@ -6,10 +6,10 @@
  * from images, videos, and LiDAR data.
  */
 
-import axios, { AxiosInstance } from 'axios';
-import FormData from 'form-data';
 import fs from 'fs';
 import path from 'path';
+
+import axios, { AxiosInstance } from 'axios';
 
 // ============================================================================
 // Configuration & Types

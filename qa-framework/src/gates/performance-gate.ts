@@ -7,9 +7,11 @@
  * - LCP > 4s (MEDIUM - informational)
  */
 
-import { test, expect, Page } from '@playwright/test';
 import * as fs from 'fs';
 import * as path from 'path';
+
+import { test, expect, Page } from '@playwright/test';
+
 import {
   Severity,
   Finding,

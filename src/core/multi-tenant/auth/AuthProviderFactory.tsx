@@ -1,6 +1,6 @@
-import { logger } from '@/utils/logger';
 
 import React, { ReactNode } from 'react';
+
 import { MockAuthProvider } from './MockAuthProvider';
 
 // Environment detection and configuration

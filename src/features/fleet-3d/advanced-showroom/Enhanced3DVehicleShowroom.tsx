@@ -13,6 +13,7 @@
  */
 
 import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
+
 import { EnhancedVehicleImageService } from './services/EnhancedVehicleImageService';
 
 interface Enhanced3DVehicleShowroomProps {
@@ -350,7 +351,7 @@ const Enhanced3DVehicleShowroom: React.FC<Enhanced3DVehicleShowroomProps> = ({
 
   // Filter and search vehicles
   const filteredVehicles = useMemo(() => {
-    let filtered = realVehicles.filter((vehicle) => {
+    const filtered = realVehicles.filter((vehicle) => {
       const matchesSearch =
         !searchQuery ||
         vehicle.name.toLowerCase().includes(searchQuery.toLowerCase()) ||

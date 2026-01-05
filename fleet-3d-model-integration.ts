@@ -6,6 +6,7 @@
  */
 
 import { Pool } from 'pg';
+
 import FordLightningGenerator from './meshy-ford-lightning-generator';
 
 // ============================================================================

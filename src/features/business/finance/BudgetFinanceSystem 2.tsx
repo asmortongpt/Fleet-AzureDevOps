@@ -1,4 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import {
+  AccountBalance,
+  Assessment,
+  Receipt,
+  Timeline,
+  ShowChart
+} from '@mui/icons-material';
 import {
   Box,
   Paper,
@@ -8,43 +14,11 @@ import {
   Card,
   CardContent,
   Typography,
-  Button,
-  TextField,
-  Select,
-  MenuItem,
-  FormControl,
-  InputLabel,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  IconButton,
-  Chip,
-  LinearProgress,
-  Alert,
-  List,
-  ListItem,
-  ListItemText,
-  ListItemIcon,
-  Divider
+  LinearProgress
 } from '@mui/material';
-import {
-  AccountBalance,
-  TrendingUp,
-  TrendingDown,
-  Assessment,
-  AttachMoney,
-  Receipt,
-  Timeline,
-  PieChart,
-  ShowChart,
-  Download,
-  Add
-} from '@mui/icons-material';
-import { LineChart, Line, BarChart, Bar, PieChart as RePieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, AreaChart, Area } from 'recharts';
-import { useDatabase } from '../../hooks/useDatabase';
+import React, { useState } from 'react';
+import { LineChart, Line, PieChart as RePieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
+
 
 const BudgetFinanceSystem: React.FC = () => {
   const [tabValue, setTabValue] = useState(0);

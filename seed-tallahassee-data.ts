@@ -10,8 +10,8 @@
  * - Maintenance records and routes
  */
 
-import { Pool } from 'pg';
 import { config } from 'dotenv';
+import { Pool } from 'pg';
 
 config();
 

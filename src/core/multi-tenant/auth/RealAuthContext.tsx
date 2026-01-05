@@ -1,6 +1,7 @@
+import React, { createContext, useContext, useState } from 'react';
+
 import { logger } from '@/utils/logger';
 
-import React, { createContext, useContext, useState, useEffect } from 'react';
 
 interface User {
   id: string;

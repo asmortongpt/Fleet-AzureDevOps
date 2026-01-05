@@ -1,4 +1,10 @@
-import React from 'react';
+import {
+  CheckCircle as ActiveIcon,
+  Build as MaintenanceIcon,
+  RemoveCircle as OutOfServiceIcon,
+  EventAvailable as ReservedIcon,
+  DirectionsCar as VehicleIcon
+} from '@mui/icons-material';
 import {
   Box,
   Card,
@@ -10,26 +16,19 @@ import {
   Chip,
   Divider
 } from '@mui/material';
+import React from 'react';
 import {
   PieChart,
   Pie,
   Cell,
   ResponsiveContainer,
   Tooltip,
-  Legend,
   BarChart,
   Bar,
   XAxis,
   YAxis,
   CartesianGrid
 } from 'recharts';
-import {
-  CheckCircle as ActiveIcon,
-  Build as MaintenanceIcon,
-  RemoveCircle as OutOfServiceIcon,
-  EventAvailable as ReservedIcon,
-  DirectionsCar as VehicleIcon
-} from '@mui/icons-material';
 
 interface VehicleUtilizationChartProps {
   totalVehicles: number;

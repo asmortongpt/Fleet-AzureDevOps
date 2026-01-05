@@ -1,12 +1,13 @@
-import { Alert } from '../hooks/useWebSocket'
-import { formatDistanceToNow } from 'date-fns'
-import clsx from 'clsx'
 import {
   InformationCircleIcon,
   ExclamationTriangleIcon,
   XCircleIcon,
   CheckCircleIcon
 } from '@heroicons/react/24/solid'
+import clsx from 'clsx'
+import { formatDistanceToNow } from 'date-fns'
+
+import { Alert } from '../hooks/useWebSocket'
 
 interface AlertPanelProps {
   alerts: Alert[]

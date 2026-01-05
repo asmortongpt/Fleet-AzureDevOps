@@ -1,4 +1,3 @@
-import { logger } from '@/utils/logger';
 
 /**
  * Authentication Configuration for Fleet Management System

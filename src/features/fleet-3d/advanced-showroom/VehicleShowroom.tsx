@@ -1,4 +1,26 @@
-import React, { useState, useEffect, useRef, Suspense } from 'react';
+import {
+  DirectionsCar as CarIcon,
+  LocalShipping as TruckIcon,
+  DirectionsBus as BusIcon,
+  ThreeSixty as Rotate360Icon,
+  Speed as SpeedIcon,
+  LocalGasStation as GasIcon,
+  Engineering as EngineIcon,
+  Favorite as FavoriteIcon,
+  FavoriteBorder as FavoriteBorderIcon,
+  Share as ShareIcon,
+  CompareArrows as CompareIcon,
+  Download as DownloadIcon,
+  PlayArrow as PlayIcon,
+  Pause as PauseIcon,
+  ZoomIn as ZoomInIcon,
+  ZoomOut as ZoomOutIcon,
+  Fullscreen as FullscreenIcon,
+  ViewInAr as ARIcon,
+  QrCode as QrCodeIcon,
+  RemoveRedEye as ViewIcon,
+  Build as MaintenanceIcon
+} from '@mui/icons-material';
 import {
   Box,
   Card,
@@ -14,9 +36,6 @@ import {
   DialogTitle,
   DialogContent,
   DialogActions,
-  TextField,
-  MenuItem,
-  Slider,
   Switch,
   FormControlLabel,
   Tabs,
@@ -25,49 +44,13 @@ import {
   ListItem,
   ListItemText,
   ListItemIcon,
-  Divider,
-  Alert,
   LinearProgress,
-  Tooltip,
   Badge,
   ToggleButton,
   ToggleButtonGroup,
-  Fab,
-  Zoom,
-  Collapse,
-  Rating,
-  Stack
+  Rating
 } from '@mui/material';
-import {
-  DirectionsCar as CarIcon,
-  LocalShipping as TruckIcon,
-  DirectionsBus as BusIcon,
-  TwoWheeler as MotorcycleIcon,
-  ThreeSixty as Rotate360Icon,
-  PhotoCamera as CameraIcon,
-  Info as InfoIcon,
-  Speed as SpeedIcon,
-  LocalGasStation as GasIcon,
-  Engineering as EngineIcon,
-  AirlineSeatReclineExtra as SeatsIcon,
-  ColorLens as ColorIcon,
-  Favorite as FavoriteIcon,
-  FavoriteBorder as FavoriteBorderIcon,
-  Share as ShareIcon,
-  CompareArrows as CompareIcon,
-  Download as DownloadIcon,
-  PlayArrow as PlayIcon,
-  Pause as PauseIcon,
-  ZoomIn as ZoomInIcon,
-  ZoomOut as ZoomOutIcon,
-  Fullscreen as FullscreenIcon,
-  ViewInAr as ARIcon,
-  QrCode as QrCodeIcon,
-  RemoveRedEye as ViewIcon,
-  AttachMoney as PriceIcon,
-  CalendarMonth as YearIcon,
-  Build as MaintenanceIcon
-} from '@mui/icons-material';
+import React, { useState, useEffect, useRef } from 'react';
 
 interface VehicleSpecs {
   engine: string;

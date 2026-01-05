@@ -1,4 +1,4 @@
-import { LogOut, User, CreditCard, Users, Search } from 'lucide-react';
+import { LogOut, User, CreditCard, Users } from 'lucide-react';
 import { useState, useCallback } from 'react';
 
 import { ThemeToggle } from '@/components/ThemeToggle';

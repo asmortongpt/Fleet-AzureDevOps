@@ -1,4 +1,4 @@
-import { ChevronLeft, ChevronRight, Lock, Fuel, MapPin, Users, Gauge, Settings, Palette, Eye } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Lock, Fuel, MapPin, Users, Gauge, Settings } from 'lucide-react';
 import React, { useState, useEffect } from "react";
 
 // Configuration types
