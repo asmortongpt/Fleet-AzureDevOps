@@ -3,5 +3,8 @@
 # Except dist and Dockerfile
 !dist/
 !dist/**
+!dist-from-vm/
+!dist-from-vm/**
 !Dockerfile
+!Dockerfile.frontend
 !.dockerignore
