@@ -1,7 +1,7 @@
 import { useQuery, useMutation, useQueryClient, QueryKey } from '@tanstack/react-query';
 
-import type { FuelTransaction } from '@/lib/types';
 import type { Policy } from '@/lib/policy-engine/types';
+import type { FuelTransaction } from '@/lib/types';
 import logger from '@/utils/logger';
 
 /**

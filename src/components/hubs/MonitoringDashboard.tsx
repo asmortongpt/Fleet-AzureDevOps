@@ -1,8 +1,9 @@
 // Monitoring Dashboard Component
 // Real-time metrics, errors, performance data
 
-import React, { useState, useEffect } from 'react';
 import { Activity, AlertCircle, TrendingUp, Zap } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+
 import { performanceMonitor } from '../services/PerformanceMonitor';
 import { cacheService } from '../services/RedisService';
 

@@ -1,6 +1,7 @@
-import { AgentStatus } from '../hooks/useWebSocket'
-import { formatDistanceToNow } from 'date-fns'
 import clsx from 'clsx'
+import { formatDistanceToNow } from 'date-fns'
+
+import { AgentStatus } from '../hooks/useWebSocket'
 
 interface AgentGridProps {
   agents: AgentStatus[]

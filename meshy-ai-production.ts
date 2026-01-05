@@ -3,9 +3,10 @@
  * Generate REAL photo-realistic 3D vehicle models using AI
  */
 
-import axios from 'axios';
 import fs from 'fs/promises';
 import path from 'path';
+
+import axios from 'axios';
 
 const MESHY_API_KEY = process.env.MESHY_API_KEY || 'msy_aL4JDGCHF76THUL7Ko2WmLMSOG0VfXnLRlw3';
 const MESHY_BASE_URL = 'https://api.meshy.ai';

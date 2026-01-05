@@ -5,8 +5,8 @@ import {
     Hexagon,
     ChevronRight
 } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
 import { useMemo } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 import { Button } from '@/components/ui/button';
 import { Tooltip, TooltipContent, TooltipTrigger, TooltipProvider } from '@/components/ui/tooltip';

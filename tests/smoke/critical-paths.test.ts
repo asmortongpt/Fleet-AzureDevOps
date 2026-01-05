@@ -10,9 +10,10 @@
  * - Vehicle list displays
  * - Search functionality works
  */
-import { test, expect, Page, ConsoleMessage } from '@playwright/test';
 import * as fs from 'fs';
 import * as path from 'path';
+
+import { test, expect, Page, ConsoleMessage } from '@playwright/test';
 
 // Use PRODUCTION_URL env var, fallback to localhost for development
 const BASE_URL = process.env.PRODUCTION_URL || process.env.APP_URL || 'http://localhost:5173';

@@ -14,7 +14,7 @@ import {
   Database as DatabaseIcon,
   GitBranch
 } from "@phosphor-icons/react"
-import { useState, useMemo } from "react"
+import { useState } from "react"
 import { toast } from "sonner"
 
 import { DataFlowDiagram } from "@/components/diagrams/DataFlowDiagram"
@@ -52,9 +52,8 @@ import {
 } from "@/components/ui/table"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Textarea } from "@/components/ui/textarea"
-import type { Policy, PolicyType, PolicyMode, PolicyStatus } from "@/lib/policy-engine/types"
 import { usePolicies } from "@/contexts/PolicyContext"
-import { generateDemoPolicies } from "@/lib/demo-data"
+import type { Policy, PolicyType, PolicyMode, PolicyStatus } from "@/lib/policy-engine/types"
 
 // Check if demo mode is enabled (default: true)
 const isDemoMode = () => {

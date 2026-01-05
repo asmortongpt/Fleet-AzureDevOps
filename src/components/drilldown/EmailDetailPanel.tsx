@@ -6,7 +6,6 @@
  */
 
 import {
-  Envelope,
   Paperclip,
   Star,
   Reply,
@@ -21,7 +20,6 @@ import {
   FileText,
   Download,
   ExternalLink,
-  CheckCircle,
   Eye,
 } from 'lucide-react'
 import React from 'react'
@@ -32,7 +30,6 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Separator } from '@/components/ui/separator'
 import { useDrilldown } from '@/contexts/DrilldownContext'
-import { cn } from '@/lib/utils'
 
 // ============================================================================
 // TYPES

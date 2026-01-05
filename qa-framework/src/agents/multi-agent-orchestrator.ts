@@ -12,10 +12,12 @@
  */
 
 import { EventEmitter } from 'events'
-import { Pool } from 'pg'
-import Redis from 'redis'
+
 import Anthropic from '@anthropic-ai/sdk'
 import OpenAI from 'openai'
+import { Pool } from 'pg'
+import Redis from 'redis'
+
 import { AgentMonitoringServer } from './websocket-server'
 
 // ============================================================================

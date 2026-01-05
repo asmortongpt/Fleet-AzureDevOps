@@ -57,11 +57,9 @@ export class WorkerPool extends EventEmitter {
   constructor(config: WorkerPoolConfig = {}) {
     super()
 
-    // Determine worker script path based on environment
-    const isProduction = process.env.NODE_ENV === 'production'
-    const defaultWorkerScript = isProduction
-      ? path.join(__dirname, '../workers/task-worker.js')  // Compiled .js in production
-      : path.join(__dirname, '../workers/task-worker.ts')  // Source .ts in development
+    // Always use .ts files since we run with tsx in both dev and production
+    // Production Dockerfile uses tsx to execute TypeScript directly
+    const defaultWorkerScript = path.join(__dirname, '../workers/task-worker.ts')
 
     // Default configuration
     this.config = {
@@ -94,17 +92,13 @@ export class WorkerPool extends EventEmitter {
     const workerId = this.nextWorkerId++;
     const scriptPath = this.config.workerScript;
 
-    // Use tsx loader for TypeScript files (development), standard loader for JavaScript (production)
-    const workerOptions = scriptPath.endsWith('.ts')
-      ? {
-        execArgv: [
-          '--import', 'tsx',
-          '--no-warnings'
-        ]
-      }
-      : {
-        execArgv: ['--no-warnings']
-      };
+    // Always use tsx loader since we run TypeScript directly in both environments
+    const workerOptions = {
+      execArgv: [
+        '--import', 'tsx',
+        '--no-warnings'
+      ]
+    };
 
     console.log(`[WorkerPool] Creating worker ${workerId} from ${scriptPath}`);
     const worker = new Worker(scriptPath, workerOptions)

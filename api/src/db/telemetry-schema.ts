@@ -13,7 +13,6 @@ import {
   decimal,
   text,
   jsonb,
-  real,
   uuid,
   index
 } from 'drizzle-orm/pg-core'
