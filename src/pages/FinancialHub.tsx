@@ -23,7 +23,13 @@ import {
     Calculator,
     Invoice,
     Coins,
-    Bank
+    Bank,
+    Users,
+    Sparkle,
+    CheckCircle,
+    XCircle,
+    Clock,
+    ArrowRight
 } from '@phosphor-icons/react'
 
 import { HubPage, HubTab } from '@/components/ui/hub-page'
@@ -583,10 +589,25 @@ function CostBenefitAnalysisContent() {
     const { push } = useDrilldown()
 
     return (
-        <div className="p-6 space-y-6 bg-gradient-to-b from-slate-900/50 to-transparent">
-            <h2 className="text-2xl font-bold text-white">Cost-Benefit Analysis</h2>
+        <div className="p-8 space-y-8 bg-gradient-to-b from-slate-900/50 via-transparent to-transparent">
+            {/* Header Section */}
+            <div className="flex items-center justify-between">
+                <div>
+                    <h2 className="text-3xl font-bold text-white mb-2">Cost-Benefit Analysis & ROI</h2>
+                    <p className="text-slate-400">Investment evaluation, return on investment tracking, and capital project analysis</p>
+                </div>
+                <div className="flex gap-2">
+                    <button className="px-4 py-2 bg-slate-800/60 hover:bg-slate-700/60 text-slate-300 rounded-lg border border-slate-700/50 transition-all text-sm font-medium">
+                        New Analysis
+                    </button>
+                    <button className="px-4 py-2 bg-emerald-600/90 hover:bg-emerald-500 text-white rounded-lg transition-all text-sm font-medium shadow-lg shadow-emerald-500/20">
+                        ROI Report
+                    </button>
+                </div>
+            </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+            {/* KPI Cards */}
+            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
                 <StatCard
                     title="Active Projects"
                     value="8"
@@ -603,6 +624,7 @@ function CostBenefitAnalysisContent() {
                     value="18.6%"
                     variant="success"
                     icon={<TrendUp className="w-6 h-6" />}
+                    trend={{ value: "+3.2%", direction: "up" }}
                     onClick={() => push({
                         type: 'roi-analysis',
                         data: { title: 'ROI Analysis by Project' },
@@ -610,9 +632,10 @@ function CostBenefitAnalysisContent() {
                     } as Omit<DrilldownLevel, "timestamp">)}
                 />
                 <StatCard
-                    title="Payback Period"
+                    title="Avg Payback Period"
                     value="2.1 yrs"
                     variant="default"
+                    icon={<Clock className="w-6 h-6" />}
                     onClick={() => push({
                         type: 'payback-analysis',
                         data: { title: 'Payback Period Analysis' },
@@ -620,7 +643,7 @@ function CostBenefitAnalysisContent() {
                     } as Omit<DrilldownLevel, "timestamp">)}
                 />
                 <StatCard
-                    title="NPV Total"
+                    title="Total NPV"
                     value="$1.24M"
                     variant="success"
                     onClick={() => push({
@@ -631,32 +654,222 @@ function CostBenefitAnalysisContent() {
                 />
             </div>
 
+            {/* Project ROI Analysis Cards */}
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                <div className="bg-gradient-to-br from-slate-800/60 to-slate-900/60 backdrop-blur-xl rounded-xl border border-slate-700/50 p-6 cursor-pointer hover:border-slate-600/50 transition-colors"
-                    onClick={() => push({ type: 'ev-transition', data: { title: 'EV Transition ROI' }, id: 'ev-roi' } as Omit<DrilldownLevel, "timestamp">)}>
-                    <h3 className="text-sm font-medium text-slate-400 uppercase tracking-wide mb-4">EV Fleet Transition</h3>
-                    <QuickStat label="Investment" value="$2.4M" />
-                    <QuickStat label="Annual Savings" value="$420K" trend="up" />
-                    <QuickStat label="ROI" value="22.3%" trend="up" />
-                    <QuickStat label="Payback" value="5.7 years" />
+                {/* EV Fleet Transition */}
+                <div className="bg-gradient-to-br from-slate-800/70 to-slate-900/70 backdrop-blur-xl rounded-2xl border border-slate-700/50 p-8 cursor-pointer hover:border-emerald-500/50 hover:shadow-xl hover:shadow-emerald-500/10 transition-all duration-300"
+                    onClick={() => push({ type: 'ev-transition', data: { title: 'EV Transition ROI Analysis' }, id: 'ev-roi' } as Omit<DrilldownLevel, "timestamp">)}>
+                    <div className="flex items-start justify-between mb-6">
+                        <div>
+                            <h3 className="text-lg font-semibold text-white mb-1">EV Fleet Transition</h3>
+                            <p className="text-xs text-slate-400">Capital Project 2026-001</p>
+                        </div>
+                        <span className="px-3 py-1 bg-emerald-500/20 text-emerald-400 rounded-full text-xs font-medium">High ROI</span>
+                    </div>
+                    <div className="space-y-4">
+                        <div className="p-4 bg-slate-900/50 rounded-lg">
+                            <span className="text-sm text-slate-400 block mb-1">Total Investment</span>
+                            <span className="text-2xl font-bold text-white">$2.40M</span>
+                        </div>
+                        <div className="grid grid-cols-2 gap-3">
+                            <div className="p-3 bg-emerald-500/10 rounded-lg border border-emerald-500/20">
+                                <span className="text-xs text-emerald-400 block mb-1">Annual Savings</span>
+                                <span className="text-lg font-bold text-emerald-400">$420K</span>
+                            </div>
+                            <div className="p-3 bg-blue-500/10 rounded-lg border border-blue-500/20">
+                                <span className="text-xs text-blue-400 block mb-1">ROI</span>
+                                <span className="text-lg font-bold text-blue-400">22.3%</span>
+                            </div>
+                        </div>
+                        <div className="pt-3 border-t border-slate-700/50">
+                            <div className="flex justify-between items-center">
+                                <span className="text-sm text-slate-400">Payback Period</span>
+                                <span className="text-sm font-semibold text-white">5.7 years</span>
+                            </div>
+                            <div className="flex justify-between items-center mt-2">
+                                <span className="text-sm text-slate-400">NPV @ 7%</span>
+                                <span className="text-sm font-semibold text-emerald-400">+$890K</span>
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
-                <div className="bg-gradient-to-br from-slate-800/60 to-slate-900/60 backdrop-blur-xl rounded-xl border border-slate-700/50 p-6 cursor-pointer hover:border-slate-600/50 transition-colors"
+                {/* Telematics System */}
+                <div className="bg-gradient-to-br from-slate-800/70 to-slate-900/70 backdrop-blur-xl rounded-2xl border border-slate-700/50 p-8 cursor-pointer hover:border-blue-500/50 hover:shadow-xl hover:shadow-blue-500/10 transition-all duration-300"
                     onClick={() => push({ type: 'telematics', data: { title: 'Telematics Implementation ROI' }, id: 'telematics-roi' } as Omit<DrilldownLevel, "timestamp">)}>
-                    <h3 className="text-sm font-medium text-slate-400 uppercase tracking-wide mb-4">Telematics System</h3>
-                    <QuickStat label="Investment" value="$180K" />
-                    <QuickStat label="Annual Savings" value="$94K" trend="up" />
-                    <QuickStat label="ROI" value="52.2%" trend="up" />
-                    <QuickStat label="Payback" value="1.9 years" />
+                    <div className="flex items-start justify-between mb-6">
+                        <div>
+                            <h3 className="text-lg font-semibold text-white mb-1">Telematics System</h3>
+                            <p className="text-xs text-slate-400">Capital Project 2026-005</p>
+                        </div>
+                        <span className="px-3 py-1 bg-blue-500/20 text-blue-400 rounded-full text-xs font-medium flex items-center gap-1">
+                            <Sparkle className="w-3 h-3" />
+                            Excellent
+                        </span>
+                    </div>
+                    <div className="space-y-4">
+                        <div className="p-4 bg-slate-900/50 rounded-lg">
+                            <span className="text-sm text-slate-400 block mb-1">Total Investment</span>
+                            <span className="text-2xl font-bold text-white">$180K</span>
+                        </div>
+                        <div className="grid grid-cols-2 gap-3">
+                            <div className="p-3 bg-emerald-500/10 rounded-lg border border-emerald-500/20">
+                                <span className="text-xs text-emerald-400 block mb-1">Annual Savings</span>
+                                <span className="text-lg font-bold text-emerald-400">$94K</span>
+                            </div>
+                            <div className="p-3 bg-blue-500/10 rounded-lg border border-blue-500/20">
+                                <span className="text-xs text-blue-400 block mb-1">ROI</span>
+                                <span className="text-lg font-bold text-blue-400">52.2%</span>
+                            </div>
+                        </div>
+                        <div className="pt-3 border-t border-slate-700/50">
+                            <div className="flex justify-between items-center">
+                                <span className="text-sm text-slate-400">Payback Period</span>
+                                <span className="text-sm font-semibold text-white">1.9 years</span>
+                            </div>
+                            <div className="flex justify-between items-center mt-2">
+                                <span className="text-sm text-slate-400">NPV @ 7%</span>
+                                <span className="text-sm font-semibold text-emerald-400">+$245K</span>
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
-                <div className="bg-gradient-to-br from-slate-800/60 to-slate-900/60 backdrop-blur-xl rounded-xl border border-slate-700/50 p-6 cursor-pointer hover:border-slate-600/50 transition-colors"
+                {/* Preventive Maintenance Program */}
+                <div className="bg-gradient-to-br from-slate-800/70 to-slate-900/70 backdrop-blur-xl rounded-2xl border border-slate-700/50 p-8 cursor-pointer hover:border-purple-500/50 hover:shadow-xl hover:shadow-purple-500/10 transition-all duration-300"
                     onClick={() => push({ type: 'preventive-maintenance', data: { title: 'Preventive Maintenance Program ROI' }, id: 'pm-roi' } as Omit<DrilldownLevel, "timestamp">)}>
-                    <h3 className="text-sm font-medium text-slate-400 uppercase tracking-wide mb-4">Preventive Maintenance</h3>
-                    <QuickStat label="Investment" value="$320K" />
-                    <QuickStat label="Annual Savings" value="$156K" trend="up" />
-                    <QuickStat label="ROI" value="48.8%" trend="up" />
-                    <QuickStat label="Payback" value="2.1 years" />
+                    <div className="flex items-start justify-between mb-6">
+                        <div>
+                            <h3 className="text-lg font-semibold text-white mb-1">Preventive Maintenance</h3>
+                            <p className="text-xs text-slate-400">Operations Initiative</p>
+                        </div>
+                        <span className="px-3 py-1 bg-purple-500/20 text-purple-400 rounded-full text-xs font-medium">Strong</span>
+                    </div>
+                    <div className="space-y-4">
+                        <div className="p-4 bg-slate-900/50 rounded-lg">
+                            <span className="text-sm text-slate-400 block mb-1">Total Investment</span>
+                            <span className="text-2xl font-bold text-white">$320K</span>
+                        </div>
+                        <div className="grid grid-cols-2 gap-3">
+                            <div className="p-3 bg-emerald-500/10 rounded-lg border border-emerald-500/20">
+                                <span className="text-xs text-emerald-400 block mb-1">Annual Savings</span>
+                                <span className="text-lg font-bold text-emerald-400">$156K</span>
+                            </div>
+                            <div className="p-3 bg-purple-500/10 rounded-lg border border-purple-500/20">
+                                <span className="text-xs text-purple-400 block mb-1">ROI</span>
+                                <span className="text-lg font-bold text-purple-400">48.8%</span>
+                            </div>
+                        </div>
+                        <div className="pt-3 border-t border-slate-700/50">
+                            <div className="flex justify-between items-center">
+                                <span className="text-sm text-slate-400">Payback Period</span>
+                                <span className="text-sm font-semibold text-white">2.1 years</span>
+                            </div>
+                            <div className="flex justify-between items-center mt-2">
+                                <span className="text-sm text-slate-400">NPV @ 7%</span>
+                                <span className="text-sm font-semibold text-emerald-400">+$412K</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {/* Portfolio Summary */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <div className="bg-gradient-to-br from-slate-800/70 to-slate-900/70 backdrop-blur-xl rounded-2xl border border-slate-700/50 p-8">
+                    <div className="flex items-start justify-between mb-6">
+                        <h3 className="text-lg font-semibold text-white">Investment Portfolio Summary</h3>
+                        <ChartBar className="w-5 h-5 text-slate-400" />
+                    </div>
+                    <div className="space-y-5">
+                        <div className="space-y-2">
+                            <div className="flex justify-between items-center">
+                                <span className="text-sm text-slate-300">Total Invested Capital</span>
+                                <span className="text-lg font-bold text-white">$3.72M</span>
+                            </div>
+                            <div className="w-full bg-slate-900/50 rounded-full h-2">
+                                <div className="bg-gradient-to-r from-blue-500 to-blue-400 h-2 rounded-full" style={{ width: '100%' }}></div>
+                            </div>
+                        </div>
+                        <div className="space-y-2">
+                            <div className="flex justify-between items-center">
+                                <span className="text-sm text-slate-300">Projected Annual Return</span>
+                                <span className="text-lg font-bold text-emerald-400">$692K</span>
+                            </div>
+                            <div className="w-full bg-slate-900/50 rounded-full h-2">
+                                <div className="bg-gradient-to-r from-emerald-500 to-emerald-400 h-2 rounded-full" style={{ width: '100%' }}></div>
+                            </div>
+                        </div>
+                        <div className="pt-4 border-t border-slate-700/50">
+                            <div className="grid grid-cols-3 gap-4">
+                                <div className="text-center">
+                                    <div className="text-2xl font-bold text-white mb-1">18.6%</div>
+                                    <div className="text-xs text-slate-400">Avg ROI</div>
+                                </div>
+                                <div className="text-center">
+                                    <div className="text-2xl font-bold text-white mb-1">3.2</div>
+                                    <div className="text-xs text-slate-400">Avg Payback (yrs)</div>
+                                </div>
+                                <div className="text-center">
+                                    <div className="text-2xl font-bold text-emerald-400 mb-1">$1.55M</div>
+                                    <div className="text-xs text-slate-400">Total NPV</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div className="bg-gradient-to-br from-slate-800/70 to-slate-900/70 backdrop-blur-xl rounded-2xl border border-slate-700/50 p-8">
+                    <div className="flex items-start justify-between mb-6">
+                        <h3 className="text-lg font-semibold text-white">Recent Project Approvals</h3>
+                        <span className="text-xs px-2 py-1 bg-blue-500/20 text-blue-400 rounded-full">3 this month</span>
+                    </div>
+                    <div className="space-y-4">
+                        <div className="flex items-start justify-between p-4 bg-gradient-to-r from-emerald-500/10 to-transparent rounded-lg border-l-2 border-emerald-500">
+                            <div className="flex-1">
+                                <div className="flex items-center gap-2 mb-1">
+                                    <CheckCircle className="w-4 h-4 text-emerald-400" weight="fill" />
+                                    <span className="text-sm font-medium text-white">Fleet Modernization</span>
+                                </div>
+                                <div className="text-xs text-slate-400 mb-2">Approved Dec 15, 2025</div>
+                                <div className="flex gap-3 text-xs">
+                                    <span className="text-slate-400">Investment: <span className="text-white font-medium">$2.5M</span></span>
+                                    <span className="text-slate-400">ROI: <span className="text-emerald-400 font-medium">21.4%</span></span>
+                                </div>
+                            </div>
+                            <ArrowRight className="w-4 h-4 text-slate-600" />
+                        </div>
+
+                        <div className="flex items-start justify-between p-4 bg-gradient-to-r from-blue-500/10 to-transparent rounded-lg border-l-2 border-blue-500">
+                            <div className="flex-1">
+                                <div className="flex items-center gap-2 mb-1">
+                                    <CheckCircle className="w-4 h-4 text-blue-400" weight="fill" />
+                                    <span className="text-sm font-medium text-white">Charging Infrastructure</span>
+                                </div>
+                                <div className="text-xs text-slate-400 mb-2">Approved Dec 8, 2025</div>
+                                <div className="flex gap-3 text-xs">
+                                    <span className="text-slate-400">Investment: <span className="text-white font-medium">$850K</span></span>
+                                    <span className="text-slate-400">ROI: <span className="text-emerald-400 font-medium">19.2%</span></span>
+                                </div>
+                            </div>
+                            <ArrowRight className="w-4 h-4 text-slate-600" />
+                        </div>
+
+                        <div className="flex items-start justify-between p-4 bg-gradient-to-r from-purple-500/10 to-transparent rounded-lg border-l-2 border-purple-500">
+                            <div className="flex-1">
+                                <div className="flex items-center gap-2 mb-1">
+                                    <Clock className="w-4 h-4 text-purple-400" weight="fill" />
+                                    <span className="text-sm font-medium text-white">Fuel System Upgrade</span>
+                                </div>
+                                <div className="text-xs text-slate-400 mb-2">Under Review</div>
+                                <div className="flex gap-3 text-xs">
+                                    <span className="text-slate-400">Investment: <span className="text-white font-medium">$450K</span></span>
+                                    <span className="text-slate-400">Est. ROI: <span className="text-purple-400 font-medium">16.8%</span></span>
+                                </div>
+                            </div>
+                            <ArrowRight className="w-4 h-4 text-slate-600" />
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -671,10 +884,25 @@ function InvoiceProcessingContent() {
     const { push } = useDrilldown()
 
     return (
-        <div className="p-6 space-y-6 bg-gradient-to-b from-slate-900/50 to-transparent">
-            <h2 className="text-2xl font-bold text-white">Invoice Processing & Approval</h2>
+        <div className="p-8 space-y-8 bg-gradient-to-b from-slate-900/50 via-transparent to-transparent">
+            {/* Header Section */}
+            <div className="flex items-center justify-between">
+                <div>
+                    <h2 className="text-3xl font-bold text-white mb-2">Invoice Processing & Approval</h2>
+                    <p className="text-slate-400">Accounts payable automation, approval workflows, and vendor payment management</p>
+                </div>
+                <div className="flex gap-2">
+                    <button className="px-4 py-2 bg-slate-800/60 hover:bg-slate-700/60 text-slate-300 rounded-lg border border-slate-700/50 transition-all text-sm font-medium">
+                        Upload Invoice
+                    </button>
+                    <button className="px-4 py-2 bg-blue-600/90 hover:bg-blue-500 text-white rounded-lg transition-all text-sm font-medium shadow-lg shadow-blue-500/20">
+                        Process Batch
+                    </button>
+                </div>
+            </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+            {/* KPI Cards */}
+            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
                 <StatCard
                     title="Pending Approval"
                     value="42"
@@ -690,6 +918,7 @@ function InvoiceProcessingContent() {
                     title="Approved Today"
                     value="18"
                     variant="success"
+                    icon={<CheckCircle className="w-6 h-6" />}
                     onClick={() => push({
                         type: 'approved-invoices',
                         data: { title: 'Recently Approved Invoices' },
@@ -711,6 +940,7 @@ function InvoiceProcessingContent() {
                     title="Avg Processing Time"
                     value="2.3 days"
                     variant="success"
+                    icon={<Clock className="w-6 h-6" />}
                     trend={{ value: "-0.4 days", direction: "down" }}
                     onClick={() => push({
                         type: 'processing-time',
@@ -720,28 +950,215 @@ function InvoiceProcessingContent() {
                 />
             </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <div className="bg-gradient-to-br from-slate-800/60 to-slate-900/60 backdrop-blur-xl rounded-xl border border-slate-700/50 p-6 cursor-pointer hover:border-slate-600/50 transition-colors"
+            {/* Approval Workflow and Automation */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <div className="bg-gradient-to-br from-slate-800/70 to-slate-900/70 backdrop-blur-xl rounded-2xl border border-slate-700/50 p-8 cursor-pointer hover:border-blue-500/50 hover:shadow-xl hover:shadow-blue-500/10 transition-all duration-300"
                     onClick={() => push({ type: 'approval-workflow', data: { title: 'Approval Workflow Status' }, id: 'workflow-status' } as Omit<DrilldownLevel, "timestamp">)}>
-                    <h3 className="text-sm font-medium text-slate-400 uppercase tracking-wide mb-4">Approval Workflow</h3>
-                    <QuickStat label="Manager Review" value="24 invoices" />
-                    <QuickStat label="Finance Review" value="12 invoices" />
-                    <QuickStat label="Final Approval" value="6 invoices" />
-                    <QuickStat label="Ready to Pay" value="18 invoices" trend="up" />
+                    <div className="flex items-start justify-between mb-6">
+                        <h3 className="text-lg font-semibold text-white">Approval Workflow Pipeline</h3>
+                        <span className="text-xs px-2 py-1 bg-blue-500/20 text-blue-400 rounded-full">42 in queue</span>
+                    </div>
+                    <div className="space-y-5">
+                        {/* Manager Review Stage */}
+                        <div className="space-y-2">
+                            <div className="flex items-center justify-between">
+                                <div className="flex items-center gap-2">
+                                    <div className="w-2 h-2 bg-amber-400 rounded-full"></div>
+                                    <span className="text-sm font-medium text-white">Manager Review</span>
+                                </div>
+                                <span className="text-sm font-bold text-amber-400">24</span>
+                            </div>
+                            <div className="w-full bg-slate-900/50 rounded-full h-2">
+                                <div className="bg-gradient-to-r from-amber-500 to-amber-400 h-2 rounded-full" style={{ width: '57%' }}></div>
+                            </div>
+                            <div className="text-xs text-slate-500">Avg. 1.2 days in stage</div>
+                        </div>
+
+                        {/* Finance Review Stage */}
+                        <div className="space-y-2">
+                            <div className="flex items-center justify-between">
+                                <div className="flex items-center gap-2">
+                                    <div className="w-2 h-2 bg-blue-400 rounded-full"></div>
+                                    <span className="text-sm font-medium text-white">Finance Review</span>
+                                </div>
+                                <span className="text-sm font-bold text-blue-400">12</span>
+                            </div>
+                            <div className="w-full bg-slate-900/50 rounded-full h-2">
+                                <div className="bg-gradient-to-r from-blue-500 to-blue-400 h-2 rounded-full" style={{ width: '29%' }}></div>
+                            </div>
+                            <div className="text-xs text-slate-500">Avg. 0.8 days in stage</div>
+                        </div>
+
+                        {/* Final Approval Stage */}
+                        <div className="space-y-2">
+                            <div className="flex items-center justify-between">
+                                <div className="flex items-center gap-2">
+                                    <div className="w-2 h-2 bg-purple-400 rounded-full"></div>
+                                    <span className="text-sm font-medium text-white">Final Approval</span>
+                                </div>
+                                <span className="text-sm font-bold text-purple-400">6</span>
+                            </div>
+                            <div className="w-full bg-slate-900/50 rounded-full h-2">
+                                <div className="bg-gradient-to-r from-purple-500 to-purple-400 h-2 rounded-full" style={{ width: '14%' }}></div>
+                            </div>
+                            <div className="text-xs text-slate-500">Avg. 0.3 days in stage</div>
+                        </div>
+
+                        {/* Ready to Pay */}
+                        <div className="p-4 bg-emerald-500/10 rounded-lg border border-emerald-500/20 mt-4">
+                            <div className="flex items-center justify-between">
+                                <div className="flex items-center gap-2">
+                                    <CheckCircle className="w-4 h-4 text-emerald-400" weight="fill" />
+                                    <span className="text-sm font-medium text-emerald-400">Ready to Pay</span>
+                                </div>
+                                <span className="text-lg font-bold text-emerald-400">18</span>
+                            </div>
+                            <div className="text-xs text-emerald-400/70 mt-1">Awaiting payment processing</div>
+                        </div>
+                    </div>
                 </div>
 
-                <div className="bg-gradient-to-br from-slate-800/60 to-slate-900/60 backdrop-blur-xl rounded-xl border border-slate-700/50 p-6 cursor-pointer hover:border-slate-600/50 transition-colors"
-                    onClick={() => push({ type: 'invoice-automation', data: { title: 'Automation Metrics' }, id: 'automation-metrics' } as Omit<DrilldownLevel, "timestamp">)}>
-                    <h3 className="text-sm font-medium text-slate-400 uppercase tracking-wide mb-4">Automation Rate</h3>
-                    <ProgressRing progress={78} color="blue" label="78%" sublabel="automated processing" />
-                    <div className="mt-4 text-sm text-slate-300">
-                        <div className="flex justify-between">
-                            <span>OCR Accuracy:</span>
-                            <span className="font-semibold text-emerald-400">96.4%</span>
+                <div className="bg-gradient-to-br from-slate-800/70 to-slate-900/70 backdrop-blur-xl rounded-2xl border border-slate-700/50 p-8 cursor-pointer hover:border-blue-500/50 hover:shadow-xl hover:shadow-blue-500/10 transition-all duration-300"
+                    onClick={() => push({ type: 'invoice-automation', data: { title: 'Automation Performance' }, id: 'automation-metrics' } as Omit<DrilldownLevel, "timestamp">)}>
+                    <div className="flex items-start justify-between mb-6">
+                        <h3 className="text-lg font-semibold text-white">AI Automation Performance</h3>
+                        <span className="px-3 py-1 bg-blue-500/20 text-blue-400 rounded-full text-xs font-medium flex items-center gap-1">
+                            <Sparkle className="w-3 h-3" />
+                            AI-Powered
+                        </span>
+                    </div>
+                    <div className="flex items-center justify-center mb-6">
+                        <ProgressRing progress={78} color="blue" label="78%" sublabel="automated" />
+                    </div>
+                    <div className="space-y-4">
+                        <div className="p-4 bg-slate-900/50 rounded-lg">
+                            <div className="flex justify-between items-center mb-2">
+                                <span className="text-sm text-slate-400">OCR Accuracy</span>
+                                <span className="text-xs px-2 py-1 bg-emerald-500/20 text-emerald-400 rounded-full">Excellent</span>
+                            </div>
+                            <div className="text-2xl font-bold text-emerald-400 mb-1">96.4%</div>
+                            <div className="w-full bg-slate-900/50 rounded-full h-1.5 mt-2">
+                                <div className="bg-gradient-to-r from-emerald-500 to-emerald-400 h-1.5 rounded-full" style={{ width: '96.4%' }}></div>
+                            </div>
                         </div>
-                        <div className="flex justify-between">
-                            <span>Auto-Matched:</span>
-                            <span className="font-semibold text-emerald-400">234/300</span>
+                        <div className="p-4 bg-slate-900/50 rounded-lg">
+                            <div className="flex justify-between items-center mb-2">
+                                <span className="text-sm text-slate-400">Auto-Matched Invoices</span>
+                                <span className="text-xs text-slate-500">This month</span>
+                            </div>
+                            <div className="text-2xl font-bold text-white mb-1">234 <span className="text-lg text-slate-400">/ 300</span></div>
+                            <div className="w-full bg-slate-900/50 rounded-full h-1.5 mt-2">
+                                <div className="bg-gradient-to-r from-blue-500 to-blue-400 h-1.5 rounded-full" style={{ width: '78%' }}></div>
+                            </div>
+                        </div>
+                        <div className="p-4 bg-blue-500/10 rounded-lg border border-blue-500/20">
+                            <div className="flex justify-between items-center">
+                                <span className="text-sm text-blue-400">Time Saved This Month</span>
+                                <span className="text-lg font-bold text-blue-400">42.6 hrs</span>
+                            </div>
+                            <div className="text-xs text-blue-400/70 mt-1">$1,278 labor cost savings</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {/* Recent Invoice Activity */}
+            <div className="bg-gradient-to-br from-slate-800/70 to-slate-900/70 backdrop-blur-xl rounded-2xl border border-slate-700/50 p-8">
+                <div className="flex items-start justify-between mb-6">
+                    <div>
+                        <h3 className="text-lg font-semibold text-white mb-2">Recent Invoice Activity</h3>
+                        <p className="text-sm text-slate-400">Latest invoice processing updates and status changes</p>
+                    </div>
+                    <select className="px-3 py-2 bg-slate-900/50 text-slate-300 rounded-lg border border-slate-700/50 text-sm">
+                        <option>All Invoices</option>
+                        <option>Approved</option>
+                        <option>Pending</option>
+                        <option>Rejected</option>
+                    </select>
+                </div>
+                <div className="space-y-3">
+                    <div className="flex items-center justify-between p-4 bg-slate-900/30 hover:bg-slate-900/50 rounded-lg border border-slate-700/30 transition-colors cursor-pointer">
+                        <div className="flex items-center gap-4">
+                            <CheckCircle className="w-5 h-5 text-emerald-400" weight="fill" />
+                            <div>
+                                <div className="text-sm font-medium text-white">INV-2026-0089</div>
+                                <div className="text-xs text-slate-400">Parts Depot • Service parts</div>
+                            </div>
+                        </div>
+                        <div className="flex items-center gap-6">
+                            <div className="text-right">
+                                <div className="text-sm font-semibold text-white">$2,845.67</div>
+                                <div className="text-xs text-slate-400">Approved 5 min ago</div>
+                            </div>
+                            <ArrowRight className="w-4 h-4 text-slate-600" />
+                        </div>
+                    </div>
+
+                    <div className="flex items-center justify-between p-4 bg-slate-900/30 hover:bg-slate-900/50 rounded-lg border border-slate-700/30 transition-colors cursor-pointer">
+                        <div className="flex items-center gap-4">
+                            <Clock className="w-5 h-5 text-amber-400" weight="fill" />
+                            <div>
+                                <div className="text-sm font-medium text-white">INV-2026-0088</div>
+                                <div className="text-xs text-slate-400">Fuel Master LLC • Diesel fuel</div>
+                            </div>
+                        </div>
+                        <div className="flex items-center gap-6">
+                            <div className="text-right">
+                                <div className="text-sm font-semibold text-white">$12,456.00</div>
+                                <div className="text-xs text-amber-400">Pending manager review</div>
+                            </div>
+                            <ArrowRight className="w-4 h-4 text-slate-600" />
+                        </div>
+                    </div>
+
+                    <div className="flex items-center justify-between p-4 bg-slate-900/30 hover:bg-slate-900/50 rounded-lg border border-slate-700/30 transition-colors cursor-pointer">
+                        <div className="flex items-center gap-4">
+                            <CheckCircle className="w-5 h-5 text-emerald-400" weight="fill" />
+                            <div>
+                                <div className="text-sm font-medium text-white">INV-2026-0087</div>
+                                <div className="text-xs text-slate-400">Acme Transmission • Sublet repair</div>
+                            </div>
+                        </div>
+                        <div className="flex items-center gap-6">
+                            <div className="text-right">
+                                <div className="text-sm font-semibold text-white">$4,320.15</div>
+                                <div className="text-xs text-slate-400">Approved 1 hour ago</div>
+                            </div>
+                            <ArrowRight className="w-4 h-4 text-slate-600" />
+                        </div>
+                    </div>
+
+                    <div className="flex items-center justify-between p-4 bg-slate-900/30 hover:bg-slate-900/50 rounded-lg border border-slate-700/30 transition-colors cursor-pointer">
+                        <div className="flex items-center gap-4">
+                            <XCircle className="w-5 h-5 text-red-400" weight="fill" />
+                            <div>
+                                <div className="text-sm font-medium text-white">INV-2026-0086</div>
+                                <div className="text-xs text-slate-400">Unknown Vendor • Missing PO</div>
+                            </div>
+                        </div>
+                        <div className="flex items-center gap-6">
+                            <div className="text-right">
+                                <div className="text-sm font-semibold text-white">$892.00</div>
+                                <div className="text-xs text-red-400">Rejected - No PO match</div>
+                            </div>
+                            <ArrowRight className="w-4 h-4 text-slate-600" />
+                        </div>
+                    </div>
+
+                    <div className="flex items-center justify-between p-4 bg-slate-900/30 hover:bg-slate-900/50 rounded-lg border border-slate-700/30 transition-colors cursor-pointer">
+                        <div className="flex items-center gap-4">
+                            <Clock className="w-5 h-5 text-blue-400" weight="fill" />
+                            <div>
+                                <div className="text-sm font-medium text-white">INV-2026-0085</div>
+                                <div className="text-xs text-slate-400">Service Pro • Preventive maintenance</div>
+                            </div>
+                        </div>
+                        <div className="flex items-center gap-6">
+                            <div className="text-right">
+                                <div className="text-sm font-semibold text-white">$6,720.00</div>
+                                <div className="text-xs text-blue-400">In finance review</div>
+                            </div>
+                            <ArrowRight className="w-4 h-4 text-slate-600" />
                         </div>
                     </div>
                 </div>
@@ -758,10 +1175,25 @@ function PaymentTrackingContent() {
     const { push } = useDrilldown()
 
     return (
-        <div className="p-6 space-y-6 bg-gradient-to-b from-slate-900/50 to-transparent">
-            <h2 className="text-2xl font-bold text-white">Payment Tracking & Reconciliation</h2>
+        <div className="p-8 space-y-8 bg-gradient-to-b from-slate-900/50 via-transparent to-transparent">
+            {/* Header Section */}
+            <div className="flex items-center justify-between">
+                <div>
+                    <h2 className="text-3xl font-bold text-white mb-2">Payment Tracking & Reconciliation</h2>
+                    <p className="text-slate-400">Payment scheduling, vendor disbursements, and financial reconciliation</p>
+                </div>
+                <div className="flex gap-2">
+                    <button className="px-4 py-2 bg-slate-800/60 hover:bg-slate-700/60 text-slate-300 rounded-lg border border-slate-700/50 transition-all text-sm font-medium">
+                        Schedule Payment
+                    </button>
+                    <button className="px-4 py-2 bg-emerald-600/90 hover:bg-emerald-500 text-white rounded-lg transition-all text-sm font-medium shadow-lg shadow-emerald-500/20">
+                        Reconcile
+                    </button>
+                </div>
+            </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+            {/* KPI Cards */}
+            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
                 <StatCard
                     title="Scheduled Payments"
                     value="$245.6K"
@@ -777,6 +1209,7 @@ function PaymentTrackingContent() {
                     title="Paid This Month"
                     value="$312.4K"
                     variant="success"
+                    icon={<CheckCircle className="w-6 h-6" />}
                     onClick={() => push({
                         type: 'paid-this-month',
                         data: { title: 'Monthly Payment History' },
@@ -798,6 +1231,7 @@ function PaymentTrackingContent() {
                     title="Failed Payments"
                     value="3"
                     variant="danger"
+                    icon={<XCircle className="w-6 h-6" />}
                     onClick={() => push({
                         type: 'failed-payments',
                         data: { title: 'Failed Payment Transactions' },
@@ -806,31 +1240,230 @@ function PaymentTrackingContent() {
                 />
             </div>
 
+            {/* Payment Methods and Top Vendors */}
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                <div className="bg-gradient-to-br from-slate-800/60 to-slate-900/60 backdrop-blur-xl rounded-xl border border-slate-700/50 p-6 cursor-pointer hover:border-slate-600/50 transition-colors"
+                <div className="bg-gradient-to-br from-slate-800/70 to-slate-900/70 backdrop-blur-xl rounded-2xl border border-slate-700/50 p-8 cursor-pointer hover:border-blue-500/50 hover:shadow-xl hover:shadow-blue-500/10 transition-all duration-300"
                     onClick={() => push({ type: 'payment-methods', data: { title: 'Payment Method Breakdown' }, id: 'payment-methods' } as Omit<DrilldownLevel, "timestamp">)}>
-                    <h3 className="text-sm font-medium text-slate-400 uppercase tracking-wide mb-4">Payment Methods</h3>
-                    <QuickStat label="ACH" value="$189.2K (61%)" trend="up" />
-                    <QuickStat label="Check" value="$78.4K (25%)" trend="down" />
-                    <QuickStat label="Wire Transfer" value="$44.8K (14%)" />
+                    <div className="flex items-start justify-between mb-6">
+                        <h3 className="text-lg font-semibold text-white">Payment Methods</h3>
+                        <CreditCard className="w-5 h-5 text-slate-400" />
+                    </div>
+                    <div className="space-y-5">
+                        <div className="space-y-2">
+                            <div className="flex justify-between items-center">
+                                <div>
+                                    <span className="text-sm font-medium text-white">ACH Transfer</span>
+                                    <div className="text-xs text-slate-400 mt-1">61% of payments</div>
+                                </div>
+                                <span className="text-xs px-2 py-1 bg-emerald-500/20 text-emerald-400 rounded-full">↑ 8%</span>
+                            </div>
+                            <div className="w-full bg-slate-900/50 rounded-full h-2.5">
+                                <div className="bg-gradient-to-r from-emerald-500 to-emerald-400 h-2.5 rounded-full" style={{ width: '61%' }}></div>
+                            </div>
+                            <div className="text-sm font-bold text-white">$189.2K</div>
+                        </div>
+
+                        <div className="space-y-2">
+                            <div className="flex justify-between items-center">
+                                <div>
+                                    <span className="text-sm font-medium text-white">Check</span>
+                                    <div className="text-xs text-slate-400 mt-1">25% of payments</div>
+                                </div>
+                                <span className="text-xs px-2 py-1 bg-amber-500/20 text-amber-400 rounded-full">↓ 5%</span>
+                            </div>
+                            <div className="w-full bg-slate-900/50 rounded-full h-2.5">
+                                <div className="bg-gradient-to-r from-blue-500 to-blue-400 h-2.5 rounded-full" style={{ width: '25%' }}></div>
+                            </div>
+                            <div className="text-sm font-bold text-white">$78.4K</div>
+                        </div>
+
+                        <div className="space-y-2">
+                            <div className="flex justify-between items-center">
+                                <div>
+                                    <span className="text-sm font-medium text-white">Wire Transfer</span>
+                                    <div className="text-xs text-slate-400 mt-1">14% of payments</div>
+                                </div>
+                            </div>
+                            <div className="w-full bg-slate-900/50 rounded-full h-2.5">
+                                <div className="bg-gradient-to-r from-purple-500 to-purple-400 h-2.5 rounded-full" style={{ width: '14%' }}></div>
+                            </div>
+                            <div className="text-sm font-bold text-white">$44.8K</div>
+                        </div>
+                    </div>
                 </div>
 
-                <div className="bg-gradient-to-br from-slate-800/60 to-slate-900/60 backdrop-blur-xl rounded-xl border border-slate-700/50 p-6 cursor-pointer hover:border-slate-600/50 transition-colors"
+                <div className="bg-gradient-to-br from-slate-800/70 to-slate-900/70 backdrop-blur-xl rounded-2xl border border-slate-700/50 p-8 cursor-pointer hover:border-blue-500/50 hover:shadow-xl hover:shadow-blue-500/10 transition-all duration-300"
                     onClick={() => push({ type: 'vendor-payments', data: { title: 'Top Vendor Payments' }, id: 'top-vendors' } as Omit<DrilldownLevel, "timestamp">)}>
-                    <h3 className="text-sm font-medium text-slate-400 uppercase tracking-wide mb-4">Top Vendors</h3>
-                    <QuickStat label="Fuel Master LLC" value="$124.2K" />
-                    <QuickStat label="Parts Depot" value="$67.8K" />
-                    <QuickStat label="Service Pro" value="$45.3K" />
+                    <div className="flex items-start justify-between mb-6">
+                        <h3 className="text-lg font-semibold text-white">Top Vendors This Month</h3>
+                        <Users className="w-5 h-5 text-slate-400" />
+                    </div>
+                    <div className="space-y-4">
+                        <div className="flex items-center justify-between p-4 bg-gradient-to-r from-amber-500/10 to-transparent rounded-lg border-l-2 border-amber-500">
+                            <div>
+                                <div className="text-sm font-medium text-white mb-1">Fuel Master LLC</div>
+                                <div className="text-xs text-slate-400">18 payments • Fuel supply</div>
+                            </div>
+                            <div className="text-right">
+                                <div className="text-lg font-bold text-amber-400">$124.2K</div>
+                                <div className="text-xs text-slate-500">40% of total</div>
+                            </div>
+                        </div>
+
+                        <div className="flex items-center justify-between p-4 bg-gradient-to-r from-blue-500/10 to-transparent rounded-lg border-l-2 border-blue-500">
+                            <div>
+                                <div className="text-sm font-medium text-white mb-1">Parts Depot</div>
+                                <div className="text-xs text-slate-400">24 payments • Parts & supplies</div>
+                            </div>
+                            <div className="text-right">
+                                <div className="text-lg font-bold text-blue-400">$67.8K</div>
+                                <div className="text-xs text-slate-500">22% of total</div>
+                            </div>
+                        </div>
+
+                        <div className="flex items-center justify-between p-4 bg-gradient-to-r from-purple-500/10 to-transparent rounded-lg border-l-2 border-purple-500">
+                            <div>
+                                <div className="text-sm font-medium text-white mb-1">Service Pro</div>
+                                <div className="text-xs text-slate-400">12 payments • Sublet repairs</div>
+                            </div>
+                            <div className="text-right">
+                                <div className="text-lg font-bold text-purple-400">$45.3K</div>
+                                <div className="text-xs text-slate-500">15% of total</div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
-                <div className="bg-gradient-to-br from-slate-800/60 to-slate-900/60 backdrop-blur-xl rounded-xl border border-slate-700/50 p-6 cursor-pointer hover:border-slate-600/50 transition-colors"
+                <div className="bg-gradient-to-br from-slate-800/70 to-slate-900/70 backdrop-blur-xl rounded-2xl border border-slate-700/50 p-8 cursor-pointer hover:border-blue-500/50 hover:shadow-xl hover:shadow-blue-500/10 transition-all duration-300"
                     onClick={() => push({ type: 'reconciliation', data: { title: 'Payment Reconciliation Status' }, id: 'reconciliation' } as Omit<DrilldownLevel, "timestamp">)}>
-                    <h3 className="text-sm font-medium text-slate-400 uppercase tracking-wide mb-4">Reconciliation</h3>
-                    <ProgressRing progress={96} color="green" label="96%" sublabel="reconciled" />
-                    <div className="mt-4 text-sm text-slate-300">
-                        <div className="flex justify-between">
-                            <span>Unreconciled:</span>
-                            <span className="font-semibold text-amber-400">$12.8K</span>
+                    <div className="flex items-start justify-between mb-6">
+                        <h3 className="text-lg font-semibold text-white">Reconciliation Status</h3>
+                        <span className="px-3 py-1 bg-emerald-500/20 text-emerald-400 rounded-full text-xs font-medium">On Track</span>
+                    </div>
+                    <div className="flex items-center justify-center mb-6">
+                        <ProgressRing progress={96} color="green" label="96%" sublabel="reconciled" />
+                    </div>
+                    <div className="space-y-3">
+                        <div className="p-4 bg-emerald-500/10 rounded-lg border border-emerald-500/20">
+                            <div className="flex justify-between items-center mb-1">
+                                <span className="text-sm text-emerald-400">Reconciled</span>
+                                <CheckCircle className="w-4 h-4 text-emerald-400" weight="fill" />
+                            </div>
+                            <div className="text-2xl font-bold text-emerald-400">$299.6K</div>
+                        </div>
+                        <div className="p-4 bg-amber-500/10 rounded-lg border border-amber-500/20">
+                            <div className="flex justify-between items-center mb-1">
+                                <span className="text-sm text-amber-400">Pending Review</span>
+                                <Clock className="w-4 h-4 text-amber-400" weight="fill" />
+                            </div>
+                            <div className="text-2xl font-bold text-amber-400">$12.8K</div>
+                            <div className="text-xs text-amber-400/70 mt-1">4% unreconciled</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {/* Payment Schedule */}
+            <div className="bg-gradient-to-br from-slate-800/70 to-slate-900/70 backdrop-blur-xl rounded-2xl border border-slate-700/50 p-8">
+                <div className="flex items-start justify-between mb-6">
+                    <div>
+                        <h3 className="text-lg font-semibold text-white mb-2">Upcoming Payment Schedule</h3>
+                        <p className="text-sm text-slate-400">Next 7 days payment schedule by due date</p>
+                    </div>
+                    <select className="px-3 py-2 bg-slate-900/50 text-slate-300 rounded-lg border border-slate-700/50 text-sm">
+                        <option>Next 7 Days</option>
+                        <option>Next 14 Days</option>
+                        <option>Next 30 Days</option>
+                        <option>All Upcoming</option>
+                    </select>
+                </div>
+
+                <div className="space-y-3">
+                    <div className="flex items-center justify-between p-4 bg-gradient-to-r from-red-500/10 to-transparent rounded-lg border-l-2 border-red-500">
+                        <div className="flex items-center gap-4">
+                            <div className="text-center">
+                                <div className="text-xs text-slate-400">JAN</div>
+                                <div className="text-2xl font-bold text-white">06</div>
+                                <div className="text-xs text-red-400">Tomorrow</div>
+                            </div>
+                            <div className="h-12 w-px bg-slate-700"></div>
+                            <div>
+                                <div className="text-sm font-medium text-white mb-1">3 payments due</div>
+                                <div className="text-xs text-slate-400">Fuel Master LLC, Parts Depot, Service Pro</div>
+                            </div>
+                        </div>
+                        <div className="flex items-center gap-6">
+                            <div className="text-right">
+                                <div className="text-lg font-bold text-white">$42,567.89</div>
+                                <div className="text-xs text-red-400">Due tomorrow</div>
+                            </div>
+                            <ArrowRight className="w-4 h-4 text-slate-600" />
+                        </div>
+                    </div>
+
+                    <div className="flex items-center justify-between p-4 bg-gradient-to-r from-amber-500/10 to-transparent rounded-lg border-l-2 border-amber-500">
+                        <div className="flex items-center gap-4">
+                            <div className="text-center">
+                                <div className="text-xs text-slate-400">JAN</div>
+                                <div className="text-2xl font-bold text-white">08</div>
+                                <div className="text-xs text-amber-400">3 days</div>
+                            </div>
+                            <div className="h-12 w-px bg-slate-700"></div>
+                            <div>
+                                <div className="text-sm font-medium text-white mb-1">5 payments due</div>
+                                <div className="text-xs text-slate-400">Multiple vendors</div>
+                            </div>
+                        </div>
+                        <div className="flex items-center gap-6">
+                            <div className="text-right">
+                                <div className="text-lg font-bold text-white">$68,234.12</div>
+                                <div className="text-xs text-amber-400">Due in 3 days</div>
+                            </div>
+                            <ArrowRight className="w-4 h-4 text-slate-600" />
+                        </div>
+                    </div>
+
+                    <div className="flex items-center justify-between p-4 bg-gradient-to-r from-blue-500/10 to-transparent rounded-lg border-l-2 border-blue-500">
+                        <div className="flex items-center gap-4">
+                            <div className="text-center">
+                                <div className="text-xs text-slate-400">JAN</div>
+                                <div className="text-2xl font-bold text-white">10</div>
+                                <div className="text-xs text-blue-400">5 days</div>
+                            </div>
+                            <div className="h-12 w-px bg-slate-700"></div>
+                            <div>
+                                <div className="text-sm font-medium text-white mb-1">7 payments due</div>
+                                <div className="text-xs text-slate-400">Weekly vendor payments</div>
+                            </div>
+                        </div>
+                        <div className="flex items-center gap-6">
+                            <div className="text-right">
+                                <div className="text-lg font-bold text-white">$89,456.00</div>
+                                <div className="text-xs text-blue-400">Due in 5 days</div>
+                            </div>
+                            <ArrowRight className="w-4 h-4 text-slate-600" />
+                        </div>
+                    </div>
+
+                    <div className="flex items-center justify-between p-4 bg-gradient-to-r from-slate-500/10 to-transparent rounded-lg border-l-2 border-slate-500">
+                        <div className="flex items-center gap-4">
+                            <div className="text-center">
+                                <div className="text-xs text-slate-400">JAN</div>
+                                <div className="text-2xl font-bold text-white">12</div>
+                                <div className="text-xs text-slate-400">7 days</div>
+                            </div>
+                            <div className="h-12 w-px bg-slate-700"></div>
+                            <div>
+                                <div className="text-sm font-medium text-white mb-1">4 payments due</div>
+                                <div className="text-xs text-slate-400">Monthly recurring payments</div>
+                            </div>
+                        </div>
+                        <div className="flex items-center gap-6">
+                            <div className="text-right">
+                                <div className="text-lg font-bold text-white">$45,908.78</div>
+                                <div className="text-xs text-slate-400">Due in 7 days</div>
+                            </div>
+                            <ArrowRight className="w-4 h-4 text-slate-600" />
                         </div>
                     </div>
                 </div>
