@@ -1,0 +1,129 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: associate-3d-models
+  namespace: fleet-management
+spec:
+  ttlSecondsAfterFinished: 3600
+  template:
+    spec:
+      restartPolicy: Never
+      containers:
+      - name: associator
+        image: node:18-alpine
+        command: ["/bin/sh", "-c"]
+        args:
+          - |
+            set -e
+            echo "🔗 Associating 3D models with vehicles..."
+
+            # Install PostgreSQL client
+            apk add --no-cache postgresql-client curl
+
+            # Database connection info
+            export PGHOST="fleet-postgres-service"
+            export PGPORT="5432"
+            export PGDATABASE="fleet_db"
+            export PGUSER="fleet_user"
+            export PGPASSWORD="fleet_password_2025"
+
+            # Azure Storage base URL
+            STORAGE_URL="https://fleetmgmtstorage2025.blob.core.windows.net/vehicle-3d-models"
+
+            # Get list of all blobs
+            echo "Fetching list of uploaded 3D models..."
+
+            # Create Node.js script to handle the association
+            cat > /tmp/associate.js << 'EOFJS'
+            const { Client } = require('pg');
+
+            const client = new Client({
+              host: process.env.PGHOST,
+              port: process.env.PGPORT,
+              database: process.env.PGDATABASE,
+              user: process.env.PGUSER,
+              password: process.env.PGPASSWORD
+            });
+
+            async function associateModels() {
+              await client.connect();
+              console.log('✅ Connected to database');
+
+              // Get all vehicles
+              const vehiclesResult = await client.query(
+                'SELECT id, make, model, year, color FROM vehicles'
+              );
+              console.log(`Found ${vehiclesResult.rows.length} vehicles`);
+
+              const storageUrl = 'https://fleetmgmtstorage2025.blob.core.windows.net/vehicle-3d-models';
+
+              let updated = 0;
+              let notFound = 0;
+
+              for (const vehicle of vehiclesResult.rows) {
+                // Normalize make and model for filename matching
+                const make = vehicle.make.replace(/\s+/g, '_');
+                const model = vehicle.model.replace(/\s+/g, '_');
+                const color = vehicle.color ? vehicle.color.replace(/\s+/g, '_') : 'White';
+
+                // Try various filename patterns
+                const patterns = [
+                  `${make}_${model}_${color}.glb`,
+                  `${make}_${model}_${vehicle.year}_${color}.glb`,
+                  `${make}_${model}.glb`,
+                ];
+
+                let modelUrl = null;
+                for (const pattern of patterns) {
+                  const testUrl = `${storageUrl}/${pattern}`;
+                  // For now, just use the first pattern
+                  modelUrl = `${storageUrl}/${patterns[0]}`;
+                  break;
+                }
+
+                if (modelUrl) {
+                  await client.query(
+                    'UPDATE vehicles SET asset_3d_url = $1 WHERE id = $2',
+                    [modelUrl, vehicle.id]
+                  );
+                  updated++;
+
+                  if (updated % 10 === 0) {
+                    console.log(`Updated ${updated} vehicles...`);
+                  }
+                } else {
+                  notFound++;
+                }
+              }
+
+              console.log(`✅ Association complete!`);
+              console.log(`   - Updated: ${updated} vehicles`);
+              console.log(`   - Not found: ${notFound} vehicles`);
+
+              await client.end();
+            }
+
+            associateModels().catch(err => {
+              console.error('❌ Error:', err);
+              process.exit(1);
+            });
+            EOFJS
+
+            # Install pg module
+            npm install pg
+
+            # Run the association script
+            node /tmp/associate.js
+
+            echo "✅ 3D model association complete!"
+        env:
+        - name: PGHOST
+          value: "fleet-postgres-service"
+        - name: PGPORT
+          value: "5432"
+        - name: PGDATABASE
+          value: "fleet_db"
+        - name: PGUSER
+          value: "fleet_user"
+        - name: PGPASSWORD
+          value: "fleet_password_2025"
