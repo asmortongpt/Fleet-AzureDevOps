@@ -140,6 +140,8 @@ import outlookRouter from './routes/outlook.routes'
 import emulatorRouter from './routes/emulator.routes'
 import obd2EmulatorRouter from './routes/obd2-emulator.routes'
 import demoRouter from './routes/demo.routes'
+import { createPeopleSoftRouter } from './emulators/peoplesoft/PeopleSoftEmulator'
+import { createFuelMasterRouter } from './emulators/fuelmaster/FuelMasterEmulator'
 
 // System Management Routes
 import monitoringRouter from './routes/monitoring'
@@ -428,6 +430,8 @@ app.use('/api/video-telematics', videoTelematicsRouter)
 app.use('/api/emulator', emulatorRouter)
 app.use('/api/obd2-emulator', obd2EmulatorRouter)
 app.use('/api/demo', demoRouter)
+app.use('/api/emulators/peoplesoft', createPeopleSoftRouter())
+app.use('/api/emulators/fuelmaster', createFuelMasterRouter())
 
 // System Management Routes
 app.use('/api/monitoring', monitoringRouter)
