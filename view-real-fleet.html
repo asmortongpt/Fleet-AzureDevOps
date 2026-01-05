@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Real Fleet 3D Viewer - Professional Models</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #fff;
+        }
+        .container { display: flex; flex-direction: column; height: 100vh; padding: 20px; }
+        .header { text-align: center; margin-bottom: 20px; }
+        h1 { font-size: 2.5em; margin-bottom: 10px; text-shadow: 2px 2px 4px rgba(0,0,0,0.3); }
+        .subtitle { font-size: 1.1em; opacity: 0.9; }
+        .viewer-wrapper {
+            flex: 1;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 20px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+            position: relative;
+            overflow: hidden;
+        }
+        #viewer { width: 100%; height: 100%; border-radius: 10px; }
+        .controls {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+        .control-group {
+            background: rgba(255, 255, 255, 0.15);
+            padding: 15px;
+            border-radius: 10px;
+            backdrop-filter: blur(5px);
+        }
+        label { display: block; margin-bottom: 8px; font-weight: 600; font-size: 0.9em; }
+        select, button {
+            width: 100%;
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+            background: rgba(255, 255, 255, 0.9);
+            color: #333;
+            font-size: 1em;
+            cursor: pointer;
+        }
+        button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            font-weight: 600;
+            margin-top: 10px;
+        }
+        button:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.2); }
+        .info-panel {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(0, 0, 0, 0.7);
+            padding: 15px;
+            border-radius: 10px;
+            min-width: 200px;
+        }
+        .info-item { margin: 5px 0; font-size: 0.9em; }
+        .status { position: absolute; top: 20px; left: 20px; background: rgba(0, 0, 0, 0.7); padding: 10px 15px; border-radius: 5px; }
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.150.0/build/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.150.0/examples/js/loaders/GLTFLoader.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.150.0/examples/js/controls/OrbitControls.js"></script>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🚛 Real Fleet 3D Viewer</h1>
+            <p class="subtitle">54 Professional Models from fleet-local</p>
+        </div>
+
+        <div class="viewer-wrapper">
+            <div id="viewer"></div>
+            <div class="status" id="status">Loading viewer...</div>
+            <div class="info-panel">
+                <div class="info-item"><strong>Vehicle:</strong> <span id="info-name">-</span></div>
+                <div class="info-item"><strong>Category:</strong> <span id="info-category">-</span></div>
+                <div class="info-item"><strong>File Size:</strong> <span id="info-size">-</span></div>
+                <div class="info-item"><strong>Status:</strong> <span id="info-status">Ready</span></div>
+            </div>
+        </div>
+
+        <div class="controls">
+            <div class="control-group">
+                <label for="category-select">Category:</label>
+                <select id="category-select">
+                    <option value="trucks">Trucks</option>
+                    <option value="vans">Vans</option>
+                    <option value="suvs">SUVs</option>
+                    <option value="sedans">Sedans</option>
+                    <option value="electric_sedans">Electric Sedans</option>
+                    <option value="construction">Construction</option>
+                </select>
+            </div>
+            <div class="control-group">
+                <label for="vehicle-select">Vehicle:</label>
+                <select id="vehicle-select">
+                    <option value="ford_f_150.glb">Ford F-150</option>
+                </select>
+            </div>
+            <div class="control-group">
+                <button id="reset-btn">Reset View</button>
+                <button id="rotate-btn">Auto Rotate</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Vehicle catalog
+        const catalog = {
+            trucks: [
+                { file: 'ford_f_150.glb', name: 'Ford F-150', size: '437 KB' },
+                { file: 'ford_f_250.glb', name: 'Ford F-250', size: '437 KB' },
+                { file: 'chevrolet_silverado.glb', name: 'Chevrolet Silverado', size: '437 KB' },
+                { file: 'gmc_sierra.glb', name: 'GMC Sierra', size: '437 KB' },
+                { file: 'ram_1500.glb', name: 'Ram 1500', size: '437 KB' },
+                { file: 'toyota_tacoma.glb', name: 'Toyota Tacoma', size: '437 KB' },
+                { file: 'freightliner_cascadia.glb', name: 'Freightliner Cascadia', size: '12 MB' },
+                { file: 'kenworth_t680.glb', name: 'Kenworth T680', size: '437 KB' },
+            ],
+            vans: [
+                { file: 'ford_transit.glb', name: 'Ford Transit', size: '437 KB' },
+                { file: 'mercedes_benz_sprinter.glb', name: 'Mercedes Sprinter', size: '437 KB' },
+                { file: 'ram_promaster.glb', name: 'Ram ProMaster', size: '437 KB' },
+                { file: 'nissan_nv3500.glb', name: 'Nissan NV3500', size: '437 KB' },
+            ],
+            suvs: [
+                { file: 'ford_explorer.glb', name: 'Ford Explorer', size: '5.6 MB' },
+                { file: 'chevrolet_tahoe.glb', name: 'Chevrolet Tahoe', size: '5.6 MB' },
+                { file: 'jeep_wrangler.glb', name: 'Jeep Wrangler', size: '5.6 MB' },
+                { file: 'honda_cr_v.glb', name: 'Honda CR-V', size: '5.6 MB' },
+                { file: 'tesla_model_x.glb', name: 'Tesla Model X', size: '5.6 MB' },
+            ],
+            sedans: [
+                { file: 'tesla_model_3.glb', name: 'Tesla Model 3', size: '5.6 MB' },
+                { file: 'tesla_model_s.glb', name: 'Tesla Model S', size: '5.6 MB' },
+                { file: 'honda_accord.glb', name: 'Honda Accord', size: '5.6 MB' },
+                { file: 'toyota_camry.glb', name: 'Toyota Camry', size: '5.6 MB' },
+            ],
+            electric_sedans: [
+                { file: 'tesla_model_3.glb', name: 'Tesla Model 3', size: '5.6 MB' },
+                { file: 'chevrolet_bolt_ev.glb', name: 'Chevrolet Bolt EV', size: '5.6 MB' },
+            ],
+            construction: [
+                { file: 'freightliner_cascadia.glb', name: 'Freightliner Cascadia', size: '12 MB' },
+                { file: 'mack_granite.glb', name: 'Mack Granite', size: '437 KB' },
+                { file: 'caterpillar_320.glb', name: 'CAT 320 Excavator', size: '12 KB' },
+            ]
+        };
+
+        let scene, camera, renderer, controls, currentModel;
+        let autoRotate = false;
+
+        function init() {
+            const container = document.getElementById('viewer');
+
+            // Scene
+            scene = new THREE.Scene();
+            scene.background = new THREE.Color(0x1a1a2e);
+
+            // Camera
+            camera = new THREE.PerspectiveCamera(75, container.clientWidth / container.clientHeight, 0.1, 1000);
+            camera.position.set(5, 3, 5);
+
+            // Renderer
+            renderer = new THREE.WebGLRenderer({ antialias: true });
+            renderer.setSize(container.clientWidth, container.clientHeight);
+            renderer.shadowMap.enabled = true;
+            container.appendChild(renderer.domElement);
+
+            // Lights
+            const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
+            scene.add(ambientLight);
+
+            const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
+            directionalLight.position.set(10, 10, 5);
+            directionalLight.castShadow = true;
+            scene.add(directionalLight);
+
+            // Controls
+            controls = new THREE.OrbitControls(camera, renderer.domElement);
+            controls.enableDamping = true;
+            controls.dampingFactor = 0.05;
+
+            // Event listeners
+            document.getElementById('category-select').addEventListener('change', updateVehicleList);
+            document.getElementById('vehicle-select').addEventListener('change', loadModel);
+            document.getElementById('reset-btn').addEventListener('click', resetCamera);
+            document.getElementById('rotate-btn').addEventListener('click', toggleRotate);
+
+            window.addEventListener('resize', onWindowResize);
+
+            updateVehicleList();
+            loadModel();
+            animate();
+        }
+
+        function updateVehicleList() {
+            const category = document.getElementById('category-select').value;
+            const vehicleSelect = document.getElementById('vehicle-select');
+            const vehicles = catalog[category] || [];
+
+            vehicleSelect.innerHTML = '';
+            vehicles.forEach(vehicle => {
+                const option = document.createElement('option');
+                option.value = vehicle.file;
+                option.textContent = `${vehicle.name} (${vehicle.size})`;
+                option.dataset.name = vehicle.name;
+                option.dataset.size = vehicle.size;
+                vehicleSelect.appendChild(option);
+            });
+
+            loadModel();
+        }
+
+        function loadModel() {
+            const category = document.getElementById('category-select').value;
+            const vehicleSelect = document.getElementById('vehicle-select');
+            const selectedOption = vehicleSelect.options[vehicleSelect.selectedIndex];
+
+            if (!selectedOption) return;
+
+            const filename = vehicleSelect.value;
+            const vehicleName = selectedOption.dataset.name;
+            const size = selectedOption.dataset.size;
+
+            document.getElementById('info-name').textContent = vehicleName;
+            document.getElementById('info-category').textContent = category;
+            document.getElementById('info-size').textContent = size;
+            document.getElementById('info-status').textContent = 'Loading...';
+            document.getElementById('status').textContent = `Loading ${vehicleName}...`;
+
+            if (currentModel) {
+                scene.remove(currentModel);
+            }
+
+            const loader = new THREE.GLTFLoader();
+            const path = `output/fleet_local_assets/${category}/${filename}`;
+
+            loader.load(
+                path,
+                (gltf) => {
+                    currentModel = gltf.scene;
+
+                    // Center and scale model
+                    const box = new THREE.Box3().setFromObject(currentModel);
+                    const center = box.getCenter(new THREE.Vector3());
+                    currentModel.position.sub(center);
+
+                    const size = box.getSize(new THREE.Vector3());
+                    const maxDim = Math.max(size.x, size.y, size.z);
+                    const scale = 3 / maxDim;
+                    currentModel.scale.setScalar(scale);
+
+                    scene.add(currentModel);
+
+                    document.getElementById('info-status').textContent = 'Loaded';
+                    document.getElementById('status').textContent = `✅ ${vehicleName} loaded successfully`;
+                },
+                (xhr) => {
+                    const percent = (xhr.loaded / xhr.total * 100).toFixed(0);
+                    document.getElementById('status').textContent = `Loading... ${percent}%`;
+                },
+                (error) => {
+                    console.error('Error loading model:', error);
+                    document.getElementById('info-status').textContent = 'Error';
+                    document.getElementById('status').textContent = `❌ Failed to load model`;
+                }
+            );
+        }
+
+        function resetCamera() {
+            camera.position.set(5, 3, 5);
+            controls.target.set(0, 0, 0);
+            controls.update();
+        }
+
+        function toggleRotate() {
+            autoRotate = !autoRotate;
+            document.getElementById('rotate-btn').textContent = autoRotate ? 'Stop Rotate' : 'Auto Rotate';
+        }
+
+        function onWindowResize() {
+            const container = document.getElementById('viewer');
+            camera.aspect = container.clientWidth / container.clientHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(container.clientWidth, container.clientHeight);
+        }
+
+        function animate() {
+            requestAnimationFrame(animate);
+
+            if (autoRotate && currentModel) {
+                currentModel.rotation.y += 0.005;
+            }
+
+            controls.update();
+            renderer.render(scene, camera);
+        }
+
+        init();
+    </script>
+</body>
+</html>
