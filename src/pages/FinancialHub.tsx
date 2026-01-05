@@ -38,10 +38,25 @@ function CostAnalysisContent() {
     const { push } = useDrilldown()
 
     return (
-        <div className="p-6 space-y-6 bg-gradient-to-b from-slate-900/50 to-transparent">
-            <h2 className="text-2xl font-bold text-white">Cost Analysis & Control</h2>
+        <div className="p-8 space-y-8 bg-gradient-to-b from-slate-900/50 via-transparent to-transparent">
+            {/* Header Section */}
+            <div className="flex items-center justify-between">
+                <div>
+                    <h2 className="text-3xl font-bold text-white mb-2">Cost Analysis & Control</h2>
+                    <p className="text-slate-400">Real-time cost tracking and budget variance monitoring</p>
+                </div>
+                <div className="flex gap-2">
+                    <button className="px-4 py-2 bg-slate-800/60 hover:bg-slate-700/60 text-slate-300 rounded-lg border border-slate-700/50 transition-all text-sm font-medium">
+                        Export Report
+                    </button>
+                    <button className="px-4 py-2 bg-blue-600/90 hover:bg-blue-500 text-white rounded-lg transition-all text-sm font-medium shadow-lg shadow-blue-500/20">
+                        Download CSV
+                    </button>
+                </div>
+            </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+            {/* KPI Cards */}
+            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
                 <StatCard
                     title="Total Monthly Costs"
                     value="$284.5K"
@@ -88,30 +103,77 @@ function CostAnalysisContent() {
                 />
             </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <div className="bg-gradient-to-br from-slate-800/60 to-slate-900/60 backdrop-blur-xl rounded-xl border border-slate-700/50 p-6 cursor-pointer hover:border-slate-600/50 transition-colors"
+            {/* Detailed Analysis Cards */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <div className="bg-gradient-to-br from-slate-800/70 to-slate-900/70 backdrop-blur-xl rounded-2xl border border-slate-700/50 p-8 cursor-pointer hover:border-blue-500/50 hover:shadow-xl hover:shadow-blue-500/10 transition-all duration-300"
                     onClick={() => push({ type: 'cost-variance', data: { title: 'Budget vs Actual Variance' }, id: 'variance-analysis' } as Omit<DrilldownLevel, "timestamp">)}>
-                    <h3 className="text-sm font-medium text-slate-400 uppercase tracking-wide mb-4">Budget Variance</h3>
-                    <ProgressRing progress={92} color="green" label="92%" sublabel="of budget utilized" />
-                    <div className="mt-4 text-sm text-slate-300">
-                        <div className="flex justify-between">
-                            <span>Budget:</span>
-                            <span className="font-semibold">$310K</span>
+                    <div className="flex items-start justify-between mb-6">
+                        <h3 className="text-lg font-semibold text-white">Budget Variance Analysis</h3>
+                        <span className="px-3 py-1 bg-emerald-500/20 text-emerald-400 rounded-full text-xs font-medium">On Track</span>
+                    </div>
+                    <div className="flex items-center justify-center mb-6">
+                        <ProgressRing progress={92} color="green" label="92%" sublabel="of budget utilized" />
+                    </div>
+                    <div className="space-y-3 text-sm">
+                        <div className="flex justify-between items-center p-3 bg-slate-900/50 rounded-lg">
+                            <span className="text-slate-400">Monthly Budget</span>
+                            <span className="font-semibold text-white">$310,000</span>
                         </div>
-                        <div className="flex justify-between text-emerald-400">
-                            <span>Remaining:</span>
-                            <span className="font-semibold">$25.5K</span>
+                        <div className="flex justify-between items-center p-3 bg-slate-900/50 rounded-lg">
+                            <span className="text-slate-400">Spent to Date</span>
+                            <span className="font-semibold text-white">$284,500</span>
+                        </div>
+                        <div className="flex justify-between items-center p-3 bg-emerald-500/10 rounded-lg border border-emerald-500/20">
+                            <span className="text-emerald-400">Remaining</span>
+                            <span className="font-semibold text-emerald-400">$25,500</span>
                         </div>
                     </div>
                 </div>
 
-                <div className="bg-gradient-to-br from-slate-800/60 to-slate-900/60 backdrop-blur-xl rounded-xl border border-slate-700/50 p-6 cursor-pointer hover:border-slate-600/50 transition-colors"
+                <div className="bg-gradient-to-br from-slate-800/70 to-slate-900/70 backdrop-blur-xl rounded-2xl border border-slate-700/50 p-8 cursor-pointer hover:border-blue-500/50 hover:shadow-xl hover:shadow-blue-500/10 transition-all duration-300"
                     onClick={() => push({ type: 'cost-categories', data: { title: 'Cost Category Breakdown' }, id: 'category-breakdown' } as Omit<DrilldownLevel, "timestamp">)}>
-                    <h3 className="text-sm font-medium text-slate-400 uppercase tracking-wide mb-4">Cost Categories</h3>
-                    <QuickStat label="Fuel" value="43.6%" trend="up" />
-                    <QuickStat label="Maintenance" value="31.4%" trend="down" />
-                    <QuickStat label="Insurance" value="15.2%" />
-                    <QuickStat label="Other" value="9.8%" />
+                    <div className="flex items-start justify-between mb-6">
+                        <h3 className="text-lg font-semibold text-white">Cost Distribution by Category</h3>
+                        <ChartLine className="w-5 h-5 text-slate-400" />
+                    </div>
+                    <div className="space-y-4">
+                        <div className="space-y-2">
+                            <div className="flex justify-between text-sm">
+                                <span className="text-slate-300">Fuel</span>
+                                <span className="font-semibold text-white">43.6% <span className="text-amber-400 text-xs">↑</span></span>
+                            </div>
+                            <div className="w-full bg-slate-900/50 rounded-full h-2.5">
+                                <div className="bg-gradient-to-r from-amber-500 to-amber-400 h-2.5 rounded-full" style={{ width: '43.6%' }}></div>
+                            </div>
+                        </div>
+                        <div className="space-y-2">
+                            <div className="flex justify-between text-sm">
+                                <span className="text-slate-300">Maintenance</span>
+                                <span className="font-semibold text-white">31.4% <span className="text-emerald-400 text-xs">↓</span></span>
+                            </div>
+                            <div className="w-full bg-slate-900/50 rounded-full h-2.5">
+                                <div className="bg-gradient-to-r from-blue-500 to-blue-400 h-2.5 rounded-full" style={{ width: '31.4%' }}></div>
+                            </div>
+                        </div>
+                        <div className="space-y-2">
+                            <div className="flex justify-between text-sm">
+                                <span className="text-slate-300">Insurance</span>
+                                <span className="font-semibold text-white">15.2%</span>
+                            </div>
+                            <div className="w-full bg-slate-900/50 rounded-full h-2.5">
+                                <div className="bg-gradient-to-r from-purple-500 to-purple-400 h-2.5 rounded-full" style={{ width: '15.2%' }}></div>
+                            </div>
+                        </div>
+                        <div className="space-y-2">
+                            <div className="flex justify-between text-sm">
+                                <span className="text-slate-300">Other</span>
+                                <span className="font-semibold text-white">9.8%</span>
+                            </div>
+                            <div className="w-full bg-slate-900/50 rounded-full h-2.5">
+                                <div className="bg-gradient-to-r from-slate-500 to-slate-400 h-2.5 rounded-full" style={{ width: '9.8%' }}></div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -126,10 +188,25 @@ function BillingReportsContent() {
     const { push } = useDrilldown()
 
     return (
-        <div className="p-6 space-y-6 bg-gradient-to-b from-slate-900/50 to-transparent">
-            <h2 className="text-2xl font-bold text-white">Billing & Revenue Reports</h2>
+        <div className="p-8 space-y-8 bg-gradient-to-b from-slate-900/50 via-transparent to-transparent">
+            {/* Header Section */}
+            <div className="flex items-center justify-between">
+                <div>
+                    <h2 className="text-3xl font-bold text-white mb-2">Billing & Revenue Reports</h2>
+                    <p className="text-slate-400">Accounts receivable, invoice management, and revenue analytics</p>
+                </div>
+                <div className="flex gap-2">
+                    <button className="px-4 py-2 bg-slate-800/60 hover:bg-slate-700/60 text-slate-300 rounded-lg border border-slate-700/50 transition-all text-sm font-medium">
+                        Generate Invoice
+                    </button>
+                    <button className="px-4 py-2 bg-emerald-600/90 hover:bg-emerald-500 text-white rounded-lg transition-all text-sm font-medium shadow-lg shadow-emerald-500/20">
+                        Billing Report
+                    </button>
+                </div>
+            </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+            {/* KPI Cards */}
+            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
                 <StatCard
                     title="Monthly Revenue"
                     value="$456.8K"
@@ -175,27 +252,76 @@ function BillingReportsContent() {
                 />
             </div>
 
+            {/* Detailed Analysis Cards */}
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                <div className="bg-gradient-to-br from-slate-800/60 to-slate-900/60 backdrop-blur-xl rounded-xl border border-slate-700/50 p-6 cursor-pointer hover:border-slate-600/50 transition-colors"
+                <div className="bg-gradient-to-br from-slate-800/70 to-slate-900/70 backdrop-blur-xl rounded-2xl border border-slate-700/50 p-8 cursor-pointer hover:border-blue-500/50 hover:shadow-xl hover:shadow-blue-500/10 transition-all duration-300"
                     onClick={() => push({ type: 'billing-cycle', data: { title: 'Billing Cycle Performance' }, id: 'billing-cycle' } as Omit<DrilldownLevel, "timestamp">)}>
-                    <h3 className="text-sm font-medium text-slate-400 uppercase tracking-wide mb-4">Collection Rate</h3>
-                    <ProgressRing progress={87} color="blue" label="87%" sublabel="collected on time" />
+                    <div className="flex items-start justify-between mb-6">
+                        <h3 className="text-lg font-semibold text-white">Collection Performance</h3>
+                        <Receipt className="w-5 h-5 text-slate-400" />
+                    </div>
+                    <div className="flex items-center justify-center mb-6">
+                        <ProgressRing progress={87} color="blue" label="87%" sublabel="collected on time" />
+                    </div>
+                    <div className="mt-4 p-4 bg-blue-500/10 rounded-lg border border-blue-500/20">
+                        <p className="text-xs text-blue-400 font-medium">Above industry average of 75%</p>
+                    </div>
                 </div>
 
-                <div className="bg-gradient-to-br from-slate-800/60 to-slate-900/60 backdrop-blur-xl rounded-xl border border-slate-700/50 p-6 cursor-pointer hover:border-slate-600/50 transition-colors"
+                <div className="bg-gradient-to-br from-slate-800/70 to-slate-900/70 backdrop-blur-xl rounded-2xl border border-slate-700/50 p-8 cursor-pointer hover:border-blue-500/50 hover:shadow-xl hover:shadow-blue-500/10 transition-all duration-300"
                     onClick={() => push({ type: 'revenue-trend', data: { title: 'Revenue Trends' }, id: 'revenue-trend' } as Omit<DrilldownLevel, "timestamp">)}>
-                    <h3 className="text-sm font-medium text-slate-400 uppercase tracking-wide mb-4">Revenue Trend</h3>
-                    <QuickStat label="This Quarter" value="$1.32M" trend="up" />
-                    <QuickStat label="Last Quarter" value="$1.18M" />
-                    <QuickStat label="YoY Growth" value="+15.8%" trend="up" />
+                    <div className="flex items-start justify-between mb-6">
+                        <h3 className="text-lg font-semibold text-white">Revenue Growth</h3>
+                        <TrendUp className="w-5 h-5 text-emerald-400" />
+                    </div>
+                    <div className="space-y-4">
+                        <div className="p-4 bg-slate-900/50 rounded-lg">
+                            <div className="flex justify-between items-center mb-1">
+                                <span className="text-sm text-slate-400">This Quarter</span>
+                                <span className="text-xs text-emerald-400 font-medium">↑ 12%</span>
+                            </div>
+                            <span className="text-2xl font-bold text-white">$1.32M</span>
+                        </div>
+                        <div className="p-4 bg-slate-900/50 rounded-lg">
+                            <span className="text-sm text-slate-400 block mb-1">Last Quarter</span>
+                            <span className="text-2xl font-bold text-slate-300">$1.18M</span>
+                        </div>
+                        <div className="p-4 bg-emerald-500/10 rounded-lg border border-emerald-500/20">
+                            <span className="text-sm text-emerald-400 block mb-1">YoY Growth</span>
+                            <span className="text-2xl font-bold text-emerald-400">+15.8%</span>
+                        </div>
+                    </div>
                 </div>
 
-                <div className="bg-gradient-to-br from-slate-800/60 to-slate-900/60 backdrop-blur-xl rounded-xl border border-slate-700/50 p-6 cursor-pointer hover:border-slate-600/50 transition-colors"
+                <div className="bg-gradient-to-br from-slate-800/70 to-slate-900/70 backdrop-blur-xl rounded-2xl border border-slate-700/50 p-8 cursor-pointer hover:border-blue-500/50 hover:shadow-xl hover:shadow-blue-500/10 transition-all duration-300"
                     onClick={() => push({ type: 'top-customers', data: { title: 'Top Revenue Customers' }, id: 'top-customers' } as Omit<DrilldownLevel, "timestamp">)}>
-                    <h3 className="text-sm font-medium text-slate-400 uppercase tracking-wide mb-4">Top Customers</h3>
-                    <QuickStat label="Customer A" value="$89.2K" />
-                    <QuickStat label="Customer B" value="$67.4K" />
-                    <QuickStat label="Customer C" value="$54.1K" />
+                    <div className="flex items-start justify-between mb-6">
+                        <h3 className="text-lg font-semibold text-white">Top Customers</h3>
+                        <Users className="w-5 h-5 text-slate-400" />
+                    </div>
+                    <div className="space-y-3">
+                        <div className="flex items-center justify-between p-3 bg-gradient-to-r from-amber-500/10 to-transparent rounded-lg border-l-2 border-amber-500">
+                            <div>
+                                <div className="text-sm font-medium text-white">Customer A</div>
+                                <div className="text-xs text-slate-400">42 invoices</div>
+                            </div>
+                            <span className="text-lg font-bold text-amber-400">$89.2K</span>
+                        </div>
+                        <div className="flex items-center justify-between p-3 bg-gradient-to-r from-blue-500/10 to-transparent rounded-lg border-l-2 border-blue-500">
+                            <div>
+                                <div className="text-sm font-medium text-white">Customer B</div>
+                                <div className="text-xs text-slate-400">28 invoices</div>
+                            </div>
+                            <span className="text-lg font-bold text-blue-400">$67.4K</span>
+                        </div>
+                        <div className="flex items-center justify-between p-3 bg-gradient-to-r from-purple-500/10 to-transparent rounded-lg border-l-2 border-purple-500">
+                            <div>
+                                <div className="text-sm font-medium text-white">Customer C</div>
+                                <div className="text-xs text-slate-400">19 invoices</div>
+                            </div>
+                            <span className="text-lg font-bold text-purple-400">$54.1K</span>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -210,10 +336,25 @@ function BudgetTrackingContent() {
     const { push } = useDrilldown()
 
     return (
-        <div className="p-6 space-y-6 bg-gradient-to-b from-slate-900/50 to-transparent">
-            <h2 className="text-2xl font-bold text-white">Budget Tracking & Forecasting</h2>
+        <div className="p-8 space-y-8 bg-gradient-to-b from-slate-900/50 via-transparent to-transparent">
+            {/* Header Section */}
+            <div className="flex items-center justify-between">
+                <div>
+                    <h2 className="text-3xl font-bold text-white mb-2">Budget Tracking & Forecasting</h2>
+                    <p className="text-slate-400">Real-time budget monitoring, variance analysis, and predictive forecasting</p>
+                </div>
+                <div className="flex gap-2">
+                    <button className="px-4 py-2 bg-slate-800/60 hover:bg-slate-700/60 text-slate-300 rounded-lg border border-slate-700/50 transition-all text-sm font-medium">
+                        Adjust Budget
+                    </button>
+                    <button className="px-4 py-2 bg-purple-600/90 hover:bg-purple-500 text-white rounded-lg transition-all text-sm font-medium shadow-lg shadow-purple-500/20">
+                        Forecast Report
+                    </button>
+                </div>
+            </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+            {/* KPI Cards */}
+            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
                 <StatCard
                     title="Annual Budget"
                     value="$3.72M"
@@ -259,30 +400,175 @@ function BudgetTrackingContent() {
                 />
             </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <div className="bg-gradient-to-br from-slate-800/60 to-slate-900/60 backdrop-blur-xl rounded-xl border border-slate-700/50 p-6 cursor-pointer hover:border-slate-600/50 transition-colors"
+            {/* Detailed Department Budget Cards */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <div className="bg-gradient-to-br from-slate-800/70 to-slate-900/70 backdrop-blur-xl rounded-2xl border border-slate-700/50 p-8 cursor-pointer hover:border-blue-500/50 hover:shadow-xl hover:shadow-blue-500/10 transition-all duration-300"
                     onClick={() => push({ type: 'budget-utilization', data: { title: 'Budget Utilization by Department' }, id: 'dept-budget' } as Omit<DrilldownLevel, "timestamp">)}>
-                    <h3 className="text-sm font-medium text-slate-400 uppercase tracking-wide mb-4">Department Budgets</h3>
-                    <QuickStat label="Operations" value="$1.2M / $1.5M" trend="neutral" />
-                    <QuickStat label="Maintenance" value="$890K / $1.0M" trend="down" />
-                    <QuickStat label="Fleet Services" value="$720K / $800K" trend="up" />
-                    <QuickStat label="Administration" value="$240K / $420K" trend="down" />
-                </div>
-
-                <div className="bg-gradient-to-br from-slate-800/60 to-slate-900/60 backdrop-blur-xl rounded-xl border border-slate-700/50 p-6 cursor-pointer hover:border-slate-600/50 transition-colors"
-                    onClick={() => push({ type: 'budget-forecast', data: { title: 'Budget Forecast Analysis' }, id: 'budget-forecast' } as Omit<DrilldownLevel, "timestamp">)}>
-                    <h3 className="text-sm font-medium text-slate-400 uppercase tracking-wide mb-4">Forecast Accuracy</h3>
-                    <ProgressRing progress={94} color="green" label="94%" sublabel="forecast accuracy" />
-                    <div className="mt-4 text-sm text-slate-300">
-                        <div className="flex justify-between">
-                            <span>Q2 Projected:</span>
-                            <span className="font-semibold">$932K</span>
+                    <div className="flex items-start justify-between mb-6">
+                        <h3 className="text-lg font-semibold text-white">Department Budget Utilization</h3>
+                        <ChartBar className="w-5 h-5 text-slate-400" />
+                    </div>
+                    <div className="space-y-5">
+                        {/* Operations */}
+                        <div className="space-y-2">
+                            <div className="flex justify-between items-center">
+                                <div>
+                                    <span className="text-sm font-medium text-white">Operations</span>
+                                    <div className="text-xs text-slate-400 mt-1">$1.2M of $1.5M • 80% utilized</div>
+                                </div>
+                                <span className="text-xs px-2 py-1 bg-blue-500/20 text-blue-400 rounded-full">On Track</span>
+                            </div>
+                            <div className="w-full bg-slate-900/50 rounded-full h-3">
+                                <div className="bg-gradient-to-r from-blue-500 to-blue-400 h-3 rounded-full relative" style={{ width: '80%' }}>
+                                    <div className="absolute right-0 top-0 h-full w-1 bg-blue-300 rounded-r-full"></div>
+                                </div>
+                            </div>
+                            <div className="flex justify-between text-xs text-slate-500">
+                                <span>Remaining: $300K</span>
+                                <span>6 months left</span>
+                            </div>
                         </div>
-                        <div className="flex justify-between text-amber-400">
-                            <span>Variance:</span>
-                            <span className="font-semibold">+$22K</span>
+
+                        {/* Maintenance */}
+                        <div className="space-y-2">
+                            <div className="flex justify-between items-center">
+                                <div>
+                                    <span className="text-sm font-medium text-white">Maintenance</span>
+                                    <div className="text-xs text-slate-400 mt-1">$890K of $1.0M • 89% utilized</div>
+                                </div>
+                                <span className="text-xs px-2 py-1 bg-emerald-500/20 text-emerald-400 rounded-full">Under Budget</span>
+                            </div>
+                            <div className="w-full bg-slate-900/50 rounded-full h-3">
+                                <div className="bg-gradient-to-r from-emerald-500 to-emerald-400 h-3 rounded-full relative" style={{ width: '89%' }}>
+                                    <div className="absolute right-0 top-0 h-full w-1 bg-emerald-300 rounded-r-full"></div>
+                                </div>
+                            </div>
+                            <div className="flex justify-between text-xs text-slate-500">
+                                <span>Remaining: $110K</span>
+                                <span>6 months left</span>
+                            </div>
+                        </div>
+
+                        {/* Fleet Services */}
+                        <div className="space-y-2">
+                            <div className="flex justify-between items-center">
+                                <div>
+                                    <span className="text-sm font-medium text-white">Fleet Services</span>
+                                    <div className="text-xs text-slate-400 mt-1">$720K of $800K • 90% utilized</div>
+                                </div>
+                                <span className="text-xs px-2 py-1 bg-amber-500/20 text-amber-400 rounded-full">Watch</span>
+                            </div>
+                            <div className="w-full bg-slate-900/50 rounded-full h-3">
+                                <div className="bg-gradient-to-r from-amber-500 to-amber-400 h-3 rounded-full relative" style={{ width: '90%' }}>
+                                    <div className="absolute right-0 top-0 h-full w-1 bg-amber-300 rounded-r-full"></div>
+                                </div>
+                            </div>
+                            <div className="flex justify-between text-xs text-slate-500">
+                                <span>Remaining: $80K</span>
+                                <span>6 months left</span>
+                            </div>
+                        </div>
+
+                        {/* Administration */}
+                        <div className="space-y-2">
+                            <div className="flex justify-between items-center">
+                                <div>
+                                    <span className="text-sm font-medium text-white">Administration</span>
+                                    <div className="text-xs text-slate-400 mt-1">$240K of $420K • 57% utilized</div>
+                                </div>
+                                <span className="text-xs px-2 py-1 bg-purple-500/20 text-purple-400 rounded-full">Ahead</span>
+                            </div>
+                            <div className="w-full bg-slate-900/50 rounded-full h-3">
+                                <div className="bg-gradient-to-r from-purple-500 to-purple-400 h-3 rounded-full relative" style={{ width: '57%' }}>
+                                    <div className="absolute right-0 top-0 h-full w-1 bg-purple-300 rounded-r-full"></div>
+                                </div>
+                            </div>
+                            <div className="flex justify-between text-xs text-slate-500">
+                                <span>Remaining: $180K</span>
+                                <span>6 months left</span>
+                            </div>
                         </div>
                     </div>
+                </div>
+
+                <div className="bg-gradient-to-br from-slate-800/70 to-slate-900/70 backdrop-blur-xl rounded-2xl border border-slate-700/50 p-8 cursor-pointer hover:border-blue-500/50 hover:shadow-xl hover:shadow-blue-500/10 transition-all duration-300"
+                    onClick={() => push({ type: 'budget-forecast', data: { title: 'Budget Forecast Analysis' }, id: 'budget-forecast' } as Omit<DrilldownLevel, "timestamp">)}>
+                    <div className="flex items-start justify-between mb-6">
+                        <h3 className="text-lg font-semibold text-white">Predictive Forecast Analysis</h3>
+                        <span className="px-3 py-1 bg-emerald-500/20 text-emerald-400 rounded-full text-xs font-medium">94% Accurate</span>
+                    </div>
+                    <div className="flex items-center justify-center mb-6">
+                        <ProgressRing progress={94} color="green" label="94%" sublabel="forecast accuracy" />
+                    </div>
+                    <div className="space-y-3">
+                        <div className="p-4 bg-slate-900/50 rounded-lg">
+                            <div className="flex justify-between items-center mb-2">
+                                <span className="text-sm text-slate-400">Q2 2026 Projected Spend</span>
+                                <TrendUp className="w-4 h-4 text-emerald-400" />
+                            </div>
+                            <div className="text-2xl font-bold text-white mb-1">$932,000</div>
+                            <div className="text-xs text-slate-400">Based on rolling 90-day average</div>
+                        </div>
+                        <div className="p-4 bg-slate-900/50 rounded-lg">
+                            <div className="flex justify-between items-center mb-2">
+                                <span className="text-sm text-slate-400">Budgeted Amount</span>
+                            </div>
+                            <div className="text-2xl font-bold text-slate-300 mb-1">$910,000</div>
+                            <div className="text-xs text-slate-400">Q2 allocation</div>
+                        </div>
+                        <div className="p-4 bg-amber-500/10 rounded-lg border border-amber-500/20">
+                            <div className="flex justify-between items-center mb-2">
+                                <span className="text-sm text-amber-400">Projected Variance</span>
+                                <span className="text-xs px-2 py-1 bg-amber-500/20 text-amber-300 rounded-full">+2.4%</span>
+                            </div>
+                            <div className="text-2xl font-bold text-amber-400 mb-1">+$22,000</div>
+                            <div className="text-xs text-amber-400/70">Consider budget reallocation or cost controls</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {/* Monthly Trend Card */}
+            <div className="bg-gradient-to-br from-slate-800/70 to-slate-900/70 backdrop-blur-xl rounded-2xl border border-slate-700/50 p-8">
+                <div className="flex items-start justify-between mb-6">
+                    <div>
+                        <h3 className="text-lg font-semibold text-white mb-2">Monthly Spending Trend</h3>
+                        <p className="text-sm text-slate-400">Actual vs Budget comparison across all departments</p>
+                    </div>
+                    <select className="px-3 py-2 bg-slate-900/50 text-slate-300 rounded-lg border border-slate-700/50 text-sm">
+                        <option>Last 6 Months</option>
+                        <option>Last 12 Months</option>
+                        <option>YTD</option>
+                    </select>
+                </div>
+                <div className="grid grid-cols-6 gap-4">
+                    {[
+                        { month: 'Jan', actual: 285, budget: 310, status: 'good' },
+                        { month: 'Feb', actual: 302, budget: 310, status: 'warn' },
+                        { month: 'Mar', actual: 289, budget: 310, status: 'good' },
+                        { month: 'Apr', actual: 276, budget: 310, status: 'good' },
+                        { month: 'May', actual: 318, budget: 310, status: 'over' },
+                        { month: 'Jun', actual: 284, budget: 310, status: 'good' }
+                    ].map((item, idx) => (
+                        <div key={idx} className="space-y-2">
+                            <div className="text-xs font-medium text-slate-400 text-center">{item.month}</div>
+                            <div className="relative h-32 bg-slate-900/50 rounded-lg overflow-hidden">
+                                <div className="absolute bottom-0 w-full bg-gradient-to-t from-slate-700/50 to-slate-600/50"
+                                     style={{ height: `${(item.budget / 310) * 100}%` }}>
+                                    <div className="absolute top-0 right-0 left-0 h-0.5 bg-slate-500"></div>
+                                </div>
+                                <div className={`absolute bottom-0 w-full ${
+                                    item.status === 'good' ? 'bg-gradient-to-t from-emerald-500/70 to-emerald-400/70' :
+                                    item.status === 'warn' ? 'bg-gradient-to-t from-amber-500/70 to-amber-400/70' :
+                                    'bg-gradient-to-t from-red-500/70 to-red-400/70'
+                                }`} style={{ height: `${(item.actual / 310) * 100}%` }}></div>
+                            </div>
+                            <div className="text-center">
+                                <div className="text-xs font-semibold text-white">${item.actual}K</div>
+                                <div className="text-xs text-slate-500">of ${item.budget}K</div>
+                            </div>
+                        </div>
+                    ))}
                 </div>
             </div>
         </div>
