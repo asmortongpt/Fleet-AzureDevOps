@@ -57,7 +57,7 @@ export function CommandCenterSidebar({ isSidebarOpen, setIsSidebarOpen, onNaviga
             >
                 {/* Active indicator */}
                 <div className={cn(
-                    "absolute left-0 top-1/2 -translate-y-1/2 w-1 h-6 rounded-r-full bg-primary transition-all duration-200",
+                    "absolute left-0 top-1/2 -translate-y-1/2 w-1 h-6 rounded-r-full bg-primary transition-all duration-200 shadow-[0_0_10px_rgba(59,130,246,0.6)]",
                     isActive ? "opacity-100" : "opacity-0"
                 )} />
 
@@ -124,7 +124,7 @@ export function CommandCenterSidebar({ isSidebarOpen, setIsSidebarOpen, onNaviga
         <TooltipProvider>
             <aside
                 className={cn(
-                    "z-20 flex flex-col h-full bg-card/98 backdrop-blur-xl border-r border-border/50 transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)]",
+                    "z-20 flex flex-col h-full glass-panel border-r border-border/50 transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)]",
                     isSidebarOpen ? "w-64" : "w-[72px]"
                 )}
             >

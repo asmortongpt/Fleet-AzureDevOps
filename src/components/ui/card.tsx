@@ -17,9 +17,7 @@ const Card = forwardRef<HTMLDivElement, CardProps>(({ className, ...props }, ref
       transition={{ duration: 0.3 }}
       data-slot="card"
       className={cn(
-        "bg-card/80 text-card-foreground flex flex-col gap-6 rounded-xl border py-6",
-        "backdrop-blur-md shadow-lg",
-        "hover:shadow-xl transition-shadow duration-200",
+        "glass-card flex flex-col gap-6 rounded-xl py-6",
         className
       )}
       {...props}
@@ -101,7 +99,7 @@ function CardGlass({ className, ...props }: ComponentProps<"div">) {
     <div
       data-slot="card"
       className={cn(
-        "bg-card/80 backdrop-blur-xl text-card-foreground flex flex-col gap-6 rounded-2xl border border-border/30 py-6 shadow-lg",
+        "glass-panel flex flex-col gap-6 rounded-2xl py-6",
         "transition-all duration-300 ease-out",
         className
       )}

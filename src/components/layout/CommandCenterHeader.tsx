@@ -37,7 +37,7 @@ export function CommandCenterHeader({ isMobile = false }: CommandCenterHeaderPro
 
     return (
         <header className={cn(
-            "h-14 sm:h-16 border-b border-border/50 bg-card/95 backdrop-blur-xl flex items-center justify-between shrink-0 transition-all duration-200",
+            "h-14 sm:h-16 border-b border-border/50 glass z-30 flex items-center justify-between shrink-0 transition-all duration-200",
             isMobile ? "px-14 sm:px-16" : "px-4 sm:px-6"
         )}>
             {/* Search Bar */}
@@ -53,10 +53,10 @@ export function CommandCenterHeader({ isMobile = false }: CommandCenterHeaderPro
                         placeholder={isMobile ? "Search..." : "Search fleet, drivers, or assets..."}
                         ariaLabel="Search fleet, drivers, or assets"
                         className={cn(
-                            "[&_input]:rounded-xl [&_input]:bg-muted/50 [&_input]:border-border/50",
+                            "[&_input]:rounded-xl [&_input]:bg-muted/30 [&_input]:border-border/40 [&_input]:backdrop-blur-sm",
                             "[&_input]:h-10 sm:[&_input]:h-11",
                             "[&_input]:transition-all [&_input]:duration-200",
-                            "[&_input:focus]:bg-muted/70 [&_input:focus]:border-primary/30 [&_input:focus]:shadow-sm"
+                            "[&_input:focus]:bg-muted/50 [&_input:focus]:border-primary/40 [&_input:focus]:shadow-glow-sm"
                         )}
                         onFocus={() => setIsSearchFocused(true)}
                         onBlur={() => setIsSearchFocused(false)}

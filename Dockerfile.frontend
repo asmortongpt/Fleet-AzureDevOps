@@ -13,24 +13,41 @@ server {
     server_name _;
     root /usr/share/nginx/html;
     index index.html;
-    
+
+    # Disable automatic redirects with port numbers
+    port_in_redirect off;
+    absolute_redirect off;
+
     add_header X-Frame-Options "SAMEORIGIN" always;
     add_header X-Content-Type-Options "nosniff" always;
-    
+
     # Exact match for root
     location = / {
         try_files /index.html =404;
     }
-    
-    # SPA routing - send everything else to index.html
-    location / {
-        try_files \$uri \$uri/ /index.html =404;
+
+    # Exact match for /assets without trailing slash - serve index.html (SPA route)
+    location = /assets {
+        try_files /index.html =404;
     }
-    
-    # Cache static assets
+
+    # Serve actual static assets from the assets directory
+    location /assets/ {
+        expires 1y;
+        add_header Cache-Control "public, immutable";
+        try_files \$uri =404;
+    }
+
+    # Cache static assets at root level
     location ~* \.(js|css|png|jpg|jpeg|gif|ico|svg|woff|woff2)$ {
         expires 1y;
         add_header Cache-Control "public, immutable";
+    }
+
+    # SPA routing - send everything else to index.html
+    # This must come last to avoid matching /assets/
+    location / {
+        try_files \$uri \$uri/ /index.html =404;
     }
 }
 NGINXEOF
