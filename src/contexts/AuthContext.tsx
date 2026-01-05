@@ -7,7 +7,7 @@
 
 import { createContext, useContext, useState, useEffect, useCallback, ReactNode } from 'react';
 
-import { refreshCsrfToken, clearCsrfToken } from '@/hooks/use-api';
+import { getCsrfToken, refreshCsrfToken, clearCsrfToken } from '@/hooks/use-api';
 import { initializeTokenRefresh, stopTokenRefresh } from '@/lib/auth/token-refresh';
 import logger from '@/utils/logger';
 
@@ -88,7 +88,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         }
 
         // Check if we have a valid session via httpOnly cookie
-        const response = await fetch('/api/v1/auth/verify', {
+        const response = await fetch('/api/auth/verify', {
           method: 'GET',
           credentials: 'include', // Send httpOnly cookie
         });
@@ -140,11 +140,15 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   const login = useCallback(async (email: string, password: string) => {
     setIsLoading(true);
     try {
-      const response = await fetch('/api/v1/auth/login', {
+      // Get CSRF token first
+      const csrfToken = await getCsrfToken();
+
+      const response = await fetch('/api/auth/login', {
         method: 'POST',
         credentials: 'include',
         headers: {
           'Content-Type': 'application/json',
+          'x-csrf-token': csrfToken,
         },
         body: JSON.stringify({ email, password }),
       });
@@ -211,7 +215,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       stopTokenRefresh();
 
       // Call backend to clear httpOnly cookie
-      await fetch('/api/v1/auth/logout', {
+      await fetch('/api/auth/logout', {
         method: 'POST',
         credentials: 'include',
       });
@@ -237,7 +241,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   // Refresh token
   const refreshToken = useCallback(async () => {
     try {
-      const response = await fetch('/api/v1/auth/refresh', {
+      const response = await fetch('/api/auth/refresh', {
         method: 'POST',
         credentials: 'include',
         headers: {
@@ -333,7 +337,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     }
 
     try {
-      const response = await fetch('/api/v1/auth/switch-tenant', {
+      const response = await fetch('/api/auth/switch-tenant', {
         method: 'POST',
         credentials: 'include',
         headers: {

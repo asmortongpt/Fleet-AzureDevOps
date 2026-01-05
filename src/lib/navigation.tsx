@@ -9,7 +9,9 @@ import {
   Gear,
   Warning,
   Barcode,
-  ChatsCircle
+  ChatsCircle,
+  CurrencyDollar,
+  Plugs
 } from "@phosphor-icons/react"
 import { ReactNode } from "react"
 
@@ -138,6 +140,24 @@ export const navigationItems: NavigationItem[] = [
     section: "hubs",
     category: "Communication",
     roles: ['Admin', 'FleetAdmin', 'Manager', 'FleetManager', 'Supervisor', 'Dispatcher', 'SafetyOfficer']
+  },
+
+  // ==================== FINANCIAL & INTEGRATIONS ====================
+  {
+    id: "financial-hub-consolidated",
+    label: "Financial Hub",
+    icon: <CurrencyDollar className="w-5 h-5" />,
+    section: "hubs",
+    category: "Financial",
+    roles: ['Admin', 'FleetAdmin', 'Manager', 'FleetManager', 'Finance', 'Analyst', 'Auditor']
+  },
+  {
+    id: "integrations-hub-consolidated",
+    label: "Integrations Hub",
+    icon: <Plugs className="w-5 h-5" />,
+    section: "hubs",
+    category: "Integrations",
+    roles: ['Admin', 'FleetAdmin', 'Manager', 'Finance']
   },
 ]
 
