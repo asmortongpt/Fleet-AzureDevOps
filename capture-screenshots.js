@@ -19,146 +19,139 @@ async function captureScreenshots() {
   const page = await context.newPage();
 
   const baseUrl = 'http://localhost:5174';
-  const screenshotDir = './docs/presentations/screenshots';
+  const screenshotDir = './screenshots';
+
+  // Navigate to hub by clicking in the sidebar
+  const navigateToHub = async (page, hubName) => {
+    try {
+      // Look for the hub link in the navigation sidebar
+      await page.click(`text="${hubName}"`, { timeout: 5000 });
+      await page.waitForTimeout(2000);
+      return true;
+    } catch (e) {
+      console.log(`  ⚠️  Could not navigate to ${hubName}`);
+      return false;
+    }
+  };
 
   const screenshots = [
     {
-      name: '01-fleet-hub-dashboard',
-      url: `${baseUrl}/fleet`,
-      description: 'Fleet Hub - Dashboard Overview',
+      name: 'operations-hub-dispatch',
+      hubName: 'Operations Hub',
+      description: 'Operations Hub - Dispatch Tab (Default)',
       waitFor: 2000,
     },
     {
-      name: '02-fleet-hub-virtual-garage',
-      url: `${baseUrl}/fleet`,
-      description: 'Fleet Hub - Virtual Garage 3D View',
-      waitFor: 2000,
-      action: async (page) => {
-        // Click Virtual Garage tab
-        try {
-          await page.click('text=Virtual Garage', { timeout: 5000 });
-          await page.waitForTimeout(3000); // Wait for 3D model to load
-        } catch (e) {
-          console.log('  ⚠️  Virtual Garage tab not found, using default view');
-        }
-      },
-    },
-    {
-      name: '03-operations-hub-dispatch',
-      url: `${baseUrl}/operations`,
-      description: 'Operations Hub - Dispatch Console',
-      waitFor: 2000,
-    },
-    {
-      name: '04-operations-hub-routes',
-      url: `${baseUrl}/operations`,
-      description: 'Operations Hub - Route Optimization',
+      name: 'operations-hub-routes',
+      hubName: 'Operations Hub',
+      description: 'Operations Hub - Routes Tab',
       waitFor: 2000,
       action: async (page) => {
         try {
-          await page.click('text=Routes', { timeout: 5000 });
-          await page.waitForTimeout(2000);
+          await page.click('[data-testid="hub-tab-routes"]', { timeout: 5000 });
+          await page.waitForTimeout(1500);
         } catch (e) {
           console.log('  ⚠️  Routes tab not found');
         }
       },
     },
     {
-      name: '05-maintenance-hub-predictive',
-      url: `${baseUrl}/maintenance`,
-      description: 'Maintenance Hub - Predictive Maintenance',
+      name: 'operations-hub-tasks',
+      hubName: 'Operations Hub',
+      description: 'Operations Hub - Tasks Tab',
       waitFor: 2000,
       action: async (page) => {
         try {
-          await page.click('text=Predictive Maintenance', { timeout: 5000 });
-          await page.waitForTimeout(2000);
+          await page.click('[data-testid="hub-tab-tasks"]', { timeout: 5000 });
+          await page.waitForTimeout(1500);
         } catch (e) {
-          console.log('  ⚠️  Predictive Maintenance tab not found, using default view');
+          console.log('  ⚠️  Tasks tab not found');
         }
       },
     },
     {
-      name: '06-maintenance-hub-garage',
-      url: `${baseUrl}/maintenance`,
-      description: 'Maintenance Hub - Garage & Service',
+      name: 'assets-hub-assets',
+      hubName: 'Assets Hub',
+      description: 'Assets Hub - Assets Tab (Default)',
+      waitFor: 2000,
+    },
+    {
+      name: 'assets-hub-equipment',
+      hubName: 'Assets Hub',
+      description: 'Assets Hub - Equipment Tab',
       waitFor: 2000,
       action: async (page) => {
         try {
-          await page.click('text=Garage & Service', { timeout: 5000 });
-          await page.waitForTimeout(2000);
+          await page.click('[data-testid="hub-tab-equipment"]', { timeout: 5000 });
+          await page.waitForTimeout(1500);
         } catch (e) {
-          console.log('  ⚠️  Garage & Service tab not found');
+          console.log('  ⚠️  Equipment tab not found');
         }
       },
     },
     {
-      name: '07-compliance-hub-dot',
-      url: `${baseUrl}/compliance`,
-      description: 'Compliance Hub - DOT Compliance',
+      name: 'maintenance-hub-garage',
+      hubName: 'Maintenance Hub',
+      description: 'Maintenance Hub - Garage Tab (Default)',
       waitFor: 2000,
     },
     {
-      name: '08-compliance-hub-ifta',
-      url: `${baseUrl}/compliance`,
-      description: 'Compliance Hub - IFTA Reporting',
+      name: 'maintenance-hub-predictive',
+      hubName: 'Maintenance Hub',
+      description: 'Maintenance Hub - Predictive Tab',
       waitFor: 2000,
       action: async (page) => {
         try {
-          await page.click('text=IFTA', { timeout: 5000 });
-          await page.waitForTimeout(2000);
+          await page.click('[data-testid="hub-tab-predictive"]', { timeout: 5000 });
+          await page.waitForTimeout(1500);
         } catch (e) {
-          console.log('  ⚠️  IFTA tab not found');
+          console.log('  ⚠️  Predictive tab not found');
         }
       },
     },
     {
-      name: '09-safety-hub-incidents',
-      url: `${baseUrl}/safety`,
-      description: 'Safety Hub - Incidents',
+      name: 'compliance-hub-dashboard',
+      hubName: 'Compliance Hub',
+      description: 'Compliance Hub - Dashboard Tab (Default)',
       waitFor: 2000,
     },
     {
-      name: '10-safety-hub-video',
-      url: `${baseUrl}/safety`,
-      description: 'Safety Hub - Video Telematics',
+      name: 'compliance-hub-dot',
+      hubName: 'Compliance Hub',
+      description: 'Compliance Hub - DOT Tab',
       waitFor: 2000,
       action: async (page) => {
         try {
-          await page.click('text=Video', { timeout: 5000 });
-          await page.waitForTimeout(2000);
+          await page.click('[data-testid="hub-tab-dot"]', { timeout: 5000 });
+          await page.waitForTimeout(1500);
         } catch (e) {
-          console.log('  ⚠️  Video tab not found');
+          console.log('  ⚠️  DOT tab not found');
         }
       },
-    },
-    {
-      name: '11-drivers-hub',
-      url: `${baseUrl}/drivers`,
-      description: 'Drivers Hub - Driver Management',
-      waitFor: 2000,
-    },
-    {
-      name: '12-procurement-hub',
-      url: `${baseUrl}/procurement`,
-      description: 'Procurement Hub - Vendors & Parts',
-      waitFor: 2000,
-    },
-    {
-      name: '13-assets-hub',
-      url: `${baseUrl}/assets`,
-      description: 'Assets Hub - Asset Tracking',
-      waitFor: 2000,
     },
   ];
+
+  // Navigate to app first
+  await page.goto(baseUrl, { waitUntil: 'networkidle' });
+  await page.waitForTimeout(3000);
+
+  let currentHub = null;
 
   for (const screenshot of screenshots) {
     try {
       console.log(`📸 Capturing: ${screenshot.description}`);
 
-      // Navigate to page
-      await page.goto(screenshot.url, { waitUntil: 'networkidle' });
+      // Navigate to hub if it's different from current
+      if (currentHub !== screenshot.hubName) {
+        const success = await navigateToHub(page, screenshot.hubName);
+        if (!success) {
+          console.log(`   ⚠️  Skipping ${screenshot.name} - navigation failed\n`);
+          continue;
+        }
+        currentHub = screenshot.hubName;
+      }
 
-      // Wait for initial load
+      // Wait for hub to load
       await page.waitForTimeout(screenshot.waitFor);
 
       // Execute custom action if provided (e.g., click tab)

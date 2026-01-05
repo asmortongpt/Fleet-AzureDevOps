@@ -67,9 +67,9 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   useEffect(() => {
     const initAuth = async () => {
       try {
-        // DEMO MODE: Skip auth verification, use demo user
+        // DEMO MODE: Only enabled if explicitly set - SSO-first in production
         const DEMO_MODE = import.meta.env.VITE_USE_MOCK_DATA === 'true' ||
-                          localStorage.getItem('demo_mode') !== 'false';
+                          localStorage.getItem('demo_mode') === 'true';
 
         if (DEMO_MODE) {
           const demoUser: User = {
@@ -124,7 +124,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         }
       } catch (error) {
         const DEMO_MODE = import.meta.env.VITE_USE_MOCK_DATA === 'true' ||
-                          localStorage.getItem('demo_mode') !== 'false';
+                          localStorage.getItem('demo_mode') === 'true';
         if (!DEMO_MODE) {
           logger.error('Failed to initialize auth:', { error });
         }

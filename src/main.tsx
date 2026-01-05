@@ -3,20 +3,22 @@
 import React from "react"
 import ReactDOM from "react-dom/client"
 
-// Initialize demo mode FIRST to prevent API errors
+// DEMO MODE: Disabled by default - SSO-first production deployment
+// To enable demo mode for development, manually set: localStorage.setItem('demo_mode', 'true')
 if (typeof window !== 'undefined' && !localStorage.getItem('demo_mode')) {
-  localStorage.setItem('demo_mode', 'true');
-  localStorage.setItem('demo_role', 'fleet_manager');
-  console.log('[Fleet] Demo mode enabled by default');
+  localStorage.setItem('demo_mode', 'false');
+  console.log('[Fleet] SSO authentication required - demo mode disabled');
 }
 
 // Initialize Sentry before all other imports for proper error tracking
 import { BrowserRouter, Routes, Route } from "react-router-dom"
 
 import App from "./App"
+import { Login } from "./pages/Login"
 import { GlobalCommandPalette } from "./components/common/GlobalCommandPalette"
 import { SentryErrorBoundary } from "./components/errors/SentryErrorBoundary"
 import { ThemeProvider } from "./components/providers/ThemeProvider"
+import ProtectedRoute from "./components/ProtectedRoute"
 import { AuthProvider } from "./contexts/AuthContext"
 import { DrilldownProvider } from "./contexts/DrilldownContext"
 import { FeatureFlagProvider } from "./contexts/FeatureFlagContext"
@@ -68,14 +70,20 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
                     <BrowserRouter>
                       <GlobalCommandPalette />
                       <SentryRoutes>
+                        {/* Public Login Route */}
+                        <Route path="/login" element={<Login />} />
+
+                        {/* Protected Application Routes - Require SSO Authentication */}
                         <Route
                           path="/*"
                           element={
-                            <SentryErrorBoundary level="section">
-                              <NavigationProvider>
-                                <App />
-                              </NavigationProvider>
-                            </SentryErrorBoundary>
+                            <ProtectedRoute requireAuth={true}>
+                              <SentryErrorBoundary level="section">
+                                <NavigationProvider>
+                                  <App />
+                                </NavigationProvider>
+                              </SentryErrorBoundary>
+                            </ProtectedRoute>
                           }
                         />
                       </SentryRoutes>
