@@ -1,0 +1,855 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Compliance Hub - Fleet Management</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.0.3/src/regular/style.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.0.3/src/bold/style.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --background: #f8fafc;
+            --foreground: #0f172a;
+            --card: #ffffff;
+            --card-foreground: #0f172a;
+            --primary: #3b82f6;
+            --primary-foreground: #ffffff;
+            --secondary: #64748b;
+            --secondary-foreground: #f1f5f9;
+            --success: #10b981;
+            --success-foreground: #ffffff;
+            --warning: #f59e0b;
+            --warning-foreground: #ffffff;
+            --danger: #ef4444;
+            --danger-foreground: #ffffff;
+            --border: #e2e8f0;
+            --hover-border: #cbd5e1;
+            --shadow: rgba(15, 23, 42, 0.1);
+        }
+
+        body {
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            background: var(--background);
+            color: var(--foreground);
+            line-height: 1.5;
+            min-height: 100vh;
+        }
+
+        .hub-container {
+            min-height: 100vh;
+            background: linear-gradient(to bottom, #f1f5f9, #f8fafc);
+        }
+
+        /* Header with Logo */
+        .hub-header {
+            background: linear-gradient(to right, rgba(255,255,255,0.9), rgba(248,250,252,0.8), rgba(255,255,255,0.9));
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--border);
+            box-shadow: 0 4px 6px -1px var(--shadow);
+            padding: 1rem 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .hub-header-left {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .fleet-logo {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .logo-icon {
+            width: 48px;
+            height: 48px;
+            background: #0B1020;
+            border-radius: 12px;
+            padding: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        .logo-icon-inner {
+            position: relative;
+            width: 100%;
+            height: 100%;
+        }
+
+        .logo-bar-v {
+            position: absolute;
+            left: 8px;
+            top: 6px;
+            width: 4px;
+            height: 24px;
+            background: #2D8CFF;
+            border-radius: 2px;
+        }
+
+        .logo-bar-h1 {
+            position: absolute;
+            left: 14px;
+            top: 6px;
+            width: 18px;
+            height: 4px;
+            background: #2D8CFF;
+            border-radius: 2px;
+        }
+
+        .logo-bar-h2 {
+            position: absolute;
+            left: 14px;
+            top: 16px;
+            width: 14px;
+            height: 4px;
+            background: #2D8CFF;
+            border-radius: 2px;
+        }
+
+        .logo-dot {
+            position: absolute;
+            right: 6px;
+            bottom: 6px;
+            width: 5px;
+            height: 5px;
+            background: #6EE7FF;
+            border-radius: 50%;
+        }
+
+        .logo-text {
+            font-size: 1.5rem;
+            font-weight: 700;
+            letter-spacing: 0.1em;
+            color: #0B1020;
+        }
+
+        .hub-title-group {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .hub-icon {
+            width: 2.5rem;
+            height: 2.5rem;
+            background: linear-gradient(135deg, var(--success), #34d399);
+            border-radius: 0.75rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.25rem;
+        }
+
+        .hub-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--foreground);
+        }
+
+        .hub-description {
+            color: var(--secondary);
+            font-size: 0.875rem;
+        }
+
+        /* Tabs */
+        .hub-tabs {
+            display: flex;
+            gap: 0.5rem;
+            padding: 0 1.5rem;
+            background: var(--card);
+            border-bottom: 1px solid var(--border);
+            overflow-x: auto;
+        }
+
+        .tab-button {
+            padding: 0.75rem 1.5rem;
+            background: none;
+            border: none;
+            border-bottom: 2px solid transparent;
+            color: var(--secondary);
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            white-space: nowrap;
+            font-family: 'Inter', sans-serif;
+            font-size: 0.875rem;
+        }
+
+        .tab-button:hover {
+            color: var(--foreground);
+            background: var(--background);
+        }
+
+        .tab-button.active {
+            color: var(--success);
+            border-bottom-color: var(--success);
+        }
+
+        /* Content */
+        .hub-content {
+            display: none;
+            padding: 1.5rem;
+            background: linear-gradient(to bottom, rgba(241,245,249,0.5), transparent);
+        }
+
+        .hub-content.active {
+            display: block;
+        }
+
+        .content-header {
+            margin-bottom: 1.5rem;
+        }
+
+        .content-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--foreground);
+        }
+
+        /* Grid Layouts */
+        .grid {
+            display: grid;
+            gap: 1.5rem;
+        }
+
+        .grid-cols-4 {
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        }
+
+        .grid-cols-3 {
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        }
+
+        /* Stat Card */
+        .stat-card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 1rem;
+            padding: 1.5rem;
+            transition: all 0.2s;
+            cursor: pointer;
+            box-shadow: 0 1px 3px var(--shadow);
+        }
+
+        .stat-card:hover {
+            border-color: var(--hover-border);
+            box-shadow: 0 4px 6px -1px var(--shadow);
+            transform: translateY(-2px);
+        }
+
+        .stat-card-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+        }
+
+        .stat-card-left {
+            flex: 1;
+        }
+
+        .stat-card-title {
+            font-size: 0.75rem;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--secondary);
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-card-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--foreground);
+            margin-bottom: 0.25rem;
+        }
+
+        .stat-card-subtitle {
+            font-size: 0.875rem;
+            color: var(--secondary);
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-card-icon {
+            width: 3rem;
+            height: 3rem;
+            border-radius: 0.75rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+        }
+
+        .variant-primary .stat-card-icon {
+            background: rgba(59, 130, 246, 0.1);
+            color: var(--primary);
+        }
+
+        .variant-success .stat-card-icon {
+            background: rgba(16, 185, 129, 0.1);
+            color: var(--success);
+        }
+
+        .variant-warning .stat-card-icon {
+            background: rgba(245, 158, 11, 0.1);
+            color: var(--warning);
+        }
+
+        .variant-danger .stat-card-icon {
+            background: rgba(239, 68, 68, 0.1);
+            color: var(--danger);
+        }
+
+        .variant-default .stat-card-icon {
+            background: rgba(100, 116, 139, 0.1);
+            color: var(--secondary);
+        }
+
+        /* Progress Ring */
+        .progress-card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 1rem;
+            padding: 1.5rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            box-shadow: 0 1px 3px var(--shadow);
+        }
+
+        .progress-card:hover {
+            border-color: var(--hover-border);
+            box-shadow: 0 4px 6px -1px var(--shadow);
+            transform: translateY(-2px);
+        }
+
+        .progress-card-title {
+            font-size: 0.75rem;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--secondary);
+            margin-bottom: 1rem;
+        }
+
+        .progress-ring-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .progress-ring {
+            position: relative;
+            width: 120px;
+            height: 120px;
+        }
+
+        .progress-ring svg {
+            transform: rotate(-90deg);
+        }
+
+        .progress-ring-circle {
+            fill: none;
+            stroke-width: 8;
+        }
+
+        .progress-ring-bg {
+            stroke: var(--border);
+        }
+
+        .progress-ring-value {
+            stroke-linecap: round;
+            transition: stroke-dashoffset 0.5s;
+        }
+
+        .progress-ring-value.green {
+            stroke: var(--success);
+        }
+
+        .progress-ring-label {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+        }
+
+        .progress-ring-percent {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--foreground);
+        }
+
+        .progress-ring-text {
+            font-size: 0.75rem;
+            color: var(--secondary);
+        }
+
+        /* Quick Stats */
+        .quick-stats {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 1rem;
+            padding: 1.5rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            box-shadow: 0 1px 3px var(--shadow);
+        }
+
+        .quick-stats:hover {
+            border-color: var(--hover-border);
+            box-shadow: 0 4px 6px -1px var(--shadow);
+            transform: translateY(-2px);
+        }
+
+        .quick-stats-title {
+            font-size: 0.75rem;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--secondary);
+            margin-bottom: 1rem;
+        }
+
+        .quick-stat-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.5rem 0;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .quick-stat-row:last-child {
+            border-bottom: none;
+        }
+
+        .quick-stat-label {
+            font-size: 0.875rem;
+            color: var(--secondary);
+        }
+
+        .quick-stat-value {
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--foreground);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .quick-stat-icon {
+            font-size: 0.75rem;
+        }
+
+        .quick-stat-icon.up {
+            color: var(--success);
+        }
+    </style>
+</head>
+<body>
+    <div class="hub-container">
+        <!-- Header -->
+        <div class="hub-header">
+            <div class="hub-header-left">
+                <!-- Fleet Logo -->
+                <div class="fleet-logo">
+                    <div class="logo-icon">
+                        <div class="logo-icon-inner">
+                            <div class="logo-bar-v"></div>
+                            <div class="logo-bar-h1"></div>
+                            <div class="logo-bar-h2"></div>
+                            <div class="logo-dot"></div>
+                        </div>
+                    </div>
+                    <div class="logo-text">FLEET</div>
+                </div>
+
+                <!-- Hub Title -->
+                <div class="hub-title-group">
+                    <div class="hub-icon">
+                        <i class="ph-bold ph-shield"></i>
+                    </div>
+                    <div>
+                        <div class="hub-title">Compliance Hub</div>
+                        <div class="hub-description">DOT, IFTA, and safety compliance management</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tabs -->
+        <div class="hub-tabs">
+            <button class="tab-button active" onclick="showTab('dashboard')">
+                <i class="ph ph-chart-bar"></i> Dashboard
+            </button>
+            <button class="tab-button" onclick="showTab('map')">
+                <i class="ph ph-map-trifold"></i> Map
+            </button>
+            <button class="tab-button" onclick="showTab('dot')">
+                <i class="ph ph-truck"></i> DOT
+            </button>
+            <button class="tab-button" onclick="showTab('ifta')">
+                <i class="ph ph-receipt"></i> IFTA
+            </button>
+            <button class="tab-button" onclick="showTab('osha')">
+                <i class="ph ph-first-aid"></i> OSHA
+            </button>
+        </div>
+
+        <!-- Dashboard Tab -->
+        <div id="dashboard" class="hub-content active">
+            <div class="content-header">
+                <h2 class="content-title">Compliance Dashboard</h2>
+            </div>
+
+            <!-- Primary Stats -->
+            <div class="grid grid-cols-4" style="margin-bottom: 1.5rem;">
+                <div class="stat-card variant-success">
+                    <div class="stat-card-content">
+                        <div class="stat-card-left">
+                            <div class="stat-card-title">Overall Score</div>
+                            <div class="stat-card-value">94%</div>
+                        </div>
+                        <div class="stat-card-icon">
+                            <i class="ph ph-check-circle"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="stat-card variant-success">
+                    <div class="stat-card-content">
+                        <div class="stat-card-left">
+                            <div class="stat-card-title">DOT Compliance</div>
+                            <div class="stat-card-value">98%</div>
+                        </div>
+                        <div class="stat-card-icon">
+                            <i class="ph ph-truck"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="stat-card variant-success">
+                    <div class="stat-card-content">
+                        <div class="stat-card-left">
+                            <div class="stat-card-title">IFTA Compliance</div>
+                            <div class="stat-card-value">100%</div>
+                        </div>
+                        <div class="stat-card-icon">
+                            <i class="ph ph-receipt"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="stat-card variant-warning">
+                    <div class="stat-card-content">
+                        <div class="stat-card-left">
+                            <div class="stat-card-title">Violations</div>
+                            <div class="stat-card-value">2</div>
+                        </div>
+                        <div class="stat-card-icon">
+                            <i class="ph ph-warning"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Secondary Stats -->
+            <div class="grid grid-cols-3">
+                <!-- DOT Status -->
+                <div class="progress-card">
+                    <h3 class="progress-card-title">DOT Status</h3>
+                    <div class="progress-ring-container">
+                        <div class="progress-ring">
+                            <svg width="120" height="120">
+                                <circle class="progress-ring-circle progress-ring-bg" cx="60" cy="60" r="52"></circle>
+                                <circle class="progress-ring-circle progress-ring-value green"
+                                        cx="60" cy="60" r="52"
+                                        stroke-dasharray="326.73"
+                                        stroke-dashoffset="6.5"></circle>
+                            </svg>
+                            <div class="progress-ring-label">
+                                <div class="progress-ring-percent">98%</div>
+                                <div class="progress-ring-text">Compliant</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Metrics -->
+                <div class="quick-stats">
+                    <h3 class="quick-stats-title">Metrics</h3>
+                    <div class="quick-stat-row">
+                        <div class="quick-stat-label">Audits Passed</div>
+                        <div class="quick-stat-value">
+                            12/12
+                            <i class="ph-bold ph-arrow-up quick-stat-icon up"></i>
+                        </div>
+                    </div>
+                    <div class="quick-stat-row">
+                        <div class="quick-stat-label">Docs Current</div>
+                        <div class="quick-stat-value">156</div>
+                    </div>
+                    <div class="quick-stat-row">
+                        <div class="quick-stat-label">Expiring Soon</div>
+                        <div class="quick-stat-value">4</div>
+                    </div>
+                </div>
+
+                <!-- OSHA Status -->
+                <div class="progress-card">
+                    <h3 class="progress-card-title">OSHA Status</h3>
+                    <div class="progress-ring-container">
+                        <div class="progress-ring">
+                            <svg width="120" height="120">
+                                <circle class="progress-ring-circle progress-ring-bg" cx="60" cy="60" r="52"></circle>
+                                <circle class="progress-ring-circle progress-ring-value green"
+                                        cx="60" cy="60" r="52"
+                                        stroke-dasharray="326.73"
+                                        stroke-dashoffset="26.1"></circle>
+                            </svg>
+                            <div class="progress-ring-label">
+                                <div class="progress-ring-percent">92%</div>
+                                <div class="progress-ring-text">Score</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Map Tab -->
+        <div id="map" class="hub-content">
+            <div class="content-header">
+                <h2 class="content-title">Compliance Map</h2>
+            </div>
+
+            <div class="grid grid-cols-3">
+                <div class="stat-card variant-primary">
+                    <div class="stat-card-content">
+                        <div class="stat-card-left">
+                            <div class="stat-card-title">Regions</div>
+                            <div class="stat-card-value">12</div>
+                        </div>
+                        <div class="stat-card-icon">
+                            <i class="ph ph-map-trifold"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="stat-card variant-success">
+                    <div class="stat-card-content">
+                        <div class="stat-card-left">
+                            <div class="stat-card-title">Compliant Zones</div>
+                            <div class="stat-card-value">10</div>
+                        </div>
+                        <div class="stat-card-icon">
+                            <i class="ph ph-check-circle"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="stat-card variant-warning">
+                    <div class="stat-card-content">
+                        <div class="stat-card-left">
+                            <div class="stat-card-title">Attention Needed</div>
+                            <div class="stat-card-value">2</div>
+                        </div>
+                        <div class="stat-card-icon">
+                            <i class="ph ph-warning"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- DOT Tab -->
+        <div id="dot" class="hub-content">
+            <div class="content-header">
+                <h2 class="content-title">DOT Compliance</h2>
+            </div>
+
+            <div class="grid grid-cols-4">
+                <div class="stat-card variant-success">
+                    <div class="stat-card-content">
+                        <div class="stat-card-left">
+                            <div class="stat-card-title">Vehicles Compliant</div>
+                            <div class="stat-card-value">152</div>
+                        </div>
+                        <div class="stat-card-icon">
+                            <i class="ph ph-truck"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="stat-card variant-warning">
+                    <div class="stat-card-content">
+                        <div class="stat-card-left">
+                            <div class="stat-card-title">Inspections Due</div>
+                            <div class="stat-card-value">8</div>
+                        </div>
+                        <div class="stat-card-icon">
+                            <i class="ph ph-clipboard-text"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="stat-card variant-success">
+                    <div class="stat-card-content">
+                        <div class="stat-card-left">
+                            <div class="stat-card-title">HOS Violations</div>
+                            <div class="stat-card-value">0</div>
+                        </div>
+                        <div class="stat-card-icon">
+                            <i class="ph ph-clock"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="stat-card variant-success">
+                    <div class="stat-card-content">
+                        <div class="stat-card-left">
+                            <div class="stat-card-title">ELD Status</div>
+                            <div class="stat-card-value">100%</div>
+                        </div>
+                        <div class="stat-card-icon">
+                            <i class="ph ph-check-circle"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- IFTA Tab -->
+        <div id="ifta" class="hub-content">
+            <div class="content-header">
+                <h2 class="content-title">IFTA Compliance</h2>
+            </div>
+
+            <div class="grid grid-cols-3">
+                <div class="stat-card variant-success">
+                    <div class="stat-card-content">
+                        <div class="stat-card-left">
+                            <div class="stat-card-title">Quarters Filed</div>
+                            <div class="stat-card-value">4/4</div>
+                        </div>
+                        <div class="stat-card-icon">
+                            <i class="ph ph-receipt"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="stat-card variant-primary">
+                    <div class="stat-card-content">
+                        <div class="stat-card-left">
+                            <div class="stat-card-title">Miles Tracked</div>
+                            <div class="stat-card-value">2.4M</div>
+                        </div>
+                        <div class="stat-card-icon">
+                            <i class="ph ph-chart-line"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="stat-card variant-default">
+                    <div class="stat-card-content">
+                        <div class="stat-card-left">
+                            <div class="stat-card-title">Fuel Tax Due</div>
+                            <div class="stat-card-value">$12,450</div>
+                        </div>
+                        <div class="stat-card-icon">
+                            <i class="ph ph-currency-dollar"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- OSHA Tab -->
+        <div id="osha" class="hub-content">
+            <div class="content-header">
+                <h2 class="content-title">OSHA Safety Forms</h2>
+            </div>
+
+            <div class="grid grid-cols-4">
+                <div class="stat-card variant-success">
+                    <div class="stat-card-content">
+                        <div class="stat-card-left">
+                            <div class="stat-card-title">Forms Complete</div>
+                            <div class="stat-card-value">24</div>
+                        </div>
+                        <div class="stat-card-icon">
+                            <i class="ph ph-first-aid"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="stat-card variant-warning">
+                    <div class="stat-card-content">
+                        <div class="stat-card-left">
+                            <div class="stat-card-title">Pending</div>
+                            <div class="stat-card-value">3</div>
+                        </div>
+                        <div class="stat-card-icon">
+                            <i class="ph ph-hourglass"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="stat-card variant-warning">
+                    <div class="stat-card-content">
+                        <div class="stat-card-left">
+                            <div class="stat-card-title">Incidents YTD</div>
+                            <div class="stat-card-value">2</div>
+                        </div>
+                        <div class="stat-card-icon">
+                            <i class="ph ph-warning"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="stat-card variant-success">
+                    <div class="stat-card-content">
+                        <div class="stat-card-left">
+                            <div class="stat-card-title">Days Safe</div>
+                            <div class="stat-card-value">47</div>
+                        </div>
+                        <div class="stat-card-icon">
+                            <i class="ph ph-shield-check"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function showTab(tabName) {
+            // Hide all tabs
+            const allTabs = document.querySelectorAll('.hub-content');
+            allTabs.forEach(tab => tab.classList.remove('active'));
+
+            // Remove active class from all buttons
+            const allButtons = document.querySelectorAll('.tab-button');
+            allButtons.forEach(btn => btn.classList.remove('active'));
+
+            // Show selected tab
+            document.getElementById(tabName).classList.add('active');
+
+            // Add active class to clicked button
+            event.target.closest('.tab-button').classList.add('active');
+        }
+    </script>
+</body>
+</html>
