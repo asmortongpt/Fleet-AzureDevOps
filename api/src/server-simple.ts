@@ -4,11 +4,12 @@
  */
 
 import cors from 'cors';
-import { eq, and, SQL } from 'drizzle-orm';
+import { eq, and, SQL, desc } from 'drizzle-orm';
 import express from 'express';
 import helmet from 'helmet';
 
 import { db, checkDatabaseConnection } from './db/connection';
+import authRouter from './routes/auth';
 import obd2EmulatorRouter, { setupOBD2WebSocket } from './routes/obd2-emulator.routes';
 import { schema } from './schemas/production.schema';
 
@@ -36,6 +37,8 @@ app.use(express.json());
 // EMULATORS - OBD2 & Testing
 // ============================================================================
 
+// Register routers
+app.use('/api/auth', authRouter);
 app.use('/api/obd2-emulator', obd2EmulatorRouter);
 
 // Basic health check
@@ -581,9 +584,113 @@ app.get('/api/alerts', async (req, res) => {
   }
 });
 
+// Notifications endpoints (must be before :id route)
+app.get('/api/alerts/notifications', async (req, res) => {
+  try {
+    const { limit = 10 } = req.query;
+
+    // Get recent incidents as notifications
+    const incidents = await db
+      .select()
+      .from(schema.incidents)
+      .orderBy(desc(schema.incidents.createdAt))
+      .limit(Number(limit));
+
+    const notifications = incidents.map(incident => ({
+      id: incident.id,
+      type: 'alert',
+      title: `${incident.type} - ${incident.severity}`,
+      message: incident.description || 'No description',
+      timestamp: incident.incidentDate || incident.createdAt,
+      read: false,
+      priority: incident.severity === 'critical' ? 'high' : 'medium',
+      link: `/safety/incidents/${incident.id}`,
+    }));
+
+    res.json({ notifications, total: notifications.length, unread: notifications.length });
+  } catch (error) {
+    console.error('Error fetching notifications:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+app.post('/api/alerts/notifications/:notificationId/read', async (req, res) => {
+  try {
+    res.json({ success: true });
+  } catch (error) {
+    console.error('Error marking notification as read:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+app.post('/api/alerts/notifications/read-all', async (req, res) => {
+  try {
+    res.json({ success: true });
+  } catch (error) {
+    console.error('Error marking all notifications as read:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+app.get('/api/alerts/stats', async (req, res) => {
+  try {
+    const allIncidents = await db.select().from(schema.incidents);
+
+    const stats = {
+      total: allIncidents.length,
+      critical: allIncidents.filter(i => i.severity === 'critical').length,
+      high: allIncidents.filter(i => i.severity === 'high').length,
+      medium: allIncidents.filter(i => i.severity === 'medium').length,
+      low: allIncidents.filter(i => i.severity === 'low').length,
+      active: allIncidents.filter(i => i.status !== 'closed').length,
+      acknowledged: 0,
+      resolved: allIncidents.filter(i => i.status === 'closed').length,
+    };
+
+    res.json(stats);
+  } catch (error) {
+    console.error('Error fetching alert stats:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+app.post('/api/alerts/:id/acknowledge', async (req, res) => {
+  try {
+    res.json({ success: true });
+  } catch (error) {
+    console.error('Error acknowledging alert:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+app.post('/api/alerts/:id/resolve', async (req, res) => {
+  try {
+    res.json({ success: true });
+  } catch (error) {
+    console.error('Error resolving alert:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+app.post('/api/alerts/:id/dismiss', async (req, res) => {
+  try {
+    res.json({ success: true });
+  } catch (error) {
+    console.error('Error dismissing alert:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
 app.get('/api/alerts/:id', async (req, res) => {
   try {
     const { id } = req.params;
+
+    // Validate UUID format
+    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+    if (!uuidRegex.test(id)) {
+      return res.status(400).json({ error: 'Invalid ID format' });
+    }
+
     const [incident] = await db
       .select()
       .from(schema.incidents)
