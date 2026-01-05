@@ -68,7 +68,7 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
                 <DrilldownProvider>
                   <InspectProvider>
                     <BrowserRouter>
-                      <GlobalCommandPalette />
+                      {/* <GlobalCommandPalette /> */}
                       <SentryRoutes>
                         {/* Public Login Route */}
                         <Route path="/login" element={<Login />} />
