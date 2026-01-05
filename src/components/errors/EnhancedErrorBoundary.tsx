@@ -12,7 +12,7 @@
  */
 
 import React, { Component, ErrorInfo, ReactNode } from 'react'
-import { AlertTriangle, RefreshCw, Home, Mail, Phone } from '@phosphor-icons/react'
+import { Warning, ArrowClockwise, House, EnvelopeSimple, Phone } from '@phosphor-icons/react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
@@ -280,7 +280,7 @@ export class EnhancedErrorBoundary extends Component<Props, State> {
                 className="inline-flex mx-auto mb-4"
               >
                 <div className="p-3 bg-red-100 dark:bg-red-900/30 rounded-full">
-                  <AlertTriangle className="w-8 h-8 text-red-600 dark:text-red-400" />
+                  <Warning className="w-8 h-8 text-red-600 dark:text-red-400" />
                 </div>
               </motion.div>
 
@@ -388,7 +388,7 @@ export class EnhancedErrorBoundary extends Component<Props, State> {
                 className="gap-2"
                 variant="default"
               >
-                <RefreshCw className="w-4 h-4" />
+                <ArrowClockwise className="w-4 h-4" />
                 Try Again
               </Button>
 
@@ -397,7 +397,7 @@ export class EnhancedErrorBoundary extends Component<Props, State> {
                 className="gap-2"
                 variant="outline"
               >
-                <Home className="w-4 h-4" />
+                <House className="w-4 h-4" />
                 Go Home
               </Button>
 
@@ -407,7 +407,7 @@ export class EnhancedErrorBoundary extends Component<Props, State> {
                   className="gap-2"
                   variant="outline"
                 >
-                  <Mail className="w-4 h-4" />
+                  <EnvelopeSimple className="w-4 h-4" />
                   Contact Support
                 </Button>
               )}
