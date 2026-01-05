@@ -162,43 +162,30 @@ export class PeopleSoftEmulator {
   // ==================== SEED DATA ====================
 
   private seedChartfields(): void {
-    // Seed valid chartfields for testing
-    const validChartfields: Chartfield[] = [
-      {
-        business_unit: 'CITY',
-        company: 'FLEET',
-        department: '17020',
-        fund: '001',
-        account: '654210',
-        operating_unit: 'FLEET',
-        program: 'FLEET',
-        project_id: 'PRJ-000123',
-        activity_id: 'A001'
-      },
-      {
-        business_unit: 'CITY',
-        company: 'FLEET',
-        department: '17020',
-        fund: '001',
-        account: '654310',
-        operating_unit: 'FLEET',
-        program: 'FLEET'
-      },
-      {
-        business_unit: 'CITY',
-        company: 'FLEET',
-        department: '17025',
-        fund: '002',
-        account: '654210',
-        operating_unit: 'FLEET',
-        program: 'FLEET'
-      }
-    ]
+    // Import Tallahassee seed data
+    const { TALLAHASSEE_CHARTFIELDS } = require('./tallahassee-seed-data')
 
-    validChartfields.forEach((cf) => {
-      const key = this.getChartfieldKey(cf)
-      this.chartfields.set(key, cf)
+    // Load all valid City of Tallahassee chartfield combinations
+    TALLAHASSEE_CHARTFIELDS.forEach((tallyChartfield: any) => {
+      if (!tallyChartfield.is_active) return
+
+      const chartfield: Chartfield = {
+        business_unit: tallyChartfield.business_unit,
+        company: tallyChartfield.company,
+        department: tallyChartfield.department,
+        fund: tallyChartfield.fund,
+        account: tallyChartfield.account,
+        operating_unit: tallyChartfield.operating_unit,
+        program: tallyChartfield.program,
+        project_id: tallyChartfield.project_id,
+        activity_id: tallyChartfield.activity_id
+      }
+
+      const key = this.getChartfieldKey(chartfield)
+      this.chartfields.set(key, chartfield)
     })
+
+    console.log(`[PeopleSoft Emulator] Loaded ${this.chartfields.size} City of Tallahassee chartfield combinations`)
   }
 
   private initializeScenarios(): void {
