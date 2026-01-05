@@ -705,6 +705,20 @@ router.get('/microsoft/callback', async (req: Request, res: Response) => {
     const microsoftUser = userInfoResponse.data
     const email = (microsoftUser.mail || microsoftUser.userPrincipalName).toLowerCase()
 
+    // SECURITY: Restrict SSO to @capitaltechalliance.com domain
+    if (!email.endsWith('@capitaltechalliance.com')) {
+      logger.warn(`[AUTH] SSO login attempt from unauthorized domain: ${email}`)
+      const acceptsJson = req.headers.accept?.includes('application/json')
+      if (acceptsJson) {
+        return res.status(403).json({
+          error: 'Access Denied',
+          message: 'Only users with @capitaltechalliance.com email addresses can log in'
+        })
+      } else {
+        return res.redirect('/login?error=unauthorized_domain')
+      }
+    }
+
     // Get default tenant
     // SECURITY NOTE: This query is safe - tenants table doesn't need tenant_id filter
     // It's the root of the tenant hierarchy
