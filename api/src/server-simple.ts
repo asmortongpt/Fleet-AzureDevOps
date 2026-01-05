@@ -4,7 +4,7 @@
  */
 
 import cors from 'cors';
-import { eq } from 'drizzle-orm';
+import { eq, and, SQL } from 'drizzle-orm';
 import express from 'express';
 import helmet from 'helmet';
 
@@ -47,23 +47,7 @@ app.get('/api/health', (req, res) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() });
 });
 
-// Start server
-const server = app.listen(PORT, '0.0.0.0', () => {
-  console.log(`
-🚀 Server running at http://0.0.0.0:${PORT}
-⭐️ Environment: ${process.env.NODE_ENV || 'development'}
-🔌 Database: Connected
-📡 OBD2 Emulator: Enabled
-  `);
 
-  // Print available routes
-  if (process.env.NODE_ENV === 'development') {
-    // ... helpful logs ...
-  }
-});
-
-// Initialize WebSocket for OBD2 Emulator
-setupOBD2WebSocket(server);
 // ============================================================================
 // VEHICLES - Core vehicle endpoints
 // ============================================================================
@@ -134,22 +118,28 @@ app.get('/api/assets', async (req, res) => {
     const { filter = 'all', page = 1, limit = 50 } = req.query;
 
     // Map filters to database queries on vehicles table
-    let query = db.select().from(schema.vehicles);
+    const conditions: SQL[] = [];
 
     switch (filter) {
       case 'active':
-        query = query.where(eq(schema.vehicles.status, 'active'));
+        conditions.push(eq(schema.vehicles.status, 'active'));
         break;
       case 'inactive':
-        query = query.where(eq(schema.vehicles.status, 'idle'));
+        conditions.push(eq(schema.vehicles.status, 'idle'));
         break;
       case 'maintenance':
-        query = query.where(eq(schema.vehicles.status, 'maintenance'));
+        conditions.push(eq(schema.vehicles.status, 'maintenance'));
         break;
       case 'high-value':
         // Filter vehicles with purchase price > $50,000
         break;
       // 'all' or other filters return all
+    }
+
+    const query = db.select().from(schema.vehicles);
+    if (conditions.length > 0) {
+      // @ts-ignore - Drizzle type inference limitation
+      query.where(and(...conditions));
     }
 
     const vehicles = await query
@@ -236,7 +226,7 @@ app.get('/api/equipment', async (req, res) => {
   try {
     const { category, page = 1, limit = 50 } = req.query;
 
-    let query = db.select().from(schema.vehicles);
+    const conditions: SQL[] = [];
 
     // Filter by vehicle type as equipment category
     if (category) {
@@ -247,8 +237,14 @@ app.get('/api/equipment', async (req, res) => {
         'tools': 'van',
       };
       if (typeMap[category as string]) {
-        query = query.where(eq(schema.vehicles.type, typeMap[category as string]));
+        conditions.push(eq(schema.vehicles.type, typeMap[category as string] as any));
       }
+    }
+
+    const query = db.select().from(schema.vehicles);
+    if (conditions.length > 0) {
+      // @ts-ignore - Drizzle type inference limitation
+      query.where(and(...conditions));
     }
 
     const vehicles = await query
@@ -421,10 +417,16 @@ app.get('/api/maintenance-requests', async (req, res) => {
     const { status, page = 1, limit = 50 } = req.query;
 
     // Query work orders as maintenance requests
-    let query = db.select().from(schema.workOrders);
+    const conditions: SQL[] = [];
 
     if (status) {
-      query = query.where(eq(schema.workOrders.status, status as string));
+      conditions.push(eq(schema.workOrders.status, status as any));
+    }
+
+    const query = db.select().from(schema.workOrders);
+    if (conditions.length > 0) {
+      // @ts-ignore - Drizzle type inference limitation
+      query.where(and(...conditions));
     }
 
     const workOrders = await query
@@ -519,13 +521,19 @@ app.get('/api/alerts', async (req, res) => {
     const { status, severity, page = 1, limit = 50 } = req.query;
 
     // Query incidents table as alerts
-    let query = db.select().from(schema.incidents);
+    const conditions: SQL[] = [];
 
     if (status) {
-      query = query.where(eq(schema.incidents.status, status as string));
+      conditions.push(eq(schema.incidents.status, status as any));
     }
     if (severity) {
-      query = query.where(eq(schema.incidents.severity, severity as string));
+      conditions.push(eq(schema.incidents.severity, severity as any));
+    }
+
+    const query = db.select().from(schema.incidents);
+    if (conditions.length > 0) {
+      // @ts-ignore - Drizzle type inference limitation
+      query.where(and(...conditions));
     }
 
     const incidents = await query
@@ -835,10 +843,16 @@ app.get('/api/incidents', async (req, res) => {
 app.get('/api/gps-tracks', async (req, res) => {
   try {
     const { vehicleId, limit = 100 } = req.query;
-    let query = db.select().from(schema.gpsTracks);
+    const conditions: SQL[] = [];
 
     if (vehicleId) {
-      query = query.where(eq(schema.gpsTracks.vehicleId, vehicleId as string));
+      conditions.push(eq(schema.gpsTracks.vehicleId, vehicleId as string));
+    }
+
+    const query = db.select().from(schema.gpsTracks);
+    if (conditions.length > 0) {
+      // @ts-ignore - Drizzle type inference limitation
+      query.where(and(...conditions));
     }
 
     const tracks = await query.limit(Number(limit));
@@ -859,10 +873,16 @@ app.get('/api/gps-tracks', async (req, res) => {
 app.get('/api/gps', async (req, res) => {
   try {
     const { vehicleId, limit = 100 } = req.query;
-    let query = db.select().from(schema.gpsTracks);
+    const conditions: SQL[] = [];
 
     if (vehicleId) {
-      query = query.where(eq(schema.gpsTracks.vehicleId, vehicleId as string));
+      conditions.push(eq(schema.gpsTracks.vehicleId, vehicleId as string));
+    }
+
+    const query = db.select().from(schema.gpsTracks);
+    if (conditions.length > 0) {
+      // @ts-ignore - Drizzle type inference limitation
+      query.where(and(...conditions));
     }
 
     const tracks = await query.limit(Number(limit));
@@ -1209,7 +1229,7 @@ async function startServer() {
       console.log('⚠️  Running in MOCK DATA mode - Database connection skipped');
     }
 
-    app.listen(PORT, () => {
+    const server = app.listen(Number(PORT), '0.0.0.0', () => {
       console.log('');
       console.log('='.repeat(60));
       console.log('🚀 Fleet Management API Server');
@@ -1265,8 +1285,11 @@ async function startServer() {
       console.log('   - Add ?page=1&limit=10 for pagination');
       console.log('   - Use query params like ?status=active or ?filter=low-stock');
       console.log('   - All endpoints return real data from PostgreSQL');
-      console.log('');
     });
+
+    // Initialize WebSocket for OBD2 Emulator
+    setupOBD2WebSocket(server);
+
   } catch (error) {
     console.error('❌ Failed to start server:', error);
     process.exit(1);
