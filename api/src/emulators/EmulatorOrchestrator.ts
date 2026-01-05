@@ -11,10 +11,11 @@ import * as path from 'path'
 import { WebSocketServer, WebSocket } from 'ws'
 
 // Dynamic config generator for realistic data
-import { generateVehiclesConfig, generateRoutesConfig, EmulatorVehicle, EmulatorRoute, EmulatorGeofence } from './config/generateDynamicConfig'
+import { telemetryService, TelemetryVehicle } from '../services/TelemetryService'
 
 import { DispatchEmulator } from './DispatchEmulator'
 import { InventoryEmulator } from './InventoryEmulator'
+import { generateVehiclesConfig, generateRoutesConfig, EmulatorVehicle, EmulatorRoute, EmulatorGeofence } from './config/generateDynamicConfig'
 import { CostEmulator } from './cost/CostEmulator'
 import { DriverBehaviorEmulator } from './driver/DriverBehaviorEmulator'
 import { EVChargingEmulator } from './evcharging/EVChargingEmulator'
@@ -44,7 +45,7 @@ import {
   IoTSensorData
 } from './types'
 import { VideoTelematicsEmulator } from './video/VideoTelematicsEmulator'
-import { telemetryService, TelemetryVehicle } from '../services/TelemetryService'
+
 
 export class EmulatorOrchestrator extends EventEmitter {
   private config: EmulatorConfig

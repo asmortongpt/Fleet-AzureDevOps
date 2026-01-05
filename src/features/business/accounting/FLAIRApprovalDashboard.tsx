@@ -5,8 +5,9 @@
  */
 
 import React, { useState, useEffect } from 'react';
-import { flairIntegrationService, FLAIRExpenseEntry, FLAIRBatchSubmission, FLAIRApproval } from '../../services/FLAIRIntegration';
+
 import { useAuth } from '../../contexts/AuthContext';
+import { flairIntegrationService, FLAIRExpenseEntry } from '../../services/FLAIRIntegration';
 
 // Component props
 interface FLAIRApprovalDashboardProps {

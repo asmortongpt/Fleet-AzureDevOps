@@ -1,4 +1,19 @@
-import React, { useState, useEffect } from 'react';
+import {
+  Warning as WarningIcon,
+  Schedule as ScheduleIcon,
+  Build as BuildIcon,
+  Notifications as NotificationsIcon,
+  Assessment as AssessmentIcon,
+  Download as DownloadIcon,
+  Add as AddIcon,
+  ExpandMore as ExpandMoreIcon,
+  Security as SecurityIcon,
+  Speed as SpeedIcon,
+  Star as StarIcon,
+  Phone as PhoneIcon,
+  Email as EmailIcon,
+  Business as BusinessIcon
+} from '@mui/icons-material';
 import {
   Box,
   Card,
@@ -22,9 +37,6 @@ import {
   DialogActions,
   TextField,
   MenuItem,
-  Alert,
-  IconButton,
-  Tooltip,
   LinearProgress,
   Fab,
   Badge,
@@ -38,32 +50,14 @@ import {
   ListItem,
   ListItemText,
   ListItemIcon,
-  Divider,
-  Avatar
+  Divider
 } from '@mui/material';
-import {
-  Warning as WarningIcon,
-  CheckCircle as CheckCircleIcon,
-  Error as ErrorIcon,
-  Schedule as ScheduleIcon,
-  Build as BuildIcon,
-  Notifications as NotificationsIcon,
-  Assessment as AssessmentIcon,
-  Download as DownloadIcon,
-  Add as AddIcon,
-  ExpandMore as ExpandMoreIcon,
-  Security as SecurityIcon,
-  Speed as SpeedIcon,
-  Star as StarIcon,
-  Phone as PhoneIcon,
-  Email as EmailIcon,
-  Business as BusinessIcon
-} from '@mui/icons-material';
 import { format, parseISO, differenceInDays } from 'date-fns';
+import React, { useState, useEffect } from 'react';
+
 import WarrantyRecallService, {
   WarrantyInfo,
   RecallInfo,
-  WarrantyClaim,
   WarrantyAnalytics,
   RecallAnalytics
 } from '../../services/inventory/WarrantyRecallService';

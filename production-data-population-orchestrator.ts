@@ -20,16 +20,14 @@
  * - No hardcoded credentials
  */
 
-import { Pool, PoolClient } from 'pg';
+import * as path from 'path';
+
 import { BlobServiceClient, ContainerClient } from '@azure/storage-blob';
-import { ChatOpenAI } from '@langchain/openai';
 import { ChatAnthropic } from '@langchain/anthropic';
 import { ChatGoogleGenerativeAI } from '@langchain/google-genai';
+import { ChatOpenAI } from '@langchain/openai';
 import { PDFDocument, rgb, StandardFonts } from 'pdf-lib';
-import * as fs from 'fs/promises';
-import * as path from 'path';
-import * as crypto from 'crypto';
-import axios from 'axios';
+import { Pool } from 'pg';
 
 // ============================================================================
 // CONFIGURATION

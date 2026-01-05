@@ -11,17 +11,18 @@
  * - Conservative recommendations (no unnecessary refactoring)
  */
 
-import * as dotenv from 'dotenv';
 import * as fs from 'fs';
 import * as path from 'path';
+
+import * as dotenv from 'dotenv';
+
 import {
   Severity,
   Finding,
   GateConfig,
   shouldFailGate,
   calculateGateScore,
-  generateFindingSummary,
-  filterFindingsForProduction
+  generateFindingSummary
 } from '../lib/severity.js';
 
 // Load environment configuration

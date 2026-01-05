@@ -1,9 +1,10 @@
 // Fleet Hub - Main Fleet Management Dashboard
 // Displays: Vehicle grid with 50 vehicles, status indicators, drilldowns
 
-import React from 'react';
-import { VehicleGrid } from './VehicleGrid';
 import { Car, TrendingUp, AlertTriangle, CheckCircle } from 'lucide-react';
+import React from 'react';
+
+import { VehicleGrid } from './VehicleGrid';
 
 export const FleetHub: React.FC = () => {
   return (

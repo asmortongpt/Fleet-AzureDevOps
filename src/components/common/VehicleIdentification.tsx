@@ -11,7 +11,7 @@ import { Html5QrcodeScanner, Html5QrcodeScanType } from "html5-qrcode"
 import { useState, useEffect, useRef, useCallback } from "react"
 import { toast } from "sonner"
 
-import { ScannerModal, ScannerType } from "./ScannerModal"
+import { ScannerModal } from "./ScannerModal"
 
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"

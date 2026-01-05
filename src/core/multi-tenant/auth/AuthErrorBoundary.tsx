@@ -1,3 +1,7 @@
+import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline';
+import { Box, Typography, Button, Paper } from '@mui/material';
+import React, { Component, ReactNode, ErrorInfo } from 'react';
+
 import { logger } from '@/utils/logger';
 
 /**
@@ -5,9 +9,6 @@ import { logger } from '@/utils/logger';
  * Catches and handles authentication-related errors gracefully
  */
 
-import React, { Component, ReactNode, ErrorInfo } from 'react';
-import { Box, Typography, Button, Paper } from '@mui/material';
-import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline';
 
 interface Props {
   children: ReactNode;

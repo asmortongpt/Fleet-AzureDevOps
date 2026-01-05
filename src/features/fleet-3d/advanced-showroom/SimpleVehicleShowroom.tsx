@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
+
 import { EnhancedVehicleImageService } from '../../services/EnhancedVehicleImageService';
 import { RealDataService } from '../../services/RealDataService';
-import AccurateVehicleImage from '../vehicle/AccurateVehicleImage';
-import VehicleDetailView from '../vehicle/VehicleDetailView';
 import OBD2RealTimeConnection from '../vehicle/OBD2RealTimeConnection';
+import VehicleDetailView from '../vehicle/VehicleDetailView';
 
 interface SimpleVehicleShowroomProps {
   vehicles: any[];

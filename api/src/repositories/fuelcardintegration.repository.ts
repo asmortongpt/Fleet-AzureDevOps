@@ -4,7 +4,6 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 
 import { FuelCardIntegration } from '../entities/fuel-card-integration.entity';
-import { BaseRepository } from '../repositories/BaseRepository';
 
 @Injectable()
 export class FuelCardIntegrationRepository {

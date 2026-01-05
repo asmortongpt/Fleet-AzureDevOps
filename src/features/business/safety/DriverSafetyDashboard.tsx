@@ -3,13 +3,10 @@
  * Real-time behavior monitoring with coaching recommendations
  */
 
-import { AlertTriangle, Shield, Eye, Brain, Heart, Zap, TrendingUp, TrendingDown, Clock, MapPin, Phone, Car, Activity, Target, BookOpen, Award, Bell, Gauge, ThermometerSun, CloudRain, Sun, Moon, Coffee, AlertCircle, CheckCircle, XCircle, Timer, Users, BarChart3, LineChart } from 'lucide-react';
-import React, { useState, useEffect, useCallback, useMemo } from 'react';
-import { Badge } from '../ui/Badge';
-import { Button } from '../ui/Button';
-import { Card, CardContent, CardHeader, CardTitle } from '../ui/Card';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Progress } from '../ui/Progress';
+import { AlertTriangle, Shield, Eye, Brain, Zap, TrendingUp, Clock, Phone, Car, Activity, Target, BookOpen, Award, Bell, Gauge, Coffee, AlertCircle, CheckCircle, Timer, Users, BarChart3, LineChart } from 'lucide-react';
+import React, { useState, useEffect, useMemo } from 'react';
+
 import type {
   AIDriverBehaviorAnalysis,
   DriverFatigueAnalysis,
@@ -20,6 +17,10 @@ import type {
   Driver,
   Vehicle
 } from '../../types';
+import { Badge } from '../ui/Badge';
+import { Button } from '../ui/Button';
+import { Card, CardContent, CardHeader, CardTitle } from '../ui/Card';
+import { Progress } from '../ui/Progress';
 
 interface DriverSafetyDashboardProps {
   drivers: Driver[];
