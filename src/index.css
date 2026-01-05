@@ -49,81 +49,108 @@
 }
 
 /*
-  PROFESSIONAL CORPORATE THEME
-  Fleet Management Platform - Enterprise Design System
-  Clean, professional blue/gray palette for business applications
+  PREMIUM MODERN THEME
+  Fleet Management Platform - Next-Gen Design System
+  High-contrast, vibrant, and glassmorphic aesthetic
 */
 :root {
-  /* Professional Dark Mode - Corporate Navy Theme */
-  --background: #0f172a;           /* Dark navy base - slate-900 */
-  --foreground: #f1f5f9;           /* Clean white text - slate-100 */
+  /* Premium Dark Mode - Deep Midnight Theme */
+  --background: #020617;
+  /* Slate 950 - Almost black */
+  --foreground: #f8fafc;
+  /* Slate 50 - Bright white text */
 
-  --card: #1e293b;                 /* Elevated surface - slate-800 */
-  --card-foreground: #f1f5f9;      /* Card text - slate-100 */
+  --card: #0f172a;
+  /* Slate 900 - Deep rich background */
+  --card-foreground: #f8fafc;
+  /* Slate 50 */
 
-  --popover: #1e293b;              /* Popover surface - slate-800 */
-  --popover-foreground: #f1f5f9;   /* Popover text - slate-100 */
+  --popover: #0f172a;
+  /* Slate 900 */
+  --popover-foreground: #f8fafc;
+  /* Slate 50 */
 
-  --primary: #2563eb;              /* Corporate blue - blue-600 */
-  --primary-foreground: #ffffff;   /* White text on primary */
+  --primary: #3b82f6;
+  /* Blue 500 - Vibrant Electric Blue */
+  --primary-foreground: #ffffff;
 
-  --secondary: #475569;            /* Professional gray - slate-600 */
-  --secondary-foreground: #f1f5f9; /* Light text on secondary */
+  --secondary: #1e293b;
+  /* Slate 800 - Subtle contrast */
+  --secondary-foreground: #f8fafc;
 
-  --muted: #1e293b;                /* Muted background - slate-800 */
-  --muted-foreground: #94a3b8;     /* Muted text - slate-400 */
+  --muted: #1e293b;
+  /* Slate 800 */
+  --muted-foreground: #94a3b8;
+  /* Slate 400 */
 
-  --accent: #3b82f6;               /* Accent blue - blue-500 */
-  --accent-foreground: #ffffff;    /* White text on accent */
+  --accent: #6366f1;
+  /* Indigo 500 - Secondary vibrant accent */
+  --accent-foreground: #ffffff;
 
-  --destructive: #dc2626;          /* Professional red - red-600 */
+  --destructive: #ef4444;
+  /* Red 500 - Vaporwave Red */
   --destructive-foreground: #ffffff;
 
-  --success: #059669;              /* Professional green - emerald-600 */
-  --warning: #d97706;              /* Professional amber - amber-600 */
+  --success: #10b981;
+  /* Emerald 500 - Neon Green */
+  --warning: #f59e0b;
+  /* Amber 500 - Bright Orange */
 
-  --border: rgba(148, 163, 184, 0.2);  /* Subtle borders - slate-400/20 */
-  --input: #1e293b;                /* Input background - slate-800 */
-  --ring: #3b82f6;                 /* Focus ring - blue-500 */
+  --border: rgba(148, 163, 184, 0.15);
+  /* Subtle glass border */
+  --input: #1e293b;
+  /* Slate 800 */
+  --ring: #3b82f6;
+  /* Blue 500 */
 
-  --radius: 0.5rem;                /* Professional 8px corners */
+  --radius: 0.75rem;
+  /* Modern 12px corners */
 }
 
 /*
-  LIGHT MODE - Professional Corporate Theme
-  Clean, high-contrast design for business applications
+  LIGHT MODE - Crisp Modern Theme
+  Clean, airy, and high-contrast
 */
 .light {
-  --background: #f8fafc;           /* Clean white background - slate-50 */
-  --foreground: #0f172a;           /* Dark text - slate-900 */
+  --background: #ffffff;
+  /* Pure white */
+  --foreground: #020617;
+  /* Slate 950 - High contrast text */
 
-  --card: #ffffff;                 /* Pure white cards */
-  --card-foreground: #0f172a;      /* Dark text on cards */
+  --card: #ffffff;
+  --card-foreground: #020617;
 
-  --popover: #ffffff;              /* White popovers */
-  --popover-foreground: #0f172a;   /* Dark text on popovers */
+  --popover: #ffffff;
+  --popover-foreground: #020617;
 
-  --primary: #2563eb;              /* Corporate blue - blue-600 */
-  --primary-foreground: #ffffff;   /* White text on primary */
+  --primary: #2563eb;
+  /* Blue 600 */
+  --primary-foreground: #ffffff;
 
-  --secondary: #e2e8f0;            /* Light professional gray - slate-200 */
-  --secondary-foreground: #0f172a; /* Dark text on secondary */
+  --secondary: #f1f5f9;
+  /* Slate 100 */
+  --secondary-foreground: #0f172a;
 
-  --muted: #f1f5f9;                /* Muted background - slate-100 */
-  --muted-foreground: #64748b;     /* Muted text - slate-500 */
+  --muted: #f8fafc;
+  /* Slate 50 */
+  --muted-foreground: #64748b;
+  /* Slate 500 */
 
-  --accent: #3b82f6;               /* Accent blue - blue-500 */
-  --accent-foreground: #ffffff;    /* White text on accent */
+  --accent: #eeeeff;
+  /* Very light indigo tint */
+  --accent-foreground: #4338ca;
+  /* Indigo 700 */
 
-  --destructive: #dc2626;          /* Professional red - red-600 */
+  --destructive: #dc2626;
   --destructive-foreground: #ffffff;
 
-  --success: #059669;              /* Professional green - emerald-600 */
-  --warning: #d97706;              /* Professional amber - amber-600 */
+  --success: #059669;
+  --warning: #d97706;
 
-  --border: rgba(100, 116, 139, 0.15);  /* Subtle professional borders */
-  --input: #ffffff;                /* White input background */
-  --ring: #3b82f6;                 /* Focus ring - blue-500 */
+  --border: #e2e8f0;
+  /* Slate 200 */
+  --input: #ffffff;
+  --ring: #2563eb;
 }
 
 @theme {
@@ -159,31 +186,36 @@
 }
 
 @layer utilities {
-  /* PROFESSIONAL CARD STYLES - Clean & Corporate */
+
+  /* PROFESSIONAL CARD STYLES - Premium & Modern */
   .glass {
-    @apply bg-card/95 backdrop-blur-md border border-border/50 shadow-sm;
+    @apply bg-card/60 backdrop-blur-xl border border-border/50 shadow-lg;
   }
 
   .glass-panel {
-    @apply bg-card/90 backdrop-blur-xl border border-border/40 shadow-lg;
+    @apply bg-card/80 backdrop-blur-2xl border border-border/40 shadow-xl;
   }
 
   .glass-card {
-    @apply bg-card/95 backdrop-blur-sm border border-border/50 hover:border-primary/40 hover:shadow-lg transition-all duration-300 ease-out;
+    @apply bg-card/70 backdrop-blur-lg border border-border/50 hover:border-primary/50 hover:bg-card/80 hover:shadow-glow-md transition-all duration-300 ease-out;
   }
 
   .glass-button {
-    @apply bg-primary hover:bg-primary/90 text-primary-foreground border border-primary/20 shadow-md hover:shadow-lg transition-all duration-200;
+    @apply bg-primary hover:bg-primary/90 text-primary-foreground border border-primary/20 shadow-md hover:shadow-glow-sm transition-all duration-200;
   }
 
-  /* PROFESSIONAL BORDERS - Subtle & Clean */
+  /* PROFESSIONAL BORDERS - Modern Gradient */
   .tech-border {
-    @apply relative border border-border/50 overflow-hidden rounded-xl;
+    @apply relative border border-border/40 overflow-hidden rounded-xl;
   }
 
   .tech-border::before {
     content: '';
-    @apply absolute top-0 left-0 w-full h-0.5 bg-gradient-to-r from-transparent via-primary/50 to-transparent;
+    @apply absolute top-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-primary/60 to-transparent opacity-50;
+  }
+
+  .tech-border-glow {
+    @apply relative border border-primary/20 shadow-[0_0_15px_rgba(59, 130, 246, 0.1)];
   }
 
   /* PROFESSIONAL TEXT - Clean and readable */
@@ -203,6 +235,7 @@
   .no-scrollbar::-webkit-scrollbar {
     display: none;
   }
+
   .no-scrollbar {
     -ms-overflow-style: none;
     scrollbar-width: none;
@@ -260,12 +293,29 @@
   }
 
   /* STAGGERED ANIMATION DELAYS */
-  .stagger-1 { animation-delay: 0.05s; }
-  .stagger-2 { animation-delay: 0.1s; }
-  .stagger-3 { animation-delay: 0.15s; }
-  .stagger-4 { animation-delay: 0.2s; }
-  .stagger-5 { animation-delay: 0.25s; }
-  .stagger-6 { animation-delay: 0.3s; }
+  .stagger-1 {
+    animation-delay: 0.05s;
+  }
+
+  .stagger-2 {
+    animation-delay: 0.1s;
+  }
+
+  .stagger-3 {
+    animation-delay: 0.15s;
+  }
+
+  .stagger-4 {
+    animation-delay: 0.2s;
+  }
+
+  .stagger-5 {
+    animation-delay: 0.25s;
+  }
+
+  .stagger-6 {
+    animation-delay: 0.3s;
+  }
 
   /* HOVER EFFECTS */
   .hover-lift {
@@ -273,7 +323,7 @@
   }
 
   .hover-glow {
-    @apply transition-all duration-300 hover:shadow-[0_0_20px_rgba(37,99,235,0.15)];
+    @apply transition-all duration-300 hover:shadow-[0_0_20px_rgba(37, 99, 235, 0.15)];
   }
 
   .hover-scale {
@@ -340,13 +390,25 @@
 
 /* KEYFRAME DEFINITIONS */
 @keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
 }
 
 @keyframes fadeInUp {
-  from { opacity: 0; transform: translateY(20px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 @keyframes slideUp {
@@ -354,6 +416,7 @@
     opacity: 0;
     transform: translateY(16px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -365,6 +428,7 @@
     opacity: 0;
     transform: translateY(-16px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -376,6 +440,7 @@
     opacity: 0;
     transform: translateY(12px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -387,6 +452,7 @@
     opacity: 0;
     transform: translateY(-12px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -398,6 +464,7 @@
     opacity: 0;
     transform: translateX(-20px);
   }
+
   to {
     opacity: 1;
     transform: translateX(0);
@@ -409,6 +476,7 @@
     opacity: 0;
     transform: translateX(20px);
   }
+
   to {
     opacity: 1;
     transform: translateX(0);
@@ -420,6 +488,7 @@
     opacity: 0;
     transform: scale(0.96);
   }
+
   to {
     opacity: 1;
     transform: scale(1);
@@ -431,6 +500,7 @@
     opacity: 0;
     transform: scale(0.9);
   }
+
   to {
     opacity: 1;
     transform: scale(1);
@@ -438,23 +508,34 @@
 }
 
 @keyframes shimmer {
-  0% { background-position: -200% 0; }
-  100% { background-position: 200% 0; }
+  0% {
+    background-position: -200% 0;
+  }
+
+  100% {
+    background-position: 200% 0;
+  }
 }
 
 @keyframes pulseSoft {
-  0%, 100% {
+
+  0%,
+  100% {
     opacity: 1;
   }
+
   50% {
     opacity: 0.7;
   }
 }
 
 @keyframes float {
-  0%, 100% {
+
+  0%,
+  100% {
     transform: translateY(0);
   }
+
   50% {
     transform: translateY(-4px);
   }
@@ -464,6 +545,7 @@
   from {
     transform: rotate(0deg);
   }
+
   to {
     transform: rotate(360deg);
   }

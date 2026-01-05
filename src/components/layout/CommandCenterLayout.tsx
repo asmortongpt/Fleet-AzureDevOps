@@ -159,10 +159,11 @@ export function CommandCenterLayout({ children }: CommandCenterLayoutProps): JSX
                     aria-label="Main content area"
                 >
                     {/* Subtle grid background */}
-                    <div className="absolute inset-0 z-0 bg-[linear-gradient(to_right,#80808008_1px,transparent_1px),linear-gradient(to_bottom,#80808008_1px,transparent_1px)] bg-[size:20px_20px] sm:bg-[size:24px_24px]" />
+                    <div className="absolute inset-0 z-0 bg-[linear-gradient(to_right,#80808008_1px,transparent_1px),linear-gradient(to_bottom,#80808008_1px,transparent_1px)] bg-[size:24px_24px]" />
 
-                    {/* Gradient overlay for depth */}
-                    <div className="absolute inset-0 z-0 bg-gradient-to-b from-transparent via-transparent to-background/50 pointer-events-none" />
+                    {/* Gradient overlay for depth - Premium Midnight Effect */}
+                    <div className="absolute inset-0 z-0 bg-[radial-gradient(ellipse_80%_80%_at_50%_-20%,rgba(59,130,246,0.15),rgba(255,255,255,0))]" />
+                    <div className="absolute inset-0 z-0 bg-gradient-to-b from-transparent via-background/50 to-background pointer-events-none" />
 
                     <div className="relative z-10 h-full animate-fade-in">
                         {children}

@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input"
 import { useDebounce } from "@/hooks/useDebounce"
 import { cn } from "@/lib/utils"
 
-interface SearchInputProps {
+export interface SearchInputProps {
   value?: string
   onChange: (value: string) => void
   onDebouncedChange?: (value: string) => void
@@ -16,6 +16,8 @@ interface SearchInputProps {
   ariaLabel?: string
   id?: string
   disabled?: boolean
+  onFocus?: () => void
+  onBlur?: () => void
 }
 
 /**
@@ -48,7 +50,9 @@ export function SearchInput({
   className,
   ariaLabel,
   id,
-  disabled = false
+  disabled = false,
+  onFocus,
+  onBlur
 }: SearchInputProps) {
   const [internalValue, setInternalValue] = useState(controlledValue || "")
   const debouncedValue = useDebounce(internalValue, debounceMs)
@@ -99,6 +103,8 @@ export function SearchInput({
         disabled={disabled}
         role="searchbox"
         autoComplete="off"
+        onFocus={onFocus}
+        onBlur={onBlur}
       />
       {showClearButton && (
         <Button
