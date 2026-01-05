@@ -10,7 +10,7 @@
  * - Smooth animations and transitions
  */
 
-import { ArrowUp, ArrowDown, Minus } from '@phosphor-icons/react'
+import { ArrowUp, ArrowDown, Minus, CaretRight } from '@phosphor-icons/react'
 import { motion } from 'framer-motion'
 
 import { cn } from '@/lib/utils'
