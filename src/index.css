@@ -49,113 +49,108 @@
 }
 
 /*
-  PROFESSIONAL CORPORATE THEME
-  Fleet Management Platform - Enterprise Design System
-  Clean, sophisticated, and business-focused aesthetic
+  PREMIUM MODERN THEME
+  Fleet Management Platform - Next-Gen Design System
+  High-contrast, vibrant, and glassmorphic aesthetic
 */
 :root {
-  /* Professional Dark Mode - Corporate Navy Theme */
-  --background: #0a0e1a;
-  /* Deep navy - professional and refined */
-  --foreground: #f1f5f9;
-  /* Slate 100 - Clear, readable text */
+  /* Premium Dark Mode - Deep Midnight Theme */
+  --background: #020617;
+  /* Slate 950 - Almost black */
+  --foreground: #f8fafc;
+  /* Slate 50 - Bright white text */
 
-  --card: #111827;
-  /* Gray 900 - Subtle elevation */
-  --card-foreground: #f1f5f9;
-  /* Slate 100 */
+  --card: #0f172a;
+  /* Slate 900 - Deep rich background */
+  --card-foreground: #f8fafc;
+  /* Slate 50 */
 
-  --popover: #1f2937;
-  /* Gray 800 */
-  --popover-foreground: #f1f5f9;
-  /* Slate 100 */
+  --popover: #0f172a;
+  /* Slate 900 */
+  --popover-foreground: #f8fafc;
+  /* Slate 50 */
 
-  --primary: #2563eb;
-  /* Blue 600 - Professional corporate blue */
+  --primary: #3b82f6;
+  /* Blue 500 - Vibrant Electric Blue */
   --primary-foreground: #ffffff;
 
-  --secondary: #374151;
-  /* Gray 700 - Refined secondary */
-  --secondary-foreground: #f9fafb;
+  --secondary: #1e293b;
+  /* Slate 800 - Subtle contrast */
+  --secondary-foreground: #f8fafc;
 
-  --muted: #1f2937;
-  /* Gray 800 */
-  --muted-foreground: #9ca3af;
-  /* Gray 400 - Subtle text */
+  --muted: #1e293b;
+  /* Slate 800 */
+  --muted-foreground: #94a3b8;
+  /* Slate 400 */
 
-  --accent: #3b82f6;
-  /* Blue 500 - Accent highlight */
+  --accent: #6366f1;
+  /* Indigo 500 - Secondary vibrant accent */
   --accent-foreground: #ffffff;
 
-  --destructive: #dc2626;
-  /* Red 600 - Professional error color */
+  --destructive: #ef4444;
+  /* Red 500 - Vaporwave Red */
   --destructive-foreground: #ffffff;
 
-  --success: #059669;
-  /* Emerald 600 - Professional success */
-  --warning: #d97706;
-  /* Amber 600 - Professional warning */
+  --success: #10b981;
+  /* Emerald 500 - Neon Green */
+  --warning: #f59e0b;
+  /* Amber 500 - Bright Orange */
 
-  --border: #1f2937;
-  /* Gray 800 - Clean separation */
-  --input: #1f2937;
-  /* Gray 800 */
-  --ring: #2563eb;
-  /* Blue 600 */
+  --border: rgba(148, 163, 184, 0.15);
+  /* Subtle glass border */
+  --input: #1e293b;
+  /* Slate 800 */
+  --ring: #3b82f6;
+  /* Blue 500 */
 
-  --radius: 0.5rem;
-  /* Professional 8px corners */
+  --radius: 0.75rem;
+  /* Modern 12px corners */
 }
 
 /*
-  LIGHT MODE - Professional Corporate Theme
-  Clean, crisp, and business-focused
+  LIGHT MODE - Crisp Modern Theme
+  Clean, airy, and high-contrast
 */
 .light {
   --background: #ffffff;
-  /* Pure white for maximum clarity */
-  --foreground: #111827;
-  /* Gray 900 - Professional high contrast */
+  /* Pure white */
+  --foreground: #020617;
+  /* Slate 950 - High contrast text */
 
-  --card: #f9fafb;
-  /* Gray 50 - Subtle elevation */
-  --card-foreground: #111827;
+  --card: #ffffff;
+  --card-foreground: #020617;
 
   --popover: #ffffff;
-  --popover-foreground: #111827;
+  --popover-foreground: #020617;
 
   --primary: #2563eb;
-  /* Blue 600 - Corporate primary */
+  /* Blue 600 */
   --primary-foreground: #ffffff;
 
-  --secondary: #f3f4f6;
-  /* Gray 100 - Refined secondary */
-  --secondary-foreground: #1f2937;
+  --secondary: #f1f5f9;
+  /* Slate 100 */
+  --secondary-foreground: #0f172a;
 
-  --muted: #f9fafb;
-  /* Gray 50 - Subtle backgrounds */
-  --muted-foreground: #6b7280;
-  /* Gray 500 - Professional muted text */
+  --muted: #f8fafc;
+  /* Slate 50 */
+  --muted-foreground: #64748b;
+  /* Slate 500 */
 
-  --accent: #eff6ff;
-  /* Blue 50 - Subtle corporate accent */
-  --accent-foreground: #1e40af;
-  /* Blue 800 - Professional accent text */
+  --accent: #eeeeff;
+  /* Very light indigo tint */
+  --accent-foreground: #4338ca;
+  /* Indigo 700 */
 
   --destructive: #dc2626;
-  /* Red 600 - Professional error */
   --destructive-foreground: #ffffff;
 
   --success: #059669;
-  /* Emerald 600 - Professional success */
   --warning: #d97706;
-  /* Amber 600 - Professional warning */
 
-  --border: #e5e7eb;
-  /* Gray 200 - Clean borders */
+  --border: #e2e8f0;
+  /* Slate 200 */
   --input: #ffffff;
   --ring: #2563eb;
-  /* Corporate blue focus ring */
 }
 
 @theme {
@@ -193,30 +188,34 @@
 @layer utilities {
 
   /* PROFESSIONAL CARD STYLES - Premium & Modern */
-  /* PROFESSIONAL CARD STYLES - Corporate and clean */
   .glass {
-    @apply bg-card border border-border shadow-sm;
+    @apply bg-card/60 backdrop-blur-xl border border-border/50 shadow-lg;
   }
 
   .glass-panel {
-    @apply bg-card border border-border shadow-md;
+    @apply bg-card/80 backdrop-blur-2xl border border-border/40 shadow-xl;
   }
 
   .glass-card {
-    @apply bg-card border border-border hover:border-primary/40 hover:shadow-md transition-all duration-200;
+    @apply bg-card/70 backdrop-blur-lg border border-border/50 hover:border-primary/50 hover:bg-card/80 transition-all duration-300 ease-out;
   }
 
   .glass-button {
-    @apply bg-primary hover:bg-primary/90 text-primary-foreground shadow-sm transition-all duration-150;
+    @apply bg-primary hover:bg-primary/90 text-primary-foreground border border-primary/20 shadow-md transition-all duration-200;
   }
 
-  /* PROFESSIONAL BORDERS - Clean separation */
+  /* PROFESSIONAL BORDERS - Modern Gradient */
   .tech-border {
-    @apply border border-border rounded-lg;
+    @apply relative border border-border/40 overflow-hidden rounded-xl;
+  }
+
+  .tech-border::before {
+    content: '';
+    @apply absolute top-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-primary/60 to-transparent opacity-50;
   }
 
   .tech-border-glow {
-    @apply border border-border shadow-sm;
+    @apply relative border border-primary/20 shadow-lg;
   }
 
   /* PROFESSIONAL TEXT - Clean and readable */
@@ -374,13 +373,13 @@
     container-type: inline-size;
   }
 
-  /* PROFESSIONAL CARD STYLES FOR HUB PAGES */
+  /* ENHANCED GLASSMORPHISM FOR HUB PAGES */
   .glass-hub-card {
-    @apply bg-card rounded-lg border border-border shadow-sm hover:shadow-md transition-all duration-200;
+    @apply bg-gradient-to-br from-slate-800/70 to-slate-900/80 backdrop-blur-xl rounded-lg border border-slate-700/50 shadow-lg hover:shadow-xl transition-all duration-300;
   }
 
   .glass-hub-stat {
-    @apply bg-card rounded-lg border border-border shadow-sm hover:shadow-md transition-all duration-200 cursor-pointer hover:border-primary/30;
+    @apply bg-gradient-to-br from-slate-800/70 to-slate-900/80 backdrop-blur-xl rounded-xl border border-slate-700/50 shadow-lg hover:shadow-xl transition-colors duration-300 cursor-pointer hover:border-slate-600/50;
   }
 
   /* ENTRANCE ANIMATIONS */
