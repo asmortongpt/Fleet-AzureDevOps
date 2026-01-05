@@ -25,18 +25,18 @@ function DispatchContent() {
     const { push } = useDrilldown()
 
     return (
-        <div className="p-4 sm:p-6 space-y-4 sm:space-y-6 bg-gradient-to-b from-background to-background/95 min-h-full overflow-auto">
+        <div className="p-6 space-y-6 bg-gradient-to-b from-slate-900/50 to-transparent min-h-full">
             {/* Header */}
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+            <div className="flex items-center justify-between">
                 <div>
-                    <h2 className="text-lg sm:text-xl lg:text-2xl font-bold text-foreground">Dispatch Console</h2>
-                    <p className="text-sm text-muted-foreground mt-0.5">Real-time job management and driver assignments</p>
+                    <h2 className="text-2xl font-bold text-white">Dispatch Console</h2>
+                    <p className="text-slate-400 mt-1">Real-time job management and driver assignments</p>
                 </div>
                 <StatusDot status="online" label="Live Updates" />
             </div>
 
             {/* Primary Stats */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                 <StatCard
                     title="Active Jobs"
                     value="24"
@@ -78,7 +78,7 @@ function DispatchContent() {
             </div>
 
             {/* Secondary Row */}
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-3 sm:gap-4">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 {/* On-Time Rate */}
                 <div className="bg-gradient-to-br from-slate-800/60 to-slate-900/60 backdrop-blur-xl rounded-xl border border-slate-700/50 p-6 cursor-pointer hover:border-slate-600/50 transition-colors" onClick={() => push({ type: 'dispatch', data: { title: 'On-Time Performance' } } as Omit<DrilldownLevel, "timestamp">)}>
                     <h3 className="text-sm font-medium text-slate-400 uppercase tracking-wide mb-4">On-Time Rate</h3>
@@ -148,9 +148,25 @@ function CalendarContent() {
         <div className="p-6 space-y-6 bg-gradient-to-b from-slate-900/50 to-transparent">
             <h2 className="text-2xl font-bold text-white">Operations Calendar</h2>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <StatCard title="Scheduled Today" value="24" variant="primary" icon={<CalendarDots className="w-6 h-6" />} onClick={() => push({ type: 'operations-calendar', data: { title: 'Scheduled Today', filter: 'today' }, id: 'scheduled-today' } as Omit<DrilldownLevel, "timestamp">)} />
-                <StatCard title="This Week" value="156" variant="default" onClick={() => push({ type: 'operations-calendar', data: { title: 'This Week', filter: 'week' }, id: 'this-week' } as Omit<DrilldownLevel, "timestamp">)} />
-                <StatCard title="Driver Shifts" value="42" variant="success" onClick={() => push({ type: 'driver-shifts', data: { title: 'Driver Shifts' }, id: 'driver-shifts' } as Omit<DrilldownLevel, "timestamp">)} />
+                <StatCard
+                    title="Scheduled Today"
+                    value="24"
+                    variant="primary"
+                    icon={<CalendarDots className="w-6 h-6" />}
+                    onClick={() => push({ type: 'calendar-list', id: 'scheduled-today', data: { timeframe: 'today' } })}
+                />
+                <StatCard
+                    title="This Week"
+                    value="156"
+                    variant="default"
+                    onClick={() => push({ type: 'calendar-list', id: 'scheduled-week', data: { timeframe: 'week' } })}
+                />
+                <StatCard
+                    title="Driver Shifts"
+                    value="42"
+                    variant="success"
+                    onClick={() => push({ type: 'calendar-list', id: 'driver-shifts', data: { type: 'shifts' } })}
+                />
             </div>
         </div>
     )
