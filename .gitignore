@@ -126,3 +126,9 @@ dist-from-vm/
 dist-from-vm/
 node_modules/.cache/
 verification-evidence/
+
+# Remove files with API keys/secrets
+PRODUCTION_STATUS_*.md
+PRODUCTION_ISSUES_*.md
+COMPREHENSIVE_TEST_REPORT.md
+qa-framework/auto-remediate-issues.cjs
