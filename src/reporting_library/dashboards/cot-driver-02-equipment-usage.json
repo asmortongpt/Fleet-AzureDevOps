@@ -1,0 +1,15 @@
+{
+  "id": "cot-driver-02",
+  "title": "Equipment Usage",
+  "domain": "assets",
+  "category": "city_tallahassee_driver",
+  "description": "Miles/hours by organization and month",
+  "datasource": {"type": "sqlView", "view": "vw_equipment_usage", "parameters": {"date_start": "{{dateRange.start}}", "date_end": "{{dateRange.end}}", "organization": "{{organization}}"}},
+  "filters": [{"name": "dateRange", "type": "dateRange", "default": "current_month", "required": true}, {"name": "organization", "type": "multiSelect", "values": "dynamic", "default": "All"}],
+  "visuals": [
+    {"id": "kpis", "type": "kpiTiles", "title": "Usage Summary", "measures": [{"id": "total_miles", "label": "Total Miles", "format": "integer", "aggregation": "sum", "field": "miles"}, {"id": "total_hours", "label": "Total Hours", "format": "decimal", "aggregation": "sum", "field": "hours"}], "layout": {"x": 0, "y": 0, "w": 12, "h": 2}},
+    {"id": "usage_trend", "type": "line", "title": "Usage Trend", "encoding": {"x": {"field": "month", "type": "temporal"}, "y": {"field": "miles", "type": "quantitative", "aggregate": "sum"}, "color": {"field": "organization", "type": "nominal"}}, "layout": {"x": 0, "y": 2, "w": 12, "h": 4}}
+  ],
+  "exports": [{"format": "csv"}, {"format": "xlsx"}, {"format": "pdf"}],
+  "security": {"rowLevel": [{"role": "Admin", "rule": "TRUE"}]}
+}

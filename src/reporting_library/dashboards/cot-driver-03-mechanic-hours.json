@@ -1,0 +1,15 @@
+{
+  "id": "cot-driver-03",
+  "title": "Mechanic Hours",
+  "domain": "shop",
+  "category": "city_tallahassee_driver",
+  "description": "Labor hours worked vs available over time",
+  "datasource": {"type": "sqlView", "view": "vw_mechanic_hours", "parameters": {"date_start": "{{dateRange.start}}", "date_end": "{{dateRange.end}}"}},
+  "filters": [{"name": "dateRange", "type": "dateRange", "default": "current_month", "required": true}],
+  "visuals": [
+    {"id": "kpis", "type": "kpiTiles", "title": "Labor Summary", "measures": [{"id": "hours_worked", "label": "Hours Worked", "format": "decimal", "aggregation": "sum", "field": "hours_worked"}, {"id": "hours_available", "label": "Hours Available", "format": "decimal", "aggregation": "sum", "field": "hours_available"}, {"id": "utilization_pct", "label": "Utilization %", "format": "percent", "expression": "hours_worked/hours_available"}], "layout": {"x": 0, "y": 0, "w": 12, "h": 2}},
+    {"id": "hours_trend", "type": "line", "title": "Labor Hours Trend", "encoding": {"x": {"field": "date", "type": "temporal"}, "y": {"field": "hours", "type": "quantitative"}, "color": {"field": "type", "type": "nominal"}}, "layout": {"x": 0, "y": 2, "w": 12, "h": 4}}
+  ],
+  "exports": [{"format": "csv"}, {"format": "xlsx"}, {"format": "pdf"}],
+  "security": {"rowLevel": [{"role": "Admin", "rule": "TRUE"}]}
+}
