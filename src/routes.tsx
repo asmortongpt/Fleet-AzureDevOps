@@ -9,6 +9,7 @@ import { FleetHub } from '@/components/hubs/fleet/FleetHub';
 import { ReservationsHub } from '@/components/hubs/reservations/ReservationsHub';
 import { PolicyHub } from '@/pages/PolicyHub';
 import { ConfigurationHub } from '@/pages/ConfigurationHub';
+import { DocumentsHub } from '@/pages/DocumentsHub';
 
 export const AppRoutes: React.FC = () => {
   return (
@@ -18,6 +19,8 @@ export const AppRoutes: React.FC = () => {
       <Route path="/analytics" element={<AnalyticsHub />} />
       <Route path="/reservations" element={<ReservationsHub />} />
       <Route path="/policy-hub" element={<PolicyHub />} />
+      <Route path="/documents" element={<DocumentsHub />} />
+      <Route path="/documents-hub" element={<DocumentsHub />} />
       <Route path="/configuration" element={<ConfigurationHub />} />
       <Route path="/cta-configuration-hub" element={<ConfigurationHub />} />
     </Routes>
