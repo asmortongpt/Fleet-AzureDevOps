@@ -330,83 +330,129 @@ export function VehicleTelemetry() {
     setVehicles(mockVehicles)
   }
 
+  // StatusChip component for semantic status
+  const StatusChip: React.FC<{status: 'good'|'warn'|'bad'|'info'; label?: string}> = ({status, label}) => {
+    const colorMap = {
+      good: '#10b981',
+      warn: '#f59e0b',
+      bad: '#ef4444',
+      info: '#60a5fa'
+    }
+    return (
+      <span style={{
+        display:'inline-flex', alignItems:'center', gap:8,
+        padding:'6px 10px', borderRadius:999,
+        border:'1px solid rgba(255,255,255,0.08)', background:'rgba(255,255,255,0.03)',
+        color: colorMap[status], fontSize:12
+      }}>
+        ● {label ?? status.toUpperCase()}
+      </span>
+    )
+  }
+
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-2xl font-semibold">Vehicle Telemetry</h2>
-          <p className="text-muted-foreground">
-            Live data from OBD-II devices and Smartcar API integration
-          </p>
-        </div>
-        <div className="flex gap-2">
-          <Button variant="outline" onClick={handleRefreshAll}>
-            <Engine className="w-4 h-4 mr-2" />
+    <div style={{
+      padding: 24,
+      background: 'var(--bg, #0f172a)',
+      minHeight: '100vh'
+    }}>
+      {/* Header */}
+      <div style={{ marginBottom: 24 }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 8 }}>
+          <div>
+            <h2 style={{
+              fontSize: 28,
+              fontWeight: 700,
+              color: 'var(--text, #f1f5f9)',
+              marginBottom: 8
+            }}>Vehicle Telemetry</h2>
+            <p style={{
+              fontSize: 14,
+              color: 'var(--muted, #94a3b8)'
+            }}>Professional telemetry management with table-first navigation</p>
+          </div>
+          <button
+            onClick={handleRefreshAll}
+            style={{
+              padding: '10px 16px',
+              borderRadius: 12,
+              border: '1px solid rgba(255,255,255,0.08)',
+              background: 'rgba(96,165,250,0.15)',
+              color: 'var(--text, #f1f5f9)',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              gap: 8
+            }}
+          >
+            <Engine className="w-4 h-4" />
             Refresh All
-          </Button>
+          </button>
         </div>
       </div>
 
-      <div className="grid grid-cols-4 gap-4">
-        <Card>
-          <CardHeader className="pb-3">
-            <CardTitle className="text-sm font-medium text-muted-foreground">
-              Total Vehicles
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{totalVehicles}</div>
-            <div className="flex items-center gap-1 text-xs text-muted-foreground mt-1">
-              <CarProfile className="w-3 h-3" />
-              Monitored
-            </div>
-          </CardContent>
-        </Card>
+      {/* Summary Stats Row */}
+      <div style={{
+        display: 'grid',
+        gridTemplateColumns: 'repeat(4, 1fr)',
+        gap: 16,
+        marginBottom: 24
+      }}>
+        <div style={{
+          padding: 20,
+          borderRadius: 16,
+          border: '1px solid rgba(255,255,255,0.08)',
+          background: 'rgba(255,255,255,0.03)'
+        }}>
+          <div style={{ fontSize: 12, color: 'var(--muted, #94a3b8)', textTransform: 'uppercase', letterSpacing: '.12em', marginBottom: 8 }}>Total Vehicles</div>
+          <div style={{ fontSize: 32, fontWeight: 700, color: 'var(--text, #f1f5f9)' }}>{totalVehicles}</div>
+          <div style={{ fontSize: 12, color: 'var(--muted, #94a3b8)', marginTop: 4, display: 'flex', alignItems: 'center', gap: 4 }}>
+            <CarProfile className="w-3 h-3" />
+            Monitored
+          </div>
+        </div>
 
-        <Card>
-          <CardHeader className="pb-3">
-            <CardTitle className="text-sm font-medium text-muted-foreground">
-              Connected
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-green-600">{connectedVehicles}</div>
-            <div className="flex items-center gap-1 text-xs text-muted-foreground mt-1">
-              <CheckCircle className="w-3 h-3" />
-              Live data
-            </div>
-          </CardContent>
-        </Card>
+        <div style={{
+          padding: 20,
+          borderRadius: 16,
+          border: '1px solid rgba(255,255,255,0.08)',
+          background: 'rgba(255,255,255,0.03)'
+        }}>
+          <div style={{ fontSize: 12, color: 'var(--muted, #94a3b8)', textTransform: 'uppercase', letterSpacing: '.12em', marginBottom: 8 }}>Connected</div>
+          <div style={{ fontSize: 32, fontWeight: 700, color: '#10b981' }}>{connectedVehicles}</div>
+          <div style={{ fontSize: 12, color: 'var(--muted, #94a3b8)', marginTop: 4, display: 'flex', alignItems: 'center', gap: 4 }}>
+            <CheckCircle className="w-3 h-3" />
+            Live data
+          </div>
+        </div>
 
-        <Card>
-          <CardHeader className="pb-3">
-            <CardTitle className="text-sm font-medium text-muted-foreground">
-              Active DTCs
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-orange-600">{activeDTCs}</div>
-            <div className="flex items-center gap-1 text-xs text-muted-foreground mt-1">
-              <Warning className="w-3 h-3" />
-              Diagnostic codes
-            </div>
-          </CardContent>
-        </Card>
+        <div style={{
+          padding: 20,
+          borderRadius: 16,
+          border: '1px solid rgba(255,255,255,0.08)',
+          background: 'rgba(255,255,255,0.03)'
+        }}>
+          <div style={{ fontSize: 12, color: 'var(--muted, #94a3b8)', textTransform: 'uppercase', letterSpacing: '.12em', marginBottom: 8 }}>Active DTCs</div>
+          <div style={{ fontSize: 32, fontWeight: 700, color: '#f59e0b' }}>{activeDTCs}</div>
+          <div style={{ fontSize: 12, color: 'var(--muted, #94a3b8)', marginTop: 4, display: 'flex', alignItems: 'center', gap: 4 }}>
+            <Warning className="w-3 h-3" />
+            Diagnostic codes
+          </div>
+        </div>
 
-        <Card>
-          <CardHeader className="pb-3">
-            <CardTitle className="text-sm font-medium text-muted-foreground">
-              Smartcar Enabled
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-purple-600">{smartcarEnabled}</div>
-            <div className="flex items-center gap-1 text-xs text-muted-foreground mt-1">
-              <LockKey className="w-3 h-3" />
-              Remote control
-            </div>
-          </CardContent>
-        </Card>
+        <div style={{
+          padding: 20,
+          borderRadius: 16,
+          border: '1px solid rgba(255,255,255,0.08)',
+          background: 'rgba(255,255,255,0.03)'
+        }}>
+          <div style={{ fontSize: 12, color: 'var(--muted, #94a3b8)', textTransform: 'uppercase', letterSpacing: '.12em', marginBottom: 8 }}>Smartcar Enabled</div>
+          <div style={{ fontSize: 32, fontWeight: 700, color: '#a855f7' }}>{smartcarEnabled}</div>
+          <div style={{ fontSize: 12, color: 'var(--muted, #94a3b8)', marginTop: 4, display: 'flex', alignItems: 'center', gap: 4 }}>
+            <LockKey className="w-3 h-3" />
+            Remote control
+          </div>
+        </div>
       </div>
 
       <div className="flex gap-4">
@@ -442,113 +488,136 @@ export function VehicleTelemetry() {
         </Select>
       </div>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Vehicle Locations</CardTitle>
-          <CardDescription>
-            Real-time telemetry and location tracking on map
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="h-[400px] rounded-lg overflow-hidden border">
-            <UniversalMap
-              vehicles={fleetVehicles as UniversalMapProps['vehicles']}
-              facilities={facilities as UniversalMapProps['facilities']}
-              showVehicles={true}
-              showFacilities={true}
-              mapStyle="road"
-              className="w-full h-full"
-            />
-          </div>
-        </CardContent>
-      </Card>
+      {/* Vehicle Locations Map */}
+      <div style={{
+        border: '1px solid rgba(255,255,255,0.08)',
+        borderRadius: 16,
+        background: 'rgba(255,255,255,0.03)',
+        overflow: 'hidden',
+        marginBottom: 24
+      }}>
+        <div style={{ padding: 20, borderBottom: '1px solid rgba(255,255,255,0.08)' }}>
+          <div style={{ fontSize: 18, fontWeight: 600, color: 'var(--text, #f1f5f9)', marginBottom: 4 }}>Vehicle Locations</div>
+          <div style={{ fontSize: 14, color: 'var(--muted, #94a3b8)' }}>Real-time telemetry and location tracking on map</div>
+        </div>
+        <div style={{ height: 400 }}>
+          <UniversalMap
+            vehicles={fleetVehicles as UniversalMapProps['vehicles']}
+            facilities={facilities as UniversalMapProps['facilities']}
+            showVehicles={true}
+            showFacilities={true}
+            mapStyle="road"
+            className="w-full h-full"
+          />
+        </div>
+      </div>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Live Vehicle Data ({filteredVehicles.length})</CardTitle>
-          <CardDescription>Real-time telemetry from OBD-II and Smartcar API</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Vehicle</TableHead>
-                <TableHead>Source</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead>Odometer</TableHead>
-                <TableHead>Fuel/SOC</TableHead>
-                <TableHead>DTCs</TableHead>
-                <TableHead>Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {filteredVehicles.length === 0 ? (
-                <TableRow>
-                  <TableCell colSpan={7} className="text-center text-muted-foreground py-8">
-                    No vehicles found. Connect OBD-II devices or authorize Smartcar access.
-                  </TableCell>
-                </TableRow>
-              ) : (
-                filteredVehicles.map(vehicle => (
-                  <TableRow
-                    key={vehicle.id}
-                    className="cursor-pointer hover:bg-muted/50"
-                    onClick={() => push({ type: 'vehicle', label: vehicle.vehicleNumber, data: { vehicleId: vehicle.vehicleId, vehicleNumber: vehicle.vehicleNumber } })}
-                    role="button"
-                    tabIndex={0}
-                    onKeyDown={(e) => e.key === 'Enter' && push({ type: 'vehicle', label: vehicle.vehicleNumber, data: { vehicleId: vehicle.vehicleId, vehicleNumber: vehicle.vehicleNumber } })}
-                  >
-                    <TableCell>
-                      <div className="font-medium">{vehicle.vehicleNumber}</div>
-                      <div className="text-sm text-muted-foreground">
-                        {vehicle.make} {vehicle.model} ({vehicle.year})
-                      </div>
-                    </TableCell>
-                    <TableCell>{getDataSourceBadge(vehicle.dataSource)}</TableCell>
-                    <TableCell>
-                      {vehicle.connected ? (
-                        <Badge variant="secondary" className="bg-green-100 text-green-700">
-                          Connected
-                        </Badge>
-                      ) : (
-                        <Badge variant="secondary" className="bg-red-100 text-red-700">
-                          Disconnected
-                        </Badge>
-                      )}
-                    </TableCell>
-                    <TableCell>{vehicle.liveData.odometer.toLocaleString()} mi</TableCell>
-                    <TableCell>
-                      {vehicle.liveData.stateOfCharge !== undefined
-                        ? `${vehicle.liveData.stateOfCharge}% SOC`
-                        : `${vehicle.liveData.fuelLevel}% Fuel`}
-                    </TableCell>
-                    <TableCell>
-                      {vehicle.dtcCodes.length > 0 ? (
-                        <Badge variant="secondary" className={getDTCSeverityColor(vehicle.dtcCodes[0].severity)}>
-                          {vehicle.dtcCodes.length} Code{vehicle.dtcCodes.length > 1 ? 's' : ''}
-                        </Badge>
-                      ) : (
-                        <Badge variant="secondary" className="bg-gray-100 text-gray-700">
-                          No Issues
-                        </Badge>
-                      )}
-                    </TableCell>
-                    <TableCell>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => handleViewDetails(vehicle)}
-                      >
-                        Details
-                      </Button>
-                    </TableCell>
-                  </TableRow>
-                ))
-              )}
-            </TableBody>
-          </Table>
-        </CardContent>
-      </Card>
+      {/* Telemetry Table - Professional Design */}
+      <div style={{
+        border: '1px solid rgba(255,255,255,0.08)',
+        borderRadius: 16,
+        background: 'rgba(255,255,255,0.03)',
+        overflow: 'hidden'
+      }}>
+        <div style={{ padding: 20, borderBottom: '1px solid rgba(255,255,255,0.08)' }}>
+          <div style={{ fontSize: 18, fontWeight: 600, color: 'var(--text, #f1f5f9)', marginBottom: 4 }}>
+            Live Vehicle Data ({filteredVehicles.length})
+          </div>
+          <div style={{ fontSize: 14, color: 'var(--muted, #94a3b8)' }}>Real-time telemetry from OBD-II and Smartcar API</div>
+        </div>
+        <table style={{
+          width: '100%',
+          borderCollapse: 'separate',
+          borderSpacing: 0
+        }}>
+          <thead>
+            <tr style={{ background: 'rgba(255,255,255,0.02)' }}>
+              <th style={{ padding: 16, fontSize: 12, color: 'var(--muted, #94a3b8)', textAlign: 'left', textTransform: 'uppercase', letterSpacing: '.12em' }}>Vehicle</th>
+              <th style={{ padding: 16, fontSize: 12, color: 'var(--muted, #94a3b8)', textAlign: 'left', textTransform: 'uppercase', letterSpacing: '.12em' }}>Source</th>
+              <th style={{ padding: 16, fontSize: 12, color: 'var(--muted, #94a3b8)', textAlign: 'left', textTransform: 'uppercase', letterSpacing: '.12em' }}>Status</th>
+              <th style={{ padding: 16, fontSize: 12, color: 'var(--muted, #94a3b8)', textAlign: 'left', textTransform: 'uppercase', letterSpacing: '.12em' }}>Odometer</th>
+              <th style={{ padding: 16, fontSize: 12, color: 'var(--muted, #94a3b8)', textAlign: 'left', textTransform: 'uppercase', letterSpacing: '.12em' }}>Fuel/SOC</th>
+              <th style={{ padding: 16, fontSize: 12, color: 'var(--muted, #94a3b8)', textAlign: 'left', textTransform: 'uppercase', letterSpacing: '.12em' }}>DTCs</th>
+              <th style={{ padding: 16, fontSize: 12, color: 'var(--muted, #94a3b8)', textAlign: 'left', textTransform: 'uppercase', letterSpacing: '.12em' }}></th>
+            </tr>
+          </thead>
+          <tbody>
+            {filteredVehicles.length === 0 ? (
+              <tr>
+                <td colSpan={7} style={{ padding: 32, textAlign: 'center', color: 'var(--muted, #94a3b8)', fontSize: 14 }}>
+                  No vehicles found. Connect OBD-II devices or authorize Smartcar access.
+                </td>
+              </tr>
+            ) : (
+              filteredVehicles.map((vehicle, idx) => (
+                <tr
+                  key={vehicle.id}
+                  style={{
+                    cursor: 'pointer',
+                    borderBottom: idx < filteredVehicles.length - 1 ? '1px solid rgba(255,255,255,0.06)' : 'none'
+                  }}
+                  onClick={() => push({ type: 'vehicle', label: vehicle.vehicleNumber, data: { vehicleId: vehicle.vehicleId, vehicleNumber: vehicle.vehicleNumber } })}
+                  onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(255,255,255,0.05)'}
+                  onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
+                >
+                  <td style={{ padding: 16, fontSize: 14 }}>
+                    <div style={{ fontWeight: 600, color: 'var(--text, #f1f5f9)' }}>{vehicle.vehicleNumber}</div>
+                    <div style={{ fontSize: 12, color: 'var(--muted, #94a3b8)', marginTop: 2 }}>
+                      {vehicle.make} {vehicle.model} ({vehicle.year})
+                    </div>
+                  </td>
+                  <td style={{ padding: 16, fontSize: 14 }}>
+                    {getDataSourceBadge(vehicle.dataSource)}
+                  </td>
+                  <td style={{ padding: 16, fontSize: 14 }}>
+                    <StatusChip
+                      status={vehicle.connected ? 'good' : 'bad'}
+                      label={vehicle.connected ? 'CONNECTED' : 'DISCONNECTED'}
+                    />
+                  </td>
+                  <td style={{ padding: 16, fontSize: 14, color: 'var(--text, #f1f5f9)' }}>
+                    {vehicle.liveData.odometer.toLocaleString()} mi
+                  </td>
+                  <td style={{ padding: 16, fontSize: 14, color: 'var(--text, #f1f5f9)' }}>
+                    {vehicle.liveData.stateOfCharge !== undefined
+                      ? `${vehicle.liveData.stateOfCharge}% SOC`
+                      : `${vehicle.liveData.fuelLevel}% Fuel`}
+                  </td>
+                  <td style={{ padding: 16, fontSize: 14 }}>
+                    {vehicle.dtcCodes.length > 0 ? (
+                      <StatusChip
+                        status={vehicle.dtcCodes[0].severity === 'critical' ? 'bad' : vehicle.dtcCodes[0].severity === 'warning' ? 'warn' : 'info'}
+                        label={`${vehicle.dtcCodes.length} Code${vehicle.dtcCodes.length > 1 ? 's' : ''}`}
+                      />
+                    ) : (
+                      <StatusChip status="good" label="NO ISSUES" />
+                    )}
+                  </td>
+                  <td style={{ padding: 16, fontSize: 14 }}>
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        handleViewDetails(vehicle)
+                      }}
+                      style={{
+                        padding: '8px 12px',
+                        borderRadius: 12,
+                        border: '1px solid rgba(255,255,255,0.08)',
+                        background: 'rgba(96,165,250,0.15)',
+                        color: 'var(--text, #f1f5f9)',
+                        cursor: 'pointer',
+                        fontSize: 12
+                      }}
+                    >
+                      Details
+                    </button>
+                  </td>
+                </tr>
+              ))
+            )}
+          </tbody>
+        </table>
+      </div>
 
       <Dialog open={isDetailsOpen} onOpenChange={setIsDetailsOpen}>
         <DialogContent className="max-w-5xl">
