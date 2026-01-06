@@ -638,13 +638,15 @@ app.get('/api/alerts/stats', async (req, res) => {
 
     const stats = {
       total: allIncidents.length,
+      // Status 'active' means anything not closed. Schema default is 'open'.
+      // Schema severity is varchar(20) not strict enum, but we assume: critical, high, medium, low
       critical: allIncidents.filter(i => i.severity === 'critical').length,
-      high: allIncidents.filter(i => i.severity === 'high').length,
-      medium: allIncidents.filter(i => i.severity === 'medium').length,
-      low: allIncidents.filter(i => i.severity === 'low').length,
-      active: allIncidents.filter(i => i.status !== 'closed').length,
+      high: allIncidents.filter(i => i.severity === 'major').length, // Mapped 'high' to 'major' (schema valid: major)
+      medium: allIncidents.filter(i => i.severity === 'moderate').length, // Mapped 'medium' to 'moderate' (schema valid: moderate)
+      low: allIncidents.filter(i => i.severity === 'minor').length, // Mapped 'low' to 'minor' (schema valid: minor)
+      active: allIncidents.filter(i => i.status !== 'completed').length,
       acknowledged: 0,
-      resolved: allIncidents.filter(i => i.status === 'closed').length,
+      resolved: allIncidents.filter(i => i.status === 'completed').length,
     };
 
     res.json(stats);

@@ -1,6 +1,6 @@
 import { Pool, QueryResult } from 'pg';
 
-import { BaseRepository } from '../repositories/BaseRepository';
+import { BaseRepository } from './base/BaseRepository';
 
 export interface FleetCard {
     id: number;
@@ -17,11 +17,9 @@ export interface FleetCard {
 
 export class FleetCardsRepository extends BaseRepository<any> {
 
-    private pool: Pool;
 
     constructor(pool: Pool) {
-        super('fleet_cards', pool);
-        this.pool = pool;
+        super(pool, 'fleet_cards');
     }
 
     async findByTenantId(tenantId: number): Promise<FleetCard[]> {
@@ -67,6 +65,6 @@ export class FleetCardsRepository extends BaseRepository<any> {
     async deleteFleetCard(tenantId: number, id: number): Promise<boolean> {
         const query = `DELETE FROM fleet_cards WHERE id = $1 AND tenant_id = $2 RETURNING id`;
         const result: QueryResult = await this.pool.query(query, [id, tenantId]);
-        return result.rowCount ? result.rowCount > 0 : false;
+        return result.rowCount ? (result.rowCount ?? 0) > 0 : false;
     }
 }

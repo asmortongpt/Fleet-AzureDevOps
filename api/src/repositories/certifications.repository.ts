@@ -1,10 +1,9 @@
 import { Pool, QueryResult } from 'pg';
 
 class CertificationsRepository {
-  private pool: Pool;
 
   constructor(pool: Pool) {
-    this.pool = pool;
+    super(pool, 'certifications');
   }
 
   async getAllCertifications(tenantId: string): Promise<QueryResult> {

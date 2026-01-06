@@ -1,6 +1,6 @@
 import { Pool } from 'pg';
 
-import { BaseRepository } from '../repositories/BaseRepository';
+import { BaseRepository } from './base/BaseRepository';
 
 
 export interface DashboardEntity {
@@ -13,7 +13,9 @@ export interface DashboardEntity {
 }
 
 export class DashboardsRepository extends BaseRepository<any> {
-  constructor(private pool: Pool) {}
+  constructor(pool: Pool) {
+    super(pool, 'dashboards');
+  }
 
   /**
    * Fetch all records
@@ -99,6 +101,6 @@ export class DashboardsRepository extends BaseRepository<any> {
       WHERE id = $1 AND tenant_id = $2 AND deleted_at IS NULL
     `;
     const result = await this.pool.query(query, [id, tenantId]);
-    return result.rowCount > 0;
+    return (result.rowCount ?? 0) > 0;
   }
 }

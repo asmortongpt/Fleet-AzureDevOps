@@ -1,6 +1,6 @@
 import { Pool, PoolClient } from 'pg';
 
-import { BaseRepository } from '../repositories/BaseRepository';
+import { BaseRepository } from './base/BaseRepository';
 
 /**
  * Reservations Repository
@@ -87,7 +87,9 @@ export interface ReservationUpdateData {
 }
 
 export class ReservationsRepository extends BaseRepository<any> {
-  constructor(private pool: Pool) {}
+  constructor(pool: Pool) {
+    super(pool, 'vehicle_reservations');
+  }
 
   /**
    * Get a database client (for transactions)

@@ -1,6 +1,6 @@
 import { Pool } from 'pg';
 
-import { BaseRepository } from '../repositories/BaseRepository';
+import { BaseRepository } from './base/BaseRepository';
 
 /**
  * Permissions Repository
@@ -52,7 +52,9 @@ export interface RolePermission {
 }
 
 export class PermissionsRepository extends BaseRepository<any> {
-  constructor(private pool: Pool) {}
+  constructor(pool: Pool) {
+    super(pool, 'permissions');
+  }
 
   // ============================================================================
   // PERMISSION OPERATIONS
@@ -173,7 +175,7 @@ export class PermissionsRepository extends BaseRepository<any> {
       'DELETE FROM permissions WHERE id = $1',
       [id]
     );
-    return result.rowCount !== null && result.rowCount > 0;
+    return result.rowCount !== null && (result.rowCount ?? 0) > 0;
   }
 
   // ============================================================================
@@ -267,7 +269,7 @@ export class PermissionsRepository extends BaseRepository<any> {
       'DELETE FROM user_roles WHERE user_id = $1 AND role_id = $2',
       [userId, roleId]
     );
-    return result.rowCount !== null && result.rowCount > 0;
+    return result.rowCount !== null && (result.rowCount ?? 0) > 0;
   }
 
   /**
@@ -278,7 +280,7 @@ export class PermissionsRepository extends BaseRepository<any> {
       'UPDATE user_roles SET is_active = false WHERE user_id = $1 AND role_id = $2',
       [userId, roleId]
     );
-    return result.rowCount !== null && result.rowCount > 0;
+    return result.rowCount !== null && (result.rowCount ?? 0) > 0;
   }
 
   // ============================================================================
@@ -352,7 +354,7 @@ export class PermissionsRepository extends BaseRepository<any> {
       'DELETE FROM role_permissions WHERE role_id = $1 AND permission_id = $2',
       [roleId, permissionId]
     );
-    return result.rowCount !== null && result.rowCount > 0;
+    return result.rowCount !== null && (result.rowCount ?? 0) > 0;
   }
 
   // ============================================================================

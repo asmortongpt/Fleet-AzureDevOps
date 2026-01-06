@@ -8,8 +8,8 @@ export interface AuthRequest extends Request {
   user?: {
     id: string
     email: string
-    role: string
-    tenant_id: string
+    role?: string
+    tenant_id?: string
   }
 }
 
@@ -96,7 +96,7 @@ export const authorize = (...roles: string[]) => {
     // - Location data
     //
     // Now ALL requests (including GET) must have the proper role authorization
-    if (!roles.includes(req.user.role)) {
+    if (!req.user.role || !roles.includes(req.user.role)) {
       console.log('❌ AUTHORIZE - Permission denied:', {
         method: req.method,
         path: req.path,

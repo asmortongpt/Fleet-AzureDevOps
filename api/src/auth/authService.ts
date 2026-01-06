@@ -20,6 +20,7 @@ export interface User {
   permissions: Permission[]
   isActive: boolean
   isEmailVerified: boolean
+  tenantId?: string // Added for multi-tenancy support
   lastLoginAt?: Date
   createdAt: Date
   updatedAt: Date
@@ -87,6 +88,7 @@ export interface JWTPayload {
   username: string
   roles: string[]
   permissions: string[]
+  tenantId?: string
   sessionId: string
   iat: number
   exp: number
@@ -267,6 +269,7 @@ export class AuthService {
       username: user.username,
       roles: user.roles.map(role => role.name),
       permissions: user.permissions.map(perm => perm.name),
+      tenantId: user.tenantId,
       sessionId: crypto.randomUUID(),
       iat: Math.floor(Date.now() / 1000),
       exp: Math.floor(Date.now() / 1000) + (15 * 60), // 15 minutes
@@ -388,12 +391,12 @@ export class AuthService {
   // Permission checking
   public hasPermission(userPermissions: string[], requiredPermission: string): boolean {
     return userPermissions.includes(requiredPermission) ||
-           userPermissions.includes(DEFAULT_PERMISSIONS.SYSTEM_ADMIN)
+      userPermissions.includes(DEFAULT_PERMISSIONS.SYSTEM_ADMIN)
   }
 
   public hasRole(userRoles: string[], requiredRole: string): boolean {
     return userRoles.includes(requiredRole) ||
-           userRoles.includes(DEFAULT_ROLES.SUPER_ADMIN)
+      userRoles.includes(DEFAULT_ROLES.SUPER_ADMIN)
   }
 
   public hasAnyPermission(userPermissions: string[], requiredPermissions: string[]): boolean {
@@ -452,6 +455,8 @@ export const requireAuth = (req: Request, res: Response, next: NextFunction): vo
     username: payload.username,
     roles: payload.roles,
     permissions: payload.permissions,
+    tenant_id: payload.tenantId,
+    tenantId: payload.tenantId,
     sessionId: payload.sessionId
   }
 
@@ -466,7 +471,7 @@ export const requirePermission = (permission: string) => {
     }
 
     const authService = AuthService.getInstance()
-    if (!authService.hasPermission(req.user.permissions, permission)) {
+    if (!authService.hasPermission(req.user.permissions || [], permission)) {
       authService.logAuthEvent(
         req.user.id,
         'PERMISSION_DENIED',
@@ -490,7 +495,7 @@ export const requireRole = (role: string) => {
     }
 
     const authService = AuthService.getInstance()
-    if (!authService.hasRole(req.user.roles, role)) {
+    if (!authService.hasRole(req.user.roles || [], role)) {
       authService.logAuthEvent(
         req.user.id,
         'ROLE_DENIED',
@@ -524,19 +529,6 @@ export const rateLimitAuth = (maxRequests = 5, windowMs = 15 * 60 * 1000) => {
 }
 
 // Extend Express Request type
-declare global {
-  namespace Express {
-    interface Request {
-      user?: {
-        id: string
-        email: string
-        username: string
-        roles: string[]
-        permissions: string[]
-        sessionId: string
-      }
-    }
-  }
-}
+// Global declaration removed as it is now handled in src/types/express.d.ts
 
 export default AuthService.getInstance()

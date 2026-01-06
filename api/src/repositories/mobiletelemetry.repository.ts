@@ -1,6 +1,6 @@
 import { Pool, QueryResult } from 'pg';
 
-import { BaseRepository } from '../repositories/BaseRepository';
+import { BaseRepository } from './base/BaseRepository';
 
 
 export interface MobileTelemetry {
@@ -18,7 +18,9 @@ export interface MobileTelemetry {
 }
 
 export class MobileTelemetryRepository extends BaseRepository<any> {
-  constructor(private pool: Pool) {}
+  constructor(pool: Pool) {
+    super(pool, 'mobile_telemetry');
+  }
 
   async findAll(tenantId: number): Promise<MobileTelemetry[]> {
     const query = 'SELECT id, created_at, updated_at FROM mobile_telemetry WHERE tenant_id = $1 AND deleted_at IS NULL ORDER BY timestamp DESC';

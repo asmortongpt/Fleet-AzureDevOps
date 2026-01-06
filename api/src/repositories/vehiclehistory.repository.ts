@@ -1,6 +1,6 @@
 import { Pool, QueryResult } from 'pg';
 
-import { BaseRepository } from '../repositories/BaseRepository';
+import { BaseRepository } from './base/BaseRepository';
 
 // Define the VehicleHistory interface
 interface VehicleHistory {
@@ -14,11 +14,9 @@ interface VehicleHistory {
 
 // VehicleHistoryRepository class
 export class VehicleHistoryRepository extends BaseRepository<any> {
-  private pool: Pool;
 
   constructor(pool: Pool) {
-    super('vehicle_history', pool);
-    this.pool = pool;
+    super(pool, 'vehicle_history');
   }
 
   // Create a new vehicle history entry
@@ -89,7 +87,7 @@ export class VehicleHistoryRepository extends BaseRepository<any> {
     const values = [id, tenantId];
 
     const result: QueryResult<{ id: number }> = await this.pool.query(query, values);
-    return result.rowCount ? result.rowCount > 0 : false;
+    return result.rowCount ? (result.rowCount ?? 0) > 0 : false;
   }
 
   // List all vehicle history entries for a tenant

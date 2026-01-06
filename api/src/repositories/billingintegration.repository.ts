@@ -1,6 +1,6 @@
 import { Pool, QueryResult } from 'pg';
 
-import { BaseRepository } from '../repositories/BaseRepository';
+import { BaseRepository } from './base/BaseRepository';
 
 export interface BillingIntegration {
   id: number;
@@ -14,11 +14,9 @@ export interface BillingIntegration {
 
 export class BillingIntegrationRepository extends BaseRepository<any> {
 
-  private pool: Pool;
 
   constructor(pool: Pool) {
-    super('billing_integrations', pool);
-    this.pool = pool;
+    super(pool, 'billing_integrations');
   }
 
   async create(tenantId: string, billingIntegration: Omit<BillingIntegration, 'id' | 'created_at' | 'updated_at'>): Promise<BillingIntegration> {
@@ -79,6 +77,6 @@ export class BillingIntegrationRepository extends BaseRepository<any> {
       RETURNING id
     `;
     const result: QueryResult = await this.pool.query(query, [id, tenantId]);
-    return result.rowCount ? result.rowCount > 0 : false;
+    return result.rowCount ? (result.rowCount ?? 0) > 0 : false;
   }
 }

@@ -1,6 +1,6 @@
 import { Pool } from 'pg';
 
-import { BaseRepository } from '../repositories/BaseRepository';
+import { BaseRepository } from './base/BaseRepository';
 
 
 export interface ComplianceReport {
@@ -14,7 +14,9 @@ export interface ComplianceReport {
 }
 
 export class ComplianceReportsRepository extends BaseRepository<any> {
-  constructor(private pool: Pool) {}
+  constructor(pool: Pool) {
+    super(pool, 'compliance_reports');
+  }
 
   async findAll(tenantId: number): Promise<ComplianceReport[]> {
     try {

@@ -1,6 +1,6 @@
 import { Pool, QueryResult } from 'pg';
 
-import { BaseRepository } from '../repositories/BaseRepository';
+import { BaseRepository } from './base/BaseRepository';
 
 export interface LoadManagement {
   id: number;
@@ -12,11 +12,9 @@ export interface LoadManagement {
 
 export class LoadManagementRepository extends BaseRepository<any> {
 
-  private pool: Pool;
 
   constructor(pool: Pool) {
-    super('load_management', pool);
-    this.pool = pool;
+    super(pool, 'load_management');
   }
 
   async create(loadManagement: Omit<LoadManagement, 'id' | 'created_at' | 'updated_at'>, tenant_id: number): Promise<LoadManagement> {
@@ -48,6 +46,6 @@ export class LoadManagementRepository extends BaseRepository<any> {
     const values = [id, tenant_id];
 
     const result: QueryResult = await this.pool.query(query, values);
-    return result.rowCount ? result.rowCount > 0 : false;
+    return result.rowCount ? (result.rowCount ?? 0) > 0 : false;
   }
 }

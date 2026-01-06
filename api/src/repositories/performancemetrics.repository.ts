@@ -2,13 +2,12 @@
 import { Pool } from 'pg';
 
 import { PerformanceMetric } from '../models/PerformanceMetric';
-import { BaseRepository } from '../repositories/BaseRepository';
+import { BaseRepository } from './base/BaseRepository';
 
 export class PerformanceMetricsRepository extends BaseRepository<any> {
-  private pool: Pool;
 
   constructor(pool: Pool) {
-    this.pool = pool;
+    super(pool, 'performance_metrics');
   }
 
   async getAll(tenantId: string): Promise<PerformanceMetric[]> {
@@ -49,6 +48,6 @@ export class PerformanceMetricsRepository extends BaseRepository<any> {
   async delete(id: string, tenantId: string): Promise<boolean> {
     const query = 'DELETE FROM performance_metrics WHERE id = $1 AND tenant_id = $2';
     const result = await this.pool.query(query, [id, tenantId]);
-    return result.rowCount > 0;
+    return (result.rowCount ?? 0) > 0;
   }
 }

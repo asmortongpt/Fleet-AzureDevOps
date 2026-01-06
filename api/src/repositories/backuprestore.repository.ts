@@ -1,6 +1,6 @@
 import { Pool, QueryResult } from 'pg';
 
-import { BaseRepository } from '../repositories/BaseRepository';
+import { BaseRepository } from './base/BaseRepository';
 
 export interface Backup {
   id: number;
@@ -14,11 +14,9 @@ export interface Backup {
 
 export class BackupRestoreRepository extends BaseRepository<any> {
 
-  private pool: Pool;
 
   constructor(pool: Pool) {
-    super('backups', pool);
-    this.pool = pool;
+    super(pool, 'backups');
   }
 
   async createBackup(tenantId: string, backup: Omit<Backup, 'id' | 'created_at' | 'updated_at'>): Promise<Backup> {
@@ -80,6 +78,6 @@ export class BackupRestoreRepository extends BaseRepository<any> {
       RETURNING id
     `;
     const result: QueryResult = await this.pool.query(query, [id, tenantId]);
-    return result.rowCount ? result.rowCount > 0 : false;
+    return result.rowCount ? (result.rowCount ?? 0) > 0 : false;
   }
 }

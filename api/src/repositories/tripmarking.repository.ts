@@ -1,10 +1,11 @@
 import { Pool, QueryResult } from 'pg';
 
-class TripMarkingRepository {
-  private pool: Pool;
+import { BaseRepository } from './base/BaseRepository';
+
+class TripMarkingRepository extends BaseRepository<any> {
 
   constructor(pool: Pool) {
-    this.pool = pool;
+    super(pool, 'trip_markings');
   }
 
   async createTripMarking(

@@ -568,8 +568,8 @@ export async function exampleBackgroundJob(configService: ConfigurationManagemen
     );
 
     // Save to backup storage (S3, Azure Blob, etc.)
-    const filename = \`config-backup-\${new Date().toISOString()}.json\`;
-    console.log(\`Exported configuration backup: \${filename}\`);
+    const filename = `config-backup-${new Date().toISOString()}.json`;
+    console.log(`Exported configuration backup: ${filename}`);
 
     // In production, upload to cloud storage
     // await uploadToS3(filename, backup);
@@ -582,10 +582,10 @@ export async function exampleBackgroundJob(configService: ConfigurationManagemen
     await configService.watchConfig(['approval_thresholds', 'pm_intervals'], async (changes) => {
       for (const change of changes) {
         // Send alert to administrators
-        console.log(\`ALERT: Critical config changed: \${change.key}\`);
-        console.log(\`  Changed by: \${change.changedBy}\`);
-        console.log(\`  Old value: \${JSON.stringify(change.oldValue)}\`);
-        console.log(\`  New value: \${JSON.stringify(change.newValue)}\`);
+        console.log(`ALERT: Critical config changed: ${change.key}`);
+        console.log(`  Changed by: ${change.changedBy}`);
+        console.log(`  Old value: ${JSON.stringify(change.oldValue)}`);
+        console.log(`  New value: ${JSON.stringify(change.newValue)}`);
 
         // In production, send email/Slack notification
         // await sendNotification({
@@ -608,7 +608,7 @@ export async function exampleBackgroundJob(configService: ConfigurationManagemen
 // ============================================================================
 
 export class MaintenanceService {
-  constructor(private configService: ConfigurationManagementService) {}
+  constructor(private configService: ConfigurationManagementService) { }
 
   /**
    * Get PM interval for a vehicle based on its class
@@ -799,7 +799,7 @@ export function createFeatureFlagMiddleware(configService: ConfigurationManageme
       if (!enabled) {
         return res.status(403).json({
           error: 'Feature not available',
-          message: \`The feature '\${flagName}' is not enabled for your account\`
+          message: `The feature '${flagName}' is not enabled for your account`
         });
       }
 
