@@ -48,7 +48,7 @@ import {
     ResponsiveContainer
 } from 'recharts'
 
-import { HubPage, HubTab } from '@/components/ui/hub-page'
+import { HubPage } from '@/components/ui/hub-page'
 import { StatCard, ProgressRing, QuickStat } from '@/components/ui/stat-card'
 import { useDrilldown, DrilldownLevel } from '@/contexts/DrilldownContext'
 
@@ -1246,30 +1246,22 @@ function PaymentsContent() {
  * Main FinancialHub Component
  */
 export default function FinancialHub() {
+    const tabs = [
+        { id: 'cost-analysis', label: 'Cost Analysis', icon: <ChartBar className="w-4 h-4" />, content: <CostAnalysisContent /> },
+        { id: 'billing', label: 'Billing Reports', icon: <Receipt className="w-4 h-4" />, content: <BillingReportsContent /> },
+        { id: 'budget', label: 'Budget Monitoring', icon: <Wallet className="w-4 h-4" />, content: <BudgetTrackingContent /> },
+        { id: 'cost-benefit', label: 'Cost-Benefit', icon: <TrendUp className="w-4 h-4" />, content: <CostBenefitContent /> },
+        { id: 'invoices', label: 'Invoices', icon: <Invoice className="w-4 h-4" />, content: <InvoicesContent /> },
+        { id: 'payments', label: 'Payments', icon: <CreditCard className="w-4 h-4" />, content: <PaymentsContent /> },
+    ]
+
     return (
         <HubPage
             title="Financial Management"
             description="Comprehensive financial operations, cost analysis, and budget management"
-            icon={<CurrencyDollar className="w-8 h-8" />}
-        >
-            <HubTab id="cost-analysis" label="Cost Analysis" icon={<ChartBar />}>
-                <CostAnalysisContent />
-            </HubTab>
-            <HubTab id="billing" label="Billing Reports" icon={<Receipt />}>
-                <BillingReportsContent />
-            </HubTab>
-            <HubTab id="budget" label="Budget Monitoring" icon={<Wallet />}>
-                <BudgetTrackingContent />
-            </HubTab>
-            <HubTab id="cost-benefit" label="Cost-Benefit" icon={<TrendUp />}>
-                <CostBenefitContent />
-            </HubTab>
-            <HubTab id="invoices" label="Invoices" icon={<Invoice />}>
-                <InvoicesContent />
-            </HubTab>
-            <HubTab id="payments" label="Payments" icon={<CreditCard />}>
-                <PaymentsContent />
-            </HubTab>
-        </HubPage>
+            icon={<CurrencyDollar className="w-6 h-6" />}
+            tabs={tabs}
+            defaultTab="cost-analysis"
+        />
     )
 }

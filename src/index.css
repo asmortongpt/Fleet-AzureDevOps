@@ -1,5 +1,6 @@
 @import "tailwindcss";
 @import "tw-animate-css";
+@import "./styles/enterprise-design-system.css";
 
 @layer base {
   * {
