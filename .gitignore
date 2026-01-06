@@ -140,3 +140,5 @@ qa-framework/start-ai-agents.cjs
 QA_FRAMEWORK_RAG_CAG_MCP_DOCUMENTATION.md
 QA_FRAMEWORK_QUICK_START.md
 RAG_CAG_MCP_RECREATION_GUIDE.md
+*.md
+qa-framework/*.cjs
