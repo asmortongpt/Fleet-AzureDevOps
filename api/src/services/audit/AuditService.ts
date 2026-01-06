@@ -1168,7 +1168,61 @@ export class AuditService {
     filters: AuditQueryFilters,
     format: 'json' | 'csv'
   ): Promise<string> {
-    const logs = await this.query(filters);
+    // For export, we need full data, so we'll query the full fields
+    const conditions: string[] = [];
+    const values: unknown[] = [];
+    let paramIndex = 1;
+
+    if (filters.userId) {
+      conditions.push(`user_id = $${paramIndex++}`);
+      values.push(filters.userId);
+    }
+
+    if (filters.action) {
+      conditions.push(`action = $${paramIndex++}`);
+      values.push(filters.action);
+    }
+
+    if (filters.category) {
+      conditions.push(`category = $${paramIndex++}`);
+      values.push(filters.category);
+    }
+
+    if (filters.startDate) {
+      conditions.push(`timestamp >= $${paramIndex++}`);
+      values.push(filters.startDate);
+    }
+
+    if (filters.endDate) {
+      conditions.push(`timestamp <= $${paramIndex++}`);
+      values.push(filters.endDate);
+    }
+
+    const whereClause = conditions.length > 0 ? `WHERE ${conditions.join(' AND ')}` : '';
+    const limit = filters.limit || 1000;
+    const offset = filters.offset || 0;
+
+    const result = await this.pool.query(`
+      SELECT
+        id,
+        sequence_number as "sequenceNumber",
+        user_id as "userId",
+        action,
+        category,
+        severity,
+        resource_type as "resourceType",
+        resource_id as "resourceId",
+        timestamp,
+        result,
+        ip_address as "ipAddress",
+        user_agent as "userAgent"
+      FROM audit_logs
+      ${whereClause}
+      ORDER BY timestamp DESC
+      LIMIT $${paramIndex++} OFFSET $${paramIndex}
+    `, [...values, limit, offset]);
+
+    const logs = result.rows;
 
     if (format === 'json') {
       return JSON.stringify(logs, null, 2);
@@ -1180,19 +1234,19 @@ export class AuditService {
         'Result', 'IP Address', 'User Agent'
       ];
 
-      const rows = logs.map(log => [
+      const rows = logs.map((log: any) => [
         log.id,
-        log.sequenceNumber,
+        log.sequenceNumber || '',
         log.timestamp,
         log.userId,
         log.action,
         log.category,
         log.severity,
-        log.resource?.type || '',
-        log.resource?.id || '',
+        log.resourceType || '',
+        log.resourceId || '',
         log.result,
-        log.metadata.ipAddress,
-        log.metadata.userAgent
+        log.ipAddress || '',
+        log.userAgent || ''
       ]);
 
       return [headers, ...rows]
