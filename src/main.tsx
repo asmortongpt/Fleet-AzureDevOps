@@ -34,6 +34,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
 
 import { InspectProvider } from "./services/inspect/InspectContext"
 import { NavigationProvider } from "./contexts/NavigationContext"
+import { BrandingProvider } from "./shared/branding/BrandingProvider"
 
 // Professional theme with high contrast colors - fixes green-on-green readability
 import "./styles/professional-theme-fix.css"
@@ -63,37 +64,39 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
     <QueryClientProvider client={queryClient}>
       <ThemeProvider defaultTheme="system" storageKey="ctafleet-theme">
         <SentryErrorBoundary level="page">
-          <AuthProvider>
-            <TenantProvider>
-              <FeatureFlagProvider>
-                <DrilldownProvider>
-                  <InspectProvider>
-                    <BrowserRouter>
-                      {/* <GlobalCommandPalette /> */}
-                      <SentryRoutes>
-                        {/* Public Login Route */}
-                        <Route path="/login" element={<Login />} />
+          <BrandingProvider>
+            <AuthProvider>
+              <TenantProvider>
+                <FeatureFlagProvider>
+                  <DrilldownProvider>
+                    <InspectProvider>
+                      <BrowserRouter>
+                        {/* <GlobalCommandPalette /> */}
+                        <SentryRoutes>
+                          {/* Public Login Route */}
+                          <Route path="/login" element={<Login />} />
 
-                        {/* Protected Application Routes - Require SSO Authentication */}
-                        <Route
-                          path="/*"
-                          element={
-                            <ProtectedRoute requireAuth={true}>
-                              <SentryErrorBoundary level="section">
-                                <NavigationProvider>
-                                  <App />
-                                </NavigationProvider>
-                              </SentryErrorBoundary>
-                            </ProtectedRoute>
-                          }
-                        />
-                      </SentryRoutes>
-                    </BrowserRouter>
-                  </InspectProvider>
-                </DrilldownProvider>
-              </FeatureFlagProvider>
-            </TenantProvider>
-          </AuthProvider>
+                          {/* Protected Application Routes - Require SSO Authentication */}
+                          <Route
+                            path="/*"
+                            element={
+                              <ProtectedRoute requireAuth={true}>
+                                <SentryErrorBoundary level="section">
+                                  <NavigationProvider>
+                                    <App />
+                                  </NavigationProvider>
+                                </SentryErrorBoundary>
+                              </ProtectedRoute>
+                            }
+                          />
+                        </SentryRoutes>
+                      </BrowserRouter>
+                    </InspectProvider>
+                  </DrilldownProvider>
+                </FeatureFlagProvider>
+              </TenantProvider>
+            </AuthProvider>
+          </BrandingProvider>
         </SentryErrorBoundary>
       </ThemeProvider>
     </QueryClientProvider>
