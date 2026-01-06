@@ -1,21 +1,11 @@
-import {
-  MapPin,
-  Circle,
-  CheckCircle,
-  Warning,
-  Info
-} from "@phosphor-icons/react"
-import { useMemo, useState, useCallback, useEffect, useRef } from "react"
-
+import React, { useMemo, useState, useCallback, useEffect, useRef } from "react"
+import { MapPin, Circle, CheckCircle, Warning, Info, Eye } from "@phosphor-icons/react"
 import { UniversalMap } from "@/components/UniversalMap"
 import { Alert, AlertDescription } from "@/components/ui/alert"
-import { Badge } from "@/components/ui/badge"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Skeleton } from "@/components/ui/skeleton"
 import { Vehicle, GISFacility } from "@/lib/types"
 import { useInspect } from "@/services/inspect/InspectContext"
-import logger from '@/utils/logger';
+import logger from '@/utils/logger'
+
 /**
  * Props for the GPSTracking component
  */
@@ -38,28 +28,37 @@ interface GPSTrackingProps {
 type VehicleStatus = Vehicle["status"] | "all"
 
 /**
- * GPSTracking Component
+ * StatusChip Component - Fleet Design System
+ */
+const StatusChip: React.FC<{status: 'good'|'warn'|'bad'|'info'; label?: string}> = ({status, label}) => {
+  const colorMap = {
+    good: '#10b981',
+    warn: '#f59e0b',
+    bad: '#ef4444',
+    info: '#60a5fa'
+  }
+  return (
+    <span style={{
+      display:'inline-flex', alignItems:'center', gap:8,
+      padding:'6px 10px', borderRadius:999,
+      border:'1px solid rgba(255,255,255,0.08)', background:'rgba(255,255,255,0.03)',
+      color: colorMap[status], fontSize:12
+    }}>
+      ● {label ?? status.toUpperCase()}
+    </span>
+  )
+}
+
+/**
+ * GPSTracking Component - Professional Table-First Navigation
  *
- * A comprehensive GPS tracking interface for monitoring fleet vehicles in real-time.
- * Features include:
- * - Interactive map visualization with vehicle markers
- * - Real-time status filtering
- * - Vehicle list with detailed information
- * - Activity feed showing recent vehicle movements
- * - Status-based color coding and icons
- * - Error handling and loading states
- * - Performance optimization for large vehicle fleets
- *
- * @component
- * @example
- * ```tsx
- * <GPSTracking
- *   vehicles={fleetVehicles}
- *   facilities={facilities}
- *   onVehicleSelect={(id) => logger.debug('Selected:', id)}
- *   isLoading={false}
- * />
- * ```
+ * Upgraded to Fleet Design System specifications:
+ * - Table-first navigation for vehicle fleet
+ * - Expandable rows for location drilldown
+ * - Summary stat panels
+ * - Professional typography and spacing
+ * - Status-based semantic indicators
+ * - Integrated map view with modal overlay option
  */
 export function GPSTracking({
   vehicles = [],
@@ -75,6 +74,9 @@ export function GPSTracking({
   const [statusFilter, setStatusFilter] = useState<VehicleStatus>("all")
   const [selectedVehicleId, setSelectedVehicleId] = useState<string | null>(null)
   const [mapError, setMapError] = useState<string | null>(null)
+  const [expandedRows, setExpandedRows] = useState<Set<string>>(new Set())
+  const [showMapModal, setShowMapModal] = useState(false)
+  const [focusedVehicle, setFocusedVehicle] = useState<Vehicle | null>(null)
 
   // Refs for cleanup and performance
   const mountedRef = useRef(true)
@@ -100,8 +102,22 @@ export function GPSTracking({
   }, [vehicles])
 
   /**
+   * Toggle row expansion
+   */
+  const toggleRowExpand = useCallback((vehicleId: string) => {
+    setExpandedRows(prev => {
+      const next = new Set(prev)
+      if (next.has(vehicleId)) {
+        next.delete(vehicleId)
+      } else {
+        next.add(vehicleId)
+      }
+      return next
+    })
+  }, [])
+
+  /**
    * Filtered vehicles based on status filter
-   * Memoized for performance with large vehicle arrays
    */
   const filteredVehicles = useMemo(() => {
     if (!Array.isArray(vehicles)) {
@@ -124,7 +140,6 @@ export function GPSTracking({
 
   /**
    * Calculate status metrics
-   * Memoized to prevent unnecessary recalculations
    */
   const statusMetrics = useMemo(() => {
     const safeVehicles = Array.isArray(vehicles) ? vehicles : []
@@ -137,71 +152,48 @@ export function GPSTracking({
       charging: safeVehicles.filter(v => v?.status === "charging").length,
       service: safeVehicles.filter(v => v?.status === "service").length,
       offline: safeVehicles.filter(v => v?.status === "offline").length,
+      withLocation: safeVehicles.filter(v => v?.location?.lat && v?.location?.lng).length
     }
   }, [vehicles])
 
   /**
-   * Get status icon based on vehicle status
+   * Get status semantic indicator
    */
-  const getStatusIcon = useCallback((status: Vehicle["status"]) => {
+  const getStatusSemantic = useCallback((status: Vehicle["status"]): 'good'|'warn'|'bad'|'info' => {
     switch (status) {
       case "active":
-        return <CheckCircle className="w-4 h-4" weight="fill" aria-label="Active status" />
+        return 'good'
       case "emergency":
-        return <Warning className="w-4 h-4" weight="fill" aria-label="Emergency status" />
-      case "charging":
-        return <Circle className="w-4 h-4" weight="fill" aria-label="Charging status" />
+        return 'bad'
       case "service":
-        return <Circle className="w-4 h-4" weight="fill" aria-label="Service status" />
+        return 'warn'
+      case "charging":
+        return 'info'
       case "idle":
-        return <Circle className="w-4 h-4" weight="fill" aria-label="Idle status" />
+        return 'info'
       case "offline":
-        return <Circle className="w-4 h-4" weight="fill" aria-label="Offline status" />
+        return 'bad'
       default:
-        return <Circle className="w-4 h-4" weight="fill" aria-label="Unknown status" />
+        return 'info'
     }
-  }, [])
-
-  /**
-   * Get color classes for status
-   */
-  const getStatusColor = useCallback((status: Vehicle["status"]) => {
-    const colors = {
-      active: "text-success",
-      idle: "text-muted-foreground",
-      charging: "text-accent",
-      service: "text-warning",
-      emergency: "text-destructive",
-      offline: "text-muted-foreground"
-    }
-    return colors[status] || "text-muted-foreground"
   }, [])
 
   /**
    * Handle vehicle selection
    */
   const handleVehicleClick = useCallback((vehicleId: string) => {
-    // Open inspect drawer for detailed view
     openInspect({ type: 'vehicle', id: vehicleId })
-
-    // Also maintain local state and callback
     setSelectedVehicleId(vehicleId)
     onVehicleSelect?.(vehicleId)
   }, [onVehicleSelect, openInspect])
 
   /**
-   * Handle filter change
+   * Handle map view for specific vehicle
    */
-  const handleFilterChange = useCallback((value: string) => {
-    setStatusFilter(value as VehicleStatus)
-  }, [])
-
-  /**
-   * Handle map errors
-   */
-  const handleMapError = useCallback((error: Error) => {
-    logger.error('[GPSTracking] Map error:', error)
-    setMapError(error.message)
+  const handleViewOnMap = useCallback((vehicle: Vehicle, e: React.MouseEvent) => {
+    e.stopPropagation()
+    setFocusedVehicle(vehicle)
+    setShowMapModal(true)
   }, [])
 
   /**
@@ -209,28 +201,11 @@ export function GPSTracking({
    */
   const validVehiclesForMap = useMemo(() => {
     return filteredVehicles.filter(v => {
-      if (!v?.location) {
-        logger.warn('[GPSTracking] Vehicle missing location:', v?.id)
-        return false
-      }
-
+      if (!v?.location) return false
       const { lat, lng } = v.location
-
-      if (typeof lat !== 'number' || typeof lng !== 'number') {
-        logger.warn('[GPSTracking] Invalid coordinates for vehicle:', v?.id, { lat, lng })
-        return false
-      }
-
-      if (isNaN(lat) || isNaN(lng)) {
-        logger.warn('[GPSTracking] NaN coordinates for vehicle:', v?.id)
-        return false
-      }
-
-      if (lat < -90 || lat > 90 || lng < -180 || lng > 180) {
-        logger.warn('[GPSTracking] Out of range coordinates for vehicle:', v?.id, { lat, lng })
-        return false
-      }
-
+      if (typeof lat !== 'number' || typeof lng !== 'number') return false
+      if (isNaN(lat) || isNaN(lng)) return false
+      if (lat < -90 || lat > 90 || lng < -180 || lng > 180) return false
       return true
     })
   }, [filteredVehicles])
@@ -240,16 +215,16 @@ export function GPSTracking({
    */
   if (error) {
     return (
-      <div className="space-y-6">
-        <div>
-          <h1 className="text-3xl font-semibold tracking-tight">Live GPS Tracking</h1>
-          <p className="text-muted-foreground mt-1">Real-time fleet location monitoring</p>
+      <div style={{ padding: 24 }}>
+        <div style={{ marginBottom: 24 }}>
+          <h2 style={{ fontSize: 28, fontWeight: 700, color: 'var(--text, #f1f5f9)', marginBottom: 8 }}>
+            Live GPS Tracking
+          </h2>
+          <p style={{ fontSize: 14, color: 'var(--muted, #94a3b8)' }}>Real-time fleet location monitoring</p>
         </div>
         <Alert variant="destructive">
           <Warning className="h-4 w-4" />
-          <AlertDescription>
-            {error}
-          </AlertDescription>
+          <AlertDescription>{error}</AlertDescription>
         </Alert>
       </div>
     )
@@ -260,76 +235,198 @@ export function GPSTracking({
    */
   if (isLoading) {
     return (
-      <div className="space-y-6">
-        <div>
-          <h1 className="text-3xl font-semibold tracking-tight">Live GPS Tracking</h1>
-          <p className="text-muted-foreground mt-1">Real-time fleet location monitoring</p>
+      <div style={{ padding: 24 }}>
+        <div style={{ marginBottom: 24 }}>
+          <h2 style={{ fontSize: 28, fontWeight: 700, color: 'var(--text, #f1f5f9)', marginBottom: 8 }}>
+            Live GPS Tracking
+          </h2>
+          <p style={{ fontSize: 14, color: 'var(--muted, #94a3b8)' }}>Loading vehicle locations...</p>
         </div>
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          <Card className="lg:col-span-2">
-            <CardHeader>
-              <CardTitle>Fleet Map View</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <Skeleton className="h-[600px] w-full" />
-            </CardContent>
-          </Card>
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-base">Vehicle List</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-2">
-                {[...Array(5)].map((_, i) => (
-                  <Skeleton key={i} className="h-16 w-full" />
-                ))}
-              </div>
-            </CardContent>
-          </Card>
+        <div style={{
+          padding: 48,
+          textAlign: 'center',
+          border: '1px solid rgba(255,255,255,0.08)',
+          borderRadius: 16,
+          background: 'rgba(255,255,255,0.03)'
+        }}>
+          <Circle className="w-8 h-8 mx-auto mb-4 animate-spin" />
+          <p style={{ color: 'var(--muted, #94a3b8)' }}>Loading GPS data...</p>
         </div>
       </div>
     )
   }
 
   return (
-    <div className="space-y-6">
-      {/* Header Section */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-semibold tracking-tight">Live GPS Tracking</h1>
-          <p className="text-muted-foreground mt-1">
-            Real-time fleet location monitoring - {statusMetrics.total} vehicles
-          </p>
+    <div style={{
+      padding: 24,
+      background: 'var(--bg, #0f172a)',
+      minHeight: '100vh'
+    }}>
+      {/* Header */}
+      <div style={{ marginBottom: 24 }}>
+        <h2 style={{
+          fontSize: 28,
+          fontWeight: 700,
+          color: 'var(--text, #f1f5f9)',
+          marginBottom: 8
+        }}>Live GPS Tracking</h2>
+        <p style={{
+          fontSize: 14,
+          color: 'var(--muted, #94a3b8)'
+        }}>Professional fleet location monitoring with table-first navigation</p>
+      </div>
+
+      {/* Summary Stats Row - 5 panels */}
+      <div style={{
+        display: 'grid',
+        gridTemplateColumns: 'repeat(5, 1fr)',
+        gap: 16,
+        marginBottom: 24
+      }}>
+        <div style={{
+          padding: 20,
+          borderRadius: 16,
+          border: '1px solid rgba(255,255,255,0.08)',
+          background: 'rgba(255,255,255,0.03)'
+        }}>
+          <div style={{ fontSize: 12, color: 'var(--muted, #94a3b8)', textTransform: 'uppercase', letterSpacing: '.12em', marginBottom: 8 }}>Total Vehicles</div>
+          <div style={{ fontSize: 32, fontWeight: 700, color: 'var(--text, #f1f5f9)' }}>{statusMetrics.total}</div>
         </div>
-        <Select value={statusFilter} onValueChange={handleFilterChange}>
-          <SelectTrigger className="w-[180px]" aria-label="Filter vehicles by status">
-            <SelectValue placeholder="Filter Status" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">All Vehicles ({statusMetrics.total})</SelectItem>
-            <SelectItem value="active">Active Only ({statusMetrics.active})</SelectItem>
-            <SelectItem value="idle">Idle Only ({statusMetrics.idle})</SelectItem>
-            <SelectItem value="emergency">Emergency ({statusMetrics.emergency})</SelectItem>
-            <SelectItem value="charging">Charging ({statusMetrics.charging})</SelectItem>
-            <SelectItem value="service">Service ({statusMetrics.service})</SelectItem>
-            <SelectItem value="offline">Offline ({statusMetrics.offline})</SelectItem>
-          </SelectContent>
-        </Select>
+
+        <div style={{
+          padding: 20,
+          borderRadius: 16,
+          border: '1px solid rgba(16,185,129,0.25)',
+          background: 'linear-gradient(135deg, rgba(16,185,129,0.08), rgba(255,255,255,0.03))'
+        }}>
+          <div style={{ fontSize: 12, color: 'var(--muted, #94a3b8)', textTransform: 'uppercase', letterSpacing: '.12em', marginBottom: 8 }}>Active</div>
+          <div style={{ fontSize: 32, fontWeight: 700, color: '#10b981' }}>{statusMetrics.active}</div>
+        </div>
+
+        <div style={{
+          padding: 20,
+          borderRadius: 16,
+          border: '1px solid rgba(239,68,68,0.25)',
+          background: 'linear-gradient(135deg, rgba(239,68,68,0.08), rgba(255,255,255,0.03))'
+        }}>
+          <div style={{ fontSize: 12, color: 'var(--muted, #94a3b8)', textTransform: 'uppercase', letterSpacing: '.12em', marginBottom: 8 }}>Emergency</div>
+          <div style={{ fontSize: 32, fontWeight: 700, color: '#ef4444' }}>{statusMetrics.emergency}</div>
+        </div>
+
+        <div style={{
+          padding: 20,
+          borderRadius: 16,
+          border: '1px solid rgba(96,165,250,0.25)',
+          background: 'linear-gradient(135deg, rgba(96,165,250,0.08), rgba(255,255,255,0.03))'
+        }}>
+          <div style={{ fontSize: 12, color: 'var(--muted, #94a3b8)', textTransform: 'uppercase', letterSpacing: '.12em', marginBottom: 8 }}>Charging/Idle</div>
+          <div style={{ fontSize: 32, fontWeight: 700, color: '#60a5fa' }}>{statusMetrics.charging + statusMetrics.idle}</div>
+        </div>
+
+        <div style={{
+          padding: 20,
+          borderRadius: 16,
+          border: '1px solid rgba(245,158,11,0.25)',
+          background: 'linear-gradient(135deg, rgba(245,158,11,0.08), rgba(255,255,255,0.03))'
+        }}>
+          <div style={{ fontSize: 12, color: 'var(--muted, #94a3b8)', textTransform: 'uppercase', letterSpacing: '.12em', marginBottom: 8 }}>GPS Available</div>
+          <div style={{ fontSize: 32, fontWeight: 700, color: '#f59e0b' }}>{statusMetrics.withLocation}</div>
+        </div>
+      </div>
+
+      {/* Filter Bar */}
+      <div style={{
+        display: 'flex',
+        gap: 12,
+        marginBottom: 24,
+        padding: 16,
+        borderRadius: 16,
+        border: '1px solid rgba(255,255,255,0.08)',
+        background: 'rgba(255,255,255,0.03)'
+      }}>
+        <button
+          onClick={() => setStatusFilter('all')}
+          style={{
+            padding: '8px 16px',
+            borderRadius: 12,
+            border: '1px solid rgba(255,255,255,0.08)',
+            background: statusFilter === 'all' ? 'rgba(96,165,250,0.15)' : 'transparent',
+            color: 'var(--text, #f1f5f9)',
+            cursor: 'pointer',
+            fontSize: 14
+          }}
+        >
+          All ({statusMetrics.total})
+        </button>
+        <button
+          onClick={() => setStatusFilter('active')}
+          style={{
+            padding: '8px 16px',
+            borderRadius: 12,
+            border: '1px solid rgba(255,255,255,0.08)',
+            background: statusFilter === 'active' ? 'rgba(96,165,250,0.15)' : 'transparent',
+            color: 'var(--text, #f1f5f9)',
+            cursor: 'pointer',
+            fontSize: 14
+          }}
+        >
+          Active ({statusMetrics.active})
+        </button>
+        <button
+          onClick={() => setStatusFilter('emergency')}
+          style={{
+            padding: '8px 16px',
+            borderRadius: 12,
+            border: '1px solid rgba(255,255,255,0.08)',
+            background: statusFilter === 'emergency' ? 'rgba(96,165,250,0.15)' : 'transparent',
+            color: 'var(--text, #f1f5f9)',
+            cursor: 'pointer',
+            fontSize: 14
+          }}
+        >
+          Emergency ({statusMetrics.emergency})
+        </button>
+        <button
+          onClick={() => setStatusFilter('service')}
+          style={{
+            padding: '8px 16px',
+            borderRadius: 12,
+            border: '1px solid rgba(255,255,255,0.08)',
+            background: statusFilter === 'service' ? 'rgba(96,165,250,0.15)' : 'transparent',
+            color: 'var(--text, #f1f5f9)',
+            cursor: 'pointer',
+            fontSize: 14
+          }}
+        >
+          Service ({statusMetrics.service})
+        </button>
+        <button
+          onClick={() => setStatusFilter('offline')}
+          style={{
+            padding: '8px 16px',
+            borderRadius: 12,
+            border: '1px solid rgba(255,255,255,0.08)',
+            background: statusFilter === 'offline' ? 'rgba(96,165,250,0.15)' : 'transparent',
+            color: 'var(--text, #f1f5f9)',
+            cursor: 'pointer',
+            fontSize: 14
+          }}
+        >
+          Offline ({statusMetrics.offline})
+        </button>
       </div>
 
       {/* Map Error Alert */}
       {mapError && (
-        <Alert variant="destructive">
+        <Alert variant="destructive" style={{ marginBottom: 24 }}>
           <Warning className="h-4 w-4" />
-          <AlertDescription>
-            Map Error: {mapError}
-          </AlertDescription>
+          <AlertDescription>Map Error: {mapError}</AlertDescription>
         </Alert>
       )}
 
       {/* No Vehicles Alert */}
-      {filteredVehicles.length === 0 && !isLoading && (
-        <Alert>
+      {filteredVehicles.length === 0 && (
+        <Alert style={{ marginBottom: 24 }}>
           <Info className="h-4 w-4" />
           <AlertDescription>
             {statusFilter === "all"
@@ -339,179 +436,306 @@ export function GPSTracking({
         </Alert>
       )}
 
-      {/* Main Content Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Map Card */}
-        <Card className="lg:col-span-2">
-          <CardHeader>
-            <CardTitle className="flex items-center justify-between">
-              <span>Fleet Map View</span>
-              <Badge variant="secondary">
-                {validVehiclesForMap.length} of {filteredVehicles.length} on map
-              </Badge>
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="h-[600px] bg-muted rounded-lg overflow-hidden border">
+      {/* Professional Table */}
+      <div style={{
+        border: '1px solid rgba(255,255,255,0.08)',
+        borderRadius: 16,
+        background: 'rgba(255,255,255,0.03)',
+        overflow: 'hidden'
+      }}>
+        <table style={{
+          width: '100%',
+          borderCollapse: 'separate',
+          borderSpacing: 0
+        }}>
+          <thead>
+            <tr style={{ background: 'rgba(255,255,255,0.02)' }}>
+              <th style={{
+                padding: 16,
+                fontSize: 12,
+                color: 'var(--muted, #94a3b8)',
+                textAlign: 'left',
+                textTransform: 'uppercase',
+                letterSpacing: '.12em',
+                width: 40
+              }}></th>
+              <th style={{ padding: 16, fontSize: 12, color: 'var(--muted, #94a3b8)', textAlign: 'left', textTransform: 'uppercase', letterSpacing: '.12em' }}>Vehicle</th>
+              <th style={{ padding: 16, fontSize: 12, color: 'var(--muted, #94a3b8)', textAlign: 'left', textTransform: 'uppercase', letterSpacing: '.12em' }}>Status</th>
+              <th style={{ padding: 16, fontSize: 12, color: 'var(--muted, #94a3b8)', textAlign: 'left', textTransform: 'uppercase', letterSpacing: '.12em' }}>Location</th>
+              <th style={{ padding: 16, fontSize: 12, color: 'var(--muted, #94a3b8)', textAlign: 'left', textTransform: 'uppercase', letterSpacing: '.12em' }}>Coordinates</th>
+              <th style={{ padding: 16, fontSize: 12, color: 'var(--muted, #94a3b8)', textAlign: 'left', textTransform: 'uppercase', letterSpacing: '.12em' }}>GPS</th>
+              <th style={{ padding: 16, fontSize: 12, color: 'var(--muted, #94a3b8)', textAlign: 'left', textTransform: 'uppercase', letterSpacing: '.12em' }}></th>
+            </tr>
+          </thead>
+          <tbody>
+            {filteredVehicles.map((vehicle, idx) => {
+              if (!vehicle) return null
+
+              const isExpanded = expandedRows.has(vehicle.id)
+              const hasLocation = vehicle.location?.lat && vehicle.location?.lng
+
+              return (
+                <React.Fragment key={vehicle.id}>
+                  <tr
+                    onClick={() => toggleRowExpand(vehicle.id)}
+                    onMouseEnter={(e) => {
+                      if (!isExpanded) {
+                        e.currentTarget.style.background = 'rgba(255,255,255,0.05)'
+                      }
+                    }}
+                    onMouseLeave={(e) => {
+                      if (!isExpanded) {
+                        e.currentTarget.style.background = 'transparent'
+                      }
+                    }}
+                    style={{
+                      cursor: 'pointer',
+                      background: isExpanded ? 'rgba(96,165,250,0.08)' : 'transparent',
+                      transition: 'background 0.15s ease'
+                    }}
+                  >
+                    <td style={{ padding: 16, borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
+                      <div style={{
+                        width: 6,
+                        height: 6,
+                        borderRadius: '50%',
+                        background: isExpanded ? '#60a5fa' : 'rgba(255,255,255,0.3)'
+                      }} />
+                    </td>
+                    <td style={{ padding: 16, fontSize: 14, color: 'var(--text, #f1f5f9)', fontWeight: 600, borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
+                      {vehicle.number || vehicle.id}
+                    </td>
+                    <td style={{ padding: 16, borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
+                      <StatusChip status={getStatusSemantic(vehicle.status)} label={vehicle.status} />
+                    </td>
+                    <td style={{ padding: 16, fontSize: 14, color: 'var(--text, #f1f5f9)', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
+                      {vehicle.location?.address?.split(',')[0] || 'Unknown'}
+                    </td>
+                    <td style={{ padding: 16, fontSize: 12, color: 'var(--muted, #94a3b8)', fontFamily: 'monospace', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
+                      {hasLocation ? `${vehicle.location.lat.toFixed(4)}, ${vehicle.location.lng.toFixed(4)}` : 'N/A'}
+                    </td>
+                    <td style={{ padding: 16, borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
+                      <StatusChip status={hasLocation ? 'good' : 'bad'} label={hasLocation ? 'Available' : 'Offline'} />
+                    </td>
+                    <td style={{ padding: 16, borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
+                      {hasLocation && (
+                        <button
+                          onClick={(e) => handleViewOnMap(vehicle, e)}
+                          style={{
+                            padding: '8px 12px',
+                            borderRadius: 12,
+                            border: '1px solid rgba(96,165,250,0.3)',
+                            background: 'rgba(96,165,250,0.15)',
+                            color: '#60a5fa',
+                            cursor: 'pointer',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: 6,
+                            fontSize: 12
+                          }}
+                        >
+                          <MapPin className="w-4 h-4" />
+                          Map
+                        </button>
+                      )}
+                    </td>
+                  </tr>
+
+                  {/* Expanded Row Panel */}
+                  {isExpanded && (
+                    <tr>
+                      <td colSpan={7} style={{ padding: 0, borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
+                        <div style={{
+                          padding: 16,
+                          background: 'rgba(0,0,0,0.18)',
+                          borderTop: '1px solid rgba(255,255,255,0.06)'
+                        }}>
+                          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 16 }}>
+                            {/* Full Address */}
+                            <div style={{
+                              padding: 16,
+                              borderRadius: 12,
+                              border: '1px solid rgba(255,255,255,0.08)',
+                              background: 'rgba(255,255,255,0.03)'
+                            }}>
+                              <div style={{ fontSize: 12, color: 'var(--muted, #94a3b8)', textTransform: 'uppercase', letterSpacing: '.12em', marginBottom: 8 }}>Full Address</div>
+                              <div style={{ fontSize: 14, color: 'var(--text, #f1f5f9)' }}>
+                                {vehicle.location?.address || 'Address not available'}
+                              </div>
+                            </div>
+
+                            {/* Precise Coordinates */}
+                            <div style={{
+                              padding: 16,
+                              borderRadius: 12,
+                              border: '1px solid rgba(255,255,255,0.08)',
+                              background: 'rgba(255,255,255,0.03)'
+                            }}>
+                              <div style={{ fontSize: 12, color: 'var(--muted, #94a3b8)', textTransform: 'uppercase', letterSpacing: '.12em', marginBottom: 8 }}>Precise Coordinates</div>
+                              <div style={{ fontSize: 14, color: 'var(--text, #f1f5f9)', fontFamily: 'monospace' }}>
+                                {hasLocation ? `${vehicle.location.lat.toFixed(6)}, ${vehicle.location.lng.toFixed(6)}` : 'GPS unavailable'}
+                              </div>
+                            </div>
+
+                            {/* Vehicle Info */}
+                            <div style={{
+                              padding: 16,
+                              borderRadius: 12,
+                              border: '1px solid rgba(255,255,255,0.08)',
+                              background: 'rgba(255,255,255,0.03)'
+                            }}>
+                              <div style={{ fontSize: 12, color: 'var(--muted, #94a3b8)', textTransform: 'uppercase', letterSpacing: '.12em', marginBottom: 8 }}>Vehicle Details</div>
+                              <div style={{ fontSize: 14, color: 'var(--text, #f1f5f9)' }}>
+                                ID: {vehicle.id}<br />
+                                Type: {vehicle.type || 'Unknown'}
+                              </div>
+                            </div>
+                          </div>
+
+                          {/* Actions */}
+                          <div style={{ marginTop: 16, display: 'flex', gap: 12 }}>
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation()
+                                handleVehicleClick(vehicle.id)
+                              }}
+                              style={{
+                                padding: '10px 16px',
+                                borderRadius: 12,
+                                border: '1px solid rgba(96,165,250,0.3)',
+                                background: 'rgba(96,165,250,0.15)',
+                                color: '#60a5fa',
+                                cursor: 'pointer',
+                                fontSize: 14,
+                                fontWeight: 600
+                              }}
+                            >
+                              Open Detailed View
+                            </button>
+                            {hasLocation && (
+                              <button
+                                onClick={(e) => handleViewOnMap(vehicle, e)}
+                                style={{
+                                  padding: '10px 16px',
+                                  borderRadius: 12,
+                                  border: '1px solid rgba(16,185,129,0.3)',
+                                  background: 'rgba(16,185,129,0.15)',
+                                  color: '#10b981',
+                                  cursor: 'pointer',
+                                  fontSize: 14,
+                                  fontWeight: 600
+                                }}
+                              >
+                                View on Map
+                              </button>
+                            )}
+                          </div>
+                        </div>
+                      </td>
+                    </tr>
+                  )}
+                </React.Fragment>
+              )
+            })}
+          </tbody>
+        </table>
+      </div>
+
+      {/* Map Modal Overlay */}
+      {showMapModal && (
+        <div
+          onClick={() => setShowMapModal(false)}
+          style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            background: 'rgba(0,0,0,0.85)',
+            zIndex: 9999,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            padding: 24
+          }}
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            style={{
+              width: '100%',
+              maxWidth: 1600,
+              height: '90vh',
+              background: 'var(--bg, #0f172a)',
+              borderRadius: 16,
+              overflow: 'hidden',
+              position: 'relative',
+              border: '1px solid rgba(255,255,255,0.08)'
+            }}
+          >
+            {/* Map Header */}
+            <div style={{
+              padding: 20,
+              borderBottom: '1px solid rgba(255,255,255,0.08)',
+              background: 'rgba(255,255,255,0.03)',
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center'
+            }}>
+              <div>
+                <h3 style={{ fontSize: 20, fontWeight: 700, color: 'var(--text, #f1f5f9)', marginBottom: 4 }}>
+                  Fleet Map View
+                </h3>
+                <p style={{ fontSize: 14, color: 'var(--muted, #94a3b8)' }}>
+                  {focusedVehicle ? `Focused on ${focusedVehicle.number}` : `${validVehiclesForMap.length} vehicles on map`}
+                </p>
+              </div>
+              <button
+                onClick={() => setShowMapModal(false)}
+                style={{
+                  width: 40,
+                  height: 40,
+                  borderRadius: 12,
+                  border: '1px solid rgba(255,255,255,0.08)',
+                  background: 'rgba(255,255,255,0.03)',
+                  color: 'var(--text, #f1f5f9)',
+                  cursor: 'pointer',
+                  fontSize: 20,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center'
+                }}
+              >
+                ✕
+              </button>
+            </div>
+
+            {/* Map Container */}
+            <div style={{ height: 'calc(100% - 80px)' }}>
               {validVehiclesForMap.length > 0 ? (
                 <UniversalMap
-                  vehicles={validVehiclesForMap}
+                  vehicles={focusedVehicle ? [focusedVehicle] : validVehiclesForMap}
                   facilities={[]}
                   showVehicles={true}
                   showFacilities={false}
                   className="w-full h-full"
                 />
               ) : (
-                <div className="flex items-center justify-center h-full">
-                  <div className="text-center text-muted-foreground">
+                <div style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  height: '100%'
+                }}>
+                  <div style={{ textAlign: 'center', color: 'var(--muted, #94a3b8)' }}>
                     <MapPin className="w-12 h-12 mx-auto mb-2 opacity-50" />
-                    <p>No vehicles to display on map</p>
+                    <p>No vehicles with GPS data available</p>
                   </div>
                 </div>
               )}
             </div>
-
-            {/* Map Legend */}
-            <div className="mt-4 flex items-center justify-between p-3 border rounded-lg">
-              <div className="flex flex-wrap gap-4">
-                <div className="flex items-center gap-2">
-                  <Circle className="w-3 h-3 text-success" weight="fill" aria-hidden="true" />
-                  <span className="text-sm">Active ({statusMetrics.active})</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Circle className="w-3 h-3 text-muted-foreground" weight="fill" aria-hidden="true" />
-                  <span className="text-sm">Idle ({statusMetrics.idle})</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Circle className="w-3 h-3 text-accent" weight="fill" aria-hidden="true" />
-                  <span className="text-sm">Charging ({statusMetrics.charging})</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Circle className="w-3 h-3 text-warning" weight="fill" aria-hidden="true" />
-                  <span className="text-sm">Service ({statusMetrics.service})</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Circle className="w-3 h-3 text-destructive" weight="fill" aria-hidden="true" />
-                  <span className="text-sm">Emergency ({statusMetrics.emergency})</span>
-                </div>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Vehicle List Card */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-base">Vehicle List</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-2 max-h-[600px] overflow-y-auto">
-              {filteredVehicles.length > 0 ? (
-                filteredVehicles.slice(0, 20).map(vehicle => {
-                  if (!vehicle) return null
-
-                  return (
-                    <div
-                      key={vehicle.id}
-                      className={`
-                        flex items-center justify-between p-3 border rounded-lg
-                        hover:bg-muted/50 transition-colors cursor-pointer
-                        ${selectedVehicleId === vehicle.id ? 'bg-muted border-primary' : ''}
-                      `}
-                      onClick={() => handleVehicleClick(vehicle.id)}
-                      role="button"
-                      tabIndex={0}
-                      onKeyDown={(e) => {
-                        if (e.key === 'Enter' || e.key === ' ') {
-                          e.preventDefault()
-                          handleVehicleClick(vehicle.id)
-                        }
-                      }}
-                      aria-label={`View vehicle ${vehicle.number}`}
-                    >
-                      <div className="flex items-center gap-3">
-                        <div className={getStatusColor(vehicle.status)}>
-                          {getStatusIcon(vehicle.status)}
-                        </div>
-                        <div>
-                          <p className="font-medium text-sm">{vehicle.number}</p>
-                          <p className="text-xs text-muted-foreground">
-                            {vehicle.location?.address?.split(',')[0] || 'Unknown location'}
-                          </p>
-                        </div>
-                      </div>
-                      <Badge variant="outline" className="text-xs capitalize">
-                        {vehicle.status}
-                      </Badge>
-                    </div>
-                  )
-                })
-              ) : (
-                <div className="text-center py-8 text-muted-foreground">
-                  <p className="text-sm">No vehicles to display</p>
-                </div>
-              )}
-              {filteredVehicles.length > 20 && (
-                <div className="text-center pt-2">
-                  <p className="text-xs text-muted-foreground">
-                    Showing 20 of {filteredVehicles.length} vehicles
-                  </p>
-                </div>
-              )}
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Recent Activity Card */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Recent Activity</CardTitle>
-        </CardHeader>
-        <CardContent>
-          {filteredVehicles.length > 0 ? (
-            <div className="space-y-3">
-              {filteredVehicles.slice(0, 5).map(vehicle => {
-                if (!vehicle) return null
-
-                return (
-                  <div
-                    key={vehicle.id}
-                    className="flex items-center gap-4 p-3 border rounded-lg hover:bg-muted/50 transition-colors"
-                  >
-                    <div className={`p-2 rounded-lg ${getStatusColor(vehicle.status)}`}>
-                      <MapPin className="w-4 h-4" aria-hidden="true" />
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="font-medium truncate">{vehicle.number}</p>
-                      <p className="text-sm text-muted-foreground truncate">
-                        {vehicle.location?.address || 'Unknown location'}
-                      </p>
-                    </div>
-                    <div className="text-right flex-shrink-0">
-                      <Badge
-                        variant="outline"
-                        className={`${getStatusColor(vehicle.status)} border-current/20 capitalize`}
-                      >
-                        {vehicle.status}
-                      </Badge>
-                      {vehicle.location?.lat && vehicle.location?.lng && (
-                        <p className="text-xs text-muted-foreground mt-1">
-                          {vehicle.location?.lat.toFixed(4)}, {vehicle.location?.lng.toFixed(4)}
-                        </p>
-                      )}
-                    </div>
-                  </div>
-                )
-              })}
-            </div>
-          ) : (
-            <div className="text-center py-8 text-muted-foreground">
-              <p className="text-sm">No recent activity to display</p>
-            </div>
-          )}
-        </CardContent>
-      </Card>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
