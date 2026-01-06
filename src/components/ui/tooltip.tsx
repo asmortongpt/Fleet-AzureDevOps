@@ -59,4 +59,80 @@ function TooltipContent({
 // Export type for tooltip props
 export type TooltipProps = ComponentProps<typeof TooltipPrimitive.Root>
 
-export { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider }
+/**
+ * Metric Tooltip with Comparisons
+ * Specialized tooltip for showing rich metric context with comparisons and benchmarks
+ */
+interface MetricTooltipProps {
+  children: React.ReactNode
+  title: string
+  currentValue: string
+  comparison?: {
+    label: string
+    value: string
+    trend?: "up" | "down"
+  }
+  benchmark?: {
+    label: string
+    value: string
+  }
+  description?: string
+}
+
+function MetricTooltip({
+  children,
+  title,
+  currentValue,
+  comparison,
+  benchmark,
+  description
+}: MetricTooltipProps) {
+  return (
+    <Tooltip>
+      <TooltipTrigger asChild>
+        {children}
+      </TooltipTrigger>
+      <TooltipContent side="top" className="p-0 max-w-sm bg-popover border-border/50 shadow-lg">
+        <div className="p-3 space-y-2">
+          <div>
+            <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
+              {title}
+            </p>
+            <p className="text-base font-bold text-foreground mt-0.5">
+              {currentValue}
+            </p>
+          </div>
+
+          {description && (
+            <p className="text-xs text-muted-foreground leading-relaxed">
+              {description}
+            </p>
+          )}
+
+          {comparison && (
+            <div className="flex items-center justify-between py-1.5 px-2 rounded bg-muted/50">
+              <span className="text-xs text-muted-foreground">{comparison.label}</span>
+              <span className={cn(
+                "text-xs font-semibold",
+                comparison.trend === "up" ? "text-success" : comparison.trend === "down" ? "text-destructive" : "text-foreground"
+              )}>
+                {comparison.value}
+              </span>
+            </div>
+          )}
+
+          {benchmark && (
+            <div className="flex items-center justify-between py-1.5 px-2 rounded bg-muted/50">
+              <span className="text-xs text-muted-foreground">{benchmark.label}</span>
+              <span className="text-xs font-semibold text-foreground">
+                {benchmark.value}
+              </span>
+            </div>
+          )}
+        </div>
+      </TooltipContent>
+    </Tooltip>
+  )
+}
+
+export { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider, MetricTooltip }
