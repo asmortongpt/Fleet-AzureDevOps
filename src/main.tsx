@@ -41,6 +41,7 @@ import "./index.css"
 import "./styles/design-tokens-responsive.css"
 import "./styles/responsive-utilities.css"
 import "./styles/dark-mode-enhancements.css"
+import "./styles/fleet-theme.css"
 
 // Create a client
 const queryClient = new QueryClient({
