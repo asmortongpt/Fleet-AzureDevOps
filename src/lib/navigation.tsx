@@ -13,7 +13,8 @@ import {
   CurrencyDollar,
   Plugs,
   BookOpen,
-  Database
+  Database,
+  FileText
 } from "@phosphor-icons/react"
 import { ReactNode } from "react"
 
@@ -114,6 +115,14 @@ export const navigationItems: NavigationItem[] = [
     section: "hubs",
     category: "Governance",
     roles: ['SuperAdmin', 'Admin', 'FleetAdmin', 'Manager', 'FleetManager', 'SafetyOfficer', 'Auditor']
+  },
+  {
+    id: "documents-hub",
+    label: "Documents Hub",
+    icon: <FileText className="w-5 h-5" />,
+    section: "hubs",
+    category: "Operations",
+    roles: ['Admin', 'FleetAdmin', 'Manager', 'FleetManager', 'Supervisor', 'SafetyOfficer', 'Analyst', 'Auditor']
   },
 
   // ==================== PROCUREMENT & ASSETS ====================
