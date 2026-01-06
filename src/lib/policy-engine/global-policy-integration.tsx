@@ -14,6 +14,7 @@
  * 6. Workflow engine - policy-driven workflows
  */
 
+import React from 'react'
 import { policyEnforcementEngine, type EnforcementContext, type EnforcementResult } from './policy-enforcement-engine'
 import { policyRulesCompiler } from './policy-rules-compiler'
 import type { Policy } from './types'
@@ -520,9 +521,4 @@ export class ApprovalRequiredError extends Error {
 export {
   policyEnforcementEngine,
   policyRulesCompiler,
-  PolicyEnforcedService,
-  VehicleService,
 }
-
-// Import React
-import React from 'react'
