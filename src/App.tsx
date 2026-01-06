@@ -121,7 +121,7 @@ const AnalyticsWorkspace = lazy(() => import("@/components/workspaces/AnalyticsW
 const ComplianceWorkspace = lazy(() => import("@/components/workspaces/ComplianceWorkspace").then(m => ({ default: m.ComplianceWorkspace })))
 
 // HUB MODULES (Phase 2-3 Map-First UX Transformation)
-const ReportsHub = lazy(() => import("@/components/hubs/reports/ReportsHub").then(m => ({ default: m.ReportsHub })))
+const ReportsHubPage = lazy(() => import("@/pages/ReportsHub"))
 const OperationsHub = lazy(() => import("@/components/hubs/operations/OperationsHub").then(m => ({ default: m.OperationsHub })))
 const MaintenanceHub = lazy(() => import("@/components/hubs/maintenance/MaintenanceHub").then(m => ({ default: m.MaintenanceHub })))
 const ProcurementHub = lazy(() => import("@/components/hubs/procurement/ProcurementHub").then(m => ({ default: m.ProcurementHub })))
@@ -251,7 +251,8 @@ function App() {
         return <ComplianceWorkspace />
 
       case "reports-hub":
-        return <ReportsHub />
+      case "reports":
+        return <ReportsHubPage />
       case "operations-hub":
         return <OperationsHub />
       case "procurement-hub":
