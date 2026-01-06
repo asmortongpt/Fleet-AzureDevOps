@@ -1,0 +1,16 @@
+{
+  "id": "cot-main-05",
+  "title": "Rework Average",
+  "domain": "workorders",
+  "category": "city_tallahassee_main",
+  "description": "Count and cost of repeat repairs",
+  "datasource": {"type": "sqlView", "view": "vw_rework_analysis", "parameters": {"date_start": "{{dateRange.start}}", "date_end": "{{dateRange.end}}", "shop": "{{shop}}"}},
+  "filters": [{"name": "dateRange", "type": "dateRange", "default": "current_month", "required": true}, {"name": "shop", "type": "multiSelect", "values": "dynamic", "default": "All"}],
+  "visuals": [
+    {"id": "kpis", "type": "kpiTiles", "title": "Rework Metrics", "measures": [{"id": "rework_count", "label": "Rework Orders", "format": "integer", "aggregation": "sum", "field": "rework_count"}, {"id": "rework_cost", "label": "Rework Cost", "format": "currency", "aggregation": "sum", "field": "rework_cost"}, {"id": "rework_rate", "label": "Rework Rate", "format": "percent", "expression": "rework_count/total_work_orders"}], "layout": {"x": 0, "y": 0, "w": 12, "h": 2}},
+    {"id": "rework_by_shop", "type": "bar", "title": "Rework by Shop", "encoding": {"x": {"field": "shop_name", "type": "nominal"}, "y": {"field": "rework_count", "type": "quantitative"}}, "layout": {"x": 0, "y": 2, "w": 6, "h": 4}},
+    {"id": "rework_cost_trend", "type": "line", "title": "Rework Cost Trend", "encoding": {"x": {"field": "month", "type": "temporal"}, "y": {"field": "rework_cost", "type": "quantitative", "aggregate": "sum"}}, "layout": {"x": 6, "y": 2, "w": 6, "h": 4}}
+  ],
+  "exports": [{"format": "csv"}, {"format": "xlsx"}, {"format": "pdf"}],
+  "security": {"rowLevel": [{"role": "ShopManager", "rule": "shop_name IN user.shops"}, {"role": "Admin", "rule": "TRUE"}]}
+}

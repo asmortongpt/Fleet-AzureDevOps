@@ -1,0 +1,38 @@
+{
+  "id": "cot-main-04",
+  "title": "Direct vs Indirect Labor",
+  "domain": "shop",
+  "category": "city_tallahassee_main",
+  "description": "Labor distribution by shop with multiple chart types",
+  "datasource": {"type": "sqlView", "view": "vw_direct_vs_indirect_labor", "parameters": {"date_start": "{{dateRange.start}}", "date_end": "{{dateRange.end}}", "shop": "{{shop}}"}},
+  "filters": [
+    {"name": "dateRange", "type": "dateRange", "default": "current_month", "required": true},
+    {"name": "shop", "type": "multiSelect", "values": "dynamic", "default": "All"}
+  ],
+  "visuals": [
+    {
+      "id": "kpis",
+      "type": "kpiTiles",
+      "title": "Labor Summary",
+      "measures": [
+        {"id": "total_hours", "label": "Total Labor Hours", "format": "decimal", "aggregation": "sum", "field": "labor_hours"},
+        {"id": "direct_pct", "label": "Direct Labor %", "format": "percent", "expression": "direct_hours/total_hours"},
+        {"id": "indirect_pct", "label": "Indirect Labor %", "format": "percent", "expression": "indirect_hours/total_hours"}
+      ],
+      "layout": {"x": 0, "y": 0, "w": 12, "h": 2}
+    },
+    {
+      "id": "shop_distribution",
+      "type": "stackedBar",
+      "title": "Labor Distribution by Shop",
+      "encoding": {
+        "x": {"field": "shop_name", "type": "nominal"},
+        "y": {"field": "hours", "type": "quantitative", "aggregate": "sum"},
+        "color": {"field": "labor_type", "type": "nominal", "scale": {"domain": ["Direct", "Indirect"], "range": ["#3b82f6", "#f59e0b"]}}
+      },
+      "layout": {"x": 0, "y": 2, "w": 12, "h": 4}
+    }
+  ],
+  "exports": [{"format": "csv"}, {"format": "xlsx"}, {"format": "pdf"}],
+  "security": {"rowLevel": [{"role": "ShopManager", "rule": "shop_name IN user.shops"}, {"role": "Admin", "rule": "TRUE"}]}
+}

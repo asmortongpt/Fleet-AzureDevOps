@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useCallback } from 'react';
-import { Search, Filter, ChevronDown, Download, Star, Clock, TrendingUp } from 'lucide-react';
+import { Search, Filter, ChevronDown, Download, Star, Clock, TrendingUp, BarChart3, Gauge } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { ReportCard } from '@/components/reports/ReportCard';
@@ -7,6 +7,7 @@ import { ReportViewer } from '@/components/reports/ReportViewer';
 import { AIReportBuilder } from '@/components/reports/AIReportBuilder';
 import { AIChatbot } from '@/components/reports/AIChatbot';
 import reportLibrary from '@/reporting_library/index.json';
+import dashboardIndex from '@/reporting_library/dashboards/index.json';
 
 // Domain metadata for organization and styling
 const DOMAIN_METADATA: Record<string, { label: string; icon: string; color: string; description: string }> = {
@@ -76,20 +77,48 @@ interface Report {
   id: string;
   title: string;
   domain: string;
-  file: string;
+  file?: string;
+  category?: string; // Added for dashboard categorization
+  description?: string;
 }
 
 export default function ReportsHub() {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedDomain, setSelectedDomain] = useState<string>('all');
+  const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [viewMode, setViewMode] = useState<'gallery' | 'viewer' | 'builder'>('gallery');
+  const [viewTab, setViewTab] = useState<'library' | 'dashboards'>('library'); // New tab state
   const [selectedReport, setSelectedReport] = useState<Report | null>(null);
   const [showFilters, setShowFilters] = useState(false);
   const [sortBy, setSortBy] = useState<'name' | 'domain' | 'recent'>('domain');
 
-  // Filter and sort reports
+  // Combine library reports and dashboard reports into a single array (135 total)
+  const allReports = useMemo(() => {
+    const libraryReports = (reportLibrary.reports as Report[]).map(r => ({ ...r, source: 'library' }));
+
+    // Load all dashboard reports from the index
+    const dashboardReports: Report[] = [];
+    dashboardIndex.categories.forEach(cat => {
+      cat.reports.forEach(reportId => {
+        dashboardReports.push({
+          id: reportId,
+          title: reportId.replace(/-/g, ' ').replace(/cot (main|driver|safety|ev|bio) \d+/i, '').trim() || reportId,
+          domain: reportId.includes('main') ? 'exec' : reportId.includes('driver') ? 'workorders' : reportId.includes('safety') ? 'safety' : reportId.includes('ev') ? 'ev' : 'bio',
+          category: cat.id,
+          file: `dashboards/${reportId}.json`,
+          source: 'dashboard'
+        });
+      });
+    });
+
+    return [...libraryReports, ...dashboardReports];
+  }, []);
+
+  // Filter and sort reports based on current tab
   const filteredReports = useMemo(() => {
-    let reports = reportLibrary.reports as Report[];
+    let reports = viewTab === 'library'
+      ? allReports.filter((r: any) => r.source === 'library')
+      : allReports.filter((r: any) => r.source === 'dashboard');
 
     // Filter by search term
     if (searchTerm) {
@@ -97,13 +126,19 @@ export default function ReportsHub() {
       reports = reports.filter(
         (report) =>
           report.title.toLowerCase().includes(term) ||
-          DOMAIN_METADATA[report.domain]?.label.toLowerCase().includes(term)
+          DOMAIN_METADATA[report.domain]?.label.toLowerCase().includes(term) ||
+          report.description?.toLowerCase().includes(term)
       );
     }
 
     // Filter by domain
     if (selectedDomain !== 'all') {
       reports = reports.filter((report) => report.domain === selectedDomain);
+    }
+
+    // Filter by category (for dashboard reports)
+    if (viewTab === 'dashboards' && selectedCategory !== 'all') {
+      reports = reports.filter((report) => report.category === selectedCategory);
     }
 
     // Sort reports
@@ -122,7 +157,7 @@ export default function ReportsHub() {
     });
 
     return reports;
-  }, [searchTerm, selectedDomain, sortBy]);
+  }, [searchTerm, selectedDomain, selectedCategory, sortBy, viewTab, allReports]);
 
   // Group reports by domain
   const reportsByDomain = useMemo(() => {
@@ -156,8 +191,28 @@ export default function ReportsHub() {
         <div className="max-w-7xl mx-auto">
           <h1 className="text-4xl font-bold mb-3">Reports Hub</h1>
           <p className="text-lg opacity-90 mb-6">
-            {reportLibrary.count} pre-built reports across {Object.keys(DOMAIN_METADATA).length} domains
+            {allReports.length} total reports ({reportLibrary.count} library + {dashboardIndex.count} dashboards) across {Object.keys(DOMAIN_METADATA).length} domains
           </p>
+
+          {/* Tab Navigation */}
+          <div className="flex gap-2 mb-6">
+            <Button
+              variant={viewTab === 'library' ? 'default' : 'outline'}
+              onClick={() => setViewTab('library')}
+              className={viewTab === 'library' ? 'bg-white text-indigo-600 hover:bg-white/90' : 'bg-white/10 text-white border-white/20 hover:bg-white/20'}
+            >
+              <BarChart3 className="h-4 w-4 mr-2" />
+              Report Library ({reportLibrary.count})
+            </Button>
+            <Button
+              variant={viewTab === 'dashboards' ? 'default' : 'outline'}
+              onClick={() => setViewTab('dashboards')}
+              className={viewTab === 'dashboards' ? 'bg-white text-indigo-600 hover:bg-white/90' : 'bg-white/10 text-white border-white/20 hover:bg-white/20'}
+            >
+              <Gauge className="h-4 w-4 mr-2" />
+              Dashboards ({dashboardIndex.count})
+            </Button>
+          </div>
 
           {/* Search and filter bar */}
           <div className="flex gap-4 mb-4">
@@ -191,7 +246,7 @@ export default function ReportsHub() {
           {/* Filter panel */}
           {showFilters && (
             <div className="bg-white/90 backdrop-blur-sm rounded-lg p-4 text-gray-900">
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                 <div>
                   <label className="block text-sm font-medium mb-2">Domain</label>
                   <select
@@ -207,6 +262,23 @@ export default function ReportsHub() {
                     ))}
                   </select>
                 </div>
+                {viewTab === 'dashboards' && (
+                  <div>
+                    <label className="block text-sm font-medium mb-2">Dashboard Category</label>
+                    <select
+                      value={selectedCategory}
+                      onChange={(e) => setSelectedCategory(e.target.value)}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                    >
+                      <option value="all">All Categories</option>
+                      {dashboardIndex.categories.map((cat: any) => (
+                        <option key={cat.id} value={cat.id}>
+                          {cat.label}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                )}
                 <div>
                   <label className="block text-sm font-medium mb-2">Sort By</label>
                   <select
@@ -225,6 +297,7 @@ export default function ReportsHub() {
                     onClick={() => {
                       setSearchTerm('');
                       setSelectedDomain('all');
+                      setSelectedCategory('all');
                       setSortBy('domain');
                     }}
                     className="w-full"

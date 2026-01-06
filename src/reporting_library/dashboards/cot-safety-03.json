@@ -1,0 +1,14 @@
+{
+  "id": "cot-safety-03",
+  "title": "Equipment Safety Measures",
+  "domain": "safety",
+  "category": "city_tallahassee_safety",
+  "description": "Harsh acceleration/braking/turning counts",
+  "datasource": {"type": "sqlView", "view": "vw_safety_03", "parameters": {"date_start": "{{dateRange.start}}", "date_end": "{{dateRange.end}}"}},
+  "filters": [{"name": "dateRange", "type": "dateRange", "default": "current_month", "required": true}],
+  "visuals": [
+    {"id": "kpis", "type": "kpiTiles", "title": "Safety Metrics", "measures": [{"id": "safety_score", "label": "Safety Score", "format": "decimal", "aggregation": "avg", "field": "safety_score"}], "layout": {"x": 0, "y": 0, "w": 12, "h": 2}}
+  ],
+  "exports": [{"format": "csv"}, {"format": "xlsx"}, {"format": "pdf"}],
+  "security": {"rowLevel": [{"role": "Admin", "rule": "TRUE"}]}
+}

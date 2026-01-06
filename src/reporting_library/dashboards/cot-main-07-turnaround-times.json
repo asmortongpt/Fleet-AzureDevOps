@@ -1,0 +1,15 @@
+{
+  "id": "cot-main-07",
+  "title": "Turnaround Times",
+  "domain": "workorders",
+  "category": "city_tallahassee_main",
+  "description": "Average and median work order turnaround by shop",
+  "datasource": {"type": "sqlView", "view": "vw_turnaround_times", "parameters": {"date_start": "{{dateRange.start}}", "date_end": "{{dateRange.end}}", "shop": "{{shop}}"}},
+  "filters": [{"name": "dateRange", "type": "dateRange", "default": "current_month", "required": true}, {"name": "shop", "type": "multiSelect", "values": "dynamic", "default": "All"}],
+  "visuals": [
+    {"id": "kpis", "type": "kpiTiles", "title": "Turnaround Metrics", "measures": [{"id": "avg_turnaround", "label": "Avg Turnaround (days)", "format": "decimal", "aggregation": "avg", "field": "turnaround_days"}, {"id": "median_turnaround", "label": "Median Turnaround (days)", "format": "decimal", "aggregation": "median", "field": "turnaround_days"}], "layout": {"x": 0, "y": 0, "w": 12, "h": 2}},
+    {"id": "turnaround_by_shop", "type": "bar", "title": "Turnaround by Shop", "encoding": {"x": {"field": "shop_name", "type": "nominal"}, "y": {"field": "avg_turnaround_days", "type": "quantitative"}}, "layout": {"x": 0, "y": 2, "w": 12, "h": 4}}
+  ],
+  "exports": [{"format": "csv"}, {"format": "xlsx"}, {"format": "pdf"}],
+  "security": {"rowLevel": [{"role": "ShopManager", "rule": "shop_name IN user.shops"}, {"role": "Admin", "rule": "TRUE"}]}
+}

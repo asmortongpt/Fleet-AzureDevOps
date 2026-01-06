@@ -1,0 +1,15 @@
+{
+  "id": "cot-driver-04",
+  "title": "Work Orders",
+  "domain": "workorders",
+  "category": "city_tallahassee_driver",
+  "description": "Count per month and shop",
+  "datasource": {"type": "sqlView", "view": "vw_work_orders_count", "parameters": {"date_start": "{{dateRange.start}}", "date_end": "{{dateRange.end}}", "shop": "{{shop}}"}},
+  "filters": [{"name": "dateRange", "type": "dateRange", "default": "last_12_months", "required": true}, {"name": "shop", "type": "multiSelect", "values": "dynamic", "default": "All"}],
+  "visuals": [
+    {"id": "kpis", "type": "kpiTiles", "title": "Work Order Summary", "measures": [{"id": "total_wo", "label": "Total Work Orders", "format": "integer", "aggregation": "count", "field": "work_order_number"}], "layout": {"x": 0, "y": 0, "w": 12, "h": 2}},
+    {"id": "wo_trend", "type": "line", "title": "Work Orders per Month", "encoding": {"x": {"field": "month", "type": "temporal"}, "y": {"field": "count", "type": "quantitative"}, "color": {"field": "shop_name", "type": "nominal"}}, "layout": {"x": 0, "y": 2, "w": 12, "h": 4}}
+  ],
+  "exports": [{"format": "csv"}, {"format": "xlsx"}, {"format": "pdf"}],
+  "security": {"rowLevel": [{"role": "ShopManager", "rule": "shop_name IN user.shops"}, {"role": "Admin", "rule": "TRUE"}]}
+}

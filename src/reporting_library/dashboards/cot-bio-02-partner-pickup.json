@@ -1,0 +1,15 @@
+{
+  "id": "cot-bio-02",
+  "title": "Biodiesel Partner Pickup History",
+  "domain": "bio",
+  "category": "city_tallahassee_bio",
+  "description": "Date, partner, and gallons picked up",
+  "datasource": {"type": "sqlView", "view": "vw_biodiesel_pickup", "parameters": {"date_start": "{{dateRange.start}}", "date_end": "{{dateRange.end}}"}},
+  "filters": [{"name": "dateRange", "type": "dateRange", "default": "last_12_months", "required": true}],
+  "visuals": [
+    {"id": "kpis", "type": "kpiTiles", "title": "Pickup Summary", "measures": [{"id": "total_gallons", "label": "Total Gallons", "format": "decimal", "aggregation": "sum", "field": "gallons"}], "layout": {"x": 0, "y": 0, "w": 12, "h": 2}},
+    {"id": "partner_breakdown", "type": "bar", "title": "Pickups by Partner", "encoding": {"x": {"field": "partner_name", "type": "nominal"}, "y": {"field": "gallons", "type": "quantitative", "aggregate": "sum"}}, "layout": {"x": 0, "y": 2, "w": 12, "h": 4}}
+  ],
+  "exports": [{"format": "csv"}, {"format": "xlsx"}, {"format": "pdf"}],
+  "security": {"rowLevel": [{"role": "Admin", "rule": "TRUE"}]}
+}
