@@ -31,19 +31,25 @@ function DashboardContent() {
                 <StatCard title="Violations" value="2" variant="warning" icon={<Warning className="w-6 h-6" />} onClick={() => push({ type: 'regulations', data: { title: 'Violations' } } as Omit<DrilldownLevel, "timestamp">)} />
             </div>
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                <div className="bg-gradient-to-br from-slate-800/60 to-slate-900/60 backdrop-blur-xl rounded-xl border border-slate-700/50 p-6 cursor-pointer hover:border-slate-600/50 transition-colors" onClick={() => push({ type: 'dot-compliance', data: { title: 'DOT Status' } } as Omit<DrilldownLevel, "timestamp">)}>
-                    <h3 className="text-sm font-medium text-slate-400 uppercase tracking-wide mb-4">DOT Status</h3>
-                    <ProgressRing progress={98} color="green" label="Compliant" />
+                <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm p-8 cursor-pointer hover:border-emerald-600 hover:shadow-lg transition-all duration-200" onClick={() => push({ type: 'dot-compliance', data: { title: 'DOT Status' } } as Omit<DrilldownLevel, "timestamp">)}>
+                    <h3 className="text-sm font-semibold text-slate-600 dark:text-slate-400 uppercase tracking-wide mb-6">DOT Status</h3>
+                    <div className="flex items-center justify-center">
+                        <ProgressRing progress={98} color="green" label="98%" sublabel="Compliant" />
+                    </div>
                 </div>
-                <div className="bg-gradient-to-br from-slate-800/60 to-slate-900/60 backdrop-blur-xl rounded-xl border border-slate-700/50 p-6 cursor-pointer hover:border-slate-600/50 transition-colors" onClick={() => push({ type: 'regulations', data: { title: 'Metrics' } } as Omit<DrilldownLevel, "timestamp">)}>
-                    <h3 className="text-sm font-medium text-slate-400 uppercase tracking-wide mb-4">Metrics</h3>
-                    <QuickStat label="Audits Passed" value="12/12" trend="up" />
-                    <QuickStat label="Docs Current" value="156" />
-                    <QuickStat label="Expiring Soon" value="4" />
+                <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm p-8 cursor-pointer hover:border-blue-600 hover:shadow-lg transition-all duration-200" onClick={() => push({ type: 'regulations', data: { title: 'Metrics' } } as Omit<DrilldownLevel, "timestamp">)}>
+                    <h3 className="text-sm font-semibold text-slate-600 dark:text-slate-400 uppercase tracking-wide mb-6">Compliance Metrics</h3>
+                    <div className="space-y-1">
+                        <QuickStat label="Audits Passed" value="12/12" trend="up" />
+                        <QuickStat label="Docs Current" value="156" />
+                        <QuickStat label="Expiring Soon" value="4" />
+                    </div>
                 </div>
-                <div className="bg-gradient-to-br from-slate-800/60 to-slate-900/60 backdrop-blur-xl rounded-xl border border-slate-700/50 p-6 cursor-pointer hover:border-slate-600/50 transition-colors" onClick={() => push({ type: 'csa', data: { title: 'OSHA Status' } } as Omit<DrilldownLevel, "timestamp">)}>
-                    <h3 className="text-sm font-medium text-slate-400 uppercase tracking-wide mb-4">OSHA Status</h3>
-                    <ProgressRing progress={92} color="green" label="Score" />
+                <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm p-8 cursor-pointer hover:border-emerald-600 hover:shadow-lg transition-all duration-200" onClick={() => push({ type: 'csa', data: { title: 'OSHA Status' } } as Omit<DrilldownLevel, "timestamp">)}>
+                    <h3 className="text-sm font-semibold text-slate-600 dark:text-slate-400 uppercase tracking-wide mb-6">OSHA Status</h3>
+                    <div className="flex items-center justify-center">
+                        <ProgressRing progress={92} color="green" label="92%" sublabel="Safety Score" />
+                    </div>
                 </div>
             </div>
         </div>

@@ -31,19 +31,25 @@ function IncidentsContent() {
                 <StatCard title="Days Incident Free" value="47" variant="success" icon={<ShieldCheck className="w-6 h-6" />} onClick={() => push({ type: 'days-incident-free', data: { title: 'Safety Record' } } as Omit<DrilldownLevel, "timestamp">)} />
             </div>
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                <div className="bg-gradient-to-br from-slate-800/60 to-slate-900/60 backdrop-blur-xl rounded-xl border border-slate-700/50 p-6 cursor-pointer hover:border-slate-600/50 transition-colors" onClick={() => push({ type: 'safety-score-detail', data: { title: 'Safety Score' } } as Omit<DrilldownLevel, "timestamp">)}>
-                    <h3 className="text-sm font-medium text-slate-400 uppercase tracking-wide mb-4">Safety Score</h3>
-                    <ProgressRing progress={92} color="green" label="Score" sublabel="Fleet-wide" />
+                <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm p-8 cursor-pointer hover:border-emerald-600 hover:shadow-lg transition-all duration-200" onClick={() => push({ type: 'safety-score-detail', data: { title: 'Safety Score' } } as Omit<DrilldownLevel, "timestamp">)}>
+                    <h3 className="text-sm font-semibold text-slate-600 dark:text-slate-400 uppercase tracking-wide mb-6">Safety Score</h3>
+                    <div className="flex items-center justify-center">
+                        <ProgressRing progress={92} color="green" label="92%" sublabel="Fleet-wide" />
+                    </div>
                 </div>
-                <div className="bg-gradient-to-br from-slate-800/60 to-slate-900/60 backdrop-blur-xl rounded-xl border border-slate-700/50 p-6 cursor-pointer hover:border-slate-600/50 transition-colors" onClick={() => push({ type: 'incidents', data: { title: 'Safety Metrics' } } as Omit<DrilldownLevel, "timestamp">)}>
-                    <h3 className="text-sm font-medium text-slate-400 uppercase tracking-wide mb-4">Metrics</h3>
-                    <QuickStat label="Near Misses" value="8" trend="down" />
-                    <QuickStat label="Training Complete" value="96%" trend="up" />
-                    <QuickStat label="Violations" value="2" />
+                <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm p-8 cursor-pointer hover:border-blue-600 hover:shadow-lg transition-all duration-200" onClick={() => push({ type: 'incidents', data: { title: 'Safety Metrics' } } as Omit<DrilldownLevel, "timestamp">)}>
+                    <h3 className="text-sm font-semibold text-slate-600 dark:text-slate-400 uppercase tracking-wide mb-6">Safety Metrics</h3>
+                    <div className="space-y-1">
+                        <QuickStat label="Near Misses" value="8" trend="down" />
+                        <QuickStat label="Training Complete" value="96%" trend="up" />
+                        <QuickStat label="Violations" value="2" />
+                    </div>
                 </div>
-                <div className="bg-gradient-to-br from-slate-800/60 to-slate-900/60 backdrop-blur-xl rounded-xl border border-slate-700/50 p-6 cursor-pointer hover:border-slate-600/50 transition-colors" onClick={() => push({ type: 'incidents', data: { title: 'Response Time' } } as Omit<DrilldownLevel, "timestamp">)}>
-                    <h3 className="text-sm font-medium text-slate-400 uppercase tracking-wide mb-4">Response Time</h3>
-                    <ProgressRing progress={88} color="blue" label="4.2 min" sublabel="avg response" />
+                <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm p-8 cursor-pointer hover:border-blue-600 hover:shadow-lg transition-all duration-200" onClick={() => push({ type: 'incidents', data: { title: 'Response Time' } } as Omit<DrilldownLevel, "timestamp">)}>
+                    <h3 className="text-sm font-semibold text-slate-600 dark:text-slate-400 uppercase tracking-wide mb-6">Response Time</h3>
+                    <div className="flex items-center justify-center">
+                        <ProgressRing progress={88} color="blue" label="88%" sublabel="4.2 min avg" />
+                    </div>
                 </div>
             </div>
         </div>

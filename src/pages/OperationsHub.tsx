@@ -80,16 +80,16 @@ function DispatchContent() {
             {/* Secondary Row */}
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 {/* On-Time Rate */}
-                <div className="bg-gradient-to-br from-slate-800/60 to-slate-900/60 backdrop-blur-xl rounded-xl border border-slate-700/50 p-6 cursor-pointer hover:border-slate-600/50 transition-colors" onClick={() => push({ type: 'dispatch', data: { title: 'On-Time Performance' } } as Omit<DrilldownLevel, "timestamp">)}>
-                    <h3 className="text-sm font-medium text-slate-400 uppercase tracking-wide mb-4">On-Time Rate</h3>
+                <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm p-8 cursor-pointer hover:border-emerald-600 hover:shadow-lg transition-all duration-200" onClick={() => push({ type: 'dispatch', data: { title: 'On-Time Performance' } } as Omit<DrilldownLevel, "timestamp">)}>
+                    <h3 className="text-sm font-semibold text-slate-600 dark:text-slate-400 uppercase tracking-wide mb-6">On-Time Rate</h3>
                     <div className="flex items-center justify-center">
-                        <ProgressRing progress={94} color="green" label="Today" sublabel="vs 91% yesterday" />
+                        <ProgressRing progress={94} color="green" label="94%" sublabel="vs 91% yesterday" />
                     </div>
                 </div>
 
                 {/* Quick Stats */}
-                <div className="bg-gradient-to-br from-slate-800/60 to-slate-900/60 backdrop-blur-xl rounded-xl border border-slate-700/50 p-6 cursor-pointer hover:border-slate-600/50 transition-colors" onClick={() => push({ type: 'dispatch', data: { title: 'Metrics' } } as Omit<DrilldownLevel, "timestamp">)}>
-                    <h3 className="text-sm font-medium text-slate-400 uppercase tracking-wide mb-4">Today's Metrics</h3>
+                <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm p-8 cursor-pointer hover:border-blue-600 hover:shadow-lg transition-all duration-200" onClick={() => push({ type: 'dispatch', data: { title: 'Metrics' } } as Omit<DrilldownLevel, "timestamp">)}>
+                    <h3 className="text-sm font-semibold text-slate-600 dark:text-slate-400 uppercase tracking-wide mb-6">Today's Metrics</h3>
                     <div className="space-y-1">
                         <QuickStat label="Avg Delivery Time" value="42 min" trend="down" />
                         <QuickStat label="Jobs/Driver" value="8.2" trend="up" />
@@ -99,10 +99,10 @@ function DispatchContent() {
                 </div>
 
                 {/* Capacity */}
-                <div className="bg-gradient-to-br from-slate-800/60 to-slate-900/60 backdrop-blur-xl rounded-xl border border-slate-700/50 p-6 cursor-pointer hover:border-slate-600/50 transition-colors" onClick={() => push({ type: 'dispatch', data: { title: 'Driver Capacity' } } as Omit<DrilldownLevel, "timestamp">)}>
-                    <h3 className="text-sm font-medium text-slate-400 uppercase tracking-wide mb-4">Driver Capacity</h3>
+                <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm p-8 cursor-pointer hover:border-blue-600 hover:shadow-lg transition-all duration-200" onClick={() => push({ type: 'dispatch', data: { title: 'Driver Capacity' } } as Omit<DrilldownLevel, "timestamp">)}>
+                    <h3 className="text-sm font-semibold text-slate-600 dark:text-slate-400 uppercase tracking-wide mb-6">Driver Capacity</h3>
                     <div className="flex items-center justify-center">
-                        <ProgressRing progress={78} color="blue" label="Utilized" sublabel="17 drivers available" />
+                        <ProgressRing progress={78} color="blue" label="78%" sublabel="17 drivers available" />
                     </div>
                 </div>
             </div>
