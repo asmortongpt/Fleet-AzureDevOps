@@ -271,10 +271,10 @@ export class CustomReportService {
   }
 
   /**
-   * Create a new custom report
+   * Create a new custom report (JSONB-based with RLS)
    */
   async createReport(
-    tenantId: string,
+    organizationId: string,
     userId: string,
     reportData: Partial<CustomReport>
   ): Promise<CustomReport> {
@@ -283,27 +283,27 @@ export class CustomReportService {
     try {
       await client.query('BEGIN')
 
+      // Set RLS context
+      await client.query('SET LOCAL app.current_user_org_id = $1', [organizationId])
+      await client.query('SET LOCAL app.current_user_id = $2', [userId])
+
       const result = await client.query(
         `INSERT INTO custom_reports (
-          tenant_id, report_name, description, data_sources, filters,
-          columns, grouping, sorting, aggregations, joins,
-          created_by, is_public, is_template
-        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)
+          organization_id, created_by_user_id, title, description,
+          domain, category, definition, is_template, is_active, version
+        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
         RETURNING *`,
         [
-          tenantId,
-          reportData.report_name,
-          reportData.description || null,
-          reportData.data_sources || [],
-          JSON.stringify(reportData.filters || []),
-          JSON.stringify(reportData.columns || []),
-          JSON.stringify(reportData.grouping || []),
-          JSON.stringify(reportData.sorting || []),
-          JSON.stringify(reportData.aggregations || []),
-          JSON.stringify(reportData.joins || []),
+          organizationId,
           userId,
-          reportData.is_public || false,
-          reportData.is_template || false
+          reportData.title,
+          reportData.description || null,
+          reportData.domain || null,
+          reportData.category || null,
+          reportData.definition || {},
+          reportData.is_template || false,
+          reportData.is_active !== undefined ? reportData.is_active : true,
+          reportData.version || 1
         ]
       )
 
@@ -320,11 +320,11 @@ export class CustomReportService {
   }
 
   /**
-   * Update a custom report
+   * Update a custom report (JSONB-based with RLS)
    */
   async updateReport(
     reportId: string,
-    tenantId: string,
+    organizationId: string,
     userId: string,
     reportData: Partial<CustomReport>
   ): Promise<CustomReport> {
@@ -333,42 +333,40 @@ export class CustomReportService {
     try {
       await client.query('BEGIN')
 
+      // Set RLS context
+      await client.query('SET LOCAL app.current_user_org_id = $1', [organizationId])
+      await client.query('SET LOCAL app.current_user_id = $2', [userId])
+
       const result = await client.query(
         `UPDATE custom_reports SET
-          report_name = COALESCE($1, report_name),
+          title = COALESCE($1, title),
           description = COALESCE($2, description),
-          data_sources = COALESCE($3, data_sources),
-          filters = COALESCE($4, filters),
-          columns = COALESCE($5, columns),
-          grouping = COALESCE($6, grouping),
-          sorting = COALESCE($7, sorting),
-          aggregations = COALESCE($8, aggregations),
-          joins = COALESCE($9, joins),
-          updated_by = $10,
-          is_public = COALESCE($11, is_public)
-        WHERE id = $12 AND tenant_id = $13
+          domain = COALESCE($3, domain),
+          category = COALESCE($4, category),
+          definition = COALESCE($5, definition),
+          is_template = COALESCE($6, is_template),
+          is_active = COALESCE($7, is_active),
+          version = version + 1,
+          updated_at = NOW()
+        WHERE id = $8 AND organization_id = $9
         RETURNING *`,
         [
-          reportData.report_name,
+          reportData.title,
           reportData.description,
-          reportData.data_sources,
-          reportData.filters ? JSON.stringify(reportData.filters) : null,
-          reportData.columns ? JSON.stringify(reportData.columns) : null,
-          reportData.grouping ? JSON.stringify(reportData.grouping) : null,
-          reportData.sorting ? JSON.stringify(reportData.sorting) : null,
-          reportData.aggregations ? JSON.stringify(reportData.aggregations) : null,
-          reportData.joins ? JSON.stringify(reportData.joins) : null,
-          userId,
-          reportData.is_public,
+          reportData.domain,
+          reportData.category,
+          reportData.definition,
+          reportData.is_template,
+          reportData.is_active,
           reportId,
-          tenantId
+          organizationId
         ]
       )
 
       await client.query('COMMIT')
 
       if (result.rows.length === 0) {
-        throw new Error('Report not found')
+        throw new Error('Report not found or you do not have permission to update it')
       }
 
       return this.mapReportRow(result.rows[0])
@@ -382,59 +380,105 @@ export class CustomReportService {
   }
 
   /**
-   * Delete a custom report
+   * Delete a custom report (soft delete with RLS)
    */
-  async deleteReport(reportId: string, tenantId: string): Promise<void> {
-    await this.db.query(
-      'DELETE FROM custom_reports WHERE id = $1 AND tenant_id = $2',
-      [reportId, tenantId]
-    )
+  async deleteReport(reportId: string, organizationId: string, userId: string): Promise<void> {
+    const client = await this.db.connect()
+
+    try {
+      // Set RLS context
+      await client.query('SET LOCAL app.current_user_org_id = $1', [organizationId])
+      await client.query('SET LOCAL app.current_user_id = $2', [userId])
+
+      // Soft delete (set is_active = false)
+      const result = await client.query(
+        'UPDATE custom_reports SET is_active = false, updated_at = NOW() WHERE id = $1 AND organization_id = $2',
+        [reportId, organizationId]
+      )
+
+      if (result.rowCount === 0) {
+        throw new Error('Report not found or you do not have permission to delete it')
+      }
+    } finally {
+      client.release()
+    }
   }
 
   /**
-   * Get report by ID
+   * Get report by ID (JSONB-based with RLS)
    */
-  async getReportById(reportId: string, tenantId: string): Promise<CustomReport | null> {
-    const result = await this.db.query(
-      `SELECT 
-      id,
-      tenant_id,
-      report_name,
-      description,
-      data_sources,
-      filters,
-      columns,
-      grouping,
-      sorting,
-      aggregations,
-      joins,
-      created_by,
-      updated_by,
-      is_public,
-      is_template,
-      created_at,
-      updated_at FROM custom_reports WHERE id = $1 AND tenant_id = $2`,
-      [reportId, tenantId]
-    )
+  async getReportById(reportId: string, organizationId: string): Promise<CustomReport | null> {
+    const client = await this.db.connect()
 
-    return result.rows.length > 0 ? this.mapReportRow(result.rows[0]) : null
+    try {
+      // Set RLS context
+      await client.query('SET LOCAL app.current_user_org_id = $1', [organizationId])
+
+      const result = await client.query(
+        `SELECT
+        id,
+        organization_id,
+        created_by_user_id,
+        title,
+        description,
+        domain,
+        category,
+        definition,
+        is_template,
+        is_active,
+        version,
+        created_at,
+        updated_at
+        FROM custom_reports
+        WHERE id = $1 AND organization_id = $2 AND is_active = true`,
+        [reportId, organizationId]
+      )
+
+      return result.rows.length > 0 ? this.mapReportRow(result.rows[0]) : null
+    } finally {
+      client.release()
+    }
   }
 
   /**
-   * List user's reports
+   * List user's reports (JSONB-based with RLS)
    */
-  async listReports(tenantId: string, userId: string): Promise<CustomReport[]> {
-    const result = await this.db.query(
-      `SELECT id, tenant_id, report_name, report_type, query_config, created_at, updated_at FROM custom_reports
-       WHERE tenant_id = $1
-       AND (created_by = $2 OR is_public = true OR id IN (
-         SELECT report_id FROM report_shares WHERE shared_with_user_id = $2
-       ))
-       ORDER BY created_at DESC`,
-      [tenantId, userId]
-    )
+  async listReports(organizationId: string, userId: string): Promise<CustomReport[]> {
+    const client = await this.db.connect()
 
-    return result.rows.map(row => this.mapReportRow(row))
+    try {
+      // Set RLS context
+      await client.query('SET LOCAL app.current_user_org_id = $1', [organizationId])
+
+      // Query will automatically filter by organization via RLS policy
+      const result = await client.query(
+        `SELECT
+        id,
+        organization_id,
+        created_by_user_id,
+        title,
+        description,
+        domain,
+        category,
+        definition,
+        is_template,
+        is_active,
+        version,
+        created_at,
+        updated_at
+        FROM custom_reports
+        WHERE is_active = true
+        AND (created_by_user_id = $1 OR id IN (
+          SELECT report_id FROM report_shares WHERE shared_with_user_id = $1
+        ))
+        ORDER BY domain, category, title`,
+        [userId]
+      )
+
+      return result.rows.map(row => this.mapReportRow(row))
+    } finally {
+      client.release()
+    }
   }
 
   /**
@@ -864,24 +908,21 @@ export class CustomReportService {
   }
 
   /**
-   * Map database row to CustomReport object
+   * Map database row to CustomReport object (JSONB schema)
    */
   private mapReportRow(row: any): CustomReport {
     return {
       id: row.id,
-      tenant_id: row.tenant_id,
-      report_name: row.report_name,
+      organization_id: row.organization_id,
+      created_by_user_id: row.created_by_user_id,
+      title: row.title,
       description: row.description,
-      data_sources: row.data_sources,
-      filters: row.filters || [],
-      columns: row.columns || [],
-      grouping: row.grouping || [],
-      sorting: row.sorting || [],
-      aggregations: row.aggregations || [],
-      joins: row.joins || [],
-      created_by: row.created_by,
-      is_public: row.is_public,
+      domain: row.domain,
+      category: row.category,
+      definition: row.definition,
       is_template: row.is_template,
+      is_active: row.is_active,
+      version: row.version,
       created_at: row.created_at,
       updated_at: row.updated_at
     }
