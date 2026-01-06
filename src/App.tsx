@@ -349,7 +349,7 @@ function App() {
       case "custom-reports":
         return <CustomReportBuilder />
       case "analytics":
-        return <AnalyticsPage />
+        return <AnalyticsHubPage />
       case "maintenance-request":
         return <MaintenanceRequest data={fleetData} />
       case "safety-hub":

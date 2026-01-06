@@ -70,7 +70,7 @@ function DriversListContent() {
                     role="button"
                     tabIndex={0}
                 >
-                    <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-4">Certification Rate</h3>
+                    <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide mb-4">Certification Rate</h3>
                     <div className="flex items-center justify-center">
                         <ProgressRing progress={96} color="green" label="Certified" sublabel="46 of 48 current" />
                     </div>
@@ -82,7 +82,7 @@ function DriversListContent() {
                     role="button"
                     tabIndex={0}
                 >
-                    <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-4">Performance</h3>
+                    <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide mb-4">Performance</h3>
                     <div className="space-y-0.5">
                         <QuickStat label="Avg Rating" value="4.7/5" trend="up" />
                         <QuickStat label="On-Time %" value="94.2%" trend="up" />
@@ -97,7 +97,7 @@ function DriversListContent() {
                     role="button"
                     tabIndex={0}
                 >
-                    <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-4">Availability</h3>
+                    <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide mb-4">Availability</h3>
                     <div className="flex items-center justify-center">
                         <ProgressRing progress={88} color="blue" label="Available" sublabel="Today" />
                     </div>
