@@ -162,6 +162,8 @@ const LoadingSpinner = () => (
 
 import { useAuth } from "@/contexts/AuthContext"
 import { useNavigation } from "@/contexts/NavigationContext"
+import { useEffect } from 'react'
+import { initializePolicyEngine } from '@/lib/policy-engine/global-policy-integration'
 
 // ... existing imports
 
@@ -171,6 +173,23 @@ function App() {
   useState(() => telemetryService.initialize())
 
   const fleetData = useFleetData()
+
+  // Initialize Policy Enforcement Engine on app startup
+  useEffect(() => {
+    const initPolicies = async () => {
+      try {
+        console.log('🔒 Initializing Policy Enforcement Engine...')
+        await initializePolicyEngine()
+        console.log('✅ Policy Engine initialized - All operations now policy-governed')
+      } catch (error) {
+        console.error('❌ Failed to initialize Policy Engine:', error)
+        // Application will continue but without policy enforcement
+        // TODO: Show admin notification
+      }
+    }
+
+    initPolicies()
+  }, [])
 
   // ... useEffects
 
