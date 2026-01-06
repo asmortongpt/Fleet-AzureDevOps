@@ -7,6 +7,7 @@ import { Routes, Route } from 'react-router-dom';
 import { AnalyticsHub } from '@/components/hubs/analytics/AnalyticsHub';
 import { FleetHub } from '@/components/hubs/fleet/FleetHub';
 import { ReservationsHub } from '@/components/hubs/reservations/ReservationsHub';
+import { PolicyHub } from '@/pages/PolicyHub';
 
 export const AppRoutes: React.FC = () => {
   return (
@@ -15,6 +16,7 @@ export const AppRoutes: React.FC = () => {
       <Route path="/fleet" element={<FleetHub />} />
       <Route path="/analytics" element={<AnalyticsHub />} />
       <Route path="/reservations" element={<ReservationsHub />} />
+      <Route path="/policy-hub" element={<PolicyHub />} />
     </Routes>
   );
 };
@@ -37,7 +39,13 @@ export const navigationLinks = [
     name: 'Reservations',
     path: '/reservations',
     icon: 'Calendar',
-    description: 'Book vehicles and manage reservations',
+    description: 'Book vehicles and manage reservations'
+  },
+  {
+    name: 'Policy Hub',
+    path: '/policy-hub',
+    icon: 'BookOpen',
+    description: 'AI-powered policy, compliance, and governance management',
     new: true // Highlight as new feature
   }
 ];
