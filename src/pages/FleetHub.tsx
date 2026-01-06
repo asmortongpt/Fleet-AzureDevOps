@@ -402,6 +402,7 @@ function VideoPlayer({ camera }: { camera: CameraFeed }) {
 
 function VideoContent() {
     const { push } = useDrilldown()
+    const [expandedRow, setExpandedRow] = useState<string | null>(null)
 
     // Camera feeds - streamUrl can be set to real HLS/RTSP-to-HLS URL
     const cameras: CameraFeed[] = [
@@ -409,76 +410,201 @@ function VideoContent() {
         { id: 'CAM-002', location: 'Loading Bay A', status: 'recording', streamUrl: undefined },
         { id: 'CAM-003', location: 'Parking Lot', status: 'recording', streamUrl: undefined },
         { id: 'CAM-004', location: 'Service Bay', status: 'offline', streamUrl: undefined },
+        { id: 'CAM-005', location: 'Depot North', status: 'recording', streamUrl: undefined },
+        { id: 'CAM-006', location: 'Fleet Exit', status: 'recording', streamUrl: undefined },
     ]
 
     const recordingCameras = cameras.filter(c => c.status === 'recording').length
+    const totalEvents = 23
+    const storageUsedTB = 2.4
 
     return (
-        <div className="p-6 sm:p-8 space-y-8 bg-slate-50 dark:bg-slate-900 h-full overflow-hidden flex flex-col">
+        <div style={{
+            padding: 24,
+            background: 'var(--bg)',
+            minHeight: '100vh'
+        }}>
             {/* Header */}
-            <div className="flex items-center justify-between">
-                <div>
-                    <h2 className="text-3xl font-bold text-slate-900 dark:text-slate-100 mb-2">Video Telematics</h2>
-                    <p className="text-base text-slate-600 dark:text-slate-400">Live camera feeds from fleet vehicles</p>
+            <div style={{ marginBottom: 24 }}>
+                <h2 style={{
+                    fontSize: 28,
+                    fontWeight: 700,
+                    color: 'var(--text)',
+                    marginBottom: 8
+                }}>Video Telematics</h2>
+                <p style={{
+                    fontSize: 14,
+                    color: 'var(--muted)'
+                }}>Professional camera management with table-first navigation</p>
+            </div>
+
+            {/* Summary Stats Row */}
+            <div style={{
+                display: 'grid',
+                gridTemplateColumns: 'repeat(3, 1fr)',
+                gap: 16,
+                marginBottom: 24
+            }}>
+                <div style={{
+                    padding: 20,
+                    borderRadius: 16,
+                    border: '1px solid var(--border)',
+                    background: 'var(--panel)'
+                }}>
+                    <div style={{ fontSize: 12, color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '.12em', marginBottom: 8 }}>Active Cameras</div>
+                    <div style={{ fontSize: 32, fontWeight: 700, color: 'var(--good)' }}>{recordingCameras}</div>
+                    <div style={{ fontSize: 12, color: 'var(--muted)', marginTop: 4 }}>of {cameras.length} total</div>
                 </div>
-                <StatusDot status="online" label={`${recordingCameras} Recording`} />
+                <div style={{
+                    padding: 20,
+                    borderRadius: 16,
+                    border: '1px solid var(--border)',
+                    background: 'var(--panel)'
+                }}>
+                    <div style={{ fontSize: 12, color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '.12em', marginBottom: 8 }}>Events Today</div>
+                    <div style={{ fontSize: 32, fontWeight: 700, color: 'var(--warn)' }}>{totalEvents}</div>
+                    <div style={{ fontSize: 12, color: 'var(--muted)', marginTop: 4 }}>motion detected</div>
+                </div>
+                <div style={{
+                    padding: 20,
+                    borderRadius: 16,
+                    border: '1px solid var(--border)',
+                    background: 'var(--panel)'
+                }}>
+                    <div style={{ fontSize: 12, color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '.12em', marginBottom: 8 }}>Storage Used</div>
+                    <div style={{ fontSize: 32, fontWeight: 700, color: 'var(--text)' }}>{storageUsedTB} TB</div>
+                    <div style={{ fontSize: 12, color: 'var(--muted)', marginTop: 4 }}>video archive</div>
+                </div>
             </div>
 
-            {/* Stats - Clean White Cards */}
-            <div className="grid grid-cols-3 gap-6">
-                <StatCard
-                    title="Cameras"
-                    value="148"
-                    variant="success"
-                    icon={<Video className="w-5 h-5" />}
-                    onClick={() => push({
-                        id: 'cameras-online',
-                        type: 'cameras-online',
-                        label: 'Cameras Online',
-                        data: { filter: 'online' }
-                    })}
-                    drilldownLabel="View camera status"
-                />
-                <StatCard
-                    title="Events Today"
-                    value="23"
-                    variant="warning"
-                    onClick={() => push({
-                        id: 'video-events',
-                        type: 'video-events',
-                        label: 'Video Events Today',
-                        data: { filter: 'today' }
-                    })}
-                    drilldownLabel="View video events"
-                />
-                <StatCard
-                    title="Storage"
-                    value="2.4 TB"
-                    variant="default"
-                    onClick={() => push({
-                        id: 'video-storage',
-                        type: 'video-storage',
-                        label: 'Video Storage',
-                        data: { view: 'storage' }
-                    })}
-                    drilldownLabel="View storage details"
-                />
+            {/* Camera Table - Professional Design */}
+            <div style={{
+                border: '1px solid var(--border)',
+                borderRadius: 16,
+                background: 'var(--panel)',
+                overflow: 'hidden'
+            }}>
+                <table style={{
+                    width: '100%',
+                    borderCollapse: 'separate',
+                    borderSpacing: 0
+                }}>
+                    <thead>
+                        <tr style={{ background: 'rgba(255,255,255,0.02)' }}>
+                            <th style={{ padding: 16, fontSize: 12, color: 'var(--muted)', textAlign: 'left', textTransform: 'uppercase', letterSpacing: '.12em' }}>Camera ID</th>
+                            <th style={{ padding: 16, fontSize: 12, color: 'var(--muted)', textAlign: 'left', textTransform: 'uppercase', letterSpacing: '.12em' }}>Location</th>
+                            <th style={{ padding: 16, fontSize: 12, color: 'var(--muted)', textAlign: 'left', textTransform: 'uppercase', letterSpacing: '.12em' }}>Status</th>
+                            <th style={{ padding: 16, fontSize: 12, color: 'var(--muted)', textAlign: 'left', textTransform: 'uppercase', letterSpacing: '.12em' }}>Events (24h)</th>
+                            <th style={{ padding: 16, fontSize: 12, color: 'var(--muted)', textAlign: 'left', textTransform: 'uppercase', letterSpacing: '.12em' }}>Storage</th>
+                            <th style={{ padding: 16, fontSize: 12, color: 'var(--muted)', textAlign: 'left', textTransform: 'uppercase', letterSpacing: '.12em' }}></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {cameras.map((camera, idx) => (
+                            <React.Fragment key={camera.id}>
+                                <tr style={{
+                                    borderBottom: '1px solid rgba(255,255,255,0.06)',
+                                    cursor: 'pointer',
+                                    background: expandedRow === camera.id ? 'rgba(96,165,250,0.08)' : 'transparent',
+                                    transition: 'background 0.15s'
+                                }}
+                                    onClick={() => setExpandedRow(expandedRow === camera.id ? null : camera.id)}
+                                    onMouseEnter={(e) => e.currentTarget.style.background = expandedRow === camera.id ? 'rgba(96,165,250,0.08)' : 'rgba(255,255,255,0.03)'}
+                                    onMouseLeave={(e) => e.currentTarget.style.background = expandedRow === camera.id ? 'rgba(96,165,250,0.08)' : 'transparent'}
+                                >
+                                    <td style={{ padding: 16, fontSize: 14, fontWeight: 600, color: 'var(--text)' }}>{camera.id}</td>
+                                    <td style={{ padding: 16, fontSize: 14, color: 'var(--text)' }}>{camera.location}</td>
+                                    <td style={{ padding: 16 }}>
+                                        <StatusChip
+                                            status={camera.status === 'recording' ? 'good' : camera.status === 'buffering' ? 'warn' : 'bad'}
+                                            label={camera.status === 'recording' ? 'LIVE' : camera.status.toUpperCase()}
+                                        />
+                                    </td>
+                                    <td style={{ padding: 16, fontSize: 14, color: 'var(--text)' }}>{Math.floor(Math.random() * 15) + 2} events</td>
+                                    <td style={{ padding: 16, fontSize: 14, color: 'var(--muted)' }}>{(Math.random() * 0.5 + 0.1).toFixed(2)} TB</td>
+                                    <td style={{ padding: 16 }}>
+                                        <button
+                                            onClick={(e) => {
+                                                e.stopPropagation()
+                                                push({
+                                                    id: camera.id,
+                                                    type: 'camera-details',
+                                                    label: `${camera.location} Camera`,
+                                                    data: camera
+                                                })
+                                            }}
+                                            style={{
+                                                padding: '8px 12px',
+                                                borderRadius: 12,
+                                                border: '1px solid var(--border)',
+                                                background: 'rgba(96,165,250,0.15)',
+                                                color: 'var(--text)',
+                                                cursor: 'pointer',
+                                                fontSize: 12,
+                                                fontWeight: 600
+                                            }}
+                                        >
+                                            Details
+                                        </button>
+                                    </td>
+                                </tr>
+                                {expandedRow === camera.id && (
+                                    <tr>
+                                        <td colSpan={6} style={{ padding: 16, background: 'rgba(0,0,0,0.12)' }}>
+                                            <div style={{
+                                                padding: 12,
+                                                borderRadius: 16,
+                                                border: '1px solid rgba(255,255,255,0.08)',
+                                                background: 'rgba(0,0,0,0.18)'
+                                            }}>
+                                                <div style={{ display: 'grid', gridTemplateColumns: '1.2fr .8fr', gap: 12 }}>
+                                                    {/* Live Feed Panel */}
+                                                    <div style={{ border: '1px solid rgba(255,255,255,0.08)', borderRadius: 16, padding: 12, background: 'rgba(255,255,255,0.03)' }}>
+                                                        <div style={{ fontSize: 12, color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '.12em', marginBottom: 8 }}>Live Feed</div>
+                                                        <div style={{ aspectRatio: '16/9', borderRadius: 12, overflow: 'hidden', background: 'black' }}>
+                                                            <VideoPlayer camera={camera} />
+                                                        </div>
+                                                    </div>
+
+                                                    {/* Recent Events Panel */}
+                                                    <div style={{ border: '1px solid rgba(255,255,255,0.08)', borderRadius: 16, padding: 12, background: 'rgba(255,255,255,0.03)' }}>
+                                                        <div style={{ fontSize: 12, color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '.12em', marginBottom: 8 }}>Recent Events</div>
+                                                        <table style={{ width: '100%', borderCollapse: 'separate', borderSpacing: 0, border: '1px solid rgba(255,255,255,0.06)', borderRadius: 14, overflow: 'hidden' }}>
+                                                            <thead>
+                                                                <tr>
+                                                                    <th style={{ padding: 10, fontSize: 12, color: 'var(--muted)', textAlign: 'left', background: 'rgba(255,255,255,0.02)' }}>Event</th>
+                                                                    <th style={{ padding: 10, fontSize: 12, color: 'var(--muted)', textAlign: 'left', background: 'rgba(255,255,255,0.02)' }}>Time</th>
+                                                                </tr>
+                                                            </thead>
+                                                            <tbody>
+                                                                <tr>
+                                                                    <td style={{ padding: 10, fontSize: 12, borderBottom: '1px solid rgba(255,255,255,0.06)' }}>Motion detected</td>
+                                                                    <td style={{ padding: 10, fontSize: 12, color: 'var(--muted)', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>2h ago</td>
+                                                                </tr>
+                                                                <tr>
+                                                                    <td style={{ padding: 10, fontSize: 12, borderBottom: '1px solid rgba(255,255,255,0.06)' }}>Vehicle entry</td>
+                                                                    <td style={{ padding: 10, fontSize: 12, color: 'var(--muted)', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>4h ago</td>
+                                                                </tr>
+                                                                <tr>
+                                                                    <td style={{ padding: 10, fontSize: 12 }}>Anomaly flagged</td>
+                                                                    <td style={{ padding: 10, fontSize: 12, color: 'var(--muted)' }}>7h ago</td>
+                                                                </tr>
+                                                            </tbody>
+                                                        </table>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                )}
+                            </React.Fragment>
+                        ))}
+                    </tbody>
+                </table>
             </div>
 
-            {/* Camera Grid - Clean Professional Cards */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 flex-1">
-                {cameras.map(camera => (
-                    <div key={camera.id} className="bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 overflow-hidden cursor-pointer hover:border-blue-600 hover:shadow-lg transition-all duration-200 shadow-sm">
-                        <VideoPlayer camera={camera} />
-                        <div className="p-4 border-t border-slate-200 dark:border-slate-700">
-                            <p className="text-base font-semibold text-slate-900 dark:text-slate-100">{camera.location}</p>
-                        </div>
-                    </div>
-                ))}
-            </div>
-
-            <p className="text-sm text-slate-600 dark:text-slate-400 text-center font-medium">
-                Configure camera stream URLs in the Video Management settings
+            <p style={{ marginTop: 16, fontSize: 12, color: 'var(--muted)', textAlign: 'center' }}>
+                Click rows to view live feed • Click "Details" for camera analytics
             </p>
         </div>
     )
