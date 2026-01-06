@@ -1,5 +1,5 @@
-import React, { useState, useMemo, useCallback } from 'react';
-import { Search, Filter, ChevronDown, Download, Star, Clock, TrendingUp, BarChart3, Gauge } from 'lucide-react';
+import React, { useState, useMemo, useCallback, useEffect } from 'react';
+import { Search, Filter, ChevronDown, Download, Star, Clock, TrendingUp, BarChart3, Gauge, Plus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { ReportCard } from '@/components/reports/ReportCard';
@@ -7,7 +7,6 @@ import { ReportViewer } from '@/components/reports/ReportViewer';
 import { AIReportBuilder } from '@/components/reports/AIReportBuilder';
 import { AIChatbot } from '@/components/reports/AIChatbot';
 import reportLibrary from '@/reporting_library/index.json';
-import dashboardIndex from '@/reporting_library/dashboards/index.json';
 
 // Domain metadata for organization and styling
 const DOMAIN_METADATA: Record<string, { label: string; icon: string; color: string; description: string }> = {
@@ -78,8 +77,15 @@ interface Report {
   title: string;
   domain: string;
   file?: string;
-  category?: string; // Added for dashboard categorization
+  category?: string;
   description?: string;
+  organization_id?: string; // For custom reports
+  created_by_user_id?: string;
+  definition?: any; // JSONB definition for custom reports
+  is_template?: boolean;
+  version?: number;
+  created_at?: Date;
+  updated_at?: Date;
 }
 
 export default function ReportsHub() {
@@ -87,38 +93,51 @@ export default function ReportsHub() {
   const [selectedDomain, setSelectedDomain] = useState<string>('all');
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [viewMode, setViewMode] = useState<'gallery' | 'viewer' | 'builder'>('gallery');
-  const [viewTab, setViewTab] = useState<'library' | 'dashboards'>('library'); // New tab state
+  const [viewTab, setViewTab] = useState<'core' | 'custom'>('core');
   const [selectedReport, setSelectedReport] = useState<Report | null>(null);
   const [showFilters, setShowFilters] = useState(false);
   const [sortBy, setSortBy] = useState<'name' | 'domain' | 'recent'>('domain');
+  const [customReports, setCustomReports] = useState<Report[]>([]);
+  const [customReportsLoading, setCustomReportsLoading] = useState(false);
+  const [customReportsError, setCustomReportsError] = useState<string | null>(null);
 
-  // Combine library reports and dashboard reports into a single array (135 total)
-  const allReports = useMemo(() => {
-    const libraryReports = (reportLibrary.reports as Report[]).map(r => ({ ...r, source: 'library' }));
-
-    // Load all dashboard reports from the index
-    const dashboardReports: Report[] = [];
-    dashboardIndex.categories.forEach(cat => {
-      cat.reports.forEach(reportId => {
-        dashboardReports.push({
-          id: reportId,
-          title: reportId.replace(/-/g, ' ').replace(/cot (main|driver|safety|ev|bio) \d+/i, '').trim() || reportId,
-          domain: reportId.includes('main') ? 'exec' : reportId.includes('driver') ? 'workorders' : reportId.includes('safety') ? 'safety' : reportId.includes('ev') ? 'ev' : 'bio',
-          category: cat.id,
-          file: `dashboards/${reportId}.json`,
-          source: 'dashboard'
-        });
-      });
-    });
-
-    return [...libraryReports, ...dashboardReports];
+  // Core reports: 100 universal library reports
+  const coreReports = useMemo(() => {
+    return (reportLibrary.reports as Report[]).map(r => ({ ...r, source: 'core' }));
   }, []);
+
+  // Fetch custom reports when custom tab is selected
+  useEffect(() => {
+    if (viewTab === 'custom') {
+      const fetchCustomReports = async () => {
+        setCustomReportsLoading(true);
+        setCustomReportsError(null);
+        try {
+          // TODO: Replace with actual API call once authentication is implemented
+          // const response = await fetch('/api/custom-reports', {
+          //   headers: { 'Authorization': `Bearer ${userToken}` }
+          // });
+          // const data = await response.json();
+          // setCustomReports(data.reports || []);
+
+          // For now, set empty array until API is wired up
+          setCustomReports([]);
+        } catch (error) {
+          console.error('Failed to fetch custom reports:', error);
+          setCustomReportsError('Failed to load custom reports');
+          setCustomReports([]);
+        } finally {
+          setCustomReportsLoading(false);
+        }
+      };
+
+      fetchCustomReports();
+    }
+  }, [viewTab]);
 
   // Filter and sort reports based on current tab
   const filteredReports = useMemo(() => {
-    let reports = viewTab === 'library'
-      ? allReports.filter((r: any) => r.source === 'library')
-      : allReports.filter((r: any) => r.source === 'dashboard');
+    let reports = viewTab === 'core' ? coreReports : customReports;
 
     // Filter by search term
     if (searchTerm) {
@@ -136,8 +155,8 @@ export default function ReportsHub() {
       reports = reports.filter((report) => report.domain === selectedDomain);
     }
 
-    // Filter by category (for dashboard reports)
-    if (viewTab === 'dashboards' && selectedCategory !== 'all') {
+    // Filter by category (for custom reports)
+    if (viewTab === 'custom' && selectedCategory !== 'all') {
       reports = reports.filter((report) => report.category === selectedCategory);
     }
 
@@ -157,7 +176,7 @@ export default function ReportsHub() {
     });
 
     return reports;
-  }, [searchTerm, selectedDomain, selectedCategory, sortBy, viewTab, allReports]);
+  }, [searchTerm, selectedDomain, selectedCategory, sortBy, viewTab, coreReports, customReports]);
 
   // Group reports by domain
   const reportsByDomain = useMemo(() => {
@@ -191,27 +210,36 @@ export default function ReportsHub() {
         <div className="max-w-7xl mx-auto">
           <h1 className="text-4xl font-bold mb-3">Reports Hub</h1>
           <p className="text-lg opacity-90 mb-6">
-            {allReports.length} total reports ({reportLibrary.count} library + {dashboardIndex.count} dashboards) across {Object.keys(DOMAIN_METADATA).length} domains
+            {viewTab === 'core' ? reportLibrary.count : customReports.length} {viewTab === 'core' ? 'universal' : 'custom'} reports across {Object.keys(DOMAIN_METADATA).length} domains
           </p>
 
           {/* Tab Navigation */}
-          <div className="flex gap-2 mb-6">
+          <div className="flex gap-2 mb-6 items-center">
             <Button
-              variant={viewTab === 'library' ? 'default' : 'outline'}
-              onClick={() => setViewTab('library')}
-              className={viewTab === 'library' ? 'bg-white text-indigo-600 hover:bg-white/90' : 'bg-white/10 text-white border-white/20 hover:bg-white/20'}
+              variant={viewTab === 'core' ? 'default' : 'outline'}
+              onClick={() => setViewTab('core')}
+              className={viewTab === 'core' ? 'bg-white text-indigo-600 hover:bg-white/90' : 'bg-white/10 text-white border-white/20 hover:bg-white/20'}
             >
               <BarChart3 className="h-4 w-4 mr-2" />
-              Report Library ({reportLibrary.count})
+              Core Reports ({reportLibrary.count})
             </Button>
             <Button
-              variant={viewTab === 'dashboards' ? 'default' : 'outline'}
-              onClick={() => setViewTab('dashboards')}
-              className={viewTab === 'dashboards' ? 'bg-white text-indigo-600 hover:bg-white/90' : 'bg-white/10 text-white border-white/20 hover:bg-white/20'}
+              variant={viewTab === 'custom' ? 'default' : 'outline'}
+              onClick={() => setViewTab('custom')}
+              className={viewTab === 'custom' ? 'bg-white text-indigo-600 hover:bg-white/90' : 'bg-white/10 text-white border-white/20 hover:bg-white/20'}
             >
               <Gauge className="h-4 w-4 mr-2" />
-              Dashboards ({dashboardIndex.count})
+              Custom Reports ({customReports.length})
             </Button>
+            {viewTab === 'custom' && (
+              <Button
+                onClick={() => setViewMode('builder')}
+                className="bg-green-500 text-white hover:bg-green-600 ml-auto"
+              >
+                <Plus className="h-4 w-4 mr-2" />
+                Create Custom Report
+              </Button>
+            )}
           </div>
 
           {/* Search and filter bar */}
@@ -262,18 +290,18 @@ export default function ReportsHub() {
                     ))}
                   </select>
                 </div>
-                {viewTab === 'dashboards' && (
+                {viewTab === 'custom' && customReports.length > 0 && (
                   <div>
-                    <label className="block text-sm font-medium mb-2">Dashboard Category</label>
+                    <label className="block text-sm font-medium mb-2">Report Category</label>
                     <select
                       value={selectedCategory}
                       onChange={(e) => setSelectedCategory(e.target.value)}
                       className="w-full px-3 py-2 border border-gray-300 rounded-md"
                     >
                       <option value="all">All Categories</option>
-                      {dashboardIndex.categories.map((cat: any) => (
-                        <option key={cat.id} value={cat.id}>
-                          {cat.label}
+                      {Array.from(new Set(customReports.map(r => r.category).filter(Boolean))).map((cat) => (
+                        <option key={cat} value={cat}>
+                          {cat}
                         </option>
                       ))}
                     </select>
