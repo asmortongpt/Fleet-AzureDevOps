@@ -106,7 +106,7 @@ export function CommandCenterSidebar({ isSidebarOpen, setIsSidebarOpen, onNaviga
             <div className="space-y-1">
                 {isSidebarOpen && (
                     <div className={cn(
-                        "px-3 py-2 text-[10px] font-semibold uppercase tracking-wider",
+                        "px-3 py-2 text-xs font-semibold uppercase tracking-wider",
                         accentColor === "primary" ? "text-primary/70" : "text-muted-foreground/70"
                     )}>
                         {title}
