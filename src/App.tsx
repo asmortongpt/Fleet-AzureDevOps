@@ -144,6 +144,7 @@ const CommunicationHubPage = lazy(() => import("@/pages/CommunicationHub"))
 const FinancialHubPage = lazy(() => import("@/pages/FinancialHub"))
 const IntegrationsHubPage = lazy(() => import("@/pages/IntegrationsHub"))
 const PolicyHubPage = lazy(() => import("@/pages/PolicyHub"))
+const SafetyComplianceHubPage = lazy(() => import("@/pages/SafetyComplianceHub"))
 
 // PAGES
 const SettingsPage = lazy(() => import("@/pages/SettingsPage"))
@@ -414,6 +415,8 @@ function App() {
         return <IntegrationsHubPage />
       case "policy-hub":
         return <PolicyHubPage />
+      case "safety-compliance-hub":
+        return <SafetyComplianceHubPage />
 
       // SHORT URL HANDLERS - Fix routing mismatch (URLs use /financial but cases were -hub-consolidated)
       // Issue: Navigation generates /financial, /fleet, etc. but switch only handled -hub-consolidated
@@ -431,9 +434,10 @@ function App() {
       case "drivers":
         return <DriversHubPage />
       case "safety":
-        return <SafetyHubPage />
       case "compliance":
-        return <ComplianceHubPage />
+      case "safety-hub-consolidated":
+      case "compliance-hub-consolidated":
+        return <SafetyComplianceHubPage />
       case "analytics":
         return <AnalyticsHubPage />
       case "admin":
