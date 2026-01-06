@@ -603,6 +603,26 @@ async function fetchAssets(): Promise<GarageAsset[]> {
   }
 }
 
+// StatusChip component for semantic status
+const StatusChip: React.FC<{status: 'good'|'warn'|'bad'|'info'; label?: string}> = ({status, label}) => {
+  const colorMap = {
+    good: '#10b981',
+    warn: '#f59e0b',
+    bad: '#ef4444',
+    info: '#60a5fa'
+  }
+  return (
+    <span style={{
+      display:'inline-flex', alignItems:'center', gap:8,
+      padding:'6px 10px', borderRadius:999,
+      border:'1px solid rgba(255,255,255,0.08)', background:'rgba(255,255,255,0.03)',
+      color: colorMap[status], fontSize:12
+    }}>
+      ● {label ?? status.toUpperCase()}
+    </span>
+  )
+}
+
 // Main VirtualGarage component
 export function VirtualGarage() {
   const {
@@ -627,6 +647,7 @@ export function VirtualGarage() {
   } = useGarageFilters(assets);
 
   const [selectedAsset, setSelectedAsset] = useState<GarageAsset | null>(null);
+  const [expandedRows, setExpandedRows] = useState<Set<string>>(new Set());
 
   // Build list of categories, including 'ALL' to represent no filter
   const categories: string[] = ['ALL', ...Object.keys(categoryCounts)];
@@ -635,105 +656,369 @@ export function VirtualGarage() {
     setSelectedAsset(asset);
   };
 
+  const toggleRowExpand = (id: string) => {
+    setExpandedRows(prev => {
+      const next = new Set(prev);
+      if (next.has(id)) {
+        next.delete(id);
+      } else {
+        next.add(id);
+      }
+      return next;
+    });
+  };
+
+  // Calculate vehicle status based on various factors
+  const getVehicleStatus = (asset: GarageAsset): 'good'|'warn'|'bad' => {
+    if (!asset.odometer) return 'info' as any;
+    if (asset.odometer > 100000) return 'warn';
+    if (asset.odometer > 150000) return 'bad';
+    return 'good';
+  };
+
   return (
-    <div className="flex h-[calc(100vh-4rem)]">
-      {/* Sidebar with search, category select, asset list */}
-      <div className="w-72 border-r border-slate-800 h-full flex flex-col bg-slate-900">
-        <div className="p-4 border-b border-slate-800">
-          <h2 className="text-lg font-bold text-white mb-3 flex items-center gap-2">
-            <Car className="w-5 h-5" />
-            Virtual Garage
-          </h2>
-          <Input
-            placeholder="Search vehicles..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            disabled={isLoading || !!error}
-            className="bg-slate-800 border-slate-700"
-          />
-        </div>
-        <div className="px-4 py-2">
-          <Select
-            value={selectedCategory}
-            onValueChange={(value) => setSelectedCategory(value as AssetCategory | "ALL")}
-            disabled={isLoading || !!error}
+    <div style={{
+      padding: 24,
+      background: 'var(--bg, #0f172a)',
+      minHeight: '100vh'
+    }}>
+      {/* Header */}
+      <div style={{ marginBottom: 24 }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 8 }}>
+          <div>
+            <h2 style={{
+              fontSize: 28,
+              fontWeight: 700,
+              color: 'var(--text, #f1f5f9)',
+              marginBottom: 8
+            }}>Virtual Garage</h2>
+            <p style={{
+              fontSize: 14,
+              color: 'var(--muted, #94a3b8)'
+            }}>Professional 3D vehicle management with table-first navigation</p>
+          </div>
+          <button
+            onClick={() => refetch()}
+            disabled={isLoading}
+            style={{
+              padding: '10px 16px',
+              borderRadius: 12,
+              border: '1px solid rgba(255,255,255,0.08)',
+              background: 'rgba(96,165,250,0.15)',
+              color: 'var(--text, #f1f5f9)',
+              cursor: isLoading ? 'not-allowed' : 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              gap: 8
+            }}
           >
-            <SelectTrigger className="bg-slate-800 border-slate-700">
-              <SelectValue placeholder="Category" />
-            </SelectTrigger>
-            <SelectContent>
-              {categories.map((cat) => (
-                <SelectItem key={cat} value={cat}>
-                  {cat === 'ALL'
-                    ? `All Vehicles (${assets.length})`
-                    : `${cat.replace(/_/g, ' ')} (${categoryCounts[cat] ?? 0})`}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+            <Car className="w-4 h-4" />
+            Refresh
+          </button>
         </div>
-        <ScrollArea className="flex-1">
-          {isLoading && (
-            <div className="p-4 text-center text-slate-400">
-              <div className="w-8 h-8 border-2 border-slate-600 border-t-white rounded-full animate-spin mx-auto mb-2" />
-              <p className="text-sm">Loading vehicles...</p>
-            </div>
-          )}
-          {error && (
-            <div className="p-4 text-center text-red-400">
-              <Warning className="w-8 h-8 mx-auto mb-2" />
-              <p className="text-sm mb-2">Failed to load vehicles</p>
-              <Button variant="outline" size="sm" onClick={() => refetch()}>
-                Retry
-              </Button>
-            </div>
-          )}
-          {!isLoading && !error && (
-            <ul className="py-2">
-              {filteredAssets.map((asset: GarageAsset) => (
-                <li
-                  key={asset.id}
-                  className={`mx-2 mb-1 p-3 rounded-lg cursor-pointer transition-colors ${
-                    selectedAsset?.id === asset.id
-                      ? 'bg-blue-600 text-white'
-                      : 'bg-slate-800/50 hover:bg-slate-800 text-white'
-                  }`}
-                  onClick={() => handleSelectAsset(asset)}
-                >
-                  <div className="flex items-center gap-3">
-                    <div
-                      className="w-3 h-3 rounded-full flex-shrink-0"
-                      style={{ backgroundColor: asset.color || '#3B82F6' }}
-                    />
-                    <div className="flex-1 min-w-0">
-                      <p className="font-medium text-sm truncate">
+      </div>
+
+      {/* Summary Stats Row */}
+      <div style={{
+        display: 'grid',
+        gridTemplateColumns: 'repeat(4, 1fr)',
+        gap: 16,
+        marginBottom: 24
+      }}>
+        <div style={{
+          padding: 20,
+          borderRadius: 16,
+          border: '1px solid rgba(255,255,255,0.08)',
+          background: 'rgba(255,255,255,0.03)'
+        }}>
+          <div style={{ fontSize: 12, color: 'var(--muted, #94a3b8)', textTransform: 'uppercase', letterSpacing: '.12em', marginBottom: 8 }}>Total Vehicles</div>
+          <div style={{ fontSize: 32, fontWeight: 700, color: 'var(--text, #f1f5f9)' }}>{assets.length}</div>
+          <div style={{ fontSize: 12, color: 'var(--muted, #94a3b8)', marginTop: 4, display: 'flex', alignItems: 'center', gap: 4 }}>
+            <Car className="w-3 h-3" />
+            Active Fleet
+          </div>
+        </div>
+
+        <div style={{
+          padding: 20,
+          borderRadius: 16,
+          border: '1px solid rgba(255,255,255,0.08)',
+          background: 'rgba(255,255,255,0.03)'
+        }}>
+          <div style={{ fontSize: 12, color: 'var(--muted, #94a3b8)', textTransform: 'uppercase', letterSpacing: '.12em', marginBottom: 8 }}>Categories</div>
+          <div style={{ fontSize: 32, fontWeight: 700, color: 'var(--text, #f1f5f9)' }}>{Object.keys(categoryCounts).length}</div>
+          <div style={{ fontSize: 12, color: 'var(--muted, #94a3b8)', marginTop: 4 }}>
+            Vehicle Types
+          </div>
+        </div>
+
+        <div style={{
+          padding: 20,
+          borderRadius: 16,
+          border: '1px solid rgba(255,255,255,0.08)',
+          background: 'rgba(255,255,255,0.03)'
+        }}>
+          <div style={{ fontSize: 12, color: 'var(--muted, #94a3b8)', textTransform: 'uppercase', letterSpacing: '.12em', marginBottom: 8 }}>3D Models</div>
+          <div style={{ fontSize: 32, fontWeight: 700, color: 'var(--text, #f1f5f9)' }}>{assets.filter(a => a.damage_model_url).length}</div>
+          <div style={{ fontSize: 12, color: 'var(--muted, #94a3b8)', marginTop: 4 }}>
+            Available
+          </div>
+        </div>
+
+        <div style={{
+          padding: 20,
+          borderRadius: 16,
+          border: '1px solid rgba(255,255,255,0.08)',
+          background: 'rgba(255,255,255,0.03)'
+        }}>
+          <div style={{ fontSize: 12, color: 'var(--muted, #94a3b8)', textTransform: 'uppercase', letterSpacing: '.12em', marginBottom: 8 }}>Avg Mileage</div>
+          <div style={{ fontSize: 32, fontWeight: 700, color: 'var(--text, #f1f5f9)' }}>
+            {Math.round(assets.reduce((sum, a) => sum + (a.odometer || 0), 0) / assets.length || 0).toLocaleString()}
+          </div>
+          <div style={{ fontSize: 12, color: 'var(--muted, #94a3b8)', marginTop: 4 }}>
+            Miles
+          </div>
+        </div>
+      </div>
+
+      {/* Search and Filter Bar */}
+      <div style={{
+        display: 'flex',
+        gap: 12,
+        marginBottom: 16,
+        alignItems: 'center'
+      }}>
+        <Input
+          placeholder="Search vehicles..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          disabled={isLoading || !!error}
+          className="bg-slate-800 border-slate-700"
+          style={{ maxWidth: 320 }}
+        />
+        <Select
+          value={selectedCategory}
+          onValueChange={(value) => setSelectedCategory(value as AssetCategory | "ALL")}
+          disabled={isLoading || !!error}
+        >
+          <SelectTrigger className="bg-slate-800 border-slate-700" style={{ width: 240 }}>
+            <SelectValue placeholder="Category" />
+          </SelectTrigger>
+          <SelectContent>
+            {categories.map((cat) => (
+              <SelectItem key={cat} value={cat}>
+                {cat === 'ALL'
+                  ? `All Vehicles (${assets.length})`
+                  : `${cat.replace(/_/g, ' ')} (${categoryCounts[cat] ?? 0})`}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+        <div style={{ fontSize: 12, color: 'var(--muted, #94a3b8)', marginLeft: 'auto' }}>
+          {filteredAssets.length} of {assets.length} vehicles
+        </div>
+      </div>
+
+      {/* Vehicle Table - Professional Design */}
+      {isLoading ? (
+        <div style={{ padding: 40, textAlign: 'center', color: 'var(--muted, #94a3b8)' }}>
+          <div style={{ width: 48, height: 48, border: '4px solid rgba(255,255,255,0.1)', borderTop: '4px solid #60a5fa', borderRadius: '50%', animation: 'spin 1s linear infinite', margin: '0 auto 12px' }} />
+          <p>Loading vehicles...</p>
+        </div>
+      ) : error ? (
+        <div style={{ padding: 40, textAlign: 'center', color: '#ef4444' }}>
+          <Warning className="w-12 h-12" style={{ margin: '0 auto 12px' }} />
+          <p style={{ marginBottom: 12 }}>Failed to load vehicles</p>
+          <Button variant="outline" size="sm" onClick={() => refetch()}>
+            Retry
+          </Button>
+        </div>
+      ) : (
+        <div style={{
+          border: '1px solid rgba(255,255,255,0.08)',
+          borderRadius: 16,
+          background: 'rgba(255,255,255,0.03)',
+          overflow: 'hidden'
+        }}>
+          <table style={{
+            width: '100%',
+            borderCollapse: 'separate',
+            borderSpacing: 0
+          }}>
+            <thead>
+              <tr style={{ background: 'rgba(255,255,255,0.02)' }}>
+                <th style={{ padding: 16, fontSize: 12, color: 'var(--muted, #94a3b8)', textAlign: 'left', textTransform: 'uppercase', letterSpacing: '.12em', width: 40 }}></th>
+                <th style={{ padding: 16, fontSize: 12, color: 'var(--muted, #94a3b8)', textAlign: 'left', textTransform: 'uppercase', letterSpacing: '.12em' }}>Vehicle</th>
+                <th style={{ padding: 16, fontSize: 12, color: 'var(--muted, #94a3b8)', textAlign: 'left', textTransform: 'uppercase', letterSpacing: '.12em' }}>Category</th>
+                <th style={{ padding: 16, fontSize: 12, color: 'var(--muted, #94a3b8)', textAlign: 'left', textTransform: 'uppercase', letterSpacing: '.12em' }}>Status</th>
+                <th style={{ padding: 16, fontSize: 12, color: 'var(--muted, #94a3b8)', textAlign: 'left', textTransform: 'uppercase', letterSpacing: '.12em' }}>Mileage</th>
+                <th style={{ padding: 16, fontSize: 12, color: 'var(--muted, #94a3b8)', textAlign: 'left', textTransform: 'uppercase', letterSpacing: '.12em' }}>3D Model</th>
+                <th style={{ padding: 16, fontSize: 12, color: 'var(--muted, #94a3b8)', textAlign: 'left', textTransform: 'uppercase', letterSpacing: '.12em' }}></th>
+              </tr>
+            </thead>
+            <tbody>
+              {filteredAssets.map((asset, idx) => (
+                <React.Fragment key={asset.id}>
+                  <tr
+                    style={{
+                      cursor: 'pointer',
+                      borderBottom: idx < filteredAssets.length - 1 || expandedRows.has(asset.id) ? '1px solid rgba(255,255,255,0.06)' : 'none',
+                      background: selectedAsset?.id === asset.id ? 'rgba(96,165,250,0.10)' : 'transparent'
+                    }}
+                    onClick={() => toggleRowExpand(asset.id)}
+                    onMouseEnter={(e) => {
+                      if (selectedAsset?.id !== asset.id) {
+                        e.currentTarget.style.background = 'rgba(255,255,255,0.05)';
+                      }
+                    }}
+                    onMouseLeave={(e) => {
+                      if (selectedAsset?.id !== asset.id) {
+                        e.currentTarget.style.background = 'transparent';
+                      }
+                    }}
+                  >
+                    <td style={{ padding: 16, fontSize: 14 }}>
+                      <div
+                        className="w-4 h-4 rounded-full"
+                        style={{ backgroundColor: asset.color || '#3B82F6' }}
+                      />
+                    </td>
+                    <td style={{ padding: 16, fontSize: 14 }}>
+                      <div style={{ fontWeight: 600, color: 'var(--text, #f1f5f9)' }}>
                         {asset.asset_name || `${asset.year} ${asset.make} ${asset.model}`}
-                      </p>
-                      <p className={`text-xs ${selectedAsset?.id === asset.id ? 'text-white/70' : 'text-slate-400'}`}>
-                        {asset.asset_tag || asset.license_plate || ''}
-                      </p>
-                    </div>
-                  </div>
-                </li>
+                      </div>
+                      <div style={{ fontSize: 12, color: 'var(--muted, #94a3b8)', marginTop: 2 }}>
+                        {asset.asset_tag || asset.license_plate || `${asset.make} ${asset.model}`}
+                      </div>
+                    </td>
+                    <td style={{ padding: 16, fontSize: 14, color: 'var(--text, #f1f5f9)' }}>
+                      {asset.asset_category?.replace(/_/g, ' ') || 'N/A'}
+                    </td>
+                    <td style={{ padding: 16, fontSize: 14 }}>
+                      <StatusChip status={getVehicleStatus(asset)} />
+                    </td>
+                    <td style={{ padding: 16, fontSize: 14, color: 'var(--text, #f1f5f9)' }}>
+                      {asset.odometer ? `${asset.odometer.toLocaleString()} mi` : 'N/A'}
+                    </td>
+                    <td style={{ padding: 16, fontSize: 14 }}>
+                      {asset.damage_model_url ? (
+                        <StatusChip status="good" label="AVAILABLE" />
+                      ) : (
+                        <StatusChip status="bad" label="MISSING" />
+                      )}
+                    </td>
+                    <td style={{ padding: 16, fontSize: 14 }}>
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleSelectAsset(asset);
+                        }}
+                        style={{
+                          padding: '8px 12px',
+                          borderRadius: 12,
+                          border: '1px solid var(--border)',
+                          background: 'rgba(96,165,250,0.15)',
+                          color: 'var(--text)',
+                          cursor: 'pointer',
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: 6
+                        }}
+                      >
+                        <Eye className="w-4 h-4" />
+                        View 3D
+                      </button>
+                    </td>
+                  </tr>
+                  {expandedRows.has(asset.id) && (
+                    <tr>
+                      <td colSpan={7} style={{ padding: 0, borderBottom: idx < filteredAssets.length - 1 ? '1px solid rgba(255,255,255,0.06)' : 'none' }}>
+                        <div style={{
+                          padding: 16,
+                          background: 'rgba(0,0,0,0.18)',
+                          borderTop: '1px solid rgba(255,255,255,0.08)'
+                        }}>
+                          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 16 }}>
+                            <div>
+                              <div style={{ fontSize: 12, color: 'var(--muted, #94a3b8)', marginBottom: 4 }}>Make & Model</div>
+                              <div style={{ fontSize: 14, color: 'var(--text, #f1f5f9)' }}>{asset.make} {asset.model} ({asset.year})</div>
+                            </div>
+                            <div>
+                              <div style={{ fontSize: 12, color: 'var(--muted, #94a3b8)', marginBottom: 4 }}>VIN</div>
+                              <div style={{ fontSize: 14, color: 'var(--text, #f1f5f9)' }}>{asset.vin || 'N/A'}</div>
+                            </div>
+                            <div>
+                              <div style={{ fontSize: 12, color: 'var(--muted, #94a3b8)', marginBottom: 4 }}>Engine Hours</div>
+                              <div style={{ fontSize: 14, color: 'var(--text, #f1f5f9)' }}>{asset.engine_hours ? `${asset.engine_hours.toLocaleString()} hrs` : 'N/A'}</div>
+                            </div>
+                          </div>
+                        </div>
+                      </td>
+                    </tr>
+                  )}
+                </React.Fragment>
               ))}
               {filteredAssets.length === 0 && (
-                <li className="p-4 text-center text-slate-500 text-sm">
-                  No vehicles found
-                </li>
+                <tr>
+                  <td colSpan={7} style={{ padding: 40, textAlign: 'center', color: 'var(--muted, #94a3b8)' }}>
+                    <Car className="w-12 h-12" style={{ margin: '0 auto 12px', opacity: 0.5 }} />
+                    <p>No vehicles found</p>
+                  </td>
+                </tr>
               )}
-            </ul>
-          )}
-        </ScrollArea>
-        <div className="p-3 border-t border-slate-800 bg-slate-900/50">
-          <p className="text-xs text-slate-500 text-center">
-            {filteredAssets.length} of {assets.length} vehicles
-          </p>
+            </tbody>
+          </table>
         </div>
-      </div>
-      {/* Main viewer panel */}
-      <div className="flex-1">
-        <AssetDisplay asset={selectedAsset} />
-      </div>
+      )}
+
+      {/* 3D Viewer Modal */}
+      {selectedAsset && (
+        <div style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          background: 'rgba(0,0,0,0.85)',
+          zIndex: 9999,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          padding: 24
+        }}>
+          <div style={{
+            width: '100%',
+            maxWidth: 1600,
+            height: '90vh',
+            background: 'var(--bg, #0f172a)',
+            borderRadius: 16,
+            border: '1px solid rgba(255,255,255,0.1)',
+            overflow: 'hidden',
+            position: 'relative'
+          }}>
+            <button
+              onClick={() => setSelectedAsset(null)}
+              style={{
+                position: 'absolute',
+                top: 16,
+                right: 16,
+                zIndex: 10000,
+                padding: '8px 12px',
+                borderRadius: 12,
+                border: '1px solid rgba(255,255,255,0.2)',
+                background: 'rgba(0,0,0,0.5)',
+                color: 'white',
+                cursor: 'pointer',
+                fontSize: 18,
+                fontWeight: 700
+              }}
+            >
+              ✕
+            </button>
+            <AssetDisplay asset={selectedAsset} />
+          </div>
+        </div>
+      )}
     </div>
   );
 }
