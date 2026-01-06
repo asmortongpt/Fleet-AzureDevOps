@@ -89,6 +89,14 @@ export const navigationItems: NavigationItem[] = [
     category: "Analytics",
     roles: ['Admin', 'FleetAdmin', 'Manager', 'FleetManager', 'Finance', 'Analyst', 'Auditor']
   },
+  {
+    id: "reports-hub",
+    label: "Reports Hub",
+    icon: <ChartLine className="w-5 h-5" />,
+    section: "hubs",
+    category: "Analytics",
+    roles: ['Admin', 'FleetAdmin', 'Manager', 'FleetManager', 'Finance', 'Analyst', 'Auditor']
+  },
 
   // ==================== COMPLIANCE & SAFETY ====================
   {
