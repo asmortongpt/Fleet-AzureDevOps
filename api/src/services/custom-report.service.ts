@@ -60,6 +60,23 @@ interface ReportConfig {
 
 interface CustomReport {
   id: string
+  organization_id: string
+  created_by_user_id: string
+  title: string
+  description?: string
+  domain?: string
+  category?: string
+  definition: any // JSONB report definition
+  is_template: boolean
+  is_active: boolean
+  version: number
+  created_at: Date
+  updated_at: Date
+}
+
+// Legacy interface for backward compatibility with old query builder
+interface LegacyCustomReport {
+  id: string
   tenant_id: string
   report_name: string
   description?: string
